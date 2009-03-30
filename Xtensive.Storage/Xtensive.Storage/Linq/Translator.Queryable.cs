@@ -365,12 +365,12 @@ namespace Xtensive.Storage.Linq
           columnList.Add(result.Mapping.Segment.Offset);
         }
         else {
-          using (context.Bind(argument.Parameters[0], result))
+          using (context.Bindings.Add(argument.Parameters[0], result))
           using (new ParameterScope()) {
             resultMapping.Value = new ResultMapping();
             Visit(argument);
             columnList = resultMapping.Value.GetColumns().ToList();
-            result = context.GetBound(argument.Parameters[0]);
+            result = context.Bindings[argument.Parameters[0]];
           }
         }
 
@@ -405,13 +405,13 @@ namespace Xtensive.Storage.Linq
       List<int> columnList;
       var newResultMapping = new ResultMapping();
       LambdaExpression originalCompiledKeyExpression;
-      using (context.Bind(keySelector.Parameters[0], result))
+      using (context.Bindings.Add(keySelector.Parameters[0], result))
       using (new ParameterScope()) {
         resultMapping.Value = new ResultMapping();
         originalCompiledKeyExpression = (LambdaExpression)Visit(keySelector);
         columnList = resultMapping.Value.GetColumns().ToList();
         
-        result = context.GetBound(keySelector.Parameters[0]);
+        result = context.Bindings[keySelector.Parameters[0]];
 
         if (!resultMapping.Value.MapsToPrimitive) {
           var keyMapping = new ResultMapping();
@@ -487,7 +487,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitOrderBy(Expression expression, LambdaExpression le, Direction direction)
     {
-      using (context.Bind(le.Parameters[0], (ResultExpression) Visit(expression)))
+      using (context.Bindings.Add(le.Parameters[0], (ResultExpression) Visit(expression)))
       using (new ParameterScope()) {
         resultMapping.Value = new ResultMapping();
         calculateExpressions.Value = true;
@@ -495,7 +495,7 @@ namespace Xtensive.Storage.Linq
         var orderItems = resultMapping.Value.GetColumns()
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
         var dc = new DirectionCollection<int>(orderItems);
-        var result = context.GetBound(le.Parameters[0]);
+        var result = context.Bindings[le.Parameters[0]];
         var rs = result.RecordSet.OrderBy(dc);
         return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
       }
@@ -503,14 +503,14 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitThenBy(Expression expression, LambdaExpression le, Direction direction)
     {
-      using (context.Bind(le.Parameters[0], (ResultExpression) Visit(expression)))
+      using (context.Bindings.Add(le.Parameters[0], (ResultExpression) Visit(expression)))
       using (new ParameterScope()) {
         resultMapping.Value = new ResultMapping();
         calculateExpressions.Value = true;
         Visit(le);
         var orderItems = resultMapping.Value.GetColumns()
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
-        var result = context.GetBound(le.Parameters[0]);
+        var result = context.Bindings[le.Parameters[0]];
         var dc = ((SortProvider) result.RecordSet.Provider).Order;
         foreach (var item in orderItems) {
           if (!dc.ContainsKey(item.Key))
@@ -524,8 +524,8 @@ namespace Xtensive.Storage.Linq
     {
       var outerParameter = outerKey.Parameters[0];
       var innerParameter = innerKey.Parameters[0];
-      using (context.Bind(outerParameter, (ResultExpression) Visit(outerSource)))
-      using (context.Bind(innerParameter, (ResultExpression) Visit(innerSource))) {
+      using (context.Bindings.Add(outerParameter, (ResultExpression) Visit(outerSource)))
+      using (context.Bindings.Add(innerParameter, (ResultExpression) Visit(innerSource))) {
         var outerMapping = new ResultMapping();
         var innerMapping = new ResultMapping();
         using (new ParameterScope()) {
@@ -536,8 +536,8 @@ namespace Xtensive.Storage.Linq
         }
         var keyPairs = outerMapping.GetColumns().ZipWith(innerMapping.GetColumns(), (o, i) => new Pair<int>(o, i)).ToArray();
 
-        var outer = context.GetBound(outerParameter);
-        var inner = context.GetBound(innerParameter);
+        var outer = context.Bindings[outerParameter];
+        var inner = context.Bindings[innerParameter];
         var recordSet = outer.RecordSet.Join(inner.RecordSet.Alias(context.GetNextAlias()), keyPairs);
         return CombineResultExpressions(outer, inner, recordSet, resultSelector);
       }
@@ -563,8 +563,8 @@ namespace Xtensive.Storage.Linq
       var innerItemProjector = (LambdaExpression)tupleAccessProcessor.ReplaceMappings(inner.ItemProjector, tupleMapping, groupMapping, recordSet.Header);
       inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.ShiftOffset(outerLength), innerProjector, innerItemProjector);
 
-      using (context.Bind(resultSelector.Parameters[0], outer))
-      using (context.Bind(resultSelector.Parameters[1], inner)) {
+      using (context.Bindings.Add(resultSelector.Parameters[0], outer))
+      using (context.Bindings.Add(resultSelector.Parameters[1], inner)) {
         return BuildProjection(resultSelector);
       }
     }
@@ -576,9 +576,9 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
     {
-      using (context.Bind(collectionSelector.Parameters[0], (ResultExpression) Visit(source))) {
+      using (context.Bindings.Add(collectionSelector.Parameters[0], (ResultExpression) Visit(source))) {
         var parameter = collectionSelector.Parameters[0];
-        var outerResult = context.GetBound(parameter);
+        var outerResult = context.Bindings[parameter];
         bool isOuter = false;
         if (collectionSelector.Body.NodeType==ExpressionType.Call) {
           var call = (MethodCallExpression) collectionSelector.Body;
@@ -606,7 +606,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitSelect(Expression expression, LambdaExpression le)
     {
-      using (context.Bind(le.Parameters[0], (ResultExpression) Visit(expression))) {
+      using (context.Bindings.Add(le.Parameters[0], (ResultExpression) Visit(expression))) {
         return BuildProjection(le);
       }
     }
@@ -619,7 +619,7 @@ namespace Xtensive.Storage.Linq
         calculateExpressions.Value = true;
         var itemProjector = (LambdaExpression) Visit(le);
         var projector = (Expression<Func<RecordSet, object>>)BuildProjector(itemProjector, true);
-        var source = context.GetBound(le.Parameters[0]);
+        var source = context.Bindings[le.Parameters[0]];
         return new ResultExpression(
           typeof (IQueryable<>).MakeGenericType(le.Body.Type),
           source.RecordSet,
@@ -654,11 +654,11 @@ namespace Xtensive.Storage.Linq
     private Expression VisitWhere(Expression expression, LambdaExpression le)
     {
       var parameter = le.Parameters[0];
-      using (context.Bind(parameter, (ResultExpression) Visit(expression)))
+      using (context.Bindings.Add(parameter, (ResultExpression) Visit(expression)))
       using (new ParameterScope()) {
         resultMapping.Value = new ResultMapping();
         var predicate = Visit(le);
-        var source = context.GetBound(parameter);
+        var source = context.Bindings[parameter];
         var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>) predicate);
         return new ResultExpression(
           expression.Type,
@@ -703,7 +703,7 @@ namespace Xtensive.Storage.Linq
       var lambdaParameter = context.SubqueryParameterBindings.CurrentParameter;
       var applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
       context.SubqueryParameterBindings.InvalidateParameter(lambdaParameter);
-      var oldResult = context.GetBound(lambdaParameter);
+      var oldResult = context.Bindings[lambdaParameter];
       var columnName = context.GetNextColumnAlias();
       int columnIndex = oldResult.RecordSet.Header.Length;
       var newMapping = new ResultMapping();
@@ -713,7 +713,7 @@ namespace Xtensive.Storage.Linq
         .Apply(applyParameter, subquery.RecordSet.Existence(columnName), ApplyType.Cross);
       var newResult = new ResultExpression(
         oldResult.Type, newRecordSet, newMapping, oldResult.Projector, oldResult.ItemProjector);
-      context.ReplaceBound(lambdaParameter, newResult);
+      context.Bindings.ReplaceBound(lambdaParameter, newResult);
       Expression filter = MakeTupleAccess(lambdaParameter, typeof (bool), Expression.Constant(columnIndex));
       if (notExists)
         filter = Expression.Not(filter);

@@ -18,6 +18,7 @@ using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Index
 {
@@ -26,9 +27,14 @@ namespace Xtensive.Storage.Providers.Index
     private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes = new Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>>();
     private readonly Dictionary<Pair<IndexInfo,TypeInfo>, MapTransform> indexTransforms = new Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform>();
 
-    protected override ICompiler BuildCompiler()
+    protected override ICompiler BuildCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
     {
-      return new IndexCompiler(Handlers);
+      return new IndexCompiler(Handlers, compiledSources);
+    }
+
+    protected override IOptimizer BuildOptimizer()
+    {
+      return new EmptyOptimizer();
     }
 
     /// <inheritdoc/>

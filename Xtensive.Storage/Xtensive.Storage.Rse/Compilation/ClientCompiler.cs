@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -44,8 +45,8 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ClientCompiler()
-      : base(RseCompiler.DefaultClientLocation)
+    public ClientCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
+      : base(RseCompiler.DefaultClientLocation, compiledSources)
     {}
   }
 }

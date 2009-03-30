@@ -84,10 +84,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
             int columnIndex = tupleAccess.Arguments[0].NodeType == ExpressionType.Constant
               ? (int)((int)((ConstantExpression)tupleAccess.Arguments[0]).Value)
               : Expression.Lambda<Func<int>>(tupleAccess.Arguments[0]).Compile().Invoke();
-            var provider = CompilationContext.Current.BindingContext.GetBound(parameter);
+            var provider = Compiler.CompiledSources[parameter];
             if (!Compiler.IsCompatible(provider)) {
               provider = Compiler.ToCompatible(provider);
-              CompilationContext.Current.BindingContext.ReplaceBound(parameter, provider);
+              Compiler.CompiledSources.ReplaceBound(parameter, provider);
             }
             var sqlProvider = (SqlProvider)provider;
             return sqlProvider.PermanentReference[columnIndex];

@@ -1,43 +1,37 @@
 using System;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Parameters;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
   /// <summary>
-  /// Abstract base class for RSE <see cref="Provider"/> compilers.
-  /// Compiles <see cref="CompilableProvider"/>s int <see cref="ExecutableProvider"/>.
+  /// Abstract base class for RSE <see cref="Provider"/> compilers that implements visitor pattern.
+  /// Compiles <see cref="CompilableProvider"/>s into <see cref="ExecutableProvider"/>.
   /// </summary>
-  public abstract class Compiler : ICompiler
+  public abstract class Compiler : CompilerBase
   {
-    /// <summary>
-    /// Gets the method that returns compiled <see cref="ExecutableProvider"/> by its <see cref="CompilableProvider"/>.
-    /// </summary>
-    protected static Func<object, ExecutableProvider> GetBound {
-      get {
-        return CompilationContext.Current.BindingContext.GetBound;
-      }
-    }
+    private readonly UrlInfo location;
 
     /// <summary>
     /// Gets execution site location.
     /// </summary>
-    public virtual UrlInfo Location { get; private set; }
+    public override UrlInfo Location
+    {
+      get { return location; }
 
-    /// <inheritdoc/>
-    public abstract bool IsCompatible(ExecutableProvider provider);
-
-    /// <inheritdoc/>
-    public abstract ExecutableProvider ToCompatible(ExecutableProvider provider);
+    }
 
 
     /// <summary>
     /// Compiles the specified <see cref="CompilableProvider"/>.
     /// </summary>
     /// <param name="cp">The provider to compile.</param>
-    public virtual ExecutableProvider Compile (CompilableProvider cp)
+    public override ExecutableProvider Compile (CompilableProvider cp)
     {
       if (cp == null)
         return null;
@@ -256,11 +250,14 @@ namespace Xtensive.Storage.Rse.Compilation
     // Constructor
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected Compiler(UrlInfo location)
+    /// <param name="location">Location.</param>
+    /// <param name="compiledSources">Bindings collection instance. Shared across all compilers.</param>
+    protected Compiler(UrlInfo location, BindingCollection<object, ExecutableProvider> compiledSources)
+      : base(compiledSources)
     {
-      Location = location;
+      this.location = location;
     }
   }
 }

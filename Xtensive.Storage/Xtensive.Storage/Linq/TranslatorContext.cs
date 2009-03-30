@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Parameters;
 using Xtensive.Storage.Model;
@@ -13,7 +14,7 @@ using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Linq
 {
-  internal sealed class TranslatorContext : BindingContext<ResultExpression>
+  internal sealed class TranslatorContext
   {
     private readonly Expression query;
     private readonly DomainModel model;
@@ -22,6 +23,7 @@ namespace Xtensive.Storage.Linq
     private readonly ParameterExtractor parameterExtractor;
     private readonly AliasGenerator resultAliasGenerator;
     private readonly AliasGenerator columnAliasGenerator;
+    private readonly BindingCollection<ParameterExpression, ResultExpression> bindings;
     private readonly SubqueryParameterBindings subqueryParameterBindings;
 
     public Expression Query
@@ -64,6 +66,11 @@ namespace Xtensive.Storage.Linq
       return columnAliasGenerator.Next();
     }
 
+    public BindingCollection<ParameterExpression, ResultExpression> Bindings
+    {
+      get { return bindings; }
+    }
+
     public SubqueryParameterBindings SubqueryParameterBindings
     {
       get { return subqueryParameterBindings; }
@@ -83,6 +90,7 @@ namespace Xtensive.Storage.Linq
       translator = new Translator(this);
       evaluator = new ExpressionEvaluator(this.query);
       parameterExtractor = new ParameterExtractor(evaluator);
+      bindings = new BindingCollection<ParameterExpression, ResultExpression>();
       subqueryParameterBindings = new SubqueryParameterBindings();
     }
   }

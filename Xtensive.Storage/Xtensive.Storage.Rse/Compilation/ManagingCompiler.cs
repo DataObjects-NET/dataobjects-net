@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
@@ -18,38 +19,42 @@ using System.Linq;
 namespace Xtensive.Storage.Rse.Compilation
 {
   [Serializable]
-  public sealed class ManagingCompiler : ICompiler
+  public sealed class ManagingCompiler : CompilerBase
   {
     private readonly Dictionary<UrlInfo, ICompiler> compilersMap;
-    private Func<object, ExecutableProvider, Disposable> Bind { 
-      get {
-        return CompilationContext.Current.BindingContext.Bind;
-      }
-    }
 
-    private Func<object, ExecutableProvider> GetBound {
-      get {
-        return CompilationContext.Current.BindingContext.GetBound;
-      }
-    }
+//    private Func<object, ExecutableProvider, Disposable> Bind { 
+//      get {
+//        return CompilationContext.Current.Bindings.Bind;
+//      }
+//    }
+//
+//    private Func<object, ExecutableProvider> GetBound {
+//      get {
+//        return CompilationContext.Current.Bindings.GetBound;
+//      }
+//    }
 
     /// <inheritdoc/>
-    public UrlInfo Location
+    public override UrlInfo Location
     {
       get { throw new NotSupportedException(); }
     }
 
-    bool ICompiler.IsCompatible(ExecutableProvider provider)
+    /// <inheritdoc/>
+    public override bool IsCompatible(ExecutableProvider provider)
     {
       throw new NotSupportedException();
     }
 
-    ExecutableProvider ICompiler.ToCompatible(ExecutableProvider provider)
+    /// <inheritdoc/>
+    public override ExecutableProvider ToCompatible(ExecutableProvider provider)
     {
       throw new NotSupportedException();
     }
 
-    public ExecutableProvider Compile(CompilableProvider cp)
+    /// <inheritdoc/>
+    public override ExecutableProvider Compile(CompilableProvider cp)
     {
       if (cp == null)
         return null;
@@ -91,7 +96,7 @@ namespace Xtensive.Storage.Rse.Compilation
         ? compilersMap[right.Location]
         : compilersMap[left.Location];
 
-      using (Bind(binary.Left, left) & Bind(binary.Right, right))
+      using (CompiledSources.Add(binary.Left, left) & CompiledSources.Add(binary.Right, right))
         return compiler.Compile(binary);
     }
 
@@ -99,7 +104,7 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       var source = Compile(unaryProvider.Source);
       var compiler = compilersMap[source.Location];
-      using (Bind(unaryProvider.Source, source))
+      using (CompiledSources.Add(unaryProvider.Source, source))
         return compiler.Compile(unaryProvider);
     }
 
@@ -111,11 +116,11 @@ namespace Xtensive.Storage.Rse.Compilation
     private ExecutableProvider CompileApply(ApplyProvider provider)
     {
       var left = Compile(provider.Left);
-      using (Bind(provider.LeftItemParameter, left)) {
+      using (CompiledSources.Add(provider.LeftItemParameter, left)) {
         var right = Compile(provider.Right);
-        left = GetBound(provider.LeftItemParameter);
+        left = CompiledSources[provider.LeftItemParameter];
         var compiler = compilersMap[right.Location];
-        using (Bind(provider.Left, left) & Bind(provider.Right, right))
+        using (CompiledSources.Add(provider.Left, left) & CompiledSources.Add(provider.Right, right))
           return compiler.Compile(provider);
       }
     }
@@ -125,14 +130,15 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ManagingCompiler(params ICompiler[] compilers)
-      : this((IEnumerable<ICompiler>)compilers)
+    public ManagingCompiler(BindingCollection<object, ExecutableProvider> compiledSources, params ICompiler[] compilers)
+      : this(compiledSources, (IEnumerable<ICompiler>)compilers)
     {}
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ManagingCompiler(IEnumerable<ICompiler> compilers)
+    public ManagingCompiler(BindingCollection<object, ExecutableProvider> compiledSources, IEnumerable<ICompiler> compilers)
+      : base(compiledSources)
     {
       compilersMap = compilers.ToDictionary(ic => ic.Location);
       var firstServerCompiler = compilers.Where(ic => ic.Location != RseCompiler.DefaultClientLocation).FirstOrDefault();

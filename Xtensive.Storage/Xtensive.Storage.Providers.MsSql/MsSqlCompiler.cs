@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
@@ -53,7 +54,7 @@ namespace Xtensive.Storage.Providers.MsSql
     {
       const string rowNumber = "RowNumber";
 
-      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      var compiledSource = CompiledSources[provider.Source] as SqlProvider;
       if (compiledSource == null)
         return null;
 
@@ -72,7 +73,7 @@ namespace Xtensive.Storage.Providers.MsSql
 
     protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
     {
-      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      var compiledSource = CompiledSources[provider.Source] as SqlProvider;
       if (compiledSource == null)
         return null;
 
@@ -123,8 +124,8 @@ namespace Xtensive.Storage.Providers.MsSql
         return result;
       bool isOuter = provider.ApplyType==ApplyType.Outer;
 
-      var left = GetBound(provider.Left) as SqlProvider;
-      var right = GetBound(provider.Right) as SqlProvider;
+      var left = CompiledSources[provider.Left] as SqlProvider;
+      var right = CompiledSources[provider.Right] as SqlProvider;
 
       if (left == null || right == null)
         return null;
@@ -218,8 +219,8 @@ namespace Xtensive.Storage.Providers.MsSql
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public MsSqlCompiler(HandlerAccessor handlers)
-      : base(handlers)
+    public MsSqlCompiler(HandlerAccessor handlers, BindingCollection<object, ExecutableProvider> compiledSources)
+      : base(handlers, compiledSources)
     {
     }
   }

@@ -5,6 +5,7 @@
 // Created:    2008.07.15
 
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse.Compilation
@@ -14,6 +15,11 @@ namespace Xtensive.Storage.Rse.Compilation
   /// </summary>
   public interface ICompiler
   {
+    /// <summary>
+    /// Gets the bindings collection.
+    /// </summary>
+    BindingCollection<object, ExecutableProvider> CompiledSources { get; }
+
     /// <summary>
     /// Compiles the specified provider.
     /// </summary>

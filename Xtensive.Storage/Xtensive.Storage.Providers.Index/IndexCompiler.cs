@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
@@ -96,8 +97,8 @@ namespace Xtensive.Storage.Providers.Index
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public IndexCompiler(HandlerAccessor handlers)
-      : base(handlers.Domain.Configuration.ConnectionInfo)
+    public IndexCompiler(HandlerAccessor handlers, BindingCollection<object,ExecutableProvider> compiledSources)
+      : base(handlers.Domain.Configuration.ConnectionInfo, compiledSources)
     {
       Handlers = handlers;
     }

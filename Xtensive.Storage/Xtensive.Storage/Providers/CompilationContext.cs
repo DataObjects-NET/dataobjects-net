@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.30
 
+using System;
 using Xtensive.Core.Collections;
 using Xtensive.Storage.Rse.Compilation;
 
@@ -22,17 +23,15 @@ namespace Xtensive.Storage.Providers
 
 
     // Constructors
-    
-//    /// <inheritdoc/>
-//    public CompilationContext(ICompiler compiler)
-//      : base(compiler)
-//    {
-//    }
 
     /// <inheritdoc/>
-    public CompilationContext(ICompiler compiler)
-      : base(compiler)
-    {
-    }
+    public CompilationContext(Func<ICompiler> compilerProvider)
+      : base(compilerProvider)
+    {}
+
+    /// <inheritdoc/>
+    public CompilationContext(Func<ICompiler> compilerProvider, Func<IOptimizer> optimizerProvider)
+      : base(compilerProvider, optimizerProvider)
+    {}
   }
 }

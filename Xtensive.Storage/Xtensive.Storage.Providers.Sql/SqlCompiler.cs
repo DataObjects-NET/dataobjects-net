@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Indexing;
 using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Providers.Sql.Resources;
@@ -52,7 +53,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitAggregate(AggregateProvider provider)
     {
-      var compiledSource = GetBound(provider.Source);
+      var compiledSource = CompiledSources[provider.Source];
       var source = compiledSource as SqlProvider;
       if (source == null)
         return null;
@@ -99,7 +100,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitAlias(AliasProvider provider)
     {
-      var compiledSource = GetBound(provider.Source);
+      var compiledSource = CompiledSources[provider.Source];
       var source = compiledSource as SqlProvider;
       if (source == null)
         return null;
@@ -116,7 +117,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitCalculate(CalculateProvider provider)
     {
-      var compiledSource = GetBound(provider.Source);
+      var compiledSource = CompiledSources[provider.Source];
       var source = compiledSource as SqlProvider;
       if (source == null)
         return null;
@@ -139,7 +140,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitDistinct(DistinctProvider provider)
     {
-      var compiledSource = GetBound(provider.Source);
+      var compiledSource = CompiledSources[provider.Source];
       var source = compiledSource as SqlProvider;
       if (source == null)
         return null;
@@ -157,7 +158,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitFilter(FilterProvider provider)
     {
-      var compiledSource = GetBound(provider.Source);
+      var compiledSource = CompiledSources[provider.Source];
       var source = compiledSource as SqlProvider;
       if (source == null)
         return null;
@@ -214,8 +215,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitJoin(JoinProvider provider)
     {
-      var left = GetBound(provider.Left) as SqlProvider;
-      var right = GetBound(provider.Right) as SqlProvider;
+      var left = CompiledSources[provider.Left] as SqlProvider;
+      var right = CompiledSources[provider.Right] as SqlProvider;
 
       if (left == null || right == null)
         return null;
@@ -241,8 +242,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
-      var left = GetBound(provider.Left) as SqlProvider;
-      var right = GetBound(provider.Right) as SqlProvider;
+      var left = CompiledSources[provider.Left] as SqlProvider;
+      var right = CompiledSources[provider.Right] as SqlProvider;
 
       if (left == null || right == null)
         return null;
@@ -269,7 +270,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitRange(RangeProvider provider)
     {
-      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      var compiledSource = CompiledSources[provider.Source] as SqlProvider;
       if (compiledSource == null)
         return null;
 
@@ -355,7 +356,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitSeek(SeekProvider provider)
     {
-      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      var compiledSource = CompiledSources[provider.Source] as SqlProvider;
       if (compiledSource == null)
         return null;
 
@@ -385,7 +386,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitSelect(SelectProvider provider)
     {
-      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      var compiledSource = CompiledSources[provider.Source] as SqlProvider;
       if (compiledSource == null)
         return null;
 
@@ -414,7 +415,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitSkip(SkipProvider provider)
     {
-      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      var compiledSource = CompiledSources[provider.Source] as SqlProvider;
       if (compiledSource == null)
         return null;
 
@@ -429,7 +430,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitSort(SortProvider provider)
     {
-      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      var compiledSource = CompiledSources[provider.Source] as SqlProvider;
       if (compiledSource == null)
         return null;
 
@@ -455,7 +456,7 @@ namespace Xtensive.Storage.Providers.Sql
       Table table;
       string tableName = string.Format(TABLE_NAME_PATTERN, provider.Name);
       if (provider.Source != null) {
-        ex = provider.Source as ExecutableProvider ?? GetBound(provider.Source);
+        ex = provider.Source as ExecutableProvider ?? CompiledSources[provider.Source];
         table = provider.Scope == TemporaryDataScope.Global ? schema.CreateTable(tableName)
           : schema.CreateTemporaryTable(tableName);
 
@@ -489,7 +490,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitTake(TakeProvider provider)
     {
-      var compiledSource = GetBound(provider.Source) as SqlProvider;
+      var compiledSource = CompiledSources[provider.Source] as SqlProvider;
       if (compiledSource == null)
         return null;
 
@@ -504,8 +505,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitApply(ApplyProvider provider)
     {
-      var left = GetBound(provider.Left) as SqlProvider;
-      var right = GetBound(provider.Right) as SqlProvider;
+      var left = CompiledSources[provider.Left] as SqlProvider;
+      var right = CompiledSources[provider.Right] as SqlProvider;
 
       if (left == null || right == null)
         return null;
@@ -539,7 +540,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitExistence(ExistenceProvider provider)
     {
-      var source = GetBound(provider.Source) as SqlProvider;
+      var source = CompiledSources[provider.Source] as SqlProvider;
 
       if (source == null)
         return null;
@@ -553,7 +554,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     /// <summary>
     /// Preprocesses (transforms before actual compilation to SQL) specified <see cref="LambdaExpression"/>.
-    /// Can be overrided in derived classes for making custom preprocess logic.
+    /// Can be overridden in derived classes for making custom preprocess logic.
     /// </summary>
     /// <param name="lambda">Expression to preprocess.</param>
     /// <returns>Preprocessed expression.</returns>
@@ -563,7 +564,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <summary>
-    /// Postprocesses (transforms SqlDom trees) specified <see cref="SqlExpression"/>
+    /// Postprocesses (transforms <c>SqlDom</c> trees) specified <see cref="SqlExpression"/>
     /// </summary>
     /// <param name="expression">Expression to postprocess.</param>
     /// <param name="resultType">Result type of original lambda.</param>
@@ -709,8 +710,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public SqlCompiler(HandlerAccessor handlers)
-      : base(handlers.Domain.Configuration.ConnectionInfo)
+    public SqlCompiler(HandlerAccessor handlers, BindingCollection<object, ExecutableProvider> compiledSources)
+      : base(handlers.Domain.Configuration.ConnectionInfo, compiledSources)
     {
       Handlers = handlers;
     }

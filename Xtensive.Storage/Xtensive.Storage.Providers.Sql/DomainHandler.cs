@@ -20,6 +20,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.Providers;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 using SqlModel = Xtensive.Sql.Dom.Database.Model;
 
@@ -43,9 +44,16 @@ namespace Xtensive.Storage.Providers.Sql
 
     public SqlDriver SqlDriver { get; private set; }
 
-    protected override ICompiler BuildCompiler()
+    /// <inheritdoc/>
+    protected override ICompiler BuildCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
     {
-      return new SqlCompiler(Handlers);
+      return new SqlCompiler(Handlers, compiledSources);
+    }
+
+    /// <inheritdoc/>
+    protected override IOptimizer BuildOptimizer()
+    {
+      return new EmptyOptimizer();
     }
 
     /// <inheritdoc/>

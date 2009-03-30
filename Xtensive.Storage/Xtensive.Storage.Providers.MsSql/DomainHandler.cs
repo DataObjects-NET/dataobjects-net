@@ -4,18 +4,17 @@
 // Created by: Alexey Gamzov
 // Created:    2008.07.04
 
-using System;
-using Xtensive.Sql.Common;
-using Xtensive.Storage.Providers.MsSql.Resources;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
   public class DomainHandler : Sql.DomainHandler
   {
-    protected override ICompiler BuildCompiler()
+    protected override ICompiler BuildCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
     {
-      return new MsSqlCompiler(Handlers);
+      return new MsSqlCompiler(Handlers, compiledSources);
     }
   }
 }

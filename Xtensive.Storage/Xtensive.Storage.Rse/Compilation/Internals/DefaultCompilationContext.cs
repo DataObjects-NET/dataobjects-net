@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.09.01
 
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 
@@ -28,7 +29,10 @@ namespace Xtensive.Storage.Rse.Compilation
 
     /// <inheritdoc/>
     public DefaultCompilationContext()
-      : base(new ManagingCompiler(new ClientCompiler()))
+      : base(() => {
+        var compiledSource = new BindingCollection<object, ExecutableProvider>();
+        return new ManagingCompiler(compiledSource, new ClientCompiler(compiledSource));
+      })
     {
     }
   }

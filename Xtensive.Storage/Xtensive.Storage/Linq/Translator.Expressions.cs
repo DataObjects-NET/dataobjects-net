@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Linq
             var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>) calculator);
             calculatedColumns.Value.Add(ccd);
             var parameter = parameters.Value[0];
-            int position = context.GetBound(parameter).RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
+            int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
             // var method = genericAccessor.MakeGenericMethod(body.Type);
             body = MakeTupleAccess(parameter, body.Type, Expression.Constant(position));
             // Expression.Call(tuple.Value, method, Expression.Constant(position));
@@ -85,11 +85,11 @@ namespace Xtensive.Storage.Linq
           }
         }
         if (calculatedColumns.Value.Count > 0) {
-          var source = context.GetBound(le.Parameters[0]);
+          var source = context.Bindings[le.Parameters[0]];
           var recordSet = source.RecordSet;
           recordSet = recordSet.Calculate(calculatedColumns.Value.ToArray());
           var re = new ResultExpression(source.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
-          context.ReplaceBound(le.Parameters[0], re);
+          context.Bindings.ReplaceBound(le.Parameters[0], re);
         }
         result = recordIsUsed
           ? Expression.Lambda(
@@ -106,10 +106,10 @@ namespace Xtensive.Storage.Linq
     {
       var pe = path.Parameter;
       if (!parameters.Value.Contains(pe)) {
-        var referencedSource = context.GetBound(pe);
+        var referencedSource = context.Bindings[pe];
         return path.TranslateParameter(referencedSource.ItemProjector.Body);
       }
-      var source = context.GetBound(pe);
+      var source = context.Bindings[pe];
       var mapping = source.Mapping;
       int number = 0;
       foreach (var item in path) {
@@ -131,14 +131,14 @@ namespace Xtensive.Storage.Linq
             mapping.JoinedRelations.Add(name, joinedMapping);
 
             source = new ResultExpression(source.Type, rs, source.Mapping, source.Projector, source.ItemProjector);
-            context.ReplaceBound(pe, source);
+            context.Bindings.ReplaceBound(pe, source);
           }
           mapping = innerMapping;
         }
       }
 
       var resultType = e.Type;
-      source = context.GetBound(path.Parameter);
+      source = context.Bindings[path.Parameter];
       switch (path.PathType) {
         case MemberType.Primitive:
           return VisitMemberPathPrimitive(path, source, resultType);
@@ -201,7 +201,7 @@ namespace Xtensive.Storage.Linq
     {
       if (!parameters.Value.Contains(p))
         throw new InvalidOperationException("Lambda parameter is out of scope!");
-      var source = context.GetBound(p);
+      var source = context.Bindings[p];
       resultMapping.Value.Replace(source.Mapping);
       var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
       var result = parameterRewriter.Rewrite(source.ItemProjector.Body);
@@ -294,7 +294,7 @@ namespace Xtensive.Storage.Linq
             body = Visit(arg);
           }
           if (((ExtendedExpressionType) body.NodeType)==ExtendedExpressionType.Result) {
-            var outerParameters = context.GetKeys()
+            var outerParameters = context.Bindings.GetKeys()
               .OfType<ParameterExpression>()
               .ToList();
             if (outerParameters.Count==0)
@@ -302,7 +302,7 @@ namespace Xtensive.Storage.Linq
             else {
               var searchFor = outerParameters.ToArray();
               var replaceWithList = new List<Expression>();
-              foreach (var projection in outerParameters.Select(pe => context.GetBound(pe).ItemProjector)) {
+              foreach (var projection in outerParameters.Select(pe => context.Bindings[pe].ItemProjector)) {
                 recordIsUsed |= projection.Parameters.Count(pe => pe.Type==typeof (Record)) > 0;
                 var replacedParameters = projection.Parameters.ToArray();
                 var replacingParameters = projection.Parameters.Select(pe => pe.Type==typeof (Tuple) ? tuple.Value : record.Value).ToArray();
@@ -320,7 +320,7 @@ namespace Xtensive.Storage.Linq
             var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>) calculator);
             calculatedColumns.Value.Add(ccd);
             var parameter = parameters.Value[0];
-            int position = context.GetBound(parameter).RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
+            int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
             newArg = MakeTupleAccess(parameter, arg.Type, Expression.Constant(position));
             resultMapping.Value.RegisterFieldMapping(memberName, new Segment<int>(position, 1));
           }
@@ -388,7 +388,7 @@ namespace Xtensive.Storage.Linq
           : bRight;
         if (constant.Value==null) {
           var path = MemberPath.Parse(member, context.Model);
-          var source = context.GetBound(path.Parameter);
+          var source = context.Bindings[path.Parameter];
           var segment = source.GetMemberSegment(path);
           foreach (var i in segment.GetItems()) {
             Expression left = MakeTupleAccess(path.Parameter, null, Expression.Constant(i));
@@ -399,10 +399,10 @@ namespace Xtensive.Storage.Linq
         }
       }
       var leftPath = MemberPath.Parse(bLeft, context.Model);
-      var leftSource = context.GetBound(leftPath.Parameter);
+      var leftSource = context.Bindings[leftPath.Parameter];
       var leftSegment = leftSource.GetMemberSegment(leftPath);
       var rightPath = MemberPath.Parse(bRight, context.Model);
-      var rightSource = context.GetBound(rightPath.Parameter);
+      var rightSource = context.Bindings[rightPath.Parameter];
       var rightSegment = rightSource.GetMemberSegment(rightPath);
       foreach (var pair in leftSegment.GetItems().ZipWith(rightSegment.GetItems(), (l, r) => new {l, r})) {
         var type = leftSource.RecordSet.Header.TupleDescriptor[pair.l];
@@ -458,7 +458,7 @@ namespace Xtensive.Storage.Linq
       if (!parameters.Value.Contains(path.Parameter))
         throw new NotSupportedException();
 
-      var source = context.GetBound(path.Parameter);
+      var source = context.Bindings[path.Parameter];
       var segment = source.GetMemberSegment(path);
       Expression result = null;
       foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
@@ -501,7 +501,7 @@ namespace Xtensive.Storage.Linq
         if (!parameters.Value.Contains(path.Parameter))
           throw new NotSupportedException();
 
-        var source = context.GetBound(path.Parameter);
+        var source = context.Bindings[path.Parameter];
         var segment = source.GetMemberSegment(path);
 
         Expression result = null;

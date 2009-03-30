@@ -4,9 +4,11 @@
 // Created by: Dmitri Maximov
 // Created:    2008.05.19
 
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers
 {
@@ -26,24 +28,20 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public CompilationContext CompilationContext { get; private set; }
 
-    /// <summary>
-    /// Gets the client side RSE compiler.
-    /// </summary>
-    public ICompiler ClientSideCompiler { get; protected set; }
-
-    /// <summary>
-    /// Gets the server side RSE compiler.
-    /// </summary>
-    public ICompiler ServerSideCompiler { get; protected set; }
-   
 
     // Abstract methods
 
     /// <summary>
-    /// Builds the <see cref="ServerSideCompiler"/> value.
+    /// Builds the <see cref="ICompiler"/>.
     /// Invoked from <see cref="Initialize"/>.
     /// </summary>
-    protected abstract ICompiler BuildCompiler();
+    protected abstract ICompiler BuildCompiler(BindingCollection<object, ExecutableProvider> compiledSources);
+
+    /// <summary>
+    /// Builds the <see cref="IOptimizer"/>.
+    /// Invoked from <see cref="Initialize"/>.
+    /// </summary>
+    protected abstract IOptimizer BuildOptimizer();
 
     /// <summary>
     /// Builds the <see cref="Domain"/> in recreate mode.
@@ -104,11 +102,20 @@ namespace Xtensive.Storage.Providers
     public override void Initialize()
     {
       Domain = BuildingContext.Current.Domain;
-      ClientSideCompiler = new ClientCompiler();
-      ServerSideCompiler = BuildCompiler();
-      CompilationContext = new CompilationContext(new ManagingCompiler(ServerSideCompiler, ClientSideCompiler));
+      CompilationContext = new CompilationContext(
+        () => {
+          var compiledSources = new BindingCollection<object, ExecutableProvider>();
+          return new ManagingCompiler(
+            compiledSources,
+            BuildCompiler(compiledSources),
+            new ClientCompiler(compiledSources));
+        },
+        BuildOptimizer);
     }
 
+    /// <summary>
+    /// Initializes the system session.
+    /// </summary>
     public virtual void InitializeSystemSession()
     {
     }

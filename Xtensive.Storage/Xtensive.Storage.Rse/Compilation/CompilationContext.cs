@@ -13,7 +13,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Resources;
-using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
@@ -25,6 +24,9 @@ namespace Xtensive.Storage.Rse.Compilation
   /// </remarks>
   public abstract class CompilationContext : Context<CompilationScope>
   {
+    private readonly Func<ICompiler> compilerProvider;
+    private readonly Func<IOptimizer> optimizerProvider;
+
     #region Nested type: CacheEntry
 
     private class CacheEntry 
@@ -53,11 +55,6 @@ namespace Xtensive.Storage.Rse.Compilation
     private readonly ICache<CompilableProvider, CacheEntry> cache;
     private readonly object _lock = new object();
 
-    /// <summary>
-    /// Gets the binding context.
-    /// </summary>
-    public BindingContext<ExecutableProvider> BindingContext { get; private set; }
-
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public readonly static DefaultCompilationContext Default = new DefaultCompilationContext();
 
@@ -69,22 +66,6 @@ namespace Xtensive.Storage.Rse.Compilation
       get { return CompilationScope.CurrentContext ?? Default; }
     }
 
-    /// <summary>
-    /// Gets the current <see cref="Compiler"/> 
-    /// (from the <see cref="Current"/> compilation context).
-    /// </summary>
-    public static ICompiler CurrentCompiler {
-      [DebuggerStepThrough]
-      get {
-        var currentContext = Current;
-        return currentContext==null ? null : currentContext.Compiler;
-      }
-    }
-
-    /// <summary>
-    /// Gets the compiler used by <see cref="Compile"/> method of this context.
-    /// </summary>
-    public ICompiler Compiler { get; internal set; }
 
     /// <summary>
     /// Compiles the specified provider by passing it to <see cref="Compiler"/>.<see cref="ICompiler.Compile"/> method.
@@ -102,11 +83,14 @@ namespace Xtensive.Storage.Rse.Compilation
           return entry.Value;
       }
 
-      var compiler = Compiler;
+      var optimizer = optimizerProvider();
+      var compiler = compilerProvider();
       if (compiler == null)
         throw new InvalidOperationException(
           Strings.ExCanNotCompileNoCompiler);
-      var result = compiler.Compile(provider);
+      
+      var optimizedProvider = optimizer.Optimize(provider);
+      var result = compiler.Compile(optimizedProvider);
       
       if (result!=null && result.IsCacheable)
         lock (_lock) {
@@ -146,23 +130,23 @@ namespace Xtensive.Storage.Rse.Compilation
 
     // Constructors
 
-//    /// <summary>
-//    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-//    /// </summary>
-//    /// <param name="compiler"><see cref="Compiler"/> property value.</param>
-//    public CompilationContext(ICompiler compiler)
-//      : this(compiler, new ExtensionCollection())
-//    {
-//    }
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="compilerProvider">The compiler provider.</param>
+    protected CompilationContext(Func<ICompiler> compilerProvider)
+      : this(compilerProvider, () => new EmptyOptimizer())
+    {}
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="compiler"><see cref="Compiler"/> property value.</param>
-    public CompilationContext(ICompiler compiler)
+    /// <param name="compilerProvider">The compiler provider.</param>
+    /// <param name="optimizerProvider">The optimizer provider.</param>
+    protected CompilationContext(Func<ICompiler> compilerProvider, Func<IOptimizer> optimizerProvider)
     {
-      Compiler   = compiler;
-      BindingContext = new BindingContext<ExecutableProvider>();
+      this.compilerProvider = compilerProvider;
+      this.optimizerProvider = optimizerProvider;
       cache = new LruCache<CompilableProvider, CacheEntry>(CacheSize, i => i.Key,
         new WeakestCache<CompilableProvider, CacheEntry>(false, false, i => i.Key));
     }
