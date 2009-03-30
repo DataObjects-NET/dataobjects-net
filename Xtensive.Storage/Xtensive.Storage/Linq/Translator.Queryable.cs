@@ -126,11 +126,11 @@ namespace Xtensive.Storage.Linq
         case QueryableMethodKind.Single:
         case QueryableMethodKind.SingleOrDefault:
           if (mc.Arguments.Count==1) {
-            return VisitFirst(mc.Arguments[0], null, mc.Method, context.IsRoot(mc));
+            return VisitFirstSingle(mc.Arguments[0], null, mc.Method, context.IsRoot(mc));
           }
           if (mc.Arguments.Count==2) {
             LambdaExpression predicate = (mc.Arguments[1].StripQuotes());
-            return VisitFirst(mc.Arguments[0], predicate, mc.Method, context.IsRoot(mc));
+            return VisitFirstSingle(mc.Arguments[0], predicate, mc.Method, context.IsRoot(mc));
           }
           break;
         case QueryableMethodKind.GroupBy:
@@ -273,7 +273,7 @@ namespace Xtensive.Storage.Linq
       throw new NotImplementedException();
     }
 
-    private Expression VisitFirst(Expression source, LambdaExpression predicate, MethodInfo method, bool isRoot)
+    private Expression VisitFirstSingle(Expression source, LambdaExpression predicate, MethodInfo method, bool isRoot)
     {
       if (!isRoot)
         throw new NotImplementedException();
