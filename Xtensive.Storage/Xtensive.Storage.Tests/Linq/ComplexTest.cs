@@ -15,84 +15,59 @@ namespace Xtensive.Storage.Tests.Linq
   public class ComplexTest : NorthwindDOModelTest
   {
     [Test]
-    public void CorrelatedAggregateTest() 
+    public void CorrelatedAggregateTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var suppliers = Query<Supplier>.All;
-          var result = from p in products
-                       select new { Product = p, MaxID = suppliers.Where(s => s == p.Supplier).Max(s => s.Id) };
-          var list = result.ToList();
-          Assert.Greater(list.Count , 0);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var suppliers = Query<Supplier>.All;
+      var result = from p in products
+      select new {Product = p, MaxID = suppliers.Where(s => s==p.Supplier).Max(s => s.Id)};
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
 
     [Test]
-    public void CorrelatedFirstTest() 
+    public void CorrelatedFirstTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var orderDetails = Query<OrderDetails>.All;
-          var result = from p in products
-                       select new { Product = p, MaxOrder = orderDetails.Where(od => od.Product == p).OrderByDescending(od => od.UnitPrice * od.Quantity).First().Order };
-          var list = result.ToList();
-          Assert.Greater(list.Count , 0);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var orderDetails = Query<OrderDetails>.All;
+      var result = from p in products
+      select new {Product = p, MaxOrder = orderDetails.Where(od => od.Product==p).OrderByDescending(od => od.UnitPrice * od.Quantity).First().Order};
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
 
 
     [Test]
-    public void CorrelatedQueryTest() 
+    public void CorrelatedQueryTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var suppliers = Query<Supplier>.All;
-          var result = from p in products
-                       select new { Product = p,  Suppliers = suppliers.Where(s => s.Id == p.Supplier.Id).Select(s => s.CompanyName) };
-          var list = result.ToList();
-          Assert.Greater(list.Count, 0);
-          foreach (var p in list) {
-            foreach (var companyName in p.Suppliers) {
-              Assert.IsNotNull(companyName);
-            }
-          }
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var suppliers = Query<Supplier>.All;
+      var result = from p in products
+      select new {Product = p, Suppliers = suppliers.Where(s => s.Id==p.Supplier.Id).Select(s => s.CompanyName)};
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+      foreach (var p in list)
+        foreach (var companyName in p.Suppliers)
+          Assert.IsNotNull(companyName);
     }
 
     [Test]
     public void CorrelatedFilterTest()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
-        var result = Query<Customer>.All.Where(c => Query<Order>.All.Count(o => o.Customer == c) > 5);
-        var list = result.ToList();
-        Assert.Greater(list.Count, 0);
-        t.Complete();
-      }
+      var result = Query<Customer>.All.Where(c => Query<Order>.All.Count(o => o.Customer==c) > 5);
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
-    
+
     [Test]
     public void CorrelatedOrderByTest()
     {
-      using (Domain.OpenSession())
-      using (var t = Transaction.Open()) {
-        var result =
-          from c in Query<Customer>.All
-          orderby Query<Order>.All.Where(o => o.Customer == c).Count()
-          select c;
-        var list = result.ToList();
-        Assert.Greater(list.Count, 0);
-        t.Complete();
-      }
+      var result =
+        from c in Query<Customer>.All
+        orderby Query<Order>.All.Where(o => o.Customer==c).Count()
+        select c;
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
   }
 }

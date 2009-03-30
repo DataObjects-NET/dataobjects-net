@@ -18,493 +18,352 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleConstantTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result =
-            from p in products
-            select 0;
-          var list = result.ToList();
-          foreach (var i in list)
-            Assert.AreEqual(0, i);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result =
+        from p in products
+        select 0;
+      var list = result.ToList();
+      foreach (var i in list)
+        Assert.AreEqual(0, i);
     }
 
     [Test]
     public void AnonymousColumn()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All.Select(p => new {p.ProductName}.ProductName);
-          var list = products.ToList();
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All.Select(p => new {p.ProductName}.ProductName);
+      var list = products.ToList();
     }
 
 
     [Test]
     public void AnonymousParameterColumn()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var param = new {ProductName = "name"};
-          var products = Query<Product>.All.Select(p => param.ProductName);
-          var list = products.ToList();
-          t.Complete();
-        }
-      }
+      var param = new {ProductName = "name"};
+      var products = Query<Product>.All.Select(p => param.ProductName);
+      var list = products.ToList();
     }
 
     [Test]
     public void NewArrayConstantTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var method = MethodInfo.GetCurrentMethod().Name;
-          var products = Query<Product>.All;
-          var result =
-            from r in
-              from p in products
-              select new
-                     {
-                       Value = new byte[] {1, 2, 3},
-                       Method = method,
-                       p.ProductName
-                     }
-            orderby r.ProductName
-            where r.Method==method
-            select r;
-          var list = result.ToList();
-          foreach (var i in list)
-            Assert.AreEqual(method, i.Method);
-          t.Complete();
-        }
-      }
+      var method = MethodInfo.GetCurrentMethod().Name;
+      var products = Query<Product>.All;
+      var result =
+        from r in
+          from p in products
+          select new
+                 {
+                   Value = new byte[] {1, 2, 3},
+                   Method = method,
+                   p.ProductName
+                 }
+        orderby r.ProductName
+        where r.Method==method
+        select r;
+      var list = result.ToList();
+      foreach (var i in list)
+        Assert.AreEqual(method, i.Method);
     }
 
     [Test]
     public void ConstantTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result =
-            from r in
-              from p in products
-              select 0
-            where r==0
-            select r;
-          var list = result.ToList();
-          foreach (var i in list)
-            Assert.AreEqual(0, i);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result =
+        from r in
+          from p in products
+          select 0
+        where r==0
+        select r;
+      var list = result.ToList();
+      foreach (var i in list)
+        Assert.AreEqual(0, i);
     }
 
     [Test]
     public void ConstantNullStringTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result = from p in products
-          select (string) null;
-          var list = result.ToList();
-          foreach (var s in list)
-            Assert.AreEqual(null, s);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result = from p in products
+      select (string) null;
+      var list = result.ToList();
+      foreach (var s in list)
+        Assert.AreEqual(null, s);
     }
 
     [Test]
     public void LocalTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          int x = 10;
-          var products = Query<Product>.All;
-          var result =
-            from r in
-              from p in products
-              select x
-            where r==x
-            select r;
-          var list = result.ToList();
-          foreach (var i in list)
-            Assert.AreEqual(10, i);
-          x = 20;
-          list = result.ToList();
-          foreach (var i in list)
-            Assert.AreEqual(20, i);
-          t.Complete();
-        }
-      }
+      int x = 10;
+      var products = Query<Product>.All;
+      var result =
+        from r in
+          from p in products
+          select x
+        where r==x
+        select r;
+      var list = result.ToList();
+      foreach (var i in list)
+        Assert.AreEqual(10, i);
+      x = 20;
+      list = result.ToList();
+      foreach (var i in list)
+        Assert.AreEqual(20, i);
     }
 
 
     [Test]
     public void ColumnTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result =
-            from r in
-              from p in products
-              select p.ProductName
-            where r!=null
-            select r;
-          var list = result.ToList();
-          foreach (var s in list)
-            Assert.IsNotNull(s);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result =
+        from r in
+          from p in products
+          select p.ProductName
+        where r!=null
+        select r;
+      var list = result.ToList();
+      foreach (var s in list)
+        Assert.IsNotNull(s);
     }
 
     [Test]
     public void CalculatedColumnTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result = from r in
-            from p in products
-            select p.UnitsInStock * p.UnitPrice
-          where r > 0
-          select r;
-          var list = result.ToList();
-          var checkList = products.AsEnumerable().Select(p => p.UnitsInStock * p.UnitPrice).ToList();
-          list.SequenceEqual(checkList);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result = from r in
+        from p in products
+        select p.UnitsInStock * p.UnitPrice
+      where r > 0
+      select r;
+      var list = result.ToList();
+      var checkList = products.AsEnumerable().Select(p => p.UnitsInStock * p.UnitPrice).ToList();
+      list.SequenceEqual(checkList);
     }
 
     [Test]
     public void KeyTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result =
-            from r in
-              from p in products
-              select p.Key
-            where r!=null
-            select r;
-          var list = result.ToList();
-          Assert.Greater(list.Count, 0);
-          foreach (var k in list) {
-            Assert.IsNotNull(k);
-            var p = k.Resolve<Product>();
-            Assert.IsNotNull(p);
-          }
-          t.Complete();
-        }
+      var products = Query<Product>.All;
+      var result =
+        from r in
+          from p in products
+          select p.Key
+        where r!=null
+        select r;
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+      foreach (var k in list) {
+        Assert.IsNotNull(k);
+        var p = k.Resolve<Product>();
+        Assert.IsNotNull(p);
       }
     }
 
     [Test]
     public void AnonymousTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result = from p in products
-          select new {p.ProductName, p.UnitPrice, p.UnitsInStock};
-          var list = result.ToList();
-          Assert.Greater(list.Count, 0);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result = from p in products
+      select new {p.ProductName, p.UnitPrice, p.UnitsInStock};
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
 
     [Test]
     public void AnonymousEmptyTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result = from p in products
-          select new {};
-          var list = result.ToList();
-          Assert.Greater(list.Count, 0);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result = from p in products
+      select new {};
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
 
     [Test]
     public void AnonymousCalculatedTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result =
-            from r in
-              from p in products
-              select new {p.ProductName, TotalPriceInStock = p.UnitPrice * p.UnitsInStock}
-            where r.TotalPriceInStock > 0
-            select r;
-          var list = result.ToList();
-          Assert.Greater(list.Count, 0);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result =
+        from r in
+          from p in products
+          select new {p.ProductName, TotalPriceInStock = p.UnitPrice * p.UnitsInStock}
+        where r.TotalPriceInStock > 0
+        select r;
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
 
     [Test]
     public void JoinedEntityColumnTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result = from p in products
-          select p.Supplier.CompanyName;
-          var list = result.ToList();
-          Assert.Greater(list.Count, 0);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result = from p in products
+      select p.Supplier.CompanyName;
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
 
 
     [Test]
     public void JoinedEntityTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result =
-            from r in
-              from p in products
-              select p.Supplier
-            where r.CompanyName!=null
-            select r;
-          var list = result.ToList();
-          Assert.Greater(list.Count, 0);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result =
+        from r in
+          from p in products
+          select p.Supplier
+        where r.CompanyName!=null
+        select r;
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
 
     [Test]
     public void StructureColumnTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result = from p in products
-          select p.Supplier.Address;
-          var list = result.ToList();
-          Assert.Greater(list.Count, 0);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result = from p in products
+      select p.Supplier.Address;
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
 
     [Test]
     public void StructureTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result = from a in (
-            from p in products
-            select p.Supplier.Address)
-          where a.Region!=null
-          select a.StreetAddress;
-          var list = result.ToList();
-          Assert.Greater(list.Count, 0);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result = from a in (
+        from p in products
+        select p.Supplier.Address)
+      where a.Region!=null
+      select a.StreetAddress;
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
 
     [Test]
     public void EntitySetTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var suppliers = Query<Supplier>.All;
-          var result = from s in suppliers
-          select s.Products;
-          var list = result.ToList();
-          t.Complete();
-        }
-      }
+      var suppliers = Query<Supplier>.All;
+      var result = from s in suppliers
+      select s.Products;
+      var list = result.ToList();
     }
 
     [Test]
     public void AnonymousWithEntityTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result =
-            from r in
-              from p in products
-              select new {p.ProductName, Product = p}
-            where r.Product!=null
-            select r;
-          var list = result.ToList();
-          Assert.Greater(list.Count, 0);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result =
+        from r in
+          from p in products
+          select new {p.ProductName, Product = p}
+        where r.Product!=null
+        select r;
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
 
 
     [Test]
     public void AnonymousNestedTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result =
-            from r in
-              from p in products
-              select new {p, Desc = new {p.ProductName, p.UnitPrice}}
-            where r.Desc.ProductName!=null
-            select r;
-          var list = result.ToList();
-          Assert.Greater(list.Count, 0);
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result =
+        from r in
+          from p in products
+          select new {p, Desc = new {p.ProductName, p.UnitPrice}}
+        where r.Desc.ProductName!=null
+        select r;
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
 
     [Test]
     public void NestedQueryTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result = from pd in
-            from p in products
-            select new {ProductKey = p.Key, p.ProductName, TotalPrice = p.UnitPrice * p.UnitsInStock}
-          where pd.TotalPrice > 100
-          select new {PKey = pd.ProductKey, pd.ProductName, Total = pd.TotalPrice};
+      var products = Query<Product>.All;
+      var result = from pd in
+        from p in products
+        select new {ProductKey = p.Key, p.ProductName, TotalPrice = p.UnitPrice * p.UnitsInStock}
+      where pd.TotalPrice > 100
+      select new {PKey = pd.ProductKey, pd.ProductName, Total = pd.TotalPrice};
 
-          var list = result.ToList();
-          t.Complete();
-        }
-      }
+      var list = result.ToList();
     }
 
     [Test]
     public void NestedQueryWithStructuresTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result =
-            from a in
-              from pd in
-                from p in products
-                select new {ProductKey = p.Key, SupplierAddress = p.Supplier.Address}
-              select new {PKey = pd.ProductKey, pd.SupplierAddress, SupplierCity = pd.SupplierAddress.City}
-            select new {a.PKey, a.SupplierAddress, a.SupplierCity};
-          var list = result.ToList();
-          t.Complete();
-        }
-      }
+      var products = Query<Product>.All;
+      var result =
+        from a in
+          from pd in
+            from p in products
+            select new {ProductKey = p.Key, SupplierAddress = p.Supplier.Address}
+          select new {PKey = pd.ProductKey, pd.SupplierAddress, SupplierCity = pd.SupplierAddress.City}
+        select new {a.PKey, a.SupplierAddress, a.SupplierCity};
+      var list = result.ToList();
     }
 
 
     [Test]
     public void NestedQueryWithEntitiesTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result = from pd in
-            from p in products
-            select new {ProductKey = p.Key, Product = p}
-          select new {PKey = pd.ProductKey, pd.Product};
+      var products = Query<Product>.All;
+      var result = from pd in
+        from p in products
+        select new {ProductKey = p.Key, Product = p}
+      select new {PKey = pd.ProductKey, pd.Product};
 
-          var list = result.ToList();
-          t.Complete();
-        }
-      }
+      var list = result.ToList();
     }
 
     [Test]
     public void NestedQueryWithAnonymousTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var products = Query<Product>.All;
-          var result = from pd in
-            from p in products
-            select new {ProductKey = p.Key, Product = new {Entity = new {p}, Name = p.ProductName}}
-          select new {PKey = pd.ProductKey, pd.Product.Name, A = pd, AProduct = pd.Product, AEntity = pd.Product.Entity};
+      var products = Query<Product>.All;
+      var result = from pd in
+        from p in products
+        select new {ProductKey = p.Key, Product = new {Entity = new {p}, Name = p.ProductName}}
+      select new {PKey = pd.ProductKey, pd.Product.Name, A = pd, AProduct = pd.Product, AEntity = pd.Product.Entity};
 
-          var list = result.ToList();
-          t.Complete();
-        }
-      }
+      var list = result.ToList();
     }
 
     [Test]
     public void SelectEnumTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var orders = Query<Order>.All;
-          var result = from o in orders select o.OrderDate.Value.DayOfWeek;
-          var list = result.ToList();
-          t.Complete();
-        }
-      }
+      var orders = Query<Order>.All;
+      var result = from o in orders select o.OrderDate.Value.DayOfWeek;
+      var list = result.ToList();
     }
 
     [Test]
     public void SelectByteArrayLengthTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var categories = Query<Category>.All;
-          var result = from c in categories select c.Picture.Length;
-          var list = result.ToList();
-          t.Complete();
-        }
-      }
+      var categories = Query<Category>.All;
+      var result = from c in categories select c.Picture.Length;
+      var list = result.ToList();
     }
 
     [Test]
     public void SelectEqualsTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var customers = Query<Customer>.All;
-          var result = from c in customers select c.CompanyName.Equals("lalala");
-          var list = result.ToList();
-          t.Complete();
-        }
-      }
+      var customers = Query<Customer>.All;
+      var result = from c in customers select c.CompanyName.Equals("lalala");
+      var list = result.ToList();
     }
 
     [Test]
     public void DoubleSelectEntitySetTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
       var query = Query<Customer>.All.Select(c => c.Orders.Select(o => o));
 //          var query = Query<Customer>.All.Select(c => c.Orders);
 
-          foreach (var order in query) {
-            QueryDumper.Dump(order);
-          }
-          t.Complete();
-        }
-      }
+      foreach (var order in query)
+        QueryDumper.Dump(order);
     }
   }
 }
