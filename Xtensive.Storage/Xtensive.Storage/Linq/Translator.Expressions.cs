@@ -60,12 +60,8 @@ namespace Xtensive.Storage.Linq
         parameters.Value = le.Parameters.ToArray();
         calculatedColumns.Value = new List<CalculatedColumnDescriptor>();
         Expression body;
-        context.SubqueryParameterBindings.Bind(parameters.Value);
-        try {
+        using (context.SubqueryParameterBindings.Bind(parameters.Value)) {
           body = Visit(le.Body);
-        }
-        finally {
-          context.SubqueryParameterBindings.Unbind(parameters.Value);
         }
         if (calculateExpressions.Value && body.GetMemberType()==MemberType.Unknown) {
           if (
@@ -78,9 +74,7 @@ namespace Xtensive.Storage.Linq
             calculatedColumns.Value.Add(ccd);
             var parameter = parameters.Value[0];
             int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
-            // var method = genericAccessor.MakeGenericMethod(body.Type);
             body = MakeTupleAccess(parameter, body.Type, Expression.Constant(position));
-            // Expression.Call(tuple.Value, method, Expression.Constant(position));
             resultMapping.Value.RegisterPrimitive(new Segment<int>(position, 1));
           }
         }

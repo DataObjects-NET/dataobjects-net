@@ -589,13 +589,9 @@ namespace Xtensive.Storage.Linq
         }
         ResultExpression innerResult;
         Parameter<Tuple> applyParameter;
-        context.SubqueryParameterBindings.Bind(collectionSelector.Parameters);
-        try {
+        using (context.SubqueryParameterBindings.Bind(collectionSelector.Parameters)) {
           innerResult = (ResultExpression) Visit(collectionSelector.Body);
           applyParameter = context.SubqueryParameterBindings.GetBound(parameter);
-        }
-        finally {
-          context.SubqueryParameterBindings.Unbind(collectionSelector.Parameters);
         }
         var recordSet = outerResult.RecordSet.Apply(applyParameter,
           innerResult.RecordSet.Alias(context.GetNextAlias()),

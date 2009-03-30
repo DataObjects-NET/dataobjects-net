@@ -4,8 +4,11 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.03.18
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 
@@ -24,7 +27,7 @@ namespace Xtensive.Storage.Linq
 
     public ParameterExpression CurrentParameter { get { return stack.Peek(); } }
 
-    public void Bind(IEnumerable<ParameterExpression> keys)
+    public IDisposable Bind(IEnumerable<ParameterExpression> keys)
     {
       Binding binding;
       foreach (ParameterExpression key in keys)
@@ -35,19 +38,7 @@ namespace Xtensive.Storage.Linq
           bindings.Add(key, binding);
           stack.Push(key);
         }
-    }
-
-    public void Unbind(IEnumerable<ParameterExpression> keys)
-    {
-      foreach (ParameterExpression key in keys) {
-        var binding = bindings[key];
-        if (binding.Cardinality == 1) {
-          bindings.Remove(key);
-          stack.Pop();
-        }
-        else
-          binding.Cardinality--;
-      }
+      return new Disposable<ParameterExpression[]> (keys.ToArray(), Unbind);
     }
 
     public Parameter<Tuple> GetBound(ParameterExpression key)
@@ -69,6 +60,22 @@ namespace Xtensive.Storage.Linq
     public void InvalidateParameter(ParameterExpression key)
     {
       bindings[key].Parameter = new Parameter<Tuple>();
+    }
+
+    private void Unbind(bool disposing, ParameterExpression[] keys)
+    {
+      if (!disposing)
+        return;
+
+      foreach (ParameterExpression key in keys) {
+        var binding = bindings[key];
+        if (binding.Cardinality == 1) {
+          bindings.Remove(key);
+          stack.Pop();
+        }
+        else
+          binding.Cardinality--;
+      }
     }
   }
 }
