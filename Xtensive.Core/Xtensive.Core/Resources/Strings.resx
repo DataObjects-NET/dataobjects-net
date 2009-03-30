@@ -621,4 +621,7 @@
   <data name="ExActualConjunctionOperandCountGreaterThanExpected" xml:space="preserve">
     <value>Actual conjunction operand count greater than MaxConjunctionOperandCount.</value>
   </data>
+  <data name="ExCannotParseCallToComparisonMethod" xml:space="preserve">
+    <value>Can't parse the call to the comparison method.</value>
+  </data>
 </root>

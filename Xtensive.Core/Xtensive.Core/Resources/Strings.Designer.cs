@@ -232,6 +232,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t parse the call to the comparison method..
+        /// </summary>
+        internal static string ExCannotParseCallToComparisonMethod {
+            get {
+                return ResourceManager.GetString("ExCannotParseCallToComparisonMethod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t create associates for generic type definitions (type &apos;{0}&apos;)..
         /// </summary>
         internal static string ExCantCreateAssociateForGenericTypeDefinitions {
