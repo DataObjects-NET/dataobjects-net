@@ -167,7 +167,7 @@ namespace Xtensive.Modelling
 
     /// <inheritdoc/>
     public string Path {
-      [DebuggerStepThrough]
+      //[DebuggerStepThrough]
       get {
         if (cachedPath!=null)
           return cachedPath;

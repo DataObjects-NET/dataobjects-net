@@ -75,7 +75,7 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     public override string[] GetDependencies()
     {
-      throw new NotImplementedException();
+      return new[] { string.Concat(Path, ".", EscapeName(Name)) };
     }
   }
 }

@@ -56,7 +56,8 @@ namespace Xtensive.Modelling.Comparison
             Path = Target.Parent==null ? string.Empty : Target.Parent.Path,
             Type = Target.GetType(),
             Name = Target.Name,
-            Index = Target.Index
+            Index = Target.Index,
+            DependencyPath = Target.Path
           });
       }
       else if (!MovementInfo.IsUnchanged) {

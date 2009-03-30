@@ -55,8 +55,15 @@ namespace Xtensive.Modelling.Actions
     {
       var dependencies = new Dictionary<string,bool>();
       foreach (var pair in Properties)
-        dependencies.Add(string.Format("{0}.{1}=*", Path, EscapeName(pair.Key)), true);
+        dependencies.Add(string.Format("{0}{1}{2}=*", Path, Node.PathDelimiter, EscapeName(pair.Key)), true);
       return dependencies.Select(p => p.Key).ToArray();
+    }
+
+    /// <inheritdoc/>
+    public override string[] GetRequiredDependencies()
+    {
+      return base.GetRequiredDependencies().Concat(
+        properties.Values.OfType<PathNodeReference>().Select(pnr => pnr.Path)).ToArray();
     }
   }
 }
