@@ -6,14 +6,13 @@
 
 using System;
 using System.Collections;
-using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using System.Linq.Expressions;
 using Xtensive.Core.Helpers;
-using Xtensive.Core.Linq;
 using Xtensive.Core.Linq.Normalization;
 using System.Collections.Generic;
+using Xtensive.Core.Testing;
 
 
 namespace Xtensive.Core.Tests.Linq
@@ -269,12 +268,9 @@ namespace Xtensive.Core.Tests.Linq
         Expression.Or(
           Expression.Constant(true),
           Expression.Constant(false)));
-      var expected = new DisjunctiveNormalized(new[]
-        {
-          new Conjunction<Expression>(Expression.Constant(true)),
-          new Conjunction<Expression>(Expression.Constant(false))
-        });
-      NormalizerTest(expected, exp, 3);
+      
+      AssertEx.Throws<InvalidOperationException>(() => 
+        new DisjunctiveNormalizer(3).Normalize(exp));
     }
     
     public void NormalizerTest(Expression expression, DisjunctiveNormalized normalized)
@@ -289,16 +285,6 @@ namespace Xtensive.Core.Tests.Linq
     public void NormalizerTest(DisjunctiveNormalized expected, Expression toNormalize)
     {
       var normalized = new DisjunctiveNormalizer().Normalize(toNormalize);
-
-      Log.Info("Expression: {0}", toNormalize.ToString(true));
-      Log.Info("Normalized: {0}", normalized.ToString(true));
-      Log.Info("Expected:   {0}", expected.ToString(true));
-      Assert.AreEqual(expected.ToString(true), normalized.ToString(true));
-    }
-
-    public void NormalizerTest(DisjunctiveNormalized expected, Expression toNormalize, int maxConjunctionOperandCount)
-    {
-      var normalized = new DisjunctiveNormalizer(maxConjunctionOperandCount).Normalize(toNormalize);
 
       Log.Info("Expression: {0}", toNormalize.ToString(true));
       Log.Info("Normalized: {0}", normalized.ToString(true));
