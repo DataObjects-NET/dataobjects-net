@@ -15,12 +15,13 @@ namespace Xtensive.Modelling.Comparison
     /// Compares this instance to the <paramref name="target"/> object.
     /// </summary>
     /// <param name="target">The target.</param>
+    /// <param name="propertyName">Name of the property that is being compared now (if any).</param>
     /// <param name="swap">Indicates whether source (this instance)
     /// and target are swapped.</param>
     /// <returns>
     /// Differences, if any;
     /// otherwise, <see langword="null"/>.
     /// </returns>
-    Difference GetDifferenceWith(object target, bool swap);
+    Difference GetDifferenceWith(object target, string propertyName, bool swap);
   }
 }

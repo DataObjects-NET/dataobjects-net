@@ -41,39 +41,32 @@ namespace Xtensive.Modelling.Comparison
     public Dictionary<string, Difference> PropertyChanges { get; private set; }
 
     /// <inheritdoc/>
-    public override void Build(ActionSequence sequence)
+    public override void Build(IList<NodeAction> sequence)
     {
       // Processing movement
-      using (var scope = sequence.LogAction()) {
-        if (MovementInfo.IsRemoved) {
-          var ra = new RemoveNodeAction() {Path = Source.Path};
-          scope.Action = ra;
-          scope.Commit();
-          return;
-        }
+      if (MovementInfo.IsRemoved) {
+        sequence.Add(
+          new RemoveNodeAction() {Path = Source.Path});
+        return;
+      }
 
-        if (MovementInfo.IsCreated) {
-          var ca = new CreateNodeAction()
-            {
-              Path = Target.Parent==null ? string.Empty : Target.Parent.Path,
-              Type = Target.GetType(),
-              Name = Target.Name,
-              Index = Target.Index
-            };
-          scope.Action = ca;
-          scope.Commit();
-        }
-        else if (!MovementInfo.IsUnchanged) {
-          var ca = new MoveNodeAction()
-            {
-              Path = Source.Path,
-              Parent = Target.Parent==null ? string.Empty : Target.Parent.Path,
-              Name = Target.Name,
-              Index = Target.Index
-            };
-          scope.Action = ca;
-          scope.Commit();
-        }
+      if (MovementInfo.IsCreated) {
+        sequence.Add(new CreateNodeAction()
+          {
+            Path = Target.Parent==null ? string.Empty : Target.Parent.Path,
+            Type = Target.GetType(),
+            Name = Target.Name,
+            Index = Target.Index
+          });
+      }
+      else if (!MovementInfo.IsUnchanged) {
+        sequence.Add(new MoveNodeAction()
+          {
+            Path = Source.Path,
+            Parent = Target.Parent==null ? string.Empty : Target.Parent.Path,
+            Name = Target.Name,
+            Index = Target.Index
+          });
       }
 
       // And property changes
@@ -98,10 +91,11 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="propertyName">The <see cref="Difference.PropertyName"/> value.</param>
     /// <param name="source">The <see cref="Source"/> value.</param>
     /// <param name="target">The <see cref="Target"/> value.</param>
-    public NodeDifference(Node source, Node target)
-      : base(source, target)
+    public NodeDifference(string propertyName, Node source, Node target)
+      : base(propertyName, source, target)
     {
       PropertyChanges = new Dictionary<string, Difference>();
     }

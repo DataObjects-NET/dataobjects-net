@@ -38,7 +38,7 @@ namespace Xtensive.Modelling.Comparison
     public Dictionary<string, NodeDifference> ItemChanges { get; private set; }
 
     /// <inheritdoc/>
-    public override void Build(ActionSequence sequence)
+    public override void Build(IList<NodeAction> sequence)
     {
       // Processing item changes
       foreach (var pair in ItemChanges)
@@ -60,10 +60,11 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="propertyName">The <see cref="Difference.PropertyName"/> value.</param>
     /// <param name="source">The <see cref="Source"/> value.</param>
     /// <param name="target">The <see cref="Target"/> value.</param>
-    public NodeCollectionDifference(NodeCollection source, NodeCollection target)
-      : base(source, target)
+    public NodeCollectionDifference(string propertyName, NodeCollection source, NodeCollection target)
+      : base(propertyName, source, target)
     {
       ItemChanges = new Dictionary<string, NodeDifference>();
     }

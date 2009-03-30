@@ -5,6 +5,7 @@
 // Created:    2009.03.28
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
@@ -17,21 +18,13 @@ namespace Xtensive.Modelling.Comparison
   [Serializable]
   public class PropertyValueDifference : Difference
   {
-    /// <summary>
-    /// Gets or sets the name of the changed property.
-    /// </summary>
-    public string PropertyName { get; private set; }
-
     /// <inheritdoc/>
-    public override void Build(ActionSequence sequence)
+    public override void Build(IList<NodeAction> sequence)
     {
-      var node = ((NodeDifference) Parent).Target;
-      using (var scope = sequence.LogAction()) {
-        var pca = new PropertyChangeAction() {Path = node.Path};
-        pca.Properties.Add(PropertyName, Target);
-        scope.Action = pca;
-        scope.Commit();
-      }
+      var targetNode = ((NodeDifference) Parent).Target;
+      var pca = new PropertyChangeAction() {Path = targetNode.Path};
+      pca.Properties.Add(PropertyName, Target);
+      sequence.Add(pca);
     }
 
     /// <inheritdoc/>
@@ -45,10 +38,9 @@ namespace Xtensive.Modelling.Comparison
 
     /// <inheritdoc/>
     public PropertyValueDifference(string propertyName, object source, object target)
-      : base(source, target)
+      : base(propertyName, source, target)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(propertyName, "propertyName");
-      PropertyName = propertyName;
     }
   }
 }

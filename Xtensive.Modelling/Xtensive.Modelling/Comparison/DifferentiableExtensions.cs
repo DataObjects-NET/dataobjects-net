@@ -19,13 +19,17 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     /// <param name="source">The source.</param>
     /// <param name="target">The target.</param>
+    /// <param name="propertyName">Name of the property that is being compared now (if any).</param>
     /// <returns>
     /// Differences, if any;
     /// otherwise, <see langword="null"/>.
     /// </returns>
-    public static Difference GetDifferenceWith(this IDifferentiable source, object target)
+    public static Difference GetDifferenceWith(this IDifferentiable source, IDifferentiable target, string propertyName)
     {
-      return source.GetDifferenceWith(target, false);
+      if (source!=null)
+        return source.GetDifferenceWith(target, propertyName, false);
+      else
+        return target.GetDifferenceWith(source, propertyName, true);
     }
   }
 }

@@ -5,12 +5,14 @@
 // Created:    2009.03.25
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Resources;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Modelling.Comparison
 {
@@ -26,6 +28,9 @@ namespace Xtensive.Modelling.Comparison
     /// Indent size in <see cref="ToString"/> method.
     /// </summary>
     protected static readonly int ToString_IndentSize = 2;
+
+    /// <inheritdoc/>
+    public string PropertyName { get; private set; }
 
     /// <inheritdoc/>
     public object Source { get; private set; }
@@ -62,7 +67,7 @@ namespace Xtensive.Modelling.Comparison
     }
 
     /// <inheritdoc/>
-    public abstract void Build(ActionSequence sequence);
+    public abstract void Build(IList<NodeAction> sequence);
 
     #region IContext<...> members
 
@@ -90,8 +95,11 @@ namespace Xtensive.Modelling.Comparison
     /// <inheritdoc/>
     public override string ToString()
     {
+      string proeprtyNamePrefix = PropertyName.IsNullOrEmpty() ? 
+        string.Empty : 
+        string.Format(Strings.DifferencePropertyNamePrefix, PropertyName);
       return string.Format(Strings.DifferenceFormat,
-        GetType().GetShortName(), Source, Target, ParametersToString());
+        proeprtyNamePrefix, GetType().GetShortName(), Source, Target, ParametersToString());
     }
 
     /// <summary>
@@ -108,10 +116,12 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="propertyName">The <see cref="PropertyName"/> value.</param>
     /// <param name="source">The <see cref="Source"/> value.</param>
     /// <param name="target">The <see cref="Target"/> value.</param>
-    public Difference(object source, object target)
+    public Difference(string propertyName, object source, object target)
     {
+      PropertyName = propertyName;
       Source = source;
       Target = target;
       Parent = Current;

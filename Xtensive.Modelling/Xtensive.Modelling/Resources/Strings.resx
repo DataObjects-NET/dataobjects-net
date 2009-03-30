@@ -160,7 +160,7 @@
     <value>Multiple hints found.</value>
   </data>
   <data name="DifferenceFormat" xml:space="preserve">
-    <value>"{1}" != "{2}" ({0}): {3}</value>
+    <value>{0}"{2}" != "{3}" ({1}): {4}</value>
   </data>
   <data name="PropertyChangeFormat" xml:space="preserve">
     <value>+{0}: {1}</value>
@@ -173,5 +173,8 @@
   </data>
   <data name="ExBothSourceAndTargetAreNull" xml:space="preserve">
     <value>Both Source and Target are null.</value>
+  </data>
+  <data name="DifferencePropertyNamePrefix" xml:space="preserve">
+    <value>+{0}: </value>
   </data>
 </root>

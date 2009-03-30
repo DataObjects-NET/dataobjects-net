@@ -4,6 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.28
 
+using System.Collections.Generic;
+
 namespace Xtensive.Modelling.Actions
 {
   /// <summary>
@@ -16,6 +18,6 @@ namespace Xtensive.Modelling.Actions
     /// new <see cref="NodeAction"/> objects to it.
     /// </summary>
     /// <param name="sequence">The sequence to build.</param>
-    void Build(ActionSequence sequence);
+    void Build(IList<NodeAction> sequence);
   }
 }

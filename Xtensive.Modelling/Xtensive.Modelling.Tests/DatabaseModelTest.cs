@@ -5,6 +5,7 @@
 // Created:    2009.03.18
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
@@ -242,12 +243,14 @@ namespace Xtensive.Modelling.Tests
 
       Difference diff;
       using (hintSet.Activate()) {
-        diff = srvx.GetDifferenceWith(srv);
+        diff = srvx.GetDifferenceWith(srv, null);
       }
       Log.Info("Difference: \r\n{0}", diff);
 
       var actions = new ActionSequence();
-      diff.Build(actions);
+      var actionList = new List<NodeAction>();
+      diff.Build(actionList);
+      actions.Add(actionList);
       Log.Info("Actions: \r\n{0}", actions);
 
       Log.Info("Applying actions...");

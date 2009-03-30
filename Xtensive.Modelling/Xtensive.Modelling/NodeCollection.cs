@@ -8,9 +8,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
@@ -185,11 +183,11 @@ namespace Xtensive.Modelling
     #region IDifferentiable<...> methods
 
     /// <inheritdoc/>
-    public NodeCollectionDifference GetDifferenceWith(NodeCollection target, bool swap)
+    public Difference GetDifferenceWith(object target, string propertyName, bool swap)
     {
-      var difference = CreateDifference(target, swap);
+      var difference = CreateDifference((NodeCollection) target, propertyName, swap);
       using (difference.Activate()) {
-        if (BuildDifference())
+        if ((difference = BuildDifference())!=null)
           return difference;
       }
       return null;
@@ -199,29 +197,31 @@ namespace Xtensive.Modelling
     /// Creates the difference object for the current node.
     /// </summary>
     /// <param name="target">The target object.</param>
+    /// <param name="propertyName">Name of the property that is being compared now (if any).</param>
     /// <param name="swap">Indicates whether source (this instance)
     /// and target are swapped.</param>
     /// <returns>Newly created <see cref="NodeCollectionDifference"/>
     /// object or its ancestor.</returns>
-    protected virtual NodeCollectionDifference CreateDifference(NodeCollection target, bool swap)
+    protected Difference CreateDifference(NodeCollection target, string propertyName, bool swap)
     {
       if (swap)
-        return new NodeCollectionDifference(target, this);
+        return new NodeCollectionDifference(propertyName, target, this);
       else
-        return new NodeCollectionDifference(this, target);
+        return new NodeCollectionDifference(propertyName, this, target);
     }
 
     /// <summary>
     /// Builds the difference.
     /// </summary>
-    protected virtual bool BuildDifference()
+    protected virtual Difference BuildDifference()
     {
       var difference = (NodeCollectionDifference) Difference.Current;
       var source = ((ICountable) difference.Source) ?? emptyCountable;
       var target = ((ICountable) difference.Target) ?? emptyCountable;
+      string propertyName = difference.PropertyName;
 
       if (source.Count==0 && target.Count==0)
-        return false;
+        return null;
       var someItems = source.Count!=0 ? source : target;
       var someItem = someItems.Cast<Node>().First();
 
@@ -251,7 +251,7 @@ namespace Xtensive.Modelling
       // Comparing source only items
       foreach (var key in sourceKeys.Except(commonKeys)) {
         var item = sourceKeyMap[key];
-        var d = item.GetDifferenceWith(null, false);
+        var d = (NodeDifference) item.GetDifferenceWith(null, propertyName, false);
         if (d!=null)
           difference.ItemChanges.Add(item.Name, d);
       }
@@ -259,7 +259,7 @@ namespace Xtensive.Modelling
       // Comparing common items
       foreach (var key in commonKeys) {
         var item = sourceKeyMap[key];
-        var d = item.GetDifferenceWith(null, false);
+        var d = (NodeDifference) item.GetDifferenceWith(null, propertyName, false);
         if (d!=null)
           difference.ItemChanges.Add(item.Name, d);
       }
@@ -267,21 +267,16 @@ namespace Xtensive.Modelling
       // Comparing target only items
       foreach (var key in targetKeys.Except(commonKeys)) {
         var item = targetKeyMap[key];
-        var d = item.GetDifferenceWith(null, true);
+        var d = (NodeDifference) item.GetDifferenceWith(null, propertyName, true);
         if (d!=null)
           difference.ItemChanges.Add(item.Name, d);
       }
 
-      return difference.ItemChanges.Count != 0;
-    }
-
-    /// <inheritdoc/>
-    Difference IDifferentiable.GetDifferenceWith(object target, bool swap)
-    {
-      return GetDifferenceWith((NodeCollection) target, swap);
+      return (difference.ItemChanges.Count != 0) ? difference : null;
     }
 
     #endregion
+
     #region INotifyCollectionChanged, INotifyPropertyChanged members
 
     /// <inheritdoc/>

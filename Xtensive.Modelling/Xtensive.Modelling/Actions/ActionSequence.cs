@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Modelling.Actions
@@ -35,6 +36,21 @@ namespace Xtensive.Modelling.Actions
       if (currentScope==null)
         currentScope = newScope;
       return newScope;
+    }
+
+    /// <inheritdoc/>
+    public void Add(NodeAction action)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(action, "action");
+      actions.Add(action);
+    }
+
+    /// <inheritdoc/>
+    public void Add(IEnumerable<NodeAction> actions)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
+      foreach (NodeAction action in actions)
+        Add(action);
     }
 
     /// <inheritdoc/>

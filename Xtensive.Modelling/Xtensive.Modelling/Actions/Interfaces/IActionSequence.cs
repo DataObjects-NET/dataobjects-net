@@ -27,6 +27,18 @@ namespace Xtensive.Modelling.Actions
     ActionScope LogAction();
 
     /// <summary>
+    /// Adds the specified action to the sequence.
+    /// </summary>
+    /// <param name="action">The action to add.</param>
+    void Add(NodeAction action);
+
+    /// <summary>
+    /// Adds the specified action sequence to the sequence.
+    /// </summary>
+    /// <param name="actions">The sequence of actions to add.</param>
+    void Add(IEnumerable<NodeAction> actions);
+
+    /// <summary>
     /// Applies all the actions from the sequence to specified model.
     /// </summary>
     void Apply(IModel model);

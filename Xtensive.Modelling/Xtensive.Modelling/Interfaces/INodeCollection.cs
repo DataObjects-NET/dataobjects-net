@@ -16,7 +16,7 @@ namespace Xtensive.Modelling
   /// </summary>
   public interface INodeCollection : IPathNode, 
     ICountable,
-    IDifferentiable<NodeCollection, NodeCollectionDifference>,
+    IDifferentiable,
     INotifyCollectionChanged
   {
     /// <summary>

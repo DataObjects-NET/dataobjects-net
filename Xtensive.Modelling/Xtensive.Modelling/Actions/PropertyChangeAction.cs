@@ -35,7 +35,7 @@ namespace Xtensive.Modelling.Actions
     }
 
     /// <inheritdoc/>
-    protected override void GetParameters(List<Xtensive.Core.Pair<string>> parameters)
+    protected override void GetParameters(List<Pair<string>> parameters)
     {
       base.GetParameters(parameters);
       foreach (var pair in properties)
