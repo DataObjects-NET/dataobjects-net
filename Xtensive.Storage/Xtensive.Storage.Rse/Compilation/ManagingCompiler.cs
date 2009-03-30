@@ -23,18 +23,6 @@ namespace Xtensive.Storage.Rse.Compilation
   {
     private readonly Dictionary<UrlInfo, ICompiler> compilersMap;
 
-//    private Func<object, ExecutableProvider, Disposable> Bind { 
-//      get {
-//        return CompilationContext.Current.Bindings.Bind;
-//      }
-//    }
-//
-//    private Func<object, ExecutableProvider> GetBound {
-//      get {
-//        return CompilationContext.Current.Bindings.GetBound;
-//      }
-//    }
-
     /// <inheritdoc/>
     public override UrlInfo Location
     {

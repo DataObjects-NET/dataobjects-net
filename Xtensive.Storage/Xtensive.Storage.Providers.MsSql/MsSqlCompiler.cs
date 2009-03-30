@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Providers.MsSql
     {
       const string rowNumber = "RowNumber";
 
-      var compiledSource = CompiledSources[provider.Source] as SqlProvider;
+      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
       if (compiledSource == null)
         return null;
 
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Providers.MsSql
 
     protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
     {
-      var compiledSource = CompiledSources[provider.Source] as SqlProvider;
+      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
       if (compiledSource == null)
         return null;
 
@@ -124,8 +124,8 @@ namespace Xtensive.Storage.Providers.MsSql
         return result;
       bool isOuter = provider.ApplyType==ApplyType.Outer;
 
-      var left = CompiledSources[provider.Left] as SqlProvider;
-      var right = CompiledSources[provider.Right] as SqlProvider;
+      var left = GetCompiled(provider.Left) as SqlProvider;
+      var right = GetCompiled(provider.Right) as SqlProvider;
 
       if (left == null || right == null)
         return null;

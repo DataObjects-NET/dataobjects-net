@@ -26,6 +26,23 @@ namespace Xtensive.Storage.Rse.Compilation
 
     }
 
+    /// <summary>
+    /// Gets compiled provider if it exists within <see cref="ICompiler.CompiledSources"/>; 
+    /// otherwise when provided <paramref name="key"/> is <see cref="CompilableProvider"/> it compiles and returns result.
+    /// </summary>
+    /// <param name="key">Compiled provider key.</param>
+    protected ExecutableProvider GetCompiled(object key)
+    {
+      ExecutableProvider result;
+      if (!CompiledSources.TryGetValue(key, out result)) {
+        var cp = key as CompilableProvider;
+        if (cp == null)
+          throw new InvalidOperationException();
+        result = Compile(cp);
+        CompiledSources.Add(key, result);
+      }
+      return result;
+    }
 
     /// <summary>
     /// Compiles the specified <see cref="CompilableProvider"/>.
