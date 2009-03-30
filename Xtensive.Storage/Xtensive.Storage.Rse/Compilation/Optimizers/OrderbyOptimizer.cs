@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.Compilation.Optimizers.Implementation;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse.Compilation.Optimizers

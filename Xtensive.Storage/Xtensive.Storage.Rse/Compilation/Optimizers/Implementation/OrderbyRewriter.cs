@@ -12,7 +12,7 @@ using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using System.Linq;
 
-namespace Xtensive.Storage.Rse.Compilation.Optimizers
+namespace Xtensive.Storage.Rse.Compilation.Optimizers.Implementation
 {
   internal sealed class OrderbyRewriter : CompilableProviderVisitor
   {
@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Rse.Compilation.Optimizers
     {
       using (new ParameterScope()) {
         var provider = VisitCompilable(origin);
-        if (pSortOrder.HasValue) {
+        if (pSortOrder.HasValue && pSortOrder.Value.Count > 0) {
           if (provider.Type == ProviderType.Select) {
             var selectProvider = (SelectProvider)provider;
             provider = new SelectProvider(new SortProvider(selectProvider.Source, pSortOrder.Value), selectProvider.ColumnIndexes);
@@ -85,6 +85,16 @@ namespace Xtensive.Storage.Rse.Compilation.Optimizers
     protected override Provider VisitApply(ApplyProvider provider)
     {
       return base.VisitApply(provider);
+    }
+
+    protected override Provider VisitExistence(ExistenceProvider provider)
+    {
+      return base.VisitExistence(provider);
+    }
+
+    protected override Provider VisitAggregate(AggregateProvider provider)
+    {
+      return base.VisitAggregate(provider);
     }
 
 
