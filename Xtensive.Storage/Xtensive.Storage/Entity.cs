@@ -13,6 +13,7 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Attributes;
@@ -29,7 +30,7 @@ namespace Xtensive.Storage
   /// Instance of <see cref="Entity"/> type can be referenced via <see cref="Key"/>.
   /// </summary>
   public abstract class Entity : Persistent,
-    IEntity, ISerializable
+    IEntity, ISerializable, IDeserializationCallback
   {
     #region Internal properties
 
@@ -247,7 +248,7 @@ namespace Xtensive.Storage
         LogTemplate<Log>.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       if (field.IsPrimaryKey)
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
-      State.EnsureNotRemoved();
+        State.EnsureNotRemoved();
     }
 
     internal override sealed void OnSetFieldValue(FieldInfo field, object oldValue, object newValue, bool notify)
@@ -259,21 +260,24 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region ISerializable members
+    #region Serialization-related methods
 
     /// <inheritdoc/>
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      SerializationContext serializationContext = SerializationContext.Current;
+    {     
+      EntitySerializer.GetObjectData(this, info, context);
+    }
 
-      if (serializationContext==null)
-        throw new InvalidOperationException(Strings.ExActiveSerializationContextIsNotFound);
-      
-      if (serializationContext.GetSerializationKind(this)==SerializationKind.ByReference) {
-        info.SetType(typeof(EntityReference));
-        EntityReference reference = new EntityReference(this);
-        reference.GetObjectData(info, context);
-      }
+    [OnDeserialized]
+    private void OnDeserialized(StreamingContext context)
+    {
+//       throw new InvalidOperationException();  
+//      DeserializationContext.DemandCurrent().OnDeserialized(); 
+    }
+
+    public void OnDeserialization(object sender)
+    {
+      DeserializationContext.DemandCurrent().OnDeserialized(); 
     }
 
     #endregion
@@ -285,7 +289,7 @@ namespace Xtensive.Storage
     /// </summary>
     protected Entity()
     {
-      Key key = Key.Create(Session.Domain.Model.Types[GetType()]);
+      Key key = Key.Create(GetTypeInfo());
       State = Session.CreateEntityState(key);
       OnInitializing(true);
       this.Validate();
@@ -299,7 +303,7 @@ namespace Xtensive.Storage
     protected Entity(Tuple tuple)
     {
       ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
-      Key key = Key.Create(Session.Domain.Model.Types[GetType()], tuple, true);
+      Key key = Key.Create(GetTypeInfo(), tuple, true);
       State = Session.CreateEntityState(key);
       OnInitializing(true);
       this.Validate();
@@ -316,5 +320,15 @@ namespace Xtensive.Storage
       State = state;
       OnInitializing(notify);
     }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="info">The <see cref="SerializationInfo"/>.</param>
+    /// <param name="context">The <see cref="StreamingContext"/>.</param>
+    protected Entity(SerializationInfo info, StreamingContext context)
+    {
+      DeserializationContext.DemandCurrent().OnEntityCreated(this, info);
+    }    
   }
 }

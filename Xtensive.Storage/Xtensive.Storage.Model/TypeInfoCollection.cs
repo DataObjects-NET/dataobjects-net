@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// An indexer that provides access to collection items.
     /// </summary>
-    /// <exception cref="ArgumentException"> when item was not found.</exception>
+    /// <exception cref="ArgumentException">Item was not found.</exception>
     public TypeInfo this[Type key] {
       get {
         TypeInfo result;
@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// An indexer that provides access to collection items by their <see cref="TypeInfo.TypeId"/>.
     /// </summary>
-    /// <exception cref="ArgumentException"> when item was not found.</exception>
+    /// <exception cref="ArgumentException">Item was not found.</exception>
     public new TypeInfo this[int typeId] {
       get {
         TypeInfo result = null;

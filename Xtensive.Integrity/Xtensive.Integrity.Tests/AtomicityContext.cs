@@ -18,7 +18,6 @@ namespace Xtensive.Integrity.Tests
       get { return session; }
     }
 
-
     // Constructors
 
     public AtomicityContext(Session session, AtomicityContextOptions options, IOperationLog operationLog) 

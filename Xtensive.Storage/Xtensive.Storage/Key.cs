@@ -17,6 +17,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Serialization;
 
 namespace Xtensive.Storage
 {
@@ -84,7 +85,8 @@ namespace Xtensive.Storage
           var field = Hierarchy.Root.Fields[domain.NameBuilder.TypeIdFieldName];
           cachedKey = Fetcher.Fetch(this, field);
           if (cachedKey==null)
-            throw new InvalidOperationException(string.Format("Unable to resolve type for Key '{0}'.", this));
+            throw new InvalidOperationException(
+              string.Format(Strings.UnableToResolveTypeForKeyX, this));
         }
         entityType = cachedKey.entityType;
         return entityType;
@@ -319,6 +321,20 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Creates <see cref="Key"/> instance 
+    /// for the specified <see cref="HierarchyInfo"/>
+    /// with newly generated value.
+    /// </summary>
+    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    /// <param name="hierarchy">The hierarchy.</param>
+    public static Key Create(HierarchyInfo hierarchy)
+    {
+      var domain = Domain.Current;
+      Tuple keyValue = GenerateKeyValue(domain, hierarchy);
+      return Create(domain, hierarchy.Root, keyValue, false, false);
+    }
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance 
     /// for the specified <see cref="Entity"/> <paramref name="type"/>
     /// with newly generated value.
     /// </summary>
@@ -326,8 +342,17 @@ namespace Xtensive.Storage
     public static Key Create(TypeInfo type)
     {
       var domain = Domain.Current;
-      var keyGenerator = domain.KeyGenerators[type.Hierarchy.GeneratorInfo];
-      return Create(domain, type, keyGenerator.Next(), true, false);
+      Tuple keyValue = GenerateKeyValue(domain, type.Hierarchy);
+      return Create(domain, type, keyValue, true, false);
+    }
+
+    private static Tuple GenerateKeyValue(Domain domain, HierarchyInfo hierarchy)
+    {
+      var keyGenerator = domain.KeyGenerators[hierarchy.GeneratorInfo];
+      if (keyGenerator==null)
+        throw new InvalidOperationException(
+          string.Format(Strings.ExUnableToCreateKeyForXHierarchy, hierarchy));
+      return keyGenerator.Next();
     }
 
     /// <summary>
@@ -338,10 +363,10 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
     /// <param name="value">Key value.</param>
     /// <returns>
-    /// A newly created or existing <see cref="Key"/> instance .
+    /// A newly created or existing <see cref="Key"/> instance.
     /// </returns>
     public static Key Create<T>(Tuple value)
-      where T : Entity
+      where T : Entity  
     {
       return Create(typeof (T), value, false);
     }

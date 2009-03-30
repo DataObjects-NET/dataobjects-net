@@ -57,14 +57,14 @@ namespace Xtensive.Storage
     }
 
     [Infrastructure]
-    public T GetField<T>(Persistent target, FieldInfo field)
+    public T GetFieldValue<T>(Persistent target, FieldInfo field)
     {
       ValidateArguments(target, field);
       return target.GetFieldValue<T>(field, false);
     }
 
     [Infrastructure]
-    public void SetField<T>(Persistent target, FieldInfo field, T value)
+    public void SetFieldValue<T>(Persistent target, FieldInfo field, T value)
     {
       ValidateArguments(target, field);
       target.SetFieldValue(field, value, false);

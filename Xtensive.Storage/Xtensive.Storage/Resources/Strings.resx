@@ -531,7 +531,19 @@
   <data name="ExActiveSerializationContextIsNotFound" xml:space="preserve">
     <value>Active serialization context is not found.</value>
   </data>
-  <data name="ExCanNotToResolveEntityWithKeyX" xml:space="preserve">
-    <value>Can not to resolve entity with key '{0}'</value>
+  <data name="ExCanNotResolveEntityWithKeyX" xml:space="preserve">
+    <value>Can not resolve entity with key '{0}'</value>
+  </data>
+  <data name="UnableToResolveTypeForKeyX" xml:space="preserve">
+    <value>Unable to resolve type for Key '{0}'.</value>
+  </data>
+  <data name="ExUnknownEntitySerializationKindX" xml:space="preserve">
+    <value>Unknown entity serialization kind '{0}'.</value>
+  </data>
+  <data name="ExUnableToCreateKeyForXHierarchy" xml:space="preserve">
+    <value>Unable to create key for '{0}' hierarchy. Key value or key generator should be specified.</value>
+  </data>
+  <data name="ActiveXIsNotFound" xml:space="preserve">
+    <value>Active {0} is not found.</value>
   </data>
 </root>

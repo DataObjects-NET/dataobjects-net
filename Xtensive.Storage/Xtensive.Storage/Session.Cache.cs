@@ -36,9 +36,9 @@ namespace Xtensive.Storage
       return result;
     }
 
-    /// <exception cref="InvalidOperationException">Attempt to associate 
-    /// non-null <paramref name="tuple"/> with <paramref name="key"/> of
-    /// unknown type.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// Attempt to associate non-null <paramref name="tuple"/> with <paramref name="key"/> of unknown type.
+    /// </exception>
     internal EntityState UpdateEntityState(Key key, Tuple tuple)
     {
       var result = EntityStateCache[key, true];

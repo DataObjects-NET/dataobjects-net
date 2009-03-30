@@ -2,38 +2,39 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Kofman
-// Created:    2009.03.18
+// Created:    2009.03.30
 
 using System;
-using System.Runtime.Serialization;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Serialization
 {
   /// <summary>
-  /// Serialization scope.
+  /// Deserialization scope.
   /// </summary>
-  public class SerializationScope : Scope<SerializationContext>
+  public class DeserializationScope : Scope<DeserializationContext>
   {
     /// <summary>
     /// Gets the current context.
     /// </summary>
-    public new static SerializationContext CurrentContext
+    public new static DeserializationContext CurrentContext
     {
-      get { return Scope<SerializationContext>.CurrentContext; }
+      get { return Scope<DeserializationContext>.CurrentContext; }
     }
 
     
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="context">The context.</param>
-    public SerializationScope(SerializationContext context) 
+    public DeserializationScope(DeserializationContext context) 
       : base(context)
     {
     }
   }
+  
 }

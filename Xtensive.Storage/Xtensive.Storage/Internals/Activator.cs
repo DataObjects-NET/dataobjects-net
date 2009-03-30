@@ -18,6 +18,9 @@ namespace Xtensive.Storage.Internals
     private static readonly ThreadSafeDictionary<Type, Func<EntityState, bool, Entity>> entityActivators =
       ThreadSafeDictionary<Type, Func<EntityState, bool, Entity>>.Create(new object());
 
+    private static readonly ThreadSafeDictionary<Type, Func<Entity>> newEntityActivators =
+      ThreadSafeDictionary<Type, Func<Entity>>.Create(new object());
+
     private static readonly ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, bool, Structure>> structureActivators =
       ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, bool, Structure>>.Create(new object());
 
@@ -30,6 +33,14 @@ namespace Xtensive.Storage.Internals
         DelegateHelper.CreateConstructorDelegate<Func<EntityState, bool, Entity>>);
       Entity result = activator(state, notify);
       result.OnInitialize(notify);
+      return result;
+    }
+
+    internal static Entity CreateNewEntity(Type type)
+    {
+      var activator = newEntityActivators.GetValue(type,
+        DelegateHelper.CreateConstructorDelegate<Func<Entity>>);
+      Entity result = activator();
       return result;
     }
 

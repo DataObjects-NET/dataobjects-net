@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Serialization
 {
@@ -17,7 +18,6 @@ namespace Xtensive.Storage.Serialization
   {
     private readonly Func<Entity, SerializationKind> getSerializationKindDelegate;
 
-
     /// <summary>
     /// Gets the current <see cref="SerializationContext"/>.
     /// </summary>
@@ -26,12 +26,25 @@ namespace Xtensive.Storage.Serialization
       get { return SerializationScope.CurrentContext; }
     }
 
+    /// <summary>
+    /// Gets the current <see cref="SerializationContext"/>, or throws <see cref="InvalidOperationException"/>, if active context is not found.
+    /// </summary>
+    /// <returns>Current context.</returns>
+    /// <exception cref="InvalidOperationException">Active context is not found.</exception>
+    public static SerializationContext DemandCurrent()
+    {
+      var currentContext = Current;
+      if (currentContext==null)        
+        throw new InvalidOperationException(
+          string.Format(Strings.ActiveXIsNotFound, typeof(SerializationContext)));
+      return currentContext;
+    }
+
     /// <inheritdoc/>
     protected override SerializationScope CreateActiveScope()
     {
       return new SerializationScope(this);
     }
-
 
     /// <summary>
     /// Gets the kind of serialization for the given entity.

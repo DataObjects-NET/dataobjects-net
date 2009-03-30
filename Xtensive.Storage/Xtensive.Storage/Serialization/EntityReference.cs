@@ -7,31 +7,29 @@
 using System;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Serialization
 {
   /// <summary>
-  /// Entity reference (for serialization).
+  /// Object to be serialized instead of <see cref="Entity"/> when serialization <see cref="SerializationKind.ByReference"/> is used.
   /// </summary>
   [Serializable]
   internal sealed class EntityReference : IObjectReference, ISerializable
   {
     private const string KeyValueName = "Key";
-    private readonly Key entityKey;
+
+    private readonly Entity entity;
 
     public object GetRealObject(StreamingContext context)
     {
-      Entity entity = entityKey.Resolve();
-      if (entity==null)
-        throw new InvalidOperationException(
-          string.Format(Strings.ExCanNotToResolveEntityWithKeyX, entityKey));
       return entity;
     }
-
+      
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      info.AddValue(KeyValueName, entityKey.Format());
+      info.AddValue(KeyValueName, entity.Key.Format());
     }
 
     /// <summary>
@@ -40,17 +38,22 @@ namespace Xtensive.Storage.Serialization
     /// <param name="entity">The entity to serialize.</param>
     public EntityReference(Entity entity)
     {
-      entityKey = entity.Key;
+      this.entity = entity;
     }
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="info">The serialization info to deserialize.</param>
     /// <param name="context">The streaming context.</param>
     private EntityReference(SerializationInfo info, StreamingContext context)
     {
-      entityKey = Key.Parse(info.GetString(KeyValueName));
+      Key key = Key.Parse(info.GetString(KeyValueName));
+      entity = key.Resolve();
+
+      if (entity==null)
+        throw new InvalidOperationException(
+          string.Format(Strings.ExCanNotResolveEntityWithKeyX, key));
     }
   }
 }

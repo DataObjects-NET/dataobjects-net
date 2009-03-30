@@ -57,6 +57,11 @@ namespace Xtensive.Storage
     [Infrastructure]
     internal abstract void EnsureIsFetched(FieldInfo field);
 
+    internal TypeInfo GetTypeInfo()
+    {
+      return Session.Domain.Model.Types[GetType()];
+    }
+
     #region this[...], GetProperty, SetProperty members
 
     /// <summary>
@@ -263,6 +268,12 @@ namespace Xtensive.Storage
       OnGetFieldValue(field, result, notify);
 
       return result;
+    }
+
+    [Infrastructure]
+    internal void SetFieldValue<T>(string fieldName, T value, bool notify)
+    {
+      SetFieldValue(Type.Fields[fieldName], value, false);
     }
 
     [Infrastructure]

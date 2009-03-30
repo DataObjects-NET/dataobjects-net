@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Internals
 
       if (entity!=null && entity.Session!=obj.Session)
         throw new InvalidOperationException(string.Format(
-          Strings.EntityXIsBoundToAnotherSession, entity.Key));
+          Strings.EntityXIsBoundToAnotherSession, entity.Key)); 
 
       var mappingInfo = field.MappingInfo;
       int fieldIndex = mappingInfo.Offset;
@@ -45,6 +45,8 @@ namespace Xtensive.Storage.Internals
         entity.Key.Value.CopyTo(obj.Tuple, 0, fieldIndex, mappingInfo.Length);
       }
     }
+
+    
 
     /// <inheritdoc/>
     public override T GetValue(Persistent obj, FieldInfo field, bool notify)

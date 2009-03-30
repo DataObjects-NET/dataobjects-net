@@ -154,7 +154,7 @@ namespace Xtensive.Storage
     /// </summary>
     protected Structure()
     {
-      type = Session.Domain.Model.Types[GetType()];
+      type = GetTypeInfo();
       tuple = type.TuplePrototype.Clone();
     }
 
@@ -167,7 +167,7 @@ namespace Xtensive.Storage
     /// initialization related events will be raised.</param>
     protected Structure(Persistent owner, FieldInfo field, bool notify)
     {
-      type = Session.Domain.Model.Types[GetType()];
+      type = GetTypeInfo();
       this.owner = owner;
       this.field = field;
       if (owner == null || field == null)

@@ -14,11 +14,11 @@ namespace Xtensive.Storage.Serialization
     /// <summary>
     /// Serialization by reference.
     /// </summary>
-    ByReference,
+    ByReference = 0,
 
     /// <summary>
-    /// Serialyzation by value.
+    /// Serialization by value 
     /// </summary>
-    ByValue
+    ByValue = 1,
   }
 }
