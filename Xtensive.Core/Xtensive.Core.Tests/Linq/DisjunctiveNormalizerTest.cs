@@ -4,12 +4,16 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.25
 
+using System;
+using System.Collections;
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using System.Linq.Expressions;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Linq.Normalization;
+using System.Collections.Generic;
 
 
 namespace Xtensive.Core.Tests.Linq
@@ -17,61 +21,308 @@ namespace Xtensive.Core.Tests.Linq
   [TestFixture]
   public class DisjunctiveNormalizerTest
   {
-    private int[] source = new[] { 1, 2, 3 };
+    [Test]
+    public void CombinedTest()
+    {
+      for (var i = 0; i < Math.Pow(2, 4); i++) {
+        var terms = new BitArray(new[] {i});
+        var exp = Expression.Not(
+          Expression.Or(
+            Expression.And(
+              Expression.Constant(terms[0]),
+              Expression.Constant(terms[1])),
+            Expression.And(
+              Expression.Constant(terms[2]),
+              Expression.Constant(terms[3]))));
+        var normalizedExp = new DisjunctiveNormalizer().Normalize(exp);
+        NormalizerTest(exp, normalizedExp);
+      }
+    }
 
     [Test]
-    public void BaseTest()
+    public void CombinedTest1()
     {
-      var qs = source.AsQueryable();
+      for (var i = 0; i < Math.Pow(2, 4); i++) {
+        var terms = new BitArray(new[] {i});
+        var exp = Expression.AndAlso(
+          Expression.OrElse(
+            Expression.Constant(terms[0]),
+            Expression.Constant(terms[1])),
+          Expression.Not(
+            Expression.Equal(
+              Expression.Constant(terms[2]),
+              Expression.LessThan(
+                Expression.Constant(i),
+                Expression.Constant(8)))));
+        var normalizedExp = new DisjunctiveNormalizer().Normalize(exp);
+        NormalizerTest(exp, normalizedExp);
+      }
+    }
 
-      var q = from i in qs where (i == 1) & !((i > 2) & ((i == 3) & (i == 4))) select i;
-      var b = new BooleanSearcher().GetFirstBooleanExpression(q);
-      var nb = new DisjunctiveNormalizer().Normalize(b).ToExpression();
-      var nb1 = new DisjunctiveNormalizer(3).Normalize(b).ToExpression();
-
-      DumpExpression(b);
-      DumpExpression(nb);
-      DumpExpression(nb1);
+    [Test]
+    public void CombinedTest2()
+    {
+      for (var i = 0; i < Math.Pow(2, 8); i++)
+      {
+        var terms = new BitArray(new[] { i });
+        var exp = Expression.And(
+          Expression.Or(
+            Expression.Constant(terms[0]),
+            Expression.And(
+              Expression.Constant(terms[1]),
+              Expression.Or(
+                Expression.Constant(terms[2]),
+                Expression.Constant(terms[3])))),
+          Expression.Or(
+            Expression.Constant(terms[4]),
+            Expression.And(
+              Expression.Constant(terms[5]),
+              Expression.Or(
+                Expression.Constant(terms[6]),
+                Expression.Constant(terms[7])))));
+        var normalizedExp = new DisjunctiveNormalizer().Normalize(exp);
+        NormalizerTest(exp, normalizedExp);
+      }
     }
 
     [Test]
     public void NormalizeEqualsTest()
     {
-      var eq = Expression.Equal(Expression.Constant(true), Expression.Constant(false));
-      var expected = Expression.Or(
-        Expression.And(Expression.Constant(true), Expression.Constant(false)), 
-        Expression.And(Expression.Not(Expression.Constant(true)), Expression.Not(Expression.Constant(false))));
-      var dis = new DisjunctiveNormalizer().Normalize(eq).ToExpression();
+      var exp = Expression.Equal(Expression.Constant(true), Expression.Constant(false));
+      var expected = new DisjunctiveNormalized(new[]
+        {
+          new Conjunction<Expression>(new[]
+            {
+              Expression.Constant(true),
+              Expression.Constant(false)
+            }),
+          new Conjunction<Expression>(new[]
+            {
+              Expression.Not(Expression.Constant(true)),
+              Expression.Not(Expression.Constant(false))
+            })
+        });
 
-      Log.Info(eq.ToString());
-      Log.Info(dis.ToString());
-      Log.Info(expected.ToString());
-      // Assert.AreEqual(expected, dis);
+      NormalizerTest(expected, exp);
     }
 
-
-    public void DumpExpression(Expression e)
+    [Test]
+    public void NormalizeNotNotTest()
     {
-      Log.Info(e.ToString(true));
+      var exp = Expression.Not(
+        Expression.Not(
+          Expression.Or(
+            Expression.Constant(true),
+            Expression.Constant(false))));
+      var expected = new DisjunctiveNormalized(new[]
+        {
+          new Conjunction<Expression>(new[]
+            {
+              Expression.Constant(true),
+            }),
+          new Conjunction<Expression>(new[]
+            {
+              Expression.Constant(false)
+            })
+        });
+
+      NormalizerTest(expected, exp);
+    }
+
+    [Test]
+    public void NormalizeNotEqualsTest()
+    {
+      var exp = Expression.NotEqual(Expression.Constant(true), Expression.Constant(false));
+      var expected = new DisjunctiveNormalized(new[]
+        {
+          new Conjunction<Expression>(new Expression[]
+            {
+              Expression.Not(Expression.Constant(true)),
+              Expression.Constant(false)
+            }),
+          new Conjunction<Expression>(new Expression[]
+            {
+              Expression.Constant(true),
+              Expression.Not(Expression.Constant(false))
+            })
+        });
+
+      NormalizerTest(expected, exp);
+    }
+
+    [Test]
+    public void NormalizeInversionTest()
+    {
+      var exp = Expression.Not(
+        Expression.Equal(Expression.Constant(true), Expression.Constant(false)));
+      var expected = new DisjunctiveNormalized(new[]
+        {
+          new Conjunction<Expression>(new Expression[]
+            {
+              Expression.Not(Expression.Constant(true)),
+              Expression.Constant(false)
+            }),
+          new Conjunction<Expression>(new Expression[]
+            {
+              Expression.Constant(true),
+              Expression.Not(Expression.Constant(false))
+            })
+        });
+      NormalizerTest(expected, exp);
+
+      exp = Expression.Not(
+        Expression.NotEqual(Expression.Constant(true), Expression.Constant(false)));
+      expected = new DisjunctiveNormalized(new[]
+        {
+          new Conjunction<Expression>(new[]
+            {
+              Expression.Constant(true),
+              Expression.Constant(false)
+            }),
+          new Conjunction<Expression>(new[]
+            {
+              Expression.Not(Expression.Constant(true)),
+              Expression.Not(Expression.Constant(false))
+            })
+        });
+      NormalizerTest(expected, exp);
+
+      exp = Expression.Not(Expression.Or(Expression.Constant(true), Expression.Constant(false)));
+      expected = new DisjunctiveNormalized(
+          new Conjunction<Expression>(new[]
+            {
+              Expression.Not(Expression.Constant(true)),
+              Expression.Not(Expression.Constant(false))
+            }));
+      NormalizerTest(expected, exp);
+
+      exp = Expression.Not(Expression.And(Expression.Constant(true), Expression.Constant(false)));
+      expected = new DisjunctiveNormalized(new[]
+        {
+          new Conjunction<Expression>(Expression.Not(Expression.Constant(true))),
+          new Conjunction<Expression>(Expression.Not(Expression.Constant(false)))
+        });
+      NormalizerTest(expected, exp);
+    }
+
+    [Test]
+    public void NormalizeDisjunctionTest()
+    {
+      var exp = Expression.Or(
+        Expression.Or(Expression.Constant(true), Expression.Constant(false)),
+        Expression.Or(Expression.Constant(true), Expression.Constant(false)));
+      var expected = new DisjunctiveNormalized(new[]
+        {
+          new Conjunction<Expression>(Expression.Constant(true)),
+          new Conjunction<Expression>(Expression.Constant(false)),
+          new Conjunction<Expression>(Expression.Constant(true)),
+          new Conjunction<Expression>(Expression.Constant(false))
+        });
+
+      NormalizerTest(expected, exp);
+    }
+
+    [Test]
+    public void NormalizeConjunctionTest()
+    {
+      var exp = Expression.And(
+        Expression.Or(Expression.Constant(true), Expression.Constant(false)),
+        Expression.Or(Expression.Constant(true), Expression.Constant(false)));
+      var expected = new DisjunctiveNormalized(new[]
+        {
+          new Conjunction<Expression>(new[]
+            {
+              Expression.Constant(true),
+              Expression.Constant(true)
+            }),
+          new Conjunction<Expression>(new[]
+            {
+              Expression.Constant(true),
+              Expression.Constant(false)
+            }),
+          new Conjunction<Expression>(new[]
+            {
+              Expression.Constant(false),
+              Expression.Constant(true)
+            }),
+          new Conjunction<Expression>(new[]
+            {
+              Expression.Constant(false),
+              Expression.Constant(false)
+            })
+        });
+
+      NormalizerTest(expected, exp);
+    }
+
+    [Test]
+    public void MaxConjunctionOperandCountTest()
+    {
+      var exp = Expression.And(
+        Expression.Or(
+          Expression.Or(
+            Expression.Or(
+              Expression.Constant(true),
+              Expression.Constant(false)),
+            Expression.Constant(false)),
+          Expression.Constant(false)),
+        Expression.Or(
+          Expression.Constant(true),
+          Expression.Constant(false)));
+      var expected = new DisjunctiveNormalized(new[]
+        {
+          new Conjunction<Expression>(Expression.Constant(true)),
+          new Conjunction<Expression>(Expression.Constant(false))
+        });
+      NormalizerTest(expected, exp, 3);
+    }
+    
+    public void NormalizerTest(Expression expression, DisjunctiveNormalized normalized)
+    {
+      var expected = Expression.Lambda<Func<bool>>(expression).Compile()();
+      var actual = Expression.Lambda<Func<bool>>(normalized.ToExpression()).Compile()();
+      Log.Info("{0} = {1}", expression.ToString(true), expected);
+      Log.Info("{0} = {1}", normalized.ToString(true), actual);
+      Assert.AreEqual(expected, actual);
+    }
+
+    public void NormalizerTest(DisjunctiveNormalized expected, Expression toNormalize)
+    {
+      var normalized = new DisjunctiveNormalizer().Normalize(toNormalize);
+
+      Log.Info("Expression: {0}", toNormalize.ToString(true));
+      Log.Info("Normalized: {0}", normalized.ToString(true));
+      Log.Info("Expected:   {0}", expected.ToString(true));
+      Assert.AreEqual(expected.ToString(true), normalized.ToString(true));
+    }
+
+    public void NormalizerTest(DisjunctiveNormalized expected, Expression toNormalize, int maxConjunctionOperandCount)
+    {
+      var normalized = new DisjunctiveNormalizer(maxConjunctionOperandCount).Normalize(toNormalize);
+
+      Log.Info("Expression: {0}", toNormalize.ToString(true));
+      Log.Info("Normalized: {0}", normalized.ToString(true));
+      Log.Info("Expected:   {0}", expected.ToString(true));
+      Assert.AreEqual(expected.ToString(true), normalized.ToString(true));
     }
   }
 
-  internal class BooleanSearcher : ExpressionVisitor
+  internal static class DisjunctiveNormalizeExtensions
   {
-    private Expression rootBoolean;
-
-    public Expression GetFirstBooleanExpression(IQueryable query)
+    internal static string ToString(this DisjunctiveNormalized exp, bool inCspNotation)
     {
-      Visit(query.Expression);
-      return rootBoolean;
+      return inCspNotation
+        ? exp.Operands.Select(
+          c => c.Operands.Select(
+            e => e.ToString(true))
+            .Join(" & ", "({0})"))
+          .Join(" | ", "{0}")
+        : exp.ToString();
     }
 
-    protected override Expression Visit(Expression e)
+    private static string Join(this IEnumerable<string> strings, string separator, string format)
     {
-      if (e is BinaryExpression && rootBoolean == null)
-        rootBoolean = e;
-
-      return base.Visit(e);
+      return string.Format(format, string.Join(separator, strings.ToArray()));
     }
   }
 }

@@ -33,7 +33,7 @@ namespace Xtensive.Core.Linq.Normalization
         if (result==null)
           result = expression;
         else {
-          result = Expression.And(result, expression);
+          result = Expression.And(expression, result);
         }
       }
       return result;

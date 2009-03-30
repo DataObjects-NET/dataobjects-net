@@ -29,7 +29,7 @@ namespace Xtensive.Core.Linq.Normalization
         if (result==null)
           result = expression;
         else {
-          result = Expression.Or(result, expression);
+          result = Expression.Or(expression, result);
         }
       }
       return result;
