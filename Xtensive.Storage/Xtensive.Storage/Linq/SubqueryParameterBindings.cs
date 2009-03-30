@@ -27,10 +27,10 @@ namespace Xtensive.Storage.Linq
 
     public ParameterExpression CurrentParameter { get { return stack.Peek(); } }
 
-    public IDisposable Bind(IEnumerable<ParameterExpression> keys)
+    public IDisposable Bind(IEnumerable<ParameterExpression> parameters)
     {
       Binding binding;
-      foreach (ParameterExpression key in keys)
+      foreach (var key in parameters)
         if (bindings.TryGetValue(key, out binding))
           binding.Cardinality++;
         else {
@@ -38,36 +38,36 @@ namespace Xtensive.Storage.Linq
           bindings.Add(key, binding);
           stack.Push(key);
         }
-      return new Disposable<ParameterExpression[]> (keys.ToArray(), Unbind);
+      return new Disposable<ParameterExpression[]> (parameters.ToArray(), Unbind);
     }
 
-    public Parameter<Tuple> GetBound(ParameterExpression key)
+    public Parameter<Tuple> GetBound(ParameterExpression parameter)
     {
-      return bindings[key].Parameter;
+      return bindings[parameter].Parameter;
     }
 
-    public bool TryGetBound(ParameterExpression key, out Parameter<Tuple> value)
+    public bool TryGetBound(ParameterExpression parameter, out Parameter<Tuple> result)
     {
       Binding binding;
-      if (bindings.TryGetValue(key, out binding)) {
-        value = binding.Parameter;
+      if (bindings.TryGetValue(parameter, out binding)) {
+        result = binding.Parameter;
         return true;
       }
-      value = null;
+      result = null;
       return false;
     }
 
-    public void InvalidateParameter(ParameterExpression key)
+    public void InvalidateParameter(ParameterExpression parameter)
     {
-      bindings[key].Parameter = new Parameter<Tuple>();
+      bindings[parameter].Parameter = new Parameter<Tuple>();
     }
 
-    private void Unbind(bool disposing, ParameterExpression[] keys)
+    private void Unbind(bool disposing, ParameterExpression[] parameters)
     {
       if (!disposing)
         return;
 
-      foreach (ParameterExpression key in keys) {
+      foreach (var key in parameters) {
         var binding = bindings[key];
         if (binding.Cardinality == 1) {
           bindings.Remove(key);

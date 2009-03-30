@@ -210,20 +210,11 @@ namespace Xtensive.Storage.Linq
         case QueryableMethodKind.Min:
         case QueryableMethodKind.Sum:
         case QueryableMethodKind.Average:
-          if (context.IsRoot(mc)) {
-            if (mc.Arguments.Count==1)
-              return VisitRootAggregate(mc.Arguments[0], mc.Method, null);
-            if (mc.Arguments.Count==2)
-              return VisitRootAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes());
-            break;
-          }
-          else {
-            if (mc.Arguments.Count == 1)
-              return VisitAggregate(mc.Arguments[0], mc.Method, null);
-            if (mc.Arguments.Count == 2)
-              return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes());
-            break;
-          }
+          if (mc.Arguments.Count == 1)
+            return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc));
+          if (mc.Arguments.Count == 2)
+            return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
+          break;
         case QueryableMethodKind.Skip:
           if (mc.Arguments.Count==2)
             return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
@@ -335,67 +326,82 @@ namespace Xtensive.Storage.Linq
       return new ResultExpression(result.Type, rs, result.Mapping, result.Projector, result.ItemProjector);
     }
 
-    private Expression VisitAggregate(Expression source, MethodInfo method, LambdaExpression argument)
+    private Expression VisitAggregate(Expression source, MethodInfo method, LambdaExpression argument, bool isRoot)
     {
-      throw new NotImplementedException();
-    }
+      int aggregateColumn;
+      AggregateType aggregateType;
+      ResultExpression innerResult;
 
-    private Expression VisitRootAggregate(Expression source, MethodInfo method, LambdaExpression argument)
-    {
-      AggregateType type = AggregateType.Count;
-      Expression<Func<RecordSet, object>> shaper;
-      ResultExpression result;
-      int aggregateColumn = 0;
-      if (method.Name==WellKnown.Queryable.Count || method.Name==WellKnown.Queryable.LongCount) {
-        if (method.ReturnType==typeof (int))
-          shaper = set => (int) (set.First().GetValue<long>(0));
+      switch (method.Name) {
+        case WellKnown.Queryable.Count:
+        case WellKnown.Queryable.LongCount:
+          aggregateType = AggregateType.Count;
+          break;
+        case WellKnown.Queryable.Min:
+          aggregateType = AggregateType.Min;
+          break;
+        case WellKnown.Queryable.Max:
+          aggregateType = AggregateType.Max;
+          break;
+        case WellKnown.Queryable.Sum:
+          aggregateType = AggregateType.Sum;
+          break;
+        case WellKnown.Queryable.Average:
+          aggregateType = AggregateType.Avg;
+          break;
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
+
+      if (aggregateType == AggregateType.Count) {
+        aggregateColumn = 0;
+        if (argument != null)
+          innerResult = (ResultExpression)VisitWhere(source, argument);
         else
-          shaper = set => (set.First().GetValue<long>(0));
-        if (argument!=null)
-          result = (ResultExpression) VisitWhere(source, argument);
-        else
-          result = (ResultExpression) Visit(source);
+          innerResult = (ResultExpression)Visit(source);
       }
       else {
-        result = (ResultExpression) Visit(source);
+        innerResult = (ResultExpression)Visit(source);
         var columnList = new List<int>();
-        if (argument==null) {
-          if (result.Mapping.Segment.Length > 1 || result.ItemProjector.Body.Type!=result.RecordSet.Header.Columns[result.Mapping.Segment.Offset].Type)
+
+        if (argument == null) {
+          if (innerResult.Mapping.Segment.Length > 1 ||
+              innerResult.ItemProjector.Body.Type != innerResult.RecordSet.Header.Columns[innerResult.Mapping.Segment.Offset].Type)
             throw new NotSupportedException();
-          columnList.Add(result.Mapping.Segment.Offset);
+          columnList.Add(innerResult.Mapping.Segment.Offset);
         }
         else {
-          using (context.Bindings.Add(argument.Parameters[0], result))
+          using (context.Bindings.Add(argument.Parameters[0], innerResult))
           using (new ParameterScope()) {
             resultMapping.Value = new ResultMapping();
             Visit(argument);
             columnList = resultMapping.Value.GetColumns().ToList();
-            result = context.Bindings[argument.Parameters[0]];
+            innerResult = context.Bindings[argument.Parameters[0]];
           }
         }
 
-        if (columnList.Count!=1)
+        if (columnList.Count != 1)
           throw new NotSupportedException();
         aggregateColumn = columnList[0];
-        shaper = set => set.First().GetValueOrDefault(0);
-        switch (method.Name) {
-          case WellKnown.Queryable.Min:
-            type = AggregateType.Min;
-            break;
-          case WellKnown.Queryable.Max:
-            type = AggregateType.Max;
-            break;
-          case WellKnown.Queryable.Sum:
-            type = AggregateType.Sum;
-            break;
-          case WellKnown.Queryable.Average:
-            type = AggregateType.Avg;
-            break;
-        }
       }
 
-      var recordSet = result.RecordSet.Aggregate(null, new AggregateColumnDescriptor(context.GetNextColumnAlias(), aggregateColumn, type));
-      return new ResultExpression(result.Type, recordSet, null, shaper, null);
+      var innerRecordSet = innerResult.RecordSet.Aggregate(null,
+        new AggregateColumnDescriptor(context.GetNextColumnAlias(), aggregateColumn, aggregateType));
+
+      if (!isRoot) 
+        return ApplyOneColumnSubquery(innerRecordSet);
+
+      Expression<Func<RecordSet, object>> shaper;
+      if (aggregateType == AggregateType.Count)
+      {
+        if (method.Name == WellKnown.Queryable.LongCount)
+          shaper = set => (set.First().GetValue<long>(0));
+        else
+          shaper = set => (int)(set.First().GetValue<long>(0));
+      }
+      else
+        shaper = set => set.First().GetValueOrDefault(0);
+      return new ResultExpression(innerResult.Type, innerRecordSet, null, shaper, null);
     }
 
     private Expression VisitGroupBy(MethodInfo method, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
@@ -696,24 +702,30 @@ namespace Xtensive.Storage.Linq
         else
           subquery = (ResultExpression)VisitWhere(source, predicate);
       }
+      var filter = ApplyOneColumnSubquery(subquery.RecordSet.Existence(context.GetNextColumnAlias()));
+      if (notExists)
+        filter = Expression.Not(filter);
+      return filter;
+    }
+
+    private Expression ApplyOneColumnSubquery(RecordSet subquery)
+    {
+      if (subquery.Header.Length != 1)
+        throw new ArgumentException();
+      var column = subquery.Header.Columns[0];
       var lambdaParameter = context.SubqueryParameterBindings.CurrentParameter;
       var applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
       context.SubqueryParameterBindings.InvalidateParameter(lambdaParameter);
       var oldResult = context.Bindings[lambdaParameter];
-      var columnName = context.GetNextColumnAlias();
       int columnIndex = oldResult.RecordSet.Header.Length;
       var newMapping = new ResultMapping();
       newMapping.Replace(oldResult.Mapping);
-      newMapping.RegisterFieldMapping(columnName, new Segment<int>(columnIndex, 1));
-      var newRecordSet = oldResult.RecordSet
-        .Apply(applyParameter, subquery.RecordSet.Existence(columnName), ApplyType.Cross);
+      newMapping.RegisterFieldMapping(column.Name, new Segment<int>(columnIndex, 1));
+      var newRecordSet = oldResult.RecordSet.Apply(applyParameter, subquery);
       var newResult = new ResultExpression(
         oldResult.Type, newRecordSet, newMapping, oldResult.Projector, oldResult.ItemProjector);
       context.Bindings.ReplaceBound(lambdaParameter, newResult);
-      Expression filter = MakeTupleAccess(lambdaParameter, typeof (bool), Expression.Constant(columnIndex));
-      if (notExists)
-        filter = Expression.Not(filter);
-      return filter;
+      return MakeTupleAccess(lambdaParameter, column.Type, Expression.Constant(columnIndex));
     }
 
     // Constructor
