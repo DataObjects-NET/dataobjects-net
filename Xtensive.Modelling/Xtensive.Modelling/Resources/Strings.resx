@@ -177,4 +177,7 @@
   <data name="DifferencePropertyNamePrefix" xml:space="preserve">
     <value>+{0}: </value>
   </data>
+  <data name="ExPropertyValueMustBelongToTheSameModel" xml:space="preserve">
+    <value>Property value must belong to the same Model.</value>
+  </data>
 </root>

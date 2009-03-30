@@ -751,7 +751,7 @@ namespace Xtensive.Modelling
     /// Raises <see cref="PropertyChanged"/> event.
     /// </summary>
     /// <param name="name">Name of the property.</param>
-    protected void OnPropertyChanged(string name)
+    protected virtual void OnPropertyChanged(string name)
     {
       if (PropertyChanged!=null)
         PropertyChanged.Invoke(this, new PropertyChangedEventArgs(name));
@@ -764,9 +764,14 @@ namespace Xtensive.Modelling
     /// <param name="name">Name of the property.</param>
     /// <param name="value">New value of the property.</param>
     /// <param name="setter">Property setter delegate.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> belongs to a different <see cref="Model"/>.</exception>
     protected void ChangeProperty<T>(string name, T value, Action<Node,T> setter)
     {
       EnsureIsEditable();
+      var pathNode = value as IPathNode;
+      var model = Model;
+      if (pathNode!=null && model!=null && pathNode.Model!=model)
+        throw new ArgumentOutOfRangeException(Strings.ExPropertyValueMustBelongToTheSameModel, "value");
       using (var scope = !PropertyAccessors.ContainsKey(name) ? null : LogPropertyChange(name, value)) {
         setter.Invoke(this, value);
         OnPropertyChanged(name);

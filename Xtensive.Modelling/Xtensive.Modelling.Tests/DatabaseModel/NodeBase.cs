@@ -6,6 +6,8 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Reflection;
+using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
@@ -44,6 +46,21 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       Log.Info("Removed: {0}", this);
     }
 
+    protected override void OnPropertyChanged(string name)
+    {
+      base.OnPropertyChanged(name);
+      PropertyAccessor accessor;
+      if (PropertyAccessors.TryGetValue(name, out accessor)) {
+        if (!accessor.HasGetter)
+          return;
+        if (accessor.PropertyInfo.GetAttribute<SystemPropertyAttribute>(AttributeSearchOptions.InheritNone)!=null)
+          return;
+        Log.Info("Changed: {0}, {1} = {2}", this, name, GetProperty(name));
+      }
+    }
+
+
+    // Constructors
 
     protected NodeBase(TParent parent, string name, int index)
       : base(parent, name, index)

@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 
@@ -23,7 +22,7 @@ namespace Xtensive.Modelling.Comparison
     {
       var targetNode = ((NodeDifference) Parent).Target;
       var pca = new PropertyChangeAction() {Path = targetNode.Path};
-      pca.Properties.Add(PropertyName, Target);
+      pca.Properties.Add(PropertyName, PathNodeReference.Get(Target));
       sequence.Add(pca);
     }
 
