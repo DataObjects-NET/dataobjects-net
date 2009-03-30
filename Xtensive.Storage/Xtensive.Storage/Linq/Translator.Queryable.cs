@@ -328,13 +328,19 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitAggregate(Expression source, MethodInfo method, LambdaExpression argument, bool isRoot)
     {
+      bool isLongCount = false;
+      bool isIntCount = false;
       int aggregateColumn;
       AggregateType aggregateType;
       ResultExpression innerResult;
 
       switch (method.Name) {
         case WellKnown.Queryable.Count:
+          isIntCount = true;
+          aggregateType = AggregateType.Count;
+          break;
         case WellKnown.Queryable.LongCount:
+          isLongCount = true;
           aggregateType = AggregateType.Count;
           break;
         case WellKnown.Queryable.Min:
@@ -388,17 +394,18 @@ namespace Xtensive.Storage.Linq
       var innerRecordSet = innerResult.RecordSet.Aggregate(null,
         new AggregateColumnDescriptor(context.GetNextColumnAlias(), aggregateColumn, aggregateType));
 
-      if (!isRoot) 
-        return ApplyOneColumnSubquery(innerRecordSet);
+      if (!isRoot) {
+        var expression = ApplyOneColumnSubquery(innerRecordSet);
+        if (isIntCount)
+          expression = Expression.Convert(expression, typeof (int));
+        return expression;
+      }
 
       Expression<Func<RecordSet, object>> shaper;
-      if (aggregateType == AggregateType.Count)
-      {
-        if (method.Name == WellKnown.Queryable.LongCount)
-          shaper = set => (set.First().GetValue<long>(0));
-        else
-          shaper = set => (int)(set.First().GetValue<long>(0));
-      }
+      if (isLongCount)
+        shaper = set => (set.First().GetValue<long>(0));
+      else if (isIntCount)
+        shaper = set => (int)(set.First().GetValue<long>(0));
       else
         shaper = set => set.First().GetValueOrDefault(0);
       return new ResultExpression(innerResult.Type, innerRecordSet, null, shaper, null);

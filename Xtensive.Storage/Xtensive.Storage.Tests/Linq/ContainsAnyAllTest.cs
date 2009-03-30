@@ -224,5 +224,18 @@ namespace Xtensive.Storage.Tests.Linq
         Assert.AreEqual(list.Count, 819);
       }
     }
+
+    [Test]
+    public void SelectAnyTest()
+    {
+      using (Domain.OpenSession())
+      using (Transaction.Open()) {
+        var result =
+          from c in Query<Customer>.All
+          select new {Customer = c, HasOrders = Query<Order>.All.Where(o => o.Customer == c).Any()};
+        var list = result.ToList();
+        Assert.Greater(list.Count, 0);
+      }
+    }
   }
 }
