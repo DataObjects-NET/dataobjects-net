@@ -67,13 +67,13 @@ namespace Xtensive.Modelling.Tests
     [Test]
     public void SerializationTest()
     {
-      var clone = (Server) LegacyBinarySerializer.Instance.Clone(srv);
+      var clone = Clone(srv);
       clone.Validate();
       clone.Dump();
     }
 
     [Test]
-    public void ComparisonTest()
+    public void BaseComparisonTest()
     {
       srv.Validate();
       var srvx = new Server("srvx");
@@ -101,6 +101,18 @@ namespace Xtensive.Modelling.Tests
 
       Log.Info("Updated Model 1:");
       srvx.Dump();
+    }
+
+    [Test]
+    public void ComplexComparisonTest()
+    {
+      srv.Validate();
+      TestUpdate((s1, s2, hs) => {
+        s1.Databases[1].Remove();
+        s2.Databases[0].Remove();
+        s2.Security.Users[0].Name = "Renamed";
+        hs.Add(new RenameHint(s1.Security.Users[0].Path, s2.Security.Users[0].Path));
+      });
     }
 
     [Test]
@@ -258,5 +270,56 @@ namespace Xtensive.Modelling.Tests
       Log.Info("Updated model:");
       srvx.Dump();
     }
+
+    #region Private methods
+
+    private void TestUpdate(Action<Server, Server, HintSet> update)
+    {
+      Difference diff;
+      ActionSequence actions;
+      
+      // With hints
+      var s1 = Clone(srv);
+      var s2 = Clone(srv);
+      var s = s1.Databases.Path;
+      var hs = new HintSet(s1, s2);
+      update.Invoke(s1, s2, hs);
+
+      using (hs.Activate()) {
+        diff = s1.GetDifferenceWith(s2);
+      }
+      Log.Info("Difference:\r\n{0}", diff);
+      actions = new ActionSequence() { diff.ToActions() };
+      Log.Info("Actions:\r\n{0}", actions);
+      actions.Apply(s1);
+      s1.Dump();
+      s2.Dump();
+      diff = s1.GetDifferenceWith(s2);
+      Log.Info("Difference:\r\n{0}", diff);
+      Assert.IsNull(diff);
+
+      // Without hints
+      s1 = Clone(srv);
+      s2 = Clone(srv);
+      hs = new HintSet(s1, s2);
+      update.Invoke(s1, s2, hs);
+
+      using (hs.Activate()) {
+        diff = s1.GetDifferenceWith(s2);
+      }
+      Log.Info("Difference:\r\n{0}", diff);
+      actions = new ActionSequence() { diff.ToActions() };
+      Log.Info("Actions:\r\n{0}", actions);
+      actions.Apply(s1);
+      Assert.IsNull(s1.GetDifferenceWith(s2));
+
+    }
+
+    private Server Clone(Server server)
+    {
+      return (Server) LegacyBinarySerializer.Instance.Clone(server);
+    }
+
+    #endregion
   }
 }

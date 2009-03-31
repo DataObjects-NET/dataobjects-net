@@ -35,9 +35,9 @@ namespace Xtensive.Modelling
     private string escapedName;
     [NonSerialized]
     private string cachedPath;
-    [NonSerialized]
     private Node parent;
     private string name;
+    [NonSerialized]
     private Dictionary<string, Node> nameIndex = new Dictionary<string, Node>();
     private readonly List<Node> list = new List<Node>();
 
@@ -259,7 +259,7 @@ namespace Xtensive.Modelling
       // Comparing common items
       foreach (var key in commonKeys) {
         var item = sourceKeyMap[key];
-        var d = (NodeDifference) item.GetDifferenceWith(null, propertyName, false);
+        var d = (NodeDifference) item.GetDifferenceWith(targetKeyMap[key], propertyName, false);
         if (d!=null)
           difference.ItemChanges.Add(item.Name, d);
       }
@@ -493,9 +493,8 @@ namespace Xtensive.Modelling
       nameIndex = new Dictionary<string, Node>(Count);
       foreach (var node in list)
         nameIndex.Add(node.Name, node);
-      if (IsLocked) {
+      if (IsLocked)
         cachedPath = Path;
-      }
     }
   }
 }

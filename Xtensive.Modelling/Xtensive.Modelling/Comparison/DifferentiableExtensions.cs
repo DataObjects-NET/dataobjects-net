@@ -31,5 +31,19 @@ namespace Xtensive.Modelling.Comparison
       else
         return target.GetDifferenceWith(source, propertyName, true);
     }
+
+    /// <summary>
+    /// Compares this instance to the <paramref name="target"/> object.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <param name="target">The target.</param>
+    /// <returns>
+    /// Differences, if any;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    public static Difference GetDifferenceWith(this IDifferentiable source, IDifferentiable target)
+    {
+      return GetDifferenceWith(source, target, null);
+    }
   }
 }

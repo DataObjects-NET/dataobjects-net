@@ -102,11 +102,13 @@ namespace Xtensive.Modelling.Comparison
     /// <inheritdoc/>
     public override string ToString()
     {
-      string proeprtyNamePrefix = PropertyName.IsNullOrEmpty() ? 
+      string propertyNamePrefix = PropertyName.IsNullOrEmpty() ? 
         string.Empty : 
         string.Format(Strings.DifferencePropertyNamePrefix, PropertyName);
+      if (Parent is NodeCollectionDifference)
+        propertyNamePrefix = string.Empty;
       return string.Format(Strings.DifferenceFormat,
-        proeprtyNamePrefix, GetType().GetShortName(), Source, Target, ParametersToString());
+        propertyNamePrefix, GetType().GetShortName(), Source, Target, ParametersToString());
     }
 
     /// <summary>

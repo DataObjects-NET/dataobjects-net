@@ -27,5 +27,10 @@ namespace Xtensive.Modelling.Actions
     {
       return new[] {Path + ".Remove()"};
     }
+
+    public override string[] GetRequiredDependencies()
+    {
+      return new string[] {};
+    }
   }
 }

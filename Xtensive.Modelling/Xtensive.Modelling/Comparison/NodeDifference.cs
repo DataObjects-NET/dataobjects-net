@@ -46,19 +46,25 @@ namespace Xtensive.Modelling.Comparison
       // Processing movement
       if (MovementInfo.IsRemoved) {
         sequence.Add(
-          new RemoveNodeAction() {Path = Source.Path});
-        return;
+          new RemoveNodeAction() {Path = (Source ?? Target).Path});
+        if (Source!=null)
+          return;
       }
 
       if (MovementInfo.IsCreated) {
-        sequence.Add(new CreateNodeAction()
+        var cna = new CreateNodeAction()
           {
             Path = Target.Parent==null ? string.Empty : Target.Parent.Path,
             Type = Target.GetType(),
             Name = Target.Name,
             Index = Target.Index,
             NewPath = Target.Path
-          });
+          };
+        if (Target.Nesting.IsNestedToCollection) {
+          var collection = (NodeCollection) Target.Nesting.PropertyValue;
+          cna.AfterPath = Target.Index==0 ? collection.Path : collection[Target.Index - 1].Path;
+        }
+        sequence.Add(cna);
       }
       else if (!MovementInfo.IsUnchanged) {
         sequence.Add(new MoveNodeAction()

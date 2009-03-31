@@ -417,7 +417,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Target object already exists.</exception>
     protected virtual void PerformMove(Node newParent, string newName, int newIndex)
     {
-      bool bUnnamed = this is IUnnamedNode;
+      bool nameIsChanging = (this is IUnnamedNode) || Name!=newName;
       if (newParent!=parent) {
         // Parent is changed
         if (!Nesting.IsNestedToCollection) {
@@ -435,7 +435,7 @@ namespace Xtensive.Modelling
             oldCollection[i].EnsureIsEditable();
           for (int i = newIndex; i < newCollection.Count; i++)
             newCollection[i].EnsureIsEditable();
-          if (bUnnamed)
+          if (nameIsChanging)
             oldCollection.RemoveName(this);
           for (int i = index + 1; i < oldCollection.Count; i++)
             oldCollection[i].PerformShift(-1);
@@ -443,43 +443,41 @@ namespace Xtensive.Modelling
             newCollection[i].PerformShift(1);
           oldCollection.Remove(this);
           index = newIndex;
-          if (bUnnamed)
+          if (nameIsChanging)
             name = newName;
           newCollection.Add(this);
         }
       }
       else {
         // Parent isn't changed
-        if (newIndex!=index) {
-          var collection = (NodeCollection) Nesting.PropertyGetter(newParent);
-          int minIndex, maxIndex, shift;
-          if (newIndex < index) {
-            minIndex = newIndex;
-            maxIndex = index - 1;
-            shift = 1;
-          }
-          else {
-            minIndex = index + 1;
-            maxIndex = newIndex;
-            shift = -1;
-          }
-          if (bUnnamed)
-            collection.RemoveName(this);
-          for (int i = minIndex; i <= maxIndex; i++)
-            collection[i].EnsureIsEditable();
-          if (shift<0)
-            for (int i = minIndex; i <= maxIndex; i++)
-              collection[i].PerformShift(shift);
-          else
-            for (int i = maxIndex; i >= maxIndex; i--)
-              collection[i].PerformShift(shift);
-          collection.Move(this, newIndex);
-          name = newName;
-          index = newIndex;
-          if (bUnnamed)
-            collection.AddName(this);
-          // collection.CheckIntegrity();
+        var collection = (NodeCollection) Nesting.PropertyGetter(newParent);
+        int minIndex, maxIndex, shift;
+        if (newIndex < index) {
+          minIndex = newIndex;
+          maxIndex = index - 1;
+          shift = 1;
         }
+        else {
+          minIndex = index + 1;
+          maxIndex = newIndex;
+          shift = -1;
+        }
+        if (nameIsChanging)
+          collection.RemoveName(this);
+        for (int i = minIndex; i <= maxIndex; i++)
+          collection[i].EnsureIsEditable();
+        if (shift<0)
+          for (int i = minIndex; i <= maxIndex; i++)
+            collection[i].PerformShift(shift);
+        else
+          for (int i = maxIndex; i >= maxIndex; i--)
+            collection[i].PerformShift(shift);
+        collection.Move(this, newIndex);
+        name = newName;
+        index = newIndex;
+        if (nameIsChanging)
+          collection.AddName(this);
+        // collection.CheckIntegrity();
       }
       parent = (Node) newParent;
       name = newName;
@@ -527,12 +525,11 @@ namespace Xtensive.Modelling
         else {
           var collection = (NodeCollection) Nesting.PropertyValue;
           collection.Remove(this);
-          for (int i = 1; i < collection.Count; i++)
+          for (int i = index; i < collection.Count; i++)
             collection[i].EnsureIsEditable();
-          for (int i = 1; i < collection.Count; i++)
+          for (int i = index; i < collection.Count; i++)
             collection[i].PerformShift(-1);
         }
-        Lock(true);
       }
       // Notifying children
       foreach (var pair in GetPathNodes(true)) {
@@ -674,8 +671,14 @@ namespace Xtensive.Modelling
       if (source==null) {
         if (target==null)
           throw new InvalidOperationException(Strings.ExBothSourceAndTargetAreNull);
-        if (!propertyName.IsNullOrEmpty() && target.Nesting.PropertyName==propertyName)
+        if (!propertyName.IsNullOrEmpty() && target.Nesting.PropertyName==propertyName) {
           mi.IsCreated = true;
+          if (difference.Parent!=null) {
+            var parentSource = difference.Parent.Source as Node;
+            if (parentSource!=null && parentSource.GetProperty(propertyName)!=null)
+              mi.IsRemoved = true;
+          }
+        }
         else
           return CreatePropertyValueDifference();
       }
@@ -685,8 +688,8 @@ namespace Xtensive.Modelling
         else
           return CreatePropertyValueDifference();
       }
-      else if (!propertyName.IsNullOrEmpty() && target.Nesting.PropertyName==propertyName) {
-        return CreatePropertyValueDifference();
+      else if (!propertyName.IsNullOrEmpty() && target.Nesting.PropertyName==propertyName && !target.Nesting.IsNestedToCollection) {
+        return CreateNestedNodeDifference();
       }
       else {
         if (!(source is IUnnamedNode) && Name!=target.Name) {
@@ -694,14 +697,14 @@ namespace Xtensive.Modelling
           if (renameHint==null || renameHint.TargetPath!=target.Path)
             mi.IsNameChanged = true;
         }
-        mi.IsIndexChanged = source.index != target.Index;
+        mi.IsIndexChanged = source.index != target.Index; // Fix this!
         var collection = target.Nesting.PropertyValue as NodeCollection;
         if (collection!=null && (collection is IUnorderedNodeCollection))
           mi.IsIndexChanged = false;
         var nd = difference.GetNearestParent<NodeDifference>();
         if (nd!=null) {
           if (source.Parent!=nd.Source || target.Parent!=nd.Target)
-            mi.IsParentChanged = true;
+            mi.IsParentChanged = true; // Fix this!
           var ndmi = nd.MovementInfo;
           if (ndmi!=null)
             mi.IsAnyParentChanged = ndmi.IsAnyParentChanged | mi.IsParentChanged;
@@ -710,7 +713,7 @@ namespace Xtensive.Modelling
       difference.MovementInfo = mi;
 
       // Comparing properties
-      if (!mi.IsRemoved) {
+      if (!mi.IsRemoved || mi.IsCreated) {
         foreach (var pair in PropertyAccessors) {
           var newPropertyName = pair.Key;
           var accessor = pair.Value;
@@ -724,9 +727,9 @@ namespace Xtensive.Modelling
             continue;
 
           object sv = (source==null || !accessor.HasGetter) ?
-                                                              GetDefaultPropertyValue(newPropertyName) : accessor.Getter(source);
+            GetDefaultPropertyValue(newPropertyName) : accessor.Getter(source);
           object tv = (target==null || !accessor.HasGetter) ?
-                                                              GetDefaultPropertyValue(newPropertyName) : accessor.Getter(target);
+            GetDefaultPropertyValue(newPropertyName) : accessor.Getter(target);
           if (sv==null) {
             if (tv==null)
               continue; // Both are null
@@ -766,6 +769,23 @@ namespace Xtensive.Modelling
       using (new ComparisonScope(difference.Parent)) {
         return new PropertyValueDifference(difference.PropertyName, 
           difference.Source, difference.Target);
+      }
+    }
+
+    /// <summary>
+    /// Creates the nested node difference object describing current difference.
+    /// </summary>
+    /// <returns>New <see cref="NodeDifference"/> object.</returns>
+    protected static Difference CreateNestedNodeDifference()
+    {
+      var d = (NodeDifference) Difference.Current;
+      using (new ComparisonScope(d.Parent)) {
+        var difference = d.Target.CreateDifference(null, d.PropertyName, true);
+        using (difference.Activate()) {
+          if ((difference = d.Target.BuildDifference())!=null)
+            return difference;
+        }
+        return null;
       }
     }
 
@@ -1005,9 +1025,8 @@ namespace Xtensive.Modelling
       if (p!=null)
         p.OnDeserialization(sender);
       UpdateModel();
-      if (IsLocked) {
+      if (IsLocked)
         cachedPath = Path;
-      }
     }
   }
 }

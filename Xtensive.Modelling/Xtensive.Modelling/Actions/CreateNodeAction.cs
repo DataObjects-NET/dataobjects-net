@@ -25,6 +25,7 @@ namespace Xtensive.Modelling.Actions
     private string name;
     private int index;
     private object[] parameters;
+    private string afterPath;
     private string newPath;
 
     public Type Type {
@@ -65,6 +66,14 @@ namespace Xtensive.Modelling.Actions
       }
     }
 
+    public string AfterPath {
+      get { return afterPath; }
+      set {
+        this.EnsureNotLocked();
+        afterPath = value;
+      }
+    }
+
     public string NewPath {
       get { return newPath; }
       set {
@@ -78,11 +87,16 @@ namespace Xtensive.Modelling.Actions
     protected override void PerformApply(IModel model, IPathNode item)
     {
       var node = (Node) item;
-      if (TryConstructor(model, node, name, index))
+      var tmpIndex = index;
+      if (AfterPath!=null) {
+        var pathNode = model.Resolve(AfterPath);
+        tmpIndex = (pathNode is NodeCollection) ? 0 : ((Node) pathNode).Index + 1;
+      }
+      if (TryConstructor(model, node, name, tmpIndex))
         return;
       if (TryConstructor(model, node, name))
         return;
-      if (TryConstructor(model, node, index))
+      if (TryConstructor(model, node, tmpIndex))
         return;
       throw new InvalidOperationException(string.Format(
         Strings.ExCannotFindConstructorToExecuteX, this));
@@ -106,7 +120,10 @@ namespace Xtensive.Modelling.Actions
       base.GetParameters(parameters);
       parameters.Add(new Pair<string>("Type", type.GetShortName()));
       parameters.Add(new Pair<string>("Name", name));
-      parameters.Add(new Pair<string>("Index", index.ToString()));
+      if (AfterPath==null)
+        parameters.Add(new Pair<string>("Index", index.ToString()));
+      else
+        parameters.Add(new Pair<string>("AfterPath", AfterPath));
       if (this.parameters!=null)
         parameters.Add(new Pair<string>("Parameters", this.parameters.ToCommaDelimitedString()));
     }
@@ -115,6 +132,20 @@ namespace Xtensive.Modelling.Actions
     public override string[] GetDependencies()
     {
       return new[] {NewPath};
+    }
+
+    /// <inheritdoc/>
+    public override string[] GetRequiredDependencies()
+    {
+      var dependencies = base.GetRequiredDependencies();
+      dependencies = dependencies
+        .Concat(new[] {NewPath + ".Remove()"})
+        .ToArray();
+      if (AfterPath!=null)
+        dependencies = dependencies
+          .Concat(new[] {AfterPath})
+          .ToArray();
+      return dependencies;
     }
   }
 }
