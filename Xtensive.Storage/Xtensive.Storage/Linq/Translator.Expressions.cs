@@ -35,6 +35,7 @@ namespace Xtensive.Storage.Linq
     private readonly Parameter<bool> joinFinalEntity = new Parameter<bool>();
     private readonly Parameter<bool> calculateExpressions = new Parameter<bool>();
     private readonly Parameter<bool> recordIsUsed;
+    private readonly Parameter<bool> ignoreRecordUsage = new Parameter<bool>();
 
     protected override Expression Visit(Expression e)
     {

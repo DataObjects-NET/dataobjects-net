@@ -33,6 +33,7 @@ namespace Xtensive.Storage.Linq
         joinFinalEntity.Value = false;
         calculateExpressions.Value = false;
         recordIsUsed.Value = false;
+        ignoreRecordUsage.Value = false;
         return (ResultExpression) Visit(context.Query);
       }
     }
@@ -667,6 +668,7 @@ namespace Xtensive.Storage.Linq
       using (context.Bindings.Add(parameter, (ResultExpression) Visit(expression)))
       using (new ParameterScope()) {
         resultMapping.Value = new ResultMapping();
+        ignoreRecordUsage.Value = true;
         var predicate = Visit(le);
         var source = context.Bindings[parameter];
         var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>) predicate);
@@ -743,7 +745,10 @@ namespace Xtensive.Storage.Linq
       : base(context.Model)
     {
       this.context = context;
-      this.recordIsUsed = new Parameter<bool>(oldValue => recordIsUsed.Value |= oldValue);
+      this.recordIsUsed = new Parameter<bool>(oldValue => {
+        if (!ignoreRecordUsage.Value)
+          recordIsUsed.Value |= oldValue;
+      });
     }
   }
 }
