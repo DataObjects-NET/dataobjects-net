@@ -30,5 +30,13 @@ namespace Xtensive.Indexing.Storage
     /// <param name="commands">The sequence of commands to execute.</param>
     /// <returns>Execution result (one per each command, if any).</returns>
     Dictionary<int, object> Execute(List<Command> commands);
+
+    // Obsolete?
+    /// <summary>
+    /// Provides direct access to stored index.
+    /// </summary>
+    /// <param name="indexName">Name of the index to get.</param>
+    /// <returns>An object allowing to manipulate the index.</returns>
+    IIndex<Tuple, Tuple> GetIndex(string indexName);
   }
 }
