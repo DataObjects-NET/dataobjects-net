@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Linq
     private readonly Parameter<ParameterExpression> record = new Parameter<ParameterExpression>();
     private readonly Parameter<bool> joinFinalEntity = new Parameter<bool>();
     private readonly Parameter<bool> calculateExpressions = new Parameter<bool>();
-    private bool recordIsUsed;
+    private readonly Parameter<bool> recordIsUsed;
 
     protected override Expression Visit(Expression e)
     {
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Linq
     {
       LambdaExpression result;
       using (new ParameterScope()) {
-        recordIsUsed = false;
+        recordIsUsed.Value = false;
         tuple.Value = Expression.Parameter(typeof (Tuple), "t");
         record.Value = Expression.Parameter(typeof (Record), "r");
         parameters.Value = le.Parameters.ToArray();
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Linq
           var re = new ResultExpression(source.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
           context.Bindings.ReplaceBound(le.Parameters[0], re);
         }
-        result = recordIsUsed
+        result = recordIsUsed.Value
           ? Expression.Lambda(
             typeof (Func<,,>).MakeGenericType(typeof (Tuple), typeof (Record), body.Type),
             body,
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Linq
       resultMapping.Value.Replace(source.Mapping);
       var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
       var result = parameterRewriter.Rewrite(source.ItemProjector.Body);
-      recordIsUsed |= result.Second;
+      recordIsUsed.Value |= result.Second;
       return result.First;
     }
 
@@ -287,7 +287,9 @@ namespace Xtensive.Storage.Linq
             resultMapping.Value = new ResultMapping();
             body = Visit(arg);
           }
-          if (((ExtendedExpressionType) body.NodeType)==ExtendedExpressionType.Result) {
+          if (body.AsTupleAccess() != null)
+            newArg = body;
+          else if (((ExtendedExpressionType) body.NodeType)==ExtendedExpressionType.Result) {
             var outerParameters = context.Bindings.GetKeys()
               .OfType<ParameterExpression>()
               .ToList();
@@ -297,7 +299,7 @@ namespace Xtensive.Storage.Linq
               var searchFor = outerParameters.ToArray();
               var replaceWithList = new List<Expression>();
               foreach (var projection in outerParameters.Select(pe => context.Bindings[pe].ItemProjector)) {
-                recordIsUsed |= projection.Parameters.Count(pe => pe.Type==typeof (Record)) > 0;
+                recordIsUsed.Value |= projection.Parameters.Count(pe => pe.Type==typeof (Record)) > 0;
                 var replacedParameters = projection.Parameters.ToArray();
                 var replacingParameters = projection.Parameters.Select(pe => pe.Type==typeof (Tuple) ? tuple.Value : record.Value).ToArray();
                 replaceWithList.Add(ExpressionReplacer.ReplaceAll(projection.Body, replacedParameters, replacingParameters));
@@ -604,7 +606,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitMemberPathEntitySet(Expression e)
     {
-      recordIsUsed = true;
+      recordIsUsed.Value = true;
       var m = (MemberExpression) e;
       var expression = Visit(m.Expression);
       var result = Expression.MakeMemberAccess(expression, m.Member);
@@ -613,7 +615,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitMemberPathEntity(MemberPath path, ResultExpression source, Type resultType)
     {
-      recordIsUsed = true;
+      recordIsUsed.Value = true;
       var segment = source.GetMemberSegment(path);
       int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
       var result = Expression.Convert(
@@ -636,7 +638,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitMemberPathStructure(MemberPath path, ResultExpression source)
     {
-      recordIsUsed = true;
+      recordIsUsed.Value = true;
       var segment = source.GetMemberSegment(path);
       var structureColumn = (MappedColumn) source.RecordSet.Header.Columns[segment.Offset];
       var field = structureColumn.ColumnInfoRef.Resolve(context.Model).Field;
@@ -674,7 +676,7 @@ namespace Xtensive.Storage.Linq
       var projector = source.Mapping.AnonymousProjections[path.First().Name];
       var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
       var result = parameterRewriter.Rewrite(projector);
-      recordIsUsed |= result.Second;
+      recordIsUsed.Value |= result.Second;
       return result.First;
     }
 

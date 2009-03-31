@@ -32,6 +32,7 @@ namespace Xtensive.Storage.Linq
       using (new ParameterScope()) {
         joinFinalEntity.Value = false;
         calculateExpressions.Value = false;
+        recordIsUsed.Value = false;
         return (ResultExpression) Visit(context.Query);
       }
     }
@@ -742,6 +743,7 @@ namespace Xtensive.Storage.Linq
       : base(context.Model)
     {
       this.context = context;
+      this.recordIsUsed = new Parameter<bool>(oldValue => recordIsUsed.Value |= oldValue);
     }
   }
 }
