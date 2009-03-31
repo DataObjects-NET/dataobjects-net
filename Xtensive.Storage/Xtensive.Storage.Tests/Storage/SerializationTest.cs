@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
@@ -88,8 +89,64 @@ namespace Xtensive.Storage.Tests
 
     private static readonly BinaryFormatter formatter = new BinaryFormatter();
 
+    
     [Test]
-    public void SecondTest()
+    public void     SerializationByReferenceTest()
+    {
+      MemoryStream stream = new MemoryStream();
+
+      string companyName = "Xtensive LLC";
+      int companyId;
+      
+      using (Domain.OpenSession()) {
+        using (var transactionScope = Transaction.Open()) {
+          Company company = new Company {Name = companyName};
+          companyId = company.Id;
+
+          using (new SerializationContext(entity => SerializationKind.ByReference).Activate()) {
+            formatter.Serialize(stream, company);
+          }
+  
+          // Can'not resolve deserialized entity - it's not commited in original session.
+          AssertEx.Throws<TargetInvocationException>(
+            delegate {
+              using (Domain.OpenSession()) {
+                using (Transaction.Open()) {
+                  stream.Position = 0;
+                  formatter.Deserialize(stream);
+                }
+              }
+            });
+
+          transactionScope.Complete();
+        }
+      }
+
+      using (Domain.OpenSession()) {
+        using (var transactionScope = Transaction.Open()) {
+          stream.Position = 0;
+          Company company = (Company) Key.Create(typeof (Company), Tuple.Create(companyId)).Resolve();// Query<Company>.All.First();
+
+          Company deserializedCompany = (Company) formatter.Deserialize(stream);
+
+          Assert.AreSame(company, deserializedCompany);
+        }
+      }
+      
+      using (Domain.OpenSession()) {
+        using (var transactionScope = Transaction.Open()) {
+          stream.Position = 0;
+          Company company = (Company) formatter.Deserialize(stream);
+
+          Assert.AreEqual(companyName, company.Name);
+          Assert.AreEqual(companyId, company.Id);
+          Assert.AreEqual(company.Session, Session.Current);
+        }
+      }
+    }
+
+    [Test]
+    public void ComplexTest()
     {
       MemoryStream stream = new MemoryStream();
 
@@ -151,61 +208,6 @@ namespace Xtensive.Storage.Tests
           Assert.AreEqual(alex, newCompany.Head);
         }
       }    
-    }
-
-    [Test]
-    public void SerializationByReferenceTest()
-    {
-      MemoryStream stream = new MemoryStream();
-
-      string companyName = "Xtensive LLC";
-      int companyId;
-      
-      using (Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
-          Company company = new Company {Name = companyName};
-          companyId = company.Id;
-
-          using (new SerializationContext(entity => SerializationKind.ByReference).Activate()) {
-            formatter.Serialize(stream, company);
-          }
-  
-          // Can'not resolve deserialized entity - it's not commited in original session.
-//          AssertEx.Throws<InvalidOperationException>(
-//            delegate {
-//              using (Domain.OpenSession()) {
-//                using (Transaction.Open()) {
-//                  stream.Position = 0;
-//                  formatter.Deserialize(stream);
-//                }
-//              }
-//            });
-
-          transactionScope.Complete();
-        }
-      }
-
-      using (Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
-          stream.Position = 0;
-          Company company = (Company) Key.Create(typeof (Company), Tuple.Create(companyId)).Resolve();// Query<Company>.All.First();
-
-          Company deserializedCompany = (Company) formatter.Deserialize(stream);
-
-          Assert.AreSame(company, deserializedCompany);
-        }
-      }
-      
-      using (Domain.OpenSession()) {
-        using (var transactionScope = Transaction.Open()) {
-          stream.Position = 0;
-          Company company = (Company) formatter.Deserialize(stream);
-
-          Assert.AreEqual(companyName, company.Name);
-          Assert.AreEqual(companyId, company.Id);
-          Assert.AreEqual(company.Session, Session.Current);
-        }
-      }
     }
   }
 }
