@@ -100,5 +100,14 @@ namespace Xtensive.Storage.Tests.Linq
         select c;
       Assert.Greater(result.ToList().Count, 0);
     }
+
+    [Test]
+    public void SelectCountTest()
+    {
+      var result =
+        from c in Query<Customer>.All
+        select new {Customer = c, NumberOfOrders = Query<Order>.All.Count(o => o.Customer==c)};
+      Assert.Greater(result.ToList().Count, 0);
+    }
   }
 }
