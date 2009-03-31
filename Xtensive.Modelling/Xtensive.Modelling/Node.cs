@@ -697,14 +697,14 @@ namespace Xtensive.Modelling
           if (renameHint==null || renameHint.TargetPath!=target.Path)
             mi.IsNameChanged = true;
         }
-        mi.IsIndexChanged = source.index != target.Index; // Fix this!
+        mi.IsIndexChanged = source.index != target.Index; // TODO: Fix this!
         var collection = target.Nesting.PropertyValue as NodeCollection;
         if (collection!=null && (collection is IUnorderedNodeCollection))
           mi.IsIndexChanged = false;
         var nd = difference.GetNearestParent<NodeDifference>();
         if (nd!=null) {
           if (source.Parent!=nd.Source || target.Parent!=nd.Target)
-            mi.IsParentChanged = true; // Fix this!
+            mi.IsParentChanged = true; // TODO: Fix this!
           var ndmi = nd.MovementInfo;
           if (ndmi!=null)
             mi.IsAnyParentChanged = ndmi.IsAnyParentChanged | mi.IsParentChanged;
