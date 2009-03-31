@@ -46,7 +46,7 @@ namespace Xtensive.Indexing.Storage.Model
     }
 
 
-    //Constructors
+    // Constructors
 
     /// <inheritdoc/>
     public KeyColumnRef(IndexInfo parent, int index)

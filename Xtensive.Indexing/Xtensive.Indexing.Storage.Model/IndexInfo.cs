@@ -5,7 +5,6 @@
 // Created:    2009.03.24
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Attributes;
@@ -29,6 +28,7 @@ namespace Xtensive.Indexing.Storage.Model
     /// <summary>
     /// Gets a value indicating whether this instance is unique.
     /// </summary>
+    /// <exception cref="NotSupportedException">Already initialized.</exception>
     [Property]
     public bool IsUnique
     {
@@ -69,12 +69,25 @@ namespace Xtensive.Indexing.Storage.Model
         ValueColumns = new ValueColumnRefCollection(this);
     }
 
-    /// <inheritdoc/>
+
+    // Constructors
+
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="parent">The parent.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="index">The index.</param>
     protected IndexInfo(TableInfo parent, string name, int index)
       : base(parent, name, index)
     {
     }
 
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="parent"></param>
+    /// <param name="name"></param>
     /// <inheritdoc/>
     protected IndexInfo(TableInfo parent, string name)
       : base(parent, name)

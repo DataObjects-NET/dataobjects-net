@@ -88,9 +88,7 @@ namespace Xtensive.Indexing.Storage.Model
       var referencedKeyColumns = ReferencedIndex.KeyColumns.Select(columnRef => new { columnRef.Index, columnRef.Direction, columnRef.Value.ColumnType });
 
       if (primaryKeyColumns.Except(referencedKeyColumns).Union(referencedKeyColumns.Except(primaryKeyColumns)).Count() > 0)
-      {
         throw new IntegrityException("Foreign key columns definition does not match referenced index key columns.", Path);
-      }
     }
 
 
@@ -106,6 +104,5 @@ namespace Xtensive.Indexing.Storage.Model
       : base(parent, name)
     {
     }
-
   }
 }
