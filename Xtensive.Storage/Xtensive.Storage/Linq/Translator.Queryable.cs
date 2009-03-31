@@ -589,8 +589,8 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
     {
-      using (context.Bindings.Add(collectionSelector.Parameters[0], (ResultExpression) Visit(source))) {
-        var parameter = collectionSelector.Parameters[0];
+      var parameter = collectionSelector.Parameters[0];
+      using (context.Bindings.Add(parameter, (ResultExpression) Visit(source))) {
         var outerResult = context.Bindings[parameter];
         bool isOuter = false;
         if (collectionSelector.Body.NodeType==ExpressionType.Call) {
@@ -720,7 +720,7 @@ namespace Xtensive.Storage.Linq
       if (subquery.Header.Length != 1)
         throw new ArgumentException();
       var column = subquery.Header.Columns[0];
-      var lambdaParameter = context.SubqueryParameterBindings.CurrentParameter;
+      var lambdaParameter = parameters.Value[0];
       var applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
       context.SubqueryParameterBindings.InvalidateParameter(lambdaParameter);
       var oldResult = context.Bindings[lambdaParameter];

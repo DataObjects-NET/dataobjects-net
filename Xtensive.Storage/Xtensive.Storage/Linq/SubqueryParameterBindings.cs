@@ -23,9 +23,6 @@ namespace Xtensive.Storage.Linq
     }
 
     private readonly Dictionary<ParameterExpression, Binding> bindings = new Dictionary<ParameterExpression, Binding>();
-    private readonly Stack<ParameterExpression> stack = new Stack<ParameterExpression>();
-
-    public ParameterExpression CurrentParameter { get { return stack.Peek(); } }
 
     public IDisposable Bind(IEnumerable<ParameterExpression> parameters)
     {
@@ -34,9 +31,8 @@ namespace Xtensive.Storage.Linq
         if (bindings.TryGetValue(key, out binding))
           binding.Cardinality++;
         else {
-          binding = new Binding { Cardinality = 1, Parameter = new Parameter<Tuple>()};
+          binding = new Binding {Cardinality = 1, Parameter = new Parameter<Tuple>()};
           bindings.Add(key, binding);
-          stack.Push(key);
         }
       return new Disposable<ParameterExpression[]> (parameters.ToArray(), Unbind);
     }
@@ -69,10 +65,8 @@ namespace Xtensive.Storage.Linq
 
       foreach (var key in parameters) {
         var binding = bindings[key];
-        if (binding.Cardinality == 1) {
+        if (binding.Cardinality == 1)
           bindings.Remove(key);
-          stack.Pop();
-        }
         else
           binding.Cardinality--;
       }
