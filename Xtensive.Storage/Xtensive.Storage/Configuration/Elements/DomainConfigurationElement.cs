@@ -33,6 +33,7 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string AutoValidationElementName = "autoValidation";
     private const string InconsistentTransactionsElementName = "inconsistentTransactions";
     private const string SessionsElementName = "sessions";
+    private const string MappingsElementName = "mappings";
     private const string TypeAliasesElementName = "typeAliases";
     private const string ServicesElementName = "services";
 
@@ -187,6 +188,16 @@ namespace Xtensive.Storage.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.Mappings" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(MappingsElementName, IsDefaultCollection = false)]
+    [ConfigurationCollection(typeof(ConfigurationCollection<MappingElement>), AddItemName = "mapping")]
+    public ConfigurationCollection<MappingElement> Mappings
+    {
+      get { return (ConfigurationCollection<MappingElement>)this[MappingsElementName]; }
+    }
+
+    /// <summary>
     /// Provides access to the type alias information in the section.
     /// </summary>
     [ConfigurationProperty(TypeAliasesElementName, IsRequired = false)]
@@ -198,7 +209,7 @@ namespace Xtensive.Storage.Configuration.Elements
 
 
     /// <summary>
-    /// A <see cref="Xtensive.Storage.Metadata.Configuration.ConfigurationElement" /> that stores the configuration information
+    /// A <see cref="ConfigurationElement" /> that stores the configuration information
     /// for a services provided by <see cref="Microsoft.Practices.Unity.IUnityContainer" />.
     /// </summary>
     [ConfigurationProperty(ServicesElementName)]
@@ -245,6 +256,12 @@ namespace Xtensive.Storage.Configuration.Elements
       }
       foreach (var session in Sessions)
         c.Sessions.Add(session.ToNative());
+
+      foreach (var mapping in Mappings) {
+        var mappingConfiguration = mapping.ToNative();
+        var assembly = Assembly.Load(mappingConfiguration.Assembly);
+        c.Mappings.Add(assembly.GetType(mappingConfiguration.Type));
+      }
 
       foreach (UnityTypeElement typeElement in Services)
         typeElement.Configure(c.ServiceContainer);

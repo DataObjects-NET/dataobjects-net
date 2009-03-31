@@ -22,7 +22,7 @@ namespace Xtensive.Core.Linq
   /// This implementation is thread-safe.
   /// </summary>
   /// <typeparam name="T"><inheritdoc/></typeparam>
-  public class MemberCompilerProvider<T> : IMemberCompilerProvider<T>
+  public class MemberCompilerProvider<T> : LockableBase, IMemberCompilerProvider<T>
   {
     private const int MaxNumberOfCompilerParameters = 9;
     private volatile Compilers compilers = new Compilers();
@@ -86,6 +86,11 @@ namespace Xtensive.Core.Linq
       }
 
       return (Func<T, T[], T>)result.First;
+    }
+
+    public Type ExpressionType
+    {
+      get { return typeof(T); }
     }
 
     /// <inheritdoc/>
@@ -486,6 +491,13 @@ namespace Xtensive.Core.Linq
       }
 
       return null;
+    }
+
+
+    // Constructors
+
+    internal MemberCompilerProvider()
+    {
     }
   }
 

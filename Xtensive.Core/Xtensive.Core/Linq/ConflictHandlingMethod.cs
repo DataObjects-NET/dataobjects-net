@@ -13,16 +13,20 @@ namespace Xtensive.Core.Linq
   public enum ConflictHandlingMethod
   {
     /// <summary>
+    /// <see cref="IMemberCompilerProvider{T}"/> should throw exception if conflict is found.
+    /// </summary>
+    ReportError = 0,
+    /// <summary>
     /// <see cref="IMemberCompilerProvider{T}"/> should keep existing compiler for specified method.
     /// </summary>
-    KeepOld,
+    KeepOld = 1,
     /// <summary>
     /// <see cref="IMemberCompilerProvider{T}"/> should overwrite existing compiler with newly found compiler.
     /// </summary>
-    Overwrite,
+    Overwrite = 2,
     /// <summary>
-    /// <see cref="IMemberCompilerProvider{T}"/> should throw exception if conflict is found.
+    /// Default action for <see cref="IMemberCompilerProvider{T}"/> if conflict is found.
     /// </summary>
-    ReportError
+    Default = ReportError
   }
 }

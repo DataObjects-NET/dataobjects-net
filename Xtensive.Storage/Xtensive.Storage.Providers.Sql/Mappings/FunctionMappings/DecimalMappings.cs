@@ -14,6 +14,7 @@ using Operator = Xtensive.Core.Reflection.WellKnown.Operator;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 {
+  [CompilerContainer(typeof(SqlExpression))]
   internal static class DecimalMappings
   {
     #region Static methods

@@ -27,18 +27,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 {
   internal class ExpressionProcessor : ExpressionVisitor<SqlExpression>
   {
-    private static readonly MemberCompilerProvider<SqlExpression> mappingsProvider;
-    private static readonly Type[] builtinMappings = new[] {
-      typeof(NullableMappings),
-      typeof(ArrayMappings),
-      typeof(StringMappings),
-      typeof(DateTimeMappings),
-      typeof(TimeSpanMappings),
-      typeof(MathMappings),
-      typeof(NumericMappings),
-      typeof(DecimalMappings)
-    };
-
+    private static IMemberCompilerProvider<SqlExpression> mappingsProvider;
     private readonly DomainModel model;
     private readonly SqlSelect[] selects;
     private readonly ExpressionEvaluator evaluator;
@@ -452,15 +441,15 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     // Constructor
 
-    public ExpressionProcessor(ICompiler compiler, DomainModel model, LambdaExpression le, params SqlSelect[] selects)
+    public ExpressionProcessor(ICompiler compiler, HandlerAccessor handlers, LambdaExpression le, params SqlSelect[] selects)
     {
       Compiler = compiler;
       if (selects == null)
         throw new ArgumentNullException("selects");
-
+      mappingsProvider = handlers.DomainHandler.GetCompilerExtensions<SqlExpression>();
       if (le.Parameters.Count != selects.Length)
         throw new InvalidOperationException();
-      this.model = model;
+      model = handlers.Domain.Model;
       this.selects = selects;
       lambda = le;
       bindings = new HashSet<SqlFetchParameterBinding>();
@@ -475,13 +464,6 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (result == null)
         throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, source.GetFullName(true)));
       return result;
-    }
-
-    static ExpressionProcessor()
-    {
-      mappingsProvider = new MemberCompilerProvider<SqlExpression>();
-      foreach (var t in builtinMappings)
-        mappingsProvider.RegisterCompilers(t);
     }
   }
 }

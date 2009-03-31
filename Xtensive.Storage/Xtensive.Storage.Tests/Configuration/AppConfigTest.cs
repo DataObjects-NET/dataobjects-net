@@ -9,12 +9,29 @@ using System.Collections.Generic;
 using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Core.Caching;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
+using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using System.Reflection;
 using Xtensive.Storage.Tests.Storage.TranscationsTest;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
+
+
+namespace Xtensive.Storage.Tests.Configuration.UserDefinedMappings
+{
+  [CompilerContainer(typeof(SqlExpression), ConflictHandlingMethod.ReportError)]
+  internal static class ArrayMappings
+  {
+    [Compiler(typeof(byte[]), "Length", TargetKind.PropertyGet)]
+    public static SqlExpression ByteArrayLength(SqlExpression this_)
+    {
+      return SqlFactory.Length(this_);
+    }
+  }
+}
 
 namespace Xtensive.Storage.Tests.Configuration
 {
@@ -74,7 +91,15 @@ namespace Xtensive.Storage.Tests.Configuration
       Assert.AreEqual(c.Sessions["UserSession"], new SessionConfiguration { UserName = "User", CacheSize = 324, Password = "222", DefaultIsolationLevel = IsolationLevel.Snapshot });
     }
 
-    
+    [Test]
+    public void CompilerExtensionsTest()
+    {
+      var c = DomainConfiguration.Load("AppConfigTest", "TestDomain3");
+      c.Lock();
+      Assert.AreEqual(c.Mappings.Count, 1);
+    }
+
+
 
     [Test]
     public void TestDomain2()

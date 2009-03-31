@@ -11,6 +11,7 @@ using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 {
+  [CompilerContainer(typeof(SqlExpression))]
   internal static class MathMappings
   {
     #region Math.Abs mapppings

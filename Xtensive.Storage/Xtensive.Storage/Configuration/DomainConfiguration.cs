@@ -99,6 +99,7 @@ namespace Xtensive.Storage.Configuration
     private bool autoValidation = true;
     private bool inconsistentTransactions;
     private UnityContainer serviceContainer;
+    private SetSlim<Type> mappings;
     private SessionConfigurationCollection sessions;
     private DomainBuildMode buildMode = DefaultBuildMode;
     private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
@@ -308,6 +309,20 @@ namespace Xtensive.Storage.Configuration
       }
     }
 
+
+    /// <summary>
+    /// Gets user defined function mappings.
+    /// </summary>
+    public SetSlim<Type> Mappings
+    {
+      get { return mappings; }
+      set {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        this.EnsureNotLocked();
+        mappings = value;
+      }
+    }
+
     /// <summary>
     /// Gets the service container.
     /// </summary>
@@ -354,6 +369,7 @@ namespace Xtensive.Storage.Configuration
       sessionPoolSize = configuration.SessionPoolSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = configuration.Sessions;
+      mappings = configuration.Mappings;
       serviceContainer = configuration.serviceContainer;
       buildMode = configuration.buildMode;
       foreignKeyMode = configuration.foreignKeyMode;
@@ -375,8 +391,9 @@ namespace Xtensive.Storage.Configuration
               && other.sessionPoolSize == sessionPoolSize 
                 && Equals(other.name, name) 
                   && Equals(other.sessions, sessions)
-                    && Equals(other.buildMode, buildMode)
-                      && Equals(other.foreignKeyMode, foreignKeyMode);
+                    && other.mappings.IsEqualTo(mappings)
+                      && Equals(other.buildMode, buildMode)
+                        && Equals(other.foreignKeyMode, foreignKeyMode);
     }
 
     /// <inheritdoc/>
@@ -399,6 +416,7 @@ namespace Xtensive.Storage.Configuration
         result = (result * 397) ^ (name != null ? name.GetHashCode() : 0);
         result = (result * 397) ^ (connectionInfo != null ? connectionInfo.GetHashCode() : 0);
         result = (result * 397) ^ (namingConvention != null ? namingConvention.GetHashCode() : 0);
+        result = (result * 397) ^ (mappings != null ? mappings.GetHashCode() : 0);
         result = (result * 397) ^ types.GetHashCodeRecursive();
         result = (result * 397) ^ keyCacheSize;
         result = (result * 397) ^ recordSetMappingCacheSize;
@@ -477,6 +495,7 @@ namespace Xtensive.Storage.Configuration
     {
       namingConvention = new NamingConvention();
       sessions = new SessionConfigurationCollection();
+      mappings = new SetSlim<Type>();
       serviceContainer = new UnityContainer();
       serviceContainer.AddExtension(new SingletonExtension());
     }

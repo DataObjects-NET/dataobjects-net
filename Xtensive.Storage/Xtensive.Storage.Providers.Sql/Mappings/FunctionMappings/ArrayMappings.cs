@@ -10,6 +10,7 @@ using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 {
+  [CompilerContainer(typeof(SqlExpression))]
   internal static class ArrayMappings
   {
     [Compiler(typeof(byte[]), "Length", TargetKind.PropertyGet)]

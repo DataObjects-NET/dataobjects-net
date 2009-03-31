@@ -18,6 +18,7 @@ using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Mappings;
+using Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Compilation.Optimizers;
@@ -44,6 +45,20 @@ namespace Xtensive.Storage.Providers.Sql
     internal SqlConnectionProvider ConnectionProvider { get; private set; }
 
     public SqlDriver SqlDriver { get; private set; }
+
+    protected override IEnumerable<Type> GetProviderCompilerExtensionTypes()
+    {
+      return new[] {
+          typeof (NullableMappings),
+          typeof (ArrayMappings),
+          typeof (StringMappings),
+          typeof (DateTimeMappings),
+          typeof (TimeSpanMappings),
+          typeof (MathMappings),
+          typeof (NumericMappings),
+          typeof (DecimalMappings)
+        };
+    }
 
     /// <inheritdoc/>
     protected override ICompiler BuildCompiler(BindingCollection<object, ExecutableProvider> compiledSources)

@@ -61,7 +61,7 @@ namespace Xtensive.Core.Tests.Linq
     [Test]
     public void MethodsTest()
     {
-      var provider = new MemberCompilerProvider<string>();
+      var provider = MemberCompilerProviderFactory.Create<string>();
       provider.RegisterCompilers(typeof(MethodCompiler));
       
       foreach (var t in new[]{typeof(NonGenericTarget), typeof(GenericTarget<>)})
@@ -76,7 +76,7 @@ namespace Xtensive.Core.Tests.Linq
     [Test]
     public void PropertiesTest()
     {
-      var provider = new MemberCompilerProvider<string>();
+      var provider = MemberCompilerProviderFactory.Create<string>();
       provider.RegisterCompilers(typeof(PropertyCompiler));
 
       foreach (var t in new[]{typeof(NonGenericTarget), typeof(GenericTarget<>)})
@@ -91,7 +91,7 @@ namespace Xtensive.Core.Tests.Linq
     [Test]
     public void FieldsTest()
     {
-      var provider = new MemberCompilerProvider<string>();
+      var provider = MemberCompilerProviderFactory.Create<string>();
       provider.RegisterCompilers(typeof(FieldCompiler));
 
       foreach (var t in new[]{typeof(NonGenericTarget), typeof(GenericTarget<>)})
@@ -104,7 +104,7 @@ namespace Xtensive.Core.Tests.Linq
     [Test]
     public void CtorsTest()
     {
-      var provider = new MemberCompilerProvider<string>();
+      var provider = MemberCompilerProviderFactory.Create<string>();
       provider.RegisterCompilers(typeof(CtorCompiler));
       foreach (var t in new[]{typeof(NonGenericTarget), typeof(GenericTarget<>)}) {
         var d = GetCompilerForCtor(provider, t);
@@ -115,7 +115,7 @@ namespace Xtensive.Core.Tests.Linq
     [Test]
     public void GenericFindTest()
     {
-      var provider = new MemberCompilerProvider<string>();
+      var provider = MemberCompilerProviderFactory.Create<string>();
       provider.RegisterCompilers(typeof(SuperGenericCompiler));
 
       var mi = typeof (SuperGenericTarget<string>)
@@ -133,7 +133,7 @@ namespace Xtensive.Core.Tests.Linq
     [Test]
     public void ConflictKeepOldTest()
     {
-      var provider = new MemberCompilerProvider<string>();
+      var provider = MemberCompilerProviderFactory.Create<string>();
       provider.RegisterCompilers(typeof(ConflictCompiler1));
       provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.KeepOld);
       var d = GetCompilerForMethod(provider, typeof(ConflictTarget), "ConflictMethod");
@@ -143,7 +143,7 @@ namespace Xtensive.Core.Tests.Linq
     [Test]
     public void ConflictOverwriteTest()
     {
-      var provider = new MemberCompilerProvider<string>();
+      var provider = MemberCompilerProviderFactory.Create<string>();
       provider.RegisterCompilers(typeof(ConflictCompiler1));
       provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.Overwrite);
       var d = GetCompilerForMethod(provider, typeof(ConflictTarget), "ConflictMethod");
@@ -154,7 +154,7 @@ namespace Xtensive.Core.Tests.Linq
     [ExpectedException(typeof(InvalidOperationException))]
     public void ConflictReportErrorTest()
     {
-      var provider = new MemberCompilerProvider<string>();
+      var provider = MemberCompilerProviderFactory.Create<string>();
       provider.RegisterCompilers(typeof(ConflictCompiler1));
       provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.ReportError);
     }

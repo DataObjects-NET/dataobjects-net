@@ -578,7 +578,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private Pair<SqlExpression, ExpressionProcessor> TranslateExpression(LambdaExpression le, params SqlSelect[] selects)
     {
-      var result = new ExpressionProcessor(this, Handlers.Domain.Model, PreprocessExpression(le), selects);
+      var result = new ExpressionProcessor(this, Handlers, PreprocessExpression(le), selects);
       return new Pair<SqlExpression, ExpressionProcessor>(PostprocessExpression(result.Translate(), le.Body.Type), result);
     }
 
