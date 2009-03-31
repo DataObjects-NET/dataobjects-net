@@ -79,22 +79,74 @@ namespace Xtensive.Storage.Rse.Compilation.Optimizers.Implementation
 
     protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)
     {
-      return base.VisitPredicateJoin(provider);
+      var sortOrder = new DirectionCollection<int>();
+      CompilableProvider left;
+      CompilableProvider right;
+      using (new ParameterScope()) {
+        left = VisitCompilable(provider.Left);
+        if (pSortOrder.HasValue)
+          sortOrder = pSortOrder.Value;
+      }
+      using (new ParameterScope()) {
+        right = VisitCompilable(provider.Right);
+        if (pSortOrder.HasValue) {
+          sortOrder = new DirectionCollection<int>(
+            sortOrder.Union(pSortOrder.Value.Select(p => new KeyValuePair<int,Direction>(p.Key + left.Header.Length, p.Value)))
+            );
+        }
+      }
+      if (sortOrder.Count == 0)
+        return provider;
+      pSortOrder.Value = sortOrder;
+      return new PredicateJoinProvider(left, right, provider.Predicate, provider.Outer);
     }
 
     protected override Provider VisitApply(ApplyProvider provider)
     {
-      return base.VisitApply(provider);
+      var sortOrder = new DirectionCollection<int>();
+      CompilableProvider left;
+      CompilableProvider right;
+      bool containsSortOperations = false;
+      using (new ParameterScope()) {
+        left = VisitCompilable(provider.Left);
+        containsSortOperations |= pSortOrder.HasValue;
+        if (containsSortOperations)
+          sortOrder = pSortOrder.Value;
+      }
+      using (new ParameterScope()) {
+        right = VisitCompilable(provider.Right);
+        containsSortOperations |= pSortOrder.HasValue;
+        if ((provider.ApplyType ==ApplyType.Cross || provider.ApplyType == ApplyType.Outer) && pSortOrder.HasValue) {
+          sortOrder = new DirectionCollection<int>(
+            sortOrder.Union(pSortOrder.Value.Select(p => new KeyValuePair<int, Direction>(p.Key + left.Header.Length, p.Value)))
+            );
+        }
+      }
+      if (!containsSortOperations && sortOrder.Count == 0)
+        return provider;
+      pSortOrder.Value = sortOrder;
+      return new ApplyProvider(provider.LeftItemParameter, left, right, provider.ApplyType);
     }
 
     protected override Provider VisitExistence(ExistenceProvider provider)
     {
-      return base.VisitExistence(provider);
+      using (new ParameterScope())
+        return base.VisitExistence(provider);
     }
 
     protected override Provider VisitAggregate(AggregateProvider provider)
     {
-      return base.VisitAggregate(provider);
+      var sortOrder = new DirectionCollection<int>();
+      Provider result;
+      using (new ParameterScope()) {
+        result = base.VisitAggregate(provider);
+        if (pSortOrder.HasValue)
+          sortOrder = new DirectionCollection<int>(
+            pSortOrder.Value.Where(p => provider.GroupColumnIndexes.Contains(p.Key)));
+      }
+      if(sortOrder.Count > 0)
+        pSortOrder.Value = sortOrder;
+      return result;
     }
 
 

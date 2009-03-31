@@ -45,6 +45,12 @@ namespace Xtensive.Core.Parameters
       return Context.HasValue(parameter);
     }
 
+    [DebuggerStepThrough]
+    internal void Clear(Parameter parameter)
+    {
+      Context.Clear(parameter);
+    }
+
 
     // Constructors
 

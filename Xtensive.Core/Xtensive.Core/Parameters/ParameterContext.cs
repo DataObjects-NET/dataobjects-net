@@ -4,6 +4,7 @@
 // Created by: Alex Kofman
 // Created:    2008.08.14
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -36,6 +37,12 @@ namespace Xtensive.Core.Parameters
     internal void SetValue(Parameter parameter, object value)
     {
       values[parameter] = value;
+    }
+
+    [DebuggerStepThrough]
+    internal void Clear(Parameter parameter)
+    {
+      values.Remove(parameter);
     }
 
     [DebuggerStepThrough]

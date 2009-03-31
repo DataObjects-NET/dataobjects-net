@@ -79,6 +79,18 @@ namespace Xtensive.Core.Parameters
       }
     }
 
+    /// <summary>
+    /// Clears parameter's value.
+    /// </summary>
+    public void Clear()
+    {
+      var currentScope = ParameterScope.CurrentScope;
+      if (currentScope == null)
+        throw new InvalidOperationException(
+          string.Format(Strings.XIsNotActivated, typeof(ParameterContext).GetShortName()));
+      currentScope.Clear(this);
+    }
+
     /// <inheritdoc/>
     public override string ToString()
     {
