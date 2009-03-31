@@ -10,10 +10,16 @@ using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Indexing.Storage
 {
+  /// <summary>
+  /// Transactional storage view.
+  /// </summary>
   public interface IStorageView : 
-    IIndexManager,
-    IIndexAccessor
+    IModelManager,
+    IDataManager
   {
+    /// <summary>
+    /// Gets the transaction this view belongs to.
+    /// </summary>
     ITransaction Transaction { get; }
   }
 }

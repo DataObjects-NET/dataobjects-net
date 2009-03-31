@@ -10,25 +10,25 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Indexing.Storage
 {
   /// <summary>
-  /// Index accessor API (DML API).
+  /// Data management API (DML API).
   /// Provides read-write access to any index 
   /// in the <see cref="IStorage"/>, allows to 
   /// execute queries on them.
   /// </summary>
-  public interface IIndexAccessor
+  public interface IDataManager
   {
     /// <summary>
-    /// Gets the index by its name.
+    /// Executes the specified command.
     /// </summary>
-    /// <param name="name">The name of the index to get.</param>
-    /// <returns>The index with specified name.</returns>
-    IIndex<Tuple, Tuple> GetIndex(string name);
+    /// <param name="command">The command to execute.</param>
+    /// <returns>Execution result.</returns>
+    object Execute(Command command);
 
     /// <summary>
-    /// Queries the storage.
+    /// Executes the specified sequence of commands.
     /// </summary>
-    /// <param name="query">The query to execute.</param>
-    /// <returns>Query result.</returns>
-    object Query(object query);
+    /// <param name="commands">The sequence of commands to execute.</param>
+    /// <returns>Execution result (one per each command, if any).</returns>
+    Dictionary<int, object> Execute(List<Command> commands);
   }
 }

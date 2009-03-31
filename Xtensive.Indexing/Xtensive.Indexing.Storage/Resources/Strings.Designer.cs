@@ -86,5 +86,41 @@ namespace Xtensive.Indexing.Storage.Resources {
                 return ResourceManager.GetString("ExItemWithNameXAlreadyExists", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to , key must exists.
+        /// </summary>
+        internal static string KeyMustExistsSuffix {
+            get {
+                return ResourceManager.GetString("KeyMustExistsSuffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: {1} = {2}.
+        /// </summary>
+        internal static string OptionCommandFormat {
+            get {
+                return ResourceManager.GetString("OptionCommandFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: {1}.
+        /// </summary>
+        internal static string QueryCommandFormat {
+            get {
+                return ResourceManager.GetString("QueryCommandFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: {1} = {2}{3}.
+        /// </summary>
+        internal static string UpdateCommandFormat {
+            get {
+                return ResourceManager.GetString("UpdateCommandFormat", resourceCulture);
+            }
+        }
     }
 }

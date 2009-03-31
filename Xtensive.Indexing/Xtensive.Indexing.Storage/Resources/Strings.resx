@@ -126,4 +126,16 @@
   <data name="ExEmptyKeyColumnsCollection" xml:space="preserve">
     <value>Empty key columns collection.</value>
   </data>
+  <data name="QueryCommandFormat" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="OptionCommandFormat" xml:space="preserve">
+    <value>{0}: {1} = {2}</value>
+  </data>
+  <data name="KeyMustExistsSuffix" xml:space="preserve">
+    <value>, key must exists</value>
+  </data>
+  <data name="UpdateCommandFormat" xml:space="preserve">
+    <value>{0}: {1} = {2}{3}</value>
+  </data>
 </root>
