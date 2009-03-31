@@ -91,6 +91,15 @@ namespace Xtensive.Core.Parameters
       currentScope.Clear(this);
     }
 
+    /// <summary>
+    /// Called on leaving the scope.
+    /// </summary>
+    /// <param name="parameterScopeValue">The parameter scope value.</param>
+    internal virtual void OnScopeDisposed(object parameterScopeValue)
+    {
+      
+    }
+
     /// <inheritdoc/>
     public override string ToString()
     {

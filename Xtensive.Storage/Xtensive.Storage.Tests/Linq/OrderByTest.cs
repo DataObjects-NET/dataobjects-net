@@ -91,5 +91,37 @@ namespace Xtensive.Storage.Tests.Linq
           select new { c.ContactName, o.OrderDate };
         var list = result.ToList();
     }
+
+    [Test]
+    public void OrderByTakeSkipTest()
+    {
+      var original = Query<Order>.All.AsEnumerable()
+        .OrderBy(o => o.OrderDate)
+        .Skip(100)
+        .Take(50)
+        .OrderBy(o => o.RequiredDate)
+        .Where(o => o.OrderDate != null)
+        .Skip(10);
+      var result = Query<Order>.All
+        .OrderBy(o => o.OrderDate)
+        .Skip(100)
+        .Take(50)
+        .OrderBy(o => o.RequiredDate)
+        .Where(o => o.OrderDate != null)
+        .Skip(10);
+      var originalList = original.ToList();
+      var resultList = result.ToList();
+      Assert.AreEqual(originalList.Count, resultList.Count);
+      using (Log.DebugRegion("Dubugging order results.")) {
+        foreach (var order in originalList) {
+          Log.Info(order.ToString());
+        }
+        Log.Info("");
+        foreach (var order in resultList) {
+          Log.Info(order.ToString());
+        }
+        Assert.IsTrue(originalList.SequenceEqual(resultList));
+      }
+    }
   }
 }

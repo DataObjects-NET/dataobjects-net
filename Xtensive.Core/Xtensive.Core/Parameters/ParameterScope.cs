@@ -8,13 +8,15 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
+using System.Linq;
 
 namespace Xtensive.Core.Parameters
 {
   /// <summary>
   /// <see cref="ParameterContext"/> activation scope.
   /// </summary>
-  public class ParameterScope : Scope<ParameterContext>
+  public class ParameterScope : Scope<ParameterContext>,
+    IDisposable
   {    
     internal static new ParameterScope CurrentScope {
       [DebuggerStepThrough]
@@ -49,6 +51,17 @@ namespace Xtensive.Core.Parameters
     internal void Clear(Parameter parameter)
     {
       Context.Clear(parameter);
+    }
+
+    /// <inheritdoc/>
+    void IDisposable.Dispose()
+    {
+      var wasNested = IsNested;
+      var parameterValues = Context.values.ToList();
+      Dispose();
+      if (wasNested)
+        foreach (var pair in parameterValues)
+          pair.Key.OnScopeDisposed(pair.Value);
     }
 
 

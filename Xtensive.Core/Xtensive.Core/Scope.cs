@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Disposing;
 
 namespace Xtensive.Core
 {

@@ -313,6 +313,12 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
     [Field(PairTo = "Order")]
     public EntitySet<OrderDetails> OrderDetails { get; private set; }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format("OrderId: {0}; OrderDate: {1}; RequiredDate: {2}.", Id, OrderDate, RequiredDate);
+    }
   }
 
   [Entity(MappingName = "OrderDetails")]
