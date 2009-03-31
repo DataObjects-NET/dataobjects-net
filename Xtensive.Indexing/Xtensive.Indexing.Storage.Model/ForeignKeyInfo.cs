@@ -5,17 +5,15 @@
 // Created:    2009.03.23
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
-using System.Collections.Generic;
 
 namespace Xtensive.Indexing.Storage.Model
 {
   /// <summary>
-  /// Describes a single foreign key.
+  /// Foreign key.
   /// </summary>
   [Serializable]
   public class ForeignKeyInfo: NodeBase<TableInfo>
@@ -96,7 +94,7 @@ namespace Xtensive.Indexing.Storage.Model
     }
 
 
-    //Constructors
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

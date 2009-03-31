@@ -6,18 +6,26 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 
 namespace Xtensive.Indexing.Storage.Model
 {
+  /// <summary>
+  /// Foreign key collection.
+  /// </summary>
   [Serializable]
   public class ForeignKeyCollection : NodeCollectionBase<ForeignKeyInfo, TableInfo>, 
     IUnorderedNodeCollection
   {
 
 
-    //Constructors
+    // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="table">The table.</param>
     public ForeignKeyCollection(TableInfo table)
       : base(table, "ForeignKeys")
     {

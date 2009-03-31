@@ -7,9 +7,7 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
-using System.Diagnostics;
 using Xtensive.Modelling.Attributes;
-using Xtensive.Core.Helpers;
 
 namespace Xtensive.Indexing.Storage.Model
 {
@@ -75,7 +73,7 @@ namespace Xtensive.Indexing.Storage.Model
     }
 
 
-    //Constructors
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

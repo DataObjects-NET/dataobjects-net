@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 
 namespace Xtensive.Indexing.Storage.Model
@@ -17,10 +18,12 @@ namespace Xtensive.Indexing.Storage.Model
   public class ColumnInfoCollection : NodeCollectionBase<ColumnInfo, TableInfo>, 
     IUnorderedNodeCollection
   {
+    // Constructors
 
-
-    //Constructors
-
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="parent">The parent.</param>
     public ColumnInfoCollection(Node parent)
       : base(parent, "Columns")
     {
