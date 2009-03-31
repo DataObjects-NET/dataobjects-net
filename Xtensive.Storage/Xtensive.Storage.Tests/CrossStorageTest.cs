@@ -8,9 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Core.Disposing;
-using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse;
@@ -53,20 +51,15 @@ namespace Xtensive.Storage.Tests
       disposableSet.DisposeSafely();
     }
 
-    [Test]
-    public void CompareTest()
+    protected void RunTest(Func<Domain, RecordSet> recordSetCreator)
     {
-      foreach (var generator in GetRecordSetGenerators()) {
-        var oldResult = ExecuteRecordSet(domains.First(), generator);
-        foreach (var domain in domains.Skip(1)) {
-          var newResult = ExecuteRecordSet(domain, generator);
-          CompareResults(oldResult, newResult);
-          oldResult = newResult;
-        }
+      var oldResult = ExecuteRecordSet(domains.First(), recordSetCreator);
+      foreach (var domain in domains.Skip(1)) {
+        var newResult = ExecuteRecordSet(domain, recordSetCreator);
+        CompareResults(oldResult, newResult);
+        oldResult = newResult;
       }
     }
-
-    protected abstract IEnumerable<Func<Domain, RecordSet>> GetRecordSetGenerators();
 
     protected virtual IEnumerable<string> GetProviders()
     {
@@ -87,12 +80,13 @@ namespace Xtensive.Storage.Tests
     {
     }
 
-    private static List<Tuple> ExecuteRecordSet(Domain domain, Func<Domain, RecordSet> createRecordSet)
+    private static List<Tuple> ExecuteRecordSet(Domain domain, Func<Domain, RecordSet> recordSetCreator)
     {
       List<Tuple> result;
       using (domain.OpenSession())
       using (Transaction.Open()) {
-        result = createRecordSet(domain).ToList();
+        Log.Info("Running '{0}' under '{1}'", recordSetCreator.Method.Name, domain.Configuration.Name);
+        result = recordSetCreator(domain).ToList();
       }
       return result;
     }
@@ -104,11 +98,12 @@ namespace Xtensive.Storage.Tests
       bool hasLeft = leftEnumerator.MoveNext();
       bool hasRight = rightEnumerator.MoveNext();
       while (hasLeft && hasRight) {
-        Assert.IsTrue(leftEnumerator.Current.Equals(rightEnumerator.Current));
+        Assert.AreEqual(leftEnumerator.Current, rightEnumerator.Current);
         hasLeft = leftEnumerator.MoveNext();
         hasRight = rightEnumerator.MoveNext();
       }
-      Assert.AreEqual(hasLeft, hasRight);
+      Assert.IsFalse(hasLeft);
+      Assert.IsFalse(hasRight);
     }
   }
 }

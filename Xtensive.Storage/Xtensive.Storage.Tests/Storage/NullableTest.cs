@@ -5,15 +5,14 @@
 // Created:    2009.03.30
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Tests.Storage.AggregateNullableTestModel;
+using Xtensive.Storage.Tests.Storage.NullableTestModel;
 
-namespace Xtensive.Storage.Tests.Storage.AggregateNullableTestModel
+namespace Xtensive.Storage.Tests.Storage.NullableTestModel
 {
   [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class MyEntity : Entity
@@ -38,14 +37,8 @@ namespace Xtensive.Storage.Tests.Storage.AggregateNullableTestModel
 namespace Xtensive.Storage.Tests.Storage
 {
   [TestFixture]
-  [Explicit]
-  public class AggregateNullableTest : CrossStorageTest
+  public class NullableTest : CrossStorageTest
   {
-    protected override IEnumerable<Func<Domain, RecordSet>> GetRecordSetGenerators()
-    {
-      return new Func<Domain, RecordSet>[] {CreateRecordSet};
-    }
-
     protected override DomainConfiguration BuildConfiguration(string provider)
     {
       var config = base.BuildConfiguration(provider);
@@ -60,9 +53,26 @@ namespace Xtensive.Storage.Tests.Storage
       new MyEntity {Field1 = null, Field2 = null, Field3 = null, Field4 = null};
     }
 
-    private RecordSet CreateRecordSet(Domain domain)
+    [Test]
+    public void AggregateTest()
     {
-      var primary = domain.Model.Types[typeof(MyEntity)].Indexes.PrimaryIndex.ToRecordSet();
+      RunTest(AggregateTest);
+    }
+
+    [Test]
+    public void FilterTest()
+    {
+      RunTest(FilterTest);
+    }
+
+    private static RecordSet GetEntityRecordSet(Domain domain, Type entityType)
+    {
+      return domain.Model.Types[entityType].Indexes.PrimaryIndex.ToRecordSet();
+    }
+
+    private static RecordSet AggregateTest(Domain domain)
+    {
+      var primary = GetEntityRecordSet(domain, typeof (MyEntity));
 
       var descriptors = new[] {
           new AggregateColumnDescriptor("min_1", primary.Header.IndexOf("Field1"), AggregateType.Min),
@@ -85,6 +95,14 @@ namespace Xtensive.Storage.Tests.Storage
         };
 
       return primary.Aggregate(null, descriptors);
+    }
+
+    private static RecordSet FilterTest(Domain domain)
+    {
+      var primary = GetEntityRecordSet(domain, typeof(MyEntity));
+      return primary.Filter(
+        t => !(t.GetValueOrDefault<int?>(primary.Header.IndexOf("Field1")) > 3)
+        );
     }
   }
 }
