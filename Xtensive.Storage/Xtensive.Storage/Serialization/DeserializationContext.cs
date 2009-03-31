@@ -22,10 +22,7 @@ namespace Xtensive.Storage.Serialization
   [Serializable]
   public class DeserializationContext: Context<DeserializationScope>
   {
-    private Dictionary<Pair<Entity, FieldInfo>, object> fieldValues = 
-      new Dictionary<Pair<Entity, FieldInfo>, object>();
-
-    private Dictionary<Entity, SerializationInfo> deserializationData = 
+    private readonly Dictionary<Entity, SerializationInfo> deserializationData = 
       new Dictionary<Entity, SerializationInfo>();
 
     private bool isDeserialized = false;
@@ -52,11 +49,6 @@ namespace Xtensive.Storage.Serialization
       return currentContext;
     }
 
-    internal void RegisterFieldValue(Entity entity, FieldInfo field, object value)
-    {
-      fieldValues[new Pair<Entity, FieldInfo>(entity, field)] = value;
-    }
-
     internal void OnEntityCreated(Entity entity, SerializationInfo serializationInfo)
     {
       deserializationData[entity] = serializationInfo;
@@ -68,25 +60,25 @@ namespace Xtensive.Storage.Serialization
         return;
 
       InitializeEntities();
-      DeserializeFieldValues();
+      DeserializeEntityFields();
       isDeserialized = true;
     }
 
     private void InitializeEntities()
     {
       foreach (var pair in deserializationData)
-        EntitySerializer.DeserializeKey(pair.Key, pair.Value);
+        EntitySerializer.InitializeEntity(pair.Key, pair.Value);
     }
 
     internal void InitializeEntity(Entity entity)
     {
-      EntitySerializer.DeserializeKey(entity, deserializationData[entity]);
+      EntitySerializer.InitializeEntity(entity, deserializationData[entity]);
     }
 
-    private void DeserializeFieldValues()
+    private void DeserializeEntityFields()
     {
       foreach (var pair in deserializationData) 
-        EntitySerializer.DeserializeFieldValues(pair.Key, pair.Value);      
+        EntitySerializer.DeserializeEntityFields(pair.Key, pair.Value);      
     }
 
     /// <inheritdoc/>

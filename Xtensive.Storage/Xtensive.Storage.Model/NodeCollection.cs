@@ -11,6 +11,7 @@ using System.Globalization;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Notifications;
+using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
 {
@@ -43,11 +44,11 @@ namespace Xtensive.Storage.Model
       }
       catch (ArgumentException e){
         throw new InvalidOperationException(
-          string.Format(CultureInfo.InvariantCulture, "Item with name '{0}' already exists.", item.Name), e);
+          string.Format(Strings.ItemWithNameXAlreadyExists, item.Name), e);
       }
       catch (InvalidOperationException e) {
         throw new InvalidOperationException(
-          string.Format(CultureInfo.InvariantCulture, "Item with name '{0}' already exists.", item.Name), e);
+          string.Format(Strings.ItemWithNameXAlreadyExists, item.Name), e);
       }
     }
 
@@ -90,7 +91,7 @@ namespace Xtensive.Storage.Model
     /// An indexer that provides access to collection items.
     /// Returns <see langword="default(TNode)"/> if there is no such item.
     /// </summary>
-    /// <exception cref="ArgumentException"> when item was not found.</exception>
+    /// <exception cref="ArgumentException">Item was not found.</exception>
     public TNode this[string key]
     {
       [DebuggerStepThrough]
@@ -98,7 +99,8 @@ namespace Xtensive.Storage.Model
       {
         TNode result;
         if (!TryGetValue(key, out result))
-          throw new ArgumentException(String.Format(String.Format("Item by key ='{0}' was not found.", key)));
+          throw new ArgumentException(
+            string.Format(Strings.ExItemWithKeyXWasNotFound, key));
         return result;
       }
     }

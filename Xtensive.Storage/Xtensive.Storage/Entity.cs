@@ -262,20 +262,12 @@ namespace Xtensive.Storage
 
     #region Serialization-related methods
 
-    /// <inheritdoc/>
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {     
       EntitySerializer.GetObjectData(this, info, context);
     }
 
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
-    {
-//       throw new InvalidOperationException();  
-//      DeserializationContext.DemandCurrent().OnDeserialized(); 
-    }
-
-    public void OnDeserialization(object sender)
+    void IDeserializationCallback.OnDeserialization(object sender)
     {
       DeserializationContext.DemandCurrent().OnDeserialized(); 
     }

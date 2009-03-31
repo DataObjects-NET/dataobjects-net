@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
     }
 
     public Emploee()
-    {      
+    {
     }
 
     protected Emploee(SerializationInfo info, StreamingContext context) : base(info, context)
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Tests
           var deserializationContext = new DeserializationContext();
 
           using (deserializationContext.Activate()) {
-                  array = (object [])  formatter.Deserialize(stream);
+            array = (object [])  formatter.Deserialize(stream);
           }
 
           Company oldCompany = (Company) array[0];
@@ -145,9 +145,10 @@ namespace Xtensive.Storage.Tests
           Assert.AreEqual(firstCompanyId, oldCompany.Id);
           Assert.AreEqual("Alex", alex.Name);
           Assert.AreEqual("Jef", jef.Name);
-//          Assert.AreEqual(oldCompany, jef.Company);
-//          Assert.AreEqual(newCompany, alex.Company);
-//          Assert.AreEqual(alex, newCompany.Head);
+
+          Assert.AreEqual(oldCompany, jef.Company);
+          Assert.AreEqual(newCompany, alex.Company);
+          Assert.AreEqual(alex, newCompany.Head);
         }
       }    
     }
@@ -187,7 +188,7 @@ namespace Xtensive.Storage.Tests
       using (Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           stream.Position = 0;
-          Company company = (Company) Key.Create(typeof (Company), Tuple.Create(1)).Resolve();// Query<Company>.All.First();
+          Company company = (Company) Key.Create(typeof (Company), Tuple.Create(companyId)).Resolve();// Query<Company>.All.First();
 
           Company deserializedCompany = (Company) formatter.Deserialize(stream);
 

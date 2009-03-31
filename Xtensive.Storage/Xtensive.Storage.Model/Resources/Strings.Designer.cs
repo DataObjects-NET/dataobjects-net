@@ -79,11 +79,29 @@ namespace Xtensive.Storage.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Item with key &apos;{0}&apos; was not found..
+        /// </summary>
+        internal static string ExItemWithKeyXWasNotFound {
+            get {
+                return ResourceManager.GetString("ExItemWithKeyXWasNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to find master association of association &apos;{0}&apos;.
         /// </summary>
         internal static string ExUnableToFindMasterAssociation {
             get {
                 return ResourceManager.GetString("ExUnableToFindMasterAssociation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Item with name &apos;{0}&apos; already exists..
+        /// </summary>
+        internal static string ItemWithNameXAlreadyExists {
+            get {
+                return ResourceManager.GetString("ItemWithNameXAlreadyExists", resourceCulture);
             }
         }
         
