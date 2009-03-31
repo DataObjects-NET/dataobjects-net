@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Rse.Optimization
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       if (source.Type != typeof(RangeSet<Entire<Tuple>>))
         throw new ArgumentException(String.Format(Resources.Strings.ExExpressionMustReturnValueOfTypeX,
-                                                  typeof (RangeSet<Entire<Tuple>>)));
+          typeof (RangeSet<Entire<Tuple>>)));
       return source;
     }
 
@@ -53,6 +53,8 @@ namespace Xtensive.Storage.Rse.Optimization
       if (Origin != null)
         Origin.ReverseComparison();
     }
+
+    // Constructors
 
     public RangeSetExpression(Expression source, RangeSetOriginInfo origin, bool alwaysFull)
       : base(ValidateExpression(source).NodeType, typeof(RangeSet<Entire<Tuple>>))

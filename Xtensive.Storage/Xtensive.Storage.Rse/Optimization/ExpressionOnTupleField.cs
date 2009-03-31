@@ -33,7 +33,6 @@ namespace Xtensive.Storage.Rse.Optimization
       return operations.Dequeue();
     }
 
-
     // Constructors
 
     public ExpressionOnTupleField(int fieldIndex, Expression source)

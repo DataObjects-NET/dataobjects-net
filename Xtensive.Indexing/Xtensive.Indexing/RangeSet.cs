@@ -189,6 +189,8 @@ namespace Xtensive.Indexing
       }
     }
 
+    // Constructors
+
     /// <summary>
     /// Creates new RangeSet containing a single <see cref="Range{T}"/>.
     /// </summary>

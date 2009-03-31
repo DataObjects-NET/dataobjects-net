@@ -12,7 +12,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Rse.Optimization
 {
   /// <summary>
-  /// Extracter of <see cref="RangeSet{T}"/> from a boolean expression in disjunctive normal form.
+  /// Extractor of <see cref="RangeSet{T}"/> from a boolean expression in disjunctive normal form.
   /// </summary>
   internal sealed class RangeSetExtractor
   {
@@ -23,11 +23,12 @@ namespace Xtensive.Storage.Rse.Optimization
     {
       ArgumentValidator.EnsureArgumentNotNull(predicate, "predicate");
       var result = new RsExtractionResult(info);
-      foreach (var cnf in predicate.Operands) {
+      foreach (var cnf in predicate.Operands)
         result.AddPart(cnfVisitor.Extract(cnf, info, primaryIdxRecordSetHeader));
-      }
       return result;
     }
+
+    // Constructors
 
     public RangeSetExtractor(DomainModel domainModel)
     {

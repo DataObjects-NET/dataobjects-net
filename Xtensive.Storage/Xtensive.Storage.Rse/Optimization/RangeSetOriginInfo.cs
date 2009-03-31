@@ -10,13 +10,13 @@ using Xtensive.Core;
 namespace Xtensive.Storage.Rse.Optimization
 {
   /// <summary>
-  /// Original data was used to create a <see cref="RangeSetExpression"/>.
+  /// Original data used to create a <see cref="RangeSetExpression"/>.
   /// </summary>
   internal class RangeSetOriginInfo
   {
     private ExpressionType comparison;
     public ExpressionType Comparison {
-      get { return comparison;}
+      get { return comparison; }
       private set { comparison = value; }
     }
 
@@ -28,6 +28,8 @@ namespace Xtensive.Storage.Rse.Optimization
     {
       ExtractingVisitor.ReverseOperation(ref comparison);
     }
+
+    // Constructors
 
     public RangeSetOriginInfo(ExpressionType comparison, int tupleField, Expression keyValue)
     {

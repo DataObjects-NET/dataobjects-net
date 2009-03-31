@@ -36,6 +36,8 @@ namespace Xtensive.Storage.Rse.Optimization
       return new ReadOnlyList<Expression>(arguments, false);
     }
 
+    // Constructors
+
     public OperationInfo(string name, IEnumerable<Expression> arguments, Expression source)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");

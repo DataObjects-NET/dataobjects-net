@@ -43,13 +43,10 @@ namespace Xtensive.Storage.Rse.Optimization
       singleValueCash.Clear();
       singleValueCash.Add(0, indexKeyValue);
       CreateRangeEndpoints(out firstEndpoint, out secondEndpoint, singleValueCash, comparisonType,
-                           indexInfo);
+        indexInfo);
       return BuildConstructor(firstEndpoint, secondEndpoint, comparisonType,
-                              new RangeSetOriginInfo(comparisonType == ExpressionType.NotEqual ?
-                                                                               ExpressionType.Equal
-                                                                               :comparisonType,
-                                                     tupleField,
-                                                     indexKeyValue));
+        new RangeSetOriginInfo(comparisonType==ExpressionType.NotEqual
+          ? ExpressionType.Equal : comparisonType, tupleField, indexKeyValue));
     }
 
     public static RangeSetExpression BuildConstructor(Dictionary<int, Expression> indexKeyValues,
@@ -59,7 +56,7 @@ namespace Xtensive.Storage.Rse.Optimization
       Expression firstEndpoint;
       Expression secondEndpoint;
       CreateRangeEndpoints(out firstEndpoint, out secondEndpoint, indexKeyValues, comparisonType,
-                           indexInfo);
+        indexInfo);
       return BuildConstructor(firstEndpoint, secondEndpoint, comparisonType, null);
     }
 
@@ -69,9 +66,9 @@ namespace Xtensive.Storage.Rse.Optimization
       NewExpression rangeConstruction = Expression.New(rangeContructor, firstEndpoint, secondEndpoint);
       //TODO:A comparer from index must be passed here.
       RangeSetExpression result = CreateNotFullExpression(
-                                    Expression.New(rangeSetConstructor, rangeConstruction,
-                                    Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)),
-                                    origin);
+        Expression.New(rangeSetConstructor, rangeConstruction,
+          Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)),
+        origin);
       if (comparisonType == ExpressionType.NotEqual)
         return BuildInvert(result);
       return result;
@@ -81,9 +78,9 @@ namespace Xtensive.Storage.Rse.Optimization
     {
       return new RangeSetExpression(
         //TODO:A comparer from index must be passed here.
-                         Expression.New(rangeSetConstructor, Expression.Constant(Range<Entire<Tuple>>.Full),
-                                        Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)),
-                         origin, true);
+        Expression.New(rangeSetConstructor, Expression.Constant(Range<Entire<Tuple>>.Full),
+          Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)),
+        origin, true);
     }
 
     public static RangeSetExpression BuildIntersect(RangeSetExpression target, RangeSetExpression other)
@@ -111,9 +108,7 @@ namespace Xtensive.Storage.Rse.Optimization
     {
       //TODO:A comparer from index must be passed here.
       return CreateNotFullExpression(Expression.Call(
-                                       fullOrEmptyMethod, booleanExp,
-                                       Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)),
-                                       null);
+        fullOrEmptyMethod, booleanExp, Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)), null);
     }
 
     private static void CreateRangeEndpoints(out Expression first, out Expression second,
@@ -178,7 +173,7 @@ namespace Xtensive.Storage.Rse.Optimization
       Expression result = Expression.New(tupleUpdaterConstructor, tupleCreation);
       foreach (var indexKeyValue in indexKeyValues) {
         result = Expression.Call(result, tupleUpdateMethod, Expression.Constant(indexKeyValue.Key),
-                                 Expression.Convert(indexKeyValue.Value,typeof(object)));
+          Expression.Convert(indexKeyValue.Value, typeof (object)));
       }
       result = Expression.Property(result, wrappedTupleProperty);
       return result;
@@ -188,6 +183,8 @@ namespace Xtensive.Storage.Rse.Optimization
     {
       return new RangeSetExpression(source, origin, false);
     }
+
+    // Constructors
 
     static RangeSetExpressionsBuilder()
     {
@@ -199,18 +196,15 @@ namespace Xtensive.Storage.Rse.Optimization
       shiftedEntireConstutor = typeof (Entire<Tuple>).GetConstructor(new[] {typeof (Tuple),
                                                                             typeof (Direction)});
       infiniteEntireConstructor = typeof (Entire<Tuple>).GetConstructor(new[] {typeof (InfinityType)});
-      rangeContructor = typeof (Range<Entire<Tuple>>).GetConstructor(new[] {typeof (Entire<Tuple>), typeof (Entire<Tuple>)});
-      rangeSetConstructor = typeof (RangeSet<Entire<Tuple>>).
-        GetConstructor(new[] { typeof(Range<Entire<Tuple>>), typeof(AdvancedComparer<Entire<Tuple>>) });
-      intersectMethod = typeof (RangeSet<Entire<Tuple>>).
-        GetMethod("Intersect",
-                  new[]
-                  {typeof (RangeSet<Entire<Tuple>>)});
-      uniteMethod = typeof(RangeSet<Entire<Tuple>>).
-        GetMethod("Unite",
-                  new[] { typeof(RangeSet<Entire<Tuple>>) });
-      invertMethod = typeof(RangeSet<Entire<Tuple>>).
-        GetMethod("Invert");
+      rangeContructor = typeof (Range<Entire<Tuple>>)
+        .GetConstructor(new[] {typeof (Entire<Tuple>), typeof (Entire<Tuple>)});
+      rangeSetConstructor = typeof (RangeSet<Entire<Tuple>>)
+        .GetConstructor(new[] { typeof(Range<Entire<Tuple>>), typeof(AdvancedComparer<Entire<Tuple>>) });
+      intersectMethod = typeof (RangeSet<Entire<Tuple>>)
+        .GetMethod("Intersect", new[] {typeof (RangeSet<Entire<Tuple>>)});
+      uniteMethod = typeof (RangeSet<Entire<Tuple>>)
+        .GetMethod("Unite", new[] {typeof (RangeSet<Entire<Tuple>>)});
+      invertMethod = typeof(RangeSet<Entire<Tuple>>).GetMethod("Invert");
       fullOrEmptyMethod = typeof (RangeSet<Entire<Tuple>>).GetMethod("CreateFullOrEmpty");
     }
   }

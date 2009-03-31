@@ -20,19 +20,10 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
 
     public Expression ComparisonMethod { get; set; }
 
-    public bool ReverseRequired { get; set; }
+    public bool ReversingRequired { get; set; }
 
-    public ExpressionType? ComparisonType { get; set; }
+    public bool InversingRequired { get; set; }
 
-    public bool CanNormalize()
-    {
-      return Key!=null && Value!=null && ComparisonType!=null;
-    }
-
-    public void Normalize()
-    {
-      if (ReverseRequired)
-        ComparisonType = ComparisonExtractor.ReverseOperation(ComparisonType.Value);
-    }
+    public ExpressionType? ComparisonOperation { get; set; }
   }
 }

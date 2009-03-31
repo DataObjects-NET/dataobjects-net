@@ -17,7 +17,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Rse.Optimization
 {
   /// <summary>
-  /// Extracter of <see cref="RangeSet{T}"/> from a boolean expression in a conjunctive normal form.
+  /// Extractor of <see cref="RangeSet{T}"/> from a boolean expression in a conjunctive normal form.
   /// </summary>
   internal sealed class ExtractingVisitor : ExpressionVisitor
   {
@@ -33,9 +33,8 @@ namespace Xtensive.Storage.Rse.Optimization
     private readonly Comparison<RangeSetExpression> cashedComparison =
       (r1, r2) =>
       {
-        if (r1.Origin != null && r2.Origin != null) {
+        if (r1.Origin != null && r2.Origin != null)
           return r1.Origin.TupleField.CompareTo(r2.Origin.TupleField);
-        }
         else {
           if (r1.Origin == null && r2.Origin == null)
             return 0;
@@ -48,21 +47,21 @@ namespace Xtensive.Storage.Rse.Optimization
     public static void ReverseOperation(ref ExpressionType comparisonType)
     {
       switch (comparisonType) {
-        case ExpressionType.Equal:
-        case ExpressionType.NotEqual:
-          return;
-        case ExpressionType.GreaterThan:
-          comparisonType = ExpressionType.LessThan;
-          return;
-        case ExpressionType.GreaterThanOrEqual:
-          comparisonType = ExpressionType.LessThanOrEqual;
-          return;
-        case ExpressionType.LessThan:
-          comparisonType = ExpressionType.GreaterThan;
-          return;
-        case ExpressionType.LessThanOrEqual:
-          comparisonType = ExpressionType.GreaterThanOrEqual;
-          return;
+      case ExpressionType.Equal:
+      case ExpressionType.NotEqual:
+        return;
+      case ExpressionType.GreaterThan:
+        comparisonType = ExpressionType.LessThan;
+        return;
+      case ExpressionType.GreaterThanOrEqual:
+        comparisonType = ExpressionType.LessThanOrEqual;
+        return;
+      case ExpressionType.LessThan:
+        comparisonType = ExpressionType.GreaterThan;
+        return;
+      case ExpressionType.LessThanOrEqual:
+        comparisonType = ExpressionType.GreaterThanOrEqual;
+        return;
       }
     }
 
@@ -101,15 +100,15 @@ namespace Xtensive.Storage.Rse.Optimization
     private static bool IsComparison(ExpressionType nodeType)
     {
       return nodeType == ExpressionType.GreaterThan || nodeType == ExpressionType.GreaterThanOrEqual ||
-             nodeType == ExpressionType.LessThan || nodeType == ExpressionType.LessThanOrEqual ||
-             nodeType == ExpressionType.Equal || nodeType == ExpressionType.NotEqual;
+        nodeType == ExpressionType.LessThan || nodeType == ExpressionType.LessThanOrEqual ||
+        nodeType == ExpressionType.Equal || nodeType == ExpressionType.NotEqual;
     }
 
     private static ExpressionOnTupleField VisitBinaryWithTuple(ExpressionOnTupleField tupleExp, bool isLeft,
       BinaryExpression binaryExp)
     {
       string operationName = GetOperationName(binaryExp.NodeType);
-      tupleExp.EnqueueOperation(operationName, new[] {isLeft ? binaryExp.Left : binaryExp.Right}, binaryExp);
+      tupleExp.EnqueueOperation(operationName, new[] { isLeft ? binaryExp.Left : binaryExp.Right }, binaryExp);
       return tupleExp;
     }
 
@@ -119,7 +118,7 @@ namespace Xtensive.Storage.Rse.Optimization
         var constantExp = exp.Arguments[0] as ConstantExpression;
         var memberAccessExp = exp.Arguments[0] as MemberExpression;
         if (constantExp == null && memberAccessExp == null)
-          //TODO: Add string to resources.
+          // TODO: Add string to resources.
           throw new NotSupportedException(
             "The argument passed to call of method \"GetValue\" must be ConstantExpression or MemberExpression");
         int fieldIndex = constantExp != null ? (int)constantExp.Value : (int)Expression.Lambda(memberAccessExp).Compile().DynamicInvoke();
@@ -140,7 +139,7 @@ namespace Xtensive.Storage.Rse.Optimization
     {
       if (exp.Type != typeof(bool))
         return base.VisitUnary(exp);
-      Expression visited = base.Visit(exp.Operand);
+      Expression visited = Visit(exp.Operand);
       var rsExp = visited as RangeSetExpression;
       if (rsExp != null)
         if (exp.NodeType == ExpressionType.Not)
@@ -159,8 +158,8 @@ namespace Xtensive.Storage.Rse.Optimization
     private Expression VisitComparisonOperation(ExpressionType nodeType, Expression left, Expression right,
       bool leftIsTuple, bool rightIsTuple)
     {
-      ExpressionOnTupleField leftAsTuple = leftIsTuple ? (ExpressionOnTupleField) left : null;
-      ExpressionOnTupleField rightAsTuple = rightIsTuple ? (ExpressionOnTupleField) right : null;
+      ExpressionOnTupleField leftAsTuple = leftIsTuple ? (ExpressionOnTupleField)left : null;
+      ExpressionOnTupleField rightAsTuple = rightIsTuple ? (ExpressionOnTupleField)right : null;
       if (!(leftIsTuple ^ rightIsTuple))
         return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor(null);
 
@@ -173,21 +172,15 @@ namespace Xtensive.Storage.Rse.Optimization
       }
       if (tupleFiledAccessingExp.HasOperations)
         return ProcessTupleExpressionWithOperations(tupleFiledAccessingExp,
-                                                    keyValueExp,
-                                                    tupleFiledAccessingExp.FieldIndex,
-                                                    comparisonType);
+          keyValueExp, tupleFiledAccessingExp.FieldIndex, comparisonType);
 
       if (!IndexHasKeyAtZeroPoisition(tupleFiledAccessingExp.FieldIndex))
         return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor(
-                                                    new RangeSetOriginInfo(comparisonType,
-                                                                           tupleFiledAccessingExp.FieldIndex,
-                                                                           keyValueExp));
+          new RangeSetOriginInfo(comparisonType, tupleFiledAccessingExp.FieldIndex, keyValueExp));
 
 
       return RangeSetExpressionsBuilder.BuildConstructor(keyValueExp,
-                                                         tupleFiledAccessingExp.FieldIndex,
-                                                         comparisonType,
-                                                         indexInfo);
+        tupleFiledAccessingExp.FieldIndex, comparisonType, indexInfo);
     }
 
     private Expression ProcessTupleExpressionWithOperations(ExpressionOnTupleField tupleExp,
@@ -210,18 +203,17 @@ namespace Xtensive.Storage.Rse.Optimization
       ExpressionType realComparison;
       Expression realKey = operation.GetArguments()[0];
       if (comparisonResult < 0) {
-        if (comparisonType == ExpressionType.LessThan || comparisonType == ExpressionType.LessThanOrEqual ||
-            comparisonType == ExpressionType.Equal)
+        if (comparisonType==ExpressionType.LessThan || comparisonType==ExpressionType.LessThanOrEqual ||
+          comparisonType==ExpressionType.Equal)
           realComparison = ExpressionType.LessThan;
         else
           realComparison = ExpressionType.GreaterThanOrEqual;
       }
-      else if (comparisonResult == 0) {
+      else if (comparisonResult == 0)
         realComparison = comparisonType;
-      }
       else {
         if (comparisonType == ExpressionType.LessThan || comparisonType == ExpressionType.LessThanOrEqual ||
-            comparisonType == ExpressionType.NotEqual)
+          comparisonType == ExpressionType.NotEqual)
           realComparison = ExpressionType.LessThanOrEqual;
         else
           realComparison = ExpressionType.GreaterThan;
@@ -282,7 +274,7 @@ namespace Xtensive.Storage.Rse.Optimization
       //We analyse only one operation.
       if (tupleExp.OperationsCount > 1)
         return RangeSetExpressionsBuilder.BuildFullRangeSetConstructor(null);
-      if(IndexHasKeyAtZeroPoisition(tupleExp.FieldIndex)) {
+      if (IndexHasKeyAtZeroPoisition(tupleExp.FieldIndex)) {
         if (tupleExp.OperationsCount > 0) {
           var operation = tupleExp.DequeueOperation();
           if (String.CompareOrdinal(operation.Name, OperationInfo.WellKnownNames.Not) == 0)
@@ -318,16 +310,15 @@ namespace Xtensive.Storage.Rse.Optimization
       extractedExpressions.Sort(cashedComparison);
       int lastFieldPosition = -1;
       foreach (var rangeSet in extractedExpressions) {
-        if(rangeSet.Origin == null)
+        if (rangeSet.Origin == null)
           break;
         bool presentInIndex = IndexHasKeyAtSpecifiedPoisition(rangeSet.Origin.TupleField,
-                                                              lastFieldPosition + 1);
-        if(!presentInIndex)
+          lastFieldPosition + 1);
+        if (!presentInIndex)
           break;
 
-        if (rangeSet.Origin.Comparison == ExpressionType.Equal) {
+        if (rangeSet.Origin.Comparison == ExpressionType.Equal)
           lastFieldPosition++;
-        }
         else {
           lastFieldPosition++;
           break;
@@ -338,34 +329,35 @@ namespace Xtensive.Storage.Rse.Optimization
         return null;
 
       indexKeyValues.Clear();
-      for (int i = 0; i <= lastFieldPosition; i++) {
+      for (int i = 0; i <= lastFieldPosition; i++)
         indexKeyValues.Add(i, extractedExpressions[i].Origin.KeyValue);
-      }
+
       return RangeSetExpressionsBuilder.BuildConstructor(indexKeyValues,
-                                             extractedExpressions[lastFieldPosition].Origin.Comparison,
-                                             indexInfo);
+        extractedExpressions[lastFieldPosition].Origin.Comparison, indexInfo);
     }
 
     private static string GetOperationName(ExpressionType nodeType)
     {
       switch (nodeType) {
-        case ExpressionType.Add:
-        case ExpressionType.AddChecked:
-          return OperationInfo.WellKnownNames.Add;
-        case ExpressionType.Subtract:
-        case ExpressionType.SubtractChecked:
-          return OperationInfo.WellKnownNames.Substract;
-        case ExpressionType.Divide:
-          return OperationInfo.WellKnownNames.Divide;
-        case ExpressionType.Multiply:
-        case ExpressionType.MultiplyChecked:
-          return OperationInfo.WellKnownNames.Multiply;
-        case ExpressionType.Not:
-          return OperationInfo.WellKnownNames.Not;
-        default:
-          return OperationInfo.WellKnownNames.Unknown;
+      case ExpressionType.Add:
+      case ExpressionType.AddChecked:
+        return OperationInfo.WellKnownNames.Add;
+      case ExpressionType.Subtract:
+      case ExpressionType.SubtractChecked:
+        return OperationInfo.WellKnownNames.Substract;
+      case ExpressionType.Divide:
+        return OperationInfo.WellKnownNames.Divide;
+      case ExpressionType.Multiply:
+      case ExpressionType.MultiplyChecked:
+        return OperationInfo.WellKnownNames.Multiply;
+      case ExpressionType.Not:
+        return OperationInfo.WellKnownNames.Not;
+      default:
+        return OperationInfo.WellKnownNames.Unknown;
       }
     }
+
+    // Constructors
 
     public ExtractingVisitor(DomainModel domainModel)
     {

@@ -17,14 +17,16 @@ namespace Xtensive.Indexing.Tests
     [Test]
     public void UniteTest()
     {
-      var rangeSetX = new RangeSet<Entire<int>>(new Range<Entire<int>>(20, 30), AdvancedComparer<Entire<int>>.Default);
+      var rangeSetX = new RangeSet<Entire<int>>(new Range<Entire<int>>(20, 30),
+        AdvancedComparer<Entire<int>>.Default);
       rangeSetX.Unite(CreateRangeSet<Entire<int>>(50, 30));
       rangeSetX.Unite(CreateRangeSet<Entire<int>>(-10, 2));
       rangeSetX.Unite(CreateRangeSet(0, Entire<int>.MinValue));
 
       Assert.AreEqual(2, rangeSetX.Count());
 
-      var rangeSetY = new RangeSet<Entire<int>>(new Range<Entire<int>>(-20, -30), AdvancedComparer<Entire<int>>.Default);
+      var rangeSetY = new RangeSet<Entire<int>>(new Range<Entire<int>>(-20, -30),
+        AdvancedComparer<Entire<int>>.Default);
       rangeSetY.Unite(CreateRangeSet(new Entire<int>(-50, Direction.Positive), -15));
       rangeSetY.Unite(CreateRangeSet<Entire<int>>(-50, -60));
       rangeSetY.Unite(CreateRangeSet<Entire<int>>(-50, -100));
@@ -39,14 +41,16 @@ namespace Xtensive.Indexing.Tests
     [Test]
     public void IntersectTest()
     {
-      var rangeSetX = new RangeSet<Entire<int>>(new Range<Entire<int>>(20, 30), AdvancedComparer<Entire<int>>.Default);
+      var rangeSetX = new RangeSet<Entire<int>>(new Range<Entire<int>>(20, 30),
+        AdvancedComparer<Entire<int>>.Default);
       rangeSetX.Unite(CreateRangeSet<Entire<int>>(100, 10));
       rangeSetX.Unite(CreateRangeSet<Entire<int>>(0, 200));
       rangeSetX.Unite(CreateRangeSet<Entire<int>>(50, 90));
       rangeSetX.Intersect(CreateRangeSet<Entire<int>>(30, 130));
       Assert.AreEqual(1, rangeSetX.Count());
 
-      var rangeSetY = new RangeSet<Entire<int>>(new Range<Entire<int>>(20, 30), AdvancedComparer<Entire<int>>.Default);
+      var rangeSetY = new RangeSet<Entire<int>>(new Range<Entire<int>>(20, 30),
+        AdvancedComparer<Entire<int>>.Default);
       rangeSetY.Unite(CreateRangeSet<Entire<int>>(100, 140));
       rangeSetY.Unite(CreateRangeSet<Entire<int>>(500, 600));
       rangeSetY.Unite(CreateRangeSet<Entire<int>>(50, 90));
@@ -61,7 +65,7 @@ namespace Xtensive.Indexing.Tests
     public void InvertTest()
     {
       var rangeSet = new RangeSet<Entire<int>>(new Range<Entire<int>>(20, 30),
-                                                 AdvancedComparer<Entire<int>>.Default);
+        AdvancedComparer<Entire<int>>.Default);
       rangeSet.Unite(CreateRangeSet<Entire<int>>(100, 140));
       rangeSet.Unite(CreateRangeSet<Entire<int>>(500, 600));
       rangeSet.Unite(CreateRangeSet<Entire<int>>(50, 90));
@@ -74,15 +78,15 @@ namespace Xtensive.Indexing.Tests
     public void EmptyTest()
     {
       var rangeSetX = new RangeSet<Entire<int>>(new Range<Entire<int>>(20, 30),
-                                                  AdvancedComparer<Entire<int>>.Default);
+        AdvancedComparer<Entire<int>>.Default);
       var emptyRange = new RangeSet<Entire<int>>(Range<Entire<int>>.Empty,
-                                                   AdvancedComparer<Entire<int>>.Default);
+        AdvancedComparer<Entire<int>>.Default);
       rangeSetX.Intersect(emptyRange);
       Assert.AreEqual(0, emptyRange.Count());
 
       var sourceRange = new Range<Entire<int>>(20, 30);
       rangeSetX = new RangeSet<Entire<int>>(sourceRange,
-                                                  AdvancedComparer<Entire<int>>.Default);
+        AdvancedComparer<Entire<int>>.Default);
       rangeSetX.Unite(emptyRange);
       Assert.AreEqual(1, rangeSetX.Count());
       Assert.AreEqual(0, rangeSetX.First().CompareTo(sourceRange));

@@ -35,6 +35,8 @@ namespace Xtensive.Core.Tuples.Internals
       return this;
     }
 
+    // Constructors
+
     /// <summary>
     /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

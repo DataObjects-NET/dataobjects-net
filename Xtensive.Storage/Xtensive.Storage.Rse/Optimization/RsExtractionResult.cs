@@ -17,7 +17,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Rse.Optimization
 {
   /// <summary>
-  /// Result of extraction a RangeSet from a predicate.
+  /// Result of extraction a <see cref="RangeSet{T}"/> from a predicate.
   /// </summary>
   internal class RsExtractionResult : IEnumerable<RangeSetExpression>
   {
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Rse.Optimization
     {
       if (rsExpression.Type != typeof(RangeSet<Entire<Tuple>>))
         throw new ArgumentException(String.Format(Resources.Strings.ExExpressionMustReturnValueOfTypeX,
-                                                  typeof(RangeSet<Entire<Tuple>>)));
+          typeof (RangeSet<Entire<Tuple>>)));
       resultIsStale = true;
       partsOfResult.Add(rsExpression);
     }
@@ -58,16 +58,15 @@ namespace Xtensive.Storage.Rse.Optimization
 
     /// <summary>
     /// </summary>
-    /// <returns>Enumerator for the collection of result parts.</returns>
+    /// <returns>the enumerator for the collection of result parts.</returns>
     public IEnumerator<RangeSetExpression> GetEnumerator()
     {
       return partsOfResult.GetEnumerator();
     }
 
     /// <summary>
-    /// Returns a enumerator for the collection of result parts.
     /// </summary>
-    /// <returns>Enumerator</returns>
+    /// <returns>the enumerator for the collection of result parts.</returns>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
@@ -91,6 +90,8 @@ namespace Xtensive.Storage.Rse.Optimization
       if (tempResult != null)
         result = Expression.Lambda(tempResult.Source);
     }
+
+    // Constructors
 
     public RsExtractionResult(IndexInfo indexInfo)
     {

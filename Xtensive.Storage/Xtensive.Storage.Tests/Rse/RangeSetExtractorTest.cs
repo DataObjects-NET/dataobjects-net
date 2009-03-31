@@ -108,12 +108,10 @@ namespace Xtensive.Storage.Tests.Rse
       int cLengthIdx = GetFieldIndex(rsHeader, cLength);
       int cNameIdx = GetFieldIndex(rsHeader, cName);
 
-      var predicate = new DisjunctiveNormalized().
-                      AddCnf(
-                        AsCnf(t => t.GetValue<int?>(cLengthIdx) <= 3).
-                          AddBoolean(t => t.GetValue<string>(cNameIdx) == "abc")).
-                      AddCnf(
-                        AsCnf(t => t.GetValue<int?>(cLengthIdx) > 15));
+      var predicate = new DisjunctiveNormalized()
+        .AddCnf(AsCnf(t => t.GetValue<int?>(cLengthIdx) <= 3)
+        .AddBoolean(t => t.GetValue<string>(cNameIdx)=="abc"))
+        .AddCnf(AsCnf(t => t.GetValue<int?>(cLengthIdx) > 15));
 
       var expectedRanges = CreateExpectedRangesForDifferentFieldsTest(indexInfo, cLength);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
@@ -146,12 +144,11 @@ namespace Xtensive.Storage.Tests.Rse
 
       int x = 1;
       int y = 2;
-      var predicate = new DisjunctiveNormalized().
-                        AddCnf(
-                          AsCnf(t => t.GetValue<int?>(cLengthIdx) <= 3).
-                            AddBoolean(t => x + 3 > y)).
-                        AddCnf(AsCnf(t => t.GetValue<int?>(cLengthIdx) > 15)).
-                        AddCnf(AsCnf(t => false));
+      var predicate = new DisjunctiveNormalized()
+        .AddCnf(AsCnf(t => t.GetValue<int?>(cLengthIdx) <= 3)
+        .AddBoolean(t => x + 3 > y))
+        .AddCnf(AsCnf(t => t.GetValue<int?>(cLengthIdx) > 15))
+        .AddCnf(AsCnf(t => false));
 
       var expectedRanges = CreateExpectedRangesForStandAloneBooleanExpressionsTest(indexInfo, cLength);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
@@ -172,12 +169,10 @@ namespace Xtensive.Storage.Tests.Rse
       int cLengthIdx = GetFieldIndex(rsHeader, cLength);
       int cDescriptionIdx = GetFieldIndex(rsHeader, cDescription);
 
-      var predicate = new DisjunctiveNormalized().
-                        AddCnf(
-                          AsCnf(t => t.GetValue<string>(cDescriptionIdx).CompareTo("abc") < 0).
-                            AddBoolean(t => t.GetValue<int?>(cLengthIdx) == 6)).
-                        AddCnf(
-                          AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
+      var predicate = new DisjunctiveNormalized()
+        .AddCnf(AsCnf(t => t.GetValue<string>(cDescriptionIdx).CompareTo("abc") < 0)
+        .AddBoolean(t => t.GetValue<int?>(cLengthIdx)==6))
+        .AddCnf(AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
 
       var expectedRanges = CreateExpectedRangesForMultiColumnIndexTest(indexInfo, cLength, cDescription);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);

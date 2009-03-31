@@ -29,11 +29,11 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
       if (leftInfo == rightInfo)
         return null;
       if (rightInfo != null)
-        rightInfo.ReverseRequired = !(rightInfo.ReverseRequired);
+        rightInfo.ReversingRequired = !(rightInfo.ReversingRequired);
       var result = leftInfo != null ? leftInfo : rightInfo;
       if (result.MethodInfo != null)
         return ProcessComparisonMethod(exp.NodeType, leftInfo != null ? exp.Right : exp.Left, result);
-      result.ComparisonType = exp.NodeType;
+      result.ComparisonOperation = exp.NodeType;
       result.Value = leftInfo!=null ? exp.Right : exp.Left;
       return result;
     }
@@ -45,10 +45,19 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
         return keyInfo;
       if (exp.Type != typeof(bool))
         return null;
-      var operandInfo = operandState.Extract(exp.Operand);
+      var operandInfo = Visit(exp.Operand);
       if (exp.NodeType == ExpressionType.Not && operandInfo != null)
-        operandInfo.ReverseRequired = !(operandInfo.ReverseRequired);
+        operandInfo.InversingRequired = !(operandInfo.InversingRequired);
       return operandInfo;
+    }
+
+    protected override ExtractionInfo VisitMethodCall(MethodCallExpression exp)
+    {
+      var extractionInfo = operandState.Extract(exp);
+      if (extractionInfo!=null && extractionInfo.MethodInfo!=null
+        && extractionInfo.MethodInfo.CorrespondsToLikeOperation)
+        return ProcessMethodCorrespondingToLike(exp.NodeType, null, extractionInfo);
+      return null;
     }
 
     private static bool IsComparison(ExpressionType nodeType)
@@ -58,7 +67,7 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
              nodeType == ExpressionType.Equal || nodeType == ExpressionType.NotEqual;
     }
 
-    private ExtractionInfo ProcessComparisonMethod(ExpressionType nodeType, Expression rightPart,
+    private static ExtractionInfo ProcessComparisonMethod(ExpressionType nodeType, Expression rightPart,
       ExtractionInfo extractionInfo)
     {
       if (extractionInfo.MethodInfo.CorrespondsToLikeOperation)
@@ -66,19 +75,31 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
       return ProcessCompareToMethod(nodeType, rightPart, extractionInfo);
     }
 
-    private ExtractionInfo ProcessMethodCorrespondingToLike(ExpressionType nodeType, Expression rightPart,
-      ExtractionInfo extractionInfo)
+    private static ExtractionInfo ProcessMethodCorrespondingToLike(ExpressionType nodeType,
+      Expression rightPart, ExtractionInfo extractionInfo)
     {
+      extractionInfo.Value = MakeValueForLikeOperation(extractionInfo);
       var boolConstant = rightPart as ConstantExpression;
-      if (boolConstant == null || rightPart.Type != typeof(bool))
-        return null;
-      var rightValue = (bool)boolConstant.Value;
-      extractionInfo.ReverseRequired ^= rightValue;
-      extractionInfo.ReverseRequired ^= nodeType == ExpressionType.NotEqual;
+      if (boolConstant != null) {
+        if (rightPart.Type != typeof(bool))
+          return null;
+        var rightValue = (bool) boolConstant.Value;
+        extractionInfo.InversingRequired ^= rightValue;
+        extractionInfo.InversingRequired ^= nodeType==ExpressionType.NotEqual;
+      }
       return extractionInfo;
     }
 
-    private ExtractionInfo ProcessCompareToMethod(ExpressionType nodeType, Expression rightPart,
+    private static MethodCallExpression MakeValueForLikeOperation(ExtractionInfo extractionInfo)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(extractionInfo.MethodInfo.LikePattern,
+        "extractionInfo.MethodInfo.LikePattern");
+      var formatMethod = typeof (string).GetMethod("Format", new[] {typeof (string), typeof (object)});
+      return Expression.Call(null, formatMethod, Expression.Constant(extractionInfo.MethodInfo.LikePattern),
+        extractionInfo.Value);
+    }
+
+    private static ExtractionInfo ProcessCompareToMethod(ExpressionType nodeType, Expression rightPart,
       ExtractionInfo extractionInfo)
     {
       var compareToResult = rightPart as ConstantExpression;
@@ -103,7 +124,7 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
         else
           realComparison = ExpressionType.GreaterThan;
       }
-      extractionInfo.ComparisonType = realComparison;
+      extractionInfo.ComparisonOperation = realComparison;
       return extractionInfo;
     }
   }
