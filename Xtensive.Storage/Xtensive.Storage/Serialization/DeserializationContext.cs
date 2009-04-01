@@ -26,6 +26,7 @@ namespace Xtensive.Storage.Serialization
       new Dictionary<Entity, SerializationInfo>();
 
     private bool isDeserialized = false;
+    private StreamingContext? streamingContext;
 
     /// <summary>
     /// Gets the current <see cref="DeserializationContext"/>.
@@ -40,7 +41,7 @@ namespace Xtensive.Storage.Serialization
     /// </summary>
     /// <returns>Current context.</returns>
     /// <exception cref="InvalidOperationException">Active context is not found.</exception>
-    public static DeserializationContext DemandCurrent()
+    public static DeserializationContext Demand()
     {
       var currentContext = Current;
       if (currentContext==null)
@@ -49,36 +50,73 @@ namespace Xtensive.Storage.Serialization
       return currentContext;
     }
 
-    internal void OnEntityCreated(Entity entity, SerializationInfo serializationInfo)
+    internal void SetEntityData(Entity entity, SerializationInfo serializationInfo, StreamingContext context)
     {
       deserializationData[entity] = serializationInfo;
-    }    
+      if (streamingContext==null)
+        streamingContext = context;
+    }
 
-    internal void OnDeserialized()
+    internal void OnDeserialization()
     {
       if (isDeserialized)
         return;
 
-      InitializeEntities();
-      DeserializeEntityFields();
+      using (Session.Current.OpenInconsistentRegion()) {
+        InitializeEntities();
+        DeserializeEntityFields();
+      }     
       isDeserialized = true;
+    }
+
+    /// <summary>
+    /// Initializes the <see cref="Entity"/>.
+    /// </summary>
+    /// <param name="entity">The <see cref="Entity"/> to initialize.</param>
+    internal protected void InitializeEntity(Entity entity)
+    {
+      InitializeEntity(entity, deserializationData[entity], streamingContext.Value);
+    }
+
+
+    /// <summary>
+    /// Initializes the entity, i.e. deserializes or generates its <see cref="Key"/> and creates its <see cref="EntityState"/>.
+    /// </summary>    
+    /// <param name="entity">The entity to initialize.</param>
+    /// <param name="serializationInfo">The information to populate the <see cref="Entity.Key"/>.</param>
+    /// <param name="context">The source from which the object is deserialized.</param>
+    /// <remarks>
+    /// Target <see cref="Entity"/> is not initialized on this step, therefore it is unable to get or set its field values.
+    /// </remarks>
+    protected virtual void InitializeEntity(Entity entity, SerializationInfo serializationInfo, StreamingContext context)
+    {
+      SerializationHelper.InitializeEntity(entity, serializationInfo, streamingContext.Value);
+    }
+
+    /// <summary>
+    /// Deserializes the <see cref="Entity"/>'s field values.
+    /// </summary>
+    /// <param name="entity">The <see cref="Entity"/> to deserialize.</param>
+    /// <param name="serializationInfo">The information to populate the <see cref="Entity"/>'s field values.</param>
+    /// <param name="context">The source from which the object is deserialized.</param>
+    /// <remarks>
+    /// <see cref="Entity.Key"/> is already deserialized and all another <see cref="Entity">Entities</see> is already initialized on this step.
+    /// </remarks>
+    protected virtual void DeserializeEntityFields(Entity entity, SerializationInfo serializationInfo, StreamingContext context)
+    {
+      SerializationHelper.DeserializeEntityFields(entity, serializationInfo, context);
     }
 
     private void InitializeEntities()
     {
-      foreach (var pair in deserializationData)
-        EntitySerializer.InitializeEntity(pair.Key, pair.Value);
-    }
-
-    internal void InitializeEntity(Entity entity)
-    {
-      EntitySerializer.InitializeEntity(entity, deserializationData[entity]);
+      foreach (KeyValuePair<Entity, SerializationInfo> pair in deserializationData)
+        InitializeEntity(pair.Key, pair.Value, streamingContext.Value);
     }
 
     private void DeserializeEntityFields()
     {
-      foreach (var pair in deserializationData) 
-        EntitySerializer.DeserializeEntityFields(pair.Key, pair.Value);      
+      foreach (KeyValuePair<Entity, SerializationInfo> pair in deserializationData) 
+        DeserializeEntityFields(pair.Key, pair.Value, streamingContext.Value);
     }
 
     /// <inheritdoc/>
@@ -92,5 +130,5 @@ namespace Xtensive.Storage.Serialization
     {
       get { return DeserializationScope.CurrentContext==this; }
     }
-  }
+  } 
 }

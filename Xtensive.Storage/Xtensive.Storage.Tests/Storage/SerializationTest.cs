@@ -52,8 +52,8 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
   [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class Emploee : Entity
   {
-    [Field]
-    public int Id { get; private set; }
+    [Field] 
+    public Guid Id { get; private set; }
 
     [Field]
     public string Name { get; set; }
@@ -70,9 +70,61 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
     {
     }
 
-    protected Emploee(SerializationInfo info, StreamingContext context) : base(info, context)
+    protected Emploee(SerializationInfo info, StreamingContext context) 
+      : base(info, context)
     {      
     }
+  }
+
+  [Serializable]
+  [HierarchyRoot("Name")]
+  public class Country : Entity
+  {
+    [Field]
+    public string Name { get; private set;}
+
+    public Country(string name) : 
+      base(Tuple.Create(name))
+    {
+    }
+
+    protected Country(SerializationInfo info, StreamingContext context) 
+      : base(info, context)
+    {      
+    }
+  }
+
+  [Serializable]
+  [HierarchyRoot("Country", "Name")]
+  public class City : Entity
+  {
+    [Field]
+    public Country Country { get; private set;}
+
+    [Field]
+    public string Name { get; private set;}
+
+    public City(Country country, string name) 
+      : base(Tuple.Create(country.Name, name))
+    {
+    } 
+
+    protected City(SerializationInfo info, StreamingContext context) 
+      : base(info, context)
+    {      
+    }
+  }
+    
+  public class Address : Structure
+  {
+    [Field]
+    public City City { get; set;}
+
+    [Field]
+    public string Street { get; set;}
+
+    [Field]
+    public string Number { get; set;}
   }
 }
 
@@ -91,7 +143,7 @@ namespace Xtensive.Storage.Tests
 
     
     [Test]
-    public void     SerializationByReferenceTest()
+    public void SerializationByReferenceTest()
     {
       MemoryStream stream = new MemoryStream();
 
@@ -141,6 +193,64 @@ namespace Xtensive.Storage.Tests
           Assert.AreEqual(companyName, company.Name);
           Assert.AreEqual(companyId, company.Id);
           Assert.AreEqual(company.Session, Session.Current);
+        }
+      }
+    }
+
+    [Test]
+    public void ReferencedKeysTest()
+    {       
+      Stream stream = new MemoryStream();
+
+      using (Domain.OpenSession()) {  
+
+        Country russia;
+        
+        using (var transactionScope = Transaction.Open()) {
+          russia = new Country("Russia");
+          transactionScope.Complete();
+        }
+
+        using (var transactionScope = Transaction.Open()) {
+          transactionScope.Complete();
+          Country china = new Country("China");
+
+          City moscow = new City(russia, "Moscow");
+          City ekaterinburg = new City(russia, "Ekaterinburg");
+          City hongKong = new City(china, "Hong Kong");
+          City guangzhou = new City(china, "Guangzhou");
+  
+          City[] cities = new[] {ekaterinburg, moscow, hongKong, guangzhou};          
+
+          var serializationContext = new SerializationContext(
+            entity => entity==russia ? SerializationKind.ByReference : SerializationKind.ByValue);
+
+          using (serializationContext.Activate()) {
+              formatter.Serialize(stream, cities);
+          }
+          // Rollback
+        }
+      }
+
+      using (Domain.OpenSession()) {
+        using (Transaction.Open()) {
+          
+          var deserializationContext = new DeserializationContext();
+
+          City[] cities;
+
+          using (deserializationContext.Activate()) {
+            stream.Position = 0;
+            cities = (City[]) formatter.Deserialize(stream);
+          }
+
+            Assert.AreEqual("Ekaterinburg", cities[0].Name);
+          Assert.AreEqual("Russia", cities[0].Country.Name);
+          Assert.AreEqual("Moscow", cities[1].Name);
+          Assert.AreEqual(cities[0].Country, cities[1].Country);
+          Assert.AreEqual("Hong Kong", cities[2].Name);
+          Assert.AreEqual("China", cities[2].Country.Name);
+          Assert.AreEqual(cities[2].Country, cities[3].Country);
         }
       }
     }
@@ -201,7 +311,7 @@ namespace Xtensive.Storage.Tests
 
           Assert.AreEqual(firstCompanyId, oldCompany.Id);
           Assert.AreEqual("Alex", alex.Name);
-          Assert.AreEqual("Jef", jef.Name);
+            Assert.AreEqual("Jef", jef.Name);
 
           Assert.AreEqual(oldCompany, jef.Company);
           Assert.AreEqual(newCompany, alex.Company);

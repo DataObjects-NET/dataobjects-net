@@ -5,27 +5,19 @@
 // Created:    2009.03.24
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Xtensive.Core;
 using Xtensive.Storage.Model;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Serialization
 {
   [Serializable]
-  internal static class EntitySerializer
-  {
-    public static void GetObjectData(Entity entity, SerializationInfo info, StreamingContext context)
+  internal static class SerializationHelper
+  {    
+    public static void GetEntityValueData(Entity entity, SerializationInfo info, StreamingContext context)
     {
-      var serializationContext = SerializationContext.DemandCurrent();
-      var serializationKind = serializationContext.GetSerializationKind(entity);
-
-      if (serializationKind==SerializationKind.ByReference) {
-        EntityReference reference = new EntityReference(entity);
-        info.SetType(typeof(EntityReference));
-        reference.GetObjectData(info, context);
-        return;
-      }      
-
       foreach (FieldInfo field in entity.Type.Fields) {
         if (!IsSerializable(field))
           continue;
@@ -35,43 +27,50 @@ namespace Xtensive.Storage.Serialization
       }
     }
 
-    public static void InitializeEntity(Entity entity, SerializationInfo info)
+    public static void GetEntityReferenceData(Entity entity, SerializationInfo info, StreamingContext context)
+    {
+      EntityReference reference = new EntityReference(entity);
+      info.SetType(typeof(EntityReference));
+      reference.GetObjectData(info, context);
+    }
+
+    public static void InitializeEntity(Entity entity, SerializationInfo info, StreamingContext context)
     {
       if (IsInitialized(entity))
         return;
 
       Session session = Session.Current;      
       TypeInfo entityType = session.Domain.Model.Types[entity.GetType()];
-
       KeyGenerator generator = session.Domain.KeyGenerators[entityType.Hierarchy.GeneratorInfo];
       
       Tuple keyValue = generator!=null ? 
-        generator.Next() : DeserializeKeyFields(entityType, info);
+        generator.Next() : DeserializeKeyFields(entityType, info, context);
 
       Key key = Key.Create(entityType, keyValue, true);
       entity.State = session.CreateEntityState(key);
       entity.OnInitializing(false);
     }
 
-    private static Tuple DeserializeKeyFields(TypeInfo entityType, SerializationInfo info)
+    public static Tuple DeserializeKeyFields(TypeInfo entityType, SerializationInfo info, StreamingContext context)
     {
       var keyFields = entityType.Hierarchy.KeyInfo.Fields;
-      object[] keyValues = new object[keyFields.Count];
-      int index = 0;
-      foreach (FieldInfo keyField in keyFields) {
-        object value = info.GetValue(keyField.Name, keyField.ValueType);
-        keyValues[index] = value;
-        index++;
+        Tuple keyTuple = Tuple.Create(entityType.Hierarchy.KeyInfo.TupleDescriptor);
+      foreach (FieldInfo keyField in keyFields.Keys) {
+        object value = info.GetValue(keyField.Name, keyField.ValueType);        
         if (keyField.IsEntity) {
           Entity referencedEntity = (Entity) value;
           if (!IsInitialized(referencedEntity))
-            DeserializationContext.DemandCurrent().InitializeEntity(referencedEntity);
+            DeserializationContext.Demand().InitializeEntity(referencedEntity);
+          Tuple referencedTuple = referencedEntity.Key.Value;
+          referencedTuple.CopyTo(keyTuple, keyField.MappingInfo.Offset);
         }
+        else
+          keyTuple[keyField.MappingInfo.Offset] = value;
       }
-      return Tuple.Create(keyValues);
+      return keyTuple;
     }
 
-    public static void DeserializeEntityFields(Entity entity, SerializationInfo info)
+    public static void DeserializeEntityFields(Entity entity, SerializationInfo info, StreamingContext context)
     {
       foreach (FieldInfo field in entity.Type.Fields) {
         if (field.IsPrimaryKey)

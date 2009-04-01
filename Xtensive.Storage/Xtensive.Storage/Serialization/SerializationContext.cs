@@ -5,6 +5,7 @@
 // Created:    2009.03.18
 
 using System;
+using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Resources;
@@ -16,7 +17,7 @@ namespace Xtensive.Storage.Serialization
   /// </summary>
   public class SerializationContext : Context<SerializationScope>
   {
-    private readonly Func<Entity, SerializationKind> getSerializationKindDelegate;
+    private readonly Func<Entity, SerializationKind> serializationKindGetter;
 
     /// <summary>
     /// Gets the current <see cref="SerializationContext"/>.
@@ -31,7 +32,7 @@ namespace Xtensive.Storage.Serialization
     /// </summary>
     /// <returns>Current context.</returns>
     /// <exception cref="InvalidOperationException">Active context is not found.</exception>
-    public static SerializationContext DemandCurrent()
+    public static SerializationContext Demand()
     {
       var currentContext = Current;
       if (currentContext==null)        
@@ -46,14 +47,45 @@ namespace Xtensive.Storage.Serialization
       return new SerializationScope(this);
     }
 
-    /// <summary>
-    /// Gets the kind of serialization for the given entity.
-    /// </summary>
-    /// <param name="entity">The entity to be serialized.</param>
-    /// <returns>Serialization kind.</returns>
-    public SerializationKind GetSerializationKind(Entity entity)
+    internal void GetEntityData(Entity entity, SerializationInfo info, StreamingContext context)
     {
-      return getSerializationKindDelegate(entity);
+      var serializationKind = GetSerializationKind(entity);
+      if (serializationKind==SerializationKind.ByReference)
+        GetEntityReferenceData(entity, info, context);
+      else
+        GetEntityValueData(entity, info, context);
+    }
+
+    /// <summary>
+    /// Gets the entity value data, i.e. data which will be deserialized as a new <see cref="Entity"/>.
+    /// </summary>
+    /// <param name="entity">The <see cref="Entity"/> to serialize.</param>
+    /// <param name="info">The object to be populated with serialization information.</param>
+    /// <param name="context">The destination context of the serialization.</param>
+    protected virtual void GetEntityValueData(Entity entity, SerializationInfo info, StreamingContext context)
+    {
+      SerializationHelper.GetEntityValueData(entity, info, context);
+    }
+
+    /// <summary>
+    /// Gets the entity reference data, i.e. data which will be deserialized as a reference to existing <see cref="Entity"/>
+    /// </summary>
+    /// <param name="entity">The <see cref="Entity"/> to serialize.</param>
+    /// <param name="info">The object to be populated with serialization information.</param>
+    /// <param name="context">The destination context of the serialization.</param>
+    protected virtual void GetEntityReferenceData(Entity entity, SerializationInfo info, StreamingContext context)
+    {
+      SerializationHelper.GetEntityReferenceData(entity, info, context);
+    }
+
+    /// <summary>
+    /// Gets the kind of serialization for the specified <see cref="Entity"/>.
+    /// </summary>
+    /// <param name="entity">The <see cref="Entity"/> to be serialized.</param>
+    /// <returns>Serialization kind.</returns>
+    protected virtual SerializationKind GetSerializationKind(Entity entity)
+    {
+      return serializationKindGetter.Invoke(entity);
     }
 
     /// <inheritdoc/>
@@ -66,12 +98,22 @@ namespace Xtensive.Storage.Serialization
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="getSerializationKindDelegate">The get serialization kind delegate.</param>
-    public SerializationContext(Func<Entity, SerializationKind> getSerializationKindDelegate)
+    /// <param name="serializationKind">Default <see cref="SerializationKind"/>.</param>
+    public SerializationContext(SerializationKind serializationKind)
     {
-      this.getSerializationKindDelegate = getSerializationKindDelegate;
+      serializationKindGetter = (entity => serializationKind);
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="serializationKindGetter">The <see cref="SerializationKind"/> getter.</param>
+    public SerializationContext(Func<Entity, SerializationKind> serializationKindGetter)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(serializationKindGetter, "serializationKindGetter");
+      this.serializationKindGetter = serializationKindGetter;
     }
   }
 }

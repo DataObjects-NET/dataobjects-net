@@ -264,12 +264,12 @@ namespace Xtensive.Storage
 
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {     
-      EntitySerializer.GetObjectData(this, info, context);
+      SerializationContext.Demand().GetEntityData(this, info, context);
     }
 
     void IDeserializationCallback.OnDeserialization(object sender)
     {
-      DeserializationContext.DemandCurrent().OnDeserialized(); 
+      DeserializationContext.Demand().OnDeserialization(); 
     }
 
     #endregion
@@ -320,7 +320,7 @@ namespace Xtensive.Storage
     /// <param name="context">The <see cref="StreamingContext"/>.</param>
     protected Entity(SerializationInfo info, StreamingContext context)
     {
-      DeserializationContext.DemandCurrent().OnEntityCreated(this, info);
+      DeserializationContext.Demand().SetEntityData(this, info, context);
     }    
   }
 }
