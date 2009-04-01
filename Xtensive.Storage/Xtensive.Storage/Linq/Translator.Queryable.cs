@@ -611,7 +611,11 @@ namespace Xtensive.Storage.Linq
         var recordSet = outerResult.RecordSet.Apply(applyParameter,
           innerResult.RecordSet.Alias(context.GetNextAlias()),
           isOuter ? ApplyType.Outer : ApplyType.Cross);
-        return CombineResultExpressions(outerResult, innerResult, recordSet, resultSelector);
+        if (resultSelector != null)
+          return CombineResultExpressions(outerResult, innerResult, recordSet, resultSelector);
+        recordSet = recordSet
+          .Select(Enumerable.Range(outerResult.RecordSet.Header.Length, innerResult.RecordSet.Header.Length).ToArray());
+        return new ResultExpression(innerResult.Type, recordSet, innerResult.Mapping, innerResult.Projector, innerResult.ItemProjector);
       }
     }
 

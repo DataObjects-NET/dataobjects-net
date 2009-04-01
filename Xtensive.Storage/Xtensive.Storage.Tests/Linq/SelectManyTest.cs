@@ -4,10 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.01
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
@@ -17,6 +14,24 @@ namespace Xtensive.Storage.Tests.Linq
   [TestFixture]
   public class SelectManyTest : NorthwindDOModelTest
   {
+    [Test]
+    public void SimpleTest()
+    {
+      var expected = Query<Order>.All.Count();
+      var result = Query<Customer>.All
+        .SelectMany(c => Query<Order>.All.Where(o => o.Customer==c));
+      Assert.AreEqual(expected, result.ToList().Count);
+    }
+
+    [Test]
+    public void SimpleWithResultSelectorTest()
+    {
+      var expected = Query<Order>.All.Count();
+      var result = Query<Customer>.All
+        .SelectMany(c => Query<Order>.All.Where(o => o.Customer==c), (c, o) => new {c, o});
+      Assert.AreEqual(expected, result.ToList().Count);
+    }
+
     [Test]
     public void NestedTest()
     {
@@ -55,6 +70,24 @@ namespace Xtensive.Storage.Tests.Linq
       select new {c.ContactName, o.OrderDate};
       var list = result.ToList();
       Assert.AreEqual(assertCount, list.Count);
+    }
+
+    [Test]
+    public void EntitySetTest()
+    {
+      var expected = Query<Order>.All.Count();
+      var result = Query<Customer>.All
+        .SelectMany(c => c.Orders);
+      Assert.AreEqual(expected, result.ToList().Count);
+    }
+
+    [Test]
+    public void EntitySetSubqueryTest()
+    {
+      var expected = Query<Order>.All.Count(o => o.Employee.FirstName.StartsWith("A"));
+      var result = Query<Customer>.All
+        .SelectMany(c => c.Orders.Where(o => o.Employee.FirstName.StartsWith("A")));
+      Assert.AreEqual(expected, result.ToList().Count);
     }
   }
 }
