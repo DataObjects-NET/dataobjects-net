@@ -122,15 +122,16 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
-      var sqlSelect = (SqlSelect) source.Request.Statement.Clone();
+      var queryRef = SqlFactory.QueryRef((SqlSelect)source.Request.Statement);
+      var sqlSelect = SqlFactory.Select(queryRef);
       var request = new SqlFetchRequest(sqlSelect, provider.Header);
-      var query = (SqlSelect)request.Statement;
+      sqlSelect.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
       foreach (var column in provider.CalculatedColumns) {
-        var result = TranslateExpression(column.Expression, query);
+        var result = TranslateExpression(column.Expression, sqlSelect);
         var predicate = result.First;
         var bindings = result.Second.Bindings;
-        query.Columns.Add(predicate, column.Name);
+        sqlSelect.Columns.Add(predicate, column.Name);
         request.ParameterBindings.UnionWith(bindings);
       }
 

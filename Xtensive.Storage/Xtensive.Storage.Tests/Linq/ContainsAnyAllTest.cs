@@ -194,7 +194,7 @@ namespace Xtensive.Storage.Tests.Linq
             .All(o => o.Employee.FirstName=="Cool")
         };
       var list = result.ToList();
-      Assert.AreEqual(0, list.Count(i => i.AllEmployeesAreCool));
+      Assert.AreEqual(2, list.Count(i => i.AllEmployeesAreCool));
     }
 
     [Test]
