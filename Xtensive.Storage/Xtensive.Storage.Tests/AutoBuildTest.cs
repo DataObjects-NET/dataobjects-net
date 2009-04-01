@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Tests
     public virtual void TestFixtureSetUp()
     {
       DomainConfiguration config = BuildConfiguration();
-      domain = BuildDomain(config);
+        domain = BuildDomain(config);
     }
 
     [TestFixtureTearDown]

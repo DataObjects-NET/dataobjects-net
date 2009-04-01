@@ -37,13 +37,14 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
     public override string ToString()
     {
       return Name;
-    }
+    } 
 
     public Company()
-    {      
+    {
     }
 
-    protected Company(SerializationInfo info, StreamingContext context) : base(info, context)
+    protected Company(SerializationInfo info, StreamingContext context) 
+      : base(info, context)
     {
     }
   }
@@ -66,13 +67,19 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
       return Name;
     }
 
+    public override void OnValidate()
+    {
+      if (string.IsNullOrEmpty(Name) || Company==null)
+        throw new InvalidOperationException("Invalid îbject.");
+    }
+
     public Emploee()
     {
     }
 
-    protected Emploee(SerializationInfo info, StreamingContext context) 
+    protected Emploee(SerializationInfo info, StreamingContext context)
       : base(info, context)
-    {      
+    {
     }
   }
 
@@ -82,6 +89,9 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
   {
     [Field]
     public string Name { get; private set;}
+
+    [Field]
+    public City Capital { get; set; }
 
     public Country(string name) : 
       base(Tuple.Create(name))
@@ -141,7 +151,19 @@ namespace Xtensive.Storage.Tests
 
     private static readonly BinaryFormatter formatter = new BinaryFormatter();
 
-    
+
+    [Test]
+    public void SerializationOfComplexReferencesTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var transactionScope = Transaction.Open()) {
+
+
+
+        }
+      }
+    }
+
     [Test]
     public void SerializationByReferenceTest()
     {
@@ -211,22 +233,25 @@ namespace Xtensive.Storage.Tests
           transactionScope.Complete();
         }
 
-        using (var transactionScope = Transaction.Open()) {
-          transactionScope.Complete();
+        using (Transaction.Open()) {
           Country china = new Country("China");
 
           City moscow = new City(russia, "Moscow");
           City ekaterinburg = new City(russia, "Ekaterinburg");
           City hongKong = new City(china, "Hong Kong");
+          City beijing = new City(china, "Beijing");
           City guangzhou = new City(china, "Guangzhou");
+
+          china.Capital = beijing;
+          russia.Capital = moscow;
   
-          City[] cities = new[] {ekaterinburg, moscow, hongKong, guangzhou};          
+          City[] cities = new[] {ekaterinburg, moscow, hongKong, guangzhou, beijing};          
 
           var serializationContext = new SerializationContext(
             entity => entity==russia ? SerializationKind.ByReference : SerializationKind.ByValue);
 
           using (serializationContext.Activate()) {
-              formatter.Serialize(stream, cities);
+            formatter.Serialize(stream, cities);
           }
           // Rollback
         }
@@ -244,13 +269,30 @@ namespace Xtensive.Storage.Tests
             cities = (City[]) formatter.Deserialize(stream);
           }
 
-            Assert.AreEqual("Ekaterinburg", cities[0].Name);
-          Assert.AreEqual("Russia", cities[0].Country.Name);
-          Assert.AreEqual("Moscow", cities[1].Name);
-          Assert.AreEqual(cities[0].Country, cities[1].Country);
-          Assert.AreEqual("Hong Kong", cities[2].Name);
-          Assert.AreEqual("China", cities[2].Country.Name);
-          Assert.AreEqual(cities[2].Country, cities[3].Country);
+          City ekaterinburg = cities[0];
+          City moscow = cities[1];
+          City hongKong = cities[2];
+          City guangzhou = cities[3];
+
+          Country russia = ekaterinburg.Country;
+          Country china = guangzhou.Country;
+
+          Assert.IsNotNull(russia);
+          Assert.IsNotNull(china);
+
+          Assert.AreEqual("Russia", russia.Name);
+          Assert.AreEqual("China", china.Name);
+
+          Assert.AreEqual("Ekaterinburg", ekaterinburg.Name);
+          Assert.AreEqual("Moscow", moscow.Name);
+          Assert.AreEqual(russia, moscow.Country);          
+          Assert.AreEqual("Hong Kong", hongKong.Name);
+          Assert.AreEqual(china, hongKong.Country);
+          
+          Assert.IsNull(russia.Capital); // russia was serialized by reference, not by value
+    
+          Assert.AreEqual(china.Capital.Name, "Beijing");
+          
         }
       }
     }
@@ -272,15 +314,21 @@ namespace Xtensive.Storage.Tests
 
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
+
+          object[] array;
           Company existingCompany = (Company) Key.Create(typeof (Company), Tuple.Create(firstCompanyId)).Resolve(); //Query<Company>.All.First();
 
-          Company company = new Company {Name = "Region mobile"};
-          Emploee mike = new Emploee {Name = "Mike", Company = company};
-          Emploee alex = new Emploee {Name = "Alex", Company = company};
-          Emploee jef = new Emploee {Name = "Jef", Company = existingCompany};
-          company.Head = alex;
+          using (Session.Current.OpenInconsistentRegion()) {
 
-          var array = new object[] { existingCompany, company, alex, jef };
+            Company company = new Company {Name = "Region mobile"};
+            Emploee mike = new Emploee {Name = "Mike", Company = company};
+            Emploee alex = new Emploee {Name = "Alex", Company = company};
+            Emploee jef = new Emploee {Name = "Jef", Company = existingCompany};
+            company.Head = alex;
+
+            array = new object[] { existingCompany, company, alex, jef };
+          }
+          
 
           SerializationContext context =
             new SerializationContext(entity => entity==existingCompany ? SerializationKind.ByReference : SerializationKind.ByValue);
@@ -311,7 +359,7 @@ namespace Xtensive.Storage.Tests
 
           Assert.AreEqual(firstCompanyId, oldCompany.Id);
           Assert.AreEqual("Alex", alex.Name);
-            Assert.AreEqual("Jef", jef.Name);
+          Assert.AreEqual("Jef", jef.Name);
 
           Assert.AreEqual(oldCompany, jef.Company);
           Assert.AreEqual(newCompany, alex.Company);

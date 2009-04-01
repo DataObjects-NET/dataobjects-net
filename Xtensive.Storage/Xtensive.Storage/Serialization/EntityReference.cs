@@ -6,8 +6,6 @@
 
 using System;
 using System.Runtime.Serialization;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Serialization
@@ -19,7 +17,6 @@ namespace Xtensive.Storage.Serialization
   internal sealed class EntityReference : IObjectReference, ISerializable
   {
     private const string KeyValueName = "Key";
-
     private readonly Entity entity;
 
     public object GetRealObject(StreamingContext context)
@@ -32,20 +29,11 @@ namespace Xtensive.Storage.Serialization
       info.AddValue(KeyValueName, entity.Key.Format());
     }
 
-    /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="entity">The entity to serialize.</param>
     public EntityReference(Entity entity)
     {
       this.entity = entity;
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="info">The serialization info to deserialize.</param>
-    /// <param name="context">The streaming context.</param>
     private EntityReference(SerializationInfo info, StreamingContext context)
     {
       Key key = Key.Parse(info.GetString(KeyValueName));

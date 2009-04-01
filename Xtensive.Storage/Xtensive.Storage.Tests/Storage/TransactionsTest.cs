@@ -14,7 +14,7 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.TranscationsTest
 {
-  public class TranscationsTest  : AutoBuildTest
+  public class TransactionsTest : AutoBuildTest
   {    
     [HierarchyRoot(typeof (KeyGenerator), "ID")]
     public class Hexagon : Entity
@@ -24,6 +24,9 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
 
       [Field]
       public int Kwanza { get; set;}
+
+      [Field]
+      public Hexagon Babuka { get; set;}
 
       public void Wobble(int newKanza)
       {
@@ -85,11 +88,18 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
           t.Complete();
         }
         Assert.AreEqual(3, hexagon.Kwanza);
-        
+        Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
+
         using (Transaction.Open()) {
           hexagon.Kwanza = 11;
         }
         Assert.AreEqual(3, hexagon.Kwanza);
+        Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
+
+        using (Transaction.Open()) {
+          hexagon.Babuka = new Hexagon();
+        }
+        Assert.IsNull(hexagon.Babuka);
         Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
 
         using (Transaction.Open())   {
@@ -97,6 +107,7 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
           Session.Current.Persist();
         }
         Assert.AreEqual(3, hexagon.Kwanza);
+        Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
 
         try {
           hexagon.Wobble(18);
