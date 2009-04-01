@@ -21,7 +21,13 @@ namespace Xtensive.Modelling
     private Func<object, object> getter;
     private Action<object, object> setter;
     [NonSerialized]
+    private bool isSystem;
+    [NonSerialized]
     private int priority;
+    [NonSerialized]
+    private bool ignoreInComparison;
+    [NonSerialized]
+    private Type dependencyRootType;
 
     /// <summary>
     /// Gets <see cref="System.Reflection.PropertyInfo"/> of property 
@@ -30,10 +36,31 @@ namespace Xtensive.Modelling
     public PropertyInfo PropertyInfo { get; private set; }
 
     /// <summary>
+    /// Gets a value indicating whether underlying property is system.
+    /// </summary>
+    public bool IsSystem {
+      get { return isSystem; }
+    }
+
+    /// <summary>
     /// Gets the <see cref="PropertyAttribute.Priority"/> of the property.
     /// </summary>
     public int Priority {
       get { return priority; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether underlying property must be ignored in comparison.
+    /// </summary>
+    public bool IgnoreInComparison {
+      get { return ignoreInComparison; }
+    }
+
+    /// <summary>
+    /// Gets the dependency root type.
+    /// </summary>
+    public Type DependencyRootType {
+      get { return dependencyRootType; }
     }
 
     /// <summary>
@@ -67,14 +94,37 @@ namespace Xtensive.Modelling
     /// </summary>
     public bool HasSetter { get { return setter!=null; } }
 
+    /// <summary>
+    /// Gets the dependency root object.
+    /// </summary>
+    public IPathNode GetDependencyRoot(IPathNode source) 
+    {
+      if (source==null)
+        return null;
+      if (DependencyRootType.IsAssignableFrom(source.GetType()))
+        return source;
+      var current = source;
+      while (null != (current = current.Parent)) {
+        if (DependencyRootType.IsAssignableFrom(current.GetType()))
+          return current;
+      }
+      return null;
+    }
+
     private void Initialize()
     {
       var propertyInfo = PropertyInfo;
       var tType = propertyInfo.DeclaringType;
       var tProperty = propertyInfo.PropertyType;
+      var sa = propertyInfo.GetAttribute<SystemPropertyAttribute>(AttributeSearchOptions.InheritNone);
+      isSystem = sa!=null;
+      ignoreInComparison = isSystem;
       var pa = propertyInfo.GetAttribute<PropertyAttribute>(AttributeSearchOptions.InheritNone);
-      if (pa!=null)
+      if (pa!=null) {
         priority = pa.Priority;
+        ignoreInComparison |= pa.IgnoreInComparison;
+        dependencyRootType = pa.DependencyRootType;
+      }
       this.GetType()
         .GetMethod("InnerInitialize", 
             BindingFlags.Instance | 

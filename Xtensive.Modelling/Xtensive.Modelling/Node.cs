@@ -65,7 +65,6 @@ namespace Xtensive.Modelling
     #region Properties
 
     /// <inheritdoc/>
-    [Property(IgnoreInComparison = true)]
     [SystemProperty]
     public Node Parent {
       [DebuggerStepThrough]
@@ -89,7 +88,6 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    [Property(IgnoreInComparison = true)]
     [SystemProperty]
     public string Name
     {
@@ -114,7 +112,6 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    [Property(IgnoreInComparison = true)]
     [SystemProperty]
     public int Index
     {
@@ -709,10 +706,7 @@ namespace Xtensive.Modelling
         foreach (var pair in PropertyAccessors) {
           var newPropertyName = pair.Key;
           var accessor = pair.Value;
-          if (null != accessor.PropertyInfo.GetAttribute<SystemPropertyAttribute>(AttributeSearchOptions.InheritNone))
-            continue;
-          var pa = accessor.PropertyInfo.GetAttribute<PropertyAttribute>(AttributeSearchOptions.InheritNone);
-          if (pa!=null && pa.IgnoreInComparison)
+          if (accessor.IgnoreInComparison)
             continue;
 
           object sourceValue = (source==null || !accessor.HasGetter) ?

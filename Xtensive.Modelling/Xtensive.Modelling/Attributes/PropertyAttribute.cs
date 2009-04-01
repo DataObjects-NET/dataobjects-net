@@ -29,6 +29,14 @@ namespace Xtensive.Modelling.Attributes
     public bool IgnoreInComparison { get; set; }
 
     /// <summary>
+    /// Gets or sets the dependency root type.
+    /// </summary>
+    public Type DependencyRootType { get; set; }
+
+
+    // Constructors
+
+    /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public PropertyAttribute()
