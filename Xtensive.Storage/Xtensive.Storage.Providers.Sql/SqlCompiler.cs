@@ -125,7 +125,8 @@ namespace Xtensive.Storage.Providers.Sql
       var queryRef = SqlFactory.QueryRef((SqlSelect)source.Request.Statement);
       var sqlSelect = SqlFactory.Select(queryRef);
       var request = new SqlFetchRequest(sqlSelect, provider.Header);
-      sqlSelect.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      if (provider.Source.Header.Length > 0)
+        sqlSelect.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
       foreach (var column in provider.CalculatedColumns) {
         var result = TranslateExpression(column.Expression, sqlSelect);
