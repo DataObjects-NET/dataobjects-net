@@ -33,7 +33,6 @@ namespace Xtensive.Storage.Indexing.Model
     {
       base.ValidateState();
 
-      var primaryValueColumns = new List<ColumnInfo>(Parent.PrimaryIndex.ValueColumns.Select(valueRef => valueRef.Value));
       var secondaryKeyColumns = new List<ColumnInfo>(KeyColumns.Select(valueRef => valueRef.Value));
 
       // Empty keys.
@@ -46,12 +45,6 @@ namespace Xtensive.Storage.Indexing.Model
         Select(group => group.Key))
         throw new IntegrityException(
           string.Format(Resources.Strings.ExMoreThenOneKeyReferenceToColumnX, column.Name),
-          Path);
-
-      // Secondary key column does not primary value column.
-      foreach (var column in secondaryKeyColumns.Except(primaryValueColumns))
-        throw new IntegrityException(
-          string.Format("Secondary key column '{0}' must be primary value column.", column.Name),
           Path);
     }
 

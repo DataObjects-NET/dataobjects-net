@@ -8,6 +8,9 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core;
+using Xtensive.Core.Helpers;
+using System.Text;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Indexing.Model
 {
@@ -75,6 +78,17 @@ namespace Xtensive.Storage.Indexing.Model
 
     #endregion
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      var sb = new StringBuilder();
+      sb.Append(string.Format("Type: {0}", DataType.GetShortName()));
+      if (!Collation.IsNullOrEmpty())
+        sb.Append(string.Format(", Collation: {0}", Collation));
+      if (Length > 0)
+        sb.Append(string.Format(", Length: {0}", Length));
+      return sb.ToString();
+    }
 
     // Constructors
 
