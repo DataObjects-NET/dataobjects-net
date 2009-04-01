@@ -47,8 +47,8 @@ namespace Xtensive.Modelling
     public static readonly char PathEscape = '\\';
 
     [NonSerialized]
-    private static ThreadSafeDictionary<Type, ReadOnlyDictionary<string, PropertyAccessor>> cachedPropertyAccessors = 
-      ThreadSafeDictionary<Type, ReadOnlyDictionary<string, PropertyAccessor>>.Create(new object());
+    private static ThreadSafeDictionary<Type, PropertyAccessorDictionary> cachedPropertyAccessors = 
+      ThreadSafeDictionary<Type, PropertyAccessorDictionary>.Create(new object());
     [NonSerialized]
     private Node model;
     [NonSerialized]
@@ -56,7 +56,7 @@ namespace Xtensive.Modelling
     [NonSerialized]
     private Nesting nesting;
     [NonSerialized]
-    private ReadOnlyDictionary<string, PropertyAccessor> propertyAccessors;
+    private PropertyAccessorDictionary propertyAccessors;
     internal Node parent;
     private string name;
     private NodeState state;
@@ -133,7 +133,7 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public ReadOnlyDictionary<string, PropertyAccessor> PropertyAccessors {
+    public PropertyAccessorDictionary PropertyAccessors {
       [DebuggerStepThrough]
       get { return propertyAccessors; }
     }
@@ -706,7 +706,7 @@ namespace Xtensive.Modelling
 
       // Comparing properties
       if (!mi.IsRemoved || mi.IsCreated) {
-        foreach (var pair in PropertyAccessors.OrderBy(pa => pa.Value.Priority)) {
+        foreach (var pair in PropertyAccessors) {
           var newPropertyName = pair.Key;
           var accessor = pair.Value;
           if (null != accessor.PropertyInfo.GetAttribute<SystemPropertyAttribute>(AttributeSearchOptions.InheritNone))
@@ -834,7 +834,7 @@ namespace Xtensive.Modelling
         model = p.Model;
     }
 
-    private static ReadOnlyDictionary<string, PropertyAccessor> GetPropertyAccessors(Type type)
+    private static PropertyAccessorDictionary GetPropertyAccessors(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       return cachedPropertyAccessors.GetValue(type,
@@ -847,7 +847,7 @@ namespace Xtensive.Modelling
             if (p.GetAttribute<PropertyAttribute>(AttributeSearchOptions.InheritNone)!=null)
               d.Add(p.Name, new PropertyAccessor(p));
           }
-          return new ReadOnlyDictionary<string, PropertyAccessor>(d, false);
+          return new PropertyAccessorDictionary(d, false);
         });
     }
 
