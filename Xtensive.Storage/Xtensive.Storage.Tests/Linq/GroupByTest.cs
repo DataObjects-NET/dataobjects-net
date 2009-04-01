@@ -153,14 +153,39 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+
     [Test]
-    public void Select()
+    public void FilterGroupingByKeyTest()
     {
-      var result = Query<Order>.All.Select(g => g);
+      var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Key.StartsWith("L"));
       var list = result.ToList();
       Assert.Greater(list.Count, 0);
     }
 
+    [Test]
+    public void FilterGroupingByAgregateTest()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Count() > 1);
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
+
+
+    [Test]
+    public void FilterGroupingByAgregateTest2()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Sum(ord=>ord.Freight) > 10);
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
+
+    [Test]
+    public void GroupByWhere()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Key.StartsWith("L") && g.Count() > 1);
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
 
     [Test]
     public void GroupBySelect()

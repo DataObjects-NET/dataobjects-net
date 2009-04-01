@@ -16,16 +16,21 @@ namespace Xtensive.Storage.Linq
     IGrouping<TKey, TElement>
   {
     private readonly TKey key;
-    private readonly IEnumerable<TElement> enumerable;
+    private readonly IQueryable<TElement> queryable;
 
     public TKey Key
     {
       get { return key; }
     }
 
+    public IQueryable<TElement> Queryable
+    {
+      get { return queryable; }
+    }
+
     public IEnumerator<TElement> GetEnumerator()
     {
-      return enumerable.GetEnumerator();
+      return queryable.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -33,9 +38,9 @@ namespace Xtensive.Storage.Linq
       return GetEnumerator();
     }
 
-    public Grouping(TKey key, IEnumerable<TElement> enumerable)
+    public Grouping(TKey key, IQueryable<TElement> queryable)
     {
-      this.enumerable = enumerable;
+      this.queryable = queryable;
       this.key = key;
     }
   }

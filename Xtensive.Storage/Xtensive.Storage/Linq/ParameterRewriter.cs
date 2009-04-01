@@ -12,7 +12,7 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Linq
 {
-  internal class ParameterRewriter : ExpressionVisitor
+  internal class ParameterRewriter : QueryableVisitor
   {
     private readonly ParameterExpression tuple;
     private readonly ParameterExpression record;
@@ -43,6 +43,11 @@ namespace Xtensive.Storage.Linq
     {
       this.tuple = tuple;
       this.record = record;
+    }
+
+    protected override Expression VisitQueryableMethod(MethodCallExpression mc, QueryableMethodKind methodKind)
+    {
+      return mc;
     }
   }
 }
