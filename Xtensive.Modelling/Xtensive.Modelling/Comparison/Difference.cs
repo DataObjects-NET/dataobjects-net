@@ -73,7 +73,8 @@ namespace Xtensive.Modelling.Comparison
     {
       var actions = new List<NodeAction>();
       AppendActions(actions);
-      return ActionSorter.SortByDependency(actions);
+      return actions;
+      // return ActionSorter.SortByDependency(actions);
     }
 
     /// <inheritdoc/>
