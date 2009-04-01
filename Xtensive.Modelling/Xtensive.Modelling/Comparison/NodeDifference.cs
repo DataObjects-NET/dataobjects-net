@@ -106,6 +106,9 @@ namespace Xtensive.Modelling.Comparison
       : base(propertyName, source, target)
     {
       PropertyChanges = new Dictionary<string, Difference>();
+      var any = source ?? target;
+      if (any.Nesting.PropertyName!=propertyName)
+        IsNestedPropertyDifference = false;
     }
   }
 }

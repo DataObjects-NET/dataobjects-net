@@ -24,6 +24,7 @@ using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Resources;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Validation;
+using System.Linq;
 
 namespace Xtensive.Modelling
 {
@@ -658,7 +659,6 @@ namespace Xtensive.Modelling
     /// <summary>
     /// Builds the difference.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Both Source and Target are null.</exception>
     protected virtual Difference BuildDifference()
     {
       var difference = (NodeDifference) Difference.Current;
@@ -668,36 +668,24 @@ namespace Xtensive.Modelling
 
       // Filling MovementInfo
       var mi = new MovementInfo();
-      if (source==null) {
-        if (target==null)
-          throw new InvalidOperationException(Strings.ExBothSourceAndTargetAreNull);
-        if (!propertyName.IsNullOrEmpty() && target.Nesting.PropertyName==propertyName) {
-          mi.IsCreated = true;
-          if (difference.Parent!=null) {
-            var parentSource = difference.Parent.Source as Node;
-            if (parentSource!=null && parentSource.GetProperty(propertyName)!=null)
-              mi.IsRemoved = true;
-          }
+      if (source==null) { // => target!=null
+        mi.IsCreated = true;
+        if (difference.Parent!=null) {
+          var parentSource = difference.Parent.Source as Node;
+          if (parentSource!=null && parentSource.GetProperty(propertyName)!=null)
+            mi.IsRemoved = true; // = recreated
         }
-        else
-          return CreatePropertyValueDifference();
       }
-      else if (target==null) {
-        if (!propertyName.IsNullOrEmpty() && source.Nesting.PropertyName==propertyName)
-          mi.IsRemoved = true;
-        else
-          return CreatePropertyValueDifference();
-      }
-      else if (!propertyName.IsNullOrEmpty() && target.Nesting.PropertyName==propertyName && !target.Nesting.IsNestedToCollection) {
-        return CreateNestedNodeDifference();
-      }
+      else if (target==null)
+        mi.IsRemoved = true;
       else {
+        // both source!=null && target!=null
         if (!(source is IUnnamedNode) && Name!=target.Name) {
           var renameHint = HintSet.Current.GetHint<RenameHint>(source);
           if (renameHint==null || renameHint.TargetPath!=target.Path)
             mi.IsNameChanged = true;
         }
-        mi.IsIndexChanged = source.index != target.Index; // TODO: Fix this!
+        mi.IsIndexChanged = source.index!=target.Index; // TODO: Fix this!
         var collection = target.Nesting.PropertyValue as NodeCollection;
         if (collection!=null && (collection is IUnorderedNodeCollection))
           mi.IsIndexChanged = false;
@@ -711,82 +699,59 @@ namespace Xtensive.Modelling
         }
       }
       difference.MovementInfo = mi;
+      bool bMoved = !mi.IsUnchanged;
+      if (!difference.IsNestedPropertyDifference && bMoved)
+        using (difference.Parent.Activate())
+          return new PropertyValueDifference(propertyName, source, target);
 
       // Comparing properties
       if (!mi.IsRemoved || mi.IsCreated) {
-        foreach (var pair in PropertyAccessors) {
+        foreach (var pair in PropertyAccessors.OrderBy(pa => pa.Value.Priority)) {
           var newPropertyName = pair.Key;
           var accessor = pair.Value;
-          var sa = accessor.PropertyInfo.GetAttribute<SystemPropertyAttribute>(
-            AttributeSearchOptions.InheritNone);
-          if (sa!=null)
+          if (null != accessor.PropertyInfo.GetAttribute<SystemPropertyAttribute>(AttributeSearchOptions.InheritNone))
             continue;
-          var pa = accessor.PropertyInfo.GetAttribute<PropertyAttribute>(
-            AttributeSearchOptions.InheritNone);
+          var pa = accessor.PropertyInfo.GetAttribute<PropertyAttribute>(AttributeSearchOptions.InheritNone);
           if (pa!=null && pa.IgnoreInComparison)
             continue;
 
-          object sv = (source==null || !accessor.HasGetter) ?
+          object sourceValue = (source==null || !accessor.HasGetter) ?
             GetDefaultPropertyValue(newPropertyName) : accessor.Getter(source);
-          object tv = (target==null || !accessor.HasGetter) ?
+          object targetValue = (target==null || !accessor.HasGetter) ?
             GetDefaultPropertyValue(newPropertyName) : accessor.Getter(target);
-          if (sv==null) {
-            if (tv==null)
+          if (sourceValue==null) {
+            if (targetValue==null)
               continue; // Both are null
-            var dtv = tv as IDifferentiable;
-            if (dtv!=null) {
-              var d = dtv.GetDifferenceWith(sv, newPropertyName, true);
-              if (d!=null) 
+            var dTargetValue = targetValue as IDifferentiable;
+            if (dTargetValue!=null) {
+              var d = dTargetValue.GetDifferenceWith(sourceValue, newPropertyName, true);
+              if (d!=null)
                 difference.PropertyChanges.Add(newPropertyName, d);
             }
             else
               difference.PropertyChanges.Add(newPropertyName,
-                new PropertyValueDifference(newPropertyName, sv, tv));
+                new PropertyValueDifference(newPropertyName, sourceValue, targetValue));
             continue;
           }
-          var dsv = sv as IDifferentiable;
-          if (dsv!=null) {
-            var d = dsv.GetDifferenceWith(tv, newPropertyName, false);
-            if (d!=null) 
+          var dSourceValue = sourceValue as IDifferentiable;
+          if (dSourceValue!=null) {
+            var d = dSourceValue.GetDifferenceWith(targetValue, newPropertyName, false);
+            if (d!=null)
               difference.PropertyChanges.Add(newPropertyName, d);
           }
-          else if (!Equals(sv, tv))
+          else if (!Equals(sourceValue, targetValue))
             difference.PropertyChanges.Add(newPropertyName,
-              new PropertyValueDifference(newPropertyName, sv, tv));
+              new PropertyValueDifference(newPropertyName, sourceValue, targetValue));
         }
       }
 
-      return (!mi.IsUnchanged || difference.PropertyChanges.Count > 0) ? difference : null;
-    }
-
-    /// <summary>
-    /// Creates the property value difference object describing current difference.
-    /// </summary>
-    /// <returns>New <see cref="PropertyValueDifference"/> object.</returns>
-    protected static Difference CreatePropertyValueDifference()
-    {
-      var difference = (NodeDifference) Difference.Current;
-      using (new ComparisonScope(difference.Parent)) {
-        return new PropertyValueDifference(difference.PropertyName, 
-          difference.Source, difference.Target);
-      }
-    }
-
-    /// <summary>
-    /// Creates the nested node difference object describing current difference.
-    /// </summary>
-    /// <returns>New <see cref="NodeDifference"/> object.</returns>
-    protected static Difference CreateNestedNodeDifference()
-    {
-      var d = (NodeDifference) Difference.Current;
-      using (new ComparisonScope(d.Parent)) {
-        var difference = d.Target.CreateDifference(null, d.PropertyName, true);
-        using (difference.Activate()) {
-          if ((difference = d.Target.BuildDifference())!=null)
-            return difference;
-        }
+      bool bChanged = bMoved || (difference.PropertyChanges.Count > 0);
+      if (!bChanged)
         return null;
-      }
+      if (!difference.IsNestedPropertyDifference)
+        using (difference.Parent.Activate())
+          return new PropertyValueDifference(propertyName, source, target);
+      return difference;
     }
 
     /// <summary>

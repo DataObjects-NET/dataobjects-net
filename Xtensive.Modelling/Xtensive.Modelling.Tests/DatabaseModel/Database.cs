@@ -14,7 +14,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
   {
     private User owner;
 
-    [Property]
+    [Property(Priority = -1000)]
     public User Owner
     {
       get { return owner; }

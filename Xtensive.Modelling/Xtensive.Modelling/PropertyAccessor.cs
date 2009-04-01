@@ -9,6 +9,7 @@ using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Modelling
 {
@@ -19,12 +20,21 @@ namespace Xtensive.Modelling
   {
     private Func<object, object> getter;
     private Action<object, object> setter;
+    [NonSerialized]
+    private int priority;
 
     /// <summary>
     /// Gets <see cref="System.Reflection.PropertyInfo"/> of property 
     /// this accessor is bound to.
     /// </summary>
     public PropertyInfo PropertyInfo { get; private set; }
+
+    /// <summary>
+    /// Gets the <see cref="PropertyAttribute.Priority"/> of the property.
+    /// </summary>
+    public int Priority {
+      get { return priority; }
+    }
 
     /// <summary>
     /// Gets the property getter delegate.
@@ -62,6 +72,9 @@ namespace Xtensive.Modelling
       var propertyInfo = PropertyInfo;
       var tType = propertyInfo.DeclaringType;
       var tProperty = propertyInfo.PropertyType;
+      var pa = propertyInfo.GetAttribute<PropertyAttribute>(AttributeSearchOptions.InheritNone);
+      if (pa!=null)
+        priority = pa.Priority;
       this.GetType()
         .GetMethod("InnerInitialize", 
             BindingFlags.Instance | 

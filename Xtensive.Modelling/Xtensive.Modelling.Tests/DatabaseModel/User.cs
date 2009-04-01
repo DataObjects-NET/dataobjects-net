@@ -24,7 +24,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       }
     }
 
-    [Property]
+    [Property(Priority = 100)]
     public RoleRefCollection Roles { get; private set; }
 
     protected override Nesting CreateNesting()

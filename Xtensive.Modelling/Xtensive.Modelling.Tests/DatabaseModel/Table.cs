@@ -14,7 +14,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
   {
     private PrimaryIndex primaryIndex;
 
-    [Property]
+    [Property(Priority = 100)]
     public PrimaryIndex PrimaryIndex {
       get { return primaryIndex; }
       set {
@@ -22,7 +22,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       }
     }
 
-    [Property]
+    [Property(Priority = 200)]
     public SecondaryIndexCollection SecondaryIndexes { get; private set; }
 
     protected override Nesting CreateNesting()

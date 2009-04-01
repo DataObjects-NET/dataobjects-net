@@ -32,6 +32,9 @@ namespace Xtensive.Modelling.Comparison
     public string PropertyName { get; private set; }
 
     /// <inheritdoc/>
+    public bool IsNestedPropertyDifference { get; protected set; }
+
+    /// <inheritdoc/>
     public object Source { get; private set; }
 
     /// <inheritdoc/>
@@ -128,12 +131,18 @@ namespace Xtensive.Modelling.Comparison
     /// <param name="propertyName">The <see cref="PropertyName"/> value.</param>
     /// <param name="source">The <see cref="Source"/> value.</param>
     /// <param name="target">The <see cref="Target"/> value.</param>
+    /// <exception cref="InvalidOperationException">Both <paramref name="source"/> and 
+    /// <paramref name="target"/> are <see langword="null" />.</exception>
     public Difference(string propertyName, object source, object target)
     {
       PropertyName = propertyName;
       Source = source;
       Target = target;
+      var any = source ?? target;
+      if (any==null)
+        throw new InvalidOperationException(Strings.ExBothSourceAndTargetAreNull);
       Parent = Current;
+      IsNestedPropertyDifference = Parent==null ? true : Parent.IsNestedPropertyDifference;
     }
   }
 }

@@ -13,11 +13,11 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
   [Serializable]
   public class Security : NodeBase<Server>
   {
-    [Property]
-    public UserCollection Users { get; private set; }
-
-    [Property]
+    [Property(Priority = 100)]
     public RoleCollection Roles { get; private set; }
+
+    [Property(Priority = 200)]
+    public UserCollection Users { get; private set; }
 
     protected override Nesting CreateNesting()
     {

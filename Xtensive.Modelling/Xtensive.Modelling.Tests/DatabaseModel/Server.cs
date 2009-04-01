@@ -5,7 +5,6 @@
 // Created:    2009.03.18
 
 using System;
-using System.Diagnostics;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
 
@@ -29,7 +28,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     [Property]
     public DatabaseCollection Databases { get; private set; }
 
-    [Property]
+    [Property(Priority = -1000)]
     public Security Security {
       get { return security; }
       set {

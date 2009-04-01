@@ -6,10 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Sorting;
 using Xtensive.Modelling.Resources;
 using SNode=Xtensive.Core.Sorting.Node<Xtensive.Modelling.Actions.NodeAction, object>;

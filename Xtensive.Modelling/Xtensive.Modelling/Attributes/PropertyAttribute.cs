@@ -18,6 +18,12 @@ namespace Xtensive.Modelling.Attributes
   public class PropertyAttribute : Attribute
   {
     /// <summary>
+    /// Gets or sets the comparison \ modification priority.
+    /// The lower priority the less dependent property is.
+    /// </summary>
+    public int Priority { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether underlying property must be ignored in comparison.
     /// </summary>
     public bool IgnoreInComparison { get; set; }
