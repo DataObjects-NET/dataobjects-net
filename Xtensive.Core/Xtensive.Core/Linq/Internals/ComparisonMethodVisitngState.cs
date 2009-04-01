@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Xtensive.Core.Linq.ComparisonExtraction
+namespace Xtensive.Core.Linq.Internals
 {
   internal class ComparisonMethodVisitngState : BaseExtractorState
   {
@@ -18,23 +18,10 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
       ExtractionInfo argInfo = VisitMethodCallArguments(exp, out keyIndex);
       if (objInfo == argInfo)
         return null;
-      var result = FillValueInfo(objInfo, argInfo, exp, keyIndex);
+      var result = ExtractValueInfo(objInfo, argInfo, exp, keyIndex);
 
       result.ComparisonMethod = exp;
       result.MethodInfo = methodInfo;
-      return result;
-    }
-
-    protected override ExtractionInfo VisitUnary(UnaryExpression u)
-    {
-      ExtractionInfo result = base.VisitUnary(u);
-      if (result != null)
-        return result;
-      if(u.Type != typeof(bool))
-        return null;
-      result = Visit(u.Operand);
-      if (result != null && u.NodeType == ExpressionType.Not)
-        result.ReversingRequired = true;
       return result;
     }
 
@@ -85,38 +72,62 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
       return argumentInfo;
     }
 
-    private static ExtractionInfo FillValueInfo(ExtractionInfo objectInfo, ExtractionInfo argumentInfo,
+    private static ExtractionInfo ExtractValueInfo(ExtractionInfo objectInfo, ExtractionInfo argumentInfo,
       MethodCallExpression exp, int keyIndex)
     {
       var result = objectInfo!=null ? objectInfo : argumentInfo;
       if (result==null)
         throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
-      if (result==objectInfo) {
-        if (exp.Arguments.Count!=1)
+      if (result==objectInfo)
+        return ExtractValueFromInstanceMethodOfKey(result, exp);
+      return ExtractValueFromMethod(result, exp, keyIndex);
+    }
+
+    private static ExtractionInfo ExtractValueFromMethod(ExtractionInfo result, MethodCallExpression exp,
+      int keyIndex)
+    {
+      if (keyIndex < 0)
+        throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
+      if (exp.Method.IsStatic) {
+        if (exp.Arguments.Count < 2 || keyIndex > 1)
           throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
-        result.Value = exp.Arguments[0];
+        Expression value;
+        bool reversingRequired = false;
+        if (keyIndex==1) {
+          value = exp.Arguments[0];
+          reversingRequired = true;
+        }
+        else
+          value = exp.Arguments[1];
+        CheckThatKeyAndValueAreOfCompatibleTypes(result.Key, value);
+        if(reversingRequired)
+          result.ReversingRequired = !(result.ReversingRequired);
+        result.Value = value;
       }
       else {
-        if (keyIndex < 0)
+        if (exp.Arguments.Count < 1)
           throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
-        if (exp.Method.IsStatic) {
-          if (exp.Arguments.Count < 2 || keyIndex > 1)
-            throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
-          if (keyIndex==1) {
-            result.Value = exp.Arguments[0];
-            result.ReversingRequired = !(result.ReversingRequired);
-          }
-          else
-            result.Value = exp.Arguments[1];
-        }
-        else {
-          if (exp.Arguments.Count < 1)
-            throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
-          result.Value = exp.Object;
-          result.ReversingRequired = !(result.ReversingRequired);
-        }
+        result.Value = exp.Object;
+        result.ReversingRequired = !(result.ReversingRequired);
       }
       return result;
+    }
+
+    private static ExtractionInfo ExtractValueFromInstanceMethodOfKey(ExtractionInfo result,
+      MethodCallExpression exp)
+    {
+      if (exp.Arguments.Count == 0)
+        throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
+      var value = exp.Arguments[0];
+      CheckThatKeyAndValueAreOfCompatibleTypes(result.Key, value);
+      result.Value = value;
+      return result;
+    }
+
+    private static void CheckThatKeyAndValueAreOfCompatibleTypes(Expression key, Expression value)
+    {
+      if (value.Type != key.Type && !key.Type.IsSubclassOf(value.Type))
+        throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
     }
   }
 }

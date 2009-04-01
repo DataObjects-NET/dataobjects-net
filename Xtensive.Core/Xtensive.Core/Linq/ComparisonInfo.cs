@@ -7,8 +7,9 @@
 using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using Xtensive.Core.Linq.Internals;
 
-namespace Xtensive.Core.Linq.ComparisonExtraction
+namespace Xtensive.Core.Linq
 {
   /// <summary>
   /// Information about a comparison operation.
@@ -87,6 +88,10 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
         return ComparisonType.GreaterThanOrEqual;
       case ComparisonType.LessThanOrEqual:
         return ComparisonType.GreaterThan;
+      case ComparisonType.Like:
+        return ComparisonType.NotLike;
+      case ComparisonType.NotLike:
+        return ComparisonType.Like;
       default:
         throw Exceptions.InvalidArgument(comparisonType, "comparisonType");
       }
@@ -117,7 +122,7 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
     private static ComparisonType NormalizeOperation(ExtractionInfo extractionInfo)
     {
       ComparisonType result;
-      if (extractionInfo.MethodInfo != null && extractionInfo.MethodInfo.CorrespondsToLikeOperation)
+      if (extractionInfo.MethodInfo != null && extractionInfo.MethodInfo.IsLikeOperation)
         result = ComparisonType.Like;
       else {
         ArgumentValidator.EnsureArgumentNotNull(extractionInfo.ComparisonOperation,

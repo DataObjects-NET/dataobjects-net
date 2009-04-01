@@ -7,14 +7,24 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Xtensive.Core.Linq.ComparisonExtraction
+namespace Xtensive.Core.Linq.Internals
 {
   internal class InitialExtractorState : BaseExtractorState
   {
     public ExtractionInfo Extract(Expression exp, Func<Expression, bool> keySelector)
     {
       KeySelector = keySelector;
-      return Visit(exp);
+      var result = Visit(exp);
+      if (result != null
+        && result.Value == null && result.Key.Type == typeof(bool) && result.ComparisonOperation == null
+        && (result.MethodInfo == null || result.MethodInfo.Method.ReturnType == typeof(bool)
+          && !result.MethodInfo.IsLikeOperation)) {
+        result.Value = Expression.Constant(true);
+        result.ComparisonOperation = ExpressionType.Equal;
+      }
+      if (result != null && result.Value == null)
+        return null;
+      return result;
     }
 
     protected override ExtractionInfo VisitBinary(BinaryExpression exp)
@@ -32,7 +42,7 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
         rightInfo.ReversingRequired = !(rightInfo.ReversingRequired);
       var result = leftInfo != null ? leftInfo : rightInfo;
       if (result.MethodInfo != null)
-        return ProcessComparisonMethod(exp.NodeType, leftInfo != null ? exp.Right : exp.Left, result);
+        return ProcessComparisonMethodInBinaryExpression(exp.NodeType, leftInfo != null ? exp.Right : exp.Left, result);
       result.ComparisonOperation = exp.NodeType;
       result.Value = leftInfo!=null ? exp.Right : exp.Left;
       return result;
@@ -41,52 +51,51 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
     protected override ExtractionInfo VisitUnary(UnaryExpression exp)
     {
       var keyInfo = SelectKey(exp);
-      if (keyInfo != null)
+      if (keyInfo!=null)
         return keyInfo;
-      if (exp.Type != typeof(bool))
+      if (exp.Type!=typeof (bool))
         return null;
       var operandInfo = Visit(exp.Operand);
-      if (exp.NodeType == ExpressionType.Not && operandInfo != null)
+      if (operandInfo!=null && exp.NodeType==ExpressionType.Not)
         operandInfo.InversingRequired = !(operandInfo.InversingRequired);
       return operandInfo;
     }
 
     protected override ExtractionInfo VisitMethodCall(MethodCallExpression exp)
     {
-      var extractionInfo = operandState.Extract(exp);
-      if (extractionInfo!=null && extractionInfo.MethodInfo!=null
-        && extractionInfo.MethodInfo.CorrespondsToLikeOperation)
-        return ProcessMethodCorrespondingToLike(exp.NodeType, null, extractionInfo);
-      return null;
+      var result = operandState.Extract(exp);
+      if (result != null && result.MethodInfo != null)
+        if (result.MethodInfo.IsLikeOperation)
+          return ProcessMethodCorrespondingToLike(result);
+        else if (result.MethodInfo.IsComparingEqualityOnly)
+          return ProcessEqualityComparisonMethod(result);
+      return result;
     }
 
     private static bool IsComparison(ExpressionType nodeType)
     {
-      return nodeType == ExpressionType.GreaterThan || nodeType == ExpressionType.GreaterThanOrEqual ||
-             nodeType == ExpressionType.LessThan || nodeType == ExpressionType.LessThanOrEqual ||
-             nodeType == ExpressionType.Equal || nodeType == ExpressionType.NotEqual;
+      return nodeType==ExpressionType.GreaterThan || nodeType==ExpressionType.GreaterThanOrEqual
+        || nodeType==ExpressionType.LessThan || nodeType==ExpressionType.LessThanOrEqual
+        || nodeType==ExpressionType.Equal || nodeType==ExpressionType.NotEqual;
     }
 
-    private static ExtractionInfo ProcessComparisonMethod(ExpressionType nodeType, Expression rightPart,
-      ExtractionInfo extractionInfo)
+    private static ExtractionInfo ProcessComparisonMethodInBinaryExpression(ExpressionType nodeType,
+      Expression rightPart, ExtractionInfo extractionInfo)
     {
-      if (extractionInfo.MethodInfo.CorrespondsToLikeOperation)
-        return ProcessMethodCorrespondingToLike(nodeType, rightPart, extractionInfo);
+      if (extractionInfo.MethodInfo.Method.ReturnType == typeof(bool))
+        return null;
       return ProcessCompareToMethod(nodeType, rightPart, extractionInfo);
     }
 
-    private static ExtractionInfo ProcessMethodCorrespondingToLike(ExpressionType nodeType,
-      Expression rightPart, ExtractionInfo extractionInfo)
+    private static ExtractionInfo ProcessMethodCorrespondingToLike(ExtractionInfo extractionInfo)
     {
       extractionInfo.Value = MakeValueForLikeOperation(extractionInfo);
-      var boolConstant = rightPart as ConstantExpression;
-      if (boolConstant != null) {
-        if (rightPart.Type != typeof(bool))
-          return null;
-        var rightValue = (bool) boolConstant.Value;
-        extractionInfo.InversingRequired ^= rightValue;
-        extractionInfo.InversingRequired ^= nodeType==ExpressionType.NotEqual;
-      }
+      return extractionInfo;
+    }
+
+    private static ExtractionInfo ProcessEqualityComparisonMethod(ExtractionInfo extractionInfo)
+    {
+      extractionInfo.ComparisonOperation = ExpressionType.Equal;
       return extractionInfo;
     }
 
@@ -109,7 +118,7 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
       ExpressionType realComparison;
       if (comparisonResult < 0) {
         if (nodeType == ExpressionType.LessThan || nodeType == ExpressionType.LessThanOrEqual ||
-            nodeType == ExpressionType.Equal)
+          nodeType == ExpressionType.Equal)
           realComparison = ExpressionType.LessThan;
         else
           realComparison = ExpressionType.GreaterThanOrEqual;
@@ -119,7 +128,7 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
       }
       else {
         if (nodeType == ExpressionType.LessThan || nodeType == ExpressionType.LessThanOrEqual ||
-            nodeType == ExpressionType.NotEqual)
+          nodeType == ExpressionType.NotEqual)
           realComparison = ExpressionType.LessThanOrEqual;
         else
           realComparison = ExpressionType.GreaterThan;

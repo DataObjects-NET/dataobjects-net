@@ -9,12 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Xtensive.Core.Linq.ComparisonExtraction
+namespace Xtensive.Core.Linq.Internals
 {
   internal static class ComparisonMethodRepository
   {
     private static readonly Dictionary<MethodInfo, ComparisonMethodInfo> methods =
-                                                          new Dictionary<MethodInfo, ComparisonMethodInfo>();
+      new Dictionary<MethodInfo, ComparisonMethodInfo>();
 
     public static ComparisonMethodInfo Get(MethodInfo sample)
     {
@@ -45,7 +45,12 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
 
     private static void AddMethod(MethodInfo method)
     {
-      methods.Add(method, new ComparisonMethodInfo(method));
+      methods.Add(method, new ComparisonMethodInfo(method, false));
+    }
+
+    private static void AddEqualityComparisonMethod(MethodInfo method)
+    {
+      methods.Add(method, new ComparisonMethodInfo(method, true));
     }
 
     //Constructors
@@ -56,9 +61,22 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
       AddAllMethods(typeof(IComparable<>));
       var flagsForStatic = BindingFlags.Static | BindingFlags.Public;
       AddMethods(typeof(string), "Compare", flagsForStatic);
-      AddMethods(typeof(string), "CompareOrdinal", flagsForStatic);
+      AddMethod(typeof(string).GetMethod("CompareOrdinal", new[]{typeof(string), typeof(string)}));
       AddMethods(ComparisonMethodInfo.GetMethodsCorrespondingToLike());
       AddMethod(typeof (DateTime).GetMethod("Compare", flagsForStatic));
+
+      AddEqualityComparisonMethod(typeof(object)
+        .GetMethod("Equals", BindingFlags.Public | BindingFlags.Instance));
+      AddEqualityComparisonMethod(typeof(object)
+        .GetMethod("Equals", flagsForStatic));
+      AddEqualityComparisonMethod(typeof(string).GetMethod("Equals",
+        new[] { typeof(string), typeof(StringComparison) }));
+      AddEqualityComparisonMethod(typeof(string).GetMethod("Equals",
+        new[] { typeof(string), typeof(string) }));
+      AddEqualityComparisonMethod(typeof (string).GetMethod("Equals",
+        new[] {typeof (string), typeof (string), typeof (StringComparison)}));
+      AddEqualityComparisonMethod(typeof (DateTime).GetMethod("Equals", flagsForStatic));
+      AddEqualityComparisonMethod(typeof(IEquatable<>).GetMethod("Equals"));
     }
   }
 }

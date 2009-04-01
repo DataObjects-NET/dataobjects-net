@@ -6,8 +6,9 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Core.Linq.Internals;
 
-namespace Xtensive.Core.Linq.ComparisonExtraction
+namespace Xtensive.Core.Linq
 {
   /// <summary>
   /// Extractor of comparison operation from <see cref="Expression"/>.
@@ -27,10 +28,18 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
     {
       ArgumentValidator.EnsureArgumentNotNull(exp, "exp");
       ArgumentValidator.EnsureArgumentNotNull(keySelector, "keySelector");
+      if (!IsBoolleanExpression(exp))
+        return null;
       ExtractionInfo extractionInfo = BaseExtractorState.InitialState.Extract(exp, keySelector);
       if (extractionInfo == null)
         return null;
       return ComparisonInfo.TryCreate(extractionInfo);
+    }
+
+    private static bool IsBoolleanExpression(Expression exp)
+    {
+      return (exp.NodeType==ExpressionType.Lambda && ((LambdaExpression) exp).Body.Type==typeof (bool))
+        || (exp.Type==typeof (bool));
     }
   }
 }

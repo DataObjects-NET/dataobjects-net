@@ -6,7 +6,7 @@
 
 using System.Linq.Expressions;
 
-namespace Xtensive.Core.Linq.ComparisonExtraction
+namespace Xtensive.Core.Linq.Internals
 {
   internal class VisitingOperandState : BaseExtractorState
   {
@@ -17,19 +17,22 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
 
     protected override ExtractionInfo VisitUnary(UnaryExpression u)
     {
-      ExtractionInfo result = base.VisitUnary(u);
+      var result = SelectKey(u);
       if (result != null)
         return result;
       if (u.Type != typeof(bool))
         return null;
-      return Visit(u.Operand);
+      result = Visit(u.Operand);
+      if (result != null && u.NodeType == ExpressionType.Not)
+        result.InversingRequired = !(result.InversingRequired);
+      return result;
     }
 
     protected override ExtractionInfo VisitMethodCall(MethodCallExpression mc)
     {
-      ExtractionInfo result = base.VisitMethodCall(mc);
-      if (result != null)
-        return result;
+      var keyInfo = SelectKey(mc);
+      if (keyInfo != null)
+        return keyInfo;
       ComparisonMethodInfo methodInfo = ComparisonMethodRepository.Get(mc.Method);
       if (methodInfo == null)
         return null;

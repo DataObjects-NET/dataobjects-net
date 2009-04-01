@@ -10,7 +10,7 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core.Collections;
 
-namespace Xtensive.Core.Linq.ComparisonExtraction
+namespace Xtensive.Core.Linq.Internals
 {
   [Serializable]
   internal class ComparisonMethodInfo
@@ -20,14 +20,17 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
     private static readonly string endsWithName = "EndsWith";
     private static readonly string startsWithPattern = "{0}%";
     private static readonly string endsWithPattern = "%{0}";
+    private static readonly string compareOrdinalName = "CompareOrdinal";
 
     public readonly MethodInfo Method;
 
     public bool IsComplex { get; private set; }
 
-    public bool CorrespondsToLikeOperation { get; private set; }
+    public bool IsLikeOperation { get; private set; }
 
-    public bool CanBeReversed { get { return !CorrespondsToLikeOperation; } }
+    public bool IsComparingEqualityOnly { get; private set; }
+
+    public bool CanBeReversed { get { return !IsLikeOperation; } }
 
     public string LikePattern { get; private set; }
 
@@ -90,6 +93,10 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
 
     private void EvaluateComplexity(MethodInfo method)
     {
+      if(method.DeclaringType == typeof(string) && method.Name== compareOrdinalName) {
+        IsComplex = true;
+        return;
+      }
       var parameterInfo = method.GetParameters();
       if (parameterInfo.Length == 0) {
         IsComplex = false;
@@ -98,7 +105,7 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
       IsComplex = !AllParametersHasEqualType(parameterInfo);
     }
 
-    private bool AllParametersHasEqualType(ParameterInfo[] parameterInfo)
+    private static bool AllParametersHasEqualType(ParameterInfo[] parameterInfo)
     {
       var referenceType = parameterInfo[0].ParameterType;
       for (int i = 1; i < parameterInfo.Length; i++) {
@@ -120,8 +127,8 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
     private void InitMembersRelatedToLikeOperation(MethodInfo method)
     {
       if (method.DeclaringType==typeof (string)) {
-        CorrespondsToLikeOperation = methodsCorrespondingToLike.Contains(method);
-        if (CorrespondsToLikeOperation)
+        IsLikeOperation = methodsCorrespondingToLike.Contains(method);
+        if (IsLikeOperation)
           if (method.Name==startsWithName)
             LikePattern = startsWithPattern;
           else if (method.Name==endsWithName)
@@ -130,7 +137,7 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
             throw Exceptions.InvalidArgument(method, "method");
       }
       else
-        CorrespondsToLikeOperation = false;
+        IsLikeOperation = false;
     }
 
     // Constructors
@@ -141,10 +148,11 @@ namespace Xtensive.Core.Linq.ComparisonExtraction
       AddMethods(typeof(string).GetMethods(), "StartsWith");
     }
 
-    public ComparisonMethodInfo(MethodInfo method)
+    public ComparisonMethodInfo(MethodInfo method, bool isComparingEqualityOnly)
     {
       ArgumentValidator.EnsureArgumentNotNull(method, "method");
       Method = method;
+      IsComparingEqualityOnly = isComparingEqualityOnly;
       InitMembersRelatedToLikeOperation(method);
       EvaluateComplexity(method);
     }

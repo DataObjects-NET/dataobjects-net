@@ -4,7 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.03.27
 
-namespace Xtensive.Core.Linq.ComparisonExtraction
+namespace Xtensive.Core.Linq
 {
   public enum ComparisonType
   {
