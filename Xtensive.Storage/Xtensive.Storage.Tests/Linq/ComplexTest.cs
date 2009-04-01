@@ -15,29 +15,6 @@ namespace Xtensive.Storage.Tests.Linq
   public class ComplexTest : NorthwindDOModelTest
   {
     [Test]
-    public void CorrelatedAggregateTest()
-    {
-      var products = Query<Product>.All;
-      var suppliers = Query<Supplier>.All;
-      var result = from p in products
-      select new {Product = p, MaxID = suppliers.Where(s => s==p.Supplier).Max(s => s.Id)};
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-    }
-
-    [Test]
-    public void CorrelatedFirstTest()
-    {
-      var products = Query<Product>.All;
-      var orderDetails = Query<OrderDetails>.All;
-      var result = from p in products
-      select new {Product = p, MaxOrder = orderDetails.Where(od => od.Product==p).OrderByDescending(od => od.UnitPrice * od.Quantity).First().Order};
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-    }
-
-
-    [Test]
     public void CorrelatedQueryTest()
     {
       var products = Query<Product>.All;
@@ -52,14 +29,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void CorrelatedFilterTest()
-    {
-      var result = Query<Customer>.All.Where(c => Query<Order>.All.Count(o => o.Customer==c) > 5);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-    }
-
-    [Test]
     public void CorrelatedOrderByTest()
     {
       var result =
@@ -71,7 +40,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void CorrelatedCorrelatedTest()
+    public void NestedCorrelationTest()
     {
       var result =
         from c in Query<Customer>.All

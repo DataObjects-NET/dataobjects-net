@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Linq
           var re = new ResultExpression(source.Type, recordSet, source.Mapping, source.Projector, source.ItemProjector);
           context.Bindings.ReplaceBound(le.Parameters[0], re);
         }
-        result = recordIsUsed.Value
+        result = recordIsUsed.Value && !ignoreRecordUsage.Value
           ? Expression.Lambda(
             typeof (Func<,,>).MakeGenericType(typeof (Tuple), typeof (Record), body.Type),
             body,

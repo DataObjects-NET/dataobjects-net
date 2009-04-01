@@ -152,45 +152,5 @@ namespace Xtensive.Storage.Tests.Linq
       var list = result.ToList();
       Assert.AreEqual(productsCount, list.Count);
     }
-
-    [Test]
-    public void SelectManyTest()
-    {
-      var products = Query<Product>.All;
-      var productsCount = products.Count();
-      var suppliers = Query<Supplier>.All;
-      var categories = Query<Category>.All;
-      var result = from p in products
-      from s in suppliers
-      from c in categories
-      where p.Supplier==s && p.Category==c
-      select new {p, s, c.CategoryName};
-      var list = result.ToList();
-      Assert.AreEqual(productsCount, list.Count);
-    }
-
-    [Test]
-    public void SelectManyJoinedTest()
-    {
-      var ordersCount = Query<Order>.All.Count();
-      var result = from c in Query<Customer>.All
-      from o in Query<Order>.All.Where(o => o.Customer==c)
-      select new {c.ContactName, o.OrderDate};
-      var list = result.ToList();
-      Assert.AreEqual(ordersCount, list.Count);
-    }
-
-    [Test]
-    public void SelectManyJoinedDefaultIfEmptyTest()
-    {
-      var assertCount =
-        Query<Order>.All.Count() +
-          Query<Customer>.All.Count(c => !Query<Order>.All.Any(o => o.Customer==c));
-      var result = from c in Query<Customer>.All
-      from o in Query<Order>.All.Where(o => o.Customer==c).DefaultIfEmpty()
-      select new {c.ContactName, o.OrderDate};
-      var list = result.ToList();
-      Assert.AreEqual(assertCount, list.Count);
-    }
   }
 }

@@ -95,5 +95,24 @@ namespace Xtensive.Storage.Tests.Linq
       var customer = Query<Customer>.All.Where(c => c.Id=="ALFKI").SingleOrDefault();
       Assert.IsNotNull(customer);
     }
+
+    [Test]
+    public void SelectFirstTest()
+    {
+      var products = Query<Product>.All;
+      var orderDetails = Query<OrderDetails>.All;
+      var result = from p in products
+                   select new
+                     {
+                       Product = p,
+                       MaxOrder = orderDetails
+                         .Where(od => od.Product == p)
+                         .OrderByDescending(od => od.UnitPrice * od.Quantity)
+                         .First()
+                         .Order
+                     };
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
   }
 }

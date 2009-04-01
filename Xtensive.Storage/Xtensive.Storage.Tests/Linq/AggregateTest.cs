@@ -52,13 +52,21 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void WhereCountTest()
+    public void CountAfterFilterTest()
     {
       var result =
         from c in Query<Customer>.All
         where Query<Order>.All.Where(o => o.Customer==c).Count() > 10
         select c;
       Assert.Greater(result.ToList().Count, 0);
+    }
+
+    [Test]
+    public void WhereCountTest()
+    {
+      var result = Query<Customer>.All.Where(c => Query<Order>.All.Count(o => o.Customer == c) > 5);
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
 
     [Test]
@@ -108,6 +116,17 @@ namespace Xtensive.Storage.Tests.Linq
         from c in Query<Customer>.All
         select new {Customer = c, NumberOfOrders = Query<Order>.All.Count(o => o.Customer==c)};
       Assert.Greater(result.ToList().Count, 0);
+    }
+
+    [Test]
+    public void SelectMaxTest()
+    {
+      var products = Query<Product>.All;
+      var suppliers = Query<Supplier>.All;
+      var result = from p in products
+                   select new { Product = p, MaxID = suppliers.Where(s => s == p.Supplier).Max(s => s.Id) };
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
     }
   }
 }
