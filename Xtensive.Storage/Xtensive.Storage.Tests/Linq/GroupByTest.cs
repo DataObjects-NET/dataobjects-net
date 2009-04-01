@@ -154,6 +154,23 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void Select()
+    {
+      var result = Query<Order>.All.Select(g => g);
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
+
+
+    [Test]
+    public void GroupBySelect()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => g);
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
+
+    [Test]
     public void GroupBySelectManyTest()
     {
       var result = Query<Customer>.All.GroupBy(c => c.Address.City).SelectMany(g => g);
@@ -204,12 +221,38 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void GroupByWithResultSelectorTest()
+    public void GroupByWithConstantResultSelectorTest()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.Customer, (c, g) =>
+        new
+        {
+          ConstString = "ConstString"
+        });
+
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
+
+    [Test]
+    public void GroupByWithEntityResultSelectorTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer, (c, g) =>
         new
         {
           Customer = c,
+        });
+
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
+
+    [Test]
+    public void GroupByWithResultSelectorTest2()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.Customer, (c, g) =>
+        new
+        {
+//          Customer = c,
           Sum = g.Sum(o => o.Freight),
           Min = g.Min(o => o.Freight),
           Max = g.Max(o => o.Freight),
