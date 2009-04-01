@@ -591,6 +591,8 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
     {
+      if (collectionSelector.Parameters.Count > 1)
+        throw new NotSupportedException();
       var parameter = collectionSelector.Parameters[0];
       using (context.Bindings.Add(parameter, VisitSequence(source))) {
         var outerResult = context.Bindings[parameter];

@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.04
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.ObjectModel;
@@ -171,9 +172,45 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from c in Query<Customer>.All
-        select new {Customer = c, HasOrders = Query<Order>.All.Where(o => o.Customer==c).Any()};
+        select new {
+          Customer = c,
+          HasOrders = Query<Order>.All
+            .Where(o => o.Customer==c)
+            .Any()
+        };
       var list = result.ToList();
       Assert.Greater(list.Count, 0);
+    }
+
+    [Test]
+    public void SelectAllTest()
+    {
+      var result =
+        from c in Query<Customer>.All
+        select new {
+          Customer = c,
+          AllEmployeesAreCool = Query<Order>.All
+            .Where(o => o.Customer==c)
+            .All(o => o.Employee.FirstName=="Cool")
+        };
+      var list = result.ToList();
+      Assert.AreEqual(0, list.Count);
+    }
+
+    [Test]
+    public void SelectContainsTest()
+    {
+      var result =
+        from c in Query<Customer>.All
+        select new {
+          Customer = c,
+          HasNewOrders = Query<Order>.All
+            .Where(o => o.OrderDate > new DateTime(2001, 1, 1))
+            .Select(o => o.Customer)
+            .Contains(c)
+        };
+      var list = result.ToList();
+      Assert.AreEqual(0, list.Count);
     }
   }
 }
