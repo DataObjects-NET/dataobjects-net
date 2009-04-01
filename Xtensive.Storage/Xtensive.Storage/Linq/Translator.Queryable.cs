@@ -751,8 +751,8 @@ namespace Xtensive.Storage.Linq
         case ExpressionType.New:
           var newExpression = (NewExpression) visitedExpression;
           if (visitedExpression.Type.IsGenericType && visitedExpression.Type.GetGenericTypeDefinition()==typeof (Grouping<,>)) {
-            var groupingQuery = (IQueryable) newExpression.Arguments[1];
-            return VisitSequence(groupingQuery.Expression);
+            // var groupingQuery = (IQueryable) newExpression.Arguments[1];
+            return VisitSequence(newExpression.Arguments[1]);
           }
           break;
       }
