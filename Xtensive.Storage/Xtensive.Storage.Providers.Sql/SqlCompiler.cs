@@ -390,9 +390,14 @@ namespace Xtensive.Storage.Providers.Sql
       var compiledSource = GetCompiled(provider.Source) as SqlProvider;
       if (compiledSource == null)
         return null;
-
       SqlSelect query;
-      if (compiledSource.Origin.Type != ProviderType.Sort) {
+
+      if (provider.ColumnIndexes.Length == 0) {
+        query = (SqlSelect)compiledSource.Request.Statement.Clone();
+        query.Columns.Clear();
+        query.Columns.Add(SqlFactory.Null, "NULL");
+      }
+      else if (compiledSource.Origin.Type != ProviderType.Sort) {
         query = (SqlSelect)compiledSource.Request.Statement.Clone();
         var originalColumns = query.Columns.ToList();
         query.Columns.Clear();
