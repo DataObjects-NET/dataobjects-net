@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Tests.Linq
             .Any()
         };
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.AreEqual(2, list.Count(i => !i.HasOrders));
     }
 
     [Test]
@@ -194,7 +194,7 @@ namespace Xtensive.Storage.Tests.Linq
             .All(o => o.Employee.FirstName=="Cool")
         };
       var list = result.ToList();
-      Assert.AreEqual(0, list.Count);
+      Assert.AreEqual(0, list.Count(i => i.AllEmployeesAreCool));
     }
 
     [Test]
@@ -210,7 +210,7 @@ namespace Xtensive.Storage.Tests.Linq
             .Contains(c)
         };
       var list = result.ToList();
-      Assert.AreEqual(0, list.Count);
+      Assert.AreEqual(0, list.Count(i => i.HasNewOrders));
     }
   }
 }
