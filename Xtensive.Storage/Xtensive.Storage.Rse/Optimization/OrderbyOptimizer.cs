@@ -7,10 +7,10 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Compilation.Optimizers.Implementation;
+using Xtensive.Storage.Rse.Optimization.Implementation;
 using Xtensive.Storage.Rse.Providers;
 
-namespace Xtensive.Storage.Rse.Compilation.Optimizers
+namespace Xtensive.Storage.Rse.Optimization
 {
   /// <summary>
   /// Order by <see cref="IOptimizer"/> implementation.

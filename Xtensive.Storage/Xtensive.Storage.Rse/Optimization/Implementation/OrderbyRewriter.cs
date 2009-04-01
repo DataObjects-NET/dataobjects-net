@@ -12,7 +12,7 @@ using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using System.Linq;
 
-namespace Xtensive.Storage.Rse.Compilation.Optimizers.Implementation
+namespace Xtensive.Storage.Rse.Optimization.Implementation
 {
   internal sealed class OrderbyRewriter : CompilableProviderVisitor
   {

@@ -17,7 +17,7 @@ using Xtensive.Indexing;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Compilation.Optimizers;
+using Xtensive.Storage.Rse.Optimization;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Index

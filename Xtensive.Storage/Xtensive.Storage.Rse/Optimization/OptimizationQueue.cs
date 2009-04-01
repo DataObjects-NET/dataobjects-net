@@ -6,9 +6,10 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 
-namespace Xtensive.Storage.Rse.Compilation.Optimizers
+namespace Xtensive.Storage.Rse.Optimization
 {
   [Serializable]
   public sealed class OptimizationQueue : IOptimizer
