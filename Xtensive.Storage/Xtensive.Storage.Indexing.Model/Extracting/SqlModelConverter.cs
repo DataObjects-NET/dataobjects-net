@@ -5,33 +5,39 @@
 // Created:    2009.03.31
 
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Database;
 using SqlModel = Xtensive.Sql.Dom.Database.Model;
 using SqlRefAction = Xtensive.Sql.Dom.ReferentialAction;
 using Xtensive.Modelling;
+using Xtensive.Sql.Dom.Database.Providers;
+using Xtensive.Sql.Dom;
 
 namespace Xtensive.Storage.Indexing.Model
 {
   /// <summary>
-  /// Convert <see cref="Xtensive.Sql.Dom.Database.Model"/> to indexing storage model.
+  /// Converts <see cref="Xtensive.Sql.Dom.Database.Model"/> to indexing storage model.
   /// </summary>
   public class SqlModelConverter : ModelVisitor<IPathNode>
   {
     private StorageInfo storageInfo;
-
+    private ServerInfo serverInfo;
 
     /// <summary>
     /// Converts the specified model <see cref="Schema"/> to <see cref="StorageInfo"/>.
     /// </summary>
     /// <param name="schema">The schema.</param>
+    /// <param name="server">The server info.</param>
     /// <returns></returns>
-    public StorageInfo Convert(Schema schema)
+    public StorageInfo Convert(Schema schema, ServerInfo server)
     {
       ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
-
+      
+      serverInfo = server;
       storageInfo = new StorageInfo(schema.Name);
 
       Visit(schema);
@@ -39,39 +45,18 @@ namespace Xtensive.Storage.Indexing.Model
       return storageInfo;
     }
 
-
-    private static IndexInfo FindIndex(TableInfo table, List<ColumnInfo> keyColumns)
-    {
-      if (table.PrimaryIndex != null) {
-        var primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value);
-        if (primaryKeyColumns.Except(keyColumns).Count() == 0)
-          return table.PrimaryIndex;
-      }
-
-      foreach(SecondaryIndexInfo index in table.SecondaryIndexes) {
-        var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value);
-        if (secondaryKeyColumns.Except(keyColumns).Count() == 0)
-          return index;
-      }
-
-      return null;
-    }
-    
     /// <inheritdoc/>
     protected override IPathNode VisitSchema(Schema schema)
     {
       // Build tables, columns and indexes.
       foreach (var table in schema.Tables)
-        VisitTable(table);
+        Visit(table);
 
-      // Buils foreign keys.
-      foreach (var table in schema.Tables)
-        foreach (var constraint in table.TableConstraints)
-        {
-          var foreignKey = constraint as ForeignKey;
-          if (foreignKey != null)
-            VisitForeignKey(foreignKey);
-        }
+      // Build foreign keys.
+      var foreignKeys = schema.Tables.SelectMany(
+        t => t.TableConstraints.OfType<ForeignKey>());
+      foreach (var foreignKey in foreignKeys)
+        Visit(foreignKey);
 
       return null;
     }
@@ -79,28 +64,17 @@ namespace Xtensive.Storage.Indexing.Model
     /// <inheritdoc/>
     protected override IPathNode VisitTable(Table table)
     {
-      if (storageInfo.Tables.Contains(table.Name))
-        return storageInfo.Tables[table.Name];
-
       var tableInfo = new TableInfo(storageInfo, table.Name);
 
-      // Columns.
       foreach (var column in table.TableColumns)
-        VisitTableColumn(column);
+        Visit(column);
 
-      // Primary index.
-      foreach (var constraint in table.TableConstraints) {
-        // ToDo: Fix this!
-        var primaryKey = constraint as UniqueConstraint;
-        if (primaryKey!=null) {
-          VisitUniqueConstraint(primaryKey);
-          break;
-        }
-      }
+      var primaryKey = table.TableConstraints.OfType<PrimaryKey>().FirstOrDefault();
+      if (primaryKey!=null)
+        Visit(primaryKey);
 
-      // Secondary indexes.
       foreach (var index in table.Indexes)
-        VisitIndex(index);
+        Visit(index);
 
       return tableInfo;
     }
@@ -119,33 +93,41 @@ namespace Xtensive.Storage.Indexing.Model
     /// <inheritdoc/>
     protected override IPathNode VisitForeignKey(ForeignKey key)
     {
-      var tableInfo = Visit(key.Table) as TableInfo;
+      var tableInfo = storageInfo.Tables[key.Table.Name];
 
       var foreignKeyInfo = new ForeignKeyInfo(tableInfo, key.Name)
       {
         OnUpdateAction = ConvertReferentialAction(key.OnUpdate),
         OnRemoveAction = ConvertReferentialAction(key.OnDelete)
       };
+      // ToDo: Complete this!
       var referencedTable = tableInfo.Model.Tables[key.ReferencedTable.Name];
+      var referencingTable = tableInfo.Model.Tables[key.ReferencedTable.Name];
       var referencedColumns = new List<ColumnInfo>();
       foreach (var refColumn in key.Columns)
         referencedColumns.Add(referencedTable.Columns[refColumn.Name]);
-      foreignKeyInfo.ReferencedIndex = FindIndex(referencedTable, referencedColumns);
-
+      foreignKeyInfo.ReferencingIndex = FindIndex(referencedTable, referencedColumns);
+      
       return foreignKeyInfo;
     }
-
+    
     /// <inheritdoc/>
-    protected override IPathNode VisitUniqueConstraint(UniqueConstraint constraint)
+    protected override IPathNode VisitPrimaryKey(PrimaryKey key)
     {
-      var tableInfo = storageInfo.Tables[constraint.Table.Name];
-      var primaryIndexInfo = new PrimaryIndexInfo(tableInfo, constraint.Name);
+      var tableInfo = storageInfo.Tables[key.Table.Name];
+      var primaryIndexInfo = new PrimaryIndexInfo(tableInfo, key.Name);
 
-      foreach (var pkColumn in constraint.Columns)
-        new KeyColumnRef(primaryIndexInfo, tableInfo.Columns[pkColumn.Name],
+      foreach (var keyColumn in key.Columns)
+        new KeyColumnRef(primaryIndexInfo, tableInfo.Columns[keyColumn.Name],
           primaryIndexInfo.KeyColumns.Count, Direction.Positive);
       // ToDo: Get direction for key columns.
-      // ToDo: Add value columns.
+
+      var valueColumns = tableInfo.Columns.Except(
+        primaryIndexInfo.KeyColumns.Select(cr => cr.Value));
+
+      foreach (var valueColumn in valueColumns)
+        new ValueColumnRef(primaryIndexInfo, valueColumn,
+          primaryIndexInfo.ValueColumns.Count);
 
       return primaryIndexInfo;
     }
@@ -154,29 +136,27 @@ namespace Xtensive.Storage.Indexing.Model
     protected override IPathNode VisitIndex(Index index)
     {
       var tableInfo = storageInfo.Tables[index.DataTable.Name];
-      var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name);
-      
-      foreach (var keyColumn in index.Columns)
-        VisitIndexColumn(keyColumn);
+      var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name)
+        {
+          IsUnique = index.IsUnique
+        };
 
-      foreach (var valueColumn in index.NonkeyColumns)
-        new ValueColumnRef(secondaryIndexInfo, tableInfo.Columns[valueColumn.Name],
+      foreach (var keyColumn in index.Columns) {
+        var columnInfo = tableInfo.Columns[keyColumn.Column.Name];
+        new KeyColumnRef(secondaryIndexInfo,
+          columnInfo, secondaryIndexInfo.KeyColumns.Count,
+          keyColumn.Ascending ? Direction.Positive : Direction.Negative);
+      }
+
+      foreach (var valueColumn in index.NonkeyColumns) {
+        var columnInfo = tableInfo.Columns[valueColumn.Name];
+        new ValueColumnRef(secondaryIndexInfo, columnInfo,
           secondaryIndexInfo.ValueColumns.Count);
+      }
 
       return secondaryIndexInfo;
     }
 
-    /// <inheritdoc/>
-    protected override IPathNode VisitIndexColumn(IndexColumn indexColumn)
-    {
-      var tableInfo = storageInfo.Tables[indexColumn.Index.DataTable.Name];
-      var indexInfo = tableInfo.SecondaryIndexes[indexColumn.Index.Name];
-      var columnInfo = tableInfo.Columns[indexColumn.Name];
-
-      return new KeyColumnRef(indexInfo,
-        columnInfo, indexInfo.KeyColumns.Count,
-        indexColumn.Ascending ? Direction.Positive : Direction.Negative);
-    }
     
     /// <summary>
     /// Extracts the <see cref="TypeInfo"/> from <see cref="TableColumn"/>.
@@ -186,10 +166,8 @@ namespace Xtensive.Storage.Indexing.Model
     protected virtual TypeInfo ExtractType(TableColumn column)
     {
       return new TypeInfo(
-        // ToDo Convert SqlDataType to Type.
-        typeof(int),
-        // ToDo: Convert Collation to string.
-        column.Collation != null ? column.Collation.ToString() : string.Empty,
+        ConvertType(column.DataType.DataType),
+        column.Collation != null ? column.Collation.Name : string.Empty,
         column.DataType.Size);
     }
 
@@ -218,8 +196,48 @@ namespace Xtensive.Storage.Indexing.Model
       }
     }
 
+    /// <summary>
+    /// Converts the <see cref="SqlDataType"/> to <see cref="Type"/>.
+    /// </summary>
+    /// <param name="toConvert"><see cref="SqlDataType"/> to convert.</param>
+    /// <returns>Converted type.</returns>
+    protected virtual Type ConvertType(SqlDataType toConvert)
+    {
+      return serverInfo.DataTypes[toConvert].Type;
+    }
+
+    private static IndexInfo FindIndex(TableInfo table, List<ColumnInfo> keyColumns)
+    {
+      if (table.PrimaryIndex != null)
+      {
+        var primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value);
+        if (primaryKeyColumns.Except(keyColumns).Count() == 0)
+          return table.PrimaryIndex;
+      }
+
+      foreach (SecondaryIndexInfo index in table.SecondaryIndexes)
+      {
+        var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value);
+        if (secondaryKeyColumns.Except(keyColumns).Count() == 0)
+          return index;
+      }
+
+      return null;
+    }
 
     #region Not implemented
+
+    /// <inheritdoc/>
+    protected override IPathNode VisitUniqueConstraint(UniqueConstraint constraint)
+    {
+      throw new System.NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    protected override IPathNode VisitIndexColumn(IndexColumn indexColumn)
+    {
+      throw new System.NotImplementedException();
+    }
 
     /// <inheritdoc/>
     protected override IPathNode VisitCatalog(Catalog catalog)
@@ -301,12 +319,6 @@ namespace Xtensive.Storage.Indexing.Model
     
     /// <inheritdoc/>
     protected override IPathNode VisitTableConstraint(TableConstraint constraint)
-    {
-      throw new System.NotImplementedException();
-    }
-
-    /// <inheritdoc/>
-    protected override IPathNode VisitPrimaryKey(PrimaryKey key)
     {
       throw new System.NotImplementedException();
     }

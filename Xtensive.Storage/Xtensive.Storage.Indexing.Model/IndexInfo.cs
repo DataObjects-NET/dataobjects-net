@@ -20,12 +20,6 @@ namespace Xtensive.Storage.Indexing.Model
     private bool isUnique;
 
     /// <summary>
-    /// Gets a value indicating whether this instance is primary.
-    /// </summary>
-    [Property]
-    public bool IsPrimary { get; private set; }
-
-    /// <summary>
     /// Gets a value indicating whether this instance is unique.
     /// </summary>
     /// <exception cref="NotSupportedException">Already initialized.</exception>
@@ -45,6 +39,12 @@ namespace Xtensive.Storage.Indexing.Model
         }
       }
     }
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is primary.
+    /// </summary>
+    [Property]
+    public bool IsPrimary { get; private set; }
 
     /// <summary>
     /// Gets key columns.

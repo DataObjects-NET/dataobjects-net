@@ -20,7 +20,9 @@ namespace Xtensive.Storage.Indexing.Model
   {
     private ReferentialAction onUpdateAction;
     private ReferentialAction onRemoveAction;
-    private IndexInfo referencedIndex;
+    private PrimaryIndexInfo referencedIndex;
+    private IndexInfo referencingIndex;
+
 
     /// <summary>
     /// Gets or sets the on update action.
@@ -58,11 +60,10 @@ namespace Xtensive.Storage.Indexing.Model
     }
 
     /// <summary>
-    /// Gets or sets the index of the referenced.
+    /// Gets or sets the foreign index.
     /// </summary>
-    /// <value>The index of the referenced.</value>
     [Property]
-    public IndexInfo ReferencedIndex
+    public PrimaryIndexInfo ReferencedIndex
     {
       get { return referencedIndex; }
       set
@@ -70,6 +71,24 @@ namespace Xtensive.Storage.Indexing.Model
         EnsureIsEditable();
         using (var scope = LogPropertyChange("ReferencedIndex", value)) {
           referencedIndex = value;
+          scope.Commit();
+        }
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the referencing index.
+    /// </summary>
+    [Property]
+    public IndexInfo ReferencingIndex
+    {
+      get { return referencingIndex; }
+      set
+      {
+        EnsureIsEditable();
+        using (var scope = LogPropertyChange("ReferencingIndex", value))
+        {
+          referencingIndex = value;
           scope.Commit();
         }
       }
@@ -90,8 +109,8 @@ namespace Xtensive.Storage.Indexing.Model
       if (ReferencedIndex == null)
         throw new IntegrityException(Resources.Strings.ReferencedIndexNotDefined, Path);
 
-      var primaryKeyColumns = Parent.PrimaryIndex.KeyColumns.Select(columnRef => new { columnRef.Index, columnRef.Direction, columnRef.Value.ColumnType });
-      var referencedKeyColumns = ReferencedIndex.KeyColumns.Select(columnRef => new { columnRef.Index, columnRef.Direction, columnRef.Value.ColumnType });
+      var primaryKeyColumns = ReferencedIndex.KeyColumns.Select(columnRef => new { columnRef.Index, columnRef.Direction, columnRef.Value.ColumnType });
+      var referencedKeyColumns = ReferencingIndex.KeyColumns.Select(columnRef => new { columnRef.Index, columnRef.Direction, columnRef.Value.ColumnType });
 
       if (primaryKeyColumns.Except(referencedKeyColumns).Union(referencedKeyColumns.Except(primaryKeyColumns)).Count() > 0)
         throw new IntegrityException("Foreign key columns definition does not match referenced index key columns.", Path);

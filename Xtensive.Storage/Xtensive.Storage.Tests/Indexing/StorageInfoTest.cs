@@ -58,7 +58,11 @@ namespace Xtensive.Indexing.Tests.Storage
       new KeyColumnRef(si2, column5, 0, Direction.Positive);
 
       // Foreign keys
-      fk1 = new ForeignKeyInfo(table1, "fk1") { ReferencedIndex = si2 };
+      fk1 = new ForeignKeyInfo(table2, "fk1")
+        {
+          ReferencingIndex = si2,
+          ReferencedIndex = pi1
+        };
     }
 
     [Test]
