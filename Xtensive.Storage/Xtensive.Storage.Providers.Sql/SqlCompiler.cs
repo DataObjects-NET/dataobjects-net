@@ -121,7 +121,6 @@ namespace Xtensive.Storage.Providers.Sql
       var source = compiledSource as SqlProvider;
       if (source == null)
         return null;
-
       
       SqlSelect sqlSelect;
       if (provider.Source.Header.Length == 0) {

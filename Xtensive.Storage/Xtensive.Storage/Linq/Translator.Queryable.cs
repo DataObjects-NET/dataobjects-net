@@ -305,7 +305,7 @@ namespace Xtensive.Storage.Linq
       return new ResultExpression(method.ReturnType, recordSet, result.Mapping, (Expression<Func<RecordSet, object>>) projector, null);
     }
 
-    private Expression VisitTake(Expression source, Expression take)
+    private ResultExpression VisitTake(Expression source, Expression take)
     {
       var projection = VisitSequence(source);
       var parameter = context.ParameterExtractor.ExtractParameter<int>(take);
@@ -313,7 +313,7 @@ namespace Xtensive.Storage.Linq
       return new ResultExpression(projection.Type, rs, projection.Mapping, projection.Projector, projection.ItemProjector);
     }
 
-    private Expression VisitSkip(Expression source, Expression skip)
+    private ResultExpression VisitSkip(Expression source, Expression skip)
     {
       var projection = VisitSequence(source);
       var parameter = context.ParameterExtractor.ExtractParameter<int>(skip);
@@ -321,7 +321,7 @@ namespace Xtensive.Storage.Linq
       return new ResultExpression(projection.Type, rs, projection.Mapping, projection.Projector, projection.ItemProjector);
     }
 
-    private Expression VisitDistinct(Expression expression)
+    private ResultExpression VisitDistinct(Expression expression)
     {
       var result = VisitSequence(expression);
       var rs = result.RecordSet.Distinct();
@@ -535,7 +535,7 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    private Expression VisitJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
+    private ResultExpression VisitJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
     {
       var outerParameter = outerKey.Parameters[0];
       var innerParameter = innerKey.Parameters[0];
@@ -558,7 +558,7 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    private Expression CombineResultExpressions(ResultExpression outer, ResultExpression inner,
+    private ResultExpression CombineResultExpressions(ResultExpression outer, ResultExpression inner,
       RecordSet recordSet, LambdaExpression resultSelector)
     {
       var outerLength = outer.RecordSet.Header.Length;
@@ -589,13 +589,12 @@ namespace Xtensive.Storage.Linq
       throw new NotImplementedException();
     }
 
-    private Expression VisitSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
+    private ResultExpression VisitSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
     {
       if (collectionSelector.Parameters.Count > 1)
         throw new NotSupportedException();
       var parameter = collectionSelector.Parameters[0];
       using (context.Bindings.Add(parameter, VisitSequence(source))) {
-        var outerResult = context.Bindings[parameter];
         bool isOuter = false;
         if (collectionSelector.Body.NodeType==ExpressionType.Call) {
           var call = (MethodCallExpression) collectionSelector.Body;
@@ -606,10 +605,14 @@ namespace Xtensive.Storage.Linq
         }
         ResultExpression innerResult;
         Parameter<Tuple> applyParameter;
+        using (new ParameterScope())
         using (context.SubqueryParameterBindings.Bind(collectionSelector.Parameters)) {
+          resultMapping.Value = new ResultMapping();
+          parameters.Value = ArrayUtils<ParameterExpression>.EmptyArray;
           innerResult = VisitSequence(collectionSelector.Body);
           applyParameter = context.SubqueryParameterBindings.GetBound(parameter);
         }
+        var outerResult = context.Bindings[parameter];
         var recordSet = outerResult.RecordSet.Apply(applyParameter,
           innerResult.RecordSet.Alias(context.GetNextAlias()),
           isOuter ? ApplyType.Outer : ApplyType.Cross);
@@ -628,7 +631,7 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    private Expression BuildProjection(LambdaExpression le)
+    private ResultExpression BuildProjection(LambdaExpression le)
     {
       using (new ParameterScope()) {
         resultMapping.Value = new ResultMapping();
@@ -748,6 +751,8 @@ namespace Xtensive.Storage.Linq
     {
       var visitedExpression = Visit(sequenceExpression);
       switch (visitedExpression.NodeType) {
+        //case ExpressionType.MemberAccess:
+
         case (ExpressionType) ExtendedExpressionType.Result:
           return (ResultExpression) visitedExpression;
         case ExpressionType.New:
@@ -768,7 +773,7 @@ namespace Xtensive.Storage.Linq
       : base(context.Model)
     {
       this.context = context;
-      this.recordIsUsed = new Parameter<bool>(oldValue => {
+      this.recordIsUsed = new Parameter<bool>("recordIsUsed", oldValue => {
         if (!ignoreRecordUsage.Value)
           recordIsUsed.Value |= oldValue;
       });

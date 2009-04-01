@@ -27,15 +27,15 @@ namespace Xtensive.Storage.Linq
   {
     private const string SurrogateKeyNameFormatString = "#_Key_{0}";
 
-    private readonly Parameter<List<CalculatedColumnDescriptor>> calculatedColumns = new Parameter<List<CalculatedColumnDescriptor>>();
-    private readonly Parameter<ParameterExpression[]> parameters = new Parameter<ParameterExpression[]>();
-    private readonly Parameter<ResultMapping> resultMapping = new Parameter<ResultMapping>();
-    private readonly Parameter<ParameterExpression> tuple = new Parameter<ParameterExpression>();
-    private readonly Parameter<ParameterExpression> record = new Parameter<ParameterExpression>();
-    private readonly Parameter<bool> joinFinalEntity = new Parameter<bool>();
-    private readonly Parameter<bool> calculateExpressions = new Parameter<bool>();
+    private readonly Parameter<List<CalculatedColumnDescriptor>> calculatedColumns = new Parameter<List<CalculatedColumnDescriptor>>("calculatedColumns");
+    private readonly Parameter<ParameterExpression[]> parameters = new Parameter<ParameterExpression[]>("parameters");
+    private readonly Parameter<ResultMapping> resultMapping = new Parameter<ResultMapping>("resultMapping");
+    private readonly Parameter<ParameterExpression> tuple = new Parameter<ParameterExpression>("tuple");
+    private readonly Parameter<ParameterExpression> record = new Parameter<ParameterExpression>("record");
+    private readonly Parameter<bool> joinFinalEntity = new Parameter<bool>("joinFinalEntity");
+    private readonly Parameter<bool> calculateExpressions = new Parameter<bool>("calculateExpressions");
     private readonly Parameter<bool> recordIsUsed;
-    private readonly Parameter<bool> ignoreRecordUsage = new Parameter<bool>();
+    private readonly Parameter<bool> ignoreRecordUsage = new Parameter<bool>("ignoreRecordUsage");
 
     protected override Expression Visit(Expression e)
     {

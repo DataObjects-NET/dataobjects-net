@@ -178,8 +178,7 @@ namespace Xtensive.Storage.Tests.Linq
             .Where(o => o.Customer==c)
             .Any()
         };
-      var list = result.ToList();
-      Assert.AreEqual(2, list.Count(i => !i.HasOrders));
+      Assert.AreEqual(2, result.ToList().Count(i => !i.HasOrders));
     }
 
     [Test]
@@ -193,8 +192,7 @@ namespace Xtensive.Storage.Tests.Linq
             .Where(o => o.Customer==c)
             .All(o => o.Employee.FirstName=="Cool")
         };
-      var list = result.ToList();
-      Assert.AreEqual(2, list.Count(i => i.AllEmployeesAreCool));
+      Assert.AreEqual(2, result.ToList().Count(i => i.AllEmployeesAreCool));
     }
 
     [Test]
@@ -209,8 +207,29 @@ namespace Xtensive.Storage.Tests.Linq
             .Select(o => o.Customer)
             .Contains(c)
         };
-      var list = result.ToList();
-      Assert.AreEqual(0, list.Count(i => i.HasNewOrders));
+      Assert.AreEqual(0, result.ToList().Count(i => i.HasNewOrders));
+    }
+
+    [Test]
+    public void EntitySetAnyTest()
+    {
+      var result = Query<Customer>.All.Where(c => c.Orders.Any(o => o.Freight > 400));
+      Assert.AreEqual(10, result.ToList().Count);
+    }
+
+    [Test]
+    public void EntitySetAllTest()
+    {
+      var result = Query<Customer>.All.Where(c => c.Orders.All(o => o.Employee.FirstName=="???"));
+      Assert.AreEqual(2, result.ToList().Count);
+    }
+
+    [Test]
+    public void EntitySetContainsTest()
+    {
+      var bestOrder = Query<Order>.All.OrderBy(o => o.Freight).First();
+      var result = Query<Customer>.All.Where(c => Queryable.Contains(c.Orders, bestOrder));
+      Assert.AreEqual("LACOR", result.ToList().Single().Id);
     }
   }
 }
