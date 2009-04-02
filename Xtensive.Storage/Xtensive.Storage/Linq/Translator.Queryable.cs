@@ -638,11 +638,12 @@ namespace Xtensive.Storage.Linq
         var recordSet = outerResult.RecordSet.Apply(applyParameter,
           innerResult.RecordSet.Alias(context.GetNextAlias()),
           isOuter ? ApplyType.Outer : ApplyType.Cross);
-        if (resultSelector!=null)
-          return CombineResultExpressions(outerResult, innerResult, recordSet, resultSelector);
-        recordSet = recordSet
-          .Select(Enumerable.Range(outerResult.RecordSet.Header.Length, innerResult.RecordSet.Header.Length).ToArray());
-        return new ResultExpression(innerResult.Type, recordSet, innerResult.Mapping, innerResult.Projector, innerResult.ItemProjector);
+        if (resultSelector==null) {
+          var outerParameter = Expression.Parameter(TypeHelper.GetElementType(source.Type), "o");
+          var innerParameter = Expression.Parameter(TypeHelper.GetElementType(collectionSelector.Type), "i");
+          resultSelector = Expression.Lambda(innerParameter, outerParameter, innerParameter);
+        }
+        return CombineResultExpressions(outerResult, innerResult, recordSet, resultSelector);
       }
     }
 

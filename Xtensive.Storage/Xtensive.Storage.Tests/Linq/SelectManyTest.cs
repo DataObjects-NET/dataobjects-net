@@ -33,6 +33,15 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void SubqueryWithEntityReferenceTest()
+    {
+      var expected = Query<Order>.All.Count(o => o.Employee.FirstName.StartsWith("A"));
+      var result = Query<Customer>.All
+        .SelectMany(c => Query<Order>.All.Where(o => o.Customer == c).Where(o => o.Employee.FirstName.StartsWith("A")));
+      Assert.AreEqual(expected, result.ToList().Count);
+    }
+
+    [Test]
     public void NestedTest()
     {
       var products = Query<Product>.All;
