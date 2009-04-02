@@ -90,7 +90,7 @@ namespace Xtensive.Indexing.Tests.Storage
       Assert.AreEqual(1, storage.Tables["B"].ForeignKeys.Count);
       Assert.AreEqual(storage.Tables["A"].PrimaryIndex, 
         storage.Tables["B"].ForeignKeys[0].ReferencedIndex);
-      Assert.AreEqual(storage.Tables["B"].SecondaryIndexes[1],
+      Assert.AreEqual(storage.Tables["B"].SecondaryIndexes[0],
         storage.Tables["B"].ForeignKeys[0].ReferencingIndex);
     }
 

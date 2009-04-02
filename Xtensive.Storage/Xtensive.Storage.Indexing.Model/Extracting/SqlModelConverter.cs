@@ -21,8 +21,15 @@ namespace Xtensive.Storage.Indexing.Model
   /// </summary>
   public class SqlModelConverter : SqlModelVisitor<IPathNode>
   {
-    private StorageInfo storageInfo;
-    private ServerInfo serverInfo;
+    /// <summary>
+    /// Gets the storage info.
+    /// </summary>
+    protected StorageInfo StorageInfo { get; private set; }
+
+    /// <summary>
+    /// Gets the server info.
+    /// </summary>
+    protected ServerInfo ServerInfo { get; private set; }
 
     /// <summary>
     /// Converts the specified model <see cref="Schema"/> to <see cref="StorageInfo"/>.
@@ -33,13 +40,12 @@ namespace Xtensive.Storage.Indexing.Model
     public StorageInfo Convert(Schema schema, ServerInfo server)
     {
       ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
-      
-      serverInfo = server;
-      storageInfo = new StorageInfo(schema.Name);
 
+      ServerInfo = server;
+      StorageInfo = new StorageInfo(schema.Name);
       Visit(schema);
 
-      return storageInfo;
+      return StorageInfo;
     }
 
     /// <inheritdoc/>
@@ -61,13 +67,13 @@ namespace Xtensive.Storage.Indexing.Model
     /// <inheritdoc/>
     protected override IPathNode VisitTable(Table table)
     {
-      var tableInfo = new TableInfo(storageInfo, table.Name);
+      var tableInfo = new TableInfo(StorageInfo, table.Name);
 
       foreach (var column in table.TableColumns)
         Visit(column);
 
       var primaryKey = table.TableConstraints.OfType<PrimaryKey>().FirstOrDefault();
-      if (primaryKey!=null)
+      if (primaryKey != null)
         Visit(primaryKey);
 
       foreach (var index in table.Indexes)
@@ -79,7 +85,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <inheritdoc/>
     protected override IPathNode VisitTableColumn(TableColumn tableColumn)
     {
-      var tableInfo = storageInfo.Tables[tableColumn.Table.Name];
+      var tableInfo = StorageInfo.Tables[tableColumn.Table.Name];
       var columnInfo = new ColumnInfo(tableInfo, tableColumn.Name, ExtractType(tableColumn))
         {
           AllowNulls = tableColumn.IsNullable
@@ -90,7 +96,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <inheritdoc/>
     protected override IPathNode VisitForeignKey(ForeignKey key)
     {
-      var tableInfo = storageInfo.Tables[key.Table.Name];
+      var tableInfo = StorageInfo.Tables[key.Table.Name];
 
       var foreignKeyInfo = new ForeignKeyInfo(tableInfo, key.Name)
       {
@@ -103,17 +109,17 @@ namespace Xtensive.Storage.Indexing.Model
       var referencingColumns = new List<ColumnInfo>();
       foreach (var refColumn in key.Columns)
         referencingColumns.Add(referencingTable.Columns[refColumn.Name]);
-      
+
       foreignKeyInfo.ReferencingIndex = FindIndex(referencingTable, referencingColumns);
       foreignKeyInfo.ReferencedIndex = referencedTable.PrimaryIndex;
 
       return foreignKeyInfo;
     }
-    
+
     /// <inheritdoc/>
     protected override IPathNode VisitPrimaryKey(PrimaryKey key)
     {
-      var tableInfo = storageInfo.Tables[key.Table.Name];
+      var tableInfo = StorageInfo.Tables[key.Table.Name];
       var primaryIndexInfo = new PrimaryIndexInfo(tableInfo, key.Name);
 
       foreach (var keyColumn in key.Columns)
@@ -134,20 +140,22 @@ namespace Xtensive.Storage.Indexing.Model
     /// <inheritdoc/>
     protected override IPathNode VisitIndex(Index index)
     {
-      var tableInfo = storageInfo.Tables[index.DataTable.Name];
+      var tableInfo = StorageInfo.Tables[index.DataTable.Name];
       var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name)
         {
           IsUnique = index.IsUnique
         };
 
-      foreach (var keyColumn in index.Columns) {
+      foreach (var keyColumn in index.Columns)
+      {
         var columnInfo = tableInfo.Columns[keyColumn.Column.Name];
         new KeyColumnRef(secondaryIndexInfo,
           columnInfo, secondaryIndexInfo.KeyColumns.Count,
           keyColumn.Ascending ? Direction.Positive : Direction.Negative);
       }
 
-      foreach (var valueColumn in index.NonkeyColumns) {
+      foreach (var valueColumn in index.NonkeyColumns)
+      {
         var columnInfo = tableInfo.Columns[valueColumn.Name];
         new ValueColumnRef(secondaryIndexInfo, columnInfo,
           secondaryIndexInfo.ValueColumns.Count);
@@ -155,7 +163,6 @@ namespace Xtensive.Storage.Indexing.Model
 
       return secondaryIndexInfo;
     }
-
     
     /// <summary>
     /// Extracts the <see cref="TypeInfo"/> from <see cref="TableColumn"/>.
@@ -178,7 +185,8 @@ namespace Xtensive.Storage.Indexing.Model
     /// <returns>Converted action.</returns>
     protected virtual ReferentialAction ConvertReferentialAction(SqlRefAction toConvert)
     {
-      switch (toConvert) {
+      switch (toConvert)
+      {
         case SqlRefAction.NoAction:
           return ReferentialAction.None;
         case SqlRefAction.Restrict:
@@ -201,7 +209,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <returns>Converted type.</returns>
     protected virtual Type ConvertType(SqlDataType toConvert)
     {
-      return serverInfo.DataTypes[toConvert].Type;
+      return ServerInfo.DataTypes[toConvert].Type;
     }
 
     /// <summary>
@@ -212,183 +220,212 @@ namespace Xtensive.Storage.Indexing.Model
     /// <returns>The index.</returns>
     protected virtual IndexInfo FindIndex(TableInfo table, List<ColumnInfo> keyColumns)
     {
-      foreach (SecondaryIndexInfo index in table.SecondaryIndexes) {
+      foreach (SecondaryIndexInfo index in table.SecondaryIndexes)
+      {
         var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value);
-        if (secondaryKeyColumns.Except(keyColumns).Count()==0)
+        if (secondaryKeyColumns.Except(keyColumns).Count() == 0)
           return index;
       }
 
       return null;
     }
 
-    #region Not implemented
+    #region Not supported
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitUniqueConstraint(UniqueConstraint constraint)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitIndexColumn(IndexColumn indexColumn)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitCatalog(Catalog catalog)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitCharacterSet(CharacterSet characterSet)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitCollation(Collation collation)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitDataTable(DataTable dataTable)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitDataTableColumn(DataTableColumn dataTableColumn)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitDomain(Domain domain)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitHashPartition(HashPartition hashPartition)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
-    
+
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitListPartition(ListPartition listPartition)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitModel(SqlModel model)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitPartition(Partition partition)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitPartitionDescriptor(PartitionDescriptor partitionDescriptor)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitPartitionFunction(PartitionFunction partitionFunction)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitPartitionSchema(PartitionSchema partitionSchema)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
-    
+
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitTableConstraint(TableConstraint constraint)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
-    
+
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitDomainConstraint(DomainConstraint constraint)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitConstraint(Constraint constraint)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitCheckConstraint(CheckConstraint constraint)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitRangePartition(RangePartition rangePartition)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitSequence(Sequence sequence)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitSequenceDescriptor(SequenceDescriptor sequenceDescriptor)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitServer(Server server)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
-    
+
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitTemporaryTable(TemporaryTable temporaryTable)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitTranslation(Translation translation)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitUser(User user)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitView(View view)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitViewColumn(ViewColumn viewColumn)
     {
-      throw new System.NotImplementedException();
+      throw new NotSupportedException();
     }
 
     #endregion
