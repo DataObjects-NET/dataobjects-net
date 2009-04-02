@@ -87,7 +87,7 @@ namespace Xtensive.Indexing.Tests.Storage
     [Test]
     public void ForeignKeyTest()
     {
-      Assert.IsNotNull(storage.Tables["B"].ForeignKeys[0]);
+      Assert.AreEqual(1, storage.Tables["B"].ForeignKeys.Count);
       Assert.AreEqual(storage.Tables["A"].PrimaryIndex, 
         storage.Tables["B"].ForeignKeys[0].ReferencedIndex);
       Assert.AreEqual(storage.Tables["B"].SecondaryIndexes[1],

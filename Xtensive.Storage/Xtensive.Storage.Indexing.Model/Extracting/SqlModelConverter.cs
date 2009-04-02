@@ -4,7 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.31
 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +13,6 @@ using Xtensive.Sql.Dom.Database;
 using SqlModel = Xtensive.Sql.Dom.Database.Model;
 using SqlRefAction = Xtensive.Sql.Dom.ReferentialAction;
 using Xtensive.Modelling;
-using Xtensive.Sql.Dom.Database.Providers;
-using Xtensive.Sql.Dom;
 
 namespace Xtensive.Storage.Indexing.Model
 {
@@ -102,12 +99,14 @@ namespace Xtensive.Storage.Indexing.Model
       };
       // ToDo: Complete this!
       var referencedTable = tableInfo.Model.Tables[key.ReferencedTable.Name];
-      var referencingTable = tableInfo.Model.Tables[key.ReferencedTable.Name];
-      var referencedColumns = new List<ColumnInfo>();
+      var referencingTable = tableInfo.Model.Tables[key.Table.Name];
+      var referencingColumns = new List<ColumnInfo>();
       foreach (var refColumn in key.Columns)
-        referencedColumns.Add(referencedTable.Columns[refColumn.Name]);
-      foreignKeyInfo.ReferencingIndex = FindIndex(referencedTable, referencedColumns);
+        referencingColumns.Add(referencingTable.Columns[refColumn.Name]);
       
+      foreignKeyInfo.ReferencingIndex = FindIndex(referencingTable, referencingColumns);
+      foreignKeyInfo.ReferencedIndex = referencedTable.PrimaryIndex;
+
       return foreignKeyInfo;
     }
     
@@ -167,7 +166,7 @@ namespace Xtensive.Storage.Indexing.Model
     {
       return new TypeInfo(
         ConvertType(column.DataType.DataType),
-        column.Collation != null ? column.Collation.Name : string.Empty,
+        column.Collation != null ? column.Collation.Name : null,
         column.DataType.Size);
     }
 
@@ -175,11 +174,11 @@ namespace Xtensive.Storage.Indexing.Model
     /// Converts the <see cref="Xtensive.Sql.Dom.ReferentialAction"/> to 
     /// <see cref="Xtensive.Storage.Indexing.Model.ReferentialAction"/>.
     /// </summary>
-    /// <param name="action">The action.</param>
+    /// <param name="toConvert">The action to convert.</param>
     /// <returns>Converted action.</returns>
-    protected virtual ReferentialAction ConvertReferentialAction(SqlRefAction action)
+    protected virtual ReferentialAction ConvertReferentialAction(SqlRefAction toConvert)
     {
-      switch (action)
+      switch (toConvert)
       {
         case SqlRefAction.NoAction:
           return ReferentialAction.None;
@@ -206,19 +205,17 @@ namespace Xtensive.Storage.Indexing.Model
       return serverInfo.DataTypes[toConvert].Type;
     }
 
-    private static IndexInfo FindIndex(TableInfo table, List<ColumnInfo> keyColumns)
+    /// <summary>
+    /// Finds the specific index by key columns.
+    /// </summary>
+    /// <param name="table">The table.</param>
+    /// <param name="keyColumns">The key columns.</param>
+    /// <returns>The index.</returns>
+    protected virtual IndexInfo FindIndex(TableInfo table, List<ColumnInfo> keyColumns)
     {
-      if (table.PrimaryIndex != null)
-      {
-        var primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value);
-        if (primaryKeyColumns.Except(keyColumns).Count() == 0)
-          return table.PrimaryIndex;
-      }
-
-      foreach (SecondaryIndexInfo index in table.SecondaryIndexes)
-      {
+      foreach (SecondaryIndexInfo index in table.SecondaryIndexes) {
         var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value);
-        if (secondaryKeyColumns.Except(keyColumns).Count() == 0)
+        if (secondaryKeyColumns.Except(keyColumns).Count()==0)
           return index;
       }
 
