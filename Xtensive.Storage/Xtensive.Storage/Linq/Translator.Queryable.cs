@@ -749,10 +749,18 @@ namespace Xtensive.Storage.Linq
 
     private ResultExpression VisitSequence(Expression sequenceExpression)
     {
+      if (sequenceExpression.GetMemberType()==MemberType.EntitySet) {
+        if (sequenceExpression.NodeType != ExpressionType.MemberAccess)
+          throw new NotSupportedException();
+        var memberAccess = (MemberExpression)sequenceExpression;
+        if (!(memberAccess.Member is PropertyInfo) || memberAccess.Expression == null)
+          throw new NotSupportedException();
+        var field = context.Model.Types[memberAccess.Expression.Type].Fields[memberAccess.Member.Name];
+        sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccess.Expression, field);
+      }
+
       var visitedExpression = Visit(sequenceExpression);
       switch (visitedExpression.NodeType) {
-        //case ExpressionType.MemberAccess:
-
         case (ExpressionType) ExtendedExpressionType.Result:
           return (ResultExpression) visitedExpression;
         case ExpressionType.New:

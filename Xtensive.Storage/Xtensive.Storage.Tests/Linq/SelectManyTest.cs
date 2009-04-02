@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.01
 
-using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.ObjectModel;

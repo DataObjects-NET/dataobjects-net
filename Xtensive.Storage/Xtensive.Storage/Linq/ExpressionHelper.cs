@@ -52,5 +52,10 @@ namespace Xtensive.Storage.Linq
         return MemberType.Anonymous;
       return MemberType.Unknown;
     }
+
+    public static Expression KeyAccess(this Expression entity)
+    {
+      return Expression.Property(entity, "Key");
+    }
   }
 }

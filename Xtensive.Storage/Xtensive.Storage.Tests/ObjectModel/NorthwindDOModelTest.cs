@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     private DisposableSet disposables;
 
     [SetUp]
-    public void Setup()
+    public virtual void SetUp()
     {
       disposables = new DisposableSet();
       disposables.Add(Domain.OpenSession());
@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     }
 
     [TearDown]
-    public void TearDown()
+    public virtual void TearDown()
     {
       disposables.DisposeSafely();
     }
