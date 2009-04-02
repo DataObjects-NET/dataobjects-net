@@ -480,17 +480,39 @@ namespace Xtensive.Storage.Linq
       var queryExpression = Expression.Call(callMehtod, source, predicateExpression);
       var projectorBody = Expression.New(constructor, groupingKeyResolver, queryExpression);
 
-      
 
       var itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
         ? new[] {pTuple, pRecord}
         : new[] {pTuple});
 
-      var ex = Expression.Lambda(predicateExpression.Body, recordKeyExpression.Second
-        ? new[] { predicateExpression.Parameters[0], pTuple, pRecord }
-        : new[] { predicateExpression.Parameters[0], pTuple });
+//      var ex = Expression.Lambda(predicateExpression.Body, recordKeyExpression.Second
+//        ? new[] {predicateExpression.Parameters[0], pTuple, pRecord}
+//        : new[] {predicateExpression.Parameters[0], pTuple});
 
-      var ex2 = Visit(ex);
+
+      // t => t.GVD(1) == paramRExpr.GetV(0)
+      var tupleParameter = new Parameter<Tuple>();
+      Expression<Func<Tuple>> ssss = () => tupleParameter.Value;
+      var parameterValueMemberInfo = ((MemberExpression)ssss.Body).Member;
+      var filterTuple = Expression.Parameter(typeof (Tuple), "t");
+      Expression filterBody = null;
+      for (int i = 0; i < columnList.Count; i++) {
+        var columnIndex = columnList[i];
+        var columnType = result.RecordSet.Header.Columns[columnIndex].Type;
+        var tupleAccessMethod = WellKnownMethods.TupleGenericAccessor.MakeGenericMethod(columnType);
+        var leftExpression = Expression.Call(filterTuple, tupleAccessMethod, Expression.Constant(columnIndex));
+        var rightExpression = Expression.Call(Expression.MakeMemberAccess(Expression.Constant(tupleParameter), parameterValueMemberInfo), tupleAccessMethod, Expression.Constant(i));
+        var equalsExpression = Expression.Equal(leftExpression,rightExpression);
+        filterBody = filterBody==null 
+          ? equalsExpression 
+          : Expression.AndAlso(filterBody, equalsExpression);
+      }
+//      var rs = result.RecordSet.Filter()
+
+//      using (context.Bindings.Add(ex.Parameters[0], result)) {
+//        var ex2 = Visit(ex);
+//      }
+
 //      var x = Visit(queryExpression);
 //      using (context.Bindings.Add(pTuple, result))
 //      using (context.Bindings.Add(pRecord, result))
