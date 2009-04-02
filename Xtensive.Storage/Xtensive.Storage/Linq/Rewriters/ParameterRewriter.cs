@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 
-namespace Xtensive.Storage.Linq
+namespace Xtensive.Storage.Linq.Rewriters
 {
   internal class ParameterRewriter : QueryableVisitor
   {

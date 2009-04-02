@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Storage.Linq
+namespace Xtensive.Storage.Linq.Rewriters
 {
   internal sealed class EqualityRewriter : ExpressionVisitor
   {
