@@ -37,6 +37,7 @@ namespace Xtensive.Storage.Linq
       public static readonly MethodInfo QueryableCount;
       public static readonly MethodInfo QueryableCountWithPredicate;
       public static readonly MethodInfo QueryableWhere;
+      public static readonly MethodInfo QueryableContains;
 
       // IEntity
       public static readonly PropertyInfo IEntityKey;
@@ -86,6 +87,7 @@ namespace Xtensive.Storage.Linq
         QueryableCount = GetQueryableMethod(WellKnown.Queryable.Count, 1, 1);
         QueryableCountWithPredicate = GetQueryableMethod(WellKnown.Queryable.Count, 1, 2);
         QueryableTake = GetQueryableMethod(WellKnown.Queryable.Take, 1, 2);
+        QueryableContains = GetQueryableMethod(WellKnown.Queryable.Contains, 1, 2);
 
         QueryableWhere = typeof(Queryable).GetMethods().Where(methodInfo =>
         {

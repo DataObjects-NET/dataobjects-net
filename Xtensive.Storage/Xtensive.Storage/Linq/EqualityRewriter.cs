@@ -5,19 +5,17 @@
 // Created:    2009.02.18
 
 using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Linq
 {
-  internal sealed class ExpressionPreprocessor : ExpressionVisitor
+  internal sealed class EqualityRewriter : ExpressionVisitor
   {
-    public static Expression Preprocess(Expression e)
+    public static Expression Rewrite(Expression e)
     {
-      var ep = new ExpressionPreprocessor();
-      return ep.Visit(e);
+      return new EqualityRewriter().Visit(e);
     }
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)

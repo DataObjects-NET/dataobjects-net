@@ -228,7 +228,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void EntitySetContainsTest()
     {
       var bestOrder = Query<Order>.All.OrderBy(o => o.Freight).First();
-      var result = Query<Customer>.All.Where(c => Queryable.Contains(c.Orders, bestOrder));
+      var result = Query<Customer>.All.Where(c => c.Orders.Contains(bestOrder));
       Assert.AreEqual("LACOR", result.ToList().Single().Id);
     }
   }
