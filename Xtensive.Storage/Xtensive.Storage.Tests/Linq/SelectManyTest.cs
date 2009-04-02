@@ -89,5 +89,17 @@ namespace Xtensive.Storage.Tests.Linq
         .SelectMany(c => c.Orders.Where(o => o.Employee.FirstName.StartsWith("A")));
       Assert.AreEqual(expected, result.ToList().Count);
     }
+
+
+    [Test]
+    public void EntitySetSubqueryWithResultSelectorTest()
+    {
+      var expected = Query<Order>.All
+        .Count(o => o.Employee.FirstName.StartsWith("A"));
+
+      var result = Query<Customer>.All
+        .SelectMany(c => c.Orders.Where(o => o.Employee.FirstName.StartsWith("A")), (c,o) => o.OrderDate);
+      Assert.AreEqual(expected, result.ToList().Count);
+    }
   }
 }

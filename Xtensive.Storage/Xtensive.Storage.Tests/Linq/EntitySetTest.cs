@@ -32,11 +32,19 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void SandBoxTest()
+    public void CountTest()
     {
-      var customer = Query<Customer>.All.Where(c => c.Id == "LACOR").Single();
-      var expression = customer.Orders.Expression;
-      var now = DateTime.Now;
+      var expected = Query<Order>.All.Count();
+      var count = Query<Customer>.All.Sum(c => c.Orders.Count);
+      Assert.AreEqual(expected, count);
+    }
+
+    [Test]
+    public void ContainsTest()
+    {
+      var bestOrder = Query<Order>.All.OrderBy(o => o.Freight).First();
+      var result = Query<Customer>.All.Where(c => c.Orders.Contains(bestOrder));
+      Assert.AreEqual("LACOR", result.ToList().Single().Id);
     }
   }
 }

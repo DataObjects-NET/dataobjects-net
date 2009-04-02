@@ -128,5 +128,13 @@ namespace Xtensive.Storage.Tests.Linq
       var list = result.ToList();
       Assert.Greater(list.Count, 0);
     }
+
+    [Test]
+    public void SumCountTest()
+    {
+      var expected = Query<Order>.All.Count();
+      var count = Query<Customer>.All.Sum(c => Query<Order>.All.Count(o => o.Customer == c));
+      Assert.AreEqual(expected, count);
+    }
   }
 }
