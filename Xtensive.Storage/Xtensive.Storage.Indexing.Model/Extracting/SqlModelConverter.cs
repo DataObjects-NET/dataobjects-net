@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Indexing.Model
   /// <summary>
   /// Converts <see cref="Xtensive.Sql.Dom.Database.Model"/> to indexing storage model.
   /// </summary>
-  public class SqlModelConverter : ModelVisitor<IPathNode>
+  public class SqlModelConverter : SqlModelVisitor<IPathNode>
   {
     private StorageInfo storageInfo;
     private ServerInfo serverInfo;
