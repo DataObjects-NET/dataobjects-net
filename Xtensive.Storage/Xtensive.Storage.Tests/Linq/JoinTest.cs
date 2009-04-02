@@ -81,9 +81,10 @@ namespace Xtensive.Storage.Tests.Linq
       var categories = Query<Category>.All;
       var products = Query<Product>.All;
       var categoryCount = categories.Count();
-      var result = from c in categories
-      join p in products on c equals p.Category into pGroup
-      select pGroup;
+      var result = 
+        from c in categories
+        join p in products on c equals p.Category into pGroup
+        select pGroup;
       var list = result.ToList();
       Assert.AreEqual(categoryCount, list.Count);
     }
@@ -94,10 +95,11 @@ namespace Xtensive.Storage.Tests.Linq
       var categories = Query<Category>.All;
       var products = Query<Product>.All;
       var categoryCount = categories.Count();
-      var result = from c in categories
-      orderby c.CategoryName
-      join p in products on c equals p.Category into pGroup
-      select new
+      var result = 
+        from c in categories
+        orderby c.CategoryName
+        join p in products on c equals p.Category into pGroup
+        select new
              {
                Category = c.CategoryName,
                Products = from ip in pGroup
@@ -116,12 +118,13 @@ namespace Xtensive.Storage.Tests.Linq
         var categories = Query<Category>.All;
         var products = Query<Product>.All;
         var productsCount = products.Count();
-        var result = from c in categories
-        orderby c.CategoryName
-        join p in products on c equals p.Category into pGroup
-        from gp in pGroup
-        orderby gp.ProductName
-        select new {Category = c.CategoryName, gp.ProductName};
+        var result = 
+          from c in categories
+          orderby c.CategoryName
+          join p in products on c equals p.Category into pGroup
+          from gp in pGroup
+          orderby gp.ProductName
+          select new {Category = c.CategoryName, gp.ProductName};
         var list = result.ToList();
       }
     }
@@ -132,9 +135,10 @@ namespace Xtensive.Storage.Tests.Linq
       var categories = Query<Category>.All;
       var products = Query<Product>.All;
       var categoryCount = categories.Count();
-      var result = from c in categories
-      join p in products on c equals p.Category into pGroup
-      select pGroup.DefaultIfEmpty(new ActiveProduct() {ProductName = "Nothing!", Category = c});
+      var result = 
+        from c in categories
+        join p in products on c equals p.Category into pGroup
+        select pGroup.DefaultIfEmpty();
       var list = result.ToList();
       Assert.AreEqual(categoryCount, list.Count);
     }
@@ -145,10 +149,11 @@ namespace Xtensive.Storage.Tests.Linq
       var categories = Query<Category>.All;
       var products = Query<Product>.All;
       var productsCount = products.Count();
-      var result = from c in categories
-      join p in products on c equals p.Category into pGroup
-      from pg in pGroup.DefaultIfEmpty()
-      select new {Name = pg==null ? "Nothing!" : pg.ProductName, CategoryID = c.Id};
+      var result = 
+        from c in categories
+        join p in products on c equals p.Category into pGroup
+        from pg in pGroup.DefaultIfEmpty()
+        select new {Name = pg==null ? "Nothing!" : pg.ProductName, CategoryID = c.Id};
       var list = result.ToList();
       Assert.AreEqual(productsCount, list.Count);
     }

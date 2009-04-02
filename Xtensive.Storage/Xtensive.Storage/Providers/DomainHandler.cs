@@ -19,7 +19,7 @@ using System.Linq;
 namespace Xtensive.Storage.Providers
 {
   /// <summary>
-  /// <see cref="Storage.Domain"/>-level handler.
+  /// 	<see cref="Storage.Domain"/>-level handler.
   /// </summary>
   public abstract class DomainHandler : InitializableHandlerBase
   {
@@ -45,6 +45,10 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public ICompiler ServerSideCompiler { get; protected set; }
 
+    /// <summary>
+    /// Builds the compiler.
+    /// </summary>
+    /// <param name="compiledSources">The compiled sources. Shared across all compilers.</param>
     protected abstract ICompiler BuildCompiler(BindingCollection<object, ExecutableProvider> compiledSources);
 
     /// <summary>
