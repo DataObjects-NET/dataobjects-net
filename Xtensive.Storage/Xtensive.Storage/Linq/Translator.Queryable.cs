@@ -16,6 +16,7 @@ using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
@@ -469,6 +470,8 @@ namespace Xtensive.Storage.Linq
       Expression rightKeySelector = recordKeyExpression.First;
       Expression groupingKeyResolver = rightKeySelector;
 
+//      context.SubqueryParameterBindings.Bind(pTuple, new Parameter<Tuple>())
+
       var predicateExpression = Expression.Lambda(Expression.Equal(leftKeySelector, rightKeySelector), keySelector.Parameters.ToArray());
 
 
@@ -476,9 +479,28 @@ namespace Xtensive.Storage.Linq
 
       var queryExpression = Expression.Call(callMehtod, source, predicateExpression);
       var projectorBody = Expression.New(constructor, groupingKeyResolver, queryExpression);
+
+      
+
       var itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
         ? new[] {pTuple, pRecord}
         : new[] {pTuple});
+
+      var ex = Expression.Lambda(predicateExpression.Body, recordKeyExpression.Second
+        ? new[] { predicateExpression.Parameters[0], pTuple, pRecord }
+        : new[] { predicateExpression.Parameters[0], pTuple });
+
+      var ex2 = Visit(ex);
+//      var x = Visit(queryExpression);
+//      using (context.Bindings.Add(pTuple, result))
+//      using (context.Bindings.Add(pRecord, result))
+//      {
+//        using (new ParameterScope()) {
+//          parameters.Value = new[] { pTuple, pRecord };
+//          resultMapping.Value = new ResultMapping();
+//          var v = Visit(queryExpression);
+//        }
+//      }
 
       var rs = Expression.Parameter(typeof (RecordSet), "rs");
       Expression<Func<RecordSet, object>> projector;
@@ -765,10 +787,8 @@ namespace Xtensive.Storage.Linq
           return (ResultExpression) visitedExpression;
         case ExpressionType.New:
           var newExpression = (NewExpression) visitedExpression;
-          if (visitedExpression.Type.IsGenericType && visitedExpression.Type.GetGenericTypeDefinition()==typeof (Grouping<,>)) {
-            // var groupingQuery = (IQueryable) newExpression.Arguments[1];
+          if (visitedExpression.Type.IsGenericType && visitedExpression.Type.GetGenericTypeDefinition()==typeof (Grouping<,>))
             return VisitSequence(newExpression.Arguments[1]);
-          }
           break;
       }
       throw new NotSupportedException(string.Format("The expression of type '{0}' is not a sequence", visitedExpression.Type));

@@ -5,10 +5,13 @@
 // Created:    2009.02.10
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Parameters;
+using Xtensive.Core.Tuples;
+using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
@@ -25,6 +28,12 @@ namespace Xtensive.Storage.Linq
     private readonly AliasGenerator columnAliasGenerator;
     private readonly BindingCollection<ParameterExpression, ResultExpression> bindings;
     private readonly SubqueryParameterBindings subqueryParameterBindings;
+    private readonly Dictionary<ParameterExpression, Parameter<Tuple>> groupingParameters;
+
+    public Dictionary<ParameterExpression, Parameter<Tuple>> GroupingParameters
+    {
+      get { return groupingParameters; }
+    }
 
     public Expression Query
     {
@@ -92,6 +101,7 @@ namespace Xtensive.Storage.Linq
       parameterExtractor = new ParameterExtractor(evaluator);
       bindings = new BindingCollection<ParameterExpression, ResultExpression>();
       subqueryParameterBindings = new SubqueryParameterBindings();
+      groupingParameters = new Dictionary<ParameterExpression, Parameter<Tuple>>();
     }
   }
 }
