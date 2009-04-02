@@ -260,6 +260,39 @@ namespace Xtensive.Storage.Rse.Compilation
       return true;
     }
 
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitIntersect(IntersectProvider provider)
+    {
+      var left = GetCompiled(provider.Left);
+      var right = GetCompiled(provider.Right);
+      return new Providers.Executable.IntersectProvider(
+        provider,
+        left,
+        right);
+    }
+
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitExcept(ExceptProvider provider)
+    {
+      var left = GetCompiled(provider.Left);
+      var right = GetCompiled(provider.Right);
+      return new Providers.Executable.ExceptProvider(
+        provider,
+        left,
+        right);
+    }
+
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitConcat(ConcatProvider provider)
+    {
+      var left = GetCompiled(provider.Left);
+      var right = GetCompiled(provider.Right);
+      return new Providers.Executable.ConcatProvider(
+        provider,
+        left,
+        right);
+    }
+
 
     // Constructor
 

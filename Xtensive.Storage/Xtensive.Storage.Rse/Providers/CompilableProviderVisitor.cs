@@ -6,11 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -295,6 +293,43 @@ namespace Xtensive.Storage.Rse.Providers
         return provider;
       return new ApplyProvider(provider.LeftItemParameter, left, right, provider.ApplyType);
     }
+
+    /// <inheritdoc/>
+    protected override Provider VisitIntersect(IntersectProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var left = VisitCompilable(provider.Left);
+      var right = VisitCompilable(provider.Right);
+      OnRecursionExit(provider);
+      if (left == provider.Left && right == provider.Right)
+        return provider;
+      return new IntersectProvider(left, right);
+    }
+
+    /// <inheritdoc/>
+    protected override Provider VisitExcept(ExceptProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var left = VisitCompilable(provider.Left);
+      var right = VisitCompilable(provider.Right);
+      OnRecursionExit(provider);
+      if (left == provider.Left && right == provider.Right)
+        return provider;
+      return new ExceptProvider(left, right);
+    }
+
+    /// <inheritdoc/>
+    protected override Provider VisitConcat(ConcatProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var left = VisitCompilable(provider.Left);
+      var right = VisitCompilable(provider.Right);
+      OnRecursionExit(provider);
+      if (left == provider.Left && right == provider.Right)
+        return provider;
+      return new ConcatProvider(left, right);
+    }
+
 
     private static Expression DefaultExpressionTranslator(Provider p, Expression e)
     {

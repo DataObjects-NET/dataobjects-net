@@ -121,6 +121,15 @@ namespace Xtensive.Storage.Rse.Compilation
         case ProviderType.Existence:
           result = VisitExistence((ExistenceProvider)cp);
           break;
+        case ProviderType.Intersect:
+          result = VisitIntersect((IntersectProvider) cp);
+          break;
+        case ProviderType.Except:
+          result = VisitExcept((ExceptProvider)cp);
+          break;
+        case ProviderType.Concat:
+          result = VisitConcat((ConcatProvider) cp);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -262,6 +271,24 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     /// <param name="provider">Existence provider.</param>
     protected abstract ExecutableProvider VisitExistence(ExistenceProvider provider);
+
+    /// <summary>
+    /// Compiles <see cref="IntersectProvider"/>.
+    /// </summary>
+    /// <param name="provider">Intersect provider.</param>
+    protected abstract ExecutableProvider VisitIntersect(IntersectProvider provider);
+
+    /// <summary>
+    /// Compiles <see cref="ExceptProvider"/>.
+    /// </summary>
+    /// <param name="provider">Except provider.</param>
+    protected abstract ExecutableProvider VisitExcept(ExceptProvider provider);
+
+    /// <summary>
+    /// Compiles <see cref="ConcatProvider"/>.
+    /// </summary>
+    /// <param name="provider">Concat provider.</param>
+    protected abstract ExecutableProvider VisitConcat(ConcatProvider provider);
 
 
     // Constructor

@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Configuration
         return result;
       }
     }
-
+ 
     #endregion
 
     /// <inheritdoc/>

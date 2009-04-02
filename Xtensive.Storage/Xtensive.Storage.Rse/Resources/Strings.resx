@@ -162,4 +162,7 @@
   <data name="ExCollectionMustNotBeEmpty" xml:space="preserve">
     <value>The collection must not be empty.</value>
   </data>
+  <data name="ExXCantBeExecuted" xml:space="preserve">
+    <value>{0} can't be executed on specified sources.</value>
+  </data>
 </root>

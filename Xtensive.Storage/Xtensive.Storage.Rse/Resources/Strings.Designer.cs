@@ -169,6 +169,15 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} can&apos;t be executed on specified sources..
+        /// </summary>
+        internal static string ExXCantBeExecuted {
+            get {
+                return ResourceManager.GetString("ExXCantBeExecuted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; must be active..
         /// </summary>
         internal static string ExXMustBeActive {

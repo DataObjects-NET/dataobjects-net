@@ -94,6 +94,15 @@ namespace Xtensive.Storage.Rse.Providers
         case ProviderType.PredicateJoin:
           result = VisitPredicateJoin((PredicateJoinProvider)cp);
           break;
+        case ProviderType.Intersect:
+          result = VisitIntersect((IntersectProvider)cp);
+          break;
+        case ProviderType.Except:
+          result = VisitExcept((ExceptProvider)cp);
+          break;
+        case ProviderType.Concat:
+          result = VisitConcat((ConcatProvider)cp);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -233,5 +242,26 @@ namespace Xtensive.Storage.Rse.Providers
     /// <param name="provider">Reindex provider.</param>
     /// <returns></returns>
     protected abstract Provider VisitReindex(ReindexProvider provider);
+
+    /// <summary>
+    /// Visits the <see cref="IntersectProvider"/>.
+    /// </summary>
+    /// <param name="provider">Intersect provider.</param>
+    /// <returns></returns>
+    protected abstract Provider VisitIntersect(IntersectProvider provider);
+
+    /// <summary>
+    /// Visits the <see cref="ExceptProvider"/>.
+    /// </summary>
+    /// <param name="provider">Except provider.</param>
+    /// <returns></returns>
+    protected abstract Provider VisitExcept(ExceptProvider provider);
+
+    /// <summary>
+    /// Visits the <see cref="ConcatProvider"/>.
+    /// </summary>
+    /// <param name="provider">Concat provider.</param>
+    /// <returns></returns>
+    protected abstract Provider VisitConcat(ConcatProvider provider);
   }
 }

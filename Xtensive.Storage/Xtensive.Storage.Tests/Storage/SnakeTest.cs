@@ -460,8 +460,6 @@ namespace Xtensive.Storage.Tests.Storage
     public void RangeSetTest()
     {
       const int snakesCount = 1000;
-      const int creaturesCount = 1000;
-      const int lizardsCount = 1000;
 
       TestFixtureTearDown();
       TestFixtureSetUp();
@@ -473,15 +471,6 @@ namespace Xtensive.Storage.Tests.Storage
             Snake s = new Snake();
             s.Name = "Kaa" + i;
             s.Length = i;
-          }
-          for (int j = 0; j < creaturesCount; j++) {
-            Creature c = new Creature();
-            c.Name = "Creature" + j;
-          }
-          for (int i = 0; i < lizardsCount; i++) {
-            Lizard l = new Lizard();
-            l.Name = "Lizard" + i;
-            l.Color = "Color" + i;
           }
 
           Session.Current.Persist();
@@ -515,6 +504,70 @@ namespace Xtensive.Storage.Tests.Storage
       }
       else
         Assert.Ignore();
+    }
+
+    [Test]
+    public void SetOperationsTest()
+    {
+      const int snakesCount = 10;
+      const int lizardsCount = 10;
+
+      TestFixtureTearDown();
+      TestFixtureSetUp();
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          for (int i = 0; i < snakesCount; i++) {
+            Snake s = new Snake();
+            s.Name = "Kaa" + i;
+            s.Length = i;
+          }
+          for (int i = 0; i < lizardsCount; i++) {
+            Lizard l = new Lizard();
+            l.Name = "Lizard" + i;
+            l.Color = "Color" + i;
+          }
+          Session.Current.Persist();
+
+          TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
+          TypeInfo lizardType = Domain.Model.Types[typeof(Lizard)];
+          RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
+          RecordSet rsSnakeName = snakeType.Indexes.GetIndex("Name").ToRecordSet();
+          RecordSet rsLizardName = lizardType.Indexes.GetIndex("Name").ToRecordSet();
+
+
+          var snakes1 = rsSnakePrimary
+            .Join(rsSnakeName
+            .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
+            .Alias("NameIndex"),rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID))
+            .Filter(sId => sId.GetValue<int>(0) <= snakesCount / 2);
+
+          var snakes2 = rsSnakePrimary
+            .Join(rsSnakeName
+            .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
+            .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID))
+            .Filter(sId => sId.GetValue<int>(0) <= snakesCount / 5);
+ 
+          var count = snakes1.Intersect(snakes2).Count();
+          Assert.AreEqual(count, snakesCount / 5);
+          count = snakes1.Except(snakes2).Count();
+          Assert.AreEqual(count, snakesCount / 2 - snakesCount / 5);
+          count = snakes1.Concat(snakes2).Count();
+          Assert.AreEqual(count, snakesCount / 2 + snakesCount / 5);
+
+          count = rsSnakeName.Except(rsLizardName).Count();
+          Assert.AreEqual(count, snakesCount);
+          count = rsSnakeName.Intersect(rsLizardName).Count();
+          Assert.AreEqual(count, 0);
+          count = rsSnakeName.Concat(rsLizardName).Count();
+          Assert.AreEqual(count, snakesCount + lizardsCount);
+
+          AssertEx.Throws<InvalidOperationException>(() => rsSnakeName.Intersect(rsSnakePrimary));
+          AssertEx.Throws<InvalidOperationException>(() => rsSnakeName.Except(rsSnakePrimary));
+          AssertEx.Throws<InvalidOperationException>(() => rsSnakeName.Concat(rsSnakePrimary));
+
+          t.Complete();
+        } 
+      }
     }
 
     [Test]

@@ -261,5 +261,19 @@ namespace Xtensive.Storage.Rse
     {
       return new ExistenceProvider(recordSet.Provider, existenceColumnName).Result;
     }
+    public static RecordSet Intersect(this RecordSet left, RecordSet right)
+    {
+      return new IntersectProvider(left.Provider, right.Provider).Result;
+    }
+
+    public static RecordSet Except(this RecordSet left, RecordSet right)
+    {
+      return new ExceptProvider(left.Provider, right.Provider).Result;
+    }
+
+    public static RecordSet Concat(this RecordSet left, RecordSet right)
+    {
+      return new ConcatProvider(left.Provider, right.Provider).Result;
+    }
   }
 }

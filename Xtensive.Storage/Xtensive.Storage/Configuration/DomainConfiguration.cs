@@ -340,6 +340,7 @@ namespace Xtensive.Storage.Configuration
       types.Lock(true);
       builders.Lock(true);
       sessions.Lock(true);
+      mappings.Lock(true);
       base.Lock(recursive);
     }
 
@@ -369,7 +370,7 @@ namespace Xtensive.Storage.Configuration
       sessionPoolSize = configuration.SessionPoolSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = configuration.Sessions;
-      mappings = configuration.Mappings;
+      mappings = new SetSlim<Type>(configuration.Mappings);
       serviceContainer = configuration.serviceContainer;
       buildMode = configuration.buildMode;
       foreignKeyMode = configuration.foreignKeyMode;
