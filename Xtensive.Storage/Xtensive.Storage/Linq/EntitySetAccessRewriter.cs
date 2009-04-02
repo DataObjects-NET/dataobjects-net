@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Linq
       if (!IsEntitySet(m.Expression))
         return base.VisitMemberAccess(m);
       if (m.Member.Name == "Count") {
-        var method = Translator.WellKnownMethods.QueryableCount
+        var method = Translator.WellKnownMethods.QueryableLongCount
           .MakeGenericMethod(m.Expression.Type.GetGenericArguments()[0]);
         return Expression.Call(method, Visit(m.Expression));
       }

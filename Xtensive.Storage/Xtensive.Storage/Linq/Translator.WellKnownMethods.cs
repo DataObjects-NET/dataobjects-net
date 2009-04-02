@@ -36,6 +36,7 @@ namespace Xtensive.Storage.Linq
       public static readonly MethodInfo QueryableTake;
       public static readonly MethodInfo QueryableCount;
       public static readonly MethodInfo QueryableCountWithPredicate;
+      public static readonly MethodInfo QueryableLongCount;
       public static readonly MethodInfo QueryableWhere;
       public static readonly MethodInfo QueryableContains;
 
@@ -88,6 +89,7 @@ namespace Xtensive.Storage.Linq
         QueryableCountWithPredicate = GetQueryableMethod(WellKnown.Queryable.Count, 1, 2);
         QueryableTake = GetQueryableMethod(WellKnown.Queryable.Take, 1, 2);
         QueryableContains = GetQueryableMethod(WellKnown.Queryable.Contains, 1, 2);
+        QueryableLongCount = GetQueryableMethod(WellKnown.Queryable.LongCount, 1, 1);
 
         QueryableWhere = typeof(Queryable).GetMethods().Where(methodInfo =>
         {
