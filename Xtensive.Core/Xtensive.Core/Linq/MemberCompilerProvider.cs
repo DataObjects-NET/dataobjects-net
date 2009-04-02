@@ -88,6 +88,7 @@ namespace Xtensive.Core.Linq
       return (Func<T, T[], T>)result.First;
     }
 
+    /// <inheritdoc/>
     public Type ExpressionType
     {
       get { return typeof(T); }
@@ -103,6 +104,7 @@ namespace Xtensive.Core.Linq
     public void RegisterCompilers(Type typeWithCompilers, ConflictHandlingMethod conflictHandlingMethod)
     {
       ArgumentValidator.EnsureArgumentNotNull(typeWithCompilers, "typeWithCompilers");
+      this.EnsureNotLocked();
 
       if (typeWithCompilers.IsGenericType)
         throw new InvalidOperationException(string.Format(
@@ -493,6 +495,7 @@ namespace Xtensive.Core.Linq
       return null;
     }
 
+    #endregion
 
     // Constructors
 
@@ -500,6 +503,4 @@ namespace Xtensive.Core.Linq
     {
     }
   }
-
-  #endregion
 }

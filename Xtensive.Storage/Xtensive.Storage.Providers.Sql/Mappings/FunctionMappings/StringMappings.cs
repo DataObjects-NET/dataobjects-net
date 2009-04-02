@@ -128,6 +128,14 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       return SqlFactory.Replace(this_, oldValue, newValue);
     }
 
+    [Compiler(typeof(string), "Insert")]
+    public static SqlExpression StringInsert(SqlExpression this_, SqlExpression startIndex, SqlExpression value)
+    {
+      return SqlFactory.Concat(SqlFactory.Concat(
+        SqlFactory.Substring(this_, 0, startIndex), value),
+        SqlFactory.Substring(this_, startIndex, SqlFactory.Length(this_) - startIndex));
+    }
+
     [Compiler(typeof(string), "Remove")]
     public static SqlExpression StringRemove(SqlExpression this_,
       [Type(typeof(int))] SqlExpression startIndex)
