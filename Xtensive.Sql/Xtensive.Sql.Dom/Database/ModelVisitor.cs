@@ -114,7 +114,6 @@ namespace Xtensive.Sql.Dom.Database
       if (partitionSchema!=null)
         return VisitPartitionSchema(partitionSchema);
 
-
       return null;
     }
 

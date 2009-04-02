@@ -178,8 +178,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <returns>Converted action.</returns>
     protected virtual ReferentialAction ConvertReferentialAction(SqlRefAction toConvert)
     {
-      switch (toConvert)
-      {
+      switch (toConvert) {
         case SqlRefAction.NoAction:
           return ReferentialAction.None;
         case SqlRefAction.Restrict:
