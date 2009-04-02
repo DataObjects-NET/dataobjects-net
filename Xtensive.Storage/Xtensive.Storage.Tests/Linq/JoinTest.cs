@@ -70,9 +70,28 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from c in Query<Customer>.All
-        join o in Query<Order>.All on new {Customer = c, Name = c.ContactName} equals new {Customer = o.Customer, Name = o.Customer.ContactName}
+        join o in Query<Order>.All
+          on new {Customer = c, Name = c.ContactName} equals new {o.Customer, Name = o.Customer.ContactName}
         select new {c.ContactName, o.OrderDate};
       var list = result.ToList();
+    }
+
+    [Test]
+    public void JoinByCalculatedColumnTest()
+    {
+      var customers = Query<Customer>.All;
+      var localCustomers = customers.AsEnumerable();
+      var expected =
+        from c1 in localCustomers
+        join c2 in localCustomers
+          on c1.CompanyName.Substring(0, 1).ToUpper() equals c2.CompanyName.Substring(0, 1).ToUpper()
+        select new {l = c1.CompanyName, r = c2.CompanyName};
+      var result =
+        from c1 in customers
+        join c2 in customers
+          on c1.CompanyName.Substring(0, 1).ToUpper() equals c2.CompanyName.Substring(0, 1).ToUpper()
+        select new {l = c1.CompanyName, r = c2.CompanyName};
+      Assert.AreEqual(expected.Count(), result.Count());
     }
 
     [Test]
