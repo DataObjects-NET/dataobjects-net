@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Linq
       return GetEnumerator();
     }
 
-    public Grouping(TKey key, IQueryable<TElement> queryable)
+    public Grouping(TKey key, IQueryable<TElement> queryable, object resultExpression)
     {
       this.queryable = queryable;
       this.key = key;

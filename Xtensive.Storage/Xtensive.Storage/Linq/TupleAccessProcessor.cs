@@ -25,6 +25,11 @@ namespace Xtensive.Storage.Linq
     private RecordSetHeader header;
     private readonly Action<Parameter<Tuple>, int> registerOuterColumn;
     private readonly Func<Parameter<Tuple>, int, int> resolveOuterColumn;
+    
+    protected override Expression VisitUnknown(Expression e)
+    {
+      return e;
+    }
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {

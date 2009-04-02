@@ -449,7 +449,7 @@ namespace Xtensive.Storage.Linq
       var keyType = groupingArguments[0];
       var elementType = groupingArguments[1];
       var parameterGroupingType = typeof (Grouping<,>).MakeGenericType(keyType, elementType);
-      var constructor = parameterGroupingType.GetConstructor(new[] {keyType, typeof (IQueryable<>).MakeGenericType(elementType)});
+      var constructor = parameterGroupingType.GetConstructor(new[] {keyType, typeof (IQueryable<>).MakeGenericType(elementType), typeof(object)});
 
       // Remap 
       var tupleAccessProcessor = new TupleAccessProcessor();
@@ -478,12 +478,6 @@ namespace Xtensive.Storage.Linq
       var callMehtod = WellKnownMethods.QueryableWhere.MakeGenericMethod(elementType);
 
       var queryExpression = Expression.Call(callMehtod, source, predicateExpression);
-      var projectorBody = Expression.New(constructor, groupingKeyResolver, queryExpression);
-
-
-      var itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
-        ? new[] {pTuple, pRecord}
-        : new[] {pTuple});
 
 //      var ex = Expression.Lambda(predicateExpression.Body, recordKeyExpression.Second
 //        ? new[] {predicateExpression.Parameters[0], pTuple, pRecord}
@@ -507,9 +501,19 @@ namespace Xtensive.Storage.Linq
           ? equalsExpression 
           : Expression.AndAlso(filterBody, equalsExpression);
       }
-//      var rs = result.RecordSet.Filter()
 
-//      using (context.Bindings.Add(ex.Parameters[0], result)) {
+      var filterPredicate = Expression.Lambda(filterBody, filterTuple);
+      var groupingRs = result.RecordSet.Filter((Expression<Func<Tuple, bool>>) filterPredicate);
+
+      var groupingResultExpression = new ResultExpression(result.Type, groupingRs, result.Mapping, result.Projector, result.ItemProjector);
+
+      var projectorBody = Expression.New(constructor, groupingKeyResolver, queryExpression, Expression.Constant(groupingResultExpression));
+
+      var itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
+        ? new[] { pTuple, pRecord }
+        : new[] { pTuple });
+      
+      //      using (context.Bindings.Add(ex.Parameters[0], result)) {
 //        var ex2 = Visit(ex);
 //      }
 
@@ -811,7 +815,7 @@ namespace Xtensive.Storage.Linq
         case ExpressionType.New:
           var newExpression = (NewExpression) visitedExpression;
           if (visitedExpression.Type.IsGenericType && visitedExpression.Type.GetGenericTypeDefinition()==typeof (Grouping<,>))
-            return VisitSequence(newExpression.Arguments[1]);
+            return (ResultExpression)((ConstantExpression)newExpression.Arguments[2]).Value;
           break;
       }
       throw new NotSupportedException(string.Format("The expression of type '{0}' is not a sequence", visitedExpression.Type));
