@@ -201,4 +201,7 @@
   <data name="ExJoinExpressionShouldBeNullForCrossApplyAndLeftOuterApply" xml:space="preserve">
     <value>Join expression should be null for SqlJoinType.CrossApply &amp; SqlJoinType.LeftOuterApply.</value>
   </data>
+  <data name="ExNodeTypeIsUnknown" xml:space="preserve">
+    <value>Node type is unknown.</value>
+  </data>
 </root>

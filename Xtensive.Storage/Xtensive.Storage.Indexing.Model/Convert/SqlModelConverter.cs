@@ -14,7 +14,7 @@ using SqlModel = Xtensive.Sql.Dom.Database.Model;
 using SqlRefAction = Xtensive.Sql.Dom.ReferentialAction;
 using Xtensive.Modelling;
 
-namespace Xtensive.Storage.Indexing.Model
+namespace Xtensive.Storage.Indexing.Model.Convert
 {
   /// <summary>
   /// Converts <see cref="Xtensive.Sql.Dom.Database.Model"/> to indexing storage model.
@@ -36,10 +36,12 @@ namespace Xtensive.Storage.Indexing.Model
     /// </summary>
     /// <param name="schema">The schema.</param>
     /// <param name="server">The server info.</param>
-    /// <returns></returns>
+    /// <returns>The storage model.</returns>
     public StorageInfo Convert(Schema schema, ServerInfo server)
     {
       ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
+      ArgumentValidator.EnsureArgumentNotNull(server, "server");
+
 
       ServerInfo = server;
       StorageInfo = new StorageInfo(schema.Name);
@@ -99,10 +101,10 @@ namespace Xtensive.Storage.Indexing.Model
       var tableInfo = StorageInfo.Tables[key.Table.Name];
 
       var foreignKeyInfo = new ForeignKeyInfo(tableInfo, key.Name)
-      {
-        OnUpdateAction = ConvertReferentialAction(key.OnUpdate),
-        OnRemoveAction = ConvertReferentialAction(key.OnDelete)
-      };
+        {
+          OnUpdateAction = ConvertReferentialAction(key.OnUpdate),
+          OnRemoveAction = ConvertReferentialAction(key.OnDelete)
+        };
       // ToDo: Complete this!
       var referencedTable = tableInfo.Model.Tables[key.ReferencedTable.Name];
       var referencingTable = tableInfo.Model.Tables[key.Table.Name];
@@ -187,18 +189,18 @@ namespace Xtensive.Storage.Indexing.Model
     {
       switch (toConvert)
       {
-        case SqlRefAction.NoAction:
-          return ReferentialAction.None;
-        case SqlRefAction.Restrict:
-          return ReferentialAction.Restrict;
-        case SqlRefAction.Cascade:
-          return ReferentialAction.Cascade;
-        case SqlRefAction.SetNull:
-          return ReferentialAction.Clear;
-        case SqlRefAction.SetDefault:
-          return ReferentialAction.Default;
-        default:
-          return ReferentialAction.Default;
+      case SqlRefAction.NoAction:
+        return ReferentialAction.None;
+      case SqlRefAction.Restrict:
+        return ReferentialAction.Restrict;
+      case SqlRefAction.Cascade:
+        return ReferentialAction.Cascade;
+      case SqlRefAction.SetNull:
+        return ReferentialAction.Clear;
+      case SqlRefAction.SetDefault:
+        return ReferentialAction.Default;
+      default:
+        return ReferentialAction.Default;
       }
     }
 

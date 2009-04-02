@@ -4,6 +4,8 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.31
 
+using System;
+
 namespace Xtensive.Sql.Dom.Database
 {
   /// <summary>
@@ -18,6 +20,7 @@ namespace Xtensive.Sql.Dom.Database
     /// </summary>
     /// <param name="node">The node.</param>
     /// <returns>Visit result.</returns>
+    /// <exception cref="ArgumentException">Node type is unknown.</exception>
     protected virtual TResult Visit(Node node)
     {
       var characterSet = node as CharacterSet;
@@ -120,7 +123,7 @@ namespace Xtensive.Sql.Dom.Database
       if (partitionSchema!=null)
         return VisitPartitionSchema(partitionSchema);
 
-      return null;
+      throw new ArgumentException(Resources.Strings.ExNodeTypeIsUnknown, "node");
     }
 
     /// <summary>

@@ -88,6 +88,15 @@ namespace Xtensive.Storage.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Node type is unknown..
+        /// </summary>
+        internal static string ExNodeTypeIsUnknown {
+            get {
+                return ResourceManager.GetString("ExNodeTypeIsUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to find master association of association &apos;{0}&apos;.
         /// </summary>
         internal static string ExUnableToFindMasterAssociation {

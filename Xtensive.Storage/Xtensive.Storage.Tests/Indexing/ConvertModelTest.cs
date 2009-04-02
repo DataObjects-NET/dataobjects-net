@@ -17,13 +17,17 @@ using Xtensive.Storage.Providers.Sql;
 using Xtensive.Storage.Tests;
 using Xtensive.Storage;
 using Xtensive.Sql.Common;
+using Domain=Xtensive.Storage.Domain;
+using Xtensive.Storage.Model;
+using Xtensive.Storage.Model.Convert;
 
 namespace Xtensive.Indexing.Tests.Storage
 {
   [Serializable]
   public class ConvertModelTest : AutoBuildTest
   {
-    private Model model;
+    private Model sqlModel;
+    private DomainModel domainModel;
     private ServerInfo server;
     private StorageInfo storage;
 
@@ -43,17 +47,17 @@ namespace Xtensive.Indexing.Tests.Storage
         .CreateConnection(configuration.ConnectionInfo.ToString()))
       {
         server = connection.Driver.ServerInfo;
-        model = new SqlModelProvider(connection).Build();
+        sqlModel = new SqlModelProvider(connection).Build();
+        domainModel = domain.Model;
+
+        // storage = new SqlModelConverter().Convert(
+        //  sqlModel.DefaultServer.DefaultCatalog.DefaultSchema, server);
+
+        storage = new ModelConverter().Convert(domainModel, "dbo");
+        storage.Dump();
+
         return domain;
       }
-    }
-
-    [SetUp]
-    public void ExtractStorage()
-    {
-      storage = new SqlModelConverter().Convert(
-        model.DefaultServer.DefaultCatalog.DefaultSchema, server);
-      storage.Dump();
     }
 
     [Test]
@@ -67,7 +71,7 @@ namespace Xtensive.Indexing.Tests.Storage
       Assert.AreEqual(1, storage.Tables["A"].SecondaryIndexes.Count);
       Assert.AreEqual(2, storage.Tables["A"].SecondaryIndexes[0].KeyColumns.Count);
       Assert.IsTrue(storage.Tables["A"].SecondaryIndexes[0].IsUnique);
-      Assert.AreEqual(new TypeInfo(typeof(string), "Cyrillic_General_CI_AS", 125),
+      Assert.AreEqual(new Xtensive.Storage.Indexing.Model.TypeInfo(typeof(string), "Cyrillic_General_CI_AS", 125),
         storage.Tables["A"].Columns["Col3"].ColumnType);
       
       Assert.IsNotNull(storage.Tables["B"]);
@@ -88,10 +92,17 @@ namespace Xtensive.Indexing.Tests.Storage
     public void ForeignKeyTest()
     {
       Assert.AreEqual(1, storage.Tables["B"].ForeignKeys.Count);
-      Assert.AreEqual(storage.Tables["A"].PrimaryIndex, 
+      Assert.AreEqual(storage.Tables["A"].PrimaryIndex,
         storage.Tables["B"].ForeignKeys[0].ReferencedIndex);
       Assert.AreEqual(storage.Tables["B"].SecondaryIndexes[0],
         storage.Tables["B"].ForeignKeys[0].ReferencingIndex);
+    }
+
+    [Test]
+    public void TimeSpanColumnTest()
+    {
+      Assert.AreEqual(new Xtensive.Storage.Indexing.Model.TypeInfo(typeof(TimeSpan)),
+        storage.Tables["C"].Columns["Col1"].ColumnType);
     }
 
   }
@@ -127,6 +138,16 @@ namespace Xtensive.Indexing.Tests.Storage
 
     [Field]
     public A ColA { get; private set; }
+  }
+
+  [HierarchyRoot("Id")]
+  public class C : Entity
+  {
+    [Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public TimeSpan Col1 { get; private set; }
   }
 
   #endregion

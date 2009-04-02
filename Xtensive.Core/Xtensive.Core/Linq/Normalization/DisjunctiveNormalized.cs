@@ -26,6 +26,19 @@ namespace Xtensive.Core.Linq.Normalization
       get { return Operands.Sum(c => c.Operands.Count); }
     }
 
+    /// <summary>
+    /// Validates this instance.
+    /// </summary>
+    /// <exception cref="Exception">Some conjunction operands are not
+    /// <see cref="Expression"/>s of type <see cref="bool"/>.</exception>
+    public void Validate()
+    {
+      if (Operands.SelectMany(c => c.Operands)
+        .FirstOrDefault(e => e.Type!=typeof (bool))!=null)
+        throw new Exception(
+          Resources.Strings.ExSomeOperandsAreNotExpressionsOfTypeBoolean);
+    }
+
 
     // Constructors
 

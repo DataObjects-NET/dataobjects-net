@@ -141,4 +141,7 @@
   <data name="ItemWithNameXAlreadyExists" xml:space="preserve">
     <value>Item with name '{0}' already exists.</value>
   </data>
+  <data name="ExNodeTypeIsUnknown" xml:space="preserve">
+    <value>Node type is unknown.</value>
+  </data>
 </root>

@@ -624,4 +624,7 @@
   <data name="ExCannotParseCallToComparisonMethod" xml:space="preserve">
     <value>Can't parse the call to the comparison method.</value>
   </data>
+  <data name="ExSomeOperandsAreNotExpressionsOfTypeBoolean" xml:space="preserve">
+    <value>Some operands are not Expressions  of type 'System.Boolean'.</value>
+  </data>
 </root>

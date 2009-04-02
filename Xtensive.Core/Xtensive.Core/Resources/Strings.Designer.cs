@@ -1105,6 +1105,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Some operands are not Expressions  of type &apos;System.Boolean&apos;..
+        /// </summary>
+        internal static string ExSomeOperandsAreNotExpressionsOfTypeBoolean {
+            get {
+                return ResourceManager.GetString("ExSomeOperandsAreNotExpressionsOfTypeBoolean", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The specified capacity value is less than collection count..
         /// </summary>
         internal static string ExSpecifiedCapacityIsLessThenCollectionCount {
