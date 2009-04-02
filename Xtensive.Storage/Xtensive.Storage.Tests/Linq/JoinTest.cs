@@ -149,7 +149,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void LeftOuterTest()
+    public void DefaultIfEmptyTest()
     {
       var categories = Query<Category>.All;
       var products = Query<Product>.All;
@@ -163,7 +163,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void LeftOuterNestedTest()
+    public void LeftOuterTest()
     {
       var categories = Query<Category>.All;
       var products = Query<Product>.All;
@@ -171,8 +171,8 @@ namespace Xtensive.Storage.Tests.Linq
       var result = 
         from c in categories
         join p in products on c equals p.Category into pGroup
-        from pg in pGroup.DefaultIfEmpty()
-        select new {Name = pg==null ? "Nothing!" : pg.ProductName, CategoryID = c.Id};
+        from p in pGroup.DefaultIfEmpty()
+        select new {Name = p==null ? "Nothing!" : p.ProductName, c.CategoryName};
       var list = result.ToList();
       Assert.AreEqual(productsCount, list.Count);
     }

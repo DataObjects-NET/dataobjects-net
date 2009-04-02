@@ -634,6 +634,25 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitGroupJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
     {
+      var outerParameter = outerKey.Parameters[0];
+      var innerParameter = innerKey.Parameters[0];
+      using (context.Bindings.Add(outerParameter, VisitSequence(outerSource)))
+      using (context.Bindings.Add(innerParameter, VisitSequence(innerSource))) {
+        var outerMapping = new ResultMapping();
+        var innerMapping = new ResultMapping();
+        using (new ParameterScope()) {
+          resultMapping.Value = outerMapping;
+          Visit(outerKey);
+          resultMapping.Value = innerMapping;
+          Visit(innerKey);
+        }
+        var keyPairs = outerMapping.GetColumns().ZipWith(innerMapping.GetColumns(), (o, i) => new Pair<int>(o, i)).ToArray();
+
+        var outer = context.Bindings[outerParameter];
+        var inner = context.Bindings[innerParameter];
+        var recordSet = outer.RecordSet.Join(inner.RecordSet.Alias(context.GetNextAlias()), keyPairs);
+        return CombineResultExpressions(outer, inner, recordSet, resultSelector);
+      }
       throw new NotImplementedException();
     }
 
