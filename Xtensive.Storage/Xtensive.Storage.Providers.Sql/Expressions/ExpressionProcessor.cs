@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 {
   internal class ExpressionProcessor : ExpressionVisitor<SqlExpression>
   {
-    private static IMemberCompilerProvider<SqlExpression> mappingsProvider;
+    private readonly IMemberCompilerProvider<SqlExpression> mappingsProvider;
     private readonly DomainModel model;
     private readonly SqlSelect[] selects;
     private readonly ExpressionEvaluator evaluator;
@@ -458,7 +458,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       parameterExtractor = new ParameterExtractor(evaluator);
     }
 
-    private static Func<SqlExpression, SqlExpression[], SqlExpression> FindCompiler(MemberInfo source)
+    private Func<SqlExpression, SqlExpression[], SqlExpression> FindCompiler(MemberInfo source)
     {
       var result = mappingsProvider.GetCompiler(source);
       if (result == null)
