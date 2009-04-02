@@ -329,10 +329,10 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       SqlSelect select = Sql.Select(tKeyColRef);
       select.From =
         select.From.InnerJoin(tRefConstrRef, tRefConstrRef["CONSTRAINT_NAME"] == tKeyColRef["CONSTRAINT_NAME"]);
-      select.From = select.From.InnerJoin(tConstrRef, tConstrRef["CONSTRAINT_NAME"] == tRefConstrRef["CONSTRAINT_NAME"]);
+      select.From = select.From.InnerJoin(tConstrRef, tConstrRef["CONSTRAINT_NAME"] == tRefConstrRef["UNIQUE_CONSTRAINT_NAME"]);
       select.From =
         select.From.InnerJoin(tUniqueRef,
-                              tUniqueRef["CONSTRAINT_NAME"] == tRefConstrRef["CONSTRAINT_NAME"] &&
+                              tUniqueRef["CONSTRAINT_NAME"] == tRefConstrRef["UNIQUE_CONSTRAINT_NAME"] &&
                               tUniqueRef["ORDINAL_POSITION"] == tKeyColRef["ORDINAL_POSITION"]);
       select.Columns.Add(tKeyColRef["TABLE_NAME"], "CONSTRAINT_TABLE");
       select.Columns.Add(tKeyColRef["TABLE_SCHEMA"], "CONSTRAINT_TABLE_SCHEMA");

@@ -17,7 +17,7 @@ namespace Xtensive.Sql.Dom.Database
     /// Visits a node.
     /// </summary>
     /// <param name="node">The node.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected virtual TResult Visit(Node node)
     {
       var characterSet = node as CharacterSet;
@@ -127,238 +127,238 @@ namespace Xtensive.Sql.Dom.Database
     /// Visits unique constraint.
     /// </summary>
     /// <param name="constraint">The constraint.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitUniqueConstraint(UniqueConstraint constraint);
 
     /// <summary>
     /// Visits table constraint.
     /// </summary>
     /// <param name="constraint">The constraint.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitTableConstraint(TableConstraint constraint);
 
     /// <summary>
     /// Visits primary key.
     /// </summary>
     /// <param name="key">The key.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitPrimaryKey(PrimaryKey key);
 
     /// <summary>
     /// Visits foreign key.
     /// </summary>
     /// <param name="key">The key.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitForeignKey(ForeignKey key);
 
     /// <summary>
     /// Visits domain constraint.
     /// </summary>
     /// <param name="constraint">The constraint.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitDomainConstraint(DomainConstraint constraint);
 
     /// <summary>
     /// Visits a constraint.
     /// </summary>
     /// <param name="constraint">The constraint.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitConstraint(Constraint constraint);
 
     /// <summary>
     /// Visits check constraint.
     /// </summary>
     /// <param name="constraint">The constraint.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitCheckConstraint(CheckConstraint constraint);
 
     /// <summary>
     /// Visits range partition.
     /// </summary>
     /// <param name="rangePartition">The range partition.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitRangePartition(RangePartition rangePartition);
 
     /// <summary>
     /// Visits partition schema.
     /// </summary>
     /// <param name="partitionSchema">The partition schema.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitPartitionSchema(PartitionSchema partitionSchema);
 
     /// <summary>
     /// Visits partition function.
     /// </summary>
     /// <param name="partitionFunction">The partition function.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitPartitionFunction(PartitionFunction partitionFunction);
 
     /// <summary>
     /// Visits partition descriptor.
     /// </summary>
     /// <param name="partitionDescriptor">The partition descriptor.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitPartitionDescriptor(PartitionDescriptor partitionDescriptor);
 
     /// <summary>
     /// Visits a partition.
     /// </summary>
     /// <param name="partition">The partition.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitPartition(Partition partition);
 
     /// <summary>
     /// Visits list partition.
     /// </summary>
     /// <param name="listPartition">The list partition.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitListPartition(ListPartition listPartition);
 
     /// <summary>
     /// Visits hash partition.
     /// </summary>
     /// <param name="hashPartition">The hash partition.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitHashPartition(HashPartition hashPartition);
 
     /// <summary>
     /// Visits a catalog.
     /// </summary>
     /// <param name="catalog">The catalog.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitCatalog(Catalog catalog);
 
     /// <summary>
     /// Visits character set.
     /// </summary>
     /// <param name="characterSet">The character set.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitCharacterSet(CharacterSet characterSet);
 
     /// <summary>
     /// Visits a collation.
     /// </summary>
     /// <param name="collation">The collation.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitCollation(Collation collation);
 
     /// <summary>
     /// Visits data table.
     /// </summary>
     /// <param name="dataTable">The data table.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitDataTable(DataTable dataTable);
 
     /// <summary>
     /// Visits data table column.
     /// </summary>
     /// <param name="dataTableColumn">The data table column.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitDataTableColumn(DataTableColumn dataTableColumn);
 
     /// <summary>
     /// Visits a domain.
     /// </summary>
     /// <param name="domain">The domain.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitDomain(Domain domain);
 
     /// <summary>
     /// Visits an index.
     /// </summary>
     /// <param name="index">The index.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitIndex(Index index);
 
     /// <summary>
     /// Visits index column.
     /// </summary>
     /// <param name="indexColumn">The index column.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitIndexColumn(IndexColumn indexColumn);
 
     /// <summary>
     /// Visits a model.
     /// </summary>
     /// <param name="model">The model.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitModel(Model model);
 
     /// <summary>
     /// Visits a schema.
     /// </summary>
     /// <param name="schema">The schema.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitSchema(Schema schema);
 
     /// <summary>
     /// Visits a sequence.
     /// </summary>
     /// <param name="sequence">The sequence.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitSequence(Sequence sequence);
 
     /// <summary>
     /// Visits sequence descriptor.
     /// </summary>
     /// <param name="sequenceDescriptor">The sequence descriptor.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitSequenceDescriptor(SequenceDescriptor sequenceDescriptor);
 
     /// <summary>
     /// Visits a server.
     /// </summary>
     /// <param name="server">The server.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitServer(Server server);
 
     /// <summary>
     /// Visits a table.
     /// </summary>
     /// <param name="table">The table.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitTable(Table table);
 
     /// <summary>
     /// Visits table column.
     /// </summary>
     /// <param name="tableColumn">The table column.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitTableColumn(TableColumn tableColumn);
 
     /// <summary>
     /// Visits temporary table.
     /// </summary>
     /// <param name="temporaryTable">The temporary table.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitTemporaryTable(TemporaryTable temporaryTable);
 
     /// <summary>
     /// Visits a translation.
     /// </summary>
     /// <param name="translation">The translation.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitTranslation(Translation translation);
 
     /// <summary>
     /// Visits an user.
     /// </summary>
     /// <param name="user">The user.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitUser(User user);
 
     /// <summary>
     /// Visits a view.
     /// </summary>
     /// <param name="view">The view.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitView(View view);
 
     /// <summary>
     /// Visits view column.
     /// </summary>
     /// <param name="viewColumn">The view column.</param>
-    /// <returns>Visited result.</returns>
+    /// <returns>Visit result.</returns>
     protected abstract TResult VisitViewColumn(ViewColumn viewColumn);
   }
 }
