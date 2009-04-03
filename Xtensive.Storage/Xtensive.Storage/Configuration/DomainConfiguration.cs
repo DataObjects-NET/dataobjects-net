@@ -355,6 +355,12 @@ namespace Xtensive.Storage.Configuration
       return new DomainConfiguration();
     }
 
+    /// <summary>
+    /// Copies the properties from the <paramref name="source"/>
+    /// configuration to this one.
+    /// Used by <see cref="M:Xtensive.Core.Helpers.ConfigurationBase.Clone"/> method implementation.
+    /// </summary>
+    /// <param name="source">The configuration to copy properties from.</param>
     /// <inheritdoc/>
     protected override void Clone(ConfigurationBase source)
     {
@@ -369,7 +375,7 @@ namespace Xtensive.Storage.Configuration
       keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;
       sessionPoolSize = configuration.SessionPoolSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
-      sessions = configuration.Sessions;
+      sessions = (SessionConfigurationCollection)configuration.Sessions.Clone();
       mappings = new SetSlim<Type>(configuration.Mappings);
       serviceContainer = configuration.serviceContainer;
       buildMode = configuration.buildMode;

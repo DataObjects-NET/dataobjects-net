@@ -14,6 +14,7 @@ using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Resources;
 using System.Linq;
 
 namespace Xtensive.Storage.Providers
@@ -145,7 +146,7 @@ namespace Xtensive.Storage.Providers
       foreach (var type in userExtensionTypes) {
         var atr = type.GetCustomAttributes(typeof(CompilerContainerAttribute), false);
         if (atr.IsNullOrEmpty())
-          throw new InvalidOperationException();
+          throw new InvalidOperationException(String.Format(Strings.ExCompilerContainerAttributeIsNotAppliedToTypeX, type.Name));
         var compilerExtentionType = ((CompilerContainerAttribute)atr[0]).ExtensionType;
         var conflictHandlingMethod = ((CompilerContainerAttribute)atr[0]).ConflictHandlingMethod;
 

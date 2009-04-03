@@ -546,4 +546,7 @@
   <data name="ActiveXIsNotFound" xml:space="preserve">
     <value>Active {0} is not found.</value>
   </data>
+  <data name="ExCompilerContainerAttributeIsNotAppliedToTypeX" xml:space="preserve">
+    <value>'CompilerContainer' attribute isn't applied to type '{0}'.</value>
+  </data>
 </root>

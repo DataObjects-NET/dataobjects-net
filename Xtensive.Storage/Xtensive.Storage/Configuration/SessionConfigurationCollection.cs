@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Configuration
 {
@@ -13,7 +14,8 @@ namespace Xtensive.Storage.Configuration
   /// The collection of <see cref="SessionConfiguration"/>.
   ///</summary>
   [Serializable]
-  public class SessionConfigurationCollection : CollectionBaseSlim<SessionConfiguration>
+  public class SessionConfigurationCollection : CollectionBaseSlim<SessionConfiguration>, 
+    ICloneable
   {
     private const string DefaultName = "Default";
     private const string SystemName = "System";
@@ -154,6 +156,16 @@ namespace Xtensive.Storage.Configuration
         item.Lock(recursive);
       }
       base.Lock(recursive);
+    }
+
+    /// <inheritdoc/>
+    public object Clone()
+    {
+      this.EnsureNotLocked();
+      var result = new SessionConfigurationCollection();
+      foreach (var configuration in this)
+        result.Add(configuration);
+      return result;
     }
 
     private SessionConfiguration BuildConfiguration(string name)

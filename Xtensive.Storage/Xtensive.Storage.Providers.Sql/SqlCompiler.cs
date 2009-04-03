@@ -565,6 +565,77 @@ namespace Xtensive.Storage.Providers.Sql
       return new SqlProvider(provider, request, Handlers, source);
     }
 
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitIntersect(IntersectProvider provider)
+    {
+      var left = GetCompiled(provider.Left) as SqlProvider;
+      var right = GetCompiled(provider.Right) as SqlProvider;
+      if (left == null || right == null)
+        return null;
+
+      var leftSelect = (SqlSelect)left.Request.Statement;
+      var rightSelect = (SqlSelect)right.Request.Statement;
+      
+      var result = SqlFactory.Intersect(
+        leftSelect,
+        rightSelect);
+
+      var queryRef = SqlFactory.QueryRef(result);
+      SqlSelect query = SqlFactory.Select(queryRef);
+      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+
+      var request = new SqlFetchRequest(query, provider.Header);
+      return new SqlProvider(provider, request, Handlers, left, right);
+    }
+
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitExcept(ExceptProvider provider)
+    {
+      var left = GetCompiled(provider.Left) as SqlProvider;
+      var right = GetCompiled(provider.Right) as SqlProvider;
+      if (left == null || right == null)
+        return null;
+
+      var leftSelect = (SqlSelect)left.Request.Statement;
+      var rightSelect = (SqlSelect)right.Request.Statement;
+
+      var result = SqlFactory.Except(
+        leftSelect,
+        rightSelect);
+
+      var queryRef = SqlFactory.QueryRef(result);
+      SqlSelect query = SqlFactory.Select(queryRef);
+      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+
+      var request = new SqlFetchRequest(query, provider.Header);
+      return new SqlProvider(provider, request, Handlers, left, right);
+    }
+
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitConcat(ConcatProvider provider)
+    {
+      var left = GetCompiled(provider.Left) as SqlProvider;
+      var right = GetCompiled(provider.Right) as SqlProvider;
+      if (left == null || right == null)
+        return null;
+
+      var leftSelect = (SqlSelect)left.Request.Statement;
+      var rightSelect = (SqlSelect)right.Request.Statement;
+
+      var result = SqlFactory.UnionAll(
+        leftSelect,
+        rightSelect);
+
+      var queryRef = SqlFactory.QueryRef(result);
+      SqlSelect query = SqlFactory.Select(queryRef);
+      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+
+      var request = new SqlFetchRequest(query, provider.Header);
+      return new SqlProvider(provider, request, Handlers, left, right);
+    }
+
+
+
     /// <summary>
     /// Preprocesses (transforms before actual compilation to SQL) specified <see cref="LambdaExpression"/>.
     /// Can be overridden in derived classes for making custom preprocess logic.
