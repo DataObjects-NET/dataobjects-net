@@ -99,7 +99,6 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.AreEqual(expected, result.ToList().Count);
     }
 
-
     [Test]
     public void EntitySetSubqueryWithResultSelectorTest()
     {
@@ -110,5 +109,16 @@ namespace Xtensive.Storage.Tests.Linq
         .SelectMany(c => c.Orders.Where(o => o.Employee.FirstName.StartsWith("A")), (c,o) => o.OrderDate);
       Assert.AreEqual(expected, result.ToList().Count);
     }
+
+    [Test]
+    public void EntitySetDefaultIfEmptyTest()
+    {
+      var expected = 
+        Query<Order>.All.Count() +
+          Query<Customer>.All.Count(c => !Query<Order>.All.Any(o => o.Customer==c));
+      var result = Query<Customer>.All.SelectMany(c => c.Orders.DefaultIfEmpty());
+      Assert.AreEqual(expected, result.ToList().Count);
+    }
+
   }
 }

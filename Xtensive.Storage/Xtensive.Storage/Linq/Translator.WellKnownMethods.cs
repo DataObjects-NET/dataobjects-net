@@ -10,6 +10,7 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Linq
@@ -27,6 +28,10 @@ namespace Xtensive.Storage.Linq
       public static readonly MethodInfo KeyResolve;
       public static readonly MethodInfo KeyResolveOfT;
       public static readonly MethodInfo KeyCreate;
+
+      // KeyExtensions
+      public static readonly MethodInfo KeyTryResolve;
+      public static readonly MethodInfo KeyTryResolveOfT;
 
       // Enumerable
       public static readonly MethodInfo EnumerableSelect;
@@ -79,6 +84,10 @@ namespace Xtensive.Storage.Linq
           .Single();
         KeyResolveOfT = typeof (Key).GetMethod("Resolve", BindingFlags.Public | BindingFlags.Instance, new[] {"T"}, new object[0]);
         KeyCreate = typeof(Key).GetMethod("Create", new[] { typeof(TypeInfo), typeof(Tuple), typeof(bool) });
+
+        // KeyExtensions
+        KeyTryResolve = typeof(KeyExtensions).GetMethod("TryResolve", BindingFlags.Public | BindingFlags.Static, new string[0], new object[1]);
+        KeyTryResolveOfT = typeof (KeyExtensions).GetMethod("TryResolve", BindingFlags.Public | BindingFlags.Static, new string[1], new object[1]);
 
         // Enumerable
         EnumerableSelect = typeof(Enumerable).GetMethods().Where(m => m.Name == "Select").First();

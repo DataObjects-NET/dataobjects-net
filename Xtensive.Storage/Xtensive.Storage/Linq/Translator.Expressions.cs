@@ -17,6 +17,7 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -147,10 +148,7 @@ namespace Xtensive.Storage.Linq
             return VisitMemberPathEntity(path, source, resultType);
           path = MemberPath.Parse(Expression.MakeMemberAccess(e, WellKnownMethods.IEntityKey), context.Model);
           var keyExpression = VisitMemberPathKey(path, source);
-          var result = Expression.Convert(
-            Expression.Call(
-              keyExpression,
-              WellKnownMethods.KeyResolve), resultType);
+          var result = Expression.Call(WellKnownMethods.KeyTryResolveOfT.MakeGenericMethod(resultType), keyExpression);
           return result;
         case MemberType.EntitySet:
           return VisitMemberPathEntitySet(e);
@@ -340,8 +338,8 @@ namespace Xtensive.Storage.Linq
       var fieldMapping = BuildFieldMapping(type, 0);
       var mapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
       var recordSet = IndexProvider.Get(index).Result;
-      Expression<Func<RecordSet, object>> projector = rs => rs.Parse().Select(r => r[0].Resolve());
-      Expression<Func<Record, Entity>> ipt = r => r[0].Resolve();
+      Expression<Func<RecordSet, object>> projector = rs => rs.Parse().Select(r => r[0].TryResolve());
+      Expression<Func<Record, Entity>> ipt = r => r[0].TryResolve();
       LambdaExpression itemProjector = Expression.Lambda(Expression.Convert(ipt.Body, elementType), ipt.Parameters[0]);
 
       return new ResultExpression(
@@ -620,10 +618,8 @@ namespace Xtensive.Storage.Linq
       recordIsUsed.Value = true;
       var segment = source.GetMemberSegment(path);
       int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
-      var result = Expression.Convert(
-        Expression.Call(
-          Expression.Call(record.Value, WellKnownMethods.RecordKey, Expression.Constant(groupIndex)),
-          WellKnownMethods.KeyResolve), resultType);
+      var result = Expression.Call(WellKnownMethods.KeyTryResolveOfT.MakeGenericMethod(resultType),
+        Expression.Call(record.Value, WellKnownMethods.RecordKey, Expression.Constant(groupIndex)));
       var rm = source.GetMemberMapping(path);
       var name = rm.Fields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
       foreach (var pair in rm.Fields) {
@@ -649,11 +645,8 @@ namespace Xtensive.Storage.Linq
       int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
       var result =
         Expression.MakeMemberAccess(
-          Expression.Convert(
-            Expression.Call(
-              Expression.Call(record.Value, WellKnownMethods.RecordKey, Expression.Constant(groupIndex)),
-              WellKnownMethods.KeyResolve),
-            field.ReflectedType.UnderlyingType),
+          Expression.Call(WellKnownMethods.KeyTryResolveOfT.MakeGenericMethod(field.ReflectedType.UnderlyingType), 
+              Expression.Call(record.Value, WellKnownMethods.RecordKey, Expression.Constant(groupIndex))),
           field.UnderlyingProperty);
       var columnGroup = source.RecordSet.Header.ColumnGroups[groupIndex];
       var keyOffset = columnGroup.Keys.Min();
