@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Indexing
     [Test]
     public void ValidateEmptyKey()
     {
-      AssertEx.Throws<IntegrityException>(secondary.Validate);
+      AssertEx.Throws<AggregateException>(secondary.Validate);
     }
 
     [Test]
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Tests.Indexing
       new KeyColumnRef(secondary, primaryValue1, 0, Direction.Negative);
       new KeyColumnRef(secondary, primaryValue1, 1, Direction.Positive);
 
-      AssertEx.Throws<IntegrityException>(secondary.Validate);
+      AssertEx.Throws<AggregateException>(secondary.Validate);
     }
 
     [Test]

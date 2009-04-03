@@ -138,10 +138,16 @@
   <data name="ExTypeOfColumnXDoesNotDefined" xml:space="preserve">
     <value>Type of column '{0}' does not defined.</value>
   </data>
-  <data name="ReferencedIndexNotDefined" xml:space="preserve">
+  <data name="ExReferencedIndexNotDefined" xml:space="preserve">
     <value>Referenced index not defined.</value>
   </data>
   <data name="ExPrimaryKeyColumnCanNotAllowNulls" xml:space="preserve">
     <value>Primary key column can not allow nulls.</value>
+  </data>
+  <data name="ExReferencingIndexIsNotDefined" xml:space="preserve">
+    <value>Referencing index is not defined.</value>
+  </data>
+  <data name="ExReferencingIndexColumnsDoesNotMatchReferencedIndexKeyColumns" xml:space="preserve">
+    <value>Referencing index columns does not match referenced index key columns.</value>
   </data>
 </root>

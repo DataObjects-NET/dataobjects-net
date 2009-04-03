@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
@@ -104,16 +105,27 @@ namespace Xtensive.Storage.Indexing.Model
     /// <exception cref="IntegrityException">Validations errors.</exception>
     protected override void ValidateState()
     {
-      base.ValidateState();
+      using (var ea = new ExceptionAggregator()) {
+        ea.Execute(base.ValidateState);
 
-      if (ReferencedIndex == null)
-        throw new IntegrityException(Resources.Strings.ReferencedIndexNotDefined, Path);
+        if (ReferencedIndex==null)
+          ea.Execute(() => { throw new IntegrityException(Resources.Strings.ExReferencedIndexNotDefined, Path); });
+        if (ReferencingIndex==null)
+          ea.Execute(() => { throw new IntegrityException(Resources.Strings.ExReferencingIndexIsNotDefined, Path); });
 
-      var primaryKeyColumns = ReferencedIndex.KeyColumns.Select(columnRef => new { columnRef.Index, columnRef.Direction, columnRef.Value.ColumnType });
-      var referencedKeyColumns = ReferencingIndex.KeyColumns.Select(columnRef => new { columnRef.Index, columnRef.Direction, columnRef.Value.ColumnType });
-
-      if (primaryKeyColumns.Except(referencedKeyColumns).Union(referencedKeyColumns.Except(primaryKeyColumns)).Count() > 0)
-        throw new IntegrityException("Foreign key columns definition does not match referenced index key columns.", Path);
+        if (ReferencedIndex==null || ReferencingIndex==null)
+          return;
+        var primaryKeyColumns = ReferencedIndex.KeyColumns.Select(
+          columnRef => new {columnRef.Index, columnRef.Direction, columnRef.Value.ColumnType});
+        var referencedKeyColumns = ReferencingIndex.KeyColumns.Select(
+          columnRef => new {columnRef.Index, columnRef.Direction, columnRef.Value.ColumnType});
+        if (primaryKeyColumns.Except(referencedKeyColumns)
+          .Union(referencedKeyColumns.Except(primaryKeyColumns)).Count() > 0)
+          ea.Execute(() => {
+            throw new IntegrityException(
+              Resources.Strings.ExReferencingIndexColumnsDoesNotMatchReferencedIndexKeyColumns, Path);
+          });
+      }
     }
 
 

@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Indexing.Model.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Xtensive.Indexing.Storage.Model.Resources.Strings", typeof(Strings).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Xtensive.Storage.Indexing.Model.Resources.Strings", typeof(Strings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -124,20 +124,38 @@ namespace Xtensive.Storage.Indexing.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Referenced index not defined..
+        /// </summary>
+        internal static string ExReferencedIndexNotDefined {
+            get {
+                return ResourceManager.GetString("ExReferencedIndexNotDefined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Referencing index columns does not match referenced index key columns..
+        /// </summary>
+        internal static string ExReferencingIndexColumnsDoesNotMatchReferencedIndexKeyColumns {
+            get {
+                return ResourceManager.GetString("ExReferencingIndexColumnsDoesNotMatchReferencedIndexKeyColumns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Referencing index is not defined..
+        /// </summary>
+        internal static string ExReferencingIndexIsNotDefined {
+            get {
+                return ResourceManager.GetString("ExReferencingIndexIsNotDefined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type of column &apos;{0}&apos; does not defined..
         /// </summary>
         internal static string ExTypeOfColumnXDoesNotDefined {
             get {
                 return ResourceManager.GetString("ExTypeOfColumnXDoesNotDefined", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Referenced index not defined..
-        /// </summary>
-        internal static string ReferencedIndexNotDefined {
-            get {
-                return ResourceManager.GetString("ReferencedIndexNotDefined", resourceCulture);
             }
         }
     }
