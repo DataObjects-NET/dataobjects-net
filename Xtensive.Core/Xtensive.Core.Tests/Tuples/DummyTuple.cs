@@ -45,13 +45,13 @@ namespace Xtensive.Core.Tests.Tuples
       if (!available[fieldIndex])
         return 0;
       return values[fieldIndex] == null ? 
-        TupleFieldState.IsNull | TupleFieldState.IsAvailable :
-        TupleFieldState.IsAvailable;
+        TupleFieldState.Null | TupleFieldState.Available :
+        TupleFieldState.Available;
     }
 
     public override object GetValueOrDefault(int fieldIndex)
     {
-      if ((GetFieldState(fieldIndex) ^ TupleFieldState.IsAvailable) == TupleFieldState.Default)
+      if ((GetFieldState(fieldIndex) ^ TupleFieldState.Available) == TupleFieldState.Default)
         return values[fieldIndex];
       return null;
     }

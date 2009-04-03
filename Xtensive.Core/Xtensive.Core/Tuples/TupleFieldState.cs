@@ -9,9 +9,7 @@ using System;
 namespace Xtensive.Core.Tuples
 {
   /// <summary>
-  /// Tuple field state enumeration.
-  /// Defines field state that can be set or get
-  /// for each field in <see cref="Tuple"/>.
+  /// Defines field state that can be set or get for each field in <see cref="Tuple"/>.
   /// </summary>
   [Flags]
   public enum TupleFieldState
@@ -24,12 +22,12 @@ namespace Xtensive.Core.Tuples
     /// <summary>
     /// Field value is available in tuple.
     /// </summary>
-    IsAvailable = 0x01,
+    Available = 0x01,
 
     /// <summary>
     /// Field has null value.
     /// Used with both nullable and non-nullable fields.
     /// </summary>
-    IsNull = 0x02,
+    Null = 0x02,
   }
 }

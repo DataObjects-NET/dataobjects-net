@@ -55,25 +55,25 @@ namespace Xtensive.Core.Tests.Tuples
       switch (fieldIndex) {
         case 0:
           if (fieldValue != null) {
-            state = TupleFieldState.IsAvailable;
+            state = TupleFieldState.Available;
             f0 = (int)fieldValue;
           }
           else
-            state = TupleFieldState.IsAvailable | TupleFieldState.IsNull;
+            state = TupleFieldState.Available | TupleFieldState.Null;
           SetFieldState(fieldIndex, state);
           return;
         case 1:
           if (fieldValue != null) {
-            state = TupleFieldState.IsAvailable;
+            state = TupleFieldState.Available;
             c0 = (c0 & ~4) | ((int)fieldValue << 2);
           }
           else
-            state = TupleFieldState.IsAvailable | TupleFieldState.IsNull;
+            state = TupleFieldState.Available | TupleFieldState.Null;
           SetFieldState(fieldIndex, state);
           return;
         case 2:
           f1 = (string)fieldValue;
-          SetFieldState(fieldIndex, TupleFieldState.IsAvailable);
+          SetFieldState(fieldIndex, TupleFieldState.Available);
           return;
       }
       throw new ArgumentOutOfRangeException();

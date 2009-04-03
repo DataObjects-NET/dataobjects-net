@@ -86,22 +86,22 @@ namespace Xtensive.Core.Tuples
     /// <inheritdoc/>
     public bool IsAvailable(int fieldIndex)
     {
-      return (GetFieldState(fieldIndex) & TupleFieldState.IsAvailable) != 0;
+      return (GetFieldState(fieldIndex) & TupleFieldState.Available) != 0;
     }
 
     /// <inheritdoc/>
     public bool IsNull(int fieldIndex)
     {
       TupleFieldState state = GetFieldState(fieldIndex);
-      if ((state & TupleFieldState.IsAvailable) == 0)
+      if ((state & TupleFieldState.Available) == 0)
         throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
-      return (state & TupleFieldState.IsNull) > 0;
+      return (state & TupleFieldState.Null) > 0;
     }
 
     /// <inheritdoc/>
     public bool HasValue(int fieldIndex)
     {
-      return GetFieldState(fieldIndex) == TupleFieldState.IsAvailable;
+      return GetFieldState(fieldIndex) == TupleFieldState.Available;
     }
 
     #endregion
