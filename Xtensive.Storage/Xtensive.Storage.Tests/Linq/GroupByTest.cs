@@ -61,6 +61,16 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+
+    [Test]
+    public void StructureGroupWithNullFieldTest()
+    {
+      var customer = Query<Customer>.All.First();
+      customer.Address.Country = null;
+      Session.Current.Persist();
+      StructureGroupTest();
+    }
+
     [Test]
     public void AnonimousTypeGroupTest()
     {

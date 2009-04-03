@@ -404,7 +404,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
                 case "PostalCode":
                 case "Country":
                   fieldName = dbName;
-                  address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                  address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : string.Empty;
                   break;
                 default:
                   fieldName = dbName;
@@ -543,7 +543,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
                 case "PostalCode":
                 case "Country":
                   fieldName = dbName;
-                  address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
+                  address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : string.Empty;
                   break;
                 default:
                   fieldName = dbName;

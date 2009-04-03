@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Linq
     private RecordSetHeader header;
     private readonly Action<Parameter<Tuple>, int> registerOuterColumn;
     private readonly Func<Parameter<Tuple>, int, int> resolveOuterColumn;
-    
+
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
@@ -40,32 +40,44 @@ namespace Xtensive.Storage.Linq
 
     private Expression GatherMappings(MethodCallExpression mc)
     {
-      if (mc.AsTupleAccess() != null) {
+      if (mc.AsTupleAccess()!=null) {
         var columnIndex = mc.GetTupleAccessArgument();
         var outerParameter = TryExtractOuterParameter(mc);
-        if (outerParameter != null)
+        if (outerParameter!=null)
           registerOuterColumn(outerParameter, columnIndex);
         else
           map.Add(columnIndex);
         return mc;
       }
-      if (header != null && mc.Object != null) {
-        if (mc.Object.Type == typeof (Record) && mc.Method.Name == "get_Item") {
-          var groupIndex = (int)((ConstantExpression)mc.Arguments[0]).Value;
-          map.AddRange(header.ColumnGroups[groupIndex].Keys);
-          return mc;
-        }
-        if (mc.Object.Type == typeof(Key) && mc.Object.NodeType == ExpressionType.Call && mc.Method.Name == "Resolve") {
-          var key = (MethodCallExpression)mc.Object;
-          if (key.Method.Name == "get_Item") {
-            var groupIndex = (int)((ConstantExpression)key.Arguments[0]).Value;
-            map.AddRange(header.ColumnGroups[groupIndex].Columns);
+      if (header!=null) {
+        if (mc.Object!=null) {
+          if (mc.Object.Type==typeof (Record) && mc.Method.Name=="get_Item") {
+            var groupIndex = (int) ((ConstantExpression) mc.Arguments[0]).Value;
+            map.AddRange(header.ColumnGroups[groupIndex].Keys);
             return mc;
+          }
+          if (mc.Object.Type==typeof (Key) && mc.Object.NodeType==ExpressionType.Call && mc.Method.Name=="Resolve") {
+            var key = (MethodCallExpression) mc.Object;
+            if (key.Method.Name=="get_Item") {
+              var groupIndex = (int) ((ConstantExpression) key.Arguments[0]).Value;
+              map.AddRange(header.ColumnGroups[groupIndex].Columns);
+              return mc;
+            }
+          }
+        }
+        else {
+          if (mc.Arguments.Count==1 && mc.Arguments[0].Type==typeof (Key) && mc.Arguments[0].NodeType==ExpressionType.Call && mc.Method.Name=="TryResolve") {
+            var key = (MethodCallExpression) mc.Arguments[0];
+            if (key.Method.Name=="get_Item") {
+              var groupIndex = (int) ((ConstantExpression) key.Arguments[0]).Value;
+              map.AddRange(header.ColumnGroups[groupIndex].Columns);
+              return mc;
+            }
           }
         }
       }
-      if (mc.Object != null && mc.Object.NodeType == ExpressionType.Constant && mc.Object.Type == typeof(SegmentTransform) && mc.Method.Name == "Apply") {
-        var segmentTransform = (SegmentTransform)((ConstantExpression)mc.Object).Value;
+      if (mc.Object!=null && mc.Object.NodeType==ExpressionType.Constant && mc.Object.Type==typeof (SegmentTransform) && mc.Method.Name=="Apply") {
+        var segmentTransform = (SegmentTransform) ((ConstantExpression) mc.Object).Value;
         map.AddRange(segmentTransform.Segment.GetItems());
         return mc;
       }
@@ -74,21 +86,21 @@ namespace Xtensive.Storage.Linq
 
     private Expression ReplaceMappings(MethodCallExpression mc)
     {
-      if (mc.AsTupleAccess() != null) {
+      if (mc.AsTupleAccess()!=null) {
         var columnIndex = mc.GetTupleAccessArgument();
         var outerParameter = TryExtractOuterParameter(mc);
-        int newIndex = outerParameter != null
+        int newIndex = outerParameter!=null
           ? resolveOuterColumn(outerParameter, columnIndex)
           : map.IndexOf(columnIndex);
         return Expression.Call(mc.Object, mc.Method, Expression.Constant(newIndex));
       }
-      if (mc.Object != null) {
-        if (mc.Object.Type == typeof (Record) && mc.Method.Name == "get_Item") {
-          var groupIndex = (int)((ConstantExpression)mc.Arguments[0]).Value;
+      if (mc.Object!=null) {
+        if (mc.Object.Type==typeof (Record) && mc.Method.Name=="get_Item") {
+          var groupIndex = (int) ((ConstantExpression) mc.Arguments[0]).Value;
           return Expression.Call(mc.Object, mc.Method, Expression.Constant(group.IndexOf(groupIndex)));
         }
-        if (mc.Object != null && mc.Object.NodeType == ExpressionType.Constant && mc.Object.Type == typeof(SegmentTransform) && mc.Method.Name == "Apply") {
-          var segmentTransform = (SegmentTransform)((ConstantExpression)mc.Object).Value;
+        if (mc.Object!=null && mc.Object.NodeType==ExpressionType.Constant && mc.Object.Type==typeof (SegmentTransform) && mc.Method.Name=="Apply") {
+          var segmentTransform = (SegmentTransform) ((ConstantExpression) mc.Object).Value;
           var offset = map.IndexOf(segmentTransform.Segment.Offset);
           var newTransformExpression = Expression.Constant(new SegmentTransform(segmentTransform.IsReadOnly, header.TupleDescriptor, new Segment<int>(offset, segmentTransform.Segment.Length)));
           return Expression.Call(newTransformExpression, mc.Method, mc.Arguments);
@@ -129,12 +141,12 @@ namespace Xtensive.Storage.Linq
 
     private static Parameter<Tuple> TryExtractOuterParameter(MethodCallExpression tupleAccess)
     {
-      if (tupleAccess.Object.NodeType != ExpressionType.MemberAccess)
+      if (tupleAccess.Object.NodeType!=ExpressionType.MemberAccess)
         return null;
       var memberAccess = (MemberExpression) tupleAccess.Object;
-      if (memberAccess.Member != Translator.WellKnownMethods.ParameterOfTupleValue)
+      if (memberAccess.Member!=Translator.WellKnownMethods.ParameterOfTupleValue)
         return null;
-      if (memberAccess.Expression.NodeType != ExpressionType.Constant)
+      if (memberAccess.Expression.NodeType!=ExpressionType.Constant)
         return null;
       var constant = (ConstantExpression) memberAccess.Expression;
       return (Parameter<Tuple>) constant.Value;
