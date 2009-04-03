@@ -5,6 +5,7 @@
 // Created:    2008.11.01
 
 using System;
+using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -16,6 +17,12 @@ namespace Xtensive.Indexing
     IComparer<Entire<T>, T>,
     ISystemComparer<Entire<T>> where T : Tuple
   {
+    private static readonly int[,] nearestMatrix = new[,] {
+      { -1, -1,  0 }, 
+      { -1,  0,  1 }, 
+      {  0,  1,  1 }, 
+    };
+
     public override Func<Entire<T>, TSecond, int> GetAsymmetric<TSecond>()
     {
       Type type = typeof(TSecond);
@@ -93,6 +100,13 @@ namespace Xtensive.Indexing
       return new TupleEntireComparer<T>(Provider, ComparisonRules.Combine(rules));
     }
 
+    public override Entire<T> GetNearestValue(Entire<T> value, Direction direction)
+    {
+      int d = (int)direction * DefaultDirectionMultiplier;
+      if (d == 0 || !value.HasValue)
+        return value;
+      return new Entire<T>(value.value, (Direction)nearestMatrix[1 + (int)value.valueType, 1 + d]);
+    }
 
     // Constructor
 

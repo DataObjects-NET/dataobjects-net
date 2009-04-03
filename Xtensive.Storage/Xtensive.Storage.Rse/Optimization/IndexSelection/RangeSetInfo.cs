@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     public bool AlwaysFull { get; private set; }
 
-    public TupleFieldInfo Origin { get; private set; }
+    public TupleExpressionInfo Origin { get; private set; }
 
     private static void ValidateExpression(Expression source)
     {
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     // Constructors
 
-    public RangeSetInfo(Expression source, TupleFieldInfo origin, bool alwaysFull)
+    public RangeSetInfo(Expression source, TupleExpressionInfo origin, bool alwaysFull)
     {
       Source = source;
       Origin = origin;

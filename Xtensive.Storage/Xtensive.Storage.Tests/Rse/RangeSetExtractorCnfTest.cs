@@ -8,14 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Linq.Normalization;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Optimization.IndexSelection;
@@ -24,46 +22,15 @@ using Xtensive.Storage.Tests.Storage.SnakesModel;
 namespace Xtensive.Storage.Tests.Rse
 {
   [TestFixture]
-  public class RangeSetExtractorTest : AutoBuildTest
+  public class RangeSetExtractorCnfTest : BaseRangeSetExtractorTest
   {
-    private string cID;
-    private string cName;
-    private string cLength;
-    private string cFeatures;
-    private string cDescription;
-
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      DomainConfiguration config = DomainConfigurationFactory.Create("memory");
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.SnakesModel");
-      return config;
-    }
-
-    protected override Domain BuildDomain(DomainConfiguration configuration)
-    {
-      Xtensive.Storage.Domain result = base.BuildDomain(configuration);
-
-      Xtensive.Storage.Model.FieldInfo field;
-      field = result.Model.Types[typeof(Creature)].Fields["ID"];
-      cID = field.Column.Name;
-      field = result.Model.Types[typeof(Creature)].Fields["Name"];
-      cName = field.Column.Name;
-      field = result.Model.Types[typeof(Snake)].Fields["Length"];
-      cLength = field.Column.Name;
-      field = result.Model.Types[typeof(Snake)].Fields["Features"];
-      cFeatures = field.Column.Name;
-      field = result.Model.Types[typeof (ClearSnake)].Fields["Description"];
-      cDescription = field.Column.Name;
-      return result;
-    }
-
     [Test]
     public void SimpleExpressionTest()
     {
       TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
-      IndexInfo indexInfo = snakeType.Indexes.GetIndex(cLength);
+      IndexInfo indexInfo = snakeType.Indexes.GetIndex(LengthField);
       RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
-      int cLengthIdx = GetFieldIndex(rsHeader, cLength);
+      int cLengthIdx = GetFieldIndex(rsHeader, LengthField);
 
       /* Expression<Func<Tuple, bool>> exp =
          (t) => t.GetValue<int?>(cLengthIdx) >= 3 &&
@@ -75,7 +42,7 @@ namespace Xtensive.Storage.Tests.Rse
           .AddBoolean(t => t.GetValue<int?>(cLengthIdx) < 6))
         .AddCnf(AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
       
-      var expectedRanges = CreateExpectedRangesForSimpleTest(indexInfo, cLength);
+      var expectedRanges = CreateExpectedRangesForSimpleTest(indexInfo, LengthField);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
     }
 
@@ -102,17 +69,17 @@ namespace Xtensive.Storage.Tests.Rse
     public void DifferentFieldsTest()
     {
       TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
-      IndexInfo indexInfo = snakeType.Indexes.GetIndex(cLength);
+      IndexInfo indexInfo = snakeType.Indexes.GetIndex(LengthField);
       RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
-      int cLengthIdx = GetFieldIndex(rsHeader, cLength);
-      int cNameIdx = GetFieldIndex(rsHeader, cName);
+      int cLengthIdx = GetFieldIndex(rsHeader, LengthField);
+      int cNameIdx = GetFieldIndex(rsHeader, NameField);
 
       var predicate = new DisjunctiveNormalized()
         .AddCnf(AsCnf(t => t.GetValue<int?>(cLengthIdx) <= 3)
           .AddBoolean(t => t.GetValue<string>(cNameIdx)=="abc"))
         .AddCnf(AsCnf(t => t.GetValue<int?>(cLengthIdx) > 15));
 
-      var expectedRanges = CreateExpectedRangesForDifferentFieldsTest(indexInfo, cLength);
+      var expectedRanges = CreateExpectedRangesForDifferentFieldsTest(indexInfo, LengthField);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
     }
 
@@ -138,10 +105,10 @@ namespace Xtensive.Storage.Tests.Rse
     public void DifferentFieldsInSameComparisonTest()
     {
       TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
-      IndexInfo indexInfo = snakeType.Indexes.GetIndex(cName);
+      IndexInfo indexInfo = snakeType.Indexes.GetIndex(NameField);
       RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
-      int cDescriptionIdx = GetFieldIndex(rsHeader, cLength);
-      int cNameIdx = GetFieldIndex(rsHeader, cName);
+      int cDescriptionIdx = GetFieldIndex(rsHeader, LengthField);
+      int cNameIdx = GetFieldIndex(rsHeader, NameField);
 
       var predicate = new DisjunctiveNormalized()
         .AddCnf(AsCnf(t => t.GetValue<string>(cNameIdx)
@@ -161,9 +128,9 @@ namespace Xtensive.Storage.Tests.Rse
     public void StandAloneBooleanExpressionsTest()
     {
       TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
-      IndexInfo indexInfo = snakeType.Indexes.GetIndex(cLength);
+      IndexInfo indexInfo = snakeType.Indexes.GetIndex(LengthField);
       RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
-      int cLengthIdx = GetFieldIndex(rsHeader, cLength);
+      int cLengthIdx = GetFieldIndex(rsHeader, LengthField);
 
       int x = 1;
       int y = 2;
@@ -173,7 +140,7 @@ namespace Xtensive.Storage.Tests.Rse
         .AddCnf(AsCnf(t => t.GetValue<int?>(cLengthIdx) > 15))
         .AddCnf(AsCnf(t => false));
 
-      var expectedRanges = CreateExpectedRangesForStandAloneBooleanExpressionsTest(indexInfo, cLength);
+      var expectedRanges = CreateExpectedRangesForStandAloneBooleanExpressionsTest(indexInfo, LengthField);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
     }
 
@@ -187,17 +154,17 @@ namespace Xtensive.Storage.Tests.Rse
     public void MultiColumnIndexTest()
     {
       TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
-      IndexInfo indexInfo = snakeType.Indexes.GetIndex(cLength);
+      IndexInfo indexInfo = snakeType.Indexes.GetIndex(LengthField);
       RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
-      int cLengthIdx = GetFieldIndex(rsHeader, cLength);
-      int cDescriptionIdx = GetFieldIndex(rsHeader, cDescription);
+      int cLengthIdx = GetFieldIndex(rsHeader, LengthField);
+      int cDescriptionIdx = GetFieldIndex(rsHeader, DescriptionField);
 
       var predicate = new DisjunctiveNormalized()
         .AddCnf(AsCnf(t => t.GetValue<string>(cDescriptionIdx).CompareTo("abc") < 0)
         .AddBoolean(t => t.GetValue<int?>(cLengthIdx)==6))
         .AddCnf(AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
 
-      var expectedRanges = CreateExpectedRangesForMultiColumnIndexTest(indexInfo, cLength, cDescription);
+      var expectedRanges = CreateExpectedRangesForMultiColumnIndexTest(indexInfo, LengthField, DescriptionField);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
     }
 
@@ -220,45 +187,6 @@ namespace Xtensive.Storage.Tests.Rse
       var expectedRange1 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange1);
       return result;
-    }
-
-    private static Conjunction<Expression> AsCnf(Expression<Func<Tuple, bool>> exp)
-    {
-      var result = new Conjunction<Expression>();
-      result.Operands.Add(exp.Body);
-      return result;
-    }
-
-    private void TestExpression(DisjunctiveNormalized predicate, IndexInfo indexInfo,
-      RecordSetHeader primaryIndexRsHeader, IEnumerable<Range<Entire<Tuple>>> expectedRanges)
-    {
-      RangeSetExtractor extractor = new RangeSetExtractor(Domain.Model);
-      var rangeSetExp = extractor.Extract(predicate, indexInfo, primaryIndexRsHeader);
-      var result = (RangeSet<Entire<Tuple>>)rangeSetExp.GetResult().Compile().DynamicInvoke();
-      CheckRanges(expectedRanges, result);
-    }
-
-    private static void CheckRanges(IEnumerable<Range<Entire<Tuple>>> expected,
-      IEnumerable<Range<Entire<Tuple>>> actual)
-    {
-      Assert.AreEqual(expected.Count(), actual.Count());
-      foreach (var range in expected) {
-// ReSharper disable AccessToModifiedClosure
-        actual.Single(r => range.CompareTo(r) == 0);
-// ReSharper restore AccessToModifiedClosure
-      }
-    }
-
-    private static Tuple CreateTuple(TupleDescriptor descriptor, int fieldIndex, object fieldValue)
-    {
-      Tuple result = Tuple.Create(descriptor);
-      result.SetValue(fieldIndex, fieldValue);
-      return result;
-    }
-
-    private static int GetFieldIndex(RecordSetHeader rsHeader, string fieldName)
-    {
-      return rsHeader.IndexOf(fieldName);
     }
   }
 }

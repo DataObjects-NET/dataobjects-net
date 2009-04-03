@@ -131,6 +131,11 @@ namespace Xtensive.Core.Tests.Linq
       CheckSimpleComparison(ComparisonOperation.GreaterThanOrEqual, keyName,
         valueExp, comparisonInfo);
 
+      comparison = () => !(x.CompareTo(z) >= 0);
+      comparisonInfo = ExtractComparisonInfo(comparison, keyName);
+      CheckSimpleComparison(ComparisonOperation.LessThan, keyName,
+        valueExp, comparisonInfo);
+
       comparison = () => x.CompareTo(z) == 0;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
       CheckSimpleComparison(ComparisonOperation.Equal, keyName,
@@ -436,6 +441,11 @@ namespace Xtensive.Core.Tests.Linq
       comparison = () => !xb;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
       CheckSimpleComparison(ComparisonOperation.NotEqual, keyName,
+        Expression.Constant(true), comparisonInfo);
+
+      comparison = () => !!xb;
+      comparisonInfo = ExtractComparisonInfo(comparison, keyName);
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         Expression.Constant(true), comparisonInfo);
     }
 

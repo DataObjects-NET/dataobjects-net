@@ -12,14 +12,14 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
   /// <summary>
   /// Information about expression containing an access to a field of tuple.
   /// </summary>
-  internal sealed class TupleFieldInfo
+  internal sealed class TupleExpressionInfo
   {
     public readonly int FieldIndex;
     public readonly ComparisonInfo Comparison;
 
     // Constructors
 
-    public TupleFieldInfo(int fieldIndex, ComparisonInfo comparison)
+    public TupleExpressionInfo(int fieldIndex, ComparisonInfo comparison)
     {
       ArgumentValidator.EnsureArgumentIsInRange(fieldIndex, 0, int.MaxValue, "fieldIndex");
       FieldIndex = fieldIndex;

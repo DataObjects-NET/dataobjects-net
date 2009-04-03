@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.03.17
 
+using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Linq.Normalization;
 using Xtensive.Indexing;
@@ -17,14 +18,24 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
   internal sealed class RangeSetExtractor
   {
     private readonly CnfParser cnfParser;
+    private readonly GeneralPredicateParser generalParser;
 
-    public CnfParsingResult Extract(DisjunctiveNormalized predicate, IndexInfo info,
+    public RsExtractionResult Extract(DisjunctiveNormalized predicate, IndexInfo info,
       RecordSetHeader primaryIdxRecordSetHeader)
     {
       ArgumentValidator.EnsureArgumentNotNull(predicate, "predicate");
-      var result = new CnfParsingResult(info);
+      predicate.Validate();
+      var result = new RsExtractionResult(info);
       foreach (var cnf in predicate.Operands)
         result.AddPart(cnfParser.Parse(cnf, info, primaryIdxRecordSetHeader));
+      return result;
+    }
+
+    public RsExtractionResult Extract(Expression predicate, IndexInfo info,
+      RecordSetHeader primaryIdxRecordSetHeader)
+    {
+      var result = new RsExtractionResult(info);
+      result.AddPart(generalParser.Parse(predicate, info, primaryIdxRecordSetHeader));
       return result;
     }
 
@@ -33,6 +44,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     public RangeSetExtractor(DomainModel domainModel)
     {
       cnfParser = new CnfParser(domainModel);
+      generalParser = new GeneralPredicateParser(domainModel);
     }
   }
 }

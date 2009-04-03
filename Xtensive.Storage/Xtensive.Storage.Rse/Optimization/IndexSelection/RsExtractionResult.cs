@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
   /// Result of extraction a <see cref="RangeSet{T}"/> from a predicate.
   /// </summary>
   [Serializable]
-  internal sealed class CnfParsingResult : IEnumerable<RangeSetInfo>
+  internal sealed class RsExtractionResult : IEnumerable<RangeSetInfo>
   {
     private readonly HashSet<RangeSetInfo> partsOfResult = new HashSet<RangeSetInfo>();
     private LambdaExpression result;
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     // Constructors
 
-    public CnfParsingResult(IndexInfo indexInfo)
+    public RsExtractionResult(IndexInfo indexInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(indexInfo, "indexInfo");
       IndexInfo = indexInfo;

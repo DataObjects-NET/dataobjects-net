@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     private static readonly Dictionary<int, Expression> singleValueCash = new Dictionary<int, Expression>(1);
 
-    public static RangeSetInfo BuildConstructor(TupleFieldInfo originTuple, IndexInfo indexInfo)
+    public static RangeSetInfo BuildConstructor(TupleExpressionInfo originTuple, IndexInfo indexInfo)
     {
       Expression firstEndpoint;
       Expression secondEndpoint;
@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     }
 
     public static RangeSetInfo BuildConstructor(Dictionary<int, Expression> indexKeyValues,
-      TupleFieldInfo originTuple, IndexInfo indexInfo)
+      TupleExpressionInfo originTuple, IndexInfo indexInfo)
     {
       ArgumentValidator.EnsureArgumentIsInRange(indexKeyValues.Count, 2, int.MaxValue, "indexKeyValues.Count");
       Expression firstEndpoint;
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     }
 
     private static RangeSetInfo BuildConstructor(Expression firstEndpoint, Expression secondEndpoint,
-      ComparisonOperation comparisonOperation, TupleFieldInfo origin)
+      ComparisonOperation comparisonOperation, TupleExpressionInfo origin)
     {
       NewExpression rangeConstruction = Expression.New(rangeContructor, firstEndpoint, secondEndpoint);
       //TODO:A comparer from index must be passed here.
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       return result;
     }
 
-    public static RangeSetInfo BuildFullRangeSetConstructor(TupleFieldInfo origin)
+    public static RangeSetInfo BuildFullRangeSetConstructor(TupleExpressionInfo origin)
     {
       return new RangeSetInfo(
         //TODO:A comparer from index must be passed here.
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
         fullOrEmptyMethod, booleanExp, Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)), null);
     }
 
-    private static RangeSetInfo BuildInvert(RangeSetInfo target)
+    public static RangeSetInfo BuildInvert(RangeSetInfo target)
     {
       var invertionResult = Expression.Call(target.Source, invertMethod);
       target.Invert(invertionResult);
@@ -177,7 +177,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       return result;
     }
 
-    private static RangeSetInfo CreateNotFullExpression(Expression source, TupleFieldInfo origin)
+    private static RangeSetInfo CreateNotFullExpression(Expression source, TupleExpressionInfo origin)
     {
       return new RangeSetInfo(source, origin, false);
     }
