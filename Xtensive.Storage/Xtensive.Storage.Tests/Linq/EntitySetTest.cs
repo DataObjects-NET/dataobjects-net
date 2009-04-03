@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void CountTest()
     {
       var expected = Query<Order>.All.Count();
-      var count = Query<Customer>.All.Sum(c => c.Orders.Count);
+      var count = Query<Customer>.All.Select(c => c.Orders.Count).AsEnumerable().Sum();
       Assert.AreEqual(expected, count);
     }
 
@@ -45,6 +45,14 @@ namespace Xtensive.Storage.Tests.Linq
       var bestOrder = Query<Order>.All.OrderBy(o => o.Freight).First();
       var result = Query<Customer>.All.Where(c => c.Orders.Contains(bestOrder));
       Assert.AreEqual("LACOR", result.ToList().Single().Id);
+    }
+
+    [Test]
+    public void OuterEntitySetTest()
+    {
+      var customer = Query<Customer>.All.Where(c => c.Id=="LACOR").First();
+      var result = Query<Order>.All.Where(o => customer.Orders.Contains(o));
+      Assert.AreEqual(customer.Orders.Count, result.ToList().Count);
     }
   }
 }
