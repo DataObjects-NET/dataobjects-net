@@ -96,9 +96,6 @@ namespace Xtensive.Indexing
 
     // Constructor
 
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
     public TupleEntireComparer(IComparerProvider provider, ComparisonRules comparisonRules)
       : base(provider, comparisonRules)
     {
