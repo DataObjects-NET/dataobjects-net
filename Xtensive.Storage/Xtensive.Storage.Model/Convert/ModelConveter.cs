@@ -13,6 +13,7 @@ using Xtensive.Storage.Indexing.Model;
 using StorageColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
 using StorageTypeInfo = Xtensive.Storage.Indexing.Model.TypeInfo;
 using StorageIndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
+using StorageReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
 
 namespace Xtensive.Storage.Model.Convert
 {
@@ -20,7 +21,7 @@ namespace Xtensive.Storage.Model.Convert
   /// Converts <see cref="DomainModel"/> to indexing storage model.
   /// </summary>
   [Serializable]
-  public class ModelConverter: ModelVisitor<IPathNode>
+  public class ModelConverter : ModelVisitor<IPathNode>
   {
     /// <summary>
     /// Gets the storage info.
@@ -45,13 +46,26 @@ namespace Xtensive.Storage.Model.Convert
     }
 
     /// <inheritdoc/>
+    protected override IPathNode Visit(Node node)
+    {
+      var indexInfo = node as IndexInfo;
+      if (indexInfo != null && indexInfo.IsPrimary)
+        return VisitPrimaryIndexInfo(indexInfo);
+
+      return base.Visit(node);
+    }
+
+    /// <inheritdoc/>
     protected override IPathNode VisitDomainModel(DomainModel domainModel)
     {
       foreach (var primaryIndex in domainModel.RealIndexes.Where(i => i.IsPrimary))
-        VisitPrimaryIndex(primaryIndex);
+        Visit(primaryIndex);
 
       foreach (var indexInfo in domainModel.RealIndexes.Where(i => !i.IsPrimary))
         Visit(indexInfo);
+
+      foreach (var association in domainModel.Associations)
+        Visit(association);
 
       return StorageInfo;
     }
@@ -67,13 +81,55 @@ namespace Xtensive.Storage.Model.Convert
       CreateIndexColumnRefs(index, secondaryIndex);
       return secondaryIndex;
     }
-    
+
     /// <inheritdoc/>
     protected override IPathNode VisitColumnInfo(ColumnInfo column)
     {
       var table = StorageInfo.Tables[column.Field.ReflectedType.MappingName];
+      // ToDo: Complete type building.
       var type = new StorageTypeInfo(column.ValueType);
       return new StorageColumnInfo(table, column.Name, type);
+    }
+
+    /// <inheritdoc/>
+    protected override IPathNode VisitAssociationInfo(AssociationInfo association)
+    {
+      if (!association.IsMaster)
+        return null;
+
+      var referencedTable = StorageInfo.Tables[association.ReferencedType.MappingName];
+      TableInfo referencingTable;
+      StorageIndexInfo referencingIndex;
+
+      if (association.UnderlyingType==null) {
+        referencingTable = StorageInfo.Tables[association.ReferencingType.MappingName];
+        referencingIndex = FindIndex(referencingTable,
+          new List<string>(association.ReferencingField.ExtractColumns().Select(ci => ci.Name)));
+        var foreignKeyName = referencingIndex.Name; // ToDo: Build correct foreign key name.
+        return new ForeignKeyInfo(referencingTable, foreignKeyName)
+          {
+            ReferencingIndex = referencingIndex,
+            ReferencedIndex = referencedTable.PrimaryIndex,
+            OnRemoveAction = ConvertReferentialAction(association.OnRemove),
+            OnUpdateAction = StorageReferentialAction.Default
+          };
+      }
+
+      ForeignKeyInfo foreignKey = null;
+      foreach (var field in association.UnderlyingType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
+        referencingTable = StorageInfo.Tables[association.UnderlyingType.MappingName];
+        referencingIndex = FindIndex(referencingTable,
+          new List<string>(field.ExtractColumns().Select(ci => ci.Name)));
+        var foreignKeyName = referencingIndex.Name; // ToDo: Build correct foreign key name.
+        foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName)
+          {
+            ReferencingIndex = referencingIndex,
+            ReferencedIndex = referencedTable.PrimaryIndex,
+            OnRemoveAction = ConvertReferentialAction(association.OnRemove),
+            OnUpdateAction = StorageReferentialAction.Default
+          };
+      }
+      return foreignKey;
     }
 
     /// <summary>
@@ -81,7 +137,7 @@ namespace Xtensive.Storage.Model.Convert
     /// </summary>
     /// <param name="index">The index.</param>
     /// <returns>Visit result.</returns>
-    protected virtual IPathNode VisitPrimaryIndex(IndexInfo index)
+    protected virtual IPathNode VisitPrimaryIndexInfo(IndexInfo index)
     {
       var table = new TableInfo(StorageInfo, index.ReflectedType.MappingName);
       foreach (var column in index.Columns)
@@ -109,6 +165,45 @@ namespace Xtensive.Storage.Model.Convert
           storageIndex.ValueColumns.Count);
     }
 
+    /// <summary>
+    /// Finds the specific index by key columns.
+    /// </summary>
+    /// <param name="table">The table.</param>
+    /// <param name="keyColumns">The key columns.</param>
+    /// <returns>The index.</returns>
+    protected virtual StorageIndexInfo FindIndex(TableInfo table, List<string> keyColumns)
+    {
+      foreach (SecondaryIndexInfo index in table.SecondaryIndexes) {
+        var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value.Name);
+        if (secondaryKeyColumns.Except(keyColumns).Count()==0)
+          return index;
+      }
+      return null;
+    }
+
+    /// <summary>
+    /// Converts the <see cref="Xtensive.Storage.Model.ReferentialAction"/> to 
+    /// <see cref="Xtensive.Storage.Indexing.Model.ReferentialAction"/>.
+    /// </summary>
+    /// <param name="toConvert">The action to convert.</param>
+    /// <returns>Converted action.</returns>
+    protected virtual StorageReferentialAction ConvertReferentialAction(ReferentialAction toConvert)
+    {
+      switch (toConvert) {
+      case ReferentialAction.Restrict:
+        return StorageReferentialAction.Restrict;
+      case ReferentialAction.NoAction:
+        return StorageReferentialAction.None;
+      case ReferentialAction.Cascade:
+        return StorageReferentialAction.Cascade;
+      case ReferentialAction.Clear:
+        return StorageReferentialAction.Clear;
+      default:
+        return StorageReferentialAction.Default;
+      }
+    }
+
+
     #region Not supported
 
     /// <inheritdoc/>
@@ -117,42 +212,35 @@ namespace Xtensive.Storage.Model.Convert
     {
       throw new NotSupportedException();
     }
-    
+
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitFieldInfo(FieldInfo field)
     {
       throw new NotSupportedException();
     }
-    
+
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitKeyInfo(KeyInfo key)
     {
       throw new NotSupportedException();
     }
-    
+
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitHierarchyInfo(HierarchyInfo hierarchy)
     {
       throw new NotSupportedException();
     }
-    
+
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitTypeInfo(TypeInfo type)
     {
       throw new NotSupportedException();
     }
-    
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitAssociationInfo(AssociationInfo association)
-    {
-      throw new NotSupportedException();
-    }
-    
+
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitGeneratorInfo(GeneratorInfo generator)

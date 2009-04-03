@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Indexing.Model.Convert
       var referencingColumns = new List<ColumnInfo>();
       foreach (var refColumn in key.Columns)
         referencingColumns.Add(referencingTable.Columns[refColumn.Name]);
-
+      
       foreignKeyInfo.ReferencingIndex = FindIndex(referencingTable, referencingColumns);
       foreignKeyInfo.ReferencedIndex = referencedTable.PrimaryIndex;
 
@@ -148,16 +148,14 @@ namespace Xtensive.Storage.Indexing.Model.Convert
           IsUnique = index.IsUnique
         };
 
-      foreach (var keyColumn in index.Columns)
-      {
+      foreach (var keyColumn in index.Columns) {
         var columnInfo = tableInfo.Columns[keyColumn.Column.Name];
         new KeyColumnRef(secondaryIndexInfo,
           columnInfo, secondaryIndexInfo.KeyColumns.Count,
           keyColumn.Ascending ? Direction.Positive : Direction.Negative);
       }
 
-      foreach (var valueColumn in index.NonkeyColumns)
-      {
+      foreach (var valueColumn in index.NonkeyColumns) {
         var columnInfo = tableInfo.Columns[valueColumn.Name];
         new ValueColumnRef(secondaryIndexInfo, columnInfo,
           secondaryIndexInfo.ValueColumns.Count);
@@ -165,7 +163,7 @@ namespace Xtensive.Storage.Indexing.Model.Convert
 
       return secondaryIndexInfo;
     }
-    
+
     /// <summary>
     /// Extracts the <see cref="TypeInfo"/> from <see cref="TableColumn"/>.
     /// </summary>
@@ -187,8 +185,7 @@ namespace Xtensive.Storage.Indexing.Model.Convert
     /// <returns>Converted action.</returns>
     protected virtual ReferentialAction ConvertReferentialAction(SqlRefAction toConvert)
     {
-      switch (toConvert)
-      {
+      switch (toConvert) {
       case SqlRefAction.NoAction:
         return ReferentialAction.None;
       case SqlRefAction.Restrict:
@@ -222,10 +219,9 @@ namespace Xtensive.Storage.Indexing.Model.Convert
     /// <returns>The index.</returns>
     protected virtual IndexInfo FindIndex(TableInfo table, List<ColumnInfo> keyColumns)
     {
-      foreach (SecondaryIndexInfo index in table.SecondaryIndexes)
-      {
+      foreach (SecondaryIndexInfo index in table.SecondaryIndexes) {
         var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value);
-        if (secondaryKeyColumns.Except(keyColumns).Count() == 0)
+        if (secondaryKeyColumns.Except(keyColumns).Count()==0)
           return index;
       }
 

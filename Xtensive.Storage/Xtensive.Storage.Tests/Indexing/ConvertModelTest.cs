@@ -13,6 +13,7 @@ using Xtensive.Sql.Dom.Database.Providers;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Indexing.Model.Convert;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Storage.Tests;
 using Xtensive.Storage;
@@ -50,10 +51,9 @@ namespace Xtensive.Indexing.Tests.Storage
         sqlModel = new SqlModelProvider(connection).Build();
         domainModel = domain.Model;
 
-        // storage = new SqlModelConverter().Convert(
-        //  sqlModel.DefaultServer.DefaultCatalog.DefaultSchema, server);
-
-        storage = new ModelConverter().Convert(domainModel, "dbo");
+        storage = new SqlModelConverter().Convert(sqlModel.DefaultServer.DefaultCatalog.DefaultSchema, server);
+        //storage = new ModelConverter().Convert(domainModel, "dbo");
+        
         storage.Dump();
 
         return domain;
@@ -127,7 +127,7 @@ namespace Xtensive.Indexing.Tests.Storage
   }
 
   [HierarchyRoot("Id")]
-  [Index("Col1")]
+  [Index("ColA", MappingName = "A_IX")]
   public class B : Entity
   {
     [Field]
@@ -148,6 +148,26 @@ namespace Xtensive.Indexing.Tests.Storage
 
     [Field]
     public TimeSpan Col1 { get; private set; }
+  }
+
+  [HierarchyRoot("Id")]
+  public class D : Entity
+  {
+    [Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public EntitySet<E> ColE { get; private set; }
+  }
+
+  [HierarchyRoot("Id")]
+  public class E : Entity
+  {
+    [Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public D ColD { get; private set; }
   }
 
   #endregion
