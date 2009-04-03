@@ -613,6 +613,7 @@ namespace Xtensive.Storage.Linq
 //        var expression = VisitBinary((BinaryExpression)MakeBinaryExpression(null, left, right, binaryExpression.NodeType));
 //        result = result == null ? expression : Expression.AndAlso(result, expression);
 //      }
+      throw new NotImplementedException();
       return null;
     }
 
