@@ -96,6 +96,20 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void StructureAllTest()
+    {
+      var result = Query<Customer>.All.Where(c => c.Orders.All(o => o.ShippingAddress.City==c.Address.City));
+      result.ToList();
+    }
+
+    [Test]
+    public void StructureAnyTest()
+    {
+      var result = Query<Customer>.All.Where(c => c.Orders.Any(o => o.ShippingAddress.City == c.Address.City));
+      result.ToList();
+    }
+
+    [Test]
     public void AllAndNotAllTest()
     {
       var result =
