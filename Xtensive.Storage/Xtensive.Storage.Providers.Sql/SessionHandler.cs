@@ -5,6 +5,7 @@
 // Created:    2008.05.20
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -151,18 +152,21 @@ namespace Xtensive.Storage.Providers.Sql
       request.BindParameters(state.Tuple);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
-        throw new InvalidOperationException(String.Format(Strings.ExErrorOnInsert, state.Type.Name, rowsAffected, request.ExpectedResult));
+        throw new InvalidOperationException(
+          string.Format(Strings.ExErrorOnInsert, state.Type.Name, rowsAffected, request.ExpectedResult));
     }
 
     /// <inheritdoc/>
     protected override void Update(EntityState state)
     {
-      var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Update, state.Type, state.Tuple.Difference.GetFieldStateMap(TupleFieldState.IsAvailable));
+      var fieldStateMap = state.Tuple.Difference.GetFieldStateMap(TupleFieldState.IsAvailable);
+      var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Update, state.Type, fieldStateMap);
       var request = DomainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
       request.BindParameters(state.Tuple);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
-        throw new InvalidOperationException(String.Format(Strings.ExErrorOnUpdate, state.Type.Name, rowsAffected, request.ExpectedResult));
+        throw new InvalidOperationException(
+          string.Format(Strings.ExErrorOnUpdate, state.Type.Name, rowsAffected, request.ExpectedResult));
     }
 
     /// <inheritdoc/>
@@ -173,10 +177,10 @@ namespace Xtensive.Storage.Providers.Sql
       request.BindParameters(state.Key.Value);
       int rowsAffected = ExecuteNonQuery(request);
       if (rowsAffected!=request.ExpectedResult)
-        if (rowsAffected==0)
-          throw new InvalidOperationException(String.Format(Strings.ExInstanceNotFound, state.Key.EntityType.Name));
-        else
-          throw new InvalidOperationException(String.Format(Strings.ExInstanceMultipleResults, state.Key.EntityType.Name));
+        throw new InvalidOperationException(
+          string.Format(
+            rowsAffected==0 ? Strings.ExInstanceNotFound : Strings.ExInstanceMultipleResults,
+            state.Key.EntityType.Name));
     }
 
     public void EnsureConnectionIsOpen()

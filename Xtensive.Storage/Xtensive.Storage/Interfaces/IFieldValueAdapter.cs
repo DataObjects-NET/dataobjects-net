@@ -9,8 +9,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// An object exposing (i.e. providing access to) 
-  /// field value in custom fashion.
+  /// An object exposing (i.e. providing access to) field value in custom fashion.
   /// </summary>
   public interface IFieldValueAdapter
   {

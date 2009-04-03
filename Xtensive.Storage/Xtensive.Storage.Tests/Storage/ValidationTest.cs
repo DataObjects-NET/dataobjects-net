@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.Validation");
+      config.Types.Register(Assembly.GetExecutingAssembly(), typeof(Mouse).Namespace);
       return config;
     }
 
@@ -191,10 +191,10 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
               mouse.Led.Brightness = 2.3;
               transactionScope.Complete();
-              });
+            });
         }
           
-        // Changed structure made entity invalid.
+        // Changed structure make entity invalid.
         using (var transactionScope = Transaction.Open()) {
           AssertEx.Throws<AggregateException>(
             delegate {
@@ -226,6 +226,5 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           });
       }
     }
-
   }
 }

@@ -4,9 +4,11 @@
 // Created by: 
 // Created:    2008.05.28
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.StructureModel;
@@ -76,7 +78,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void PointTest()
     {
       using (Domain.OpenSession()) {
-          Point p1 = new Point();
+        Point p1 = new Point();
         p1.X = 1;
         p1.Y = 2;
         Assert.AreEqual(1, p1.X);
@@ -89,15 +91,15 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
-    [Test ]
-    public void TransactionalTest()
+    [Test]
+    public void   TransactionalTest()
     {
       using (Domain.OpenSession()) {
         Ray ray;
         using (var transactionScope = Transaction.Open()) {
-          ray = new Ray {Vertex = new Point {X = 1, Y = 2}};
+          ray = new Ray { Vertex = new Point {X = 1, Y = 2}};
           transactionScope.Complete();
-        }
+        }        
         using (var transactionScope = Transaction.Open()) {
           ray.Vertex.X = 3;
           transactionScope.Complete();
@@ -106,7 +108,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(3, ray.Vertex.X);
         }
       }
-    }
+    } 
 
     [Test]
     public void RayTest()

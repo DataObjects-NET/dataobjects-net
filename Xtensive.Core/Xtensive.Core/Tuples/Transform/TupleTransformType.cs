@@ -19,8 +19,7 @@ namespace Xtensive.Core.Tuples.Transform
     /// </summary>
     Default = Auto,
     /// <summary>
-    /// Transform type is detected automatically based on
-    /// sources.
+    /// Transform type is detected automatically based on sources.
     /// </summary>
     Auto = 0,
     /// <summary>

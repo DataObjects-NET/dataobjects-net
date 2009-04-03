@@ -47,6 +47,15 @@ namespace Xtensive.Storage
       get { return owner; }
     }
 
+    [Infrastructure]
+    private bool IsBoundToEntity
+    {      
+      get {
+        return (owner!=null) && 
+          ((owner is Entity) || ((Structure) owner).IsBoundToEntity);
+      }
+    }
+
     /// <inheritdoc/>
     [Infrastructure]
     FieldInfo IFieldValueAdapter.Field {
@@ -62,7 +71,7 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/> 
     protected internal override bool SkipValidation {
-      get { return owner==null; }
+      get { return !IsBoundToEntity; }
     }
 
     internal override sealed void EnsureIsFetched(FieldInfo field)
@@ -83,7 +92,7 @@ namespace Xtensive.Storage
     internal sealed override void OnInitialize(bool notify)
     {
       base.OnInitialize();
-      if (owner!=null)
+      if (!SkipValidation)
         this.Validate();
     }
 
@@ -173,7 +182,8 @@ namespace Xtensive.Storage
       if (owner == null || field == null)
         tuple = type.TuplePrototype.Clone();
       else
-        tuple = field.ExtractValue(owner.Tuple);
+        tuple = field.ExtractValue(
+          new ReferencedTuple(() => owner.Tuple));
       OnInitializing(notify);
     }
   }
