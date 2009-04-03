@@ -14,25 +14,28 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
-  internal class Grouping<TKey, TElement> : 
+  internal class Grouping<TKey, TElement> :
     IGrouping<TKey, TElement>
   {
     private readonly TKey key;
-    private readonly IQueryable<TElement> queryable;
+    private readonly ResultExpression resultExpression;
+    private readonly Parameter<Tuple> tupleParameter;
+    private readonly Tuple keyTuple;
 
     public TKey Key
     {
       get { return key; }
     }
 
-    public IQueryable<TElement> Queryable
-    {
-      get { return queryable; }
-    }
-
     public IEnumerator<TElement> GetEnumerator()
     {
-      return queryable.GetEnumerator();
+      IEnumerable result;
+      using (new ParameterScope()) {
+        tupleParameter.Value = keyTuple;
+        result = (IEnumerable) resultExpression.Projector.Compile().Invoke(resultExpression.RecordSet);
+        foreach (object element in result)
+          yield return (TElement)element;
+      }
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -40,9 +43,11 @@ namespace Xtensive.Storage.Linq
       return GetEnumerator();
     }
 
-    public Grouping(TKey key, IQueryable<TElement> queryable, ResultExpression resultExpression, Parameter<Tuple> tupleParameter)
+    public Grouping(TKey key, Tuple keyTuple, ResultExpression resultExpression, Parameter<Tuple> tupleParameter)
     {
-      this.queryable = queryable;
+      this.resultExpression = resultExpression;
+      this.tupleParameter = tupleParameter;
+      this.keyTuple = keyTuple;
       this.key = key;
     }
   }

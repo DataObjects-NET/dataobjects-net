@@ -31,6 +31,8 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
     [Field(Length = 15)]
     public string Country { get; set; }
+
+    public string JustAProperty { get; set; }
   }
 
   public abstract class Person : Entity
