@@ -204,6 +204,14 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void GroupBySelectManyTest2()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.Customer).SelectMany(g => g);
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
+
+    [Test]
     public void GroupBySumTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer.Id).Select(g => g.Sum(o => o.Freight));

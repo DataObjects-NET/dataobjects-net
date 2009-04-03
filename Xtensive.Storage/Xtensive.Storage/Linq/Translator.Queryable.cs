@@ -416,9 +416,6 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitGroupBy(MethodInfo method, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
     {
-      if (elementSelector!=null)
-        throw new NotImplementedException();
-
       if (resultSelector != null)
         throw new NotImplementedException();
 
@@ -454,8 +451,6 @@ namespace Xtensive.Storage.Linq
       Type[] groupingArguments = resultGroupingType.GetGenericArguments();
       var keyType = groupingArguments[0];
       var elementType = groupingArguments[1];
-      var parameterGroupingType = typeof (Grouping<,>).MakeGenericType(keyType, elementType);
-      var constructor = parameterGroupingType.GetConstructor(new[] {keyType, typeof (IQueryable<>).MakeGenericType(elementType), typeof (object), typeof (object)});
 
       // Remap 
       var tupleAccessProcessor = new TupleAccessProcessor();
@@ -466,72 +461,58 @@ namespace Xtensive.Storage.Linq
         .ToList();
       var remappedExpression = (LambdaExpression) tupleAccessProcessor.ReplaceMappings(originalCompiledKeyExpression, columnList, groupMapping, recordSet.Header);
 
-      // record => new Grouping<TKey, TElement>(record.Key, source.Where(groupingItem => groupingItem.Key == record.Key))
-      var pRecord = Expression.Parameter(typeof (Record), "record");
-      var pTuple = Expression.Parameter(typeof (Tuple), "tuple");
-      var parameterRewriter = new ParameterRewriter(pTuple, pRecord);
-      var recordKeyExpression = parameterRewriter.Rewrite(remappedExpression.Body);
+      LambdaExpression itemProjector;
+      if (elementSelector==null) {
+        // record => new Grouping<TKey, TElement>(record.Key, source.Where(groupingItem => groupingItem.Key == record.Key))
+        var parameterGroupingType = typeof(Grouping<,>).MakeGenericType(keyType, elementType);
+        var constructor = parameterGroupingType.GetConstructor(new[] { keyType, typeof(IQueryable<>).MakeGenericType(elementType), typeof(ResultExpression), typeof(Parameter<Tuple>) });
 
-      Expression leftKeySelector = keySelector.Body;
-      Expression rightKeySelector = recordKeyExpression.First;
-      Expression groupingKeyResolver = rightKeySelector;
+        var pRecord = Expression.Parameter(typeof(Record), "record");
+        var pTuple = Expression.Parameter(typeof(Tuple), "tuple");
+        var parameterRewriter = new ParameterRewriter(pTuple, pRecord);
+        var recordKeyExpression = parameterRewriter.Rewrite(remappedExpression.Body);
 
-//      context.SubqueryParameterBindings.Bind(pTuple, new Parameter<Tuple>())
+        Expression leftKeySelector = keySelector.Body;
+        Expression rightKeySelector = recordKeyExpression.First;
+        Expression groupingKeyResolver = rightKeySelector;
 
-      var predicateExpression = Expression.Lambda(Expression.Equal(leftKeySelector, rightKeySelector), keySelector.Parameters.ToArray());
+        var predicateExpression = Expression.Lambda(Expression.Equal(leftKeySelector, rightKeySelector), keySelector.Parameters.ToArray());
+        var callMehtod = WellKnownMethods.QueryableWhere.MakeGenericMethod(elementType);
+        var queryExpression = Expression.Call(callMehtod, source, predicateExpression);
 
+        var tupleParameter = new Parameter<Tuple>("groupingParameter");
+        var parameterValueMemberInfo = WellKnownMethods.ParameterOfTupleValue;
+        var filterTuple = Expression.Parameter(typeof(Tuple), "t");
+        Expression filterBody = null;
+        for (int i = 0; i < columnList.Count; i++)
+        {
+          var columnIndex = columnList[i];
+          var columnType = result.RecordSet.Header.Columns[columnIndex].Type;
+          var tupleAccessMethod = WellKnownMethods.TupleGenericAccessor.MakeGenericMethod(columnType);
+          var leftExpression = Expression.Call(filterTuple, tupleAccessMethod, Expression.Constant(columnIndex));
+          var rightExpression = Expression.Call(Expression.MakeMemberAccess(Expression.Constant(tupleParameter), parameterValueMemberInfo), tupleAccessMethod, Expression.Constant(i));
+          var equalsExpression = Expression.Equal(leftExpression, rightExpression);
+          filterBody = filterBody == null
+            ? equalsExpression
+            : Expression.AndAlso(filterBody, equalsExpression);
+        }
 
-      var callMehtod = WellKnownMethods.QueryableWhere.MakeGenericMethod(elementType);
+        var filterPredicate = Expression.Lambda(filterBody, filterTuple);
+        var groupingRs = result.RecordSet.Filter((Expression<Func<Tuple, bool>>)filterPredicate);
 
-      var queryExpression = Expression.Call(callMehtod, source, predicateExpression);
+        var groupingResultExpression = new ResultExpression(result.Type, groupingRs, result.Mapping, result.Projector, result.ItemProjector);
 
-//      var ex = Expression.Lambda(predicateExpression.Body, recordKeyExpression.Second
-//        ? new[] {predicateExpression.Parameters[0], pTuple, pRecord}
-//        : new[] {predicateExpression.Parameters[0], pTuple});
+        var projectorBody = Expression.New(constructor, groupingKeyResolver, queryExpression, Expression.Constant(groupingResultExpression), Expression.Constant(tupleParameter));
 
-
-      // t => t.GVD(1) == paramRExpr.GetV(0)
-      var tupleParameter = new Parameter<Tuple>("groupingParameter");
-      var parameterValueMemberInfo = WellKnownMethods.ParameterOfTupleValue;
-      var filterTuple = Expression.Parameter(typeof (Tuple), "t");
-      Expression filterBody = null;
-      for (int i = 0; i < columnList.Count; i++) {
-        var columnIndex = columnList[i];
-        var columnType = result.RecordSet.Header.Columns[columnIndex].Type;
-        var tupleAccessMethod = WellKnownMethods.TupleGenericAccessor.MakeGenericMethod(columnType);
-        var leftExpression = Expression.Call(filterTuple, tupleAccessMethod, Expression.Constant(columnIndex));
-        var rightExpression = Expression.Call(Expression.MakeMemberAccess(Expression.Constant(tupleParameter), parameterValueMemberInfo), tupleAccessMethod, Expression.Constant(i));
-        var equalsExpression = Expression.Equal(leftExpression, rightExpression);
-        filterBody = filterBody==null
-          ? equalsExpression
-          : Expression.AndAlso(filterBody, equalsExpression);
+        itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
+          ? new[] { pTuple, pRecord }
+          : new[] { pTuple });
+      }
+      else {
+        throw new NotImplementedException();
+        itemProjector = null;
       }
 
-      var filterPredicate = Expression.Lambda(filterBody, filterTuple);
-      var groupingRs = result.RecordSet.Filter((Expression<Func<Tuple, bool>>) filterPredicate);
-
-      var groupingResultExpression = new ResultExpression(result.Type, groupingRs, result.Mapping, result.Projector, result.ItemProjector);
-
-      var projectorBody = Expression.New(constructor, groupingKeyResolver, queryExpression, Expression.Constant(groupingResultExpression), Expression.Constant(tupleParameter));
-
-      var itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
-        ? new[] {pTuple, pRecord}
-        : new[] {pTuple});
-
-      //      using (context.Bindings.Add(ex.Parameters[0], result)) {
-//        var ex2 = Visit(ex);
-//      }
-
-//      var x = Visit(queryExpression);
-//      using (context.Bindings.Add(pTuple, result))
-//      using (context.Bindings.Add(pRecord, result))
-//      {
-//        using (new ParameterScope()) {
-//          parameters.Value = new[] { pTuple, pRecord };
-//          resultMapping.Value = new ResultMapping();
-//          var v = Visit(queryExpression);
-//        }
-//      }
 
       var rs = Expression.Parameter(typeof (RecordSet), "rs");
       Expression<Func<RecordSet, object>> projector;

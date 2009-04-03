@@ -33,6 +33,13 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void MultipleConditionTest()
+    {
+      var customers = Query<Customer>.All.Select(c=>c.CompanyName).Where(cn => cn.StartsWith("A") || cn.StartsWith("B"));
+      var list = customers.ToList();
+    }
+
+    [Test]
     public void AnonymousTest()
     {
       Customer first = Query<Customer>.All.First();
@@ -687,6 +694,7 @@ namespace Xtensive.Storage.Tests.Linq
       var customer = customers.Where(c => c.Address.City.CompareTo("Seattle")==0).First();
       Assert.IsNotNull(customer);
     }
+
 
     [Test]
     public void StringCompareToNETest()

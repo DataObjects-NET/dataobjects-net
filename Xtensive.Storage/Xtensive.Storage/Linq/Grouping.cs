@@ -8,6 +8,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Parameters;
+using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Linq
 {
@@ -38,7 +40,7 @@ namespace Xtensive.Storage.Linq
       return GetEnumerator();
     }
 
-    public Grouping(TKey key, IQueryable<TElement> queryable, object resultExpression, object tupleParameter)
+    public Grouping(TKey key, IQueryable<TElement> queryable, ResultExpression resultExpression, Parameter<Tuple> tupleParameter)
     {
       this.queryable = queryable;
       this.key = key;
