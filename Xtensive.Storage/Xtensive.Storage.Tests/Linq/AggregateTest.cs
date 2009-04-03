@@ -5,6 +5,7 @@
 // Created:    2009.02.04
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
@@ -135,6 +136,32 @@ namespace Xtensive.Storage.Tests.Linq
       var expected = Query<Order>.All.Count();
       var count = Query<Customer>.All.Sum(c => Query<Order>.All.Count(o => o.Customer == c));
       Assert.AreEqual(expected, count);
+    }
+
+    [Test]
+    public void SumMinTest()
+    {
+      var localCustomers = FetchEntities<Customer>().Where(c => c.Orders.Count > 0);
+      var localOrders = FetchEntities<Order>();
+      var customers = Query<Customer>.All.Where(c => c.Orders.Count > 0);
+      var orders = Query<Order>.All;
+
+      var expected = localCustomers.Sum(c => localOrders.Where(o => o.Customer==c).Min(o => o.Freight));
+      var result = customers.Sum(c => orders.Where(o => o.Customer==c).Min(o => o.Freight));
+      Assert.AreEqual(expected, result);
+    }
+
+    [Test]
+    public void MaxCountTest()
+    {
+      var localOrders = Query<Order>.All.ToList();
+      var localCustomers = Query<Customer>.All.ToList();
+      var customers = Query<Customer>.All;
+      var orders = Query<Order>.All;
+
+      var expected = localCustomers.Max(c => localOrders.Count(o => o.Customer == c));
+      var result = customers.Max(c => orders.Count(o => o.Customer == c));
+      Assert.AreEqual(expected, result);
     }
   }
 }

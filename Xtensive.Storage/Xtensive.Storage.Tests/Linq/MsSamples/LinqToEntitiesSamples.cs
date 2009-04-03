@@ -12,22 +12,6 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 {
   public class LinqToEntitiesSamples : NorthwindDOModelTest
   {
-    private DisposableSet disposables;
-
-    [SetUp]
-    public void Setup()
-    {
-      disposables = new DisposableSet();
-      disposables.Add(Domain.OpenSession());
-      disposables.Add(Transaction.Open());
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-      disposables.DisposeSafely();
-    }
-
     #region Restriction Operators
 
     [Category("Restriction Operators")]

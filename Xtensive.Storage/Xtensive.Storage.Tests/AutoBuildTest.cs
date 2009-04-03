@@ -4,6 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.31
 
+using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Storage.Configuration;
@@ -63,6 +65,11 @@ namespace Xtensive.Storage.Tests
     protected virtual Domain BuildDomain(DomainConfiguration configuration)
     {
       return Domain.Build(configuration);
+    }
+
+    protected List<T> FetchEntities<T>() where T : Entity
+    {
+      return Domain.Model.Types[typeof(T)].Indexes.PrimaryIndex.ToRecordSet().ToEntities<T>().ToList();
     }
   }
 }

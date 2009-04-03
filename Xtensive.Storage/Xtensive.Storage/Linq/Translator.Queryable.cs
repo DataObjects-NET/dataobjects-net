@@ -386,6 +386,7 @@ namespace Xtensive.Storage.Linq
             Visit(argument);
             columnList = resultMapping.Value.GetColumns().ToList();
             innerResult = context.Bindings[argument.Parameters[0]];
+            //columnList = innerResult.Mapping.GetColumns().ToList();
           }
         }
 
@@ -394,8 +395,8 @@ namespace Xtensive.Storage.Linq
         aggregateColumn = columnList[0];
       }
 
-      var innerRecordSet = innerResult.RecordSet.Aggregate(null,
-        new AggregateColumnDescriptor(context.GetNextColumnAlias(), aggregateColumn, aggregateType));
+      var innerRecordSet = innerResult.RecordSet
+        .Aggregate(null, new AggregateColumnDescriptor(context.GetNextColumnAlias(), aggregateColumn, aggregateType));
 
       if (!isRoot) {
         var expression = ApplyOneColumnSubquery(source, innerRecordSet);
@@ -805,6 +806,7 @@ namespace Xtensive.Storage.Linq
       var newMapping = new ResultMapping();
       newMapping.Replace(oldResult.Mapping);
       newMapping.RegisterFieldMapping(column.Name, new Segment<int>(columnIndex, 1));
+      resultMapping.Value.RegisterFieldMapping(column.Name, new Segment<int>(columnIndex, 1));
       var newRecordSet = oldResult.RecordSet.Apply(applyParameter, subquery);
       var newResult = new ResultExpression(
         oldResult.Type, newRecordSet, newMapping, oldResult.Projector, oldResult.ItemProjector);

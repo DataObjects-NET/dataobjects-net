@@ -16,22 +16,6 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 {
   public class LinqToSqlSamples : NorthwindDOModelTest
   {
-    private DisposableSet disposables;
-
-    [SetUp]
-    public void Setup()
-    {
-      disposables = new DisposableSet();
-      disposables.Add(Domain.OpenSession());
-      disposables.Add(Transaction.Open());
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-      disposables.DisposeSafely();
-    }
-
     [Category("WHERE")]
     [Test(Description = "Where - 1")]
     [Description("This sample uses WHERE to filter for Customers in London.")]
