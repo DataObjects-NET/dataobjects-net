@@ -398,7 +398,7 @@ namespace Xtensive.Storage.Linq
         new AggregateColumnDescriptor(context.GetNextColumnAlias(), aggregateColumn, aggregateType));
 
       if (!isRoot) {
-        var expression = ApplyOneColumnSubquery(innerRecordSet);
+        var expression = ApplyOneColumnSubquery(source, innerRecordSet);
         if (isIntCount)
           expression = Expression.Convert(expression, typeof (int));
         return expression;
@@ -449,7 +449,7 @@ namespace Xtensive.Storage.Linq
       var keyType = groupingArguments[0];
       var elementType = groupingArguments[1];
       var parameterGroupingType = typeof (Grouping<,>).MakeGenericType(keyType, elementType);
-      var constructor = parameterGroupingType.GetConstructor(new[] {keyType, typeof (IQueryable<>).MakeGenericType(elementType), typeof(object)});
+      var constructor = parameterGroupingType.GetConstructor(new[] {keyType, typeof (IQueryable<>).MakeGenericType(elementType), typeof (object), typeof (object)});
 
       // Remap 
       var tupleAccessProcessor = new TupleAccessProcessor();
@@ -485,9 +485,8 @@ namespace Xtensive.Storage.Linq
 
 
       // t => t.GVD(1) == paramRExpr.GetV(0)
-      var tupleParameter = new Parameter<Tuple>();
-      Expression<Func<Tuple>> ssss = () => tupleParameter.Value;
-      var parameterValueMemberInfo = ((MemberExpression)ssss.Body).Member;
+      var tupleParameter = new Parameter<Tuple>("groupingParameter");
+      var parameterValueMemberInfo = WellKnownMethods.ParameterOfTupleValue;
       var filterTuple = Expression.Parameter(typeof (Tuple), "t");
       Expression filterBody = null;
       for (int i = 0; i < columnList.Count; i++) {
@@ -496,9 +495,9 @@ namespace Xtensive.Storage.Linq
         var tupleAccessMethod = WellKnownMethods.TupleGenericAccessor.MakeGenericMethod(columnType);
         var leftExpression = Expression.Call(filterTuple, tupleAccessMethod, Expression.Constant(columnIndex));
         var rightExpression = Expression.Call(Expression.MakeMemberAccess(Expression.Constant(tupleParameter), parameterValueMemberInfo), tupleAccessMethod, Expression.Constant(i));
-        var equalsExpression = Expression.Equal(leftExpression,rightExpression);
-        filterBody = filterBody==null 
-          ? equalsExpression 
+        var equalsExpression = Expression.Equal(leftExpression, rightExpression);
+        filterBody = filterBody==null
+          ? equalsExpression
           : Expression.AndAlso(filterBody, equalsExpression);
       }
 
@@ -507,12 +506,12 @@ namespace Xtensive.Storage.Linq
 
       var groupingResultExpression = new ResultExpression(result.Type, groupingRs, result.Mapping, result.Projector, result.ItemProjector);
 
-      var projectorBody = Expression.New(constructor, groupingKeyResolver, queryExpression, Expression.Constant(groupingResultExpression));
+      var projectorBody = Expression.New(constructor, groupingKeyResolver, queryExpression, Expression.Constant(groupingResultExpression), Expression.Constant(tupleParameter));
 
       var itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
-        ? new[] { pTuple, pRecord }
-        : new[] { pTuple });
-      
+        ? new[] {pTuple, pRecord}
+        : new[] {pTuple});
+
       //      using (context.Bindings.Add(ex.Parameters[0], result)) {
 //        var ex2 = Visit(ex);
 //      }
@@ -789,21 +788,32 @@ namespace Xtensive.Storage.Linq
         else
           subquery = VisitWhere(source, predicate);
       }
-      var filter = ApplyOneColumnSubquery(subquery.RecordSet.Existence(context.GetNextColumnAlias()));
+      var filter = ApplyOneColumnSubquery(source, subquery.RecordSet.Existence(context.GetNextColumnAlias()));
       if (notExists)
         filter = Expression.Not(filter);
       return filter;
     }
 
-    private Expression ApplyOneColumnSubquery(RecordSet subquery)
+    private Expression ApplyOneColumnSubquery(Expression source, RecordSet subquery)
     {
       if (subquery.Header.Length!=1)
         throw new ArgumentException();
+      Parameter<Tuple> applyParameter;
       var column = subquery.Header.Columns[0];
       var lambdaParameter = parameters.Value[0];
-      var applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
-      context.SubqueryParameterBindings.InvalidateParameter(lambdaParameter);
       var oldResult = context.Bindings[lambdaParameter];
+      if (oldResult.ItemProjector.Body.NodeType==ExpressionType.New) {
+        var newExpression = (NewExpression) oldResult.ItemProjector.Body;
+        if (newExpression.Type.IsGenericType && newExpression.Type.GetGenericTypeDefinition() == typeof(Grouping<,>))
+          applyParameter = (Parameter<Tuple>) ((ConstantExpression) newExpression.Arguments[3]).Value;
+        else
+          throw new NotSupportedException();
+      }
+      else {
+        applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
+        context.SubqueryParameterBindings.InvalidateParameter(lambdaParameter);
+      }
+
       int columnIndex = oldResult.RecordSet.Header.Length;
       var newMapping = new ResultMapping();
       newMapping.Replace(oldResult.Mapping);
@@ -818,10 +828,10 @@ namespace Xtensive.Storage.Linq
     private ResultExpression VisitSequence(Expression sequenceExpression)
     {
       if (sequenceExpression.GetMemberType()==MemberType.EntitySet) {
-        if (sequenceExpression.NodeType != ExpressionType.MemberAccess)
+        if (sequenceExpression.NodeType!=ExpressionType.MemberAccess)
           throw new NotSupportedException();
-        var memberAccess = (MemberExpression)sequenceExpression;
-        if (!(memberAccess.Member is PropertyInfo) || memberAccess.Expression == null)
+        var memberAccess = (MemberExpression) sequenceExpression;
+        if (!(memberAccess.Member is PropertyInfo) || memberAccess.Expression==null)
           throw new NotSupportedException();
         var field = context.Model.Types[memberAccess.Expression.Type].Fields[memberAccess.Member.Name];
         sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccess.Expression, field);
@@ -833,8 +843,8 @@ namespace Xtensive.Storage.Linq
           return (ResultExpression) visitedExpression;
         case ExpressionType.New:
           var newExpression = (NewExpression) visitedExpression;
-          if (visitedExpression.Type.IsGenericType && visitedExpression.Type.GetGenericTypeDefinition()==typeof (Grouping<,>))
-            return (ResultExpression)((ConstantExpression)newExpression.Arguments[2]).Value;
+          if (newExpression.Type.IsGenericType && newExpression.Type.GetGenericTypeDefinition() == typeof(Grouping<,>))
+            return (ResultExpression) ((ConstantExpression) newExpression.Arguments[2]).Value;
           break;
       }
       throw new NotSupportedException(string.Format("The expression of type '{0}' is not a sequence", visitedExpression.Type));
