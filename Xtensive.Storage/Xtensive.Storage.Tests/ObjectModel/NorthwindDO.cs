@@ -613,8 +613,20 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
                 case 2:
                   order.Employee = !reader.IsDBNull(i) ? employees[reader.GetValue(i)] : null;
                   break;
+                case 3:
+                  order.OrderDate = !reader.IsDBNull(i) ? (DateTime?)reader.GetDateTime(i) : null;
+                  break;
+                case 4:
+                  order.RequiredDate = !reader.IsDBNull(i) ? (DateTime?)reader.GetDateTime(i) : null;
+                  break;
+                case 5:
+                  order.ShippedDate = !reader.IsDBNull(i) ? (DateTime?)reader.GetDateTime(i) : null;
+                  break;
                 case 6:
                   order.ShipVia = !reader.IsDBNull(i) ? shippers[reader.GetValue(i)] : null;
+                  break;
+                case 7:
+                  order.Freight = reader.GetDecimal(i);
                   break;
                 default:
                   string dbName = reader.GetName(i);
