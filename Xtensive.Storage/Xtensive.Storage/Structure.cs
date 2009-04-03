@@ -183,7 +183,7 @@ namespace Xtensive.Storage
         tuple = type.TuplePrototype.Clone();
       else
         tuple = field.ExtractValue(
-          new ReferencedTuple(() => owner.Tuple));
+          new ReferencedTuple(() => this.owner.Tuple));
       OnInitializing(notify);
     }
   }
