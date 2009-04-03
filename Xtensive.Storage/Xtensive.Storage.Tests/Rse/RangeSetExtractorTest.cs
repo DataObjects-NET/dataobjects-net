@@ -18,7 +18,7 @@ using Xtensive.Indexing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Optimization;
+using Xtensive.Storage.Rse.Optimization.IndexSelection;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
 
 namespace Xtensive.Storage.Tests.Rse
@@ -65,17 +65,15 @@ namespace Xtensive.Storage.Tests.Rse
       RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
       int cLengthIdx = GetFieldIndex(rsHeader, cLength);
 
-      /*Expression<Func<Tuple, bool>> exp =
-        (t) => t.GetValue<int?>(cLengthIdx) >= 3 &&
-               t.GetValue<int?>(cLengthIdx) < 6 ||
-               10 <= t.GetValue<int?>(cLengthIdx);*/
+      /* Expression<Func<Tuple, bool>> exp =
+         (t) => t.GetValue<int?>(cLengthIdx) >= 3 &&
+                t.GetValue<int?>(cLengthIdx) < 6 ||
+                10 <= t.GetValue<int?>(cLengthIdx); */
 
-      var predicate = new DisjunctiveNormalized().
-        AddCnf(
-          AsCnf(t => t.GetValue<int?>(cLengthIdx) >= 3).
-            AddBoolean(t => t.GetValue<int?>(cLengthIdx) < 6)).
-        AddCnf(
-          AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
+      var predicate = new DisjunctiveNormalized()
+        .AddCnf(AsCnf(t => t.GetValue<int?>(cLengthIdx) >= 3)
+          .AddBoolean(t => t.GetValue<int?>(cLengthIdx) < 6))
+        .AddCnf(AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
       
       var expectedRanges = CreateExpectedRangesForSimpleTest(indexInfo, cLength);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
@@ -86,9 +84,10 @@ namespace Xtensive.Storage.Tests.Rse
     {
       var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
       var result = new SetSlim<Range<Entire<Tuple>>>();
-      Entire<Tuple> expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 3));
-      Entire<Tuple> expectedSecond = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 6),
-                                                       Direction.Negative);
+      Entire<Tuple> expectedFirst = new Entire<Tuple>(
+        CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 3));
+      Entire<Tuple> expectedSecond = new Entire<Tuple>(
+        CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 6), Direction.Negative);
       var expectedRange0 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange0);
 
@@ -110,7 +109,7 @@ namespace Xtensive.Storage.Tests.Rse
 
       var predicate = new DisjunctiveNormalized()
         .AddCnf(AsCnf(t => t.GetValue<int?>(cLengthIdx) <= 3)
-        .AddBoolean(t => t.GetValue<string>(cNameIdx)=="abc"))
+          .AddBoolean(t => t.GetValue<string>(cNameIdx)=="abc"))
         .AddCnf(AsCnf(t => t.GetValue<int?>(cLengthIdx) > 15));
 
       var expectedRanges = CreateExpectedRangesForDifferentFieldsTest(indexInfo, cLength);
@@ -123,15 +122,39 @@ namespace Xtensive.Storage.Tests.Rse
       var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
       var result = new SetSlim<Range<Entire<Tuple>>>();
       Entire<Tuple> expectedFirst = new Entire<Tuple>(InfinityType.Negative);
-      Entire<Tuple> expectedSecond = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 3));
+      Entire<Tuple> expectedSecond = new Entire<Tuple>(
+        CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 3));
       var expectedRange0 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange0);
-      expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 15),
-                                                       Direction.Positive);
+      expectedFirst = new Entire<Tuple>(
+        CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 15), Direction.Positive);
       expectedSecond = new Entire<Tuple>(InfinityType.Positive);
       var expectedRange1 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange1);
       return result;
+    }
+
+    [Test]
+    public void DifferentFieldsInSameComparisonTest()
+    {
+      TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
+      IndexInfo indexInfo = snakeType.Indexes.GetIndex(cName);
+      RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
+      int cDescriptionIdx = GetFieldIndex(rsHeader, cLength);
+      int cNameIdx = GetFieldIndex(rsHeader, cName);
+
+      var predicate = new DisjunctiveNormalized()
+        .AddCnf(AsCnf(t => t.GetValue<string>(cNameIdx)
+          .CompareTo(t.GetValue<string>(cDescriptionIdx)) > 0))
+        .AddCnf(AsCnf(t => t.GetValue<string>(cNameIdx) == "abc"));
+
+      var expectedRanges = CreateRangesForDifferentFieldsInSameComparisonTest();
+      TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
+    }
+
+    private static IEnumerable<Range<Entire<Tuple>>> CreateRangesForDifferentFieldsInSameComparisonTest()
+    {
+      return new SetSlim<Range<Entire<Tuple>>> {Range<Entire<Tuple>>.Full};
     }
 
     [Test]
@@ -146,7 +169,7 @@ namespace Xtensive.Storage.Tests.Rse
       int y = 2;
       var predicate = new DisjunctiveNormalized()
         .AddCnf(AsCnf(t => t.GetValue<int?>(cLengthIdx) <= 3)
-        .AddBoolean(t => x + 3 > y))
+          .AddBoolean(t => x + 3 > y))
         .AddCnf(AsCnf(t => t.GetValue<int?>(cLengthIdx) > 15))
         .AddCnf(AsCnf(t => false));
 

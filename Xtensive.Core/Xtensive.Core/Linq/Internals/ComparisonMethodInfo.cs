@@ -21,16 +21,15 @@ namespace Xtensive.Core.Linq.Internals
     private static readonly string startsWithPattern = "{0}%";
     private static readonly string endsWithPattern = "%{0}";
     private static readonly string compareOrdinalName = "CompareOrdinal";
+    private static readonly string equalityComparisonName = "Equals";
 
     public readonly MethodInfo Method;
 
     public bool IsComplex { get; private set; }
 
-    public bool IsLikeOperation { get; private set; }
+    public ComparisonKind ComparisonKind { get; private set; }
 
-    public bool IsComparingEqualityOnly { get; private set; }
-
-    public bool CanBeReversed { get { return !IsLikeOperation; } }
+    public bool CanBeReversed { get { return ComparisonKind != ComparisonKind.Like; } }
 
     public string LikePattern { get; private set; }
 
@@ -124,20 +123,21 @@ namespace Xtensive.Core.Linq.Internals
       }
     }
 
-    private void InitMembersRelatedToLikeOperation(MethodInfo method)
+    private void EvaluateComparisonKind(MethodInfo method)
     {
-      if (method.DeclaringType==typeof (string)) {
-        IsLikeOperation = methodsCorrespondingToLike.Contains(method);
-        if (IsLikeOperation)
-          if (method.Name==startsWithName)
-            LikePattern = startsWithPattern;
-          else if (method.Name==endsWithName)
-            LikePattern = endsWithPattern;
-          else
-            throw Exceptions.InvalidArgument(method, "method");
+      if (method.DeclaringType == typeof(string)
+        && methodsCorrespondingToLike.Contains(method)) {
+        ComparisonKind = ComparisonKind.Like;
+        if (method.Name == startsWithName)
+          LikePattern = startsWithPattern;
+        else if (method.Name == endsWithName)
+          LikePattern = endsWithPattern;
+        else
+          throw Exceptions.InvalidArgument(method, "method");
       }
-      else
-        IsLikeOperation = false;
+      else if (method.Name == equalityComparisonName
+        && method.ReturnType == typeof(bool))
+        ComparisonKind = ComparisonKind.Equality;
     }
 
     // Constructors
@@ -148,12 +148,11 @@ namespace Xtensive.Core.Linq.Internals
       AddMethods(typeof(string).GetMethods(), "StartsWith");
     }
 
-    public ComparisonMethodInfo(MethodInfo method, bool isComparingEqualityOnly)
+    public ComparisonMethodInfo(MethodInfo method)
     {
       ArgumentValidator.EnsureArgumentNotNull(method, "method");
       Method = method;
-      IsComparingEqualityOnly = isComparingEqualityOnly;
-      InitMembersRelatedToLikeOperation(method);
+      EvaluateComparisonKind(method);
       EvaluateComplexity(method);
     }
   }

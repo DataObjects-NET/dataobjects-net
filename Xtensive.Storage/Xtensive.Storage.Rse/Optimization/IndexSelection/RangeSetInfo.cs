@@ -10,26 +10,25 @@ using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 
-namespace Xtensive.Storage.Rse.Optimization
-{ 
-  internal class RangeSetExpression : Expression
+namespace Xtensive.Storage.Rse.Optimization.IndexSelection
+{
+  internal sealed class RangeSetInfo
   {
     public Expression Source { get; private set; }
 
     public bool AlwaysFull { get; private set; }
 
-    public RangeSetOriginInfo Origin { get; private set; }
+    public TupleFieldInfo Origin { get; private set; }
 
-    private static Expression ValidateExpression(Expression source)
+    private static void ValidateExpression(Expression source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       if (source.Type != typeof(RangeSet<Entire<Tuple>>))
         throw new ArgumentException(String.Format(Resources.Strings.ExExpressionMustReturnValueOfTypeX,
           typeof (RangeSet<Entire<Tuple>>)));
-      return source;
     }
 
-    public void Unite(Expression unionResult, RangeSetExpression other)
+    public void Unite(Expression unionResult, RangeSetInfo other)
     {
       ValidateExpression(unionResult);
       Source = unionResult;
@@ -37,7 +36,7 @@ namespace Xtensive.Storage.Rse.Optimization
       Origin = null;
     }
 
-    public void Intersect(Expression intersectionResult, RangeSetExpression other)
+    public void Intersect(Expression intersectionResult, RangeSetInfo other)
     {
       ValidateExpression(intersectionResult);
       Source = intersectionResult;
@@ -45,19 +44,17 @@ namespace Xtensive.Storage.Rse.Optimization
       Origin = null;
     }
 
-    public void Invert(Expression invertionResult)
+    public void Invert(Expression inversionResult)
     {
-      ValidateExpression(invertionResult);
-      Source = invertionResult;
+      ValidateExpression(inversionResult);
+      Source = inversionResult;
       AlwaysFull = false;
-      if (Origin != null)
-        Origin.ReverseComparison();
+      Origin = null;
     }
 
     // Constructors
 
-    public RangeSetExpression(Expression source, RangeSetOriginInfo origin, bool alwaysFull)
-      : base(ValidateExpression(source).NodeType, typeof(RangeSet<Entire<Tuple>>))
+    public RangeSetInfo(Expression source, TupleFieldInfo origin, bool alwaysFull)
     {
       Source = source;
       Origin = origin;

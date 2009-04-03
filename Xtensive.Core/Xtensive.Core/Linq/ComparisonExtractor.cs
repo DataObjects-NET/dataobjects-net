@@ -36,6 +36,19 @@ namespace Xtensive.Core.Linq
       return ComparisonInfo.TryCreate(extractionInfo);
     }
 
+    /// <summary>
+    /// Determines whether <paramref name="exp"/> contains key.
+    /// </summary>
+    /// <param name="exp">The expression.</param>
+    /// <param name="keySelector">The key selector.</param>
+    /// <returns>
+    /// 	<see langword="true"/> if <paramref name="exp"/> contains key; otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool ContainsKey(Expression exp, Func<Expression, bool> keySelector)
+    {
+      return KeySearcher.ContainsKey(exp, keySelector);
+    }
+
     private static bool IsBoolleanExpression(Expression exp)
     {
       return (exp.NodeType==ExpressionType.Lambda && ((LambdaExpression) exp).Body.Type==typeof (bool))

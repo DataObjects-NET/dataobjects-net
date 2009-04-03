@@ -9,31 +9,27 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.Optimization
+namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
   /// <summary>
   /// Result of extraction a <see cref="RangeSet{T}"/> from a predicate.
   /// </summary>
-  internal class RsExtractionResult : IEnumerable<RangeSetExpression>
+  [Serializable]
+  internal sealed class CnfParsingResult : IEnumerable<RangeSetInfo>
   {
-    private readonly SetSlim<RangeSetExpression> partsOfResult = new SetSlim<RangeSetExpression>();
+    private readonly HashSet<RangeSetInfo> partsOfResult = new HashSet<RangeSetInfo>();
     private LambdaExpression result;
     private bool resultIsStale = true;
 
     public readonly IndexInfo IndexInfo;
 
-    public void AddPart(RangeSetExpression rsExpression)
+    public void AddPart(RangeSetInfo rsInfo)
     {
-      if (rsExpression.Type != typeof(RangeSet<Entire<Tuple>>))
-        throw new ArgumentException(String.Format(Resources.Strings.ExExpressionMustReturnValueOfTypeX,
-          typeof (RangeSet<Entire<Tuple>>)));
       resultIsStale = true;
-      partsOfResult.Add(rsExpression);
+      partsOfResult.Add(rsInfo);
     }
 
     public bool HasResult()
@@ -43,10 +39,6 @@ namespace Xtensive.Storage.Rse.Optimization
       return result != null;
     }
 
-    /// <summary>
-    /// </summary>
-    /// <returns>The complete result consisting of result parts combined by the <c>Unite</c>
-    /// method of <see cref="RangeSet{T}"/>.</returns>
     public LambdaExpression GetResult()
     {
       if(resultIsStale)
@@ -56,17 +48,11 @@ namespace Xtensive.Storage.Rse.Optimization
 
     #region Implementation of IEnumerable
 
-    /// <summary>
-    /// </summary>
-    /// <returns>the enumerator for the collection of result parts.</returns>
-    public IEnumerator<RangeSetExpression> GetEnumerator()
+    public IEnumerator<RangeSetInfo> GetEnumerator()
     {
       return partsOfResult.GetEnumerator();
     }
 
-    /// <summary>
-    /// </summary>
-    /// <returns>the enumerator for the collection of result parts.</returns>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
@@ -80,12 +66,12 @@ namespace Xtensive.Storage.Rse.Optimization
       resultIsStale = false;
       if(partsOfResult.Count == 0)
         return;
-      RangeSetExpression tempResult = null;
+      RangeSetInfo tempResult = null;
       foreach (var part in partsOfResult) {
         if (tempResult == null)
           tempResult = part;
         else
-          tempResult = RangeSetExpressionsBuilder.BuildUnite(tempResult, part);
+          tempResult = RangeSetExpressionBuilder.BuildUnite(tempResult, part);
       }
       if (tempResult != null)
         result = Expression.Lambda(tempResult.Source);
@@ -93,7 +79,7 @@ namespace Xtensive.Storage.Rse.Optimization
 
     // Constructors
 
-    public RsExtractionResult(IndexInfo indexInfo)
+    public CnfParsingResult(IndexInfo indexInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(indexInfo, "indexInfo");
       IndexInfo = indexInfo;

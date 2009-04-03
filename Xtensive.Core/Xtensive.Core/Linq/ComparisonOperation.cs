@@ -6,7 +6,7 @@
 
 namespace Xtensive.Core.Linq
 {
-  public enum ComparisonType
+  public enum ComparisonOperation
   {
     Unknown = 0,
     Equal,

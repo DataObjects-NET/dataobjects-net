@@ -15,16 +15,29 @@ namespace Xtensive.Core.Linq.Internals
     {
       KeySelector = keySelector;
       var result = Visit(exp);
-      if (result != null
-        && result.Value == null && result.Key.Type == typeof(bool) && result.ComparisonOperation == null
-        && (result.MethodInfo == null || result.MethodInfo.Method.ReturnType == typeof(bool)
-          && !result.MethodInfo.IsLikeOperation)) {
+      if (IsValueInvalidValid(result))
+        return null;
+      if (IsStandAloneBooleanExpression(result)) {
         result.Value = Expression.Constant(true);
         result.ComparisonOperation = ExpressionType.Equal;
       }
       if (result != null && result.Value == null)
         return null;
       return result;
+    }
+
+    private static bool IsValueInvalidValid(ExtractionInfo result)
+    {
+      return result!=null && result.Value!=null
+        && KeySearcher.ContainsKey(result.Value, KeySelector);
+    }
+
+    private static bool IsStandAloneBooleanExpression(ExtractionInfo result)
+    {
+      return result != null
+        && result.Value == null && result.Key.Type == typeof(bool) && result.ComparisonOperation == null
+        && (result.MethodInfo == null || result.MethodInfo.Method.ReturnType == typeof(bool)
+          && result.MethodInfo.ComparisonKind != ComparisonKind.Like);
     }
 
     protected override ExtractionInfo VisitBinary(BinaryExpression exp)
@@ -42,7 +55,8 @@ namespace Xtensive.Core.Linq.Internals
         rightInfo.ReversingRequired = !(rightInfo.ReversingRequired);
       var result = leftInfo != null ? leftInfo : rightInfo;
       if (result.MethodInfo != null)
-        return ProcessComparisonMethodInBinaryExpression(exp.NodeType, leftInfo != null ? exp.Right : exp.Left, result);
+        return ProcessComparisonMethodInBinaryExpression(exp.NodeType,
+          leftInfo != null ? exp.Right : exp.Left, result);
       result.ComparisonOperation = exp.NodeType;
       result.Value = leftInfo!=null ? exp.Right : exp.Left;
       return result;
@@ -63,12 +77,10 @@ namespace Xtensive.Core.Linq.Internals
 
     protected override ExtractionInfo VisitMethodCall(MethodCallExpression exp)
     {
+      var keyInfo = SelectKey(exp);
+      if (keyInfo != null)
+        return keyInfo;
       var result = operandState.Extract(exp);
-      if (result != null && result.MethodInfo != null)
-        if (result.MethodInfo.IsLikeOperation)
-          return ProcessMethodCorrespondingToLike(result);
-        else if (result.MethodInfo.IsComparingEqualityOnly)
-          return ProcessEqualityComparisonMethod(result);
       return result;
     }
 
@@ -82,30 +94,9 @@ namespace Xtensive.Core.Linq.Internals
     private static ExtractionInfo ProcessComparisonMethodInBinaryExpression(ExpressionType nodeType,
       Expression rightPart, ExtractionInfo extractionInfo)
     {
-      if (extractionInfo.MethodInfo.Method.ReturnType == typeof(bool))
+      if (extractionInfo.MethodInfo.ComparisonKind != ComparisonKind.Default)
         return null;
       return ProcessCompareToMethod(nodeType, rightPart, extractionInfo);
-    }
-
-    private static ExtractionInfo ProcessMethodCorrespondingToLike(ExtractionInfo extractionInfo)
-    {
-      extractionInfo.Value = MakeValueForLikeOperation(extractionInfo);
-      return extractionInfo;
-    }
-
-    private static ExtractionInfo ProcessEqualityComparisonMethod(ExtractionInfo extractionInfo)
-    {
-      extractionInfo.ComparisonOperation = ExpressionType.Equal;
-      return extractionInfo;
-    }
-
-    private static MethodCallExpression MakeValueForLikeOperation(ExtractionInfo extractionInfo)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(extractionInfo.MethodInfo.LikePattern,
-        "extractionInfo.MethodInfo.LikePattern");
-      var formatMethod = typeof (string).GetMethod("Format", new[] {typeof (string), typeof (object)});
-      return Expression.Call(null, formatMethod, Expression.Constant(extractionInfo.MethodInfo.LikePattern),
-        extractionInfo.Value);
     }
 
     private static ExtractionInfo ProcessCompareToMethod(ExpressionType nodeType, Expression rightPart,

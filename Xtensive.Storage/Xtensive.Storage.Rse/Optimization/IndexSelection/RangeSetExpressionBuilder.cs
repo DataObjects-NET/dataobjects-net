@@ -10,14 +10,15 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Internals;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.Optimization
+namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
-  internal static class RangeSetExpressionsBuilder
+  internal static class RangeSetExpressionBuilder
   {
     private static readonly MethodInfo tupleCreateMethod;
     private static readonly ConstructorInfo tupleUpdaterConstructor;
@@ -35,106 +36,103 @@ namespace Xtensive.Storage.Rse.Optimization
 
     private static readonly Dictionary<int, Expression> singleValueCash = new Dictionary<int, Expression>(1);
 
-    public static RangeSetExpression BuildConstructor(Expression indexKeyValue, int tupleField,
-      ExpressionType comparisonType, IndexInfo indexInfo)
+    public static RangeSetInfo BuildConstructor(TupleFieldInfo originTuple, IndexInfo indexInfo)
     {
       Expression firstEndpoint;
       Expression secondEndpoint;
       singleValueCash.Clear();
-      singleValueCash.Add(0, indexKeyValue);
-      CreateRangeEndpoints(out firstEndpoint, out secondEndpoint, singleValueCash, comparisonType,
-        indexInfo);
-      return BuildConstructor(firstEndpoint, secondEndpoint, comparisonType,
-        new RangeSetOriginInfo(comparisonType==ExpressionType.NotEqual
-          ? ExpressionType.Equal : comparisonType, tupleField, indexKeyValue));
+      singleValueCash.Add(0, originTuple.Comparison.Value);
+      CreateRangeEndpoints(out firstEndpoint, out secondEndpoint, singleValueCash,
+        originTuple.Comparison.Operation, indexInfo);
+      return BuildConstructor(firstEndpoint, secondEndpoint, originTuple.Comparison.Operation, originTuple);
     }
 
-    public static RangeSetExpression BuildConstructor(Dictionary<int, Expression> indexKeyValues,
-      ExpressionType comparisonType, IndexInfo indexInfo)
+    public static RangeSetInfo BuildConstructor(Dictionary<int, Expression> indexKeyValues,
+      TupleFieldInfo originTuple, IndexInfo indexInfo)
     {
       ArgumentValidator.EnsureArgumentIsInRange(indexKeyValues.Count, 2, int.MaxValue, "indexKeyValues.Count");
       Expression firstEndpoint;
       Expression secondEndpoint;
-      CreateRangeEndpoints(out firstEndpoint, out secondEndpoint, indexKeyValues, comparisonType,
-        indexInfo);
-      return BuildConstructor(firstEndpoint, secondEndpoint, comparisonType, null);
+      CreateRangeEndpoints(out firstEndpoint, out secondEndpoint, indexKeyValues,
+        originTuple.Comparison.Operation, indexInfo);
+      return BuildConstructor(firstEndpoint, secondEndpoint, originTuple.Comparison.Operation, null);
     }
 
-    private static RangeSetExpression BuildConstructor(Expression firstEndpoint, Expression secondEndpoint,
-      ExpressionType comparisonType, RangeSetOriginInfo origin)
+    private static RangeSetInfo BuildConstructor(Expression firstEndpoint, Expression secondEndpoint,
+      ComparisonOperation comparisonOperation, TupleFieldInfo origin)
     {
       NewExpression rangeConstruction = Expression.New(rangeContructor, firstEndpoint, secondEndpoint);
       //TODO:A comparer from index must be passed here.
-      RangeSetExpression result = CreateNotFullExpression(
+      RangeSetInfo result = CreateNotFullExpression(
         Expression.New(rangeSetConstructor, rangeConstruction,
           Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)),
         origin);
-      if (comparisonType == ExpressionType.NotEqual)
+      if (comparisonOperation == ComparisonOperation.NotEqual)
         return BuildInvert(result);
       return result;
     }
 
-    public static RangeSetExpression BuildFullRangeSetConstructor(RangeSetOriginInfo origin)
+    public static RangeSetInfo BuildFullRangeSetConstructor(TupleFieldInfo origin)
     {
-      return new RangeSetExpression(
+      return new RangeSetInfo(
         //TODO:A comparer from index must be passed here.
         Expression.New(rangeSetConstructor, Expression.Constant(Range<Entire<Tuple>>.Full),
           Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)),
         origin, true);
     }
 
-    public static RangeSetExpression BuildIntersect(RangeSetExpression target, RangeSetExpression other)
+    public static RangeSetInfo BuildIntersect(RangeSetInfo target, RangeSetInfo other)
     {
       var intersectionResult = Expression.Call(target.Source, intersectMethod, other.Source);
       target.Intersect(intersectionResult, other);
       return target;
     }
 
-    public static RangeSetExpression BuildUnite(RangeSetExpression target, RangeSetExpression other)
+    public static RangeSetInfo BuildUnite(RangeSetInfo target, RangeSetInfo other)
     {
       var unionResult = Expression.Call(target.Source, uniteMethod, other.Source);
       target.Unite(unionResult, other);
       return target;
     }
 
-    public static RangeSetExpression BuildInvert(RangeSetExpression target)
-    {
-      var invertionResult = Expression.Call(target.Source, invertMethod);
-      target.Invert(invertionResult);
-      return target;
-    }
-
-    public static RangeSetExpression BuildFullOrEmpty(Expression booleanExp)
+    public static RangeSetInfo BuildFullOrEmpty(Expression booleanExp)
     {
       //TODO:A comparer from index must be passed here.
       return CreateNotFullExpression(Expression.Call(
         fullOrEmptyMethod, booleanExp, Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)), null);
     }
 
-    private static void CreateRangeEndpoints(out Expression first, out Expression second,
-      Dictionary<int, Expression> indexKeyValues, ExpressionType comparsionType, IndexInfo indexInfo)
+    private static RangeSetInfo BuildInvert(RangeSetInfo target)
     {
-      if (comparsionType == ExpressionType.Equal || comparsionType == ExpressionType.NotEqual) {
+      var invertionResult = Expression.Call(target.Source, invertMethod);
+      target.Invert(invertionResult);
+      return target;
+    }
+
+    private static void CreateRangeEndpoints(out Expression first, out Expression second,
+      Dictionary<int, Expression> indexKeyValues, ComparisonOperation comparsionType, IndexInfo indexInfo)
+    {
+      if (comparsionType == ComparisonOperation.Equal || comparsionType == ComparisonOperation.NotEqual) {
         first = BuildShiftedEntireConstructor(indexKeyValues, indexInfo, false);
         second = BuildShiftedEntireConstructor(indexKeyValues, indexInfo, true);
         return;
       }
-      if(comparsionType == ExpressionType.LessThan) {
+      if(comparsionType == ComparisonOperation.LessThan) {
         first = BuildInfiniteEntire(false);
         second = BuildShiftedEntireConstructor(indexKeyValues, indexInfo, false);
         return;
       }
-      if (comparsionType == ExpressionType.LessThanOrEqual) {
+      if (comparsionType == ComparisonOperation.LessThanOrEqual) {
         first = BuildInfiniteEntire(false);
         second = BuildEntireConstructor(indexKeyValues, indexInfo);
         return;
       }
-      if (comparsionType == ExpressionType.GreaterThan) {
+      if (comparsionType == ComparisonOperation.GreaterThan) {
         first = BuildShiftedEntireConstructor(indexKeyValues, indexInfo, true);
         second = BuildInfiniteEntire(true);
         return;
       }
-      if (comparsionType == ExpressionType.GreaterThanOrEqual) {
+      if (comparsionType == ComparisonOperation.GreaterThanOrEqual) {
         first = BuildEntireConstructor(indexKeyValues, indexInfo);
         second = BuildInfiniteEntire(true);
         return;
@@ -179,14 +177,14 @@ namespace Xtensive.Storage.Rse.Optimization
       return result;
     }
 
-    private static RangeSetExpression CreateNotFullExpression(Expression source, RangeSetOriginInfo origin)
+    private static RangeSetInfo CreateNotFullExpression(Expression source, TupleFieldInfo origin)
     {
-      return new RangeSetExpression(source, origin, false);
+      return new RangeSetInfo(source, origin, false);
     }
 
     // Constructors
 
-    static RangeSetExpressionsBuilder()
+    static RangeSetExpressionBuilder()
     {
       tupleCreateMethod = typeof (Tuple).GetMethod("Create", new[] {typeof (TupleDescriptor)});
       tupleUpdaterConstructor = typeof(TupleUpdater).GetConstructor(new[] { typeof(Tuple) });

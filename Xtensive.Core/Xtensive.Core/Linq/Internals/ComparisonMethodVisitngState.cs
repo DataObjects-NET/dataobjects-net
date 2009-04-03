@@ -22,7 +22,22 @@ namespace Xtensive.Core.Linq.Internals
 
       result.ComparisonMethod = exp;
       result.MethodInfo = methodInfo;
+      if(result.MethodInfo.ComparisonKind != ComparisonKind.Default)
+        return ProcessNonDefaultComparison(result);
       return result;
+    }
+
+    private static ExtractionInfo ProcessNonDefaultComparison(ExtractionInfo extractionInfo)
+    {
+      switch (extractionInfo.MethodInfo.ComparisonKind) {
+      case ComparisonKind.Like:
+        return ProcessMethodCorrespondingToLike(extractionInfo);
+      case ComparisonKind.Equality:
+        return ProcessEqualityComparisonMethod(extractionInfo);
+      default:
+        throw Exceptions.InvalidArgument(extractionInfo.MethodInfo.ComparisonKind,
+          "extractionInfo.MethodInfo.ComparisonKind");
+      }
     }
 
     private ExtractionInfo VisitMethodCallArguments(MethodCallExpression exp, out int keyIndex)
@@ -128,6 +143,27 @@ namespace Xtensive.Core.Linq.Internals
     {
       if (value.Type != key.Type && !key.Type.IsSubclassOf(value.Type))
         throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
+    }
+
+    private static ExtractionInfo ProcessMethodCorrespondingToLike(ExtractionInfo extractionInfo)
+    {
+      extractionInfo.Value = MakeValueForLikeOperation(extractionInfo);
+      return extractionInfo;
+    }
+
+    private static ExtractionInfo ProcessEqualityComparisonMethod(ExtractionInfo extractionInfo)
+    {
+      extractionInfo.ComparisonOperation = ExpressionType.Equal;
+      return extractionInfo;
+    }
+
+    private static MethodCallExpression MakeValueForLikeOperation(ExtractionInfo extractionInfo)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(extractionInfo.MethodInfo.LikePattern,
+        "extractionInfo.MethodInfo.LikePattern");
+      var formatMethod = typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object) });
+      return Expression.Call(null, formatMethod, Expression.Constant(extractionInfo.MethodInfo.LikePattern),
+        extractionInfo.Value);
     }
   }
 }

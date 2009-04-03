@@ -45,12 +45,7 @@ namespace Xtensive.Core.Linq.Internals
 
     private static void AddMethod(MethodInfo method)
     {
-      methods.Add(method, new ComparisonMethodInfo(method, false));
-    }
-
-    private static void AddEqualityComparisonMethod(MethodInfo method)
-    {
-      methods.Add(method, new ComparisonMethodInfo(method, true));
+      methods.Add(method, new ComparisonMethodInfo(method));
     }
 
     //Constructors
@@ -65,18 +60,11 @@ namespace Xtensive.Core.Linq.Internals
       AddMethods(ComparisonMethodInfo.GetMethodsCorrespondingToLike());
       AddMethod(typeof (DateTime).GetMethod("Compare", flagsForStatic));
 
-      AddEqualityComparisonMethod(typeof(object)
-        .GetMethod("Equals", BindingFlags.Public | BindingFlags.Instance));
-      AddEqualityComparisonMethod(typeof(object)
-        .GetMethod("Equals", flagsForStatic));
-      AddEqualityComparisonMethod(typeof(string).GetMethod("Equals",
-        new[] { typeof(string), typeof(StringComparison) }));
-      AddEqualityComparisonMethod(typeof(string).GetMethod("Equals",
-        new[] { typeof(string), typeof(string) }));
-      AddEqualityComparisonMethod(typeof (string).GetMethod("Equals",
-        new[] {typeof (string), typeof (string), typeof (StringComparison)}));
-      AddEqualityComparisonMethod(typeof (DateTime).GetMethod("Equals", flagsForStatic));
-      AddEqualityComparisonMethod(typeof(IEquatable<>).GetMethod("Equals"));
+      var flagsForInstanceAndStatic = BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance;
+      AddMethods(typeof(object), "Equals", flagsForInstanceAndStatic);
+      AddMethods(typeof(string), "Equals", flagsForInstanceAndStatic);
+      AddMethod(typeof (DateTime).GetMethod("Equals", flagsForStatic));
+      AddMethod(typeof(IEquatable<>).GetMethod("Equals"));
     }
   }
 }

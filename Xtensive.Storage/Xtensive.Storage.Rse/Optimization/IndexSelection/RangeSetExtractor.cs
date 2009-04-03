@@ -9,22 +9,22 @@ using Xtensive.Core.Linq.Normalization;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.Optimization
+namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
   /// <summary>
   /// Extractor of <see cref="RangeSet{T}"/> from a boolean expression in disjunctive normal form.
   /// </summary>
   internal sealed class RangeSetExtractor
   {
-    private readonly ExtractingVisitor cnfVisitor;
+    private readonly CnfParser cnfParser;
 
-    public RsExtractionResult Extract(DisjunctiveNormalized predicate, IndexInfo info,
+    public CnfParsingResult Extract(DisjunctiveNormalized predicate, IndexInfo info,
       RecordSetHeader primaryIdxRecordSetHeader)
     {
       ArgumentValidator.EnsureArgumentNotNull(predicate, "predicate");
-      var result = new RsExtractionResult(info);
+      var result = new CnfParsingResult(info);
       foreach (var cnf in predicate.Operands)
-        result.AddPart(cnfVisitor.Extract(cnf, info, primaryIdxRecordSetHeader));
+        result.AddPart(cnfParser.Parse(cnf, info, primaryIdxRecordSetHeader));
       return result;
     }
 
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Rse.Optimization
 
     public RangeSetExtractor(DomainModel domainModel)
     {
-      cnfVisitor = new ExtractingVisitor(domainModel);
+      cnfParser = new CnfParser(domainModel);
     }
   }
 }

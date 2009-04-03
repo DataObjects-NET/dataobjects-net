@@ -22,7 +22,7 @@ namespace Xtensive.Core.Tests.Linq
       Expression<Func<bool>> comparison = () => x > 10;
       string keyName = "x";
       var comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThan, keyName, GetPartOfComparison(comparison, true),
+      CheckSimpleComparison(ComparisonOperation.GreaterThan, keyName, GetPartOfComparison(comparison, true),
         comparisonInfo);
     }
 
@@ -34,7 +34,7 @@ namespace Xtensive.Core.Tests.Linq
       Expression<Func<bool>> comparison = () => x > 10 - z;
       string keyName = "x";
       var comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThan, keyName, GetPartOfComparison(comparison, true),
+      CheckSimpleComparison(ComparisonOperation.GreaterThan, keyName, GetPartOfComparison(comparison, true),
         comparisonInfo);
     }
 
@@ -47,37 +47,37 @@ namespace Xtensive.Core.Tests.Linq
       Expression valueExp = ((Expression<Func<int>>)(() => 10 - z)).Body;
       string keyName = "x";
       var comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.LessThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.LessThanOrEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => !(x >= 10 - z);
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.LessThan, keyName,
+      CheckSimpleComparison(ComparisonOperation.LessThan, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => !(x < 10 - z);
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.GreaterThanOrEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => !(x <= 10 - z);
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThan, keyName,
+      CheckSimpleComparison(ComparisonOperation.GreaterThan, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => !(x == 10 - z);
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.NotEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.NotEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => !(x != 10 - z);
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Equal, keyName,
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => !(10 - z > x);
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.GreaterThanOrEqual, keyName,
         valueExp, comparisonInfo);
     }
 
@@ -90,32 +90,32 @@ namespace Xtensive.Core.Tests.Linq
       Expression valueExp = ((Expression<Func<int>>)(() => 10 - z)).Body;
       string keyName = "x";
       var comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.LessThan, keyName, valueExp,
+      CheckSimpleComparison(ComparisonOperation.LessThan, keyName, valueExp,
         comparisonInfo);
 
       comparison = () => 10 - z >= x;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.LessThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.LessThanOrEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => 10 - z < x;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThan, keyName,
+      CheckSimpleComparison(ComparisonOperation.GreaterThan, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => 10 - z <= x;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.GreaterThanOrEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => 10 - z == x;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Equal, keyName,
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => 10 - z != x;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.NotEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.NotEqual, keyName,
         valueExp, comparisonInfo);
     }
 
@@ -128,17 +128,17 @@ namespace Xtensive.Core.Tests.Linq
       Expression valueExp = ((Expression<Func<int>>) (() => z)).Body;
       string keyName = "x";
       var comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.GreaterThanOrEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => x.CompareTo(z) == 0;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Equal, keyName,
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => x.CompareTo(z) < 1;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.LessThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.LessThanOrEqual, keyName,
         valueExp, comparisonInfo);
 
       string xs = "abc";
@@ -147,73 +147,73 @@ namespace Xtensive.Core.Tests.Linq
       comparison = () => xs.CompareTo(zs) > 0;
       valueExp = ((Expression<Func<string>>) (() => zs)).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThan, keyName,
+      CheckSimpleComparison(ComparisonOperation.GreaterThan, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.CompareTo(zs) >= 0;
       valueExp = ((Expression<Func<string>>)(() => zs)).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.GreaterThanOrEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.CompareTo(zs) == 0;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Equal, keyName,
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.CompareTo(zs) != 0;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.NotEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.NotEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.CompareTo(zs) <= 0;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.LessThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.LessThanOrEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.CompareTo(zs) < 0;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.LessThan, keyName,
+      CheckSimpleComparison(ComparisonOperation.LessThan, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => zs.CompareTo(xs) < 0;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThan, keyName,
+      CheckSimpleComparison(ComparisonOperation.GreaterThan, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.CompareTo(zs) >= -1;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.GreaterThanOrEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.CompareTo(zs) == -1;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.LessThan, keyName,
+      CheckSimpleComparison(ComparisonOperation.LessThan, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.CompareTo(zs) <= -1;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.LessThan, keyName,
+      CheckSimpleComparison(ComparisonOperation.LessThan, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.CompareTo(zs) >= 1;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThan, keyName,
+      CheckSimpleComparison(ComparisonOperation.GreaterThan, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.CompareTo(zs) == 1;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThan, keyName,
+      CheckSimpleComparison(ComparisonOperation.GreaterThan, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.CompareTo(zs) <= 1;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.LessThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.LessThanOrEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => zs.CompareTo(xs) <= 1;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.GreaterThanOrEqual, keyName,
         valueExp, comparisonInfo);
     }
 
@@ -226,7 +226,7 @@ namespace Xtensive.Core.Tests.Linq
       Expression valueExp = ((Expression<Func<string>>)(() => zs)).Body;
       string keyName = "xs";
       var comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckComplexComparison(ComparisonType.LessThan, keyName,
+      CheckComplexComparison(ComparisonOperation.LessThan, keyName,
         valueExp, ((BinaryExpression)comparison.Body).Left, comparisonInfo);
 
       // This overload is not supported.
@@ -244,27 +244,27 @@ namespace Xtensive.Core.Tests.Linq
       Expression valueExp = ((Expression<Func<string>>) (() => zs)).Body;
       string keyName = "xs";
       var comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.LessThan, keyName,
+      CheckSimpleComparison(ComparisonOperation.LessThan, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => string.Compare(xs, zs, true) < 0;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckComplexComparison(ComparisonType.LessThan, keyName,
+      CheckComplexComparison(ComparisonOperation.LessThan, keyName,
         valueExp, ((BinaryExpression)comparison.Body).Left, comparisonInfo);
 
       comparison = () => string.Compare(zs, xs) >= 0;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.LessThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.LessThanOrEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => string.Compare(zs, xs, StringComparison.Ordinal) >= 0;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckComplexComparison(ComparisonType.LessThanOrEqual, keyName,
+      CheckComplexComparison(ComparisonOperation.LessThanOrEqual, keyName,
         valueExp, ((BinaryExpression)comparison.Body).Left, comparisonInfo);
 
       comparison = () => 0 >= string.Compare(zs, xs);
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.GreaterThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.GreaterThanOrEqual, keyName,
         valueExp, comparisonInfo);
 
       DateTime xd = DateTime.Now;
@@ -273,7 +273,7 @@ namespace Xtensive.Core.Tests.Linq
       valueExp = ((Expression<Func<DateTime>>)(() => zd)).Body;
       keyName = "xd";
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.LessThanOrEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.LessThanOrEqual, keyName,
         valueExp, comparisonInfo);
     }
 
@@ -286,31 +286,31 @@ namespace Xtensive.Core.Tests.Linq
       Expression valueExp = ((Expression<Func<string>>)(() => String.Format("{0}%", zs))).Body;
       string keyName = "xs";
       var comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Like, keyName,
+      CheckSimpleComparison(ComparisonOperation.Like, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.StartsWith(zs, StringComparison.Ordinal);
       valueExp = ((Expression<Func<string>>)(() => String.Format("{0}%", zs))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckComplexComparison(ComparisonType.Like, keyName,
+      CheckComplexComparison(ComparisonOperation.Like, keyName,
         valueExp, comparison.Body, comparisonInfo);
 
       comparison = () => xs.EndsWith(zs);
       valueExp = ((Expression<Func<string>>)(() => String.Format("%{0}", zs))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Like, keyName,
+      CheckSimpleComparison(ComparisonOperation.Like, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.EndsWith(zs, true, System.Globalization.CultureInfo.CurrentUICulture);
       valueExp = ((Expression<Func<string>>)(() => String.Format("%{0}", zs))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckComplexComparison(ComparisonType.Like, keyName,
+      CheckComplexComparison(ComparisonOperation.Like, keyName,
         valueExp, comparison.Body, comparisonInfo);
 
       comparison = () => !xs.StartsWith(zs);
       valueExp = ((Expression<Func<string>>)(() => String.Format("{0}%", zs))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.NotLike, keyName,
+      CheckSimpleComparison(ComparisonOperation.NotLike, keyName,
         valueExp, comparisonInfo);
     }
 
@@ -323,60 +323,60 @@ namespace Xtensive.Core.Tests.Linq
       Expression valueExp = ((Expression<Func<string>>)(() => zs + "t")).Body;
       string keyName = "xs";
       var comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Equal, keyName,
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => !xs.Equals(zs + "t");
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.NotEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.NotEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.Equals(zs + "t", StringComparison.Ordinal);
       valueExp = ((Expression<Func<string>>)(() => zs + "t")).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckComplexComparison(ComparisonType.Equal, keyName,
+      CheckComplexComparison(ComparisonOperation.Equal, keyName,
         valueExp, comparison.Body, comparisonInfo);
 
       comparison = () => xs.Equals((object)(zs + "t"));
       valueExp = ((Expression<Func<object>>)(() => (object)(zs + "t"))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Equal, keyName,
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => Equals(xs, (object)(zs + "t"));
       valueExp = ((Expression<Func<object>>)(() => (object)(zs + "t"))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Equal, keyName,
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => !Equals(xs, (object)(zs + "t"));
       valueExp = ((Expression<Func<object>>)(() => (object)(zs + "t"))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.NotEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.NotEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => string.Equals(xs, zs + "t");
       valueExp = ((Expression<Func<string>>)(() => zs + "t")).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Equal, keyName,
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => !string.Equals(xs, zs + "t");
       valueExp = ((Expression<Func<string>>)(() => zs + "t")).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.NotEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.NotEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => string.Equals(xs, zs + "t", StringComparison.Ordinal);
       valueExp = ((Expression<Func<string>>)(() => zs + "t")).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckComplexComparison(ComparisonType.Equal, keyName,
+      CheckComplexComparison(ComparisonOperation.Equal, keyName,
         valueExp, comparison.Body, comparisonInfo);
 
       comparison = () => !string.Equals(xs, zs + "t", StringComparison.Ordinal);
       valueExp = ((Expression<Func<string>>)(() => zs + "t")).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckComplexComparison(ComparisonType.NotEqual, keyName,
+      CheckComplexComparison(ComparisonOperation.NotEqual, keyName,
         valueExp, ((UnaryExpression)comparison.Body).Operand, comparisonInfo);
 
       DateTime xd = DateTime.Now;
@@ -386,13 +386,13 @@ namespace Xtensive.Core.Tests.Linq
       valueExp = ((Expression<Func<object>>)(() => zd)).Body;
       keyName = "xd";
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Equal, keyName,
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => DateTime.Equals(xd, zd);
       valueExp = ((Expression<Func<DateTime>>)(() => zd)).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Equal, keyName,
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         valueExp, comparisonInfo);
     }
 
@@ -405,37 +405,37 @@ namespace Xtensive.Core.Tests.Linq
       Expression valueExp = ((Expression<Func<bool>>)(() => zb)).Body;
       string keyName = "xb";
       var comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Equal, keyName,
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xb != zb;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.NotEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.NotEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => !xb == zb;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.NotEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.NotEqual, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xb == !zb;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Equal, keyName,
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         ((Expression<Func<bool>>)(() => !zb)).Body, comparisonInfo);
 
       comparison = () => zb != !xb;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Equal, keyName,
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xb;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.Equal, keyName,
+      CheckSimpleComparison(ComparisonOperation.Equal, keyName,
         Expression.Constant(true), comparisonInfo);
 
       comparison = () => !xb;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonType.NotEqual, keyName,
+      CheckSimpleComparison(ComparisonOperation.NotEqual, keyName,
         Expression.Constant(true), comparisonInfo);
     }
 
@@ -489,6 +489,16 @@ namespace Xtensive.Core.Tests.Linq
       comparison = () => string.IsNullOrEmpty(xs);
       comparisonInfo = ExtractComparisonInfo(comparison, "xi");
       Assert.IsNull(comparisonInfo);
+
+      // The expression contains key in both of operands.
+      comparison = () => xi > xi + 1;
+      comparisonInfo = ExtractComparisonInfo(comparison, "xi");
+      Assert.IsNull(comparisonInfo);
+
+      // The expression contains key in both of operands.
+      comparison = () => xi.CompareTo(xi + 1) < 0;
+      comparisonInfo = ExtractComparisonInfo(comparison, "xi");
+      Assert.IsNull(comparisonInfo);
     }
 
     private static ComparisonInfo ExtractComparisonInfo(Expression comparison,
@@ -502,24 +512,24 @@ namespace Xtensive.Core.Tests.Linq
       });
     }
 
-    private static void CheckSimpleComparison(ComparisonType comparisonType, string keyName, Expression value,
+    private static void CheckSimpleComparison(ComparisonOperation comparisonOperation, string keyName, Expression value,
       ComparisonInfo result)
     {
-      CheckComparison(comparisonType, keyName, value, false, result);
+      CheckComparison(comparisonOperation, keyName, value, false, result);
     }
 
-    private static void CheckComplexComparison(ComparisonType comparisonType, string keyName, Expression value,
-      Expression complexMethod, ComparisonInfo result)
+    private static void CheckComplexComparison(ComparisonOperation comparisonOperation, string keyName,
+      Expression value, Expression complexMethod, ComparisonInfo result)
     {
-      CheckComparison(comparisonType, keyName, value, true, result);
+      CheckComparison(comparisonOperation, keyName, value, true, result);
       Assert.AreEqual(complexMethod.ToString(true), result.ComplexMethod.ToString(true));
     }
 
-    private static void CheckComparison(ComparisonType comparisonType, string keyName, Expression value,
-      bool isComlex, ComparisonInfo result)
+    private static void CheckComparison(ComparisonOperation comparisonOperation, string keyName,
+      Expression value, bool isComlex, ComparisonInfo result)
     {
       Assert.IsNotNull(result);
-      Assert.AreEqual(comparisonType, result.Operation);
+      Assert.AreEqual(comparisonOperation, result.Operation);
       Assert.AreEqual(isComlex, result.IsComplex);
       if(!isComlex)
         Assert.IsNull(result.ComplexMethod);
