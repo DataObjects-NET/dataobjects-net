@@ -120,9 +120,9 @@ namespace Xtensive.Storage.Providers
     /// Builds foreign key name by association.
     /// </summary>
     /// <returns>Foreign key name.</returns>
-    public virtual string BuildForeignKeyName(AssociationInfo association)
+    public virtual string BuildForeignKeyName(AssociationInfo association, FieldInfo referencingField)
     {
-      return NamingConvention.Apply(string.Format("FK_{0}", association.Name));
+      return NamingConvention.Apply(string.Format("FK_{0}_{1}", association.Name, referencingField.Name));
     }
 
     /// <summary>

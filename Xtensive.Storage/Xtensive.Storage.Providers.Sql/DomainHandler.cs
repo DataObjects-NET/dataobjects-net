@@ -48,16 +48,17 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected override IEnumerable<Type> GetProviderCompilerExtensionTypes()
     {
-      return new[] {
-          typeof (NullableMappings),
-          typeof (ArrayMappings),
-          typeof (StringMappings),
-          typeof (DateTimeMappings),
-          typeof (TimeSpanMappings),
-          typeof (MathMappings),
-          typeof (NumericMappings),
-          typeof (DecimalMappings)
-        };
+      return new[]
+             {
+               typeof (NullableMappings),
+               typeof (ArrayMappings),
+               typeof (StringMappings),
+               typeof (DateTimeMappings),
+               typeof (TimeSpanMappings),
+               typeof (MathMappings),
+               typeof (NumericMappings),
+               typeof (DecimalMappings)
+             };
     }
 
     /// <inheritdoc/>
@@ -144,11 +145,11 @@ namespace Xtensive.Storage.Providers.Sql
     public override void InitializeSystemSession()
     {
       base.InitializeSystemSession();
-      SqlDriver = ((SessionHandler)BuildingContext.Current.SystemSessionHandler).Connection.Driver;
+      SqlDriver = ((SessionHandler) BuildingContext.Current.SystemSessionHandler).Connection.Driver;
       ValueTypeMapper = Handlers.HandlerFactory.CreateHandler<SqlValueTypeMapper>();
       ValueTypeMapper.Initialize();
 
-      var sessionHandler = ((SessionHandler)BuildingScope.Context.SystemSessionHandler);
+      var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
       var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
       SqlModel existingModel = SqlModel.Build(modelProvider);
       string serverName = existingModel.DefaultServer.Name;
@@ -184,7 +185,6 @@ namespace Xtensive.Storage.Providers.Sql
         BuildForeignKeys(domainModel.Associations, tables);
       if ((Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Hierarchy) > 0)
         BuildHierarchyReferences(domainModel.Types.Entities, tables);
-
     }
 
     protected virtual ISqlCompileUnit GenerateSyncCatalogScript(DomainModel domainModel, Schema existingSchema, Schema newSchema)
@@ -217,18 +217,21 @@ namespace Xtensive.Storage.Providers.Sql
           IndexInfo referencedIndex = FindRealIndex(association.ReferencedType.Indexes.PrimaryIndex, null);
           referencedTable = tables[referencedIndex];
           referencedColumns = association.ReferencedType.Indexes.PrimaryIndex.KeyColumns.Keys;
-          foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(association);
+          foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(association, association.ReferencingField);
+          CreateForeignKey(foreignKeyName, referencingTable, referencingColumns, referencedTable, referencedColumns);
         }
         else {
           referencingTable = tables[association.UnderlyingType.Indexes.PrimaryIndex];
-          IndexInfo referencedIndex = FindRealIndex(association.ReferencingType.Indexes.PrimaryIndex, null);
-          referencedTable = tables[referencedIndex];
-          referencedColumns = referencedIndex.KeyColumns.Keys;
-          FieldInfo referencingField = association.UnderlyingType.Fields.First(fieldInfo => fieldInfo.IsEntity && fieldInfo.ValueType==association.ReferencingType.UnderlyingType);
-          referencingColumns = referencingField.ExtractColumns();
-          foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(association);
+          foreach (FieldInfo referencingField in association.UnderlyingType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
+            // Build master reference
+            IndexInfo referencedIndex = FindRealIndex(Domain.Model.Types[referencingField.ValueType].Indexes.PrimaryIndex, null);
+            referencedTable = tables[referencedIndex];
+            referencedColumns = referencedIndex.KeyColumns.Keys;
+            referencingColumns = referencingField.ExtractColumns();
+            foreignKeyName = Domain.NameBuilder.BuildForeignKeyName(association, referencingField);
+            CreateForeignKey(foreignKeyName, referencingTable, referencingColumns, referencedTable, referencedColumns);
+          }
         }
-        CreateForeignKey(foreignKeyName, referencingTable, referencingColumns, referencedTable, referencedColumns);
       }
     }
 
@@ -368,6 +371,5 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     #endregion
-
   }
 }
