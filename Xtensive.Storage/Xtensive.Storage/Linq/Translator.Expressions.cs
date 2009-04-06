@@ -563,58 +563,7 @@ namespace Xtensive.Storage.Linq
       if (!leftIsParameter && !rightIsParameter)
         return MakeComplexBinaryExpression(binaryExpression.Left, binaryExpression.Right, binaryExpression.NodeType);
 
-      ResultMapping leftMapping;
-      using (new ParameterScope()) {
-        resultMapping.Value = new ResultMapping();
-        Visit(binaryExpression.Left);
-        leftMapping = resultMapping.Value;
-      }
-
-      ResultMapping rightMapping;
-      using (new ParameterScope())
-      {
-        resultMapping.Value = new ResultMapping();
-        Visit(binaryExpression.Right);
-        rightMapping = resultMapping.Value;
-      }
-
-      Expression leftExpression = binaryExpression.Left;
-      Expression rightExpression = binaryExpression.Right;
-
-      
-
-      // var properties = leftExpression.Type.GetProperties();
-//      Expression result = null;
-//      foreach (PropertyInfo propertyInfo in properties)
-//      {
-//        if (!propertyInfo.DeclaringType.IsSubclassOf(typeof (Structure)))
-//          continue;
-//        Expression left;
-//        string propertyName = propertyInfo.GetGetMethod().Name;
-//        if (leftExpression.NodeType == ExpressionType.New)
-//        {
-//          var newExpression = ((NewExpression)leftExpression);
-//          var member = newExpression.Members.First(memberInfo => memberInfo.Name == propertyName);
-//          int index = newExpression.Members.IndexOf(member);
-//          left = newExpression.Arguments[index];
-//        }
-//        else
-//          left = Expression.Property(leftExpression, propertyInfo);
-//        Expression right;
-//        if (rightExpression.NodeType == ExpressionType.New)
-//        {
-//          var newExpression = ((NewExpression)rightExpression);
-//          var member = newExpression.Members.First(memberInfo => memberInfo.Name == propertyName);
-//          int index = newExpression.Members.IndexOf(member);
-//          right = newExpression.Arguments[index];
-//        }
-//        else
-//          right = Expression.Property(leftExpression, propertyInfo);
-//        var expression = VisitBinary((BinaryExpression)MakeBinaryExpression(null, left, right, binaryExpression.NodeType));
-//        result = result == null ? expression : Expression.AndAlso(result, expression);
-//      }
-      throw new NotImplementedException();
-      return null;
+      throw new NotSupportedException();
     }
 
     #endregion
