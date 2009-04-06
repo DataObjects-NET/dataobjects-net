@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Indexing.Model.Convert
     /// <summary>
     /// Gets the server info.
     /// </summary>
-    protected ServerInfo ServerInfo { get; private set; }
+    protected ServerInfo Server { get; private set; }
 
     /// <summary>
     /// Converts the specified model <see cref="Schema"/> to <see cref="StorageInfo"/>.
@@ -41,9 +41,8 @@ namespace Xtensive.Storage.Indexing.Model.Convert
     {
       ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
       ArgumentValidator.EnsureArgumentNotNull(server, "server");
-
-
-      ServerInfo = server;
+      
+      Server = server;
       StorageInfo = new StorageInfo(schema.Name);
       Visit(schema);
 
@@ -105,7 +104,6 @@ namespace Xtensive.Storage.Indexing.Model.Convert
           OnUpdateAction = ConvertReferentialAction(key.OnUpdate),
           OnRemoveAction = ConvertReferentialAction(key.OnDelete)
         };
-      // ToDo: Complete this!
       var referencedTable = tableInfo.Model.Tables[key.ReferencedTable.Name];
       var referencingTable = tableInfo.Model.Tables[key.Table.Name];
       var referencingColumns = new List<ColumnInfo>();
@@ -208,7 +206,7 @@ namespace Xtensive.Storage.Indexing.Model.Convert
     /// <returns>Converted type.</returns>
     protected virtual Type ConvertType(SqlDataType toConvert)
     {
-      return ServerInfo.DataTypes[toConvert].Type;
+      return Server.DataTypes[toConvert].Type;
     }
 
     /// <summary>
@@ -221,7 +219,8 @@ namespace Xtensive.Storage.Indexing.Model.Convert
     {
       foreach (SecondaryIndexInfo index in table.SecondaryIndexes) {
         var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value);
-        if (secondaryKeyColumns.Except(keyColumns).Count()==0)
+        if (secondaryKeyColumns.Except(keyColumns)
+          .Union(keyColumns.Except(secondaryKeyColumns)).Count()==0)
           return index;
       }
 

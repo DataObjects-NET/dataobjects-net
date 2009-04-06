@@ -39,7 +39,7 @@ namespace Xtensive.Indexing.Tests.Storage
       return config;
     }
 
-    protected override Xtensive.Storage.Domain BuildDomain(DomainConfiguration configuration)
+    protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
       // Get current SQL model
@@ -52,7 +52,8 @@ namespace Xtensive.Indexing.Tests.Storage
         domainModel = domain.Model;
 
         storage = new SqlModelConverter().Convert(sqlModel.DefaultServer.DefaultCatalog.DefaultSchema, server);
-        //storage = new ModelConverter().Convert(domainModel, "dbo");
+        // storage = new ModelConverter(domain.NameBuilder.BuildForeignKeyName, domain.NameBuilder.BuildForeignKeyName)
+        //  .Convert(domainModel, "dbo");
         
         storage.Dump();
 
