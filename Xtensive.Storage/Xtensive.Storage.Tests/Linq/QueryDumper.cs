@@ -18,15 +18,14 @@ namespace Xtensive.Storage.Tests.Linq
     public static void Dump(IEnumerable query)
     {
       foreach (var item in query) {
-        Log.Info(item.ToString());
+       Dump(item);
       }
     }
 
     public static void Dump(object value)
     {
-      if (value is IEnumerable) {
+      if (value is IEnumerable)
         Dump((IEnumerable) value);
-      }
       Log.Info(value == null ? "NULL" : value.ToString());
     }
   }

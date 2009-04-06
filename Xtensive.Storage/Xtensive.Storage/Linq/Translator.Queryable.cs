@@ -417,8 +417,6 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitGroupBy(MethodInfo method, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
     {
-      if (resultSelector != null)
-        throw new NotImplementedException();
 
       var result = VisitSequence(source);
 
@@ -463,55 +461,70 @@ namespace Xtensive.Storage.Linq
       var remappedExpression = (LambdaExpression) tupleAccessProcessor.ReplaceMappings(originalCompiledKeyExpression, columnList, groupMapping, recordSet.Header);
 
       LambdaExpression itemProjector;
-      if (elementSelector==null) {
+      if (resultSelector == null)
+      {
         // record => new Grouping<TKey, TElement>(record.Key, source.Where(groupingItem => groupingItem.Key == record.Key))
-        var parameterGroupingType = typeof(Grouping<,>).MakeGenericType(keyType, elementType);
-        var constructor = parameterGroupingType.GetConstructor(new[] { keyType, typeof(Tuple), typeof(ResultExpression), typeof(Parameter<Tuple>) });
 
-        var pRecord = Expression.Parameter(typeof(Record), "record");
-        var pTuple = Expression.Parameter(typeof(Tuple), "tuple");
+        var parameterGroupingType = typeof (Grouping<,>).MakeGenericType(keyType, elementType);
+        var constructor = parameterGroupingType.GetConstructor(new[] {keyType, typeof (Tuple), typeof (ResultExpression), typeof (Parameter<Tuple>)});
+
+        var pRecord = Expression.Parameter(typeof (Record), "record");
+        var pTuple = Expression.Parameter(typeof (Tuple), "tuple");
         var parameterRewriter = new ParameterRewriter(pTuple, pRecord);
         var recordKeyExpression = parameterRewriter.Rewrite(remappedExpression.Body);
 
-        //Expression leftKeySelector = keySelector.Body;
-        Expression rightKeySelector = recordKeyExpression.First;
-        Expression groupingKeyResolver = rightKeySelector;
-
-        //var predicateExpression = Expression.Lambda(Expression.Equal(leftKeySelector, rightKeySelector), keySelector.Parameters.ToArray());
-        //var callMehtod = WellKnownMethods.QueryableWhere.MakeGenericMethod(elementType);
-        //var queryExpression = Expression.Call(callMehtod, source, predicateExpression);
-
         var tupleParameter = new Parameter<Tuple>("groupingParameter");
         var parameterValueMemberInfo = WellKnownMethods.ParameterOfTupleValue;
-        var filterTuple = Expression.Parameter(typeof(Tuple), "t");
+        var filterTuple = Expression.Parameter(typeof (Tuple), "t");
         Expression filterBody = null;
-        for (int i = 0; i < columnList.Count; i++)
-        {
+        for (int i = 0; i < columnList.Count; i++) {
           var columnIndex = columnList[i];
           var columnType = result.RecordSet.Header.Columns[columnIndex].Type;
           var tupleAccessMethod = WellKnownMethods.TupleGenericAccessor.MakeGenericMethod(columnType);
           var leftExpression = Expression.Call(filterTuple, tupleAccessMethod, Expression.Constant(columnIndex));
           var rightExpression = Expression.Call(Expression.MakeMemberAccess(Expression.Constant(tupleParameter), parameterValueMemberInfo), tupleAccessMethod, Expression.Constant(i));
           var equalsExpression = Expression.Equal(leftExpression, rightExpression);
-          filterBody = filterBody == null
+          filterBody = filterBody==null
             ? equalsExpression
             : Expression.AndAlso(filterBody, equalsExpression);
         }
 
         var filterPredicate = Expression.Lambda(filterBody, filterTuple);
-        var groupingRs = result.RecordSet.Filter((Expression<Func<Tuple, bool>>)filterPredicate);
+        var groupingRs = result.RecordSet.Filter((Expression<Func<Tuple, bool>>) filterPredicate);
 
         var groupingResultExpression = new ResultExpression(result.Type, groupingRs, result.Mapping, result.Projector, result.ItemProjector);
 
-        var projectorBody = Expression.New(constructor, groupingKeyResolver, pTuple, Expression.Constant(groupingResultExpression), Expression.Constant(tupleParameter));
+        // ElementSelector
+        if (elementSelector!=null) {
+          LambdaExpression visitedElementSelector;
+          using (context.Bindings.Add(elementSelector.Parameters[0], groupingResultExpression))
+          using (new ParameterScope())
+          {
+            resultMapping.Value = new ResultMapping();
+            visitedElementSelector = (LambdaExpression)Visit(elementSelector);
+            columnList = resultMapping.Value.GetColumns().ToList();
+            newResultMapping = resultMapping.Value;
+            result = context.Bindings[elementSelector.Parameters[0]];
+          }
+          var groupingProjector = (Expression<Func<RecordSet, object>>)BuildProjector(visitedElementSelector, true); 
+          groupingResultExpression = new ResultExpression(result.Type, groupingRs, result.Mapping, groupingProjector, visitedElementSelector);
+        }
+
+
+        var projectorBody = Expression.New(
+          constructor, 
+          recordKeyExpression.First, 
+          pTuple, 
+          Expression.Constant(groupingResultExpression), 
+          Expression.Constant(tupleParameter));
 
         itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
-          ? new[] { pTuple, pRecord }
-          : new[] { pTuple });
+          ? new[] {pTuple, pRecord}
+          : new[] {pTuple});
       }
       else {
         throw new NotImplementedException();
-        itemProjector = null;
+
       }
 
 
@@ -792,7 +805,7 @@ namespace Xtensive.Storage.Linq
       var oldResult = context.Bindings[lambdaParameter];
       if (oldResult.ItemProjector.Body.NodeType==ExpressionType.New) {
         var newExpression = (NewExpression) oldResult.ItemProjector.Body;
-        if (newExpression.Type.IsGenericType && newExpression.Type.GetGenericTypeDefinition() == typeof(Grouping<,>))
+        if (newExpression.Type.IsGenericType && newExpression.Type.GetGenericTypeDefinition()==typeof (Grouping<,>))
           applyParameter = (Parameter<Tuple>) ((ConstantExpression) newExpression.Arguments[3]).Value;
         else
           throw new NotSupportedException();
@@ -832,7 +845,7 @@ namespace Xtensive.Storage.Linq
           return (ResultExpression) visitedExpression;
         case ExpressionType.New:
           var newExpression = (NewExpression) visitedExpression;
-          if (newExpression.Type.IsGenericType && newExpression.Type.GetGenericTypeDefinition() == typeof(Grouping<,>))
+          if (newExpression.Type.IsGenericType && newExpression.Type.GetGenericTypeDefinition()==typeof (Grouping<,>))
             return (ResultExpression) ((ConstantExpression) newExpression.Arguments[2]).Value;
           break;
       }

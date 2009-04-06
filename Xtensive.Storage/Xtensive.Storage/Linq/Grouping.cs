@@ -29,12 +29,11 @@ namespace Xtensive.Storage.Linq
 
     public IEnumerator<TElement> GetEnumerator()
     {
-      IEnumerable result;
       using (new ParameterScope()) {
         tupleParameter.Value = keyTuple;
-        result = (IEnumerable) resultExpression.Projector.Compile().Invoke(resultExpression.RecordSet);
+        var result = (IEnumerable) resultExpression.Projector.Compile().Invoke(resultExpression.RecordSet);
         foreach (object element in result)
-          yield return (TElement)element;
+          yield return (TElement) element;
       }
     }
 
