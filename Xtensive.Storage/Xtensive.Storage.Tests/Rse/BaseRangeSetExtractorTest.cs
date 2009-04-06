@@ -66,22 +66,22 @@ namespace Xtensive.Storage.Tests.Rse
       RecordSetHeader primaryIndexRsHeader, IEnumerable<Range<Entire<Tuple>>> expectedRanges)
     {
       TestExpression(expectedRanges,
-        extractor => extractor.Extract(predicate, indexInfo, primaryIndexRsHeader));
+        extractor => extractor.Extract(predicate, new[] {indexInfo}, primaryIndexRsHeader));
     }
 
     protected void TestExpression(Expression predicate, IndexInfo indexInfo,
       RecordSetHeader primaryIndexRsHeader, IEnumerable<Range<Entire<Tuple>>> expectedRanges)
     {
       TestExpression(expectedRanges,
-        extractor => extractor.Extract(predicate, indexInfo, primaryIndexRsHeader));
+        extractor => extractor.Extract(predicate, new[]{indexInfo}, primaryIndexRsHeader));
     }
 
     private void TestExpression(IEnumerable<Range<Entire<Tuple>>> expectedRanges,
-      Func<RangeSetExtractor, RsExtractionResult> extractingFunc)
+      Func<RangeSetExtractor, Dictionary<Expression, List<RsExtractionResult>>> extractingFunc)
     {
       RangeSetExtractor extractor = new RangeSetExtractor(Domain.Model);
       var rangeSetExp = extractingFunc(extractor);
-      var result = (RangeSet<Entire<Tuple>>)rangeSetExp.GetResult().Compile().DynamicInvoke();
+      var result = rangeSetExp.GetRangeSetForSingleIndex();
       CheckRanges(expectedRanges, result);
     }
 

@@ -4,38 +4,71 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.03.17
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Linq.Normalization;
-using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
-  /// <summary>
-  /// Extractor of <see cref="RangeSet{T}"/> from a boolean expression in disjunctive normal form.
-  /// </summary>
   internal sealed class RangeSetExtractor
   {
     private readonly CnfParser cnfParser;
     private readonly GeneralPredicateParser generalParser;
 
-    public RsExtractionResult Extract(DisjunctiveNormalized predicate, IndexInfo info,
-      RecordSetHeader primaryIdxRecordSetHeader)
+    public Dictionary<Expression, List<RsExtractionResult>> Extract(DisjunctiveNormalized predicate,
+      IEnumerable<IndexInfo> indexInfo, RecordSetHeader primaryIdxRecordSetHeader)
     {
       ArgumentValidator.EnsureArgumentNotNull(predicate, "predicate");
+      ArgumentValidator.EnsureArgumentNotNull(indexInfo, "indexInfo");
+      ArgumentValidator.EnsureArgumentNotNull(primaryIdxRecordSetHeader, "primaryIdxRecordSetHeader");
       predicate.Validate();
-      var result = new RsExtractionResult(info);
-      foreach (var cnf in predicate.Operands)
-        result.AddPart(cnfParser.Parse(cnf, info, primaryIdxRecordSetHeader));
+      var result = new Dictionary<Expression, List<RsExtractionResult>>();
+      var indexCount = indexInfo.Count();
+      foreach (var operand in predicate.Operands) {
+        var expressionPart = operand.ToExpression();
+        var rangeSets = ProcessExpressionPart(operand, indexInfo, indexCount, primaryIdxRecordSetHeader);
+        result.Add(expressionPart, rangeSets);
+      }
       return result;
     }
 
-    public RsExtractionResult Extract(Expression predicate, IndexInfo info,
-      RecordSetHeader primaryIdxRecordSetHeader)
+    public Dictionary<Expression, List<RsExtractionResult>> Extract(Expression predicate,
+      IEnumerable<IndexInfo> indexInfo, RecordSetHeader primaryIdxRecordSetHeader)
     {
-      var result = new RsExtractionResult(info);
-      result.AddPart(generalParser.Parse(predicate, info, primaryIdxRecordSetHeader));
+      ArgumentValidator.EnsureArgumentNotNull(predicate, "predicate");
+      ArgumentValidator.EnsureArgumentNotNull(indexInfo, "indexInfo");
+      ArgumentValidator.EnsureArgumentNotNull(primaryIdxRecordSetHeader, "primaryIdxRecordSetHeader");
+      var result = new Dictionary<Expression, List<RsExtractionResult>>();
+      var indexCount = indexInfo.Count();
+      var extractionResult = ProcessExpression(predicate, indexInfo, indexCount, primaryIdxRecordSetHeader);
+      result.Add(predicate, extractionResult);
+      return result;
+    }
+
+    private List<RsExtractionResult> ProcessExpressionPart(Conjunction<Expression> part,
+      IEnumerable<IndexInfo> indexInfo, int indexCount, RecordSetHeader rsHeader)
+    {
+      var result = new List<RsExtractionResult>(indexCount);
+      foreach (var info in indexInfo) {
+        var resultPart = cnfParser.Parse(part, info, rsHeader);
+        var extractionResult = new RsExtractionResult(info, resultPart);
+        result.Add(extractionResult);
+      }
+      return result;
+    }
+
+    private List<RsExtractionResult> ProcessExpression(Expression exp,
+      IEnumerable<IndexInfo> indexInfo, int indexCount, RecordSetHeader rsHeader)
+    {
+      var result = new List<RsExtractionResult>(indexCount);
+      foreach (var info in indexInfo) {
+        var resultPart = generalParser.Parse(exp, info, rsHeader);
+        var extractionResult = new RsExtractionResult(info, resultPart);
+        result.Add(extractionResult);
+      }
       return result;
     }
 

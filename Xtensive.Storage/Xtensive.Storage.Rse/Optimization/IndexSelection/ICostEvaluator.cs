@@ -2,17 +2,16 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexander Nikolaev
-// Created:    2009.04.03
+// Created:    2009.04.06
 
-using System.Collections.Generic;
-using System.Linq.Expressions;
+using Xtensive.Core.Tuples;
+using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
-  internal interface IIndexesSelector
+  internal interface ICostEvaluator
   {
-    Dictionary<IndexInfo, RangeSetInfo> Select(Dictionary<Expression,
-      List<RsExtractionResult>> extractionResults);
+    float Evaluate(IndexInfo indexInfo, RangeSet<Entire<Tuple>> rangeSet);
   }
 }

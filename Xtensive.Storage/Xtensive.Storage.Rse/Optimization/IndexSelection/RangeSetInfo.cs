@@ -14,6 +14,9 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
   internal sealed class RangeSetInfo
   {
+    private Func<RangeSet<Entire<Tuple>>> rangeSetMaker;
+    private bool makerIsStale;
+
     public Expression Source { get; private set; }
 
     public bool AlwaysFull { get; private set; }
@@ -34,6 +37,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       Source = unionResult;
       AlwaysFull = AlwaysFull || other.AlwaysFull;
       Origin = null;
+      makerIsStale = true;
     }
 
     public void Intersect(Expression intersectionResult, RangeSetInfo other)
@@ -42,6 +46,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       Source = intersectionResult;
       AlwaysFull = AlwaysFull && other.AlwaysFull;
       Origin = null;
+      makerIsStale = true;
     }
 
     public void Invert(Expression inversionResult)
@@ -50,6 +55,16 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       Source = inversionResult;
       AlwaysFull = false;
       Origin = null;
+      makerIsStale = true;
+    }
+
+    public RangeSet<Entire<Tuple>> GetRangeSet()
+    {
+      if (rangeSetMaker == null || makerIsStale) {
+        rangeSetMaker = (Func<RangeSet<Entire<Tuple>>>) Expression.Lambda(Source).Compile();
+        makerIsStale = false;
+      }
+      return rangeSetMaker();
     }
 
     // Constructors

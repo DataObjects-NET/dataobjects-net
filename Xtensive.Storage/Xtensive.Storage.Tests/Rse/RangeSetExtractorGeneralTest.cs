@@ -75,12 +75,12 @@ namespace Xtensive.Storage.Tests.Rse
         (t) => t.GetValue<string>(nameIdx).CompareTo("abc") >= 0 && t.GetValue<int?>(lengthIdx) < 3 
           || !(lengthIdx is int && !(lengthIdx is string));
       var rsExtractor = new RangeSetExtractor(Domain.Model);
-      var result0 = rsExtractor.Extract(predicate0, indexInfo, rsHeader);
-      var result1 = rsExtractor.Extract(predicate1, indexInfo, rsHeader);
+      var result0 = rsExtractor.Extract(predicate0, new[] {indexInfo}, rsHeader);
+      var result1 = rsExtractor.Extract(predicate1, new[] { indexInfo }, rsHeader);
       var expectedRanges = CreateRangesForDifferentFieldInversionTest(indexInfo, LengthField);
-      var rs0 = (RangeSet<Entire<Tuple>>)result0.GetResult().Compile().DynamicInvoke();
+      var rs0 = result0.GetRangeSetForSingleIndex();
       CheckRanges(expectedRanges, rs0);
-      var rs1 = (RangeSet<Entire<Tuple>>)result1.GetResult().Compile().DynamicInvoke();
+      var rs1 = result1.GetRangeSetForSingleIndex();
       CheckRanges(rs0, rs1);
     }
 

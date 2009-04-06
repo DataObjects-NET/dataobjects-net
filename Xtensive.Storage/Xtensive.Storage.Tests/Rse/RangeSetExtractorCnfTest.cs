@@ -4,10 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.03.18
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -16,7 +13,6 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Optimization.IndexSelection;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
 
 namespace Xtensive.Storage.Tests.Rse
