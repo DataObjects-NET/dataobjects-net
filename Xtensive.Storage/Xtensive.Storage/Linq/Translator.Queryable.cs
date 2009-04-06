@@ -417,6 +417,9 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitGroupBy(MethodInfo method, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
     {
+      if (resultSelector!=null) {
+        throw new NotImplementedException();
+      }
 
       var result = VisitSequence(source);
 
