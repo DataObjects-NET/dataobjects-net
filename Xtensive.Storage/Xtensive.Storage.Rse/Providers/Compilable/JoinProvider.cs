@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// Pairs of equal columns.
     /// </summary>
-    public Pair<MappedColumn>[] EqualColumns { get; private set; }
+    public Pair<Column>[] EqualColumns { get; private set; }
 
     /// <inheritdoc/>
     public override string ParametersToString()
@@ -55,11 +55,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     protected override void Initialize()
     {
       base.Initialize();
-      EqualColumns = new Pair<MappedColumn>[EqualIndexes.Length];
+      EqualColumns = new Pair<Column>[EqualIndexes.Length];
       for (int i = 0; i < EqualIndexes.Length; i++)
-        EqualColumns[i] = new Pair<MappedColumn>(
-          (MappedColumn) Left.Header.Columns[EqualIndexes[i].First],
-          (MappedColumn) Right.Header.Columns[EqualIndexes[i].Second]);
+        EqualColumns[i] = new Pair<Column>(
+          Left.Header.Columns[EqualIndexes[i].First],
+          Right.Header.Columns[EqualIndexes[i].Second]
+          );
     }
 
 

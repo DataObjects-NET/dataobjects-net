@@ -583,6 +583,7 @@ namespace Xtensive.Storage.Linq
         var outerMapping = new ResultMapping();
         var innerMapping = new ResultMapping();
         using (new ParameterScope()) {
+          calculateExpressions.Value = true;
           resultMapping.Value = outerMapping;
           Visit(outerKey);
           resultMapping.Value = innerMapping;

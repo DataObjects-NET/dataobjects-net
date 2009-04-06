@@ -39,6 +39,11 @@ namespace Xtensive.Storage.Rse
       return new CalculatedColumn(this, newIndex);
     }
 
+    /// <inheritdoc/>
+    public override Column Clone(string newName)
+    {
+      return new CalculatedColumn(this, newName);
+    }
 
     // Constructor
 
@@ -53,13 +58,10 @@ namespace Xtensive.Storage.Rse
       Expression = descriptor.Expression;
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="column">The original <see cref="CalculatedColumn"/> value.</param>
-    /// <param name="alias">The alias to add.</param>
-    public CalculatedColumn(CalculatedColumn column, string alias)
-      : base(alias.IsNullOrEmpty() ? column.Name : string.Concat(alias, ".", column.Name), column.Index, column.Type)
+    #region Clone constructors
+
+    private CalculatedColumn(CalculatedColumn column, string newName)
+      : base(newName, column.Index, column.Type)
     {
       Expression = column.Expression;
     }
@@ -69,5 +71,7 @@ namespace Xtensive.Storage.Rse
     {
       Expression = column.Expression;
     }
+
+    #endregion
   }
 }

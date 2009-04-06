@@ -43,6 +43,11 @@ namespace Xtensive.Storage.Rse
       return new AggregateColumn(this, newIndex);
     }
 
+    /// <inheritdoc/>
+    public override Column Clone(string newName)
+    {
+      return new AggregateColumn(this, newName);
+    }
 
     // Constructor
 
@@ -59,13 +64,10 @@ namespace Xtensive.Storage.Rse
       SourceIndex = descriptor.SourceIndex;
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="column">The original <see cref="AggregateColumn"/> value.</param>
-    /// <param name="alias">The alias to add.</param>
-    public AggregateColumn(AggregateColumn column, string alias)
-      : base(alias.IsNullOrEmpty() ? column.Name : string.Concat(alias, ".", column.Name), column.Index, column.Type)
+    #region Clone constructors
+
+    private AggregateColumn(AggregateColumn column, string newName)
+      : base(newName, column.Index, column.Type)
     {
       AggregateType = column.AggregateType;
       SourceIndex = column.SourceIndex;
@@ -77,5 +79,7 @@ namespace Xtensive.Storage.Rse
       AggregateType = column.AggregateType;
       SourceIndex = column.SourceIndex;
     }
+
+    #endregion
   }
 }

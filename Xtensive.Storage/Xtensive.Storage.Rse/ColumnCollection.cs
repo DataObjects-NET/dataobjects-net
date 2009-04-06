@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -59,10 +60,9 @@ namespace Xtensive.Storage.Rse
     /// <returns>Aliased collection of columns.</returns>
     public ColumnCollection Alias(string alias)
     {      
-      return new ColumnCollection(
-        this.Select(column => (Column)new MappedColumn(column, alias)));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, "alias");
+      return new ColumnCollection(this.Select(column => column.Clone(alias + "." + column.Name)));
     }
-
 
     // Constructors
 

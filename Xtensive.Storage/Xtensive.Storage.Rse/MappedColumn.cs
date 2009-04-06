@@ -36,6 +36,11 @@ namespace Xtensive.Storage.Rse
       return new MappedColumn(ColumnInfoRef, Name, newIndex, Type);
     }
 
+    /// <inheritdoc/>
+    public override Column Clone(string newName)
+    {
+      return new MappedColumn(this, newName);
+    }
 
     // Constructors
 
@@ -78,28 +83,18 @@ namespace Xtensive.Storage.Rse
 
     #endregion
 
-    #region Origin-based constructors
+    #region Clone constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="column">The original <see cref="Column"/>.</param>
-    /// <param name="alias">The alias to add.</param>
-    public MappedColumn(Column column, string alias)
-      : base(alias.IsNullOrEmpty() ? column.Name : string.Concat(alias, ".", column.Name), column.Index, column.Type)
+    private MappedColumn(MappedColumn column, string newName)
+      : base(newName, column.Index, column.Type)
     {
-      ColumnInfoRef = ((MappedColumn) column).ColumnInfoRef;
+      ColumnInfoRef = column.ColumnInfoRef;
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="column">The original <see cref="Column"/> property value.</param>
-    /// <param name="index"><see cref="Column.Index"/> property value.</param>
-    public MappedColumn(Column column, int index)
-      : base(column.Name, index, column.Type)
+    private MappedColumn(MappedColumn column, int newIndex)
+      : base(column.Name, newIndex, column.Type)
     {
-      ColumnInfoRef = ((MappedColumn) column).ColumnInfoRef;
+      ColumnInfoRef = column.ColumnInfoRef;
     }
 
     #endregion

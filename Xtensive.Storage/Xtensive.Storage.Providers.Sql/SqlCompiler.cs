@@ -108,8 +108,14 @@ namespace Xtensive.Storage.Providers.Sql
       var sqlSelect = (SqlSelect) source.Request.Statement.Clone();
       var columns = sqlSelect.Columns.ToList();
       sqlSelect.Columns.Clear();
-      for (int i = 0; i < columns.Count; i++)
-        sqlSelect.Columns.Add(columns[i], provider.Header.Columns[i].Name);
+      for (int i = 0; i < columns.Count; i++) {
+        var columnName = provider.Header.Columns[i].Name;
+        var columnRef = columns[i] as SqlColumnRef;
+        if (columnRef != null)
+          sqlSelect.Columns.Add(SqlFactory.ColumnRef(columnRef.SqlColumn, columnName));
+        else
+          sqlSelect.Columns.Add(columns[i], columnName);
+      }
       var request = new SqlFetchRequest(sqlSelect, provider.Header);
       return new SqlProvider(provider, request, Handlers, source);
     }

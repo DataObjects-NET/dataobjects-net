@@ -77,12 +77,18 @@ namespace Xtensive.Storage.Rse
     }
 
     /// <summary>
-    /// Creates clone of the column, but with another <see cref="Index"/> value.
+    /// Creates clone of the column, but with another <see cref="Index"/>.
     /// </summary>
     /// <param name="newIndex">The new index value.</param>
-    /// <returns>Clone of the column, but with another <see cref="Index"/> value</returns>
+    /// <returns>Clone of the column, but with another <see cref="Index"/>.</returns>
     public abstract Column Clone(int newIndex);
 
+    /// <summary>
+    /// Creates clone of the column, but with another <see cref="Name"/>.
+    /// </summary>
+    /// <param name="newName">The new name value.</param>
+    /// <returns>Clone of the column, but with another <see cref="Name"/>.</returns>
+    public abstract Column Clone(string newName);
 
     // Constructor
 

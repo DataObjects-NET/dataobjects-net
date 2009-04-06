@@ -21,6 +21,12 @@ namespace Xtensive.Storage.Rse
       return new SystemColumn(this, newIndex);
     }
 
+    /// <inheritdoc/>
+    public override Column Clone(string newName)
+    {
+      return new SystemColumn(this, newName);
+    }
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
@@ -32,9 +38,18 @@ namespace Xtensive.Storage.Rse
     {
     }
 
-    private SystemColumn(Column column, int newIndex)
+    #region Clone constructors
+
+    private SystemColumn(SystemColumn column, int newIndex)
       : base(column.Name, newIndex, column.Type)
     {
     }
+
+    private SystemColumn(SystemColumn column, string newName)
+      : base(newName, column.Index, column.Type)
+    {
+    }
+
+    #endregion
   }
 }

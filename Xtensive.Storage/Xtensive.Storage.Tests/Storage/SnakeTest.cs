@@ -1063,5 +1063,18 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
     }
+
+    [Test]
+    public void AliasAfterCalculateTest()
+    {
+      using (Domain.OpenSession())
+      using (Transaction.Open()) {
+        var recordSet = Domain.Model.Types[typeof (Creature)].Indexes.PrimaryIndex.ToRecordSet();
+        var column = recordSet.Header.IndexOf("Name");
+        var descriptor = new CalculatedColumnDescriptor("WowName", typeof (string), t => ((string) t.GetValue(column)) + "!!!");
+        recordSet.Calculate(descriptor).Alias("lalala").ToList();
+      }
+    }
+
   }
 }
