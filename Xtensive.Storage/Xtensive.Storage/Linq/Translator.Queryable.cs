@@ -504,7 +504,7 @@ namespace Xtensive.Storage.Linq
             visitedElementSelector = (LambdaExpression)Visit(elementSelector);
             columnList = resultMapping.Value.GetColumns().ToList();
             newResultMapping = resultMapping.Value;
-            result = context.Bindings[elementSelector.Parameters[0]];
+            // result = context.Bindings[elementSelector.Parameters[0]];
           }
           var groupingProjector = (Expression<Func<RecordSet, object>>)BuildProjector(visitedElementSelector, true); 
           groupingResultExpression = new ResultExpression(result.Type, groupingRs, result.Mapping, groupingProjector, visitedElementSelector);
