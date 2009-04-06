@@ -190,7 +190,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void GroupByWhere()
+    public void GroupByWhereTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Key.StartsWith("L") && g.Count() > 1);
       var list = result.ToList();
@@ -198,7 +198,25 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void GroupBySelect()
+    public void GroupBySelectTest()
+    {
+      IQueryable<IGrouping<string, Order>> result = Query<Order>.All.GroupBy(o => o.ShipName).Select(g => g);
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
+
+
+    [Test]
+    public void GroupBySelectKeyTest()
+    {
+      IQueryable<string> result = Query<Order>.All.GroupBy(o => o.ShipName).Select(g => g.Key);
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
+
+
+    [Test]
+    public void GroupBySelectGroupingTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => g);
       var list = result.ToList();

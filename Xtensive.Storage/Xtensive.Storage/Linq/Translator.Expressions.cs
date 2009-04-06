@@ -69,8 +69,8 @@ namespace Xtensive.Storage.Linq
         if (calculateExpressions.Value && body.GetMemberType()==MemberType.Unknown) {
           if (
             ((ExtendedExpressionType) body.NodeType)!=ExtendedExpressionType.Result &&
-              (body.NodeType!=ExpressionType.Call ||
-                ((MethodCallExpression) body).Object==null ||
+              (body.NodeType != ExpressionType.Call ||
+                ((MethodCallExpression)body).Object == null ||
                   ((MethodCallExpression) body).Object.Type!=typeof (Tuple))) {
             var calculator = Expression.Lambda(Expression.Convert(body, typeof (object)), tuple.Value);
             var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>) calculator);

@@ -422,10 +422,6 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitGroupBy(MethodInfo method, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
     {
-      if (resultSelector!=null) {
-        throw new NotImplementedException();
-      }
-
       var result = VisitSequence(source);
 
       List<int> columnList;
@@ -689,7 +685,8 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitSelect(Expression expression, LambdaExpression le)
     {
-      using (context.Bindings.Add(le.Parameters[0], VisitSequence(expression))) {
+      var sequence = VisitSequence(expression);
+      using (context.Bindings.Add(le.Parameters[0], sequence)) {
         return BuildProjection(le);
       }
     }

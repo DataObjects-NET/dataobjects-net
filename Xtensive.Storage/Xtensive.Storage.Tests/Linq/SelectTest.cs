@@ -357,7 +357,24 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void DoubleSelectEntitySetTest()
+    public void DoubleSelectEntitySet1Test()
+    {
+      IQueryable<EntitySet<Order>> query = Query<Customer>.All.Select(c => c.Orders).Select(c => c);
+      foreach (var order in query)
+        QueryDumper.Dump(order);
+    }
+
+    [Test]
+    public void DoubleSelectEntitySet2Test()
+    {
+      IQueryable<EntitySet<Order>> query = Query<Customer>.All.Select(c => c).Select(c => c.Orders);
+      foreach (var order in query)
+        QueryDumper.Dump(order);
+    }
+
+
+    [Test]
+    public void DoubleSelectEntitySet3Test()
     {
       var query = Query<Customer>.All.Select(c => c.Orders.Select(o => o));
 //          var query = Query<Customer>.All.Select(c => c.Orders);
