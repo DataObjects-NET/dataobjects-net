@@ -28,7 +28,22 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets the type mapping.
     /// </summary>
     /// <param name="column">The column.</param>
+    /// <returns><see cref="DataTypeMapping"/> instance for the specified <paramref name="column"/>.
+    /// If no mapping exists returns null.</returns>
+    public DataTypeMapping TryGetTypeMapping(ColumnInfo column)
+    {
+      int length = column.Length.HasValue ? column.Length.Value : 0;
+      Type type = column.ValueType;
+
+      return TryGetTypeMapping(type, length);
+    }
+
+    /// <summary>
+    /// Gets the type mapping.
+    /// </summary>
+    /// <param name="column">The column.</param>
     /// <returns><see cref="DataTypeMapping"/> instance for the specified <paramref name="column"/>.</returns>
+    /// <exception cref="InvalidOperationException">Type of column is not supported.</exception>
     public DataTypeMapping GetTypeMapping(ColumnInfo column)
     {
       int length = column.Length.HasValue ? column.Length.Value : 0;
@@ -41,34 +56,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets the type mapping.
     /// </summary>
     /// <param name="type">The column type.</param>
-    /// <param name="length">The column length.</param>
-    /// <returns><see cref="DataTypeMapping"/> instance for the specified <paramref name="type"/> and <paramref name="length"/>.</returns>
-    /// <exception cref="InvalidOperationException"><param name="type">Type</param> is not supported.</exception>
-    public DataTypeMapping GetTypeMapping(Type type, int length)
+    /// <returns><see cref="DataTypeMapping"/> instance for the specified <paramref name="type"/>.
+    /// If no mapping exists returns null.</returns>
+    public DataTypeMapping TryGetTypeMapping(Type type)
     {
-      {
-        DataTypeMapping mapping = MappingSchema.GetExactMapping(type);
-        if (mapping!=null)
-          return mapping;
-      }
-
-      DataTypeMapping[] ambigiousMappings = MappingSchema.GetAmbigiousMappings(type);
-      if (ambigiousMappings!=null) {
-        foreach (DataTypeMapping mapping in ambigiousMappings) {
-          StreamDataTypeInfo sdti = mapping.DataTypeInfo as StreamDataTypeInfo;
-          if (sdti==null)
-            return mapping;
-
-          if (length==0)
-            return mapping;
-
-          if (sdti.Length.MaxValue < length)
-            continue;
-
-          return mapping;
-        }
-      }
-      throw new InvalidOperationException(string.Format("Type '{0}' is not supported.", type.GetShortName()));
+      return TryGetTypeMapping(type, 0);
     }
 
     /// <summary>
@@ -80,6 +72,58 @@ namespace Xtensive.Storage.Providers.Sql
     public DataTypeMapping GetTypeMapping(Type type)
     {
       return GetTypeMapping(type, 0);
+    }
+
+    /// <summary>
+    /// Gets the type mapping.
+    /// </summary>
+    /// <param name="type">The column type.</param>
+    /// <param name="length">The column length.</param>
+    /// <returns><see cref="DataTypeMapping"/> instance
+    /// for the specified <paramref name="type"/> and <paramref name="length"/>.
+    /// If no mapping exists returns null.</returns>
+    public DataTypeMapping TryGetTypeMapping(Type type, int length)
+    {
+      {
+        DataTypeMapping mapping = MappingSchema.GetExactMapping(type);
+        if (mapping != null)
+          return mapping;
+      }
+
+      DataTypeMapping[] ambigiousMappings = MappingSchema.GetAmbigiousMappings(type);
+      if (ambigiousMappings != null)
+      {
+        foreach (DataTypeMapping mapping in ambigiousMappings)
+        {
+          var sdti = mapping.DataTypeInfo as StreamDataTypeInfo;
+          if (sdti == null)
+            return mapping;
+
+          if (length == 0)
+            return mapping;
+
+          if (sdti.Length.MaxValue < length)
+            continue;
+
+          return mapping;
+        }
+      }
+      return null;
+    }
+
+    /// <summary>
+    /// Gets the type mapping.
+    /// </summary>
+    /// <param name="type">The column type.</param>
+    /// <param name="length">The column length.</param>
+    /// <returns><see cref="DataTypeMapping"/> instance for the specified <paramref name="type"/> and <paramref name="length"/>.</returns>
+    /// <exception cref="InvalidOperationException"><paramref name="type"/> is not supported.</exception>
+    public DataTypeMapping GetTypeMapping(Type type, int length)
+    {
+      var result = TryGetTypeMapping(type, length);
+      if (result == null)
+        throw new InvalidOperationException(string.Format("Type '{0}' is not supported.", type.GetShortName()));
+      return result;
     }
 
     public SqlValueType BuildSqlValueType(ColumnInfo columnInfo)

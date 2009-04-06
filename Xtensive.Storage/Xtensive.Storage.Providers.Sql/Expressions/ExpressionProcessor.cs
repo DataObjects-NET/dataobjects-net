@@ -36,6 +36,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly LambdaExpression lambda;
     private readonly HashSet<SqlFetchParameterBinding> bindings;
     private readonly Dictionary<ParameterExpression, SqlSelect> parameterMapping;
+    private readonly SqlValueTypeMapper valueTypeMapper;
     private bool executed;
 
     public HashSet<SqlFetchParameterBinding> Bindings
@@ -112,14 +113,18 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           return SqlFactory.Negate(operand);
         case ExpressionType.UnaryPlus:
           return operand;
-
         case ExpressionType.Not:
           if ((expression.Operand.Type!=typeof (bool)) && (expression.Operand.Type!=typeof (bool?)))
             return SqlFactory.BitNot(operand);
           return SqlFactory.Not(operand);
-
-//        case ExpressionType.TypeAs:
-//          return operand;
+        case ExpressionType.Convert:
+        case ExpressionType.ConvertChecked:
+          if (expression.Operand.Type == expression.Type)
+            return operand;
+          var mapping = valueTypeMapper.TryGetTypeMapping(expression.Type);
+          if (mapping == null)
+            return operand;
+          return SqlFactory.Cast(operand, mapping.DataTypeInfo.SqlType);
       }
       return operand;
     }
@@ -212,9 +217,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitConstant(ConstantExpression expression)
     {
-      var constant = expression.Value!=null ?
-                                              SqlFactory.Literal(expression.Value, expression.Type) :
-                                                                                                      SqlFactory.Null;
+      var constant = expression.Value!=null
+        ? SqlFactory.Literal(expression.Value, expression.Type)
+        : SqlFactory.Null;
       return constant;
     }
 
@@ -448,6 +453,14 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       return map(null, new[] {source});
     }
 
+    private Func<SqlExpression, SqlExpression[], SqlExpression> FindCompiler(MemberInfo source)
+    {
+      var result = mappingsProvider.GetCompiler(source);
+      if (result == null)
+        throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, source.GetFullName(true)));
+      return result;
+    }
+
     // Constructor
 
     public ExpressionProcessor(ICompiler compiler, HandlerAccessor handlers, LambdaExpression le, params SqlSelect[] selects)
@@ -456,6 +469,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (selects==null)
         throw new ArgumentNullException("selects");
       mappingsProvider = handlers.DomainHandler.GetCompilerExtensions<SqlExpression>();
+      valueTypeMapper = ((DomainHandler) handlers.DomainHandler).ValueTypeMapper;
       if (le.Parameters.Count!=selects.Length)
         throw new InvalidOperationException();
       model = handlers.Domain.Model;
@@ -465,14 +479,6 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       parameterMapping = new Dictionary<ParameterExpression, SqlSelect>();
       evaluator = new ExpressionEvaluator(le);
       parameterExtractor = new ParameterExtractor(evaluator);
-    }
-
-    private Func<SqlExpression, SqlExpression[], SqlExpression> FindCompiler(MemberInfo source)
-    {
-      var result = mappingsProvider.GetCompiler(source);
-      if (result==null)
-        throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, source.GetFullName(true)));
-      return result;
     }
   }
 }

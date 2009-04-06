@@ -364,10 +364,9 @@ namespace Xtensive.Storage.Linq
 
       if (aggregateType==AggregateType.Count) {
         aggregateColumn = 0;
-        if (argument!=null)
-          innerResult = VisitWhere(source, argument);
-        else
-          innerResult = VisitSequence(source);
+        innerResult = argument!=null
+          ? VisitWhere(source, argument)
+          : VisitSequence(source);
       }
       else {
         innerResult = VisitSequence(source);
@@ -382,11 +381,11 @@ namespace Xtensive.Storage.Linq
         else {
           using (context.Bindings.Add(argument.Parameters[0], innerResult))
           using (new ParameterScope()) {
+            calculateExpressions.Value = true;
             resultMapping.Value = new ResultMapping();
-            Visit(argument);
+            var result = Visit(argument);
             columnList = resultMapping.Value.GetColumns().ToList();
             innerResult = context.Bindings[argument.Parameters[0]];
-            //columnList = innerResult.Mapping.GetColumns().ToList();
           }
         }
 
@@ -405,14 +404,20 @@ namespace Xtensive.Storage.Linq
         return expression;
       }
 
+      var resultType = method.ReturnType;
       Expression<Func<RecordSet, object>> shaper;
+
       if (isLongCount)
         shaper = set => (set.First().GetValue<long>(0));
       else if (isIntCount)
         shaper = set => (int) (set.First().GetValue<long>(0));
-      else
+      else {
         shaper = set => set.First().GetValueOrDefault(0);
-      return new ResultExpression(innerResult.Type, innerRecordSet, null, shaper, null);
+        shaper = (Expression<Func<RecordSet, object>>) Expression.Lambda(
+          Expression.Convert(Expression.Convert(shaper.Body, resultType), typeof (object)),
+          shaper.Parameters[0]);
+      }
+      return new ResultExpression(resultType, innerRecordSet, null, shaper, null);
     }
 
     private Expression VisitGroupBy(MethodInfo method, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
@@ -733,7 +738,7 @@ namespace Xtensive.Storage.Linq
         ? Expression.Call(method, Expression.Call(WellKnownMethods.RecordSetParse, rs), itemProjector)
         : Expression.Call(method, rs, itemProjector);
       var projector = Expression.Lambda(
-        castToObject
+        castToObject 
           ? Expression.Convert(
             body,
             typeof (object))
@@ -749,6 +754,7 @@ namespace Xtensive.Storage.Linq
       using (new ParameterScope()) {
         resultMapping.Value = new ResultMapping();
         ignoreRecordUsage.Value = true;
+        calculateExpressions.Value = false;
         var predicate = Visit(le);
         var source = context.Bindings[parameter];
         var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>) predicate);

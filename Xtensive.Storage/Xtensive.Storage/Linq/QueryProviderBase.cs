@@ -59,8 +59,7 @@ namespace Xtensive.Storage.Linq
     /// The value that results from executing the specified query.
     /// </returns>
     protected abstract object Execute(Expression expression);
-
-
+    
     // Constructors
 
     /// <summary>

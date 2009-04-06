@@ -633,9 +633,7 @@ namespace Xtensive.Storage.Providers.Sql
       var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers, left, right);
     }
-
-
-
+    
     /// <summary>
     /// Preprocesses (transforms before actual compilation to SQL) specified <see cref="LambdaExpression"/>.
     /// Can be overridden in derived classes for making custom preprocess logic.
