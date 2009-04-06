@@ -316,6 +316,15 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void GroupByWithElementSelectorSumAnonymousTest()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.Customer, o => o.Freight).Select(g => new {A = g.Sum(), B = g.Sum()});
+//      var list = result.ToList();
+//      Assert.Greater(list.Count, 0);
+     QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void GroupByWithElementSelectorTest()
     {
       IQueryable<IGrouping<Customer, decimal>> result = Query<Order>.All.GroupBy(o => o.Customer, o => o.Freight);
