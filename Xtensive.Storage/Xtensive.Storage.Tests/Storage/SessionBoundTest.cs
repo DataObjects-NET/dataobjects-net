@@ -4,6 +4,7 @@
 // Created by: Nick Svetlov
 // Created:    2008.06.25
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Aspects;
@@ -14,9 +15,10 @@ namespace Xtensive.Storage.Tests.Storage
 {
   public class SessionBoundTest : AutoBuildTest
   {
+
     internal class TestHelper : SessionBound
     {
-      public void TestMethod(Ray x, Ray y, Session parentSession)
+      public void CheckSessionBoundObjects(Ray x, Ray y, Session parentSession)
       {
         Assert.AreNotEqual(Session.Current, parentSession);
         Assert.AreNotEqual(x.Session, y.Session);
@@ -56,11 +58,43 @@ namespace Xtensive.Storage.Tests.Storage
               Ray ray2 = new Ray();
 
               Assert.AreNotEqual(scope1.Session, scope2.Session);
-              testHelper.TestMethod(ray1, ray2, Session.Current);
+              testHelper.CheckSessionBoundObjects(ray1, ray2, Session.Current);
             }            
           }          
         }        
       }
+    }
+
+
+
+    public class A : SessionBound
+    {
+      public virtual void DoSomething()
+      {
+        if (Session.Current != this.Session) 
+          throw new Exception("My session is not current.");
+      }
+    }
+
+    public class B : A
+    {
+      public override void DoSomething()
+      {
+        if (Session.Current != this.Session) 
+          throw new Exception("My session is not current.");
+        base.DoSomething();
+      }
+    }
+
+    [Test]
+    public void ComplexSessionBoundTest()
+    {
+      using (Domain.OpenSession()) {
+        B b = new B();
+        using (Domain.OpenSession()) {
+          b.DoSomething();
+        }          
+      }              
     }
   }
 }

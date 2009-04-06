@@ -50,15 +50,12 @@ namespace Xtensive.Storage.Indexing
     /// </summary>
     public bool KeyMustExist {
       get { return keyMustExist; }
-      set {
-        keyMustExist = value;
-      }
+      set { keyMustExist = value; }
     }
 
     /// <summary>
     /// Gets or sets the new value.
-    /// <see langword="null" /> indicates that
-    /// row must be removed.
+    /// <see langword="null" /> indicates that row must be removed.
     /// </summary>
     public Tuple Value {
       get { return value; }

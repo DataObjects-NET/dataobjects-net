@@ -21,9 +21,20 @@ using System.Linq;
 namespace Xtensive.Storage.Aspects
 {
   /// <summary>
-  /// Must be applied to any <see cref="Persistent"/> and <see cref="SessionBound"/> type. 
-  /// Normally - by applying (multicasting) it to the whole assembly.
+  /// Provides necessary aspects to <see cref="Persistent"/> and <see cref="SessionBound"/> descendants.
   /// </summary>
+  /// <remarks>
+  /// <list>
+  ///   <listheader>PersistentAttribute applies following aspects on a target class:</listheader>
+  ///   <item><see cref="SessionBoundMethodAspect"/> on all methods of <see cref="SessionBound"/></item>
+  ///   <item><see cref="TransactionalAttribute"/> on public methods of <see cref="SessionBound"/></item>
+  ///   <item><see cref="AutoPropertyReplacementAspect"/> on auto-properties with <see cref="FieldAttribute">[Field] attribute</see></item>
+  ///   <item><see cref="ProtectedConstructorAspect"/> on <see cref="Persistent"/> and <see cref="EntitySet{TItem}"/> classes</item>
+  ///   <item><see cref="ProtectedConstructorAccessorAspect"/> on <see cref="Persistent"/> and <see cref="EntitySet{TItem}"/> classes</item>
+  /// </list>
+  /// It is possible to apply <see cref="PersistentAttribute"/> to the whole assembly with persistent model, 
+  /// in order to automatically apply this attribute to all types.
+  /// </remarks>
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [Serializable]
   public sealed class PersistentAttribute : CompoundAspect
@@ -47,7 +58,6 @@ namespace Xtensive.Storage.Aspects
 
       return true;
     }
-
     #region ProvideXxx methods      
 
     /// <inheritdoc/>
@@ -77,6 +87,8 @@ namespace Xtensive.Storage.Aspects
           continue;
         if (AspectHelper.IsInfrastructureMethod(method))
           continue;
+        if (IsMethodGenerated(method))
+          continue;
 
         collection.AddAspect(method, new SessionBoundMethodAspect());
       }
@@ -85,14 +97,15 @@ namespace Xtensive.Storage.Aspects
     private static void ProvideTransactionalAspects(Type type, LaosReflectionAspectCollection collection)
     {
       foreach (MethodInfo method in type.GetMethods(
-        BindingFlags.Public |          
+        BindingFlags.Public |
         BindingFlags.Instance |
         BindingFlags.DeclaredOnly))
       {
         if (method.IsAbstract)
           continue;
-
         if (AspectHelper.IsInfrastructureMethod(method))
+          continue;
+        if (IsMethodGenerated(method))
           continue;
 
         collection.AddAspect(method, new TransactionalAttribute());
@@ -109,8 +122,9 @@ namespace Xtensive.Storage.Aspects
       {
         if (method.IsAbstract)
           continue;
-
         if (AspectHelper.IsInfrastructureMethod(method))
+          continue;
+        if (IsMethodGenerated(method))
           continue;
 
         collection.AddAspect(method, new AtomicAttribute());
@@ -206,6 +220,11 @@ namespace Xtensive.Storage.Aspects
     }
 
     #region Private \ internal methods
+
+    private static bool IsMethodGenerated(MethodInfo method)
+    {
+      return method.Name.StartsWith("<");
+    }
 
     private static Type GetBasePersistentType(Type type)
     {
