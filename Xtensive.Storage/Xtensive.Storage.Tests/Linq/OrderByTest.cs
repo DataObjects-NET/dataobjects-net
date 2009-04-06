@@ -93,6 +93,15 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void PredicateTest()
+    {
+      var result = Query<Order>.All.OrderBy(o => o.Freight > 0 && o.ShippedDate != null).ThenBy(o => o.Id).Select(o => o.Id);
+      var list = result.ToList();
+      var original = Query<Order>.All.AsEnumerable().OrderBy(o => o.Freight > 0 && o.ShippedDate != null).ThenBy(o => o.Id).Select(o => o.Id).ToList();
+      Assert.IsTrue(list.SequenceEqual(original));
+    }
+
+    [Test]
     public void OrderByTakeSkipTest()
     {
       var original = Query<Order>.All.AsEnumerable()
