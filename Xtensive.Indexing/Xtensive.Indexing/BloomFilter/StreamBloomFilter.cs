@@ -13,7 +13,7 @@ using Xtensive.Indexing.Resources;
 namespace Xtensive.Indexing.BloomFilter
 {
   /// <summary>
-  /// Bloom filter. Uses stream to store and retrieve it's data.
+  /// Bloom filter. Uses stream to store and retrieve its data.
   /// </summary>
   /// <typeparam name="T">Type of value to filter.</typeparam>
   [Serializable]
