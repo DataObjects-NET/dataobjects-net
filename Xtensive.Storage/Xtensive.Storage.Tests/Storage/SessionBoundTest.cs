@@ -64,37 +64,5 @@ namespace Xtensive.Storage.Tests.Storage
         }        
       }
     }
-
-
-
-    public class A : SessionBound
-    {
-      public virtual void DoSomething()
-      {
-        if (Session.Current != this.Session) 
-          throw new Exception("My session is not current.");
-      }
-    }
-
-    public class B : A
-    {
-      public override void DoSomething()
-      {
-        if (Session.Current != this.Session) 
-          throw new Exception("My session is not current.");
-        base.DoSomething();
-      }
-    }
-
-    [Test]
-    public void ComplexSessionBoundTest()
-    {
-      using (Domain.OpenSession()) {
-        B b = new B();
-        using (Domain.OpenSession()) {
-          b.DoSomething();
-        }          
-      }              
-    }
   }
 }
