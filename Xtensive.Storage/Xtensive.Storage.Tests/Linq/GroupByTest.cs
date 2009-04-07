@@ -330,7 +330,7 @@ namespace Xtensive.Storage.Tests.Linq
 
 
     [Test]
-    public void GroupByWithEntityResultSelectorTest()
+    public void GroupByWithAnonymousSelectTest()
     {
       IQueryable<IGrouping<Customer, Order>> groupings = Query<Order>.All.GroupBy(o => o.Customer);
       var result = groupings.Select(g => new { g });
