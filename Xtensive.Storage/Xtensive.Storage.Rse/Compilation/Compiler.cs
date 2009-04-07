@@ -294,7 +294,7 @@ namespace Xtensive.Storage.Rse.Compilation
     protected abstract ExecutableProvider VisitConcat(ConcatProvider provider);
 
     /// <summary>
-    /// Compiles <see cref="ConcatProvider"/>.
+    /// Compiles <see cref="UnionProvider"/>.
     /// </summary>
     /// <param name="provider">Union provider.</param>
     protected abstract ExecutableProvider VisitUnion(UnionProvider provider);

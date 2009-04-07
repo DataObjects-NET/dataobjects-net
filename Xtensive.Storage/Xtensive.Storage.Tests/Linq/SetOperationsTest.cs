@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Linq
           from c in customers
           select c.CompanyName[0];
       var uniqueFirstChars = productFirstChars.Union(customerFirstChars);
-      Assert.IsNotNull(uniqueFirstChars);
+      Assert.IsNotNull(uniqueFirstChars.First());
       
     }
 
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Linq
           from c in customers
           select c.CompanyName[0];
       var commonFirstChars = productFirstChars.Intersect(customerFirstChars);
-      Assert.IsNotNull(commonFirstChars);
+      Assert.IsNotNull(commonFirstChars.First());
       
     }
 
@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Tests.Linq
           from c in customers
           select c.CompanyName[0];
       var productOnlyFirstChars = productFirstChars.Except(customerFirstChars);
-      Assert.IsNotNull(productOnlyFirstChars);
+      Assert.IsNotNull(productOnlyFirstChars.First());
     }
 
     [Test]
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Tests.Linq
                select new { Name = e.FirstName + " " + e.LastName, Phone = e.HomePhone }
               );
 
-      Assert.IsNotNull(result);
+      Assert.IsNotNull(result.First());
     }
 
     [Test]
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Tests.Linq
                from e in employees
                select e.Address.Country
               );
-      Assert.IsNotNull(result);
+      Assert.IsNotNull(result.First());
     }
 
     [Test]
@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Tests.Linq
                select e.Address.Country
               );
 
-      Assert.IsNotNull(result);
+      Assert.IsNotNull(result.First());
     }
 
     [Test]
@@ -149,7 +149,40 @@ namespace Xtensive.Storage.Tests.Linq
                select e.Address.Country
               );
 
-      Assert.IsNotNull(result);
+      Assert.IsNotNull(result.First());
+    }
+
+    [Test]
+    public void UnionAnonymousTest()
+    {
+      var customers = Query<Customer>.All;
+      var result = customers.Select(c => new {c.CompanyName, c.ContactName})
+        .Take(10)
+        .Union(customers.Select(c => new {c.CompanyName, c.ContactName}));
+      Assert.IsNotNull(result.First());
+    }
+
+    [Test]
+    public void UnionAnonymous2Test()
+    {
+      var customers = Query<Customer>.All;
+      var result = customers.Select(c => new { c.CompanyName, c.ContactName, c.Address })
+        .Where(c => c.Address.StreetAddress.Length < 10)
+        .Select(c => new {c.CompanyName, c.Address.City})
+        .Take(10)
+        .Union(customers.Select(c => new { c.CompanyName, c.Address.City}).Skip(10));
+      Assert.IsNotNull(result.First());
+    }
+
+    [Test]
+    public void UnionStructureTest()
+    {
+      var customers = Query<Customer>.All;
+      var result = customers.Select(c => c.Address)
+        .Where(c => c.StreetAddress.Length < 0)
+        .Union(customers.Select(c => c.Address))
+        .Where(c => c.Region == "Victoria");
+      Assert.IsNotNull(result.First());
     }
   }
 }

@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="left">The left provider for union.</param>
     /// <param name="right">The right provider for union.</param>
     public UnionProvider(CompilableProvider left, CompilableProvider right)
-      : base(ProviderType.Concat, left, right)
+      : base(ProviderType.Union, left, right)
     {
     }
   }
