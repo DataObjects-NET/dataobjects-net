@@ -398,7 +398,7 @@ namespace Xtensive.Storage.Linq
         .Aggregate(null, new AggregateColumnDescriptor(context.GetNextColumnAlias(), aggregateColumn, aggregateType));
 
       if (!isRoot) {
-        var expression = ApplyOneColumnSubquery(source, innerRecordSet);
+        var expression = AddSubqueryColumn(method.ReturnType, innerRecordSet);
         if (isIntCount)
           expression = Expression.Convert(expression, typeof (int));
         return expression;
@@ -784,13 +784,13 @@ namespace Xtensive.Storage.Linq
         else
           subquery = VisitWhere(source, predicate);
       }
-      var filter = ApplyOneColumnSubquery(source, subquery.RecordSet.Existence(context.GetNextColumnAlias()));
+      var filter = AddSubqueryColumn(typeof(bool), subquery.RecordSet.Existence(context.GetNextColumnAlias()));
       if (notExists)
         filter = Expression.Not(filter);
       return filter;
     }
 
-    private Expression ApplyOneColumnSubquery(Expression source, RecordSet subquery)
+    private Expression AddSubqueryColumn(Type columnType, RecordSet subquery)
     {
       if (subquery.Header.Length!=1)
         throw new ArgumentException();
@@ -819,7 +819,7 @@ namespace Xtensive.Storage.Linq
       var newResult = new ResultExpression(
         oldResult.Type, newRecordSet, newMapping, oldResult.Projector, oldResult.ItemProjector);
       context.Bindings.ReplaceBound(lambdaParameter, newResult);
-      return MakeTupleAccess(lambdaParameter, column.Type, Expression.Constant(columnIndex));
+      return MakeTupleAccess(lambdaParameter, columnType, columnIndex);
     }
 
     private ResultExpression VisitSequence(Expression sequenceExpression)

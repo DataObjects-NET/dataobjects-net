@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Linq
             calculatedColumns.Value.Add(ccd);
             var parameter = parameters.Value[0];
             int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
-            body = MakeTupleAccess(parameter, body.Type, Expression.Constant(position));
+            body = MakeTupleAccess(parameter, body.Type, position);
             resultMapping.Value.RegisterPrimitive(new Segment<int>(position, 1));
           }
         }
@@ -318,7 +318,7 @@ namespace Xtensive.Storage.Linq
             calculatedColumns.Value.Add(ccd);
             var parameter = parameters.Value[0];
             int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
-            newArg = MakeTupleAccess(parameter, arg.Type, Expression.Constant(position));
+            newArg = MakeTupleAccess(parameter, arg.Type, position);
             resultMapping.Value.RegisterFieldMapping(memberName, new Segment<int>(position, 1));
           }
         }
@@ -388,7 +388,7 @@ namespace Xtensive.Storage.Linq
           var source = context.Bindings[path.Parameter];
           var segment = source.GetMemberSegment(path);
           foreach (var i in segment.GetItems()) {
-            Expression left = MakeTupleAccess(path.Parameter, null, Expression.Constant(i));
+            Expression left = MakeTupleAccess(path.Parameter, null, i);
             Expression right = Expression.Constant(null);
             result = MakeBinaryExpression(result, left, right, operationType);
           }
@@ -403,14 +403,14 @@ namespace Xtensive.Storage.Linq
       var rightSegment = rightSource.GetMemberSegment(rightPath);
       foreach (var pair in leftSegment.GetItems().ZipWith(rightSegment.GetItems(), (l, r) => new {l, r})) {
         var type = leftSource.RecordSet.Header.TupleDescriptor[pair.l];
-        Expression left = MakeTupleAccess(leftPath.Parameter, type, Expression.Constant(pair.l));
-        Expression right = MakeTupleAccess(rightPath.Parameter, type, Expression.Constant(pair.r));
+        Expression left = MakeTupleAccess(leftPath.Parameter, type, pair.l);
+        Expression right = MakeTupleAccess(rightPath.Parameter, type, pair.r);
         result = MakeBinaryExpression(result, left, right, operationType);
       }
       return result;
     }
 
-    private MethodCallExpression MakeTupleAccess(ParameterExpression parameter, Type accessorType, Expression index)
+    private MethodCallExpression MakeTupleAccess(ParameterExpression parameter, Type accessorType, int index)
     {
       Parameter<Tuple> outerParameter;
       Expression target;
@@ -426,7 +426,7 @@ namespace Xtensive.Storage.Linq
         ? WellKnownMethods.TupleNonGenericAccessor
         : WellKnownMethods.TupleGenericAccessor.MakeGenericMethod(accessorType);
 
-      return Expression.Call(target, method, index);
+      return Expression.Call(target, method, Expression.Constant(index));
     }
 
     #endregion
@@ -459,7 +459,7 @@ namespace Xtensive.Storage.Linq
       var segment = source.GetMemberSegment(path);
       Expression result = null;
       foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
-        Expression left = MakeTupleAccess(path.Parameter, null, Expression.Constant(pair.ColumnIndex));
+        Expression left = MakeTupleAccess(path.Parameter, null, pair.ColumnIndex);
         Expression right = Expression.Condition(
           Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
           Expression.Constant(null, typeof (object)),
@@ -503,7 +503,7 @@ namespace Xtensive.Storage.Linq
 
         Expression result = null;
         foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
-          Expression left = MakeTupleAccess(path.Parameter, null, Expression.Constant(pair.ColumnIndex));
+          Expression left = MakeTupleAccess(path.Parameter, null, pair.ColumnIndex);
           Expression right = Expression.Condition(
             Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
             Expression.Constant(null, typeof (object)),
@@ -646,7 +646,7 @@ namespace Xtensive.Storage.Linq
     {
       var segment = source.GetMemberSegment(path);
       resultMapping.Value.RegisterPrimitive(segment);
-      return MakeTupleAccess(path.Parameter, resultType, Expression.Constant(segment.Offset));
+      return MakeTupleAccess(path.Parameter, resultType, segment.Offset);
     }
 
     private Expression VisitMemberPathKey(MemberPath path, ResultExpression source)
