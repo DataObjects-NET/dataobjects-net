@@ -53,6 +53,11 @@ namespace Xtensive.Storage.Linq
       return false;
     }
 
+    public bool IsBound(ParameterExpression parameter)
+    {
+      return bindings.ContainsKey(parameter);
+    }
+
     public void InvalidateParameter(ParameterExpression parameter)
     {
       bindings[parameter].Parameter = new Parameter<Tuple>();

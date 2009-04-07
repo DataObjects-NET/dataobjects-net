@@ -96,16 +96,18 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void StructureAllTest()
+    public void SubqueryAllStructureTest()
     {
-      var result = Query<Customer>.All.Where(c => c.Orders.All(o => o.ShippingAddress.City==c.Address.City));
+      var result = Query<Customer>.All
+        .Where(c => Query<Order>.All.Where(o => o.Customer == c).All(o => o.ShippingAddress.City == c.Address.City));
       result.ToList();
     }
 
     [Test]
-    public void StructureAnyTest()
+    public void SubqueryAnyStructureTest()
     {
-      var result = Query<Customer>.All.Where(c => c.Orders.Any(o => o.ShippingAddress.City == c.Address.City));
+      var result = Query<Customer>.All
+        .Where(c => Query<Order>.All.Where(o => o.Customer == c).Any(o => o.ShippingAddress.City == c.Address.City));
       result.ToList();
     }
 
@@ -244,6 +246,22 @@ namespace Xtensive.Storage.Tests.Linq
       var bestOrder = Query<Order>.All.OrderBy(o => o.Freight).First();
       var result = Query<Customer>.All.Where(c => Queryable.Contains(c.Orders, bestOrder));
       Assert.AreEqual("LACOR", result.ToList().Single().Id);
+    }
+
+    [Test]
+    public void EntitySetAllStructureTest()
+    {
+      var result = Query<Customer>.All
+        .Where(c => c.Orders.All(o => o.ShippingAddress.City == c.Address.City));
+      result.ToList();
+    }
+
+    [Test]
+    public void EntitySetAnyStructureTest()
+    {
+      var result = Query<Customer>.All
+        .Where(c => c.Orders.Any(o => o.ShippingAddress.City == c.Address.City));
+      result.ToList();
     }
   }
 }

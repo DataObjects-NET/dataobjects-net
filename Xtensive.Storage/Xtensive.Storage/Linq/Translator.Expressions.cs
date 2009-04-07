@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitMemberPath(MemberPath path, Expression e)
     {
       var pe = path.Parameter;
-      if (!parameters.Value.Contains(pe)) {
+      if (!parameters.Value.Contains(pe) && !context.SubqueryParameterBindings.IsBound(pe)) {
         var referencedSource = context.Bindings[pe];
         return path.TranslateParameter(referencedSource.ItemProjector.Body);
       }
