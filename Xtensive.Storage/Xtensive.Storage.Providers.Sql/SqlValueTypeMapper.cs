@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlValueType BuildSqlValueType(Type type, int length)
     {
       DataTypeMapping dtm = GetTypeMapping(type);
-      return BuildSqlValueType(type, length, dtm);
+      return BuildSqlValueType(length, dtm);
     }
 
     private SqlValueType BuildSqlValueType(ColumnInfo column, DataTypeMapping typeMapping)
@@ -143,10 +143,10 @@ namespace Xtensive.Storage.Providers.Sql
       int length = column.Length.HasValue ? column.Length.Value : 0;
       Type type = column.ValueType;
 
-      return BuildSqlValueType(type, length, typeMapping);
+      return BuildSqlValueType(length, typeMapping);
     }
 
-    private SqlValueType BuildSqlValueType(Type type, int length, DataTypeMapping typeMapping)
+    private SqlValueType BuildSqlValueType(int length, DataTypeMapping typeMapping)
     {
       var sdti = typeMapping.DataTypeInfo as StreamDataTypeInfo;
       if (sdti==null)

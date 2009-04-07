@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 
@@ -37,3 +38,5 @@ using System.Security.Permissions;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: CLSCompliant(true)]    
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
+
+[assembly: InternalsVisibleTo("Xtensive.Storage.Tests")]

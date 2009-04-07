@@ -21,16 +21,15 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
-  /// <inheritdoc/>
   [Serializable]
-  public class MsSqlCompiler : SqlCompiler
+  internal class MsSqlCompiler : SqlCompiler
   {
     protected override ExecutableProvider VisitExistence(ExistenceProvider provider)
     {
       var result = (SqlProvider) base.VisitExistence(provider);
       if (result == null)
         return null;
-      var select = (SqlSelect) result.Request.Statement;
+      var select = result.Request.SelectStatement;
       ReplaceBooleanColumn(select, 0);
       return result;
     }
@@ -40,7 +39,7 @@ namespace Xtensive.Storage.Providers.MsSql
       var result = (SqlProvider)base.VisitCalculate(provider);
       if (result == null)
         return null;
-      var select = (SqlSelect) result.Request.Statement;
+      var select = result.Request.SelectStatement;
       int columnsCount = provider.Header.Length;
 
       for (int i = provider.Source.Header.Length; i < columnsCount; i++)
@@ -100,7 +99,7 @@ namespace Xtensive.Storage.Providers.MsSql
 
     private SqlSelect AddRowNumberColumn(SqlProvider source, Provider provider, string rowNumberColumnName)
     {
-      var sourceQuery = (SqlSelect)source.Request.Statement.Clone();
+      var sourceQuery = (SqlSelect)source.Request.SelectStatement.Clone();
       SqlExpression rowNumberExpression = SqlFactory.Native("ROW_NUMBER() OVER (ORDER BY ");
       if (provider.Header.Order.Count>0) 
         for (int i = 0; i < provider.Header.Order.Count; i++) {
@@ -130,7 +129,7 @@ namespace Xtensive.Storage.Providers.MsSql
       if (left == null || right == null)
         return null;
       var leftQuery = left.PermanentReference;
-      var rightQuery = SqlFactory.QueryRef((SqlSelect)right.Request.Statement);
+      var rightQuery = SqlFactory.QueryRef(right.Request.SelectStatement);
       var joinedTable = SqlFactory.Join(isOuter ? SqlJoinType.LeftOuterApply : SqlJoinType.CrossApply,
         leftQuery, rightQuery);
 
@@ -140,7 +139,6 @@ namespace Xtensive.Storage.Providers.MsSql
       return new SqlProvider(provider, request, Handlers, left, right);
     }
 
-    /// <inheritdoc/>
     protected override LambdaExpression PreprocessExpression(LambdaExpression lambda)
     {
       return ExpressionPreprocessor.Preprocess(lambda);
@@ -216,9 +214,6 @@ namespace Xtensive.Storage.Providers.MsSql
     
     // Constructor
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
     public MsSqlCompiler(HandlerAccessor handlers, BindingCollection<object, ExecutableProvider> compiledSources)
       : base(handlers, compiledSources)
     {

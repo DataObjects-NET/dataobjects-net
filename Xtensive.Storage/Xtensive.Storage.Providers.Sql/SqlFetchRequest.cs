@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom;
+using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Rse;
 
@@ -19,6 +20,12 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public class SqlFetchRequest : SqlRequest
   {
+    /// <summary>
+    /// Gets the select statement.
+    /// </summary>
+    /// <value>The select statement.</value>
+    public SqlSelect SelectStatement { get { return (SqlSelect) Statement; } }
+
     /// <summary>
     /// Gets the parameter bindings.
     /// </summary>
@@ -79,8 +86,7 @@ namespace Xtensive.Storage.Providers.Sql
         throw new ArgumentNullException(binding.SqlParameter.ParameterName);
       base.BindParameter(binding, value);
     }
-
-
+    
     // Constructor
 
     /// <summary>
@@ -88,7 +94,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="statement">The statement.</param>
     /// <param name="recordSetHeader">The element descriptor.</param>
-    public SqlFetchRequest(ISqlCompileUnit statement, RecordSetHeader recordSetHeader)
+    public SqlFetchRequest(SqlSelect statement, RecordSetHeader recordSetHeader)
       : base(statement)
     {
       ParameterBindings = new HashSet<SqlFetchParameterBinding>();
@@ -101,11 +107,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="statement">The statement.</param>
     /// <param name="recordSetHeader">The element descriptor.</param>
     /// <param name="parameterBindings">The parameter bindings.</param>
-    public SqlFetchRequest(ISqlCompileUnit statement, RecordSetHeader recordSetHeader, IEnumerable<SqlFetchParameterBinding> parameterBindings)
+    public SqlFetchRequest(SqlSelect statement, RecordSetHeader recordSetHeader, IEnumerable<SqlFetchParameterBinding> parameterBindings)
       : this(statement, recordSetHeader)
     {
       ParameterBindings.UnionWith(parameterBindings);
     }
-
   }
 }

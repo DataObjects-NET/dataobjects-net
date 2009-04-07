@@ -145,7 +145,7 @@ namespace Xtensive.Storage.Providers.PgSql
       throw new NotSupportedException();
     }
 
-    private static TimeSpan StringToTimeSpan(string input)
+    internal static TimeSpan StringToTimeSpan(string input)
     {
       int days = 0;
       int hours = 0;
@@ -209,7 +209,7 @@ namespace Xtensive.Storage.Providers.PgSql
       }
     }
 
-    private static string TimeSpanToString(TimeSpan value)
+    internal static string TimeSpanToString(TimeSpan value)
     {
       int days = value.Days;
       int hours = value.Hours;

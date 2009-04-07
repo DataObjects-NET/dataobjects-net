@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
-      var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
+      var queryRef = SqlFactory.QueryRef(source.Request.SelectStatement);
       SqlSelect sqlSelect = SqlFactory.Select(queryRef);
 
       var columns = queryRef.Columns.ToList();
@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
-      var sqlSelect = (SqlSelect) source.Request.Statement.Clone();
+      var sqlSelect = (SqlSelect) source.Request.SelectStatement.Clone();
       var columns = sqlSelect.Columns.ToList();
       sqlSelect.Columns.Clear();
       for (int i = 0; i < columns.Count; i++) {
@@ -130,11 +130,11 @@ namespace Xtensive.Storage.Providers.Sql
       
       SqlSelect sqlSelect;
       if (provider.Source.Header.Length == 0) {
-        sqlSelect = (SqlSelect)source.Request.Statement.Clone();
+        sqlSelect = (SqlSelect)source.Request.SelectStatement.Clone();
         sqlSelect.Columns.Clear();
       }
       else {
-        var queryRef = SqlFactory.QueryRef((SqlSelect)source.Request.Statement);
+        var queryRef = SqlFactory.QueryRef(source.Request.SelectStatement);
         sqlSelect = SqlFactory.Select(queryRef);
         sqlSelect.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       }
@@ -159,7 +159,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
-      var query = (SqlSelect) source.Request.Statement;
+      var query = source.Request.SelectStatement;
       if (query.Distinct)
         return source;
 
@@ -190,16 +190,16 @@ namespace Xtensive.Storage.Providers.Sql
           provider.Source.Sources[0] is CalculateProvider ||
           provider.Source.Sources[0] is ExistenceProvider;
       if (shouldUseQueryRef) {
-        var queryRef = SqlFactory.QueryRef(source.Request.Statement as SqlSelect);
+        var queryRef = SqlFactory.QueryRef(source.Request.SelectStatement);
         query = SqlFactory.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       }
       else
-        query = (SqlSelect) source.Request.Statement.Clone();
+        query = (SqlSelect) source.Request.SelectStatement.Clone();
 
       var request = new SqlFetchRequest(query, provider.Header);
-      
-      query = (SqlSelect)request.Statement;
+
+      query = request.SelectStatement;
       var result = TranslateExpression(provider.Predicate, query);
       var predicate = result.First;
       var bindings = result.Second.Bindings;
@@ -234,9 +234,9 @@ namespace Xtensive.Storage.Providers.Sql
 
       if (left == null || right == null)
         return null;
-      var leftSelect = (SqlSelect) left.Request.Statement;
+      var leftSelect = left.Request.SelectStatement;
       var leftQuery = SqlFactory.QueryRef(leftSelect);
-      var rightSelect = (SqlSelect) right.Request.Statement;
+      var rightSelect = right.Request.SelectStatement;
       var rightQuery = SqlFactory.QueryRef(rightSelect);
       var joinedTable = SqlFactory.Join(
         provider.Outer ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
@@ -262,9 +262,9 @@ namespace Xtensive.Storage.Providers.Sql
       if (left == null || right == null)
         return null;
 
-      var leftSelect = (SqlSelect)left.Request.Statement;
+      var leftSelect = left.Request.SelectStatement;
       var leftQuery = SqlFactory.QueryRef(leftSelect);
-      var rightSelect = (SqlSelect)right.Request.Statement;
+      var rightSelect = right.Request.SelectStatement;
       var rightQuery = SqlFactory.QueryRef(rightSelect);
       var result = TranslateExpression(provider.Predicate, leftSelect, rightSelect);
       var predicate = result.First;
@@ -288,7 +288,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (compiledSource == null)
         return null;
 
-      var query = (SqlSelect) compiledSource.Request.Statement.Clone();
+      var query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
       var keyColumns = provider.Header.Order.ToList();
       var originalRange = provider.CompiledRange.Invoke();
       var request = new SqlFetchRequest(query, provider.Header);
@@ -374,7 +374,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (compiledSource == null)
         return null;
 
-      var query = (SqlSelect) compiledSource.Request.Statement.Clone();
+      var query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
       var request = new SqlFetchRequest(query, provider.Header);
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
       Func<KeyValuePair<int, Direction>, bool> filterNonTypeId =
@@ -406,19 +406,19 @@ namespace Xtensive.Storage.Providers.Sql
       SqlSelect query;
 
       if (provider.ColumnIndexes.Length == 0) {
-        query = (SqlSelect)compiledSource.Request.Statement.Clone();
+        query = (SqlSelect)compiledSource.Request.SelectStatement.Clone();
         query.Columns.Clear();
         query.Columns.Add(SqlFactory.Null, "NULL");
       }
       else if (compiledSource.Origin.Type != ProviderType.Sort) {
-        query = (SqlSelect)compiledSource.Request.Statement.Clone();
+        query = (SqlSelect)compiledSource.Request.SelectStatement.Clone();
         var originalColumns = query.Columns.ToList();
         query.Columns.Clear();
         query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
       }
       else {
         var sortProvider = (SortProvider)compiledSource.Origin;
-        var sourceQuery = (SqlSelect)compiledSource.Request.Statement.Clone();
+        var sourceQuery = (SqlSelect)compiledSource.Request.SelectStatement.Clone();
         sourceQuery.OrderBy.Clear();
         var queryRef = SqlFactory.QueryRef(sourceQuery);
         query = SqlFactory.Select(queryRef);
@@ -438,7 +438,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (compiledSource == null)
         return null;
 
-      var queryRef = SqlFactory.QueryRef(compiledSource.Request.Statement as SqlSelect);
+      var queryRef = SqlFactory.QueryRef(compiledSource.Request.SelectStatement);
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Offset = provider.Count();
@@ -453,7 +453,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (compiledSource == null)
         return null;
 
-      var query = (SqlSelect) compiledSource.Request.Statement.Clone();
+      var query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
       query.OrderBy.Clear();
       foreach (KeyValuePair<int, Direction> sortOrder in provider.Order) {
         var sqlColumn = query.Columns[sortOrder.Key];
@@ -513,7 +513,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (compiledSource == null)
         return null;
 
-      var query = (SqlSelect) compiledSource.Request.Statement.Clone();
+      var query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
       var count = provider.Count();
       if (query.Top == 0 || query.Top > count)
         query.Top = count;
@@ -534,7 +534,7 @@ namespace Xtensive.Storage.Providers.Sql
       bool isNotExisting = provider.ApplyType == ApplyType.NotExisting;
 
       var leftQuery = left.PermanentReference;
-      var rightQuery = (SqlSelect) right.Request.Statement;
+      var rightQuery = right.Request.SelectStatement;
 
       var select = SqlFactory.Select(leftQuery);
       select.Columns.AddRange(leftQuery.Columns.Cast<SqlColumn>());
@@ -565,7 +565,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       var select = SqlFactory.Select();
-      select.Columns.Add(SqlFactory.Exists((SqlSelect)source.Request.Statement), provider.ExistenceColumnName);
+      select.Columns.Add(SqlFactory.Exists(source.Request.SelectStatement), provider.ExistenceColumnName);
 
       var request = new SqlFetchRequest(select, provider.Header);
       return new SqlProvider(provider, request, Handlers, source);
@@ -579,8 +579,8 @@ namespace Xtensive.Storage.Providers.Sql
       if (left == null || right == null)
         return null;
 
-      var leftSelect = (SqlSelect)left.Request.Statement;
-      var rightSelect = (SqlSelect)right.Request.Statement;
+      var leftSelect = left.Request.SelectStatement;
+      var rightSelect = right.Request.SelectStatement;
       
       var result = SqlFactory.Intersect(
         leftSelect,
@@ -602,8 +602,8 @@ namespace Xtensive.Storage.Providers.Sql
       if (left == null || right == null)
         return null;
 
-      var leftSelect = (SqlSelect)left.Request.Statement;
-      var rightSelect = (SqlSelect)right.Request.Statement;
+      var leftSelect = left.Request.SelectStatement;
+      var rightSelect = right.Request.SelectStatement;
 
       var result = SqlFactory.Except(
         leftSelect,
@@ -625,8 +625,8 @@ namespace Xtensive.Storage.Providers.Sql
       if (left == null || right == null)
         return null;
 
-      var leftSelect = (SqlSelect)left.Request.Statement;
-      var rightSelect = (SqlSelect)right.Request.Statement;
+      var leftSelect = left.Request.SelectStatement;
+      var rightSelect = right.Request.SelectStatement;
 
       var result = SqlFactory.UnionAll(
         leftSelect,
