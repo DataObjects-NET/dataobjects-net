@@ -325,6 +325,16 @@ namespace Xtensive.Storage.Linq
         newArg = newArg ?? Visit(arg);
         arguments.Add( /*argumentResolver ?? */newArg);
       }
+      // Convert Grouping<Key, TElement> to IGrouping<Key, TElement>. 
+      for (int i = 0; i < arguments.Count; i++) {
+        Expression argument = arguments[i];
+        if (argument.IsGrouping()) {
+          Type keyType = argument.GetGroupingKeyType();
+          Type elementType = argument.GetGroupingElementType();
+          Type genericType = typeof (IGrouping<,>).MakeGenericType(keyType, elementType);
+          arguments[i] = Expression.Convert(argument, genericType);
+        }
+      }
       return Expression.New(n.Constructor, arguments, n.Members);
     }
 

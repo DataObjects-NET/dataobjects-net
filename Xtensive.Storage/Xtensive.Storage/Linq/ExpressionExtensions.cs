@@ -16,9 +16,9 @@ namespace Xtensive.Storage.Linq
   {
     public static LambdaExpression StripQuotes(this Expression expression)
     {
-      while (expression.NodeType == ExpressionType.Quote)
-        expression = ((UnaryExpression)expression).Operand;
-      return (LambdaExpression)expression;
+      while (expression.NodeType==ExpressionType.Quote)
+        expression = ((UnaryExpression) expression).Operand;
+      return (LambdaExpression) expression;
     }
 
     public static bool IsQuery(this Expression expression)
@@ -29,43 +29,55 @@ namespace Xtensive.Storage.Linq
         return type.IsGenericType && type.GetGenericTypeDefinition()==typeof (IQueryable<>);
 
       return type.GetInterfaces()
-        .Where(t => t.IsGenericType && t.GetGenericTypeDefinition()==typeof(IQueryable<>))
+        .Where(t => t.IsGenericType && t.GetGenericTypeDefinition()==typeof (IQueryable<>))
         .Any();
     }
 
 
     public static bool IsResult(this Expression expression)
     {
-      return (ExtendedExpressionType)expression.NodeType == ExtendedExpressionType.Result;
+      return (ExtendedExpressionType) expression.NodeType==ExtendedExpressionType.Result;
     }
 
     public static bool IsGrouping(this Expression expression)
     {
       if (expression.NodeType==ExpressionType.New) {
-          var newExpression = (NewExpression) expression;
-          if (newExpression.Type.IsGenericType 
-            && newExpression.Type.GetGenericTypeDefinition()==typeof (Grouping<,>))
-            return true;
+        var newExpression = (NewExpression) expression;
+        if (newExpression.Type.IsGenericType
+          && newExpression.Type.GetGenericTypeDefinition()==typeof (Grouping<,>))
+          return true;
       }
       return false;
+    }
+
+    public static Type GetGroupingKeyType(this Expression expression)
+    {
+      var newExpression = (NewExpression) expression;
+      return newExpression.Type.GetGenericArguments()[0];
+    }
+
+    public static Type GetGroupingElementType(this Expression expression)
+    {
+      var newExpression = (NewExpression)expression;
+      return newExpression.Type.GetGenericArguments()[1];
     }
 
     public static MemberType GetMemberType(this Expression e)
     {
       var type = e.Type;
-      if (typeof(Key).IsAssignableFrom(type))
+      if (typeof (Key).IsAssignableFrom(type))
         return MemberType.Key;
-      if (typeof(IEntity).IsAssignableFrom(type))
+      if (typeof (IEntity).IsAssignableFrom(type))
         return MemberType.Entity;
-      if (typeof(Structure).IsAssignableFrom(type))
+      if (typeof (Structure).IsAssignableFrom(type))
         return MemberType.Structure;
-      if (typeof(EntitySetBase).IsAssignableFrom(type))
+      if (typeof (EntitySetBase).IsAssignableFrom(type))
         return MemberType.EntitySet;
-      if (Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
-          && type.BaseType == typeof(object)
+      if (Attribute.IsDefined(type, typeof (CompilerGeneratedAttribute), false)
+        && type.BaseType==typeof (object)
           && type.Name.Contains("AnonymousType")
-          && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
-          && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic)
+            && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+              && (type.Attributes & TypeAttributes.NotPublic)==TypeAttributes.NotPublic)
         return MemberType.Anonymous;
       return MemberType.Unknown;
     }
