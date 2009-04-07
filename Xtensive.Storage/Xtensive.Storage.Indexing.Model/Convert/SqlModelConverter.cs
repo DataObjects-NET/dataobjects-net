@@ -171,8 +171,7 @@ namespace Xtensive.Storage.Indexing.Model.Convert
     {
       return new TypeInfo(
         ConvertType(column.DataType.DataType),
-        column.Collation != null ? column.Collation.Name : null,
-        column.DataType.Size);
+        column.DataType.Size, column.DataType.Scale, column.DataType.Precision);
     }
 
     /// <summary>

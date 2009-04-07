@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using System.Text;
 using Xtensive.Core.Reflection;
+using Xtensive.Sql.Dom.Database;
 
 namespace Xtensive.Storage.Indexing.Model
 {
@@ -32,9 +33,9 @@ namespace Xtensive.Storage.Indexing.Model
     }
 
     /// <summary>
-    /// Gets the collation.
+    /// Gets the length.
     /// </summary>
-    public string Collation
+    public int Length
     {
       [DebuggerStepThrough]
       get;
@@ -43,9 +44,20 @@ namespace Xtensive.Storage.Indexing.Model
     }
     
     /// <summary>
-    /// Gets the length.
+    /// Gets the scale.
     /// </summary>
-    public int Length
+    public int Scale
+    {
+      [DebuggerStepThrough]
+      get;
+      [DebuggerStepThrough]
+      private set;
+    }
+
+    /// <summary>
+    /// Gets the precision.
+    /// </summary>
+    public int Precision
     {
       [DebuggerStepThrough]
       get;
@@ -66,8 +78,9 @@ namespace Xtensive.Storage.Indexing.Model
 
       return
         DataType.Equals(typeInfo.DataType) &&
-          Collation==typeInfo.Collation &&
-            Length==typeInfo.Length;
+          Length==typeInfo.Length &&
+            Scale==typeInfo.Scale &&
+              Precision==typeInfo.Precision;
     }
 
     /// <inheritdoc/>
@@ -83,12 +96,11 @@ namespace Xtensive.Storage.Indexing.Model
     {
       var sb = new StringBuilder();
       sb.Append(string.Format("Type: {0}", DataType.GetShortName()));
-      if (!Collation.IsNullOrEmpty())
-        sb.Append(string.Format(", Collation: {0}", Collation));
       if (Length > 0)
         sb.Append(string.Format(", Length: {0}", Length));
       return sb.ToString();
     }
+
 
     // Constructors
 
@@ -109,11 +121,27 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="dataType">Type of the data.</param>
     /// <param name="collation">The collation.</param>
     /// <param name="length">The length.</param>
-    public TypeInfo(Type dataType, string collation, int length)
+    public TypeInfo(Type dataType, int length)
       :this(dataType)
     {
-      Collation = collation;
+      ArgumentValidator.EnsureArgumentIsInRange(length, 0, int.MaxValue, "length");
+
       Length = length;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="dataType">Type of the data.</param>
+    /// <param name="collation">The collation.</param>
+    /// <param name="length">The length.</param>
+    /// <param name="scale">The scale.</param>
+    /// <param name="precision">The precision.</param>
+    public TypeInfo(Type dataType, int length, int scale, int precision)
+      : this(dataType, length)
+    {
+      Scale = scale;
+      Precision = precision;
     }
 
     /// <summary>

@@ -72,7 +72,7 @@ namespace Xtensive.Indexing.Tests.Storage
       Assert.AreEqual(1, storage.Tables["A"].SecondaryIndexes.Count);
       Assert.AreEqual(2, storage.Tables["A"].SecondaryIndexes[0].KeyColumns.Count);
       Assert.IsTrue(storage.Tables["A"].SecondaryIndexes[0].IsUnique);
-      Assert.AreEqual(new Xtensive.Storage.Indexing.Model.TypeInfo(typeof(string), "Cyrillic_General_CI_AS", 125),
+      Assert.AreEqual(new Xtensive.Storage.Indexing.Model.TypeInfo(typeof(string), 125),
         storage.Tables["A"].Columns["Col3"].ColumnType);
       
       Assert.IsNotNull(storage.Tables["B"]);

@@ -102,8 +102,7 @@ namespace Xtensive.Storage.Model.Convert
     protected override IPathNode VisitColumnInfo(ColumnInfo column)
     {
       var table = StorageInfo.Tables[column.Field.ReflectedType.MappingName];
-      // ToDo: Complete type building.
-      var type = new StorageTypeInfo(column.ValueType, null, column.Length ?? 0);
+      var type = new StorageTypeInfo(column.ValueType, column.Length ?? 0);
       return new StorageColumnInfo(table, column.Name, type);
     }
 
