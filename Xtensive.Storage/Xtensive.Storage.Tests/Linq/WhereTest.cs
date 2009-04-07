@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var products = Query<Product>.All;
       var list = products.Where(p => p.UnitPrice * p.UnitsInStock >= 100).ToList();
-      Assert.AreEqual(67, list.Count);
+      Assert.AreEqual(66, list.Count);
     }
 
     [Test]

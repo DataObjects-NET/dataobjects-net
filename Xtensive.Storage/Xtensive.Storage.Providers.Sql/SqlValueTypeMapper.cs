@@ -148,14 +148,17 @@ namespace Xtensive.Storage.Providers.Sql
 
     private SqlValueType BuildSqlValueType(int length, DataTypeMapping typeMapping)
     {
-      var sdti = typeMapping.DataTypeInfo as StreamDataTypeInfo;
-      if (sdti==null)
-        return new SqlValueType(typeMapping.DataTypeInfo.SqlType);
-
-      if (length==0)
-        return new SqlValueType(sdti.SqlType, sdti.Length.MaxValue);
-
-      return new SqlValueType(sdti.SqlType, length);
+      var streamInfo = typeMapping.DataTypeInfo as StreamDataTypeInfo;
+      if (streamInfo!=null) {
+        if (length==0)
+          return new SqlValueType(streamInfo.SqlType, streamInfo.Length.MaxValue);
+        return new SqlValueType(streamInfo.SqlType, length);
+      }
+      var decimalInfo = typeMapping.DataTypeInfo as FractionalDataTypeInfo<decimal>;
+      if (decimalInfo != null)
+        return new SqlValueType(decimalInfo.SqlType, decimalInfo.Precision.MaxValue, decimalInfo.Scale.DefaultValue.Value);
+      
+      return new SqlValueType(typeMapping.DataTypeInfo.SqlType);
     }
 
     /// <inheritdoc/>
