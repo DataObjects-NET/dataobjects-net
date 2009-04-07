@@ -69,6 +69,7 @@ namespace Xtensive.Storage.Linq
         if (calculateExpressions.Value && body.GetMemberType()==MemberType.Unknown) {
           if (
             ((ExtendedExpressionType) body.NodeType)!=ExtendedExpressionType.Result &&
+            !body.IsGrouping() &&
               (body.NodeType != ExpressionType.Call ||
                 ((MethodCallExpression)body).Object == null ||
                   ((MethodCallExpression) body).Object.Type!=typeof (Tuple))) {

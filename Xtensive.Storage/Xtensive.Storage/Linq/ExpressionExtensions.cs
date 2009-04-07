@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 
 namespace Xtensive.Storage.Linq
 {
-  public static class ExpressionHelper
+  public static class ExpressionExtensions
   {
     public static LambdaExpression StripQuotes(this Expression expression)
     {
@@ -31,6 +31,23 @@ namespace Xtensive.Storage.Linq
       return type.GetInterfaces()
         .Where(t => t.IsGenericType && t.GetGenericTypeDefinition()==typeof(IQueryable<>))
         .Any();
+    }
+
+
+    public static bool IsResult(this Expression expression)
+    {
+      return (ExtendedExpressionType)expression.NodeType == ExtendedExpressionType.Result;
+    }
+
+    public static bool IsGrouping(this Expression expression)
+    {
+      if (expression.NodeType==ExpressionType.New) {
+          var newExpression = (NewExpression) expression;
+          if (newExpression.Type.IsGenericType 
+            && newExpression.Type.GetGenericTypeDefinition()==typeof (Grouping<,>))
+            return true;
+      }
+      return false;
     }
 
     public static MemberType GetMemberType(this Expression e)

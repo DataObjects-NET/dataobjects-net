@@ -214,6 +214,31 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.Greater(list.Count, 0);
     }
 
+    [Test]
+    public void GroupBySelectKeyWithSelectCalculableColumnTest()
+    {
+      IQueryable<string> result = Query<Order>.All.GroupBy(o => o.ShipName).Select(g => g.Key + "aaa");
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
+
+
+    [Test]
+    public void GroupBySelectKeyWithCalculableColumnTest()
+    {
+      IQueryable<IGrouping<string, Order>> result = Query<Order>.All.GroupBy(o => o.ShipName + "aaa");
+      var list = result.ToList();
+      QueryDumper.Dump(list);
+      Assert.Greater(list.Count, 0);
+    }
+
+    [Test]
+    public void GroupByWithSelectFirstTest()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => g.First());
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
 
     [Test]
     public void GroupBySelectGroupingTest()
@@ -296,6 +321,19 @@ namespace Xtensive.Storage.Tests.Linq
 
     [Test]
     public void GroupByWithEntityResultSelectorTest()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.Customer).Select(c =>
+        new
+        {
+          Customer = c,
+        });
+
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
+
+    [Test]
+    public void GroupByWithEntityResultSelector2Test()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer, (c, g) =>
         new
