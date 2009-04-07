@@ -397,12 +397,10 @@ namespace Xtensive.Storage.Linq
       var innerRecordSet = innerResult.RecordSet
         .Aggregate(null, new AggregateColumnDescriptor(context.GetNextColumnAlias(), aggregateColumn, aggregateType));
 
-      if (!isRoot) {
-        var expression = AddSubqueryColumn(method.ReturnType, innerRecordSet);
-        if (isIntCount)
-          expression = Expression.Convert(expression, typeof (int));
-        return expression;
-      }
+      if (!isRoot)
+        return isIntCount
+          ? Expression.Convert(AddSubqueryColumn(typeof (long), innerRecordSet), typeof (int))
+          : AddSubqueryColumn(method.ReturnType, innerRecordSet);
 
       var resultType = method.ReturnType;
       Expression<Func<RecordSet, object>> shaper;
