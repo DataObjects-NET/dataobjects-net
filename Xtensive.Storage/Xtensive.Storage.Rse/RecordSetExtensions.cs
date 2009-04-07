@@ -275,5 +275,10 @@ namespace Xtensive.Storage.Rse
     {
       return new ConcatProvider(left.Provider, right.Provider).Result;
     }
+
+    public static RecordSet Union(this RecordSet left, RecordSet right)
+    {
+      return new UnionProvider(left.Provider, right.Provider).Result;
+    }
   }
 }

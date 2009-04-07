@@ -293,6 +293,17 @@ namespace Xtensive.Storage.Rse.Compilation
         right);
     }
 
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitUnion(UnionProvider provider)
+    {
+      var left = GetCompiled(provider.Left);
+      var right = GetCompiled(provider.Right);
+      return new Providers.Executable.UnionProvider(
+        provider,
+        left,
+        right);
+    }
+
 
     // Constructor
 

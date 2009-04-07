@@ -13,7 +13,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Configuration
 {
   /// <summary>
-  /// A configuration for the <see cref="Session"/> object.
+  /// <see cref="Session"/> configuration.
   /// </summary>
   /// <remarks>
   /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>

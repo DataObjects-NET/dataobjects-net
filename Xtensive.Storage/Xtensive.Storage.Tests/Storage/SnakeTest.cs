@@ -553,6 +553,8 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(count, snakesCount / 2 - snakesCount / 5);
           count = snakes1.Concat(snakes2).Count();
           Assert.AreEqual(count, snakesCount / 2 + snakesCount / 5);
+          count = snakes1.Union(snakes2).Count();
+          Assert.AreEqual(count, snakesCount / 2 + snakesCount / 5);
 
           count = rsSnakeName.Except(rsLizardName).Count();
           Assert.AreEqual(count, snakesCount);
@@ -560,10 +562,13 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(count, 0);
           count = rsSnakeName.Concat(rsLizardName).Count();
           Assert.AreEqual(count, snakesCount + lizardsCount);
+          count = rsSnakeName.Union(rsLizardName).Count();
+          Assert.AreEqual(count, snakesCount + lizardsCount);
 
           AssertEx.Throws<InvalidOperationException>(() => rsSnakeName.Intersect(rsSnakePrimary));
           AssertEx.Throws<InvalidOperationException>(() => rsSnakeName.Except(rsSnakePrimary));
           AssertEx.Throws<InvalidOperationException>(() => rsSnakeName.Concat(rsSnakePrimary));
+          AssertEx.Throws<InvalidOperationException>(() => rsSnakeName.Union(rsSnakePrimary));
 
           t.Complete();
         } 

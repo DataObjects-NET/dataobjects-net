@@ -639,7 +639,30 @@ namespace Xtensive.Storage.Providers.Sql
       var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers, left, right);
     }
-    
+
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitUnion(UnionProvider provider)
+    {
+      var left = GetCompiled(provider.Left) as SqlProvider;
+      var right = GetCompiled(provider.Right) as SqlProvider;
+      if (left == null || right == null)
+        return null;
+
+      var leftSelect = left.Request.SelectStatement;
+      var rightSelect = right.Request.SelectStatement;
+
+      var result = SqlFactory.Union(
+        leftSelect,
+        rightSelect);
+
+      var queryRef = SqlFactory.QueryRef(result);
+      SqlSelect query = SqlFactory.Select(queryRef);
+      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+
+      var request = new SqlFetchRequest(query, provider.Header);
+      return new SqlProvider(provider, request, Handlers, left, right);
+    }
+
     /// <summary>
     /// Preprocesses (transforms before actual compilation to SQL) specified <see cref="LambdaExpression"/>.
     /// Can be overridden in derived classes for making custom preprocess logic.

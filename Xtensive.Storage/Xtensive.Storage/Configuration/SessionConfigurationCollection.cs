@@ -10,9 +10,9 @@ using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Configuration
 {
-  ///<summary>
-  /// The collection of <see cref="SessionConfiguration"/>.
-  ///</summary>
+  /// <summary>
+  /// <see cref="SessionConfiguration"/> collection.
+  /// </summary>
   [Serializable]
   public class SessionConfigurationCollection : CollectionBaseSlim<SessionConfiguration>, 
     ICloneable

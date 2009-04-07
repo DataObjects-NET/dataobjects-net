@@ -330,7 +330,18 @@ namespace Xtensive.Storage.Rse.Providers
       return new ConcatProvider(left, right);
     }
 
-
+    /// <inheritdoc/>
+    protected override Provider VisitUnion(UnionProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var left = VisitCompilable(provider.Left);
+      var right = VisitCompilable(provider.Right);
+      OnRecursionExit(provider);
+      if (left == provider.Left && right == provider.Right)
+        return provider;
+      return new UnionProvider(left, right);
+    }
+    
     private static Expression DefaultExpressionTranslator(Provider p, Expression e)
     {
       return e;

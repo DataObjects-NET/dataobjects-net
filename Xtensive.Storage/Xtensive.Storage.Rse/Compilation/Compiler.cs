@@ -130,6 +130,9 @@ namespace Xtensive.Storage.Rse.Compilation
         case ProviderType.Concat:
           result = VisitConcat((ConcatProvider) cp);
           break;
+        case ProviderType.Union:
+          result = VisitUnion((UnionProvider) cp);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -289,6 +292,12 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     /// <param name="provider">Concat provider.</param>
     protected abstract ExecutableProvider VisitConcat(ConcatProvider provider);
+
+    /// <summary>
+    /// Compiles <see cref="ConcatProvider"/>.
+    /// </summary>
+    /// <param name="provider">Union provider.</param>
+    protected abstract ExecutableProvider VisitUnion(UnionProvider provider);
 
 
     // Constructor

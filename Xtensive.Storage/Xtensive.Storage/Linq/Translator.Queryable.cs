@@ -91,13 +91,10 @@ namespace Xtensive.Storage.Linq
         case QueryableMethodKind.LastOrDefault:
           break;
         case QueryableMethodKind.Except:
-          break;
         case QueryableMethodKind.Intersect:
-          break;
         case QueryableMethodKind.Concat:
-          break;
         case QueryableMethodKind.Union:
-          break;
+          return VisitSetOperations(mc.Arguments[0], mc.Arguments[1], methodKind);
         case QueryableMethodKind.Reverse:
           break;
         case QueryableMethodKind.SequenceEqual:
@@ -799,6 +796,33 @@ namespace Xtensive.Storage.Linq
       if (notExists)
         filter = Expression.Not(filter);
       return filter;
+    }
+
+    private Expression VisitSetOperations(Expression outerSource, Expression innerSource, QueryableMethodKind methodKind)
+    {
+      var outer = VisitSequence(outerSource);
+      var inner = VisitSequence(innerSource);
+      var outerColumnList = outer.Mapping.GetColumns().Distinct().OrderBy().ToArray();
+      var innerColumnList = inner.Mapping.GetColumns().Distinct().OrderBy().ToArray();
+      var outerRecordSet = outer.RecordSet.Select(outerColumnList);
+      var innerRecordSet = inner.RecordSet.Select(innerColumnList);
+
+      RecordSet recordSet = outer.RecordSet;
+      switch (methodKind) {
+      case QueryableMethodKind.Concat:
+        recordSet = outerRecordSet.Concat(innerRecordSet);
+        break;
+      case QueryableMethodKind.Except:
+        recordSet = outerRecordSet.Except(innerRecordSet);
+        break;
+      case QueryableMethodKind.Intersect:
+        recordSet = outerRecordSet.Intersect(innerRecordSet);
+        break;
+      case QueryableMethodKind.Union:
+        recordSet = outerRecordSet.Union(innerRecordSet);
+        break;
+      }
+      return new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.Projector, outer.ItemProjector);
     }
 
     private Expression AddSubqueryColumn(Type columnType, RecordSet subquery)

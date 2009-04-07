@@ -32,6 +32,7 @@ namespace Xtensive.Storage.Rse.Providers
     Existence,
     Concat,
     Intersect,
-    Except
+    Except,
+    Union
   }
 }

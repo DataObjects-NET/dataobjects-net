@@ -239,6 +239,26 @@ namespace Xtensive.Storage.Linq
       throw new NotImplementedException();
     }
 
+    protected override Provider VisitConcat(ConcatProvider provider)
+    {
+      return provider;
+    }
+
+    protected override Provider VisitExcept(ExceptProvider provider)
+    {
+      return provider;
+    }
+
+    protected override Provider VisitIntersect(IntersectProvider provider)
+    {
+      return provider;
+    }
+
+    protected override Provider VisitUnion(UnionProvider provider)
+    {
+      return provider;
+    }
+
     #endregion
 
     #region OnRecursionExit, OnRecursionEntrance methods
