@@ -14,6 +14,7 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Mappings;
+using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -53,7 +54,7 @@ namespace Xtensive.Storage.Linq
           }
 
           var rs = resultProvider.Result;
-          var groupMap = BuildGroupMapping(projectorMap, originProvider, resultProvider);
+          var groupMap = MappingHelper.BuildGroupMapping(projectorMap, originProvider, resultProvider);
 
           var projector = (Expression<Func<RecordSet, object>>)mappingsReplacer.ReplaceMappings(origin.Projector, projectorMap, groupMap, origin.RecordSet.Header);
           var itemProjector = origin.ItemProjector == null
@@ -79,7 +80,7 @@ namespace Xtensive.Storage.Linq
     protected override Provider VisitFilter(FilterProvider provider)
     {
       List<int> map = mappings.Value[provider];
-      mappings.Value.Add(provider.Source, Merge(map, mappingsGatherer.GatherMappings(provider.Predicate)));
+      mappings.Value.Add(provider.Source, MappingHelper.Merge(map, mappingsGatherer.GatherMappings(provider.Predicate)));
 
       OnRecursionEntrance(provider);
       var newSourceProvider = VisitCompilable(provider.Source);
@@ -130,7 +131,7 @@ namespace Xtensive.Storage.Linq
       
       // merge
 
-      mappings.Value[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
+      mappings.Value[provider] = MappingHelper.MergeMappings(provider.Left, leftMapping, rightMapping);
       var equalIndexes = provider.EqualIndexes
         .Select(pair => new Pair<int>(leftMapping.IndexOf(pair.First), rightMapping.IndexOf(pair.Second)))
         .ToArray();
@@ -140,7 +141,7 @@ namespace Xtensive.Storage.Linq
     protected override Provider VisitSort(SortProvider provider)
     {
       var currentMap = mappings.Value[provider];
-      mappings.Value.Add(provider.Source, Merge(currentMap, provider.Order.Keys));
+      mappings.Value.Add(provider.Source, MappingHelper.Merge(currentMap, provider.Order.Keys));
       return base.VisitSort(provider);
     }
 
@@ -160,7 +161,7 @@ namespace Xtensive.Storage.Linq
       outerColumnUsageVisitor.VisitCompilable(provider.Right);
       outerColumnUsages.Remove(applyParameter);
 
-      leftMapping = Merge(leftMapping, currentOuterUsages);
+      leftMapping = MappingHelper.Merge(leftMapping, currentOuterUsages);
       
       // visit
 
@@ -186,14 +187,14 @@ namespace Xtensive.Storage.Linq
 
       // merge
 
-      mappings.Value[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
+      mappings.Value[provider] = MappingHelper.MergeMappings(provider.Left, leftMapping, rightMapping);
       return new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.ApplyType);
     }
 
     protected override Provider VisitReindex(ReindexProvider provider)
     {
       var currentMapping = mappings.Value[provider]; 
-      mappings.Value.Add(provider.Source, Merge(currentMapping, provider.Order.Keys));
+      mappings.Value.Add(provider.Source, MappingHelper.Merge(currentMapping, provider.Order.Keys));
       return base.VisitReindex(provider);
     }
 
@@ -203,14 +204,14 @@ namespace Xtensive.Storage.Linq
       var map = provider.AggregateColumns
         .Select(c => c.SourceIndex)
         .Concat(provider.GroupColumnIndexes);
-      mappings.Value.Add(provider.Source, Merge(currentMapping, map));
+      mappings.Value.Add(provider.Source, MappingHelper.Merge(currentMapping, map));
       return base.VisitAggregate(provider);
     }
 
     protected override Provider VisitCalculate(CalculateProvider provider)
     {
       var sourceLength = provider.Source.Header.Length;
-      var sourceMapping = Merge(
+      var sourceMapping = MappingHelper.Merge(
         mappings.Value[provider].Where(i => i < sourceLength),
         provider.CalculatedColumns.SelectMany(c => mappingsGatherer.GatherMappings(c.Expression))
         );
@@ -289,12 +290,12 @@ namespace Xtensive.Storage.Linq
           var orders = new DirectionCollection<int>();
           foreach (KeyValuePair<int, Direction> order in sortProvider.Order)
             orders.Add(sourceMap.IndexOf(order.Key), order.Value);
-          mappings.Value[sortProvider] = Merge(sourceMap, mappings.Value[sortProvider]);
+          mappings.Value[sortProvider] = MappingHelper.Merge(sourceMap, mappings.Value[sortProvider]);
           return orders;
         }
         default: {
           var unaryProvider = (UnaryProvider)provider;
-          mappings.Value[unaryProvider] = Merge(mappings.Value[unaryProvider], mappings.Value[unaryProvider.Source]);
+          mappings.Value[unaryProvider] = MappingHelper.Merge(mappings.Value[unaryProvider], mappings.Value[unaryProvider.Source]);
           break;
         }
       }
@@ -360,40 +361,10 @@ namespace Xtensive.Storage.Linq
         return mappingsReplacer.ReplaceMappings(
           expression,
           mappings.Value[originalProvider],
-          BuildGroupMapping(mappings.Value[originalProvider], originalProvider.Sources[0], newSource),
+          MappingHelper.BuildGroupMapping(mappings.Value[originalProvider], originalProvider.Sources[0], newSource),
           origin.RecordSet.Header
           );
       return expression;
-    }
-
-    private static List<int> BuildGroupMapping(List<int> mapping, Provider originProvider, Provider resultProvider)
-    {
-      var originGroups = originProvider.Header.ColumnGroups.ToList();
-      var resultGroups = resultProvider.Header.ColumnGroups.ToList();
-
-      return originGroups
-        .Select((og, i) => new { Group = og, Index = i })
-        .Where(gi => resultGroups.Any(rg => rg.Keys.Select(rki => mapping[rki]).SequenceEqual(gi.Group.Keys)))
-        .Select(gi => gi.Index)
-        .ToList();
-    }
-
-    private static List<int> Merge(IEnumerable<int> left, IEnumerable<int> right)
-    {
-      return left
-        .Union(right)
-        .Distinct()
-        .OrderBy()
-        .ToList();
-    }
-
-    private static List<int> MergeMappings(Provider originalLeft, List<int> leftMap, List<int> rightMap)
-    {
-      var leftCount = originalLeft.Header.Length;
-      var result = leftMap
-        .Concat(rightMap.Select(i => i + leftCount))
-        .ToList();
-      return result;
     }
 
     #endregion

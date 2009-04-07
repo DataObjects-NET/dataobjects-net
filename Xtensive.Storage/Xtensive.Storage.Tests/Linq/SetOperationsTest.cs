@@ -16,7 +16,6 @@ namespace Xtensive.Storage.Tests.Linq
   public class SetOperationsTest : NorthwindDOModelTest
   {
     [Test]
-    [Ignore]
     public void SimpleConcatTest()
     {
       var customers = Query<Customer>.All;;
@@ -26,7 +25,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore]
     public void SimpleUnionTest()
     {
       var products = Query<Product>.All;
@@ -43,7 +41,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore]
     public void SimpleIntersectTest()
     {
       var products = Query<Product>.All;
@@ -60,7 +57,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore]
     public void SimpleExceptTest()
     {
       var products = Query<Product>.All;
@@ -76,7 +72,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore]
     public void ConcatDifferentTest()
     {
       var customers = Query<Customer>.All;
@@ -95,7 +90,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore]
     public void ConcatDifferentTest2()
     {
       var customers = Query<Customer>.All;
@@ -112,7 +106,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore]
     public void UnionDifferentTest()
     {
       var customers = Query<Customer>.All;
@@ -128,7 +121,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore]
     public void IntersectDifferentTest()
     {
       var customers = Query<Customer>.All;
@@ -145,7 +137,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore]
     public void ExceptDifferentTest()
     {
       var customers = Query<Customer>.All;

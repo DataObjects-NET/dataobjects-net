@@ -802,10 +802,10 @@ namespace Xtensive.Storage.Linq
     {
       var outer = VisitSequence(outerSource);
       var inner = VisitSequence(innerSource);
-      var outerColumnList = outer.Mapping.GetColumns().Distinct().OrderBy().ToArray();
-      var innerColumnList = inner.Mapping.GetColumns().Distinct().OrderBy().ToArray();
-      var outerRecordSet = outer.RecordSet.Select(outerColumnList);
-      var innerRecordSet = inner.RecordSet.Select(innerColumnList);
+      var outerColumnList = outer.Mapping.GetColumns().OrderBy().ToList();
+      var innerColumnList = inner.Mapping.GetColumns().OrderBy().ToList();
+      var outerRecordSet = outer.RecordSet.Select(outerColumnList.ToArray());
+      var innerRecordSet = inner.RecordSet.Select(innerColumnList.ToArray());
 
       RecordSet recordSet = outer.RecordSet;
       switch (methodKind) {
@@ -822,7 +822,25 @@ namespace Xtensive.Storage.Linq
         recordSet = outerRecordSet.Union(innerRecordSet);
         break;
       }
-      return new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.Projector, outer.ItemProjector);
+
+      //TODO: Handle anonymous types
+      FieldMapping mapping;
+      if (outer.Mapping is PrimitiveFieldMapping) {
+        var pfm = (PrimitiveFieldMapping)outer.Mapping;
+        mapping = new PrimitiveFieldMapping(new Segment<int>(outerColumnList.IndexOf(pfm.Segment.Offset), pfm.Segment.Length));
+      }
+      else {
+        var cfm = (ComplexFieldMapping)outer.Mapping;
+        var complexMapping = new ComplexFieldMapping();
+        foreach (var pair in cfm.Fields)
+          complexMapping.RegisterFieldMapping(pair.Key, new Segment<int>(outerColumnList.IndexOf(pair.Value.Offset), pair.Value.Length));
+        mapping = complexMapping;
+      }
+      var groupMapping = MappingHelper.BuildGroupMapping(outerColumnList, outerRecordSet.Provider, recordSet.Provider);
+      var processor = new TupleAccessProcessor();
+      var projector = processor.ReplaceMappings(outer.Projector, outerColumnList, groupMapping, recordSet.Header);
+      var itemProjector = processor.ReplaceMappings(outer.ItemProjector, outerColumnList, groupMapping, recordSet.Header);
+      return new ResultExpression(outer.Type, recordSet, mapping, (Expression<Func<RecordSet, object>>)projector, (LambdaExpression)itemProjector);
     }
 
     private Expression AddSubqueryColumn(Type columnType, RecordSet subquery)
