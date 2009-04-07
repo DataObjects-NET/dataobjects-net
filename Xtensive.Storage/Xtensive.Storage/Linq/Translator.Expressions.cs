@@ -18,6 +18,8 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Linq.Expressions;
+using Xtensive.Storage.Linq.Expressions.Mappings;
 using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -31,7 +33,7 @@ namespace Xtensive.Storage.Linq
 
     private readonly Parameter<List<CalculatedColumnDescriptor>> calculatedColumns = new Parameter<List<CalculatedColumnDescriptor>>("calculatedColumns");
     private readonly Parameter<ParameterExpression[]> parameters = new Parameter<ParameterExpression[]>("parameters");
-    private readonly Parameter<ResultMapping> resultMapping = new Parameter<ResultMapping>("resultMapping");
+    private readonly Parameter<FieldMappingReference> mappingRef = new Parameter<FieldMappingReference>("mapping");
     private readonly Parameter<ParameterExpression> tuple = new Parameter<ParameterExpression>("tuple");
     private readonly Parameter<ParameterExpression> record = new Parameter<ParameterExpression>("record");
     private readonly Parameter<bool> joinFinalEntity = new Parameter<bool>("joinFinalEntity");
@@ -71,15 +73,15 @@ namespace Xtensive.Storage.Linq
             ((ExtendedExpressionType) body.NodeType)!=ExtendedExpressionType.Result &&
             !body.IsGrouping() &&
               (body.NodeType != ExpressionType.Call ||
-                ((MethodCallExpression)body).Object == null ||
-                  ((MethodCallExpression) body).Object.Type!=typeof (Tuple))) {
+              ((MethodCallExpression)body).Object == null ||
+              ((MethodCallExpression) body).Object.Type!=typeof (Tuple))) {
             var calculator = Expression.Lambda(Expression.Convert(body, typeof (object)), tuple.Value);
             var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>) calculator);
             calculatedColumns.Value.Add(ccd);
             var parameter = parameters.Value[0];
             int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
             body = MakeTupleAccess(parameter, body.Type, position);
-            resultMapping.Value.RegisterPrimitive(new Segment<int>(position, 1));
+            mappingRef.Value.Replace(new PrimitiveFieldMapping(new Segment<int>(position, 1)));
           }
         }
         if (calculatedColumns.Value.Count > 0) {
@@ -108,32 +110,32 @@ namespace Xtensive.Storage.Linq
         return path.TranslateParameter(referencedSource.ItemProjector.Body);
       }
       var source = context.Bindings[pe];
-      var mapping = source.Mapping;
+      var mapping = source.Mapping as ComplexFieldMapping;
       int number = 0;
-      foreach (var item in path) {
-        number++;
-        if (item.Type==MemberType.Entity && (joinFinalEntity.Value || number!=path.Count)) {
-          ResultMapping innerMapping;
-          var name = item.Name;
-          var typeInfo = context.Model.Types[item.Expression.Type];
-          if (!mapping.JoinedRelations.TryGetValue(name, out innerMapping)) {
-            var joinedIndex = typeInfo.Indexes.PrimaryIndex;
-            var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-            var keySegment = mapping.Fields[name];
-            var keyPairs = keySegment.GetItems()
-              .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-              .ToArray();
-            var rs = source.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
-            var fieldMapping = BuildFieldMapping(typeInfo, source.RecordSet.Header.Columns.Count);
-            var joinedMapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
-            mapping.JoinedRelations.Add(name, joinedMapping);
-
-            source = new ResultExpression(source.Type, rs, source.Mapping, source.Projector, source.ItemProjector);
-            context.Bindings.ReplaceBound(pe, source);
+      if (mapping != null)
+        foreach (var item in path) {
+          number++;
+          if (item.Type == MemberType.Entity && (joinFinalEntity.Value || number != path.Count)) {
+            ComplexFieldMapping innerMapping;
+            var name = item.Name;
+            var typeInfo = context.Model.Types[item.Expression.Type];
+            if (!mapping.TryGetJoined(name, out innerMapping)) {
+              var joinedIndex = typeInfo.Indexes.PrimaryIndex;
+              var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+              var keySegment = mapping.GetFieldSegment(name);
+              var keyPairs = keySegment.GetItems()
+                .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+                .ToArray();
+              var rs = source.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
+              var fieldMapping = BuildFieldMapping(typeInfo, source.RecordSet.Header.Columns.Count);
+              var joinedMapping = new ComplexFieldMapping(fieldMapping, new Dictionary<string, ComplexFieldMapping>());
+              mapping.RegisterJoin(name, joinedMapping);
+              source = new ResultExpression(source.Type, rs, source.Mapping, source.Projector, source.ItemProjector);
+              context.Bindings.ReplaceBound(pe, source);
+            }
+            mapping = innerMapping;
           }
-          mapping = innerMapping;
         }
-      }
 
       var resultType = e.Type;
       source = context.Bindings[path.Parameter];
@@ -197,7 +199,7 @@ namespace Xtensive.Storage.Linq
       if (!parameters.Value.Contains(p))
         throw new InvalidOperationException("Lambda parameter is out of scope!");
       var source = context.Bindings[p];
-      resultMapping.Value.Replace(source.Mapping);
+      mappingRef.Value.Replace(source.Mapping);
       var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
       var result = parameterRewriter.Rewrite(source.ItemProjector.Body);
       recordIsUsed.Value |= result.Second;
@@ -245,47 +247,26 @@ namespace Xtensive.Storage.Linq
       for (int i = 0; i < n.Arguments.Count; i++) {
         var arg = n.Arguments[i];
         Expression newArg;
-//        Expression argumentResolver = null;
         var member = n.Members[i];
         var memberName = member.Name.TryCutPrefix(WellKnown.GetterPrefix);
-        Func<string, string> rename = key => key.IsNullOrEmpty()
-          ? memberName
-          : memberName + "." + key;
         var path = MemberPath.Parse(arg, context.Model);
         if (path.IsValid || arg.NodeType==ExpressionType.New) {
-          ResultMapping rm;
+          var fmRef = new FieldMappingReference(mappingRef.Value.FillMapping);
           using (new ParameterScope()) {
-            resultMapping.Value = new ResultMapping();
+            mappingRef.Value = fmRef;
             newArg = Visit(arg);
-            rm = resultMapping.Value;
-//            if (newArg.Type==typeof(Key) && arg.Type.IsSubclassOf(typeof(Entity))) {
-//              var argumentResolveMethod = WellKnownMethods.KeyResolveOfT.MakeGenericMethod(arg.Type);
-//              argumentResolver = Expression.Call(newArg, argumentResolveMethod);
-//            }
           }
-          if (rm.MapsToPrimitive)
-            resultMapping.Value.RegisterFieldMapping(memberName, rm.Segment);
-          else {
-            foreach (var p in rm.Fields)
-              resultMapping.Value.RegisterFieldMapping(rename(p.Key), p.Value);
-            foreach (var p in rm.JoinedRelations)
-              resultMapping.Value.RegisterJoined(rename(p.Key), p.Value);
-            foreach (var p in rm.AnonymousProjections)
-              resultMapping.Value.RegisterAnonymous(rename(p.Key), p.Value);
-            var memberType = arg.GetMemberType();
-            if (memberType==MemberType.Anonymous || memberType==MemberType.Entity) {
-              resultMapping.Value.RegisterJoined(memberName, rm);
-              if (memberType==MemberType.Anonymous)
-                resultMapping.Value.RegisterAnonymous(memberName, newArg);
-            }
-          }
+          mappingRef.Value.Fill(fmRef, arg.GetMemberType(), newArg, memberName,  
+            (oldName, newName) => oldName.IsNullOrEmpty()
+              ? newName
+              : newName + "." + oldName);
         }
         else {
           // TODO: Add check of queries
           Expression body;
           using (new ParameterScope()) {
             calculateExpressions.Value = false;
-            resultMapping.Value = new ResultMapping();
+            mappingRef.Value = new FieldMappingReference(false);
             body = Visit(arg);
           }
           if (body.AsTupleAccess() != null)
@@ -319,11 +300,11 @@ namespace Xtensive.Storage.Linq
             var parameter = parameters.Value[0];
             int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
             newArg = MakeTupleAccess(parameter, arg.Type, position);
-            resultMapping.Value.RegisterFieldMapping(memberName, new Segment<int>(position, 1));
+            mappingRef.Value.RegisterFieldMapping(memberName, new Segment<int>(position, 1));
           }
         }
         newArg = newArg ?? Visit(arg);
-        arguments.Add( /*argumentResolver ?? */newArg);
+        arguments.Add(newArg);
       }
       // Convert Grouping<Key, TElement> to IGrouping<Key, TElement>. 
       for (int i = 0; i < arguments.Count; i++) {
@@ -347,7 +328,7 @@ namespace Xtensive.Storage.Linq
       var index = type.Indexes.PrimaryIndex;
 
       var fieldMapping = BuildFieldMapping(type, 0);
-      var mapping = new ResultMapping(fieldMapping, new Dictionary<string, ResultMapping>());
+      var mapping = new ComplexFieldMapping(fieldMapping);
       var recordSet = IndexProvider.Get(index).Result;
       Expression<Func<RecordSet, object>> projector = rs => rs.Parse().Select(r => r[0].TryResolve());
       Expression<Func<Record, Entity>> ipt = r => r[0].TryResolve();
@@ -597,17 +578,10 @@ namespace Xtensive.Storage.Linq
       int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
       var result = Expression.Call(WellKnownMethods.KeyTryResolveOfT.MakeGenericMethod(resultType),
         Expression.Call(record.Value, WellKnownMethods.RecordKey, Expression.Constant(groupIndex)));
-      var rm = source.GetMemberMapping(path);
-      var name = rm.Fields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
-      foreach (var pair in rm.Fields) {
-        var key = pair.Key.TryCutPrefix(name).TrimStart('.');
-        resultMapping.Value.RegisterFieldMapping(key, pair.Value);
-      }
-      foreach (var pair in rm.JoinedRelations) {
-        var key = pair.Key.TryCutPrefix(name).TrimStart('.');
-        resultMapping.Value.RegisterJoined(key, pair.Value);
-      }
-      resultMapping.Value.RegisterJoined(string.Empty, rm);
+      var cfm = (ComplexFieldMapping)source.GetMemberMapping(path);
+      var name = cfm.Fields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
+      mappingRef.Value.Fill(cfm, MemberType.Entity, result, string.Empty,
+        (oldName, newName) => oldName.TryCutPrefix(name).TrimStart('.'));
       return result;
     }
 
@@ -628,24 +602,25 @@ namespace Xtensive.Storage.Linq
       var columnGroup = source.RecordSet.Header.ColumnGroups[groupIndex];
       var keyOffset = columnGroup.Keys.Min();
       var keyLength = columnGroup.Keys.Max() - keyOffset + 1;
-      var rm = source.GetMemberMapping(path);
-      var mappedFields = rm.Fields.Where(p => (p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset)).ToList();
+      var cfm = (ComplexFieldMapping)source.GetMemberMapping(path);
+      var mappedFields = cfm.Fields.Where(p => (p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset)).ToList();
       var name = mappedFields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
       foreach (var pair in mappedFields) {
         var key = pair.Key.TryCutPrefix(name).TrimStart('.');
-        resultMapping.Value.RegisterFieldMapping(key, pair.Value);
+        mappingRef.Value.RegisterFieldMapping(key, pair.Value);
       }
-      resultMapping.Value.RegisterFieldMapping(string.Format(SurrogateKeyNameFormatString, groupIndex), new Segment<int>(keyOffset, keyLength));
+      mappingRef.Value.RegisterFieldMapping(string.Format(SurrogateKeyNameFormatString, groupIndex), new Segment<int>(keyOffset, keyLength));
       return result;
     }
 
     private Expression VisitMemberPathAnonymous(MemberPath path, ResultExpression source)
     {
-      var rm = source.GetMemberMapping(path);
-      resultMapping.Value.RegisterJoined(string.Empty, rm);
+      var cfm = (ComplexFieldMapping)source.GetMemberMapping(path);
+      mappingRef.Value.RegisterJoined(string.Empty, cfm);
       if (path.Count==0)
         return VisitParameter(path.Parameter);
-      var projector = source.Mapping.AnonymousProjections[path.First().Name];
+      var sourceMapping = (ComplexFieldMapping)source.Mapping;
+      var projector = sourceMapping.GetAnonymousProjection(path.First().Name);
       var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
       var result = parameterRewriter.Rewrite(projector);
       recordIsUsed.Value |= result.Second;
@@ -655,7 +630,7 @@ namespace Xtensive.Storage.Linq
     private Expression VisitMemberPathPrimitive(MemberPath path, ResultExpression source, Type resultType)
     {
       var segment = source.GetMemberSegment(path);
-      resultMapping.Value.RegisterPrimitive(segment);
+      mappingRef.Value.RegisterPrimitive(segment);
       return MakeTupleAccess(path.Parameter, resultType, segment.Offset);
     }
 
@@ -670,7 +645,7 @@ namespace Xtensive.Storage.Linq
         Expression.Call(Expression.Constant(transform), WellKnownMethods.SegmentTransformApply,
           Expression.Constant(TupleTransformType.Auto), tuple.Value),
         Expression.Constant(false));
-      resultMapping.Value.RegisterPrimitive(segment);
+      mappingRef.Value.RegisterPrimitive(segment);
       return keyExtractor;
     }
 

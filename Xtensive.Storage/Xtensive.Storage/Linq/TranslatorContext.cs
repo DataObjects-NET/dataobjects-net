@@ -11,6 +11,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;

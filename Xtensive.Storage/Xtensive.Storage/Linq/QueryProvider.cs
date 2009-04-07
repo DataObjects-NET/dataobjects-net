@@ -5,6 +5,7 @@
 // Created:    2008.11.27
 
 using System.Linq.Expressions;
+using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq

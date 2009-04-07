@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Linq.Expressions;
 
 namespace Xtensive.Storage.Linq
 {

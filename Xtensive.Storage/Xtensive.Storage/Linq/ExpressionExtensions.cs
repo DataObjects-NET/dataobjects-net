@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Xtensive.Storage.Linq.Expressions;
 
 namespace Xtensive.Storage.Linq
 {

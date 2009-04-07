@@ -12,6 +12,8 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Linq.Expressions;
+using Xtensive.Storage.Linq.Expressions.Mappings;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -57,7 +59,7 @@ namespace Xtensive.Storage.Linq
           var itemProjector = origin.ItemProjector == null
             ? null
             : (LambdaExpression)mappingsReplacer.ReplaceMappings(origin.ItemProjector, projectorMap, groupMap, origin.RecordSet.Header);
-          var result = new ResultExpression(origin.Type, rs, (origin.Mapping == null) ? null : new ResultMapping(), projector, itemProjector);
+          var result = new ResultExpression(origin.Type, rs, null, projector, itemProjector);
           return result;
         }
       return origin;
