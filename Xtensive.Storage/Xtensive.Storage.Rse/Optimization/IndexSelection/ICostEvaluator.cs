@@ -12,6 +12,6 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
   internal interface ICostEvaluator
   {
-    float Evaluate(IndexInfo indexInfo, RangeSet<Entire<Tuple>> rangeSet);
+    double Evaluate(IndexInfo indexInfo, RangeSet<Entire<Tuple>> rangeSet);
   }
 }

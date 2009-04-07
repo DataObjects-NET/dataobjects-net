@@ -67,6 +67,14 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       return rangeSetMaker();
     }
 
+    public Expression<Func<RangeSet<Entire<Tuple>>>> GetSourceAsLambda()
+    {
+      var lambda = Source as LambdaExpression;
+      if (lambda != null)
+        return (Expression<Func<RangeSet<Entire<Tuple>>>>)lambda;
+      return (Expression<Func<RangeSet<Entire<Tuple>>>>)Expression.Lambda(Source);
+    }
+
     // Constructors
 
     public RangeSetInfo(Expression source, TupleExpressionInfo origin, bool alwaysFull)
