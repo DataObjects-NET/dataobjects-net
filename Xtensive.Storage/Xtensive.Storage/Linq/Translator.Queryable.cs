@@ -424,8 +424,12 @@ namespace Xtensive.Storage.Linq
     private ResultExpression VisitGroupBy(MethodInfo method, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
     {
       if (resultSelector!=null) {
-        var resultExpression = VisitGroupBy(method, source, keySelector, elementSelector, null);
-        return VisitSelect(resultExpression, resultSelector);
+        throw new NotImplementedException();
+//        var resultExpression = VisitGroupBy(method, source, keySelector, elementSelector, null);
+//        var convertExpression = Expression.Convert(resultSelector.Parameters[1], typeof (IEnumerable<>).MakeGenericType(resultExpression.ItemProjector.Body.Type));
+//
+//        Expression rewritedResultSelectorBody = ReplaceParameterRewriter.Rewrite(resultSelector.Body, resultSelector.Parameters[0], Expression.MakeMemberAccess(resultSelector.Parameters[1], convertExpression.GetProperty("Key")));
+//        return VisitSelect(resultExpression, Expression.Lambda(rewritedResultSelectorBody, resultSelector.Parameters[1]));
       }
 
       var result = VisitSequence(source);
@@ -477,15 +481,18 @@ namespace Xtensive.Storage.Linq
         .ToList();
       var remappedExpression = (LambdaExpression) tupleAccessProcessor.ReplaceMappings(originalCompiledKeyExpression, columnList, groupMapping, recordSet.Header);
 
-      // record => new Grouping<TKey, TElement>(record.Key, source.Where(groupingItem => groupingItem.Key == record.Key))
 
-      var parameterGroupingType = typeof (Grouping<,>).MakeGenericType(keyType, elementType);
-      var constructor = parameterGroupingType.GetConstructor(new[] {keyType, typeof (Tuple), typeof (ResultExpression), typeof (Parameter<Tuple>)});
-
-      var pRecord = Expression.Parameter(typeof (Record), "record");
-      var pTuple = Expression.Parameter(typeof (Tuple), "tuple");
+      var pRecord = Expression.Parameter(typeof(Record), "record");
+      var pTuple = Expression.Parameter(typeof(Tuple), "tuple");
       var parameterRewriter = new ParameterRewriter(pTuple, pRecord);
       var recordKeyExpression = parameterRewriter.Rewrite(remappedExpression.Body);
+
+      // record => new Grouping<TKey, TElement>(record.Key, source.Where(groupingItem => groupingItem.Key == record.Key))
+      if (resultSelector==null) {
+        
+      }
+      var parameterGroupingType = typeof (Grouping<,>).MakeGenericType(keyType, elementType);
+      var constructor = parameterGroupingType.GetConstructor(new[] {keyType, typeof (Tuple), typeof (ResultExpression), typeof (Parameter<Tuple>)});
 
       var tupleParameter = new Parameter<Tuple>("groupingParameter");
       var parameterValueMemberInfo = WellKnownMethods.ParameterOfTupleValue;
