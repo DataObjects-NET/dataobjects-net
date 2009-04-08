@@ -15,6 +15,7 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 namespace Xtensive.Storage.Tests.Linq
 {
   [TestFixture]
+  [Category("Linq")]
   public class AggregateTest : NorthwindDOModelTest
   {
     [Test]

@@ -14,6 +14,7 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq.MsSamples
 {
+  [Category("Linq")]
   public class LinqToSqlSamples : NorthwindDOModelTest
   {
     [Category("WHERE")]

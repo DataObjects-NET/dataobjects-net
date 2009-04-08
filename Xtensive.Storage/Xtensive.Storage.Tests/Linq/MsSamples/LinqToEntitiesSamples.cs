@@ -10,6 +10,8 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq.MsSamples
 {
+  [Category("Linq")]
+  [TestFixture]
   public class LinqToEntitiesSamples : NorthwindDOModelTest
   {
     #region Restriction Operators

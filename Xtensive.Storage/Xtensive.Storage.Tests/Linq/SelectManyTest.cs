@@ -11,6 +11,7 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {
+  [Category("Linq")]
   [TestFixture]
   public class SelectManyTest : NorthwindDOModelTest
   {
