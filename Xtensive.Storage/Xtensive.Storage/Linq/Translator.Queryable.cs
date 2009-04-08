@@ -499,17 +499,46 @@ namespace Xtensive.Storage.Linq
 
       Expression projectorBody;
 
+      // record => new Grouping<TKey, TElement>(record.Key, source.Where(groupingItem => groupingItem.Key == record.Key))
+      var parameterGroupingType = typeof(Grouping<,>).MakeGenericType(keyType, elementType);
+      var constructor = parameterGroupingType.GetConstructor(new[] { keyType, typeof(Tuple), typeof(ResultExpression), typeof(Parameter<Tuple>) });
+      projectorBody = Expression.New(
+        constructor,
+        recordKeyExpression.First,
+        pTuple,
+        Expression.Constant(groupingResultExpression),
+        Expression.Constant(tupleParameter));
+
+
+      LambdaExpression itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
+        ? new[] { pTuple, pRecord }
+        : new[] { pTuple });
+
+
+      var rs = Expression.Parameter(typeof(RecordSet), "rs");
+      Expression<Func<RecordSet, object>> projector;
+      if (itemProjector.Parameters.Count > 1)
+      {
+        var makeProjectionMethod = typeof(Translator)
+          .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
+          .MakeGenericMethod(itemProjector.Body.Type);
+        projector = Expression.Lambda<Func<RecordSet, object>>(
+          Expression.Convert(
+            Expression.Call(makeProjectionMethod, rs, itemProjector),
+            typeof(object)),
+          rs);
+      }
+      else
+      {
+        var makeProjectionMethod = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof(Tuple), itemProjector.Body.Type);
+        projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(makeProjectionMethod, rs, itemProjector), typeof(object)), rs);
+      }
+
+      var resultExpression = new ResultExpression(method.ReturnType, recordSet, newResultMapping, projector, itemProjector); //      Expression result = null;
+
       if (resultSelector == null)
       {
-        // record => new Grouping<TKey, TElement>(record.Key, source.Where(groupingItem => groupingItem.Key == record.Key))
-        var parameterGroupingType = typeof(Grouping<,>).MakeGenericType(keyType, elementType);
-        var constructor = parameterGroupingType.GetConstructor(new[] { keyType, typeof(Tuple), typeof(ResultExpression), typeof(Parameter<Tuple>) });
-        projectorBody = Expression.New(
-          constructor,
-          recordKeyExpression.First,
-          pTuple,
-          Expression.Constant(groupingResultExpression),
-          Expression.Constant(tupleParameter));
+        return resultExpression;
       }
       else {
       LambdaExpression keyProjector = Expression.Lambda(recordKeyExpression.First, recordKeyExpression.Second
@@ -534,7 +563,7 @@ namespace Xtensive.Storage.Linq
       }
         var keyResultExpression = new ResultExpression(keyType, recordSet, newResultMapping, projectorKey, keyProjector);
         using (context.Bindings.Add(resultSelector.Parameters[0], keyResultExpression))
-        using (context.Bindings.Add(resultSelector.Parameters[1], groupingResultExpression))
+        using (context.Bindings.Add(resultSelector.Parameters[1], resultExpression))
         using (new ParameterScope())
         {
           mappingRef.Value = new FieldMappingReference();
@@ -543,33 +572,33 @@ namespace Xtensive.Storage.Linq
 
           projectorBody = parameterRewriter.Rewrite(projectorBody).First;
         }
+
+        itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
+          ? new[] { pTuple, pRecord }
+          : new[] { pTuple });
+
+
+        if (itemProjector.Parameters.Count > 1)
+        {
+          var makeProjectionMethod = typeof(Translator)
+            .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
+            .MakeGenericMethod(itemProjector.Body.Type);
+          projector = Expression.Lambda<Func<RecordSet, object>>(
+            Expression.Convert(
+              Expression.Call(makeProjectionMethod, rs, itemProjector),
+              typeof(object)),
+            rs);
+        }
+        else
+        {
+          var makeProjectionMethod = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof(Tuple), itemProjector.Body.Type);
+          projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(makeProjectionMethod, rs, itemProjector), typeof(object)), rs);
+        }
+
+        return new ResultExpression(method.ReturnType, recordSet, newResultMapping, projector, itemProjector); //      Expression result = null;
       }
 
 
-
-      LambdaExpression itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
-        ? new[] {pTuple, pRecord}
-        : new[] {pTuple});
-
-
-      var rs = Expression.Parameter(typeof (RecordSet), "rs");
-      Expression<Func<RecordSet, object>> projector;
-      if (itemProjector.Parameters.Count > 1) {
-        var makeProjectionMethod = typeof (Translator)
-          .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
-          .MakeGenericMethod(itemProjector.Body.Type);
-        projector = Expression.Lambda<Func<RecordSet, object>>(
-          Expression.Convert(
-            Expression.Call(makeProjectionMethod, rs, itemProjector),
-            typeof (object)),
-          rs);
-      }
-      else {
-        var makeProjectionMethod = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof (Tuple), itemProjector.Body.Type);
-        projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(makeProjectionMethod, rs, itemProjector), typeof (object)), rs);
-      }
-
-      return new ResultExpression(method.ReturnType, recordSet, newResultMapping, projector, itemProjector); //      Expression result = null;
     }
 
     private Expression VisitOrderBy(Expression expression, LambdaExpression le, Direction direction)
