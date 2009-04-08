@@ -21,6 +21,8 @@ namespace Xtensive.Storage.Providers
   [Serializable]
   public abstract class SchemaUpgradeHandler: InitializableHandlerBase
   {
+    private const string DomainSchemaName = "dbo";
+
     /// <summary>
     /// Gets the domain schema.
     /// </summary>
@@ -34,24 +36,18 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Gets storage view.
     /// </summary>
-    protected IStorageView StorageView { get; private set; }
-
-    /// <summary>
-    /// Gets the name of the domain schema.
-    /// </summary>
-    protected abstract string DomainSchemaName { get; }
+    protected IStorageView StorageView { get; set; }
 
     /// <summary>
     /// Fully recreates the storage schema.
     /// </summary>
     /// <param name="storageView">The storage view.</param>
-    public void RecreateSchema(IStorageView storageView)
+    public void RecreateSchema()
     {
-      StorageView = storageView;
       var storageSchema = StorageView.Model;
       if (storageSchema != null)
-        storageView.Update(BuildClearSchemaActions());
-      storageView.Update(BuildCreateSchemaActions());
+        StorageView.Update(BuildClearSchemaActions());
+      StorageView.Update(BuildCreateSchemaActions());
     }
 
     /// <summary>
@@ -59,9 +55,8 @@ namespace Xtensive.Storage.Providers
     /// Creates missing tables and columns in storage.
     /// </summary>
     /// <param name="storageView">The storage view.</param>
-    public void BeginUpgrade(IStorageView storageView)
+    public void BeginUpgrade()
     {
-      StorageView = storageView;
       var upgrageActions = BuildUpgradeActions(BuildDifference());
       StorageView.Update(upgrageActions);
     }
@@ -76,7 +71,7 @@ namespace Xtensive.Storage.Providers
       StorageView.Update(clearRecyclingDataActions);
     }
 
-    public StorageConformity CheckStorageConformity(IStorageView storageView)
+    public StorageConformity CheckStorageConformity()
     {
       // StorageView = storageView;
       // var difference = BuildDifference();

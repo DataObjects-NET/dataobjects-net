@@ -10,11 +10,17 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
+using Xtensive.Modelling.Actions;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using TypeInfo=Xtensive.Storage.Model.TypeInfo;
+using Xtensive.Modelling.Comparison;
+using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Model;
+using Xtensive.Storage.Model.Convert;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -36,6 +42,7 @@ namespace Xtensive.Storage.Building.Builders
     /// during storage building process.</exception>
     public static Domain Build(DomainConfiguration configuration)
     {
+      // return BuildDomain(configuration);
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
       if (!configuration.IsLocked)
@@ -101,7 +108,104 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
       return context.Domain;
-    }    
+    }
+
+    private static Domain BuildDomain(DomainConfiguration configuration)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      if (!configuration.IsLocked)
+        configuration.Lock(true);
+      using (LogTemplate<Log>.InfoRegion(Strings.LogValidatingX, typeof(DomainConfiguration).GetShortName()))
+        Validate(configuration);
+      var buildMode = configuration.BuildMode;
+      switch (buildMode) {
+      case DomainBuildMode.Recreate:
+        return BuildRecreate(configuration);
+      case DomainBuildMode.BlockUpgrade:
+        return BuildBlockUpgrade(configuration);
+      default:
+        return BuildRecreate(configuration);
+      }
+    }
+
+    private static Domain BuildBlockUpgrade(DomainConfiguration configuration)
+    {
+      var context = new BuildingContext(configuration);
+      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
+        using (new BuildingScope(context)) {
+          CreateDomain();
+          CreateHandlerFactory();
+          CreateNameBuilder();
+          BuildModel();
+          CreateDomainHandler();
+          using (context.Domain.Handler.OpenSession(SessionType.System)) {
+            using (var transactionScope = Transaction.Open()) {
+              var sessionHandler = Session.Current.Handler;
+              BuildingScope.Context.SystemSessionHandler = sessionHandler;
+              BuildingContext.Current.Domain.Handler.InitializeSystemSession();
+              CreateGenerators();
+              if (!CheckAssemblyVersions())
+                throw new DomainBuilderException("Domain schema does not match storage schema.");
+            }
+          }
+        }
+      }
+      return context.Domain;
+    }
+
+    private static Domain BuildRecreate(DomainConfiguration configuration)
+    {
+      var context = new BuildingContext(configuration);
+      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
+        using (new BuildingScope(context)) {
+          CreateDomain();
+          CreateHandlerFactory();
+          CreateNameBuilder();
+          BuildModel();
+          CreateDomainHandler();
+          using (context.Domain.Handler.OpenSession(SessionType.System)) {
+            using (var transactionScope = Transaction.Open()) {
+              BuildingScope.Context.SystemSessionHandler = Session.Current.Handler;
+              BuildingContext.Current.Domain.Handler.InitializeSystemSession();
+              CreateGenerators();
+              context.Domain.Handler.BuildRecreate();
+              UpdateAssembliesData();
+              transactionScope.Complete();
+            }
+          }
+        }
+      }
+      return context.Domain;
+    }
+
+    private static Domain BuildPerform(DomainConfiguration configuration)
+    {
+      var context = new BuildingContext(configuration);
+      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
+        using (new BuildingScope(context)) {
+          CreateDomain();
+          CreateHandlerFactory();
+          CreateNameBuilder();
+          BuildModel(); // ToDo: System types only.
+          CreateDomainHandler();
+          CreateGenerators();
+          using (context.Domain.Handler.OpenSession(SessionType.System)) {
+            using (var transactionScope = Transaction.Open()) {
+              var sessionHandler = Session.Current.Handler;
+              BuildingScope.Context.SystemSessionHandler = sessionHandler;
+              BuildingContext.Current.Domain.Handler.InitializeSystemSession();
+              if (CheckAssemblyVersions())
+                return BuildBlockUpgrade(configuration);
+              else {
+                // FindUpgrader().Upgrade();
+                return BuildBlockUpgrade(configuration);
+              }
+            }
+          }
+        }
+      }
+    }
+
 
     private static void UpdateAssembliesData()
     {
@@ -152,6 +256,36 @@ namespace Xtensive.Storage.Building.Builders
     }
 
     #endregion
+
+    private static StorageInfo ExtractSchema(Domain domain)
+    {
+      var modelConverter = new ModelConverter(domain.Handlers.NameBuilder.BuildForeignKeyName,
+        domain.Handlers.NameBuilder.BuildForeignKeyName);
+      return modelConverter.Convert(domain.Model, "dbo");
+    }
+
+    private static Difference CalculateDifference(StorageInfo domainSchema, StorageInfo storageSchema)
+    {
+      var hints = new HintSet(domainSchema, storageSchema);
+      using (hints.Activate()) {
+        return domainSchema.GetDifferenceWith(storageSchema, null, false);
+      }
+    }
+
+    private static ActionSequence BuildRecreateActions(StorageInfo domainSchema, StorageInfo storageSchema)
+    {
+      var emptySchema = new StorageInfo(storageSchema.Name);
+      var hints = new HintSet(emptySchema, storageSchema);
+      var actions = new ActionSequence();
+      using (hints.Activate()) {
+        actions.Add(storageSchema.GetDifferenceWith(emptySchema, null, false).ToActions());
+      }
+      hints = new HintSet(domainSchema, storageSchema);
+      using (hints.Activate()) {
+        actions.Add(domainSchema.GetDifferenceWith(storageSchema, null, false).ToActions());
+      }
+      return actions;
+    }
 
 
     private static void AssignSystemTypeIds()

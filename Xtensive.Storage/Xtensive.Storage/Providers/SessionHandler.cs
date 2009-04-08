@@ -13,6 +13,8 @@ using Xtensive.Core.Sorting;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Indexing.Model;
+using Xtensive.Modelling.Actions;
 
 namespace Xtensive.Storage.Providers
 {
@@ -75,6 +77,15 @@ namespace Xtensive.Storage.Providers
       // Delete
       foreach (EntityState data in Session.EntityStateRegistry.GetItems(PersistenceState.Removed))
           Remove(data);
+    }
+
+    public virtual StorageInfo GetStorageSchema()
+    {
+      return null;
+    }
+
+    public virtual void UpdateStorageSchema(ActionSequence updateActions)
+    {
     }
 
     /// <summary>
