@@ -12,8 +12,6 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public sealed class SqlFetchParameterBinding : SqlParameterBinding<Func<object>>
   {
-
-
     // Constructors
 
     /// <summary>
@@ -23,15 +21,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="valueAccessor">The value accessor.</param>
     public SqlFetchParameterBinding(Func<object> valueAccessor, DataTypeMapping typeMapping)
       : base(valueAccessor, typeMapping)
-    {
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="valueAccessor">The value accessor.</param>
-    public SqlFetchParameterBinding(Func<object> valueAccessor)
-      : base(valueAccessor, null)
     {
     }
   }

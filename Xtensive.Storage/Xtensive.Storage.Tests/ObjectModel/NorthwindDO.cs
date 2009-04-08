@@ -302,6 +302,9 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public DateTime? ShippedDate { get; set; }
 
     [Field]
+    public TimeSpan? ProcessingTime { get; set; }
+
+    [Field]
     public Shipper ShipVia { get; set; }
 
     [Field]
@@ -656,6 +659,9 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
           }
           reader.Close();
         }
+
+        foreach (var o in orders.Values)
+          o.ProcessingTime = o.ShippedDate - o.OrderDate;
 
         #endregion
 

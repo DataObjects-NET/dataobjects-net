@@ -22,7 +22,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     public SqlParameter SqlParameter { get; private set; }
 
-
     // Constructor
 
     /// <summary>

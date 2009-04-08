@@ -1045,5 +1045,12 @@ namespace Xtensive.Storage.Tests.Linq
       var customer = customers.Where(c => null!=c.Address.City).First();
       Assert.IsNotNull(customer);
     }
+
+    [Test]
+    public void TimeSpanTest()
+    {
+      var maxProcessingTime = new TimeSpan(5, 0, 0, 0);
+      Query<Order>.All.Where(o => o.ProcessingTime > maxProcessingTime).ToList();
+    }
   }
 }

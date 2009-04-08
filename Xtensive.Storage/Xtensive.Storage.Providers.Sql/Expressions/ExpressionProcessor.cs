@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           if (ma.Member.Name=="Value" && ma.Expression.Type==typeof (Parameter<Tuple>)) {
             var parameter = Expression.Lambda<Func<Parameter<Tuple>>>(ma.Expression).Compile().Invoke();
             int columnIndex = tupleAccess.Arguments[0].NodeType==ExpressionType.Constant
-              ? (int) ((int) ((ConstantExpression) tupleAccess.Arguments[0]).Value)
+              ? (int) ((ConstantExpression) tupleAccess.Arguments[0]).Value
               : Expression.Lambda<Func<int>>(tupleAccess.Arguments[0]).Compile().Invoke();
             ExecutableProvider provider;
             if (Compiler.CompiledSources.TryGetValue(parameter, out provider)) {
@@ -94,8 +94,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           }
         }
       }
+      var type = e.Type.IsNullable() ? e.Type.GetGenericArguments()[0] : e.Type;
+      var typeMapping = valueTypeMapper.GetTypeMapping(type);
       var expression = parameterExtractor.ExtractParameter<object>(e);
-      var binding = new SqlFetchParameterBinding(expression.Compile());
+      var binding = new SqlFetchParameterBinding(expression.Compile(), typeMapping);
       bindings.Add(binding);
       return binding.SqlParameter;
     }
