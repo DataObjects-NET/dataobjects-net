@@ -44,8 +44,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     {
       var primaryIndex = source.Index.Resolve(domainModel);
       CompilableProvider concatedIndexes = BuildSecondaryIndexesConcat(primaryIndex);
-      return new JoinProvider(concatedIndexes, source, false, JoinType.Hash,
-        GetEqualIndexes(primaryIndex.KeyColumns.Count));
+      return BuildJoin(source, primaryIndex, concatedIndexes);
     }
 
     private CompilableProvider BuildSecondaryIndexesConcat(IndexInfo primaryIndex)
@@ -99,6 +98,14 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     {
       var concatProvider = new ConcatProvider(source, CreateSelectProvider(primaryIndex, targetPair));
       return new DistinctProvider(concatProvider);
+    }
+
+    private static CompilableProvider BuildJoin(CompilableProvider primaryIndexProvider, IndexInfo primaryIndex,
+      CompilableProvider secondaryIndexes)
+    {
+      var alias = new AliasProvider(secondaryIndexes, "secondary");
+      return new JoinProvider(alias, primaryIndexProvider, false, JoinType.Hash,
+        GetEqualIndexes(primaryIndex.KeyColumns.Count));
     }
 
     // Constructors

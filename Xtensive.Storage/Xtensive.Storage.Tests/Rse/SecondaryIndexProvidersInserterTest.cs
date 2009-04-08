@@ -33,20 +33,48 @@ namespace Xtensive.Storage.Tests.Rse
     }
 
     [Test]
-    public void InsertingTest()
+    public void InsertTest()
     {
       TypeInfo creatureType = Domain.Model.Types[typeof (Creature)];
       var primaryIndex = creatureType.Indexes.PrimaryIndex;
       var extractedRangeSets = CreatedExtractedRangeSets(creatureType);
-      var providersTree = CreateTreeForInsertingTest(primaryIndex);
+      var providersTree = CreateTreeForInsertTest(primaryIndex);
       var inserter = new SecondaryIndexProvidersInserter(Domain.Model);
       var modifiedTree = inserter.Insert(providersTree, extractedRangeSets);
+
       Assert.AreEqual(providersTree.GetType(), modifiedTree.GetType());
       Assert.IsTrue(((UnaryProvider)modifiedTree).Source is JoinProvider);
       var primaryIndexProvider = (IndexProvider)((UnaryProvider) ((UnaryProvider) providersTree).Source).Source;
-      var joinProvider = (JoinProvider) ((DistinctProvider) modifiedTree).Source;
+      var joinProvider = (JoinProvider) ((UnaryProvider) modifiedTree).Source;
       Assert.AreEqual(primaryIndexProvider, joinProvider.Sources[1]);
-      Assert.IsTrue(joinProvider.Sources[0] is DistinctProvider);
+      Assert.IsTrue(((AliasProvider)joinProvider.Sources[0]).Source is DistinctProvider);
+    }
+
+    private static CompilableProvider CreateTreeForInsertTest(IndexInfo primaryIndex)
+    {
+      CompilableProvider result = IndexProvider.Get(primaryIndex);
+      result = new FilterProvider(result, t => t.GetValueOrDefault<int>(1) > 1
+        && t.GetValueOrDefault<int>(1) < 3);
+      return new SortProvider(result, new DirectionCollection<int>(0));
+    }
+
+    [Test]
+    public void DoNotModifyTest()
+    {
+      TypeInfo creatureType = Domain.Model.Types[typeof(Creature)];
+      var primaryIndex = creatureType.Indexes.PrimaryIndex;
+      var extractedRangeSets = CreatedExtractedRangeSets(creatureType);
+      var providersTree = CreateTreeForForDoNotModifyTest(primaryIndex);
+      var inserter = new SecondaryIndexProvidersInserter(Domain.Model);
+      var nonModifiedTree = inserter.Insert(providersTree, extractedRangeSets);
+      Assert.AreEqual(providersTree, nonModifiedTree);
+    }
+
+    private static CompilableProvider CreateTreeForForDoNotModifyTest(IndexInfo primaryIndex)
+    {
+      CompilableProvider result = IndexProvider.Get(primaryIndex);
+      result = new RangeProvider(result, Range<Entire<Tuple>>.Full);
+      return new SortProvider(result, new DirectionCollection<int>(0));
     }
 
     private static Dictionary<IndexInfo, RangeSetInfo> CreatedExtractedRangeSets(TypeInfo creatureType)
@@ -66,14 +94,6 @@ namespace Xtensive.Storage.Tests.Rse
                 AdvancedComparer<Entire<Tuple>>.Default)), null, false)
             }
         };
-    }
-
-    private static CompilableProvider CreateTreeForInsertingTest(IndexInfo primaryIndex)
-    {
-      CompilableProvider result = IndexProvider.Get(primaryIndex);
-      result = new FilterProvider(result, t => t.GetValueOrDefault<int>(1) > 1
-        && t.GetValueOrDefault<int>(1) < 3);
-      return new SortProvider(result, new DirectionCollection<int>(0));
     }
   }
 }

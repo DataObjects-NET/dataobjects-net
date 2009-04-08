@@ -7,8 +7,8 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using NMock2;
 using NUnit.Framework;
+using Rhino.Mocks;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
@@ -22,10 +22,6 @@ namespace Xtensive.Storage.Tests.Rse
   [TestFixture]
   public class SimpleIndexesSelectorTest : AutoBuildTest
   {
-    private ICostEvaluator costEvaluator;
-    
-    private Mockery mocks;
-
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = DomainConfigurationFactory.Create("memory");
@@ -33,25 +29,18 @@ namespace Xtensive.Storage.Tests.Rse
       return config;
     }
 
-    [SetUp]
-    public void SetUp()
-    {
-      mocks = new Mockery();
-      costEvaluator = mocks.NewMock<ICostEvaluator>();
-    }
-
     [Test]
     public void CombinedTest()
     {
       TypeInfo snakeType = Domain.Model.Types[typeof(Creature)];
-      IndexInfo[] indexes = new[]
+      var indexes = new[]
         {
           snakeType.Indexes[0], snakeType.Indexes[1], Domain.Model.Types[typeof (ClearSnake)].Indexes[0]
         };
       Expression[] exps = new[] { Expression.Constant(0), Expression.Constant(1), Expression.Constant(2) };
-      var selector = new SimpleIndexesSelector(costEvaluator);
       var inputData = CreateInputData(exps, indexes);
-      ConfigureCostEvaluator(exps, inputData);
+      var costEvaluator = ConfigureCostEvaluator(exps, inputData);
+      var selector = new SimpleIndexesSelector(costEvaluator);
       var selectedIndexes = selector.Select(inputData);
       Assert.AreEqual(2, selectedIndexes.Count);
       Assert.AreEqual(inputData[exps[0]][0].RangeSetInfo, selectedIndexes[indexes[0]]);
@@ -83,39 +72,34 @@ namespace Xtensive.Storage.Tests.Rse
       return result;
     }
 
-    private void ConfigureCostEvaluator(Expression[] exps,
+    private static ICostEvaluator ConfigureCostEvaluator(Expression[] exps,
       Dictionary<Expression, List<RsExtractionResult>> inputData)
     {
+      var mocks = new MockRepository();
+      var result = mocks.Stub<ICostEvaluator>();
       int index = 0;
-      Stub.On(costEvaluator).Method("Evaluate")
-        .With(inputData[exps[0]][index].IndexInfo, inputData[exps[0]][index].RangeSetInfo.GetRangeSet())
-        .Will(Return.Value(5.0));
-      Stub.On(costEvaluator).Method("Evaluate")
-        .With(inputData[exps[1]][index].IndexInfo, inputData[exps[1]][index].RangeSetInfo.GetRangeSet())
-        .Will(Return.Value(100.0));
-      Stub.On(costEvaluator).Method("Evaluate")
-        .With(inputData[exps[2]][index].IndexInfo, inputData[exps[2]][index].RangeSetInfo.GetRangeSet())
-        .Will(Return.Value(110.0));
+      SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
+        inputData[exps[0]][index].RangeSetInfo.GetRangeSet())).Return(5.0);
+      SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
+        inputData[exps[1]][index].RangeSetInfo.GetRangeSet())).Return(100.0);
+      SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
+        inputData[exps[2]][index].RangeSetInfo.GetRangeSet())).Return(110.0);
       index = 1;
-      Stub.On(costEvaluator).Method("Evaluate")
-        .With(inputData[exps[0]][index].IndexInfo, inputData[exps[0]][index].RangeSetInfo.GetRangeSet())
-        .Will(Return.Value(100.0));
-      Stub.On(costEvaluator).Method("Evaluate")
-        .With(inputData[exps[1]][index].IndexInfo, inputData[exps[1]][index].RangeSetInfo.GetRangeSet())
-        .Will(Return.Value(5.0));
-      Stub.On(costEvaluator).Method("Evaluate")
-        .With(inputData[exps[2]][index].IndexInfo, inputData[exps[2]][index].RangeSetInfo.GetRangeSet())
-        .Will(Return.Value(5.0));
+      SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
+        inputData[exps[0]][index].RangeSetInfo.GetRangeSet())).Return(100.0);
+      SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
+        inputData[exps[1]][index].RangeSetInfo.GetRangeSet())).Return(5.0);
+      SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
+        inputData[exps[2]][index].RangeSetInfo.GetRangeSet())).Return(5.0);
       index = 2;
-      Stub.On(costEvaluator).Method("Evaluate")
-        .With(inputData[exps[0]][index].IndexInfo, inputData[exps[0]][index].RangeSetInfo.GetRangeSet())
-        .Will(Return.Value(120.0));
-      Stub.On(costEvaluator).Method("Evaluate")
-        .With(inputData[exps[1]][index].IndexInfo, inputData[exps[1]][index].RangeSetInfo.GetRangeSet())
-        .Will(Return.Value(120.0));
-      Stub.On(costEvaluator).Method("Evaluate")
-        .With(inputData[exps[2]][index].IndexInfo, inputData[exps[2]][index].RangeSetInfo.GetRangeSet())
-        .Will(Return.Value(120.0));
+      SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
+        inputData[exps[0]][index].RangeSetInfo.GetRangeSet())).Return(100.0);
+      SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
+        inputData[exps[1]][index].RangeSetInfo.GetRangeSet())).Return(110.0);
+      SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
+        inputData[exps[2]][index].RangeSetInfo.GetRangeSet())).Return(120.0);
+      mocks.ReplayAll();
+      return result;
     }
   }
 }

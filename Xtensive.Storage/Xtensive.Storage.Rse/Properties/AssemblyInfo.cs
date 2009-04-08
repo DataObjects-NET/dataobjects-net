@@ -49,5 +49,4 @@ using Xtensive.Core.Aspects;
 [assembly:Initializable(AttributeTargetTypes = "*")]
 
 [assembly:InternalsVisibleTo("Xtensive.Storage.Tests")]
-[assembly: InternalsVisibleTo("Mocks")]
-[assembly: InternalsVisibleTo("MockObjects")]
+[assembly:InternalsVisibleTo("DynamicProxyGenAssembly2")]
