@@ -59,6 +59,7 @@ namespace Xtensive.Storage.Tests.Linq
         from c in Query<Customer>.All
         where Query<Order>.All.Where(o => o.Customer==c).Count() > 10
         select c;
+      QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
 
@@ -66,8 +67,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void WhereCountTest()
     {
       var result = Query<Customer>.All.Where(c => Query<Order>.All.Count(o => o.Customer == c) > 5);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
@@ -77,6 +78,7 @@ namespace Xtensive.Storage.Tests.Linq
         from c in Query<Customer>.All
         where Query<Order>.All.Count(o => o.Customer==c) > 10
         select c;
+      QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
 
@@ -87,6 +89,7 @@ namespace Xtensive.Storage.Tests.Linq
         from c in Query<Customer>.All
         where Query<Order>.All.Where(o => o.Customer==c).Max(o => o.OrderDate) < new DateTime(1999, 1, 1)
         select c;
+      QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
 
@@ -97,6 +100,7 @@ namespace Xtensive.Storage.Tests.Linq
         from c in Query<Customer>.All
         where Query<Order>.All.Where(o => o.Customer==c).Min(o => o.Freight) > 5
         select c;
+      QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
 
@@ -107,6 +111,7 @@ namespace Xtensive.Storage.Tests.Linq
         from c in Query<Customer>.All
         where Query<Order>.All.Where(o => o.Customer==c).Average(o => o.Freight) < 5
         select c;
+      QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
 
@@ -116,6 +121,7 @@ namespace Xtensive.Storage.Tests.Linq
       var result =
         from c in Query<Customer>.All
         select new {Customer = c, NumberOfOrders = Query<Order>.All.Count(o => o.Customer==c)};
+      QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
 
@@ -126,8 +132,8 @@ namespace Xtensive.Storage.Tests.Linq
       var suppliers = Query<Supplier>.All;
       var result = from p in products
                    select new { Product = p, MaxID = suppliers.Where(s => s == p.Supplier).Max(s => s.Id) };
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]

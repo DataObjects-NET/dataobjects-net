@@ -5,6 +5,7 @@
 // Created:    2009.02.04
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.ObjectModel;
@@ -168,16 +169,16 @@ namespace Xtensive.Storage.Tests.Linq
     public void FilterGroupingByKeyTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Key.StartsWith("L"));
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void FilterGroupingByAgregateTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Count() > 1);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
 
@@ -185,24 +186,24 @@ namespace Xtensive.Storage.Tests.Linq
     public void FilterGroupingByAgregateTest2()
     {
       var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Sum(ord => ord.Freight) > 10);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupByWhereTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Key.StartsWith("L") && g.Count() > 1);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupBySelectTest()
     {
       IQueryable<IGrouping<string, Order>> result = Query<Order>.All.GroupBy(o => o.ShipName).Select(g => g);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
 
@@ -210,8 +211,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void GroupBySelectWithAnonymousTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.ShipName).Select(g => new { g });
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
 
@@ -219,16 +220,16 @@ namespace Xtensive.Storage.Tests.Linq
     public void GroupBySelectKeyTest()
     {
       IQueryable<string> result = Query<Order>.All.GroupBy(o => o.ShipName).Select(g => g.Key);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupBySelectKeyWithSelectCalculableColumnTest()
     {
       IQueryable<string> result = Query<Order>.All.GroupBy(o => o.ShipName).Select(g => g.Key + "aaa");
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
 
@@ -236,57 +237,56 @@ namespace Xtensive.Storage.Tests.Linq
     public void GroupBySelectKeyWithCalculableColumnTest()
     {
       IQueryable<IGrouping<string, Order>> result = Query<Order>.All.GroupBy(o => o.ShipName + "aaa");
-      var list = result.ToList();
-      QueryDumper.Dump(list);
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupByWithSelectFirstTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => g.First());
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupBySelectGroupingTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => g);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupBySelectManyTest()
     {
       var result = Query<Customer>.All.GroupBy(c => c.Address.City).SelectMany(g => g);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupBySelectManyTest2()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer).SelectMany(g => g);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupBySumTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer.Id).Select(g => g.Sum(o => o.Freight));
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupByCountTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => new {Customer = g.Key, OrdersCount = g.Count()});
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
@@ -295,8 +295,8 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query<Order>.All
         .GroupBy(o => o.Customer)
         .Select(g => new {Customer = g.Key, Orders = g.Where(order => order.OrderDate < DateTime.Now)});
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
@@ -310,9 +310,8 @@ namespace Xtensive.Storage.Tests.Linq
           Max = g.Max(o => o.Freight),
           Avg = g.Average(o => o.Freight)
         });
-
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
@@ -323,9 +322,8 @@ namespace Xtensive.Storage.Tests.Linq
         {
           ConstString = "ConstString"
         });
-
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
 
@@ -334,9 +332,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       IQueryable<IGrouping<Customer, Order>> groupings = Query<Order>.All.GroupBy(o => o.Customer);
       var result = groupings.Select(g => new { g });
-
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
@@ -347,9 +344,26 @@ namespace Xtensive.Storage.Tests.Linq
         {
           Customer = c,
         });
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
+    }
 
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+
+    [Test]
+    public void GroupByWithEntityResultSelector3Test()
+    {
+      IQueryable<IEnumerable<Order>> result = Query<Order>.All.GroupBy(o => o.Customer, (c, g) => g);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
+    }
+
+
+    [Test]
+    public void GroupByWithEntityResultSelector4Test()
+    {
+      IQueryable<int> result = Query<Order>.All.GroupBy(o => o.Customer, (c, g) => g.Count());
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
@@ -364,60 +378,56 @@ namespace Xtensive.Storage.Tests.Linq
           Max = g.Max(o => o.Freight),
           Avg = g.Average(o => o.Freight)
         });
-
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupByWithElementSelectorSumTest()
     {
       IQueryable<decimal> result = Query<Order>.All.GroupBy(o => o.Customer, o => o.Freight).Select(g => g.Sum());
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-      QueryDumper.Dump(list);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupByWithElementSelectorSumAnonymousTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer, o => o.Freight).Select(g => new {A = g.Sum(), B = g.Sum()});
-//      var list = result.ToList();
-//      Assert.Greater(list.Count, 0);
       QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupByWithElementSelectorTest()
     {
       IQueryable<IGrouping<Customer, decimal>> result = Query<Order>.All.GroupBy(o => o.Customer, o => o.Freight);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-      QueryDumper.Dump(list);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupByWithElementSelectorSumMaxTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer.Id, o => o.Freight).Select(g => new {Sum = g.Sum(), Max = g.Max()});
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupByWithAnonymousElementTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer, o => new {o.Freight}).Select(g => g.Sum(x => x.Freight));
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void GroupByWithTwoPartKeyTest()
     {
       var result = Query<Order>.All.GroupBy(o => new {o.Customer.Id, o.OrderDate}).Select(g => g.Sum(o => o.Freight));
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
@@ -425,8 +435,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       // NOTE: order-by is lost when group-by is applied (the sequence of groups is not ordered)
       var result = Query<Order>.All.OrderBy(o => o.OrderDate).GroupBy(o => o.Customer.Id).Select(g => g.Sum(o => o.Freight));
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
@@ -434,8 +444,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       // NOTE: order-by is preserved within grouped sub-collections
       var result = Query<Order>.All.OrderBy(o => o.OrderDate).GroupBy(o => o.Customer.Id).SelectMany(g => g);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
     }
   }
 }
