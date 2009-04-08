@@ -34,11 +34,11 @@ namespace Xtensive.Storage.Linq
       if (field.Association.Multiplicity == Multiplicity.OneToMany) {
         var whereParameter = Expression.Parameter(elementType, "p");
         var whereExpression = Expression.Equal(
-          Expression.Property(whereParameter, field.Association.Reversed.ReferencingField.Name).KeyAccess(),
-          ownerEntity.KeyAccess()
+          ExpressionHelper.KeyAccess(Expression.Property(whereParameter, field.Association.Reversed.ReferencingField.Name)),
+          ExpressionHelper.KeyAccess(ownerEntity)
           );
         return Expression.Call(
-          Translator.WellKnownMethods.QueryableWhere.MakeGenericMethod(elementType),
+          WellKnownMembers.QueryableWhere.MakeGenericMethod(elementType),
           CreateEntityQuery(elementType),
           Expression.Lambda(whereExpression, whereParameter)
           );
@@ -55,20 +55,20 @@ namespace Xtensive.Storage.Linq
       }
       var filterParameter = Expression.Parameter(connectorType, "t");
       var filterExpression = Expression.Equal(
-        Expression.Property(filterParameter, master).KeyAccess(),
-        ownerEntity.KeyAccess()
+        ExpressionHelper.KeyAccess(Expression.Property(filterParameter, master)),
+        ExpressionHelper.KeyAccess(ownerEntity)
         );
 
       var outerQuery = Expression.Call(
-        Translator.WellKnownMethods.QueryableWhere.MakeGenericMethod(connectorType),
+        WellKnownMembers.QueryableWhere.MakeGenericMethod(connectorType),
         CreateEntityQuery(connectorType),
         Expression.Lambda(filterExpression, filterParameter)
         );
 
       var outerSelectorParameter = Expression.Parameter(connectorType, "o");
-      var outerSelector = Expression.Lambda(Expression.Property(outerSelectorParameter, slave).KeyAccess(), outerSelectorParameter);
+      var outerSelector = Expression.Lambda(ExpressionHelper.KeyAccess(Expression.Property(outerSelectorParameter, slave)), outerSelectorParameter);
       var innerSelectorParameter = Expression.Parameter(elementType, "i");
-      var innerSelector = Expression.Lambda(innerSelectorParameter.KeyAccess(), innerSelectorParameter);
+      var innerSelector = Expression.Lambda(ExpressionHelper.KeyAccess(innerSelectorParameter), innerSelectorParameter);
       var resultSelector = Expression.Lambda(innerSelectorParameter, outerSelectorParameter, innerSelectorParameter);
 
       return Expression.Call(typeof(Queryable), "Join", new[]

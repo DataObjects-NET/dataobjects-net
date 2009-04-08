@@ -144,7 +144,7 @@ namespace Xtensive.Storage.Linq
       if (tupleAccess.Object.NodeType!=ExpressionType.MemberAccess)
         return null;
       var memberAccess = (MemberExpression) tupleAccess.Object;
-      if (memberAccess.Member!=Translator.WellKnownMethods.ParameterOfTupleValue)
+      if (memberAccess.Member!=WellKnownMembers.ParameterOfTupleValue)
         return null;
       if (memberAccess.Expression.NodeType!=ExpressionType.Constant)
         return null;

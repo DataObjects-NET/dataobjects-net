@@ -812,6 +812,21 @@ namespace Xtensive.Core.Reflection
       return null;
     }
 
+    /// <summary>
+    /// Converts <paramref name="type"/> to type that can assign both values of <paramref name="type"/> and <see landword="null"/>.
+    /// </summary>
+    /// <param name="type">A type to convert.</param>
+    /// <returns>
+    /// If <paramref name="type"/> is a reference type or a <see cref="Nullable{T}"/> instance returns <paramref name="type"/>.
+    /// Otherwise returns <see cref="Nullable{T}"/> of <paramref name="type"/>. 
+    /// </returns>
+    public static Type ToNullable(this Type type)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      return type.IsValueType && !type.IsNullable()
+        ? typeof(Nullable<>).MakeGenericType(type)
+        : type;
+    }
 
     #region Private \ internal methods
 

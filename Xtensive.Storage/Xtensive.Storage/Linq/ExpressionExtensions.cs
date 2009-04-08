@@ -13,7 +13,7 @@ using Xtensive.Storage.Linq.Expressions;
 
 namespace Xtensive.Storage.Linq
 {
-  public static class ExpressionExtensions
+  internal static class ExpressionExtensions
   {
     public static LambdaExpression StripQuotes(this Expression expression)
     {
@@ -82,10 +82,5 @@ namespace Xtensive.Storage.Linq
         return MemberType.Anonymous;
       return MemberType.Unknown;
     }
-
-    public static Expression KeyAccess(this Expression entity)
-    {
-      return Expression.Property(entity, "Key");
-    }
-  }
+ }
 }

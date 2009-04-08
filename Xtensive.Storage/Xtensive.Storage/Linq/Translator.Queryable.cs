@@ -484,13 +484,13 @@ namespace Xtensive.Storage.Linq
       var recordKeyExpression = parameterRewriter.Rewrite(remappedExpression.Body);
 
       var tupleParameter = new Parameter<Tuple>("groupingParameter");
-      var parameterValueMemberInfo = WellKnownMethods.ParameterOfTupleValue;
+      var parameterValueMemberInfo = WellKnownMembers.ParameterOfTupleValue;
       var filterTuple = Expression.Parameter(typeof (Tuple), "t");
       Expression filterBody = null;
       for (int i = 0; i < columnList.Count; i++) {
         var columnIndex = columnList[i];
         var columnType = result.RecordSet.Header.Columns[columnIndex].Type;
-        var tupleAccessMethod = WellKnownMethods.TupleGenericAccessor.MakeGenericMethod(columnType);
+        var tupleAccessMethod = WellKnownMembers.TupleGenericAccessor.MakeGenericMethod(columnType);
         var leftExpression = Expression.Call(filterTuple, tupleAccessMethod, Expression.Constant(columnIndex));
         var rightExpression = Expression.Call(Expression.MakeMemberAccess(Expression.Constant(tupleParameter), parameterValueMemberInfo), tupleAccessMethod, Expression.Constant(i));
         var equalsExpression = Expression.Equal(leftExpression, rightExpression);
@@ -541,7 +541,7 @@ namespace Xtensive.Storage.Linq
       }
       else
       {
-        var makeProjectionMethod = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof(Tuple), itemProjector.Body.Type);
+        var makeProjectionMethod = WellKnownMembers.EnumerableSelect.MakeGenericMethod(typeof(Tuple), itemProjector.Body.Type);
         projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(makeProjectionMethod, rs, itemProjector), typeof(object)), rs);
       }
 
@@ -569,7 +569,7 @@ namespace Xtensive.Storage.Linq
           rsKey);
       }
       else {
-        var makeProjectionMethod = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof(Tuple), keyProjector.Body.Type);
+        var makeProjectionMethod = WellKnownMembers.EnumerableSelect.MakeGenericMethod(typeof(Tuple), keyProjector.Body.Type);
         projectorKey = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(makeProjectionMethod, rsKey, keyProjector), typeof(object)), rsKey);
       }
         var keyResultExpression = new ResultExpression(keyType, recordSet, newResultMapping, projectorKey, keyProjector);
@@ -602,7 +602,7 @@ namespace Xtensive.Storage.Linq
         }
         else
         {
-          var makeProjectionMethod = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof(Tuple), itemProjector.Body.Type);
+          var makeProjectionMethod = WellKnownMembers.EnumerableSelect.MakeGenericMethod(typeof(Tuple), itemProjector.Body.Type);
           projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(makeProjectionMethod, rs, itemProjector), typeof(object)), rs);
         }
 
@@ -731,7 +731,7 @@ namespace Xtensive.Storage.Linq
         if (collectionSelector.Body.NodeType==ExpressionType.Call) {
           var call = (MethodCallExpression) collectionSelector.Body;
           isOuter = call.Method.IsGenericMethod
-            && call.Method.GetGenericMethodDefinition()==WellKnownMethods.QueryableDefaultIfEmpty;
+            && call.Method.GetGenericMethodDefinition()==WellKnownMembers.QueryableDefaultIfEmpty;
           if (isOuter)
             collectionSelector = Expression.Lambda(call.Arguments[0], parameter);
         }
@@ -791,9 +791,9 @@ namespace Xtensive.Storage.Linq
         ? typeof (Translator)
           .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
           .MakeGenericMethod(itemProjector.Body.Type)
-        : WellKnownMethods.EnumerableSelect.MakeGenericMethod(itemProjector.Parameters[0].Type, itemProjector.Body.Type);
+        : WellKnownMembers.EnumerableSelect.MakeGenericMethod(itemProjector.Parameters[0].Type, itemProjector.Body.Type);
       Expression body = (!severalArguments && itemProjector.Parameters[0].Type==typeof (Record))
-        ? Expression.Call(method, Expression.Call(WellKnownMethods.RecordSetParse, rs), itemProjector)
+        ? Expression.Call(method, Expression.Call(WellKnownMembers.RecordSetParse, rs), itemProjector)
         : Expression.Call(method, rs, itemProjector);
       var projector = Expression.Lambda(
         castToObject 

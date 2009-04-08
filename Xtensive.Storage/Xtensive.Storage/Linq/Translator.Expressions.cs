@@ -149,9 +149,9 @@ namespace Xtensive.Storage.Linq
         case MemberType.Entity:
           if (joinFinalEntity.Value)
             return VisitMemberPathEntity(path, source, resultType);
-          path = MemberPath.Parse(Expression.MakeMemberAccess(e, WellKnownMethods.IEntityKey), context.Model);
+          path = MemberPath.Parse(Expression.MakeMemberAccess(e, WellKnownMembers.IEntityKey), context.Model);
           var keyExpression = VisitMemberPathKey(path, source);
-          var result = Expression.Call(WellKnownMethods.KeyTryResolveOfT.MakeGenericMethod(resultType), keyExpression);
+          var result = Expression.Call(WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(resultType), keyExpression);
           return result;
         case MemberType.EntitySet:
           return VisitMemberPathEntitySet(e);
@@ -381,8 +381,9 @@ namespace Xtensive.Storage.Linq
           var source = context.Bindings[path.Parameter];
           var segment = source.GetMemberSegment(path);
           foreach (var i in segment.GetItems()) {
-            Expression left = MakeTupleAccess(path.Parameter, null, i);
-            Expression right = Expression.Constant(null);
+            var columnType = source.RecordSet.Header.Columns[i].Type.ToNullable();
+            Expression left = MakeTupleAccess(path.Parameter, columnType, i);
+            Expression right = Expression.Constant(null, columnType);
             result = MakeBinaryExpression(result, left, right, operationType);
           }
           return result;
@@ -403,7 +404,7 @@ namespace Xtensive.Storage.Linq
       return result;
     }
 
-    private MethodCallExpression MakeTupleAccess(ParameterExpression parameter, Type accessorType, int index)
+    private Expression MakeTupleAccess(ParameterExpression parameter, Type accessorType, int index)
     {
       Parameter<Tuple> outerParameter;
       Expression target;
@@ -411,15 +412,11 @@ namespace Xtensive.Storage.Linq
       if (parameters.Value.Contains(parameter))
         target = tuple.Value;
       else if (context.SubqueryParameterBindings.TryGetBound(parameter, out outerParameter))
-        target = Expression.Property(Expression.Constant(outerParameter), WellKnownMethods.ParameterOfTupleValue);
+        target = Expression.Property(Expression.Constant(outerParameter), WellKnownMembers.ParameterOfTupleValue);
       else
         throw new InvalidOperationException();
 
-      var method = accessorType==null || accessorType==typeof (object)
-        ? WellKnownMethods.TupleNonGenericAccessor
-        : WellKnownMethods.TupleGenericAccessor.MakeGenericMethod(accessorType);
-
-      return Expression.Call(target, method, Expression.Constant(index));
+      return ExpressionHelper.TupleAccess(target, accessorType, index);
     }
 
     #endregion
@@ -452,11 +449,16 @@ namespace Xtensive.Storage.Linq
       var segment = source.GetMemberSegment(path);
       Expression result = null;
       foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
-        Expression left = MakeTupleAccess(path.Parameter, null, pair.ColumnIndex);
-        Expression right = Expression.Condition(
-          Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
-          Expression.Constant(null, typeof (object)),
-          Expression.Call(Expression.MakeMemberAccess(bRight, WellKnownMethods.KeyValue), WellKnownMethods.TupleNonGenericAccessor, Expression.Constant(pair.ParameterIndex)));
+        Type columnType = source.RecordSet.Header.Columns[pair.ColumnIndex].Type.ToNullable();
+        Expression left = MakeTupleAccess(path.Parameter, columnType, pair.ColumnIndex);
+        Expression right = ExpressionHelper.IsNullCondition(bRight,
+          Expression.Constant(null, columnType),
+          ExpressionHelper.TupleAccess(
+            Expression.MakeMemberAccess(bRight, WellKnownMembers.KeyValue),
+            columnType,
+            pair.ParameterIndex
+            )
+          );
         result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType);
       }
       return result;
@@ -473,17 +475,17 @@ namespace Xtensive.Storage.Linq
       if (!leftIsParameter && !rightIsParameter) {
         var bLeft = binaryExpression.Left.NodeType==ExpressionType.Constant && ((ConstantExpression) binaryExpression.Left).Value==null
           ? binaryExpression.Left
-          : Expression.MakeMemberAccess(binaryExpression.Left, WellKnownMethods.IEntityKey);
+          : Expression.MakeMemberAccess(binaryExpression.Left, WellKnownMembers.IEntityKey);
         var bRight = binaryExpression.Right.NodeType==ExpressionType.Constant && ((ConstantExpression) binaryExpression.Right).Value==null
           ? binaryExpression.Right
-          : Expression.MakeMemberAccess(binaryExpression.Right, WellKnownMethods.IEntityKey);
+          : Expression.MakeMemberAccess(binaryExpression.Right, WellKnownMembers.IEntityKey);
         return MakeComplexBinaryExpression(bLeft, bRight, binaryExpression.NodeType);
       }
       else {
-        var bLeft = Expression.MakeMemberAccess(binaryExpression.Left, WellKnownMethods.IEntityKey);
+        var bLeft = Expression.MakeMemberAccess(binaryExpression.Left, WellKnownMembers.IEntityKey);
         var bRight = binaryExpression.Right;
         if (leftIsParameter) {
-          bLeft = Expression.MakeMemberAccess(binaryExpression.Right, WellKnownMethods.IEntityKey);
+          bLeft = Expression.MakeMemberAccess(binaryExpression.Right, WellKnownMembers.IEntityKey);
           bRight = binaryExpression.Left;
         }
 
@@ -496,13 +498,16 @@ namespace Xtensive.Storage.Linq
 
         Expression result = null;
         foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
-          Expression left = MakeTupleAccess(path.Parameter, null, pair.ColumnIndex);
-          Expression right = Expression.Condition(
-            Expression.Equal(bRight, Expression.Constant(null, bRight.Type)),
-            Expression.Constant(null, typeof (object)),
-            Expression.Call(
-              Expression.MakeMemberAccess(Expression.MakeMemberAccess(bRight, WellKnownMethods.IEntityKey), WellKnownMethods.KeyValue),
-              WellKnownMethods.TupleNonGenericAccessor, Expression.Constant(pair.ParameterIndex)));
+          Type columnType = source.RecordSet.Header.Columns[pair.ColumnIndex].Type.ToNullable();
+          Expression left = MakeTupleAccess(path.Parameter, columnType, pair.ColumnIndex);
+          Expression right = ExpressionHelper.IsNullCondition(bRight,
+            Expression.Constant(null, columnType),
+            ExpressionHelper.TupleAccess(
+              Expression.MakeMemberAccess(Expression.MakeMemberAccess(bRight, WellKnownMembers.IEntityKey), WellKnownMembers.KeyValue),
+              columnType,
+              pair.ParameterIndex
+              )
+            );
           result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType);
         }
         return result;
@@ -578,8 +583,8 @@ namespace Xtensive.Storage.Linq
       recordIsUsed.Value = true;
       var segment = source.GetMemberSegment(path);
       int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
-      var result = Expression.Call(WellKnownMethods.KeyTryResolveOfT.MakeGenericMethod(resultType),
-        Expression.Call(record.Value, WellKnownMethods.RecordKey, Expression.Constant(groupIndex)));
+      var result = Expression.Call(WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(resultType),
+        Expression.Call(record.Value, WellKnownMembers.RecordKey, Expression.Constant(groupIndex)));
       var cfm = (ComplexFieldMapping)source.GetMemberMapping(path);
       var name = cfm.Fields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
       mappingRef.Value.Fill(cfm, MemberType.Entity, result, string.Empty,
@@ -598,8 +603,8 @@ namespace Xtensive.Storage.Linq
       int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
       var result =
         Expression.MakeMemberAccess(
-          Expression.Call(WellKnownMethods.KeyTryResolveOfT.MakeGenericMethod(field.ReflectedType.UnderlyingType), 
-              Expression.Call(record.Value, WellKnownMethods.RecordKey, Expression.Constant(groupIndex))),
+          Expression.Call(WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(field.ReflectedType.UnderlyingType), 
+              Expression.Call(record.Value, WellKnownMembers.RecordKey, Expression.Constant(groupIndex))),
           field.UnderlyingProperty);
       var columnGroup = source.RecordSet.Header.ColumnGroups[groupIndex];
       var keyOffset = columnGroup.Keys.Min();
@@ -643,8 +648,8 @@ namespace Xtensive.Storage.Linq
       var field = keyColumn.ColumnInfoRef.Resolve(context.Model).Field;
       var type = field.Parent==null ? field.ReflectedType : context.Model.Types[field.Parent.ValueType];
       var transform = new SegmentTransform(true, field.ReflectedType.TupleDescriptor, segment);
-      var keyExtractor = Expression.Call(WellKnownMethods.KeyCreate, Expression.Constant(type),
-        Expression.Call(Expression.Constant(transform), WellKnownMethods.SegmentTransformApply,
+      var keyExtractor = Expression.Call(WellKnownMembers.KeyCreate, Expression.Constant(type),
+        Expression.Call(Expression.Constant(transform), WellKnownMembers.SegmentTransformApply,
           Expression.Constant(TupleTransformType.Auto), tuple.Value),
         Expression.Constant(false));
       mappingRef.Value.RegisterPrimitive(segment);
