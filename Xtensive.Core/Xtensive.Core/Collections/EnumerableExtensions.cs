@@ -47,8 +47,8 @@ namespace Xtensive.Core.Collections
         return true;
       long? count = items.TryGetCount();
       if (!count.HasValue)
-        return false;
-      return count.GetValueOrDefault()==0;
+        return !items.GetEnumerator().MoveNext();
+      return count.Value==0;
     }
 
     /// <summary>

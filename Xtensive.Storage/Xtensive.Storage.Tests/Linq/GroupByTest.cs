@@ -367,6 +367,14 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void BooleanTest()
+    {
+      var result = Query<Customer>.All
+        .GroupBy(customer => customer.Orders.Average(o => o.Freight) >= 80);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void GroupByWithEntityResultSelector4Test()
     {
       IQueryable<int> result = Query<Order>.All.GroupBy(o => o.Freight, (c, g) => g.Count());
@@ -374,10 +382,45 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.Greater(result.ToList().Count, 0);
     }
 
+
     [Test]
     public void GroupByWithEntityResultSelector5Test()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer, (c, g) => new{ Count = g.Count(),Customer = c});
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
+    }
+
+
+    [Test]
+    public void GroupByWithEntityResultSelector5BisTest()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.Freight).Select(g => new {Count = g.Count(), Customer = g.Key});
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
+    }
+
+    [Test]
+    public void GroupByWithEntityResultSelector5Bis2Test()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => new { Count = g.Count(), Customer = g.Key });
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
+    }
+
+
+    [Test]
+    public void GroupByWithEntityResultSelector5Bis3Test()
+    {
+      var result = Query<Order>.All.GroupBy(o => new { o.OrderDate, o.Freight }).Select(g => new { Count = g.Count(), Customer = g.Key });
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
+    }
+
+    [Test]
+    public void GroupByWithEntityResultSelector5Bis4Test()
+    {
+      var result = Query<Order>.All.Select(o => new{o.OrderDate, o.Freight}).Select(g => g.OrderDate);
       QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }

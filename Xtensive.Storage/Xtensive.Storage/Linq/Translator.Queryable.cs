@@ -23,6 +23,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Linq
 {
@@ -423,6 +424,10 @@ namespace Xtensive.Storage.Linq
       var visitedSource = VisitSequence(source);
       var result = visitedSource;
 
+      var tupleAccessProcessor = new TupleAccessProcessor();
+      List<int> groupMapping;
+
+      RecordSet recordSet;
       List<int> columnList;
       var newResultMapping = new ComplexFieldMapping();
       LambdaExpression originalCompiledKeyExpression;
@@ -434,6 +439,12 @@ namespace Xtensive.Storage.Linq
         columnList = mappingRef.Value.Mapping.GetColumns().ToList();
 
         result = context.Bindings[keySelector.Parameters[0]];
+        recordSet = result.RecordSet.Aggregate(columnList.ToArray());
+        groupMapping = result.RecordSet.Header.ColumnGroups
+          .Select((cg, i) => new { Group = cg, Index = i })
+          .Where(gi => gi.Group.Keys.All(columnList.Contains))
+          .Select(gi => gi.Index)
+          .ToList();
 
         if (mappingRef.Value.Mapping is ComplexFieldMapping) {
           var cfm = (ComplexFieldMapping)mappingRef.Value.Mapping;
@@ -444,6 +455,13 @@ namespace Xtensive.Storage.Linq
             newResultMapping.RegisterFieldMapping("Key." + field.Key, segment);
             keyMapping.RegisterFieldMapping(field.Key, segment);
           }
+          foreach (var pair in cfm.AnonymousFields) {
+            newResultMapping.RegisterAnonymous(
+              pair.Key.IsNullOrEmpty()
+              ? "Key"
+              : ("Key." + pair.Key)
+              , tupleAccessProcessor.ReplaceMappings(pair.Value, columnList, groupMapping, recordSet.Header));
+          }
         }
         else {
           var pfm = (PrimitiveFieldMapping)mappingRef.Value.Mapping;
@@ -451,19 +469,12 @@ namespace Xtensive.Storage.Linq
         }
       }
 
-      var recordSet = result.RecordSet.Aggregate(columnList.ToArray());
 
 
-        var keyType = keySelector.Type.GetGenericArguments()[1];
+      var keyType = keySelector.Type.GetGenericArguments()[1];
         var elementType = elementSelector == null ? keySelector.Parameters[0].Type : elementSelector.Type.GetGenericArguments()[1];
 
       // Remap 
-      var tupleAccessProcessor = new TupleAccessProcessor();
-      var groupMapping = result.RecordSet.Header.ColumnGroups
-        .Select((cg, i) => new {Group = cg, Index = i})
-        .Where(gi => gi.Group.Keys.All(columnList.Contains))
-        .Select(gi => gi.Index)
-        .ToList();
       var remappedExpression = (LambdaExpression) tupleAccessProcessor.ReplaceMappings(originalCompiledKeyExpression, columnList, groupMapping, recordSet.Header);
 
 
@@ -567,35 +578,35 @@ namespace Xtensive.Storage.Linq
         using (new ParameterScope())
         {
           mappingRef.Value = new FieldMappingReference();
-          parameters.Value = resultSelector.Parameters.ToArray();
+          // parameters.Value = resultSelector.Parameters.ToArray();
           projectorBody = ((LambdaExpression)VisitLambda(resultSelector)).Body;
           projectorBody = parameterRewriter.Rewrite(projectorBody).First;
-          return context.Bindings[resultSelector.Parameters[0]];
+          recordSet = context.Bindings[resultSelector.Parameters[0]].RecordSet;
         }
-//
-//        itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
-//          ? new[] { pTuple, pRecord }
-//          : new[] { pTuple });
-//
-//
-//        if (itemProjector.Parameters.Count > 1)
-//        {
-//          var makeProjectionMethod = typeof(Translator)
-//            .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
-//            .MakeGenericMethod(itemProjector.Body.Type);
-//          projector = Expression.Lambda<Func<RecordSet, object>>(
-//            Expression.Convert(
-//              Expression.Call(makeProjectionMethod, rs, itemProjector),
-//              typeof(object)),
-//            rs);
-//        }
-//        else
-//        {
-//          var makeProjectionMethod = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof(Tuple), itemProjector.Body.Type);
-//          projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(makeProjectionMethod, rs, itemProjector), typeof(object)), rs);
-//        }
-//
-//        return new ResultExpression(method.ReturnType, recordSet, newResultMapping, projector, itemProjector); //      Expression result = null;
+
+        itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
+          ? new[] { pTuple, pRecord }
+          : new[] { pTuple });
+
+
+        if (itemProjector.Parameters.Count > 1)
+        {
+          var makeProjectionMethod = typeof(Translator)
+            .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
+            .MakeGenericMethod(itemProjector.Body.Type);
+          projector = Expression.Lambda<Func<RecordSet, object>>(
+            Expression.Convert(
+              Expression.Call(makeProjectionMethod, rs, itemProjector),
+              typeof(object)),
+            rs);
+        }
+        else
+        {
+          var makeProjectionMethod = WellKnownMethods.EnumerableSelect.MakeGenericMethod(typeof(Tuple), itemProjector.Body.Type);
+          projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(makeProjectionMethod, rs, itemProjector), typeof(object)), rs);
+        }
+
+        return new ResultExpression(method.ReturnType, recordSet, newResultMapping, projector, itemProjector); //      Expression result = null;
       }
 
 

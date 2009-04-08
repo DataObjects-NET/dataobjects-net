@@ -316,7 +316,9 @@ namespace Xtensive.Storage.Linq
           arguments[i] = Expression.Convert(argument, genericType);
         }
       }
-      return Expression.New(n.Constructor, arguments, n.Members);
+      var result = Expression.New(n.Constructor, arguments, n.Members);
+      mappingRef.Value.RegisterAnonymous(string.Empty, result);
+      return result;
     }
 
     #region Private helper methods
