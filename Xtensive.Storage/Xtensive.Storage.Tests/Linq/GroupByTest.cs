@@ -358,14 +358,6 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.Greater(result.ToList().Count, 0);
     }
 
-
-    [Test]
-    public void SelectTest()
-    {
-      var result = Query<Customer>.All.Select(c => c.Orders.Count);
-      QueryDumper.Dump(result);
-    }
-
     [Test]
     public void BooleanTest()
     {
@@ -395,7 +387,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByWithEntityResultSelector5BisTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.Freight).Select(g => new {Count = g.Count(), Customer = g.Key});
+      var result = Query<Order>.All
+        .GroupBy(o => o.Freight)
+        .Select(g => new { Count = g.Count(), Freight = g.Key });
       QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -403,7 +397,19 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByWithEntityResultSelector5Bis2Test()
     {
-      var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => new { Count = g.Count(), Customer = g.Key });
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .Select(g => new { Count = g.Count(), Customer = g.Key });
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
+    }
+
+    [Test]
+    public void GroupByWithEntityResultSelector5Bis21Test()
+    {
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .Select(g => new { Count = new {Count1 = g.Count(), Count2 = g.Count()}, Customer = g.Key} );
       QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }

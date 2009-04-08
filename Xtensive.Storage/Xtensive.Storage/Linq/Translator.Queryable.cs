@@ -552,6 +552,7 @@ namespace Xtensive.Storage.Linq
         return resultExpression;
       }
       else {
+        throw new NotImplementedException();
       LambdaExpression keyProjector = Expression.Lambda(recordKeyExpression.First, recordKeyExpression.Second
         ? new[] {pTuple, pRecord}
         : new[] {pTuple});

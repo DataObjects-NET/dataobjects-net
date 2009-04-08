@@ -264,7 +264,8 @@ namespace Xtensive.Storage.Linq
         else {
           // TODO: Add check of queries
           Expression body;
-          using (new ParameterScope()) {
+          using (new ParameterScope())
+          {
             calculateExpressions.Value = false;
             mappingRef.Value = new FieldMappingReference(false);
             body = Visit(arg);
