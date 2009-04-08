@@ -545,75 +545,16 @@ namespace Xtensive.Storage.Linq
 
       var resultExpression = new ResultExpression(method.ReturnType, recordSet, newResultMapping, projector, itemProjector); //      Expression result = null;
 
-      if (resultSelector == null)
-      {
-        return resultExpression;
-      }
-      else {
+      if (resultSelector!=null) {
         var keyProperty = parameterGroupingType.GetProperty("Key");
         var convertedParameter = Expression.Convert(resultSelector.Parameters[1], parameterGroupingType);
         var keyAccess = Expression.MakeMemberAccess(convertedParameter, keyProperty);
         var rewritedResultSelectorBody = ReplaceParameterRewriter.Rewrite(resultSelector.Body, resultSelector.Parameters[0], keyAccess);
         var selectLambda = Expression.Lambda(rewritedResultSelectorBody, resultSelector.Parameters[1]);
-        return VisitSelect(resultExpression, selectLambda);
-//      LambdaExpression keyProjector = Expression.Lambda(recordKeyExpression.First, recordKeyExpression.Second
-//        ? new[] {pTuple, pRecord}
-//        : new[] {pTuple});
-//
-//      var rsKey = Expression.Parameter(typeof (RecordSet), "rs");
-//      Expression<Func<RecordSet, object>> projectorKey;
-//      if (keyProjector.Parameters.Count > 1) {
-//        var makeProjectionMethod = typeof (Translator)
-//          .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
-//          .MakeGenericMethod(keyProjector.Body.Type);
-//        projectorKey = Expression.Lambda<Func<RecordSet, object>>(
-//          Expression.Convert(
-//            Expression.Call(makeProjectionMethod, rsKey, keyProjector),
-//            typeof (object)),
-//          rsKey);
-//      }
-//      else {
-//        var makeProjectionMethod = WellKnownMembers.EnumerableSelect.MakeGenericMethod(typeof(Tuple), keyProjector.Body.Type);
-//        projectorKey = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(makeProjectionMethod, rsKey, keyProjector), typeof(object)), rsKey);
-//      }
-//        var keyResultExpression = new ResultExpression(keyType, recordSet, newResultMapping, projectorKey, keyProjector);
-//        using (context.Bindings.Add(resultSelector.Parameters[0], keyResultExpression))
-//        using (context.Bindings.Add(resultSelector.Parameters[1], resultExpression))
-//        using (new ParameterScope())
-//        {
-//          mappingRef.Value = new FieldMappingReference();
-//          // parameters.Value = resultSelector.Parameters.ToArray();
-//          projectorBody = ((LambdaExpression)VisitLambda(resultSelector)).Body;
-//          projectorBody = parameterRewriter.Rewrite(projectorBody).First;
-//          recordSet = context.Bindings[resultSelector.Parameters[0]].RecordSet;
-//        }
-//
-//        itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
-//          ? new[] { pTuple, pRecord }
-//          : new[] { pTuple });
-//
-//
-//        if (itemProjector.Parameters.Count > 1)
-//        {
-//          var makeProjectionMethod = typeof(Translator)
-//            .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
-//            .MakeGenericMethod(itemProjector.Body.Type);
-//          projector = Expression.Lambda<Func<RecordSet, object>>(
-//            Expression.Convert(
-//              Expression.Call(makeProjectionMethod, rs, itemProjector),
-//              typeof(object)),
-//            rs);
-//        }
-//        else
-//        {
-//          var makeProjectionMethod = WellKnownMembers.EnumerableSelect.MakeGenericMethod(typeof(Tuple), itemProjector.Body.Type);
-//          projector = Expression.Lambda<Func<RecordSet, object>>(Expression.Convert(Expression.Call(makeProjectionMethod, rs, itemProjector), typeof(object)), rs);
-//        }
-//
-//        return new ResultExpression(method.ReturnType, recordSet, newResultMapping, projector, itemProjector); //      Expression result = null;
+        resultExpression = VisitSelect(resultExpression, selectLambda);
       }
 
-
+      return resultExpression;
     }
 
     private Expression VisitOrderBy(Expression expression, LambdaExpression le, Direction direction)
