@@ -129,7 +129,9 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     }
 
     [Compiler(typeof(string), "Insert")]
-    public static SqlExpression StringInsert(SqlExpression this_, SqlExpression startIndex, SqlExpression value)
+    public static SqlExpression StringInsert(SqlExpression this_,
+      [Type(typeof(int))] SqlExpression startIndex,
+      [Type(typeof(string))] SqlExpression value)
     {
       return SqlFactory.Concat(SqlFactory.Concat(
         SqlFactory.Substring(this_, 0, startIndex), value),
@@ -226,6 +228,12 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(char))] SqlExpression ch)
     {
       return SqlFactory.Position(ch, this_);
+    }
+
+    [Compiler(typeof(string), "Chars", TargetKind.PropertyGet)]
+    public static SqlExpression StringChars(SqlExpression this_, [Type(typeof(int))] SqlExpression index)
+    {
+      return SqlFactory.Substring(this_, index, index + 1);
     }
 
     [Compiler(typeof(string), "Equals")]

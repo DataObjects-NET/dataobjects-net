@@ -120,5 +120,12 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.AreEqual(expected, result.ToList().Count);
     }
 
+    [Test]
+    public void SelectManyAfterSelectTest()
+    {
+      var expected = Query<Order>.All.Count();
+      var result = Query<Customer>.All.Select(c => Query<Order>.All.Where(o => o.Customer == c)).SelectMany(o => o);
+      Assert.AreEqual(expected, result.ToList().Count);
+    }
   }
 }
