@@ -44,7 +44,26 @@ namespace Xtensive.Core.Helpers
         return value;
       return value.Substring(0, value.Length - suffix.Length);        
     }
-    
+
+    /// <summary>
+    /// Cuts the specified <paramref name="suffix"/> from <paramref name="value"/>.
+    /// </summary>
+    /// <param name="value">The original string value.</param>
+    /// <param name="suffix">The suffix to cut.</param>
+    /// <param name="isCut">Upon return contains <see langword="true"/>
+    /// if suffix was cut, otherwise <see langword="false"/></param>
+    /// <returns>String without <paramref name="suffix"/> if it was found; 
+    /// otherwise, original <paramref name="value"/>.</returns>
+    public static string TryCutSuffix(this string value, string suffix, out bool isCut)
+    {
+      if (!value.EndsWith(suffix)) {
+        isCut = false;
+        return value;
+      }
+      isCut = true;
+      return value.Substring(0, value.Length - suffix.Length);       
+    }
+
     /// <summary>
     /// Cuts the specified <paramref name="prefix"/> from <paramref name="value"/>.
     /// </summary>
@@ -57,6 +76,25 @@ namespace Xtensive.Core.Helpers
       if (!value.StartsWith(prefix))
         return value;
       return value.Substring(prefix.Length);        
+    }
+
+    /// <summary>
+    /// Cuts the specified <paramref name="prefix"/> from <paramref name="value"/>.
+    /// </summary>
+    /// <param name="value">The original string value.</param>
+    /// <param name="prefix">The prefix to cut.</param>
+    /// <param name="isCut">Upon return contains <see langword="true"/>
+    /// if prefix was cut, otherwise <see langword="false"/></param>
+    /// <returns>String without <paramref name="prefix"/> if it was found; 
+    /// otherwise, original <paramref name="value"/>.</returns>
+    public static string TryCutPrefix(this string value, string prefix, out bool isCut)
+    {
+      if (!value.StartsWith(prefix)) {
+        isCut = false;
+        return value;
+      }
+      isCut = true;
+      return value.Substring(prefix.Length); 
     }
 
     /// <summary>

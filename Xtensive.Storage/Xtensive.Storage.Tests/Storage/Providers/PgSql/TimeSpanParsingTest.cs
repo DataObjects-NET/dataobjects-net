@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.07
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Providers.PgSql;
 
@@ -41,10 +42,10 @@ namespace Xtensive.Storage.Tests.Storage.Providers.PgSql
       Check("-100000.00:00:00.0230000");
     }
 
-    private static void Check(string interval)
+    private static void Check(string timeSpan)
     {
-      var expected = interval.TrimEnd('0');
-      var actual = SqlValueTypeMapper.TimeSpanToString(SqlValueTypeMapper.StringToTimeSpan(interval)).Substring(2);
+      var expected = TimeSpan.Parse(timeSpan);
+      var actual = SqlValueTypeMapper.StringToTimeSpan(SqlValueTypeMapper.TimeSpanToString(expected));
       Assert.AreEqual(expected, actual);
     }
   }
