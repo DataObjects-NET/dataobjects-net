@@ -359,9 +359,16 @@ namespace Xtensive.Storage.Tests.Linq
 
 
     [Test]
+    public void SelectTest()
+    {
+      var result = Query<Customer>.All.Select(c => c.Orders.Count);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void GroupByWithEntityResultSelector4Test()
     {
-      IQueryable<int> result = Query<Order>.All.GroupBy(o => o.Customer, (c, g) => g.Count());
+      IQueryable<int> result = Query<Order>.All.GroupBy(o => o.Freight, (c, g) => g.Count());
       QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
