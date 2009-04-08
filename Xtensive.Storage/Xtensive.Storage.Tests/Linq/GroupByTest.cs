@@ -367,6 +367,14 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void GroupByWithEntityResultSelector5Test()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.Customer, (c, g) => new{ Count = g.Count(),Customer = c});
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
+    }
+
+    [Test]
     public void GroupByWithResultSelectorTest2()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer, (c, g) =>

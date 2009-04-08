@@ -32,12 +32,5 @@ namespace Xtensive.Storage.Linq
       result = rcr.RemoveRedundantColumn();
       return result;
     }
-
-
-    // Constructors
-
-    public QueryProvider()
-    {
-    }
   }
 }
