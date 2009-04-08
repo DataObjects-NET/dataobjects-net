@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Building.Builders
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
         BuildingContext context = BuildingContext.Current;
         context.Model = new DomainModel();
-        BuildTypes();        
+        BuildTypes();
         context.Model.Lock(true);
       }
     }

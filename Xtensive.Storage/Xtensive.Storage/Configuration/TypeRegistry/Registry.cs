@@ -122,6 +122,13 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
       state = State.IsLocked;
     }
 
+    internal void Clear()
+    {
+      this.EnsureNotLocked();
+      actionQueue.Clear();
+      actionIndex.Clear();
+    }
+
     #region ICloneable members
 
     /// <summary>
