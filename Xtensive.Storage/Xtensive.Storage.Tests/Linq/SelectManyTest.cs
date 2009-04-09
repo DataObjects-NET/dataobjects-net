@@ -121,8 +121,18 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.AreEqual(expected, result.ToList().Count);
     }
 
+
     [Test]
-    public void SelectManyAfterSelectTest()
+    public void SelectManyAfterSelect1Test()
+    {
+      IQueryable<string> result = Query<Customer>.All
+        .Select(c => c.Orders.Select(o => o.ShipName))
+        .SelectMany(orders => orders);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void SelectManyAfterSelect2Test()
     {
       var expected = Query<Order>.All.Count();
       var result = Query<Customer>.All.Select(c => Query<Order>.All.Where(o => o.Customer == c)).SelectMany(o => o);

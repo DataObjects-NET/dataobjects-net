@@ -246,6 +246,15 @@ namespace Xtensive.Storage.Tests.Linq
       QueryDumper.Dump(result);
     }
 
+
+
+    [Test]
+    public void GroupBySelectManyKeyTest()
+    {
+      var result = Query<Customer>.All.GroupBy(c => c.Address.City).SelectMany(g => g.Key);
+      QueryDumper.Dump(result);
+    }
+
     [Test]
     public void GroupByEntitySelectManyTest()
     {

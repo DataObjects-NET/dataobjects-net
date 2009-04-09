@@ -667,7 +667,6 @@ namespace Xtensive.Storage.Linq
         using (new ParameterScope())
         using (context.SubqueryParameterBindings.Bind(collectionSelector.Parameters)) {
           mappingRef.Value = new FieldMappingReference(false);
-          parameters.Value = ArrayUtils<ParameterExpression>.EmptyArray;
           innerResult = VisitSequence(collectionSelector.Body);
           applyParameter = context.SubqueryParameterBindings.GetBound(parameter);
         }
