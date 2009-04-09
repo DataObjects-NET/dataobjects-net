@@ -166,7 +166,7 @@ namespace Xtensive.Indexing.Tests.Index
     }
 
     [TestFixture]
-    public class Int32Profiling : IndexProfiling<int,int>
+    public class Int32Int32Profiling : IndexProfiling<int, int>
     {
       [TestFixtureSetUp]
       public override void SetUp()
@@ -199,7 +199,7 @@ namespace Xtensive.Indexing.Tests.Index
     }
 
     [TestFixture]
-    public class TupleProfiling : IndexProfiling<Tuple,Tuple>
+    public class TupleTupleProfiling : IndexProfiling<Tuple,Tuple>
     {
       [TestFixtureSetUp]
       public override void SetUp()
@@ -236,7 +236,7 @@ namespace Xtensive.Indexing.Tests.Index
     }
 
     [TestFixture]
-    public class TupleProfilingWithExtractor : IndexProfiling<Tuple,Tuple>
+    public class TupleTupleProfilingWithExtractor : IndexProfiling<Tuple,Tuple>
     {
       [TestFixtureSetUp]
       public override void SetUp()
@@ -269,6 +269,42 @@ namespace Xtensive.Indexing.Tests.Index
         AddTest();
         readOnlyIndex = index;
         index = new Index<Tuple, Tuple>(configuration);
+      }
+    }
+
+    [TestFixture]
+    public class Int32TupleProfilingWithExtractor : IndexProfiling<int, Tuple>
+    {
+      [TestFixtureSetUp]
+      public override void SetUp()
+      {
+        var dictionary = new SortedDictionary<int, int>();
+        var descriptor = TupleDescriptor.Create(new[] { typeof(int), typeof(int) });
+        list = new List<Tuple>(ItemsCount);
+        AdvancedComparer<int> comparer = AdvancedComparer<int>.Default;
+
+        var random = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
+        IEnumerator<int> generator = InstanceGenerationUtils<int>.GetInstances(random, 0).GetEnumerator();
+        int count = 0;
+        while (count < ItemsCount && generator.MoveNext())
+        {
+          int i = generator.Current;
+          if (!dictionary.ContainsKey(i))
+          {
+            dictionary.Add(i, i);
+            list.Add(Tuple.Create(descriptor, i, i));
+            count++;
+          }
+        }
+
+        keyExtractor = input => input.GetValueOrDefault<int>(0);
+        orderedList = list.OrderBy(input => input.GetValueOrDefault<int>(0), comparer.Implementation).ToList();
+
+        var configuration = new IndexConfiguration<int, Tuple> { KeyExtractor = keyExtractor, KeyComparer = comparer };
+        index = new Index<int, Tuple>(configuration);
+        AddTest();
+        readOnlyIndex = index;
+        index = new Index<int, Tuple>(configuration);
       }
     }
   }
