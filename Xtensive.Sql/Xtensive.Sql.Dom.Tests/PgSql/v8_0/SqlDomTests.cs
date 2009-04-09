@@ -960,7 +960,7 @@ namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
 
         //Extract initial model
         {
-          Model model = new SqlModelProvider(Connection).Build();
+          Model model = new SqlModelProvider(Connection, trx).Build();
 
           new CatalogComparer(Connection)
             .CompareCatalogs(MyCatalog, model.DefaultServer.DefaultCatalog);
@@ -1034,7 +1034,7 @@ namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
 
         //Extract altered model
         {
-          Model model = new SqlModelProvider(Connection).Build();
+          Model model = new SqlModelProvider(Connection, trx).Build();
 
           new CatalogComparer(Connection)
             .CompareCatalogs(MyCatalog, model.DefaultServer.DefaultCatalog);
@@ -1094,7 +1094,7 @@ namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
 
         //Extract altered model again
         {
-          Model model = new SqlModelProvider(Connection).Build();
+          Model model = new SqlModelProvider(Connection, trx).Build();
 
           new CatalogComparer(Connection)
             .CompareCatalogs(MyCatalog, model.DefaultServer.DefaultCatalog);
