@@ -301,6 +301,16 @@ namespace Xtensive.Storage.Tests.Linq
       QueryDumper.Dump(result);
     }
 
+    [Test]
+    public void GroupByWithConstantSelectorTest()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.Customer).Select( g =>
+        new
+        {
+          ConstString = "ConstantString"
+        });
+      QueryDumper.Dump(result);
+    }
 
     [Test]
     public void GroupByWithAnonymousSelectTest()
@@ -367,7 +377,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Order>.All
         .GroupBy(o => o.Customer)
-        .Select(g => new {Count = g.Count(), Customer = g.Key});
+        .Select(g => new { Count = g.Count(), Customer = g.Key });
       QueryDumper.Dump(result);
     }
 

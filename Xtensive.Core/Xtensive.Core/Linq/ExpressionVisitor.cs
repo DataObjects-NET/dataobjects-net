@@ -17,6 +17,19 @@ namespace Xtensive.Core.Linq
   /// </summary>
   public abstract class ExpressionVisitor : ExpressionVisitor<Expression>
   {
+    protected override ReadOnlyCollection<Expression> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
+    {
+      bool isChanged = false;
+      var results = new List<Expression>();
+      for (int i = 0, n = expressions.Count; i < n; i++) {
+        var expression = expressions[i];
+        Expression p = Visit(expression);
+        results.Add(p);
+        isChanged |= !ReferenceEquals(expression, p);
+      }
+      return isChanged ? results.AsReadOnly() : expressions;
+    }
+
     /// <summary>
     /// Visits the element initializer expression.
     /// </summary>
@@ -25,7 +38,7 @@ namespace Xtensive.Core.Linq
     protected virtual ElementInit VisitElementInitializer(ElementInit initializer)
     {
       ReadOnlyCollection<Expression> arguments = VisitExpressionList(initializer.Arguments);
-      if (arguments != initializer.Arguments) {
+      if (arguments!=initializer.Arguments) {
         return Expression.ElementInit(initializer.AddMethod, arguments);
       }
       return initializer;
@@ -39,11 +52,14 @@ namespace Xtensive.Core.Linq
     protected virtual ReadOnlyCollection<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original)
     {
       var results = new List<ElementInit>();
+      bool isChanged = false;
       for (int i = 0, n = original.Count; i < n; i++) {
-        ElementInit p = VisitElementInitializer(original[i]);
+        var originalIntializer = original[i];
+        ElementInit p = VisitElementInitializer(originalIntializer);
         results.Add(p);
+        isChanged |= !ReferenceEquals(originalIntializer, p);
       }
-      return results.AsReadOnly();
+      return isChanged ? results.AsReadOnly() : original;
     }
 
     /// <inheritdoc/>
@@ -53,7 +69,6 @@ namespace Xtensive.Core.Linq
       if (operand!=u.Operand)
         return Expression.MakeUnary(u.NodeType, operand, u.Type, u.Method);
       return u;
-
     }
 
     /// <inheritdoc/>
@@ -64,7 +79,6 @@ namespace Xtensive.Core.Linq
       if ((left==b.Left) && (right==b.Right))
         return b;
       return Expression.MakeBinary(b.NodeType, left, right, b.IsLiftedToNull, b.Method);
-
     }
 
     /// <inheritdoc/>
@@ -74,7 +88,6 @@ namespace Xtensive.Core.Linq
       if (expression!=tb.Expression)
         return Expression.TypeIs(expression, tb.TypeOperand);
       return tb;
-
     }
 
     /// <inheritdoc/>
@@ -92,7 +105,6 @@ namespace Xtensive.Core.Linq
       if (((test==c.Test) && (ifTrue==c.IfTrue)) && (ifFalse==c.IfFalse))
         return c;
       return Expression.Condition(test, ifTrue, ifFalse);
-
     }
 
     /// <inheritdoc/>
@@ -108,7 +120,6 @@ namespace Xtensive.Core.Linq
       if (expression!=m.Expression)
         return Expression.MakeMemberAccess(expression, m.Member);
       return m;
-
     }
 
     /// <inheritdoc/>
@@ -132,7 +143,6 @@ namespace Xtensive.Core.Linq
       if (expression!=ma.Expression)
         return Expression.Bind(ma.Member, expression);
       return ma;
-
     }
 
     /// <inheritdoc/>
@@ -142,7 +152,6 @@ namespace Xtensive.Core.Linq
       if (body!=l.Body)
         return Expression.Lambda(l.Type, body, l.Parameters);
       return l;
-
     }
 
     /// <inheritdoc/>
@@ -159,12 +168,11 @@ namespace Xtensive.Core.Linq
     /// <inheritdoc/>
     protected override Expression VisitMemberInit(MemberInitExpression mi)
     {
-      var newExpression = (NewExpression)VisitNew(mi.NewExpression);
+      var newExpression = (NewExpression) VisitNew(mi.NewExpression);
       IEnumerable<MemberBinding> bindings = VisitBindingList(mi.Bindings);
       if ((newExpression==mi.NewExpression) && (bindings==mi.Bindings))
         return mi;
       return Expression.MemberInit(newExpression, bindings);
-
     }
 
     /// <inheritdoc/>
@@ -175,7 +183,6 @@ namespace Xtensive.Core.Linq
       if ((newExpression==li.NewExpression) && (initializers==li.Initializers))
         return li;
       return Expression.ListInit(newExpression, initializers);
-
     }
 
     /// <inheritdoc/>
@@ -209,14 +216,14 @@ namespace Xtensive.Core.Linq
     protected virtual MemberBinding VisitBinding(MemberBinding binding)
     {
       switch (binding.BindingType) {
-      case MemberBindingType.Assignment:
-        return VisitMemberAssignment((MemberAssignment)binding);
-      case MemberBindingType.MemberBinding:
-        return VisitMemberMemberBinding((MemberMemberBinding)binding);
-      case MemberBindingType.ListBinding:
-        return VisitMemberListBinding((MemberListBinding)binding);
-      default:
-        throw new Exception(string.Format("Unhandled binding type '{0}'", binding.BindingType));
+        case MemberBindingType.Assignment:
+          return VisitMemberAssignment((MemberAssignment) binding);
+        case MemberBindingType.MemberBinding:
+          return VisitMemberMemberBinding((MemberMemberBinding) binding);
+        case MemberBindingType.ListBinding:
+          return VisitMemberListBinding((MemberListBinding) binding);
+        default:
+          throw new Exception(string.Format("Unhandled binding type '{0}'", binding.BindingType));
       }
     }
 
@@ -228,12 +235,10 @@ namespace Xtensive.Core.Linq
     protected virtual MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
     {
       IEnumerable<MemberBinding> bindings = VisitBindingList(binding.Bindings);
-      if (bindings != binding.Bindings)
-      {
+      if (bindings!=binding.Bindings) {
         return Expression.MemberBind(binding.Member, bindings);
       }
       return binding;
-
     }
 
     /// <summary>
@@ -244,11 +249,14 @@ namespace Xtensive.Core.Linq
     protected virtual ReadOnlyCollection<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original)
     {
       var results = new List<MemberBinding>();
+      bool isChanged = false;
       for (int i = 0, n = original.Count; i < n; i++) {
-        MemberBinding p = VisitBinding(original[i]);
+        var originalBinding = original[i];
+        MemberBinding p = VisitBinding(originalBinding);
         results.Add(p);
+        isChanged |= !ReferenceEquals(originalBinding, p);
       }
-      return results.AsReadOnly();
+      return isChanged ? results.AsReadOnly() : original;
     }
 
     protected virtual MemberListBinding VisitMemberListBinding(MemberListBinding binding)
@@ -257,11 +265,9 @@ namespace Xtensive.Core.Linq
       if (initializers!=binding.Initializers)
         return Expression.ListBind(binding.Member, initializers);
       return binding;
-
     }
 
     #endregion
-
 
     // Constructors
 

@@ -706,7 +706,8 @@ namespace Xtensive.Storage.Linq
     {
       var sequence = VisitSequence(expression);
       using (context.Bindings.Add(le.Parameters[0], sequence)) {
-        return BuildProjection(le);
+        var projection = BuildProjection(le);
+        return projection;
       }
     }
 

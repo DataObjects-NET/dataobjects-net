@@ -5,6 +5,7 @@
 // Created:    2008.12.11
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
@@ -15,6 +16,7 @@ using Xtensive.Storage.Linq.Expressions.Mappings;
 
 namespace Xtensive.Storage.Linq.Expressions
 {
+  [DebuggerDisplay("ItemProjector = {ItemProjector}, RecordSet = {RecordSet}")]
   internal class ResultExpression : Expression
   {
     public RecordSet RecordSet { get; private set; }
