@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Resources;
 using Assembly=Xtensive.Storage.Metadata.Assembly;
@@ -19,17 +20,17 @@ namespace Xtensive.Storage.Internals
     private readonly DomainConfiguration domainConfiguratuion;
     private readonly IModelAssembliesManager modelAssembliesManager;
 
-    public bool IsSchemaActual(DomainConfiguration configuration)
+    public bool IsSchemaActual()
     {
-      var modelAssemblies = modelAssembliesManager.GetModelAssemblies(configuration.Types);
+      var modelAssemblies = modelAssembliesManager.GetModelAssemblies(domainConfiguratuion.Types);
       if (modelAssemblies.Count > 0) {
 
         // New configuration with system types only
-        var systemDomainConfiguration = (DomainConfiguration) configuration.Clone();
-        systemDomainConfiguration.Types.Clear(); 
+        var configuration = (DomainConfiguration) domainConfiguratuion.Clone();
+        configuration.Types.Clear(); 
 
         // Build domain to read schema versions from storage
-        Domain systemDomain = Domain.Build(systemDomainConfiguration);
+        Domain systemDomain = Domain.Build(configuration);
         using (systemDomain.OpenSystemSession()) {
           using (Transaction.Open()) {
             foreach (var modelAssembly in modelAssemblies) {
@@ -43,7 +44,7 @@ namespace Xtensive.Storage.Internals
       return true;
     }
 
-    public void UpgradeSchema(DomainConfiguration configuration)
+    public void UpgradeSchema()
     {
       List<IModelAssembly> modelAssemblies = GetModelAssemblies();
       
@@ -112,7 +113,7 @@ namespace Xtensive.Storage.Internals
     {
       Assembly assembly = GetAssemblyObject(assemblyName);
       if (assembly==null)
-        assembly = new Assembly {AssemblyName = assemblyName, Version = version};
+        assembly = new Assembly (assemblyName) {Version = version};
       assembly.Version = version;
     }
 
@@ -126,7 +127,8 @@ namespace Xtensive.Storage.Internals
 
     private static Assembly GetAssemblyObject(string assemblyName)
     {
-      return Enumerable.Where(Query<Assembly>.All, a => a.AssemblyName==assemblyName).First();
+      Key assemblyKey = Key.Create(typeof(Assembly), Tuple.Create(assemblyName));
+      return assemblyKey.Resolve<Assembly>();
     }
 
     #endregion
@@ -138,7 +140,7 @@ namespace Xtensive.Storage.Internals
         throw new InvalidOperationException(string.Format(
           Strings.ExTypeXDoesNotImplementYInterface, managerType, typeof(IModelAssembliesManager)));
 
-      return (IModelAssembliesManager) managerType.TypeInitializer.Invoke(null);
+      return (IModelAssembliesManager) System.Activator.CreateInstance(managerType);
     }
 
 
