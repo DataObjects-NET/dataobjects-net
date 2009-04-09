@@ -30,11 +30,6 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       return new PrimitiveFieldMapping(new Segment<int>(segment.Offset + offset, segment.Length));
     }
 
-    public override FieldMapping Clone()
-    {
-      return new PrimitiveFieldMapping(segment);
-    }
-
 
     // Constructors
 

@@ -107,11 +107,6 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       }
     }
 
-    public override FieldMapping Clone()
-    {
-      return new ComplexFieldMapping(Fields, JoinedFields, AnonymousFields);
-    }
-
 
     // Constructors
 
