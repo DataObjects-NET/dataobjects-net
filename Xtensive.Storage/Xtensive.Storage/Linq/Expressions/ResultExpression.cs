@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Linq;
@@ -16,13 +17,38 @@ using Xtensive.Storage.Linq.Expressions.Mappings;
 
 namespace Xtensive.Storage.Linq.Expressions
 {
-  [DebuggerDisplay("ItemProjector = {ItemProjector}, RecordSet = {RecordSet}")]
+  [DebuggerDisplay("ItemProjector = {ItemProjector}, RecordSet = {RecordSet}, IsScalar = {IsScalar}")]
   internal class ResultExpression : Expression
   {
     public RecordSet RecordSet { get; private set; }
-    public Expression<Func<RecordSet, object>> Projector { get; private set; }
-    public LambdaExpression ItemProjector { get; private set; }
     public FieldMapping Mapping { get; private set; }
+    public LambdaExpression ItemProjector { get; private set; }
+    public LambdaExpression ScalarTransform { get; private set; }
+
+    public bool IsScalar
+    {
+      get { return ScalarTransform != null; }
+    }
+
+    public TResult GetResult<TResult>()
+    {
+      var rs = Expression.Parameter(typeof (RecordSet), "rs");
+      var severalArguments = ItemProjector.Parameters.Count > 1;
+      var method = severalArguments
+        ? typeof (Translator)
+          .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
+          .MakeGenericMethod(ItemProjector.Body.Type)
+        : WellKnownMembers.EnumerableSelect.MakeGenericMethod(ItemProjector.Parameters[0].Type, ItemProjector.Body.Type);
+      Expression body = (!severalArguments && ItemProjector.Parameters[0].Type == typeof (Record))
+        ? Expression.Call(method, Expression.Call(WellKnownMembers.RecordSetParse, rs), ItemProjector)
+        : Expression.Call(method, rs, ItemProjector);
+      body = IsScalar
+        ? Expression.Invoke(ScalarTransform, body)
+        : body;
+      var projector = Expression.Lambda<Func<RecordSet, TResult>>(Expression.Convert(body, typeof(TResult)), rs);
+      var project = projector.Compile();
+      return project(RecordSet);
+    }
 
     public Segment<int> GetMemberSegment(MemberPath fieldPath)
     {
@@ -81,17 +107,25 @@ namespace Xtensive.Storage.Linq.Expressions
     // Constructors
 
     public ResultExpression(
-      Type type, 
-      RecordSet recordSet, 
-      FieldMapping mapping, 
-      Expression<Func<RecordSet, object>> projector, 
+      Type type,
+      RecordSet recordSet,
+      FieldMapping mapping,
       LambdaExpression itemProjector)
+      : this(type, recordSet, mapping, itemProjector, null)
+    {}
+
+    public ResultExpression(
+      Type type,
+      RecordSet recordSet,
+      FieldMapping mapping,
+      LambdaExpression itemProjector,
+      LambdaExpression scalarTransform)
       : base((ExpressionType)ExtendedExpressionType.Result, type)
     {
       RecordSet = recordSet;
       Mapping = mapping;
-      Projector = projector;
       ItemProjector = itemProjector;
+      ScalarTransform = scalarTransform;
     }
   }
 }

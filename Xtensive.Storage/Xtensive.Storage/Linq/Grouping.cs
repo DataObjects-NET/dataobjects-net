@@ -32,9 +32,9 @@ namespace Xtensive.Storage.Linq
     {
       using (new ParameterScope()) {
         tupleParameter.Value = keyTuple;
-        var result = (IEnumerable) resultExpression.Projector.Compile().Invoke(resultExpression.RecordSet);
-        foreach (object element in result)
-          yield return (TElement) element;
+        var result = resultExpression.GetResult<IEnumerable<TElement>>();
+        foreach (var element in result)
+          yield return element;
       }
     }
 

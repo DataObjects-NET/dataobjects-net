@@ -4,9 +4,11 @@
 // Created by: Alexey Kochetov
 // Created:    2009.01.12
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -55,6 +57,28 @@ namespace Xtensive.Storage.Tests.Linq
           select new
                  {
                    Value = new byte[] {1, 2, 3},
+                   Method = method,
+                   p.ProductName
+                 }
+        orderby r.ProductName
+        where r.Method==method
+        select r;
+      var list = result.ToList();
+      foreach (var i in list)
+        Assert.AreEqual(method, i.Method);
+    }
+
+    [Test]
+    public void NewPairTest()
+    {
+      var method = MethodInfo.GetCurrentMethod().Name;
+      var products = Query<Product>.All;
+      var result =
+        from r in
+          from p in products
+          select new
+                 {
+                   Value = new Pair<string>(p.ProductName, method),
                    Method = method,
                    p.ProductName
                  }

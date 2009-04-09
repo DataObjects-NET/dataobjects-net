@@ -9,6 +9,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Xtensive.Core.Parameters;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
 
 namespace Xtensive.Storage.Linq
@@ -42,6 +44,8 @@ namespace Xtensive.Storage.Linq
 
     public static bool IsGrouping(this Expression expression)
     {
+      while (expression.NodeType == ExpressionType.Convert)
+        expression = ((UnaryExpression)expression).Operand;
       if (expression.NodeType==ExpressionType.New) {
         var newExpression = (NewExpression) expression;
         if (newExpression.Type.IsGenericType
@@ -53,15 +57,34 @@ namespace Xtensive.Storage.Linq
 
     public static Type GetGroupingKeyType(this Expression expression)
     {
+      while (expression.NodeType == ExpressionType.Convert)
+        expression = ((UnaryExpression)expression).Operand;
       var newExpression = (NewExpression) expression;
       return newExpression.Type.GetGenericArguments()[0];
     }
 
     public static Type GetGroupingElementType(this Expression expression)
     {
+      while (expression.NodeType == ExpressionType.Convert)
+        expression = ((UnaryExpression)expression).Operand;
       var newExpression = (NewExpression)expression;
       return newExpression.Type.GetGenericArguments()[1];
     }
+
+    public static Parameter<Tuple> GetGroupingParameter(this Expression expression)
+    {
+      while (expression.NodeType == ExpressionType.Convert)
+        expression = ((UnaryExpression)expression).Operand;
+      if (expression.NodeType == ExpressionType.New) {
+        var newExpression = (NewExpression)expression;
+        if (newExpression.Type.IsGenericType && newExpression.Type.GetGenericTypeDefinition() == typeof(Grouping<,>)) {
+          var result = (Parameter<Tuple>)((ConstantExpression)newExpression.Arguments[3]).Value;
+          return result;
+        }
+      }
+      throw new InvalidOperationException();
+    }
+
 
     public static MemberType GetMemberType(this Expression e)
     {

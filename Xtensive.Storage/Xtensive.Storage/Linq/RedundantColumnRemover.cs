@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Linq
     public ResultExpression RemoveRedundantColumn()
     {
       var originProvider = origin.RecordSet.Provider;
-      var projectorMap = mappingsGatherer.GatherMappings(origin.Projector, originProvider.Header)
+      var projectorMap = mappingsGatherer.GatherMappings(origin.ItemProjector, originProvider.Header)
           .Distinct()
           .OrderBy()
           .ToList();
@@ -56,11 +56,8 @@ namespace Xtensive.Storage.Linq
           var rs = resultProvider.Result;
           var groupMap = MappingHelper.BuildGroupMapping(projectorMap, originProvider, resultProvider);
 
-          var projector = (Expression<Func<RecordSet, object>>)mappingsReplacer.ReplaceMappings(origin.Projector, projectorMap, groupMap, origin.RecordSet.Header);
-          var itemProjector = origin.ItemProjector == null
-            ? null
-            : (LambdaExpression)mappingsReplacer.ReplaceMappings(origin.ItemProjector, projectorMap, groupMap, origin.RecordSet.Header);
-          var result = new ResultExpression(origin.Type, rs, null, projector, itemProjector);
+          var itemProjector = mappingsReplacer.ReplaceMappings(origin.ItemProjector, projectorMap, groupMap, origin.RecordSet.Header);
+          var result = new ResultExpression(origin.Type, rs, null, (LambdaExpression)itemProjector, origin.ScalarTransform);
           return result;
         }
       return origin;

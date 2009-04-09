@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.03.24
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core.Parameters;
@@ -32,6 +34,8 @@ namespace Xtensive.Storage.Linq
 
     // Enumerable
     public static readonly MethodInfo EnumerableSelect;
+    public static readonly MethodInfo EnumerableFirst;
+    public static readonly Type EnumerableOfTuple;
 
     // Queryable
     public static readonly MethodInfo QueryableDefaultIfEmpty;
@@ -86,6 +90,10 @@ namespace Xtensive.Storage.Linq
 
       // Enumerable
       EnumerableSelect = typeof(Enumerable).GetMethods().Where(m => m.Name == "Select").First();
+      EnumerableFirst = typeof (Enumerable)
+        .GetMethods(BindingFlags.Static | BindingFlags.Public)
+        .First(m => m.Name == WellKnown.Queryable.First && m.GetParameters().Length == 1);
+      EnumerableOfTuple = typeof (IEnumerable<>).MakeGenericType(typeof (Tuple));
 
       // Queryable
       QueryableDefaultIfEmpty = GetQueryableMethod(WellKnown.Queryable.DefaultIfEmpty, 1, 1);
