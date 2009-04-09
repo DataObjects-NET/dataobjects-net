@@ -47,7 +47,8 @@ namespace Xtensive.Core.Collections
         return true;
       long? count = items.TryGetCount();
       if (!count.HasValue)
-        return !items.GetEnumerator().MoveNext();
+        using (var e = items.GetEnumerator())
+          return !e.MoveNext();
       return count.Value==0;
     }
 
@@ -211,11 +212,11 @@ namespace Xtensive.Core.Collections
         if (otherCount.HasValue && otherCount!=thisCount)
           return false;
       }           
-      IEnumerator<TItem> enumerator = items.GetEnumerator();
 
-      foreach (var item in other) {
-        if (!enumerator.MoveNext() || !AdvancedComparerStruct<TItem>.System.Equals(enumerator.Current, item))
-          return false;
+      using (IEnumerator<TItem> enumerator = items.GetEnumerator())
+        foreach (var item in other) {
+          if (!enumerator.MoveNext() || !AdvancedComparerStruct<TItem>.System.Equals(enumerator.Current, item))
+            return false;
       }
       return true;
     }
@@ -234,19 +235,16 @@ namespace Xtensive.Core.Collections
     /// <param name="rightSequence">Second <see cref="IEnumerable{T}"/></param>
     /// <param name="projector"></param>
     /// <returns>result of applying <paramref name="projector"/> for each pair of items.</returns>
-    public static IEnumerable<TResult> Zip<TLeft,TRight,TResult>(this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence, Func<TLeft,TRight,TResult> projector)
+    public static IEnumerable<TResult> Zip<TLeft, TRight, TResult>(this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence, Func<TLeft, TRight, TResult> projector)
     {
       ArgumentValidator.EnsureArgumentNotNull(leftSequence, "leftSequence");
       ArgumentValidator.EnsureArgumentNotNull(rightSequence, "rightSequence");
       ArgumentValidator.EnsureArgumentNotNull(projector, "projector");
 
-      var leftEnum = leftSequence.GetEnumerator();
-      using (leftEnum) {
-        var rightEnum = rightSequence.GetEnumerator();
-        using (rightEnum)
-          while (leftEnum.MoveNext() && rightEnum.MoveNext())
-            yield return projector(leftEnum.Current, rightEnum.Current);
-      }
+      using (var leftEnum = leftSequence.GetEnumerator())
+      using (var rightEnum = rightSequence.GetEnumerator())
+        while (leftEnum.MoveNext() && rightEnum.MoveNext())
+          yield return projector(leftEnum.Current, rightEnum.Current);
     }
 
     /// <summary>
