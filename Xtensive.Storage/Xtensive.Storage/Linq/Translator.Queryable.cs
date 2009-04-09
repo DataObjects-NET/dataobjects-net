@@ -590,7 +590,9 @@ namespace Xtensive.Storage.Linq
           mappingRef.Value = innerMappingRef;
           Visit(innerKey);
         }
-        var keyPairs = outerMappingRef.Mapping.GetColumns().Zip(innerMappingRef.Mapping.GetColumns(), (o, i) => new Pair<int>(o, i)).ToArray();
+        var outerColumns = outerMappingRef.Mapping.GetColumns();
+        var innerColumns = innerMappingRef.Mapping.GetColumns();
+        var keyPairs = outerColumns.Zip(innerColumns, (o, i) => new Pair<int>(o, i)).ToArray();
 
         var outer = context.Bindings[outerParameter];
         var inner = context.Bindings[innerParameter];

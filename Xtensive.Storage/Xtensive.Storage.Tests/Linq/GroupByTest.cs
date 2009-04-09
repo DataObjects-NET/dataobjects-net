@@ -18,6 +18,14 @@ namespace Xtensive.Storage.Tests.Linq
   public class GroupByTest : NorthwindDOModelTest
   {
     [Test]
+    public void SimpleEntityGroupTest()
+    {
+      var result = Query<Product>.All.GroupBy(p => p);
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+    }
+
+    [Test]
     public void EntityGroupTest()
     {
       var result = Query<Product>.All.GroupBy(p => p.Category);
