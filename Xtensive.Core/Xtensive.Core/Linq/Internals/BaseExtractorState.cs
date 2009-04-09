@@ -11,12 +11,27 @@ namespace Xtensive.Core.Linq.Internals
 {
   internal abstract class BaseExtractorState : ExpressionVisitor<ExtractionInfo>
   {
-    protected static Func<Expression, bool> KeySelector;
+    protected Func<Expression, bool> KeySelector;
 
     #region ExtractorStates
-    public static readonly InitialExtractorState InitialState = new InitialExtractorState();
-    protected static readonly VisitingOperandState operandState = new VisitingOperandState();
-    protected static readonly ComparisonMethodVisitngState comparisonMethodState = new ComparisonMethodVisitngState();
+    private VisitingOperandState operandState;
+    private ComparisonMethodVisitngState comparisonMethodState;
+
+    protected VisitingOperandState OperandState {
+      get {
+        if (operandState == null)
+          operandState = new VisitingOperandState();
+        return operandState;
+      }
+    }
+
+    protected ComparisonMethodVisitngState ComparisonMethodState {
+      get {
+        if (comparisonMethodState == null)
+          comparisonMethodState = new ComparisonMethodVisitngState();
+        return comparisonMethodState;
+      }
+    }
     #endregion
 
     #region Overrides of ExpressionVisitor<Expression>
@@ -96,7 +111,7 @@ namespace Xtensive.Core.Linq.Internals
 
     #endregion
 
-    protected static ExtractionInfo SelectKey(Expression keyCandidate)
+    protected ExtractionInfo SelectKey(Expression keyCandidate)
     {
       if(KeySelector(keyCandidate))
         return new ExtractionInfo {Key = keyCandidate};

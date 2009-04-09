@@ -15,6 +15,9 @@ namespace Xtensive.Core.Linq
   /// </summary>
   public class ComparisonExtractor
   {
+    private readonly InitialExtractorState intialExtractorState = new InitialExtractorState();
+    private readonly KeySearcher keySearcher = new KeySearcher();
+
     /// <summary>
     /// Extracts an information about a comparison operation. A comparison is
     /// considered regarding a key selected by <paramref name="keySelector"/>.
@@ -30,7 +33,7 @@ namespace Xtensive.Core.Linq
       ArgumentValidator.EnsureArgumentNotNull(keySelector, "keySelector");
       if (!IsBoolleanExpression(exp))
         return null;
-      ExtractionInfo extractionInfo = BaseExtractorState.InitialState.Extract(exp, keySelector);
+      ExtractionInfo extractionInfo = intialExtractorState.Extract(exp, keySelector);
       if (extractionInfo == null)
         return null;
       return ComparisonInfo.TryCreate(extractionInfo);
@@ -44,9 +47,9 @@ namespace Xtensive.Core.Linq
     /// <returns>
     /// 	<see langword="true"/> if <paramref name="exp"/> contains key; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool ContainsKey(Expression exp, Func<Expression, bool> keySelector)
+    public bool ContainsKey(Expression exp, Func<Expression, bool> keySelector)
     {
-      return KeySearcher.ContainsKey(exp, keySelector);
+      return keySearcher.ContainsKey(exp, keySelector);
     }
 
     private static bool IsBoolleanExpression(Expression exp)

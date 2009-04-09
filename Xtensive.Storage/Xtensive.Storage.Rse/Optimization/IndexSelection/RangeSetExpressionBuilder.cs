@@ -34,12 +34,11 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     private static readonly MethodInfo invertMethod;
     private static readonly MethodInfo fullOrEmptyMethod;
 
-    private static readonly Dictionary<int, Expression> singleValueCash = new Dictionary<int, Expression>(1);
-
     public static RangeSetInfo BuildConstructor(TupleExpressionInfo originTuple, IndexInfo indexInfo)
     {
       Expression firstEndpoint;
       Expression secondEndpoint;
+      var singleValueCash = new Dictionary<int, Expression>(1);
       singleValueCash.Clear();
       singleValueCash.Add(0, originTuple.Comparison.Value);
       CreateRangeEndpoints(out firstEndpoint, out secondEndpoint, singleValueCash,

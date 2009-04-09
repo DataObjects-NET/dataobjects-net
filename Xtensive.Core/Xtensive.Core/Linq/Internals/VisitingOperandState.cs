@@ -4,14 +4,16 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.03.30
 
+using System;
 using System.Linq.Expressions;
 
 namespace Xtensive.Core.Linq.Internals
 {
   internal class VisitingOperandState : BaseExtractorState
   {
-    public ExtractionInfo Extract(Expression exp)
+    public ExtractionInfo Extract(Expression exp, Func<Expression, bool> keySelector)
     {
+      KeySelector = keySelector;
       return Visit(exp);
     }
 
@@ -36,7 +38,7 @@ namespace Xtensive.Core.Linq.Internals
       ComparisonMethodInfo methodInfo = ComparisonMethodRepository.Get(mc.Method);
       if (methodInfo == null)
         return null;
-      return comparisonMethodState.Extract(mc, methodInfo);
+      return ComparisonMethodState.Extract(mc, methodInfo, KeySelector);
     }
   }
 }

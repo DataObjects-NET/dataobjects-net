@@ -11,8 +11,10 @@ namespace Xtensive.Core.Linq.Internals
 {
   internal class ComparisonMethodVisitngState : BaseExtractorState
   {
-    public ExtractionInfo Extract(MethodCallExpression exp, ComparisonMethodInfo methodInfo)
+    public ExtractionInfo Extract(MethodCallExpression exp, ComparisonMethodInfo methodInfo,
+      Func<Expression, bool> keySelector)
     {
+      KeySelector = keySelector;
       ExtractionInfo objInfo = Visit(exp.Object);
       int keyIndex;
       ExtractionInfo argInfo = VisitMethodCallArguments(exp, out keyIndex);

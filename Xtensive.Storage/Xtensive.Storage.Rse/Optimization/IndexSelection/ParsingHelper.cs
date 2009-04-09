@@ -17,13 +17,14 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     public static readonly Func<Expression, bool> DeafultKeySelector = exp => exp.AsTupleAccess() != null;
     
     private readonly DomainModel domainModel;
+    private readonly ComparisonExtractor comparisonExtractor = new ComparisonExtractor();
 
     public RangeSetInfo ConvertToRangeSetInfo(Expression exp, ComparisonInfo tupleComparison,
       IndexInfo indexInfo, RecordSetHeader recordSetHeader)
     {
       // The validation of arguments is omitted to increase performance.
       if (tupleComparison == null)
-        if (ComparisonExtractor.ContainsKey(exp, DeafultKeySelector))
+        if (comparisonExtractor.ContainsKey(exp, DeafultKeySelector))
           return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null);
         else
           return RangeSetExpressionBuilder.BuildFullOrEmpty(exp);

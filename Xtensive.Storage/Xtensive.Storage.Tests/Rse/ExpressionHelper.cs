@@ -37,6 +37,8 @@ namespace Xtensive.Storage.Tests.Rse
       foreach (var pair in extractionResults)
         foreach (var extractionResult in pair.Value)
           if (result == null)
+            result = extractionResult.RangeSetInfo;
+          else
             result = RangeSetExpressionBuilder.BuildUnite(result, extractionResult.RangeSetInfo);
       return result.GetRangeSet();
     }

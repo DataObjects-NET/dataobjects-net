@@ -11,16 +11,10 @@ namespace Xtensive.Core.Linq.Internals
 {
   internal class KeySearcher : ExpressionVisitor
   {
-    private static readonly KeySearcher instance = new KeySearcher();
     private Func<Expression, bool> selector;
     private bool keyIsFound;
 
-    public static bool ContainsKey(Expression value, Func<Expression, bool> keySelector)
-    {
-      return instance.InnerContainsKey(value, keySelector);
-    }
-
-    private bool InnerContainsKey(Expression value, Func<Expression, bool> keySelector)
+    public bool ContainsKey(Expression value, Func<Expression, bool> keySelector)
     {
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       ArgumentValidator.EnsureArgumentNotNull(keySelector, "keySelector");

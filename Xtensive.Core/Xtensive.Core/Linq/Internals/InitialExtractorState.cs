@@ -11,6 +11,8 @@ namespace Xtensive.Core.Linq.Internals
 {
   internal class InitialExtractorState : BaseExtractorState
   {
+    private readonly KeySearcher keySearcher = new KeySearcher();
+
     public ExtractionInfo Extract(Expression exp, Func<Expression, bool> keySelector)
     {
       KeySelector = keySelector;
@@ -26,10 +28,10 @@ namespace Xtensive.Core.Linq.Internals
       return result;
     }
 
-    private static bool IsValueInvalidValid(ExtractionInfo result)
+    private bool IsValueInvalidValid(ExtractionInfo result)
     {
       return result!=null && result.Value!=null
-        && KeySearcher.ContainsKey(result.Value, KeySelector);
+        && keySearcher.ContainsKey(result.Value, KeySelector);
     }
 
     private static bool IsStandAloneBooleanExpression(ExtractionInfo result)
@@ -47,8 +49,8 @@ namespace Xtensive.Core.Linq.Internals
         return keyInfo;
       if (!IsComparison(exp.NodeType))
         return null;
-      var leftInfo = operandState.Extract(exp.Left);
-      var rightInfo = operandState.Extract(exp.Right);
+      var leftInfo = OperandState.Extract(exp.Left, KeySelector);
+      var rightInfo = OperandState.Extract(exp.Right, KeySelector);
       if (leftInfo == rightInfo)
         return null;
       if (rightInfo != null)
@@ -80,7 +82,7 @@ namespace Xtensive.Core.Linq.Internals
       var keyInfo = SelectKey(exp);
       if (keyInfo != null)
         return keyInfo;
-      var result = operandState.Extract(exp);
+      var result = OperandState.Extract(exp, KeySelector);
       return result;
     }
 
