@@ -33,6 +33,8 @@ namespace Xtensive.Storage.Providers.Sql
   [Serializable]
   public class SqlCompiler : RseCompiler
   {
+    protected const string TableNamePattern = "Tmp_{0}";
+
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> object providing access to available storage handlers.
     /// </summary>
@@ -467,13 +469,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitStore(StoreProvider provider)
     {
-      const string TABLE_NAME_PATTERN = "Tmp_{0}";
-
       ExecutableProvider ex = null;
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
       Schema schema = domainHandler.Schema;
       Table table;
-      string tableName = string.Format(TABLE_NAME_PATTERN, provider.Name);
+      string tableName = string.Format(TableNamePattern, provider.Name);
       if (provider.Source != null) {
         ex = provider.Source as ExecutableProvider ?? GetCompiled(provider.Source);
         table = provider.Scope == TemporaryDataScope.Global ? schema.CreateTable(tableName)
