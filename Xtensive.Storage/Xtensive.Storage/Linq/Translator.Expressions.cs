@@ -396,7 +396,7 @@ namespace Xtensive.Storage.Linq
       var rightPath = MemberPath.Parse(bRight, context.Model);
       var rightSource = context.Bindings[rightPath.Parameter];
       var rightSegment = rightSource.GetMemberSegment(rightPath);
-      foreach (var pair in leftSegment.GetItems().ZipWith(rightSegment.GetItems(), (l, r) => new {l, r})) {
+      foreach (var pair in leftSegment.GetItems().Zip(rightSegment.GetItems(), (l, r) => new {l, r})) {
         var type = leftSource.RecordSet.Header.TupleDescriptor[pair.l];
         Expression left = MakeTupleAccess(leftPath.Parameter, type, pair.l);
         Expression right = MakeTupleAccess(rightPath.Parameter, type, pair.r);

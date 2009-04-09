@@ -168,7 +168,7 @@ namespace Xtensive.Core.Linq
 
       Func<MethodBase, bool> allParamsMatch =
         m => paramTypes
-          .ZipWith(m.GetParameterTypes(), (t1, t2) => new { t1, t2 })
+          .Zip(m.GetParameterTypes(), (t1, t2) => new { t1, t2 })
           .All(a => oneParamMatch(a.t1, a.t2));
 
       methods = methods.Where(allParamsMatch);

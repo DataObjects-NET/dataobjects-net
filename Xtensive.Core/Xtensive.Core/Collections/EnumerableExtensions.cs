@@ -234,21 +234,19 @@ namespace Xtensive.Core.Collections
     /// <param name="rightSequence">Second <see cref="IEnumerable{T}"/></param>
     /// <param name="projector"></param>
     /// <returns>result of applying <paramref name="projector"/> for each pair of items.</returns>
-    public static IEnumerable<TResult> ZipWith<TLeft,TRight,TResult>(this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence, Func<TLeft,TRight,TResult> projector)
+    public static IEnumerable<TResult> Zip<TLeft,TRight,TResult>(this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence, Func<TLeft,TRight,TResult> projector)
     {
       ArgumentValidator.EnsureArgumentNotNull(leftSequence, "leftSequence");
       ArgumentValidator.EnsureArgumentNotNull(rightSequence, "rightSequence");
       ArgumentValidator.EnsureArgumentNotNull(projector, "projector");
 
-      return ZipInternal(leftSequence, rightSequence, projector);
-    }
-
-    private static IEnumerable<TResult> ZipInternal<TLeft,TRight,TResult>(this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence, Func<TLeft,TRight,TResult> projector)
-    {
       var leftEnum = leftSequence.GetEnumerator();
-      var rightEnum = rightSequence.GetEnumerator();
-      while (leftEnum.MoveNext() && rightEnum.MoveNext())
-        yield return projector(leftEnum.Current, rightEnum.Current);
+      using (leftEnum) {
+        var rightEnum = rightSequence.GetEnumerator();
+        using (rightEnum)
+          while (leftEnum.MoveNext() && rightEnum.MoveNext())
+            yield return projector(leftEnum.Current, rightEnum.Current);
+      }
     }
 
     /// <summary>
