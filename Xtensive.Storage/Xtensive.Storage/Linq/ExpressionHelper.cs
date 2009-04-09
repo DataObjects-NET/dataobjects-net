@@ -13,11 +13,6 @@ namespace Xtensive.Storage.Linq
 {
   internal static class ExpressionHelper
   {
-    public static Expression KeyAccess(Expression target)
-    {
-      return Expression.Property(target, "Key");
-    }
-
     public static Expression TupleAccess(Expression target, Type accessorType, int index)
     {
       return Expression.Call(

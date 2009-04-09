@@ -188,7 +188,9 @@ namespace Xtensive.Storage
     protected override void Initialize()
     {
       base.Initialize();
-      expression = QueryHelper.CreateEntitySetQuery(Expression.Constant(Owner), Field);
+      // hack to make expression look like regular parameter (ParameterExtractor.IsParameter => true)
+      var owner = Expression.Property(Expression.Constant(new {MySuperProperty = (Entity)Owner}), "MySuperProperty");
+      expression = QueryHelper.CreateEntitySetQuery(owner, Field);
       query = new Query<TItem>(expression);
     }
 
