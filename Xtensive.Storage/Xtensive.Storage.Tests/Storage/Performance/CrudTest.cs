@@ -64,6 +64,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
       CachedQueryTest(baseCount / 5);
+      NoMaterializationQueryTest(baseCount / 5);
       RseQueryTest(baseCount / 5);
       CachedRseQueryTest(baseCount / 5);
       RemoveTest();
@@ -249,6 +250,28 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           var result = Query<Simplest>.All.Where(o => o.Id == id);
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Cached Query", count)) {
+            for (int i = 0; i < count; i++) {
+              id = i % instanceCount;
+              foreach (var simplest in result) {
+                // Doing nothing, just enumerate
+              }
+            }
+            ts.Complete();
+          }
+        }
+      }
+    }
+
+    private void NoMaterializationQueryTest(int count)
+    {
+      var d = Domain;
+      using (var ss = d.OpenSession()) {
+        var s = ss.Session;
+        using (var ts = s.OpenTransaction()) {
+          var id = 0;
+          var result = Query<Simplest>.All.Where(o => o.Id == id).Select(o => new {o.Id, o.Value});
+          TestHelper.CollectGarbage();
+          using (warmup ? null : new Measurement("No Materialization Query", count)) {
             for (int i = 0; i < count; i++) {
               id = i % instanceCount;
               foreach (var simplest in result) {

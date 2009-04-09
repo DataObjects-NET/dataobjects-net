@@ -33,60 +33,6 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       return config;
     }
 
-//    [Test]
-//    public void NullTest()
-//    {
-//      using (var dataContext = new Entities())
-//      {
-//        dataContext.Connection.Open();
-//        var result = dataContext.Simplest.Where(s => s == null);
-//        var list = result.ToList();
-//        result = dataContext.Simplest.Where(s => s.Value==null);
-//        list = result.ToList();
-//        result = dataContext.Simplest.Where(s => null != s.Value);
-//        list = result.ToList();
-//        Simplest nullEntity = new Simplest(){Id = 10, TypeId = 0, Value = 10};
-//        result = dataContext.Simplest.Where(s => s == nullEntity);
-//        list = result.ToList();
-//      }
-//    }
-
-//    [Test]
-//    public void GroupJoinTest()
-//    {
-//      InsertTest(100);  
-//
-//      using (var dataContext = new Entities()) {
-//        dataContext.Connection.Open();
-//        using (var transaction = dataContext.Connection.BeginTransaction()) {
-//          var query = from s in dataContext.Simplest
-//                      join ss in dataContext.Simplest on s.Id equals ss.Id into g
-//                      select new {s.Value, Group = g};
-//          var list = query.ToList();
-//
-//          var query1 =  from s in dataContext.Simplest
-//                        from ss in dataContext.Simplest.Where(x => x.Id == s.Id)
-//                        select new { s.Value, Left = ss.Value };
-//          var list1 = query1.ToList();
-//        }
-//      }
-//    } 
-//    [Test]
-//    public void ConditionalTest()
-//    {
-//      InsertTest(5);
-//      using (var dataContext = new Entities()) {
-//        dataContext.Connection.Open();
-//        using (var transaction = dataContext.Connection.BeginTransaction()) {
-//          var query = from s in dataContext.Simplest
-//                      where (s.Value == 1 ? 2 : 3) == 2
-//                      select s;
-//          var list = query.ToList();
-//          transaction.Commit();
-//        }
-//      }
-//    }
-
     [Test]
     public void RegularTest()
     {
@@ -113,6 +59,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
       CachedQueryTest(baseCount / 5);
+      NoMaterializationQueryTest(baseCount / 5);
       CompiledQueryTest(baseCount / 5);
       RemoveTest();
     }
@@ -208,6 +155,27 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           var id = 0;
           var result = dataContext.Simplest.Where(o => o.Id == id);
           using (warmup ? null : new Measurement("Cached Query", count)) {
+            for (int i = 0; i < count; i++) {
+              id = i % instanceCount;
+              foreach (var o in result) {
+                // Doing nothing, just enumerate
+              }
+            }
+            transaction.Commit();
+          }
+        }
+      }
+    }
+
+    private void NoMaterializationQueryTest(int count)
+    {
+      using (var dataContext = new Entities()) {
+        dataContext.Connection.Open();
+        using (var transaction = dataContext.Connection.BeginTransaction()) {
+          TestHelper.CollectGarbage();
+          var id = 0;
+          var result = dataContext.Simplest.Where(o => o.Id == id).Select(o => new { o.Id, o.Value });
+          using (warmup ? null : new Measurement("No Materialization Query", count)) {
             for (int i = 0; i < count; i++) {
               id = i % instanceCount;
               foreach (var o in result) {
