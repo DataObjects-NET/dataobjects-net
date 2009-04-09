@@ -103,6 +103,7 @@ namespace Xtensive.Storage.Configuration
     private SessionConfigurationCollection sessions;
     private DomainBuildMode buildMode = DefaultBuildMode;
     private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
+    private Type modelAssembliesManagerType = typeof(DefaultModelAssembliesManager);
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -331,6 +332,16 @@ namespace Xtensive.Storage.Configuration
       get { return serviceContainer; }
     }
 
+    internal Type ModelAssembliesManagerType
+    {
+      get { return modelAssembliesManagerType; }
+      set {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        this.EnsureNotLocked();
+        modelAssembliesManagerType = value;
+      }
+    }
+
     /// <summary>
     /// Locks the instance and (possible) all dependent objects.
     /// </summary>
@@ -380,6 +391,7 @@ namespace Xtensive.Storage.Configuration
       serviceContainer = configuration.serviceContainer;
       buildMode = configuration.buildMode;
       foreignKeyMode = configuration.foreignKeyMode;
+      modelAssembliesManagerType = configuration.ModelAssembliesManagerType;
     }
 
     #region Equality members

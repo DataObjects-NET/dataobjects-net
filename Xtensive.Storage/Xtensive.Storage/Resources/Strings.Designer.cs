@@ -493,6 +493,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid upgrader version.
+        /// </summary>
+        internal static string ExInvalidUpgraderVersion {
+            get {
+                return ResourceManager.GetString("ExInvalidUpgraderVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Item not found in EntitySet.
         /// </summary>
         internal static string ExItemNotFoundInEntitySet {

@@ -142,6 +142,11 @@ namespace Xtensive.Storage
       return new SessionConsumptionScope(session);
     }
 
+    internal SessionConsumptionScope OpenSystemSession()
+    {
+      return Handler.OpenSession(SessionType.System);
+    }
+
     #endregion
 
     /// <summary>
