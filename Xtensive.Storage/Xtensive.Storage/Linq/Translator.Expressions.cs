@@ -537,8 +537,7 @@ namespace Xtensive.Storage.Linq
         else
           left = Expression.Property(leftExpression, propertyInfo);
         Expression right;
-        if (rightExpression.NodeType == ExpressionType.New)
-        {
+        if (rightExpression.NodeType == ExpressionType.New) {
           var newExpression = ((NewExpression)rightExpression);
           var member = newExpression.Members.First(memberInfo => memberInfo.Name == propertyName);
           int index = newExpression.Members.IndexOf(member);

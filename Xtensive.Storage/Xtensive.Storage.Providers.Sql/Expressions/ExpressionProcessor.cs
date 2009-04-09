@@ -94,7 +94,12 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           }
         }
       }
-      var type = e.Type.IsNullable() ? e.Type.GetGenericArguments()[0] : e.Type;
+      var type = e.Type;
+      // In rare cases (when calculated column is just parameter access) we need to strip cast to object.
+      if (e.NodeType == ExpressionType.Convert && e.Type == typeof(object))
+        type = ((UnaryExpression) e).Operand.Type;
+      if (type.IsNullable())
+        type = type.GetGenericArguments()[0];
       var typeMapping = valueTypeMapper.GetTypeMapping(type);
       var expression = parameterExtractor.ExtractParameter<object>(e);
       var binding = new SqlFetchParameterBinding(expression.Compile(), typeMapping);
