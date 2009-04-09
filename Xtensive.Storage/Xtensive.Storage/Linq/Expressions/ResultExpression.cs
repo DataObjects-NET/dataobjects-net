@@ -11,8 +11,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Linq;
-using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Mappings;
 
 namespace Xtensive.Storage.Linq.Expressions
@@ -32,20 +30,21 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public TResult GetResult<TResult>()
     {
-      var rs = Expression.Parameter(typeof (RecordSet), "rs");
-      var severalArguments = ItemProjector.Parameters.Count > 1;
+      var rs = Parameter(typeof (RecordSet), "rs");
+      var itemProjector = ItemProjector;
+      var severalArguments = itemProjector.Parameters.Count > 1;
       var method = severalArguments
         ? typeof (Translator)
           .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
-          .MakeGenericMethod(ItemProjector.Body.Type)
-        : WellKnownMembers.EnumerableSelect.MakeGenericMethod(ItemProjector.Parameters[0].Type, ItemProjector.Body.Type);
-      Expression body = (!severalArguments && ItemProjector.Parameters[0].Type == typeof (Record))
-        ? Expression.Call(method, Expression.Call(WellKnownMembers.RecordSetParse, rs), ItemProjector)
-        : Expression.Call(method, rs, ItemProjector);
+          .MakeGenericMethod(itemProjector.Body.Type)
+        : WellKnownMembers.EnumerableSelect.MakeGenericMethod(itemProjector.Parameters[0].Type, itemProjector.Body.Type);
+      Expression body = (!severalArguments && itemProjector.Parameters[0].Type == typeof (Record))
+        ? Call(method, Call(WellKnownMembers.RecordSetParse, rs), itemProjector)
+        : Call(method, rs, itemProjector);
       body = IsScalar
-        ? Expression.Invoke(ScalarTransform, body)
-        : body;
-      var projector = Expression.Lambda<Func<RecordSet, TResult>>(Expression.Convert(body, typeof(TResult)), rs);
+        ? Invoke(ScalarTransform, body)
+        : (body.Type==typeof(TResult) ? body : Convert(body, typeof(TResult)));
+      var projector = Lambda<Func<RecordSet, TResult>>(Convert(body, typeof(TResult)), rs);
       var project = projector.Compile();
       return project(RecordSet);
     }

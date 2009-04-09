@@ -74,7 +74,7 @@ namespace Xtensive.Storage
     {
       // TODO: Make the output readable?
       if (expression.NodeType==ExpressionType.Constant && ((ConstantExpression) expression).Value==this)
-        return string.Format("Query<{0}>.All", typeof(T).GetShortName());
+        return string.Format("Query<{0}>.All", typeof (T).GetShortName());
       return expression.ToString();
     }
 
@@ -86,10 +86,12 @@ namespace Xtensive.Storage
     /// of type <typeparamref name="T"/> (<typeparamref name="T"/>
     /// must be assignable to <see cref="Entity"/> or <see cref="IEntity"/> type).
     /// </summary>
-    public static IQueryable<T> All {
-      get {
-        if (!typeof(IEntity).IsAssignableFrom(typeof(T)))
-          Exceptions.InvalidArgument(typeof(T), "T");
+    public static IQueryable<T> All
+    {
+      get
+      {
+        if (!typeof (IEntity).IsAssignableFrom(typeof (T)))
+          Exceptions.InvalidArgument(typeof (T), "T");
         return new Query<T>();
       }
     }
