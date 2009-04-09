@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       : this(fields, joinedFields, new Dictionary<string, Expression>())
     {}
 
-    public ComplexFieldMapping(Dictionary<string, Segment<int>> fields, Dictionary<string, ComplexFieldMapping> joinedFields, Dictionary<string, Expression> anonymousFields)
+    private ComplexFieldMapping(Dictionary<string, Segment<int>> fields, Dictionary<string, ComplexFieldMapping> joinedFields, Dictionary<string, Expression> anonymousFields)
     {
       Fields = fields;
       JoinedFields = joinedFields;
