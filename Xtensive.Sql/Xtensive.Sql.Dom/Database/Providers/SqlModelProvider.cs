@@ -39,7 +39,7 @@ namespace Xtensive.Sql.Dom.Database.Providers
     /// </summary>
     public Model Build()
     {
-      SqlExtractor extractor = ((SqlDriver)connection.Driver).Extractor;
+      SqlExtractor extractor = connection.Driver.Extractor;
       Model model = new Model();
       bool connectionIsClosed = connection.State==ConnectionState.Closed;
       bool transactionIsAbsent = connectionIsClosed | transaction==null;
@@ -76,7 +76,7 @@ namespace Xtensive.Sql.Dom.Database.Providers
         }
       }
       finally {
-        if (transactionIsAbsent)
+        if (transactionIsAbsent && transaction!=null)
           transaction.Commit();
         if (connectionIsClosed && connection!=null)
           connection.Close();

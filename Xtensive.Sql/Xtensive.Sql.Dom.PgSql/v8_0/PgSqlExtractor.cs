@@ -333,6 +333,8 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
               string name = dr["nspname"].ToString();
               int owner = Convert.ToInt32(dr["nspowner"]);
               Schema sch = catalog.CreateSchema(name);
+              if (name == "public")
+                catalog.DefaultSchema = sch;
               schemas.Add(oid, sch);
               sch.Owner = mUserLookup[owner];
             }
