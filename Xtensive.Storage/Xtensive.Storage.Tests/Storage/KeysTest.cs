@@ -154,6 +154,18 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     }
 
     [Test]
+    public void ResolveNotExistingKeyTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          Key key = Key.Create(typeof (Fruit), Tuple.Create("NotExistingFruit"));
+          var entity = key.Resolve();
+          Assert.IsNull(entity);
+        }
+      }
+    }
+
+    [Test]
     public void StoreKeyTest()
     {
       using (Domain.OpenSession()) {
