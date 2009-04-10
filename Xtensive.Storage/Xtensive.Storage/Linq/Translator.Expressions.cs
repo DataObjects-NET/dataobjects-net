@@ -44,6 +44,9 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
+      if (tb.Expression.Type == tb.TypeOperand)
+        return Expression.Constant(true);
+      var visitedSource = Visit(tb.Expression);
       throw new NotImplementedException();
     }
 

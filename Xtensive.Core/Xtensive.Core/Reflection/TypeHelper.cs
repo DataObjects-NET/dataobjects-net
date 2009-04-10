@@ -508,11 +508,11 @@ namespace Xtensive.Core.Reflection
             // so we should fall back to Activator.CreateInstance
             argumentTypes[i] = o.GetType();
           }
-          if (!cancelSearch && type.GetConstructor(argumentTypes)==null)
+          if (!cancelSearch && type.GetConstructor(BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, argumentTypes) == null)
             return null;
         }
 #endif
-        return Activator.CreateInstance(type, arguments);
+        return Activator.CreateInstance(type,BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, arguments, null);
       }
       catch {
         return null;

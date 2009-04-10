@@ -77,10 +77,6 @@ namespace Xtensive.Storage.Linq
           break;
         case QueryableMethodKind.ToList:
           break;
-        case QueryableMethodKind.Cast:
-          break;
-        case QueryableMethodKind.OfType:
-          break;
         case QueryableMethodKind.Aggregate:
           break;
         case QueryableMethodKind.ElementAt:
@@ -110,6 +106,10 @@ namespace Xtensive.Storage.Linq
           if (mc.Arguments.Count==2)
             return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
           break;
+        case QueryableMethodKind.Cast:
+          return VisitCast(mc.Arguments[0], mc.Method.GetGenericArguments()[0]);
+        case QueryableMethodKind.OfType:
+          return VisitOfType(mc.Arguments[0], mc.Method.GetGenericArguments()[0]);
         case QueryableMethodKind.Any:
           if (mc.Arguments.Count==1)
             return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
@@ -237,6 +237,16 @@ namespace Xtensive.Storage.Linq
           throw new ArgumentOutOfRangeException("methodKind");
       }
       throw new NotSupportedException();
+    }
+
+    private Expression VisitCast(Expression source, Type targetType)
+    {
+      throw new NotImplementedException();
+    }
+
+    private Expression VisitOfType(Expression source, Type targetType)
+    {
+      throw new NotImplementedException();
     }
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)

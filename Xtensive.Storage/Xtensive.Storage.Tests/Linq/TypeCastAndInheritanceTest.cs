@@ -34,6 +34,15 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void IsSameTypeTest()
+    {
+#pragma warning disable 183
+      var result = Query<Product>.All.Where(p => p is Product);
+#pragma warning restore 183
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void IsCountTest()
     {
       Assert.AreEqual(
@@ -90,10 +99,6 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void CastCountTest()
     {
-      var productCount1 = Query<Product>.All.Count();
-      var productCount2 = Query<Product>.All.Cast<Product>().Count();
-      Assert.AreEqual(productCount1, productCount2);
-
       var discontinuedProductCount1 = Query<DiscontinuedProduct>.All.Count();
       var discontinuedProductCount2 = Query<DiscontinuedProduct>.All.Cast<Product>().Where(product => product!=null).Count();
       Assert.AreEqual(discontinuedProductCount1, discontinuedProductCount2);
@@ -101,6 +106,10 @@ namespace Xtensive.Storage.Tests.Linq
       var activeProductCount1 = Query<ActiveProduct>.All.Count();
       var activeProductCount2 = Query<ActiveProduct>.All.Cast<Product>().Where(product => product!=null).Count();
       Assert.AreEqual(activeProductCount1, activeProductCount2);
+
+      var productCount1 = Query<Product>.All.Count();
+      var productCount2 = Query<Product>.All.Cast<Product>().Count();
+      Assert.AreEqual(productCount1, productCount2);
     }
   }
 }
