@@ -568,7 +568,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
                 defaultValue = dr["default"].ToString();
 
               Schema sch = schemas[typnamespace];
-              Domain d = sch.CreateDomain(typname, GetSqlValueType(context, typname, typmod));
+              Domain d = sch.CreateDomain(typname, GetSqlValueType(context, basetypname, typmod));
               if (defaultValue==null)
                 d.DefaultValue = Sql.Null;
               else
@@ -738,26 +738,27 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       SqlValueType result;
       DataTypeCollection dataTypes = context.Connection.Driver.ServerInfo.DataTypes;
       DataTypeInfo dti = dataTypes[typname];
-      SqlDataType sqlDataType = (dti==null ? SqlDataType.Unknown : dti.SqlType);
+      if (dti == null)
+        return new SqlValueType(SqlDataType.Unknown);
 
-      if (sqlDataType==SqlDataType.Decimal) {
+      if (dti.SqlType==SqlDataType.Decimal) {
         if (typmod!=-1) {
           short precision = 0;
           byte scale = 0;
           GetPrecisionAndScale(typmod, out precision, out scale);
-          result = new SqlValueType(sqlDataType, precision, scale);
+          result = new SqlValueType(dti.SqlType, precision, scale);
         }
         else {
           //in this case we cannot determine the actual precision and scale
           //it should be avoided
-          result = new SqlValueType(sqlDataType);
+          result = new SqlValueType(dti.SqlType);
         }
       }
       else if (typmod!=-1) {
-        result = new SqlValueType(sqlDataType, typmod - 4);
+        result = new SqlValueType(dti.SqlType, typmod - 4);
       }
       else {
-        result = new SqlValueType(sqlDataType);
+        result = new SqlValueType(dti.SqlType);
       }
       return result;
     }
