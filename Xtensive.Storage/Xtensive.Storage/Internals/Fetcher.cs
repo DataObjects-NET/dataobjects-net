@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Internals
     private static Key Fetch(IndexInfo index, Key key, IEnumerable<ColumnInfo> columns)
     {
       Key result = null;
-      var session = Session.Current;
+      var session = Session.Demand();
       if (session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Fetching: Key = '{1}', Columns = '{2}'", session, pKey, columns.Select(c => c.Name).ToCommaDelimitedString());
 

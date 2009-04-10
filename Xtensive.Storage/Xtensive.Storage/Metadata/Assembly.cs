@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Metadata
   /// </summary>
   [SystemType(TypeId = 2)]
   [HierarchyRoot("AssemblyName", InheritanceSchema = InheritanceSchema.ClassTable)]
-  internal class Assembly : Entity
+  public class Assembly : Entity
   {
     /// <summary>
     /// Gets or sets the name of the assembly.
@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Metadata
     /// Gets or sets the assembly version.
     /// </summary>
     [Field(Length = 50)]
-    public string Version { get; internal set; }
+    public string Version { get; set; }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
@@ -38,7 +38,6 @@ namespace Xtensive.Storage.Metadata
     /// <param name="name">The assembly name.</param>
     public Assembly(string name) : base(Tuple.Create(name))
     {
-      this.AssemblyName = name;
     }
   }
 }

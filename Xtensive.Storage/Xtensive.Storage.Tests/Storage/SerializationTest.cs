@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
   public class Emploee : Entity
   {
     [Field] 
-    public Guid Id { get; private set; }
+    public int Id { get; private set; }
 
     [Field]
     public string Name { get; set; }
@@ -90,8 +90,8 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
     [Field]
     public string Name { get; private set;}
 
-    [Field]
-    public City Capital { get; set; }
+//    [Field]
+//    public City Capital { get; set; }
 
     public Country(string name) : 
       base(Tuple.Create(name))
@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
 
 namespace Xtensive.Storage.Tests
 {
-  public class  SerializationTest : AutoBuildTest
+  public class    SerializationTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -242,8 +242,8 @@ namespace Xtensive.Storage.Tests
           City beijing = new City(china, "Beijing");
           City guangzhou = new City(china, "Guangzhou");
 
-          china.Capital = beijing;
-          russia.Capital = moscow;
+//          china.Capital = beijing;
+//          russia.Capital = moscow;
   
           City[] cities = new[] {ekaterinburg, moscow, hongKong, guangzhou, beijing};          
 
@@ -289,9 +289,9 @@ namespace Xtensive.Storage.Tests
           Assert.AreEqual("Hong Kong", hongKong.Name);
           Assert.AreEqual(china, hongKong.Country);
           
-          Assert.IsNull(russia.Capital); // russia was serialized by reference, not by value
-    
-          Assert.AreEqual(china.Capital.Name, "Beijing");
+//          Assert.IsNull(russia.Capital); // russia was serialized by reference, not by value
+//    
+//          Assert.AreEqual(china.Capital.Name, "Beijing");
           
         }
       }

@@ -93,9 +93,7 @@ namespace Xtensive.Storage.Linq
       resultAliasGenerator = AliasGenerator.Create();
       columnAliasGenerator = AliasGenerator.Create(new[] {"column"});
       this.query = EntitySetAccessRewriter.Rewrite(EqualityRewriter.Rewrite(query));
-      var domain = Domain.Current;
-      if (domain == null)
-        throw new InvalidOperationException(Strings.ExNoCurrentSession);
+      var domain = Domain.Demand();
       model = domain.Model;
       translator = new Translator(this);
       evaluator = new ExpressionEvaluator(this.query);

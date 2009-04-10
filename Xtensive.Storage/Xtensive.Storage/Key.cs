@@ -262,7 +262,7 @@ namespace Xtensive.Storage
       string typeIdString = source.Substring(0, separatorIndex);
       string valueString = source.Substring(separatorIndex+1);
 
-      var domain = Domain.Current;
+      var domain = Domain.Demand();
       var type = domain.Model.Types[Int32.Parse(typeIdString)];
       var keyTupleDescriptor = type.Hierarchy.KeyInfo.TupleDescriptor;
       
@@ -313,7 +313,7 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(Type type)
     {
-      var domain = Domain.Current;
+      var domain = Domain.Demand();
       var typeInfo = domain.Model.Types[type];
       var keyGenerator = domain.KeyGenerators[typeInfo.Hierarchy.GeneratorInfo];
       return Create(domain, typeInfo, keyGenerator.Next(), true, false);
@@ -328,7 +328,7 @@ namespace Xtensive.Storage
     /// <param name="hierarchy">The hierarchy.</param>
     public static Key Create(HierarchyInfo hierarchy)
     {
-      var domain = Domain.Current;
+      var domain = Domain.Demand();
       Tuple keyValue = GenerateKeyValue(domain, hierarchy);
       return Create(domain, hierarchy.Root, keyValue, false, false);
     }
@@ -341,7 +341,7 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(TypeInfo type)
     {
-      var domain = Domain.Current;
+      var domain = Domain.Demand();
       Tuple keyValue = GenerateKeyValue(domain, type.Hierarchy);
       return Create(domain, type, keyValue, true, false);
     }
@@ -397,7 +397,7 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(Type type, Tuple value)
     {
-      var domain = Domain.Current;
+      var domain = Domain.Demand();
       return Create(domain, domain.Model.Types[type], value, false, false);
     }
 
@@ -411,7 +411,7 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(Type type, Tuple value, bool exactType)
     {
-      var domain = Domain.Current;
+      var domain = Domain.Demand();
       return Create(domain, domain.Model.Types[type], value, exactType, false);
     }
 
@@ -424,7 +424,7 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(TypeInfo type, Tuple value)
     {
-      return Create(Domain.Current, type, value, false, false);
+      return Create(Domain.Demand(), type, value, false, false);
     }
 
     /// <summary>
@@ -437,12 +437,13 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(TypeInfo type, Tuple value, bool exactType)
     {
-      return Create(Domain.Current, type, value, exactType, false);
+      return Create(Domain.Demand(), type, value, exactType, false);
     }
 
     /// <exception cref="ArgumentException">Wrong key structure for the specified <paramref name="type"/>.</exception>
     internal static Key Create(Domain domain, TypeInfo type, Tuple value, bool exactType, bool canCache)
     {
+      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       var hierarchy = type.Hierarchy;

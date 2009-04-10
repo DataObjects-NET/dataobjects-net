@@ -79,6 +79,8 @@ namespace Xtensive.Storage.Providers.Sql
       request.Compile(this);
     }
 
+    
+
     /// <inheritdoc/>
     /// <exception cref="DomainBuilderException"><c>DomainBuilderException</c>.</exception>
     public override void BuildMappingSchema()

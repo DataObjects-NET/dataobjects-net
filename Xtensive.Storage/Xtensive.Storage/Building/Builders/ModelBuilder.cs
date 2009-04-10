@@ -56,21 +56,35 @@ namespace Xtensive.Storage.Building.Builders
     private static void DefineSystemTypes()
     {
       using (LogTemplate<Log>.InfoRegion(Strings.LogDefiningX, Strings.SystemTypes)) {
-        BuildingContext context = BuildingContext.Current;       
-
         foreach (Type type in GetSystemTypes()) {
-          try {
-            TypeDef typeDef = TypeBuilder.DefineType(type);
-            context.Definition.Types.Add(typeDef);
-            IndexBuilder.DefineIndexes(typeDef);
-          }
-          catch (DomainBuilderException e) {
-            context.RegisterError(e);
-          }
+          DefineType(type);
         }
       }
     }
-    
+
+    private static void DefineTypes()
+    {
+      using (LogTemplate<Log>.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
+        BuildingContext context = BuildingContext.Current;
+        foreach (Type type in context.Configuration.Types) {
+          DefineType(type);
+        }
+      }
+    }
+
+    private static void DefineType(Type type)
+    {
+      BuildingContext context = BuildingContext.Current;
+      try {
+        TypeDef typeDef = TypeBuilder.DefineType(type);
+        context.Definition.Types.Add(typeDef);
+        IndexBuilder.DefineIndexes(typeDef);
+      }
+      catch (DomainBuilderException e) {
+        context.RegisterError(e);
+      }
+    }
+
     private static IEnumerable<Type> GetSystemTypes()
     {
       return AssemblyHelper.FindTypes(
@@ -97,24 +111,7 @@ namespace Xtensive.Storage.Building.Builders
         BuildTypes();
         context.Model.Lock(true);
       }
-    }
-
-    private static void DefineTypes()
-    {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
-        BuildingContext context = BuildingContext.Current;
-        foreach (Type type in context.Configuration.Types) {
-          try {
-            TypeDef typeDef = TypeBuilder.DefineType(type);
-            context.Definition.Types.Add(typeDef);
-            IndexBuilder.DefineIndexes(typeDef);
-          }
-          catch (DomainBuilderException e) {
-            context.RegisterError(e);
-          }
-        }
-      }
-    }
+    }    
 
     private static void DefineServices()
     {

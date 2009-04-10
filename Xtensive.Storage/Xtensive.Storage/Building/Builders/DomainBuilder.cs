@@ -10,6 +10,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Tuples;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.PluginManager;
@@ -17,12 +18,9 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
-using TypeInfo=Xtensive.Storage.Model.TypeInfo;
-using Xtensive.Modelling.Comparison;
-using Xtensive.Storage.Indexing.Model;
-using Xtensive.Storage.Model;
-using Xtensive.Storage.Model.Convert;
 using Activator=System.Activator;
+using TypeInfo=Xtensive.Storage.Model.TypeInfo;
+
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -34,23 +32,90 @@ namespace Xtensive.Storage.Building.Builders
     private static readonly PluginManager<ProviderAttribute> pluginManager =
       new PluginManager<ProviderAttribute>(typeof (HandlerFactory), AppDomain.CurrentDomain.BaseDirectory);
 
-    /// <summary>
-    /// Builds the new <see cref="Domain"/> according to specified configuration.
-    /// </summary>
-    /// <param name="configuration">The storage configuration.</param>
-    /// <returns>Newly created <see cref="Domain"/>.</returns>
-    /// <exception cref="ArgumentNullException">When <paramref name="configuration"/> is null.</exception>
-    /// <exception cref="DomainBuilderException">When at least one error have been occurred 
-    /// during storage building process.</exception>
-    public static Domain Build(DomainConfiguration configuration)
+    private static void Upgrade(DomainConfiguration configuration)
+    {
+      var newConfiguration = (DomainConfiguration) configuration.Clone();
+      newConfiguration.Types.Register(null,"Recycled");
+
+      string version = GetSchemaVersion(configuration);
+      if (version=="4")
+
+      InternalBuild(newConfiguration, 
+        () => {
+          var context = BuildingContext.Current;
+          var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
+          upgradeHandler.UpdateStorageSchema();
+        },
+        () => {
+          // Upgrade
+          SchemaUpgradeHelper.SetSchemaVersion("Aaaa", "5");
+        });
+    }
+
+    private static string GetSchemaVersion(DomainConfiguration configuration)
+    {
+      var newConfiguration = (DomainConfiguration) configuration.Clone();
+      newConfiguration.Types.Clear();
+      VersionExtractor extractor = new VersionExtractor();
+      InternalBuild(newConfiguration, 
+        () => { },
+        extractor.Invoke);
+      return extractor.version;
+    }
+
+    class VersionExtractor
+    {
+      public string version;
+      public void Invoke()
+      {
+        version = SchemaUpgradeHelper.GetSchemaVersion("Aaaa");
+      }
+    }
+
+    private static void CheckVersion(DomainConfiguration configuration)
+    {
+      var newConfiguration = (DomainConfiguration) configuration.Clone();
+      newConfiguration.Types.Clear();
+
+      InternalBuild(newConfiguration, 
+        () => { },
+        () => {
+          if (SchemaUpgradeHelper.GetSchemaVersion("Aaaa")!="5")
+            throw new Exception();
+        });
+    }
+
+    private static Domain BuildBlockUpgrade(DomainConfiguration configuration)
+    {
+      return InternalBuild(configuration, 
+        () => { },
+        SchemaUpgradeHelper.CheckSchemaIsActual);
+    }
+
+    private static Domain BuildRecreate(DomainConfiguration configuration)
+    {
+      return InternalBuild(configuration, 
+        RecreateSchema, 
+        SchemaUpgradeHelper.SetInitialSchemaVersion);
+    }
+
+    private static void RecreateSchema()
+    {
+      var context = BuildingContext.Current;
+      var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
+      upgradeHandler.ClearStorageSchema();
+      upgradeHandler.UpdateStorageSchema();
+    }
+    
+
+    public static Domain InternalBuild(DomainConfiguration configuration, Action schemaProcessor, Action dataProcessor)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
       if (!configuration.IsLocked)
         configuration.Lock(true);
-
-      using (LogTemplate<Log>.InfoRegion(Strings.LogValidatingX, typeof (DomainConfiguration).GetShortName()))
-        Validate(configuration);
+      
+      Validate(configuration);
 
       var context = new BuildingContext(configuration);
 
@@ -68,26 +133,14 @@ namespace Xtensive.Storage.Building.Builders
                 BuildingScope.Context.SystemSessionHandler = sessionHandler;
                 BuildingContext.Current.Domain.Handler.InitializeSystemSession();
                 // CreateGenerators();
-                using (LogTemplate<Log>.InfoRegion(String.Format(Strings.LogBuildingX, typeof (DomainHandler).GetShortName()))) {
-                  switch (context.Domain.Configuration.BuildMode) {
-                  case DomainBuildMode.PerformStrict:
-                    throw new NotImplementedException();
-                  case DomainBuildMode.Perform:
-                  case DomainBuildMode.Recreate:
-                    var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
-                    upgradeHandler.ClearStorageSchema();
-                    upgradeHandler.UpdateStorageSchema();
-                    context.Domain.Handler.BuildMappingSchema();
-                    CreateGenerators();
-                    break;
-                  case DomainBuildMode.BlockUpgrade:
-                    context.Domain.Handler.BuildMappingSchema();
-                    CreateGenerators();
-                    break;
-                  default:
-                    throw new NotImplementedException();
-                  }
-                }
+
+                schemaProcessor.Invoke();
+
+                context.Domain.Handler.BuildMappingSchema();
+                CreateGenerators();
+
+                dataProcessor.Invoke();
+
                 transactionScope.Complete();
               }
             }
@@ -95,33 +148,25 @@ namespace Xtensive.Storage.Building.Builders
           catch (DomainBuilderException e) {
             context.RegisterError(e);
           }
-
           context.EnsureBuildSucceed();
         }
       }
       return context.Domain;
     }
 
-    private static void UpdateAssembliesData()
-    {
-      throw new NotImplementedException();
-    }
 
-    private static void RunUpgradeScripts()
-    {
-      throw new NotImplementedException();
-    }
 
-    private static void BuildRcModel()
+    /// <summary>
+    /// Builds the new <see cref="Domain"/> according to specified configuration.
+    /// </summary>
+    /// <param name="configuration">The storage configuration.</param>
+    /// <returns>Newly created <see cref="Domain"/>.</returns>
+    /// <exception cref="ArgumentNullException">When <paramref name="configuration"/> is null.</exception>
+    /// <exception cref="DomainBuilderException">When at least one error have been occurred 
+    /// during storage building process.</exception>
+    public static Domain Build(DomainConfiguration configuration)
     {
-      throw new NotImplementedException();
-    }
-
-    private static bool CheckAssemblyVersions()
-    {
-      // TODO: Implement
-      return true;
-      throw new NotImplementedException();
+      return BuildRecreate(configuration);
     }
 
     #region ValidateXxx methods
@@ -168,7 +213,7 @@ namespace Xtensive.Storage.Building.Builders
             typeInfo.TypeId = type.Id;
         }
       }
-    }    
+    }
 
     private static void GenerateNewTypeIds()
     {

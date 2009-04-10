@@ -151,6 +151,20 @@ namespace Xtensive.Storage
       get { return SessionScope.CurrentSession; }
     }
 
+    /// <summary>
+    /// Gets the current <see cref="Session"/>, or throws <see cref="InvalidOperationException"/>, if active <see cref="Session"/> is not found.
+    /// </summary>
+    /// <returns>Current session.</returns>
+    /// <exception cref="InvalidOperationException">Active context is not found.</exception>
+    public static Session Demand()
+    {
+      var currentSession = Current;
+      if (currentSession==null)        
+        throw new InvalidOperationException(
+          string.Format(Strings.ActiveXIsNotFound, typeof(Session)));
+      return currentSession;
+    }
+
     /// <inheritdoc/>
     public SessionScope Activate()
     {

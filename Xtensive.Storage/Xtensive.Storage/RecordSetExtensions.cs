@@ -37,7 +37,8 @@ namespace Xtensive.Storage
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
     public static IEnumerable<Entity> ToEntities(this RecordSet source, Type type)
     {
-      var parser = Domain.Current.RecordSetParser;
+      Domain domain = Domain.Demand();
+      var parser = domain.RecordSetParser;
       var session = Session.Current;
       int keyIndex = -1;
       foreach (var record in parser.Parse(source)) {
@@ -79,7 +80,8 @@ namespace Xtensive.Storage
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
     public static IEnumerable<Entity> ToEntities(this RecordSet source, int primaryKeyIndex)
     {
-      var parser = Domain.Current.RecordSetParser;
+      Domain domain = Domain.Demand();
+      var parser = domain.RecordSetParser;
       var session = Session.Current;
       foreach (var record in parser.Parse(source)) {
         var pk = record[primaryKeyIndex];
@@ -92,12 +94,14 @@ namespace Xtensive.Storage
 
     public static IEnumerable<Record> Parse(this RecordSet source)
     {
-      return Domain.Current.RecordSetParser.Parse(source);
+      Domain domain = Domain.Demand();
+      return domain.RecordSetParser.Parse(source);
     }
 
     public static Record ParseFirst(this RecordSet source)
     {
-      return Domain.Current.RecordSetParser.ParseFirst(source);
+      Domain domain = Domain.Demand();
+      return domain.RecordSetParser.ParseFirst(source);
     }
   }
 }

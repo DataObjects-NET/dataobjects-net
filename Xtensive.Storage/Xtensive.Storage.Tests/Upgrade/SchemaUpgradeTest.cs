@@ -8,7 +8,9 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Configuration.TypeRegistry;
 using Xtensive.Storage.Internals;
@@ -127,22 +129,16 @@ namespace Xtensive.Storage.Tests.Upgrade
       BuildSecondDomain();
     }
 
-    private void Upgrade()
-    {
-      var configuration = GetConfiguration(typeof (Model_2.Person));
-      SchemaUpgradeHelper upgradeHelper = new SchemaUpgradeHelper(configuration);
-      bool isActual = upgradeHelper.IsSchemaActual();
-      Assert.IsFalse(isActual);
-      upgradeHelper.UpgradeSchema();      
-    }
-
-
     private void BuildFirstModel()
     {
       DomainConfiguration configuration = GetConfiguration(typeof(Model_1.Person));
+      configuration.BuildMode = DomainBuildMode.Recreate;
       Domain domain = Domain.Build(configuration);
       using (domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
+//          SchemaUpgradeHelper helper = new SchemaUpgradeHelper(configuration);
+//          helper.SetInitialSchemaVersion();
+
           new Model_1.Person
             {
               Address = new Model_1.Address {City = "Mumbai"},
@@ -158,9 +154,19 @@ namespace Xtensive.Storage.Tests.Upgrade
       }
     }
 
+    private void Upgrade()
+    {
+      var configuration = GetConfiguration(typeof (Model_2.Person));
+      SchemaUpgradeHelper upgradeHelper = new SchemaUpgradeHelper(configuration);
+      bool isActual = upgradeHelper.IsSchemaActual();
+      Assert.IsFalse(isActual);
+      upgradeHelper.UpgradeSchema();      
+    }
+
     private void BuildSecondDomain()
     {
       DomainConfiguration configuration = GetConfiguration(typeof(Model_2.Person));
+      configuration.BuildMode = DomainBuildMode.BlockUpgrade;
       Domain domain = Domain.Build(configuration);
       using (domain.OpenSession()) {
         using (Transaction.Open()) {

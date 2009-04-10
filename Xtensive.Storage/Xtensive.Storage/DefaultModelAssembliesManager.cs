@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Xtensive.Storage.Internals;
 
@@ -19,7 +18,7 @@ namespace Xtensive.Storage
     {
       return types
         .Select(type => type.Assembly).Distinct()
-        .Select(assembly => (IModelAssembly) new ModelAssembly(assembly))
+        .Select(assembly => new ModelAssembly(assembly)).Cast<IModelAssembly>()
         .ToList();
     }
   }

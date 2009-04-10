@@ -44,6 +44,12 @@ namespace Xtensive.Storage
         var session = Session.Current;
         return session!=null ? session.Domain : null;
       }
+    }    
+
+    internal static Domain Demand()
+    {
+      var session = Session.Demand();
+      return session.Domain;
     }
     
     /// <summary>

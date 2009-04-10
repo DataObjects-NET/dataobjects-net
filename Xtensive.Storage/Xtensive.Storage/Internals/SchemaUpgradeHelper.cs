@@ -20,6 +20,13 @@ namespace Xtensive.Storage.Internals
     private readonly DomainConfiguration domainConfiguratuion;
     private readonly IModelAssembliesManager modelAssembliesManager;
 
+    
+
+    public static void CheckSchemaIsActual()
+    {
+      
+    }
+
     public bool IsSchemaActual()
     {
       var modelAssemblies = modelAssembliesManager.GetModelAssemblies(domainConfiguratuion.Types);
@@ -30,8 +37,8 @@ namespace Xtensive.Storage.Internals
         configuration.Types.Clear(); 
 
         // Build domain to read schema versions from storage
-        Domain systemDomain = Domain.Build(configuration);
-        using (systemDomain.OpenSystemSession()) {
+        Domain domain = Domain.Build(configuration);
+        using (domain.OpenSystemSession()) {
           using (Transaction.Open()) {
             foreach (var modelAssembly in modelAssemblies) {
               string schemaVersion = GetSchemaVersion(modelAssembly.AssemblyName);
@@ -66,6 +73,14 @@ namespace Xtensive.Storage.Internals
           UpgradeSchema(upgrader);
         }
       }
+    }
+
+    public static void SetInitialSchemaVersion()
+    {
+//      List<IModelAssembly> modelAssemblies = GetModelAssemblies();
+//      foreach (var assembly in modelAssemblies) {
+//        SetSchemaVersion(assembly.AssemblyName, assembly.ModelVersion);
+//      }
     }
 
     private void UpgradeSchema(ISchemaUpgrader upgrader)
@@ -109,7 +124,7 @@ namespace Xtensive.Storage.Internals
 
     #region Access to meta objects
 
-    private static void SetSchemaVersion(string assemblyName, string version)
+    public static void SetSchemaVersion(string assemblyName, string version)
     {
       Assembly assembly = GetAssemblyObject(assemblyName);
       if (assembly==null)
@@ -117,9 +132,9 @@ namespace Xtensive.Storage.Internals
       assembly.Version = version;
     }
 
-    private static string GetSchemaVersion(string assemblyName)
+    public static string GetSchemaVersion(string assemblyName)
     {
-      Assembly assembly = GetAssemblyObject(assemblyName);
+      Assembly assembly = GetAssemblyObject(assemblyName);  
       if (assembly==null)
         throw new InvalidOperationException("Schema version is not found.");
       return assembly.Version;
