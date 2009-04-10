@@ -29,8 +29,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IsSimpleTest()
     {
-       var result = Query<Product>.All.Where(p => p is DiscontinuedProduct);
-       QueryDumper.Dump(result);
+      var result = Query<Product>.All.Where(p => p is DiscontinuedProduct);
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -39,13 +39,13 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.AreEqual(
         Query<Product>.All
           .Where(p => p is DiscontinuedProduct)
-          .Select(product => (DiscontinuedProduct)product)
+          .Select(product => (DiscontinuedProduct) product)
           .Count(),
         Query<DiscontinuedProduct>.All.Count());
       Assert.AreEqual(
         Query<Product>.All
           .Where(p => p is ActiveProduct)
-          .Select(product => (ActiveProduct)product)
+          .Select(product => (ActiveProduct) product)
           .Count(),
         Query<ActiveProduct>.All.Count());
       Assert.AreEqual(
@@ -75,6 +75,30 @@ namespace Xtensive.Storage.Tests.Linq
 
       var activeProductCount1 = Query<ActiveProduct>.All.Count();
       var activeProductCount2 = Query<ActiveProduct>.All.OfType<ActiveProduct>().Count();
+      Assert.AreEqual(activeProductCount1, activeProductCount2);
+    }
+
+    [Test]
+    public void CastSimpleTest()
+    {
+      var discontinuedProducts = Query<DiscontinuedProduct>.All.Cast<Product>();
+      QueryDumper.Dump(discontinuedProducts);
+    }
+
+
+    [Test]
+    public void CastCountTest()
+    {
+      var productCount1 = Query<Product>.All.Count();
+      var productCount2 = Query<Product>.All.Cast<Product>().Count();
+      Assert.AreEqual(productCount1, productCount2);
+
+      var discontinuedProductCount1 = Query<DiscontinuedProduct>.All.Count();
+      var discontinuedProductCount2 = Query<DiscontinuedProduct>.All.Cast<Product>().Where(product => product!=null).Count();
+      Assert.AreEqual(discontinuedProductCount1, discontinuedProductCount2);
+
+      var activeProductCount1 = Query<ActiveProduct>.All.Count();
+      var activeProductCount2 = Query<ActiveProduct>.All.Cast<Product>().Where(product => product!=null).Count();
       Assert.AreEqual(activeProductCount1, activeProductCount2);
     }
   }
