@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Resources;
 using Assembly=Xtensive.Storage.Metadata.Assembly;
@@ -20,47 +21,55 @@ namespace Xtensive.Storage.Internals
     private readonly DomainConfiguration domainConfiguratuion;
     private readonly IModelAssembliesManager modelAssembliesManager;
 
-    
-
-    public static void CheckSchemaIsActual()
-    {
-      
-    }
-
-    public bool IsSchemaActual()
+    public void CheckSchemaIsActual()
     {
       var modelAssemblies = modelAssembliesManager.GetModelAssemblies(domainConfiguratuion.Types);
-      if (modelAssemblies.Count > 0) {
-
-        // New configuration with system types only
-        var configuration = (DomainConfiguration) domainConfiguratuion.Clone();
-        configuration.Types.Clear(); 
-
-        // Build domain to read schema versions from storage
-        Domain domain = Domain.Build(configuration);
-        using (domain.OpenSystemSession()) {
-          using (Transaction.Open()) {
-            foreach (var modelAssembly in modelAssemblies) {
-              string schemaVersion = GetSchemaVersion(modelAssembly.AssemblyName);
-              if (schemaVersion!=modelAssembly.ModelVersion)
-                return false;
-            }
-          }
-        }
+      foreach (var assembly in modelAssemblies) {
+        string schemaVersion = GetSchemaVersion(assembly.AssemblyName);
+        string modelVersion = assembly.ModelVersion;
+        if (schemaVersion!=modelVersion)
+          throw new InvalidOperationException(string.Format(
+            "Actual schema version of assembly '{0}' is expected to be '{1}', but currently is '{2}'.", 
+            assembly.AssemblyName, modelVersion, schemaVersion));
       }
-      return true;
     }
 
-    public void UpgradeSchema()
+
+    public Dictionary<IModelAssembly, string> ReadSchemaVersions(IEnumerable<IModelAssembly> assemblies)
     {
-      List<IModelAssembly> modelAssemblies = GetModelAssemblies();
-      
+      DomainConfiguration configuration = (DomainConfiguration) domainConfiguratuion.Clone();
+      configuration.Types.Clear();
+      VersionsReader reader = new VersionsReader(assemblies);
+      DomainBuilder.BuildForAccessMetadata(configuration, reader.ReadData);
+      return reader.Versions;
+    }
+
+    private class VersionsReader
+    {
+      public Dictionary<IModelAssembly, string> Versions { get; private set;}
+
+      private readonly IEnumerable<IModelAssembly> assemblies;
+
+      public void ReadData()
+      {
+        Versions = GetSchemaVersions(assemblies);
+      }
+
+      public VersionsReader(IEnumerable<IModelAssembly> assemblies)
+      {
+        this.assemblies = assemblies;
+      }
+    }
+
+    public void UpgradeData()
+    {
+      List<IModelAssembly> assemblies = GetModelAssemblies();
+      var schemaVersions = ReadSchemaVersions(assemblies);
+
       // TODO: Sort assemblies topologically
       // TODO: Use upgraders from different assemblies, but same version together
       
-      var schemaVersions = GetSchemaVersions(modelAssemblies);
-
-      foreach (IModelAssembly assembly in modelAssemblies) {
+      foreach (IModelAssembly assembly in assemblies) {
         if (assembly.ModelVersion==schemaVersions[assembly])
           continue;
         var upgraders = assembly.GetUpgraders();
@@ -70,33 +79,29 @@ namespace Xtensive.Storage.Internals
           ISchemaUpgrader upgrader = GetSuitableUpgrader(assembly.AssemblyName, schemaVersion, upgraders);
           if (upgrader==null)
             break;
-          UpgradeSchema(upgrader);
+
+          var configuration = (DomainConfiguration) domainConfiguratuion.Clone();
+          upgrader.RegisterRecycledTypes(configuration.Types);
+
+          DomainBuilder.BuildForUpgrade(configuration,() => UpgradeData(upgrader));
         }
       }
     }
 
-    public static void SetInitialSchemaVersion()
+    private void UpgradeData(ISchemaUpgrader upgrader)
     {
-//      List<IModelAssembly> modelAssemblies = GetModelAssemblies();
-//      foreach (var assembly in modelAssemblies) {
-//        SetSchemaVersion(assembly.AssemblyName, assembly.ModelVersion);
-//      }
+      string schemaVersion = GetSchemaVersion(upgrader.AssemblyName);
+      if (schemaVersion!=upgrader.SourceVersion)
+        throw new InvalidOperationException(Strings.ExInvalidUpgraderVersion);
+      upgrader.RunUpgradeScript();
+      SetSchemaVersion(upgrader.AssemblyName, upgrader.ResultVersion);
     }
 
-    private void UpgradeSchema(ISchemaUpgrader upgrader)
+    public void SetInitialSchemaVersion()
     {
-      var configuration = (DomainConfiguration) domainConfiguratuion.Clone();
-      upgrader.RegisterRecycledTypes(configuration.Types);
-      Domain domain = Domain.Build(configuration);
-      using (domain.OpenSystemSession()) {
-        using (var transactionScope = Transaction.Open()) {
-          string schemaVersion = GetSchemaVersion(upgrader.AssemblyName);
-          if (schemaVersion!=upgrader.SourceVersion)
-            throw new InvalidOperationException(Strings.ExInvalidUpgraderVersion);
-          upgrader.RunUpgradeScript();
-          SetSchemaVersion(upgrader.AssemblyName, upgrader.ResultVersion);
-          transactionScope.Complete();
-        }
+      var modelAssemblies = modelAssembliesManager.GetModelAssemblies(domainConfiguratuion.Types);
+      foreach (var assembly in modelAssemblies) {
+        SetSchemaVersion(assembly.AssemblyName, assembly.ModelVersion);
       }
     }
 
@@ -105,8 +110,9 @@ namespace Xtensive.Storage.Internals
       return modelAssembliesManager.GetModelAssemblies(domainConfiguratuion.Types);
     }
 
-    private static Dictionary<IModelAssembly, string> GetSchemaVersions(IEnumerable<IModelAssembly> assemblies)
+    private Dictionary<IModelAssembly, string> GetSchemaVersions()
     {
+      var assemblies = modelAssembliesManager.GetModelAssemblies(domainConfiguratuion.Types);
       var result = new Dictionary<IModelAssembly, string>();
       foreach (var assembly in assemblies)
         result[assembly] = GetSchemaVersion(assembly.AssemblyName);
@@ -123,6 +129,14 @@ namespace Xtensive.Storage.Internals
     }
 
     #region Access to meta objects
+
+    private static Dictionary<IModelAssembly, string> GetSchemaVersions(IEnumerable<IModelAssembly> assemblies)
+    {
+      var result = new Dictionary<IModelAssembly, string>();
+      foreach (var assembly in assemblies)
+        result[assembly] = GetSchemaVersion(assembly.AssemblyName);
+      return result;
+    }
 
     public static void SetSchemaVersion(string assemblyName, string version)
     {

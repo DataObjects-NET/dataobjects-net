@@ -32,71 +32,41 @@ namespace Xtensive.Storage.Building.Builders
     private static readonly PluginManager<ProviderAttribute> pluginManager =
       new PluginManager<ProviderAttribute>(typeof (HandlerFactory), AppDomain.CurrentDomain.BaseDirectory);
 
-    private static void Upgrade(DomainConfiguration configuration)
+    internal static void BuildForUpgrade(DomainConfiguration configuration, Action upgradeDataProcessor)
     {
-      var newConfiguration = (DomainConfiguration) configuration.Clone();
-      newConfiguration.Types.Register(null,"Recycled");
-
-      string version = GetSchemaVersion(configuration);
-      if (version=="4")
-
-      InternalBuild(newConfiguration, 
-        () => {
-          var context = BuildingContext.Current;
-          var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
-          upgradeHandler.UpdateStorageSchema();
-        },
-        () => {
-          // Upgrade
-          SchemaUpgradeHelper.SetSchemaVersion("Aaaa", "5");
-        });
+      InternalBuild(configuration, 
+        UpdateSchema,
+        upgradeDataProcessor);
     }
 
-    private static string GetSchemaVersion(DomainConfiguration configuration)
+    internal static void BuildForAccessMetadata(DomainConfiguration configuration, Action metadataReader)
     {
-      var newConfiguration = (DomainConfiguration) configuration.Clone();
-      newConfiguration.Types.Clear();
-      VersionExtractor extractor = new VersionExtractor();
-      InternalBuild(newConfiguration, 
+      InternalBuild(configuration, 
         () => { },
-        extractor.Invoke);
-      return extractor.version;
-    }
-
-    class VersionExtractor
-    {
-      public string version;
-      public void Invoke()
-      {
-        version = SchemaUpgradeHelper.GetSchemaVersion("Aaaa");
-      }
-    }
-
-    private static void CheckVersion(DomainConfiguration configuration)
-    {
-      var newConfiguration = (DomainConfiguration) configuration.Clone();
-      newConfiguration.Types.Clear();
-
-      InternalBuild(newConfiguration, 
-        () => { },
-        () => {
-          if (SchemaUpgradeHelper.GetSchemaVersion("Aaaa")!="5")
-            throw new Exception();
-        });
+        metadataReader);
     }
 
     private static Domain BuildBlockUpgrade(DomainConfiguration configuration)
     {
+      SchemaUpgradeHelper helper = new SchemaUpgradeHelper(configuration);
       return InternalBuild(configuration, 
         () => { },
-        SchemaUpgradeHelper.CheckSchemaIsActual);
+        helper.CheckSchemaIsActual);
     }
 
     private static Domain BuildRecreate(DomainConfiguration configuration)
     {
+      SchemaUpgradeHelper helper = new SchemaUpgradeHelper(configuration);
       return InternalBuild(configuration, 
         RecreateSchema, 
-        SchemaUpgradeHelper.SetInitialSchemaVersion);
+        helper.SetInitialSchemaVersion);
+    }
+
+    private static Domain BuildPerformStrict(DomainConfiguration configuration)
+    {
+      SchemaUpgradeHelper helper = new SchemaUpgradeHelper(configuration);
+      helper.UpgradeData();
+      return BuildBlockUpgrade(configuration);
     }
 
     private static void RecreateSchema()
@@ -106,7 +76,13 @@ namespace Xtensive.Storage.Building.Builders
       upgradeHandler.ClearStorageSchema();
       upgradeHandler.UpdateStorageSchema();
     }
-    
+
+    private static void UpdateSchema()
+    {
+      var context = BuildingContext.Current;
+      var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
+      upgradeHandler.UpdateStorageSchema();
+    }
 
     public static Domain InternalBuild(DomainConfiguration configuration, Action schemaProcessor, Action dataProcessor)
     {
@@ -166,7 +142,19 @@ namespace Xtensive.Storage.Building.Builders
     /// during storage building process.</exception>
     public static Domain Build(DomainConfiguration configuration)
     {
-      return BuildRecreate(configuration);
+      switch (configuration.BuildMode) {
+        case DomainBuildMode.Recreate: 
+          return BuildRecreate(configuration);
+        case DomainBuildMode.BlockUpgrade:
+          return BuildBlockUpgrade(configuration);
+        case DomainBuildMode.PerformStrict:
+          return BuildPerformStrict(configuration);
+        
+
+        default:
+          return BuildRecreate(configuration);
+      }
+      
     }
 
     #region ValidateXxx methods

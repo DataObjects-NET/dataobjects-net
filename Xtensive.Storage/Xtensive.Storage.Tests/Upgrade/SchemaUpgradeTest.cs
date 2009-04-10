@@ -125,7 +125,6 @@ namespace Xtensive.Storage.Tests.Upgrade
     public void MainTest()
     {
       BuildFirstModel();
-      Upgrade();
       BuildSecondDomain();
     }
 
@@ -136,9 +135,6 @@ namespace Xtensive.Storage.Tests.Upgrade
       Domain domain = Domain.Build(configuration);
       using (domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
-//          SchemaUpgradeHelper helper = new SchemaUpgradeHelper(configuration);
-//          helper.SetInitialSchemaVersion();
-
           new Model_1.Person
             {
               Address = new Model_1.Address {City = "Mumbai"},
@@ -154,19 +150,10 @@ namespace Xtensive.Storage.Tests.Upgrade
       }
     }
 
-    private void Upgrade()
-    {
-      var configuration = GetConfiguration(typeof (Model_2.Person));
-      SchemaUpgradeHelper upgradeHelper = new SchemaUpgradeHelper(configuration);
-      bool isActual = upgradeHelper.IsSchemaActual();
-      Assert.IsFalse(isActual);
-      upgradeHelper.UpgradeSchema();      
-    }
-
     private void BuildSecondDomain()
     {
       DomainConfiguration configuration = GetConfiguration(typeof(Model_2.Person));
-      configuration.BuildMode = DomainBuildMode.BlockUpgrade;
+      configuration.BuildMode = DomainBuildMode.PerformStrict;
       Domain domain = Domain.Build(configuration);
       using (domain.OpenSession()) {
         using (Transaction.Open()) {
