@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    public override void BuildRecreate()
+    public override void BuildMappingSchema()
     {
       BuildRealIndexes();
       foreach (var pair in Handlers.Domain.Model.Types.SelectMany(type => type.Indexes.Where(i => i.ReflectedType==type).Union(type.AffectedIndexes).Distinct().Select(i => new Pair<IndexInfo, TypeInfo>(i, type)))) {

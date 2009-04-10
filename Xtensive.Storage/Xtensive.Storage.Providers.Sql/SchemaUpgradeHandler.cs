@@ -87,6 +87,8 @@ namespace Xtensive.Storage.Providers.Sql
         .CreateServer(existingModel.DefaultServer.Name)
         .CreateCatalog(existingModel.DefaultServer.DefaultCatalog.Name)
         .CreateSchema(existingModel.DefaultServer.DefaultCatalog.DefaultSchema.Name);
+
+      // Tables, columns, indexes.
       foreach (var type in domainModel.Types) {
         var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
         if (primaryIndex==null || tables.ContainsKey(primaryIndex))
@@ -96,13 +98,17 @@ namespace Xtensive.Storage.Providers.Sql
         CreateColumns(primaryIndex, table);
         CreateSecondaryIndexes(type, primaryIndex, table);
       }
+
+      // Foreign keys.
       if ((Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0)
         BuildForeignKeys(domainModel.Associations, tables);
       if ((Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Hierarchy) > 0)
         BuildHierarchyReferences(domainModel.Types.Entities, tables);
+
+      // Sequences.
       foreach (var generator in domainModel.Generators) {
-        if (generator.Type!=typeof (KeyGenerator) 
-          || (Type.GetTypeCode(generator.Type)==TypeCode.Object && generator.TupleDescriptor[0] == typeof(Guid)))
+        if (generator.Type!=typeof (KeyGenerator)
+          || (Type.GetTypeCode(generator.Type)==TypeCode.Object && generator.TupleDescriptor[0]==typeof (Guid)))
           continue;
         var genTable = schema.CreateTable(generator.MappingName);
         var columnType =

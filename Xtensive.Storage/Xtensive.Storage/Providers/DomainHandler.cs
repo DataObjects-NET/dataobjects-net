@@ -37,21 +37,12 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public CompilationContext CompilationContext { get; private set; }
 
-
-    // Abstract methods
-
     /// <summary>
     /// Builds the <see cref="ICompiler"/>.
     /// Invoked from <see cref="Initialize"/>.
     /// </summary>
     public ICompiler ServerSideCompiler { get; protected set; }
-
-    /// <summary>
-    /// Builds the compiler.
-    /// </summary>
-    /// <param name="compiledSources">The compiled sources. Shared across all compilers.</param>
-    protected abstract ICompiler BuildCompiler(BindingCollection<object, ExecutableProvider> compiledSources);
-
+    
     /// <summary>
     /// Gets the compiler extensions.
     /// </summary>
@@ -60,8 +51,15 @@ namespace Xtensive.Storage.Providers
       return (IMemberCompilerProvider<T>)compilerExtensions[typeof(T)];
     }
 
+
     // Abstract methods
 
+    /// <summary>
+    /// Builds the compiler.
+    /// </summary>
+    /// <param name="compiledSources">The compiled sources. Shared across all compilers.</param>
+    protected abstract ICompiler BuildCompiler(BindingCollection<object, ExecutableProvider> compiledSources);
+    
     /// <summary>
     /// Gets the compiler extensions types.
     /// </summary>
@@ -78,9 +76,9 @@ namespace Xtensive.Storage.Providers
     protected abstract IOptimizer BuildOptimizer();
 
     /// <summary>
-    /// Builds the <see cref="Domain"/> in recreate mode.
+    /// Builds the mapping schema.
     /// </summary>
-    public abstract void BuildRecreate();
+    public abstract void BuildMappingSchema();
 
     /// <summary>
     /// Opens the session with specified <paramref name="type"/>.

@@ -14,6 +14,7 @@ using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using TypeInfo=Xtensive.Storage.Model.TypeInfo;
@@ -21,6 +22,7 @@ using Xtensive.Modelling.Comparison;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Convert;
+using Activator=System.Activator;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -75,11 +77,11 @@ namespace Xtensive.Storage.Building.Builders
                     var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
                     upgradeHandler.ClearStorageSchema();
                     upgradeHandler.UpdateStorageSchema();
-                    context.Domain.Handler.BuildRecreate();
+                    context.Domain.Handler.BuildMappingSchema();
                     CreateGenerators();
                     break;
                   case DomainBuildMode.BlockUpgrade:
-                    context.Domain.Handler.BuildRecreate();
+                    context.Domain.Handler.BuildMappingSchema();
                     CreateGenerators();
                     break;
                   default:

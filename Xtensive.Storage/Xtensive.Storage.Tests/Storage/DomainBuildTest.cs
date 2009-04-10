@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Storage
       if (Domain != null)
         Domain.DisposeSafely();
 
-      var config = DomainConfigurationFactory.Create("mssql2005");
+      var config = DomainConfigurationFactory.Create("pgsql");
       config.BuildMode = buildMode;
       if (!clearSchema)
         config.Types.Register(typeof(A).Assembly, typeof(A).Namespace);

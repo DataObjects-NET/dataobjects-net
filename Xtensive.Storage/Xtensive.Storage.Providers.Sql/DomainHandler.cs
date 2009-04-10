@@ -80,20 +80,8 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override void BuildRecreate()
-    {
-      BuildMappingSchema();
-
-      // var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
-      // var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
-      // ISqlCompileUnit syncScript = GenerateSyncCatalogScript(Handlers.Domain.Model, existingSchema, Schema);
-      // sessionHandler.ExecuteNonQuery(syncScript);
-      // string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;
-      // Schema = SqlModel.Build(modelProvider).DefaultServer.Catalogs[catalogName].DefaultSchema;
-    }
-    
     /// <exception cref="DomainBuilderException"><c>DomainBuilderException</c>.</exception>
-    private void BuildMappingSchema()
+    public override void BuildMappingSchema()
     {
       var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
       var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
@@ -156,25 +144,13 @@ namespace Xtensive.Storage.Providers.Sql
       SqlRequestBuilder.Initialize();
     }
 
+    /// <inheritdoc/>
     public override void InitializeSystemSession()
     {
       base.InitializeSystemSession();
       SqlDriver = ((SessionHandler)BuildingContext.Current.SystemSessionHandler).Connection.Driver;
       ValueTypeMapper = Handlers.HandlerFactory.CreateHandler<SqlValueTypeMapper>();
       ValueTypeMapper.Initialize();
-
-      // var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
-      // var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
-      // SqlModel existingModel = SqlModel.Build(modelProvider);
-      // string serverName = existingModel.DefaultServer.Name;
-      // string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;
-      // existingSchema = existingModel.DefaultServer.Catalogs[catalogName].DefaultSchema;
-      // string schemaName = existingSchema.Name;
-      // var sqlModel = new SqlModel();
-      // Server server = sqlModel.CreateServer(serverName);
-      // Catalog catalog = server.CreateCatalog(catalogName);
-      // Schema = catalog.CreateSchema(schemaName);
-      // BuildNewSchema();
     }
 
     #region Obsolete
