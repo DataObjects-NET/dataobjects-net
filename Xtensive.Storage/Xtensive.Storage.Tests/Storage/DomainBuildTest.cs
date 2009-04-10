@@ -59,8 +59,8 @@ namespace Xtensive.Storage.Tests.Storage
           for (int i = 0; i < 10; i++) {
             var a = new A();
             a.Col1 = i.ToString();
-            transaction.Complete();
           }
+          transaction.Complete();
         }
       }
     }
@@ -74,8 +74,8 @@ namespace Xtensive.Storage.Tests.Storage
           for (int i = 0; i < 129; i++) {
             var a = new A();
             a.Col1 = i.ToString();
-            transaction.Complete();
           }
+          transaction.Complete();
         }
       }
       BuildDomain(DomainBuildMode.BlockUpgrade, false);
@@ -89,9 +89,9 @@ namespace Xtensive.Storage.Tests.Storage
           for (int i = 0; i < 10; i++) {
             var a = new A();
             a.Col1 = i.ToString();
-            transaction.Complete();
           }
           Assert.AreEqual(139, result.Count());
+          transaction.Complete();
         }
       }
     }

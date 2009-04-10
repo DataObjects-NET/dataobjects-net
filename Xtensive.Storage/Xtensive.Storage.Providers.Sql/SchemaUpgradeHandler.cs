@@ -110,15 +110,11 @@ namespace Xtensive.Storage.Providers.Sql
         if (generator.Type!=typeof (KeyGenerator)
           || (Type.GetTypeCode(generator.Type)==TypeCode.Object && generator.TupleDescriptor[0]==typeof (Guid)))
           continue;
-        var genTable = schema.CreateTable(generator.MappingName);
-        var columnType =
-          SessionHandler.DomainHandler.ValueTypeMapper.BuildSqlValueType(generator.TupleDescriptor[0], 0);
-        var column = genTable.CreateColumn("ID", columnType);
-        column.SequenceDescriptor = new SequenceDescriptor(column, generator.CacheSize, generator.CacheSize);
+        BuildSequence(schema, generator);
       }
       return schema;
     }
-
+    
     private static SqlBatch GenerateClearScript(Schema schema)
     {
       var batch = SqlFactory.Batch();
@@ -162,6 +158,20 @@ namespace Xtensive.Storage.Providers.Sql
 
     #region ExtractDomainSchema methods
 
+    /// <summary>
+    /// Builds the sequence.
+    /// </summary>
+    /// <param name="schema">The schema.</param>
+    /// <param name="generator">The generator.</param>
+    protected virtual void BuildSequence(Schema schema, GeneratorInfo generator)
+    {
+      var genTable = schema.CreateTable(generator.MappingName);
+      var columnType =
+        SessionHandler.DomainHandler.ValueTypeMapper.BuildSqlValueType(generator.TupleDescriptor[0], 0);
+      var column = genTable.CreateColumn("ID", columnType);
+      column.SequenceDescriptor = new SequenceDescriptor(column, generator.CacheSize, generator.CacheSize);
+    }
+    
     private void CreateColumns(IndexInfo primaryIndex, Table table)
     {
       var keyColumns = new List<TableColumn>();
