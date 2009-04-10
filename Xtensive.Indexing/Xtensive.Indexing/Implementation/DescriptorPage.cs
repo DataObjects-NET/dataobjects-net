@@ -176,15 +176,18 @@ namespace Xtensive.Indexing.Implementation
       this.configuration = configuration;
       pageSize = configuration.PageSize;
       bool hasCountMeasure = false;
+      bool hasSizeMeasure = false;
       for (int i = 0; i < configuration.Measures.Count; i++) {
-        if (configuration.Measures[i] is CountMeasure<TItem, long>) {
+        if (configuration.Measures[i] is CountMeasure<TItem, long>)
           hasCountMeasure = true;
-        }
+        else if (configuration.Measures[i] is SizeMeasure<TItem>)
+          hasSizeMeasure = true;
         AddMeasure(configuration.Measures[i]);
       }
-      if (!hasCountMeasure) {
+      if (!hasCountMeasure)
         AddMeasure(new CountMeasure<TItem, long>());
-      }
+      if(!hasSizeMeasure)
+        AddMeasure(new SizeMeasure<TItem>());
     }
   }
 }

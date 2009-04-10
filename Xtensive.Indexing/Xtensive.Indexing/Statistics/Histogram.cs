@@ -17,6 +17,7 @@ namespace Xtensive.Indexing.Statistics
   internal class Histogram<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
   {
     public static readonly int DefaultMaxKeyCount = 1000;
+    public static readonly double DefaultMinFillFactor = 0.4;
 
     private readonly SortedList<TKey, TValue> data;
     private readonly Arithmetic<TValue> arithmetic;
@@ -28,53 +29,42 @@ namespace Xtensive.Indexing.Statistics
     public void AddOrReplace(TKey key, TValue value)
     {
       if (data.ContainsKey(key)) {
-        data[key] = value;
+        data[key] = CalculateMergedValue(data[key], value);
         return;
       }
       data.Add(key, value);
-      AdjustValueOfNewFirstKey(key);
       if (data.Count > MaxKeyCount)
         Shrink();
     }
 
     public void Merge(Histogram<TKey, TValue> other)
     {
-      bool isFirst = true;
       foreach (var pair in other)
-        if(isFirst) {
-          isFirst = false;
-          var firstKey = data.Keys[0];
-          if(keyComparer.Compare(pair.Key, firstKey) < 0) {
-            data.Remove(firstKey);
-            data.Add(pair.Key, pair.Value);
-          }
-        }
-        else if (data.ContainsKey(pair.Key))
-          data[pair.Key] = arithmetic.Divide(arithmetic.Add(data[pair.Key], pair.Value), 2);
+        if (data.ContainsKey(pair.Key))
+          MergeExistingKey(pair);
         else {
           data.Add(pair.Key, pair.Value);
-          AdjustValueOfNewFirstKey(pair.Key);
         }
       while(data.Count > MaxKeyCount)
         Shrink();
     }
 
-    private void AdjustValueOfNewFirstKey(TKey newKey)
+    private void MergeExistingKey(KeyValuePair<TKey, TValue> pair)
     {
-      if (keyComparer.Compare(data.Keys[0], newKey) == 0) {
-        var zeroValue = data[data.Keys[1]];
-        data[data.Keys[1]] = data[newKey];
-        data[newKey] = zeroValue;
-      }
+      data[pair.Key] = CalculateMergedValue(data[pair.Key], pair.Value);
+    }
+
+    private TValue CalculateMergedValue(TValue oldValue, TValue newValue)
+    {
+      return arithmetic.Add(oldValue, newValue);
     }
 
     private void Shrink()
     {
       Pair<KeyValuePair<TKey, TValue>> minimalPair = FindNeighboringKeysWithMinimalValueDiff();
-      TValue avgValue = arithmetic.Divide(
-        arithmetic.Add(minimalPair.First.Value, minimalPair.Second.Value), 2);
-      data.Remove(minimalPair.First.Key);
-      data[minimalPair.Second.Key] = avgValue;
+      TValue mergedValue = CalculateMergedValue(minimalPair.First.Value, minimalPair.Second.Value);
+      data.Remove(minimalPair.Second.Key);
+      data[minimalPair.First.Key] = mergedValue;
     }
 
     private Pair<KeyValuePair<TKey, TValue>> FindNeighboringKeysWithMinimalValueDiff()
@@ -84,14 +74,8 @@ namespace Xtensive.Indexing.Statistics
       KeyValuePair<TKey, TValue>? previous = null;
       TValue minimalDiff = default(TValue);
       var minimalSpecified = false;
-      var isFirst = false;
-      foreach (var pair in data)
-      {
-        if (!isFirst) {
-          isFirst = true;
-          continue;
-        }
-        if (previous == null) {
+      foreach (var pair in data) {
+        if (previous==null) {
           previous = pair;
           continue;
         }
@@ -103,7 +87,8 @@ namespace Xtensive.Indexing.Statistics
           minimalSpecified = true;
           firstMinimal = previous.Value;
           secondMinimal = pair;
-        } else if (valueComparer.Compare(currentDiff, minimalDiff) < 0) {
+        }
+        else if (valueComparer.Compare(currentDiff, minimalDiff) < 0) {
           minimalDiff = currentDiff;
           firstMinimal = previous.Value;
           secondMinimal = pair;
@@ -130,20 +115,21 @@ namespace Xtensive.Indexing.Statistics
     // Constructors
 
     public Histogram(AdvancedComparer<TKey> keyComparer, AdvancedComparer<TValue> valueComparer,
-      int maxKeyCount, TKey firstKey)
+      int maxKeyCount)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyComparer, "keyComparer");
       ArgumentValidator.EnsureArgumentNotNull(valueComparer, "valueComparer");
-      ArgumentValidator.EnsureArgumentNotNull(firstKey, "firstKey");
+      /*ArgumentValidator.EnsureArgumentNotNull(firstKey, "firstKey");*/
       ArgumentValidator.EnsureArgumentIsInRange(maxKeyCount, 2, int.MaxValue, "maxKeyCount");
       this.valueComparer = valueComparer;
       this.keyComparer = keyComparer;
       MaxKeyCount = maxKeyCount;
       arithmetic = ArithmeticProvider.Default.GetArithmetic<TValue>();
-      data = new SortedList<TKey, TValue>(keyComparer.ComparerImplementation)
+      data = new SortedList<TKey, TValue>(keyComparer.ComparerImplementation);
+      /*data = new SortedList<TKey, TValue>(keyComparer.ComparerImplementation)
              {
                {firstKey, arithmetic.Zero}
-             };
+             };*/
     }
   }
 }

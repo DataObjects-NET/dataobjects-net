@@ -28,49 +28,30 @@ namespace Xtensive.Indexing.Tests.Statistics
     [Test]
     public void AddTest()
     {
-      var firstKey = Tuple.Create(tupleDescriptor, 1, "aaa");
       var histogram = new Histogram<Tuple, double>(AdvancedComparer<Tuple>.Default,
-        AdvancedComparer<double>.Default, 10, firstKey);
-      Assert.AreEqual(firstKey, histogram.First().Key);
-      TestInsertionBeforeFirst(histogram, tupleDescriptor);
+        AdvancedComparer<double>.Default, 10);
       TestReplaceAndShrink(histogram, tupleDescriptor);
     }
 
     [Test]
     public void MergeTest()
     {
-      var firstKey0 = Tuple.Create(tupleDescriptor, 1, "aaa");
       var firstHistogram = new Histogram<Tuple, double>(AdvancedComparer<Tuple>.Default,
-        AdvancedComparer<double>.Default, 10, firstKey0);
-      var firstKey1 = Tuple.Create(tupleDescriptor, 2, "aaa");
+        AdvancedComparer<double>.Default, 10);
       var secondHistogram = new Histogram<Tuple, double>(AdvancedComparer<Tuple>.Default,
-        AdvancedComparer<double>.Default, 10, firstKey1);
+        AdvancedComparer<double>.Default, 10);
       var rnd = new Random();
       Fill(firstHistogram, tupleDescriptor, rnd);
       Fill(secondHistogram, tupleDescriptor, rnd);
       firstHistogram.Merge(secondHistogram);
       Assert.AreEqual(10, firstHistogram.Count());
-      Assert.AreEqual(firstKey0, firstHistogram.First().Key);
     }
 
     [Test]
     public void InvalidTest()
     {
-      var firstKey0 = Tuple.Create(tupleDescriptor, 1, "aaa");
       AssertEx.ThrowsArgumentOutOfRangeException(() => new Histogram<Tuple, double>(
-        AdvancedComparer<Tuple>.Default, AdvancedComparer<double>.Default, 1, firstKey0));
-    }
-
-    private static void TestInsertionBeforeFirst(Histogram<Tuple, double> histogram,
-      TupleDescriptor tupleDescriptor)
-    {
-      var rnd = new Random();
-      Tuple key = Tuple.Create(tupleDescriptor, -1, "aaa" + rnd.Next());
-      double value = rnd.NextDouble() * 100;
-      Assert.AreEqual(0, histogram.First().Value);
-      histogram.AddOrReplace(key, value);
-      Assert.AreEqual(0, histogram.First().Value);
-      Assert.AreEqual(key, histogram.First().Key);
+        AdvancedComparer<Tuple>.Default, AdvancedComparer<double>.Default, 1));
     }
 
     private static void TestReplaceAndShrink(Histogram<Tuple, double> histogram,
@@ -86,22 +67,22 @@ namespace Xtensive.Indexing.Tests.Statistics
       var minimalSecond = Tuple.Create(tupleDescriptor, 5, "aaa");
       const double minimalSecondValue = 0.000001;
       histogram.AddOrReplace(minimalSecond, minimalSecondValue);
-      for (int i = 0; i < 5; i++)
+      for (int i = 0; i < 7; i++)
         AddRandom(tupleDescriptor, rnd, histogram);
       Assert.AreEqual(10, histogram.Count());
-      var newValue = value + 1;
+      var newValue = value + value + 1;
       histogram.AddOrReplace(key, value + 1);
       Assert.AreEqual(newValue, histogram.Single(pair => pair.Key == key).Value);
-      Assert.AreEqual(1, histogram.Count(pair => pair.Key == minimalFirst));
+      Assert.AreEqual(1, histogram.Count(pair => pair.Key == minimalSecond));
       AddRandom(tupleDescriptor, rnd, histogram);
-      Assert.AreEqual(0, histogram.Count(pair => pair.Key == minimalFirst));
-      var updatedMinimalSecond = histogram.Single(pair => pair.Key == minimalSecond);
-      Assert.AreEqual((minimalFirstValue + minimalSecondValue) / 2, updatedMinimalSecond.Value);
+      Assert.AreEqual(0, histogram.Count(pair => pair.Key == minimalSecond));
+      var updatedMinimalFirst = histogram.Single(pair => pair.Key == minimalFirst);
+      Assert.AreEqual(minimalFirstValue + minimalSecondValue, updatedMinimalFirst.Value);
     }
 
     private static void Fill(Histogram<Tuple, double> histogram, TupleDescriptor tupleDescriptor, Random rnd)
     {
-      for (int i = 0; i < histogram.MaxKeyCount - 1; i++)
+      for (int i = 0; i < histogram.MaxKeyCount; i++)
         AddRandom(tupleDescriptor, rnd, histogram);
     }
 
