@@ -58,7 +58,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void OfTypeSimpleTest()
     {
-      var result = Query<Product>.All.OfType<DiscontinuedProduct>();
+      var queryable = Query<Product>.All;
+      var result = queryable.OfType<DiscontinuedProduct>();
       QueryDumper.Dump(result);
     }
 

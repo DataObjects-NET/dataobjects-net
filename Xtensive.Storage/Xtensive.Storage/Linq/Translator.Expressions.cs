@@ -41,6 +41,12 @@ namespace Xtensive.Storage.Linq
     private readonly Parameter<bool> recordIsUsed;
     private readonly Parameter<bool> ignoreRecordUsage = new Parameter<bool>("ignoreRecordUsage");
 
+
+    protected override Expression VisitTypeIs(TypeBinaryExpression tb)
+    {
+      throw new NotImplementedException();
+    }
+
     protected override Expression Visit(Expression e)
     {
       if (e == null)
