@@ -101,7 +101,8 @@ namespace Xtensive.Storage.Providers.Sql
       if ((Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Hierarchy) > 0)
         BuildHierarchyReferences(domainModel.Types.Entities, tables);
       foreach (var generator in domainModel.Generators) {
-        if (generator.Type!=typeof (KeyGenerator))
+        if (generator.Type!=typeof (KeyGenerator) 
+          || (Type.GetTypeCode(generator.Type)==TypeCode.Object && generator.TupleDescriptor[0] == typeof(Guid)))
           continue;
         var genTable = schema.CreateTable(generator.MappingName);
         var columnType =
