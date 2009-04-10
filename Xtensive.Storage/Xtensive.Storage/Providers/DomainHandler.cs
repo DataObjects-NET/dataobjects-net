@@ -82,28 +82,6 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public abstract void BuildRecreate();
 
-
-    /// <summary>
-    /// Builds <see cref="Domain"/>s in recycling data while upgrade.
-    /// </summary>
-    public abstract void BuildRecycling();
-
-    /// <summary>
-    /// Checks storage conformity with model.
-    /// </summary>
-    /// <returns></returns>
-    public abstract StorageConformity CheckStorageConformity();
-
-    /// <summary>
-    /// Deletes recycling data after upgrade.
-    /// </summary>
-    public abstract void DeleteRecycledData();
-
-    /// <summary>
-    /// Builds <see cref="Domain"/> in Perform mode.
-    /// </summary>
-    public abstract void BuildPerform();
-
     /// <summary>
     /// Opens the session with specified <paramref name="type"/>.
     /// </summary>

@@ -82,54 +82,68 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void BuildRecreate()
     {
+      BuildMappingSchema();
+
+      // var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
+      // var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
+      // ISqlCompileUnit syncScript = GenerateSyncCatalogScript(Handlers.Domain.Model, existingSchema, Schema);
+      // sessionHandler.ExecuteNonQuery(syncScript);
+      // string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;
+      // Schema = SqlModel.Build(modelProvider).DefaultServer.Catalogs[catalogName].DefaultSchema;
+    }
+    
+    /// <exception cref="DomainBuilderException"><c>DomainBuilderException</c>.</exception>
+    private void BuildMappingSchema()
+    {
       var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
       var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
-      ISqlCompileUnit syncScript = GenerateSyncCatalogScript(Handlers.Domain.Model, existingSchema, Schema);
-      sessionHandler.ExecuteNonQuery(syncScript);
-      string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;
-      Schema = SqlModel.Build(modelProvider).DefaultServer.Catalogs[catalogName].DefaultSchema;
-    }
+      var storageModel = SqlModel.Build(modelProvider);
+      Schema = storageModel.DefaultServer.DefaultCatalog.DefaultSchema;
+      var domainModel = Handlers.Domain.Model;
 
-    public override void BuildRecycling()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override StorageConformity CheckStorageConformity()
-    {
-      // TODO: Implement
-      return StorageConformity.Match;
-      throw new NotImplementedException();
-    }
-
-    public override void DeleteRecycledData()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override void BuildPerform()
-    {
-      // todo: Implement
-      BuildRecreate();
-//      throw new System.NotImplementedException();
-    }
-
-    internal static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
-    {
-      string primaryIndexColumnName = null;
-      foreach (ColumnInfo primaryColumn in primaryIndex.Columns) {
-        if (primaryColumn.Field.Equals(secondaryIndexColumn.Field)) {
-          primaryIndexColumnName = primaryColumn.Name;
-          break;
+      foreach (var type in domainModel.Types) {
+        var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
+        if (primaryIndex==null || MappingSchema[primaryIndex]!=null)
+          continue;
+        var storageTableName = Domain.NameBuilder.BuildTableName(primaryIndex);
+        var storageTable = Schema.Tables[storageTableName];
+        if (storageTable==null)
+          throw new DomainBuilderException(string.Format("Can not find table '{0}' in storage.", storageTableName));
+        var mapping = MappingSchema.RegisterMapping(primaryIndex, storageTable);
+        foreach (var column in primaryIndex.Columns) {
+          var storageColumnName = Domain.NameBuilder.BuildTableColumnName(column);
+          var storageColumn = FindColumnByName(storageTable, storageColumnName);
+          if (storageColumn==null)
+            throw new DomainBuilderException(
+              string.Format("Can not find column '{0}' in table '{1}'.", storageColumnName, storageTableName));
+          mapping.RegisterMapping(
+            column,
+            storageColumn,
+            ValueTypeMapper.GetTypeMapping(column));
+        }
+        foreach (var secondaryIndex in type.Indexes.Find(IndexAttributes.Real).Where(i => !i.IsPrimary)) {
+          var storageIndexName = secondaryIndex.MappingName;
+          var storageIndex = FindIndex(storageTable, storageIndexName);
+          if (storageIndex==null)
+            throw new DomainBuilderException(
+              string.Format("Can not find index '{0}' in table '{1}'.", storageIndexName, storageTableName));
+          mapping.RegisterMapping(secondaryIndex, storageIndex);
         }
       }
-      if (primaryIndexColumnName.IsNullOrEmpty())
-        throw new InvalidOperationException(String.Format(
-          Strings.ExUnableToFindColumnInPrimaryIndex,
-          secondaryIndexColumn.Name,
-          secondaryIndex.Name));
-      return primaryIndexColumnName;
     }
+
+    private static TableColumn FindColumnByName(Table referencingTable, string columnName)
+    {
+      return referencingTable.TableColumns.FirstOrDefault(dataTableColumn => dataTableColumn.Name==columnName);
+    }
+
+    private static Index FindIndex(Table referencingTable, string indexName)
+    {
+      return referencingTable.Indexes.FirstOrDefault(i => i.Name==indexName);
+    }
+
+
+    // Initialization
 
     /// <inheritdoc/>
     public override void Initialize()
@@ -145,27 +159,45 @@ namespace Xtensive.Storage.Providers.Sql
     public override void InitializeSystemSession()
     {
       base.InitializeSystemSession();
-      SqlDriver = ((SessionHandler) BuildingContext.Current.SystemSessionHandler).Connection.Driver;
+      SqlDriver = ((SessionHandler)BuildingContext.Current.SystemSessionHandler).Connection.Driver;
       ValueTypeMapper = Handlers.HandlerFactory.CreateHandler<SqlValueTypeMapper>();
       ValueTypeMapper.Initialize();
 
-      var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
-      var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
-      SqlModel existingModel = SqlModel.Build(modelProvider);
-      string serverName = existingModel.DefaultServer.Name;
-      string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;
-      existingSchema = existingModel.DefaultServer.Catalogs[catalogName].DefaultSchema;
-      string schemaName = existingSchema.Name;
-
-      var sqlModel = new SqlModel();
-      Server server = sqlModel.CreateServer(serverName);
-      Catalog catalog = server.CreateCatalog(catalogName);
-      Schema = catalog.CreateSchema(schemaName);
-      BuildNewSchema();
+      // var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
+      // var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
+      // SqlModel existingModel = SqlModel.Build(modelProvider);
+      // string serverName = existingModel.DefaultServer.Name;
+      // string catalogName = Handlers.Domain.Configuration.ConnectionInfo.Resource;
+      // existingSchema = existingModel.DefaultServer.Catalogs[catalogName].DefaultSchema;
+      // string schemaName = existingSchema.Name;
+      // var sqlModel = new SqlModel();
+      // Server server = sqlModel.CreateServer(serverName);
+      // Catalog catalog = server.CreateCatalog(catalogName);
+      // Schema = catalog.CreateSchema(schemaName);
+      // BuildNewSchema();
     }
 
-    #region Build related methods
+    #region Obsolete
 
+    internal static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
+    {
+      string primaryIndexColumnName = null;
+      foreach (ColumnInfo primaryColumn in primaryIndex.Columns)
+      {
+        if (primaryColumn.Field.Equals(secondaryIndexColumn.Field))
+        {
+          primaryIndexColumnName = primaryColumn.Name;
+          break;
+        }
+      }
+      if (primaryIndexColumnName.IsNullOrEmpty())
+        throw new InvalidOperationException(String.Format(
+          Strings.ExUnableToFindColumnInPrimaryIndex,
+          secondaryIndexColumn.Name,
+          secondaryIndex.Name));
+      return primaryIndexColumnName;
+    }
+    
     protected virtual void BuildNewSchema()
     {
       DomainModel domainModel = Handlers.Domain.Model;
@@ -194,10 +226,6 @@ namespace Xtensive.Storage.Providers.Sql
       batch.Add(GenerateBuildCatalogScript(newSchema));
       return batch;
     }
-
-    #endregion
-
-    #region Private / internal methods
 
     private void BuildForeignKeys(IEnumerable<AssociationInfo> associations, Dictionary<IndexInfo, Table> tables)
     {
@@ -273,11 +301,6 @@ namespace Xtensive.Storage.Providers.Sql
         var tableColumn = FindColumnByName(referencedTable, columnName);
         foreignKey.ReferencedColumns.Add(tableColumn);
       }
-    }
-
-    private TableColumn FindColumnByName(Table referencingTable, string columnName)
-    {
-      return referencingTable.TableColumns.First(dataTableColumn => dataTableColumn.Name==columnName);
     }
 
     private IndexInfo FindRealIndex(IndexInfo index, FieldInfo field)

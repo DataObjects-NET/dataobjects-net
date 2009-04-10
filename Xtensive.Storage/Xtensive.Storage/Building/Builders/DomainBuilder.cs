@@ -42,7 +42,6 @@ namespace Xtensive.Storage.Building.Builders
     /// during storage building process.</exception>
     public static Domain Build(DomainConfiguration configuration)
     {
-      // return BuildDomain(configuration);
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
       if (!configuration.IsLocked)
@@ -63,37 +62,28 @@ namespace Xtensive.Storage.Building.Builders
             CreateDomainHandler();
             using (context.Domain.Handler.OpenSession(SessionType.System)) {
               using (var transactionScope = Transaction.Open()) {
-                BuildingScope.Context.SystemSessionHandler = Session.Current.Handler;
+                var sessionHandler = Session.Current.Handler;
+                BuildingScope.Context.SystemSessionHandler = sessionHandler;
                 BuildingContext.Current.Domain.Handler.InitializeSystemSession();
-                CreateGenerators();
-                using (LogTemplate<Log>.InfoRegion(String.Format(Strings.LogBuildingX, typeof(DomainHandler).GetShortName()))) {
-                  StorageConformity storageConformity = context.Domain.Handler.CheckStorageConformity();
-                  if (storageConformity==StorageConformity.SystemTypesMissing) {
+                // CreateGenerators();
+                using (LogTemplate<Log>.InfoRegion(String.Format(Strings.LogBuildingX, typeof (DomainHandler).GetShortName()))) {
+                  switch (context.Domain.Configuration.BuildMode) {
+                  case DomainBuildMode.PerformStrict:
+                    throw new NotImplementedException();
+                  case DomainBuildMode.Perform:
+                  case DomainBuildMode.Recreate:
+                    var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
+                    upgradeHandler.ClearStorageSchema();
+                    upgradeHandler.UpdateStorageSchema();
                     context.Domain.Handler.BuildRecreate();
-                  }
-                  else if (!CheckAssemblyVersions())
-                    using (new UpgradeScope(new UpgradeContext())) {
-                      BuildRcModel();
-                      context.Domain.Handler.BuildRecycling(); // Creating rcTables, copy data, create new structures
-                      RunUpgradeScripts();
-                      context.Domain.Handler.DeleteRecycledData();
-                      UpdateAssembliesData();
-                    }
-                  else {
-                    switch (context.Domain.Configuration.BuildMode) {
-                    case DomainBuildMode.Perform:
-                      context.Domain.Handler.BuildPerform();
-                      break;
-                    case DomainBuildMode.PerformStrict:
-                      throw new NotImplementedException();
-                    case DomainBuildMode.Recreate:
-                      context.Domain.Handler.BuildRecreate();
-                      break;
-                    case DomainBuildMode.BlockUpgrade:
-                      throw new NotImplementedException();
-                    default:
-                      throw new NotImplementedException();
-                    }
+                    CreateGenerators();
+                    break;
+                  case DomainBuildMode.BlockUpgrade:
+                    context.Domain.Handler.BuildRecreate();
+                    CreateGenerators();
+                    break;
+                  default:
+                    throw new NotImplementedException();
                   }
                 }
                 transactionScope.Complete();
@@ -109,103 +99,6 @@ namespace Xtensive.Storage.Building.Builders
       }
       return context.Domain;
     }
-
-    private static Domain BuildDomain(DomainConfiguration configuration)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-      if (!configuration.IsLocked)
-        configuration.Lock(true);
-      using (LogTemplate<Log>.InfoRegion(Strings.LogValidatingX, typeof(DomainConfiguration).GetShortName()))
-        Validate(configuration);
-      var buildMode = configuration.BuildMode;
-      switch (buildMode) {
-      case DomainBuildMode.Recreate:
-        return BuildRecreate(configuration);
-      case DomainBuildMode.BlockUpgrade:
-        return BuildBlockUpgrade(configuration);
-      default:
-        return BuildRecreate(configuration);
-      }
-    }
-
-    private static Domain BuildBlockUpgrade(DomainConfiguration configuration)
-    {
-      var context = new BuildingContext(configuration);
-      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
-        using (new BuildingScope(context)) {
-          CreateDomain();
-          CreateHandlerFactory();
-          CreateNameBuilder();
-          BuildModel();
-          CreateDomainHandler();
-          using (context.Domain.Handler.OpenSession(SessionType.System)) {
-            using (var transactionScope = Transaction.Open()) {
-              var sessionHandler = Session.Current.Handler;
-              BuildingScope.Context.SystemSessionHandler = sessionHandler;
-              BuildingContext.Current.Domain.Handler.InitializeSystemSession();
-              CreateGenerators();
-              if (!CheckAssemblyVersions())
-                throw new DomainBuilderException("Domain schema does not match storage schema.");
-            }
-          }
-        }
-      }
-      return context.Domain;
-    }
-
-    private static Domain BuildRecreate(DomainConfiguration configuration)
-    {
-      var context = new BuildingContext(configuration);
-      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
-        using (new BuildingScope(context)) {
-          CreateDomain();
-          CreateHandlerFactory();
-          CreateNameBuilder();
-          BuildModel();
-          CreateDomainHandler();
-          using (context.Domain.Handler.OpenSession(SessionType.System)) {
-            using (var transactionScope = Transaction.Open()) {
-              BuildingScope.Context.SystemSessionHandler = Session.Current.Handler;
-              BuildingContext.Current.Domain.Handler.InitializeSystemSession();
-              CreateGenerators();
-              context.Domain.Handler.BuildRecreate();
-              UpdateAssembliesData();
-              transactionScope.Complete();
-            }
-          }
-        }
-      }
-      return context.Domain;
-    }
-
-    private static Domain BuildPerform(DomainConfiguration configuration)
-    {
-      var context = new BuildingContext(configuration);
-      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
-        using (new BuildingScope(context)) {
-          CreateDomain();
-          CreateHandlerFactory();
-          CreateNameBuilder();
-          BuildModel(); // ToDo: System types only.
-          CreateDomainHandler();
-          CreateGenerators();
-          using (context.Domain.Handler.OpenSession(SessionType.System)) {
-            using (var transactionScope = Transaction.Open()) {
-              var sessionHandler = Session.Current.Handler;
-              BuildingScope.Context.SystemSessionHandler = sessionHandler;
-              BuildingContext.Current.Domain.Handler.InitializeSystemSession();
-              if (CheckAssemblyVersions())
-                return BuildBlockUpgrade(configuration);
-              else {
-                // FindUpgrader().Upgrade();
-                return BuildBlockUpgrade(configuration);
-              }
-            }
-          }
-        }
-      }
-    }
-
 
     private static void UpdateAssembliesData()
     {
@@ -257,37 +150,6 @@ namespace Xtensive.Storage.Building.Builders
 
     #endregion
 
-    private static StorageInfo ExtractSchema(Domain domain)
-    {
-      var modelConverter = new ModelConverter(domain.Handlers.NameBuilder.BuildForeignKeyName,
-        domain.Handlers.NameBuilder.BuildForeignKeyName);
-      return modelConverter.Convert(domain.Model, "dbo");
-    }
-
-    private static Difference CalculateDifference(StorageInfo domainSchema, StorageInfo storageSchema)
-    {
-      var hints = new HintSet(domainSchema, storageSchema);
-      using (hints.Activate()) {
-        return domainSchema.GetDifferenceWith(storageSchema, null, false);
-      }
-    }
-
-    private static ActionSequence BuildRecreateActions(StorageInfo domainSchema, StorageInfo storageSchema)
-    {
-      var emptySchema = new StorageInfo(storageSchema.Name);
-      var hints = new HintSet(emptySchema, storageSchema);
-      var actions = new ActionSequence();
-      using (hints.Activate()) {
-        actions.Add(storageSchema.GetDifferenceWith(emptySchema, null, false).ToActions());
-      }
-      hints = new HintSet(domainSchema, storageSchema);
-      using (hints.Activate()) {
-        actions.Add(domainSchema.GetDifferenceWith(storageSchema, null, false).ToActions());
-      }
-      return actions;
-    }
-
-
     private static void AssignSystemTypeIds()
     {
       foreach (TypeInfo type in BuildingContext.Current.Model.Types)
@@ -308,7 +170,6 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void GenerateNewTypeIds()
     {
-      
     }
 
 
@@ -386,5 +247,6 @@ namespace Xtensive.Storage.Building.Builders
         keyGenerators.Lock();
       }
     }
+
   }
 }

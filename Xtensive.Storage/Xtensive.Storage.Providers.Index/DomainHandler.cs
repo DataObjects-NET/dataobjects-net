@@ -22,10 +22,10 @@ using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Index
 {
-  public class DomainHandler: Providers.DomainHandler
+  public class DomainHandler : Providers.DomainHandler
   {
     private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes = new Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>>();
-    private readonly Dictionary<Pair<IndexInfo,TypeInfo>, MapTransform> indexTransforms = new Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform>();
+    private readonly Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform> indexTransforms = new Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform>();
 
     protected override IEnumerable<Type> GetProviderCompilerExtensionTypes()
     {
@@ -52,29 +52,6 @@ namespace Xtensive.Storage.Providers.Index
       }
     }
 
-    public override void BuildRecycling()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override StorageConformity CheckStorageConformity()
-    {
-      // TODO: Implement
-      return StorageConformity.Match;
-      throw new NotImplementedException();
-    }
-
-    public override void DeleteRecycledData()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override void BuildPerform()
-    {
-      BuildRecreate();
-      // TODO: throw new System.NotImplementedException();
-    }
-
     #region Private / internal methods
 
     internal IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfoRef indexInfoRef)
@@ -97,28 +74,32 @@ namespace Xtensive.Storage.Providers.Index
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(indexInfo.Columns.Select(c => c.ValueType));
       int[] map = indexInfo.Columns
-        .Select(c => {
+        .Select(c =>
+        {
           ColumnInfo column;
-          return type.Columns.TryGetValue(c.Field.Column.Name, out column) ? 
-            column.Field.MappingInfo.Offset : 
-            MapTransform.NoMapping; 
+          return type.Columns.TryGetValue(c.Field.Column.Name, out column) ?
+            column.Field.MappingInfo.Offset :
+            MapTransform.NoMapping;
         }).ToArray();
       return new MapTransform(true, descriptor, map);
     }
 
     private void BuildRealIndexes()
     {
-      foreach (IndexInfo indexInfo in Handlers.Domain.Model.RealIndexes) {
+      foreach (IndexInfo indexInfo in Handlers.Domain.Model.RealIndexes)
+      {
         DirectionCollection<ColumnInfo> orderingRule;
         if (indexInfo.IsUnique | indexInfo.IsPrimary)
           orderingRule = new DirectionCollection<ColumnInfo>(indexInfo.KeyColumns);
-        else {
+        else
+        {
           orderingRule = new DirectionCollection<ColumnInfo>(indexInfo.KeyColumns);
-          for (int i = 0; i < indexInfo.ValueColumns.Count; i++) {
+          for (int i = 0; i < indexInfo.ValueColumns.Count; i++)
+          {
             var column = indexInfo.ValueColumns[i];
             if (indexInfo.IncludedColumns.Contains(column))
               break;
-            orderingRule.Add(column, Direction.Positive); 
+            orderingRule.Add(column, Direction.Positive);
           }
         }
 

@@ -7,7 +7,7 @@
 namespace Xtensive.Storage.Providers.Memory
 {
   /// <summary>
-  /// Generator factory
+  /// Generator factory.
   /// </summary>
   public class KeyGeneratorFactory : Index.KeyGeneratorFactory
   {

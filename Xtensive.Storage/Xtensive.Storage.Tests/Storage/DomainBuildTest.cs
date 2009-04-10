@@ -28,28 +28,47 @@ namespace Xtensive.Storage.Tests.Storage.DomainBuild
 namespace Xtensive.Storage.Tests.Storage
 {
   using DomainBuild;
+  using Core.Testing;
+  using Core;
 
   [TestFixture]
   public class DomainBuildTest
   {
     private Domain Domain { get; set; }
     
-    private void BuildDomain(DomainBuildMode buildMode)
+    private void BuildDomain(DomainBuildMode buildMode, bool clearSchema)
     {
       if (Domain != null)
         Domain.DisposeSafely();
 
       var config = DomainConfigurationFactory.Create("mssql2005");
       config.BuildMode = buildMode;
-      config.Types.Register(typeof(A).Assembly, typeof(A).Namespace);
+      if (!clearSchema)
+        config.Types.Register(typeof(A).Assembly, typeof(A).Namespace);
 
       Domain = Domain.Build(config);
     }
 
+
     [Test]
-    public void DomainBuildModeTest()
+    public void DomainRecreateTest()
     {
-      BuildDomain(DomainBuildMode.Recreate);
+      BuildDomain(DomainBuildMode.Recreate, false);
+      using (var session = Domain.OpenSession()) {
+        using (var transaction = session.Session.OpenTransaction()) {
+          for (int i = 0; i < 10; i++) {
+            var a = new A();
+            a.Col1 = i.ToString();
+            transaction.Complete();
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void DomainBlockUpgradeTest()
+    {
+      BuildDomain(DomainBuildMode.Recreate, false);
       using (var session = Domain.OpenSession()) {
         using (var transaction = session.Session.OpenTransaction()) {
           for (int i = 0; i < 129; i++) {
@@ -59,7 +78,7 @@ namespace Xtensive.Storage.Tests.Storage
           }
         }
       }
-      BuildDomain(DomainBuildMode.BlockUpgrade);
+      BuildDomain(DomainBuildMode.BlockUpgrade, false);
       using (var session = Domain.OpenSession()) {
         using (var transaction = session.Session.OpenTransaction()) {
           var products = Query<A>.All;
@@ -72,18 +91,16 @@ namespace Xtensive.Storage.Tests.Storage
             a.Col1 = i.ToString();
             transaction.Complete();
           }
+          Assert.AreEqual(139, result.Count());
         }
       }
-      BuildDomain(DomainBuildMode.Recreate);
-      using (var session = Domain.OpenSession()) {
-        using (var transaction = session.Session.OpenTransaction()) {
-          var products = Query<A>.All;
-          var result =
-            from a in products
-            select a;
-          Assert.AreEqual(0, result.Count());
-        }
-      }
+    }
+
+    [Test]
+    public void DenyBlockUpgradeTest()
+    {
+      BuildDomain(DomainBuildMode.Recreate, true);
+      AssertEx.Throws<AggregateException>(() => BuildDomain(DomainBuildMode.BlockUpgrade, false));
     }
 
   }

@@ -10,7 +10,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Providers.Index
 {
   /// <summary>
-  /// Generator factory
+  /// Generator factory.
   /// </summary>
   public class KeyGeneratorFactory : Providers.KeyGeneratorFactory
   {

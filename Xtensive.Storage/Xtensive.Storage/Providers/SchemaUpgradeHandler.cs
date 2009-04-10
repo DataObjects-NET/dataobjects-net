@@ -19,142 +19,25 @@ namespace Xtensive.Storage.Providers
   /// Upgrades storage schema.
   /// </summary>
   [Serializable]
-  public abstract class SchemaUpgradeHandler: InitializableHandlerBase
+  public abstract class SchemaUpgradeHandler : InitializableHandlerBase
   {
-    private const string DomainSchemaName = "dbo";
 
     /// <summary>
-    /// Gets the domain schema.
+    /// Clears the storage schema.
     /// </summary>
-    protected StorageInfo DomainSchema { get; private set;}
+    public abstract void ClearStorageSchema();
 
     /// <summary>
-    /// Gets schema difference between domain schema and storage schema.
+    /// Updates the storage schema according to current domain model.
     /// </summary>
-    protected Difference SchemaDifference { get; private set; }
+    public abstract void UpdateStorageSchema();
 
-    /// <summary>
-    /// Gets storage view.
-    /// </summary>
-    protected IStorageView StorageView { get; set; }
 
-    /// <summary>
-    /// Fully recreates the storage schema.
-    /// </summary>
-    /// <param name="storageView">The storage view.</param>
-    public void RecreateSchema()
-    {
-      var storageSchema = StorageView.Model;
-      if (storageSchema != null)
-        StorageView.Update(BuildClearSchemaActions());
-      StorageView.Update(BuildCreateSchemaActions());
-    }
+    // Initialization
 
-    /// <summary>
-    /// Begins upgrade the storage schema. 
-    /// Creates missing tables and columns in storage.
-    /// </summary>
-    /// <param name="storageView">The storage view.</param>
-    public void BeginUpgrade()
-    {
-      var upgrageActions = BuildUpgradeActions(BuildDifference());
-      StorageView.Update(upgrageActions);
-    }
-
-    /// <summary>
-    /// Removes excess columns and tables from storage schema.
-    /// </summary>
-    /// <param name="storageView">The storage view.</param>
-    public void ClearRecyclingData()
-    {
-      var clearRecyclingDataActions = BuildClearRecyclingDataActions(BuildDifference());
-      StorageView.Update(clearRecyclingDataActions);
-    }
-
-    public StorageConformity CheckStorageConformity()
-    {
-      // StorageView = storageView;
-      // var difference = BuildDifference();
-      // ToDo: Use Difference for calculating StorageConformity.
-
-      return StorageConformity.Match;
-    }
-
-    /// <summary>
-    /// Build actions for create new storage schema according to domain schema.
-    /// </summary>
-    /// <returns>The set of actions.</returns>
-    protected virtual ActionSequence BuildCreateSchemaActions()
-    {
-      var emptySchema = new StorageInfo(DomainSchema.Name);
-      var hints = new HintSet(emptySchema, DomainSchema);
-      var actions = new ActionSequence();
-      using (hints.Activate()) {
-        actions.Add(DomainSchema.GetDifferenceWith(emptySchema, null, false).ToActions());
-      }
-      return actions;
-    }
-
-    /// <summary>
-    /// Build actions for clear storage schema.
-    /// </summary>
-    /// <param name="storageSchema">The storage schema.</param>
-    /// <returns>The set of actions.</returns>
-    protected virtual ActionSequence BuildClearSchemaActions()
-    {
-      var storageSchema = StorageView.Model;
-      var emptySchema = new StorageInfo(storageSchema.Name);
-      var hints = new HintSet(emptySchema, storageSchema);
-      var actions = new ActionSequence();
-      using (hints.Activate()) {
-        actions.Add(storageSchema.GetDifferenceWith(emptySchema, null, false).ToActions());
-      }
-      return actions;
-    }
-
-    /// <summary>
-    /// Calculate difference between domain schema and storage schema.
-    /// </summary>
-    /// <returns>The difference.</returns>
-    protected virtual Difference BuildDifference()
-    {
-      var storageSchema = StorageView.Model;
-      return DomainSchema.GetDifferenceWith(storageSchema);
-    }
-
-    /// <summary>
-    /// Builds actions for add missing tables and columns to storage schema.
-    /// </summary>
-    /// <param name="difference">The difference.</param>
-    /// <returns>The set of actions.</returns>
-    protected virtual ActionSequence BuildUpgradeActions(Difference difference)
-    {
-      return new ActionSequence
-        {
-          difference.ToActions()
-        };
-    }
-
-    /// <summary>
-    /// Builds actions for removing excess columns and tables from storage schema.
-    /// </summary>
-    /// <param name="difference">The difference.</param>
-    /// <returns>The set of actions.</returns>
-    protected virtual ActionSequence BuildClearRecyclingDataActions(Difference difference)
-    {
-      return new ActionSequence
-        {
-          difference.ToActions()
-        };
-    }
-
-    /// <inheritdoc/>`
+    /// <inheritdoc/>
     public override void Initialize()
     {
-      var converter = new ModelConverter(Handlers.NameBuilder.BuildForeignKeyName,
-        Handlers.NameBuilder.BuildForeignKeyName);
-      DomainSchema = converter.Convert(Handlers.Domain.Model, DomainSchemaName);
     }
-
   }
 }

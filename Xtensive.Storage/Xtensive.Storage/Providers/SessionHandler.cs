@@ -79,15 +79,6 @@ namespace Xtensive.Storage.Providers
           Remove(data);
     }
 
-    public virtual StorageInfo GetStorageSchema()
-    {
-      return null;
-    }
-
-    public virtual void UpdateStorageSchema(ActionSequence updateActions)
-    {
-    }
-
     /// <summary>
     /// Inserts the specified data into database.
     /// </summary>

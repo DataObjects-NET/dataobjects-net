@@ -13,6 +13,8 @@ using System.Linq;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
+using Xtensive.Sql.Dom.Database;
+using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -205,5 +207,6 @@ namespace Xtensive.Storage.Providers.Sql
     {
       connection.DisposeSafely();
     }
+   
   }
 }
