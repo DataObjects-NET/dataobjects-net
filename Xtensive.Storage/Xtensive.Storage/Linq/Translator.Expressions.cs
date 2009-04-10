@@ -206,8 +206,12 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitParameter(ParameterExpression p)
     {
-      if (!parameters.Value.Contains(p))
+      bool isInnerParameter = parameters.Value.Contains(p);
+      bool isOuterParemeter = !isInnerParameter && context.SubqueryParameterBindings.IsBound(p);
+      if (!isInnerParameter && !isOuterParemeter)
         throw new InvalidOperationException("Lambda parameter is out of scope!");
+      if (isOuterParemeter)
+        return context.Bindings[p].ItemProjector.Body; // TODO: replace outer parameters?
       var source = context.Bindings[p];
       mappingRef.Value.Replace(source.Mapping);
       var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);

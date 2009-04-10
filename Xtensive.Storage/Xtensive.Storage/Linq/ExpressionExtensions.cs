@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Xtensive.Core.Parameters;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
 
@@ -24,6 +25,13 @@ namespace Xtensive.Storage.Linq
       return (LambdaExpression) expression;
     }
 
+    public static Expression StripCasts(this Expression expression)
+    {
+      while (expression.NodeType == ExpressionType.Convert)
+        expression = ((UnaryExpression)expression).Operand;
+      return expression;
+    }
+
     public static bool IsQuery(this Expression expression)
     {
       var type = expression.Type;
@@ -36,7 +44,6 @@ namespace Xtensive.Storage.Linq
         .Any();
     }
 
-
     public static bool IsResult(this Expression expression)
     {
       return (ExtendedExpressionType) expression.NodeType==ExtendedExpressionType.Result;
@@ -44,47 +51,35 @@ namespace Xtensive.Storage.Linq
 
     public static bool IsGrouping(this Expression expression)
     {
-      while (expression.NodeType == ExpressionType.Convert)
-        expression = ((UnaryExpression)expression).Operand;
-      if (expression.NodeType==ExpressionType.New) {
-        var newExpression = (NewExpression) expression;
-        if (newExpression.Type.IsGenericType
-          && newExpression.Type.GetGenericTypeDefinition()==typeof (Grouping<,>))
-          return true;
-      }
+      expression = expression.StripCasts();
+      if (expression.NodeType==ExpressionType.New)
+        return expression.Type.IsOfGenericType(typeof(Grouping<,>));
       return false;
     }
 
     public static Type GetGroupingKeyType(this Expression expression)
     {
-      while (expression.NodeType == ExpressionType.Convert)
-        expression = ((UnaryExpression)expression).Operand;
-      var newExpression = (NewExpression) expression;
+      var newExpression = (NewExpression)expression.StripCasts();
       return newExpression.Type.GetGenericArguments()[0];
     }
 
     public static Type GetGroupingElementType(this Expression expression)
     {
-      while (expression.NodeType == ExpressionType.Convert)
-        expression = ((UnaryExpression)expression).Operand;
-      var newExpression = (NewExpression)expression;
+      var newExpression = (NewExpression)expression.StripCasts();
       return newExpression.Type.GetGenericArguments()[1];
     }
 
     public static Parameter<Tuple> GetGroupingParameter(this Expression expression)
     {
-      while (expression.NodeType == ExpressionType.Convert)
-        expression = ((UnaryExpression)expression).Operand;
-      if (expression.NodeType == ExpressionType.New) {
-        var newExpression = (NewExpression)expression;
-        if (newExpression.Type.IsGenericType && newExpression.Type.GetGenericTypeDefinition() == typeof(Grouping<,>)) {
-          var result = (Parameter<Tuple>)((ConstantExpression)newExpression.Arguments[3]).Value;
-          return result;
-        }
-      }
-      throw new InvalidOperationException();
+      var newExpression = (NewExpression)expression.StripCasts();
+      return (Parameter<Tuple>) ((ConstantExpression) newExpression.Arguments[3]).Value;
     }
 
+    public static ResultExpression GetGroupingItemsResult(this Expression expression)
+    {
+      var newExpression = (NewExpression)expression.StripCasts();
+      return (ResultExpression) ((ConstantExpression) newExpression.Arguments[2]).Value;
+    }
 
     public static MemberType GetMemberType(this Expression e)
     {

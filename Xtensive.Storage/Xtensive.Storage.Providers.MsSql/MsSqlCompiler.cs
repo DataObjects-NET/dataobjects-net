@@ -40,11 +40,10 @@ namespace Xtensive.Storage.Providers.MsSql
       if (result == null)
         return null;
       var select = result.Request.SelectStatement;
-      int columnsCount = provider.Header.Length;
 
-      for (int i = provider.Source.Header.Length; i < columnsCount; i++)
-        if (provider.Header.Columns[i].Type == typeof(bool))
-          ReplaceBooleanColumn(select, i);
+      foreach (var column in provider.CalculatedColumns)
+        if (column.Type == typeof(bool))
+          ReplaceBooleanColumn(select, column.Index);
 
       return result;
     }

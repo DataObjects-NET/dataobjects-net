@@ -10,6 +10,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Core.Testing;
 
 namespace Xtensive.Storage.Tests.Linq
 {
@@ -253,14 +254,12 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query<Customer>.All.GroupBy(c => c.Address.City).SelectMany(g => g);
       QueryDumper.Dump(result);
     }
-
-
-
+    
     [Test]
     public void GroupBySelectManyKeyTest()
     {
       var result = Query<Customer>.All.GroupBy(c => c.Address.City).SelectMany(g => g.Key);
-      QueryDumper.Dump(result);
+      AssertEx.ThrowsNotSupportedException(() => QueryDumper.Dump(result));
     }
 
     [Test]
@@ -492,6 +491,13 @@ namespace Xtensive.Storage.Tests.Linq
     {
       // NOTE: order-by is preserved within grouped sub-collections
       var result = Query<Order>.All.OrderBy(o => o.OrderDate).GroupBy(o => o.Customer.Id).SelectMany(g => g);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void FilterGroupingTest()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => g.Where(o => o.ShipName.StartsWith("A")));
       QueryDumper.Dump(result);
     }
   }

@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Linq
         calculateExpressions.Value = false;
         recordIsUsed.Value = false;
         ignoreRecordUsage.Value = false;
-        return VisitSequence(context.Query);
+        return (ResultExpression)Visit(context.Query);
       }
     }
 
@@ -679,15 +679,14 @@ namespace Xtensive.Storage.Linq
         using (new ParameterScope())
         using (context.SubqueryParameterBindings.Bind(collectionSelector.Parameters)) {
           mappingRef.Value = new FieldMappingReference(false);
+          parameters.Value = ArrayUtils<ParameterExpression>.EmptyArray;
           innerResult = VisitSequence(collectionSelector.Body);
+          // TODO: extract grouping parameter (if exists)
           applyParameter = context.SubqueryParameterBindings.GetBound(parameter);
         }
         var outerResult = context.Bindings[parameter];
-        var recordSet = outerResult.RecordSet.Apply(applyParameter,
-          innerResult.RecordSet.Alias(context.GetNextAlias()),
-          isOuter
-            ? ApplyType.Outer
-            : ApplyType.Cross);
+        var recordSet = outerResult.RecordSet
+          .Apply(applyParameter, innerResult.RecordSet.Alias(context.GetNextAlias()), isOuter ? ApplyType.Outer : ApplyType.Cross);
         if (resultSelector==null) {
           var outerParameter = Expression.Parameter(TypeHelper.GetElementType(source.Type), "o");
           var innerParameter = Expression.Parameter(TypeHelper.GetElementType(collectionSelector.Type), "i");
@@ -878,6 +877,9 @@ namespace Xtensive.Storage.Linq
 
     private ResultExpression VisitSequence(Expression sequenceExpression)
     {
+      if (sequenceExpression.Type == typeof(string))
+        throw new NotSupportedException("Sequence operators not supported for type 'System.String'");
+
       if (sequenceExpression.GetMemberType()==MemberType.EntitySet) {
         if (sequenceExpression.NodeType!=ExpressionType.MemberAccess)
           throw new NotSupportedException();
@@ -889,17 +891,13 @@ namespace Xtensive.Storage.Linq
       }
 
       var visitedExpression = Visit(sequenceExpression);
-      switch (visitedExpression.NodeType) {
-        case (ExpressionType) ExtendedExpressionType.Result:
-          return (ResultExpression) visitedExpression;
-        case ExpressionType.Convert:
-          var unaryExpression = (UnaryExpression) visitedExpression;
-          if (unaryExpression.Operand.IsGrouping()) {
-            var newExpression = (NewExpression) unaryExpression.Operand;
-            return (ResultExpression) ((ConstantExpression) newExpression.Arguments[2]).Value;
-          }
-          break;
-      }
+
+      if (visitedExpression.IsGrouping())
+        return visitedExpression.GetGroupingItemsResult();
+
+      if (visitedExpression.IsResult())
+        return (ResultExpression)visitedExpression;
+     
       throw new NotSupportedException(string.Format("The expression of type '{0}' is not a sequence", visitedExpression.Type));
     }
 
