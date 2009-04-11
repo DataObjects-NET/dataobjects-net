@@ -38,6 +38,20 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       throw new NotSupportedException();
     }
 
+    public override Segment<int> GetMemberSegment(MemberPath fieldPath)
+    {
+      if (fieldPath.Count == 0)
+        return segment;
+      throw new InvalidOperationException();
+    }
+
+    public override FieldMapping GetMemberMapping(MemberPath fieldPath)
+    {
+      if (fieldPath.Count == 0)
+        return this;
+      throw new InvalidOperationException();
+    }
+
     public override string ToString()
     {
       return string.Format("Primitive: [{0}, {1}]", segment.Offset, segment.Length);

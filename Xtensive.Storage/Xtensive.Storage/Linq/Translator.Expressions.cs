@@ -17,7 +17,6 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Mappings;
 using Xtensive.Storage.Linq.Rewriters;
@@ -282,8 +281,6 @@ namespace Xtensive.Storage.Linq
                     mappingRef.Value.RegisterAnonymous(rename(p.Key, memberName), p.Value.First, p.Value.Second);
                   if (memberType==MemberType.Entity)
                     mappingRef.Value.RegisterJoined(memberName, complexMapping);
-//                  if (memberType==MemberType.Anonymous)
-//                    mappingRef.Value.RegisterAnonymous(memberName, complexMapping, newArg);
                 }
               }
             }
@@ -405,7 +402,7 @@ namespace Xtensive.Storage.Linq
         if (constant.Value == null) {
           var path = MemberPath.Parse(member, context.Model);
           var source = context.Bindings[path.Parameter];
-          var segment = source.GetMemberSegment(path);
+          var segment = source.Mapping.GetMemberSegment(path);
           foreach (var i in segment.GetItems()) {
             var columnType = source.RecordSet.Header.Columns[i].Type.ToNullable();
             Expression left = MakeTupleAccess(path.Parameter, columnType, i);
@@ -417,10 +414,10 @@ namespace Xtensive.Storage.Linq
       }
       var leftPath = MemberPath.Parse(bLeft, context.Model);
       var leftSource = context.Bindings[leftPath.Parameter];
-      var leftSegment = leftSource.GetMemberSegment(leftPath);
+      var leftSegment = leftSource.Mapping.GetMemberSegment(leftPath);
       var rightPath = MemberPath.Parse(bRight, context.Model);
       var rightSource = context.Bindings[rightPath.Parameter];
-      var rightSegment = rightSource.GetMemberSegment(rightPath);
+      var rightSegment = rightSource.Mapping.GetMemberSegment(rightPath);
       foreach (var pair in leftSegment.GetItems().Zip(rightSegment.GetItems(), (l, r) => new {l, r})) {
         var type = leftSource.RecordSet.Header.TupleDescriptor[pair.l];
         Expression left = MakeTupleAccess(leftPath.Parameter, type, pair.l);
@@ -472,7 +469,7 @@ namespace Xtensive.Storage.Linq
         throw new NotSupportedException();
 
       var source = context.Bindings[path.Parameter];
-      var segment = source.GetMemberSegment(path);
+      var segment = source.Mapping.GetMemberSegment(path);
       Expression result = null;
       foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
         Type columnType = source.RecordSet.Header.Columns[pair.ColumnIndex].Type.ToNullable();
@@ -520,7 +517,7 @@ namespace Xtensive.Storage.Linq
           throw new NotSupportedException();
 
         var source = context.Bindings[path.Parameter];
-        var segment = source.GetMemberSegment(path);
+        var segment = source.Mapping.GetMemberSegment(path);
 
         Expression result = null;
         foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
@@ -608,11 +605,11 @@ namespace Xtensive.Storage.Linq
     private Expression VisitMemberPathEntity(MemberPath path, ResultExpression source, Type resultType)
     {
       recordIsUsed.Value = true;
-      var segment = source.GetMemberSegment(path);
+      var segment = source.Mapping.GetMemberSegment(path);
       int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
       var result = Expression.Call(WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(resultType),
         Expression.Call(record.Value, WellKnownMembers.RecordKey, Expression.Constant(groupIndex)));
-      var cfm = (ComplexFieldMapping)source.GetMemberMapping(path);
+      var cfm = (ComplexFieldMapping)source.Mapping.GetMemberMapping(path);
       var name = cfm.Fields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
       Func<string, string> rename = oldName => oldName.TryCutPrefix(name).TrimStart('.');
       if (mappingRef.Value.FillMapping) {
@@ -628,7 +625,7 @@ namespace Xtensive.Storage.Linq
     private Expression VisitMemberPathStructure(MemberPath path, ResultExpression source)
     {
       recordIsUsed.Value = true;
-      var segment = source.GetMemberSegment(path);
+      var segment = source.Mapping.GetMemberSegment(path);
       var structureColumn = (MappedColumn)source.RecordSet.Header.Columns[segment.Offset];
       var field = structureColumn.ColumnInfoRef.Resolve(context.Model).Field;
       while (field.Parent != null)
@@ -642,7 +639,7 @@ namespace Xtensive.Storage.Linq
       var columnGroup = source.RecordSet.Header.ColumnGroups[groupIndex];
       var keyOffset = columnGroup.Keys.Min();
       var keyLength = columnGroup.Keys.Max() - keyOffset + 1;
-      var cfm = (ComplexFieldMapping)source.GetMemberMapping(path);
+      var cfm = (ComplexFieldMapping)source.Mapping.GetMemberMapping(path);
       var mappedFields = cfm.Fields.Where(p => (p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset)).ToList();
       var name = mappedFields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
       foreach (var pair in mappedFields) {
@@ -667,14 +664,14 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitMemberPathPrimitive(MemberPath path, ResultExpression source, Type resultType)
     {
-      var segment = source.GetMemberSegment(path);
+      var segment = source.Mapping.GetMemberSegment(path);
       mappingRef.Value.RegisterPrimitive(segment);
       return MakeTupleAccess(path.Parameter, resultType, segment.Offset);
     }
 
     private Expression VisitMemberPathKey(MemberPath path, ResultExpression source)
     {
-      Segment<int> segment = source.GetMemberSegment(path);
+      Segment<int> segment = source.Mapping.GetMemberSegment(path);
       var keyColumn = (MappedColumn)source.RecordSet.Header.Columns[segment.Offset];
       var field = keyColumn.ColumnInfoRef.Resolve(context.Model).Field;
       var type = field.Parent == null

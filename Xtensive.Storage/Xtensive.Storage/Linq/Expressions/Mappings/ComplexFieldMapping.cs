@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
@@ -14,12 +13,11 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Linq.Expressions.Mappings
 {
-//  [DebuggerDisplay("Complex: Fields({Fields.Count}), JoinedFields({JoinedFields.Count}), AnonymousFields({AnonymousFields.Count})")]
   internal sealed class ComplexFieldMapping : FieldMapping
   {
+    internal readonly Dictionary<string, Pair<ComplexFieldMapping, Expression>> AnonymousFields;
     internal readonly Dictionary<string, Segment<int>> Fields;
     internal readonly Dictionary<string, ComplexFieldMapping> JoinedFields;
-    internal readonly Dictionary<string, Pair<ComplexFieldMapping, Expression>> AnonymousFields;
 
     #region Accessor methods
 
@@ -54,7 +52,6 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 
     #endregion
 
-
     public override IList<int> GetColumns()
     {
       var result = new List<int>();
@@ -65,9 +62,82 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 
     public override FieldMapping ShiftOffset(int offset)
     {
-      var shiftedFields = Fields.ToDictionary(fm => fm.Key, fm => new Segment<int>(offset + fm.Value.Offset, fm.Value.Length));
-      var shiftedRelations = JoinedFields.ToDictionary(jr => jr.Key, jr => (ComplexFieldMapping)jr.Value.ShiftOffset(offset));
+      Dictionary<string, Segment<int>> shiftedFields = Fields.ToDictionary(fm => fm.Key, fm => new Segment<int>(offset + fm.Value.Offset, fm.Value.Length));
+      Dictionary<string, ComplexFieldMapping> shiftedRelations = JoinedFields.ToDictionary(jr => jr.Key, jr => (ComplexFieldMapping)jr.Value.ShiftOffset(offset));
       return new ComplexFieldMapping(shiftedFields, shiftedRelations);
+    }
+
+    public override Segment<int> GetMemberSegment(MemberPath fieldPath)
+    {
+      if (fieldPath.Count == 0) {
+        if (fieldPath.PathType == MemberType.Structure || fieldPath.PathType == MemberType.Entity)
+          return CalculateMemberSegment();
+        throw new InvalidOperationException();
+      }
+      List<MemberPathItem> pathList = fieldPath.ToList();
+      ComplexFieldMapping mapping = this;
+      for (int i = 0; i < pathList.Count - 1; i++) {
+        MemberPathItem pathItem = pathList[i];
+        if (pathItem.Type == MemberType.Entity)
+          mapping = mapping.GetJoinedFieldMapping(pathItem.Name);
+        else if (pathItem.Type == MemberType.Anonymous)
+          mapping = mapping.GetAnonymousMapping(pathItem.Name).First;
+      }
+      MemberPathItem lastItem = pathList.Last();
+      if (lastItem.Type == MemberType.Anonymous)
+        throw new InvalidOperationException();
+
+      if (lastItem.Type == MemberType.Entity) {
+        mapping = mapping.GetJoinedFieldMapping(lastItem.Name);
+        return mapping.CalculateMemberSegment();
+      }
+      return mapping.GetFieldSegment(lastItem.Name);
+    }
+
+    public override FieldMapping GetMemberMapping(MemberPath fieldPath)
+    {
+      List<MemberPathItem> pathList = fieldPath.ToList();
+      if (pathList.Count == 0)
+        return this;
+      ComplexFieldMapping mapping = this;
+      foreach (MemberPathItem pathItem in pathList) {
+        if (pathItem.Type == MemberType.Entity)
+          mapping = mapping.GetJoinedFieldMapping(pathItem.Name);
+        else if (pathItem.Type == MemberType.Anonymous)
+          mapping = mapping.GetAnonymousMapping(pathItem.Name).First;
+      }
+      return mapping;
+    }
+
+    public override void Fill(FieldMapping fieldMapping)
+    {
+      if (fieldMapping is PrimitiveFieldMapping) {
+        var pfm = (PrimitiveFieldMapping)fieldMapping;
+        RegisterFieldMapping(string.Empty, pfm.Segment);
+      }
+      else {
+        var cfm = (ComplexFieldMapping)fieldMapping;
+        foreach (var pair in cfm.Fields)
+          RegisterFieldMapping(pair.Key, pair.Value);
+        foreach (var pair in cfm.JoinedFields)
+          RegisterJoin(pair.Key, pair.Value);
+        foreach (var pair in cfm.AnonymousFields)
+          RegisterAnonymous(pair.Key, pair.Value.First, pair.Value.Second);
+      }
+    }
+
+    public override string ToString()
+    {
+      return string.Format("Complex: Fields({0}), JoinedFields({1}), AnonymousFields({2})",
+        Fields.Count, JoinedFields.Count, AnonymousFields.Count);
+    }
+
+    private Segment<int> CalculateMemberSegment()
+    {
+      int offset = Fields.Min(pair => pair.Value.Offset);
+      int endOffset = Fields.Max(pair => pair.Value.Offset);
+      int length = endOffset - offset + 1;
+      return new Segment<int>(offset, length);
     }
 
     #region Register methods
@@ -92,30 +162,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 
     #endregion
 
-    public override void Fill(FieldMapping fieldMapping)
-    {
-      if (fieldMapping is PrimitiveFieldMapping) {
-        var pfm = (PrimitiveFieldMapping)fieldMapping;
-        RegisterFieldMapping(string.Empty, pfm.Segment);
-      }
-      else {
-        var cfm = (ComplexFieldMapping)fieldMapping;
-        foreach (var pair in cfm.Fields)
-          RegisterFieldMapping(pair.Key, pair.Value);
-        foreach (var pair in cfm.JoinedFields)
-          RegisterJoin(pair.Key, pair.Value);
-        foreach (var pair in cfm.AnonymousFields)
-          RegisterAnonymous(pair.Key, pair.Value.First, pair.Value.Second);
-      }
-    }
 
-    public override string ToString()
-    {
-      return string.Format("Complex: Fields({0}), JoinedFields({1}), AnonymousFields({2})", 
-        Fields.Count, JoinedFields.Count, AnonymousFields.Count);
-    }
-
-    
     // Constructors
 
     public ComplexFieldMapping()
@@ -136,5 +183,6 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       JoinedFields = joinedFields;
       AnonymousFields = anonymousFields;
     }
+
   }
 }

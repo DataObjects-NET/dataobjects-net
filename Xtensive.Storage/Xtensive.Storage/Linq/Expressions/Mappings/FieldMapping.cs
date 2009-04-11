@@ -5,6 +5,7 @@
 // Created:    2008.12.24
 
 using System.Collections.Generic;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Linq.Expressions.Mappings
 {
@@ -13,5 +14,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     public abstract FieldMapping ShiftOffset(int offset);
     public abstract IList<int> GetColumns();
     public abstract void Fill(FieldMapping mapping);
+    public abstract Segment<int> GetMemberSegment(MemberPath fieldPath);
+    public abstract FieldMapping GetMemberMapping(MemberPath fieldPath);
   }
 }

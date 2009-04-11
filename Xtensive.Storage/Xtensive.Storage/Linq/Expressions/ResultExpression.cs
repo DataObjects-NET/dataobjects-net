@@ -49,57 +49,7 @@ namespace Xtensive.Storage.Linq.Expressions
       return project(RecordSet);
     }
 
-    public Segment<int> GetMemberSegment(MemberPath fieldPath)
-    {
-      var pathList = fieldPath.ToList();
-      if (pathList.Count == 0) {
-        var pm = Mapping as PrimitiveFieldMapping;
-        if (pm == null)
-          throw new InvalidOperationException();
-        return pm.Segment;
-      }
-      var mapping = (ComplexFieldMapping)Mapping;
-      for (int i = 0; i < pathList.Count - 1; i++) {
-        var pathItem = pathList[i];
-        if (pathItem.Type == MemberType.Entity)
-          mapping = mapping.GetJoinedFieldMapping(pathItem.Name);
-        else if (pathItem.Type == MemberType.Anonymous)
-          mapping = mapping.GetAnonymousMapping(pathItem.Name).First;
-      }
-      var lastItem = pathList.Last();
-      if (lastItem.Type == MemberType.Anonymous)
-        throw new InvalidOperationException();
-
-      if (lastItem.Type == MemberType.Entity) {
-        mapping = mapping.GetJoinedFieldMapping(lastItem.Name);
-        if (mapping.Fields.Count > 0) {
-          var offset = mapping.Fields.Min(pair => pair.Value.Offset);
-          var endOffset = mapping.Fields.Max(pair => pair.Value.Offset);
-          var length = endOffset - offset + 1;
-          return new Segment<int>(offset, length);
-        }
-      }
-      return mapping.GetFieldSegment(lastItem.Name);
-    }
-
-
-    public FieldMapping GetMemberMapping(MemberPath fieldPath)
-    {
-      var pathList = fieldPath.ToList();
-      if (pathList.Count == 0)
-        return Mapping;
-      var mapping = Mapping;
-      foreach (var pathItem in pathList) {
-        if (pathItem.Type == MemberType.Entity)
-          mapping = ((ComplexFieldMapping)mapping).GetJoinedFieldMapping(pathItem.Name);
-        else if (pathItem.Type == MemberType.Anonymous)
-          mapping = ((ComplexFieldMapping)mapping).GetAnonymousMapping(pathItem.Name).First;
-        
-      }
-      return mapping;
-    }
-
-
+    
     // Constructors
 
     public ResultExpression(
