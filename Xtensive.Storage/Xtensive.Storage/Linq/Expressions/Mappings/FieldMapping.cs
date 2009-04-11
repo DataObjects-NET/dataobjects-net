@@ -12,5 +12,6 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
   {
     public abstract FieldMapping ShiftOffset(int offset);
     public abstract IList<int> GetColumns();
+    public abstract void Fill(FieldMapping mapping);
   }
 }

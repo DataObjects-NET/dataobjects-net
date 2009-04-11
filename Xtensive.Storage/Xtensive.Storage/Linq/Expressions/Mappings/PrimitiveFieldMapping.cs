@@ -4,13 +4,16 @@
 // Created by: Alexis Kochetov
 // Created:    2009.04.06
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using System.Linq;
 
 namespace Xtensive.Storage.Linq.Expressions.Mappings
 {
+//  [DebuggerDisplay("Primitive: [{Segment.Offset}, {Segment.Length}]")]
   internal sealed class PrimitiveFieldMapping : FieldMapping
   {
     private readonly Segment<int> segment;
@@ -28,6 +31,16 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     public override FieldMapping ShiftOffset(int offset)
     {
       return new PrimitiveFieldMapping(new Segment<int>(segment.Offset + offset, segment.Length));
+    }
+
+    public override void Fill(FieldMapping mapping)
+    {
+      throw new NotSupportedException();
+    }
+
+    public override string ToString()
+    {
+      return string.Format("Primitive: [{0}, {1}]", segment.Offset, segment.Length);
     }
 
 

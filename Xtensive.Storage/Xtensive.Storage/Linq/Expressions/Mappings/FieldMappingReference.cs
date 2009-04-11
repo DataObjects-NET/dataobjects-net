@@ -5,11 +5,13 @@
 // Created:    2009.04.06
 
 using System;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core;
 
 namespace Xtensive.Storage.Linq.Expressions.Mappings
 {
+  [DebuggerDisplay("Fill: {FillMapping}, Mapping: {Mapping}")]
   internal class FieldMappingReference
   {
     private readonly bool fillMapping;
@@ -43,7 +45,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       if (FillMapping) {
         var complexMapping = Mapping as ComplexFieldMapping;
         if (complexMapping != null && !complexMapping.Fields.ContainsKey(key))
-          complexMapping.Fields.Add(key, segment);
+          complexMapping.RegisterFieldMapping(key, segment);
       }
     }
 
@@ -52,16 +54,17 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       if (FillMapping) {
         var complexMapping = Mapping as ComplexFieldMapping;
         if (complexMapping != null && !complexMapping.JoinedFields.ContainsKey(key))
-          complexMapping.JoinedFields.Add(key, value);
+          complexMapping.RegisterJoin(key, value);
       }
     }
 
-    public void RegisterAnonymous(string key, Expression projection)
+    public void RegisterAnonymous(string key, ComplexFieldMapping anonymousMapping, Expression projection)
     {
       if (FillMapping) {
         var complexMapping = Mapping as ComplexFieldMapping;
-        if (complexMapping != null && !complexMapping.AnonymousFields.ContainsKey(key))
-          complexMapping.AnonymousFields.Add(key, projection);
+        if (complexMapping != null && !complexMapping.AnonymousFields.ContainsKey(key)) {
+          complexMapping.RegisterAnonymous(key, anonymousMapping, projection);
+        }
       }
     }
 
@@ -72,34 +75,6 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     }
 
     #endregion
-
-    public void Fill(FieldMappingReference fieldMappingRef, MemberType memberType, Expression projection, string memberName, Func<string, string, string> rename)
-    {
-      if (fillMapping && fieldMappingRef.FillMapping)
-        Fill(fieldMappingRef.Mapping, memberType, projection, memberName, rename);
-    }
-
-    public void Fill(FieldMapping fieldMapping, MemberType memberType, Expression projection, string memberName, Func<string, string, string> rename)
-    {
-      if (fillMapping) {
-        if (fieldMapping is PrimitiveFieldMapping)
-          RegisterFieldMapping(memberName, ((PrimitiveFieldMapping)fieldMapping).Segment);
-        else {
-          var complexMapping = (ComplexFieldMapping)fieldMapping;
-          foreach (var p in complexMapping.Fields)
-            RegisterFieldMapping(rename(p.Key, memberName), p.Value);
-          foreach (var p in complexMapping.JoinedFields)
-            RegisterJoined(rename(p.Key, memberName), p.Value);
-          foreach (var p in complexMapping.AnonymousFields)
-            RegisterAnonymous(rename(p.Key, memberName), p.Value);
-          if (memberType==MemberType.Anonymous || memberType==MemberType.Entity) {
-            RegisterJoined(memberName, complexMapping);
-            if (memberType==MemberType.Anonymous)
-              RegisterAnonymous(memberName, projection);
-          }
-        }
-      }
-    }
 
     public void Replace(FieldMapping fieldMapping)
     {

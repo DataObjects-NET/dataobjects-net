@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core.Linq;
 using Xtensive.Storage.Model;
@@ -15,6 +16,7 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Linq
 {
+  [DebuggerDisplay("PathType = {PathType}, IsValid = {IsValid}, Count = {Count}")]
   internal class MemberPath : IEnumerable<MemberPathItem>
   {
     private readonly Deque<MemberPathItem> pathItems;

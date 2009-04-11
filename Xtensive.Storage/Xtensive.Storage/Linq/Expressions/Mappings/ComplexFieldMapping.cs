@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
@@ -13,11 +14,12 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Linq.Expressions.Mappings
 {
+//  [DebuggerDisplay("Complex: Fields({Fields.Count}), JoinedFields({JoinedFields.Count}), AnonymousFields({AnonymousFields.Count})")]
   internal sealed class ComplexFieldMapping : FieldMapping
   {
     internal readonly Dictionary<string, Segment<int>> Fields;
     internal readonly Dictionary<string, ComplexFieldMapping> JoinedFields;
-    internal readonly Dictionary<string, Expression> AnonymousFields;
+    internal readonly Dictionary<string, Pair<ComplexFieldMapping, Expression>> AnonymousFields;
 
     #region Accessor methods
 
@@ -42,10 +44,10 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       return result;
     }
 
-    public Expression GetAnonymousProjection(string fieldName)
+    public Pair<ComplexFieldMapping, Expression> GetAnonymousMapping(string fieldName)
     {
-      Expression result;
-      if (!AnonymousFields.TryGetValue(fieldName,out result))
+      Pair<ComplexFieldMapping, Expression> result;
+      if (!AnonymousFields.TryGetValue(fieldName, out result))
         throw new InvalidOperationException(string.Format("Could not find anonymous projection for field '{0}'.", fieldName));
       return result;
     }
@@ -70,27 +72,27 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 
     #region Register methods
 
-    public void RegisterFieldMapping(string key, Segment<int> segment)
+    public void RegisterFieldMapping(string key, Segment<int> value)
     {
       if (!Fields.ContainsKey(key))
-        Fields.Add(key, segment);
+        Fields.Add(key, value);
     }
 
-    public void RegisterJoin(string key, ComplexFieldMapping mapping)
+    public void RegisterJoin(string key, ComplexFieldMapping value)
     {
       if (!JoinedFields.ContainsKey(key))
-        JoinedFields.Add(key, mapping);
+        JoinedFields.Add(key, value);
     }
 
-    public void RegisterAnonymous(string key, Expression projection)
+    public void RegisterAnonymous(string key, ComplexFieldMapping anonymousMapping, Expression projection)
     {
       if (!AnonymousFields.ContainsKey(key))
-        AnonymousFields.Add(key, projection);
+        AnonymousFields.Add(key, new Pair<ComplexFieldMapping, Expression>(anonymousMapping, projection));
     }
 
     #endregion
 
-    public void Fill(FieldMapping fieldMapping)
+    public override void Fill(FieldMapping fieldMapping)
     {
       if (fieldMapping is PrimitiveFieldMapping) {
         var pfm = (PrimitiveFieldMapping)fieldMapping;
@@ -103,11 +105,17 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
         foreach (var pair in cfm.JoinedFields)
           RegisterJoin(pair.Key, pair.Value);
         foreach (var pair in cfm.AnonymousFields)
-          RegisterAnonymous(pair.Key, pair.Value);
+          RegisterAnonymous(pair.Key, pair.Value.First, pair.Value.Second);
       }
     }
 
+    public override string ToString()
+    {
+      return string.Format("Complex: Fields({0}), JoinedFields({1}), AnonymousFields({2})", 
+        Fields.Count, JoinedFields.Count, AnonymousFields.Count);
+    }
 
+    
     // Constructors
 
     public ComplexFieldMapping()
@@ -119,10 +127,10 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     {}
 
     public ComplexFieldMapping(Dictionary<string, Segment<int>> fields, Dictionary<string, ComplexFieldMapping> joinedFields)
-      : this(fields, joinedFields, new Dictionary<string, Expression>())
+      : this(fields, joinedFields, new Dictionary<string, Pair<ComplexFieldMapping, Expression>>())
     {}
 
-    private ComplexFieldMapping(Dictionary<string, Segment<int>> fields, Dictionary<string, ComplexFieldMapping> joinedFields, Dictionary<string, Expression> anonymousFields)
+    private ComplexFieldMapping(Dictionary<string, Segment<int>> fields, Dictionary<string, ComplexFieldMapping> joinedFields, Dictionary<string, Pair<ComplexFieldMapping, Expression>> anonymousFields)
     {
       Fields = fields;
       JoinedFields = joinedFields;

@@ -5,10 +5,12 @@
 // Created:    2008.12.26
 
 using System;
+using System.Diagnostics;
 using System.Linq.Expressions;
 
 namespace Xtensive.Storage.Linq
 {
+  [DebuggerDisplay("Name = {Name}, Type = {Type}")]
   internal class MemberPathItem
   {
     public string Name { get; private set; }

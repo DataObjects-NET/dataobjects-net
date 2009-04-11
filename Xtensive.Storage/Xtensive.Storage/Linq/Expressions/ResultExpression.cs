@@ -60,9 +60,11 @@ namespace Xtensive.Storage.Linq.Expressions
       }
       var mapping = (ComplexFieldMapping)Mapping;
       for (int i = 0; i < pathList.Count - 1; i++) {
-        var item = pathList[i];
-        if (item.Type == MemberType.Entity || item.Type == MemberType.Anonymous)
-          mapping = mapping.GetJoinedFieldMapping(item.Name);
+        var pathItem = pathList[i];
+        if (pathItem.Type == MemberType.Entity)
+          mapping = mapping.GetJoinedFieldMapping(pathItem.Name);
+        else if (pathItem.Type == MemberType.Anonymous)
+          mapping = mapping.GetAnonymousMapping(pathItem.Name).First;
       }
       var lastItem = pathList.Last();
       if (lastItem.Type == MemberType.Anonymous)
@@ -86,18 +88,13 @@ namespace Xtensive.Storage.Linq.Expressions
       var pathList = fieldPath.ToList();
       if (pathList.Count == 0)
         return Mapping;
-      var first = pathList[0];
       var mapping = Mapping;
-      if (first.Type == MemberType.Entity || first.Type == MemberType.Anonymous)
-        mapping = ((ComplexFieldMapping)mapping).GetJoinedFieldMapping(first.Name);
-      else
-        return mapping;
-
-      for (int i = 1; i < pathList.Count; i++) {
-        var item = pathList[i];
-        if (item.Type != MemberType.Entity || first.Type == MemberType.Anonymous)
-          return mapping;
-        mapping = ((ComplexFieldMapping)mapping).GetJoinedFieldMapping(item.Name);
+      foreach (var pathItem in pathList) {
+        if (pathItem.Type == MemberType.Entity)
+          mapping = ((ComplexFieldMapping)mapping).GetJoinedFieldMapping(pathItem.Name);
+        else if (pathItem.Type == MemberType.Anonymous)
+          mapping = ((ComplexFieldMapping)mapping).GetAnonymousMapping(pathItem.Name).First;
+        
       }
       return mapping;
     }
