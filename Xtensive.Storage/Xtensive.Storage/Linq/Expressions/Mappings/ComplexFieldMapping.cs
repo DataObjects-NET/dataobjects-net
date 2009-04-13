@@ -18,6 +18,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     internal readonly Dictionary<string, Pair<ComplexFieldMapping, Expression>> AnonymousFields;
     internal readonly Dictionary<string, Segment<int>> Fields;
     internal readonly Dictionary<string, ComplexFieldMapping> JoinedFields;
+    private  readonly List<int> columns = new List<int>();
 
     #region Accessor methods
 
@@ -144,8 +145,10 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 
     public void RegisterFieldMapping(string key, Segment<int> value)
     {
-      if (!Fields.ContainsKey(key))
+      if (!Fields.ContainsKey(key)) {
         Fields.Add(key, value);
+        columns.AddRange(value.GetItems());
+      }
     }
 
     public void RegisterJoin(string key, ComplexFieldMapping value)

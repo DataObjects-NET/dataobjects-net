@@ -23,16 +23,22 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
     public CompilableProvider Rewrite()
     {
       using (new ParameterScope()) {
-        var provider = VisitCompilable(origin);
-        if (pSortOrder.HasValue && pSortOrder.Value.Count > 0) {
-          if (provider.Type == ProviderType.Select) {
-            var selectProvider = (SelectProvider)provider;
-            provider = new SelectProvider(new SortProvider(selectProvider.Source, pSortOrder.Value), selectProvider.ColumnIndexes);
-          }
-          else
-            provider = new SortProvider(provider, pSortOrder.Value);
+        if (origin.Type == ProviderType.Select) {
+          var selectProvider = (SelectProvider)origin;
+          var sourceProvider = VisitCompilable(selectProvider.Source);
+          if (sourceProvider == selectProvider.Source)
+            return selectProvider;
+          if (pSortOrder.HasValue && pSortOrder.Value.Count > 0)
+            sourceProvider = new SortProvider(sourceProvider, pSortOrder.Value);
+          var provider = new SelectProvider(sourceProvider, selectProvider.ColumnIndexes);
+          return provider;
         }
-        return provider;
+        else {
+          var provider = VisitCompilable(origin);
+          if (pSortOrder.HasValue && pSortOrder.Value.Count > 0)
+            provider = new SortProvider(provider, pSortOrder.Value);
+          return provider;
+        }
       }
     }
 
@@ -40,6 +46,14 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
     {
       var source = VisitCompilable(provider.Source);
       if (pSortOrder.HasValue) {
+        var outerDirectionCollection = new DirectionCollection<int>();
+        foreach (KeyValuePair<int, Direction> sortOrder in pSortOrder.Value) {
+          var columnIndex = provider.ColumnIndexes.IndexOf(sortOrder.Key);
+          if (columnIndex < 0)
+            throw new InvalidOperationException();
+          outerDirectionCollection.Add(columnIndex, sortOrder.Value);
+        }
+        pSortOrder.Value = outerDirectionCollection;
         return new SelectProvider(source, provider.ColumnIndexes);
       }
       return provider;

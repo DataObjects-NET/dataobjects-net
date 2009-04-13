@@ -44,6 +44,26 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void OrderBySelectAnonymousTest()
+    {
+      var customers = Query<Customer>.All;
+      var result = customers
+          .OrderBy(c => c.Phone)
+          .Select(c => new { c.Fax, c.Phone });
+      var list = result.ToList();
+    }
+
+    [Test]
+    public void OrderByAnonymousTest()
+    {
+      var customers = Query<Customer>.All;
+      var result = customers
+          .OrderBy(c => new {c.Fax, c.Phone})
+          .Select(c => new {c.Fax, c.Phone});
+      var list = result.ToList();
+    }
+
+    [Test]
     public void SelectTest()
     {
         var customers = Query<Customer>.All;
