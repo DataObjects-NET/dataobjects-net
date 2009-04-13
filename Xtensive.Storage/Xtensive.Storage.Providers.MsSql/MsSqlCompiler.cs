@@ -62,8 +62,8 @@ namespace Xtensive.Storage.Providers.MsSql
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Where(column => column.Name != rowNumber).Cast<SqlColumn>());
       query.Where = sourceQuery[rowNumber] > provider.Count();
-      
-      AddOrderByForRowNumberColumn(provider, query);
+      query.OrderBy.Add(queryRef.Columns[rowNumber]); 
+//      AddOrderByForRowNumberColumn(provider, query);
       
       var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers, compiledSource);
@@ -75,26 +75,28 @@ namespace Xtensive.Storage.Providers.MsSql
       if (compiledSource == null)
         return null;
 
-      SqlSelect sourceQuery = AddRowNumberColumn(compiledSource, provider, provider.Header.Columns.Last().Name);
+      var rowNumberColumnName = provider.Header.Columns.Last().Name;
+      SqlSelect sourceQuery = AddRowNumberColumn(compiledSource, provider, rowNumberColumnName);
 
       var queryRef = SqlFactory.QueryRef(sourceQuery);
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      query.OrderBy.Add(queryRef.Columns[rowNumberColumnName]);
 
-      AddOrderByForRowNumberColumn(provider, query);
+//      AddOrderByForRowNumberColumn(provider, query);
 
       var request = new SqlFetchRequest(query, provider.Header);
       return new SqlProvider(provider, request, Handlers, compiledSource);
     }
 
-    private void AddOrderByForRowNumberColumn(Provider provider, SqlSelect query)
-    {
-      if (provider.Header.Order.Count > 0)
-        foreach (KeyValuePair<int, Direction> sortOrder in provider.Header.Order)
-          query.OrderBy.Add(query.Columns[sortOrder.Key], sortOrder.Value == Direction.Positive);
-      else
-        query.OrderBy.Add(query.Columns[0], true);
-    }
+//    private void AddOrderByForRowNumberColumn(Provider provider, SqlSelect query)
+//    {
+//      if (provider.Header.Order.Count > 0)
+//        foreach (KeyValuePair<int, Direction> sortOrder in provider.Header.Order)
+//          query.OrderBy.Add(query.Columns[sortOrder.Key], sortOrder.Value == Direction.Positive);
+//      else
+//        query.OrderBy.Add(query.Columns[0], true);
+//    }
 
     private SqlSelect AddRowNumberColumn(SqlProvider source, Provider provider, string rowNumberColumnName)
     {

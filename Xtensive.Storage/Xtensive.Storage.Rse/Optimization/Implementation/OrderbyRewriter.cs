@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.03.24
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -147,6 +148,30 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
       if(sortOrder.Count > 0)
         pSortOrder.Value = sortOrder;
       return result;
+    }
+
+    protected override Provider VisitUnion(UnionProvider provider)
+    {
+      using (new ParameterScope())
+        return base.VisitUnion(provider);
+    }
+
+    protected override Provider VisitConcat(ConcatProvider provider)
+    {
+      using (new ParameterScope())
+        return base.VisitConcat(provider);
+    }
+
+    protected override Provider VisitExcept(ExceptProvider provider)
+    {
+      using (new ParameterScope())
+        return base.VisitExcept(provider);
+    }
+
+    protected override Provider VisitIntersect(IntersectProvider provider)
+    {
+      using (new ParameterScope())
+        return base.VisitIntersect(provider);
     }
 
 
