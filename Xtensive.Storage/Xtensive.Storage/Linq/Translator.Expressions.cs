@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Linq
     private readonly Parameter<FieldMappingReference> mappingRef = new Parameter<FieldMappingReference>("mapping");
     private readonly Parameter<ParameterExpression> tuple = new Parameter<ParameterExpression>("tuple");
     private readonly Parameter<ParameterExpression> record = new Parameter<ParameterExpression>("record");
-    private readonly Parameter<bool> joinFinalEntity = new Parameter<bool>("joinFinalEntity");
+    private readonly Parameter<bool> entityAsKey = new Parameter<bool>("entityAsKey");
     private readonly Parameter<bool> calculateExpressions = new Parameter<bool>("calculateExpressions");
     private readonly Parameter<bool> recordIsUsed;
     private readonly Parameter<bool> ignoreRecordUsage = new Parameter<bool>("ignoreRecordUsage");
@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Linq
       if (mapping != null) {
         foreach (var item in path) {
           number++;
-          if (item.Type == MemberType.Entity && (joinFinalEntity.Value || number != path.Count)) {
+          if (item.Type == MemberType.Entity && (entityAsKey.Value || number != path.Count)) {
             ComplexFieldMapping innerMapping;
             var name = item.Name;
             var typeInfo = context.Model.Types[item.Expression.Type];
@@ -155,7 +155,7 @@ namespace Xtensive.Storage.Linq
         case MemberType.Structure:
           return VisitMemberPathStructure(path, source);
         case MemberType.Entity:
-          if (joinFinalEntity.Value)
+          if (entityAsKey.Value)
             return VisitMemberPathEntity(path, source, resultType);
           path = MemberPath.Parse(Expression.MakeMemberAccess(e, WellKnownMembers.IEntityKey), context.Model);
           var keyExpression = VisitMemberPathKey(path, source);

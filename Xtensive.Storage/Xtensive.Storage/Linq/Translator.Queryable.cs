@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -19,9 +18,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Mappings;
 using Xtensive.Storage.Linq.Rewriters;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Core.Helpers;
 
@@ -34,7 +31,7 @@ namespace Xtensive.Storage.Linq
     public ResultExpression Translate()
     {
       using (new ParameterScope()) {
-        joinFinalEntity.Value = false;
+        entityAsKey.Value = false;
         calculateExpressions.Value = false;
         recordIsUsed.Value = false;
         ignoreRecordUsage.Value = false;
@@ -55,7 +52,7 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitQueryableMethod(MethodCallExpression mc, QueryableMethodKind methodKind)
     {
       using (new ParameterScope()) {
-        joinFinalEntity.Value = false;
+        entityAsKey.Value = false;
         switch (methodKind) {
           case QueryableMethodKind.AsEnumerable:
             break;
@@ -700,7 +697,7 @@ namespace Xtensive.Storage.Linq
     {
       using (new ParameterScope()) {
         mappingRef.Value = new FieldMappingReference();
-        joinFinalEntity.Value = true;
+        entityAsKey.Value = true;
         calculateExpressions.Value = true;
         var itemProjector = (LambdaExpression) Visit(le);
         var source = context.Bindings[le.Parameters[0]];
@@ -875,7 +872,7 @@ namespace Xtensive.Storage.Linq
       : base(context.Model)
     {
       this.context = context;
-      this.recordIsUsed = new Parameter<bool>("recordIsUsed", oldValue => {
+      recordIsUsed = new Parameter<bool>("recordIsUsed", oldValue => {
         if (!ignoreRecordUsage.Value)
           recordIsUsed.Value |= oldValue;
       });
