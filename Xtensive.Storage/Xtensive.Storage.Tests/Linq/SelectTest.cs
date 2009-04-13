@@ -366,6 +366,13 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void SelectCharTest()
+    {
+      var result = from c in Query<Customer>.All select c.CompanyName[0];
+      var list = result.ToList();
+    }
+
+    [Test]
     public void SelectByteArrayLengthTest()
     {
       var categories = Query<Category>.All;

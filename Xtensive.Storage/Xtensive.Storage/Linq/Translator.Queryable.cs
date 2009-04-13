@@ -685,10 +685,11 @@ namespace Xtensive.Storage.Linq
           mappingRef.Value = new FieldMappingReference(false);
           parameters.Value = ArrayUtils<ParameterExpression>.EmptyArray;
           innerResult = VisitSequence(collectionSelector.Body);
-          // TODO: extract grouping parameter (if exists)
           applyParameter = context.SubqueryParameterBindings.GetBound(parameter);
         }
         var outerResult = context.Bindings[parameter];
+        if (outerResult.ItemProjector.Body.IsGrouping())
+          applyParameter = outerResult.ItemProjector.Body.GetGroupingParameter();
         var recordSet = outerResult.RecordSet
           .Apply(applyParameter, innerResult.RecordSet.Alias(context.GetNextAlias()), isOuter ? ApplyType.Outer : ApplyType.Cross);
         if (resultSelector==null) {

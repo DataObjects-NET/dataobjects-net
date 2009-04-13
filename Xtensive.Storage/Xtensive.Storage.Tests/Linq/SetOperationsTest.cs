@@ -32,10 +32,10 @@ namespace Xtensive.Storage.Tests.Linq
       var customers = Query<Customer>.All;
       var productFirstChars =
           from p in products
-          select p.ProductName[0];
+          select p.ProductName.Substring(0, 1);
       var customerFirstChars =
           from c in customers
-          select c.CompanyName[0];
+          select c.CompanyName.Substring(0, 1);
       var uniqueFirstChars = productFirstChars.Union(customerFirstChars);
       Assert.IsNotNull(uniqueFirstChars.First());
       
@@ -48,10 +48,10 @@ namespace Xtensive.Storage.Tests.Linq
       var customers = Query<Customer>.All;
       var productFirstChars =
           from p in products
-          select p.ProductName[0];
+          select p.ProductName.Substring(0, 1);
       var customerFirstChars =
           from c in customers
-          select c.CompanyName[0];
+          select c.CompanyName.Substring(0, 1);
       var commonFirstChars = productFirstChars.Intersect(customerFirstChars);
       Assert.IsNotNull(commonFirstChars.First());
       
@@ -64,10 +64,10 @@ namespace Xtensive.Storage.Tests.Linq
       var customers = Query<Customer>.All;
       var productFirstChars =
           from p in products
-          select p.ProductName[0];
+          select p.ProductName.Substring(0, 1);
       var customerFirstChars =
           from c in customers
-          select c.CompanyName[0];
+          select c.CompanyName.Substring(0, 1);
       var productOnlyFirstChars = productFirstChars.Except(customerFirstChars);
       Assert.IsNotNull(productOnlyFirstChars.First());
     }
