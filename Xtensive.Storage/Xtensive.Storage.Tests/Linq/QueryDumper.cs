@@ -28,20 +28,19 @@ namespace Xtensive.Storage.Tests.Linq
 
     public static void Dump(IEnumerable query)
     {
+      treeDepth = 1;
+      fillStringLength = 0;
+      containsEnumerable = false;
+
+      var listOfElements = new List<object>();
+      foreach (var o in query)
+        listOfElements.Add(o);
+      if (listOfElements.Count==0) {
+        Log.Info("NULL");
+        return;
+      }
+
       try {
-
-        treeDepth = 1;
-        fillStringLength = 0;
-        containsEnumerable = false;
-
-        var listOfElements = new List<object>();
-        foreach (var o in query)
-          listOfElements.Add(o);
-        if (listOfElements.Count==0) {
-          Log.Info("NULL");
-          return;
-        }
-
         var document = new XmlDocument();
         CreateNodeTree(listOfElements, ref document, "Root", document);
 
@@ -70,7 +69,7 @@ namespace Xtensive.Storage.Tests.Linq
         else
           Log.Info("Correct output is impossible.");
       }
-      catch  {
+      catch {
         Log.Info("Errors occurred during execution.");
       }
     }
@@ -78,13 +77,13 @@ namespace Xtensive.Storage.Tests.Linq
     public static void Dump(object value)
     {
       if (value is IEnumerable)
-        Dump((IEnumerable)value);
+        Dump((IEnumerable) value);
       else {
         try {
-          Dump(new [] {value});
+          Dump(new[] {value});
         }
         catch {
-          Log.Info(value == null ? "NULL" : value.ToString());
+          Log.Info(value==null ? "NULL" : value.ToString());
         }
       }
     }
@@ -95,7 +94,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       foreach (XmlNode node in rootNode.ChildNodes) {
         if (!node.HasChildNodes) {
-          if (node.Attributes["value"] != null) {
+          if (node.Attributes["value"]!=null) {
             var l = node.Attributes["value"].Value.Length + 5;
             if (l > Int32.Parse(node.Attributes["length"].Value) + 5)
               node.Attributes["length"].Value = l.ToString();
@@ -103,7 +102,7 @@ namespace Xtensive.Storage.Tests.Linq
               node.Attributes["length"].Value = (Int32.Parse(node.Attributes["length"].Value) + 5).ToString();
           }
         }
-        else 
+        else
           FillLength(ref document, node);
       }
     }
@@ -117,9 +116,9 @@ namespace Xtensive.Storage.Tests.Linq
     private static void CorrectMaxLengths(ref XmlDocument document, XmlNodeList nodes)
     {
       var firstNodes = nodes;
-      if (nodes[0].HasChildNodes && nodes[0].ParentNode == document.DocumentElement)
+      if (nodes[0].HasChildNodes && nodes[0].ParentNode==document.DocumentElement)
         firstNodes = nodes[0].ChildNodes;
-      
+
       foreach (XmlNode node in firstNodes) {
         if (!node.HasChildNodes) {
           if (node.Attributes["length"]!=null) {
@@ -144,7 +143,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var sum = 0;
       var correctNodes = nodes;
-      if (nodes[0].HasChildNodes && nodes[0].ParentNode == document.DocumentElement)
+      if (nodes[0].HasChildNodes && nodes[0].ParentNode==document.DocumentElement)
         correctNodes = nodes[0].ChildNodes;
       foreach (XmlNode o in correctNodes) {
         if (!o.HasChildNodes)
@@ -152,7 +151,7 @@ namespace Xtensive.Storage.Tests.Linq
         else
           sum += FillMaxLengths(ref document, o.ChildNodes);
       }
-      if (correctNodes[0].ParentNode.ParentNode != document.DocumentElement) {
+      if (correctNodes[0].ParentNode.ParentNode!=document.DocumentElement) {
         var maxLength = Int32.Parse(correctNodes[0].ParentNode.Attributes["length"].Value);
         if (maxLength < sum)
           correctNodes[0].ParentNode.Attributes["length"].Value = sum.ToString();
@@ -181,7 +180,7 @@ namespace Xtensive.Storage.Tests.Linq
       var parentNode = document.CreateElement(rootElement);
       parentElement.AppendChild(parentNode);
 
-      if (rootElement != "Root") {
+      if (rootElement!="Root") {
         containsEnumerable = true;
         var lengthAttribute = document.CreateAttribute("length");
         var depthAttribute = document.CreateAttribute("depth");
@@ -200,12 +199,12 @@ namespace Xtensive.Storage.Tests.Linq
       int groupIndex = 1;
       int itemIndex = 0;
 
-      foreach( var value in values) {
+      foreach (var value in values) {
         treeDepth = 1;
         var depth = 1;
         XmlNode itemNode = document.CreateElement("Item" + itemIndex);
 
-        if (!value.GetType().IsGenericType || (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() != typeof(Grouping<,>))) {
+        if (!value.GetType().IsGenericType || (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition()!=typeof (Grouping<,>))) {
           itemNode = document.CreateElement("Item" + itemIndex);
           itemIndex++;
           parentNode.AppendChild(itemNode);
@@ -213,19 +212,20 @@ namespace Xtensive.Storage.Tests.Linq
 
         if ((GetMemberType(value.GetType())==MemberType.Primitive
           || GetMemberType(value.GetType())==MemberType.Unknown)
-            && (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() != typeof(Grouping<,>)))
+            && (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition()!=typeof (Grouping<,>)))
           depth = AddNode(value, null, ref document, itemNode, depth);
 
-        else if (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(Grouping<,>)) {
-          var exactValue = (IEnumerable)value;
-          foreach ( var val in exactValue) {
+        else if (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition()==typeof (Grouping<,>)) {
+          var exactValue = (IEnumerable) value;
+          foreach (var val in exactValue) {
             itemNode = document.CreateElement("Item" + itemIndex);
             parentNode.AppendChild(itemNode);
             itemIndex++;
             var groupAttribute = document.CreateAttribute("group");
             groupAttribute.Value = groupIndex.ToString();
             var keyAttribute = document.CreateAttribute("key");
-            keyAttribute.Value = value.GetType().GetProperty("Key").GetValue(value, null).ToString(); ;
+            keyAttribute.Value = value.GetType().GetProperty("Key").GetValue(value, null).ToString();
+            ;
             itemNode.Attributes.Append(groupAttribute);
             itemNode.Attributes.Append(keyAttribute);
             var properties = val.GetType().GetProperties();
@@ -236,9 +236,9 @@ namespace Xtensive.Storage.Tests.Linq
         }
 
         else {
-        var properties = value.GetType().GetProperties();
-        foreach (var info in properties)
-          depth = AddNode(value, info, ref document, itemNode, depth);
+          var properties = value.GetType().GetProperties();
+          foreach (var info in properties)
+            depth = AddNode(value, info, ref document, itemNode, depth);
         }
       }
     }
@@ -257,7 +257,7 @@ namespace Xtensive.Storage.Tests.Linq
 
       //One column of primitive type
 
-      if (property == null) {
+      if (property==null) {
         var propertyName = "Result";
         XmlElement node = document.CreateElement(propertyName);
         var valueAttribute = document.CreateAttribute("value");
@@ -318,7 +318,6 @@ namespace Xtensive.Storage.Tests.Linq
               AddNode(itemValue, itemProperty, ref document, node, depth);
             depth -= 1;
             break;
-
           }
         }
       }
@@ -328,7 +327,7 @@ namespace Xtensive.Storage.Tests.Linq
     private static void OutputLog(XmlDocument document, List<string> groupHeader)
     {
       int currentGroup = 1;
-      if (groupHeader != null) {
+      if (groupHeader!=null) {
         Log.Info(String.Empty);
         Log.Info(CreateFillString(fillStringLength + 1, '*'));
         Log.Info("|  Key = " + document.DocumentElement.ChildNodes[0].Attributes["key"].Value);
@@ -337,8 +336,7 @@ namespace Xtensive.Storage.Tests.Linq
       }
 
       foreach (XmlNode node in document.DocumentElement.ChildNodes) {
-
-        if (groupHeader != null && Int32.Parse(node.Attributes["group"].Value) > currentGroup) {
+        if (groupHeader!=null && Int32.Parse(node.Attributes["group"].Value) > currentGroup) {
           Log.Info(String.Empty);
           Log.Info(CreateFillString(fillStringLength + 1, '*'));
           Log.Info("|  Key = " + node.Attributes["key"].Value);
@@ -350,13 +348,13 @@ namespace Xtensive.Storage.Tests.Linq
         var nodes = node.Clone().SelectNodes("//*[@depth=1]");
         var helpList = new List<Pair<XmlNode, int>>();
         var drawList = new List<Pair<XmlNode, int>>();
-        
-        for (int i =0 ; i < nodes.Count; i++) {
+
+        for (int i = 0; i < nodes.Count; i++) {
           if (!nodes[i].HasChildNodes)
             helpList.Add(new Pair<XmlNode, int>(nodes[i], 0));
           else {
             var length = 0;
-            for(int j = i - 1; j >= 0; j = j-1) {
+            for (int j = i - 1; j >= 0; j = j - 1) {
               if (nodes[j].HasChildNodes)
                 break;
               length += Int32.Parse(nodes[j].Attributes["length"].Value);
@@ -369,18 +367,18 @@ namespace Xtensive.Storage.Tests.Linq
 
         for (int i = 2; i <= treeDepth; i++) {
           drawList.Clear();
-          nodes = node.Clone().SelectNodes("//*[@depth="+i+"]");
-          for (int j = 0; j < nodes.Count; j++ ) {
-            var val = helpList.Where(v => v.First.InnerXml == nodes[j].ParentNode.InnerXml);
-            var value = val!=null ? val.First(): new Pair<XmlNode, int>(null, 0);
-              
-            if (((j > 0) && nodes[j-1].ParentNode.InnerXml != value.First.InnerXml) || j == 0)
+          nodes = node.Clone().SelectNodes("//*[@depth=" + i + "]");
+          for (int j = 0; j < nodes.Count; j++) {
+            var val = helpList.Where(v => v.First.InnerXml==nodes[j].ParentNode.InnerXml);
+            var value = val!=null ? val.First() : new Pair<XmlNode, int>(null, 0);
+
+            if (((j > 0) && nodes[j - 1].ParentNode.InnerXml!=value.First.InnerXml) || j==0)
               drawList.Add(new Pair<XmlNode, int>(nodes[j], value.Second));
-            else if ((j > 0) && nodes[j-1].ParentNode.InnerXml == value.First.InnerXml)
+            else if ((j > 0) && nodes[j - 1].ParentNode.InnerXml==value.First.InnerXml)
               drawList.Add(new Pair<XmlNode, int>(nodes[j], 0));
           }
           DrawSingleLine(drawList);
-          if (i == treeDepth)
+          if (i==treeDepth)
             break;
           helpList.Clear();
           for (int l = 0; l < nodes.Count; l++) {
@@ -401,7 +399,7 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    private static void DrawSingleLine(List<Pair<XmlNode,int>> listOfNodes)
+    private static void DrawSingleLine(List<Pair<XmlNode, int>> listOfNodes)
     {
       var str = new StringBuilder("|");
       var separateLine = new StringBuilder("|");
@@ -446,28 +444,28 @@ namespace Xtensive.Storage.Tests.Linq
 
     private static MemberType GetMemberType(Type type)
     {
-      if (typeof(Key).IsAssignableFrom(type))
+      if (typeof (Key).IsAssignableFrom(type))
         return MemberType.Key;
-      if (typeof(IEntity).IsAssignableFrom(type))
+      if (typeof (IEntity).IsAssignableFrom(type))
         return MemberType.Entity;
-      if (typeof(Structure).IsAssignableFrom(type))
+      if (typeof (Structure).IsAssignableFrom(type))
         return MemberType.Structure;
-      if (typeof(EntitySetBase).IsAssignableFrom(type))
+      if (typeof (EntitySetBase).IsAssignableFrom(type))
         return MemberType.EntitySet;
-      if (Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
-        && type.BaseType == typeof(object)
+      if (Attribute.IsDefined(type, typeof (CompilerGeneratedAttribute), false)
+        && type.BaseType==typeof (object)
           && type.Name.Contains("AnonymousType")
             && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
-              && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic)
+              && (type.Attributes & TypeAttributes.NotPublic)==TypeAttributes.NotPublic)
         return MemberType.Anonymous;
       return MemberType.Unknown;
     }
 
     private static string ReplaceTabs(object value)
     {
-      if (value == null)
+      if (value==null)
         return "NULL";
-      if (value.GetType() == typeof(byte[]))
+      if (value.GetType()==typeof (byte[]))
         return "ByteArray";
       return value.ToString().Replace("-", " ").Replace("\n", string.Empty)
         .Replace("\t", string.Empty).Replace("\\", string.Empty).Replace("\"", " ").Replace("\r", " ").Trim();
