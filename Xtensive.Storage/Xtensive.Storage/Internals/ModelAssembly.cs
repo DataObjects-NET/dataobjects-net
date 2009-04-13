@@ -18,12 +18,12 @@ namespace Xtensive.Storage.Internals
 
     public string AssemblyName
     {
-      get { return assembly.GetName(false).Version.ToString(); }
+      get { return assembly.GetName(false).Name; }
     }
 
     public string ModelVersion
     {
-      get { return assembly.GetName(false).Name; }
+      get { return assembly.GetName(false).Version.ToString(); }
     }
 
     public IEnumerable<ISchemaUpgrader> GetUpgraders()
