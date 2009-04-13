@@ -64,6 +64,14 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void OrderByEntityTest()
+    {
+      var customers = Query<Customer>.All;
+      var result = customers.OrderBy(c => c);
+      var list = result.ToList();
+    }
+
+    [Test]
     public void SelectTest()
     {
         var customers = Query<Customer>.All;

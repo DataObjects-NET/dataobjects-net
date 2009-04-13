@@ -42,20 +42,6 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    private static Dictionary<string, Segment<int>> BuildFieldMapping(TypeInfo type, int offset)
-    {
-      var fieldMapping = new Dictionary<string, Segment<int>>();
-      foreach (var field in type.Fields) {
-        fieldMapping.Add(field.Name, new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length));
-        if (field.IsEntity)
-          fieldMapping.Add(field.Name + ".Key", new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length));
-      }
-      var keySegment = new Segment<int>(offset, type.Hierarchy.KeyInfo.Fields.Sum(pair => pair.Key.MappingInfo.Length));
-      fieldMapping.Add("Key", keySegment);
-
-      return fieldMapping;
-    }
-
     protected override Expression VisitConstant(ConstantExpression c)
     {
       if (c.Value==null)

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Linq.Expressions.Mappings
 {
@@ -55,17 +56,21 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 
     public override IList<int> GetColumns()
     {
-      var result = new List<int>();
-      foreach (var pair in Fields)
-        result.AddRange(pair.Value.GetItems());
-      return result.Distinct().ToList();
+      return columns.Distinct().ToList();
     }
 
     public override FieldMapping ShiftOffset(int offset)
     {
-      Dictionary<string, Segment<int>> shiftedFields = Fields.ToDictionary(fm => fm.Key, fm => new Segment<int>(offset + fm.Value.Offset, fm.Value.Length));
-      Dictionary<string, ComplexFieldMapping> shiftedRelations = JoinedFields.ToDictionary(jr => jr.Key, jr => (ComplexFieldMapping)jr.Value.ShiftOffset(offset));
-      return new ComplexFieldMapping(shiftedFields, shiftedRelations);
+      var shiftedFields = Fields.ToDictionary(fm => fm.Key, fm => new Segment<int>(offset + fm.Value.Offset, fm.Value.Length));
+      var shiftedRelations = JoinedFields.ToDictionary(jr => jr.Key, jr => (ComplexFieldMapping)jr.Value.ShiftOffset(offset));
+      var shiftedAnonymous = new Dictionary<string, Pair<ComplexFieldMapping, Expression>>();
+      foreach (var pair in AnonymousFields) {
+        var mapping = pair.Value.First.ShiftOffset(offset);
+        // TODO: rewrite tuple access
+        var expression = pair.Value.Second;
+        shiftedAnonymous.Add(pair.Key, new Pair<ComplexFieldMapping, Expression>((ComplexFieldMapping)mapping, expression));
+      }
+      return new ComplexFieldMapping(shiftedFields, shiftedRelations, shiftedAnonymous);
     }
 
     public override Segment<int> GetMemberSegment(MemberPath fieldPath)
@@ -169,16 +174,23 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     // Constructors
 
     public ComplexFieldMapping()
-      : this(new Dictionary<string, Segment<int>>())
+      : this(new Dictionary<string, Segment<int>>(), new Dictionary<string, ComplexFieldMapping>(), new Dictionary<string, Pair<ComplexFieldMapping, Expression>>())
     {}
 
-    public ComplexFieldMapping(Dictionary<string, Segment<int>> fields)
-      : this(fields, new Dictionary<string, ComplexFieldMapping>())
-    {}
+    public ComplexFieldMapping(TypeInfo type, int offset)
+      : this (null, new Dictionary<string, ComplexFieldMapping>(), new Dictionary<string, Pair<ComplexFieldMapping, Expression>>())
+    {
+      Fields = new Dictionary<string, Segment<int>>();
+      foreach (var field in type.Fields) {
+        Fields.Add(field.Name, new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length));
+        if (field.IsEntity)
+          Fields.Add(field.Name + ".Key", new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length));
+      }
+      var keySegment = new Segment<int>(offset, type.Hierarchy.KeyInfo.Fields.Sum(pair => pair.Key.MappingInfo.Length));
+      Fields.Add("Key", keySegment);
 
-    public ComplexFieldMapping(Dictionary<string, Segment<int>> fields, Dictionary<string, ComplexFieldMapping> joinedFields)
-      : this(fields, joinedFields, new Dictionary<string, Pair<ComplexFieldMapping, Expression>>())
-    {}
+      columns.AddRange(Enumerable.Range(offset, type.Columns.Count));
+    }
 
     private ComplexFieldMapping(Dictionary<string, Segment<int>> fields, Dictionary<string, ComplexFieldMapping> joinedFields, Dictionary<string, Pair<ComplexFieldMapping, Expression>> anonymousFields)
     {

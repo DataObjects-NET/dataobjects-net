@@ -135,8 +135,7 @@ namespace Xtensive.Storage.Linq
                 .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
                 .ToArray();
               var rs = source.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
-              var fieldMapping = BuildFieldMapping(typeInfo, source.RecordSet.Header.Columns.Count);
-              var joinedMapping = new ComplexFieldMapping(fieldMapping, new Dictionary<string, ComplexFieldMapping>());
+              var joinedMapping = new ComplexFieldMapping(typeInfo, source.RecordSet.Header.Columns.Count);
               mapping.RegisterJoin(name, joinedMapping);
               source = new ResultExpression(source.Type, rs, source.Mapping, source.ItemProjector);
               context.Bindings.ReplaceBound(pe, source);
@@ -350,8 +349,7 @@ namespace Xtensive.Storage.Linq
       var type = context.Model.Types[elementType];
       var index = type.Indexes.PrimaryIndex;
 
-      var fieldMapping = BuildFieldMapping(type, 0);
-      var mapping = new ComplexFieldMapping(fieldMapping);
+      var mapping = new ComplexFieldMapping(type, 0);
       var recordSet = IndexProvider.Get(index).Result;
       var pRecord = Expression.Parameter(typeof (Record), "r");
       var itemProjector = 
