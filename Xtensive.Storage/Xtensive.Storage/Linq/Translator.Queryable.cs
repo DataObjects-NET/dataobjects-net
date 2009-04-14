@@ -860,7 +860,7 @@ namespace Xtensive.Storage.Linq
     {
       this.context = context;
       recordIsUsed = new Parameter<bool>("recordIsUsed", oldValue => {
-        if (!ignoreRecordUsage.Value)
+        if (recordIsUsed.HasValue && ignoreRecordUsage.HasValue && !ignoreRecordUsage.Value)
           recordIsUsed.Value |= oldValue;
       });
     }

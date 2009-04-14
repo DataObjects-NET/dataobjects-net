@@ -4,7 +4,9 @@
 // Created by: Elena Vakhtina
 // Created:    2008.09.09
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 
@@ -12,24 +14,25 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 {
   internal class CalculateProvider : UnaryExecutableProvider<Compilable.CalculateProvider>
   {
+    private readonly List<Func<Tuple, object>> calculators;
 
     /// <inheritdoc/>
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       foreach (var tuple in Source.Enumerate(context)) {
         var resTuple = Origin.ResizeTransform.Apply(TupleTransformType.Tuple, tuple);
-        foreach (var col in Origin.CalculatedColumns)
-          resTuple.SetValue(col.Index, col.Expression.Compile().Invoke(tuple));
+        for (int i = 0; i < Origin.CalculatedColumns.Length; i++)
+          resTuple.SetValue(Origin.CalculatedColumns[i].Index, calculators[i].Invoke(tuple));
         yield return resTuple;
       }
     }
-
 
     // Constructor
 
     public CalculateProvider(Compilable.CalculateProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
+      calculators = Origin.CalculatedColumns.Select(c => c.Expression.Compile()).ToList();
     }
   }
 }

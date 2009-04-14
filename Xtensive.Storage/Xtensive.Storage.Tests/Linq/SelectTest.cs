@@ -37,6 +37,17 @@ namespace Xtensive.Storage.Tests.Linq
       var list = products.ToList();
     }
 
+    [Test]
+    public void AnonymousWithCalculatedColumnsTest()
+    {
+      var result = Query<Customer>.All.Select(c =>
+        new {
+          n1 = c.ContactTitle.Length + c.ContactName.Length,
+          n2 = c.ContactName.Length + c.ContactTitle.Length
+        });
+      result = result.Where(i => i.n1 > 10);
+      result.ToList();
+    }
 
     [Test]
     public void AnonymousParameterColumn()
