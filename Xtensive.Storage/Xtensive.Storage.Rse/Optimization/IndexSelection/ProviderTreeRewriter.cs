@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     private readonly DomainModel domainModel;
     private Dictionary<IndexInfo, RangeSetInfo> currentRangeSets;
 
-    public Provider Insert(CompilableProvider source,
+    public Provider InsertSecondaryIndexes(CompilableProvider source,
       Dictionary<IndexInfo, RangeSetInfo> rangeSets)
     {
       ArgumentValidator.EnsureArgumentNotNull(rangeSets, "rangeSets");

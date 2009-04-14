@@ -11,8 +11,11 @@ using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse.Optimization
 {
+  /// <summary>
+  /// Composite optimizer.
+  /// </summary>
   [Serializable]
-  public sealed class OptimizationQueue : IOptimizer
+  public sealed class CompositeOptimizer : IOptimizer
   {
     private readonly IOptimizer[] optimizers;
 
@@ -29,9 +32,10 @@ namespace Xtensive.Storage.Rse.Optimization
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public OptimizationQueue(params IOptimizer[] optimizers)
+    /// <param name="optimizers">Optimizers to be composed.</param>
+    public CompositeOptimizer(params IOptimizer[] optimizers)
     {
       this.optimizers = optimizers;
     }

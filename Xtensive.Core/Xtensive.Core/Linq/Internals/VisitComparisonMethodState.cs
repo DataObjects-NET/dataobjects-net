@@ -59,7 +59,8 @@ namespace Xtensive.Core.Linq.Internals
         if (argumentCount > 1) {
           var secondInfo = Visit(exp.Arguments[1]);
           if (firstInfo != null && secondInfo != null)
-            throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
+            throw Exceptions.InternalError(Resources.Strings.ExCannotParseCallToComparisonMethod,
+              Log.Instance);
           if (secondInfo != null) {
             keyIndex = 1;
             return secondInfo;
@@ -81,7 +82,8 @@ namespace Xtensive.Core.Linq.Internals
         var tempInfo = Visit(exp.Arguments[i]);
         if (tempInfo != null) {
           if (argumentInfo != null)
-            throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
+            throw Exceptions.InternalError(Resources.Strings.ExCannotParseCallToComparisonMethod,
+              Log.Instance);
           argumentInfo = tempInfo;
           keyIndex = i;
         }
@@ -94,7 +96,8 @@ namespace Xtensive.Core.Linq.Internals
     {
       var result = objectInfo!=null ? objectInfo : argumentInfo;
       if (result==null)
-        throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
+        throw Exceptions.InternalError(Resources.Strings.ExCannotParseCallToComparisonMethod,
+              Log.Instance);
       if (result==objectInfo)
         return ExtractValueFromInstanceMethodOfKey(result, exp);
       return ExtractValueFromMethod(result, exp, keyIndex);
@@ -104,10 +107,12 @@ namespace Xtensive.Core.Linq.Internals
       int keyIndex)
     {
       if (keyIndex < 0)
-        throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
+        throw Exceptions.InternalError(Resources.Strings.ExCannotParseCallToComparisonMethod,
+          Log.Instance);
       if (exp.Method.IsStatic) {
         if (exp.Arguments.Count < 2 || keyIndex > 1)
-          throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
+          throw Exceptions.InternalError(Resources.Strings.ExCannotParseCallToComparisonMethod,
+            Log.Instance);
         Expression value;
         bool reversingRequired = false;
         if (keyIndex==1) {
@@ -123,7 +128,8 @@ namespace Xtensive.Core.Linq.Internals
       }
       else {
         if (exp.Arguments.Count < 1)
-          throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
+          throw Exceptions.InternalError(Resources.Strings.ExCannotParseCallToComparisonMethod,
+            Log.Instance);
         result.Value = exp.Object;
         result.ReversingRequired = !(result.ReversingRequired);
       }
@@ -134,7 +140,8 @@ namespace Xtensive.Core.Linq.Internals
       MethodCallExpression exp)
     {
       if (exp.Arguments.Count == 0)
-        throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
+        throw Exceptions.InternalError(Resources.Strings.ExCannotParseCallToComparisonMethod,
+          Log.Instance);
       var value = exp.Arguments[0];
       CheckThatKeyAndValueAreOfCompatibleTypes(result.Key, value);
       result.Value = value;
@@ -144,7 +151,8 @@ namespace Xtensive.Core.Linq.Internals
     private static void CheckThatKeyAndValueAreOfCompatibleTypes(Expression key, Expression value)
     {
       if (value.Type != key.Type && !key.Type.IsSubclassOf(value.Type))
-        throw new ArgumentException(Resources.Strings.ExCannotParseCallToComparisonMethod);
+        throw Exceptions.InternalError(Resources.Strings.ExCannotParseCallToComparisonMethod,
+          Log.Instance);
     }
 
     private static ExtractionInfo ProcessMethodCorrespondingToLike(ExtractionInfo extractionInfo)
