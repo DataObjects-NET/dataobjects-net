@@ -23,7 +23,7 @@ using Xtensive.Storage.Tests.Storage.SnakesModel;
 namespace Xtensive.Storage.Tests.Rse
 {
   [TestFixture]
-  public class SecondaryIndexProvidersInserterTest : AutoBuildTest
+  public class ProviderTreeRewriterTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Tests.Rse
       var primaryIndex = creatureType.Indexes.PrimaryIndex;
       var extractedRangeSets = CreatedExtractedRangeSets(creatureType);
       var providersTree = CreateTreeForInsertTest(primaryIndex);
-      var inserter = new SecondaryIndexProvidersInserter(Domain.Model);
+      var inserter = new ProviderTreeRewriter(Domain.Model);
       var modifiedTree = inserter.Insert(providersTree, extractedRangeSets);
 
       Assert.AreEqual(providersTree.GetType(), modifiedTree.GetType());
@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.Rse
       var primaryIndex = creatureType.Indexes.PrimaryIndex;
       var extractedRangeSets = CreatedExtractedRangeSets(creatureType);
       var providersTree = CreateTreeForForDoNotModifyTest(primaryIndex);
-      var inserter = new SecondaryIndexProvidersInserter(Domain.Model);
+      var inserter = new ProviderTreeRewriter(Domain.Model);
       var nonModifiedTree = inserter.Insert(providersTree, extractedRangeSets);
       Assert.AreEqual(providersTree, nonModifiedTree);
     }

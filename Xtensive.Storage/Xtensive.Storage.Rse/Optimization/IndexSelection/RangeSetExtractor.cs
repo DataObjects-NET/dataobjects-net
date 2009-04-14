@@ -18,14 +18,14 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     private readonly CnfParser cnfParser;
     private readonly GeneralPredicateParser generalParser;
 
-    public Dictionary<Expression, List<RsExtractionResult>> Extract(DisjunctiveNormalized predicate,
+    public Dictionary<Expression, List<RSExtractionResult>> Extract(DisjunctiveNormalized predicate,
       IEnumerable<IndexInfo> indexInfo, RecordSetHeader primaryIdxRecordSetHeader)
     {
       ArgumentValidator.EnsureArgumentNotNull(predicate, "predicate");
       ArgumentValidator.EnsureArgumentNotNull(indexInfo, "indexInfo");
       ArgumentValidator.EnsureArgumentNotNull(primaryIdxRecordSetHeader, "primaryIdxRecordSetHeader");
       predicate.Validate();
-      var result = new Dictionary<Expression, List<RsExtractionResult>>();
+      var result = new Dictionary<Expression, List<RSExtractionResult>>();
       var indexCount = indexInfo.Count();
       foreach (var operand in predicate.Operands) {
         var expressionPart = operand.ToExpression();
@@ -35,42 +35,43 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       return result;
     }
 
-    public Dictionary<Expression, List<RsExtractionResult>> Extract(Expression predicate,
+    public Dictionary<Expression, List<RSExtractionResult>> Extract(Expression predicate,
       IEnumerable<IndexInfo> indexInfo, RecordSetHeader primaryIdxRecordSetHeader)
     {
       ArgumentValidator.EnsureArgumentNotNull(predicate, "predicate");
       ArgumentValidator.EnsureArgumentNotNull(indexInfo, "indexInfo");
       ArgumentValidator.EnsureArgumentNotNull(primaryIdxRecordSetHeader, "primaryIdxRecordSetHeader");
-      var result = new Dictionary<Expression, List<RsExtractionResult>>();
+      var result = new Dictionary<Expression, List<RSExtractionResult>>();
       var indexCount = indexInfo.Count();
       var extractionResult = ProcessExpression(predicate, indexInfo, indexCount, primaryIdxRecordSetHeader);
       result.Add(predicate, extractionResult);
       return result;
     }
 
-    private List<RsExtractionResult> ProcessExpressionPart(Conjunction<Expression> part,
+    private List<RSExtractionResult> ProcessExpressionPart(Conjunction<Expression> part,
       IEnumerable<IndexInfo> indexInfo, int indexCount, RecordSetHeader rsHeader)
     {
-      var result = new List<RsExtractionResult>(indexCount);
+      var result = new List<RSExtractionResult>(indexCount);
       foreach (var info in indexInfo) {
         var resultPart = cnfParser.Parse(part, info, rsHeader);
-        var extractionResult = new RsExtractionResult(info, resultPart);
+        var extractionResult = new RSExtractionResult(info, resultPart);
         result.Add(extractionResult);
       }
       return result;
     }
 
-    private List<RsExtractionResult> ProcessExpression(Expression exp,
+    private List<RSExtractionResult> ProcessExpression(Expression exp,
       IEnumerable<IndexInfo> indexInfo, int indexCount, RecordSetHeader rsHeader)
     {
-      var result = new List<RsExtractionResult>(indexCount);
+      var result = new List<RSExtractionResult>(indexCount);
       foreach (var info in indexInfo) {
         var resultPart = generalParser.Parse(exp, info, rsHeader);
-        var extractionResult = new RsExtractionResult(info, resultPart);
+        var extractionResult = new RSExtractionResult(info, resultPart);
         result.Add(extractionResult);
       }
       return result;
     }
+
 
     // Constructors
 

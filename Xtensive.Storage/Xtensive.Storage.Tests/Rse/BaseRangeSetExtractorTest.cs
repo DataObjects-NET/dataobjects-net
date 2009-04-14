@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Tests.Rse
     }
 
     private void TestExpression(IEnumerable<Range<Entire<Tuple>>> expectedRanges,
-      Func<RangeSetExtractor, Dictionary<Expression, List<RsExtractionResult>>> extractingFunc)
+      Func<RangeSetExtractor, Dictionary<Expression, List<RSExtractionResult>>> extractingFunc)
     {
       RangeSetExtractor extractor = new RangeSetExtractor(Domain.Model);
       var rangeSetExp = extractingFunc(extractor);

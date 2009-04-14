@@ -11,14 +11,14 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
-  internal class SimpleIndexesSelector : IIndexesSelector
+  internal class SimpleIndexSelector : IIndexSelector
   {
     private readonly ICostEvaluator costEvaluator;
 
-    #region Implementation of IIndexesSelector
+    #region Implementation of IIndexSelector
 
     public Dictionary<IndexInfo, RangeSetInfo> Select(Dictionary<Expression,
-      List<RsExtractionResult>> extractionResults)
+      List<RSExtractionResult>> extractionResults)
     {
       var result = new Dictionary<IndexInfo, RangeSetInfo>(extractionResults.Count);
       foreach (var pair in extractionResults) {
@@ -34,9 +34,9 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     #endregion
 
-    private RsExtractionResult SelectCheapestResult(IEnumerable<RsExtractionResult> extractionResults)
+    private RSExtractionResult SelectCheapestResult(IEnumerable<RSExtractionResult> extractionResults)
     {
-      RsExtractionResult cheapestResult = null;
+      RSExtractionResult cheapestResult = null;
       double minimalCost = double.MaxValue;
       foreach (var result in extractionResults) {
         double currentCost;
@@ -52,9 +52,10 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       return cheapestResult;
     }
 
+
     // Constructors
 
-    public SimpleIndexesSelector(ICostEvaluator costEvaluator)
+    public SimpleIndexSelector(ICostEvaluator costEvaluator)
     {
       ArgumentValidator.EnsureArgumentNotNull(costEvaluator, "costEvaluator");
       this.costEvaluator = costEvaluator;

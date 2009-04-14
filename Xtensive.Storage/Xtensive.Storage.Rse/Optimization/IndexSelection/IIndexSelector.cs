@@ -10,9 +10,9 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
-  internal interface IIndexesSelector
+  internal interface IIndexSelector
   {
     Dictionary<IndexInfo, RangeSetInfo> Select(Dictionary<Expression,
-      List<RsExtractionResult>> extractionResults);
+      List<RSExtractionResult>> extractionResults);
   }
 }

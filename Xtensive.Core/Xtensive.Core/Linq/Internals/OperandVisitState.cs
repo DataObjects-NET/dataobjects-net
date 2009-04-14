@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace Xtensive.Core.Linq.Internals
 {
-  internal class VisitingOperandState : BaseExtractorState
+  internal class OperandVisitState : BaseExtractorState
   {
     public ExtractionInfo Extract(Expression exp, Func<Expression, bool> keySelector)
     {
@@ -38,7 +38,7 @@ namespace Xtensive.Core.Linq.Internals
       ComparisonMethodInfo methodInfo = ComparisonMethodRepository.Get(mc.Method);
       if (methodInfo == null)
         return null;
-      return ComparisonMethodState.Extract(mc, methodInfo, KeySelector);
+      return VisitComparisonMethodState.Extract(mc, methodInfo, KeySelector);
     }
   }
 }

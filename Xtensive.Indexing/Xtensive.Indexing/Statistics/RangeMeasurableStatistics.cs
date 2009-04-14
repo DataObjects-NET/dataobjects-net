@@ -35,6 +35,7 @@ namespace Xtensive.Indexing.Statistics
       throw new NotImplementedException();
     }
 
+
     // Constructors
 
     public RangeMeasurableStatistics(IRangeMeasurable<TKey, TItem> measuresProvider,

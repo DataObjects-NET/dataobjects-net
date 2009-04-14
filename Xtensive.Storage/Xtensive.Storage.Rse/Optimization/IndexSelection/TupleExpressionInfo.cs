@@ -17,6 +17,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     public readonly int FieldIndex;
     public readonly ComparisonInfo Comparison;
 
+
     // Constructors
 
     public TupleExpressionInfo(int fieldIndex, ComparisonInfo comparison)

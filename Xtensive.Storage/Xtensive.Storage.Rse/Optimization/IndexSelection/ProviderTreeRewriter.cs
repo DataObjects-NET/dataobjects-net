@@ -7,17 +7,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Core.Tuples;
-using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
-  internal class SecondaryIndexProvidersInserter : CompilableProviderVisitor
+  internal class ProviderTreeRewriter : CompilableProviderVisitor
   {
     private readonly DomainModel domainModel;
     private Dictionary<IndexInfo, RangeSetInfo> currentRangeSets;
@@ -110,7 +107,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     // Constructors
 
-    public SecondaryIndexProvidersInserter(DomainModel domainModel)
+    public ProviderTreeRewriter(DomainModel domainModel)
     {
       ArgumentValidator.EnsureArgumentNotNull(domainModel, "domainModel");
       this.domainModel = domainModel;

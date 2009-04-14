@@ -189,6 +189,7 @@ namespace Xtensive.Indexing
       }
     }
 
+
     // Constructors
 
     /// <summary>

@@ -140,6 +140,7 @@ namespace Xtensive.Core.Linq.Internals
         ComparisonKind = ComparisonKind.Equality;
     }
 
+
     // Constructors
 
     static ComparisonMethodInfo()

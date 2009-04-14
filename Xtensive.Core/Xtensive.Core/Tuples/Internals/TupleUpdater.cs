@@ -35,6 +35,7 @@ namespace Xtensive.Core.Tuples.Internals
       return this;
     }
 
+
     // Constructors
 
     /// <summary>

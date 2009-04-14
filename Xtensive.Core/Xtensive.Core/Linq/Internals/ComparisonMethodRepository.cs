@@ -48,19 +48,21 @@ namespace Xtensive.Core.Linq.Internals
       methods.Add(method, new ComparisonMethodInfo(method));
     }
 
+
     //Constructors
 
     static ComparisonMethodRepository()
     {
       AddAllMethods(typeof(IComparable));
       AddAllMethods(typeof(IComparable<>));
-      var flagsForStatic = BindingFlags.Static | BindingFlags.Public;
+      const BindingFlags flagsForStatic = BindingFlags.Static | BindingFlags.Public;
       AddMethods(typeof(string), "Compare", flagsForStatic);
       AddMethod(typeof(string).GetMethod("CompareOrdinal", new[]{typeof(string), typeof(string)}));
       AddMethods(ComparisonMethodInfo.GetMethodsCorrespondingToLike());
       AddMethod(typeof (DateTime).GetMethod("Compare", flagsForStatic));
 
-      var flagsForInstanceAndStatic = BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance;
+      const BindingFlags flagsForInstanceAndStatic = BindingFlags.Public | BindingFlags.Static
+        | BindingFlags.Instance;
       AddMethods(typeof(object), "Equals", flagsForInstanceAndStatic);
       AddMethods(typeof(string), "Equals", flagsForInstanceAndStatic);
       AddMethod(typeof (DateTime).GetMethod("Equals", flagsForStatic));

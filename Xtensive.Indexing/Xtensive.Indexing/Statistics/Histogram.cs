@@ -112,6 +112,7 @@ namespace Xtensive.Indexing.Statistics
 
     #endregion
 
+
     // Constructors
 
     public Histogram(AdvancedComparer<TKey> keyComparer, AdvancedComparer<TValue> valueComparer,

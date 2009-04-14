@@ -49,8 +49,8 @@ namespace Xtensive.Core.Linq.Internals
         return keyInfo;
       if (!IsComparison(exp.NodeType))
         return null;
-      var leftInfo = OperandState.Extract(exp.Left, KeySelector);
-      var rightInfo = OperandState.Extract(exp.Right, KeySelector);
+      var leftInfo = OperandVisitState.Extract(exp.Left, KeySelector);
+      var rightInfo = OperandVisitState.Extract(exp.Right, KeySelector);
       if (leftInfo == rightInfo)
         return null;
       if (rightInfo != null)
@@ -82,7 +82,7 @@ namespace Xtensive.Core.Linq.Internals
       var keyInfo = SelectKey(exp);
       if (keyInfo != null)
         return keyInfo;
-      var result = OperandState.Extract(exp, KeySelector);
+      var result = OperandVisitState.Extract(exp, KeySelector);
       return result;
     }
 

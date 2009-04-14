@@ -14,22 +14,22 @@ namespace Xtensive.Core.Linq.Internals
     protected Func<Expression, bool> KeySelector;
 
     #region ExtractorStates
-    private VisitingOperandState operandState;
-    private ComparisonMethodVisitngState comparisonMethodState;
+    private OperandVisitState operandVisitState;
+    private VisitComparisonMethodState visitComparisonMethodState;
 
-    protected VisitingOperandState OperandState {
+    protected OperandVisitState OperandVisitState {
       get {
-        if (operandState == null)
-          operandState = new VisitingOperandState();
-        return operandState;
+        if (operandVisitState == null)
+          operandVisitState = new OperandVisitState();
+        return operandVisitState;
       }
     }
 
-    protected ComparisonMethodVisitngState ComparisonMethodState {
+    protected VisitComparisonMethodState VisitComparisonMethodState {
       get {
-        if (comparisonMethodState == null)
-          comparisonMethodState = new ComparisonMethodVisitngState();
-        return comparisonMethodState;
+        if (visitComparisonMethodState == null)
+          visitComparisonMethodState = new VisitComparisonMethodState();
+        return visitComparisonMethodState;
       }
     }
     #endregion

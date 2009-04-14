@@ -5,7 +5,6 @@
 // Created:    2009.03.27
 
 using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core.Linq.Internals;
 
@@ -15,15 +14,27 @@ namespace Xtensive.Core.Linq
   /// Information about a comparison operation.
   /// </summary>
   [Serializable]
-  [DebuggerDisplay("{Key} {Operation} {Value}")]
   public sealed class ComparisonInfo
   {
+    /// <summary>
+    /// The key part of the comparison expression.
+    /// </summary>
     public readonly Expression Key;
 
+    /// <summary>
+    /// The value part of the comparison expression.
+    /// </summary>
     public readonly Expression Value;
 
+    /// <summary>
+    /// The comparison operation.
+    /// </summary>
     public readonly ComparisonOperation Operation;
 
+    /// <summary>
+    /// Contains the comparison method call expression, in case it is complex;
+    /// otherwise, contains <see langword="null" />.
+    /// </summary>
     public readonly Expression ComplexMethod;
 
     /// <summary>
@@ -56,60 +67,60 @@ namespace Xtensive.Core.Linq
     private static ComparisonOperation ConvertToComparisonType(ExpressionType expressionType)
     {
       switch (expressionType) {
-      case ExpressionType.Equal:
-        return ComparisonOperation.Equal;
-      case ExpressionType.NotEqual:
-        return ComparisonOperation.NotEqual;
-      case ExpressionType.LessThan:
-        return ComparisonOperation.LessThan;
-      case ExpressionType.LessThanOrEqual:
-        return ComparisonOperation.LessThanOrEqual;
-      case ExpressionType.GreaterThan:
-        return ComparisonOperation.GreaterThan;
-      case ExpressionType.GreaterThanOrEqual:
-        return ComparisonOperation.GreaterThanOrEqual;
-      default:
-        throw Exceptions.InvalidArgument(expressionType, "expressionType");
+        case ExpressionType.Equal:
+          return ComparisonOperation.Equal;
+        case ExpressionType.NotEqual:
+          return ComparisonOperation.NotEqual;
+        case ExpressionType.LessThan:
+          return ComparisonOperation.LessThan;
+        case ExpressionType.LessThanOrEqual:
+          return ComparisonOperation.LessThanOrEqual;
+        case ExpressionType.GreaterThan:
+          return ComparisonOperation.GreaterThan;
+        case ExpressionType.GreaterThanOrEqual:
+          return ComparisonOperation.GreaterThanOrEqual;
+        default:
+          throw Exceptions.InvalidArgument(expressionType, "expressionType");
       }
     }
 
     private static ComparisonOperation InvertOperation(ComparisonOperation comparisonOperation)
     {
       switch (comparisonOperation) {
-      case ComparisonOperation.Equal:
-        return ComparisonOperation.NotEqual;
-      case ComparisonOperation.NotEqual:
-        return ComparisonOperation.Equal;
-      case ComparisonOperation.GreaterThan:
-        return ComparisonOperation.LessThanOrEqual;
-      case ComparisonOperation.GreaterThanOrEqual:
-        return ComparisonOperation.LessThan;
-      case ComparisonOperation.LessThan:
-        return ComparisonOperation.GreaterThanOrEqual;
-      case ComparisonOperation.LessThanOrEqual:
-        return ComparisonOperation.GreaterThan;
-      case ComparisonOperation.Like:
-        return ComparisonOperation.NotLike;
-      case ComparisonOperation.NotLike:
-        return ComparisonOperation.Like;
-      default:
-        throw Exceptions.InvalidArgument(comparisonOperation, "comparisonOperation");
+        case ComparisonOperation.Equal:
+          return ComparisonOperation.NotEqual;
+        case ComparisonOperation.NotEqual:
+          return ComparisonOperation.Equal;
+        case ComparisonOperation.GreaterThan:
+          return ComparisonOperation.LessThanOrEqual;
+        case ComparisonOperation.GreaterThanOrEqual:
+          return ComparisonOperation.LessThan;
+        case ComparisonOperation.LessThan:
+          return ComparisonOperation.GreaterThanOrEqual;
+        case ComparisonOperation.LessThanOrEqual:
+          return ComparisonOperation.GreaterThan;
+        case ComparisonOperation.Like:
+          return ComparisonOperation.NotLike;
+        case ComparisonOperation.NotLike:
+          return ComparisonOperation.Like;
+        default:
+          throw Exceptions.InvalidArgument(comparisonOperation, "comparisonOperation");
       }
     }
 
     private static ComparisonOperation ReverseOperation(ComparisonOperation comparisonOperation)
     {
       switch (comparisonOperation) {
-      case ComparisonOperation.GreaterThan:
-        return ComparisonOperation.LessThan;
-      case ComparisonOperation.GreaterThanOrEqual:
-        return ComparisonOperation.LessThanOrEqual;
-      case ComparisonOperation.LessThan:
-        return ComparisonOperation.GreaterThan;
-      case ComparisonOperation.LessThanOrEqual:
-        return ComparisonOperation.GreaterThanOrEqual;
-      default:
-        return comparisonOperation;
+        case ComparisonOperation.GreaterThan:
+          return ComparisonOperation.LessThan;
+        case ComparisonOperation.GreaterThanOrEqual:
+          return ComparisonOperation.LessThanOrEqual;
+        case ComparisonOperation.LessThan:
+          return ComparisonOperation.GreaterThan;
+        case ComparisonOperation.LessThanOrEqual:
+          return ComparisonOperation.GreaterThanOrEqual;
+        default:
+          return comparisonOperation;
       }
     }
 
@@ -136,6 +147,7 @@ namespace Xtensive.Core.Linq
         result = InvertOperation(result);
       return result;
     }
+
 
     // Constructors
 

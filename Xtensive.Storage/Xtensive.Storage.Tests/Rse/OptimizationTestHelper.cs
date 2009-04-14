@@ -14,7 +14,7 @@ using Xtensive.Storage.Rse.Optimization.IndexSelection;
 
 namespace Xtensive.Storage.Tests.Rse
 {
-  internal static class ExpressionHelper
+  internal static class OptimizationTestHelper
   {
     public static Conjunction<Expression> AddBoolean(this Conjunction<Expression> exp,
       Expression<Func<Tuple, bool>> boolean)
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Rse
     }
 
     public static RangeSet<Entire<Tuple>> GetRangeSetForSingleIndex(
-      this Dictionary<Expression, List<RsExtractionResult>> extractionResults)
+      this Dictionary<Expression, List<RSExtractionResult>> extractionResults)
     {
       RangeSetInfo result = null;
       foreach (var pair in extractionResults)

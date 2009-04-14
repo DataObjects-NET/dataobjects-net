@@ -20,7 +20,7 @@ using Xtensive.Storage.Tests.Storage.SnakesModel;
 namespace Xtensive.Storage.Tests.Rse
 {
   [TestFixture]
-  public class SimpleIndexesSelectorTest : AutoBuildTest
+  public class SimpleIndexSelectorTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Tests.Rse
       Expression[] exps = new[] { Expression.Constant(0), Expression.Constant(1), Expression.Constant(2) };
       var inputData = CreateInputData(exps, indexes);
       var costEvaluator = ConfigureCostEvaluator(exps, inputData);
-      var selector = new SimpleIndexesSelector(costEvaluator);
+      var selector = new SimpleIndexSelector(costEvaluator);
       var selectedIndexes = selector.Select(inputData);
       Assert.AreEqual(2, selectedIndexes.Count);
       Assert.AreEqual(inputData[exps[0]][0].RangeSetInfo, selectedIndexes[indexes[0]]);
@@ -58,14 +58,14 @@ namespace Xtensive.Storage.Tests.Rse
         AdvancedComparer<Entire<Tuple>>.Default);
     }
 
-    private Dictionary<Expression, List<RsExtractionResult>> CreateInputData(Expression[] exps,
+    private Dictionary<Expression, List<RSExtractionResult>> CreateInputData(Expression[] exps,
       IndexInfo[] indexes)
     {
-      var result = new Dictionary<Expression, List<RsExtractionResult>>();
+      var result = new Dictionary<Expression, List<RSExtractionResult>>();
       foreach (var exp in exps) {
-        result.Add(exp, new List<RsExtractionResult>());
+        result.Add(exp, new List<RSExtractionResult>());
         foreach (var index in indexes) {
-          result[exp].Add(new RsExtractionResult(index,
+          result[exp].Add(new RSExtractionResult(index,
             new RangeSetInfo(Expression.Constant(CreateRangeSet()), null, false)));
         }
       }
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Tests.Rse
     }
 
     private static ICostEvaluator ConfigureCostEvaluator(Expression[] exps,
-      Dictionary<Expression, List<RsExtractionResult>> inputData)
+      Dictionary<Expression, List<RSExtractionResult>> inputData)
     {
       var mocks = new MockRepository();
       var result = mocks.Stub<ICostEvaluator>();
