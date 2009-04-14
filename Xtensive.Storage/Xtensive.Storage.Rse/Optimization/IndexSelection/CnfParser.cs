@@ -114,6 +114,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
         extractedExpressions[lastFieldPosition].Origin, indexInfo);
     }
 
+ 
     // Constructors
 
     public CnfParser(DomainModel domainModel)

@@ -5,7 +5,6 @@
 // Created:    2009.03.31
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -17,7 +16,7 @@ namespace Xtensive.Storage.Indexing
   /// Update command.
   /// </summary>
   [Serializable]
-  public class UpdateCommand : Command
+  public class UpdateCommand : Command<NoResult>
   {
     private string tableName;
     private Tuple key;

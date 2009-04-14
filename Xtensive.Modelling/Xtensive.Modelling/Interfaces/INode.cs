@@ -16,7 +16,6 @@ namespace Xtensive.Modelling
   /// Node interface.
   /// </summary>
   public interface INode : IPathNode,
-    IDifferentiable,
     INotifyPropertyChanged
   {
     /// <summary>

@@ -22,6 +22,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     public readonly RangeSetInfo RangeSetInfo;
     public readonly IndexInfo IndexInfo;
 
+
     // Constructors
 
     public RsExtractionResult(IndexInfo indexInfo, RangeSetInfo rangeSetInfo)

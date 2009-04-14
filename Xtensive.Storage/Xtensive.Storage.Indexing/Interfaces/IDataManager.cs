@@ -22,22 +22,17 @@ namespace Xtensive.Storage.Indexing
     /// Executes the specified command.
     /// </summary>
     /// <param name="command">The command to execute.</param>
-    /// <returns>Execution result.</returns>
-    object Execute(Command command);
+    /// <returns>Command execution result.</returns>
+    CommandResult Execute(Command command);
 
     /// <summary>
     /// Executes the specified sequence of commands.
     /// </summary>
     /// <param name="commands">The sequence of commands to execute.</param>
-    /// <returns>Execution result (one per each command, if any).</returns>
-    Dictionary<int, object> Execute(List<Command> commands);
-
-    // Obsolete?
-    /// <summary>
-    /// Provides direct access to stored index.
-    /// </summary>
-    /// <param name="indexName">Name of the index to get.</param>
-    /// <returns>An object allowing to manipulate the index.</returns>
-    IIndex<Tuple, Tuple> GetIndex(string indexName);
+    /// <returns>Command execution results (one per each command).
+    /// Value for the specified index exists only if its 
+    /// <see cref="CommandResult.IsDefault"/> property returns <see langword="false" />.
+    /// </returns>
+    Dictionary<int, CommandResult> Execute(List<Command> commands);
   }
 }

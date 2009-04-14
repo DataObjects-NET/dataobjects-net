@@ -134,8 +134,6 @@ namespace Xtensive.Storage.Providers
       }
     }
 
-
-
     // Initialization
 
     /// <inheritdoc/>

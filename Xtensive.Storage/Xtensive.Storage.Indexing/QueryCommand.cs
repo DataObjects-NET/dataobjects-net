@@ -5,8 +5,10 @@
 // Created:    2009.03.31
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Indexing.Resources;
 
 namespace Xtensive.Storage.Indexing
@@ -15,13 +17,12 @@ namespace Xtensive.Storage.Indexing
   /// Query command.
   /// </summary>
   [Serializable]
-  public class QueryCommand : Command
+  public class QueryCommand<T> : Command<T>,
+    IQueryCommand
   {
     private object definition;
 
-    /// <summary>
-    /// Gets or sets the definition of the query.
-    /// </summary>
+    /// <inheritdoc/>
     public object Definition {
       get { return definition; }
       set {
@@ -45,6 +46,16 @@ namespace Xtensive.Storage.Indexing
     public QueryCommand()
       : base(CommandType.Query)
     {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="definition">Query definition.</param>
+    public QueryCommand(object definition)
+      : base(CommandType.Query)
+    {
+      this.definition = definition;
     }
   }
 }

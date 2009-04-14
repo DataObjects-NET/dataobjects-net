@@ -5,23 +5,20 @@
 // Created:    2009.03.31
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Indexing.Resources;
 
 namespace Xtensive.Storage.Indexing
 {
   /// <summary>
-  /// Option command.
+  /// Set option command.
   /// </summary>
   [Serializable]
-  public class OptionCommand : Command
+  public class SetOptionCommand<T> : Command<T>
   {
     private string name;
-    private object value;
-    
+
     /// <summary>
     /// Gets or sets the name of the option.
     /// </summary>
@@ -36,10 +33,7 @@ namespace Xtensive.Storage.Indexing
     /// <summary>
     /// Gets or sets the new value.
     /// </summary>
-    public object Value {
-      get { return value; }
-      set { this.value = value; }
-    }
+    public T Value { get; set; }
 
     /// <inheritdoc/>
     public override string ToString()
@@ -53,9 +47,21 @@ namespace Xtensive.Storage.Indexing
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected OptionCommand()
-      : base(CommandType.Option)
+    protected SetOptionCommand()
+      : base(CommandType.SetOption)
     {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <param name="value">The value.</param>
+    public SetOptionCommand(string name, T value)
+      : base(CommandType.SetOption)
+    {
+      this.name = name;
+      Value = value;
     }
   }
 }

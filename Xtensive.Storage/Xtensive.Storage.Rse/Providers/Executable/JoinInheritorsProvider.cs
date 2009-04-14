@@ -179,11 +179,11 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="origin">The <see cref="ExecutableProvider{TOrigin}.Origin"/> property value.</param>
-    /// <param name="includedColumnsCount">Amount of included columns.</param>
+    /// <param name="includedColumnsCount">Count of included columns.</param>
     /// <param name="root">Root index provider.</param>
     /// <param name="inheritors">Inheritor index providers.</param>
     public JoinInheritorsProvider(IndexProvider origin, int includedColumnsCount, ExecutableProvider root, ExecutableProvider[] inheritors)
-      : base(origin, new[]{root}.Union(inheritors).ToArray())
+      : base(origin, new[] {root}.Union(inheritors).ToArray())
     {
       AddService<IOrderedEnumerable<Tuple, Tuple>>();
       AddService<ICountable>();

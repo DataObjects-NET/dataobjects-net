@@ -20,6 +20,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     public readonly RangeSet<Entire<Tuple>> RangeSet;
     public readonly double Cost;
 
+
     // Constructors
 
     public CostInfo(IndexInfo indexInfo, RangeSet<Entire<Tuple>> rangeSet, double cost)

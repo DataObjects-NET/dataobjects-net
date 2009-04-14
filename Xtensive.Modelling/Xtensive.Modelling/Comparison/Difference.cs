@@ -20,8 +20,7 @@ namespace Xtensive.Modelling.Comparison
   /// Base comparison result.
   /// </summary>
   [Serializable]
-  public abstract class Difference : IDifference, 
-    IContext<ComparisonScope>
+  public abstract class Difference : IDifference
   {
     /// <summary>
     /// Indent size in <see cref="ToString"/> method.
@@ -61,13 +60,6 @@ namespace Xtensive.Modelling.Comparison
       return null;
     }
 
-    /// <summary>
-    /// Gets the current <see cref="Difference"/> object.
-    /// </summary>
-    public static Difference Current {
-      get { return ComparisonScope.CurrentDifference; }
-    }
-
     /// <inheritdoc/>
     public IEnumerable<NodeAction> ToActions()
     {
@@ -79,27 +71,6 @@ namespace Xtensive.Modelling.Comparison
 
     /// <inheritdoc/>
     public abstract void AppendActions(IList<NodeAction> actions);
-
-    #region IContext<...> members
-
-    /// <inheritdoc/>
-    public bool IsActive {
-      get { return Current==this; }
-    }
-
-    /// <inheritdoc/>
-    public ComparisonScope Activate()
-    {
-      return new ComparisonScope(this);
-    }
-
-    /// <inheritdoc/>
-    IDisposable IContext.Activate()
-    {
-      return Activate();
-    }
-
-    #endregion
 
     #region ToString implementation
 
@@ -142,7 +113,7 @@ namespace Xtensive.Modelling.Comparison
       var any = source ?? target;
       if (any==null)
         throw new InvalidOperationException(Strings.ExBothSourceAndTargetAreNull);
-      Parent = Current;
+      Parent = Comparer.Current.CurrentDifference;
       IsNestedPropertyDifference = Parent==null ? true : Parent.IsNestedPropertyDifference;
     }
   }

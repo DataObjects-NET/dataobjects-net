@@ -22,8 +22,7 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// </summary>
   [Serializable]
   public class HintSet : LockableBase,
-    IHintSet, 
-    IContext<HintSetScope>
+    IHintSet
   {
     private static ThreadSafeCached<HintSet> cachedEmpty = 
       ThreadSafeCached<HintSet>.Create(new object());
@@ -168,34 +167,6 @@ namespace Xtensive.Modelling.Comparison.Hints
         return new[] {hint};
       return ((List<Node>) hintOrList).Cast<THint>().ToArray();
     }
-
-    #region IContext<...> methods
-
-    /// <summary>
-    /// Gets the current <see cref="HintSet"/>.
-    /// </summary>
-    public static HintSet Current {
-      get { return HintSetScope.CurrentSet; }
-    }
-
-    /// <inheritdoc/>
-    public bool IsActive {
-      get { return Current==this; }
-    }
-
-    /// <inheritdoc/>
-    public HintSetScope Activate()
-    {
-      return new HintSetScope(this);
-    }
-
-    /// <inheritdoc/>
-    IDisposable IContext.Activate()
-    {
-      return Activate();
-    }
-
-    #endregion
 
     #region IEnumerable<...> methods
 

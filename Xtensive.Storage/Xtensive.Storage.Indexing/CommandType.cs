@@ -20,8 +20,8 @@ namespace Xtensive.Storage.Indexing
     /// </summary>
     Update,
     /// <summary>
-    /// Option command.
+    /// Set option command.
     /// </summary>
-    Option,
+    SetOption,
   }
 }

@@ -20,6 +20,11 @@ namespace Xtensive.Storage.Indexing
     /// </summary>
     public CommandType Type { get; protected set; }
 
+    /// <summary>
+    /// Gets the type of the result.
+    /// </summary>
+    public abstract Type ResultType { get; }
+
     /// <inheritdoc/>
     public override string ToString()
     {

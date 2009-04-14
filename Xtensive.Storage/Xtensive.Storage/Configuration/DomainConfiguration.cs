@@ -310,7 +310,6 @@ namespace Xtensive.Storage.Configuration
       }
     }
 
-
     /// <summary>
     /// Gets user defined function mappings.
     /// </summary>
