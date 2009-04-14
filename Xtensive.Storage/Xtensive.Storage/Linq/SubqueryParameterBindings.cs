@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Linq
         if (bindings.TryGetValue(key, out binding))
           binding.Cardinality++;
         else {
-          binding = new Binding {Cardinality = 1, Parameter = new Parameter<Tuple>()};
+          binding = new Binding {Cardinality = 1, Parameter = new Parameter<Tuple>("subqueryParameter")};
           bindings.Add(key, binding);
         }
       return new Disposable<ParameterExpression[]> (parameters.ToArray(), Unbind);

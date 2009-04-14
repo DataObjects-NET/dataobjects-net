@@ -356,11 +356,21 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void BooleanTest()
+    public void GroupByBooleanTest()
     {
-      var result = Query<Customer>.All
-        .GroupBy(customer => customer.Orders.Average(o => o.Freight) >= 80);
-      QueryDumper.Dump(result);
+      var result = Query<Customer>.All.GroupBy(c => c.CompanyName.StartsWith("A"));
+      foreach (var group in result)
+        foreach (var item in group)
+          Assert.AreEqual(group.Key, item.CompanyName.StartsWith("A"));
+    }
+
+    [Test]
+    public void GroupByBooleanSubqueryTest()
+    {
+      var result = Query<Customer>.All.GroupBy(customer => customer.Orders.Average(o => o.Freight) >= 80);
+      foreach (var group in result)
+        foreach (var item in group)
+          Assert.AreEqual(group.Key, item.Orders.Average(o => o.Freight) >= 80);
     }
 
     [Test]

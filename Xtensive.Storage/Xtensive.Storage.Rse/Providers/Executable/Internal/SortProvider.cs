@@ -65,9 +65,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       var columnIndexes = new int[Header.Order.Count];
       for (int i = 0; i < Header.Order.Count; i++) {
         KeyValuePair<int, Direction> sortItem = Header.Order[i];
-        CultureInfo culture = ((MappedColumn)Header.Columns[sortItem.Key]).ColumnInfoRef != null
-                                ? ((MappedColumn)Header.Columns[sortItem.Key]).ColumnInfoRef.CultureInfo
-                                : CultureInfo.InvariantCulture;
+        var culture = CultureInfo.InvariantCulture;
+        var mappedColumn = Header.Columns[sortItem.Key] as MappedColumn;
+        if (mappedColumn != null && mappedColumn.ColumnInfoRef != null)
+          culture = mappedColumn.ColumnInfoRef.CultureInfo;
         rules[i] = new ComparisonRule(sortItem.Value, culture);
         columnIndexes[i] = sortItem.Key;
       }

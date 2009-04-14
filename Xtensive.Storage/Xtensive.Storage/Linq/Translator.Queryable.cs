@@ -400,16 +400,8 @@ namespace Xtensive.Storage.Linq
       var resultType = method.ReturnType;
       var pTuple = Expression.Parameter(typeof (Tuple), "t");
       var projectorBody = isIntCount
-        ? Expression.Convert(
-          ExpressionHelper.TupleAccess(
-            pTuple,
-            typeof (long),
-            0),
-          typeof (int))
-        : ExpressionHelper.TupleAccess(
-          pTuple,
-          resultType,
-          0);
+        ? Expression.Convert(ExpressionHelper.TupleAccess(pTuple, typeof (long), 0), typeof (int))
+        : ExpressionHelper.TupleAccess(pTuple, resultType, 0);
       var itemProjector = Expression.Lambda(projectorBody, pTuple);
       var p = Expression.Parameter(typeof (IEnumerable<>).MakeGenericType(resultType), "p");
       var scalarTransform = Expression.Lambda(Expression.Call(WellKnownMembers.EnumerableFirst.MakeGenericMethod(resultType), p), p);
@@ -625,6 +617,9 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitGroupJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
     {
+      if ("linq".StartsWith("l"))
+        throw new NotImplementedException();
+
       var outerParameter = outerKey.Parameters[0];
       var innerParameter = innerKey.Parameters[0];
       using (context.Bindings.Add(outerParameter, VisitSequence(outerSource)))
@@ -736,15 +731,8 @@ namespace Xtensive.Storage.Linq
 
       var pTuple = Expression.Parameter(typeof (Tuple), "t");
       var projectorBody = notExists
-        ? Expression.Not(
-          ExpressionHelper.TupleAccess(
-            pTuple,
-            typeof (bool),
-            0))
-        : ExpressionHelper.TupleAccess(
-          pTuple,
-          typeof (bool),
-          0);
+        ? Expression.Not(ExpressionHelper.TupleAccess(pTuple, typeof (bool), 0))
+        : ExpressionHelper.TupleAccess(pTuple, typeof (bool), 0);
 
       var itemProjector = Expression.Lambda(projectorBody, pTuple);
       var p = Expression.Parameter(typeof (IEnumerable<>).MakeGenericType(typeof (bool)), "p");
@@ -826,7 +814,6 @@ namespace Xtensive.Storage.Linq
         applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
         context.SubqueryParameterBindings.InvalidateParameter(lambdaParameter);
       }
-
       int columnIndex = oldResult.RecordSet.Header.Length;
       var newMapping = new ComplexFieldMapping();
       newMapping.Fill(oldResult.Mapping);

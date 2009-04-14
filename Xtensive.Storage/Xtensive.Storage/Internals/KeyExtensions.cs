@@ -13,9 +13,12 @@ namespace Xtensive.Storage.Internals
       if (key == null)
         return null;
       bool allFieldsAreNull = true;
-      for (int i = 0; i < key.Value.Count && allFieldsAreNull; i++)
+      for (int i = 0; i < key.Value.Count && allFieldsAreNull; i++) {
+        if (!key.Value.IsAvailable(i))
+          return null;
         if (!key.Value.IsNull(i))
           allFieldsAreNull = false;
+      }
       if (allFieldsAreNull)
         return null;
       return key.Resolve();

@@ -44,8 +44,8 @@ namespace Xtensive.Storage.Internals
       foreach (var groupMapping in mapping.Mappings) {
         int typeIdColumnIndex = groupMapping.TypeIdColumnIndex;
         int typeId = TypeInfo.NoTypeId;
-        if (typeIdColumnIndex >= 0 && !tuple.IsNull(typeIdColumnIndex))
-          typeId = (int)tuple.GetValueOrDefault(typeIdColumnIndex);
+        if (typeIdColumnIndex >= 0 && tuple.HasValue(typeIdColumnIndex))
+          typeId = tuple.GetValueOrDefault<int>(typeIdColumnIndex);
         var typeMapping = groupMapping.GetMapping(typeId);
         if (typeMapping != null) {
           var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);

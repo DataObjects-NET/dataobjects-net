@@ -4,6 +4,8 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.25
 
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.ObjectModel;
@@ -50,6 +52,16 @@ namespace Xtensive.Storage.Tests.Linq
         select c;
       var list = result.ToList();
       Assert.AreEqual(list.Count, 2);
+    }
+
+    [Test]
+    public void GroupByWithSelectorSelectManyTest()
+    {
+      var result = Query<Customer>.All
+        .GroupBy(c => c.Address.Country,
+          (country, customers) => customers.Where(k => k.CompanyName.StartsWith(country.Substring(0, 1))))
+        .SelectMany(k => k);
+      QueryDumper.Dump(result);
     }
   }
 }
