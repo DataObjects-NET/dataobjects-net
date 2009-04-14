@@ -8,6 +8,8 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core.Parameters;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 
@@ -322,11 +324,25 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
         );
     }
 
+    [Test]
+    public void ConfusingParameterTest()
+    {
+      var parameter = new Parameter<Tuple>();
+      using (new ParameterScope()) {
+        parameter.Value = Tuple.Create(false);
+        TestQuery(() =>
+          from o in Query<MyEntity>.All
+          where o.HasStupidName==parameter.Value.GetValueOrDefault<bool>(0)
+          select o
+          );
+      }
+    }
+
     private void TestQuery<T>(Func<IQueryable<T>> query)
     {
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {
-          var list = query.Invoke().ToList();
+          query.Invoke().ToList();
         }
       }
     }

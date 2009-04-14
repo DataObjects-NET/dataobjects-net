@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Parameters;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -62,6 +63,14 @@ namespace Xtensive.Storage.Tests.Linq
           (country, customers) => customers.Where(k => k.CompanyName.StartsWith(country.Substring(0, 1))))
         .SelectMany(k => k);
       QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void ParameterScopeTest()
+    {
+      using (new ParameterScope()) {
+        Query<Customer>.All.ToList();
+      }
     }
   }
 }

@@ -31,10 +31,9 @@ namespace Xtensive.Storage.Linq
     public ResultExpression Translate()
     {
       using (new ParameterScope()) {
-        entityAsKey.Value = false;
+        entityAsKey.Value = true;
         calculateExpressions.Value = false;
         recordIsUsed.Value = false;
-        ignoreRecordUsage.Value = false;
         return (ResultExpression)Visit(context.Query);
       }
     }
@@ -52,7 +51,7 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitQueryableMethod(MethodCallExpression mc, QueryableMethodKind methodKind)
     {
       using (new ParameterScope()) {
-        entityAsKey.Value = false;
+        entityAsKey.Value = true;
         switch (methodKind) {
           case QueryableMethodKind.AsEnumerable:
             break;
@@ -692,7 +691,7 @@ namespace Xtensive.Storage.Linq
     {
       using (new ParameterScope()) {
         mappingRef.Value = new FieldMappingReference();
-        entityAsKey.Value = true;
+        entityAsKey.Value = false;
         calculateExpressions.Value = true;
         var itemProjector = (LambdaExpression) Visit(le);
         var source = context.Bindings[le.Parameters[0]];
@@ -710,7 +709,6 @@ namespace Xtensive.Storage.Linq
       using (context.Bindings.Add(parameter, VisitSequence(expression)))
       using (new ParameterScope()) {
         mappingRef.Value = new FieldMappingReference(false);
-        ignoreRecordUsage.Value = true;
         calculateExpressions.Value = false;
         var predicate = Visit(le);
         var source = context.Bindings[parameter];
@@ -860,7 +858,7 @@ namespace Xtensive.Storage.Linq
     {
       this.context = context;
       recordIsUsed = new Parameter<bool>("recordIsUsed", oldValue => {
-        if (!ignoreRecordUsage.Value)
+        if (!entityAsKey.Value)
           recordIsUsed.Value |= oldValue;
       });
     }
