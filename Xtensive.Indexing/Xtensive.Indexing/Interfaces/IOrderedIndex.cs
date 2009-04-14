@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using Xtensive.Indexing.Measures;
+using Xtensive.Indexing.Statistics;
 
 namespace Xtensive.Indexing
 {
@@ -18,6 +19,7 @@ namespace Xtensive.Indexing
   public interface IOrderedIndex<TKey, TItem> : 
     IIndex<TKey, TItem>,
     IOrderedEnumerable<TKey, TItem>,
-    IRangeMeasurable<TKey, TItem>
+    IRangeMeasurable<TKey, TItem>,
+    IStatisticsProvider<TKey>
   {}
 }

@@ -12,6 +12,7 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Notifications;
 using Xtensive.Indexing.Measures;
+using Xtensive.Indexing.Statistics;
 
 namespace Xtensive.Indexing
 {
@@ -277,6 +278,18 @@ namespace Xtensive.Indexing
     public new IEnumerator<TItem> GetEnumerator()
     {
       return index.GetEnumerator();
+    }
+
+    #endregion
+
+    #region IStatisticsProvider<TKey> Members
+
+    /// <inheritdoc/>
+    public IStatistics<TKey> GetStatistics()
+    {
+      if (orderedIndex == null)
+        throw new NotSupportedException();
+      return orderedIndex.GetStatistics();
     }
 
     #endregion

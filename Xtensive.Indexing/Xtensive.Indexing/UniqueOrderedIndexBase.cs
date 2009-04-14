@@ -5,7 +5,7 @@
 // Created:    2008.06.15
 
 using System.Collections.Generic;
-using Xtensive.Core;
+using Xtensive.Indexing.Statistics;
 
 namespace Xtensive.Indexing
 {
@@ -17,6 +17,21 @@ namespace Xtensive.Indexing
   public abstract class UniqueOrderedIndexBase<TKey, TItem>: UniqueIndexBase<TKey, TItem>,
     IUniqueOrderedIndex<TKey, TItem>
   {
+    private volatile IStatistics<TKey> statistics;
+    private readonly object syncRoot = new object();
+
+    /// <inheritdoc/>
+    public IStatistics<TKey> GetStatistics()
+    {
+      if (statistics == null)
+        lock (syncRoot)
+        {
+          if (statistics == null)
+            statistics = new RangeMeasurableStatistics<TKey, TItem>(this, Configuration.Location == null);
+        }
+      return statistics;
+    }
+
     /// <inheritdoc/>
     public IEnumerable<TKey> GetKeys(Range<Entire<TKey>> range)
     {
@@ -60,7 +75,6 @@ namespace Xtensive.Indexing
     {
       return CreateReader(this.GetFullRange());
     }
-
     
     // Constructors
 

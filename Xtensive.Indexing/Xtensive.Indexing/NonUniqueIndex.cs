@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Indexing.Statistics;
 
 namespace Xtensive.Indexing
 {
@@ -23,6 +23,21 @@ namespace Xtensive.Indexing
   {
     private IUniqueOrderedIndex<TUniqueKey, TItem> uniqueIndex;
     private Converter<Entire<TKey>, Entire<TUniqueKey>> entireConverter;
+
+    private volatile IStatistics<TKey> statistics;
+    private readonly object syncRoot = new object();
+
+    /// <inheritdoc/>
+    public IStatistics<TKey> GetStatistics()
+    {
+      if (statistics == null)
+        lock (syncRoot)
+        {
+          if (statistics == null)
+            statistics = new RangeMeasurableStatistics<TKey, TItem>(this, Configuration.Location == null);
+        }
+      return statistics;
+    }
 
     /// <summary>
     /// Gets the underlying unique index.
