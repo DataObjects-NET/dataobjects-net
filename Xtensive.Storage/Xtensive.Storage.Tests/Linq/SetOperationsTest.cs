@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var customers = Query<Customer>.All;;
       var result = customers.Where(c => c.Orders.Count <= 1).Concat(Query<Customer>.All.Where(c => c.Orders.Count > 1));
-      Assert.IsNotNull(result.First());
+      QueryDumper.Dump(result);
       Assert.AreEqual(customers.Count(), result.Count());
     }
 
@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Tests.Linq
           from c in customers
           select c.CompanyName.Substring(0, 1);
       var uniqueFirstChars = productFirstChars.Union(customerFirstChars);
-      Assert.IsNotNull(uniqueFirstChars.First());
+      QueryDumper.Dump(uniqueFirstChars);
       
     }
 
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Tests.Linq
           from c in customers
           select c.CompanyName.Substring(0, 1);
       var commonFirstChars = productFirstChars.Intersect(customerFirstChars);
-      Assert.IsNotNull(commonFirstChars.First());
+      QueryDumper.Dump(commonFirstChars);
       
     }
 
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Linq
           from c in customers
           select c.CompanyName.Substring(0, 1);
       var productOnlyFirstChars = productFirstChars.Except(customerFirstChars);
-      Assert.IsNotNull(productOnlyFirstChars.First());
+      QueryDumper.Dump(productOnlyFirstChars);
     }
 
     [Test]
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Tests.Linq
                from e in employees
                select e.HomePhone
               );
-      Assert.IsNotNull(result.First());
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -102,8 +102,7 @@ namespace Xtensive.Storage.Tests.Linq
                from e in employees
                select new { Name = e.FirstName + " " + e.LastName, Phone = e.HomePhone }
               );
-
-      Assert.IsNotNull(result.First());
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -118,7 +117,7 @@ namespace Xtensive.Storage.Tests.Linq
                from e in employees
                select e.Address.Country
               );
-      Assert.IsNotNull(result.First());
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -133,8 +132,7 @@ namespace Xtensive.Storage.Tests.Linq
                from e in employees
                select e.Address.Country
               );
-
-      Assert.IsNotNull(result.First());
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -149,8 +147,7 @@ namespace Xtensive.Storage.Tests.Linq
                from e in employees
                select e.Address.Country
               );
-
-      Assert.IsNotNull(result.First());
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -160,7 +157,7 @@ namespace Xtensive.Storage.Tests.Linq
       var result = customers.Select(c => new {c.CompanyName, c.ContactName})
         .Take(10)
         .Union(customers.Select(c => new {c.CompanyName, c.ContactName}));
-      Assert.IsNotNull(result.First());
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -171,8 +168,21 @@ namespace Xtensive.Storage.Tests.Linq
         .Where(c => c.Address.StreetAddress.Length < 10)
         .Select(c => new {c.CompanyName, c.Address.City})
         .Take(10)
-        .Union(customers.Select(c => new { c.CompanyName, c.Address.City}).Skip(10));
-      Assert.IsNotNull(result.First());
+        .Union(customers.Select(c => new { c.CompanyName, c.Address.City})).Where(c=>c.CompanyName.Length < 10);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void UnionAnonymous3Test()
+    {
+      var customers = Query<Customer>.All;
+      var shipper = Query<Shipper>.All;
+      var result = customers.Select(c => new { c.CompanyName, c.ContactName, c.Address })
+        .Where(c => c.Address.StreetAddress.Length < 15)
+        .Select(c => new { Name = c.CompanyName, Address = c.Address.City })
+        .Take(10)
+        .Union(shipper.Select(s => new { Name = s.CompanyName, Address = s.Phone })).Where(c=>c.Address.Length < 7);
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -180,10 +190,10 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var customers = Query<Customer>.All;
       var result = customers.Select(c => c.Address)
-        .Where(c => c.StreetAddress.Length < 0)
+        .Where(c => c.StreetAddress.Length > 0)
         .Union(customers.Select(c => c.Address))
-        .Where(c => c.Region == "Victoria");
-      Assert.IsNotNull(result.First());
+        .Where(c => c.Region == "BC");
+      QueryDumper.Dump(result);
     }
   }
 }

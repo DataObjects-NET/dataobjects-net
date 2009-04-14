@@ -204,15 +204,17 @@ namespace Xtensive.Storage.Tests.Linq
         var depth = 1;
         XmlNode itemNode = document.CreateElement("Item" + itemIndex);
 
-        if (!value.GetType().IsGenericType || (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition()!=typeof (Grouping<,>))) {
+        if (value == null || !value.GetType().IsGenericType || (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition()!=typeof (Grouping<,>))) {
           itemNode = document.CreateElement("Item" + itemIndex);
           itemIndex++;
           parentNode.AppendChild(itemNode);
         }
 
-        if ((GetMemberType(value.GetType())==MemberType.Primitive
-          || GetMemberType(value.GetType())==MemberType.Unknown)
-            && (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition()!=typeof (Grouping<,>)))
+        if ( value==null ||((GetMemberType(value.GetType())==MemberType.Primitive
+          || GetMemberType(value.GetType())==MemberType.Unknown) && !value.GetType().IsGenericType)
+            || (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() != typeof(Grouping<,>))
+            && (GetMemberType(value.GetType()) == MemberType.Primitive
+            || GetMemberType(value.GetType()) == MemberType.Unknown))
           depth = AddNode(value, null, ref document, itemNode, depth);
 
         else if (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition()==typeof (Grouping<,>)) {
