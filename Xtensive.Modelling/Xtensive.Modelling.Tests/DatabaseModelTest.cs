@@ -5,7 +5,6 @@
 // Created:    2009.03.18
 
 using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
