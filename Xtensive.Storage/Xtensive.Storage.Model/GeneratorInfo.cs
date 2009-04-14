@@ -31,14 +31,14 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets or sets the <see cref="KeyInfo"/> property for this instance.
+    /// Gets the <see cref="KeyInfo"/> property for this instance.
     /// </summary>
     public KeyInfo KeyInfo { get; private set; }
 
     /// <summary>
-    /// Gets or sets the type instance of which is responsible for key generation.
+    /// Gets the type instance of which is responsible for key generation.
     /// </summary>
-    public Type Type { get; private set; }
+    public Type KeyGeneratorType { get; private set; }
 
     /// <summary>
     /// Gets or sets the tuple descriptor for key.
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Model
     public GeneratorInfo(Type type, KeyInfo keyInfo)
     {
       KeyInfo = keyInfo;
-      Type = type;
+      KeyGeneratorType = type;
     }
   }
 }

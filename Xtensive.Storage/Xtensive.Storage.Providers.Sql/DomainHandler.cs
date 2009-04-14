@@ -32,8 +32,14 @@ namespace Xtensive.Storage.Providers.Sql
   {
     private Schema existingSchema;
 
+    /// <summary>
+    /// Gets the mapping schema.
+    /// </summary>
     public DomainModelMapping MappingSchema { get; private set; }
 
+    /// <summary>
+    /// Gets the storage schema.
+    /// </summary>
     public Schema Schema { get; private set; }
 
     public SqlRequestBuilder SqlRequestBuilder { get; private set; }
@@ -42,8 +48,14 @@ namespace Xtensive.Storage.Providers.Sql
 
     public ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest> SqlRequestCache { get; private set; }
 
+    /// <summary>
+    /// Gets the connection provider.
+    /// </summary>
     internal SqlConnectionProvider ConnectionProvider { get; private set; }
 
+    /// <summary>
+    /// Gets the SQL driver.
+    /// </summary>
     public SqlDriver SqlDriver { get; private set; }
 
     protected override IEnumerable<Type> GetProviderCompilerExtensionTypes()

@@ -42,6 +42,14 @@ namespace Xtensive.Storage.Providers.Sql
       get { return BuildingContext.Current.NameBuilder; }
     }
 
+    /// <summary>
+    /// Gets the domain model.
+    /// </summary>
+    protected DomainModel DomainModel
+    {
+      get { return BuildingContext.Current.Model; }
+    }
+
     /// <inheritdoc/>
     public override void ClearStorageSchema()
     {
@@ -75,12 +83,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// Extracts the domain schema.
     /// </summary>
     /// <returns>The domain schema.</returns>
-    protected virtual Schema ExtractDomainSchema()
+    internal virtual Schema ExtractDomainSchema()
     {
-      var domainModel = BuildingContext.Current.Model;
+      var domainModel = DomainModel;
       var tables = new Dictionary<IndexInfo, Table>();
-      var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
-      var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
+      var modelProvider = new SqlModelProvider(SessionHandler.Connection, SessionHandler.Transaction);
       var existingModel = SqlModel.Build(modelProvider);
       var newModel = new SqlModel(existingModel.Name);
       var schema = newModel
@@ -107,8 +114,8 @@ namespace Xtensive.Storage.Providers.Sql
 
       // Sequences.
       foreach (var generator in domainModel.Generators) {
-        if (generator.Type!=typeof (KeyGenerator)
-          || (Type.GetTypeCode(generator.Type)==TypeCode.Object && generator.TupleDescriptor[0]==typeof (Guid)))
+        if (generator.KeyGeneratorType!=typeof (KeyGenerator)
+          || (Type.GetTypeCode(generator.KeyGeneratorType)==TypeCode.Object && generator.TupleDescriptor[0]==typeof (Guid)))
           continue;
         BuildSequence(schema, generator);
       }

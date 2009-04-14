@@ -507,13 +507,12 @@ namespace Xtensive.Storage.Model
 
     private static void ExtractColumns(FieldInfo field, ICollection<ColumnInfo> columns)
     {
-      if (field.Column == null) {
-        if (field.IsEntity)
-          foreach (FieldInfo childField in field.Fields)
-            ExtractColumns(childField, columns);
-      }
-      else
+      if (field.Column != null)
         columns.Add(field.Column);
+      else
+        if (field.IsEntity)
+          foreach (var column in field.Fields.Where(f => f.Column!=null).Select(f => f.Column))
+            columns.Add(column);
     }
 
     // Constructors

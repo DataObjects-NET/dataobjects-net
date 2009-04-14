@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Building.Builders
         hierarchy.KeyInfo.Columns.Add(columnsCollection[i].Key);
 
       hierarchy.KeyInfo.Lock();
-      if (hierarchy.GeneratorInfo.Type == typeof(KeyGenerator))
+      if (hierarchy.GeneratorInfo.KeyGeneratorType==typeof (KeyGenerator))
         hierarchy.GeneratorInfo.MappingName = BuildingContext.Current.NameBuilder.Build(hierarchy.GeneratorInfo);
     }
   }

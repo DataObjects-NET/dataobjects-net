@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Model
       get
       {
         foreach (var item in this) {
-          if (item.Type!=generatorType)
+          if (item.KeyGeneratorType!=generatorType)
             continue;
           var fields = item.KeyInfo.Fields;
           if (fields.Count != keyInfo.Fields.Count)

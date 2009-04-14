@@ -47,10 +47,10 @@ namespace Xtensive.Modelling.Tests
       var srvx = new Server("srvx");
       var hintSet = new HintSet(srvx, srv);
       hintSet.Add(new RenameHint("", ""));
-      Difference diff;
-      using (hintSet.Activate()) {
-        diff = srvx.GetDifferenceWith(srv, null);
-      }
+      Difference diff = new Comparison.Comparer<Server>(srv, srvx).Difference;
+      // using (hintSet.Activate()) {
+      //  diff = srvx.GetDifferenceWith(srv, null);
+      // }
       var actions = new ActionSequence();
       actions.Add(diff.ToActions());
       DumpDependecies(actions);

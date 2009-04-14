@@ -29,14 +29,15 @@ namespace Xtensive.Core.Linq.Normalization
     /// <summary>
     /// Validates this instance.
     /// </summary>
-    /// <exception cref="Exception">Some conjunction operands are not
+    /// <exception cref="InvalidOperationException">Some conjunction operands are not
     /// <see cref="Expression"/>s of type <see cref="bool"/>.</exception>
     public void Validate()
     {
       if (Operands.SelectMany(c => c.Operands)
         .FirstOrDefault(e => e.Type!=typeof (bool))!=null)
-        throw new Exception(
-          Resources.Strings.ExSomeOperandsAreNotExpressionsOfTypeBoolean);
+        throw Exceptions.InternalError(
+          Resources.Strings.ExSomeOperandsAreNotExpressionsOfTypeBoolean,
+          Log.Instance);
     }
 
 

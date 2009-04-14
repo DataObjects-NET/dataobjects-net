@@ -27,9 +27,7 @@ namespace Xtensive.Storage.Providers.PgSql
         throw new DomainBuilderException(
           string.Format("Can not find sequence '{0}' in storage.", generatorInfo.MappingName));
       dh.ValueTypeMapper.BuildSqlValueType(generatorInfo.TupleDescriptor[0], 0);
-      // sequence.SequenceDescriptor = new SequenceDescriptor(sequence, generatorInfo.CacheSize, generatorInfo.CacheSize);
-      // sequence.DataType = dh.ValueTypeMapper.BuildSqlValueType(generatorInfo.TupleDescriptor[0], 0);
-
+      
       var select = SqlFactory.Select();
       select.Columns.Add(SqlFactory.NextValue(sequence));
 

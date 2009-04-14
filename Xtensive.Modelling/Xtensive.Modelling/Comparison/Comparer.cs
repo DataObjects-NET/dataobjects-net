@@ -167,7 +167,8 @@ namespace Xtensive.Modelling.Comparison
       bool bMoved = !mi.IsUnchanged;
       if (!difference.IsNestedPropertyDifference && bMoved)
         using (difference.Parent.Activate())
-          return new PropertyValueDifference(propertyName, source, target);
+          difference.PropertyChanges.Add(propertyName, 
+            new PropertyValueDifference(propertyName, source, target));
 
       // Comparing properties
       if (!mi.IsRemoved || mi.IsCreated) {
@@ -212,7 +213,8 @@ namespace Xtensive.Modelling.Comparison
         return null;
       if (!difference.IsNestedPropertyDifference)
         using (difference.Parent.Activate())
-          return new PropertyValueDifference(propertyName, source, target);
+          difference.PropertyChanges.Add(propertyName,
+            new PropertyValueDifference(propertyName, source, target));
       return difference;
     }
 
@@ -260,7 +262,7 @@ namespace Xtensive.Modelling.Comparison
       // Comparing source only items
       foreach (var key in sourceKeys.Except(commonKeys)) {
         var item = sourceKeyMap[key];
-        var d = (NodeDifference) Visit(item, null, propertyName);
+        var d = (NodeDifference)Visit(item, null); //, propertyName);
         if (d!=null)
           difference.ItemChanges.Add(item.Name, d);
       }
@@ -268,7 +270,7 @@ namespace Xtensive.Modelling.Comparison
       // Comparing common items
       foreach (var key in commonKeys) {
         var item = sourceKeyMap[key];
-        var d = (NodeDifference) Visit(item, targetKeyMap[key], propertyName);
+        var d = (NodeDifference)Visit(item, targetKeyMap[key]); // , propertyName);
         if (d!=null)
           difference.ItemChanges.Add(item.Name, d);
       }

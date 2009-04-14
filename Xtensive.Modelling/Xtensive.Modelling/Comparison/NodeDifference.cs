@@ -11,6 +11,7 @@ using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Resources;
 using Xtensive.Core.Helpers;
+using System;
 
 namespace Xtensive.Modelling.Comparison
 {
@@ -93,6 +94,7 @@ namespace Xtensive.Modelling.Comparison
       return sb.ToString().Indent(ToString_IndentSize, false);
     }
 
+    
     
     // Constructors
 

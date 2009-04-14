@@ -5,7 +5,6 @@
 // Created:    2009.04.01
 
 using NUnit.Framework;
-using Xtensive.Storage;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Model.ReferencedKeysModel;

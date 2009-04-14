@@ -178,20 +178,20 @@ namespace Xtensive.Storage.Tests.Storage
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++)
-            new Snake { Name = ("MyKaa" + i), Length = i };
+            new Snake {Name = ("MyKaa" + i), Length = i};
           for (int j = 0; j < creaturesCount; j++)
-            new Creature { Name = ("Creature" + j) };
+            new Creature {Name = ("Creature" + j)};
           for (int i = 0; i < lizardsCount; i++)
-            new Lizard { Name = ("Lizard" + i), Color = ("Color" + i) };
+            new Lizard {Name = ("Lizard" + i), Color = ("Color" + i)};
 
           Session.Current.Persist();
 
-          TypeInfo snakeType = Domain.Model.Types[typeof(Snake)];
-          
+          TypeInfo snakeType = Domain.Model.Types[typeof (Snake)];
+
           RecordSet rsSnakePrimary = snakeType.Indexes.GetIndex("ID").ToRecordSet();
 
-          var rsCalculated = rsSnakePrimary.Calculate(new CalculatedColumnDescriptor("FullName", typeof(string), (s) => (s.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Substring(0, 2))),
-          new CalculatedColumnDescriptor("FullName2", typeof(string), (s) => (s.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Substring(0, 3))))
+          var rsCalculated = rsSnakePrimary.Calculate(new CalculatedColumnDescriptor("FullName", typeof (string), (s) => (s.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Substring(0, 2))),
+            new CalculatedColumnDescriptor("FullName2", typeof (string), (s) => (s.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).Substring(0, 3))))
             .Take(10);
 
           Assert.AreEqual(10, rsCalculated.Count());
@@ -202,7 +202,7 @@ namespace Xtensive.Storage.Tests.Storage
           }
           rsSnakePrimary.Count();
 
-          RecordSet aggregates = rsSnakePrimary.Aggregate(null, 
+          RecordSet aggregates = rsSnakePrimary.Aggregate(null,
             new AggregateColumnDescriptor("Count1", 0, AggregateType.Count),
             new AggregateColumnDescriptor("Min1", 0, AggregateType.Min),
             new AggregateColumnDescriptor("Max1", 0, AggregateType.Max),
@@ -218,10 +218,10 @@ namespace Xtensive.Storage.Tests.Storage
 
           string name = "TestName";
           var scope = TemporaryDataScope.Global;
-            RecordSet saved = rsSnakePrimary.
-              Take(10).
-              Take(5).
-              Save(scope, name);
+          RecordSet saved = rsSnakePrimary.
+            Take(10).
+            Take(5).
+            Save(scope, name);
 
           saved.Count();
           var loaded = RecordSet.Load(saved.Header, scope, name);

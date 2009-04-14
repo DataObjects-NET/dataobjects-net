@@ -72,6 +72,11 @@ namespace Xtensive.Modelling.Comparison
     /// <inheritdoc/>
     public abstract void AppendActions(IList<NodeAction> actions);
 
+    public virtual IDisposable Activate()
+    {
+      return null;
+    }
+
     #region ToString implementation
 
     /// <inheritdoc/>

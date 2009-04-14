@@ -85,10 +85,10 @@ namespace Xtensive.Modelling.Tests
       Log.Info("Model 2:");
       srv.Dump();
 
-      Difference diff;
-      using (hintSet.Activate()) {
-        diff = srvx.GetDifferenceWith(srv, null);
-      }
+      Difference diff = new Comparer<Server>(srv, srvx).Difference;
+      // using (hintSet.Activate()) {
+      //  diff = srvx.GetDifferenceWith(srv, null);
+      // }
       Log.Info("Difference: \r\n{0}", diff);
 
       var actions = new ActionSequence();
@@ -284,16 +284,18 @@ namespace Xtensive.Modelling.Tests
       var hs = new HintSet(s1, s2);
       update.Invoke(s1, s2, hs);
 
-      using (hs.Activate()) {
-        diff = s1.GetDifferenceWith(s2);
-      }
+      var c = new Comparer<Server>(s1, s2);
+      diff = c.Difference;
+      // using (hs.Activate()) {
+      //  diff = s1.GetDifferenceWith(s2);
+      // }
       Log.Info("Difference:\r\n{0}", diff);
       actions = new ActionSequence() { diff.ToActions() };
       Log.Info("Actions:\r\n{0}", actions);
       actions.Apply(s1);
       s1.Dump();
       s2.Dump();
-      diff = s1.GetDifferenceWith(s2);
+      diff = c.Difference; // s1.GetDifferenceWith(s2);
       Log.Info("Difference:\r\n{0}", diff);
       Assert.IsNull(diff);
 
@@ -303,14 +305,14 @@ namespace Xtensive.Modelling.Tests
       hs = new HintSet(s1, s2);
       update.Invoke(s1, s2, hs);
 
-      using (hs.Activate()) {
-        diff = s1.GetDifferenceWith(s2);
-      }
-      Log.Info("Difference:\r\n{0}", diff);
-      actions = new ActionSequence() { diff.ToActions() };
-      Log.Info("Actions:\r\n{0}", actions);
-      actions.Apply(s1);
-      Assert.IsNull(s1.GetDifferenceWith(s2));
+      // using (hs.Activate()) {
+      //  diff = s1.GetDifferenceWith(s2);
+      // }
+      // Log.Info("Difference:\r\n{0}", diff);
+      // actions = new ActionSequence() { diff.ToActions() };
+      // Log.Info("Actions:\r\n{0}", actions);
+      // actions.Apply(s1);
+      // Assert.IsNull(s1.GetDifferenceWith(s2));
 
     }
 

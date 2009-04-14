@@ -270,12 +270,12 @@ namespace Xtensive.Storage.Building.Builders
         var generatorFactory = handlerAccessor.HandlerFactory.CreateHandler<KeyGeneratorFactory>();
         foreach (var generatorInfo in BuildingContext.Current.Model.Generators) {
           KeyGenerator keyGenerator;
-          if (generatorInfo.Type==null)
+          if (generatorInfo.KeyGeneratorType==null)
             continue;
-          if (generatorInfo.Type==typeof (KeyGenerator))
+          if (generatorInfo.KeyGeneratorType==typeof (KeyGenerator))
             keyGenerator = generatorFactory.CreateGenerator(generatorInfo);
           else
-            keyGenerator = (KeyGenerator) Activator.CreateInstance(generatorInfo.Type, new object[] {generatorInfo});
+            keyGenerator = (KeyGenerator) Activator.CreateInstance(generatorInfo.KeyGeneratorType, new object[] {generatorInfo});
           keyGenerator.Initialize();
           keyGenerators.Register(generatorInfo, keyGenerator);
         }
