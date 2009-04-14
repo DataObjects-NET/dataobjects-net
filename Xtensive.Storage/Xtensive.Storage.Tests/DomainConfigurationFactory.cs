@@ -14,25 +14,25 @@ namespace Xtensive.Storage.Tests
     public static DomainConfiguration Create()
     {
       DomainConfiguration config;
-//      config = DomainConfigurationFactory.Create("memory");
-//      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.SingleTable);
-//      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.ConcreteTable);
-//      config = DomainConfigurationFactory.Create("memory", InheritanceSchema.Default, TypeIdBehavior.Include);
+//      config = Create("memory");
+//      config = Create("memory", InheritanceSchema.SingleTable);
+//      config = Create("memory", InheritanceSchema.ConcreteTable);
+//      config = Create("memory", InheritanceSchema.Default, TypeIdBehavior.Include);
 
       config = Create("mssql2005");
-//      config = DomainConfigurationFactory.Create("mssql2005", InheritanceSchema.SingleTable);
-//      config = DomainConfigurationFactory.Create("mssql2005", InheritanceSchema.ConcreteTable);
-//      config = DomainConfigurationFactory.Create("mssql2005", InheritanceSchema.Default, TypeIdBehavior.Include);
+//      config = Create("mssql2005", InheritanceSchema.SingleTable);
+//      config = Create("mssql2005", InheritanceSchema.ConcreteTable);
+//      config = Create("mssql2005", InheritanceSchema.Default, TypeIdBehavior.Include);
 
-//      config = DomainConfigurationFactory.Create("pgsql");
-//      config = DomainConfigurationFactory.Create("mssql2005", InheritanceSchema.SingleTable);
-//      config = DomainConfigurationFactory.Create("mssql2005", InheritanceSchema.ConcreteTable);
-//      config = DomainConfigurationFactory.Create("mssql2005", InheritanceSchema.Default, TypeIdBehavior.Include);
+//      config = Create("pgsql");
+//      config = Create("mssql2005", InheritanceSchema.SingleTable);
+//      config = Create("mssql2005", InheritanceSchema.ConcreteTable);
+//      config = Create("mssql2005", InheritanceSchema.Default, TypeIdBehavior.Include);
 
-//      config = DomainConfigurationFactory.Create("vistadb");
-//      config = DomainConfigurationFactory.Create("vistadb", InheritanceSchema.SingleTable);
-//      config = DomainConfigurationFactory.Create("vistadb", InheritanceSchema.ConcreteTable);
-//      config = DomainConfigurationFactory.Create("vistadb", InheritanceSchema.Default, TypeIdBehavior.Include);
+//      config = Create("vistadb");
+//      config = Create("vistadb", InheritanceSchema.SingleTable);
+//      config = Create("vistadb", InheritanceSchema.ConcreteTable);
+//      config = Create("vistadb", InheritanceSchema.Default, TypeIdBehavior.Include);
       return config;
     }
 
