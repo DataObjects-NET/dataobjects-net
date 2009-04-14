@@ -38,6 +38,16 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void OrderByAnonymous2Test()
+    {
+      IQueryable<Customer> customers = Query<Customer>.All;
+      var result = customers
+        .Select(c => new {c.Address.Country, c})
+        .OrderBy(x => x);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void OrderByDescendingTest()
     {
       IQueryable<string> result = Query<Customer>.All.OrderByDescending(c => c.CompanyName).ThenByDescending(c => c.Address.Country).Select(c => c.Address.City);

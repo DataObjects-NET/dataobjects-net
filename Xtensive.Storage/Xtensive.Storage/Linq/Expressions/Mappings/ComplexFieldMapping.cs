@@ -16,14 +16,14 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 {
   internal sealed class ComplexFieldMapping : FieldMapping
   {
-    internal readonly Dictionary<string, Pair<ComplexFieldMapping, Expression>> AnonymousFields;
+    internal readonly Dictionary<string, Pair<ComplexFieldMapping, Expression>> AnonymousTypes;
     internal readonly Dictionary<string, Segment<int>> Fields;
-    internal readonly Dictionary<string, ComplexFieldMapping> JoinedFields;
+    internal readonly Dictionary<string, ComplexFieldMapping> Entities;
     private  readonly List<int> columns = new List<int>();
 
     #region Accessor methods
 
-    public Segment<int> GetFieldSegment(string fieldName)
+    public Segment<int> GetFieldMapping(string fieldName)
     {
       Segment<int> result;
       if (!Fields.TryGetValue(fieldName, out result))
@@ -31,15 +31,15 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       return result;
     }
 
-    public bool TryGetJoined(string fieldName, out ComplexFieldMapping value)
+    public bool TryGetJoinedEntity(string fieldName, out ComplexFieldMapping value)
     {
-      return JoinedFields.TryGetValue(fieldName, out value);
+      return Entities.TryGetValue(fieldName, out value);
     }
 
-    public ComplexFieldMapping GetJoinedFieldMapping(string fieldName)
+    public ComplexFieldMapping GetEntityMapping(string fieldName)
     {
       ComplexFieldMapping result;
-      if (!JoinedFields.TryGetValue(fieldName, out result))
+      if (!Entities.TryGetValue(fieldName, out result))
         throw new InvalidOperationException(string.Format("Could not find joined field mapping for field '{0}'.", fieldName));
       return result;
     }
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     public Pair<ComplexFieldMapping, Expression> GetAnonymousMapping(string fieldName)
     {
       Pair<ComplexFieldMapping, Expression> result;
-      if (!AnonymousFields.TryGetValue(fieldName, out result))
+      if (!AnonymousTypes.TryGetValue(fieldName, out result))
         throw new InvalidOperationException(string.Format("Could not find anonymous projection for field '{0}'.", fieldName));
       return result;
     }
@@ -62,9 +62,9 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     public override FieldMapping ShiftOffset(int offset)
     {
       var shiftedFields = Fields.ToDictionary(fm => fm.Key, fm => new Segment<int>(offset + fm.Value.Offset, fm.Value.Length));
-      var shiftedRelations = JoinedFields.ToDictionary(jr => jr.Key, jr => (ComplexFieldMapping)jr.Value.ShiftOffset(offset));
+      var shiftedRelations = Entities.ToDictionary(jr => jr.Key, jr => (ComplexFieldMapping)jr.Value.ShiftOffset(offset));
       var shiftedAnonymous = new Dictionary<string, Pair<ComplexFieldMapping, Expression>>();
-      foreach (var pair in AnonymousFields) {
+      foreach (var pair in AnonymousTypes) {
         var mapping = pair.Value.First.ShiftOffset(offset);
         // TODO: rewrite tuple access
         var expression = pair.Value.Second;
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       for (int i = 0; i < pathList.Count - 1; i++) {
         MemberPathItem pathItem = pathList[i];
         if (pathItem.Type == MemberType.Entity)
-          mapping = mapping.GetJoinedFieldMapping(pathItem.Name);
+          mapping = mapping.GetEntityMapping(pathItem.Name);
         else if (pathItem.Type == MemberType.Anonymous)
           mapping = mapping.GetAnonymousMapping(pathItem.Name).First;
       }
@@ -94,10 +94,10 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
         throw new InvalidOperationException();
 
       if (lastItem.Type == MemberType.Entity) {
-        mapping = mapping.GetJoinedFieldMapping(lastItem.Name);
+        mapping = mapping.GetEntityMapping(lastItem.Name);
         return mapping.CalculateMemberSegment();
       }
-      return mapping.GetFieldSegment(lastItem.Name);
+      return mapping.GetFieldMapping(lastItem.Name);
     }
 
     public override FieldMapping GetMemberMapping(MemberPath fieldPath)
@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       ComplexFieldMapping mapping = this;
       foreach (MemberPathItem pathItem in pathList) {
         if (pathItem.Type == MemberType.Entity)
-          mapping = mapping.GetJoinedFieldMapping(pathItem.Name);
+          mapping = mapping.GetEntityMapping(pathItem.Name);
         else if (pathItem.Type == MemberType.Anonymous)
           mapping = mapping.GetAnonymousMapping(pathItem.Name).First;
       }
@@ -119,15 +119,15 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     {
       if (fieldMapping is PrimitiveFieldMapping) {
         var pfm = (PrimitiveFieldMapping)fieldMapping;
-        RegisterFieldMapping(string.Empty, pfm.Segment);
+        RegisterField(string.Empty, pfm.Segment);
       }
       else {
         var cfm = (ComplexFieldMapping)fieldMapping;
         foreach (var pair in cfm.Fields)
-          RegisterFieldMapping(pair.Key, pair.Value);
-        foreach (var pair in cfm.JoinedFields)
-          RegisterJoin(pair.Key, pair.Value);
-        foreach (var pair in cfm.AnonymousFields)
+          RegisterField(pair.Key, pair.Value);
+        foreach (var pair in cfm.Entities)
+          RegisterEntity(pair.Key, pair.Value);
+        foreach (var pair in cfm.AnonymousTypes)
           RegisterAnonymous(pair.Key, pair.Value.First, pair.Value.Second);
       }
     }
@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     public override string ToString()
     {
       return string.Format("Complex: Fields({0}), JoinedFields({1}), AnonymousFields({2})",
-        Fields.Count, JoinedFields.Count, AnonymousFields.Count);
+        Fields.Count, Entities.Count, AnonymousTypes.Count);
     }
 
     private Segment<int> CalculateMemberSegment()
@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 
     #region Register methods
 
-    public void RegisterFieldMapping(string key, Segment<int> value)
+    public void RegisterField(string key, Segment<int> value)
     {
       if (!Fields.ContainsKey(key)) {
         Fields.Add(key, value);
@@ -156,16 +156,16 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       }
     }
 
-    public void RegisterJoin(string key, ComplexFieldMapping value)
+    public void RegisterEntity(string key, ComplexFieldMapping value)
     {
-      if (!JoinedFields.ContainsKey(key))
-        JoinedFields.Add(key, value);
+      if (!Entities.ContainsKey(key))
+        Entities.Add(key, value);
     }
 
     public void RegisterAnonymous(string key, ComplexFieldMapping anonymousMapping, Expression projection)
     {
-      if (!AnonymousFields.ContainsKey(key))
-        AnonymousFields.Add(key, new Pair<ComplexFieldMapping, Expression>(anonymousMapping, projection));
+      if (!AnonymousTypes.ContainsKey(key))
+        AnonymousTypes.Add(key, new Pair<ComplexFieldMapping, Expression>(anonymousMapping, projection));
     }
 
     #endregion
@@ -178,26 +178,32 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     {}
 
     public ComplexFieldMapping(TypeInfo type, int offset)
-      : this (null, new Dictionary<string, ComplexFieldMapping>(), new Dictionary<string, Pair<ComplexFieldMapping, Expression>>())
     {
-      Fields = new Dictionary<string, Segment<int>>();
-      foreach (var field in type.Fields) {
-        Fields.Add(field.Name, new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length));
-        if (field.IsEntity)
-          Fields.Add(field.Name + ".Key", new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length));
-      }
+      var fields = new Dictionary<string, Segment<int>>();
       var keySegment = new Segment<int>(offset, type.Hierarchy.KeyInfo.Fields.Sum(pair => pair.Key.MappingInfo.Length));
-      Fields.Add("Key", keySegment);
+      fields.Add("Key", keySegment);
+      foreach (var field in type.Fields) {
+        fields.Add(field.Name, new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length));
+        if (field.IsEntity)
+          fields.Add(field.Name + ".Key", new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length));
+      }
+
+      Fields = fields;
+      Entities = new Dictionary<string, ComplexFieldMapping> ();
+      AnonymousTypes = new Dictionary<string, Pair<ComplexFieldMapping, Expression>>();
 
       columns.AddRange(Enumerable.Range(offset, type.Columns.Count));
     }
 
+    private ComplexFieldMapping(Dictionary<string, Segment<int>> fields)
+      : this (fields, new Dictionary<string, ComplexFieldMapping>(), new Dictionary<string, Pair<ComplexFieldMapping, Expression>>())
+    {}
+
     private ComplexFieldMapping(Dictionary<string, Segment<int>> fields, Dictionary<string, ComplexFieldMapping> joinedFields, Dictionary<string, Pair<ComplexFieldMapping, Expression>> anonymousFields)
     {
       Fields = fields;
-      JoinedFields = joinedFields;
-      AnonymousFields = anonymousFields;
+      Entities = joinedFields;
+      AnonymousTypes = anonymousFields;
     }
-
   }
 }

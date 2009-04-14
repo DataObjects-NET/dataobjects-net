@@ -40,21 +40,21 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 
     #region Register methods
 
-    public void RegisterFieldMapping(string key, Segment<int> segment)
+    public void RegisterField(string key, Segment<int> segment)
     {
       if (FillMapping) {
         var complexMapping = Mapping as ComplexFieldMapping;
         if (complexMapping != null && !complexMapping.Fields.ContainsKey(key))
-          complexMapping.RegisterFieldMapping(key, segment);
+          complexMapping.RegisterField(key, segment);
       }
     }
 
-    public void RegisterJoined(string key, ComplexFieldMapping value)
+    public void RegisterEntity(string key, ComplexFieldMapping value)
     {
       if (FillMapping) {
         var complexMapping = Mapping as ComplexFieldMapping;
-        if (complexMapping != null && !complexMapping.JoinedFields.ContainsKey(key))
-          complexMapping.RegisterJoin(key, value);
+        if (complexMapping != null && !complexMapping.Entities.ContainsKey(key))
+          complexMapping.RegisterEntity(key, value);
       }
     }
 
@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     {
       if (FillMapping) {
         var complexMapping = Mapping as ComplexFieldMapping;
-        if (complexMapping != null && !complexMapping.AnonymousFields.ContainsKey(key)) {
+        if (complexMapping != null && !complexMapping.AnonymousTypes.ContainsKey(key)) {
           complexMapping.RegisterAnonymous(key, anonymousMapping, projection);
         }
       }

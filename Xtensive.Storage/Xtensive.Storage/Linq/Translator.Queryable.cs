@@ -437,13 +437,13 @@ namespace Xtensive.Storage.Linq
         if (mappingRef.Value.Mapping is ComplexFieldMapping) {
           var cfm = (ComplexFieldMapping) mappingRef.Value.Mapping;
           var keyMapping = new ComplexFieldMapping();
-          newResultMapping.RegisterJoin("Key", keyMapping);
+          newResultMapping.RegisterEntity("Key", keyMapping);
           foreach (var field in cfm.Fields) {
             var segment = new Segment<int>(columnList.IndexOf(field.Value.Offset), field.Value.Length);
-            newResultMapping.RegisterFieldMapping("Key." + field.Key, segment);
-            keyMapping.RegisterFieldMapping(field.Key, segment);
+            newResultMapping.RegisterField("Key." + field.Key, segment);
+            keyMapping.RegisterField(field.Key, segment);
           }
-          foreach (var pair in cfm.AnonymousFields) {
+          foreach (var pair in cfm.AnonymousTypes) {
             var projection = tupleAccessProcessor.ReplaceMappings(pair.Value.Second, columnList, groupMapping, recordSet.Header);
             newResultMapping.RegisterAnonymous(
               pair.Key.IsNullOrEmpty()
@@ -454,7 +454,7 @@ namespace Xtensive.Storage.Linq
         }
         else {
           var pfm = (PrimitiveFieldMapping) mappingRef.Value.Mapping;
-          newResultMapping.RegisterFieldMapping("Key", new Segment<int>(columnList.IndexOf(pfm.Segment.Offset), pfm.Segment.Length));
+          newResultMapping.RegisterField("Key", new Segment<int>(columnList.IndexOf(pfm.Segment.Offset), pfm.Segment.Length));
         }
       }
 
@@ -789,7 +789,7 @@ namespace Xtensive.Storage.Linq
         var cfm = (ComplexFieldMapping) outer.Mapping;
         var complexMapping = new ComplexFieldMapping();
         foreach (var pair in cfm.Fields)
-          complexMapping.RegisterFieldMapping(pair.Key, new Segment<int>(outerColumnList.IndexOf(pair.Value.Offset), pair.Value.Length));
+          complexMapping.RegisterField(pair.Key, new Segment<int>(outerColumnList.IndexOf(pair.Value.Offset), pair.Value.Length));
         mapping = complexMapping;
       }
       var groupMapping = MappingHelper.BuildGroupMapping(outerColumnList, outerRecordSet.Provider, recordSet.Provider);
@@ -815,8 +815,8 @@ namespace Xtensive.Storage.Linq
       int columnIndex = oldResult.RecordSet.Header.Length;
       var newMapping = new ComplexFieldMapping();
       newMapping.Fill(oldResult.Mapping);
-      newMapping.RegisterFieldMapping(column.Name, new Segment<int>(columnIndex, 1));
-      mappingRef.Value.RegisterFieldMapping(column.Name, new Segment<int>(columnIndex, 1));
+      newMapping.RegisterField(column.Name, new Segment<int>(columnIndex, 1));
+      mappingRef.Value.RegisterField(column.Name, new Segment<int>(columnIndex, 1));
       var newRecordSet = oldResult.RecordSet.Apply(applyParameter, subquery);
       var newResult = new ResultExpression(
         oldResult.Type, newRecordSet, newMapping, oldResult.ItemProjector);

@@ -433,9 +433,9 @@ namespace Xtensive.Storage.Tests.Storage
           RecordSet result = rsSnakePrimary
             .Range(() => pID.Value)
             .Join(rsSnakeName
-            .Range(() => pName.Value)
-            .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
-            .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID));
+              .Range(() => pName.Value)
+              .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
+              .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID));
           
           using(new ParameterScope()) {
             pID.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)), new Entire<Tuple>(Tuple.Create(120)));
