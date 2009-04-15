@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Linq
         var memberExpression = Expression.Property(tb.Expression, "TypeId");
         Expression boolExpression = null;
         foreach (int typeId in typeIds)
-          boolExpression = MakeBinaryExpression(boolExpression, memberExpression, Expression.Constant(typeId), ExpressionType.Equal);
+          boolExpression = MakeBinaryExpression(boolExpression, memberExpression, Expression.Constant(typeId), ExpressionType.Equal, ExpressionType.OrElse);
         
         return Visit(boolExpression);
       }
@@ -391,19 +391,23 @@ namespace Xtensive.Storage.Linq
         yield return func(r.Data, r);
     }
 
-    private static Expression MakeBinaryExpression(Expression previous, Expression left, Expression right, ExpressionType operationType)
+    private static Expression MakeBinaryExpression(Expression previous, Expression left, Expression right, ExpressionType operationType, ExpressionType concatenationExpression)
     {
-      if (previous == null) {
-        previous = operationType == ExpressionType.Equal
-          ? Expression.Equal(left, right)
-          : Expression.NotEqual(left, right);
+      var newExpression = operationType==ExpressionType.Equal
+        ? Expression.Equal(left, right)
+        : Expression.NotEqual(left, right);
+      
+      if (previous == null)
+        return newExpression;
+
+      switch (concatenationExpression) {
+        case ExpressionType.AndAlso:
+          return Expression.AndAlso(previous, newExpression);
+        case ExpressionType.OrElse:
+          return Expression.OrElse(previous, newExpression);
+        default:
+          throw new ArgumentOutOfRangeException("concatenationExpression");
       }
-      else {
-        previous = operationType == ExpressionType.Equal
-          ? Expression.AndAlso(previous, Expression.Equal(left, right))
-          : Expression.AndAlso(previous, Expression.NotEqual(left, right));
-      }
-      return previous;
     }
 
     private Expression MakeComplexBinaryExpression(Expression bLeft, Expression bRight, ExpressionType operationType)
@@ -424,7 +428,7 @@ namespace Xtensive.Storage.Linq
             var columnType = source.RecordSet.Header.Columns[i].Type.ToNullable();
             Expression left = MakeTupleAccess(path.Parameter, columnType, i);
             Expression right = Expression.Constant(null, columnType);
-            result = MakeBinaryExpression(result, left, right, operationType);
+            result = MakeBinaryExpression(result, left, right, operationType, ExpressionType.AndAlso);
           }
           return result;
         }
@@ -439,7 +443,7 @@ namespace Xtensive.Storage.Linq
         var type = leftSource.RecordSet.Header.TupleDescriptor[pair.l];
         Expression left = MakeTupleAccess(leftPath.Parameter, type, pair.l);
         Expression right = MakeTupleAccess(rightPath.Parameter, type, pair.r);
-        result = MakeBinaryExpression(result, left, right, operationType);
+        result = MakeBinaryExpression(result, left, right, operationType, ExpressionType.AndAlso);
       }
       return result;
     }
@@ -499,7 +503,7 @@ namespace Xtensive.Storage.Linq
             pair.ParameterIndex
             )
           );
-        result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType);
+        result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType, ExpressionType.AndAlso);
       }
       return result;
     }
@@ -548,7 +552,7 @@ namespace Xtensive.Storage.Linq
               pair.ParameterIndex
               )
             );
-          result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType);
+          result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType, ExpressionType.AndAlso);
         }
         return result;
       }
@@ -584,7 +588,7 @@ namespace Xtensive.Storage.Linq
         }
         else
           right = Expression.Property(leftExpression, propertyInfo);
-        var expression = VisitBinary((BinaryExpression)MakeBinaryExpression(null, left, right, binaryExpression.NodeType));
+        var expression = VisitBinary((BinaryExpression)MakeBinaryExpression(null, left, right, binaryExpression.NodeType, ExpressionType.AndAlso));
         result = result == null
           ? expression
           : Expression.AndAlso(result, expression);

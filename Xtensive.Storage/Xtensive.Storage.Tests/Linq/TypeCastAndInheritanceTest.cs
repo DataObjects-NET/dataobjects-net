@@ -51,14 +51,13 @@ namespace Xtensive.Storage.Tests.Linq
       QueryDumper.Dump(result);
     }
 
-    public class A : Structure
+    [Test]
+    public void IsIntermediateTest()
     {
-      private string City;
-    }
-
-    public class B : A
-    {
-      private string street;
+        Query<Product>.All
+          .Where(p => p is IntermediateProduct)
+          .Select(product => (IntermediateProduct)product)
+          .Count();
     }
 
     [Test]
@@ -70,6 +69,9 @@ namespace Xtensive.Storage.Tests.Linq
       int activeProductCount = Query<ActiveProduct>.All.Count();
 
       Assert.Greater(productCount, 0);
+      Assert.Greater(intermediateProductCount, 0);
+      Assert.Greater(discontinuedProductCount, 0);
+      Assert.Greater(activeProductCount, 0);
 
       Assert.AreEqual(
         productCount,
