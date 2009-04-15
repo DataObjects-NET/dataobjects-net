@@ -93,6 +93,7 @@ namespace Xtensive.Storage.Linq
       resultAliasGenerator = AliasGenerator.Create();
       columnAliasGenerator = AliasGenerator.Create(new[] {"column"});
       this.query = EntitySetAccessRewriter.Rewrite(EqualityRewriter.Rewrite(query));
+      this.query = OfTypeRewriter.Rewrite(query);
       var domain = Domain.Demand();
       model = domain.Model;
       translator = new Translator(this);

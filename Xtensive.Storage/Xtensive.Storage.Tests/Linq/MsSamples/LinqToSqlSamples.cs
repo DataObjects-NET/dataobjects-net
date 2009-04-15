@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Disposing;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -178,6 +179,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(q);
     }
 
+    [Ignore("Not supported")]
     [Category("SELECT/DISTINCT")]
     [Test(Description = "Select - Named Type")]
     [Description("This sample uses SELECT and a known type to return a sequence of employees' names.")]
@@ -1661,6 +1663,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     }
 
 
+    [Ignore("Not supported")]
     [Category("Inheritance")]
     [Test(Description = "Simple")]
     [Description("This sample returns all contacts where the city is London.")]
@@ -1688,6 +1691,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(cons);
     }
 
+    [Ignore("Not supported")]
     [Category("Inheritance")]
     [Test(Description = "IS")]
     [Description("This sample uses IS to return all shipper contacts.")]
@@ -1700,6 +1704,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(cons);
     }
 
+    [Ignore("Not supported")]
     [Category("Inheritance")]
     [Test(Description = "AS")]
     [Description("This sample uses AS to return FullContact or null.")]
@@ -1711,6 +1716,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(cons);
     }
 
+    [Ignore("Not supported")]
     [Category("Inheritance")]
     [Test(Description = "Cast")]
     [Description("This sample uses a cast to retrieve customer contacts who work in 'Around the Horn'.")]

@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Linq
           case QueryableMethodKind.Cast:
             return VisitCast(mc.Arguments[0], mc.Method.GetGenericArguments()[0]);
           case QueryableMethodKind.OfType:
-            return VisitOfType(mc.Arguments[0], mc.Method.GetGenericArguments()[0]);
+            return VisitOfType(mc.Arguments[0], mc.Method.GetGenericArguments()[0], mc.Arguments[0].Type.GetGenericArguments()[0]);
           case QueryableMethodKind.Any:
             if (mc.Arguments.Count == 1)
               return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
@@ -229,9 +229,18 @@ namespace Xtensive.Storage.Linq
       throw new NotImplementedException();
     }
 
-    private Expression VisitOfType(Expression source, Type targetType)
+    private Expression VisitOfType(Expression source, Type targetType, Type sourceType)
     {
+      if (targetType==sourceType)
+        return Visit(source);
+
+
+      var parameter = Expression.Parameter(sourceType, "p");
+      var isExpression = Expression.TypeIs(parameter, targetType);
+      LambdaExpression le = Expression.Lambda(isExpression, parameter);
+      var visitedWhere = VisitWhere(source, le);
       throw new NotImplementedException();
+      // return new ResultExpression(, visitedWhere.RecordSet)
     }
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
