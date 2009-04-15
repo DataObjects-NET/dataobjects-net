@@ -30,30 +30,6 @@ namespace Xtensive.Modelling.Comparison
     public static Comparer Current {
       get { return current; }
     }
-    
-    /// <summary>
-    /// Gets the current difference.
-    /// </summary>
-    public Difference CurrentDifference {
-      get { return currentDifference; }
-    }
-
-    /// <summary>
-    /// Gets a value indicating whether reference comparison is performed now.
-    /// </summary>
-    protected bool IsReferenceComparison { get; private set; }
-
-    /// <summary>
-    /// Opens reference comparison region.
-    /// </summary>
-    /// <returns>A disposable object closing the region.</returns>
-    protected IDisposable OpenReferenceComparisonRegion()
-    {
-      bool oldValue = IsReferenceComparison;
-      IsReferenceComparison = true;
-      return new Disposable<Comparer, bool>(this, oldValue,
-        (isDisposing, _this, _OldValue) => _this.IsReferenceComparison = oldValue);
-    }
 
     #region IComparer<T> properties
 
@@ -82,6 +58,46 @@ namespace Xtensive.Modelling.Comparison
           },
           this);
       }
+    }
+
+    #endregion
+
+    #region IsReferenceComparison, CurrentDIfference & related methods
+
+    /// <summary>
+    /// Gets a value indicating whether reference comparison is performed now.
+    /// </summary>
+    protected bool IsReferenceComparison { get; private set; }
+
+    /// <summary>
+    /// Opens reference comparison region.
+    /// </summary>
+    /// <returns>A disposable object closing the region.</returns>
+    protected IDisposable OpenReferenceComparisonRegion()
+    {
+      bool oldValue = IsReferenceComparison;
+      IsReferenceComparison = true;
+      return new Disposable<Comparer, bool>(this, oldValue,
+        (isDisposing, _this, _oldValue) => _this.IsReferenceComparison = _oldValue);
+    }
+
+    /// <summary>
+    /// Gets the current difference.
+    /// </summary>
+    protected internal Difference CurrentDifference {
+      get { return currentDifference; }
+    }
+
+    /// <summary>
+    /// Activates the new <see cref="CurrentDifference"/> value.
+    /// </summary>
+    /// <param name="newCurrent">The new current difference.</param>
+    /// <returns>A disposable object deactivating it.</returns>
+    protected IDisposable ActivateCurrentDifference(Difference newCurrent)
+    {
+      var oldValue = currentDifference;
+      return new Disposable<Comparer, Difference>(this, oldValue,
+        (isDisposing, _this, _oldValue) => _this.currentDifference = _oldValue);
     }
 
     #endregion
@@ -166,7 +182,7 @@ namespace Xtensive.Modelling.Comparison
       difference.MovementInfo = mi;
       bool bMoved = !mi.IsUnchanged;
       if (!difference.IsNestedPropertyDifference && bMoved)
-        using (difference.Parent.Activate())
+        using (ActivateCurrentDifference(difference.Parent))
           difference.PropertyChanges.Add(propertyName, 
             new PropertyValueDifference(propertyName, source, target));
 
@@ -212,7 +228,7 @@ namespace Xtensive.Modelling.Comparison
       if (!bChanged)
         return null;
       if (!difference.IsNestedPropertyDifference)
-        using (difference.Parent.Activate())
+        using (ActivateCurrentDifference(difference.Parent))
           difference.PropertyChanges.Add(propertyName,
             new PropertyValueDifference(propertyName, source, target));
       return difference;
