@@ -20,6 +20,8 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Mappings;
 using Xtensive.Storage.Linq.Rewriters;
+using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using FieldInfo=System.Reflection.FieldInfo;
@@ -377,7 +379,11 @@ namespace Xtensive.Storage.Linq
     private Expression ConstructQueryable(IQueryable rootPoint)
     {
       var elementType = rootPoint.ElementType;
-      var type = context.Model.Types[elementType];
+      TypeInfo type;
+
+      if (!context.Model.Types.TryGetValue(elementType, out type))
+        throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+
       var index = type.Indexes.PrimaryIndex;
 
       var mapping = new ComplexFieldMapping(type, 0);

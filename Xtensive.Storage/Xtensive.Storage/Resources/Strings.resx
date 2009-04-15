@@ -552,4 +552,7 @@
   <data name="ExInvalidUpgraderVersion" xml:space="preserve">
     <value>Invalid upgrader version</value>
   </data>
+  <data name="ExExpressionOfTypeXIsNotASequence" xml:space="preserve">
+    <value>The expression of type '{0}' is not a sequence</value>
+  </data>
 </root>

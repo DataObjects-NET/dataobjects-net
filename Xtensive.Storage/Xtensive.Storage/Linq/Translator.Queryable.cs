@@ -826,9 +826,6 @@ namespace Xtensive.Storage.Linq
 
     private ResultExpression VisitSequence(Expression sequenceExpression)
     {
-      if (sequenceExpression.Type == typeof(string))
-        throw new NotSupportedException("Sequence operators not supported for type 'System.String'");
-
       if (sequenceExpression.GetMemberType()==MemberType.EntitySet) {
         if (sequenceExpression.NodeType!=ExpressionType.MemberAccess)
           throw new NotSupportedException();
@@ -847,7 +844,7 @@ namespace Xtensive.Storage.Linq
       if (visitedExpression.IsResult())
         return (ResultExpression)visitedExpression;
      
-      throw new NotSupportedException(string.Format("The expression of type '{0}' is not a sequence", visitedExpression.Type));
+      throw new NotSupportedException(string.Format(Resources.Strings.ExExpressionOfTypeXIsNotASequence, visitedExpression.Type));
     }
 
     // Constructor

@@ -19,6 +19,12 @@ namespace Xtensive.Storage.Tests.Linq
   public class SelectTest : NorthwindDOModelTest
   {
     [Test]
+    public void OutOfHierarchy()
+    {
+      Assert.Greater(Query<Person>.All.Count(), 0);
+    }
+
+    [Test]
     public void SimpleConstantTest()
     {
       var products = Query<Product>.All;
