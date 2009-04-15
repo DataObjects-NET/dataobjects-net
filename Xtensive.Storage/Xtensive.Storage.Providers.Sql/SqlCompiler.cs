@@ -143,9 +143,8 @@ namespace Xtensive.Storage.Providers.Sql
       var request = new SqlFetchRequest(sqlSelect, provider.Header);
 
       foreach (var column in provider.CalculatedColumns) {
-        var result = TranslateExpression(column.Expression, sqlSelect);
-        var predicate = result.First;
-        var bindings = result.Second.Bindings;
+        HashSet<SqlFetchParameterBinding> bindings;
+        var predicate = TranslateExpression(column.Expression, out bindings, sqlSelect);
         sqlSelect.Columns.Add(predicate, column.Name);
         request.ParameterBindings.UnionWith(bindings);
       }
@@ -202,9 +201,8 @@ namespace Xtensive.Storage.Providers.Sql
       var request = new SqlFetchRequest(query, provider.Header);
 
       query = request.SelectStatement;
-      var result = TranslateExpression(provider.Predicate, query);
-      var predicate = result.First;
-      var bindings = result.Second.Bindings;
+      HashSet<SqlFetchParameterBinding> bindings;
+      var predicate = TranslateExpression(provider.Predicate, out bindings, query);
       if (predicate.NodeType == SqlNodeType.Literal) {
         var value = predicate as SqlLiteral<bool>;
         if (value != null) {
@@ -268,9 +266,8 @@ namespace Xtensive.Storage.Providers.Sql
       var leftQuery = SqlFactory.QueryRef(leftSelect);
       var rightSelect = right.Request.SelectStatement;
       var rightQuery = SqlFactory.QueryRef(rightSelect);
-      var result = TranslateExpression(provider.Predicate, leftSelect, rightSelect);
-      var predicate = result.First;
-      var bindings = result.Second.Bindings;
+      HashSet<SqlFetchParameterBinding> bindings;
+      var predicate = TranslateExpression(provider.Predicate, out bindings, leftSelect, rightSelect);
       var joinedTable = SqlFactory.Join(
         provider.Outer ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
@@ -584,34 +581,22 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <summary>
-    /// Preprocesses (transforms before actual compilation to SQL) specified <see cref="LambdaExpression"/>.
-    /// Can be overridden in derived classes for making custom preprocess logic.
+    /// Translates <see cref="LambdaExpression"/> to SQL DOM tree.
     /// </summary>
-    /// <param name="lambda">Expression to preprocess.</param>
-    /// <returns>Preprocessed expression.</returns>
-    protected virtual LambdaExpression PreprocessExpression(LambdaExpression lambda)
+    /// <param name="le">An expression to translate</param>
+    /// <param name="parameterBindings">Parameter bindings generated during translation.</param>
+    /// <param name="selects">Select statements associated with <paramref name="le"/> parameters.</param>
+    /// <returns></returns>
+    protected virtual SqlExpression TranslateExpression(LambdaExpression le,
+      out HashSet<SqlFetchParameterBinding> parameterBindings, params SqlSelect[] selects)
     {
-      return lambda;
-    }
-
-    /// <summary>
-    /// Postprocesses (transforms <c>SqlDom</c> trees) specified <see cref="SqlExpression"/>
-    /// </summary>
-    /// <param name="expression">Expression to postprocess.</param>
-    /// <param name="resultType">Result type of original lambda.</param>
-    /// <returns>Postprocessed expression.</returns>
-    protected virtual SqlExpression PostprocessExpression(SqlExpression expression, Type resultType)
-    {
-      return expression;
+      var translator = new ExpressionProcessor(this, Handlers, le, selects);
+      var result = translator.Translate();
+      parameterBindings = translator.Bindings;
+      return result;
     }
 
     #region Private methods.
-
-    private Pair<SqlExpression, ExpressionProcessor> TranslateExpression(LambdaExpression le, params SqlSelect[] selects)
-    {
-      var result = new ExpressionProcessor(this, Handlers, PreprocessExpression(le), selects);
-      return new Pair<SqlExpression, ExpressionProcessor>(PostprocessExpression(result.Translate(), le.Body.Type), result);
-    }
 
     private SqlSelect BuildProviderQuery(IndexInfo index)
     {

@@ -5,6 +5,7 @@
 // Created:    2009.02.13
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
@@ -139,27 +140,25 @@ namespace Xtensive.Storage.Providers.MsSql
       return new SqlProvider(provider, request, Handlers, left, right);
     }
 
-    protected override LambdaExpression PreprocessExpression(LambdaExpression lambda)
+    protected override SqlExpression TranslateExpression(LambdaExpression le, out HashSet<SqlFetchParameterBinding> parameterBindings, SqlSelect[] selects)
     {
-      return ExpressionPreprocessor.Preprocess(lambda);
-    }
+      le = ExpressionPreprocessor.Preprocess(le);
+      var resultExpression = base.TranslateExpression(le, out parameterBindings, selects);
 
-    protected override SqlExpression PostprocessExpression(SqlExpression expression, Type resultType)
-    {
-      if (resultType == typeof(bool)) {
-        if (expression.NodeType == SqlNodeType.Parameter)
-          return SqlFactory.NotEquals(expression, 0);
-
-        if (expression.NodeType == SqlNodeType.Not) {
-          var operand = ((SqlUnary)expression).Operand;
+      var expression = le.Body;
+      while (expression.Type == typeof(object) && expression.NodeType == ExpressionType.Convert)
+        expression = ((UnaryExpression) expression).Operand;
+      if (expression.Type == typeof(bool)) {
+        if (resultExpression.NodeType == SqlNodeType.Parameter)
+          return SqlFactory.NotEquals(resultExpression, 0);
+        if (resultExpression.NodeType == SqlNodeType.Not) {
+          var operand = ((SqlUnary) resultExpression).Operand;
           if (operand.NodeType == SqlNodeType.Parameter)
             return SqlFactory.Equals(operand, 0);
-          return expression;
         }
       }
-      // expression = (SqlExpression) expression.Clone();
-      ReplaceBooleanParameters(expression);
-      return expression;
+      ReplaceBooleanParameters(resultExpression);
+      return resultExpression;
     }
 
     private static void ReplaceBooleanParameters(SqlExpression expression)
@@ -205,6 +204,8 @@ namespace Xtensive.Storage.Providers.MsSql
     {
       var columnRef = (SqlColumnRef) select.Columns[index];
       var oldExpression = ((SqlUserColumn)columnRef.SqlColumn).Expression;
+      if (oldExpression.NodeType == SqlNodeType.Parameter)
+        return;
       var caseExpression = SqlFactory.Case();
       caseExpression.Add(oldExpression, 1);
       caseExpression.Else = 0;

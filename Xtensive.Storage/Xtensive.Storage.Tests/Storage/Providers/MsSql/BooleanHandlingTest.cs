@@ -56,6 +56,16 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
     }
 
     [Test]
+    public void SelectParameterTest()
+    {
+      var value = true;
+      TestQuery(() =>
+        from o in Query<MyEntity>.All
+        select value
+        );
+    }
+
+    [Test]
     public void SelectFieldTest()
     {
       TestQuery(() =>

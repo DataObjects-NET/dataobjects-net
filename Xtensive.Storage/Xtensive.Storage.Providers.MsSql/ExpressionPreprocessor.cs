@@ -18,13 +18,17 @@ namespace Xtensive.Storage.Providers.MsSql
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      var methodCall = mc.AsTupleAccess();
-      if (methodCall == null || !IsBooleanExpression(methodCall))
+      if (mc.AsTupleAccess() == null || !IsBooleanExpression(mc))
         return base.VisitMethodCall(mc);
-      methodCall = Expression.Call(Visit(mc.Object),
-        methodCall.Method.GetGenericMethodDefinition().MakeGenericMethod(typeof (int)),
-        methodCall.Arguments.Select(arg => Visit(arg)));
-      return Expression.NotEqual(methodCall, zero);
+      var callTarget = mc.Object;
+      if (callTarget.NodeType != ExpressionType.Parameter && callTarget.Type != typeof(ApplyParameter))
+        return base.VisitMethodCall(mc);
+      mc = Expression.Call(
+        Visit(callTarget),
+        mc.Method.GetGenericMethodDefinition().MakeGenericMethod(typeof (int)),
+        mc.Arguments.Select(arg => Visit(arg))
+        );
+      return Expression.NotEqual(mc, zero);
     }
 
     protected override Expression VisitBinary(BinaryExpression b)
