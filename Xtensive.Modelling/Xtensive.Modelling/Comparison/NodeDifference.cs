@@ -16,7 +16,8 @@ namespace Xtensive.Modelling.Comparison
   /// <see cref="Node"/> comparison result.
   /// </summary>
   public class NodeDifference : Difference,
-    IDifference<Node>
+    IDifference<Node>,
+    IHasPropertyChanges
   {
     /// <inheritdoc/>
     public new Node Source {
@@ -33,9 +34,7 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     public MovementInfo MovementInfo { get; set; }
 
-    /// <summary>
-    /// Gets list of property changes.
-    /// </summary>
+    /// <inheritdoc/>
     public Dictionary<string, Difference> PropertyChanges { get; private set; }
 
     /// <inheritdoc/>
@@ -97,16 +96,12 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="propertyName">The <see cref="Difference.PropertyName"/> value.</param>
     /// <param name="source">The <see cref="Source"/> value.</param>
     /// <param name="target">The <see cref="Target"/> value.</param>
-    public NodeDifference(string propertyName, Node source, Node target)
-      : base(propertyName, source, target)
+    public NodeDifference(Node source, Node target)
+      : base(source, target)
     {
       PropertyChanges = new Dictionary<string, Difference>();
-      var any = source ?? target;
-      if (any.Nesting.PropertyName!=propertyName)
-        IsNestedPropertyDifference = false;
     }
   }
 }

@@ -28,12 +28,6 @@ namespace Xtensive.Modelling.Comparison
     protected static readonly int ToString_IndentSize = 2;
 
     /// <inheritdoc/>
-    public string PropertyName { get; private set; }
-
-    /// <inheritdoc/>
-    public bool IsNestedPropertyDifference { get; protected set; }
-
-    /// <inheritdoc/>
     public object Source { get; private set; }
 
     /// <inheritdoc/>
@@ -77,13 +71,8 @@ namespace Xtensive.Modelling.Comparison
     /// <inheritdoc/>
     public override string ToString()
     {
-      string propertyNamePrefix = PropertyName.IsNullOrEmpty() ? 
-        string.Empty : 
-        string.Format(Strings.DifferencePropertyNamePrefix, PropertyName);
-      if (Parent is NodeCollectionDifference)
-        propertyNamePrefix = string.Empty;
       return string.Format(Strings.DifferenceFormat,
-        propertyNamePrefix, GetType().GetShortName(), Source, Target, ParametersToString());
+        GetType().GetShortName(), Source, Target, ParametersToString());
     }
 
     /// <summary>
@@ -100,21 +89,18 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="propertyName">The <see cref="PropertyName"/> value.</param>
     /// <param name="source">The <see cref="Source"/> value.</param>
     /// <param name="target">The <see cref="Target"/> value.</param>
     /// <exception cref="InvalidOperationException">Both <paramref name="source"/> and 
     /// <paramref name="target"/> are <see langword="null" />.</exception>
-    public Difference(string propertyName, object source, object target)
+    public Difference(object source, object target)
     {
-      PropertyName = propertyName;
       Source = source;
       Target = target;
       var any = source ?? target;
       if (any==null)
         throw new InvalidOperationException(Strings.ExBothSourceAndTargetAreNull);
       Parent = Comparer.Current.CurrentDifference;
-      IsNestedPropertyDifference = Parent==null ? true : Parent.IsNestedPropertyDifference;
     }
   }
 }

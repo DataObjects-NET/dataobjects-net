@@ -61,7 +61,7 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0}&quot;{2}&quot; != &quot;{3}&quot; ({1}): {4}.
+        ///   Looks up a localized string similar to &quot;{1}&quot; != &quot;{2}&quot; ({0}): {3}.
         /// </summary>
         internal static string DifferenceFormat {
             get {

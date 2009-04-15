@@ -60,11 +60,10 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="propertyName">The <see cref="Difference.PropertyName"/> value.</param>
     /// <param name="source">The <see cref="Source"/> value.</param>
     /// <param name="target">The <see cref="Target"/> value.</param>
-    public NodeCollectionDifference(string propertyName, NodeCollection source, NodeCollection target)
-      : base(propertyName, source, target)
+    public NodeCollectionDifference(NodeCollection source, NodeCollection target)
+      : base(source, target)
     {
       ItemChanges = new Dictionary<string, NodeDifference>();
     }

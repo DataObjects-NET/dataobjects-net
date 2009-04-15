@@ -7,10 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Comparison.Hints;
+using Xtensive.Modelling.Resources;
 
 namespace Xtensive.Modelling.Comparison
 {
@@ -22,7 +24,6 @@ namespace Xtensive.Modelling.Comparison
     [ThreadStatic]
     private static Comparer current;
     private Cached<Difference> cachedDifference;
-    private Difference currentDifference;
 
     /// <summary>
     /// Gets the current comparer.
@@ -65,9 +66,45 @@ namespace Xtensive.Modelling.Comparison
     #region IsReferenceComparison, CurrentDIfference & related methods
 
     /// <summary>
+    /// Gets the currently processed difference.
+    /// </summary>
+    protected internal Difference CurrentDifference { get; private set; }
+
+    /// <summary>
+    /// Gets the currently processed property.
+    /// </summary>
+    protected internal PropertyInfo CurrentProperty { get; private set; }
+
+    /// <summary>
     /// Gets a value indicating whether reference comparison is performed now.
     /// </summary>
-    protected bool IsReferenceComparison { get; private set; }
+    protected internal bool IsReferenceComparison { get; private set; }
+
+    /// <summary>
+    /// Activates the new <see cref="CurrentDifference"/> value.
+    /// </summary>
+    /// <param name="newDifference">The new current difference.</param>
+    /// <returns>A disposable object deactivating it.</returns>
+    protected IDisposable OpenComparisonRegion(Difference newDifference)
+    {
+      var oldValue = CurrentDifference;
+      CurrentDifference = newDifference;
+      return new Disposable<Comparer, Difference>(this, oldValue,
+        (isDisposing, _this, _oldValue) => _this.CurrentDifference = _oldValue);
+    }
+
+    /// <summary>
+    /// Opens property comparison region.
+    /// </summary>
+    /// <param name="newProperty">The new property to compare.</param>
+    /// <returns>A disposable object closing the region.</returns>
+    protected IDisposable OpenPropertyComparisonRegion(PropertyInfo newProperty)
+    {
+      var oldValue = CurrentProperty;
+      CurrentProperty = newProperty;
+      return new Disposable<Comparer, PropertyInfo>(this, oldValue,
+        (isDisposing, _this, _oldValue) => _this.CurrentProperty = _oldValue);
+    }
 
     /// <summary>
     /// Opens reference comparison region.
@@ -79,25 +116,6 @@ namespace Xtensive.Modelling.Comparison
       IsReferenceComparison = true;
       return new Disposable<Comparer, bool>(this, oldValue,
         (isDisposing, _this, _oldValue) => _this.IsReferenceComparison = _oldValue);
-    }
-
-    /// <summary>
-    /// Gets the current difference.
-    /// </summary>
-    protected internal Difference CurrentDifference {
-      get { return currentDifference; }
-    }
-
-    /// <summary>
-    /// Activates the new <see cref="CurrentDifference"/> value.
-    /// </summary>
-    /// <param name="newCurrent">The new current difference.</param>
-    /// <returns>A disposable object deactivating it.</returns>
-    protected IDisposable ActivateCurrentDifference(Difference newCurrent)
-    {
-      var oldValue = currentDifference;
-      return new Disposable<Comparer, Difference>(this, oldValue,
-        (isDisposing, _this, _oldValue) => _this.currentDifference = _oldValue);
     }
 
     #endregion
@@ -127,11 +145,17 @@ namespace Xtensive.Modelling.Comparison
     protected virtual Difference Visit(Type type, object source, object target)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      if (typeof(Node).IsAssignableFrom(type))
-        return VisitNode((Node) source, (Node) target);
+      if (typeof (Node).IsAssignableFrom(type))
+        using (OpenComparisonRegion(
+          new NodeDifference((Node) source, (Node) target)))
+          return VisitNode((Node) source, (Node) target);
       if (typeof(NodeCollection).IsAssignableFrom(type))
-        return VisitNodeCollection((NodeCollection) source, (NodeCollection) target);
-      return VisitUnknown((object) source, (object) target);
+        using (OpenComparisonRegion(
+          new NodeCollectionDifference((NodeCollection) source, (NodeCollection) target)))
+          return VisitNodeCollection((NodeCollection) source, (NodeCollection) target);
+      using (OpenComparisonRegion(
+        new ValueDifference(source, target)))
+        return VisitUnknown(source, target);
     }
 
     /// <summary>
@@ -139,13 +163,21 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     /// <param name="source">The source.</param>
     /// <param name="target">The target.</param>
-    /// <returns>Difference between <paramref name="source"/> 
+    /// <returns>
+    /// Difference between <paramref name="source"/>
     /// and <paramref name="target"/> objects.
-    /// <see langword="null" />, if they're equal.</returns>
-    protected virtual NodeDifference VisitNode(Node source, Node target)
+    /// <see langword="null"/>, if they're equal.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">Both source and target are <see langword="null" />.</exception>
+    /// <exception cref="NullReferenceException"><see cref="CurrentDifference"/> is not <see cref="NodeDifference"/>.</exception>
+    protected virtual Difference VisitNode(Node source, Node target)
     {
       var difference = (NodeDifference) CurrentDifference;
-      var propertyName = difference.PropertyName;
+      if (difference==null)
+        throw new NullReferenceException();
+      var any = source ?? target;
+      if (any==null)
+        throw Exceptions.InternalError(Strings.ExBothSourceAndTargetAreNull, Log.Instance);
 
       // Filling MovementInfo
       var mi = new MovementInfo();
@@ -153,7 +185,8 @@ namespace Xtensive.Modelling.Comparison
         mi.IsCreated = true;
         if (difference.Parent!=null) {
           var parentSource = difference.Parent.Source as Node;
-          if (parentSource!=null && parentSource.GetProperty(propertyName)!=null)
+          if (parentSource!=null && CurrentProperty!=null && 
+            parentSource.GetProperty(CurrentProperty.Name)!=null)
             mi.IsRemoved = true; // = recreated
         }
       }
@@ -181,57 +214,61 @@ namespace Xtensive.Modelling.Comparison
       }
       difference.MovementInfo = mi;
       bool bMoved = !mi.IsUnchanged;
-      if (!difference.IsNestedPropertyDifference && bMoved)
-        using (ActivateCurrentDifference(difference.Parent))
-          difference.PropertyChanges.Add(propertyName, 
-            new PropertyValueDifference(propertyName, source, target));
+      bool isReferenceComparison = IsReferenceComparison;
+      if (isReferenceComparison && bMoved)
+        return CreateFallbackValueDifference(source, target);
 
       // Comparing properties
       if (!mi.IsRemoved || mi.IsCreated) {
-        foreach (var pair in source.PropertyAccessors) {
-          var newPropertyName = pair.Key;
+        foreach (var pair in any.PropertyAccessors) {
           var accessor = pair.Value;
           if (accessor.IgnoreInComparison)
             continue;
 
-          object sourceValue = (source==null || !accessor.HasGetter) ?
-            accessor.Default : accessor.Getter(source);
-          object targetValue = (target==null || !accessor.HasGetter) ?
-            accessor.Default : accessor.Getter(target);
-          if (sourceValue==null) {
-            if (targetValue==null)
+          var newProperty = accessor.PropertyInfo;
+          using (OpenPropertyComparisonRegion(newProperty)) {
+            object newSource = (source==null || !accessor.HasGetter) 
+              ? accessor.Default : accessor.Getter(source);
+            object newTarget = (target==null || !accessor.HasGetter) 
+              ? accessor.Default : accessor.Getter(target);
+
+            var anyValue = newSource ?? newTarget;
+            if (anyValue==null)
               continue; // Both are null
-            var dTargetValue = targetValue as IDifferentiable;
-            if (dTargetValue!=null) {
-              var d = dTargetValue.GetDifferenceWith(sourceValue, newPropertyName, true);
-              if (d!=null)
-                difference.PropertyChanges.Add(newPropertyName, d);
+
+            bool isNewReferenceComparison = false;
+            var newAny = anyValue as Node;
+            if (newAny!=null) {
+              isNewReferenceComparison = true;
+              var newAnyParent = newAny.Nesting.Node;
+              if (newAnyParent==source || newAnyParent==target)
+                isNewReferenceComparison = false;
             }
-            else
-              difference.PropertyChanges.Add(newPropertyName,
-                new PropertyValueDifference(newPropertyName, sourceValue, targetValue));
-            continue;
+
+            using (isNewReferenceComparison ? OpenReferenceComparisonRegion() : null) {
+              var newDifference = Visit(newSource, newTarget);
+              if (newDifference!=null) {
+                difference.PropertyChanges.Add(newProperty.Name, newDifference);
+                if (isReferenceComparison)
+                  break; // It's enough to find a single property difference in this case
+              }
+            }
           }
-          var dSourceValue = sourceValue as IDifferentiable;
-          if (dSourceValue!=null) {
-            var d = dSourceValue.GetDifferenceWith(targetValue, newPropertyName, false);
-            if (d!=null)
-              difference.PropertyChanges.Add(newPropertyName, d);
-          }
-          else if (!Equals(sourceValue, targetValue))
-            difference.PropertyChanges.Add(newPropertyName,
-              new PropertyValueDifference(newPropertyName, sourceValue, targetValue));
         }
       }
 
       bool bChanged = bMoved || (difference.PropertyChanges.Count > 0);
       if (!bChanged)
         return null;
-      if (!difference.IsNestedPropertyDifference)
-        using (ActivateCurrentDifference(difference.Parent))
-          difference.PropertyChanges.Add(propertyName,
-            new PropertyValueDifference(propertyName, source, target));
+      if (isReferenceComparison)
+        return CreateFallbackValueDifference(source, target);
       return difference;
+    }
+
+    protected Difference CreateFallbackValueDifference(Node source, Node target)
+    {
+      using (OpenComparisonRegion(CurrentDifference.Parent))
+        return new ValueDifference(source, target);
     }
 
     /// <summary>
@@ -242,10 +279,15 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>Difference between <paramref name="source"/> 
     /// and <paramref name="target"/> objects.
     /// <see langword="null" />, if they're equal.</returns>
-    protected virtual NodeCollectionDifference VisitNodeCollection(NodeCollection source, NodeCollection target)
+    /// <exception cref="InvalidOperationException">Both source and target are <see langword="null" />.</exception>
+    /// <exception cref="NullReferenceException"><see cref="CurrentDifference"/> is not <see cref="NodeCollectionDifference"/>.</exception>
+    protected virtual Difference VisitNodeCollection(NodeCollection source, NodeCollection target)
     {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var difference = (NodeCollectionDifference) CurrentDifference;
-      string propertyName = difference.PropertyName;
+      if (difference==null)
+        throw new NullReferenceException();
 
       if (source.Count==0 && target.Count==0)
         return null;
@@ -278,7 +320,7 @@ namespace Xtensive.Modelling.Comparison
       // Comparing source only items
       foreach (var key in sourceKeys.Except(commonKeys)) {
         var item = sourceKeyMap[key];
-        var d = (NodeDifference)Visit(item, null); //, propertyName);
+        var d = (NodeDifference) Visit(item, null); //, propertyName);
         if (d!=null)
           difference.ItemChanges.Add(item.Name, d);
       }
@@ -286,7 +328,7 @@ namespace Xtensive.Modelling.Comparison
       // Comparing common items
       foreach (var key in commonKeys) {
         var item = sourceKeyMap[key];
-        var d = (NodeDifference)Visit(item, targetKeyMap[key]); // , propertyName);
+        var d = (NodeDifference) Visit(item, targetKeyMap[key]); // , propertyName);
         if (d!=null)
           difference.ItemChanges.Add(item.Name, d);
       }
@@ -294,7 +336,7 @@ namespace Xtensive.Modelling.Comparison
       // Comparing target only items
       foreach (var key in targetKeys.Except(commonKeys)) {
         var item = targetKeyMap[key];
-        var d = (NodeDifference) Visit(null, item, propertyName);
+        var d = (NodeDifference) Visit(null, item);
         if (d!=null)
           difference.ItemChanges.Add(item.Name, d);
       }
@@ -312,7 +354,7 @@ namespace Xtensive.Modelling.Comparison
     /// <see langword="null" />, if they're equal.</returns>
     protected virtual Difference VisitUnknown(object source, object target)
     {
-      throw new NotImplementedException();
+      return new ValueDifference(source, target);
     }
 
     #region Helper methods
@@ -327,8 +369,14 @@ namespace Xtensive.Modelling.Comparison
     {
       var sourceAncestors = GetAncestors(source==null ? typeof (object) : source.GetType());
       var targetAncestors = GetAncestors(target==null ? typeof (object) : target.GetType());
+      var sourceType = sourceAncestors[sourceAncestors.Count - 1];
+      var targetType = targetAncestors[targetAncestors.Count - 1];
+      if (sourceType.IsAssignableFrom(targetType))
+        return targetType;
+      if (targetType.IsAssignableFrom(sourceType))
+        return sourceType;
       var commonBase = typeof (object);
-      for (int i = 0; i < sourceAncestors.Count; i++) {
+      for (int i = 0; i < Math.Min(sourceAncestors.Count, targetAncestors.Count); i++) {
         var ancestor = sourceAncestors[i];
         if (ancestor!=targetAncestors[i])
           break;

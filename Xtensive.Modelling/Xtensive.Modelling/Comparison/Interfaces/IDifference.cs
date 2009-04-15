@@ -15,16 +15,6 @@ namespace Xtensive.Modelling.Comparison
   public interface IDifference
   {
     /// <summary>
-    /// Gets the name of the property this difference is applicable to.
-    /// </summary>
-    string PropertyName { get; }
-
-    /// <summary>
-    /// Gets a value indicating whether this instance describes nested property difference.
-    /// </summary>
-    bool IsNestedPropertyDifference { get; }
-
-    /// <summary>
     /// Gets the source object.
     /// </summary>
     object Source { get; }

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 
@@ -15,14 +16,19 @@ namespace Xtensive.Modelling.Comparison
   /// Simple value comparison result.
   /// </summary>
   [Serializable]
-  public class PropertyValueDifference : Difference
+  public class ValueDifference : Difference
   {
     /// <inheritdoc/>
     public override void AppendActions(IList<NodeAction> sequence)
     {
       var targetNode = ((NodeDifference) Parent).Target;
       var pca = new PropertyChangeAction() {Path = targetNode.Path};
-      pca.Properties.Add(PropertyName, PathNodeReference.Get(Target));
+      pca.Properties.Add(
+        ((IHasPropertyChanges) Parent).PropertyChanges
+          .Where(kv => kv.Value==this)
+          .Select(kv => kv.Key)
+          .First(), 
+        PathNodeReference.Get(Target));
       sequence.Add(pca);
     }
 
@@ -36,10 +42,9 @@ namespace Xtensive.Modelling.Comparison
     // Constructors
 
     /// <inheritdoc/>
-    public PropertyValueDifference(string propertyName, object source, object target)
-      : base(propertyName, source, target)
+    public ValueDifference(object source, object target)
+      : base(source, target)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(propertyName, "propertyName");
     }
   }
 }
