@@ -375,7 +375,7 @@ namespace Xtensive.Storage.Linq
         var columnList = new List<int>();
 
         if (argument==null) {
-          var pfm = innerResult.Mapping as PrimitiveFieldMapping;
+          var pfm = innerResult.Mapping as PrimitiveMapping;
           if (pfm==null)
             throw new NotSupportedException();
           columnList.Add(pfm.Segment.Offset);
@@ -384,7 +384,7 @@ namespace Xtensive.Storage.Linq
           using (context.Bindings.Add(argument.Parameters[0], innerResult))
           using (new ParameterScope()) {
             calculateExpressions.Value = true;
-            mappingRef.Value = new FieldMappingReference();
+            mappingRef.Value = new MappingReference();
             var result = Visit(argument);
             columnList = mappingRef.Value.Mapping.GetColumns().ToList();
             innerResult = context.Bindings[argument.Parameters[0]];
@@ -426,11 +426,11 @@ namespace Xtensive.Storage.Linq
 
       RecordSet recordSet;
       List<int> columnList;
-      var newResultMapping = new ComplexFieldMapping();
+      var newResultMapping = new ComplexMapping();
       LambdaExpression originalCompiledKeyExpression;
       using (context.Bindings.Add(keySelector.Parameters[0], result))
       using (new ParameterScope()) {
-        mappingRef.Value = new FieldMappingReference();
+        mappingRef.Value = new MappingReference();
         calculateExpressions.Value = true;
         originalCompiledKeyExpression = (LambdaExpression) Visit(keySelector);
         columnList = mappingRef.Value.Mapping.GetColumns().ToList();
@@ -443,9 +443,9 @@ namespace Xtensive.Storage.Linq
           .Select(gi => gi.Index)
           .ToList();
 
-        if (mappingRef.Value.Mapping is ComplexFieldMapping) {
-          var cfm = (ComplexFieldMapping) mappingRef.Value.Mapping;
-          var keyMapping = new ComplexFieldMapping();
+        if (mappingRef.Value.Mapping is ComplexMapping) {
+          var cfm = (ComplexMapping) mappingRef.Value.Mapping;
+          var keyMapping = new ComplexMapping();
           newResultMapping.RegisterEntity("Key", keyMapping);
           foreach (var field in cfm.Fields) {
             var segment = new Segment<int>(columnList.IndexOf(field.Value.Offset), field.Value.Length);
@@ -462,7 +462,7 @@ namespace Xtensive.Storage.Linq
           }
         }
         else {
-          var pfm = (PrimitiveFieldMapping) mappingRef.Value.Mapping;
+          var pfm = (PrimitiveMapping) mappingRef.Value.Mapping;
           newResultMapping.RegisterField("Key", new Segment<int>(columnList.IndexOf(pfm.Segment.Offset), pfm.Segment.Length));
         }
       }
@@ -541,7 +541,7 @@ namespace Xtensive.Storage.Linq
     {
       using (context.Bindings.Add(le.Parameters[0], VisitSequence(expression)))
       using (new ParameterScope()) {
-        mappingRef.Value = new FieldMappingReference();
+        mappingRef.Value = new MappingReference();
         calculateExpressions.Value = true;
         Visit(le);
         var orderItems = mappingRef.Value.Mapping.GetColumns()
@@ -557,7 +557,7 @@ namespace Xtensive.Storage.Linq
     {
       using (context.Bindings.Add(le.Parameters[0], VisitSequence(expression)))
       using (new ParameterScope()) {
-        mappingRef.Value = new FieldMappingReference();
+        mappingRef.Value = new MappingReference();
         calculateExpressions.Value = true;
         Visit(le);
         var orderItems = mappingRef.Value.Mapping.GetColumns()
@@ -578,8 +578,8 @@ namespace Xtensive.Storage.Linq
       var innerParameter = innerKey.Parameters[0];
       using (context.Bindings.Add(outerParameter, VisitSequence(outerSource)))
       using (context.Bindings.Add(innerParameter, VisitSequence(innerSource))) {
-        var outerMappingRef = new FieldMappingReference();
-        var innerMappingRef = new FieldMappingReference();
+        var outerMappingRef = new MappingReference();
+        var innerMappingRef = new MappingReference();
         using (new ParameterScope()) {
           calculateExpressions.Value = true;
           mappingRef.Value = outerMappingRef;
@@ -632,8 +632,8 @@ namespace Xtensive.Storage.Linq
       var innerParameter = innerKey.Parameters[0];
       using (context.Bindings.Add(outerParameter, VisitSequence(outerSource)))
       using (context.Bindings.Add(innerParameter, VisitSequence(innerSource))) {
-        var outerMappingRef = new FieldMappingReference();
-        var innerMappingRef = new FieldMappingReference();
+        var outerMappingRef = new MappingReference();
+        var innerMappingRef = new MappingReference();
         using (new ParameterScope()) {
           mappingRef.Value = outerMappingRef;
           Visit(outerKey);
@@ -668,7 +668,7 @@ namespace Xtensive.Storage.Linq
         Parameter<Tuple> applyParameter;
         using (new ParameterScope())
         using (context.SubqueryParameterBindings.Bind(collectionSelector.Parameters)) {
-          mappingRef.Value = new FieldMappingReference(false);
+          mappingRef.Value = new MappingReference(false);
           parameters.Value = ArrayUtils<ParameterExpression>.EmptyArray;
           innerResult = VisitSequence(collectionSelector.Body);
           applyParameter = context.SubqueryParameterBindings.GetBound(parameter);
@@ -699,7 +699,7 @@ namespace Xtensive.Storage.Linq
     private ResultExpression BuildProjection(LambdaExpression le)
     {
       using (new ParameterScope()) {
-        mappingRef.Value = new FieldMappingReference();
+        mappingRef.Value = new MappingReference();
         entityAsKey.Value = false;
         calculateExpressions.Value = true;
         var itemProjector = (LambdaExpression) Visit(le);
@@ -717,7 +717,7 @@ namespace Xtensive.Storage.Linq
       var parameter = le.Parameters[0];
       using (context.Bindings.Add(parameter, VisitSequence(expression)))
       using (new ParameterScope()) {
-        mappingRef.Value = new FieldMappingReference(false);
+        mappingRef.Value = new MappingReference(false);
         calculateExpressions.Value = false;
         var predicate = Visit(le);
         var source = context.Bindings[parameter];
@@ -789,14 +789,14 @@ namespace Xtensive.Storage.Linq
       }
 
       //TODO: Handle anonymous types
-      FieldMapping mapping;
-      if (outer.Mapping is PrimitiveFieldMapping) {
-        var pfm = (PrimitiveFieldMapping) outer.Mapping;
-        mapping = new PrimitiveFieldMapping(new Segment<int>(outerColumnList.IndexOf(pfm.Segment.Offset), pfm.Segment.Length));
+      Mapping mapping;
+      if (outer.Mapping is PrimitiveMapping) {
+        var pfm = (PrimitiveMapping) outer.Mapping;
+        mapping = new PrimitiveMapping(new Segment<int>(outerColumnList.IndexOf(pfm.Segment.Offset), pfm.Segment.Length));
       }
       else {
-        var cfm = (ComplexFieldMapping) outer.Mapping;
-        var complexMapping = new ComplexFieldMapping();
+        var cfm = (ComplexMapping) outer.Mapping;
+        var complexMapping = new ComplexMapping();
         foreach (var pair in cfm.Fields)
           complexMapping.RegisterField(pair.Key, new Segment<int>(outerColumnList.IndexOf(pair.Value.Offset), pair.Value.Length));
         mapping = complexMapping;
@@ -822,7 +822,7 @@ namespace Xtensive.Storage.Linq
         context.SubqueryParameterBindings.InvalidateParameter(lambdaParameter);
       }
       int columnIndex = oldResult.RecordSet.Header.Length;
-      var newMapping = new ComplexFieldMapping();
+      var newMapping = new ComplexMapping();
       newMapping.Fill(oldResult.Mapping);
       newMapping.RegisterField(column.Name, new Segment<int>(columnIndex, 1));
       mappingRef.Value.RegisterField(column.Name, new Segment<int>(columnIndex, 1));

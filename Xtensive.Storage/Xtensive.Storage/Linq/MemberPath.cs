@@ -85,8 +85,9 @@ namespace Xtensive.Storage.Linq
               item = new MemberPathItem(member.Name, MemberType.Entity, memberAccess);
             }
             else {
+              var expressionType = current.GetMemberType();
               if (lastItem.Type==MemberType.Key) {
-                if (!entityKeyAssociation) {
+                if (!entityKeyAssociation && expressionType != MemberType.Anonymous) {
                   item = new MemberPathItem(
                     member.Name + "." + lastItem.Name,
                     lastItem.Type,
@@ -112,13 +113,6 @@ namespace Xtensive.Storage.Linq
                     lastItem.Type,
                     lastItem.Expression);
                 }
-                else if (memberAccess.Expression.Type.BaseType==typeof (object)) {
-                  // anonymous type detection
-                  item = new MemberPathItem(
-                    member.Name + "." + lastItem.Name,
-                    lastItem.Type,
-                    lastItem.Expression);
-                }
                 else {
                   item = new MemberPathItem(
                     member.Name,
@@ -133,13 +127,15 @@ namespace Xtensive.Storage.Linq
             item = new MemberPathItem(member.Name, MemberType.EntitySet, memberAccess);
             break;
           case MemberType.Anonymous:
-            if (lastItem==null)
+            if (lastItem == null)
               item = new MemberPathItem(member.Name, MemberType.Anonymous, memberAccess);
-            else
+            else {
               item = new MemberPathItem(
-                member.Name + "." + lastItem.Name,
-                lastItem.Type,
-                lastItem.Expression);
+                member.Name,
+                MemberType.Anonymous,
+                memberAccess);
+              result.AddHead(lastItem);
+            }
             break;
           default:
             if (lastItem!=null)
@@ -190,7 +186,9 @@ namespace Xtensive.Storage.Linq
     {
       Parameter = parameter;
       this.pathItems = pathItems;
-      pathType = pathItems.Count > 0 ? pathItems.Tail.Type : pathType = MemberType.Unknown;
+      pathType = pathItems.Count > 0
+        ? pathItems.Tail.Type
+        : parameter.GetMemberType();
     }
 
     private MemberPath()

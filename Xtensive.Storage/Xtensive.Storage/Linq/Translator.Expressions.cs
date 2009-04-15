@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Linq
 
     private readonly Parameter<List<CalculatedColumnDescriptor>> calculatedColumns = new Parameter<List<CalculatedColumnDescriptor>>("calculatedColumns");
     private readonly Parameter<ParameterExpression[]> parameters = new Parameter<ParameterExpression[]>("parameters");
-    private readonly Parameter<FieldMappingReference> mappingRef = new Parameter<FieldMappingReference>("mapping");
+    private readonly Parameter<MappingReference> mappingRef = new Parameter<MappingReference>("mapping");
     private readonly Parameter<ParameterExpression> tuple = new Parameter<ParameterExpression>("tuple");
     private readonly Parameter<ParameterExpression> record = new Parameter<ParameterExpression>("record");
     private readonly Parameter<bool> entityAsKey = new Parameter<bool>("entityAsKey");
@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Linq
             var parameter = parameters.Value[0];
             int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
             body = MakeTupleAccess(parameter, body.Type, position);
-            mappingRef.Value.Replace(new PrimitiveFieldMapping(new Segment<int>(position, 1)));
+            mappingRef.Value.Replace(new PrimitiveMapping(new Segment<int>(position, 1)));
           }
         }
         if (calculatedColumns.Value.Count > 0) {
@@ -151,13 +151,13 @@ namespace Xtensive.Storage.Linq
         return path.TranslateParameter(referencedSource.ItemProjector.Body);
       }
       var source = context.Bindings[pe];
-      var mapping = source.Mapping as ComplexFieldMapping;
+      var mapping = source.Mapping as ComplexMapping;
       int number = 0;
       if (mapping != null) {
         foreach (var item in path) {
           number++;
           if (item.Type == MemberType.Entity && (!entityAsKey.Value || number != path.Count)) {
-            ComplexFieldMapping innerMapping;
+            ComplexMapping innerMapping;
             var name = item.Name;
             var typeInfo = context.Model.Types[item.Expression.Type];
             if (!mapping.TryGetJoinedEntity(name, out innerMapping)) {
@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Linq
                 .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
                 .ToArray();
               var rs = source.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
-              var joinedMapping = new ComplexFieldMapping(typeInfo, source.RecordSet.Header.Columns.Count);
+              var joinedMapping = new ComplexMapping(typeInfo, source.RecordSet.Header.Columns.Count);
               mapping.RegisterEntity(name, joinedMapping);
               source = new ResultExpression(source.Type, rs, source.Mapping, source.ItemProjector);
               context.Bindings.ReplaceBound(pe, source);
@@ -235,8 +235,7 @@ namespace Xtensive.Storage.Linq
         return context.Bindings[p].ItemProjector.Body; // TODO: replace outer parameters?
       var source = context.Bindings[p];
       mappingRef.Value.Replace(source.Mapping);
-      var parameterRewriter = new ParameterRewriter(tuple.Value, record.Value);
-      var result = parameterRewriter.Rewrite(source.ItemProjector.Body);
+      var result = new ParameterRewriter(tuple.Value, record.Value).Rewrite(source.ItemProjector.Body);
       recordIsUsed |= result.Second;
       return result.First;
     }
@@ -279,98 +278,112 @@ namespace Xtensive.Storage.Linq
       var arguments = new List<Expression>();
       if (n.Members == null)
         return base.VisitNew(n);
-      var newFMRef = new FieldMappingReference(mappingRef.Value.FillMapping);
-      using (new ParameterScope()) {
-        mappingRef.Value = newFMRef;
-        for (int i = 0; i < n.Arguments.Count; i++) {
-          var arg = n.Arguments[i];
-          Expression newArg;
-          var member = n.Members[i];
-          var memberName = member.Name.TryCutPrefix(WellKnown.GetterPrefix);
-          var path = MemberPath.Parse(arg, context.Model);
-          if (path.IsValid || arg.NodeType == ExpressionType.New) {
-            var argFMRef = new FieldMappingReference(mappingRef.Value.FillMapping);
-            using (new ParameterScope()) {
-              mappingRef.Value = argFMRef;
-              newArg = Visit(arg);
-            }
-            if (mappingRef.Value.FillMapping && argFMRef.FillMapping) {
-              var fieldMapping = argFMRef.Mapping;
-              var memberType = arg.GetMemberType();
-              Func<string, string, string> rename = (oldName, newName) => oldName.IsNullOrEmpty()
-                ? newName
-                : newName + "." + oldName;
-              if (mappingRef.Value.FillMapping) {
-                if (fieldMapping is PrimitiveFieldMapping)
-                  mappingRef.Value.RegisterField(memberName, ((PrimitiveFieldMapping)fieldMapping).Segment);
-                else {
-                  var complexMapping = (ComplexFieldMapping)fieldMapping;
-                  foreach (var p in complexMapping.Fields)
-                    mappingRef.Value.RegisterField(rename(p.Key, memberName), p.Value);
-                  foreach (var p in complexMapping.Entities)
-                    mappingRef.Value.RegisterEntity(rename(p.Key, memberName), p.Value);
-                  foreach (var p in complexMapping.AnonymousTypes)
-                    mappingRef.Value.RegisterAnonymous(rename(p.Key, memberName), p.Value.First, p.Value.Second);
-                  if (memberType==MemberType.Entity)
-                    mappingRef.Value.RegisterEntity(memberName, complexMapping);
-                }
+      for (int i = 0; i < n.Arguments.Count; i++) {
+        var arg = n.Arguments[i];
+        Expression newArg;
+        var member = n.Members[i];
+        var memberName = member.Name.TryCutPrefix(WellKnown.GetterPrefix);
+        var path = MemberPath.Parse(arg, context.Model);
+        if (path.IsValid || arg.NodeType == ExpressionType.New) {
+          var argFMRef = new MappingReference(mappingRef.Value.FillMapping);
+          using (new ParameterScope()) {
+            mappingRef.Value = argFMRef;
+            newArg = Visit(arg);
+          }
+          if (mappingRef.Value.FillMapping && argFMRef.FillMapping) {
+            var fieldMapping = argFMRef.Mapping;
+            var memberType = arg.NodeType == ExpressionType.New
+              ? MemberType.Anonymous
+              : path.PathType;
+            Func<string, string, string> rename = (oldName, newName) => oldName.IsNullOrEmpty()
+              ? newName
+              : newName + "." + oldName;
+
+            switch (memberType) {
+              case MemberType.Default:
+              case MemberType.Primitive:
+              case MemberType.Key: {
+                var primitiveFieldMapping = (PrimitiveMapping)fieldMapping;
+                mappingRef.Value.RegisterField(memberName, primitiveFieldMapping.Segment);
+                break;
               }
+              case MemberType.Structure: {
+                var complexMapping = (ComplexMapping)fieldMapping;
+                foreach (var p in complexMapping.Fields)
+                  mappingRef.Value.RegisterField(rename(p.Key, memberName), p.Value);
+                foreach (var p in complexMapping.Entities)
+                  mappingRef.Value.RegisterEntity(rename(p.Key, memberName), p.Value);
+                break;
+              }
+              case MemberType.Entity:
+                if (fieldMapping is PrimitiveMapping) {
+                  var primitiveFieldMapping = (PrimitiveMapping)fieldMapping;
+                  var fields = new Dictionary<string, Segment<int>> {{"Key", primitiveFieldMapping.Segment}};
+                  var entityMapping = new ComplexMapping(fields);
+                  mappingRef.Value.RegisterEntity(memberName, entityMapping);
+                }
+                else
+                  mappingRef.Value.RegisterEntity(memberName, (ComplexMapping)fieldMapping);
+                break;
+              case MemberType.Anonymous:
+                mappingRef.Value.RegisterAnonymous(memberName, (ComplexMapping)fieldMapping, newArg);
+                break;
+            }
+          }
+        }
+        else {
+          // TODO: Add check of queries
+          Expression body;
+          using (new ParameterScope()) {
+            calculateExpressions.Value = false;
+            mappingRef.Value = new MappingReference(false);
+            body = Visit(arg);
+          }
+          if (body.AsTupleAccess() != null)
+            newArg = body;
+          else if (((ExtendedExpressionType)body.NodeType) == ExtendedExpressionType.Result) {
+            var outerParameters = context.Bindings.GetKeys()
+              .OfType<ParameterExpression>()
+              .ToList();
+            if (outerParameters.Count == 0)
+              newArg = arg;
+            else {
+              var searchFor = outerParameters.ToArray();
+              var replaceWithList = new List<Expression>();
+              foreach (var projection in outerParameters.Select(pe => context.Bindings[pe].ItemProjector)) {
+                recordIsUsed |= projection.Parameters.Count(pe => pe.Type == typeof (Record)) > 0;
+                var replacedParameters = projection.Parameters.ToArray();
+                var replacingParameters = projection.Parameters.Select(pe => pe.Type == typeof (Tuple)
+                  ? tuple.Value
+                  : record.Value).ToArray();
+                replaceWithList.Add(ExpressionReplacer.ReplaceAll(projection.Body, replacedParameters, replacingParameters));
+              }
+              newArg = ExpressionReplacer.ReplaceAll(arg, searchFor, replaceWithList.ToArray());
             }
           }
           else {
-            // TODO: Add check of queries
-            Expression body;
-            using (new ParameterScope()) {
-              calculateExpressions.Value = false;
-              mappingRef.Value = new FieldMappingReference(false);
-              body = Visit(arg);
-            }
-            if (body.AsTupleAccess() != null)
-              newArg = body;
-            else if (((ExtendedExpressionType)body.NodeType) == ExtendedExpressionType.Result) {
-              var outerParameters = context.Bindings.GetKeys()
-                .OfType<ParameterExpression>()
-                .ToList();
-              if (outerParameters.Count == 0)
-                newArg = arg;
-              else {
-                var searchFor = outerParameters.ToArray();
-                var replaceWithList = new List<Expression>();
-                foreach (var projection in outerParameters.Select(pe => context.Bindings[pe].ItemProjector)) {
-                  recordIsUsed |= projection.Parameters.Count(pe => pe.Type == typeof (Record)) > 0;
-                  var replacedParameters = projection.Parameters.ToArray();
-                  var replacingParameters = projection.Parameters.Select(pe => pe.Type == typeof (Tuple)
-                    ? tuple.Value
-                    : record.Value).ToArray();
-                  replaceWithList.Add(ExpressionReplacer.ReplaceAll(projection.Body, replacedParameters, replacingParameters));
-                }
-                newArg = ExpressionReplacer.ReplaceAll(arg, searchFor, replaceWithList.ToArray());
-              }
-            }
-            else {
-              var calculator = Expression.Lambda(
-                body.Type == typeof (object)
-                  ? body
-                  : Expression.Convert(body, typeof (object)),
-                tuple.Value);
-              var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>)calculator);
-              calculatedColumns.Value.Add(ccd);
-              var parameter = parameters.Value[0];
-              int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
-              newArg = MakeTupleAccess(parameter, arg.Type, position);
-              mappingRef.Value.RegisterField(memberName, new Segment<int>(position, 1));
-            }
+            var calculator = Expression.Lambda(
+              body.Type == typeof (object)
+                ? body
+                : Expression.Convert(body, typeof (object)),
+              tuple.Value);
+            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>)calculator);
+            calculatedColumns.Value.Add(ccd);
+            var parameter = parameters.Value[0];
+            int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
+            newArg = MakeTupleAccess(parameter, arg.Type, position);
+            mappingRef.Value.RegisterField(memberName, new Segment<int>(position, 1));
           }
-          newArg = newArg ?? Visit(arg);
-          arguments.Add(newArg);
         }
+        newArg = newArg ?? Visit(arg);
+        arguments.Add(newArg);
       }
       var result = Expression.New(n.Constructor, arguments, n.Members);
-      if (mappingRef.Value.FillMapping) {
-        var cfm = (ComplexFieldMapping)newFMRef.Mapping;
-        mappingRef.Value.Mapping.Fill(cfm);
-        mappingRef.Value.RegisterAnonymous(string.Empty, cfm, result);
-      }
+        //      if (mappingRef.Value.FillMapping) {
+        //        var cfm = (ComplexMapping)newFMRef.Mapping;
+        //        mappingRef.Value.Mapping.Fill(cfm);
+        //        mappingRef.Value.RegisterAnonymous(string.Empty, cfm, result);
+        //      }
       return result;
     }
 
@@ -386,7 +399,7 @@ namespace Xtensive.Storage.Linq
 
       var index = type.Indexes.PrimaryIndex;
 
-      var mapping = new ComplexFieldMapping(type, 0);
+      var mapping = new ComplexMapping(type, 0);
       var recordSet = IndexProvider.Get(index).Result;
       var pRecord = Expression.Parameter(typeof (Record), "r");
       var itemProjector = 
@@ -685,7 +698,7 @@ namespace Xtensive.Storage.Linq
       var columnGroup = source.RecordSet.Header.ColumnGroups[groupIndex];
       var keyOffset = columnGroup.Keys.Min();
       var keyLength = columnGroup.Keys.Max() - keyOffset + 1;
-      var cfm = (ComplexFieldMapping)source.Mapping.GetMemberMapping(path);
+      var cfm = (ComplexMapping)source.Mapping.GetMemberMapping(path);
       var mappedFields = cfm.Fields.Where(p => (p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset)).ToList();
       var name = mappedFields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
       foreach (var pair in mappedFields) {
@@ -700,12 +713,12 @@ namespace Xtensive.Storage.Linq
     {
       if (path.Count == 0)
         return VisitParameter(path.Parameter);
-      var sourceMapping = (ComplexFieldMapping)source.Mapping;
-      var anonymous = sourceMapping.GetAnonymousMapping(path.First().Name);
-      var rewrited = new ParameterRewriter(tuple.Value, record.Value).Rewrite(anonymous.Second);
-      mappingRef.Value.RegisterAnonymous(string.Empty, anonymous.First, rewrited.First);
-      recordIsUsed |= rewrited.Second;
-      return rewrited.First;
+      var sourceMapping = (ComplexMapping)source.Mapping;
+      var anonymousMapping = sourceMapping.GetAnonymousMapping(path.First().Name);
+      mappingRef.Value.Replace(anonymousMapping.First);
+      var result = new ParameterRewriter(tuple.Value, record.Value).Rewrite(anonymousMapping.Second);
+      recordIsUsed |= result.Second;
+      return result.First;
     }
 
     private Expression VisitMemberPathPrimitive(MemberPath path, ResultExpression source, Type resultType)

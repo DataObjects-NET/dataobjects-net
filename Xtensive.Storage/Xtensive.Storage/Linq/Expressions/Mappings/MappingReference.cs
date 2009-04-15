@@ -12,17 +12,17 @@ using Xtensive.Core;
 namespace Xtensive.Storage.Linq.Expressions.Mappings
 {
   [DebuggerDisplay("Fill: {FillMapping}, Mapping: {Mapping}")]
-  internal class FieldMappingReference
+  internal class MappingReference
   {
     private readonly bool fillMapping;
-    private FieldMapping mapping;
+    private Mapping mapping;
 
     public bool FillMapping
     {
       get { return fillMapping; }
     }
 
-    public FieldMapping Mapping
+    public Mapping Mapping
     {
       get
       {
@@ -43,25 +43,25 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     public void RegisterField(string key, Segment<int> segment)
     {
       if (FillMapping) {
-        var complexMapping = Mapping as ComplexFieldMapping;
+        var complexMapping = Mapping as ComplexMapping;
         if (complexMapping != null && !complexMapping.Fields.ContainsKey(key))
           complexMapping.RegisterField(key, segment);
       }
     }
 
-    public void RegisterEntity(string key, ComplexFieldMapping value)
+    public void RegisterEntity(string key, ComplexMapping value)
     {
       if (FillMapping) {
-        var complexMapping = Mapping as ComplexFieldMapping;
+        var complexMapping = Mapping as ComplexMapping;
         if (complexMapping != null && !complexMapping.Entities.ContainsKey(key))
           complexMapping.RegisterEntity(key, value);
       }
     }
 
-    public void RegisterAnonymous(string key, ComplexFieldMapping anonymousMapping, Expression projection)
+    public void RegisterAnonymous(string key, ComplexMapping anonymousMapping, Expression projection)
     {
       if (FillMapping) {
-        var complexMapping = Mapping as ComplexFieldMapping;
+        var complexMapping = Mapping as ComplexMapping;
         if (complexMapping != null && !complexMapping.AnonymousTypes.ContainsKey(key)) {
           complexMapping.RegisterAnonymous(key, anonymousMapping, projection);
         }
@@ -71,29 +71,29 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     public void RegisterPrimitive(Segment<int> segment)
     {
       if (FillMapping)
-        Mapping = new PrimitiveFieldMapping(segment);
+        Mapping = new PrimitiveMapping(segment);
     }
 
     #endregion
 
-    public void Replace(FieldMapping fieldMapping)
+    public void Replace(Mapping mapping)
     {
       if (fillMapping)
-        mapping = fieldMapping;
+        this.mapping = mapping;
     }
 
 
     // Constructors
 
-    public FieldMappingReference()
+    public MappingReference()
       : this(true)
     {}
 
-    public FieldMappingReference(bool fillMapping)
+    public MappingReference(bool fillMapping)
     {
       this.fillMapping = fillMapping;
       if (this.fillMapping)
-        Mapping = new ComplexFieldMapping();
+        Mapping = new ComplexMapping();
     }
 
   }

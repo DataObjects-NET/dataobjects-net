@@ -13,8 +13,7 @@ using System.Linq;
 
 namespace Xtensive.Storage.Linq.Expressions.Mappings
 {
-//  [DebuggerDisplay("Primitive: [{Segment.Offset}, {Segment.Length}]")]
-  internal sealed class PrimitiveFieldMapping : FieldMapping
+  internal sealed class PrimitiveMapping : Mapping
   {
     private readonly Segment<int> segment;
 
@@ -28,12 +27,12 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       return segment.GetItems().ToList();
     }
 
-    public override FieldMapping ShiftOffset(int offset)
+    public override Mapping ShiftOffset(int offset)
     {
-      return new PrimitiveFieldMapping(new Segment<int>(segment.Offset + offset, segment.Length));
+      return new PrimitiveMapping(new Segment<int>(segment.Offset + offset, segment.Length));
     }
 
-    public override void Fill(FieldMapping mapping)
+    public override void Fill(Mapping mapping)
     {
       throw new NotSupportedException();
     }
@@ -45,7 +44,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       throw new InvalidOperationException();
     }
 
-    public override FieldMapping GetMemberMapping(MemberPath fieldPath)
+    public override Mapping GetMemberMapping(MemberPath fieldPath)
     {
       if (fieldPath.Count == 0)
         return this;
@@ -60,7 +59,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 
     // Constructors
 
-    public PrimitiveFieldMapping(Segment<int> segment)
+    public PrimitiveMapping(Segment<int> segment)
     {
       this.segment = segment;
     }

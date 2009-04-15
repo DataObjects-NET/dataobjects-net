@@ -9,12 +9,12 @@ using Xtensive.Core;
 
 namespace Xtensive.Storage.Linq.Expressions.Mappings
 {
-  internal abstract class FieldMapping
+  internal abstract class Mapping
   {
-    public abstract FieldMapping ShiftOffset(int offset);
+    public abstract Mapping ShiftOffset(int offset);
     public abstract IList<int> GetColumns();
-    public abstract void Fill(FieldMapping mapping);
+    public abstract void Fill(Mapping mapping);
     public abstract Segment<int> GetMemberSegment(MemberPath fieldPath);
-    public abstract FieldMapping GetMemberMapping(MemberPath fieldPath);
+    public abstract Mapping GetMemberMapping(MemberPath fieldPath);
   }
 }

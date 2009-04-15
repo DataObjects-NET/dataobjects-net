@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Linq.Expressions
     public GroupedResultExpression(
       Type type, 
       RecordSet recordSet, 
-      FieldMapping mapping, 
+      Mapping mapping, 
       Expression<Func<RecordSet, object>> projector, 
       LambdaExpression itemProjector, 
       ResultExpression value)
