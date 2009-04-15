@@ -382,7 +382,7 @@ namespace Xtensive.Storage.Linq
       TypeInfo type;
 
       if (!context.Model.Types.TryGetValue(elementType, out type))
-        throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+        throw new NotSupportedException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
 
       var index = type.Indexes.PrimaryIndex;
 
