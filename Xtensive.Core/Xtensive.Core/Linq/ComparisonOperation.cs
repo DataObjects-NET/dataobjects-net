@@ -15,7 +15,9 @@ namespace Xtensive.Core.Linq
     LessThanOrEqual,
     GreaterThan,
     GreaterThanOrEqual,
-    Like,
-    NotLike
+    LikeStartsWith,
+    LikeEndsWith,
+    NotLikeStartsWith,
+    NotLikeEndsWith
   }
 }

@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.Storage.Providers.Index.Resources {
-    using Metadata;
+    using System;
     
     
     /// <summary>
@@ -57,6 +57,15 @@ namespace Xtensive.Storage.Providers.Index.Resources {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The collection must not be empty.
+        /// </summary>
+        internal static string ExCollectionMustNotBeEmpty {
+            get {
+                return ResourceManager.GetString("ExCollectionMustNotBeEmpty", resourceCulture);
             }
         }
         

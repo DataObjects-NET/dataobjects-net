@@ -291,31 +291,31 @@ namespace Xtensive.Core.Tests.Linq
       Expression valueExp = ((Expression<Func<string>>)(() => String.Format("{0}%", zs))).Body;
       string keyName = "xs";
       var comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonOperation.Like, keyName,
+      CheckSimpleComparison(ComparisonOperation.LikeStartsWith, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.StartsWith(zs, StringComparison.Ordinal);
       valueExp = ((Expression<Func<string>>)(() => String.Format("{0}%", zs))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckComplexComparison(ComparisonOperation.Like, keyName,
+      CheckComplexComparison(ComparisonOperation.LikeStartsWith, keyName,
         valueExp, comparison.Body, comparisonInfo);
 
       comparison = () => xs.EndsWith(zs);
       valueExp = ((Expression<Func<string>>)(() => String.Format("%{0}", zs))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonOperation.Like, keyName,
+      CheckSimpleComparison(ComparisonOperation.LikeEndsWith, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.EndsWith(zs, true, System.Globalization.CultureInfo.CurrentUICulture);
       valueExp = ((Expression<Func<string>>)(() => String.Format("%{0}", zs))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckComplexComparison(ComparisonOperation.Like, keyName,
+      CheckComplexComparison(ComparisonOperation.LikeEndsWith, keyName,
         valueExp, comparison.Body, comparisonInfo);
 
       comparison = () => !xs.StartsWith(zs);
       valueExp = ((Expression<Func<string>>)(() => String.Format("{0}%", zs))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
-      CheckSimpleComparison(ComparisonOperation.NotLike, keyName,
+      CheckSimpleComparison(ComparisonOperation.NotLikeStartsWith, keyName,
         valueExp, comparisonInfo);
     }
 

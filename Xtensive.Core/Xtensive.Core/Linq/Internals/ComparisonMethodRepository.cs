@@ -23,29 +23,31 @@ namespace Xtensive.Core.Linq.Internals
       return methods.Select(pair => pair.Value).SingleOrDefault(info => info.Matches(sample));
     }
 
-    private static void AddAllMethods(Type type)
+    private static void AddAllMethods(Type type, ComparisonKind comparisonKind)
     {
-      AddMethods(type.GetMethods());
+      AddMethods(type.GetMethods(), comparisonKind);
     }
 
-    private static void AddMethods(IEnumerable<MethodInfo> newMethods)
+    private static void AddMethods(IEnumerable<MethodInfo> newMethods,
+      ComparisonKind comparisonKind)
     {
       foreach (var method in newMethods) {
-        AddMethod(method);
+        AddMethod(method, comparisonKind);
       }
     }
 
-    private static void AddMethods(Type type, string methodName, BindingFlags bindingFlags)
+    private static void AddMethods(Type type, string methodName, BindingFlags bindingFlags,
+      ComparisonKind comparisonKind)
     {
       foreach (var method in type.GetMethods(bindingFlags)) {
         if (method.Name == methodName)
-          AddMethod(method);
+          AddMethod(method, comparisonKind);
       }
     }
 
-    private static void AddMethod(MethodInfo method)
+    private static void AddMethod(MethodInfo method, ComparisonKind comparisonKind)
     {
-      methods.Add(method, new ComparisonMethodInfo(method));
+      methods.Add(method, new ComparisonMethodInfo(method, comparisonKind));
     }
 
 
@@ -53,20 +55,23 @@ namespace Xtensive.Core.Linq.Internals
 
     static ComparisonMethodRepository()
     {
-      AddAllMethods(typeof(IComparable));
-      AddAllMethods(typeof(IComparable<>));
+      AddAllMethods(typeof(IComparable), ComparisonKind.Default);
+      AddAllMethods(typeof(IComparable<>), ComparisonKind.Default);
       const BindingFlags flagsForStatic = BindingFlags.Static | BindingFlags.Public;
-      AddMethods(typeof(string), "Compare", flagsForStatic);
-      AddMethod(typeof(string).GetMethod("CompareOrdinal", new[]{typeof(string), typeof(string)}));
-      AddMethods(ComparisonMethodInfo.GetMethodsCorrespondingToLike());
-      AddMethod(typeof (DateTime).GetMethod("Compare", flagsForStatic));
-
       const BindingFlags flagsForInstanceAndStatic = BindingFlags.Public | BindingFlags.Static
         | BindingFlags.Instance;
-      AddMethods(typeof(object), "Equals", flagsForInstanceAndStatic);
-      AddMethods(typeof(string), "Equals", flagsForInstanceAndStatic);
-      AddMethod(typeof (DateTime).GetMethod("Equals", flagsForStatic));
-      AddMethod(typeof(IEquatable<>).GetMethod("Equals"));
+      AddMethods(typeof(string), "Compare", flagsForStatic, ComparisonKind.Default);
+      AddMethod(typeof(string).GetMethod("CompareOrdinal", new[] { typeof(string), typeof(string) }),
+        ComparisonKind.Default);
+
+      AddMethods(typeof(string), "StartsWith", flagsForInstanceAndStatic, ComparisonKind.LikeStartsWith);
+      AddMethods(typeof(string), "EndsWith", flagsForInstanceAndStatic, ComparisonKind.LikeEndsWith);
+
+      AddMethod(typeof(DateTime).GetMethod("Compare", flagsForStatic), ComparisonKind.Default);
+      AddMethods(typeof(object), "Equals", flagsForInstanceAndStatic, ComparisonKind.Equality);
+      AddMethods(typeof(string), "Equals", flagsForInstanceAndStatic, ComparisonKind.Equality);
+      AddMethod(typeof(DateTime).GetMethod("Equals", flagsForStatic), ComparisonKind.Equality);
+      AddMethod(typeof(IEquatable<>).GetMethod("Equals"), ComparisonKind.Equality);
     }
   }
 }

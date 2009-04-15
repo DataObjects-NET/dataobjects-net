@@ -21,7 +21,7 @@ namespace Xtensive.Core.Tests.Linq
   public class DisjunctiveNormalizerTest
   {
     [Test]
-    public void CombinedTest()
+    public void Complex0Test()
     {
       for (var i = 0; i < Math.Pow(2, 4); i++) {
         var terms = new BitArray(new[] {i});
@@ -39,7 +39,7 @@ namespace Xtensive.Core.Tests.Linq
     }
 
     [Test]
-    public void CombinedTest1()
+    public void Complex1Test()
     {
       for (var i = 0; i < Math.Pow(2, 4); i++) {
         var terms = new BitArray(new[] {i});
@@ -59,7 +59,7 @@ namespace Xtensive.Core.Tests.Linq
     }
 
     [Test]
-    public void CombinedTest2()
+    public void Complex2Test()
     {
       for (var i = 0; i < Math.Pow(2, 8); i++)
       {
@@ -271,6 +271,15 @@ namespace Xtensive.Core.Tests.Linq
       
       AssertEx.Throws<InvalidOperationException>(() => 
         new DisjunctiveNormalizer(3).Normalize(exp));
+    }
+
+    [Test]
+    public void LambdaNormalizationTest()
+    {
+      Expression<Func<bool>> exp = () => (true && false) || (false && false);
+      var normalizedExp = new DisjunctiveNormalizer().Normalize(exp);
+      var actual = Expression.Lambda<Func<bool>>(normalizedExp.ToExpression()).Compile()();
+      Assert.AreEqual(exp.Compile()(), actual);
     }
     
     public void NormalizerTest(Expression expression, DisjunctiveNormalized normalized)

@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
   /// <summary>
   /// Optimizer which uses ranges of index keys.
   /// </summary>
-  public class IndexOptimizer : CompilableProviderVisitor, IOptimizer
+  public sealed class IndexOptimizer : CompilableProviderVisitor, IOptimizer
   {
     private readonly DomainModel domainModel;
     private readonly LruCache<IndexInfo,Pair<IndexInfo, List<IndexInfo>>> seconaryIndexesCache =
@@ -42,12 +42,14 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     {
       var primaryProvider = provider.Source as IndexProvider;
       if (primaryProvider == null)
-        return provider;
+        return base.VisitFilter(provider);
       var primaryIndex = primaryProvider.Index.Resolve(domainModel);
       var secondaryIndexes = GetSecondaryIndexes(primaryIndex);
       if (secondaryIndexes.Count == 0)
-        return provider;
+        return base.VisitFilter(provider);
       var extractionResult = ExtractRangeSets(provider.Predicate, primaryIndex, secondaryIndexes);
+      if (AreAllRangeSetsFull(extractionResult))
+        return base.VisitFilter(provider);
       var selectedIndexes = indexSelector.Select(extractionResult);
       return treeRewriter.InsertSecondaryIndexes(provider, selectedIndexes);
     }
@@ -65,12 +67,21 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       return rsExtractor.Extract(predicate, secondaryIndexes, primaryIndex.GetRecordSetHeader());
     }
 
+    private bool AreAllRangeSetsFull(Dictionary<Expression, List<RSExtractionResult>> extractionResult)
+    {
+      foreach (var result in extractionResult)
+        foreach (var value in result.Value)
+          if (!value.RangeSetInfo.AlwaysFull)
+            return false;
+      return true;
+    }
+
     private List<IndexInfo> GetSecondaryIndexes(IndexInfo primaryIndex)
     {
       Pair<IndexInfo, List<IndexInfo>> cachedPair;
       if (seconaryIndexesCache.TryGetItem(primaryIndex, true, out cachedPair))
         return cachedPair.Second;
-      var result = primaryIndex.ReflectedType.Indexes.Where(index => index.IsSecondary).ToList();
+      var result = primaryIndex.ReflectedType.Indexes.Where(index => !index.IsPrimary).ToList();
       seconaryIndexesCache.Add(new Pair<IndexInfo, List<IndexInfo>>(primaryIndex, result));
       return result;
     }
@@ -83,7 +94,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     /// </summary>
     /// <param name="domainModel">The domain model.</param>
     /// <param name="providerResolver">The statistics provider resolver.</param>
-    public IndexOptimizer(DomainModel domainModel, StatisticsProviderResolver providerResolver)
+    public IndexOptimizer(DomainModel domainModel, IStatisticsProviderResolver providerResolver)
     {
       ArgumentValidator.EnsureArgumentNotNull(domainModel, "domainModel");
       ArgumentValidator.EnsureArgumentNotNull(providerResolver, "providerResolver");

@@ -59,6 +59,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
+  [Index("CompanyName")]
   public abstract class BusinessContact : Person
   {
     [Field(Length = 40)]
@@ -289,6 +290,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
   [Entity(MappingName = "Orders")]
   [HierarchyRoot(typeof (KeyGenerator), "Id")]
+  [Index("OrderDate")]
   public class Order : Entity
   {
     [Field(MappingName = "OrderId")]

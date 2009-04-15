@@ -18,12 +18,12 @@ namespace Xtensive.Indexing.Statistics
 
     public double GetRecordCount(Range<Entire<TKey>> range)
     {
-      return (double)measuresProvider.GetMeasureResult(range, CountMeasure<TKey, TItem>.CommonName);
+      return (long) measuresProvider.GetMeasureResult(range, CountMeasure<TKey, long>.CommonName);
     }
 
     public double GetSize(Range<Entire<TKey>> range)
     {
-      return (double)measuresProvider.GetMeasureResult(range, SizeMeasure<TItem>.CommonName);
+      return (long) measuresProvider.GetMeasureResult(range, SizeMeasure<TItem>.CommonName);
     }
 
     public double GetSeekCount(Range<Entire<TKey>> range)

@@ -11,9 +11,9 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
-  internal class CostEvaluator : ICostEvaluator
+  internal sealed class CostEvaluator : ICostEvaluator
   {
-    private readonly StatisticsProviderResolver providerResolver;
+    private readonly IStatisticsProviderResolver providerResolver;
 
     #region Implementation of ICostEvaluator
 
@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     // Constructors
 
-    public CostEvaluator(StatisticsProviderResolver providerResolver)
+    public CostEvaluator(IStatisticsProviderResolver providerResolver)
     {
       ArgumentValidator.EnsureArgumentNotNull(providerResolver, "providerResolver");
       this.providerResolver = providerResolver;

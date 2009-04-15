@@ -11,9 +11,9 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Indexing.Statistics;
 
-namespace Xtensive.Storage.Rse
+namespace Xtensive.Storage.Providers.Index
 {
-  internal class MergedStatisticsProvider : IStatisticsProvider<Tuple>, IStatistics<Tuple>
+  internal sealed class MergedStatisticsProvider : IStatisticsProvider<Tuple>, IStatistics<Tuple>
   {
     private readonly IStatisticsProvider<Tuple>[] underlyingProviders;
 

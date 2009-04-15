@@ -120,4 +120,7 @@
   <data name="ExInstanceXIsNotFound" xml:space="preserve">
     <value>Instance of type '{0}' with specified key is not found.</value>
   </data>
+  <data name="ExCollectionMustNotBeEmpty" xml:space="preserve">
+    <value>The collection must not be empty</value>
+  </data>
 </root>

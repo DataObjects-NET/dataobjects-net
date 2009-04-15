@@ -10,6 +10,11 @@ namespace Xtensive.Core.Linq.Internals
   {
     Default = 0,
     Equality,
-    Like
+    LikeEndsWith,
+    LikeStartsWith,
+    ForcedGreaterThan,
+    ForcedGreaterThenOrEqual,
+    ForcedLessThan,
+    ForcedLessThanOrEqual
   }
 }

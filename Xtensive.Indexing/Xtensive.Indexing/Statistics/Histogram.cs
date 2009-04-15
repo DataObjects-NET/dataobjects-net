@@ -120,7 +120,6 @@ namespace Xtensive.Indexing.Statistics
     {
       ArgumentValidator.EnsureArgumentNotNull(keyComparer, "keyComparer");
       ArgumentValidator.EnsureArgumentNotNull(valueComparer, "valueComparer");
-      /*ArgumentValidator.EnsureArgumentNotNull(firstKey, "firstKey");*/
       ArgumentValidator.EnsureArgumentIsInRange(maxKeyCount, 2, int.MaxValue, "maxKeyCount");
       this.valueComparer = valueComparer;
       this.keyComparer = keyComparer;

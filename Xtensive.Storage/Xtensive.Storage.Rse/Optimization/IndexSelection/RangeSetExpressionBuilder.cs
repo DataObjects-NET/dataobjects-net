@@ -41,6 +41,8 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       var singleValueCash = new Dictionary<int, Expression>(1);
       singleValueCash.Clear();
       singleValueCash.Add(0, originTuple.Comparison.Value);
+      if (!CanBuildNonFullRangeSet(originTuple.Comparison.Operation))
+        return BuildFullRangeSetConstructor(null);
       CreateRangeEndpoints(out firstEndpoint, out secondEndpoint, singleValueCash,
         originTuple.Comparison.Operation, indexInfo);
       return BuildConstructor(firstEndpoint, secondEndpoint, originTuple.Comparison.Operation, originTuple);
@@ -52,9 +54,17 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       ArgumentValidator.EnsureArgumentIsInRange(indexKeyValues.Count, 2, int.MaxValue, "indexKeyValues.Count");
       Expression firstEndpoint;
       Expression secondEndpoint;
+      if (!CanBuildNonFullRangeSet(originTuple.Comparison.Operation))
+        return BuildFullRangeSetConstructor(null);
       CreateRangeEndpoints(out firstEndpoint, out secondEndpoint, indexKeyValues,
         originTuple.Comparison.Operation, indexInfo);
       return BuildConstructor(firstEndpoint, secondEndpoint, originTuple.Comparison.Operation, null);
+    }
+
+    private static bool CanBuildNonFullRangeSet(ComparisonOperation comparisonOperation)
+    {
+      return comparisonOperation!=ComparisonOperation.LikeEndsWith
+        && comparisonOperation!=ComparisonOperation.NotLikeEndsWith;
     }
 
     private static RangeSetInfo BuildConstructor(Expression firstEndpoint, Expression secondEndpoint,
@@ -66,7 +76,8 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
         Expression.New(rangeSetConstructor, rangeConstruction,
           Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)),
         origin);
-      if (comparisonOperation == ComparisonOperation.NotEqual)
+      if (comparisonOperation == ComparisonOperation.NotEqual
+        || comparisonOperation == ComparisonOperation.NotLikeStartsWith)
         return BuildInvert(result);
       return result;
     }
@@ -132,6 +143,13 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
         return;
       }
       if (comparsionType == ComparisonOperation.GreaterThanOrEqual) {
+        first = BuildEntireConstructor(indexKeyValues, indexInfo);
+        second = BuildInfiniteEntire(true);
+        return;
+      }
+      if (comparsionType == ComparisonOperation.LikeStartsWith
+        || comparsionType == ComparisonOperation.NotLikeStartsWith)
+      {
         first = BuildEntireConstructor(indexKeyValues, indexInfo);
         second = BuildInfiniteEntire(true);
         return;

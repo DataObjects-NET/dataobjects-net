@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
   {
     private IndexInfo indexInfo;
     private RecordSetHeader recordSetHeader;
-    private readonly ParsingHelper parsingHelper;
+    private readonly ParserHelper parserHelper;
     private const int defaultExpressionsListSize = 10;
 
     private readonly List<RangeSetInfo> extractedExpressions =
@@ -38,13 +38,11 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       {
         if (r1.Origin != null && r2.Origin != null)
           return r1.Origin.FieldIndex.CompareTo(r2.Origin.FieldIndex);
-        else {
-          if (r1.Origin == null && r2.Origin == null)
-            return 0;
-          if (r2.Origin == null)
-            return -1;
-          return 1;
-        }
+        if (r1.Origin == null && r2.Origin == null)
+          return 0;
+        if (r2.Origin == null)
+          return -1;
+        return 1;
       };
 
     public RangeSetInfo Parse(Conjunction<Expression> normalized, IndexInfo info,
@@ -63,8 +61,8 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     {
       extractedExpressions.Clear();
       foreach (var exp in normalized.Operands) {
-        var tupleComparison = extractor.Extract(exp, ParsingHelper.DeafultKeySelector);
-        extractedExpressions.Add(parsingHelper.ConvertToRangeSetInfo(exp, tupleComparison, indexInfo,
+        var tupleComparison = extractor.Extract(exp, ParserHelper.DeafultKeySelector);
+        extractedExpressions.Add(parserHelper.ConvertToRangeSetInfo(exp, tupleComparison, indexInfo,
           recordSetHeader));
       }
     }
@@ -90,7 +88,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       foreach (var rangeSet in extractedExpressions) {
         if (rangeSet.Origin == null)
           break;
-        bool presentInIndex = parsingHelper.IndexHasKeyAtSpecifiedPoisition(rangeSet.Origin.FieldIndex,
+        bool presentInIndex = parserHelper.IndexHasKeyAtSpecifiedPoisition(rangeSet.Origin.FieldIndex,
           lastFieldPosition + 1, indexInfo, recordSetHeader);
         if (!presentInIndex)
           break;
@@ -119,7 +117,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     public CnfParser(DomainModel domainModel)
     {
-      parsingHelper = new ParsingHelper(domainModel);
+      parserHelper = new ParserHelper(domainModel);
     }
   }
 }

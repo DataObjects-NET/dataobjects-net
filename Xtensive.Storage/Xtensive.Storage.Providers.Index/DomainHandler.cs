@@ -14,10 +14,10 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Optimization;
+using Xtensive.Storage.Rse.Optimization.IndexSelection;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Index
@@ -39,7 +39,8 @@ namespace Xtensive.Storage.Providers.Index
 
     protected override IOptimizer BuildOptimizer()
     {
-      return new OrderbyOptimizer();
+      return new CompositeOptimizer(new OrderbyOptimizer(),
+        new IndexOptimizer(Handlers.Domain.Model, new StatisticsProviderResolver(this)));
     }
 
     /// <inheritdoc/>

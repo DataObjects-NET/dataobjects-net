@@ -32,13 +32,19 @@ namespace Xtensive.Core.Linq.Internals
     private static ExtractionInfo ProcessNonDefaultComparison(ExtractionInfo extractionInfo)
     {
       switch (extractionInfo.MethodInfo.ComparisonKind) {
-      case ComparisonKind.Like:
-        return ProcessMethodCorrespondingToLike(extractionInfo);
-      case ComparisonKind.Equality:
-        return ProcessEqualityComparisonMethod(extractionInfo);
-      default:
-        throw Exceptions.InvalidArgument(extractionInfo.MethodInfo.ComparisonKind,
-          "extractionInfo.MethodInfo.ComparisonKind");
+        case ComparisonKind.LikeEndsWith:
+        case ComparisonKind.LikeStartsWith:
+          return ProcessMethodCorrespondingToLike(extractionInfo);
+        case ComparisonKind.Equality:
+          return ProcessEqualityComparisonMethod(extractionInfo);
+        case ComparisonKind.ForcedGreaterThan:
+        case ComparisonKind.ForcedGreaterThenOrEqual:
+        case ComparisonKind.ForcedLessThan:
+        case ComparisonKind.ForcedLessThanOrEqual:
+          return ProcessMethodWithFocedComparisonType(extractionInfo);
+        default:
+          throw Exceptions.InvalidArgument(extractionInfo.MethodInfo.ComparisonKind,
+            "extractionInfo.MethodInfo.ComparisonKind");
       }
     }
 
@@ -164,6 +170,28 @@ namespace Xtensive.Core.Linq.Internals
     private static ExtractionInfo ProcessEqualityComparisonMethod(ExtractionInfo extractionInfo)
     {
       extractionInfo.ComparisonOperation = ExpressionType.Equal;
+      return extractionInfo;
+    }
+
+    private static ExtractionInfo ProcessMethodWithFocedComparisonType(ExtractionInfo extractionInfo)
+    {
+      switch (extractionInfo.MethodInfo.ComparisonKind) {
+        case ComparisonKind.ForcedGreaterThan:
+          extractionInfo.ComparisonOperation = ExpressionType.GreaterThan;
+          break;
+        case ComparisonKind.ForcedGreaterThenOrEqual:
+          extractionInfo.ComparisonOperation = ExpressionType.GreaterThanOrEqual;
+          break;
+        case ComparisonKind.ForcedLessThan:
+          extractionInfo.ComparisonOperation = ExpressionType.LessThan;
+          break;
+        case ComparisonKind.ForcedLessThanOrEqual:
+          extractionInfo.ComparisonOperation = ExpressionType.LessThanOrEqual;
+          break;
+        default:
+          throw Exceptions.InvalidArgument(extractionInfo.MethodInfo.ComparisonKind,
+            "extractionInfo.MethodInfo.ComparisonKind");
+      }
       return extractionInfo;
     }
 

@@ -31,7 +31,15 @@ namespace Xtensive.Core.Linq.Normalization
     /// greater than <see cref="MaxConjunctionOperandCount"/>.</exception>
     public DisjunctiveNormalized Normalize(Expression expression)
     {
-      var unary = expression as UnaryExpression;
+      Expression unwrappedExp;
+      if (expression.NodeType == ExpressionType.Lambda)
+        unwrappedExp = Unwrap((LambdaExpression)expression);
+      else
+        unwrappedExp = expression;
+      if (unwrappedExp.Type != typeof(bool))
+        throw new ArgumentException(
+          String.Format(Resources.Strings.ExExpressionMustReturnValueOfTypeX, typeof(bool)), "expression");
+      var unary = unwrappedExp as UnaryExpression;
       if (unary!=null) {
         if (unary.NodeType==ExpressionType.Not &&
           unary.Operand.NodeType==ExpressionType.Not) {
@@ -39,15 +47,15 @@ namespace Xtensive.Core.Linq.Normalization
         }
         BinaryExpression b;
         if (TryConvertInversionToBinary(unary, out b))
-          expression = b;
+          unwrappedExp = b;
         else
-          expression = unary;
+          unwrappedExp = unary;
       }
 
-      var binary = expression as BinaryExpression;
+      var binary = unwrappedExp as BinaryExpression;
       var result = binary!=null
         ? NormalizeBinary(binary)
-        : new DisjunctiveNormalized(new Conjunction<Expression>(expression));
+        : new DisjunctiveNormalized(new Conjunction<Expression>(unwrappedExp));
 
       if (MaxConjunctionOperandCount.HasValue &&
         result.ConjunctionOperandCount > MaxConjunctionOperandCount) {
@@ -59,6 +67,14 @@ namespace Xtensive.Core.Linq.Normalization
     }
 
     #region Private methods
+
+    private static Expression Unwrap(LambdaExpression exp)
+    {
+      var result = exp.Body;
+      while (result.NodeType == ExpressionType.Lambda)
+        result = ((LambdaExpression)result).Body;
+      return result;
+    }
 
     private DisjunctiveNormalized NormalizeBinary(BinaryExpression b)
     {

@@ -39,7 +39,8 @@ namespace Xtensive.Core.Linq.Internals
       return result != null
         && result.Value == null && result.Key.Type == typeof(bool) && result.ComparisonOperation == null
         && (result.MethodInfo == null || result.MethodInfo.Method.ReturnType == typeof(bool)
-          && result.MethodInfo.ComparisonKind != ComparisonKind.Like);
+          && (result.MethodInfo.ComparisonKind == ComparisonKind.Default
+            || result.MethodInfo.ComparisonKind == ComparisonKind.Equality));
     }
 
     protected override ExtractionInfo VisitBinary(BinaryExpression exp)

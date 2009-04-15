@@ -11,7 +11,7 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
-  internal class SimpleIndexSelector : IIndexSelector
+  internal sealed class SimpleIndexSelector : IIndexSelector
   {
     private readonly ICostEvaluator costEvaluator;
 

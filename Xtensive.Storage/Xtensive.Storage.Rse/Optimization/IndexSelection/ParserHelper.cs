@@ -12,7 +12,7 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
-  internal class ParsingHelper
+  internal sealed class ParserHelper
   {
     public static readonly Func<Expression, bool> DeafultKeySelector = exp => exp.AsTupleAccess() != null;
     
@@ -28,6 +28,8 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
           return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null);
         else
           return RangeSetExpressionBuilder.BuildFullOrEmpty(exp);
+      if(tupleComparison.IsComplex)
+        return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null);
       int fieldIndex = tupleComparison.Key.GetTupleAccessArgument();
       var tupleExp = new TupleExpressionInfo(fieldIndex, tupleComparison);
       if (IndexHasKeyAtZeroPoisition(fieldIndex, indexInfo, recordSetHeader))
@@ -56,7 +58,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     // Constructors
 
-    public ParsingHelper(DomainModel domainModel)
+    public ParserHelper(DomainModel domainModel)
     {
       ArgumentValidator.EnsureArgumentNotNull(domainModel, "domainModel");
       this.domainModel = domainModel;

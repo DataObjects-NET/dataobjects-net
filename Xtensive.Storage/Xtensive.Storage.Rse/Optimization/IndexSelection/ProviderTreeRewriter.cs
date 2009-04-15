@@ -14,7 +14,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
-  internal class ProviderTreeRewriter : CompilableProviderVisitor
+  internal sealed class ProviderTreeRewriter : CompilableProviderVisitor
   {
     private readonly DomainModel domainModel;
     private Dictionary<IndexInfo, RangeSetInfo> currentRangeSets;
@@ -33,11 +33,11 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     {
       var primaryProvider = provider.Source as IndexProvider;
       if (primaryProvider != null)
-        return InsertSecondaryIndexProviders(primaryProvider);
+        return new FilterProvider(InsertSecondaryIndexProviders(primaryProvider), provider.Predicate);
       return base.VisitFilter(provider);
     }
 
-    private Provider InsertSecondaryIndexProviders(IndexProvider source)
+    private CompilableProvider InsertSecondaryIndexProviders(IndexProvider source)
     {
       var primaryIndex = source.Index.Resolve(domainModel);
       CompilableProvider concatedIndexes = BuildSecondaryIndexesConcat(primaryIndex);
@@ -75,10 +75,12 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       var fieldCount = secondaryIndex.Columns.Count;
       var result = new int[primaryIndex.KeyColumns.Count];
       int resultPosition = 0;
-      foreach (var primaryIndexColumn in primaryIndex.KeyColumns)
+      foreach (KeyValuePair<ColumnInfo, Direction> pair in primaryIndex.KeyColumns)
         for (int i = 0; i < fieldCount; i++)
-          if(primaryIndexColumn.Equals(secondaryIndex.Columns[i]))
+          if (pair.Key.Equals(secondaryIndex.Columns[i])) {
             result[resultPosition++] = i;
+            break;
+          }
       return result;
     }
 
@@ -87,6 +89,14 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       var result = new Pair<int>[fieldCount];
       for (int i = 0; i < fieldCount; i++)
         result[i] = new Pair<int>(i, i);
+      return result;
+    }
+
+    private static int[] GetSequentialColumnIndexes(int count)
+    {
+      var result = new int[count];
+      for (int i = 0; i < count; i++)
+        result[i] = i;
       return result;
     }
 
@@ -101,8 +111,9 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       CompilableProvider secondaryIndexes)
     {
       var alias = new AliasProvider(secondaryIndexes, "secondary");
-      return new JoinProvider(alias, primaryIndexProvider, false, JoinType.Hash,
+      var join = new JoinProvider(primaryIndexProvider, alias, false, JoinType.Hash,
         GetEqualIndexes(primaryIndex.KeyColumns.Count));
+      return new SelectProvider(join, GetSequentialColumnIndexes(primaryIndex.Columns.Count));
     }
 
     // Constructors

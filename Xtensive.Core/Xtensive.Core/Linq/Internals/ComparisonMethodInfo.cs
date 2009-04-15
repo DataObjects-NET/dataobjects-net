@@ -15,13 +15,9 @@ namespace Xtensive.Core.Linq.Internals
   [Serializable]
   internal class ComparisonMethodInfo
   {
-    private readonly static SetSlim<MethodInfo> methodsCorrespondingToLike = new SetSlim<MethodInfo>();
-    private static readonly string startsWithName = "StartsWith";
-    private static readonly string endsWithName = "EndsWith";
     private static readonly string startsWithPattern = "{0}%";
     private static readonly string endsWithPattern = "%{0}";
     private static readonly string compareOrdinalName = "CompareOrdinal";
-    private static readonly string equalityComparisonName = "Equals";
 
     public readonly MethodInfo Method;
 
@@ -29,14 +25,13 @@ namespace Xtensive.Core.Linq.Internals
 
     public ComparisonKind ComparisonKind { get; private set; }
 
-    public bool CanBeReversed { get { return ComparisonKind != ComparisonKind.Like; } }
+    public bool CanBeReversed {
+      get {
+        return ComparisonKind == ComparisonKind.Default || ComparisonKind == ComparisonKind.Equality;
+      }
+    }
 
     public string LikePattern { get; private set; }
-
-    public static ReadOnlySet<MethodInfo> GetMethodsCorrespondingToLike()
-    {
-      return new ReadOnlySet<MethodInfo>(methodsCorrespondingToLike);
-    }
 
     //It can recognize an implementation of IComparable<T> only, if the one matches the following pattern:
     //class ClassName : IComparable<ClassName>
@@ -115,45 +110,27 @@ namespace Xtensive.Core.Linq.Internals
       return true;
     }
 
-    private static void AddMethods(IEnumerable<MethodInfo> newMethods, string name)
+    private void SetFieldsDependedOnComparisonKind()
     {
-      foreach (var method in newMethods) {
-        if(method.Name == name)
-          methodsCorrespondingToLike.Add(method);
-      }
-    }
-
-    private void EvaluateComparisonKind(MethodInfo method)
-    {
-      if (method.DeclaringType == typeof(string)
-        && methodsCorrespondingToLike.Contains(method)) {
-        ComparisonKind = ComparisonKind.Like;
-        if (method.Name == startsWithName)
+      switch (ComparisonKind) {
+        case ComparisonKind.LikeStartsWith:
           LikePattern = startsWithPattern;
-        else if (method.Name == endsWithName)
+          break;
+        case ComparisonKind.LikeEndsWith:
           LikePattern = endsWithPattern;
-        else
-          throw Exceptions.InvalidArgument(method, "method");
+          break;
       }
-      else if (method.Name == equalityComparisonName
-        && method.ReturnType == typeof(bool))
-        ComparisonKind = ComparisonKind.Equality;
     }
 
 
     // Constructors
 
-    static ComparisonMethodInfo()
-    {
-      AddMethods(typeof(string).GetMethods(), "EndsWith");
-      AddMethods(typeof(string).GetMethods(), "StartsWith");
-    }
-
-    public ComparisonMethodInfo(MethodInfo method)
+    public ComparisonMethodInfo(MethodInfo method, ComparisonKind comparisonKind)
     {
       ArgumentValidator.EnsureArgumentNotNull(method, "method");
+      ComparisonKind = comparisonKind;
       Method = method;
-      EvaluateComparisonKind(method);
+      SetFieldsDependedOnComparisonKind();
       EvaluateComplexity(method);
     }
   }

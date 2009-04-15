@@ -99,10 +99,14 @@ namespace Xtensive.Core.Linq
           return ComparisonOperation.GreaterThanOrEqual;
         case ComparisonOperation.LessThanOrEqual:
           return ComparisonOperation.GreaterThan;
-        case ComparisonOperation.Like:
-          return ComparisonOperation.NotLike;
-        case ComparisonOperation.NotLike:
-          return ComparisonOperation.Like;
+        case ComparisonOperation.LikeStartsWith:
+          return ComparisonOperation.NotLikeStartsWith;
+        case ComparisonOperation.LikeEndsWith:
+          return ComparisonOperation.NotLikeEndsWith;
+        case ComparisonOperation.NotLikeStartsWith:
+          return ComparisonOperation.LikeStartsWith;
+        case ComparisonOperation.NotLikeEndsWith:
+          return ComparisonOperation.LikeEndsWith;
         default:
           throw Exceptions.InvalidArgument(comparisonOperation, "comparisonOperation");
       }
@@ -132,20 +136,24 @@ namespace Xtensive.Core.Linq
 
     private static ComparisonOperation NormalizeOperation(ExtractionInfo extractionInfo)
     {
-      ComparisonOperation result;
-      if (extractionInfo.MethodInfo != null
-        && extractionInfo.MethodInfo.ComparisonKind == ComparisonKind.Like)
-        result = ComparisonOperation.Like;
-      else {
+      ComparisonOperation? result = null;
+      if (extractionInfo.MethodInfo != null)
+        if(extractionInfo.MethodInfo.ComparisonKind == ComparisonKind.LikeStartsWith)
+          result = ComparisonOperation.LikeStartsWith;
+        else if (extractionInfo.MethodInfo.ComparisonKind == ComparisonKind.LikeEndsWith)
+          result = ComparisonOperation.LikeEndsWith;
+
+      if (result == null) {
         ArgumentValidator.EnsureArgumentNotNull(extractionInfo.ComparisonOperation,
           "extractionInfo.ComparisonOperation");
         result = ConvertToComparisonType(extractionInfo.ComparisonOperation.Value);
       }
+
       if (extractionInfo.ReversingRequired)
-        result = ReverseOperation(result);
+        result = ReverseOperation((ComparisonOperation)result);
       if (extractionInfo.InversingRequired)
-        result = InvertOperation(result);
-      return result;
+        result = InvertOperation((ComparisonOperation)result);
+      return (ComparisonOperation)result;
     }
 
 
