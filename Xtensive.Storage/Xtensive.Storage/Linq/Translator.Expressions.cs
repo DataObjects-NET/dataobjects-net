@@ -276,8 +276,8 @@ namespace Xtensive.Storage.Linq
                     mappingRef.Value.RegisterEntity(rename(p.Key, memberName), p.Value);
                   foreach (var p in complexMapping.AnonymousTypes)
                     mappingRef.Value.RegisterAnonymous(rename(p.Key, memberName), p.Value.First, p.Value.Second);
-//                  if (memberType==MemberType.Entity)
-//                    mappingRef.Value.RegisterEntity(memberName, complexMapping);
+                  if (memberType==MemberType.Entity)
+                    mappingRef.Value.RegisterEntity(memberName, complexMapping);
                 }
               }
             }
