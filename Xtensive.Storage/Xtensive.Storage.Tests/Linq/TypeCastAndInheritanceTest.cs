@@ -100,37 +100,85 @@ namespace Xtensive.Storage.Tests.Linq
           .Select(product => (ActiveProduct) product)
           .Count());
 
+#pragma warning disable 183
       Assert.AreEqual(
         productCount,
         Query<Product>.All
           .Where(p => p is Product)
           .Count());
+#pragma warning restore 183
     }
 
     [Test]
     public void OfTypeSimpleTest()
     {
-      var queryable = Query<Product>.All;
-      var result = queryable.OfType<DiscontinuedProduct>();
+      var result = Query<Product>.All.OfType<DiscontinuedProduct>();
       QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void OfTypeSameTypeTest()
+    {
+      var result = Query<Product>.All.OfType<Product>();
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void OfTypeSubTypeTest()
+    {
+      var result = Query<DiscontinuedProduct>.All.OfType<Product>();
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void OfTypeIntermediateTest()
+    {
+      Query<Product>.All
+        .OfType<IntermediateProduct>()
+        .Count();
     }
 
     [Test]
     public void OfTypeCountTest()
     {
-      var productCount1 = Query<Product>.All.Count();
-      var productCount2 = Query<Product>.All.OfType<Product>().Count();
-      Assert.AreEqual(productCount1, productCount2);
+      int productCount = Query<Product>.All.Count();
+      int intermediateProductCount = Query<IntermediateProduct>.All.Count();
+      int discontinuedProductCount = Query<DiscontinuedProduct>.All.Count();
+      int activeProductCount = Query<ActiveProduct>.All.Count();
 
-      var discontinuedProductCount1 = Query<DiscontinuedProduct>.All.Count();
-      var discontinuedProductCount2 = Query<DiscontinuedProduct>.All.OfType<DiscontinuedProduct>().Count();
-      Assert.AreEqual(discontinuedProductCount1, discontinuedProductCount2);
+      Assert.Greater(productCount, 0);
+      Assert.Greater(intermediateProductCount, 0);
+      Assert.Greater(discontinuedProductCount, 0);
+      Assert.Greater(activeProductCount, 0);
 
-      var activeProductCount1 = Query<ActiveProduct>.All.Count();
-      var activeProductCount2 = Query<ActiveProduct>.All.OfType<ActiveProduct>().Count();
-      Assert.AreEqual(activeProductCount1, activeProductCount2);
+      Assert.AreEqual(
+        productCount,
+        intermediateProductCount);
+
+      Assert.AreEqual(
+        intermediateProductCount,
+        Query<Product>.All
+          .OfType<IntermediateProduct>()
+          .Count());
+
+      Assert.AreEqual(
+        discontinuedProductCount,
+        Query<Product>.All
+          .OfType<DiscontinuedProduct>()
+          .Count());
+
+      Assert.AreEqual(
+        activeProductCount,
+        Query<Product>.All
+          .OfType<ActiveProduct>()
+          .Count());
+
+      Assert.AreEqual(
+        productCount,
+        Query<Product>.All
+          .OfType<Product>()
+          .Count());
     }
-
 
     [Test]
     public void CastSimpleTest()
