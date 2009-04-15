@@ -4,8 +4,10 @@
 // Created by: Alexey Gamzov
 // Created:    2009.04.10
 
+using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -129,15 +131,17 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.AreEqual(activeProductCount1, activeProductCount2);
     }
 
+
     [Test]
     public void CastSimpleTest()
     {
       var discontinuedProducts = Query<DiscontinuedProduct>.All.Cast<Product>();
-      QueryDumper.Dump(discontinuedProducts);
+      AssertEx.ThrowsNotSupportedException(()=>QueryDumper.Dump(discontinuedProducts));
     }
 
 
     [Test]
+    [ExpectedException(typeof(NotSupportedException))]
     public void CastCountTest()
     {
       var discontinuedProductCount1 = Query<DiscontinuedProduct>.All.Count();

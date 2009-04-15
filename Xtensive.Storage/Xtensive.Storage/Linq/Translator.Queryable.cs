@@ -53,6 +53,8 @@ namespace Xtensive.Storage.Linq
       using (new ParameterScope()) {
         entityAsKey.Value = true;
         switch (methodKind) {
+          case QueryableMethodKind.Cast:
+            break;
           case QueryableMethodKind.AsEnumerable:
             break;
           case QueryableMethodKind.AsQueryable:
@@ -90,8 +92,6 @@ namespace Xtensive.Storage.Linq
             if (mc.Arguments.Count == 2)
               return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
             break;
-          case QueryableMethodKind.Cast:
-            return VisitCast(mc.Arguments[0], mc.Method.GetGenericArguments()[0]);
           case QueryableMethodKind.OfType:
             return VisitOfType(mc.Arguments[0], mc.Method.GetGenericArguments()[0], mc.Arguments[0].Type.GetGenericArguments()[0]);
           case QueryableMethodKind.Any:
@@ -224,11 +224,6 @@ namespace Xtensive.Storage.Linq
       throw new NotSupportedException();
     }
 
-    private Expression VisitCast(Expression source, Type targetType)
-    {
-      throw new NotImplementedException();
-    }
-
     private Expression VisitOfType(Expression source, Type targetType, Type sourceType)
     {
       if (targetType==sourceType)
@@ -239,8 +234,9 @@ namespace Xtensive.Storage.Linq
       var isExpression = Expression.TypeIs(parameter, targetType);
       LambdaExpression le = Expression.Lambda(isExpression, parameter);
       var visitedWhere = VisitWhere(source, le);
-      throw new NotImplementedException();
-      // return new ResultExpression(, visitedWhere.RecordSet)
+      var projectorBody = Expression.Convert(visitedWhere.ItemProjector.Body, targetType);
+      var itemProjector = Expression.Lambda(projectorBody, visitedWhere.ItemProjector.Parameters.ToArray());
+      return new ResultExpression(typeof (Query<>).MakeGenericType(sourceType), visitedWhere.RecordSet, visitedWhere.Mapping, itemProjector);
     }
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
