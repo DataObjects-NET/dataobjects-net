@@ -243,7 +243,7 @@ namespace Xtensive.Storage.Tests.Rse
 
       // Dog
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(5, 6), Direction.Negative), new Entire<Tuple>(Tuple.Create(10, 11), Direction.Positive));
-      TestRange(rsCat, range, 0);
+      TestRange(rsCat, range, 5);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 11), Direction.Negative), new Entire<Tuple>(Tuple.Create(5, 6), Direction.Positive));
       TestRange(rsCat, range, 0);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 3), Direction.Negative), new Entire<Tuple>(Tuple.Create(13, 8), Direction.Positive));
