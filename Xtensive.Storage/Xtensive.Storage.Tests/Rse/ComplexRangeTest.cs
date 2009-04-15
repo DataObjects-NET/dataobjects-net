@@ -25,13 +25,14 @@ namespace Xtensive.Storage.Tests.Rse.AnimalModel
 {
   [DebuggerDisplay("Name = '{Name}'")]
   [HierarchyRoot(typeof(KeyGenerator), "ID", KeyGeneratorCacheSize = 16)]
+  [Index("Name")]
   public class Animal : Entity
   {
     [Field]
     public int ID { get; private set; }
 
-    [Field(Length = 255)]
-    public string Name { get; set; }
+    [Field]
+    public int Name { get; set; }
   }
 
   [DebuggerDisplay("Name = '{Name}'")]
@@ -41,7 +42,7 @@ namespace Xtensive.Storage.Tests.Rse.AnimalModel
 
 
   [DebuggerDisplay("Name = '{Name}'; TailLength = {TailLength}")]
-  [Index("ID", "TailLength")]
+  [Index("Name", "TailLength")]
   public class Dog : Animal
   {
     [Field]
@@ -49,7 +50,7 @@ namespace Xtensive.Storage.Tests.Rse.AnimalModel
   }
 
   [DebuggerDisplay("Name = '{Name}'; Airspeed = {Airspeed}; Lifetime = {Lifetime}")]
-  [Index("ID", "Airspeed", "Lifetime")]
+  [Index("Name", "Airspeed", "Lifetime")]
   public class Bird : Animal
   {
     [Field]
@@ -75,7 +76,7 @@ namespace Xtensive.Storage.Tests.Rse
     
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
+      DomainConfiguration config = DomainConfigurationFactory.Create("memory"); 
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Rse.AnimalModel");
       return config;
     }
@@ -102,7 +103,7 @@ namespace Xtensive.Storage.Tests.Rse
       Fill();
       // Cat
       var range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10)));
-      TestRange(rsCat, range, 10);
+      TestRange(rsCat, range, 9);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10),Direction.Negative));
       TestRange(rsCat, range, 9);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10), Direction.Positive));
@@ -112,15 +113,15 @@ namespace Xtensive.Storage.Tests.Rse
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 5)));
       TestRange(rsDog, range, 9);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(5, 10)));
-      TestRange(rsDog, range, 5);
+      TestRange(rsDog, range, 4);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 5), Direction.Negative));
       TestRange(rsDog, range, 9);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(5, 10), Direction.Negative));
-      TestRange(rsDog, range, 5);
+      TestRange(rsDog, range, 4);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 5), Direction.Positive));
       TestRange(rsDog, range, 9);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(5, 10), Direction.Positive));
-      TestRange(rsDog, range, 5);
+      TestRange(rsDog, range, 4);
       
       //Bird
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 5, 3)));
@@ -128,19 +129,19 @@ namespace Xtensive.Storage.Tests.Rse
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 3, 5)));
       TestRange(rsBird, range, 9); 
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(3, 10, 5)));
-      TestRange(rsBird, range, 3);
+      TestRange(rsBird, range, 2);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 5, 3), Direction.Negative));
       TestRange(rsBird, range, 9);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 3, 5), Direction.Negative));
       TestRange(rsBird, range, 9);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(3, 10, 5), Direction.Negative));
-      TestRange(rsBird, range, 3);
+      TestRange(rsBird, range, 2);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 5, 3), Direction.Positive));
       TestRange(rsBird, range, 9);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 3, 5), Direction.Positive));
       TestRange(rsBird, range, 9);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(3, 10, 5), Direction.Positive));
-      TestRange(rsBird, range, 3);
+      TestRange(rsBird, range, 2);
     }
 
     [Test]
@@ -157,39 +158,39 @@ namespace Xtensive.Storage.Tests.Rse
 
       // Dog
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 95)), new Entire<Tuple>(InfinityType.Positive));
-      TestRange(rsDog, range, 10);
+      TestRange(rsDog, range, 11);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(95, 90)), new Entire<Tuple>(InfinityType.Positive));
       TestRange(rsDog, range, 6);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 95), Direction.Negative), new Entire<Tuple>(InfinityType.Positive));
-      TestRange(rsDog, range, 10);
+      TestRange(rsDog, range, 11);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(95, 95), Direction.Negative), new Entire<Tuple>(InfinityType.Positive));
       TestRange(rsDog, range, 6);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 95), Direction.Positive), new Entire<Tuple>(InfinityType.Positive));
-      TestRange(rsDog, range, 10);
+      TestRange(rsDog, range, 11);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(95, 95), Direction.Positive), new Entire<Tuple>(InfinityType.Positive));
-      TestRange(rsDog, range, 5);
+      TestRange(rsDog, range, 6);
 
       //Bird
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 95, 98)), new Entire<Tuple>(InfinityType.Positive));
-      TestRange(rsBird, range, 10);
+      TestRange(rsBird, range, 11);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 98, 95)), new Entire<Tuple>(InfinityType.Positive));
-      TestRange(rsBird, range, 10);
+      TestRange(rsBird, range, 11);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(98, 90, 95)), new Entire<Tuple>(InfinityType.Positive));
       TestRange(rsBird, range, 3);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 95, 98), Direction.Negative), new Entire<Tuple>(InfinityType.Positive));
-      TestRange(rsBird, range, 10);
+      TestRange(rsBird, range, 11);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 98, 90), Direction.Negative), new Entire<Tuple>(InfinityType.Positive));
       TestRange(rsBird, range, 11);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(98, 90, 95), Direction.Negative), new Entire<Tuple>(InfinityType.Positive));
       TestRange(rsBird, range, 3);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 95, 98), Direction.Positive), new Entire<Tuple>(InfinityType.Positive));
-      TestRange(rsBird, range, 10);
+      TestRange(rsBird, range, 11);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 98, 90), Direction.Positive), new Entire<Tuple>(InfinityType.Positive));
-      TestRange(rsBird, range, 10);
+      TestRange(rsBird, range, 11);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(98, 90, 95), Direction.Positive), new Entire<Tuple>(InfinityType.Positive));
       TestRange(rsBird, range, 3);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(98, 95, 98), Direction.Positive), new Entire<Tuple>(InfinityType.Positive));
-      TestRange(rsBird, range, 2);
+      TestRange(rsBird, range, 3);
     }
 
     [Test]
@@ -229,7 +230,7 @@ namespace Xtensive.Storage.Tests.Rse
       //range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 8, 6), Direction.Positive), new Entire<Tuple>(Tuple.Create(10, 3, 5), Direction.Negative));
       //TestRange(rsCat, range, 0);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 7, 5), Direction.Positive), new Entire<Tuple>(Tuple.Create(13, 3, 1), Direction.Negative));
-      TestRange(rsCat, range, 2);
+      TestRange(rsCat, range, 3);
       //range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 3, 1), Direction.Positive), new Entire<Tuple>(Tuple.Create(10, 7, 5), Direction.Negative));
       //TestRange(rsCat, range, 0);
     }
@@ -383,11 +384,11 @@ namespace Xtensive.Storage.Tests.Rse
       using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         for (int i = 1; i <= CatCount; i++)
-          new Cat { Name = ("Cat" + i) };
+          new Cat { Name = i };
         for (int i = 1; i <= DogCount; i++)
-          new Dog { Name = ("Dog" + i), TailLength = i };
+          new Dog { Name = i, TailLength = i };
         for (int i = 1; i <= BirdCount; i++)
-          new Bird { Name = ("Bird" + i), Airspeed = i, Lifetime = i };
+          new Bird { Name = i, Airspeed = i, Lifetime = i };
         Session.Current.Persist();
         t.Complete();
         GetRecordSets();
@@ -397,11 +398,11 @@ namespace Xtensive.Storage.Tests.Rse
     private void GetRecordSets()
     {
       TypeInfo animalType = Domain.Model.Types[typeof(Cat)];
-      rsCat = animalType.Indexes.GetIndex("ID").ToRecordSet();
+      rsCat = animalType.Indexes.GetIndex("Name").ToRecordSet();
       TypeInfo dogType = Domain.Model.Types[typeof(Dog)];
-      rsDog = dogType.Indexes.GetIndex("ID", "TailLength").ToRecordSet();
+      rsDog = dogType.Indexes.GetIndex("Name", "TailLength").ToRecordSet();
       TypeInfo birdType = Domain.Model.Types[typeof(Bird)];
-      rsBird = birdType.Indexes.GetIndex("ID", "Airspeed", "Lifetime").ToRecordSet();
+      rsBird = birdType.Indexes.GetIndex("Name", "Airspeed", "Lifetime").ToRecordSet();
     }
 
     #endregion
