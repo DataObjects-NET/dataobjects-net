@@ -14,6 +14,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
@@ -48,6 +49,9 @@ namespace Xtensive.Storage.Linq
 
     // IEntity
     public static readonly PropertyInfo IEntityKey;
+
+    // ApplyParameter
+    public static readonly PropertyInfo ApplyParameterValue;
 
     // Parameter<Tuple>
     public static readonly PropertyInfo ParameterOfTupleValue;
@@ -116,8 +120,11 @@ namespace Xtensive.Storage.Linq
       // IEntity
       IEntityKey = typeof(IEntity).GetProperty("Key");
 
+      // ApplyParameter
+      ApplyParameterValue = typeof(ApplyParameter).GetProperty("Value");
+
       // Parameter<Tuple>
-      ParameterOfTupleValue = typeof(Parameter<Core.Tuples.Tuple>).GetProperty("Value", typeof(Tuple));
+      ParameterOfTupleValue = typeof(Parameter<Tuple>).GetProperty("Value", typeof(Tuple));
 
       // SegmentTransform
       SegmentTransformApply = typeof(SegmentTransform).GetMethod("Apply", new[] { typeof(TupleTransformType), typeof(Tuple) });

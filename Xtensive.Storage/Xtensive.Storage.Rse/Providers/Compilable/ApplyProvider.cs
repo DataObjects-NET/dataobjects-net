@@ -19,13 +19,15 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   public sealed class ApplyProvider : BinaryProvider
   {
     /// <summary>
-    /// Gets or sets the left item parameter.
+    /// Gets the apply parameter.
     /// </summary>
-    public Parameter<Tuple> LeftItemParameter { get; set; }
-
+    /// <value>The apply parameter.</value>
+    public ApplyParameter ApplyParameter { get; private set; }
+    
     /// <summary>
-    /// Apply type.
+    /// Gets apply type.
     /// </summary>
+    /// <value>The apply type.</value>
     public ApplyType ApplyType { get; private set; }
 
     /// <inheritdoc/>
@@ -54,17 +56,18 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ApplyProvider(Parameter<Tuple> leftItemParameter, CompilableProvider left, CompilableProvider right)
-      : this(leftItemParameter, left, right, ApplyType.Cross)
-    {}
+    public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right)
+      : this(applyParameter, left, right, ApplyType.Cross)
+    {
+    }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ApplyProvider(Parameter<Tuple> leftItemParameter, CompilableProvider left, CompilableProvider right, ApplyType applyType)
+    public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right, ApplyType applyType)
       : base(ProviderType.Apply, left, right)
     {
-      LeftItemParameter = leftItemParameter;
+      ApplyParameter = applyParameter;
       ApplyType = applyType;
     }
   }

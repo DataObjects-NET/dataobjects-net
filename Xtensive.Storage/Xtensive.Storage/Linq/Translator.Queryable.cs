@@ -462,8 +462,7 @@ namespace Xtensive.Storage.Linq
           newResultMapping.RegisterField("Key", new Segment<int>(columnList.IndexOf(pfm.Segment.Offset), pfm.Segment.Length));
         }
       }
-
-
+      
       var keyType = keySelector.Type.GetGenericArguments()[1];
       var elementType = elementSelector==null
         ? keySelector.Parameters[0].Type
@@ -471,23 +470,22 @@ namespace Xtensive.Storage.Linq
 
       // Remap 
       var remappedExpression = (LambdaExpression) tupleAccessProcessor.ReplaceMappings(originalCompiledKeyExpression, columnList, groupMapping, recordSet.Header);
-
-
+      
       var pRecord = Expression.Parameter(typeof (Record), "record");
       var pTuple = Expression.Parameter(typeof (Tuple), "tuple");
       var parameterRewriter = new ParameterRewriter(pTuple, pRecord);
       var recordKeyExpression = parameterRewriter.Rewrite(remappedExpression.Body);
 
       var tupleParameter = new Parameter<Tuple>("groupingParameter");
-      var parameterValueMemberInfo = WellKnownMembers.ParameterOfTupleValue;
+      var tupleParameterValue = Expression.Property(Expression.Constant(tupleParameter), WellKnownMembers.ParameterOfTupleValue);
       var filterTuple = Expression.Parameter(typeof (Tuple), "t");
       Expression filterBody = null;
       for (int i = 0; i < columnList.Count; i++) {
         var columnIndex = columnList[i];
         var columnType = result.RecordSet.Header.Columns[columnIndex].Type;
         var tupleAccessMethod = WellKnownMembers.TupleGenericAccessor.MakeGenericMethod(columnType);
-        var leftExpression = Expression.Call(filterTuple, tupleAccessMethod, Expression.Constant(columnIndex));
-        var rightExpression = Expression.Call(Expression.MakeMemberAccess(Expression.Constant(tupleParameter), parameterValueMemberInfo), tupleAccessMethod, Expression.Constant(i));
+        var leftExpression = ExpressionHelper.TupleAccess(filterTuple, columnType, columnIndex);
+        var rightExpression = ExpressionHelper.TupleAccess(tupleParameterValue, columnType, i);
         var equalsExpression = Expression.Equal(leftExpression, rightExpression);
         filterBody = filterBody==null
           ? equalsExpression
@@ -661,7 +659,7 @@ namespace Xtensive.Storage.Linq
             collectionSelector = Expression.Lambda(call.Arguments[0], parameter);
         }
         ResultExpression innerResult;
-        Parameter<Tuple> applyParameter;
+        ApplyParameter applyParameter;
         using (new ParameterScope())
         using (context.SubqueryParameterBindings.Bind(collectionSelector.Parameters)) {
           mappingRef.Value = new MappingReference(false);
@@ -670,8 +668,6 @@ namespace Xtensive.Storage.Linq
           applyParameter = context.SubqueryParameterBindings.GetBound(parameter);
         }
         var outerResult = context.Bindings[parameter];
-        if (outerResult.ItemProjector.Body.IsGrouping())
-          applyParameter = outerResult.ItemProjector.Body.GetGroupingParameter();
         var recordSet = outerResult.RecordSet
           .Apply(applyParameter, innerResult.RecordSet.Alias(context.GetNextAlias()), isOuter ? ApplyType.Outer : ApplyType.Cross);
         if (resultSelector==null) {
@@ -807,16 +803,11 @@ namespace Xtensive.Storage.Linq
     {
       if (subquery.Header.Length!=1)
         throw new ArgumentException();
-      Parameter<Tuple> applyParameter;
       var column = subquery.Header.Columns[0];
       var lambdaParameter = parameters.Value[0];
       var oldResult = context.Bindings[lambdaParameter];
-      if (oldResult.ItemProjector.Body.IsGrouping())
-        applyParameter = oldResult.ItemProjector.Body.GetGroupingParameter();
-      else {
-        applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
-        context.SubqueryParameterBindings.InvalidateParameter(lambdaParameter);
-      }
+      var applyParameter = context.SubqueryParameterBindings.GetBound(lambdaParameter);
+      context.SubqueryParameterBindings.InvalidateParameter(lambdaParameter);
       int columnIndex = oldResult.RecordSet.Header.Length;
       var newMapping = new ComplexMapping();
       newMapping.Fill(oldResult.Mapping);
@@ -843,8 +834,13 @@ namespace Xtensive.Storage.Linq
 
       var visitedExpression = Visit(sequenceExpression);
 
-      if (visitedExpression.IsGrouping())
-        return visitedExpression.GetGroupingItemsResult();
+      if (visitedExpression.IsGrouping()) {
+        var groupingParameter = visitedExpression.GetGroupingParameter();
+        var applyParameter = context.SubqueryParameterBindings.GetBound(context.SubqueryParameterBindings.CurrentParameter);
+        var oldResult = visitedExpression.GetGroupingItemsResult();
+        var newProvider = GroupingToSubqueryRewriter.Rewrite(oldResult.RecordSet.Provider, groupingParameter, applyParameter);
+        return new ResultExpression(oldResult.Type, newProvider.Result, oldResult.Mapping, oldResult.ItemProjector);
+      }
 
       if (visitedExpression.IsResult())
         return (ResultExpression)visitedExpression;

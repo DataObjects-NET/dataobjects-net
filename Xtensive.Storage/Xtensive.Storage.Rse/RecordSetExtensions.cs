@@ -6,17 +6,14 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
-using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using System.Linq;
 
 namespace Xtensive.Storage.Rse
 {
@@ -247,14 +244,14 @@ namespace Xtensive.Storage.Rse
       return new DistinctProvider(recordSet.Provider).Result;
     }
 
-    public static RecordSet Apply(this RecordSet recordSet, Parameter<Tuple> leftItemParameter, RecordSet right)
+    public static RecordSet Apply(this RecordSet recordSet, ApplyParameter applyParameter, RecordSet right)
     {
-      return new ApplyProvider(leftItemParameter, recordSet.Provider, right.Provider).Result;
+      return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider).Result;
     }
 
-    public static RecordSet Apply(this RecordSet recordSet, Parameter<Tuple> leftItemParameter, RecordSet right, ApplyType applyType)
+    public static RecordSet Apply(this RecordSet recordSet, ApplyParameter applyParameter, RecordSet right, ApplyType applyType)
     {
-      return new ApplyProvider(leftItemParameter, recordSet.Provider, right.Provider, applyType).Result;
+      return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider, applyType).Result;
     }
 
     public static RecordSet Existence(this RecordSet recordSet, string existenceColumnName)

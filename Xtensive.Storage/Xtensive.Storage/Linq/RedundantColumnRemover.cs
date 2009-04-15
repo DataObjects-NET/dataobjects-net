@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Linq
   internal sealed class RedundantColumnRemover : CompilableProviderVisitor
   {
     private readonly Parameter<Dictionary<Provider, List<int>>> mappings;
-    private readonly Dictionary<Parameter<Tuple>, List<int>> outerColumnUsages;
+    private readonly Dictionary<ApplyParameter, List<int>> outerColumnUsages;
     private readonly TupleAccessProcessor mappingsReplacer;
     private readonly TupleAccessProcessor mappingsGatherer;
 
@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Linq
 
       SplitMappings(provider, out leftMapping, out rightMapping);
 
-      var applyParameter = provider.LeftItemParameter;
+      var applyParameter = provider.ApplyParameter;
       var currentOuterUsages = new List<int>();
 
       outerColumnUsages.Add(applyParameter, currentOuterUsages);
@@ -337,14 +337,14 @@ namespace Xtensive.Storage.Linq
         rightMapping.Add(binaryMapping[i] - leftCount);
     }
 
-    private void RegisterOuterMapping(Parameter<Tuple> parameter, int value)
+    private void RegisterOuterMapping(ApplyParameter parameter, int value)
     {
       List<int> map;
       if (outerColumnUsages.TryGetValue(parameter, out map))
         map.Add(value);
     }
 
-    private int ResolveOuterMapping(Parameter<Tuple> parameter, int value)
+    private int ResolveOuterMapping(ApplyParameter parameter, int value)
     {
       int result = outerColumnUsages[parameter].IndexOf(value);
       if (result < 0)
@@ -373,7 +373,7 @@ namespace Xtensive.Storage.Linq
       origin = resultExpression;
 
       mappings = new Parameter<Dictionary<Provider, List<int>>>();
-      outerColumnUsages = new Dictionary<Parameter<Tuple>, List<int>>();
+      outerColumnUsages = new Dictionary<ApplyParameter, List<int>>();
 
       mappingsGatherer = new TupleAccessProcessor((a,b)=> { }, null);
       mappingsReplacer = new TupleAccessProcessor(null, ResolveOuterMapping);

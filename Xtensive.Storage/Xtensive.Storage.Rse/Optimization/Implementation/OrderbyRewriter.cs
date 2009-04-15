@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
       if (!containsSortOperations && sortOrder.Count == 0)
         return provider;
       pSortOrder.Value = sortOrder;
-      return new ApplyProvider(provider.LeftItemParameter, left, right, provider.ApplyType);
+      return new ApplyProvider(provider.ApplyParameter, left, right, provider.ApplyType);
     }
 
     protected override Provider VisitExistence(ExistenceProvider provider)

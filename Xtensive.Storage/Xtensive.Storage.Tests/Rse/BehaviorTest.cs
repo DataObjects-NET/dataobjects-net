@@ -279,7 +279,7 @@ namespace Xtensive.Storage.Tests.Rse
 //      }
 
       using (new Measurement("Apply through Rse")) {
-        var p = new Parameter<Tuple>();
+        var p = new ApplyParameter();
         var result = authorRS.Apply(p, bookRS.Filter(t => t.GetValue<int>(1)==p.Value.GetValue<int>(0)));
         var list = result.ToList();
         Assert.AreEqual(authorCount * booksPerAuthor, list.Count);

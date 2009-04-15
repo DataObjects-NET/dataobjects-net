@@ -160,6 +160,15 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Parameter &apos;{0}&apos; is not a tuple access expression.
+        /// </summary>
+        internal static string ExParameterXIsNotATupleAccessExpression {
+            get {
+                return ResourceManager.GetString("ExParameterXIsNotATupleAccessExpression", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Provider must be either CompilableProvider or ExecutableProvider.
         /// </summary>
         internal static string ExProviderMustBeEitherCompilableProviderOrExecutableProvider {

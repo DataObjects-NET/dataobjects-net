@@ -17,7 +17,6 @@ using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
@@ -73,25 +72,17 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     private SqlExpression VisitParameterAccess(Expression e)
     {
-      var tupleAccess = e.AsTupleAccess();
-      if (tupleAccess!=null) {
-        if (tupleAccess.Object.NodeType==ExpressionType.MemberAccess) {
-          var ma = (MemberExpression) tupleAccess.Object;
-          if (ma.Member.Name=="Value" && ma.Expression.Type==typeof (Parameter<Tuple>)) {
-            var parameter = Expression.Lambda<Func<Parameter<Tuple>>>(ma.Expression).Compile().Invoke();
-            int columnIndex = tupleAccess.Arguments[0].NodeType==ExpressionType.Constant
-              ? (int) ((ConstantExpression) tupleAccess.Arguments[0]).Value
-              : Expression.Lambda<Func<int>>(tupleAccess.Arguments[0]).Compile().Invoke();
-            ExecutableProvider provider;
-            if (Compiler.CompiledSources.TryGetValue(parameter, out provider)) {
-              if (!Compiler.IsCompatible(provider)) {
-                provider = Compiler.ToCompatible(provider);
-                Compiler.CompiledSources.ReplaceBound(parameter, provider);
-              }
-              var sqlProvider = (SqlProvider) provider;
-              return sqlProvider.PermanentReference[columnIndex];
-            }
+      var parameter = e.ExtractApplyParameterFromTupleAccess();
+      if (parameter != null) {
+        int columnIndex = e.GetTupleAccessArgument();
+        ExecutableProvider provider;
+        if (Compiler.CompiledSources.TryGetValue(parameter, out provider)) {
+          if (!Compiler.IsCompatible(provider)) {
+            provider = Compiler.ToCompatible(provider);
+            Compiler.CompiledSources.ReplaceBound(parameter, provider);
           }
+          var sqlProvider = (SqlProvider) provider;
+          return sqlProvider.PermanentReference[columnIndex];
         }
       }
       var type = e.Type;

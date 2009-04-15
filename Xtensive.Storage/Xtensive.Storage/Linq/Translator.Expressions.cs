@@ -481,13 +481,13 @@ namespace Xtensive.Storage.Linq
 
     private Expression MakeTupleAccess(ParameterExpression parameter, Type accessorType, int index)
     {
-      Parameter<Tuple> outerParameter;
+      ApplyParameter outerParameter;
       Expression target;
 
       if (parameters.Value.Contains(parameter))
         target = tuple.Value;
       else if (context.SubqueryParameterBindings.TryGetBound(parameter, out outerParameter))
-        target = Expression.Property(Expression.Constant(outerParameter), WellKnownMembers.ParameterOfTupleValue);
+        target = Expression.Property(Expression.Constant(outerParameter), WellKnownMembers.ApplyParameterValue);
       else
         throw new InvalidOperationException();
 

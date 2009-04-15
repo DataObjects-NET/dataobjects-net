@@ -104,9 +104,9 @@ namespace Xtensive.Storage.Rse.Compilation
     private ExecutableProvider CompileApply(ApplyProvider provider)
     {
       var left = Compile(provider.Left);
-      using (CompiledSources.Add(provider.LeftItemParameter, left)) {
+      using (CompiledSources.Add(provider.ApplyParameter, left)) {
         var right = Compile(provider.Right);
-        left = CompiledSources[provider.LeftItemParameter];
+        left = CompiledSources[provider.ApplyParameter];
         var compiler = compilersMap[right.Location];
         using (CompiledSources.Add(provider.Left, left) & CompiledSources.Add(provider.Right, right))
           return compiler.Compile(provider);

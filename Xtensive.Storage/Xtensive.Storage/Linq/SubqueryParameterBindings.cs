@@ -9,8 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core.Disposing;
-using Xtensive.Core.Parameters;
-using Xtensive.Core.Tuples;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
@@ -19,10 +18,13 @@ namespace Xtensive.Storage.Linq
     private class Binding
     {
       public int Cardinality;
-      public Parameter<Tuple> Parameter;
+      public ApplyParameter Parameter;
     }
 
     private readonly Dictionary<ParameterExpression, Binding> bindings = new Dictionary<ParameterExpression, Binding>();
+    private readonly Stack<ParameterExpression> stack = new Stack<ParameterExpression>();
+
+    public ParameterExpression CurrentParameter { get { return stack.Peek(); } }
 
     public IDisposable Bind(IEnumerable<ParameterExpression> parameters)
     {
@@ -31,18 +33,19 @@ namespace Xtensive.Storage.Linq
         if (bindings.TryGetValue(key, out binding))
           binding.Cardinality++;
         else {
-          binding = new Binding {Cardinality = 1, Parameter = new Parameter<Tuple>("subqueryParameter")};
+          binding = new Binding { Cardinality = 1, Parameter = CreateParameter() };
           bindings.Add(key, binding);
+          stack.Push(key);
         }
       return new Disposable<ParameterExpression[]> (parameters.ToArray(), Unbind);
     }
 
-    public Parameter<Tuple> GetBound(ParameterExpression parameter)
+    public ApplyParameter GetBound(ParameterExpression parameter)
     {
       return bindings[parameter].Parameter;
     }
 
-    public bool TryGetBound(ParameterExpression parameter, out Parameter<Tuple> result)
+    public bool TryGetBound(ParameterExpression parameter, out ApplyParameter result)
     {
       Binding binding;
       if (bindings.TryGetValue(parameter, out binding)) {
@@ -60,7 +63,14 @@ namespace Xtensive.Storage.Linq
 
     public void InvalidateParameter(ParameterExpression parameter)
     {
-      bindings[parameter].Parameter = new Parameter<Tuple>();
+      bindings[parameter].Parameter = CreateParameter();
+    }
+
+    #region Private methods
+
+    private static ApplyParameter CreateParameter()
+    {
+      return new ApplyParameter("subqueryParameter");
     }
 
     private void Unbind(bool disposing, ParameterExpression[] parameters)
@@ -70,11 +80,15 @@ namespace Xtensive.Storage.Linq
 
       foreach (var key in parameters) {
         var binding = bindings[key];
-        if (binding.Cardinality == 1)
+        if (binding.Cardinality == 1) {
           bindings.Remove(key);
+          stack.Pop();
+        }
         else
           binding.Cardinality--;
       }
     }
+
+    #endregion
   }
 }

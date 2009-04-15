@@ -10,8 +10,6 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
-using Xtensive.Core.Parameters;
-using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Rse;
 
@@ -23,8 +21,8 @@ namespace Xtensive.Storage.Linq
     private List<int> group;
     private List<int> map;
     private RecordSetHeader header;
-    private readonly Action<Parameter<Tuple>, int> registerOuterColumn;
-    private readonly Func<Parameter<Tuple>, int, int> resolveOuterColumn;
+    private readonly Action<ApplyParameter, int> registerOuterColumn;
+    private readonly Func<ApplyParameter, int, int> resolveOuterColumn;
 
     protected override Expression VisitUnknown(Expression e)
     {
@@ -42,7 +40,7 @@ namespace Xtensive.Storage.Linq
     {
       if (mc.AsTupleAccess()!=null) {
         var columnIndex = mc.GetTupleAccessArgument();
-        var outerParameter = TryExtractOuterParameter(mc);
+        var outerParameter = mc.ExtractApplyParameterFromTupleAccess();
         if (outerParameter!=null)
           registerOuterColumn(outerParameter, columnIndex);
         else
@@ -88,7 +86,7 @@ namespace Xtensive.Storage.Linq
     {
       if (mc.AsTupleAccess()!=null) {
         var columnIndex = mc.GetTupleAccessArgument();
-        var outerParameter = TryExtractOuterParameter(mc);
+        var outerParameter = mc.ExtractApplyParameterFromTupleAccess();
         int newIndex = outerParameter!=null
           ? resolveOuterColumn(outerParameter, columnIndex)
           : map.IndexOf(columnIndex);
@@ -138,21 +136,7 @@ namespace Xtensive.Storage.Linq
       this.header = header;
       return Visit(predicate);
     }
-
-    private static Parameter<Tuple> TryExtractOuterParameter(MethodCallExpression tupleAccess)
-    {
-      if (tupleAccess.Object.NodeType!=ExpressionType.MemberAccess)
-        return null;
-      var memberAccess = (MemberExpression) tupleAccess.Object;
-      if (memberAccess.Member!=WellKnownMembers.ParameterOfTupleValue)
-        return null;
-      if (memberAccess.Expression.NodeType!=ExpressionType.Constant)
-        return null;
-      var constant = (ConstantExpression) memberAccess.Expression;
-      return (Parameter<Tuple>) constant.Value;
-    }
-
-
+    
     // Constructor
 
     public TupleAccessProcessor()
@@ -161,8 +145,8 @@ namespace Xtensive.Storage.Linq
     }
 
     public TupleAccessProcessor(
-      Action<Parameter<Tuple>, int> registerOuterColumn,
-      Func<Parameter<Tuple>, int, int> resolveOuterColumn)
+      Action<ApplyParameter, int> registerOuterColumn,
+      Func<ApplyParameter, int, int> resolveOuterColumn)
     {
       this.registerOuterColumn = registerOuterColumn ?? ((p, i) => { throw new NotSupportedException(); });
       this.resolveOuterColumn = resolveOuterColumn ?? ((p, i) => { throw new NotSupportedException(); });

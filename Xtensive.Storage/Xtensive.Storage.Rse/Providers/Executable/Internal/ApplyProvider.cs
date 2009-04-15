@@ -6,12 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Storage.Rse.Providers.Compilable;
-using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
@@ -44,7 +43,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       using (new ParameterScope())
       foreach (var tuple in left) {
-        Origin.LeftItemParameter.Value = tuple;
+        Origin.ApplyParameter.Value = tuple;
         // Do not cache right part
         var right = Right.OnEnumerate(context);
         foreach (var rTuple in right) {
@@ -58,7 +57,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       using (new ParameterScope())
       foreach (var tuple in left) {
-        Origin.LeftItemParameter.Value = tuple;
+        Origin.ApplyParameter.Value = tuple;
         // Do not cache right part
         var right = Right.OnEnumerate(context);
         bool empty = true;
@@ -78,7 +77,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       using (new ParameterScope())
       foreach (var tuple in left) {
-        Origin.LeftItemParameter.Value = tuple;
+        Origin.ApplyParameter.Value = tuple;
         // Do not cache right part
         var right = Right.OnEnumerate(context);
         if (right.Any())
@@ -90,36 +89,23 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       using (new ParameterScope())
       foreach (var tuple in left) {
-        Origin.LeftItemParameter.Value = tuple;
+        Origin.ApplyParameter.Value = tuple;
         // Do not cache right part
         var right = Right.OnEnumerate(context);
         if (!right.Any())
           yield return tuple;
       }
     }
-//
-//    private IEnumerable<Tuple> ApplyExistenceColumn(EnumerationContext context, IEnumerable<Tuple> left)
-//    {
-//      using (new ParameterScope())
-//      foreach (var tuple in left) {
-//        Origin.LeftItemParameter.Value = tuple;
-//        // Do not cache right part
-//        var right = Right.OnEnumerate(context);
-//        yield return existenceColumnTransform.Apply(TupleTransformType.Auto, tuple, right.Any());
-//      }
-//    }
 
     #endregion
-
-
+    
     protected override void Initialize()
     {
       base.Initialize();
       combineTransform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
       rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
     }
-
-
+    
     // Constructor
 
     /// <summary>

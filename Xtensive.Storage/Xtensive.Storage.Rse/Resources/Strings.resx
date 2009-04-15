@@ -165,4 +165,7 @@
   <data name="ExXCantBeExecuted" xml:space="preserve">
     <value>{0} can't be executed on specified sources.</value>
   </data>
+  <data name="ExParameterXIsNotATupleAccessExpression" xml:space="preserve">
+    <value>Parameter '{0}' is not a tuple access expression</value>
+  </data>
 </root>

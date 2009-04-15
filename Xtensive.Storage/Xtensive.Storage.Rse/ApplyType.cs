@@ -5,11 +5,12 @@
 // Created:    2009.03.13
 
 using System;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Rse.Providers.Compilable
+namespace Xtensive.Storage.Rse
 {
   /// <summary>
-  /// Enumerates <see cref="ApplyProvider"/> types.
+  /// Possible <see cref="ApplyProvider"/> types.
   /// </summary>
   [Serializable]
   public enum ApplyType
@@ -33,10 +34,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// Enumerates left items for which right source is empty.
     /// </summary>
-    NotExisting,
-//    /// <summary>
-//    /// Applies <see cref="bool"/> column. Value is <see langword="true" /> if right source is not empty; otherwise <see langword="false" />.
-//    /// </summary>
-//    ExistenceColumn
+    NotExisting
   }
 }

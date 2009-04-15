@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Storage
           foreach (var customer in allCustomers)
             if (allOrders.Any(o => o.Customer==customer))
               total++;
-          var parameter = new Parameter<Tuple>();
+          var parameter = new ApplyParameter();
           var subquery = orderPrimary
             .Filter(t => t.GetValue(orderCustomerIndex)==parameter.Value.GetValue(customerIdIndex));
           var result = customerPrimary
@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Storage
           foreach (var customer in allCustomers)
             if (!allOrders.Any(o => o.Customer == customer))
               total++;
-          var parameter = new Parameter<Tuple>();
+          var parameter = new ApplyParameter();
           var subquery = orderPrimary
             .Filter(t => t.GetValue(orderCustomerIndex) == parameter.Value.GetValue(customerIdIndex));
           var result = customerPrimary
@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Tests.Storage
           long total = 0;
           foreach (var customer in allCustomers)
             total += allOrders.Count(o => o.Customer==customer);
-          var parameter = new Parameter<Tuple>();
+          var parameter = new ApplyParameter();
           var subquery = orderPrimary
             .Filter(t => t.GetValue(orderCustomerIndex)==parameter.Value.GetValue(customerIdIndex))
             .Alias("XYZ");
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Tests.Storage
           long total = 0;
           foreach (var customer in allCustomers)
             total += Math.Max(1, allOrders.Count(o => o.Customer == customer));
-          var parameter = new Parameter<Tuple>();
+          var parameter = new ApplyParameter();
           var subquery = orderPrimary
             .Filter(t => t.GetValue(orderCustomerIndex) == parameter.Value.GetValue(customerIdIndex))
             .Alias("XYZ");
@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Tests.Storage
           foreach (var customer in allCustomers)
             if (allOrders.Any(o => o.Customer == customer))
               total++;
-          var parameter = new Parameter<Tuple>();
+          var parameter = new ApplyParameter();
           var subquery = orderPrimary
             .Filter(t => t.GetValue(orderCustomerIndex)==parameter.Value.GetValue(customerIdIndex))
             .Existence("LALALA");
