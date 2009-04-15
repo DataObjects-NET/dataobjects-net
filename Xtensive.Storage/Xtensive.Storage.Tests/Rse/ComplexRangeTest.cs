@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Tests.Rse
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 3, 5)));
       TestRange(rsBird, range, 9); 
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(3, 10, 5)));
-      TestRange(rsBird, range, 2);
+      TestRange(rsBird, range, 3);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 5, 3), Direction.Negative));
       TestRange(rsBird, range, 8);
       range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 3, 5), Direction.Negative));
