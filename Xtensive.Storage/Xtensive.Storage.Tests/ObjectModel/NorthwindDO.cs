@@ -177,8 +177,6 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field]
     public Category Category { get; set; }
 
-    [Field(Length = 20)]
-    public string QuantityPerUnit { get; set; }
 
     [Field]
     public decimal UnitPrice { get; set; }
@@ -199,6 +197,8 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   [Entity]
   public abstract class IntermediateProduct : Product
   {
+    [Field(Length = 20)]
+    public string QuantityPerUnit { get; set; }
   }
 
   [Entity]
@@ -629,13 +629,13 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
                   order.Employee = !reader.IsDBNull(i) ? employees[reader.GetValue(i)] : null;
                   break;
                 case 3:
-                  order.OrderDate = !reader.IsDBNull(i) ? (DateTime?)reader.GetDateTime(i) : null;
+                  order.OrderDate = !reader.IsDBNull(i) ? (DateTime?) reader.GetDateTime(i) : null;
                   break;
                 case 4:
-                  order.RequiredDate = !reader.IsDBNull(i) ? (DateTime?)reader.GetDateTime(i) : null;
+                  order.RequiredDate = !reader.IsDBNull(i) ? (DateTime?) reader.GetDateTime(i) : null;
                   break;
                 case 5:
-                  order.ShippedDate = !reader.IsDBNull(i) ? (DateTime?)reader.GetDateTime(i) : null;
+                  order.ShippedDate = !reader.IsDBNull(i) ? (DateTime?) reader.GetDateTime(i) : null;
                   break;
                 case 6:
                   order.ShipVia = !reader.IsDBNull(i) ? shippers[reader.GetValue(i)] : null;

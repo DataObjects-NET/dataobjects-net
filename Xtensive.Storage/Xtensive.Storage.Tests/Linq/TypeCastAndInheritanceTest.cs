@@ -116,6 +116,16 @@ namespace Xtensive.Storage.Tests.Linq
       QueryDumper.Dump(result);
     }
 
+
+    [Test]
+    public void OfTypeGetFieldTest()
+    {
+      var result = Query<Product>.All
+        .OfType<DiscontinuedProduct>()
+        .Select(dp => dp.QuantityPerUnit);
+      QueryDumper.Dump(result);
+    }
+
     [Test]
     public void OfTypeSameTypeTest()
     {

@@ -1042,6 +1042,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 
     // Modified according to DO model.
 
+    [Ignore("Not supported")]
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "Complex Hierarchy - Simple")]
     [Description("Select all contacts and show the type of each.")]
@@ -1059,6 +1060,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 
     // Modified according to DO model.
 
+    [Ignore("Not supported")]
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "Complex Hierarchy - OfType 1")]
     [Description("Select all Shipper contacts.")]
@@ -1071,6 +1073,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 
     // Modified according to DO model.
 
+    [Ignore("Not supported")]
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "Complex Hierarchy - OfType 2")]
     [Description("Select all Full contacts, which includes suppliers, customers, and employees.")]
