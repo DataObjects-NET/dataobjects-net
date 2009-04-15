@@ -42,11 +42,7 @@ namespace Xtensive.Core.Parameters
     /// <exception cref="InvalidOperationException">Value for the parameter is not set.</exception>
     public object GetValue()
     {
-      var currentScope = ParameterScope.CurrentScope;
-      if (currentScope==null)
-        throw new InvalidOperationException(
-          string.Format(Strings.XIsNotActivated, typeof(ParameterContext).GetShortName()));
-      return currentScope.GetValue(this);
+      return GetCurrentScope().GetValue(this);
     }
 
     /// <summary>
@@ -56,39 +52,31 @@ namespace Xtensive.Core.Parameters
     /// <exception cref="InvalidOperationException"><see cref="ParameterContext"/> is not activated.</exception>    
     public void SetValue(object value)
     {
-      var currentScope = ParameterScope.CurrentScope;
-      if (currentScope==null)
-        throw new InvalidOperationException(
-          string.Format(Strings.XIsNotActivated, typeof(ParameterContext).GetShortName()));
-      currentScope.SetValue(this, value);
+      GetCurrentScope().SetValue(this, value);
     }
+    
+    /// <summary>
+    /// Gets a value indicating whether this instance has value in current scope.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> if this instance has value in current scope; otherwise, <see langword="false"/>.
+    /// </value>
+    public bool HasValueInCurrentScope { get { return GetCurrentScope().HasValueInThisScope(this); } }
 
     /// <summary>
     /// Gets a value indicating whether this instance has value.
     /// </summary>
-    /// <value><see langword="true" /> if this instance has value; otherwise, <see langword="false" />.</value>
-    public bool HasValue
-    {
-      get
-      {
-        var currentScope = ParameterScope.CurrentScope;
-        if (currentScope == null)
-          throw new InvalidOperationException(
-            string.Format(Strings.XIsNotActivated, typeof(ParameterContext).GetShortName()));
-        return currentScope.HasValue(this);
-      }
-    }
+    /// <value>
+    /// <see langword="true"/> if this instance has value; otherwise, <see langword="false"/>.
+    /// </value>
+    public bool HasValue { get { return GetCurrentScope().HasValue(this); } }
 
     /// <summary>
     /// Clears parameter's value.
     /// </summary>
     public void Clear()
     {
-      var currentScope = ParameterScope.CurrentScope;
-      if (currentScope == null)
-        throw new InvalidOperationException(
-          string.Format(Strings.XIsNotActivated, typeof(ParameterContext).GetShortName()));
-      currentScope.Clear(this);
+      GetCurrentScope().Clear(this);
     }
 
     /// <summary>
@@ -97,7 +85,6 @@ namespace Xtensive.Core.Parameters
     /// <param name="parameterScopeValue">The parameter scope value.</param>
     internal virtual void OnScopeDisposed(object parameterScopeValue)
     {
-      
     }
 
     /// <inheritdoc/>
@@ -106,7 +93,18 @@ namespace Xtensive.Core.Parameters
       return Name;
     }
 
-    
+    #region Private methods
+
+    private static ParameterScope GetCurrentScope()
+    {
+      var currentScope = ParameterScope.CurrentScope;
+      if (currentScope == null)
+        throw new InvalidOperationException(string.Format(Strings.XIsNotActivated, typeof(ParameterContext).GetShortName()));
+      return currentScope;
+    }
+
+    #endregion
+
     // Constructors
 
     /// <summary>

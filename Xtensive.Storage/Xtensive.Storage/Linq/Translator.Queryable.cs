@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Linq
       using (new ParameterScope()) {
         entityAsKey.Value = true;
         calculateExpressions.Value = false;
-        recordIsUsed.Value = false;
+        recordIsUsed = false;
         return (ResultExpression)Visit(context.Query);
       }
     }
@@ -857,10 +857,7 @@ namespace Xtensive.Storage.Linq
       : base(context.Model)
     {
       this.context = context;
-      recordIsUsed = new Parameter<bool>("recordIsUsed", oldValue => {
-        if (!entityAsKey.Value)
-          recordIsUsed.Value |= oldValue;
-      });
+      recordIsUsedParameter = new Parameter<bool>("recordIsUsed", RecordIsUsedOnOutOfScope);
     }
   }
 }

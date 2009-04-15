@@ -23,16 +23,26 @@ namespace Xtensive.Core.Parameters
       get { return (ParameterScope) Scope<ParameterContext>.CurrentScope; }
     }
 
+    internal bool TryGetValue(Parameter parameter, out object value)
+    {
+      object result;
+      var scope = this;
+      bool found = scope.Context.TryGetValue(parameter, out result);
+      while (!found && scope.IsNested) {
+        scope = (ParameterScope) scope.OuterScope;
+        found = scope.Context.TryGetValue(parameter, out result);
+      }
+      value = result;
+      return found;
+    }
+
     [DebuggerStepThrough]
     internal object GetValue(Parameter parameter)
     {
-      object value;
-      if (Context.TryGetValue(parameter, out value))
-        return value;
-      if (IsNested)
-        return ((ParameterScope) OuterScope).GetValue(parameter);
-      throw new InvalidOperationException(
-        string.Format(Strings.ValueForParameterXIsNotSet, parameter));
+      object result;
+      if (TryGetValue(parameter, out result))
+        return result;
+      throw new InvalidOperationException(string.Format(Strings.ValueForParameterXIsNotSet, parameter));
     }
 
     [DebuggerStepThrough]
@@ -42,9 +52,16 @@ namespace Xtensive.Core.Parameters
     }
 
     [DebuggerStepThrough]
-    internal bool HasValue(Parameter parameter)
+    internal bool HasValueInThisScope(Parameter parameter)
     {
       return Context.HasValue(parameter);
+    }
+
+    [DebuggerStepThrough]
+    internal bool HasValue(Parameter parameter)
+    {
+      object dummy;
+      return TryGetValue(parameter, out dummy);
     }
 
     [DebuggerStepThrough]
@@ -56,15 +73,16 @@ namespace Xtensive.Core.Parameters
     /// <inheritdoc/>
     void IDisposable.Dispose()
     {
-      var wasNested = IsNested;
+      if (!IsNested) {
+        Dispose();
+        return;
+      }
       var parameterValues = Context.values.ToList();
       Dispose();
-      if (wasNested)
-        foreach (var pair in parameterValues)
-          pair.Key.OnScopeDisposed(pair.Value);
+      foreach (var pair in parameterValues)
+        pair.Key.OnScopeDisposed(pair.Value);
     }
-
-
+    
     // Constructors
 
     /// <summary>
