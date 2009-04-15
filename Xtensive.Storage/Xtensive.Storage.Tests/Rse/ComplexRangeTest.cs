@@ -1,0 +1,405 @@
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Elena Vakhtina
+// Created:    2009.04.15
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection;
+using NUnit.Framework;
+using Xtensive.Core;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Parameters;
+using Xtensive.Core.Tuples;
+using Xtensive.Indexing;
+using Xtensive.Storage.Attributes;
+using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse;
+using Xtensive.Storage.Tests.Rse.AnimalModel;
+
+
+namespace Xtensive.Storage.Tests.Rse.AnimalModel
+{
+  [DebuggerDisplay("Name = '{Name}'")]
+  [HierarchyRoot(typeof(KeyGenerator), "ID", KeyGeneratorCacheSize = 16)]
+  public class Animal : Entity
+  {
+    [Field]
+    public int ID { get; private set; }
+
+    [Field(Length = 255)]
+    public string Name { get; set; }
+  }
+
+  [DebuggerDisplay("Name = '{Name}'")]
+  public class Cat : Animal
+  {
+  }
+
+
+  [DebuggerDisplay("Name = '{Name}'; TailLength = {TailLength}")]
+  [Index("ID", "TailLength")]
+  public class Dog : Animal
+  {
+    [Field]
+    public int? TailLength { get; set; }
+  }
+
+  [DebuggerDisplay("Name = '{Name}'; Airspeed = {Airspeed}; Lifetime = {Lifetime}")]
+  [Index("ID", "Airspeed", "Lifetime")]
+  public class Bird : Animal
+  {
+    [Field]
+    public int? Airspeed { get; set; }
+
+    [Field(Length = 255)]
+    public int? Lifetime { get; set; }
+  }
+}
+
+namespace Xtensive.Storage.Tests.Rse
+{
+  [Serializable]
+  [TestFixture]
+  public class ComplexRangeTest : AutoBuildTest
+  {
+    private RecordSet rsCat;
+    private RecordSet rsDog;
+    private RecordSet rsBird;
+    private const int CatCount = 100;
+    private const int DogCount = 100;
+    private const int BirdCount = 100;
+    
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      DomainConfiguration config = base.BuildConfiguration();
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Rse.AnimalModel");
+      return config;
+    }
+
+    protected override Domain BuildDomain(DomainConfiguration configuration)
+    {
+      Xtensive.Storage.Domain result = base.BuildDomain(configuration);
+      return result;
+    }
+
+    [Test]
+    public void LineTest()
+    {
+      Fill();
+      var range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsCat, range, CatCount);
+      TestRange(rsDog, range, DogCount);
+      TestRange(rsBird, range, BirdCount);
+    }
+
+    [Test]
+    public void Ray1Test()
+    {
+      Fill();
+      // Cat
+      var range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10)));
+      TestRange(rsCat, range, 10);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10),Direction.Negative));
+      TestRange(rsCat, range, 9);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10), Direction.Positive));
+      TestRange(rsCat, range, 10);
+
+      // Dog
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 5)));
+      TestRange(rsDog, range, 9);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(5, 10)));
+      TestRange(rsDog, range, 4);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 5), Direction.Negative));
+      TestRange(rsDog, range, 8);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(5, 10), Direction.Negative));
+      TestRange(rsDog, range, 3);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 5), Direction.Positive));
+      TestRange(rsDog, range, 9);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(5, 10), Direction.Positive));
+      TestRange(rsDog, range, 4);
+      
+      //Bird
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 5, 3)));
+      TestRange(rsBird, range, 9);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 3, 5)));
+      TestRange(rsBird, range, 9); 
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(3, 10, 5)));
+      TestRange(rsBird, range, 2);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 5, 3), Direction.Negative));
+      TestRange(rsBird, range, 8);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 3, 5), Direction.Negative));
+      TestRange(rsBird, range, 8);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(3, 10, 5), Direction.Negative));
+      TestRange(rsBird, range, 1);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 5, 3), Direction.Positive));
+      TestRange(rsBird, range, 9);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(10, 3, 5), Direction.Positive));
+      TestRange(rsBird, range, 9);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(InfinityType.Negative), new Entire<Tuple>(Tuple.Create(3, 10, 5), Direction.Positive));
+      TestRange(rsBird, range, 2);
+    }
+
+    [Test]
+    public void Ray2Test()
+    {
+      Fill();
+      // Cat
+      var range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90)), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsCat, range, 11);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90), Direction.Negative), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsCat, range, 11);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90), Direction.Positive), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsCat, range, 10);
+
+      // Dog
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 95)), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsDog, range, 10);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(95, 90)), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsDog, range, 5);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 95), Direction.Negative), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsDog, range, 10);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(95, 90), Direction.Negative), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsDog, range, 5);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 95), Direction.Positive), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsDog, range, 9);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(95, 90), Direction.Positive), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsDog, range, 4);
+
+      //Bird
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 95, 98)), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsBird, range, 10);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 98, 95)), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsBird, range, 10);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(98, 90, 95)), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsBird, range, 2);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 95, 98), Direction.Negative), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsBird, range, 10);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 98, 95), Direction.Negative), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsBird, range, 10);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(98, 90, 95), Direction.Negative), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsBird, range, 2);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 95, 98), Direction.Positive), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsBird, range, 9);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(90, 98, 95), Direction.Positive), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsBird, range, 9);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(98, 90, 95), Direction.Positive), new Entire<Tuple>(InfinityType.Positive));
+      TestRange(rsBird, range, 1);
+    }
+
+    [Test]
+    public void IntervalTest()
+    {
+      Fill();
+      
+      // Cat
+      var range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(5), Direction.Positive), new Entire<Tuple>(Tuple.Create(10), Direction.Negative));
+      TestRange(rsCat, range, 4);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10), Direction.Positive), new Entire<Tuple>(Tuple.Create(5), Direction.Negative));
+      TestRange(rsCat, range, 0);
+
+      // Dog
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(5,6), Direction.Positive), new Entire<Tuple>(Tuple.Create(10,11), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10,11), Direction.Positive), new Entire<Tuple>(Tuple.Create(5,6), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 3), Direction.Positive), new Entire<Tuple>(Tuple.Create(13, 8), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 8), Direction.Positive), new Entire<Tuple>(Tuple.Create(10, 3), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 7), Direction.Positive), new Entire<Tuple>(Tuple.Create(13, 1), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 1), Direction.Positive), new Entire<Tuple>(Tuple.Create(10, 7), Direction.Negative));
+      TestRange(rsCat, range, 0);
+
+      // Bird
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(5, 6, 7), Direction.Positive), new Entire<Tuple>(Tuple.Create(10, 11, 12), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 11, 12), Direction.Positive), new Entire<Tuple>(Tuple.Create(5, 6, 7), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 3, 5), Direction.Positive), new Entire<Tuple>(Tuple.Create(13, 8, 6), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 8, 6), Direction.Positive), new Entire<Tuple>(Tuple.Create(10, 3, 5), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 7, 5), Direction.Positive), new Entire<Tuple>(Tuple.Create(13, 3, 1), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 3, 1), Direction.Positive), new Entire<Tuple>(Tuple.Create(10, 7, 5), Direction.Negative));
+      TestRange(rsCat, range, 0);
+    }
+
+    [Test]
+    public void SegmentTest()
+    {
+      Fill();
+
+      // Cat
+      var range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(5), Direction.Negative), new Entire<Tuple>(Tuple.Create(10), Direction.Positive));
+      TestRange(rsCat, range, 4);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10), Direction.Negative), new Entire<Tuple>(Tuple.Create(5), Direction.Positive));
+      TestRange(rsCat, range, 0);
+
+      // Dog
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(5, 6), Direction.Negative), new Entire<Tuple>(Tuple.Create(10, 11), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 11), Direction.Negative), new Entire<Tuple>(Tuple.Create(5, 6), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 3), Direction.Negative), new Entire<Tuple>(Tuple.Create(13, 8), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 8), Direction.Negative), new Entire<Tuple>(Tuple.Create(10, 3), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 7), Direction.Negative), new Entire<Tuple>(Tuple.Create(13, 1), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 1), Direction.Negative), new Entire<Tuple>(Tuple.Create(10, 7), Direction.Positive));
+      TestRange(rsCat, range, 0);
+
+      // Bird
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(5, 6, 7), Direction.Negative), new Entire<Tuple>(Tuple.Create(10, 11, 12), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 11, 12), Direction.Negative), new Entire<Tuple>(Tuple.Create(5, 6, 7), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 3, 5), Direction.Negative), new Entire<Tuple>(Tuple.Create(13, 8, 6), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 8, 6), Direction.Negative), new Entire<Tuple>(Tuple.Create(10, 3, 5), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 7, 5), Direction.Negative), new Entire<Tuple>(Tuple.Create(13, 3, 1), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 3, 1), Direction.Negative), new Entire<Tuple>(Tuple.Create(10, 7, 5), Direction.Positive));
+      TestRange(rsCat, range, 0);
+    }
+
+    [Test]
+    public void HalfInterval1Test()
+    {
+      Fill();
+
+      // Cat
+      var range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(5), Direction.Positive), new Entire<Tuple>(Tuple.Create(10), Direction.Positive));
+      TestRange(rsCat, range, 4);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10), Direction.Positive), new Entire<Tuple>(Tuple.Create(5), Direction.Positive));
+      TestRange(rsCat, range, 0);
+
+      // Dog
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(5, 6), Direction.Positive), new Entire<Tuple>(Tuple.Create(10, 11), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 11), Direction.Positive), new Entire<Tuple>(Tuple.Create(5, 6), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 3), Direction.Positive), new Entire<Tuple>(Tuple.Create(13, 8), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 8), Direction.Positive), new Entire<Tuple>(Tuple.Create(10, 3), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 7), Direction.Positive), new Entire<Tuple>(Tuple.Create(13, 1), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 1), Direction.Positive), new Entire<Tuple>(Tuple.Create(10, 7), Direction.Positive));
+      TestRange(rsCat, range, 0);
+
+      // Bird
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(5, 6, 7), Direction.Positive), new Entire<Tuple>(Tuple.Create(10, 11, 12), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 11, 12), Direction.Positive), new Entire<Tuple>(Tuple.Create(5, 6, 7), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 3, 5), Direction.Positive), new Entire<Tuple>(Tuple.Create(13, 8, 6), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 8, 6), Direction.Positive), new Entire<Tuple>(Tuple.Create(10, 3, 5), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 7, 5), Direction.Positive), new Entire<Tuple>(Tuple.Create(13, 3, 1), Direction.Positive));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 3, 1), Direction.Positive), new Entire<Tuple>(Tuple.Create(10, 7, 5), Direction.Positive));
+      TestRange(rsCat, range, 0);
+    }
+
+    [Test]
+    public void HalfInterval2Test()
+    {
+      Fill();
+
+      // Cat
+      var range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(5), Direction.Negative), new Entire<Tuple>(Tuple.Create(10), Direction.Negative));
+      TestRange(rsCat, range, 4);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10), Direction.Negative), new Entire<Tuple>(Tuple.Create(5), Direction.Negative));
+      TestRange(rsCat, range, 0);
+
+      // Dog
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(5, 6), Direction.Negative), new Entire<Tuple>(Tuple.Create(10, 11), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 11), Direction.Negative), new Entire<Tuple>(Tuple.Create(5, 6), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 3), Direction.Negative), new Entire<Tuple>(Tuple.Create(13, 8), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 8), Direction.Negative), new Entire<Tuple>(Tuple.Create(10, 3), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 7), Direction.Negative), new Entire<Tuple>(Tuple.Create(13, 1), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 1), Direction.Negative), new Entire<Tuple>(Tuple.Create(10, 7), Direction.Negative));
+      TestRange(rsCat, range, 0);
+
+      // Bird
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(5, 6, 7), Direction.Negative), new Entire<Tuple>(Tuple.Create(10, 11, 12), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 11, 12), Direction.Negative), new Entire<Tuple>(Tuple.Create(5, 6, 7), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 3, 5), Direction.Negative), new Entire<Tuple>(Tuple.Create(13, 8, 6), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 8, 6), Direction.Negative), new Entire<Tuple>(Tuple.Create(10, 3, 5), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(10, 7, 5), Direction.Negative), new Entire<Tuple>(Tuple.Create(13, 3, 1), Direction.Negative));
+      TestRange(rsCat, range, 0);
+      range = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(13, 3, 1), Direction.Negative), new Entire<Tuple>(Tuple.Create(10, 7, 5), Direction.Negative));
+      TestRange(rsCat, range, 0);
+    } 
+
+    #region Private methods
+
+    private void TestRange(RecordSet recordSet, Range<Entire<Tuple>> range, int testCount)
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var parameter = new Parameter<Range<Entire<Tuple>>>();
+          RecordSet result = recordSet
+            .Range(() => parameter.Value)
+            .OrderBy(OrderBy.Asc(recordSet.Header.IndexOf("ID")));
+
+          using (new ParameterScope()) {
+            parameter.Value = range;
+            var count = result.Count();
+            Assert.AreEqual(testCount, count);
+          }
+          t.Complete();
+        }
+      }
+    }
+
+    private void Fill()
+    {
+      TestFixtureTearDown();
+      TestFixtureSetUp();
+
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        for (int i = 1; i <= CatCount; i++)
+          new Cat { Name = ("Cat" + i) };
+        for (int i = 1; i <= DogCount; i++)
+          new Dog { Name = ("Dog" + i), TailLength = i };
+        for (int i = 1; i <= BirdCount; i++)
+          new Bird { Name = ("Bird" + i), Airspeed = i, Lifetime = i };
+        Session.Current.Persist();
+        t.Complete();
+        GetRecordSets();
+      }
+    }
+
+    private void GetRecordSets()
+    {
+      TypeInfo animalType = Domain.Model.Types[typeof(Cat)];
+      rsCat = animalType.Indexes.GetIndex("ID").ToRecordSet();
+      TypeInfo dogType = Domain.Model.Types[typeof(Dog)];
+      rsDog = dogType.Indexes.GetIndex("ID", "TailLength").ToRecordSet();
+      TypeInfo birdType = Domain.Model.Types[typeof(Bird)];
+      rsBird = birdType.Indexes.GetIndex("ID", "Airspeed", "Lifetime").ToRecordSet();
+    }
+
+    #endregion
+  }
+}

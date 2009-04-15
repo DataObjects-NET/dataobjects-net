@@ -181,7 +181,8 @@ namespace Xtensive.Storage.Tests.Linq
         .Where(c => c.Address.StreetAddress.Length < 15)
         .Select(c => new { Name = c.CompanyName, Address = c.Address.City })
         .Take(10)
-        .Union(shipper.Select(s => new { Name = s.CompanyName, Address = s.Phone })).Where(c=>c.Address.Length < 7);
+        .Union(shipper.Select(s => new { Name = s.CompanyName, Address = s.Phone }))
+        .Where(c=>c.Address.Length < 7);
       QueryDumper.Dump(result);
     }
 
