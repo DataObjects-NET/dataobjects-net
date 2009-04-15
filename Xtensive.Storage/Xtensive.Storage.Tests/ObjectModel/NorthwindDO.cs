@@ -192,13 +192,21 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public short ReorderLevel { get; set; }
   }
 
+  /// <summary>
+  /// Just for Linq type inheritance tests.
+  /// </summary>
   [Entity]
-  public class ActiveProduct : Product
+  public abstract class IntermediateProduct : Product
   {
   }
 
   [Entity]
-  public class DiscontinuedProduct : Product
+  public class ActiveProduct : IntermediateProduct
+  {
+  }
+
+  [Entity]
+  public class DiscontinuedProduct : IntermediateProduct
   {
   }
 

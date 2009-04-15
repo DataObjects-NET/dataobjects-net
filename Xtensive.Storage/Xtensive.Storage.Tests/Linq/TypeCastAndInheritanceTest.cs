@@ -43,25 +43,64 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void IsSubTypeTest()
+    {
+#pragma warning disable 183
+      var result = Query<DiscontinuedProduct>.All.Where(p => p is Product);
+#pragma warning restore 183
+      QueryDumper.Dump(result);
+    }
+
+    public class A : Structure
+    {
+      private string City;
+    }
+
+    public class B : A
+    {
+      private string street;
+    }
+
+    [Test]
     public void IsCountTest()
     {
+      int productCount = Query<Product>.All.Count();
+      int intermediateProductCount = Query<IntermediateProduct>.All.Count();
+      int discontinuedProductCount = Query<DiscontinuedProduct>.All.Count();
+      int activeProductCount = Query<ActiveProduct>.All.Count();
+
+      Assert.Greater(productCount, 0);
+
       Assert.AreEqual(
+        productCount,
+        intermediateProductCount);
+
+      Assert.AreEqual(
+        intermediateProductCount,
+        Query<Product>.All
+          .Where(p => p is IntermediateProduct)
+          .Select(product => (IntermediateProduct)product)
+          .Count());
+
+      Assert.AreEqual(
+        discontinuedProductCount,
         Query<Product>.All
           .Where(p => p is DiscontinuedProduct)
           .Select(product => (DiscontinuedProduct) product)
-          .Count(),
-        Query<DiscontinuedProduct>.All.Count());
+          .Count());
+
       Assert.AreEqual(
+        activeProductCount,
         Query<Product>.All
           .Where(p => p is ActiveProduct)
           .Select(product => (ActiveProduct) product)
-          .Count(),
-        Query<ActiveProduct>.All.Count());
+          .Count());
+
       Assert.AreEqual(
+        productCount,
         Query<Product>.All
           .Where(p => p is Product)
-          .Count(),
-        Query<Product>.All.Count());
+          .Count());
     }
 
     [Test]

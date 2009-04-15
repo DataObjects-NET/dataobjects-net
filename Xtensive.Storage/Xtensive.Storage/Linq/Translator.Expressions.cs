@@ -41,10 +41,31 @@ namespace Xtensive.Storage.Linq
     
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
-      if (tb.Expression.Type == tb.TypeOperand)
+      var expressionType = tb.Expression.Type;
+      var operandType = tb.TypeOperand;
+      if (operandType.IsAssignableFrom(expressionType))
         return Expression.Constant(true);
-      var visitedSource = Visit(tb.Expression);
-      throw new NotImplementedException();
+
+      // Structure
+      if (tb.Expression.GetMemberType()==MemberType.Structure
+        && typeof (Structure).IsAssignableFrom(operandType))
+        return Expression.Constant(false);
+
+      // Entity
+      if (tb.Expression.GetMemberType() == MemberType.Entity 
+        && typeof (IEntity).IsAssignableFrom(operandType))
+      {
+        var typeInfo = context.Model.Types[operandType];
+        var typeIds = typeInfo.GetDescendants().AddOne(typeInfo).Select(ti=>ti.TypeId);
+        var memberExpression = Expression.Property(tb.Expression, "TypeId");
+        Expression boolExpression = null;
+        foreach (int typeId in typeIds)
+          boolExpression = MakeBinaryExpression(boolExpression, memberExpression, Expression.Constant(typeId), ExpressionType.Equal);
+        
+        return Visit(boolExpression);
+      }
+
+      throw new NotSupportedException();
     }
 
     protected override Expression Visit(Expression e)
