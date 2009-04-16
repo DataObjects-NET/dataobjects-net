@@ -27,11 +27,7 @@ namespace Xtensive.Storage.Providers.Index
 {
   public class DomainHandler : Providers.DomainHandler
   {
-    private const string RemoteUrlFormat = "tcp://{0}:{1}/{2}";
-    private const int DefaultRemotePort = 8085;
-
     private IndexStorage storage;
-    private ObjRef storageRef;
 
     private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes = new Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>>();
     private readonly Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform> indexTransforms = new Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform>();
@@ -67,10 +63,10 @@ namespace Xtensive.Storage.Providers.Index
     {
       base.Initialize();
       var connectionInfo = BuildingContext.Current.Configuration.ConnectionInfo;
-      var remoteUrl = CreateRemoteUrl(connectionInfo);
+      var remoteUrl = connectionInfo.ToString(); // ToDo: Fix this.
       if (!TryGetRemoteStorage(remoteUrl, out storage)) {
         storage = CreateLocalStorage(connectionInfo.Resource);
-        // MarshalStorage(storage, remoteUrl, connectionInfo.Port);
+        MarshalStorage(storage, remoteUrl, connectionInfo.Port);
       }
     }
 
@@ -83,42 +79,17 @@ namespace Xtensive.Storage.Providers.Index
 
     protected bool TryGetRemoteStorage(string url, out IndexStorage remoteStorage)
     {
-      remoteStorage = RemotingServices.Connect(typeof (IndexStorage), url) as IndexStorage;
-
-      if (remoteStorage==null)
-        return false;
-
-      try {
-        remoteStorage.Ping();
-      }
-      catch (SocketException) {
-        
-        remoteStorage = null;
-        return false;
-      } 
-      catch (RemotingException) {
-        remoteStorage = null;
-        return false;
-      }
-      return true;
+      remoteStorage = null;
+      return false;
     }
 
     protected void MarshalStorage(IndexStorage localStorage, string url, int port)
     {
-      storageRef = RemotingServices.Marshal(localStorage, url);
     }
 
     protected virtual IndexStorage CreateLocalStorage(string name)
     {
       throw new NotSupportedException();
-    }
-
-    protected string CreateRemoteUrl(UrlInfo connectionInfo)
-    {
-      return string.Format(RemoteUrlFormat,
-        connectionInfo.Host,
-        connectionInfo.Port==0 ? DefaultRemotePort : connectionInfo.Port,
-        connectionInfo.Resource);
     }
 
     #endregion
