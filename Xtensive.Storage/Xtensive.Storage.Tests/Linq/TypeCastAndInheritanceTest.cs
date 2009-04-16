@@ -116,16 +116,6 @@ namespace Xtensive.Storage.Tests.Linq
       QueryDumper.Dump(result);
     }
 
-
-    [Test]
-    public void OfTypeGetFieldTest()
-    {
-      var result = Query<Product>.All
-        .OfType<DiscontinuedProduct>()
-        .Select(dp => dp.QuantityPerUnit);
-      QueryDumper.Dump(result);
-    }
-
     [Test]
     public void OfTypeSameTypeTest()
     {
@@ -213,6 +203,25 @@ namespace Xtensive.Storage.Tests.Linq
       var productCount1 = Query<Product>.All.Count();
       var productCount2 = Query<Product>.All.Cast<Product>().Count();
       Assert.AreEqual(productCount1, productCount2);
+    }
+
+    [Test]
+    public void OfTypeGetFieldTest()
+    {
+      var result = Query<Product>.All
+        .OfType<DiscontinuedProduct>()
+        .Select(dp => dp.QuantityPerUnit);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void IsGetFieldTest()
+    {
+      var result = Query<Product>.All
+        .Where(p => p is DiscontinuedProduct)
+        .Select(x => (DiscontinuedProduct) x)
+        .Select(dp => dp.QuantityPerUnit);
+      QueryDumper.Dump(result);
     }
   }
 }
