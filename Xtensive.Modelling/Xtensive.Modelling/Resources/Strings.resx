@@ -183,4 +183,13 @@
   <data name="ExLoopInActionDependencyChain" xml:space="preserve">
     <value>Loop in action dependency chain is detected.</value>
   </data>
+  <data name="ExNoCurrentComparer" xml:space="preserve">
+    <value>Comparer.Current is null.</value>
+  </data>
+  <data name="ExInvalidContextDeactivationSequence" xml:space="preserve">
+    <value>Invalid context deactivation sequence.</value>
+  </data>
+  <data name="ExInvalidContextActivationSequence" xml:space="preserve">
+    <value>Invalid context activation sequence.</value>
+  </data>
 </root>

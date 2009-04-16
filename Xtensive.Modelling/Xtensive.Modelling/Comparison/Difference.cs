@@ -100,7 +100,7 @@ namespace Xtensive.Modelling.Comparison
       var any = source ?? target;
       if (any==null)
         throw new InvalidOperationException(Strings.ExBothSourceAndTargetAreNull);
-      Parent = Comparer.Current.CurrentDifference;
+      Parent = Comparer.Current.Context.Difference;
     }
   }
 }

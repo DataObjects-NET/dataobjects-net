@@ -106,6 +106,24 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid context activation sequence..
+        /// </summary>
+        internal static string ExInvalidContextActivationSequence {
+            get {
+                return ResourceManager.GetString("ExInvalidContextActivationSequence", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid context deactivation sequence..
+        /// </summary>
+        internal static string ExInvalidContextDeactivationSequence {
+            get {
+                return ResourceManager.GetString("ExInvalidContextDeactivationSequence", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid node state..
         /// </summary>
         internal static string ExInvalidNodeState {
@@ -174,6 +192,15 @@ namespace Xtensive.Modelling.Resources {
         internal static string ExMultipleHintsFound {
             get {
                 return ResourceManager.GetString("ExMultipleHintsFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comparer.Current is null..
+        /// </summary>
+        internal static string ExNoCurrentComparer {
+            get {
+                return ResourceManager.GetString("ExNoCurrentComparer", resourceCulture);
             }
         }
         
