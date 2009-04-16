@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2009.01.12
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -19,6 +20,7 @@ namespace Xtensive.Storage.Tests.Linq
   public class SelectTest : NorthwindDOModelTest
   {
     [Test]
+    [ExpectedException(typeof(NotSupportedException))]
     public void OutOfHierarchy()
     {
       Assert.Greater(Query<Person>.All.Count(), 0);

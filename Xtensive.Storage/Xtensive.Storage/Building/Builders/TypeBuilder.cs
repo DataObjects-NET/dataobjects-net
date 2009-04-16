@@ -26,7 +26,6 @@ namespace Xtensive.Storage.Building.Builders
     {
       BuildingContext context = BuildingContext.Current;
       using (Log.InfoRegion(Strings.LogDefiningX, type.FullName)) {
-
         if (context.Definition.Types.Contains(type))
           throw new DomainBuilderException(
             string.Format(Strings.TypeXIsAlreadyDefined, type.FullName));
@@ -65,7 +64,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void ProcessSystemTypeAttribute(Type type, TypeDef typeDef)
     {
       SystemTypeAttribute attribute = type.GetAttribute<SystemTypeAttribute>(AttributeSearchOptions.Default);
-      if (attribute != null) {
+      if (attribute!=null) {
         typeDef.Attributes |= TypeAttributes.System;
         BuildingContext.Current.SystemTypeIds[type] = attribute.TypeId;
       }
@@ -73,9 +72,9 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessMaterializedViewAttribute(Type type, TypeDef typeDef)
     {
-      var materializedViewAttribute =type.GetAttribute<MaterializedViewAttribute>(
+      var materializedViewAttribute = type.GetAttribute<MaterializedViewAttribute>(
         AttributeSearchOptions.Default);
-      if (materializedViewAttribute != null)
+      if (materializedViewAttribute!=null)
         AttributeProcessor.Process(typeDef, materializedViewAttribute);
     }
 
@@ -83,7 +82,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       var entityAttribute = type.GetAttribute<EntityAttribute>(
         AttributeSearchOptions.Default);
-      if (entityAttribute != null)
+      if (entityAttribute!=null)
         AttributeProcessor.Process(typeDef, entityAttribute);
     }
 
@@ -91,7 +90,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       TypeDef typeDef = BuildingContext.Current.Definition.Types.TryGetValue(type);
 
-      if (typeDef == null)
+      if (typeDef==null)
         throw new DomainBuilderException(
           string.Format(Strings.ExTypeXIsNotRegisteredInTheModel, type.FullName));
 
@@ -157,7 +156,6 @@ namespace Xtensive.Storage.Building.Builders
       BuildAnsector(typeDef);
 
       using (Log.InfoRegion(Strings.LogBuildingX, typeDef.UnderlyingType.GetShortName())) {
-
         TypeInfo type = CreateType(typeDef);
 
         if (type.UnderlyingType==hierarchy.Root.UnderlyingType) {
@@ -191,7 +189,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void BuildAnsector(TypeDef type)
     {
       TypeDef ancestor = BuildingContext.Current.Definition.Types.FindAncestor(type);
-      if (ancestor != null)
+      if (ancestor!=null)
         BuildType(ancestor);
     }
 
@@ -219,7 +217,8 @@ namespace Xtensive.Storage.Building.Builders
           if (!implementor.Fields.TryGetValue(explicitName, out implField)) {
             if (!implementor.Fields.TryGetValue(fieldDef.Name, out implField))
               throw new DomainBuilderException(
-                string.Format(Strings.TypeXDoesNotImplementYZField, implementor.Name, @interface.Name, fieldDef.Name));}
+                string.Format(Strings.TypeXDoesNotImplementYZField, implementor.Name, @interface.Name, fieldDef.Name));
+          }
 
           if (implField!=null)
             FieldBuilder.BuildInterfaceField(@interface, implField, fieldDef);
@@ -232,12 +231,12 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildSystemFields(TypeInfo type)
     {
-      if (type.GetAncestor() != null)
+      if (type.GetAncestor()!=null)
         return;
       if (type.Fields.Contains(BuildingContext.Current.NameBuilder.TypeIdFieldName))
         return;
 
-      var typeId = new FieldDef(typeof(int)) {Name = BuildingContext.Current.NameBuilder.TypeIdFieldName, IsTypeId = true};
+      var typeId = new FieldDef(typeof (int)) {Name = BuildingContext.Current.NameBuilder.TypeIdFieldName, IsTypeId = true};
       FieldBuilder.BuildDeclaredField(type, typeId);
     }
 
@@ -246,7 +245,7 @@ namespace Xtensive.Storage.Building.Builders
       foreach (FieldDef srcField in srcType.Fields)
         try {
           FieldInfo field;
-          if (type.Fields.TryGetValue(srcField.Name, out field)){
+          if (type.Fields.TryGetValue(srcField.Name, out field)) {
             if (field.ValueType!=srcField.ValueType)
               throw new DomainBuilderException(
                 string.Format(Resources.Strings.FieldXIsAlreadyDefinedInTypeXOrItsAncestor, srcField.Name, type.Name));
@@ -254,7 +253,7 @@ namespace Xtensive.Storage.Building.Builders
           else
             FieldBuilder.BuildDeclaredField(type, srcField);
         }
-        catch(DomainBuilderException e) {
+        catch (DomainBuilderException e) {
           BuildingContext.Current.RegisterError(e);
         }
     }
@@ -265,7 +264,7 @@ namespace Xtensive.Storage.Building.Builders
       if (ancestor==null)
         return;
 
-      foreach (FieldInfo srcField in ancestor.Fields.Find(FieldAttributes.Explicit, MatchType.None).Where(f => f.Parent == null)) {
+      foreach (FieldInfo srcField in ancestor.Fields.Find(FieldAttributes.Explicit, MatchType.None).Where(f => f.Parent==null)) {
         if (type.Fields.Contains(srcField.Name))
           continue;
 
@@ -278,7 +277,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessBaseInterface(TypeInfo ancestor, TypeInfo @interface)
     {
-      foreach (FieldInfo ancsField in ancestor.Fields.Find(FieldAttributes.Declared).Where(f => f.Parent == null)) {
+      foreach (FieldInfo ancsField in ancestor.Fields.Find(FieldAttributes.Declared).Where(f => f.Parent==null)) {
         if (@interface.Fields.Contains(ancsField.Name))
           continue;
 
@@ -341,12 +340,11 @@ namespace Xtensive.Storage.Building.Builders
 
       foreach (TypeDef @interface in context.Definition.Types.FindInterfaces(typeDef.UnderlyingType)) {
         TypeInfo ancestor = BuildInterface(@interface, implementor);
-        if (ancestor != null)
+        if (ancestor!=null)
           context.Model.Types.RegisterBaseInterface(ancestor, type);
       }
 
       using (Log.InfoRegion(Strings.LogBuildingX, typeDef.UnderlyingType.FullName)) {
-
         // Building key & system fields according to implementor
         foreach (FieldInfo implField in implementor.Fields.Find(FieldAttributes.PrimaryKey | FieldAttributes.System)) {
           if (!type.Fields.Contains(implField.Name))
@@ -361,12 +359,13 @@ namespace Xtensive.Storage.Building.Builders
       foreach (FieldInfo field in @interface.Fields) {
         string explicitName = BuildingContext.Current.NameBuilder.BuildExplicit(field.DeclaringType, field.Name);
         FieldInfo implField;
-        if (implementor.Fields.TryGetValue(explicitName, out implField)) 
+        if (implementor.Fields.TryGetValue(explicitName, out implField))
           implField.IsExplicit = true;
         else {
           if (!implementor.Fields.TryGetValue(field.Name, out implField))
             throw new DomainBuilderException(
-              string.Format(Resources.Strings.TypeXDoesNotImplementYZField, implementor.Name, @interface.Name, field.Name));}
+              string.Format(Resources.Strings.TypeXDoesNotImplementYZField, implementor.Name, @interface.Name, field.Name));
+        }
 
         implField.IsInterfaceImplementation = true;
 
@@ -378,7 +377,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void ProcessSkippedAncestors(TypeDef type)
     {
       TypeDef ancestor = BuildingContext.Current.Definition.Types.FindAncestor(type);
-      while (ancestor != null) {
+      while (ancestor!=null) {
         foreach (FieldDef field in ancestor.Fields) {
           if (field.UnderlyingProperty.DeclaringType.Assembly==Assembly.GetExecutingAssembly())
             field.IsSystem = true;

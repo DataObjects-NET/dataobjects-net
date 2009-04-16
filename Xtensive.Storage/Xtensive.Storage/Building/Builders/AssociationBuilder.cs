@@ -26,8 +26,9 @@ namespace Xtensive.Storage.Building.Builders
       association.Name = context.NameBuilder.Build(association);
       context.Model.Associations.Add(association);
 
-      if (!fieldDef.PairTo.IsNullOrEmpty())
+      if (!fieldDef.PairTo.IsNullOrEmpty()) {
         context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, fieldDef.PairTo));
+      }
     }
 
     public static void BuildAssociation(AssociationInfo origin, FieldInfo field)

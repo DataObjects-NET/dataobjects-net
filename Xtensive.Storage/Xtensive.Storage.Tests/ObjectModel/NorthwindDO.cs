@@ -258,7 +258,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public string PhotoPath { get; set; }
 
     [Field(PairTo = "Employee")]
-    public EntitySet<Order> Orders { get; private set; }
+    public EntitySet<OrderBase> Orders { get; private set; }
 
     [Field]
     public EntitySet<Territory> Territories { get; private set; }
@@ -289,18 +289,28 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   }
 
   [Entity(MappingName = "Orders")]
-  [HierarchyRoot(typeof (KeyGenerator), "Id")]
-  [Index("OrderDate")]
-  public class Order : Entity
+  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  public abstract class OrderBase : Entity
   {
     [Field(MappingName = "OrderId")]
     public int Id { get; private set; }
 
     [Field]
-    public Customer Customer { get; set; }
+    public Employee Employee { get; set; }
 
     [Field]
-    public Employee Employee { get; set; }
+    public TimeSpan? ProcessingTime { get; set; }
+
+    [Field]
+    public Shipper ShipVia { get; set; }
+  }
+
+  [Index("OrderDate")]
+  public class Order : OrderBase
+  {
+    [Field]
+    public Customer Customer { get; set; }
+
 
     [Field]
     public DateTime? OrderDate { get; set; }
@@ -310,12 +320,6 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
     [Field]
     public DateTime? ShippedDate { get; set; }
-
-    [Field]
-    public TimeSpan? ProcessingTime { get; set; }
-
-    [Field]
-    public Shipper ShipVia { get; set; }
 
     [Field]
     public decimal Freight { get; set; }

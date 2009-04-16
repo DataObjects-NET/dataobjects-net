@@ -151,11 +151,11 @@ namespace Xtensive.Storage.Model
     public IEnumerable<TypeInfo> FindDescendants(TypeInfo item, bool recursive)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      HashSet<TypeInfo> result = new HashSet<TypeInfo>(descendants[item]);
+      var result = new HashSet<TypeInfo>(descendants[item]);
       if (!recursive)
         return result;
       foreach (TypeInfo descendant in descendants[item])
-        result.UnionWith(FindDescendants(descendant, recursive));
+        result.UnionWith(FindDescendants(descendant, true));
 
       return result;
     }
@@ -220,7 +220,7 @@ namespace Xtensive.Storage.Model
     public IEnumerable<TypeInfo> FindImplementors(TypeInfo item, bool recursive)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "it   em");
-      HashSet<TypeInfo> result = new HashSet<TypeInfo>(implementors[item]);
+      var result = new HashSet<TypeInfo>(implementors[item]);
       if (recursive)
         foreach (TypeInfo implementor in implementors[item])
           result.UnionWith(FindDescendants(implementor, true));
@@ -262,8 +262,8 @@ namespace Xtensive.Storage.Model
 
     private void RegisterInterface(TypeInfo @interface)
     {
-      HashSet<TypeInfo> all = new HashSet<TypeInfo>(FindInterfaces(@interface.UnderlyingType));
-      HashSet<TypeInfo> inherited = new HashSet<TypeInfo>(FindInterfaces(@interface, true));
+      var all = new HashSet<TypeInfo>(FindInterfaces(@interface.UnderlyingType));
+      var inherited = new HashSet<TypeInfo>(FindInterfaces(@interface, true));
       interfaces[@interface].UnionWith(all.Except(inherited));
     }
 
@@ -440,7 +440,7 @@ namespace Xtensive.Storage.Model
 
     private void GenerateTypeIds()
     {
-      typeIdIndex = new Dictionary<int, TypeInfo>(this.Count);
+      typeIdIndex = new Dictionary<int, TypeInfo>(Count);
       int typeId = TypeInfo.MinTypeId;
       foreach (TypeInfo type in this) {
         if (type.TypeId==TypeInfo.NoTypeId)
@@ -448,14 +448,5 @@ namespace Xtensive.Storage.Model
         typeIdIndex[type.TypeId] = type;
       }
     }
-
-
-    // Constructors
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TypeInfoCollection"/> class.
-    /// </summary>
-    public TypeInfoCollection()
-    {}
   }
 }
