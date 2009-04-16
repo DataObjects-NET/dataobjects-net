@@ -436,8 +436,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Customer>.All
         .Select(c => new {c})
-        .Select(c => new {c})
-        .Select(c => c.c.c.CompanyName);
+        .Select(a1 => new {a1})
+        .Select(a2 => a2.a1.c.CompanyName);
       QueryDumper.Dump(result);
     }
   }
