@@ -421,7 +421,6 @@ namespace Xtensive.Storage.Tests.Linq
         QueryDumper.Dump(order);
     }
 
-
     [Test]
     public void DoubleSelectEntitySet3Test()
     {
@@ -430,6 +429,16 @@ namespace Xtensive.Storage.Tests.Linq
 
       foreach (var order in query)
         QueryDumper.Dump(order);
+    }
+
+    [Test]
+    public void NestedAnonymousTest()
+    {
+      var result = Query<Customer>.All
+        .Select(c => new {c})
+        .Select(c => new {c})
+        .Select(c => c.c.c.CompanyName);
+      QueryDumper.Dump(result);
     }
   }
 }
