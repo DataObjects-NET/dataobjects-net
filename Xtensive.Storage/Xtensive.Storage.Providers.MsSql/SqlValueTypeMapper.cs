@@ -14,6 +14,8 @@ namespace Xtensive.Storage.Providers.MsSql
 {
   public sealed class SqlValueTypeMapper : Sql.SqlValueTypeMapper
   {
+    private static readonly long TicksPerMillisecond = TimeSpan.FromMilliseconds(1).Ticks;
+
     protected override void BuildTypeSubstitutes()
     {
       base.BuildTypeSubstitutes();
@@ -47,8 +49,14 @@ namespace Xtensive.Storage.Providers.MsSql
         return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), DbType.DateTime, value => (DateTime) value < min ? min : value, null);
       }
 
-      if (dataTypeInfo.Type==typeof (TimeSpan))
-        return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), DbType.Int64, value => ((TimeSpan) value).Ticks, value => TimeSpan.FromTicks((long) value));
+      if (dataTypeInfo.Type == typeof(TimeSpan))
+        return new DataTypeMapping(
+          dataTypeInfo,
+          BuildDataReaderAccessor(dataTypeInfo),
+          DbType.Int64,
+          value => ((TimeSpan) value).Ticks / TicksPerMillisecond,
+          value => TimeSpan.FromMilliseconds((long) value)
+          );
 
       return base.CreateDataTypeMapping(dataTypeInfo);
     }
