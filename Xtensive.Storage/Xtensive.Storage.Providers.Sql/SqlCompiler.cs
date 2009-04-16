@@ -283,7 +283,24 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitRange(RangeProvider provider)
     {
-      throw new NotSupportedException();
+      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
+      if (compiledSource == null)
+        return null;
+
+      var originalRange = provider.CompiledRange.Invoke();
+      var query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
+      var keyColumns = provider.Header.Order.ToList();
+      var request = new SqlFetchRequest(query, provider.Header);
+      var rangeProvider = new SqlRangeProvider(provider, request, Handlers, compiledSource);
+      for (int i = 0; i < originalRange.EndPoints.First.Value.Count; i++) {
+        var column = provider.Header.Columns[keyColumns[i].Key];
+        DataTypeMapping typeMapping = ((DomainHandler)Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
+        int fieldIndex = i;
+        var binding = new SqlFetchParameterBinding(() => rangeProvider.CurrentRange.EndPoints.First.Value.GetValue(fieldIndex), typeMapping);
+        request.ParameterBindings.Add(binding);
+        query.Where &= query.Columns[keyColumns[i].Key] == binding.SqlParameter;
+      }
+      return rangeProvider;
     }
 
     /// <inheritdoc/>

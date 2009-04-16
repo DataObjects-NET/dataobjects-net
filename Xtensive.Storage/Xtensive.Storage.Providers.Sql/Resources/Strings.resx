@@ -168,4 +168,7 @@
   <data name="ExMemberXIsNotSupported" xml:space="preserve">
     <value>Member '{0}' is not supported.</value>
   </data>
+  <data name="ExOnlyEqualityRangesAreSupported" xml:space="preserve">
+    <value>Only equality ranges are supported.</value>
+  </data>
 </root>

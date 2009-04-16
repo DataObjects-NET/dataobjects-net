@@ -458,6 +458,26 @@ namespace Xtensive.Indexing
         range.EndPoints.First.ValueType==other.EndPoints.First.ValueType &&
         range.EndPoints.Second.ValueType==other.EndPoints.Second.ValueType;
     }
+
+    /// <summary>
+    /// Determines whether specified <see cref="range"/> has equals endpoints and does not contains infinities or shifts for <see cref="Entire{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">Endpoint type.</typeparam>
+    /// <param name="range">The range.</param>
+    /// <param name="comparer">Endpoint comparer.</param>
+    /// <returns>
+    ///   <see langword="true" /> if specified range has equals endpoints; otherwise, <see langword="false" />.
+    /// </returns>
+    public static bool IsEqualityRange<T>(this Range<Entire<T>> range, AdvancedComparer<T> comparer)
+    {
+      var endPoints = range.EndPoints;
+      if (endPoints.First.ValueType == EntireValueType.Exact && endPoints.Second.ValueType == EntireValueType.Exact)
+        return comparer.Equals(endPoints.First.Value, endPoints.Second.Value);
+      if (((sbyte) endPoints.First.ValueType*(sbyte) endPoints.Second.ValueType) == (sbyte) EntireValueType.NegativeInfinitesimal)
+        return comparer.Equals(endPoints.First.Value, endPoints.Second.Value);
+      return false;
+    }
+
     #endregion
 
     #region Static internal \ private methods

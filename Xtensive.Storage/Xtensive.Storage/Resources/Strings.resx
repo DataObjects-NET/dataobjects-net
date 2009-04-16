@@ -555,4 +555,7 @@
   <data name="ExExpressionOfTypeXIsNotASequence" xml:space="preserve">
     <value>The expression of type '{0}' is not a sequence</value>
   </data>
+  <data name="ExOnlyEqualityRangesAreSupported" xml:space="preserve">
+    <value>Only equality ranges are supported.</value>
+  </data>
 </root>

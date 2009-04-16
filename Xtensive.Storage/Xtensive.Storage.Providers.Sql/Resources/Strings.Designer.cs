@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.Storage.Providers.Sql.Resources {
-    using Metadata;
+    using System;
     
     
     /// <summary>
@@ -138,6 +138,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         internal static string ExMultipleResults {
             get {
                 return ResourceManager.GetString("ExMultipleResults", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only equality ranges are supported..
+        /// </summary>
+        internal static string ExOnlyEqualityRangesAreSupported {
+            get {
+                return ResourceManager.GetString("ExOnlyEqualityRangesAreSupported", resourceCulture);
             }
         }
         

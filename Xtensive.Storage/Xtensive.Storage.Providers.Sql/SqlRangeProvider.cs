@@ -5,10 +5,10 @@
 // Created:    2008.09.01
 
 using System;
-using System.Collections.Generic;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
-using Xtensive.Sql.Dom;
+using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
@@ -16,7 +16,6 @@ namespace Xtensive.Storage.Providers.Sql
 {
   internal sealed class SqlRangeProvider : SqlProvider
   {
-    private readonly Range<Entire<Tuple>> original;
     private const string CachedRange = "CachedRange";
 
     public Range<Entire<Tuple>> CurrentRange
@@ -27,10 +26,12 @@ namespace Xtensive.Storage.Providers.Sql
         if (cachedValue == null) lock (this) if (GetCachedValue<object>(EnumerationContext.Current, CachedRange) == null) {
           var rangeProvider = (RangeProvider)Origin;
           var range = rangeProvider.CompiledRange.Invoke();
-          if (original.IsSimilar(range)) {
-            SetCachedValue(EnumerationContext.Current, CachedRange, (object) range);
-            cachedValue = range;
+          if (range.IsEqualityRange(AdvancedComparer<Tuple>.Default)) {
+            SetCachedValue(EnumerationContext.Current, CachedRange, (object)range);
+            return range;
           }
+          if(!range.IsEmpty)
+            throw new NotSupportedException(Strings.ExOnlyEqualityRangesAreSupported);
         }
         return (Range<Entire<Tuple>>)cachedValue;
       }
@@ -39,10 +40,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructor
 
-    public SqlRangeProvider(CompilableProvider origin, SqlFetchRequest request, HandlerAccessor handlers, Range<Entire<Tuple>> original, params ExecutableProvider[] sources)
+    public SqlRangeProvider(CompilableProvider origin, SqlFetchRequest request, HandlerAccessor handlers, params ExecutableProvider[] sources)
       : base(origin, request, handlers, sources)
     {
-      this.original = original;
     }
   }
 }

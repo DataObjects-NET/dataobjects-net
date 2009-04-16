@@ -41,7 +41,7 @@ namespace Xtensive.Storage
     private AssociationInfo association;
     private CombineTransform seekTransform;
     private bool isInitialized;
-    protected readonly bool notifyInitialization;
+    private readonly bool notifyInitialization;
 
 
     #region Public Count, Contains, GetKeys members
@@ -360,7 +360,7 @@ namespace Xtensive.Storage
     /// <param name="field">Field corresponds to this entity set.</param>
     /// <param name="notify">If set to <see langword="true"/>, 
     /// initialization related events will be raised.</param>
-    protected internal EntitySetBase(Entity owner, FieldInfo field, bool notify)
+    protected EntitySetBase(Entity owner, FieldInfo field, bool notify)
     {
       Field = field;
       Owner = owner;
