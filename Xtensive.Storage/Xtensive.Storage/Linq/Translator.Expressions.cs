@@ -25,6 +25,7 @@ using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using FieldInfo=System.Reflection.FieldInfo;
+using Xtensive.Storage.Linq;
 
 namespace Xtensive.Storage.Linq
 {
@@ -94,6 +95,20 @@ namespace Xtensive.Storage.Linq
         return context.Evaluator.Evaluate(e);
       }
       return base.Visit(e);
+    }
+
+    protected override Expression VisitUnary(UnaryExpression u)
+    {
+      switch (u.NodeType) {
+        case ExpressionType.Convert:
+        case ExpressionType.ConvertChecked:
+          if (u.GetMemberType() == MemberType.Entity)
+          {
+            throw new NotImplementedException();
+          }
+          break;
+      }
+      return base.VisitUnary(u);
     }
 
     protected override Expression VisitLambda(LambdaExpression le)
