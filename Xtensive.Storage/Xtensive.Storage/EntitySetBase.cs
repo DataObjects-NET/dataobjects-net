@@ -205,7 +205,7 @@ namespace Xtensive.Storage
     internal void EnsureVersionIs(long expectedVersion)
     {
       if (expectedVersion!=State.Version)
-        Exceptions.CollectionHasBeenChanged(null);
+        throw Exceptions.CollectionHasBeenChanged(null);
     }
 
     protected abstract IEnumerable<Entity> GetEntities();
