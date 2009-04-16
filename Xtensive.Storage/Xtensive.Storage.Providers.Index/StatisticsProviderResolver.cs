@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.04.14
 
+using System;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
@@ -13,6 +14,7 @@ using Xtensive.Storage.Rse.Optimization;
 
 namespace Xtensive.Storage.Providers.Index
 {
+  [Serializable]
   internal sealed class StatisticsProviderResolver : IStatisticsProviderResolver
   {
     private readonly DomainHandler domainHandler;

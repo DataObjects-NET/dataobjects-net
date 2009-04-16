@@ -22,6 +22,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
   /// <summary>
   /// Optimizer which uses ranges of index keys.
   /// </summary>
+  [Serializable]
   public sealed class IndexOptimizer : CompilableProviderVisitor, IOptimizer
   {
     private readonly DomainModel domainModel;
@@ -48,8 +49,6 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       if (secondaryIndexes.Count == 0)
         return base.VisitFilter(provider);
       var extractionResult = ExtractRangeSets(provider.Predicate, primaryIndex, secondaryIndexes);
-      if (AreAllRangeSetsFull(extractionResult))
-        return base.VisitFilter(provider);
       var selectedIndexes = indexSelector.Select(extractionResult);
       return treeRewriter.InsertSecondaryIndexes(provider, selectedIndexes);
     }
@@ -65,15 +64,6 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       if (normalized != null)
         return rsExtractor.Extract(normalized, secondaryIndexes, primaryIndex.GetRecordSetHeader());
       return rsExtractor.Extract(predicate, secondaryIndexes, primaryIndex.GetRecordSetHeader());
-    }
-
-    private bool AreAllRangeSetsFull(Dictionary<Expression, List<RSExtractionResult>> extractionResult)
-    {
-      foreach (var result in extractionResult)
-        foreach (var value in result.Value)
-          if (!value.RangeSetInfo.AlwaysFull)
-            return false;
-      return true;
     }
 
     private List<IndexInfo> GetSecondaryIndexes(IndexInfo primaryIndex)

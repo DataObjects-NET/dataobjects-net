@@ -22,9 +22,10 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     public Provider InsertSecondaryIndexes(CompilableProvider source,
       Dictionary<IndexInfo, RangeSetInfo> rangeSets)
     {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(rangeSets, "rangeSets");
       if (rangeSets.Count == 0)
-        throw new ArgumentException(Resources.Strings.ExCollectionMustNotBeEmpty, "rangeSets");
+        return source;
       currentRangeSets = rangeSets;
       return Visit(source);
     }

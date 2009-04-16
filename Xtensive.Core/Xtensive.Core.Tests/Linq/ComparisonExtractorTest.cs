@@ -450,6 +450,44 @@ namespace Xtensive.Core.Tests.Linq
     }
 
     [Test]
+    public void ForcedComparisonMethodsTest()
+    {
+      string xs = "abc";
+      string zs = "ab";
+      Expression<Func<bool>> comparison = () => xs.GreaterThan(zs + "t");
+      Expression valueExp = ((Expression<Func<string>>)(() => zs + "t")).Body;
+      string keyName = "xs";
+      var comparisonInfo = ExtractComparisonInfo(comparison, keyName);
+      CheckSimpleComparison(ComparisonOperation.GreaterThan, keyName,
+        valueExp, comparisonInfo);
+
+      comparison = () => (zs + "t").GreaterThan(xs);
+      comparisonInfo = ExtractComparisonInfo(comparison, keyName);
+      CheckSimpleComparison(ComparisonOperation.LessThan, keyName,
+        valueExp, comparisonInfo);
+
+      comparison = () => xs.GreaterThanOrEqual(zs + "t");
+      comparisonInfo = ExtractComparisonInfo(comparison, keyName);
+      CheckSimpleComparison(ComparisonOperation.GreaterThanOrEqual, keyName,
+        valueExp, comparisonInfo);
+
+      comparison = () => xs.LessThan(zs + "t");
+      comparisonInfo = ExtractComparisonInfo(comparison, keyName);
+      CheckSimpleComparison(ComparisonOperation.LessThan, keyName,
+        valueExp, comparisonInfo);
+
+      comparison = () => (zs + "t").LessThan(xs);
+      comparisonInfo = ExtractComparisonInfo(comparison, keyName);
+      CheckSimpleComparison(ComparisonOperation.GreaterThan, keyName,
+        valueExp, comparisonInfo);
+
+      comparison = () => xs.LessThanOrEqual(zs + "t");
+      comparisonInfo = ExtractComparisonInfo(comparison, keyName);
+      CheckSimpleComparison(ComparisonOperation.LessThanOrEqual, keyName,
+        valueExp, comparisonInfo);
+    }
+
+    [Test]
     public void InvalidExpressionsTest()
     {
       string xs = "abc";

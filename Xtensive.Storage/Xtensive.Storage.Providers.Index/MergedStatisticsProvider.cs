@@ -13,6 +13,7 @@ using Xtensive.Indexing.Statistics;
 
 namespace Xtensive.Storage.Providers.Index
 {
+  [Serializable]
   internal sealed class MergedStatisticsProvider : IStatisticsProvider<Tuple>, IStatistics<Tuple>
   {
     private readonly IStatisticsProvider<Tuple>[] underlyingProviders;

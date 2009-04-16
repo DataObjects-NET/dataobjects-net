@@ -13,7 +13,7 @@ namespace Xtensive.Core.Linq.Internals
     LikeEndsWith,
     LikeStartsWith,
     ForcedGreaterThan,
-    ForcedGreaterThenOrEqual,
+    ForcedGreaterThanOrEqual,
     ForcedLessThan,
     ForcedLessThanOrEqual
   }

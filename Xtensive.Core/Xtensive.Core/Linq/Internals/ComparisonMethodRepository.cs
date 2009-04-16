@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Core.Linq.Internals
 {
@@ -72,6 +73,13 @@ namespace Xtensive.Core.Linq.Internals
       AddMethods(typeof(string), "Equals", flagsForInstanceAndStatic, ComparisonKind.Equality);
       AddMethod(typeof(DateTime).GetMethod("Equals", flagsForStatic), ComparisonKind.Equality);
       AddMethod(typeof(IEquatable<>).GetMethod("Equals"), ComparisonKind.Equality);
+
+      AddMethod(typeof(StringExtensions).GetMethod("GreaterThan"), ComparisonKind.ForcedGreaterThan);
+      AddMethod(typeof(StringExtensions).GetMethod("GreaterThanOrEqual"),
+        ComparisonKind.ForcedGreaterThanOrEqual);
+      AddMethod(typeof(StringExtensions).GetMethod("LessThan"), ComparisonKind.ForcedLessThan);
+      AddMethod(typeof(StringExtensions).GetMethod("LessThanOrEqual"),
+        ComparisonKind.ForcedLessThanOrEqual);
     }
   }
 }

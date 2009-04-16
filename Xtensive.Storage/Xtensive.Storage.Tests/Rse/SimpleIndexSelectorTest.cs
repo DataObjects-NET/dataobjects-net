@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.04.07
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -30,7 +31,44 @@ namespace Xtensive.Storage.Tests.Rse
     }
 
     [Test]
-    public void CombinedTest()
+    public void NonFullRangeSetsTest()
+    {
+      TestSelector(CreateRangeSet, ValidateResultOfNonFullRangeSetsTest);
+    }
+
+    private static RangeSet<Entire<Tuple>> CreateRangeSet(Random rnd)
+    {
+      return new RangeSet<Entire<Tuple>>(
+          new Range<Entire<Tuple>>(
+          Tuple.Create(rnd.Next(), rnd.Next()),
+          Tuple.Create(rnd.Next(), rnd.Next())),
+          AdvancedComparer<Entire<Tuple>>.Default);
+    }
+
+    private static void ValidateResultOfNonFullRangeSetsTest(IndexInfo[] indexes, Expression[] exps,
+      Dictionary<Expression, List<RSExtractionResult>> inputData,
+      Dictionary<IndexInfo, RangeSetInfo> selectedIndexes)
+    {
+      Assert.AreEqual(2, selectedIndexes.Count);
+      Assert.AreEqual(inputData[exps[0]][0].RangeSetInfo, selectedIndexes[indexes[0]]);
+      Assert.AreEqual(inputData[exps[1]][1].RangeSetInfo, selectedIndexes[indexes[1]]);
+      var uniteMethod = typeof(RangeSet<Entire<Tuple>>).GetMethod("Unite");
+      Assert.AreEqual(uniteMethod,
+        ((MethodCallExpression)selectedIndexes[indexes[1]].Source).Method);
+      Assert.AreEqual(inputData[exps[2]][1].RangeSetInfo.Source,
+        ((MethodCallExpression)selectedIndexes[indexes[1]].Source).Arguments[0]);
+    }
+
+    [Test]
+    public void FullRangeSetsTest()
+    {
+      TestSelector(CreateFullRangeSet,
+        (indexes, exps, inputData, selectedIndexes) => Assert.AreEqual(0, selectedIndexes.Count));
+    }
+
+    private void TestSelector(Func<Random, RangeSet<Entire<Tuple>>> rangeSetCreator,
+      Action<IndexInfo[], Expression[], Dictionary<Expression, List<RSExtractionResult>>,
+        Dictionary<IndexInfo, RangeSetInfo>> resultValidator)
     {
       TypeInfo snakeType = Domain.Model.Types[typeof(Creature)];
       var indexes = new[]
@@ -38,35 +76,28 @@ namespace Xtensive.Storage.Tests.Rse
           snakeType.Indexes[0], snakeType.Indexes[1], Domain.Model.Types[typeof (ClearSnake)].Indexes[0]
         };
       Expression[] exps = new[] { Expression.Constant(0), Expression.Constant(1), Expression.Constant(2) };
-      var inputData = CreateInputData(exps, indexes);
+      var inputData = CreateInputData(exps, indexes, rangeSetCreator);
       var costEvaluator = ConfigureCostEvaluator(exps, inputData);
       var selector = new SimpleIndexSelector(costEvaluator);
       var selectedIndexes = selector.Select(inputData);
-      Assert.AreEqual(2, selectedIndexes.Count);
-      Assert.AreEqual(inputData[exps[0]][0].RangeSetInfo, selectedIndexes[indexes[0]]);
-      Assert.AreEqual(inputData[exps[1]][1].RangeSetInfo, selectedIndexes[indexes[1]]);
-      var uniteMethod = typeof (RangeSet<Entire<Tuple>>).GetMethod("Unite");
-      Assert.AreEqual(uniteMethod,
-        ((MethodCallExpression)selectedIndexes[indexes[1]].Source).Method);
-      Assert.AreEqual(inputData[exps[2]][1].RangeSetInfo.Source,
-        ((MethodCallExpression)selectedIndexes[indexes[1]].Source).Arguments[0]);
+      resultValidator(indexes, exps, inputData, selectedIndexes);
     }
 
-    private RangeSet<Entire<Tuple>> CreateRangeSet()
+    private static RangeSet<Entire<Tuple>> CreateFullRangeSet(Random rnd)
     {
-      return new RangeSet<Entire<Tuple>>(Range<Entire<Tuple>>.Full,
-        AdvancedComparer<Entire<Tuple>>.Default);
+      return new RangeSet<Entire<Tuple>>(Range<Entire<Tuple>>.Full, AdvancedComparer<Entire<Tuple>>.Default);
     }
 
     private Dictionary<Expression, List<RSExtractionResult>> CreateInputData(Expression[] exps,
-      IndexInfo[] indexes)
+      IndexInfo[] indexes, Func<Random, RangeSet<Entire<Tuple>>> rangeSetCreator)
     {
       var result = new Dictionary<Expression, List<RSExtractionResult>>();
+      var rnd = new Random();
       foreach (var exp in exps) {
         result.Add(exp, new List<RSExtractionResult>());
         foreach (var index in indexes) {
           result[exp].Add(new RSExtractionResult(index,
-            new RangeSetInfo(Expression.Constant(CreateRangeSet()), null, false)));
+            new RangeSetInfo(Expression.Constant(rangeSetCreator(rnd)), null, false)));
         }
       }
       return result;

@@ -22,7 +22,11 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     {
       var result = new Dictionary<IndexInfo, RangeSetInfo>(extractionResults.Count);
       foreach (var pair in extractionResults) {
-        var cheapestResult = SelectCheapestResult(pair.Value);
+        var cheapestResult = TrySelectCheapestResult(pair.Value);
+        if (cheapestResult == null) {
+          result.Clear();
+          return result;
+        }
         if (!result.ContainsKey(cheapestResult.IndexInfo))
           result.Add(cheapestResult.IndexInfo, cheapestResult.RangeSetInfo);
         else
@@ -34,7 +38,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     #endregion
 
-    private RSExtractionResult SelectCheapestResult(IEnumerable<RSExtractionResult> extractionResults)
+    private RSExtractionResult TrySelectCheapestResult(IEnumerable<RSExtractionResult> extractionResults)
     {
       RSExtractionResult cheapestResult = null;
       double minimalCost = double.MaxValue;
@@ -42,9 +46,14 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
         double currentCost;
         if (result.RangeSetInfo.AlwaysFull)
           currentCost = double.MaxValue;
-        else
-          currentCost = costEvaluator.Evaluate(result.IndexInfo, result.RangeSetInfo.GetRangeSet());
-        if(currentCost <= minimalCost) {
+        else {
+          var rangeSet = result.RangeSetInfo.GetRangeSet();
+          if(rangeSet.IsFull())
+            currentCost = double.MaxValue;
+          else
+            currentCost = costEvaluator.Evaluate(result.IndexInfo, rangeSet);
+        }
+        if(currentCost < minimalCost) {
           minimalCost = currentCost;
           cheapestResult = result;
         }

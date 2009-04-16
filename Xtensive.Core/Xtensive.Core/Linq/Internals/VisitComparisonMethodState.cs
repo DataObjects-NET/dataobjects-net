@@ -38,7 +38,7 @@ namespace Xtensive.Core.Linq.Internals
         case ComparisonKind.Equality:
           return ProcessEqualityComparisonMethod(extractionInfo);
         case ComparisonKind.ForcedGreaterThan:
-        case ComparisonKind.ForcedGreaterThenOrEqual:
+        case ComparisonKind.ForcedGreaterThanOrEqual:
         case ComparisonKind.ForcedLessThan:
         case ComparisonKind.ForcedLessThanOrEqual:
           return ProcessMethodWithFocedComparisonType(extractionInfo);
@@ -179,7 +179,7 @@ namespace Xtensive.Core.Linq.Internals
         case ComparisonKind.ForcedGreaterThan:
           extractionInfo.ComparisonOperation = ExpressionType.GreaterThan;
           break;
-        case ComparisonKind.ForcedGreaterThenOrEqual:
+        case ComparisonKind.ForcedGreaterThanOrEqual:
           extractionInfo.ComparisonOperation = ExpressionType.GreaterThanOrEqual;
           break;
         case ComparisonKind.ForcedLessThan:

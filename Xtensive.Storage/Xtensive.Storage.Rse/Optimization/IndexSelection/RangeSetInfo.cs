@@ -12,6 +12,7 @@ using Xtensive.Indexing;
 
 namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
+  [Serializable]
   internal sealed class RangeSetInfo
   {
     private Func<RangeSet<Entire<Tuple>>> rangeSetCreator;

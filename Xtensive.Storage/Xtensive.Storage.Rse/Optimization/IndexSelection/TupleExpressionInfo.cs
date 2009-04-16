@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.03.20
 
+using System;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
 
@@ -12,6 +13,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
   /// <summary>
   /// Information about expression containing an access to a field of tuple.
   /// </summary>
+  [Serializable]
   internal sealed class TupleExpressionInfo
   {
     public readonly int FieldIndex;

@@ -27,7 +27,8 @@ namespace Xtensive.Core.Linq.Internals
 
     public bool CanBeReversed {
       get {
-        return ComparisonKind == ComparisonKind.Default || ComparisonKind == ComparisonKind.Equality;
+        return ComparisonKind != ComparisonKind.LikeEndsWith
+          && ComparisonKind != ComparisonKind.LikeStartsWith;
       }
     }
 
