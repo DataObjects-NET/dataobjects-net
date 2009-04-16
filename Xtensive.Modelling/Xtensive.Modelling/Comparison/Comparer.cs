@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
@@ -159,8 +158,7 @@ namespace Xtensive.Modelling.Comparison
         }
         difference.MovementInfo = mi;
         bool bMoved = !mi.IsUnchanged;
-        bool isReferenceComparison = context.IsReferenceComparison;
-        if (isReferenceComparison && bMoved)
+        if (context.IsReferenceComparison && bMoved)
           return CreateFallbackValueDifference(source, target);
 
         // Comparing properties
@@ -197,7 +195,7 @@ namespace Xtensive.Modelling.Comparison
                 var newDifference = Visit(newSource, newTarget);
                 if (newDifference!=null) {
                   difference.PropertyChanges.Add(newProperty.Name, newDifference);
-                  if (isReferenceComparison)
+                  if (context.IsReferenceComparison)
                     break; // It's enough to find a single property difference in this case
                 }
               }
@@ -208,7 +206,7 @@ namespace Xtensive.Modelling.Comparison
         bool bChanged = bMoved || (difference.PropertyChanges.Count > 0);
         if (!bChanged)
           return null;
-        if (isReferenceComparison)
+        if (context.IsReferenceComparison)
           return CreateFallbackValueDifference(source, target);
         return difference;
       }
