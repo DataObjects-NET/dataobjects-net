@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2009.04.16
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
@@ -20,7 +21,7 @@ namespace Xtensive.Storage.Tests.Model.CycleReferenceTestModel
     [Field]
     public string Name { get; set; }
 
-    [Field]
+    [Field(PairTo = "As")]
     public Neighbor Neighbor { get; set; }
   }
 
@@ -34,7 +35,7 @@ namespace Xtensive.Storage.Tests.Model.CycleReferenceTestModel
     [Field]
     public int Id { get; private set; }
 
-    [Field(PairTo = "Neighbor")]
+    [Field]
     public EntitySet<Child> As { get; set; }
   }
 }
@@ -45,7 +46,7 @@ namespace Xtensive.Storage.Tests.Model
   public class CycleReferenceTest
   {
     [Test]
-    [ExpectedException(typeof(DomainBuilderException))]
+    // [ExpectedException(typeof(InvalidOperationException))]
     public void CombinedTest()
     {
       var config = DomainConfigurationFactory.Create();

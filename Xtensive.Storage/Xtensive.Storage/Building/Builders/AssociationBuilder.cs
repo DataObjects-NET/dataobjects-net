@@ -56,6 +56,12 @@ namespace Xtensive.Storage.Building.Builders
 
 
       FieldInfo pairedField = slave.ReferencingField;
+      if (masterField.ReflectedType!=masterField.DeclaringType)
+        throw new InvalidOperationException(String.Format(Strings.ExPairedFieldXWasNotFoundInYType, masterField.Name, slave.ReferencedType));
+
+      if (masterField.Association.ReferencedType != slave.ReferencingType)
+        throw new InvalidOperationException(String.Format(Strings.ExPairedFieldXWasNotFoundInYType, slave.ReferencingField.Name, masterField.ItemType));
+
       AssociationInfo master = masterField.Association;
       if (master.Reversed!=null && master.Reversed!=slave)
         throw new InvalidOperationException(String.Format(Strings.ExMasterAssociationIsAlreadyPaired, master.Name, master.Reversed.Name));

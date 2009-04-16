@@ -258,7 +258,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public string PhotoPath { get; set; }
 
     [Field(PairTo = "Employee")]
-    public EntitySet<OrderBase> Orders { get; private set; }
+    public EntitySet<Order> Orders { get; private set; }
 
     [Field]
     public EntitySet<Territory> Territories { get; private set; }
@@ -296,9 +296,6 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public int Id { get; private set; }
 
     [Field]
-    public Employee Employee { get; set; }
-
-    [Field]
     public TimeSpan? ProcessingTime { get; set; }
 
     [Field]
@@ -309,8 +306,10 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   public class Order : OrderBase
   {
     [Field]
-    public Customer Customer { get; set; }
+    public Employee Employee { get; set; }
 
+    [Field]
+    public Customer Customer { get; set; }
 
     [Field]
     public DateTime? OrderDate { get; set; }

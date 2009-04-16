@@ -116,29 +116,29 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     }
 
 
-//    [Category("Restriction Operators")]
-//    [Test(Description = "Any - Related Entities")]
-//    [Description("This sample uses WHERE and ANY to get employees who sold an order to any customer in Mexico.")]
-//    public void LinqToEntities9()
-//    {
-//      var query = from e in Query<Employee>.All
-//      where e.Orders.Any(o => o.Customer.Address.Country=="Mexico")
-//      select e;
-//
-//      QueryDumper.Dump(query);
-//    }
-//
-//    [Category("Restriction Operators")]
-//    [Test(Description = "All - Simple")]
-//    [Description("This sample uses ALL to get employees who sold orders only to customers not in Canada.")]
-//    public void LinqToEntities10()
-//    {
-//      var query = from e in Query<Employee>.All
-//      where e.Orders.All(o => o.Customer.Address.Country!="Canada")
-//      select e;
-//
-//      QueryDumper.Dump(query);
-//    }
+    [Category("Restriction Operators")]
+    [Test(Description = "Any - Related Entities")]
+    [Description("This sample uses WHERE and ANY to get employees who sold an order to any customer in Mexico.")]
+    public void LinqToEntities9()
+    {
+      var query = from e in Query<Employee>.All
+      where e.Orders.Any(o => o.Customer.Address.Country=="Mexico")
+      select e;
+
+      QueryDumper.Dump(query);
+    }
+
+    [Category("Restriction Operators")]
+    [Test(Description = "All - Simple")]
+    [Description("This sample uses ALL to get employees who sold orders only to customers not in Canada.")]
+    public void LinqToEntities10()
+    {
+      var query = from e in Query<Employee>.All
+      where e.Orders.All(o => o.Customer.Address.Country!="Canada")
+      select e;
+
+      QueryDumper.Dump(query);
+    }
 
     #endregion
 
