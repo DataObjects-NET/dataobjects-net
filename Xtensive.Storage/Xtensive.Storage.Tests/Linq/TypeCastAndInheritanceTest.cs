@@ -223,5 +223,13 @@ namespace Xtensive.Storage.Tests.Linq
         .Select(dp => dp.QuantityPerUnit);
       QueryDumper.Dump(result);
     }
+
+    [Test]
+    public void CastToBaseTest()
+    {
+      var result = Query<DiscontinuedProduct>.All
+        .Select(x => (Product) x);
+      QueryDumper.Dump(result);
+    }
   }
 }

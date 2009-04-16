@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Linq
         entityAsKey.Value = true;
         calculateExpressions.Value = false;
         recordIsUsed = false;
-        return (ResultExpression)Visit(context.Query);
+        return (ResultExpression) Visit(context.Query);
       }
     }
 
@@ -89,38 +89,38 @@ namespace Xtensive.Storage.Linq
           case QueryableMethodKind.TakeWhile:
             break;
           case QueryableMethodKind.All:
-            if (mc.Arguments.Count == 2)
+            if (mc.Arguments.Count==2)
               return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
             break;
           case QueryableMethodKind.OfType:
             return VisitOfType(mc.Arguments[0], mc.Method.GetGenericArguments()[0], mc.Arguments[0].Type.GetGenericArguments()[0]);
           case QueryableMethodKind.Any:
-            if (mc.Arguments.Count == 1)
+            if (mc.Arguments.Count==1)
               return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
-            if (mc.Arguments.Count == 2)
+            if (mc.Arguments.Count==2)
               return VisitAny(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
             break;
           case QueryableMethodKind.Contains:
-            if (mc.Arguments.Count == 2)
+            if (mc.Arguments.Count==2)
               return VisitContains(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc));
             break;
           case QueryableMethodKind.Distinct:
-            if (mc.Arguments.Count == 1)
+            if (mc.Arguments.Count==1)
               return VisitDistinct(mc.Arguments[0]);
             break;
           case QueryableMethodKind.First:
           case QueryableMethodKind.FirstOrDefault:
           case QueryableMethodKind.Single:
           case QueryableMethodKind.SingleOrDefault:
-            if (mc.Arguments.Count == 1)
+            if (mc.Arguments.Count==1)
               return VisitFirstSingle(mc.Arguments[0], null, mc.Method, context.IsRoot(mc));
-            if (mc.Arguments.Count == 2) {
+            if (mc.Arguments.Count==2) {
               LambdaExpression predicate = (mc.Arguments[1].StripQuotes());
               return VisitFirstSingle(mc.Arguments[0], predicate, mc.Method, context.IsRoot(mc));
             }
             break;
           case QueryableMethodKind.GroupBy:
-            if (mc.Arguments.Count == 2) {
+            if (mc.Arguments.Count==2) {
               return VisitGroupBy(
                 mc.Method,
                 mc.Arguments[0],
@@ -129,10 +129,10 @@ namespace Xtensive.Storage.Linq
                 null
                 );
             }
-            if (mc.Arguments.Count == 3) {
+            if (mc.Arguments.Count==3) {
               LambdaExpression lambda1 = mc.Arguments[1].StripQuotes();
               LambdaExpression lambda2 = mc.Arguments[2].StripQuotes();
-              if (lambda2.Parameters.Count == 1) {
+              if (lambda2.Parameters.Count==1) {
                 // second lambda is element selector
                 return VisitGroupBy(
                   mc.Method,
@@ -141,7 +141,7 @@ namespace Xtensive.Storage.Linq
                   lambda2,
                   null);
               }
-              if (lambda2.Parameters.Count == 2) {
+              if (lambda2.Parameters.Count==2) {
                 // second lambda is result selector
                 return VisitGroupBy(
                   mc.Method,
@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Linq
                   lambda2);
               }
             }
-            else if (mc.Arguments.Count == 4) {
+            else if (mc.Arguments.Count==4) {
               return VisitGroupBy(
                 mc.Method,
                 mc.Arguments[0],
@@ -179,13 +179,13 @@ namespace Xtensive.Storage.Linq
           case QueryableMethodKind.Select:
             return VisitSelect(mc.Arguments[0], mc.Arguments[1].StripQuotes());
           case QueryableMethodKind.SelectMany:
-            if (mc.Arguments.Count == 2) {
+            if (mc.Arguments.Count==2) {
               return VisitSelectMany(
                 mc.Type, mc.Arguments[0],
                 mc.Arguments[1].StripQuotes(),
                 null);
             }
-            if (mc.Arguments.Count == 3) {
+            if (mc.Arguments.Count==3) {
               return VisitSelectMany(
                 mc.Type, mc.Arguments[0],
                 mc.Arguments[1].StripQuotes(),
@@ -198,17 +198,17 @@ namespace Xtensive.Storage.Linq
           case QueryableMethodKind.Min:
           case QueryableMethodKind.Sum:
           case QueryableMethodKind.Average:
-            if (mc.Arguments.Count == 1)
+            if (mc.Arguments.Count==1)
               return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc));
-            if (mc.Arguments.Count == 2)
+            if (mc.Arguments.Count==2)
               return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
             break;
           case QueryableMethodKind.Skip:
-            if (mc.Arguments.Count == 2)
+            if (mc.Arguments.Count==2)
               return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
             break;
           case QueryableMethodKind.Take:
-            if (mc.Arguments.Count == 2)
+            if (mc.Arguments.Count==2)
               return VisitTake(mc.Arguments[0], mc.Arguments[1]);
             break;
           case QueryableMethodKind.ThenBy:
@@ -462,7 +462,7 @@ namespace Xtensive.Storage.Linq
           newResultMapping.RegisterField("Key", new Segment<int>(columnList.IndexOf(pfm.Segment.Offset), pfm.Segment.Length));
         }
       }
-      
+
       var keyType = keySelector.Type.GetGenericArguments()[1];
       var elementType = elementSelector==null
         ? keySelector.Parameters[0].Type
@@ -470,7 +470,7 @@ namespace Xtensive.Storage.Linq
 
       // Remap 
       var remappedExpression = (LambdaExpression) tupleAccessProcessor.ReplaceMappings(originalCompiledKeyExpression, columnList, groupMapping, recordSet.Header);
-      
+
       var pRecord = Expression.Parameter(typeof (Record), "record");
       var pTuple = Expression.Parameter(typeof (Tuple), "tuple");
       var parameterRewriter = new ParameterRewriter(pTuple, pRecord);
@@ -619,28 +619,25 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitGroupJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
     {
-      if ("linq".StartsWith("l"))
-        throw new NotImplementedException();
-
-      var outerParameter = outerKey.Parameters[0];
-      var innerParameter = innerKey.Parameters[0];
-      using (context.Bindings.Add(outerParameter, VisitSequence(outerSource)))
-      using (context.Bindings.Add(innerParameter, VisitSequence(innerSource))) {
-        var outerMappingRef = new MappingReference();
-        var innerMappingRef = new MappingReference();
-        using (new ParameterScope()) {
-          mappingRef.Value = outerMappingRef;
-          Visit(outerKey);
-          mappingRef.Value = innerMappingRef;
-          Visit(innerKey);
-        }
-        var keyPairs = outerMappingRef.Mapping.GetColumns().Zip(innerMappingRef.Mapping.GetColumns(), (o, i) => new Pair<int>(o, i)).ToArray();
-
-        var outer = context.Bindings[outerParameter];
-        var inner = context.Bindings[innerParameter];
-        var recordSet = outer.RecordSet.Join(inner.RecordSet.Alias(context.GetNextAlias()), keyPairs);
-        return CombineResultExpressions(outer, inner, recordSet, resultSelector);
-      }
+//      var outerParameter = outerKey.Parameters[0];
+//      var innerParameter = innerKey.Parameters[0];
+//      using (context.Bindings.Add(outerParameter, VisitSequence(outerSource)))
+//      using (context.Bindings.Add(innerParameter, VisitSequence(innerSource))) {
+//        var outerMappingRef = new MappingReference();
+//        var innerMappingRef = new MappingReference();
+//        using (new ParameterScope()) {
+//          mappingRef.Value = outerMappingRef;
+//          Visit(outerKey);
+//          mappingRef.Value = innerMappingRef;
+//          Visit(innerKey);
+//        }
+//        var keyPairs = outerMappingRef.Mapping.GetColumns().Zip(innerMappingRef.Mapping.GetColumns(), (o, i) => new Pair<int>(o, i)).ToArray();
+//
+//        var outer = context.Bindings[outerParameter];
+//        var inner = context.Bindings[innerParameter];
+//        var recordSet = outer.RecordSet.Join(inner.RecordSet.Alias(context.GetNextAlias()), keyPairs);
+//        return CombineResultExpressions(outer, inner, recordSet, resultSelector);
+//      }
       throw new NotImplementedException();
     }
 
@@ -843,8 +840,8 @@ namespace Xtensive.Storage.Linq
       }
 
       if (visitedExpression.IsResult())
-        return (ResultExpression)visitedExpression;
-     
+        return (ResultExpression) visitedExpression;
+
       throw new NotSupportedException(string.Format(Resources.Strings.ExExpressionOfTypeXIsNotASequence, visitedExpression.Type));
     }
 

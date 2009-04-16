@@ -104,6 +104,9 @@ namespace Xtensive.Storage.Linq
         case ExpressionType.ConvertChecked:
           if (u.GetMemberType() == MemberType.Entity)
           {
+            if (u.Type==u.Operand.Type || u.Type.IsAssignableFrom(u.Operand.Type))
+              return base.VisitUnary(u);
+
             throw new NotImplementedException();
           }
           break;
