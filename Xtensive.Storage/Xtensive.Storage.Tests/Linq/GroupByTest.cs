@@ -103,24 +103,14 @@ namespace Xtensive.Storage.Tests.Linq
 //          e.Address.City,
                                                       e.Address,
                                                     });
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-      foreach (var grouping in list) {
-        Assert.IsNotNull(grouping.Key);
-        Assert.Greater(grouping.Count(), 0);
-      }
+      QueryDumper.Dump(result);
     }
 
     [Test]
     public void AnonymousStructureGroupTest()
     {
       var result = Query<Customer>.All.GroupBy(p => new {p.Address});
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-      foreach (var grouping in list) {
-        Assert.IsNotNull(grouping.Key);
-        Assert.Greater(grouping.Count(), 0);
-      }
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -131,12 +121,13 @@ namespace Xtensive.Storage.Tests.Linq
                                                            product.Category,
                                                            product.Category.CategoryName,
                                                          });
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-      foreach (var grouping in list) {
-        Assert.IsNotNull(grouping.Key);
-        Assert.Greater(grouping.ToList().Count, 0);
-      }
+      QueryDumper.Dump(result);
+      //var list = result.ToList();
+      //Assert.Greater(list.Count, 0);
+      //foreach (var grouping in list) {
+      //  Assert.IsNotNull(grouping.Key);
+      //  Assert.Greater(grouping.ToList().Count, 0);
+      //}
     }
 
     [Test]
@@ -146,12 +137,13 @@ namespace Xtensive.Storage.Tests.Linq
                                                          {
                                                            product.Category,
                                                          });
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-      foreach (var grouping in list) {
-        Assert.IsNotNull(grouping.Key);
-        Assert.Greater(grouping.ToList().Count, 0);
-      }
+      QueryDumper.Dump(result);
+      //var list = result.ToList();
+      //Assert.Greater(list.Count, 0);
+      //foreach (var grouping in list) {
+      //  Assert.IsNotNull(grouping.Key);
+      //  Assert.Greater(grouping.ToList().Count, 0);
+      //}
     }
 
 
@@ -159,12 +151,13 @@ namespace Xtensive.Storage.Tests.Linq
     public void DefaultTest()
     {
       var result = Query<Customer>.All.GroupBy(c => c.Address.City);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-      foreach (var grouping in list) {
-        Assert.IsNotNull(grouping.Key);
-        Assert.Greater(grouping.Count(), 0);
-      }
+      QueryDumper.Dump(result);
+      //var list = result.ToList();
+      //Assert.Greater(list.Count, 0);
+      //foreach (var grouping in list) {
+      //  Assert.IsNotNull(grouping.Key);
+      //  Assert.Greater(grouping.Count(), 0);
+      //}
     }
 
 
@@ -360,18 +353,14 @@ namespace Xtensive.Storage.Tests.Linq
     public void GroupByBooleanTest()
     {
       var result = Query<Customer>.All.GroupBy(c => c.CompanyName.StartsWith("A"));
-      foreach (var group in result)
-        foreach (var item in group)
-          Assert.AreEqual(group.Key, item.CompanyName.StartsWith("A"));
+      QueryDumper.Dump(result);
     }
 
     [Test]
     public void GroupByBooleanSubquery1Test()
     {
       var result = Query<Customer>.All.GroupBy(c => c.Orders.Count > 10);
-      foreach (var group in result)
-        foreach (var item in group)
-          Assert.AreEqual(group.Key, item.Orders.Count > 10);
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -380,9 +369,7 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query<Customer>.All
         .Where(c => c.Orders.Count > 0)
         .GroupBy(c => c.Orders.Average(o => o.Freight) >= 80);
-      foreach (var group in result)
-        foreach (var item in group)
-          Assert.AreEqual(group.Key, item.Orders.Average(o => o.Freight) >= 80);
+      QueryDumper.Dump(result);
     }
 
     [Test]

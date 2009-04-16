@@ -67,13 +67,19 @@ namespace Xtensive.Core.Diagnostics.Helpers
     /// <inheritdoc/>
     public void Debug(string format, params object[] args)
     {
-      RealLog.LogEvent(LogEventTypes.Debug, new SystemStringFormat(CultureInfo.InvariantCulture, format, args), null, RealLog, null);
+      object stringFormat = new SystemStringFormat(CultureInfo.InvariantCulture, format, args);
+      if (args == null || args.Length == 0)
+        stringFormat = format;
+      RealLog.LogEvent(LogEventTypes.Debug, stringFormat, null, RealLog, null);
     }
 
     /// <inheritdoc/>
     public Exception Debug(Exception exception, string format, params object[] args)
     {
-      RealLog.LogEvent(LogEventTypes.Debug, new SystemStringFormat(CultureInfo.InvariantCulture, format, args), exception, RealLog, null);
+      object stringFormat = new SystemStringFormat(CultureInfo.InvariantCulture, format, args);
+      if (args == null || args.Length == 0)
+        stringFormat = format;
+      RealLog.LogEvent(LogEventTypes.Debug, stringFormat, exception, RealLog, null);
       return exception;
     }
 
@@ -99,13 +105,19 @@ namespace Xtensive.Core.Diagnostics.Helpers
     /// <inheritdoc/>
     public void Info(string format, params object[] args)
     {
-      RealLog.LogEvent(LogEventTypes.Info, new SystemStringFormat(CultureInfo.InvariantCulture, format, args), null, RealLog, null);
+      object stringFormat = new SystemStringFormat(CultureInfo.InvariantCulture, format, args);
+      if (args == null || args.Length == 0)
+        stringFormat = format;
+      RealLog.LogEvent(LogEventTypes.Info, stringFormat, null, RealLog, null);
     }
 
     /// <inheritdoc/>
     public Exception Info(Exception exception, string format, params object[] args)
     {
-      RealLog.LogEvent(LogEventTypes.Info, new SystemStringFormat(CultureInfo.InvariantCulture, format , args), exception, RealLog, null);
+      object stringFormat = new SystemStringFormat(CultureInfo.InvariantCulture, format, args);
+      if (args == null || args.Length == 0)
+        stringFormat = format;
+      RealLog.LogEvent(LogEventTypes.Info, stringFormat, exception, RealLog, null);
       return exception;
     }
 
@@ -131,12 +143,18 @@ namespace Xtensive.Core.Diagnostics.Helpers
     /// <inheritdoc/>
     public void Warning(string format, params object[] args)
     {
-      RealLog.LogEvent(LogEventTypes.Warning, new SystemStringFormat(CultureInfo.InvariantCulture, format, args), null, RealLog, null);
+      object stringFormat = new SystemStringFormat(CultureInfo.InvariantCulture, format, args);
+      if (args == null || args.Length == 0)
+        stringFormat = format;
+      RealLog.LogEvent(LogEventTypes.Warning, stringFormat, null, RealLog, null);
     }
 
     public Exception Warning(Exception exception, string format, params object[] args)
     {
-      RealLog.LogEvent(LogEventTypes.Warning, new SystemStringFormat(CultureInfo.InvariantCulture, format, args), exception, RealLog, null);
+      object stringFormat = new SystemStringFormat(CultureInfo.InvariantCulture, format, args);
+      if (args == null || args.Length == 0)
+        stringFormat = format;
+      RealLog.LogEvent(LogEventTypes.Warning, stringFormat, exception, RealLog, null);
       return exception;
     }
 
@@ -149,13 +167,19 @@ namespace Xtensive.Core.Diagnostics.Helpers
     /// <inheritdoc/>
     public void Error(string format, params object[] args)
     {
-      RealLog.LogEvent(LogEventTypes.Error, new SystemStringFormat(CultureInfo.InvariantCulture, format, args), null, RealLog, null);
+      object stringFormat = new SystemStringFormat(CultureInfo.InvariantCulture, format, args);
+      if (args == null || args.Length == 0)
+        stringFormat = format;
+      RealLog.LogEvent(LogEventTypes.Error, stringFormat, null, RealLog, null);
     }
 
     /// <inheritdoc/>
     public Exception Error(Exception exception, string format, params object[] args)
     {
-      RealLog.LogEvent(LogEventTypes.Error, new SystemStringFormat(CultureInfo.InvariantCulture, format, args), exception, RealLog, null);
+      object stringFormat = new SystemStringFormat(CultureInfo.InvariantCulture, format, args);
+      if (args == null || args.Length == 0)
+        stringFormat = format;
+      RealLog.LogEvent(LogEventTypes.Error, stringFormat, exception, RealLog, null);
       return exception;
     }
 
@@ -168,12 +192,18 @@ namespace Xtensive.Core.Diagnostics.Helpers
     /// <inheritdoc/>
     public void FatalError(string format, params object[] args)
     {
-      RealLog.LogEvent(LogEventTypes.FatalError, new SystemStringFormat(CultureInfo.InvariantCulture, format, args), null, RealLog, null);
+      object stringFormat = new SystemStringFormat(CultureInfo.InvariantCulture, format, args);
+      if (args == null || args.Length == 0)
+        stringFormat = format;
+      RealLog.LogEvent(LogEventTypes.FatalError, stringFormat, null, RealLog, null);
     }
 
     public Exception FatalError(Exception exception, string format, params object[] args)
     {
-      RealLog.LogEvent(LogEventTypes.FatalError, new SystemStringFormat(CultureInfo.InvariantCulture, format, args), exception, RealLog, null);
+      object stringFormat = new SystemStringFormat(CultureInfo.InvariantCulture, format, args);
+      if (args == null || args.Length == 0)
+        stringFormat = format;
+      RealLog.LogEvent(LogEventTypes.FatalError, stringFormat, exception, RealLog, null);
       return exception;
     }
 

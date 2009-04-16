@@ -66,11 +66,14 @@ namespace Xtensive.Storage.Tests.Linq
           else
             OutputLog(document, groupHeader);
         }
-        else
+        else {
           Log.Info("Correct output is impossible.");
+          EnumerateAll(query);
+        }
       }
       catch {
         Log.Info("Errors occurred during execution.");
+        EnumerateAll(query);
       }
     }
 
@@ -204,17 +207,17 @@ namespace Xtensive.Storage.Tests.Linq
         var depth = 1;
         XmlNode itemNode = document.CreateElement("Item" + itemIndex);
 
-        if (value == null || !value.GetType().IsGenericType || (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition()!=typeof (Grouping<,>))) {
+        if (value==null || !value.GetType().IsGenericType || (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition()!=typeof (Grouping<,>))) {
           itemNode = document.CreateElement("Item" + itemIndex);
           itemIndex++;
           parentNode.AppendChild(itemNode);
         }
 
-        if ( value==null ||((GetMemberType(value.GetType())==MemberType.Primitive
+        if (value==null || ((GetMemberType(value.GetType())==MemberType.Primitive
           || GetMemberType(value.GetType())==MemberType.Unknown) && !value.GetType().IsGenericType)
-            || (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() != typeof(Grouping<,>))
-            && (GetMemberType(value.GetType()) == MemberType.Primitive
-            || GetMemberType(value.GetType()) == MemberType.Unknown))
+            || (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition()!=typeof (Grouping<,>))
+              && (GetMemberType(value.GetType())==MemberType.Primitive
+                || GetMemberType(value.GetType())==MemberType.Unknown))
           depth = AddNode(value, null, ref document, itemNode, depth);
 
         else if (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition()==typeof (Grouping<,>)) {
@@ -226,8 +229,7 @@ namespace Xtensive.Storage.Tests.Linq
             var groupAttribute = document.CreateAttribute("group");
             groupAttribute.Value = groupIndex.ToString();
             var keyAttribute = document.CreateAttribute("key");
-            keyAttribute.Value = value.GetType().GetProperty("Key").GetValue(value, null).ToString();
-            ;
+            keyAttribute.Value = KeyToString(value.GetType().GetProperty("Key").GetValue(value, null));
             itemNode.Attributes.Append(groupAttribute);
             itemNode.Attributes.Append(keyAttribute);
             var properties = val.GetType().GetProperties();
@@ -275,10 +277,12 @@ namespace Xtensive.Storage.Tests.Linq
       }
 
       else {
-        if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition()==typeof (IQueryable<>)) {
-          var queryable = (IQueryable) property.GetValue(value, property.GetIndexParameters());
+        if (property.PropertyType.IsGenericType &&
+          (property.PropertyType.GetGenericTypeDefinition()==typeof (IQueryable<>)
+            || (property.PropertyType.GetGenericTypeDefinition()==typeof (IEnumerable<>)))) {
+          var enumerable = (IEnumerable) property.GetValue(value, property.GetIndexParameters());
           var list = new List<object>();
-          foreach (var o in queryable)
+          foreach (var o in enumerable)
             list.Add(o);
           CreateNodeTree(list, ref document, property.Name, parentNode);
         }
@@ -470,7 +474,8 @@ namespace Xtensive.Storage.Tests.Linq
       if (value.GetType()==typeof (byte[]))
         return "ByteArray";
       return value.ToString().Replace("-", " ").Replace("\n", string.Empty)
-        .Replace("\t", string.Empty).Replace("\\", string.Empty).Replace("\"", " ").Replace("\r", " ").Trim();
+        .Replace("\t", string.Empty).Replace("\\", string.Empty)
+        .Replace("\"", " ").Replace("\r", " ").Trim();
     }
 
     private static string CreateFillString(int count, char element)
@@ -489,7 +494,58 @@ namespace Xtensive.Storage.Tests.Linq
         && memberType!=MemberType.Key
           && info.PropertyType!=typeof (PersistenceState))
             || (info.CanWrite)) && info.DeclaringType!=typeof (Persistent)
-              && info.DeclaringType!=typeof (SessionBound);
+              && info.DeclaringType!=typeof (SessionBound)
+                && memberType!=MemberType.EntitySet;
+    }
+
+    private static string KeyToString(object key)
+    {
+      var properties = key.GetType().GetProperties();
+      var str = new StringBuilder("{ ");
+      switch (GetMemberType(key.GetType())) {
+      case MemberType.Structure:
+      case MemberType.Anonymous:
+        foreach (var info in properties) {
+          if (ValueIsForOutput(info)) {
+            str.Append(info.Name).Append(" = ");
+            var propertyValue = info.GetValue(key, null);
+            if (GetMemberType(info.PropertyType)==MemberType.Entity)
+              str.Append((propertyValue!=null) ? info.PropertyType.GetProperty("Key").GetValue(propertyValue, null).ToString() : "NULL");
+            if (GetMemberType(info.PropertyType)==MemberType.Structure || GetMemberType(info.PropertyType)==MemberType.Anonymous)
+              str.Append(ReplaceTabs(KeyToString(info.GetValue(key, null))));
+            else
+              str.Append(ReplaceTabs(propertyValue))
+                .Append(" , ");
+          }
+        }
+        break;
+      case MemberType.Entity:
+        str.Append(key.GetType().GetProperty("Key").GetValue(key, null).ToString());
+        break;
+
+      default:
+        str.Append(ReplaceTabs(key));
+        break;
+      }
+      if (str[str.Length - 2]==',')
+        str.Remove(str.Length - 2, 2);
+      return str.Append(" }").ToString();
+    }
+
+    private static void EnumerateAll(IEnumerable enumerable)
+    {
+      foreach (var o in enumerable)
+        if (o!=null) {
+          if (o.GetType().IsGenericType && (o.GetType().GetGenericTypeDefinition()==typeof (IQueryable<>)
+            || o.GetType().GetGenericTypeDefinition()==typeof (IEnumerable<>)))
+            EnumerateAll((IEnumerable) o);
+          var properties = o.GetType().GetProperties();
+          foreach (var info in properties) {
+            if (info.PropertyType.IsGenericType && (info.PropertyType.GetGenericTypeDefinition()==typeof (IQueryable<>)
+              || info.PropertyType.GetGenericTypeDefinition()==typeof (IEnumerable<>)))
+              EnumerateAll((IEnumerable) info.GetValue(o, null));
+          }
+        }
     }
   }
 }
