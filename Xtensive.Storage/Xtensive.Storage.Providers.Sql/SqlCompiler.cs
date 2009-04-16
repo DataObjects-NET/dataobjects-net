@@ -462,12 +462,8 @@ namespace Xtensive.Storage.Providers.Sql
           filter = SqlFactory.Not(filter);
         select.Where = filter;
       }
-      else {
-        if (provider.Right is ExistenceProvider)
-          select.Columns.Add(rightQuery.Columns[0]);
-        else // TODO: handle other cases when apply can be compiled easily (i.e. aggregates without groupping)
-          return null;
-      }
+      else if (!TranslateSubquery(provider.Right, select, rightQuery))
+        return null;
 
       var request = new SqlFetchRequest(select, provider.Header);
       return new SqlProvider(provider, request, Handlers, left, right);
@@ -717,6 +713,24 @@ namespace Xtensive.Storage.Providers.Sql
       query.Where = inQuery;
 
       return query;
+    }
+
+    private static bool TranslateSubquery(CompilableProvider subqueryProvider, SqlSelect select, SqlSelect subquerySelect)
+    {
+      if (subqueryProvider is ExistenceProvider) {
+        select.Columns.Add(subquerySelect.Columns[0]);
+        return true;
+      }
+
+      if (subqueryProvider is AggregateProvider) {
+        var aggregateProvider = (AggregateProvider) subqueryProvider;
+        if (aggregateProvider.GroupColumnIndexes.Length != 0 || aggregateProvider.AggregateColumns.Length != 1)
+          return false;
+        select.Columns.Add(subquerySelect, aggregateProvider.AggregateColumns[0].Name);
+        return true;
+      }
+
+      return false;
     }
 
     #endregion

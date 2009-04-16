@@ -246,7 +246,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var bestOrder = Query<Order>.All.OrderBy(o => o.Freight).First();
       var result = Query<Customer>.All.Where(c => Queryable.Contains(c.Orders, bestOrder));
-      Assert.AreEqual("LACOR", result.ToList().Single().Id);
+      Assert.AreEqual(bestOrder.Customer.Id, result.ToList().Single().Id);
     }
 
     [Test]
