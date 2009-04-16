@@ -111,7 +111,7 @@ namespace Xtensive.Modelling.Comparison
     /// <see langword="null"/>, if they're equal.
     /// </returns>
     /// <exception cref="InvalidOperationException">Both source and target are <see langword="null" />.</exception>
-    /// <exception cref="NullReferenceException"><see cref="CurrentDifference"/> is not <see cref="NodeDifference"/>.</exception>
+    /// <exception cref="NullReferenceException">Current difference is not <see cref="NodeDifference"/>.</exception>
     protected virtual Difference VisitNode(Node source, Node target)
     {
       using (TryActivate(source, target, (s,t) => new NodeDifference(s,t))) {
@@ -139,11 +139,8 @@ namespace Xtensive.Modelling.Comparison
           mi.IsRemoved = true;
         else {
           // both source!=null && target!=null
-          if (!(source is IUnnamedNode) && source.Name!=target.Name) {
-            var renameHint = Hints.GetHint<RenameHint>(source);
-            if (renameHint==null || renameHint.TargetPath!=target.Path)
-              mi.IsNameChanged = true;
-          }
+          if (!(source is IUnnamedNode) && source.Name!=target.Name && GetTargetPath(source)==target.Path)
+            mi.IsNameChanged = true;
           mi.IsIndexChanged = source.Index!=target.Index; // TODO: Fix this!
           var collection = target.Nesting.PropertyValue as NodeCollection;
           if (collection!=null && (collection is IUnorderedNodeCollection))
@@ -216,12 +213,12 @@ namespace Xtensive.Modelling.Comparison
     /// Visits specified <see cref="NodeCollection"/> objects.
     /// </summary>
     /// <param name="source">The source.</param>
-    /// <param name="tgt">The target.</param>
+    /// <param name="target">The target.</param>
     /// <returns>Difference between <paramref name="source"/> 
-    /// and <paramref name="tgt"/> objects.
+    /// and <paramref name="target"/> objects.
     /// <see langword="null" />, if they're equal.</returns>
     /// <exception cref="InvalidOperationException">Both source and target are <see langword="null" />.</exception>
-    /// <exception cref="NullReferenceException"><see cref="CurrentDifference"/> is not <see cref="NodeCollectionDifference"/>.</exception>
+    /// <exception cref="NullReferenceException">Current difference is not <see cref="NodeCollectionDifference"/>.</exception>
     protected virtual Difference VisitNodeCollection(NodeCollection source, NodeCollection target)
     {
       using (TryActivate(source, target, (s,t) => new NodeCollectionDifference(s,t))) {
@@ -239,15 +236,12 @@ namespace Xtensive.Modelling.Comparison
         var someItems = src.Count!=0 ? src : tgt;
         var someItem = someItems.Cast<Node>().First();
 
-        Func<Node, Pair<Node, object>> keyExtractor = n => new Pair<Node, object>(n, n.Name);
-        if (someItem is IUnnamedNode) {
-          if (someItem is INodeReference)
-            keyExtractor = n => {
-              var referredNode = ((INodeReference) n).Value;
-              return new Pair<Node, object>(n, referredNode==null ? null : referredNode.Path);
-            };
-          else
-            keyExtractor = n => new Pair<Node, object>(n, n.Index);
+        Func<Node, Pair<Node, object>> keyExtractor = n => new Pair<Node, object>(n, GetTargetName(n));
+        if (someItem is INodeReference) {
+          keyExtractor = n => {
+            var referredNode = ((INodeReference) n).Value;
+            return new Pair<Node, object>(n, referredNode==null ? null : GetTargetPath(referredNode));
+          };
         }
 
         var sourceKeyMap = new Dictionary<object, Node>();
@@ -366,6 +360,45 @@ namespace Xtensive.Modelling.Comparison
     protected virtual ComparisonContext CreateContext()
     {
       return new ComparisonContext();
+    }
+
+    /// <summary>
+    /// Gets the path of the target node.
+    /// </summary>
+    /// <param name="source">The source node.</param>
+    /// <returns>The path of the target node.</returns>
+    protected virtual string GetTargetPath(Node source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      if (source.Model==Source) {
+        var renameHint = Hints.GetHint<RenameHint>(source);
+        if (renameHint!=null)
+          return renameHint.TargetPath;
+        var parent = source.Parent;
+        if (parent!=null) {
+          string path = source.Path;
+          string parentPath = parent.Path;
+          string pathTail = path.Substring(parentPath.Length);
+          return GetTargetPath(parent) + pathTail;
+        }
+      }
+      return source.Path;
+    }
+
+    /// <summary>
+    /// Gets the name of the target node.
+    /// </summary>
+    /// <param name="source">The source node.</param>
+    /// <returns>The name of the target node.</returns>
+    protected virtual string GetTargetName(Node source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      if (source.Model==Source) {
+        var renameHint = Hints.GetHint<RenameHint>(source);
+        if (renameHint!=null)
+          return Target.Resolve(renameHint.TargetPath).Name;
+      }
+      return source.Name;
     }
 
     /// <summary>

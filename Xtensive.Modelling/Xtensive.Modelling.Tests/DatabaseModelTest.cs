@@ -279,8 +279,8 @@ namespace Xtensive.Modelling.Tests
     {
       var s1 = Clone(srv);
       var s2 = Clone(srv);
-      var hs = new HintSet(s1, s2);
-      update.Invoke(s1, s2, hs);
+      var hints = new HintSet(s1, s2);
+      update.Invoke(s1, s2, hints);
       Log.Info("Update test ({0} hints)", useHints ? "with" : "without");
       s1.Dump();
       s2.Dump();
@@ -289,7 +289,7 @@ namespace Xtensive.Modelling.Tests
       Log.Info("Comparing models:");
       var c = new Comparer<Server>(s1, s2);
       if (useHints)
-        foreach (var hint in hs)
+        foreach (var hint in hints)
           c.Hints.Add(hint);
       var diff = c.Difference;
       Log.Info("\r\nDifference:\r\n{0}", diff);

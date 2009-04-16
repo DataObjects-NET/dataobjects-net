@@ -195,4 +195,7 @@
   <data name="ExInvalidAfterPathPropertyValue" xml:space="preserve">
     <value>Invalid AfterPath property value.</value>
   </data>
+  <data name="ExInvalidNestingOfNodeX" xml:space="preserve">
+    <value>Invalid Nesting of node "{0}".</value>
+  </data>
 </root>

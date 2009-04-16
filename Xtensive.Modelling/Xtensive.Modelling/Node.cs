@@ -414,19 +414,20 @@ namespace Xtensive.Modelling
     protected virtual void PerformMove(Node newParent, string newName, int newIndex)
     {
       bool nameIsChanging = (this is IUnnamedNode) || Name!=newName;
+      var propertyGetter = Nesting.PropertyGetter;
       if (newParent!=parent) {
         // Parent is changed
         if (!Nesting.IsNestedToCollection) {
           Nesting.PropertySetter(parent, null);
-          var existingNode = Nesting.PropertyGetter(newParent);
+          var existingNode = propertyGetter(newParent);
           if (existingNode!=null)
             throw new InvalidOperationException(string.Format(
               Strings.ExTargetObjectExistsX, existingNode));
           Nesting.PropertySetter(newParent, this);
         }
         else {
-          var oldCollection = (NodeCollection) Nesting.PropertyGetter(parent);
-          var newCollection = (NodeCollection) Nesting.PropertyGetter(newParent);
+          var oldCollection = (NodeCollection) propertyGetter(parent);
+          var newCollection = (NodeCollection) propertyGetter(newParent);
           for (int i = index + 1; i < oldCollection.Count; i++)
             oldCollection[i].EnsureIsEditable();
           for (int i = newIndex; i < newCollection.Count; i++)
@@ -444,9 +445,14 @@ namespace Xtensive.Modelling
           newCollection.Add(this);
         }
       }
+      else if (propertyGetter==null) {
+        if (!(this is IModel))
+          throw Exceptions.InternalError(string.Format(
+            Strings.ExInvalidNestingOfNodeX, this), Log.Instance);
+      }
       else {
         // Parent isn't changed
-        var collection = (NodeCollection) Nesting.PropertyGetter(newParent);
+        var collection = (NodeCollection) propertyGetter(newParent);
         int minIndex, maxIndex, shift;
         if (newIndex < index) {
           minIndex = newIndex;

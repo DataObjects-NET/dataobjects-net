@@ -133,6 +133,15 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid Nesting of node &quot;{0}&quot;..
+        /// </summary>
+        internal static string ExInvalidNestingOfNodeX {
+            get {
+                return ResourceManager.GetString("ExInvalidNestingOfNodeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid node state..
         /// </summary>
         internal static string ExInvalidNodeState {
