@@ -55,8 +55,8 @@ namespace Xtensive.Storage.Indexing.Model
     // Constructors
 
     /// <inheritdoc/>
-    protected Ref(TParent parent, int index)
-      : base(parent, null, index)
+    protected Ref(TParent parent)
+      : base(parent, null)
     {
     }
   }

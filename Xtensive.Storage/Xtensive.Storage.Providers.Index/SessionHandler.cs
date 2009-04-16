@@ -15,6 +15,7 @@ using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Index.Resources;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Indexing;
 
 namespace Xtensive.Storage.Providers.Index
 {
@@ -23,21 +24,36 @@ namespace Xtensive.Storage.Providers.Index
     private readonly Dictionary<CompilableProvider, ExecutableProvider> compiledIndexProvidersCache 
       = new Dictionary<CompilableProvider, ExecutableProvider>();
 
+    private IndexStorage storage;
+
+    public IStorageView StorageView { get; private set; }
+
     /// <inheritdoc/>
     public override void BeginTransaction()
     {
+      if (StorageView!=null)
+        throw new InvalidOperationException();
+      StorageView = storage.CreateView(Session.Transaction.IsolationLevel);
       // TODO: Implement transactions;
     }
 
     /// <inheritdoc/>
     public override void CommitTransaction()
     {
+      if (StorageView == null)
+        throw new InvalidOperationException();
+      // StorageView.Transaction.Commit();
+      StorageView = null;
       // TODO: Implement transactions;
     }
 
     /// <inheritdoc/>
     public override void RollbackTransaction()
     {
+      if (StorageView == null)
+        throw new InvalidOperationException();
+      // StorageView.Transaction.Rollback();
+      StorageView = null;
       // TODO: Implement transactions;
     }
 
@@ -108,6 +124,7 @@ namespace Xtensive.Storage.Providers.Index
 
     public override void Initialize()
     {
+      storage = ((DomainHandler) Handlers.DomainHandler).GetIndexStorage();
       // TODO: Think what should be done here.
     }
 

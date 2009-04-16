@@ -62,17 +62,6 @@ namespace Xtensive.Storage.Indexing.Model
     /// </summary>
     /// <param name="parent">The parent.</param>
     /// <param name="name">The name.</param>
-    /// <param name="index">The index.</param>
-    protected NodeBase(TParent parent, string name, int index)
-      : base(parent, name, index)
-    {
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="parent">The parent.</param>
-    /// <param name="name">The name.</param>
     protected NodeBase(TParent parent, string name)
       : base(parent, name)
     {

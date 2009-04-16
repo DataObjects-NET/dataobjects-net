@@ -8,12 +8,15 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net.Sockets;
+using System.Runtime.Remoting;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Optimization;
@@ -24,6 +27,12 @@ namespace Xtensive.Storage.Providers.Index
 {
   public class DomainHandler : Providers.DomainHandler
   {
+    private const string RemoteUrlFormat = "tcp://{0}:{1}/{2}";
+    private const int DefaultRemotePort = 8085;
+
+    private IndexStorage storage;
+    private ObjRef storageRef;
+
     private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes = new Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>>();
     private readonly Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform> indexTransforms = new Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform>();
 
@@ -52,6 +61,67 @@ namespace Xtensive.Storage.Providers.Index
         indexTransforms.Add(pair, transform);
       }
     }
+
+    /// <inheritdoc/>
+    public override void Initialize()
+    {
+      base.Initialize();
+      var connectionInfo = BuildingContext.Current.Configuration.ConnectionInfo;
+      var remoteUrl = CreateRemoteUrl(connectionInfo);
+      if (!TryGetRemoteStorage(remoteUrl, out storage)) {
+        storage = CreateLocalStorage(connectionInfo.Resource);
+        // MarshalStorage(storage, remoteUrl, connectionInfo.Port);
+      }
+    }
+
+    #region Build storage methods
+
+    public IndexStorage GetIndexStorage()
+    {
+      return storage;
+    }
+
+    protected bool TryGetRemoteStorage(string url, out IndexStorage remoteStorage)
+    {
+      remoteStorage = RemotingServices.Connect(typeof (IndexStorage), url) as IndexStorage;
+
+      if (remoteStorage==null)
+        return false;
+
+      try {
+        remoteStorage.Ping();
+      }
+      catch (SocketException) {
+        
+        remoteStorage = null;
+        return false;
+      } 
+      catch (RemotingException) {
+        remoteStorage = null;
+        return false;
+      }
+      return true;
+    }
+
+    protected void MarshalStorage(IndexStorage localStorage, string url, int port)
+    {
+      storageRef = RemotingServices.Marshal(localStorage, url);
+    }
+
+    protected virtual IndexStorage CreateLocalStorage(string name)
+    {
+      throw new NotSupportedException();
+    }
+
+    protected string CreateRemoteUrl(UrlInfo connectionInfo)
+    {
+      return string.Format(RemoteUrlFormat,
+        connectionInfo.Host,
+        connectionInfo.Port==0 ? DefaultRemotePort : connectionInfo.Port,
+        connectionInfo.Resource);
+    }
+
+    #endregion
 
     #region Private / internal methods
 

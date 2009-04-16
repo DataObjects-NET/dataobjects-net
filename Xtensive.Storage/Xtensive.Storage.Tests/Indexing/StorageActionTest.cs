@@ -34,10 +34,10 @@ namespace Xtensive.Storage.Tests.Indexing
       primaryKey = new ColumnInfo(table, "ID", new TypeInfo(typeof(int)));
       primaryValue1 = new ColumnInfo(table, "AGE", new TypeInfo(typeof(int)));
       primaryValue2 = new ColumnInfo(table, "NAME", new TypeInfo(typeof(int)));
-      new KeyColumnRef(primary, primaryKey, 0, Direction.Positive);
-      new ValueColumnRef(primary, primaryValue1, 0);
-      new ValueColumnRef(primary, primaryValue2, 1);
-      new KeyColumnRef(secondary, primaryValue1, 0, Direction.Positive);
+      new KeyColumnRef(primary, primaryKey, Direction.Positive);
+      new ValueColumnRef(primary, primaryValue1);
+      new ValueColumnRef(primary, primaryValue2);
+      new KeyColumnRef(secondary, primaryValue1, Direction.Positive);
 
       storage.Dump();
     }

@@ -34,9 +34,9 @@ namespace Xtensive.Storage.Tests.Indexing
       primaryKey = new ColumnInfo(table, "key", new TypeInfo(typeof(int)));
       primaryValue1 = new ColumnInfo(table, "value1", new TypeInfo(typeof(int)));
       primaryValue2 = new ColumnInfo(table, "value2", new TypeInfo(typeof(int)));
-      new KeyColumnRef(primary, primaryKey, 0, Direction.Positive);
-      new ValueColumnRef(primary, primaryValue1, 0);
-      new ValueColumnRef(primary, primaryValue2, 1);
+      new KeyColumnRef(primary, primaryKey, Direction.Positive);
+      new ValueColumnRef(primary, primaryValue1);
+      new ValueColumnRef(primary, primaryValue2);
     }
 
     [Test]
@@ -59,8 +59,8 @@ namespace Xtensive.Storage.Tests.Indexing
     [Test]
     public void AddRemoveKeyColumnsTest()
     {
-      new KeyColumnRef(secondary, primaryValue1, 0, Direction.Negative);
-      new KeyColumnRef(secondary, primaryValue2, 1, Direction.Negative);
+      new KeyColumnRef(secondary, primaryValue1, Direction.Negative);
+      new KeyColumnRef(secondary, primaryValue2, Direction.Negative);
       Assert.AreEqual(2, secondary.KeyColumns.Count);
       Dump();
       secondary.KeyColumns[0].Remove();
@@ -76,8 +76,8 @@ namespace Xtensive.Storage.Tests.Indexing
     [Test]
     public void ValidateDoubleKeys()
     {
-      new KeyColumnRef(secondary, primaryValue1, 0, Direction.Negative);
-      new KeyColumnRef(secondary, primaryValue1, 1, Direction.Positive);
+      new KeyColumnRef(secondary, primaryValue1, Direction.Negative);
+      new KeyColumnRef(secondary, primaryValue1, Direction.Positive);
 
       AssertEx.Throws<AggregateException>(secondary.Validate);
     }
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Tests.Indexing
     [Test]
     public void ValidateKeyIsNotPrimaryValue()
     {
-      new KeyColumnRef(secondary, primaryKey, 0, Direction.Positive);
+      new KeyColumnRef(secondary, primaryKey, Direction.Positive);
     }
 
     [TearDown]

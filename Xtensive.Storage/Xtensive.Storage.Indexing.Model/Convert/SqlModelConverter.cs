@@ -124,15 +124,14 @@ namespace Xtensive.Storage.Indexing.Model.Convert
 
       foreach (var keyColumn in key.Columns)
         new KeyColumnRef(primaryIndexInfo, tableInfo.Columns[keyColumn.Name],
-          primaryIndexInfo.KeyColumns.Count, Direction.Positive);
+          Direction.Positive);
       // ToDo: Get direction for key columns.
 
       var valueColumns = tableInfo.Columns.Except(
         primaryIndexInfo.KeyColumns.Select(cr => cr.Value));
 
       foreach (var valueColumn in valueColumns)
-        new ValueColumnRef(primaryIndexInfo, valueColumn,
-          primaryIndexInfo.ValueColumns.Count);
+        new ValueColumnRef(primaryIndexInfo, valueColumn);
 
       return primaryIndexInfo;
     }
@@ -149,14 +148,12 @@ namespace Xtensive.Storage.Indexing.Model.Convert
       foreach (var keyColumn in index.Columns) {
         var columnInfo = tableInfo.Columns[keyColumn.Column.Name];
         new KeyColumnRef(secondaryIndexInfo,
-          columnInfo, secondaryIndexInfo.KeyColumns.Count,
-          keyColumn.Ascending ? Direction.Positive : Direction.Negative);
+          columnInfo, keyColumn.Ascending ? Direction.Positive : Direction.Negative);
       }
 
       foreach (var valueColumn in index.NonkeyColumns) {
         var columnInfo = tableInfo.Columns[valueColumn.Name];
-        new ValueColumnRef(secondaryIndexInfo, columnInfo,
-          secondaryIndexInfo.ValueColumns.Count);
+        new ValueColumnRef(secondaryIndexInfo, columnInfo);
       }
 
       return secondaryIndexInfo;

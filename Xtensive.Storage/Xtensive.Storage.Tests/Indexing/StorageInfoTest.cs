@@ -40,11 +40,11 @@ namespace Xtensive.Indexing.Tests.Storage
       column1 = new ColumnInfo(table1, "col1", new TypeInfo(typeof(string)));
       column2 = new ColumnInfo(table1, "col2", new TypeInfo(typeof(string)));
       column3 = new ColumnInfo(table1, "col3", new TypeInfo(typeof(string)));
-      new KeyColumnRef(pi1, column1, 0, Direction.Positive);
-      new ValueColumnRef(pi1, column2, 0);
-      new ValueColumnRef(pi1, column3, 1);
+      new KeyColumnRef(pi1, column1, Direction.Positive);
+      new ValueColumnRef(pi1, column2);
+      new ValueColumnRef(pi1, column3);
       si1 = new SecondaryIndexInfo(table1, "ix1");
-      new KeyColumnRef(si1, column2, 0, Direction.Positive);
+      new KeyColumnRef(si1, column2, Direction.Positive);
 
 
       // Table 2
@@ -52,10 +52,10 @@ namespace Xtensive.Indexing.Tests.Storage
       pi2 = new PrimaryIndexInfo(table2, "pk2");
       column4 = new ColumnInfo(table2, "col4", new TypeInfo(typeof(int)));
       column5 = new ColumnInfo(table2, "col5", new TypeInfo(typeof(string)));
-      new KeyColumnRef(pi2, column4, 0, Direction.Negative);
-      new ValueColumnRef(pi2, column5, 0);
+      new KeyColumnRef(pi2, column4, Direction.Negative);
+      new ValueColumnRef(pi2, column5);
       si2 = new SecondaryIndexInfo(table2, "ix2");
-      new KeyColumnRef(si2, column5, 0, Direction.Positive);
+      new KeyColumnRef(si2, column5, Direction.Positive);
 
       // Foreign keys
       fk1 = new ForeignKeyInfo(table2, "fk1")

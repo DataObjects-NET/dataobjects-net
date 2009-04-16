@@ -26,8 +26,8 @@ namespace Xtensive.Storage.Indexing.Model
     // Constructors
 
     /// <inheritdoc/>
-    public ValueColumnRef(IndexInfo parent, int index)
-      : base(parent, index)
+    public ValueColumnRef(IndexInfo parent)
+      : base(parent)
     {
     }
 
@@ -37,8 +37,8 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The referenced column.</param>
     /// <param name="index">The index.</param>
-    public ValueColumnRef(IndexInfo parent, ColumnInfo column, int index)
-      : base(parent, column, index)
+    public ValueColumnRef(IndexInfo parent, ColumnInfo column)
+      : base(parent, column)
     {
     }
   }

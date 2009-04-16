@@ -23,8 +23,8 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="parent">The parent index.</param>
     /// <param name="index">The index.</param>
     /// <inheritdoc/>
-    protected ColumnInfoRef(IndexInfo parent, int index)
-      : base(parent, index)
+    protected ColumnInfoRef(IndexInfo parent)
+      : base(parent)
     {
     }
 
@@ -34,8 +34,8 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The column.</param>
     /// <param name="index">The index.</param>
-    protected ColumnInfoRef(IndexInfo parent, ColumnInfo column, int index)
-      : base(parent, index)
+    protected ColumnInfoRef(IndexInfo parent, ColumnInfo column)
+      : base(parent)
     {
       Value = column;
     }

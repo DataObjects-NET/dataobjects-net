@@ -76,17 +76,6 @@ namespace Xtensive.Storage.Indexing.Model
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="parent">The parent table.</param>
-    /// <param name="name">The name.</param>
-    /// <param name="index">The index.</param>
-    protected IndexInfo(TableInfo parent, string name, int index)
-      : base(parent, name, index)
-    {
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="parent">The parent table.</param>
     /// <param name="name">The index.</param>
     /// <inheritdoc/>
     protected IndexInfo(TableInfo parent, string name)

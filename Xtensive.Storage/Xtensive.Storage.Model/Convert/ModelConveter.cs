@@ -173,11 +173,9 @@ namespace Xtensive.Storage.Model.Convert
       var table = StorageInfo.Tables[index.ReflectedType.MappingName];
 
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns)
-        new KeyColumnRef(storageIndex, table.Columns[pair.Key.Name],
-          storageIndex.KeyColumns.Count, pair.Value);
+        new KeyColumnRef(storageIndex, table.Columns[pair.Key.Name], pair.Value);
       foreach (var column in index.ValueColumns)
-        new ValueColumnRef(storageIndex, table.Columns[column.Name],
-          storageIndex.ValueColumns.Count);
+        new ValueColumnRef(storageIndex, table.Columns[column.Name]);
     }
 
     /// <summary>

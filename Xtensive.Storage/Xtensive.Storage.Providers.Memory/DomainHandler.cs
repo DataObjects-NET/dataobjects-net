@@ -8,5 +8,9 @@ namespace Xtensive.Storage.Providers.Memory
 {
   public class DomainHandler : Index.DomainHandler
   {
+    protected override Index.IndexStorage CreateLocalStorage(string name)
+    {
+      return new IndexStorage(name);
+    }
   }
 }

@@ -101,8 +101,8 @@ namespace Xtensive.Storage.Building.Builders
             CreateDomain();
             CreateHandlerFactory();
             CreateNameBuilder();
-            BuildModel();
             CreateDomainHandler();
+            BuildModel();
             using (context.Domain.Handler.OpenSession(SessionType.System)) {
               using (var transactionScope = Transaction.Open()) {
                 var sessionHandler = Session.Current.Handler;

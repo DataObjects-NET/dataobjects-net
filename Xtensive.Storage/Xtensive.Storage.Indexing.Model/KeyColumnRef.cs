@@ -48,8 +48,8 @@ namespace Xtensive.Storage.Indexing.Model
     // Constructors
 
     /// <inheritdoc/>
-    public KeyColumnRef(IndexInfo parent, int index)
-      : base(parent, index)
+    public KeyColumnRef(IndexInfo parent)
+      : base(parent)
     {
     }
 
@@ -60,8 +60,8 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="column">The referenced column.</param>
     /// <param name="index">The index in collection.</param>
     /// <param name="direction">The direction.</param>
-    public KeyColumnRef(IndexInfo parent, ColumnInfo column, int index, Direction direction)
-      : base(parent, column, index)
+    public KeyColumnRef(IndexInfo parent, ColumnInfo column, Direction direction)
+      : base(parent, column)
     {
       Direction = direction;
     }
