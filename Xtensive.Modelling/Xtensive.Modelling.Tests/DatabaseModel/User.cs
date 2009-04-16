@@ -44,10 +44,5 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       : base(parent, name)
     {
     }
-
-    public User(Security parent, string name, int index)
-      : base(parent, name, index)
-    {
-    }
   }
 }

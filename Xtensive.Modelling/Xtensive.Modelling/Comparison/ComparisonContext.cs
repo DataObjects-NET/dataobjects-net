@@ -43,6 +43,28 @@ namespace Xtensive.Modelling.Comparison
     }
 
     /// <summary>
+    /// Gets the nearest <see cref="ParentDifferenceContext"/> where
+    /// <see cref="Difference"/> is of type <typeparamref name="T"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the <see cref="Difference"/> to search for.</typeparam>
+    /// <returns>
+    /// The nearest <see cref="Parent"/> of type <typeparamref name="T"/>, if found;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    public ComparisonContext GetParentDifferenceContext<T>()
+      where T : Difference
+    {
+      var current = ParentDifferenceContext;
+      while (current!=null) {
+        var d = current.Difference as T;
+        if (d!=null)
+          return current;
+        current = current.ParentDifferenceContext;
+      }
+      return null;
+    }
+
+    /// <summary>
     /// Gets or sets the currently processed difference.
     /// </summary>
     public Difference Difference { get; set; }

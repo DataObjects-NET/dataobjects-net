@@ -33,10 +33,5 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       : base(parent, name)
     {
     }
-
-    public Schema(Database parent, string name, int index)
-      : base(parent, name, index)
-    {
-    }
   }
 }

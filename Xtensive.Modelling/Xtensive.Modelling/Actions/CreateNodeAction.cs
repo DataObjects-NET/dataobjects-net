@@ -46,14 +46,6 @@ namespace Xtensive.Modelling.Actions
       }
     }
 
-    public int Index {
-      get { return index; }
-      set {
-        this.EnsureNotLocked();
-        index = value;
-      }
-    }
-
     public object[] Parameters {
       get {
         if (!IsLocked)
@@ -74,44 +66,38 @@ namespace Xtensive.Modelling.Actions
       }
     }
 
-    public string NewPath {
-      get { return newPath; }
-      set {
-        this.EnsureNotLocked();
-        newPath = value;
-      }
-    }
-
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Required constructor isn't found.</exception>
     protected override void PerformApply(IModel model, IPathNode item)
     {
-      var node = (Node) item;
-      var tmpIndex = index;
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      var parent = (Node) item;
+      var node = TryConstructor(model, parent, name);
+      if (node==null)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCannotFindConstructorToExecuteX, this));
       if (AfterPath!=null) {
-        var pathNode = model.Resolve(AfterPath);
-        tmpIndex = (pathNode is NodeCollection) ? 0 : ((Node) pathNode).Index + 1;
+        var afterNode = model.Resolve(AfterPath);
+        if (node.Parent==afterNode)
+          node.Index = 0;
+        else if (node.Parent==afterNode.Parent && (afterNode is NodeCollection))
+          node.Index = 0;
+        else if (node.Parent==afterNode.Parent)
+          node.Index = ((Node) afterNode).Index + 1;
+        else
+          throw new InvalidOperationException(Strings.ExInvalidAfterPathPropertyValue);
       }
-      if (TryConstructor(model, node, name, tmpIndex))
-        return;
-      if (TryConstructor(model, node, name))
-        return;
-      if (TryConstructor(model, node, tmpIndex))
-        return;
-      throw new InvalidOperationException(string.Format(
-        Strings.ExCannotFindConstructorToExecuteX, this));
     }
 
-    protected bool TryConstructor(IModel model, params object[] args)
+    protected Node TryConstructor(IModel model, params object[] args)
     {
       if (parameters!=null)
         args = args.Concat(parameters.Select(p => PathNodeReference.Resolve(model, p))).ToArray();
       var argTypes = args.Select(a => a.GetType()).ToArray();
       var ci = type.GetConstructor(argTypes);
       if (ci==null)
-        return false;
-      ci.Invoke(args);
-      return true;
+        return null;
+      return (Node) ci.Invoke(args);
     }
 
     /// <inheritdoc/>
@@ -126,26 +112,6 @@ namespace Xtensive.Modelling.Actions
         parameters.Add(new Pair<string>("AfterPath", AfterPath));
       if (this.parameters!=null)
         parameters.Add(new Pair<string>("Parameters", this.parameters.ToCommaDelimitedString()));
-    }
-
-    /// <inheritdoc/>
-    public override string[] GetDependencies()
-    {
-      return new[] {NewPath};
-    }
-
-    /// <inheritdoc/>
-    public override string[] GetRequiredDependencies()
-    {
-      var dependencies = base.GetRequiredDependencies();
-      dependencies = dependencies
-        .Concat(new[] {NewPath + ".Remove()"})
-        .ToArray();
-      if (AfterPath!=null)
-        dependencies = dependencies
-          .Concat(new[] {AfterPath})
-          .ToArray();
-      return dependencies;
     }
   }
 }

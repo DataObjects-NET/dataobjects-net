@@ -74,18 +74,18 @@ namespace Xtensive.Modelling.Tests
     [Test]
     public void BaseComparisonTest()
     {
-      srv.Validate();
-      var srvx = new Server("srvx");
+      var source = new Server("Source");
+      var target = srv;
+      target.Validate();
       
-      var hintSet = new HintSet(srvx, srv);
-      hintSet.Add(new RenameHint("", ""));
+      Log.Info("Source model:");
+      source.Dump();
+      Log.Info("Target model:");
+      target.Dump();
 
-      Log.Info("Model 1:");
-      srvx.Dump();
-      Log.Info("Model 2:");
-      srv.Dump();
-
-      Difference diff = new Comparer<Server>(srv, srvx).Difference;
+      var comparer = new Comparer<Server>(source, target);
+      comparer.Hints.Add(new RenameHint("", ""));
+      Difference diff = comparer.Difference;
       Log.Info("Difference: \r\n{0}", diff);
 
       var actions = new ActionSequence();
@@ -93,10 +93,10 @@ namespace Xtensive.Modelling.Tests
       Log.Info("Actions: \r\n{0}", actions);
 
       Log.Info("Applying actions...");
-      actions.Apply(srvx);
+      actions.Apply(source);
 
       Log.Info("Updated Model 1:");
-      srvx.Dump();
+      source.Dump();
     }
 
     [Test]
@@ -281,24 +281,29 @@ namespace Xtensive.Modelling.Tests
       var s2 = Clone(srv);
       var hs = new HintSet(s1, s2);
       update.Invoke(s1, s2, hs);
+      Log.Info("Update test ({0} hints)", useHints ? "with" : "without");
+      s1.Dump();
+      s2.Dump();
 
       // Comparing different models
+      Log.Info("Comparing models:");
       var c = new Comparer<Server>(s1, s2);
       if (useHints)
         foreach (var hint in hs)
           c.Hints.Add(hint);
       var diff = c.Difference;
-      Log.Info("Difference:\r\n{0}", diff);
+      Log.Info("\r\nDifference:\r\n{0}", diff);
       var actions = new ActionSequence() { diff.ToActions() };
-      Log.Info("Actions:\r\n{0}", actions);
+      Log.Info("\r\nActions:\r\n{0}", actions);
       actions.Apply(s1);
       s1.Dump();
       s2.Dump();
 
       // Comparing action applicaiton result & target model
+      Log.Info("Comparing synchronization result:");
       c = new Comparer<Server>(s1, s2);
       diff = c.Difference; // s1.GetDifferenceWith(s2);
-      Log.Info("Difference:\r\n{0}", diff);
+      Log.Info("\r\nDifference:\r\n{0}", diff);
       Assert.IsNull(diff);
     }
 

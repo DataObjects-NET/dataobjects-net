@@ -9,6 +9,7 @@ using System.Text;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
 using Xtensive.Core.Helpers;
+using Xtensive.Modelling.Resources;
 
 namespace Xtensive.Modelling.Comparison
 {
@@ -54,8 +55,6 @@ namespace Xtensive.Modelling.Comparison
             Path = Target.Parent==null ? string.Empty : Target.Parent.Path,
             Type = Target.GetType(),
             Name = Target.Name,
-            Index = Target.Index,
-            NewPath = Target.Path
           };
         if (Target.Nesting.IsNestedToCollection) {
           var collection = (NodeCollection) Target.Nesting.PropertyValue;
@@ -86,7 +85,8 @@ namespace Xtensive.Modelling.Comparison
       if (MovementInfo!=null)
         sb.Append(MovementInfo);
       foreach (var pair in PropertyChanges)
-        sb.AppendLine().Append(pair.Value.ToString());
+        sb.AppendLine().AppendFormat(Strings.PropertyChangeFormat,
+          pair.Key, pair.Value);
       return sb.ToString().Indent(ToString_IndentSize, false);
     }
 

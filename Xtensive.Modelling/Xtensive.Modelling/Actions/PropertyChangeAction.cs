@@ -30,6 +30,7 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     protected override void PerformApply(IModel model, IPathNode item)
     {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var node = (Node) item;
       foreach (var pair in properties)
         node.SetProperty(pair.Key, PathNodeReference.Resolve(model, pair.Value));
@@ -48,25 +49,6 @@ namespace Xtensive.Modelling.Actions
     {
       properties = new ReadOnlyDictionary<string, object>(properties, true);
       base.Lock(recursive);
-    }
-
-    /// <inheritdoc/>
-    public override string[] GetDependencies()
-    {
-      var dependencies = new Dictionary<string,bool>();
-      foreach (var pair in Properties)
-        dependencies.Add(string.Format("{0}{1}{2}=*", Path, Node.PathDelimiter, EscapeName(pair.Key)), true);
-      return dependencies.Select(p => p.Key).ToArray();
-    }
-
-    /// <inheritdoc/>
-    public override string[] GetRequiredDependencies()
-    {
-      return base.GetRequiredDependencies().Concat(
-        properties.Values
-          .OfType<PathNodeReference>()
-          .Select(pnr => pnr.Path))
-          .ToArray();
     }
   }
 }

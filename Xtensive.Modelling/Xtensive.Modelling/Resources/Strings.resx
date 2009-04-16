@@ -192,4 +192,7 @@
   <data name="ExInvalidContextActivationSequence" xml:space="preserve">
     <value>Invalid context activation sequence.</value>
   </data>
+  <data name="ExInvalidAfterPathPropertyValue" xml:space="preserve">
+    <value>Invalid AfterPath property value.</value>
+  </data>
 </root>

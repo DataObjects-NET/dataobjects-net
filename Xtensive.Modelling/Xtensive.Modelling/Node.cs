@@ -234,11 +234,9 @@ namespace Xtensive.Modelling
               Path = newParent==null ? string.Empty : newParent.Path,
               Type = GetType(),
               Name = newName,
-              Index = newIndex,
             };
           scope.Action = a;
           PerformCreate();
-          a.NewPath = Path;
           scope.Commit();
         }
       }
@@ -799,22 +797,6 @@ namespace Xtensive.Modelling
 
 
     // Constructors
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Node"/> class.
-    /// </summary>
-    /// <param name="parent"><see cref="Parent"/> property value.</param>
-    /// <param name="name">Initial <see cref="Name"/> property value.</param>
-    /// <param name="index">Initial <see cref="Index"/> property value.</param>
-    protected Node(Node parent, string name, int index)
-    {
-      if (!(this is IModel))
-        ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
-      if (!(this is IUnnamedNode))
-        ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      Initialize();
-      Move(parent, name, index);
-    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Node"/> class.

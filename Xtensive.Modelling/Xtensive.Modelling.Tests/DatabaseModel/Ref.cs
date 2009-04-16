@@ -37,10 +37,5 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       : base(parent, name)
     {
     }
-
-    public Ref(TParent parent, string name, int index)
-      : base(parent, name, index)
-    {
-    }
   }
 }

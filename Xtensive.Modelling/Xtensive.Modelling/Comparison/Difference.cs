@@ -36,24 +36,6 @@ namespace Xtensive.Modelling.Comparison
     /// <inheritdoc/>
     public Difference Parent { get; private set; }
 
-    /// <summary>
-    /// Gets the nearest <see cref="Parent"/> of type <typeparamref name="T"/>.
-    /// </summary>
-    /// <typeparam name="T">Type of the <see cref="Parent"/> to find.</typeparam>
-    /// <returns>The nearest <see cref="Parent"/> of type <typeparamref name="T"/>, if found;
-    /// otherwise, <see langword="null" />.</returns>
-    public T GetNearestParent<T>()
-      where T : Difference
-    {
-      var current = this;
-      while ((current = current.Parent)!=null) {
-        var typedCurrent = current as T;
-        if (typedCurrent!=null)
-          return typedCurrent;
-      }
-      return null;
-    }
-
     /// <inheritdoc/>
     public IEnumerable<NodeAction> ToActions()
     {

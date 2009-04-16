@@ -22,10 +22,5 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       : base(parent, name)
     {
     }
-
-    public SecondaryIndex(Table parent, string name, int index)
-      : base(parent, name, index)
-    {
-    }
   }
 }

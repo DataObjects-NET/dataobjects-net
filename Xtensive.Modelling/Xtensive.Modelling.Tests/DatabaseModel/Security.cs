@@ -38,10 +38,5 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       : base(parent, name)
     {
     }
-
-    public Security(Server parent, string name, int index)
-      : base(parent, name, index)
-    {
-    }
   }
 }

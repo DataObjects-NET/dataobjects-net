@@ -42,10 +42,5 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       : base(parent, name)
     {
     }
-
-    public Index(Table parent, string name, int index)
-      : base(parent, name, index)
-    {
-    }
   }
 }

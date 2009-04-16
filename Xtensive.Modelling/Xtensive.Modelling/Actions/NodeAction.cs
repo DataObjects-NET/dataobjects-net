@@ -52,19 +52,6 @@ namespace Xtensive.Modelling.Actions
 
     #endregion
 
-    #region Dependency related methods
-
-    /// <inheritdoc/>
-    public abstract string[] GetDependencies();
-
-    /// <inheritdoc/>
-    public virtual string[] GetRequiredDependencies()
-    {
-      return new[] {Path};
-    }
-
-    #endregion
-
     #region Protected \ internal methods
 
     protected string EscapeName(string name)

@@ -23,18 +23,5 @@ namespace Xtensive.Modelling.Actions
     /// </summary>
     /// <param name="model">The model to apply the action to.</param>
     void Apply(IModel model);
-
-    /// <summary>
-    /// Gets dependencies this action produces.
-    /// </summary>
-    /// <returns>The array of dependencies this action produces.</returns>
-    string[] GetDependencies();
-
-
-    /// <summary>
-    /// Gets required dependencies.
-    /// </summary>
-    /// <returns>The array of dependencies this action requires to be built first.</returns>
-    string[] GetRequiredDependencies();
   }
 }

@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core;
 
 namespace Xtensive.Modelling.Actions
 {
@@ -18,19 +19,9 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     protected override void PerformApply(IModel model, IPathNode item)
     {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var node = (Node) item;
       node.Remove();
-    }
-
-    /// <inheritdoc/>
-    public override string[] GetDependencies()
-    {
-      return new[] {Path + ".Remove()"};
-    }
-
-    public override string[] GetRequiredDependencies()
-    {
-      return new string[] {};
     }
   }
 }

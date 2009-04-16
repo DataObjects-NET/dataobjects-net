@@ -35,7 +35,7 @@ namespace Xtensive.Modelling.Comparison
     /// <inheritdoc/>
     protected override string ParametersToString()
     {
-      return string.Empty;
+      return "values differ";
     }
 
 

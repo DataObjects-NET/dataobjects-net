@@ -62,9 +62,12 @@ namespace Xtensive.Modelling.Actions
     /// <exception cref="InvalidOperationException">Required constructor isn't found.</exception>
     protected override void PerformApply(IModel model, IPathNode item)
     {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var node = (Node) item;
       var newParent = parent==null ? node.Parent : (Node) model.Resolve(parent);
-      var newName = name==null ? node.Name : name;
+      if ((node is IModel) && (newParent is IModel))
+        newParent = null;
+      var newName = name ?? node.Name;
       var newIndex = !index.HasValue ? node.Index : index.Value;
       node.Move(newParent, newName, newIndex);
     }
@@ -79,12 +82,6 @@ namespace Xtensive.Modelling.Actions
         parameters.Add(new Pair<string>("Name", name));
       if (index.HasValue)
         parameters.Add(new Pair<string>("Index", index.ToString()));
-    }
-
-    /// <inheritdoc/>
-    public override string[] GetDependencies()
-    {
-      return new[] {NewPath};
     }
   }
 }

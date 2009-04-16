@@ -63,11 +63,6 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
 
     // Constructors
 
-    protected NodeBase(TParent parent, string name, int index)
-      : base(parent, name, index)
-    {
-    }
-
     protected NodeBase(TParent parent, string name)
       : base(parent, name)
     {

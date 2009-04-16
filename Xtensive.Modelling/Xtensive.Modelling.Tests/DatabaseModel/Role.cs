@@ -21,10 +21,5 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       : base(parent, name)
     {
     }
-
-    public Role(Security parent, string name, int index)
-      : base(parent, name, index)
-    {
-    }
   }
 }

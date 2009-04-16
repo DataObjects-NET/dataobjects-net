@@ -106,6 +106,15 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid AfterPath property value..
+        /// </summary>
+        internal static string ExInvalidAfterPathPropertyValue {
+            get {
+                return ResourceManager.GetString("ExInvalidAfterPathPropertyValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid context activation sequence..
         /// </summary>
         internal static string ExInvalidContextActivationSequence {
