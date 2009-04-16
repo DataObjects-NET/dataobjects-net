@@ -20,9 +20,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void QueryTest()
     {
-      var customer = Query<Customer>.All.Where(c => c.Id=="LACOR").Single();
-      var result = customer.Orders.Where(o => o.Freight > -1);
-      Assert.AreEqual(4, result.ToList().Count);
+      var customer = GetCustomer();
+      var expected = customer.Orders.AsEnumerable().OrderBy(o => o.Id).Select(o => o.Id).ToList();
+      var actual = customer.Orders.OrderBy(o => o.Id).Select(o => o.Id).ToList();
+      Assert.IsTrue(expected.SequenceEqual(actual));
     }
 
     [Test]
@@ -51,9 +52,25 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void OuterEntitySetTest()
     {
-      var customer = Query<Customer>.All.Where(c => c.Id=="LACOR").First();
+      var customer = GetCustomer();
       var result = Query<Order>.All.Where(o => customer.Orders.Contains(o));
       Assert.AreEqual(customer.Orders.Count, result.ToList().Count);
+    }
+
+    [Test]
+    public void JoinWithEntitySetTest()
+    {
+      var customer = GetCustomer();
+      var result =
+        from o in customer.Orders
+        join e in Query<Employee>.All on o.Employee equals e
+        select e;
+      Assert.AreEqual(customer.Orders.Count, result.ToList().Count);
+     }
+
+    private static Customer GetCustomer()
+    {
+      return Query<Customer>.All.Where(c => c.Id=="LACOR").Single();
     }
   }
 }
