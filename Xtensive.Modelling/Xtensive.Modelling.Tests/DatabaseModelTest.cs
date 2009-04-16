@@ -5,6 +5,7 @@
 // Created:    2009.03.18
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
@@ -12,6 +13,7 @@ using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Tests.DatabaseModel;
 using Xtensive.Modelling.Comparison;
+using System.Linq;
 
 namespace Xtensive.Modelling.Tests
 {
@@ -83,7 +85,7 @@ namespace Xtensive.Modelling.Tests
       Log.Info("Target model:");
       target.Dump();
 
-      var comparer = new Comparer<Server>(source, target);
+      var comparer = new Comparison.Comparer<Server>(source, target);
       comparer.Hints.Add(new RenameHint("", ""));
       Difference diff = comparer.Difference;
       Log.Info("Difference: \r\n{0}", diff);
@@ -109,6 +111,31 @@ namespace Xtensive.Modelling.Tests
         s2.Security.Users[0].Name = "Renamed";
         hs.Add(new RenameHint(s1.Security.Users[0].Path, s2.Security.Users[0].Path));
       });
+    }
+
+    [Test]
+    public void ComplexReferenceComparisonTest()
+    {
+      srv.Validate();
+      TestUpdate((s1, s2, hs) => {
+        var s1r = s1.Security.Roles[0];
+        RemoveReferencesTo(s1r);
+        s1r.Remove();
+        var s2r = s2.Security.Roles[1];
+        RemoveReferencesTo(s2r);
+        s2r.Remove();
+      });
+    }
+
+    private void RemoveReferencesTo(Role role)
+    {
+      var s = role.Model as Server;
+      var roleRefs = new List<RoleRef>();
+      foreach (var roleRef in s.Security.Users.SelectMany(u => u.Roles))
+        if (roleRef.Value==role)
+          roleRefs.Add(roleRef);
+      foreach (var roleRef in roleRefs)
+        roleRef.Remove();
     }
 
     [Test]
@@ -287,7 +314,7 @@ namespace Xtensive.Modelling.Tests
 
       // Comparing different models
       Log.Info("Comparing models:");
-      var c = new Comparer<Server>(s1, s2);
+      var c = new Comparison.Comparer<Server>(s1, s2);
       if (useHints)
         foreach (var hint in hints)
           c.Hints.Add(hint);
@@ -301,7 +328,7 @@ namespace Xtensive.Modelling.Tests
 
       // Comparing action applicaiton result & target model
       Log.Info("Comparing synchronization result:");
-      c = new Comparer<Server>(s1, s2);
+      c = new Comparison.Comparer<Server>(s1, s2);
       diff = c.Difference; // s1.GetDifferenceWith(s2);
       Log.Info("\r\nDifference:\r\n{0}", diff);
       Assert.IsNull(diff);
