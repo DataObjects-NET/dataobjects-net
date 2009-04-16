@@ -22,6 +22,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       get { return segment; }
     }
 
+    // TODO: -> List<int>?
     public override IList<int> GetColumns()
     {
       return segment.GetItems().ToList();

@@ -17,11 +17,13 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     private readonly bool fillMapping;
     private Mapping mapping;
 
+    // TODO: remove
     public bool FillMapping
     {
       get { return fillMapping; }
     }
 
+    // TODO: -> Value
     public Mapping Mapping
     {
       get
