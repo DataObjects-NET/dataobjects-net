@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Modelling;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
 {
@@ -14,7 +13,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// Column collection.
   /// </summary>
   [Serializable]
-  public class ColumnInfoCollection : NodeCollectionBase<ColumnInfo, TableInfo>, 
+  public sealed class ColumnInfoCollection : NodeCollectionBase<ColumnInfo, TableInfo>, 
     IUnorderedNodeCollection
   {
     // Constructors

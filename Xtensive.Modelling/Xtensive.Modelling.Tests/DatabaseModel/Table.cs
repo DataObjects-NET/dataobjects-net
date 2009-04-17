@@ -10,7 +10,7 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class Table : NodeBase<Schema>
+  public sealed class Table : NodeBase<Schema>
   {
     private PrimaryIndex primaryIndex;
 

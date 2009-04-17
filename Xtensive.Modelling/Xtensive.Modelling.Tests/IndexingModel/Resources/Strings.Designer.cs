@@ -106,20 +106,47 @@ namespace Xtensive.Modelling.Tests.IndexingModel.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to IncludedColumns collection is invalid..
+        /// </summary>
+        internal static string ExInvalidIncludedColumnsCollection {
+            get {
+                return ResourceManager.GetString("ExInvalidIncludedColumnsCollection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to PrimaryKeyColumns collection is invalid..
+        /// </summary>
+        internal static string ExInvalidPrimaryKeyColumnsCollection {
+            get {
+                return ResourceManager.GetString("ExInvalidPrimaryKeyColumnsCollection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to IncludedColumns collection contains more then one reference to column &quot;{0}&quot;..
+        /// </summary>
+        internal static string ExMoreThenOneIncludedColumnReferenceToColumnX {
+            get {
+                return ResourceManager.GetString("ExMoreThenOneIncludedColumnReferenceToColumnX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to KeyColumns collection contains more then one reference to column &quot;{0}&quot;..
         /// </summary>
-        internal static string ExMoreThenOneKeyReferenceToColumnX {
+        internal static string ExMoreThenOneKeyColumnReferenceToColumnX {
             get {
-                return ResourceManager.GetString("ExMoreThenOneKeyReferenceToColumnX", resourceCulture);
+                return ResourceManager.GetString("ExMoreThenOneKeyColumnReferenceToColumnX", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to ValueColumns collection contains more then one reference to column &quot;{0}&quot;..
         /// </summary>
-        internal static string ExMoreThenOneValueReferenceToColumnX {
+        internal static string ExMoreThenOneValueColumnReferenceToColumnX {
             get {
-                return ResourceManager.GetString("ExMoreThenOneValueReferenceToColumnX", resourceCulture);
+                return ResourceManager.GetString("ExMoreThenOneValueColumnReferenceToColumnX", resourceCulture);
             }
         }
         

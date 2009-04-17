@@ -5,6 +5,7 @@
 // Created:    2009.03.20
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -52,9 +53,9 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    IEnumerator<TNode> IEnumerable<TNode>.GetEnumerator() 
+    public new IEnumerator<TNode> GetEnumerator() 
     {
-      foreach (var node in this)
+      foreach (var node in (this as IEnumerable))
         yield return (TNode) node;
     }
 

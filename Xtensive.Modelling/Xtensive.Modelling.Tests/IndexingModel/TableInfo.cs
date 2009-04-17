@@ -5,7 +5,6 @@
 // Created:    2009.03.24
 
 using System;
-using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
@@ -14,7 +13,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// Table.
   /// </summary>
   [Serializable]
-  public class TableInfo : NodeBase<StorageInfo>
+  public sealed class TableInfo : NodeBase<StorageInfo>
   {
     private PrimaryIndexInfo primaryIndex;
 

@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class Role : NodeBase<Security>
+  public sealed class Role : NodeBase<Security>
   {
     protected override Nesting CreateNesting()
     {

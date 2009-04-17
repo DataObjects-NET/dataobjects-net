@@ -11,7 +11,7 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class Server : NodeBase<Server>, 
+  public sealed class Server : NodeBase<Server>, 
     IModel
   {
     private ActionSequence actions;

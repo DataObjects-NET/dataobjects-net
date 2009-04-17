@@ -10,7 +10,7 @@ using System.Diagnostics;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class SecondaryIndexCollection : NodeCollectionBase<SecondaryIndex, Table>,
+  public sealed class SecondaryIndexCollection : NodeCollectionBase<SecondaryIndex, Table>,
     IUnorderedNodeCollection
   {
     public SecondaryIndexCollection(Table parent)

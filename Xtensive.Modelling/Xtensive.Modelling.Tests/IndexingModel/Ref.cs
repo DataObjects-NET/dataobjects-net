@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Modelling.Tests.IndexingModel

@@ -13,7 +13,8 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// An abstract base class for all columns refs.
   /// </summary>
   [Serializable]
-  public abstract class ColumnInfoRef: Ref<ColumnInfo, IndexInfo>
+  public abstract class ColumnInfoRef<TParent>: Ref<ColumnInfo, TParent>
+    where TParent: IndexInfo
   {
     // Constructors
 
@@ -22,7 +23,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// </summary>
     /// <param name="parent">The parent index.</param>
     /// <inheritdoc/>
-    protected ColumnInfoRef(IndexInfo parent)
+    protected ColumnInfoRef(TParent parent)
       : base(parent)
     {
     }
@@ -32,7 +33,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// </summary>
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The column.</param>
-    protected ColumnInfoRef(IndexInfo parent, ColumnInfo column)
+    protected ColumnInfoRef(TParent parent, ColumnInfo column)
       : base(parent)
     {
       Value = column;

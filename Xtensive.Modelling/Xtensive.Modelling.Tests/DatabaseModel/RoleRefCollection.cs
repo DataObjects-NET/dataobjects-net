@@ -10,7 +10,7 @@ using System.Diagnostics;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class RoleRefCollection : NodeCollectionBase<RoleRef, User>,
+  public sealed class RoleRefCollection : NodeCollectionBase<RoleRef, User>,
     IUnorderedNodeCollection
   {
     public RoleRefCollection(Node parent, string name)

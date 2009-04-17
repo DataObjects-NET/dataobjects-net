@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Modelling;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
 {
@@ -14,7 +13,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// A collection of secondary indexes.
   /// </summary>
   [Serializable]
-  public class SecondaryIndexInfoCollection : NodeCollectionBase<SecondaryIndexInfo, TableInfo>,
+  public sealed class SecondaryIndexInfoCollection : NodeCollectionBase<SecondaryIndexInfo, TableInfo>,
     IUnorderedNodeCollection
   {
     // Constructors

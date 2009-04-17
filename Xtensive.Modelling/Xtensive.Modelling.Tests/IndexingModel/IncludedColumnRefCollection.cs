@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Ivan Galkin
-// Created:    2009.03.20
+// Created:    2009.03.24
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
@@ -10,19 +10,19 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Modelling.Tests.IndexingModel
 {
   /// <summary>
-  /// A collection of <see cref="KeyColumnRef"/> instances.
+  /// A collection of <see cref="IncludedColumnRef"/> instances.
   /// </summary>
   [Serializable]
-  public sealed class KeyColumnRefCollection : NodeCollectionBase<KeyColumnRef, IndexInfo>
+  public sealed class IncludedColumnRefCollection: NodeCollectionBase<IncludedColumnRef, SecondaryIndexInfo>
   {
     // Constructors
     
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="parent">The parent.</param>
-    public KeyColumnRefCollection(IndexInfo parent)
-      : base(parent, "KeyColumns")
+    /// <param name="parent">The parent index.</param>
+    public IncludedColumnRefCollection(SecondaryIndexInfo parent)
+      : base(parent, "ValueColumns")
     {
     }
   }

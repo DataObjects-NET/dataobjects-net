@@ -24,11 +24,9 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// </summary>
     /// <exception cref="NotSupportedException">Already initialized.</exception>
     [Property]
-    public bool IsUnique
-    {
+    public bool IsUnique {
       get { return isUnique; }
-      set
-      {
+      set {
         EnsureIsEditable();
         if (IsPrimary && !value)
           throw Exceptions.AlreadyInitialized("IsUnique");
@@ -43,7 +41,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets a value indicating whether this instance is primary.
     /// </summary>
-    [Property]
+    [Property(IgnoreInComparison = true)]
     public bool IsPrimary { get; private set; }
 
     /// <summary>
@@ -52,21 +50,16 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     [Property]
     public KeyColumnRefCollection KeyColumns { get; private set; }
 
-    /// <summary>
-    /// Gets value columns.
-    /// </summary>
-    [Property]
-    public ValueColumnRefCollection ValueColumns { get; private set; }
 
     /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();
       IsPrimary = this is PrimaryIndexInfo;
+      if (IsPrimary)
+        isUnique = true;
       if (KeyColumns==null)
         KeyColumns = new KeyColumnRefCollection(this);
-      if (ValueColumns==null)
-        ValueColumns = new ValueColumnRefCollection(this);
     }
 
 

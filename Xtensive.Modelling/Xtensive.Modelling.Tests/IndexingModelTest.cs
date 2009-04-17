@@ -27,6 +27,7 @@ namespace Xtensive.Modelling.Tests
     private static StorageInfo CreateSimpleStorageModel()
     {
       var storage = new StorageInfo("Storage");
+      
       var t = new TableInfo(storage, "Types");
       var tId = new ColumnInfo(t, "Id") {
         Type = new TypeInfo(typeof (int))
@@ -34,8 +35,17 @@ namespace Xtensive.Modelling.Tests
       var tValue = new ColumnInfo(t, "Value") {
         Type = new TypeInfo(typeof (string), 1024)
       };
-      var tPK = new PrimaryIndexInfo(t, "PK_Types");
-      var tpkId = new KeyColumnRef(tPK, tId);
+      var tData = new ColumnInfo(t, "Data") {
+        Type = new TypeInfo(typeof (byte[]), 1024*1024)
+      };
+      var tPk = new PrimaryIndexInfo(t, "PK_Types");
+      new KeyColumnRef(tPk, tId);
+      tPk.PopulateValueColumns();
+      var tIv = new SecondaryIndexInfo(t, "IX_Value");
+      new KeyColumnRef(tIv, tValue);
+      tIv.PopulatePrimaryKeyColumns();
+
+      storage.Validate();
       return storage;
     }
 

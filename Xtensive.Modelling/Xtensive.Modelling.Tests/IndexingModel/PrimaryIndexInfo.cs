@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
+using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Tests.IndexingModel.Resources;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
@@ -18,8 +19,26 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// Primary index.
   /// </summary>
   [Serializable]
-  public class PrimaryIndexInfo : IndexInfo
+  public sealed class PrimaryIndexInfo : IndexInfo
   {
+    /// <summary>
+    /// Gets value columns.
+    /// </summary>
+    [Property]
+    public ValueColumnRefCollection ValueColumns { get; private set; }
+
+    /// <summary>
+    /// Populates <see cref="ValueColumns"/> collection by
+    /// including all the columns except <see cref="IndexInfo.KeyColumns"/>
+    /// into it.
+    /// </summary>
+    public void PopulateValueColumns()
+    {
+      var keyColumns = new HashSet<ColumnInfo>(KeyColumns.Select(kc => kc.Value));
+      foreach (var column in Parent.Columns.Where(c => !keyColumns.Contains(c)))
+        new ValueColumnRef(this, column);
+    }
+
     /// <inheritdoc/>
     /// <exception cref="IntegrityException">Validation error.</exception>
     protected override void ValidateState()
@@ -68,7 +87,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
             .Select(group => group.Key))
           ea.Execute((_column) => {
             throw new IntegrityException(
-              string.Format(Strings.ExMoreThenOneKeyReferenceToColumnX, _column.Name),
+              string.Format(Strings.ExMoreThenOneKeyColumnReferenceToColumnX, _column.Name),
               Path);
           }, column);
 
@@ -89,7 +108,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
             .Select(group => group.Key))
           ea.Execute((_column) => {
             throw new IntegrityException(
-              string.Format(Strings.ExMoreThenOneValueReferenceToColumnX, _column.Name),
+              string.Format(Strings.ExMoreThenOneValueColumnReferenceToColumnX, _column.Name),
               Path);
           }, column);
 
@@ -107,6 +126,14 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     protected override Nesting CreateNesting()
     {
       return new Nesting<PrimaryIndexInfo, TableInfo, PrimaryIndexInfo>(this, "PrimaryIndex");
+    }
+
+    /// <inheritdoc/>
+    protected override void Initialize()
+    {
+      base.Initialize();
+      if (ValueColumns==null)
+        ValueColumns = new ValueColumnRefCollection(this);
     }
 
 

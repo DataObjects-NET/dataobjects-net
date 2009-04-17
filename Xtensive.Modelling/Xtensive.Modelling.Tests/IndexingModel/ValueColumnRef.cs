@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Modelling;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
 {
@@ -14,19 +13,19 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// References to value column.
   /// </summary>
   [Serializable]
-  public class ValueColumnRef : ColumnInfoRef
+  public sealed class ValueColumnRef : ColumnInfoRef<PrimaryIndexInfo>
   {
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<ValueColumnRef, IndexInfo, ValueColumnRefCollection>(this, "ValueColumns");
+      return new Nesting<ValueColumnRef, PrimaryIndexInfo, ValueColumnRefCollection>(this, "ValueColumns");
     }
 
 
     // Constructors
 
     /// <inheritdoc/>
-    public ValueColumnRef(IndexInfo parent)
+    public ValueColumnRef(PrimaryIndexInfo parent)
       : base(parent)
     {
     }
@@ -36,7 +35,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// </summary>
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The referenced column.</param>
-    public ValueColumnRef(IndexInfo parent, ColumnInfo column)
+    public ValueColumnRef(PrimaryIndexInfo parent, ColumnInfo column)
       : base(parent, column)
     {
     }

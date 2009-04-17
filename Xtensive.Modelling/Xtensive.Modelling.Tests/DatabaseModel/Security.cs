@@ -11,7 +11,7 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class Security : NodeBase<Server>
+  public sealed class Security : NodeBase<Server>
   {
     [Property(Priority = 100)]
     public RoleCollection Roles { get; private set; }

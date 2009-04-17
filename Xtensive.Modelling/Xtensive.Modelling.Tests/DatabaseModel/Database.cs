@@ -10,7 +10,7 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class Database : NodeBase<Server>
+  public sealed class Database : NodeBase<Server>
   {
     private User owner;
 

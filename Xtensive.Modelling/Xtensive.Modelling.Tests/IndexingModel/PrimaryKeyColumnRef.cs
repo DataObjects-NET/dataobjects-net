@@ -14,19 +14,19 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// References to key column.
   /// </summary>
   [Serializable]
-  public sealed class KeyColumnRef: KeyColumnRef<IndexInfo>
+  public sealed class PrimaryKeyColumnRef: KeyColumnRef<SecondaryIndexInfo>
   {
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<KeyColumnRef, IndexInfo, KeyColumnRefCollection>(this, "KeyColumns");
+      return new Nesting<PrimaryKeyColumnRef, SecondaryIndexInfo, PrimaryKeyColumnRefCollection>(this, "PrimaryKeyColumns");
     }
 
 
     // Constructors
 
     /// <inheritdoc/>
-    public KeyColumnRef(IndexInfo parent)
+    public PrimaryKeyColumnRef(SecondaryIndexInfo parent)
       : base(parent)
     {
     }
@@ -36,7 +36,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// </summary>
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The referenced column.</param>
-    public KeyColumnRef(IndexInfo parent, ColumnInfo column)
+    public PrimaryKeyColumnRef(SecondaryIndexInfo parent, ColumnInfo column)
       : base(parent, column)
     {
     }
@@ -47,7 +47,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The referenced column.</param>
     /// <param name="direction">The direction.</param>
-    public KeyColumnRef(IndexInfo parent, ColumnInfo column, Direction direction)
+    public PrimaryKeyColumnRef(SecondaryIndexInfo parent, ColumnInfo column, Direction direction)
       : base(parent, column, direction)
     {
     }

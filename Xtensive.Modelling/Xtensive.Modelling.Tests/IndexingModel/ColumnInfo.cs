@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Tests.IndexingModel.Resources;
 
@@ -17,7 +16,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// Column.
   /// </summary>
   [Serializable]
-  public class ColumnInfo: NodeBase<TableInfo>
+  public sealed class ColumnInfo: NodeBase<TableInfo>
   {
     private TypeInfo type;
 

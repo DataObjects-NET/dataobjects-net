@@ -10,7 +10,7 @@ using System.Diagnostics;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class DatabaseCollection : NodeCollectionBase<Database, Server>,
+  public sealed class DatabaseCollection : NodeCollectionBase<Database, Server>,
     IUnorderedNodeCollection
   {
     internal DatabaseCollection(Server parent)

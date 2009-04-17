@@ -10,10 +10,10 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Modelling.Tests.IndexingModel
 {
   /// <summary>
-  /// A collection of <see cref="KeyColumnRef"/> instances.
+  /// A collection of <see cref="PrimaryKeyColumnRef"/> instances.
   /// </summary>
   [Serializable]
-  public sealed class KeyColumnRefCollection : NodeCollectionBase<KeyColumnRef, IndexInfo>
+  public sealed class PrimaryKeyColumnRefCollection : NodeCollectionBase<PrimaryKeyColumnRef, SecondaryIndexInfo>
   {
     // Constructors
     
@@ -21,8 +21,8 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="parent">The parent.</param>
-    public KeyColumnRefCollection(IndexInfo parent)
-      : base(parent, "KeyColumns")
+    public PrimaryKeyColumnRefCollection(SecondaryIndexInfo parent)
+      : base(parent, "PrimaryKeyColumns")
     {
     }
   }

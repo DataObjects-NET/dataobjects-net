@@ -13,7 +13,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// A collection of <see cref="TableInfo"/> instances.
   /// </summary>
   [Serializable]
-  public class TableInfoCollection: NodeCollectionBase<TableInfo, StorageInfo>
+  public sealed class TableInfoCollection: NodeCollectionBase<TableInfo, StorageInfo>
   {
     // Constructors
 

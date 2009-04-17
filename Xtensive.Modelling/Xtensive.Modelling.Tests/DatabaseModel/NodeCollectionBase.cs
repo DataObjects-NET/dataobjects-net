@@ -5,7 +5,6 @@
 // Created:    2009.03.20
 
 using System;
-using System.Diagnostics;
 
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {

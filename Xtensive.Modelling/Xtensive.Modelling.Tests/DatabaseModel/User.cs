@@ -11,7 +11,7 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class User : NodeBase<Security>
+  public sealed class User : NodeBase<Security>
   {
     private string password;
 

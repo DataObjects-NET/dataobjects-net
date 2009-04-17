@@ -5,7 +5,6 @@
 // Created:    2009.03.18
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Modelling.Attributes;
 
@@ -17,11 +16,18 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     private bool isPrimary;
     private bool isUnique;
 
+    /// <summary>
+    /// Gets a value indicating whether this is primary index.
+    /// </summary>
     [Property (IgnoreInComparison = true)]
     public bool IsPrimary {
       get { return isPrimary; }
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether this index is unique.
+    /// </summary>
+    /// <exception cref="NotSupportedException">Index is <see cref="PrimaryIndex"/>.</exception>
     [Property]
     public bool IsUnique {
       get { return isUnique; }
@@ -35,6 +41,8 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     protected override void Initialize()
     {
       isPrimary = this is PrimaryIndex;
+      if (isPrimary)
+        isUnique = true;
       base.Initialize();
     }
 

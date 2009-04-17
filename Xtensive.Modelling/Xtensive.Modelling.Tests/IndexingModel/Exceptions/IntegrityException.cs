@@ -7,7 +7,6 @@
 using System;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Modelling;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
 {
@@ -25,10 +24,23 @@ namespace Xtensive.Modelling.Tests.IndexingModel
 
     // Constructors
 
+    /// <inheritdoc/>
     protected IntegrityException()
     {
     }
-    
+
+    /// <inheritdoc/>
+    public IntegrityException(string message)
+      : base(message)
+    {
+    }
+
+    /// <inheritdoc/>
+    public IntegrityException(string message, Exception innerException)
+      : base(message, innerException)
+    {
+    }
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
@@ -40,10 +52,21 @@ namespace Xtensive.Modelling.Tests.IndexingModel
       NodePath = nodePath;
     }
 
+    #region Serializing members
+
     /// <inheritdoc/>
     public IntegrityException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
+      NodePath = info.GetString("NodePath");
     }
+
+    /// <inheritdoc/>
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.AddValue("NodePath", NodePath);
+    }
+
+    #endregion
   }
 }

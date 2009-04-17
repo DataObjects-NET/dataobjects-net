@@ -10,7 +10,7 @@ using System.Diagnostics;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class PrimaryIndex : Index
+  public sealed class PrimaryIndex : Index
   {
     protected override Nesting CreateNesting()
     {

@@ -11,7 +11,7 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
   [Serializable]
-  public class Schema : NodeBase<Database>
+  public sealed class Schema : NodeBase<Database>
   {
     [Property]
     public TableCollection Tables { get; private set; }

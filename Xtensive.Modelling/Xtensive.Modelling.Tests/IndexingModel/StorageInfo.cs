@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Modelling;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
 
@@ -16,7 +15,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// Indexing storage.
   /// </summary>
   [Serializable]
-  public class StorageInfo : NodeBase<StorageInfo>,
+  public sealed class StorageInfo : NodeBase<StorageInfo>,
     IModel
   {
     private ActionSequence actions;

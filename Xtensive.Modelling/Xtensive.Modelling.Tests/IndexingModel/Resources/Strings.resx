@@ -126,13 +126,13 @@
   <data name="ExCanNotFindReferenceToColumnX" xml:space="preserve">
     <value>Can not find reference to column "{0}".</value>
   </data>
-  <data name="ExMoreThenOneKeyReferenceToColumnX" xml:space="preserve">
+  <data name="ExMoreThenOneKeyColumnReferenceToColumnX" xml:space="preserve">
     <value>KeyColumns collection contains more then one reference to column "{0}".</value>
   </data>
   <data name="ExReferencedColumnXDoesNotBelongToIndexY" xml:space="preserve">
     <value>Referenced column "{0}" does not belong to index "{1}".</value>
   </data>
-  <data name="ExMoreThenOneValueReferenceToColumnX" xml:space="preserve">
+  <data name="ExMoreThenOneValueColumnReferenceToColumnX" xml:space="preserve">
     <value>ValueColumns collection contains more then one reference to column "{0}".</value>
   </data>
   <data name="ExUndefinedTypeOfColumnX" xml:space="preserve">
@@ -173,5 +173,14 @@
   </data>
   <data name="ExInvalidDirectionValue" xml:space="preserve">
     <value>Invalid Direction value (Direction.None).</value>
+  </data>
+  <data name="ExInvalidPrimaryKeyColumnsCollection" xml:space="preserve">
+    <value>PrimaryKeyColumns collection is invalid.</value>
+  </data>
+  <data name="ExInvalidIncludedColumnsCollection" xml:space="preserve">
+    <value>IncludedColumns collection is invalid.</value>
+  </data>
+  <data name="ExMoreThenOneIncludedColumnReferenceToColumnX" xml:space="preserve">
+    <value>IncludedColumns collection contains more then one reference to column "{0}".</value>
   </data>
 </root>
