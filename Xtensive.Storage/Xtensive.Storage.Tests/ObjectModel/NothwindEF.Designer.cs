@@ -21,7 +21,7 @@
 [assembly: global::System.Data.Objects.DataClasses.EdmRelationshipAttribute("NorthwindEF", "EmployeeTerritories", "Employees", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Xtensive.Storage.Tests.ObjectModel.Employees), "Territories", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Xtensive.Storage.Tests.ObjectModel.Territories))]
 
 // Original file name:
-// Generation date: 17.04.2009 17:12:16
+// Generation date: 17.04.2009 17:59:29
 namespace Xtensive.Storage.Tests.ObjectModel
 {
     
@@ -1864,22 +1864,9 @@ namespace Xtensive.Storage.Tests.ObjectModel
     [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="NorthwindEF", Name="Products")]
     [global::System.Runtime.Serialization.DataContractAttribute(IsReference=true)]
     [global::System.Serializable()]
-    public partial class Products : global::System.Data.Objects.DataClasses.EntityObject
+    [global::System.Runtime.Serialization.KnownTypeAttribute(typeof(global::Xtensive.Storage.Tests.ObjectModel.IntermediateProducts))]
+    public abstract partial class Products : global::System.Data.Objects.DataClasses.EntityObject
     {
-        /// <summary>
-        /// Create a new Products object.
-        /// </summary>
-        /// <param name="productID">Initial value of ProductID.</param>
-        /// <param name="productName">Initial value of ProductName.</param>
-        /// <param name="discontinued">Initial value of Discontinued.</param>
-        public static Products CreateProducts(int productID, string productName, bool discontinued)
-        {
-            Products products = new Products();
-            products.ProductID = productID;
-            products.ProductName = productName;
-            products.Discontinued = discontinued;
-            return products;
-        }
         /// <summary>
         /// There are no comments for Property ProductID in the schema.
         /// </summary>
@@ -1926,29 +1913,6 @@ namespace Xtensive.Storage.Tests.ObjectModel
         private string _ProductName;
         partial void OnProductNameChanging(string value);
         partial void OnProductNameChanged();
-        /// <summary>
-        /// There are no comments for Property QuantityPerUnit in the schema.
-        /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
-        [global::System.Runtime.Serialization.DataMemberAttribute()]
-        public string QuantityPerUnit
-        {
-            get
-            {
-                return this._QuantityPerUnit;
-            }
-            set
-            {
-                this.OnQuantityPerUnitChanging(value);
-                this.ReportPropertyChanging("QuantityPerUnit");
-                this._QuantityPerUnit = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
-                this.ReportPropertyChanged("QuantityPerUnit");
-                this.OnQuantityPerUnitChanged();
-            }
-        }
-        private string _QuantityPerUnit;
-        partial void OnQuantityPerUnitChanging(string value);
-        partial void OnQuantityPerUnitChanged();
         /// <summary>
         /// There are no comments for Property UnitPrice in the schema.
         /// </summary>
@@ -2812,6 +2776,95 @@ namespace Xtensive.Storage.Tests.ObjectModel
                     ((global::System.Data.Objects.DataClasses.IEntityWithRelationships)(this)).RelationshipManager.InitializeRelatedCollection<Employees>("NorthwindEF.EmployeeTerritories", "Employees", value);
                 }
             }
+        }
+    }
+    /// <summary>
+    /// There are no comments for NorthwindEF.IntermediateProducts in the schema.
+    /// </summary>
+    /// <KeyProperties>
+    /// ProductID
+    /// </KeyProperties>
+    [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="NorthwindEF", Name="IntermediateProducts")]
+    [global::System.Runtime.Serialization.DataContractAttribute(IsReference=true)]
+    [global::System.Serializable()]
+    [global::System.Runtime.Serialization.KnownTypeAttribute(typeof(global::Xtensive.Storage.Tests.ObjectModel.ActiveProducts))]
+    [global::System.Runtime.Serialization.KnownTypeAttribute(typeof(global::Xtensive.Storage.Tests.ObjectModel.DiscontinuedProducts))]
+    public abstract partial class IntermediateProducts : Products
+    {
+        /// <summary>
+        /// There are no comments for Property QuantityPerUnit in the schema.
+        /// </summary>
+        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute()]
+        [global::System.Runtime.Serialization.DataMemberAttribute()]
+        public string QuantityPerUnit
+        {
+            get
+            {
+                return this._QuantityPerUnit;
+            }
+            set
+            {
+                this.OnQuantityPerUnitChanging(value);
+                this.ReportPropertyChanging("QuantityPerUnit");
+                this._QuantityPerUnit = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value, true);
+                this.ReportPropertyChanged("QuantityPerUnit");
+                this.OnQuantityPerUnitChanged();
+            }
+        }
+        private string _QuantityPerUnit;
+        partial void OnQuantityPerUnitChanging(string value);
+        partial void OnQuantityPerUnitChanged();
+    }
+    /// <summary>
+    /// There are no comments for NorthwindEF.ActiveProducts in the schema.
+    /// </summary>
+    /// <KeyProperties>
+    /// ProductID
+    /// </KeyProperties>
+    [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="NorthwindEF", Name="ActiveProducts")]
+    [global::System.Runtime.Serialization.DataContractAttribute(IsReference=true)]
+    [global::System.Serializable()]
+    public partial class ActiveProducts : IntermediateProducts
+    {
+        /// <summary>
+        /// Create a new ActiveProducts object.
+        /// </summary>
+        /// <param name="productID">Initial value of ProductID.</param>
+        /// <param name="productName">Initial value of ProductName.</param>
+        /// <param name="discontinued">Initial value of Discontinued.</param>
+        public static ActiveProducts CreateActiveProducts(int productID, string productName, bool discontinued)
+        {
+            ActiveProducts activeProducts = new ActiveProducts();
+            activeProducts.ProductID = productID;
+            activeProducts.ProductName = productName;
+            activeProducts.Discontinued = discontinued;
+            return activeProducts;
+        }
+    }
+    /// <summary>
+    /// There are no comments for NorthwindEF.DiscontinuedProducts in the schema.
+    /// </summary>
+    /// <KeyProperties>
+    /// ProductID
+    /// </KeyProperties>
+    [global::System.Data.Objects.DataClasses.EdmEntityTypeAttribute(NamespaceName="NorthwindEF", Name="DiscontinuedProducts")]
+    [global::System.Runtime.Serialization.DataContractAttribute(IsReference=true)]
+    [global::System.Serializable()]
+    public partial class DiscontinuedProducts : IntermediateProducts
+    {
+        /// <summary>
+        /// Create a new DiscontinuedProducts object.
+        /// </summary>
+        /// <param name="productID">Initial value of ProductID.</param>
+        /// <param name="productName">Initial value of ProductName.</param>
+        /// <param name="discontinued">Initial value of Discontinued.</param>
+        public static DiscontinuedProducts CreateDiscontinuedProducts(int productID, string productName, bool discontinued)
+        {
+            DiscontinuedProducts discontinuedProducts = new DiscontinuedProducts();
+            discontinuedProducts.ProductID = productID;
+            discontinuedProducts.ProductName = productName;
+            discontinuedProducts.Discontinued = discontinued;
+            return discontinuedProducts;
         }
     }
 }
