@@ -21,7 +21,7 @@
 [assembly: global::System.Data.Objects.DataClasses.EdmRelationshipAttribute("NorthwindEF", "EmployeeTerritories", "Employees", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Xtensive.Storage.Tests.ObjectModel.Employees), "Territories", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Xtensive.Storage.Tests.ObjectModel.Territories))]
 
 // Original file name:
-// Generation date: 17.04.2009 17:59:29
+// Generation date: 17.04.2009 18:33:16
 namespace Xtensive.Storage.Tests.ObjectModel
 {
     
@@ -2006,29 +2006,6 @@ namespace Xtensive.Storage.Tests.ObjectModel
         partial void OnReorderLevelChanging(global::System.Nullable<short> value);
         partial void OnReorderLevelChanged();
         /// <summary>
-        /// There are no comments for Property Discontinued in the schema.
-        /// </summary>
-        [global::System.Data.Objects.DataClasses.EdmScalarPropertyAttribute(IsNullable=false)]
-        [global::System.Runtime.Serialization.DataMemberAttribute()]
-        public bool Discontinued
-        {
-            get
-            {
-                return this._Discontinued;
-            }
-            set
-            {
-                this.OnDiscontinuedChanging(value);
-                this.ReportPropertyChanging("Discontinued");
-                this._Discontinued = global::System.Data.Objects.DataClasses.StructuralObject.SetValidValue(value);
-                this.ReportPropertyChanged("Discontinued");
-                this.OnDiscontinuedChanged();
-            }
-        }
-        private bool _Discontinued;
-        partial void OnDiscontinuedChanging(bool value);
-        partial void OnDiscontinuedChanged();
-        /// <summary>
         /// There are no comments for Categories in the schema.
         /// </summary>
         [global::System.Data.Objects.DataClasses.EdmRelationshipNavigationPropertyAttribute("NorthwindEF", "FK_Products_Categories", "Categories")]
@@ -2831,13 +2808,11 @@ namespace Xtensive.Storage.Tests.ObjectModel
         /// </summary>
         /// <param name="productID">Initial value of ProductID.</param>
         /// <param name="productName">Initial value of ProductName.</param>
-        /// <param name="discontinued">Initial value of Discontinued.</param>
-        public static ActiveProducts CreateActiveProducts(int productID, string productName, bool discontinued)
+        public static ActiveProducts CreateActiveProducts(int productID, string productName)
         {
             ActiveProducts activeProducts = new ActiveProducts();
             activeProducts.ProductID = productID;
             activeProducts.ProductName = productName;
-            activeProducts.Discontinued = discontinued;
             return activeProducts;
         }
     }
@@ -2857,13 +2832,11 @@ namespace Xtensive.Storage.Tests.ObjectModel
         /// </summary>
         /// <param name="productID">Initial value of ProductID.</param>
         /// <param name="productName">Initial value of ProductName.</param>
-        /// <param name="discontinued">Initial value of Discontinued.</param>
-        public static DiscontinuedProducts CreateDiscontinuedProducts(int productID, string productName, bool discontinued)
+        public static DiscontinuedProducts CreateDiscontinuedProducts(int productID, string productName)
         {
             DiscontinuedProducts discontinuedProducts = new DiscontinuedProducts();
             discontinuedProducts.ProductID = productID;
             discontinuedProducts.ProductName = productName;
-            discontinuedProducts.Discontinued = discontinued;
             return discontinuedProducts;
         }
     }
