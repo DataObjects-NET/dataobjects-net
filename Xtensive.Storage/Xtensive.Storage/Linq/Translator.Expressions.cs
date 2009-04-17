@@ -23,9 +23,9 @@ using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Expressions;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using FieldInfo=System.Reflection.FieldInfo;
-using Xtensive.Storage.Linq;
 
 namespace Xtensive.Storage.Linq
 {

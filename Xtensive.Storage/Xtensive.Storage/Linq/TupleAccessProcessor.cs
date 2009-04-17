@@ -12,6 +12,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Expressions;
 
 namespace Xtensive.Storage.Linq
 {

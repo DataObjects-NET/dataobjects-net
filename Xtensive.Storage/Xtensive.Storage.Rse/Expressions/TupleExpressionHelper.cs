@@ -10,7 +10,7 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Resources;
 
-namespace Xtensive.Storage.Rse
+namespace Xtensive.Storage.Rse.Expressions
 {
   /// <summary>
   /// Various extension methods for manipulating expressions with <see cref="Tuple"/>.
