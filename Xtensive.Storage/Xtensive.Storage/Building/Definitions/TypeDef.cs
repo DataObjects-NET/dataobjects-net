@@ -113,7 +113,7 @@ namespace Xtensive.Storage.Building.Definitions
         throw new DomainBuilderException(
           string.Format(Resources.Strings.IndexNameXIsInvalid, name));
 
-      IndexDef indexDef = new IndexDef {Name = name};
+      var indexDef = new IndexDef {Name = name, IsSecondary = true};
       indexes.Add(indexDef);
       return indexDef;
     }

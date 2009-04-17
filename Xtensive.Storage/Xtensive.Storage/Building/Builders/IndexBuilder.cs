@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       ArgumentValidator.EnsureArgumentNotNull(attribute, "attribute");      
       
-      IndexDef index = new IndexDef();
+      var index = new IndexDef {IsSecondary = true};
       AttributeProcessor.Process(index, attribute);
 
       if (index.Name.IsNullOrEmpty() && index.KeyFields.Count > 0)
@@ -61,10 +61,9 @@ namespace Xtensive.Storage.Building.Builders
 
     public static IndexDef DefineForeignKey(TypeDef type, FieldDef field)
     {
-      var index = new IndexDef();
+      var index = new IndexDef {IsSecondary = true};
       index.KeyFields.Add(field.Name);
       index.Name = BuildingContext.Current.NameBuilder.Build(type, index);
-      index.IsSecondary = true;
       return index;
     }
 

@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Building.Definitions
 {
   [DebuggerDisplay("{Name}; Attributes = {Attributes}.")]
   [Serializable]
-  public class IndexDef : MappingNode
+  public sealed class IndexDef : MappingNode
   {
     /// <summary>
     /// Default fill factor.
@@ -75,7 +75,6 @@ namespace Xtensive.Storage.Building.Definitions
     public IndexAttributes Attributes
     {
       get { return attributes; }
-      protected set { attributes = value; }
     }
 
     /// <summary>
