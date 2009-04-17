@@ -21,7 +21,7 @@
 [assembly: global::System.Data.Objects.DataClasses.EdmRelationshipAttribute("NorthwindEF", "EmployeeTerritories", "Employees", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Xtensive.Storage.Tests.ObjectModel.Employees), "Territories", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Xtensive.Storage.Tests.ObjectModel.Territories))]
 
 // Original file name:
-// Generation date: 17.04.2009 18:33:16
+// Generation date: 17.04.2009 19:32:25
 namespace Xtensive.Storage.Tests.ObjectModel
 {
     
