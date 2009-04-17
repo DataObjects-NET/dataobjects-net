@@ -311,5 +311,23 @@ namespace Xtensive.Core.Reflection
         .Append(member.GetShortName(false))
         .ToString();
     }
+
+    /// <summary>
+    /// Gets the type of the member.
+    /// </summary>
+    /// <param name="mi">The <see cref="MemberInfo"/>.</param>
+    public static Type GetMemberType(MemberInfo mi)
+    {
+      var fi = mi as FieldInfo;
+      if (fi != null)
+        return fi.FieldType;
+      var pi = mi as PropertyInfo;
+      if (pi != null)
+        return pi.PropertyType;
+      var ei = mi as EventInfo;
+      if (ei != null)
+        return ei.EventHandlerType;
+      return null;
+    }
   }
 }

@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     IQueryable IQueryProvider.CreateQuery(Expression expression)
     {
-      Type elementType = TypeHelper.GetElementType(expression.Type);
+      Type elementType = SequenceHelper.GetElementType(expression.Type);
       try {
         var query = (IQueryable)typeof (Query<>).Activate(new[] {elementType}, new object[] {expression});
         return query;

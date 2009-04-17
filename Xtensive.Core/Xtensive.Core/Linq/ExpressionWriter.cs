@@ -555,7 +555,7 @@ namespace Xtensive.Core.Linq
     protected override Expression VisitNewArray(NewArrayExpression na)
     {
       Write("new ");
-      Write(GetTypeName(TypeHelper.GetElementType(na.Type)));
+      Write(GetTypeName(SequenceHelper.GetElementType(na.Type)));
       WriteArguments("[] {", na.Expressions, "}");
       return na;
     }
