@@ -183,4 +183,10 @@
   <data name="ExMoreThenOneIncludedColumnReferenceToColumnX" xml:space="preserve">
     <value>IncludedColumns collection contains more then one reference to column "{0}".</value>
   </data>
+  <data name="NullableMark" xml:space="preserve">
+    <value>?</value>
+  </data>
+  <data name="ExInvalidPrimaryKeyStructure" xml:space="preserve">
+    <value>Invalid PrimaryKeyInfo structure (content of KeyColumns \ ValueColumns).</value>
+  </data>
 </root>

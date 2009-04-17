@@ -20,17 +20,16 @@ namespace Xtensive.Modelling.Tests
     public void CombinedTest()
     {
       var storage = CreateSimpleStorageModel();
+      storage.Dump();
     }
 
-    #region Private methods
-
-    private static StorageInfo CreateSimpleStorageModel()
+    public static StorageInfo CreateSimpleStorageModel()
     {
       var storage = new StorageInfo("Storage");
       
       var t = new TableInfo(storage, "Types");
       var tId = new ColumnInfo(t, "Id") {
-        Type = new TypeInfo(typeof (int))
+        Type = new TypeInfo(typeof (int), false)
       };
       var tValue = new ColumnInfo(t, "Value") {
         Type = new TypeInfo(typeof (string), 1024)
@@ -48,6 +47,8 @@ namespace Xtensive.Modelling.Tests
       storage.Validate();
       return storage;
     }
+
+    #region Private methods
 
     private static void TestUpdate(StorageInfo origin, Action<StorageInfo, StorageInfo, HintSet> update)
     {

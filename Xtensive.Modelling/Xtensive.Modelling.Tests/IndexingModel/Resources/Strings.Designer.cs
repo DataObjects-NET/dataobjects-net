@@ -124,6 +124,15 @@ namespace Xtensive.Modelling.Tests.IndexingModel.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid PrimaryKeyInfo structure (content of KeyColumns \ ValueColumns)..
+        /// </summary>
+        internal static string ExInvalidPrimaryKeyStructure {
+            get {
+                return ResourceManager.GetString("ExInvalidPrimaryKeyStructure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to IncludedColumns collection contains more then one reference to column &quot;{0}&quot;..
         /// </summary>
         internal static string ExMoreThenOneIncludedColumnReferenceToColumnX {
@@ -210,6 +219,15 @@ namespace Xtensive.Modelling.Tests.IndexingModel.Resources {
         internal static string Length {
             get {
                 return ResourceManager.GetString("Length", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ?.
+        /// </summary>
+        internal static string NullableMark {
+            get {
+                return ResourceManager.GetString("NullableMark", resourceCulture);
             }
         }
         

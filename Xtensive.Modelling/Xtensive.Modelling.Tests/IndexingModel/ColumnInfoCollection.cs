@@ -13,8 +13,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// Column collection.
   /// </summary>
   [Serializable]
-  public sealed class ColumnInfoCollection : NodeCollectionBase<ColumnInfo, TableInfo>, 
-    IUnorderedNodeCollection
+  public sealed class ColumnInfoCollection : NodeCollectionBase<ColumnInfo, TableInfo>
   {
     // Constructors
 

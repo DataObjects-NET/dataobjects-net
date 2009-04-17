@@ -11,6 +11,7 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Tests.IndexingModel.Resources;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
 {
@@ -50,7 +51,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
         ea.Execute(base.ValidateState);
 
         // Secondary key columns: empty set, duplicates
-        var keyColumns = new List<ColumnInfo>(KeyColumns.Select(valueRef => valueRef.Value));
+        var keyColumns = KeyColumns.Select(valueRef => valueRef.Value).ToList();
         if (keyColumns.Count==0)
           ea.Execute(() => {
             throw new ValidationException(Strings.ExEmptyKeyColumnsCollection, Path);
@@ -79,11 +80,13 @@ namespace Xtensive.Modelling.Tests.IndexingModel
         }
 
         // Included columns
-        var allKeyColumns = new HashSet<ColumnInfo>(
-          KeyColumns.Select(cr => cr.Value)
-            .Union(PrimaryKeyColumns.Select(cr => cr.Value)));
+        var fullKeySet = 
+          KeyColumns
+            .Select(cr => cr.Value)
+            .Concat(PrimaryKeyColumns.Select(cr => cr.Value))
+            .ToHashSet();
         foreach (var columnRef in IncludedColumns)
-          if (allKeyColumns.Contains(columnRef.Value))
+          if (fullKeySet.Contains(columnRef.Value))
             ea.Execute(() => {
               throw new ValidationException(Strings.ExInvalidIncludedColumnsCollection, Path);
             });

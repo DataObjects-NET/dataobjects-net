@@ -20,7 +20,8 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// </summary>
   [Serializable]
   public sealed class TypeInfo : IEquatable<TypeInfo>,
-    IValidatable
+    IValidatable,
+    ICloneable
   {
     /// <summary>
     /// Gets the type of the data.
@@ -30,11 +31,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Indicates whether <see cref="Type"/> is nullable.
     /// </summary>
-    public bool IsNullable { 
-      get {
-        return Type.IsNullable();
-      }
-    }
+    public bool IsNullable { get; private set; }
 
     /// <summary>
     /// Gets the length.
@@ -62,6 +59,20 @@ namespace Xtensive.Modelling.Tests.IndexingModel
       // TODO: Implement
     }
 
+    #region Implementation of ICloneable
+
+    public object Clone()
+    {
+      var clone = new TypeInfo(Type, IsNullable);
+      clone.Length = Length;
+      clone.Culture = Culture;
+      clone.Scale = Scale;
+      clone.Precision = Precision;
+      return clone;
+    }
+
+    #endregion
+
     #region Equality members
 
     public bool Equals(TypeInfo other)
@@ -71,7 +82,8 @@ namespace Xtensive.Modelling.Tests.IndexingModel
       if (ReferenceEquals(this, other))
         return true;
       return 
-        Type==Type && 
+        other.Type==Type && 
+        other.IsNullable==IsNullable && 
         other.Length==Length && 
         other.Scale==Scale && 
         other.Precision==Precision;
@@ -94,6 +106,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     {
       unchecked {
         int result = (Type!=null ? Type.GetHashCode() : 0);
+        result = (result * 397) ^ (IsNullable ? 1 : 0);
         result = (result * 397) ^ Length;
         result = (result * 397) ^ Scale;
         result = (result * 397) ^ Precision;
@@ -109,7 +122,12 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     public override string ToString()
     {
       var sb = new StringBuilder();
-      sb.Append(string.Format(Strings.PropertyPairFormat, Strings.Type, Type.GetShortName()));
+      var type = Type;
+      if (type.IsNullable())
+        type = type.GetGenericArguments()[0];
+      sb.Append(string.Format(Strings.PropertyPairFormat, Strings.Type, type.GetShortName()));
+      if (IsNullable)
+        sb.Append(Strings.NullableMark);
       if (Length > 0)
         sb.Append(Strings.Comma).Append(string.Format(
           Strings.PropertyPairFormat, Strings.Length, Length));
@@ -126,25 +144,72 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     }
 
 
-    // Constructors
+    #region Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="dataType">Type of the data.</param>
-    public TypeInfo(Type dataType)
+    /// <param name="type">Underlying data type.</param>
+    public TypeInfo(Type type)
+      : this(type, type.IsClass || type.IsNullable())
     {
-      ArgumentValidator.EnsureArgumentNotNull(dataType, "dataType");
-      Type = dataType;
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="dataType">Type of the data.</param>
+    /// <param name="type">Underlying data type.</param>
     /// <param name="length">The length.</param>
-    public TypeInfo(Type dataType, int length)
-      : this(dataType)
+    public TypeInfo(Type type, int length)
+      : this(type, type.IsClass || type.IsNullable(), length)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="type">Underlying data type.</param>
+    /// <param name="length">The length.</param>
+    /// <param name="culture">The culture.</param>
+    public TypeInfo(Type type, int length, CultureInfo culture)
+      : this(type, type.IsClass || type.IsNullable(), length, culture)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="type">Underlying data type.</param>
+    /// <param name="length">The length.</param>
+    /// <param name="scale">The scale.</param>
+    /// <param name="precision">The precision.</param>
+    public TypeInfo(Type type, int length, int scale, int precision)
+      : this(type, type.IsClass || type.IsNullable(), length, scale, precision)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="type">Underlying data type.</param>
+    /// <param name="isNullable">Indicates whether type is nullable.</param>
+    public TypeInfo(Type type, bool isNullable)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      if (isNullable && type.IsValueType && !type.IsNullable())
+        ArgumentValidator.EnsureArgumentIsInRange(true, false, false, "isNullable");
+      Type = type;
+      IsNullable = isNullable;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="type">Underlying data type.</param>
+    /// <param name="isNullable">Indicates whether type is nullable.</param>
+    /// <param name="length">The length.</param>
+    public TypeInfo(Type type, bool isNullable, int length)
+      : this(type, isNullable)
     {
       ArgumentValidator.EnsureArgumentIsInRange(length, 0, int.MaxValue, "length");
       Length = length;
@@ -153,11 +218,12 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="dataType">Type of the data.</param>
+    /// <param name="type">Underlying data type.</param>
+    /// <param name="isNullable">Indicates whether type is nullable.</param>
     /// <param name="length">The length.</param>
     /// <param name="culture">The culture.</param>
-    public TypeInfo(Type dataType, int length, CultureInfo culture)
-      : this(dataType, length)
+    public TypeInfo(Type type, bool isNullable, int length, CultureInfo culture)
+      : this(type, isNullable, length)
     {
       ArgumentValidator.EnsureArgumentNotNull(culture, "culture");
       Culture = culture;
@@ -166,15 +232,18 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="dataType">Type of the data.</param>
+    /// <param name="type">Underlying data type.</param>
+    /// <param name="isNullable">Indicates whether type is nullable.</param>
     /// <param name="length">The length.</param>
     /// <param name="scale">The scale.</param>
     /// <param name="precision">The precision.</param>
-    public TypeInfo(Type dataType, int length, int scale, int precision)
-      : this(dataType, length)
+    public TypeInfo(Type type, bool isNullable, int length, int scale, int precision)
+      : this(type, isNullable, length)
     {
       Scale = scale;
       Precision = precision;
     }
+
+    #endregion
   }
 }
