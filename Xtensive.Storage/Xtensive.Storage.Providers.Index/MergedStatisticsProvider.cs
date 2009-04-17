@@ -5,7 +5,6 @@
 // Created:    2009.04.14
 
 using System;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
@@ -25,19 +24,16 @@ namespace Xtensive.Storage.Providers.Index
 
     #region Implementation of IStatistics<Tuple>
 
-    public double GetRecordCount(Range<Entire<Tuple>> range)
+    public StatisticsData GetData(Range<Entire<Tuple>> range)
     {
-      return underlyingProviders.Sum(provider => provider.GetStatistics().GetRecordCount(range));
-    }
-
-    public double GetSize(Range<Entire<Tuple>> range)
-    {
-      return underlyingProviders.Sum(provider => provider.GetStatistics().GetSize(range));
-    }
-
-    public double GetSeekCount(Range<Entire<Tuple>> range)
-    {
-      return underlyingProviders.Sum(provider => provider.GetStatistics().GetSeekCount(range));
+      double summaryRecordCount = 0;
+      double summarySeekCount = 0;
+      foreach (var provider in underlyingProviders) {
+        var currentData = provider.GetStatistics().GetData(range);
+        summaryRecordCount += currentData.RecordCount;
+        summarySeekCount += currentData.SeekCount;
+      }
+      return new StatisticsData(summaryRecordCount, summarySeekCount);
     }
 
     #endregion

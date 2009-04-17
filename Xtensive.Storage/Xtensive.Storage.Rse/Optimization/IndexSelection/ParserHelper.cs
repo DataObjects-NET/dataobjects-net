@@ -5,6 +5,7 @@
 // Created:    2009.04.03
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
@@ -49,6 +50,21 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       var mappedColumnInfo = mappedColumn.ColumnInfoRef.Resolve(domainModel);
       return indexInfo.KeyColumns.Count > indexFieldPosition &&
         mappedColumnInfo.Equals(indexInfo.KeyColumns[indexFieldPosition].Key);
+    }
+
+    public int GetPositionInIndexKeys(Column column, IndexInfo indexInfo)
+    {
+      var mappedColumn = column as MappedColumn;
+      if (mappedColumn == null)
+        return -1;
+      var columnInfo = mappedColumn.ColumnInfoRef.Resolve(domainModel);
+      var index = 0;
+      foreach (KeyValuePair<ColumnInfo, Direction> pair in indexInfo.KeyColumns) {
+        if (columnInfo.Equals(pair.Key))
+          return index;
+        index++;
+      }
+      return -1;
     }
 
     private bool IndexHasKeyAtZeroPoisition(int tupleFieldIndex, IndexInfo indexInfo,

@@ -163,6 +163,9 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
   [Entity(MappingName = "Products")]
   [HierarchyRoot(typeof (KeyGenerator), "Id", InheritanceSchema = InheritanceSchema.SingleTable)]
+  [Index("UnitPrice")]
+  [Index("ProductName")]
+  [Index("Category", "Supplier", "UnitPrice")]
   public abstract class Product : Entity
   {
     [Field(MappingName = "ProductId")]
@@ -213,6 +216,9 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
   [Entity(MappingName = "Employees")]
   [HierarchyRoot(typeof (KeyGenerator), "Id")]
+  [Index("FirstName")]
+  [Index("BirthDate")]
+  [Index("Title")]
   public class Employee : Person
   {
     [Field]
@@ -303,6 +309,8 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   }
 
   [Index("OrderDate")]
+  [Index("ShipName")]
+  [Index("Freight")]
   public class Order : OrderBase
   {
     [Field]

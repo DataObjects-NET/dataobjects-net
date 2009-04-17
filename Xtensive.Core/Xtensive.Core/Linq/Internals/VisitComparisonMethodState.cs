@@ -34,7 +34,7 @@ namespace Xtensive.Core.Linq.Internals
       switch (extractionInfo.MethodInfo.ComparisonKind) {
         case ComparisonKind.LikeEndsWith:
         case ComparisonKind.LikeStartsWith:
-          return ProcessMethodCorrespondingToLike(extractionInfo);
+          return extractionInfo;
         case ComparisonKind.Equality:
           return ProcessEqualityComparisonMethod(extractionInfo);
         case ComparisonKind.ForcedGreaterThan:
@@ -161,12 +161,6 @@ namespace Xtensive.Core.Linq.Internals
           Log.Instance);
     }
 
-    private static ExtractionInfo ProcessMethodCorrespondingToLike(ExtractionInfo extractionInfo)
-    {
-      extractionInfo.Value = MakeValueForLikeOperation(extractionInfo);
-      return extractionInfo;
-    }
-
     private static ExtractionInfo ProcessEqualityComparisonMethod(ExtractionInfo extractionInfo)
     {
       extractionInfo.ComparisonOperation = ExpressionType.Equal;
@@ -193,15 +187,6 @@ namespace Xtensive.Core.Linq.Internals
             "extractionInfo.MethodInfo.ComparisonKind");
       }
       return extractionInfo;
-    }
-
-    private static MethodCallExpression MakeValueForLikeOperation(ExtractionInfo extractionInfo)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(extractionInfo.MethodInfo.LikePattern,
-        "extractionInfo.MethodInfo.LikePattern");
-      var formatMethod = typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object) });
-      return Expression.Call(null, formatMethod, Expression.Constant(extractionInfo.MethodInfo.LikePattern),
-        extractionInfo.Value);
     }
   }
 }

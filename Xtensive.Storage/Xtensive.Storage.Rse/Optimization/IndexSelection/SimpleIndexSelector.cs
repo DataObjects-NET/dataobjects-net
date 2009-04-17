@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       var result = new Dictionary<IndexInfo, RangeSetInfo>(extractionResults.Count);
       foreach (var pair in extractionResults) {
         var cheapestResult = TrySelectCheapestResult(pair.Value);
-        if (cheapestResult == null) {
+        if (cheapestResult == null || cheapestResult.IndexInfo.IsPrimary) {
           result.Clear();
           return result;
         }
@@ -42,22 +42,32 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     {
       RSExtractionResult cheapestResult = null;
       double minimalCost = double.MaxValue;
+      double minimalCount = double.MaxValue;
+      RSExtractionResult primaryAsCheapest = null;
       foreach (var result in extractionResults) {
         double currentCost;
         if (result.RangeSetInfo.AlwaysFull)
           currentCost = double.MaxValue;
         else {
           var rangeSet = result.RangeSetInfo.GetRangeSet();
-          if(rangeSet.IsFull())
+          if (rangeSet.IsFull())
             currentCost = double.MaxValue;
-          else
-            currentCost = costEvaluator.Evaluate(result.IndexInfo, rangeSet);
+          else {
+            var costInfo = costEvaluator.Evaluate(result.IndexInfo, rangeSet);
+            currentCost = costInfo.TotalCost;
+            if (costInfo.RecordCount < minimalCount) {
+              primaryAsCheapest = result.IndexInfo.IsPrimary ? result : null;
+              minimalCount = costInfo.RecordCount;
+            }
+          }
         }
         if(currentCost < minimalCost) {
           minimalCost = currentCost;
           cheapestResult = result;
         }
       }
+      if (primaryAsCheapest != null)
+        return primaryAsCheapest;
       return cheapestResult;
     }
 

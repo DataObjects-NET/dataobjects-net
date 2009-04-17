@@ -4,7 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.04.14
 
-using System;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
@@ -18,16 +17,19 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     #region Implementation of ICostEvaluator
 
-    public double Evaluate(IndexInfo indexInfo, RangeSet<Entire<Tuple>> rangeSet)
+    public CostInfo Evaluate(IndexInfo indexInfo, RangeSet<Entire<Tuple>> rangeSet)
     {
       ArgumentValidator.EnsureArgumentNotNull(indexInfo, "indexInfo");
       ArgumentValidator.EnsureArgumentNotNull(rangeSet, "rangeSet");
-      double result = 0;
+      double recordCount = 0;
+      double seekCount = 0;
       var statistics = providerResolver.Resolve(indexInfo).GetStatistics();
-      foreach (var range in rangeSet)
-        result += statistics.GetRecordCount(range) + statistics.GetSize(range)
-          + statistics.GetSeekCount(range);
-      return result;
+      foreach (var range in rangeSet) {
+        var current = statistics.GetData(range);
+        recordCount += current.RecordCount;
+        seekCount += current.SeekCount;
+      }
+      return new CostInfo(recordCount, seekCount);
     }
 
     #endregion

@@ -5,32 +5,27 @@
 // Created:    2009.04.06
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Core.Tuples;
-using Xtensive.Indexing;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
   [Serializable]
   internal struct CostInfo
   {
-    public readonly IndexInfo IndexInfo;
-    public readonly RangeSet<Entire<Tuple>> RangeSet;
-    public readonly double Cost;
+    public readonly double RecordCount;
+    public readonly double SeekCount;
+    public readonly double TotalCost;
 
 
     // Constructors
 
-    public CostInfo(IndexInfo indexInfo, RangeSet<Entire<Tuple>> rangeSet, double cost)
+    public CostInfo(double recordCount, double seekCount)
     {
-      ArgumentValidator.EnsureArgumentNotNull(indexInfo, "indexInfo");
-      ArgumentValidator.EnsureArgumentNotNull(rangeSet, "rangeSet");
-      ArgumentValidator.EnsureArgumentIsInRange(cost, 0, double.MaxValue, "cost");
-      IndexInfo = indexInfo;
-      RangeSet = rangeSet;
-      Cost = cost;
+      ArgumentValidator.EnsureArgumentNotNull(recordCount, "recordCount");
+      ArgumentValidator.EnsureArgumentNotNull(seekCount, "seekCount");
+      RecordCount = recordCount;
+      SeekCount = seekCount;
+      TotalCost = RecordCount + SeekCount;
     }
   }
 }

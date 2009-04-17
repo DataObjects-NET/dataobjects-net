@@ -4,7 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.03.17
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -20,31 +19,31 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     private readonly GeneralPredicateParser generalParser;
 
     public Dictionary<Expression, List<RSExtractionResult>> Extract(DisjunctiveNormalized predicate,
-      IEnumerable<IndexInfo> secondaryIndexes, RecordSetHeader primaryIdxRecordSetHeader)
+      IEnumerable<IndexInfo> indexes, RecordSetHeader primaryIdxRecordSetHeader)
     {
       ArgumentValidator.EnsureArgumentNotNull(predicate, "predicate");
-      ArgumentValidator.EnsureArgumentNotNull(secondaryIndexes, "secondaryIndexes");
+      ArgumentValidator.EnsureArgumentNotNull(indexes, "indexes");
       ArgumentValidator.EnsureArgumentNotNull(primaryIdxRecordSetHeader, "primaryIdxRecordSetHeader");
       predicate.Validate();
       var result = new Dictionary<Expression, List<RSExtractionResult>>();
-      var indexCount = secondaryIndexes.Count();
+      var indexCount = indexes.Count();
       foreach (var operand in predicate.Operands) {
         var expressionPart = operand.ToExpression();
-        var rangeSets = ProcessExpressionPart(operand, secondaryIndexes, indexCount, primaryIdxRecordSetHeader);
+        var rangeSets = ProcessExpressionPart(operand, indexes, indexCount, primaryIdxRecordSetHeader);
         result.Add(expressionPart, rangeSets);
       }
       return result;
     }
 
     public Dictionary<Expression, List<RSExtractionResult>> Extract(Expression predicate,
-      IEnumerable<IndexInfo> secondaryIndexes, RecordSetHeader primaryIdxRecordSetHeader)
+      IEnumerable<IndexInfo> indexes, RecordSetHeader primaryIdxRecordSetHeader)
     {
       ArgumentValidator.EnsureArgumentNotNull(predicate, "predicate");
-      ArgumentValidator.EnsureArgumentNotNull(secondaryIndexes, "secondaryIndexes");
+      ArgumentValidator.EnsureArgumentNotNull(indexes, "indexes");
       ArgumentValidator.EnsureArgumentNotNull(primaryIdxRecordSetHeader, "primaryIdxRecordSetHeader");
       var result = new Dictionary<Expression, List<RSExtractionResult>>();
-      var indexCount = secondaryIndexes.Count();
-      var extractionResult = ProcessExpression(predicate, secondaryIndexes, indexCount, primaryIdxRecordSetHeader);
+      var indexCount = indexes.Count();
+      var extractionResult = ProcessExpression(predicate, indexes, indexCount, primaryIdxRecordSetHeader);
       result.Add(predicate, extractionResult);
       return result;
     }

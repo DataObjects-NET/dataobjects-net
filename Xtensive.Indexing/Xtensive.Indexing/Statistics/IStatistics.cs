@@ -14,20 +14,7 @@ namespace Xtensive.Indexing.Statistics
     /// <summary>
     /// </summary>
     /// <param name="range">The range.</param>
-    /// <returns>The count of records which are contained in <paramref name="range"/></returns>
-    double GetRecordCount(Range<Entire<T>> range);
-
-    /// <summary>
-    /// </summary>
-    /// <param name="range">The range.</param>
-    /// <returns>The total size of records which are contained in <paramref name="range"/></returns>
-    double GetSize(Range<Entire<T>> range);
-
-    /// <summary>
-    /// </summary>
-    /// <param name="range">The range.</param>
-    /// <returns>The count of seeks which are required to load records contained in
-    /// <paramref name="range"/></returns>
-    double GetSeekCount(Range<Entire<T>> range);
+    /// <returns>The statistics data which was collected for the <paramref name="range"/>.</returns>
+    StatisticsData GetData(Range<Entire<T>> range);
   }
 }

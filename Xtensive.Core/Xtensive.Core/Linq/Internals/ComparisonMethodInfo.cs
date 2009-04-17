@@ -5,18 +5,14 @@
 // Created:    2009.03.27
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Linq.Internals
 {
   [Serializable]
   internal class ComparisonMethodInfo
   {
-    private static readonly string startsWithPattern = "{0}%";
-    private static readonly string endsWithPattern = "%{0}";
     private static readonly string compareOrdinalName = "CompareOrdinal";
 
     public readonly MethodInfo Method;
@@ -31,8 +27,6 @@ namespace Xtensive.Core.Linq.Internals
           && ComparisonKind != ComparisonKind.LikeStartsWith;
       }
     }
-
-    public string LikePattern { get; private set; }
 
     //It can recognize an implementation of IComparable<T> only, if the one matches the following pattern:
     //class ClassName : IComparable<ClassName>
@@ -111,18 +105,6 @@ namespace Xtensive.Core.Linq.Internals
       return true;
     }
 
-    private void SetFieldsDependedOnComparisonKind()
-    {
-      switch (ComparisonKind) {
-        case ComparisonKind.LikeStartsWith:
-          LikePattern = startsWithPattern;
-          break;
-        case ComparisonKind.LikeEndsWith:
-          LikePattern = endsWithPattern;
-          break;
-      }
-    }
-
 
     // Constructors
 
@@ -131,7 +113,6 @@ namespace Xtensive.Core.Linq.Internals
       ArgumentValidator.EnsureArgumentNotNull(method, "method");
       ComparisonKind = comparisonKind;
       Method = method;
-      SetFieldsDependedOnComparisonKind();
       EvaluateComplexity(method);
     }
   }

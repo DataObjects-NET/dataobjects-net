@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Tests.Rse
       Dictionary<IndexInfo, RangeSetInfo> selectedIndexes)
     {
       Assert.AreEqual(2, selectedIndexes.Count);
-      Assert.AreEqual(inputData[exps[0]][0].RangeSetInfo, selectedIndexes[indexes[0]]);
+      Assert.AreEqual(inputData[exps[0]][2].RangeSetInfo, selectedIndexes[indexes[2]]);
       Assert.AreEqual(inputData[exps[1]][1].RangeSetInfo, selectedIndexes[indexes[1]]);
       var uniteMethod = typeof(RangeSet<Entire<Tuple>>).GetMethod("Unite");
       Assert.AreEqual(uniteMethod,
@@ -110,25 +110,25 @@ namespace Xtensive.Storage.Tests.Rse
       var result = mocks.Stub<ICostEvaluator>();
       int index = 0;
       SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
-        inputData[exps[0]][index].RangeSetInfo.GetRangeSet())).Return(5.0);
+        inputData[exps[0]][index].RangeSetInfo.GetRangeSet())).Return(new CostInfo(100, 0));
       SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
-        inputData[exps[1]][index].RangeSetInfo.GetRangeSet())).Return(100.0);
+        inputData[exps[1]][index].RangeSetInfo.GetRangeSet())).Return(new CostInfo(110.0, 0));
       SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
-        inputData[exps[2]][index].RangeSetInfo.GetRangeSet())).Return(110.0);
+        inputData[exps[2]][index].RangeSetInfo.GetRangeSet())).Return(new CostInfo(120.0, 0));
       index = 1;
       SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
-        inputData[exps[0]][index].RangeSetInfo.GetRangeSet())).Return(100.0);
+        inputData[exps[0]][index].RangeSetInfo.GetRangeSet())).Return(new CostInfo(100.0, 0));
       SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
-        inputData[exps[1]][index].RangeSetInfo.GetRangeSet())).Return(5.0);
+        inputData[exps[1]][index].RangeSetInfo.GetRangeSet())).Return(new CostInfo(5.0, 0));
       SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
-        inputData[exps[2]][index].RangeSetInfo.GetRangeSet())).Return(5.0);
+        inputData[exps[2]][index].RangeSetInfo.GetRangeSet())).Return(new CostInfo(5.0, 0));
       index = 2;
       SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
-        inputData[exps[0]][index].RangeSetInfo.GetRangeSet())).Return(100.0);
+        inputData[exps[0]][index].RangeSetInfo.GetRangeSet())).Return(new CostInfo(5.0, 0));
       SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
-        inputData[exps[1]][index].RangeSetInfo.GetRangeSet())).Return(110.0);
+        inputData[exps[1]][index].RangeSetInfo.GetRangeSet())).Return(new CostInfo(110.0, 0));
       SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
-        inputData[exps[2]][index].RangeSetInfo.GetRangeSet())).Return(120.0);
+        inputData[exps[2]][index].RangeSetInfo.GetRangeSet())).Return(new CostInfo(120.0, 0));
       mocks.ReplayAll();
       return result;
     }

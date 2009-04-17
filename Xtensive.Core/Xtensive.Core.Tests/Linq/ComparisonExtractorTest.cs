@@ -288,32 +288,28 @@ namespace Xtensive.Core.Tests.Linq
       string xs = "abc";
       string zs = "ab";
       Expression<Func<bool>> comparison = () => xs.StartsWith(zs);
-      Expression valueExp = ((Expression<Func<string>>)(() => String.Format("{0}%", zs))).Body;
+      Expression valueExp = ((Expression<Func<string>>)(() => zs)).Body;
       string keyName = "xs";
       var comparisonInfo = ExtractComparisonInfo(comparison, keyName);
       CheckSimpleComparison(ComparisonOperation.LikeStartsWith, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.StartsWith(zs, StringComparison.Ordinal);
-      valueExp = ((Expression<Func<string>>)(() => String.Format("{0}%", zs))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
       CheckComplexComparison(ComparisonOperation.LikeStartsWith, keyName,
         valueExp, comparison.Body, comparisonInfo);
 
       comparison = () => xs.EndsWith(zs);
-      valueExp = ((Expression<Func<string>>)(() => String.Format("%{0}", zs))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
       CheckSimpleComparison(ComparisonOperation.LikeEndsWith, keyName,
         valueExp, comparisonInfo);
 
       comparison = () => xs.EndsWith(zs, true, System.Globalization.CultureInfo.CurrentUICulture);
-      valueExp = ((Expression<Func<string>>)(() => String.Format("%{0}", zs))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
       CheckComplexComparison(ComparisonOperation.LikeEndsWith, keyName,
         valueExp, comparison.Body, comparisonInfo);
 
       comparison = () => !xs.StartsWith(zs);
-      valueExp = ((Expression<Func<string>>)(() => String.Format("{0}%", zs))).Body;
       comparisonInfo = ExtractComparisonInfo(comparison, keyName);
       CheckSimpleComparison(ComparisonOperation.NotLikeStartsWith, keyName,
         valueExp, comparisonInfo);

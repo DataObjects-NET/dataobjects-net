@@ -38,12 +38,6 @@ namespace Xtensive.Storage.Rse
     public CompilableProvider Provider { get; private set; }
 
     /// <summary>
-    /// Gets the <see cref="ExecutableProvider.Origin"/> of the <see cref="ExecutableProvider"/> 
-    /// which is the result of the <see cref="Provider"/>'s compilation.
-    /// </summary>
-    public CompilableProvider ExecutableProviderOrigin { get; private set; }
-
-    /// <summary>
     /// Creates <see cref="StoreProvider"/> with specified <see cref="RecordSetHeader"/>
     /// and name for saved context data .
     /// </summary>
@@ -65,7 +59,6 @@ namespace Xtensive.Storage.Rse
         if (compilationContext == null)
           throw new InvalidOperationException();
         var compiled = compilationContext.Compile(Provider);
-        ExecutableProviderOrigin = compiled.Origin;
         foreach (var tuple in compiled)
           yield return tuple;
       }

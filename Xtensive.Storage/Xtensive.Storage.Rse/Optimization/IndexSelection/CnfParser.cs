@@ -4,8 +4,8 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.03.23
 
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Linq.Normalization;
@@ -28,22 +28,13 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     private readonly List<RangeSetInfo> extractedExpressions =
       new List<RangeSetInfo>(defaultExpressionsListSize);
 
+    private readonly List<Pair<int, RangeSetInfo>> rangeSetAndIndexKeys = 
+      new List<Pair<int, RangeSetInfo>>(defaultExpressionsListSize);
+
     private readonly Dictionary<int, Expression> indexKeyValues =
       new Dictionary<int, Expression>(defaultExpressionsListSize);
 
-    private readonly ComparisonExtractor extractor = new ComparisonExtractor();
-
-    private readonly Comparison<RangeSetInfo> cashedComparison =
-      (r1, r2) =>
-      {
-        if (r1.Origin != null && r2.Origin != null)
-          return r1.Origin.FieldIndex.CompareTo(r2.Origin.FieldIndex);
-        if (r1.Origin == null && r2.Origin == null)
-          return 0;
-        if (r2.Origin == null)
-          return -1;
-        return 1;
-      };
+    private readonly ComparisonExtractor extractor = new ComparisonExtractor();  
 
     public RangeSetInfo Parse(Conjunction<Expression> normalized, IndexInfo info,
       RecordSetHeader primaryIdxRecordSetHeader)
@@ -83,36 +74,32 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     private RangeSetInfo TryUseMultiFieldIndex()
     {
-      extractedExpressions.Sort(cashedComparison);
-      int lastFieldPosition = -1;
-      foreach (var rangeSet in extractedExpressions) {
-        if (rangeSet.Origin == null)
-          break;
-        bool presentInIndex = parserHelper.IndexHasKeyAtSpecifiedPoisition(rangeSet.Origin.FieldIndex,
-          lastFieldPosition + 1, indexInfo, recordSetHeader);
-        if (!presentInIndex)
-          break;
-
-        if (rangeSet.Origin.Comparison.Operation == ComparisonOperation.Equal)
-          lastFieldPosition++;
-        else {
-          lastFieldPosition++;
-          break;
-        }
-      }
-
-      if (lastFieldPosition <= 0)
-        return null;
+      var rangeSetProjection = (from rangeSetInfo in extractedExpressions
+      where rangeSetInfo.Origin!=null
+      select new Pair<int, RangeSetInfo>(parserHelper.GetPositionInIndexKeys(
+        recordSetHeader.Columns[rangeSetInfo.Origin.FieldIndex], indexInfo),rangeSetInfo));
+      rangeSetAndIndexKeys.Clear();
+      rangeSetAndIndexKeys.AddRange(rangeSetProjection);
+      rangeSetAndIndexKeys.Sort((pair0, pair1) => pair0.First.CompareTo(pair1.First));
 
       indexKeyValues.Clear();
-      for (int i = 0; i <= lastFieldPosition; i++)
-        indexKeyValues.Add(i, extractedExpressions[i].Origin.Comparison.Value);
+      RangeSetInfo lastRangeSetInfo = null;
+      foreach (var item in rangeSetAndIndexKeys) {
+        if (item.First < 0)
+          break;
+        indexKeyValues.Add(item.First, item.Second.Origin.Comparison.Value);
+        lastRangeSetInfo = item.Second;
+        if (item.Second.Origin.Comparison.Operation!=ComparisonOperation.Equal)
+          break;
+      }
+      if (indexKeyValues.Count <= 1 || lastRangeSetInfo == null)
+        return null;
 
       return RangeSetExpressionBuilder.BuildConstructor(indexKeyValues,
-        extractedExpressions[lastFieldPosition].Origin, indexInfo);
+        lastRangeSetInfo.Origin, indexInfo);
     }
 
- 
+
     // Constructors
 
     public CnfParser(DomainModel domainModel)

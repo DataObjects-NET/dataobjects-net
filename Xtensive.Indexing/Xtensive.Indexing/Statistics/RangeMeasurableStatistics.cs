@@ -5,7 +5,6 @@
 // Created:    2009.04.13
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Indexing.Measures;
 
@@ -16,17 +15,17 @@ namespace Xtensive.Indexing.Statistics
     private readonly IRangeMeasurable<TKey, TItem> measuresProvider;
     private readonly bool providerIsInMemory;
 
-    public double GetRecordCount(Range<Entire<TKey>> range)
+    public StatisticsData GetData(Range<Entire<TKey>> range)
+    {
+      return new StatisticsData(GetRecordCount(range), GetSeekCount(range));
+    }
+
+    private double GetRecordCount(Range<Entire<TKey>> range)
     {
       return (long) measuresProvider.GetMeasureResult(range, CountMeasure<TKey, long>.CommonName);
     }
 
-    public double GetSize(Range<Entire<TKey>> range)
-    {
-      return (long) measuresProvider.GetMeasureResult(range, SizeMeasure<TItem>.CommonName);
-    }
-
-    public double GetSeekCount(Range<Entire<TKey>> range)
+    private double GetSeekCount(Range<Entire<TKey>> range)
     {
       // An index is in memory.
       if (providerIsInMemory)

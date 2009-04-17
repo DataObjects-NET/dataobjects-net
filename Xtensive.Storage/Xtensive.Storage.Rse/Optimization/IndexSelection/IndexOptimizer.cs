@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
   public sealed class IndexOptimizer : CompilableProviderVisitor, IOptimizer
   {
     private readonly DomainModel domainModel;
-    private readonly LruCache<IndexInfo,Pair<IndexInfo, List<IndexInfo>>> seconaryIndexesCache =
+    private readonly LruCache<IndexInfo,Pair<IndexInfo, List<IndexInfo>>> indexesCache =
       new LruCache<IndexInfo,Pair<IndexInfo, List<IndexInfo>>>(20, pair => pair.First, pair => 1);
     private readonly RangeSetExtractor rsExtractor;
     private readonly IIndexSelector indexSelector;
@@ -45,16 +45,16 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       if (primaryProvider == null)
         return base.VisitFilter(provider);
       var primaryIndex = primaryProvider.Index.Resolve(domainModel);
-      var secondaryIndexes = GetSecondaryIndexes(primaryIndex);
-      if (secondaryIndexes.Count == 0)
+      var indexes = GetIndexes(primaryIndex);
+      if (indexes.Count == 0)
         return base.VisitFilter(provider);
-      var extractionResult = ExtractRangeSets(provider.Predicate, primaryIndex, secondaryIndexes);
+      var extractionResult = ExtractRangeSets(provider.Predicate, primaryIndex, indexes);
       var selectedIndexes = indexSelector.Select(extractionResult);
       return treeRewriter.InsertSecondaryIndexes(provider, selectedIndexes);
     }
 
     private Dictionary<Expression, List<RSExtractionResult>> ExtractRangeSets(Expression predicate,
-      IndexInfo primaryIndex, IEnumerable<IndexInfo> secondaryIndexes)
+      IndexInfo primaryIndex, IEnumerable<IndexInfo> indexes)
     {
       DisjunctiveNormalized normalized = null;
       try {
@@ -62,17 +62,18 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       }
       catch (InvalidOperationException){}
       if (normalized != null)
-        return rsExtractor.Extract(normalized, secondaryIndexes, primaryIndex.GetRecordSetHeader());
-      return rsExtractor.Extract(predicate, secondaryIndexes, primaryIndex.GetRecordSetHeader());
+        return rsExtractor.Extract(normalized, indexes, primaryIndex.GetRecordSetHeader());
+      return rsExtractor.Extract(predicate, indexes, primaryIndex.GetRecordSetHeader());
     }
 
-    private List<IndexInfo> GetSecondaryIndexes(IndexInfo primaryIndex)
+    private List<IndexInfo> GetIndexes(IndexInfo primaryIndex)
     {
       Pair<IndexInfo, List<IndexInfo>> cachedPair;
-      if (seconaryIndexesCache.TryGetItem(primaryIndex, true, out cachedPair))
+      if (indexesCache.TryGetItem(primaryIndex, true, out cachedPair))
         return cachedPair.Second;
-      var result = primaryIndex.ReflectedType.Indexes.Where(index => !index.IsPrimary).ToList();
-      seconaryIndexesCache.Add(new Pair<IndexInfo, List<IndexInfo>>(primaryIndex, result));
+      var result = primaryIndex.ReflectedType.Indexes.Where(index => index.IsSecondary || index.IsPrimary)
+        .ToList();
+      indexesCache.Add(new Pair<IndexInfo, List<IndexInfo>>(primaryIndex, result));
       return result;
     }
 
