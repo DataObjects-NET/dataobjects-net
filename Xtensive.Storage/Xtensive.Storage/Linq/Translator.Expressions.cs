@@ -174,11 +174,13 @@ namespace Xtensive.Storage.Linq
       if (mapping != null) {
         foreach (var item in path) {
           number++;
-          if (item.Type == MemberType.Entity && (!entityAsKey.Value || number != path.Count)) {
+          var name = item.Name;
+          if (item.Type == MemberType.Entity) {
             ComplexMapping innerMapping;
-            var name = item.Name;
             var typeInfo = context.Model.Types[item.Expression.Type];
             if (!mapping.TryGetJoinedEntity(name, out innerMapping)) {
+              if (entityAsKey.Value && number == path.Count)
+                break;
               var joinedIndex = typeInfo.Indexes.PrimaryIndex;
               var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
               var keySegment = mapping.GetFieldMapping(name);
@@ -193,6 +195,8 @@ namespace Xtensive.Storage.Linq
             }
             mapping = innerMapping;
           }
+          else if (item.Type == MemberType.Anonymous)
+            mapping = mapping.GetAnonymousMapping(name).First;
         }
       }
 

@@ -18,7 +18,6 @@ namespace Xtensive.Storage.Linq
     Structure,
     Entity,
     EntitySet,
-    Anonymous,
-    Grouping
+    Anonymous
   }
 }
