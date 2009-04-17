@@ -28,16 +28,16 @@ namespace Xtensive.Storage.Providers.Memory
     /// <inheritdoc/>
     public override void ClearStorageSchema()
     {
-      StorageView.ClearSchema();
+      // StorageView.ClearSchema();
     }
 
     /// <inheritdoc/>
     public override void UpdateStorageSchema()
     {
-      var converter = new ModelConverter(Handlers.NameBuilder.BuildForeignKeyName,
-        Handlers.NameBuilder.BuildForeignKeyName);
-      var newSchema = converter.Convert(BuildingContext.Current.Model, StorageView.Storage.Name);
-      StorageView.CreateNewSchema(newSchema);
+      // var converter = new ModelConverter(Handlers.NameBuilder.BuildForeignKeyName,
+      //  Handlers.NameBuilder.BuildForeignKeyName);
+      // var newSchema = converter.Convert(BuildingContext.Current.Model, StorageView.Storage.Name);
+      // StorageView.CreateNewSchema(newSchema);
     }
   }
 }
