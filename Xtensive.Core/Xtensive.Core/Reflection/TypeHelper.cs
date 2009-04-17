@@ -740,7 +740,8 @@ namespace Xtensive.Core.Reflection
     /// <param name="type">The type to check.</param>
     /// <param name="baseType">Type of the generic.</param>
     /// <returns>
-    /// <see langword="true"/> if the specified <paramref name="type"/> inherits the <paramref name="baseType"/>; otherwise, <see langword="false"/>.
+    /// <see langword="true"/> if the specified <paramref name="type"/> inherits the <paramref name="baseType"/>;
+    /// otherwise, <see langword="false"/>.
     /// </returns>
     public static bool IsOfGenericType(this Type type, Type baseType)
     {
@@ -748,9 +749,23 @@ namespace Xtensive.Core.Reflection
       while (!(t == null || t == typeof(object))) {
         if (t.IsGenericType && t.GetGenericTypeDefinition() == baseType)
           return true;
-       t = t.BaseType;
+        t = t.BaseType;
       }
       return false;
+    }
+
+    /// <summary>
+    /// Determines whether <paramref name="type"/> implements the <paramref name="_interface"/>.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="_interface">The <see langword="interface"/>.</param>
+    /// <returns>
+    ///	<see langword="true"/> if the specified <paramref name="type"/> implements the <paramref name="_interface"/>;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsOfGenericInterface(this Type type, Type _interface)
+    {
+      return type.IsOfGenericType(_interface) || type.GetInterfaces().Any(t => t.IsOfGenericType(_interface));
     }
 
     public static Type FindIEnumerable(Type seqType)

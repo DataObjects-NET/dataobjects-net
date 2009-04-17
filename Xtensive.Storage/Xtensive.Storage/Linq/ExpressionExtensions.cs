@@ -34,14 +34,7 @@ namespace Xtensive.Storage.Linq
 
     public static bool IsQuery(this Expression expression)
     {
-      var type = expression.Type;
-
-      if (type.IsInterface)
-        return type.IsGenericType && type.GetGenericTypeDefinition()==typeof (IQueryable<>);
-
-      return type.GetInterfaces()
-        .Where(t => t.IsGenericType && t.GetGenericTypeDefinition()==typeof (IQueryable<>))
-        .Any();
+      return expression.Type.IsOfGenericInterface(typeof(IQueryable<>));
     }
 
     public static bool IsResult(this Expression expression)
