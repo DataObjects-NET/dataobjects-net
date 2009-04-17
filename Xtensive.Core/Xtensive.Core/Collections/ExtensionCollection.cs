@@ -124,7 +124,7 @@ namespace Xtensive.Core.Collections
     public IEnumerator<Type> GetEnumerator()
     {
       if (extensions==null)
-        return EnumerableUtils.GetEmptyEnumerator<Type>();
+        return EnumerableUtils<Type>.EmptyEnumerator;
       else
         return extensions.Keys.GetEnumerator();
     }

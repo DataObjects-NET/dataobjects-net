@@ -246,16 +246,18 @@ namespace Xtensive.Core.Helpers
 
     #region IEnumerable<...> methods
 
+    /// <inheritdoc/>
     [DebuggerStepThrough]
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
     }
 
+    /// <inheritdoc/>
     public IEnumerator<Exception> GetEnumerator()
     {
       if (exceptions==null)
-        return EnumerableUtils.GetEmptyEnumerator<Exception>();
+        return EnumerableUtils<Exception>.EmptyEnumerator;
       else 
         return exceptions.GetEnumerator();
     }

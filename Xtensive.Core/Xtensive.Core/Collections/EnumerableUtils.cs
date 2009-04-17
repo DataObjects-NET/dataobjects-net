@@ -6,14 +6,14 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Xtensive.Core.Collections
 {
   /// <summary>
   /// <see cref="IEnumerable"/> related utilities.
   /// </summary>
-  public static class EnumerableUtils
+  /// <typeparam name="TItem">Type of enumerated item.</typeparam>
+  public static class EnumerableUtils<TItem>
   {
     #region Nested type: EmptyEnumerable<T>
 
@@ -21,17 +21,13 @@ namespace Xtensive.Core.Collections
     {
       internal sealed class EmptyEnumerator : IEnumerator<T>
       {
-        public void Dispose()
+        public void Reset()
         {
         }
 
         public bool MoveNext()
         {
           return false;
-        }
-
-        public void Reset()
-        {
         }
 
         object IEnumerator.Current
@@ -43,9 +39,14 @@ namespace Xtensive.Core.Collections
         {
           get { return default(T); }
         }
+
+        public void Dispose()
+        {
+        }
       }
 
-      public static EmptyEnumerator Enumerator = new EmptyEnumerator();
+      public static EmptyEnumerator EnumeratorInstance = new EmptyEnumerator();
+      
       public static EmptyEnumerable<T> Instance = new EmptyEnumerable<T>();
 
       IEnumerator IEnumerable.GetEnumerator()
@@ -55,34 +56,17 @@ namespace Xtensive.Core.Collections
 
       public IEnumerator<T> GetEnumerator()
       {
-        return Enumerator;
+        return EnumeratorInstance;
       }
     }
 
     #endregion
 
     /// <summary>
-    /// Safely adds one value to sequence.
-    /// </summary>
-    /// <typeparam name="T">The type of enumerated items.</typeparam>
-    /// <param name="source">Source sequence.</param>
-    /// <param name="value">Value to add to sequence.</param>
-    /// <returns>New sequence with both <paramref name="source"/> and <paramref name="value"/> items inside without duplicates.</returns>
-    /// <remarks>If source sequence is null, it's equals to empty sequence. If value is null, it will not added to result sequence.</remarks>
-    public static IEnumerable<T> AddOne<T>(this IEnumerable<T> source, T value)
-    {
-      source = source ?? GetEmpty<T>();
-      if (!ReferenceEquals(value, null))
-        source = source.Union(One(value));
-      return source;
-    }
-
-    /// <summary>
     /// Gets the enumerable with one element.
     /// </summary>
-    /// <typeparam name="T">The type of enumerated items.</typeparam>
     /// <returns>Sequence with value inside.</returns>
-    public static IEnumerable<T> One<T>(T value)
+    public static IEnumerable<TItem> One(TItem value)
     {
       yield return value;
     }
@@ -90,21 +74,17 @@ namespace Xtensive.Core.Collections
     /// <summary>
     /// Gets the empty sequence.
     /// </summary>
-    /// <typeparam name="T">The type of enumerated items.</typeparam>
     /// <returns>Empty sequence.</returns>
-    public static IEnumerable<T> GetEmpty<T>()
-    {
-      return EmptyEnumerable<T>.Instance;
+    public static IEnumerable<TItem> Empty {
+      get { return EmptyEnumerable<TItem>.Instance; }
     }
 
     /// <summary>
     /// Gets the enumerator of empty sequence.
     /// </summary>
-    /// <typeparam name="T">The type of enumerated items.</typeparam>
     /// <returns>The enumerator of empty sequence.</returns>
-    public static IEnumerator<T> GetEmptyEnumerator<T>()
-    {
-      return EmptyEnumerable<T>.Enumerator;
+    public static IEnumerator<TItem> EmptyEnumerator {
+      get { return EmptyEnumerable<TItem>.EnumeratorInstance; }
     }
   }
 }
