@@ -72,7 +72,9 @@ namespace Xtensive.Modelling.Actions
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var parent = (Node) item;
-      var node = TryConstructor(model, parent, name);
+      var node = TryConstructor(model, parent, name); // Regular node
+      if (node==null)
+        node = TryConstructor(model, parent); // Unnamed node
       if (node==null)
         throw new InvalidOperationException(string.Format(
           Strings.ExCannotFindConstructorToExecuteX, this));

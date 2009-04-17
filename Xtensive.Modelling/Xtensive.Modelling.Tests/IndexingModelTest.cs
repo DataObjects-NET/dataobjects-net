@@ -21,6 +21,13 @@ namespace Xtensive.Modelling.Tests
     {
       var storage = CreateSimpleStorageModel();
       storage.Dump();
+
+      TestUpdate(storage, (s1, s2, hs) => {
+        var t1 = (TableInfo) s1.Resolve("Tables/Types");
+        t1.Remove();
+        var o2 = (TableInfo) s2.Resolve("Tables/Objects");
+        o2.Remove();
+      });
     }
 
     public static StorageInfo CreateSimpleStorageModel()
