@@ -268,6 +268,33 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not find anonymous mapping for field &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExCouldNotFindAnonymousMappingForFieldX {
+            get {
+                return ResourceManager.GetString("ExCouldNotFindAnonymousMappingForFieldX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not find entity mapping for field &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExCouldNotFindEntityMappingForFieldX {
+            get {
+                return ResourceManager.GetString("ExCouldNotFindEntityMappingForFieldX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not find field segment for field &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExCouldNotFindFieldSegmentForFieldX {
+            get {
+                return ResourceManager.GetString("ExCouldNotFindFieldSegmentForFieldX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not load types from assembly {0}..
         /// </summary>
         internal static string ExCouldNotLoadTypesFromAssembly {

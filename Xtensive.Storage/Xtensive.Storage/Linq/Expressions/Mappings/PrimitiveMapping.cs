@@ -22,20 +22,14 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       get { return segment; }
     }
 
-    // TODO: -> List<int>?
-    public override IList<int> GetColumns()
+    public override List<int> GetColumns(bool entityAsKey)
     {
       return segment.GetItems().ToList();
     }
 
-    public override Mapping ShiftOffset(int offset)
+    public override Mapping CreateShifted(int offset)
     {
       return new PrimitiveMapping(new Segment<int>(segment.Offset + offset, segment.Length));
-    }
-
-    public override void Fill(Mapping mapping)
-    {
-      throw new NotSupportedException();
     }
 
     public override Segment<int> GetMemberSegment(MemberPath fieldPath)

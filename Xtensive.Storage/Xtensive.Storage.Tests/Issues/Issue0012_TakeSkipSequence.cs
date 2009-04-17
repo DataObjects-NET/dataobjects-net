@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Issues
         var e2 = new MyEntity();
         RecordSet rsMyEntities = Domain.Model.Types[typeof (MyEntity)]
           .Indexes.PrimaryIndex.ToRecordSet()
-          .Range(e1.Key.Value, e2.Key.Value);
+          .Filter(t => t.GetValue<int>(0) == e1.Id || t.GetValue<int>(0) == e2.Id);
 
         Assert.AreEqual(2, rsMyEntities.Count());
 

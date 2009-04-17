@@ -382,7 +382,7 @@ namespace Xtensive.Storage.Linq
             calculateExpressions.Value = true;
             mappingRef.Value = new MappingReference();
             var result = Visit(argument);
-            columnList = mappingRef.Value.Mapping.GetColumns().ToList();
+            columnList = mappingRef.Value.Mapping.GetColumns(entityAsKey.Value);
             innerResult = context.Bindings[argument.Parameters[0]];
           }
         }
@@ -429,7 +429,7 @@ namespace Xtensive.Storage.Linq
         mappingRef.Value = new MappingReference();
         calculateExpressions.Value = true;
         originalCompiledKeyExpression = (LambdaExpression) Visit(keySelector);
-        columnList = mappingRef.Value.Mapping.GetColumns().ToList();
+        columnList = mappingRef.Value.Mapping.GetColumns(entityAsKey.Value);
 
         result = context.Bindings[keySelector.Parameters[0]];
         recordSet = result.RecordSet.Aggregate(columnList.ToArray());
@@ -538,7 +538,7 @@ namespace Xtensive.Storage.Linq
         mappingRef.Value = new MappingReference();
         calculateExpressions.Value = true;
         Visit(le);
-        var orderItems = mappingRef.Value.Mapping.GetColumns()
+        var orderItems = mappingRef.Value.Mapping.GetColumns(entityAsKey.Value)
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
         var dc = new DirectionCollection<int>(orderItems);
         var result = context.Bindings[le.Parameters[0]];
@@ -554,7 +554,7 @@ namespace Xtensive.Storage.Linq
         mappingRef.Value = new MappingReference();
         calculateExpressions.Value = true;
         Visit(le);
-        var orderItems = mappingRef.Value.Mapping.GetColumns()
+        var orderItems = mappingRef.Value.Mapping.GetColumns(entityAsKey.Value)
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
         var result = context.Bindings[le.Parameters[0]];
         var dc = ((SortProvider) result.RecordSet.Provider).Order;
@@ -581,8 +581,8 @@ namespace Xtensive.Storage.Linq
           mappingRef.Value = innerMappingRef;
           Visit(innerKey);
         }
-        var outerColumns = outerMappingRef.Mapping.GetColumns();
-        var innerColumns = innerMappingRef.Mapping.GetColumns();
+        var outerColumns = outerMappingRef.Mapping.GetColumns(entityAsKey.Value);
+        var innerColumns = innerMappingRef.Mapping.GetColumns(entityAsKey.Value);
         var keyPairs = outerColumns.Zip(innerColumns, (o, i) => new Pair<int>(o, i)).ToArray();
 
         var outer = context.Bindings[outerParameter];
@@ -609,7 +609,7 @@ namespace Xtensive.Storage.Linq
 
       outer = new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.ItemProjector);
       var innerItemProjector = (LambdaExpression) tupleAccessProcessor.ReplaceMappings(inner.ItemProjector, tupleMapping, groupMapping, recordSet.Header);
-      inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.ShiftOffset(outerLength), innerItemProjector);
+      inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.CreateShifted(outerLength), innerItemProjector);
 
       using (context.Bindings.Add(resultSelector.Parameters[0], outer))
       using (context.Bindings.Add(resultSelector.Parameters[1], inner)) {
@@ -668,8 +668,8 @@ namespace Xtensive.Storage.Linq
         var recordSet = outerResult.RecordSet
           .Apply(applyParameter, innerResult.RecordSet.Alias(context.GetNextAlias()), isOuter ? ApplyType.Outer : ApplyType.Cross);
         if (resultSelector==null) {
-          var outerParameter = Expression.Parameter(TypeHelper.GetElementType(source.Type), "o");
-          var innerParameter = Expression.Parameter(TypeHelper.GetElementType(collectionSelector.Type), "i");
+          var outerParameter = Expression.Parameter(SequenceHelper.GetElementType(source.Type), "o");
+          var innerParameter = Expression.Parameter(SequenceHelper.GetElementType(collectionSelector.Type), "i");
           resultSelector = Expression.Lambda(innerParameter, outerParameter, innerParameter);
         }
         return CombineResultExpressions(outerResult, innerResult, recordSet, resultSelector);
@@ -756,8 +756,8 @@ namespace Xtensive.Storage.Linq
     {
       var outer = VisitSequence(outerSource);
       var inner = VisitSequence(innerSource);
-      var outerColumnList = outer.Mapping.GetColumns().OrderBy().ToList();
-      var innerColumnList = inner.Mapping.GetColumns().OrderBy().ToList();
+      var outerColumnList = outer.Mapping.GetColumns(false).OrderBy().ToList();
+      var innerColumnList = inner.Mapping.GetColumns(false).OrderBy().ToList();
       var outerRecordSet = outer.RecordSet.Select(outerColumnList.ToArray());
       var innerRecordSet = inner.RecordSet.Select(innerColumnList.ToArray());
 

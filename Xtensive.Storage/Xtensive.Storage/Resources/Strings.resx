@@ -558,4 +558,13 @@
   <data name="ExOnlyEqualityRangesAreSupported" xml:space="preserve">
     <value>Only equality ranges are supported.</value>
   </data>
+  <data name="ExCouldNotFindFieldSegmentForFieldX" xml:space="preserve">
+    <value>Could not find field segment for field '{0}'.</value>
+  </data>
+  <data name="ExCouldNotFindEntityMappingForFieldX" xml:space="preserve">
+    <value>Could not find entity mapping for field '{0}'.</value>
+  </data>
+  <data name="ExCouldNotFindAnonymousMappingForFieldX" xml:space="preserve">
+    <value>Could not find anonymous mapping for field '{0}'.</value>
+  </data>
 </root>

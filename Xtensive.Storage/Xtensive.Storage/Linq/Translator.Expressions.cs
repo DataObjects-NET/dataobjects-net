@@ -204,7 +204,7 @@ namespace Xtensive.Storage.Linq
                 .ToArray();
               var rs = source.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
               var joinedMapping = new ComplexMapping(typeInfo, source.RecordSet.Header.Columns.Count);
-              mapping.RegisterEntity(name, joinedMapping);
+              mapping.RegisterJoinedEntity(name, joinedMapping);
               source = new ResultExpression(source.Type, rs, source.Mapping, source.ItemProjector);
               context.Bindings.ReplaceBound(pe, source);
             }

@@ -11,9 +11,8 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 {
   internal abstract class Mapping
   {
-    public abstract Mapping ShiftOffset(int offset); // TODO: CreateShifted
-    public abstract IList<int> GetColumns(); // TODO: -> List<int>
-    public abstract void Fill(Mapping mapping);
+    public abstract Mapping CreateShifted(int offset);
+    public abstract List<int> GetColumns(bool entityAsKey);
     public abstract Segment<int> GetMemberSegment(MemberPath fieldPath);
     public abstract Mapping GetMemberMapping(MemberPath fieldPath);
   }

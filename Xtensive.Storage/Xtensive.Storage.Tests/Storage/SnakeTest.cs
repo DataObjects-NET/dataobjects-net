@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Tests.Storage
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
+      var config = DomainConfigurationFactory.Create("memory");
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.SnakesModel");
       return config;
     }
