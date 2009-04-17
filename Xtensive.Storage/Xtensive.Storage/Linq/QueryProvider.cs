@@ -10,7 +10,10 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Linq.Expressions;
+using Xtensive.Storage.Linq.Rewriters;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Linq
 {
@@ -56,8 +59,38 @@ namespace Xtensive.Storage.Linq
       var context = new TranslatorContext(expression);
       var result = context.Translator.Translate();
       result = new RedundantColumnRemover(result).RemoveRedundantColumn();
-
+      //result = Optimize(result);
       return result;
+    }
+
+    internal ResultExpression Optimize(ResultExpression origin)
+    {
+      var mappingsGatherer = new TupleAccessProcessor((a, b) => { }, null);
+      var mappingsReplacer = new TupleAccessProcessor();
+
+      var originProvider = origin.RecordSet.Provider;
+      var projectorMap = mappingsGatherer.GatherMappings(origin.ItemProjector, originProvider.Header)
+          .Distinct()
+          .OrderBy()
+          .ToList();
+
+      if (projectorMap.Count == 0)
+        projectorMap.Add(0);
+      if (projectorMap.Count < origin.RecordSet.Header.Length)
+      {
+        var columnIndexes = projectorMap
+            .Select(i => projectorMap.IndexOf(i))
+            .ToArray();
+        var resultProvider = new SelectProvider(originProvider, columnIndexes);
+
+        var rs = resultProvider.Result;
+        var groupMap = MappingHelper.BuildGroupMapping(projectorMap, originProvider, resultProvider);
+
+        var itemProjector = mappingsReplacer.ReplaceMappings(origin.ItemProjector, projectorMap, groupMap, origin.RecordSet.Header);
+        var result = new ResultExpression(origin.Type, rs, null, (LambdaExpression)itemProjector, origin.ScalarTransform);
+        return result;
+      }
+      return origin;
     }
 
     
