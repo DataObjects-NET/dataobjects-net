@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Tests.IndexingModel.Resources;
 
@@ -44,7 +43,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     }
 
     /// <inheritdoc/>
-    /// <exception cref="IntegrityException">Empty secondary key columns collection.</exception>
+    /// <exception cref="ValidationException">Empty secondary key columns collection.</exception>
     protected override void ValidateState()
     {
       using (var ea = new ExceptionAggregator()) {
@@ -54,13 +53,13 @@ namespace Xtensive.Modelling.Tests.IndexingModel
         var keyColumns = new List<ColumnInfo>(KeyColumns.Select(valueRef => valueRef.Value));
         if (keyColumns.Count==0)
           ea.Execute(() => {
-            throw new IntegrityException(Strings.ExEmptyKeyColumnsCollection, Path);
+            throw new ValidationException(Strings.ExEmptyKeyColumnsCollection, Path);
           });
         foreach (var group in keyColumns
           .GroupBy(keyColumn => keyColumn)
           .Where(group => group.Count() > 1))
           ea.Execute((_column) => {
-            throw new IntegrityException(
+            throw new ValidationException(
               string.Format(Strings.ExMoreThenOneKeyColumnReferenceToColumnX, _column.Name),
               Path);
           }, group.Key);
@@ -68,14 +67,14 @@ namespace Xtensive.Modelling.Tests.IndexingModel
         // Primary key columns
         if (PrimaryKeyColumns.Count!=Parent.PrimaryIndex.KeyColumns.Count)
           ea.Execute(() => {
-            throw new IntegrityException(Strings.ExInvalidPrimaryKeyColumnsCollection, Path);
+            throw new ValidationException(Strings.ExInvalidPrimaryKeyColumnsCollection, Path);
           });
         for (int i = 0; i < PrimaryKeyColumns.Count; i++) {
           var ref1 = PrimaryKeyColumns[i];
           var ref2 = Parent.PrimaryIndex.KeyColumns[i];
           if (ref1.Value!=ref2.Value || ref1.Direction!=ref2.Direction)
             ea.Execute(() => {
-              throw new IntegrityException(Strings.ExInvalidPrimaryKeyColumnsCollection, Path);
+              throw new ValidationException(Strings.ExInvalidPrimaryKeyColumnsCollection, Path);
             });
         }
 
@@ -86,13 +85,13 @@ namespace Xtensive.Modelling.Tests.IndexingModel
         foreach (var columnRef in IncludedColumns)
           if (allKeyColumns.Contains(columnRef.Value))
             ea.Execute(() => {
-              throw new IntegrityException(Strings.ExInvalidIncludedColumnsCollection, Path);
+              throw new ValidationException(Strings.ExInvalidIncludedColumnsCollection, Path);
             });
         foreach (var group in IncludedColumns
           .GroupBy(keyColumn => keyColumn)
           .Where(group => group.Count() > 1))
           ea.Execute((_column) => {
-            throw new IntegrityException(
+            throw new ValidationException(
               string.Format(Strings.ExMoreThenOneIncludedColumnReferenceToColumnX, _column.Name),
               Path);
           }, group.Key);

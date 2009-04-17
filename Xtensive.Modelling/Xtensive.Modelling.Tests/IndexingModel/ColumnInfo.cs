@@ -36,14 +36,14 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     }
 
     /// <inheritdoc/>
-    /// <exception cref="IntegrityException">Validation error.</exception>
+    /// <exception cref="ValidationException">Validation error.</exception>
     protected override void ValidateState()
     {
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
         if (Type==null)
           ea.Execute(() => {
-            throw new IntegrityException(
+            throw new ValidationException(
               string.Format(Strings.ExUndefinedTypeOfColumnX, Name),
               Path);
           });

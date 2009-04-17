@@ -38,7 +38,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     }
 
     /// <inheritdoc/>
-    /// <exception cref="IntegrityException">Invalid <see cref="Direction"/> value 
+    /// <exception cref="ValidationException">Invalid <see cref="Direction"/> value 
     /// (<see cref="Core.Direction.None"/>).</exception>
     protected override void ValidateState()
     {
@@ -46,7 +46,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
         ea.Execute(base.ValidateState);
         if (direction==Direction.None)
           ea.Execute(() => {
-            throw new IntegrityException(Strings.ExInvalidDirectionValue, Path);
+            throw new ValidationException(Strings.ExInvalidDirectionValue, Path);
           });
       }
     }

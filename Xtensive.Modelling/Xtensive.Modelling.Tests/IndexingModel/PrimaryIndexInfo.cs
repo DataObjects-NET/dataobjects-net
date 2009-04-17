@@ -40,7 +40,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     }
 
     /// <inheritdoc/>
-    /// <exception cref="IntegrityException">Validation error.</exception>
+    /// <exception cref="ValidationException">Validation error.</exception>
     protected override void ValidateState()
     {
       using (var ea = new ExceptionAggregator()) {
@@ -54,19 +54,19 @@ namespace Xtensive.Modelling.Tests.IndexingModel
         // Empty keys.
         if (keys.Count==0)
           ea.Execute(() => {
-            throw new IntegrityException(Strings.ExEmptyKeyColumnsCollection, Path);
+            throw new ValidationException(Strings.ExEmptyKeyColumnsCollection, Path);
           });
 
         // Nullable key columns.
         if (keys.Where(ci => ci.Type.IsNullable).Count() > 0)
           ea.Execute(() => {
-            throw new IntegrityException(Strings.ExPrimaryKeyColumnCanNotBeNullable, Path);
+            throw new ValidationException(Strings.ExPrimaryKeyColumnCanNotBeNullable, Path);
           });
 
         // Double column reference.
         foreach (var column in keys.Intersect(values))
           ea.Execute((_column) => {
-            throw new IntegrityException(
+            throw new ValidationException(
               string.Format(Strings.ExColumnXContainsBothKeyAndValueCollections, _column.Name),
               Path);
           }, column);
@@ -74,7 +74,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
         // Not referenced columns.
         foreach (var column in columns.Except(keys.Union(values)))
           ea.Execute((_column) => {
-            throw new IntegrityException(
+            throw new ValidationException(
               string.Format(Strings.ExCanNotFindReferenceToColumnX, _column.Name),
               Path);
           }, column);
@@ -86,7 +86,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
             .Where(group => group.Count() > 1)
             .Select(group => group.Key))
           ea.Execute((_column) => {
-            throw new IntegrityException(
+            throw new ValidationException(
               string.Format(Strings.ExMoreThenOneKeyColumnReferenceToColumnX, _column.Name),
               Path);
           }, column);
@@ -94,7 +94,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
         // Key columns contains refernce to column from another table.
         foreach (var column in keys.Except(columns))
           ea.Execute((_column) => {
-            throw new IntegrityException(
+            throw new ValidationException(
               string.Format(Strings.ExReferencedColumnXDoesNotBelongToIndexY,
                 _column.Name, Name),
               Path);
@@ -107,7 +107,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
             .Where(group => group.Count() > 1)
             .Select(group => group.Key))
           ea.Execute((_column) => {
-            throw new IntegrityException(
+            throw new ValidationException(
               string.Format(Strings.ExMoreThenOneValueColumnReferenceToColumnX, _column.Name),
               Path);
           }, column);
@@ -115,7 +115,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
         // Value columns contains refernce to column from another table.
         foreach (var column in values.Except(columns))
           ea.Execute((_column) => {
-            throw new IntegrityException(
+            throw new ValidationException(
               string.Format(Strings.ExReferencedColumnXDoesNotBelongToIndexY, _column.Name, Name),
               Path);
           }, column);

@@ -11,10 +11,11 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Modelling.Tests.IndexingModel
 {
   /// <summary>
-  /// Describes errors detected during <see cref="StorageInfo"/>.<see cref="Node.Validate"/> execution.
+  /// Describes errors detected during 
+  /// <see cref="StorageInfo"/>.<see cref="Node.Validate"/> execution.
   /// </summary>
   [Serializable]
-  public class IntegrityException : Exception
+  public class ValidationException : Exception
   {
     /// <summary>
     /// Gets the path of the node which validation has failed.
@@ -25,18 +26,18 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     // Constructors
 
     /// <inheritdoc/>
-    protected IntegrityException()
+    protected ValidationException()
     {
     }
 
     /// <inheritdoc/>
-    public IntegrityException(string message)
+    public ValidationException(string message)
       : base(message)
     {
     }
 
     /// <inheritdoc/>
-    public IntegrityException(string message, Exception innerException)
+    public ValidationException(string message, Exception innerException)
       : base(message, innerException)
     {
     }
@@ -46,7 +47,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// </summary>
     /// <param name="message">The message.</param>
     /// <param name="nodePath">The path of the invalid node.</param>
-    public IntegrityException(string message, string nodePath)
+    public ValidationException(string message, string nodePath)
       : base(message)
     {
       NodePath = nodePath;
@@ -55,7 +56,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     #region Serializing members
 
     /// <inheritdoc/>
-    public IntegrityException(SerializationInfo info, StreamingContext context)
+    protected ValidationException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
       NodePath = info.GetString("NodePath");

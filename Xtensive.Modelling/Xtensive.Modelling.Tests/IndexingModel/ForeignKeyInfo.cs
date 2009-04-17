@@ -86,7 +86,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     }
 
     /// <inheritdoc/>
-    /// <exception cref="IntegrityException">Validations errors.</exception>
+    /// <exception cref="ValidationException">Validations errors.</exception>
     protected override void ValidateState()
     {
       using (var ea = new ExceptionAggregator()) {
@@ -94,11 +94,11 @@ namespace Xtensive.Modelling.Tests.IndexingModel
 
         if (ReferencedIndex==null)
           ea.Execute(() => {
-            throw new IntegrityException(Strings.ExUndefinedReferencedIndex, Path);
+            throw new ValidationException(Strings.ExUndefinedReferencedIndex, Path);
           });
         if (ReferencingIndex==null)
           ea.Execute(() => {
-            throw new IntegrityException(Strings.ExUndefinedReferencingIndex, Path);
+            throw new ValidationException(Strings.ExUndefinedReferencingIndex, Path);
           });
 
         if (ReferencedIndex==null || ReferencingIndex==null)
@@ -110,7 +110,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
         if (primaryKeyColumns.Except(referencedKeyColumns)
           .Union(referencedKeyColumns.Except(primaryKeyColumns)).Count() > 0)
           ea.Execute(() => {
-            throw new IntegrityException(
+            throw new ValidationException(
               Strings.ExReferencingIndexColumnsDoesNotMatchReferencedIndexKeyColumns, Path);
           });
       }
