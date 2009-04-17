@@ -63,30 +63,26 @@ namespace Xtensive.Storage.Linq
       return result;
     }
 
-    internal ResultExpression Optimize(ResultExpression origin)
+    private ResultExpression Optimize(ResultExpression origin)
     {
       var mappingsGatherer = new TupleAccessProcessor((a, b) => { }, null);
       var mappingsReplacer = new TupleAccessProcessor();
 
       var originProvider = origin.RecordSet.Provider;
-      var projectorMap = mappingsGatherer.GatherMappings(origin.ItemProjector, originProvider.Header)
+      var usedColumns = mappingsGatherer.GatherMappings(origin.ItemProjector, originProvider.Header)
           .Distinct()
           .OrderBy()
           .ToList();
 
-      if (projectorMap.Count == 0)
-        projectorMap.Add(0);
-      if (projectorMap.Count < origin.RecordSet.Header.Length)
-      {
-        var columnIndexes = projectorMap
-            .Select(i => projectorMap.IndexOf(i))
-            .ToArray();
-        var resultProvider = new SelectProvider(originProvider, columnIndexes);
+      if (usedColumns.Count == 0)
+        usedColumns.Add(0);
+      if (usedColumns.Count < origin.RecordSet.Header.Length) {
+        var resultProvider = new SelectProvider(originProvider, usedColumns.ToArray());
 
         var rs = resultProvider.Result;
-        var groupMap = MappingHelper.BuildGroupMapping(projectorMap, originProvider, resultProvider);
+        var groupMap = MappingHelper.BuildGroupMapping(usedColumns, originProvider, resultProvider);
 
-        var itemProjector = mappingsReplacer.ReplaceMappings(origin.ItemProjector, projectorMap, groupMap, origin.RecordSet.Header);
+        var itemProjector = mappingsReplacer.ReplaceMappings(origin.ItemProjector, usedColumns, groupMap, origin.RecordSet.Header);
         var result = new ResultExpression(origin.Type, rs, null, (LambdaExpression)itemProjector, origin.ScalarTransform);
         return result;
       }

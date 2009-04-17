@@ -5,6 +5,8 @@
 // Created:    2009.03.20
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -22,7 +24,7 @@ namespace Xtensive.Storage.Rse.Expressions
     /// returns <paramref name="expression"/> casted to <see cref="MethodCallExpression"/>.
     /// Otherwise returns <see langword="null"/>.
     /// </summary>
-    /// <param name="expression"></param>
+    /// <param name="expression">An expression to check.</param>
     /// <returns></returns>
     public static MethodCallExpression AsTupleAccess(this Expression expression)
     {
@@ -33,6 +35,46 @@ namespace Xtensive.Storage.Rse.Expressions
             return mc;
       }
       return null;
+    }
+
+    /// <summary>
+    /// If <paramref name="expression"/> is an access to tuple element.
+    /// returns <paramref name="expression"/> casted to <see cref="MethodCallExpression"/>.
+    /// Otherwise returns <see langword="null"/>.
+    /// This method only accepts access to specified parameter and access to outer parameters (<see cref="ApplyParameter"/>).
+    /// </summary>
+    /// <param name="expression">An expression to check.</param>
+    /// <param name="currentParameter"><see cref="ParameterExpression"/> considered as current parameter.</param>
+    /// <returns></returns>
+    public static MethodCallExpression AsTupleAccess(this Expression expression, ParameterExpression currentParameter)
+    {
+      var tupleAccess = expression.AsTupleAccess();
+      if (tupleAccess == null)
+        return null;
+      var target = tupleAccess.Object;
+      if (target == currentParameter || ExtractApplyParameterExpressionFromTupleAccess(tupleAccess) != null)
+        return tupleAccess;
+      return null;
+    }
+
+    /// <summary>
+    /// If <paramref name="expression"/> is an access to tuple element.
+    /// returns <paramref name="expression"/> casted to <see cref="MethodCallExpression"/>.
+    /// Otherwise returns <see langword="null"/>.
+    /// This method only accepts access to specified parameters and access to outer parameters (<see cref="ApplyParameter"/>).
+    /// </summary>
+    /// <param name="expression">An expression to check.</param>
+    /// <param name="currentParameters"><see cref="ParameterExpression"/>s  considered as current parameters.</param>
+    /// <returns></returns>
+    public static MethodCallExpression AsTupleAccess(this Expression expression, IEnumerable<ParameterExpression> currentParameters)
+    {
+      var tupleAccess = expression.AsTupleAccess();
+      if (tupleAccess == null)
+        return null;
+      var target = tupleAccess.Object as ParameterExpression;
+      if (target!=null && currentParameters.Contains(target) || ExtractApplyParameterExpressionFromTupleAccess(tupleAccess) != null)
+        return tupleAccess;
+      return null;      
     }
 
     /// <summary>
@@ -57,17 +99,23 @@ namespace Xtensive.Storage.Rse.Expressions
     /// <returns></returns>
     public static ApplyParameter ExtractApplyParameterFromTupleAccess(this Expression expression)
     {
+      var e = ExtractApplyParameterExpressionFromTupleAccess(expression);
+      return e==null ? null : Evaluate<ApplyParameter>(e);
+    }
+
+    private static Expression ExtractApplyParameterExpressionFromTupleAccess(Expression expression)
+    {
       var tupleAccess = expression.AsTupleAccess();
       if (tupleAccess == null)
         return null;
       if (tupleAccess.Object.NodeType != ExpressionType.MemberAccess)
         return null;
-      var memberAccess = (MemberExpression) tupleAccess.Object;
+      var memberAccess = (MemberExpression)tupleAccess.Object;
       if (memberAccess.Expression == null ||
           memberAccess.Expression.Type != typeof(ApplyParameter) ||
           memberAccess.Member.Name != "Value")
         return null;
-      return Evaluate<ApplyParameter>(memberAccess.Expression);
+      return memberAccess.Expression;
     }
 
     private static T Evaluate<T> (Expression expression)
