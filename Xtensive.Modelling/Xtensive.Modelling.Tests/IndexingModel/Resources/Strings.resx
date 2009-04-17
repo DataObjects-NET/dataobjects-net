@@ -138,17 +138,17 @@
   <data name="ExUndefinedTypeOfColumnX" xml:space="preserve">
     <value>Type of column "{0}" is undefined.</value>
   </data>
-  <data name="ExUndefinedReferencedIndex" xml:space="preserve">
-    <value>Referenced index is undefined.</value>
+  <data name="ExUndefinedPrimaryKey" xml:space="preserve">
+    <value>PrimaryKey is undefined.</value>
   </data>
   <data name="ExPrimaryKeyColumnCanNotBeNullable" xml:space="preserve">
     <value>Primary key column can not be nullable.</value>
   </data>
-  <data name="ExUndefinedReferencingIndex" xml:space="preserve">
-    <value>Referencing index is undefined.</value>
+  <data name="ExUndefinedForeignKey" xml:space="preserve">
+    <value>ForeignKey is undefined.</value>
   </data>
-  <data name="ExReferencingIndexColumnsDoesNotMatchReferencedIndexKeyColumns" xml:space="preserve">
-    <value>Referencing index columns does not match referenced index key columns.</value>
+  <data name="ExInvalidForeignKeyStructure" xml:space="preserve">
+    <value>Invalid ForeignKey structure: its column sequence do not match PrimaryKey column sequence.</value>
   </data>
   <data name="Culture" xml:space="preserve">
     <value>Culture</value>
@@ -187,6 +187,6 @@
     <value>?</value>
   </data>
   <data name="ExInvalidPrimaryKeyStructure" xml:space="preserve">
-    <value>Invalid PrimaryKeyInfo structure (content of KeyColumns \ ValueColumns).</value>
+    <value>Invalid PrimaryKeyInfo structure: sequence KeyColumns and ValueColumns do not match sequence of all the Columns of the table.</value>
   </data>
 </root>

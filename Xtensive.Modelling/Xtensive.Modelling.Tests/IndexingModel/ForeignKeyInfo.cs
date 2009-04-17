@@ -21,20 +21,35 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   {
     private ReferentialAction onUpdateAction;
     private ReferentialAction onRemoveAction;
-    private PrimaryIndexInfo referencedIndex;
-    private IndexInfo referencingIndex;
+    private PrimaryIndexInfo primaryKey;
+    private IndexInfo foreignKey;
 
 
     /// <summary>
-    /// Gets or sets the "on update" action.
+    /// Gets or sets the foreign index.
     /// </summary>
-    [Property]
-    public ReferentialAction OnUpdateAction {
-      get { return onUpdateAction; }
+    [Property(Priority = -1100)]
+    public PrimaryIndexInfo PrimaryKey {
+      get { return primaryKey; }
       set {
         EnsureIsEditable();
-        using (var scope = LogPropertyChange("OnUpdateAction", value)) {
-          onUpdateAction = value;
+        using (var scope = LogPropertyChange("PrimaryKey", value)) {
+          primaryKey = value;
+          scope.Commit();
+        }
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the referencing index.
+    /// </summary>
+    [Property(Priority = -1000)]
+    public IndexInfo ForeignKey {
+      get { return foreignKey; }
+      set {
+        EnsureIsEditable();
+        using (var scope = LogPropertyChange("ForeignKey", value)) {
+          foreignKey = value;
           scope.Commit();
         }
       }
@@ -43,7 +58,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets or sets the "on remove" action.
     /// </summary>
-    [Property]
+    [Property(Priority = -110)]
     public ReferentialAction OnRemoveAction {
       get { return onRemoveAction; }
       set {
@@ -56,30 +71,15 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     }
 
     /// <summary>
-    /// Gets or sets the foreign index.
+    /// Gets or sets the "on update" action.
     /// </summary>
-    [Property]
-    public PrimaryIndexInfo ReferencedIndex {
-      get { return referencedIndex; }
+    [Property(Priority = -100)]
+    public ReferentialAction OnUpdateAction {
+      get { return onUpdateAction; }
       set {
         EnsureIsEditable();
-        using (var scope = LogPropertyChange("ReferencedIndex", value)) {
-          referencedIndex = value;
-          scope.Commit();
-        }
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the referencing index.
-    /// </summary>
-    [Property]
-    public IndexInfo ReferencingIndex {
-      get { return referencingIndex; }
-      set {
-        EnsureIsEditable();
-        using (var scope = LogPropertyChange("ReferencingIndex", value)) {
-          referencingIndex = value;
+        using (var scope = LogPropertyChange("OnUpdateAction", value)) {
+          onUpdateAction = value;
           scope.Commit();
         }
       }
@@ -92,26 +92,26 @@ namespace Xtensive.Modelling.Tests.IndexingModel
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
 
-        if (ReferencedIndex==null)
+        if (PrimaryKey==null)
           ea.Execute(() => {
-            throw new ValidationException(Strings.ExUndefinedReferencedIndex, Path);
+            throw new ValidationException(Strings.ExUndefinedPrimaryKey, Path);
           });
-        if (ReferencingIndex==null)
+        if (ForeignKey==null)
           ea.Execute(() => {
-            throw new ValidationException(Strings.ExUndefinedReferencingIndex, Path);
+            throw new ValidationException(Strings.ExUndefinedForeignKey, Path);
           });
 
-        if (ReferencedIndex==null || ReferencingIndex==null)
+        if (PrimaryKey==null || ForeignKey==null)
           return;
-        var primaryKeyColumns = ReferencedIndex.KeyColumns.Select(
+        var primaryKeyColumns = PrimaryKey.KeyColumns.Select(
           columnRef => new {columnRef.Index, columnRef.Direction, ColumnType = columnRef.Value.Type});
-        var referencedKeyColumns = ReferencingIndex.KeyColumns.Select(
+        var referencedKeyColumns = ForeignKey.KeyColumns.Select(
           columnRef => new {columnRef.Index, columnRef.Direction, ColumnType = columnRef.Value.Type});
         if (primaryKeyColumns.Except(referencedKeyColumns)
           .Union(referencedKeyColumns.Except(primaryKeyColumns)).Count() > 0)
           ea.Execute(() => {
             throw new ValidationException(
-              Strings.ExReferencingIndexColumnsDoesNotMatchReferencedIndexKeyColumns, Path);
+              Strings.ExInvalidForeignKeyStructure, Path);
           });
       }
     }

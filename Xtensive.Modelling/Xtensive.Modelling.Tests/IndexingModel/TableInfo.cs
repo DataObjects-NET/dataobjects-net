@@ -20,13 +20,13 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets columns.
     /// </summary>
-    [Property]
+    [Property(Priority = -2000)]
     public ColumnInfoCollection Columns { get; private set; }
 
     /// <summary>
     /// Gets or sets the primary index.
     /// </summary>
-    [Property]
+    [Property(Priority = -1200)]
     public PrimaryIndexInfo PrimaryIndex {
       get { return primaryIndex; }
       set {
@@ -41,13 +41,13 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets secondary indexes.
     /// </summary>
-    [Property]
+    [Property(Priority = -1100)]
     public SecondaryIndexInfoCollection SecondaryIndexes { get; private set; }
 
     /// <summary>
     /// Gets foreign keys.
     /// </summary>
-    [Property]
+    [Property(Priority = -1000)]
     public ForeignKeyCollection ForeignKeys { get; private set; }
 
     /// <inheritdoc/>

@@ -106,6 +106,15 @@ namespace Xtensive.Modelling.Tests.IndexingModel.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid ForeignKey structure: its column sequence do not match PrimaryKey column sequence..
+        /// </summary>
+        internal static string ExInvalidForeignKeyStructure {
+            get {
+                return ResourceManager.GetString("ExInvalidForeignKeyStructure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to IncludedColumns collection is invalid..
         /// </summary>
         internal static string ExInvalidIncludedColumnsCollection {
@@ -124,7 +133,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid PrimaryKeyInfo structure (content of KeyColumns \ ValueColumns)..
+        ///   Looks up a localized string similar to Invalid PrimaryKeyInfo structure: sequence KeyColumns and ValueColumns do not match sequence of all the Columns of the table..
         /// </summary>
         internal static string ExInvalidPrimaryKeyStructure {
             get {
@@ -178,29 +187,20 @@ namespace Xtensive.Modelling.Tests.IndexingModel.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Referencing index columns does not match referenced index key columns..
+        ///   Looks up a localized string similar to ForeignKey is undefined..
         /// </summary>
-        internal static string ExReferencingIndexColumnsDoesNotMatchReferencedIndexKeyColumns {
+        internal static string ExUndefinedForeignKey {
             get {
-                return ResourceManager.GetString("ExReferencingIndexColumnsDoesNotMatchReferencedIndexKeyColumns", resourceCulture);
+                return ResourceManager.GetString("ExUndefinedForeignKey", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Referenced index is undefined..
+        ///   Looks up a localized string similar to PrimaryKey is undefined..
         /// </summary>
-        internal static string ExUndefinedReferencedIndex {
+        internal static string ExUndefinedPrimaryKey {
             get {
-                return ResourceManager.GetString("ExUndefinedReferencedIndex", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Referencing index is undefined..
-        /// </summary>
-        internal static string ExUndefinedReferencingIndex {
-            get {
-                return ResourceManager.GetString("ExUndefinedReferencingIndex", resourceCulture);
+                return ResourceManager.GetString("ExUndefinedPrimaryKey", resourceCulture);
             }
         }
         

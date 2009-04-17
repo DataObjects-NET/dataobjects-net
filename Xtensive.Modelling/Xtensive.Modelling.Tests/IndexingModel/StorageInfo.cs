@@ -32,7 +32,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets tables.
     /// </summary>
-    [Property]
+    [Property(Priority = 0)]
     public TableInfoCollection Tables { get; private set; }
 
     /// <inheritdoc/>

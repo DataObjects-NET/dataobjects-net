@@ -23,7 +23,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// Gets a value indicating whether this instance is unique.
     /// </summary>
     /// <exception cref="NotSupportedException">Already initialized.</exception>
-    [Property]
+    [Property(Priority = -1100)]
     public bool IsUnique {
       get { return isUnique; }
       set {
@@ -47,7 +47,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets key columns.
     /// </summary>
-    [Property]
+    [Property(Priority = -1000)]
     public KeyColumnRefCollection KeyColumns { get; private set; }
 
 

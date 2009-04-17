@@ -27,6 +27,7 @@ namespace Xtensive.Modelling.Tests
     {
       var storage = new StorageInfo("Storage");
       
+      // Types table
       var t = new TableInfo(storage, "Types");
       var tId = new ColumnInfo(t, "Id") {
         Type = new TypeInfo(typeof (int), false)
@@ -37,12 +38,44 @@ namespace Xtensive.Modelling.Tests
       var tData = new ColumnInfo(t, "Data") {
         Type = new TypeInfo(typeof (byte[]), 1024*1024)
       };
-      var tPk = new PrimaryIndexInfo(t, "PK_Types");
-      new KeyColumnRef(tPk, tId);
-      tPk.PopulateValueColumns();
-      var tIv = new SecondaryIndexInfo(t, "IX_Value");
-      new KeyColumnRef(tIv, tValue);
-      tIv.PopulatePrimaryKeyColumns();
+
+      var tiPk = new PrimaryIndexInfo(t, "PK_Types");
+      new KeyColumnRef(tiPk, tId);
+      tiPk.PopulateValueColumns();
+
+      var tiValue = new SecondaryIndexInfo(t, "IX_Value");
+      new KeyColumnRef(tiValue, tValue);
+      tiValue.PopulatePrimaryKeyColumns();
+
+      // Objects table
+      var o = new TableInfo(storage, "Objects");
+      var oId = new ColumnInfo(o, "Id") {
+        Type = new TypeInfo(typeof (long), false)
+      };
+      var oTypeId = new ColumnInfo(o, "TypeId") {
+        Type = new TypeInfo(typeof (int), false)
+      };
+      var oValue = new ColumnInfo(o, "Value") {
+        Type = new TypeInfo(typeof (string), 1024)
+      };
+
+      var oiPk = new PrimaryIndexInfo(o, "PK_Objects");
+      new KeyColumnRef(oiPk, oId);
+      oiPk.PopulateValueColumns();
+
+      var oiTypeId = new SecondaryIndexInfo(o, "IX_TypeId");
+      new KeyColumnRef(oiTypeId, oTypeId);
+      oiTypeId.PopulatePrimaryKeyColumns();
+
+      var oiValue = new SecondaryIndexInfo(o, "IX_Value");
+      new KeyColumnRef(oiValue, oValue);
+      new IncludedColumnRef(oiValue, oTypeId);
+      oiValue.PopulatePrimaryKeyColumns();
+
+      var ofkTypeId = new ForeignKeyInfo(o, "FK_TypeId") {
+        PrimaryKey = tiPk, 
+        ForeignKey = oiTypeId
+      };
 
       storage.Validate();
       return storage;

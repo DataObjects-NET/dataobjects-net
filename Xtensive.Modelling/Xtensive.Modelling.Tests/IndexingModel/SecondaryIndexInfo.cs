@@ -24,13 +24,13 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets value columns.
     /// </summary>
-    [Property]
+    [Property(Priority = -110)]
     public PrimaryKeyColumnRefCollection PrimaryKeyColumns { get; private set; }
 
     /// <summary>
     /// Gets included columns.
     /// </summary>
-    [Property]
+    [Property(Priority = -100)]
     public IncludedColumnRefCollection IncludedColumns { get; private set; }
 
     /// <summary>

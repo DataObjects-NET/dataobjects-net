@@ -25,7 +25,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets or sets the column direction.
     /// </summary>
-    [Property]
+    [Property(Priority = -1000)]
     public Direction Direction {
       get { return direction; }
       set {

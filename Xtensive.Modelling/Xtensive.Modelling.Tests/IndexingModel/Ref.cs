@@ -28,7 +28,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// Gets or sets referenced node.
     /// </summary>
     /// <exception cref="NotSupportedException">Value is already initialized.</exception>
-    [Property]
+    [Property(Priority = 0)]
     public TTarget Value
     {
       get { return value; }
