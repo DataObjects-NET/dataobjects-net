@@ -99,14 +99,29 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitUnary(UnaryExpression u)
     {
-      switch (u.NodeType) {
+      return base.VisitUnary(u);
+      switch (u.NodeType)
+      {
         case ExpressionType.Convert:
         case ExpressionType.ConvertChecked:
           if (u.GetMemberType() == MemberType.Entity)
           {
             if (u.Type==u.Operand.Type || u.Type.IsAssignableFrom(u.Operand.Type))
               return base.VisitUnary(u);
+            if (u.Operand.NodeType==ExpressionType.Parameter) {
+              using (new ParameterScope())
+              {
+                var parameter = (ParameterExpression) u.Operand;
+                var source = context.Bindings[parameter];
+                var recordSet = source.RecordSet;
 
+                // JOIN recordSet = recordSet.Calculate(calculatedColumns.Value.ToArray());
+                var re = new ResultExpression(source.Type, recordSet, source.Mapping, source.ItemProjector);
+                context.Bindings.ReplaceBound(parameter, re);                
+              }
+//              var visitedOperand = Visit(u.Operand);
+              throw new NotImplementedException();
+            }
             throw new NotImplementedException();
           }
           break;

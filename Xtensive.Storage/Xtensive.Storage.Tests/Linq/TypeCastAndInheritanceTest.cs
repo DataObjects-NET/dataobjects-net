@@ -56,10 +56,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IsIntermediateTest()
     {
-        Query<Product>.All
-          .Where(p => p is IntermediateProduct)
-          .Select(product => (IntermediateProduct)product)
-          .Count();
+      Query<Product>.All
+        .Where(p => p is IntermediateProduct)
+        .Select(product => (IntermediateProduct) product)
+        .Count();
     }
 
     [Test]
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Tests.Linq
         intermediateProductCount,
         Query<Product>.All
           .Where(p => p is IntermediateProduct)
-          .Select(product => (IntermediateProduct)product)
+          .Select(product => (IntermediateProduct) product)
           .Count());
 
       Assert.AreEqual(
@@ -184,12 +184,12 @@ namespace Xtensive.Storage.Tests.Linq
     public void CastSimpleTest()
     {
       var discontinuedProducts = Query<DiscontinuedProduct>.All.Cast<Product>();
-      AssertEx.ThrowsNotSupportedException(()=>QueryDumper.Dump(discontinuedProducts));
+      AssertEx.ThrowsNotSupportedException(() => QueryDumper.Dump(discontinuedProducts));
     }
 
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof (NotSupportedException))]
     public void CastCountTest()
     {
       var discontinuedProductCount1 = Query<DiscontinuedProduct>.All.Count();
@@ -229,6 +229,74 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<DiscontinuedProduct>.All
         .Select(x => (Product) x);
+      QueryDumper.Dump(result);
+    }
+
+
+    [Test]
+    public void IsBoolResultTest()
+    {
+      var result = Query<Product>.All
+        .Select(x => x is DiscontinuedProduct
+          ? (DiscontinuedProduct) x
+          : null);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void ComplexIsCastTest()
+    {
+      var result = Query<Product>.All
+        .Select(x =>
+          new
+          {
+            DiscontinuedProduct = x is DiscontinuedProduct
+              ? (DiscontinuedProduct) x
+              : null,
+            ActiveProduct = x is ActiveProduct
+              ? (ActiveProduct) x
+              : null
+          })
+        .Select(x =>
+          new
+          {
+            AQ = x.ActiveProduct==null
+              ? "NULL"
+              : x.ActiveProduct.QuantityPerUnit,
+            DQ = x.DiscontinuedProduct==null
+              ? "NULL"
+              : x.DiscontinuedProduct.QuantityPerUnit
+          });
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void ComplexAsCastTest()
+    {
+      var result = Query<Product>.All
+        .Select(x =>
+          new
+          {
+            DiscontinuedProduct = x as DiscontinuedProduct,
+            ActiveProduct = x as ActiveProduct})
+        .Select(x =>
+          new
+          {
+            AQ = x.ActiveProduct == null
+              ? "NULL"
+              : x.ActiveProduct.QuantityPerUnit,
+            DQ = x.DiscontinuedProduct == null
+              ? "NULL"
+              : x.DiscontinuedProduct.QuantityPerUnit
+          });
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void WrongCastTest()
+    {
+      var result = Query<DiscontinuedProduct>.All
+        .Select(x => (Product) x).Select(x => (ActiveProduct) x);
       QueryDumper.Dump(result);
     }
   }
