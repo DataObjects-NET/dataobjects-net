@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 
-namespace Xtensive.Storage.Indexing.Model
+namespace Xtensive.Modelling.Tests.IndexingModel
 {
   /// <summary>
   /// Describes errors detected during <see cref="StorageInfo"/>.<see cref="Node.Validate"/> execution.

@@ -329,7 +329,7 @@ namespace Xtensive.Modelling.Tests
       // Comparing action applicaiton result & target model
       Log.Info("Comparing synchronization result:");
       c = new Comparison.Comparer<Server>(s1, s2);
-      diff = c.Difference; // s1.GetDifferenceWith(s2);
+      diff = c.Difference;
       Log.Info("\r\nDifference:\r\n{0}", diff);
       Assert.IsNull(diff);
     }

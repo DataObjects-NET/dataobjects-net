@@ -263,7 +263,7 @@ namespace Xtensive.Modelling.Comparison
           if (d!=null) {
             if (context.IsReferenceComparison)
               return difference;
-            difference.ItemChanges.Add(item.Name, (NodeDifference) d);
+            difference.ItemChanges.Add((NodeDifference) d);
           }
         }
 
@@ -274,7 +274,7 @@ namespace Xtensive.Modelling.Comparison
           if (d!=null) {
             if (context.IsReferenceComparison)
               return difference;
-            difference.ItemChanges.Add(item.Name, (NodeDifference) d);
+            difference.ItemChanges.Add((NodeDifference) d);
           }
         }
 
@@ -285,7 +285,7 @@ namespace Xtensive.Modelling.Comparison
           if (d!=null) {
             if (context.IsReferenceComparison)
               return difference;
-            difference.ItemChanges.Add(item.Name, (NodeDifference) d);
+            difference.ItemChanges.Add((NodeDifference) d);
           }
         }
 

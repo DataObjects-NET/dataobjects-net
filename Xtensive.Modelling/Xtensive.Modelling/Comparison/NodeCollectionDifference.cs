@@ -35,14 +35,14 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// Gets the item changes.
     /// </summary>
-    public Dictionary<string, NodeDifference> ItemChanges { get; private set; }
+    public List<NodeDifference> ItemChanges { get; private set; }
 
     /// <inheritdoc/>
     public override void AppendActions(IList<NodeAction> sequence)
     {
       // Processing item changes
-      foreach (var pair in ItemChanges)
-        pair.Value.AppendActions(sequence);
+      foreach (var difference in ItemChanges)
+        difference.AppendActions(sequence);
     }
 
     /// <inheritdoc/>
@@ -50,8 +50,8 @@ namespace Xtensive.Modelling.Comparison
     {
       var sb = new StringBuilder();
       sb.AppendFormat(Strings.ItemChangeCountFormat, ItemChanges.Count);
-      foreach (var pair in ItemChanges)
-        sb.AppendLine().AppendFormat(Strings.ItemChangeFormat, pair.Key, pair.Value);
+      foreach (var difference in ItemChanges)
+        sb.AppendLine().AppendFormat(Strings.ItemChangeFormat, difference);
       return sb.ToString().Indent(ToString_IndentSize, false);
     }
 
@@ -65,7 +65,7 @@ namespace Xtensive.Modelling.Comparison
     public NodeCollectionDifference(NodeCollection source, NodeCollection target)
       : base(source, target)
     {
-      ItemChanges = new Dictionary<string, NodeDifference>();
+      ItemChanges = new List<NodeDifference>();
     }
   }
 }

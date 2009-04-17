@@ -117,85 +117,58 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ExInvalidParentValue" xml:space="preserve">
-    <value>Invalid Parent value.</value>
+  <data name="ExEmptyKeyColumnsCollection" xml:space="preserve">
+    <value>KeyColumns collection is empty.</value>
   </data>
-  <data name="ExItemWithNameXAlreadyExists" xml:space="preserve">
-    <value>Item with name '{0}' already exists.</value>
+  <data name="ExColumnXContainsBothKeyAndValueCollections" xml:space="preserve">
+    <value>Column "{0}" contains both key and value collections.</value>
   </data>
-  <data name="ExItemWithNameXIsNotFound" xml:space="preserve">
-    <value>Item with Name '{0}' is not found.</value>
+  <data name="ExCanNotFindReferenceToColumnX" xml:space="preserve">
+    <value>Can not find reference to column "{0}".</value>
   </data>
-  <data name="ExModelObjectCannotBeRemoved" xml:space="preserve">
-    <value>Model object cannot be removed.</value>
+  <data name="ExMoreThenOneKeyReferenceToColumnX" xml:space="preserve">
+    <value>KeyColumns collection contains more then one reference to column "{0}".</value>
   </data>
-  <data name="ExTypeOfXPropertyMustBeY" xml:space="preserve">
-    <value>Type of {0} property must be {1}.</value>
+  <data name="ExReferencedColumnXDoesNotBelongToIndexY" xml:space="preserve">
+    <value>Referenced column "{0}" does not belong to index "{1}".</value>
   </data>
-  <data name="ExInvalidNodeState" xml:space="preserve">
-    <value>Invalid node state.</value>
+  <data name="ExMoreThenOneValueReferenceToColumnX" xml:space="preserve">
+    <value>ValueColumns collection contains more then one reference to column "{0}".</value>
   </data>
-  <data name="ExBindingFailedForX" xml:space="preserve">
-    <value>Binding has failed for {0}. Check property declaration.</value>
+  <data name="ExUndefinedTypeOfColumnX" xml:space="preserve">
+    <value>Type of column "{0}" is undefined.</value>
   </data>
-  <data name="ExNoNesting" xml:space="preserve">
-    <value>Nesting must be created for any node.</value>
+  <data name="ExUndefinedReferencedIndex" xml:space="preserve">
+    <value>Referenced index is undefined.</value>
   </data>
-  <data name="NodeInfoFormat" xml:space="preserve">
-    <value>{0} ({1})</value>
+  <data name="ExPrimaryKeyColumnCanNotBeNullable" xml:space="preserve">
+    <value>Primary key column can not be nullable.</value>
   </data>
-  <data name="ExTargetObjectExistsX" xml:space="preserve">
-    <value>Target object already exists: "{0}". To assign a new one, you must remove the old one first.</value>
+  <data name="ExUndefinedReferencingIndex" xml:space="preserve">
+    <value>Referencing index is undefined.</value>
   </data>
-  <data name="ExCannotFindConstructorToExecuteX" xml:space="preserve">
-    <value>Can't find a constructor to execute {0}.</value>
+  <data name="ExReferencingIndexColumnsDoesNotMatchReferencedIndexKeyColumns" xml:space="preserve">
+    <value>Referencing index columns does not match referenced index key columns.</value>
   </data>
-  <data name="ExPathXNotFound" xml:space="preserve">
-    <value>Node with path "{0}" is not found.</value>
+  <data name="Culture" xml:space="preserve">
+    <value>Culture</value>
   </data>
-  <data name="ExItemAlreadyExists" xml:space="preserve">
-    <value>Item already exists.</value>
+  <data name="Length" xml:space="preserve">
+    <value>Length</value>
   </data>
-  <data name="ExMultipleHintsFound" xml:space="preserve">
-    <value>Multiple hints found.</value>
+  <data name="Precision" xml:space="preserve">
+    <value>Precision</value>
   </data>
-  <data name="DifferenceFormat" xml:space="preserve">
-    <value>"{1}" != "{2}" ({0}): {3}</value>
+  <data name="Scale" xml:space="preserve">
+    <value>Scale</value>
   </data>
-  <data name="PropertyChangeFormat" xml:space="preserve">
-    <value>+{0}: {1}</value>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
   </data>
-  <data name="ItemChangeFormat" xml:space="preserve">
-    <value>{0}</value>
+  <data name="PropertyPairFormat" xml:space="preserve">
+    <value>{0}: {1}</value>
   </data>
-  <data name="ItemChangeCountFormat" xml:space="preserve">
-    <value>{0} change(s)</value>
-  </data>
-  <data name="ExBothSourceAndTargetAreNull" xml:space="preserve">
-    <value>Both Source and Target are null.</value>
-  </data>
-  <data name="DifferencePropertyNamePrefix" xml:space="preserve">
-    <value>+{0}: </value>
-  </data>
-  <data name="ExPropertyValueMustBelongToTheSameModel" xml:space="preserve">
-    <value>Property value must belong to the same Model.</value>
-  </data>
-  <data name="ExLoopInActionDependencyChain" xml:space="preserve">
-    <value>Loop in action dependency chain is detected.</value>
-  </data>
-  <data name="ExNoCurrentComparer" xml:space="preserve">
-    <value>Comparer.Current is null.</value>
-  </data>
-  <data name="ExInvalidContextDeactivationSequence" xml:space="preserve">
-    <value>Invalid context deactivation sequence.</value>
-  </data>
-  <data name="ExInvalidContextActivationSequence" xml:space="preserve">
-    <value>Invalid context activation sequence.</value>
-  </data>
-  <data name="ExInvalidAfterPathPropertyValue" xml:space="preserve">
-    <value>Invalid AfterPath property value.</value>
-  </data>
-  <data name="ExInvalidNestingOfNodeX" xml:space="preserve">
-    <value>Invalid Nesting of node "{0}".</value>
+  <data name="Comma" xml:space="preserve">
+    <value>, </value>
   </data>
 </root>

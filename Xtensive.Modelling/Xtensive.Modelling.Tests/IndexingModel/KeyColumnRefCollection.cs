@@ -1,0 +1,29 @@
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Ivan Galkin
+// Created:    2009.03.20
+
+using System;
+using Xtensive.Core.Internals.DocTemplates;
+
+namespace Xtensive.Modelling.Tests.IndexingModel
+{
+  /// <summary>
+  /// A collection of <see cref="KeyColumnRef"/> instances.
+  /// </summary>
+  [Serializable]
+  public class KeyColumnRefCollection : NodeCollectionBase<KeyColumnRef, IndexInfo>
+  {
+    // Constructors
+    
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="parent">The parent.</param>
+    public KeyColumnRefCollection(IndexInfo parent)
+      : base(parent, "KeyColumns")
+    {
+    }
+  }
+}
