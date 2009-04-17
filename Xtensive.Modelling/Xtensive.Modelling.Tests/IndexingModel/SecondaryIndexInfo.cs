@@ -20,14 +20,6 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   [Serializable]
   public class SecondaryIndexInfo : IndexInfo
   {
-
-    /// <inheritdoc/>
-    protected override Nesting CreateNesting()
-    {
-      return new Nesting<SecondaryIndexInfo, TableInfo, SecondaryIndexInfoCollection>(this, "SecondaryIndexes");
-    }
-
-
     /// <inheritdoc/>
     /// <exception cref="IntegrityException">Empty secondary key columns collection.</exception>
     protected override void ValidateState()
@@ -35,22 +27,31 @@ namespace Xtensive.Modelling.Tests.IndexingModel
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
 
-        var secondaryKeyColumns = new List<ColumnInfo>(KeyColumns.Select(valueRef => valueRef.Value));
+        var secondaryKeyColumns = new List<ColumnInfo>(
+          KeyColumns.Select(valueRef => valueRef.Value));
 
         // Empty keys.
         if (secondaryKeyColumns.Count==0)
-          ea.Execute(() => { throw new IntegrityException(Resources.Strings.ExEmptyKeyColumnsCollection, Path); });
+          ea.Execute(() => {
+            throw new IntegrityException(Resources.Strings.ExEmptyKeyColumnsCollection, Path);
+          });
 
         // Double keys.
         foreach (var column in secondaryKeyColumns
           .GroupBy(keyColumn => keyColumn).Where(group => group.Count() > 1)
           .Select(group => group.Key))
-          ea.Execute(() => {
+          ea.Execute((_column) => {
             throw new IntegrityException(
-              string.Format(Resources.Strings.ExMoreThenOneKeyReferenceToColumnX, column.Name),
+              string.Format(Resources.Strings.ExMoreThenOneKeyReferenceToColumnX, _column.Name),
               Path);
-          });
+          }, column);
       }
+    }
+
+    /// <inheritdoc/>
+    protected override Nesting CreateNesting()
+    {
+      return new Nesting<SecondaryIndexInfo, TableInfo, SecondaryIndexInfoCollection>(this, "SecondaryIndexes");
     }
 
 

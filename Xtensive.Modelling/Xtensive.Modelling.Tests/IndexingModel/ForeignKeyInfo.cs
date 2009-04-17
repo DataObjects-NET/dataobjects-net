@@ -8,7 +8,6 @@ using System;
 using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Tests.IndexingModel.Resources;
 
@@ -27,14 +26,12 @@ namespace Xtensive.Modelling.Tests.IndexingModel
 
 
     /// <summary>
-    /// Gets or sets the on update action.
+    /// Gets or sets the "on update" action.
     /// </summary>
     [Property]
-    public ReferentialAction OnUpdateAction
-    {
+    public ReferentialAction OnUpdateAction {
       get { return onUpdateAction; }
-      set
-      {
+      set {
         EnsureIsEditable();
         using (var scope = LogPropertyChange("OnUpdateAction", value)) {
           onUpdateAction = value;
@@ -44,15 +41,12 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     }
 
     /// <summary>
-    /// Gets or sets the on remove action.
+    /// Gets or sets the "on remove" action.
     /// </summary>
-    /// <value>The on remove action.</value>
     [Property]
-    public ReferentialAction OnRemoveAction
-    {
+    public ReferentialAction OnRemoveAction {
       get { return onRemoveAction; }
-      set
-      {
+      set {
         EnsureIsEditable();
         using (var scope = LogPropertyChange("OnUpdateAction", value)) {
           onRemoveAction = value;
@@ -65,11 +59,9 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// Gets or sets the foreign index.
     /// </summary>
     [Property]
-    public PrimaryIndexInfo ReferencedIndex
-    {
+    public PrimaryIndexInfo ReferencedIndex {
       get { return referencedIndex; }
-      set
-      {
+      set {
         EnsureIsEditable();
         using (var scope = LogPropertyChange("ReferencedIndex", value)) {
           referencedIndex = value;
@@ -82,24 +74,15 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// Gets or sets the referencing index.
     /// </summary>
     [Property]
-    public IndexInfo ReferencingIndex
-    {
+    public IndexInfo ReferencingIndex {
       get { return referencingIndex; }
-      set
-      {
+      set {
         EnsureIsEditable();
-        using (var scope = LogPropertyChange("ReferencingIndex", value))
-        {
+        using (var scope = LogPropertyChange("ReferencingIndex", value)) {
           referencingIndex = value;
           scope.Commit();
         }
       }
-    }
-
-    /// <inheritdoc/>
-    protected override Nesting CreateNesting()
-    {
-      return new Nesting<ForeignKeyInfo, TableInfo, ForeignKeyCollection>(this, "ForeignKeys");
     }
 
     /// <inheritdoc/>
@@ -110,9 +93,13 @@ namespace Xtensive.Modelling.Tests.IndexingModel
         ea.Execute(base.ValidateState);
 
         if (ReferencedIndex==null)
-          ea.Execute(() => { throw new IntegrityException(Strings.ExUndefinedReferencedIndex, Path); });
+          ea.Execute(() => {
+            throw new IntegrityException(Strings.ExUndefinedReferencedIndex, Path);
+          });
         if (ReferencingIndex==null)
-          ea.Execute(() => { throw new IntegrityException(Strings.ExUndefinedReferencingIndex, Path); });
+          ea.Execute(() => {
+            throw new IntegrityException(Strings.ExUndefinedReferencingIndex, Path);
+          });
 
         if (ReferencedIndex==null || ReferencingIndex==null)
           return;
@@ -124,9 +111,15 @@ namespace Xtensive.Modelling.Tests.IndexingModel
           .Union(referencedKeyColumns.Except(primaryKeyColumns)).Count() > 0)
           ea.Execute(() => {
             throw new IntegrityException(
-              Resources.Strings.ExReferencingIndexColumnsDoesNotMatchReferencedIndexKeyColumns, Path);
+              Strings.ExReferencingIndexColumnsDoesNotMatchReferencedIndexKeyColumns, Path);
           });
       }
+    }
+
+    /// <inheritdoc/>
+    protected override Nesting CreateNesting()
+    {
+      return new Nesting<ForeignKeyInfo, TableInfo, ForeignKeyCollection>(this, "ForeignKeys");
     }
 
 

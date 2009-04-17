@@ -36,7 +36,6 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// </summary>
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The referenced column.</param>
-    /// <param name="index">The index.</param>
     public ValueColumnRef(IndexInfo parent, ColumnInfo column)
       : base(parent, column)
     {

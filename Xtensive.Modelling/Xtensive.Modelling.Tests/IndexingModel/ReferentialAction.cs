@@ -8,17 +8,31 @@ using System;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
 {
+  /// <summary>
+  /// Referential integrity maintenance actions.
+  /// </summary>
   [Serializable]
   public enum ReferentialAction
   {
+    /// <summary>
+    /// Do nothing to maintain referential integrity.
+    /// </summary>
     None = 0,
-
+    /// <summary>
+    /// The same as <see cref="Restrict"/>.
+    /// </summary>
     Default = Restrict,
-
+    /// <summary>
+    /// Restricts primary key update \ removal when it is referenced by some foreign key.
+    /// </summary>
     Restrict = 1,
-
+    /// <summary>
+    /// Cascades primary key update \ removal to its foreign key.
+    /// </summary>
     Cascade = 2,
-
+    /// <summary>
+    /// Clears the foreign key on its primary key update \ removal.
+    /// </summary>
     Clear = 3,
   }
 }

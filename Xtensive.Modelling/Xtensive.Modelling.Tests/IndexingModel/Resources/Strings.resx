@@ -171,4 +171,7 @@
   <data name="Comma" xml:space="preserve">
     <value>, </value>
   </data>
+  <data name="ExInvalidDirectionValue" xml:space="preserve">
+    <value>Invalid Direction value (Direction.None).</value>
+  </data>
 </root>

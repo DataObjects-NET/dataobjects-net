@@ -97,6 +97,15 @@ namespace Xtensive.Modelling.Tests.IndexingModel.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid Direction value (Direction.None)..
+        /// </summary>
+        internal static string ExInvalidDirectionValue {
+            get {
+                return ResourceManager.GetString("ExInvalidDirectionValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to KeyColumns collection contains more then one reference to column &quot;{0}&quot;..
         /// </summary>
         internal static string ExMoreThenOneKeyReferenceToColumnX {

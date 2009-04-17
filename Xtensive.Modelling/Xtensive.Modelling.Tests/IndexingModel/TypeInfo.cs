@@ -11,6 +11,7 @@ using Xtensive.Core;
 using System.Text;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Tests.IndexingModel.Resources;
+using Xtensive.Modelling.Validation;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
 {
@@ -18,7 +19,8 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// Type of table column.
   /// </summary>
   [Serializable]
-  public sealed class TypeInfo : IEquatable<TypeInfo>
+  public sealed class TypeInfo : IEquatable<TypeInfo>,
+    IValidatable
   {
     /// <summary>
     /// Gets the type of the data.
@@ -53,6 +55,12 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// Gets the precision.
     /// </summary>
     public int Precision { get;  private set; }
+
+    /// <inheritdoc/>
+    public void Validate()
+    {
+      // TODO: Implement
+    }
 
     #region Equality members
 

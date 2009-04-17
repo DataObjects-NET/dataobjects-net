@@ -21,7 +21,6 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="parent">The parent index.</param>
-    /// <param name="index">The index.</param>
     /// <inheritdoc/>
     protected ColumnInfoRef(IndexInfo parent)
       : base(parent)
@@ -33,7 +32,6 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// </summary>
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The column.</param>
-    /// <param name="index">The index.</param>
     protected ColumnInfoRef(IndexInfo parent, ColumnInfo column)
       : base(parent)
     {

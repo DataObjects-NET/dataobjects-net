@@ -34,6 +34,8 @@ namespace Xtensive.Modelling.Tests
       var tValue = new ColumnInfo(t, "Value") {
         Type = new TypeInfo(typeof (string), 1024)
       };
+      var tPK = new PrimaryIndexInfo(t, "PK_Types");
+      var tpkId = new KeyColumnRef(tPK, tId);
       return storage;
     }
 

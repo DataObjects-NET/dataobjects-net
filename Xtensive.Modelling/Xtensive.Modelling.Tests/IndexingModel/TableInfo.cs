@@ -19,6 +19,12 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     private PrimaryIndexInfo primaryIndex;
 
     /// <summary>
+    /// Gets columns.
+    /// </summary>
+    [Property]
+    public ColumnInfoCollection Columns { get; private set; }
+
+    /// <summary>
     /// Gets or sets the primary index.
     /// </summary>
     [Property]
@@ -44,12 +50,6 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// </summary>
     [Property]
     public ForeignKeyCollection ForeignKeys { get; private set; }
-
-    /// <summary>
-    /// Gets columns.
-    /// </summary>
-    [Property]
-    public ColumnInfoCollection Columns { get; private set; }
 
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
