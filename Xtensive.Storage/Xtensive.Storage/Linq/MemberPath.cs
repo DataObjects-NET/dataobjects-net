@@ -137,6 +137,8 @@ namespace Xtensive.Storage.Linq
               result.AddHead(lastItem);
             }
             break;
+//          case MemberType.Grouping:
+//            break;
           default:
             if (lastItem!=null)
               return new MemberPath();

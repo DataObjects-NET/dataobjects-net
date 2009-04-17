@@ -91,7 +91,9 @@ namespace Xtensive.Storage.Linq
             && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
               && (type.Attributes & TypeAttributes.NotPublic)==TypeAttributes.NotPublic)
         return MemberType.Anonymous;
-      return MemberType.Unknown;
+      return e.IsGrouping()
+        ? MemberType.Grouping
+        : MemberType.Unknown;
     }
  }
 }
