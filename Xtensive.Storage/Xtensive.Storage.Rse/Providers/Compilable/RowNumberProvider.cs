@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
 
     protected override RecordSetHeader BuildHeader()
     {
-      return Source.Header.Add(EnumerableUtils.One<Column>(SystemColumn));
+      return Source.Header.Add(EnumerableUtils<Column>.One(SystemColumn));
     }
 
     // Constructor

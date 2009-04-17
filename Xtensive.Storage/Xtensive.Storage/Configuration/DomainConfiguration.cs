@@ -430,12 +430,12 @@ namespace Xtensive.Storage.Configuration
     public override int GetHashCode()
     {
       unchecked {
-        int result = builders.GetHashCodeRecursive();
+        int result = builders.CalculateHashCode();
         result = (result * 397) ^ (name != null ? name.GetHashCode() : 0);
         result = (result * 397) ^ (connectionInfo != null ? connectionInfo.GetHashCode() : 0);
         result = (result * 397) ^ (namingConvention != null ? namingConvention.GetHashCode() : 0);
         result = (result * 397) ^ (mappings != null ? mappings.GetHashCode() : 0);
-        result = (result * 397) ^ types.GetHashCodeRecursive();
+        result = (result * 397) ^ types.CalculateHashCode();
         result = (result * 397) ^ keyCacheSize;
         result = (result * 397) ^ recordSetMappingCacheSize;
         result = (result * 397) ^ sessionPoolSize;
