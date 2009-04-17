@@ -31,7 +31,7 @@ namespace Xtensive.Modelling.Tests
       var tId = new ColumnInfo(t, "Id") {
         Type = new TypeInfo(typeof (int))
       };
-      var tValue = new ColumnInfo(t, "Id") {
+      var tValue = new ColumnInfo(t, "Value") {
         Type = new TypeInfo(typeof (string), 1024)
       };
       return storage;
