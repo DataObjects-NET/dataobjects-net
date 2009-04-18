@@ -12,7 +12,6 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Expressions;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -374,7 +373,7 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
 
     public RedundantColumnRemover(SelectProvider originalProvider)
     {
-      this.rootProvider = originalProvider;
+      rootProvider = originalProvider;
 
       mappings = new Parameter<Dictionary<Provider, List<int>>>();
       outerColumnUsages = new Dictionary<ApplyParameter, List<int>>();

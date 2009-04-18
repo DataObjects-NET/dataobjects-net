@@ -82,7 +82,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override IOptimizer BuildOptimizer()
     {
-      return new OrderbyOptimizer();
+      return new CompositeOptimizer(
+        new OrderbyOptimizer(),
+        new ReduntantColumnOptimizer()
+        );
     }
 
     /// <inheritdoc/>

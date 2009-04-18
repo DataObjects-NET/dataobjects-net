@@ -44,8 +44,11 @@ namespace Xtensive.Storage.Providers.Index
 
     protected override IOptimizer BuildOptimizer()
     {
-      return new CompositeOptimizer(new OrderbyOptimizer(),
-        new IndexOptimizer(Handlers.Domain.Model, new StatisticsProviderResolver(this)));
+      return new CompositeOptimizer(
+        new OrderbyOptimizer(),
+        new IndexOptimizer(Handlers.Domain.Model, new StatisticsProviderResolver(this)),
+        new ReduntantColumnOptimizer()
+        );
     }
 
     /// <inheritdoc/>

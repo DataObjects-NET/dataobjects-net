@@ -58,18 +58,18 @@ namespace Xtensive.Storage.Linq
     {
       var context = new TranslatorContext(expression);
       var result = context.Translator.Translate();
-      result = new RedundantColumnRemover(result).RemoveRedundantColumn();
-      //result = Optimize(result);
+      //result = new RedundantColumnRemover(result).RemoveRedundantColumn();
+      result = Optimize(result);
       return result;
     }
 
     private ResultExpression Optimize(ResultExpression origin)
     {
-      var mappingsGatherer = new TupleAccessProcessor((a, b) => { }, null);
-      var mappingsReplacer = new TupleAccessProcessor();
+      var mappingsGatherer = new ItemProjectorAnalyzer();
+      var mappingsReplacer = new ItemProjectorRewriter();
 
       var originProvider = origin.RecordSet.Provider;
-      var usedColumns = mappingsGatherer.GatherMappings(origin.ItemProjector, originProvider.Header)
+      var usedColumns = mappingsGatherer.Gather(origin.ItemProjector, originProvider.Header)
           .Distinct()
           .OrderBy()
           .ToList();
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Linq
         var rs = resultProvider.Result;
         var groupMap = MappingHelper.BuildGroupMapping(usedColumns, originProvider, resultProvider);
 
-        var itemProjector = mappingsReplacer.ReplaceMappings(origin.ItemProjector, usedColumns, groupMap, origin.RecordSet.Header);
+        var itemProjector = mappingsReplacer.Rewrite(origin.ItemProjector, usedColumns, groupMap, origin.RecordSet.Header);
         var result = new ResultExpression(origin.Type, rs, null, (LambdaExpression)itemProjector, origin.ScalarTransform);
         return result;
       }

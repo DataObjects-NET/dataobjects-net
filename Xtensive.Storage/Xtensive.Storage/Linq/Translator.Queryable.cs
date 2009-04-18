@@ -417,7 +417,7 @@ namespace Xtensive.Storage.Linq
       var visitedSource = VisitSequence(source);
       var result = visitedSource;
 
-      var tupleAccessProcessor = new TupleAccessProcessor();
+      var projectorRewriter = new ItemProjectorRewriter();
       List<int> groupMapping;
 
       RecordSet recordSet;
@@ -449,7 +449,7 @@ namespace Xtensive.Storage.Linq
             keyMapping.RegisterField(field.Key, segment);
           }
           foreach (var pair in cfm.AnonymousTypes) {
-            var projection = tupleAccessProcessor.ReplaceMappings(pair.Value.Second, columnList, groupMapping, recordSet.Header);
+            var projection = projectorRewriter.Rewrite(pair.Value.Second, columnList, groupMapping, recordSet.Header);
             newResultMapping.RegisterAnonymous(
               pair.Key.IsNullOrEmpty()
                 ? "Key"
@@ -469,7 +469,7 @@ namespace Xtensive.Storage.Linq
         : elementSelector.Type.GetGenericArguments()[1];
 
       // Remap 
-      var remappedExpression = (LambdaExpression) tupleAccessProcessor.ReplaceMappings(originalCompiledKeyExpression, columnList, groupMapping, recordSet.Header);
+      var remappedExpression = (LambdaExpression) projectorRewriter.Rewrite(originalCompiledKeyExpression, columnList, groupMapping, recordSet.Header);
 
       var pRecord = Expression.Parameter(typeof (Record), "record");
       var pTuple = Expression.Parameter(typeof (Tuple), "tuple");
@@ -483,7 +483,6 @@ namespace Xtensive.Storage.Linq
       for (int i = 0; i < columnList.Count; i++) {
         var columnIndex = columnList[i];
         var columnType = result.RecordSet.Header.Columns[columnIndex].Type;
-        var tupleAccessMethod = WellKnownMembers.TupleGenericAccessor.MakeGenericMethod(columnType);
         var leftExpression = ExpressionHelper.TupleAccess(filterTuple, columnType, columnIndex);
         var rightExpression = ExpressionHelper.TupleAccess(tupleParameterValue, columnType, i);
         var equalsExpression = Expression.Equal(leftExpression, rightExpression);
@@ -598,7 +597,7 @@ namespace Xtensive.Storage.Linq
       var outerLength = outer.RecordSet.Header.Length;
       var innerLength = inner.RecordSet.Header.Length;
 
-      var tupleAccessProcessor = new TupleAccessProcessor();
+      var projectorRewriter = new ItemProjectorRewriter();
       var tupleMapping = new List<int>(
         Enumerable.Repeat(-1, outerLength).Concat(Enumerable.Range(0, innerLength))
         );
@@ -608,7 +607,7 @@ namespace Xtensive.Storage.Linq
         );
 
       outer = new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.ItemProjector);
-      var innerItemProjector = (LambdaExpression) tupleAccessProcessor.ReplaceMappings(inner.ItemProjector, tupleMapping, groupMapping, recordSet.Header);
+      var innerItemProjector = (LambdaExpression) projectorRewriter.Rewrite(inner.ItemProjector, tupleMapping, groupMapping, recordSet.Header);
       inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.CreateShifted(outerLength), innerItemProjector);
 
       using (context.Bindings.Add(resultSelector.Parameters[0], outer))
@@ -791,8 +790,8 @@ namespace Xtensive.Storage.Linq
         mapping = complexMapping;
       }
       var groupMapping = MappingHelper.BuildGroupMapping(outerColumnList, outerRecordSet.Provider, recordSet.Provider);
-      var processor = new TupleAccessProcessor();
-      var itemProjector = processor.ReplaceMappings(outer.ItemProjector, outerColumnList, groupMapping, recordSet.Header);
+      var projectorRewriter = new ItemProjectorRewriter();
+      var itemProjector = projectorRewriter.Rewrite(outer.ItemProjector, outerColumnList, groupMapping, recordSet.Header);
       return new ResultExpression(outer.Type, recordSet, mapping, (LambdaExpression) itemProjector);
     }
 
