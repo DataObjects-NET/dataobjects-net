@@ -12,9 +12,9 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 namespace Xtensive.Storage.Rse.Optimization
 {
   /// <summary>
-  /// <see cref="IOptimizer"/> implementation that removes redunant columns from each provider in tree.
+  /// <see cref="IOptimizer"/> implementation that removes redundant columns from each provider in tree.
   /// </summary>
-  public class ReduntantColumnOptimizer : IOptimizer
+  public class RedundantColumnOptimizer : IOptimizer
   {
     /// <inheritdoc/>
     CompilableProvider IOptimizer.Optimize(CompilableProvider rootProvider)

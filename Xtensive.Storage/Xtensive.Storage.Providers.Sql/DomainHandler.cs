@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       return new CompositeOptimizer(
         new OrderbyOptimizer(),
-        new ReduntantColumnOptimizer()
+        new RedundantColumnOptimizer()
         );
     }
 

@@ -215,7 +215,17 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void IsGetFieldTest()
+    public void IsGetParentFieldTest()
+    {
+      var result = Query<Product>.All
+        .Where(p => p is DiscontinuedProduct)
+        .Select(x => (DiscontinuedProduct) x)
+        .Select(dp => dp.ProductName);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void IsGetChildFieldTest()
     {
       var result = Query<Product>.All
         .Where(p => p is DiscontinuedProduct)
@@ -242,6 +252,24 @@ namespace Xtensive.Storage.Tests.Linq
           : null);
       QueryDumper.Dump(result);
     }
+
+    [Test]
+    public void TwoChildrenCastTest()
+    {
+      var result = Query<Product>.All
+        .Select(x =>
+          new
+          {
+            DiscontinuedProduct = x is DiscontinuedProduct
+              ? (DiscontinuedProduct) x
+              : null,
+            ActiveProduct = x is ActiveProduct
+              ? (ActiveProduct) x
+              : null
+          });
+      QueryDumper.Dump(result);
+    }
+
 
     [Test]
     public void ComplexIsCastTest()
