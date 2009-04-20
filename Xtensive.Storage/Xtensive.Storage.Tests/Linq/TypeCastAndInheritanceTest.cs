@@ -328,5 +328,17 @@ namespace Xtensive.Storage.Tests.Linq
         .Select(x => (Product) x).Select(x => (ActiveProduct) x);
       QueryDumper.Dump(result);
     }
+
+    [Test]
+    public void ImplicitNumericTest()
+    {
+      long value = 0;
+      var customer = Query<Customer>.All.OrderBy(c => c.CompanyName).First();
+      var result = Query<Customer>.All
+        .Where(c => c==customer)
+        .Select(c => c.CompanyName.Length + value)
+        .First();
+      Assert.AreEqual(customer.CompanyName.Length, result);
+    }
   }
 }

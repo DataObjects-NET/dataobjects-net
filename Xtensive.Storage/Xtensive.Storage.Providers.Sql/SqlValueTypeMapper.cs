@@ -7,10 +7,12 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Storage.Providers.Sql.Mappings;
+using Xtensive.Storage.Providers.Sql.Resources;
 using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -122,7 +124,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var result = TryGetTypeMapping(type, length);
       if (result == null)
-        throw new InvalidOperationException(string.Format("Type '{0}' is not supported.", type.GetShortName()));
+        throw new InvalidOperationException(string.Format(Strings.ExTypeXIsNotSupported, type.GetShortName()));
       return result;
     }
 
@@ -191,6 +193,9 @@ namespace Xtensive.Storage.Providers.Sql
       BuildDataTypeMapping(types.VarBinaryMax);
       BuildDataTypeMapping(types.VarChar);
       BuildDataTypeMapping(types.VarCharMax);
+      var charTypeInfo = new RangeDataTypeInfo<char>(SqlDataType.Char, null);
+      charTypeInfo.Value = new ValueRange<char>(char.MinValue, char.MaxValue, (char)0);
+      BuildDataTypeMapping(charTypeInfo);
     }
 
     protected virtual void BuildTypeSubstitutes()
@@ -271,7 +276,8 @@ namespace Xtensive.Storage.Providers.Sql
       case TypeCode.Boolean:
         return (reader, fieldIndex) => reader.GetBoolean(fieldIndex);
       case TypeCode.Char:
-        return (reader, fieldIndex) => reader.GetChar(fieldIndex);
+        //return (reader, fieldIndex) => reader.GetChar(fieldIndex);
+        return ReadChar;
       case TypeCode.SByte:
         return (reader, fieldIndex) => Convert.ToSByte(reader.GetDecimal(fieldIndex));
       case TypeCode.Byte:
@@ -301,6 +307,12 @@ namespace Xtensive.Storage.Providers.Sql
       default:
         throw new ArgumentOutOfRangeException();
       }
+    }
+
+    private static object ReadChar(DbDataReader reader, int fieldIndex)
+    {
+      var s = reader.GetString(fieldIndex);
+      return s==null ? null : (object)s.Single();
     }
   }
 }

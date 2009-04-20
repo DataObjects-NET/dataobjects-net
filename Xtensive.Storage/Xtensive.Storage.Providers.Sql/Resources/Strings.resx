@@ -171,4 +171,7 @@
   <data name="ExOnlyEqualityRangesAreSupported" xml:space="preserve">
     <value>Only equality ranges are supported.</value>
   </data>
+  <data name="ExTypeXIsNotSupported" xml:space="preserve">
+    <value>Type '{0}' is not supported.</value>
+  </data>
 </root>

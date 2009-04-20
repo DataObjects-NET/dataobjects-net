@@ -169,6 +169,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not supported..
+        /// </summary>
+        internal static string ExTypeXIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExTypeXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to create the connection. Check if all needed assemblies are available..
         /// </summary>
         internal static string ExUnableToCreateConnection {
