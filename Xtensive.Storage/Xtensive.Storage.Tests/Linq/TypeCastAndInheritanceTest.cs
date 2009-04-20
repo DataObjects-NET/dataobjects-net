@@ -54,6 +54,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(NotSupportedException))]
     public void IsIntermediateTest()
     {
       Query<Product>.All
@@ -63,6 +64,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(NotSupportedException))]
     public void IsCountTest()
     {
       int productCount = Query<Product>.All.Count();
@@ -215,6 +217,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(NotSupportedException))]
     public void IsGetParentFieldTest()
     {
       var result = Query<Product>.All
@@ -225,6 +228,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(NotSupportedException))]
     public void IsGetChildFieldTest()
     {
       var result = Query<Product>.All
@@ -248,7 +252,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Product>.All
         .Select(x => x is DiscontinuedProduct
-          ? (DiscontinuedProduct) x
+          ? x
           : null);
       QueryDumper.Dump(result);
     }
@@ -260,18 +264,15 @@ namespace Xtensive.Storage.Tests.Linq
         .Select(x =>
           new
           {
-            DiscontinuedProduct = x is DiscontinuedProduct
-              ? (DiscontinuedProduct) x
-              : null,
-            ActiveProduct = x is ActiveProduct
-              ? (ActiveProduct) x
-              : null
+            DiscontinuedProduct = x as DiscontinuedProduct,
+            ActiveProduct = x as ActiveProduct
           });
       QueryDumper.Dump(result);
     }
 
 
     [Test]
+    [ExpectedException(typeof(NotSupportedException))]
     public void ComplexIsCastTest()
     {
       var result = Query<Product>.All
@@ -361,11 +362,10 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidCastException))]
     public void WrongCastTest()
     {
       var result = Query<DiscontinuedProduct>.All
-        .Select(x => (Product) x).Select(x => (ActiveProduct) x);
+        .Select(x => x as Product).Select(x => x as ActiveProduct);
       QueryDumper.Dump(result);
     }
 

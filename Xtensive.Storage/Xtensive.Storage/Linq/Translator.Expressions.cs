@@ -128,15 +128,15 @@ namespace Xtensive.Storage.Linq
           var parameter = (ParameterExpression) source;
           var resultExpression = context.Bindings[parameter];
           var recordSet = resultExpression.RecordSet;
-          var mapping = (ComplexMapping) resultExpression.Mapping;
+          var mapping = new ComplexMapping();
+          mapping.Fill(resultExpression.Mapping);
 
           // check type
           var sourceProjectorBody = resultExpression.ItemProjector.Body;
           TypeBinaryExpression typeIs = Expression.TypeIs(sourceProjectorBody, targetType);
           var typeCheckExpression = Expression.Condition(typeIs, sourceProjectorBody, Expression.Constant(null, source.Type));
 
-          var projectorBody = Expression.Convert(typeCheckExpression, targetType);
-          var visitedExpression = Expression.Lambda(projectorBody, resultExpression.ItemProjector.Parameters.ToArray());
+          var convertExpression = Expression.Convert(typeCheckExpression, targetType);
 
           if (targetType.IsSubclassOf(source.Type)) {
             var targetTypeInfo = context.Model.Types[targetType];
@@ -161,7 +161,7 @@ namespace Xtensive.Storage.Linq
           }
           var re = new ResultExpression(typeof (Query<>).MakeGenericType(source.Type), recordSet, mapping, resultExpression.ItemProjector);
           context.Bindings.ReplaceBound(parameter, re);
-          return visitedExpression;
+          return convertExpression;
         }
       }
       throw new NotImplementedException();
