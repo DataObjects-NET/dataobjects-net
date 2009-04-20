@@ -365,7 +365,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void WrongCastTest()
     {
       var result = Query<DiscontinuedProduct>.All
-        .Select(x => x as Product).Select(x => x as ActiveProduct);
+        .Select(discontinuedProduct => discontinuedProduct as Product)
+        .Select(product => product as ActiveProduct);
       QueryDumper.Dump(result);
     }
 

@@ -131,11 +131,8 @@ namespace Xtensive.Storage.Linq
           var mapping = new ComplexMapping();
           mapping.Fill(resultExpression.Mapping);
 
-          // check type
-          var sourceProjectorBody = resultExpression.ItemProjector.Body;
-          TypeBinaryExpression typeIs = Expression.TypeIs(sourceProjectorBody, targetType);
-          var typeCheckExpression = Expression.Condition(typeIs, sourceProjectorBody, Expression.Constant(null, source.Type));
-
+          TypeBinaryExpression typeIs = Expression.TypeIs(source, targetType);
+          var typeCheckExpression = Expression.Condition(typeIs, source, Expression.Constant(null, source.Type));
           var convertExpression = Expression.Convert(typeCheckExpression, targetType);
 
           if (targetType.IsSubclassOf(source.Type)) {
@@ -159,9 +156,9 @@ namespace Xtensive.Storage.Linq
                 mapping.RegisterField(field.Name, new Segment<int>(field.MappingInfo.Offset + offset, field.MappingInfo.Length));
             }
           }
-          var re = new ResultExpression(typeof (Query<>).MakeGenericType(source.Type), recordSet, mapping, resultExpression.ItemProjector);
+          var re = new ResultExpression(resultExpression.Type, recordSet, mapping, resultExpression.ItemProjector);
           context.Bindings.ReplaceBound(parameter, re);
-          return convertExpression;
+          return base.VisitUnary(convertExpression);
         }
       }
       throw new NotImplementedException();
