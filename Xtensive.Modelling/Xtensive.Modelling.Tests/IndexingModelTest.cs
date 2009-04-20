@@ -8,6 +8,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Modelling.Actions;
+using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Tests.IndexingModel;
 
@@ -25,8 +26,12 @@ namespace Xtensive.Modelling.Tests
       TestUpdate(storage, (s1, s2, hs) => {
         var t1 = (TableInfo) s1.Resolve("Tables/Types");
         t1.Remove();
+        var fk1 = (ForeignKeyInfo) s1.Resolve("Tables/Objects/ForeignKeys/FK_TypeId");
+        fk1.Remove();
         var o2 = (TableInfo) s2.Resolve("Tables/Objects");
-        o2.Remove();
+        string o2OldPath = o2.Path;
+        o2.Name = "NewObjects";
+        hs.Add(new RenameHint(o2OldPath, o2.Path));
       });
     }
 
@@ -105,6 +110,8 @@ namespace Xtensive.Modelling.Tests
       Log.Info("Update test ({0} hints)", useHints ? "with" : "without");
       s1.Dump();
       s2.Dump();
+      s1.Validate();
+      s2.Validate();
 
       // Comparing different models
       Log.Info("Comparing models:");
@@ -114,7 +121,9 @@ namespace Xtensive.Modelling.Tests
           c.Hints.Add(hint);
       var diff = c.Difference;
       Log.Info("\r\nDifference:\r\n{0}", diff);
-      var actions = new ActionSequence() { diff.ToActions() };
+      var actions = new ActionSequence() {
+        new Upgrader(diff, c.Hints).Actions
+      };
       Log.Info("\r\nActions:\r\n{0}", actions);
       actions.Apply(s1);
       s1.Dump();

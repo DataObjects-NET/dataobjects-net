@@ -90,8 +90,9 @@ namespace Xtensive.Modelling.Tests
       Difference diff = comparer.Difference;
       Log.Info("Difference: \r\n{0}", diff);
 
-      var actions = new ActionSequence();
-      actions.Add(diff.ToActions());
+      var actions = new ActionSequence {
+        new Upgrader(diff).Actions
+      };
       Log.Info("Actions: \r\n{0}", actions);
 
       Log.Info("Applying actions...");
@@ -320,7 +321,9 @@ namespace Xtensive.Modelling.Tests
           c.Hints.Add(hint);
       var diff = c.Difference;
       Log.Info("\r\nDifference:\r\n{0}", diff);
-      var actions = new ActionSequence() { diff.ToActions() };
+      var actions = new ActionSequence() {
+        new Upgrader(diff).Actions
+      };
       Log.Info("\r\nActions:\r\n{0}", actions);
       actions.Apply(s1);
       s1.Dump();

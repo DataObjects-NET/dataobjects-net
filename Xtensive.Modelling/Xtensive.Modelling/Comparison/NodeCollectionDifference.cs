@@ -38,14 +38,6 @@ namespace Xtensive.Modelling.Comparison
     public List<NodeDifference> ItemChanges { get; private set; }
 
     /// <inheritdoc/>
-    public override void AppendActions(IList<NodeAction> sequence)
-    {
-      // Processing item changes
-      foreach (var difference in ItemChanges)
-        difference.AppendActions(sequence);
-    }
-
-    /// <inheritdoc/>
     protected override string ParametersToString()
     {
       var sb = new StringBuilder();

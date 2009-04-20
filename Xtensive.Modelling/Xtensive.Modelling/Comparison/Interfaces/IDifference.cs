@@ -29,18 +29,5 @@ namespace Xtensive.Modelling.Comparison
     /// <see langword="null" />, if none.
     /// </summary>
     Difference Parent { get; }
-
-    /// <summary>
-    /// Converts the difference to action sequence reproducing it.
-    /// </summary>
-    /// <returns>An action sequence reproducing the difference.</returns>
-    IEnumerable<NodeAction> ToActions();
-
-    /// <summary>
-    /// Appends the actions required to build this difference to the specified
-    /// action sequence.
-    /// </summary>
-    /// <param name="actions">The sequence to append to.</param>
-    void AppendActions(IList<NodeAction> actions);
   }
 }

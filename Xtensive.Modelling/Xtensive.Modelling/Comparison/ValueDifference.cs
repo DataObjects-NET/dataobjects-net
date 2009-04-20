@@ -19,20 +19,6 @@ namespace Xtensive.Modelling.Comparison
   public class ValueDifference : Difference
   {
     /// <inheritdoc/>
-    public override void AppendActions(IList<NodeAction> sequence)
-    {
-      var targetNode = ((NodeDifference) Parent).Target;
-      var pca = new PropertyChangeAction() {Path = targetNode.Path};
-      pca.Properties.Add(
-        ((IHasPropertyChanges) Parent).PropertyChanges
-          .Where(kv => kv.Value==this)
-          .Select(kv => kv.Key)
-          .First(), 
-        PathNodeReference.Get(Target));
-      sequence.Add(pca);
-    }
-
-    /// <inheritdoc/>
     protected override string ParametersToString()
     {
       return "values differ";

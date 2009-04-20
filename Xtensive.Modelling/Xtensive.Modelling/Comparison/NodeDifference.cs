@@ -39,46 +39,6 @@ namespace Xtensive.Modelling.Comparison
     public Dictionary<string, Difference> PropertyChanges { get; private set; }
 
     /// <inheritdoc/>
-    public override void AppendActions(IList<NodeAction> sequence)
-    {
-      // Processing movement
-      if (MovementInfo.IsRemoved) {
-        sequence.Add(
-          new RemoveNodeAction() {Path = (Source ?? Target).Path});
-        if (Source!=null)
-          return;
-      }
-
-      if (MovementInfo.IsCreated) {
-        var cna = new CreateNodeAction()
-          {
-            Path = Target.Parent==null ? string.Empty : Target.Parent.Path,
-            Type = Target.GetType(),
-            Name = Target.Name,
-          };
-        if (Target.Nesting.IsNestedToCollection) {
-          var collection = (NodeCollection) Target.Nesting.PropertyValue;
-          cna.AfterPath = Target.Index==0 ? collection.Path : collection[Target.Index - 1].Path;
-        }
-        sequence.Add(cna);
-      }
-      else if (!MovementInfo.IsUnchanged) {
-        sequence.Add(new MoveNodeAction()
-          {
-            Path = Source.Path,
-            Parent = Target.Parent==null ? string.Empty : Target.Parent.Path,
-            Name = Target.Name,
-            Index = Target.Index,
-            NewPath = Target.Path
-          });
-      }
-
-      // And property changes
-      foreach (var pair in PropertyChanges)
-        pair.Value.AppendActions(sequence);
-    }
-
-    /// <inheritdoc/>
     protected override string ParametersToString()
     {
       var sb = new StringBuilder();

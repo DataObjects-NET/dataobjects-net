@@ -36,18 +36,6 @@ namespace Xtensive.Modelling.Comparison
     /// <inheritdoc/>
     public Difference Parent { get; private set; }
 
-    /// <inheritdoc/>
-    public IEnumerable<NodeAction> ToActions()
-    {
-      var actions = new List<NodeAction>();
-      AppendActions(actions);
-      return actions;
-      // return ActionSorter.SortByDependency(actions);
-    }
-
-    /// <inheritdoc/>
-    public abstract void AppendActions(IList<NodeAction> actions);
-
     #region ToString implementation
 
     /// <inheritdoc/>
