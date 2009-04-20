@@ -17,7 +17,7 @@ namespace Xtensive.Modelling.Actions
   public class RemoveNodeAction : NodeAction
   {
     /// <inheritdoc/>
-    protected override void PerformApply(IModel model, IPathNode item)
+    protected override void PerformExecute(IModel model, IPathNode item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var node = (Node) item;

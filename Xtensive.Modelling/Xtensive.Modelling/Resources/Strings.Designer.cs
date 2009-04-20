@@ -223,6 +223,15 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Upgarder.Current is null..
+        /// </summary>
+        internal static string ExNoCurrentUpgrader {
+            get {
+                return ResourceManager.GetString("ExNoCurrentUpgrader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Nesting must be created for any node..
         /// </summary>
         internal static string ExNoNesting {

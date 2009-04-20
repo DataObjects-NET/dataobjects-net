@@ -22,6 +22,6 @@ namespace Xtensive.Modelling.Actions
     /// Applies the action to the specified model.
     /// </summary>
     /// <param name="model">The model to apply the action to.</param>
-    void Apply(IModel model);
+    void Execute(IModel model);
   }
 }

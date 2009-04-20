@@ -33,22 +33,23 @@ namespace Xtensive.Modelling.Actions
       }
     }
 
-    #region Apply method
+    #region Execute method
 
     /// <inheritdoc/>
-    public virtual void Apply(IModel model)
+    public virtual void Execute(IModel model)
     {
       ArgumentValidator.EnsureArgumentNotNull(model, "model");
       var item = model.Resolve(path);
-      PerformApply(model, item);
+      ActionHandler.Current.Execute(this);
+      PerformExecute(model, item);
     }
 
     /// <summary>
-    /// Actually executed <see cref="Apply"/> method call.
+    /// Actually executed <see cref="Execute"/> method call.
     /// </summary>
     /// <param name="model">The model.</param>
     /// <param name="item"><see cref="Path"/> resolution result.</param>
-    protected abstract void PerformApply(IModel model, IPathNode item);
+    protected abstract void PerformExecute(IModel model, IPathNode item);
 
     #endregion
 

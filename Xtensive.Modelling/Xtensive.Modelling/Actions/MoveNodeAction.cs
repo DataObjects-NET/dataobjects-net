@@ -60,7 +60,7 @@ namespace Xtensive.Modelling.Actions
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Required constructor isn't found.</exception>
-    protected override void PerformApply(IModel model, IPathNode item)
+    protected override void PerformExecute(IModel model, IPathNode item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var node = (Node) item;

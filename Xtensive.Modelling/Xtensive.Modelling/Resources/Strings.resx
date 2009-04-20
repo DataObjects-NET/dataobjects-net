@@ -198,4 +198,7 @@
   <data name="ExInvalidNestingOfNodeX" xml:space="preserve">
     <value>Invalid Nesting of node "{0}".</value>
   </data>
+  <data name="ExNoCurrentUpgrader" xml:space="preserve">
+    <value>Upgarder.Current is null.</value>
+  </data>
 </root>

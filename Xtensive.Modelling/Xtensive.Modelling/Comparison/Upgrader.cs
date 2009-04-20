@@ -31,6 +31,11 @@ namespace Xtensive.Modelling.Comparison
       get { return current; }
     }
 
+    /// <summary>
+    /// Gets the current upgrade context.
+    /// </summary>
+    protected internal UpgradeContext Context { get; internal set; }
+
     #region IUpgrader properties
 
     /// <inheritdoc/>
@@ -46,11 +51,13 @@ namespace Xtensive.Modelling.Comparison
           _this => {
             var previous = current;
             current = this;
-            try {
-              return _this.Visit(Difference);
-            }
-            finally {
-              current = previous;
+            using (NullActionHandler.Instance.Activate()) {
+              try {
+                return _this.Visit(Difference);
+              }
+              finally {
+                current = previous;
+              }
             }
           },
           this);
@@ -72,13 +79,16 @@ namespace Xtensive.Modelling.Comparison
     {
       if (difference==null)
         return EnumerableUtils<NodeAction>.Empty;
-      if (difference is NodeDifference)
-        return VisitNodeDifference((NodeDifference) difference);
-      if (difference is NodeCollectionDifference)
-        return VisitNodeCollectionDifference((NodeCollectionDifference) difference);
-      if (difference is ValueDifference)
-        return VisitValueDifference((ValueDifference) difference);
-      return VisitUnknownDifference(difference);
+      using (CreateContext().Activate()) {
+        Context.Difference = difference;
+        if (difference is NodeDifference)
+          return VisitNodeDifference((NodeDifference) difference);
+        if (difference is NodeCollectionDifference)
+          return VisitNodeCollectionDifference((NodeCollectionDifference) difference);
+        if (difference is ValueDifference)
+          return VisitValueDifference((ValueDifference) difference);
+        return VisitUnknownDifference(difference);
+      }
     }
 
     /// <summary>
@@ -130,7 +140,10 @@ namespace Xtensive.Modelling.Comparison
 
       // And property changes
       foreach (var pair in difference.PropertyChanges)
-        sequence.AddRange(Visit(pair.Value));
+        using (CreateContext().Activate()) {
+          Context.Property = pair.Key;
+          sequence.AddRange(Visit(pair.Value));
+        }
 
       return sequence;
     }
@@ -163,15 +176,12 @@ namespace Xtensive.Modelling.Comparison
     /// </returns>
     protected virtual IEnumerable<NodeAction> VisitValueDifference(ValueDifference difference)
     {
-      var targetNode = ((NodeDifference) difference.Parent).Target;
-      var pca = new PropertyChangeAction() {Path = targetNode.Path};
-      pca.Properties.Add(
-        ((IHasPropertyChanges) difference.Parent).PropertyChanges
-          .Where(kv => kv.Value==difference)
-          .Select(kv => kv.Key)
-          .First(), 
-        PathNodeReference.Get(difference.Target));
-
+      var parentContext = Context.Parent;
+      var targetNode = ((NodeDifference) parentContext.Difference).Target;
+      var pca = new PropertyChangeAction() {
+        Path = targetNode.Path
+      };
+      pca.Properties.Add(parentContext.Property, PathNodeReference.Get(difference.Target));
       return EnumerableUtils<NodeAction>.One(pca);
     }
 
@@ -184,9 +194,19 @@ namespace Xtensive.Modelling.Comparison
     /// from <see cref="IDifference.Source"/> of the specified
     /// difference to its <see cref="IDifference.Target"/>.
     /// </returns>
+    /// <exception cref="NotSupportedException">Always thrown by this method.</exception>
     protected virtual IEnumerable<NodeAction> VisitUnknownDifference(Difference difference)
     {
       throw new NotSupportedException();
+    }
+
+    /// <summary>
+    /// Creates new upgrade context.
+    /// </summary>
+    /// <returns>Newly created <see cref="UpgradeContext"/> instance.</returns>
+    protected virtual UpgradeContext CreateContext()
+    {
+      return new UpgradeContext();
     }
 
 

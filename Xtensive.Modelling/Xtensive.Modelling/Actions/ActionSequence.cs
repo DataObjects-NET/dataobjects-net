@@ -73,7 +73,7 @@ namespace Xtensive.Modelling.Actions
     public void Apply(IModel model)
     {
       foreach (var action in actions)
-        action.Apply(model);
+        action.Execute(model);
     }
 
     #region Private \ internal methods
