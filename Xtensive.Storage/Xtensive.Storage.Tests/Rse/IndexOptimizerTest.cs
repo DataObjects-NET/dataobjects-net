@@ -96,8 +96,11 @@ namespace Xtensive.Storage.Tests.Rse
     [Test]
     public void MultiColumnIndexTest()
     {
-      Expression<Func<Product, bool>> predicate = product => product.UnitPrice == 17.45m
-        && product.Supplier.Id == 7 && product.Category.Id == 3
+      var targetSupplier = Query<Supplier>.All.Where(supplier => supplier.CompanyName=="Pavlova, Ltd.")
+        .Single();
+      var targetCategory = Query<Category>.All.Where(cat => cat.CategoryName=="Confections").Single();
+      Expression<Func<Product, bool>> predicate = product => product.UnitPrice > 10m
+        && product.Supplier.Id == targetSupplier.Id && product.Category.Id == targetCategory.Id
         && product.ProductName.GreaterThan("a")
         || product.UnitPrice > 10m && product.ProductName.StartsWith("S");
       var expected = Query<Product>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(p => p.Id);

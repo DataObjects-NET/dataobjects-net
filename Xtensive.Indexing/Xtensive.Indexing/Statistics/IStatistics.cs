@@ -12,6 +12,7 @@ namespace Xtensive.Indexing.Statistics
   public interface IStatistics<T>
   {
     /// <summary>
+    /// Gets the <see cref="StatisticsData"/>.
     /// </summary>
     /// <param name="range">The range.</param>
     /// <returns>The statistics data which was collected for the <paramref name="range"/>.</returns>

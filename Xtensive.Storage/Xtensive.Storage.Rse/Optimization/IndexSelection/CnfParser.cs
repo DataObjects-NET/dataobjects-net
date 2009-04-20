@@ -80,13 +80,22 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
         recordSetHeader.Columns[rangeSetInfo.Origin.FieldIndex], indexInfo),rangeSetInfo));
       rangeSetAndIndexKeys.Clear();
       rangeSetAndIndexKeys.AddRange(rangeSetProjection);
-      rangeSetAndIndexKeys.Sort((pair0, pair1) => pair0.First.CompareTo(pair1.First));
+      rangeSetAndIndexKeys.Sort((pair0, pair1) => {
+        if (pair0.First < 0 ^ pair1.First < 0)
+          if (pair0.First < 0)
+            return 1;
+          else
+            return -1;
+        return pair0.First.CompareTo(pair1.First);
+      });
 
       indexKeyValues.Clear();
       RangeSetInfo lastRangeSetInfo = null;
       foreach (var item in rangeSetAndIndexKeys) {
         if (item.First < 0)
           break;
+        if(indexKeyValues.ContainsKey(item.First))
+          return null;
         indexKeyValues.Add(item.First, item.Second.Origin.Comparison.Value);
         lastRangeSetInfo = item.Second;
         if (item.Second.Origin.Comparison.Operation!=ComparisonOperation.Equal)
@@ -95,7 +104,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       if (indexKeyValues.Count <= 1 || lastRangeSetInfo == null)
         return null;
 
-      return RangeSetExpressionBuilder.BuildConstructor(indexKeyValues,
+      return RangeSetExpressionBuilder.BuildConstructorForMultiColumnIndex(indexKeyValues,
         lastRangeSetInfo.Origin, indexInfo);
     }
 

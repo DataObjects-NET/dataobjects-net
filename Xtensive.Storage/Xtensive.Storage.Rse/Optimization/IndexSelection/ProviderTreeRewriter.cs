@@ -4,7 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.04.07
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -41,7 +40,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     private CompilableProvider InsertSecondaryIndexProviders(IndexProvider source)
     {
       var primaryIndex = source.Index.Resolve(domainModel);
-      CompilableProvider concatedIndexes = BuildSecondaryIndexesConcat(primaryIndex);
+      var concatedIndexes = BuildSecondaryIndexesConcat(primaryIndex);
       return BuildJoin(source, primaryIndex, concatedIndexes);
     }
 
@@ -55,7 +54,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
         if (result == null)
           result = CreateSelectProvider(primaryIndex, pair);
         else
-          result = BuildConcatenation(result, primaryIndex, pair);
+          result = BuildUnion(result, primaryIndex, pair);
       return result;
     }
 
@@ -101,11 +100,10 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       return result;
     }
 
-    private static CompilableProvider BuildConcatenation(CompilableProvider source, IndexInfo primaryIndex,
+    private static CompilableProvider BuildUnion(CompilableProvider source, IndexInfo primaryIndex,
       KeyValuePair<IndexInfo, RangeSetInfo> targetPair)
     {
-      var concatProvider = new ConcatProvider(source, CreateSelectProvider(primaryIndex, targetPair));
-      return new DistinctProvider(concatProvider);
+      return new UnionProvider(source, CreateSelectProvider(primaryIndex, targetPair));
     }
 
     private static CompilableProvider BuildJoin(CompilableProvider primaryIndexProvider, IndexInfo primaryIndex,

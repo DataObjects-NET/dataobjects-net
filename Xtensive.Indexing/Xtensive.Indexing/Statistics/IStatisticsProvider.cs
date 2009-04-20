@@ -13,6 +13,7 @@ namespace Xtensive.Indexing.Statistics
   public interface IStatisticsProvider<TKey>
   {
     /// <summary>
+    /// Gets the <see cref="IStatistics{T}"/>.
     /// </summary>
     /// <returns>The statistics.</returns>
     IStatistics<TKey> GetStatistics();

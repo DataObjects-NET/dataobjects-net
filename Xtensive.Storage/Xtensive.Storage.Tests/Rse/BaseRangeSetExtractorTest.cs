@@ -34,6 +34,8 @@ namespace Xtensive.Storage.Tests.Rse
     {
       DomainConfiguration config = DomainConfigurationFactory.Create("memory");
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.SnakesModel");
+      config.Types.Register(Assembly.GetExecutingAssembly(),
+        "Xtensive.Storage.Tests.ObjectModel.NorthwindDO");
       return config;
     }
 

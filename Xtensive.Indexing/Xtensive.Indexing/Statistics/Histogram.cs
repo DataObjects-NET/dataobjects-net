@@ -126,10 +126,6 @@ namespace Xtensive.Indexing.Statistics
       MaxKeyCount = maxKeyCount;
       arithmetic = ArithmeticProvider.Default.GetArithmetic<TValue>();
       data = new SortedList<TKey, TValue>(keyComparer.ComparerImplementation);
-      /*data = new SortedList<TKey, TValue>(keyComparer.ComparerImplementation)
-             {
-               {firstKey, arithmetic.Zero}
-             };*/
     }
   }
 }

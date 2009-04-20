@@ -219,6 +219,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   [Index("FirstName")]
   [Index("BirthDate")]
   [Index("Title")]
+  [Index("HireDate", "LastName", "Title")]
   public class Employee : Person
   {
     [Field]

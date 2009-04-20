@@ -4,8 +4,8 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.03.17
 
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
@@ -48,17 +48,78 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       return BuildConstructor(firstEndpoint, secondEndpoint, originTuple.Comparison.Operation, originTuple);
     }
 
-    public static RangeSetInfo BuildConstructor(Dictionary<int, Expression> indexKeyValues,
+    public static RangeSetInfo BuildConstructorForMultiColumnIndex(Dictionary<int, Expression> indexKeyValues,
       TupleExpressionInfo originTuple, IndexInfo indexInfo)
     {
       ArgumentValidator.EnsureArgumentIsInRange(indexKeyValues.Count, 2, int.MaxValue, "indexKeyValues.Count");
-      Expression firstEndpoint;
-      Expression secondEndpoint;
       if (!CanBuildNonFullRangeSet(originTuple.Comparison.Operation))
         return BuildFullRangeSetConstructor(null);
+      var firstBoundary = BuildFirstBoundaryOfMuliColumnIndex(indexKeyValues, originTuple.Comparison.Operation,
+        indexInfo);
+      if (IsEqualityComparison(originTuple))
+        return firstBoundary;
+      var valuesForSecondBoundary = indexKeyValues.Take(indexKeyValues.Count - 1);
+      var reversedOperation = ReverseWithIgnoringOfEuqality(originTuple.Comparison.Operation);
+      var secondBoundary = BuildSecondBoundaryOfMultiColumnIndex(valuesForSecondBoundary,
+        reversedOperation, indexInfo);
+      return BuildIntersect(firstBoundary, secondBoundary);
+    }
+
+    private static RangeSetInfo BuildFirstBoundaryOfMuliColumnIndex(
+      IEnumerable<KeyValuePair<int, Expression>> indexKeyValues, ComparisonOperation operation,
+      IndexInfo indexInfo)
+    {
+      Expression firstEndpoint;
+      Expression secondEndpoint;
       CreateRangeEndpoints(out firstEndpoint, out secondEndpoint, indexKeyValues,
-        originTuple.Comparison.Operation, indexInfo);
-      return BuildConstructor(firstEndpoint, secondEndpoint, originTuple.Comparison.Operation, null);
+        operation, indexInfo);
+      return BuildConstructor(firstEndpoint, secondEndpoint,
+        operation, null);
+    }
+
+    private static RangeSetInfo BuildSecondBoundaryOfMultiColumnIndex(
+      IEnumerable<KeyValuePair<int, Expression>> indexKeyValues, ComparisonOperation operation,
+      IndexInfo indexInfo)
+    {
+      Expression firstEndpoint;
+      Expression secondEndpoint;
+      switch (operation) {
+        case ComparisonOperation.GreaterThan:
+          firstEndpoint = BuildShiftedEntireConstructor(indexKeyValues, indexInfo, false);
+          secondEndpoint = BuildInfiniteEntire(true);
+          break;
+        case ComparisonOperation.LessThan:
+          firstEndpoint = BuildInfiniteEntire(false);
+          secondEndpoint = BuildShiftedEntireConstructor(indexKeyValues, indexInfo, true);
+          break;
+        default:
+          throw Exceptions.InvalidArgument(operation, "operation");
+      }
+      return BuildConstructor(firstEndpoint, secondEndpoint, operation, null);
+    }
+
+    private static bool IsEqualityComparison(TupleExpressionInfo originTuple)
+    {
+      return originTuple.Comparison.Operation==ComparisonOperation.Equal
+        || originTuple.Comparison.Operation==ComparisonOperation.NotEqual
+        ||  originTuple.Comparison.Operation==ComparisonOperation.LikeStartsWith
+        || originTuple.Comparison.Operation==ComparisonOperation.NotLikeStartsWith
+        || originTuple.Comparison.Operation==ComparisonOperation.LikeEndsWith
+        || originTuple.Comparison.Operation==ComparisonOperation.NotLikeEndsWith;
+    }
+
+    private static ComparisonOperation ReverseWithIgnoringOfEuqality(ComparisonOperation operation)
+    {
+      switch (operation) {
+        case ComparisonOperation.GreaterThan:
+        case ComparisonOperation.GreaterThanOrEqual:
+          return ComparisonOperation.LessThan;
+        case ComparisonOperation.LessThan:
+        case ComparisonOperation.LessThanOrEqual:
+          return ComparisonOperation.GreaterThan;
+        default:
+          throw Exceptions.InvalidArgument(operation, "operation");
+      }
     }
 
     private static bool CanBuildNonFullRangeSet(ComparisonOperation comparisonOperation)
@@ -120,7 +181,8 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     }
 
     private static void CreateRangeEndpoints(out Expression first, out Expression second,
-      Dictionary<int, Expression> indexKeyValues, ComparisonOperation comparsionType, IndexInfo indexInfo)
+      IEnumerable<KeyValuePair<int, Expression>> indexKeyValues,
+      ComparisonOperation comparsionType, IndexInfo indexInfo)
     {
       if (comparsionType == ComparisonOperation.Equal || comparsionType == ComparisonOperation.NotEqual) {
         first = BuildShiftedEntireConstructor(indexKeyValues, indexInfo, false);
@@ -157,14 +219,16 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       throw Exceptions.InvalidArgument(comparsionType, "comparsionType");
     }
 
-    private static NewExpression BuildEntireConstructor(Dictionary<int, Expression> indexKeyValues,
+    private static NewExpression BuildEntireConstructor(
+      IEnumerable<KeyValuePair<int, Expression>> indexKeyValues,
       IndexInfo indexInfo)
     {
       Expression tupleCreation = BuildTupleCreation(indexKeyValues, indexInfo);
       return Expression.New(entireConstructor, tupleCreation);
     }
 
-    private static NewExpression BuildShiftedEntireConstructor(Dictionary<int, Expression> indexKeyValues,
+    private static NewExpression BuildShiftedEntireConstructor(
+      IEnumerable<KeyValuePair<int, Expression>> indexKeyValues,
       IndexInfo indexInfo, bool positiveShift)
     {
       Expression tupleCreation = BuildTupleCreation(indexKeyValues, indexInfo);
@@ -178,13 +242,15 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       return Expression.New(infiniteEntireConstructor, Expression.Constant(infinityType));
     }
 
-    private static Expression BuildTupleCreation(Dictionary<int, Expression> indexKeyValues,
+    private static Expression BuildTupleCreation(IEnumerable<KeyValuePair<int, Expression>> indexKeyValues,
       IndexInfo indexInfo)
     {
-      if (indexKeyValues.Count == 0)
-        throw new ArgumentException(Resources.Strings.ExCollectionMustNotBeEmpty);
+      var tupleDescriptor = indexInfo.KeyTupleDescriptor;
+      var indexKeyValueCount = indexKeyValues.Count();
+      if (indexKeyValueCount < tupleDescriptor.Count)
+        tupleDescriptor = tupleDescriptor.TrimFields(indexKeyValueCount);
       MethodCallExpression tupleCreation = Expression.Call(tupleCreateMethod,
-        Expression.Constant(indexInfo.KeyTupleDescriptor));
+        Expression.Constant(tupleDescriptor));
       Expression result = Expression.New(tupleUpdaterConstructor, tupleCreation);
       foreach (var indexKeyValue in indexKeyValues) {
         result = Expression.Call(result, tupleUpdateMethod, Expression.Constant(indexKeyValue.Key),

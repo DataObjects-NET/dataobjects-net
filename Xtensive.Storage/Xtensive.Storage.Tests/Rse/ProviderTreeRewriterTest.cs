@@ -43,11 +43,12 @@ namespace Xtensive.Storage.Tests.Rse
       var modifiedTree = inserter.InsertSecondaryIndexes(providersTree, extractedRangeSets);
 
       Assert.AreEqual(providersTree.GetType(), modifiedTree.GetType());
-      Assert.IsTrue(((UnaryProvider)modifiedTree).Source is JoinProvider);
-      var primaryIndexProvider = (IndexProvider)((UnaryProvider) ((UnaryProvider) providersTree).Source).Source;
-      var joinProvider = (JoinProvider) ((UnaryProvider) modifiedTree).Source;
-      Assert.AreEqual(primaryIndexProvider, joinProvider.Sources[1]);
-      Assert.IsTrue(((AliasProvider)joinProvider.Sources[0]).Source is DistinctProvider);
+      var joinProvider = (JoinProvider)((SelectProvider)((FilterProvider) ((UnaryProvider) modifiedTree)
+        .Source).Source).Source;
+      var primaryIndexProvider = (IndexProvider)((UnaryProvider) ((UnaryProvider) providersTree)
+        .Source).Source;
+      Assert.AreEqual(primaryIndexProvider, joinProvider.Left);
+      Assert.IsTrue(((AliasProvider)joinProvider.Right).Source is UnionProvider);
     }
 
     private static CompilableProvider CreateTreeForInsertTest(IndexInfo primaryIndex)

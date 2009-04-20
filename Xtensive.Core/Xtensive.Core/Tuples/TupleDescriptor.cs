@@ -417,6 +417,19 @@ namespace Xtensive.Core.Tuples
       }
     }
 
+    /// <summary>
+    /// Trims the field's set of the current tuple to the specified length.
+    /// </summary>
+    /// <param name="newTupleFieldCount">The length of the field's set
+    /// of the new <see cref="TupleDescriptor"/>.</param>
+    /// <returns>Either new or existing tuple descriptor
+    /// describing the specified set of fields.</returns>
+    public TupleDescriptor TrimFields(int newTupleFieldCount)
+    {
+      ArgumentValidator.EnsureArgumentIsInRange(newTupleFieldCount, 1, Count - 1, "newTupleFieldCount");
+      return Create(fieldTypes.Take(newTupleFieldCount));
+    }
+
     #endregion
 
     #region Create<...> methods (generic shortcuts)

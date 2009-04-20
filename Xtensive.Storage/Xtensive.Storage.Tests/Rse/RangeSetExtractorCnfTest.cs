@@ -4,15 +4,18 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.03.18
 
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Linq.Normalization;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
 
 namespace Xtensive.Storage.Tests.Rse
@@ -47,14 +50,15 @@ namespace Xtensive.Storage.Tests.Rse
     {
       var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
       var result = new SetSlim<Range<Entire<Tuple>>>();
+      var tupleDescriptor = indexInfo.KeyTupleDescriptor.TrimFields(1);
       Entire<Tuple> expectedFirst = new Entire<Tuple>(
-        CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 3));
+        CreateTuple(tupleDescriptor, keyFieldIndex, 3));
       Entire<Tuple> expectedSecond = new Entire<Tuple>(
-        CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 6), Direction.Negative);
+        CreateTuple(tupleDescriptor, keyFieldIndex, 6), Direction.Negative);
       var expectedRange0 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange0);
 
-      expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 10));
+      expectedFirst = new Entire<Tuple>(CreateTuple(tupleDescriptor, keyFieldIndex, 10));
       expectedSecond = new Entire<Tuple>(InfinityType.Positive);
       var expectedRange1 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange1);
@@ -79,18 +83,20 @@ namespace Xtensive.Storage.Tests.Rse
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
     }
 
-    private static IEnumerable<Range<Entire<Tuple>>> CreateExpectedRangesForDifferentFieldsTest(IndexInfo indexInfo,
+    private static IEnumerable<Range<Entire<Tuple>>>
+      CreateExpectedRangesForDifferentFieldsTest(IndexInfo indexInfo,
       string keyFieldName)
     {
       var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
       var result = new SetSlim<Range<Entire<Tuple>>>();
+      var tupleDescriptor = indexInfo.KeyTupleDescriptor.TrimFields(1);
       Entire<Tuple> expectedFirst = new Entire<Tuple>(InfinityType.Negative);
       Entire<Tuple> expectedSecond = new Entire<Tuple>(
-        CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 3));
+        CreateTuple(tupleDescriptor, keyFieldIndex, 3));
       var expectedRange0 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange0);
       expectedFirst = new Entire<Tuple>(
-        CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex, 15), Direction.Positive);
+        CreateTuple(tupleDescriptor, keyFieldIndex, 15), Direction.Positive);
       expectedSecond = new Entire<Tuple>(InfinityType.Positive);
       var expectedRange1 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange1);
@@ -160,7 +166,8 @@ namespace Xtensive.Storage.Tests.Rse
         .AddBoolean(t => t.GetValue<int?>(cLengthIdx)==6))
         .AddCnf(AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
 
-      var expectedRanges = CreateExpectedRangesForMultiColumnIndexTest(indexInfo, LengthField, DescriptionField);
+      var expectedRanges = CreateExpectedRangesForMultiColumnIndexTest(indexInfo,
+        LengthField, DescriptionField);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
     }
 
@@ -170,19 +177,121 @@ namespace Xtensive.Storage.Tests.Rse
       var keyFieldIndex0 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[0]);
       var keyFieldIndex1 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[1]);
       var result = new SetSlim<Range<Entire<Tuple>>>();
-      var secondTuple = CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex0, 6);
+      var trimmedTupleDesc = indexInfo.KeyTupleDescriptor.TrimFields(1);
+      var firstTuple = CreateTuple(trimmedTupleDesc, keyFieldIndex0, 6);
+      var secondTuple = CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex0,
+        firstTuple.GetValue(keyFieldIndex0));
       secondTuple.SetValue(keyFieldIndex1, "abc");
-      Entire<Tuple> expectedFirst = new Entire<Tuple>(InfinityType.Negative);
+      Entire<Tuple> expectedFirst = new Entire<Tuple>(firstTuple, Direction.Negative);
       Entire<Tuple> expectedSecond = new Entire<Tuple>(secondTuple,
                                                        Direction.Negative);
       var expectedRange0 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange0);
 
-      expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex0, 10));
+      
+      expectedFirst = new Entire<Tuple>(CreateTuple(trimmedTupleDesc, keyFieldIndex0, 10));
       expectedSecond = new Entire<Tuple>(InfinityType.Positive);
       var expectedRange1 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange1);
       return result;
+    }
+
+    [Test]
+    public void MultiColumnIndexWithFieldsInRandomOrderTest()
+    {
+      const string hireDateField = "HireDate";
+      const string lastNameField = "LastName";
+      const string titleField = "Title";
+      TypeInfo emplType = Domain.Model.Types[typeof(Employee)];
+      IndexInfo indexInfo = emplType.Indexes.GetIndex(hireDateField);
+      RecordSetHeader rsHeader = emplType.Indexes.PrimaryIndex.GetRecordSetHeader();
+      int hireDateIdx = GetFieldIndex(rsHeader, hireDateField);
+      int lastNameIdx = GetFieldIndex(rsHeader, lastNameField);
+      int titleIdx = GetFieldIndex(rsHeader, titleField);
+
+      var predicate = new DisjunctiveNormalized()
+        .AddCnf(AsCnf(t => t.GetValue<DateTime?>(hireDateIdx) == new DateTime(1990, 1, 1))
+          .AddBoolean(t => t.GetValue<string>(titleIdx).GreaterThan("Sales Manager"))
+          .AddBoolean(t => t.GetValue<string>(lastNameIdx) == "John"));
+
+      var expectedRanges = CreateExpectedRangesForMultiColumnIndexWithFieldsInRandomOrderTest(indexInfo,
+        hireDateField, lastNameField, titleField);
+      TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
+    }
+
+    private static IEnumerable<Range<Entire<Tuple>>>
+      CreateExpectedRangesForMultiColumnIndexWithFieldsInRandomOrderTest(
+      IndexInfo indexInfo, params string[] keyFieldName)
+    {
+      var keyFieldIndex0 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[0]);
+      var keyFieldIndex1 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[1]);
+      var keyFieldIndex2 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[2]);
+      var result = new SetSlim<Range<Entire<Tuple>>>();
+      var expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex0,
+        new DateTime(1990, 1, 1)), Direction.Positive);
+      expectedFirst.Value.SetValue(keyFieldIndex1, "John");
+      expectedFirst.Value.SetValue(keyFieldIndex2, "Sales Manager");
+      var expectedSecond = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor.TrimFields(2),
+        keyFieldIndex0, expectedFirst.Value.GetValue(keyFieldIndex0)), Direction.Positive);
+      expectedSecond.Value.SetValue(keyFieldIndex1, expectedFirst.Value.GetValue(keyFieldIndex1));
+      var expectedRange = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
+      result.Add(expectedRange);
+      return result;
+    }
+
+    [Test]
+    public void MultiColumnIndexWithSeveralValuesOfNotLastFieldTest()
+    {
+      TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
+      IndexInfo indexInfo = snakeType.Indexes.GetIndex(LengthField);
+      RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
+      int cLengthIdx = GetFieldIndex(rsHeader, LengthField);
+      int cDescriptionIdx = GetFieldIndex(rsHeader, DescriptionField);
+
+      var predicate = new DisjunctiveNormalized()
+        .AddCnf(AsCnf(t => t.GetValue<string>(cDescriptionIdx).CompareTo("a") > 0)
+          .AddBoolean(t => t.GetValue<int?>(cLengthIdx)==6)
+          .AddBoolean(t => t.GetValue<int?>(cLengthIdx)==8))
+        .AddCnf(AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
+
+      var expectedRanges = 
+        CreateExpectedRangesForMultiColumnIndexWithSeveralValuesOfNotLastFieldTest(indexInfo, LengthField,
+        DescriptionField);
+      TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
+    }
+
+    private static IEnumerable<Range<Entire<Tuple>>>
+      CreateExpectedRangesForMultiColumnIndexWithSeveralValuesOfNotLastFieldTest(
+      IndexInfo indexInfo, params string[] keyFieldName)
+    {
+      var keyFieldIndex0 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[0]);
+      var result = new SetSlim<Range<Entire<Tuple>>>();
+      var tupleDescriptor = indexInfo.KeyTupleDescriptor.TrimFields(1);
+      var expectedFirst = new Entire<Tuple>(CreateTuple(tupleDescriptor, keyFieldIndex0, 10));
+      var expectedSecond = new Entire<Tuple>(InfinityType.Positive);
+      var expectedRange = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
+      result.Add(expectedRange);
+      return result;
+    }
+
+    [Test]
+    public void MultiColumnIndexWithSeveralValuesOfLastFieldTest()
+    {
+      TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
+      IndexInfo indexInfo = snakeType.Indexes.GetIndex(LengthField);
+      RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
+      int cLengthIdx = GetFieldIndex(rsHeader, LengthField);
+      int cDescriptionIdx = GetFieldIndex(rsHeader, DescriptionField);
+
+      var predicate = new DisjunctiveNormalized()
+        .AddCnf(AsCnf(t => t.GetValue<string>(cDescriptionIdx).CompareTo("a") > 0)
+          .AddBoolean(t => t.GetValue<int?>(cLengthIdx)==6)
+          .AddBoolean(t => t.GetValue<string>(cDescriptionIdx).CompareTo("abc") < 0))
+        .AddCnf(AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
+
+      var expectedRanges = CreateExpectedRangesForMultiColumnIndexTest(indexInfo, LengthField,
+        DescriptionField);
+      TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
     }
   }
 }
