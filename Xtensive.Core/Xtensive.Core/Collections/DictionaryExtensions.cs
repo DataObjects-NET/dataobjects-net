@@ -21,7 +21,7 @@ namespace Xtensive.Core.Collections
     /// <param name="dictionary">This dictionary.</param>
     /// <param name="other">The dictionary to compare with.</param>
     /// <returns>
-    /// 	<see langword="true"/> if this dictionary equals to the specified dictionary; otherwise, <see langword="false"/>.
+    ///   <see langword="true"/> if this dictionary equals to the specified dictionary; otherwise, <see langword="false"/>.
     /// </returns>
     public static bool EqualsTo<TKey, TValue>(
       this IDictionary<TKey, TValue> dictionary, 

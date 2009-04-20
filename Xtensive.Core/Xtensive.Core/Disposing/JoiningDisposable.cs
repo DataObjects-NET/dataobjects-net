@@ -38,7 +38,7 @@ namespace Xtensive.Core.Disposing
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="disposable1">The first disposable.</param>
     /// <param name="disposable2">The second disposable.</param>

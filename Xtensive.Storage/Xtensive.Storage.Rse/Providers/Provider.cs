@@ -178,7 +178,7 @@ namespace Xtensive.Storage.Rse.Providers
     // Constructor
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="type">The type of the provider.</param>
     /// <param name="sources"><see cref="Sources"/> property value.</param>

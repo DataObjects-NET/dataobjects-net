@@ -20,7 +20,7 @@ using System.Linq;
 namespace Xtensive.Storage.Providers
 {
   /// <summary>
-  /// 	<see cref="Storage.Domain"/>-level handler.
+  ///   <see cref="Storage.Domain"/>-level handler.
   /// </summary>
   public abstract class DomainHandler : InitializableHandlerBase
   {

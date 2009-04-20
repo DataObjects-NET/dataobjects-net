@@ -114,7 +114,7 @@ namespace Xtensive.Core.Threading
       // Constructor
 
       /// <summary>
-      /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+      ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
       /// </summary>
       /// <param name="toLock">The object to lock.</param>
       public WriteLockController(object toLock)

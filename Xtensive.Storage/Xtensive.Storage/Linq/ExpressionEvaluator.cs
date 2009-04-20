@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Linq
     /// </summary>
     /// <param name="e">The expression.</param>
     /// <returns>
-    /// 	<see langword="true" /> if <paramref name="e"/> can be evaluated; otherwise, <see langword="false" />.
+    ///   <see langword="true" /> if <paramref name="e"/> can be evaluated; otherwise, <see langword="false" />.
     /// </returns>
     public bool CanBeEvaluated(Expression e)
     {

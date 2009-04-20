@@ -41,7 +41,7 @@ namespace Xtensive.Indexing
     /// Determines whether this instance contains a single full range.
     /// </summary>
     /// <returns>
-    /// 	<see langword="true"/> if this instance is full; otherwise, <see langword="false"/>.
+    ///   <see langword="true"/> if this instance is full; otherwise, <see langword="false"/>.
     /// </returns>
     public bool IsFull()
     {
@@ -57,7 +57,7 @@ namespace Xtensive.Indexing
     /// Determines whether this instance does not contain any <see cref="Range{T}"/>.
     /// </summary>
     /// <returns>
-    /// 	<see langword="true"/> if this instance is empty; otherwise, <see langword="false"/>.
+    ///   <see langword="true"/> if this instance is empty; otherwise, <see langword="false"/>.
     /// </returns>
     public bool IsEmpty()
     {

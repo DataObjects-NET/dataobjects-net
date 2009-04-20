@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Rse.Optimization
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="optimizers">Optimizers to be composed.</param>
     public CompositeOptimizer(params IOptimizer[] optimizers)

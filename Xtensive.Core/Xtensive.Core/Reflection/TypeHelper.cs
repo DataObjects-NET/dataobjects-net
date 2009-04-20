@@ -760,7 +760,7 @@ namespace Xtensive.Core.Reflection
     /// <param name="type">The type.</param>
     /// <param name="_interface">The <see langword="interface"/>.</param>
     /// <returns>
-    ///	<see langword="true"/> if the specified <paramref name="type"/> implements the <paramref name="_interface"/>;
+    ///  <see langword="true"/> if the specified <paramref name="type"/> implements the <paramref name="_interface"/>;
     /// otherwise, <see langword="false"/>.
     /// </returns>
     public static bool IsOfGenericInterface(this Type type, Type _interface)

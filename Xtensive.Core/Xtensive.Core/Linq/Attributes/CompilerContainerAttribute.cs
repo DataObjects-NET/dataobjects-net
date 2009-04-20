@@ -30,7 +30,7 @@ namespace Xtensive.Core.Linq
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="extensionType">The type.</param>
     /// <param name="conflictHandlingMethod">The conflict handling method.</param>
@@ -41,7 +41,7 @@ namespace Xtensive.Core.Linq
     }
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="extensionType">The type.</param>
     public CompilerContainerAttribute(Type extensionType)

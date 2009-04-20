@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Serialization
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="context">The context.</param>
     public SerializationScope(SerializationContext context) 

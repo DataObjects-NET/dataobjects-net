@@ -38,7 +38,7 @@ namespace Xtensive.Storage
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="session">The session to activate.</param>
     public SessionScope(Session session)

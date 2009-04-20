@@ -131,7 +131,7 @@ namespace Xtensive.Storage.Rse.Compilation
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="compilerProvider">The compiler provider.</param>
     protected CompilationContext(Func<ICompiler> compilerProvider)
@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Rse.Compilation
     {}
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="compilerProvider">The compiler provider.</param>
     /// <param name="optimizerProvider">The optimizer provider.</param>

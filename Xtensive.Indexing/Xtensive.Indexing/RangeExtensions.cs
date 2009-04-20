@@ -424,7 +424,7 @@ namespace Xtensive.Indexing
     /// <param name="range">The range.</param>
     /// <param name="other">The other range.</param>
     /// <returns>
-    /// 	<see langword="true"/> if the specified range is similar; otherwise, <see langword="false"/>.
+    ///   <see langword="true"/> if the specified range is similar; otherwise, <see langword="false"/>.
     /// </returns>
     public static bool IsSimilar<T>(this Range<Entire<T>> range, Range<Entire<T>> other)
     {

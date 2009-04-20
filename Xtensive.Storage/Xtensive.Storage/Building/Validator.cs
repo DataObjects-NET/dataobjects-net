@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Building
     /// <param name="name">The name to validate.</param>
     /// <param name="rule">The validation rule.</param>
     /// <returns>
-    /// 	<see langword="true"/> if the specified name is valid; otherwise, <see langword="false"/>.
+    ///   <see langword="true"/> if the specified name is valid; otherwise, <see langword="false"/>.
     /// </returns>
     public static bool IsNameValid(string name, ValidationRule rule)
     {

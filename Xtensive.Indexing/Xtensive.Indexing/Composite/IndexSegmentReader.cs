@@ -90,7 +90,7 @@ namespace Xtensive.Indexing.Composite
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="range">The range to read.</param>

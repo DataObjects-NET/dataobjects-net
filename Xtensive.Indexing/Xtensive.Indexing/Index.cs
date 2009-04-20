@@ -271,7 +271,7 @@ namespace Xtensive.Indexing
     }
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Dtor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Dtor" copy="true"/>
     /// </summary>
     ~Index()
     {

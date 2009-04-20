@@ -153,7 +153,7 @@ namespace Xtensive.Core.Caching
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
     public InfiniteCache(Converter<TItem, TKey> keyExtractor)
@@ -162,7 +162,7 @@ namespace Xtensive.Core.Caching
     }
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="capacity">The capacity of cache.</param>
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>

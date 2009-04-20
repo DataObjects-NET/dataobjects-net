@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     // Constructor
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="type">The type of provider.</param>
     /// <param name="left">The <see cref="Left"/> provider.</param>

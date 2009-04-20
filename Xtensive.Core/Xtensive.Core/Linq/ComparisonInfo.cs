@@ -41,8 +41,8 @@ namespace Xtensive.Core.Linq
     /// Gets a value indicating whether a comparison operation is complex.
     /// </summary>
     /// <value>
-    /// 	<see langword="true"/> if <see cref="ComplexMethod"/> is not 
-    /// 	<see langword="null" />; otherwise, <see langword="false"/>.
+    ///   <see langword="true"/> if <see cref="ComplexMethod"/> is not 
+    ///   <see langword="null" />; otherwise, <see langword="false"/>.
     /// </value>
     public bool IsComplex { get { return ComplexMethod != null; } }
 

@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="domainModel">The domain model.</param>
     /// <param name="providerResolver">The statistics provider resolver.</param>

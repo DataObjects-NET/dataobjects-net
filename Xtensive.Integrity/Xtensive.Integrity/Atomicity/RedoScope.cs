@@ -55,7 +55,7 @@ namespace Xtensive.Integrity.Atomicity
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="descriptor">The redo descriptor.</param>
     internal RedoScope(IRedoDescriptor descriptor) 

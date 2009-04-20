@@ -45,7 +45,7 @@ namespace Xtensive.Core.Linq
     /// <param name="exp">The expression.</param>
     /// <param name="keySelector">The key selector.</param>
     /// <returns>
-    /// 	<see langword="true"/> if <paramref name="exp"/> contains key; otherwise, <see langword="false"/>.
+    ///   <see langword="true"/> if <paramref name="exp"/> contains key; otherwise, <see langword="false"/>.
     /// </returns>
     public bool ContainsKey(Expression exp, Func<Expression, bool> keySelector)
     {

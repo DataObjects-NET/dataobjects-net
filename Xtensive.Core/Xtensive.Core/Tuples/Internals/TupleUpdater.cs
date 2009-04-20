@@ -39,7 +39,7 @@ namespace Xtensive.Core.Tuples.Internals
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="tuple">The tuple to be wrapped.</param>
     public TupleUpdater(Tuple tuple)
