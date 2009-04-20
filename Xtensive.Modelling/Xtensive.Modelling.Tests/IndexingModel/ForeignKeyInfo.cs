@@ -22,7 +22,6 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     private ReferentialAction onUpdateAction;
     private ReferentialAction onRemoveAction;
     private PrimaryIndexInfo primaryKey;
-    private IndexInfo foreignKey;
 
 
     /// <summary>
@@ -41,19 +40,10 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     }
 
     /// <summary>
-    /// Gets or sets the referencing index.
+    /// Gets foreign key columns.
     /// </summary>
-    [Property(Priority = -1000)]
-    public IndexInfo ForeignKey {
-      get { return foreignKey; }
-      set {
-        EnsureIsEditable();
-        using (var scope = LogPropertyChange("ForeignKey", value)) {
-          foreignKey = value;
-          scope.Commit();
-        }
-      }
-    }
+    [Property]
+    public ForeignKeyColumnCollection ForeignKeyColumns { get; private set; }
 
     /// <summary>
     /// Gets or sets the "on remove" action.
@@ -85,6 +75,16 @@ namespace Xtensive.Modelling.Tests.IndexingModel
       }
     }
 
+    /// <summary>
+    /// Adds all key columns of foreign index to <see cref="ForeignKeyColumns"/>.
+    /// </summary>
+    /// <param name="foreignIndex">The foreign index.</param>
+    public void AddForeignKeyColumns(IndexInfo foreignIndex)
+    {
+      foreach (var keyColumn in foreignIndex.KeyColumns)
+        new ForeignKeyColumnRef(this, keyColumn.Value);
+    }
+
     /// <inheritdoc/>
     /// <exception cref="ValidationException">Validations errors.</exception>
     protected override void ValidateState()
@@ -96,17 +96,13 @@ namespace Xtensive.Modelling.Tests.IndexingModel
           ea.Execute(() => {
             throw new ValidationException(Strings.ExUndefinedPrimaryKey, Path);
           });
-        if (ForeignKey==null)
-          ea.Execute(() => {
-            throw new ValidationException(Strings.ExUndefinedForeignKey, Path);
-          });
 
-        if (PrimaryKey==null || ForeignKey==null)
+        if (PrimaryKey==null)
           return;
         var primaryKeyColumns = PrimaryKey.KeyColumns.Select(
-          columnRef => new {columnRef.Index, columnRef.Direction, ColumnType = columnRef.Value.Type});
-        var referencedKeyColumns = ForeignKey.KeyColumns.Select(
-          columnRef => new {columnRef.Index, columnRef.Direction, ColumnType = columnRef.Value.Type});
+          columnRef => new {columnRef.Index, ColumnType = columnRef.Value.Type});
+        var referencedKeyColumns = ForeignKeyColumns.Select(
+          columnRef => new {columnRef.Index, ColumnType = columnRef.Value.Type});
         if (primaryKeyColumns.Except(referencedKeyColumns)
           .Union(referencedKeyColumns.Except(primaryKeyColumns)).Count() > 0)
           ea.Execute(() => {
@@ -120,6 +116,13 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     protected override Nesting CreateNesting()
     {
       return new Nesting<ForeignKeyInfo, TableInfo, ForeignKeyCollection>(this, "ForeignKeys");
+    }
+
+    /// <inheritdoc/>
+    protected override void Initialize()
+    {
+      base.Initialize();
+      ForeignKeyColumns = new ForeignKeyColumnCollection(this, "ForeignKeyColumns");
     }
 
 
