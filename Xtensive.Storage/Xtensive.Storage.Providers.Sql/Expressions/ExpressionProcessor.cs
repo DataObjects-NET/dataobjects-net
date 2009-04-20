@@ -136,8 +136,18 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (expression.Method!=null)
         return VisitBinaryOperator(expression);
 
-      var left = Visit(expression.Left);
-      var right = Visit(expression.Right);
+      SqlExpression left;
+      SqlExpression right;
+
+      // chars are compared as integers
+      if (IsCharToIntConvert(expression.Left) && IsCharToIntConvert(expression.Right)) {
+        left = Visit(((UnaryExpression) expression.Left).Operand);
+        right = Visit(((UnaryExpression)expression.Right).Operand);
+      }
+      else {
+        left = Visit(expression.Left);
+        right = Visit(expression.Right);
+      }
 
       switch (expression.NodeType) {
         case ExpressionType.Add:
@@ -457,6 +467,13 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (result == null)
         throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, source.GetFullName(true)));
       return result;
+    }
+
+    private bool IsCharToIntConvert(Expression e)
+    {
+      return e.NodeType==ExpressionType.Convert
+          && e.Type==typeof (int)
+          && ((UnaryExpression) e).Operand.Type==typeof (char);
     }
 
     // Constructor

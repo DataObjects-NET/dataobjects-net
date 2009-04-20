@@ -148,8 +148,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SumMinTest()
     {
-      var localCustomers = FetchEntities<Customer>().Where(c => c.Orders.Count > 0);
-      var localOrders = FetchEntities<Order>();
+      var localCustomers = GetEntities<Customer>().ToList().Where(c => c.Orders.Count > 0);
+      var localOrders = GetEntities<Order>().ToList();
       var customers = Query<Customer>.All.Where(c => c.Orders.Count > 0);
       var orders = Query<Order>.All;
 

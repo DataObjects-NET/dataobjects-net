@@ -6,14 +6,14 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Tests.Storage.Providers.MsSql.BooleanHandlingTestModel;
 
-namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
+namespace Xtensive.Storage.Tests.Storage.Providers.MsSql.BooleanHandlingTestModel
 {
   [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class MyEntity : Entity
@@ -30,14 +30,17 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
     [Field]
     public bool HasStupidName { get; set; }
   }
+}
 
+namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
+{
   [TestFixture]
   public class BooleanHandlingTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = DomainConfigurationFactory.Create("mssql2005");
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), typeof(MyEntity).Namespace);
+      configuration.Types.Register(typeof(MyEntity).Assembly, typeof(MyEntity).Namespace);
       return configuration;
     }
 

@@ -213,6 +213,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected virtual DataTypeMapping CreateDataTypeMapping(DataTypeInfo dataTypeInfo)
     {
+      if (dataTypeInfo.Type==typeof(char))
+        return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), GetDbType(dataTypeInfo),
+          o => new string((char)o, 1), null);
       return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), GetDbType(dataTypeInfo));
     }
 
@@ -229,7 +232,7 @@ namespace Xtensive.Storage.Providers.Sql
       case TypeCode.Boolean:
         return DbType.Boolean;
       case TypeCode.Char:
-        return DbType.StringFixedLength;
+        return DbType.String;
       case TypeCode.SByte:
         return DbType.SByte;
       case TypeCode.Byte:

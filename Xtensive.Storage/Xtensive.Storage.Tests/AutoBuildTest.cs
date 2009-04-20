@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Storage.Configuration;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Disposing;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Tests
 {
@@ -28,7 +29,7 @@ namespace Xtensive.Storage.Tests
     public virtual void TestFixtureSetUp()
     {
       DomainConfiguration config = BuildConfiguration();
-        domain = BuildDomain(config);
+      domain = BuildDomain(config);
     }
 
     [TestFixtureTearDown]
@@ -47,9 +48,14 @@ namespace Xtensive.Storage.Tests
       return Domain.Build(configuration);
     }
 
-    protected List<T> FetchEntities<T>() where T : Entity
+    protected RecordSet GetRecordSet<T>() where T : Entity
     {
-      return Domain.Model.Types[typeof(T)].Indexes.PrimaryIndex.ToRecordSet().ToEntities<T>().ToList();
+      return Domain.Model.Types[typeof(T)].Indexes.PrimaryIndex.ToRecordSet();
+    }
+
+    protected IEnumerable<T> GetEntities<T>() where T : Entity
+    {
+      return GetRecordSet<T>().ToEntities<T>();
     }
   }
 }
