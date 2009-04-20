@@ -144,7 +144,7 @@ namespace Xtensive.Storage.Linq
         if (calculateExpressions.Value && body.GetMemberType() == MemberType.Unknown) {
           if (
             ((ExtendedExpressionType) body.NodeType)!=ExtendedExpressionType.Result &&
-            !body.IsGrouping() &&
+            !body.IsGroupingConstructor() &&
               (body.NodeType != ExpressionType.Call ||
               ((MethodCallExpression)body).Object == null ||
               ((MethodCallExpression) body).Object.Type!=typeof (Tuple))) {
@@ -211,6 +211,8 @@ namespace Xtensive.Storage.Linq
           }
           else if (item.Type == MemberType.Anonymous)
             mapping = mapping.GetAnonymousMapping(name).First;
+          else if (item.Type == MemberType.Grouping)
+            mapping = mapping.GetGroupingMapping(name);
         }
       }
 
@@ -254,6 +256,7 @@ namespace Xtensive.Storage.Linq
         case MemberType.Structure:
           return VisitBinaryStructure(binaryExpression);
         case MemberType.EntitySet:
+        case MemberType.Grouping:
           throw new NotSupportedException();
         default:
           throw new ArgumentOutOfRangeException();
@@ -363,6 +366,9 @@ namespace Xtensive.Storage.Linq
                 break;
               case MemberType.Anonymous:
                 mappingRef.Value.RegisterAnonymous(memberName, (ComplexMapping)fieldMapping, newArg);
+                break;
+              case MemberType.Grouping:
+                mappingRef.Value.RegisterGrouping(memberName, (ComplexMapping)fieldMapping);
                 break;
             }
           }

@@ -42,12 +42,17 @@ namespace Xtensive.Storage.Linq
       return (ExtendedExpressionType) expression.NodeType==ExtendedExpressionType.Result;
     }
 
-    public static bool IsGrouping(this Expression expression)
+    public static bool IsGroupingConstructor(this Expression expression)
     {
       expression = expression.StripCasts();
       if (expression.NodeType==ExpressionType.New)
         return expression.Type.IsOfGenericType(typeof(Grouping<,>));
       return false;
+    }
+
+    public static bool IsGrouping(this Expression expression)
+    {
+      return expression.Type.IsOfGenericInterface(typeof(IGrouping<,>));
     }
 
     public static Type GetGroupingKeyType(this Expression expression)

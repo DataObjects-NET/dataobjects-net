@@ -832,7 +832,7 @@ namespace Xtensive.Storage.Linq
 
       var visitedExpression = Visit(sequenceExpression);
 
-      if (visitedExpression.IsGrouping()) {
+      if (visitedExpression.IsGroupingConstructor()) {
         var groupingParameter = visitedExpression.GetGroupingParameter();
         var applyParameter = context.GetApplyParameter(context.Bindings[(ParameterExpression)sequenceExpression]);
         var oldResult = visitedExpression.GetGroupingItemsResult();

@@ -137,12 +137,21 @@ namespace Xtensive.Storage.Linq
               result.AddHead(lastItem);
             }
             break;
-//          case MemberType.Grouping:
-//            break;
+          case MemberType.Grouping:
+            if (lastItem == null)
+              item = new MemberPathItem(member.Name, MemberType.Grouping, memberAccess);
+            else {
+              item = new MemberPathItem(
+                member.Name,
+                MemberType.Grouping,
+                memberAccess);
+              result.AddHead(lastItem);
+            }
+            break;
           default:
             if (lastItem!=null)
               return new MemberPath();
-            MemberType memberType = memberAccess.Expression.GetMemberType();
+            var memberType = memberAccess.Expression.GetMemberType();
             switch (memberType) {
               case MemberType.Key:
                 return new MemberPath();
