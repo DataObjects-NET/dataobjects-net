@@ -419,7 +419,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByWithEntityResultSelector5Bis3Test()
     {
-      var result = Query<Order>.All.GroupBy(o => new {o.OrderDate, o.Freight}).Select(g => new {Count = g.Count(), Customer = g.Key});
+      var result = Query<Order>.All.GroupBy(o => new {o.OrderDate, o.Freight}).Select(g => new {Count = g.Count(), OrderInfo = g.Key});
       QueryDumper.Dump(result);
     }
 

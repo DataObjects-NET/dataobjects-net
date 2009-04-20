@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
             );
         }
       }
-      if (sortOrder.Count == 0)
+      if (left == provider.Left && right == provider.Right)
         return provider;
       pSortOrder.Value = sortOrder;
       return new JoinProvider(left, right, provider.Outer, provider.JoinType, provider.EqualIndexes);
@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
             );
         }
       }
-      if (sortOrder.Count == 0)
+      if (left == provider.Left && right == provider.Right)
         return provider;
       pSortOrder.Value = sortOrder;
       return new PredicateJoinProvider(left, right, provider.Predicate, provider.Outer);
@@ -121,23 +121,20 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
       var sortOrder = new DirectionCollection<int>();
       CompilableProvider left;
       CompilableProvider right;
-      bool containsSortOperations = false;
       using (new ParameterScope()) {
         left = VisitCompilable(provider.Left);
-        containsSortOperations |= pSortOrder.HasValue;
-        if (containsSortOperations)
+        if (pSortOrder.HasValue)
           sortOrder = pSortOrder.Value;
       }
       using (new ParameterScope()) {
         right = VisitCompilable(provider.Right);
-        containsSortOperations |= pSortOrder.HasValue;
         if ((provider.ApplyType ==ApplyType.Cross || provider.ApplyType == ApplyType.Outer) && pSortOrder.HasValue) {
           sortOrder = new DirectionCollection<int>(
             sortOrder.Union(pSortOrder.Value.Select(p => new KeyValuePair<int, Direction>(p.Key + left.Header.Length, p.Value)))
             );
         }
       }
-      if (!containsSortOperations && sortOrder.Count == 0)
+      if (left == provider.Left && right == provider.Right)
         return provider;
       pSortOrder.Value = sortOrder;
       return new ApplyProvider(provider.ApplyParameter, left, right, provider.ApplyType);
