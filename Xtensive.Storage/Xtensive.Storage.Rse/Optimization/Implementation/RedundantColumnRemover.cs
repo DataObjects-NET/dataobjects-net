@@ -22,7 +22,6 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
   {
     private readonly Parameter<Dictionary<Provider, List<int>>> mappings;
     private readonly Dictionary<ApplyParameter, List<int>> outerColumnUsages;
-    private readonly TupleAccessRewriter mappingsReplacer;
     private readonly TupleAccessGatherer mappingsGatherer;
 
     private readonly CompilableProviderVisitor outerColumnUsageVisitor;
@@ -362,8 +361,10 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
 
     private Expression TranslateExpression(Provider originalProvider, Expression expression)
     {
-      if (originalProvider.Type == ProviderType.Filter || originalProvider.Type == ProviderType.Calculate)
-        return mappingsReplacer.Rewrite(expression, mappings.Value[originalProvider]);
+      if (originalProvider.Type == ProviderType.Filter || originalProvider.Type == ProviderType.Calculate) {
+        var replacer = new TupleAccessRewriter(mappings.Value[originalProvider], ResolveOuterMapping);
+        return replacer.Rewrite(expression);
+      }
       return expression;
     }
 
@@ -379,7 +380,6 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
       outerColumnUsages = new Dictionary<ApplyParameter, List<int>>();
 
       mappingsGatherer = new TupleAccessGatherer((a,b)=> { });
-      mappingsReplacer = new TupleAccessRewriter(ResolveOuterMapping);
 
       var outerMappingsGatherer = new TupleAccessGatherer(RegisterOuterMapping);
       outerColumnUsageVisitor = new CompilableProviderVisitor((_,e) => {

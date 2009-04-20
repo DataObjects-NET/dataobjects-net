@@ -418,7 +418,7 @@ namespace Xtensive.Storage.Linq
       var visitedSource = VisitSequence(source);
       var result = visitedSource;
 
-      var projectorRewriter = new ItemProjectorRewriter();
+      ItemProjectorRewriter projectorRewriter;
       List<int> groupMapping;
 
       RecordSet recordSet;
@@ -440,6 +440,38 @@ namespace Xtensive.Storage.Linq
           .Select(gi => gi.Index)
           .ToList();
 
+        projectorRewriter = new ItemProjectorRewriter(columnList, groupMapping, recordSet.Header);
+
+//        var memberType = originalCompiledKeyExpression.Body.GetMemberType();
+//        //TODO: rewrite column indexes and projections
+//        switch(memberType) {
+//          case MemberType.Default:
+//          case MemberType.Primitive:
+//          case MemberType.Key: {
+//            var primitiveFieldMapping = (PrimitiveMapping)mappingRef.Value.Mapping;
+//            newResultMapping.RegisterField("Key", primitiveFieldMapping.Segment);
+//            break;
+//          }
+//          case MemberType.Structure:
+//          //TODO: implement!!!
+//            break;
+//          case MemberType.Entity:
+//            if (mappingRef.Value.Mapping is PrimitiveMapping) {
+//              var primitiveFieldMapping = (PrimitiveMapping)mappingRef.Value.Mapping;
+//              var fields = new Dictionary<string, Segment<int>> { { "Key", primitiveFieldMapping.Segment } };
+//              var entityMapping = new ComplexMapping(fields);
+//              newResultMapping.RegisterEntity("Key", entityMapping);
+//            }
+//            else
+//              newResultMapping.RegisterEntity("Key", (ComplexMapping)mappingRef.Value.Mapping);
+//            break;
+//          case MemberType.Anonymous:
+//            newResultMapping.RegisterAnonymous("Key", (ComplexMapping)mappingRef.Value.Mapping, originalCompiledKeyExpression);
+//            break;
+//          default:
+//            throw new NotSupportedException();
+//        }
+
         if (mappingRef.Value.Mapping is ComplexMapping) {
           var cfm = (ComplexMapping) mappingRef.Value.Mapping;
           var keyMapping = new ComplexMapping();
@@ -450,7 +482,7 @@ namespace Xtensive.Storage.Linq
             keyMapping.RegisterField(field.Key, segment);
           }
           foreach (var pair in cfm.AnonymousTypes) {
-            var projection = projectorRewriter.Rewrite(pair.Value.Second, columnList, groupMapping, recordSet.Header);
+            var projection = projectorRewriter.Rewrite(pair.Value.Second);
             newResultMapping.RegisterAnonymous(
               pair.Key.IsNullOrEmpty()
                 ? "Key"
@@ -470,7 +502,7 @@ namespace Xtensive.Storage.Linq
         : elementSelector.Type.GetGenericArguments()[1];
 
       // Remap 
-      var remappedExpression = (LambdaExpression) projectorRewriter.Rewrite(originalCompiledKeyExpression, columnList, groupMapping, recordSet.Header);
+      var remappedExpression = (LambdaExpression) projectorRewriter.Rewrite(originalCompiledKeyExpression);
 
       var pRecord = Expression.Parameter(typeof (Record), "record");
       var pTuple = Expression.Parameter(typeof (Tuple), "tuple");
@@ -598,7 +630,6 @@ namespace Xtensive.Storage.Linq
       var outerLength = outer.RecordSet.Header.Length;
       var innerLength = inner.RecordSet.Header.Length;
 
-      var projectorRewriter = new ItemProjectorRewriter();
       var tupleMapping = new List<int>(
         Enumerable.Repeat(-1, outerLength).Concat(Enumerable.Range(0, innerLength))
         );
@@ -608,7 +639,8 @@ namespace Xtensive.Storage.Linq
         );
 
       outer = new ResultExpression(outer.Type, recordSet, outer.Mapping, outer.ItemProjector);
-      var innerItemProjector = (LambdaExpression) projectorRewriter.Rewrite(inner.ItemProjector, tupleMapping, groupMapping, recordSet.Header);
+      var projectorRewriter = new ItemProjectorRewriter(tupleMapping, groupMapping, recordSet.Header);
+      var innerItemProjector = (LambdaExpression) projectorRewriter.Rewrite(inner.ItemProjector);
       inner = new ResultExpression(inner.Type, recordSet, inner.Mapping.CreateShifted(outerLength), innerItemProjector);
 
       using (context.Bindings.Add(resultSelector.Parameters[0], outer))
@@ -793,8 +825,8 @@ namespace Xtensive.Storage.Linq
         mapping = complexMapping;
       }
       var groupMapping = MappingHelper.BuildGroupMapping(outerColumnList, outerRecordSet.Provider, recordSet.Provider);
-      var projectorRewriter = new ItemProjectorRewriter();
-      var itemProjector = projectorRewriter.Rewrite(outer.ItemProjector, outerColumnList, groupMapping, recordSet.Header);
+      var projectorRewriter = new ItemProjectorRewriter(outerColumnList, groupMapping, recordSet.Header);
+      var itemProjector = projectorRewriter.Rewrite(outer.ItemProjector);
       return new ResultExpression(outer.Type, recordSet, mapping, (LambdaExpression) itemProjector);
     }
 

@@ -7,16 +7,17 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Expressions;
 using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {
-  internal class ItemProjectorRewriter : TupleAccessRewriter
+  internal sealed class ItemProjectorRewriter : TupleAccessRewriter
   {
-    private List<int> groupMapping;
-    private RecordSetHeader header;
+    private readonly List<int> groupMapping;
+    private readonly RecordSetHeader header;
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
@@ -35,19 +36,17 @@ namespace Xtensive.Storage.Linq.Rewriters
       return base.VisitMethodCall(mc);
     }
 
-    public Expression Rewrite(Expression expression, List<int> mappings, List<int> groupMapping, RecordSetHeader header)
+
+    // Constructor
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public ItemProjectorRewriter(List<int> mappings, List<int> groupMapping, RecordSetHeader header)
+      : base(mappings)
     {
-      try {
-        this.mappings = mappings;
-        this.groupMapping = groupMapping;
-        this.header = header;
-        return Visit(expression);
-      }
-      finally {
-        this.mappings = null;
-        this.groupMapping = null;
-        this.header = null;
-      }
+      this.groupMapping = groupMapping;
+      this.header = header;
     }
   }
 }

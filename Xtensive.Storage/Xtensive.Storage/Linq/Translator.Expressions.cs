@@ -347,6 +347,7 @@ namespace Xtensive.Storage.Linq
                 break;
               }
               case MemberType.Structure: {
+                //TODO: rewrite structure mapping!!!
                 var complexMapping = (ComplexMapping)fieldMapping;
                 foreach (var p in complexMapping.Fields)
                   mappingRef.Value.RegisterField(rename(p.Key, memberName), p.Value);

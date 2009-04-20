@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Rse.Expressions
   public class TupleAccessRewriter : ExpressionVisitor
   {
     protected readonly Func<ApplyParameter, int, int> resolveOuterColumn;
-    protected List<int> mappings;
+    protected readonly List<int> mappings;
 
     /// <inheritdoc/>
     protected override Expression VisitUnknown(Expression e)
@@ -44,17 +44,10 @@ namespace Xtensive.Storage.Rse.Expressions
     /// Replaces column usages according to a specified map.
     /// </summary>
     /// <param name="expression">The predicate.</param>
-    /// <param name="mappings">The mappings.</param>
     /// <returns></returns>
-    public virtual Expression Rewrite(Expression expression, List<int> mappings)
+    public virtual Expression Rewrite(Expression expression)
     {
-      try {
-        this.mappings = mappings;
-        return Visit(expression);
-      }
-      finally {
-        this.mappings = null;
-      }
+      return Visit(expression);
     }
     
     private static int DefaultResolveOuterColumn(ApplyParameter parameter, int columnIndex)
@@ -67,8 +60,9 @@ namespace Xtensive.Storage.Rse.Expressions
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public TupleAccessRewriter()
-      : this(null)
+    /// <param name="mappings">The mappings.</param>
+    public TupleAccessRewriter(List<int> mappings)
+      : this(mappings, null)
     {
     }
 
@@ -76,8 +70,10 @@ namespace Xtensive.Storage.Rse.Expressions
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="resolveOuterColumn">A <see langword="delegate"/> invoked when outer column usage is to be rewritten.</param>
-    public TupleAccessRewriter(Func<ApplyParameter, int, int> resolveOuterColumn)
+    /// <param name="mappings">The mappings.</param>
+    public TupleAccessRewriter(List<int> mappings, Func<ApplyParameter, int, int> resolveOuterColumn)
     {
+      this.mappings = mappings;
       this.resolveOuterColumn = resolveOuterColumn ?? DefaultResolveOuterColumn;
     }
   }

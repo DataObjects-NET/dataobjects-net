@@ -65,7 +65,6 @@ namespace Xtensive.Storage.Linq
     private ResultExpression Optimize(ResultExpression origin)
     {
       var mappingsGatherer = new ItemProjectorAnalyzer();
-      var mappingsReplacer = new ItemProjectorRewriter();
 
       var originProvider = origin.RecordSet.Provider;
       var usedColumns = mappingsGatherer.Gather(origin.ItemProjector, originProvider.Header)
@@ -80,8 +79,8 @@ namespace Xtensive.Storage.Linq
 
         var rs = resultProvider.Result;
         var groupMap = MappingHelper.BuildGroupMapping(usedColumns, originProvider, resultProvider);
-
-        var itemProjector = mappingsReplacer.Rewrite(origin.ItemProjector, usedColumns, groupMap, origin.RecordSet.Header);
+        var mappingsReplacer = new ItemProjectorRewriter(usedColumns, groupMap, origin.RecordSet.Header);
+        var itemProjector = mappingsReplacer.Rewrite(origin.ItemProjector);
         var result = new ResultExpression(origin.Type, rs, null, (LambdaExpression)itemProjector, origin.ScalarTransform);
         return result;
       }
