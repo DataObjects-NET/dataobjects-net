@@ -302,21 +302,61 @@ namespace Xtensive.Storage.Tests.Linq
     public void ComplexAsCastTest()
     {
       var result = Query<Product>.All
-        .Select(x =>
+        .Select(product =>
           new
           {
-            DiscontinuedProduct = x as DiscontinuedProduct,
-            ActiveProduct = x as ActiveProduct})
-        .Select(x =>
+            DiscontinuedProduct = product as DiscontinuedProduct,
+            ActiveProduct = product as ActiveProduct})
+        .Select(anonymousArgument =>
           new
           {
-            AQ = x.ActiveProduct == null
+            AQ = anonymousArgument.ActiveProduct == null
               ? "NULL"
-              : x.ActiveProduct.QuantityPerUnit,
-            DQ = x.DiscontinuedProduct == null
+              : anonymousArgument.ActiveProduct.QuantityPerUnit,
+            DQ = anonymousArgument.DiscontinuedProduct == null
               ? "NULL"
-              : x.DiscontinuedProduct.QuantityPerUnit
+              : anonymousArgument.DiscontinuedProduct.QuantityPerUnit
           });
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void AsDowncastTest()
+    {
+      var result = Query<Product>.All
+        .Select(product => product as DiscontinuedProduct);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void AsDowncastWithFieldSelectTest()
+    {
+      var result = Query<Product>.All
+        .Select(product => product as DiscontinuedProduct)
+        .Select(discontinuedProduct => 
+          discontinuedProduct == null 
+          ? "NULL" 
+          : discontinuedProduct.QuantityPerUnit);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void AsUpcastTest()
+    {
+      var result = Query<DiscontinuedProduct>.All
+        .Select(discontinuedProduct => discontinuedProduct as Product);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void AsUpcastWithFieldSelectTest()
+    {
+      var result = Query<DiscontinuedProduct>.All
+        .Select(discontinuedProduct => discontinuedProduct as Product)
+        .Select(product => 
+          product == null 
+          ? "NULL" 
+          : product.ProductName);
       QueryDumper.Dump(result);
     }
 

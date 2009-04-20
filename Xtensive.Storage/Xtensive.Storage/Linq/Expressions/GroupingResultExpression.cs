@@ -5,20 +5,19 @@
 // Created:    2009.04.06
 
 using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Mappings;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq.Expressions
 {
-  internal sealed class GroupedResultExpression : ResultExpression
+  internal sealed class GroupingResultExpression : ResultExpression
   {
     public ResultExpression Value { get; private set; }
 
     // Constructors
 
-    public GroupedResultExpression(
+    public GroupingResultExpression(
       Type type, 
       RecordSet recordSet, 
       Mapping mapping, 

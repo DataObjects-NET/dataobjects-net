@@ -225,11 +225,14 @@ namespace Xtensive.Storage.Linq
       throw new NotSupportedException();
     }
 
+
     private Expression VisitOfType(Expression source, Type targetType, Type sourceType)
     {
       if (targetType==sourceType)
         return Visit(source);
 
+      if (!typeof (IEntity).IsAssignableFrom(sourceType))
+        throw new NotSupportedException("OfType supports only 'Entity' conversion.");
 
       var parameter = Expression.Parameter(sourceType, "p");
       var isExpression = Expression.TypeIs(parameter, targetType);
@@ -237,8 +240,34 @@ namespace Xtensive.Storage.Linq
       var visitedWhere = VisitWhere(source, le);
       var projectorBody = Expression.Convert(visitedWhere.ItemProjector.Body, targetType);
       var itemProjector = Expression.Lambda(projectorBody, visitedWhere.ItemProjector.Parameters.ToArray());
-      return new ResultExpression(typeof (Query<>).MakeGenericType(sourceType), visitedWhere.RecordSet, visitedWhere.Mapping, itemProjector);
+      var recordSet = visitedWhere.RecordSet;
+      var mapping = (ComplexMapping) visitedWhere.Mapping;
+
+      if (targetType.IsSubclassOf(sourceType)) {
+        var targetTypeInfo = context.Model.Types[targetType];
+        var missingFields = new List<Model.FieldInfo>();
+        foreach (var field in targetTypeInfo.Fields) {
+          if (!mapping.Fields.ContainsKey(field.Name))
+            missingFields.Add(field);
+        }
+        if (missingFields.Count > 0) {
+          int offset = recordSet.Header.Columns.Count;
+
+          var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
+          var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+          var keySegment = mapping.GetFieldMapping("Key");
+          var keyPairs = keySegment.GetItems()
+            .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+            .ToArray();
+          recordSet = recordSet.Join(joinedRs, JoinType.Default, keyPairs);
+          foreach (var field in missingFields)
+            mapping.RegisterField(field.Name, new Segment<int>(field.MappingInfo.Offset + offset, field.MappingInfo.Length));
+        }
+      }
+
+      return new ResultExpression(typeof (Query<>).MakeGenericType(sourceType), recordSet, mapping, itemProjector);
     }
+
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
     {

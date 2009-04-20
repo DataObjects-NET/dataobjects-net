@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     internal readonly Dictionary<string, Pair<ComplexMapping, Expression>> AnonymousTypes;
     internal readonly Dictionary<string, ComplexMapping> Groupings;
     private readonly List<Pair<string,MemberType>> fillOrder;
-
+    
     #region Accessor methods
 
     public Segment<int> GetFieldMapping(string fieldName)
