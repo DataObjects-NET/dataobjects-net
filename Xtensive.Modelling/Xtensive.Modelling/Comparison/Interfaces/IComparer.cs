@@ -14,23 +14,26 @@ namespace Xtensive.Modelling.Comparison
   public interface IComparer
   {
     /// <summary>
-    /// Gets the source model to compare.
+    /// Gets the difference between <paramref name="source"/> 
+    /// and <paramref name="target"/> models.
     /// </summary>
-    IModel Source { get; }
+    /// <param name="source">The source model.</param>
+    /// <param name="target">The target model.</param>
+    /// <param name="hints">The comparison hints.</param>
+    /// <returns>Difference between <paramref name="source"/> 
+    /// and <paramref name="target"/> models;
+    /// <see langword="null" />, if none.</returns>
+    Difference Compare(IModel source, IModel target, HintSet hints);
 
     /// <summary>
-    /// Gets the target model to compare.
+    /// Gets the difference between <paramref name="source"/> 
+    /// and <paramref name="target"/> models.
     /// </summary>
-    IModel Target { get; }
-
-    /// <summary>
-    /// Gets the comparison hints.
-    /// </summary>
-    HintSet Hints { get; }
-
-    /// <summary>
-    /// Gets the difference.
-    /// </summary>
-    Difference Difference { get; }
+    /// <param name="source">The source model.</param>
+    /// <param name="target">The target model.</param>
+    /// <returns>Difference between <paramref name="source"/> 
+    /// and <paramref name="target"/> models;
+    /// <see langword="null" />, if none.</returns>
+    Difference Compare(IModel source, IModel target);
   }
 }

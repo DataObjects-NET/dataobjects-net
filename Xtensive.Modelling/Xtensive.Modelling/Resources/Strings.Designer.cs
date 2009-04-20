@@ -61,6 +61,24 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Actual target model.
+        /// </summary>
+        internal static string ActualTargetModel {
+            get {
+                return ResourceManager.GetString("ActualTargetModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Difference.
+        /// </summary>
+        internal static string Difference {
+            get {
+                return ResourceManager.GetString("Difference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &quot;{1}&quot; != &quot;{2}&quot; ({0}): {3}.
         /// </summary>
         internal static string DifferenceFormat {
@@ -250,6 +268,15 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Expected target model.
+        /// </summary>
+        internal static string ExpectedTargetModel {
+            get {
+                return ResourceManager.GetString("ExpectedTargetModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Property value must belong to the same Model..
         /// </summary>
         internal static string ExPropertyValueMustBelongToTheSameModel {
@@ -277,6 +304,15 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Upgrade sequence validation failure..
+        /// </summary>
+        internal static string ExUpgradeSequenceValidationFailure {
+            get {
+                return ResourceManager.GetString("ExUpgradeSequenceValidationFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} change(s).
         /// </summary>
         internal static string ItemChangeCountFormat {
@@ -291,6 +327,33 @@ namespace Xtensive.Modelling.Resources {
         internal static string ItemChangeFormat {
             get {
                 return ResourceManager.GetString("ItemChangeFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automatic upgrade sequence validation.
+        /// </summary>
+        internal static string LogAutomaticUpgradeSequenceValidation {
+            get {
+                return ResourceManager.GetString("LogAutomaticUpgradeSequenceValidation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}:.
+        /// </summary>
+        internal static string LogItemFormat {
+            get {
+                return ResourceManager.GetString("LogItemFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Validation failed..
+        /// </summary>
+        internal static string LogValidationFailed {
+            get {
+                return ResourceManager.GetString("LogValidationFailed", resourceCulture);
             }
         }
         

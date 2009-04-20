@@ -201,4 +201,25 @@
   <data name="ExNoCurrentUpgrader" xml:space="preserve">
     <value>Upgarder.Current is null.</value>
   </data>
+  <data name="LogAutomaticUpgradeSequenceValidation" xml:space="preserve">
+    <value>Automatic upgrade sequence validation</value>
+  </data>
+  <data name="LogValidationFailed" xml:space="preserve">
+    <value>Validation failed.</value>
+  </data>
+  <data name="Difference" xml:space="preserve">
+    <value>Difference</value>
+  </data>
+  <data name="LogItemFormat" xml:space="preserve">
+    <value>{0}:</value>
+  </data>
+  <data name="ExpectedTargetModel" xml:space="preserve">
+    <value>Expected target model</value>
+  </data>
+  <data name="ActualTargetModel" xml:space="preserve">
+    <value>Actual target model</value>
+  </data>
+  <data name="ExUpgradeSequenceValidationFailure" xml:space="preserve">
+    <value>Upgrade sequence validation failure.</value>
+  </data>
 </root>

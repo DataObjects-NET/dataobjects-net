@@ -85,13 +85,15 @@ namespace Xtensive.Modelling.Tests
       Log.Info("Target model:");
       target.Dump();
 
-      var comparer = new Comparison.Comparer<Server>(source, target);
-      comparer.Hints.Add(new RenameHint("", ""));
-      Difference diff = comparer.Difference;
+      var comparer = new Comparison.Comparer();
+      var hints = new HintSet(source, target) {
+        new RenameHint("", "")
+      };
+      Difference diff = comparer.Compare(source, target, hints);
       Log.Info("Difference: \r\n{0}", diff);
 
       var actions = new ActionSequence {
-        new Upgrader(diff).Actions
+        new Upgrader().GetUpgradeSequence(diff, hints, comparer)
       };
       Log.Info("Actions: \r\n{0}", actions);
 
@@ -309,32 +311,23 @@ namespace Xtensive.Modelling.Tests
       var s2 = Clone(srv);
       var hints = new HintSet(s1, s2);
       update.Invoke(s1, s2, hints);
+      if (!useHints)
+        hints = new HintSet(s1, s2);
       Log.Info("Update test ({0} hints)", useHints ? "with" : "without");
       s1.Dump();
       s2.Dump();
+      s1.Validate();
+      s2.Validate();
 
       // Comparing different models
       Log.Info("Comparing models:");
-      var c = new Comparison.Comparer<Server>(s1, s2);
-      if (useHints)
-        foreach (var hint in hints)
-          c.Hints.Add(hint);
-      var diff = c.Difference;
+      var comparer = new Comparer();
+      var diff = comparer.Compare(s1, s2, hints);
       Log.Info("\r\nDifference:\r\n{0}", diff);
       var actions = new ActionSequence() {
-        new Upgrader(diff).Actions
+        new Upgrader().GetUpgradeSequence(diff, hints, comparer)
       };
       Log.Info("\r\nActions:\r\n{0}", actions);
-      actions.Apply(s1);
-      s1.Dump();
-      s2.Dump();
-
-      // Comparing action applicaiton result & target model
-      Log.Info("Comparing synchronization result:");
-      c = new Comparison.Comparer<Server>(s1, s2);
-      diff = c.Difference;
-      Log.Info("\r\nDifference:\r\n{0}", diff);
-      Assert.IsNull(diff);
     }
 
     private Server Clone(Server server)

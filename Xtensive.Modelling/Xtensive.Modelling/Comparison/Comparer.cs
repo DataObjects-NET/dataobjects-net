@@ -10,7 +10,6 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Resources;
 
@@ -19,11 +18,12 @@ namespace Xtensive.Modelling.Comparison
   /// <summary>
   /// Abstract base class for <see cref="IComparer"/> implementation.
   /// </summary>
-  public abstract class Comparer : IComparer
+  public class Comparer : IComparer
   {
     [ThreadStatic]
     private static Comparer current;
-    private Cached<Difference> cachedDifference;
+
+    #region Properties: Current, Context, Source, Target, Hints
 
     /// <summary>
     /// Gets the current comparer.
@@ -37,36 +37,50 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     protected internal ComparisonContext Context { get; internal set; }
 
-    #region IComparer<T> properties
+    /// <summary>
+    /// Gets the source model.
+    /// </summary>
+    protected IModel Source { get; private set; }
 
-    /// <inheritdoc/>
-    public IModel Source { get; private set; }
+    /// <summary>
+    /// Gets the target model.
+    /// </summary>
+    protected IModel Target { get; private set; }
 
-    /// <inheritdoc/>
-    public IModel Target { get; private set; }
-
-    /// <inheritdoc/>
-    public HintSet Hints { get; private set; }
-
-    /// <inheritdoc/>
-    public Difference Difference {
-      get {
-        return cachedDifference.GetValue(
-          _this => {
-            var previous = current;
-            current = this;
-            try {
-              return _this.Visit(_this.Source, _this.Target);
-            }
-            finally {
-              current = previous;
-            }
-          },
-          this);
-      }
-    }
+    /// <summary>
+    /// Gets the comparison hints.
+    /// </summary>
+    protected HintSet Hints { get; private set; }
 
     #endregion
+
+    /// <inheritdoc/>
+    public Difference Compare(IModel source, IModel target)
+    {
+      return Compare(source, target, null);
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentOutOfRangeException"><c>hints.SourceModel</c> or <c>hints.TargetModel</c>
+    /// is out of range.</exception>
+    public Difference Compare(IModel source, IModel target, HintSet hints)
+    {
+      Source = source;
+      Target = target;
+      Hints = hints ?? new HintSet(Source, Target);
+      if (Hints.SourceModel!=Source)
+        throw new ArgumentOutOfRangeException("hints.SourceModel");
+      if (Hints.TargetModel!=Target)
+        throw new ArgumentOutOfRangeException("hints.TargetModel");
+      var previous = current;
+      current = this;
+      try {
+        return Visit(Source, Target);
+      }
+      finally {
+        current = previous;
+      }
+    }
 
     /// <summary>
     /// Visitor dispatcher.
@@ -236,13 +250,8 @@ namespace Xtensive.Modelling.Comparison
         var someItems = src.Count!=0 ? src : tgt;
         var someItem = someItems.Cast<Node>().First();
 
-        Func<Node, Pair<Node, object>> keyExtractor = n => new Pair<Node, object>(n, GetTargetName(n));
-        if (someItem is INodeReference) {
-          keyExtractor = n => {
-            var referredNode = ((INodeReference) n).Value;
-            return new Pair<Node, object>(n, referredNode==null ? null : GetTargetPath(referredNode));
-          };
-        }
+        Func<Node, Pair<Node, object>> keyExtractor = 
+          n => new Pair<Node, object>(n, GetNodeComparisonKey(n));
 
         var sourceKeyMap = new Dictionary<object, Node>();
         foreach (var pair in src.Cast<Node>().Select(keyExtractor))
@@ -363,6 +372,22 @@ namespace Xtensive.Modelling.Comparison
     }
 
     /// <summary>
+    /// Extracts the comparison key, that used to find associations 
+    /// between old and new <see cref="NodeCollection"/> items.
+    /// </summary>
+    /// <param name="node">The node to get the comparison key for.</param>
+    /// <returns>Comparison key for the specified node.</returns>
+    protected virtual object GetNodeComparisonKey(Node node)
+    {
+      if (node is INodeReference) {
+        var targetNode = ((INodeReference) node).Value;
+        return targetNode==null ? null : GetTargetPath(targetNode);
+      }
+      else
+        return GetTargetName(node);
+    }
+
+    /// <summary>
     /// Gets the path of the target node.
     /// </summary>
     /// <param name="source">The source node.</param>
@@ -439,20 +464,5 @@ namespace Xtensive.Modelling.Comparison
     }
 
     #endregion
-
-
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="source">The source.</param>
-    /// <param name="target">The target.</param>
-    public Comparer(IModel source, IModel target)
-    {
-      Source = source;
-      Target = target;
-      Hints = new HintSet(source, target);
-    }
   }
 }

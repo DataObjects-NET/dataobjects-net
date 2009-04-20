@@ -5,30 +5,42 @@
 // Created:    2009.04.20
 
 using System.Collections.Generic;
+using Xtensive.Core.Collections;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 
 namespace Xtensive.Modelling.Comparison
 {
   /// <summary>
-  /// Produces upgrade script (<see cref="Actions"/>)
-  /// for the specified <see cref="Difference"/> and <see cref="Hints"/>.
+  /// Produces upgrade script (sequence of <see cref="NodeAction"/>s)
+  /// for the specified <see cref="Difference"/> and <see cref="HintSet"/>.
   /// </summary>
   public interface IUpgrader
   {
     /// <summary>
-    /// Gets the comparison hints.
+    /// Gets the upgrade script (sequence of <see cref="NodeAction"/>s)
+    /// for the specified <see cref="Difference"/> and <see cref="HintSet"/>.
+    /// If <paramref name="comparer"/> is provided, it is used to validate
+    /// the result of upgrade script.
     /// </summary>
-    HintSet Hints { get; }
+    /// <param name="difference">The difference.</param>
+    /// <param name="hints">The upgrade hints.</param>
+    /// <param name="comparer">The comparer to use to validate
+    /// the result of upgrade script.</param>
+    /// <returns>
+    /// Sequence of <see cref="NodeAction"/>s describing the upgrade.
+    /// </returns>
+    ReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints, Comparer comparer);
 
     /// <summary>
-    /// Gets the difference.
+    /// Gets the upgrade script (sequence of <see cref="NodeAction"/>s)
+    /// for the specified <see cref="Difference"/> and <see cref="HintSet"/>.
     /// </summary>
-    Difference Difference { get; }
-
-    /// <summary>
-    /// Gets the upgrade actions.
-    /// </summary>
-    IEnumerable<NodeAction> Actions { get; }
+    /// <param name="difference">The difference.</param>
+    /// <param name="hints">The upgrade hints.</param>
+    /// <returns>
+    /// Sequence of <see cref="NodeAction"/>s describing the upgrade.
+    /// </returns>
+    ReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints);
   }
 }

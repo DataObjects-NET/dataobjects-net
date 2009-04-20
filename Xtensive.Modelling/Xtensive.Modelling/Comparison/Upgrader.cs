@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Serialization.Binary;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
-using System.Linq;
+using Xtensive.Modelling.Resources;
 
 namespace Xtensive.Modelling.Comparison
 {
@@ -22,7 +22,9 @@ namespace Xtensive.Modelling.Comparison
   {
     [ThreadStatic]
     private static Upgrader current;
-    private Cached<IEnumerable<NodeAction>> cachedActions;
+    private List<NodeAction> actions;
+
+    #region Properties: Current, Context, Difference, Hints, XxxModel
 
     /// <summary>
     /// Gets the current comparer.
@@ -36,35 +38,86 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     protected internal UpgradeContext Context { get; internal set; }
 
-    #region IUpgrader properties
+    /// <summary>
+    /// Gets the difference that is currently processed.
+    /// </summary>
+    protected Difference Difference { get; private set; }
 
-    /// <inheritdoc/>
-    public HintSet Hints { get; private set; }
+    /// <summary>
+    /// Gets the comparison and upgrade hints.
+    /// </summary>
+    protected HintSet Hints { get; private set; }
 
-    /// <inheritdoc/>
-    public Difference Difference { get; private set; }
+    /// <summary>
+    /// Gets the source model to compare.
+    /// </summary>
+    protected IModel SourceModel { get; private set; }
 
-    /// <inheritdoc/>
-    public IEnumerable<NodeAction> Actions {
-      get {
-        return cachedActions.GetValue(
-          _this => {
-            var previous = current;
-            current = this;
-            using (NullActionHandler.Instance.Activate()) {
-              try {
-                return _this.Visit(Difference);
-              }
-              finally {
-                current = previous;
-              }
-            }
-          },
-          this);
-      }
-    }
+    /// <summary>
+    /// Gets the target model to compare.
+    /// </summary>
+    protected IModel TargetModel { get; private set; }
+
+    /// <summary>
+    /// Gets the current model.
+    /// </summary>
+    protected IModel CurrentModel { get; private set; }
 
     #endregion
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentOutOfRangeException"><c>hints.SourceModel</c> or <c>hints.TargetModel</c>
+    /// is out of range.</exception>
+    public ReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints)
+    {
+      return GetUpgradeSequence(difference, hints);
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentOutOfRangeException"><c>hints.SourceModel</c> or <c>hints.TargetModel</c>
+    /// is out of range.</exception>
+    /// <exception cref="InvalidOperationException">Upgrade sequence validation has failed.</exception>
+    public ReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints, Comparer comparer)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(difference, "difference");
+      ArgumentValidator.EnsureArgumentNotNull(hints, "hints");
+      SourceModel = (IModel) difference.Source;
+      TargetModel = (IModel) difference.Target;
+      Hints = hints ?? new HintSet(SourceModel, TargetModel);
+      if (Hints.SourceModel!=SourceModel)
+        throw new ArgumentOutOfRangeException("hints.SourceModel");
+      if (Hints.TargetModel!=TargetModel)
+        throw new ArgumentOutOfRangeException("hints.TargetModel");
+      CurrentModel = (IModel) LegacyBinarySerializer.Instance.Clone(SourceModel);
+      Difference = difference;
+      var previous = current;
+      current = this;
+      actions = new List<NodeAction>();
+      using (NullActionHandler.Instance.Activate()) {
+        try {
+          Visit(Difference);
+          if (comparer!=null) {
+            var diff = comparer.Compare(CurrentModel, TargetModel);
+            if (diff!=null) {
+              Log.InfoRegion(Strings.LogAutomaticUpgradeSequenceValidation);
+              Log.Info(Strings.LogValidationFailed);
+              Log.Info(Strings.LogItemFormat, Strings.Difference);
+              Log.Info("{0}", diff);
+              Log.Info(Strings.LogItemFormat, Strings.ExpectedTargetModel);
+              TargetModel.Dump();
+              Log.Info(Strings.LogItemFormat, Strings.ActualTargetModel);
+              CurrentModel.Dump();
+              throw new InvalidOperationException(Strings.ExUpgradeSequenceValidationFailure);
+            }
+          }
+          return new ReadOnlyList<NodeAction>(actions, true);
+        }
+        finally {
+          current = previous;
+          actions = null;
+        }
+      }
+    }
 
     /// <summary>
     /// Visitor dispatcher.
@@ -75,19 +128,20 @@ namespace Xtensive.Modelling.Comparison
     /// from <see cref="IDifference.Source"/> of the specified
     /// difference to its <see cref="IDifference.Target"/>.
     /// </returns>
-    protected IEnumerable<NodeAction> Visit(Difference difference)
+    protected void Visit(Difference difference)
     {
       if (difference==null)
-        return EnumerableUtils<NodeAction>.Empty;
+        return;
       using (CreateContext().Activate()) {
         Context.Difference = difference;
         if (difference is NodeDifference)
-          return VisitNodeDifference((NodeDifference) difference);
-        if (difference is NodeCollectionDifference)
-          return VisitNodeCollectionDifference((NodeCollectionDifference) difference);
-        if (difference is ValueDifference)
-          return VisitValueDifference((ValueDifference) difference);
-        return VisitUnknownDifference(difference);
+          VisitNodeDifference((NodeDifference) difference);
+        else if (difference is NodeCollectionDifference)
+          VisitNodeCollectionDifference((NodeCollectionDifference) difference);
+        else if (difference is ValueDifference)
+          VisitValueDifference((ValueDifference) difference);
+        else
+          VisitUnknownDifference(difference);
       }
     }
 
@@ -100,22 +154,22 @@ namespace Xtensive.Modelling.Comparison
     /// from <see cref="IDifference.Source"/> of the specified
     /// difference to its <see cref="IDifference.Target"/>.
     /// </returns>
-    protected virtual IEnumerable<NodeAction> VisitNodeDifference(NodeDifference difference)
+    protected virtual void VisitNodeDifference(NodeDifference difference)
     {
-      var sequence = new List<NodeAction>();
       var source = difference.Source;
       var target = difference.Target;
 
       // Processing movement
       if (difference.MovementInfo.IsRemoved) {
-        sequence.Add(
-          new RemoveNodeAction() {Path = (source ?? target).Path});
+        Append(new RemoveNodeAction() {
+          Path = (source ?? target).Path
+        });
         if (source!=null)
-          return sequence;
+          return;
       }
 
       if (difference.MovementInfo.IsCreated) {
-        var cna = new CreateNodeAction()
+        var action = new CreateNodeAction()
           {
             Path = target.Parent==null ? string.Empty : target.Parent.Path,
             Type = target.GetType(),
@@ -123,12 +177,12 @@ namespace Xtensive.Modelling.Comparison
           };
         if (target.Nesting.IsNestedToCollection) {
           var collection = (NodeCollection) target.Nesting.PropertyValue;
-          cna.AfterPath = target.Index==0 ? collection.Path : collection[target.Index - 1].Path;
+          action.AfterPath = target.Index==0 ? collection.Path : collection[target.Index - 1].Path;
         }
-        sequence.Add(cna);
+        Append(action);
       }
       else if (!difference.MovementInfo.IsUnchanged) {
-        sequence.Add(new MoveNodeAction()
+        Append(new MoveNodeAction()
           {
             Path = source.Path,
             Parent = target.Parent==null ? string.Empty : target.Parent.Path,
@@ -142,10 +196,8 @@ namespace Xtensive.Modelling.Comparison
       foreach (var pair in difference.PropertyChanges)
         using (CreateContext().Activate()) {
           Context.Property = pair.Key;
-          sequence.AddRange(Visit(pair.Value));
+          Visit(pair.Value);
         }
-
-      return sequence;
     }
 
     /// <summary>
@@ -157,12 +209,10 @@ namespace Xtensive.Modelling.Comparison
     /// from <see cref="IDifference.Source"/> of the specified
     /// difference to its <see cref="IDifference.Target"/>.
     /// </returns>
-    protected virtual IEnumerable<NodeAction> VisitNodeCollectionDifference(NodeCollectionDifference difference)
+    protected virtual void VisitNodeCollectionDifference(NodeCollectionDifference difference)
     {
-      var sequence = new List<NodeAction>();
       foreach (var newDifference in difference.ItemChanges)
-        sequence.AddRange(Visit(newDifference));
-      return sequence;
+        Visit(newDifference);
     }
 
     /// <summary>
@@ -174,15 +224,15 @@ namespace Xtensive.Modelling.Comparison
     /// from <see cref="IDifference.Source"/> of the specified
     /// difference to its <see cref="IDifference.Target"/>.
     /// </returns>
-    protected virtual IEnumerable<NodeAction> VisitValueDifference(ValueDifference difference)
+    protected virtual void VisitValueDifference(ValueDifference difference)
     {
       var parentContext = Context.Parent;
       var targetNode = ((NodeDifference) parentContext.Difference).Target;
-      var pca = new PropertyChangeAction() {
+      var action = new PropertyChangeAction() {
         Path = targetNode.Path
       };
-      pca.Properties.Add(parentContext.Property, PathNodeReference.Get(difference.Target));
-      return EnumerableUtils<NodeAction>.One(pca);
+      action.Properties.Add(parentContext.Property, PathNodeReference.Get(difference.Target));
+      Append(action);
     }
 
     /// <summary>
@@ -195,10 +245,12 @@ namespace Xtensive.Modelling.Comparison
     /// difference to its <see cref="IDifference.Target"/>.
     /// </returns>
     /// <exception cref="NotSupportedException">Always thrown by this method.</exception>
-    protected virtual IEnumerable<NodeAction> VisitUnknownDifference(Difference difference)
+    protected virtual void VisitUnknownDifference(Difference difference)
     {
       throw new NotSupportedException();
     }
+
+    #region Helper methods
 
     /// <summary>
     /// Creates new upgrade context.
@@ -209,37 +261,16 @@ namespace Xtensive.Modelling.Comparison
       return new UpgradeContext();
     }
 
-
-    // Constructors
-
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Appends the specified action to the action sequence that is building now.
     /// </summary>
-    /// <param name="difference">The difference.</param>
-    /// <param name="hints">The hints.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><c>hints.SourceModel</c> or <c>hints.TargetModel</c>
-    /// is out of range.</exception>
-    public Upgrader(Difference difference, HintSet hints)
+    /// <param name="action">The action to append.</param>
+    protected void Append(NodeAction action)
     {
-      ArgumentValidator.EnsureArgumentNotNull(difference, "difference");
-      ArgumentValidator.EnsureArgumentNotNull(hints, "hints");
-      var sourceModel = (IModel) difference.Source;
-      var targetModel = (IModel) difference.Target;
-      if (hints.SourceModel!=sourceModel)
-        throw new ArgumentOutOfRangeException("hints.SourceModel");
-      if (hints.TargetModel!=targetModel)
-        throw new ArgumentOutOfRangeException("hints.TargetModel");
-      Difference = difference;
-      Hints = hints;
+      actions.Add(action);
+      action.Execute(CurrentModel);
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="difference">The difference.</param>
-    public Upgrader(Difference difference)
-      : this(difference, new HintSet((IModel) difference.Source, (IModel) difference.Target))
-    {
-    }
+    #endregion
   }
 }
