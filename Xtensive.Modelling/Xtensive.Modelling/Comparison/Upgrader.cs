@@ -22,9 +22,8 @@ namespace Xtensive.Modelling.Comparison
   {
     [ThreadStatic]
     private static Upgrader current;
-    private List<NodeAction> actions;
 
-    #region Properties: Current, Context, Difference, Hints, XxxModel
+    #region Properties: Current, Context, Difference, Hints, XxxModel, Actions
 
     /// <summary>
     /// Gets the current comparer.
@@ -63,6 +62,11 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     protected IModel CurrentModel { get; private set; }
 
+    /// <summary>
+    /// Gets the sequence of actions that is currently building.
+    /// </summary>
+    protected List<NodeAction> Actions { get; private set; }
+
     #endregion
 
     /// <inheritdoc/>
@@ -92,7 +96,7 @@ namespace Xtensive.Modelling.Comparison
       Difference = difference;
       var previous = current;
       current = this;
-      actions = new List<NodeAction>();
+      Actions = new List<NodeAction>();
       using (NullActionHandler.Instance.Activate()) {
         try {
           Visit(Difference);
@@ -110,11 +114,11 @@ namespace Xtensive.Modelling.Comparison
               throw new InvalidOperationException(Strings.ExUpgradeSequenceValidationFailure);
             }
           }
-          return new ReadOnlyList<NodeAction>(actions, true);
+          return new ReadOnlyList<NodeAction>(Actions, true);
         }
         finally {
           current = previous;
-          actions = null;
+          Actions = null;
         }
       }
     }
@@ -161,7 +165,7 @@ namespace Xtensive.Modelling.Comparison
 
       // Processing movement
       if (difference.MovementInfo.IsRemoved) {
-        Append(new RemoveNodeAction() {
+        AddAction(new RemoveNodeAction() {
           Path = (source ?? target).Path
         });
         if (source!=null)
@@ -179,10 +183,10 @@ namespace Xtensive.Modelling.Comparison
           var collection = (NodeCollection) target.Nesting.PropertyValue;
           action.AfterPath = target.Index==0 ? collection.Path : collection[target.Index - 1].Path;
         }
-        Append(action);
+        AddAction(action);
       }
       else if (!difference.MovementInfo.IsUnchanged) {
-        Append(new MoveNodeAction()
+        AddAction(new MoveNodeAction()
           {
             Path = source.Path,
             Parent = target.Parent==null ? string.Empty : target.Parent.Path,
@@ -232,7 +236,7 @@ namespace Xtensive.Modelling.Comparison
         Path = targetNode.Path
       };
       action.Properties.Add(parentContext.Property, PathNodeReference.Get(difference.Target));
-      Append(action);
+      AddAction(action);
     }
 
     /// <summary>
@@ -265,9 +269,9 @@ namespace Xtensive.Modelling.Comparison
     /// Appends the specified action to the action sequence that is building now.
     /// </summary>
     /// <param name="action">The action to append.</param>
-    protected void Append(NodeAction action)
+    protected void AddAction(NodeAction action)
     {
-      actions.Add(action);
+      Actions.Add(action);
       action.Execute(CurrentModel);
     }
 
