@@ -293,6 +293,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(InvalidCastException))]
     public void WrongCastTest()
     {
       var result = Query<DiscontinuedProduct>.All

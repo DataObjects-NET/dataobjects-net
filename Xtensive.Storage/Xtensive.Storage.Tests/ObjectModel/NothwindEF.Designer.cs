@@ -21,36 +21,36 @@
 [assembly: global::System.Data.Objects.DataClasses.EdmRelationshipAttribute("NorthwindEF", "EmployeeTerritories", "Employees", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Xtensive.Storage.Tests.ObjectModel.Employees), "Territories", global::System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(Xtensive.Storage.Tests.ObjectModel.Territories))]
 
 // Original file name:
-// Generation date: 17.04.2009 19:32:25
+// Generation date: 20.04.2009 13:52:15
 namespace Xtensive.Storage.Tests.ObjectModel
 {
     
     /// <summary>
-    /// There are no comments for NorthwindEntities1 in the schema.
+    /// There are no comments for NorthwindEntities in the schema.
     /// </summary>
-    public partial class NorthwindEntities1 : global::System.Data.Objects.ObjectContext
+    public partial class NorthwindEntities : global::System.Data.Objects.ObjectContext
     {
         /// <summary>
-        /// Initializes a new NorthwindEntities1 object using the connection string found in the 'NorthwindEntities1' section of the application configuration file.
+        /// Initializes a new NorthwindEntities object using the connection string found in the 'NorthwindEntities' section of the application configuration file.
         /// </summary>
-        public NorthwindEntities1() : 
-                base("name=NorthwindEntities1", "NorthwindEntities1")
+        public NorthwindEntities() : 
+                base("name=NorthwindEntities", "NorthwindEntities")
         {
             this.OnContextCreated();
         }
         /// <summary>
-        /// Initialize a new NorthwindEntities1 object.
+        /// Initialize a new NorthwindEntities object.
         /// </summary>
-        public NorthwindEntities1(string connectionString) : 
-                base(connectionString, "NorthwindEntities1")
+        public NorthwindEntities(string connectionString) : 
+                base(connectionString, "NorthwindEntities")
         {
             this.OnContextCreated();
         }
         /// <summary>
-        /// Initialize a new NorthwindEntities1 object.
+        /// Initialize a new NorthwindEntities object.
         /// </summary>
-        public NorthwindEntities1(global::System.Data.EntityClient.EntityConnection connection) : 
-                base(connection, "NorthwindEntities1")
+        public NorthwindEntities(global::System.Data.EntityClient.EntityConnection connection) : 
+                base(connection, "NorthwindEntities")
         {
             this.OnContextCreated();
         }
