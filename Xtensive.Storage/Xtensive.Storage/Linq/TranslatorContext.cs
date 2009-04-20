@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.10
 
-using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core.Collections;
@@ -14,7 +13,8 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Resources;
+using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Linq
 {
@@ -28,8 +28,8 @@ namespace Xtensive.Storage.Linq
     private readonly AliasGenerator resultAliasGenerator;
     private readonly AliasGenerator columnAliasGenerator;
     private readonly BindingCollection<ParameterExpression, ResultExpression> bindings;
-    private readonly SubqueryParameterBindings subqueryParameterBindings;
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> groupingParameters;
+    private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
 
     public Dictionary<ParameterExpression, Parameter<Tuple>> GroupingParameters
     {
@@ -61,6 +61,11 @@ namespace Xtensive.Storage.Linq
       get { return parameterExtractor; }
     }
 
+    public BindingCollection<ParameterExpression, ResultExpression> Bindings
+    {
+      get { return bindings; }
+    }
+
     public bool IsRoot(Expression expression)
     {
       return query == expression;
@@ -76,14 +81,15 @@ namespace Xtensive.Storage.Linq
       return columnAliasGenerator.Next();
     }
 
-    public BindingCollection<ParameterExpression, ResultExpression> Bindings
+    public ApplyParameter GetApplyParameter(ResultExpression result)
     {
-      get { return bindings; }
-    }
-
-    public SubqueryParameterBindings SubqueryParameterBindings
-    {
-      get { return subqueryParameterBindings; }
+      var provider = result.RecordSet.Provider;
+      ApplyParameter parameter;
+      if (!applyParameters.TryGetValue(provider, out parameter)) {
+        parameter = new ApplyParameter(provider.ToString());
+        applyParameters.Add(provider, parameter);
+      }
+      return parameter;
     }
 
     // Constructor
@@ -99,8 +105,8 @@ namespace Xtensive.Storage.Linq
       evaluator = new ExpressionEvaluator(this.query);
       parameterExtractor = new ParameterExtractor(evaluator);
       bindings = new BindingCollection<ParameterExpression, ResultExpression>();
-      subqueryParameterBindings = new SubqueryParameterBindings();
       groupingParameters = new Dictionary<ParameterExpression, Parameter<Tuple>>();
+      applyParameters = new Dictionary<CompilableProvider, ApplyParameter>();
     }
   }
 }

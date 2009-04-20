@@ -58,7 +58,6 @@ namespace Xtensive.Storage.Linq
     {
       var context = new TranslatorContext(expression);
       var result = context.Translator.Translate();
-      //result = new RedundantColumnRemover(result).RemoveRedundantColumn();
       result = Optimize(result);
       return result;
     }

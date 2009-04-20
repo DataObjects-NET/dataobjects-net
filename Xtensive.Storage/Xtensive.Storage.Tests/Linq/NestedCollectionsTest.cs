@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.16
 
-using System;
 using System.Collections;
 using System.Linq;
 using NUnit.Framework;
@@ -14,6 +13,7 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 namespace Xtensive.Storage.Tests.Linq
 {
   [TestFixture]
+  [Category("Linq")]
   public class NestedCollectionsTest : NorthwindDOModelTest
   {
     private int numberOfCustomers;
