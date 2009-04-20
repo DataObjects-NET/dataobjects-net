@@ -27,10 +27,10 @@ namespace Xtensive.Indexing.Statistics
 
     private double GetSeekCount(Range<Entire<TKey>> range)
     {
-      // An index is in memory.
+      // An index is in memory
       if (providerIsInMemory)
         return 0;
-      //TODO: Implement the calculation of seek count for a serialized index.
+      // TODO: Implement the calculation of seek count for a serialized index
       throw new NotImplementedException();
     }
 

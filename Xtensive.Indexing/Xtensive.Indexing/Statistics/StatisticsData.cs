@@ -27,8 +27,11 @@ namespace Xtensive.Indexing.Statistics
     /// </summary>
     public readonly double SeekCount;
 
+
+    // Constructors
+
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="recordCount">The record count.</param>
     /// <param name="seekCount">The seek count.</param>
