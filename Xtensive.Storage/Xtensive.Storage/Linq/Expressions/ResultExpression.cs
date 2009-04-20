@@ -18,6 +18,7 @@ namespace Xtensive.Storage.Linq.Expressions
   [DebuggerDisplay("ItemProjector = {ItemProjector}, RecordSet = {RecordSet}, IsScalar = {IsScalar}")]
   internal class ResultExpression : Expression
   {
+    private object projectionDelegate;
     public RecordSet RecordSet { get; private set; }
     public Mapping Mapping { get; private set; }
     public LambdaExpression ItemProjector { get; private set; }
@@ -28,25 +29,33 @@ namespace Xtensive.Storage.Linq.Expressions
       get { return ScalarTransform != null; }
     }
 
+    private Func<RecordSet, TResult> GetProjector<TResult>()
+    {
+      if (projectionDelegate == null) lock (this) if (projectionDelegate == null) {
+        var rs = Parameter(typeof(RecordSet), "rs");
+        var itemProjector = ItemProjector;
+        var severalArguments = itemProjector.Parameters.Count > 1;
+        var method = severalArguments
+          ? typeof(Translator)
+            .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
+            .MakeGenericMethod(itemProjector.Body.Type)
+          : WellKnownMembers.EnumerableSelect.MakeGenericMethod(itemProjector.Parameters[0].Type, itemProjector.Body.Type);
+        Expression body = (!severalArguments && itemProjector.Parameters[0].Type == typeof(Record))
+          ? Call(method, Call(WellKnownMembers.RecordSetParse, rs), itemProjector)
+          : Call(method, rs, itemProjector);
+        body = IsScalar
+          ? Invoke(ScalarTransform, body)
+          : (body.Type == typeof(TResult) ? body : Convert(body, typeof(TResult)));
+        var projector = Lambda<Func<RecordSet, TResult>>(Convert(body, typeof(TResult)), rs);
+        projectionDelegate = projector.Compile();
+      }
+      return (Func<RecordSet, TResult>)projectionDelegate;
+    }
+
     public TResult GetResult<TResult>()
     {
-      var rs = Parameter(typeof (RecordSet), "rs");
-      var itemProjector = ItemProjector;
-      var severalArguments = itemProjector.Parameters.Count > 1;
-      var method = severalArguments
-        ? typeof (Translator)
-          .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
-          .MakeGenericMethod(itemProjector.Body.Type)
-        : WellKnownMembers.EnumerableSelect.MakeGenericMethod(itemProjector.Parameters[0].Type, itemProjector.Body.Type);
-      Expression body = (!severalArguments && itemProjector.Parameters[0].Type == typeof (Record))
-        ? Call(method, Call(WellKnownMembers.RecordSetParse, rs), itemProjector)
-        : Call(method, rs, itemProjector);
-      body = IsScalar
-        ? Invoke(ScalarTransform, body)
-        : (body.Type==typeof(TResult) ? body : Convert(body, typeof(TResult)));
-      var projector = Lambda<Func<RecordSet, TResult>>(Convert(body, typeof(TResult)), rs);
-      var project = projector.Compile();
-      return project(RecordSet);
+      var projector = GetProjector<TResult>();
+      return projector(RecordSet);
     }
 
     
