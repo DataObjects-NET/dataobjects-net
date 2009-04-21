@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
 using Xtensive.Modelling.Actions;
@@ -295,6 +296,16 @@ namespace Xtensive.Modelling.Tests
       srv.Actions.Apply(srvx);
       Log.Info("Updated model:");
       srvx.Dump();
+    }
+
+    [Test]
+    public void LockModelTest()
+    {
+      srv.Lock(true);
+      AssertEx.Throws<InstanceIsLockedException>(
+        () => new Database(srv, "newDatabase"));
+      AssertEx.Throws<InstanceIsLockedException>(
+        () => srv.Databases.Clear());
     }
 
     #region Private methods

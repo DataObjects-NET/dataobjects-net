@@ -175,6 +175,7 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public void Clear()
     {
+      this.EnsureNotLocked();
       var copy = list.ToArray();
       for (int i = copy.Length - 1; i >= 0; i--)
         copy[i].Remove();
@@ -228,6 +229,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void Add(Node node)
     {
+      this.EnsureNotLocked();
       if (node.Index!=list.Count)
         throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: node.Index!=list.Count!", Log.Instance);
       string name = node.Name;
@@ -252,6 +254,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void Remove(Node node)
     {
+      this.EnsureNotLocked();
       int count1 = list.Count;
       int count2 = nameIndex.Count;
       int index = node.Index;
@@ -274,6 +277,7 @@ namespace Xtensive.Modelling
 
     internal void Move(Node node, int newIndex)
     {
+      this.EnsureNotLocked();
       int count = list.Count;
       int oldIndex = node.Index;
       try {
@@ -303,6 +307,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void RemoveName(Node node)
     {
+      this.EnsureNotLocked();
       string name = node.Name;
       if (nameIndex[name]!=node)
         throw Exceptions.InternalError("Wrong NodeCollection.RemoveName arguments: nameIndex[node.Name]!=node!", Log.Instance);
@@ -312,6 +317,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void AddName(Node node)
     {
+      this.EnsureNotLocked();
       string name = node.Name;
       if (nameIndex.ContainsKey(name))
         throw Exceptions.InternalError("Wrong NodeCollection.AddName arguments: nameIndex[node.Name]!=null!", Log.Instance);
