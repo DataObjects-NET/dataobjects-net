@@ -20,7 +20,7 @@ namespace Xtensive.Storage
   /// The underlying state of the <see cref="Storage.Entity"/>.
   /// </summary>
   public sealed class EntityState : TransactionalStateContainer<DifferentialTuple>, 
-        IEquatable<EntityState>
+    IEquatable<EntityState>
   {
     private readonly Key key;
     private PersistenceState persistenceState;
