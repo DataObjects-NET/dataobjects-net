@@ -8,11 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Sockets;
+using Xtensive.Core.Tuples;
+using Xtensive.Indexing;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Indexing;
 using Xtensive.Storage.Indexing.Model;
-using Xtensive.Storage.Providers.Index.Storage;
 
 namespace Xtensive.Storage.Providers.Index
 {
@@ -59,6 +60,12 @@ namespace Xtensive.Storage.Providers.Index
         EnsureRealViewIsAlive();
         return RealStorageView.Transaction;
       }
+    }
+
+    public IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo)
+    {
+      EnsureRealViewIsAlive();
+      return RealStorageView.GetIndex(indexInfo);
     }
 
     private void EnsureRealViewIsAlive()

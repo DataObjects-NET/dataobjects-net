@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Tuples;
+using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
@@ -47,10 +49,12 @@ namespace Xtensive.Storage.Providers.Index
 
     private ExecutableProvider CompileInternal(Rse.Providers.Compilable.IndexProvider provider, IndexInfo indexInfo)
     {
-      var handler = (DomainHandler)Handlers.DomainHandler;
+      var sessionHandler = (SessionHandler) Handlers.SessionHandler;
+      var domainHandler = (DomainHandler) Handlers.DomainHandler;
       ExecutableProvider result;
       if (!indexInfo.IsVirtual)
-        result = new IndexProvider(provider, provider.Index, handler.GetRealIndex);
+        result = new IndexProvider(provider, domainHandler.ConvertIndexInfo(provider.Index), 
+          sessionHandler.StorageView.GetIndex);
       else
       {
         var firstUnderlyingIndex = indexInfo.UnderlyingIndexes.First();

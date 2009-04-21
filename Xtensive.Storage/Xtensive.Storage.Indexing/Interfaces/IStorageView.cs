@@ -7,6 +7,8 @@
 using System;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Transactions;
+using Xtensive.Indexing;
+using Xtensive.Storage.Indexing.Model;
 
 namespace Xtensive.Storage.Indexing
 {
@@ -21,5 +23,12 @@ namespace Xtensive.Storage.Indexing
     /// Gets the transaction this view belongs to.
     /// </summary>
     ITransaction Transaction { get; }
+
+    /// <summary>
+    /// Gets the index.
+    /// </summary>
+    /// <param name="indexInfo">The index.</param>
+    /// <returns>The unique ordered index.</returns>
+    IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo);
   }
 }

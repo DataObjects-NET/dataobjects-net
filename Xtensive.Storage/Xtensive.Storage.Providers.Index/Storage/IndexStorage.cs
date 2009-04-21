@@ -12,6 +12,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Indexing;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Storage.Providers.Index
 {
@@ -53,8 +54,22 @@ namespace Xtensive.Storage.Providers.Index
     {
     }
 
+    /// <summary>
+    /// Gets real index.
+    /// </summary>
+    /// <param name="indexInfo">The index info.</param>
+    /// <returns>The real index.</returns>
     public abstract IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfo indexInfo);
 
+    /// <summary>
+    /// Gets the transform for index.
+    /// </summary>
+    /// <param name="indexInfo">The index info.</param>
+    /// <returns>The index transform.</returns>
+    public abstract MapTransform GetTransform(IndexInfo indexInfo);
+
+
+    // Constructor
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

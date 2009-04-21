@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Storage.Indexing.Model;
@@ -32,12 +33,17 @@ namespace Xtensive.Storage.Model.Convert
     /// <summary>
     /// Gets the foreign key name generator.
     /// </summary>
-    protected virtual Func<AssociationInfo, FieldInfo, string> ForeignKeyNameGenerator { get; private set; }
+    protected Func<AssociationInfo, FieldInfo, string> ForeignKeyNameGenerator { get; private set; }
 
     /// <summary>
     /// Gets the hierarchy foreign key name generator.
     /// </summary>
-    protected virtual Func<TypeInfo, TypeInfo, string> HierarchyForeignKeyNameGenerator { get; private set; }
+    protected Func<TypeInfo, TypeInfo, string> HierarchyForeignKeyNameGenerator { get; private set; }
+
+    /// <summary>
+    /// Gets or sets the currently visiting table.
+    /// </summary>
+    protected TableInfo CurrentTable { get; set; }
 
     /// <summary>
     /// Converts the specified <see cref="DomainModel"/> to
@@ -101,9 +107,8 @@ namespace Xtensive.Storage.Model.Convert
     /// <inheritdoc/>
     protected override IPathNode VisitColumnInfo(ColumnInfo column)
     {
-      var table = StorageInfo.Tables[column.Field.ReflectedType.MappingName];
       var type = new StorageTypeInfo(column.ValueType, column.Length ?? 0);
-      return new StorageColumnInfo(table, column.Name, type);
+      return new StorageColumnInfo(CurrentTable, column.Name, type);
     }
 
     /// <inheritdoc/>
@@ -154,12 +159,13 @@ namespace Xtensive.Storage.Model.Convert
     /// <returns>Visit result.</returns>
     protected virtual IPathNode VisitPrimaryIndexInfo(IndexInfo index)
     {
-      var table = new TableInfo(StorageInfo, index.ReflectedType.MappingName);
+      CurrentTable = new TableInfo(StorageInfo, index.ReflectedType.MappingName);
       foreach (var column in index.Columns)
         Visit(column);
 
-      var primaryIndex = new PrimaryIndexInfo(table, index.MappingName);
+      var primaryIndex = new PrimaryIndexInfo(CurrentTable, index.MappingName);
       CreateIndexColumnRefs(index, primaryIndex);
+      CurrentTable = null;
       return primaryIndex;
     }
 
@@ -236,6 +242,21 @@ namespace Xtensive.Storage.Model.Convert
       HierarchyForeignKeyNameGenerator = hierarchyForeignKeyNameGenerator;
     }
 
+    private static IndexInfo FindRealIndex(IndexInfo index, FieldInfo field)
+    {
+      if (index.IsVirtual) {
+        foreach (var underlyingIndex in index.UnderlyingIndexes) {
+          var result = FindRealIndex(underlyingIndex, field);
+          if (result!=null)
+            return result;
+        }
+      }
+      else {
+        if (field==null || index.Columns.ContainsAny(field.ExtractColumns()))
+          return index;
+      }
+      return null;
+    }
 
     #region Not supported
 

@@ -6,36 +6,68 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Tuples;
+using Xtensive.Indexing;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Indexing;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Providers.Index;
 
-namespace Xtensive.Storage.Providers.Index.Storage
+namespace Xtensive.Storage.Providers.Index
 {
+  /// <summary>
+  /// An abstract base class for all index storage views.
+  /// </summary>
   public abstract class IndexStorageView : MarshalByRefObject, IStorageView
   {
+    /// <summary>
+    /// Gets the storage.
+    /// </summary>
     public IndexStorage Storage { get; private set; }
 
-    public StorageInfo Model { get; private set; }
+    /// <inheritdoc/>
+    public StorageInfo Model { get; protected set; }
 
+    /// <inheritdoc/>
     public abstract void Update(ActionSequence sequence);
 
+    /// <inheritdoc/>
     public abstract CommandResult Execute(Command command);
 
+    /// <inheritdoc/>
     public abstract Dictionary<int, CommandResult> Execute(List<Command> commands);
 
+    /// <inheritdoc/>
     public abstract ITransaction Transaction { get; }
 
+    /// <inheritdoc/>
+    public abstract IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo);
+
+    /// <summary>
+    /// Clears the schema.
+    /// </summary>
     public abstract void ClearSchema();
 
+    /// <summary>
+    /// Creates the new schema.
+    /// </summary>
+    /// <param name="newSchema">The new schema.</param>
     public abstract void CreateNewSchema(StorageInfo newSchema);
 
+    /// <summary>
+    /// Pings this instance.
+    /// </summary>
     public void Ping()
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="storage">The storage.</param>
+    /// <param name="model">The model.</param>
     protected IndexStorageView(IndexStorage storage, StorageInfo model)
     {
       Storage = storage;

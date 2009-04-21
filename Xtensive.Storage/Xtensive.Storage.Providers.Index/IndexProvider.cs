@@ -11,6 +11,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Providers;
+using StorageIndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
 
 namespace Xtensive.Storage.Providers.Index
 {
@@ -20,8 +21,8 @@ namespace Xtensive.Storage.Providers.Index
   [Serializable]
   public sealed class IndexProvider : ExecutableProvider
   {
-    private readonly Func<IndexInfoRef, IOrderedIndex<Tuple, Tuple>> indexResolver;
-    private readonly IndexInfoRef indexDescriptor;
+    private readonly Func<StorageIndexInfo, IOrderedIndex<Tuple, Tuple>> indexResolver;
+    private readonly StorageIndexInfo indexDescriptor;
 
     /// <inheritdoc/>
     public override T GetService<T>()
@@ -31,6 +32,7 @@ namespace Xtensive.Storage.Providers.Index
       return result;
     }
 
+    /// <inheritdoc/>
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
       var index = indexResolver(indexDescriptor);
@@ -41,12 +43,13 @@ namespace Xtensive.Storage.Providers.Index
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="origin">The <see cref="ExecutableProvider{TOrigin}.Origin"/> property value.</param>
     /// <param name="indexDescriptor">Descriptor of the index.</param>
     /// <param name="indexResolver">Index resolver function.</param>
-    public IndexProvider(CompilableProvider origin, IndexInfoRef indexDescriptor, Func<IndexInfoRef,IOrderedIndex<Tuple,Tuple>> indexResolver)
+    public IndexProvider(CompilableProvider origin, StorageIndexInfo indexDescriptor,
+      Func<StorageIndexInfo, IOrderedIndex<Tuple, Tuple>> indexResolver)
       : base(origin)
     {
       this.indexResolver = indexResolver;

@@ -25,41 +25,45 @@ namespace Xtensive.Storage.Providers.Index
       = new Dictionary<CompilableProvider, ExecutableProvider>();
 
     private IndexStorage storage;
-
+    
+    /// <summary>
+    /// Gets the storage view.
+    /// </summary>
     public IStorageView StorageView { get; private set; }
 
     /// <inheritdoc/>
     public override void BeginTransaction()
     {
-      if (StorageView!=null)
+       if (StorageView!=null)
         throw new InvalidOperationException();
-      StorageView = storage.CreateView(Session.Transaction.IsolationLevel);
+       StorageView = storage.CreateView(Session.Transaction.IsolationLevel);
       // TODO: Implement transactions;
     }
 
     /// <inheritdoc/>
     public override void CommitTransaction()
     {
-      if (StorageView == null)
+       if (StorageView == null)
         throw new InvalidOperationException();
-      // StorageView.Transaction.Commit();
-      StorageView = null;
+       StorageView.Transaction.Commit();
+       StorageView = null;
       // TODO: Implement transactions;
     }
 
     /// <inheritdoc/>
     public override void RollbackTransaction()
     {
-      if (StorageView == null)
+       if (StorageView == null)
         throw new InvalidOperationException();
-      // StorageView.Transaction.Rollback();
-      StorageView = null;
+       StorageView.Transaction.Rollback();
+       StorageView = null;
       // TODO: Implement transactions;
     }
 
+    /// <inheritdoc/>
     protected override void Insert(EntityState state)
     {
-      var handler = (DomainHandler)Handlers.DomainHandler;
+      var handler = (DomainHandler) Handlers.DomainHandler;
       foreach (IndexInfo indexInfo in state.Type.AffectedIndexes) {
         var index = handler.GetRealIndex(indexInfo);
         var transform = handler.GetIndexTransform(indexInfo, state.Type);
@@ -68,6 +72,7 @@ namespace Xtensive.Storage.Providers.Index
       }
     }
 
+    /// <inheritdoc/>
     protected override void Update(EntityState state)
     {
       var handler = (DomainHandler)Handlers.DomainHandler;
@@ -98,6 +103,7 @@ namespace Xtensive.Storage.Providers.Index
       }
     }
 
+    /// <inheritdoc/>
     protected override void Remove(EntityState state)
     {
       var handler = (DomainHandler)Handlers.DomainHandler;
@@ -122,6 +128,7 @@ namespace Xtensive.Storage.Providers.Index
       }
     }
 
+    /// <inheritdoc/>
     public override void Initialize()
     {
       storage = ((DomainHandler) Handlers.DomainHandler).GetIndexStorage();

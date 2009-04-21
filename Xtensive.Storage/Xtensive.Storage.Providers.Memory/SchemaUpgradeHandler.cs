@@ -13,12 +13,14 @@ namespace Xtensive.Storage.Providers.Memory
   [Serializable]
   public class SchemaUpgradeHandler : Index.SchemaUpgradeHandler
   {
+    /// <summary>
+    /// Gets the storage view.
+    /// </summary>
     protected IndexStorageView StorageView
     {
       get
       {
-        var ctx = BuildingContext.Current;
-        var session = ctx.SystemSessionHandler;
+        var session = BuildingContext.Current.SystemSessionHandler;
         var view = ((SessionHandler) session).StorageView;
 
         return view as IndexStorageView;
@@ -28,16 +30,16 @@ namespace Xtensive.Storage.Providers.Memory
     /// <inheritdoc/>
     public override void ClearStorageSchema()
     {
-      // StorageView.ClearSchema();
+      StorageView.ClearSchema();
     }
 
     /// <inheritdoc/>
     public override void UpdateStorageSchema()
     {
-      // var converter = new ModelConverter(Handlers.NameBuilder.BuildForeignKeyName,
-      //  Handlers.NameBuilder.BuildForeignKeyName);
-      // var newSchema = converter.Convert(BuildingContext.Current.Model, StorageView.Storage.Name);
-      // StorageView.CreateNewSchema(newSchema);
+      var converter = new ModelConverter(Handlers.NameBuilder.BuildForeignKeyName,
+        Handlers.NameBuilder.BuildForeignKeyName);
+      var newSchema = converter.Convert(BuildingContext.Current.Model, StorageView.Storage.Name);
+      StorageView.CreateNewSchema(newSchema);
     }
   }
 }
