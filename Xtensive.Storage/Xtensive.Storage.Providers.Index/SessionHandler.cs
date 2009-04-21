@@ -21,9 +21,6 @@ namespace Xtensive.Storage.Providers.Index
 {
   public class SessionHandler : Providers.SessionHandler
   {
-    private readonly Dictionary<CompilableProvider, ExecutableProvider> compiledIndexProvidersCache 
-      = new Dictionary<CompilableProvider, ExecutableProvider>();
-
     private IndexStorage storage;
     
     /// <summary>
@@ -32,126 +29,82 @@ namespace Xtensive.Storage.Providers.Index
     public IStorageView StorageView { get; private set; }
 
     /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">Transaction is already open.</exception>
     public override void BeginTransaction()
     {
-       if (StorageView!=null)
-        throw new InvalidOperationException();
-       StorageView = storage.CreateView(Session.Transaction.IsolationLevel);
+      if (StorageView!=null)
+        throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpen);
+      StorageView = storage.CreateView(Session.Transaction.IsolationLevel);
       // TODO: Implement transactions;
     }
 
     /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">Transaction is not open.</exception>
     public override void CommitTransaction()
     {
-       if (StorageView == null)
-        throw new InvalidOperationException();
-       StorageView.Transaction.Commit();
-       StorageView = null;
+      if (StorageView==null)
+        throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
+      StorageView.Transaction.Commit();
+      StorageView = null;
       // TODO: Implement transactions;
     }
 
     /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">Transaction is not open.</exception>
     public override void RollbackTransaction()
     {
-       if (StorageView == null)
-        throw new InvalidOperationException();
-       StorageView.Transaction.Rollback();
-       StorageView = null;
+      if (StorageView==null)
+        throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
+      StorageView.Transaction.Rollback();
+      StorageView = null;
       // TODO: Implement transactions;
     }
 
     /// <inheritdoc/>
     protected override void Insert(EntityState state)
     {
-      var handler = (DomainHandler) Handlers.DomainHandler;
-      foreach (IndexInfo indexInfo in state.Type.AffectedIndexes) {
-        var index = handler.GetRealIndex(indexInfo);
-        var transform = handler.GetIndexTransform(indexInfo, state.Type);
-        var item = transform.Apply(TupleTransformType.Tuple, state.Tuple);
-        index.Add(item);
+      var batch = new List<Command>();
+      foreach (var index in state.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
+        var transform = ((DomainHandler) Handlers.DomainHandler).GetTransform(index, state.Type);
+        var transformed = transform.Apply(TupleTransformType.Tuple, state.Tuple).ToFastReadOnly();
+        batch.Add(IndexUpdateCommand.Insert(index.MappingName, state.Key.Value, transformed));
       }
+
+      StorageView.Execute(batch);
     }
 
     /// <inheritdoc/>
     protected override void Update(EntityState state)
     {
-      var handler = (DomainHandler)Handlers.DomainHandler;
-      IndexInfo primaryIndex = state.Type.Indexes.PrimaryIndex;
-      var indexProvider = Rse.Providers.Compilable.IndexProvider.Get(primaryIndex);
-      SeekResult<Tuple> pkSeekResult;
-      using (EnumerationScope.Open()) {
-        var executableProvider = GetCompiledIndexProvider(indexProvider);
-        pkSeekResult = executableProvider
-          .GetService<IOrderedEnumerable<Tuple, Tuple>>()
-          .Seek(new Ray<Entire<Tuple>>(new Entire<Tuple>(state.Key.Value)));
-        if (pkSeekResult.ResultType != SeekResultType.Exact)
-          throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, 
-            state.Key.EntityType.Name));
+      var batch = new List<Command>();
+      foreach (var index in state.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
+        var transform = ((DomainHandler) Handlers.DomainHandler).GetTransform(index, state.Type);
+        var transformed = transform.Apply(TupleTransformType.Tuple, state.Tuple).ToFastReadOnly();
+        batch.Add(IndexUpdateCommand.Update(index.MappingName, state.Key.Value, transformed));
       }
 
-      var pkItem = Tuple.Create(pkSeekResult.Result.Descriptor);
-      pkSeekResult.Result.CopyTo(pkItem);
-      pkItem.MergeWith(state.Tuple, MergeBehavior.PreferDifference);
-
-      foreach (IndexInfo indexInfo in state.Type.AffectedIndexes) {
-        var index = handler.GetRealIndex(indexInfo);
-        var transform = handler.GetIndexTransform(indexInfo, state.Type);
-        var oldItem = transform.Apply(TupleTransformType.TransformedTuple, pkSeekResult.Result).ToFastReadOnly();
-        var item    = transform.Apply(TupleTransformType.Tuple, pkItem);
-        index.Remove(oldItem);
-        index.Add(item);
-      }
+      StorageView.Execute(batch);
     }
 
     /// <inheritdoc/>
     protected override void Remove(EntityState state)
     {
-      var handler = (DomainHandler)Handlers.DomainHandler;
-      IndexInfo primaryIndex = state.Type.Indexes.PrimaryIndex;
-      var indexProvider = Rse.Providers.Compilable.IndexProvider.Get(primaryIndex);
-      SeekResult<Tuple> pkSeekResult;
-      using (EnumerationScope.Open()) {
-        var executableProvider = GetCompiledIndexProvider(indexProvider);
-        pkSeekResult = executableProvider
-          .GetService<IOrderedEnumerable<Tuple, Tuple>>()
-          .Seek(new Ray<Entire<Tuple>>(new Entire<Tuple>(state.Key.Value)));
-        if (pkSeekResult.ResultType!=SeekResultType.Exact)
-          throw new InvalidOperationException(string.Format(Strings.ExInstanceXIsNotFound, 
-            state.Key.EntityType.Name));
-      }
+      var batch = new List<Command>();
+      foreach (var index in state.Type.AffectedIndexes.Where(i => i.IsPrimary))
+        batch.Add(IndexUpdateCommand.Remove(index.MappingName, state.Key.Value));
 
-      foreach (IndexInfo indexInfo in state.Type.AffectedIndexes) {
-        var index = handler.GetRealIndex(indexInfo);
-        var transform = handler.GetIndexTransform(indexInfo, state.Type);
-        var oldItem = transform.Apply(TupleTransformType.TransformedTuple, pkSeekResult.Result).ToFastReadOnly();
-        index.Remove(oldItem);
-      }
+      StorageView.Execute(batch);
     }
 
     /// <inheritdoc/>
     public override void Initialize()
     {
       storage = ((DomainHandler) Handlers.DomainHandler).GetIndexStorage();
-      // TODO: Think what should be done here.
     }
 
     /// <inheritdoc/>
     public override void Dispose()
     {
-    }
-
-    private ExecutableProvider GetCompiledIndexProvider(CompilableProvider provider)
-    {
-      ExecutableProvider result;
-      if (compiledIndexProvidersCache.TryGetValue(provider, out result))
-        return result;
-
-      var compilationContext = Handlers.DomainHandler.CompilationContext;
-      if (compilationContext == null)
-        throw new InvalidOperationException();
-      result = compilationContext.Compile(provider);
-      compiledIndexProvidersCache.Add(provider, result);
-      return result;
     }
   }
 }

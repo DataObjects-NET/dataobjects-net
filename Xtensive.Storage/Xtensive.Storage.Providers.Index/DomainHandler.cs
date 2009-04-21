@@ -7,31 +7,32 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Globalization;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Building;
+using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Optimization;
 using Xtensive.Storage.Rse.Optimization.IndexSelection;
 using Xtensive.Storage.Rse.Providers;
+using IndexInfo=Xtensive.Storage.Model.IndexInfo;
 using StorageIndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
+using TypeInfo=Xtensive.Storage.Model.TypeInfo;
 
 
 namespace Xtensive.Storage.Providers.Index
 {
-  public class DomainHandler : Providers.DomainHandler
+  public abstract class DomainHandler : Providers.DomainHandler
   {
-    private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes =
-      new Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>>();
-
-    private readonly Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform> indexTransforms =
+    private readonly Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform> primaryIndexTransforms = 
       new Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform>();
+
+    private readonly Dictionary<IndexInfo, StorageIndexInfo> indexInfoMapping =
+      new Dictionary<IndexInfo, StorageIndexInfo>();
 
     /// <summary>
     /// Gets the index storage.
@@ -63,15 +64,29 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     public override void BuildMappingSchema()
     {
-      BuildRealIndexes();
-      foreach (var pair in Handlers.Domain.Model.Types.SelectMany
-        (type => type.Indexes
-          .Where(i => i.ReflectedType==type)
-          .Union(type.AffectedIndexes)
-          .Distinct()
-          .Select(i => new Pair<IndexInfo, TypeInfo>(i, type)))) {
-        MapTransform transform = BuildIndexTransform(pair.First, pair.Second);
-        indexTransforms.Add(pair, transform);
+      var domainModel = Building.BuildingContext.Current.Model;
+      foreach (var type in domainModel.Types) {
+        foreach (var indexInfo in type.AffectedIndexes.Where(index => index.IsPrimary)) {
+          var primaryIndex = type.Indexes.PrimaryIndex;
+          var primaryIndexColumns = primaryIndex.Columns.ToList();
+          var indexColumns = indexInfo.Columns.ToList();
+          var map = indexColumns.Select(column => primaryIndexColumns.IndexOf(column)).ToArray();
+          primaryIndexTransforms.Add(
+            new Pair<IndexInfo, TypeInfo>(indexInfo, type),
+            new MapTransform(true, indexInfo.TupleDescriptor, map));
+        }
+      }
+
+      foreach (var indexInfo in domainModel.RealIndexes) {
+        StorageIndexInfo storageIndex = null;
+        foreach (var table in Storage.Model.Tables) {
+          foreach (var index in GetAllIndexes(table))
+            if (index.Name == indexInfo.MappingName) {
+              storageIndex = index;
+              break;
+            }
+        }
+        indexInfoMapping.Add(indexInfo, storageIndex);
       }
     }
 
@@ -93,11 +108,12 @@ namespace Xtensive.Storage.Providers.Index
     /// Converts the <see cref="IndexInfoRef"/> 
     /// to <see cref="Indexing.Model.IndexInfo"/>.
     /// </summary>
-    /// <param name="indexInfo">The index info.</param>
+    /// <param name="indexInfoRef">The index info.</param>
     /// <returns>Converted index info.</returns>
-    public virtual StorageIndexInfo ConvertIndexInfo(IndexInfoRef indexInfo)
+    public StorageIndexInfo ConvertIndexInfo(IndexInfoRef indexInfoRef)
     {
-      return null;
+      var indexInfo = indexInfoRef.Resolve(Domain.Model);
+      return indexInfoMapping[indexInfo];
     }
 
     #region Build storage methods
@@ -106,7 +122,7 @@ namespace Xtensive.Storage.Providers.Index
     /// Gets the storage of real indexes.
     /// </summary>
     /// <returns>The storage.</returns>
-    public IndexStorage GetIndexStorage()
+    internal IndexStorage GetIndexStorage()
     {
       return Storage;
     }
@@ -120,6 +136,7 @@ namespace Xtensive.Storage.Providers.Index
     /// otherwise <see langword="false"/>.</returns>
     protected bool TryGetRemoteStorage(string url, out IndexStorage remoteStorage)
     {
+      // ToDo: Complete this
       remoteStorage = null;
       return false;
     }
@@ -132,6 +149,7 @@ namespace Xtensive.Storage.Providers.Index
     /// <param name="port">The port.</param>
     protected void MarshalStorage(IndexStorage localStorage, string url, int port)
     {
+      // ToDo: Complete this
     }
 
     /// <summary>
@@ -139,71 +157,26 @@ namespace Xtensive.Storage.Providers.Index
     /// </summary>
     /// <param name="name">The name of storage.</param>
     /// <returns>Newly created index storage.</returns>
-    protected virtual IndexStorage CreateLocalStorage(string name)
-    {
-      throw new NotSupportedException();
-    }
+    protected abstract IndexStorage CreateLocalStorage(string name);
 
     #endregion
 
-    #region Private / internal methods
-
-    protected internal virtual IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfoRef indexInfoRef)
+    private static IEnumerable<StorageIndexInfo> GetAllIndexes(TableInfo table)
     {
-      var index = indexInfoRef.Resolve(Handlers.Domain.Model);
-      return realIndexes[index];
+      yield return table.PrimaryIndex;
+      foreach (var indexInfo in table.SecondaryIndexes)
+        yield return indexInfo;
     }
 
-    protected internal virtual IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfo indexInfo)
+    internal MapTransform GetTransform(IndexInfo indexInfo, TypeInfo type)
     {
-      return realIndexes[indexInfo];
+      return primaryIndexTransforms[new Pair<IndexInfo, TypeInfo>(indexInfo, type)];
     }
 
-    protected internal virtual MapTransform GetIndexTransform(IndexInfo indexInfo, TypeInfo type)
+    internal IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfoRef indexInfoRef)
     {
-      return indexTransforms[new Pair<IndexInfo, TypeInfo>(indexInfo, type)];
+      return Storage.GetRealIndex(ConvertIndexInfo(indexInfoRef));
     }
-
-    private static MapTransform BuildIndexTransform(IndexInfo indexInfo, TypeInfo type)
-    {
-      TupleDescriptor descriptor = TupleDescriptor.Create(indexInfo.Columns.Select(c => c.ValueType));
-      int[] map = indexInfo.Columns
-        .Select(c => {
-          ColumnInfo column;
-          return type.Columns.TryGetValue(c.Field.Column.Name, out column)
-            ? column.Field.MappingInfo.Offset
-            : MapTransform.NoMapping;
-        }).ToArray();
-      return new MapTransform(true, descriptor, map);
-    }
-
-    private void BuildRealIndexes()
-    {
-      foreach (IndexInfo indexInfo in Handlers.Domain.Model.RealIndexes) {
-        DirectionCollection<ColumnInfo> orderingRule;
-        if (indexInfo.IsUnique | indexInfo.IsPrimary)
-          orderingRule = new DirectionCollection<ColumnInfo>(indexInfo.KeyColumns);
-        else {
-          orderingRule = new DirectionCollection<ColumnInfo>(indexInfo.KeyColumns);
-          for (int i = 0; i < indexInfo.ValueColumns.Count; i++) {
-            var column = indexInfo.ValueColumns[i];
-            if (indexInfo.IncludedColumns.Contains(column))
-              break;
-            orderingRule.Add(column, Direction.Positive);
-          }
-        }
-
-        var indexConfig = new IndexConfiguration<Tuple, Tuple>();
-        indexConfig.KeyComparer = AdvancedComparer<Tuple>.Default.ApplyRules(new ComparisonRules(
-          ComparisonRule.Positive,
-          orderingRule.Select(pair => (ComparisonRules) new ComparisonRule(pair.Value, CultureInfo.InvariantCulture)).ToArray(),
-          ComparisonRules.None));
-        indexConfig.KeyExtractor = input => input;
-        IUniqueOrderedIndex<Tuple, Tuple> index = IndexFactory.CreateUniqueOrdered<Tuple, Tuple, Index<Tuple, Tuple>>(indexConfig);
-        realIndexes[indexInfo] = index;
-      }
-    }
-
-    #endregion
+    
   }
 }

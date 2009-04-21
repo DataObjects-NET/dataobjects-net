@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Providers.Index
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="name">The name.</param>
+    /// <param name="name">The storage name.</param>
     protected IndexStorage(string name)
     {
       Name = name;

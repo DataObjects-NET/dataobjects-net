@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Providers.Index
 
     /// <inheritdoc/>
     public abstract IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo);
-
+    
     /// <summary>
     /// Clears the schema.
     /// </summary>

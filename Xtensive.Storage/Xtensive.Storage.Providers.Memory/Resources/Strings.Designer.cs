@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Xtensive.Storage.Providers.Index.Resources {
+namespace Xtensive.Storage.Providers.Memory.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Providers.Index.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Xtensive.Storage.Providers.Index.Resources.Strings", typeof(Strings).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Xtensive.Storage.Providers.Memory.Resources.Strings", typeof(Strings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,38 +61,11 @@ namespace Xtensive.Storage.Providers.Index.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The collection must not be empty.
-        /// </summary>
-        internal static string ExCollectionMustNotBeEmpty {
-            get {
-                return ResourceManager.GetString("ExCollectionMustNotBeEmpty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Instance of type &apos;{0}&apos; with specified key is not found..
         /// </summary>
         internal static string ExInstanceXIsNotFound {
             get {
                 return ResourceManager.GetString("ExInstanceXIsNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Transaction is already open..
-        /// </summary>
-        internal static string ExTransactionIsAlreadyOpen {
-            get {
-                return ResourceManager.GetString("ExTransactionIsAlreadyOpen", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Transaction is not open..
-        /// </summary>
-        internal static string ExTransactionIsNotOpen {
-            get {
-                return ResourceManager.GetString("ExTransactionIsNotOpen", resourceCulture);
             }
         }
     }

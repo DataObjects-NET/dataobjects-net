@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Model.Convert;
+using Xtensive.Storage.Providers.Index;
 
 namespace Xtensive.Storage.Providers.Memory
 {

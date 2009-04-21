@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Transactions;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Indexing;
@@ -21,9 +20,9 @@ using Xtensive.Core.Tuples.Transform;
 namespace Xtensive.Storage.Providers.Memory
 {
   /// <summary>
-  /// In memory implementation of index storage.
+  /// In memory index storage.
   /// </summary>
-  public class IndexStorage : Index.IndexStorage
+  public class MemoryIndexStorage : Index.IndexStorage
   {
     private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes = 
       new Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>>();
@@ -33,14 +32,14 @@ namespace Xtensive.Storage.Providers.Memory
     /// <inheritdoc/>
     public override IStorageView CreateView(IsolationLevel isolationLevel)
     {
-      return new IndexStorageView(this, Model, isolationLevel);
+      return new MemoryIndexStorageView(this, Model, isolationLevel);
     }
 
     /// <inheritdoc/>
     public override IStorageView GetView(Guid transactionId)
     {
       // ToDo: Complete this
-      return new IndexStorageView(this, Model, IsolationLevel.ReadCommitted);
+      return new MemoryIndexStorageView(this, Model, IsolationLevel.ReadCommitted);
     }
 
     /// <inheritdoc/>
@@ -54,6 +53,8 @@ namespace Xtensive.Storage.Providers.Memory
     {
       return indexTransforms[indexInfo];
     }
+
+    #region Private / internal methods
 
     internal void ClearSchema()
     {
@@ -83,25 +84,23 @@ namespace Xtensive.Storage.Providers.Memory
     {
       var orderingRule = new DirectionCollection<ColumnInfo>();
       if (indexInfo.IsUnique | indexInfo.IsPrimary)
-        foreach (var keyColumn in indexInfo.KeyColumns) {
+        foreach (var keyColumn in indexInfo.KeyColumns)
           orderingRule.Add(keyColumn.Value, keyColumn.Direction);
-        }
       else {
-        foreach (var keyColumn in indexInfo.KeyColumns) {
+        foreach (var keyColumn in indexInfo.KeyColumns)
           orderingRule.Add(keyColumn.Value, keyColumn.Direction);
-        }
-        foreach (var keyColumn in indexInfo.Parent.PrimaryIndex.KeyColumns) {
+        foreach (var keyColumn in indexInfo.Parent.PrimaryIndex.KeyColumns)
           if (indexInfo.KeyColumns.SingleOrDefault(cr => cr.Value==keyColumn.Value)==null)
             orderingRule.Add(keyColumn.Value, keyColumn.Direction);
-        }
       }
 
       var indexConfig = new IndexConfiguration<Tuple, Tuple>
         {
           KeyComparer = AdvancedComparer<Tuple>.Default.ApplyRules(
             new ComparisonRules(ComparisonRule.Positive,
-              orderingRule.Select(
-                pair => (ComparisonRules) new ComparisonRule(pair.Value, CultureInfo.InvariantCulture)).ToArray(),
+              orderingRule
+                .Select(pair => (ComparisonRules) new ComparisonRule(pair.Value, CultureInfo.InvariantCulture))
+                .ToArray(),
               ComparisonRules.None)),
           KeyExtractor = (input => input)
         };
@@ -120,14 +119,17 @@ namespace Xtensive.Storage.Providers.Memory
       return new MapTransform(true, descriptor, map);
     }
 
+    #endregion
+
 
     // Constructor
 
     /// <inheritdoc/>
-    public IndexStorage(string name)
+    public MemoryIndexStorage(string name)
       : base(name)
     {
       Model = new StorageInfo(name);
+      Model.Lock(true);
     }
   }
 }

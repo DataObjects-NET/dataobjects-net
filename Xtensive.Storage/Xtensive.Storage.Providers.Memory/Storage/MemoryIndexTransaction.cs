@@ -11,8 +11,11 @@ using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Storage.Providers.Memory
 {
+  /// <summary>
+  /// Indexing storage transaction.
+  /// </summary>
   [Serializable]
-  public class IndexTransaction : Index.IndexTransaction
+  public class MemoryIndexTransaction : Index.IndexTransaction
   {
     private TransactionState state;
 
@@ -45,7 +48,7 @@ namespace Xtensive.Storage.Providers.Memory
     /// </summary>
     /// <param name="identifier">The identifier.</param>
     /// <param name="isolationLevel">The isolation level.</param>
-    public IndexTransaction(Guid identifier, IsolationLevel isolationLevel)
+    public MemoryIndexTransaction(Guid identifier, IsolationLevel isolationLevel)
     {
       Identifier = identifier;
       IsolationLevel = isolationLevel;
