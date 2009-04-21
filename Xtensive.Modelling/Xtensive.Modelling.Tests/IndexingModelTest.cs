@@ -44,7 +44,7 @@ namespace Xtensive.Modelling.Tests
       TestUpdate(storage, (s1, s2, hs) => {
         var t2 = (TableInfo) s2.Resolve("Tables/Types");
         string t2OldPath = t2.Path;
-        t2.Name = "NewObjects";
+        t2.Name = "NewTypes";
         hs.Add(new RenameHint(t2OldPath, t2.Path));
       });
     }

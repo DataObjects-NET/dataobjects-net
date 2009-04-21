@@ -6,7 +6,6 @@
 
 using System;
 using System.Text;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Modelling.Comparison
@@ -14,83 +13,65 @@ namespace Xtensive.Modelling.Comparison
   /// <summary>
   /// <see cref="Node"/> movement information.
   /// </summary>
-  [Serializable]
-  public class MovementInfo
+  [Flags]
+  public enum MovementInfo
   {
     /// <summary>
-    /// Gets or sets a value indicating whether the target node is created.
+    /// The source node is changed.
     /// </summary>
-    public bool IsCreated { get; set; }
+    Changed = 
+      Created | Removed | Copied | 
+      NameChanged | IndexChanged | 
+      ParentChanged,
 
     /// <summary>
-    /// Gets or sets a value indicating whether the source node is removed.
+    /// The source node is relocated.
+    /// Implies any action leading to update references to it.
     /// </summary>
-    public bool IsRemoved { get; set; }
+    Relocated = 
+      Copied | 
+      NameChanged | IndexChanged | 
+      ParentChanged | AnyParentChanged,
 
     /// <summary>
-    /// Gets a value indicating whether <see cref="Node.Name"/> is changed.
+    /// The target node is newly created.
+    /// </summary>
+    Created = 1,
+
+    /// <summary>
+    /// The source node is removed.
+    /// </summary>
+    Removed = 2,
+
+    /// <summary>
+    /// The source node is copied.
+    /// </summary>
+    Copied = 4,
+
+    /// <summary>
+    /// Source node <see cref="Node.Name"/> is changed.
     /// Always <see langword="false" /> for <see cref="IUnnamedNode"/>s.
     /// </summary>
-    public bool IsNameChanged { get; set; }
+    NameChanged = 8,
 
     /// <summary>
-    /// Gets a value indicating whether <see cref="Node.Name"/> is changed.
+    /// Source node <see cref="Node.Index"/> is changed.
     /// Always <see langword="false" /> for nodes nested into
     /// <see cref="IUnorderedNodeCollection"/>.
     /// </summary>
-    public bool IsIndexChanged { get; set; }
+    IndexChanged = 16,
 
     /// <summary>
-    /// Gets a value indicating whether direct <see cref="Node.Parent"/> is changed,
+    /// Direct source node <see cref="Node.Parent"/> is changed,
     /// i.e. the node was moved to a different parent node.
     /// Parent's renaming isn't considered as parent change.
     /// </summary>
-    public bool IsParentChanged { get; set; }
+    ParentChanged = 32,
 
     /// <summary>
-    /// Gets a value indicating whether direct or inherited <see cref="Node.Parent"/> is changed,
+    /// Direct or indirect source node <see cref="Node.Parent"/> is changed,
     /// i.e. the node or one of its parent was moved to a different parent node.
     /// </summary>
-    public bool IsAnyParentChanged { get; set; }
-
-    /// <summary>
-    /// Gets a value indicating whether node wasn't moved, created or deleted.
-    /// </summary>
-    public bool IsUnchanged { 
-      get {
-        return !(IsCreated || IsRemoved || IsIndexChanged || IsNameChanged || IsParentChanged);
-      }
-    }
-
-    /// <inheritdoc/>
-    public override string ToString()
-    {
-      var sb = new StringBuilder();
-      if (IsCreated)
-        sb.Append(", created");
-      if (IsRemoved)
-        sb.Append(", removed");
-      if (IsNameChanged)
-        sb.Append(", renamed");
-      if (IsIndexChanged)
-        sb.Append(", moved");
-      if (IsParentChanged)
-        sb.Append(", parent changed");
-      
-      if (sb.Length==0)
-        return string.Empty;
-      else
-        return sb.ToString(2, sb.Length - 2);
-    }
-
-
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public MovementInfo()
-    {
-    }
+    AnyParentChanged = 64,
   }
 }

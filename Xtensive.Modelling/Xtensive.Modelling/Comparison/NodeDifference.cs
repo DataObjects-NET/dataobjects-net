@@ -38,12 +38,18 @@ namespace Xtensive.Modelling.Comparison
     /// <inheritdoc/>
     public Dictionary<string, Difference> PropertyChanges { get; private set; }
 
+    /// <summary>
+    /// Gets a value indicating whether this difference describes changed node.
+    /// </summary>
+    public bool IsChanged {
+      get { return (MovementInfo & MovementInfo.Changed)!=0 || PropertyChanges.Count!=0; }
+    }
+
     /// <inheritdoc/>
     protected override string ParametersToString()
     {
       var sb = new StringBuilder();
-      if (MovementInfo!=null)
-        sb.Append(MovementInfo);
+      sb.Append(MovementInfo);
       foreach (var pair in PropertyChanges)
         sb.AppendLine().AppendFormat(Strings.PropertyChangeFormat,
           pair.Key, pair.Value);

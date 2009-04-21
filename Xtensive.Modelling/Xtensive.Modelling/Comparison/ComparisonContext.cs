@@ -75,11 +75,6 @@ namespace Xtensive.Modelling.Comparison
     public PropertyInfo Property { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether reference comparison is performed now.
-    /// </summary>
-    public bool IsReferenceComparison { get; set; }
-
-    /// <summary>
     /// Activates this instance.
     /// </summary>
     /// <returns>A disposable object deactivating it.</returns>
@@ -127,7 +122,6 @@ namespace Xtensive.Modelling.Comparison
         return;
       Difference = Parent.Difference;
       Property = Parent.Property;
-      IsReferenceComparison = Parent.IsReferenceComparison;
     }
   }
 }

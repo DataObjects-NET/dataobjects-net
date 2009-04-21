@@ -250,6 +250,15 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Node &quot;{0}&quot; must be processed before being compared as reference (value of &quot;{1}&quot;.{2})..
+        /// </summary>
+        internal static string ExNodeXMustBeProcessedBeforeBeingComparedAsReferenceValueOfYZ {
+            get {
+                return ResourceManager.GetString("ExNodeXMustBeProcessedBeforeBeingComparedAsReferenceValueOfYZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Nesting must be created for any node..
         /// </summary>
         internal static string ExNoNesting {
@@ -372,6 +381,15 @@ namespace Xtensive.Modelling.Resources {
         internal static string PropertyChangeFormat {
             get {
                 return ResourceManager.GetString("PropertyChangeFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upgrade sequence.
+        /// </summary>
+        internal static string UpgradeSequence {
+            get {
+                return ResourceManager.GetString("UpgradeSequence", resourceCulture);
             }
         }
     }

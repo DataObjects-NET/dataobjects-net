@@ -222,4 +222,10 @@
   <data name="ExUpgradeSequenceValidationFailure" xml:space="preserve">
     <value>Upgrade sequence validation failure.</value>
   </data>
+  <data name="ExNodeXMustBeProcessedBeforeBeingComparedAsReferenceValueOfYZ" xml:space="preserve">
+    <value>Node "{0}" must be processed before being compared as reference (value of "{1}".{2}).</value>
+  </data>
+  <data name="UpgradeSequence" xml:space="preserve">
+    <value>Upgrade sequence</value>
+  </data>
 </root>

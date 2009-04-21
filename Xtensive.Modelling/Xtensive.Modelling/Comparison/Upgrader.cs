@@ -107,6 +107,7 @@ namespace Xtensive.Modelling.Comparison
               Log.Info(Strings.LogValidationFailed);
               Log.Info(Strings.LogItemFormat, Strings.Difference);
               Log.Info("{0}", diff);
+              Log.Info(Strings.LogItemFormat+"\r\n{1}", Strings.UpgradeSequence, new ActionSequence() {Actions});
               Log.Info(Strings.LogItemFormat, Strings.ExpectedTargetModel);
               TargetModel.Dump();
               Log.Info(Strings.LogItemFormat, Strings.ActualTargetModel);
@@ -164,7 +165,7 @@ namespace Xtensive.Modelling.Comparison
       var target = difference.Target;
 
       // Processing movement
-      if (difference.MovementInfo.IsRemoved) {
+      if ((difference.MovementInfo & MovementInfo.Removed)!=0) {
         AddAction(new RemoveNodeAction() {
           Path = (source ?? target).Path
         });
@@ -172,7 +173,7 @@ namespace Xtensive.Modelling.Comparison
           return;
       }
 
-      if (difference.MovementInfo.IsCreated) {
+      if ((difference.MovementInfo & MovementInfo.Created)!=0) {
         var action = new CreateNodeAction()
           {
             Path = target.Parent==null ? string.Empty : target.Parent.Path,
@@ -182,7 +183,7 @@ namespace Xtensive.Modelling.Comparison
           };
         AddAction(action);
       }
-      else if (!difference.MovementInfo.IsUnchanged) {
+      else if ((difference.MovementInfo & MovementInfo.Changed)!=0) {
         AddAction(new MoveNodeAction()
           {
             Path = source.Path,
