@@ -442,5 +442,13 @@ namespace Xtensive.Storage.Tests.Linq
         .Select(a2 => a2.a1.c.CompanyName);
       QueryDumper.Dump(result);
     }
+
+    [Test]
+    public void EntityWithLazyLoadFieldTest()
+    {
+      var category = Query<Category>.All.Where(c => c.Picture != null).First();
+      int columnIndex = Domain.Model.Types[typeof (Category)].Fields["Picture"].MappingInfo.Offset;
+      Assert.IsFalse(category.State.Tuple.IsAvailable(columnIndex));
+    }
   }
 }

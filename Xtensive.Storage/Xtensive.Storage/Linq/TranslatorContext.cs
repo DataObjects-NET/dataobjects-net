@@ -94,13 +94,12 @@ namespace Xtensive.Storage.Linq
 
     // Constructor
 
-    public TranslatorContext(Expression query)
+    public TranslatorContext(Expression query, DomainModel model)
     {
       resultAliasGenerator = AliasGenerator.Create();
       columnAliasGenerator = AliasGenerator.Create(new[] {"column"});
       this.query = EntitySetAccessRewriter.Rewrite(EqualityRewriter.Rewrite(query));
-      var domain = Domain.Demand();
-      model = domain.Model;
+      this.model = model;
       translator = new Translator(this);
       evaluator = new ExpressionEvaluator(this.query);
       parameterExtractor = new ParameterExtractor(evaluator);

@@ -8,11 +8,11 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Rewriters;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Linq
@@ -56,18 +56,20 @@ namespace Xtensive.Storage.Linq
 
     internal ResultExpression Compile(Expression expression)
     {
-      var context = new TranslatorContext(expression);
+      var model = Domain.Demand().Model;
+      var context = new TranslatorContext(expression, model);
       var result = context.Translator.Translate();
-      result = Optimize(result);
+      result = Optimize(result, model);
       return result;
     }
 
-    private ResultExpression Optimize(ResultExpression origin)
+    private ResultExpression Optimize(ResultExpression origin, DomainModel model)
     {
       var mappingsGatherer = new ItemProjectorAnalyzer();
 
       var originProvider = origin.RecordSet.Provider;
-      var usedColumns = mappingsGatherer.Gather(origin.ItemProjector, originProvider.Header)
+      var usedColumns = mappingsGatherer
+          .Gather(origin.ItemProjector, originProvider.Header, model, origin.Mapping)
           .Distinct()
           .OrderBy()
           .ToList();
@@ -85,16 +87,6 @@ namespace Xtensive.Storage.Linq
         return result;
       }
       return origin;
-    }
-
-    
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public QueryProvider()
-    {
     }
   }
 }
