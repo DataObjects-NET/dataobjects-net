@@ -14,7 +14,7 @@ namespace Xtensive.Core.Parameters
   /// <summary>
   /// Provides storing context-specific <see cref="Parameter{TValue}"/>'s values.
   /// </summary>
-  public class ParameterContext : Context<ParameterScope>
+  public sealed class ParameterContext : Context<ParameterScope>
   {    
     internal readonly Dictionary<Parameter, object> values = 
       new Dictionary<Parameter, object>();
@@ -26,6 +26,25 @@ namespace Xtensive.Core.Parameters
       [DebuggerStepThrough]
       get { return Scope<ParameterContext>.CurrentContext; }
     }
+
+    #region IContext<...> methods
+
+    /// <inheritdoc/>
+    public override bool IsActive {
+      [DebuggerStepThrough]
+      get { return Current == this; }
+    }
+
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    protected override ParameterScope CreateActiveScope()
+    {
+      return new ParameterScope(this);
+    }
+
+    #endregion
+
+    #region Internal methods
 
     [DebuggerStepThrough]
     internal bool TryGetValue(Parameter parameter, out object value)
@@ -51,17 +70,6 @@ namespace Xtensive.Core.Parameters
       return values.ContainsKey(parameter);
     }
 
-    /// <inheritdoc/>
-    public override bool IsActive {
-      [DebuggerStepThrough]
-      get { return Current == this; }
-    }
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    protected override ParameterScope CreateActiveScope()
-    {
-      return new ParameterScope(this);
-    }
+    #endregion
   }
 }

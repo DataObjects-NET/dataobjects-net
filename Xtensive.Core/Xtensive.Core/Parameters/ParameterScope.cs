@@ -15,14 +15,35 @@ namespace Xtensive.Core.Parameters
   /// <summary>
   /// <see cref="ParameterContext"/> activation scope.
   /// </summary>
-  public class ParameterScope : Scope<ParameterContext>,
+  public sealed class ParameterScope : Scope<ParameterContext>,
     IDisposable
-  {    
+  {
+    /// <summary>
+    /// Gets the current context.
+    /// </summary>
+    public new static ParameterContext CurrentContext {
+      get {
+        return Scope<ParameterContext>.CurrentContext;
+      }
+    }
+
+    /// <summary>
+    /// Gets the associated parameter context.
+    /// </summary>
+    public new ParameterContext Context {
+      get {
+        return base.Context;
+      }
+    }
+
+    #region Internal methods
+
     internal static new ParameterScope CurrentScope {
       [DebuggerStepThrough]
       get { return (ParameterScope) Scope<ParameterContext>.CurrentScope; }
     }
 
+    [DebuggerStepThrough]
     internal bool TryGetValue(Parameter parameter, out object value)
     {
       object result;
@@ -36,25 +57,15 @@ namespace Xtensive.Core.Parameters
       return found;
     }
 
+    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     [DebuggerStepThrough]
     internal object GetValue(Parameter parameter)
     {
       object result;
       if (TryGetValue(parameter, out result))
         return result;
-      throw new InvalidOperationException(string.Format(Strings.ValueForParameterXIsNotSet, parameter));
-    }
-
-    [DebuggerStepThrough]
-    internal void SetValue(Parameter parameter, object value)
-    {
-      Context.SetValue(parameter, value);
-    }
-
-    [DebuggerStepThrough]
-    internal bool HasValueInThisScope(Parameter parameter)
-    {
-      return Context.HasValue(parameter);
+      throw new InvalidOperationException(string.Format(
+        Strings.ExValueForParameterXIsNotSet, parameter));
     }
 
     [DebuggerStepThrough]
@@ -65,24 +76,20 @@ namespace Xtensive.Core.Parameters
     }
 
     [DebuggerStepThrough]
+    internal void SetValue(Parameter parameter, object value)
+    {
+      Context.SetValue(parameter, value);
+    }
+
+    [DebuggerStepThrough]
     internal void Clear(Parameter parameter)
     {
       Context.Clear(parameter);
     }
 
-    /// <inheritdoc/>
-    void IDisposable.Dispose()
-    {
-      if (!IsNested) {
-        Dispose();
-        return;
-      }
-      var parameterValues = Context.values.ToList();
-      Dispose();
-      foreach (var pair in parameterValues)
-        pair.Key.OnScopeDisposed(pair.Value);
-    }
-    
+    #endregion
+
+
     // Constructors
 
     /// <summary>
@@ -102,6 +109,21 @@ namespace Xtensive.Core.Parameters
     public ParameterScope()
       : this(new ParameterContext())
     {
+    }
+
+    // Disposal
+
+    /// <inheritdoc/>
+    void IDisposable.Dispose()
+    {
+      if (!IsNested) {
+        Dispose();
+        return;
+      }
+      var parameterValues = Context.values.ToList();
+      Dispose();
+      foreach (var pair in parameterValues)
+        pair.Key.OnScopeDisposed(pair.Value);
     }
   }
 }

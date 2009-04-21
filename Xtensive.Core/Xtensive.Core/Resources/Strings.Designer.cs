@@ -1231,6 +1231,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Value for parameter &apos;{0}&apos; is not set..
+        /// </summary>
+        internal static string ExValueForParameterXIsNotSet {
+            get {
+                return ResourceManager.GetString("ExValueForParameterXIsNotSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value is not available..
         /// </summary>
         internal static string ExValueIsNotAvailable {
@@ -1569,24 +1578,6 @@ namespace Xtensive.Core.Resources {
         internal static string UnableToDisposeItemWhenContainerIsNotDisposed {
             get {
                 return ResourceManager.GetString("UnableToDisposeItemWhenContainerIsNotDisposed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value for parameter &apos;{0}&apos; is not set..
-        /// </summary>
-        internal static string ValueForParameterXIsNotSet {
-            get {
-                return ResourceManager.GetString("ValueForParameterXIsNotSet", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0} is not activated..
-        /// </summary>
-        internal static string XIsNotActivated {
-            get {
-                return ResourceManager.GetString("XIsNotActivated", resourceCulture);
             }
         }
     }

@@ -507,11 +507,8 @@
   <data name="ThreadSafeCachedFormat" xml:space="preserve">
     <value>ThreadSafeCached({0})</value>
   </data>
-  <data name="ValueForParameterXIsNotSet" xml:space="preserve">
+  <data name="ExValueForParameterXIsNotSet" xml:space="preserve">
     <value>Value for parameter '{0}' is not set.</value>
-  </data>
-  <data name="XIsNotActivated" xml:space="preserve">
-    <value>{0} is not activated.</value>
   </data>
   <data name="ExAlreadyDisposed" xml:space="preserve">
     <value>Object is already disposed.</value>

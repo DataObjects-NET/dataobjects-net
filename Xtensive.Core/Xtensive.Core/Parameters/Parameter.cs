@@ -7,8 +7,6 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
-using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Parameters
 {
@@ -35,6 +33,13 @@ namespace Xtensive.Core.Parameters
     }
 
     /// <summary>
+    /// Gets a value indicating whether this instance has value.
+    /// </summary>
+    public bool HasValue {
+      get { return GetCurrentScope().HasValue(this); }
+    }
+
+    /// <summary>
     /// Gets the value of the parameter.
     /// </summary>
     /// <returns>Parameter value.</returns>
@@ -54,22 +59,6 @@ namespace Xtensive.Core.Parameters
     {
       GetCurrentScope().SetValue(this, value);
     }
-    
-    /// <summary>
-    /// Gets a value indicating whether this instance has value in current scope.
-    /// </summary>
-    /// <value>
-    /// <see langword="true"/> if this instance has value in current scope; otherwise, <see langword="false"/>.
-    /// </value>
-    public bool HasValueInCurrentScope { get { return GetCurrentScope().HasValueInThisScope(this); } }
-
-    /// <summary>
-    /// Gets a value indicating whether this instance has value.
-    /// </summary>
-    /// <value>
-    /// <see langword="true"/> if this instance has value; otherwise, <see langword="false"/>.
-    /// </value>
-    public bool HasValue { get { return GetCurrentScope().HasValue(this); } }
 
     /// <summary>
     /// Clears parameter's value.
@@ -95,15 +84,17 @@ namespace Xtensive.Core.Parameters
 
     #region Private methods
 
+    /// <exception cref="Exception"><see cref="ParameterContext"/> is required.</exception>
     private static ParameterScope GetCurrentScope()
     {
       var currentScope = ParameterScope.CurrentScope;
       if (currentScope == null)
-        throw new InvalidOperationException(string.Format(Strings.XIsNotActivated, typeof(ParameterContext).GetShortName()));
+        throw Exceptions.ContextRequired(typeof (ParameterContext), typeof (ParameterScope));
       return currentScope;
     }
 
     #endregion
+
 
     // Constructors
 
