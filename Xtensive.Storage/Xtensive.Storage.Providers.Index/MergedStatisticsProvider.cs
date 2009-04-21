@@ -6,20 +6,26 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
-using Xtensive.Indexing.Statistics;
+using Xtensive.Indexing.Optimization;
 
 namespace Xtensive.Storage.Providers.Index
 {
   [Serializable]
-  internal sealed class MergedStatisticsProvider : IStatisticsProvider<Tuple>, IStatistics<Tuple>
+  internal sealed class MergedStatisticsProvider : IOptimizationInfoProvider<Tuple>, IStatistics<Tuple>
   {
-    private readonly IStatisticsProvider<Tuple>[] underlyingProviders;
+    private readonly IOptimizationInfoProvider<Tuple>[] underlyingProviders;
 
     public IStatistics<Tuple> GetStatistics()
     {
       return this;
+    }
+
+    public AdvancedComparer<Entire<Tuple>> GetEntireKeyComparer()
+    {
+      return underlyingProviders[0].GetEntireKeyComparer();
     }
 
     #region Implementation of IStatistics<Tuple>
@@ -41,7 +47,7 @@ namespace Xtensive.Storage.Providers.Index
 
     // Constructors
 
-    public MergedStatisticsProvider(IStatisticsProvider<Tuple>[] underlyingProviders)
+    public MergedStatisticsProvider(IOptimizationInfoProvider<Tuple>[] underlyingProviders)
     {
       ArgumentValidator.EnsureArgumentNotNull(underlyingProviders, "underlyingProviders");
       if (underlyingProviders.Length == 0)

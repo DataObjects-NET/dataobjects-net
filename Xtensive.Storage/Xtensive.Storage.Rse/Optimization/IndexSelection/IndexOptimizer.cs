@@ -85,12 +85,12 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     /// </summary>
     /// <param name="domainModel">The domain model.</param>
     /// <param name="providerResolver">The statistics provider resolver.</param>
-    public IndexOptimizer(DomainModel domainModel, IStatisticsProviderResolver providerResolver)
+    public IndexOptimizer(DomainModel domainModel, IOptimizationInfoProviderResolver providerResolver)
     {
       ArgumentValidator.EnsureArgumentNotNull(domainModel, "domainModel");
       ArgumentValidator.EnsureArgumentNotNull(providerResolver, "providerResolver");
       this.domainModel = domainModel;
-      rsExtractor = new RangeSetExtractor(domainModel);
+      rsExtractor = new RangeSetExtractor(domainModel, providerResolver);
       indexSelector = new SimpleIndexSelector(new CostEvaluator(providerResolver));
       treeRewriter = new ProviderTreeRewriter(domainModel);
     }

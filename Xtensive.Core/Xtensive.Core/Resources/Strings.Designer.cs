@@ -277,6 +277,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t set an expected value of a parameter via a ParameterContext..
+        /// </summary>
+        internal static string ExCantSetExpectedValueOfParameterViaParameterContext {
+            get {
+                return ResourceManager.GetString("ExCantSetExpectedValueOfParameterViaParameterContext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Collection already contains item with the specified key..
         /// </summary>
         internal static string ExCollectionAlreadyContainsItemWithSpecifiedKey {
@@ -516,6 +525,15 @@ namespace Xtensive.Core.Resources {
         internal static string ExEscapeCharacterMustDifferFromDelimiterCharacter {
             get {
                 return ResourceManager.GetString("ExEscapeCharacterMustDifferFromDelimiterCharacter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The expected value of the parameter is already set..
+        /// </summary>
+        internal static string ExExpectedValueOfParameterIsAlreadySet {
+            get {
+                return ResourceManager.GetString("ExExpectedValueOfParameterIsAlreadySet", resourceCulture);
             }
         }
         

@@ -124,14 +124,16 @@ namespace Xtensive.Storage.Tests.Rse
       var query = Query<Order>.All.Where(orderPredicate)
         .Join(Query<Employee>.All.Where(employeePredicate),
           order => order.Employee.Id, empl => empl.Id,
-          (order, empl) => new Pair<Order, Employee>(order, empl));
-      var actual = query.ToList();
-      /*ValidateUsedIndex<Pair<Order,Employee>>(query, GetMultiColumnIndex<Product>("Category", "Supplier", "UnitPrice"),
-        GetIndexForField<Product>("ProductName"));*/
+          (order, empl) => new {order, empl});
+      var actual = query.AsEnumerable()
+        .Select(arg => new Pair<Order, Employee>(arg.order, arg.empl)).ToList();
+      ValidateUsedIndex(query, GetIndexForField<Order>("OrderDate"),
+        GetIndexForField<Employee>("Title"));
       ValidateQueryResultForJoinTest(expected, actual);
     }
 
-    private static void ValidateQueryResultForJoinTest(IEnumerable<Pair<Order, Employee>> expected, List<Pair<Order, Employee>> actual)
+    private static void ValidateQueryResultForJoinTest(IEnumerable<Pair<Order, Employee>> expected
+      , List<Pair<Order, Employee>> actual)
     {
       Assert.Greater(expected.Count(), 0);
       var equalityComparer = MockRepository.GenerateMock<IEqualityComparer<Pair<Order, Employee>>>();
@@ -154,7 +156,7 @@ namespace Xtensive.Storage.Tests.Rse
         IndexProvider.Get(Domain.Model.Types[typeof (Order)].Indexes.PrimaryIndex),
         t => t.GetValueOrDefault<decimal>(9) > 0 || t.GetValueOrDefault<DateTime?>(7) == DateTime.Now);
       var domainHandler = (Providers.Index.DomainHandler) (Domain.Handlers.DomainHandler);
-      var realResolver = new StatisticsProviderResolver(domainHandler);
+      var realResolver = new OptimizationInfoProviderResolver(domainHandler);
       var indexOptimizer = new IndexOptimizer(Domain.Model, realResolver);
       var optimizedProviderTree = indexOptimizer.Optimize(rootProvider);
       Assert.AreSame(rootProvider, optimizedProviderTree);
@@ -162,7 +164,9 @@ namespace Xtensive.Storage.Tests.Rse
 
     private IndexInfo GetIndexForField<T>(string fieldName)
     {
-      return Domain.Model.Types[typeof(T)].Fields[fieldName].Column.Indexes.First();
+      var targetName = "_" + fieldName;
+      return Domain.Model.Types[typeof(T)].Fields[fieldName].Column.Indexes.First(
+        idx => idx.ShortName.EndsWith(targetName));
     }
 
     private IndexInfo GetIndexForForeignKey<T>(string fieldName)

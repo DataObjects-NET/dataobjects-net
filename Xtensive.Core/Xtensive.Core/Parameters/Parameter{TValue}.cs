@@ -17,14 +17,14 @@ namespace Xtensive.Core.Parameters
   public sealed class Parameter<TValue> : Parameter
   {
     private readonly Action<TValue> onOutOfScope;
+    
 
     /// <summary>
     /// Gets or sets the parameter value.
     /// </summary>    
     /// <exception cref="InvalidOperationException"><see cref="ParameterContext"/> is not activated.</exception>
     /// <exception cref="InvalidOperationException">Value for the parameter is not set.</exception>
-    public new TValue Value
-    {
+    public new TValue Value {
       [DebuggerStepThrough]
       get {
         return (TValue) GetValue();
@@ -63,7 +63,8 @@ namespace Xtensive.Core.Parameters
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="onOutOfScope">Out of scope action. Action argument is parameter's value within disposed scope.</param>
+    /// <param name="onOutOfScope">Out of scope action. 
+    /// Action argument is parameter's value within disposed scope.</param>
     public Parameter(Action<TValue> onOutOfScope)
       : this(string.Empty, onOutOfScope)
     {}
@@ -72,11 +73,13 @@ namespace Xtensive.Core.Parameters
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="name">The <see cref="Parameter.Name"/> property value.</param>
-    /// <param name="onOutOfScope">Out of scope action. Action argument is parameter's value within disposed scope.</param>
+    /// <param name="onOutOfScope">Out of scope action. 
+    /// Action argument is parameter's value within disposed scope.</param>
     public Parameter(string name, Action<TValue> onOutOfScope)
       : base(name)
     {
       this.onOutOfScope = onOutOfScope;
+      InnerExpectedValue = default(TValue);
     }
   }
 }

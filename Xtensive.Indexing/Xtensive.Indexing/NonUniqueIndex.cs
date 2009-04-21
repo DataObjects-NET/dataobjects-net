@@ -8,7 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Indexing.Statistics;
+using Xtensive.Core.Comparison;
+using Xtensive.Indexing.Optimization;
 
 namespace Xtensive.Indexing
 {
@@ -37,6 +38,12 @@ namespace Xtensive.Indexing
             statistics = new RangeMeasurableStatistics<TKey, TItem>(this, Configuration.Location == null);
         }
       return statistics;
+    }
+
+    /// <inheritdoc/>
+    public AdvancedComparer<Entire<TKey>> GetEntireKeyComparer()
+    {
+      return EntireKeyComparer;
     }
 
     /// <summary>

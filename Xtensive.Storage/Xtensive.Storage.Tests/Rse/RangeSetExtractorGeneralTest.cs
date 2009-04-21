@@ -13,6 +13,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Index;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Optimization.IndexSelection;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
@@ -75,7 +76,8 @@ namespace Xtensive.Storage.Tests.Rse
       Expression<Func<Tuple, bool>> predicate1 =
         (t) => t.GetValue<string>(nameIdx).CompareTo("abc") >= 0 && t.GetValue<int?>(lengthIdx) < 3 
           || !(lengthIdx is int && !(lengthIdx is string));
-      var rsExtractor = new RangeSetExtractor(Domain.Model);
+      var rsExtractor = new RangeSetExtractor(Domain.Model,
+        new OptimizationInfoProviderResolver((DomainHandler)Domain.Handler));
       var result0 = rsExtractor.Extract(predicate0, new[] {indexInfo}, rsHeader);
       var result1 = rsExtractor.Extract(predicate1, new[] { indexInfo }, rsHeader);
       var expectedRanges = CreateRangesForDifferentFieldInversionTest(indexInfo, LengthField);

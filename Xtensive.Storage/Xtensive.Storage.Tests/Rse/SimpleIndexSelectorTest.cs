@@ -66,9 +66,23 @@ namespace Xtensive.Storage.Tests.Rse
         (indexes, exps, inputData, selectedIndexes) => Assert.AreEqual(0, selectedIndexes.Count));
     }
 
+    [Test]
+    public void PrimaryIndexIsSelectedTest()
+    {
+      TestSelector(CreateRangeSet,
+        (indexes, exps, inputData, selectedIndexes) => Assert.AreEqual(0, selectedIndexes.Count), true);
+    }
+
     private void TestSelector(Func<Random, RangeSet<Entire<Tuple>>> rangeSetCreator,
       Action<IndexInfo[], Expression[], Dictionary<Expression, List<RSExtractionResult>>,
         Dictionary<IndexInfo, RangeSetInfo>> resultValidator)
+    {
+      TestSelector(rangeSetCreator, resultValidator, false);
+    }
+
+    private void TestSelector(Func<Random, RangeSet<Entire<Tuple>>> rangeSetCreator,
+      Action<IndexInfo[], Expression[], Dictionary<Expression, List<RSExtractionResult>>,
+        Dictionary<IndexInfo, RangeSetInfo>> resultValidator, bool selectPrimaryForExp0)
     {
       TypeInfo snakeType = Domain.Model.Types[typeof(Creature)];
       var indexes = new[]
@@ -77,7 +91,7 @@ namespace Xtensive.Storage.Tests.Rse
         };
       Expression[] exps = new[] { Expression.Constant(0), Expression.Constant(1), Expression.Constant(2) };
       var inputData = CreateInputData(exps, indexes, rangeSetCreator);
-      var costEvaluator = ConfigureCostEvaluator(exps, inputData);
+      var costEvaluator = ConfigureCostEvaluator(exps, inputData, selectPrimaryForExp0);
       var selector = new SimpleIndexSelector(costEvaluator);
       var selectedIndexes = selector.Select(inputData);
       resultValidator(indexes, exps, inputData, selectedIndexes);
@@ -104,13 +118,14 @@ namespace Xtensive.Storage.Tests.Rse
     }
 
     private static ICostEvaluator ConfigureCostEvaluator(Expression[] exps,
-      Dictionary<Expression, List<RSExtractionResult>> inputData)
+      Dictionary<Expression, List<RSExtractionResult>> inputData, bool selectPrimaryForExp0)
     {
       var mocks = new MockRepository();
       var result = mocks.Stub<ICostEvaluator>();
       int index = 0;
       SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
-        inputData[exps[0]][index].RangeSetInfo.GetRangeSet())).Return(new CostInfo(100, 0));
+        inputData[exps[0]][index].RangeSetInfo.GetRangeSet()))
+        .Return(new CostInfo(selectPrimaryForExp0 ? 1 : 100, 0));
       SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,
         inputData[exps[1]][index].RangeSetInfo.GetRangeSet())).Return(new CostInfo(110.0, 0));
       SetupResult.For(result.Evaluate(inputData[exps[0]][index].IndexInfo,

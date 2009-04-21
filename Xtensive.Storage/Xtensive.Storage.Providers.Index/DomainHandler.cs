@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Providers.Index
     {
       return new CompositeOptimizer(
         new OrderbyOptimizer(),
-        new IndexOptimizer(Handlers.Domain.Model, new StatisticsProviderResolver(this)),
+        new IndexOptimizer(Handlers.Domain.Model, new OptimizationInfoProviderResolver(this)),
         new RedundantColumnOptimizer()
         );
     }

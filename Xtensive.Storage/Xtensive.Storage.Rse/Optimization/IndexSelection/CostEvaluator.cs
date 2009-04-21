@@ -13,7 +13,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 {
   internal sealed class CostEvaluator : ICostEvaluator
   {
-    private readonly IStatisticsProviderResolver providerResolver;
+    private readonly IOptimizationInfoProviderResolver providerResolver;
 
     #region Implementation of ICostEvaluator
 
@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     // Constructors
 
-    public CostEvaluator(IStatisticsProviderResolver providerResolver)
+    public CostEvaluator(IOptimizationInfoProviderResolver providerResolver)
     {
       ArgumentValidator.EnsureArgumentNotNull(providerResolver, "providerResolver");
       this.providerResolver = providerResolver;

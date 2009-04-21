@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Indexing.Statistics
+namespace Xtensive.Indexing.Optimization
 {
   /// <summary>
   /// Data collected by an implementor of <see cref="IStatistics{T}"/>.

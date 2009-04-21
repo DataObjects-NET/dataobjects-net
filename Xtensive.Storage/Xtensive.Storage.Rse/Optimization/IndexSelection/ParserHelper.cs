@@ -8,7 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Tuples;
+using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Expressions;
 
@@ -22,21 +25,21 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     private readonly ComparisonExtractor comparisonExtractor = new ComparisonExtractor();
 
     public RangeSetInfo ConvertToRangeSetInfo(Expression exp, ComparisonInfo tupleComparison,
-      IndexInfo indexInfo, RecordSetHeader recordSetHeader)
+      IndexInfo indexInfo, RecordSetHeader recordSetHeader, AdvancedComparer<Entire<Tuple>> comparer)
     {
       // The validation of arguments is omitted to increase performance.
       if (tupleComparison == null)
         if (comparisonExtractor.ContainsKey(exp, DeafultKeySelector))
-          return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null);
+          return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null, comparer);
         else
           return RangeSetExpressionBuilder.BuildFullOrEmpty(exp);
       if(tupleComparison.IsComplex)
-        return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null);
+        return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null, comparer);
       int fieldIndex = tupleComparison.Key.GetTupleAccessArgument();
       var tupleExp = new TupleExpressionInfo(fieldIndex, tupleComparison);
       if (IndexHasKeyAtZeroPoisition(fieldIndex, indexInfo, recordSetHeader))
-        return RangeSetExpressionBuilder.BuildConstructor(tupleExp, indexInfo);
-      return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(tupleExp);
+        return RangeSetExpressionBuilder.BuildConstructor(tupleExp, indexInfo, comparer);
+      return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(tupleExp, comparer);
     }
 
     public bool IndexHasKeyAtSpecifiedPoisition(int tupleFieldPosition, int indexFieldPosition,

@@ -187,7 +187,6 @@ namespace Xtensive.Storage.Tests.Rse
                                                        Direction.Negative);
       var expectedRange0 = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
       result.Add(expectedRange0);
-
       
       expectedFirst = new Entire<Tuple>(CreateTuple(trimmedTupleDesc, keyFieldIndex0, 10));
       expectedSecond = new Entire<Tuple>(InfinityType.Positive);
@@ -277,21 +276,49 @@ namespace Xtensive.Storage.Tests.Rse
     [Test]
     public void MultiColumnIndexWithSeveralValuesOfLastFieldTest()
     {
-      TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
-      IndexInfo indexInfo = snakeType.Indexes.GetIndex(LengthField);
-      RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
-      int cLengthIdx = GetFieldIndex(rsHeader, LengthField);
-      int cDescriptionIdx = GetFieldIndex(rsHeader, DescriptionField);
+      const string hireDateField = "HireDate";
+      const string lastNameField = "LastName";
+      const string titleField = "Title";
+      TypeInfo emplType = Domain.Model.Types[typeof(Employee)];
+      IndexInfo indexInfo = emplType.Indexes.GetIndex(hireDateField);
+      RecordSetHeader rsHeader = emplType.Indexes.PrimaryIndex.GetRecordSetHeader();
+      int hireDateIdx = GetFieldIndex(rsHeader, hireDateField);
+      int lastNameIdx = GetFieldIndex(rsHeader, lastNameField);
+      int titleIdx = GetFieldIndex(rsHeader, titleField);
 
       var predicate = new DisjunctiveNormalized()
-        .AddCnf(AsCnf(t => t.GetValue<string>(cDescriptionIdx).CompareTo("a") > 0)
-          .AddBoolean(t => t.GetValue<int?>(cLengthIdx)==6)
-          .AddBoolean(t => t.GetValue<string>(cDescriptionIdx).CompareTo("abc") < 0))
-        .AddCnf(AsCnf(t => 10 <= t.GetValue<int?>(cLengthIdx)));
+        .AddCnf(AsCnf(t => t.GetValue<DateTime?>(hireDateIdx) == new DateTime(1990, 1, 1))
+          .AddBoolean(t => t.GetValue<string>(titleIdx).GreaterThan("Sales Manager"))
+          .AddBoolean(t => t.GetValue<string>(lastNameIdx) == "John")
+          .AddBoolean(t => t.GetValue<string>(titleIdx).LessThan("Y"))
+          .AddBoolean(t => t.GetValue<string>(titleIdx).LessThanOrEqual("X")));
 
-      var expectedRanges = CreateExpectedRangesForMultiColumnIndexTest(indexInfo, LengthField,
-        DescriptionField);
+
+      var expectedRanges =
+        CreateExpectedRangesForMultiColumnIndexWithSeveralValuesOfLastFieldTest(indexInfo, hireDateField,
+        lastNameField, titleField);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
+    }
+
+    private static IEnumerable<Range<Entire<Tuple>>>
+      CreateExpectedRangesForMultiColumnIndexWithSeveralValuesOfLastFieldTest(IndexInfo indexInfo,
+      params string[] keyFieldName)
+    {
+      var keyFieldIndex0 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[0]);
+      var keyFieldIndex1 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[1]);
+      var keyFieldIndex2 = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName[2]);
+      var result = new SetSlim<Range<Entire<Tuple>>>();
+      var expectedFirst = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor, keyFieldIndex0,
+        new DateTime(1990, 1, 1)), Direction.Positive);
+      expectedFirst.Value.SetValue(keyFieldIndex1, "John");
+      expectedFirst.Value.SetValue(keyFieldIndex2, "Sales Manager");
+      var expectedSecond = new Entire<Tuple>(CreateTuple(indexInfo.KeyTupleDescriptor,
+        keyFieldIndex0, expectedFirst.Value.GetValue(keyFieldIndex0)));
+      expectedSecond.Value.SetValue(keyFieldIndex1, expectedFirst.Value.GetValue(keyFieldIndex1));
+      expectedSecond.Value.SetValue(keyFieldIndex2, "X");
+      var expectedRange = new Range<Entire<Tuple>>(expectedFirst, expectedSecond);
+      result.Add(expectedRange);
+      return result;
     }
   }
 }

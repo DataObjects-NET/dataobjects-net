@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using Xtensive.Indexing.Measures;
-using Xtensive.Indexing.Statistics;
+using Xtensive.Indexing.Optimization;
 
 namespace Xtensive.Indexing
 {
@@ -20,6 +20,6 @@ namespace Xtensive.Indexing
     IIndex<TKey, TItem>,
     IOrderedEnumerable<TKey, TItem>,
     IRangeMeasurable<TKey, TItem>,
-    IStatisticsProvider<TKey>
+    IOptimizationInfoProvider<TKey>
   {}
 }

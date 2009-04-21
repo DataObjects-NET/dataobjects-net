@@ -17,16 +17,14 @@ namespace Xtensive.Core.Tests.Parameters
     [Test]
     public void CombinedTest()
     {
-      Parameter untypedParameter = new Parameter();
-
-      using (new ParameterScope()) {
-        untypedParameter.Value = "22";
-        Assert.AreEqual("22", untypedParameter.Value);        
-      }
-
       Parameter<int> parameter = new Parameter<int>();
 
-      AssertEx.Throws<InvalidOperationException>(delegate {
+      Assert.AreEqual(default(int), parameter.ExpectedValue);
+      parameter.ExpectedValue = 1;
+      Assert.AreEqual(1, parameter.ExpectedValue);
+      AssertEx.ThrowsInvalidOperationException(() => parameter.ExpectedValue = 1);
+
+      AssertEx.Throws<Exception>(delegate {
         parameter.Value = 5;
       });
 
@@ -39,6 +37,13 @@ namespace Xtensive.Core.Tests.Parameters
         });
 
         parameter.Value = 10;
+        Assert.AreEqual(10, parameter.Value);
+
+        using (ParameterContext.CreateExpectedValueScope()) {
+          Assert.AreEqual(1, parameter.Value);
+          AssertEx.ThrowsInvalidOperationException(() => parameter.Value = 1);
+        }
+
         Assert.AreEqual(10, parameter.Value);
 
         parameter.Value = 15;
@@ -62,7 +67,7 @@ namespace Xtensive.Core.Tests.Parameters
         Assert.AreEqual(25, parameter.Value);        
       }
 
-      AssertEx.Throws<InvalidOperationException>(delegate {
+      AssertEx.Throws<Exception>(delegate {
         int i = parameter.Value;
       });
     }

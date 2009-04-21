@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Arithmetic;
 using Xtensive.Core.Comparison;
 
-namespace Xtensive.Indexing.Statistics
+namespace Xtensive.Indexing.Optimization
 {
   [Serializable]
   internal class Histogram<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>

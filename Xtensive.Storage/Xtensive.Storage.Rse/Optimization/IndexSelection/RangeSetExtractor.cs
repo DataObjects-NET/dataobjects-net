@@ -75,10 +75,12 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     // Constructors
 
-    public RangeSetExtractor(DomainModel domainModel)
+    public RangeSetExtractor(DomainModel domainModel, IOptimizationInfoProviderResolver comparerResolver)
     {
-      cnfParser = new CnfParser(domainModel);
-      generalParser = new GeneralPredicateParser(domainModel);
+      ArgumentValidator.EnsureArgumentNotNull(domainModel, "domainModel");
+      ArgumentValidator.EnsureArgumentNotNull(comparerResolver, "comparerResolver");
+      cnfParser = new CnfParser(domainModel, comparerResolver);
+      generalParser = new GeneralPredicateParser(domainModel, comparerResolver);
     }
   }
 }

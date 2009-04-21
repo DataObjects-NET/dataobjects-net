@@ -7,7 +7,10 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Tuples;
+using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Optimization.IndexSelection
@@ -18,6 +21,8 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     private readonly ParserHelper parserHelper;
     private IndexInfo indexInfo;
     private RecordSetHeader recordSetHeader;
+    private AdvancedComparer<Entire<Tuple>> comparer;
+    private readonly IOptimizationInfoProviderResolver comparerResolver;
     private bool invertionIsActive;
 
     public RangeSetInfo Parse(Expression predicate, IndexInfo info, RecordSetHeader primaryIdxRecordSetHeader)
@@ -25,13 +30,14 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       ArgumentValidator.EnsureArgumentNotNull(predicate, "predicate");
       ArgumentValidator.EnsureArgumentNotNull(info, "info");
       ArgumentValidator.EnsureArgumentNotNull(primaryIdxRecordSetHeader, "primaryIdxRecordSetHeader");
+      indexInfo = info;
+      recordSetHeader = primaryIdxRecordSetHeader;
+      invertionIsActive = false;
       var unwrappedPredicate = UnwrapPredicate(predicate);
       if (!CanBeParsed(unwrappedPredicate))
         throw new ArgumentException(
           String.Format(Resources.Strings.ExExpressionMustReturnValueOfTypeX, typeof(bool)), "predicate");
-      indexInfo = info;
-      recordSetHeader = primaryIdxRecordSetHeader;
-      invertionIsActive = false;
+      comparer = comparerResolver.Resolve(indexInfo).GetEntireKeyComparer();
       var result = Visit(unwrappedPredicate);
       return AdjustResult(unwrappedPredicate, result);
     }
@@ -48,7 +54,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
     {
       if(result != null)
         return result;
-      return parserHelper.ConvertToRangeSetInfo(predicate, null, indexInfo, recordSetHeader);
+      return parserHelper.ConvertToRangeSetInfo(predicate, null, indexInfo, recordSetHeader, comparer);
     }
 
     #region Overrides of ExpressionVisitor<RangeSetInfo>
@@ -59,7 +65,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
         return null;
       var comparison = extractor.Extract(u, ParserHelper.DeafultKeySelector);
       if(comparison != null)
-        return parserHelper.ConvertToRangeSetInfo(u, comparison, indexInfo, recordSetHeader);
+        return parserHelper.ConvertToRangeSetInfo(u, comparison, indexInfo, recordSetHeader, comparer);
       var prevInversionState = SwitchInversion(u);
       var result = Visit(u.Operand);
       invertionIsActive = prevInversionState;
@@ -82,9 +88,9 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
         return null;
       var comparison = extractor.Extract(b, ParserHelper.DeafultKeySelector);
       if(comparison != null)
-        return parserHelper.ConvertToRangeSetInfo(b, comparison, indexInfo, recordSetHeader);
+        return parserHelper.ConvertToRangeSetInfo(b, comparison, indexInfo, recordSetHeader, comparer);
       if(b.NodeType != ExpressionType.AndAlso && b.NodeType != ExpressionType.OrElse)
-        return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null);
+        return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null, comparer);
       return VisitOperands(b);
     }
 
@@ -93,9 +99,9 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       var leftRs = Visit(b.Left);
       var rightRs = Visit(b.Right);
       if(leftRs == null)
-        leftRs = parserHelper.ConvertToRangeSetInfo(b.Left, null, indexInfo, recordSetHeader);
+        leftRs = parserHelper.ConvertToRangeSetInfo(b.Left, null, indexInfo, recordSetHeader, comparer);
       if(rightRs == null)
-        rightRs = parserHelper.ConvertToRangeSetInfo(b.Right, null, indexInfo, recordSetHeader);
+        rightRs = parserHelper.ConvertToRangeSetInfo(b.Right, null, indexInfo, recordSetHeader, comparer);
       if (b.NodeType == ExpressionType.AndAlso && !invertionIsActive
         || b.NodeType == ExpressionType.OrElse && invertionIsActive)
         return RangeSetExpressionBuilder.BuildIntersect(leftRs, rightRs);
@@ -107,7 +113,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       if (!CanBeParsed(mc))
         return null;
       var comparison = extractor.Extract(mc, ParserHelper.DeafultKeySelector);
-      return parserHelper.ConvertToRangeSetInfo(mc, comparison, indexInfo, recordSetHeader);
+      return parserHelper.ConvertToRangeSetInfo(mc, comparison, indexInfo, recordSetHeader, comparer);
     }
 
     private static bool CanBeParsed(Expression exp)
@@ -174,9 +180,12 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     // Constructors
 
-    public GeneralPredicateParser(DomainModel domainModel)
+    public GeneralPredicateParser(DomainModel domainModel, IOptimizationInfoProviderResolver comparerResolver)
     {
+      ArgumentValidator.EnsureArgumentNotNull(domainModel, "domainModel");
+      ArgumentValidator.EnsureArgumentNotNull(comparerResolver, "comparerResolver");
       parserHelper = new ParserHelper(domainModel);
+      this.comparerResolver = comparerResolver;
     }
   }
 }

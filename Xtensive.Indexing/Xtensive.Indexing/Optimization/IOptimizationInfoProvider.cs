@@ -4,18 +4,26 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.04.13
 
-namespace Xtensive.Indexing.Statistics
+using Xtensive.Core.Comparison;
+
+namespace Xtensive.Indexing.Optimization
 {
   /// <summary>
   /// Statistics provider.
   /// </summary>
   /// <typeparam name="TKey">The type of the key.</typeparam>
-  public interface IStatisticsProvider<TKey>
+  public interface IOptimizationInfoProvider<TKey>
   {
     /// <summary>
     /// Gets the <see cref="IStatistics{T}"/>.
     /// </summary>
     /// <returns>The statistics.</returns>
     IStatistics<TKey> GetStatistics();
+
+    /// <summary>
+    /// Gets the <see cref="AdvancedComparer{T}"/> which is used by the index to compare keys.
+    /// </summary>
+    /// <returns>The comparer.</returns>
+    AdvancedComparer<Entire<TKey>> GetEntireKeyComparer();
   }
 }

@@ -8,7 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Linq.Normalization;
+using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Core.Linq;
 using Xtensive.Storage.Model;
@@ -22,16 +24,18 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
   {
     private IndexInfo indexInfo;
     private RecordSetHeader recordSetHeader;
+    private AdvancedComparer<Entire<Tuple>> comparer;
     private readonly ParserHelper parserHelper;
+    private readonly IOptimizationInfoProviderResolver comparerResolver;
     private const int defaultExpressionsListSize = 10;
 
     private readonly List<RangeSetInfo> extractedExpressions =
       new List<RangeSetInfo>(defaultExpressionsListSize);
 
-    private readonly List<Pair<int, RangeSetInfo>> rangeSetAndIndexKeys = 
+    private readonly List<Pair<int, RangeSetInfo>> rangeSetAndIndexKeysCache = 
       new List<Pair<int, RangeSetInfo>>(defaultExpressionsListSize);
 
-    private readonly Dictionary<int, Expression> indexKeyValues =
+    private readonly Dictionary<int, Expression> indexKeyValuesCache =
       new Dictionary<int, Expression>(defaultExpressionsListSize);
 
     private readonly ComparisonExtractor extractor = new ComparisonExtractor();  
@@ -44,6 +48,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       ArgumentValidator.EnsureArgumentNotNull(primaryIdxRecordSetHeader, "primaryIdxRecordSetHeader");
       indexInfo = info;
       recordSetHeader = primaryIdxRecordSetHeader;
+      comparer = comparerResolver.Resolve(indexInfo).GetEntireKeyComparer();
       ParseTerms(normalized);
       return MakeResultExpression();
     }
@@ -54,7 +59,7 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       foreach (var exp in normalized.Operands) {
         var tupleComparison = extractor.Extract(exp, ParserHelper.DeafultKeySelector);
         extractedExpressions.Add(parserHelper.ConvertToRangeSetInfo(exp, tupleComparison, indexInfo,
-          recordSetHeader));
+          recordSetHeader, comparer));
       }
     }
 
@@ -74,13 +79,52 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
 
     private RangeSetInfo TryUseMultiFieldIndex()
     {
+      var rangeSetAndIndexKeys = FindPositionOfIndexKeys();
+      int lastKeyPosition;
+      var indexKeyValues = TryCreateFirstSetOfMultiColumnIndexKeyValues(rangeSetAndIndexKeys,
+        out lastKeyPosition);
+      if (indexKeyValues == null)
+        return null;
+      return IntersectRangeSetsOfMultiColumnIndexKeys(rangeSetAndIndexKeys, indexKeyValues, lastKeyPosition);
+    }
+
+    private RangeSetInfo IntersectRangeSetsOfMultiColumnIndexKeys(
+      List<Pair<int, RangeSetInfo>> rangeSetAndIndexKeys,
+      Dictionary<int, Expression> indexKeyValues, int lastKeyPosition)
+    {
+      RangeSetInfo result = BuildRangeSetForMultiColumnIndex(indexKeyValues,
+        rangeSetAndIndexKeys, lastKeyPosition);
+      var indexOfLastField = rangeSetAndIndexKeys[lastKeyPosition].First;
+      lastKeyPosition++;
+      while (lastKeyPosition < rangeSetAndIndexKeys.Count
+        && indexOfLastField == rangeSetAndIndexKeys[lastKeyPosition].First
+          && rangeSetAndIndexKeys[lastKeyPosition].First >= 0) {
+        indexKeyValues.Remove(indexOfLastField);
+        var pair = rangeSetAndIndexKeys[lastKeyPosition];
+        indexKeyValues.Add(pair.First, pair.Second.Origin.Comparison.Value);
+        var part = BuildRangeSetForMultiColumnIndex(indexKeyValues, rangeSetAndIndexKeys, lastKeyPosition);
+        result = RangeSetExpressionBuilder.BuildIntersect(result, part);
+        lastKeyPosition++;
+      }
+      return result;
+    }
+
+    private RangeSetInfo BuildRangeSetForMultiColumnIndex(Dictionary<int, Expression> indexKeyValues,
+      List<Pair<int, RangeSetInfo>> rangeSetAndIndexKeys, int lastKeyPosition)
+    {
+      return RangeSetExpressionBuilder.BuildConstructorForMultiColumnIndex(indexKeyValues,
+        rangeSetAndIndexKeys[lastKeyPosition].Second.Origin, indexInfo, comparer);
+    }
+
+    private List<Pair<int, RangeSetInfo>> FindPositionOfIndexKeys()
+    {
       var rangeSetProjection = (from rangeSetInfo in extractedExpressions
       where rangeSetInfo.Origin!=null
       select new Pair<int, RangeSetInfo>(parserHelper.GetPositionInIndexKeys(
         recordSetHeader.Columns[rangeSetInfo.Origin.FieldIndex], indexInfo),rangeSetInfo));
-      rangeSetAndIndexKeys.Clear();
-      rangeSetAndIndexKeys.AddRange(rangeSetProjection);
-      rangeSetAndIndexKeys.Sort((pair0, pair1) => {
+      rangeSetAndIndexKeysCache.Clear();
+      rangeSetAndIndexKeysCache.AddRange(rangeSetProjection);
+      rangeSetAndIndexKeysCache.Sort((pair0, pair1) => {
         if (pair0.First < 0 ^ pair1.First < 0)
           if (pair0.First < 0)
             return 1;
@@ -88,32 +132,39 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
             return -1;
         return pair0.First.CompareTo(pair1.First);
       });
+      return rangeSetAndIndexKeysCache;
+    }
 
-      indexKeyValues.Clear();
-      RangeSetInfo lastRangeSetInfo = null;
-      foreach (var item in rangeSetAndIndexKeys) {
+    private Dictionary<int, Expression> TryCreateFirstSetOfMultiColumnIndexKeyValues(
+      List<Pair<int, RangeSetInfo>> rangeSetAndIndexKeys, out int lastKeyPosition)
+    {
+      indexKeyValuesCache.Clear();
+      lastKeyPosition = -1;
+      for (int i = 0; i < rangeSetAndIndexKeys.Count; i++) {
+        var item = rangeSetAndIndexKeys[i];
         if (item.First < 0)
           break;
-        if(indexKeyValues.ContainsKey(item.First))
+        if (indexKeyValuesCache.ContainsKey(item.First))
           return null;
-        indexKeyValues.Add(item.First, item.Second.Origin.Comparison.Value);
-        lastRangeSetInfo = item.Second;
-        if (item.Second.Origin.Comparison.Operation!=ComparisonOperation.Equal)
+        indexKeyValuesCache.Add(item.First, item.Second.Origin.Comparison.Value);
+        lastKeyPosition = i;
+        if (item.Second.Origin.Comparison.Operation != ComparisonOperation.Equal)
           break;
       }
-      if (indexKeyValues.Count <= 1 || lastRangeSetInfo == null)
+      if (indexKeyValuesCache.Count <= 1 || lastKeyPosition < 0)
         return null;
-
-      return RangeSetExpressionBuilder.BuildConstructorForMultiColumnIndex(indexKeyValues,
-        lastRangeSetInfo.Origin, indexInfo);
+      return indexKeyValuesCache;
     }
 
 
     // Constructors
 
-    public CnfParser(DomainModel domainModel)
+    public CnfParser(DomainModel domainModel, IOptimizationInfoProviderResolver comparerResolver)
     {
+      ArgumentValidator.EnsureArgumentNotNull(domainModel, "domainModel");
+      ArgumentValidator.EnsureArgumentNotNull(comparerResolver, "comparerResolver");
       parserHelper = new ParserHelper(domainModel);
+      this.comparerResolver = comparerResolver;
     }
   }
 }

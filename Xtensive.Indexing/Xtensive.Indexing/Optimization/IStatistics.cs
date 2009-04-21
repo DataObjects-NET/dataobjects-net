@@ -4,7 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.04.13
 
-namespace Xtensive.Indexing.Statistics
+namespace Xtensive.Indexing.Optimization
 {
   /// <summary>
   /// Statistics of an index.

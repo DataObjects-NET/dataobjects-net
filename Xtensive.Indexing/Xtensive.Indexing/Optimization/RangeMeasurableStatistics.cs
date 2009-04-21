@@ -8,7 +8,7 @@ using System;
 using Xtensive.Core;
 using Xtensive.Indexing.Measures;
 
-namespace Xtensive.Indexing.Statistics
+namespace Xtensive.Indexing.Optimization
 {
   internal class RangeMeasurableStatistics<TKey, TItem> : IStatistics<TKey>
   {
@@ -17,12 +17,9 @@ namespace Xtensive.Indexing.Statistics
 
     public StatisticsData GetData(Range<Entire<TKey>> range)
     {
-      return new StatisticsData(GetRecordCount(range), GetSeekCount(range));
-    }
-
-    private double GetRecordCount(Range<Entire<TKey>> range)
-    {
-      return (long) measuresProvider.GetMeasureResult(range, CountMeasure<TKey, long>.CommonName);
+      var measureResult = measuresProvider.GetMeasureResults(range, CountMeasure<TKey, long>.CommonName);
+      var recordCount = (long) measureResult[0];
+      return new StatisticsData(recordCount, GetSeekCount(range));
     }
 
     private double GetSeekCount(Range<Entire<TKey>> range)

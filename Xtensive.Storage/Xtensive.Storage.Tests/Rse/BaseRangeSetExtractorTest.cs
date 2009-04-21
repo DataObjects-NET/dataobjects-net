@@ -15,6 +15,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Index;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Optimization.IndexSelection;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
@@ -41,7 +42,7 @@ namespace Xtensive.Storage.Tests.Rse
 
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
-      Xtensive.Storage.Domain result = base.BuildDomain(configuration);
+      var result = base.BuildDomain(configuration);
 
       Xtensive.Storage.Model.FieldInfo field;
       field = result.Model.Types[typeof(Creature)].Fields["ID"];
@@ -81,7 +82,8 @@ namespace Xtensive.Storage.Tests.Rse
     private void TestExpression(IEnumerable<Range<Entire<Tuple>>> expectedRanges,
       Func<RangeSetExtractor, Dictionary<Expression, List<RSExtractionResult>>> extractingFunc)
     {
-      RangeSetExtractor extractor = new RangeSetExtractor(Domain.Model);
+      var extractor = new RangeSetExtractor(Domain.Model,
+        new OptimizationInfoProviderResolver((DomainHandler)Domain.Handler));
       var rangeSetExp = extractingFunc(extractor);
       var result = rangeSetExp.GetRangeSetForSingleIndex();
       CheckRanges(expectedRanges, result);

@@ -14,7 +14,7 @@ namespace Xtensive.Core.Parameters
   /// <summary>
   /// Provides storing context-specific <see cref="Parameter{TValue}"/>'s values.
   /// </summary>
-  public sealed class ParameterContext : Context<ParameterScope>
+  public class ParameterContext : Context<ParameterScope>
   {    
     internal readonly Dictionary<Parameter, object> values = 
       new Dictionary<Parameter, object>();
@@ -25,6 +25,14 @@ namespace Xtensive.Core.Parameters
     public static ParameterContext Current {
       [DebuggerStepThrough]
       get { return Scope<ParameterContext>.CurrentContext; }
+    }
+
+    /// <summary>
+    /// Creates the <see cref="ParameterScope"/> associated with <see cref="ParameterExpectedValueContext"/>.
+    /// </summary>
+    public static ParameterScope CreateExpectedValueScope()
+    {
+      return new ParameterScope(new ParameterExpectedValueContext());
     }
 
     #region IContext<...> methods
@@ -47,13 +55,13 @@ namespace Xtensive.Core.Parameters
     #region Internal methods
 
     [DebuggerStepThrough]
-    internal bool TryGetValue(Parameter parameter, out object value)
+    internal virtual bool TryGetValue(Parameter parameter, out object value)
     {
       return values.TryGetValue(parameter, out value);
     }
     
     [DebuggerStepThrough]
-    internal void SetValue(Parameter parameter, object value)
+    internal virtual void SetValue(Parameter parameter, object value)
     {
       values[parameter] = value;
     }

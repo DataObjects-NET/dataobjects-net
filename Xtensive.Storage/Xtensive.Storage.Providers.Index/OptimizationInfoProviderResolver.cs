@@ -8,18 +8,18 @@ using System;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
-using Xtensive.Indexing.Statistics;
+using Xtensive.Indexing.Optimization;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Optimization;
 
 namespace Xtensive.Storage.Providers.Index
 {
   [Serializable]
-  internal sealed class StatisticsProviderResolver : IStatisticsProviderResolver
+  internal sealed class OptimizationInfoProviderResolver : IOptimizationInfoProviderResolver
   {
     private readonly DomainHandler domainHandler;
 
-    public IStatisticsProvider<Tuple> Resolve(IndexInfo indexInfo)
+    public IOptimizationInfoProvider<Tuple> Resolve(IndexInfo indexInfo)
     {
       if (!indexInfo.IsVirtual)
         return domainHandler.GetRealIndex(indexInfo);
@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Providers.Index
 
     // Constructors
 
-    public StatisticsProviderResolver(DomainHandler domainHandler)
+    public OptimizationInfoProviderResolver(DomainHandler domainHandler)
     {
       ArgumentValidator.EnsureArgumentNotNull(domainHandler, "domainHandler");
       this.domainHandler = domainHandler;

@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
-using Xtensive.Indexing.Statistics;
+using Xtensive.Indexing.Optimization;
 
 namespace Xtensive.Indexing.Tests.Statistics
 {

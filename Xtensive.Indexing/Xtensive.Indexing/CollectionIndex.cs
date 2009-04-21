@@ -12,7 +12,7 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Notifications;
 using Xtensive.Indexing.Measures;
-using Xtensive.Indexing.Statistics;
+using Xtensive.Indexing.Optimization;
 
 namespace Xtensive.Indexing
 {
@@ -282,7 +282,7 @@ namespace Xtensive.Indexing
 
     #endregion
 
-    #region IStatisticsProvider<TKey> Members
+    #region IOptimizationInfoProvider<TKey> Members
 
     /// <inheritdoc/>
     public IStatistics<TKey> GetStatistics()
@@ -290,6 +290,14 @@ namespace Xtensive.Indexing
       if (orderedIndex == null)
         throw new NotSupportedException();
       return orderedIndex.GetStatistics();
+    }
+
+    /// <inheritdoc/>
+    public AdvancedComparer<Entire<TKey>> GetEntireKeyComparer()
+    {
+      if (orderedIndex == null)
+        throw new NotSupportedException();
+      return orderedIndex.GetEntireKeyComparer();
     }
 
     #endregion

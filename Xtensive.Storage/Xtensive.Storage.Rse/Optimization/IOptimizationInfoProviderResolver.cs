@@ -5,20 +5,20 @@
 // Created:    2009.04.15
 
 using Xtensive.Core.Tuples;
-using Xtensive.Indexing.Statistics;
+using Xtensive.Indexing.Optimization;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse.Optimization
 {
   /// <summary>
-  /// Resolver of a <see cref="IStatisticsProvider{TKey}"/> for a specified <see cref="IndexInfo"/>.
+  /// Resolver of a <see cref="IOptimizationInfoProvider{TKey}"/> for a specified <see cref="IndexInfo"/>.
   /// </summary>
-  public interface IStatisticsProviderResolver
+  public interface IOptimizationInfoProviderResolver
   {
     /// <summary>
-    /// Resolves the <see cref="IStatisticsProvider{TKey}"/> for <paramref name="indexInfo"/>.
+    /// Resolves the <see cref="IOptimizationInfoProvider{TKey}"/> for <paramref name="indexInfo"/>.
     /// </summary>
     /// <param name="indexInfo">The description of the index.</param>
-    IStatisticsProvider<Tuple> Resolve(IndexInfo indexInfo);
+    IOptimizationInfoProvider<Tuple> Resolve(IndexInfo indexInfo);
   }
 }

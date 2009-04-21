@@ -13,8 +13,11 @@ namespace Xtensive.Core.Parameters
   /// <summary>
   /// Parameter - an object identifying its value in active <see cref="ParameterContext"/>.
   /// </summary>
-  public class Parameter
+  public abstract class Parameter
   {
+    protected object InnerExpectedValue;
+    private bool isExpectedValueExplicitlySet;
+
     /// <summary>
     /// Gets or sets the parameter name.
     /// </summary>    
@@ -30,6 +33,26 @@ namespace Xtensive.Core.Parameters
       get { return GetValue(); }
       [DebuggerStepThrough]
       set { SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the expected value of the parameter.
+    /// </summary>
+    /// <value>The expected value.</value>
+    /// <exception cref="InvalidOperationException">The expected value for the parameter 
+    /// is already set.</exception>
+    public virtual object ExpectedValue {
+      [DebuggerStepThrough]
+      get{
+        return InnerExpectedValue;
+      }
+      [DebuggerStepThrough]
+      set{
+        if(isExpectedValueExplicitlySet)
+          throw new InvalidOperationException(Resources.Strings.ExExpectedValueOfParameterIsAlreadySet);
+        InnerExpectedValue = value;
+        isExpectedValueExplicitlySet = true;
+      }
     }
 
     /// <summary>

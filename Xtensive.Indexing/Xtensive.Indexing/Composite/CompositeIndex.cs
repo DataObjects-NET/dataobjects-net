@@ -4,11 +4,11 @@
 // Created by: Dmitri Maximov
 // Created:    2008.03.03
 
-using System;
 using System.Diagnostics;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
-using Xtensive.Indexing.Statistics;
+using Xtensive.Indexing.Optimization;
 
 namespace Xtensive.Indexing.Composite
 {
@@ -18,7 +18,7 @@ namespace Xtensive.Indexing.Composite
   /// <typeparam name="TKey">The type of the key.</typeparam>
   /// <typeparam name="TItem">The type of the item.</typeparam>
   public class CompositeIndex<TKey, TItem> : ConfigurableBase<IndexConfiguration<TKey, TItem>>,
-    IStatisticsProvider<TKey>
+    IOptimizationInfoProvider<TKey>
     where TKey : Tuple
     where TItem : Tuple
   {
@@ -35,11 +35,18 @@ namespace Xtensive.Indexing.Composite
       get { return segments; }
     }
 
-    #region Implementation of IStatisticsProvider<TKey>
+    #region Implementation of IOptimizationInfoProvider<TKey>
 
+    /// <inheritdoc/>
     public IStatistics<TKey> GetStatistics()
     {
       return implementation.GetStatistics();
+    }
+
+    /// <inheritdoc/>
+    public AdvancedComparer<Entire<TKey>> GetEntireKeyComparer()
+    {
+      return implementation.GetEntireKeyComparer();
     }
 
     #endregion
