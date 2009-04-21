@@ -255,7 +255,7 @@ namespace Xtensive.Storage.Linq
 
           var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
           var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-          var keySegment = mapping.GetFieldMapping("Key");
+          var keySegment = mapping.GetFieldMapping(StorageWellKnown.Key);
           var keyPairs = keySegment.GetItems()
             .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
             .ToArray();
@@ -448,7 +448,6 @@ namespace Xtensive.Storage.Linq
       var result = visitedSource;
 
       ItemProjectorRewriter projectorRewriter;
-      List<int> groupMapping;
 
       RecordSet recordSet;
       List<int> columnList;
@@ -463,7 +462,7 @@ namespace Xtensive.Storage.Linq
 
         result = context.Bindings[keySelector.Parameters[0]];
         recordSet = result.RecordSet.Aggregate(columnList.ToArray());
-        groupMapping = result.RecordSet.Header.ColumnGroups
+        var groupMapping = result.RecordSet.Header.ColumnGroups
           .Select((cg, i) => new {Group = cg, Index = i})
           .Where(gi => gi.Group.Keys.All(columnList.Contains))
           .Select(gi => gi.Index)
@@ -471,57 +470,34 @@ namespace Xtensive.Storage.Linq
 
         projectorRewriter = new ItemProjectorRewriter(columnList, groupMapping, recordSet.Header);
 
-//        var memberType = originalCompiledKeyExpression.Body.GetMemberType();
-//        //TODO: rewrite column indexes and projections
-//        switch(memberType) {
-//          case MemberType.Default:
-//          case MemberType.Primitive:
-//          case MemberType.Key: {
-//            var primitiveFieldMapping = (PrimitiveMapping)mappingRef.Value.Mapping;
-//            newResultMapping.RegisterField("Key", primitiveFieldMapping.Segment);
-//            break;
-//          }
-//          case MemberType.Structure:
-//          //TODO: implement!!!
-//            break;
-//          case MemberType.Entity:
-//            if (mappingRef.Value.Mapping is PrimitiveMapping) {
-//              var primitiveFieldMapping = (PrimitiveMapping)mappingRef.Value.Mapping;
-//              var fields = new Dictionary<string, Segment<int>> { { "Key", primitiveFieldMapping.Segment } };
-//              var entityMapping = new ComplexMapping(fields);
-//              newResultMapping.RegisterEntity("Key", entityMapping);
-//            }
-//            else
-//              newResultMapping.RegisterEntity("Key", (ComplexMapping)mappingRef.Value.Mapping);
-//            break;
-//          case MemberType.Anonymous:
-//            newResultMapping.RegisterAnonymous("Key", (ComplexMapping)mappingRef.Value.Mapping, originalCompiledKeyExpression);
-//            break;
-//          default:
-//            throw new NotSupportedException();
-//        }
-
-        if (mappingRef.Value.Mapping is ComplexMapping) {
-          var cfm = (ComplexMapping) mappingRef.Value.Mapping;
-          var keyMapping = new ComplexMapping();
-          newResultMapping.RegisterEntity("Key", keyMapping);
-          foreach (var field in cfm.Fields) {
-            var segment = new Segment<int>(columnList.IndexOf(field.Value.Offset), field.Value.Length);
-            newResultMapping.RegisterField("Key." + field.Key, segment);
-            keyMapping.RegisterField(field.Key, segment);
+        var memberType = originalCompiledKeyExpression.Body.GetMemberType();
+        var rewritedMapping = mappingRef.Value.Mapping.RewriteColumnIndexes(projectorRewriter);
+        switch(memberType) {
+          case MemberType.Default:
+          case MemberType.Primitive:
+          case MemberType.Key: {
+            var primitiveFieldMapping = (PrimitiveMapping)rewritedMapping;
+            newResultMapping.RegisterField(StorageWellKnown.Key, primitiveFieldMapping.Segment);
+            break;
           }
-          foreach (var pair in cfm.AnonymousTypes) {
-            var projection = projectorRewriter.Rewrite(pair.Value.Second);
-            newResultMapping.RegisterAnonymous(
-              pair.Key.IsNullOrEmpty()
-                ? "Key"
-                : ("Key." + pair.Key)
-              , pair.Value.First, projection);
-          }
-        }
-        else {
-          var pfm = (PrimitiveMapping) mappingRef.Value.Mapping;
-          newResultMapping.RegisterField("Key", new Segment<int>(columnList.IndexOf(pfm.Segment.Offset), pfm.Segment.Length));
+          case MemberType.Structure:
+          //TODO: implement!!!
+            break;
+          case MemberType.Entity:
+            if (mappingRef.Value.Mapping is PrimitiveMapping) {
+              var primitiveFieldMapping = (PrimitiveMapping)rewritedMapping;
+              var fields = new Dictionary<string, Segment<int>> { { StorageWellKnown.Key, primitiveFieldMapping.Segment } };
+              var entityMapping = new ComplexMapping(fields);
+              newResultMapping.RegisterEntity(StorageWellKnown.Key, entityMapping);
+            }
+            else
+              newResultMapping.RegisterEntity(StorageWellKnown.Key, (ComplexMapping)rewritedMapping);
+            break;
+          case MemberType.Anonymous:
+            newResultMapping.RegisterAnonymous(StorageWellKnown.Key, (ComplexMapping)rewritedMapping, projectorRewriter.Rewrite(originalCompiledKeyExpression.Body));
+            break;
+          default:
+            throw new NotSupportedException();
         }
       }
 
@@ -581,7 +557,7 @@ namespace Xtensive.Storage.Linq
       var resultExpression = new ResultExpression(method.ReturnType, recordSet, newResultMapping, itemProjector);
 
       if (resultSelector!=null) {
-        var keyProperty = parameterGroupingType.GetProperty("Key");
+        var keyProperty = parameterGroupingType.GetProperty(StorageWellKnown.Key);
         var convertedParameter = Expression.Convert(resultSelector.Parameters[1], parameterGroupingType);
         var keyAccess = Expression.MakeMemberAccess(convertedParameter, keyProperty);
         var rewritedResultSelectorBody = ReplaceParameterRewriter.Rewrite(resultSelector.Body, resultSelector.Parameters[0], keyAccess);
@@ -841,7 +817,7 @@ namespace Xtensive.Storage.Linq
       }
 
       //TODO: Handle anonymous types
-      Mapping mapping;
+      IMapping mapping;
       if (outer.Mapping is PrimitiveMapping) {
         var pfm = (PrimitiveMapping) outer.Mapping;
         mapping = new PrimitiveMapping(new Segment<int>(outerColumnList.IndexOf(pfm.Segment.Offset), pfm.Segment.Length));

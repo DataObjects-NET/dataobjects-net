@@ -147,7 +147,7 @@ namespace Xtensive.Storage.Linq
 
               var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
               var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-              var keySegment = mapping.GetFieldMapping("Key");
+              var keySegment = mapping.GetFieldMapping(StorageWellKnown.Key);
               var keyPairs = keySegment.GetItems()
                 .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
                 .ToArray();
@@ -392,7 +392,7 @@ namespace Xtensive.Storage.Linq
               case MemberType.Entity:
                 if (fieldMapping is PrimitiveMapping) {
                   var primitiveFieldMapping = (PrimitiveMapping) fieldMapping;
-                  var fields = new Dictionary<string, Segment<int>> {{"Key", primitiveFieldMapping.Segment}};
+                  var fields = new Dictionary<string, Segment<int>> {{StorageWellKnown.Key, primitiveFieldMapping.Segment}};
                   var entityMapping = new ComplexMapping(fields);
                   mappingRef.Value.RegisterEntity(memberName, entityMapping);
                 }

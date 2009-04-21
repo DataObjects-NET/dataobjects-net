@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Resources;
+using Xtensive.Core.Linq;
 
 namespace Xtensive.Storage.Rse.Expressions
 {
@@ -28,6 +29,7 @@ namespace Xtensive.Storage.Rse.Expressions
     /// <returns></returns>
     public static MethodCallExpression AsTupleAccess(this Expression expression)
     {
+      expression = expression.StripCasts();
       if (expression.NodeType == ExpressionType.Call) {
         var mc = (MethodCallExpression)expression;
         if (mc.Object != null && mc.Object.Type == typeof(Tuple))

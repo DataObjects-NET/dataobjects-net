@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Linq
       }).First();
 
       // IEntity
-      IEntityKey = typeof(IEntity).GetProperty("Key");
+      IEntityKey = typeof(IEntity).GetProperty(StorageWellKnown.Key);
 
       // ApplyParameter
       ApplyParameterValue = typeof(ApplyParameter).GetProperty("Value");

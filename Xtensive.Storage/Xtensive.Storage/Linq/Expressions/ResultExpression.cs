@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Linq.Expressions
   {
     private object projectionDelegate;
     public RecordSet RecordSet { get; private set; }
-    public Mapping Mapping { get; private set; }
+    public IMapping Mapping { get; private set; }
     public LambdaExpression ItemProjector { get; private set; }
     public LambdaExpression ScalarTransform { get; private set; }
 
@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Linq.Expressions
     public ResultExpression(
       Type type,
       RecordSet recordSet,
-      Mapping mapping,
+      IMapping mapping,
       LambdaExpression itemProjector)
       : this(type, recordSet, mapping, itemProjector, null)
     {}
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Linq.Expressions
     public ResultExpression(
       Type type,
       RecordSet recordSet,
-      Mapping mapping,
+      IMapping mapping,
       LambdaExpression itemProjector,
       LambdaExpression scalarTransform)
       : base((ExpressionType)ExtendedExpressionType.Result, type)

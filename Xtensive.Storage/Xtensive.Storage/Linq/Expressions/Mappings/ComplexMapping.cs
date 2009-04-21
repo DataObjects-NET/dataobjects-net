@@ -10,12 +10,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Linq.Expressions.Mappings
 {
-  internal sealed class ComplexMapping : Mapping
+  internal sealed class ComplexMapping : IMapping
   {
     internal readonly Dictionary<string, Segment<int>> Fields;
     internal readonly Dictionary<string, ComplexMapping> Entities;
@@ -64,14 +65,14 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 
     #endregion
 
-    public override List<int> GetColumns(bool entityAsKey)
+    public List<int> GetColumns(bool entityAsKey)
     {
       var result = new List<int>();
       var lookup = result.ToLookup(i => i);
       if (fillOrder.Count == 0) {
         // mapping for entity
         if (entityAsKey)
-          result.AddRange(GetFieldMapping("Key").GetItems());
+          result.AddRange(GetFieldMapping(StorageWellKnown.Key).GetItems());
         else
           result.AddRange(CalculateMemberSegment().GetItems());
       }
@@ -96,7 +97,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       return result.Distinct().ToList();
     }
 
-    public override Mapping CreateShifted(int offset)
+    public IMapping CreateShifted(int offset)
     {
       var shiftedFields = Fields.ToDictionary(fm => fm.Key, fm => new Segment<int>(offset + fm.Value.Offset, fm.Value.Length));
       var shiftedEntities = Entities.ToDictionary(jr => jr.Key, jr => (ComplexMapping)jr.Value.CreateShifted(offset));
@@ -111,7 +112,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       return new ComplexMapping(shiftedFields, shiftedEntities, shiftedAnonymous, shiftedGroupings, fillOrder);
     }
 
-    public override Segment<int> GetMemberSegment(MemberPath fieldPath)
+    public Segment<int> GetMemberSegment(MemberPath fieldPath)
     {
       if (fieldPath.Count == 0) {
         if (fieldPath.PathType == MemberType.Structure || fieldPath.PathType == MemberType.Entity)
@@ -140,7 +141,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       return mapping.GetFieldMapping(lastItem.Name);
     }
 
-    public override Mapping GetMemberMapping(MemberPath fieldPath)
+    public IMapping GetMemberMapping(MemberPath fieldPath)
     {
       List<MemberPathItem> pathList = fieldPath.ToList();
       if (pathList.Count == 0)
@@ -157,7 +158,22 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       return mapping;
     }
 
-    public void Fill(Mapping mapping)
+    public IMapping RewriteColumnIndexes(ItemProjectorRewriter rewriter)
+    {
+      var columnMapping = rewriter.Mappings;
+      var rewritedFields = Fields.ToDictionary(fm => fm.Key, fm => new Segment<int>(columnMapping.IndexOf(fm.Value.Offset), fm.Value.Length));
+      var rewritedEntities = Entities.ToDictionary(jr => jr.Key, jr => (ComplexMapping)jr.Value.RewriteColumnIndexes(rewriter));
+      var rewritedGroupings = Groupings.ToDictionary(jr => jr.Key, jr => (ComplexMapping)jr.Value.RewriteColumnIndexes(rewriter));
+      var rewritedAnonymous = new Dictionary<string, Pair<ComplexMapping, Expression>>();
+      foreach (var pair in AnonymousTypes) {
+        var mapping = pair.Value.First.RewriteColumnIndexes(rewriter);
+        var expression = rewriter.Rewrite(pair.Value.Second);
+        rewritedAnonymous.Add(pair.Key, new Pair<ComplexMapping, Expression>((ComplexMapping)mapping, expression));
+      }
+      return new ComplexMapping(rewritedFields, rewritedEntities, rewritedAnonymous, rewritedGroupings, fillOrder);
+    }
+
+    public void Fill(IMapping mapping)
     {
       if (mapping is PrimitiveMapping) {
         var pfm = (PrimitiveMapping)mapping;
@@ -246,7 +262,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     {
       var fields = new Dictionary<string, Segment<int>>();
       var keySegment = new Segment<int>(offset, type.Hierarchy.KeyInfo.Fields.Sum(pair => pair.Key.MappingInfo.Length));
-      fields.Add("Key", keySegment);
+      fields.Add(StorageWellKnown.Key, keySegment);
       foreach (var field in type.Fields) {
         fields.Add(field.Name, new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length));
         if (field.IsEntity)

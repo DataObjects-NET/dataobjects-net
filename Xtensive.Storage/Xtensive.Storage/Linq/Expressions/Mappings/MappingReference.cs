@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
   internal class MappingReference
   {
     private readonly bool fillMapping;
-    private Mapping mapping;
+    private IMapping mapping;
 
     // TODO: remove
     public bool FillMapping
@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     }
 
     // TODO: -> Value
-    public Mapping Mapping
+    public IMapping Mapping
     {
       get
       {
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 
     #endregion
 
-    public void Replace(Mapping mapping)
+    public void Replace(IMapping mapping)
     {
       if (fillMapping)
         this.mapping = mapping;

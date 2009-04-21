@@ -20,6 +20,11 @@ namespace Xtensive.Storage.Rse.Expressions
     protected readonly Func<ApplyParameter, int, int> resolveOuterColumn;
     protected readonly List<int> mappings;
 
+    public List<int> Mappings
+    {
+      get { return mappings; }
+    }
+
     /// <inheritdoc/>
     protected override Expression VisitUnknown(Expression e)
     {

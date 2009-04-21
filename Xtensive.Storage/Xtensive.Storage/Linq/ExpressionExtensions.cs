@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -18,21 +19,6 @@ namespace Xtensive.Storage.Linq
 {
   internal static class ExpressionExtensions
   {
-    public static LambdaExpression StripQuotes(this Expression expression)
-    {
-      while (expression.NodeType==ExpressionType.Quote)
-        expression = ((UnaryExpression) expression).Operand;
-      return (LambdaExpression) expression;
-    }
-
-    public static Expression StripCasts(this Expression expression)
-    {
-      while (expression.NodeType == ExpressionType.Convert 
-        || expression.NodeType == ExpressionType.TypeAs)
-        expression = ((UnaryExpression)expression).Operand;
-      return expression;
-    }
-
     public static bool IsQuery(this Expression expression)
     {
       return expression.Type.IsOfGenericInterface(typeof(IQueryable<>));

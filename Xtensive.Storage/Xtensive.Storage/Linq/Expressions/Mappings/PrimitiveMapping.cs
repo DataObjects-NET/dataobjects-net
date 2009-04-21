@@ -10,10 +10,11 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using System.Linq;
+using Xtensive.Storage.Linq.Rewriters;
 
 namespace Xtensive.Storage.Linq.Expressions.Mappings
 {
-  internal sealed class PrimitiveMapping : Mapping
+  internal sealed class PrimitiveMapping : IMapping
   {
     private readonly Segment<int> segment;
 
@@ -22,28 +23,34 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       get { return segment; }
     }
 
-    public override List<int> GetColumns(bool entityAsKey)
+    public List<int> GetColumns(bool entityAsKey)
     {
       return segment.GetItems().ToList();
     }
 
-    public override Mapping CreateShifted(int offset)
+    public IMapping CreateShifted(int offset)
     {
       return new PrimitiveMapping(new Segment<int>(segment.Offset + offset, segment.Length));
     }
 
-    public override Segment<int> GetMemberSegment(MemberPath fieldPath)
+    public Segment<int> GetMemberSegment(MemberPath fieldPath)
     {
       if (fieldPath.Count == 0)
         return segment;
       throw new InvalidOperationException();
     }
 
-    public override Mapping GetMemberMapping(MemberPath fieldPath)
+    public IMapping GetMemberMapping(MemberPath fieldPath)
     {
       if (fieldPath.Count == 0)
         return this;
       throw new InvalidOperationException();
+    }
+
+    public IMapping RewriteColumnIndexes(ItemProjectorRewriter rewriter)
+    {
+      var rewrited = new Segment<int>(rewriter.Mappings.IndexOf(segment.Offset), segment.Length);
+      return new PrimitiveMapping(rewrited);
     }
 
     public override string ToString()

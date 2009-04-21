@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Linq.Expressions
     public GroupingResultExpression(
       Type type, 
       RecordSet recordSet, 
-      Mapping mapping, 
+      IMapping mapping, 
       Expression<Func<RecordSet, object>> projector, 
       LambdaExpression itemProjector, 
       ResultExpression value)

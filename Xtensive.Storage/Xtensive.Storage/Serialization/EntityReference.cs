@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Serialization
   [Serializable]
   internal sealed class EntityReference : IObjectReference, ISerializable
   {
-    private const string KeyValueName = "Key";
+    private const string KeyValueName = StorageWellKnown.Key;
     private readonly Entity entity;
 
     public object GetRealObject(StreamingContext context)

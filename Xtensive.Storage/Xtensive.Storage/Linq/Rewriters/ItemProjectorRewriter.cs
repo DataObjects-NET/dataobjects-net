@@ -19,6 +19,16 @@ namespace Xtensive.Storage.Linq.Rewriters
     private readonly List<int> groupMapping;
     private readonly RecordSetHeader header;
 
+    public List<int> GroupMapping
+    {
+      get { return groupMapping; }
+    }
+
+    public RecordSetHeader Header
+    {
+      get { return header; }
+    }
+
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       if (mc.Object!=null) {
