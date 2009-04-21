@@ -18,7 +18,7 @@ namespace Xtensive.Modelling.Tests
   public class IndexingModelTest
   {
     [Test]
-    public void CombinedTest()
+    public void RenameTest1()
     {
       var storage = CreateSimpleStorageModel();
       storage.Dump();
@@ -32,6 +32,20 @@ namespace Xtensive.Modelling.Tests
         string o2OldPath = o2.Path;
         o2.Name = "NewObjects";
         hs.Add(new RenameHint(o2OldPath, o2.Path));
+      });
+    }
+
+    [Test]
+    public void RenameTest2()
+    {
+      var storage = CreateSimpleStorageModel();
+      storage.Dump();
+
+      TestUpdate(storage, (s1, s2, hs) => {
+        var t2 = (TableInfo) s2.Resolve("Tables/Types");
+        string t2OldPath = t2.Path;
+        t2.Name = "NewObjects";
+        hs.Add(new RenameHint(t2OldPath, t2.Path));
       });
     }
 
