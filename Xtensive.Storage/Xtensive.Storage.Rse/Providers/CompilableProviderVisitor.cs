@@ -76,10 +76,10 @@ namespace Xtensive.Storage.Rse.Providers
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
+      var columnIndexes = (int[])OnRecursionExit(provider);
       if (source == provider.Source)
         return provider;
-      return new SelectProvider(source, provider.ColumnIndexes);
+      return new SelectProvider(source, columnIndexes ?? provider.ColumnIndexes);
     }
 
     /// <inheritdoc/>

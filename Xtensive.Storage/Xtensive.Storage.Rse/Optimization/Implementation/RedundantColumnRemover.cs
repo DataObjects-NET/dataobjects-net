@@ -279,6 +279,16 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
           mappings.Value[sortProvider] = Merge(sourceMap, mappings.Value[sortProvider]);
           return orders;
         }
+        case ProviderType.Select: {
+          var selectProvider = (SelectProvider)provider;
+          var sourceMap = mappings.Value[selectProvider.Source];
+          var columns = selectProvider.ColumnIndexes
+            .Select((i,j) => new Pair<int>(sourceMap.IndexOf(i), j))
+            .Where(i => i.First >= 0)
+            .ToList();
+          mappings.Value[selectProvider] = columns.Select(c => c.Second).ToList();
+          return columns.Select(c => c.First).ToArray();
+        }
         default: {
           var unaryProvider = (UnaryProvider)provider;
           mappings.Value[unaryProvider] = Merge(mappings.Value[unaryProvider], mappings.Value[unaryProvider.Source]);
@@ -300,6 +310,13 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
         case ProviderType.Calculate:
         case ProviderType.RowNumber:
         case ProviderType.Apply:
+          break;
+        case ProviderType.Range:
+        case ProviderType.RangeSet:
+          mappings.Value.Add(
+            provider.Sources[0],
+            Merge(mappings.Value[provider], provider.Header.Order.Select(o => o.Key))
+            );
           break;
         default:
           mappings.Value.Add(provider.Sources[0], mappings.Value[provider]);
