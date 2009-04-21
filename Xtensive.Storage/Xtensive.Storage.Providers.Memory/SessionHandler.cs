@@ -50,7 +50,8 @@ namespace Xtensive.Storage.Providers.Memory
 
       StorageView.Execute(batch);
     }
-    
+
+    /// <inheritdoc/>
     public override void Initialize()
     {
       base.Initialize();

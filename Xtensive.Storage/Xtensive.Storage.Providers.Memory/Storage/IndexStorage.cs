@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Memory
   {
     private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes = 
       new Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>>();
-    private readonly Dictionary<IndexInfo, MapTransform> secondaryIndexTransforms = 
+    private readonly Dictionary<IndexInfo, MapTransform> indexTransforms = 
       new Dictionary<IndexInfo, MapTransform>();
 
     /// <inheritdoc/>
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Providers.Memory
     /// <inheritdoc/>
     public override IStorageView GetView(Guid transactionId)
     {
-      // ToDo: Complete this.
+      // ToDo: Complete this
       return new IndexStorageView(this, Model, IsolationLevel.ReadCommitted);
     }
 
@@ -52,26 +52,29 @@ namespace Xtensive.Storage.Providers.Memory
     /// <inheritdoc/>
     public override MapTransform GetTransform(IndexInfo indexInfo)
     {
-      return secondaryIndexTransforms[indexInfo];
+      return indexTransforms[indexInfo];
     }
 
     internal void ClearSchema()
     {
       realIndexes.Clear();
       Model = new StorageInfo(Name);
+      Model.Lock(true);
     }
 
     internal void CreateNewSchema(StorageInfo model)
     {
-      ClearSchema();
+      realIndexes.Clear();
       Model = model;
+      if (!Model.IsLocked)
+        Model.Lock(true);
 
-      foreach (TableInfo table in model.Tables) {
+      foreach (var table in model.Tables) {
         realIndexes.Add(table.PrimaryIndex, BuildIndex(table.PrimaryIndex));
-        secondaryIndexTransforms.Add(table.PrimaryIndex, BuildIndexTransform(table.PrimaryIndex));
-        foreach (SecondaryIndexInfo indexInfo in table.SecondaryIndexes) {
+        indexTransforms.Add(table.PrimaryIndex, BuildIndexTransform(table.PrimaryIndex));
+        foreach (var indexInfo in table.SecondaryIndexes) {
           realIndexes.Add(indexInfo, BuildIndex(indexInfo));
-          secondaryIndexTransforms.Add(indexInfo, BuildIndexTransform(indexInfo));
+          indexTransforms.Add(indexInfo, BuildIndexTransform(indexInfo));
         }
       }
     }
@@ -88,7 +91,7 @@ namespace Xtensive.Storage.Providers.Memory
           orderingRule.Add(keyColumn.Value, keyColumn.Direction);
         }
         foreach (var keyColumn in indexInfo.Parent.PrimaryIndex.KeyColumns) {
-          if (indexInfo.KeyColumns.SingleOrDefault(cr => cr.Value == keyColumn.Value) == null)
+          if (indexInfo.KeyColumns.SingleOrDefault(cr => cr.Value==keyColumn.Value)==null)
             orderingRule.Add(keyColumn.Value, keyColumn.Direction);
         }
       }

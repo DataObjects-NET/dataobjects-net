@@ -29,21 +29,19 @@ namespace Xtensive.Storage.Providers.Memory
     /// <inheritdoc/>
     public override CommandResult Execute(Command command)
     {
-      if (command.Type == CommandType.Update)
+      if (command.Type==CommandType.Update)
         ExecuteUpdateCommand(command as UpdateCommand);
-      
+
       return null;
     }
 
     /// <inheritdoc/>
     public override Dictionary<int, CommandResult> Execute(List<Command> commands)
     {
-      var result = new Dictionary<int, CommandResult>(commands.Count);
-      var count = 0;
       foreach (var command in commands)
-        result.Add(count++, Execute(command));
-      
-      return result;
+        Execute(command);
+
+      return new Dictionary<int, CommandResult>();
     }
 
     /// <inheritdoc/>
@@ -57,7 +55,7 @@ namespace Xtensive.Storage.Providers.Memory
     {
       return Storage.GetRealIndex(indexInfo);
     }
-    
+
     /// <inheritdoc/>
     public override void Update(ActionSequence sequence)
     {
@@ -67,39 +65,36 @@ namespace Xtensive.Storage.Providers.Memory
     /// <inheritdoc/>
     public override void ClearSchema()
     {
-      ((IndexStorage)Storage).ClearSchema();
+      ((IndexStorage) Storage).ClearSchema();
       Model = Storage.Model;
     }
 
     /// <inheritdoc/>
     public override void CreateNewSchema(StorageInfo model)
     {
-      ((IndexStorage)Storage).CreateNewSchema(model);
+      ((IndexStorage) Storage).CreateNewSchema(model);
       Model = Storage.Model;
     }
 
     private void ExecuteUpdateCommand(UpdateCommand cmd)
     {
-      if (!cmd.KeyMustExist) {
+      if (!cmd.KeyMustExist)
         Insert(cmd.Key, cmd.Value, cmd.TableName);
-      }
-      else if(cmd.Value!=null) {
+      else if (cmd.Value!=null)
         Update(cmd.Key, cmd.Value, cmd.TableName);
-      }
-      else {
+      else
         Remove(cmd.Key, cmd.TableName);
-      }
     }
 
-    private void Update(Tuple key, Tuple value, string tableName)
+    private void Update(Tuple key, Tuple value, string primaryIndexName)
     {
-      var oldValue = FindTuple(tableName, key);
+      var oldValue = FindTuple(primaryIndexName, key);
       var newValue = Tuple.Create(oldValue.Descriptor);
       oldValue.CopyTo(newValue);
       newValue.MergeWith(value, MergeBehavior.PreferDifference);
 
-      foreach (var indexInfo in GetAllIndexes(tableName)) {
-        var realIndex = Storage.GetRealIndex(indexInfo);
+      foreach (var indexInfo in GetAffectedIndexes(primaryIndexName)) {
+        var realIndex = GetIndex(indexInfo);
         var transform = Storage.GetTransform(indexInfo);
         var oldTransformed = transform.Apply(TupleTransformType.Tuple, oldValue).ToFastReadOnly();
         var newTransformed = transform.Apply(TupleTransformType.Tuple, newValue);
@@ -108,50 +103,49 @@ namespace Xtensive.Storage.Providers.Memory
       }
     }
 
-    private void Insert(Tuple key, Tuple value, string tableName)
+    private void Insert(Tuple key, Tuple value, string primaryIndexName)
     {
-      foreach (var indexInfo in GetAllIndexes(tableName)) {
-        var realIndex = Storage.GetRealIndex(indexInfo);
+      foreach (var indexInfo in GetAffectedIndexes(primaryIndexName)) {
+        var realIndex = GetIndex(indexInfo);
         var transform = Storage.GetTransform(indexInfo);
         var transformedTuple = transform.Apply(TupleTransformType.Tuple, value).ToFastReadOnly();
         realIndex.Add(transformedTuple);
       }
     }
 
-    private void Remove(Tuple key, string tableName)
+    private void Remove(Tuple key, string primaryIndexName)
     {
-      var value = FindTuple(tableName, key);
-      foreach (var indexInfo in GetAllIndexes(tableName)) {
-        var realIndex = Storage.GetRealIndex(indexInfo);
+      var value = FindTuple(primaryIndexName, key);
+      foreach (var indexInfo in GetAffectedIndexes(primaryIndexName)) {
+        var realIndex = GetIndex(indexInfo);
         var transform = Storage.GetTransform(indexInfo);
         var transformedTuple = transform.Apply(TupleTransformType.Tuple, value).ToFastReadOnly();
         realIndex.Remove(transformedTuple);
       }
     }
 
-    private IEnumerable<IndexInfo> GetAllIndexes(string tableName)
+    private IEnumerable<IndexInfo> GetAffectedIndexes(string primaryIndexName)
     {
-      var table = Model.Tables.SingleOrDefault(tableInfo => tableInfo.PrimaryIndex.Name==tableName);
-      if (table==null)
-        yield return null;
+      var table = Model.Tables.Single(tableInfo => tableInfo.PrimaryIndex.Name==primaryIndexName);
       yield return table.PrimaryIndex;
       foreach (var indexInfo in table.SecondaryIndexes) {
         yield return indexInfo;
       }
     }
 
-    private Tuple FindTuple(string tableName, Tuple key)
+    private Tuple FindTuple(string primaryIndexName, Tuple key)
     {
-      var indexInfo = Model.Tables.Single(table=>table.PrimaryIndex.Name==tableName).PrimaryIndex;
-      var primaryIndex = Storage.GetRealIndex(indexInfo);
+      var indexInfo = Model.Tables.Select(table => table.PrimaryIndex)
+        .Single(index => index.Name==primaryIndexName);
+      var primaryIndex = GetIndex(indexInfo);
       var seekResult = primaryIndex.Seek(new Ray<Entire<Tuple>>(new Entire<Tuple>(key)));
-      if (seekResult.ResultType != SeekResultType.Exact)
+      if (seekResult.ResultType!=SeekResultType.Exact)
         throw new InvalidOperationException();
-      
+
       return seekResult.Result;
     }
 
-    
+
     // Constructor
 
     /// <summary>

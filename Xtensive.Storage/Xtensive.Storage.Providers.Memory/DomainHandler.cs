@@ -22,7 +22,8 @@ namespace Xtensive.Storage.Providers.Memory
   {
     private readonly Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform> primaryIndexTransforms = 
       new Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform>();
-    private readonly Dictionary<IndexInfo, StorageIndexInfo> mappings = 
+
+    private readonly Dictionary<IndexInfo, StorageIndexInfo> mappings =
       new Dictionary<IndexInfo, StorageIndexInfo>();
     
     /// <inheritdoc/>
@@ -51,11 +52,10 @@ namespace Xtensive.Storage.Providers.Memory
         StorageIndexInfo storageIndex = null;
         foreach (var table in Storage.Model.Tables)
           foreach (var index in GetAllIndexes(table))
-            if (index.Name == indexInfo.MappingName)
+            if (index.Name==indexInfo.MappingName)
               storageIndex = index;
         mappings.Add(indexInfo, storageIndex);
       }
-      var o = this.mappings;
     }
 
     internal MapTransform GetTransform(IndexInfo indexInfo, TypeInfo type)
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Providers.Memory
     private StorageIndexInfo ConvertIndexInfo(IndexInfo indexInfo)
     {
       return mappings[indexInfo];
-    } 
+    }
 
     private static IEnumerable<StorageIndexInfo> GetAllIndexes(TableInfo table)
     {
@@ -93,7 +93,6 @@ namespace Xtensive.Storage.Providers.Memory
       foreach (var indexInfo in table.SecondaryIndexes)
         yield return indexInfo;
     }
-    
-    
+
   }
 }

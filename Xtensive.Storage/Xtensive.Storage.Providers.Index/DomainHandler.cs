@@ -27,9 +27,10 @@ namespace Xtensive.Storage.Providers.Index
 {
   public class DomainHandler : Providers.DomainHandler
   {
-    private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes = 
+    private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes =
       new Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>>();
-    private readonly Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform> indexTransforms = 
+
+    private readonly Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform> indexTransforms =
       new Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform>();
 
     /// <summary>
@@ -167,12 +168,11 @@ namespace Xtensive.Storage.Providers.Index
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(indexInfo.Columns.Select(c => c.ValueType));
       int[] map = indexInfo.Columns
-        .Select(c =>
-        {
+        .Select(c => {
           ColumnInfo column;
-          return type.Columns.TryGetValue(c.Field.Column.Name, out column) ?
-            column.Field.MappingInfo.Offset :
-            MapTransform.NoMapping;
+          return type.Columns.TryGetValue(c.Field.Column.Name, out column)
+            ? column.Field.MappingInfo.Offset
+            : MapTransform.NoMapping;
         }).ToArray();
       return new MapTransform(true, descriptor, map);
     }

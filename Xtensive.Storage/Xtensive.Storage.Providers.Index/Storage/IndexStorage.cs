@@ -25,12 +25,12 @@ namespace Xtensive.Storage.Providers.Index
     /// Gets the model.
     /// </summary>
     public StorageInfo Model { get; protected set; }
-    
+
     /// <summary>
     /// Gets the name.
     /// </summary>
     public string Name { get; private set; }
-    
+
     /// <inheritdoc/>
     public abstract IStorageView CreateView(IsolationLevel isolationLevel);
 
@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Providers.Index
     {
       var lease = (ILease)base.InitializeLifetimeService();
       if (lease.CurrentState == LeaseState.Initial)
-        lease.InitialLeaseTime=TimeSpan.Zero;
+        lease.InitialLeaseTime = TimeSpan.Zero;
 
       return lease;
     }
