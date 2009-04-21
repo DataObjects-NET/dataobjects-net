@@ -407,6 +407,36 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void GroupByWithEntityResultSelector5Bis22Test()
+    {
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .Select(g => new { Count = g.Count(), Customer = g.Key.CompanyName });
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void GroupByWithEntityResultSelector5Bis23Test()
+    {
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .Select(g => new { Count = g.Count(), Customer = g.Key })
+        .Where(g => g.Customer.CompanyName != null);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void GroupByWithEntityResultSelector5Bis24Test()
+    {
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .Select(g => new { Count = g.Count(), Customer = g.Key })
+        .OrderBy(g => g.Customer.CompanyName);
+      QueryDumper.Dump(result);
+    }
+
+
+    [Test]
     public void GroupByWithEntityResultSelector5Bis21Test()
     {
       var result = Query<Order>.All
