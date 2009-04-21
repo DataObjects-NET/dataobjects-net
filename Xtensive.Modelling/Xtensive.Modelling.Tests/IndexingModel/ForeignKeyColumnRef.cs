@@ -13,23 +13,28 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// References to foreign key column.
   /// </summary>
   [Serializable]
-  public class ForeignKeyColumnRef : Ref<ColumnInfo, ForeignKeyInfo>
+  public sealed class ForeignKeyColumnRef : Ref<ColumnInfo, ForeignKeyInfo>
   {
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return
-        new Nesting<ForeignKeyColumnRef, ForeignKeyInfo, ForeignKeyColumnCollection>(
+      return new Nesting<ForeignKeyColumnRef, ForeignKeyInfo, ForeignKeyColumnCollection>(
           this, "ForeignKeyColumns");
     }
 
 
     // Constructor
 
+    /// <inheritdoc/>
+    public ForeignKeyColumnRef(ForeignKeyInfo parent)
+      : base(parent)
+    {
+    }
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="parent">The parent foreign key.</param>
+    /// <param name="parent">The foreign key.</param>
     /// <param name="column">The column.</param>
     /// <inheritdoc/>
     public ForeignKeyColumnRef(ForeignKeyInfo parent, ColumnInfo column)

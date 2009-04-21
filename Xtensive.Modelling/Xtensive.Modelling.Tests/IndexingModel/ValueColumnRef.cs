@@ -18,7 +18,8 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<ValueColumnRef, PrimaryIndexInfo, ValueColumnRefCollection>(this, "ValueColumns");
+      return new Nesting<ValueColumnRef, PrimaryIndexInfo, ValueColumnRefCollection>(
+        this, "ValueColumns");
     }
 
 

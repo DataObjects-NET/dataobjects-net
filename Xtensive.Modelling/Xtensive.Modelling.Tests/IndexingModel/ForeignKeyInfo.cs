@@ -10,6 +10,7 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Tests.IndexingModel.Resources;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
 {
@@ -22,7 +23,6 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     private ReferentialAction onUpdateAction;
     private ReferentialAction onRemoveAction;
     private PrimaryIndexInfo primaryKey;
-
 
     /// <summary>
     /// Gets or sets the foreign index.
@@ -75,16 +75,6 @@ namespace Xtensive.Modelling.Tests.IndexingModel
       }
     }
 
-    /// <summary>
-    /// Adds all key columns of foreign index to <see cref="ForeignKeyColumns"/>.
-    /// </summary>
-    /// <param name="foreignIndex">The foreign index.</param>
-    public void AddForeignKeyColumns(IndexInfo foreignIndex)
-    {
-      foreach (var keyColumn in foreignIndex.KeyColumns)
-        new ForeignKeyColumnRef(this, keyColumn.Value);
-    }
-
     /// <inheritdoc/>
     /// <exception cref="ValidationException">Validations errors.</exception>
     protected override void ValidateState()
@@ -96,15 +86,9 @@ namespace Xtensive.Modelling.Tests.IndexingModel
           ea.Execute(() => {
             throw new ValidationException(Strings.ExUndefinedPrimaryKey, Path);
           });
-
-        if (PrimaryKey==null)
-          return;
-        var primaryKeyColumns = PrimaryKey.KeyColumns.Select(
-          columnRef => new {columnRef.Index, ColumnType = columnRef.Value.Type});
-        var referencedKeyColumns = ForeignKeyColumns.Select(
-          columnRef => new {columnRef.Index, ColumnType = columnRef.Value.Type});
-        if (primaryKeyColumns.Except(referencedKeyColumns)
-          .Union(referencedKeyColumns.Except(primaryKeyColumns)).Count() > 0)
+        var pkTypes = PrimaryKey.KeyColumns.Select(c => c.Value.Type);
+        var fkTypes = ForeignKeyColumns.Select(c => c.Value.Type);
+        if (pkTypes.Count()!=pkTypes.Zip(fkTypes).Where(p => p.First==p.Second).Count())
           ea.Execute(() => {
             throw new ValidationException(
               Strings.ExInvalidForeignKeyStructure, Path);
@@ -122,7 +106,8 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     protected override void Initialize()
     {
       base.Initialize();
-      ForeignKeyColumns = new ForeignKeyColumnCollection(this, "ForeignKeyColumns");
+      if (ForeignKeyColumns==null)
+        ForeignKeyColumns = new ForeignKeyColumnCollection(this, "ForeignKeyColumns");
     }
 
 

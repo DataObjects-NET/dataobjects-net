@@ -23,10 +23,8 @@ namespace Xtensive.Modelling.Actions
   {
     private Type type;
     private string name;
-    private int index;
+    private int? index;
     private object[] parameters;
-    private string afterPath;
-    private string newPath;
 
     public Type Type {
       get { return type; }
@@ -58,11 +56,11 @@ namespace Xtensive.Modelling.Actions
       }
     }
 
-    public string AfterPath {
-      get { return afterPath; }
+    public int? Index {
+      get { return index; }
       set {
         this.EnsureNotLocked();
-        afterPath = value;
+        index = value;
       }
     }
 
@@ -78,17 +76,8 @@ namespace Xtensive.Modelling.Actions
       if (node==null)
         throw new InvalidOperationException(string.Format(
           Strings.ExCannotFindConstructorToExecuteX, this));
-      if (AfterPath!=null) {
-        var afterNode = model.Resolve(AfterPath);
-        if (node.Parent==afterNode)
-          node.Index = 0;
-        else if (node.Parent==afterNode.Parent && (afterNode is NodeCollection))
-          node.Index = 0;
-        else if (node.Parent==afterNode.Parent)
-          node.Index = ((Node) afterNode).Index + 1;
-        else
-          throw new InvalidOperationException(Strings.ExInvalidAfterPathPropertyValue);
-      }
+      if (index.HasValue)
+        node.Index = index.Value;
     }
 
     protected Node TryConstructor(IModel model, params object[] args)
@@ -108,10 +97,8 @@ namespace Xtensive.Modelling.Actions
       base.GetParameters(parameters);
       parameters.Add(new Pair<string>("Type", type.GetShortName()));
       parameters.Add(new Pair<string>("Name", name));
-      if (AfterPath==null)
+      if (index.HasValue)
         parameters.Add(new Pair<string>("Index", index.ToString()));
-      else
-        parameters.Add(new Pair<string>("AfterPath", AfterPath));
       if (this.parameters!=null)
         parameters.Add(new Pair<string>("Parameters", this.parameters.ToCommaDelimitedString()));
     }

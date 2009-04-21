@@ -265,32 +265,20 @@ namespace Xtensive.Modelling.Comparison
         var targetKeys = tgt.Cast<Node>().Select(n => keyExtractor(n).Second);
         var commonKeys = sourceKeys.Intersect(targetKeys);
 
-        // Comparing source only items
-        foreach (var key in sourceKeys.Except(commonKeys)) {
-          var item = sourceKeyMap[key];
-          var d = Visit(item, null);
-          if (d!=null) {
-            if (context.IsReferenceComparison)
-              return difference;
-            difference.ItemChanges.Add((NodeDifference) d);
-          }
-        }
+        var sequence =
+          sourceKeys.Except(commonKeys)
+            .Select(k => new {Index = sourceKeyMap[k].Index, Type = 0, 
+              Source = sourceKeyMap[k], Target = (Node) null})
+          .Concat(commonKeys
+            .Select(k => new {Index = targetKeyMap[k].Index, Type = 1, 
+              Source = sourceKeyMap[k], Target = targetKeyMap[k]}))
+          .Concat(targetKeys.Except(commonKeys)
+            .Select(k => new {Index = targetKeyMap[k].Index, Type = 2, 
+              Source = (Node) null, Target = targetKeyMap[k]}))
+          .OrderBy(i => i.Type!=0).ThenBy(i => i.Index).ThenBy(i => i.Type);
 
-        // Comparing common items
-        foreach (var key in commonKeys) {
-          var item = sourceKeyMap[key];
-          var d = Visit(item, targetKeyMap[key]);
-          if (d!=null) {
-            if (context.IsReferenceComparison)
-              return difference;
-            difference.ItemChanges.Add((NodeDifference) d);
-          }
-        }
-
-        // Comparing target only items
-        foreach (var key in targetKeys.Except(commonKeys)) {
-          var item = targetKeyMap[key];
-          var d = Visit(null, item);
+        foreach (var i in sequence) {
+          var d = Visit(i.Source, i.Target);
           if (d!=null) {
             if (context.IsReferenceComparison)
               return difference;

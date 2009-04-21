@@ -87,8 +87,7 @@ namespace Xtensive.Modelling.Tests
       var ofkTypeId = new ForeignKeyInfo(o, "FK_TypeId") {
         PrimaryKey = tiPk, 
       };
-      ofkTypeId.AddForeignKeyColumns(oiTypeId);
-      
+      ofkTypeId.ForeignKeyColumns.Set(oiTypeId);
 
       storage.Validate();
       return storage;

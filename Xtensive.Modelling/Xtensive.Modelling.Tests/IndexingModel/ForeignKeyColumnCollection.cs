@@ -13,8 +13,22 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// A collection of <see cref="ForeignKeyColumnRef"/> instances.
   /// </summary>
   [Serializable]
-  public class ForeignKeyColumnCollection : NodeCollectionBase<ForeignKeyColumnRef, ForeignKeyInfo>
+  public sealed class ForeignKeyColumnCollection : NodeCollectionBase<ForeignKeyColumnRef, ForeignKeyInfo>
   {
+    /// <summary>
+    /// Replaces all column references to references to columns of 
+    /// specified <paramref name="source"/> index.
+    /// </summary>
+    /// <param name="source">The index to use.</param>
+    public void Set(IndexInfo source)
+    {
+      Clear();
+      foreach (var keyColumn in source.KeyColumns)
+        new ForeignKeyColumnRef(Parent, keyColumn.Value);
+    }
+
+
+    // Constructors
 
     /// <inheritdoc/>
     public ForeignKeyColumnCollection(Node parent, string name)

@@ -116,6 +116,28 @@ namespace Xtensive.Modelling.Tests.IndexingModel
       }
     }
 
+    /// <summary>
+    /// Implements the operator ==.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>The result of the operator.</returns>
+    public static bool operator ==(TypeInfo left, TypeInfo right)
+    {
+      return Equals(left, right);
+    }
+
+    /// <summary>
+    /// Implements the operator !=.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>The result of the operator.</returns>
+    public static bool operator !=(TypeInfo left, TypeInfo right)
+    {
+      return !Equals(left, right);
+    }
+
     #endregion
 
     /// <inheritdoc/>

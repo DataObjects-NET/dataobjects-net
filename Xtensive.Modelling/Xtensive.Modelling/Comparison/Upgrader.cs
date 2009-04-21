@@ -178,11 +178,8 @@ namespace Xtensive.Modelling.Comparison
             Path = target.Parent==null ? string.Empty : target.Parent.Path,
             Type = target.GetType(),
             Name = target.Name,
+            Index = target.Nesting.IsNestedToCollection ? (int?)target.Index : null
           };
-        if (target.Nesting.IsNestedToCollection) {
-          var collection = (NodeCollection) target.Nesting.PropertyValue;
-          action.AfterPath = target.Index==0 ? collection.Path : collection[target.Index - 1].Path;
-        }
         AddAction(action);
       }
       else if (!difference.MovementInfo.IsUnchanged) {
