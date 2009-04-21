@@ -258,6 +258,18 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void AnonimousCastTest()
+    {
+      var result = Query<Product>.All
+        .Select(x =>
+          new
+          {
+            DiscontinuedProduct = x as DiscontinuedProduct,
+          });
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void TwoChildrenCastTest()
     {
       var result = Query<Product>.All
