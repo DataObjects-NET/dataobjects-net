@@ -27,7 +27,8 @@ namespace Xtensive.Storage.Linq
 
     public static Expression StripCasts(this Expression expression)
     {
-      while (expression.NodeType == ExpressionType.Convert)
+      while (expression.NodeType == ExpressionType.Convert 
+        || expression.NodeType == ExpressionType.TypeAs)
         expression = ((UnaryExpression)expression).Operand;
       return expression;
     }

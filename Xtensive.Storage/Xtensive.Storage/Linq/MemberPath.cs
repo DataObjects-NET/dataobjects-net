@@ -55,8 +55,12 @@ namespace Xtensive.Storage.Linq
       MemberPathItem lastItem = null;
       Expression current = e;
       bool entityKeyAssociation = false;
-      while (current.NodeType==ExpressionType.MemberAccess || current.NodeType==ExpressionType.Convert) {
-        if (current.NodeType==ExpressionType.Convert) {
+      while (current.NodeType==ExpressionType.MemberAccess 
+        || current.NodeType==ExpressionType.Convert
+         || current.NodeType==ExpressionType.TypeAs) 
+         {
+        if (current.NodeType==ExpressionType.Convert
+          || current.NodeType==ExpressionType.TypeAs) {
           current = ((UnaryExpression) current).Operand;
           continue;
         }
