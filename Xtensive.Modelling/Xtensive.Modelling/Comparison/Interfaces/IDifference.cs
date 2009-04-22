@@ -29,5 +29,10 @@ namespace Xtensive.Modelling.Comparison
     /// <see langword="null" />, if none.
     /// </summary>
     Difference Parent { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this difference has changes.
+    /// </summary>
+    bool HasChanges { get; }
   }
 }

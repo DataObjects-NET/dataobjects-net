@@ -59,6 +59,29 @@ namespace Xtensive.Modelling.Tests
       });
     }
 
+    [Test]
+    public void RenameTest3()
+    {
+      var storage = CreateSimpleStorageModel();
+      storage.Tables["Types"].Index = storage.Tables.Count - 1;
+      storage.Dump();
+
+      TestUpdate(storage, (s1, s2, hs) => {
+        var t2 = (TableInfo) s2.Resolve("Tables/Types");
+        string t2OldPath = t2.Path;
+        t2.Name = "NewTypes";
+        hs.Add(new RenameHint(t2OldPath, t2.Path));
+      },
+      (diff, actions) => {
+        var query =
+          from a in actions
+          let vda = a as PropertyChangeAction
+          where vda!=null && vda.Properties.ContainsKey("PrimaryKey")
+          select a;
+        Assert.IsTrue(query.Any());
+      });
+    }
+
     public static StorageInfo CreateSimpleStorageModel()
     {
       var storage = new StorageInfo("Storage");

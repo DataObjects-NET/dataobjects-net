@@ -38,10 +38,8 @@ namespace Xtensive.Modelling.Comparison
     /// <inheritdoc/>
     public Dictionary<string, Difference> PropertyChanges { get; private set; }
 
-    /// <summary>
-    /// Gets a value indicating whether this difference describes changed node.
-    /// </summary>
-    public bool IsChanged {
+    /// <inheritdoc/>
+    public override bool HasChanges {
       get { return (MovementInfo & MovementInfo.Changed)!=0 || PropertyChanges.Count!=0; }
     }
 

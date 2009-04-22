@@ -38,6 +38,11 @@ namespace Xtensive.Modelling.Comparison
     public List<NodeDifference> ItemChanges { get; private set; }
 
     /// <inheritdoc/>
+    public override bool HasChanges {
+      get { return ItemChanges.Count!=0; }
+    }
+
+    /// <inheritdoc/>
     protected override string ParametersToString()
     {
       var sb = new StringBuilder();

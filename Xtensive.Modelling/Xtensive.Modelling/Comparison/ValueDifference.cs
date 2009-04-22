@@ -19,6 +19,11 @@ namespace Xtensive.Modelling.Comparison
   public class ValueDifference : Difference
   {
     /// <inheritdoc/>
+    public override bool HasChanges {
+      get { return true; }
+    }
+
+    /// <inheritdoc/>
     protected override string ParametersToString()
     {
       return "values differ";

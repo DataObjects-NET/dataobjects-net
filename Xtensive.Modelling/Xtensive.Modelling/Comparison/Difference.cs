@@ -36,6 +36,9 @@ namespace Xtensive.Modelling.Comparison
     /// <inheritdoc/>
     public Difference Parent { get; private set; }
 
+    /// <inheritdoc/>
+    public abstract bool HasChanges { get; }
+
     #region ToString implementation
 
     /// <inheritdoc/>

@@ -60,6 +60,11 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     protected Dictionary<object, Difference> Results { get; private set; }
 
+    /// <summary>
+    /// Gets the current comparison stage.
+    /// </summary>
+    protected ComparisonStage Stage { get; private set; }
+
     #endregion
 
     /// <inheritdoc/>
@@ -84,6 +89,9 @@ namespace Xtensive.Modelling.Comparison
       current = this;
       Results = new Dictionary<object, Difference>();
       try {
+        Stage = ComparisonStage.BaseComparison;
+        Visit(Source, Target);
+        Stage = ComparisonStage.ReferenceComparison;
         return Visit(Source, Target);
       }
       finally {
@@ -146,48 +154,47 @@ namespace Xtensive.Modelling.Comparison
         var any = source ?? target;
         if (any==null)
           throw Exceptions.InternalError(Strings.ExBothSourceAndTargetAreNull, Log.Instance);
-
-        // Filling MovementInfo
-        MovementInfo mi = 0;
-        if (source==null) {
-          // => target!=null
-          mi |= MovementInfo.Created;
-          if (difference.Parent!=null) {
-            var parentSource = difference.Parent.Source as Node;
-            if (parentSource!=null && context.Property!=null &&
-              parentSource.GetProperty(context.Property.Name)!=null)
-              mi |= MovementInfo.Removed; // = recreated
-          }
-        }
-        else if (target==null)
-          mi |= MovementInfo.Removed;
-        else {
-          // both source!=null && target!=null
-          if (!(source is IUnnamedNode) && source.Name!=target.Name && GetTargetPath(source)==target.Path)
-            mi |= MovementInfo.NameChanged;
-          var collection = target.Nesting.PropertyValue as NodeCollection;
-          if (source.Index!=target.Index && 
-              !(collection!=null && (collection is IUnorderedNodeCollection))) // TODO: Fix this!
-            mi |= MovementInfo.IndexChanged;
-          var pdc = context.GetParentDifferenceContext<NodeDifference>();
-          if (pdc!=null) {
-            var parentDifference = (NodeDifference) pdc.Difference;
-            if (source.Parent!=parentDifference.Source || target.Parent!=parentDifference.Target)
-              mi |= MovementInfo.ParentChanged;
-            var parentMi = parentDifference.MovementInfo;
-            if ((parentMi & MovementInfo.Relocated)!=0)
-              mi |= MovementInfo.ParentRelocated;
-          }
-        }
-        difference.MovementInfo = mi;
         
-        // Registering 
-        if (source!=null)
-          Results.Add(source, difference);
-        if (target!=null)
-          Results.Add(target, difference);
+        bool isNewDifference = TryRegisterDifference(source, target, difference);
+        var mi = difference.MovementInfo;
+
+        if (isNewDifference) {
+          // Filling MovementInfo
+          if (source==null) {
+            // => target!=null
+            mi |= MovementInfo.Created;
+            if (difference.Parent!=null) {
+              var parentSource = difference.Parent.Source as Node;
+              if (parentSource!=null && context.Property!=null &&
+                parentSource.GetProperty(context.Property.Name)!=null)
+                mi |= MovementInfo.Removed; // = recreated
+            }
+          }
+          else if (target==null)
+            mi |= MovementInfo.Removed;
+          else {
+            // both source!=null && target!=null
+            if (!(source is IUnnamedNode) && source.Name!=target.Name && GetTargetPath(source)==target.Path)
+              mi |= MovementInfo.NameChanged;
+            var collection = target.Nesting.PropertyValue as NodeCollection;
+            if (source.Index!=target.Index &&
+              !(collection!=null && (collection is IUnorderedNodeCollection))) // TODO: Fix this!
+              mi |= MovementInfo.IndexChanged;
+            var pdc = context.GetParentDifferenceContext<NodeDifference>();
+            if (pdc!=null) {
+              var parentDifference = (NodeDifference) pdc.Difference;
+              if (source.Parent!=parentDifference.Source || target.Parent!=parentDifference.Target)
+                mi |= MovementInfo.ParentChanged;
+              var parentMi = parentDifference.MovementInfo;
+              if ((parentMi & MovementInfo.Relocated)!=0)
+                mi |= MovementInfo.ParentRelocated;
+            }
+          }
+          difference.MovementInfo = mi;
+        }
 
         // Comparing properties
+        difference.PropertyChanges.Clear();
         if ((mi & MovementInfo.Removed)==0 || (mi & MovementInfo.Created)!=0) {
           foreach (var pair in any.PropertyAccessors) {
             var accessor = pair.Value;
@@ -207,7 +214,8 @@ namespace Xtensive.Modelling.Comparison
                 continue; // Both are null
 
               if (IsReference(newSource, newTarget)) {
-                if (newSource!=null && newTarget!=null) { // Otherwise value is definitely changed
+                if (Stage==ComparisonStage.ReferenceComparison && 
+                    newSource!=null && newTarget!=null) { // Otherwise value is definitely changed
                   Difference newDifference = null;
                   if (!Results.TryGetValue(newTarget, out newDifference))
                     throw new InvalidOperationException(string.Format(
@@ -228,7 +236,7 @@ namespace Xtensive.Modelling.Comparison
           }
         }
 
-        return difference.IsChanged ? difference : null;
+        return difference.HasChanges ? difference : null;
       }
     }
 
@@ -281,6 +289,9 @@ namespace Xtensive.Modelling.Comparison
         if (difference==null)
           throw new NullReferenceException();
         context.Property = null;
+        
+        bool isNewDifference = TryRegisterDifference(source, target, difference);
+        difference.ItemChanges.Clear();
 
         var src = ((ICountable) source) ?? new ReadOnlyList<Node>(new Node[] {});
         var tgt = ((ICountable) target) ?? new ReadOnlyList<Node>(new Node[] {});
@@ -382,7 +393,12 @@ namespace Xtensive.Modelling.Comparison
       context = CreateContext();
       var result = context.Activate();
       try {
-        context.Difference = differenceGenerator.Invoke(source, target);
+        Context.Difference = differenceGenerator.Invoke(source, target);
+        if (!(Context.Difference is ValueDifference)) {
+          Difference difference = null;
+          if (Results.TryGetValue(target ?? source, out difference))
+            Context.Difference = difference;
+        }
         return result;
       }
       catch {
@@ -398,6 +414,17 @@ namespace Xtensive.Modelling.Comparison
     protected virtual ComparisonContext CreateContext()
     {
       return new ComparisonContext();
+    }
+
+    private bool TryRegisterDifference(object source, object target, Difference difference)
+    {
+      if (Results.ContainsKey(target ?? source))
+        return false;
+      if (source!=null)
+        Results.Add(source, difference);
+      if (target!=null)
+        Results.Add(target, difference);
+      return true;
     }
 
     /// <summary>
