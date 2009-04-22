@@ -125,81 +125,45 @@ namespace Xtensive.Storage.Linq
       if (source.Type==targetType)
         return Visit(source);
 
-      
 
-        using (new ParameterScope()) {
-          var parameter = parameters.Value[0];
-          var visitedSource = Visit(source);
-//          var parameter = (ParameterExpression) source;
-          var resultExpression = context.Bindings[parameter];
-          var recordSet = resultExpression.RecordSet;
-          var mapping = new ComplexMapping();
-          mapping.Fill(resultExpression.Mapping);
+      if (!targetType.IsSubclassOf(source.Type))
+        return Visit(Expression.Convert(source, targetType));
 
-                var targetTypeInfo = context.Model.Types[targetType];
-               
-                
-                  int offset = recordSet.Header.Columns.Count;
+      using (new ParameterScope()) {
+        var parameter = parameters.Value[0];
+        var resultExpression = context.Bindings[parameter];
+        var recordSet = resultExpression.RecordSet;
+        var mapping = new ComplexMapping();
+        mapping.Fill(mappingRef.Value.Mapping);
+        var visitedSource = Visit(source);
 
-                  var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
-                  var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-                  var keySegment = mapping.GetFieldMapping(StorageWellKnown.Key);
-                  var keyPairs = keySegment.GetItems()
-                    .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-                    .ToArray();
-                  recordSet = recordSet.JoinLeft(joinedRs, JoinType.Default, keyPairs);
+        var targetTypeInfo = context.Model.Types[targetType];
 
-//        var groupMapping = recordSet.Header.ColumnGroups
-//          .Select((cg, i) => new {Group = cg, Index = i})
-//          .Where(gi => gi.Group.Keys.All(columnList.Contains))
-//          .Select(gi => gi.Index)
-//          .ToList();
-//
-//        var rewriter = new ItemProjectorRewriter(columnList, groupMapping, recordSet.Header);
-          
-          // mapping.RewriteColumnIndexes(new ItemProjectorRewriter())
-                
-//          TypeBinaryExpression typeIs = Expression.TypeIs(visitedSource, targetType);
-//          var typeCheckExpression = Expression.Condition(typeIs, visitedSource, Expression.Constant(null, visitedSource.Type));
-//          var convertExpression = Expression.Convert(typeCheckExpression, targetType);
 
-//          if (targetType.IsSubclassOf(visitedSource.Type)) {
-//              var inheritanceChain = new List<Type>();
-//              var type = targetType;
-//              while (type!=visitedSource.Type) {
-//                inheritanceChain.Add(type);
-//                type = type.BaseType;
-//              }
-//              inheritanceChain.Reverse();
-//
-//              foreach (var childType in inheritanceChain) {
-//
-//                var targetTypeInfo = context.Model.Types[childType];
-//                var missingFields = new List<Model.FieldInfo>();
-//                foreach (var field in targetTypeInfo.Fields) {
-//                  if (!mapping.Fields.ContainsKey(field.Name))
-//                    missingFields.Add(field);
-//                }
-//                if (missingFields.Count > 0) {
-//                  int offset = recordSet.Header.Columns.Count;
-//
-//                  var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
-//                  var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-//                  var keySegment = mapping.GetFieldMapping(StorageWellKnown.Key);
-//                  var keyPairs = keySegment.GetItems()
-//                    .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-//                    .ToArray();
-//                  recordSet = recordSet.JoinLeft(joinedRs, JoinType.Default, keyPairs);
-//                  foreach (var field in missingFields)
-//                    mapping.RegisterField(field.Name, new Segment<int>(field.MappingInfo.Offset + offset, field.MappingInfo.Length));
-//                }
-//              }
-//          }
-          var re = new ResultExpression(resultExpression.Type, recordSet, mapping, resultExpression.ItemProjector);
-          context.Bindings.ReplaceBound(parameter, re);
-          return Expression.Convert(visitedSource, targetType);
+        int offset = recordSet.Header.Columns.Count;
+
+        var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
+        var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+        var keySegment = mapping.GetFieldMapping(StorageWellKnown.Key);
+        var keyPairs = keySegment.GetItems()
+          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+          .ToArray();
+
+        foreach (var targetField in targetTypeInfo.Fields) {
+          mapping.RegisterField(targetField.Name, new Segment<int>(targetField.MappingInfo.Offset + offset, targetField.MappingInfo.Length));
+          if (targetField.IsEntity)
+            mapping.RegisterField(targetField.Name + ".Key", new Segment<int>(targetField.MappingInfo.Offset + offset, targetField.MappingInfo.Length));
+          if (targetField.IsPrimaryKey)
+            mapping.RegisterField("Key", new Segment<int>(targetField.MappingInfo.Offset + offset, targetField.MappingInfo.Length));
+        }
+
+        recordSet = recordSet.JoinLeft(joinedRs, JoinType.Default, keyPairs);
+        mappingRef.Value.Replace(mapping);
+
+        var re = new ResultExpression(resultExpression.Type, recordSet, resultExpression.Mapping, resultExpression.ItemProjector);
+        context.Bindings.ReplaceBound(parameter, re);
+        return Expression.Convert(visitedSource, targetType);
       }
-      throw new NotImplementedException();
     }
 
     protected override Expression VisitLambda(LambdaExpression le)

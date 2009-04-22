@@ -258,7 +258,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void AnonimousCastTest()
+    public void AnonymousCastTest()
     {
       var result = Query<Product>.All
         .Select(x =>
@@ -451,8 +451,7 @@ namespace Xtensive.Storage.Tests.Linq
         .OfType<ActiveProduct>();
       QueryDumper.Dump(result);
     }
-
-
+    
     [Test]
     public void ReferenceOfTypeAnonymousWithFieldAccessTest()
     {

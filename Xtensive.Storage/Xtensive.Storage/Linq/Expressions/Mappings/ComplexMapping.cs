@@ -214,6 +214,9 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
         Fields.Add(key, value);
         fillOrder.Add(new Pair<string, MemberType>(key, MemberType.Primitive));
       }
+      else {
+        Fields[key] = value;
+      }
     }
     public void RegisterJoinedEntity(string key, ComplexMapping value)
     {
