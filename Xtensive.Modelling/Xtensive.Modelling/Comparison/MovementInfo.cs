@@ -21,8 +21,7 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     Changed = 
       Created | Removed | Copied | 
-      NameChanged | IndexChanged | 
-      ParentChanged,
+      NameChanged | IndexChanged | ParentChanged,
 
     /// <summary>
     /// The source node is relocated.
@@ -30,8 +29,8 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     Relocated = 
       Copied | 
-      NameChanged | IndexChanged | 
-      ParentChanged | AnyParentChanged,
+      NameChanged | IndexChanged | ParentChanged |
+      ParentRelocated,
 
     /// <summary>
     /// The target node is newly created.
@@ -69,9 +68,8 @@ namespace Xtensive.Modelling.Comparison
     ParentChanged = 32,
 
     /// <summary>
-    /// Direct or indirect source node <see cref="Node.Parent"/> is changed,
-    /// i.e. the node or one of its parent was moved to a different parent node.
+    /// Direct or indirect source node <see cref="Node.Parent"/> is <see cref="Relocated"/>.
     /// </summary>
-    AnyParentChanged = 64,
+    ParentRelocated = 64,
   }
 }

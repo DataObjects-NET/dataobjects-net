@@ -174,9 +174,9 @@ namespace Xtensive.Modelling.Comparison
             var parentDifference = (NodeDifference) pdc.Difference;
             if (source.Parent!=parentDifference.Source || target.Parent!=parentDifference.Target)
               mi |= MovementInfo.ParentChanged;
-            var parentMovementInfo = parentDifference.MovementInfo;
-            if ((parentMovementInfo & MovementInfo.AnyParentChanged)!=0 | (mi & MovementInfo.ParentChanged)!=0)
-              mi |= MovementInfo.AnyParentChanged;
+            var parentMi = parentDifference.MovementInfo;
+            if ((parentMi & MovementInfo.Relocated)!=0)
+              mi |= MovementInfo.ParentRelocated;
           }
         }
         difference.MovementInfo = mi;
@@ -188,7 +188,7 @@ namespace Xtensive.Modelling.Comparison
           Results.Add(target, difference);
 
         // Comparing properties
-        if ((mi & MovementInfo.Removed)==0 && (mi & MovementInfo.Created)==0) {
+        if ((mi & MovementInfo.Removed)==0 || (mi & MovementInfo.Created)!=0) {
           foreach (var pair in any.PropertyAccessors) {
             var accessor = pair.Value;
             if (accessor.IgnoreInComparison)
@@ -206,21 +206,15 @@ namespace Xtensive.Modelling.Comparison
               if (newAny==null)
                 continue; // Both are null
 
-              var newAnyNode = newAny as Node;
-              bool isReference = false;
-              if (newAnyNode!=null)
-                isReference = newAnyNode.Parent!=source && newAnyNode.Parent!=target;
-              
-              if (isReference) { // Reference comparison
+              if (IsReference(newSource, newTarget)) {
                 if (newSource!=null && newTarget!=null) { // Otherwise value is definitely changed
                   Difference newDifference = null;
                   if (!Results.TryGetValue(newTarget, out newDifference))
                     throw new InvalidOperationException(string.Format(
                       Strings.ExNodeXMustBeProcessedBeforeBeingComparedAsReferenceValueOfYZ,
                       newTarget, target, property));
-                  var newNodeDifference = (NodeDifference) newDifference;
-                  if ((newNodeDifference.MovementInfo & MovementInfo.Relocated)==0)
-                    continue; // Value points to the same non-relocated object
+                  if (!IsRelocated(newDifference))
+                    continue;
                 }
                 difference.PropertyChanges.Add(property.Name, 
                   new ValueDifference(newSource, newTarget));
@@ -236,6 +230,37 @@ namespace Xtensive.Modelling.Comparison
 
         return difference.IsChanged ? difference : null;
       }
+    }
+
+    protected virtual bool IsReference(object source, object target)
+    {
+      var difference = Context.Difference;
+      var any = (target ?? source) as Node;
+      if (any!=null)
+        return any.Parent!=difference.Source && any.Parent!=difference.Target;
+      return false;
+    }
+
+    protected virtual bool IsRelocated(Difference difference)
+    {
+      var nodeDifference = difference as NodeDifference;
+      if (nodeDifference==null)
+        return false;
+      if ((nodeDifference.MovementInfo & MovementInfo.Relocated)==0)
+        return false;
+      var diffs = 
+        EnumerableUtils.Unfold(difference, d => d.Parent).Reverse().ToList();
+      var currentDiffs = 
+        EnumerableUtils.Unfold(Context.Difference, d => d.Parent).Reverse().ToList();
+      var commonDiffs = diffs.Zip(currentDiffs).Where(p => p.First==p.Second).Select(p => p.First).ToList();
+      var newDiffs = diffs.Except(commonDiffs).ToList();
+      var query =
+        from diff in newDiffs
+        let nodeDiff = diff as NodeDifference
+        where nodeDiff!=null && (nodeDiff.MovementInfo & MovementInfo.Changed)!=0
+        select nodeDiff;
+      query = query.ToList();
+      return query.Any();
     }
 
     /// <summary>
@@ -303,6 +328,22 @@ namespace Xtensive.Modelling.Comparison
     }
 
     /// <summary>
+    /// Extracts the comparison key, that used to find associations 
+    /// between old and new <see cref="NodeCollection"/> items.
+    /// </summary>
+    /// <param name="node">The node to get the comparison key for.</param>
+    /// <returns>Comparison key for the specified node.</returns>
+    protected virtual object GetNodeComparisonKey(Node node)
+    {
+      if (node is INodeReference) {
+        var targetNode = ((INodeReference) node).Value;
+        return targetNode==null ? null : GetTargetPath(targetNode);
+      }
+      else
+        return GetTargetName(node);
+    }
+
+    /// <summary>
     /// Visits specified objects.
     /// </summary>
     /// <param name="source">The source.</param>
@@ -357,22 +398,6 @@ namespace Xtensive.Modelling.Comparison
     protected virtual ComparisonContext CreateContext()
     {
       return new ComparisonContext();
-    }
-
-    /// <summary>
-    /// Extracts the comparison key, that used to find associations 
-    /// between old and new <see cref="NodeCollection"/> items.
-    /// </summary>
-    /// <param name="node">The node to get the comparison key for.</param>
-    /// <returns>Comparison key for the specified node.</returns>
-    protected virtual object GetNodeComparisonKey(Node node)
-    {
-      if (node is INodeReference) {
-        var targetNode = ((INodeReference) node).Value;
-        return targetNode==null ? null : GetTargetPath(targetNode);
-      }
-      else
-        return GetTargetName(node);
     }
 
     /// <summary>

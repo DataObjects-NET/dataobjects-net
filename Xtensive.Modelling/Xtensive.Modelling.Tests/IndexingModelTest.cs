@@ -11,6 +11,7 @@ using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Tests.IndexingModel;
+using System.Linq;
 
 namespace Xtensive.Modelling.Tests
 {
@@ -32,7 +33,8 @@ namespace Xtensive.Modelling.Tests
         string o2OldPath = o2.Path;
         o2.Name = "NewObjects";
         hs.Add(new RenameHint(o2OldPath, o2.Path));
-      });
+      },
+      (diff, actions) => { });
     }
 
     [Test]
@@ -46,6 +48,14 @@ namespace Xtensive.Modelling.Tests
         string t2OldPath = t2.Path;
         t2.Name = "NewTypes";
         hs.Add(new RenameHint(t2OldPath, t2.Path));
+      },
+      (diff, actions) => {
+        var query =
+          from a in actions
+          let vda = a as PropertyChangeAction
+          where vda!=null && vda.Properties.ContainsKey("PrimaryKey")
+          select a;
+        Assert.IsTrue(query.Any());
       });
     }
 
@@ -109,18 +119,19 @@ namespace Xtensive.Modelling.Tests
 
     #region Private methods
 
-    private static void TestUpdate(StorageInfo origin, Action<StorageInfo, StorageInfo, HintSet> update)
+    private static void TestUpdate(StorageInfo origin, Action<StorageInfo, StorageInfo, HintSet> mutator, Action<Difference, ActionSequence> validator)
     {
-      TestUpdate(origin, update, true);
-      TestUpdate(origin, update, false);
+      // Классное я слово придумал - мутатор ;)
+      TestUpdate(origin, mutator, validator, true);
+      TestUpdate(origin, mutator, null, false);
     }
 
-    private static void TestUpdate(StorageInfo origin, Action<StorageInfo, StorageInfo, HintSet> update, bool useHints)
+    private static void TestUpdate(StorageInfo origin, Action<StorageInfo, StorageInfo, HintSet> mutator, Action<Difference, ActionSequence> validator, bool useHints)
     {
       var s1 = Clone(origin);
       var s2 = Clone(origin);
       var hints = new HintSet(s1, s2);
-      update.Invoke(s1, s2, hints);
+      mutator.Invoke(s1, s2, hints);
       if (!useHints)
         hints = new HintSet(s1, s2);
       Log.Info("Update test ({0} hints)", useHints ? "with" : "without");
@@ -138,6 +149,8 @@ namespace Xtensive.Modelling.Tests
         new Upgrader().GetUpgradeSequence(diff, hints, comparer)
       };
       Log.Info("\r\nActions:\r\n{0}", actions);
+      if (validator!=null)
+        validator.Invoke(diff, actions);
     }
 
     private static StorageInfo Clone(StorageInfo server)
