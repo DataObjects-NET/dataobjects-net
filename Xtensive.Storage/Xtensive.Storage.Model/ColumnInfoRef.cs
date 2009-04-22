@@ -85,8 +85,7 @@ namespace Xtensive.Storage.Model
       if (ReferenceEquals(other, null))
         return false;
       return 
-        FieldName==FieldName && 
-          TypeName==TypeName;
+        FieldName==other.FieldName && TypeName==other.TypeName;
     }
 
     /// <inheritdoc/>

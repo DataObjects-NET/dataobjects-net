@@ -192,13 +192,14 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
       transforms = new MapTransform[sourceProviders.Length];
       for (int sourceIndex = 0; sourceIndex < transforms.Length; sourceIndex++) {
         Provider source = sourceProviders[sourceIndex];
-        ColumnCollection sourceColumns = source.Header.Columns;
+        var sourceColumns = source.Header.Columns;
         var map = new int[Header.TupleDescriptor.Count];
         for (int i = 0; i < map.Length; i++) {
           map[i] = -1;
-          ColumnInfoRef columnRef = ((MappedColumn)targetColumns[i]).ColumnInfoRef;
+          var columnRef = ((MappedColumn)targetColumns[i]).ColumnInfoRef;
           for (int j = 0; j < sourceColumns.Count; j++) {
-            if (((MappedColumn)sourceColumns[j]).ColumnInfoRef == columnRef) {
+            var sourceColumnRef = ((MappedColumn)sourceColumns[j]).ColumnInfoRef;
+            if (sourceColumnRef == columnRef) {
               map[i] = j;
               break;
             }
