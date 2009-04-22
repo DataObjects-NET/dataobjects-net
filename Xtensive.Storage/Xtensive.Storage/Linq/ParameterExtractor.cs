@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Linq
   /// <summary>
   /// Expression visitor that determines whether <see cref="Expression"/> could be parameter.
   /// </summary>
-  public class ParameterExtractor : ExpressionVisitor
+  public sealed class ParameterExtractor : ExpressionVisitor
   {
     private readonly ExpressionEvaluator evaluator;
     private bool containsMemberAccess;
@@ -62,8 +62,7 @@ namespace Xtensive.Storage.Linq
     {
       return e;
     }
-
-
+    
     // Constructor
 
     /// <summary>

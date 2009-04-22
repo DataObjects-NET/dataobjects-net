@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Rse.Expressions
       if (tupleAccess == null)
         return null;
       var target = tupleAccess.Object;
-      if (target == currentParameter || ExtractApplyParameterExpressionFromTupleAccess(tupleAccess) != null)
+      if (target == currentParameter || GetApplyParameterExpression(tupleAccess) != null)
         return tupleAccess;
       return null;
     }
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Rse.Expressions
       if (tupleAccess == null)
         return null;
       var target = tupleAccess.Object as ParameterExpression;
-      if (target!=null && currentParameters.Contains(target) || ExtractApplyParameterExpressionFromTupleAccess(tupleAccess) != null)
+      if (target!=null && currentParameters.Contains(target) || GetApplyParameterExpression(tupleAccess) != null)
         return tupleAccess;
       return null;      
     }
@@ -99,13 +99,13 @@ namespace Xtensive.Storage.Rse.Expressions
     /// </summary>
     /// <param name="expression">The expression describing an access to outer tuple.</param>
     /// <returns></returns>
-    public static ApplyParameter ExtractApplyParameterFromTupleAccess(this Expression expression)
+    public static ApplyParameter GetApplyParameter(this Expression expression)
     {
-      var e = ExtractApplyParameterExpressionFromTupleAccess(expression);
+      var e = GetApplyParameterExpression(expression);
       return e==null ? null : Evaluate<ApplyParameter>(e);
     }
 
-    private static Expression ExtractApplyParameterExpressionFromTupleAccess(Expression expression)
+    private static Expression GetApplyParameterExpression(Expression expression)
     {
       var tupleAccess = expression.AsTupleAccess();
       if (tupleAccess == null)

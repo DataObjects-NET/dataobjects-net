@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
@@ -80,6 +81,8 @@ namespace Xtensive.Storage.Linq
 
     private static bool CanEvaluateExpression(Expression expression)
     {
+      if (expression.Type == typeof(ApplyParameter))
+        return false;
       var cex = expression as ConstantExpression;
       if (cex != null) {
         var query = cex.Value as IQueryable;

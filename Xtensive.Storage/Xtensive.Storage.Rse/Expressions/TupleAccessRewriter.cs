@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Rse.Expressions
     {
       if (mc.AsTupleAccess() != null) {
         var columnIndex = mc.GetTupleAccessArgument();
-        var outerParameter = mc.ExtractApplyParameterFromTupleAccess();
+        var outerParameter = mc.GetApplyParameter();
         int newIndex = outerParameter != null
           ? resolveOuterColumn(outerParameter, columnIndex)
           : mappings.IndexOf(columnIndex);

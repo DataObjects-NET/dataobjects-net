@@ -72,19 +72,6 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     private SqlExpression VisitParameterAccess(Expression e)
     {
-      var parameter = e.ExtractApplyParameterFromTupleAccess();
-      if (parameter != null) {
-        int columnIndex = e.GetTupleAccessArgument();
-        ExecutableProvider provider;
-        if (Compiler.CompiledSources.TryGetValue(parameter, out provider)) {
-          if (!Compiler.IsCompatible(provider)) {
-            provider = Compiler.ToCompatible(provider);
-            Compiler.CompiledSources.ReplaceBound(parameter, provider);
-          }
-          var sqlProvider = (SqlProvider) provider;
-          return sqlProvider.PermanentReference[columnIndex];
-        }
-      }
       var type = e.Type;
       // In rare cases (when calculated column is just parameter access) we need to strip cast to object.
       if (e.NodeType == ExpressionType.Convert && e.Type == typeof(object))
@@ -246,16 +233,21 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       var tupleAccess = mc.AsTupleAccess();
       if (tupleAccess!=null) {
-        var columnArgument = tupleAccess.Arguments[0];
-        int columnIndex;
-        if (columnArgument.NodeType==ExpressionType.Constant)
-          columnIndex = (int) ((ConstantExpression) columnArgument).Value;
-        else {
-          var columnFunc = Expression.Lambda<Func<int>>(columnArgument).Compile();
-          columnIndex = columnFunc();
+        int columnIndex = tupleAccess.GetTupleAccessArgument();
+        var parameter = tupleAccess.GetApplyParameter();
+        if (parameter == null) {
+          var sqlSelect = parameterMapping[(ParameterExpression)tupleAccess.Object];
+          return sqlSelect[columnIndex];
         }
-        var sqlSelect = parameterMapping[(ParameterExpression) tupleAccess.Object];
-        return sqlSelect[columnIndex];
+        ExecutableProvider provider;
+        if (Compiler.CompiledSources.TryGetValue(parameter, out provider)) {
+          if (!Compiler.IsCompatible(provider)) {
+            provider = Compiler.ToCompatible(provider);
+            Compiler.CompiledSources.ReplaceBound(parameter, provider);
+          }
+          var sqlProvider = (SqlProvider)provider;
+          return sqlProvider.PermanentReference[columnIndex];
+        }
       }
 
       var arguments = mc.Arguments.Select(a => Visit(a)).ToArray();
