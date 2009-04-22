@@ -191,6 +191,13 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void GroupByWhere2Test()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Select(g => g.Where(o => o.Freight > 0));
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void GroupBySelectTest()
     {
       IQueryable<IGrouping<string, Order>> result = Query<Order>.All.GroupBy(o => o.ShipName).Select(g => g);

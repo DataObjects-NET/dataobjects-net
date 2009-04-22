@@ -37,7 +37,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectNestedTest()
     {
       var result = Query<Customer>.All
-        .Select(c => Query<Order>.All);
+        .Select(c => Query<Order>.All)
+        .Select(os => os);
       Assert.AreEqual(numberOfCustomers * numberOfOrders, Count(result));
     }
 
@@ -45,7 +46,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectDoubleNestedTest()
     {
       var result = Query<Customer>.All
-        .Select(c => Query<Order>.All.Select(o => Query<Employee>.All));
+        .Select(c => Query<Order>.All.Select(o => Query<Employee>.All))
+        .Select(os => os);
       Assert.AreEqual(numberOfCustomers * numberOfOrders * numberOfEmployees, Count(result));
     }
 
@@ -53,7 +55,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectNestedWithCorrelationTest()
     {
       var result = Query<Customer>.All
-        .Select(c => Query<Order>.All.Where(o => o.Customer == c));
+        .Select(c => Query<Order>.All.Where(o => o.Customer == c))
+        .Select(os => os);
       Assert.AreEqual(numberOfOrders, Count(result));
     }
 
@@ -61,9 +64,12 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectAnonymousTest()
     {
       var result = Query<Customer>.All
-        .Select(c => new {Customer = c, Orders = Query<Order>.All.Where(o => o.Customer == c)});
+        .Select(c => new {Customer = c, Orders = Query<Order>.All.Where(o => o.Customer == c)})
+        .Select(os => os);
       foreach (var item in result)
         Assert.AreEqual(item.Customer.Orders.Count, item.Orders.Count());
+      foreach (var item in result)
+        Assert.AreEqual(item.Customer.Orders.Count, item.Orders.ToList().Count);
     }
 
     [Test]
@@ -74,12 +80,15 @@ namespace Xtensive.Storage.Tests.Linq
           {
             Customers = Query<Customer>.All.Where(c => c==o.Customer),
             Employees = Query<Employee>.All.Where(e => e==o.Employee)
-          });
+          })
+        .Select(os => os);
       var list = result.ToList();
       Assert.AreEqual(numberOfOrders, list.Count);
       foreach (var i in list) {
         Assert.AreEqual(1, i.Customers.Count());
         Assert.AreEqual(1, i.Employees.Count());
+        Assert.AreEqual(1, i.Customers.ToList().Count);
+        Assert.AreEqual(1, i.Employees.ToList().Count);
       }
     }
 

@@ -11,7 +11,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq;
+using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
