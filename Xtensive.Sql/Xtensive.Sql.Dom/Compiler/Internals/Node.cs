@@ -2,19 +2,12 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using System.Diagnostics;
-
 namespace Xtensive.Sql.Dom.Compiler.Internals
 {
   internal abstract class Node
   {
-    internal Node Next;
+    public Node Next;
 
-    internal abstract void AcceptVisitor(INodeVisitor visitor);
-
-    [DebuggerStepThrough]
-    protected Node()
-    {
-    }
+    public abstract void AcceptVisitor(INodeVisitor visitor);
   }
 }

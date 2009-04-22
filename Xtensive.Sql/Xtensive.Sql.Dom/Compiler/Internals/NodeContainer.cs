@@ -6,11 +6,14 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
 {
   internal class NodeContainer : Node
   {
-    internal Node Child;
     private Node current;
-    internal bool RequireIndent;
 
-    internal void Add(Node node)
+    public Node Child;
+    public bool RequireIndent;
+
+    public bool IsEmpty { get { return Child==null; } }
+
+    public void Add(Node node)
     {
       if (Child==null)
         Child = node;
@@ -19,39 +22,36 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
       current = node;
     }
 
-    internal bool IsEmpty
-    {
-      get { return Child==null; }
-    }
-
-    internal void AppendText(string text)
+    public void AppendText(string text)
     {
       if (string.IsNullOrEmpty(text))
         return;
       Add(new TextNode(text));
     }
 
-    internal void AppendDelimiter(string text)
+    public void AppendDelimiter(string text)
     {
       AppendDelimiter(text, DelimiterType.Row);
     }
 
-    internal void AppendDelimiter(string text, DelimiterType type)
+    public void AppendDelimiter(string text, DelimiterType type)
     {
       Add(new NodeDelimiter(type, text));
     }
 
-    internal override void AcceptVisitor(INodeVisitor visitor)
+    public override void AcceptVisitor(INodeVisitor visitor)
     {
       visitor.Visit(this);
     }
 
-    internal NodeContainer(bool requireIndent)
+    // Constructors
+
+    public NodeContainer(bool requireIndent)
     {
       RequireIndent = requireIndent;
     }
 
-    internal NodeContainer()
+    public NodeContainer()
     {
       RequireIndent = false;
     }

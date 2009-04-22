@@ -9,15 +9,17 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
   [DebuggerDisplay("Text = {Text}")]
   internal class NodeDelimiter : Node
   {
-    internal readonly DelimiterType Type;
-    internal readonly string Text;
+    public readonly DelimiterType Type;
+    public readonly string Text;
 
-    internal override void AcceptVisitor(INodeVisitor visitor)
+    public override void AcceptVisitor(INodeVisitor visitor)
     {
-      visitor.Visit((NodeDelimiter)this);
+      visitor.Visit(this);
     }
 
-    internal NodeDelimiter(DelimiterType type, string text)
+    // Constructor
+
+    public NodeDelimiter(DelimiterType type, string text)
     {
       Type = type;
       Text = text;
