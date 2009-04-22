@@ -334,6 +334,24 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void ComplexAsCast2Test()
+    {
+      var result = Query<Product>.All
+        .Select(product =>
+          new
+          {
+            DiscontinuedProduct = product,
+            ActiveProduct = product})
+        .Select(anonymousArgument =>
+          new
+          {
+            AQ = anonymousArgument.ActiveProduct as ActiveProduct,
+            DQ = anonymousArgument.DiscontinuedProduct as DiscontinuedProduct
+          });
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void AsDowncastTest()
     {
       var result = Query<Product>.All
@@ -379,6 +397,70 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query<DiscontinuedProduct>.All
         .Select(discontinuedProduct => discontinuedProduct as Product)
         .Select(product => product as ActiveProduct);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void ReferenceAsSimpleTest()
+    {
+      var result = Query<OrderDetails>.All
+        .Select(orderDetails => orderDetails.Product as ActiveProduct);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void ReferenceIsSimpleTest()
+    {
+      var result = Query<OrderDetails>.All
+        .Where(orderDetails => orderDetails.Product is ActiveProduct);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void ReferenceOfTypeSimpleTest()
+    {
+      var result = Query<OrderDetails>.All
+        .Select(orderDetails => orderDetails.Product)
+        .OfType<ActiveProduct>();
+      QueryDumper.Dump(result);
+    }
+
+
+    [Test]
+    public void ReferenceAsAnonymousTest()
+    {
+      var result = Query<OrderDetails>.All
+        .Select(orderDetails => new {Product = orderDetails.Product as ActiveProduct});
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void ReferenceIsAnonymousTest()
+    {
+      var result = Query<OrderDetails>.All
+        .Where(orderDetails => orderDetails.Product is ActiveProduct);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void ReferenceOfTypeAnonymousTest()
+    {
+      var result = Query<OrderDetails>.All
+        .Select(orderDetails => new{orderDetails.Product})
+        .Select(p=>p.Product)
+        .OfType<ActiveProduct>();
+      QueryDumper.Dump(result);
+    }
+
+
+    [Test]
+    public void ReferenceOfTypeAnonymousWithFieldAccessTest()
+    {
+      var result = Query<OrderDetails>.All
+        .Select(orderDetails => new{orderDetails.Product})
+        .Select(p=>p.Product)
+        .OfType<ActiveProduct>()
+        .Select(ap=>ap.QuantityPerUnit);
       QueryDumper.Dump(result);
     }
 

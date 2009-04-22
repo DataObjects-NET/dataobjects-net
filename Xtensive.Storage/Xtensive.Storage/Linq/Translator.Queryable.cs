@@ -244,24 +244,34 @@ namespace Xtensive.Storage.Linq
       var mapping = (ComplexMapping) visitedWhere.Mapping;
 
       if (targetType.IsSubclassOf(sourceType)) {
-        var targetTypeInfo = context.Model.Types[targetType];
-        var missingFields = new List<Model.FieldInfo>();
-        foreach (var field in targetTypeInfo.Fields) {
-          if (!mapping.Fields.ContainsKey(field.Name))
-            missingFields.Add(field);
+        var inheritanceChain = new List<Type>();
+        var type = targetType;
+        while (type!=sourceType) {
+          inheritanceChain.Add(type);
+          type = type.BaseType;
         }
-        if (missingFields.Count > 0) {
-          int offset = recordSet.Header.Columns.Count;
+        inheritanceChain.Reverse();
 
-          var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
-          var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-          var keySegment = mapping.GetFieldMapping(StorageWellKnown.Key);
-          var keyPairs = keySegment.GetItems()
-            .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-            .ToArray();
-          recordSet = recordSet.Join(joinedRs, JoinType.Default, keyPairs);
-          foreach (var field in missingFields)
-            mapping.RegisterField(field.Name, new Segment<int>(field.MappingInfo.Offset + offset, field.MappingInfo.Length));
+        foreach (var childType in inheritanceChain) {
+          var targetTypeInfo = context.Model.Types[childType];
+          var missingFields = new List<Model.FieldInfo>();
+          foreach (var field in targetTypeInfo.Fields) {
+            if (!mapping.Fields.ContainsKey(field.Name))
+              missingFields.Add(field);
+          }
+          if (missingFields.Count > 0) {
+            int offset = recordSet.Header.Columns.Count;
+
+            var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
+            var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+            var keySegment = mapping.GetFieldMapping(StorageWellKnown.Key);
+            var keyPairs = keySegment.GetItems()
+              .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+              .ToArray();
+            recordSet = recordSet.JoinLeft(joinedRs, JoinType.Default, keyPairs);
+            foreach (var field in missingFields)
+              mapping.RegisterField(field.Name, new Segment<int>(field.MappingInfo.Offset + offset, field.MappingInfo.Length));
+          }
         }
       }
 
@@ -472,29 +482,29 @@ namespace Xtensive.Storage.Linq
 
         var memberType = originalCompiledKeyExpression.Body.GetMemberType();
         var rewritedMapping = mappingRef.Value.Mapping.RewriteColumnIndexes(projectorRewriter);
-        switch(memberType) {
+        switch (memberType) {
           case MemberType.Default:
           case MemberType.Primitive:
           case MemberType.Key: {
-            var primitiveFieldMapping = (PrimitiveMapping)rewritedMapping;
+            var primitiveFieldMapping = (PrimitiveMapping) rewritedMapping;
             newResultMapping.RegisterField(StorageWellKnown.Key, primitiveFieldMapping.Segment);
             break;
           }
           case MemberType.Structure:
-          //TODO: implement!!!
+            //TODO: implement!!!
             break;
           case MemberType.Entity:
             if (mappingRef.Value.Mapping is PrimitiveMapping) {
-              var primitiveFieldMapping = (PrimitiveMapping)rewritedMapping;
-              var fields = new Dictionary<string, Segment<int>> { { StorageWellKnown.Key, primitiveFieldMapping.Segment } };
+              var primitiveFieldMapping = (PrimitiveMapping) rewritedMapping;
+              var fields = new Dictionary<string, Segment<int>> {{StorageWellKnown.Key, primitiveFieldMapping.Segment}};
               var entityMapping = new ComplexMapping(fields);
               newResultMapping.RegisterEntity(StorageWellKnown.Key, entityMapping);
             }
             else
-              newResultMapping.RegisterEntity(StorageWellKnown.Key, (ComplexMapping)rewritedMapping);
+              newResultMapping.RegisterEntity(StorageWellKnown.Key, (ComplexMapping) rewritedMapping);
             break;
           case MemberType.Anonymous:
-            newResultMapping.RegisterAnonymous(StorageWellKnown.Key, (ComplexMapping)rewritedMapping, projectorRewriter.Rewrite(originalCompiledKeyExpression.Body));
+            newResultMapping.RegisterAnonymous(StorageWellKnown.Key, (ComplexMapping) rewritedMapping, projectorRewriter.Rewrite(originalCompiledKeyExpression.Body));
             break;
           default:
             throw new NotSupportedException();
@@ -871,7 +881,7 @@ namespace Xtensive.Storage.Linq
 
       if (visitedExpression.IsGroupingConstructor()) {
         var groupingParameter = visitedExpression.GetGroupingParameter();
-        var applyParameter = context.GetApplyParameter(context.Bindings[(ParameterExpression)sequenceExpression]);
+        var applyParameter = context.GetApplyParameter(context.Bindings[(ParameterExpression) sequenceExpression]);
         var oldResult = visitedExpression.GetGroupingItemsResult();
         var newProvider = GroupingToSubqueryRewriter.Rewrite(oldResult.RecordSet.Provider, groupingParameter, applyParameter);
         return new ResultExpression(oldResult.Type, newProvider.Result, oldResult.Mapping, oldResult.ItemProjector);
