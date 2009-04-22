@@ -133,9 +133,11 @@ namespace Xtensive.Storage.Linq
         var parameter = parameters.Value[0];
         var resultExpression = context.Bindings[parameter];
         var recordSet = resultExpression.RecordSet;
+
+        var visitedSource = Visit(source);
+
         var mapping = new ComplexMapping();
         mapping.Fill(mappingRef.Value.Mapping);
-        var visitedSource = Visit(source);
 
         var targetTypeInfo = context.Model.Types[targetType];
 
@@ -144,7 +146,7 @@ namespace Xtensive.Storage.Linq
 
         var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
         var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-        var keySegment = mapping.GetFieldMapping(StorageWellKnown.Key);
+        var keySegment = ((ComplexMapping) resultExpression.Mapping).GetFieldMapping(StorageWellKnown.Key);
         var keyPairs = keySegment.GetItems()
           .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
           .ToArray();
@@ -158,11 +160,21 @@ namespace Xtensive.Storage.Linq
         }
 
         recordSet = recordSet.JoinLeft(joinedRs, JoinType.Default, keyPairs);
-        mappingRef.Value.Replace(mapping);
 
+        var columnList = mapping.GetColumns(false);
+        var groupMapping = MappingHelper.BuildGroupMapping(columnList, recordSet.Provider, resultExpression.RecordSet.Provider);
+
+        var gm = new int[recordSet.Header.ColumnGroups.Count];
+        for (int i = 0; i < gm.Length; i++)
+          gm[i] = -1;
+        for (int i = 0; i < groupMapping.Count; i++)
+          gm[groupMapping[i]] = i;
+
+        var rewriter = new ItemProjectorRewriter(columnList, gm.ToList(), recordSet.Header);
+        var rewritedSource = rewriter.Rewrite(visitedSource);
         var re = new ResultExpression(resultExpression.Type, recordSet, resultExpression.Mapping, resultExpression.ItemProjector);
         context.Bindings.ReplaceBound(parameter, re);
-        return Expression.Convert(visitedSource, targetType);
+        return Expression.Convert(rewritedSource, targetType);
       }
     }
 
@@ -179,14 +191,14 @@ namespace Xtensive.Storage.Linq
         var body = Visit(le.Body);
         if (body.IsResult())
           body = BuildSubqueryResult(body);
-        else if (calculateExpressions.Value && body.GetMemberType() == MemberType.Unknown) {
+        else if (calculateExpressions.Value && body.GetMemberType()==MemberType.Unknown) {
           if (!body.IsResult() &&
             !body.IsGroupingConstructor() &&
-              (body.NodeType != ExpressionType.Call ||
-                ((MethodCallExpression)body).Object == null ||
-                  ((MethodCallExpression)body).Object.Type != typeof (Tuple))) {
+              (body.NodeType!=ExpressionType.Call ||
+                ((MethodCallExpression) body).Object==null ||
+                  ((MethodCallExpression) body).Object.Type!=typeof (Tuple))) {
             var calculator = Expression.Lambda(Expression.Convert(body, typeof (object)), tuple.Value);
-            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>)calculator);
+            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>) calculator);
             calculatedColumns.Value.Add(ccd);
             var parameter = parameters.Value[0];
             int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
@@ -352,7 +364,7 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitNew(NewExpression n)
     {
       var arguments = new List<Expression>();
-      if (n.Members == null) {
+      if (n.Members==null) {
         if (n.IsGroupingConstructor())
           return base.VisitNew(n);
         throw new NotSupportedException();
@@ -427,11 +439,11 @@ namespace Xtensive.Storage.Linq
             newArg = BuildSubqueryResult(body);
           else {
             var calculator = Expression.Lambda(
-              body.Type == typeof (object)
+              body.Type==typeof (object)
                 ? body
                 : Expression.Convert(body, typeof (object)),
               tuple.Value);
-            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>)calculator);
+            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>) calculator);
             calculatedColumns.Value.Add(ccd);
             var parameter = parameters.Value[0];
             int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
@@ -480,15 +492,15 @@ namespace Xtensive.Storage.Linq
       var outerParameters = context.Bindings.GetKeys()
         .OfType<ParameterExpression>()
         .ToList();
-      if (outerParameters.Count == 0)
+      if (outerParameters.Count==0)
         resultExpression = subQuery;
       else {
         var searchFor = outerParameters.ToArray();
         var replaceWithList = new List<Expression>();
         foreach (var projection in outerParameters.Select(pe => context.Bindings[pe].ItemProjector)) {
-          RecordIsUsed |= projection.Parameters.Count(pe => pe.Type == typeof (Record)) > 0;
+          RecordIsUsed |= projection.Parameters.Count(pe => pe.Type==typeof (Record)) > 0;
           var replacedParameters = projection.Parameters.ToArray();
-          var replacingParameters = projection.Parameters.Select(pe => pe.Type == typeof (Tuple)
+          var replacingParameters = projection.Parameters.Select(pe => pe.Type==typeof (Tuple)
             ? tuple.Value
             : record.Value).ToArray();
           replaceWithList.Add(ExpressionReplacer.ReplaceAll(projection.Body, replacedParameters, replacingParameters));
