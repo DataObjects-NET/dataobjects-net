@@ -52,9 +52,9 @@ namespace Xtensive.Storage.Building.Definitions
       get
       {
         HierarchyDef result = TryGetValue(key);
-        if (result == null)
+        if (result!=null)
           return result;
-          throw new ArgumentException(String.Format(String.Format("Item by key ='{0}' was not found.", key)));
+        throw new ArgumentException(String.Format(String.Format("Item by key ='{0}' was not found.", key)));
       }
     }
   }

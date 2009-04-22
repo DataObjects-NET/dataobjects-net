@@ -627,7 +627,7 @@
   <data name="ExExpectedValueOfParameterIsAlreadySet" xml:space="preserve">
     <value>The expected value of the parameter is already set.</value>
   </data>
-  <data name="ExCantSetExpectedValueOfParameterViaParameterContext" xml:space="preserve">
-    <value>Can't set an expected value of a parameter via a ParameterContext.</value>
+  <data name="ExThisOperationIsNotAllowedForParameterContextOperatingWithExpectedValuesOfParameters" xml:space="preserve">
+    <value>This operation is not allowed for the parameter context operating with expected values of parameters.</value>
   </data>
 </root>

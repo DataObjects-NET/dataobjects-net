@@ -17,6 +17,7 @@ namespace Xtensive.Storage.Model
   {
     private IndexInfo primaryIndex;
     private ReadOnlyList<IndexInfo> realPrimaryIndexes;
+    private ReadOnlyList<IndexInfo> indexesContainingAllData;
 
     /// <summary>
     /// Gets the primary index in this instance.
@@ -33,7 +34,11 @@ namespace Xtensive.Storage.Model
     public ReadOnlyList<IndexInfo> RealPrimaryIndexes
     {
       [DebuggerStepThrough]
-      get { return IsLocked ? realPrimaryIndexes : new ReadOnlyList<IndexInfo>(FindRealPrimaryIndexes(PrimaryIndex)); }
+      get {
+        return IsLocked 
+          ? realPrimaryIndexes
+          : new ReadOnlyList<IndexInfo>(FindRealPrimaryIndexes(PrimaryIndex));
+      }
     }
 
     public IndexInfo FindFirst(IndexAttributes indexAttributes)
@@ -77,6 +82,7 @@ namespace Xtensive.Storage.Model
     {
       primaryIndex = FindPrimaryIndex();
       realPrimaryIndexes = new ReadOnlyList<IndexInfo>(FindRealPrimaryIndexes(primaryIndex));
+      indexesContainingAllData = new ReadOnlyList<IndexInfo>(FindIndexesContainingAllData());
       base.Lock(recursive);
     }
 
@@ -107,6 +113,29 @@ namespace Xtensive.Storage.Model
         .OrderByDescending(i => i.IsVirtual)
         .FirstOrDefault();
 
+      return result;
+    }
+
+    /// <summary>
+    /// Gets the minimal set of indexes containing all data for the type.
+    /// </summary>
+    /// <returns></returns>
+    public ReadOnlyList<IndexInfo> GetIndexesContainingAllData()
+    {
+      return IsLocked
+        ? indexesContainingAllData
+        : new ReadOnlyList<IndexInfo>(FindIndexesContainingAllData());
+    }
+
+    private List<IndexInfo> FindIndexesContainingAllData()
+    {
+      var result = new List<IndexInfo>(Items.Count);
+      var virtualIndexes = from index in this where index.IsVirtual select index;
+      result.AddRange(virtualIndexes);
+      var realIndexes = from index in this where !index.IsVirtual 
+                          && result.Count(virtualIndex => virtualIndex.UnderlyingIndexes.Contains(index)) == 0
+                        select index;
+      result.AddRange(realIndexes);
       return result;
     }
 

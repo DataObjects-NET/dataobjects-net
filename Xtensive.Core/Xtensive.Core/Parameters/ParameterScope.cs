@@ -120,10 +120,9 @@ namespace Xtensive.Core.Parameters
         Dispose();
         return;
       }
-      var parameterValues = Context.values.ToList();
+      var currentContext = Context;
       Dispose();
-      foreach (var pair in parameterValues)
-        pair.Key.OnScopeDisposed(pair.Value);
+      currentContext.NotifyParametersAboutDisposing();
     }
   }
 }

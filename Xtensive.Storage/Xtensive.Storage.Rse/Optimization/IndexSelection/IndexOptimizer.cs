@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
@@ -26,8 +25,8 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
   public sealed class IndexOptimizer : CompilableProviderVisitor, IOptimizer
   {
     private readonly DomainModel domainModel;
-    private readonly LruCache<IndexInfo,Pair<IndexInfo, List<IndexInfo>>> indexesCache =
-      new LruCache<IndexInfo,Pair<IndexInfo, List<IndexInfo>>>(20, pair => pair.First, pair => 1);
+    private readonly LruCache<IndexInfo,Pair<IndexInfo, IList<IndexInfo>>> indexesCache =
+      new LruCache<IndexInfo,Pair<IndexInfo, IList<IndexInfo>>>(20, pair => pair.First, pair => 1);
     private readonly RangeSetExtractor rsExtractor;
     private readonly IIndexSelector indexSelector;
     private readonly ProviderTreeRewriter treeRewriter;
@@ -66,14 +65,13 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       return rsExtractor.Extract(predicate, indexes, primaryIndex.GetRecordSetHeader());
     }
 
-    private List<IndexInfo> GetIndexes(IndexInfo primaryIndex)
+    private IList<IndexInfo> GetIndexes(IndexInfo primaryIndex)
     {
-      Pair<IndexInfo, List<IndexInfo>> cachedPair;
+      Pair<IndexInfo, IList<IndexInfo>> cachedPair;
       if (indexesCache.TryGetItem(primaryIndex, true, out cachedPair))
         return cachedPair.Second;
-      var result = primaryIndex.ReflectedType.Indexes.Where(index => index.IsSecondary || index.IsPrimary)
-        .ToList();
-      indexesCache.Add(new Pair<IndexInfo, List<IndexInfo>>(primaryIndex, result));
+      var result = primaryIndex.ReflectedType.Indexes.GetIndexesContainingAllData();
+      indexesCache.Add(new Pair<IndexInfo, IList<IndexInfo>>(primaryIndex, result));
       return result;
     }
 

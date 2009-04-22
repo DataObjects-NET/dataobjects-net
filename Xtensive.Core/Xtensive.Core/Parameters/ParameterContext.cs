@@ -5,7 +5,6 @@
 // Created:    2008.08.14
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -14,10 +13,12 @@ namespace Xtensive.Core.Parameters
   /// <summary>
   /// Provides storing context-specific <see cref="Parameter{TValue}"/>'s values.
   /// </summary>
-  public class ParameterContext : Context<ParameterScope>
-  {    
-    internal readonly Dictionary<Parameter, object> values = 
+  public sealed class ParameterContext : Context<ParameterScope>
+  {
+    private readonly Dictionary<Parameter, object> values = 
       new Dictionary<Parameter, object>();
+    private bool useExpectedValue;
+    private static readonly ParameterContext expectedValueContext;
 
     /// <summary>
     /// Gets the current <see cref="ParameterContext"/>.
@@ -28,11 +29,12 @@ namespace Xtensive.Core.Parameters
     }
 
     /// <summary>
-    /// Creates the <see cref="ParameterScope"/> associated with <see cref="ParameterExpectedValueContext"/>.
+    /// Creates the <see cref="ParameterScope"/> associated with 
+    /// <see cref="ParameterContext"/> operating with expected values of parameters.
     /// </summary>
     public static ParameterScope CreateExpectedValueScope()
     {
-      return new ParameterScope(new ParameterExpectedValueContext());
+      return new ParameterScope(expectedValueContext);
     }
 
     #region IContext<...> methods
@@ -55,29 +57,57 @@ namespace Xtensive.Core.Parameters
     #region Internal methods
 
     [DebuggerStepThrough]
-    internal virtual bool TryGetValue(Parameter parameter, out object value)
+    internal bool TryGetValue(Parameter parameter, out object value)
     {
+      if (useExpectedValue) {
+        value = parameter.ExpectedValue;
+        return true;
+      }
       return values.TryGetValue(parameter, out value);
     }
     
     [DebuggerStepThrough]
-    internal virtual void SetValue(Parameter parameter, object value)
+    internal void SetValue(Parameter parameter, object value)
     {
+      VerifyThatOperationIsAllowed();
       values[parameter] = value;
     }
 
     [DebuggerStepThrough]
     internal void Clear(Parameter parameter)
     {
+      VerifyThatOperationIsAllowed();
       values.Remove(parameter);
     }
 
     [DebuggerStepThrough]
     internal bool HasValue(Parameter parameter)
     {
+      VerifyThatOperationIsAllowed();
       return values.ContainsKey(parameter);
     }
 
+    internal void NotifyParametersAboutDisposing()
+    {
+      foreach (var pair in values)
+        pair.Key.OnScopeDisposed(pair.Value);
+    }
+
+    private void VerifyThatOperationIsAllowed()
+    {
+      if (useExpectedValue)
+        throw new InvalidOperationException(Resources.Strings
+          .ExThisOperationIsNotAllowedForParameterContextOperatingWithExpectedValuesOfParameters);
+    }
+
     #endregion
+
+
+    // Constructors
+
+    static ParameterContext()
+    {
+      expectedValueContext = new ParameterContext {useExpectedValue = true};
+    }
   }
 }

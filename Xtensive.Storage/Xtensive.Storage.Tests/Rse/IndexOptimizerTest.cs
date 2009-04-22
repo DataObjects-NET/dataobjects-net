@@ -15,20 +15,18 @@ using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers;
 using Xtensive.Storage.Providers.Index;
 using Xtensive.Storage.Rse.Optimization.IndexSelection;
-using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
-using EnumerationScope=Xtensive.Storage.Rse.Providers.EnumerationScope;
 using IndexProvider=Xtensive.Storage.Rse.Providers.Compilable.IndexProvider;
 
 namespace Xtensive.Storage.Tests.Rse
 {
+  
+
   [TestFixture]
-  public class IndexOptimizerTest : NorthwindDOModelTest
+  public class IndexOptimizerTest : IndexOptimizerTestBase
   {
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -155,23 +153,11 @@ namespace Xtensive.Storage.Tests.Rse
       var rootProvider = new FilterProvider(
         IndexProvider.Get(Domain.Model.Types[typeof (Order)].Indexes.PrimaryIndex),
         t => t.GetValueOrDefault<decimal>(9) > 0 || t.GetValueOrDefault<DateTime?>(7) == DateTime.Now);
-      var domainHandler = (Providers.Index.DomainHandler) (Domain.Handlers.DomainHandler);
+      var domainHandler = (DomainHandler) (Domain.Handlers.DomainHandler);
       var realResolver = new OptimizationInfoProviderResolver(domainHandler);
       var indexOptimizer = new IndexOptimizer(Domain.Model, realResolver);
       var optimizedProviderTree = indexOptimizer.Optimize(rootProvider);
       Assert.AreSame(rootProvider, optimizedProviderTree);
-    }
-
-    private IndexInfo GetIndexForField<T>(string fieldName)
-    {
-      var targetName = "_" + fieldName;
-      return Domain.Model.Types[typeof(T)].Fields[fieldName].Column.Indexes.First(
-        idx => idx.ShortName.EndsWith(targetName));
-    }
-
-    private IndexInfo GetIndexForForeignKey<T>(string fieldName)
-    {
-      return Domain.Model.Types[typeof(T)].Fields[fieldName].Fields[fieldName + ".Id"].Column.Indexes.First();
     }
 
     private IndexInfo GetMultiColumnIndex<T>(params string[] fieldNames)
@@ -183,51 +169,6 @@ namespace Xtensive.Storage.Tests.Rse
       foreach (var name in fieldNames)
         sb.Append(name);
       return Domain.Model.Types[typeof (T)].Indexes[sb.ToString()];
-    }
-
-    private static void ValidateQueryResult<T>(IEnumerable<T> expected, IEnumerable<T> actual)
-      where T : Entity
-    {
-      Assert.Greater(expected.Count(), 0);
-      var equalityComparer = MockRepository.GenerateStub<IEqualityComparer<T>>();
-      equalityComparer.Stub(comparer => comparer.Equals(Arg<T>.Is.Anything, Arg<T>.Is.Anything))
-        .Return(false).WhenCalled(invocation =>
-          invocation.ReturnValue = ((Entity)invocation.Arguments[0]).Key
-            == ((Entity)invocation.Arguments[1]).Key);
-      Assert.AreEqual(0, expected.Except(actual, equalityComparer).Count());
-    }
-
-    private void ValidateUsedIndex<T>(IQueryable<T> query, params IndexInfo[] expectedIndexes)
-    {
-      var optimizedProvider = GetOptimizedProvider(query);
-      var secondaryIndexProviders = new List<IndexInfo>();
-      FindSecondaryIndexProviders(optimizedProvider, secondaryIndexProviders);
-      Assert.Greater(secondaryIndexProviders.Count, 0);
-      Assert.AreEqual(0, secondaryIndexProviders.Except(expectedIndexes).Count());
-    }
-
-    private static CompilableProvider GetOptimizedProvider<T>(IQueryable<T> query)
-    {
-      CompilableProvider optimizedProvider;
-      using (EnumerationScope.Open()) {
-        var recordSet = ((Query<T>) query).Compiled;
-        optimizedProvider = CompilationContext.Current.Compile(recordSet.Provider).Origin;
-      }
-      return optimizedProvider;
-    }
-
-    private void FindSecondaryIndexProviders(Provider provider, List<IndexInfo> result)
-    {
-      foreach (var source in provider.Sources) {
-        var indexProvider = source as IndexProvider;
-        if (indexProvider!=null) {
-          var indexInfo = indexProvider.Index.Resolve(Domain.Model);
-          if (!indexInfo.IsPrimary)
-            result.Add(indexInfo);
-        }
-        else
-          FindSecondaryIndexProviders(source, result);
-      }
     }
   }
 }

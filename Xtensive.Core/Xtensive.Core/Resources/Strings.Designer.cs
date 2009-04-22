@@ -277,15 +277,6 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t set an expected value of a parameter via a ParameterContext..
-        /// </summary>
-        internal static string ExCantSetExpectedValueOfParameterViaParameterContext {
-            get {
-                return ResourceManager.GetString("ExCantSetExpectedValueOfParameterViaParameterContext", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Collection already contains item with the specified key..
         /// </summary>
         internal static string ExCollectionAlreadyContainsItemWithSpecifiedKey {
@@ -1182,6 +1173,16 @@ namespace Xtensive.Core.Resources {
         internal static string ExTheNumberOfSourcesIsTooSmallExpected {
             get {
                 return ResourceManager.GetString("ExTheNumberOfSourcesIsTooSmallExpected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This operation is not allowed for the parameter context operating with expected values of parameters..
+        /// </summary>
+        internal static string ExThisOperationIsNotAllowedForParameterContextOperatingWithExpectedValuesOfParameters {
+            get {
+                return ResourceManager.GetString("ExThisOperationIsNotAllowedForParameterContextOperatingWithExpectedValuesOfParame" +
+                        "ters", resourceCulture);
             }
         }
         
