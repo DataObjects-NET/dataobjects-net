@@ -13,71 +13,16 @@ namespace Xtensive.Core.Collections
   /// <summary>
   /// <see cref="IEnumerable"/> related utilities.
   /// </summary>
-  /// <typeparam name="TItem">Type of enumerated item.</typeparam>
-  public static class EnumerableUtils<TItem>
+  public static class EnumerableUtils
   {
-    #region Nested type: EmptyEnumerable<T>
-
-    internal sealed class EmptyEnumerable<T> : IEnumerable<T>
-    {
-      internal sealed class EmptyEnumerator : IEnumerator<T>
-      {
-        public void Reset()
-        {
-        }
-
-        public bool MoveNext()
-        {
-          return false;
-        }
-
-        object IEnumerator.Current
-        {
-          get { return default(T); }
-        }
-
-        public T Current
-        {
-          get { return default(T); }
-        }
-
-        public void Dispose()
-        {
-        }
-      }
-
-      public static EmptyEnumerator EnumeratorInstance = new EmptyEnumerator();
-      
-      public static EmptyEnumerable<T> Instance = new EmptyEnumerable<T>();
-
-      IEnumerator IEnumerable.GetEnumerator()
-      {
-        return GetEnumerator();
-      }
-
-      public IEnumerator<T> GetEnumerator()
-      {
-        return EnumeratorInstance;
-      }
-    }
-
-    #endregion
-
     /// <summary>
     /// Gets the enumerable with one element.
     /// </summary>
+    /// <typeparam name="TItem">The type of enumerated item.</typeparam>
     /// <returns>Sequence with value inside.</returns>
-    public static IEnumerable<TItem> One(TItem value)
+    public static IEnumerable<TItem> One<TItem>(TItem value)
     {
       yield return value;
-    }
-
-    /// <summary>
-    /// Gets the empty sequence.
-    /// </summary>
-    /// <returns>Empty sequence.</returns>
-    public static IEnumerable<TItem> Empty {
-      get { return EmptyEnumerable<TItem>.Instance; }
     }
 
     /// <summary>
@@ -85,27 +30,43 @@ namespace Xtensive.Core.Collections
     /// If <paramref name="first"/> is <see langword="null" />,
     /// an empty sequence is returned.
     /// </summary>
+    /// <typeparam name="TItem">The type of enumerated item.</typeparam>
     /// <param name="first">The first item.</param>
-    /// <param name="nextItemGenerator">The delegate returning the next item by the current one.
+    /// <param name="next">The delegate returning the next item by the current one.
     /// The enumeration continues until it returns <see langword="null" />.</param>
     /// <returns>Unfolded sequence of items 
     /// starting from the <paramref name="first"/> one.</returns>
-    public static IEnumerable<TItem> Unfold(TItem first, Func<TItem, TItem> nextItemGenerator)
+    public static IEnumerable<TItem> Unfold<TItem>(TItem first, Func<TItem, TItem> next)
     {
-      ArgumentValidator.EnsureArgumentNotNull(nextItemGenerator, "nextItemGenerator");
+      ArgumentValidator.EnsureArgumentNotNull(next, "next");
       var current = first;
       while (current!=null) {
         yield return current;
-        current = nextItemGenerator.Invoke(current);
+        current = next.Invoke(current);
       }
     }
 
     /// <summary>
-    /// Gets the enumerator of empty sequence.
+    /// Unfolds the whole sequence from its <paramref name="first"/> item.
     /// </summary>
-    /// <returns>The enumerator of empty sequence.</returns>
-    public static IEnumerator<TItem> EmptyEnumerator {
-      get { return EmptyEnumerable<TItem>.EnumeratorInstance; }
+    /// <typeparam name="TItem">The type of enumerated item.</typeparam>
+    /// <param name="first">The first item.</param>
+    /// <param name="include">The delegate indicating whether to include the current item
+    /// into the sequence or not. Enumeration continues until this method returns
+    /// <see langword="false" />.</param>
+    /// <param name="next">The delegate returning the next item by the current one.</param>
+    /// <returns>
+    /// Unfolded sequence of items
+    /// starting from the <paramref name="first"/> one.
+    /// </returns>
+    public static IEnumerable<TItem> Unfold<TItem>(TItem first, Func<TItem, bool> include, Func<TItem, TItem> next)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(next, "next");
+      var current = first;
+      while (include.Invoke(current)) {
+        yield return current;
+        current = next.Invoke(current);
+      }
     }
   }
 }

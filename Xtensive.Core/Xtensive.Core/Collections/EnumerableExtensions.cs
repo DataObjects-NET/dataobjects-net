@@ -387,7 +387,7 @@ namespace Xtensive.Core.Collections
     {
       source = source ?? EnumerableUtils<T>.Empty;
       if (!ReferenceEquals(value, null))
-        source = source.Union(EnumerableUtils<T>.One(value));
+        source = source.Union(EnumerableUtils.One(value));
       return source;
     }
   }
