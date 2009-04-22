@@ -353,6 +353,8 @@ namespace Xtensive.Core.Collections
     {
       ArgumentValidator.EnsureArgumentNotNull(leftSequence, "leftSequence");
       ArgumentValidator.EnsureArgumentNotNull(rightSequence, "rightSequence");
+      ArgumentValidator.EnsureArgumentNotNull(projector, "projector");
+
       using (var leftEnum = leftSequence.GetEnumerator())
       using (var rightEnum = rightSequence.GetEnumerator()) {
         bool hasLeft = leftEnum.MoveNext();
