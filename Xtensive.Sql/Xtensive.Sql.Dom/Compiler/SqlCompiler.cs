@@ -1107,6 +1107,11 @@ namespace Xtensive.Sql.Dom.Compiler
       context.AppendText(translator.Translate(context, node));
     }
 
+    public virtual void Visit(SqlVariant node)
+    {
+      throw new NotImplementedException();
+    }
+
     public virtual void Visit(SqlWhile node)
     {
       using (context.EnterNode(node)) {

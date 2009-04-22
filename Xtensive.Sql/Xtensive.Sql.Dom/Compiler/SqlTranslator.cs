@@ -309,9 +309,9 @@ namespace Xtensive.Sql.Dom.Compiler
     {
       switch (section) {
         case NodeSection.Entry:
-           return (node.NodeType==SqlNodeType.Empty) ? string.Empty : "(";
+           return (node.NodeType==SqlNodeType.RawConcat) ? string.Empty : "(";
         case NodeSection.Exit:
-           return (node.NodeType == SqlNodeType.Empty) ? string.Empty : ")";
+           return (node.NodeType == SqlNodeType.RawConcat) ? string.Empty : ")";
       }
       return string.Empty;
     }

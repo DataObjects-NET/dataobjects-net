@@ -151,7 +151,7 @@ namespace Xtensive.Sql.Dom
         case SqlNodeType.Column:
         case SqlNodeType.Concat:
         case SqlNodeType.Constant:
-        case SqlNodeType.Empty:
+        case SqlNodeType.RawConcat:
         case SqlNodeType.FunctionCall:
         case SqlNodeType.Literal:
         case SqlNodeType.Null:

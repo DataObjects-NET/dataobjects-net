@@ -105,13 +105,13 @@ namespace Xtensive.Storage.Providers.MsSql
       if (provider.Header.Order.Count>0) 
         for (int i = 0; i < provider.Header.Order.Count; i++) {
           if (i != 0)
-            rowNumberExpression = SqlFactory.Empty(rowNumberExpression, SqlFactory.Native(", "));
-          rowNumberExpression = SqlFactory.Empty(rowNumberExpression,sourceQuery[provider.Header.Order[i].Key]);
-          rowNumberExpression = SqlFactory.Empty(rowNumberExpression,SqlFactory.Native(provider.Header.Order[i].Value == Direction.Positive ? " ASC" : " DESC"));
+            rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, SqlFactory.Native(", "));
+          rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, sourceQuery[provider.Header.Order[i].Key]);
+          rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, SqlFactory.Native(provider.Header.Order[i].Value == Direction.Positive ? " ASC" : " DESC"));
         }
       else
-        rowNumberExpression = SqlFactory.Empty(rowNumberExpression,sourceQuery[0]);
-      rowNumberExpression = SqlFactory.Empty(rowNumberExpression,SqlFactory.Native(")"));
+        rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, sourceQuery[0]);
+      rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, SqlFactory.Native(")"));
       sourceQuery.Columns.Add(rowNumberExpression, rowNumberColumnName);
       sourceQuery.OrderBy.Clear();
       return sourceQuery;

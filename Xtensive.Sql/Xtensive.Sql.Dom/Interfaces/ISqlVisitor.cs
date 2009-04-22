@@ -91,6 +91,7 @@ namespace Xtensive.Sql.Dom
     void Visit(SqlUserFunctionCall node);
     void Visit(SqlDeclareVariable node);
     void Visit(SqlVariable node);
+    void Visit(SqlVariant node);
     void Visit(SqlWhile node);
   }
 }

@@ -61,10 +61,10 @@ namespace Xtensive.Sql.Dom
 //    ExprSet,
 
     /// <summary>
-    /// Empty binary expression. Just concates both underlying expressions 
+    /// Raw concatenation binary expression. Just concates both underlying expressions 
     /// without any additional sign between.
     /// </summary>
-    Empty,
+    RawConcat,
     Equals,
     Except,
     Exists,
@@ -145,6 +145,7 @@ namespace Xtensive.Sql.Dom
 //    UserQuery,
 //    UserRow,
     Variable,
+    Variant,
     DeclareVariable,
 //    ValueOf,
 //    When,
