@@ -257,17 +257,17 @@ namespace Xtensive.Modelling.Comparison
       if ((nodeDifference.MovementInfo & MovementInfo.Relocated)==0)
         return false;
       var diffs = 
-        EnumerableUtils.Unfold(difference, d => d.Parent).Reverse().ToList();
+        EnumerableUtils.Unfold(difference, d => d.Parent).Reverse();
       var currentDiffs = 
-        EnumerableUtils.Unfold(Context.Difference, d => d.Parent).Reverse().ToList();
-      var commonDiffs = diffs.Zip(currentDiffs).Where(p => p.First==p.Second).Select(p => p.First).ToList();
-      var newDiffs = diffs.Except(commonDiffs).ToList();
+        EnumerableUtils.Unfold(Context.Difference, d => d.Parent).Reverse();
+      var commonDiffs = diffs.Zip(currentDiffs).Where(p => p.First==p.Second).Select(p => p.First);
+      var newDiffs = diffs.Except(commonDiffs);
       var query =
         from diff in newDiffs
         let nodeDiff = diff as NodeDifference
         where nodeDiff!=null && (nodeDiff.MovementInfo & MovementInfo.Changed)!=0
         select nodeDiff;
-      query = query.ToList();
+      // query = query.ToList();
       return query.Any();
     }
 

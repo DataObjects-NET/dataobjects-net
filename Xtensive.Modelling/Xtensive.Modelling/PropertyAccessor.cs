@@ -27,6 +27,10 @@ namespace Xtensive.Modelling
     [NonSerialized]
     private bool ignoreInComparison;
     [NonSerialized]
+    private bool ignoreInCopying;
+    [NonSerialized]
+    private bool copy;
+    [NonSerialized]
     private Type dependencyRootType;
 
     /// <summary>
@@ -54,6 +58,21 @@ namespace Xtensive.Modelling
     /// </summary>
     public bool IgnoreInComparison {
       get { return ignoreInComparison; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether underlying property must be ignored in comparison.
+    /// </summary>
+    public bool IgnoreInCopying {
+      get { return ignoreInCopying; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether underlying property must be copied 
+    /// rather than created & processed as usual.
+    /// </summary>
+    public bool Copy {
+      get { return copy; }
     }
 
     /// <summary>
@@ -119,10 +138,14 @@ namespace Xtensive.Modelling
       var sa = propertyInfo.GetAttribute<SystemPropertyAttribute>(AttributeSearchOptions.InheritNone);
       isSystem = sa!=null;
       ignoreInComparison = isSystem;
+      ignoreInCopying = isSystem;
+      copy = false;
       var pa = propertyInfo.GetAttribute<PropertyAttribute>(AttributeSearchOptions.InheritNone);
       if (pa!=null) {
         priority = pa.Priority;
         ignoreInComparison |= pa.IgnoreInComparison;
+        ignoreInCopying |= pa.IgnoreInCopying;
+        copy |= pa.Copy;
         dependencyRootType = pa.DependencyRootType;
       }
       this.GetType()

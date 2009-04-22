@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
@@ -65,7 +66,7 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// Gets the sequence of actions that is currently building.
     /// </summary>
-    protected List<NodeAction> Actions { get; private set; }
+    protected IList<NodeAction> Actions { get; private set; }
 
     #endregion
 
@@ -163,43 +164,66 @@ namespace Xtensive.Modelling.Comparison
     {
       var source = difference.Source;
       var target = difference.Target;
+      var any = target ?? source;
+      bool isCopying = Context.Copy;
 
-      // Processing movement
-      if ((difference.MovementInfo & MovementInfo.Removed)!=0) {
-        AddAction(new RemoveNodeAction() {
-          Path = (source ?? target).Path
-        });
-        if (source!=null)
-          return;
-      }
-
-      if ((difference.MovementInfo & MovementInfo.Created)!=0) {
-        var action = new CreateNodeAction()
-          {
-            Path = target.Parent==null ? string.Empty : target.Parent.Path,
-            Type = target.GetType(),
-            Name = target.Name,
-            Index = target.Nesting.IsNestedToCollection ? (int?)target.Index : null
-          };
-        AddAction(action);
-      }
-      else if ((difference.MovementInfo & MovementInfo.Changed)!=0) {
-        AddAction(new MoveNodeAction()
-          {
-            Path = source.Path,
-            Parent = target.Parent==null ? string.Empty : target.Parent.Path,
-            Name = target.Name,
-            Index = target.Index,
-            NewPath = target.Path
-          });
-      }
-
-      // And property changes
-      foreach (var pair in difference.PropertyChanges)
-        using (CreateContext().Activate()) {
-          Context.Property = pair.Key;
-          Visit(pair.Value);
+      using (OpenActionGroup((target ?? source).Name)) {
+        // Processing movement
+        if (isCopying) {
+          if ((difference.MovementInfo & MovementInfo.Removed)!=0) {
+            AddAction(new RemoveNodeAction() {
+              Path = source.Path
+            });
+          }
+          if ((difference.MovementInfo & MovementInfo.Changed)!=0) {
+            var action = new CopyNodeAction() {
+              Source = source,
+              Path = target.Parent==null ? string.Empty : target.Parent.Path,
+              Name = target.Name,
+              Index = target.Nesting.IsNestedToCollection ? (int?) target.Index : null
+            };
+            AddAction(action);
+          }
         }
+        else {
+          if ((difference.MovementInfo & MovementInfo.Removed)!=0) {
+            AddAction(new RemoveNodeAction() {
+              Path = source.Path
+            });
+            if (target==null)
+              return;
+          }
+          if ((difference.MovementInfo & MovementInfo.Created)!=0) {
+            var action = new CreateNodeAction() {
+              Path = target.Parent==null ? string.Empty : target.Parent.Path,
+              Type = target.GetType(),
+              Name = target.Name,
+              Index = target.Nesting.IsNestedToCollection ? (int?) target.Index : null
+            };
+            AddAction(action);
+          }
+          else if ((difference.MovementInfo & MovementInfo.Changed)!=0) {
+            AddAction(new MoveNodeAction() {
+              Path = source.Path,
+              Parent = target.Parent==null ? string.Empty : target.Parent.Path,
+              Name = target.Name,
+              Index = target.Index,
+              NewPath = target.Path
+            });
+          }
+        }
+
+        // Processing property changes
+        foreach (var pair in difference.PropertyChanges) {
+          var accessor = any.PropertyAccessors[pair.Key];
+          if (!isCopying || accessor.IgnoreInCopying)
+            using (CreateContext().Activate()) {
+              Context.Property = pair.Key;
+              Context.Copy = accessor.Copy;
+              Visit(pair.Value);
+            }
+        }
+      }
     }
 
     /// <summary>
@@ -213,8 +237,10 @@ namespace Xtensive.Modelling.Comparison
     /// </returns>
     protected virtual void VisitNodeCollectionDifference(NodeCollectionDifference difference)
     {
-      foreach (var newDifference in difference.ItemChanges)
-        Visit(newDifference);
+      using (OpenActionGroup("+" + Context.Property)) {
+        foreach (var newDifference in difference.ItemChanges)
+          Visit(newDifference);
+      }
     }
 
     /// <summary>
@@ -261,6 +287,31 @@ namespace Xtensive.Modelling.Comparison
     protected virtual UpgradeContext CreateContext()
     {
       return new UpgradeContext();
+    }
+
+    /// <summary>
+    /// Creates the new action group.
+    /// </summary>
+    /// <param name="comment">The action group comment.</param>
+    /// <returns>A disposable deactivating the group.</returns>
+    protected IDisposable OpenActionGroup(string comment)
+    {
+      var action = new GroupingNodeAction {
+        Comment = comment
+      };
+      var oldValue = Actions;
+      Actions = action.Actions;
+      try {
+        return new Disposable( 
+          (isDisposing) => {
+            Actions = oldValue;
+            Actions.Add(action);
+          });
+      }
+      catch {
+        Actions = oldValue;
+        throw;
+      }
     }
 
     /// <summary>

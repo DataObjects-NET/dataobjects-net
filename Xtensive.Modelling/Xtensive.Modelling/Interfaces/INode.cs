@@ -69,7 +69,7 @@ namespace Xtensive.Modelling
     /// <returns>Non-<see langword="null" /> property values of <see cref="IPathNode"/> type.</returns>
     IEnumerable<Pair<string, IPathNode>> GetPathNodes(bool nestedOnly);
 
-      /// <summary>
+    /// <summary>
     /// Moves the node.
     /// </summary>
     /// <param name="newParent">The new parent.</param>
@@ -81,5 +81,13 @@ namespace Xtensive.Modelling
     /// Removes the node.
     /// </summary>
     void Remove();
+
+    /// <summary>
+    /// Copies the whole node to the specified location.
+    /// </summary>
+    /// <param name="newParent">The new parent.</param>
+    /// <param name="newName">The new name.</param>
+    /// <returns>Created copy of the node.</returns>
+    Node CopyTo(Node newParent, string newName);
   }
 }

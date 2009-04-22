@@ -44,6 +44,14 @@ namespace Xtensive.Modelling.Actions
       }
     }
 
+    public int? Index {
+      get { return index; }
+      set {
+        this.EnsureNotLocked();
+        index = value;
+      }
+    }
+
     public object[] Parameters {
       get {
         if (!IsLocked)
@@ -53,14 +61,6 @@ namespace Xtensive.Modelling.Actions
       set {
         this.EnsureNotLocked();
         parameters = value;
-      }
-    }
-
-    public int? Index {
-      get { return index; }
-      set {
-        this.EnsureNotLocked();
-        index = value;
       }
     }
 

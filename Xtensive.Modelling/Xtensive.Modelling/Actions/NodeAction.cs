@@ -7,8 +7,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
@@ -73,16 +75,10 @@ namespace Xtensive.Modelling.Actions
       GetParameters(parameters);
       foreach (var kvp in parameters)
         sb.AppendFormat(", {0}={1}", kvp.First, kvp.Second);
+      var nestedActions = GetNestedActions();
+      foreach (var action in nestedActions)
+        sb.AppendLine().Append(action.ToString().Indent(2));
       return sb.ToString();
-    }
-
-    /// <summary>
-    /// Gets the parameters for <see cref="ToString"/> formatting.
-    /// </summary>
-    /// <returns>The sequence of parameters.</returns>
-    protected virtual void GetParameters(List<Pair<string>> parameters)
-    {
-      parameters.Add(new Pair<string>("Path", path));
     }
 
     /// <summary>
@@ -93,6 +89,25 @@ namespace Xtensive.Modelling.Actions
     {
       string sn = GetType().GetShortName();
       return sn.TryCutSuffix("Action");
+    }
+
+    /// <summary>
+    /// Gets the parameters for <see cref="ToString"/> formatting.
+    /// </summary>
+    /// <returns>The sequence of parameters.</returns>
+    protected virtual void GetParameters(List<Pair<string>> parameters)
+    {
+      if (path!=null)
+        parameters.Add(new Pair<string>("Path", path));
+    }
+
+    /// <summary>
+    /// Gets the sequence of nested actions for <see cref="ToString"/> formatting, if any.
+    /// </summary>
+    /// <returns>The sequence of nested actions.</returns>
+    protected virtual IEnumerable<NodeAction> GetNestedActions()
+    {
+      return EnumerableUtils<NodeAction>.Empty;
     }
 
     #endregion

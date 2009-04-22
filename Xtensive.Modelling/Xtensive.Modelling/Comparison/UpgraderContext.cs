@@ -38,6 +38,11 @@ namespace Xtensive.Modelling.Comparison
     public string Property { get; set; }
 
     /// <summary>
+    /// Indicates whether node must be copied rather than processed as usual.
+    /// </summary>
+    public bool Copy { get; set; }
+
+    /// <summary>
     /// Activates this instance.
     /// </summary>
     /// <returns>A disposable object deactivating it.</returns>
@@ -85,6 +90,7 @@ namespace Xtensive.Modelling.Comparison
         return;
       Difference = Parent.Difference;
       Property = Parent.Property;
+      Copy = Parent.Copy;
     }
   }
 }

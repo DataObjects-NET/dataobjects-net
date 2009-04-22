@@ -76,6 +76,19 @@ namespace Xtensive.Modelling.Actions
         action.Execute(model);
     }
 
+    /// <inheritdoc/>
+    public IEnumerable<NodeAction> Flatten()
+    {
+      foreach (var action in actions) {
+        var gna = action as GroupingNodeAction;
+        if (gna!=null)
+          foreach (var nestedAction in gna.Flatten())
+            yield return nestedAction;
+        else
+          yield return action;
+      }
+    }
+
     #region Private \ internal methods
 
     internal void OnCommit(ActionScope scope)

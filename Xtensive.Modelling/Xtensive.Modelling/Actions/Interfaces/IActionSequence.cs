@@ -42,5 +42,11 @@ namespace Xtensive.Modelling.Actions
     /// Applies all the actions from the sequence to specified model.
     /// </summary>
     void Apply(IModel model);
+
+    /// <summary>
+    /// Flattens all the <see cref="GroupingNodeAction"/>s from this instance.
+    /// </summary>
+    /// <returns>Flattened action sequence.</returns>
+    IEnumerable<NodeAction> Flatten();
   }
 }

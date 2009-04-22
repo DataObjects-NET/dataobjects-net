@@ -51,9 +51,9 @@ namespace Xtensive.Modelling.Tests
       },
       (diff, actions) => {
         var query =
-          from a in actions
-          let vda = a as PropertyChangeAction
-          where vda!=null && vda.Properties.ContainsKey("PrimaryKey")
+          from a in actions.Flatten()
+          let cna = a as CopyNodeAction
+          where cna!=null && cna.Name=="FK_TypeId"
           select a;
         Assert.IsTrue(query.Any());
       });
@@ -75,8 +75,8 @@ namespace Xtensive.Modelling.Tests
       (diff, actions) => {
         var query =
           from a in actions
-          let vda = a as PropertyChangeAction
-          where vda!=null && vda.Properties.ContainsKey("PrimaryKey")
+          let cna = a as CopyNodeAction
+          where cna!=null && cna.Name=="FK_TypeId"
           select a;
         Assert.IsTrue(query.Any());
       });

@@ -26,7 +26,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets or sets the primary index.
     /// </summary>
-    [Property(Priority = -1200)]
+    [Property(Priority = -1200, Copy = true)]
     public PrimaryIndexInfo PrimaryIndex {
       get { return primaryIndex; }
       set {
@@ -41,13 +41,14 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets secondary indexes.
     /// </summary>
-    [Property(Priority = -1100)]
+    [Property(Priority = -1100, Copy = true)]
     public SecondaryIndexInfoCollection SecondaryIndexes { get; private set; }
 
     /// <summary>
     /// Gets foreign keys.
     /// </summary>
-    [Property(Priority = -1000)]
+    [Property(Priority = -1000,
+      Copy = true, DependencyRootType = typeof(TableInfoCollection))]
     public ForeignKeyCollection ForeignKeys { get; private set; }
 
     /// <inheritdoc/>

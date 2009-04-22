@@ -29,6 +29,17 @@ namespace Xtensive.Modelling.Attributes
     public bool IgnoreInComparison { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether underlying property must be ignored in <see cref="INode.CopyTo"/> operation.
+    /// </summary>
+    public bool IgnoreInCopying { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether underlying property must be copied 
+    /// rather than created & processed as usual.
+    /// </summary>
+    public bool Copy { get; set; }
+
+    /// <summary>
     /// Gets or sets the dependency root type.
     /// </summary>
     public Type DependencyRootType { get; set; }

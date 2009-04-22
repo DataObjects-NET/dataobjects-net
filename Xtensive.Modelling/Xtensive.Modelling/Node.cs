@@ -310,6 +310,61 @@ namespace Xtensive.Modelling
       }
     }
 
+    /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">Required constructor isn't found.</exception>
+    public virtual Node CopyTo(Node newParent, string newName)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(newParent, "newParent");
+      ArgumentValidator.EnsureArgumentNotNull(newName, "newName");
+      
+      // Cloning the instance
+      var model = (IModel) newParent.Model;
+      var node = TryConstructor(model, newParent, newName); // Regular node
+      if (node==null)
+        node = TryConstructor(model, newParent); // Unnamed node
+      if (node==null)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExCannotFindConstructorToExecuteX, this));
+
+      // Cloning properties
+      foreach (var pair in PropertyAccessors) {
+        var accessor = pair.Value;
+        if (!accessor.HasGetter || accessor.IgnoreInCopying)
+          continue;
+        CopyPropertyValue(node, accessor);
+      }
+
+      return node;
+    }
+
+    /// <summary>
+    /// Copies the property value.
+    /// </summary>
+    /// <param name="target">The target node.</param>
+    /// <param name="accessor">The accessor of the property to copy value of.</param>
+    protected virtual void CopyPropertyValue(Node target, PropertyAccessor accessor)
+    {
+      var propertyName = accessor.PropertyInfo.Name;
+      var nested = GetNestedProperty(propertyName);
+      if (nested!=null) {
+        var collection = nested as NodeCollection;
+        if (collection!=null)
+          foreach (Node newNode in collection)
+            newNode.CopyTo(target, target.Name);
+        else {
+          var newNode = (Node) nested;
+          newNode.CopyTo(target, newNode.Name);
+        }
+      }
+      else if (accessor.HasSetter) {
+        var value = GetProperty(propertyName);
+        var cloneable = value as ICloneable;
+        if (cloneable!=null)
+          value = cloneable.Clone();
+        accessor.Setter(target, value);
+      }
+    }
+
     #region ValidateXxx methods
 
     /// <summary>
@@ -709,6 +764,15 @@ namespace Xtensive.Modelling
           }
           return new PropertyAccessorDictionary(d, false);
         });
+    }
+
+    private Node TryConstructor(IModel model, params object[] args)
+    {
+      var argTypes = args.Select(a => a.GetType()).ToArray();
+      var ci = GetType().GetConstructor(argTypes);
+      if (ci==null)
+        return null;
+      return (Node) ci.Invoke(args);
     }
 
     #endregion
