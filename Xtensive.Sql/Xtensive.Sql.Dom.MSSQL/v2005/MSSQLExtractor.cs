@@ -512,7 +512,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       using (IDbCommand cmd = context.Connection.RealConnection.CreateCommand()) {
         cmd.Transaction = context.Transaction;
         cmd.CommandText = @" Select Distinct " + "\n [CATALOG_NAME], " + "\n [SCHEMA_NAME], " + "\n [SCHEMA_OWNER] " +
-                          "\n From [Master].[INFORMATION_SCHEMA].[Schemata]";
+                          "\n From [master].[INFORMATION_SCHEMA].[SCHEMATA]";
 
         using (IDataReader reader = cmd.ExecuteReader()) {
           while (reader.Read())
@@ -576,24 +576,21 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       // dataType and size
       int size = 0;
       if ((dataType == SqlDataType.Char) || (dataType == SqlDataType.AnsiChar) ||
-        (dataType == SqlDataType.VarChar) || (dataType == SqlDataType.AnsiVarChar) ||
-          (dataType == SqlDataType.Binary) || (dataType == SqlDataType.VarBinary))
-      {
+          (dataType == SqlDataType.VarChar) || (dataType == SqlDataType.AnsiVarChar) ||
+          (dataType == SqlDataType.Binary) || (dataType == SqlDataType.VarBinary)) {
         size = Convert.ToInt32(reader["CHARACTER_MAXIMUM_LENGTH"]);
-        if (size == -1)
-        {
+        if (size == -1) {
           size = 0;
-          switch (dataType)
-          {
-            case SqlDataType.VarChar:
-              dataType = SqlDataType.VarCharMax;
-              break;
-            case SqlDataType.AnsiVarChar:
-              dataType = SqlDataType.AnsiVarCharMax;
-              break;
-            case SqlDataType.VarBinary:
-              dataType = SqlDataType.VarBinaryMax;
-              break;
+          switch (dataType) {
+          case SqlDataType.VarChar:
+            dataType = SqlDataType.VarCharMax;
+            break;
+          case SqlDataType.AnsiVarChar:
+            dataType = SqlDataType.AnsiVarCharMax;
+            break;
+          case SqlDataType.VarBinary:
+            dataType = SqlDataType.VarBinaryMax;
+            break;
           }
         }
       }
