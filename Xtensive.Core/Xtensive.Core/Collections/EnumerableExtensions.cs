@@ -297,7 +297,8 @@ namespace Xtensive.Core.Collections
     /// <param name="projector">A delegate constructing <typeparamref name="TResult"/> from 
     /// <typeparamref name="TLeft"/> and <typeparamref name="TRight"/> values.</param>
     /// <returns>Result of applying <paramref name="projector"/> for each pair of items.</returns>
-    public static IEnumerable<TResult> Zip<TLeft, TRight, TResult>(this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence, Func<TLeft, TRight, TResult> projector)
+    public static IEnumerable<TResult> Zip<TLeft, TRight, TResult>(
+      this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence, Func<TLeft, TRight, TResult> projector)
     {
       ArgumentValidator.EnsureArgumentNotNull(leftSequence, "leftSequence");
       ArgumentValidator.EnsureArgumentNotNull(rightSequence, "rightSequence");
@@ -321,7 +322,8 @@ namespace Xtensive.Core.Collections
     /// <param name="leftSequence">First <see cref="IEnumerable{T}"/>.</param>
     /// <param name="rightSequence">Second <see cref="IEnumerable{T}"/>.</param>
     /// <returns>Zip result.</returns>
-    public static IEnumerable<Pair<TLeft,TRight>> Zip<TLeft, TRight>(this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence)
+    public static IEnumerable<Pair<TLeft,TRight>> Zip<TLeft, TRight>(
+      this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence)
     {
       ArgumentValidator.EnsureArgumentNotNull(leftSequence, "leftSequence");
       ArgumentValidator.EnsureArgumentNotNull(rightSequence, "rightSequence");
@@ -333,15 +335,59 @@ namespace Xtensive.Core.Collections
     }
 
     /// <summary>
-    /// Sorts the elements of a sequence according to natural order.
+    /// Constructs <see cref="IEnumerable{T}"/> from
+    /// this <see cref="IEnumerable{T}"/> and specified <see cref="IEnumerable{T}"/>
+    /// by applying <paramref name="projector"/> for each pair of items.
+    /// If one input <see cref="IEnumerable{T}"/> is short, it is extended with default values.
     /// </summary>
-    /// <typeparam name="TItem">The type of the elements of source.</typeparam>
-    /// <param name="source">A sequence of values to order.</param>
-    /// <returns><see cref="IEnumerable{TItem}"/> whose elements are sorted according to natural order.</returns>
-    public static IEnumerable<TItem> OrderBy<TItem>(this IEnumerable<TItem> source) 
-      where TItem : IComparable
+    /// <typeparam name="TLeft">Type of first <see cref="IEnumerable{T}"/>.</typeparam>
+    /// <typeparam name="TRight">Type of second <see cref="IEnumerable{T}"/>.</typeparam>
+    /// <typeparam name="TResult">Type of result.</typeparam>
+    /// <param name="leftSequence">First <see cref="IEnumerable{T}"/>.</param>
+    /// <param name="rightSequence">Second <see cref="IEnumerable{T}"/>.</param>
+    /// <param name="projector">A delegate constructing <typeparamref name="TResult"/> from 
+    /// <typeparamref name="TLeft"/> and <typeparamref name="TRight"/> values.</param>
+    /// <returns>Result of applying <paramref name="projector"/> for each pair of items.</returns>
+    public static IEnumerable<TResult> ZipExtend<TLeft, TRight, TResult>(
+      this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence, Func<TLeft, TRight, TResult> projector)
     {
-      return source.OrderBy(item => item);
+      ArgumentValidator.EnsureArgumentNotNull(leftSequence, "leftSequence");
+      ArgumentValidator.EnsureArgumentNotNull(rightSequence, "rightSequence");
+      using (var leftEnum = leftSequence.GetEnumerator())
+      using (var rightEnum = rightSequence.GetEnumerator()) {
+        bool hasLeft = leftEnum.MoveNext();
+        bool hasRight = rightEnum.MoveNext();
+        while (hasLeft && hasRight) {
+          yield return projector(leftEnum.Current, rightEnum.Current);
+          hasLeft = leftEnum.MoveNext();
+          hasRight = rightEnum.MoveNext();
+        }
+        while (hasLeft) {
+          yield return projector(leftEnum.Current, default(TRight));
+          hasLeft = leftEnum.MoveNext();
+        }
+        while (hasRight) {
+          yield return projector(default(TLeft), rightEnum.Current);
+          hasRight = rightEnum.MoveNext();
+        }
+      }
+    }
+
+    /// <summary>
+    /// Constructs <see cref="IEnumerable{T}"/> from
+    /// this <see cref="IEnumerable{T}"/> and specified <see cref="IEnumerable{T}"/>
+    /// by creating a <see cref="Pair{TFirst,TSecond}"/> from each pair of items.
+    /// If one input <see cref="IEnumerable{T}"/> is short, it is extended with default values.
+    /// </summary>
+    /// <typeparam name="TLeft">Type of first <see cref="IEnumerable{T}"/>.</typeparam>
+    /// <typeparam name="TRight">Type of second <see cref="IEnumerable{T}"/>.</typeparam>
+    /// <param name="leftSequence">First <see cref="IEnumerable{T}"/>.</param>
+    /// <param name="rightSequence">Second <see cref="IEnumerable{T}"/>.</param>
+    /// <returns>Zip result.</returns>
+    public static IEnumerable<Pair<TLeft, TRight>> ZipExtend<TLeft, TRight>(
+      this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence)
+    {
+      return ZipExtend(leftSequence, rightSequence, (l, r) => new Pair<TLeft, TRight>(l, r));
     }
 
     /// <summary>

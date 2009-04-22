@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Linq.Rewriters
       return left
         .Union(right)
         .Distinct()
-        .OrderBy()
+        .OrderBy(i => i)
         .ToList();
     }
 

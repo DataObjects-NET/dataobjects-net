@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Linq
       var usedColumns = mappingsGatherer
           .Gather(origin.ItemProjector, originProvider.Header, model, origin.Mapping)
           .Distinct()
-          .OrderBy()
+          .OrderBy(i => i)
           .ToList();
 
       if (usedColumns.Count == 0)

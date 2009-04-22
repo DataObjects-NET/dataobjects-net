@@ -805,8 +805,8 @@ namespace Xtensive.Storage.Linq
     {
       var outer = VisitSequence(outerSource);
       var inner = VisitSequence(innerSource);
-      var outerColumnList = outer.Mapping.GetColumns(false).OrderBy().ToList();
-      var innerColumnList = inner.Mapping.GetColumns(false).OrderBy().ToList();
+      var outerColumnList = outer.Mapping.GetColumns(false).OrderBy(i => i).ToList();
+      var innerColumnList = inner.Mapping.GetColumns(false).OrderBy(i => i).ToList();
       var outerRecordSet = outer.RecordSet.Select(outerColumnList.ToArray());
       var innerRecordSet = inner.RecordSet.Select(innerColumnList.ToArray());
 

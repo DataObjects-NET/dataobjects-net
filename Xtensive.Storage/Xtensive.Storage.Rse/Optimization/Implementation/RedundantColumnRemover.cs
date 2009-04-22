@@ -92,8 +92,8 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
         rightMapping.Add(item.Second);
       }
 
-      leftMapping = leftMapping.Distinct().OrderBy().ToList();
-      rightMapping = rightMapping.Distinct().OrderBy().ToList();
+      leftMapping = leftMapping.Distinct().OrderBy(i => i).ToList();
+      rightMapping = rightMapping.Distinct().OrderBy(i => i).ToList();
 
       // visit
 
@@ -333,7 +333,7 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
       return left
         .Union(right)
         .Distinct()
-        .OrderBy()
+        .OrderBy(i => i)
         .ToList();
     }
 

@@ -37,9 +37,10 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       ResizeTransform = new MapTransform(false, Header.TupleDescriptor, columnIndexes);
     }
 
+    /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      return Source.Header.Add(EnumerableUtils<Column>.One(SystemColumn));
+      return Source.Header.Add(EnumerableUtils.One((Column) SystemColumn));
     }
 
     // Constructor
