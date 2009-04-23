@@ -59,6 +59,15 @@ namespace Xtensive.Core.Parameters
       : this(name, null)
     {}
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="expectedValue">The expected value of this parameter.</param>
+    [DebuggerStepThrough]
+    public Parameter(TValue expectedValue)
+      : this(string.Empty, null, expectedValue)
+    {}
+
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
@@ -72,14 +81,35 @@ namespace Xtensive.Core.Parameters
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="onOutOfScope">Out of scope action. 
+    /// Action argument is parameter's value within disposed scope.</param>
+    /// <param name="expectedValue">The expected value of this parameter.</param>
+    public Parameter(Action<TValue> onOutOfScope, TValue expectedValue)
+      : this(string.Empty, onOutOfScope, expectedValue)
+    {}
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">The <see cref="Parameter.Name"/> property value.</param>
+    /// Action argument is parameter's value within disposed scope.</param>
+    /// <param name="onOutOfScope">Out of scope action. 
+    public Parameter(string name, Action<TValue> onOutOfScope)
+      : this(name, onOutOfScope, default(TValue))
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     /// <param name="name">The <see cref="Parameter.Name"/> property value.</param>
     /// <param name="onOutOfScope">Out of scope action. 
     /// Action argument is parameter's value within disposed scope.</param>
-    public Parameter(string name, Action<TValue> onOutOfScope)
-      : base(name)
+    /// <param name="expectedValue">The expected value of this parameter.</param>
+    public Parameter(string name, Action<TValue> onOutOfScope, TValue expectedValue)
+      : base(name, expectedValue)
     {
       this.onOutOfScope = onOutOfScope;
-      InnerExpectedValue = default(TValue);
     }
   }
 }

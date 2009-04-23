@@ -17,18 +17,19 @@ namespace Xtensive.Core.Tests.Parameters
     [Test]
     public void CombinedTest()
     {
-      Parameter<int> parameter = new Parameter<int>();
+      var parameter = new Parameter<int>();
 
       Assert.AreEqual(default(int), parameter.ExpectedValue);
-      parameter.ExpectedValue = 1;
+
+      parameter = new Parameter<int>(1);
+
       Assert.AreEqual(1, parameter.ExpectedValue);
-      AssertEx.ThrowsInvalidOperationException(() => parameter.ExpectedValue = 1);
 
       AssertEx.Throws<Exception>(delegate {
         parameter.Value = 5;
       });
 
-      ParameterContext firstContext = new ParameterContext();
+      var firstContext = new ParameterContext();
 
       using (firstContext.Activate()) {        
 

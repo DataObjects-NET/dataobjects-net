@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Providers.Index
     {
       if (!indexInfo.IsVirtual)
         return domainHandler.GetRealIndex(indexInfo);
-      if ((indexInfo.Attributes & IndexAttributes.Union) != 0) {
+      if ((indexInfo.Attributes & IndexAttributes.Union) == IndexAttributes.Union) {
         var underlyingProviders = indexInfo.UnderlyingIndexes.Select(index => Resolve(index)).ToArray();
         return new MergedStatisticsProvider(underlyingProviders);
       }

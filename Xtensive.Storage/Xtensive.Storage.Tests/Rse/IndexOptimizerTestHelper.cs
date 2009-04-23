@@ -12,26 +12,26 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using Xtensive.Storage.Tests.ObjectModel;
 
 namespace Xtensive.Storage.Tests.Rse
 {
   [TestFixture]
-  public class IndexOptimizerTestBase : NorthwindDOModelTest
+  public class IndexOptimizerTestHelper
   {
-    protected IndexInfo GetIndexForField<T>(string fieldName)
+    public static IndexInfo GetIndexForField<T>(string fieldName, DomainModel domainModel)
     {
       var targetName = "_" + fieldName;
-      return Domain.Model.Types[typeof(T)].Fields[fieldName].Column.Indexes.First(
+      return domainModel.Types[typeof(T)].Fields[fieldName].Column.Indexes.First(
         idx => idx.ShortName.EndsWith(targetName));
     }
 
-    protected IndexInfo GetIndexForForeignKey<T>(string fieldName)
+    public static IndexInfo GetIndexForForeignKey<T>(string fieldName, DomainModel domainModel)
     {
-      return Domain.Model.Types[typeof(T)].Fields[fieldName].Fields[fieldName + ".Id"].Column.Indexes.First();
+      return domainModel.Types[typeof(T)].Fields[fieldName].Fields[fieldName + ".Id"]
+        .Column.Indexes.First();
     }
 
-    protected static void ValidateQueryResult<T>(IEnumerable<T> expected, IEnumerable<T> actual)
+    public static void ValidateQueryResult<T>(IEnumerable<T> expected, IEnumerable<T> actual)
       where T : Entity
     {
       Assert.Greater(expected.Count(), 0);
@@ -43,16 +43,17 @@ namespace Xtensive.Storage.Tests.Rse
       Assert.AreEqual(0, expected.Except(actual, equalityComparer).Count());
     }
 
-    protected void ValidateUsedIndex<T>(IQueryable<T> query, params IndexInfo[] expectedIndexes)
+    public static void ValidateUsedIndex<T>(IQueryable<T> query, DomainModel domainModel,
+      params IndexInfo[] expectedIndexes)
     {
       var optimizedProvider = GetOptimizedProvider(query);
       var secondaryIndexProviders = new List<IndexInfo>();
-      FindSecondaryIndexProviders(optimizedProvider, secondaryIndexProviders);
+      FindSecondaryIndexProviders(optimizedProvider, secondaryIndexProviders, domainModel);
       Assert.Greater(secondaryIndexProviders.Count, 0);
       Assert.AreEqual(0, secondaryIndexProviders.Except(expectedIndexes).Count());
     }
 
-    protected static CompilableProvider GetOptimizedProvider<T>(IQueryable<T> query)
+    public static CompilableProvider GetOptimizedProvider<T>(IQueryable<T> query)
     {
       CompilableProvider optimizedProvider;
       using (EnumerationScope.Open()) {
@@ -62,17 +63,18 @@ namespace Xtensive.Storage.Tests.Rse
       return optimizedProvider;
     }
 
-    protected void FindSecondaryIndexProviders(Provider provider, List<IndexInfo> result)
+    public static void FindSecondaryIndexProviders(Provider provider, List<IndexInfo> result,
+      DomainModel domainModel)
     {
       foreach (var source in provider.Sources) {
         var indexProvider = source as IndexProvider;
         if (indexProvider!=null) {
-          var indexInfo = indexProvider.Index.Resolve(Domain.Model);
+          var indexInfo = indexProvider.Index.Resolve(domainModel);
           if (!indexInfo.IsPrimary)
             result.Add(indexInfo);
         }
         else
-          FindSecondaryIndexProviders(source, result);
+          FindSecondaryIndexProviders(source, result, domainModel);
       }
     }
   }

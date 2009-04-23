@@ -13,11 +13,15 @@ using NUnit.Framework;
 using Rhino.Mocks;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Linq.Normalization;
+using Xtensive.Core.Parameters;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Index;
 using Xtensive.Storage.Rse.Optimization.IndexSelection;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using IndexProvider=Xtensive.Storage.Rse.Providers.Compilable.IndexProvider;
 
@@ -26,7 +30,7 @@ namespace Xtensive.Storage.Tests.Rse
   
 
   [TestFixture]
-  public class IndexOptimizerTest : IndexOptimizerTestBase
+  public class IndexOptimizerTest : NorthwindDOModelTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -43,8 +47,9 @@ namespace Xtensive.Storage.Tests.Rse
       var expected = Query<Order>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(o => o.Id);
       var query = Query<Order>.All.Where(predicate).OrderBy(o => o.Id);
       var actual = query.ToList();
-      ValidateUsedIndex(query, GetIndexForField<Order>("OrderDate"));
-      ValidateQueryResult(expected, actual);
+      IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
+        IndexOptimizerTestHelper.GetIndexForField<Order>("OrderDate", Domain.Model));
+      IndexOptimizerTestHelper.ValidateQueryResult(expected, actual);
     }
 
     [Test]
@@ -55,9 +60,10 @@ namespace Xtensive.Storage.Tests.Rse
       var expected = Query<Order>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(o => o.Id);
       var query = Query<Order>.All.Where(predicate).OrderBy(o => o.Id);
       var actual = query.ToList();
-      ValidateUsedIndex(query, GetIndexForField<Order>("OrderDate"),
-        GetIndexForForeignKey<Order>("Employee"));
-      ValidateQueryResult(expected, actual);
+      IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
+        IndexOptimizerTestHelper.GetIndexForField<Order>("OrderDate", Domain.Model),
+        IndexOptimizerTestHelper.GetIndexForForeignKey<Order>("Employee", Domain.Model));
+      IndexOptimizerTestHelper.ValidateQueryResult(expected, actual);
     }
 
     [Test]
@@ -70,9 +76,10 @@ namespace Xtensive.Storage.Tests.Rse
       var expected = Query<Employee>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(empl => empl.Id);
       var query = Query<Employee>.All.Where(predicate).OrderBy(empl => empl.Id);
       var actual = query.ToList();
-      ValidateUsedIndex(query, GetIndexForField<Employee>("FirstName"),
-        GetIndexForField<Employee>("Title"));
-      ValidateQueryResult(expected, actual);
+      IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
+        IndexOptimizerTestHelper.GetIndexForField<Employee>("FirstName", Domain.Model),
+        IndexOptimizerTestHelper.GetIndexForField<Employee>("Title", Domain.Model));
+      IndexOptimizerTestHelper.ValidateQueryResult(expected, actual);
     }
 
     [Test]
@@ -84,11 +91,12 @@ namespace Xtensive.Storage.Tests.Rse
       var expected = Query<Employee>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(empl => empl.Id);
       var query = Query<Employee>.All.Where(predicate).OrderBy(empl => empl.Id);
       var actual = query.ToList();
-      var optimizedProvider = GetOptimizedProvider(query);
+      var optimizedProvider = IndexOptimizerTestHelper.GetOptimizedProvider(query);
       var secondaryIndexes = new List<IndexInfo>();
-      FindSecondaryIndexProviders(optimizedProvider, secondaryIndexes);
+      IndexOptimizerTestHelper.FindSecondaryIndexProviders(optimizedProvider, secondaryIndexes,
+        Domain.Model);
       Assert.AreEqual(0, secondaryIndexes.Count);
-      ValidateQueryResult(expected, actual);
+      IndexOptimizerTestHelper.ValidateQueryResult(expected, actual);
     }
 
     [Test]
@@ -104,9 +112,10 @@ namespace Xtensive.Storage.Tests.Rse
       var expected = Query<Product>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(p => p.Id);
       var query = Query<Product>.All.Where(predicate).OrderBy(p => p.Id);
       var actual = query.ToList();
-      ValidateUsedIndex(query, GetMultiColumnIndex<Product>("Category", "Supplier", "UnitPrice"),
-        GetIndexForField<Product>("ProductName"));
-      ValidateQueryResult(expected, actual);
+      IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
+        GetMultiColumnIndex<Product>("Category", "Supplier", "UnitPrice"),
+        IndexOptimizerTestHelper.GetIndexForField<Product>("ProductName", Domain.Model));
+      IndexOptimizerTestHelper.ValidateQueryResult(expected, actual);
     }
 
     [Test]
@@ -125,13 +134,14 @@ namespace Xtensive.Storage.Tests.Rse
           (order, empl) => new {order, empl});
       var actual = query.AsEnumerable()
         .Select(arg => new Pair<Order, Employee>(arg.order, arg.empl)).ToList();
-      ValidateUsedIndex(query, GetIndexForField<Order>("OrderDate"),
-        GetIndexForField<Employee>("Title"));
+      IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
+        IndexOptimizerTestHelper.GetIndexForField<Order>("OrderDate", Domain.Model),
+        IndexOptimizerTestHelper.GetIndexForField<Employee>("Title", Domain.Model));
       ValidateQueryResultForJoinTest(expected, actual);
     }
 
-    private static void ValidateQueryResultForJoinTest(IEnumerable<Pair<Order, Employee>> expected
-      , List<Pair<Order, Employee>> actual)
+    private static void ValidateQueryResultForJoinTest(IEnumerable<Pair<Order, Employee>> expected,
+      List<Pair<Order, Employee>> actual)
     {
       Assert.Greater(expected.Count(), 0);
       var equalityComparer = MockRepository.GenerateMock<IEqualityComparer<Pair<Order, Employee>>>();
@@ -158,6 +168,52 @@ namespace Xtensive.Storage.Tests.Rse
       var indexOptimizer = new IndexOptimizer(Domain.Model, realResolver);
       var optimizedProviderTree = indexOptimizer.Optimize(rootProvider);
       Assert.AreSame(rootProvider, optimizedProviderTree);
+    }
+
+    [Test]
+    public void NormalizationFailedTest()
+    {
+      Expression<Func<Employee, bool>> predicate =
+        BuildCnfPredicate<Employee>(41, employee => employee.FirstName.GreaterThan("B"));
+      var normalizer = new DisjunctiveNormalizer(100);
+      AssertEx.ThrowsInvalidOperationException(() => normalizer.Normalize(predicate));
+      var expected = Query<Employee>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(o => o.Id);
+      var query = Query<Employee>.All.Where(predicate).OrderBy(o => o.Id);
+      var actual = query.ToList();
+      IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
+        IndexOptimizerTestHelper.GetIndexForField<Employee>("FirstName", Domain.Model));
+      IndexOptimizerTestHelper.ValidateQueryResult(expected, actual);
+    }
+
+    private static Expression<Func<T, bool>> BuildCnfPredicate<T>(int termCount,
+      Expression<Func<T, bool>> term)
+    {
+      var termBody = term.Body;
+      var result = termBody;
+      for (int i = 0; i < (termCount - 1)/2; i++)
+        result = Expression.And(result, Expression.Or(termBody, termBody));
+      return Expression.Lambda<Func<T, bool>>(result, term.Parameters[0]);
+    }
+
+    [Test]
+    public void UsingOfParametersTest()
+    {
+      var orderDateParam = new Parameter<DateTime>(new DateTime(1997, 11, 1));
+      var freightParam = new Parameter<Decimal>(0);
+      using (new ParameterScope()) {
+        orderDateParam.Value = new DateTime(1900, 1, 1);
+        freightParam.Value = 100000;
+        Expression<Func<Order, bool>> predicate = order => order.OrderDate > orderDateParam.Value
+          && order.ShipName.LessThan("K") || order.ShipName.GreaterThan("W")
+            && order.Freight < freightParam.Value;
+        var expected = Query<Order>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(o => o.Id);
+        var query = Query<Order>.All.Where(predicate).OrderBy(o => o.Id);
+        var actual = query.ToList();
+        IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
+          IndexOptimizerTestHelper.GetIndexForField<Order>("OrderDate", Domain.Model),
+          IndexOptimizerTestHelper.GetIndexForField<Order>("Freight", Domain.Model));
+        IndexOptimizerTestHelper.ValidateQueryResult(expected, actual);
+      }
     }
 
     private IndexInfo GetMultiColumnIndex<T>(params string[] fieldNames)

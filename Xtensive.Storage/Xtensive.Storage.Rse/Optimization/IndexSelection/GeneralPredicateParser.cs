@@ -89,7 +89,9 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
       var comparison = extractor.Extract(b, ParserHelper.DeafultKeySelector);
       if(comparison != null)
         return parserHelper.ConvertToRangeSetInfo(b, comparison, indexInfo, recordSetHeader, comparer);
-      if(b.NodeType != ExpressionType.AndAlso && b.NodeType != ExpressionType.OrElse)
+      if(b.Type != typeof(bool)
+        || (b.NodeType != ExpressionType.AndAlso && b.NodeType != ExpressionType.OrElse
+          && b.NodeType != ExpressionType.And && b.NodeType != ExpressionType.Or))
         return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null, comparer);
       return VisitOperands(b);
     }
@@ -102,8 +104,8 @@ namespace Xtensive.Storage.Rse.Optimization.IndexSelection
         leftRs = parserHelper.ConvertToRangeSetInfo(b.Left, null, indexInfo, recordSetHeader, comparer);
       if(rightRs == null)
         rightRs = parserHelper.ConvertToRangeSetInfo(b.Right, null, indexInfo, recordSetHeader, comparer);
-      if (b.NodeType == ExpressionType.AndAlso && !invertionIsActive
-        || b.NodeType == ExpressionType.OrElse && invertionIsActive)
+      if ((b.NodeType == ExpressionType.AndAlso || b.NodeType == ExpressionType.And) && !invertionIsActive
+        || (b.NodeType == ExpressionType.OrElse || b.NodeType == ExpressionType.Or) && invertionIsActive)
         return RangeSetExpressionBuilder.BuildIntersect(leftRs, rightRs);
       return RangeSetExpressionBuilder.BuildUnite(leftRs, rightRs);
     }

@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Tests.Rse
 
       Expression<Func<Tuple, bool>> predicate =
          (t) => t.GetValue<string>(nameIdx).CompareTo("abc") >= 0 
-           && (t.GetValue<int>(lengthIdx).CompareTo(1) < 0 || t.GetValue<int?>(lengthIdx) >= 3)
+           & (t.GetValue<int>(lengthIdx).CompareTo(1) < 0 | t.GetValue<int?>(lengthIdx) >= 3)
            || !(10 >= t.GetValue<int?>(lengthIdx)) && !(new bool()) || lengthIdx is string;
 
       var expectedRanges = CreateRangesForComplexTest(indexInfo, LengthField);

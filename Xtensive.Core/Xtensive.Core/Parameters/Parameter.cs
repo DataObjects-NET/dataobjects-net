@@ -15,8 +15,7 @@ namespace Xtensive.Core.Parameters
   /// </summary>
   public abstract class Parameter
   {
-    protected object InnerExpectedValue;
-    private bool isExpectedValueExplicitlySet;
+    private readonly object expectedValue;
 
     /// <summary>
     /// Gets or sets the parameter name.
@@ -36,22 +35,12 @@ namespace Xtensive.Core.Parameters
     }
 
     /// <summary>
-    /// Gets or sets the expected value of the parameter.
+    /// Gets the expected value of the parameter.
     /// </summary>
-    /// <value>The expected value.</value>
-    /// <exception cref="InvalidOperationException">The expected value for the parameter 
-    /// is already set.</exception>
     public virtual object ExpectedValue {
       [DebuggerStepThrough]
       get{
-        return InnerExpectedValue;
-      }
-      [DebuggerStepThrough]
-      set{
-        if(isExpectedValueExplicitlySet)
-          throw new InvalidOperationException(Resources.Strings.ExExpectedValueOfParameterIsAlreadySet);
-        InnerExpectedValue = value;
-        isExpectedValueExplicitlySet = true;
+        return expectedValue;
       }
     }
 
@@ -125,18 +114,13 @@ namespace Xtensive.Core.Parameters
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="name">The <see cref="Name"/> property value.</param>
+    /// <param name="expectedValue">The expected value of this parameter.</param>
     [DebuggerStepThrough]
-    public Parameter(string name)
+    protected Parameter(string name, object expectedValue)
     {
       ArgumentValidator.EnsureArgumentNotNull(name, "name");
       Name = name;
-    }
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public Parameter()
-      : this(string.Empty)
-    {
+      this.expectedValue = expectedValue;
     }
   }
 }
