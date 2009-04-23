@@ -8,6 +8,6 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
   {
     public Node Next;
 
-    public abstract void AcceptVisitor(INodeVisitor visitor);
+    public abstract void AcceptVisitor(NodeVisitor visitor);
   }
 }

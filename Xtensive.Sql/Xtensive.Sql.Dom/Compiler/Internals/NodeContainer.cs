@@ -2,6 +2,8 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
+using System.Diagnostics;
+
 namespace Xtensive.Sql.Dom.Compiler.Internals
 {
   internal class NodeContainer : Node
@@ -23,7 +25,7 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
       current = node;
     }
 
-    public override void AcceptVisitor(INodeVisitor visitor)
+    public override void AcceptVisitor(NodeVisitor visitor)
     {
       visitor.Visit(this);
     }

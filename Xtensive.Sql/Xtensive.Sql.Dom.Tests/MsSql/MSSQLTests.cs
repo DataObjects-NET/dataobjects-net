@@ -100,7 +100,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       return true;
     }
 
-    private SqlCompilerResults Compile(ISqlCompileUnit statement)
+    private SqlCompilationResult Compile(ISqlCompileUnit statement)
     {
       #region Serialization test
 

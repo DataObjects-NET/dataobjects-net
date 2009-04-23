@@ -200,7 +200,7 @@ namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
           foreach (SqlTableColumn tc in t1_ref.Columns) {
             viewdef.Columns.Add(tc);
           }
-          string cmdText = Driver.Compile(viewdef).CommandText;
+          string cmdText = Driver.Compile(viewdef).GetCommandText();
           sch1.CreateView("T1View", Sql.Native(cmdText));
         }
 
@@ -1847,7 +1847,7 @@ namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
       };
 
       ISqlCompileUnit unit;
-      SqlCompilerResults res;
+      SqlCompilationResult res;
 
       {
         unit = Sql.Union(selectCreator(1), selectCreator(2));

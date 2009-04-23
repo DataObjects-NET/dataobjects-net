@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using NUnit.Framework;
+using Xtensive.Core.Collections;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Sql.Dom.Exceptions;
 using Xtensive.Sql.Dom.Tests.MsSql;
@@ -20,8 +21,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       base.SetUp();
 
       SqlConnectionProvider provider = new SqlConnectionProvider();
-      sqlConnection = (SqlConnection)provider.CreateConnection(
-        @"mssql://localhost/AdventureWorks");
+      sqlConnection = (SqlConnection)provider.CreateConnection(TestUrl.MsSql2005AW);
       sqlDriver = sqlConnection.Driver as SqlDriver;
       sqlCommand = new SqlCommand(sqlConnection);
       sqlConnection.Open();
@@ -96,6 +96,28 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       sqlCommand.Prepare();
       Console.WriteLine(sqlCommand.CommandText);
       GetExecuteDataReaderResult(sqlCommand);
+    }
+
+    [Test]
+    public void VariantTest()
+    {
+      var key = new object();
+      var select = Sql.Select(Sql.TableRef(Catalog.Schemas["Person"].Tables["Contact"]));
+      select.Top = 1;
+      select.Columns.Add(Sql.Variant(1, 2, key), "value");
+      var result = sqlConnection.Driver.Compile(select);
+      using (var command = sqlConnection.CreateCommand()) {
+        command.CommandText = result.GetCommandText();
+        using (var reader = command.ExecuteReader()) {
+          Assert.IsTrue(reader.Read());
+          Assert.AreEqual(1, reader.GetInt32(0));
+        }
+        command.CommandText = result.GetCommandText(EnumerableUtils.One(key));
+        using (var reader = command.ExecuteReader()) {
+          Assert.IsTrue(reader.Read());
+          Assert.AreEqual(2, reader.GetInt32(0));
+        }
+      }
     }
   }
 }

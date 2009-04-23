@@ -17,24 +17,25 @@ namespace Xtensive.Sql.Dom.Compiler
 {
   public class SqlCompiler : ISqlVisitor
   {
+    private readonly Compressor compressor = new Compressor();
+
     protected readonly SqlTranslator translator;
-    private readonly Formatter formatter = new Formatter();
     protected SqlCompilerOptions options;
     protected SqlCompilerContext context;
 
-    public SqlCompilerResults Compile(ISqlCompileUnit unit)
+    public SqlCompilationResult Compile(ISqlCompileUnit unit)
     {
       return Compile(unit, SqlCompilerOptions.Default);
     }
 
-    private SqlCompilerResults Compile(ISqlCompileUnit unit, SqlCompilerOptions options)
+    private SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerOptions options)
     {
       ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
       this.options = options;
       OnBeginCompile();
       unit.AcceptVisitor(this);
       OnEndCompile();
-      return new SqlCompilerResults(formatter.Format(context.Output));
+      return new SqlCompilationResult(compressor.Compress(context.Output));
     }
 
     protected virtual void OnBeginCompile()

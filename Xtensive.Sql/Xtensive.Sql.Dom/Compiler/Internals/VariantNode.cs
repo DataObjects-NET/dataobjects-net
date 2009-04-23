@@ -13,8 +13,7 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
     public Node Main;
     public Node Alternative;
     
-
-    public override void AcceptVisitor(INodeVisitor visitor)
+    public override void AcceptVisitor(NodeVisitor visitor)
     {
       visitor.Visit(this);
     }

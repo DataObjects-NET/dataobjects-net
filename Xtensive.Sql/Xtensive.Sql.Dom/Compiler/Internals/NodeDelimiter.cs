@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
     public readonly DelimiterType Type;
     public readonly string Text;
 
-    public override void AcceptVisitor(INodeVisitor visitor)
+    public override void AcceptVisitor(NodeVisitor visitor)
     {
       visitor.Visit(this);
     }

@@ -412,7 +412,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
 
       // Render.
       MssqlDriver mssqlDriver = new MssqlDriver(new MssqlVersionInfo(new Version()));
-      return mssqlDriver.Compile(select).CommandText;
+      return mssqlDriver.Compile(select).GetCommandText();
     }
 
     public override void ExtractForeignKeys(SqlExtractorContext context, Schema schema)

@@ -76,7 +76,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       ms.Seek(0, SeekOrigin.Begin);
       select = (SqlSelect)bf.Deserialize(ms);
 
-      Console.WriteLine(sqlDriver.Compile(select).CommandText);
+      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
 
     [Test]
@@ -137,7 +137,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       SqlBinary rb = b + 3;
       rb.Left.ReplaceWith(rb);
       select.Where = rb > 1;
-      Console.WriteLine(sqlDriver.Compile(select).CommandText);
+      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
 
     [Test]
@@ -145,7 +145,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     {
       SqlSelect select = Sql.Select();
       select.Columns.Add(Sql.Multiply(Sql.Position("b", "abc"), 4));
-      Console.WriteLine(sqlDriver.Compile(select).CommandText);
+      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
 
     [Test]
@@ -155,7 +155,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       select.Columns.Add(Sql.Substring("abc", 1, 1));
       select.Columns.Add(Sql.Substring("Xtensive", 2));
 //      select.Columns.Add(Sql.Power(2, 2));
-      Console.WriteLine(sqlDriver.Compile(select).CommandText);
+      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
 
     [Test]
@@ -167,7 +167,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       select.Columns.Add(Sql.Trim(" abc ", SqlTrimType.Trailing));
       select.Columns.Add(Sql.Trim(" abc ", SqlTrimType.Both));
       select.Columns.Add(Sql.Trim(" abc ", SqlTrimType.Both, ' '));
-      Console.WriteLine(sqlDriver.Compile(select).CommandText);
+      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
 
     [Test]
@@ -175,7 +175,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     {
       SqlSelect select = Sql.Select();
       select.Columns.Add(Sql.Extract(SqlDateTimePart.Day, "2006-01-23"));
-      Console.WriteLine(sqlDriver.Compile(select).CommandText);
+      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
 
     //    [Test]
@@ -193,7 +193,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       SqlSelect select = Sql.Select();
       select.Columns.Add(Sql.Concat("a", "b"));
       select.Columns.Add("User: " + Sql.SessionUser());
-      Console.WriteLine(sqlDriver.Compile(select).CommandText);
+      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
 
     [Test]
@@ -226,7 +226,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       SqlSelect s2 = Sql.Select(Sql.TableRef(Catalog.Schemas["Person"].Tables["Contact"]));
       s2.Columns.Add(Sql.Asterisk);
       s1.Columns.Add(Sql.Unique(s2) == true);
-      Console.WriteLine(sqlDriver.Compile(s1).CommandText);
+      Console.WriteLine(sqlDriver.Compile(s1).GetCommandText());
     }
 
     [Test]
@@ -234,7 +234,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     {
       SqlSelect s1 = Sql.Select();
       s1.Where = true;
-      Console.WriteLine(sqlDriver.Compile(s1).CommandText);
+      Console.WriteLine(sqlDriver.Compile(s1).GetCommandText());
     }
 
     [Test]
@@ -247,15 +247,15 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       SqlSelect s3 = Sql.Select(Sql.TableRef(Catalog.Schemas["Person"].Tables["Address"]));
       s3.Columns.Add(s3.From["AddressID"]);
 
-      Console.WriteLine(sqlDriver.Compile(s1.Union(s2)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(s1.Union(s2).Union(s3)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(s1.Union(s2.Union(s3))).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.Union(s1, s2)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.Union(s1, s1.Union(s2))).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.Union(s1.Union(s2), s1)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.Union(s1.Union(s2), s1.Union(s2))).CommandText);
+      Console.WriteLine(sqlDriver.Compile(s1.Union(s2)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(s1.Union(s2).Union(s3)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(s1.Union(s2.Union(s3))).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.Union(s1, s2)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.Union(s1, s1.Union(s2))).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.Union(s1.Union(s2), s1)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.Union(s1.Union(s2), s1.Union(s2))).GetCommandText());
       s3.Where = Sql.In(50.00, s1.Union(s2));
-      Console.WriteLine(sqlDriver.Compile(s3).CommandText);
+      Console.WriteLine(sqlDriver.Compile(s3).GetCommandText());
       SqlQueryRef qr = Sql.QueryRef(s1.Union(s2), "qr");
       Assert.Greater(qr.Columns.Count, 0);
     }
@@ -270,13 +270,13 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       SqlSelect s3 = Sql.Select(Sql.TableRef(Catalog.Schemas["Person"].Tables["Address"]));
       s3.Columns.Add(Sql.Asterisk);
 
-      Console.WriteLine(sqlDriver.Compile(s1.UnionAll(s2)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(s1.UnionAll(s2).UnionAll(s3)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(s1.UnionAll(s2.UnionAll(s3))).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.UnionAll(s1, s2)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.UnionAll(s1, s1.UnionAll(s2))).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.UnionAll(s1.UnionAll(s2), s1)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.UnionAll(s1.UnionAll(s2), s1.UnionAll(s2))).CommandText);
+      Console.WriteLine(sqlDriver.Compile(s1.UnionAll(s2)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(s1.UnionAll(s2).UnionAll(s3)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(s1.UnionAll(s2.UnionAll(s3))).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.UnionAll(s1, s2)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.UnionAll(s1, s1.UnionAll(s2))).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.UnionAll(s1.UnionAll(s2), s1)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.UnionAll(s1.UnionAll(s2), s1.UnionAll(s2))).GetCommandText());
     }
 
     [Test]
@@ -289,13 +289,13 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       SqlSelect s3 = Sql.Select(Sql.TableRef(Catalog.Schemas["Person"].Tables["Address"]));
       s3.Columns.Add(Sql.Asterisk);
 
-      Console.WriteLine(sqlDriver.Compile(s1.Intersect(s2)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(s1.Intersect(s2).Intersect(s3)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(s1.Intersect(s2.Intersect(s3))).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.Intersect(s1, s2)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.Intersect(s1, s1.Intersect(s2))).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.Intersect(s1.Intersect(s2), s1)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.Intersect(s1.Intersect(s2), s1.Intersect(s2))).CommandText);
+      Console.WriteLine(sqlDriver.Compile(s1.Intersect(s2)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(s1.Intersect(s2).Intersect(s3)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(s1.Intersect(s2.Intersect(s3))).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.Intersect(s1, s2)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.Intersect(s1, s1.Intersect(s2))).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.Intersect(s1.Intersect(s2), s1)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.Intersect(s1.Intersect(s2), s1.Intersect(s2))).GetCommandText());
     }
 
     [Test]
@@ -308,13 +308,13 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       SqlSelect s3 = Sql.Select(Sql.TableRef(Catalog.Schemas["Person"].Tables["Address"]));
       s3.Columns.Add(Sql.Asterisk);
 
-      Console.WriteLine(sqlDriver.Compile(s1.IntersectAll(s2)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(s1.IntersectAll(s2).IntersectAll(s3)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(s1.IntersectAll(s2.IntersectAll(s3))).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.IntersectAll(s1, s2)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.IntersectAll(s1, s1.IntersectAll(s2))).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.IntersectAll(s1.IntersectAll(s2), s1)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.IntersectAll(s1.IntersectAll(s2), s1.IntersectAll(s2))).CommandText);
+      Console.WriteLine(sqlDriver.Compile(s1.IntersectAll(s2)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(s1.IntersectAll(s2).IntersectAll(s3)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(s1.IntersectAll(s2.IntersectAll(s3))).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.IntersectAll(s1, s2)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.IntersectAll(s1, s1.IntersectAll(s2))).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.IntersectAll(s1.IntersectAll(s2), s1)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.IntersectAll(s1.IntersectAll(s2), s1.IntersectAll(s2))).GetCommandText());
     }
 
     [Test]
@@ -327,13 +327,13 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       SqlSelect s3 = Sql.Select(Sql.TableRef(Catalog.Schemas["Person"].Tables["Address"]));
       s3.Columns.Add(Sql.Asterisk);
 
-      Console.WriteLine(sqlDriver.Compile(s1.Except(s2)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(s1.Except(s2).Except(s3)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(s1.Except(s2.Except(s3))).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.Except(s1, s2)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.Except(s1, s1.Except(s2))).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.Except(s1.Except(s2), s1)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.Except(s1.Except(s2), s1.Except(s2))).CommandText);
+      Console.WriteLine(sqlDriver.Compile(s1.Except(s2)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(s1.Except(s2).Except(s3)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(s1.Except(s2.Except(s3))).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.Except(s1, s2)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.Except(s1, s1.Except(s2))).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.Except(s1.Except(s2), s1)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.Except(s1.Except(s2), s1.Except(s2))).GetCommandText());
     }
 
     [Test]
@@ -346,13 +346,13 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       SqlSelect s3 = Sql.Select(Sql.TableRef(Catalog.Schemas["Person"].Tables["Address"]));
       s3.Columns.Add(Sql.Asterisk);
 
-      Console.WriteLine(sqlDriver.Compile(s1.ExceptAll(s2)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(s1.ExceptAll(s2).ExceptAll(s3)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(s1.ExceptAll(s2.ExceptAll(s3))).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.ExceptAll(s1, s2)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.ExceptAll(s1, s1.ExceptAll(s2))).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.ExceptAll(s1.ExceptAll(s2), s1)).CommandText);
-      Console.WriteLine(sqlDriver.Compile(Sql.ExceptAll(s1.ExceptAll(s2), s1.ExceptAll(s2))).CommandText);
+      Console.WriteLine(sqlDriver.Compile(s1.ExceptAll(s2)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(s1.ExceptAll(s2).ExceptAll(s3)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(s1.ExceptAll(s2.ExceptAll(s3))).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.ExceptAll(s1, s2)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.ExceptAll(s1, s1.ExceptAll(s2))).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.ExceptAll(s1.ExceptAll(s2), s1)).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(Sql.ExceptAll(s1.ExceptAll(s2), s1.ExceptAll(s2))).GetCommandText());
     }
 
   }

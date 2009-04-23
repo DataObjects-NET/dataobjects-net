@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dom
 {
   public class SqlCommand : Command
   {
-    private SqlCompilerResults results;
+    private SqlCompilationResult results;
     private ISqlCompileUnit statement;
     private SqlDriver driver;
     private ParameterCollection<SqlParameter> parameters = new ParameterCollection<SqlParameter>();
@@ -49,7 +49,7 @@ namespace Xtensive.Sql.Dom
     /// <param name="dbType">One of the <see cref="DbType"/> values.</param>
     public new SqlParameter CreateParameter(string parameterName, DbType dbType)
     {
-      return (SqlParameter)base.CreateParameter(parameterName, dbType);
+      return (SqlParameter) base.CreateParameter(parameterName, dbType);
     }
 
     /// <summary>
@@ -63,7 +63,7 @@ namespace Xtensive.Sql.Dom
     /// <param name="value">A value of the parameter.</param>
     public new SqlParameter CreateParameter(string parameterName, object value)
     {
-      return (SqlParameter)base.CreateParameter(parameterName, value);
+      return (SqlParameter) base.CreateParameter(parameterName, value);
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ namespace Xtensive.Sql.Dom
     /// <param name="size">A column length.</param>
     public new SqlParameter CreateParameter(string parameterName, DbType dbType, int size)
     {
-      return (SqlParameter)base.CreateParameter(parameterName, dbType, size);
+      return (SqlParameter) base.CreateParameter(parameterName, dbType, size);
     }
 
     /// <summary>
@@ -95,7 +95,7 @@ namespace Xtensive.Sql.Dom
     /// <param name="sourceColumn">A source column name.</param>
     public new SqlParameter CreateParameter(string parameterName, DbType dbType, int size, string sourceColumn)
     {
-      return (SqlParameter)base.CreateParameter(parameterName, dbType, size, sourceColumn);
+      return (SqlParameter) base.CreateParameter(parameterName, dbType, size, sourceColumn);
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ namespace Xtensive.Sql.Dom
       RealCommand.Parameters.Clear();
       if (statement != null) {
         results = driver.Compile(statement);
-        base.CommandText = results.CommandText;
+        base.CommandText = results.GetCommandText();
       }
       if (Parameters.Count==0)
         return;

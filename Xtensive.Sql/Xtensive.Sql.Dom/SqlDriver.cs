@@ -60,7 +60,7 @@ namespace Xtensive.Sql.Dom
     /// </summary>
     /// <param name="unit">The Sql.Dom statement.</param>
     /// <returns></returns>
-    public SqlCompilerResults Compile(ISqlCompileUnit unit)
+    public SqlCompilationResult Compile(ISqlCompileUnit unit)
     {
       ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
       if (compiler==null)

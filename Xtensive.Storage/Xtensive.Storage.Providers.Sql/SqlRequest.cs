@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public abstract class SqlRequest
   {
-    protected internal SqlCompilerResults CompilationResult;
+    protected internal SqlCompilationResult CompilationResult;
 
     /// <summary>
     /// Gets or sets the statement.
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     public string CompiledStatement
     {
-      get { return CompilationResult.CommandText; }
+      get { return CompilationResult.GetCommandText(); }
     }
 
     internal virtual void Compile(DomainHandler domainHandler)
