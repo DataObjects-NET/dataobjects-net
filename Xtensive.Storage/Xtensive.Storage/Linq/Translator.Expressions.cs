@@ -131,10 +131,11 @@ namespace Xtensive.Storage.Linq
 
       using (new ParameterScope()) {
         var parameter = parameters.Value[0];
-        var resultExpression = context.Bindings[parameter];
-        var recordSet = resultExpression.RecordSet;
 
         var visitedSource = Visit(source);
+
+        var resultExpression = context.Bindings[parameter];
+        var recordSet = resultExpression.RecordSet;
 
         var mapping = new ComplexMapping();
         mapping.Fill(mappingRef.Value.Mapping);
@@ -146,11 +147,12 @@ namespace Xtensive.Storage.Linq
 
         var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
         var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-        var keySegment = ((ComplexMapping) resultExpression.Mapping).GetFieldMapping(StorageWellKnown.Key);
+        var keySegment = mapping.GetFieldMapping(StorageWellKnown.Key);
         var keyPairs = keySegment.GetItems()
           .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
           .ToArray();
 
+        var joinedRecordSet = recordSet.JoinLeft(joinedRs, JoinType.Default, keyPairs);
         foreach (var targetField in targetTypeInfo.Fields) {
           mapping.RegisterField(targetField.Name, new Segment<int>(targetField.MappingInfo.Offset + offset, targetField.MappingInfo.Length));
           if (targetField.IsEntity)
@@ -159,10 +161,10 @@ namespace Xtensive.Storage.Linq
             mapping.RegisterField("Key", new Segment<int>(targetField.MappingInfo.Offset + offset, targetField.MappingInfo.Length));
         }
 
-        recordSet = recordSet.JoinLeft(joinedRs, JoinType.Default, keyPairs);
 
         var columnList = mapping.GetColumns(false);
-        var groupMapping = MappingHelper.BuildGroupMapping(columnList, recordSet.Provider, resultExpression.RecordSet.Provider);
+        // todo: ремэппить вручную
+        var groupMapping = MappingHelper.BuildGroupMapping(columnList, joinedRecordSet.Provider, recordSet.Provider);
 
         var gm = new int[recordSet.Header.ColumnGroups.Count];
         for (int i = 0; i < gm.Length; i++)
@@ -170,9 +172,9 @@ namespace Xtensive.Storage.Linq
         for (int i = 0; i < groupMapping.Count; i++)
           gm[groupMapping[i]] = i;
 
-        var rewriter = new ItemProjectorRewriter(columnList, gm.ToList(), recordSet.Header);
+        var rewriter = new ItemProjectorRewriter(columnList, gm.ToList(), joinedRecordSet.Header);
         var rewritedSource = rewriter.Rewrite(visitedSource);
-        var re = new ResultExpression(resultExpression.Type, recordSet, resultExpression.Mapping, resultExpression.ItemProjector);
+        var re = new ResultExpression(resultExpression.Type, joinedRecordSet, resultExpression.Mapping, resultExpression.ItemProjector);
         context.Bindings.ReplaceBound(parameter, re);
         return Expression.Convert(rewritedSource, targetType);
       }

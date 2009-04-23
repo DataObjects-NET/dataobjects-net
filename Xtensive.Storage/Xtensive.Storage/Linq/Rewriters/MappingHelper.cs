@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Linq.Rewriters
 
       return originGroups
         .Select((og, i) => new { Group = og, Index = i })
-        .Where(gi => resultGroups.Any(rg => rg.Keys.Select(rki => mapping[rki]).SequenceEqual(gi.Group.Keys)))
+        .Where(gi => resultGroups.Any(rg => rg.Keys.Select(rki => rki >= mapping.Count ? -1 : mapping[rki]).SequenceEqual(gi.Group.Keys)))
         .Select(gi => gi.Index)
         .ToList();
     }
