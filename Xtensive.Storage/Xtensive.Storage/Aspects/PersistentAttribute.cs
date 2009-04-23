@@ -5,6 +5,7 @@
 // Created:    2008.05.29
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
@@ -12,6 +13,7 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Aspects;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Resources;
@@ -192,21 +194,25 @@ namespace Xtensive.Storage.Aspects
     {
       if (type==entityType || type==structureType || type==persistentType)
         return;
-      var aspect = ProtectedConstructorAspect.ApplyOnce(type, 
-        GetInternalConstructorParameterTypes(type));
-
-      if (aspect != null && aspect.CompileTimeValidate(type))
+      var signatures = GetInternalConstructorSignatures(type);
+      foreach (var signature in signatures) {
+        var aspect = ProtectedConstructorAspect.ApplyOnce(type, signature);
+        if (aspect != null && aspect.CompileTimeValidate(type))
         aspect.ProvideAspects(type, collection);
+      }
+      
     }
 
     private static void ProvideConstructorAccessorAspect(Type type, LaosReflectionAspectCollection collection)
     {
       if (type.IsAbstract)
         return;
-      var aspect = ProtectedConstructorAccessorAspect.ApplyOnce(type,
-        GetInternalConstructorParameterTypes(type));
-      if (aspect!=null)
-        aspect.ProvideAspects(type, collection);
+      var signatures = GetInternalConstructorSignatures(type);
+      foreach (var signature in signatures) {
+        var aspect = ProtectedConstructorAccessorAspect.ApplyOnce(type, signature);
+        if (aspect!=null)
+          aspect.ProvideAspects(type, collection);
+      }
     }
 
     #endregion
@@ -238,15 +244,22 @@ namespace Xtensive.Storage.Aspects
     }
 
     /// <exception cref="Exception">[Suppresses warning]</exception>
-    private static Type[] GetInternalConstructorParameterTypes(Type type)
+    private static Type[][] GetInternalConstructorSignatures(Type type)
     {
       var baseType = GetBasePersistentType(type);
       if (baseType==structureType)
-        return new[] {persistentType, typeof (FieldInfo), typeof(bool)};
+        return new[] {
+          new[] {persistentType, typeof (FieldInfo), typeof(bool)},
+          new[] {typeof (Tuple)},
+        };
       if (baseType==entityType)
-        return new[] {typeof (EntityState), typeof(bool)};
+        return new[] {
+          new[] {typeof (EntityState), typeof(bool)}
+        };
       if (baseType==entitySetType)
-        return new[] {entityType, typeof (FieldInfo), typeof(bool)};
+        return new[] {
+          new[] {entityType, typeof (FieldInfo), typeof(bool)}
+        };
       throw Exceptions.InternalError(
         string.Format(Strings.ExWrongPersistentTypeCandidate, type.GetType()), 
         Log.Instance);

@@ -25,7 +25,7 @@ namespace Xtensive.Storage
   /// and has <see cref="ValueType"/> behavior: it can exist only inside <see cref="Entity"/>, it is stored in
   /// its owners space and cannot be referenced directly.
   /// </remarks>
-  public abstract class   Structure : Persistent,
+  public abstract class Structure : Persistent,
     IEquatable<Structure>,
     IFieldValueAdapter
   {
@@ -185,6 +185,16 @@ namespace Xtensive.Storage
         tuple = field.ExtractValue(
           new ReferencedTuple(() => this.owner.Tuple));
       OnInitializing(notify);
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="data">Underlying <see cref="Tuple"/> value.</param>
+    protected Structure(Tuple data)
+    {
+      type = GetTypeInfo();
+      tuple = data;
     }
   }
 }

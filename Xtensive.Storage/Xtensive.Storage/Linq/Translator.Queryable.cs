@@ -491,7 +491,14 @@ namespace Xtensive.Storage.Linq
             break;
           }
           case MemberType.Structure:
-            //TODO: implement!!!
+            var complexMapping = (ComplexMapping)rewritedMapping;
+            int offset = complexMapping.Fields.Min(pair => pair.Value.Offset);
+            int endOffset = complexMapping.Fields.Max(pair => pair.Value.Offset);
+            int length = endOffset - offset + 1;
+            var keySegment = new Segment<int>(offset, length);
+            foreach (var p in complexMapping.Fields)
+              mappingRef.Value.RegisterField(StorageWellKnown.Key + "." + p.Key, p.Value);
+            mappingRef.Value.RegisterField(StorageWellKnown.Key, keySegment);
             break;
           case MemberType.Entity:
             if (mappingRef.Value.Mapping is PrimitiveMapping) {
@@ -826,7 +833,6 @@ namespace Xtensive.Storage.Linq
           break;
       }
 
-      //TODO: Handle anonymous types
       IMapping mapping;
       if (outer.Mapping is PrimitiveMapping) {
         var pfm = (PrimitiveMapping) outer.Mapping;

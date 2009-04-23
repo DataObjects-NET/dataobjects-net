@@ -408,12 +408,9 @@ namespace Xtensive.Storage.Linq
                 break;
               }
               case MemberType.Structure: {
-                //TODO: rewrite structure mapping!!!
                 var complexMapping = (ComplexMapping) fieldMapping;
                 foreach (var p in complexMapping.Fields)
                   mappingRef.Value.RegisterField(rename(p.Key, memberName), p.Value);
-                foreach (var p in complexMapping.Entities)
-                  mappingRef.Value.RegisterEntity(rename(p.Key, memberName), p.Value);
                 break;
               }
               case MemberType.Entity:
@@ -779,17 +776,7 @@ namespace Xtensive.Storage.Linq
       int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
       var result = Expression.Call(WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(resultType),
         Expression.Call(record.Value, WellKnownMembers.RecordKey, Expression.Constant(groupIndex)));
-//      var cfm = (ComplexFieldMapping)source.Mapping.GetMemberMapping(path);
       mappingRef.Value.Replace(source.Mapping.GetMemberMapping(path));
-//      var name = cfm.Fields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
-//      Func<string, string> rename = oldName => oldName.TryCutPrefix(name).TrimStart('.');
-//      if (mappingRef.Value.FillMapping) {
-//        foreach (var p in cfm.Fields)
-//          mappingRef.Value.RegisterField(rename(p.Key), p.Value);
-//        foreach (var p in cfm.Entities)
-//          mappingRef.Value.RegisterEntity(rename(p.Key), p.Value);
-//        mappingRef.Value.RegisterEntity(string.Empty, cfm);
-//      }
       return result;
     }
 
