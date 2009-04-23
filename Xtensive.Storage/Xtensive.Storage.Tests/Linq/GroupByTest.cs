@@ -186,14 +186,17 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByWhereTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Key.StartsWith("L") && g.Count() > 1);
+      var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City)
+        .Where(g => g.Key.StartsWith("L") && g.Count() > 1);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void GroupByWhere2Test()
     {
-      var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Select(g => g.Where(o => o.Freight > 0));
+      IQueryable<IEnumerable<Order>> result = Query<Order>.All
+        .GroupBy(o => o.ShippingAddress.City)
+        .Select(g => g.Where(o => o.Freight > 0));
       QueryDumper.Dump(result);
     }
 
@@ -238,49 +241,63 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByWithSelectFirstTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => g.First());
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .Select(g => g.First());
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void GroupBySelectGroupingTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => g);
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .Select(g => g);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void GroupBySelectManyTest()
     {
-      var result = Query<Customer>.All.GroupBy(c => c.Address.City).SelectMany(g => g);
+      var result = Query<Customer>.All
+        .GroupBy(c => c.Address.City)
+        .SelectMany(g => g);
       QueryDumper.Dump(result);
     }
     
     [Test]
     public void GroupBySelectManyKeyTest()
     {
-      var result = Query<Customer>.All.GroupBy(c => c.Address.City).SelectMany(g => g.Key);
+      var result = Query<Customer>.All
+        .GroupBy(c => c.Address.City)
+        .SelectMany(g => g.Key);
       AssertEx.ThrowsNotSupportedException(() => QueryDumper.Dump(result));
     }
 
     [Test]
     public void GroupByEntitySelectManyTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.Customer).SelectMany(g => g);
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .SelectMany(g => g);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void GroupBySumTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.Customer.Id).Select(g => g.Sum(o => o.Freight));
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer.Id)
+        .Select(g => g.Sum(o => o.Freight));
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void GroupByCountTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => new {Customer = g.Key, OrdersCount = g.Count()});
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .Select(g => new {Customer = g.Key, OrdersCount = g.Count()});
       QueryDumper.Dump(result);
     }
 
@@ -296,7 +313,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupBySumMinMaxAvgTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g =>
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .Select(g =>
         new
         {
           Sum = g.Sum(o => o.Freight),
@@ -321,7 +340,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByWithConstantSelectorTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.Customer).Select( g =>
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .Select( g =>
         new
         {
           ConstString = "ConstantString"
@@ -456,14 +477,18 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByWithEntityResultSelector5Bis3Test()
     {
-      var result = Query<Order>.All.GroupBy(o => new {o.OrderDate, o.Freight}).Select(g => new {Count = g.Count(), OrderInfo = g.Key});
+      var result = Query<Order>.All
+        .GroupBy(o => new {o.OrderDate, o.Freight})
+        .Select(g => new {Count = g.Count(), OrderInfo = g.Key});
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void GroupByWithEntityResultSelector5Bis4Test()
     {
-      var result = Query<Order>.All.Select(o => new {o.OrderDate, o.Freight}).Select(g => g.OrderDate);
+      var result = Query<Order>.All
+        .Select(o => new {o.OrderDate, o.Freight})
+        .Select(g => g.OrderDate);
       QueryDumper.Dump(result);
     }
 
@@ -485,42 +510,52 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByWithElementSelectorSumTest()
     {
-      IQueryable<decimal> result = Query<Order>.All.GroupBy(o => o.Customer, o => o.Freight).Select(g => g.Sum());
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer, o => o.Freight)
+        .Select(g => g.Sum());
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void GroupByWithElementSelectorSumAnonymousTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.Customer, o => o.Freight).Select(g => new {A = g.Sum(), B = g.Sum()});
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer, o => o.Freight)
+        .Select(g => new {A = g.Sum(), B = g.Sum()});
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void GroupByWithElementSelectorTest()
     {
-      IQueryable<IGrouping<Customer, decimal>> result = Query<Order>.All.GroupBy(o => o.Customer, o => o.Freight);
+      var result = Query<Order>.All.GroupBy(o => o.Customer, o => o.Freight);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void GroupByWithElementSelectorSumMaxTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.Customer.Id, o => o.Freight).Select(g => new {Sum = g.Sum(), Max = g.Max()});
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer.Id, o => o.Freight)
+        .Select(g => new {Sum = g.Sum(), Max = g.Max()});
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void GroupByWithAnonymousElementTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.Customer, o => new {o.Freight}).Select(g => g.Sum(x => x.Freight));
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer, o => new {o.Freight})
+        .Select(g => g.Sum(x => x.Freight));
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void GroupByWithTwoPartKeyTest()
     {
-      var result = Query<Order>.All.GroupBy(o => new {o.Customer.Id, o.OrderDate}).Select(g => g.Sum(o => o.Freight));
+      var result = Query<Order>.All
+        .GroupBy(o => new {o.Customer.Id, o.OrderDate})
+        .Select(g => g.Sum(o => o.Freight));
       QueryDumper.Dump(result);
     }
 
@@ -528,7 +563,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void OrderByGroupByTest()
     {
       // NOTE: order-by is lost when group-by is applied (the sequence of groups is not ordered)
-      var result = Query<Order>.All.OrderBy(o => o.OrderDate).GroupBy(o => o.Customer.Id).Select(g => g.Sum(o => o.Freight));
+      var result = Query<Order>.All
+        .OrderBy(o => o.OrderDate)
+        .GroupBy(o => o.Customer.Id)
+        .Select(g => g.Sum(o => o.Freight));
       QueryDumper.Dump(result);
     }
 
@@ -536,14 +574,18 @@ namespace Xtensive.Storage.Tests.Linq
     public void OrderByGroupBySelectManyTest()
     {
       // NOTE: order-by is preserved within grouped sub-collections
-      var result = Query<Order>.All.OrderBy(o => o.OrderDate).GroupBy(o => o.Customer.Id).SelectMany(g => g);
+      var result = Query<Order>.All
+        .OrderBy(o => o.OrderDate)
+        .GroupBy(o => o.Customer.Id).SelectMany(g => g);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void FilterGroupingTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.Customer).Select(g => g.Where(o => o.ShipName.StartsWith("A")));
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .Select(g => g.Where(o => o.ShipName.StartsWith("A")));
       QueryDumper.Dump(result);
     }
   }
