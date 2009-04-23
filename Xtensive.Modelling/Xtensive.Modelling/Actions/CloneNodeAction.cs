@@ -12,7 +12,7 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Modelling.Actions
 {
   [Serializable]
-  public class CopyNodeAction : NodeAction
+  public class CloneNodeAction : NodeAction
   {
     private Node source;
     private string name;
@@ -47,7 +47,7 @@ namespace Xtensive.Modelling.Actions
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       ArgumentValidator.EnsureArgumentNotNull(name, "name");
-      source.CopyTo((Node) item, name);
+      source.Clone((Node) item, name);
       if (index.HasValue)
         source.Index = index.Value;
     }

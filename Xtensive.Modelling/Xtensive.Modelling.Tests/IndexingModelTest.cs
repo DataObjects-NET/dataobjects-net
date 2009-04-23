@@ -52,7 +52,7 @@ namespace Xtensive.Modelling.Tests
       (diff, actions) => {
         var query =
           from a in actions.Flatten()
-          let cna = a as CopyNodeAction
+          let cna = a as CloneNodeAction
           where cna!=null && cna.Name=="FK_TypeId"
           select a;
         Assert.IsTrue(query.Any());
@@ -74,8 +74,8 @@ namespace Xtensive.Modelling.Tests
       },
       (diff, actions) => {
         var query =
-          from a in actions
-          let cna = a as CopyNodeAction
+          from a in actions.Flatten()
+          let cna = a as CloneNodeAction
           where cna!=null && cna.Name=="FK_TypeId"
           select a;
         Assert.IsTrue(query.Any());

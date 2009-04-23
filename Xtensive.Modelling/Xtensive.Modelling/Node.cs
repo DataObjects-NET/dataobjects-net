@@ -5,22 +5,17 @@
 // Created:    2009.03.16
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Threading;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
-using Xtensive.Modelling.Comparison;
-using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Resources;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Validation;
@@ -312,7 +307,7 @@ namespace Xtensive.Modelling
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Required constructor isn't found.</exception>
-    public virtual Node CopyTo(Node newParent, string newName)
+    public virtual Node Clone(Node newParent, string newName)
     {
       ArgumentValidator.EnsureArgumentNotNull(newParent, "newParent");
       ArgumentValidator.EnsureArgumentNotNull(newName, "newName");
@@ -329,7 +324,7 @@ namespace Xtensive.Modelling
       // Cloning properties
       foreach (var pair in PropertyAccessors) {
         var accessor = pair.Value;
-        if (!accessor.HasGetter || accessor.IgnoreInCopying)
+        if (!accessor.HasGetter || accessor.IgnoreInCloning)
           continue;
         CopyPropertyValue(node, accessor);
       }
@@ -350,10 +345,10 @@ namespace Xtensive.Modelling
         var collection = nested as NodeCollection;
         if (collection!=null)
           foreach (Node newNode in collection)
-            newNode.CopyTo(target, target.Name);
+            newNode.Clone(target, target.Name);
         else {
           var newNode = (Node) nested;
-          newNode.CopyTo(target, newNode.Name);
+          newNode.Clone(target, newNode.Name);
         }
       }
       else if (accessor.HasSetter) {

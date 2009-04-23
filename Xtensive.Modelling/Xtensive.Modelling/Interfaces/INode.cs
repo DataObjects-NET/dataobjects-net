@@ -88,6 +88,6 @@ namespace Xtensive.Modelling
     /// <param name="newParent">The new parent.</param>
     /// <param name="newName">The new name.</param>
     /// <returns>Created copy of the node.</returns>
-    Node CopyTo(Node newParent, string newName);
+    Node Clone(Node newParent, string newName);
   }
 }

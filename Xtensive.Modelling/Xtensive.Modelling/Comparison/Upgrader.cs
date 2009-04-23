@@ -170,14 +170,21 @@ namespace Xtensive.Modelling.Comparison
       using (OpenActionGroup((target ?? source).Name)) {
         // Processing movement
         if (isCopying) {
+          bool isSourceRemoved = false;
           if ((difference.MovementInfo & MovementInfo.Removed)!=0) {
             AddAction(new RemoveNodeAction() {
               Path = source.Path
             });
+            isSourceRemoved = true;
           }
-          if ((difference.MovementInfo & MovementInfo.Changed)!=0) {
-            var action = new CopyNodeAction() {
-              Source = source,
+          if (difference.HasChanges) {
+            if ((difference.MovementInfo & MovementInfo.Created)==0)
+              if (!isSourceRemoved || source.Path!=target.Path)
+                AddAction(new RemoveNodeAction() {
+                  Path = target.Path
+                });
+            var action = new CloneNodeAction() {
+              Source = target,
               Path = target.Parent==null ? string.Empty : target.Parent.Path,
               Name = target.Name,
               Index = target.Nesting.IsNestedToCollection ? (int?) target.Index : null
@@ -216,10 +223,10 @@ namespace Xtensive.Modelling.Comparison
         // Processing property changes
         foreach (var pair in difference.PropertyChanges) {
           var accessor = any.PropertyAccessors[pair.Key];
-          if (!isCopying || accessor.IgnoreInCopying)
+          if (!isCopying || accessor.IgnoreInCloning)
             using (CreateContext().Activate()) {
               Context.Property = pair.Key;
-              Context.Copy = accessor.Copy;
+              Context.Copy = accessor.IsCloningRoot;
               Visit(pair.Value);
             }
         }
