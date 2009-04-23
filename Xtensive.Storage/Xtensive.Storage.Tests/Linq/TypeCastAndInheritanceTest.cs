@@ -141,6 +141,15 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void OfTypeWithFieldAccessTest()
+    {
+      var result = Query<Product>.All
+        .OfType<ActiveProduct>()
+        .Select(ip=>ip.QuantityPerUnit);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void OfTypeCountTest()
     {
       int productCount = Query<Product>.All.Count();
@@ -421,10 +430,19 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<OrderDetails>.All
         .Select(orderDetails => orderDetails.Product)
-        .OfType<ActiveProduct>();
+        .OfType<DiscontinuedProduct>();
       QueryDumper.Dump(result);
     }
 
+    [Test]
+    public void ReferenceOfTypeWithFieldTest()
+    {
+      var result = Query<OrderDetails>.All
+        .Select(orderDetails => orderDetails.Product)
+        .OfType<DiscontinuedProduct>()
+        .Select(dp=>dp.QuantityPerUnit);
+      QueryDumper.Dump(result);
+    }
 
     [Test]
     public void ReferenceAsAnonymousTest()

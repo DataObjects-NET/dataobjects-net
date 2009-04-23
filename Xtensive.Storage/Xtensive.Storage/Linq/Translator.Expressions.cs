@@ -153,29 +153,39 @@ namespace Xtensive.Storage.Linq
           .ToArray();
 
         var joinedRecordSet = recordSet.JoinLeft(joinedRs, JoinType.Default, keyPairs);
+        var groupMappings = new int[joinedRecordSet.Header.ColumnGroups.Count];
+        for (int i = 0; i < groupMappings.Length; i++)
+          groupMappings[i] = -1;
+
         foreach (var targetField in targetTypeInfo.Fields) {
-          mapping.RegisterField(targetField.Name, new Segment<int>(targetField.MappingInfo.Offset + offset, targetField.MappingInfo.Length));
+          int originalGroup = -1;
+          Segment<int> originalSegment;
+          if (mapping.Fields.TryGetValue(targetField.Name, out originalSegment))
+            originalGroup = recordSet.Header.ColumnGroups.GetGroupIndexBySegment(originalSegment);
+
+          var segment = new Segment<int>(targetField.MappingInfo.Offset + offset, targetField.MappingInfo.Length);
+          mapping.RegisterField(targetField.Name, segment);
           if (targetField.IsEntity)
-            mapping.RegisterField(targetField.Name + ".Key", new Segment<int>(targetField.MappingInfo.Offset + offset, targetField.MappingInfo.Length));
+            mapping.RegisterField(targetField.Name + ".Key", segment);
           if (targetField.IsPrimaryKey)
-            mapping.RegisterField("Key", new Segment<int>(targetField.MappingInfo.Offset + offset, targetField.MappingInfo.Length));
+            mapping.RegisterField("Key", segment);
+
+          if (originalGroup>=0) {
+            int newGroup = joinedRecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
+            if (newGroup!=originalGroup) {
+              groupMappings[newGroup] = originalGroup;
+            }
+          }
         }
 
 
         var columnList = mapping.GetColumns(false);
-        // todo: ремэппить вручную
-        var groupMapping = MappingHelper.BuildGroupMapping(columnList, joinedRecordSet.Provider, recordSet.Provider);
 
-        var gm = new int[recordSet.Header.ColumnGroups.Count];
-        for (int i = 0; i < gm.Length; i++)
-          gm[i] = -1;
-        for (int i = 0; i < groupMapping.Count; i++)
-          gm[groupMapping[i]] = i;
-
-        var rewriter = new ItemProjectorRewriter(columnList, gm.ToList(), joinedRecordSet.Header);
+        var rewriter = new ItemProjectorRewriter(columnList, groupMappings, joinedRecordSet.Header);
         var rewritedSource = rewriter.Rewrite(visitedSource);
         var re = new ResultExpression(resultExpression.Type, joinedRecordSet, resultExpression.Mapping, resultExpression.ItemProjector);
         context.Bindings.ReplaceBound(parameter, re);
+        mappingRef.Value.Replace( mapping);
         return Expression.Convert(rewritedSource, targetType);
       }
     }

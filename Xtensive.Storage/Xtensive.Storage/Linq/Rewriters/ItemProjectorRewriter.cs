@@ -16,10 +16,10 @@ namespace Xtensive.Storage.Linq.Rewriters
 {
   internal sealed class ItemProjectorRewriter : TupleAccessRewriter
   {
-    private readonly List<int> groupMapping;
+    private readonly IList<int> groupMapping;
     private readonly RecordSetHeader header;
 
-    public List<int> GroupMapping
+    public IList<int> GroupMapping
     {
       get { return groupMapping; }
     }
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Linq.Rewriters
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ItemProjectorRewriter(List<int> mappings, List<int> groupMapping, RecordSetHeader header)
+    public ItemProjectorRewriter(List<int> mappings, IList<int> groupMapping, RecordSetHeader header)
       : base(mappings)
     {
       this.groupMapping = groupMapping;
