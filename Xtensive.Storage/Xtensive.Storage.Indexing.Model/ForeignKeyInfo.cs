@@ -8,8 +8,11 @@ using System;
 using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
+using Xtensive.Core.Collections;
+using Xtensive.Storage.Indexing.Model.Resources;
 
 namespace Xtensive.Storage.Indexing.Model
 {
@@ -17,36 +20,39 @@ namespace Xtensive.Storage.Indexing.Model
   /// Foreign key.
   /// </summary>
   [Serializable]
-  public class ForeignKeyInfo: NodeBase<TableInfo>
+  public sealed class ForeignKeyInfo : NodeBase<TableInfo>
   {
     private ReferentialAction onUpdateAction;
     private ReferentialAction onRemoveAction;
-    private PrimaryIndexInfo referencedIndex;
-    private IndexInfo referencingIndex;
-
+    private PrimaryIndexInfo primaryKey;
 
     /// <summary>
-    /// Gets or sets the on update action.
+    /// Gets or sets the foreign index.
     /// </summary>
-    [Property]
-    public ReferentialAction OnUpdateAction
+    [Property(Priority = -1100)]
+    public PrimaryIndexInfo PrimaryKey
     {
-      get { return onUpdateAction; }
+      get { return primaryKey; }
       set
       {
         EnsureIsEditable();
-        using (var scope = LogPropertyChange("OnUpdateAction", value)) {
-          onUpdateAction = value;
+        using (var scope = LogPropertyChange("PrimaryKey", value)) {
+          primaryKey = value;
           scope.Commit();
         }
       }
     }
 
     /// <summary>
-    /// Gets or sets the on remove action.
+    /// Gets foreign key columns.
     /// </summary>
-    /// <value>The on remove action.</value>
     [Property]
+    public ForeignKeyColumnCollection ForeignKeyColumns { get; private set; }
+
+    /// <summary>
+    /// Gets or sets the "on remove" action.
+    /// </summary>
+    [Property(Priority = -110)]
     public ReferentialAction OnRemoveAction
     {
       get { return onRemoveAction; }
@@ -61,37 +67,52 @@ namespace Xtensive.Storage.Indexing.Model
     }
 
     /// <summary>
-    /// Gets or sets the foreign index.
+    /// Gets or sets the "on update" action.
     /// </summary>
-    [Property]
-    public PrimaryIndexInfo ReferencedIndex
+    [Property(Priority = -100)]
+    public ReferentialAction OnUpdateAction
     {
-      get { return referencedIndex; }
+      get { return onUpdateAction; }
       set
       {
         EnsureIsEditable();
-        using (var scope = LogPropertyChange("ReferencedIndex", value)) {
-          referencedIndex = value;
+        using (var scope = LogPropertyChange("OnUpdateAction", value)) {
+          onUpdateAction = value;
           scope.Commit();
         }
       }
     }
 
-    /// <summary>
-    /// Gets or sets the referencing index.
-    /// </summary>
-    [Property]
-    public IndexInfo ReferencingIndex
+    /// <inheritdoc/>
+    /// <exception cref="ValidationException">Validations errors.</exception>
+    protected override void ValidateState()
     {
-      get { return referencingIndex; }
-      set
-      {
-        EnsureIsEditable();
-        using (var scope = LogPropertyChange("ReferencingIndex", value))
-        {
-          referencingIndex = value;
-          scope.Commit();
+      using (var ea = new ExceptionAggregator()) {
+        ea.Execute(base.ValidateState);
+
+        if (PrimaryKey == null) {
+          ea.Execute(() => {
+            throw new ValidationException(Strings.ExUndefinedPrimaryKey, Path);
+          });
+          return;
         }
+
+        var pkColumns = PrimaryKey.KeyColumns;
+        var fkColumns = ForeignKeyColumns;
+
+        if (pkColumns.Count()!=pkColumns.Zip(fkColumns).Where(p => CompareKeyColumns(p.First, p.Second)).Count())
+          ea.Execute(() => {
+            throw new ValidationException(
+              Strings.ExInvalidForeignKeyStructure, Path);
+          });
+        
+        // var pkTypes = PrimaryKey.KeyColumns.Select(c => c.Value.Type);
+        // var fkTypes = ForeignKeyColumns.Select(c => c.Value.Type);
+        // if (pkTypes.Count()!=pkTypes.Zip(fkTypes).Where(p => p.First==p.Second).Count())
+        //  ea.Execute(() => {
+        //    throw new ValidationException(
+        //      Strings.ExInvalidForeignKeyStructure, Path);
+        //  });
       }
     }
 
@@ -102,32 +123,34 @@ namespace Xtensive.Storage.Indexing.Model
     }
 
     /// <inheritdoc/>
-    /// <exception cref="IntegrityException">Validations errors.</exception>
-    protected override void ValidateState()
+    protected override void Initialize()
     {
-      using (var ea = new ExceptionAggregator()) {
-        ea.Execute(base.ValidateState);
-
-        if (ReferencedIndex==null)
-          ea.Execute(() => { throw new IntegrityException(Resources.Strings.ExReferencedIndexNotDefined, Path); });
-        if (ReferencingIndex==null)
-          ea.Execute(() => { throw new IntegrityException(Resources.Strings.ExReferencingIndexIsNotDefined, Path); });
-
-        if (ReferencedIndex==null || ReferencingIndex==null)
-          return;
-        var primaryKeyColumns = ReferencedIndex.KeyColumns.Select(
-          columnRef => new {columnRef.Index, columnRef.Direction, columnRef.Value.ColumnType});
-        var referencedKeyColumns = ReferencingIndex.KeyColumns.Select(
-          columnRef => new {columnRef.Index, columnRef.Direction, columnRef.Value.ColumnType});
-        if (primaryKeyColumns.Except(referencedKeyColumns)
-          .Union(referencedKeyColumns.Except(primaryKeyColumns)).Count() > 0)
-          ea.Execute(() => {
-            throw new IntegrityException(
-              Resources.Strings.ExReferencingIndexColumnsDoesNotMatchReferencedIndexKeyColumns, Path);
-          });
-      }
+      base.Initialize();
+      if (ForeignKeyColumns == null)
+        ForeignKeyColumns = new ForeignKeyColumnCollection(this, "ForeignKeyColumns");
     }
 
+
+    private static bool CompareKeyColumns(KeyColumnRef first, ForeignKeyColumnRef second)
+    {
+      if (first == null || second == null)
+        return false;
+
+      return first.Index==second.Index 
+        && CompareTypes(first.Value.Type, second.Value.Type);
+    }
+
+    private static bool CompareTypes(TypeInfo first, TypeInfo second)
+    {
+      if (first==null || second==null)
+        return false;
+
+      return first.Type.ToNullable()==second.Type.ToNullable()
+        && first.Length==second.Length
+          && first.Scale==second.Scale
+            && first.Precision==second.Precision
+              && first.Culture==second.Culture;
+    }
 
     // Constructors
 

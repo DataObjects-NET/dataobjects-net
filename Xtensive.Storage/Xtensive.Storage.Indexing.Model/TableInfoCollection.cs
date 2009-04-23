@@ -6,16 +6,17 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Modelling;
 
 namespace Xtensive.Storage.Indexing.Model
 {
   /// <summary>
-  /// A collection of <see cref="TableInfo"/>.
+  /// A collection of <see cref="TableInfo"/> instances.
   /// </summary>
   [Serializable]
-  public class TableInfoCollection: NodeCollectionBase<TableInfo, StorageInfo>
+  public sealed class TableInfoCollection : NodeCollectionBase<TableInfo, StorageInfo>,
+    IUnorderedNodeCollection
   {
-
     // Constructors
 
     /// <summary>

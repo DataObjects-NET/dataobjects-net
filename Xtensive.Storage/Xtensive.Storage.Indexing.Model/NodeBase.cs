@@ -10,13 +10,12 @@ using Xtensive.Modelling;
 
 namespace Xtensive.Storage.Indexing.Model
 {
-
   /// <summary>
   /// A base class for all nodes in storage model.
   /// </summary>
   /// <typeparam name="TParent">The type of the parent node.</typeparam>
   [Serializable]
-  public abstract class NodeBase<TParent> : Node<TParent, StorageInfo> 
+  public abstract class NodeBase<TParent> : Node<TParent, StorageInfo>
     where TParent : Node
   {
     /// <inheritdoc/>
@@ -29,12 +28,13 @@ namespace Xtensive.Storage.Indexing.Model
     /// <inheritdoc/>
     protected override void PerformMove(Node newParent, string newName, int newIndex)
     {
-      using (Log.InfoRegion("Moving: {0}", this)) {
-        if (Parent!=newParent)
+      using (Log.InfoRegion("Moving: {0}", this))
+      {
+        if (Parent != newParent)
           Log.Info("new Parent={0}", newParent);
-        if (Name!=newName)
+        if (Name != newName)
           Log.Info("new Name={0}", newName);
-        if (Index!=newIndex)
+        if (Index != newIndex)
           Log.Info("new Index={0}", newIndex);
         base.PerformMove(newParent, newName, newIndex);
       }
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Indexing.Model
       Log.Info("Removed: {0}", this);
     }
 
-    
+
     //Constructors
 
     /// <summary>

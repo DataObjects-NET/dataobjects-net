@@ -2,29 +2,27 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Ivan Galkin
-// Created:    2009.03.20
+// Created:    2009.03.24
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Modelling;
 
 namespace Xtensive.Storage.Indexing.Model
 {
   /// <summary>
-  /// A collection of secondary indexes.
+  /// A collection of <see cref="IncludedColumnRef"/> instances.
   /// </summary>
   [Serializable]
-  public sealed class SecondaryIndexInfoCollection : NodeCollectionBase<SecondaryIndexInfo, TableInfo>,
-    IUnorderedNodeCollection
+  public sealed class IncludedColumnRefCollection : NodeCollectionBase<IncludedColumnRef, SecondaryIndexInfo>
   {
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="table">The table.</param>
-    public SecondaryIndexInfoCollection(TableInfo table)
-      : base(table, "SecondaryIndexes")
+    /// <param name="parent">The parent index.</param>
+    public IncludedColumnRefCollection(SecondaryIndexInfo parent)
+      : base(parent, "ValueColumns")
     {
     }
   }

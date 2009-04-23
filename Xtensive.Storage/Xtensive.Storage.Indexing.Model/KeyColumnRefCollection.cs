@@ -10,13 +10,13 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Indexing.Model
 {
   /// <summary>
-  /// A collection of <see cref="KeyColumnRef"/>.
+  /// A collection of <see cref="KeyColumnRef"/> instances.
   /// </summary>
   [Serializable]
-  public class KeyColumnRefCollection : NodeCollectionBase<KeyColumnRef, IndexInfo>
+  public sealed class KeyColumnRefCollection : NodeCollectionBase<KeyColumnRef, IndexInfo>
   {
     // Constructors
-    
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

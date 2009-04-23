@@ -196,7 +196,7 @@ namespace Xtensive.Storage.Providers.Sql
     private static void CreateSecondaryIndexes(TypeInfo type, IndexInfo primaryIndex, Table table)
     {
       foreach (var indexInfo in type.Indexes.Find(IndexAttributes.Real).Where(ii => !ii.IsPrimary)) {
-        var index = table.CreateIndex(indexInfo.Name);
+        var index = table.CreateIndex(indexInfo.MappingName);
         index.IsUnique = indexInfo.IsUnique;
         index.FillFactor = (byte) (indexInfo.FillFactor * 100);
         foreach (KeyValuePair<ColumnInfo, Direction> keyColumn in indexInfo.KeyColumns) {

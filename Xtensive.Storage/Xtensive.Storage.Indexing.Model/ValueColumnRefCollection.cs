@@ -10,18 +10,18 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Indexing.Model
 {
   /// <summary>
-  /// A collection of <see cref="ValueColumnRef"/>.
+  /// A collection of <see cref="ValueColumnRef"/> instances.
   /// </summary>
   [Serializable]
-  public class ValueColumnRefCollection: NodeCollectionBase<ValueColumnRef, IndexInfo>
+  public sealed class ValueColumnRefCollection : NodeCollectionBase<ValueColumnRef, PrimaryIndexInfo>
   {
     // Constructors
-    
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="parent">The parent index.</param>
-    public ValueColumnRefCollection(IndexInfo parent)
+    public ValueColumnRefCollection(PrimaryIndexInfo parent)
       : base(parent, "ValueColumns")
     {
     }

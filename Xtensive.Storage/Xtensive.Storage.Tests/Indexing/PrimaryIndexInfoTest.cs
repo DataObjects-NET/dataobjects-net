@@ -16,7 +16,6 @@ namespace Xtensive.Storage.Tests.Indexing
   [TestFixture]
   public class PrimaryIndexInfoTest
   {
-
     private StorageInfo storage;
     private TableInfo table;
     private PrimaryIndexInfo index;
@@ -77,19 +76,19 @@ namespace Xtensive.Storage.Tests.Indexing
     [Test]
     public void ValidateEmptyKeys()
     {
-      new ColumnInfo(table, "c1");
-      new ColumnInfo(table, "c2");
+      new ColumnInfo(table, "c1", new TypeInfo(typeof(string)));
+      new ColumnInfo(table, "c2", new TypeInfo(typeof(string)));
 
-      AssertEx.Throws<IntegrityException>(index.Validate);
+      AssertEx.Throws<AggregateException>(index.Validate);
     }
 
     [Test]
     public void ValidateNullableKeyColumns()
     {
-      var col = new ColumnInfo(table, "c2", new TypeInfo(typeof(string))) {AllowNulls = true};
+      var col = new ColumnInfo(table, "c2", new TypeInfo(typeof (string), true));
       new KeyColumnRef(index, col, Direction.Positive);
 
-      AssertEx.Throws<IntegrityException>(index.Validate);
+      AssertEx.Throws<AggregateException>(index.Validate);
     }
 
     [Test]
@@ -99,7 +98,7 @@ namespace Xtensive.Storage.Tests.Indexing
       new KeyColumnRef(index, column, Direction.Positive);
       new ValueColumnRef(index, column);
 
-      AssertEx.Throws<IntegrityException>(index.Validate);
+      AssertEx.Throws<AggregateException>(index.Validate);
     }
 
     [Test]
@@ -108,7 +107,7 @@ namespace Xtensive.Storage.Tests.Indexing
       new KeyColumnRef(index, new ColumnInfo(table, "key"), Direction.Positive);
       new ColumnInfo(table, "col");
 
-      AssertEx.Throws<IntegrityException>(index.Validate);
+      AssertEx.Throws<AggregateException>(index.Validate);
     }
 
     [Test]
@@ -121,7 +120,7 @@ namespace Xtensive.Storage.Tests.Indexing
       new ValueColumnRef(index, value);
       new ValueColumnRef(index, value);
 
-      AssertEx.Throws<IntegrityException>(index.Validate);
+      AssertEx.Throws<AggregateException>(index.Validate);
     }
 
     [Test]
@@ -134,7 +133,7 @@ namespace Xtensive.Storage.Tests.Indexing
       new KeyColumnRef(index, key, Direction.Positive);
       new ValueColumnRef(index, value);
 
-      AssertEx.Throws<IntegrityException>(index.Validate);
+      AssertEx.Throws<AggregateException>(index.Validate);
     }
 
 

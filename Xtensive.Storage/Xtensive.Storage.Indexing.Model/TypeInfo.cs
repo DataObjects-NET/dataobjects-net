@@ -5,13 +5,13 @@
 // Created:    2009.03.24
 
 using System;
-using System.Diagnostics;
+using System.Globalization;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
 using System.Text;
 using Xtensive.Core.Reflection;
-using Xtensive.Sql.Dom.Database;
+using Xtensive.Modelling.Validation;
+using Xtensive.Storage.Indexing.Model.Resources;
 
 namespace Xtensive.Storage.Indexing.Model
 {
@@ -19,74 +19,123 @@ namespace Xtensive.Storage.Indexing.Model
   /// Type of table column.
   /// </summary>
   [Serializable]
-  public class TypeInfo
+  public sealed class TypeInfo : IEquatable<TypeInfo>,
+    IValidatable,
+    ICloneable
   {
     /// <summary>
     /// Gets the type of the data.
     /// </summary>
-    public Type DataType
-    {
-      [DebuggerStepThrough]
-      get; 
-      [DebuggerStepThrough]
-      private set;
-    }
+    public Type Type { get;  private set; }
+
+    /// <summary>
+    /// Indicates whether <see cref="Type"/> is nullable.
+    /// </summary>
+    public bool IsNullable { get; private set; }
 
     /// <summary>
     /// Gets the length.
     /// </summary>
-    public int Length
-    {
-      [DebuggerStepThrough]
-      get;
-      [DebuggerStepThrough]
-      private set;
-    }
-    
+    public int Length { get;  private set; }
+
+    /// <summary>
+    /// Gets the culture.
+    /// </summary>
+    public CultureInfo Culture { get;  private set; }
+
     /// <summary>
     /// Gets the scale.
     /// </summary>
-    public int Scale
-    {
-      [DebuggerStepThrough]
-      get;
-      [DebuggerStepThrough]
-      private set;
-    }
+    public int Scale { get;  private set; }
 
     /// <summary>
     /// Gets the precision.
     /// </summary>
-    public int Precision
+    public int Precision { get;  private set; }
+
+    /// <inheritdoc/>
+    public void Validate()
     {
-      [DebuggerStepThrough]
-      get;
-      [DebuggerStepThrough]
-      private set;
+      // TODO: Implement
     }
 
-    #region Equals, GetHashCode methods
+    #region Implementation of ICloneable
+
+    public object Clone()
+    {
+      var clone = new TypeInfo(Type, IsNullable);
+      clone.Length = Length;
+      clone.Culture = Culture;
+      clone.Scale = Scale;
+      clone.Precision = Precision;
+      return clone;
+    }
+
+    #endregion
+
+    #region Equality members
+
+    public bool Equals(TypeInfo other)
+    {
+      if (ReferenceEquals(null, other))
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return 
+        other.Type==Type && 
+          other.IsNullable==IsNullable && 
+            other.Length==Length && 
+              other.Scale==Scale && 
+                other.Precision==Precision;
+    }
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
+      if (ReferenceEquals(null, obj))
+        return false;
       if (ReferenceEquals(this, obj))
         return true;
-      var typeInfo = obj as TypeInfo;
-      if (typeInfo==null)
+      if (obj.GetType()!=typeof (TypeInfo))
         return false;
-
-      return
-        DataType.Equals(typeInfo.DataType) &&
-          Length==typeInfo.Length &&
-            Scale==typeInfo.Scale &&
-              Precision==typeInfo.Precision;
+      return Equals((TypeInfo) obj);
     }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      return DataType.GetHashCode();
+      unchecked {
+        int result = (Type!=null ? Type.GetHashCode() : 0);
+        result = (result * 397) ^ (IsNullable ? 1 : 0);
+        result = (result * 397) ^ Length;
+        result = (result * 397) ^ Scale;
+        result = (result * 397) ^ Precision;
+        if (Culture!=null)
+          result = (result * 397) ^ Culture.GetHashCode();
+        return result;
+      }
+    }
+
+    /// <summary>
+    /// Implements the operator ==.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>The result of the operator.</returns>
+    public static bool operator ==(TypeInfo left, TypeInfo right)
+    {
+      return Equals(left, right);
+    }
+
+    /// <summary>
+    /// Implements the operator !=.
+    /// </summary>
+    /// <param name="left">The left.</param>
+    /// <param name="right">The right.</param>
+    /// <returns>The result of the operator.</returns>
+    public static bool operator !=(TypeInfo left, TypeInfo right)
+    {
+      return !Equals(left, right);
     }
 
     #endregion
@@ -95,60 +144,128 @@ namespace Xtensive.Storage.Indexing.Model
     public override string ToString()
     {
       var sb = new StringBuilder();
-      sb.Append(string.Format("Type: {0}", DataType.GetShortName()));
+      var type = Type;
+      if (type.IsNullable())
+        type = type.GetGenericArguments()[0];
+      sb.Append(string.Format(Strings.PropertyPairFormat, Strings.Type, type.GetShortName()));
+      if (IsNullable)
+        sb.Append(Strings.NullableMark);
       if (Length > 0)
-        sb.Append(string.Format(", Length: {0}", Length));
+        sb.Append(Strings.Comma).Append(string.Format(
+          Strings.PropertyPairFormat, Strings.Length, Length));
+      if (Culture!=null)
+        sb.Append(Strings.Comma).Append(string.Format(
+          Strings.PropertyPairFormat, Strings.Culture, Culture));
+      if (Scale > 0)
+        sb.Append(Strings.Comma).Append(string.Format(
+          Strings.PropertyPairFormat, Strings.Scale, Scale));
+      if (Precision > 0)
+        sb.Append(Strings.Comma).Append(string.Format(
+          Strings.PropertyPairFormat, Strings.Precision, Precision));
       return sb.ToString();
     }
 
 
-    // Constructors
+    #region Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="dataType">Type of the data.</param>
-    public TypeInfo(Type dataType)
+    /// <param name="type">Underlying data type.</param>
+    public TypeInfo(Type type)
+      : this(type, type.IsClass || type.IsNullable())
     {
-      ArgumentValidator.EnsureArgumentNotNull(dataType, "dataType");
-
-      DataType = dataType;
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="dataType">Type of the data.</param>
-    /// <param name="collation">The collation.</param>
+    /// <param name="type">Underlying data type.</param>
     /// <param name="length">The length.</param>
-    public TypeInfo(Type dataType, int length)
-      :this(dataType)
+    public TypeInfo(Type type, int length)
+      : this(type, type.IsClass || type.IsNullable(), length)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="type">Underlying data type.</param>
+    /// <param name="length">The length.</param>
+    /// <param name="culture">The culture.</param>
+    public TypeInfo(Type type, int length, CultureInfo culture)
+      : this(type, type.IsClass || type.IsNullable(), length, culture)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="type">Underlying data type.</param>
+    /// <param name="length">The length.</param>
+    /// <param name="scale">The scale.</param>
+    /// <param name="precision">The precision.</param>
+    public TypeInfo(Type type, int length, int scale, int precision)
+      : this(type, type.IsClass || type.IsNullable(), length, scale, precision)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="type">Underlying data type.</param>
+    /// <param name="isNullable">Indicates whether type is nullable.</param>
+    public TypeInfo(Type type, bool isNullable)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      if (isNullable && type.IsValueType && !type.IsNullable())
+        ArgumentValidator.EnsureArgumentIsInRange(true, false, false, "isNullable");
+      Type = type;
+      IsNullable = isNullable;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="type">Underlying data type.</param>
+    /// <param name="isNullable">Indicates whether type is nullable.</param>
+    /// <param name="length">The length.</param>
+    public TypeInfo(Type type, bool isNullable, int length)
+      : this(type, isNullable)
     {
       ArgumentValidator.EnsureArgumentIsInRange(length, 0, int.MaxValue, "length");
-
       Length = length;
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="dataType">Type of the data.</param>
-    /// <param name="collation">The collation.</param>
+    /// <param name="type">Underlying data type.</param>
+    /// <param name="isNullable">Indicates whether type is nullable.</param>
     /// <param name="length">The length.</param>
-    /// <param name="scale">The scale.</param>
-    /// <param name="precision">The precision.</param>
-    public TypeInfo(Type dataType, int length, int scale, int precision)
-      : this(dataType, length)
+    /// <param name="culture">The culture.</param>
+    public TypeInfo(Type type, bool isNullable, int length, CultureInfo culture)
+      : this(type, isNullable, length)
     {
-      Scale = scale;
-      Precision = precision;
+      ArgumentValidator.EnsureArgumentNotNull(culture, "culture");
+      Culture = culture;
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected TypeInfo()
+    /// <param name="type">Underlying data type.</param>
+    /// <param name="isNullable">Indicates whether type is nullable.</param>
+    /// <param name="length">The length.</param>
+    /// <param name="scale">The scale.</param>
+    /// <param name="precision">The precision.</param>
+    public TypeInfo(Type type, bool isNullable, int length, int scale, int precision)
+      : this(type, isNullable, length)
     {
+      Scale = scale;
+      Precision = precision;
     }
+
+    #endregion
   }
 }

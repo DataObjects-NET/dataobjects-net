@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Ivan Galkin
-// Created:    2009.03.24
+// Created:    2009.04.20
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
@@ -11,23 +11,23 @@ using Xtensive.Modelling;
 namespace Xtensive.Storage.Indexing.Model
 {
   /// <summary>
-  /// References to value column.
+  /// References to foreign key column.
   /// </summary>
   [Serializable]
-  public sealed class ValueColumnRef : ColumnInfoRef<PrimaryIndexInfo>
+  public sealed class ForeignKeyColumnRef : Ref<ColumnInfo, ForeignKeyInfo>
   {
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<ValueColumnRef, PrimaryIndexInfo, ValueColumnRefCollection>(
-        this, "ValueColumns");
+      return new Nesting<ForeignKeyColumnRef, ForeignKeyInfo, ForeignKeyColumnCollection>(
+        this, "ForeignKeyColumns");
     }
 
 
-    // Constructors
+    // Constructor
 
     /// <inheritdoc/>
-    public ValueColumnRef(PrimaryIndexInfo parent)
+    public ForeignKeyColumnRef(ForeignKeyInfo parent)
       : base(parent)
     {
     }
@@ -35,11 +35,13 @@ namespace Xtensive.Storage.Indexing.Model
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="parent">The parent index.</param>
-    /// <param name="column">The referenced column.</param>
-    public ValueColumnRef(PrimaryIndexInfo parent, ColumnInfo column)
-      : base(parent, column)
+    /// <param name="parent">The foreign key.</param>
+    /// <param name="column">The column.</param>
+    /// <inheritdoc/>
+    public ForeignKeyColumnRef(ForeignKeyInfo parent, ColumnInfo column)
+      : base(parent)
     {
+      Value = column;
     }
   }
 }

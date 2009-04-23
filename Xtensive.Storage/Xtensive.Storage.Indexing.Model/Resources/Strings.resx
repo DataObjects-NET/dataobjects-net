@@ -118,36 +118,75 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ExEmptyKeyColumnsCollection" xml:space="preserve">
-    <value>Empty key columns collection.</value>
+    <value>KeyColumns collection is empty.</value>
   </data>
-  <data name="ExColumnXContainsInBothKeyAndValueCollections" xml:space="preserve">
-    <value>Column '{0}' contains in both key and value collections.</value>
+  <data name="ExColumnXContainsBothKeyAndValueCollections" xml:space="preserve">
+    <value>Column "{0}" contains both key and value collections.</value>
   </data>
   <data name="ExCanNotFindReferenceToColumnX" xml:space="preserve">
-    <value>Can not find reference to column '{0}'.</value>
+    <value>Can not find reference to column "{0}".</value>
   </data>
-  <data name="ExMoreThenOneKeyReferenceToColumnX" xml:space="preserve">
-    <value>Key columns collection contains more then one reference to column '{0}'.</value>
+  <data name="ExMoreThenOneKeyColumnReferenceToColumnX" xml:space="preserve">
+    <value>KeyColumns collection contains more then one reference to column "{0}".</value>
   </data>
   <data name="ExReferencedColumnXDoesNotBelongToIndexY" xml:space="preserve">
-    <value>Referenced column '{0}' does not belong to index '{1}'.</value>
+    <value>Referenced column "{0}" does not belong to index "{1}".</value>
   </data>
-  <data name="ExMoreThenOneValueReferenceToColumnX" xml:space="preserve">
-    <value>Value columns collection contains more then one reference to column '{0}'.</value>
+  <data name="ExMoreThenOneValueColumnReferenceToColumnX" xml:space="preserve">
+    <value>ValueColumns collection contains more then one reference to column "{0}".</value>
   </data>
-  <data name="ExTypeOfColumnXDoesNotDefined" xml:space="preserve">
-    <value>Type of column '{0}' does not defined.</value>
+  <data name="ExUndefinedTypeOfColumnX" xml:space="preserve">
+    <value>Type of column "{0}" is undefined.</value>
   </data>
-  <data name="ExReferencedIndexNotDefined" xml:space="preserve">
-    <value>Referenced index not defined.</value>
+  <data name="ExUndefinedPrimaryKey" xml:space="preserve">
+    <value>PrimaryKey is undefined.</value>
   </data>
-  <data name="ExPrimaryKeyColumnCanNotAllowNulls" xml:space="preserve">
-    <value>Primary key column can not allow nulls.</value>
+  <data name="ExPrimaryKeyColumnCanNotBeNullable" xml:space="preserve">
+    <value>Primary key column can not be nullable.</value>
   </data>
-  <data name="ExReferencingIndexIsNotDefined" xml:space="preserve">
-    <value>Referencing index is not defined.</value>
+  <data name="ExUndefinedForeignKey" xml:space="preserve">
+    <value>ForeignKey is undefined.</value>
   </data>
-  <data name="ExReferencingIndexColumnsDoesNotMatchReferencedIndexKeyColumns" xml:space="preserve">
-    <value>Referencing index columns does not match referenced index key columns.</value>
+  <data name="ExInvalidForeignKeyStructure" xml:space="preserve">
+    <value>Invalid ForeignKey structure: its column sequence do not match PrimaryKey column sequence.</value>
+  </data>
+  <data name="Culture" xml:space="preserve">
+    <value>Culture</value>
+  </data>
+  <data name="Length" xml:space="preserve">
+    <value>Length</value>
+  </data>
+  <data name="Precision" xml:space="preserve">
+    <value>Precision</value>
+  </data>
+  <data name="Scale" xml:space="preserve">
+    <value>Scale</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="PropertyPairFormat" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Comma" xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="ExInvalidDirectionValue" xml:space="preserve">
+    <value>Invalid Direction value (Direction.None).</value>
+  </data>
+  <data name="ExInvalidPrimaryKeyColumnsCollection" xml:space="preserve">
+    <value>PrimaryKeyColumns collection is invalid.</value>
+  </data>
+  <data name="ExInvalidIncludedColumnsCollection" xml:space="preserve">
+    <value>IncludedColumns collection is invalid.</value>
+  </data>
+  <data name="ExMoreThenOneIncludedColumnReferenceToColumnX" xml:space="preserve">
+    <value>IncludedColumns collection contains more then one reference to column "{0}".</value>
+  </data>
+  <data name="NullableMark" xml:space="preserve">
+    <value>?</value>
+  </data>
+  <data name="ExInvalidPrimaryKeyStructure" xml:space="preserve">
+    <value>Invalid PrimaryKeyInfo structure: sequence KeyColumns and ValueColumns do not match sequence of all the Columns of the table.</value>
   </data>
 </root>

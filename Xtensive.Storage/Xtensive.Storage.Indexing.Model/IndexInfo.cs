@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// Gets a value indicating whether this instance is unique.
     /// </summary>
     /// <exception cref="NotSupportedException">Already initialized.</exception>
-    [Property]
+    [Property(Priority = -1100)]
     public bool IsUnique
     {
       get { return isUnique; }
@@ -32,8 +32,7 @@ namespace Xtensive.Storage.Indexing.Model
         EnsureIsEditable();
         if (IsPrimary && !value)
           throw Exceptions.AlreadyInitialized("IsUnique");
-        using (var scope = LogPropertyChange("IsUnique", value))
-        {
+        using (var scope = LogPropertyChange("IsUnique", value)) {
           isUnique = value;
           scope.Commit();
         }
@@ -43,30 +42,25 @@ namespace Xtensive.Storage.Indexing.Model
     /// <summary>
     /// Gets a value indicating whether this instance is primary.
     /// </summary>
-    [Property]
+    [Property(IgnoreInComparison = true)]
     public bool IsPrimary { get; private set; }
 
     /// <summary>
     /// Gets key columns.
     /// </summary>
-    [Property]
+    [Property(Priority = -1000)]
     public KeyColumnRefCollection KeyColumns { get; private set; }
 
-    /// <summary>
-    /// Gets value columns.
-    /// </summary>
-    [Property]
-    public ValueColumnRefCollection ValueColumns { get; private set; }
 
     /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();
       IsPrimary = this is PrimaryIndexInfo;
-      if (KeyColumns==null)
+      if (IsPrimary)
+        isUnique = true;
+      if (KeyColumns == null)
         KeyColumns = new KeyColumnRefCollection(this);
-      if (ValueColumns==null)
-        ValueColumns = new ValueColumnRefCollection(this);
     }
 
 

@@ -14,19 +14,23 @@ namespace Xtensive.Storage.Indexing.Model
   /// Table.
   /// </summary>
   [Serializable]
-  public class TableInfo : NodeBase<StorageInfo>
+  public sealed class TableInfo : NodeBase<StorageInfo>
   {
     private PrimaryIndexInfo primaryIndex;
 
     /// <summary>
+    /// Gets columns.
+    /// </summary>
+    [Property(Priority = -2000)]
+    public ColumnInfoCollection Columns { get; private set; }
+
+    /// <summary>
     /// Gets or sets the primary index.
     /// </summary>
-    [Property]
-    public PrimaryIndexInfo PrimaryIndex
-    {
+    [Property(Priority = -1200)]
+    public PrimaryIndexInfo PrimaryIndex {
       get { return primaryIndex; }
-      set
-      {
+      set {
         EnsureIsEditable();
         using (var scope = LogPropertyChange("PrimaryIndex", value)) {
           primaryIndex = value;
@@ -38,20 +42,14 @@ namespace Xtensive.Storage.Indexing.Model
     /// <summary>
     /// Gets secondary indexes.
     /// </summary>
-    [Property]
+    [Property(Priority = -1100)]
     public SecondaryIndexInfoCollection SecondaryIndexes { get; private set; }
 
     /// <summary>
     /// Gets foreign keys.
     /// </summary>
-    [Property]
+    [Property(Priority = -1000)]
     public ForeignKeyCollection ForeignKeys { get; private set; }
-
-    /// <summary>
-    /// Gets columns.
-    /// </summary>
-    [Property]
-    public ColumnInfoCollection Columns { get; private set; }
 
     /// <inheritdoc/>
     protected override Nesting CreateNesting()

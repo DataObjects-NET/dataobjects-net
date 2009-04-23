@@ -5,12 +5,13 @@
 // Created:    2009.03.20
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
+using Xtensive.Core.Collections;
+using Xtensive.Storage.Indexing.Model.Resources;
 
 namespace Xtensive.Storage.Indexing.Model
 {
@@ -18,8 +19,87 @@ namespace Xtensive.Storage.Indexing.Model
   /// Secondary index.
   /// </summary>
   [Serializable]
-  public class SecondaryIndexInfo : IndexInfo
+  public sealed class SecondaryIndexInfo : IndexInfo
   {
+    /// <summary>
+    /// Gets value columns.
+    /// </summary>
+    [Property(Priority = -110)]
+    public PrimaryKeyColumnRefCollection PrimaryKeyColumns { get; private set; }
+
+    /// <summary>
+    /// Gets included columns.
+    /// </summary>
+    [Property(Priority = -100)]
+    public IncludedColumnRefCollection IncludedColumns { get; private set; }
+
+    /// <summary>
+    /// Populates <see cref="PrimaryKeyColumns"/> collection by
+    /// copying them from primary index.
+    /// </summary>
+    public void PopulatePrimaryKeyColumns()
+    {
+      foreach (var kcr in Parent.PrimaryIndex.KeyColumns)
+        new PrimaryKeyColumnRef(this, kcr.Value, kcr.Direction);
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ValidationException">Empty secondary key columns collection.</exception>
+    protected override void ValidateState()
+    {
+      using (var ea = new ExceptionAggregator()) {
+        ea.Execute(base.ValidateState);
+
+        // Secondary key columns: empty set, duplicates
+        var keyColumns = KeyColumns.Select(valueRef => valueRef.Value).ToList();
+        if (keyColumns.Count==0)
+          ea.Execute(() => {
+            throw new ValidationException(Strings.ExEmptyKeyColumnsCollection, Path);
+          });
+        foreach (var group in keyColumns
+          .GroupBy(keyColumn => keyColumn)
+          .Where(group => group.Count() > 1))
+          ea.Execute((_column) => {
+            throw new ValidationException(
+              string.Format(Strings.ExMoreThenOneKeyColumnReferenceToColumnX, _column.Name),
+              Path);
+          }, group.Key);
+
+        // Primary key columns
+        if (PrimaryKeyColumns.Count!=Parent.PrimaryIndex.KeyColumns.Count)
+          ea.Execute(() => {
+            throw new ValidationException(Strings.ExInvalidPrimaryKeyColumnsCollection, Path);
+          });
+        for (int i = 0; i < PrimaryKeyColumns.Count; i++) {
+          var ref1 = PrimaryKeyColumns[i];
+          var ref2 = Parent.PrimaryIndex.KeyColumns[i];
+          if (ref1.Value!=ref2.Value || ref1.Direction!=ref2.Direction)
+            ea.Execute(() => {
+              throw new ValidationException(Strings.ExInvalidPrimaryKeyColumnsCollection, Path);
+            });
+        }
+
+        // Included columns
+        var fullKeySet = 
+          KeyColumns
+            .Select(cr => cr.Value)
+            .Concat(PrimaryKeyColumns.Select(cr => cr.Value))
+            .ToHashSet();
+        foreach (var columnRef in IncludedColumns)
+          if (fullKeySet.Contains(columnRef.Value))
+            ea.Execute(() => {
+              throw new ValidationException(Strings.ExInvalidIncludedColumnsCollection, Path);
+            });
+        foreach (var group in IncludedColumns
+          .GroupBy(keyColumn => keyColumn)
+          .Where(group => group.Count() > 1))
+          ea.Execute((_column) => {
+            throw new ValidationException(
+              string.Format(Strings.ExMoreThenOneIncludedColumnReferenceToColumnX, _column.Name),
+              Path);
+          }, group.Key);
+      }
+    }
 
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
@@ -27,30 +107,14 @@ namespace Xtensive.Storage.Indexing.Model
       return new Nesting<SecondaryIndexInfo, TableInfo, SecondaryIndexInfoCollection>(this, "SecondaryIndexes");
     }
 
-
     /// <inheritdoc/>
-    /// <exception cref="IntegrityException">Empty secondary key columns collection.</exception>
-    protected override void ValidateState()
+    protected override void Initialize()
     {
-      using (var ea = new ExceptionAggregator()) {
-        ea.Execute(base.ValidateState);
-
-        var secondaryKeyColumns = new List<ColumnInfo>(KeyColumns.Select(valueRef => valueRef.Value));
-
-        // Empty keys.
-        if (secondaryKeyColumns.Count==0)
-          ea.Execute(() => { throw new IntegrityException(Resources.Strings.ExEmptyKeyColumnsCollection, Path); });
-
-        // Double keys.
-        foreach (var column in secondaryKeyColumns
-          .GroupBy(keyColumn => keyColumn).Where(group => group.Count() > 1)
-          .Select(group => group.Key))
-          ea.Execute(() => {
-            throw new IntegrityException(
-              string.Format(Resources.Strings.ExMoreThenOneKeyReferenceToColumnX, column.Name),
-              Path);
-          });
-      }
+      base.Initialize();
+      if (PrimaryKeyColumns==null)
+        PrimaryKeyColumns = new PrimaryKeyColumnRefCollection(this);
+      if (IncludedColumns==null)
+        IncludedColumns = new IncludedColumnRefCollection(this);
     }
 
 

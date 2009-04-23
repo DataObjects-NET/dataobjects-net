@@ -228,7 +228,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
     }
 
     /// <summary>
-    /// Extracts the indexes.
+    /// Extracts indexes.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="schema">The schema.</param>
@@ -256,7 +256,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
         select.Where &= tSysusersRef["name"] == schema.Name;
       select.Columns.Add(tSysobjRef["name"], "TABLE_NAME");
       select.Columns.Add(tIndexesRef["name"], "INDEX_NAME");
-
+      
       for (int i = 1; i <= columnsToLoad; i++)
         select.Columns.Add(
           Sql.FunctionCall("index_col", tSysusersRef["name"] + "." + tSysobjRef["name"], tIndexesRef["indid"], i),
@@ -266,7 +266,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
         select.Columns.Add(
           Sql.FunctionCall("INDEXKEY_PROPERTY", tSysobjRef["id"], tIndexesRef["indid"], i, "IsDescending"),
           "COL_DESC" + i);
-
+      
       select.Columns.Add(Sql.FunctionCall("indexproperty", tSysobjRef["id"], tIndexesRef["name"], "IndexFillFactor"),
                          "INDEX_FILL_FACTOR");
       select.Columns.Add(Sql.FunctionCall("indexproperty", tSysobjRef["id"], tIndexesRef["name"], "IsUnique"),
@@ -296,16 +296,63 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
             } 
             else {
               Index index = table.CreateIndex((string)reader["INDEX_NAME"]);
-              for (int i = 1; i <= columnsToLoad; i++) {
-                object column = reader["COL" + i];
-                if (column == DBNull.Value)
-                  break;
-                index.CreateIndexColumn(table.TableColumns[(string)column], (int)reader["COL_DESC" + i] == 0);
-              }
+              ExtractSecondaryIndexColumns(context, schema, index);
               index.FillFactor = Convert.ToByte(reader["INDEX_FILL_FACTOR"]);
               index.IsUnique = (int)reader["IS_UNIQUE"] != 0;
               index.IsClustered = (int)reader["IS_CLUSTERED"] != 0;
             }
+          }
+        }
+      }
+    }
+
+    /// <summary>
+    /// Extracts the secondary index columns.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="schema">The schema.</param>
+    /// <param name="index">The index to extract.</param>
+    public virtual void ExtractSecondaryIndexColumns(SqlExtractorContext context, Schema schema, Index index)
+    {
+      var tSysobjects = model.DefaultServer.Catalogs["master"].Schemas["sys"].Views["objects"];
+      var tIndexes = model.DefaultServer.Catalogs["master"].Schemas["sys"].Views["indexes"];
+      var tIndexColumns = model.DefaultServer.Catalogs["master"].Schemas["sys"].Views["index_columns"];
+      var tColumns = model.DefaultServer.Catalogs["master"].Schemas["sys"].Views["columns"];
+      var tSysobjRef = Sql.TableRef(tSysobjects, "TBL");
+      var tIndexesRef = Sql.TableRef(tIndexes, "IDX");
+      var tIndexColumnsRef = Sql.TableRef(tIndexColumns, "IDX_COL");
+      var tColumnsRef = Sql.TableRef(tColumns, "COL");
+
+      var select = Sql.Select(tSysobjRef);
+      select.From = select.From.InnerJoin(tIndexesRef,
+        tIndexesRef["object_id"]==tSysobjRef["object_id"]);
+      select.From = select.From.InnerJoin(tIndexColumnsRef,
+        tIndexColumnsRef["object_id"]==tIndexesRef["object_id"]
+          && tIndexColumnsRef["index_id"]==tIndexesRef["index_id"]);
+      select.From = select.From.InnerJoin(tColumnsRef,
+        tColumnsRef["object_id"]==tIndexColumnsRef["object_id"]
+          && tColumnsRef["column_id"]==tIndexColumnsRef["column_id"]);
+      select.Where = tSysobjRef["name"]==index.DataTable.DbName;
+      select.Where &= tIndexesRef["name"]==index.DbName;
+
+      select.Columns.Add(tColumnsRef["name"], "NAME");
+      select.Columns.Add(tIndexColumnsRef["is_descending_key"], "IS_DESCENDING");
+      select.Columns.Add(tIndexColumnsRef["is_included_column"], "IS_INCLUDED");
+
+      select.OrderBy.Add(tIndexColumnsRef["is_included_column"]);
+      select.OrderBy.Add(tIndexColumnsRef["key_ordinal"]);
+
+      using (var cmd = new SqlCommand(context.Connection)) {
+        cmd.Transaction = context.Transaction;
+        cmd.Statement = select;
+        var table = schema.Tables[index.DataTable.Name];
+        using (IDataReader reader = cmd.ExecuteReader()) {
+          while (reader.Read()) {
+            if ((bool) reader["IS_INCLUDED"])
+              index.NonkeyColumns.Add(table.TableColumns[(string) reader["NAME"]]);
+            else
+              index.CreateIndexColumn(table.TableColumns[(string) reader["NAME"]],
+                !(bool) reader["IS_DESCENDING"]);
           }
         }
       }

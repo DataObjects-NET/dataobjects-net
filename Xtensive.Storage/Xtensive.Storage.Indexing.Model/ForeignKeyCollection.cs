@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
+using Xtensive.Storage.Indexing.Model;
 
 namespace Xtensive.Storage.Indexing.Model
 {
@@ -14,7 +15,7 @@ namespace Xtensive.Storage.Indexing.Model
   /// Foreign key collection.
   /// </summary>
   [Serializable]
-  public class ForeignKeyCollection : NodeCollectionBase<ForeignKeyInfo, TableInfo>, 
+  public sealed class ForeignKeyCollection : NodeCollectionBase<ForeignKeyInfo, TableInfo>, 
     IUnorderedNodeCollection
   {
     // Constructors

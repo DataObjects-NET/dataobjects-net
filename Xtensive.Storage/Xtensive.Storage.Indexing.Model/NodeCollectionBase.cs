@@ -10,7 +10,7 @@ using Xtensive.Modelling;
 namespace Xtensive.Storage.Indexing.Model
 {
   /// <summary>
-  /// An abstract base class for all collection of storage model nodes.
+  /// An abstract base class for any collection of storage model nodes.
   /// </summary>
   /// <typeparam name="TNode">The type of the node.</typeparam>
   /// <typeparam name="TParent">The type of the parent node.</typeparam>
@@ -19,7 +19,6 @@ namespace Xtensive.Storage.Indexing.Model
     where TNode : Node
     where TParent : Node
   {
-
     // Constructors
 
     /// <inheritdoc/>

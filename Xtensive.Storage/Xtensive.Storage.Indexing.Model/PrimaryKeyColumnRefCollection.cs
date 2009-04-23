@@ -6,25 +6,23 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Modelling;
 
 namespace Xtensive.Storage.Indexing.Model
 {
   /// <summary>
-  /// A collection of secondary indexes.
+  /// A collection of <see cref="PrimaryKeyColumnRef"/> instances.
   /// </summary>
   [Serializable]
-  public sealed class SecondaryIndexInfoCollection : NodeCollectionBase<SecondaryIndexInfo, TableInfo>,
-    IUnorderedNodeCollection
+  public sealed class PrimaryKeyColumnRefCollection : NodeCollectionBase<PrimaryKeyColumnRef, SecondaryIndexInfo>
   {
     // Constructors
-
+    
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="table">The table.</param>
-    public SecondaryIndexInfoCollection(TableInfo table)
-      : base(table, "SecondaryIndexes")
+    /// <param name="parent">The parent.</param>
+    public PrimaryKeyColumnRefCollection(SecondaryIndexInfo parent)
+      : base(parent, "PrimaryKeyColumns")
     {
     }
   }

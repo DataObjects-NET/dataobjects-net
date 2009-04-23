@@ -5,10 +5,13 @@
 // Created:    2009.03.20
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
+using Xtensive.Modelling.Attributes;
+using Xtensive.Core.Collections;
+using Xtensive.Storage.Indexing.Model.Resources;
 
 namespace Xtensive.Storage.Indexing.Model
 {
@@ -16,8 +19,59 @@ namespace Xtensive.Storage.Indexing.Model
   /// Primary index.
   /// </summary>
   [Serializable]
-  public class PrimaryIndexInfo : IndexInfo
+  public sealed class PrimaryIndexInfo : IndexInfo
   {
+    /// <summary>
+    /// Gets value columns.
+    /// </summary>
+    [Property(Priority = -100)]
+    public ValueColumnRefCollection ValueColumns { get; private set; }
+
+    /// <summary>
+    /// Populates <see cref="ValueColumns"/> collection by
+    /// including all the columns except <see cref="IndexInfo.KeyColumns"/>
+    /// into it.
+    /// </summary>
+    public void PopulateValueColumns()
+    {
+      var keySet = KeyColumns.Select(kc => kc.Value).ToHashSet();
+      foreach (var column in Parent.Columns.Where(c => !keySet.Contains(c)))
+        new ValueColumnRef(this, column);
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ValidationException">Validation error.</exception>
+    protected override void ValidateState()
+    {
+      using (var ea = new ExceptionAggregator()) {
+        ea.Execute(base.ValidateState);
+        base.ValidateState();
+
+        var tableColumns = Parent.Columns;
+        var keys = KeyColumns.Select(keyRef => keyRef.Value).ToList();
+        var values = ValueColumns.Select(valueRef => valueRef.Value).ToList();
+        var all = keys.Concat(values).ToList();
+
+        if (keys.Count==0)
+          ea.Execute(() => {
+            throw new ValidationException(Strings.ExEmptyKeyColumnsCollection, Path);
+          });
+        if (keys.Where(ci => ci.Type == null || ci.Type.IsNullable).Count() > 0)
+          ea.Execute(() => {
+            throw new ValidationException(Strings.ExPrimaryKeyColumnCanNotBeNullable, Path);
+          });
+
+        if (all.Count!=tableColumns.Count)
+          ea.Execute(() => {
+            throw new ValidationException(Strings.ExInvalidPrimaryKeyStructure, Path);
+          });
+        if (all.Zip(tableColumns).Where(p => p.First!=p.Second).Any())
+          ea.Execute(() => {
+            throw new ValidationException(Strings.ExInvalidPrimaryKeyStructure, Path);
+          });
+      }
+    }
+
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
@@ -25,63 +79,11 @@ namespace Xtensive.Storage.Indexing.Model
     }
 
     /// <inheritdoc/>
-    /// <exception cref="IntegrityException">Validation error.</exception>
-    protected override void ValidateState()
+    protected override void Initialize()
     {
-      base.ValidateState();
-
-      var columns = Parent.Columns;
-      var keys = new List<ColumnInfo>(KeyColumns.Select(keyRef => keyRef.Value));
-      var values = new List<ColumnInfo>(ValueColumns.Select(valueRef => valueRef.Value));
-
-      // Empty keys.
-      if (keys.Count==0)
-        throw new IntegrityException(Resources.Strings.ExEmptyKeyColumnsCollection, Path);
-
-      // Nullable key columns.
-      if (keys.Where(ci=>ci.AllowNulls).Count() > 0)
-        throw new IntegrityException(Resources.Strings.ExPrimaryKeyColumnCanNotAllowNulls, Path);
-      
-      // Double column reference.
-      foreach (var column in keys.Intersect(values))
-        throw new IntegrityException(
-          string.Format(Resources.Strings.ExColumnXContainsInBothKeyAndValueCollections, column.Name),
-          Path);
-
-      // Not referenced columns.
-      foreach (var column in columns.Except(keys.Union(values)))
-        throw new IntegrityException(
-          string.Format(Resources.Strings.ExCanNotFindReferenceToColumnX, column.Name),
-          Path);
-
-      // Double keys.
-      foreach (var column in 
-        keys.GroupBy(keyColumn => keyColumn).Where(group => group.Count() > 1).Select(group => group.Key))
-        throw new IntegrityException(
-          string.Format(Resources.Strings.ExMoreThenOneKeyReferenceToColumnX, column.Name),
-          Path);
-
-      // Key columns contains refernce to column from another table.
-      foreach (var column in keys.Except(columns))
-        throw new IntegrityException(
-          string.Format(Resources.Strings.ExReferencedColumnXDoesNotBelongToIndexY,
-            column.Name, Name),
-          Path);
-
-      // Double values.
-      foreach (var column in
-        values.GroupBy(valueColumn => valueColumn).Where(group => group.Count() > 1).Select(group => group.Key))
-        throw new IntegrityException(
-          string.Format(Resources.Strings.ExMoreThenOneValueReferenceToColumnX, column.Name),
-          Path);
-      
-
-      // Value columns contains refernce to column from another table.
-      foreach (var column in values.Except(columns))
-        throw new IntegrityException(
-          string.Format(Resources.Strings.ExReferencedColumnXDoesNotBelongToIndexY, column.Name, Name),
-          Path);
-      
+      base.Initialize();
+      if (ValueColumns==null)
+        ValueColumns = new ValueColumnRefCollection(this);
     }
 
 

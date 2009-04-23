@@ -5,9 +5,11 @@
 // Created:    2009.03.20
 
 using System;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
+using Xtensive.Storage.Indexing.Model.Resources;
 
 namespace Xtensive.Storage.Indexing.Model
 {
@@ -15,43 +17,37 @@ namespace Xtensive.Storage.Indexing.Model
   /// Column.
   /// </summary>
   [Serializable]
-  public class ColumnInfo: NodeBase<TableInfo>
+  public sealed class ColumnInfo : NodeBase<TableInfo>
   {
-    private TypeInfo columnType;
-    private bool allowNulls;
+    private TypeInfo type;
 
     /// <summary>
     /// Gets or sets the type of the column.
     /// </summary>
-    [Property]
-    public TypeInfo ColumnType
-    {
-      get { return columnType; }
-      set
-      {
+    [Property(Priority = -1000)]
+    public TypeInfo Type {
+      get { return type; }
+      set {
         EnsureIsEditable();
-        using (var scope = LogPropertyChange("ColumnType", value)) {
-          columnType = value;
+        using (var scope = LogPropertyChange("Type", value)) {
+          type = value;
           scope.Commit();
         }
       }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether 
-    /// a column allow <see langword="null"/> values.
-    /// </summary>
-    [Property]
-    public bool AllowNulls
+    /// <inheritdoc/>
+    /// <exception cref="ValidationException">Validation error.</exception>
+    protected override void ValidateState()
     {
-      get{ return allowNulls;}
-      set
-      {
-        EnsureIsEditable();
-        using (var scope = LogPropertyChange("AllowNulls", value)) {
-          allowNulls = value;
-          scope.Commit();
-        }
+      using (var ea = new ExceptionAggregator()) {
+        ea.Execute(base.ValidateState);
+        if (Type==null)
+          ea.Execute(() => {
+            throw new ValidationException(
+              string.Format(Strings.ExUndefinedTypeOfColumnX, Name),
+              Path);
+          });
       }
     }
 
@@ -61,20 +57,18 @@ namespace Xtensive.Storage.Indexing.Model
       return new Nesting<ColumnInfo, TableInfo, ColumnInfoCollection>(this, "Columns");
     }
 
-    /// <inheritdoc/>
-    /// <exception cref="IntegrityException">Validation error.</exception>
-    protected override void ValidateState()
-    {
-      base.ValidateState();
-
-      if (ColumnType==null)
-        throw new IntegrityException(
-          string.Format(Resources.Strings.ExTypeOfColumnXDoesNotDefined, Name),
-          Path);
-    }
-
 
     // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="table">The parent table.</param>
+    /// <param name="name">The name.</param>
+    public ColumnInfo(TableInfo table, string name)
+      : base(table, name)
+    {
+    }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
@@ -85,17 +79,7 @@ namespace Xtensive.Storage.Indexing.Model
     public ColumnInfo(TableInfo table, string name, TypeInfo columnType)
       : this(table, name)
     {
-      ColumnType = columnType;
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="table">The parent table.</param>
-    /// <param name="name">The name.</param>
-    public ColumnInfo(TableInfo table, string name)
-      : base(table, name)
-    {
+      Type = columnType;
     }
   }
 }

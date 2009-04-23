@@ -16,17 +16,15 @@ namespace Xtensive.Storage.Indexing.Model
   /// Indexing storage.
   /// </summary>
   [Serializable]
-  public class StorageInfo : NodeBase<StorageInfo>,
+  public sealed class StorageInfo : NodeBase<StorageInfo>,
     IModel
   {
     private ActionSequence actions;
 
     /// <inheritdoc/>
-    public ActionSequence Actions
-    {
+    public ActionSequence Actions {
       get { return actions; }
-      set
-      {
+      set {
         EnsureIsEditable();
         actions = value;
       }
@@ -35,7 +33,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <summary>
     /// Gets tables.
     /// </summary>
-    [Property]
+    [Property(Priority = 0)]
     public TableInfoCollection Tables { get; private set; }
 
     /// <inheritdoc/>

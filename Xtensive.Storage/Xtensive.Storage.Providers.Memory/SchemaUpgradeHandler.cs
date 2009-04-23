@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Storage.Building;
-using Xtensive.Storage.Model.Convert;
+using Xtensive.Storage.Model.Conversion;
 using Xtensive.Storage.Providers.Index;
 
 namespace Xtensive.Storage.Providers.Memory
@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Providers.Memory
     /// <inheritdoc/>
     public override void UpdateStorageSchema()
     {
-      var converter = new ModelConverter(Handlers.NameBuilder.BuildForeignKeyName,
+      var converter = new DomainModelConverter(Handlers.NameBuilder.BuildForeignKeyName,
         Handlers.NameBuilder.BuildForeignKeyName);
       var newSchema = converter.Convert(BuildingContext.Current.Model, StorageView.Storage.Name);
       StorageView.CreateNewSchema(newSchema);

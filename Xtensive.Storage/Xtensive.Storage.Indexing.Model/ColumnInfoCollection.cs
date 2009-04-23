@@ -5,18 +5,16 @@
 // Created:    2009.03.20
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 
 namespace Xtensive.Storage.Indexing.Model
 {
   /// <summary>
-  /// Columns collection.
+  /// Column collection.
   /// </summary>
   [Serializable]
-  public class ColumnInfoCollection : NodeCollectionBase<ColumnInfo, TableInfo>, 
-    IUnorderedNodeCollection
+  public sealed class ColumnInfoCollection : NodeCollectionBase<ColumnInfo, TableInfo>
   {
     // Constructors
 

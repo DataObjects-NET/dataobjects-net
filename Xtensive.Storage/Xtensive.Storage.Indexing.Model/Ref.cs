@@ -17,8 +17,8 @@ namespace Xtensive.Storage.Indexing.Model
   /// <typeparam name="TTarget">The type of the target node.</typeparam>
   /// <typeparam name="TParent">The type of the parent node.</typeparam>
   [Serializable]
-  public abstract class Ref<TTarget, TParent> : NodeBase<TParent>, 
-    IUnnamedNode, 
+  public abstract class Ref<TTarget, TParent> : NodeBase<TParent>,
+    IUnnamedNode,
     INodeReference
     where TTarget : Node
     where TParent : Node
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// Gets or sets referenced node.
     /// </summary>
     /// <exception cref="NotSupportedException">Value is already initialized.</exception>
-    [Property]
+    [Property(Priority = 0)]
     public TTarget Value
     {
       get { return value; }

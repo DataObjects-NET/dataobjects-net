@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Indexing.Model;
 
-namespace Xtensive.Indexing.Tests.Storage
+namespace Xtensive.Storage.Tests.Indexing
 {
   [TestFixture]
   public class StorageInfoTest
@@ -60,9 +60,9 @@ namespace Xtensive.Indexing.Tests.Storage
       // Foreign keys
       fk1 = new ForeignKeyInfo(table2, "fk1")
         {
-          ReferencingIndex = si2,
-          ReferencedIndex = pi1
+          PrimaryKey = pi1
         };
+      fk1.ForeignKeyColumns.Set(si2);
     }
 
     [Test]
@@ -74,8 +74,8 @@ namespace Xtensive.Indexing.Tests.Storage
     [Test]
     public void StorageLogTest()
     {
-      Log.Info("Actions:");
-      Log.Info("{0}", storage.Actions);
+      Xtensive.Indexing.Log.Info("Actions:");
+      Xtensive.Indexing.Log.Info("{0}", storage.Actions);
     }
 
     [Test]

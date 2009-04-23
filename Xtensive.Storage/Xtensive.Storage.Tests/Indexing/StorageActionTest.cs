@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Tests.Indexing
       newStorage.Dump();
 
       storage.Actions = new ActionSequence();
-      primaryValue1.ColumnType = new TypeInfo(typeof(string));
+      primaryValue1.Type = new TypeInfo(typeof(string));
       storage.Actions.Apply(newStorage);
       newStorage.Dump();
     }

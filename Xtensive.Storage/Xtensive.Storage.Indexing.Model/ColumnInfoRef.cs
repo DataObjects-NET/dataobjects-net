@@ -13,7 +13,8 @@ namespace Xtensive.Storage.Indexing.Model
   /// An abstract base class for all columns refs.
   /// </summary>
   [Serializable]
-  public abstract class ColumnInfoRef: Ref<ColumnInfo, IndexInfo>
+  public abstract class ColumnInfoRef<TParent> : Ref<ColumnInfo, TParent>
+    where TParent: IndexInfo
   {
     // Constructors
 
@@ -21,9 +22,8 @@ namespace Xtensive.Storage.Indexing.Model
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="parent">The parent index.</param>
-    /// <param name="index">The index.</param>
     /// <inheritdoc/>
-    protected ColumnInfoRef(IndexInfo parent)
+    protected ColumnInfoRef(TParent parent)
       : base(parent)
     {
     }
@@ -33,8 +33,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// </summary>
     /// <param name="parent">The parent index.</param>
     /// <param name="column">The column.</param>
-    /// <param name="index">The index.</param>
-    protected ColumnInfoRef(IndexInfo parent, ColumnInfo column)
+    protected ColumnInfoRef(TParent parent, ColumnInfo column)
       : base(parent)
     {
       Value = column;

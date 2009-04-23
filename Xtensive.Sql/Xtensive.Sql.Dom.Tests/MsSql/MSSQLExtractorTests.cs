@@ -391,6 +391,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     }
   }
 
+  [TestFixture]
   public class MSSQLExtractor_TestIndexesExtracted : MSSQLExtractorTestBase
   {
     public override string CleanUpScript
@@ -402,25 +403,34 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     public virtual void Main()
     {
       ExecuteQuery(
-        " create table table1 (" + 
+        " create table table1 (" +
           "\n column1 int, " +
-            "\n column2 int) " + 
-              "\n create index        table1_index1_desc_asc   on table1 (column1 desc, column2 asc)"  +
-                "\n create unique index table1_index1_u_asc_desc on table1 (column1 asc, column2 desc)", ConnectionString);
+            "\n column2 int) " +
+              "\n create index table1_index1_desc_asc   on table1 (column1 desc, column2 asc)" +
+                "\n create unique index table1_index1_u_asc_desc on table1 (column1 asc, column2 desc)" +
+                  "\n create unique index table1_index_with_included_columns on table1 (column1 asc)" +
+                    "\n include (column2)", ConnectionString);
+
       Model model = ExtractModel(ConnectionString);
       Schema schema = model.DefaultServer.DefaultCatalog.DefaultSchema;
-      
+
       Assert.IsTrue(schema.Tables["table1"]!=null);
       Assert.IsNotNull(schema.Tables["table1"].Indexes["table1_index1_desc_asc"]);
       Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns.Count==2);
       Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[0].Name=="column1");
       Assert.IsTrue(!schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[0].Ascending);
-      Assert.IsTrue( schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[1].Ascending);
+      Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[1].Ascending);
 
       Assert.IsNotNull(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"]);
       Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns.Count==2);
-      Assert.IsTrue( schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[0].Ascending);
+      Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[0].Ascending);
       Assert.IsTrue(!schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[1].Ascending);
+
+      Assert.IsNotNull(schema.Tables["table1"].Indexes["table1_index_with_included_columns"]);
+      Assert.AreEqual(1, schema.Tables["table1"].Indexes["table1_index_with_included_columns"].Columns.Count,
+        "Key columns");
+      Assert.AreEqual(1, schema.Tables["table1"].Indexes["table1_index_with_included_columns"].NonkeyColumns.Count,
+        "Included columns");
     }
   }
 

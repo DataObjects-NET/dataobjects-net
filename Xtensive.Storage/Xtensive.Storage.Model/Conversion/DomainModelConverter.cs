@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Storage.Indexing.Model;
 using StorageColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
@@ -17,13 +18,13 @@ using StorageTypeInfo = Xtensive.Storage.Indexing.Model.TypeInfo;
 using StorageIndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
 using StorageReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
 
-namespace Xtensive.Storage.Model.Convert
+namespace Xtensive.Storage.Model.Conversion
 {
   /// <summary>
   /// Converts <see cref="DomainModel"/> to indexing storage model.
   /// </summary>
   [Serializable]
-  public class ModelConverter : ModelVisitor<IPathNode>
+  public class DomainModelConverter : ModelVisitor<IPathNode>
   {
     /// <summary>
     /// Gets the storage info.
@@ -100,14 +101,27 @@ namespace Xtensive.Storage.Model.Convert
         {
           IsUnique = index.IsUnique
         };
-      CreateIndexColumnRefs(index, secondaryIndex);
+      foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns)
+        new KeyColumnRef(secondaryIndex, table.Columns[pair.Key.Name], pair.Value);
+      foreach (var column in index.IncludedColumns)
+        new IncludedColumnRef(secondaryIndex, table.Columns[column.Name]);
+      secondaryIndex.PopulatePrimaryKeyColumns();
       return secondaryIndex;
     }
 
     /// <inheritdoc/>
     protected override IPathNode VisitColumnInfo(ColumnInfo column)
     {
-      var type = new StorageTypeInfo(column.ValueType, column.Length ?? 0);
+      var columnType = column.IsNullable
+        && column.ValueType.IsValueType
+          && !column.ValueType.IsNullable()
+        ? column.ValueType.ToNullable()
+        : column.ValueType;
+
+      var isNullable = column.ValueType.IsValueType
+        ? column.ValueType.IsNullable()
+        : column.IsNullable;
+      var type = new StorageTypeInfo(columnType, isNullable, column.Length ?? 0);
       return new StorageColumnInfo(CurrentTable, column.Name, type);
     }
 
@@ -120,22 +134,24 @@ namespace Xtensive.Storage.Model.Convert
       var referencedTable = StorageInfo.Tables[association.ReferencedType.MappingName];
       TableInfo referencingTable;
       StorageIndexInfo referencingIndex;
+      ForeignKeyInfo foreignKey;
 
       if (association.UnderlyingType==null) {
         referencingTable = StorageInfo.Tables[association.ReferencingType.MappingName];
         referencingIndex = FindIndex(referencingTable,
           new List<string>(association.ReferencingField.ExtractColumns().Select(ci => ci.Name)));
         var foreignKeyName = ForeignKeyNameGenerator(association, association.ReferencingField);
-        return new ForeignKeyInfo(referencingTable, foreignKeyName)
+        foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName)
           {
-            ReferencingIndex = referencingIndex,
-            ReferencedIndex = referencedTable.PrimaryIndex,
+            PrimaryKey = referencedTable.PrimaryIndex,
             OnRemoveAction = ConvertReferentialAction(association.OnRemove),
             OnUpdateAction = StorageReferentialAction.Default
           };
+        foreignKey.ForeignKeyColumns.Set(referencingIndex);
+        return foreignKey;
       }
 
-      ForeignKeyInfo foreignKey = null;
+      foreignKey = null;
       referencingTable = StorageInfo.Tables[association.UnderlyingType.MappingName];
       foreach (var field in association.UnderlyingType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
         referencingIndex = FindIndex(referencingTable,
@@ -143,11 +159,11 @@ namespace Xtensive.Storage.Model.Convert
         var foreignKeyName = ForeignKeyNameGenerator(association, field);
         foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName)
           {
-            ReferencingIndex = referencingIndex,
-            ReferencedIndex = referencedTable.PrimaryIndex,
+            PrimaryKey = referencedTable.PrimaryIndex,
             OnRemoveAction = ConvertReferentialAction(association.OnRemove),
             OnUpdateAction = StorageReferentialAction.Default
           };
+        foreignKey.ForeignKeyColumns.Set(referencingIndex);
       }
       return foreignKey;
     }
@@ -164,26 +180,13 @@ namespace Xtensive.Storage.Model.Convert
         Visit(column);
 
       var primaryIndex = new PrimaryIndexInfo(CurrentTable, index.MappingName);
-      CreateIndexColumnRefs(index, primaryIndex);
+      foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns)
+        new KeyColumnRef(primaryIndex, CurrentTable.Columns[pair.Key.Name], pair.Value);
+      primaryIndex.PopulateValueColumns();
       CurrentTable = null;
       return primaryIndex;
     }
-
-    /// <summary>
-    /// Creates column references for index.
-    /// </summary>
-    /// <param name="index">The index.</param>
-    /// <param name="storageIndex">Index of the storage model.</param>
-    protected virtual void CreateIndexColumnRefs(IndexInfo index, StorageIndexInfo storageIndex)
-    {
-      var table = StorageInfo.Tables[index.ReflectedType.MappingName];
-
-      foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns)
-        new KeyColumnRef(storageIndex, table.Columns[pair.Key.Name], pair.Value);
-      foreach (var column in index.ValueColumns)
-        new ValueColumnRef(storageIndex, table.Columns[column.Name]);
-    }
-
+    
     /// <summary>
     /// Finds the specific index by key columns.
     /// </summary>
@@ -192,7 +195,7 @@ namespace Xtensive.Storage.Model.Convert
     /// <returns>The index.</returns>
     protected virtual StorageIndexInfo FindIndex(TableInfo table, List<string> keyColumns)
     {
-      foreach (SecondaryIndexInfo index in table.SecondaryIndexes) {
+      foreach (var index in table.SecondaryIndexes) {
         var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value.Name);
         if (secondaryKeyColumns.Except(keyColumns)
           .Union(keyColumns.Except(secondaryKeyColumns)).Count()==0)
@@ -231,7 +234,7 @@ namespace Xtensive.Storage.Model.Convert
     /// </summary>
     /// <param name="foreignKeyNameGenerator">The foreign key name generator.</param>
     /// <param name="hierarchyForeignKeyNameGenerator">The hierarchy foreign key name generator.</param>
-    public ModelConverter(Func<AssociationInfo, FieldInfo, string> foreignKeyNameGenerator,
+    public DomainModelConverter(Func<AssociationInfo, FieldInfo, string> foreignKeyNameGenerator,
       Func<TypeInfo, TypeInfo, string> hierarchyForeignKeyNameGenerator)
     {
       ArgumentValidator.EnsureArgumentNotNull(foreignKeyNameGenerator, "foreignKeyNameGenerator");
@@ -240,22 +243,6 @@ namespace Xtensive.Storage.Model.Convert
       
       ForeignKeyNameGenerator = foreignKeyNameGenerator;
       HierarchyForeignKeyNameGenerator = hierarchyForeignKeyNameGenerator;
-    }
-
-    private static IndexInfo FindRealIndex(IndexInfo index, FieldInfo field)
-    {
-      if (index.IsVirtual) {
-        foreach (var underlyingIndex in index.UnderlyingIndexes) {
-          var result = FindRealIndex(underlyingIndex, field);
-          if (result!=null)
-            return result;
-        }
-      }
-      else {
-        if (field==null || index.Columns.ContainsAny(field.ExtractColumns()))
-          return index;
-      }
-      return null;
     }
 
     #region Not supported

@@ -26,7 +26,8 @@ namespace Xtensive.Storage.Providers.Memory
   {
     private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes = 
       new Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>>();
-    private readonly Dictionary<IndexInfo, MapTransform> indexTransforms = 
+
+    private readonly Dictionary<IndexInfo, MapTransform> indexTransforms =
       new Dictionary<IndexInfo, MapTransform>();
 
     /// <inheritdoc/>
@@ -90,7 +91,7 @@ namespace Xtensive.Storage.Providers.Memory
         foreach (var keyColumn in indexInfo.KeyColumns)
           orderingRule.Add(keyColumn.Value, keyColumn.Direction);
         foreach (var keyColumn in indexInfo.Parent.PrimaryIndex.KeyColumns)
-          if (indexInfo.KeyColumns.SingleOrDefault(cr => cr.Value==keyColumn.Value)==null)
+          if (!indexInfo.KeyColumns.Any(cr => cr.Value==keyColumn.Value))
             orderingRule.Add(keyColumn.Value, keyColumn.Direction);
       }
 
@@ -112,10 +113,16 @@ namespace Xtensive.Storage.Providers.Memory
       var primaryIndex = indexInfo.Parent.PrimaryIndex;
       var primaryIndexColums = primaryIndex.KeyColumns.Select(columnRef => columnRef.Value)
         .Union(primaryIndex.ValueColumns.Select(columnRef => columnRef.Value)).ToArray();
-      var indexColumns = indexInfo.KeyColumns.Select(columnRef => columnRef.Value)
-        .Union(indexInfo.ValueColumns.Select(columnRef => columnRef.Value)).ToArray();
+      var indexColumns = indexInfo.IsPrimary
+        ? indexInfo.KeyColumns.Select(columnRef => columnRef.Value)
+          .Union(((PrimaryIndexInfo)indexInfo).ValueColumns.Select(columnRef => columnRef.Value)).ToArray()
+        : indexInfo.KeyColumns.Select(columnRef => columnRef.Value)
+          .Union(((SecondaryIndexInfo) indexInfo).PrimaryKeyColumns.Select(columnRef => columnRef.Value))
+          .Union(((SecondaryIndexInfo) indexInfo).IncludedColumns.Select(columnRef => columnRef.Value)).ToArray();
+
       var map = indexColumns.Select(columnInfo => primaryIndexColums.IndexOf(columnInfo)).ToArray();
-      var descriptor = TupleDescriptor.Create(indexColumns.Select(columnInfo => columnInfo.ColumnType.DataType));
+      var descriptor = TupleDescriptor.Create(indexColumns.Select(columnInfo => columnInfo.Type.Type));
+      
       return new MapTransform(true, descriptor, map);
     }
 

@@ -8,13 +8,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Reflection;
 using Xtensive.Sql.Common;
-using Xtensive.Sql.Dom.Database;
+using Xtensive.Storage.Indexing.Model;
 using SqlModel = Xtensive.Sql.Dom.Database.Model;
 using SqlRefAction = Xtensive.Sql.Dom.ReferentialAction;
 using Xtensive.Modelling;
+using Xtensive.Sql.Dom.Database;
+using IndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
+using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
+using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
 
-namespace Xtensive.Storage.Indexing.Model.Convert
+namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
   /// Converts <see cref="Xtensive.Sql.Dom.Database.Model"/> to indexing storage model.
@@ -73,7 +78,7 @@ namespace Xtensive.Storage.Indexing.Model.Convert
       foreach (var column in table.TableColumns)
         Visit(column);
 
-      var primaryKey = table.TableConstraints.OfType<PrimaryKey>().FirstOrDefault();
+      var primaryKey = table.TableConstraints.OfType<PrimaryKey>().Single();
       if (primaryKey != null)
         Visit(primaryKey);
 
@@ -87,31 +92,29 @@ namespace Xtensive.Storage.Indexing.Model.Convert
     protected override IPathNode VisitTableColumn(TableColumn tableColumn)
     {
       var tableInfo = StorageInfo.Tables[tableColumn.Table.Name];
-      var columnInfo = new ColumnInfo(tableInfo, tableColumn.Name, ExtractType(tableColumn))
-        {
-          AllowNulls = tableColumn.IsNullable
-        };
+      var columnInfo = new ColumnInfo(tableInfo, tableColumn.Name, ExtractType(tableColumn));
       return columnInfo;
     }
 
     /// <inheritdoc/>
     protected override IPathNode VisitForeignKey(ForeignKey key)
     {
-      var tableInfo = StorageInfo.Tables[key.Table.Name];
+      var referencingTable = StorageInfo.Tables[key.Table.Name];
+      var referencingColumns = new List<ColumnInfo>();
+      foreach (var refColumn in key.Columns)
+        referencingColumns.Add(referencingTable.Columns[refColumn.Name]);
 
-      var foreignKeyInfo = new ForeignKeyInfo(tableInfo, key.Name)
+      var foreignKeyInfo = new ForeignKeyInfo(referencingTable, key.Name)
         {
           OnUpdateAction = ConvertReferentialAction(key.OnUpdate),
           OnRemoveAction = ConvertReferentialAction(key.OnDelete)
         };
-      var referencedTable = tableInfo.Model.Tables[key.ReferencedTable.Name];
-      var referencingTable = tableInfo.Model.Tables[key.Table.Name];
-      var referencingColumns = new List<ColumnInfo>();
-      foreach (var refColumn in key.Columns)
-        referencingColumns.Add(referencingTable.Columns[refColumn.Name]);
+
+      var referencedTable = StorageInfo.Tables[key.ReferencedTable.Name];
+      foreignKeyInfo.PrimaryKey = referencedTable.PrimaryIndex;
       
-      foreignKeyInfo.ReferencingIndex = FindIndex(referencingTable, referencingColumns);
-      foreignKeyInfo.ReferencedIndex = referencedTable.PrimaryIndex;
+      var referncingIndex = FindIndex(referencingTable, referencingColumns);
+      foreignKeyInfo.ForeignKeyColumns.Set(referncingIndex);
 
       return foreignKeyInfo;
     }
@@ -126,12 +129,7 @@ namespace Xtensive.Storage.Indexing.Model.Convert
         new KeyColumnRef(primaryIndexInfo, tableInfo.Columns[keyColumn.Name],
           Direction.Positive);
       // ToDo: Get direction for key columns.
-
-      var valueColumns = tableInfo.Columns.Except(
-        primaryIndexInfo.KeyColumns.Select(cr => cr.Value));
-
-      foreach (var valueColumn in valueColumns)
-        new ValueColumnRef(primaryIndexInfo, valueColumn);
+      primaryIndexInfo.PopulateValueColumns();
 
       return primaryIndexInfo;
     }
@@ -153,8 +151,10 @@ namespace Xtensive.Storage.Indexing.Model.Convert
 
       foreach (var valueColumn in index.NonkeyColumns) {
         var columnInfo = tableInfo.Columns[valueColumn.Name];
-        new ValueColumnRef(secondaryIndexInfo, columnInfo);
+        new IncludedColumnRef(secondaryIndexInfo, columnInfo);
       }
+
+      secondaryIndexInfo.PopulatePrimaryKeyColumns();
 
       return secondaryIndexInfo;
     }
@@ -166,9 +166,19 @@ namespace Xtensive.Storage.Indexing.Model.Convert
     /// <returns>Data type.</returns>
     protected virtual TypeInfo ExtractType(TableColumn column)
     {
+      var dataType = ConvertType(column.DataType.DataType);
+      var columnType = column.IsNullable
+        && dataType.IsValueType
+          && !dataType.IsNullable()
+        ? dataType.ToNullable()
+        : dataType;
+
       return new TypeInfo(
-        ConvertType(column.DataType.DataType),
-        column.DataType.Size, column.DataType.Scale, column.DataType.Precision);
+        columnType,
+        column.IsNullable,
+        column.DataType.Size,
+        column.DataType.Scale,
+        column.DataType.Precision);
     }
 
     /// <summary>
@@ -213,7 +223,7 @@ namespace Xtensive.Storage.Indexing.Model.Convert
     /// <returns>The index.</returns>
     protected virtual IndexInfo FindIndex(TableInfo table, List<ColumnInfo> keyColumns)
     {
-      foreach (SecondaryIndexInfo index in table.SecondaryIndexes) {
+      foreach (var index in table.SecondaryIndexes) {
         var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value);
         if (secondaryKeyColumns.Except(keyColumns)
           .Union(keyColumns.Except(secondaryKeyColumns)).Count()==0)
@@ -276,7 +286,7 @@ namespace Xtensive.Storage.Indexing.Model.Convert
 
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitDomain(Domain domain)
+    protected override IPathNode VisitDomain(Xtensive.Sql.Dom.Database.Domain domain)
     {
       throw new NotSupportedException();
     }
