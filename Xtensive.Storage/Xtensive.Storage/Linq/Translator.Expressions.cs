@@ -815,8 +815,9 @@ namespace Xtensive.Storage.Linq
     {
       if (path.Count==0)
         return VisitParameter(path.Parameter);
-      var sourceMapping = (ComplexMapping) source.Mapping;
-      var anonymousMapping = sourceMapping.GetAnonymousMapping(path.First().Name);
+      var anonymousMapping = new Pair<ComplexMapping, Expression>((ComplexMapping) source.Mapping, source.ItemProjector);
+      foreach (var pathItem in path)
+        anonymousMapping = anonymousMapping.First.GetAnonymousMapping(pathItem.Name);
       mappingRef.Value.Replace(anonymousMapping.First);
       var result = new ParameterRewriter(tuple.Value, record.Value).Rewrite(anonymousMapping.Second);
       RecordIsUsed |= result.Second;
