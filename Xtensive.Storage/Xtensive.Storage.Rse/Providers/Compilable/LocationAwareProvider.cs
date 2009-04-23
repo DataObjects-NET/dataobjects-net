@@ -22,6 +22,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public UrlInfo Location { get; private set; }
 
+
     // Constructors
 
     /// <summary>
