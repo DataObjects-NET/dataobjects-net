@@ -5,6 +5,7 @@
 // Created:    2009.04.07
 
 using System;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
@@ -21,10 +22,12 @@ namespace Xtensive.Modelling.Comparison
   /// </summary>
   public class Upgrader : IUpgrader
   {
-    private const string NodeGroupComment = "{0}";
-    private const string NodeCollectionGroupComment = "[{0}]";
-    private const string PreConditionsGroupComment  = "*PreConditions";
-    private const string PostConditionsGroupComment = "*PostConditions";
+    public readonly static string NodeGroupComment = "{0}";
+    public readonly static string NodeCollectionGroupComment = "{0}[]";
+    public readonly static string PreConditionsGroupComment  = "<PreConditions>";
+    public readonly static string RenamesGroupComment        = "<Renames>";
+    public readonly static string PostConditionsGroupComment = "<PostConditions>";
+    public readonly static string TemporaryNameFormat        = "Temp_{0}";
 
     [ThreadStatic]
     private static Upgrader current;
@@ -215,14 +218,28 @@ namespace Xtensive.Modelling.Comparison
             AddAction(UpgradeActionType.PostCondition, action);
           }
           else if ((difference.MovementInfo & MovementInfo.Changed)!=0) {
-            AddAction(UpgradeActionType.PostCondition,
-              new MoveNodeAction() {
-                Path = source.Path,
-                Parent = target.Parent==null ? string.Empty : target.Parent.Path,
-                Name = target.Name,
-                Index = target.Index,
-                NewPath = target.Path
-              });
+            var action = new MoveNodeAction() {
+              Path = source.Path,
+              Parent = target.Parent==null ? string.Empty : target.Parent.Path,
+              Name = target.Name,
+              Index = target.Index,
+              NewPath = target.Path
+            };
+            try {
+              AddAction(UpgradeActionType.PostCondition, action);
+            }
+            catch (ArgumentException) {
+              var oldName = action.Name;
+              // TODO: Fix this. Needs detection of this case in comparison layer.
+              action.Name = GetTemporaryName(difference);
+              var node = CurrentModel.Resolve(action.Path);
+              AddAction(UpgradeActionType.Regular, action);
+              var renameAction = new MoveNodeAction() {
+                Path = node.Path,
+                Name = oldName,
+              };
+              AddAction(UpgradeActionType.Rename, renameAction);
+            }
           }
         }
 
@@ -271,6 +288,17 @@ namespace Xtensive.Modelling.Comparison
     protected virtual Type GetDependencyRootType(Difference difference, PropertyAccessor accessor)
     {
       return accessor.DependencyRootType;
+    }
+
+    /// <summary>
+    /// Gets the name of the temporary for the renaming node in case of conflict
+    /// (mutual rename).
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    /// <returns>Temporary node name.</returns>
+    protected virtual string GetTemporaryName(Difference difference)
+    {
+      return string.Format(TemporaryNameFormat, Guid.NewGuid().ToString());
     }
 
     /// <summary>
@@ -343,12 +371,20 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>A disposable deactivating the group.</returns>
     protected IDisposable OpenActionGroup(string comment)
     {
-      var oldActions = new {Context.Actions, PreActions = Context.PreConditions, PostActions = Context.PostConditions};
-      Context.Actions = new GroupingNodeAction {
-        Comment = comment
+      var oldActions = new {
+        Context.PreConditions, 
+        Context.Actions, 
+        Context.Renames,
+        Context.PostConditions
       };
       Context.PreConditions = new GroupingNodeAction {
         Comment = PreConditionsGroupComment
+      };
+      Context.Actions = new GroupingNodeAction {
+        Comment = comment
+      };
+      Context.Renames = new GroupingNodeAction {
+        Comment = RenamesGroupComment
       };
       Context.PostConditions = new GroupingNodeAction {
         Comment = PostConditionsGroupComment
@@ -356,20 +392,24 @@ namespace Xtensive.Modelling.Comparison
       try {
         return new Disposable( 
           (isDisposing) => {
+            var renames = Context.Renames;
             var postConditions = Context.PostConditions;
             var actions = Context.GetMergeActions();
+            Context.PreConditions = oldActions.PreConditions;
             Context.Actions = oldActions.Actions;
-            Context.PreConditions = oldActions.PreActions;
-            Context.PostConditions = oldActions.PostActions;
+            Context.Renames = oldActions.Renames;
+            Context.PostConditions = oldActions.PostConditions;
             if (actions!=null && actions.Actions.Count!=0)
               Context.Actions.Add(actions);
+            renames.Execute(CurrentModel);
             postConditions.Execute(CurrentModel);
           });
       }
       catch {
         Context.Actions = oldActions.Actions;
-        Context.PreConditions = oldActions.PreActions;
-        Context.PostConditions = oldActions.PostActions;
+        Context.Renames = oldActions.Renames;
+        Context.PreConditions = oldActions.PreConditions;
+        Context.PostConditions = oldActions.PostConditions;
         throw;
       }
     }
@@ -387,6 +427,13 @@ namespace Xtensive.Modelling.Comparison
       if (dependencyRootType==null || actionType==UpgradeActionType.Regular) {
         action.Execute(CurrentModel);
         Context.Actions.Add(action);
+      }
+      else if (actionType==UpgradeActionType.Rename) {
+        var parentDifference = Context.Difference.Parent;
+        EnumerableUtils.Unfold(Context, c => c.Parent)
+          .Where(c => c.Parent.Difference==parentDifference)
+          .Take(1)
+          .Apply(c => c.Renames.Add(action));
       }
       else {
         foreach (var ctx in EnumerableUtils.Unfold(Context, c => c.Parent)) {

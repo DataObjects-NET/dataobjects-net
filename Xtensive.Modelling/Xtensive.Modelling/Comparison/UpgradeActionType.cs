@@ -20,6 +20,10 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     Regular,
     /// <summary>
+    /// The action is a rename of temporarily named node.
+    /// </summary>
+    Rename,
+    /// <summary>
     /// The action is postcondition, so it should be added to appropriate postconditions chain.
     /// </summary>
     PostCondition,

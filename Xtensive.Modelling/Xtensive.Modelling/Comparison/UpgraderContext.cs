@@ -45,6 +45,11 @@ namespace Xtensive.Modelling.Comparison
     public GroupingNodeAction Actions { get; set; }
 
     /// <summary>
+    /// Gets or sets the current <see cref="UpgradeActionType.Rename"/> action sequence.
+    /// </summary>
+    public GroupingNodeAction Renames { get; set; }
+
+    /// <summary>
     /// Gets or sets the current <see cref="UpgradeActionType.PostCondition"/> action sequence.
     /// </summary>
     public GroupingNodeAction PostConditions { get; set; }
@@ -86,6 +91,10 @@ namespace Xtensive.Modelling.Comparison
       if (PreConditions!=null && PreConditions.Actions.Count!=0) {
         Actions.Actions.Insert(0, PreConditions);
         PreConditions = null;
+      }
+      if (Renames!=null && Renames.Actions.Count!=0) {
+        Actions.Add(Renames);
+        Renames = null;
       }
       if (PostConditions!=null && PostConditions.Actions.Count!=0) {
         Actions.Add(PostConditions);
@@ -131,6 +140,7 @@ namespace Xtensive.Modelling.Comparison
       if (Parent==null) {
         PreConditions = new GroupingNodeAction();
         Actions = new GroupingNodeAction();
+        Renames = new GroupingNodeAction();
         PostConditions = new GroupingNodeAction();
         return;
       }
@@ -142,6 +152,7 @@ namespace Xtensive.Modelling.Comparison
 
       PreConditions = Parent.PreConditions;
       Actions = Parent.Actions;
+      Renames = Parent.Renames;
       PostConditions = Parent.PostConditions;
     }
   }
