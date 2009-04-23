@@ -170,22 +170,19 @@ namespace Xtensive.Storage.Linq
           if (targetField.IsPrimaryKey)
             mapping.RegisterField("Key", segment);
 
-          if (originalGroup>=0) {
+          if (originalGroup >= 0) {
             int newGroup = joinedRecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
-            if (newGroup!=originalGroup) {
+            if (newGroup!=originalGroup)
               groupMappings[newGroup] = originalGroup;
-            }
           }
         }
 
-
         var columnList = mapping.GetColumns(false);
-
         var rewriter = new ItemProjectorRewriter(columnList, groupMappings, joinedRecordSet.Header);
         var rewritedSource = rewriter.Rewrite(visitedSource);
         var re = new ResultExpression(resultExpression.Type, joinedRecordSet, resultExpression.Mapping, resultExpression.ItemProjector);
         context.Bindings.ReplaceBound(parameter, re);
-        mappingRef.Value.Replace( mapping);
+        mappingRef.Value.Replace(mapping);
         return Expression.Convert(rewritedSource, targetType);
       }
     }
@@ -377,7 +374,7 @@ namespace Xtensive.Storage.Linq
     {
       var arguments = new List<Expression>();
       if (n.Members==null) {
-        if (n.IsGroupingConstructor() || n.Type == typeof(TimeSpan) || n.Type == typeof(DateTime))
+        if (n.IsGroupingConstructor() || n.Type==typeof (TimeSpan) || n.Type==typeof (DateTime))
           return base.VisitNew(n);
         throw new NotSupportedException();
       }
