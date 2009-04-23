@@ -5,7 +5,6 @@
 // Created:    2009.04.07
 
 using System;
-using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
@@ -13,7 +12,6 @@ using Xtensive.Core.Serialization.Binary;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Resources;
-using System.Linq;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Modelling.Comparison
@@ -23,6 +21,11 @@ namespace Xtensive.Modelling.Comparison
   /// </summary>
   public class Upgrader : IUpgrader
   {
+    private const string NodeGroupComment = "{0}";
+    private const string NodeCollectionGroupComment = "[{0}]";
+    private const string PreConditionsGroupComment  = "*PreConditions";
+    private const string PostConditionsGroupComment = "*PostConditions";
+
     [ThreadStatic]
     private static Upgrader current;
 
@@ -164,9 +167,9 @@ namespace Xtensive.Modelling.Comparison
       var source = difference.Source;
       var target = difference.Target;
       var any = target ?? source;
-      bool mustClone = Context.MustClone;
+      bool mustClone = Context.IsCloningRoot;
 
-      using (OpenActionGroup((target ?? source).Name)) {
+      using (OpenActionGroup(string.Format(NodeGroupComment, (target ?? source).Name))) {
         // Processing movement
         if (mustClone) {
           bool isSourceRemoved = false;
@@ -229,12 +232,45 @@ namespace Xtensive.Modelling.Comparison
           if (!mustClone || accessor.IgnoreInCloning)
             using (CreateContext().Activate()) {
               Context.Property = pair.Key;
-              Context.MustClone = accessor.IsCloningRoot;
-              Context.DependencyRootType = accessor.DependencyRootType;
+              Context.IsCloningRoot = IsCloningRoot(difference, accessor);
+              Context.DependencyRootType = GetDependencyRootType(difference, accessor);
               Visit(pair.Value);
             }
         }
       }
+    }
+
+    /// <summary>
+    /// Determines whether specified property is cloning root.
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    /// <param name="accessor">The property accessor.</param>
+    /// <returns><see langword="true"/> if th specified property is cloning root; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    /// <remarks>
+    /// Returns <paramref name="accessor"/>.<see cref="PropertyAccessor.IsCloningRoot"/>
+    /// by default.
+    /// </remarks>
+    protected virtual bool IsCloningRoot(Difference difference, PropertyAccessor accessor)
+    {
+      return accessor.IsCloningRoot;
+    }
+
+    /// <summary>
+    /// Gets the type of the dependency root object for the specified property.
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    /// <param name="accessor">The property accessor.</param>
+    /// <returns>The type of the dependency root object for the specified property;
+    /// <see langword="null" />, if none.</returns>
+    /// <remarks>
+    /// Returns <paramref name="accessor"/>.<see cref="PropertyAccessor.DependencyRootType"/>
+    /// by default.
+    /// </remarks>
+    protected virtual Type GetDependencyRootType(Difference difference, PropertyAccessor accessor)
+    {
+      return accessor.DependencyRootType;
     }
 
     /// <summary>
@@ -248,7 +284,7 @@ namespace Xtensive.Modelling.Comparison
     /// </returns>
     protected virtual void VisitNodeCollectionDifference(NodeCollectionDifference difference)
     {
-      using (OpenActionGroup("+" + Context.Property)) {
+      using (OpenActionGroup(string.Format(NodeCollectionGroupComment, Context.Property))) {
         foreach (var newDifference in difference.ItemChanges)
           Visit(newDifference);
       }
@@ -312,10 +348,10 @@ namespace Xtensive.Modelling.Comparison
         Comment = comment
       };
       Context.PreConditions = new GroupingNodeAction {
-        Comment = "*PreConditions"
+        Comment = PreConditionsGroupComment
       };
       Context.PostConditions = new GroupingNodeAction {
-        Comment = "*PostConditions"
+        Comment = PostConditionsGroupComment
       };
       try {
         return new Disposable( 
@@ -326,7 +362,7 @@ namespace Xtensive.Modelling.Comparison
             Context.PreConditions = oldActions.PreActions;
             Context.PostConditions = oldActions.PostActions;
             if (actions!=null && actions.Actions.Count!=0)
-              Context.Actions.Actions.Add(actions);
+              Context.Actions.Add(actions);
             postConditions.Execute(CurrentModel);
           });
       }
@@ -349,8 +385,8 @@ namespace Xtensive.Modelling.Comparison
     {
       var dependencyRootType = Context.DependencyRootType;
       if (dependencyRootType==null || actionType==UpgradeActionType.Regular) {
-        Context.Actions.Actions.Add(action);
         action.Execute(CurrentModel);
+        Context.Actions.Add(action);
       }
       else {
         foreach (var ctx in EnumerableUtils.Unfold(Context, c => c.Parent)) {
@@ -360,11 +396,11 @@ namespace Xtensive.Modelling.Comparison
           if (type==dependencyRootType) {
             switch (actionType) {
             case UpgradeActionType.PreCondition:
-              ctx.PreConditions.Actions.Add(action);
               action.Execute(CurrentModel);
+              ctx.PreConditions.Add(action);
               break;
             case UpgradeActionType.PostCondition:
-              ctx.PostConditions.Actions.Add(action);
+              ctx.PostConditions.Add(action);
               break;
             default:
               throw new ArgumentOutOfRangeException("actionType");
@@ -379,5 +415,5 @@ namespace Xtensive.Modelling.Comparison
     }
 
     #endregion
-    }
   }
+}

@@ -42,6 +42,32 @@ namespace Xtensive.Modelling.Actions
     }
 
     /// <summary>
+    /// Adds the specified action to the <see cref="Actions"/> sequence.
+    /// </summary>
+    /// <param name="action">The action to add.</param>
+    public void Add(NodeAction action)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(action, "action");
+      this.EnsureNotLocked();
+      // Only locked actions can be added
+      var ca = action as PropertyChangeAction;
+      if (ca!=null && actions.Count!=0) {
+        // Let's try to join two change actions
+        var lastIndex = actions.Count - 1;
+        var last = actions[lastIndex] as PropertyChangeAction;
+        if (last!=null && ca.Path==last.Path) {
+          foreach (var pair in last.Properties) {
+            if (!ca.Properties.ContainsKey(pair.Key))
+              ca.Properties.Add(pair.Key, pair.Value);
+          }
+          actions.RemoveAt(lastIndex);
+        }
+      }
+      action.Lock(true); 
+      actions.Add(action);
+    }
+
+    /// <summary>
     /// Flattens all the <see cref="GroupingNodeAction"/>s from <see cref="Actions"/> sequence.
     /// </summary>
     /// <returns>Flattened sequence of nested actions.</returns>

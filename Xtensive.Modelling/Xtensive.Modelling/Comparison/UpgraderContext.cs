@@ -57,7 +57,7 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// Indicates whether node must be copied rather than processed as usual.
     /// </summary>
-    public bool MustClone { get; set; }
+    public bool IsCloningRoot { get; set; }
 
     /// <summary>
     /// Gets or sets the type of the dependency root.
@@ -88,7 +88,7 @@ namespace Xtensive.Modelling.Comparison
         PreConditions = null;
       }
       if (PostConditions!=null && PostConditions.Actions.Count!=0) {
-        Actions.Actions.Add(PostConditions);
+        Actions.Add(PostConditions);
         PostConditions = null;
       }
       return Actions;
@@ -137,7 +137,7 @@ namespace Xtensive.Modelling.Comparison
 
       Difference = Parent.Difference;
       Property = Parent.Property;
-      MustClone = Parent.MustClone;
+      IsCloningRoot = Parent.IsCloningRoot;
       DependencyRootType = Parent.DependencyRootType;
 
       PreConditions = Parent.PreConditions;

@@ -19,6 +19,24 @@ namespace Xtensive.Modelling.Tests
   public class IndexingModelTest
   {
     [Test]
+    public void MutualRenameTest()
+    {
+      var storage = CreateSimpleStorageModel();
+      storage.Dump();
+
+      TestUpdate(storage, (s1, s2, hs) => {
+        var t2 = (TableInfo) s2.Resolve("Tables/Types");
+        t2.Name = "Temp";
+        var o2 = (TableInfo) s2.Resolve("Tables/Objects");
+        o2.Name = "Types";
+        t2.Name = "Objects";
+        hs.Add(new RenameHint(t2.Path, o2.Path));
+        hs.Add(new RenameHint(o2.Path, t2.Path));
+      },
+      (diff, actions) => { });
+    }
+
+    [Test]
     public void RenameTest1()
     {
       var storage = CreateSimpleStorageModel();
