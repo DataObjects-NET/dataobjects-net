@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using Xtensive.Sql.Dom.Compiler.Internals;
 using Xtensive.Sql.Dom.Exceptions;
@@ -12,38 +12,18 @@ namespace Xtensive.Sql.Dom.Compiler
 {
   public class SqlCompilerContext
   {
-    private readonly NodeContainer root;
     private NodeContainer output;
-    private Stack<SqlNode> traversalStack;
     private SqlNode[] traversalPath;
-    private Hashtable traversalTable;
-    private AliasProvider aliasProvider = new AliasProvider();
 
-    /// <summary>
-    /// Gets the traversal path.
-    /// </summary>
-    /// <value>The traversal path.</value>
-    public SqlNode[] GetTraversalPath()
-    {
-      if (traversalPath==null)
-        traversalPath = traversalStack.ToArray();
-      return traversalPath;
-    }
+    private readonly NodeContainer root;
+    private readonly Stack<SqlNode> traversalStack;
+    private readonly HashSet<SqlNode> traversalTable;
+    private readonly AliasProvider aliasProvider = new AliasProvider();
 
-    public bool IsEmpty
-    {
-      get { return output.IsEmpty; }
-    }
+    public bool IsEmpty { get { return output.IsEmpty; } }
+    public AliasProvider AliasProvider { get { return aliasProvider; } }
 
-    internal NodeContainer Output
-    {
-      get { return output; }
-    }
-
-    public AliasProvider AliasProvider
-    {
-      get { return aliasProvider; }
-    }
+    internal NodeContainer Output { get { return output; } }
 
     public void AppendText(string text)
     {
@@ -54,7 +34,7 @@ namespace Xtensive.Sql.Dom.Compiler
 
     public void AppendDelimiter(string text)
     {
-      output.AppendDelimiter(text, DelimiterType.Row);
+      output.Add(new NodeDelimiter(DelimiterType.Row, text));
     }
 
     public void AppendDelimiter(string text, DelimiterType type)
@@ -64,47 +44,84 @@ namespace Xtensive.Sql.Dom.Compiler
 
     public SqlCompilerScope EnterNode(SqlNode node)
     {
-      traversalStack.Push(node);
-      OnChangeContext();
-      if (traversalTable.ContainsKey(node))
-        throw new SqlCompilerException(Strings.ExCircularReferenceDetected);
-      traversalTable.Add(node, traversalTable);
+      BeginEnterNode(node);
       return CreateScope(ContextType.Node);
     }
 
     public SqlCompilerScope EnterCollection()
     {
-      OnChangeContext();
       return CreateScope(ContextType.Collection);
     }
-
-    private void OnChangeContext()
+    
+    public SqlCompilerScope EnterMainVariant(SqlNode node, object key)
     {
-      if (traversalPath!=null)
-        traversalPath = null;
+      BeginEnterNode(node);
+      var variant = new VariantNode(key) {Main = new NodeContainer(), Alternative = new NodeContainer()};
+      output.Add(variant);
+      return CreateScope(ContextType.Node, (NodeContainer) variant.Main);
     }
 
-    private SqlCompilerScope CreateScope(ContextType type)
+    public SqlCompilerScope EnterAlternativeVariant(SqlNode node, object key)
     {
-      SqlCompilerScope scope = new SqlCompilerScope(this, output, type);
-      NodeContainer nc = new NodeContainer();
-      output.Add(nc);
-      output = nc;
-      return scope;
+      BeginEnterNode(node);
+      var variant = (VariantNode) output.Current;
+      if (variant.Key != key)
+        throw new InvalidOperationException();
+      return CreateScope(ContextType.Node, (NodeContainer) variant.Alternative);
+    }
+
+    /// <summary>
+    /// Gets the traversal path.
+    /// </summary>
+    /// <value>The traversal path.</value>
+    public SqlNode[] GetTraversalPath()
+    {
+      if (traversalPath == null)
+        traversalPath = traversalStack.ToArray();
+      return traversalPath;
     }
 
     internal void DisposeScope(SqlCompilerScope scope)
     {
-      output = scope.Output;
-      OnChangeContext();
-      if (scope.Type==ContextType.Node)
+      traversalPath = null;
+      output = scope.OriginalOutput;
+      if (scope.Type == ContextType.Node)
         traversalTable.Remove(traversalStack.Pop());
     }
 
+    #region Private methods
+
+    private void BeginEnterNode(SqlNode node)
+    {
+      if (traversalTable.Contains(node))
+        throw new SqlCompilerException(Strings.ExCircularReferenceDetected);
+      traversalStack.Push(node);
+      traversalTable.Add(node);
+    }
+
+    private SqlCompilerScope CreateScope(ContextType type)
+    {
+      var newContainer = new NodeContainer();
+      output.Add(newContainer);
+      return CreateScope(type, newContainer);
+    }
+
+    private SqlCompilerScope CreateScope(ContextType type, NodeContainer newContainer)
+    {
+      traversalPath = null;
+      var scope = new SqlCompilerScope(this, output, type);
+      output = newContainer;
+      return scope;
+    }
+
+    #endregion
+
+    // Constructor
+
     internal SqlCompilerContext()
     {
-      traversalStack = new Stack<SqlNode>(128);
-      traversalTable = new Hashtable(128);
+      traversalStack = new Stack<SqlNode>();
+      traversalTable = new HashSet<SqlNode>();
       root = new NodeContainer();
       output = root;
     }

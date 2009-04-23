@@ -1109,7 +1109,11 @@ namespace Xtensive.Sql.Dom.Compiler
 
     public virtual void Visit(SqlVariant node)
     {
-      throw new NotImplementedException();
+      using (context.EnterMainVariant(node.Main, node.Key))
+        node.Main.AcceptVisitor(this);
+
+      using (context.EnterAlternativeVariant(node.Alternative, node.Key))
+        node.Alternative.AcceptVisitor(this);
     }
 
     public virtual void Visit(SqlWhile node)

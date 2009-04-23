@@ -6,10 +6,7 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
 {
   internal enum ContextType
   {
-    Default = Node,
-
     Node = 0,
-
-    Collection = 1,
+    Collection = 1
   }
 }

@@ -22,6 +22,7 @@ namespace Xtensive.Sql.Dom.Dml
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentIs<SqlVariant>(expression, "expression");
+
       var replacingExpression = (SqlVariant) expression;
       main = replacingExpression.main;
       alternative = replacingExpression.alternative;
@@ -33,7 +34,7 @@ namespace Xtensive.Sql.Dom.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      var clone = new SqlVariant((SqlExpression)main.Clone(context), (SqlExpression)alternative.Clone(context), key);
+      var clone = new SqlVariant((SqlExpression) main.Clone(context), (SqlExpression) alternative.Clone(context), key);
       context.NodeMapping[this] = clone;
       return clone;
     }

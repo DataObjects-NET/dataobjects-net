@@ -12,13 +12,15 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
     private char last;
     private byte indent;
 
-    internal string Format(NodeContainer node)
+    public string Format(NodeContainer node)
     {
       buffer.Length = 0;
       last = '\n';
       node.AcceptVisitor(this);
       return buffer.ToString();
     }
+
+    #region Private methods
 
     private void Append(string text)
     {
@@ -52,6 +54,8 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
         last = ' ';
       }
     }
+
+    #endregion
 
     #region INodeVisitor Members
 
@@ -88,6 +92,11 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
           Append(node.Text);
           break;
       }
+    }
+
+    public void Visit(VariantNode node)
+    {
+      
     }
 
     #endregion

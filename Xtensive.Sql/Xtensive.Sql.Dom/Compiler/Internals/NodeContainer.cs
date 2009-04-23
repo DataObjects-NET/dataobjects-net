@@ -11,6 +11,7 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
     public Node Child;
     public bool RequireIndent;
 
+    public Node Current { get { return current; } }
     public bool IsEmpty { get { return Child==null; } }
 
     public void Add(Node node)
@@ -20,23 +21,6 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
       else
         current.Next = node;
       current = node;
-    }
-
-    public void AppendText(string text)
-    {
-      if (string.IsNullOrEmpty(text))
-        return;
-      Add(new TextNode(text));
-    }
-
-    public void AppendDelimiter(string text)
-    {
-      AppendDelimiter(text, DelimiterType.Row);
-    }
-
-    public void AppendDelimiter(string text, DelimiterType type)
-    {
-      Add(new NodeDelimiter(type, text));
     }
 
     public override void AcceptVisitor(INodeVisitor visitor)

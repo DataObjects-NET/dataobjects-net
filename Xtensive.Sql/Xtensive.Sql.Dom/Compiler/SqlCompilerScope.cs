@@ -9,32 +9,23 @@ namespace Xtensive.Sql.Dom.Compiler
 {
   public class SqlCompilerScope : IDisposable
   {
-    private SqlCompilerContext context;
-    private NodeContainer output;
-    private ContextType type;
+    private readonly SqlCompilerContext context;
+    private readonly NodeContainer originalOutput;
+    private readonly ContextType type;
 
-    internal ContextType Type
-    {
-      get { return type; }
-    }
-
-    internal NodeContainer Output
-    {
-      get { return output; }
-    }
+    internal ContextType Type { get { return type; } }
+    internal NodeContainer OriginalOutput { get { return originalOutput; } }
 
     public void Dispose()
     {
       context.DisposeScope(this);
-      context = null;
-      output = null;
     }
 
-    internal SqlCompilerScope(SqlCompilerContext context, NodeContainer output, ContextType type)
+    internal SqlCompilerScope(SqlCompilerContext context, NodeContainer originalOutput, ContextType type)
     {
       this.context = context;
       this.type = type;
-      this.output = output;
+      this.originalOutput = originalOutput;
     }
   }
 }
