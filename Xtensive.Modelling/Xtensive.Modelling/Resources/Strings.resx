@@ -228,4 +228,7 @@
   <data name="UpgradeSequence" xml:space="preserve">
     <value>Upgrade sequence</value>
   </data>
+  <data name="ExDifferenceRelatedToXTypeIsNotFoundOnTheUpgradeContextStack" xml:space="preserve">
+    <value>Difference related to {0} type is not found on the UpgradeContext stack.</value>
+  </data>
 </root>

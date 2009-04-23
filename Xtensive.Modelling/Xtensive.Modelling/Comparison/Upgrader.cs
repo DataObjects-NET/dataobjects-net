@@ -13,6 +13,8 @@ using Xtensive.Core.Serialization.Binary;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Resources;
+using System.Linq;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Modelling.Comparison
 {
@@ -63,11 +65,6 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     protected IModel CurrentModel { get; private set; }
 
-    /// <summary>
-    /// Gets the sequence of actions that is currently building.
-    /// </summary>
-    protected IList<NodeAction> Actions { get; private set; }
-
     #endregion
 
     /// <inheritdoc/>
@@ -97,10 +94,9 @@ namespace Xtensive.Modelling.Comparison
       Difference = difference;
       var previous = current;
       current = this;
-      Actions = new List<NodeAction>();
       using (NullActionHandler.Instance.Activate()) {
         try {
-          Visit(Difference);
+          var result = Visit(Difference);
           if (comparer!=null) {
             var diff = comparer.Compare(CurrentModel, TargetModel);
             if (diff!=null) {
@@ -108,7 +104,8 @@ namespace Xtensive.Modelling.Comparison
               Log.Info(Strings.LogValidationFailed);
               Log.Info(Strings.LogItemFormat, Strings.Difference);
               Log.Info("{0}", diff);
-              Log.Info(Strings.LogItemFormat+"\r\n{1}", Strings.UpgradeSequence, new ActionSequence() {Actions});
+              Log.Info(Strings.LogItemFormat+"\r\n{1}", Strings.UpgradeSequence, 
+                new ActionSequence() {result});
               Log.Info(Strings.LogItemFormat, Strings.ExpectedTargetModel);
               TargetModel.Dump();
               Log.Info(Strings.LogItemFormat, Strings.ActualTargetModel);
@@ -116,11 +113,10 @@ namespace Xtensive.Modelling.Comparison
               throw new InvalidOperationException(Strings.ExUpgradeSequenceValidationFailure);
             }
           }
-          return new ReadOnlyList<NodeAction>(Actions, true);
+          return new ReadOnlyList<NodeAction>(result.Actions, true);
         }
         finally {
           current = previous;
-          Actions = null;
         }
       }
     }
@@ -134,11 +130,13 @@ namespace Xtensive.Modelling.Comparison
     /// from <see cref="IDifference.Source"/> of the specified
     /// difference to its <see cref="IDifference.Target"/>.
     /// </returns>
-    protected void Visit(Difference difference)
+    protected GroupingNodeAction Visit(Difference difference)
     {
       if (difference==null)
-        return;
+        return null;
+      UpgradeContext ctx = null;
       using (CreateContext().Activate()) {
+        ctx = Context;
         Context.Difference = difference;
         if (difference is NodeDifference)
           VisitNodeDifference((NodeDifference) difference);
@@ -149,6 +147,7 @@ namespace Xtensive.Modelling.Comparison
         else
           VisitUnknownDifference(difference);
       }
+      return ctx.Actions;
     }
 
     /// <summary>
@@ -165,38 +164,41 @@ namespace Xtensive.Modelling.Comparison
       var source = difference.Source;
       var target = difference.Target;
       var any = target ?? source;
-      bool isCopying = Context.Copy;
+      bool mustClone = Context.MustClone;
 
       using (OpenActionGroup((target ?? source).Name)) {
         // Processing movement
-        if (isCopying) {
+        if (mustClone) {
           bool isSourceRemoved = false;
           if ((difference.MovementInfo & MovementInfo.Removed)!=0) {
-            AddAction(new RemoveNodeAction() {
-              Path = source.Path
-            });
+            AddAction(UpgradeActionType.PreCondition, 
+              new RemoveNodeAction() {
+                Path = source.Path
+              });
             isSourceRemoved = true;
           }
           if (difference.HasChanges) {
             if ((difference.MovementInfo & MovementInfo.Created)==0)
               if (!isSourceRemoved || source.Path!=target.Path)
-                AddAction(new RemoveNodeAction() {
-                  Path = target.Path
-                });
+                AddAction(UpgradeActionType.PreCondition, 
+                  new RemoveNodeAction() {
+                    Path = target.Path
+                  });
             var action = new CloneNodeAction() {
               Source = target,
               Path = target.Parent==null ? string.Empty : target.Parent.Path,
               Name = target.Name,
               Index = target.Nesting.IsNestedToCollection ? (int?) target.Index : null
             };
-            AddAction(action);
+            AddAction(UpgradeActionType.PostCondition, action);
           }
         }
         else {
           if ((difference.MovementInfo & MovementInfo.Removed)!=0) {
-            AddAction(new RemoveNodeAction() {
-              Path = source.Path
-            });
+            AddAction(UpgradeActionType.PreCondition, 
+              new RemoveNodeAction() {
+                Path = source.Path
+              });
             if (target==null)
               return;
           }
@@ -207,26 +209,28 @@ namespace Xtensive.Modelling.Comparison
               Name = target.Name,
               Index = target.Nesting.IsNestedToCollection ? (int?) target.Index : null
             };
-            AddAction(action);
+            AddAction(UpgradeActionType.PostCondition, action);
           }
           else if ((difference.MovementInfo & MovementInfo.Changed)!=0) {
-            AddAction(new MoveNodeAction() {
-              Path = source.Path,
-              Parent = target.Parent==null ? string.Empty : target.Parent.Path,
-              Name = target.Name,
-              Index = target.Index,
-              NewPath = target.Path
-            });
+            AddAction(UpgradeActionType.PostCondition,
+              new MoveNodeAction() {
+                Path = source.Path,
+                Parent = target.Parent==null ? string.Empty : target.Parent.Path,
+                Name = target.Name,
+                Index = target.Index,
+                NewPath = target.Path
+              });
           }
         }
 
         // Processing property changes
         foreach (var pair in difference.PropertyChanges) {
           var accessor = any.PropertyAccessors[pair.Key];
-          if (!isCopying || accessor.IgnoreInCloning)
+          if (!mustClone || accessor.IgnoreInCloning)
             using (CreateContext().Activate()) {
               Context.Property = pair.Key;
-              Context.Copy = accessor.IsCloningRoot;
+              Context.MustClone = accessor.IsCloningRoot;
+              Context.DependencyRootType = accessor.DependencyRootType;
               Visit(pair.Value);
             }
         }
@@ -267,7 +271,7 @@ namespace Xtensive.Modelling.Comparison
         Path = targetNode.Path
       };
       action.Properties.Add(parentContext.Property, PathNodeReference.Get(difference.Target));
-      AddAction(action);
+      AddAction(UpgradeActionType.PostCondition, action);
     }
 
     /// <summary>
@@ -303,20 +307,33 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>A disposable deactivating the group.</returns>
     protected IDisposable OpenActionGroup(string comment)
     {
-      var action = new GroupingNodeAction {
+      var oldActions = new {Context.Actions, PreActions = Context.PreConditions, PostActions = Context.PostConditions};
+      Context.Actions = new GroupingNodeAction {
         Comment = comment
       };
-      var oldValue = Actions;
-      Actions = action.Actions;
+      Context.PreConditions = new GroupingNodeAction {
+        Comment = "*PreConditions"
+      };
+      Context.PostConditions = new GroupingNodeAction {
+        Comment = "*PostConditions"
+      };
       try {
         return new Disposable( 
           (isDisposing) => {
-            Actions = oldValue;
-            Actions.Add(action);
+            var postConditions = Context.PostConditions;
+            var actions = Context.GetMergeActions();
+            Context.Actions = oldActions.Actions;
+            Context.PreConditions = oldActions.PreActions;
+            Context.PostConditions = oldActions.PostActions;
+            if (actions!=null && actions.Actions.Count!=0)
+              Context.Actions.Actions.Add(actions);
+            postConditions.Execute(CurrentModel);
           });
       }
       catch {
-        Actions = oldValue;
+        Context.Actions = oldActions.Actions;
+        Context.PreConditions = oldActions.PreActions;
+        Context.PostConditions = oldActions.PostActions;
         throw;
       }
     }
@@ -324,13 +341,43 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// Appends the specified action to the action sequence that is building now.
     /// </summary>
+    /// <param name="actionType">Type of the action.</param>
     /// <param name="action">The action to append.</param>
-    protected void AddAction(NodeAction action)
+    /// <exception cref="ArgumentOutOfRangeException"><c>actionType</c> is out of range.</exception>
+    /// <exception cref="InvalidOperationException">Invalid <c>Context.DependencyRootType</c>.</exception>
+    protected void AddAction(UpgradeActionType actionType, NodeAction action)
     {
-      Actions.Add(action);
-      action.Execute(CurrentModel);
+      var dependencyRootType = Context.DependencyRootType;
+      if (dependencyRootType==null || actionType==UpgradeActionType.Regular) {
+        Context.Actions.Actions.Add(action);
+        action.Execute(CurrentModel);
+      }
+      else {
+        foreach (var ctx in EnumerableUtils.Unfold(Context, c => c.Parent)) {
+          var difference = ctx.Difference;
+          var any = difference.Target ?? difference.Source;
+          var type = any==null ? typeof (object) : any.GetType();
+          if (type==dependencyRootType) {
+            switch (actionType) {
+            case UpgradeActionType.PreCondition:
+              ctx.PreConditions.Actions.Add(action);
+              action.Execute(CurrentModel);
+              break;
+            case UpgradeActionType.PostCondition:
+              ctx.PostConditions.Actions.Add(action);
+              break;
+            default:
+              throw new ArgumentOutOfRangeException("actionType");
+            }
+            return;
+          }
+        }
+        throw new InvalidOperationException(string.Format(
+          Strings.ExDifferenceRelatedToXTypeIsNotFoundOnTheUpgradeContextStack, 
+          dependencyRootType.GetShortName()));
+      }
     }
 
     #endregion
+    }
   }
-}

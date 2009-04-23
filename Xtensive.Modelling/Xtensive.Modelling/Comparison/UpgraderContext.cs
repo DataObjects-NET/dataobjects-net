@@ -6,8 +6,10 @@
 
 using System;
 using System.Reflection;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Resources;
 
 namespace Xtensive.Modelling.Comparison
@@ -33,6 +35,21 @@ namespace Xtensive.Modelling.Comparison
     public Difference Difference { get; set; }
 
     /// <summary>
+    /// Gets or sets the current <see cref="UpgradeActionType.PreCondition"/> action sequence.
+    /// </summary>
+    public GroupingNodeAction PreConditions { get; set; }
+
+    /// <summary>
+    /// Gets or sets the current action sequence.
+    /// </summary>
+    public GroupingNodeAction Actions { get; set; }
+
+    /// <summary>
+    /// Gets or sets the current <see cref="UpgradeActionType.PostCondition"/> action sequence.
+    /// </summary>
+    public GroupingNodeAction PostConditions { get; set; }
+
+    /// <summary>
     /// Gets or sets the currently processed property.
     /// </summary>
     public string Property { get; set; }
@@ -40,7 +57,12 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// Indicates whether node must be copied rather than processed as usual.
     /// </summary>
-    public bool Copy { get; set; }
+    public bool MustClone { get; set; }
+
+    /// <summary>
+    /// Gets or sets the type of the dependency root.
+    /// </summary>
+    public Type DependencyRootType { get; set; }
 
     /// <summary>
     /// Activates this instance.
@@ -50,6 +72,26 @@ namespace Xtensive.Modelling.Comparison
     public IDisposable Activate()
     {
       return Activate(true);
+    }
+
+    /// <summary>
+    /// Merges the sequence of 
+    /// <see cref="PreConditions"/>, <see cref="Actions"/> and <see cref="PostConditions"/>
+    /// and returns the result.
+    /// Sets all these properties to <see langword="null" />.
+    /// </summary>
+    /// <returns></returns>
+    public GroupingNodeAction GetMergeActions()
+    {
+      if (PreConditions!=null && PreConditions.Actions.Count!=0) {
+        Actions.Actions.Insert(0, PreConditions);
+        PreConditions = null;
+      }
+      if (PostConditions!=null && PostConditions.Actions.Count!=0) {
+        Actions.Actions.Add(PostConditions);
+        PostConditions = null;
+      }
+      return Actions;
     }
 
     /// <summary>
@@ -86,11 +128,21 @@ namespace Xtensive.Modelling.Comparison
       if (Upgrader==null)
         throw new InvalidOperationException(Strings.ExNoCurrentUpgrader);
       Parent = Upgrader.Context;
-      if (Parent==null)
+      if (Parent==null) {
+        PreConditions = new GroupingNodeAction();
+        Actions = new GroupingNodeAction();
+        PostConditions = new GroupingNodeAction();
         return;
+      }
+
       Difference = Parent.Difference;
       Property = Parent.Property;
-      Copy = Parent.Copy;
+      MustClone = Parent.MustClone;
+      DependencyRootType = Parent.DependencyRootType;
+
+      PreConditions = Parent.PreConditions;
+      Actions = Parent.Actions;
+      PostConditions = Parent.PostConditions;
     }
   }
 }

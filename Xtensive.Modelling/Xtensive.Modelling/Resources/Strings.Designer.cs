@@ -124,6 +124,15 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Difference related to {0} type is not found on the UpgradeContext stack..
+        /// </summary>
+        internal static string ExDifferenceRelatedToXTypeIsNotFoundOnTheUpgradeContextStack {
+            get {
+                return ResourceManager.GetString("ExDifferenceRelatedToXTypeIsNotFoundOnTheUpgradeContextStack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid AfterPath property value..
         /// </summary>
         internal static string ExInvalidAfterPathPropertyValue {
