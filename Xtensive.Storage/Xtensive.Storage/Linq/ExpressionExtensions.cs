@@ -42,6 +42,12 @@ namespace Xtensive.Storage.Linq
       return expression.Type.IsOfGenericInterface(typeof(IGrouping<,>));
     }
 
+    public static bool IsEntitySet(this Expression expression)
+    {
+      return expression.Type.IsGenericType 
+        && expression.Type.GetGenericTypeDefinition() == typeof(EntitySet<>);
+    }
+
     public static Type GetGroupingKeyType(this Expression expression)
     {
       var newExpression = (NewExpression)expression.StripCasts();

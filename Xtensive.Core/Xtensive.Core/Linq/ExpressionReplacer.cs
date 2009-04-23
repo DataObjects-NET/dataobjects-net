@@ -49,7 +49,6 @@ namespace Xtensive.Core.Linq
       return base.Visit(exp);
     }
 
-
     // Constructors
 
     private ExpressionReplacer(Expression searchFor, Expression replaceWith)

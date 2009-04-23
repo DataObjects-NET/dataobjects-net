@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Linq
         calculatedColumns.Value = new List<CalculatedColumnDescriptor>();
         var body = Visit(le.Body);
         if (body.IsResult())
-          body = BuildSubqueryResult(body);
+          body = BuildSubqueryResult((ResultExpression)body);
         else if (calculateExpressions.Value && body.GetMemberType()==MemberType.Unknown) {
           if (!body.IsResult() &&
             !body.IsGroupingConstructor() &&
@@ -445,7 +445,7 @@ namespace Xtensive.Storage.Linq
           if (body.AsTupleAccess()!=null)
             newArg = body;
           else if (body.IsResult())
-            newArg = BuildSubqueryResult(body);
+            newArg = BuildSubqueryResult((ResultExpression)body);
           else {
             var calculator = Expression.Lambda(
               body.Type==typeof (object)
@@ -462,6 +462,14 @@ namespace Xtensive.Storage.Linq
         }
         newArg = newArg ?? Visit(arg);
         arguments.Add(newArg);
+      }
+      // Cast EntitySet<T> to IQueryable<T>
+      for (int i = 0; i < arguments.Count; i++) {
+        if (arguments[i].IsEntitySet()) {
+          var type = arguments[i].Type.GetGenericArguments()[0];
+          var queryableType = typeof (IQueryable<>).MakeGenericType(type);
+          arguments[i] = Expression.Convert(arguments[i], queryableType);
+        }
       }
       var result = Expression.New(n.Constructor, arguments, n.Members);
       return result;
@@ -495,7 +503,7 @@ namespace Xtensive.Storage.Linq
         itemProjector);
     }
 
-    private Expression BuildSubqueryResult(Expression subQuery)
+    private Expression BuildSubqueryResult(ResultExpression subQuery)
     {
       Expression resultExpression;
       var outerParameters = context.Bindings.GetKeys()
@@ -514,7 +522,9 @@ namespace Xtensive.Storage.Linq
             : record.Value).ToArray();
           replaceWithList.Add(ExpressionReplacer.ReplaceAll(projection.Body, replacedParameters, replacingParameters));
         }
-        resultExpression = ExpressionReplacer.ReplaceAll(subQuery, searchFor, replaceWithList.ToArray());
+        var newItemProjector = (LambdaExpression)ExpressionReplacer.ReplaceAll(subQuery.ItemProjector, searchFor, replaceWithList.ToArray());
+        var newScalarTransform = (LambdaExpression)ExpressionReplacer.ReplaceAll(subQuery.ScalarTransform, searchFor, replaceWithList.ToArray());
+        resultExpression = new ResultExpression(subQuery.Type, subQuery.RecordSet, subQuery.Mapping, newItemProjector, newScalarTransform);
       }
 
       return resultExpression;
