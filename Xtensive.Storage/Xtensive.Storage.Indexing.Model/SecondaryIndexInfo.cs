@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Indexing.Model
           });
         foreach (var group in keyColumns
           .GroupBy(keyColumn => keyColumn)
-          .Where(group => group.Count() > 1))
+          .Where(g => g.Count() > 1))
           ea.Execute((_column) => {
             throw new ValidationException(
               string.Format(Strings.ExMoreThenOneKeyColumnReferenceToColumnX, _column.Name),
@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Indexing.Model
             });
         foreach (var group in IncludedColumns
           .GroupBy(keyColumn => keyColumn)
-          .Where(group => group.Count() > 1))
+          .Where(g => g.Count() > 1))
           ea.Execute((_column) => {
             throw new ValidationException(
               string.Format(Strings.ExMoreThenOneIncludedColumnReferenceToColumnX, _column.Name),
