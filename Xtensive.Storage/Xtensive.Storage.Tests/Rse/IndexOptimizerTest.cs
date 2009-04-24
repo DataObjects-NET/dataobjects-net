@@ -191,7 +191,7 @@ namespace Xtensive.Storage.Tests.Rse
       var termBody = term.Body;
       var result = termBody;
       for (int i = 0; i < (termCount - 1)/2; i++)
-        result = Expression.And(result, Expression.Or(termBody, termBody));
+        result = Expression.AndAlso(result, Expression.OrElse(termBody, termBody));
       return Expression.Lambda<Func<T, bool>>(result, term.Parameters[0]);
     }
 

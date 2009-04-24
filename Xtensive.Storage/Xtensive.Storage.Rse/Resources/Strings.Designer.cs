@@ -133,6 +133,15 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to It is not allowed to use a SelectProvider which removes columns used for an ordering..
+        /// </summary>
+        internal static string ExItIsNotAllowedToUseSelectProviderWhichRemovesColumnsUsedForOrdering {
+            get {
+                return ResourceManager.GetString("ExItIsNotAllowedToUseSelectProviderWhichRemovesColumnsUsedForOrdering", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The normalized boolean expression must be the root expression..
         /// </summary>
         internal static string ExNormalizedExpressionMustBeRoot {
@@ -174,6 +183,15 @@ namespace Xtensive.Storage.Rse.Resources {
         internal static string ExProviderMustBeEitherCompilableProviderOrExecutableProvider {
             get {
                 return ResourceManager.GetString("ExProviderMustBeEitherCompilableProviderOrExecutableProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The value of the parameter {0} can&apos;t be {1}, if the value of the parameter {2} is {3}..
+        /// </summary>
+        internal static string ExValueOfParameterWCantBeXIfValueOfParameterYIsZ {
+            get {
+                return ResourceManager.GetString("ExValueOfParameterWCantBeXIfValueOfParameterYIsZ", resourceCulture);
             }
         }
         

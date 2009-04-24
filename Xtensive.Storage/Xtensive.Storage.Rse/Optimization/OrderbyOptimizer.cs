@@ -6,6 +6,8 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Optimization.Implementation;
 using Xtensive.Storage.Rse.Providers;
@@ -18,11 +20,27 @@ namespace Xtensive.Storage.Rse.Optimization
   [Serializable]
   public sealed class OrderbyOptimizer : IOptimizer
   {
+    private readonly OrderingCorrectionRewriter rewriter;
+
     /// <inheritdoc/>
     CompilableProvider IOptimizer.Optimize(CompilableProvider rootProvider)
     {
-      var rewriter = new OrderbyRewriter(rootProvider);
-      return rewriter.Rewrite();
+      return rewriter.Rewrite(rootProvider);
+    }
+
+
+    // Constructors
+
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="orderingDescriptorResolver">The resolver of 
+    /// <see cref="ProviderOrderingDescriptor"/>.</param>
+    public OrderbyOptimizer(
+      Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(orderingDescriptorResolver, "orderingDescriptorResolver");
+      rewriter = new OrderingCorrectionRewriter(orderingDescriptorResolver);
     }
   }
 }

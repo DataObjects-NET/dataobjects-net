@@ -32,7 +32,8 @@ namespace Xtensive.Storage.Tests.ObjectModel
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = base.BuildConfiguration();
+      //var config = base.BuildConfiguration();
+      var config = DomainConfiguration.Load("memory");
       config.Types.Register(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
       return config;
     }

@@ -168,4 +168,10 @@
   <data name="ExParameterXIsNotATupleAccessExpression" xml:space="preserve">
     <value>Parameter '{0}' is not a tuple access expression</value>
   </data>
+  <data name="ExValueOfParameterWCantBeXIfValueOfParameterYIsZ" xml:space="preserve">
+    <value>The value of the parameter {0} can't be {1}, if the value of the parameter {2} is {3}.</value>
+  </data>
+  <data name="ExItIsNotAllowedToUseSelectProviderWhichRemovesColumnsUsedForOrdering" xml:space="preserve">
+    <value>It is not allowed to use a SelectProvider which removes columns used for an ordering.</value>
+  </data>
 </root>

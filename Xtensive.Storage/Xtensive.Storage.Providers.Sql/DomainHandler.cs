@@ -20,9 +20,11 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings;
 using Xtensive.Storage.Providers.Sql.Resources;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Optimization;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 using SqlModel = Xtensive.Sql.Dom.Database.Model;
 
@@ -83,8 +85,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IOptimizer BuildOptimizer()
     {
       return new CompositeOptimizer(
-        //new SkipOptimizer(),
-        new OrderbyOptimizer(),
+        new OrderbyOptimizer(ResolveOrderingDescriptor),
         new RedundantColumnOptimizer()
         );
     }
@@ -95,7 +96,18 @@ namespace Xtensive.Storage.Providers.Sql
       request.Compile(this);
     }
 
-    
+    private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
+    {
+      bool isOrdering = provider.Type == ProviderType.Sort
+        || provider.Type == ProviderType.Index || provider.Type == ProviderType.Reindex
+        || provider.Type == ProviderType.RowNumber;
+      bool isOrderSensitive = provider.Type==ProviderType.Skip || provider.Type==ProviderType.Take;
+      bool resetsOrder = provider.Type==ProviderType.Join 
+        || provider.Type==ProviderType.PredicateJoin || provider.Type==ProviderType.Union
+        || provider.Type==ProviderType.Concat;
+      bool preservesOrder = !isOrderSensitive;
+      return new ProviderOrderingDescriptor(isOrdering, isOrderSensitive, preservesOrder, resetsOrder);
+    }
 
     /// <inheritdoc/>
     /// <exception cref="DomainBuilderException"><c>DomainBuilderException</c>.</exception>

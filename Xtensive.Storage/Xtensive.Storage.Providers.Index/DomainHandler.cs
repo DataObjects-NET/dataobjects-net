@@ -15,10 +15,12 @@ using Xtensive.Indexing;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Optimization;
 using Xtensive.Storage.Rse.Optimization.IndexSelection;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 using IndexInfo=Xtensive.Storage.Model.IndexInfo;
 using StorageIndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
 using TypeInfo=Xtensive.Storage.Model.TypeInfo;
@@ -55,11 +57,25 @@ namespace Xtensive.Storage.Providers.Index
     protected override IOptimizer BuildOptimizer()
     {
       return new CompositeOptimizer(
-        //new SkipOptimizer(),
-        new OrderbyOptimizer(),
+        new OrderbyOptimizer(ResolveOrderingDescriptor),
         new IndexOptimizer(Handlers.Domain.Model, new OptimizationInfoProviderResolver(this)),
         new RedundantColumnOptimizer()
         );
+    }
+
+    private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
+    {
+      bool isOrdering = provider.Type == ProviderType.Sort
+        || provider.Type == ProviderType.Index || provider.Type == ProviderType.Reindex
+        || provider.Type == ProviderType.RowNumber;
+      var asJoin = provider as JoinProvider;
+      bool isOrderSensitive = provider.Type==ProviderType.Skip || provider.Type==ProviderType.Take
+        || (asJoin!=null && asJoin.JoinType==JoinType.Merge);
+      bool preservesOrder = !(provider.Type==ProviderType.Join 
+        || provider.Type==ProviderType.PredicateJoin || provider.Type==ProviderType.Union
+        || provider.Type==ProviderType.Concat);
+      bool resetsOrder = !preservesOrder;
+      return new ProviderOrderingDescriptor(isOrdering, isOrderSensitive, preservesOrder, resetsOrder);
     }
 
     /// <inheritdoc/>
