@@ -627,7 +627,7 @@ namespace Xtensive.Storage.Linq
     private Expression VisitBinaryKey(BinaryExpression binaryExpression)
     {
       if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
-        throw new NotSupportedException();
+        throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported, binaryExpression.NodeType));
 
       bool leftIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Left);
       bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);
@@ -668,7 +668,7 @@ namespace Xtensive.Storage.Linq
     private Expression VisitBinaryEntity(BinaryExpression binaryExpression)
     {
       if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
-        throw new NotSupportedException();
+        throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported, binaryExpression.NodeType));
 
       bool leftIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Left);
       bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);
@@ -718,7 +718,7 @@ namespace Xtensive.Storage.Linq
     private Expression VisitBinaryAnonymous(BinaryExpression binaryExpression)
     {
       if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
-        throw new NotSupportedException();
+        throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported, binaryExpression.NodeType));
 
       Expression leftExpression = binaryExpression.Left;
       Expression rightExpression = binaryExpression.Right;
@@ -756,7 +756,7 @@ namespace Xtensive.Storage.Linq
     private Expression VisitBinaryStructure(BinaryExpression binaryExpression)
     {
       if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
-        throw new NotSupportedException();
+        throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported, binaryExpression.NodeType));
 
       bool leftIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Left);
       bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);

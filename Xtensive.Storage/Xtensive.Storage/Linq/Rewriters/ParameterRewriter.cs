@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Linq.Rewriters
         recordIsUsed = true;
         return record;
       }
-      throw new NotSupportedException();
+      throw new NotSupportedException(String.Format("Parameter of type '{0}' isn't supported.", p.Type.Name));
     }
 
 

@@ -576,4 +576,7 @@
   <data name="ExCouldNotFindAnonymousMappingForFieldX" xml:space="preserve">
     <value>Could not find anonymous mapping for field '{0}'.</value>
   </data>
+  <data name="ExBinaryExpressionsWithNodeTypeXAreNotSupported" xml:space="preserve">
+    <value>Binary expressions with NodeType = 'ExpressionType.{0}' aren't supported.</value>
+  </data>
 </root>

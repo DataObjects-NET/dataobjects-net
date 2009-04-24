@@ -160,6 +160,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Binary expressions with NodeType = &apos;ExpressionType.{0}&apos; aren&apos;t supported..
+        /// </summary>
+        internal static string ExBinaryExpressionsWithNodeTypeXAreNotSupported {
+            get {
+                return ResourceManager.GetString("ExBinaryExpressionsWithNodeTypeXAreNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can not commit transaction: Validation context is in inconsistent state..
         /// </summary>
         internal static string ExCanNotCommitTransactionValidationContextIsInInconsistentState {
