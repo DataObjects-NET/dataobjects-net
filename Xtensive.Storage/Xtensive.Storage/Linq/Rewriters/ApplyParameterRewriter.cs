@@ -15,7 +15,7 @@ using Xtensive.Storage.Rse.Providers;
 namespace Xtensive.Storage.Linq.Rewriters
 {
   [Serializable]
-  public class ApplyParameterRewriter : ExpressionVisitor
+  internal class ApplyParameterRewriter : ExpressionVisitor
   {
     private readonly ConstantExpression parameterOfTupleExpression;
     private readonly ApplyParameter applyParameter;

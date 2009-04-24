@@ -17,10 +17,22 @@ namespace Xtensive.Storage.Tests.Linq
   public class SubQueryTest : NorthwindDOModelTest
   {
     [Test]
-    public void QueriableSimpleTest()
+    public void QuariableSimpleTest()
     {
       var result = Query<Product>.All
         .Select(p => Query<Category>.All.Where(c => c==p.Category));
+//      QueryDumper.Dump(result);
+      foreach (IQueryable<Category> queryable in result) {
+        QueryDumper.Dump(queryable);
+      }
+    }
+
+    [Test]
+    public void QuariableWithSelectTest()
+    {
+      var result = Query<Product>.All
+        .Select(p => Query<Category>.All.Where(c => c==p.Category))
+        .Select(q=>q);
 //      QueryDumper.Dump(result);
       foreach (IQueryable<Category> queryable in result) {
         QueryDumper.Dump(queryable);
