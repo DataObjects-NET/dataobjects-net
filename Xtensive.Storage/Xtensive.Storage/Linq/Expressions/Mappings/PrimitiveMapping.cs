@@ -49,8 +49,8 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 
     public IMapping RewriteColumnIndexes(ItemProjectorRewriter rewriter)
     {
-      var rewrited = new Segment<int>(rewriter.Mappings.IndexOf(segment.Offset), segment.Length);
-      return new PrimitiveMapping(rewrited);
+      var rewrittenSegment = new Segment<int>(rewriter.Mappings.IndexOf(segment.Offset), segment.Length);
+      return new PrimitiveMapping(rewrittenSegment);
     }
 
     public override string ToString()

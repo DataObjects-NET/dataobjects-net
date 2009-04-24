@@ -14,7 +14,7 @@ using Xtensive.Core;
 namespace Xtensive.Storage.Linq.Rewriters
 {
   [Serializable]
-  public class ReplaceParameterRewriter: ExpressionVisitor
+  internal class ReplaceParameterRewriter: ExpressionVisitor
   {
     private readonly Dictionary<ParameterExpression, Expression> parameterReplacements = new Dictionary<ParameterExpression, Expression>();
 

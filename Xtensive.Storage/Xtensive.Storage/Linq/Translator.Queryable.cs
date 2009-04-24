@@ -472,17 +472,17 @@ namespace Xtensive.Storage.Linq
         projectorRewriter = new ItemProjectorRewriter(columnList, groupMapping, recordSet.Header);
 
         var memberType = originalCompiledKeyExpression.Body.GetMemberType();
-        var rewritedMapping = mappingRef.Value.Mapping.RewriteColumnIndexes(projectorRewriter);
+        var rewrittenMapping = mappingRef.Value.Mapping.RewriteColumnIndexes(projectorRewriter);
         switch (memberType) {
           case MemberType.Default:
           case MemberType.Primitive:
           case MemberType.Key: {
-            var primitiveFieldMapping = (PrimitiveMapping) rewritedMapping;
+            var primitiveFieldMapping = (PrimitiveMapping) rewrittenMapping;
             newResultMapping.RegisterField(StorageWellKnown.Key, primitiveFieldMapping.Segment);
             break;
           }
           case MemberType.Structure:
-            var complexMapping = (ComplexMapping)rewritedMapping;
+            var complexMapping = (ComplexMapping)rewrittenMapping;
             int offset = complexMapping.Fields.Min(pair => pair.Value.Offset);
             int endOffset = complexMapping.Fields.Max(pair => pair.Value.Offset);
             int length = endOffset - offset + 1;
@@ -493,16 +493,16 @@ namespace Xtensive.Storage.Linq
             break;
           case MemberType.Entity:
             if (mappingRef.Value.Mapping is PrimitiveMapping) {
-              var primitiveFieldMapping = (PrimitiveMapping) rewritedMapping;
+              var primitiveFieldMapping = (PrimitiveMapping) rewrittenMapping;
               var fields = new Dictionary<string, Segment<int>> {{StorageWellKnown.Key, primitiveFieldMapping.Segment}};
               var entityMapping = new ComplexMapping(fields);
               newResultMapping.RegisterEntity(StorageWellKnown.Key, entityMapping);
             }
             else
-              newResultMapping.RegisterEntity(StorageWellKnown.Key, (ComplexMapping) rewritedMapping);
+              newResultMapping.RegisterEntity(StorageWellKnown.Key, (ComplexMapping) rewrittenMapping);
             break;
           case MemberType.Anonymous:
-            newResultMapping.RegisterAnonymous(StorageWellKnown.Key, (ComplexMapping) rewritedMapping, projectorRewriter.Rewrite(originalCompiledKeyExpression.Body));
+            newResultMapping.RegisterAnonymous(StorageWellKnown.Key, (ComplexMapping) rewrittenMapping, projectorRewriter.Rewrite(originalCompiledKeyExpression.Body));
             break;
           default:
             throw new NotSupportedException();
@@ -568,8 +568,8 @@ namespace Xtensive.Storage.Linq
         var keyProperty = parameterGroupingType.GetProperty(StorageWellKnown.Key);
         var convertedParameter = Expression.Convert(resultSelector.Parameters[1], parameterGroupingType);
         var keyAccess = Expression.MakeMemberAccess(convertedParameter, keyProperty);
-        var rewritedResultSelectorBody = ReplaceParameterRewriter.Rewrite(resultSelector.Body, resultSelector.Parameters[0], keyAccess);
-        var selectLambda = Expression.Lambda(rewritedResultSelectorBody, resultSelector.Parameters[1]);
+        var rewrittenResultSelectorBody = ReplaceParameterRewriter.Rewrite(resultSelector.Body, resultSelector.Parameters[0], keyAccess);
+        var selectLambda = Expression.Lambda(rewrittenResultSelectorBody, resultSelector.Parameters[1]);
         resultExpression = VisitSelect(resultExpression, selectLambda);
       }
 

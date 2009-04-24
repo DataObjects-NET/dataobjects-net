@@ -180,11 +180,11 @@ namespace Xtensive.Storage.Linq
 
         var columnList = mapping.GetColumns(false);
         var rewriter = new ItemProjectorRewriter(columnList, groupMappings, joinedRecordSet.Header);
-        var rewritedSource = rewriter.Rewrite(visitedSource);
+        var rewrittenSource = rewriter.Rewrite(visitedSource);
         var re = new ResultExpression(resultExpression.Type, joinedRecordSet, resultExpression.Mapping, resultExpression.ItemProjector);
         context.Bindings.ReplaceBound(parameter, re);
         mappingRef.Value.Replace(mapping);
-        return Expression.Convert(rewritedSource, targetType);
+        return Expression.Convert(rewrittenSource, targetType);
       }
     }
 
@@ -519,20 +519,13 @@ namespace Xtensive.Storage.Linq
       var parameterResultExpression = context.Bindings[parameters.Value[0]];
       var applyParameter = context.GetApplyParameter(parameterResultExpression);
       
-      var tupleParameter = new Parameter<Tuple>();
-      var constantTupleParameter = Expression.Constant(tupleParameter);
+      var tupleParameter = new Parameter<Tuple>("tupleParameter");
 
-      Func<Provider, Expression, Expression> rewirter = 
-        (provider, expression) => expression is ConstantExpression 
-          && ((ConstantExpression) expression).Value.Equals(applyParameter)
-        ? constantTupleParameter
-        : expression;
-
-      var rewritedRecordset = new CompilableProviderVisitor(rewirter)
-        .VisitCompilable(subQuery.RecordSet.Provider)
+      var rewrittenRecordset = ApplyParameterRewriter
+        .Rewrite(subQuery.RecordSet.Provider, tupleParameter, applyParameter) 
         .Result;
 
-      var newResultExpression = new ResultExpression(subQuery.Type, rewritedRecordset, subQuery.Mapping, subQuery.ItemProjector, subQuery.ResultType);
+      var newResultExpression = new ResultExpression(subQuery.Type, rewrittenRecordset, subQuery.Mapping, subQuery.ItemProjector, subQuery.ResultType);
 
       var constructor = (typeof (SubQuery<>)
         .MakeGenericType(type)
@@ -541,7 +534,7 @@ namespace Xtensive.Storage.Linq
       var subqueryResult = Expression.New(constructor, new Expression[] {
         Expression.Constant(newResultExpression),
         tuple.Value,
-        constantTupleParameter
+        Expression.Constant(tupleParameter)
       });
 
       return Expression.Convert(subqueryResult, subQuery.Type);

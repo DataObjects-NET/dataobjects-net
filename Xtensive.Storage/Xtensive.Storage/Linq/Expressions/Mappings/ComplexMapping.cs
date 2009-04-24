@@ -161,16 +161,16 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     public IMapping RewriteColumnIndexes(ItemProjectorRewriter rewriter)
     {
       var columnMapping = rewriter.Mappings;
-      var rewritedFields = Fields.ToDictionary(fm => fm.Key, fm => new Segment<int>(columnMapping.IndexOf(fm.Value.Offset), fm.Value.Length));
-      var rewritedEntities = Entities.ToDictionary(jr => jr.Key, jr => (ComplexMapping)jr.Value.RewriteColumnIndexes(rewriter));
-      var rewritedGroupings = Groupings.ToDictionary(jr => jr.Key, jr => (ComplexMapping)jr.Value.RewriteColumnIndexes(rewriter));
-      var rewritedAnonymous = new Dictionary<string, Pair<ComplexMapping, Expression>>();
+      var rewrittenFields = Fields.ToDictionary(fm => fm.Key, fm => new Segment<int>(columnMapping.IndexOf(fm.Value.Offset), fm.Value.Length));
+      var rewrittenEntities = Entities.ToDictionary(jr => jr.Key, jr => (ComplexMapping)jr.Value.RewriteColumnIndexes(rewriter));
+      var rewrittenGroupings = Groupings.ToDictionary(jr => jr.Key, jr => (ComplexMapping)jr.Value.RewriteColumnIndexes(rewriter));
+      var rewrittenAnonymous = new Dictionary<string, Pair<ComplexMapping, Expression>>();
       foreach (var pair in AnonymousTypes) {
         var mapping = pair.Value.First.RewriteColumnIndexes(rewriter);
         var expression = rewriter.Rewrite(pair.Value.Second);
-        rewritedAnonymous.Add(pair.Key, new Pair<ComplexMapping, Expression>((ComplexMapping)mapping, expression));
+        rewrittenAnonymous.Add(pair.Key, new Pair<ComplexMapping, Expression>((ComplexMapping)mapping, expression));
       }
-      return new ComplexMapping(rewritedFields, rewritedEntities, rewritedAnonymous, rewritedGroupings, fillOrder);
+      return new ComplexMapping(rewrittenFields, rewrittenEntities, rewrittenAnonymous, rewrittenGroupings, fillOrder);
     }
 
     public void Fill(IMapping mapping)
