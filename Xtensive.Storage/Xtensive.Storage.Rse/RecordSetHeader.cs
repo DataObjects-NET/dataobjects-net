@@ -65,7 +65,9 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     public TupleDescriptor OrderTupleDescriptor {
       get {
-        if (orderTupleDescriptor == null && Order.Count > 0) lock(this) if (orderTupleDescriptor==null)
+        if (Order.Count==0)
+          return null;
+        if (orderTupleDescriptor==null) lock(this) if (orderTupleDescriptor==null)
           orderTupleDescriptor = Core.Tuples.TupleDescriptor.Create(Order.Select(p => Columns[p.Key].Type));
         return orderTupleDescriptor;
       }
