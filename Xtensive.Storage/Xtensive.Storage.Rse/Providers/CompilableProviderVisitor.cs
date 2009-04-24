@@ -196,7 +196,12 @@ namespace Xtensive.Storage.Rse.Providers
 
     protected override Provider VisitRowNumber(RowNumberProvider provider)
     {
-      throw new NotImplementedException();
+      OnRecursionEntrance(provider);
+      var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
+      if (source == provider.Source)
+        return provider;
+      return new RowNumberProvider(source, provider.SystemColumn.Name);
     }
 
 

@@ -83,6 +83,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IOptimizer BuildOptimizer()
     {
       return new CompositeOptimizer(
+        //new SkipOptimizer(),
         new OrderbyOptimizer(),
         new RedundantColumnOptimizer()
         );

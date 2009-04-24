@@ -55,6 +55,7 @@ namespace Xtensive.Storage.Providers.Index
     protected override IOptimizer BuildOptimizer()
     {
       return new CompositeOptimizer(
+        //new SkipOptimizer(),
         new OrderbyOptimizer(),
         new IndexOptimizer(Handlers.Domain.Model, new OptimizationInfoProviderResolver(this)),
         new RedundantColumnOptimizer()
