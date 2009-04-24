@@ -20,6 +20,7 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
@@ -112,6 +113,8 @@ namespace Xtensive.Storage
 
     internal ICache<Key, Key> KeyCache { get; private set; }
 
+    internal ICache<object, Pair<object, ResultExpression>> QueryCache { get; private set; }
+
     internal Dictionary<AssociationInfo, ActionSet> PairSyncActions { get; private set; }
 
     #endregion
@@ -177,6 +180,8 @@ namespace Xtensive.Storage
       RecordSetParser = new RecordSetParser(this);
       KeyGenerators = new Registry<GeneratorInfo, KeyGenerator>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
+      //TODO: Make configuration for query cache
+      QueryCache = new MfLruCache<object, Pair<object, ResultExpression>>(1024, 256, input => input.First);
       PairSyncActions = new Dictionary<AssociationInfo, ActionSet>(1024);
       TemporaryData = new GlobalTemporaryData();
     }

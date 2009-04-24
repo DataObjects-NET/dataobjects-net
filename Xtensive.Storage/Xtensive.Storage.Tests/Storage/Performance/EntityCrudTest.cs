@@ -194,7 +194,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         dataContext.Connection.Open();
         using (var transaction = dataContext.Connection.BeginTransaction()) {
           TestHelper.CollectGarbage();
-          var resultQuery = CompiledQuery.Compile((Entities context, long id) => context.Simplest.Where(o => o.Id == id));
+          var resultQuery = System.Data.Objects.CompiledQuery.Compile((Entities context, long id) => context.Simplest.Where(o => o.Id == id));
           using (warmup ? null : new Measurement("Compiled Query", count)) {
             for (int i = 0; i < count; i++) {
               var id = i % instanceCount;

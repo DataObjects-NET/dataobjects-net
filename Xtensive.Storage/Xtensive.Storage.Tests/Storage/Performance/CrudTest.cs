@@ -64,6 +64,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
       CachedQueryTest(baseCount / 5);
+      CacheCompiledQueryTest(baseCount / 5);
       NoMaterializationQueryTest(baseCount / 5);
       RseQueryTest(baseCount / 5);
       CachedRseQueryTest(baseCount / 5);
@@ -261,6 +262,29 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         }
       }
     }
+
+    private void CacheCompiledQueryTest(int count)
+    {
+      var d = Domain;
+      using (var ss = d.OpenSession()) {
+        var s = ss.Session;
+        using (var ts = s.OpenTransaction()) {
+          var id = 0;
+          TestHelper.CollectGarbage();
+          using (warmup ? null : new Measurement("Cache Compiled Query", count)) {
+            for (int i = 0; i < count; i++) {
+              id = i % instanceCount;
+              var result = CompiledQuery.Execute(() => Query<Simplest>.All.Where(o => o.Id == id));
+              foreach (var simplest in result) {
+                // Doing nothing, just enumerate
+              }
+            }
+            ts.Complete();
+          }
+        }
+      }
+    }
+
 
     private void NoMaterializationQueryTest(int count)
     {

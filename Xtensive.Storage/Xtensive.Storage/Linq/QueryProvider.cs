@@ -22,6 +22,9 @@ namespace Xtensive.Storage.Linq
   /// </summary>
   internal sealed class QueryProvider : IQueryProvider
   {
+    [ThreadStatic]
+    internal static ResultExpression LatestCompiledResult;
+
     /// <inheritdoc/>
     IQueryable IQueryProvider.CreateQuery(Expression expression)
     {
@@ -51,6 +54,7 @@ namespace Xtensive.Storage.Linq
     public TResult Execute<TResult>(Expression expression)
     {
       var compiled = Compile(expression);
+      LatestCompiledResult = compiled;
       return compiled.GetResult<TResult>();
     }
 
