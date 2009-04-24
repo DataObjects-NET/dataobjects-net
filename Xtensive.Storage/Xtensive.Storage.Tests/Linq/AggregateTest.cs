@@ -120,6 +120,15 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectCountTest()
     {
       var result =
+        Query<Customer>.All.Select(c => Query<Order>.All.Count());
+      QueryDumper.Dump(result);
+      Assert.Greater(result.ToList().Count, 0);
+    }
+
+    [Test]
+    public void SelectAnonimousCountTest()
+    {
+      var result =
         from c in Query<Customer>.All
         select new {Customer = c, NumberOfOrders = Query<Order>.All.Count(o => o.Customer==c)};
       QueryDumper.Dump(result);

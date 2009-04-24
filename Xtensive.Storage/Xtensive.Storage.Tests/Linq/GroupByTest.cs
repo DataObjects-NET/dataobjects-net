@@ -588,5 +588,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Select(g => g.Where(o => o.ShipName.StartsWith("A")));
       QueryDumper.Dump(result);
     }
+
+
   }
 }

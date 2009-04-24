@@ -507,14 +507,16 @@ namespace Xtensive.Storage.Linq
 
     private Expression BuildSubqueryResult(ResultExpression subQuery)
     {
-      List<ParameterExpression> outerParameters = context.Bindings.GetKeys()
-        .OfType<ParameterExpression>()
-        .ToList();
 
-      if (outerParameters.Count!=1)
+      if (parameters.Value.Length!=1)
         throw new NotImplementedException();
 
-      var parameterResultExpression = context.Bindings[outerParameters[0]];
+      if (!subQuery.Type.IsOfGenericInterface(typeof(IEnumerable<>)))         
+        throw new NotImplementedException();
+
+      var type = subQuery.Type.GetGenericArguments()[0];
+
+      var parameterResultExpression = context.Bindings[parameters.Value[0]];
       var applyParameter = context.GetApplyParameter(parameterResultExpression);
       
       var tupleParameter = new Parameter<Tuple>();
@@ -533,16 +535,16 @@ namespace Xtensive.Storage.Linq
       var newResultExpression = new ResultExpression(subQuery.Type, rewritedRecordset, subQuery.Mapping, subQuery.ItemProjector, subQuery.ResultType);
 
       var constructor = (typeof (SubQuery<>)
-        .MakeGenericType(subQuery.Type)
+        .MakeGenericType(type)
         .GetConstructor(new[]{typeof (ResultExpression), typeof (Tuple), typeof (Parameter<Tuple>)}));
 
-      var result = Expression.New(constructor, new Expression[] {
+      var subqueryResult = Expression.New(constructor, new Expression[] {
         Expression.Constant(newResultExpression),
         tuple.Value,
         constantTupleParameter
       });
 
-      return result;
+      return Expression.Convert(subqueryResult, subQuery.Type);
     }
 
     private static Expression MakeBinaryExpression(Expression previous, Expression left, Expression right, ExpressionType operationType, ExpressionType concatenationExpression)
