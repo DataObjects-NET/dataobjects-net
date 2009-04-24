@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
+using System.Collections.Generic;
 
 namespace Xtensive.Storage.Indexing.Model
 {
@@ -27,7 +28,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <summary>
     /// Gets or sets the primary index.
     /// </summary>
-    [Property(Priority = -1200)]
+    [Property(Priority = -1200, IsCloningRoot = true)]
     public PrimaryIndexInfo PrimaryIndex {
       get { return primaryIndex; }
       set {
@@ -42,14 +43,29 @@ namespace Xtensive.Storage.Indexing.Model
     /// <summary>
     /// Gets secondary indexes.
     /// </summary>
-    [Property(Priority = -1100)]
+    [Property(Priority = -1100, IsCloningRoot = true)]
     public SecondaryIndexInfoCollection SecondaryIndexes { get; private set; }
 
     /// <summary>
     /// Gets foreign keys.
     /// </summary>
-    [Property(Priority = -1000)]
+    [Property(Priority = -1000,
+      IsCloningRoot = true, DependencyRootType = typeof(TableInfoCollection))]
     public ForeignKeyCollection ForeignKeys { get; private set; }
+
+    /// <summary>
+    /// Gets all indexes belongs to the table.
+    /// </summary>
+    /// <returns><see cref="IndexInfo"/> iterator.</returns>
+    public IEnumerable<IndexInfo> AllIndexes
+    {
+      get
+      {
+        yield return PrimaryIndex;
+        foreach (var indexInfo in SecondaryIndexes)
+          yield return indexInfo;
+      }
+    }
 
     /// <inheritdoc/>
     protected override Nesting CreateNesting()

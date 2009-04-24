@@ -51,6 +51,7 @@ namespace Xtensive.Storage.Providers.Sql
       StorageInfo = new StorageInfo(schema.Name);
       Visit(schema);
 
+      StorageInfo.Lock(true);
       return StorageInfo;
     }
 

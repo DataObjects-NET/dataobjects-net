@@ -61,6 +61,15 @@ namespace Xtensive.Storage.Providers.Index.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can not find index &apos;{0}&apos; in storage..
+        /// </summary>
+        internal static string ExCanNotFindIndexXInStorage {
+            get {
+                return ResourceManager.GetString("ExCanNotFindIndexXInStorage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The collection must not be empty.
         /// </summary>
         internal static string ExCollectionMustNotBeEmpty {

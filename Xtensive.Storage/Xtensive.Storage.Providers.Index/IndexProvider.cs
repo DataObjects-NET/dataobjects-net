@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Providers;
 using StorageIndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
 

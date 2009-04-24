@@ -129,4 +129,7 @@
   <data name="ExTransactionIsNotOpen" xml:space="preserve">
     <value>Transaction is not open.</value>
   </data>
+  <data name="ExCanNotFindIndexXInStorage" xml:space="preserve">
+    <value>Can not find index '{0}' in storage.</value>
+  </data>
 </root>

@@ -62,31 +62,36 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
+    /// <exception cref="DomainBuilderException">Can not find specific index 
+    /// in storage.</exception>
     public override void BuildMappingSchema()
     {
-      var domainModel = Building.BuildingContext.Current.Model;
+      var domainModel = BuildingContext.Current.Model;
+
+      // Build index transforms
       foreach (var type in domainModel.Types) {
         foreach (var indexInfo in type.AffectedIndexes.Where(index => index.IsPrimary)) {
           var primaryIndex = type.Indexes.PrimaryIndex;
           var primaryIndexColumns = primaryIndex.Columns.ToList();
           var indexColumns = indexInfo.Columns.ToList();
-          var map = indexColumns.Select(column => primaryIndexColumns.IndexOf(column)).ToArray();
+          var map = indexColumns
+            .Select(column => primaryIndexColumns.IndexOf(column))
+            .ToArray();
           primaryIndexTransforms.Add(
             new Pair<IndexInfo, TypeInfo>(indexInfo, type),
             new MapTransform(true, indexInfo.TupleDescriptor, map));
         }
       }
 
+      // Build IndexInfo mapping
       foreach (var indexInfo in domainModel.RealIndexes) {
-        StorageIndexInfo storageIndex = null;
-        foreach (var table in Storage.Model.Tables) {
-          foreach (var index in GetAllIndexes(table))
-            if (index.Name == indexInfo.MappingName) {
-              storageIndex = index;
-              break;
-            }
-        }
-        indexInfoMapping.Add(indexInfo, storageIndex);
+        var storageIndexInfo = Storage.Model.Tables
+          .SelectMany(table => table.AllIndexes)
+          .SingleOrDefault(index => index.Name==indexInfo.MappingName);
+        if (storageIndexInfo==null)
+          throw new DomainBuilderException(string.Format(
+            Resources.Strings.ExCanNotFindIndexXInStorage, indexInfo.MappingName));
+        indexInfoMapping.Add(indexInfo, storageIndexInfo);
       }
     }
 
@@ -105,12 +110,12 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <summary>
-    /// Converts the <see cref="IndexInfoRef"/> 
-    /// to <see cref="Indexing.Model.IndexInfo"/>.
+    /// Gets the <see cref="Indexing.Model.IndexInfo"/>
+    /// by <see cref="IndexInfoRef"/>. 
     /// </summary>
     /// <param name="indexInfoRef">The index info.</param>
     /// <returns>Converted index info.</returns>
-    public StorageIndexInfo ConvertIndexInfo(IndexInfoRef indexInfoRef)
+    public StorageIndexInfo GetStorageIndexInfo(IndexInfoRef indexInfoRef)
     {
       var indexInfo = indexInfoRef.Resolve(Domain.Model);
       return indexInfoMapping[indexInfo];
@@ -161,13 +166,6 @@ namespace Xtensive.Storage.Providers.Index
 
     #endregion
 
-    private static IEnumerable<StorageIndexInfo> GetAllIndexes(TableInfo table)
-    {
-      yield return table.PrimaryIndex;
-      foreach (var indexInfo in table.SecondaryIndexes)
-        yield return indexInfo;
-    }
-
     internal MapTransform GetTransform(IndexInfo indexInfo, TypeInfo type)
     {
       return primaryIndexTransforms[new Pair<IndexInfo, TypeInfo>(indexInfo, type)];
@@ -175,7 +173,8 @@ namespace Xtensive.Storage.Providers.Index
 
     internal IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfoRef indexInfoRef)
     {
-      return Storage.GetRealIndex(ConvertIndexInfo(indexInfoRef));
+      // ToDo: Replace with StorageView.GetIndex
+      return Storage.GetRealIndex(GetStorageIndexInfo(indexInfoRef));
     }
     
   }

@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Providers.Memory.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Instance of type &apos;{0}&apos; with specified key is not found..
+        ///   Looks up a localized string similar to Instance with specified key is not found in index &apos;{0}&apos;..
         /// </summary>
         internal static string ExInstanceXIsNotFound {
             get {

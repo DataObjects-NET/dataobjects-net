@@ -114,14 +114,22 @@ namespace Xtensive.Storage.Providers.Memory
       var primaryIndexColums = primaryIndex.KeyColumns.Select(columnRef => columnRef.Value)
         .Union(primaryIndex.ValueColumns.Select(columnRef => columnRef.Value)).ToArray();
       var indexColumns = indexInfo.IsPrimary
-        ? indexInfo.KeyColumns.Select(columnRef => columnRef.Value)
-          .Union(((PrimaryIndexInfo)indexInfo).ValueColumns.Select(columnRef => columnRef.Value)).ToArray()
-        : indexInfo.KeyColumns.Select(columnRef => columnRef.Value)
-          .Union(((SecondaryIndexInfo) indexInfo).PrimaryKeyColumns.Select(columnRef => columnRef.Value))
-          .Union(((SecondaryIndexInfo) indexInfo).IncludedColumns.Select(columnRef => columnRef.Value)).ToArray();
+        ? indexInfo.KeyColumns
+          .Select(columnRef => columnRef.Value)
+          .Union(((PrimaryIndexInfo) indexInfo).ValueColumns
+            .Select(columnRef => columnRef.Value)).ToArray()
+        : indexInfo.KeyColumns
+          .Select(columnRef => columnRef.Value)
+          .Union(((SecondaryIndexInfo) indexInfo).PrimaryKeyColumns
+            .Select(columnRef => columnRef.Value))
+          .Union(((SecondaryIndexInfo) indexInfo).IncludedColumns
+            .Select(columnRef => columnRef.Value)).ToArray();
 
-      var map = indexColumns.Select(columnInfo => primaryIndexColums.IndexOf(columnInfo)).ToArray();
-      var descriptor = TupleDescriptor.Create(indexColumns.Select(columnInfo => columnInfo.Type.Type));
+      var map = indexColumns
+        .Select(columnInfo => primaryIndexColums.IndexOf(columnInfo))
+        .ToArray();
+      var descriptor = TupleDescriptor.Create(
+        indexColumns.Select(columnInfo => columnInfo.Type.Type));
       
       return new MapTransform(true, descriptor, map);
     }

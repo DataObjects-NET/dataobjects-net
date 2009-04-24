@@ -37,15 +37,14 @@ namespace Xtensive.Storage.Tests.Indexing
       // Table 1
       table1 = new TableInfo(storage, "table1");
       pi1 = new PrimaryIndexInfo(table1, "pk1");
-      column1 = new ColumnInfo(table1, "col1", new TypeInfo(typeof(string)));
+      column1 = new ColumnInfo(table1, "col1", new TypeInfo(typeof(string), false));
       column2 = new ColumnInfo(table1, "col2", new TypeInfo(typeof(string)));
       column3 = new ColumnInfo(table1, "col3", new TypeInfo(typeof(string)));
       new KeyColumnRef(pi1, column1, Direction.Positive);
-      new ValueColumnRef(pi1, column2);
-      new ValueColumnRef(pi1, column3);
+      pi1.PopulateValueColumns();
       si1 = new SecondaryIndexInfo(table1, "ix1");
       new KeyColumnRef(si1, column2, Direction.Positive);
-
+      si1.PopulatePrimaryKeyColumns();
 
       // Table 2
       table2 = new TableInfo(storage, "table2");
@@ -53,9 +52,10 @@ namespace Xtensive.Storage.Tests.Indexing
       column4 = new ColumnInfo(table2, "col4", new TypeInfo(typeof(int)));
       column5 = new ColumnInfo(table2, "col5", new TypeInfo(typeof(string)));
       new KeyColumnRef(pi2, column4, Direction.Negative);
-      new ValueColumnRef(pi2, column5);
+      pi2.PopulateValueColumns();
       si2 = new SecondaryIndexInfo(table2, "ix2");
       new KeyColumnRef(si2, column5, Direction.Positive);
+      si2.PopulatePrimaryKeyColumns();
 
       // Foreign keys
       fk1 = new ForeignKeyInfo(table2, "fk1")

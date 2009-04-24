@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Providers.Index
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
       ExecutableProvider result;
       if (!indexInfo.IsVirtual)
-        result = new IndexProvider(provider, domainHandler.ConvertIndexInfo(provider.Index), 
+        result = new IndexProvider(provider, domainHandler.GetStorageIndexInfo(provider.Index), 
           sessionHandler.StorageView.GetIndex);
       else
       {

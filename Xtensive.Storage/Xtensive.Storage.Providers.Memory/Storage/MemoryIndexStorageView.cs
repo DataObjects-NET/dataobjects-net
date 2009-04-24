@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Providers.Memory
     /// <inheritdoc/>
     public override IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo)
     {
-      return ((MemoryIndexStorage)Storage).GetRealIndex(indexInfo);
+      return Storage.GetRealIndex(indexInfo);
     }
 
     #region Private / internal methods

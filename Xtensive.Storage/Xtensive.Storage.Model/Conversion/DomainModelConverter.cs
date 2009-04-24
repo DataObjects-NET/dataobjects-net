@@ -60,6 +60,7 @@ namespace Xtensive.Storage.Model.Conversion
       
       StorageInfo = new StorageInfo(storageName);
       Visit(domainModel);
+      StorageInfo.Lock(true);
       return StorageInfo;
     }
     
