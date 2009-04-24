@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Building.Builders
   /// <summary>
   /// Utility class for <see cref="Storage"/> building.
   /// </summary>
-  internal static class DomainBuilder
+  public static class DomainBuilder
   {
     private static readonly PluginManager<ProviderAttribute> pluginManager =
       new PluginManager<ProviderAttribute>(typeof (HandlerFactory), AppDomain.CurrentDomain.BaseDirectory);

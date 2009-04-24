@@ -70,9 +70,9 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
     }
-      
+
     [Test]
-    public void DomainBlockUpgradeTest()  
+    public void DomainBlockUpgradeTest()
     {
       BuildDomain(DomainBuildMode.Recreate);
       using (var session = Domain.OpenSession()) {
