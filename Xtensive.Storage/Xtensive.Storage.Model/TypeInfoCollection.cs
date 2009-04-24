@@ -251,6 +251,21 @@ namespace Xtensive.Storage.Model
       }
     }
 
+    /// <summary>
+    /// Generates the type ids.
+    /// </summary>
+    public void BuildTypeIdIndex()
+    {
+      typeIdIndex = new Dictionary<int, TypeInfo>(this.Count);
+      foreach (TypeInfo type in this) {
+//        if (type.TypeId==TypeInfo.NoTypeId)
+//          throw new InvalidOperationException(
+//            string.Format(Strings.ExTypeIdIsNotAssignedForTypeX, type.UnderlyingType.Name));
+        if (type.TypeId!=TypeInfo.NoTypeId)
+          typeIdIndex[type.TypeId] = type;
+      }
+    }
+
     private void RegisterDescendant(TypeInfo descendant)
     {
       TypeInfo ancestor = FindAncestor(descendant.UnderlyingType);
@@ -431,22 +446,11 @@ namespace Xtensive.Storage.Model
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
-      this.EnsureNotLocked();
-      
-      GenerateTypeIds();
-
       base.Lock(recursive);
+      if (recursive)
+        foreach (TypeInfo node in this)
+          node.Lock(recursive);
     }
 
-    private void GenerateTypeIds()
-    {
-      typeIdIndex = new Dictionary<int, TypeInfo>(Count);
-      int typeId = TypeInfo.MinTypeId;
-      foreach (TypeInfo type in this) {
-        if (type.TypeId==TypeInfo.NoTypeId)
-          type.TypeId = typeId++;
-        typeIdIndex[type.TypeId] = type;
-      }
-    }
   }
 }

@@ -425,16 +425,27 @@ namespace Xtensive.Storage.Model
       if (!recursive)
         return;
       Fields.Lock(true);
-      if (column!=null) {
+      if (column!=null) 
         column.Lock(true);
+
+      CreateMappingInfo();
+    }
+
+    private void CreateMappingInfo()
+    {
+      if (column!=null) {
         MappingInfo = reflectedType.IsStructure 
           ? new Segment<int>(reflectedType.Columns.IndexOf(column), 1) 
           : new Segment<int>(reflectedType.Indexes.PrimaryIndex.Columns.IndexOf(column), 1);
       }
-      else if (Fields.Count > 0)
-        MappingInfo = new Segment<int>(Fields.First().MappingInfo.Offset, Fields.Sum(f => f.IsPrimitive ? f.MappingInfo.Length : 0));
+      else 
+        if (Fields.Count > 0)
+          MappingInfo = new Segment<int>(
+            Fields.First().MappingInfo.Offset, Fields.Sum(f => f.IsPrimitive ? f.MappingInfo.Length : 0));
+
       if (IsEntity || IsStructure) {
-        ValueExtractorTransform = new SegmentTransform(false, reflectedType.TupleDescriptor, new Segment<int>(MappingInfo.Offset, MappingInfo.Length));
+        ValueExtractorTransform = new SegmentTransform(
+          false, reflectedType.TupleDescriptor, new Segment<int>(MappingInfo.Offset, MappingInfo.Length));
       }
     }
 

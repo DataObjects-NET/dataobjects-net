@@ -13,15 +13,15 @@ using System.Reflection;
 namespace Xtensive.Storage.Tests.Upgrade
 {
   [Serializable]
-  internal class TestModelAssembliesManager : IModelAssembliesManager
+  internal class TestModelAssembliesManager : IAssemblyDescriptorProvider
   {
-    public List<IModelAssembly> GetModelAssemblies(IEnumerable<Type> types)
+    public List<IAssemblyDescriptor> GetDescriptors(IEnumerable<Type> types)
     {
       return Assembly.GetExecutingAssembly().GetTypes()
         .Select(type => type.Namespace)
         .Where(ns => ns!=null && ns.Contains("Model_"))
         .Select(ns => new TestModelAssembly(ns))
-        .Cast<IModelAssembly>()
+        .Cast<IAssemblyDescriptor>()
         .ToList();
     }
   }

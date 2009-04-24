@@ -22,6 +22,15 @@ namespace Xtensive.Storage.Providers
   {
 
     /// <summary>
+    /// Recreates the storage schema.
+    /// </summary>
+    public void RecreateStorageSchema()
+    {
+      ClearStorageSchema();
+      UpgradeStorageSchema();
+    }
+
+    /// <summary>
     /// Clears the storage schema.
     /// </summary>
     public abstract void ClearStorageSchema();
@@ -29,7 +38,12 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Updates the storage schema according to current domain model.
     /// </summary>
-    public abstract void UpdateStorageSchema();
+    public abstract void UpgradeStorageSchema();
+
+    /// <summary>
+    /// Validates the storage schema.
+    /// </summary>
+    public abstract void ValidateStorageSchema();
 
 
     // Initialization

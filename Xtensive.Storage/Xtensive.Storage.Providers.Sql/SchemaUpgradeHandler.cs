@@ -60,12 +60,18 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override void UpdateStorageSchema()
+    public override void UpgradeStorageSchema()
     {
       var schema = ExtractDomainSchema();
       var updateScript = GenerateUpdateScript(schema);
       if (updateScript.Count > 0)
         SessionHandler.ExecuteNonQuery(updateScript);
+    }
+
+    /// <inheritdoc/>
+    public override void ValidateStorageSchema()
+    {
+      throw new NotImplementedException();
     }
 
     /// <summary>

@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Configuration
       get { return userName; }
       set
       {
-        this.EnsureNotLocked();
+              this.EnsureNotLocked();
         userName = value;
       }
     }

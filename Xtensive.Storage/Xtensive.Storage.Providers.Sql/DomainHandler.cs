@@ -163,9 +163,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override void InitializeSystemSession()
+    public override void OnSystemSessionOpen()
     {
-      base.InitializeSystemSession();
+      base.OnSystemSessionOpen();
       SqlDriver = ((SessionHandler)BuildingContext.Current.SystemSessionHandler).Connection.Driver;
       ValueTypeMapper = Handlers.HandlerFactory.CreateHandler<SqlValueTypeMapper>();
       ValueTypeMapper.Initialize();

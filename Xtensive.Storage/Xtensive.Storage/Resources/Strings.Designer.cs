@@ -79,6 +79,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Actual schema version of assembly &apos;{0}&apos; is expected to be &apos;{1}&apos;, but currently is &apos;{2}&apos;..
+        /// </summary>
+        internal static string ActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyIsZ {
+            get {
+                return ResourceManager.GetString("ActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyIsZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}: multiple attributes of type &apos;{1}&apos; are not allowed here..
         /// </summary>
         internal static string AspectExMultipleAttributesOfTypeXAreNotAllowedHere {
@@ -862,6 +871,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type with type id &apos;{0}&apos; is not found..
+        /// </summary>
+        internal static string ExTypeWithTypeIdXIsNotFound {
+            get {
+                return ResourceManager.GetString("ExTypeWithTypeIdXIsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; does not implement &apos;{1}&apos; interface..
         /// </summary>
         internal static string ExTypeXDoesNotImplementYInterface {
@@ -1264,6 +1282,15 @@ namespace Xtensive.Storage.Resources {
         internal static string SystemTypes {
             get {
                 return ResourceManager.GetString("SystemTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type id for type &apos;{0}&apos; is not found..
+        /// </summary>
+        internal static string TypeIdForTypeXIsNotFound {
+            get {
+                return ResourceManager.GetString("TypeIdForTypeXIsNotFound", resourceCulture);
             }
         }
         

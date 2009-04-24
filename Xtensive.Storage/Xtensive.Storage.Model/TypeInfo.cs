@@ -195,14 +195,31 @@ namespace Xtensive.Storage.Model
     {
       [DebuggerStepThrough]
       get { return typeId; }
-      [DebuggerStepThrough] 
-      set 
-      { 
-        if (typeId != 0)
-          throw new InvalidOperationException(
-            string.Format(Strings.TypeIdForTypeXIsAlreadyAssigned, underlyingType.Name));
-        typeId = value;
+      set
+      {
+        SetTypeId(value, null);
       }
+    }
+
+    /// <summary>
+    /// Sets the type id for this type, even if model is already locked.
+    /// </summary>
+    /// <param name="value">The type id value.</param>
+    /// <param name="unlockLockKey">The unlock key, that can be obtained by <see cref="DomainModel.GetUnlockKey"/>.</param>
+    public void SetTypeId(int value, object unlockLockKey)    
+    {
+      if (unlockLockKey!=Model.unlockKey)
+        this.EnsureNotLocked();
+      SetTypeId(value);
+    }
+
+    private void SetTypeId(int value)
+    {
+      if (typeId != 0)
+        throw new InvalidOperationException(
+          string.Format(Strings.TypeIdForTypeXIsAlreadyAssigned, underlyingType.Name));
+      typeId = value;
+      BuildTuplePrototype();
     }
 
     /// <summary>
@@ -233,7 +250,7 @@ namespace Xtensive.Storage.Model
     /// The <see cref="TuplePrototype"/> with "injected"
     /// (see <see cref="PrimaryKeyInjector"/>) <paramref name="primaryKey"/>.
     /// </returns>
-    public Tuple CreateTuplePrototype(Tuple primaryKey)
+    public Tuple CreateEntityTuple(Tuple primaryKey)
     {
       return PrimaryKeyInjector.Apply(TupleTransformType.TransformedTuple, primaryKey, TuplePrototype);
     }
@@ -368,38 +385,55 @@ namespace Xtensive.Storage.Model
           fields.Lock(true);
         return;
       }
-      var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList();
-      columns = new ColumnInfoCollection();
-      columns.AddRange(orderedColumns);
-      columns.Lock(true);
-      tupleDescriptor = TupleDescriptor.Create(
-        from c in Columns select c.ValueType);
+      CreateTupleDescriptor();
+
+      columns.Lock(true);      
       fields.Lock(true);
 
       if (IsEntity || IsStructure) {
-        // Building nullable map
-        var nullableMap = new BitArray(TupleDescriptor.Count);
-        int i = 0;
-        foreach (var column in Columns)
-          nullableMap[i++] = column.IsNullable;
-
-        // Building TuplePrototype
-        var tuple = Tuple.Create(TupleDescriptor);
-        tuple.Initialize(nullableMap);
-        if (IsEntity) {
-          var typeIdField = Fields.Where(f => f.IsTypeId).First();
-          tuple.SetValue(typeIdField.MappingInfo.Offset, TypeId);
-
-          // Building primary key injector
-          var fieldCount = TupleDescriptor.Count;
-          var keyFieldCount = Hierarchy.KeyInfo.TupleDescriptor.Count;
-          var keyFieldMap = new Pair<int, int>[fieldCount];
-          for (i = 0; i < fieldCount; i++)
-            keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);
-          PrimaryKeyInjector = new MapTransform(true, TupleDescriptor, keyFieldMap);
-        }
-        TuplePrototype = IsEntity ? tuple.ToFastReadOnly() : tuple;
+        BuildTuplePrototype();
       }
+    }
+
+    private void CreateTupleDescriptor()
+    {
+      var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList();
+      columns = new ColumnInfoCollection();
+      columns.AddRange(orderedColumns);
+      tupleDescriptor = TupleDescriptor.Create(
+        from c in Columns select c.ValueType);
+    }
+
+    private void BuildTuplePrototype()
+    {
+      // Building nullable map
+      var nullableMap = new BitArray(TupleDescriptor.Count);
+      int i = 0;
+      foreach (var column in Columns)
+        nullableMap[i++] = column.IsNullable;
+
+      // Building TuplePrototype
+      var tuple = Tuple.Create(TupleDescriptor);
+      tuple.Initialize(nullableMap);
+      if (IsEntity){
+        var typeIdField = Fields.Where(f => f.IsTypeId).First();
+        tuple.SetValue(typeIdField.MappingInfo.Offset, TypeId);
+
+        // Building primary key injector
+        var fieldCount = TupleDescriptor.Count;
+        var keyFieldCount = Hierarchy.KeyInfo.TupleDescriptor.Count;
+        var keyFieldMap = new Pair<int, int>[fieldCount];
+        for (i = 0; i < fieldCount; i++)
+          keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);
+        PrimaryKeyInjector = new MapTransform(true, TupleDescriptor, keyFieldMap);
+      }
+      TuplePrototype = IsEntity ? tuple.ToFastReadOnly() : tuple;
+    }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return underlyingType.Name;
     }
 
 

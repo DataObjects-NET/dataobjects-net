@@ -42,8 +42,6 @@ namespace Xtensive.Storage.Building
     /// Storage upgrade with special upgrade routine is needed if storage different to model.
     /// Storage will be upgraded to intermediate state with reciled types. <see cref="IUpgrader"/> instance
     /// must bring new storage data to correct state using new model and reciling types.
-    /// <seealso cref="IUpgrader"/>
-    /// <seealso cref="UpgraderAttribute"/>
     /// </summary>
     PerformStrict = 0x03,
   }

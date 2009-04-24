@@ -161,10 +161,9 @@ namespace Xtensive.Storage.Configuration
     /// <inheritdoc/>
     public object Clone()
     {
-      this.EnsureNotLocked();
       var result = new SessionConfigurationCollection();
       foreach (var configuration in this)
-        result.Add(configuration);
+        result.Add((SessionConfiguration) configuration.Clone());
       return result;
     }
 

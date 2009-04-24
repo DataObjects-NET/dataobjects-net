@@ -129,9 +129,7 @@ namespace Xtensive.Storage
     /// <returns>The <see cref="Entity"/> this key belongs to.</returns>
     public Entity Resolve()
     {
-      var session = Session.Current;
-      if (session==null)
-        throw new InvalidOperationException(Strings.ExNoCurrentSession);
+      var session = Session.Demand();
       return Resolve(session);
     }
 

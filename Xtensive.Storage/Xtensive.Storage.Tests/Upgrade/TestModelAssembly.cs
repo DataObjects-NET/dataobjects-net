@@ -13,27 +13,27 @@ using System.Reflection;
 namespace Xtensive.Storage.Tests.Upgrade
 {
   [Serializable]
-  internal class TestModelAssembly : IModelAssembly
+  internal class TestModelAssembly : IAssemblyDescriptor
   {    
     private readonly string modelNamespace;
 
-    public string AssemblyName
+    public string Name
     {
       get { return modelNamespace.Substring(0, modelNamespace.IndexOf("_")); }
     }
 
-    public string ModelVersion
+    public string Version
     {
       get { return modelNamespace.Substring(modelNamespace.IndexOf("_")); }
     }
 
-    public IEnumerable<ISchemaUpgrader> GetUpgraders()
+    public IEnumerable<IUpgrader> GetUpgraders()
     {
       return Assembly.GetExecutingAssembly().GetTypes()
         .Where(type => 
           type.Name == modelNamespace &&
-          typeof (ISchemaUpgrader).IsAssignableFrom(type))
-        .Select(type => (ISchemaUpgrader) type.TypeInitializer.Invoke(null));
+          typeof (IUpgrader).IsAssignableFrom(type))
+        .Select(type => (IUpgrader) type.TypeInitializer.Invoke(null));
     }
 
     public TestModelAssembly(string modelNamespace)

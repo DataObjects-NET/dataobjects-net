@@ -552,8 +552,17 @@
   <data name="ExInvalidUpgraderVersion" xml:space="preserve">
     <value>Invalid upgrader version</value>
   </data>
+  <data name="TypeIdForTypeXIsNotFound" xml:space="preserve">
+    <value>Type id for type '{0}' is not found.</value>
+  </data>
+  <data name="ExTypeWithTypeIdXIsNotFound" xml:space="preserve">
+    <value>Type with type id '{0}' is not found.</value>
+  </data>
   <data name="ExExpressionOfTypeXIsNotASequence" xml:space="preserve">
     <value>The expression of type '{0}' is not a sequence</value>
+  </data>
+  <data name="ActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyIsZ" xml:space="preserve">
+    <value>Actual schema version of assembly '{0}' is expected to be '{1}', but currently is '{2}'.</value>
   </data>
   <data name="ExOnlyEqualityRangesAreSupported" xml:space="preserve">
     <value>Only equality ranges are supported.</value>

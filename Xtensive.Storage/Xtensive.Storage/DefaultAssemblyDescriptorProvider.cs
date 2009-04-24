@@ -12,13 +12,13 @@ using Xtensive.Storage.Internals;
 namespace Xtensive.Storage
 {
   [Serializable]
-  internal class DefaultModelAssembliesManager : IModelAssembliesManager
+  internal class DefaultAssemblyDescriptorProvider : IAssemblyDescriptorProvider
   {
-    public List<IModelAssembly> GetModelAssemblies(IEnumerable<Type> types)
+    public List<IAssemblyDescriptor> GetDescriptors(IEnumerable<Type> types)
     {
       return types
         .Select(type => type.Assembly).Distinct()
-        .Select(assembly => new ModelAssembly(assembly)).Cast<IModelAssembly>()
+        .Select(assembly => new AssemblyDescriptor(assembly)).Cast<IAssemblyDescriptor>()
         .ToList();
     }
   }

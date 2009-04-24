@@ -144,4 +144,7 @@
   <data name="ExNodeTypeIsUnknown" xml:space="preserve">
     <value>Node type is unknown.</value>
   </data>
+  <data name="ExTypeIdIsNotAssignedForTypeX" xml:space="preserve">
+    <value>TypeId is not assigned for type '{0}'.</value>
+  </data>
 </root>

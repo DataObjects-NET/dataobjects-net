@@ -8,12 +8,12 @@ using System.Collections.Generic;
 
 namespace Xtensive.Storage
 {
-  internal interface IModelAssembly
+  internal interface IAssemblyDescriptor
   {
-    string AssemblyName { get;}
+    string Name { get;}
 
-    string ModelVersion { get;}
+    string Version { get;}
 
-    IEnumerable<ISchemaUpgrader> GetUpgraders();
+    IEnumerable<IUpgrader> GetUpgraders();
   }
 }

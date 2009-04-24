@@ -21,7 +21,7 @@ using Xtensive.Storage.Resources;
 namespace Xtensive.Storage.Building
 {
   /// <summary>
-  /// EntityStateRegistry keeper for <see cref="DomainBuilder"/> building process.
+  /// Domain building context.
   /// </summary>
   public sealed class BuildingContext
   {
@@ -34,13 +34,15 @@ namespace Xtensive.Storage.Building
     internal CircularReferenceFinder<Type> CircularReferenceFinder { get; private set; }
     internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
     internal Dictionary<Type, int> SystemTypeIds { get; private set; }
+    internal Domain SystemDomain {get; set;}
+    internal object ModelUnlockKey { get; set;}
 
     #endregion
 
     /// <summary>
     /// Gets the current <see cref="BuildingContext"/>.
     /// </summary>
-    public static BuildingContext Current
+    public static BuildingContext Current 
     {
       get { return BuildingScope.Context; }
     }
@@ -98,7 +100,7 @@ namespace Xtensive.Storage.Building
 
     internal void RegisterError(DomainBuilderException exception)
     {
-      Building.Log.Error(exception);
+      Log.Error(exception);
       errors.Add(exception);
     }
 
@@ -114,11 +116,12 @@ namespace Xtensive.Storage.Building
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="configuration">The configuration.</param>
     public BuildingContext(DomainConfiguration configuration)
     {
+      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       Log = StringLog.Create("DomainBuilder");
       Configuration = configuration;
       SkippedTypes = new HashSet<Type> {typeof (Entity), typeof (IEntity), typeof (Structure)};

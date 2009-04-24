@@ -163,7 +163,7 @@ namespace Xtensive.Storage
     /// <returns>Newly built <see cref="Domain"/>.</returns>
     public static Domain Build(DomainConfiguration configuration)
     {
-      return DomainBuilder.Build(configuration);
+      return AutoBuilder.Build(configuration);
     }
 
 

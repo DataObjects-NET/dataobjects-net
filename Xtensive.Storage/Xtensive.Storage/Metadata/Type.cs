@@ -4,8 +4,10 @@
 // Created by: Alex Kofman
 // Created:    2008.12.24
 
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
+using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Metadata
 {
@@ -13,19 +15,30 @@ namespace Xtensive.Storage.Metadata
   /// Persistent descriptor of registered type.
   /// </summary>
   [SystemType(TypeId = 1)]
-  [HierarchyRoot("Id", InheritanceSchema = InheritanceSchema.ClassTable)]
+  [HierarchyRoot("Id")]
   public class Type : Entity
   {
     /// <summary>
     /// Gets or sets the type id.
     /// </summary>
     [Field]
-    public int Id { get; internal set; }
+    public int Id { get; private set; }
 
     /// <summary>
     /// Gets or sets the full name.
     /// </summary>
     [Field(Length = 1000)]
     public string FullName { get; internal set; }
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="id">The type id.</param>
+    public Type(int id) : base(Tuple.Create(id))
+    {
+    }
   }
 }

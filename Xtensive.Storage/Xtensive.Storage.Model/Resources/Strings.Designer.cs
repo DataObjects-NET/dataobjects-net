@@ -97,6 +97,15 @@ namespace Xtensive.Storage.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to TypeId is not assigned for type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExTypeIdIsNotAssignedForTypeX {
+            get {
+                return ResourceManager.GetString("ExTypeIdIsNotAssignedForTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to find master association of association &apos;{0}&apos;.
         /// </summary>
         internal static string ExUnableToFindMasterAssociation {

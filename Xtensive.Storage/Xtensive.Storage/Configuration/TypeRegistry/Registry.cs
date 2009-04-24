@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
   {
     private readonly Set<Action> actionIndex;
     private readonly List<Action> actionQueue;
-    private readonly Context context;
+    private Context context;
     private readonly ActionProcessor processor;
     private State state;
 
@@ -127,6 +127,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
       this.EnsureNotLocked();
       actionQueue.Clear();
       actionIndex.Clear();
+      context = new Context();      
     }
 
     #region ICloneable members

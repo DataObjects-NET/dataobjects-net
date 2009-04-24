@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Tests.Model.ReferencedKeysModel
   {
     [Field]
     public string Name { get; private set;}
-
+      
     [Field]
     public City Capital { get; set; }
 

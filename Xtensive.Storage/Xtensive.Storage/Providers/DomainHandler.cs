@@ -155,7 +155,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Initializes the system session.
     /// </summary>
-    public virtual void InitializeSystemSession()
+    public virtual void OnSystemSessionOpen()
     {
     }
   }

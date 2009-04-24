@@ -9,8 +9,8 @@ using System.Collections.Generic;
 
 namespace Xtensive.Storage
 {
-  internal interface IModelAssembliesManager
+  internal interface IAssemblyDescriptorProvider
   {
-    List<IModelAssembly> GetModelAssemblies(IEnumerable<Type> types);
+    List<IAssemblyDescriptor> GetDescriptors(IEnumerable<Type> types);
   }
 }

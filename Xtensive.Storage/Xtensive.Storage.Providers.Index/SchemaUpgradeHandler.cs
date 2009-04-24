@@ -22,8 +22,14 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    public override void UpdateStorageSchema()
+    public override void UpgradeStorageSchema()
     {
+    }
+
+    /// <inheritdoc/>
+    public override void ValidateStorageSchema()
+    {
+      throw new NotImplementedException();
     }
 
   }

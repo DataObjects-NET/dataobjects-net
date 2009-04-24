@@ -5,7 +5,9 @@
 // Created:    2007.07.11
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Model
 {
@@ -15,6 +17,8 @@ namespace Xtensive.Storage.Model
   [Serializable]
   public sealed class DomainModel: Node
   {
+    internal readonly object unlockKey = new object();
+
     /// <summary>
     /// Gets the services contained in this instance.
     /// </summary>
@@ -80,8 +84,13 @@ namespace Xtensive.Storage.Model
       FieldInfo result = Types[typeof(T)].Fields[fieldName];
       return result;
     }
-      
-
+    
+    public object GetUnlockKey()
+    {
+      this.EnsureNotLocked();
+      return unlockKey;
+    }
+ 
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {

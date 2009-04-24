@@ -60,11 +60,16 @@ namespace Xtensive.Storage.Tests.Upgrade.Model_2
     public Recycled_2.Address Address { get; set;}
   }
 
-  public class UpgraderToVersion_2 : ISchemaUpgrader
+  public class UpgraderToVersion_2 : IUpgrader
   {
     public string AssemblyName
     {
       get { return "Xtensive.Storage.Tests.Upgrade.Model"; }
+    }
+
+    public bool CanUpgradeFrom(string schemaVersion)
+    {
+      return SourceVersion == schemaVersion;
     }
 
     public string SourceVersion
@@ -77,7 +82,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model_2
       get { return "2"; }
     }
 
-    public void RunUpgradeScript()
+    public void Upgrade()
     {
       foreach (Person person in Query<Person>.All) {
         person.City = person.Address.City;
@@ -113,6 +118,9 @@ namespace Xtensive.Storage.Tests.Upgrade
   [TestFixture]
   public class SchemaUpgradeTest
   {
+    private int assemblyTypeId;
+    private int persionTypeId;
+
     public DomainConfiguration GetConfiguration(Type persistentType)
     {
       DomainConfiguration configuration = DomainConfigurationFactory.Create();
@@ -133,8 +141,12 @@ namespace Xtensive.Storage.Tests.Upgrade
       DomainConfiguration configuration = GetConfiguration(typeof(Model_1.Person));
       configuration.BuildMode = DomainBuildMode.Recreate;
       Domain domain = Domain.Build(configuration);
-      using (domain.OpenSession()) {
+      using (domain.OpenSession()) {        
         using (var transactionScope = Transaction.Open()) {
+
+          assemblyTypeId = domain.Model.Types[typeof (Metadata.Assembly)].TypeId;
+          persionTypeId = domain.Model.Types[typeof (Model_1.Person)].TypeId;
+
           new Model_1.Person
             {
               Address = new Model_1.Address {City = "Mumbai"},
@@ -157,6 +169,10 @@ namespace Xtensive.Storage.Tests.Upgrade
       Domain domain = Domain.Build(configuration);
       using (domain.OpenSession()) {
         using (Transaction.Open()) {
+            
+          Assert.AreEqual(assemblyTypeId, domain.Model.Types[typeof (Metadata.Assembly)].TypeId);
+          Assert.AreEqual(persionTypeId, domain.Model.Types[typeof (Model_2.Person)].TypeId);
+
           foreach (var person in Query<Model_2.Person>.All) {
             if (person.Name=="Gauvar")
               Assert.AreEqual("Mumbai", person.City);

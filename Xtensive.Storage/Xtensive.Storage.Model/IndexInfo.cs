@@ -214,9 +214,7 @@ namespace Xtensive.Storage.Model
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
-      var list = new List<ColumnInfo>(keyColumns.Select(pair => pair.Key));
-      list.AddRange(valueColumns);
-      columns = new ReadOnlyList<ColumnInfo>(list);
+      CreateColumns();
       if (!recursive)
         return;
       keyColumns.Lock(true);
@@ -224,10 +222,22 @@ namespace Xtensive.Storage.Model
       foreach (IndexInfo baseIndex in underlyingIndexes)
         baseIndex.Lock();
       underlyingIndexes.Lock();
+      CreateTupleDescriptors();
+    }
+
+    private void CreateTupleDescriptors()
+    {
       tupleDescriptor = TupleDescriptor.Create(
         from c in Columns select c.ValueType);
       keyTupleDescriptor = TupleDescriptor.Create(
         from c in KeyColumns select c.Key.ValueType);
+    }
+
+    private void CreateColumns()
+    {
+      var list = new List<ColumnInfo>(keyColumns.Select(pair => pair.Key));
+      list.AddRange(valueColumns);
+      columns = new ReadOnlyList<ColumnInfo>(list);
     }
 
 

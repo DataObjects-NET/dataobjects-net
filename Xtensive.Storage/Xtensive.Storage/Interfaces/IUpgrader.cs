@@ -15,12 +15,21 @@ namespace Xtensive.Storage
   /// <summary>
   /// Base class for schema upgraders - classes responsible for schema upgrade.
   /// </summary>
-  public interface ISchemaUpgrader
+  public interface IUpgrader
   {
     /// <summary>
     /// Gets the name of the assembly.
     /// </summary>
     string AssemblyName { get; }
+
+    /// <summary>
+    /// Determines whether this upgrade can upgrade schema from the specified version.
+    /// </summary>
+    /// <param name="schemaVersion">The schema version to upgrade from.</param>
+    /// <returns>
+    /// <see langword="true"/> if this upgrader can upgrade schema from the specified version; otherwise, <see langword="false"/>.
+    /// </returns>
+    bool CanUpgradeFrom(string schemaVersion);
 
     /// <summary>
     /// Gets the source version, i.e. schema version this upgrader can upgrade from.
@@ -38,7 +47,7 @@ namespace Xtensive.Storage
     /// <remarks>
     /// Implement this method to perform some actions when schema is upgrading.
     /// </remarks>
-    void RunUpgradeScript();
+    void Upgrade();
 
     /// <summary>
     /// Registers the recycled types.

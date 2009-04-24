@@ -12,31 +12,31 @@ using System.Reflection;
 namespace Xtensive.Storage.Internals
 {
   [Serializable]
-  internal class ModelAssembly : IModelAssembly
+  internal class AssemblyDescriptor : IAssemblyDescriptor
   {
     private readonly Assembly assembly;
 
-    public string AssemblyName
+    public string Name
     {
       get { return assembly.GetName(false).Name; }
     }
 
-    public string ModelVersion
+    public string Version
     {
       get { return assembly.GetName(false).Version.ToString(); }
     }
 
-    public IEnumerable<ISchemaUpgrader> GetUpgraders()
+    public IEnumerable<IUpgrader> GetUpgraders()
     {
       return assembly.GetTypes()
-        .Where(type => typeof (ISchemaUpgrader).IsAssignableFrom(type))
-        .Select(type => (ISchemaUpgrader) type.TypeInitializer.Invoke(null));
+        .Where(type => typeof (IUpgrader).IsAssignableFrom(type))
+        .Select(type => (IUpgrader) type.TypeInitializer.Invoke(null));
     }
 
 
     // Constructors
 
-    public ModelAssembly(Assembly assembly)
+    public AssemblyDescriptor(Assembly assembly)
     {
       this.assembly = assembly;
     }

@@ -109,9 +109,10 @@ namespace Xtensive.Storage.Building.Builders
         BuildingContext context = BuildingContext.Current;
         context.Model = new DomainModel();
         BuildTypes();
+        context.ModelUnlockKey = context.Model.GetUnlockKey();
         context.Model.Lock(true);
       }
-    }    
+    }
 
     private static void DefineServices()
     {
@@ -149,8 +150,9 @@ namespace Xtensive.Storage.Building.Builders
         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, new[] { typeof(EntityState), typeof(bool) });
       if (constructor == null && !typeDef.IsStructure) {
         var assemblyName = typeDef.UnderlyingType.Assembly.ManifestModule.Name;
+        assemblyName = assemblyName.Remove(assemblyName.Length - 4);
         throw new DomainBuilderException(string.Format(
-          Strings.ExPersistentAttributeIsNotSetOnTypeX, assemblyName.Remove(assemblyName.Length - 4)));
+          Strings.ExPersistentAttributeIsNotSetOnTypeX, assemblyName));
       }
     }
 

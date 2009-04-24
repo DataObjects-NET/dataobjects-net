@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Default <see cref="ForeignKeyMode"/> value:
-    /// "<see cref="ForeignKeyMode.Default" />".
+    /// "<see cref="Building.ForeignKeyMode.Default" />".
     /// </summary>
     public const ForeignKeyMode DefaultForeignKeyMode = ForeignKeyMode.Default;
 
@@ -103,7 +103,22 @@ namespace Xtensive.Storage.Configuration
     private SessionConfigurationCollection sessions;
     private DomainBuildMode buildMode = DefaultBuildMode;
     private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
-    private Type modelAssembliesManagerType = typeof(DefaultModelAssembliesManager);
+    private Type modelAssembliesManagerType = typeof(DefaultAssemblyDescriptorProvider);
+    private Predicate<Type> persistentTypeFilter = type => true;
+
+    /// <summary>
+    /// Gets or sets the persistent type filter.
+    /// </summary>
+    public Predicate<Type> PersistentTypeFilter
+    {
+      get { return persistentTypeFilter; }
+      set
+      {
+        this.EnsureNotLocked();
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        persistentTypeFilter = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.

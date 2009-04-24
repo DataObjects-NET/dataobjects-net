@@ -10,16 +10,11 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
-using Xtensive.Core.Tuples;
-using Xtensive.Modelling.Actions;
-using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Activator=System.Activator;
-using TypeInfo=Xtensive.Storage.Model.TypeInfo;
 
 
 namespace Xtensive.Storage.Building.Builders
@@ -27,64 +22,12 @@ namespace Xtensive.Storage.Building.Builders
   /// <summary>
   /// Utility class for <see cref="Storage"/> building.
   /// </summary>
-  public static class DomainBuilder
+  internal static class DomainBuilder
   {
     private static readonly PluginManager<ProviderAttribute> pluginManager =
       new PluginManager<ProviderAttribute>(typeof (HandlerFactory), AppDomain.CurrentDomain.BaseDirectory);
 
-    internal static void BuildForUpgrade(DomainConfiguration configuration, Action upgradeDataProcessor)
-    {
-      InternalBuild(configuration, 
-        UpdateSchema,
-        upgradeDataProcessor);
-    }
-
-    internal static void BuildForAccessMetadata(DomainConfiguration configuration, Action metadataReader)
-    {
-      InternalBuild(configuration, 
-        () => { },
-        metadataReader);
-    }
-
-    private static Domain BuildBlockUpgrade(DomainConfiguration configuration)
-    {
-      SchemaUpgradeHelper helper = new SchemaUpgradeHelper(configuration);
-      return InternalBuild(configuration, 
-        () => { },
-        helper.CheckSchemaIsActual);
-    }
-
-    private static Domain BuildRecreate(DomainConfiguration configuration)
-    {
-      SchemaUpgradeHelper helper = new SchemaUpgradeHelper(configuration);
-      return InternalBuild(configuration, 
-        RecreateSchema, 
-        helper.SetInitialSchemaVersion);
-    }
-
-    private static Domain BuildPerformStrict(DomainConfiguration configuration)
-    {
-      SchemaUpgradeHelper helper = new SchemaUpgradeHelper(configuration);
-      helper.UpgradeData();
-      return BuildBlockUpgrade(configuration);
-    }
-
-    private static void RecreateSchema()
-    {
-      var context = BuildingContext.Current;
-      var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
-      upgradeHandler.ClearStorageSchema();
-      upgradeHandler.UpdateStorageSchema();
-    }
-
-    private static void UpdateSchema()
-    {
-      var context = BuildingContext.Current;
-      var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
-      upgradeHandler.UpdateStorageSchema();
-    }
-
-    public static Domain InternalBuild(DomainConfiguration configuration, Action schemaProcessor, Action dataProcessor)
+    public static Domain Build(DomainConfiguration configuration, SchemaUpgradeMode schemaUpgradeMode, Action dataProcessor)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
@@ -92,7 +35,6 @@ namespace Xtensive.Storage.Building.Builders
         configuration.Lock(true);
       
       Validate(configuration);
-
       var context = new BuildingContext(configuration);
 
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
@@ -100,23 +42,25 @@ namespace Xtensive.Storage.Building.Builders
           try {
             CreateDomain();
             CreateHandlerFactory();
+            CreateDomainHandler();
+
             CreateNameBuilder();
             CreateDomainHandler();
             BuildModel();
-            using (context.Domain.Handler.OpenSession(SessionType.System)) {
-              using (var transactionScope = Transaction.Open()) {
-                var sessionHandler = Session.Current.Handler;
-                BuildingScope.Context.SystemSessionHandler = sessionHandler;
-                BuildingContext.Current.Domain.Handler.InitializeSystemSession();
-                // CreateGenerators();
 
-                schemaProcessor.Invoke();
+            using (context.Domain.OpenSystemSession()) {
+              context.SystemSessionHandler = Session.Current.Handler;
+              using (var transactionScope = Transaction.Open()) {                
+                context.Domain.Handler.OnSystemSessionOpen();
+
+                ProcessSchema(schemaUpgradeMode);
 
                 context.Domain.Handler.BuildMappingSchema();
                 CreateGenerators();
-
+                TypeIdBuilder.BuildTypeIds();
+                
                 dataProcessor.Invoke();
-
+                
                 transactionScope.Complete();
               }
             }
@@ -130,31 +74,18 @@ namespace Xtensive.Storage.Building.Builders
       return context.Domain;
     }
 
-
-
-    /// <summary>
-    /// Builds the new <see cref="Domain"/> according to specified configuration.
-    /// </summary>
-    /// <param name="configuration">The storage configuration.</param>
-    /// <returns>Newly created <see cref="Domain"/>.</returns>
-    /// <exception cref="ArgumentNullException">When <paramref name="configuration"/> is null.</exception>
-    /// <exception cref="DomainBuilderException">When at least one error have been occurred 
-    /// during storage building process.</exception>
-    public static Domain Build(DomainConfiguration configuration)
+    private static void ProcessSchema(SchemaUpgradeMode schemaUpgradeMode)
     {
-      switch (configuration.BuildMode) {
-        case DomainBuildMode.Recreate: 
-          return BuildRecreate(configuration);
-        case DomainBuildMode.BlockUpgrade:
-          return BuildBlockUpgrade(configuration);
-        case DomainBuildMode.PerformStrict:
-          return BuildPerformStrict(configuration);
-        
+      var upgradeHandler = BuildingContext.Current.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
 
-        default:
-          return BuildRecreate(configuration);
-      }
-      
+      if (schemaUpgradeMode==SchemaUpgradeMode.Validate) 
+        upgradeHandler.ValidateStorageSchema();
+      else if (schemaUpgradeMode==SchemaUpgradeMode.Upgrade)
+        upgradeHandler.UpgradeStorageSchema();
+      else if (schemaUpgradeMode==SchemaUpgradeMode.Recreate)
+        upgradeHandler.RecreateStorageSchema();
+      else
+        throw new ArgumentOutOfRangeException("schemaUpgradeMode");
     }
 
     #region ValidateXxx methods
@@ -184,28 +115,6 @@ namespace Xtensive.Storage.Building.Builders
     }
 
     #endregion
-
-    private static void AssignSystemTypeIds()
-    {
-      foreach (TypeInfo type in BuildingContext.Current.Model.Types)
-        if (type.IsSystem)
-          type.TypeId = BuildingContext.Current.SystemTypeIds[type.UnderlyingType];
-    }
-
-    private static void ReadExistingTypeIds()
-    {
-      //TODO: Optimize this code
-      foreach (Metadata.Type type in Query<Metadata.Type>.All) {
-        foreach (TypeInfo typeInfo in BuildingContext.Current.Model.Types) {
-          if (typeInfo.UnderlyingType.FullName==type.FullName)
-            typeInfo.TypeId = type.Id;
-        }
-      }
-    }
-
-    private static void GenerateNewTypeIds()
-    {
-    }
 
 
     private static void CreateDomain()
@@ -282,6 +191,5 @@ namespace Xtensive.Storage.Building.Builders
         keyGenerators.Lock();
       }
     }
-
   }
 }
