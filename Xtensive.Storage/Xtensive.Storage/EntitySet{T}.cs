@@ -189,7 +189,7 @@ namespace Xtensive.Storage
     {
       base.Initialize();
       // hack to make expression look like regular parameter (ParameterExtractor.IsParameter => true)
-      var owner = Expression.Property(Expression.Constant(new {MySuperProperty = (Entity)Owner}), "MySuperProperty");
+      var owner = Expression.Property(Expression.Constant(new {Owner = (Entity)Owner}), "Owner");
       expression = QueryHelper.CreateEntitySetQuery(owner, Field);
       query = new Query<TItem>(expression);
     }

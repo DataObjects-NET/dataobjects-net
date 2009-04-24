@@ -24,6 +24,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Expressions;
+using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using FieldInfo=System.Reflection.FieldInfo;
 
@@ -101,18 +102,18 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitUnary(UnaryExpression u)
     {
       switch (u.NodeType) {
-        case ExpressionType.TypeAs:
-          if (u.GetMemberType()==MemberType.Entity)
-            return VisitTypeAs(u.Operand, u.Type);
-          break;
-        case ExpressionType.Convert:
-        case ExpressionType.ConvertChecked:
-          if (u.GetMemberType()==MemberType.Entity) {
-            if (u.Type==u.Operand.Type || u.Type.IsAssignableFrom(u.Operand.Type))
-              return base.VisitUnary(u);
-            throw new NotSupportedException(String.Format("Downcast from '{0}' to '{1}' not supported. Use 'OfType' or 'as' operator instead.", u.Operand.Type, u.Type));
-          }
-          break;
+      case ExpressionType.TypeAs:
+        if (u.GetMemberType()==MemberType.Entity)
+          return VisitTypeAs(u.Operand, u.Type);
+        break;
+      case ExpressionType.Convert:
+      case ExpressionType.ConvertChecked:
+        if (u.GetMemberType()==MemberType.Entity) {
+          if (u.Type==u.Operand.Type || u.Type.IsAssignableFrom(u.Operand.Type))
+            return base.VisitUnary(u);
+          throw new NotSupportedException(String.Format("Downcast from '{0}' to '{1}' not supported. Use 'OfType' or 'as' operator instead.", u.Operand.Type, u.Type));
+        }
+        break;
       }
       return base.VisitUnary(u);
     }
@@ -199,7 +200,7 @@ namespace Xtensive.Storage.Linq
         calculatedColumns.Value = new List<CalculatedColumnDescriptor>();
         var body = Visit(le.Body);
         if (body.IsResult())
-          body = BuildSubqueryResult((ResultExpression)body);
+          body = BuildSubqueryResult((ResultExpression) body);
         else if (calculateExpressions.Value && body.GetMemberType()==MemberType.Unknown) {
           if (!body.IsResult() &&
             !body.IsGroupingConstructor() &&
@@ -277,47 +278,47 @@ namespace Xtensive.Storage.Linq
       var resultType = e.Type;
       source = context.Bindings[path.Parameter];
       switch (path.PathType) {
-        case MemberType.Primitive:
-          return VisitMemberPathPrimitive(path, source, resultType);
-        case MemberType.Key:
-          return VisitMemberPathKey(path, source);
-        case MemberType.Structure:
-          return VisitMemberPathStructure(path, source);
-        case MemberType.Entity:
-          if (!entityAsKey.Value)
-            return VisitMemberPathEntity(path, source, resultType);
-          path = MemberPath.Parse(Expression.MakeMemberAccess(e, WellKnownMembers.IEntityKey), context.Model);
-          var keyExpression = VisitMemberPathKey(path, source);
-          var result = Expression.Call(WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(resultType), keyExpression);
-          return result;
-        case MemberType.EntitySet:
-          return VisitMemberPathEntitySet(e);
-        case MemberType.Anonymous:
-          return VisitMemberPathAnonymous(path, source);
-        default:
-          throw new ArgumentOutOfRangeException();
+      case MemberType.Primitive:
+        return VisitMemberPathPrimitive(path, source, resultType);
+      case MemberType.Key:
+        return VisitMemberPathKey(path, source);
+      case MemberType.Structure:
+        return VisitMemberPathStructure(path, source);
+      case MemberType.Entity:
+        if (!entityAsKey.Value)
+          return VisitMemberPathEntity(path, source, resultType);
+        path = MemberPath.Parse(Expression.MakeMemberAccess(e, WellKnownMembers.IEntityKey), context.Model);
+        var keyExpression = VisitMemberPathKey(path, source);
+        var result = Expression.Call(WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(resultType), keyExpression);
+        return result;
+      case MemberType.EntitySet:
+        return VisitMemberPathEntitySet(e);
+      case MemberType.Anonymous:
+        return VisitMemberPathAnonymous(path, source);
+      default:
+        throw new ArgumentOutOfRangeException();
       }
     }
 
     protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
       switch (binaryExpression.Left.GetMemberType()) {
-        case MemberType.Unknown:
-        case MemberType.Primitive:
-          break;
-        case MemberType.Key:
-          return VisitBinaryKey(binaryExpression);
-        case MemberType.Entity:
-          return VisitBinaryEntity(binaryExpression);
-        case MemberType.Anonymous:
-          return VisitBinaryAnonymous(binaryExpression);
-        case MemberType.Structure:
-          return VisitBinaryStructure(binaryExpression);
-        case MemberType.EntitySet:
-        case MemberType.Grouping:
-          throw new NotSupportedException();
-        default:
-          throw new ArgumentOutOfRangeException();
+      case MemberType.Unknown:
+      case MemberType.Primitive:
+        break;
+      case MemberType.Key:
+        return VisitBinaryKey(binaryExpression);
+      case MemberType.Entity:
+        return VisitBinaryEntity(binaryExpression);
+      case MemberType.Anonymous:
+        return VisitBinaryAnonymous(binaryExpression);
+      case MemberType.Structure:
+        return VisitBinaryStructure(binaryExpression);
+      case MemberType.EntitySet:
+      case MemberType.Grouping:
+        throw new NotSupportedException();
+      default:
+        throw new ArgumentOutOfRangeException();
       }
       return base.VisitBinary(binaryExpression);
     }
@@ -400,35 +401,35 @@ namespace Xtensive.Storage.Linq
               : newName + "." + oldName;
 
             switch (memberType) {
-              case MemberType.Default:
-              case MemberType.Primitive:
-              case MemberType.Key: {
+            case MemberType.Default:
+            case MemberType.Primitive:
+            case MemberType.Key: {
+              var primitiveFieldMapping = (PrimitiveMapping) fieldMapping;
+              mappingRef.Value.RegisterField(memberName, primitiveFieldMapping.Segment);
+              break;
+            }
+            case MemberType.Structure: {
+              var complexMapping = (ComplexMapping) fieldMapping;
+              foreach (var p in complexMapping.Fields)
+                mappingRef.Value.RegisterField(rename(p.Key, memberName), p.Value);
+              break;
+            }
+            case MemberType.Entity:
+              if (fieldMapping is PrimitiveMapping) {
                 var primitiveFieldMapping = (PrimitiveMapping) fieldMapping;
-                mappingRef.Value.RegisterField(memberName, primitiveFieldMapping.Segment);
-                break;
+                var fields = new Dictionary<string, Segment<int>> {{StorageWellKnown.Key, primitiveFieldMapping.Segment}};
+                var entityMapping = new ComplexMapping(fields);
+                mappingRef.Value.RegisterEntity(memberName, entityMapping);
               }
-              case MemberType.Structure: {
-                var complexMapping = (ComplexMapping) fieldMapping;
-                foreach (var p in complexMapping.Fields)
-                  mappingRef.Value.RegisterField(rename(p.Key, memberName), p.Value);
-                break;
-              }
-              case MemberType.Entity:
-                if (fieldMapping is PrimitiveMapping) {
-                  var primitiveFieldMapping = (PrimitiveMapping) fieldMapping;
-                  var fields = new Dictionary<string, Segment<int>> {{StorageWellKnown.Key, primitiveFieldMapping.Segment}};
-                  var entityMapping = new ComplexMapping(fields);
-                  mappingRef.Value.RegisterEntity(memberName, entityMapping);
-                }
-                else
-                  mappingRef.Value.RegisterEntity(memberName, (ComplexMapping) fieldMapping);
-                break;
-              case MemberType.Anonymous:
-                mappingRef.Value.RegisterAnonymous(memberName, (ComplexMapping) fieldMapping, newArg);
-                break;
-              case MemberType.Grouping:
-                mappingRef.Value.RegisterGrouping(memberName, (ComplexMapping) fieldMapping);
-                break;
+              else
+                mappingRef.Value.RegisterEntity(memberName, (ComplexMapping) fieldMapping);
+              break;
+            case MemberType.Anonymous:
+              mappingRef.Value.RegisterAnonymous(memberName, (ComplexMapping) fieldMapping, newArg);
+              break;
+            case MemberType.Grouping:
+              mappingRef.Value.RegisterGrouping(memberName, (ComplexMapping) fieldMapping);
+              break;
             }
           }
         }
@@ -442,7 +443,7 @@ namespace Xtensive.Storage.Linq
           if (body.AsTupleAccess()!=null)
             newArg = body;
           else if (body.IsResult())
-            newArg = BuildSubqueryResult((ResultExpression)body);
+            newArg = BuildSubqueryResult((ResultExpression) body);
           else {
             var calculator = Expression.Lambda(
               body.Type==typeof (object)
@@ -460,13 +461,17 @@ namespace Xtensive.Storage.Linq
         newArg = newArg ?? Visit(arg);
         arguments.Add(newArg);
       }
-      // Cast EntitySet<T> to IQueryable<T>
+      var constructorParameters = n.Constructor.GetParameters();
       for (int i = 0; i < arguments.Count; i++) {
-        if (arguments[i].IsEntitySet()) {
-          var type = arguments[i].Type.GetGenericArguments()[0];
-          var queryableType = typeof (IQueryable<>).MakeGenericType(type);
-          arguments[i] = Expression.Convert(arguments[i], queryableType);
+        if (arguments[i].Type!=constructorParameters[i].ParameterType) {
+          arguments[i] = Expression.Convert(arguments[i], constructorParameters[i].ParameterType);
         }
+//        // Cast EntitySet<T> to IQueryable<T>
+//        if (arguments[i].IsEntitySet()) {
+//          var type = arguments[i].Type.GetGenericArguments()[0];
+//          var queryableType = typeof (IQueryable<>).MakeGenericType(type);
+//          arguments[i] = Expression.Convert(arguments[i], queryableType);
+//        }
       }
       var result = Expression.New(n.Constructor, arguments, n.Members);
       return result;
@@ -502,28 +507,42 @@ namespace Xtensive.Storage.Linq
 
     private Expression BuildSubqueryResult(ResultExpression subQuery)
     {
-      Expression resultExpression;
-      var outerParameters = context.Bindings.GetKeys()
+      List<ParameterExpression> outerParameters = context.Bindings.GetKeys()
         .OfType<ParameterExpression>()
         .ToList();
-      if (outerParameters.Count==0)
-        resultExpression = subQuery;
-      else {
-        var searchFor = outerParameters.ToArray();
-        var replaceWithList = new List<Expression>();
-        foreach (var projection in outerParameters.Select(pe => context.Bindings[pe].ItemProjector)) {
-          RecordIsUsed |= projection.Parameters.Count(pe => pe.Type==typeof (Record)) > 0;
-          var replacedParameters = projection.Parameters.ToArray();
-          var replacingParameters = projection.Parameters.Select(pe => pe.Type==typeof (Tuple)
-            ? tuple.Value
-            : record.Value).ToArray();
-          replaceWithList.Add(ExpressionReplacer.ReplaceAll(projection.Body, replacedParameters, replacingParameters));
-        }
-        var newItemProjector = (LambdaExpression)ExpressionReplacer.ReplaceAll(subQuery.ItemProjector, searchFor, replaceWithList.ToArray());
-        resultExpression = new ResultExpression(subQuery.Type, subQuery.RecordSet, subQuery.Mapping, newItemProjector, subQuery.ResultType);
-      }
 
-      return resultExpression;
+      if (outerParameters.Count!=1)
+        throw new NotImplementedException();
+
+      var parameterResultExpression = context.Bindings[outerParameters[0]];
+      var applyParameter = context.GetApplyParameter(parameterResultExpression);
+      
+      var tupleParameter = new Parameter<Tuple>();
+      var constantTupleParameter = Expression.Constant(tupleParameter);
+
+      Func<Provider, Expression, Expression> rewirter = 
+        (provider, expression) => expression is ConstantExpression 
+          && ((ConstantExpression) expression).Value.Equals(applyParameter)
+        ? constantTupleParameter
+        : expression;
+
+      var rewritedRecordset = new CompilableProviderVisitor(rewirter)
+        .VisitCompilable(subQuery.RecordSet.Provider)
+        .Result;
+
+      var newResultExpression = new ResultExpression(subQuery.Type, rewritedRecordset, subQuery.Mapping, subQuery.ItemProjector, subQuery.ResultType);
+
+      var constructor = (typeof (SubQuery<>)
+        .MakeGenericType(subQuery.Type)
+        .GetConstructor(new[]{typeof (ResultExpression), typeof (Tuple), typeof (Parameter<Tuple>)}));
+
+      var result = Expression.New(constructor, new Expression[] {
+        Expression.Constant(newResultExpression),
+        tuple.Value,
+        constantTupleParameter
+      });
+
+      return result;
     }
 
     private static Expression MakeBinaryExpression(Expression previous, Expression left, Expression right, ExpressionType operationType, ExpressionType concatenationExpression)
@@ -536,12 +555,12 @@ namespace Xtensive.Storage.Linq
         return newExpression;
 
       switch (concatenationExpression) {
-        case ExpressionType.AndAlso:
-          return Expression.AndAlso(previous, newExpression);
-        case ExpressionType.OrElse:
-          return Expression.OrElse(previous, newExpression);
-        default:
-          throw new ArgumentOutOfRangeException("concatenationExpression");
+      case ExpressionType.AndAlso:
+        return Expression.AndAlso(previous, newExpression);
+      case ExpressionType.OrElse:
+        return Expression.OrElse(previous, newExpression);
+      default:
+        throw new ArgumentOutOfRangeException("concatenationExpression");
       }
     }
 
