@@ -5,11 +5,15 @@
 // Created:    2008.12.11
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Reflection;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Linq.Expressions.Mappings;
 
@@ -22,34 +26,11 @@ namespace Xtensive.Storage.Linq.Expressions
     public RecordSet RecordSet { get; private set; }
     public IMapping Mapping { get; private set; }
     public LambdaExpression ItemProjector { get; private set; }
-    public LambdaExpression ScalarTransform { get; private set; }
+    public ResultType ResultType { get; private set; }
 
     public bool IsScalar
     {
-      get { return ScalarTransform != null; }
-    }
-
-    private Func<RecordSet, TResult> GetProjector<TResult>()
-    {
-      if (projectionDelegate == null) lock (this) if (projectionDelegate == null) {
-        var rs = Parameter(typeof(RecordSet), "rs");
-        var itemProjector = ItemProjector;
-        var severalArguments = itemProjector.Parameters.Count > 1;
-        var method = severalArguments
-          ? typeof(Translator)
-            .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
-            .MakeGenericMethod(itemProjector.Body.Type)
-          : WellKnownMembers.EnumerableSelect.MakeGenericMethod(itemProjector.Parameters[0].Type, itemProjector.Body.Type);
-        Expression body = (!severalArguments && itemProjector.Parameters[0].Type == typeof(Record))
-          ? Call(method, Call(WellKnownMembers.RecordSetParse, rs), itemProjector)
-          : Call(method, rs, itemProjector);
-        body = IsScalar
-          ? Invoke(ScalarTransform, body)
-          : (body.Type == typeof(TResult) ? body : Convert(body, typeof(TResult)));
-        var projector = Lambda<Func<RecordSet, TResult>>(Convert(body, typeof(TResult)), rs);
-        projectionDelegate = projector.Compile();
-      }
-      return (Func<RecordSet, TResult>)projectionDelegate;
+      get {  return ResultType != ResultType.All; }
     }
 
     public TResult GetResult<TResult>()
@@ -57,6 +38,50 @@ namespace Xtensive.Storage.Linq.Expressions
       var projector = GetProjector<TResult>();
       return projector(RecordSet);
     }
+
+    #region Private methods...
+
+    private Func<RecordSet, TResult> GetProjector<TResult>()
+    {
+      if (projectionDelegate == null) lock (this) if (projectionDelegate == null) {
+        var rs = Parameter(typeof(RecordSet), "rs");
+        var itemProjector = ItemProjector;
+        var severalArguments = itemProjector.Parameters.Count > 1;
+        var elementType = itemProjector.Body.Type;
+        var method = severalArguments
+          ? typeof(ResultExpression)
+            .GetMethod("MakeProjection", BindingFlags.NonPublic | BindingFlags.Static)
+            .MakeGenericMethod(elementType)
+          : WellKnownMembers.EnumerableSelect.MakeGenericMethod(itemProjector.Parameters[0].Type, elementType);
+        Expression body = (!severalArguments && itemProjector.Parameters[0].Type == typeof(Record))
+          ? Call(method, Call(WellKnownMembers.RecordSetParse, rs), itemProjector)
+          : Call(method, rs, itemProjector);
+        if (IsScalar) {
+          var scalarMethodName = ResultType.ToString();
+          var enumerableMethod = typeof (Enumerable)
+            .GetMethods(BindingFlags.Static | BindingFlags.Public)
+            .First(m => m.Name==scalarMethodName && m.GetParameters().Length==1)
+            .MakeGenericMethod(elementType);
+          body = Call(enumerableMethod, body);
+        }
+        else
+          body = body.Type == typeof (TResult)
+            ? body
+            : Convert(body, typeof (TResult));
+        var projector = Lambda<Func<RecordSet, TResult>>(Convert(body, typeof(TResult)), rs);
+        projectionDelegate = projector.Compile();
+      }
+      return (Func<RecordSet, TResult>)projectionDelegate;
+    }
+
+    private static IEnumerable<TResult> MakeProjection<TResult>(RecordSet rs, Expression<Func<Tuple, Record, TResult>> le)
+    {
+      var func = le.Compile();
+      foreach (var r in rs.Parse())
+        yield return func(r.Data, r);
+    }
+
+    #endregion
 
     
     // Constructors
@@ -66,7 +91,7 @@ namespace Xtensive.Storage.Linq.Expressions
       RecordSet recordSet,
       IMapping mapping,
       LambdaExpression itemProjector)
-      : this(type, recordSet, mapping, itemProjector, null)
+      : this(type, recordSet, mapping, itemProjector, ResultType.All)
     {}
 
     public ResultExpression(
@@ -74,13 +99,13 @@ namespace Xtensive.Storage.Linq.Expressions
       RecordSet recordSet,
       IMapping mapping,
       LambdaExpression itemProjector,
-      LambdaExpression scalarTransform)
+      ResultType resultType)
       : base((ExpressionType)ExtendedExpressionType.Result, type)
     {
       RecordSet = recordSet;
       Mapping = mapping;
       ItemProjector = itemProjector;
-      ScalarTransform = scalarTransform;
+      ResultType = resultType;
     }
   }
 }

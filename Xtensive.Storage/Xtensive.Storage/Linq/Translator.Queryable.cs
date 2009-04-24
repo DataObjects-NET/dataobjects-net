@@ -335,15 +335,8 @@ namespace Xtensive.Storage.Linq
           recordSet = result.RecordSet.Take(2);
           break;
       }
-      var elementType = method.ReturnType;
-      var enumerableType = typeof (IEnumerable<>).MakeGenericType(elementType);
-      MethodInfo enumerableMethod = typeof (Enumerable)
-        .GetMethods(BindingFlags.Static | BindingFlags.Public)
-        .First(m => m.Name==method.Name && m.GetParameters().Length==1)
-        .MakeGenericMethod(elementType);
-      var p = Expression.Parameter(enumerableType, "p");
-      var scalarTransform = Expression.Lambda(Expression.Call(enumerableMethod, p), p);
-      return new ResultExpression(method.ReturnType, recordSet, result.Mapping, result.ItemProjector, scalarTransform);
+      var resultType = (ResultType)Enum.Parse(typeof (ResultType), method.Name);
+      return new ResultExpression(method.ReturnType, recordSet, result.Mapping, result.ItemProjector, resultType);
     }
 
     private ResultExpression VisitTake(Expression source, Expression take)
@@ -447,9 +440,7 @@ namespace Xtensive.Storage.Linq
         ? Expression.Convert(ExpressionHelper.TupleAccess(pTuple, typeof (long), 0), typeof (int))
         : ExpressionHelper.TupleAccess(pTuple, resultType, 0);
       var itemProjector = Expression.Lambda(projectorBody, pTuple);
-      var p = Expression.Parameter(typeof (IEnumerable<>).MakeGenericType(resultType), "p");
-      var scalarTransform = Expression.Lambda(Expression.Call(WellKnownMembers.EnumerableFirst.MakeGenericMethod(resultType), p), p);
-      return new ResultExpression(resultType, innerRecordSet, null, itemProjector, scalarTransform);
+      return new ResultExpression(resultType, innerRecordSet, null, itemProjector, ResultType.First);
     }
 
     private ResultExpression VisitGroupBy(MethodInfo method, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
@@ -787,10 +778,8 @@ namespace Xtensive.Storage.Linq
         : ExpressionHelper.TupleAccess(pTuple, typeof (bool), 0);
 
       var itemProjector = Expression.Lambda(projectorBody, pTuple);
-      var p = Expression.Parameter(typeof (IEnumerable<>).MakeGenericType(typeof (bool)), "p");
-      var scalarTransform = Expression.Lambda(Expression.Call(WellKnownMembers.EnumerableFirst.MakeGenericMethod(typeof (bool)), p), p);
       var newRecordSet = result.RecordSet.Existence(context.GetNextColumnAlias());
-      return new ResultExpression(typeof (bool), newRecordSet, null, itemProjector, scalarTransform);
+      return new ResultExpression(typeof (bool), newRecordSet, null, itemProjector, ResultType.First);
     }
 
     private Expression VisitExists(Expression source, LambdaExpression predicate, bool notExists)

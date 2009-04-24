@@ -22,9 +22,9 @@ namespace Xtensive.Storage.Linq.Expressions
       RecordSet recordSet, 
       IMapping mapping, 
       Expression<Func<RecordSet, object>> projector, 
-      LambdaExpression itemProjector, 
+      ResultType resultType, 
       ResultExpression value)
-      : base(type, recordSet, mapping, projector, itemProjector)
+      : base(type, recordSet, mapping, projector, resultType)
     {
       Value = value;
     }

@@ -520,18 +520,10 @@ namespace Xtensive.Storage.Linq
           replaceWithList.Add(ExpressionReplacer.ReplaceAll(projection.Body, replacedParameters, replacingParameters));
         }
         var newItemProjector = (LambdaExpression)ExpressionReplacer.ReplaceAll(subQuery.ItemProjector, searchFor, replaceWithList.ToArray());
-        var newScalarTransform = (LambdaExpression)ExpressionReplacer.ReplaceAll(subQuery.ScalarTransform, searchFor, replaceWithList.ToArray());
-        resultExpression = new ResultExpression(subQuery.Type, subQuery.RecordSet, subQuery.Mapping, newItemProjector, newScalarTransform);
+        resultExpression = new ResultExpression(subQuery.Type, subQuery.RecordSet, subQuery.Mapping, newItemProjector, subQuery.ResultType);
       }
 
       return resultExpression;
-    }
-
-    private static IEnumerable<TResult> MakeProjection<TResult>(RecordSet rs, Expression<Func<Tuple, Record, TResult>> le)
-    {
-      var func = le.Compile();
-      foreach (var r in rs.Parse())
-        yield return func(r.Data, r);
     }
 
     private static Expression MakeBinaryExpression(Expression previous, Expression left, Expression right, ExpressionType operationType, ExpressionType concatenationExpression)

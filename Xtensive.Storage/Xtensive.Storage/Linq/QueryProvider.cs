@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Linq
         var groupMap = MappingHelper.BuildGroupMapping(usedColumns, originProvider, resultProvider);
         var mappingsReplacer = new ItemProjectorRewriter(usedColumns, groupMap, origin.RecordSet.Header);
         var itemProjector = mappingsReplacer.Rewrite(origin.ItemProjector);
-        var result = new ResultExpression(origin.Type, rs, null, (LambdaExpression)itemProjector, origin.ScalarTransform);
+        var result = new ResultExpression(origin.Type, rs, null, (LambdaExpression)itemProjector, origin.ResultType);
         return result;
       }
       return origin;
