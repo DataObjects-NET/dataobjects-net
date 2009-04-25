@@ -203,7 +203,7 @@ namespace Xtensive.Storage.Linq
         if (body.IsResult())
           body = BuildSubqueryResult((ResultExpression) body);
         else if (calculateExpressions.Value && body.GetMemberType()==MemberType.Unknown) {
-          if (!body.IsResult() &&
+          if (!body.IsSubqueryConstructor() &&
             !body.IsGroupingConstructor() &&
               (body.NodeType!=ExpressionType.Call ||
                 ((MethodCallExpression) body).Object==null ||

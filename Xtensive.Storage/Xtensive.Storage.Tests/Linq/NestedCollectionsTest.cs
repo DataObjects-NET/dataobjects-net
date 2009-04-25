@@ -46,9 +46,26 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectDoubleNestedTest()
     {
       var result = Query<Customer>.All
-        .Select(c => Query<Order>.All.Select(o => Query<Employee>.All))
+        .Take(10)
+        .Select(c => Query<Order>.All
+          .Take(10)
+          .Select(o => Query<Employee>.All))
         .Select(os => os);
-      Assert.AreEqual(numberOfCustomers * numberOfOrders * numberOfEmployees, Count(result));
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void ComplexSubqueryTest()
+    {
+      var result = Query<Customer>.All
+        .Take(10)
+        .Select(c => Query<Order>.All
+          .Select(o => Query<Employee>.All
+            .Take(10)
+            .Where(e=>e.Orders.Contains(o)))
+            .Where(o=>o.Count()>0))
+        .Select(os => os);
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -105,7 +122,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectDoubleNestedSelectManyTest()
     {
       var result = Query<Customer>.All
-        .Select(c => Query<Order>.All.Select(o => Query<Employee>.All))
+        .Take(10)
+        .Select(c => Query<Order>.All
+          .Take(10)
+          .Select(o => Query<Employee>.All))
         .SelectMany(i => i)
         .SelectMany(i => i);
       Assert.AreEqual(numberOfCustomers * numberOfOrders * numberOfEmployees, Count(result));
