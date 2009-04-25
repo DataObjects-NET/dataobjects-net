@@ -14,7 +14,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {
-  internal sealed class GroupingToSubqueryRewriter : ExpressionVisitor
+  internal sealed class TupleParameterToApplyParameterRewriter : ExpressionVisitor
   {
     private readonly Parameter<Tuple> parameterOfTuple;
     private readonly Expression applyParameterExpression;
@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Linq.Rewriters
     public static CompilableProvider Rewrite(CompilableProvider provider,
       Parameter<Tuple> parameterOfTuple, ApplyParameter applyParameter)
     {
-      var expressionRewriter = new GroupingToSubqueryRewriter(parameterOfTuple, applyParameter);
+      var expressionRewriter = new TupleParameterToApplyParameterRewriter(parameterOfTuple, applyParameter);
       var providerRewriter = new CompilableProviderVisitor(expressionRewriter.RewriteExpression);
       return providerRewriter.VisitCompilable(provider);
     }
@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Linq.Rewriters
 
     // Constructor
 
-    private GroupingToSubqueryRewriter(Parameter<Tuple> parameterOfTuple, ApplyParameter applyParameter)
+    private TupleParameterToApplyParameterRewriter(Parameter<Tuple> parameterOfTuple, ApplyParameter applyParameter)
     {
       this.parameterOfTuple = parameterOfTuple;
       applyParameterExpression = Expression.Constant(applyParameter);

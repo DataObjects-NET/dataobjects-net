@@ -872,7 +872,15 @@ namespace Xtensive.Storage.Linq
         var groupingParameter = visitedExpression.GetGroupingParameter();
         var applyParameter = context.GetApplyParameter(context.Bindings[(ParameterExpression) sequenceExpression]);
         var oldResult = visitedExpression.GetGroupingItemsResult();
-        var newProvider = GroupingToSubqueryRewriter.Rewrite(oldResult.RecordSet.Provider, groupingParameter, applyParameter);
+        var newProvider = TupleParameterToApplyParameterRewriter.Rewrite(oldResult.RecordSet.Provider, groupingParameter, applyParameter);
+        return new ResultExpression(oldResult.Type, newProvider.Result, oldResult.Mapping, oldResult.ItemProjector);
+      }
+
+      if (visitedExpression.IsSubqueryConstructor()) {
+        var subqueryParameter = visitedExpression.GetSubqueryParameter();
+        var applyParameter = context.GetApplyParameter(context.Bindings[(ParameterExpression) sequenceExpression]);
+        var oldResult = visitedExpression.GetSubqueryItemsResult();
+        var newProvider = TupleParameterToApplyParameterRewriter.Rewrite(oldResult.RecordSet.Provider, subqueryParameter, applyParameter);
         return new ResultExpression(oldResult.Type, newProvider.Result, oldResult.Mapping, oldResult.ItemProjector);
       }
 

@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Linq
 
       var originProvider = origin.RecordSet.Provider;
       var usedColumns = mappingsGatherer
-          .Gather(origin.ItemProjector, originProvider.Header, model, origin.Mapping)
+          .Gather(origin.ItemProjector, originProvider, model, origin.Mapping)
           .Distinct()
           .OrderBy(i => i)
           .ToList();

@@ -37,9 +37,22 @@ namespace Xtensive.Storage.Linq
       return false;
     }
 
+    public static bool IsSubqueryConstructor(this Expression expression)
+    {
+      expression = expression.StripCasts();
+      if (expression.NodeType==ExpressionType.New)
+        return expression.Type.IsOfGenericType(typeof(SubQuery<>));
+      return false;
+    }
+
     public static bool IsGrouping(this Expression expression)
     {
       return expression.Type.IsOfGenericInterface(typeof(IGrouping<,>));
+    }
+
+    public static bool IsSubquery(this Expression expression)
+    {
+      return expression.Type.IsOfGenericType(typeof(SubQuery<>));
     }
 
     public static bool IsEntitySet(this Expression expression)
@@ -66,10 +79,23 @@ namespace Xtensive.Storage.Linq
       return (Parameter<Tuple>) ((ConstantExpression) newExpression.Arguments[3]).Value;
     }
 
+
+    public static Parameter<Tuple> GetSubqueryParameter(this Expression expression)
+    {
+      var newExpression = (NewExpression)expression.StripCasts();
+      return (Parameter<Tuple>) ((ConstantExpression) newExpression.Arguments[2]).Value;
+    }
+
     public static ResultExpression GetGroupingItemsResult(this Expression expression)
     {
       var newExpression = (NewExpression)expression.StripCasts();
       return (ResultExpression) ((ConstantExpression) newExpression.Arguments[2]).Value;
+    }
+
+    public static ResultExpression GetSubqueryItemsResult(this Expression expression)
+    {
+      var newExpression = (NewExpression)expression.StripCasts();
+      return (ResultExpression) ((ConstantExpression) newExpression.Arguments[0]).Value;
     }
 
     public static MemberType GetMemberType(this Expression e)
@@ -89,9 +115,12 @@ namespace Xtensive.Storage.Linq
             && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
               && (type.Attributes & TypeAttributes.NotPublic)==TypeAttributes.NotPublic)
         return MemberType.Anonymous;
-      return e.IsGrouping()
-        ? MemberType.Grouping
-        : MemberType.Unknown;
+      if (e.IsGrouping())
+        return MemberType.Grouping;
+      if (e.IsSubquery())
+        return MemberType.Subquery;
+      
+      return MemberType.Unknown;
     }
  }
 }

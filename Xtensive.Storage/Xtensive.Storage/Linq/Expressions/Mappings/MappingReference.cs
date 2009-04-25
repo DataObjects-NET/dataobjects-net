@@ -69,6 +69,15 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       }
     }
 
+    public void RegisterSubquery(string key, ComplexMapping value)
+    {
+      if (FillMapping) {
+        var complexMapping = Mapping as ComplexMapping;
+        if (complexMapping != null && !complexMapping.Subqueries.ContainsKey(key))
+          complexMapping.RegisterSubquery(key, value);
+      }
+    }
+
     public void RegisterAnonymous(string key, ComplexMapping anonymousMapping, Expression projection)
     {
       if (FillMapping) {

@@ -129,6 +129,44 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.AreEqual(numberOfOrders, result.ToList().Count);
     }
 
+    [Test]
+    public void SubquerySimpleTest()
+    {
+      var result = Query<Product>.All
+        .Select(p => Query<Category>.All.Where(c => c==p.Category));
+      foreach (IQueryable<Category> queryable in result) {
+        QueryDumper.Dump(queryable);
+      }
+    }
+
+    [Test]
+    public void SubqueryWithSelectTest()
+    {
+      var result = Query<Product>.All
+        .Select(p => Query<Category>.All.Where(c => c==p.Category))
+        .Select(q=>q);
+      foreach (IQueryable<Category> queryable in result) {
+        QueryDumper.Dump(queryable);
+      }
+    }
+
+    [Test]
+    public void SubqueryScalarTest()
+    {
+      var result = Query<Product>.All
+        .Select(p => Query<Category>.All.Count());
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void SubqueryWhereEntitySetTest()
+    {
+      var result = Query<Category>.All
+        .Where(c => c.Products.Count > 0);
+      QueryDumper.Dump(result);
+    }
+
+
     private static int Count(IEnumerable result)
     {
       int count = 0;

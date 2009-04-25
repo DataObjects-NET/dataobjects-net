@@ -450,6 +450,9 @@ namespace Xtensive.Storage.Linq
             case MemberType.Grouping:
               mappingRef.Value.RegisterGrouping(memberName, (ComplexMapping) fieldMapping);
               break;
+            case MemberType.Subquery:
+              mappingRef.Value.RegisterSubquery(memberName, (ComplexMapping) fieldMapping);
+              break;
             }
           }
         }
@@ -541,9 +544,12 @@ namespace Xtensive.Storage.Linq
       
       var tupleParameter = new Parameter<Tuple>("tupleParameter");
 
-      var rewrittenRecordset = ApplyParameterRewriter
+
+      var rewrittenRecordset = ApplyParameterToTupleParameterRewriter
         .Rewrite(subQuery.RecordSet.Provider, tupleParameter, applyParameter) 
         .Result;
+
+      mappingRef.Value.Replace(parameterResultExpression.Mapping);
 
       var newResultExpression = new ResultExpression(subQuery.Type, rewrittenRecordset, subQuery.Mapping, subQuery.ItemProjector, subQuery.ResultType);
 

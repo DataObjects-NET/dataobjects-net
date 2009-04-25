@@ -579,4 +579,10 @@
   <data name="ExBinaryExpressionsWithNodeTypeXAreNotSupported" xml:space="preserve">
     <value>Binary expressions with NodeType = 'ExpressionType.{0}' aren't supported.</value>
   </data>
+  <data name="ExCouldNotFindGroupingMappingForFieldX" xml:space="preserve">
+    <value>Could not find grouping mapping for field '{0}'.</value>
+  </data>
+  <data name="ExCouldNotFindSubqueryMappingForFieldX" xml:space="preserve">
+    <value>Could not find subquery mapping for field '{0}'.</value>
+  </data>
 </root>

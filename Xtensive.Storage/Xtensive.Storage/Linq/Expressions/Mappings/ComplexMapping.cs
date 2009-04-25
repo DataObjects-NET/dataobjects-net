@@ -18,13 +18,23 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 {
   internal sealed class ComplexMapping : IMapping
   {
-    internal readonly Dictionary<string, Segment<int>> Fields;
-    internal readonly Dictionary<string, ComplexMapping> Entities;
-    internal readonly Dictionary<string, Pair<ComplexMapping, Expression>> AnonymousTypes;
-    internal readonly Dictionary<string, ComplexMapping> Groupings;
-    private readonly List<Pair<string,MemberType>> fillOrder;
-    
+    public Dictionary<string, Segment<int>> Fields { get; private set; }
+    public Dictionary<string, ComplexMapping> Entities { get; private set; }
+    public Dictionary<string, Pair<ComplexMapping, Expression>> AnonymousTypes { get; private set; }
+    public Dictionary<string, ComplexMapping> Groupings { get; private set; }
+    public Dictionary<string, ComplexMapping> Subqueries { get; private set; }
+    public List<Pair<string, MemberType>> FillOrder { get; private set; }
+
     #region Accessor methods
+
+    public IEnumerable<Pair<string, Segment<int>>> GetFields(IEnumerable<int> columns)
+    {
+      return Fields.Where(keyValuePair =>
+        columns.Any(columnIndex =>
+          columnIndex >= keyValuePair.Value.Offset
+            && columnIndex < keyValuePair.Value.Offset + keyValuePair.Value.Length))
+        .Select(pair => new Pair<string, Segment<int>>(pair.Key, pair.Value));
+    }
 
     public Segment<int> GetFieldMapping(string fieldName)
     {
@@ -51,7 +61,15 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     {
       ComplexMapping result;
       if (!Groupings.TryGetValue(fieldName, out result))
-        throw new InvalidOperationException(string.Format(Strings.ExCouldNotFindEntityMappingForFieldX, fieldName));
+        throw new InvalidOperationException(string.Format(Strings.ExCouldNotFindGroupingMappingForFieldX, fieldName));
+      return result;
+    }
+
+    public ComplexMapping GetSubqueryMapping(string fieldName)
+    {
+      ComplexMapping result;
+      if (!Subqueries.TryGetValue(fieldName, out result))
+        throw new InvalidOperationException(string.Format(Strings.ExCouldNotFindSubqueryMappingForFieldX, fieldName));
       return result;
     }
 
@@ -69,7 +87,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     {
       var result = new List<int>();
       var lookup = result.ToLookup(i => i);
-      if (fillOrder.Count == 0) {
+      if (FillOrder.Count==0) {
         // mapping for entity
         if (entityAsKey)
           result.AddRange(GetFieldMapping(StorageWellKnown.Key).GetItems());
@@ -77,22 +95,22 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
           result.AddRange(CalculateMemberSegment().GetItems());
       }
       else
-        foreach (var pair in fillOrder)
+        foreach (var pair in FillOrder)
           switch (pair.Second) {
-            case MemberType.Primitive:
-              result.AddRange(GetFieldMapping(pair.First).GetItems());
-              break;
-            case MemberType.Entity:
-              result.AddRange(GetEntityMapping(pair.First).GetColumns(entityAsKey));
-              break;
-            case MemberType.Anonymous:
-              result.AddRange(GetAnonymousMapping(pair.First).First.GetColumns(entityAsKey));
-              break;
-            case MemberType.Grouping:
-              result.AddRange(GetGroupingMapping(pair.First).GetColumns(entityAsKey));
-              break;
-            default:
-              throw new ArgumentOutOfRangeException();
+          case MemberType.Primitive:
+            result.AddRange(GetFieldMapping(pair.First).GetItems());
+            break;
+          case MemberType.Entity:
+            result.AddRange(GetEntityMapping(pair.First).GetColumns(entityAsKey));
+            break;
+          case MemberType.Anonymous:
+            result.AddRange(GetAnonymousMapping(pair.First).First.GetColumns(entityAsKey));
+            break;
+          case MemberType.Grouping:
+            result.AddRange(GetGroupingMapping(pair.First).GetColumns(entityAsKey));
+            break;
+          default:
+            throw new ArgumentOutOfRangeException();
           }
       return result.Distinct().ToList();
     }
@@ -100,22 +118,23 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     public IMapping CreateShifted(int offset)
     {
       var shiftedFields = Fields.ToDictionary(fm => fm.Key, fm => new Segment<int>(offset + fm.Value.Offset, fm.Value.Length));
-      var shiftedEntities = Entities.ToDictionary(jr => jr.Key, jr => (ComplexMapping)jr.Value.CreateShifted(offset));
-      var shiftedGroupings = Groupings.ToDictionary(jr => jr.Key, jr => (ComplexMapping)jr.Value.CreateShifted(offset));
+      var shiftedEntities = Entities.ToDictionary(jr => jr.Key, jr => (ComplexMapping) jr.Value.CreateShifted(offset));
+      var shiftedGroupings = Groupings.ToDictionary(jr => jr.Key, jr => (ComplexMapping) jr.Value.CreateShifted(offset));
+      var shiftedSubqueries = Subqueries.ToDictionary(jr => jr.Key, jr => (ComplexMapping) jr.Value.CreateShifted(offset));
       var shiftedAnonymous = new Dictionary<string, Pair<ComplexMapping, Expression>>();
       foreach (var pair in AnonymousTypes) {
         var mapping = pair.Value.First.CreateShifted(offset);
         // TODO: rewrite tuple access
         var expression = pair.Value.Second;
-        shiftedAnonymous.Add(pair.Key, new Pair<ComplexMapping, Expression>((ComplexMapping)mapping, expression));
+        shiftedAnonymous.Add(pair.Key, new Pair<ComplexMapping, Expression>((ComplexMapping) mapping, expression));
       }
-      return new ComplexMapping(shiftedFields, shiftedEntities, shiftedAnonymous, shiftedGroupings, fillOrder);
+      return new ComplexMapping(shiftedFields, shiftedEntities, shiftedAnonymous, shiftedGroupings, shiftedSubqueries, FillOrder);
     }
 
     public Segment<int> GetMemberSegment(MemberPath fieldPath)
     {
-      if (fieldPath.Count == 0) {
-        if (fieldPath.PathType == MemberType.Structure || fieldPath.PathType == MemberType.Entity)
+      if (fieldPath.Count==0) {
+        if (fieldPath.PathType==MemberType.Structure || fieldPath.PathType==MemberType.Entity)
           return CalculateMemberSegment();
         throw new InvalidOperationException();
       }
@@ -123,18 +142,18 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       ComplexMapping mapping = this;
       for (int i = 0; i < pathList.Count - 1; i++) {
         MemberPathItem pathItem = pathList[i];
-        if (pathItem.Type == MemberType.Entity)
+        if (pathItem.Type==MemberType.Entity)
           mapping = mapping.GetEntityMapping(pathItem.Name);
-        else if (pathItem.Type == MemberType.Anonymous)
+        else if (pathItem.Type==MemberType.Anonymous)
           mapping = mapping.GetAnonymousMapping(pathItem.Name).First;
-        else if (pathItem.Type == MemberType.Grouping)
+        else if (pathItem.Type==MemberType.Grouping)
           mapping = mapping.GetGroupingMapping(pathItem.Name);
       }
       MemberPathItem lastItem = pathList.Last();
-      if (lastItem.Type == MemberType.Anonymous || lastItem.Type == MemberType.Grouping)
+      if (lastItem.Type==MemberType.Anonymous || lastItem.Type==MemberType.Grouping)
         throw new InvalidOperationException();
 
-      if (lastItem.Type == MemberType.Entity) {
+      if (lastItem.Type==MemberType.Entity) {
         mapping = mapping.GetEntityMapping(lastItem.Name);
         return mapping.CalculateMemberSegment();
       }
@@ -144,15 +163,15 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     public IMapping GetMemberMapping(MemberPath fieldPath)
     {
       List<MemberPathItem> pathList = fieldPath.ToList();
-      if (pathList.Count == 0)
+      if (pathList.Count==0)
         return this;
       ComplexMapping mapping = this;
       foreach (MemberPathItem pathItem in pathList) {
-        if (pathItem.Type == MemberType.Entity)
+        if (pathItem.Type==MemberType.Entity)
           mapping = mapping.GetEntityMapping(pathItem.Name);
-        else if (pathItem.Type == MemberType.Anonymous)
+        else if (pathItem.Type==MemberType.Anonymous)
           mapping = mapping.GetAnonymousMapping(pathItem.Name).First;
-        else if (pathItem.Type == MemberType.Grouping)
+        else if (pathItem.Type==MemberType.Grouping)
           mapping = mapping.GetGroupingMapping(pathItem.Name);
       }
       return mapping;
@@ -162,31 +181,34 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     {
       var columnMapping = rewriter.Mappings;
       var rewrittenFields = Fields.ToDictionary(fm => fm.Key, fm => new Segment<int>(columnMapping.IndexOf(fm.Value.Offset), fm.Value.Length));
-      var rewrittenEntities = Entities.ToDictionary(jr => jr.Key, jr => (ComplexMapping)jr.Value.RewriteColumnIndexes(rewriter));
-      var rewrittenGroupings = Groupings.ToDictionary(jr => jr.Key, jr => (ComplexMapping)jr.Value.RewriteColumnIndexes(rewriter));
+      var rewrittenEntities = Entities.ToDictionary(jr => jr.Key, jr => (ComplexMapping) jr.Value.RewriteColumnIndexes(rewriter));
+      var rewrittenGroupings = Groupings.ToDictionary(jr => jr.Key, jr => (ComplexMapping) jr.Value.RewriteColumnIndexes(rewriter));
+      var rewrittenSubqueries = Subqueries.ToDictionary(jr => jr.Key, jr => (ComplexMapping) jr.Value.RewriteColumnIndexes(rewriter));
       var rewrittenAnonymous = new Dictionary<string, Pair<ComplexMapping, Expression>>();
       foreach (var pair in AnonymousTypes) {
         var mapping = pair.Value.First.RewriteColumnIndexes(rewriter);
         var expression = rewriter.Rewrite(pair.Value.Second);
-        rewrittenAnonymous.Add(pair.Key, new Pair<ComplexMapping, Expression>((ComplexMapping)mapping, expression));
+        rewrittenAnonymous.Add(pair.Key, new Pair<ComplexMapping, Expression>((ComplexMapping) mapping, expression));
       }
-      return new ComplexMapping(rewrittenFields, rewrittenEntities, rewrittenAnonymous, rewrittenGroupings, fillOrder);
+      return new ComplexMapping(rewrittenFields, rewrittenEntities, rewrittenAnonymous, rewrittenGroupings, rewrittenSubqueries, FillOrder);
     }
 
     public void Fill(IMapping mapping)
     {
       if (mapping is PrimitiveMapping) {
-        var pfm = (PrimitiveMapping)mapping;
+        var pfm = (PrimitiveMapping) mapping;
         RegisterField(string.Empty, pfm.Segment);
       }
       else {
-        var cfm = (ComplexMapping)mapping;
+        var cfm = (ComplexMapping) mapping;
         foreach (var pair in cfm.Fields)
           RegisterField(pair.Key, pair.Value);
         foreach (var pair in cfm.Entities)
           RegisterEntity(pair.Key, pair.Value);
         foreach (var pair in cfm.Groupings)
-          RegisterEntity(pair.Key, pair.Value);
+          RegisterGrouping(pair.Key, pair.Value);
+        foreach (var pair in cfm.Subqueries)
+          RegisterSubquery(pair.Key, pair.Value);
         foreach (var pair in cfm.AnonymousTypes)
           RegisterAnonymous(pair.Key, pair.Value.First, pair.Value.Second);
       }
@@ -212,7 +234,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     {
       if (!Fields.ContainsKey(key)) {
         Fields.Add(key, value);
-        fillOrder.Add(new Pair<string, MemberType>(key, MemberType.Primitive));
+        FillOrder.Add(new Pair<string, MemberType>(key, MemberType.Primitive));
       }
       else {
         Fields[key] = value;
@@ -233,7 +255,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     {
       if (!Entities.ContainsKey(key)) {
         Entities.Add(key, value);
-        fillOrder.Add(new Pair<string, MemberType>(key, MemberType.Entity));
+        FillOrder.Add(new Pair<string, MemberType>(key, MemberType.Entity));
       }
     }
 
@@ -241,7 +263,15 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     {
       if (!Groupings.ContainsKey(key)) {
         Groupings.Add(key, value);
-        fillOrder.Add(new Pair<string, MemberType>(key, MemberType.Grouping));
+        FillOrder.Add(new Pair<string, MemberType>(key, MemberType.Grouping));
+      }
+    }
+
+    public void RegisterSubquery(string key, ComplexMapping value)
+    {
+      if (!Subqueries.ContainsKey(key)) {
+        Subqueries.Add(key, value);
+        FillOrder.Add(new Pair<string, MemberType>(key, MemberType.Subquery));
       }
     }
 
@@ -249,12 +279,11 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     {
       if (!AnonymousTypes.ContainsKey(key)) {
         AnonymousTypes.Add(key, new Pair<ComplexMapping, Expression>(anonymousMapping, projection));
-        fillOrder.Add(new Pair<string, MemberType>(key, MemberType.Anonymous));
+        FillOrder.Add(new Pair<string, MemberType>(key, MemberType.Anonymous));
       }
     }
 
     #endregion
-
 
     // Constructors
 
@@ -264,7 +293,8 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       Entities = new Dictionary<string, ComplexMapping>();
       AnonymousTypes = new Dictionary<string, Pair<ComplexMapping, Expression>>();
       Groupings = new Dictionary<string, ComplexMapping>();
-      fillOrder = new List<Pair<string, MemberType>>();
+      Subqueries = new Dictionary<string, ComplexMapping>();
+      FillOrder = new List<Pair<string, MemberType>>();
     }
 
     public ComplexMapping(TypeInfo type, int offset)
@@ -279,10 +309,11 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       }
 
       Fields = fields;
-      Entities = new Dictionary<string, ComplexMapping> ();
+      Entities = new Dictionary<string, ComplexMapping>();
       AnonymousTypes = new Dictionary<string, Pair<ComplexMapping, Expression>>();
       Groupings = new Dictionary<string, ComplexMapping>();
-      fillOrder = new List<Pair<string, MemberType>>();
+      Subqueries = new Dictionary<string, ComplexMapping>();
+      FillOrder = new List<Pair<string, MemberType>>();
     }
 
     public ComplexMapping(Dictionary<string, Segment<int>> fields)
@@ -291,21 +322,24 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       Entities = new Dictionary<string, ComplexMapping>();
       AnonymousTypes = new Dictionary<string, Pair<ComplexMapping, Expression>>();
       Groupings = new Dictionary<string, ComplexMapping>();
-      fillOrder = new List<Pair<string, MemberType>>();
+      Subqueries = new Dictionary<string, ComplexMapping>();
+      FillOrder = new List<Pair<string, MemberType>>();
     }
 
     private ComplexMapping(
-      Dictionary<string, Segment<int>> fields, 
-      Dictionary<string, ComplexMapping> joinedFields, 
+      Dictionary<string, Segment<int>> fields,
+      Dictionary<string, ComplexMapping> joinedFields,
       Dictionary<string, Pair<ComplexMapping, Expression>> anonymousFields,
       Dictionary<string, ComplexMapping> groupings,
+      Dictionary<string, ComplexMapping> subqueries,
       List<Pair<string, MemberType>> fillOrder)
     {
       Fields = fields;
       Entities = joinedFields;
       AnonymousTypes = anonymousFields;
       Groupings = groupings;
-      this.fillOrder = fillOrder;
+      Subqueries = subqueries;
+      this.FillOrder = fillOrder;
     }
   }
 }

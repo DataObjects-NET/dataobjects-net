@@ -15,7 +15,7 @@ using Xtensive.Storage.Rse.Providers;
 namespace Xtensive.Storage.Linq.Rewriters
 {
   [Serializable]
-  internal class ApplyParameterRewriter : ExpressionVisitor
+  internal class ApplyParameterToTupleParameterRewriter : ExpressionVisitor
   {
     private readonly ConstantExpression parameterOfTupleExpression;
     private readonly ApplyParameter applyParameter;
@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Linq.Rewriters
     public static CompilableProvider Rewrite(CompilableProvider provider,
       Parameter<Tuple> parameterOfTuple, ApplyParameter applyParameter)
     {
-      var expressionRewriter = new ApplyParameterRewriter(parameterOfTuple, applyParameter);
+      var expressionRewriter = new ApplyParameterToTupleParameterRewriter(parameterOfTuple, applyParameter);
       var providerRewriter = new CompilableProviderVisitor(expressionRewriter.RewriteExpression);
       return providerRewriter.VisitCompilable(provider);
     }
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Linq.Rewriters
 
     // Constructor
 
-    private ApplyParameterRewriter(Parameter<Tuple> parameterOfTuple, ApplyParameter applyParameter)
+    private ApplyParameterToTupleParameterRewriter(Parameter<Tuple> parameterOfTuple, ApplyParameter applyParameter)
     {
       parameterOfTupleExpression = Expression.Constant(parameterOfTuple);
       this.applyParameter = applyParameter;

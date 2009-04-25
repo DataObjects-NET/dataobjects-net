@@ -18,22 +18,23 @@ using Xtensive.Storage.Linq.Expressions.Mappings;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Expressions;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {
   internal sealed class ItemProjectorAnalyzer : TupleAccessGatherer
   {
-    private RecordSetHeader header;
+    private Provider provider;
     private DomainModel model;
     private Parameter<IMapping> fieldMapping = new Parameter<IMapping>("fieldMapping");
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (header!=null) {
+      if (provider!=null) {
         if (mc.Object!=null) {
           if (mc.Object.Type==typeof (Record) && mc.Method.Name=="get_Item") {
             var groupIndex = (int) ((ConstantExpression) mc.Arguments[0]).Value;
-            mappings.AddRange(header.ColumnGroups[groupIndex].Keys);
+            mappings.AddRange(provider.Header.ColumnGroups[groupIndex].Keys);
             return mc;
           }
           if (mc.Object.Type==typeof (Key) && mc.Object.NodeType==ExpressionType.Call && mc.Method.Name=="Resolve") {
@@ -70,17 +71,37 @@ namespace Xtensive.Storage.Linq.Rewriters
     {
       var complexMapping = (ComplexMapping) fieldMapping.Value;
       var lazyLoadFields = model.Types[type].Fields.Where(f => f.IsLazyLoad).Select(f => f.Name);
-      var usedColumns = header.ColumnGroups[columnGroupIndex].Columns
+      var usedColumns = provider.Header.ColumnGroups[columnGroupIndex].Columns
         .Except(lazyLoadFields.SelectMany(f => complexMapping.GetFieldMapping(f).GetItems()));
       mappings.AddRange(usedColumns);
     }
 
-    protected override Expression VisitNew(NewExpression n)
+    protected override Expression VisitNew(NewExpression newExpression)
     {
-      if (n.GetMemberType() != MemberType.Anonymous)
-        return base.VisitNew(n);
+      switch (newExpression.GetMemberType()) {
+      case MemberType.Anonymous:
+        return VisitAnonymous(newExpression);
+      case MemberType.Subquery:
+        return VisitSubquery(newExpression);
+      default:
+        return base.VisitNew(newExpression);
+      }
+    }
+
+    private NewExpression VisitSubquery(NewExpression expression)
+    {
+      var parameter = expression.GetSubqueryParameter();
+      var resultExpression = expression.GetSubqueryItemsResult();
+      var mappingColumns = TupleParameterMappingAnalyzer
+        .Analyze(resultExpression.RecordSet.Provider, parameter);
+      mappings.AddRange(mappingColumns);
+      return expression;
+    }
+
+    private NewExpression VisitAnonymous(NewExpression newExpression)
+    {
       var complexMapping = (ComplexMapping) fieldMapping.Value;
-      var arguments = n.Members.Select(m => m.Name.TryCutPrefix(WellKnown.GetterPrefix)).Zip(n.Arguments);
+      var arguments = newExpression.Members.Select(m => m.Name.TryCutPrefix(WellKnown.GetterPrefix)).Zip(newExpression.Arguments);
       foreach (var arg in arguments) {
         ComplexMapping newMapping = null;
         switch (arg.Second.GetMemberType()) {
@@ -95,20 +116,23 @@ namespace Xtensive.Storage.Linq.Rewriters
         case MemberType.Grouping:
           complexMapping.Groupings.TryGetValue(arg.First, out newMapping);
           break;
+        case MemberType.Subquery:
+          complexMapping.Subqueries.TryGetValue(arg.First, out newMapping);
+          break;
         }
         using (new ParameterScope()) {
-          if (newMapping != null)
+          if (newMapping!=null)
             fieldMapping.Value = newMapping;
           Visit(arg.Second);
         }
       }
-      return n;
+      return newExpression;
     }
 
-    public List<int> Gather(Expression expression, RecordSetHeader header, DomainModel model, IMapping fieldMapping)
+    public List<int> Gather(Expression expression, Provider provider, DomainModel model, IMapping fieldMapping)
     {
       try {
-        this.header = header;
+        this.provider = provider;
         this.model = model;
         mappings = new List<int>();
         using (new ParameterScope()) {
@@ -118,7 +142,7 @@ namespace Xtensive.Storage.Linq.Rewriters
         return mappings;
       }
       finally {
-        this.header = null;
+        this.provider = null;
         mappings = null;
       }
     }
