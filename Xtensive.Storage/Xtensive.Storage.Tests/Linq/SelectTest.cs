@@ -88,6 +88,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(NotSupportedException))]
     public void NewPairTest()
     {
       var method = MethodInfo.GetCurrentMethod().Name;

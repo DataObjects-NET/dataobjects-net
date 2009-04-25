@@ -395,7 +395,10 @@ namespace Xtensive.Storage.Linq
     {
       var arguments = new List<Expression>();
       if (n.Members==null) {
-        if (n.IsGroupingConstructor() || n.Type==typeof (TimeSpan) || n.Type==typeof (DateTime))
+        if (n.IsGroupingConstructor() 
+          || n.IsSubqueryConstructor() 
+          || n.Type==typeof (TimeSpan) 
+          || n.Type==typeof (DateTime))
           return base.VisitNew(n);
         throw new NotSupportedException();
       }

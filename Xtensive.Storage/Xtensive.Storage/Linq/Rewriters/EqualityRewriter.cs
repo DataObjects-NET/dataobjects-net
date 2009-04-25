@@ -18,6 +18,11 @@ namespace Xtensive.Storage.Linq.Rewriters
       return new EqualityRewriter().Visit(e);
     }
 
+    protected override Expression VisitUnknown(Expression e)
+    {
+      return e;
+    }
+
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       if (mc.Method.Name != WellKnown.Object.Equals)

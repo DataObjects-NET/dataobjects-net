@@ -18,6 +18,11 @@ namespace Xtensive.Storage.Linq.Rewriters
       return new EntitySetAccessRewriter().Visit(e);
     }
 
+    protected override Expression VisitUnknown(Expression e)
+    {
+      return e;
+    }
+
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       if (!IsEntitySet(mc.Object))
