@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Linq.Expressions
           body = body.Type == typeof (TResult)
             ? body
             : Convert(body, typeof (TResult));
-        var projector = Lambda<Func<RecordSet, TResult>>(Convert(body, typeof(TResult)), rs);
+        var projector = Lambda<Func<RecordSet, TResult>>(body, rs);
         projectionDelegate = projector.Compile();
       }
       return (Func<RecordSet, TResult>)projectionDelegate;
