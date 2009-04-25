@@ -107,16 +107,6 @@ namespace Xtensive.Storage
     /// </summary>
     /// <typeparam name="TElement">The type of the result element.</typeparam>
     /// <param name="query">Containing query delegate.</param>
-    public static IEnumerable<TElement> Execute<TElement>(Func<IEnumerable<TElement>> query)
-    {
-      return Execute<IEnumerable<TElement>>(query);
-    }
-
-    /// <summary>
-    /// Finds compiled query in cache by provided <paramref name="query"/> delegate and executes them if it's already cached; otherwise executes the <paramref name="query"/> delegate.
-    /// </summary>
-    /// <typeparam name="TElement">The type of the result element.</typeparam>
-    /// <param name="query">Containing query delegate.</param>
     public static IEnumerable<TElement> Execute<TElement>(Func<IQueryable<TElement>> query)
     {
       var domain = Domain.Current;
