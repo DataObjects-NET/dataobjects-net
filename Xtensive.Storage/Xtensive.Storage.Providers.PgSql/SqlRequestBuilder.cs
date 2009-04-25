@@ -4,14 +4,16 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.19
 
+using Xtensive.Sql.Dom.Dml;
+
 namespace Xtensive.Storage.Providers.PgSql
 {
   public class SqlRequestBuilder : Sql.SqlRequestBuilder
   {
     /// <inheritdoc/>
-    protected override void  SetExpectedResult(Sql.SqlUpdateRequest request)
+    protected override int GetExpectedResult(SqlBatch request)
     {
-      request.ExpectedResult = 1;
+      return 1;
     }
   }
 }

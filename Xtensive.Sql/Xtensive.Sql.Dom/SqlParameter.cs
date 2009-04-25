@@ -10,8 +10,6 @@ namespace Xtensive.Sql.Dom
 {
   public class SqlParameter : Parameter
   {
-
-
     // Constructors
 
     /// <summary>

@@ -99,6 +99,9 @@ namespace Xtensive.Sql.Dom
           return ((SqlCast)node).Type.DataType == SqlDataType.Boolean;
         case SqlNodeType.Literal:
           return (node is SqlLiteral<bool>);
+        case SqlNodeType.Variant:
+          var variant = (SqlVariant) node;
+          return IsBooleanExpression(variant.Main) && IsBooleanExpression(variant.Alternative);
         default:
           return false;
       }
@@ -135,6 +138,9 @@ namespace Xtensive.Sql.Dom
         case SqlNodeType.Sum:
         case SqlNodeType.Variable:
           return true;
+        case SqlNodeType.Variant:
+          var variant = (SqlVariant)node;
+          return IsArithmeticExpression(variant.Main) && IsArithmeticExpression(variant.Alternative);
         default:
           return false;
       }
@@ -160,6 +166,9 @@ namespace Xtensive.Sql.Dom
         case SqlNodeType.Trim:
         case SqlNodeType.Variable:
           return true;
+        case SqlNodeType.Variant:
+          var variant = (SqlVariant)node;
+          return IsCharacterExpression(variant.Main) && IsCharacterExpression(variant.Alternative);
         default:
           return false;
       }

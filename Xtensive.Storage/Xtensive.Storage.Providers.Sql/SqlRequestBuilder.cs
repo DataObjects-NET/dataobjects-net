@@ -5,6 +5,7 @@
 // Created:    2008.08.28
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom.Dml;
@@ -28,7 +29,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns><see cref="SqlUpdateRequest"/> instance for the specified <paramref name="task"/>.</returns>
     public SqlUpdateRequest Build(SqlRequestBuilderTask task)
     {
-      SqlRequestBuilderContext context = new SqlRequestBuilderContext(task, SqlFactory.Batch());
+      var context = new SqlRequestBuilderContext(task, SqlFactory.Batch());
       switch (task.Kind) {
       case SqlUpdateRequestKind.Insert:
         BuildInsertRequest(context);
@@ -41,20 +42,17 @@ namespace Xtensive.Storage.Providers.Sql
         break;
       }
 
-      var result = new SqlUpdateRequest(context.Batch);
-
+      var bindings = new List<SqlUpdateParameterBinding>();
+      
       foreach (var pair in context.ParameterBindings)
-        result.ParameterBindings.Add(pair.Value);
+        bindings.Add(pair.Value);
 
-      SetExpectedResult(result);
-      DomainHandler.Compile(result);
-
-      return result;
+      return new SqlUpdateRequest(context.Batch, GetExpectedResult(context.Batch), bindings);
     }
 
-    protected virtual void SetExpectedResult(SqlUpdateRequest request)
+    protected virtual int GetExpectedResult(SqlBatch request)
     {
-      request.ExpectedResult = ((SqlBatch)request.Statement).Count;
+      return request.Count;
     }
 
     protected virtual void BuildInsertRequest(SqlRequestBuilderContext context)
@@ -73,7 +71,7 @@ namespace Xtensive.Storage.Providers.Sql
               binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
               context.ParameterBindings.Add(column, binding);
             }
-            query.Values[table[i]] = binding.SqlParameter;
+            query.Values[table[i]] = binding.ParameterReference;
           }
         }
         context.Batch.Add(query);
@@ -96,7 +94,7 @@ namespace Xtensive.Storage.Providers.Sql
               binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
               context.ParameterBindings.Add(column, binding);
             }
-            query.Values[table[i]] = binding.SqlParameter;
+            query.Values[table[i]] = binding.ParameterReference;
           }
         }
 
@@ -132,7 +130,7 @@ namespace Xtensive.Storage.Providers.Sql
           binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
           context.ParameterBindings.Add(column, binding);
         }
-        expression &= table[i++]==binding.SqlParameter;
+        expression &= table[i++]==binding.ParameterReference;
       }
       return expression;
     }
@@ -153,8 +151,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       DomainHandler = Handlers.DomainHandler as DomainHandler;
     }
-
-
+    
     // Constructor
 
     /// <summary>

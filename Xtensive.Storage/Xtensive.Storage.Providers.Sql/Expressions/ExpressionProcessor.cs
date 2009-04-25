@@ -36,20 +36,13 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly HashSet<SqlFetchParameterBinding> bindings;
     private readonly Dictionary<ParameterExpression, SqlSelect> parameterMapping;
     private readonly SqlValueTypeMapper valueTypeMapper;
+    private readonly ICompiler compiler;
     private bool executed;
 
-    public HashSet<SqlFetchParameterBinding> Bindings
-    {
-      get { return bindings; }
-    }
+    public HashSet<SqlFetchParameterBinding> Bindings { get { return bindings; } }
+    public DomainModel Model { get { return model; } }
 
-    public DomainModel Model
-    {
-      get { return model; }
-    }
-
-    public ICompiler Compiler { get; private set; }
-
+    
     public SqlExpression Translate()
     {
       if (executed)
@@ -82,15 +75,15 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var expression = parameterExtractor.ExtractParameter<object>(e);
       var binding = new SqlFetchParameterBinding(expression.Compile(), typeMapping);
       bindings.Add(binding);
-      return binding.SqlParameter;
+      return binding.ParameterReference;
     }
 
     protected override SqlExpression VisitUnary(UnaryExpression expression)
     {
-      if (expression.Method!=null)
-        return VisitUnaryOperator(expression);
-
       var operand = Visit(expression.Operand);
+
+      if (expression.Method != null)
+        return CompileMember(expression.Method, null, operand);
 
       switch (expression.NodeType) {
         case ExpressionType.Negate:
@@ -116,17 +109,14 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitBinary(BinaryExpression expression)
     {
-      SqlExpression result;
-      if (TryTranslateCompareExpression(expression, out result))
+      SqlExpression result = TryTranslateCompareExpression(expression);
+      if (result != null)
         return result;
-
-      if (expression.Method!=null)
-        return VisitBinaryOperator(expression);
 
       SqlExpression left;
       SqlExpression right;
 
-      // chars are compared as integers
+      // chars are compared as integers, but we store them as strings and should compare them like strings.
       if (IsCharToIntConvert(expression.Left) && IsCharToIntConvert(expression.Right)) {
         left = Visit(((UnaryExpression) expression.Left).Operand);
         right = Visit(((UnaryExpression)expression.Right).Operand);
@@ -135,6 +125,28 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         left = Visit(expression.Left);
         right = Visit(expression.Right);
       }
+      
+      // handle special cases
+      if (expression.NodeType == ExpressionType.Equal) {
+        result = TryTranslateEqualitySpecialCases(left, right);
+        if (result != null)
+          return result;
+        result = TryTranslateEqualitySpecialCases(right, left);
+        if (result != null)
+          return result;
+      }
+
+      if (expression.NodeType == ExpressionType.NotEqual) {
+        result = TryTranslateInequalitySpecialCases(left, right);
+        if (result != null)
+          return result;
+        result = TryTranslateInequalitySpecialCases(right, left);
+        if (result != null)
+          return result;
+      }
+
+      if (expression.Method != null)
+        return CompileMember(expression.Method, null, left, right);
 
       switch (expression.NodeType) {
         case ExpressionType.Add:
@@ -150,14 +162,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           return SqlFactory.Coalesce(left, right);
         case ExpressionType.Divide:
           return SqlFactory.Divide(left, right);
-        case ExpressionType.Equal: {
-          if (left.NodeType==SqlNodeType.Null || right.NodeType==SqlNodeType.Null) {
-            if (left.NodeType==SqlNodeType.Null)
-              return SqlFactory.IsNull(right);
-            return SqlFactory.IsNull(left);
-          }
+        case ExpressionType.Equal:
           return SqlFactory.Equals(left, right);
-        }
         case ExpressionType.ExclusiveOr:
           return SqlFactory.BitXor(left, right);
         case ExpressionType.GreaterThan:
@@ -174,11 +180,6 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         case ExpressionType.MultiplyChecked:
           return SqlFactory.Multiply(left, right);
         case ExpressionType.NotEqual:
-          if (left.NodeType==SqlNodeType.Null || right.NodeType==SqlNodeType.Null) {
-            if (left.NodeType==SqlNodeType.Null)
-              return SqlFactory.IsNotNull(right);
-            return SqlFactory.IsNotNull(left);
-          }
           return SqlFactory.NotEquals(left, right);
         case ExpressionType.Or:
           if ((expression.Left.Type!=typeof (bool)) && (expression.Left.Type!=typeof (bool?)))
@@ -225,8 +226,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitMemberAccess(MemberExpression m)
     {
-      var map = FindCompiler(m.Member);
-      return map(Visit(m.Expression), null);
+      return CompileMember(m.Member, Visit(m.Expression));
     }
 
     protected override SqlExpression VisitMethodCall(MethodCallExpression mc)
@@ -240,10 +240,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           return sqlSelect[columnIndex];
         }
         ExecutableProvider provider;
-        if (Compiler.CompiledSources.TryGetValue(parameter, out provider)) {
-          if (!Compiler.IsCompatible(provider)) {
-            provider = Compiler.ToCompatible(provider);
-            Compiler.CompiledSources.ReplaceBound(parameter, provider);
+        if (compiler.CompiledSources.TryGetValue(parameter, out provider)) {
+          if (!compiler.IsCompatible(provider)) {
+            provider = compiler.ToCompatible(provider);
+            compiler.CompiledSources.ReplaceBound(parameter, provider);
           }
           var sqlProvider = (SqlProvider)provider;
           return sqlProvider.PermanentReference[columnIndex];
@@ -256,8 +256,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (mc.Object!=null && mc.Object.Type!=mi.ReflectedType)
         mi = mc.Object.Type.GetMethod(mi.Name, mi.GetParameterTypes());
 
-      var map = FindCompiler(mi);
-      return map(Visit(mc.Object), arguments);
+      return CompileMember(mi, Visit(mc.Object), arguments);
     }
 
     protected override SqlExpression VisitLambda(LambdaExpression l)
@@ -272,8 +271,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitNew(NewExpression n)
     {
-      var mapping = FindCompiler(n.Constructor);
-      return mapping(null, n.Arguments.Select(a => Visit(a)).ToArray());
+      return CompileMember(n.Constructor, null, n.Arguments.Select(a => Visit(a)).ToArray());
     }
 
     protected override SqlExpression VisitNewArray(NewArrayExpression expression)
@@ -296,10 +294,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       throw new NotSupportedException();
     }
 
-    private bool TryTranslateCompareExpression(BinaryExpression expression, out SqlExpression result)
-    {
-      result = null;
+    #region Private methods
 
+    private SqlExpression TryTranslateCompareExpression(BinaryExpression expression)
+    {
       bool isGoodExpression =
         expression.Left.NodeType==ExpressionType.Call
           && expression.Right.NodeType==ExpressionType.Constant ||
@@ -307,7 +305,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
               && expression.Left.NodeType==ExpressionType.Constant;
 
       if (!isGoodExpression)
-        return false;
+        return null;
 
       MethodCallExpression callExpression;
       ConstantExpression constantExpression;
@@ -334,13 +332,13 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       bool isCompare = method.Name=="Compare" && method.GetParameters().Length==2 && method.IsStatic;
 
       if (!isCompareTo && !isCompare)
-        return false;
+        return null;
 
       if (constantExpression.Value==null)
-        return false;
+        return null;
 
       if (!(constantExpression.Value is int))
-        return false;
+        return null;
 
       int constant = (int) constantExpression.Value;
 
@@ -363,44 +361,18 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         rightComparand = tmp;
       }
 
-      if (constant==0)
-        switch (expression.NodeType) {
-          case ExpressionType.GreaterThan:
-            result = SqlFactory.GreaterThan(leftComparand, rightComparand);
-            return true;
-          case ExpressionType.GreaterThanOrEqual:
-            result = SqlFactory.GreaterThanOrEquals(leftComparand, rightComparand);
-            return true;
-          case ExpressionType.Equal:
-            result = SqlFactory.Equals(leftComparand, rightComparand);
-            return true;
-          case ExpressionType.NotEqual:
-            result = SqlFactory.NotEquals(leftComparand, rightComparand);
-            return true;
-          case ExpressionType.LessThanOrEqual:
-            result = SqlFactory.LessThanOrEquals(leftComparand, rightComparand);
-            return true;
-          case ExpressionType.LessThan:
-            result = SqlFactory.LessThan(leftComparand, rightComparand);
-            return true;
-          default:
-            return false;
-        }
-
       if (constant > 0)
         switch (expression.NodeType) {
           case ExpressionType.Equal:
           case ExpressionType.GreaterThan:
           case ExpressionType.GreaterThanOrEqual:
-            result = SqlFactory.GreaterThan(leftComparand, rightComparand);
-            return true;
+            return SqlFactory.GreaterThan(leftComparand, rightComparand);
           case ExpressionType.NotEqual:
           case ExpressionType.LessThanOrEqual:
           case ExpressionType.LessThan:
-            result = SqlFactory.LessThanOrEquals(leftComparand, rightComparand);
-            return true;
+            return SqlFactory.LessThanOrEquals(leftComparand, rightComparand);
           default:
-            return false;
+            return null;
         }
 
       if (constant < 0)
@@ -408,71 +380,73 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           case ExpressionType.NotEqual:
           case ExpressionType.GreaterThan:
           case ExpressionType.GreaterThanOrEqual:
-            result = SqlFactory.GreaterThanOrEquals(leftComparand, rightComparand);
-            return true;
+            return SqlFactory.GreaterThanOrEquals(leftComparand, rightComparand);
           case ExpressionType.Equal:
           case ExpressionType.LessThanOrEqual:
           case ExpressionType.LessThan:
-            result = SqlFactory.LessThan(leftComparand, rightComparand);
-            return true;
+            return SqlFactory.LessThan(leftComparand, rightComparand);
           default:
-            return false;
+            return null;
         }
 
-      return false; // make compiler happy
-    }
-
-    private SqlExpression VisitBinaryOperator(BinaryExpression expression)
-    {
-      var left = Visit(expression.Left);
-      var right = Visit(expression.Right);
-
       switch (expression.NodeType) {
+        case ExpressionType.GreaterThan:
+          return SqlFactory.GreaterThan(leftComparand, rightComparand);
+        case ExpressionType.GreaterThanOrEqual:
+          return SqlFactory.GreaterThanOrEquals(leftComparand, rightComparand);
         case ExpressionType.Equal:
-          if (left.NodeType==SqlNodeType.Null)
-            return SqlFactory.IsNull(right);
-          if (right.NodeType==SqlNodeType.Null)
-            return SqlFactory.IsNull(left);
-          break;
+          return SqlFactory.Equals(leftComparand, rightComparand);
         case ExpressionType.NotEqual:
-          if (left.NodeType==SqlNodeType.Null)
-            return SqlFactory.IsNotNull(right);
-          if (right.NodeType==SqlNodeType.Null)
-            return SqlFactory.IsNotNull(left);
-          break;
+          return SqlFactory.NotEquals(leftComparand, rightComparand);
+        case ExpressionType.LessThanOrEqual:
+          return SqlFactory.LessThanOrEquals(leftComparand, rightComparand);
+        case ExpressionType.LessThan:
+          return SqlFactory.LessThan(leftComparand, rightComparand);
+        default:
+          return null;
       }
-
-      var map = FindCompiler(expression.Method);
-      return map(null, new[] {left, right});
     }
 
-    private SqlExpression VisitUnaryOperator(UnaryExpression expression)
+    private static SqlExpression TryTranslateEqualitySpecialCases(SqlExpression left, SqlExpression right)
     {
-      var source = Visit(expression.Operand);
-      var map = FindCompiler(expression.Method);
-      return map(null, new[] {source});
+      if (right.NodeType == SqlNodeType.Null)
+        return SqlFactory.IsNull(left);
+      if (right.NodeType == SqlNodeType.Parameter)
+        return SqlFactory.Variant(SqlFactory.Equals(left, right), SqlFactory.IsNull(left), ((SqlParameterRef) right).Parameter);
+      return null;
     }
 
-    private Func<SqlExpression, SqlExpression[], SqlExpression> FindCompiler(MemberInfo source)
+    private static SqlExpression TryTranslateInequalitySpecialCases(SqlExpression left, SqlExpression right)
     {
-      var result = mappingsProvider.GetCompiler(source);
-      if (result == null)
-        throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, source.GetFullName(true)));
-      return result;
+      if (right.NodeType == SqlNodeType.Null)
+        return SqlFactory.IsNotNull(left);
+      if (right.NodeType == SqlNodeType.Parameter)
+        return SqlFactory.Variant(SqlFactory.NotEquals(left, right), SqlFactory.IsNotNull(left), ((SqlParameterRef)right).Parameter);
+      return null;
     }
 
-    private bool IsCharToIntConvert(Expression e)
+    private SqlExpression CompileMember(MemberInfo member, SqlExpression instance, params SqlExpression[] arguments)
+    {
+      var memberCompiler = mappingsProvider.GetCompiler(member);
+      if (memberCompiler == null)
+        throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, member.GetFullName(true)));
+      return memberCompiler.Invoke(instance, arguments);
+    }
+
+    private static bool IsCharToIntConvert(Expression e)
     {
       return e.NodeType==ExpressionType.Convert
           && e.Type==typeof (int)
           && ((UnaryExpression) e).Operand.Type==typeof (char);
     }
 
+    #endregion
+
     // Constructor
 
     public ExpressionProcessor(ICompiler compiler, HandlerAccessor handlers, LambdaExpression le, params SqlSelect[] selects)
     {
-      Compiler = compiler;
+      this.compiler = compiler;
       if (selects==null)
         throw new ArgumentNullException("selects");
       mappingsProvider = handlers.DomainHandler.GetCompilerExtensions<SqlExpression>();

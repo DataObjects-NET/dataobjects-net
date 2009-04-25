@@ -8,6 +8,7 @@ using System;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
+using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -18,10 +19,8 @@ namespace Xtensive.Storage.Providers.Sql
   {
     private const string CachedRange = "CachedRange";
 
-    public Range<Entire<Tuple>> CurrentRange
-    {
-      get
-      {
+    public Range<Entire<Tuple>> CurrentRange {
+      get {
         var cachedValue = GetCachedValue<object>(EnumerationContext.Current, CachedRange);
         if (cachedValue == null) lock (this) if (GetCachedValue<object>(EnumerationContext.Current, CachedRange) == null) {
           var rangeProvider = (RangeProvider)Origin;
@@ -36,12 +35,11 @@ namespace Xtensive.Storage.Providers.Sql
         return (Range<Entire<Tuple>>)cachedValue;
       }
     }
-
-
+    
     // Constructor
 
-    public SqlRangeProvider(CompilableProvider origin, SqlFetchRequest request, HandlerAccessor handlers, params ExecutableProvider[] sources)
-      : base(origin, request, handlers, sources)
+    public SqlRangeProvider(CompilableProvider origin, SqlSelect statement, HandlerAccessor handlers, params ExecutableProvider[] sources)
+      : base(origin, statement, handlers, sources)
     {
     }
   }

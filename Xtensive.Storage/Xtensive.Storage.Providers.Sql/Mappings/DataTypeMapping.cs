@@ -26,6 +26,17 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
 
     public Func<object, object> FromSqlValue { get; private set; }
 
+    /// <summary>
+    /// Translates to SQL value.
+    /// </summary>
+    /// <param name="value">A value to translate.</param>
+    /// <returns></returns>
+    public object TranslateToSqlValue(object value)
+    {
+      return value!=null && value!=DBNull.Value && ToSqlValue!=null
+        ? ToSqlValue(value)
+        : value;
+    }
 
     // Constructor
 

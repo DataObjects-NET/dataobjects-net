@@ -26,7 +26,6 @@ using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 
-
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <inheritdoc/>
@@ -95,8 +94,7 @@ namespace Xtensive.Storage.Providers.Sql
         sqlSelect.Columns.Add(expr, col.Name);
       }
 
-      var request = new SqlFetchRequest(sqlSelect, provider.Header);
-      return new SqlProvider(provider, request, Handlers, source);
+      return new SqlProvider(provider, sqlSelect, Handlers, source);
     }
 
     /// <inheritdoc/>
@@ -118,8 +116,7 @@ namespace Xtensive.Storage.Providers.Sql
         else
           sqlSelect.Columns.Add(columns[i], columnName);
       }
-      var request = new SqlFetchRequest(sqlSelect, provider.Header);
-      return new SqlProvider(provider, request, Handlers, source);
+      return new SqlProvider(provider, sqlSelect, Handlers, source);
     }
 
     /// <inheritdoc/>
@@ -140,16 +137,16 @@ namespace Xtensive.Storage.Providers.Sql
         sqlSelect = SqlFactory.Select(queryRef);
         sqlSelect.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       }
-      var request = new SqlFetchRequest(sqlSelect, provider.Header);
-
+      
+      IEnumerable<SqlFetchParameterBinding> allBindings = EnumerableUtils<SqlFetchParameterBinding>.Empty;
       foreach (var column in provider.CalculatedColumns) {
         HashSet<SqlFetchParameterBinding> bindings;
         var predicate = TranslateExpression(column.Expression, out bindings, sqlSelect);
         sqlSelect.Columns.Add(predicate, column.Name);
-        request.ParameterBindings.UnionWith(bindings);
+        allBindings = allBindings.Concat(bindings);
       }
 
-      return new SqlProvider(provider, request, Handlers, source);
+      return new SqlProvider(provider, sqlSelect, Handlers, allBindings, source);
     }
 
     /// <inheritdoc/>
@@ -166,8 +163,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var clone = (SqlSelect) query.Clone();
       clone.Distinct = true;
-      var request = new SqlFetchRequest(clone, provider.Header);
-      return new SqlProvider(provider, request, Handlers, source);
+      return new SqlProvider(provider, clone, Handlers, source);
     }
 
     /// <inheritdoc/>
@@ -198,10 +194,7 @@ namespace Xtensive.Storage.Providers.Sql
       else
         query = (SqlSelect) source.Request.SelectStatement.Clone();
 
-      var request = new SqlFetchRequest(query, provider.Header);
-
-      query = request.SelectStatement;
-      HashSet<SqlFetchParameterBinding> bindings;
+     HashSet<SqlFetchParameterBinding> bindings;
       var predicate = TranslateExpression(provider.Predicate, out bindings, query);
       if (predicate.NodeType == SqlNodeType.Literal) {
         var value = predicate as SqlLiteral<bool>;
@@ -212,9 +205,8 @@ namespace Xtensive.Storage.Providers.Sql
       }
       else
         query.Where &= predicate;
-      request.ParameterBindings.UnionWith(bindings);
 
-      return new SqlProvider(provider, request, Handlers, source);
+      return new SqlProvider(provider, query, Handlers, bindings, source);
     }
 
     /// <inheritdoc/>
@@ -222,8 +214,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
       SqlSelect query = BuildProviderQuery(index);
-      var request = new SqlFetchRequest(query, provider.Header);
-      return new SqlProvider(provider, request, Handlers);
+      return new SqlProvider(provider, query, Handlers);
     }
 
     /// <inheritdoc/>
@@ -249,8 +240,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlSelect query = SqlFactory.Select(joinedTable);
       query.Columns.AddRange(leftQuery.Columns.Concat(rightQuery.Columns).Cast<SqlColumn>());
-      var request = new SqlFetchRequest(query, provider.Header);
-      return new SqlProvider(provider, request, Handlers, left, right);
+      return new SqlProvider(provider, query, Handlers, left, right);
     }
 
     /// <inheritdoc/>
@@ -276,8 +266,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlSelect query = SqlFactory.Select(joinedTable);
       query.Columns.AddRange(leftQuery.Columns.Concat(rightQuery.Columns).Cast<SqlColumn>());
-      var request = new SqlFetchRequest(query, provider.Header, bindings);
-      return new SqlProvider(provider, request, Handlers, left, right);
+      return new SqlProvider(provider, query, Handlers, bindings, left, right);
     }
 
     /// <inheritdoc/>
@@ -290,15 +279,15 @@ namespace Xtensive.Storage.Providers.Sql
       var originalRange = provider.CompiledRange.Invoke();
       var query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
       var keyColumns = provider.Header.Order.ToList();
-      var request = new SqlFetchRequest(query, provider.Header);
-      var rangeProvider = new SqlRangeProvider(provider, request, Handlers, compiledSource);
+      var rangeProvider = new SqlRangeProvider(provider, query, Handlers, compiledSource);
+      var bindings = (HashSet<SqlFetchParameterBinding>) rangeProvider.Request.ParameterBindings;
       for (int i = 0; i < originalRange.EndPoints.First.Value.Count; i++) {
         var column = provider.Header.Columns[keyColumns[i].Key];
         DataTypeMapping typeMapping = ((DomainHandler)Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
         int fieldIndex = i;
         var binding = new SqlFetchParameterBinding(() => rangeProvider.CurrentRange.EndPoints.First.Value.GetValue(fieldIndex), typeMapping);
-        request.ParameterBindings.Add(binding);
-        query.Where &= query.Columns[keyColumns[i].Key] == binding.SqlParameter;
+        bindings.Add(binding);
+        query.Where &= query.Columns[keyColumns[i].Key] == binding.ParameterReference;
       }
       return rangeProvider;
     }
@@ -311,7 +300,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       var query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
-      var request = new SqlFetchRequest(query, provider.Header);
+      var parameterBindings = new List<SqlFetchParameterBinding>();
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
       Func<KeyValuePair<int, Direction>, bool> filterNonTypeId =
         pair => ((MappedColumn) provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName != typeIdColumnName;
@@ -326,11 +315,11 @@ namespace Xtensive.Storage.Providers.Sql
         DataTypeMapping typeMapping = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
         int index = i;
         var binding = new SqlFetchParameterBinding(() => provider.CompiledKey.Invoke().GetValue(index), typeMapping);
-        request.ParameterBindings.Add(binding);
-        query.Where &= sqlColumn == SqlFactory.ParameterRef(binding.SqlParameter);
+        parameterBindings.Add(binding);
+        query.Where &= sqlColumn == binding.ParameterReference;
       }
 
-      return new SqlProvider(provider, request, Handlers, compiledSource);
+      return new SqlProvider(provider, query, Handlers, parameterBindings, compiledSource);
     }
 
     /// <inheritdoc/>
@@ -362,9 +351,8 @@ namespace Xtensive.Storage.Providers.Sql
         foreach (KeyValuePair<int,Direction> orderItem in sortProvider.Order)
           query.OrderBy.Add(queryRef.Columns[orderItem.Key], orderItem.Value == Direction.Positive);
       } 
-      var request = new SqlFetchRequest(query, provider.Header);
 
-      return new SqlProvider(provider, request, Handlers, compiledSource);
+      return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
     /// <inheritdoc/>
@@ -378,8 +366,7 @@ namespace Xtensive.Storage.Providers.Sql
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Offset = provider.Count();
-      var request = new SqlFetchRequest(query, provider.Header);
-      return new SqlProvider(provider, request, Handlers, compiledSource);
+      return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
     /// <inheritdoc/>
@@ -396,8 +383,7 @@ namespace Xtensive.Storage.Providers.Sql
         query.OrderBy.Add(sqlColumn, sortOrder.Value == Direction.Positive);
       }
 
-      var request = new SqlFetchRequest(query, provider.Header);
-      return new SqlProvider(provider, request, Handlers, compiledSource);
+      return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
     /// <inheritdoc/>
@@ -434,10 +420,9 @@ namespace Xtensive.Storage.Providers.Sql
       SqlSelect query = SqlFactory.Select(tr);
       foreach (SqlTableColumn column in tr.Columns)
         query.Columns.Add(column);
-      var request = new SqlFetchRequest(query, provider.Header);
       schema.Tables.Remove(table);
 
-      return new SqlStoreProvider(provider, request, Handlers, ex, table);
+      return new SqlStoreProvider(provider, query, Handlers, ex, table);
     }
 
     /// <inheritdoc/>
@@ -451,8 +436,7 @@ namespace Xtensive.Storage.Providers.Sql
       var count = provider.Count();
       if (query.Top == 0 || query.Top > count)
         query.Top = count;
-      var request = new SqlFetchRequest(query, provider.Header);
-      return new SqlProvider(provider, request, Handlers, compiledSource);
+      return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
     /// <inheritdoc/>
@@ -482,8 +466,7 @@ namespace Xtensive.Storage.Providers.Sql
       else if (!TranslateSubquery(provider.Right, select, rightQuery))
         return null;
 
-      var request = new SqlFetchRequest(select, provider.Header);
-      return new SqlProvider(provider, request, Handlers, left, right);
+      return new SqlProvider(provider, select, Handlers, left, right);
     }
 
     /// <inheritdoc/>
@@ -497,8 +480,7 @@ namespace Xtensive.Storage.Providers.Sql
       var select = SqlFactory.Select();
       select.Columns.Add(SqlFactory.Exists(source.Request.SelectStatement), provider.ExistenceColumnName);
 
-      var request = new SqlFetchRequest(select, provider.Header);
-      return new SqlProvider(provider, request, Handlers, source);
+      return new SqlProvider(provider, select, Handlers, source);
     }
 
     /// <inheritdoc/>
@@ -520,8 +502,7 @@ namespace Xtensive.Storage.Providers.Sql
       SqlSelect query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
-      var request = new SqlFetchRequest(query, provider.Header);
-      return new SqlProvider(provider, request, Handlers, left, right);
+      return new SqlProvider(provider, query, Handlers, left, right);
     }
 
     /// <inheritdoc/>
@@ -543,8 +524,7 @@ namespace Xtensive.Storage.Providers.Sql
       SqlSelect query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
-      var request = new SqlFetchRequest(query, provider.Header);
-      return new SqlProvider(provider, request, Handlers, left, right);
+      return new SqlProvider(provider, query, Handlers, left, right);
     }
 
     /// <inheritdoc/>
@@ -558,16 +538,13 @@ namespace Xtensive.Storage.Providers.Sql
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
 
-      var result = SqlFactory.UnionAll(
-        leftSelect,
-        rightSelect);
+      var result = SqlFactory.UnionAll(leftSelect, rightSelect);
 
       var queryRef = SqlFactory.QueryRef(result);
       SqlSelect query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
-      var request = new SqlFetchRequest(query, provider.Header);
-      return new SqlProvider(provider, request, Handlers, left, right);
+      return new SqlProvider(provider, query, Handlers, left, right);
     }
 
     /// <inheritdoc/>
@@ -589,8 +566,7 @@ namespace Xtensive.Storage.Providers.Sql
       SqlSelect query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
-      var request = new SqlFetchRequest(query, provider.Header);
-      return new SqlProvider(provider, request, Handlers, left, right);
+      return new SqlProvider(provider, query, Handlers, left, right);
     }
 
     /// <summary>

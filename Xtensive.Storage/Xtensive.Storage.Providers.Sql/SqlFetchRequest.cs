@@ -4,14 +4,11 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.22
 
-using System;
 using System.Collections.Generic;
-using System.Data.Common;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Sql.Dom;
+using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom.Dml;
-using Xtensive.Storage.Providers.Sql.Mappings;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -29,88 +26,26 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the parameter bindings.
     /// </summary>
-    public HashSet<SqlFetchParameterBinding> ParameterBindings { get; private set; }
+    public IEnumerable<SqlFetchParameterBinding> ParameterBindings { get; private set; }
 
     /// <summary>
     /// Gets the record set header.
     /// </summary>
-    public RecordSetHeader RecordSetHeader { get; private set; }
+    public TupleDescriptor TupleDescriptor { get; private set; }
 
-    /// <summary>
-    /// Gets the data reader accessor.
-    /// </summary>
-    public DbDataReaderAccessor DbDataReaderAccessor { get; private set; }
-
-    internal override void Compile(DomainHandler domainHandler)
-    {
-      if (CompilationResult!=null)
-        return;
-
-      CompileParameters(domainHandler);
-      CompileStatement(domainHandler);
-      CompileDbReaderAccessor(domainHandler);
-    }
-
-    private void CompileDbReaderAccessor(DomainHandler domainHandler)
-    {
-      var readers = new List<Func<DbDataReader, int, object>>(RecordSetHeader.Length);
-      var converters = new List<Func<object, object>>(RecordSetHeader.Length);
-
-      foreach (Column column in RecordSetHeader.Columns) {
-        DataTypeMapping typeMapping = domainHandler.ValueTypeMapper.GetTypeMapping(column.Type);
-        readers.Add(typeMapping.DataReaderAccessor);
-        converters.Add(typeMapping.FromSqlValue);
-      }
-      DbDataReaderAccessor = new DbDataReaderAccessor(readers, converters);
-    }
-
-    /// <inheritdoc/>
-    protected override IEnumerable<SqlParameterBinding> GetParameterBindings()
-    {
-      foreach (var binding in ParameterBindings)
-        yield return binding;
-    }
-
-    /// <summary>
-    /// Binds the parameters to actual values.
-    /// </summary>
-    public void BindParameters()
-    {
-      foreach (var binding in ParameterBindings)
-        BindParameter(binding, binding.ValueAccessor());
-    }
-
-    protected override void BindParameter(SqlParameterBinding binding, object value)
-    {
-      if (value == null || value == DBNull.Value)
-        throw new ArgumentNullException(binding.SqlParameter.ParameterName);
-      base.BindParameter(binding, value);
-    }
-    
     // Constructor
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="statement">The statement.</param>
-    /// <param name="recordSetHeader">The element descriptor.</param>
-    public SqlFetchRequest(SqlSelect statement, RecordSetHeader recordSetHeader)
+    /// <param name="tupleDescriptor">The tuple descriptor.</param>
+    /// <param name="parameterBindings">The parameter bindings.</param>
+    public SqlFetchRequest(SqlSelect statement, TupleDescriptor tupleDescriptor, IEnumerable<SqlFetchParameterBinding> parameterBindings)
       : base(statement)
     {
-      ParameterBindings = new HashSet<SqlFetchParameterBinding>();
-      RecordSetHeader = recordSetHeader;
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="statement">The statement.</param>
-    /// <param name="recordSetHeader">The element descriptor.</param>
-    /// <param name="parameterBindings">The parameter bindings.</param>
-    public SqlFetchRequest(SqlSelect statement, RecordSetHeader recordSetHeader, IEnumerable<SqlFetchParameterBinding> parameterBindings)
-      : this(statement, recordSetHeader)
-    {
-      ParameterBindings.UnionWith(parameterBindings);
+      ParameterBindings = parameterBindings.ToHashSet();
+      TupleDescriptor = tupleDescriptor;
     }
   }
 }

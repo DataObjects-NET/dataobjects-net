@@ -4,21 +4,34 @@
 
 using System.Collections.Generic;
 using Xtensive.Sql.Dom.Compiler.Internals;
+using Xtensive.Sql.Dom.Dml;
 
 namespace Xtensive.Sql.Dom.Compiler
 {
   /// <summary>
   /// Represents a <see cref="SqlCompiler"/> compilation results.
   /// </summary>
-  public class SqlCompilationResult
+  public sealed class SqlCompilationResult
   {
     private readonly Node resultNode;
     private readonly string resultText;
+    private readonly IDictionary<object, string> parameterNames;
 
     /// <inheritdoc/>
     public override string ToString()
     {
       return GetCommandText();
+    }
+
+    /// <summary>
+    /// Gets the name of the <paramref name="parameter"/> assigned during compilation.
+    /// All explicitly named parameters are not searched by this method.
+    /// </summary>
+    /// <param name="parameter">The parameter.</param>
+    /// <returns>Assigned name.</returns>
+    public string GetParameterName(object parameter)
+    {
+      return parameterNames[parameter];
     }
 
     /// <summary>
@@ -34,7 +47,7 @@ namespace Xtensive.Sql.Dom.Compiler
 
     /// <summary>
     /// Gets the textual representation of Sql.Dom statement compilation.
-    /// All variants are chosen according to a <paramref name="variantKeys"/>
+    /// All variants are chosen according to a <paramref name="variantKeys"/>.
     /// </summary>
     /// <param name="variantKeys">Keys that determine which variants are to be used.</param>
     /// <returns></returns>
@@ -45,7 +58,7 @@ namespace Xtensive.Sql.Dom.Compiler
       return new VariantCompiler(resultNode, variantKeys).Compile();
     }
 
-    internal SqlCompilationResult(Node result)
+    internal SqlCompilationResult(Node result, IDictionary<object, string> parameterNames)
     {
       if (result == null) {
         resultText = string.Empty;
@@ -56,6 +69,7 @@ namespace Xtensive.Sql.Dom.Compiler
         resultText = text.Text;
       else
         resultNode = result;
+      this.parameterNames = parameterNames;
     }
   }
 }

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Sql.Dom.Compiler.Internals;
+using Xtensive.Sql.Dom.Dml;
 using Xtensive.Sql.Dom.Exceptions;
 using Xtensive.Sql.Dom.Resources;
 
@@ -12,6 +13,7 @@ namespace Xtensive.Sql.Dom.Compiler
 {
   public class SqlCompilerContext
   {
+    private int nextParameter;
     private NodeContainer output;
     private SqlNode[] traversalPath;
 
@@ -19,10 +21,12 @@ namespace Xtensive.Sql.Dom.Compiler
     private readonly Stack<SqlNode> traversalStack;
     private readonly HashSet<SqlNode> traversalTable;
     private readonly AliasProvider aliasProvider = new AliasProvider();
-
+    private readonly Dictionary<object, string> parameterNames = new Dictionary<object, string>();
+ 
     public bool IsEmpty { get { return output.IsEmpty; } }
     public AliasProvider AliasProvider { get { return aliasProvider; } }
 
+    internal Dictionary<object, string> ParameterNames { get { return parameterNames; } }
     internal NodeContainer Output { get { return output; } }
 
     public void AppendText(string text)
@@ -44,7 +48,10 @@ namespace Xtensive.Sql.Dom.Compiler
 
     public SqlCompilerScope EnterNode(SqlNode node)
     {
-      BeginEnterNode(node);
+      if (traversalTable.Contains(node))
+        throw new SqlCompilerException(Strings.ExCircularReferenceDetected);
+      traversalStack.Push(node);
+      traversalTable.Add(node);
       return CreateScope(ContextType.Node);
     }
 
@@ -55,19 +62,29 @@ namespace Xtensive.Sql.Dom.Compiler
     
     public SqlCompilerScope EnterMainVariant(SqlNode node, object key)
     {
-      BeginEnterNode(node);
       var variant = new VariantNode(key) {Main = new NodeContainer(), Alternative = new NodeContainer()};
       output.Add(variant);
-      return CreateScope(ContextType.Node, (NodeContainer) variant.Main);
+      return CreateScope(ContextType.Collection, (NodeContainer) variant.Main);
     }
 
     public SqlCompilerScope EnterAlternativeVariant(SqlNode node, object key)
     {
-      BeginEnterNode(node);
       var variant = (VariantNode) output.Current;
       if (variant.Key != key)
         throw new InvalidOperationException();
-      return CreateScope(ContextType.Node, (NodeContainer) variant.Alternative);
+      return CreateScope(ContextType.Collection, (NodeContainer) variant.Alternative);
+    }
+
+    public string GetParameterName(SqlParameterRef parameterRef)
+    {
+      if (!string.IsNullOrEmpty(parameterRef.Name))
+        return parameterRef.Name;
+      string name;
+      if (!parameterNames.TryGetValue(parameterRef.Parameter, out name)) {
+        name = "p" + nextParameter++;
+        parameterNames.Add(parameterRef.Parameter, name);
+      }
+      return name;
     }
 
     /// <summary>
@@ -90,14 +107,6 @@ namespace Xtensive.Sql.Dom.Compiler
     }
 
     #region Private methods
-
-    private void BeginEnterNode(SqlNode node)
-    {
-      if (traversalTable.Contains(node))
-        throw new SqlCompilerException(Strings.ExCircularReferenceDetected);
-      traversalStack.Push(node);
-      traversalTable.Add(node);
-    }
 
     private SqlCompilerScope CreateScope(ContextType type)
     {

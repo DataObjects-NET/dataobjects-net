@@ -482,8 +482,7 @@ namespace Xtensive.Sql.Dom.Tests
     [Test]
     public void SqlAssignCloneTest()
     {
-      SqlParameter r = new SqlParameter();
-      SqlParameterRef p = Sql.ParameterRef(r);
+      SqlParameterRef p = Sql.ParameterRef("p");
       SqlAssignment a = Sql.Assign(p, 1);
       SqlAssignment aClone = (SqlAssignment) a.Clone();
       
@@ -498,7 +497,7 @@ namespace Xtensive.Sql.Dom.Tests
     [Test]
     public void SqlBatchCloneTest()
     {
-      SqlParameterRef p = Sql.ParameterRef(new SqlParameter("p"));
+      SqlParameterRef p = Sql.ParameterRef("p");
       SqlAssignment a = Sql.Assign(p, 1);
       SqlBatch b = Sql.Batch();
       b.Add(a);

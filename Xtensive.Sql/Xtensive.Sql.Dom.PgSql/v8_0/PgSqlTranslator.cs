@@ -1171,7 +1171,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       }
     }
     
-    protected string TranslateDateTimePart(SqlDateTimePart part)
+    protected static string TranslateDateTimePart(SqlDateTimePart part)
     {
       switch (part) {
       case SqlDateTimePart.Year:
@@ -1201,7 +1201,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       }
     }
 
-    protected string TranslateDotNetType<T>() // where T : IConvertible
+    protected static string TranslateDotNetType<T>() // where T : IConvertible
     {
       switch (Type.GetTypeCode(typeof (T))) {
       case TypeCode.Boolean:

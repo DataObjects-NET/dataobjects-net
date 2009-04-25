@@ -1535,10 +1535,16 @@ namespace Xtensive.Sql.Dom
       return new SqlCursor(name, query);
     }
 
-    public static SqlParameterRef ParameterRef(SqlParameter parameter)
+    public static SqlParameterRef ParameterRef(object parameter)
     {
       ArgumentValidator.EnsureArgumentNotNull(parameter, "parameter");
       return new SqlParameterRef(parameter);
+    }
+
+    public static SqlParameterRef ParameterRef(string name)
+    {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      return new SqlParameterRef(name);
     }
 
     public static SqlCase Case(SqlExpression value)

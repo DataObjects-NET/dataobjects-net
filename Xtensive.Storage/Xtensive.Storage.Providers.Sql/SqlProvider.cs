@@ -6,38 +6,41 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
+using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Sql.Dom.Compiler;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Rse.Providers;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
   public class SqlProvider : ExecutableProvider
   {
     protected readonly HandlerAccessor handlers;
-    protected SqlFetchRequest request;
     private const string ToString_Command = "[Command: \"{0}\"]";
     private const string ToString_ParametersBegin = "[Parameters: ";
     private const string ToString_ParametersEnd = "]";
     private const string ToString_Parameter = "{0} = \"{1}\"";
 
-    public SqlFetchRequest Request {
-      [DebuggerStepThrough]
-      get { return request; }
-      [DebuggerStepThrough]
-      private set { request = value; }
-    }
+    /// <summary>
+    /// Gets <see cref="SqlFetchRequest"/> associated with this provider.
+    /// </summary>
+    public SqlFetchRequest Request { get; private set;  }
 
+    /// <summary>
+    /// Gets the permanent reference (<see cref="SqlQueryRef"/>) for <see cref="SqlSelect"/> associated with this provider.
+    /// </summary>
     public SqlQueryRef PermanentReference { get; private set; }
 
     /// <inheritdoc/>
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
       var sessionHandler = (SessionHandler) handlers.SessionHandler;
-      sessionHandler.DomainHandler.Compile(request);
-      request.BindParameters();
-      using (var e = sessionHandler.Execute(request)) {
+      using (var e = sessionHandler.Execute(Request)) {
         while (e.MoveNext())
           yield return e.Current;
       }
@@ -57,57 +60,60 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void AppendDescriptionTo(StringBuilder sb, int indent)
     {
       AppendOriginTo(sb, indent);
-      if (request.CompilationResult == null) {
-        var sessionHandler = (SessionHandler) handlers.SessionHandler;
-        sessionHandler.DomainHandler.Compile(request);
-        request.BindParameters();
-      }
-      AppendCommandTo(sb, indent);
-      AppendParametersTo(sb, indent);
+      var result = Request.Compile((DomainHandler) handlers.DomainHandler);
+      AppendCommandTo(result, sb, indent);
     }
 
     /// <inheritdoc/>
-    protected virtual void AppendCommandTo(StringBuilder sb, int indent)
+    protected virtual void AppendCommandTo(SqlCompilationResult result, StringBuilder sb, int indent)
     {
       sb.Append(new string(' ', indent))
-        .AppendFormat(ToString_Command, request.CompiledStatement)
+        .AppendFormat(ToString_Command, result.GetCommandText())
         .AppendLine();
     }
 
-    /// <inheritdoc/>
-    private void AppendParametersTo(StringBuilder sb, int indent)
+    #endregion
+    
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="origin">The origin.</param>
+    /// <param name="statement">The statement.</param>
+    /// <param name="handlers">The handlers.</param>
+    /// <param name="sources">The sources.</param>
+    public SqlProvider(
+      CompilableProvider origin,
+      SqlSelect statement,
+      HandlerAccessor handlers,
+      params ExecutableProvider[] sources)
+      : this(origin, statement, handlers, null, sources)
     {
-      if (request.ParameterBindings.Count == 0)
-        return;
-      sb.Append(new string(' ', indent)).Append(ToString_ParametersBegin);
-      int i = 0;
-      foreach (var item in request.ParameterBindings) {
-        if (i > 0)
-          sb.Append(", ");
-        sb.AppendFormat(ToString_Parameter, item.SqlParameter.ParameterName, item.ValueAccessor());
-        i++;
-      }
-      sb.Append(ToString_ParametersEnd).AppendLine();
     }
 
-    #endregion
-
-
-    // Constructor
-
-    public SqlProvider(CompilableProvider origin, SqlFetchRequest request, HandlerAccessor handlers, params ExecutableProvider[] sources)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="origin">The origin.</param>
+    /// <param name="statement">The statement.</param>
+    /// <param name="handlers">The handlers.</param>
+    /// <param name="extraBindings">The extra bindings.</param>
+    /// <param name="sources">The sources.</param>
+    public SqlProvider(
+      CompilableProvider origin,
+      SqlSelect statement,
+      HandlerAccessor handlers,
+      IEnumerable<SqlFetchParameterBinding> extraBindings,
+      params ExecutableProvider[] sources)
       : base(origin, sources)
     {
-      this.request = request;
       this.handlers = handlers;
-      var select = request.Statement as SqlSelect;
-      if (select != null)
-        PermanentReference = Xtensive.Sql.Dom.Sql.QueryRef(select);
-      foreach (ExecutableProvider source in sources) {
-        var sqlProvider = source as SqlProvider;
-        if (sqlProvider!=null && sqlProvider.Request != null)
-          request.ParameterBindings.UnionWith(sqlProvider.Request.ParameterBindings);
-      }
+      var parameterBindings = sources.OfType<SqlProvider>().SelectMany(p => p.Request.ParameterBindings);
+      if (extraBindings != null)
+        parameterBindings = parameterBindings.Concat(extraBindings);
+      Request = new SqlFetchRequest(statement, origin.Header.TupleDescriptor, parameterBindings);
+      PermanentReference = SqlFactory.QueryRef(statement);
     }
   }
 }

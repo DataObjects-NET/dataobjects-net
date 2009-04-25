@@ -13,7 +13,6 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public sealed class SqlUpdateParameterBinding : SqlParameterBinding<Func<Tuple, object>>
   {
-
     // Constructors
 
     /// <summary>

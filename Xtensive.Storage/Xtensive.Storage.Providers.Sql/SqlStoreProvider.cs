@@ -5,6 +5,7 @@
 // Created:    2008.09.05
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
@@ -47,21 +48,19 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlTableRef tableRef = SqlFactory.TableRef(Table);
       SqlInsert insert = SqlFactory.Insert(tableRef);
-      SqlUpdateRequest updateRequest = new SqlUpdateRequest(insert);
+      var bindings = new List<SqlUpdateParameterBinding>();
       int i = 0;
       foreach (SqlTableColumn column in tableRef.Columns) {
         int fieldIndex = i;
         DataTypeMapping typeMapping = ((DomainHandler) handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(Header.Columns[i].Type);
-        SqlUpdateParameterBinding binding = new SqlUpdateParameterBinding((target => target.IsNull(fieldIndex) ? DBNull.Value : target.GetValue(fieldIndex)), typeMapping);
-        insert.Values[column] = binding.SqlParameter;
-        updateRequest.ParameterBindings.Add(binding);
+        var binding = new SqlUpdateParameterBinding((target => target.IsNull(fieldIndex) ? DBNull.Value : target.GetValue(fieldIndex)), typeMapping);
+        insert.Values[column] = binding.ParameterReference;
+        bindings.Add(binding);
         i++;
       }
-      sessionHandler.DomainHandler.Compile(updateRequest);
-      foreach (Tuple tuple in Source) {
-        updateRequest.BindParameters(tuple);
-        sessionHandler.ExecuteNonQuery(updateRequest);
-      }
+      SqlUpdateRequest updateRequest = new SqlUpdateRequest(insert, -1, bindings);
+      foreach (Tuple tuple in Source)
+        sessionHandler.ExecuteUpdateRequest(updateRequest, tuple);
     }
 
     protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
@@ -95,7 +94,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructor
 
-    public SqlStoreProvider(StoreProvider origin, SqlFetchRequest request, HandlerAccessor handlers, ExecutableProvider source, Table table)
+    public SqlStoreProvider(StoreProvider origin, SqlSelect request, HandlerAccessor handlers, ExecutableProvider source, Table table)
       : base(origin, request, handlers, source)
     {
       AddService<IHasNamedResult>();

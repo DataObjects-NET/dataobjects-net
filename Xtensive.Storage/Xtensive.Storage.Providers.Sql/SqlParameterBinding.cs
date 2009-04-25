@@ -5,8 +5,9 @@
 // Created:    2008.09.26
 
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Sql.Dom;
+using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Providers.Sql.Mappings;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -18,9 +19,10 @@ namespace Xtensive.Storage.Providers.Sql
     public DataTypeMapping TypeMapping { get; private set; }
 
     /// <summary>
-    /// Gets the SQL parameter.
+    /// Gets the parameter reference.
     /// </summary>
-    public SqlParameter SqlParameter { get; private set; }
+    /// <value>The parameter reference.</value>
+    public SqlParameterRef ParameterReference { get; private set; }
 
     // Constructor
 
@@ -30,7 +32,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected SqlParameterBinding(DataTypeMapping typeMapping)
     {
       TypeMapping = typeMapping;
-      SqlParameter = new SqlParameter();
+      ParameterReference = SqlFactory.ParameterRef(this);
     }
   }
 }

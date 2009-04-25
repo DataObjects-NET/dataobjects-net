@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.Sql
       using (domainHandler.OpenSession(SessionType.System)) {
         using (var t = Session.Current.OpenTransaction()) {
           var sessionHandler = (SessionHandler) Handlers.SessionHandler;
-          object value = sessionHandler.ExecuteScalar(nextRequest);
+          object value = sessionHandler.ExecuteScalarRequest(nextRequest);
           upperBound = (TFieldType)Convert.ChangeType(value, typeof (TFieldType));
           t.Complete();
         }
@@ -63,11 +63,7 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Initialize()
     {
       base.Initialize();
-
       nextRequest = new SqlScalarRequest(sqlNext);
-      var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      domainHandler.Compile(nextRequest);
-
       if (sqlInitialize!=null) {
         var sessionHandler = (SessionHandler) Handlers.SessionHandler;
         sessionHandler.ExecuteNonQuery(sqlInitialize);

@@ -5,16 +5,12 @@
 // Created:    2008.05.20
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
-using Xtensive.Sql.Dom.Database;
-using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -42,6 +38,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets the domain handler.
     /// </summary>
     protected internal DomainHandler DomainHandler { get; private set; }
+
+    #region Transaction control methods
 
     /// <inheritdoc/>
     public override void BeginTransaction()
@@ -71,88 +69,96 @@ namespace Xtensive.Storage.Providers.Sql
       Transaction = null;
     }
 
+    #endregion
+
     public IEnumerator<Tuple> Execute(SqlFetchRequest request)
     {
-      using (var reader = ExecuteReader(request)) {
-        Tuple tuple;
-        while ((tuple = ReadTuple(reader, request))!=null)
+      var descriptor = request.TupleDescriptor;
+      var accessor = DomainHandler.GetDataReaderAccessor(descriptor);
+      using (var reader = ExecuteFetchRequest(request))
+        while (reader.Read()) {
+          var tuple = Tuple.Create(descriptor);
+          accessor.Read(reader, tuple);
           yield return tuple;
-      }
+        }
     }
 
-    protected virtual Tuple ReadTuple(DbDataReader reader, SqlFetchRequest request)
-    {
-      if (!reader.Read())
-        return null;
-      var tuple = Tuple.Create(request.RecordSetHeader.TupleDescriptor);
-      request.DbDataReaderAccessor.Read(reader, tuple);
-      return tuple;
-    }
+    #region Execute statement methods
 
-    public virtual int ExecuteNonQuery(ISqlCompileUnit statement)
+    public virtual DbDataReader ExecuteReader(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
-      using (var command = new SqlCommand(connection)) {
-        command.Statement = statement;
-        command.Prepare();
-        command.Transaction = Transaction;
-        return command.ExecuteNonQuery();
-      }
-    }
-
-    public virtual int ExecuteNonQuery(SqlUpdateRequest request)
-    {
-      EnsureConnectionIsOpen();
-      using (var command = new SqlCommand(connection)) {
-        command.CommandText = request.CompiledStatement;
-        command.Parameters.AddRange(request.ParameterBindings.Select(b => b.SqlParameter));
-        command.Prepare();
-        command.Transaction = Transaction;
-        return command.ExecuteNonQuery();
-      }
-    }
-
-    public virtual object ExecuteScalar(SqlScalarRequest request)
-    {
-      EnsureConnectionIsOpen();
-      using (var command = new SqlCommand(connection)) {
-        command.CommandText = request.CompiledStatement;
-        command.Prepare();
-        command.Transaction = Transaction;
-        return command.ExecuteScalar();
-      }
-    }
-
-    public virtual object ExecuteScalar(ISqlCompileUnit statement)
-    {
-      EnsureConnectionIsOpen();
-      using (var command = new SqlCommand(connection)) {
-        command.Statement = statement;
-        command.Prepare();
-        command.Transaction = Transaction;
-        return command.ExecuteScalar();
-      }
-    }
-
-    public virtual DbDataReader ExecuteReader(SqlFetchRequest request)
-    {
-      EnsureConnectionIsOpen();
-      using (var command = new SqlCommand(connection)) {
-        command.CommandText = request.CompiledStatement;
-        command.Parameters.AddRange(request.ParameterBindings.Select(b => b.SqlParameter));
+      using (var command = CreateCommand(statement)) {
         command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteReader();
       }
     }
 
+    public virtual int ExecuteNonQuery(ISqlCompileUnit statement)
+    {
+      EnsureConnectionIsOpen();
+      using (var command = CreateCommand(statement)) {
+        command.Prepare();
+        command.Transaction = Transaction;
+        return command.ExecuteNonQuery();
+      }
+    }
+
+    public virtual object ExecuteScalar(ISqlCompileUnit statement)
+    {
+      EnsureConnectionIsOpen();
+      using (var command = CreateCommand(statement)) {
+        command.Prepare();
+        command.Transaction = Transaction;
+        return command.ExecuteScalar();
+      }
+    }
+
+    #endregion
+
+    #region Execute request methods
+
+    public virtual int ExecuteUpdateRequest(SqlUpdateRequest request, Tuple tuple)
+    {
+      EnsureConnectionIsOpen();
+      using (var command = CreateUpdateCommand(request, tuple)) {
+        command.Prepare();
+        command.Transaction = Transaction;
+        return command.ExecuteNonQuery();
+      }
+    }
+
+    public virtual object ExecuteScalarRequest(SqlScalarRequest request)
+    {
+      EnsureConnectionIsOpen();
+      using (var command = CreateScalarCommand(request)) {
+        command.Prepare();
+        command.Transaction = Transaction;
+        return command.ExecuteScalar();
+      }
+    }
+
+    public virtual DbDataReader ExecuteFetchRequest(SqlFetchRequest request)
+    {
+      EnsureConnectionIsOpen();
+      using (var command = CreateFetchCommand(request)) {
+        command.Prepare();
+        command.Transaction = Transaction;
+        return command.ExecuteReader();
+      }
+    }
+
+    #endregion
+
+    #region Insert, Update, Delete
+
     /// <inheritdoc/>
     protected override void Insert(EntityState state)
     {
       var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Insert, state.Type);
       var request = DomainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
-      request.BindParameters(state.Tuple);
-      int rowsAffected = ExecuteNonQuery(request);
+      int rowsAffected = ExecuteUpdateRequest(request, state.Tuple);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(
           string.Format(Strings.ExErrorOnInsert, state.Type.Name, rowsAffected, request.ExpectedResult));
@@ -164,8 +170,7 @@ namespace Xtensive.Storage.Providers.Sql
       var fieldStateMap = state.Tuple.Difference.GetFieldStateMap(TupleFieldState.Available);
       var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Update, state.Type, fieldStateMap);
       var request = DomainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
-      request.BindParameters(state.Tuple);
-      int rowsAffected = ExecuteNonQuery(request);
+      int rowsAffected = ExecuteUpdateRequest(request, state.Tuple);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(
           string.Format(Strings.ExErrorOnUpdate, state.Type.Name, rowsAffected, request.ExpectedResult));
@@ -176,8 +181,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Remove, state.Type);
       var request = DomainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
-      request.BindParameters(state.Key.Value);
-      int rowsAffected = ExecuteNonQuery(request);
+      int rowsAffected = ExecuteUpdateRequest(request, state.Key.Value);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(
           string.Format(
@@ -185,6 +189,86 @@ namespace Xtensive.Storage.Providers.Sql
             state.Key.EntityType.Name));
     }
 
+    #endregion
+
+    #region CreateCommand methods
+
+    /// <summary>
+    /// Creates the <see cref="SqlCommand"/> bound to connection associated with this <see cref="SessionHandler"/>.
+    /// </summary>
+    /// <param name="statement">The statement.</param>
+    /// <returns></returns>
+    protected virtual SqlCommand CreateCommand(ISqlCompileUnit statement)
+    {
+      return new SqlCommand(Connection) {Statement = statement};
+    }
+
+    /// <summary>
+    /// Creates <see cref="SqlCommand"/> from specified <see cref="SqlScalarRequest"/>.
+    /// </summary>
+    /// <param name="request">The request.</param>
+    /// <returns></returns>
+    protected virtual SqlCommand CreateScalarCommand(SqlScalarRequest request)
+    {
+      var command = new SqlCommand(connection);
+      command.CommandText = request.Compile(DomainHandler).GetCommandText();
+      return command;
+    }
+
+    /// <summary>
+    /// Creates <see cref="SqlCommand"/> from specified <see cref="SqlFetchRequest"/>.
+    /// </summary>
+    /// <param name="request">The request.</param>
+    /// <returns></returns>
+    protected virtual SqlCommand CreateFetchCommand(SqlFetchRequest request)
+    {
+      var command = new SqlCommand(Connection);
+      var compilationResult = request.Compile(DomainHandler);
+      var variantKeys = new List<object>();
+      foreach (var binding in request.ParameterBindings) {
+        object parameterValue = binding.ValueAccessor.Invoke();
+        parameterValue = binding.TypeMapping.TranslateToSqlValue(parameterValue);
+        if (parameterValue != null) {
+          string parameterName = compilationResult.GetParameterName(binding.ParameterReference.Parameter);
+          var parameterType = binding.TypeMapping.DbType;
+          var parameter = new SqlParameter(parameterName, parameterType) {Value = parameterValue};
+          command.Parameters.Add(parameter);
+        }
+        else
+          variantKeys.Add(binding);
+      }
+      command.CommandText = compilationResult.GetCommandText(variantKeys);
+      return command;
+    }
+
+    /// <summary>
+    /// Creates <see cref="SqlCommand"/> from specified <see cref="SqlUpdateRequest"/>.
+    /// </summary>
+    /// <param name="request">The request.</param>
+    /// <param name="value">Tuple that contain values for update parameters.</param>
+    /// <returns></returns>
+    protected virtual SqlCommand CreateUpdateCommand(SqlUpdateRequest request, Tuple value)
+    {
+      var command = new SqlCommand(Connection);
+      var compilationResult = request.Compile(DomainHandler);
+
+      foreach (var binding in request.ParameterBindings) {
+        object parameterValue = binding.TypeMapping.TranslateToSqlValue(binding.ValueAccessor.Invoke(value));
+        string parameterName = compilationResult.GetParameterName(binding.ParameterReference.Parameter);
+        var parameterType = binding.TypeMapping.DbType;
+        var parameter = new SqlParameter(parameterName, parameterType) {Value = parameterValue};
+        command.Parameters.Add(parameter);
+      }
+
+      command.CommandText = compilationResult.GetCommandText();
+      return command;
+    }
+
+    #endregion
+
+    /// <summary>
+    /// Ensures the connection is open.
+    /// </summary>
     public void EnsureConnectionIsOpen()
     {
       if (connection!=null && connection.State==ConnectionState.Open)
@@ -207,6 +291,5 @@ namespace Xtensive.Storage.Providers.Sql
     {
       connection.DisposeSafely();
     }
-   
   }
 }

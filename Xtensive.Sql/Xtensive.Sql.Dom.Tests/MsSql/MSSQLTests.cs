@@ -158,7 +158,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       SqlTableRef product = Sql.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
       SqlSelect select = Sql.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"], product["ListPrice"]);
-      select.Where = product["ListPrice"]>Sql.ParameterRef(p);
+      select.Where = product["ListPrice"]>Sql.ParameterRef(p.ParameterName);
       select.OrderBy.Add(product["ListPrice"]);
 
       sqlCommand.Statement = select;

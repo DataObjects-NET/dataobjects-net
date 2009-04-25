@@ -118,7 +118,7 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
       SqlTableRef product = Sql.TableRef(Catalog.Schemas["dbo"].Tables["Production_Product"]);
       SqlSelect select = Sql.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"], product["ListPrice"]);
-      select.Where = product["ListPrice"] > Sql.ParameterRef(p);
+      select.Where = product["ListPrice"] > Sql.ParameterRef(p.ParameterName);
       select.OrderBy.Add(product["ListPrice"]);
 
       sqlCommand.Statement = select;

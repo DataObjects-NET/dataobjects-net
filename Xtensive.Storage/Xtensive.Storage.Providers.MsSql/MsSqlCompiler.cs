@@ -65,8 +65,7 @@ namespace Xtensive.Storage.Providers.MsSql
       query.OrderBy.Add(queryRef.Columns[rowNumber]); 
 //      AddOrderByForRowNumberColumn(provider, query);
       
-      var request = new SqlFetchRequest(query, provider.Header);
-      return new SqlProvider(provider, request, Handlers, compiledSource);
+      return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
     protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
@@ -85,8 +84,7 @@ namespace Xtensive.Storage.Providers.MsSql
 
 //      AddOrderByForRowNumberColumn(provider, query);
 
-      var request = new SqlFetchRequest(query, provider.Header);
-      return new SqlProvider(provider, request, Handlers, compiledSource);
+      return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
 //    private void AddOrderByForRowNumberColumn(Provider provider, SqlSelect query)
@@ -136,8 +134,7 @@ namespace Xtensive.Storage.Providers.MsSql
 
       SqlSelect query = SqlFactory.Select(joinedTable);
       query.Columns.AddRange(leftQuery.Columns.Concat(rightQuery.Columns).Cast<SqlColumn>());
-      var request = new SqlFetchRequest(query, provider.Header);
-      return new SqlProvider(provider, request, Handlers, left, right);
+      return new SqlProvider(provider, query, Handlers, left, right);
     }
 
     protected override SqlExpression TranslateExpression(LambdaExpression le, out HashSet<SqlFetchParameterBinding> parameterBindings, SqlSelect[] selects)

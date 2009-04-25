@@ -17,8 +17,6 @@ namespace Xtensive.Sql.Dom.Compiler
 {
   public class SqlCompiler : ISqlVisitor
   {
-    private readonly Compressor compressor = new Compressor();
-
     protected readonly SqlTranslator translator;
     protected SqlCompilerOptions options;
     protected SqlCompilerContext context;
@@ -35,7 +33,10 @@ namespace Xtensive.Sql.Dom.Compiler
       OnBeginCompile();
       unit.AcceptVisitor(this);
       OnEndCompile();
-      return new SqlCompilationResult(compressor.Compress(context.Output));
+      return new SqlCompilationResult(
+        new Compressor().Compress(context.Output),
+        context.ParameterNames
+        );
     }
 
     protected virtual void OnBeginCompile()

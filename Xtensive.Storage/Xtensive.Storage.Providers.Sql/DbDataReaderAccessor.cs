@@ -27,7 +27,6 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-
     // Constructors
 
     internal DbDataReaderAccessor(IEnumerable<Func<DbDataReader, int, object>> readers, IEnumerable<Func<object, object>> converters)

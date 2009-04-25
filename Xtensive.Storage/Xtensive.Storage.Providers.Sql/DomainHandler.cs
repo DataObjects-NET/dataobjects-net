@@ -6,11 +6,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Threading;
+using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
@@ -33,6 +35,8 @@ namespace Xtensive.Storage.Providers.Sql
   public abstract class DomainHandler : Providers.DomainHandler
   {
     private Schema existingSchema;
+
+    private ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor> accessorCache;
 
     /// <summary>
     /// Gets the mapping schema.
@@ -90,10 +94,14 @@ namespace Xtensive.Storage.Providers.Sql
         );
     }
 
-    /// <inheritdoc/>
-    public void Compile(SqlRequest request)
+    /// <summary>
+    /// Constructs (or retrives from cache) <see cref="DbDataReaderAccessor"/> for specified <see cref="TupleDescriptor"/>.
+    /// </summary>
+    /// <param name="descriptor">The descriptor.</param>
+    /// <returns></returns>
+    public DbDataReaderAccessor GetDataReaderAccessor(TupleDescriptor descriptor)
     {
-      request.Compile(this);
+      return accessorCache.GetValue(descriptor, BuildDataReaderAccessor);
     }
 
     private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
@@ -107,6 +115,26 @@ namespace Xtensive.Storage.Providers.Sql
         || provider.Type==ProviderType.Concat;
       bool preservesOrder = !isOrderSensitive;
       return new ProviderOrderingDescriptor(isOrdering, isOrderSensitive, preservesOrder, resetsOrder);
+    }
+    /// <summary>
+    /// Builds <see cref="DbDataReaderAccessor"/> from specified <see cref="TupleDescriptor"/>.
+    /// You should not use this method directly since it does not provide caching.
+    /// Use <see cref="GetDataReaderAccessor"/>.
+    /// </summary>
+    /// <param name="descriptor">The tuple descriptor.</param>
+    /// <returns></returns>
+    protected virtual DbDataReaderAccessor BuildDataReaderAccessor(TupleDescriptor descriptor)
+    {
+      var readers = new List<Func<DbDataReader, int, object>>(descriptor.Count);
+      var converters = new List<Func<object, object>>(descriptor.Count);
+
+      foreach (var item in descriptor) {
+        var typeMapping = ValueTypeMapper.GetTypeMapping(item);
+        readers.Add(typeMapping.DataReaderAccessor);
+        converters.Add(typeMapping.FromSqlValue);
+      }
+
+      return new DbDataReaderAccessor(readers, converters);
     }
 
     /// <inheritdoc/>
@@ -159,14 +187,14 @@ namespace Xtensive.Storage.Providers.Sql
     {
       return referencingTable.Indexes.FirstOrDefault(i => i.Name==indexName);
     }
-
-
+    
     // Initialization
 
     /// <inheritdoc/>
     public override void Initialize()
     {
       base.Initialize();
+      accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
       ConnectionProvider = new SqlConnectionProvider();
       MappingSchema = new DomainModelMapping();
       SqlRequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest>.Create(new object());

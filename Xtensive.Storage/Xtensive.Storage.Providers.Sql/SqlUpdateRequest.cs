@@ -5,8 +5,8 @@
 // Created:    2008.08.22
 
 using System.Collections.Generic;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -17,33 +17,15 @@ namespace Xtensive.Storage.Providers.Sql
   public class SqlUpdateRequest : SqlRequest
   {
     /// <summary>
-    /// Gets or sets the parameter bindings.
+    /// Gets the parameter bindings.
     /// </summary>
-    public HashSet<SqlUpdateParameterBinding> ParameterBindings { get; private set; }
+    public IEnumerable<SqlUpdateParameterBinding> ParameterBindings { get; private set; }
 
     /// <summary>
     /// Gets or sets the expected result.
     /// </summary>
     /// <remarks>Usually is the number of touched rows.</remarks>
-    public int ExpectedResult { get; set; }
-
-    /// <inheritdoc/>
-    protected override IEnumerable<SqlParameterBinding> GetParameterBindings()
-    {
-      foreach (var binding in ParameterBindings)
-        yield return binding;
-    }
-
-    /// <summary>
-    /// Binds the parameters to the specified <paramref name="target"/>.
-    /// </summary>
-    /// <param name="target">The target to bind parameters to.</param>
-    public void BindParameters(Tuple target)
-    {
-      foreach (var binding in ParameterBindings)
-        BindParameter(binding, binding.ValueAccessor(target));
-    }
-
+    public int ExpectedResult { get; private set; }
 
     // Constructor
 
@@ -51,10 +33,13 @@ namespace Xtensive.Storage.Providers.Sql
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="statement">The statement.</param>
-    public SqlUpdateRequest(ISqlCompileUnit statement)
+    /// <param name="expectedResult">The expected result.</param>
+    /// <param name="parameterBindings">The parameter bindings.</param>
+    public SqlUpdateRequest(ISqlCompileUnit statement, int expectedResult, IEnumerable<SqlUpdateParameterBinding> parameterBindings)
       : base(statement)
     {
-      ParameterBindings = new HashSet<SqlUpdateParameterBinding>();
+      ExpectedResult = expectedResult;
+      ParameterBindings = parameterBindings.ToHashSet();
     }
   }
 }

@@ -15,55 +15,22 @@ namespace Xtensive.Sql.Dom.Compiler
 {
   public class SqlTranslator: IFormatProvider
   {
-    protected DateTimeFormatInfo dateTimeFormat;
     private readonly SqlDriver driver;
+
+    protected DateTimeFormatInfo dateTimeFormat;
     protected NumberFormatInfo numberFormat;
 
-    public virtual string BatchStatementDelimiter
-    {
-      get { return ";"; }
-    }
-
-    public virtual string ArgumentDelimiter
-    {
-      get { return ","; }
-    }
-
-    public virtual string ColumnDelimiter
-    {
-      get { return ","; }
-    }
-
-    public virtual string RowItemDelimiter
-    {
-      get { return ","; }
-    }
-
-    public virtual string OrderDelimiter
-    {
-      get { return ","; }
-    }
-
-    public virtual string ValueDelimiter
-    {
-      get { return ","; }
-    }
-
-    public virtual string WhenDelimiter
-    {
-      get { return string.Empty; }
-    }
-
-    public virtual string DdlStatementDelimiter
-    {
-      get { return string.Empty; }
-    }
-
-    public virtual string HintDelimiter
-    {
-      get { return string.Empty; }
-    }
-
+    public virtual string BatchStatementDelimiter { get { return ";"; } }
+    public virtual string ArgumentDelimiter { get { return ","; } }
+    public virtual string ColumnDelimiter { get { return ","; } }
+    public virtual string RowItemDelimiter { get { return ","; } }
+    public virtual string OrderDelimiter { get { return ","; } }
+    public virtual string ValueDelimiter { get { return ","; } }
+    public virtual string WhenDelimiter { get { return string.Empty; } }
+    public virtual string DdlStatementDelimiter { get { return string.Empty; } }
+    public virtual string HintDelimiter { get { return string.Empty; } }
+    public virtual string ParameterPrefix { get { return "@";  } }
+    
     /// <summary>
     /// Gets the driver.
     /// </summary>
@@ -78,8 +45,8 @@ namespace Xtensive.Sql.Dom.Compiler
     /// </summary>
     public virtual void Initialize()
     {
-      numberFormat = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
-      dateTimeFormat = (DateTimeFormatInfo)CultureInfo.InvariantCulture.DateTimeFormat.Clone();
+      numberFormat = (NumberFormatInfo) CultureInfo.InvariantCulture.NumberFormat.Clone();
+      dateTimeFormat = (DateTimeFormatInfo) CultureInfo.InvariantCulture.DateTimeFormat.Clone();
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlAggregate node, NodeSection section)
@@ -1177,7 +1144,7 @@ namespace Xtensive.Sql.Dom.Compiler
 
     public virtual string Translate(SqlCompilerContext context, SqlParameterRef node)
     {
-      return "@" + node.Parameter.ParameterName;
+      return ParameterPrefix + context.GetParameterName(node);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlRow node, NodeSection section)

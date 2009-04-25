@@ -8,7 +8,7 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
 {
   internal class Compressor : NodeVisitor
   {
-    private char last;
+    private char last = '\n';
     private byte indent;
     private StringBuilder buffer;
     private Node root;
@@ -16,15 +16,10 @@ namespace Xtensive.Sql.Dom.Compiler.Internals
 
     public Node Compress(NodeContainer node)
     {
-      last = '\n';
-      indent = 0;
       CreateBuffer();
       VisitNodeSequence(node);
       FlushBuffer();
-      var result = root;
-      root = null;
-      current = null;
-      return result;
+      return root;
     }
 
     #region Private methods
