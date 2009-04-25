@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions;
@@ -18,7 +19,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// Provides compilation and caching of queries for reuse.
   /// </summary>
-  public class CompiledQuery
+  public sealed class CompiledQuery
   {
     /// <summary>
     /// Compiles the specified query.
@@ -120,16 +121,16 @@ namespace Xtensive.Storage
     {
       var domain = Domain.Current;
       if (domain != null) {
-        Pair<object, ResultExpression> item;
+        Pair<MethodInfo, ResultExpression> item;
         ResultExpression resultExpression = null;
-        if (domain.QueryCache.TryGetItem(query, true, out item))
+        if (domain.QueryCache.TryGetItem(query.Method, true, out item))
           resultExpression = item.Second;
         if (resultExpression == null) {
           var result = query();
           resultExpression = QueryProvider.LatestCompiledResult;
           lock (domain.QueryCache)
-            if (!domain.QueryCache.TryGetItem(query, false, out item))
-              domain.QueryCache.Add(new Pair<object, ResultExpression>(query, resultExpression));
+            if (!domain.QueryCache.TryGetItem(query.Method, false, out item))
+              domain.QueryCache.Add(new Pair<MethodInfo, ResultExpression>(query.Method, resultExpression));
           return result;
         }
         return resultExpression.GetResult<IEnumerable<TElement>>();
@@ -147,16 +148,16 @@ namespace Xtensive.Storage
     {
       var domain = Domain.Current;
       if (domain != null) {
-        Pair<object, ResultExpression> item;
+        Pair<MethodInfo, ResultExpression> item;
         ResultExpression resultExpression = null;
-        if (domain.QueryCache.TryGetItem(query, true, out item))
+        if (domain.QueryCache.TryGetItem(query.Method, true, out item))
           resultExpression = item.Second;
         if (resultExpression == null) {
           var result = query();
           resultExpression = QueryProvider.LatestCompiledResult;
           lock (domain.QueryCache)
-            if (!domain.QueryCache.TryGetItem(query, false, out item))
-              domain.QueryCache.Add(new Pair<object, ResultExpression>(query, resultExpression));
+            if (!domain.QueryCache.TryGetItem(query.Method, false, out item))
+              domain.QueryCache.Add(new Pair<MethodInfo, ResultExpression>(query.Method, resultExpression));
           return result;
         }
         return resultExpression.GetResult<TResult>();
