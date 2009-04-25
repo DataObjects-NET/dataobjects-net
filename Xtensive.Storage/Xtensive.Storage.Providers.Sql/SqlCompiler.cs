@@ -455,7 +455,8 @@ namespace Xtensive.Storage.Providers.Sql
       var rightQuery = right.Request.SelectStatement;
 
       var select = SqlFactory.Select(leftQuery);
-      select.Columns.AddRange(leftQuery.Columns.Cast<SqlColumn>());
+      if (left.Origin.Header.Length > 0)
+        select.Columns.AddRange(leftQuery.Columns.Cast<SqlColumn>());
 
       if (isExisting || isNotExisting) {
         var filter = SqlFactory.Exists(rightQuery);
