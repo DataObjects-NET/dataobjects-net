@@ -445,68 +445,62 @@ namespace Xtensive.Storage.Linq
 
     private ResultExpression VisitGroupBy(MethodInfo method, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
     {
-      var visitedSource = VisitSequence(source);
-      var result = visitedSource;
-
-      ItemProjectorRewriter projectorRewriter;
-
-      RecordSet recordSet;
-      List<int> columnList;
       var newResultMapping = new ComplexMapping();
       LambdaExpression originalCompiledKeyExpression;
-      using (context.Bindings.Add(keySelector.Parameters[0], result))
+      ResultExpression result;
+      var groupByMapping = new MappingReference();
+      using (context.Bindings.Add(keySelector.Parameters[0], VisitSequence(source)))
       using (new ParameterScope()) {
-        mappingRef.Value = new MappingReference();
+        mappingRef.Value = groupByMapping;
         calculateExpressions.Value = true;
         originalCompiledKeyExpression = (LambdaExpression) Visit(keySelector);
-        columnList = mappingRef.Value.Mapping.GetColumns(entityAsKey.Value);
-
         result = context.Bindings[keySelector.Parameters[0]];
-        recordSet = result.RecordSet.Aggregate(columnList.ToArray());
-        var groupMapping = result.RecordSet.Header.ColumnGroups
-          .Select((cg, i) => new {Group = cg, Index = i})
-          .Where(gi => gi.Group.Keys.All(columnList.Contains))
-          .Select(gi => gi.Index)
-          .ToList();
+      }
 
-        projectorRewriter = new ItemProjectorRewriter(columnList, groupMapping, recordSet.Header);
+      var columnList = groupByMapping.Mapping.GetColumns(entityAsKey.Value);
+      var recordSet = result.RecordSet.Aggregate(columnList.ToArray());
+      var groupMapping = result.RecordSet.Header.ColumnGroups
+        .Select((cg, i) => new {Group = cg, Index = i})
+        .Where(gi => gi.Group.Keys.All(columnList.Contains))
+        .Select(gi => gi.Index)
+        .ToList();
 
-        var memberType = originalCompiledKeyExpression.Body.GetMemberType();
-        var rewrittenMapping = mappingRef.Value.Mapping.RewriteColumnIndexes(projectorRewriter);
-        switch (memberType) {
-          case MemberType.Default:
-          case MemberType.Primitive:
-          case MemberType.Key: {
-            var primitiveFieldMapping = (PrimitiveMapping) rewrittenMapping;
-            newResultMapping.RegisterField(StorageWellKnown.Key, primitiveFieldMapping.Segment);
-            break;
-          }
-          case MemberType.Structure:
-            var complexMapping = (ComplexMapping)rewrittenMapping;
-            int offset = complexMapping.Fields.Min(pair => pair.Value.Offset);
-            int endOffset = complexMapping.Fields.Max(pair => pair.Value.Offset);
-            int length = endOffset - offset + 1;
-            var keySegment = new Segment<int>(offset, length);
-            foreach (var p in complexMapping.Fields)
-              mappingRef.Value.RegisterField(StorageWellKnown.Key + "." + p.Key, p.Value);
-            mappingRef.Value.RegisterField(StorageWellKnown.Key, keySegment);
-            break;
-          case MemberType.Entity:
-            if (mappingRef.Value.Mapping is PrimitiveMapping) {
-              var primitiveFieldMapping = (PrimitiveMapping) rewrittenMapping;
-              var fields = new Dictionary<string, Segment<int>> {{StorageWellKnown.Key, primitiveFieldMapping.Segment}};
-              var entityMapping = new ComplexMapping(fields);
-              newResultMapping.RegisterEntity(StorageWellKnown.Key, entityMapping);
-            }
-            else
-              newResultMapping.RegisterEntity(StorageWellKnown.Key, (ComplexMapping) rewrittenMapping);
-            break;
-          case MemberType.Anonymous:
-            newResultMapping.RegisterAnonymous(StorageWellKnown.Key, (ComplexMapping) rewrittenMapping, projectorRewriter.Rewrite(originalCompiledKeyExpression.Body));
-            break;
-          default:
-            throw new NotSupportedException();
+      var projectorRewriter = new ItemProjectorRewriter(columnList, groupMapping, recordSet.Header);
+      var memberType = originalCompiledKeyExpression.Body.GetMemberType();
+      var rewrittenMapping = groupByMapping.Mapping.RewriteColumnIndexes(projectorRewriter);
+      switch (memberType) {
+        case MemberType.Default:
+        case MemberType.Primitive:
+        case MemberType.Key: {
+          var primitiveFieldMapping = (PrimitiveMapping) rewrittenMapping;
+          newResultMapping.RegisterField(StorageWellKnown.Key, primitiveFieldMapping.Segment);
+          break;
         }
+        case MemberType.Structure:
+          var complexMapping = (ComplexMapping)rewrittenMapping;
+          int offset = complexMapping.Fields.Min(pair => pair.Value.Offset);
+          int endOffset = complexMapping.Fields.Max(pair => pair.Value.Offset);
+          int length = endOffset - offset + 1;
+          var keySegment = new Segment<int>(offset, length);
+          foreach (var p in complexMapping.Fields)
+            newResultMapping.RegisterField(StorageWellKnown.Key + "." + p.Key, p.Value);
+          newResultMapping.RegisterField(StorageWellKnown.Key, keySegment);
+          break;
+        case MemberType.Entity:
+          if (rewrittenMapping is PrimitiveMapping) {
+            var primitiveFieldMapping = (PrimitiveMapping) rewrittenMapping;
+            var fields = new Dictionary<string, Segment<int>> {{StorageWellKnown.Key, primitiveFieldMapping.Segment}};
+            var entityMapping = new ComplexMapping(fields);
+            newResultMapping.RegisterEntity(StorageWellKnown.Key, entityMapping);
+          }
+          else
+            newResultMapping.RegisterEntity(StorageWellKnown.Key, (ComplexMapping) rewrittenMapping);
+          break;
+        case MemberType.Anonymous:
+          newResultMapping.RegisterAnonymous(StorageWellKnown.Key, (ComplexMapping) rewrittenMapping, projectorRewriter.Rewrite(originalCompiledKeyExpression.Body));
+          break;
+        default:
+          throw new NotSupportedException();
       }
 
       var keyType = keySelector.Type.GetGenericArguments()[1];

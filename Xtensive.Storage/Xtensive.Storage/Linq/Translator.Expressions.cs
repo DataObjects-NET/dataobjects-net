@@ -5,6 +5,7 @@
 // Created:    2009.02.27
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -265,6 +266,25 @@ namespace Xtensive.Storage.Linq
               mapping.RegisterJoinedEntity(name, joinedMapping);
               source = new ResultExpression(source.Type, rs, source.Mapping, source.ItemProjector);
               context.Bindings.ReplaceBound(pe, source);
+            }
+            else {
+              if (typeof(IEnumerable).IsAssignableFrom(path.Parameter.Type) && number >= path.Count - 1) {
+                var columns = innerMapping.GetColumns(false);
+                columns.Sort();
+                var joinedIndex = typeInfo.Indexes.PrimaryIndex;
+                if (columns.Count < joinedIndex.Columns.Count) {
+                  var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+                  var keyPairs = columns
+                    .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+                    .ToArray();
+                  var rs = source.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
+                  var joinedMapping = new ComplexMapping(typeInfo, source.RecordSet.Header.Columns.Count);
+                  mapping.OverwriteJoinedEntity(name, joinedMapping);
+                  source = new ResultExpression(source.Type, rs, source.Mapping, source.ItemProjector);
+                  context.Bindings.ReplaceBound(pe, source);
+                  break;
+                }
+              }
             }
             mapping = innerMapping;
           }

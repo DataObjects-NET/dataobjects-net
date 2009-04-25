@@ -194,7 +194,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
 
     public override string ToString()
     {
-      return string.Format("Complex: Fields({0}), JoinedFields({1}), AnonymousFields({2})",
+      return string.Format("Complex: Fields({0}), Entities({1}), AnonymousTypes({2})",
         Fields.Count, Entities.Count, AnonymousTypes.Count);
     }
 
@@ -218,9 +218,15 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
         Fields[key] = value;
       }
     }
+
     public void RegisterJoinedEntity(string key, ComplexMapping value)
     {
       Entities.Add(key, value);
+    }
+
+    public void OverwriteJoinedEntity(string key, ComplexMapping value)
+    {
+      Entities[key] = value;
     }
 
     public void RegisterEntity(string key, ComplexMapping value)
