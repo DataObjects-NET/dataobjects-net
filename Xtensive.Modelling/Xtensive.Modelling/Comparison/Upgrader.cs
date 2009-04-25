@@ -5,6 +5,7 @@
 // Created:    2009.04.07
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -22,7 +23,7 @@ namespace Xtensive.Modelling.Comparison
   /// </summary>
   public class Upgrader : IUpgrader
   {
-    public readonly static string NodeGroupComment = "{0}";
+    public readonly static string NodeGroupComment           = "{0}";
     public readonly static string NodeCollectionGroupComment = "{0}[]";
     public readonly static string PreConditionsGroupComment  = "<PreConditions>";
     public readonly static string RenamesGroupComment        = "<Renames>";
@@ -32,7 +33,7 @@ namespace Xtensive.Modelling.Comparison
     [ThreadStatic]
     private static Upgrader current;
 
-    #region Properties: Current, Context, Difference, Hints, XxxModel, Actions
+    #region Properties: Current, Context, Difference, Hints, Stage, XxxModel, ...
 
     /// <summary>
     /// Gets the current comparer.
@@ -55,6 +56,11 @@ namespace Xtensive.Modelling.Comparison
     /// Gets the comparison and upgrade hints.
     /// </summary>
     protected HintSet Hints { get; private set; }
+
+    /// <summary>
+    /// Gets the current upgrade stage.
+    /// </summary>
+    protected internal UpgradeStage Stage { get; private set; }
 
     /// <summary>
     /// Gets the source model to compare.
@@ -89,6 +95,7 @@ namespace Xtensive.Modelling.Comparison
     {
       ArgumentValidator.EnsureArgumentNotNull(difference, "difference");
       ArgumentValidator.EnsureArgumentNotNull(hints, "hints");
+      ArgumentValidator.EnsureArgumentNotNull(comparer, "comparer");
       SourceModel = (IModel) difference.Source;
       TargetModel = (IModel) difference.Target;
       Hints = hints ?? new HintSet(SourceModel, TargetModel);
@@ -102,24 +109,37 @@ namespace Xtensive.Modelling.Comparison
       current = this;
       using (NullActionHandler.Instance.Activate()) {
         try {
-          var result = Visit(Difference);
-          if (comparer!=null) {
-            var diff = comparer.Compare(CurrentModel, TargetModel);
-            if (diff!=null) {
-              Log.InfoRegion(Strings.LogAutomaticUpgradeSequenceValidation);
-              Log.Info(Strings.LogValidationFailed);
-              Log.Info(Strings.LogItemFormat, Strings.Difference);
-              Log.Info("{0}", diff);
-              Log.Info(Strings.LogItemFormat+"\r\n{1}", Strings.UpgradeSequence, 
-                new ActionSequence() {result});
-              Log.Info(Strings.LogItemFormat, Strings.ExpectedTargetModel);
-              TargetModel.Dump();
-              Log.Info(Strings.LogItemFormat, Strings.ActualTargetModel);
-              CurrentModel.Dump();
-              throw new InvalidOperationException(Strings.ExUpgradeSequenceValidationFailure);
-            }
+          Stage = UpgradeStage.Cleanup;
+          var cleanupActions = Visit(Difference);
+//          // TODO: remove
+//          Log.Info(Strings.LogItemFormat+"\r\n{1}", "Cleanup actions", 
+//            new ActionSequence() {cleanupActions});
+          UpdateHints();
+          Difference postCleanupDiff = comparer.Compare(CurrentModel, TargetModel, Hints);
+//          // TODO: remove
+//          Log.Info(Strings.LogItemFormat, "Intermediate difference");
+//          // TODO: remove
+//          Log.Info("{0}", postCleanupDiff);
+          Stage = UpgradeStage.Upgrade;
+          var upgradeActions = Visit(postCleanupDiff);
+          var actions = new GroupingNodeAction();
+          actions.Add(cleanupActions);
+          actions.Add(upgradeActions);
+          var diff = comparer.Compare(CurrentModel, TargetModel);
+          if (diff!=null) {
+            Log.InfoRegion(Strings.LogAutomaticUpgradeSequenceValidation);
+            Log.Info(Strings.LogValidationFailed);
+            Log.Info(Strings.LogItemFormat, Strings.Difference);
+            Log.Info("{0}", diff);
+            Log.Info(Strings.LogItemFormat+"\r\n{1}", Strings.UpgradeSequence, 
+              new ActionSequence() {actions});
+            Log.Info(Strings.LogItemFormat, Strings.ExpectedTargetModel);
+            TargetModel.Dump();
+            Log.Info(Strings.LogItemFormat, Strings.ActualTargetModel);
+            CurrentModel.Dump();
+            throw new InvalidOperationException(Strings.ExUpgradeSequenceValidationFailure);
           }
-          return new ReadOnlyList<NodeAction>(result.Actions, true);
+          return new ReadOnlyList<NodeAction>(actions.Actions, true);
         }
         finally {
           current = previous;
@@ -170,44 +190,28 @@ namespace Xtensive.Modelling.Comparison
       var source = difference.Source;
       var target = difference.Target;
       var any = target ?? source;
-      bool mustClone = Context.IsCloningRoot;
+      var isCleanup = Stage==UpgradeStage.Cleanup;
+      bool isImmutable = Context.IsImmutable;
 
       using (OpenActionGroup(string.Format(NodeGroupComment, (target ?? source).Name))) {
         // Processing movement
-        if (mustClone) {
-          bool isSourceRemoved = false;
-          if ((difference.MovementInfo & MovementInfo.Removed)!=0) {
+        if (isCleanup) {
+          bool bRemoveSource = (difference.MovementInfo & MovementInfo.Removed)!=0;
+          bool bRemoveTarget =
+            !bRemoveSource
+            && isImmutable 
+            && difference.HasChanges 
+            && (difference.MovementInfo & MovementInfo.Created)==0;
+          if (bRemoveSource || bRemoveTarget) {
             AddAction(UpgradeActionType.PreCondition, 
               new RemoveNodeAction() {
-                Path = source.Path
+                Path = (source ?? target).Path
               });
-            isSourceRemoved = true;
-          }
-          if (difference.HasChanges) {
-            if ((difference.MovementInfo & MovementInfo.Created)==0)
-              if (!isSourceRemoved || source.Path!=target.Path)
-                AddAction(UpgradeActionType.PreCondition, 
-                  new RemoveNodeAction() {
-                    Path = target.Path
-                  });
-            var action = new CloneNodeAction() {
-              Source = target,
-              Path = target.Parent==null ? string.Empty : target.Parent.Path,
-              Name = target.Name,
-              Index = target.Nesting.IsNestedToCollection ? (int?) target.Index : null
-            };
-            AddAction(UpgradeActionType.PostCondition, action);
           }
         }
         else {
-          if ((difference.MovementInfo & MovementInfo.Removed)!=0) {
-            AddAction(UpgradeActionType.PreCondition, 
-              new RemoveNodeAction() {
-                Path = source.Path
-              });
-            if (target==null)
-              return;
-          }
+          if (target==null)
+            return;
           if ((difference.MovementInfo & MovementInfo.Created)!=0) {
             var action = new CreateNodeAction() {
               Path = target.Parent==null ? string.Empty : target.Parent.Path,
@@ -225,32 +229,24 @@ namespace Xtensive.Modelling.Comparison
               Index = target.Index,
               NewPath = target.Path
             };
-            try {
-              AddAction(UpgradeActionType.PostCondition, action);
-            }
-            catch (ArgumentException) {
-              var oldName = action.Name;
-              // TODO: Fix this. Needs detection of this case in comparison layer.
-              action.Name = GetTemporaryName(difference);
-              var node = CurrentModel.Resolve(action.Path);
-              AddAction(UpgradeActionType.Regular, action);
-              var renameAction = new MoveNodeAction() {
-                Path = node.Path,
-                Name = oldName,
-              };
-              AddAction(UpgradeActionType.Rename, renameAction);
-            }
+            AddAction(UpgradeActionType.PostCondition, action);
           }
         }
 
         // Processing property changes
+        IEnumerable<KeyValuePair<string, Difference>> propertyChanges = difference.PropertyChanges;
+        if (isCleanup)
+          propertyChanges = propertyChanges.Reverse();
         foreach (var pair in difference.PropertyChanges) {
           var accessor = any.PropertyAccessors[pair.Key];
-          if (!mustClone || accessor.IgnoreInCloning)
+          if (!isCleanup || !isImmutable || IsMutable(difference, accessor))
             using (CreateContext().Activate()) {
               Context.Property = pair.Key;
-              Context.IsCloningRoot = IsCloningRoot(difference, accessor);
-              Context.DependencyRootType = GetDependencyRootType(difference, accessor);
+              if (isCleanup)
+                Context.IsImmutable = IsImmutable(difference, accessor);
+              var dependencyRootType = GetDependencyRootType(difference, accessor);
+              if (dependencyRootType!=null)
+                Context.DependencyRootType = dependencyRootType;
               Visit(pair.Value);
             }
         }
@@ -258,20 +254,37 @@ namespace Xtensive.Modelling.Comparison
     }
 
     /// <summary>
-    /// Determines whether specified property is cloning root.
+    /// Determines whether specified property is immutable.
     /// </summary>
     /// <param name="difference">The difference.</param>
     /// <param name="accessor">The property accessor.</param>
-    /// <returns><see langword="true"/> if th specified property is cloning root; 
+    /// <returns><see langword="true"/> if th specified property is immutable; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
     /// <remarks>
-    /// Returns <paramref name="accessor"/>.<see cref="PropertyAccessor.IsCloningRoot"/>
+    /// Returns <paramref name="accessor"/>.<see cref="PropertyAccessor.IsImmutable"/>
     /// by default.
     /// </remarks>
-    protected virtual bool IsCloningRoot(Difference difference, PropertyAccessor accessor)
+    protected virtual bool IsImmutable(Difference difference, PropertyAccessor accessor)
     {
-      return accessor.IsCloningRoot;
+      return accessor.IsImmutable;
+    }
+
+    /// <summary>
+    /// Determines whether specified property is mutable.
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    /// <param name="accessor">The property accessor.</param>
+    /// <returns><see langword="true"/> if th specified property is mutable; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    /// <remarks>
+    /// Returns <paramref name="accessor"/>.<see cref="PropertyAccessor.IsMutable"/>
+    /// by default.
+    /// </remarks>
+    protected virtual bool IsMutable(Difference difference, PropertyAccessor accessor)
+    {
+      return accessor.IsMutable;
     }
 
     /// <summary>
@@ -329,6 +342,8 @@ namespace Xtensive.Modelling.Comparison
     /// </returns>
     protected virtual void VisitValueDifference(ValueDifference difference)
     {
+      if (Stage==UpgradeStage.Cleanup)
+        return;
       var parentContext = Context.Parent;
       var targetNode = ((NodeDifference) parentContext.Difference).Target;
       var action = new PropertyChangeAction() {
@@ -423,6 +438,7 @@ namespace Xtensive.Modelling.Comparison
     /// <exception cref="InvalidOperationException">Invalid <c>Context.DependencyRootType</c>.</exception>
     protected void AddAction(UpgradeActionType actionType, NodeAction action)
     {
+      action.Difference = Context.Difference;
       var dependencyRootType = Context.DependencyRootType;
       if (dependencyRootType==null || actionType==UpgradeActionType.Regular) {
         action.Execute(CurrentModel);
@@ -459,6 +475,14 @@ namespace Xtensive.Modelling.Comparison
           Strings.ExDifferenceRelatedToXTypeIsNotFoundOnTheUpgradeContextStack, 
           dependencyRootType.GetShortName()));
       }
+    }
+
+    private void UpdateHints()
+    {
+      var originalHints = Hints;
+      Hints = new HintSet(CurrentModel, TargetModel);
+      foreach (var hint in originalHints)
+        Hints.Add(hint);
     }
 
     #endregion

@@ -27,9 +27,9 @@ namespace Xtensive.Modelling
     [NonSerialized]
     private bool ignoreInComparison;
     [NonSerialized]
-    private bool ignoreInCopying;
+    private bool isImmutable;
     [NonSerialized]
-    private bool isCloningRoot;
+    private bool isMutable;
     [NonSerialized]
     private Type dependencyRootType;
 
@@ -61,18 +61,19 @@ namespace Xtensive.Modelling
     }
 
     /// <summary>
-    /// Gets a value indicating whether underlying property must be ignored in comparison.
+    /// Gets a value indicating whether underlying property value must be re-created
+    /// rather than created & processed as usual.
     /// </summary>
-    public bool IgnoreInCloning {
-      get { return ignoreInCopying; }
+    public bool IsImmutable {
+      get { return isImmutable; }
     }
 
     /// <summary>
-    /// Gets a value indicating whether underlying property must be copied 
-    /// rather than created & processed as usual.
+    /// Gets a value indicating whether underlying property must be 
+    /// ignored during recreation of parent immutable property.
     /// </summary>
-    public bool IsCloningRoot {
-      get { return isCloningRoot; }
+    public bool IsMutable {
+      get { return isMutable; }
     }
 
     /// <summary>
@@ -138,14 +139,14 @@ namespace Xtensive.Modelling
       var sa = propertyInfo.GetAttribute<SystemPropertyAttribute>(AttributeSearchOptions.InheritNone);
       isSystem = sa!=null;
       ignoreInComparison = isSystem;
-      ignoreInCopying = isSystem;
-      isCloningRoot = false;
+      isMutable = isSystem;
+      isImmutable = false;
       var pa = propertyInfo.GetAttribute<PropertyAttribute>(AttributeSearchOptions.InheritNone);
       if (pa!=null) {
         priority = pa.Priority;
         ignoreInComparison |= pa.IgnoreInComparison;
-        ignoreInCopying |= pa.IgnoreInCloning;
-        isCloningRoot |= pa.IsCloningRoot;
+        isMutable |= pa.IsMutable;
+        isImmutable |= pa.IsImmutable;
         dependencyRootType = pa.DependencyRootType;
       }
       this.GetType()

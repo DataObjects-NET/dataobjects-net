@@ -63,7 +63,6 @@ namespace Xtensive.Modelling.Actions
           actions.RemoveAt(lastIndex);
         }
       }
-      action.Lock(true); 
       actions.Add(action);
     }
 
@@ -107,6 +106,9 @@ namespace Xtensive.Modelling.Actions
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
+      if (recursive)
+        foreach (var action in actions)
+          action.Lock(true);
       actions = new ReadOnlyList<NodeAction>(actions, true);
     }
   }

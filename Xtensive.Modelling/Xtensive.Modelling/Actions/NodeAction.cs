@@ -14,6 +14,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Modelling.Comparison;
 
 namespace Xtensive.Modelling.Actions
 {
@@ -25,6 +26,7 @@ namespace Xtensive.Modelling.Actions
     INodeAction
   {
     private string path;
+    private Difference difference;
 
     /// <inheritdoc/>
     public string Path {
@@ -32,6 +34,14 @@ namespace Xtensive.Modelling.Actions
       set {
         this.EnsureNotLocked();
         path = value;
+      }
+    }
+
+    public Difference Difference {
+      get { return Difference; }
+      set {
+        this.EnsureNotLocked();
+        difference = value;
       }
     }
 

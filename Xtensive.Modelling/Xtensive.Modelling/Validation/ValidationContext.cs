@@ -61,16 +61,19 @@ namespace Xtensive.Modelling.Validation
 
     #region IContext<...> methods
 
+    /// <inheritdoc/>
     public ValidationScope Activate()
     {
       return new ValidationScope(this);
     }
 
+    /// <inheritdoc/>
     public bool IsActive
     {
       get { return Current==this; }
     }
 
+    /// <inheritdoc/>
     IDisposable IContext.Activate()
     {
       return Activate();

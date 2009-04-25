@@ -70,7 +70,7 @@ namespace Xtensive.Modelling.Tests
       (diff, actions) => {
         var query =
           from a in actions.Flatten()
-          let cna = a as CloneNodeAction
+          let cna = a as CreateNodeAction
           where cna!=null && cna.Name=="FK_TypeId"
           select a;
         Assert.IsTrue(query.Any());
@@ -93,7 +93,7 @@ namespace Xtensive.Modelling.Tests
       (diff, actions) => {
         var query =
           from a in actions.Flatten()
-          let cna = a as CloneNodeAction
+          let cna = a as CreateNodeAction
           where cna!=null && cna.Name=="FK_TypeId"
           select a;
         Assert.IsTrue(query.Any());
@@ -196,7 +196,8 @@ namespace Xtensive.Modelling.Tests
 
     private static StorageInfo Clone(StorageInfo server)
     {
-      return (StorageInfo) LegacyBinarySerializer.Instance.Clone(server);
+      return (StorageInfo) server.Clone(null, server.Name);
+      // return (StorageInfo) LegacyBinarySerializer.Instance.Clone(server);
     }
 
     #endregion

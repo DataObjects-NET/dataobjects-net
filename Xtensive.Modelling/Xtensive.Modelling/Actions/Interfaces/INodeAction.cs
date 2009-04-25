@@ -5,6 +5,7 @@
 // Created:    2009.03.23
 
 using Xtensive.Core;
+using Xtensive.Modelling.Comparison;
 
 namespace Xtensive.Modelling.Actions
 {
@@ -17,6 +18,11 @@ namespace Xtensive.Modelling.Actions
     /// Gets or sets the path of the node this action is applied to.
     /// </summary>
     string Path { get; set; }
+
+    /// <summary>
+    /// Gets or sets the difference this action is created for.
+    /// </summary>
+    Difference Difference { get; set; }
 
     /// <summary>
     /// Applies the action to the specified model.

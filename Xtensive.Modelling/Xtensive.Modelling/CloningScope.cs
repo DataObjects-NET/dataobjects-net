@@ -8,41 +8,41 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Modelling.Validation
+namespace Xtensive.Modelling
 {
   /// <summary>
-  /// Model validation scope.
+  /// <see cref="Node"/> cloning scope.
   /// </summary>
-  public class ValidationScope : Scope<ValidationContext>
+  public class CloningScope : Scope<CloningContext>
   {
     /// <summary>
     /// Gets the current context.
     /// </summary>
-    public new static ValidationContext CurrentContext {
+    public new static CloningContext CurrentContext {
       get {
-        return Scope<ValidationContext>.CurrentContext;
+        return Scope<CloningContext>.CurrentContext;
       }
     }
     
     /// <summary>
-    /// Gets the associated validation context.
+    /// Gets the associated cloning context.
     /// </summary>
-    public new ValidationContext Context {
+    public new CloningContext Context {
       get {
         return base.Context;
       }
     }
     
     /// <summary>
-    /// Opens a validation context and scope.
+    /// Opens a cloning context and scope.
     /// </summary>
-    /// <returns>A new <see cref="ValidationScope"/>, if there is no 
-    /// <see cref="ValidationContext.Current"/> validation context;
+    /// <returns>A new <see cref="CloningScope"/>, if there is no 
+    /// <see cref="CloningContext.Current"/> cloning context;
     /// otherwise, <see langword="null" />.</returns>
-    public static ValidationScope Open()
+    public static CloningScope Open()
     {
       if (CurrentContext==null)
-        return new ValidationContext().Activate();
+        return new CloningContext().Activate();
       else
         return null;
     }
@@ -54,9 +54,16 @@ namespace Xtensive.Modelling.Validation
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="context">The context.</param>
-    public ValidationScope(ValidationContext context)
+    public CloningScope(CloningContext context)
       : base(context)
     {
+    }
+
+    /// <inheritdoc/>
+    protected override void Dispose(bool disposing)
+    {
+      Context.ApplyFixups();
+      base.Dispose(disposing);
     }
   }
 }

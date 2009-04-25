@@ -309,27 +309,36 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Required constructor isn't found.</exception>
     public virtual Node Clone(Node newParent, string newName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(newParent, "newParent");
-      ArgumentValidator.EnsureArgumentNotNull(newName, "newName");
+      using (CloningScope.Open()) {
+        var isModel = this is IModel;
+        if (!isModel)
+          ArgumentValidator.EnsureArgumentNotNull(newParent, "newParent");
+        ArgumentValidator.EnsureArgumentNotNull(newName, "newName");
       
-      // Cloning the instance
-      var model = (IModel) newParent.Model;
-      var node = TryConstructor(model, newParent, newName); // Regular node
-      if (node==null)
-        node = TryConstructor(model, newParent); // Unnamed node
-      if (node==null)
-        throw new InvalidOperationException(string.Format(
-          Strings.ExCannotFindConstructorToExecuteX, this));
+        // Cloning the instance
+        var model = isModel ? null : (IModel) newParent.Model;
+        Node node;
+        if (isModel)
+          node = TryConstructor(null, newName);
+        else {
+          node = TryConstructor(model, newParent, newName); // Regular node
+          if (node==null)
+            node = TryConstructor(model, newParent); // Unnamed node
+        }
+        if (node==null)
+          throw new InvalidOperationException(string.Format(
+            Strings.ExCannotFindConstructorToExecuteX, this));
 
-      // Cloning properties
-      foreach (var pair in PropertyAccessors) {
-        var accessor = pair.Value;
-        if (!accessor.HasGetter || accessor.IgnoreInCloning)
-          continue;
-        CopyPropertyValue(node, accessor);
+        // Cloning properties
+        foreach (var pair in PropertyAccessors) {
+          var accessor = pair.Value;
+          if (!accessor.HasGetter)
+            continue;
+          CopyPropertyValue(node, accessor);
+        }
+
+        return node;
       }
-
-      return node;
     }
 
     /// <summary>
@@ -345,7 +354,7 @@ namespace Xtensive.Modelling
         var collection = nested as NodeCollection;
         if (collection!=null)
           foreach (Node newNode in collection)
-            newNode.Clone(target, target.Name);
+            newNode.Clone(target, newNode.Name);
         else {
           var newNode = (Node) nested;
           newNode.Clone(target, newNode.Name);
@@ -353,6 +362,14 @@ namespace Xtensive.Modelling
       }
       else if (accessor.HasSetter) {
         var value = GetProperty(propertyName);
+        var pathNode = value as IPathNode;
+        if (pathNode!=null) {
+          CloningContext.Current.AddFixup(() => 
+            accessor.Setter(target, 
+              PathNodeReference.Resolve((IModel) target.Model, 
+                new PathNodeReference(pathNode.Path))));
+          return;
+        }
         var cloneable = value as ICloneable;
         if (cloneable!=null)
           value = cloneable.Clone();

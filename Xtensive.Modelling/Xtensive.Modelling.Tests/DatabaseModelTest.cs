@@ -69,6 +69,14 @@ namespace Xtensive.Modelling.Tests
     [Test]
     public void SerializationTest()
     {
+      var clone = (Server) LegacyBinarySerializer.Instance.Clone(srv);
+      clone.Validate();
+      clone.Dump();
+    }
+
+    [Test]
+    public void CloneTest()
+    {
       var clone = Clone(srv);
       clone.Validate();
       clone.Dump();
@@ -343,7 +351,8 @@ namespace Xtensive.Modelling.Tests
 
     private Server Clone(Server server)
     {
-      return (Server) LegacyBinarySerializer.Instance.Clone(server);
+      return (Server) server.Clone(null, server.Name);
+      // return (Server) LegacyBinarySerializer.Instance.Clone(server);
     }
 
     #endregion

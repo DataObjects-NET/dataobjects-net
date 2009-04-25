@@ -62,7 +62,7 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// Indicates whether node must be copied rather than processed as usual.
     /// </summary>
-    public bool IsCloningRoot { get; set; }
+    public bool IsImmutable { get; set; }
 
     /// <summary>
     /// Gets or sets the type of the dependency root.
@@ -139,7 +139,9 @@ namespace Xtensive.Modelling.Comparison
       Parent = Upgrader.Context;
       if (Parent==null) {
         PreConditions = new GroupingNodeAction();
-        Actions = new GroupingNodeAction();
+        Actions = new GroupingNodeAction() {
+          Comment = Upgrader.Stage.ToString()
+        };
         Renames = new GroupingNodeAction();
         PostConditions = new GroupingNodeAction();
         return;
@@ -147,7 +149,7 @@ namespace Xtensive.Modelling.Comparison
 
       Difference = Parent.Difference;
       Property = Parent.Property;
-      IsCloningRoot = Parent.IsCloningRoot;
+      IsImmutable = Parent.IsImmutable;
       DependencyRootType = Parent.DependencyRootType;
 
       PreConditions = Parent.PreConditions;
