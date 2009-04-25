@@ -1053,5 +1053,16 @@ namespace Xtensive.Storage.Tests.Linq
       var maxProcessingTime = new TimeSpan(5, 0, 0, 0);
       Query<Order>.All.Where(o => o.ProcessingTime > maxProcessingTime).ToList();
     }
+
+    [Test]
+    public void NullParameterTest()
+    {
+      string region = "MySuperRegion";
+      var result = Query<Order>.All.Where(o => o.ShippingAddress.Region==region).ToList();
+      Assert.AreEqual(0, result.Count);
+      region = null;
+      result = Query<Order>.All.Where(o => o.ShippingAddress.Region==region).ToList();
+      Assert.AreNotEqual(0, result.Count);
+    }
   }
 }
