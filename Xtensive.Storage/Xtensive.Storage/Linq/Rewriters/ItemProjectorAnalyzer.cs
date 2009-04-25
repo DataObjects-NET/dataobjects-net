@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Linq.Rewriters
     {
       var parameter = expression.GetSubqueryParameter();
       var resultExpression = expression.GetSubqueryItemsResult();
-      var mappingColumns = TupleParameterMappingAnalyzer
+      var mappingColumns = TupleParameterAccessAnalyzer
         .Analyze(resultExpression.RecordSet.Provider, parameter);
       mappings.AddRange(mappingColumns);
       return expression;

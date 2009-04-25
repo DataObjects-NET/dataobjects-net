@@ -4,10 +4,12 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.18
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Expressions;
 using Xtensive.Core.Tuples.Transform;
@@ -46,6 +48,39 @@ namespace Xtensive.Storage.Linq.Rewriters
       return base.VisitMethodCall(mc);
     }
 
+    protected override Expression VisitNew(NewExpression newExpression)
+    {
+      switch (newExpression.GetMemberType()) {
+// TODO: Rewrite grouping apply parameter access (maybe)
+//      case MemberType.Grouping:
+//        break;
+      case MemberType.Subquery:
+        return VisitSubquery(newExpression);
+      default:
+        return base.VisitNew(newExpression);
+      }
+      
+    }
+
+    private Expression VisitSubquery(NewExpression expression)
+    {
+      var parameter = expression.GetSubqueryParameter();
+      var resultExpression = expression.GetSubqueryItemsResult();
+      var newRecordset = TupleParameterAccessRewriter
+        .Rewrite(resultExpression.RecordSet.Provider, parameter, mappings)
+        .Result;
+      var newResultExpression = new ResultExpression(
+        resultExpression.Type,
+        newRecordset,
+        resultExpression.Mapping, 
+        resultExpression.ItemProjector, 
+        resultExpression.ResultType);
+      return Expression.New(
+        expression.Constructor, 
+        Expression.Constant(newResultExpression), 
+        expression.Arguments[1], 
+        expression.Arguments[2]);
+    }
 
     // Constructor
 

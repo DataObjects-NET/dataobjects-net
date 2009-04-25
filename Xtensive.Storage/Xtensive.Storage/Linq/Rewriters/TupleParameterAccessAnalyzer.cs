@@ -17,14 +17,14 @@ using Xtensive.Core.Linq;
 namespace Xtensive.Storage.Linq.Rewriters
 {
   [Serializable]
-  internal class TupleParameterMappingAnalyzer : ExpressionVisitor
+  internal class TupleParameterAccessAnalyzer : ExpressionVisitor
   {
     private readonly List<int> mapping = new List<int>();
     private readonly Parameter<Tuple> tupleParameter;
 
     public static List<int> Analyze(CompilableProvider provider, Parameter<Tuple> tupleParameter)
     {
-      var expressionAnalyzer = new TupleParameterMappingAnalyzer(tupleParameter);
+      var expressionAnalyzer = new TupleParameterAccessAnalyzer(tupleParameter);
       var providerAnalyzer = new CompilableProviderVisitor(expressionAnalyzer.Analyze);
       providerAnalyzer.VisitCompilable(provider);
       return expressionAnalyzer.mapping;
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Linq.Rewriters
 
     // Constructor
 
-    private TupleParameterMappingAnalyzer(Parameter<Tuple> tupleParameter)
+    private TupleParameterAccessAnalyzer(Parameter<Tuple> tupleParameter)
     {
       this.tupleParameter = tupleParameter;
     }
