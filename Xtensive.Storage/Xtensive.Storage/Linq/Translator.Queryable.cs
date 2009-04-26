@@ -866,7 +866,7 @@ namespace Xtensive.Storage.Linq
         sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccess.Expression, field);
       }
 
-      var visitedExpression = Visit(sequenceExpression);
+        var visitedExpression = Visit(sequenceExpression);
 
       if (visitedExpression.IsGroupingConstructor()) {
         var groupingParameter = visitedExpression.GetGroupingParameter();
@@ -886,7 +886,7 @@ namespace Xtensive.Storage.Linq
 
       if (visitedExpression.IsResult())
         return (ResultExpression) visitedExpression;
-
+      
       throw new NotSupportedException(string.Format(Resources.Strings.ExExpressionOfTypeXIsNotASequence, visitedExpression.Type));
     }
 

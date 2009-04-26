@@ -370,7 +370,17 @@ namespace Xtensive.Storage.Linq
             return ConstructQueryable(rootPoint);
         }
       }
-      else if (ma.Expression.NodeType==ExpressionType.Constant) {
+//      else if (ma.Expression.NodeType == ExpressionType.Parameter
+//          && typeof(IQueryable).IsAssignableFrom(ma.Type)) {
+//          using (new ParameterScope()) {
+//              parameters.Value = new[] {(ParameterExpression)ma.Expression};
+//              var visitedParameter = Visit(ma.Expression);
+//              var newMemberAccess = Expression.MakeMemberAccess(visitedParameter, ma.Member);
+//              return VisitMemberAccess(newMemberAccess);
+//          }
+//      }
+      else if (ma.Expression.NodeType == ExpressionType.Constant)
+      {
         var rfi = ma.Member as FieldInfo;
         if (rfi!=null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType))) {
           var lambda = Expression.Lambda<Func<IQueryable>>(ma).Compile();

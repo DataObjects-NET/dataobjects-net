@@ -141,7 +141,25 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void SelectAnonymousSelectManyTest()
+    public void SelectNestedWithCorrelationSelectMany2Test()
+    {
+        var result = Query<Customer>.All
+          .Select(c => Query<Order>.All.Where(o => o.Customer == c))
+          .SelectMany(i => i.Select(x=>x));
+        Assert.AreEqual(numberOfOrders, Count(result));
+    }
+
+    [Test]
+    public void SelectAnonymousSelectMany1Test()
+    {
+        var result = Query<Customer>.All
+          .Select(c => new { Customer = c, Orders = Query<Order>.All.Where(o => o.Customer == c) })
+          .SelectMany(i => i.Orders);
+        Assert.AreEqual(numberOfOrders, result.ToList().Count);
+    }
+
+    [Test]
+    public void   SelectAnonymousSelectMany2Test()
     {
       var result = Query<Customer>.All
         .Select(c => new {Customer = c, Orders = Query<Order>.All.Where(o => o.Customer==c)})
