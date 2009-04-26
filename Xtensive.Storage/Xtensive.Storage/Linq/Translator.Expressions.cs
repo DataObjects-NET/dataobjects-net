@@ -201,7 +201,7 @@ namespace Xtensive.Storage.Linq
         calculatedColumns.Value = new List<CalculatedColumnDescriptor>();
         var body = Visit(le.Body);
         if (body.IsResult())
-          body = BuildSubqueryResult((ResultExpression) body);
+          body = BuildSubqueryResult((ResultExpression)body, le.Body.Type);
         else if (calculateExpressions.Value && body.GetMemberType()==MemberType.Unknown) {
           if (!body.IsSubqueryConstructor() &&
             !body.IsGroupingConstructor() &&
@@ -469,7 +469,7 @@ namespace Xtensive.Storage.Linq
           if (body.AsTupleAccess()!=null)
             newArg = body;
           else if (body.IsResult())
-            newArg = BuildSubqueryResult((ResultExpression) body);
+            newArg = BuildSubqueryResult((ResultExpression)body, arg.Type);
           else {
             var calculator = Expression.Lambda(
               body.Type==typeof (object)
@@ -531,22 +531,27 @@ namespace Xtensive.Storage.Linq
         itemProjector);
     }
 
-    private Expression BuildSubqueryResult(ResultExpression subQuery)
+    private Expression BuildSubqueryResult(ResultExpression subQuery, Type resultType)
     {
 
       if (parameters.Value.Length!=1)
         throw new NotImplementedException();
 
-      if (!subQuery.Type.IsOfGenericInterface(typeof(IEnumerable<>)))         
+      if (!resultType.IsOfGenericInterface(typeof(IEnumerable<>)))         
         throw new NotImplementedException();
 
-      var type = subQuery.Type.GetGenericArguments()[0];
+      Type type = resultType
+        .GetInterfaces(true)
+        .AddOne(resultType)
+        .Where(interfaceType => 
+          interfaceType.IsGenericType
+            && interfaceType.GetGenericTypeDefinition()==typeof(IEnumerable<>))
+        .Select(interfaceType=>interfaceType.GetGenericArguments()[0])
+        .First();
 
       var parameterResultExpression = context.Bindings[parameters.Value[0]];
       var applyParameter = context.GetApplyParameter(parameterResultExpression);
-      
       var tupleParameter = new Parameter<Tuple>("tupleParameter");
-
 
       var rewrittenRecordset = ApplyParameterToTupleParameterRewriter
         .Rewrite(subQuery.RecordSet.Provider, tupleParameter, applyParameter) 
@@ -566,7 +571,7 @@ namespace Xtensive.Storage.Linq
         Expression.Constant(tupleParameter)
       });
 
-      return Expression.Convert(subqueryResult, subQuery.Type);
+      return Expression.Convert(subqueryResult, resultType);
     }
 
     private static Expression MakeBinaryExpression(Expression previous, Expression left, Expression right, ExpressionType operationType, ExpressionType concatenationExpression)
