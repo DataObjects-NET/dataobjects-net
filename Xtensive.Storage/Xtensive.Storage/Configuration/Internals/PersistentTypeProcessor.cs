@@ -6,17 +6,17 @@
 
 using System;
 
-namespace Xtensive.Storage.Configuration.TypeRegistry
+namespace Xtensive.Storage.Configuration.Internals
 {
   /// <summary>
-  /// <see cref="TypeRegistration"/> processor for processing <see cref="Persistent"/> 
+  /// <see cref="ITypeRegistrationHandler"/> for processing <see cref="Persistent"/> 
   /// and <see cref="IEntity"/> descendants registration in 
   /// <see cref="DomainConfiguration.Types"/> registry.
   /// </summary>
   /// <remarks>This implementation provides topologically sorted list 
   /// of <see cref="Type"/>s.</remarks>
   [Serializable]
-  public sealed class PersistentTypeProcessor : TypeRegistrationHandlerBase
+  public sealed class PersistentTypeRegistrationHandler : TypeRegistrationHandlerBase
   {
     private readonly Type baseInterface = typeof (IEntity);
     private readonly Type baseType = typeof (Persistent);

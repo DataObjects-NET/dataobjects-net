@@ -8,15 +8,15 @@ using System;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Storage.Configuration.TypeRegistry
+namespace Xtensive.Storage.Configuration.Internals
 {
   /// <summary>
-  /// <see cref="TypeRegistration"/> processor for processing compiler container
+  /// <see cref="ITypeRegistrationHandler"/> for processing compiler container
   /// types registration in 
   /// <see cref="DomainConfiguration.CompilerContainers"/> registry.
   /// </summary>
   [Serializable]
-  public sealed class CompilerContainerTypeProcessor : TypeRegistrationHandlerBase
+  public sealed class CompilerContainerRegistrationHandler : TypeRegistrationHandlerBase
   {
     /// <inheritdoc/>
     public override Type BaseType 

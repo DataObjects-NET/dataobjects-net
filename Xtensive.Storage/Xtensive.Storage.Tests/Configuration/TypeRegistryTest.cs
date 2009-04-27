@@ -8,7 +8,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Configuration.TypeRegistry;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.RegistryModel1;
 
 namespace Xtensive.Storage.Tests.RegistryModel1
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.RegistryModel2
 namespace Xtensive.Storage.Tests.Configuration
 {
   [TestFixture]
-  public class RegistryTest
+  public class TypeRegistryTest
   {
     [Test]
     public void HierarchyTest()

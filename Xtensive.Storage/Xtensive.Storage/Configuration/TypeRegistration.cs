@@ -9,7 +9,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Configuration.TypeRegistry
+namespace Xtensive.Storage.Configuration
 {
   /// <summary>
   /// Describes a single type registration call to <see cref="TypeRegistry"/>.

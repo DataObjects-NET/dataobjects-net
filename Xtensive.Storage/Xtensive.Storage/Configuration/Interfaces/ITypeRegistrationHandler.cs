@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.04.27
 
-namespace Xtensive.Storage.Configuration.TypeRegistry
+namespace Xtensive.Storage.Configuration
 {
   /// <summary>
   /// Processes <see cref="TypeRegistration"/>s in <see cref="TypeRegistry"/>.

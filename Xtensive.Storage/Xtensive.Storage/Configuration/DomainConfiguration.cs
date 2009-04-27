@@ -15,7 +15,8 @@ using Xtensive.Core.Helpers;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration.Elements;
-using Xtensive.Storage.Configuration.TypeRegistry;
+using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Configuration.Internals;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Configuration
@@ -89,7 +90,7 @@ namespace Xtensive.Storage.Configuration
 
     private string name = string.Empty;
     private UrlInfo connectionInfo;
-    private TypeRegistry.TypeRegistry types = new TypeRegistry.TypeRegistry(new PersistentTypeProcessor());
+    private TypeRegistry types = new TypeRegistry(new PersistentTypeRegistrationHandler());
     private CollectionBaseSlim<Type> builders = new CollectionBaseSlim<Type>();
     private NamingConvention namingConvention;
     private int keyCacheSize = DefaultKeyCacheSize;
@@ -98,7 +99,7 @@ namespace Xtensive.Storage.Configuration
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
     private bool autoValidation = true;
     private bool inconsistentTransactions;    
-    private TypeRegistry.TypeRegistry compilerContainers = new TypeRegistry.TypeRegistry(new CompilerContainerTypeProcessor());
+    private TypeRegistry compilerContainers = new TypeRegistry(new CompilerContainerRegistrationHandler());
     private SessionConfigurationCollection sessions;
     private DomainBuildMode buildMode = DefaultBuildMode;
     private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
@@ -152,7 +153,7 @@ namespace Xtensive.Storage.Configuration
     /// Gets the collection of persistent <see cref="Type"/>s that are about to be 
     /// registered in the <see cref="Domain"/>.
     /// </summary>
-    public TypeRegistry.TypeRegistry Types
+    public TypeRegistry Types
     {
       get { return types; }
     }
@@ -312,7 +313,7 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Gets user defined method compiler containers.
     /// </summary>
-    public TypeRegistry.TypeRegistry CompilerContainers
+    public TypeRegistry CompilerContainers
     {
       get { return compilerContainers; }
       set {
@@ -373,7 +374,7 @@ namespace Xtensive.Storage.Configuration
       var configuration = (DomainConfiguration) source;
       name = configuration.Name;
       connectionInfo = new UrlInfo(configuration.ConnectionInfo.Url);
-      types = (TypeRegistry.TypeRegistry) configuration.Types.Clone();
+      types = (TypeRegistry) configuration.Types.Clone();
       builders = new CollectionBase<Type>(configuration.Builders);
       namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
       keyCacheSize = configuration.KeyCacheSize;
@@ -381,8 +382,9 @@ namespace Xtensive.Storage.Configuration
       sessionPoolSize = configuration.SessionPoolSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = (SessionConfigurationCollection)configuration.Sessions.Clone();
-      compilerContainers = (TypeRegistry.TypeRegistry) configuration.CompilerContainers.Clone();
-      buildMode = configuration.buildMode;      foreignKeyMode = configuration.foreignKeyMode;
+      compilerContainers = (TypeRegistry) configuration.CompilerContainers.Clone();
+      buildMode = configuration.buildMode;
+      foreignKeyMode = configuration.foreignKeyMode;
       servicesConfiguration = configuration.ServicesConfiguration;
       servicesConfiguration.LockItem = this.IsLocked;
     }

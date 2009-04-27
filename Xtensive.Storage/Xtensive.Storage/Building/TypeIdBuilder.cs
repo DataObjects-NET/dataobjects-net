@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq;
-using Xtensive.Storage.Configuration.TypeRegistry;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Building

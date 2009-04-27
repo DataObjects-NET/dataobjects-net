@@ -10,7 +10,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Storage.Configuration.TypeRegistry
+namespace Xtensive.Storage.Configuration.Internals
 {
   /// <summary>
   /// Base class for any <see cref="ITypeRegistrationHandler"/> implementation.

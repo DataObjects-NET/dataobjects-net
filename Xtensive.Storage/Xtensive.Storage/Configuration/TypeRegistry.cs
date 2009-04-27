@@ -13,7 +13,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Configuration.TypeRegistry
+namespace Xtensive.Storage.Configuration
 {
   /// <summary>
   /// <see cref="Type"/> registration endpoint.

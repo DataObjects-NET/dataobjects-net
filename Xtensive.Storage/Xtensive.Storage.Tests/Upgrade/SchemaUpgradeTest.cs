@@ -12,7 +12,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Configuration.TypeRegistry;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 
 namespace Xtensive.Storage.Tests.Upgrade.Model_1

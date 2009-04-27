@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Configuration.TypeRegistry;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 
 namespace Xtensive.Storage
