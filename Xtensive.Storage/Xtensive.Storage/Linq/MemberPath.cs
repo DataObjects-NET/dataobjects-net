@@ -55,10 +55,9 @@ namespace Xtensive.Storage.Linq
       MemberPathItem lastItem = null;
       Expression current = e;
       bool entityKeyAssociation = false;
-      while (current.NodeType==ExpressionType.MemberAccess 
+      while (current.NodeType==ExpressionType.MemberAccess
         || current.NodeType==ExpressionType.Convert
-         || current.NodeType==ExpressionType.TypeAs) 
-         {
+          || current.NodeType==ExpressionType.TypeAs) {
         if (current.NodeType==ExpressionType.Convert
           || current.NodeType==ExpressionType.TypeAs) {
           current = ((UnaryExpression) current).Operand;
@@ -70,105 +69,107 @@ namespace Xtensive.Storage.Linq
         MemberPathItem item;
         var memberAccessType = memberAccess.GetMemberType();
         switch (memberAccessType) {
-          case MemberType.Key:
-            item = new MemberPathItem(member.Name, MemberType.Key, memberAccess);
-            break;
-          case MemberType.Structure:
-            if (lastItem==null) {
-              item = new MemberPathItem(member.Name, MemberType.Structure, memberAccess);
-            }
-            else {
-              item = new MemberPathItem(
-                member.Name + "." + lastItem.Name,
-                lastItem.Type,
-                lastItem.Expression);
-            }
-            break;
-          case MemberType.Entity:
-            if (lastItem==null) {
-              item = new MemberPathItem(member.Name, MemberType.Entity, memberAccess);
-            }
-            else {
-              var expressionType = current.GetMemberType();
-              if (lastItem.Type==MemberType.Key) {
-                if (!entityKeyAssociation && expressionType != MemberType.Anonymous) {
-                  item = new MemberPathItem(
-                    member.Name + "." + lastItem.Name,
-                    lastItem.Type,
-                    lastItem.Expression);
-                  entityKeyAssociation = true;
-                }
-                else {
-                  item = new MemberPathItem(
-                    member.Name,
-                    MemberType.Entity,
-                    memberAccess);
-                  result.AddHead(lastItem);
-                }
+        case MemberType.Key:
+          item = new MemberPathItem(member.Name, MemberType.Key, memberAccess);
+          break;
+        case MemberType.Structure:
+          if (lastItem==null) {
+            item = new MemberPathItem(member.Name, MemberType.Structure, memberAccess);
+          }
+          else {
+            item = new MemberPathItem(
+              member.Name + "." + lastItem.Name,
+              lastItem.Type,
+              lastItem.Expression);
+          }
+          break;
+        case MemberType.Entity:
+          if (lastItem==null) {
+            item = new MemberPathItem(member.Name, MemberType.Entity, memberAccess);
+          }
+          else {
+            var expressionType = current.GetMemberType();
+            if (lastItem.Type==MemberType.Key) {
+              if (!entityKeyAssociation && expressionType!=MemberType.Anonymous) {
+                item = new MemberPathItem(
+                  member.Name + "." + lastItem.Name,
+                  lastItem.Type,
+                  lastItem.Expression);
+                entityKeyAssociation = true;
               }
               else {
-                var type = model.Types[memberAccess.Type];
-                FieldInfo field;
-                if (!type.Fields.TryGetValue(lastItem.Name, out field))
-                  throw new InvalidOperationException(string.Format(Strings.ExFieldNotFoundInModel, lastItem.Name));
-                if (field.IsPrimaryKey) {
-                  item = new MemberPathItem(
-                    member.Name + "." + lastItem.Name,
-                    lastItem.Type,
-                    lastItem.Expression);
-                }
-                else {
-                  item = new MemberPathItem(
-                    member.Name,
-                    MemberType.Entity,
-                    memberAccess);
-                  result.AddHead(lastItem);
-                }
+                item = new MemberPathItem(
+                  member.Name,
+                  MemberType.Entity,
+                  memberAccess);
+                result.AddHead(lastItem);
               }
             }
-            break;
-          case MemberType.EntitySet:
-            item = new MemberPathItem(member.Name, MemberType.EntitySet, memberAccess);
-            break;
-          case MemberType.Anonymous:
-            if (lastItem == null)
-              item = new MemberPathItem(member.Name, MemberType.Anonymous, memberAccess);
             else {
-              item = new MemberPathItem(
-                member.Name,
-                MemberType.Anonymous,
-                memberAccess);
-              result.AddHead(lastItem);
+              var type = model.Types[memberAccess.Type];
+              FieldInfo field;
+              if (!type.Fields.TryGetValue(lastItem.Name, out field))
+                throw new InvalidOperationException(string.Format(Strings.ExFieldNotFoundInModel, lastItem.Name));
+              if (field.IsPrimaryKey) {
+                item = new MemberPathItem(
+                  member.Name + "." + lastItem.Name,
+                  lastItem.Type,
+                  lastItem.Expression);
+              }
+              else {
+                item = new MemberPathItem(
+                  member.Name,
+                  MemberType.Entity,
+                  memberAccess);
+                result.AddHead(lastItem);
+              }
             }
-            break;
-          case MemberType.Grouping:
-            if (lastItem == null)
-              item = new MemberPathItem(member.Name, MemberType.Grouping, memberAccess);
-            else {
-              item = new MemberPathItem(
-                member.Name,
-                MemberType.Grouping,
-                memberAccess);
-              result.AddHead(lastItem);
-            }
-            break;
-          default:
-            if (lastItem!=null)
+          }
+          break;
+        case MemberType.EntitySet:
+          item = new MemberPathItem(member.Name, MemberType.EntitySet, memberAccess);
+          break;
+        case MemberType.Anonymous:
+          if (lastItem==null)
+            item = new MemberPathItem(member.Name, MemberType.Anonymous, memberAccess);
+          else {
+            item = new MemberPathItem(
+              member.Name,
+              MemberType.Anonymous,
+              memberAccess);
+            result.AddHead(lastItem);
+          }
+          break;
+        case MemberType.Grouping:
+          if (lastItem==null)
+            item = new MemberPathItem(member.Name, MemberType.Grouping, memberAccess);
+          else {
+            item = new MemberPathItem(
+              member.Name,
+              MemberType.Grouping,
+              memberAccess);
+            result.AddHead(lastItem);
+          }
+          break;
+        default:
+          if (lastItem!=null)
+            return new MemberPath();
+          if (memberAccess.Expression==null)
+            return new MemberPath();
+          var memberType = memberAccess.Expression.GetMemberType();
+          switch (memberType) {
+          case MemberType.Key:
+            return new MemberPath();
+          case MemberType.Entity:
+          case MemberType.Structure: {
+            var sourceTypeInfo = model.Types[memberAccess.Expression.Type];
+            if (!sourceTypeInfo.Fields.Contains(member.Name))
               return new MemberPath();
-            var memberType = memberAccess.Expression.GetMemberType();
-            switch (memberType) {
-              case MemberType.Key:
-                return new MemberPath();
-              case MemberType.Entity:
-              case MemberType.Structure: {
-                var sourceTypeInfo = model.Types[memberAccess.Expression.Type];
-                if (!sourceTypeInfo.Fields.Contains(member.Name))
-                  return new MemberPath();
-              }
-                break;
-            }
-            item = new MemberPathItem(member.Name, MemberType.Primitive, memberAccess);
+          }
             break;
+          }
+          item = new MemberPathItem(member.Name, MemberType.Primitive, memberAccess);
+          break;
         }
         lastItem = item;
       }

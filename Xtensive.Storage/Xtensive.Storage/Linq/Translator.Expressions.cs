@@ -13,7 +13,6 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
-using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -25,7 +24,6 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Expressions;
-using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using FieldInfo=System.Reflection.FieldInfo;
 
@@ -346,10 +344,10 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitParameter(ParameterExpression p)
     {
       bool isInnerParameter = parameters.Value.Contains(p);
-      bool isOuterParemeter = outerParameters.Value.Contains(p);
-      if (!isInnerParameter && !isOuterParemeter)
+      bool isOuterParameter = outerParameters.Value.Contains(p);
+      if (!isInnerParameter && !isOuterParameter)
         throw new InvalidOperationException("Lambda parameter is out of scope!");
-      if (isOuterParemeter)
+      if (isOuterParameter)
         return context.Bindings[p].ItemProjector.Body; // TODO: replace outer parameters?
       var source = context.Bindings[p];
       mappingRef.Value.Replace(source.Mapping);
@@ -499,15 +497,8 @@ namespace Xtensive.Storage.Linq
       }
       var constructorParameters = n.Constructor.GetParameters();
       for (int i = 0; i < arguments.Count; i++) {
-        if (arguments[i].Type!=constructorParameters[i].ParameterType) {
+        if (arguments[i].Type!=constructorParameters[i].ParameterType)
           arguments[i] = Expression.Convert(arguments[i], constructorParameters[i].ParameterType);
-        }
-//        // Cast EntitySet<T> to IQueryable<T>
-//        if (arguments[i].IsEntitySet()) {
-//          var type = arguments[i].Type.GetGenericArguments()[0];
-//          var queryableType = typeof (IQueryable<>).MakeGenericType(type);
-//          arguments[i] = Expression.Convert(arguments[i], queryableType);
-//        }
       }
       var result = Expression.New(n.Constructor, arguments, n.Members);
       return result;

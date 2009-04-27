@@ -78,15 +78,30 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void SelectNestedWithAggregateTest()
+    {
+      var result = Query<Customer>.All
+        .Select(c => Query<Order>.All.Where(o => o.Customer == c).Count());
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void SelectAnonymousTest()
     {
       var result = Query<Customer>.All
-        .Select(c => new {Customer = c, Orders = Query<Order>.All.Where(o => o.Customer == c)})
-        .Select(os => os);
-      foreach (var item in result)
-        Assert.AreEqual(item.Customer.Orders.Count, item.Orders.Count());
-      foreach (var item in result)
-        Assert.AreEqual(item.Customer.Orders.Count, item.Orders.ToList().Count);
+        .Take(10)
+        .Select(c => new {Orders = Query<Order>.All.Take(10)});
+        QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void SubqueryAsQuerySourceTest()
+    {
+      var result = Query<Customer>.All
+        .Select(c => Query<Order>.All.Where(o => o.Customer == c));
+      foreach (var orders in result) {
+        var subQueryCount = orders.Count();
+      }
     }
 
     [Test]
