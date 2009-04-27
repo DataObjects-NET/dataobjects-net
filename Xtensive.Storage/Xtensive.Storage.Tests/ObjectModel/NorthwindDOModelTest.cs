@@ -32,8 +32,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      //var config = base.BuildConfiguration();
-      var config = DomainConfiguration.Load("mssql2005");
+      var config = base.BuildConfiguration();
       config.Types.Register(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
       return config;
     }
