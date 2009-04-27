@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
     {
       return value!=null && value!=DBNull.Value && ToSqlValue!=null
         ? ToSqlValue(value)
-        : value;
+        : (value ?? DBNull.Value);
     }
 
     // Constructor

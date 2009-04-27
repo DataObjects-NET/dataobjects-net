@@ -19,10 +19,11 @@ namespace Xtensive.Sql.Common
   /// <seealso cref="ProtocolAttribute"/>
   public abstract class Driver
   {
-    private ServerInfo serverInfo;
-    private ConnectionInfo connectionInfo;
-    private VersionInfo versionInfo;
+    private readonly ConnectionInfo connectionInfo;
+    private readonly VersionInfo versionInfo;
+
     private IServerInfoProvider serverInfoProvider;
+    private ServerInfo serverInfo;
 
     public virtual IServerInfoProvider ServerInfoProvider
     {

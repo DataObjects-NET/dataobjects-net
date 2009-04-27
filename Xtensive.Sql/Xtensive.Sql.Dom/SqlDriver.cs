@@ -22,7 +22,6 @@ namespace Xtensive.Sql.Dom
   /// <seealso cref="ProtocolAttribute"/>
   public abstract class SqlDriver : Driver
   {
-    private SqlCompiler compiler;
     private SqlExtractor extractor;
     private SqlTranslator translator;
 
@@ -46,15 +45,12 @@ namespace Xtensive.Sql.Dom
     public SqlTranslator Translator
     {
       get {
-        if (translator==null) {
-          translator = CreateTranslator();
-          translator.Initialize();
-        }
+        if (translator==null)
+          translator = CreateAndInitializeTranslator();
         return translator;
       }
     }
-
-
+    
     /// <summary>
     /// Compiles the specified statement into SQL command representation.
     /// </summary>
@@ -63,9 +59,7 @@ namespace Xtensive.Sql.Dom
     public SqlCompilationResult Compile(ISqlCompileUnit unit)
     {
       ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
-      if (compiler==null)
-        compiler = CreateCompiler();
-      return compiler.Compile(unit);
+      return CreateCompiler().Compile(unit);
     }
 
     /// <summary>
@@ -87,6 +81,12 @@ namespace Xtensive.Sql.Dom
     /// </summary>
     protected abstract SqlExtractor CreateExtractor();
 
+    private SqlTranslator CreateAndInitializeTranslator()
+    {
+      var result = CreateTranslator();
+      result.Initialize();
+      return result;
+    }
 
     protected SqlDriver(VersionInfo versionInfo)
       : base(versionInfo)

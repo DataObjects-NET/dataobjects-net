@@ -732,7 +732,7 @@ namespace Xtensive.Sql.Dom.Compiler
             foreach (SqlColumn item in node.Values.Keys) {
               if (!context.IsEmpty)
                 context.AppendDelimiter(translator.ColumnDelimiter);
-              item.AcceptVisitor(this);
+              context.AppendText(translator.QuoteIdentifier(item.Name));
             }
         context.AppendText(translator.Translate(context, node, InsertSection.ColumnsExit));
 
@@ -1051,7 +1051,7 @@ namespace Xtensive.Sql.Dom.Compiler
             SqlTableColumn tc = item as SqlTableColumn;
             if (!SqlExpression.IsNull(tc) && tc.SqlTable!=node.Update)
               throw new SqlCompilerException(string.Format(Strings.ExUnboundColumn, tc.Name));
-            item.AcceptVisitor(this);
+            context.AppendText(translator.QuoteIdentifier(tc.Name));
             context.AppendText(translator.Translate(SqlNodeType.Equals));
             SqlExpression value = node.Values[item];
             value.AcceptVisitor(this);

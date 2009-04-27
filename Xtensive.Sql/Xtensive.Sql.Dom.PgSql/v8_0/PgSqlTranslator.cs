@@ -353,15 +353,6 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       return QuoteIdentifier(new[] {node.Name});
     }
 
-
-    public override string Translate(SqlCompilerContext context, SqlTableColumn node, NodeSection section)
-    {
-      if (mInUnqualifiedColumnNameSection)
-        return QuoteIdentifier(node.Name);
-      return base.Translate(context, node, section);
-    }
-
-
     public override string Translate(SqlCompilerContext context, SqlCreateSequence node, NodeSection section)
     {
       if (section==NodeSection.Entry) {
@@ -530,27 +521,6 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       return String.Empty;
     }
 
-
-    public override string Translate(SqlCompilerContext context, SqlInsert node, InsertSection section)
-    {
-      switch (section) {
-      case InsertSection.ColumnsEntry:
-        mInUnqualifiedColumnNameSection = true;
-        break;
-      case InsertSection.ColumnsExit:
-        mInUnqualifiedColumnNameSection = false;
-        break;
-      }
-      return base.Translate(context, node, section);
-    }
-
-    public override string Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
-    {
-      mInUnqualifiedColumnNameSection = section==UpdateSection.Set;
-      return base.Translate(context, node, section);
-    }
-
-
     public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
     {
       if (section==SelectSection.Exit) {
@@ -566,8 +536,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       }
       return base.Translate(context, node, section);
     }
-
-
+    
     public override string Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
     {
       switch (section) {
@@ -1236,10 +1205,5 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       }
       }
     }
-
-    /// <summary>
-    /// Indicates that translation is in a section where column names must not be table-qualified.
-    /// </summary>
-    protected bool mInUnqualifiedColumnNameSection;
   }
 }

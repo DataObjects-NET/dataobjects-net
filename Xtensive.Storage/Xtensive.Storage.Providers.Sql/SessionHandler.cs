@@ -228,14 +228,14 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var binding in request.ParameterBindings) {
         object parameterValue = binding.ValueAccessor.Invoke();
         parameterValue = binding.TypeMapping.TranslateToSqlValue(parameterValue);
-        if (parameterValue != null) {
+        if (parameterValue == DBNull.Value && binding.SmartNull)
+          variantKeys.Add(binding.ParameterReference.Parameter);
+        else {
           string parameterName = compilationResult.GetParameterName(binding.ParameterReference.Parameter);
           var parameterType = binding.TypeMapping.DbType;
           var parameter = new SqlParameter(parameterName, parameterType) {Value = parameterValue};
           command.Parameters.Add(parameter);
         }
-        else
-          variantKeys.Add(binding);
       }
       command.CommandText = compilationResult.GetCommandText(variantKeys);
       return command;

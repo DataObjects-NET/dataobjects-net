@@ -53,17 +53,22 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression Visit(Expression e)
     {
-      if (e==null)
+      return Visit(e, false);
+    }
+
+    private SqlExpression Visit(Expression e, bool smartNull)
+    {
+      if (e == null)
         return null;
       if (evaluator.CanBeEvaluated(e)) {
         if (parameterExtractor.IsParameter(e))
-          return VisitParameterAccess(e);
+          return VisitParameterAccess(e, smartNull);
         return VisitConstant(evaluator.Evaluate(e));
       }
       return base.Visit(e);
     }
 
-    private SqlExpression VisitParameterAccess(Expression e)
+    private SqlExpression VisitParameterAccess(Expression e, bool smartNull)
     {
       var type = e.Type;
       // In rare cases (when calculated column is just parameter access) we need to strip cast to object.
@@ -73,7 +78,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         type = type.GetGenericArguments()[0];
       var typeMapping = valueTypeMapper.GetTypeMapping(type);
       var expression = parameterExtractor.ExtractParameter<object>(e);
-      var binding = new SqlFetchParameterBinding(expression.Compile(), typeMapping);
+      var binding = new SqlFetchParameterBinding(expression.Compile(), typeMapping, smartNull);
       bindings.Add(binding);
       return binding.ParameterReference;
     }
@@ -116,14 +121,16 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       SqlExpression left;
       SqlExpression right;
 
+      bool smartNull = expression.NodeType==ExpressionType.Equal || expression.NodeType==ExpressionType.NotEqual;
+
       // chars are compared as integers, but we store them as strings and should compare them like strings.
       if (IsCharToIntConvert(expression.Left) && IsCharToIntConvert(expression.Right)) {
-        left = Visit(((UnaryExpression) expression.Left).Operand);
-        right = Visit(((UnaryExpression)expression.Right).Operand);
+        left = Visit(((UnaryExpression) expression.Left).Operand, smartNull);
+        right = Visit(((UnaryExpression)expression.Right).Operand, smartNull);
       }
       else {
-        left = Visit(expression.Left);
-        right = Visit(expression.Right);
+        left = Visit(expression.Left, smartNull);
+        right = Visit(expression.Right, smartNull);
       }
       
       // handle special cases
