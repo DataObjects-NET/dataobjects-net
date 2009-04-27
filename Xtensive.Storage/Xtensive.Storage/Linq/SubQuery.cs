@@ -9,11 +9,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Core;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
-using Xtensive.Storage.Rse;
+using Xtensive.Storage.Linq.Rewriters;
 
 namespace Xtensive.Storage.Linq
 {
@@ -21,18 +20,13 @@ namespace Xtensive.Storage.Linq
   internal class SubQuery<T> : IQueryable<T>
   {
     private readonly ResultExpression resultExpression;
-    private readonly Tuple tuple;
-    private readonly Parameter<Tuple> parameter;
 
 
     public IEnumerator<T> GetEnumerator()
     {
-      using (new ParameterScope()) {
-        parameter.Value = tuple;
         var result = resultExpression.GetResult<IEnumerable<T>>();
         foreach (var element in result)
           yield return element;
-      }
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -60,9 +54,17 @@ namespace Xtensive.Storage.Linq
 
     public SubQuery(ResultExpression resultExpression, Tuple tuple, Parameter<Tuple> parameter)
     {
-      this.resultExpression = resultExpression;
-      this.tuple = tuple;
-      this.parameter = parameter;
+      var newRecordset = TupleParameterToTupleRewriter.Rewrite(
+        resultExpression.RecordSet.Provider, 
+        parameter, 
+        tuple)
+        .Result;
+      this.resultExpression = new ResultExpression(
+        resultExpression.Type, 
+        newRecordset, 
+        resultExpression.Mapping, 
+        resultExpression.ItemProjector, 
+        resultExpression.ResultType);
     }
 
   }

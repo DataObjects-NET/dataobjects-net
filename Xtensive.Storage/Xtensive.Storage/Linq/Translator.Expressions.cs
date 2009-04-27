@@ -553,7 +553,7 @@ namespace Xtensive.Storage.Linq
         .Rewrite(subQuery.RecordSet.Provider, tupleParameter, applyParameter) 
         .Result;
 
-      mappingRef.Value.Replace(parameterResultExpression.Mapping);
+     //  mappingRef.Value = new MappingReference(mappingRef.Value.FillMapping);
 
       var newResultExpression = new ResultExpression(subQuery.Type, rewrittenRecordset, subQuery.Mapping, subQuery.ItemProjector, subQuery.ResultType);
 
