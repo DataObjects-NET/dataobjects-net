@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Linq
 
     public static bool IsSubquery(this Expression expression)
     {
-      return expression.Type.IsOfGenericType(typeof(SubQuery<>));
+      return expression.Type.IsOfGenericInterface(typeof(IQueryable<>));
     }
 
     public static bool IsEntitySet(this Expression expression)

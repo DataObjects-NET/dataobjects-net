@@ -174,7 +174,16 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void   SelectAnonymousSelectMany2Test()
+    public void SelectAnonymousSelectMany2Test()
+    {
+        var result = Query<Customer>.All
+          .Select(c => new { Customer = c, Orders = Query<Order>.All.Where(o => o.Customer == c) })
+          .SelectMany(i => i.Customer.Orders);
+        Assert.AreEqual(numberOfOrders, result.ToList().Count);
+    }
+
+    [Test]
+    public void   SelectAnonymousSelectMany3Test()
     {
       var result = Query<Customer>.All
         .Select(c => new {Customer = c, Orders = Query<Order>.All.Where(o => o.Customer==c)})

@@ -313,6 +313,10 @@ namespace Xtensive.Storage.Linq
         return VisitMemberPathEntitySet(e);
       case MemberType.Anonymous:
         return VisitMemberPathAnonymous(path, source);
+      case MemberType.Subquery:
+          var visitedParameter = VisitParameter(path.Parameter);
+          throw new NotImplementedException("Subquery path visit");
+        break;
       default:
         throw new ArgumentOutOfRangeException();
       }
@@ -368,15 +372,6 @@ namespace Xtensive.Storage.Linq
             return ConstructQueryable(rootPoint);
         }
       }
-//      else if (ma.Expression.NodeType == ExpressionType.Parameter
-//          && typeof(IQueryable).IsAssignableFrom(ma.Type)) {
-//          using (new ParameterScope()) {
-//              parameters.Value = new[] {(ParameterExpression)ma.Expression};
-//              var visitedParameter = Visit(ma.Expression);
-//              var newMemberAccess = Expression.MakeMemberAccess(visitedParameter, ma.Member);
-//              return VisitMemberAccess(newMemberAccess);
-//          }
-//      }
       else if (ma.Expression.NodeType == ExpressionType.Constant)
       {
         var rfi = ma.Member as FieldInfo;

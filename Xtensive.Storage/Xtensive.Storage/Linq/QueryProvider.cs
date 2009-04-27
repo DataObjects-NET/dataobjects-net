@@ -8,8 +8,11 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Rewriters;
@@ -30,7 +33,7 @@ namespace Xtensive.Storage.Linq
     {
       Type elementType = SequenceHelper.GetElementType(expression.Type);
       try {
-        var query = (IQueryable)typeof (Query<>).Activate(new[] {elementType}, new object[] {expression});
+        var query = (IQueryable) typeof (Query<>).Activate(new[] {elementType}, new object[] {expression});
         return query;
       }
       catch (TargetInvocationException tie) {
@@ -63,8 +66,13 @@ namespace Xtensive.Storage.Linq
     internal ResultExpression Compile(Expression expression)
     {
       var model = Domain.Demand().Model;
-      var context = new TranslatorContext(expression, model);
-      var result = context.Translator.Translate();
+      ResultExpression result;
+      if (expression.IsResult())
+        result = (ResultExpression) expression;
+      else {
+        var context = new TranslatorContext(expression, model);
+        result = context.Translator.Translate();
+      }
       result = Optimize(result, model);
       return result;
     }
@@ -75,12 +83,12 @@ namespace Xtensive.Storage.Linq
 
       var originProvider = origin.RecordSet.Provider;
       var usedColumns = mappingsGatherer
-          .Gather(origin.ItemProjector, originProvider, model, origin.Mapping)
-          .Distinct()
-          .OrderBy(i => i)
-          .ToList();
+        .Gather(origin.ItemProjector, originProvider, model, origin.Mapping)
+        .Distinct()
+        .OrderBy(i => i)
+        .ToList();
 
-      if (usedColumns.Count == 0)
+      if (usedColumns.Count==0)
         usedColumns.Add(0);
       if (usedColumns.Count < origin.RecordSet.Header.Length) {
         var resultProvider = new SelectProvider(originProvider, usedColumns.ToArray());
@@ -89,16 +97,16 @@ namespace Xtensive.Storage.Linq
         var groupMap = MappingHelper.BuildGroupMapping(usedColumns, originProvider, resultProvider);
         var mappingsReplacer = new ItemProjectorRewriter(usedColumns, groupMap, origin.RecordSet.Header);
         var itemProjector = mappingsReplacer.Rewrite(origin.ItemProjector);
-        var result = new ResultExpression(origin.Type, rs, null, (LambdaExpression)itemProjector, origin.ResultType);
+        var result = new ResultExpression(origin.Type, rs, null, (LambdaExpression) itemProjector, origin.ResultType);
         return result;
       }
       return origin;
     }
 
 
-    // Constructors
-    
     private QueryProvider()
-    {}
+    {
+      
+    }
   }
 }

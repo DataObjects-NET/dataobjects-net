@@ -27,6 +27,17 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void EntityGroupWithCountTest()
+    {
+      var result = Query<Product>.All.GroupBy(p => p);
+      foreach (IGrouping<Product, Product> product in result) {
+        var c = product.Count();
+        throw new InvalidOperationException("Count works through collection iterate. Not through query.");
+      }
+     // QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void EntityGroupTest()
     {
       var result = Query<Product>.All.GroupBy(p => p.Category);

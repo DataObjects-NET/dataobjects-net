@@ -42,7 +42,10 @@ namespace Xtensive.Storage.Linq
 
     public Expression Expression
     {
-      get { return resultExpression; }
+      get
+      {
+        return resultExpression;
+      }
     }
 
     public Type ElementType

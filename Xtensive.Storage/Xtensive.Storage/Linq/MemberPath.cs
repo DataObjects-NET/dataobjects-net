@@ -151,6 +151,17 @@ namespace Xtensive.Storage.Linq
             result.AddHead(lastItem);
           }
           break;
+        case MemberType.Subquery:
+          if (lastItem==null)
+            item = new MemberPathItem(member.Name, MemberType.Subquery, memberAccess);
+          else {
+            item = new MemberPathItem(
+              member.Name,
+              MemberType.Subquery,
+              memberAccess);
+            result.AddHead(lastItem);
+          }
+          break;
         default:
           if (lastItem!=null)
             return new MemberPath();
