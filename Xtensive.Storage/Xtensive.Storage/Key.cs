@@ -156,7 +156,7 @@ namespace Xtensive.Storage
       if (!hasBeenFetched && session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Resolving key '{1}'. Key is already resolved.", session, this);
 
-      if (state.IsRemoved)
+      if (state == null || state.IsRemoved)
         return null;
 
       return state.Entity;
