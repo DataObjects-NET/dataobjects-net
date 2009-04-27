@@ -16,48 +16,6 @@ namespace Xtensive.Storage.Tests.Storage
   public class CompiledQueryTest : NorthwindDOModelTest
   {
     [Test]
-    public void CompileSequence0Test()
-    {
-      var compiled = CompiledQuery.Compile(() => Query<Product>.All.Where(p => p.ProductName != null));
-      var result = compiled();
-    }
-
-    [Test]
-    public void CompileSequence1Test()
-    {
-      var compiled = CompiledQuery.Compile((string productName) => Query<Product>.All.Where(p => p.ProductName == productName));
-      var result = compiled("Chai");
-    }
-
-    [Test]
-    public void CompileSequence2Test()
-    {
-      var compiled = CompiledQuery.Compile((string productName, decimal unitPrice) => Query<Product>.All.Where(p => p.ProductName == productName && p.UnitPrice > unitPrice));
-      var result = compiled("Chai", 10);
-    }
-
-    [Test]
-    public void CompileScalar0Test()
-    {
-      var compiled = CompiledQuery.Compile(() => Query<Product>.All.Where(p => p.ProductName != null).Count());
-      var result = compiled();
-    }
-
-    [Test]
-    public void CompileScalar1Test()
-    {
-      var compiled = CompiledQuery.Compile((string productName) => Query<Product>.All.Where(p => p.ProductName == productName).Count());
-      var result = compiled("Chai");
-    }
-
-    [Test]
-    public void CompileScalar2Test()
-    {
-      var compiled = CompiledQuery.Compile((string productName, decimal unitPrice) => Query<Product>.All.Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).Count());
-      var result = compiled("Chai", 10);
-    }
-
-    [Test]
     public void CachedSequenceTest()
     {
       var productName = "Chai";
