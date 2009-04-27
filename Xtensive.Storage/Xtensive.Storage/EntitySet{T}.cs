@@ -27,7 +27,6 @@ namespace Xtensive.Storage
     private const int CacheSize = 10240;
     private const int LoadStateCount = 32;
 
-    private static readonly QueryProvider provider = new QueryProvider();
     private Expression expression;
     private Query<TItem> query;
 
@@ -137,7 +136,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public IQueryProvider Provider
     {
-      get { return provider; }
+      get { return QueryProvider.Current; }
     }
 
     #endregion

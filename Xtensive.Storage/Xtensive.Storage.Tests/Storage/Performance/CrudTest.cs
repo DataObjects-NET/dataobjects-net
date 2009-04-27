@@ -48,10 +48,12 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     [Category("Profile")]
     public void ProfileTest()
     {
+      warmup = true;
+      CombinedTest(10, 10);
+      warmup = false;
       int instanceCount = 100000;
       InsertTest(instanceCount);
-//      BulkFetchTest(instanceCount);
-      BulkFetchCachedTest(instanceCount);
+      CacheCompiledQueryTest(instanceCount / 5);
     }
 
     private void CombinedTest(int baseCount, int insertCount)

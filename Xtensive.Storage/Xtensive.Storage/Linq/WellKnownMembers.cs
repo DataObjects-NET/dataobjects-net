@@ -56,6 +56,9 @@ namespace Xtensive.Storage.Linq
     // Parameter<Tuple>
     public static readonly PropertyInfo ParameterOfTupleValue;
 
+    // Parameter
+    public static readonly PropertyInfo ParameterValue;
+
     // SegmentTransform
     public static readonly MethodInfo SegmentTransformApply;
 
@@ -125,6 +128,9 @@ namespace Xtensive.Storage.Linq
 
       // Parameter<Tuple>
       ParameterOfTupleValue = typeof(Parameter<Tuple>).GetProperty("Value", typeof(Tuple));
+
+      // Parameter
+      ParameterValue = typeof(Parameter).GetProperty("Value");
 
       // SegmentTransform
       SegmentTransformApply = typeof(SegmentTransform).GetMethod("Apply", new[] { typeof(TupleTransformType), typeof(Tuple) });

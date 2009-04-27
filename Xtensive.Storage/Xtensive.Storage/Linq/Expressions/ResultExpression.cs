@@ -10,9 +10,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Linq.Expressions.Mappings;
@@ -27,7 +24,7 @@ namespace Xtensive.Storage.Linq.Expressions
     public IMapping Mapping { get; private set; }
     public LambdaExpression ItemProjector { get; private set; }
     public ResultType ResultType { get; private set; }
-
+    
     public bool IsScalar
     {
       get {  return ResultType != ResultType.All; }

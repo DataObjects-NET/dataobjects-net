@@ -20,7 +20,6 @@ namespace Xtensive.Storage.Linq
   [Serializable]
   internal class SubQuery<T> : IQueryable<T>
   {
-    private readonly IQueryProvider provider = new QueryProvider();
     private readonly ResultExpression resultExpression;
     private readonly Tuple tuple;
     private readonly Parameter<Tuple> parameter;
@@ -53,7 +52,7 @@ namespace Xtensive.Storage.Linq
 
     public IQueryProvider Provider
     {
-      get { return provider; }
+      get { return QueryProvider.Current; }
     }
 
     public SubQuery(ResultExpression resultExpression, Tuple tuple, Parameter<Tuple> parameter)

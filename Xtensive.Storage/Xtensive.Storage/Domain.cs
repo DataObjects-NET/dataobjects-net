@@ -127,7 +127,7 @@ namespace Xtensive.Storage
 
     internal ICache<Key, Key> KeyCache { get; private set; }
 
-    internal ICache<MethodInfo, Pair<MethodInfo, ResultExpression>> QueryCache { get; private set; }
+    internal ICache<MethodInfo, Pair<MethodInfo, ParameterizedResultExpression>> QueryCache { get; private set; }
 
     internal Dictionary<AssociationInfo, ActionSet> PairSyncActions { get; private set; }
 
@@ -195,7 +195,7 @@ namespace Xtensive.Storage
       KeyGenerators = new Registry<GeneratorInfo, KeyGenerator>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       //TODO: Make configuration for query cache
-      QueryCache = new LruCache<MethodInfo, Pair<MethodInfo, ResultExpression>>(1024, input => input.First);
+      QueryCache = new LruCache<MethodInfo, Pair<MethodInfo, ParameterizedResultExpression>>(1024, input => input.First);
       PairSyncActions = new Dictionary<AssociationInfo, ActionSet>(1024);
       TemporaryData = new GlobalTemporaryData();
 
