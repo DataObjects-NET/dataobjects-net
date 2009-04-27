@@ -16,7 +16,7 @@ using Xtensive.Storage.Rse.Expressions;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Rse.Optimization.Implementation
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 {
   internal sealed class RedundantColumnRemover : CompilableProviderVisitor
   {
@@ -402,7 +402,7 @@ namespace Xtensive.Storage.Rse.Optimization.Implementation
       outerColumnUsageVisitor = new CompilableProviderVisitor((_,e) => {
         outerMappingsGatherer.Gather(e);
         return e;
-        });
+      });
     }
   }
 }

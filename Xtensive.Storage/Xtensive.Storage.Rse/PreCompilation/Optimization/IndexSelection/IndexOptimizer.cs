@@ -11,7 +11,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 
-namespace Xtensive.Storage.Rse.Optimization.IndexSelection
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
   /// <summary>
   /// Optimizer which uses ranges of index keys.

@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Linq.Normalization;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.Optimization.IndexSelection
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
   internal sealed class RangeSetExtractor
   {

@@ -9,7 +9,7 @@ using Xtensive.Core;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.Optimization.IndexSelection
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
   /// <summary>
   /// Result of extraction a <see cref="RangeSet{T}"/> from a predicate.

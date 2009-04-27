@@ -15,7 +15,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Rse.Optimization.IndexSelection
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
   internal sealed class IndexOptimizerVisitor : CompilableProviderVisitor
   {

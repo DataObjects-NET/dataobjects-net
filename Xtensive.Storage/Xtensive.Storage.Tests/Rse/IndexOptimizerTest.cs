@@ -19,7 +19,7 @@ using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Index;
-using Xtensive.Storage.Rse.Optimization.IndexSelection;
+using Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;

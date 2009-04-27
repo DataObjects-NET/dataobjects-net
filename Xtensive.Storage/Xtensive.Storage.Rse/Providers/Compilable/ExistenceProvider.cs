@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 
@@ -29,6 +30,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return new RecordSetHeader(
         TupleDescriptor.Create(new[] { typeof(bool) }),
         new[] { new SystemColumn(ExistenceColumnName, 0, typeof(bool)) });
+    }
+
+    /// <inheritdoc/>
+    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
+    {
+      return EmptyOrdering;
     }
 
     // Constructors

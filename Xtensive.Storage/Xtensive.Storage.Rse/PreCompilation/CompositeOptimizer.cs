@@ -9,7 +9,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 
-namespace Xtensive.Storage.Rse.Optimization
+namespace Xtensive.Storage.Rse.PreCompilation
 {
   /// <summary>
   /// Composite optimizer.

@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core;
 
-namespace Xtensive.Storage.Rse.Optimization.IndexSelection
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
   [Serializable]
   internal struct CostInfo

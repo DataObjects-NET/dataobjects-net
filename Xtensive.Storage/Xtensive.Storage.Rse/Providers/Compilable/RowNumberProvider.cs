@@ -43,6 +43,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return Source.Header.Add(EnumerableUtils.One((Column) SystemColumn));
     }
 
+    /// <inheritdoc/>
+    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
+    {
+      return new DirectionCollection<int> {Header.Columns.IndexOf(SystemColumn)};
+    }
+
     // Constructor
 
     /// <summary>

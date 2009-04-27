@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing.Optimization;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse.Optimization;
+using Xtensive.Storage.Rse.PreCompilation.Optimization;
 
 namespace Xtensive.Storage.Providers.Index
 {

@@ -8,7 +8,7 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
 
-namespace Xtensive.Storage.Rse.Optimization.IndexSelection
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
   /// <summary>
   /// Information about expression containing an access to a field of tuple.

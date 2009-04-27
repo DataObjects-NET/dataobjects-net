@@ -15,7 +15,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse.Optimization.IndexSelection;
+using Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
 
 namespace Xtensive.Storage.Tests.Rse

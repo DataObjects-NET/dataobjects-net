@@ -24,7 +24,9 @@ using Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Optimization;
+using Xtensive.Storage.Rse.PreCompilation;
+using Xtensive.Storage.Rse.PreCompilation.Correction;
+using Xtensive.Storage.Rse.PreCompilation.Optimization;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
@@ -106,15 +108,14 @@ namespace Xtensive.Storage.Providers.Sql
 
     private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
     {
-      bool isOrdering = provider.Type == ProviderType.Sort
-        || provider.Type == ProviderType.Index || provider.Type == ProviderType.Reindex
-        || provider.Type == ProviderType.RowNumber;
       bool isOrderSensitive = provider.Type==ProviderType.Skip || provider.Type==ProviderType.Take;
-      bool resetsOrder = provider.Type==ProviderType.Join 
-        || provider.Type==ProviderType.PredicateJoin || provider.Type==ProviderType.Union
-        || provider.Type==ProviderType.Concat;
-      bool preservesOrder = !isOrderSensitive;
-      return new ProviderOrderingDescriptor(isOrdering, isOrderSensitive, preservesOrder, resetsOrder);
+      bool preservesOrder = isOrderSensitive || provider.Type == ProviderType.Index
+        || provider.Type == ProviderType.Reindex || provider.Type == ProviderType.Sort
+        || provider.Type == ProviderType.Range || provider.Type == ProviderType.Seek;
+      bool isOrderingBoundary = provider.Type==ProviderType.Except
+        || provider.Type==ProviderType.Intersect || provider.Type==ProviderType.Union
+        || provider.Type==ProviderType.Concat || provider.Type==ProviderType.Existence;
+      return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderingBoundary);
     }
     /// <summary>
     /// Builds <see cref="DbDataReaderAccessor"/> from specified <see cref="TupleDescriptor"/>.

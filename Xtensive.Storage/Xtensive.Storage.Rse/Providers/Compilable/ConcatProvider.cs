@@ -50,8 +50,8 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
         Left.Header.TupleDescriptor, 
         columns, 
         columnGroups,
-        Left.Header.OrderTupleDescriptor == Right.Header.OrderTupleDescriptor ? Left.Header.OrderTupleDescriptor : null,
-        Left.Header.Order.Equals(Right.Header.Order) ? Left.Header.Order : null);
+        null,
+        null);
     }
 
     private void EnsureConcatIsPossible()
@@ -60,6 +60,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       var right = Right.Header.TupleDescriptor;
       if (!left.Equals(right))
         throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Concatenation"));
+    }
+
+    /// <inheritdoc/>
+    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
+    {
+      return EmptyOrdering;
     }
 
 

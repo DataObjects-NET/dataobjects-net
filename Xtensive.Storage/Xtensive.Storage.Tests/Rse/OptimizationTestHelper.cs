@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using Xtensive.Core.Linq.Normalization;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
-using Xtensive.Storage.Rse.Optimization.IndexSelection;
+using Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection;
 
 namespace Xtensive.Storage.Tests.Rse
 {

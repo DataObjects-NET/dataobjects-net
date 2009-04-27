@@ -13,7 +13,7 @@ using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using System.Linq;
 
-namespace Xtensive.Storage.Rse.Optimization.Implementation
+namespace Xtensive.Storage.Rse.PreCompilation.Correction
 {
   internal sealed class SkipRewriter : CompilableProviderVisitor
   {

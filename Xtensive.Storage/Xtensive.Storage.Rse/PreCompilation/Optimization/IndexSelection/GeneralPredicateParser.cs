@@ -13,7 +13,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.Optimization.IndexSelection
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
   internal sealed class GeneralPredicateParser : ExpressionVisitor<RangeSetInfo>
   {

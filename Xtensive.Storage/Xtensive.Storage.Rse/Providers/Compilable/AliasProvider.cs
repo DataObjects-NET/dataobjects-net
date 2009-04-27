@@ -5,6 +5,7 @@
 // Created:    2008.07.03
 
 using System;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers.Compilable;
 

@@ -5,7 +5,11 @@
 // Created:    2009.02.16
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
@@ -50,6 +54,21 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     {
       return string.Format("{0} apply", ApplyType);
     }
+
+    /// <inheritdoc/>
+    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
+    {
+      var result = Left.ExpectedColumnsOrdering;
+      if (Right.ExpectedColumnsOrdering.Count > 0
+        && (ApplyType==ApplyType.Cross || ApplyType==ApplyType.Outer)) {
+        var leftHeaderLength = Left.Header.Length;
+        result = new DirectionCollection<int>(
+          result.Union(Right.ExpectedColumnsOrdering.Select(p =>
+            new KeyValuePair<int, Direction>(p.Key + leftHeaderLength, p.Value))));
+      }
+      return result;
+    }
+
 
     // Constructors
 

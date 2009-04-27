@@ -5,6 +5,7 @@
 // Created:    2008.07.03
 
 using System;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Threading;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
@@ -36,6 +37,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public override string ParametersToString()
     {
       return Index.ToString();
+    }
+
+    /// <inheritdoc/>
+    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
+    {
+      return indexHeader.Order;
     }
 
 

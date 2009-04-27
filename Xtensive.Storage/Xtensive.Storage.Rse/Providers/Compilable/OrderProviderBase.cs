@@ -87,6 +87,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
         new ComparisonRules(ComparisonRule.Positive, comparisonRules, ComparisonRules.None));
     }
 
+    /// <inheritdoc/>
+    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
+    {
+      return Order;
+    }
+
 
     // Constructor
 

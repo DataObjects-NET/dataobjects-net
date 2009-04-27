@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Helpers;
@@ -48,6 +49,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public override string ParametersToString()
     {
       return Source.ToString(true);
+    }
+
+    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
+    {
+      return header.Order;
     }
 
 

@@ -70,6 +70,13 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       Transform = new MapTransform(false, TupleDescriptor.Create(types), columnIndexes);
     }
 
+    /// <inheritdoc/>
+    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
+    {
+      return new DirectionCollection<int>(
+          Source.ExpectedColumnsOrdering.Where(p => GroupColumnIndexes.Contains(p.Key)));
+    }
+
 
     // Constructors
 

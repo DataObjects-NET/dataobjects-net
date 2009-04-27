@@ -15,7 +15,7 @@ using Xtensive.Indexing;
 using Xtensive.Core.Linq;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.Optimization.IndexSelection
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
   /// <summary>
   /// Extractor of <see cref="RangeSet{T}"/> from a boolean expression in a conjunctive normal form.

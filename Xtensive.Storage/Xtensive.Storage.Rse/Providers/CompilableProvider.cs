@@ -6,7 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Resources;
@@ -20,6 +23,11 @@ namespace Xtensive.Storage.Rse.Providers
   [Serializable]
   public abstract class CompilableProvider : Provider
   {
+    private DirectionCollection<int> expectedColumnsOrdering;
+    private TupleDescriptor orderTupleDescriptor;
+
+    protected internal readonly DirectionCollection<int> EmptyOrdering = new DirectionCollection<int>();
+
     /// <summary>
     /// Creates the <see cref="RecordSet"/> wrapping this provider.
     /// </summary>
@@ -28,7 +36,43 @@ namespace Xtensive.Storage.Rse.Providers
       get { return new RecordSet(this); }
     }
 
-   
+    internal DirectionCollection<int> ExpectedColumnsOrdering
+    {
+      get { return expectedColumnsOrdering; }
+    }
+
+    /// <summary>
+    /// Creates <see cref="DirectionCollection{T}"/> describing the expected ordering of columns.
+    /// </summary>
+    /// <returns>Created <see cref="DirectionCollection{T}"/> to assign to 
+    /// <see cref="ExpectedColumnsOrdering"/>.</returns>
+    protected abstract DirectionCollection<int> CreateExpectedColumnsOrdering();
+
+    /// <inheritdoc/>
+    protected override void Initialize()
+    {
+      base.Initialize();
+      orderTupleDescriptor = Header.OrderTupleDescriptor;
+      expectedColumnsOrdering = CreateExpectedColumnsOrdering();
+      ClearOrderingInHeader();
+    }
+
+    internal void SetActualOrdering(DirectionCollection<int> ordering)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(ordering, "ordering");
+      expectedColumnsOrdering = ordering;
+      SetHeader(new RecordSetHeader(Header.TupleDescriptor, Header.Columns, Header.ColumnGroups,
+        orderTupleDescriptor, ordering));
+    }
+
+    private void ClearOrderingInHeader()
+    {
+      if (Header.Order.Count > 0)
+        SetHeader(new RecordSetHeader(Header.TupleDescriptor, Header.Columns, Header.ColumnGroups,
+          Header.OrderTupleDescriptor, null));
+    }
+
+
     // Constructor
 
     /// <inheritdoc/>

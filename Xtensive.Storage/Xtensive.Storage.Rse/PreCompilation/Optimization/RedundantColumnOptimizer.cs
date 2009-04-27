@@ -5,11 +5,10 @@
 // Created:    2009.04.17
 
 using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Optimization.Implementation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Rse.Optimization
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 {
   /// <summary>
   /// <see cref="IOptimizer"/> implementation that removes redundant columns from each provider in tree.

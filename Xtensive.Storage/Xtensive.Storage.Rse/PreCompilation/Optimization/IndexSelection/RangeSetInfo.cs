@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 
-namespace Xtensive.Storage.Rse.Optimization.IndexSelection
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
   [Serializable]
   internal sealed class RangeSetInfo

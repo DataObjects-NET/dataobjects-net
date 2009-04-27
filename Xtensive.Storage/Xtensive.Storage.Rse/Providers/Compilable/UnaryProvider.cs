@@ -5,6 +5,7 @@
 // Created:    2008.07.22
 
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
@@ -23,6 +24,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     protected override RecordSetHeader BuildHeader()
     {
       return Source.Header;
+    }
+
+    /// <inheritdoc/>
+    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
+    {
+      return Source.ExpectedColumnsOrdering;
     }
 
 

@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.Optimization.IndexSelection
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
   internal sealed class SimpleIndexSelector : IIndexSelector
   {

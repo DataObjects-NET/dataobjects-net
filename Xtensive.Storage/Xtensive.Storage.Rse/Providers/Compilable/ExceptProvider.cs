@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Resources;
 
@@ -30,6 +31,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       var right = Right.Header.TupleDescriptor;
       if (left.CompareTo(right) != 0)
         throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Except operation"));
+    }
+
+    /// <inheritdoc/>
+    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
+    {
+      return EmptyOrdering;
     }
 
 

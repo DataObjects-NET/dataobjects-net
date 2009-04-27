@@ -8,7 +8,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing.Optimization;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.Optimization
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 {
   /// <summary>
   /// Resolver of a <see cref="IOptimizationInfoProvider{TKey}"/> for a specified <see cref="IndexInfo"/>.

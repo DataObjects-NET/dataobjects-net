@@ -5,8 +5,12 @@
 // Created:    2009.03.05
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 
@@ -28,6 +32,19 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// Gets the predicate.
     /// </summary>
     public Expression<Func<Tuple, Tuple, bool>> Predicate { get; private set; }
+
+    /// <inheritdoc/>
+    protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
+    {
+      var result = Left.ExpectedColumnsOrdering;
+      if (Right.ExpectedColumnsOrdering.Count > 0) {
+        var leftHeaderLength = Left.ExpectedColumnsOrdering.Count;
+        result = new DirectionCollection<int>(
+          Enumerable.Union(result, Right.ExpectedColumnsOrdering.Select(p =>
+            new KeyValuePair<int, Direction>(p.Key + leftHeaderLength, p.Value))));
+      }
+      return result;
+    }
 
 
     // Constructors
