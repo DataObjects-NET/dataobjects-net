@@ -11,12 +11,12 @@ using Xtensive.Core.Reflection;
 namespace Xtensive.Storage.Configuration.TypeRegistry
 {
   /// <summary>
-  /// <see cref="RegistryAction"/> processor for processing compiler container
+  /// <see cref="TypeRegistration"/> processor for processing compiler container
   /// types registration in 
   /// <see cref="DomainConfiguration.CompilerContainers"/> registry.
   /// </summary>
   [Serializable]
-  public sealed class CompilerContainerTypeProcessor : RegistryActionProcessorBase
+  public sealed class CompilerContainerTypeProcessor : TypeRegistrationHandlerBase
   {
     /// <inheritdoc/>
     public override Type BaseType 
@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     }
 
     /// <inheritdoc/>
-    protected override void Process(Registry registry, RegistryAction action, Type type)
+    protected override void Process(TypeRegistry registry, TypeRegistration registration, Type type)
     {
       if (registry.Contains(type))
         return;
@@ -33,9 +33,9 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     }
 
     /// <inheritdoc/>
-    protected override bool IsAcceptable(Registry registry, RegistryAction action, Type type)
+    protected override bool IsAcceptable(TypeRegistry registry, TypeRegistration registration, Type type)
     {
-      // base.IsAcceptable(action, type);
+      // base.IsAcceptable(registration, type);
       var attributes = type.GetAttributes<CompilerContainerAttribute>(
         AttributeSearchOptions.InheritNone);
       return attributes!=null && attributes.Length > 0;

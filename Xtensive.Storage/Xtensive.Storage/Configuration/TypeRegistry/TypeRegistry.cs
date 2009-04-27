@@ -19,15 +19,15 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
   /// <see cref="Type"/> registration endpoint.
   /// </summary>
   [Serializable]
-  public sealed class Registry : LockableBase,
+  public sealed class TypeRegistry : LockableBase,
     ICountable<Type>,
     ICloneable
   {
     private readonly List<Type> types = new List<Type>();
     private readonly HashSet<Type> typeSet = new HashSet<Type>();
-    private readonly List<RegistryAction> actions = new List<RegistryAction>();
-    private readonly HashSet<RegistryAction> actionSet = new HashSet<RegistryAction>();
-    private readonly IRegistryActionProcessor processor;
+    private readonly List<TypeRegistration> actions = new List<TypeRegistration>();
+    private readonly HashSet<TypeRegistration> actionSet = new HashSet<TypeRegistration>();
+    private readonly ITypeRegistrationHandler processor;
     private bool isProcessingPendingActions = false;
 
     /// <summary>
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
       this.EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       if (!isProcessingPendingActions)
-        RegisterAction(new RegistryAction(type));
+        RegisterAction(new TypeRegistration(type));
       else {
         if (typeSet.Contains(type))
           return;
@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     {
       this.EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
-      RegisterAction(new RegistryAction(assembly, null));
+      RegisterAction(new TypeRegistration(assembly, null));
     }
 
     /// <summary>
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
       this.EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(@namespace, "@namespace");
-      RegisterAction(new RegistryAction(assembly, @namespace));
+      RegisterAction(new TypeRegistration(assembly, @namespace));
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// <param name="action">The action to register.</param>
     /// <returns><see langword="true" /> if specified action was successfully registered;
     /// otherwise, <see langword="false" />.</returns>
-    public bool RegisterAction(RegistryAction action)
+    public bool RegisterAction(TypeRegistration action)
     {
       this.EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(action, "action");
@@ -138,7 +138,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// <returns></returns>
     public object Clone()
     {
-      return new Registry(this);
+      return new TypeRegistry(this);
     }
 
     #endregion
@@ -191,19 +191,19 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="processor">The registry action processor.</param>
-    public Registry(IRegistryActionProcessor processor)
+    public TypeRegistry(ITypeRegistrationHandler processor)
     {
       ArgumentValidator.EnsureArgumentNotNull(processor, "processor");
       this.processor = processor;
     }
 
-    private Registry(Registry registry)
+    private TypeRegistry(TypeRegistry typeRegistry)
     {
-      actions = new List<RegistryAction>(registry.actions);
-      actionSet = new HashSet<RegistryAction>(registry.actionSet);
-      types = new List<Type>(registry.types);
-      typeSet = new HashSet<Type>(registry.typeSet);
-      processor = registry.processor;
+      actions = new List<TypeRegistration>(typeRegistry.actions);
+      actionSet = new HashSet<TypeRegistration>(typeRegistry.actionSet);
+      types = new List<Type>(typeRegistry.types);
+      typeSet = new HashSet<Type>(typeRegistry.typeSet);
+      processor = typeRegistry.processor;
     }
   }
 }

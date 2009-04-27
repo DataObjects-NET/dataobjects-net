@@ -13,7 +13,7 @@ namespace Xtensive.Storage.Building
 {  
   internal static class TypeIdBuilder
   {
-    public static void RegisterSystemTypes(Registry typeRegistry)
+    public static void RegisterSystemTypes(TypeRegistry typeRegistry)
     {
       typeRegistry.Register(typeof(Metadata.Type).Assembly, typeof(Metadata.Type).Namespace);
     }

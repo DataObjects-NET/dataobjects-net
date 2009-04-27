@@ -58,40 +58,40 @@ namespace Xtensive.Storage.Tests.Configuration
     public void HierarchyTest()
     {
       DomainConfiguration config = new DomainConfiguration();
-      Registry registry = config.Types;
-      registry.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
-      Assert.IsTrue(registry.Contains(typeof (A)));
-      Assert.IsTrue(registry.Contains(typeof (B)));
-      Assert.IsFalse(registry.Contains(typeof (C)));
-      Assert.IsTrue(registry.Contains(typeof (D)));
+      TypeRegistry typeRegistry = config.Types;
+      typeRegistry.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
+      Assert.IsTrue(typeRegistry.Contains(typeof (A)));
+      Assert.IsTrue(typeRegistry.Contains(typeof (B)));
+      Assert.IsFalse(typeRegistry.Contains(typeof (C)));
+      Assert.IsTrue(typeRegistry.Contains(typeof (D)));
 
       config = new DomainConfiguration();
-      registry = config.Types;
-      registry.Register(typeof (B).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
-      Assert.IsTrue(registry.Contains(typeof (A)));
-      Assert.IsTrue(registry.Contains(typeof (B)));
-      Assert.IsFalse(registry.Contains(typeof (C)));
-      Assert.IsTrue(registry.Contains(typeof (D)));
+      typeRegistry = config.Types;
+      typeRegistry.Register(typeof (B).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
+      Assert.IsTrue(typeRegistry.Contains(typeof (A)));
+      Assert.IsTrue(typeRegistry.Contains(typeof (B)));
+      Assert.IsFalse(typeRegistry.Contains(typeof (C)));
+      Assert.IsTrue(typeRegistry.Contains(typeof (D)));
     }
 
     [Test]
     public void ContiniousRegistrationTest()
     {
       DomainConfiguration config = new DomainConfiguration();
-      Registry registry = config.Types;
-      registry.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
-      long amount = registry.Count;
-      registry.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.RegistryModel2");
-      Assert.Less(amount, registry.Count);
+      TypeRegistry typeRegistry = config.Types;
+      typeRegistry.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
+      long amount = typeRegistry.Count;
+      typeRegistry.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.RegistryModel2");
+      Assert.Less(amount, typeRegistry.Count);
     }
 
     [Test]
     public void CloneTest()
     {
       DomainConfiguration config = new DomainConfiguration();
-      Registry registry1 = config.Types;
+      TypeRegistry registry1 = config.Types;
       registry1.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
-      Registry registry2 = registry1.Clone() as Registry;
+      TypeRegistry registry2 = registry1.Clone() as TypeRegistry;
       Assert.IsNotNull(registry2);
       Assert.AreEqual(registry1.Count, registry2.Count);
     }
@@ -100,16 +100,16 @@ namespace Xtensive.Storage.Tests.Configuration
     public void NamespaceFilterTest()
     {
       DomainConfiguration config = new DomainConfiguration();
-      Registry registry = config.Types;
-      registry.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.RegistryModel2");
-      Assert.IsFalse(registry.Contains(typeof (A)));
-      Assert.IsFalse(registry.Contains(typeof (B)));
-      Assert.IsFalse(registry.Contains(typeof (C)));
-      Assert.IsFalse(registry.Contains(typeof (D)));
-      Assert.IsTrue(registry.Contains(typeof (RegistryModel2.A)));
-      Assert.IsTrue(registry.Contains(typeof (RegistryModel2.B)));
-      Assert.IsFalse(registry.Contains(typeof (RegistryModel2.C)));
-      Assert.IsTrue(registry.Contains(typeof (RegistryModel2.D)));
+      TypeRegistry typeRegistry = config.Types;
+      typeRegistry.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.RegistryModel2");
+      Assert.IsFalse(typeRegistry.Contains(typeof (A)));
+      Assert.IsFalse(typeRegistry.Contains(typeof (B)));
+      Assert.IsFalse(typeRegistry.Contains(typeof (C)));
+      Assert.IsFalse(typeRegistry.Contains(typeof (D)));
+      Assert.IsTrue(typeRegistry.Contains(typeof (RegistryModel2.A)));
+      Assert.IsTrue(typeRegistry.Contains(typeof (RegistryModel2.B)));
+      Assert.IsFalse(typeRegistry.Contains(typeof (RegistryModel2.C)));
+      Assert.IsTrue(typeRegistry.Contains(typeof (RegistryModel2.D)));
     }
 
     [Test]

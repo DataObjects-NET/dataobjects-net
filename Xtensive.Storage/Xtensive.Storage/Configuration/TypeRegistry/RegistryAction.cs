@@ -12,10 +12,10 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Configuration.TypeRegistry
 {
   /// <summary>
-  /// Describes a single type registration call to <see cref="Registry"/>.
+  /// Describes a single type registration call to <see cref="TypeRegistry"/>.
   /// </summary>
   [Serializable]
-  public sealed class RegistryAction : IEquatable<RegistryAction>
+  public sealed class TypeRegistration : IEquatable<TypeRegistration>
   {
     private readonly Type type;
     private readonly Assembly assembly;
@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     #region Equality members
 
     /// <inheritdoc/>
-    public bool Equals(RegistryAction other)
+    public bool Equals(TypeRegistration other)
     {
       if (other == null)
         return false;
@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     {
       if (ReferenceEquals(this, obj))
         return true;
-      return Equals(obj as RegistryAction);
+      return Equals(obj as TypeRegistration);
     }
 
     /// <inheritdoc/>
@@ -78,13 +78,13 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     }
 
     /// <inheritdoc/>
-    public static bool operator ==(RegistryAction left, RegistryAction right)
+    public static bool operator ==(TypeRegistration left, TypeRegistration right)
     {
       return Equals(left, right);
     }
 
     /// <inheritdoc/>
-    public static bool operator !=(RegistryAction left, RegistryAction right)
+    public static bool operator !=(TypeRegistration left, TypeRegistration right)
     {
       return !Equals(left, right);
     }
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="type">The type to register.</param>
-    public RegistryAction(Type type)
+    public TypeRegistration(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       this.type = type;
@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="assembly">The assembly to register.</param>
-    public RegistryAction(Assembly assembly)
+    public TypeRegistration(Assembly assembly)
     {
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
       this.assembly = assembly;
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// </summary>
     /// <param name="assembly">The assembly to register.</param>
     /// <param name="namespace">The namespace to register.</param>
-    public RegistryAction(Assembly assembly, string @namespace)
+    public TypeRegistration(Assembly assembly, string @namespace)
       : this(assembly)
     {
       ArgumentValidator.EnsureArgumentNotNull(@namespace, "@namespace");

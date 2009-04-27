@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model_2
       }
     }
 
-    public void RegisterRecycledTypes(Registry typeRegistry)
+    public void RegisterRecycledTypes(TypeRegistry typeRegistry)
     {
       Assembly thisAssembly = Assembly.GetExecutingAssembly();
       typeRegistry.Register(thisAssembly, typeof(Recycled_2.Address).Namespace);

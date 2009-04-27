@@ -56,6 +56,6 @@ namespace Xtensive.Storage
     /// <remarks>
     /// Implement this method to register recycled classes required for schema upgrade.
     /// </remarks>
-    void RegisterRecycledTypes(Registry typeRegistry);
+    void RegisterRecycledTypes(TypeRegistry typeRegistry);
   }
 }
