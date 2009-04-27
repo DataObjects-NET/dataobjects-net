@@ -26,6 +26,12 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void IntAverageTest()
+    {
+      var avg = Query<Order>.All.Average(o => o.Id);
+    }
+
+    [Test]
     public void SumWithNoArgTest()
     {
       var sum = Query<Order>.All.Select(o => o.Freight).Sum();
