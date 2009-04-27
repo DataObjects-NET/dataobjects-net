@@ -152,10 +152,12 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets the current <see cref="Session"/>, or throws <see cref="InvalidOperationException"/>, if active <see cref="Session"/> is not found.
+    /// Gets the current <see cref="Session"/>, 
+    /// or throws <see cref="InvalidOperationException"/>, 
+    /// if active <see cref="Session"/> is not found.
     /// </summary>
     /// <returns>Current session.</returns>
-    /// <exception cref="InvalidOperationException">Active context is not found.</exception>
+    /// <exception cref="InvalidOperationException"><see cref="Session.Current"/> <see cref="Session"/> is <see langword="null" />.</exception>
     public static Session Demand()
     {
       var currentSession = Current;

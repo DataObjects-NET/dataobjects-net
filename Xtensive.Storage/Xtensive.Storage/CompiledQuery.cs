@@ -10,9 +10,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Web.UI.WebControls;
 using Xtensive.Core;
+using Xtensive.Core.Parameters;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions;
+using Parameter=System.Web.UI.WebControls.Parameter;
 
 namespace Xtensive.Storage
 {
@@ -44,7 +47,7 @@ namespace Xtensive.Storage
         }
         return resultExpression.GetResult<IEnumerable<TElement>>();
       }
-      //TODO: write error message
+      // TODO: write error message
       throw new InvalidOperationException();
     }
 
@@ -71,7 +74,7 @@ namespace Xtensive.Storage
         }
         return resultExpression.GetResult<TResult>();
       }
-      //TODO: write error message
+      // TODO: write error message
       throw new InvalidOperationException();
     }
   }

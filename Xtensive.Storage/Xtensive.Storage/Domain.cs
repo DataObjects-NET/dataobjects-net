@@ -48,7 +48,14 @@ namespace Xtensive.Storage
       }
     }    
 
-    internal static Domain Demand()
+    /// <summary>
+    /// Gets the current <see cref="Domain"/>, 
+    /// or throws <see cref="InvalidOperationException"/>, 
+    /// if active <see cref="Session"/> is not found.
+    /// </summary>
+    /// <returns>Current domain.</returns>
+    /// <exception cref="InvalidOperationException"><see cref="Session.Current"/> <see cref="Session"/> is <see langword="null" />.</exception>
+    public static Domain Demand()
     {
       var session = Session.Demand();
       return session.Domain;
