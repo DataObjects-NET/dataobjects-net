@@ -115,11 +115,11 @@ namespace Xtensive.Storage.Tests.Configuration
     [Test]
     public void InvalidRegistrationTest()
     {
-      DomainConfiguration config = new DomainConfiguration();
-      Registry registry = config.Types;
-      AssertEx.ThrowsArgumentNullException(() => registry.Register(null));
-      AssertEx.ThrowsArgumentNullException(() => registry.Register(null, "Xtensive.Storage.Tests.RegistryModel1"));
-      AssertEx.ThrowsArgumentException(() => registry.Register(Assembly.GetExecutingAssembly(), ""));
+      var config = new DomainConfiguration();
+      var types = config.Types;
+      AssertEx.ThrowsArgumentNullException(() => types.Register((Assembly) null));
+      AssertEx.ThrowsArgumentNullException(() => types.Register((Assembly) null, "Xtensive.Storage.Tests.RegistryModel1"));
+      AssertEx.ThrowsArgumentException(() => types.Register(Assembly.GetExecutingAssembly(), ""));
     }
   }
 }
