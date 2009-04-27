@@ -105,9 +105,10 @@ namespace Xtensive.Storage.Providers
       return Domain.OpenSession(configuration);
     }
 
+    /// <exception cref="InvalidOperationException">One of compiler containers is improperly described.</exception>
     private void BuildCompilerExtentions()
     {
-      var userExtensionTypes = Domain.Configuration.Mappings;
+      var userExtensionTypes = Domain.Configuration.CompilerContainers;
       var providerExtensionTypes = GetProviderCompilerExtensionTypes();
       var typeGroups = providerExtensionTypes.GroupBy(t => ((CompilerContainerAttribute[])t.GetCustomAttributes(typeof(CompilerContainerAttribute), false))[0].ExtensionType);
 
@@ -122,7 +123,8 @@ namespace Xtensive.Storage.Providers
       foreach (var type in userExtensionTypes) {
         var atr = type.GetCustomAttributes(typeof(CompilerContainerAttribute), false);
         if (atr.IsNullOrEmpty())
-          throw new InvalidOperationException(String.Format(Strings.ExCompilerContainerAttributeIsNotAppliedToTypeX, type.Name));
+          throw new InvalidOperationException(String.Format(
+            Strings.ExCompilerContainerAttributeIsNotAppliedToTypeX, type.Name));
         var compilerExtentionType = ((CompilerContainerAttribute)atr[0]).ExtensionType;
         var conflictHandlingMethod = ((CompilerContainerAttribute)atr[0]).ConflictHandlingMethod;
 

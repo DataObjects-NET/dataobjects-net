@@ -11,6 +11,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Configuration.TypeRegistry
 {
@@ -22,22 +23,41 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     ICountable<Type>,
     ICloneable
   {
-    private readonly Set<TypeRegistration> actionIndex;
-    private readonly List<TypeRegistration> actionQueue;
-    private Context context;
-    private readonly ActionProcessor processor;
-    private State state;
+    private readonly List<Type> types = new List<Type>();
+    private readonly HashSet<Type> typeSet = new HashSet<Type>();
+    private readonly List<RegistryAction> actions = new List<RegistryAction>();
+    private readonly HashSet<RegistryAction> actionSet = new HashSet<RegistryAction>();
+    private readonly IRegistryActionProcessor processor;
+    private bool isProcessingPendingActions = false;
 
-    #region Nested type: State
-
-    private enum State
+    /// <summary>
+    /// Determines whether the specified <see cref="Type"/> is contained in this instance.
+    /// </summary>
+    /// <param name="type"><see cref="Type"/> to search for.</param>
+    /// <returns><see langword="True"/> if the <see cref="Type"/> is found; otherwise, <see langword="false"/>.</returns>
+    public bool Contains(Type type)
     {
-      HasPendingActions = 0,
-      NoPendingActions = 1,
-      IsLocked = 2,
+      ProcessPendingActions();
+      return typeSet.Contains(type);
     }
 
-    #endregion
+    /// <summary>
+    /// Registers the specified type.
+    /// </summary>
+    /// <param name="type">The type to register.</param>
+    public void Register(Type type)
+    {
+      this.EnsureNotLocked();
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      if (!isProcessingPendingActions)
+        RegisterAction(new RegistryAction(type));
+      else {
+        if (typeSet.Contains(type))
+          return;
+        types.Add(type);
+        typeSet.Add(type);
+      }
+    }
 
     /// <summary>
     /// Invoke this method to register types from the specified <see cref="Assembly"/>.
@@ -51,7 +71,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     {
       this.EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
-      RegisterAction(assembly, string.Empty);
+      RegisterAction(new RegistryAction(assembly, null));
     }
 
     /// <summary>
@@ -69,65 +89,45 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
       this.EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(@namespace, "@namespace");
-
-      RegisterAction(assembly, @namespace);
-    }
-
-    /// <summary>
-    /// Determines whether the specified <see cref="Type"/> is contained in this instance.
-    /// </summary>
-    /// <param name="value"><see cref="Type"/> to search for.</param>
-    /// <returns><see langword="True"/> if the <see cref="Type"/> is found; otherwise, <see langword="false"/>.</returns>
-    public bool Contains(Type value)
-    {
-      ProcessPendingActions();
-      return context.Contains(value);
+      RegisterAction(new RegistryAction(assembly, @namespace));
     }
 
     /// <summary>
     /// Registers the specified action for delayed processing.
     /// </summary>
-    /// <param name="assembly">The assembly.</param>
-    /// <param name="namespace">The name space.</param>
-    private void RegisterAction(Assembly assembly, string @namespace)
+    /// <param name="action">The action to register.</param>
+    /// <returns><see langword="true" /> if specified action was successfully registered;
+    /// otherwise, <see langword="false" />.</returns>
+    public bool RegisterAction(RegistryAction action)
     {
-      TypeRegistration typeRegistration = new TypeRegistration(assembly, @namespace);
-      // Skipping duplicate registration calls.
-      // If we already have a call to the whole assembly we should skip this call
-      if (!actionIndex.Contains(new TypeRegistration(assembly)) && !actionIndex.Contains(typeRegistration)) {
-        actionIndex.Add(typeRegistration);
-        actionQueue.Add(typeRegistration);
-        state = State.HasPendingActions;
-      }
+      this.EnsureNotLocked();
+      ArgumentValidator.EnsureArgumentNotNull(action, "action");
+      if (actionSet.Contains(action))
+        return false;
+      actionSet.Add(action);
+      actions.Add(action);
+      return true;
     }
 
-    /// <summary>
-    /// Processes waiting actions if any.
-    /// </summary>
     private void ProcessPendingActions()
     {
-      if (state != State.HasPendingActions)
+      if (isProcessingPendingActions)
         return;
-      foreach (TypeRegistration action in actionQueue) {
-        processor.Process(context, action);
+      isProcessingPendingActions = true;
+      try {
+        foreach (var action in actions)
+          processor.Process(this, action);
+        actions.Clear();
       }
-      actionQueue.Clear();
-      state = State.NoPendingActions;
+      finally {
+        isProcessingPendingActions = false;
+      }
     }
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       ProcessPendingActions();
-      state = State.IsLocked;
-    }
-
-    internal void Clear()
-    {
-      this.EnsureNotLocked();
-      actionQueue.Clear();
-      actionIndex.Clear();
-      context = new Context();      
     }
 
     #region ICloneable members
@@ -145,23 +145,17 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
 
     #region IEnumerable members
 
-    /// <summary>
-    /// Gets the enumerator.
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public IEnumerator<Type> GetEnumerator()
     {
       ProcessPendingActions();
-      return context.GetEnumerator();
+      return types.GetEnumerator();
     }
 
-    /// <summary>
-    /// Gets the enumerator.
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
-      return ((IEnumerable<Type>)this).GetEnumerator();
+      return GetEnumerator();
     }
 
     #endregion
@@ -171,44 +165,45 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// <summary>
     /// Gets the number of types registered in this instance.
     /// </summary>
-    public long Count
-    {
-      get
-      {
+    public int Count {
+      get {
         ProcessPendingActions();
-        return context.Count;
+        return types.Count;
+      }
+    }
+
+    /// <summary>
+    /// Gets the number of types registered in this instance.
+    /// </summary>
+    long ICountable.Count {
+      get {
+        ProcessPendingActions();
+        return types.Count;
       }
     }
 
     #endregion
 
-    internal ReadOnlyCollection<TypeRegistration> Actions
-    {
-      get { return new ReadOnlyCollection<TypeRegistration>(actionIndex); }
-    }
 
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Registry"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="processor">The registration call processor.</param>
-    internal Registry(ActionProcessor processor)
+    /// <param name="processor">The registry action processor.</param>
+    public Registry(IRegistryActionProcessor processor)
     {
       ArgumentValidator.EnsureArgumentNotNull(processor, "processor");
-      actionIndex = new Set<TypeRegistration>();
-      actionQueue = new List<TypeRegistration>();
-      context = new Context();
       this.processor = processor;
     }
 
     private Registry(Registry registry)
     {
-      actionIndex = new Set<TypeRegistration>(registry.actionIndex);
-      actionQueue = new List<TypeRegistration>(registry.actionQueue);
-      state = registry.state;
+      actions = new List<RegistryAction>(registry.actions);
+      actionSet = new HashSet<RegistryAction>(registry.actionSet);
+      types = new List<Type>(registry.types);
+      typeSet = new HashSet<Type>(registry.typeSet);
       processor = registry.processor;
-      context = (Context)registry.context.Clone();
     }
   }
 }

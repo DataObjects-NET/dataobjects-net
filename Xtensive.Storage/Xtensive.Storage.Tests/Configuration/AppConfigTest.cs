@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Tests.Configuration
     {
       var c = DomainConfiguration.Load("AppConfigTest", "TestDomain3");
       c.Lock();
-      Assert.AreEqual(c.Mappings.Count, 1);
+      Assert.AreEqual(c.CompilerContainers.Count, 1);
     }
 
 

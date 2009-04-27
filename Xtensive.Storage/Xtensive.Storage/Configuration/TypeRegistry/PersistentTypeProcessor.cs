@@ -9,20 +9,20 @@ using System;
 namespace Xtensive.Storage.Configuration.TypeRegistry
 {
   /// <summary>
-  /// <see cref="TypeRegistration"/> processor for processing <see cref="Persistent"/> 
+  /// <see cref="RegistryAction"/> processor for processing <see cref="Persistent"/> 
   /// and <see cref="IEntity"/> descendants registration in 
   /// <see cref="DomainConfiguration.Types"/> registry.
   /// </summary>
   /// <remarks>This implementation provides topologically sorted list 
   /// of <see cref="Type"/>s.</remarks>
   [Serializable]
-  internal sealed class TypeProcessor: ActionProcessor
+  public sealed class PersistentTypeProcessor : RegistryActionProcessorBase
   {
     private readonly Type baseInterface = typeof (IEntity);
     private readonly Type baseType = typeof (Persistent);
 
     /// <inheritdoc/>
-    public override Type BaseInterface
+    public Type BaseInterface
     {
       get { return baseInterface; }
     }
@@ -33,18 +33,18 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
       get { return baseType; }
     }
 
-    protected override void ProcessType(Context context, Type type)
+    /// <inheritdoc/>
+    protected override void Process(Registry registry, RegistryAction action, Type type)
     {
-      if (context.Contains(type))
+      if (registry.Contains(type))
         return;
       if (type.IsClass && type.BaseType != BaseType)
-        ProcessType(context, type.BaseType);
+        Process(registry, action, type.BaseType);
       Type[] interfaces = type.FindInterfaces(
         (typeObj, filterCriteria) => BaseInterface.IsAssignableFrom(typeObj), type);
-      for (int index = 0; index < interfaces.Length; index++) {
-        ProcessType(context, interfaces[index]);
-      }
-      context.Register(type);
+      for (int index = 0; index < interfaces.Length; index++)
+        Process(registry, action, interfaces[index]);
+      base.Process(registry, action, type);
     }
   }
 }

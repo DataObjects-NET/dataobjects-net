@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.Mappings" copy="true"/>
+    /// <see cref="DomainConfiguration.CompilerContainers" copy="true"/>
     /// </summary>
     [ConfigurationProperty(MappingsElementName, IsDefaultCollection = false)]
     [ConfigurationCollection(typeof(ConfigurationCollection<MappingElement>), AddItemName = "mapping")]
@@ -260,7 +260,7 @@ namespace Xtensive.Storage.Configuration.Elements
       foreach (var mapping in Mappings) {
         var mappingConfiguration = mapping.ToNative();
         var assembly = Assembly.Load(mappingConfiguration.Assembly);
-        c.Mappings.Add(assembly.GetType(mappingConfiguration.Type));
+        c.CompilerContainers.Register(assembly);
       }
 
       c.ServicesConfiguration = Services;      

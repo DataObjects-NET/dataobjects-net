@@ -30,11 +30,9 @@ namespace Xtensive.Storage.Building.Builders
     private static Domain BuildBlockUpgrade(DomainConfiguration configuration)
     {
       Domain systemDomain = BuildSystemDomain(configuration);
-      using (systemDomain.OpenSession()) {
-        using (Transaction.Open()) {
-          SchemaVersionHelper.CheckSchemaVersionIsActual(configuration.Types);
-        }
-      }
+      using (systemDomain.OpenSession())
+      using (Transaction.Open())
+        SchemaVersionHelper.CheckSchemaVersionIsActual(configuration.Types);
       return DomainBuilder.BuildDomain(configuration,
         SchemaUpgradeMode.Validate,
         () => { });
@@ -55,7 +53,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static Domain BuildSystemDomain(DomainConfiguration configuration)
     {
-      DomainConfiguration domainConfiguration = (DomainConfiguration) configuration.Clone();      
+      var domainConfiguration = (DomainConfiguration) configuration.Clone();      
       return DomainBuilder.BuildDomain(domainConfiguration, 
         SchemaUpgradeMode.Validate, 
         () => { },
@@ -87,13 +85,13 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void UpgradeData(DomainConfiguration domainConfiguration)
     {
-      IEnumerable<Assembly> assemblies = AssemblyHelper.GetAssemblies(domainConfiguration.Types);
-      Dictionary<Assembly, string> schemaVersions = SchemaVersionHelper.GetSchemaVersions(assemblies);
+      var assemblies = AssemblyHelper.GetAssemblies(domainConfiguration.Types);
+      var schemaVersions = SchemaVersionHelper.GetSchemaVersions(assemblies);
 
       // TODO: Sort assemblies topologically
       // TODO: Use upgraders from different assemblies, but same version together
 
-      foreach (Assembly assembly in assemblies) {
+      foreach (var assembly in assemblies) {
         string assemblyVersion = assembly.GetName(false).Version.ToString();
         if (assemblyVersion==schemaVersions[assembly])
           continue;
@@ -117,6 +115,7 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
+    /// <exception cref="InvalidOperationException">Invalid upgrader version.</exception>
     private static void ExecuteUpgrader(IUpgrader upgrader)
     {
       string schemaVersion = SchemaVersionAccessor.GetSchemaVersion(upgrader.AssemblyName);
@@ -128,10 +127,10 @@ namespace Xtensive.Storage.Building.Builders
 
     private static IEnumerable<IUpgrader> GetUpgraders(Assembly assembly)
     {
-      return assembly.GetTypes()
-        .Where(type => (typeof (IUpgrader)).IsAssignableFrom(type))
-        .Select(type => type.TypeInitializer.Invoke(null))
-        .Cast<IUpgrader>();
+      return 
+        from type in assembly.GetTypes()
+        where (typeof (IUpgrader)).IsAssignableFrom(type)
+        select (IUpgrader) type.TypeInitializer.Invoke(null);
     }
   }
 }

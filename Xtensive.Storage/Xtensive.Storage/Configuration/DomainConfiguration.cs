@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Configuration
 
     private string name = string.Empty;
     private UrlInfo connectionInfo;
-    private Registry types = new Registry(new TypeProcessor());
+    private Registry types = new Registry(new PersistentTypeProcessor());
     private CollectionBaseSlim<Type> builders = new CollectionBaseSlim<Type>();
     private NamingConvention namingConvention;
     private int keyCacheSize = DefaultKeyCacheSize;
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Configuration
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
     private bool autoValidation = true;
     private bool inconsistentTransactions;    
-    private SetSlim<Type> mappings;
+    private Registry compilerContainers = new Registry(new CompilerContainerTypeProcessor());
     private SessionConfigurationCollection sessions;
     private DomainBuildMode buildMode = DefaultBuildMode;
     private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
@@ -310,15 +310,15 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets user defined function mappings.
+    /// Gets user defined method compiler containers.
     /// </summary>
-    public SetSlim<Type> Mappings
+    public Registry CompilerContainers
     {
-      get { return mappings; }
+      get { return compilerContainers; }
       set {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         this.EnsureNotLocked();
-        mappings = value;
+        compilerContainers = value;
       }
     }
 
@@ -344,7 +344,7 @@ namespace Xtensive.Storage.Configuration
       types.Lock(true);
       builders.Lock(true);
       sessions.Lock(true);
-      mappings.Lock(true);
+      compilerContainers.Lock(true);
       servicesConfiguration.LockItem = true;
       base.Lock(recursive);
     }
@@ -381,9 +381,8 @@ namespace Xtensive.Storage.Configuration
       sessionPoolSize = configuration.SessionPoolSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = (SessionConfigurationCollection)configuration.Sessions.Clone();
-      mappings = new SetSlim<Type>(configuration.Mappings);      
-      buildMode = configuration.buildMode;
-      foreignKeyMode = configuration.foreignKeyMode;
+      compilerContainers = (Registry) configuration.CompilerContainers.Clone();
+      buildMode = configuration.buildMode;      foreignKeyMode = configuration.foreignKeyMode;
       servicesConfiguration = configuration.ServicesConfiguration;
       servicesConfiguration.LockItem = this.IsLocked;
     }
@@ -453,7 +452,6 @@ namespace Xtensive.Storage.Configuration
     {
       namingConvention = new NamingConvention();
       sessions = new SessionConfigurationCollection();
-      mappings = new SetSlim<Type>();
     }
   }
 }

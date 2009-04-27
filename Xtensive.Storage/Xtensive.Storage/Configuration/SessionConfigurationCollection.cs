@@ -17,10 +17,22 @@ namespace Xtensive.Storage.Configuration
   public class SessionConfigurationCollection : CollectionBaseSlim<SessionConfiguration>, 
     ICloneable
   {
-    private const string DefaultName = "Default";
-    private const string SystemName = "System";
-    private const string ServiceName = "Service";
-    private const string GeneratorName = "Generator";
+    /// <summary>
+    /// Default session configuration name.
+    /// </summary>
+    public readonly static string DefaultSessionName = "Default";
+    /// <summary>
+    /// System session name.
+    /// </summary>
+    public readonly static string SystemSessionName = "System";
+    /// <summary>
+    /// Service session name.
+    /// </summary>
+    public readonly static string ServiceSessionName = "Service";
+    /// <summary>
+    /// Generator session name.
+    /// </summary>
+    public readonly static string GeneratorSessionName = "Generator";
 
     private static readonly StringComparer comparer = StringComparer.OrdinalIgnoreCase;
 
@@ -37,7 +49,7 @@ namespace Xtensive.Storage.Configuration
       get
       {
         if (!IsLocked)
-          return this[DefaultName];
+          return this[DefaultSessionName];
         return @default;
       }
     }
@@ -50,7 +62,7 @@ namespace Xtensive.Storage.Configuration
       get
       {
         if (!IsLocked)
-          return this[SystemName];
+          return this[SystemSessionName];
         return system;
       }
     }
@@ -63,7 +75,7 @@ namespace Xtensive.Storage.Configuration
       get
       {
         if (!IsLocked)
-          return this[ServiceName];
+          return this[ServiceSessionName];
         return service;
       }
     }
@@ -76,7 +88,7 @@ namespace Xtensive.Storage.Configuration
       get
       {
         if (!IsLocked)
-          return this[GeneratorName];
+          return this[GeneratorSessionName];
         return generator;
       }
     }
@@ -147,10 +159,10 @@ namespace Xtensive.Storage.Configuration
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
-      @default = BuildConfiguration(DefaultName);
-      system = BuildConfiguration(SystemName);
-      service = BuildConfiguration(ServiceName);
-      generator = BuildConfiguration(GeneratorName);
+      @default = BuildConfiguration(DefaultSessionName);
+      system = BuildConfiguration(SystemSessionName);
+      service = BuildConfiguration(ServiceSessionName);
+      generator = BuildConfiguration(GeneratorSessionName);
       foreach (var item in this) {
         ApplyDefaultSettings(item);
         item.Lock(recursive);
