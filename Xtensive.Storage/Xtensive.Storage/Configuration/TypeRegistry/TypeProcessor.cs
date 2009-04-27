@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Storage.Configuration.TypeRegistry
 {
   /// <summary>
-  /// <see cref="TypeRegistry.Action"/> processor for processing <see cref="Persistent"/> 
+  /// <see cref="TypeRegistration"/> processor for processing <see cref="Persistent"/> 
   /// and <see cref="IEntity"/> descendants registration in 
   /// <see cref="DomainConfiguration.Types"/> registry.
   /// </summary>

@@ -13,8 +13,11 @@ using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals
 {
+  /// <summary>
+  /// Contains schema versions related methods.
+  /// </summary>
   internal static class SchemaVersionHelper
-  {
+  {    
     public static Dictionary<Assembly, string> GetSchemaVersions(IEnumerable<Assembly> assemblies)
     {
       var result = new Dictionary<Assembly, string>();      
@@ -28,13 +31,13 @@ namespace Xtensive.Storage.Internals
 
     public static void SetInitialSchemaVersion(IEnumerable<Type> types)
     {
-      var assemblies = AssemblyHelper.GetAssemblies(types);
+     var assemblies = AssemblyHelper.GetAssemblies(types);
       foreach (var assembly in assemblies) {
         string assemblyName = assembly.GetName(false).Name;
         string assemblyVersion = assembly.GetName(false).Version.ToString();
         SchemaVersionAccessor.SetSchemaVersion(assemblyName, assemblyVersion);
       }
-    }
+    } 
 
     public static void CheckSchemaVersionIsActual(IEnumerable<Type> types)
     {

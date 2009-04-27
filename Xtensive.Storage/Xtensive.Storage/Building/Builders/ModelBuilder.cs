@@ -66,15 +66,15 @@ namespace Xtensive.Storage.Building.Builders
     {
       using (LogTemplate<Log>.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
         BuildingContext context = BuildingContext.Current;
-        foreach (Type type in context.Configuration.Types) {
-          DefineType(type);
-        }
+        foreach (Type type in context.Configuration.Types)          
+          if (context.PersistentTypeFilter.Invoke(type))
+            DefineType(type);
       }
     }
 
     private static void DefineType(Type type)
-    {
-      BuildingContext context = BuildingContext.Current;
+    {      
+      BuildingContext context = BuildingContext.Current;  
       try {
         TypeDef typeDef = TypeBuilder.DefineType(type);
         context.Definition.Types.Add(typeDef);
@@ -134,7 +134,6 @@ namespace Xtensive.Storage.Building.Builders
             context.RegisterError(e);
           }
         }
-
         context.EnsureBuildSucceed();
         ValidateHierarchies();
         BuildAssociations();

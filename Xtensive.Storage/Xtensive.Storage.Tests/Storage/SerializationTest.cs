@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
 
 namespace Xtensive.Storage.Tests
 {
-  public class    SerializationTest : AutoBuildTest
+  public class SerializationTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {

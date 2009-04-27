@@ -28,8 +28,6 @@ namespace Xtensive.Storage.Tests.Storage
         this.value = value;
       }
     }
-  
-
   }
 
   [TestFixture]

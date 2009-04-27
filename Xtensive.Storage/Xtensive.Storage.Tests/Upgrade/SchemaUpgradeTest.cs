@@ -125,7 +125,6 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       DomainConfiguration configuration = DomainConfigurationFactory.Create();
       configuration.Types.Register(Assembly.GetExecutingAssembly(), persistentType.Namespace);
-      configuration.ModelAssembliesManagerType = typeof (TestModelAssembliesManager);
       return configuration;
     }
 

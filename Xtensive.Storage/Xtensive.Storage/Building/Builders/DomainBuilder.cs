@@ -7,6 +7,7 @@
 using System;
 using System.Globalization;
 using System.Reflection;
+using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
@@ -15,7 +16,6 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Activator=System.Activator;
-
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -27,20 +27,46 @@ namespace Xtensive.Storage.Building.Builders
     private static readonly PluginManager<ProviderAttribute> pluginManager =
       new PluginManager<ProviderAttribute>(typeof (HandlerFactory), AppDomain.CurrentDomain.BaseDirectory);
 
-    public static Domain Build(DomainConfiguration configuration, SchemaUpgradeMode schemaUpgradeMode, Action dataProcessor)
+    /// <summary>
+    /// Builds the domain.
+    /// </summary>
+    /// <param name="configuration">The domain configuration.</param>
+    /// <param name="schemaUpgradeMode">The schema upgrade mode.</param>
+    /// <param name="dataProcessor">The method that can process storage data when domain is built.</param>
+    /// <returns>Built domain.</returns>
+    public static Domain BuildDomain(DomainConfiguration configuration, SchemaUpgradeMode schemaUpgradeMode, Action dataProcessor)
+    {
+      return BuildDomain(configuration, schemaUpgradeMode, dataProcessor, type => true);
+    }
+
+    /// <summary>
+    /// Builds the domain.
+    /// </summary>
+    /// <param name="configuration">The domain configuration.</param>
+    /// <param name="schemaUpgradeMode">The schema upgrade mode.</param>
+    /// <param name="dataProcessor">The method that can process storage data when domain is built.</param>
+    /// <param name="persistentTypeFilter">The persistent type filter.</param>
+    /// <returns>Built domain.</returns>
+    public static Domain BuildDomain(DomainConfiguration configuration, 
+      SchemaUpgradeMode schemaUpgradeMode, Action dataProcessor, Predicate<Type> persistentTypeFilter)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      ArgumentValidator.EnsureArgumentNotNull(dataProcessor, "dataProcessor");
+      ArgumentValidator.EnsureArgumentNotNull(persistentTypeFilter, "persistentTypeFilter");
 
       if (!configuration.IsLocked)
         configuration.Lock(true);
       
-      Validate(configuration);
+      Validate(configuration);      
+
       var context = new BuildingContext(configuration);
+      context.PersistentTypeFilter = persistentTypeFilter;
 
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
         using (new BuildingScope(context)) {
           try {
             CreateDomain();
+            ConfigureServiceContainer();
             CreateHandlerFactory();
             CreateDomainHandler();
 
@@ -74,18 +100,30 @@ namespace Xtensive.Storage.Building.Builders
       return context.Domain;
     }
 
+    private static void ConfigureServiceContainer()
+    {
+      BuildingContext context = BuildingContext.Current;
+      foreach (UnityTypeElement typeElement in context.Configuration.ServicesConfiguration)
+        typeElement.Configure(BuildingContext.Current.Domain.ServiceContainer);
+    }
+
     private static void ProcessSchema(SchemaUpgradeMode schemaUpgradeMode)
     {
       var upgradeHandler = BuildingContext.Current.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
 
-      if (schemaUpgradeMode==SchemaUpgradeMode.Validate) 
+      switch (schemaUpgradeMode) {
+      case SchemaUpgradeMode.Validate:
         upgradeHandler.ValidateStorageSchema();
-      else if (schemaUpgradeMode==SchemaUpgradeMode.Upgrade)
+        break;
+      case SchemaUpgradeMode.Upgrade:
         upgradeHandler.UpgradeStorageSchema();
-      else if (schemaUpgradeMode==SchemaUpgradeMode.Recreate)
+        break;
+      case SchemaUpgradeMode.Recreate:
         upgradeHandler.RecreateStorageSchema();
-      else
+        break;
+      default:
         throw new ArgumentOutOfRangeException("schemaUpgradeMode");
+      }
     }
 
     #region ValidateXxx methods

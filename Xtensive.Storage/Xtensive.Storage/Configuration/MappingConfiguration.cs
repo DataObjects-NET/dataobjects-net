@@ -13,8 +13,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Configuration
 {
   [Serializable]
-  public class MappingConfiguration : ConfigurationBase,
-    IEquatable<MappingConfiguration>
+  public class MappingConfiguration : ConfigurationBase
   {
     private string assembly;
     private string type;
@@ -67,46 +66,8 @@ namespace Xtensive.Storage.Configuration
       Assembly = configuration.Assembly;
       Type = configuration.Type;
     }
-
-    #region Equality members
-
+    
     /// <inheritdoc/>
-    public bool Equals(MappingConfiguration obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return
-        obj.Assembly == Assembly &&
-          obj.Type == Type;
-    }
-
-    /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      if (obj.GetType() != typeof(MappingConfiguration))
-        return false;
-      return Equals((MappingConfiguration)obj);
-    }
-
-    /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = Assembly.GetHashCode();
-        result = 29 * result + Type.GetHashCode();
-        return result;
-      }
-    }
-
-    #endregion
-
-        /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format("Assembly = {0}, Type = {1}", Assembly, Type);

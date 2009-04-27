@@ -263,8 +263,7 @@ namespace Xtensive.Storage.Configuration.Elements
         c.Mappings.Add(assembly.GetType(mappingConfiguration.Type));
       }
 
-      foreach (UnityTypeElement typeElement in Services)
-        typeElement.Configure(c.ServiceContainer);
+      c.ServicesConfiguration = Services;      
 
       return c;
     }

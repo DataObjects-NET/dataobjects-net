@@ -6,13 +6,17 @@
 
 using System;
 using System.Linq;
+using Xtensive.Storage.Configuration.TypeRegistry;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Building
-{
-  [Serializable]
-  internal class TypeIdBuilder
+{  
+  internal static class TypeIdBuilder
   {
+    public static void RegisterSystemTypes(Registry typeRegistry)
+    {
+      typeRegistry.Register(typeof(Metadata.Type).Assembly, typeof(Metadata.Type).Namespace);
+    }
 
     public static void BuildTypeIds()
     {
@@ -42,12 +46,12 @@ namespace Xtensive.Storage.Building
         if (type.TypeId!=TypeInfo.NoTypeId)
           continue;
 
-        SetTypeId(type, LoadTypeId(type));        
+        SetTypeId(type, LoadTypeId(type));
         if (type.TypeId!=TypeInfo.NoTypeId)
           continue;
 
         SetTypeId(type, maxTypeId++);
-        SaveTypeId(type, type.TypeId);        
+        SaveTypeId(type, type.TypeId);
       }
       context.Model.Types.BuildTypeIdIndex();
     }

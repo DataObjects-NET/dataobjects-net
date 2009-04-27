@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using Microsoft.Practices.Unity;
+using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
@@ -21,10 +22,9 @@ namespace Xtensive.Storage.Configuration
 {
   /// <summary>
   /// The configuration of the <see cref="Domain"/>.
-  /// </summary>
+  /// </summary> 
   [Serializable]
-  public class DomainConfiguration : ConfigurationBase,
-    IEquatable<DomainConfiguration>
+  public class  DomainConfiguration : ConfigurationBase
   {
     #region Defaults (constants)
 
@@ -97,28 +97,12 @@ namespace Xtensive.Storage.Configuration
     private int sessionPoolSize = DefaultSessionPoolSize;
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
     private bool autoValidation = true;
-    private bool inconsistentTransactions;
-    private UnityContainer serviceContainer;
+    private bool inconsistentTransactions;    
     private SetSlim<Type> mappings;
     private SessionConfigurationCollection sessions;
     private DomainBuildMode buildMode = DefaultBuildMode;
     private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
-    private Type modelAssembliesManagerType = typeof(DefaultAssemblyDescriptorProvider);
-    private Predicate<Type> persistentTypeFilter = type => true;
-
-    /// <summary>
-    /// Gets or sets the persistent type filter.
-    /// </summary>
-    public Predicate<Type> PersistentTypeFilter
-    {
-      get { return persistentTypeFilter; }
-      set
-      {
-        this.EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        persistentTypeFilter = value;
-      }
-    }
+    private UnityTypeElementCollection servicesConfiguration;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -339,20 +323,15 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets the service container.
+    /// Gets the services configuration.
     /// </summary>
-    public UnityContainer ServiceContainer
+    public UnityTypeElementCollection ServicesConfiguration
     {
-      get { return serviceContainer; }
-    }
-
-    internal Type ModelAssembliesManagerType
-    {
-      get { return modelAssembliesManagerType; }
-      set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      get { return servicesConfiguration; }
+      set
+      {
         this.EnsureNotLocked();
-        modelAssembliesManagerType = value;
+        servicesConfiguration = value;
       }
     }
 
@@ -366,6 +345,7 @@ namespace Xtensive.Storage.Configuration
       builders.Lock(true);
       sessions.Lock(true);
       mappings.Lock(true);
+      servicesConfiguration.LockItem = true;
       base.Lock(recursive);
     }
 
@@ -401,67 +381,12 @@ namespace Xtensive.Storage.Configuration
       sessionPoolSize = configuration.SessionPoolSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = (SessionConfigurationCollection)configuration.Sessions.Clone();
-      mappings = new SetSlim<Type>(configuration.Mappings);
-      serviceContainer = configuration.serviceContainer;
+      mappings = new SetSlim<Type>(configuration.Mappings);      
       buildMode = configuration.buildMode;
       foreignKeyMode = configuration.foreignKeyMode;
-      modelAssembliesManagerType = configuration.ModelAssembliesManagerType;
+      servicesConfiguration = configuration.ServicesConfiguration;
+      servicesConfiguration.LockItem = this.IsLocked;
     }
-
-    #region Equality members
-
-    /// <inheritdoc/>
-    public bool Equals(DomainConfiguration other)
-    {
-      if (ReferenceEquals(null, other))
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return builders.EqualsTo(other.builders)
-        && Equals(other.connectionInfo, connectionInfo) 
-          && Equals(other.namingConvention, namingConvention)
-            && types.EqualsTo(other.types)
-              && other.sessionPoolSize == sessionPoolSize 
-                && Equals(other.name, name) 
-                  && Equals(other.sessions, sessions)
-                    && other.mappings.IsEqualTo(mappings)
-                      && Equals(other.buildMode, buildMode)
-                        && Equals(other.foreignKeyMode, foreignKeyMode);
-    }
-
-    /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      if (obj.GetType() != typeof(DomainConfiguration))
-        return false;
-      return Equals((DomainConfiguration)obj);
-    }
-
-    /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = builders.CalculateHashCode();
-        result = (result * 397) ^ (name != null ? name.GetHashCode() : 0);
-        result = (result * 397) ^ (connectionInfo != null ? connectionInfo.GetHashCode() : 0);
-        result = (result * 397) ^ (namingConvention != null ? namingConvention.GetHashCode() : 0);
-        result = (result * 397) ^ (mappings != null ? mappings.GetHashCode() : 0);
-        result = (result * 397) ^ types.CalculateHashCode();
-        result = (result * 397) ^ keyCacheSize;
-        result = (result * 397) ^ recordSetMappingCacheSize;
-        result = (result * 397) ^ sessionPoolSize;
-        result = (result * 397) ^ (sessions.Default != null ? sessions.Default.GetHashCode() : 0);
-        result = (result * 397) ^ (int)buildMode;
-        result = (result * 397) ^ (int)foreignKeyMode;
-        return result;
-      }
-    }
-
-    #endregion
 
     /// <summary>
     /// Loads the <see cref="DomainConfiguration"/> for <see cref="Domain"/>
@@ -529,8 +454,6 @@ namespace Xtensive.Storage.Configuration
       namingConvention = new NamingConvention();
       sessions = new SessionConfigurationCollection();
       mappings = new SetSlim<Type>();
-      serviceContainer = new UnityContainer();
-      serviceContainer.AddExtension(new SingletonExtension());
     }
   }
 }

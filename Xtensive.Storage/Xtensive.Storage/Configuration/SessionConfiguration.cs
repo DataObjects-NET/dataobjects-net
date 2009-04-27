@@ -19,8 +19,7 @@ namespace Xtensive.Storage.Configuration
   /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
   /// </remarks>
   [Serializable]
-  public class SessionConfiguration : ConfigurationBase,
-    IEquatable<SessionConfiguration>
+  public class SessionConfiguration : ConfigurationBase
   {
     #region Defaults (constants)
 
@@ -209,51 +208,6 @@ namespace Xtensive.Storage.Configuration
       CacheSize = configuration.CacheSize;
       DefaultIsolationLevel = configuration.DefaultIsolationLevel;
     }
-
-    #region Equality members
-
-    /// <inheritdoc/>
-    public bool Equals(SessionConfiguration obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return
-        obj.UserName==UserName &&
-          obj.Type==Type &&
-            obj.Options==Options &&
-              obj.CacheType==CacheType &&
-                obj.CacheSize==CacheSize &&
-                  obj.DefaultIsolationLevel==DefaultIsolationLevel;
-    }
-
-    /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      if (obj.GetType()!=typeof (SessionConfiguration))
-        return false;
-      return Equals((SessionConfiguration) obj);
-    }
-
-    /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = (UserName!=null ? UserName.GetHashCode() : 0);
-        result = (result * 397) ^ (int) Type;
-        result = (result * 397) ^ (int) Options;
-        result = (result * 397) ^ CacheSize;
-        result = (result * 397) ^ (int)DefaultIsolationLevel;
-        return result;
-      }
-    }
-
-    #endregion
 
     /// <inheritdoc/>
     public override string ToString()

@@ -22,8 +22,8 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     ICountable<Type>,
     ICloneable
   {
-    private readonly Set<Action> actionIndex;
-    private readonly List<Action> actionQueue;
+    private readonly Set<TypeRegistration> actionIndex;
+    private readonly List<TypeRegistration> actionQueue;
     private Context context;
     private readonly ActionProcessor processor;
     private State state;
@@ -91,12 +91,12 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     /// <param name="namespace">The name space.</param>
     private void RegisterAction(Assembly assembly, string @namespace)
     {
-      Action action = new Action(assembly, @namespace);
+      TypeRegistration typeRegistration = new TypeRegistration(assembly, @namespace);
       // Skipping duplicate registration calls.
       // If we already have a call to the whole assembly we should skip this call
-      if (!actionIndex.Contains(new Action(assembly)) && !actionIndex.Contains(action)) {
-        actionIndex.Add(action);
-        actionQueue.Add(action);
+      if (!actionIndex.Contains(new TypeRegistration(assembly)) && !actionIndex.Contains(typeRegistration)) {
+        actionIndex.Add(typeRegistration);
+        actionQueue.Add(typeRegistration);
         state = State.HasPendingActions;
       }
     }
@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     {
       if (state != State.HasPendingActions)
         return;
-      foreach (Action action in actionQueue) {
+      foreach (TypeRegistration action in actionQueue) {
         processor.Process(context, action);
       }
       actionQueue.Clear();
@@ -182,9 +182,9 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
 
     #endregion
 
-    internal ReadOnlyCollection<Action> Actions
+    internal ReadOnlyCollection<TypeRegistration> Actions
     {
-      get { return new ReadOnlyCollection<Action>(actionIndex); }
+      get { return new ReadOnlyCollection<TypeRegistration>(actionIndex); }
     }
 
     // Constructors
@@ -196,16 +196,16 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     internal Registry(ActionProcessor processor)
     {
       ArgumentValidator.EnsureArgumentNotNull(processor, "processor");
-      actionIndex = new Set<Action>();
-      actionQueue = new List<Action>();
+      actionIndex = new Set<TypeRegistration>();
+      actionQueue = new List<TypeRegistration>();
       context = new Context();
       this.processor = processor;
     }
 
     private Registry(Registry registry)
     {
-      actionIndex = new Set<Action>(registry.actionIndex);
-      actionQueue = new List<Action>(registry.actionQueue);
+      actionIndex = new Set<TypeRegistration>(registry.actionIndex);
+      actionQueue = new List<TypeRegistration>(registry.actionQueue);
       state = registry.state;
       processor = registry.processor;
       context = (Context)registry.context.Clone();

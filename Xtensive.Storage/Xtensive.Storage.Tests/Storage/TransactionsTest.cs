@@ -5,7 +5,9 @@
 // Created:    2008.08.27
 
 using System;
+using System.IO;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
@@ -33,7 +35,7 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
         Kwanza = newKanza;
         throw new InvalidOperationException();
       }
-    }
+    }    
 
     protected override DomainConfiguration BuildConfiguration()
     {

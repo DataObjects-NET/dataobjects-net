@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
   /// Describes a single type registration call to <see cref="Registry"/>.
   /// </summary>
   [Serializable]
-  internal sealed class Action: IEquatable<Action>
+  internal sealed class TypeRegistration: IEquatable<TypeRegistration>
   {
     private readonly Assembly assembly;
     private readonly string @namespace;
@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     }
 
     /// <summary>
-    /// Determines whether two <see cref="Action"/> instances are equal.
+    /// Determines whether two <see cref="TypeRegistration"/> instances are equal.
     /// </summary>
     /// <param name="obj">The <see cref="object"/> to compare with the current <see langword="Object"/>.</param>
     /// <returns><see langword="true"/> if the specified <see cref="object"/> is equal to the 
@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     {
       if (ReferenceEquals(this, obj))
         return true;
-      return Equals(obj as Action);
+      return Equals(obj as TypeRegistration);
     }
 
     /// <summary>
@@ -61,12 +61,12 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     #region IEquatable<Action> Members
 
     /// <summary>
-    /// Determines whether two <see cref="Action"/> instances are equal.
+    /// Determines whether two <see cref="TypeRegistration"/> instances are equal.
     /// </summary>
-    /// <param name="call">The <see cref="Action"/> to compare with the current <see langword="Object"/>.</param>
-    /// <returns><see langword="true"/> if the specified <see cref="Action"/> is equal to the 
+    /// <param name="call">The <see cref="TypeRegistration"/> to compare with the current <see langword="Object"/>.</param>
+    /// <returns><see langword="true"/> if the specified <see cref="TypeRegistration"/> is equal to the 
     /// current <see langword="Object"/>; otherwise, <see langword="false"/>.</returns>
-    public bool Equals(Action call)
+    public bool Equals(TypeRegistration call)
     {
       if (call == null)
         return false;
@@ -79,11 +79,11 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Action"/> class.
+    /// Initializes a new instance of the <see cref="TypeRegistration"/> class.
     /// </summary>
     /// <param name="assembly">The assembly.</param>
     /// <param name="namespace">The namespace.</param>
-    public Action(Assembly assembly, string @namespace)
+    public TypeRegistration(Assembly assembly, string @namespace)
       : this(assembly)
     {
       ArgumentValidator.EnsureArgumentNotNull(@namespace, "@namespace");
@@ -91,10 +91,10 @@ namespace Xtensive.Storage.Configuration.TypeRegistry
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Action"/> class.
+    /// Initializes a new instance of the <see cref="TypeRegistration"/> class.
     /// </summary>
     /// <param name="assembly">The assembly.</param>
-    public Action(Assembly assembly)
+    public TypeRegistration(Assembly assembly)
     {
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
       this.assembly = assembly;

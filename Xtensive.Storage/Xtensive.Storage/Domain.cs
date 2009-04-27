@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.ConstrainedExecution;
 using System.Threading;
+using Microsoft.Practices.Unity;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
@@ -35,7 +36,7 @@ namespace Xtensive.Storage
   public sealed class Domain : CriticalFinalizerObject,
     IDisposableContainer
   {
-    private int sessionCounter = 1;
+    private int sessionCounter = 1;    
 
     /// <summary>
     /// Gets the current <see cref="Domain"/> object
@@ -100,7 +101,12 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the domain-level temporary data.
     /// </summary>
-    public GlobalTemporaryData TemporaryData { get; private set; }
+    public GlobalTemporaryData TemporaryData { get; private set; }    
+
+    /// <summary>
+    /// Gets the service container.
+    /// </summary>
+    public UnityContainer ServiceContainer { get; private set; }
 
     /// <summary>
     /// Indicates whether debug event logging is enabled.
@@ -174,7 +180,7 @@ namespace Xtensive.Storage
     /// <returns>Newly built <see cref="Domain"/>.</returns>
     public static Domain Build(DomainConfiguration configuration)
     {
-      return AutoBuilder.Build(configuration);
+      return ExtendedDomainBuilder.Build(configuration);
     }
 
 
@@ -192,6 +198,9 @@ namespace Xtensive.Storage
       QueryCache = new LruCache<MethodInfo, Pair<MethodInfo, ResultExpression>>(1024, input => input.First);
       PairSyncActions = new Dictionary<AssociationInfo, ActionSet>(1024);
       TemporaryData = new GlobalTemporaryData();
+
+      ServiceContainer = new UnityContainer();
+      ServiceContainer.AddExtension(new SingletonExtension());
     }
 
     /// <inheritdoc/>
