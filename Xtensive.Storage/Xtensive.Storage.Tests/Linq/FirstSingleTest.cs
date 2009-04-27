@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.04
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
@@ -98,6 +99,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(NotImplementedException))]
     public void SelectFirstTest()
     {
       var products = Query<Product>.All;

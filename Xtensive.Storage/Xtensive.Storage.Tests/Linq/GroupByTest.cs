@@ -239,6 +239,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(NotImplementedException))]
     public void GroupByWithSelectFirstTest()
     {
       var result = Query<Order>.All

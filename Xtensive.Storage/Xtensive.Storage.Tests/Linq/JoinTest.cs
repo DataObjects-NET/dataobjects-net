@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.12.17
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.ObjectModel;
@@ -96,6 +97,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(NotImplementedException))]
     public void GroupJoinTest()
     {
       var categories = Query<Category>.All;
@@ -110,6 +112,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(NotImplementedException))]
     public void GroupJoinNestedTest()
     {
       var categories = Query<Category>.All;
@@ -131,6 +134,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(NotImplementedException))]
     public void GroupJoinSelectManyTest()
     {
       using (Domain.OpenSession())
@@ -150,6 +154,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(NotImplementedException))]
     public void DefaultIfEmptyTest()
     {
       var categories = Query<Category>.All;
@@ -164,6 +169,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(NotImplementedException))]
     public void LeftOuterTest()
     {
       var categories = Query<Category>.All;
