@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string AutoValidationElementName = "autoValidation";
     private const string InconsistentTransactionsElementName = "inconsistentTransactions";
     private const string SessionsElementName = "sessions";
-    private const string MappingsElementName = "mappings";
+    private const string CompilerContainersElementName = "compilerContainers";
     private const string TypeAliasesElementName = "typeAliases";
     private const string ServicesElementName = "services";
 
@@ -190,11 +190,11 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.CompilerContainers" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(MappingsElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof(ConfigurationCollection<MappingElement>), AddItemName = "mapping")]
-    public ConfigurationCollection<MappingElement> Mappings
+    [ConfigurationProperty(CompilerContainersElementName, IsDefaultCollection = false)]
+    [ConfigurationCollection(typeof (ConfigurationCollection<TypeElement>), AddItemName = "add")]
+    public ConfigurationCollection<TypeElement> CompilerContainers
     {
-      get { return (ConfigurationCollection<MappingElement>)this[MappingsElementName]; }
+      get { return (ConfigurationCollection<TypeElement>) base[TypesElementName]; }
     }
 
     /// <summary>
@@ -231,41 +231,31 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <returns>The result of conversion.</returns>
     public DomainConfiguration ToNative()
     {
-      var c = new DomainConfiguration();
-      c.Name = Name;
-      c.ConnectionInfo = new UrlInfo(ConnectionUrl);
-      c.NamingConvention = NamingConvention.ToNative();
-      c.KeyCacheSize = KeyCacheSize;
-      c.KeyGeneratorCacheSize = KeyGeneratorCacheSize;
-      c.SessionPoolSize = SessionPoolSize;
-      c.RecordSetMappingCacheSize = RecordSetMappingCacheSize;
-      c.AutoValidation = AutoValidation;
-      c.InconsistentTransactions = InconsistentTransactions;
-      c.BuildMode = BuildMode;
-      c.ForeignKeyMode = ForeignKeyMode;
+      var dc = new DomainConfiguration {
+        Name = Name, 
+        ConnectionInfo = new UrlInfo(ConnectionUrl), 
+        NamingConvention = NamingConvention.ToNative(), 
+        KeyCacheSize = KeyCacheSize, 
+        KeyGeneratorCacheSize = KeyGeneratorCacheSize, 
+        SessionPoolSize = SessionPoolSize, 
+        RecordSetMappingCacheSize = RecordSetMappingCacheSize, 
+        AutoValidation = AutoValidation, 
+        InconsistentTransactions = InconsistentTransactions, 
+        BuildMode = BuildMode, 
+        ForeignKeyMode = ForeignKeyMode
+      };
       foreach (var builder in Builders) {
         var type = Type.GetType(builder.Type, true);
-        c.Builders.Add(type);
+        dc.Builders.Add(type);
       }
-      foreach (var entry in Types) {
-        var assembly = Assembly.Load(entry.Assembly);
-        if (entry.Namespace.IsNullOrEmpty())
-          c.Types.Register(assembly);
-        else
-          c.Types.Register(assembly, entry.Namespace);
-      }
+      foreach (var entry in Types)
+        dc.Types.Register(entry.ToNative());
+      foreach (var entry in CompilerContainers)
+        dc.CompilerContainers.Register(entry.ToNative());
       foreach (var session in Sessions)
-        c.Sessions.Add(session.ToNative());
-
-      foreach (var mapping in Mappings) {
-        var mappingConfiguration = mapping.ToNative();
-        var assembly = Assembly.Load(mappingConfiguration.Assembly);
-        c.CompilerContainers.Register(assembly);
-      }
-
-      c.ServicesConfiguration = Services;      
-
-      return c;
+        dc.Sessions.Add(session.ToNative());
+      dc.ServicesConfiguration = Services;      
+      return dc;
     }
   }
 }

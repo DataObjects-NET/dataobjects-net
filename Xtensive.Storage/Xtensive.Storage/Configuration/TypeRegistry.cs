@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Configuration
       this.EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       if (!isProcessingPendingActions)
-        RegisterAction(new TypeRegistration(type));
+        Register(new TypeRegistration(type));
       else {
         if (typeSet.Contains(type))
           return;
@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Configuration
     {
       this.EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
-      RegisterAction(new TypeRegistration(assembly, null));
+      Register(new TypeRegistration(assembly, null));
     }
 
     /// <summary>
@@ -89,16 +89,16 @@ namespace Xtensive.Storage.Configuration
       this.EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(@namespace, "@namespace");
-      RegisterAction(new TypeRegistration(assembly, @namespace));
+      Register(new TypeRegistration(assembly, @namespace));
     }
 
     /// <summary>
-    /// Registers the specified action for delayed processing.
+    /// Registers the specified <see cref="TypeRegistration"/> for delayed processing.
     /// </summary>
-    /// <param name="action">The action to register.</param>
-    /// <returns><see langword="true" /> if specified action was successfully registered;
+    /// <param name="action">The type registration to register.</param>
+    /// <returns><see langword="true" /> if specified registration was successfully added;
     /// otherwise, <see langword="false" />.</returns>
-    public bool RegisterAction(TypeRegistration action)
+    public bool Register(TypeRegistration action)
     {
       this.EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(action, "action");

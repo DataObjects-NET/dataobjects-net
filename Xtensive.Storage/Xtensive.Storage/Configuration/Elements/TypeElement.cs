@@ -4,8 +4,11 @@
 // Created by: Alexey Gamzov
 // Created:    2008.08.07
 
+using System;
 using System.Configuration;
 using Xtensive.Core;
+using Xtensive.Core.Helpers;
+using R=System.Reflection;
 
 namespace Xtensive.Storage.Configuration.Elements
 {
@@ -14,6 +17,7 @@ namespace Xtensive.Storage.Configuration.Elements
   /// </summary>
   public class TypeElement : ConfigurationCollectionElementBase
   {
+    private const string NameElementName = "name";
     private const string AssemblyElementName = "assembly";
     private const string NamespaceElementName = "namespace";
 
@@ -22,6 +26,16 @@ namespace Xtensive.Storage.Configuration.Elements
       get {
         return new Pair<string, string>(Assembly, Namespace);
       }
+    }
+
+    /// <summary>
+    /// Gets or sets the name of the type to register.
+    /// </summary>
+    [ConfigurationProperty(NameElementName, IsRequired = false, DefaultValue = null, IsKey = true)]
+    public string Name
+    {
+      get { return (string)this[NameElementName]; }
+      set { this[NameElementName] = value; }
     }
 
     /// <summary>
@@ -45,6 +59,24 @@ namespace Xtensive.Storage.Configuration.Elements
     {
       get { return (string)this[NamespaceElementName]; }
       set { this[NamespaceElementName] = value; }
+    }
+
+    /// <summary>
+    /// Converts the element to a native configuration object it corresponds to - 
+    /// i.e. to a <see cref="TypeRegistration"/> object.
+    /// </summary>
+    /// <returns>The result of conversion.</returns>
+    public TypeRegistration ToNative()
+    {
+      if (Name!=null)
+        return new TypeRegistration(Type.GetType(Name));
+      else {
+        var assembly = R.Assembly.Load(Assembly);
+        if (Namespace.IsNullOrEmpty())
+          return new TypeRegistration(assembly);
+        else
+          return new TypeRegistration(assembly, Namespace);
+      }
     }
   }
 }
