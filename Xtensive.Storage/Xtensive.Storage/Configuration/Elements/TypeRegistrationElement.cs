@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2008.08.07
 
-using System;
 using System.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
@@ -13,11 +12,11 @@ using R=System.Reflection;
 namespace Xtensive.Storage.Configuration.Elements
 {
   /// <summary>
-  /// Type configuration element within a configuration file.
+  /// Type registration element within a configuration file.
   /// </summary>
-  public class TypeElement : ConfigurationCollectionElementBase
+  public class TypeRegistrationElement : ConfigurationCollectionElementBase
   {
-    private const string NameElementName = "name";
+    private const string TypeElementName = "type";
     private const string AssemblyElementName = "assembly";
     private const string NamespaceElementName = "namespace";
 
@@ -31,17 +30,17 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// Gets or sets the name of the type to register.
     /// </summary>
-    [ConfigurationProperty(NameElementName, IsRequired = false, DefaultValue = null, IsKey = true)]
-    public string Name
+    [ConfigurationProperty(TypeElementName, IsRequired = false, DefaultValue = null, IsKey = true)]
+    public string Type
     {
-      get { return (string)this[NameElementName]; }
-      set { this[NameElementName] = value; }
+      get { return (string)this[TypeElementName]; }
+      set { this[TypeElementName] = value; }
     }
 
     /// <summary>
     /// Gets or sets the assembly where types to register are located.
     /// </summary>
-    [ConfigurationProperty(AssemblyElementName, IsRequired = true, IsKey = true)]
+    [ConfigurationProperty(AssemblyElementName, IsRequired = false, DefaultValue = null, IsKey = true)]
     public string Assembly
     {
       get { return (string)this[AssemblyElementName]; }
@@ -68,8 +67,8 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <returns>The result of conversion.</returns>
     public TypeRegistration ToNative()
     {
-      if (Name!=null)
-        return new TypeRegistration(Type.GetType(Name));
+      if (!Type.IsNullOrEmpty())
+        return new TypeRegistration(System.Type.GetType(Type));
       else {
         var assembly = R.Assembly.Load(Assembly);
         if (Namespace.IsNullOrEmpty())

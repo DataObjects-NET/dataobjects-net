@@ -18,8 +18,8 @@ namespace Xtensive.Storage.Configuration.Internals
   [Serializable]
   public sealed class PersistentTypeRegistrationHandler : TypeRegistrationHandlerBase
   {
-    private readonly Type baseInterface = typeof (IEntity);
-    private readonly Type baseType = typeof (Persistent);
+    private readonly static Type baseInterface = typeof (IEntity);
+    private readonly static Type baseType = typeof (Persistent);
 
     /// <inheritdoc/>
     public Type BaseInterface

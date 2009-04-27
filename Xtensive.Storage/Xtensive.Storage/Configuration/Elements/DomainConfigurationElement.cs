@@ -67,10 +67,10 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <see cref="DomainConfiguration.Types" copy="true"/>
     /// </summary>
     [ConfigurationProperty(TypesElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<TypeElement>), AddItemName = "add")]
-    public ConfigurationCollection<TypeElement> Types
+    [ConfigurationCollection(typeof (ConfigurationCollection<TypeRegistrationElement>), AddItemName = "add")]
+    public ConfigurationCollection<TypeRegistrationElement> Types
     {
-      get { return (ConfigurationCollection<TypeElement>) base[TypesElementName]; }
+      get { return (ConfigurationCollection<TypeRegistrationElement>) base[TypesElementName]; }
     }
 
     /// <summary>
@@ -191,10 +191,10 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <see cref="DomainConfiguration.CompilerContainers" copy="true"/>
     /// </summary>
     [ConfigurationProperty(CompilerContainersElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<TypeElement>), AddItemName = "add")]
-    public ConfigurationCollection<TypeElement> CompilerContainers
+    [ConfigurationCollection(typeof (ConfigurationCollection<TypeRegistrationElement>), AddItemName = "add")]
+    public ConfigurationCollection<TypeRegistrationElement> CompilerContainers
     {
-      get { return (ConfigurationCollection<TypeElement>) base[TypesElementName]; }
+      get { return (ConfigurationCollection<TypeRegistrationElement>) base[CompilerContainersElementName]; }
     }
 
     /// <summary>

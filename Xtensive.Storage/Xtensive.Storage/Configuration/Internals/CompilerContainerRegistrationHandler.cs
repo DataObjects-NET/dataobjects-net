@@ -18,10 +18,12 @@ namespace Xtensive.Storage.Configuration.Internals
   [Serializable]
   public sealed class CompilerContainerRegistrationHandler : TypeRegistrationHandlerBase
   {
+    private readonly static Type baseType = typeof (object);
+
     /// <inheritdoc/>
     public override Type BaseType 
     {
-      get { return null; }
+      get { return baseType; }
     }
 
     /// <inheritdoc/>
