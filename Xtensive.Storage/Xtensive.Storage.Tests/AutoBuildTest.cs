@@ -5,11 +5,8 @@
 // Created:    2008.07.31
 
 using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Storage.Configuration;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Disposing;
 using Xtensive.Storage.Rse;
 
