@@ -76,7 +76,7 @@ namespace Xtensive.Core.Reflection
           types.Add(type);
         }
       }
-        return types;
+      return types;
     }
   }
 }
