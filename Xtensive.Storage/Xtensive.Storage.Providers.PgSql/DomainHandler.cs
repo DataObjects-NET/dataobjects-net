@@ -4,13 +4,21 @@
 // Created by: Alexey Gamzov
 // Created:    2008.07.04
 
-using System;
-using Xtensive.Sql.Common;
-using Xtensive.Storage.Providers.PgSql.Resources;
+using Xtensive.Core.Collections;
+using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.PgSql
 {
+  /// <summary>
+  /// A domain handler specific to PostgreSQL RDBMS.
+  /// </summary>
   public class DomainHandler : Sql.DomainHandler
-  { 
+  {
+    /// <inheritdoc/>
+    protected override ICompiler CreateCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
+    {
+      return new PgSqlCompiler(Handlers, compiledSources);
+    }
   }
 }

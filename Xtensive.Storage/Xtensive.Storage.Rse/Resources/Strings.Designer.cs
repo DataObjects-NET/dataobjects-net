@@ -61,6 +61,15 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Aggregate &apos;{0}&apos; is not supported for type &apos;{1}&apos;.
+        /// </summary>
+        internal static string ExAggregateXIsNotSupportedForTypeY {
+            get {
+                return ResourceManager.GetString("ExAggregateXIsNotSupportedForTypeY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to At least one column index pair must be specified..
         /// </summary>
         internal static string ExAtLeastOneColumnIndexPairMustBeSpecified {

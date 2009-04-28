@@ -158,6 +158,26 @@ namespace Xtensive.Storage.Providers.MsSql
       return resultExpression;
     }
 
+    protected override SqlExpression TranslateAggregate(SqlProvider source, List<SqlTableColumn> sourceColumns, AggregateColumn aggregateColumn)
+    {
+      var aggregateType = aggregateColumn.Type;
+      var result = base.TranslateAggregate(source, sourceColumns, aggregateColumn);
+      if (aggregateColumn.AggregateType == AggregateType.Avg) {
+        var originType = source.Origin.Header.Columns[aggregateColumn.SourceIndex].Type;
+        // floats are promoted to doubles, but we need the same type
+        if (originType == aggregateType && originType != typeof (float))
+          return result;
+        var sqlType = GetSqlDataType(aggregateType);
+        return SqlFactory.Cast(SqlFactory.Avg(SqlFactory.Cast(sourceColumns[aggregateColumn.SourceIndex], sqlType)), sqlType);
+      }
+      // cast to decimal is dangerous, because 'decimal' defaults to integer type
+      if (aggregateColumn.AggregateType == AggregateType.Sum && aggregateType != typeof(decimal))
+        return SqlFactory.Cast(result, GetSqlDataType(aggregateType));
+      return result;
+    }
+
+    #region Private methods
+
     private static void ReplaceBooleanParameters(SqlExpression expression)
     {
       var binary = expression as SqlBinary;
@@ -209,7 +229,9 @@ namespace Xtensive.Storage.Providers.MsSql
       var newExpression = SqlFactory.Cast(caseExpression, SqlDataType.Boolean);
       select[index].ReplaceWith(SqlFactory.ColumnRef(SqlFactory.Column(newExpression), columnRef.Name));
     }
-    
+
+    #endregion
+
     // Constructor
 
     public MsSqlCompiler(HandlerAccessor handlers, BindingCollection<object, ExecutableProvider> compiledSources)

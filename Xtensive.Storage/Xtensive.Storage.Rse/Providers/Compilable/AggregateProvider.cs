@@ -6,11 +6,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using System.Linq;
+using Xtensive.Storage.Rse.Resources;
+
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
@@ -77,6 +80,37 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
           Source.ExpectedOrder.Where(p => GroupColumnIndexes.Contains(p.Key)));
     }
 
+    /// <summary>
+    /// Gets the type of the aggregate column according to a <see cref="AggregateType"/> and original column type.
+    /// </summary>
+    /// <param name="sourceColumnType">Type of the source column.</param>
+    /// <param name="aggregateType">Type of the aggregate.</param>
+    /// <returns>The type of aggregate column.</returns>
+    public static Type GetAggregateColumnType(Type sourceColumnType, AggregateType aggregateType)
+    {
+      if (aggregateType == AggregateType.Count)
+        return typeof (long);
+      if (aggregateType != AggregateType.Avg)
+        return sourceColumnType;
+      switch (System.Type.GetTypeCode(sourceColumnType)) {
+        case TypeCode.Char:
+        case TypeCode.SByte:
+        case TypeCode.Byte:
+        case TypeCode.Int16:
+        case TypeCode.Int32:
+        case TypeCode.Int64:
+        case TypeCode.UInt16:
+        case TypeCode.UInt32:
+        case TypeCode.UInt64:
+          return typeof (double);
+        case TypeCode.Decimal:
+        case TypeCode.Single:
+        case TypeCode.Double:
+          return sourceColumnType;
+        default:
+          throw new ArgumentException(string.Format(Strings.ExAggregateXIsNotSupportedForTypeY, aggregateType, sourceColumnType));
+      }
+    }
 
     // Constructors
 
@@ -93,9 +127,8 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       var columns = new AggregateColumn[columnDescriptors.Length];
       for (int i = 0; i < columnDescriptors.Length; i++) {
         AggregateColumnDescriptor descriptor = columnDescriptors[i];
-        Type type = descriptor.AggregateType == AggregateType.Count ? typeof(long) : Source.Header.Columns[descriptor.SourceIndex].Type;
-        var col = new AggregateColumn(descriptor, groupIndexes.Length + i, type);
-        columns.SetValue(col, i);
+        var type = GetAggregateColumnType(Source.Header.Columns[descriptor.SourceIndex].Type, descriptor.AggregateType);
+        columns[i] = new AggregateColumn(descriptor, groupIndexes.Length + i, type);
       }
       AggregateColumns = columns;
       GroupColumnIndexes = groupIndexes;

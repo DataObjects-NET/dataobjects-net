@@ -25,6 +25,7 @@ using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
+using SqlDataType = Xtensive.Sql.Common.SqlDataType;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -72,26 +73,9 @@ namespace Xtensive.Storage.Providers.Sql
         sqlSelect.GroupBy.Add(column);
       }
 
-      foreach (var col in provider.AggregateColumns) {
-        SqlExpression expr = null;
-        switch (col.AggregateType) {
-        case AggregateType.Avg:
-          expr = SqlFactory.Avg(columns[col.SourceIndex]);
-          break;
-        case AggregateType.Count:
-          expr = SqlFactory.Count(SqlFactory.Asterisk);
-          break;
-        case AggregateType.Max:
-          expr = SqlFactory.Max(columns[col.SourceIndex]);
-          break;
-        case AggregateType.Min:
-          expr = SqlFactory.Min(columns[col.SourceIndex]);
-          break;
-        case AggregateType.Sum:
-          expr = SqlFactory.Sum(columns[col.SourceIndex]);
-          break;
-        }
-        sqlSelect.Columns.Add(expr, col.Name);
+      foreach (var column in provider.AggregateColumns) {
+        SqlExpression expr = TranslateAggregate(source, columns, column);
+        sqlSelect.Columns.Add(expr, column.Name);
       }
 
       return new SqlProvider(provider, sqlSelect, Handlers, source);
@@ -584,6 +568,41 @@ namespace Xtensive.Storage.Providers.Sql
       var result = translator.Translate();
       parameterBindings = translator.Bindings;
       return result;
+    }
+
+    /// <summary>
+    /// Translates <see cref="AggregateColumn"/> to corresponding <see cref="SqlExpression"/>.
+    /// </summary>
+    /// <param name="source">The source <see cref="SqlProvider">.</param>
+    /// <param name="sourceColumns">The source columns.</param>
+    /// <param name="aggregateColumn">The aggregate column.</param>
+    /// <returns></returns>
+    protected virtual SqlExpression TranslateAggregate(SqlProvider source, List<SqlTableColumn> sourceColumns, AggregateColumn aggregateColumn)
+    {
+      switch (aggregateColumn.AggregateType) {
+        case AggregateType.Avg:
+          return SqlFactory.Avg(sourceColumns[aggregateColumn.SourceIndex]);
+        case AggregateType.Count:
+          return SqlFactory.Count(SqlFactory.Asterisk);
+        case AggregateType.Max:
+          return SqlFactory.Max(sourceColumns[aggregateColumn.SourceIndex]);
+        case AggregateType.Min:
+          return SqlFactory.Min(sourceColumns[aggregateColumn.SourceIndex]);
+        case AggregateType.Sum:
+          return SqlFactory.Sum(sourceColumns[aggregateColumn.SourceIndex]);
+        default:
+          throw new ArgumentException();
+      }
+    }
+
+    /// <summary>
+    /// Gets the <see cref="SqlDataType"/> by <see cref="Type"/>.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns></returns>
+    protected SqlDataType GetSqlDataType(Type type)
+    {
+      return ((DomainHandler)Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(type).DataTypeInfo.SqlType;
     }
 
     #region Private methods.

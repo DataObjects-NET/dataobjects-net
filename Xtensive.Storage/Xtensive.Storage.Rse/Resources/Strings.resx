@@ -171,4 +171,7 @@
   <data name="ExSelectProviderRemovesColumnsUsedForOrdering" xml:space="preserve">
     <value>The SelectProvider removes columns used for an ordering.</value>
   </data>
+  <data name="ExAggregateXIsNotSupportedForTypeY" xml:space="preserve">
+    <value>Aggregate '{0}' is not supported for type '{1}'</value>
+  </data>
 </root>
