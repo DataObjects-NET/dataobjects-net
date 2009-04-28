@@ -65,6 +65,18 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       var source = VisitCompilable(provider.Source);
       if(source != provider.Source)
         provider = OnRecreateSelectProvider(provider, source);
+      if(SortOrder.Count > 0 && provider.ExpectedOrder.Count == 0
+        && !consumerDescriptor.Value.BreaksOrder)
+        OnValidateRemovingOfOrderedColumns();
+      SortOrder = provider.ExpectedOrder;
+      return provider;
+    }
+
+    /*protected sealed override Provider VisitSelect(SelectProvider provider)
+    {
+      var source = VisitCompilable(provider.Source);
+      if(source != provider.Source)
+        provider = OnRecreateSelectProvider(provider, source);
       CheckCorruptionOfOrder();
       var selectOrdering = provider.ExpectedOrder;
 
@@ -79,7 +91,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
         SortOrder = provider.Header.Order;
       return provider;
     }
-
+*/
     protected virtual void OnValidateRemovingOfOrderedColumns()
     {
       throw new InvalidOperationException(
