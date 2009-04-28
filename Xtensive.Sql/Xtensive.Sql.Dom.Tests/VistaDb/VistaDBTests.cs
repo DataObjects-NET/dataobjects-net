@@ -1,8 +1,10 @@
 using System;
 using System.Data;
+using System.Data.Common;
 using NUnit.Framework;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Database;
+using Xtensive.Sql.Dom.Database.Providers;
 using Xtensive.Sql.Dom.Ddl;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Sql.Dom.Tests.VistaDb;
@@ -3148,6 +3150,56 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
       SqlCreateIndex create = Sql.Create(index);
 
       Console.Write(SqlDriver.Compile(create));
+    }
+
+    [Test]
+    public void RenameTest()
+    {
+      Schema schema = Catalog.DefaultSchema;
+      Table table = schema.CreateTable("T1");
+      table.CreateColumn("C1", new SqlValueType(SqlDataType.Int32));
+
+      DbTransaction trx = null;
+      try {
+        SqlConnectionProvider provider = new SqlConnectionProvider();
+        sqlConnection = (SqlConnection)provider.CreateConnection(@"vistadb://localhost/VistaDb/VDBTests.vdb3");
+        SqlDriver = sqlConnection.Driver as SqlDriver;
+        sqlConnection.Open();
+        trx = sqlConnection.BeginTransaction();
+
+        using (SqlCommand cmd = new SqlCommand(sqlConnection)) {
+          SqlBatch batch = Sql.Batch();
+          batch.Add(Sql.Create(table));
+          cmd.Statement = batch;
+          cmd.Transaction = trx;
+          cmd.ExecuteNonQuery();
+        }
+
+        Model exModel1 = new SqlModelProvider(sqlConnection, trx).Build();
+        var exT1 = exModel1.DefaultServer.DefaultCatalog.Schemas[schema.DbName].Tables[table.DbName];
+        Assert.IsNotNull(exT1);
+        var exC1 = exT1.TableColumns["C1"];
+        Assert.IsNotNull(exC1);
+
+        using (SqlCommand cmd = new SqlCommand(sqlConnection)) {
+          SqlBatch batch = Sql.Batch();
+          batch.Add(Sql.Rename(exC1, "C2"));
+          batch.Add(Sql.Rename(exT1, "T2"));
+          cmd.Statement = batch;
+          cmd.Transaction = trx;
+          cmd.ExecuteNonQuery();
+        }
+
+        Model exModel2 = new SqlModelProvider(sqlConnection, trx).Build();
+        var exT2 = exModel2.DefaultServer.DefaultCatalog.Schemas[schema.DbName].Tables["T2"];
+        Assert.IsNotNull(exT2);
+        var exC2 = exT2.TableColumns["C2"];
+        Assert.IsNotNull(exC2);
+
+      } finally {
+        trx.Rollback();
+        sqlConnection.Close();
+      }
     }
   }
 }

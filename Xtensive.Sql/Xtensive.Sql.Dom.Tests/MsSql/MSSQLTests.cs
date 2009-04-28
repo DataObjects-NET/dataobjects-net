@@ -3927,19 +3927,6 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     }
 
     [Test]
-    public void Test207()
-    {
-      SqlAlterTable alter = Sql.Rename(Catalog.Schemas["Production"].Tables["Product"], "Product2");
-      Console.Write(Compile(alter));
-    }
-
-    [Test]
-    public void Test208()
-    {
-      SqlAlterTable alter = Sql.Rename(Catalog.Schemas["Production"].Tables["Product"].TableColumns["ProductID"], "ProductID2");
-      Console.Write(Compile(alter));
-    }
-    [Test]
     public void RenameTest()
     {
       Model model = new Model("default");

@@ -236,6 +236,16 @@ namespace Xtensive.Sql.Dom.VistaDB.v3
       return base.Translate(context, node, section);
     }
 
+    public override string Translate(SqlCompilerContext context, Table node, SqlRenameAction action)
+    {
+      return string.Format("EXEC sp_rename ('{0}', '{1}')", QuoteIdentifier(node.DbName), action.Name);
+    }
+
+    public override string Translate(SqlCompilerContext context, TableColumn node, SqlRenameAction action)
+    {
+      return string.Format("EXEC sp_rename ('{0}', '{1}', 'COLUMN')", QuoteIdentifier(node.Table.DbName, node.DbName), action.Name);
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="VistaDBTranslator"/> class.
     /// </summary>

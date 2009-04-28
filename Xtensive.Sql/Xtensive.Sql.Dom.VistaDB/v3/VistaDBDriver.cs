@@ -14,6 +14,12 @@ namespace Xtensive.Sql.Dom.VistaDB.v3
   public class VistaDBDriver : SqlDriver
   {
     /// <inheritdoc/>
+    protected override SqlCompiler CreateCompiler()
+    {
+      return new VistaDBCompiler(this);
+    }
+
+    /// <inheritdoc/>
     protected override SqlTranslator CreateTranslator()
     {
       return new VistaDBTranslator(this);

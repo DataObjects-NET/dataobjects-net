@@ -4,6 +4,8 @@
 
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom.Compiler;
+using Xtensive.Sql.Dom.Database;
+using Xtensive.Sql.Dom.Ddl;
 using Xtensive.Sql.Dom.Dml;
 
 namespace Xtensive.Sql.Dom.VistaDB.v3
@@ -22,6 +24,20 @@ namespace Xtensive.Sql.Dom.VistaDB.v3
         return;
       }
       base.Visit(node);
+    }
+
+    public override void Visit(SqlAlterTable node)
+    {
+      if (!(node.Action is SqlRenameAction)) {
+        base.Visit(node);
+        return;
+      }
+      SqlRenameAction action = node.Action as SqlRenameAction;
+      TableColumn column = action.Node as TableColumn;
+      if (column != null)
+        context.AppendText(translator.Translate(context, column, action));
+      else
+        context.AppendText(translator.Translate(context, node.Table, action));
     }
 
     /// <summary>
