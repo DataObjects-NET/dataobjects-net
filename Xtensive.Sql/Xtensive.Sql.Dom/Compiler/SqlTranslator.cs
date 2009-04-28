@@ -1199,9 +1199,19 @@ namespace Xtensive.Sql.Dom.Compiler
       return string.Empty;
     }
 
+    public virtual string Translate(SqlCompilerContext context, Table node, SqlRenameAction action)
+    {
+      throw new NotSupportedException();
+    }
+
     public virtual string Translate(SqlCompilerContext context, SqlTable node, NodeSection section)
     {
       return QuoteIdentifier(node.Name);
+    }
+
+    public virtual string Translate(SqlCompilerContext context, TableColumn node, SqlRenameAction action)
+    {
+      throw new NotSupportedException();
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlTableColumn node, NodeSection section)

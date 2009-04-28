@@ -347,6 +347,16 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       return base.Translate(context, node, section);
     }
 
+    public override string Translate(SqlCompilerContext context, Table node, SqlRenameAction action)
+    {
+      return string.Format("EXEC sp_rename '{0}', '{1}'", QuoteIdentifier(node.Schema.DbName, node.DbName), action.Name);
+    }
+
+    public override string Translate(SqlCompilerContext context, TableColumn node, SqlRenameAction action)
+    {
+      return string.Format("EXEC sp_rename '{0}', '{1}', 'COLUMN'", QuoteIdentifier(node.Table.Schema.DbName, node.Table.DbName, node.DbName), action.Name);
+    }
+
     public override string Translate(SqlCompilerContext context, SqlTableRef node, TableSection section)
     {
       switch (section)

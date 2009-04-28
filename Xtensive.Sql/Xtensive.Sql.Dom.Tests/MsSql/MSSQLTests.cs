@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Data.Common;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
@@ -122,7 +123,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     public override void SetUp()
     {
       sqlDriver = new MssqlDriver(new MssqlVersionInfo(new Version(9, 0)));
-      sqlConnection = sqlDriver.CreateConnection(new ConnectionInfo(@"mssql2005://localhost/AdventureWorks")) as SqlConnection;
+      sqlConnection = sqlDriver.CreateConnection(new ConnectionInfo(@"mssql2005://localhost\sql2005/AdventureWorks")) as SqlConnection;
 
       /*
       SqlConnectionProvider provider = new SqlConnectionProvider();
@@ -3923,6 +3924,69 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       outerSelect.OrderBy.Add(productName);
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, outerSelect));
+    }
+
+    [Test]
+    public void Test207()
+    {
+      SqlAlterTable alter = Sql.Rename(Catalog.Schemas["Production"].Tables["Product"], "Product2");
+      Console.Write(Compile(alter));
+    }
+
+    [Test]
+    public void Test208()
+    {
+      SqlAlterTable alter = Sql.Rename(Catalog.Schemas["Production"].Tables["Product"].TableColumns["ProductID"], "ProductID2");
+      Console.Write(Compile(alter));
+    }
+    [Test]
+    public void RenameTest()
+    {
+      Model model = new Model("default");
+
+      model.CreateServer("localhost");
+      model.DefaultServer.CreateCatalog("do40-tests");
+      model.DefaultServer.CreateUser("do4test");
+      Schema schema = Catalog.CreateSchema("S1");
+      Table table = schema.CreateTable("T1");
+      table.CreateColumn("C1", new SqlValueType(SqlDataType.Int32));
+
+      DbTransaction trx = null;
+      try {
+        trx = sqlConnection.BeginTransaction();
+
+        using (SqlCommand cmd = new SqlCommand(sqlConnection)) {
+          SqlBatch batch = Sql.Batch();
+          batch.Add(Sql.Create(schema));
+          cmd.Statement = batch;
+          cmd.Transaction = trx;
+          cmd.ExecuteNonQuery();
+        }
+
+        Model exModel1 = new SqlModelProvider(sqlConnection, trx).Build();
+        var exT1 = exModel1.DefaultServer.DefaultCatalog.Schemas[schema.DbName].Tables[table.DbName];
+        Assert.IsNotNull(exT1);
+        var exC1 = exT1.TableColumns["C1"];
+        Assert.IsNotNull(exC1);
+
+        using (SqlCommand cmd = new SqlCommand(sqlConnection)) {
+          SqlBatch batch = Sql.Batch();
+          batch.Add(Sql.Rename(exC1, "C2"));
+          batch.Add(Sql.Rename(exT1, "T2"));
+          cmd.Statement = batch;
+          cmd.Transaction = trx;
+          cmd.ExecuteNonQuery();
+        }
+
+        Model exModel2 = new SqlModelProvider(sqlConnection, trx).Build();
+        var exT2 = exModel2.DefaultServer.DefaultCatalog.Schemas[schema.DbName].Tables["T2"];
+        Assert.IsNotNull(exT2);
+        var exC2 = exT2.TableColumns["C2"];
+        Assert.IsNotNull(exC2);
+
+      } finally {
+        trx.Rollback();
+      }
     }
 
     /*

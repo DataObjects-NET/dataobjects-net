@@ -1043,6 +1043,15 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       return string.Empty;
     }
 
+    public override string Translate(SqlCompilerContext context, Table node, SqlRenameAction action)
+    {
+      return "RENAME TO " + QuoteIdentifier(action.Name);
+    }
+
+    public override string Translate(SqlCompilerContext context, TableColumn node, SqlRenameAction action)
+    {
+      return string.Format("RENAME COLUMN {0} TO {1}", QuoteIdentifier(node.DbName), QuoteIdentifier(action.Name));
+    }
 
     protected string TranslateLiteral(object obj)
     {

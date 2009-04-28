@@ -890,6 +890,26 @@ namespace Xtensive.Sql.Dom
       return new SqlAlterTable(table, action);
     }
 
+    public static SqlAlterTable Rename(Table table, string name)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(table, "table");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      if (table.Name == name)
+        throw new ArgumentException("Table already has specified name.");
+
+      return Alter(table, new SqlRenameAction(table, name));
+    }
+
+    public static SqlAlterTable Rename(TableColumn column, string name)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(column, "table");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      if (column.Name == name)
+        throw new ArgumentException("Column already has specified name.");
+
+      return Alter(column.Table, new SqlRenameAction(column, name));
+    }
+
     public static SqlAlterSequence Alter(Sequence sequence, SequenceDescriptor descriptor, SqlAlterIdentityInfoOptions infoOption)
     {
       ArgumentValidator.EnsureArgumentNotNull(sequence, "sequence");

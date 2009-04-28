@@ -163,6 +163,14 @@ namespace Xtensive.Sql.Dom.Compiler
           context.AppendText(translator.Translate(context, constraint, ConstraintSection.Entry));
           context.AppendText(translator.Translate(context, action.Cascade, AlterTableSection.DropBehavior));
         }
+        else if (node.Action is SqlRenameAction) {
+          SqlRenameAction action = node.Action as SqlRenameAction;
+          TableColumn column = action.Node as TableColumn;
+          if (column != null)
+            context.AppendText(translator.Translate(context, column, action));
+          else
+            context.AppendText(translator.Translate(context, node.Table, action));
+        }
         context.AppendText(translator.Translate(context, node, AlterTableSection.Exit));
       }
     }

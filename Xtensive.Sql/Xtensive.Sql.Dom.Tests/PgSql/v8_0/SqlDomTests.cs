@@ -2142,5 +2142,54 @@ namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
       q.Columns.Add(n, "col");
       return q;
     }
+
+
+    [Test]
+    public void RenameTest()
+    {
+      Model model = new Model("default");
+
+      model.CreateServer("localhost");
+      model.DefaultServer.CreateCatalog("do4test");
+      model.DefaultServer.CreateUser("do4test");
+      Schema schema = MyCatalog.CreateSchema("S1");
+      Table table = schema.CreateTable("T1");
+      table.CreateColumn("C1", new SqlValueType(SqlDataType.Int32));
+
+      DbTransaction trx = null;
+      try {
+        trx = Connection.BeginTransaction();
+
+        using (SqlCommand cmd = new SqlCommand(Connection)) {
+          SqlBatch batch = Sql.Batch();
+          batch.Add(Sql.Create(schema));
+          cmd.Statement = batch;
+          cmd.ExecuteNonQuery();
+        }
+
+        Model exModel1 = new SqlModelProvider(Connection, trx).Build();
+        var exT1 = exModel1.DefaultServer.DefaultCatalog.Schemas[schema.DbName].Tables[table.DbName];
+        Assert.IsNotNull(exT1);
+        var exC1 = exT1.TableColumns["C1"];
+        Assert.IsNotNull(exC1);
+
+        using (SqlCommand cmd = new SqlCommand(Connection)) {
+          SqlBatch batch = Sql.Batch();
+          batch.Add(Sql.Rename(exC1, "C2"));
+          batch.Add(Sql.Rename(exT1, "T2"));
+          cmd.Statement = batch;
+          cmd.ExecuteNonQuery();
+        }
+
+        Model exModel2 = new SqlModelProvider(Connection, trx).Build();
+        var exT2 = exModel2.DefaultServer.DefaultCatalog.Schemas[schema.DbName].Tables["T2"];
+        Assert.IsNotNull(exT2);
+        var exC2 = exT2.TableColumns["C2"];
+        Assert.IsNotNull(exC2);
+
+      } finally {
+        trx.Rollback();
+      }
+    }
   }
 }

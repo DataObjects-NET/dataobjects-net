@@ -8,6 +8,8 @@ using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Compiler;
+using Xtensive.Sql.Dom.Database;
+using Xtensive.Sql.Dom.Ddl;
 using Xtensive.Sql.Dom.Dml;
 
 namespace Xtensive.Sql.Dom.Mssql.v2005
@@ -16,6 +18,20 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
   {
     private const int MillisecondsPerDay = 24 * 60 * 60 * 1000;
     private static readonly SqlExpression DateFirst = Sql.FunctionCall(MssqlTranslator.DateFirst);
+
+    public override void Visit(SqlAlterTable node)
+    {
+      if (!(node.Action is SqlRenameAction)) {
+        base.Visit(node);
+        return;
+      }
+      SqlRenameAction action = node.Action as SqlRenameAction;
+      TableColumn column = action.Node as TableColumn;
+      if (column != null)
+        context.AppendText(translator.Translate(context, column, action));
+      else
+        context.AppendText(translator.Translate(context, node.Table, action));
+    }
 
     /// <inheritdoc/>
     public override void Visit(SqlFunctionCall node)
