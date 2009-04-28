@@ -310,13 +310,11 @@ namespace Xtensive.Storage.Linq
         var result = Expression.Call(WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(resultType), keyExpression);
         return result;
       case MemberType.EntitySet:
-        return VisitMemberPathEntitySet(e);
+        return VisitMemberPathSubquery(e);
       case MemberType.Anonymous:
         return VisitMemberPathAnonymous(path, source);
       case MemberType.Subquery:
-          var visitedParameter = VisitParameter(path.Parameter);
-          throw new NotImplementedException("Subquery path visit");
-        break;
+        return VisitMemberPathSubquery(e);
       default:
         throw new ArgumentOutOfRangeException();
       }
@@ -796,7 +794,7 @@ namespace Xtensive.Storage.Linq
 
     #region VisitMemberPathImplementation
 
-    private Expression VisitMemberPathEntitySet(Expression e)
+    private Expression VisitMemberPathSubquery(Expression e)
     {
       RecordIsUsed = true;
       var m = (MemberExpression) e;

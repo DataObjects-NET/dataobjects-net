@@ -54,172 +54,172 @@ namespace Xtensive.Storage.Linq
       using (new ParameterScope()) {
         entityAsKey.Value = true;
         switch (methodKind) {
-          case QueryableMethodKind.Cast:
-            break;
-          case QueryableMethodKind.AsEnumerable:
-            break;
-          case QueryableMethodKind.AsQueryable:
-            break;
-          case QueryableMethodKind.ToArray:
-            break;
-          case QueryableMethodKind.ToList:
-            break;
-          case QueryableMethodKind.Aggregate:
-            break;
-          case QueryableMethodKind.ElementAt:
-            break;
-          case QueryableMethodKind.ElementAtOrDefault:
-            break;
-          case QueryableMethodKind.Last:
-            break;
-          case QueryableMethodKind.LastOrDefault:
-            break;
-          case QueryableMethodKind.Except:
-          case QueryableMethodKind.Intersect:
-          case QueryableMethodKind.Concat:
-          case QueryableMethodKind.Union:
-            return VisitSetOperations(mc.Arguments[0], mc.Arguments[1], methodKind);
-          case QueryableMethodKind.Reverse:
-            break;
-          case QueryableMethodKind.SequenceEqual:
-            break;
-          case QueryableMethodKind.DefaultIfEmpty:
-            break;
-          case QueryableMethodKind.SkipWhile:
-            break;
-          case QueryableMethodKind.TakeWhile:
-            break;
-          case QueryableMethodKind.All:
-            if (mc.Arguments.Count==2)
-              return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
-            break;
-          case QueryableMethodKind.OfType:
-            return VisitOfType(mc.Arguments[0], mc.Method.GetGenericArguments()[0], mc.Arguments[0].Type.GetGenericArguments()[0]);
-          case QueryableMethodKind.Any:
-            if (mc.Arguments.Count==1)
-              return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
-            if (mc.Arguments.Count==2)
-              return VisitAny(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
-            break;
-          case QueryableMethodKind.Contains:
-            if (mc.Arguments.Count==2)
-              return VisitContains(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc));
-            break;
-          case QueryableMethodKind.Distinct:
-            if (mc.Arguments.Count==1)
-              return VisitDistinct(mc.Arguments[0]);
-            break;
-          case QueryableMethodKind.First:
-          case QueryableMethodKind.FirstOrDefault:
-          case QueryableMethodKind.Single:
-          case QueryableMethodKind.SingleOrDefault:
-            if (mc.Arguments.Count==1)
-              return VisitFirstSingle(mc.Arguments[0], null, mc.Method, context.IsRoot(mc));
-            if (mc.Arguments.Count==2) {
-              LambdaExpression predicate = (mc.Arguments[1].StripQuotes());
-              return VisitFirstSingle(mc.Arguments[0], predicate, mc.Method, context.IsRoot(mc));
-            }
-            break;
-          case QueryableMethodKind.GroupBy:
-            if (mc.Arguments.Count==2) {
+        case QueryableMethodKind.Cast:
+          break;
+        case QueryableMethodKind.AsEnumerable:
+          break;
+        case QueryableMethodKind.AsQueryable:
+          break;
+        case QueryableMethodKind.ToArray:
+          break;
+        case QueryableMethodKind.ToList:
+          break;
+        case QueryableMethodKind.Aggregate:
+          break;
+        case QueryableMethodKind.ElementAt:
+          break;
+        case QueryableMethodKind.ElementAtOrDefault:
+          break;
+        case QueryableMethodKind.Last:
+          break;
+        case QueryableMethodKind.LastOrDefault:
+          break;
+        case QueryableMethodKind.Except:
+        case QueryableMethodKind.Intersect:
+        case QueryableMethodKind.Concat:
+        case QueryableMethodKind.Union:
+          return VisitSetOperations(mc.Arguments[0], mc.Arguments[1], methodKind);
+        case QueryableMethodKind.Reverse:
+          break;
+        case QueryableMethodKind.SequenceEqual:
+          break;
+        case QueryableMethodKind.DefaultIfEmpty:
+          break;
+        case QueryableMethodKind.SkipWhile:
+          break;
+        case QueryableMethodKind.TakeWhile:
+          break;
+        case QueryableMethodKind.All:
+          if (mc.Arguments.Count==2)
+            return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
+          break;
+        case QueryableMethodKind.OfType:
+          return VisitOfType(mc.Arguments[0], mc.Method.GetGenericArguments()[0], mc.Arguments[0].Type.GetGenericArguments()[0]);
+        case QueryableMethodKind.Any:
+          if (mc.Arguments.Count==1)
+            return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
+          if (mc.Arguments.Count==2)
+            return VisitAny(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
+          break;
+        case QueryableMethodKind.Contains:
+          if (mc.Arguments.Count==2)
+            return VisitContains(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc));
+          break;
+        case QueryableMethodKind.Distinct:
+          if (mc.Arguments.Count==1)
+            return VisitDistinct(mc.Arguments[0]);
+          break;
+        case QueryableMethodKind.First:
+        case QueryableMethodKind.FirstOrDefault:
+        case QueryableMethodKind.Single:
+        case QueryableMethodKind.SingleOrDefault:
+          if (mc.Arguments.Count==1)
+            return VisitFirstSingle(mc.Arguments[0], null, mc.Method, context.IsRoot(mc));
+          if (mc.Arguments.Count==2) {
+            LambdaExpression predicate = (mc.Arguments[1].StripQuotes());
+            return VisitFirstSingle(mc.Arguments[0], predicate, mc.Method, context.IsRoot(mc));
+          }
+          break;
+        case QueryableMethodKind.GroupBy:
+          if (mc.Arguments.Count==2) {
+            return VisitGroupBy(
+              mc.Method,
+              mc.Arguments[0],
+              mc.Arguments[1].StripQuotes(),
+              null,
+              null
+              );
+          }
+          if (mc.Arguments.Count==3) {
+            LambdaExpression lambda1 = mc.Arguments[1].StripQuotes();
+            LambdaExpression lambda2 = mc.Arguments[2].StripQuotes();
+            if (lambda2.Parameters.Count==1) {
+              // second lambda is element selector
               return VisitGroupBy(
                 mc.Method,
                 mc.Arguments[0],
-                mc.Arguments[1].StripQuotes(),
-                null,
-                null
-                );
-            }
-            if (mc.Arguments.Count==3) {
-              LambdaExpression lambda1 = mc.Arguments[1].StripQuotes();
-              LambdaExpression lambda2 = mc.Arguments[2].StripQuotes();
-              if (lambda2.Parameters.Count==1) {
-                // second lambda is element selector
-                return VisitGroupBy(
-                  mc.Method,
-                  mc.Arguments[0],
-                  lambda1,
-                  lambda2,
-                  null);
-              }
-              if (lambda2.Parameters.Count==2) {
-                // second lambda is result selector
-                return VisitGroupBy(
-                  mc.Method,
-                  mc.Arguments[0],
-                  lambda1,
-                  null,
-                  lambda2);
-              }
-            }
-            else if (mc.Arguments.Count==4) {
-              return VisitGroupBy(
-                mc.Method,
-                mc.Arguments[0],
-                mc.Arguments[1].StripQuotes(),
-                mc.Arguments[2].StripQuotes(),
-                mc.Arguments[3].StripQuotes()
-                );
-            }
-            break;
-          case QueryableMethodKind.GroupJoin:
-            return VisitGroupJoin(
-              mc.Type, mc.Arguments[0], mc.Arguments[1],
-              mc.Arguments[2].StripQuotes(),
-              mc.Arguments[3].StripQuotes(),
-              mc.Arguments[4].StripQuotes());
-          case QueryableMethodKind.Join:
-            return VisitJoin(mc.Arguments[0], mc.Arguments[1],
-              mc.Arguments[2].StripQuotes(),
-              mc.Arguments[3].StripQuotes(),
-              mc.Arguments[4].StripQuotes());
-          case QueryableMethodKind.OrderBy:
-            return VisitOrderBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Positive);
-          case QueryableMethodKind.OrderByDescending:
-            return VisitOrderBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Negative);
-          case QueryableMethodKind.Select:
-            return VisitSelect(mc.Arguments[0], mc.Arguments[1].StripQuotes());
-          case QueryableMethodKind.SelectMany:
-            if (mc.Arguments.Count==2) {
-              return VisitSelectMany(
-                mc.Type, mc.Arguments[0],
-                mc.Arguments[1].StripQuotes(),
+                lambda1,
+                lambda2,
                 null);
             }
-            if (mc.Arguments.Count==3) {
-              return VisitSelectMany(
-                mc.Type, mc.Arguments[0],
-                mc.Arguments[1].StripQuotes(),
-                mc.Arguments[2].StripQuotes());
+            if (lambda2.Parameters.Count==2) {
+              // second lambda is result selector
+              return VisitGroupBy(
+                mc.Method,
+                mc.Arguments[0],
+                lambda1,
+                null,
+                lambda2);
             }
-            break;
-          case QueryableMethodKind.LongCount:
-          case QueryableMethodKind.Count:
-          case QueryableMethodKind.Max:
-          case QueryableMethodKind.Min:
-          case QueryableMethodKind.Sum:
-          case QueryableMethodKind.Average:
-            if (mc.Arguments.Count==1)
-              return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc));
-            if (mc.Arguments.Count==2)
-              return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
-            break;
-          case QueryableMethodKind.Skip:
-            if (mc.Arguments.Count==2)
-              return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
-            break;
-          case QueryableMethodKind.Take:
-            if (mc.Arguments.Count==2)
-              return VisitTake(mc.Arguments[0], mc.Arguments[1]);
-            break;
-          case QueryableMethodKind.ThenBy:
-            return VisitThenBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Positive);
-          case QueryableMethodKind.ThenByDescending:
-            return VisitThenBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Negative);
-          case QueryableMethodKind.Where:
-            return VisitWhere(mc.Arguments[0], mc.Arguments[1].StripQuotes());
-          default:
-            throw new ArgumentOutOfRangeException("methodKind");
+          }
+          else if (mc.Arguments.Count==4) {
+            return VisitGroupBy(
+              mc.Method,
+              mc.Arguments[0],
+              mc.Arguments[1].StripQuotes(),
+              mc.Arguments[2].StripQuotes(),
+              mc.Arguments[3].StripQuotes()
+              );
+          }
+          break;
+        case QueryableMethodKind.GroupJoin:
+          return VisitGroupJoin(
+            mc.Type, mc.Arguments[0], mc.Arguments[1],
+            mc.Arguments[2].StripQuotes(),
+            mc.Arguments[3].StripQuotes(),
+            mc.Arguments[4].StripQuotes());
+        case QueryableMethodKind.Join:
+          return VisitJoin(mc.Arguments[0], mc.Arguments[1],
+            mc.Arguments[2].StripQuotes(),
+            mc.Arguments[3].StripQuotes(),
+            mc.Arguments[4].StripQuotes());
+        case QueryableMethodKind.OrderBy:
+          return VisitOrderBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Positive);
+        case QueryableMethodKind.OrderByDescending:
+          return VisitOrderBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Negative);
+        case QueryableMethodKind.Select:
+          return VisitSelect(mc.Arguments[0], mc.Arguments[1].StripQuotes());
+        case QueryableMethodKind.SelectMany:
+          if (mc.Arguments.Count==2) {
+            return VisitSelectMany(
+              mc.Type, mc.Arguments[0],
+              mc.Arguments[1].StripQuotes(),
+              null);
+          }
+          if (mc.Arguments.Count==3) {
+            return VisitSelectMany(
+              mc.Type, mc.Arguments[0],
+              mc.Arguments[1].StripQuotes(),
+              mc.Arguments[2].StripQuotes());
+          }
+          break;
+        case QueryableMethodKind.LongCount:
+        case QueryableMethodKind.Count:
+        case QueryableMethodKind.Max:
+        case QueryableMethodKind.Min:
+        case QueryableMethodKind.Sum:
+        case QueryableMethodKind.Average:
+          if (mc.Arguments.Count==1)
+            return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc));
+          if (mc.Arguments.Count==2)
+            return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
+          break;
+        case QueryableMethodKind.Skip:
+          if (mc.Arguments.Count==2)
+            return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
+          break;
+        case QueryableMethodKind.Take:
+          if (mc.Arguments.Count==2)
+            return VisitTake(mc.Arguments[0], mc.Arguments[1]);
+          break;
+        case QueryableMethodKind.ThenBy:
+          return VisitThenBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Positive);
+        case QueryableMethodKind.ThenByDescending:
+          return VisitThenBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Negative);
+        case QueryableMethodKind.Where:
+          return VisitWhere(mc.Arguments[0], mc.Arguments[1].StripQuotes());
+        default:
+          throw new ArgumentOutOfRangeException("methodKind");
         }
       }
       throw new NotSupportedException();
@@ -326,16 +326,16 @@ namespace Xtensive.Storage.Linq
         : VisitSequence(source);
       RecordSet recordSet = null;
       switch (method.Name) {
-        case WellKnown.Queryable.First:
-        case WellKnown.Queryable.FirstOrDefault:
-          recordSet = result.RecordSet.Take(1);
-          break;
-        case WellKnown.Queryable.Single:
-        case WellKnown.Queryable.SingleOrDefault:
-          recordSet = result.RecordSet.Take(2);
-          break;
+      case WellKnown.Queryable.First:
+      case WellKnown.Queryable.FirstOrDefault:
+        recordSet = result.RecordSet.Take(1);
+        break;
+      case WellKnown.Queryable.Single:
+      case WellKnown.Queryable.SingleOrDefault:
+        recordSet = result.RecordSet.Take(2);
+        break;
       }
-      var resultType = (ResultType)Enum.Parse(typeof (ResultType), method.Name);
+      var resultType = (ResultType) Enum.Parse(typeof (ResultType), method.Name);
       return new ResultExpression(method.ReturnType, recordSet, result.Mapping, result.ItemProjector, resultType);
     }
 
@@ -370,27 +370,27 @@ namespace Xtensive.Storage.Linq
       ResultExpression innerResult;
 
       switch (method.Name) {
-        case WellKnown.Queryable.Count:
-          isIntCount = true;
-          aggregateType = AggregateType.Count;
-          break;
-        case WellKnown.Queryable.LongCount:
-          aggregateType = AggregateType.Count;
-          break;
-        case WellKnown.Queryable.Min:
-          aggregateType = AggregateType.Min;
-          break;
-        case WellKnown.Queryable.Max:
-          aggregateType = AggregateType.Max;
-          break;
-        case WellKnown.Queryable.Sum:
-          aggregateType = AggregateType.Sum;
-          break;
-        case WellKnown.Queryable.Average:
-          aggregateType = AggregateType.Avg;
-          break;
-        default:
-          throw new ArgumentOutOfRangeException();
+      case WellKnown.Queryable.Count:
+        isIntCount = true;
+        aggregateType = AggregateType.Count;
+        break;
+      case WellKnown.Queryable.LongCount:
+        aggregateType = AggregateType.Count;
+        break;
+      case WellKnown.Queryable.Min:
+        aggregateType = AggregateType.Min;
+        break;
+      case WellKnown.Queryable.Max:
+        aggregateType = AggregateType.Max;
+        break;
+      case WellKnown.Queryable.Sum:
+        aggregateType = AggregateType.Sum;
+        break;
+      case WellKnown.Queryable.Average:
+        aggregateType = AggregateType.Avg;
+        break;
+      default:
+        throw new ArgumentOutOfRangeException();
       }
 
       if (aggregateType==AggregateType.Count) {
@@ -469,38 +469,38 @@ namespace Xtensive.Storage.Linq
       var memberType = originalCompiledKeyExpression.Body.GetMemberType();
       var rewrittenMapping = groupByMapping.Mapping.RewriteColumnIndexes(projectorRewriter);
       switch (memberType) {
-        case MemberType.Default:
-        case MemberType.Primitive:
-        case MemberType.Key: {
+      case MemberType.Default:
+      case MemberType.Primitive:
+      case MemberType.Key: {
+        var primitiveFieldMapping = (PrimitiveMapping) rewrittenMapping;
+        newResultMapping.RegisterField(StorageWellKnown.Key, primitiveFieldMapping.Segment);
+        break;
+      }
+      case MemberType.Structure:
+        var complexMapping = (ComplexMapping) rewrittenMapping;
+        int offset = complexMapping.Fields.Min(pair => pair.Value.Offset);
+        int endOffset = complexMapping.Fields.Max(pair => pair.Value.Offset);
+        int length = endOffset - offset + 1;
+        var keySegment = new Segment<int>(offset, length);
+        foreach (var p in complexMapping.Fields)
+          newResultMapping.RegisterField(StorageWellKnown.Key + "." + p.Key, p.Value);
+        newResultMapping.RegisterField(StorageWellKnown.Key, keySegment);
+        break;
+      case MemberType.Entity:
+        if (rewrittenMapping is PrimitiveMapping) {
           var primitiveFieldMapping = (PrimitiveMapping) rewrittenMapping;
-          newResultMapping.RegisterField(StorageWellKnown.Key, primitiveFieldMapping.Segment);
-          break;
+          var fields = new Dictionary<string, Segment<int>> {{StorageWellKnown.Key, primitiveFieldMapping.Segment}};
+          var entityMapping = new ComplexMapping(fields);
+          newResultMapping.RegisterEntity(StorageWellKnown.Key, entityMapping);
         }
-        case MemberType.Structure:
-          var complexMapping = (ComplexMapping)rewrittenMapping;
-          int offset = complexMapping.Fields.Min(pair => pair.Value.Offset);
-          int endOffset = complexMapping.Fields.Max(pair => pair.Value.Offset);
-          int length = endOffset - offset + 1;
-          var keySegment = new Segment<int>(offset, length);
-          foreach (var p in complexMapping.Fields)
-            newResultMapping.RegisterField(StorageWellKnown.Key + "." + p.Key, p.Value);
-          newResultMapping.RegisterField(StorageWellKnown.Key, keySegment);
-          break;
-        case MemberType.Entity:
-          if (rewrittenMapping is PrimitiveMapping) {
-            var primitiveFieldMapping = (PrimitiveMapping) rewrittenMapping;
-            var fields = new Dictionary<string, Segment<int>> {{StorageWellKnown.Key, primitiveFieldMapping.Segment}};
-            var entityMapping = new ComplexMapping(fields);
-            newResultMapping.RegisterEntity(StorageWellKnown.Key, entityMapping);
-          }
-          else
-            newResultMapping.RegisterEntity(StorageWellKnown.Key, (ComplexMapping) rewrittenMapping);
-          break;
-        case MemberType.Anonymous:
-          newResultMapping.RegisterAnonymous(StorageWellKnown.Key, (ComplexMapping) rewrittenMapping, projectorRewriter.Rewrite(originalCompiledKeyExpression.Body));
-          break;
-        default:
-          throw new NotSupportedException();
+        else
+          newResultMapping.RegisterEntity(StorageWellKnown.Key, (ComplexMapping) rewrittenMapping);
+        break;
+      case MemberType.Anonymous:
+        newResultMapping.RegisterAnonymous(StorageWellKnown.Key, (ComplexMapping) rewrittenMapping, projectorRewriter.Rewrite(originalCompiledKeyExpression.Body));
+        break;
+      default:
+        throw new NotSupportedException();
       }
 
       var keyType = keySelector.Type.GetGenericArguments()[1];
@@ -806,18 +806,18 @@ namespace Xtensive.Storage.Linq
 
       var recordSet = outer.RecordSet;
       switch (methodKind) {
-        case QueryableMethodKind.Concat:
-          recordSet = outerRecordSet.Concat(innerRecordSet);
-          break;
-        case QueryableMethodKind.Except:
-          recordSet = outerRecordSet.Except(innerRecordSet);
-          break;
-        case QueryableMethodKind.Intersect:
-          recordSet = outerRecordSet.Intersect(innerRecordSet);
-          break;
-        case QueryableMethodKind.Union:
-          recordSet = outerRecordSet.Union(innerRecordSet);
-          break;
+      case QueryableMethodKind.Concat:
+        recordSet = outerRecordSet.Concat(innerRecordSet);
+        break;
+      case QueryableMethodKind.Except:
+        recordSet = outerRecordSet.Except(innerRecordSet);
+        break;
+      case QueryableMethodKind.Intersect:
+        recordSet = outerRecordSet.Intersect(innerRecordSet);
+        break;
+      case QueryableMethodKind.Union:
+        recordSet = outerRecordSet.Union(innerRecordSet);
+        break;
       }
 
       IMapping mapping;
@@ -860,21 +860,35 @@ namespace Xtensive.Storage.Linq
 
     private ResultExpression VisitSequence(Expression sequenceExpression)
     {
+
       if (sequenceExpression.GetMemberType()==MemberType.EntitySet) {
         if (sequenceExpression.NodeType!=ExpressionType.MemberAccess)
           throw new NotSupportedException();
         var memberAccess = (MemberExpression) sequenceExpression;
         if (!(memberAccess.Member is PropertyInfo) || memberAccess.Expression==null)
           throw new NotSupportedException();
+        if (!memberAccess.Expression.Type.IsSubclassOf(typeof (Entity)))
+          throw new NotSupportedException();
         var field = context.Model.Types[memberAccess.Expression.Type].Fields[memberAccess.Member.Name];
         sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccess.Expression, field);
       }
 
-        var visitedExpression = Visit(sequenceExpression);
+      var visitedExpression = AnonymousAccessRewriter.Rewrite(Visit(sequenceExpression));
 
       if (visitedExpression.IsGroupingConstructor()) {
         var groupingParameter = visitedExpression.GetGroupingParameter();
-        var applyParameter = context.GetApplyParameter(context.Bindings[(ParameterExpression) sequenceExpression]);
+        ParameterExpression parameter;
+        switch (sequenceExpression.NodeType) {
+        case ExpressionType.Parameter:
+          parameter = (ParameterExpression) sequenceExpression;
+          break;
+        case ExpressionType.MemberAccess:
+          parameter = MemberPath.Parse(sequenceExpression, context.Model).Parameter;
+          break;
+        default:
+          throw new InvalidOperationException();
+        }
+        var applyParameter = context.GetApplyParameter(context.Bindings[parameter]);
         var oldResult = visitedExpression.GetGroupingItemsResult();
         var newProvider = TupleParameterToApplyParameterRewriter.Rewrite(oldResult.RecordSet.Provider, groupingParameter, applyParameter);
         return new ResultExpression(oldResult.Type, newProvider.Result, oldResult.Mapping, oldResult.ItemProjector);
@@ -882,7 +896,19 @@ namespace Xtensive.Storage.Linq
 
       if (visitedExpression.IsSubqueryConstructor()) {
         var subqueryParameter = visitedExpression.GetSubqueryParameter();
-        var applyParameter = context.GetApplyParameter(context.Bindings[(ParameterExpression) sequenceExpression]);
+        ParameterExpression parameter;
+       switch (sequenceExpression.NodeType) {
+        case ExpressionType.Parameter:
+          parameter = (ParameterExpression) sequenceExpression;
+          break;
+        case ExpressionType.MemberAccess:
+          parameter = MemberPath.Parse(sequenceExpression, context.Model).Parameter;
+          break;
+        default:
+          throw new InvalidOperationException();
+        }
+
+        var applyParameter = context.GetApplyParameter(context.Bindings[parameter]);
         var oldResult = visitedExpression.GetSubqueryItemsResult();
         var newProvider = TupleParameterToApplyParameterRewriter.Rewrite(oldResult.RecordSet.Provider, subqueryParameter, applyParameter);
         return new ResultExpression(oldResult.Type, newProvider.Result, oldResult.Mapping, oldResult.ItemProjector);
@@ -890,7 +916,7 @@ namespace Xtensive.Storage.Linq
 
       if (visitedExpression.IsResult())
         return (ResultExpression) visitedExpression;
-      
+
       throw new NotSupportedException(string.Format(Resources.Strings.ExExpressionOfTypeXIsNotASequence, visitedExpression.Type));
     }
 

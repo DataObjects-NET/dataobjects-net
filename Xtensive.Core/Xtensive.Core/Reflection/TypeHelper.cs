@@ -735,23 +735,38 @@ namespace Xtensive.Core.Reflection
     }
 
     /// <summary>
-    /// Determines whether the specified <paramref name="type"/> inherits the <paramref name="baseType"/>.
+    /// Determines whether the specified <paramref name="type"/> inherits the generic <paramref name="baseType"/>.
     /// </summary>
     /// <param name="type">The type to check.</param>
     /// <param name="baseType">Type of the generic.</param>
     /// <returns>
-    /// <see langword="true"/> if the specified <paramref name="type"/> inherits the <paramref name="baseType"/>;
+    /// <see langword="true"/> if the specified <paramref name="type"/> inherits the generic <paramref name="baseType"/>;
     /// otherwise, <see langword="false"/>.
     /// </returns>
     public static bool IsOfGenericType(this Type type, Type baseType)
     {
+      return GetGenericType(type, baseType)!=null;
+    }
+
+    /// <summary>
+    /// Determines whether the specified <paramref name="type"/> inherits 
+    /// the generic <paramref name="baseType"/> and returns direct inheritor of generic <paramref name="baseType"/> if any.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <param name="baseType">Type of the generic.</param>
+    /// <returns>
+    /// Generic <see cref="Type"/> that directly inherits <paramref name="baseType"/> if the specified <paramref name="type"/> inherits the generic <paramref name="baseType"/>;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    public static Type GetGenericType(this Type type, Type baseType)
+    {
       Type t = type;
       while (!(t == null || t == typeof(object))) {
         if (t.IsGenericType && t.GetGenericTypeDefinition() == baseType)
-          return true;
+          return t;
         t = t.BaseType;
       }
-      return false;
+      return null;
     }
 
     /// <summary>

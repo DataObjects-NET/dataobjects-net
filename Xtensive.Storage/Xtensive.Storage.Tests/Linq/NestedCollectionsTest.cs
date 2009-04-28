@@ -164,6 +164,7 @@ namespace Xtensive.Storage.Tests.Linq
         Assert.AreEqual(numberOfOrders, Count(result));
     }
 
+
     [Test]
     public void SelectAnonymousSelectMany1Test()
     {
@@ -175,6 +176,15 @@ namespace Xtensive.Storage.Tests.Linq
 
     [Test]
     public void SelectAnonymousSelectMany2Test()
+    {
+        var result = Query<Customer>.All
+          .Select(c => new {Orders = Query<Order>.All.Take(10) })
+          .SelectMany(i => i.Orders);
+       QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void SelectAnonymousSubqueryTest()
     {
         var result = Query<Customer>.All
           .Select(c => new { Customer = c, Orders = Query<Order>.All })

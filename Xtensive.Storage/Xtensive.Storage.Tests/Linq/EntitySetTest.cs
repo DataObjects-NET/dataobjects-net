@@ -18,6 +18,16 @@ namespace Xtensive.Storage.Tests.Linq
   public class EntitySetTest : NorthwindDOModelTest
   {
     [Test]
+    [ExpectedException(typeof(NotSupportedException))]
+    public void EntitySetSelectManyAnonymousTest()
+    {
+      var result = Query<Customer>.All
+        .Select(c => new {OrdersFiled = c.Orders})
+        .SelectMany(i => i.OrdersFiled);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void QueryTest()
     {
       var customer = GetCustomer();
@@ -66,7 +76,7 @@ namespace Xtensive.Storage.Tests.Linq
         join e in Query<Employee>.All on o.Employee equals e
         select e;
       Assert.AreEqual(customer.Orders.Count, result.ToList().Count);
-     }
+    }
 
     private static Customer GetCustomer()
     {

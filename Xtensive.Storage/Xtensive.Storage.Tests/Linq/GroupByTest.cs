@@ -11,6 +11,7 @@ using NUnit.Framework;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using Xtensive.Core.Testing;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Tests.Linq
 {
@@ -27,14 +28,12 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void EntityGroupWithCountTest()
+    public void GroupingAsQueryableTest()
     {
       var result = Query<Product>.All.GroupBy(p => p);
-      foreach (IGrouping<Product, Product> product in result) {
-        var c = product.Count();
-        throw new InvalidOperationException("Count works through collection iterate. Not through query.");
+      foreach (IGrouping<Product, Product> grouping in result) {
+        Assert.IsTrue(grouping.GetType().IsOfGenericInterface(typeof (IQueryable<>)), "Grouping must implement IQueryable<T> intyerface.");
       }
-     // QueryDumper.Dump(result);
     }
 
     [Test]
