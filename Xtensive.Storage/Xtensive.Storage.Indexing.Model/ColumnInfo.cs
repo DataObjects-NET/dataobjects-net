@@ -20,6 +20,7 @@ namespace Xtensive.Storage.Indexing.Model
   public sealed class ColumnInfo : NodeBase<TableInfo>
   {
     private TypeInfo type;
+    private SequenceInfo sequence;
 
     /// <summary>
     /// Gets or sets the type of the column.
@@ -31,6 +32,21 @@ namespace Xtensive.Storage.Indexing.Model
         EnsureIsEditable();
         using (var scope = LogPropertyChange("Type", value)) {
           type = value;
+          scope.Commit();
+        }
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the <see cref="SequenceInfo"/> associated with the column.
+    /// </summary>
+    [Property(IgnoreInComparison = true)]
+    public SequenceInfo Sequence {
+      get { return sequence; }
+      set {
+        EnsureIsEditable();
+        using (var scope = LogPropertyChange("Sequence", value)) {
+          sequence = value;
           scope.Commit();
         }
       }

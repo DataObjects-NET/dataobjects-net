@@ -6,6 +6,7 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
@@ -18,6 +19,7 @@ namespace Xtensive.Modelling.Tests
   [TestFixture]
   public class IndexingModelTest
   {
+
     [Test]
     public void MutualRenameTest()
     {
@@ -32,6 +34,21 @@ namespace Xtensive.Modelling.Tests
         t2.Name = "Objects";
         hs.Add(new RenameHint(t2.Path, o2.Path));
         hs.Add(new RenameHint(o2.Path, t2.Path));
+      },
+      (diff, actions) => { });
+    }
+
+    [Test]
+    public void RemoveTableTest()
+    {
+      var storage = CreateSimpleStorageModel();
+      storage.Dump();
+
+      TestUpdate(storage, (s1, s2, hs) => {
+        var t1 = (TableInfo) s2.Resolve("Tables/Types");
+        var fk = (ForeignKeyInfo) s2.Resolve("Tables/Objects/ForeignKeys/FK_TypeId");
+        fk.Remove();
+        t1.Remove();
       },
       (diff, actions) => { });
     }

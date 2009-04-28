@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
@@ -52,9 +53,25 @@ namespace Xtensive.Storage.Tests.Storage
     public void   TestBuilder()
     {
       Domain domain = BuildDomain(SchemaUpgradeMode.Recreate, typeof (B));
+      using (var s = domain.OpenSession())
+      using(var t = Transaction.Open()){
+        new B();
+        t.Complete();
+      }
 //      int bId = domain.Model.Types[typeof (B)].TypeId;
 
       domain = BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A), typeof (B));
+      using (var s = domain.OpenSession())
+      using(var t = Transaction.Open()){
+        new A();
+        new B();
+        t.Complete();
+      }
+      using (var s = domain.OpenSession())
+      using(var t = Transaction.Open()){
+        Assert.AreEqual(2, Query<B>.All.Count());
+        Assert.AreEqual(1, Query<A>.All.Count());
+      }
 //      Assert.AreEqual(bId, domain.Model.Types[typeof (B)].TypeId);
     }
 

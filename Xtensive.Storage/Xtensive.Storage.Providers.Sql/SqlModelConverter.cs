@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Providers.Sql
       StorageInfo = new StorageInfo(schema.Name);
       Visit(schema);
 
-      StorageInfo.Lock(true);
+      // StorageInfo.Lock(true);
       return StorageInfo;
     }
 
@@ -79,7 +79,8 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var column in table.TableColumns)
         Visit(column);
 
-      var primaryKey = table.TableConstraints.OfType<PrimaryKey>().Single();
+      var primaryKey = table.TableConstraints
+        .SingleOrDefault(constraint=>constraint is PrimaryKey);
       if (primaryKey != null)
         Visit(primaryKey);
 
@@ -224,6 +225,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>The index.</returns>
     protected virtual IndexInfo FindIndex(TableInfo table, List<ColumnInfo> keyColumns)
     {
+      var primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value);
+      if (primaryKeyColumns.Except(keyColumns)
+        .Union(keyColumns.Except(primaryKeyColumns)).Count()==0)
+        return table.PrimaryIndex;
+
       foreach (var index in table.SecondaryIndexes) {
         var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value);
         if (secondaryKeyColumns.Except(keyColumns)

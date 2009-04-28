@@ -108,6 +108,16 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       }
     }
 
+    public override string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
+    {
+      switch (section) {
+        case AlterTableSection.AddColumn:
+          return "ADD";
+        default:
+          return base.Translate(context, node, section);
+      }
+    }
+
     public override string Translate(SqlCompilerContext context, SequenceDescriptor descriptor,
                                      SequenceDescriptorSection section)
     {

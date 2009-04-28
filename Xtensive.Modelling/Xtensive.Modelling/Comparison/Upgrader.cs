@@ -123,8 +123,10 @@ namespace Xtensive.Modelling.Comparison
           Stage = UpgradeStage.Upgrade;
           var upgradeActions = Visit(postCleanupDiff);
           var actions = new GroupingNodeAction();
-          actions.Add(cleanupActions);
-          actions.Add(upgradeActions);
+          if (cleanupActions != null)
+            actions.Add(cleanupActions);
+          if (upgradeActions != null)
+            actions.Add(upgradeActions);
           var diff = comparer.Compare(CurrentModel, TargetModel);
           if (diff!=null) {
             Log.InfoRegion(Strings.LogAutomaticUpgradeSequenceValidation);
@@ -237,7 +239,7 @@ namespace Xtensive.Modelling.Comparison
         IEnumerable<KeyValuePair<string, Difference>> propertyChanges = difference.PropertyChanges;
         if (isCleanup)
           propertyChanges = propertyChanges.Reverse();
-        foreach (var pair in difference.PropertyChanges) {
+        foreach (var pair in propertyChanges) {
           var accessor = any.PropertyAccessors[pair.Key];
           if (!isCleanup || !isImmutable || IsMutable(difference, accessor))
             using (CreateContext().Activate()) {

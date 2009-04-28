@@ -136,7 +136,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public SqlValueType BuildSqlValueType(Type type, int length)
     {
-      DataTypeMapping dtm = GetTypeMapping(type);
+      DataTypeMapping dtm = GetTypeMapping(type, length);
       return BuildSqlValueType(length, dtm);
     }
 

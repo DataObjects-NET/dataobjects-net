@@ -32,6 +32,11 @@ namespace Xtensive.Storage.Model.Conversion
     protected virtual StorageInfo StorageInfo { get; private set; }
 
     /// <summary>
+    /// Gets the currently converting model.
+    /// </summary>
+    protected DomainModel Model { get; private set; }
+
+    /// <summary>
     /// Gets the foreign key name generator.
     /// </summary>
     protected Func<AssociationInfo, FieldInfo, string> ForeignKeyNameGenerator { get; private set; }
@@ -59,8 +64,8 @@ namespace Xtensive.Storage.Model.Conversion
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(storageName, "storageName");
       
       StorageInfo = new StorageInfo(storageName);
+      Model = domainModel;
       Visit(domainModel);
-      StorageInfo.Lock(true);
       return StorageInfo;
     }
     
@@ -119,10 +124,7 @@ namespace Xtensive.Storage.Model.Conversion
         ? column.ValueType.ToNullable()
         : column.ValueType;
 
-      var isNullable = column.ValueType.IsValueType
-        ? column.ValueType.IsNullable()
-        : column.IsNullable;
-      var type = new StorageTypeInfo(columnType, isNullable, column.Length ?? 0);
+      var type = new StorageTypeInfo(columnType, column.IsNullable, column.Length ?? 0);
       return new StorageColumnInfo(CurrentTable, column.Name, type);
     }
 
@@ -132,12 +134,15 @@ namespace Xtensive.Storage.Model.Conversion
       if (!association.IsMaster)
         return null;
 
-      var referencedTable = StorageInfo.Tables[association.ReferencedType.MappingName];
+      TableInfo referencedTable;
       TableInfo referencingTable;
       StorageIndexInfo referencingIndex;
       ForeignKeyInfo foreignKey;
 
       if (association.UnderlyingType==null) {
+        if (association.ReferencingType.Indexes.PrimaryIndex==null)
+            return null;
+        referencedTable = StorageInfo.Tables[association.ReferencedType.MappingName];
         referencingTable = StorageInfo.Tables[association.ReferencingType.MappingName];
         referencingIndex = FindIndex(referencingTable,
           new List<string>(association.ReferencingField.ExtractColumns().Select(ci => ci.Name)));
@@ -155,6 +160,8 @@ namespace Xtensive.Storage.Model.Conversion
       foreignKey = null;
       referencingTable = StorageInfo.Tables[association.UnderlyingType.MappingName];
       foreach (var field in association.UnderlyingType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
+        var referencedIndex = FindRealIndex(Model.Types[field.ValueType].Indexes.PrimaryIndex, null);
+        referencedTable = StorageInfo.Tables[referencedIndex.DeclaringType.MappingName];
         referencingIndex = FindIndex(referencingTable,
           new List<string>(field.ExtractColumns().Select(ci => ci.Name)));
         var foreignKeyName = ForeignKeyNameGenerator(association, field);
@@ -196,6 +203,11 @@ namespace Xtensive.Storage.Model.Conversion
     /// <returns>The index.</returns>
     protected virtual StorageIndexInfo FindIndex(TableInfo table, List<string> keyColumns)
     {
+      var primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name);
+      if (primaryKeyColumns.Except(keyColumns)
+        .Union(keyColumns.Except(primaryKeyColumns)).Count()==0)
+        return table.PrimaryIndex;
+
       foreach (var index in table.SecondaryIndexes) {
         var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value.Name);
         if (secondaryKeyColumns.Except(keyColumns)
@@ -227,6 +239,18 @@ namespace Xtensive.Storage.Model.Conversion
       }
     }
 
+    protected static IndexInfo FindRealIndex(IndexInfo index, FieldInfo field)
+    {
+      if (index.IsVirtual)
+        foreach (var underlyingIndex in index.UnderlyingIndexes) {
+          var result = FindRealIndex(underlyingIndex, field);
+          if (result!=null)
+            return result;
+        }
+      else if (field==null || index.Columns.ContainsAny(field.ExtractColumns()))
+        return index;
+      return null;
+    }
 
     // Constructors
 
@@ -245,6 +269,7 @@ namespace Xtensive.Storage.Model.Conversion
       ForeignKeyNameGenerator = foreignKeyNameGenerator;
       HierarchyForeignKeyNameGenerator = hierarchyForeignKeyNameGenerator;
     }
+    
 
     #region Not supported
 
