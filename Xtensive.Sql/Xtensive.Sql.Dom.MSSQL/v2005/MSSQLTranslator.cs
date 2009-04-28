@@ -34,23 +34,6 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       dateTimeFormat.LongTimePattern = "HH':'mm':'ss'.'fff\\'";
     }
 
-    public override string Translate(SqlCompilerContext context, SqlAggregate node, NodeSection section)
-    {
-      switch (section)
-      {
-        case NodeSection.Entry:
-          string result = Translate(node.NodeType) + "(" + ((node.Distinct) ? "DISTINCT" : string.Empty);
-          if (node.NodeType == SqlNodeType.Count)
-            return "CAST(" + result;
-          return result;
-        case NodeSection.Exit:
-          if (node.NodeType == SqlNodeType.Count)
-            return ") AS bigint)";
-          return ")";
-      }
-      return string.Empty;
-    }
-
     public override string Translate(SqlCompilerContext context, bool cascade, AlterTableSection section)
     {
       return String.Empty;
@@ -89,8 +72,9 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
 
     public override string Translate(SqlNodeType type)
     {
-      switch (type)
-      {
+      switch (type) {
+        case SqlNodeType.Count:
+          return "COUNT_BIG";
         case SqlNodeType.Concat:
           return "+";
         case SqlNodeType.Overlaps:
