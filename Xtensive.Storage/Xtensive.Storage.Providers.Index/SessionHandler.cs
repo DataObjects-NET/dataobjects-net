@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Providers.Index
     public override void BeginTransaction()
     {
       if (StorageView!=null)
-        throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpen);
+        throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpened);
       StorageView = storage.CreateView(Session.Transaction.IsolationLevel);
       // TODO: Implement transactions
     }
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.Index
     public override void CommitTransaction()
     {
       if (StorageView==null)
-        throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
+        throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
       StorageView.Transaction.Commit();
       StorageView = null;
       // TODO: Implement transactions
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Providers.Index
     public override void RollbackTransaction()
     {
       if (StorageView==null)
-        throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
+        throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
       StorageView.Transaction.Rollback();
       StorageView = null;
       // TODO: Implement transactions

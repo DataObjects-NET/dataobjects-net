@@ -111,6 +111,15 @@ namespace Xtensive.Storage.Providers
       return Domain.OpenSession(configuration);
     }
 
+    /// <summary>
+    /// Initializes the system session.
+    /// </summary>
+    public virtual void OnSystemSessionOpen()
+    {
+    }
+
+    #region Private \ internal methods
+
     /// <exception cref="InvalidOperationException">One of compiler containers is 
     /// improperly described.</exception>
     private void BuildMemberCompilerProviders()
@@ -146,6 +155,8 @@ namespace Xtensive.Storage.Providers
       }
     }
 
+    #endregion
+
     // Initialization
 
     /// <inheritdoc/>
@@ -162,13 +173,6 @@ namespace Xtensive.Storage.Providers
         },
         CreatePreCompiler);
       BuildMemberCompilerProviders();
-    }
-
-    /// <summary>
-    /// Initializes the system session.
-    /// </summary>
-    public virtual void OnSystemSessionOpen()
-    {
     }
   }
 }

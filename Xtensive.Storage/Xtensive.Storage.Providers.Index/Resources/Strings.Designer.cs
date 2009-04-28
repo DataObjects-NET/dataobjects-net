@@ -70,11 +70,11 @@ namespace Xtensive.Storage.Providers.Index.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The collection must not be empty.
+        ///   Looks up a localized string similar to The collection is empty.
         /// </summary>
-        internal static string ExCollectionMustNotBeEmpty {
+        internal static string ExCollectionIsEmpty {
             get {
-                return ResourceManager.GetString("ExCollectionMustNotBeEmpty", resourceCulture);
+                return ResourceManager.GetString("ExCollectionIsEmpty", resourceCulture);
             }
         }
         
@@ -88,20 +88,20 @@ namespace Xtensive.Storage.Providers.Index.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Transaction is already open..
+        ///   Looks up a localized string similar to Transaction is already opened..
         /// </summary>
-        internal static string ExTransactionIsAlreadyOpen {
+        internal static string ExTransactionIsAlreadyOpened {
             get {
-                return ResourceManager.GetString("ExTransactionIsAlreadyOpen", resourceCulture);
+                return ResourceManager.GetString("ExTransactionIsAlreadyOpened", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Transaction is not open..
         /// </summary>
-        internal static string ExTransactionIsNotOpen {
+        internal static string ExTransactionIsNotOpened {
             get {
-                return ResourceManager.GetString("ExTransactionIsNotOpen", resourceCulture);
+                return ResourceManager.GetString("ExTransactionIsNotOpened", resourceCulture);
             }
         }
     }

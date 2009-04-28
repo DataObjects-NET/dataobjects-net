@@ -30,12 +30,8 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     /// Gets the length of this instance.
     /// </summary>
-    public int Length
-    {
-      get
-      {
-        return Columns.Count;
-      }
+    public int Length {
+      get { return Columns.Count; }
     }
 
     /// <summary>

@@ -47,11 +47,12 @@ namespace Xtensive.Storage.Providers.Index
 
     // Constructors
 
+    /// <exception cref="Exception"><paramref name="underlyingProviders"/> is empty.</exception>
     public MergedStatisticsProvider(IOptimizationInfoProvider<Tuple>[] underlyingProviders)
     {
       ArgumentValidator.EnsureArgumentNotNull(underlyingProviders, "underlyingProviders");
       if (underlyingProviders.Length == 0)
-        throw new ArgumentException(Resources.Strings.ExCollectionMustNotBeEmpty, "underlyingProviders");
+        throw Exceptions.CollectionIsEmpty("underlyingProviders");
       this.underlyingProviders = underlyingProviders;
     }
   }

@@ -13,7 +13,6 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Building;
-using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Index.Resources;
 using Xtensive.Storage.Rse;
@@ -114,20 +113,6 @@ namespace Xtensive.Storage.Providers.Index
       }
     }
 
-    /// <inheritdoc/>
-    public override void Initialize()
-    {
-      base.Initialize();
-      var connectionInfo = BuildingContext.Current.Configuration.ConnectionInfo;
-      var remoteUrl = connectionInfo.ToString(); // TODO: Fix this
-      IndexStorage storage;
-      if (!TryGetRemoteStorage(remoteUrl, out storage)) {
-        storage = CreateLocalStorage(connectionInfo.Resource);
-        MarshalStorage(storage, remoteUrl, connectionInfo.Port);
-      }
-      Storage = storage;
-    }
-
     /// <summary>
     /// Gets the <see cref="Indexing.Model.IndexInfo"/>
     /// by <see cref="IndexInfoRef"/>. 
@@ -140,7 +125,7 @@ namespace Xtensive.Storage.Providers.Index
       return indexInfoMapping[indexInfo];
     }
 
-    #region Build storage methods
+    #region Storage access methods
 
     /// <summary>
     /// Gets the storage of real indexes.
@@ -185,6 +170,8 @@ namespace Xtensive.Storage.Providers.Index
 
     #endregion
 
+    #region Internal \ private methods
+
     internal MapTransform GetTransform(IndexInfo indexInfo, TypeInfo type)
     {
       return primaryIndexTransforms[new Pair<IndexInfo, TypeInfo>(indexInfo, type)];
@@ -195,6 +182,21 @@ namespace Xtensive.Storage.Providers.Index
       // TODO: Replace with StorageView.GetIndex
       return Storage.GetRealIndex(GetStorageIndexInfo(indexInfoRef));
     }
-    
+
+    #endregion
+
+    /// <inheritdoc/>
+    public override void Initialize()
+    {
+      base.Initialize();
+      var connectionInfo = BuildingContext.Current.Configuration.ConnectionInfo;
+      var remoteUrl = connectionInfo.ToString(); // TODO: Fix this
+      IndexStorage storage;
+      if (!TryGetRemoteStorage(remoteUrl, out storage)) {
+        storage = CreateLocalStorage(connectionInfo.Resource);
+        MarshalStorage(storage, remoteUrl, connectionInfo.Port);
+      }
+      Storage = storage;
+    }
   }
 }
