@@ -30,15 +30,16 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       ArgumentValidator.EnsureArgumentNotNull(originProvider, "originProvider");
       origin = originProvider;
       descriptor = null;
+      SortOrder = new DirectionCollection<int>();
 
       if (origin.Type==ProviderType.Select) {
         var selectProvider = (SelectProvider) origin;
         var visitedSource = VisitCompilable(selectProvider.Source);
-        visitedSource = InsertSortProvider(visitedSource);
+        visitedSource = OnInsertSortProvider(visitedSource);
         return RecreateSelectProvider(selectProvider, visitedSource);
       }
       var provider = VisitCompilable(origin);
-      return InsertSortProvider(provider);
+      return OnInsertSortProvider(provider);
     }
 
     protected sealed override Provider Visit(CompilableProvider cp)
@@ -68,47 +69,21 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       if(SortOrder.Count > 0 && provider.ExpectedOrder.Count == 0
         && !consumerDescriptor.Value.BreaksOrder)
         OnValidateRemovingOfOrderedColumns();
-      SortOrder = provider.ExpectedOrder;
-      return provider;
-    }
-
-    /*protected sealed override Provider VisitSelect(SelectProvider provider)
-    {
-      var source = VisitCompilable(provider.Source);
-      if(source != provider.Source)
-        provider = OnRecreateSelectProvider(provider, source);
       CheckCorruptionOfOrder();
-      var selectOrdering = provider.ExpectedOrder;
-
-      if(provider.ExpectedOrder.Count > 0 && !consumerDescriptor.Value.BreaksOrder)
-        selectOrdering = OnArrangeOrderingColumns(provider);
-
-      if (!orderIsCorrupted) {
-        SetActualOrdering(provider, selectOrdering);
-        SortOrder = selectOrdering;
+      if (!orderIsCorrupted)
+      {
+        SetActualOrdering(provider, provider.ExpectedOrder);
+        SortOrder = provider.Header.Order;
       }
       else
-        SortOrder = provider.Header.Order;
+        SortOrder = new DirectionCollection<int>();
       return provider;
     }
-*/
+
     protected virtual void OnValidateRemovingOfOrderedColumns()
     {
       throw new InvalidOperationException(
             Strings.ExSelectProviderRemovesColumnsUsedForOrdering);
-    }
-
-    protected virtual DirectionCollection<int> OnArrangeOrderingColumns(SelectProvider provider)
-    {
-      var selectOrdering = new DirectionCollection<int>();
-      foreach (KeyValuePair<int, Direction> pair in provider.ExpectedOrder) {
-        var columnIndex = provider.ColumnIndexes.IndexOf(pair.Key);
-        if (columnIndex < 0)
-          throw new InvalidOperationException(
-            Strings.ExSelectProviderRemovesColumnsUsedForOrdering);
-        selectOrdering.Add(columnIndex, pair.Value);
-      }
-      return selectOrdering;
     }
 
     protected SelectProvider OnRecreateSelectProvider(SelectProvider modifiedProvider,
@@ -126,9 +101,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
     protected virtual CompilableProvider OnInsertSortProvider(CompilableProvider visited)
     {
-      CompilableProvider result = new SortProvider(visited, SortOrder);
       orderIsCorrupted = false;
-      return result;
+      return SortOrder == null || SortOrder.Count == 0 ? visited : new SortProvider(visited, SortOrder);
     }
 
     #region Private \ internal methods
@@ -152,14 +126,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       return new SelectProvider(visitedSource, selectProvider.ColumnIndexes);
     }
 
-    private CompilableProvider InsertSortProvider(CompilableProvider sourceProvider)
-    {
-      var result = sourceProvider;
-      if (SortOrder != null && SortOrder.Count > 0)
-        result = OnInsertSortProvider(sourceProvider);
-      return result;
-    }
-
     private CompilableProvider CorrectOrder(CompilableProvider visited)
     {
       var result = visited;
@@ -170,7 +136,12 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       if (!(result is SelectProvider)) {
         if (!orderIsCorrupted)
           SetActualOrdering(result, result.ExpectedOrder);
-        SortOrder = orderIsCorrupted ? result.ExpectedOrder : result.Header.Order;
+        if (!descriptor.Value.BreaksOrder)
+          SortOrder = orderIsCorrupted ? result.ExpectedOrder : new DirectionCollection<int>();
+        else {
+          orderIsCorrupted = true;
+          SortOrder = new DirectionCollection<int>();
+        }
       }
       return result;
     }

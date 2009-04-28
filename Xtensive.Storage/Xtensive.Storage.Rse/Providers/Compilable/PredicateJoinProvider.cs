@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
     {
       var result = Left.ExpectedOrder;
-      if (Right.ExpectedOrder.Count > 0) {
+      if (Left.ExpectedOrder.Count > 0) {
         var leftHeaderLength = Left.ExpectedOrder.Count;
         result = new DirectionCollection<int>(
           Enumerable.Union(result, Right.ExpectedOrder.Select(p =>

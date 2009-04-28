@@ -21,21 +21,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     {
     }
 
-    protected override DirectionCollection<int> OnArrangeOrderingColumns(SelectProvider provider)
-    {
-      var selectOrdering = new DirectionCollection<int>();
-      foreach (KeyValuePair<int, Direction> pair in provider.ExpectedOrder) {
-        var columnIndex = provider.ColumnIndexes.IndexOf(pair.Key);
-        if (columnIndex < 0) {
-          if (selectOrdering.Count > 0)
-            selectOrdering.Clear();
-          break;
-        }
-        selectOrdering.Add(columnIndex, pair.Value);
-      }
-      return selectOrdering;
-    }
-
     protected override Provider OnRemoveSortProvider(SortProvider sortProvider)
     {
       return sortProvider;

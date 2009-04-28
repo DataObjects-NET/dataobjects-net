@@ -618,6 +618,16 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 
       var query = union.Distinct();
 
+      var actualMexico = Query<Order>.All.AsEnumerable()
+        .Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
+      var actualCanada = Query<Order>.All.AsEnumerable()
+        .Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
+      var actualUnion = actualMexico.Union(actualCanada).Select(o => o.Employee);
+
+      var actual = actualUnion.Distinct();
+
+      Assert.AreEqual(0, actual.Select(o => o.Id).Except(query.AsEnumerable().Select(o => o.Id)).Count());
+
       QueryDumper.Dump(query);
     }
 

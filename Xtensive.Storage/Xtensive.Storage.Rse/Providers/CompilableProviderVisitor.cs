@@ -226,7 +226,7 @@ namespace Xtensive.Storage.Rse.Providers
         return provider;
       if (resultParameters == null) {
         var acd = new List<AggregateColumnDescriptor>(provider.AggregateColumns.Length);
-        acd.AddRange(provider.AggregateColumns.Select(ac => new AggregateColumnDescriptor(ac.Name, ac.Index, ac.AggregateType)));
+        acd.AddRange(provider.AggregateColumns.Select(ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType)));
         return new AggregateProvider(source, provider.GroupColumnIndexes, acd.ToArray());
       }
       var result = (Pair<int[], AggregateColumnDescriptor[]>) resultParameters;
