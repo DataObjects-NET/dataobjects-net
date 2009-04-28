@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Building.Builders
 
                 ProcessSchema(schemaUpgradeMode);
 
-                context.Domain.Handler.BuildMappingSchema();
+                context.Domain.Handler.BuildMapping();
                 CreateGenerators();
                 TypeIdBuilder.BuildTypeIds();
                 

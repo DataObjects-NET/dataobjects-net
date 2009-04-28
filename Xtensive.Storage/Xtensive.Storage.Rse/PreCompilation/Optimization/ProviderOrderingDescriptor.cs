@@ -18,12 +18,14 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
   public struct ProviderOrderingDescriptor
   {
     /// <summary>
-    /// Gets a value indicating whether the <see cref="CompilableProvider"/> is sensitive to records order.
+    /// Gets a value indicating whether the <see cref="CompilableProvider"/> 
+    /// is sensitive to records order.
     /// </summary>
     public readonly bool IsOrderSensitive;
 
     /// <summary>
-    /// Gets a value indicating whether the <see cref="CompilableProvider"/> preserves records order.
+    /// Gets a value indicating whether the <see cref="CompilableProvider"/> 
+    /// preserves records order.
     /// </summary>
     public readonly bool PreservesOrder;
 
@@ -31,7 +33,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     /// Gets a value indicating whether the provider is order breaker,
     /// such as <see cref="UnionProvider"/> or <see cref="ConcatProvider"/>.
     /// </summary>
-    public readonly bool IsOrderBreaker;
+    public readonly bool BreaksOrder;
 
 
     // Constructors
@@ -41,12 +43,12 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     /// </summary>
     /// <param name="isOrderSensitive">value of <see cref="IsOrderSensitive"/>.</param>
     /// <param name="preservesOrder">value of <see cref="PreservesOrder"/>.</param>
-    /// <param name="isOrderingBoundary">value of <see cref="IsOrderBreaker"/>.</param>
+    /// <param name="isOrderingBoundary">value of <see cref="BreaksOrder"/>.</param>
     public ProviderOrderingDescriptor(bool isOrderSensitive, bool preservesOrder, bool isOrderingBoundary)
     {
       IsOrderSensitive = isOrderSensitive;
       PreservesOrder = preservesOrder;
-      IsOrderBreaker = isOrderingBoundary;
+      BreaksOrder = isOrderingBoundary;
     }
   }
 }

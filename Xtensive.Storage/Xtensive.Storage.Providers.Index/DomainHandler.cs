@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Providers.Index
 
     /// <inheritdoc/>
     /// <exception cref="DomainBuilderException">Somethig went wrong.</exception>
-    public override void BuildMappingSchema()
+    public override void BuildMapping()
     {
       var model = BuildingContext.Current.Model;
 

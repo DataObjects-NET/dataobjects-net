@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Builds the mapping schema.
     /// </summary>
-    public abstract void BuildMappingSchema();
+    public abstract void BuildMapping();
 
     /// <summary>
     /// Opens the session with specified <paramref name="type"/>.

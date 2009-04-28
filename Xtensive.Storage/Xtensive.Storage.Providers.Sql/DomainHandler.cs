@@ -22,13 +22,11 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings;
 using Xtensive.Storage.Providers.Sql.Resources;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.PreCompilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
 using Xtensive.Storage.Rse.PreCompilation.Optimization;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Compilable;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 using SqlModel = Xtensive.Sql.Dom.Database.Model;
 
@@ -149,7 +147,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     /// <inheritdoc/>
     /// <exception cref="DomainBuilderException">Somethig went wrong.</exception>
-    public override void BuildMappingSchema()
+    public override void BuildMapping()
     {
       var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
       var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
