@@ -157,7 +157,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void Insert(EntityState state)
     {
       var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Insert, state.Type);
-      var request = DomainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
+      var request = DomainHandler.RequestCache.GetValue(task, _task => DomainHandler.RequestBuilder.Build(_task));
       int rowsAffected = ExecuteUpdateRequest(request, state.Tuple);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(
@@ -169,7 +169,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var fieldStateMap = state.Tuple.Difference.GetFieldStateMap(TupleFieldState.Available);
       var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Update, state.Type, fieldStateMap);
-      var request = DomainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
+      var request = DomainHandler.RequestCache.GetValue(task, _task => DomainHandler.RequestBuilder.Build(_task));
       int rowsAffected = ExecuteUpdateRequest(request, state.Tuple);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(
@@ -180,7 +180,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void Remove(EntityState state)
     {
       var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Remove, state.Type);
-      var request = DomainHandler.SqlRequestCache.GetValue(task, _task => DomainHandler.SqlRequestBuilder.Build(_task));
+      var request = DomainHandler.RequestCache.GetValue(task, _task => DomainHandler.RequestBuilder.Build(_task));
       int rowsAffected = ExecuteUpdateRequest(request, state.Key.Value);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(

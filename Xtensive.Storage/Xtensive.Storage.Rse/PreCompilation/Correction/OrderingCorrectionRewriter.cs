@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
         provider = new SelectProvider(source, provider.ColumnIndexes);
       CheckCorruptionOfOrder();
       var selectOrdering = provider.ExpectedOrder;
-      if(provider.ExpectedOrder.Count > 0 && !consumerDescriptor.Value.IsOrderingBoundary) {
+      if(provider.ExpectedOrder.Count > 0 && !consumerDescriptor.Value.IsOrderBreaker) {
         selectOrdering = new DirectionCollection<int>();
         foreach (KeyValuePair<int, Direction> pair in provider.ExpectedOrder) {
           var columnIndex = provider.ColumnIndexes.IndexOf(pair.Key);

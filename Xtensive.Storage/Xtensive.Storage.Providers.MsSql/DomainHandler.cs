@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Providers.MsSql
 {
   public class DomainHandler : Sql.DomainHandler
   {
-    protected override ICompiler BuildCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
+    protected override ICompiler CreateCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
     {
       return new MsSqlCompiler(Handlers, compiledSources);
     }

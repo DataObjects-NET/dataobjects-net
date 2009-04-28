@@ -6,18 +6,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Resources;
 using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
-  /// Produces concat between <see cref="BinaryProvider.Left"/> and 
+  /// Produces concatenation between <see cref="BinaryProvider.Left"/> and 
   /// <see cref="BinaryProvider.Right"/> sources.
   /// </summary>
   [Serializable]
@@ -54,6 +51,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
         null);
     }
 
+    /// <exception cref="InvalidOperationException">Something went wrong.</exception>
     private void EnsureConcatIsPossible()
     {
       var left = Left.Header.TupleDescriptor;

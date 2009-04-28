@@ -41,20 +41,29 @@ namespace Xtensive.Storage.Providers.Sql
     private ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor> accessorCache;
 
     /// <summary>
-    /// Gets the mapping schema.
-    /// </summary>
-    public DomainModelMapping MappingSchema { get; private set; }
-
-    /// <summary>
     /// Gets the storage schema.
     /// </summary>
     public Schema Schema { get; private set; }
 
-    public SqlRequestBuilder SqlRequestBuilder { get; private set; }
+    /// <summary>
+    /// Gets the model mapping.
+    /// </summary>
+    public ModelMapping Mapping { get; private set; }
 
+    /// <summary>
+    /// Gets the SQL request builder.
+    /// </summary>
+    public SqlRequestBuilder RequestBuilder { get; private set; }
+
+    /// <summary>
+    /// Gets the value type mapper.
+    /// </summary>
     public SqlValueTypeMapper ValueTypeMapper { get; private set; }
 
-    public ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest> SqlRequestCache { get; private set; }
+    /// <summary>
+    /// Gets the SQL request cache.
+    /// </summary>
+    public ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest> RequestCache { get; private set; }
 
     /// <summary>
     /// Gets the connection provider.
@@ -64,43 +73,43 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the SQL driver.
     /// </summary>
-    public SqlDriver SqlDriver { get; private set; }
+    public SqlDriver Driver { get; private set; }
 
     protected override IEnumerable<Type> GetCompilerProviderContainerTypes()
     {
-      return new[]
-             {
-               typeof (NullableMappings),
-               typeof (ArrayMappings),
-               typeof (StringMappings),
-               typeof (DateTimeMappings),
-               typeof (TimeSpanMappings),
-               typeof (MathMappings),
-               typeof (NumericMappings),
-               typeof (DecimalMappings)
-             };
+      return new[] {
+        typeof (NullableMappings),
+        typeof (ArrayMappings),
+        typeof (StringMappings),
+        typeof (DateTimeMappings),
+        typeof (TimeSpanMappings),
+        typeof (MathMappings),
+        typeof (NumericMappings),
+        typeof (DecimalMappings)
+      };
     }
 
     /// <inheritdoc/>
-    protected override ICompiler BuildCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
+    protected override ICompiler CreateCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
     {
       return new SqlCompiler(Handlers, compiledSources);
     }
 
     /// <inheritdoc/>
-    protected override IPreCompiler BuildPreCompiler()
+    protected override IPreCompiler CreatePreCompiler()
     {
       return new CompositePreCompiler(
         new OrderingCorrector(ResolveOrderingDescriptor, false),
-        new RedundantColumnOptimizer()
-        );
+        new RedundantColumnOptimizer());
     }
 
     /// <summary>
-    /// Constructs (or retrives from cache) <see cref="DbDataReaderAccessor"/> for specified <see cref="TupleDescriptor"/>.
+    /// Creates (or retrieves from cache) <see cref="DbDataReaderAccessor"/> 
+    /// for the specified <see cref="TupleDescriptor"/>.
     /// </summary>
     /// <param name="descriptor">The descriptor.</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="DbDataReaderAccessor"/> 
+    /// for the specified <see cref="TupleDescriptor"/></returns>
     public DbDataReaderAccessor GetDataReaderAccessor(TupleDescriptor descriptor)
     {
       return accessorCache.GetValue(descriptor, BuildDataReaderAccessor);
@@ -139,7 +148,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    /// <exception cref="DomainBuilderException"><c>DomainBuilderException</c>.</exception>
+    /// <exception cref="DomainBuilderException">Somethig went wrong.</exception>
     public override void BuildMappingSchema()
     {
       var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
@@ -150,13 +159,13 @@ namespace Xtensive.Storage.Providers.Sql
 
       foreach (var type in domainModel.Types) {
         var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
-        if (primaryIndex==null || MappingSchema[primaryIndex]!=null)
+        if (primaryIndex==null || Mapping[primaryIndex]!=null)
           continue;
         var storageTableName = Domain.NameBuilder.BuildTableName(primaryIndex);
         var storageTable = Schema.Tables[storageTableName];
         if (storageTable==null)
           throw new DomainBuilderException(string.Format("Can not find table '{0}' in storage.", storageTableName));
-        var mapping = MappingSchema.RegisterMapping(primaryIndex, storageTable);
+        var mapping = Mapping.RegisterMapping(primaryIndex, storageTable);
         foreach (var column in primaryIndex.Columns) {
           var storageColumnName = Domain.NameBuilder.BuildTableColumnName(column);
           var storageColumn = FindColumnByName(storageTable, storageColumnName);
@@ -197,17 +206,17 @@ namespace Xtensive.Storage.Providers.Sql
       base.Initialize();
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
       ConnectionProvider = new SqlConnectionProvider();
-      MappingSchema = new DomainModelMapping();
-      SqlRequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest>.Create(new object());
-      SqlRequestBuilder = Handlers.HandlerFactory.CreateHandler<SqlRequestBuilder>();
-      SqlRequestBuilder.Initialize();
+      Mapping = new ModelMapping();
+      RequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest>.Create(new object());
+      RequestBuilder = Handlers.HandlerFactory.CreateHandler<SqlRequestBuilder>();
+      RequestBuilder.Initialize();
     }
 
     /// <inheritdoc/>
     public override void OnSystemSessionOpen()
     {
       base.OnSystemSessionOpen();
-      SqlDriver = ((SessionHandler)BuildingContext.Current.SystemSessionHandler).Connection.Driver;
+      Driver = ((SessionHandler)BuildingContext.Current.SystemSessionHandler).Connection.Driver;
       ValueTypeMapper = Handlers.HandlerFactory.CreateHandler<SqlValueTypeMapper>();
       ValueTypeMapper.Initialize();
     }
@@ -239,11 +248,11 @@ namespace Xtensive.Storage.Providers.Sql
       var tables = new Dictionary<IndexInfo, Table>();
       foreach (TypeInfo type in domainModel.Types) {
         IndexInfo primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
-        if (primaryIndex==null || MappingSchema[primaryIndex]!=null)
+        if (primaryIndex==null || Mapping[primaryIndex]!=null)
           continue;
         Table table = Schema.CreateTable(Domain.NameBuilder.BuildTableName(primaryIndex));
         tables.Add(primaryIndex, table);
-        PrimaryIndexMapping pim = MappingSchema.RegisterMapping(primaryIndex, table);
+        PrimaryIndexMapping pim = Mapping.RegisterMapping(primaryIndex, table);
 
         CreateColumns(primaryIndex, table, pim);
         CreateSecondaryIndexes(type, primaryIndex, table, pim);

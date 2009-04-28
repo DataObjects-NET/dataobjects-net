@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Providers.MsSql
     protected override void BuildTypeSubstitutes()
     {
       base.BuildTypeSubstitutes();
-      var @int64 = DomainHandler.SqlDriver.ServerInfo.DataTypes.Int64;
+      var @int64 = DomainHandler.Driver.ServerInfo.DataTypes.Int64;
       var @timespan = new RangeDataTypeInfo<TimeSpan>(SqlDataType.Int64, null);
       @timespan.Value = new ValueRange<TimeSpan>(TimeSpan.FromTicks(@int64.Value.MinValue), TimeSpan.FromTicks(@int64.Value.MaxValue));
       BuildDataTypeMapping(@timespan);
@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Providers.MsSql
     protected override DataTypeMapping CreateDataTypeMapping(DataTypeInfo dataTypeInfo)
     {
       if (dataTypeInfo.Type == typeof(decimal)) {
-        var oldTypeInfo = DomainHandler.SqlDriver.ServerInfo.DataTypes.Decimal;
+        var oldTypeInfo = DomainHandler.Driver.ServerInfo.DataTypes.Decimal;
         var oldMapping = base.CreateDataTypeMapping(oldTypeInfo);
 
         var newTypeInfo = new FractionalDataTypeInfo<decimal>(oldTypeInfo.SqlType, null);
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Providers.MsSql
       }
 
       if (dataTypeInfo.Type == typeof(DateTime)) {
-        RangeDataTypeInfo<DateTime> dti = DomainHandler.SqlDriver.ServerInfo.DataTypes.DateTime;
+        RangeDataTypeInfo<DateTime> dti = DomainHandler.Driver.ServerInfo.DataTypes.DateTime;
         DateTime min = dti.Value.MinValue;
         return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), DbType.DateTime, value => (DateTime) value < min ? min : value, null);
       }

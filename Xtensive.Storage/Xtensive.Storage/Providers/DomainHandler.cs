@@ -60,19 +60,17 @@ namespace Xtensive.Storage.Providers
     // Abstract methods
 
     /// <summary>
-    /// Builds the compiler.
-    /// Invoked from <see cref="Initialize"/>.
+    /// Creates the compiler.
     /// </summary>
     /// <param name="compiledSources">The compiled sources. Shared across all compilers.</param>
     /// <returns>A new compiler.</returns>
-    protected abstract ICompiler BuildCompiler(BindingCollection<object, ExecutableProvider> compiledSources);
+    protected abstract ICompiler CreateCompiler(BindingCollection<object, ExecutableProvider> compiledSources);
 
     /// <summary>
-    /// Builds the <see cref="IPreCompiler"/>.
-    /// Invoked from <see cref="Initialize"/>.
+    /// Creates the <see cref="IPreCompiler"/>.
     /// </summary>
     /// <returns>A new pre-compiler.</returns>
-    protected abstract IPreCompiler BuildPreCompiler();
+    protected abstract IPreCompiler CreatePreCompiler();
 
     /// <summary>
     /// Gets the sequence of compiler provider container types.
@@ -159,10 +157,10 @@ namespace Xtensive.Storage.Providers
           var compiledSources = new BindingCollection<object, ExecutableProvider>();
           return new ManagingCompiler(
             compiledSources,
-            BuildCompiler(compiledSources),
+            CreateCompiler(compiledSources),
             new ClientCompiler(compiledSources));
         },
-        BuildPreCompiler);
+        CreatePreCompiler);
       BuildMemberCompilerProviders();
     }
 

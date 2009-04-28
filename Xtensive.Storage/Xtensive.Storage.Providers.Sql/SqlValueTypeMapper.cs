@@ -174,7 +174,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void BuildNativeTypes()
     {
-      DataTypeCollection types = DomainHandler.SqlDriver.ServerInfo.DataTypes;
+      DataTypeCollection types = DomainHandler.Driver.ServerInfo.DataTypes;
       BuildDataTypeMapping(types.Boolean);
       BuildDataTypeMapping(types.Byte);
       BuildDataTypeMapping(types.DateTime);

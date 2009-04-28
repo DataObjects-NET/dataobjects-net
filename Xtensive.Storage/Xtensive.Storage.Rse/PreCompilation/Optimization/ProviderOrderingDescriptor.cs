@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 {
@@ -27,22 +28,25 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     public readonly bool PreservesOrder;
 
     /// <summary>
-    /// Gets a value indicating whether we should try to correct order of records 
-    /// which are processed by the <see cref="CompilableProvider"/>.
+    /// Gets a value indicating whether the provider is order breaker,
+    /// such as <see cref="UnionProvider"/> or <see cref="ConcatProvider"/>.
     /// </summary>
-    public readonly bool IsOrderingBoundary;
+    public readonly bool IsOrderBreaker;
+
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="isOrderSensitive">value of <see cref="IsOrderSensitive"/>.</param>
     /// <param name="preservesOrder">value of <see cref="PreservesOrder"/>.</param>
-    /// <param name="isOrderingBoundary">value of <see cref="IsOrderingBoundary"/>.</param>
+    /// <param name="isOrderingBoundary">value of <see cref="IsOrderBreaker"/>.</param>
     public ProviderOrderingDescriptor(bool isOrderSensitive, bool preservesOrder, bool isOrderingBoundary)
     {
       IsOrderSensitive = isOrderSensitive;
       PreservesOrder = preservesOrder;
-      IsOrderingBoundary = isOrderingBoundary;
+      IsOrderBreaker = isOrderingBoundary;
     }
   }
 }

@@ -15,6 +15,7 @@ using Xtensive.Indexing;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Index.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.PreCompilation;
@@ -50,13 +51,13 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    protected override ICompiler BuildCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
+    protected override ICompiler CreateCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
     {
       return new IndexCompiler(Handlers, compiledSources);
     }
 
     /// <inheritdoc/>
-    protected override IPreCompiler BuildPreCompiler()
+    protected override IPreCompiler CreatePreCompiler()
     {
       return new CompositePreCompiler(
         new OrderingCorrector(ResolveOrderingDescriptor, false),
@@ -78,14 +79,13 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    /// <exception cref="DomainBuilderException">Can not find specific index 
-    /// in storage.</exception>
+    /// <exception cref="DomainBuilderException">Somethig went wrong.</exception>
     public override void BuildMappingSchema()
     {
-      var domainModel = BuildingContext.Current.Model;
+      var model = BuildingContext.Current.Model;
 
       // Build index transforms
-      foreach (var type in domainModel.Types) {
+      foreach (var type in model.Types) {
         foreach (var indexInfo in type.AffectedIndexes.Where(index => index.IsPrimary)) {
           var primaryIndex = type.Indexes.PrimaryIndex;
           var primaryIndexColumns = primaryIndex.Columns.ToList();
@@ -100,13 +100,16 @@ namespace Xtensive.Storage.Providers.Index
       }
 
       // Build IndexInfo mapping
-      foreach (var indexInfo in domainModel.RealIndexes) {
-        var storageIndexInfo = Storage.Model.Tables
-          .SelectMany(table => table.AllIndexes)
-          .SingleOrDefault(index => index.Name==indexInfo.MappingName);
+      foreach (var indexInfo in model.RealIndexes) {
+        var storageIndexInfo = (
+          from t in Storage.Model.Tables
+          from i in t.AllIndexes
+          where i.Name==indexInfo.MappingName
+          select i
+          ).SingleOrDefault();
         if (storageIndexInfo==null)
           throw new DomainBuilderException(string.Format(
-            Resources.Strings.ExCanNotFindIndexXInStorage, indexInfo.MappingName));
+            Strings.ExCanNotFindIndexXInStorage, indexInfo.MappingName));
         indexInfoMapping.Add(indexInfo, storageIndexInfo);
       }
     }

@@ -12,9 +12,17 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Providers.Sql.Mappings
 {
   [Serializable]
-  public sealed class DomainModelMapping
+  public sealed class ModelMapping
   {
     private readonly Dictionary<IndexInfo, PrimaryIndexMapping> primaryIndexMappings = new Dictionary<IndexInfo, PrimaryIndexMapping>();
+
+    public PrimaryIndexMapping this[IndexInfo primaryIndex] {
+      get {
+        PrimaryIndexMapping result;
+        primaryIndexMappings.TryGetValue(primaryIndex, out result);
+        return result;
+      }
+    }
 
     internal PrimaryIndexMapping RegisterMapping(IndexInfo primaryIndex, Table table)
     {
@@ -23,20 +31,10 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
       return result;
     }
 
-    public PrimaryIndexMapping this[IndexInfo primaryIndex]
-    {
-      get
-      {
-        PrimaryIndexMapping result;
-        primaryIndexMappings.TryGetValue(primaryIndex, out result);
-        return result;
-      }
-    }
-
 
     // Constructor
 
-    internal DomainModelMapping()
+    internal ModelMapping()
     {
     }
   }

@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Providers.VistaDb
     protected override void BuildTypeSubstitutes()
     {
       base.BuildTypeSubstitutes();
-      var @int64 = DomainHandler.SqlDriver.ServerInfo.DataTypes.Int64;
+      var @int64 = DomainHandler.Driver.ServerInfo.DataTypes.Int64;
       var @timespan = new RangeDataTypeInfo<TimeSpan>(SqlDataType.Int64, null);
       @timespan.Value = new ValueRange<TimeSpan>(TimeSpan.FromTicks(@int64.Value.MinValue), TimeSpan.FromTicks(@int64.Value.MaxValue));
       BuildDataTypeMapping(@timespan);

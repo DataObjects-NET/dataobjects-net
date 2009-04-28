@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Providers.PgSql
     {
       base.BuildTypeSubstitutes();
 
-      var @int16 = DomainHandler.SqlDriver.ServerInfo.DataTypes.Int16;
+      var @int16 = DomainHandler.Driver.ServerInfo.DataTypes.Int16;
 
       var @byte = new IntegerDataTypeInfo<byte>(@int16.SqlType, null);
       @byte.Value = new ValueRange<byte>(byte.MinValue, byte.MaxValue);
@@ -31,27 +31,27 @@ namespace Xtensive.Storage.Providers.PgSql
       @sbyte.Value = new ValueRange<sbyte>(sbyte.MinValue, sbyte.MaxValue);
       BuildDataTypeMapping(@sbyte);
 
-      var @int32 = DomainHandler.SqlDriver.ServerInfo.DataTypes.Int32;
+      var @int32 = DomainHandler.Driver.ServerInfo.DataTypes.Int32;
       var @ushort = new IntegerDataTypeInfo<ushort>(@int32.SqlType, null);
       @ushort.Value = new ValueRange<ushort>(ushort.MinValue, ushort.MaxValue);
       BuildDataTypeMapping(@ushort);
 
-      var @int64 = DomainHandler.SqlDriver.ServerInfo.DataTypes.Int64;
+      var @int64 = DomainHandler.Driver.ServerInfo.DataTypes.Int64;
       var @uint = new IntegerDataTypeInfo<uint>(@int64.SqlType, null);
       @uint.Value = new ValueRange<uint>(uint.MinValue, uint.MaxValue);
       BuildDataTypeMapping(@uint);
 
-      var @decimal = DomainHandler.SqlDriver.ServerInfo.DataTypes.Decimal;
+      var @decimal = DomainHandler.Driver.ServerInfo.DataTypes.Decimal;
       var @ulong = new IntegerDataTypeInfo<ulong>(@decimal.SqlType, null);
       @ulong.Value = new ValueRange<ulong>(ulong.MinValue, ulong.MaxValue);
       BuildDataTypeMapping(@ulong);
 
-      var @binary = DomainHandler.SqlDriver.ServerInfo.DataTypes.VarBinaryMax;
+      var @binary = DomainHandler.Driver.ServerInfo.DataTypes.VarBinaryMax;
       var @guid = new StreamDataTypeInfo(@binary.SqlType, typeof(Guid), null);
       @guid.Length = new ValueRange<int>(16, 16, 16);
       BuildDataTypeMapping(@guid);
 
-      var @timespan = DomainHandler.SqlDriver.ServerInfo.DataTypes.Interval;
+      var @timespan = DomainHandler.Driver.ServerInfo.DataTypes.Interval;
       BuildDataTypeMapping(@timespan);
     }
 

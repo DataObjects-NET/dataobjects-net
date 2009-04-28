@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns></returns>
     public SqlCompilationResult Compile(DomainHandler domainHandler)
     {
-      return compilationResult.GetValue((driver, statement) => driver.Compile(statement), domainHandler.SqlDriver, Statement);
+      return compilationResult.GetValue((driver, statement) => driver.Compile(statement), domainHandler.Driver, Statement);
     }
 
     // Constructors

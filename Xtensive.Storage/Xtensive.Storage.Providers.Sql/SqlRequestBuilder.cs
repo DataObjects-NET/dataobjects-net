@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual void BuildInsertRequest(SqlRequestBuilderContext context)
     {
       foreach (IndexInfo index in context.AffectedIndexes) {
-        SqlTableRef table = SqlFactory.TableRef(DomainHandler.MappingSchema[index].Table);
+        SqlTableRef table = SqlFactory.TableRef(DomainHandler.Mapping[index].Table);
         SqlInsert query = SqlFactory.Insert(table);
 
         for (int i = 0; i < index.Columns.Count; i++) {
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual void BuildUpdateRequest(SqlRequestBuilderContext context)
     {
       foreach (IndexInfo index in context.AffectedIndexes) {
-        SqlTableRef table = SqlFactory.TableRef(DomainHandler.MappingSchema[index].Table);
+        SqlTableRef table = SqlFactory.TableRef(DomainHandler.Mapping[index].Table);
         SqlUpdate query = SqlFactory.Update(table);
 
         for (int i = 0; i < index.Columns.Count; i++) {
@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       for (int i = context.AffectedIndexes.Count - 1; i >= 0; i--) {
         IndexInfo index = context.AffectedIndexes[i];
-        SqlTableRef table = SqlFactory.TableRef(DomainHandler.MappingSchema[index].Table);
+        SqlTableRef table = SqlFactory.TableRef(DomainHandler.Mapping[index].Table);
         SqlDelete query = SqlFactory.Delete(table);
         query.Where &= BuildWhereExpression(context, table);
         context.Batch.Add(query);
