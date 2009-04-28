@@ -10,6 +10,7 @@ using Xtensive.Core.Disposing;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using System;
+using Xtensive.Storage.Building.Builders;
 
 namespace Xtensive.Storage.Tests.Storage.DomainBuild
 {

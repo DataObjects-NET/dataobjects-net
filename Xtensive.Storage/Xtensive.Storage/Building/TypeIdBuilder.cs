@@ -7,7 +7,9 @@
 using System;
 using System.Linq;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Metadata;
 using Xtensive.Storage.Model;
+using Type=Xtensive.Storage.Metadata.Type;
 
 namespace Xtensive.Storage.Building
 {  
@@ -15,7 +17,7 @@ namespace Xtensive.Storage.Building
   {
     public static void RegisterSystemTypes(TypeRegistry typeRegistry)
     {
-      typeRegistry.Register(typeof(Metadata.Type).Assembly, typeof(Metadata.Type).Namespace);
+      typeRegistry.Register(typeof(Type).Assembly, typeof(Metadata.Type).Namespace);
     }
 
     public static void BuildTypeIds()
@@ -27,7 +29,7 @@ namespace Xtensive.Storage.Building
     public static void BuildSystemTypeIds()
     {
       var context = BuildingContext.Current;      
-      foreach (Type type in context.SystemTypeIds.Keys) {
+      foreach (System.Type type in context.SystemTypeIds.Keys) {
         TypeInfo typeInfo = context.Model.Types[type];
         SetTypeId(typeInfo, context.SystemTypeIds[type]);
       }
@@ -57,27 +59,34 @@ namespace Xtensive.Storage.Building
     }
 
     private static void SetTypeId(TypeInfo type, int typeId)
-    {      
+    {
       type.SetTypeId(typeId, BuildingContext.Current.ModelUnlockKey);
     }
 
     private static int GetMaxTypeId()
     {
-      if (Query<Metadata.Type>.All.Count() == 0)
+      if (Query<Type>.All.Count() == 0)
         return TypeInfo.MinTypeId;
-        
-      return Query<Metadata.Type>.All.Max(t => t.TypeId);
+      return Query<Type>.All.Max(t => t.TypeId);
     }
 
-    private static int LoadTypeId(TypeInfo type)
+    private static int LoadTypeId(TypeInfo typeInfo)
     {
-      var metaType = Query<Metadata.Type>.All.Where(t => t.FullName==type.Name).FirstOrDefault();
+      string name = GetTypeName(typeInfo);
+      var metaType = Query<Type>.All.Where(type => type.Name==name).FirstOrDefault();
       return metaType==null ? TypeInfo.NoTypeId : metaType.Id;
     }
 
-    private static void SaveTypeId(TypeInfo type, int typeId)
+    private static void SaveTypeId(TypeInfo typeInfo, int typeId)
     {
-      new Metadata.Type(typeId) {FullName = type.Name};
+      string name = GetTypeName(typeInfo);
+      var metaType = Query<Type>.All.Where(type => type.Name==name).FirstOrDefault() ?? new Type(name);
+      metaType.Id = typeId;
+    }
+
+    private static string GetTypeName(TypeInfo typeInfo)
+    {
+      return typeInfo.UnderlyingType.FullName;
     }
   }
 }

@@ -32,6 +32,17 @@ namespace Xtensive.Storage.Building.Builders
     /// </summary>
     /// <param name="configuration">The domain configuration.</param>
     /// <param name="schemaUpgradeMode">The schema upgrade mode.</param>
+    /// <returns>Built domain.</returns>
+    public static Domain BuildDomain(DomainConfiguration configuration, SchemaUpgradeMode schemaUpgradeMode)
+    {
+      return BuildDomain(configuration, schemaUpgradeMode, () => { }, type => true);
+    }
+
+    /// <summary>
+    /// Builds the domain.
+    /// </summary>
+    /// <param name="configuration">The domain configuration.</param>
+    /// <param name="schemaUpgradeMode">The schema upgrade mode.</param>
     /// <param name="dataProcessor">The method that can process storage data when domain is built.</param>
     /// <returns>Built domain.</returns>
     public static Domain BuildDomain(DomainConfiguration configuration, SchemaUpgradeMode schemaUpgradeMode, Action dataProcessor)

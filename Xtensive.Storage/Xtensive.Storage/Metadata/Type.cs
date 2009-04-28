@@ -15,20 +15,20 @@ namespace Xtensive.Storage.Metadata
   /// Persistent descriptor of registered type.
   /// </summary>
   [SystemType(TypeId = 1)]
-  [HierarchyRoot("Id")]
+  [HierarchyRoot("Name")]
   public class Type : Entity
   {
-    /// <summary>
-    /// Gets or sets the type id.
-    /// </summary>
-    [Field]
-    public int Id { get; private set; }
-
     /// <summary>
     /// Gets or sets the full name.
     /// </summary>
     [Field(Length = 1000)]
-    public string FullName { get; internal set; }
+    public string Name { get; private set; }
+
+    /// <summary>
+    /// Gets or sets the type id.
+    /// </summary>
+    [Field]
+    public int Id { get; set; }
 
 
     // Constructors
@@ -36,9 +36,10 @@ namespace Xtensive.Storage.Metadata
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="id">The type id.</param>
-    public Type(int id) : base(Tuple.Create(id))
+    /// <param name="name">The type name.</param>    
+    public Type(string name) : base(Tuple.Create(name))
     {
+
     }
   }
 }

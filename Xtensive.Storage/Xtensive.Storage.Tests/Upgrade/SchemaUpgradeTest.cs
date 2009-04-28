@@ -5,15 +5,12 @@
 // Created:    2009.04.09
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Internals;
+
 
 namespace Xtensive.Storage.Tests.Upgrade.Model_1
 {

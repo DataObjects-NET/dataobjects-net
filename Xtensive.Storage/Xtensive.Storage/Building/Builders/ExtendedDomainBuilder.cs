@@ -70,6 +70,10 @@ namespace Xtensive.Storage.Building.Builders
     /// during storage building process.</exception>
     public static Domain Build(DomainConfiguration configuration)
     {
+
+
+
+
       switch (configuration.BuildMode) {
         case DomainBuildMode.Recreate: 
           return BuildRecreate(configuration);

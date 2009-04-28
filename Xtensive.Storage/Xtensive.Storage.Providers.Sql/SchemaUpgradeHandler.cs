@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Providers.Sql
       var schema = ExtractDomainSchema();
       var updateScript = GenerateUpdateScript(schema);
       if (updateScript.Count > 0)
-        SessionHandler.ExecuteNonQuery(updateScript);
+          SessionHandler.ExecuteNonQuery(updateScript);
     }
 
     /// <inheritdoc/>
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <summary>
-    /// Extracts the storage schema.
+    /// Extracts the storage schema.  
     /// </summary>
     /// <returns>The current storage schema.</returns>
     protected virtual Schema ExtractStorageSchema()
