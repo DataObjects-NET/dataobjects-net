@@ -3159,15 +3159,15 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
       Table table = schema.CreateTable("T1");
       table.CreateColumn("C1", new SqlValueType(SqlDataType.Int32));
 
+      SqlConnection conn = null;
       DbTransaction trx = null;
       try {
         SqlConnectionProvider provider = new SqlConnectionProvider();
-        sqlConnection = (SqlConnection)provider.CreateConnection(@"vistadb://localhost/VistaDb/VDBTests.vdb3");
-        SqlDriver = sqlConnection.Driver as SqlDriver;
-        sqlConnection.Open();
-        trx = sqlConnection.BeginTransaction();
+        conn = (SqlConnection)provider.CreateConnection(@"vistadb://localhost/VistaDb/VDBTests.vdb3");
+        conn.Open();
+        trx = conn.BeginTransaction();
 
-        using (SqlCommand cmd = new SqlCommand(sqlConnection)) {
+        using (SqlCommand cmd = new SqlCommand(conn)) {
           SqlBatch batch = Sql.Batch();
           batch.Add(Sql.Create(table));
           cmd.Statement = batch;
@@ -3175,13 +3175,13 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
           cmd.ExecuteNonQuery();
         }
 
-        Model exModel1 = new SqlModelProvider(sqlConnection, trx).Build();
+        Model exModel1 = new SqlModelProvider(conn, trx).Build();
         var exT1 = exModel1.DefaultServer.DefaultCatalog.Schemas[schema.DbName].Tables[table.DbName];
         Assert.IsNotNull(exT1);
         var exC1 = exT1.TableColumns["C1"];
         Assert.IsNotNull(exC1);
 
-        using (SqlCommand cmd = new SqlCommand(sqlConnection)) {
+        using (SqlCommand cmd = new SqlCommand(conn)) {
           SqlBatch batch = Sql.Batch();
           batch.Add(Sql.Rename(exC1, "C2"));
           batch.Add(Sql.Rename(exT1, "T2"));
@@ -3190,7 +3190,7 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
           cmd.ExecuteNonQuery();
         }
 
-        Model exModel2 = new SqlModelProvider(sqlConnection, trx).Build();
+        Model exModel2 = new SqlModelProvider(conn, trx).Build();
         var exT2 = exModel2.DefaultServer.DefaultCatalog.Schemas[schema.DbName].Tables["T2"];
         Assert.IsNotNull(exT2);
         var exC2 = exT2.TableColumns["C2"];
@@ -3198,7 +3198,7 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
 
       } finally {
         trx.Rollback();
-        sqlConnection.Close();
+        conn.Close();
       }
     }
   }
