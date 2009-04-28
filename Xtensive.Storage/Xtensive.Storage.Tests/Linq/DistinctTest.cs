@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TakeTest()
     {
-        // NOTE: distinct must be forced to apply after top has been computed
+        // NOTE: Distinct must be forced to apply after top has been computed
         var result = Query<Order>.All.Take(5).Distinct();
         var list = result.ToList();
         Assert.Greater(list.Count, 0);
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DistinctTakeTest()
     {
-        // NOTE: top must be forced to apply after distinct has been computed
+        // NOTE: Top must be forced to apply after distinct has been computed
         var result = Query<Order>.All.Distinct().Take(5);
         var list = result.ToList();
         Assert.Greater(list.Count, 0);

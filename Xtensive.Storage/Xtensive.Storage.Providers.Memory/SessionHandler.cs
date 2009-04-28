@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Providers.Memory
     public override void Initialize()
     {
       base.Initialize();
-      // TODO: Think what should be done here.
+      // TODO: Think what should be done here
     }
   }
 }

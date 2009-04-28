@@ -11,7 +11,7 @@ namespace Xtensive.Storage.Providers.MsSql
     public override void Initialize()
     {
       base.Initialize();
-      // TODO: Think what should be done here.
+      // TODO: Think what should be done here
     }
 
     internal protected new DomainHandler DomainHandler

@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Providers.Memory
     /// <inheritdoc/>
     public override IStorageView GetView(Guid transactionId)
     {
-      // ToDo: Complete this
+      // TODO: Complete this
       return new MemoryIndexStorageView(this, Model, IsolationLevel.ReadCommitted);
     }
 

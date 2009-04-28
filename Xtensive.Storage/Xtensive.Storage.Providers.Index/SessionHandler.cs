@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Providers.Index
       if (StorageView!=null)
         throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpen);
       StorageView = storage.CreateView(Session.Transaction.IsolationLevel);
-      // TODO: Implement transactions;
+      // TODO: Implement transactions
     }
 
     /// <inheritdoc/>
@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Providers.Index
         throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
       StorageView.Transaction.Commit();
       StorageView = null;
-      // TODO: Implement transactions;
+      // TODO: Implement transactions
     }
 
     /// <inheritdoc/>
@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Providers.Index
         throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
       StorageView.Transaction.Rollback();
       StorageView = null;
-      // TODO: Implement transactions;
+      // TODO: Implement transactions
     }
 
     /// <inheritdoc/>

@@ -574,7 +574,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void OrderByGroupByTest()
     {
-      // NOTE: order-by is lost when group-by is applied (the sequence of groups is not ordered)
+      // NOTE: Order-by is lost when group-by is applied (the sequence of groups is not ordered)
       var result = Query<Order>.All
         .OrderBy(o => o.OrderDate)
         .GroupBy(o => o.Customer.Id)
@@ -585,7 +585,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void OrderByGroupBySelectManyTest()
     {
-      // NOTE: order-by is preserved within grouped sub-collections
+      // NOTE: Order-by is preserved within grouped sub-collections
       var result = Query<Order>.All
         .OrderBy(o => o.OrderDate)
         .GroupBy(o => o.Customer.Id).SelectMany(g => g);

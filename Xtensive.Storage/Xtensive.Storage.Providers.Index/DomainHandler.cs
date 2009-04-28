@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Providers.Index
     {
       base.Initialize();
       var connectionInfo = BuildingContext.Current.Configuration.ConnectionInfo;
-      var remoteUrl = connectionInfo.ToString(); // ToDo: Fix this.
+      var remoteUrl = connectionInfo.ToString(); // TODO: Fix this
       IndexStorage storage;
       if (!TryGetRemoteStorage(remoteUrl, out storage)) {
         storage = CreateLocalStorage(connectionInfo.Resource);
@@ -160,7 +160,7 @@ namespace Xtensive.Storage.Providers.Index
     /// otherwise <see langword="false"/>.</returns>
     protected bool TryGetRemoteStorage(string url, out IndexStorage remoteStorage)
     {
-      // ToDo: Complete this
+      // TODO: Complete this
       remoteStorage = null;
       return false;
     }
@@ -173,7 +173,7 @@ namespace Xtensive.Storage.Providers.Index
     /// <param name="port">The port.</param>
     protected void MarshalStorage(IndexStorage localStorage, string url, int port)
     {
-      // ToDo: Complete this
+      // TODO: Complete this
     }
 
     /// <summary>
@@ -192,7 +192,7 @@ namespace Xtensive.Storage.Providers.Index
 
     internal IUniqueOrderedIndex<Tuple, Tuple> GetRealIndex(IndexInfoRef indexInfoRef)
     {
-      // ToDo: Replace with StorageView.GetIndex
+      // TODO: Replace with StorageView.GetIndex
       return Storage.GetRealIndex(GetStorageIndexInfo(indexInfoRef));
     }
     

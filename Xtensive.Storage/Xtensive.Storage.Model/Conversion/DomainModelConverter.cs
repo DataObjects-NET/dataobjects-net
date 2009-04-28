@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Model.Conversion
       foreach (var association in domainModel.Associations)
         Visit(association);
 
-      // ToDo: Build forign keys for hierarchy references.
+      // TODO: Build forign keys for hierarchy references
 
       return StorageInfo;
     }

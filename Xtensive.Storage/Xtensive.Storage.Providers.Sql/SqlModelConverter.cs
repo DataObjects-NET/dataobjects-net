@@ -129,7 +129,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var keyColumn in key.Columns)
         new KeyColumnRef(primaryIndexInfo, tableInfo.Columns[keyColumn.Name],
           Direction.Positive);
-      // ToDo: Get direction for key columns.
+      // TODO: Get direction for key columns
       primaryIndexInfo.PopulateValueColumns();
 
       return primaryIndexInfo;
