@@ -596,12 +596,14 @@ namespace Xtensive.Storage.Linq
         var orderItems = mappingRef.Value.Mapping.GetColumns(entityAsKey.Value)
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
         var result = context.Bindings[le.Parameters[0]];
-        var dc = ((SortProvider) result.RecordSet.Provider).Order;
+        var sortProvider = (SortProvider)result.RecordSet.Provider;
+        var sortOrder = new DirectionCollection<int>(sortProvider.Order);
         foreach (var item in orderItems) {
-          if (!dc.ContainsKey(item.Key))
-            dc.Add(item);
+          if (!sortOrder.ContainsKey(item.Key))
+            sortOrder.Add(item);
         }
-        return result;
+        var recordSet = new SortProvider(sortProvider.Source, sortOrder).Result;
+        return new ResultExpression(result.Type, recordSet, result.Mapping, result.ItemProjector);
       }
     }
 
