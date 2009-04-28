@@ -5,10 +5,8 @@
 // Created:    2009.04.27
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
@@ -33,51 +31,51 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [HierarchyRoot(typeof(KeyGenerator), "Id")]
+    [Entity(MappingName = "")]
     private class C : Entity
     {
       [Field]
       public int Id { get; private set; }
     }
 
+    private Domain domain;
 
-    private Domain BuildDomain(SchemaUpgradeMode schemaUpgradeMode, params Type[] persistentTypes)
+    private int GetTypeId(Type type)
+    {
+      return domain.Model.Types[type].TypeId;
+    }
+
+    private void BuildDomain(SchemaUpgradeMode schemaUpgradeMode, params Type[] persistentTypes)
     {
       var configuration = DomainConfigurationFactory.Create();
       foreach (Type type in persistentTypes)
         configuration.Types.Register(type);
 
-      return DomainBuilder.BuildDomain(configuration, schemaUpgradeMode);     
+      domain = DomainBuilder.BuildDomain(configuration, schemaUpgradeMode);
     }
 
     [Test]
-    public void   TestBuilder()
+    public void TestBuilder()
     {
-      Domain domain = BuildDomain(SchemaUpgradeMode.Recreate, typeof (B));
-      using (var s = domain.OpenSession())
-      using(var t = Transaction.Open()){
-        new B();
-        t.Complete();
-      }
-//      int bId = domain.Model.Types[typeof (B)].TypeId;
+      BuildDomain(SchemaUpgradeMode.Recreate, typeof (B));
+      int bId = GetTypeId(typeof (B));
 
-      domain = BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A), typeof (B));
-      using (var s = domain.OpenSession())
-      using(var t = Transaction.Open()){
-        new A();
-        new B();
-        t.Complete();
-      }
-      using (var s = domain.OpenSession())
-      using(var t = Transaction.Open()){
-        Assert.AreEqual(2, Query<B>.All.Count());
-        Assert.AreEqual(1, Query<A>.All.Count());
-      }
-//      Assert.AreEqual(bId, domain.Model.Types[typeof (B)].TypeId);
+      BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A), typeof (B));
+      Assert.AreEqual(bId, GetTypeId(typeof(B)));
+//      int aId = GetTypeId(typeof (A));
+//
+//      BuildDomain(SchemaUpgradeMode.Validate, typeof (A));
+//      BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof(B));
+//
+//      AssertEx.Throws<Exception>(() =>
+//        BuildDomain(SchemaUpgradeMode.Validate, typeof(A), typeof(B), typeof(C)));
+//
+//      BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A));
+//
+//      Assert.AreEqual(aId, GetTypeId(typeof(A)));
+//
+//      AssertEx.Throws<Exception>(() =>
+//        BuildDomain(SchemaUpgradeMode.Validate, typeof(A), typeof(B)));
     }
-
-
-    
-
-
   }
 }

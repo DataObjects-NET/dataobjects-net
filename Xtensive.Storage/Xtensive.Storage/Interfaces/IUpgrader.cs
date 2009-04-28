@@ -5,15 +5,11 @@
 // Created:    2009.04.08
 
 using System;
-using Xtensive.Storage.Building.Builders;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Internals;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Base class for schema upgraders - classes responsible for schema upgrade.
+  /// Schema upgrader - class responsible for schema upgrade.
   /// </summary>
   public interface IUpgrader
   {
@@ -23,7 +19,7 @@ namespace Xtensive.Storage
     string AssemblyName { get; }
 
     /// <summary>
-    /// Determines whether this upgrade can upgrade schema from the specified version.
+    /// Determines whether this upgrader can upgrade schema from the specified version.
     /// </summary>
     /// <param name="schemaVersion">The schema version to upgrade from.</param>
     /// <returns>
@@ -32,30 +28,28 @@ namespace Xtensive.Storage
     bool CanUpgradeFrom(string schemaVersion);
 
     /// <summary>
-    /// Gets the source version, i.e. schema version this upgrader can upgrade from.
-    /// </summary>
-    string SourceVersion { get; }
-
-    /// <summary>
     /// Gets the result version, i.e. schema version this upgrader can upgrade to.
     /// </summary>
     string ResultVersion { get; }
 
     /// <summary>
-    /// Runs the upgrade script.
+    /// Gets the schema upgrade hints.
     /// </summary>
-    /// <remarks>
-    /// Implement this method to perform some actions when schema is upgrading.
-    /// </remarks>
-    void Upgrade();
+    /// <param name="hints">The hint registry.</param>
+    void GetRenameHints(HintRegistry hints);
 
     /// <summary>
-    /// Registers the recycled types.
+    /// Perform some upgrade actions with the data.
     /// </summary>
-    /// <param name="typeRegistry">The type registry to register types in.</param>
-    /// <remarks>
-    /// Implement this method to register recycled classes required for schema upgrade.
-    /// </remarks>
-    void RegisterRecycledTypes(TypeRegistry typeRegistry);
+    void ProcessData();
+
+    /// <summary>
+    /// Determines whether specified persistent type should be included in upgrade model or not.
+    /// </summary>
+    /// <param name="type">The type to filter.</param>
+    /// <returns>
+    /// <see langword="true" /> if type should be included in upgrade model, otherwise <see langword="false" />
+    /// </returns>
+    bool PersistentTypeFilter(Type type);
   }
 }

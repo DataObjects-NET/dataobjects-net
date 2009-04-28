@@ -104,6 +104,26 @@ namespace Xtensive.Storage.Configuration
     private DomainBuildMode buildMode = DefaultBuildMode;
     private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
     private UnityTypeElementCollection servicesConfiguration;
+    private Type typeNameResolverType = typeof(DefaultTypeNameResolver);
+
+    /// <summary>
+    /// Gets or sets the type that implements <see cref="ITypeNameResolver"/>.   
+    /// </summary>
+    /// <remarks>
+    /// Type should have public instance parameterless constructor.
+    /// </remarks>
+    public Type TypeNameResolverType
+    {
+      get { return typeNameResolverType; }
+      set
+      {
+        this.EnsureNotLocked();
+        if (!typeof(ITypeNameResolver).IsAssignableFrom(value))
+          throw new ArgumentException(
+            string.Format(Strings.ExTypeXDoesNotImplementYInterface, value.Name, typeof(ITypeNameResolver).Name));
+        typeNameResolverType = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -346,7 +366,8 @@ namespace Xtensive.Storage.Configuration
       builders.Lock(true);
       sessions.Lock(true);
       compilerContainers.Lock(true);
-      servicesConfiguration.LockItem = true;
+      if (servicesConfiguration != null)
+        servicesConfiguration.LockItem = true;
       base.Lock(recursive);
     }
 
@@ -387,6 +408,7 @@ namespace Xtensive.Storage.Configuration
       foreignKeyMode = configuration.foreignKeyMode;
       servicesConfiguration = configuration.ServicesConfiguration;
       servicesConfiguration.LockItem = this.IsLocked;
+      typeNameResolverType = configuration.TypeNameResolverType;
     }
 
     /// <summary>

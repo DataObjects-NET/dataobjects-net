@@ -27,6 +27,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse.Providers.Executable;
+using Activator=System.Activator;
 
 namespace Xtensive.Storage
 {
@@ -60,7 +61,7 @@ namespace Xtensive.Storage
     {
       var session = Session.Demand();
       return session.Domain;
-    }
+    }    
     
     /// <summary>
     /// Gets the configuration.
@@ -71,11 +72,14 @@ namespace Xtensive.Storage
     /// Gets the <see cref="RecordSetParser"/> instance.
     /// </summary>
     internal RecordSetParser RecordSetParser { get; private set; }
+    
 
     /// <summary>
     /// Gets the disposing state of the domain.
     /// </summary>
     public DisposingState DisposingState { get; private set; }
+
+    internal ITypeNameResolver TypeNameResolver { get; private set;}
 
     /// <summary>
     /// Gets the domain model.
@@ -180,7 +184,7 @@ namespace Xtensive.Storage
     /// <returns>Newly built <see cref="Domain"/>.</returns>
     public static Domain Build(DomainConfiguration configuration)
     {
-      return ExtendedDomainBuilder.Build(configuration);
+      return AdvancedDomainBuilder.Build(configuration);
     }
 
 
@@ -198,9 +202,9 @@ namespace Xtensive.Storage
       QueryCache = new LruCache<MethodInfo, Pair<MethodInfo, ParameterizedResultExpression>>(1024, input => input.First);
       PairSyncActions = new Dictionary<AssociationInfo, ActionSet>(1024);
       TemporaryData = new GlobalTemporaryData();
-
       ServiceContainer = new UnityContainer();
       ServiceContainer.AddExtension(new SingletonExtension());
+      TypeNameResolver = (ITypeNameResolver) Activator.CreateInstance(configuration.TypeNameResolverType);
     }
 
     /// <inheritdoc/>

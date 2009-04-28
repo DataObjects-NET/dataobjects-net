@@ -4,12 +4,10 @@
 // Created by: Alex Kofman
 // Created:    2009.04.14
 
-using System;
 using System.Linq;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Metadata;
 using Xtensive.Storage.Model;
-using Type=Xtensive.Storage.Metadata.Type;
 
 namespace Xtensive.Storage.Building
 {  
@@ -17,7 +15,7 @@ namespace Xtensive.Storage.Building
   {
     public static void RegisterSystemTypes(TypeRegistry typeRegistry)
     {
-      typeRegistry.Register(typeof(Type).Assembly, typeof(Metadata.Type).Namespace);
+      typeRegistry.Register(typeof(Type).Assembly, typeof(Type).Namespace);
     }
 
     public static void BuildTypeIds()
@@ -80,13 +78,15 @@ namespace Xtensive.Storage.Building
     private static void SaveTypeId(TypeInfo typeInfo, int typeId)
     {
       string name = GetTypeName(typeInfo);
-      var metaType = Query<Type>.All.Where(type => type.Name==name).FirstOrDefault() ?? new Type(name);
-      metaType.Id = typeId;
+      var metaType = Query<Type>.All
+        .Where(type => type.Name==name)
+        .FirstOrDefault() ?? new Type(typeId);
+      metaType.Name = name;
     }
 
     private static string GetTypeName(TypeInfo typeInfo)
     {
-      return typeInfo.UnderlyingType.FullName;
+      return BuildingContext.Current.Domain.TypeNameResolver.GetTypeName(typeInfo.UnderlyingType);
     }
   }
 }

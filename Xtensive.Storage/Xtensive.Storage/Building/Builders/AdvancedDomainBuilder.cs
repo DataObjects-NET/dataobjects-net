@@ -18,15 +18,8 @@ namespace Xtensive.Storage.Building.Builders
   /// <summary>
   /// Builds domain in extended modes.
   /// </summary>
-  public static class ExtendedDomainBuilder
+  public static class AdvancedDomainBuilder
   {
-    internal static void BuildForUpgrade(DomainConfiguration configuration, Action dataUpgrader)
-    {
-      DomainBuilder.BuildDomain(configuration,
-        SchemaUpgradeMode.Upgrade, 
-        dataUpgrader);
-    }
-
     private static Domain BuildBlockUpgrade(DomainConfiguration configuration)
     {
       Domain systemDomain = BuildSystemDomain(configuration);
@@ -70,10 +63,6 @@ namespace Xtensive.Storage.Building.Builders
     /// during storage building process.</exception>
     public static Domain Build(DomainConfiguration configuration)
     {
-
-
-
-
       switch (configuration.BuildMode) {
         case DomainBuildMode.Recreate: 
           return BuildRecreate(configuration);
@@ -81,7 +70,6 @@ namespace Xtensive.Storage.Building.Builders
           return BuildBlockUpgrade(configuration);
         case DomainBuildMode.PerformStrict:
           return BuildPerformStrict(configuration);
-
         default:
           return BuildRecreate(configuration);
       }
@@ -111,21 +99,21 @@ namespace Xtensive.Storage.Building.Builders
           if (upgrader==null)
             break;
 
-          var configuration = (DomainConfiguration) domainConfiguration.Clone();
-          upgrader.RegisterRecycledTypes(configuration.Types);
-
-          BuildForUpgrade(configuration,() => ExecuteUpgrader(upgrader));
+          DomainBuilder.BuildDomain(domainConfiguration,
+            SchemaUpgradeMode.Upgrade, 
+            () => ProcessData(upgrader),
+            upgrader.PersistentTypeFilter);
         }
       }
     }
 
     /// <exception cref="InvalidOperationException">Invalid upgrader version.</exception>
-    private static void ExecuteUpgrader(IUpgrader upgrader)
+    private static void ProcessData(IUpgrader upgrader)
     {
       string schemaVersion = SchemaVersionAccessor.GetSchemaVersion(upgrader.AssemblyName);
-      if (schemaVersion!=upgrader.SourceVersion)
+      if (!upgrader.CanUpgradeFrom(schemaVersion))
         throw new InvalidOperationException(Strings.ExInvalidUpgraderVersion);
-      upgrader.Upgrade();
+      upgrader.ProcessData();
       SchemaVersionAccessor.SetSchemaVersion(upgrader.AssemblyName, upgrader.ResultVersion);
     }
 
