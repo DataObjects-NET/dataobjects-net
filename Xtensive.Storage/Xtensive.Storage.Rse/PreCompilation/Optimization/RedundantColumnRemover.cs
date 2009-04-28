@@ -57,7 +57,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     protected override Provider VisitIndex(IndexProvider provider)
     {
       var columnsCount = provider.Header.Length;
-      var value = mappings.Value[provider];
+      var value = Merge(mappings.Value[provider], provider.Header.Order.Select(o => o.Key));
+      mappings.Value[provider] = value;
       if (columnsCount > value.Count)
         return new SelectProvider(provider, value.ToArray());
       return provider;
