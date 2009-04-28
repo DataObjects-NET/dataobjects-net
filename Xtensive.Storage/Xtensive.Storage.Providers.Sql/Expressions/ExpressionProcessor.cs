@@ -456,7 +456,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       this.compiler = compiler;
       if (selects==null)
         throw new ArgumentNullException("selects");
-      mappingsProvider = handlers.DomainHandler.GetCompilerExtensions<SqlExpression>();
+      mappingsProvider = handlers.DomainHandler.GetMemberCompilerProvider<SqlExpression>();
       valueTypeMapper = ((DomainHandler) handlers.DomainHandler).ValueTypeMapper;
       if (le.Parameters.Count!=selects.Length)
         throw new InvalidOperationException();

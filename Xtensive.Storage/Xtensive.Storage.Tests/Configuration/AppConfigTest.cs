@@ -92,14 +92,12 @@ namespace Xtensive.Storage.Tests.Configuration
     }
 
     [Test]
-    public void CompilerExtensionsTest()
+    public void CustomMemberCompilerProvidersTest()
     {
       var c = DomainConfiguration.Load("AppConfigTest", "TestDomain3");
       c.Lock();
       Assert.AreEqual(c.CompilerContainers.Count, 1);
     }
-
-
 
     [Test]
     public void TestDomain2()

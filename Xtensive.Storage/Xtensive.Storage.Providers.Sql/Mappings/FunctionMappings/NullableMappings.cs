@@ -16,15 +16,15 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
   internal static class NullableMappings
   {
     [Compiler(typeof(Nullable<>), "Value", TargetKind.PropertyGet)]
-    public static SqlExpression NullableValue(MemberInfo memberInfo, SqlExpression this_)
+    public static SqlExpression NullableValue(MemberInfo memberInfo, SqlExpression _this)
     {
-      return this_;
+      return _this;
     }
 
     [Compiler(typeof(Nullable<>), "HasValue", TargetKind.PropertyGet)]
-    public static SqlExpression NullableHasValue(MemberInfo memberInfo, SqlExpression this_)
+    public static SqlExpression NullableHasValue(MemberInfo memberInfo, SqlExpression _this)
     {
-      return SqlFactory.IsNotNull(this_);
+      return SqlFactory.IsNotNull(_this);
     }
   }
 }

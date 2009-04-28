@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     public SqlDriver SqlDriver { get; private set; }
 
-    protected override IEnumerable<Type> GetProviderCompilerExtensionTypes()
+    protected override IEnumerable<Type> GetCompilerProviderContainerTypes()
     {
       return new[]
              {

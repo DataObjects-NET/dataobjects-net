@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <inheritdoc/>
     protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
     {
-      return EmptyOrdering;
+      return EmptyOrder;
     }
 
     // Constructors

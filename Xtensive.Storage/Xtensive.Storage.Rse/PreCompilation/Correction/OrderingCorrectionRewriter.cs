@@ -104,8 +104,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       }
       if (!(result is SelectProvider)) {
         if (!orderIsCorrupted)
-          result.SetActualOrdering(result.ExpectedColumnsOrdering);
-        sortOrder = orderIsCorrupted ? result.ExpectedColumnsOrdering : result.Header.Order;
+          result.SetActualOrdering(result.ExpectedOrder);
+        sortOrder = orderIsCorrupted ? result.ExpectedOrder : result.Header.Order;
       }
       return result;
     }
@@ -121,10 +121,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       if(!setActualOrderOnly && source != provider.Source)
         provider = new SelectProvider(source, provider.ColumnIndexes);
       CheckCorruptionOfOrder();
-      var selectOrdering = provider.ExpectedColumnsOrdering;
-      if(provider.ExpectedColumnsOrdering.Count > 0 && !consumerDescriptor.Value.IsOrderingBoundary) {
+      var selectOrdering = provider.ExpectedOrder;
+      if(provider.ExpectedOrder.Count > 0 && !consumerDescriptor.Value.IsOrderingBoundary) {
         selectOrdering = new DirectionCollection<int>();
-        foreach (KeyValuePair<int, Direction> pair in provider.ExpectedColumnsOrdering) {
+        foreach (KeyValuePair<int, Direction> pair in provider.ExpectedOrder) {
           var columnIndex = provider.ColumnIndexes.IndexOf(pair.Key);
           if (columnIndex < 0)
             throw new InvalidOperationException(

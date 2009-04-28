@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
 
     internal PrimaryIndexMapping RegisterMapping(IndexInfo primaryIndex, Table table)
     {
-      PrimaryIndexMapping result = new PrimaryIndexMapping(primaryIndex, table);
+      var result = new PrimaryIndexMapping(primaryIndex, table);
       primaryIndexMappings[primaryIndex] = result;
       return result;
     }

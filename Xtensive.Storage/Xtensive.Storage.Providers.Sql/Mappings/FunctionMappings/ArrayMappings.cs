@@ -14,9 +14,9 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
   internal static class ArrayMappings
   {
     [Compiler(typeof(byte[]), "Length", TargetKind.PropertyGet)]
-    public static SqlExpression ByteArrayLength(SqlExpression this_)
+    public static SqlExpression ByteArrayLength(SqlExpression _this)
     {
-      return SqlFactory.Length(this_);
+      return SqlFactory.Length(_this);
     }
   }
 }

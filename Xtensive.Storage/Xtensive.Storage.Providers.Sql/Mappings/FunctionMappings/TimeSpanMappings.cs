@@ -72,33 +72,33 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     #region Extractors
 
     [Compiler(typeof(TimeSpan), "Milliseconds", TargetKind.PropertyGet)]
-    public static SqlExpression TimeSpanMilliseconds(SqlExpression this_)
+    public static SqlExpression TimeSpanMilliseconds(SqlExpression _this)
     {
-      return SqlFactory.IntervalExtract(SqlIntervalPart.Millisecond, this_);
+      return SqlFactory.IntervalExtract(SqlIntervalPart.Millisecond, _this);
     }
 
     [Compiler(typeof(TimeSpan), "Seconds", TargetKind.PropertyGet)]
-    public static SqlExpression TimeSpanSeconds(SqlExpression this_)
+    public static SqlExpression TimeSpanSeconds(SqlExpression _this)
     {
-      return SqlFactory.IntervalExtract(SqlIntervalPart.Second, this_);
+      return SqlFactory.IntervalExtract(SqlIntervalPart.Second, _this);
     }
 
     [Compiler(typeof(TimeSpan), "Minutes", TargetKind.PropertyGet)]
-    public static SqlExpression TimeSpanMinutes(SqlExpression this_)
+    public static SqlExpression TimeSpanMinutes(SqlExpression _this)
     {
-      return SqlFactory.IntervalExtract(SqlIntervalPart.Minute, this_);
+      return SqlFactory.IntervalExtract(SqlIntervalPart.Minute, _this);
     }
 
     [Compiler(typeof(TimeSpan), "Hours", TargetKind.PropertyGet)]
-    public static SqlExpression TimeSpanHours(SqlExpression this_)
+    public static SqlExpression TimeSpanHours(SqlExpression _this)
     {
-      return SqlFactory.IntervalExtract(SqlIntervalPart.Hour, this_);
+      return SqlFactory.IntervalExtract(SqlIntervalPart.Hour, _this);
     }
     
     [Compiler(typeof(TimeSpan), "Days", TargetKind.PropertyGet)]
-    public static SqlExpression TimeSpanDays(SqlExpression this_)
+    public static SqlExpression TimeSpanDays(SqlExpression _this)
     {
-      return SqlFactory.IntervalExtract(SqlIntervalPart.Day, this_);
+      return SqlFactory.IntervalExtract(SqlIntervalPart.Day, _this);
     }
 
     #endregion
@@ -106,39 +106,39 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     #region Converters
 
     [Compiler(typeof(TimeSpan), "Ticks", TargetKind.PropertyGet)]
-    public static SqlExpression TimeSpanTicks(SqlExpression this_)
+    public static SqlExpression TimeSpanTicks(SqlExpression _this)
     {
-      return SqlFactory.IntervalToMilliseconds(this_) * 10000;
+      return SqlFactory.IntervalToMilliseconds(_this) * 10000;
     }
 
     [Compiler(typeof(TimeSpan), "TotalMilliseconds", TargetKind.PropertyGet)]
-    public static SqlExpression TimeSpanTotalMilliseconds(SqlExpression this_)
+    public static SqlExpression TimeSpanTotalMilliseconds(SqlExpression _this)
     {
-      return SqlFactory.IntervalToMilliseconds(this_);
+      return SqlFactory.IntervalToMilliseconds(_this);
     }
 
     [Compiler(typeof(TimeSpan), "TotalSeconds", TargetKind.PropertyGet)]
-    public static SqlExpression TimeSpanTotalSeconds(SqlExpression this_)
+    public static SqlExpression TimeSpanTotalSeconds(SqlExpression _this)
     {
-      return SqlFactory.IntervalToMilliseconds(this_) / 1000.0;
+      return SqlFactory.IntervalToMilliseconds(_this) / 1000.0;
     }
 
     [Compiler(typeof(TimeSpan), "TotalMinutes", TargetKind.PropertyGet)]
-    public static SqlExpression TimeSpanTotalMinutes(SqlExpression this_)
+    public static SqlExpression TimeSpanTotalMinutes(SqlExpression _this)
     {
-      return SqlFactory.IntervalToMilliseconds(this_) / (1000.0 * 60.0);
+      return SqlFactory.IntervalToMilliseconds(_this) / (1000.0 * 60.0);
     }
 
     [Compiler(typeof(TimeSpan), "TotalHours", TargetKind.PropertyGet)]
-    public static SqlExpression TimeSpanTotalHours(SqlExpression this_)
+    public static SqlExpression TimeSpanTotalHours(SqlExpression _this)
     {
-      return SqlFactory.IntervalToMilliseconds(this_) / (1000.0 * 60.0 * 60.0);
+      return SqlFactory.IntervalToMilliseconds(_this) / (1000.0 * 60.0 * 60.0);
     }
 
     [Compiler(typeof(TimeSpan), "TotalDays", TargetKind.PropertyGet)]
-    public static SqlExpression TimeSpanTotalDays(SqlExpression this_)
+    public static SqlExpression TimeSpanTotalDays(SqlExpression _this)
     {
-      return SqlFactory.IntervalToMilliseconds(this_) / (1000.0 * 60.0 * 60.0 * 24.0);
+      return SqlFactory.IntervalToMilliseconds(_this) / (1000.0 * 60.0 * 60.0 * 24.0);
     }
 
     #endregion
@@ -228,29 +228,29 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     #region Other mappings
 
     [Compiler(typeof(TimeSpan), "Add")]
-    public static SqlExpression TimeSpanAdd(SqlExpression this_,
+    public static SqlExpression TimeSpanAdd(SqlExpression _this,
       [Type(typeof(TimeSpan))] SqlExpression t)
     {
-      return this_ + t;
+      return _this + t;
     }
 
     [Compiler(typeof(TimeSpan), "Subtract")]
-    public static SqlExpression TimeSpanSubtract(SqlExpression this_,
+    public static SqlExpression TimeSpanSubtract(SqlExpression _this,
       [Type(typeof(TimeSpan))] SqlExpression t)
     {
-      return this_ - t;
+      return _this - t;
     }
 
     [Compiler(typeof(TimeSpan), "Negate")]
-    public static SqlExpression TimeSpanNegate(SqlExpression this_)
+    public static SqlExpression TimeSpanNegate(SqlExpression _this)
     {
-      return -this_;
+      return - _this;
     }
     
     [Compiler(typeof(TimeSpan), "Duration")]
-    public static SqlExpression TimeSpanDuration(SqlExpression this_)
+    public static SqlExpression TimeSpanDuration(SqlExpression _this)
     {
-      return SqlFactory.IntervalDuration(this_);
+      return SqlFactory.IntervalDuration(_this);
     }
 
     #endregion

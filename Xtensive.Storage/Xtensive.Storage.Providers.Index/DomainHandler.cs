@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Providers.Index
     protected IndexStorage Storage { get; private set; }
 
     /// <inheritdoc/>
-    protected override IEnumerable<Type> GetProviderCompilerExtensionTypes()
+    protected override IEnumerable<Type> GetCompilerProviderContainerTypes()
     {
       return Type.EmptyTypes;
     }

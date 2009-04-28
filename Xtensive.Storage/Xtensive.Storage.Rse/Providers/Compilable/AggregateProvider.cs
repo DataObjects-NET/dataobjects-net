@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
     {
       return new DirectionCollection<int>(
-          Source.ExpectedColumnsOrdering.Where(p => GroupColumnIndexes.Contains(p.Key)));
+          Source.ExpectedOrder.Where(p => GroupColumnIndexes.Contains(p.Key)));
     }
 
 

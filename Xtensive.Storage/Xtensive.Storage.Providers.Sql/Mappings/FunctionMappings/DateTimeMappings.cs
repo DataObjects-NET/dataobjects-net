@@ -18,69 +18,69 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     #region Extractors
 
     [Compiler(typeof(DateTime), "Year", TargetKind.PropertyGet)]
-    public static SqlExpression DateTimeYear(SqlExpression this_)
+    public static SqlExpression DateTimeYear(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.Year, this_);
+      return SqlFactory.Extract(SqlDateTimePart.Year, _this);
     }
 
     [Compiler(typeof(DateTime), "Month", TargetKind.PropertyGet)]
-    public static SqlExpression DateTimeMonth(SqlExpression this_)
+    public static SqlExpression DateTimeMonth(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.Month, this_);
+      return SqlFactory.Extract(SqlDateTimePart.Month, _this);
     }
 
     [Compiler(typeof(DateTime), "Day", TargetKind.PropertyGet)]
-    public static SqlExpression DateTimeDay(SqlExpression this_)
+    public static SqlExpression DateTimeDay(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.Day, this_);
+      return SqlFactory.Extract(SqlDateTimePart.Day, _this);
     }
 
     [Compiler(typeof(DateTime), "Hour", TargetKind.PropertyGet)]
-    public static SqlExpression DateTimeHour(SqlExpression this_)
+    public static SqlExpression DateTimeHour(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.Hour, this_);
+      return SqlFactory.Extract(SqlDateTimePart.Hour, _this);
     }
 
     [Compiler(typeof(DateTime), "Minute", TargetKind.PropertyGet)]
-    public static SqlExpression DateTimeMinute(SqlExpression this_)
+    public static SqlExpression DateTimeMinute(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.Minute, this_);
+      return SqlFactory.Extract(SqlDateTimePart.Minute, _this);
     }
 
     [Compiler(typeof(DateTime), "Second", TargetKind.PropertyGet)]
-    public static SqlExpression DateTimeSecond(SqlExpression this_)
+    public static SqlExpression DateTimeSecond(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.Second, this_);
+      return SqlFactory.Extract(SqlDateTimePart.Second, _this);
     }
 
     [Compiler(typeof(DateTime), "Millisecond", TargetKind.PropertyGet)]
-    public static SqlExpression DateTimeMillisecond(SqlExpression this_)
+    public static SqlExpression DateTimeMillisecond(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.Millisecond, this_);
+      return SqlFactory.Extract(SqlDateTimePart.Millisecond, _this);
     }
 
     [Compiler(typeof(DateTime), "TimeOfDay", TargetKind.PropertyGet)]
-    public static SqlExpression DateTimeTimeOfDay(SqlExpression this_)
+    public static SqlExpression DateTimeTimeOfDay(SqlExpression _this)
     {
-      return SqlFactory.DateTimeSubtractDateTime(this_, SqlFactory.DateTimeTruncate(this_));
+      return SqlFactory.DateTimeSubtractDateTime(_this, SqlFactory.DateTimeTruncate(_this));
     }
 
     [Compiler(typeof(DateTime), "Date", TargetKind.PropertyGet)]
-    public static SqlExpression DateTimeDate(SqlExpression this_)
+    public static SqlExpression DateTimeDate(SqlExpression _this)
     {
-      return SqlFactory.DateTimeTruncate(this_);
+      return SqlFactory.DateTimeTruncate(_this);
     }
 
     [Compiler(typeof(DateTime), "DayOfWeek", TargetKind.PropertyGet)]
-    public static SqlExpression DateTimeDayOfWeek(SqlExpression this_)
+    public static SqlExpression DateTimeDayOfWeek(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.DayOfWeek, this_);
+      return SqlFactory.Extract(SqlDateTimePart.DayOfWeek, _this);
     }
 
     [Compiler(typeof(DateTime), "DayOfYear", TargetKind.PropertyGet)]
-    public static SqlExpression DateTimeDayOfYear(SqlExpression this_)
+    public static SqlExpression DateTimeDayOfYear(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.DayOfYear, this_);
+      return SqlFactory.Extract(SqlDateTimePart.DayOfYear, _this);
     }
 
     #endregion
@@ -216,24 +216,24 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     #endregion
 
     [Compiler(typeof(DateTime), "Add")]
-    public static SqlExpression DateTimeAdd(SqlExpression this_,
+    public static SqlExpression DateTimeAdd(SqlExpression _this,
       [Type(typeof(TimeSpan))] SqlExpression value)
     {
-      return SqlFactory.DateTimeAddInterval(this_, value);
+      return SqlFactory.DateTimeAddInterval(_this, value);
     }
 
     [Compiler(typeof(DateTime), "Subtract")]
-    public static SqlExpression DateTimeSubtractTimeSpan(SqlExpression this_,
+    public static SqlExpression DateTimeSubtractTimeSpan(SqlExpression _this,
       [Type(typeof(TimeSpan))] SqlExpression value)
     {
-      return SqlFactory.DateTimeSubtractInterval(this_, value);
+      return SqlFactory.DateTimeSubtractInterval(_this, value);
     }
 
     [Compiler(typeof(DateTime), "Subtract")]
-    public static SqlExpression DateTimeSubtractDateTime(SqlExpression this_,
+    public static SqlExpression DateTimeSubtractDateTime(SqlExpression _this,
       [Type(typeof(DateTime))] SqlExpression value)
     {
-      return SqlFactory.DateTimeSubtractDateTime(this_, value);
+      return SqlFactory.DateTimeSubtractDateTime(_this, value);
     }
 
     [Compiler(typeof(DateTime), "Now", TargetKind.Static | TargetKind.PropertyGet)]

@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     protected override void Initialize()
     {
       base.Initialize();
-      SetActualOrdering(ExpectedColumnsOrdering);
+      SetActualOrdering(ExpectedOrder);
     }
 
 

@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Providers
   /// </summary>
   public abstract class DomainHandler : InitializableHandlerBase
   {
-    private Dictionary<Type, IMemberCompilerProvider> compilerExtensions = new Dictionary<Type, IMemberCompilerProvider>();
+    private readonly Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders = new Dictionary<Type, IMemberCompilerProvider>();
 
     /// <summary>
     /// Gets the domain this handler is bound to.
@@ -42,13 +42,18 @@ namespace Xtensive.Storage.Providers
     /// Invoked from <see cref="Initialize"/>.
     /// </summary>
     public ICompiler ServerSideCompiler { get; protected set; }
-    
+
     /// <summary>
-    /// Gets the compiler extensions.
+    /// Gets the member compiler provider by its type parameter.
     /// </summary>
-    public IMemberCompilerProvider<T> GetCompilerExtensions<T>()
+    /// <typeparam name="T">The type of member compiler provider type parameter.</typeparam>
+    /// <returns>
+    /// Found member compiler provider;
+    /// <see langword="null"/>, if it was not found.
+    /// </returns>
+    public IMemberCompilerProvider<T> GetMemberCompilerProvider<T>()
     {
-      return (IMemberCompilerProvider<T>)compilerExtensions[typeof(T)];
+      return (IMemberCompilerProvider<T>) memberCompilerProviders[typeof(T)];
     }
 
 
@@ -56,24 +61,27 @@ namespace Xtensive.Storage.Providers
 
     /// <summary>
     /// Builds the compiler.
+    /// Invoked from <see cref="Initialize"/>.
     /// </summary>
     /// <param name="compiledSources">The compiled sources. Shared across all compilers.</param>
+    /// <returns>A new compiler.</returns>
     protected abstract ICompiler BuildCompiler(BindingCollection<object, ExecutableProvider> compiledSources);
-    
-    /// <summary>
-    /// Gets the compiler extensions types.
-    /// </summary>
-    protected virtual IEnumerable<Type> GetProviderCompilerExtensionTypes()
-    {
-      return Type.EmptyTypes;
-    }
 
     /// <summary>
-    /// Builds the <see cref="ServerSideCompiler"/> value.
     /// Builds the <see cref="IPreCompiler"/>.
     /// Invoked from <see cref="Initialize"/>.
     /// </summary>
+    /// <returns>A new pre-compiler.</returns>
     protected abstract IPreCompiler BuildPreCompiler();
+
+    /// <summary>
+    /// Gets the sequence of compiler provider container types.
+    /// </summary>
+    /// <returns>The sequence of compiler provider container types.</returns>
+    protected virtual IEnumerable<Type> GetCompilerProviderContainerTypes()
+    {
+      return EnumerableUtils<Type>.Empty;
+    }
 
     /// <summary>
     /// Builds the mapping schema.
@@ -105,33 +113,37 @@ namespace Xtensive.Storage.Providers
       return Domain.OpenSession(configuration);
     }
 
-    /// <exception cref="InvalidOperationException">One of compiler containers is improperly described.</exception>
-    private void BuildCompilerExtentions()
+    /// <exception cref="InvalidOperationException">One of compiler containers is 
+    /// improperly described.</exception>
+    private void BuildMemberCompilerProviders()
     {
-      var userExtensionTypes = Domain.Configuration.CompilerContainers;
-      var providerExtensionTypes = GetProviderCompilerExtensionTypes();
-      var typeGroups = providerExtensionTypes.GroupBy(t => ((CompilerContainerAttribute[])t.GetCustomAttributes(typeof(CompilerContainerAttribute), false))[0].ExtensionType);
+      var customCompilerContainers = Domain.Configuration.CompilerContainers;
+      var builtinCompilerContainers = GetCompilerProviderContainerTypes();
+      var typeGroups = builtinCompilerContainers.GroupBy(
+        t => ((CompilerContainerAttribute[]) t.GetCustomAttributes(
+          typeof(CompilerContainerAttribute), false))[0].ExtensionType);
 
       foreach (var types in typeGroups) {
-        var compilerExtentionType = ((CompilerContainerAttribute)types.First().GetCustomAttributes(typeof(CompilerContainerAttribute), false)[0]).ExtensionType;
-        var memberCompilerProvider = MemberCompilerProviderFactory.Create(compilerExtentionType);
-        compilerExtensions.Add(compilerExtentionType, memberCompilerProvider);
+        var extensionType = ((CompilerContainerAttribute) types.First().GetCustomAttributes(
+          typeof(CompilerContainerAttribute), false)[0]).ExtensionType;
+        var memberCompilerProvider = MemberCompilerProviderFactory.Create(extensionType);
+        memberCompilerProviders.Add(extensionType, memberCompilerProvider);
         foreach (var type in types)
           memberCompilerProvider.RegisterCompilers(type);
       }
 
-      foreach (var type in userExtensionTypes) {
+      foreach (var type in customCompilerContainers) {
         var atr = type.GetCustomAttributes(typeof(CompilerContainerAttribute), false);
         if (atr.IsNullOrEmpty())
           throw new InvalidOperationException(String.Format(
             Strings.ExCompilerContainerAttributeIsNotAppliedToTypeX, type.Name));
-        var compilerExtentionType = ((CompilerContainerAttribute)atr[0]).ExtensionType;
+        var extensionType = ((CompilerContainerAttribute)atr[0]).ExtensionType;
         var conflictHandlingMethod = ((CompilerContainerAttribute)atr[0]).ConflictHandlingMethod;
 
         IMemberCompilerProvider memberCompilerProvider;
-        compilerExtensions.TryGetValue(compilerExtentionType, out memberCompilerProvider);
+        memberCompilerProviders.TryGetValue(extensionType, out memberCompilerProvider);
         if (memberCompilerProvider == null)
-          memberCompilerProvider = MemberCompilerProviderFactory.Create(compilerExtentionType);
+          memberCompilerProvider = MemberCompilerProviderFactory.Create(extensionType);
         memberCompilerProvider.RegisterCompilers(type, conflictHandlingMethod);
       }
     }
@@ -151,7 +163,7 @@ namespace Xtensive.Storage.Providers
             new ClientCompiler(compiledSources));
         },
         BuildPreCompiler);
-      BuildCompilerExtentions();
+      BuildMemberCompilerProviders();
     }
 
     /// <summary>

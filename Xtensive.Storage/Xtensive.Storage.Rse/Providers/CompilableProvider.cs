@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Resources;
@@ -23,10 +24,13 @@ namespace Xtensive.Storage.Rse.Providers
   [Serializable]
   public abstract class CompilableProvider : Provider
   {
-    private DirectionCollection<int> expectedColumnsOrdering;
+    private DirectionCollection<int> expectedOrder;
     private TupleDescriptor orderTupleDescriptor;
-
-    protected internal readonly DirectionCollection<int> EmptyOrdering = new DirectionCollection<int>();
+    
+    /// <summary>
+    /// Gets the empty order.
+    /// </summary>
+    protected internal static DirectionCollection<int> EmptyOrder { get; private set; }
 
     /// <summary>
     /// Creates the <see cref="RecordSet"/> wrapping this provider.
@@ -36,16 +40,16 @@ namespace Xtensive.Storage.Rse.Providers
       get { return new RecordSet(this); }
     }
 
-    internal DirectionCollection<int> ExpectedColumnsOrdering
+    internal DirectionCollection<int> ExpectedOrder
     {
-      get { return expectedColumnsOrdering; }
+      get { return expectedOrder; }
     }
 
     /// <summary>
     /// Creates <see cref="DirectionCollection{T}"/> describing the expected ordering of columns.
     /// </summary>
     /// <returns>Created <see cref="DirectionCollection{T}"/> to assign to 
-    /// <see cref="ExpectedColumnsOrdering"/>.</returns>
+    /// <see cref="ExpectedOrder"/>.</returns>
     protected abstract DirectionCollection<int> CreateExpectedColumnsOrdering();
 
     /// <inheritdoc/>
@@ -53,14 +57,14 @@ namespace Xtensive.Storage.Rse.Providers
     {
       base.Initialize();
       orderTupleDescriptor = Header.OrderTupleDescriptor;
-      expectedColumnsOrdering = CreateExpectedColumnsOrdering();
+      expectedOrder = CreateExpectedColumnsOrdering();
       ClearOrderingInHeader();
     }
 
     internal void SetActualOrdering(DirectionCollection<int> ordering)
     {
       ArgumentValidator.EnsureArgumentNotNull(ordering, "ordering");
-      expectedColumnsOrdering = ordering;
+      expectedOrder = ordering;
       SetHeader(new RecordSetHeader(Header.TupleDescriptor, Header.Columns, Header.ColumnGroups,
         orderTupleDescriptor, ordering));
     }
@@ -79,6 +83,17 @@ namespace Xtensive.Storage.Rse.Providers
     protected CompilableProvider(ProviderType type, params Provider[] sources)
       : base(type, sources)
     {
+    }
+
+    // Type initializer
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.TypeInitializer" copy="true"/>
+    /// </summary>
+    static CompilableProvider()
+    {
+      EmptyOrder = new DirectionCollection<int>();
+      EmptyOrder.Lock(true);
     }
   }
 }

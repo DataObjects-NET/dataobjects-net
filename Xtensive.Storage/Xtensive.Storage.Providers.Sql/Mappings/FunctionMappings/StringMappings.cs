@@ -20,139 +20,139 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     private static readonly SqlLiteral<string> Percent = SqlFactory.Literal("%");
     
     [Compiler(typeof(string), "StartsWith")]
-    public static SqlExpression StringStartsWith(SqlExpression this_,
+    public static SqlExpression StringStartsWith(SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.Like(this_, SqlFactory.Concat(value, Percent));
+      return SqlFactory.Like(_this, SqlFactory.Concat(value, Percent));
     }
   
     [Compiler(typeof(string), "EndsWith")]
-    public static SqlExpression StringEndsWith(SqlExpression this_,
+    public static SqlExpression StringEndsWith(SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.Like(this_, SqlFactory.Concat(Percent, value));
+      return SqlFactory.Like(_this, SqlFactory.Concat(Percent, value));
     }
 
     [Compiler(typeof(string), "Contains")]
-    public static SqlExpression StringContains(SqlExpression this_,
+    public static SqlExpression StringContains(SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.Like(this_, SqlFactory.Concat(Percent, SqlFactory.Concat(value, Percent)));
+      return SqlFactory.Like(_this, SqlFactory.Concat(Percent, SqlFactory.Concat(value, Percent)));
     }
 
     [Compiler(typeof(string), "Substring")]
-    public static SqlExpression StringSubstring(SqlExpression this_,
+    public static SqlExpression StringSubstring(SqlExpression _this,
       [Type(typeof(int))] SqlExpression startIndex)
     {
-      return SqlFactory.Substring(this_, startIndex);
+      return SqlFactory.Substring(_this, startIndex);
     }
 
     [Compiler(typeof(string), "Substring")]
-    public static SqlExpression StringSubstring(SqlExpression this_,
+    public static SqlExpression StringSubstring(SqlExpression _this,
       [Type(typeof(int))] SqlExpression startIndex,
       [Type(typeof(int))] SqlExpression length)
     {
-      return SqlFactory.Substring(this_, startIndex, length);
+      return SqlFactory.Substring(_this, startIndex, length);
     }
 
     [Compiler(typeof(string), "ToUpper")]
-    public static SqlExpression StringToUpper(SqlExpression this_)
+    public static SqlExpression StringToUpper(SqlExpression _this)
     {
-      return SqlFactory.Upper(this_);
+      return SqlFactory.Upper(_this);
     }
 
     [Compiler(typeof(string), "ToLower")]
-    public static SqlExpression StringToLower(SqlExpression this_)
+    public static SqlExpression StringToLower(SqlExpression _this)
     {
-      return SqlFactory.Lower(this_);
+      return SqlFactory.Lower(_this);
     }
 
     [Compiler(typeof(string), "Trim")]
-    public static SqlExpression StringTrim(SqlExpression this_)
+    public static SqlExpression StringTrim(SqlExpression _this)
     {
-      return SqlFactory.Trim(this_);
+      return SqlFactory.Trim(_this);
     }
 
-    private static SqlExpression TrimHelper(SqlExpression this_,
+    private static SqlExpression TrimHelper(SqlExpression _this,
       SqlExpression trimChars, SqlTrimType trimType)
     {
       throw new NotImplementedException();
     }
 
     [Compiler(typeof(string), "Trim")]
-    public static SqlExpression StringTrim(SqlExpression this_,
+    public static SqlExpression StringTrim(SqlExpression _this,
       [Type(typeof(char[]))] SqlExpression trimChars)
     {
-      return TrimHelper(this_, trimChars, SqlTrimType.Both);
+      return TrimHelper(_this, trimChars, SqlTrimType.Both);
     }
 
     [Compiler(typeof(string), "TrimStart")]
-    public static SqlExpression StringTrimStart(SqlExpression this_,
+    public static SqlExpression StringTrimStart(SqlExpression _this,
       [Type(typeof(char[]))] SqlExpression trimChars)
     {
-      return TrimHelper(this_, trimChars, SqlTrimType.Leading);
+      return TrimHelper(_this, trimChars, SqlTrimType.Leading);
     }
 
     [Compiler(typeof(string), "TrimEnd")]
-    public static SqlExpression StringTrimEnd(SqlExpression this_,
+    public static SqlExpression StringTrimEnd(SqlExpression _this,
       [Type(typeof(char[]))] SqlExpression trimChars)
     {
-      return TrimHelper(this_, trimChars, SqlTrimType.Trailing);
+      return TrimHelper(_this, trimChars, SqlTrimType.Trailing);
     }
 
     [Compiler(typeof(string), "Length", TargetKind.PropertyGet)]
-    public static SqlExpression StringLength(SqlExpression this_)
+    public static SqlExpression StringLength(SqlExpression _this)
     {
-      return SqlFactory.Length(this_);
+      return SqlFactory.Length(_this);
     }
 
     [Compiler(typeof(string), "ToString")]
-    public static SqlExpression StringToString(SqlExpression this_)
+    public static SqlExpression StringToString(SqlExpression _this)
     {
-      return this_;
+      return _this;
     }
 
     [Compiler(typeof(string), "Replace")]
-    public static SqlExpression StringReplaceCh(SqlExpression this_,
+    public static SqlExpression StringReplaceCh(SqlExpression _this,
       [Type(typeof(char))] SqlExpression oldChar,
       [Type(typeof(char))] SqlExpression newChar)
     {
-      return SqlFactory.Replace(this_, oldChar, newChar);
+      return SqlFactory.Replace(_this, oldChar, newChar);
     }
 
     [Compiler(typeof(string), "Replace")]
-    public static SqlExpression StringReplaceStr(SqlExpression this_,
+    public static SqlExpression StringReplaceStr(SqlExpression _this,
       [Type(typeof(string))] SqlExpression oldValue,
       [Type(typeof(string))] SqlExpression newValue)
     {
-      return SqlFactory.Replace(this_, oldValue, newValue);
+      return SqlFactory.Replace(_this, oldValue, newValue);
     }
 
     [Compiler(typeof(string), "Insert")]
-    public static SqlExpression StringInsert(SqlExpression this_,
+    public static SqlExpression StringInsert(SqlExpression _this,
       [Type(typeof(int))] SqlExpression startIndex,
       [Type(typeof(string))] SqlExpression value)
     {
       return SqlFactory.Concat(SqlFactory.Concat(
-        SqlFactory.Substring(this_, 0, startIndex), value),
-        SqlFactory.Substring(this_, startIndex, SqlFactory.Length(this_) - startIndex));
+        SqlFactory.Substring(_this, 0, startIndex), value),
+        SqlFactory.Substring(_this, startIndex, SqlFactory.Length(_this) - startIndex));
     }
 
     [Compiler(typeof(string), "Remove")]
-    public static SqlExpression StringRemove(SqlExpression this_,
+    public static SqlExpression StringRemove(SqlExpression _this,
       [Type(typeof(int))] SqlExpression startIndex)
     {
-      return SqlFactory.Substring(this_, SqlFactory.Literal(0), startIndex);
+      return SqlFactory.Substring(_this, SqlFactory.Literal(0), startIndex);
     }
 
     [Compiler(typeof(string), "Remove")]
-    public static SqlExpression StringRemove(SqlExpression this_,
+    public static SqlExpression StringRemove(SqlExpression _this,
       [Type(typeof(int))] SqlExpression startIndex,
       [Type(typeof(int))] SqlExpression count)
     {
       return SqlFactory.Concat(
-        SqlFactory.Substring(this_, SqlFactory.Literal(0), startIndex),
-        SqlFactory.Substring(this_, startIndex + count));
+        SqlFactory.Substring(_this, SqlFactory.Literal(0), startIndex),
+        SqlFactory.Substring(_this, startIndex + count));
     }
 
     [Compiler(typeof(string), "IsNullOrEmpty", TargetKind.Static | TargetKind.Method)]
@@ -210,69 +210,69 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     }
 
     [Compiler(typeof(string), "CompareTo")]
-    public static SqlExpression StringCompareTo(SqlExpression this_,
+    public static SqlExpression StringCompareTo(SqlExpression _this,
       [Type(typeof(string))] SqlExpression strB)
     {
-      return StringCompare(this_, strB);
+      return StringCompare(_this, strB);
     }
 
     [Compiler(typeof(string), "IndexOf")]
-    public static SqlExpression StringIndexOfStr(SqlExpression this_,
+    public static SqlExpression StringIndexOfStr(SqlExpression _this,
       [Type(typeof(string))] SqlExpression str)
     {
-      return SqlFactory.Position(str, this_);
+      return SqlFactory.Position(str, _this);
     }
 
     [Compiler(typeof(string), "IndexOf")]
-    public static SqlExpression StringIndexOfCh(SqlExpression this_,
+    public static SqlExpression StringIndexOfCh(SqlExpression _this,
       [Type(typeof(char))] SqlExpression ch)
     {
-      return SqlFactory.Position(ch, this_);
+      return SqlFactory.Position(ch, _this);
     }
 
     [Compiler(typeof(string), "Chars", TargetKind.PropertyGet)]
-    public static SqlExpression StringChars(SqlExpression this_, [Type(typeof(int))] SqlExpression index)
+    public static SqlExpression StringChars(SqlExpression _this, [Type(typeof(int))] SqlExpression index)
     {
-      return SqlFactory.Substring(this_, index, index + 1);
+      return SqlFactory.Substring(_this, index, index + 1);
     }
 
     [Compiler(typeof(string), "Equals")]
-    public static SqlExpression StringEquals(SqlExpression this_,
+    public static SqlExpression StringEquals(SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return value is SqlNull ? (SqlExpression) SqlFactory.IsNull(this_) : this_==value;
+      return value is SqlNull ? (SqlExpression) SqlFactory.IsNull(_this) : _this==value;
     }
 
     [Compiler(typeof(StringExtensions), "LessThan", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringLessThan(
-      [Type(typeof(string))] SqlExpression this_,
+      [Type(typeof(string))] SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.LessThan(this_, value);
+      return SqlFactory.LessThan(_this, value);
     }
 
     [Compiler(typeof(StringExtensions), "LessThanOrEqual", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringLessThanOrEquals(
-      [Type(typeof(string))] SqlExpression this_,
+      [Type(typeof(string))] SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.LessThanOrEquals(this_, value);
+      return SqlFactory.LessThanOrEquals(_this, value);
     }
 
     [Compiler(typeof(StringExtensions), "GreaterThan", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringGreaterThan(
-      [Type(typeof(string))] SqlExpression this_,
+      [Type(typeof(string))] SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.GreaterThan(this_, value);
+      return SqlFactory.GreaterThan(_this, value);
     }
 
     [Compiler(typeof(StringExtensions), "GreaterThanOrEqual", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringGreaterThanOrEquals(
-      [Type(typeof(string))] SqlExpression this_,
+      [Type(typeof(string))] SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.GreaterThanOrEquals(this_, value);
+      return SqlFactory.GreaterThanOrEquals(_this, value);
     }
 
     [Compiler(typeof(string), Operator.Equality, TargetKind.Operator)]

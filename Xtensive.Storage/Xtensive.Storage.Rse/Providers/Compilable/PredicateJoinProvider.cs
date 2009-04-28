@@ -36,11 +36,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <inheritdoc/>
     protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
     {
-      var result = Left.ExpectedColumnsOrdering;
-      if (Right.ExpectedColumnsOrdering.Count > 0) {
-        var leftHeaderLength = Left.ExpectedColumnsOrdering.Count;
+      var result = Left.ExpectedOrder;
+      if (Right.ExpectedOrder.Count > 0) {
+        var leftHeaderLength = Left.ExpectedOrder.Count;
         result = new DirectionCollection<int>(
-          Enumerable.Union(result, Right.ExpectedColumnsOrdering.Select(p =>
+          Enumerable.Union(result, Right.ExpectedOrder.Select(p =>
             new KeyValuePair<int, Direction>(p.Key + leftHeaderLength, p.Value))));
       }
       return result;
