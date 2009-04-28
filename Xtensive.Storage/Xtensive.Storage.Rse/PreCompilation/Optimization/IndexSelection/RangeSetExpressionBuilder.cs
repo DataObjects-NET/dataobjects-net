@@ -67,6 +67,44 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       return BuildIntersect(firstBoundary, secondBoundary);
     }
 
+    public static RangeSetInfo BuildFullRangeSetConstructor(TupleExpressionInfo origin,
+      AdvancedComparer<Entire<Tuple>> comparer)
+    {
+      return new RangeSetInfo(
+        Expression.New(rangeSetConstructor, Expression.Constant(Range<Entire<Tuple>>.Full),
+          Expression.Constant(comparer)),
+        origin, true);
+    }
+
+    public static RangeSetInfo BuildIntersect(RangeSetInfo target, RangeSetInfo other)
+    {
+      var intersectionResult = Expression.Call(target.Source, intersectMethod, other.Source);
+      target.Intersect(intersectionResult, other);
+      return target;
+    }
+
+    public static RangeSetInfo BuildUnite(RangeSetInfo target, RangeSetInfo other)
+    {
+      var unionResult = Expression.Call(target.Source, uniteMethod, other.Source);
+      target.Unite(unionResult, other);
+      return target;
+    }
+
+    public static RangeSetInfo BuildFullOrEmpty(Expression booleanExp)
+    {
+      //TODO:A comparer from index must be passed here.
+      return CreateNotFullExpression(Expression.Call(
+        fullOrEmptyMethod, booleanExp, Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)), null);
+    }
+
+    public static RangeSetInfo BuildInvert(RangeSetInfo target)
+    {
+      var invertionResult = Expression.Call(target.Source, invertMethod);
+      target.Invert(invertionResult);
+      return target;
+    }
+
+    #region Private \ internal methods
     private static RangeSetInfo BuildFirstBoundaryOfMuliColumnIndex(
       IEnumerable<KeyValuePair<int, Expression>> indexKeyValues, ComparisonOperation operation,
       IndexInfo indexInfo, AdvancedComparer<Entire<Tuple>> comparer)
@@ -143,43 +181,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
         || comparisonOperation == ComparisonOperation.NotLikeStartsWith)
         return BuildInvert(result);
       return result;
-    }
-
-    public static RangeSetInfo BuildFullRangeSetConstructor(TupleExpressionInfo origin,
-      AdvancedComparer<Entire<Tuple>> comparer)
-    {
-      return new RangeSetInfo(
-        Expression.New(rangeSetConstructor, Expression.Constant(Range<Entire<Tuple>>.Full),
-          Expression.Constant(comparer)),
-        origin, true);
-    }
-
-    public static RangeSetInfo BuildIntersect(RangeSetInfo target, RangeSetInfo other)
-    {
-      var intersectionResult = Expression.Call(target.Source, intersectMethod, other.Source);
-      target.Intersect(intersectionResult, other);
-      return target;
-    }
-
-    public static RangeSetInfo BuildUnite(RangeSetInfo target, RangeSetInfo other)
-    {
-      var unionResult = Expression.Call(target.Source, uniteMethod, other.Source);
-      target.Unite(unionResult, other);
-      return target;
-    }
-
-    public static RangeSetInfo BuildFullOrEmpty(Expression booleanExp)
-    {
-      //TODO:A comparer from index must be passed here.
-      return CreateNotFullExpression(Expression.Call(
-        fullOrEmptyMethod, booleanExp, Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)), null);
-    }
-
-    public static RangeSetInfo BuildInvert(RangeSetInfo target)
-    {
-      var invertionResult = Expression.Call(target.Source, invertMethod);
-      target.Invert(invertionResult);
-      return target;
     }
 
     private static void CreateRangeEndpoints(out Expression first, out Expression second,
@@ -266,6 +267,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     {
       return new RangeSetInfo(source, origin, false);
     }
+    #endregion
 
     // Constructors
 

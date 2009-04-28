@@ -70,11 +70,13 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       return -1;
     }
 
+    #region Private \ internal methods
     private bool IndexHasKeyAtZeroPoisition(int tupleFieldIndex, IndexInfo indexInfo,
       RecordSetHeader recordSetHeader)
     {
       return IndexHasKeyAtSpecifiedPoisition(tupleFieldIndex, 0, indexInfo, recordSetHeader);
     }
+    #endregion
 
     // Constructors
 

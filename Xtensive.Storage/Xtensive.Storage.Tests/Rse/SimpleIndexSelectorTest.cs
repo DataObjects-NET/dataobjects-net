@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Rse
     }
 
     private static void ValidateResultOfNonFullRangeSetsTest(IndexInfo[] indexes, Expression[] exps,
-      Dictionary<Expression, List<RSExtractionResult>> inputData,
+      Dictionary<Expression, List<RsExtractionResult>> inputData,
       Dictionary<IndexInfo, RangeSetInfo> selectedIndexes)
     {
       Assert.AreEqual(2, selectedIndexes.Count);
@@ -74,14 +74,14 @@ namespace Xtensive.Storage.Tests.Rse
     }
 
     private void TestSelector(Func<Random, RangeSet<Entire<Tuple>>> rangeSetCreator,
-      Action<IndexInfo[], Expression[], Dictionary<Expression, List<RSExtractionResult>>,
+      Action<IndexInfo[], Expression[], Dictionary<Expression, List<RsExtractionResult>>,
         Dictionary<IndexInfo, RangeSetInfo>> resultValidator)
     {
       TestSelector(rangeSetCreator, resultValidator, false);
     }
 
     private void TestSelector(Func<Random, RangeSet<Entire<Tuple>>> rangeSetCreator,
-      Action<IndexInfo[], Expression[], Dictionary<Expression, List<RSExtractionResult>>,
+      Action<IndexInfo[], Expression[], Dictionary<Expression, List<RsExtractionResult>>,
         Dictionary<IndexInfo, RangeSetInfo>> resultValidator, bool selectPrimaryForExp0)
     {
       TypeInfo snakeType = Domain.Model.Types[typeof(Creature)];
@@ -102,15 +102,15 @@ namespace Xtensive.Storage.Tests.Rse
       return new RangeSet<Entire<Tuple>>(Range<Entire<Tuple>>.Full, AdvancedComparer<Entire<Tuple>>.Default);
     }
 
-    private Dictionary<Expression, List<RSExtractionResult>> CreateInputData(Expression[] exps,
+    private Dictionary<Expression, List<RsExtractionResult>> CreateInputData(Expression[] exps,
       IndexInfo[] indexes, Func<Random, RangeSet<Entire<Tuple>>> rangeSetCreator)
     {
-      var result = new Dictionary<Expression, List<RSExtractionResult>>();
+      var result = new Dictionary<Expression, List<RsExtractionResult>>();
       var rnd = new Random();
       foreach (var exp in exps) {
-        result.Add(exp, new List<RSExtractionResult>());
+        result.Add(exp, new List<RsExtractionResult>());
         foreach (var index in indexes) {
-          result[exp].Add(new RSExtractionResult(index,
+          result[exp].Add(new RsExtractionResult(index,
             new RangeSetInfo(Expression.Constant(rangeSetCreator(rnd)), null, false)));
         }
       }
@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Tests.Rse
     }
 
     private static ICostEvaluator ConfigureCostEvaluator(Expression[] exps,
-      Dictionary<Expression, List<RSExtractionResult>> inputData, bool selectPrimaryForExp0)
+      Dictionary<Expression, List<RsExtractionResult>> inputData, bool selectPrimaryForExp0)
     {
       var mocks = new MockRepository();
       var result = mocks.Stub<ICostEvaluator>();

@@ -49,7 +49,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       return treeRewriter.InsertSecondaryIndexes(provider, selectedIndexes);
     }
 
-    private Dictionary<Expression, List<RSExtractionResult>> ExtractRangeSets(Expression predicate,
+    #region Private \ internal methods
+    private Dictionary<Expression, List<RsExtractionResult>> ExtractRangeSets(Expression predicate,
       IndexInfo primaryIndex, IEnumerable<IndexInfo> indexes)
     {
       DisjunctiveNormalized normalized = null;
@@ -71,6 +72,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       indexesCache.Add(new Pair<IndexInfo, IList<IndexInfo>>(primaryIndex, result));
       return result;
     }
+    #endregion
 
 
     // Constructors

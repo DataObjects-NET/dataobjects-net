@@ -53,6 +53,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       return MakeResultExpression();
     }
 
+    #region Private \ internal methods
     private void ParseTerms(Conjunction<Expression> normalized)
     {
       extractedExpressions.Clear();
@@ -155,6 +156,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
         return null;
       return indexKeyValuesCache;
     }
+    #endregion
 
 
     // Constructors

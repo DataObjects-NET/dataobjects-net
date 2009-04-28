@@ -37,6 +37,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       return base.VisitFilter(provider);
     }
 
+    #region Private \ internal methods
     private CompilableProvider InsertSecondaryIndexProviders(IndexProvider source)
     {
       var primaryIndex = source.Index.Resolve(domainModel);
@@ -114,6 +115,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
         GetEqualIndexes(primaryIndex.KeyColumns.Count));
       return new SelectProvider(join, GetSequentialColumnIndexes(primaryIndex.Columns.Count));
     }
+    #endregion
+
 
     // Constructors
 

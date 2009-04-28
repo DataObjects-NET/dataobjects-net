@@ -98,7 +98,9 @@ namespace Xtensive.Storage.Providers.Sql
     {
       return new CompositePreCompiler(
         new OrderingCorrector(ResolveOrderingDescriptor, false),
-        new RedundantColumnOptimizer());
+        new RedundantColumnOptimizer(),
+        new OrderingCorrector(ResolveOrderingDescriptor, true)
+        );
     }
 
     /// <summary>

@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     #region Implementation of IIndexSelector
 
     public Dictionary<IndexInfo, RangeSetInfo> Select(Dictionary<Expression,
-      List<RSExtractionResult>> extractionResults)
+      List<RsExtractionResult>> extractionResults)
     {
       var result = new Dictionary<IndexInfo, RangeSetInfo>(extractionResults.Count);
       foreach (var pair in extractionResults) {
@@ -38,12 +38,13 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 
     #endregion
 
-    private RSExtractionResult TrySelectCheapestResult(IEnumerable<RSExtractionResult> extractionResults)
+    #region Private \ internal methods
+    private RsExtractionResult TrySelectCheapestResult(IEnumerable<RsExtractionResult> extractionResults)
     {
-      RSExtractionResult cheapestResult = null;
+      RsExtractionResult cheapestResult = null;
       double minimalCost = double.MaxValue;
       double minimalCount = double.MaxValue;
-      RSExtractionResult primaryAsCheapest = null;
+      RsExtractionResult primaryAsCheapest = null;
       foreach (var result in extractionResults) {
         double currentCost;
         if (result.RangeSetInfo.AlwaysFull)
@@ -70,6 +71,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
         return primaryAsCheapest;
       return cheapestResult;
     }
+    #endregion
 
 
     // Constructors

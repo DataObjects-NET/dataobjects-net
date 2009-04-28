@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
   /// Result of extraction a <see cref="RangeSet{T}"/> from a predicate.
   /// </summary>
   [Serializable]
-  internal sealed class RSExtractionResult
+  internal sealed class RsExtractionResult
   {
     public readonly RangeSetInfo RangeSetInfo;
     public readonly IndexInfo IndexInfo;
@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 
     // Constructors
 
-    public RSExtractionResult(IndexInfo indexInfo, RangeSetInfo rangeSetInfo)
+    public RsExtractionResult(IndexInfo indexInfo, RangeSetInfo rangeSetInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(indexInfo, "indexInfo");
       ArgumentValidator.EnsureArgumentNotNull(rangeSetInfo, "rangeSetInfo");

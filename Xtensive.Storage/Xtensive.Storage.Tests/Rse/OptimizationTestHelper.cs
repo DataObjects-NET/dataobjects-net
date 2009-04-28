@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Rse
     }
 
     public static RangeSet<Entire<Tuple>> GetRangeSetForSingleIndex(
-      this Dictionary<Expression, List<RSExtractionResult>> extractionResults)
+      this Dictionary<Expression, List<RsExtractionResult>> extractionResults)
     {
       RangeSetInfo result = null;
       foreach (var pair in extractionResults)

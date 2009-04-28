@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
@@ -23,14 +24,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     public bool AlwaysFull { get; private set; }
 
     public TupleExpressionInfo Origin { get; private set; }
-
-    private static void ValidateExpression(Expression source)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      if (source.Type != typeof(RangeSet<Entire<Tuple>>))
-        throw new ArgumentException(String.Format(Resources.Strings.ExExpressionMustReturnValueOfTypeX,
-          typeof (RangeSet<Entire<Tuple>>)));
-    }
 
     public void Unite(Expression unionResult, RangeSetInfo other)
     {
@@ -75,6 +68,17 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
         return (Expression<Func<RangeSet<Entire<Tuple>>>>)lambda;
       return (Expression<Func<RangeSet<Entire<Tuple>>>>)Expression.Lambda(Source);
     }
+
+    #region Private \ internal methods
+    private static void ValidateExpression(Expression source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      if (source.Type != typeof(RangeSet<Entire<Tuple>>))
+        throw new ArgumentException(String.Format(Strings.ExTypeOfExpressionReturnValueIsNotX,
+          typeof (RangeSet<Entire<Tuple>>)));
+    }
+    #endregion
+
 
     // Constructors
 

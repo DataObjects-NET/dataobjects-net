@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
           var columnIndex = provider.ColumnIndexes.IndexOf(pair.Key);
           if (columnIndex < 0)
             throw new InvalidOperationException(
-              Strings.ExItIsNotAllowedToUseSelectProviderWhichRemovesColumnsUsedForOrdering);
+              Strings.ExSelectProviderRemovesColumnsUsedForOrdering);
           selectOrdering.Add(columnIndex, pair.Value);
         }
       }

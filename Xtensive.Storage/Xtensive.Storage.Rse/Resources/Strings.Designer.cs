@@ -106,38 +106,11 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The collection must not be empty..
-        /// </summary>
-        internal static string ExCollectionMustNotBeEmpty {
-            get {
-                return ResourceManager.GetString("ExCollectionMustNotBeEmpty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The expression must return a value of type &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExExpressionMustReturnValueOfTypeX {
-            get {
-                return ResourceManager.GetString("ExExpressionMustReturnValueOfTypeX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Invalid field name &apos;{0}&apos;..
         /// </summary>
         internal static string ExInvalidFieldNameX {
             get {
                 return ResourceManager.GetString("ExInvalidFieldNameX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to It is not allowed to use a SelectProvider which removes columns used for an ordering..
-        /// </summary>
-        internal static string ExItIsNotAllowedToUseSelectProviderWhichRemovesColumnsUsedForOrdering {
-            get {
-                return ResourceManager.GetString("ExItIsNotAllowedToUseSelectProviderWhichRemovesColumnsUsedForOrdering", resourceCulture);
             }
         }
         
@@ -183,6 +156,24 @@ namespace Xtensive.Storage.Rse.Resources {
         internal static string ExProviderMustBeEitherCompilableProviderOrExecutableProvider {
             get {
                 return ResourceManager.GetString("ExProviderMustBeEitherCompilableProviderOrExecutableProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The SelectProvider removes columns used for an ordering..
+        /// </summary>
+        internal static string ExSelectProviderRemovesColumnsUsedForOrdering {
+            get {
+                return ResourceManager.GetString("ExSelectProviderRemovesColumnsUsedForOrdering", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The type of the expression&apos;s return value is not &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExTypeOfExpressionReturnValueIsNotX {
+            get {
+                return ResourceManager.GetString("ExTypeOfExpressionReturnValueIsNotX", resourceCulture);
             }
         }
         

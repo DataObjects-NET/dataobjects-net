@@ -13,6 +13,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
   internal interface IIndexSelector
   {
     Dictionary<IndexInfo, RangeSetInfo> Select(Dictionary<Expression,
-      List<RSExtractionResult>> extractionResults);
+      List<RsExtractionResult>> extractionResults);
   }
 }

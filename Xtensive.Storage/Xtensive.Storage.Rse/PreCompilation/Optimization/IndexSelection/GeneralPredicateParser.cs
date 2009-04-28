@@ -36,27 +36,12 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       var unwrappedPredicate = UnwrapPredicate(predicate);
       if (!CanBeParsed(unwrappedPredicate))
         throw new ArgumentException(
-          String.Format(Resources.Strings.ExExpressionMustReturnValueOfTypeX, typeof(bool)), "predicate");
+          String.Format(Resources.Strings.ExTypeOfExpressionReturnValueIsNotX, typeof(bool)), "predicate");
       comparer = comparerResolver.Resolve(indexInfo).GetEntireKeyComparer();
       var result = Visit(unwrappedPredicate);
       return AdjustResult(unwrappedPredicate, result);
     }
-
-    private static Expression UnwrapPredicate(Expression predicate)
-    {
-      var result = predicate;
-      while (result.NodeType == ExpressionType.Lambda)
-        result = ((LambdaExpression) result).Body;
-      return result;
-    }
-
-    private RangeSetInfo AdjustResult(Expression predicate, RangeSetInfo result)
-    {
-      if(result != null)
-        return result;
-      return parserHelper.ConvertToRangeSetInfo(predicate, null, indexInfo, recordSetHeader, comparer);
-    }
-
+    
     #region Overrides of ExpressionVisitor<RangeSetInfo>
 
     protected override RangeSetInfo VisitUnary(UnaryExpression u)
@@ -74,14 +59,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       return result;
     }
 
-    private bool SwitchInversion(UnaryExpression u)
-    {
-      var prevValue = invertionIsActive;
-      if (u.NodeType == ExpressionType.Not)
-        invertionIsActive = !invertionIsActive;
-      return prevValue;
-    }
-
     protected override RangeSetInfo VisitBinary(BinaryExpression b)
     {
       if (!CanBeParsed(b))
@@ -96,31 +73,12 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       return VisitOperands(b);
     }
 
-    private RangeSetInfo VisitOperands(BinaryExpression b)
-    {
-      var leftRs = Visit(b.Left);
-      var rightRs = Visit(b.Right);
-      if(leftRs == null)
-        leftRs = parserHelper.ConvertToRangeSetInfo(b.Left, null, indexInfo, recordSetHeader, comparer);
-      if(rightRs == null)
-        rightRs = parserHelper.ConvertToRangeSetInfo(b.Right, null, indexInfo, recordSetHeader, comparer);
-      if ((b.NodeType == ExpressionType.AndAlso || b.NodeType == ExpressionType.And) && !invertionIsActive
-        || (b.NodeType == ExpressionType.OrElse || b.NodeType == ExpressionType.Or) && invertionIsActive)
-        return RangeSetExpressionBuilder.BuildIntersect(leftRs, rightRs);
-      return RangeSetExpressionBuilder.BuildUnite(leftRs, rightRs);
-    }
-
     protected override RangeSetInfo VisitMethodCall(MethodCallExpression mc)
     {
       if (!CanBeParsed(mc))
         return null;
       var comparison = extractor.Extract(mc, ParserHelper.DeafultKeySelector);
       return parserHelper.ConvertToRangeSetInfo(mc, comparison, indexInfo, recordSetHeader, comparer);
-    }
-
-    private static bool CanBeParsed(Expression exp)
-    {
-      return exp.Type==typeof (bool);
     }
 
     protected override RangeSetInfo VisitTypeIs(TypeBinaryExpression tb)
@@ -179,6 +137,50 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     }
 
     #endregion
+
+    #region Private \ internal methods
+    private static Expression UnwrapPredicate(Expression predicate)
+    {
+      var result = predicate;
+      while (result.NodeType == ExpressionType.Lambda)
+        result = ((LambdaExpression) result).Body;
+      return result;
+    }
+
+    private RangeSetInfo AdjustResult(Expression predicate, RangeSetInfo result)
+    {
+      if(result != null)
+        return result;
+      return parserHelper.ConvertToRangeSetInfo(predicate, null, indexInfo, recordSetHeader, comparer);
+    }
+
+    private bool SwitchInversion(UnaryExpression u)
+    {
+      var prevValue = invertionIsActive;
+      if (u.NodeType == ExpressionType.Not)
+        invertionIsActive = !invertionIsActive;
+      return prevValue;
+    }
+
+    private RangeSetInfo VisitOperands(BinaryExpression b)
+    {
+      var leftRs = Visit(b.Left);
+      var rightRs = Visit(b.Right);
+      if(leftRs == null)
+        leftRs = parserHelper.ConvertToRangeSetInfo(b.Left, null, indexInfo, recordSetHeader, comparer);
+      if(rightRs == null)
+        rightRs = parserHelper.ConvertToRangeSetInfo(b.Right, null, indexInfo, recordSetHeader, comparer);
+      if ((b.NodeType == ExpressionType.AndAlso || b.NodeType == ExpressionType.And) && !invertionIsActive
+        || (b.NodeType == ExpressionType.OrElse || b.NodeType == ExpressionType.Or) && invertionIsActive)
+        return RangeSetExpressionBuilder.BuildIntersect(leftRs, rightRs);
+      return RangeSetExpressionBuilder.BuildUnite(leftRs, rightRs);
+    }
+    private static bool CanBeParsed(Expression exp)
+    {
+      return exp.Type==typeof (bool);
+    }
+    #endregion
+
 
     // Constructors
 
