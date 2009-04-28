@@ -197,6 +197,15 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Customer>.All
         .Select(c => new {Customer = c, Orders = Query<Order>.All.Where(o => o.Customer==c)})
+        .SelectMany(i => i.Orders.Select(o => i.Customer));
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void   SelectAnonymousSelectMany4Test()
+    {
+      var result = Query<Customer>.All
+        .Select(c => new {Customer = c, Orders = Query<Order>.All.Where(o => o.Customer==c)})
         .SelectMany(i => i.Orders.Select(o => new {i.Customer, Order = o}));
       Assert.AreEqual(numberOfOrders, result.ToList().Count);
     }
