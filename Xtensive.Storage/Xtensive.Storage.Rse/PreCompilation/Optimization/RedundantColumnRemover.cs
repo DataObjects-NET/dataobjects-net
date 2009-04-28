@@ -229,22 +229,69 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     protected override Provider VisitConcat(ConcatProvider provider)
     {
-      return provider;
+      return VisitSetOperationProvider(provider);
     }
 
     protected override Provider VisitExcept(ExceptProvider provider)
     {
-      return provider;
+      return VisitSetOperationProvider(provider);
     }
 
     protected override Provider VisitIntersect(IntersectProvider provider)
     {
-      return provider;
+      return VisitSetOperationProvider(provider);
     }
 
     protected override Provider VisitUnion(UnionProvider provider)
     {
-      return provider;
+      return VisitSetOperationProvider(provider);
+    }
+
+    private Provider VisitSetOperationProvider(BinaryProvider provider)
+    {
+      CompilableProvider newLeftProvider;
+      CompilableProvider newRightProvider;
+      var leftMapping = mappings.Value[provider];
+      var rightMapping = mappings.Value[provider];
+
+      using (new ParameterScope()) {
+        mappings.Value = new Dictionary<Provider, List<int>> {{provider.Left, leftMapping}};
+        newLeftProvider = VisitCompilable(provider.Left);
+        leftMapping = mappings.Value[provider.Left];
+      }
+
+      using (new ParameterScope()) {
+        mappings.Value = new Dictionary<Provider, List<int>> {{provider.Right, rightMapping}};
+        newRightProvider = VisitCompilable(provider.Right);
+        rightMapping = mappings.Value[provider.Right];
+      }
+
+      if (newLeftProvider == provider.Left && newRightProvider == provider.Right)
+        return provider;
+
+      var expectedColumns = mappings.Value[provider];
+      newLeftProvider = BuildSetOperationSource(newLeftProvider, expectedColumns, leftMapping);
+      newRightProvider = BuildSetOperationSource(newRightProvider, expectedColumns, rightMapping);
+      switch(provider.Type) {
+        case ProviderType.Concat:
+          return new ConcatProvider(newLeftProvider, newRightProvider);
+        case ProviderType.Intersect:
+          return new IntersectProvider(newLeftProvider, newRightProvider);
+        case ProviderType.Except:
+          return new ExceptProvider(newLeftProvider, newRightProvider);
+        case ProviderType.Union:
+          return new UnionProvider(newLeftProvider, newRightProvider);
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
+    }
+
+    private static CompilableProvider BuildSetOperationSource(CompilableProvider provider, IEnumerable<int> expectedColumns, IList<int> returningColumns)
+    {
+      var columns = expectedColumns.Select(c => returningColumns.IndexOf(c)).ToArray();
+      return provider.Type == ProviderType.Select
+        ? new SelectProvider(((SelectProvider)provider).Source, columns)
+        : new SelectProvider(provider, columns);
     }
 
     #endregion
