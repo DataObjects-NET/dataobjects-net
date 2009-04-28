@@ -15,7 +15,6 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Tests.Rse
 {
-  [TestFixture]
   public class IndexOptimizerTestHelper
   {
     public static IndexInfo GetIndexForField<T>(string fieldName, DomainModel domainModel)

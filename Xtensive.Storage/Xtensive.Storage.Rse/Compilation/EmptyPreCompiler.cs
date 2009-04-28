@@ -9,12 +9,12 @@ using Xtensive.Storage.Rse.Providers;
 namespace Xtensive.Storage.Rse.Compilation
 {
   /// <summary>
-  /// Empty <see cref="IOptimizer"/> implementation.
+  /// Empty <see cref="IPreCompiler"/> implementation.
   /// </summary>
-  public sealed class EmptyOptimizer : IOptimizer
+  public sealed class EmptyPreCompiler : IPreCompiler
   {
     /// <inheritdoc/>
-    public CompilableProvider Optimize(CompilableProvider rootProvider)
+    public CompilableProvider Process(CompilableProvider rootProvider)
     {
       return rootProvider;
     }

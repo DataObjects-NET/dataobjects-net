@@ -11,12 +11,12 @@ namespace Xtensive.Storage.Rse.Compilation
   /// <summary>
   /// Provider's tree optimizer contract.
   /// </summary>
-  public interface IOptimizer
+  public interface IPreCompiler
   {
     /// <summary>
-    /// Optimizes the specified provider's tree.
+    /// Processes the specified provider's tree.
     /// </summary>
     /// <param name="rootProvider">The root provider.</param>
-    CompilableProvider Optimize(CompilableProvider rootProvider);
+    CompilableProvider Process(CompilableProvider rootProvider);
   }
 }

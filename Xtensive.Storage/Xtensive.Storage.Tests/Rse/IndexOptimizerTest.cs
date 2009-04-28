@@ -166,7 +166,7 @@ namespace Xtensive.Storage.Tests.Rse
       var domainHandler = (DomainHandler) (Domain.Handlers.DomainHandler);
       var realResolver = new OptimizationInfoProviderResolver(domainHandler);
       var indexOptimizer = new IndexOptimizer(Domain.Model, realResolver);
-      var optimizedProviderTree = indexOptimizer.Optimize(rootProvider);
+      var optimizedProviderTree = indexOptimizer.Process(rootProvider);
       Assert.AreSame(rootProvider, optimizedProviderTree);
     }
 

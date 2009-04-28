@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Rse.Compilation
   public abstract class CompilationContext : Context<CompilationScope>
   {
     private readonly Func<ICompiler> compilerProvider;
-    private readonly Func<IOptimizer> optimizerProvider;
+    private readonly Func<IPreCompiler> optimizerProvider;
 
     #region Nested type: CacheEntry
 
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Rse.Compilation
         throw new InvalidOperationException(
           Strings.ExCanNotCompileNoCompiler);
       
-      var optimizedProvider = optimizer.Optimize(provider);
+      var optimizedProvider = optimizer.Process(provider);
       var result = compiler.Compile(optimizedProvider);
       
       if (result!=null && result.IsCacheable)
@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     /// <param name="compilerProvider">The compiler provider.</param>
     protected CompilationContext(Func<ICompiler> compilerProvider)
-      : this(compilerProvider, () => new EmptyOptimizer())
+      : this(compilerProvider, () => new EmptyPreCompiler())
     {}
 
     /// <summary>
@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     /// <param name="compilerProvider">The compiler provider.</param>
     /// <param name="optimizerProvider">The optimizer provider.</param>
-    protected CompilationContext(Func<ICompiler> compilerProvider, Func<IOptimizer> optimizerProvider)
+    protected CompilationContext(Func<ICompiler> compilerProvider, Func<IPreCompiler> optimizerProvider)
     {
       this.compilerProvider = compilerProvider;
       this.optimizerProvider = optimizerProvider;

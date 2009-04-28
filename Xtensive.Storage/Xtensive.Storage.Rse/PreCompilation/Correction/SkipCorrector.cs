@@ -12,13 +12,13 @@ using Xtensive.Storage.Rse.Providers;
 namespace Xtensive.Storage.Rse.PreCompilation.Correction
 {
   /// <summary>
-  /// Order by <see cref="IOptimizer"/> implementation.
+  /// Order by <see cref="IPreCompiler"/> implementation.
   /// </summary>
   [Serializable]
-  public sealed class SkipOptimizer : IOptimizer
+  public sealed class SkipCorrector : IPreCompiler
   {
     /// <inheritdoc/>
-    CompilableProvider IOptimizer.Optimize(CompilableProvider rootProvider)
+    CompilableProvider IPreCompiler.Process(CompilableProvider rootProvider)
     {
       var rewriter = new SkipRewriter(rootProvider);
       return rewriter.Rewrite();

@@ -56,12 +56,13 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    protected override IOptimizer BuildOptimizer()
+    protected override IPreCompiler BuildPreCompiler()
     {
-      return new CompositeOptimizer(
-        new OrderbyOptimizer(ResolveOrderingDescriptor),
+      return new CompositePreCompiler(
+        new OrderingCorrector(ResolveOrderingDescriptor, false),
         new IndexOptimizer(Handlers.Domain.Model, new OptimizationInfoProviderResolver(this)),
-        new RedundantColumnOptimizer()
+        new RedundantColumnOptimizer(),
+        new OrderingCorrector(ResolveOrderingDescriptor, true)
         );
     }
 

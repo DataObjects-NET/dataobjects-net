@@ -16,6 +16,7 @@ namespace Xtensive.Indexing
   /// <summary>
   /// Set of not intersected <see cref="Range{T}"/>.
   /// </summary>
+  /// <typeparam name="T">The type of points.</typeparam>
   [Serializable]
   public sealed class RangeSet<T> : IEnumerable<Range<T>>
   {
@@ -30,7 +31,7 @@ namespace Xtensive.Indexing
     /// </summary>
     /// <param name="full"></param>
     /// <param name="pointTypeComparer">The comparer for the type of endpoints.</param>
-    /// <returns></returns>
+    /// <returns>Newly created <see cref="RangeSet{T}"/>.</returns>
     public static RangeSet<T> CreateFullOrEmpty(bool full, AdvancedComparer<T> pointTypeComparer)
     {
       var range = full ? Range<T>.Full : Range<T>.Empty;
@@ -41,7 +42,7 @@ namespace Xtensive.Indexing
     /// Determines whether this instance contains a single full range.
     /// </summary>
     /// <returns>
-    ///   <see langword="true"/> if this instance is full; otherwise, <see langword="false"/>.
+    ///  <see langword="true"/> if this instance is full; otherwise, <see langword="false"/>.
     /// </returns>
     public bool IsFull()
     {
@@ -81,9 +82,9 @@ namespace Xtensive.Indexing
     #endregion
 
     ///<summary>
-    /// Unites the current RangeSet with the other one.
+    /// Unites the current <see cref="RangeSet{T}"/> with the other one.
     ///</summary>
-    ///<param name="otherSet">The other RangeSet</param>
+    ///<param name="otherSet">The other <see cref="RangeSet{T}"/>.</param>
     /// <returns><see langword="this" /></returns>
     public RangeSet<T> Unite(RangeSet<T> otherSet)
     {
@@ -110,9 +111,9 @@ namespace Xtensive.Indexing
     }
 
     /// <summary>
-    /// Intersects the current RangeSet with the other one.
+    /// Intersects the current <see cref="RangeSet{T}"/> with the other one.
     /// </summary>
-    /// <param name="otherSet">The other RangeSet</param>
+    /// <param name="otherSet">The other <see cref="RangeSet{T}"/>.</param>
     /// <returns><see langword="this" /></returns>
     public RangeSet<T> Intersect(RangeSet<T> otherSet)
     {
@@ -125,7 +126,7 @@ namespace Xtensive.Indexing
     }
 
     /// <summary>
-    /// Inverts current RangeSet.
+    /// Inverts current <see cref="RangeSet{T}"/>.
     /// </summary>
     /// <returns><see langword="this" /></returns>
     public RangeSet<T> Invert()

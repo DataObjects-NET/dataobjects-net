@@ -24,6 +24,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     private ProviderOrderingDescriptor? consumerDescriptor;
     private readonly Func<CompilableProvider, ProviderOrderingDescriptor> descriptorResolver;
     private bool orderIsCorrupted;
+    private readonly bool setActualOrderOnly;
 
     public CompilableProvider Rewrite(CompilableProvider originProvider)
     {
@@ -31,23 +32,31 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       origin = originProvider;
       descriptor = null;
 
-      if (origin.Type == ProviderType.Select) {
+      if (origin.Type==ProviderType.Select) {
         var selectProvider = (SelectProvider) origin;
-        var sourceProvider = VisitCompilable(selectProvider.Source);
-        if (sortOrder != null && sortOrder.Count > 0) {
-          sourceProvider = new SortProvider(sourceProvider, sortOrder);
-          sourceProvider.SetActualOrdering(sourceProvider.ExpectedColumnsOrdering);
-        }
-        if (sourceProvider==selectProvider.Source)
-          return selectProvider;
-        return new SelectProvider(sourceProvider, selectProvider.ColumnIndexes);
+        var visitedSource = VisitCompilable(selectProvider.Source);
+        if (!setActualOrderOnly)
+          visitedSource = InsertSortProvider(visitedSource);
+        return RecreateSelectProvider(selectProvider, visitedSource);
       }
       var provider = VisitCompilable(origin);
-      if (sortOrder != null && sortOrder.Count > 0) {
-        provider = new SortProvider(provider, sortOrder);
-        provider.SetActualOrdering(provider.ExpectedColumnsOrdering);
-      }
-      return provider;
+      return setActualOrderOnly ? provider : InsertSortProvider(provider);
+    }
+
+    private static CompilableProvider RecreateSelectProvider(SelectProvider selectProvider,
+      CompilableProvider visitedSource)
+    {
+      if (visitedSource==selectProvider.Source)
+        return selectProvider;
+      return new SelectProvider(visitedSource, selectProvider.ColumnIndexes);
+    }
+
+    private CompilableProvider InsertSortProvider(CompilableProvider sourceProvider)
+    {
+      var result = sourceProvider;
+      if (sortOrder != null && sortOrder.Count > 0)
+        result = new SortProvider(sourceProvider, sortOrder);
+      return result;
     }
 
     protected override Provider Visit(CompilableProvider cp)
@@ -71,7 +80,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
     private Provider RemoveSortProviderIfPossible(CompilableProvider visited)
     {
-      if (consumerDescriptor != null && !consumerDescriptor.Value.IsOrderSensitive) {
+      if (!setActualOrderOnly && consumerDescriptor != null 
+        && !consumerDescriptor.Value.IsOrderSensitive) {
         var sortProvider = visited as SortProvider;
         if (sortProvider != null) {
           sortOrder = sortProvider.Order;
@@ -86,7 +96,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     {
       var result = visited;
       CheckCorruptionOfOrder();
-      if (orderIsCorrupted && consumerDescriptor != null && consumerDescriptor.Value.IsOrderSensitive)
+      if (!setActualOrderOnly && orderIsCorrupted && consumerDescriptor != null 
+        && consumerDescriptor.Value.IsOrderSensitive)
       {
         result = new SortProvider(visited, sortOrder);
         orderIsCorrupted = false;
@@ -107,7 +118,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     protected override Provider VisitSelect(SelectProvider provider)
     {
       var source = VisitCompilable(provider.Source);
-      if(source != provider.Source)
+      if(!setActualOrderOnly && source != provider.Source)
         provider = new SelectProvider(source, provider.ColumnIndexes);
       CheckCorruptionOfOrder();
       var selectOrdering = provider.ExpectedColumnsOrdering;
@@ -134,10 +145,12 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     // Constructors
 
     public OrderingCorrectionRewriter(
-      Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver)
+      Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver,
+      bool setActualOrderOnly)
     {
       ArgumentValidator.EnsureArgumentNotNull(orderingDescriptorResolver, "orderingDescriptorResolver");
       descriptorResolver = orderingDescriptorResolver;
+      this.setActualOrderOnly = setActualOrderOnly;
     }
   }
 }

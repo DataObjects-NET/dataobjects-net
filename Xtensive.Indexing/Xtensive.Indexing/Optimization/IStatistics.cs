@@ -9,6 +9,7 @@ namespace Xtensive.Indexing.Optimization
   /// <summary>
   /// Statistics of an index.
   /// </summary>
+  /// <typeparam name="T">The type of the key of the index.</typeparam>
   public interface IStatistics<T>
   {
     /// <summary>

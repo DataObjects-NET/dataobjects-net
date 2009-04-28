@@ -15,16 +15,16 @@ namespace Xtensive.Storage.Rse.PreCompilation
   /// Composite optimizer.
   /// </summary>
   [Serializable]
-  public sealed class CompositeOptimizer : IOptimizer
+  public sealed class CompositePreCompiler : IPreCompiler
   {
-    private readonly IOptimizer[] optimizers;
+    private readonly IPreCompiler[] preCompilers;
 
     /// <inheritdoc/>
-    public CompilableProvider Optimize(CompilableProvider rootProvider)
+    public CompilableProvider Process(CompilableProvider rootProvider)
     {
       var provider = rootProvider;
-      foreach (var optimizer in optimizers)
-        provider = optimizer.Optimize(provider);
+      foreach (var optimizer in preCompilers)
+        provider = optimizer.Process(provider);
       return provider;
     }
 
@@ -32,12 +32,12 @@ namespace Xtensive.Storage.Rse.PreCompilation
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="optimizers">Optimizers to be composed.</param>
-    public CompositeOptimizer(params IOptimizer[] optimizers)
+    /// <param name="preCompilers">Pre-compilers to be composed.</param>
+    public CompositePreCompiler(params IPreCompiler[] preCompilers)
     {
-      this.optimizers = optimizers;
+      this.preCompilers = preCompilers;
     }
   }
 }

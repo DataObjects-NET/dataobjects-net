@@ -15,15 +15,15 @@ using Xtensive.Storage.Rse.Providers;
 namespace Xtensive.Storage.Rse.PreCompilation.Correction
 {
   /// <summary>
-  /// Order by <see cref="IOptimizer"/> implementation.
+  /// Order by <see cref="IPreCompiler"/> implementation.
   /// </summary>
   [Serializable]
-  public sealed class OrderbyOptimizer : IOptimizer
+  public sealed class OrderingCorrector : IPreCompiler
   {
     private readonly OrderingCorrectionRewriter rewriter;
 
     /// <inheritdoc/>
-    CompilableProvider IOptimizer.Optimize(CompilableProvider rootProvider)
+    CompilableProvider IPreCompiler.Process(CompilableProvider rootProvider)
     {
       return rewriter.Rewrite(rootProvider);
     }
@@ -34,13 +34,15 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     /// <summary>
     /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="orderingDescriptorResolver">The resolver of 
+    /// <param name="orderingDescriptorResolver">The resolver of
     /// <see cref="ProviderOrderingDescriptor"/>.</param>
-    public OrderbyOptimizer(
-      Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver)
+    /// <param name="setActualOrderOnly">If set to <see langword="true"/> then the actual order will be set 
+    /// in <see cref="Provider.Header"/>. Other modifications will not be performed.</param>
+    public OrderingCorrector(
+      Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver, bool setActualOrderOnly)
     {
       ArgumentValidator.EnsureArgumentNotNull(orderingDescriptorResolver, "orderingDescriptorResolver");
-      rewriter = new OrderingCorrectionRewriter(orderingDescriptorResolver);
+      rewriter = new OrderingCorrectionRewriter(orderingDescriptorResolver, setActualOrderOnly);
     }
   }
 }

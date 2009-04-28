@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Providers
     {}
 
     /// <inheritdoc/>
-    public CompilationContext(Func<ICompiler> compilerProvider, Func<IOptimizer> optimizerProvider)
+    public CompilationContext(Func<ICompiler> compilerProvider, Func<IPreCompiler> optimizerProvider)
       : base(compilerProvider, optimizerProvider)
     {}
   }

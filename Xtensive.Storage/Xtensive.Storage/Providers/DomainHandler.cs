@@ -70,10 +70,10 @@ namespace Xtensive.Storage.Providers
 
     /// <summary>
     /// Builds the <see cref="ServerSideCompiler"/> value.
-    /// Builds the <see cref="IOptimizer"/>.
+    /// Builds the <see cref="IPreCompiler"/>.
     /// Invoked from <see cref="Initialize"/>.
     /// </summary>
-    protected abstract IOptimizer BuildOptimizer();
+    protected abstract IPreCompiler BuildPreCompiler();
 
     /// <summary>
     /// Builds the mapping schema.
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Providers
             BuildCompiler(compiledSources),
             new ClientCompiler(compiledSources));
         },
-        BuildOptimizer);
+        BuildPreCompiler);
       BuildCompilerExtentions();
     }
 

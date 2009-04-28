@@ -45,6 +45,13 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return indexHeader.Order;
     }
 
+    /// <inheritdoc/>
+    protected override void Initialize()
+    {
+      base.Initialize();
+      SetActualOrdering(ExpectedColumnsOrdering);
+    }
+
 
     // Factory method
 

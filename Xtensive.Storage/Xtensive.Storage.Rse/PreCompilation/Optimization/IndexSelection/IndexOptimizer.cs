@@ -17,13 +17,13 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
   /// Optimizer which uses ranges of index keys.
   /// </summary>
   [Serializable]
-  public sealed class IndexOptimizer : CompilableProviderVisitor, IOptimizer
+  public sealed class IndexOptimizer : CompilableProviderVisitor, IPreCompiler
   {
     private readonly DomainModel domainModel;
     private readonly IOptimizationInfoProviderResolver providerResolver;
 
     /// <inheritdoc/>
-    public CompilableProvider Optimize(CompilableProvider rootProvider)
+    public CompilableProvider Process(CompilableProvider rootProvider)
     {
       return new IndexOptimizerVisitor(domainModel, providerResolver).Optimize(rootProvider);
     }

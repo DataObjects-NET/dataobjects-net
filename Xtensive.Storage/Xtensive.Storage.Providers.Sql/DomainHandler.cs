@@ -88,10 +88,10 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override IOptimizer BuildOptimizer()
+    protected override IPreCompiler BuildPreCompiler()
     {
-      return new CompositeOptimizer(
-        new OrderbyOptimizer(ResolveOrderingDescriptor),
+      return new CompositePreCompiler(
+        new OrderingCorrector(ResolveOrderingDescriptor, false),
         new RedundantColumnOptimizer()
         );
     }
