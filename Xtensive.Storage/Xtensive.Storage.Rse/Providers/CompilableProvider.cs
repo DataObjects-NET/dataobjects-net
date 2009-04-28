@@ -58,12 +58,14 @@ namespace Xtensive.Storage.Rse.Providers
       base.Initialize();
       orderTupleDescriptor = Header.OrderTupleDescriptor;
       expectedOrder = CreateExpectedColumnsOrdering();
+      expectedOrder.Lock(true);
       ClearOrderingInHeader();
     }
 
     internal void SetActualOrdering(DirectionCollection<int> ordering)
     {
       ArgumentValidator.EnsureArgumentNotNull(ordering, "ordering");
+      ordering.Lock(true);
       expectedOrder = ordering;
       SetHeader(new RecordSetHeader(Header.TupleDescriptor, Header.Columns, Header.ColumnGroups,
         orderTupleDescriptor, ordering));

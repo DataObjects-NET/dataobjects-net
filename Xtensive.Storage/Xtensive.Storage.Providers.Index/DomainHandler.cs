@@ -59,22 +59,11 @@ namespace Xtensive.Storage.Providers.Index
     protected override IPreCompiler CreatePreCompiler()
     {
       return new CompositePreCompiler(
-        new OrderingCorrector(ResolveOrderingDescriptor, false),
+        new OrderingCorrector(DefaultCompilationContext.ResolveOrderingDescriptor, false),
         new IndexOptimizer(Handlers.Domain.Model, new OptimizationInfoProviderResolver(this)),
         new RedundantColumnOptimizer(),
-        new OrderingCorrector(ResolveOrderingDescriptor, true)
+        new OrderingCorrector(DefaultCompilationContext.ResolveOrderingDescriptor, true)
         );
-    }
-
-    private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
-    {
-      var asJoin = provider as JoinProvider;
-      bool isOrderSensitive = provider.Type==ProviderType.Skip || provider.Type==ProviderType.Take
-        || (asJoin!=null && asJoin.JoinType==JoinType.Merge);
-      bool isOrderingBoundary = provider.Type==ProviderType.Except
-        || provider.Type==ProviderType.Intersect || provider.Type==ProviderType.Union
-        || provider.Type==ProviderType.Concat || provider.Type==ProviderType.Existence;
-      return new ProviderOrderingDescriptor(isOrderSensitive, true, isOrderingBoundary);
     }
 
     /// <inheritdoc/>

@@ -25,11 +25,6 @@ namespace Xtensive.Storage.Providers
     // Constructors
 
     /// <inheritdoc/>
-    public CompilationContext(Func<ICompiler> compilerProvider)
-      : base(compilerProvider)
-    {}
-
-    /// <inheritdoc/>
     public CompilationContext(Func<ICompiler> compilerProvider, Func<IPreCompiler> optimizerProvider)
       : base(compilerProvider, optimizerProvider)
     {}

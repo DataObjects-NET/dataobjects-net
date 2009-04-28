@@ -5,7 +5,6 @@
 // Created:    2009.03.30
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Compilation;
@@ -15,17 +14,21 @@ using Xtensive.Storage.Rse.Providers;
 namespace Xtensive.Storage.Rse.PreCompilation.Correction
 {
   /// <summary>
-  /// Order by <see cref="IPreCompiler"/> implementation.
+  /// Corrects an ordering of records.
   /// </summary>
   [Serializable]
   public sealed class OrderingCorrector : IPreCompiler
   {
-    private readonly OrderingCorrectionRewriter rewriter;
+    private readonly Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver;
+    private readonly bool setActualOrderOnly;
 
     /// <inheritdoc/>
     CompilableProvider IPreCompiler.Process(CompilableProvider rootProvider)
     {
-      return rewriter.Rewrite(rootProvider);
+      if (!setActualOrderOnly)
+        return new OrderingCorrectorRewriter(orderingDescriptorResolver)
+          .Rewrite(rootProvider);
+      return new ActualOrderSetter(orderingDescriptorResolver).Rewrite(rootProvider);
     }
 
 
@@ -42,7 +45,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver, bool setActualOrderOnly)
     {
       ArgumentValidator.EnsureArgumentNotNull(orderingDescriptorResolver, "orderingDescriptorResolver");
-      rewriter = new OrderingCorrectionRewriter(orderingDescriptorResolver, setActualOrderOnly);
+      this.orderingDescriptorResolver = orderingDescriptorResolver;
+      this.setActualOrderOnly = setActualOrderOnly;
     }
   }
 }

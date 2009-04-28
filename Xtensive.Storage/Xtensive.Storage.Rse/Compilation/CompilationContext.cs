@@ -134,15 +134,6 @@ namespace Xtensive.Storage.Rse.Compilation
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="compilerProvider">The compiler provider.</param>
-    protected CompilationContext(Func<ICompiler> compilerProvider)
-      : this(compilerProvider, () => new EmptyPreCompiler())
-    {
-    }
-
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="compilerProvider">The compiler provider.</param>
     /// <param name="optimizerProvider">The optimizer provider.</param>
     protected CompilationContext(Func<ICompiler> compilerProvider, Func<IPreCompiler> optimizerProvider)
     {
