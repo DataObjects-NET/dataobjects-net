@@ -276,7 +276,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           using (warmup ? null : new Measurement("Cache Compiled Query", count)) {
             for (int i = 0; i < count; i++) {
               id = i % instanceCount;
-              var result = CompiledQuery.Execute(() => Query<Simplest>.All.Where(o => o.Id == id));
+              var result = CachedQuery.Execute(() => Query<Simplest>.All.Where(o => o.Id == id));
               foreach (var simplest in result) {
                 // Doing nothing, just enumerate
               }

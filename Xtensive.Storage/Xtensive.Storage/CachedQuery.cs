@@ -21,13 +21,14 @@ namespace Xtensive.Storage
   /// <summary>
   /// Provides compilation and caching of queries for reuse.
   /// </summary>
-  public sealed class CompiledQuery
+  public static class CachedQuery
   {
     /// <summary>
     /// Finds compiled query in cache by provided <paramref name="query"/> delegate and executes them if it's already cached; otherwise executes the <paramref name="query"/> delegate.
     /// </summary>
     /// <typeparam name="TElement">The type of the result element.</typeparam>
     /// <param name="query">Containing query delegate.</param>
+    /// <returns>Query results.</returns>
     public static IEnumerable<TElement> Execute<TElement>(Func<IQueryable<TElement>> query)
     {
       var domain = Domain.Demand();
@@ -38,18 +39,8 @@ namespace Xtensive.Storage
         resultExpression = item.Second;
       if (resultExpression == null) {
         var result = query();
-        var queryParameter = new Parameter<object>();
         var compiledResultExpression = QueryProvider.Current.Compile(result.Expression);
-        if (target != null) {
-          var replacer = new ExtendedExpressionReplacer(e => {
-            if (e.NodeType == ExpressionType.Constant && e.Type == target.GetType())
-              return Expression.Convert(Expression.MakeMemberAccess(Expression.Constant(queryParameter), WellKnownMembers.ParameterValue), target.GetType());
-            return null;
-          });
-          resultExpression = new ParameterizedResultExpression((ResultExpression)replacer.Replace(compiledResultExpression), queryParameter);
-        }
-        else
-          resultExpression = new ParameterizedResultExpression(compiledResultExpression, queryParameter);
+        resultExpression = BuildResultExpression(target, compiledResultExpression);
         lock (domain.QueryCache)
           if (!domain.QueryCache.TryGetItem(query.Method, false, out item))
             domain.QueryCache.Add(new Pair<MethodInfo, ParameterizedResultExpression>(query.Method, resultExpression));
@@ -58,20 +49,12 @@ namespace Xtensive.Storage
       return ExecuteSequence<TElement>(resultExpression, target);
     }
 
-    private static IEnumerable<TElement> ExecuteSequence<TElement>(ParameterizedResultExpression resultExpression, object target)
-    {
-      using (new ParameterScope()) {
-        resultExpression.QueryParameter.Value = target;
-        foreach (var element in resultExpression.GetResult<IEnumerable<TElement>>())
-          yield return element;
-      }
-    }
-
     /// <summary>
     /// Finds compiled query in cache by provided <paramref name="query"/> delegate and executes them if it's already cached; otherwise executes the <paramref name="query"/> delegate.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="query">Containing query delegate.</param>
+    /// <returns>Query result.</returns>
     public static TResult Execute<TResult>(Func<TResult> query)
     {
       var domain = Domain.Demand();
@@ -83,18 +66,8 @@ namespace Xtensive.Storage
       if (resultExpression == null) {
         using (var queryScope = new CompiledQueryScope()) {
           var result = query();
-          var queryParameter = new Parameter<object>();
           var compiledExpression = queryScope.Context;
-          if (target != null) {
-            var replacer = new ExtendedExpressionReplacer(e => {
-              if (e.NodeType == ExpressionType.Constant && e.Type == target.GetType())
-                return Expression.Convert(Expression.MakeMemberAccess(Expression.Constant(queryParameter), WellKnownMembers.ParameterValue), target.GetType());
-              return null;
-            });
-            resultExpression = new ParameterizedResultExpression((ResultExpression)replacer.Replace(compiledExpression), queryParameter);
-          }
-          else
-            resultExpression = new ParameterizedResultExpression(compiledExpression, queryParameter);
+          resultExpression = BuildResultExpression(target, compiledExpression);
           lock (domain.QueryCache)
             if (!domain.QueryCache.TryGetItem(query.Method, false, out item))
               domain.QueryCache.Add(new Pair<MethodInfo, ParameterizedResultExpression>(query.Method, resultExpression));
@@ -107,5 +80,36 @@ namespace Xtensive.Storage
         return result;
       }
     }
+
+    #region Private methods
+
+    private static ParameterizedResultExpression BuildResultExpression(object target, ResultExpression compiledResultExpression)
+    {
+      ParameterizedResultExpression resultExpression;
+      var queryParameter = new Parameter<object>();
+      if (target != null) {
+        var replacer = new ExtendedExpressionReplacer(e => {
+          if (e.NodeType == ExpressionType.Constant && e.Type == target.GetType())
+            return Expression.Convert(Expression.MakeMemberAccess(Expression.Constant(queryParameter), WellKnownMembers.ParameterValue), target.GetType());
+          return null;
+        });
+        resultExpression = new ParameterizedResultExpression((ResultExpression)replacer.Replace(compiledResultExpression), queryParameter);
+      }
+      else
+        resultExpression = new ParameterizedResultExpression(compiledResultExpression, queryParameter);
+      return resultExpression;
+    }
+
+    private static IEnumerable<TElement> ExecuteSequence<TElement>(ParameterizedResultExpression resultExpression, object target)
+    {
+      using (new ParameterScope()) {
+        resultExpression.QueryParameter.Value = target;
+        foreach (var element in resultExpression.GetResult<IEnumerable<TElement>>())
+          yield return element;
+      }
+    }
+
+    #endregion
+
   }
 }
