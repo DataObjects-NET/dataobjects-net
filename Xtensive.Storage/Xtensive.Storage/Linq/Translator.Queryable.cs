@@ -797,10 +797,14 @@ namespace Xtensive.Storage.Linq
       var inner = VisitSequence(innerSource);
       var outerColumnList = outer.Mapping.GetColumns(false).OrderBy(i => i).ToList();
       var innerColumnList = inner.Mapping.GetColumns(false).OrderBy(i => i).ToList();
-      var outerRecordSet = outer.RecordSet.Select(outerColumnList.ToArray());
-      var innerRecordSet = inner.RecordSet.Select(innerColumnList.ToArray());
+      var outerRecordSet = outer.RecordSet.Header.Length != outerColumnList.Count
+        ? outer.RecordSet.Select(outerColumnList.ToArray())
+        : outer.RecordSet;
+      var innerRecordSet = inner.RecordSet.Header.Length != innerColumnList.Count
+        ? inner.RecordSet.Select(innerColumnList.ToArray())
+        : inner.RecordSet;
 
-      RecordSet recordSet = outer.RecordSet;
+      var recordSet = outer.RecordSet;
       switch (methodKind) {
         case QueryableMethodKind.Concat:
           recordSet = outerRecordSet.Concat(innerRecordSet);
