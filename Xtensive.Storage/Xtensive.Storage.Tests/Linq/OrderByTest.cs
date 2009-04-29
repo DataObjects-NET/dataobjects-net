@@ -128,6 +128,14 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void DistinctTest()
+    {
+      var result = Query<Order>.All.Select(o => o.Employee).Distinct();
+      var expected = Query<Order>.All.AsEnumerable().Select(o => o.Employee).Distinct();
+      Assert.IsTrue(expected.SequenceEqual(result));
+    }
+
+    [Test]
     public void OrderByTakeSkipTest()
     {
       IEnumerable<Order> original = Query<Order>.All.AsEnumerable()
