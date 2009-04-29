@@ -601,6 +601,22 @@ namespace Xtensive.Storage.Tests.Linq
       QueryDumper.Dump(result);
     }
 
+    [Test]
+    public void GroupWithJoinTest()
+    {
+      var query = Query<Customer>.All
+        .GroupBy(c => c.Address.Region)
+        .Join(Query<Customer>.All, 
+        regions => regions.Key, 
+        c2 => c2.Address.Region, 
+        (regions, c2) => new {
+          region = regions.Key, 
+          total = c2.Orders.Sum(o => o.Freight)
+        });
+
+      QueryDumper.Dump(query);
+    }
+
 
   }
 }
