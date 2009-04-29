@@ -554,7 +554,7 @@ namespace Xtensive.Storage.Tests.Storage
           count = snakes1.Concat(snakes2).Count();
           Assert.AreEqual(count, snakesCount / 2 + snakesCount / 5);
           count = snakes1.Union(snakes2).Count();
-          Assert.AreEqual(count, snakesCount / 2 + snakesCount / 5);
+          Assert.AreEqual(count, snakesCount / 2);
 
           count = rsSnakeName.Except(rsLizardName).Count();
           Assert.AreEqual(count, snakesCount);

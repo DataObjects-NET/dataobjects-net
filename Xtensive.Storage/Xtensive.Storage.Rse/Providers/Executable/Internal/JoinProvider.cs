@@ -90,12 +90,12 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     private bool CheckAbilityToRange()
     {
-      DirectionCollection<int> orderedBy = left.Header.Order;
+      DirectionCollection<int> orderedBy = right.Header.Order;
       bool sequenceEqual = orderedBy
         .Select(pair => pair.Key)
         .Take(joiningPairs.Length)
-        .SequenceEqual(joiningPairs.Select(joiningPair => joiningPair.First));
-      var orderedEnumerable = left.GetService<IOrderedEnumerable<Tuple, Tuple>>();
+        .SequenceEqual(joiningPairs.Select(joiningPair => joiningPair.Second));
+      var orderedEnumerable = right.GetService<IOrderedEnumerable<Tuple, Tuple>>();
       if (orderedEnumerable!=null)
         return sequenceEqual;
       return false;
