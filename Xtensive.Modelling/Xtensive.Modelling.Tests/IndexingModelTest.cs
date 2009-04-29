@@ -6,8 +6,6 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Core.Serialization.Binary;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
