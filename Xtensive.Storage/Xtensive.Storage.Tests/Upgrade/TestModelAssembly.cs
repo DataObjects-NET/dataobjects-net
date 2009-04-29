@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {

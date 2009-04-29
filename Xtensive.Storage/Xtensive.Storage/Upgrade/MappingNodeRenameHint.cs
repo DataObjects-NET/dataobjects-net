@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Upgrade
 {
   [Serializable]
   internal class MappingNodeRenameHint

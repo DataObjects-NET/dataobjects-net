@@ -12,6 +12,7 @@ using Xtensive.Storage.Building.Internals;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -44,10 +45,14 @@ namespace Xtensive.Storage.Building.Builders
       return BuildBlockUpgrade(configuration);
     }
 
+    private static Domain BuildPerform(DomainConfiguration configuration)
+    {
+      return DomainBuilder.BuildDomain(configuration, SchemaUpgradeMode.Upgrade);
+    }
+
     private static Domain BuildSystemDomain(DomainConfiguration configuration)
     {
-      var domainConfiguration = (DomainConfiguration) configuration.Clone();      
-      return DomainBuilder.BuildDomain(domainConfiguration, 
+      return DomainBuilder.BuildDomain(configuration, 
         SchemaUpgradeMode.Validate, 
         () => { },
         type => false);
@@ -64,14 +69,16 @@ namespace Xtensive.Storage.Building.Builders
     public static Domain Build(DomainConfiguration configuration)
     {
       switch (configuration.BuildMode) {
-        case DomainBuildMode.Recreate: 
-          return BuildRecreate(configuration);
-        case DomainBuildMode.BlockUpgrade:
-          return BuildBlockUpgrade(configuration);
-        case DomainBuildMode.PerformStrict:
-          return BuildPerformStrict(configuration);
-        default:
-          return BuildRecreate(configuration);
+      case DomainBuildMode.Recreate:
+        return BuildRecreate(configuration);
+      case DomainBuildMode.BlockUpgrade:
+        return BuildBlockUpgrade(configuration);
+      case DomainBuildMode.PerformStrict:
+        return BuildPerformStrict(configuration);
+      case DomainBuildMode.Perform:
+        return BuildPerform(configuration);
+      default:
+        return BuildRecreate(configuration);
       }
     }
 
@@ -95,26 +102,31 @@ namespace Xtensive.Storage.Building.Builders
           var schemaVersion = schemaVersions[assembly];
           IUpgrader upgrader = 
             upgraders.Where(u => u.CanUpgradeFrom(schemaVersion)).FirstOrDefault();
-            
+
           if (upgrader==null)
             break;
 
-          DomainBuilder.BuildDomain(domainConfiguration,
-            SchemaUpgradeMode.Upgrade, 
-            () => ProcessData(upgrader),
-            upgrader.PersistentTypeFilter);
+          using (new UpgradeContext().Activate()) {
+            DomainBuilder.BuildDomain(domainConfiguration,
+              SchemaUpgradeMode.Upgrade,
+              () => Upgrade(upgrader),
+              upgrader.IsAvailable);
+          }
         }
       }
     }
 
     /// <exception cref="InvalidOperationException">Invalid upgrader version.</exception>
-    private static void ProcessData(IUpgrader upgrader)
+    private static void Upgrade(IUpgrader upgrader)
     {
-      string schemaVersion = SchemaVersionAccessor.GetSchemaVersion(upgrader.AssemblyName);
+      string schemaVersion = SchemaVersionAccessor.GetSchemaVersion(upgrader.GetAssemblyName());
       if (!upgrader.CanUpgradeFrom(schemaVersion))
         throw new InvalidOperationException(Strings.ExInvalidUpgraderVersion);
-      upgrader.ProcessData();
-      SchemaVersionAccessor.SetSchemaVersion(upgrader.AssemblyName, upgrader.ResultVersion);
+
+      upgrader.OnUpgrade();
+      SchemaVersionAccessor.SetSchemaVersion(
+        upgrader.GetAssemblyName(), 
+        upgrader.ResultVersion);
     }
 
     private static IEnumerable<IUpgrader> GetUpgraders(Assembly assembly)

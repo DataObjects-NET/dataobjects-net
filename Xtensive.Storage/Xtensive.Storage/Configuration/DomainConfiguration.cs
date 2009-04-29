@@ -12,6 +12,7 @@ using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration.Elements;
@@ -104,26 +105,24 @@ namespace Xtensive.Storage.Configuration
     private DomainBuildMode buildMode = DefaultBuildMode;
     private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
     private UnityTypeElementCollection servicesConfiguration;
-    private Type typeNameResolverType = typeof(DefaultTypeNameResolver);
+    private Type typeNameProviderType = typeof(DefaultTypeNameProvider);
 
-    // TODO: Похерить.
-    
     /// <summary>
-    /// Gets or sets the type that implements <see cref="ITypeNameResolver"/>.   
+    /// Gets or sets the type that implements <see cref="ITypeNameProvider"/>.   
     /// </summary>
     /// <remarks>
     /// Type should have public instance parameterless constructor.
     /// </remarks>
-    public Type TypeNameResolverType
+    public Type TypeNameProviderType
     {
-      get { return typeNameResolverType; }
+      get { return typeNameProviderType; }
       set
       {
         this.EnsureNotLocked();
-        if (!typeof(ITypeNameResolver).IsAssignableFrom(value))
+        if (!typeof(ITypeNameProvider).IsAssignableFrom(value))
           throw new ArgumentException(
-            string.Format(Strings.ExTypeXDoesNotImplementYInterface, value.Name, typeof(ITypeNameResolver).Name));
-        typeNameResolverType = value;
+            string.Format(Strings.ExTypeXDoesNotImplementYInterface, value.Name, typeof(ITypeNameProvider).GetShortName()));
+        typeNameProviderType = value;
       }
     }
 
@@ -410,7 +409,7 @@ namespace Xtensive.Storage.Configuration
       foreignKeyMode = configuration.foreignKeyMode;
       servicesConfiguration = configuration.ServicesConfiguration;
       servicesConfiguration.LockItem = this.IsLocked;
-      typeNameResolverType = configuration.TypeNameResolverType;
+      typeNameProviderType = configuration.TypeNameProviderType;
     }
 
     /// <summary>

@@ -9,10 +9,10 @@ using System;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Default implementation of <see cref="ITypeNameResolver"/>
+  /// Default implementation of <see cref="ITypeNameProvider"/>
   /// </summary>
   [Serializable]
-  public class DefaultTypeNameResolver : ITypeNameResolver
+  public class DefaultTypeNameProvider : ITypeNameProvider
   {
     /// <inheritdoc/>
     public string GetTypeName(Type type)

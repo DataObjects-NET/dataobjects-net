@@ -16,9 +16,6 @@ using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
-using Xtensive.Core.Threading;
-using Xtensive.Core.Tuples;
-using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
@@ -79,7 +76,7 @@ namespace Xtensive.Storage
     /// </summary>
     public DisposingState DisposingState { get; private set; }
 
-    internal ITypeNameResolver TypeNameResolver { get; private set;}
+    internal ITypeNameProvider TypeNameProvider { get; private set;}
 
     /// <summary>
     /// Gets the domain model.
@@ -204,7 +201,7 @@ namespace Xtensive.Storage
       TemporaryData = new GlobalTemporaryData();
       ServiceContainer = new UnityContainer();
       ServiceContainer.AddExtension(new SingletonExtension());
-      TypeNameResolver = (ITypeNameResolver) Activator.CreateInstance(configuration.TypeNameResolverType);
+      TypeNameProvider = (ITypeNameProvider) Activator.CreateInstance(configuration.TypeNameProviderType);
     }
 
     /// <inheritdoc/>

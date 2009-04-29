@@ -6,8 +6,9 @@
 
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Upgrade;
 
-namespace Xtensive.Storage.Building
+namespace Xtensive.Storage.Upgrade
 {
   /// <summary>
   /// The scope for <see cref="UpgradeContext"/>.
@@ -15,22 +16,22 @@ namespace Xtensive.Storage.Building
   public sealed class UpgradeScope : Scope<UpgradeContext>
   {
     /// <summary>
-    /// Gets the context.
+    /// Gets the current context.
     /// </summary>
-    public new static UpgradeContext Context
+    public new static UpgradeContext CurrentContext
     {
-      get { return CurrentContext; }
+      get { return Scope<UpgradeContext>.CurrentContext; }
     }
 
-
+    
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="upgradeContext">The context to activate.</param>
-    public UpgradeScope(UpgradeContext upgradeContext)
-      : base(upgradeContext)
+    /// <param name="context">The context.</param>
+    public UpgradeScope(UpgradeContext context) 
+      : base(context)
     {
     }
   }

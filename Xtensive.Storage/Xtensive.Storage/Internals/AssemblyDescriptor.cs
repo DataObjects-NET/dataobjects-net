@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Internals
 {

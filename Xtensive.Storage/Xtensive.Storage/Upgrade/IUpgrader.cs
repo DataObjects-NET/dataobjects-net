@@ -6,29 +6,18 @@
 
 using System;
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Upgrade
 {
-  // TODO: -> Xtensive.Storage.Upgarde (+ move related public types available for user)
-  // TODO: -> IAssemblyUpgradeHandler
-  // TODO: Implement default (use if not provided)
-  // TODO: Implement for Xtensive.Storage
-  
   /// <summary>
   /// Assembly upgrade handler contract.
   /// </summary>
   public interface IUpgrader
   {
-    // TODO: ->GetAssemblyName()
-    // TODO: + string GetTypeName(Type type)
-    // TODO: + int GetTypeId(Type type)
-    // TODO: * Visibility GetTypeVisibility(Type type) (см. ниже)
-
     /// <summary>
     /// Gets the name of the assembly.
     /// </summary>
-    string AssemblyName { get; }
-
-    // TODO: -> schemaVersion -> assemblyVersion
+    /// <returns>Assembly name.</returns>
+    string GetAssemblyName();
 
     /// <summary>
     /// Determines whether this upgrader can upgrade schema from the specified version.
@@ -39,32 +28,21 @@ namespace Xtensive.Storage
     /// </returns>
     bool CanUpgradeFrom(string schemaVersion);
 
-    // TODO: -> GetAssemblyVersion()
-
     /// <summary>
     /// Gets the result version, i.e. schema version this upgrader can upgrade to.
     /// </summary>
     string ResultVersion { get; }
     
-    // TODO: -> OnBeforeUpgrade() (adds hints to UpgradeContext.Current)
-    // И забудь про RenameHint - че за детство? Со временемих будет дофига.
+    /// <summary>
+    /// Adds hints to current <see cref="UpgradeContext"/>.
+    /// </summary>
+    void OnBeforeUpgrade();
     
     /// <summary>
-    /// Gets the schema upgrade hints.
+    /// Migrates data.
     /// </summary>
-    /// <param name="hints">The hint registry.</param>
-    void GetRenameHints(HintRegistry hints);
-    
-    // TODO: -> OnUpgrade() (migrates data). Ахуеть у тебя название.
-    
-    /// <summary>
-    /// Perform some upgrade actions with the data.
-    /// </summary>
-    void ProcessData();
+    void OnUpgrade();
 
-    // TODO: -> Visibility GetTypeVisibility(Type type)
-    // Visibility: enum [Flags]: Runtime = 1, UpgradeOnly = 2, Full = 3, System = 1+2+4
-    
     /// <summary>
     /// Determines whether specified persistent type should be included in upgrade model or not.
     /// </summary>
@@ -72,6 +50,6 @@ namespace Xtensive.Storage
     /// <returns>
     /// <see langword="true" /> if type should be included in upgrade model, otherwise <see langword="false" />
     /// </returns>
-    bool PersistentTypeFilter(Type type);
+    bool IsAvailable(Type type);
   }
 }

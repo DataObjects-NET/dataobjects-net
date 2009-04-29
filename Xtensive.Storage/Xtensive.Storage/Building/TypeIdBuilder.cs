@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Building
 
     private static string GetTypeName(TypeInfo typeInfo)
     {
-      return BuildingContext.Current.Domain.TypeNameResolver.GetTypeName(typeInfo.UnderlyingType);
+      return BuildingContext.Current.Domain.TypeNameProvider.GetTypeName(typeInfo.UnderlyingType);
     }
   }
 }

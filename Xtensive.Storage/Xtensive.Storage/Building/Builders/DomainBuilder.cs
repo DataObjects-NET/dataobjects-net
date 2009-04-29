@@ -67,8 +67,8 @@ namespace Xtensive.Storage.Building.Builders
 
       if (!configuration.IsLocked)
         configuration.Lock(true);
-      
-      Validate(configuration);      
+
+      Validate(configuration);
 
       var context = new BuildingContext(configuration);
       context.PersistentTypeFilter = persistentTypeFilter;
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Building.Builders
 
             using (context.Domain.OpenSystemSession()) {
               context.SystemSessionHandler = Session.Current.Handler;
-              using (var transactionScope = Transaction.Open()) {                
+              using (var transactionScope = Transaction.Open()) {
                 context.Domain.Handler.OnSystemSessionOpen();
 
                 ProcessSchema(schemaUpgradeMode);

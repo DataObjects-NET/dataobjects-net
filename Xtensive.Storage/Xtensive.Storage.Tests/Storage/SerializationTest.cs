@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
     public City(Country country, string name) 
       : base(country, name)
     {
-    } 
+    }
 
     protected City(SerializationInfo info, StreamingContext context) 
       : base(info, context)

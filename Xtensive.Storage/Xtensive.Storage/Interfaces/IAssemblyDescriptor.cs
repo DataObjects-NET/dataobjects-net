@@ -5,6 +5,7 @@
 // Created:    2009.04.09
 
 using System.Collections.Generic;
+using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage
 {

@@ -6,7 +6,6 @@
 
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.Configuration;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Metadata

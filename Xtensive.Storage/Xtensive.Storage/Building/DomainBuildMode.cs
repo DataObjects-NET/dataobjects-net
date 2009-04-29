@@ -4,6 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.06
 
+using Xtensive.Storage.Upgrade;
+
 namespace Xtensive.Storage.Building
 {
   /// <summary>
