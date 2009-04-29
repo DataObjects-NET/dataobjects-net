@@ -662,7 +662,12 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses INTERSECT to get common employees where an order was shipped to Mexico or Canada in one consolidated query.")]
     public void LinqToEntities50()
     {
-      var query = Query<Order>.All.Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o.Employee).Intersect(Query<Order>.All.Where(o => o.ShippingAddress.Country=="Canada").Select(o => o.Employee));
+      var query = Query<Order>.All
+        .Where(o => o.ShippingAddress.Country=="Mexico")
+        .Select(o => o.Employee)
+        .Intersect(Query<Order>.All
+        .Where(o => o.ShippingAddress.Country=="Canada")
+        .Select(o => o.Employee));
 
       QueryDumper.Dump(query);
     }
@@ -672,7 +677,12 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses EXCEPT to get employees who shipped orders to Mexico but not Canada.")]
     public void LinqToEntities51()
     {
-      var query = Query<Order>.All.Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o.Employee).Except(Query<Order>.All.Where(o => o.ShippingAddress.Country=="Canada").Select(o => o.Employee));
+      var query = Query<Order>.All
+        .Where(o => o.ShippingAddress.Country=="Mexico")
+        .Select(o => o.Employee)
+        .Except(Query<Order>.All
+        .Where(o => o.ShippingAddress.Country=="Canada")
+        .Select(o => o.Employee));
 
       QueryDumper.Dump(query);
     }

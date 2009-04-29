@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void SimpleIntersectTest()
+    public void IntersectTest()
     {
       var products = Query<Product>.All;
       var customers = Query<Customer>.All;
@@ -55,6 +55,17 @@ namespace Xtensive.Storage.Tests.Linq
       var commonFirstChars = productFirstChars.Intersect(customerFirstChars);
       QueryDumper.Dump(commonFirstChars);
       
+    }
+
+    [Test]
+    public void SimpleIntersectTest()
+    {
+      var query1 = Query<Order>.All.Select(o => o.Employee);
+      var query2 = Query<Order>.All.Select(o => o.Employee);
+
+      var query = query1.Intersect(query2);
+
+      QueryDumper.Dump(query);
     }
 
     [Test]
