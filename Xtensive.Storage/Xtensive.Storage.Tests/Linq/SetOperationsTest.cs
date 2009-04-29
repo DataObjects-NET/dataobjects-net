@@ -60,10 +60,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleIntersectTest()
     {
-      var query1 = Query<Order>.All.Select(o => o.Employee);
-      var query2 = Query<Order>.All.Select(o => o.Employee);
-
-      var query = query1.Intersect(query2);
+      var query = Query<Order>.All
+        .Select(o => o.Employee)
+        .Intersect(Query<Order>.All.Select(o => o.Employee));
 
       QueryDumper.Dump(query);
     }

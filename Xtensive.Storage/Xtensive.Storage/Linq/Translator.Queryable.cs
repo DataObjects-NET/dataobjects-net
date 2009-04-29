@@ -834,7 +834,7 @@ namespace Xtensive.Storage.Linq
           complexMapping.RegisterField(pair.Key, new Segment<int>(outerColumnList.IndexOf(pair.Value.Offset), pair.Value.Length));
         mapping = complexMapping;
       }
-      var groupMapping = MappingHelper.BuildGroupMapping(outerColumnList, outerRecordSet.Provider, recordSet.Provider);
+      var groupMapping = MappingHelper.BuildGroupMapping(outerColumnList, outer.RecordSet.Provider, recordSet.Provider);
       var projectorRewriter = new ItemProjectorRewriter(outerColumnList, groupMapping, recordSet.Header);
       var itemProjector = projectorRewriter.Rewrite(outer.ItemProjector);
       return new ResultExpression(outer.Type, recordSet, mapping, (LambdaExpression) itemProjector);
