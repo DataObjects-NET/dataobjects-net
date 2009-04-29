@@ -11,6 +11,18 @@ using Xtensive.Storage;
 
 namespace Xtensive.Storage
 {
+  // TODO: Широта мысли поражает... Только rename hints?
+  // TODO: -> UpgradeContext. Надеюсь, реализуешь правильно - т.е. так, чтоб создавать его могли только мы.
+  // Зачем это: для того, чтоб любой тип во время апгрейда знал, что он идет, и какая идет фаза.
+  // TODO: + UpgradeScope. Надеюсь, реализуешь правильно - т.е. так, чтоб создавать его могли только мы.
+  // TODO: Сделать в нем коллекцию хинтов UpgradeHintSet Hints. По аналогии с HintSet в Modelling.
+  // Паттерн исп. такой: 
+  // - upgradeContext.Hints.Add(new RenameTypeHint("OldName", typeof(...)) // used only to map Type.Name
+  // - upgradeContext.Hints.Add(new RenameTableHint("OldName", typeof(...))
+  // - upgradeContext.Hints.Add(new RenameColumnHint(typeof(...), "OldPropertyName", "NewPropertyName")
+  // - upgradeContext.Hints.Add(new CopyColumnHint(typeof(...), "PropertyName", "AnotherPropertyName")
+  // TODO: + UpgradeContext.Stage (enum UpgradeStage)
+
   /// <summary>
   /// Allows to register rename hints for model nodes.
   /// </summary>

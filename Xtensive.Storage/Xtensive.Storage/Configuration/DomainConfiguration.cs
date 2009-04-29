@@ -106,6 +106,8 @@ namespace Xtensive.Storage.Configuration
     private UnityTypeElementCollection servicesConfiguration;
     private Type typeNameResolverType = typeof(DefaultTypeNameResolver);
 
+    // TODO: Похерить.
+    
     /// <summary>
     /// Gets or sets the type that implements <see cref="ITypeNameResolver"/>.   
     /// </summary>

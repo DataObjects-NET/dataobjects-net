@@ -20,16 +20,16 @@ namespace Xtensive.Storage.Metadata
   public class Type : Entity
   {
     /// <summary>
+    /// Gets or sets the type identifier.
+    /// </summary>
+    [Field]
+    public int Id { get; private set; }
+
+    /// <summary>
     /// Gets or sets the full name.
     /// </summary>
     [Field(Length = 1000)]
     public string Name { get; set; }
-
-    /// <summary>
-    /// Gets or sets the type id.
-    /// </summary>
-    [Field]
-    public int Id { get; private set; }
 
 
     // Constructors

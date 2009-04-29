@@ -8,16 +8,21 @@ using System;
 
 namespace Xtensive.Storage
 {
+  // TODO: Resolver = resolves. Чего он ресолвит? -> TypeNameProvider?
+  // TODO: Еще лучше - просто добавить GetTypeName(Type type) в IUpgrader
+
   /// <summary>
-  /// Resolves persistent type name.
+  /// Resolves persistent type names.
   /// </summary>
   public interface ITypeNameResolver
   {
+    // TODO: -> GetName
+
     /// <summary>
     /// Gets the name that identifies specified <see cref="Type"/> within the <see cref="Domain"/>.
     /// </summary>
-    /// <param name="type">The type to get name for.</param>
-    /// <returns>Name of the type.</returns>
+    /// <param name="type">Type to get the name for.</param>
+    /// <returns>Name of the specified type.</returns>
     string GetTypeName(Type type);
   }
 }
