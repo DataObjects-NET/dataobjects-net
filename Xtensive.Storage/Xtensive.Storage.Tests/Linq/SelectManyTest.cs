@@ -17,6 +17,14 @@ namespace Xtensive.Storage.Tests.Linq
   public class SelectManyTest : NorthwindDOModelTest
   {
     [Test]
+    public void ParameterTest()
+    {
+      var result = Query<Customer>.All
+        .SelectMany(i => i.Orders.Select(t=>i));
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void EntitySetDefaultIfEmptyTest()
     {
       int expected =

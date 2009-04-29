@@ -219,14 +219,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void SelectAnonymousSelectMany6Test()
-    {
-      var result = Query<Customer>.All
-        .SelectMany(i => i.Orders.Select(t=>i));
-      QueryDumper.Dump(result);
-    }
-
-    [Test]
     public void SubquerySimpleTest()
     {
       var result = Query<Product>.All
