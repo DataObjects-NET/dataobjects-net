@@ -8,6 +8,7 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.PreCompilation.Optimization;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction

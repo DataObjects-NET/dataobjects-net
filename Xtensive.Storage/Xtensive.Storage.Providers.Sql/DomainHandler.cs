@@ -118,16 +118,13 @@ namespace Xtensive.Storage.Providers.Sql
     private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
     {
       bool isOrderSensitive = provider.Type==ProviderType.Skip || provider.Type==ProviderType.Take;
-      bool preservesOrder = isOrderSensitive || provider.Type == ProviderType.Reindex
-        || provider.Type == ProviderType.Sort || provider.Type == ProviderType.Range
-        || provider.Type == ProviderType.Seek;
+      bool preservesOrder = isOrderSensitive || provider.Type == ProviderType.Index
+        || provider.Type == ProviderType.Reindex || provider.Type == ProviderType.Sort
+        || provider.Type == ProviderType.Range || provider.Type == ProviderType.Seek;
       bool isOrderingBoundary = provider.Type==ProviderType.Except
         || provider.Type==ProviderType.Intersect || provider.Type==ProviderType.Union
-        || provider.Type==ProviderType.Concat || provider.Type==ProviderType.Existence
-        || provider.Type==ProviderType.Distinct;
-      bool isSorter = provider.Type==ProviderType.Sort || provider.Type==ProviderType.Reindex;
-      return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderingBoundary,
-        isSorter);
+        || provider.Type==ProviderType.Concat || provider.Type==ProviderType.Existence;
+      return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderingBoundary);
     }
     /// <summary>
     /// Builds <see cref="DbDataReaderAccessor"/> from specified <see cref="TupleDescriptor"/>.

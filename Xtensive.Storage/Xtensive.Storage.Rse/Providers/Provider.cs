@@ -65,6 +65,11 @@ namespace Xtensive.Storage.Rse.Providers
       }
     }
 
+    protected internal void SetHeader(RecordSetHeader newHeader)
+    {
+      header = newHeader;
+    }
+
     /// <summary>
     /// Builds the <see cref="Header"/>.
     /// This method is invoked just once on each provider.
@@ -98,11 +103,6 @@ namespace Xtensive.Storage.Rse.Providers
     protected virtual void Initialize()
     {
       Header = BuildHeader();
-    }
-
-    protected internal void SetHeader(RecordSetHeader newHeader)
-    {
-      header = newHeader;
     }
 
     #region ToString method

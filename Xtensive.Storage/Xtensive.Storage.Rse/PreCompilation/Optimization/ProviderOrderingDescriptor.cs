@@ -9,7 +9,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Rse.PreCompilation.Correction
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 {
   /// <summary>
   /// Descriptor of a provider's ordering behavior.
@@ -35,12 +35,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     /// </summary>
     public readonly bool BreaksOrder;
 
-    /// <summary>
-    /// Gets a value indicating whether the <see cref="CompilableProvider"/> 
-    /// sorts records.
-    /// </summary>
-    public readonly bool IsSorter;
-
 
     // Constructors
 
@@ -50,14 +44,11 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     /// <param name="isOrderSensitive">value of <see cref="IsOrderSensitive"/>.</param>
     /// <param name="preservesOrder">value of <see cref="PreservesOrder"/>.</param>
     /// <param name="isOrderingBoundary">value of <see cref="BreaksOrder"/>.</param>
-    /// <param name="isSorter">value of <see cref="IsSorter"/>.</param>
-    public ProviderOrderingDescriptor(bool isOrderSensitive, bool preservesOrder, bool isOrderingBoundary,
-      bool isSorter)
+    public ProviderOrderingDescriptor(bool isOrderSensitive, bool preservesOrder, bool isOrderingBoundary)
     {
       IsOrderSensitive = isOrderSensitive;
       PreservesOrder = preservesOrder;
       BreaksOrder = isOrderingBoundary;
-      IsSorter = isSorter;
     }
   }
 }

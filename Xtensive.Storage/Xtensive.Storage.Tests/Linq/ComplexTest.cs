@@ -72,5 +72,13 @@ namespace Xtensive.Storage.Tests.Linq
         Query<Customer>.All.ToList();
       }
     }
+
+    [Test]
+    public void AsEnumerableSelectDistinctTest()
+    {
+      var result = Query<Order>.All.AsEnumerable().Select(o => o.Employee).Distinct();
+      Assert.IsNotNull(result.First());
+      Assert.Greater(result.Count(), 2);
+    }
   }
 }
