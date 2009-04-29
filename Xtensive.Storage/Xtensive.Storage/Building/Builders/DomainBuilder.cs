@@ -114,6 +114,8 @@ namespace Xtensive.Storage.Building.Builders
     private static void ConfigureServiceContainer()
     {
       BuildingContext context = BuildingContext.Current;
+      if (context.Configuration.ServicesConfiguration==null)
+        return;
       foreach (UnityTypeElement typeElement in context.Configuration.ServicesConfiguration)
         typeElement.Configure(BuildingContext.Current.Domain.ServiceContainer);
     }
