@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.Greater(list.Count, 0);
     }
 
+    [Ignore("NotImplemented")]
     [Test]
     public void GroupingAsQueryableTest()
     {
