@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Caching;
 using Xtensive.Core.Parameters;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
@@ -19,58 +20,72 @@ using Xtensive.Storage.Linq.Rewriters;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Provides compilation and caching of queries for reuse.
+  /// Caches the compilation result of provided query.
   /// </summary>
   public static class CachedQuery
   {
+    private static object _lock = new object();
+
     /// <summary>
-    /// Finds compiled query in cache by provided <paramref name="query"/> delegate and executes them if it's already cached; otherwise executes the <paramref name="query"/> delegate.
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate 
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and executes them if it's already cached; 
+    /// otherwise executes the <paramref name="query"/> delegate
+    /// and caches the result.
     /// </summary>
     /// <typeparam name="TElement">The type of the result element.</typeparam>
-    /// <param name="query">Containing query delegate.</param>
-    /// <returns>Query results.</returns>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Query result.</returns>
     public static IEnumerable<TElement> Execute<TElement>(Func<IQueryable<TElement>> query)
     {
       var domain = Domain.Demand();
       var target = query.Target;
+      var cache = domain.QueryCache;
       Pair<MethodInfo, ParameterizedResultExpression> item;
       ParameterizedResultExpression resultExpression = null;
-      if (domain.QueryCache.TryGetItem(query.Method, true, out item))
-        resultExpression = item.Second;
+      lock (cache)
+        if (cache.TryGetItem(query.Method, true, out item))
+          resultExpression = item.Second;
       if (resultExpression == null) {
         var result = query();
-        var compiledResultExpression = QueryProvider.Current.Compile(result.Expression);
+        var compiledResultExpression = QueryProvider.Instance.Compile(result.Expression);
         resultExpression = BuildResultExpression(target, compiledResultExpression);
-        lock (domain.QueryCache)
-          if (!domain.QueryCache.TryGetItem(query.Method, false, out item))
-            domain.QueryCache.Add(new Pair<MethodInfo, ParameterizedResultExpression>(query.Method, resultExpression));
+        lock (cache)
+          if (!cache.TryGetItem(query.Method, false, out item))
+            cache.Add(new Pair<MethodInfo, ParameterizedResultExpression>(query.Method, resultExpression));
         return result;
       }
       return ExecuteSequence<TElement>(resultExpression, target);
     }
 
     /// <summary>
-    /// Finds compiled query in cache by provided <paramref name="query"/> delegate and executes them if it's already cached; otherwise executes the <paramref name="query"/> delegate.
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and executes them if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate
+    /// and caches the result.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="query">Containing query delegate.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
     public static TResult Execute<TResult>(Func<TResult> query)
     {
       var domain = Domain.Demand();
       var target = query.Target;
+      var cache = domain.QueryCache;
       Pair<MethodInfo, ParameterizedResultExpression> item;
       ParameterizedResultExpression resultExpression = null;
-      if (domain.QueryCache.TryGetItem(query.Method, true, out item))
-        resultExpression = item.Second;
+      lock (cache)
+        if (cache.TryGetItem(query.Method, true, out item))
+          resultExpression = item.Second;
       if (resultExpression == null) {
-        using (var queryScope = new CompiledQueryScope()) {
+        using (var compilationScope = new QueryCachingScope()) {
           var result = query();
-          var compiledExpression = queryScope.Context;
+          var compiledExpression = compilationScope.CompilationResult;
           resultExpression = BuildResultExpression(target, compiledExpression);
-          lock (domain.QueryCache)
-            if (!domain.QueryCache.TryGetItem(query.Method, false, out item))
-              domain.QueryCache.Add(new Pair<MethodInfo, ParameterizedResultExpression>(query.Method, resultExpression));
+          lock (cache)
+            if (!cache.TryGetItem(query.Method, false, out item))
+              cache.Add(new Pair<MethodInfo, ParameterizedResultExpression>(query.Method, resultExpression));
           return result;
         }
       }
@@ -110,6 +125,5 @@ namespace Xtensive.Storage
     }
 
     #endregion
-
   }
 }

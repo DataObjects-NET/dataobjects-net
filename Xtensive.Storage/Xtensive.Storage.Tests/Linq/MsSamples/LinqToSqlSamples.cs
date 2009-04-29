@@ -1548,7 +1548,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 //        }
 //
 //        [Category("Stored Procedures")]
-//        [Test(Description = "Single Result-Set")]
+//        [Test(Description = "Single CompilationResult-Set")]
 //        [Description("This sample uses a stored procedure to return the Id, ContactName, CompanyName" +
 //        " and City of customers who are in London.")]
 //        public void DLinq114() {
@@ -1558,20 +1558,20 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 //        }
 //
 //        [Category("Stored Procedures")]
-//        [Test(Description = "Single Result-Set - Multiple Possible Shapes")]
+//        [Test(Description = "Single CompilationResult-Set - Multiple Possible Shapes")]
 //        [Description("This sample uses a stored procedure to return a set of " +
 //        "Customers in the 'WA' Region.  The result set-shape returned depends on the parameter passed in. " +
 //        "If the parameter equals 1, all Customer properties are returned. " +
 //        "If the parameter equals 2, the Id, ContactName and CompanyName properties are returned.")]
 //        public void DLinq115() {
-//            Console.WriteLine("********** Whole Customer Result-set ***********");
+//            Console.WriteLine("********** Whole Customer CompilationResult-set ***********");
 //            IMultipleResults result = db.WholeOrPartialCustomersSet(1);
 //            IEnumerable<WholeCustomersSetResult> shape1 = result.GetResult<WholeCustomersSetResult>();
 //
 //            QueryDumper.Dump(shape1);
 //
 //            Console.WriteLine();
-//            Console.WriteLine("********** Partial Customer Result-set ***********");
+//            Console.WriteLine("********** Partial Customer CompilationResult-set ***********");
 //            result = db.WholeOrPartialCustomersSet(2);
 //            IEnumerable<PartialCustomersSetResult> shape2 = result.GetResult<PartialCustomersSetResult>();
 //
@@ -1579,17 +1579,17 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 //        }
 //
 //        [Category("Stored Procedures")]
-//        [Test(Description = "Multiple Result-Sets")]
+//        [Test(Description = "Multiple CompilationResult-Sets")]
 //        [Description("This sample uses a stored procedure to return the Customer 'SEVES' and all it's Orders.")]
 //        public void DLinq116() {
 //            IMultipleResults result = db.GetCustomerAndOrders("SEVES");
 //
-//            Console.WriteLine("********** Customer Result-set ***********");
+//            Console.WriteLine("********** Customer CompilationResult-set ***********");
 //            IEnumerable<CustomerResultSet> customer = result.GetResult<CustomerResultSet>();
 //            QueryDumper.Dump(customer);
 //            Console.WriteLine();
 //
-//            Console.WriteLine("********** Orders Result-set ***********");
+//            Console.WriteLine("********** Orders CompilationResult-set ***********");
 //            IEnumerable<OrdersResultSet> orders = result.GetResult<OrdersResultSet>();
 //            QueryDumper.Dump(orders);
 //        }

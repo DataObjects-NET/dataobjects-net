@@ -136,7 +136,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public IQueryProvider Provider
     {
-      get { return QueryProvider.Current; }
+      get { return QueryProvider.Instance; }
     }
 
     #endregion

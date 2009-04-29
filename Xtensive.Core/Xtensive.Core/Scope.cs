@@ -8,15 +8,15 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
-using Xtensive.Core.Disposing;
 
 namespace Xtensive.Core
 {
   /// <summary>
-  /// Provides access to the thread-bound stack of contextual information (<typeparamref name="TContext"/>).
+  /// Provides access to the thread-bound stack of contextual information 
+  /// (<typeparamref name="TContext"/>).
   /// </summary>
   /// <typeparam name="TContext">The type of the context.</typeparam>
-  public class Scope<TContext>: IDisposable
+  public class Scope<TContext> : IDisposable
     where TContext: class
   {
     [ThreadStatic]
@@ -77,6 +77,7 @@ namespace Xtensive.Core
     /// Initializes the scope.
     /// </summary>
     /// <param name="newContext">The new context.</param>
+    /// <exception cref="NotSupportedException"><see cref="Context"/> is already initialized.</exception>
     public virtual void Activate(TContext newContext)
     {
       if (context!=null)

@@ -262,7 +262,7 @@ namespace Xtensive.Storage.Tests.Linq
       //One column of primitive type
 
       if (property==null) {
-        var propertyName = "Result";
+        var propertyName = "CompilationResult";
         XmlElement node = document.CreateElement(propertyName);
         var valueAttribute = document.CreateAttribute("value");
         var lengthAttribute = document.CreateAttribute("length");

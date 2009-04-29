@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Linq
 
     public IQueryProvider Provider
     {
-      get { return QueryProvider.Current; }
+      get { return QueryProvider.Instance; }
     }
 
     public SubQuery(ResultExpression resultExpression, Tuple tuple, Parameter<Tuple> parameter)

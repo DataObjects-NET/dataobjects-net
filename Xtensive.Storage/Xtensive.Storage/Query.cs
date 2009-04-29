@@ -24,7 +24,7 @@ namespace Xtensive.Storage
   /// <typeparam name="T">The type of the content item of the data source.</typeparam>
   public sealed class Query<T> : IOrderedQueryable<T>
   {
-    private static readonly QueryProvider provider = QueryProvider.Current;
+    private static readonly QueryProvider provider = QueryProvider.Instance;
     private readonly Expression expression;
 
     /// <inheritdoc/>

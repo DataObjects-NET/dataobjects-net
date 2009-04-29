@@ -8,11 +8,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Rewriters;
@@ -22,11 +18,19 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 namespace Xtensive.Storage.Linq
 {
   /// <summary>
-  /// Base class for <see cref="IQueryProvider"/> implementation.
+  /// <see cref="IQueryProvider"/> implementation.
   /// </summary>
   internal sealed class QueryProvider : IQueryProvider
   {
-    public static QueryProvider Current = new QueryProvider();
+    private static readonly QueryProvider instance = new QueryProvider();
+
+    /// <summary>
+    /// Gets the only instance of this provider.
+    /// </summary>
+    public static QueryProvider Instance
+    {
+      get { return instance; }
+    }
 
     /// <inheritdoc/>
     IQueryable IQueryProvider.CreateQuery(Expression expression)
@@ -36,8 +40,8 @@ namespace Xtensive.Storage.Linq
         var query = (IQueryable) typeof (Query<>).Activate(new[] {elementType}, new object[] {expression});
         return query;
       }
-      catch (TargetInvocationException tie) {
-        throw tie.InnerException;
+      catch (TargetInvocationException e) {
+        throw e.InnerException;
       }
     }
 
@@ -57,9 +61,10 @@ namespace Xtensive.Storage.Linq
     public TResult Execute<TResult>(Expression expression)
     {
       var compiled = Compile(expression);
-      var compiledQueryScope = CompiledQueryScope.Current;
-      if (compiledQueryScope != null)
-        compiledQueryScope.Context = compiled;
+      // Providing the result to caching layer, if possible
+      var cachingScope = QueryCachingScope.Current;
+      if (cachingScope != null)
+        cachingScope.CompilationResult = compiled;
       return compiled.GetResult<TResult>();
     }
 
@@ -104,9 +109,10 @@ namespace Xtensive.Storage.Linq
     }
 
 
+    // Constructors
+
     private QueryProvider()
     {
-      
     }
   }
 }
