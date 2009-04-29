@@ -73,6 +73,13 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void NewIntArrayTest()
+    {
+      var result = Query<Customer>.All.Select(x => new []{1, 2});
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void NewArrayConstantTest()
     {
       var method = MethodInfo.GetCurrentMethod().Name;
