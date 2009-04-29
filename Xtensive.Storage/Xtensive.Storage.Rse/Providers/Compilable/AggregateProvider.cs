@@ -88,29 +88,96 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <returns>The type of aggregate column.</returns>
     public static Type GetAggregateColumnType(Type sourceColumnType, AggregateType aggregateType)
     {
-      if (aggregateType == AggregateType.Count)
+      switch (aggregateType) {
+      case AggregateType.Count:
         return typeof (long);
-      if (aggregateType != AggregateType.Avg)
-        return sourceColumnType;
-      switch (System.Type.GetTypeCode(sourceColumnType)) {
-        case TypeCode.Char:
-        case TypeCode.SByte:
-        case TypeCode.Byte:
-        case TypeCode.Int16:
-        case TypeCode.Int32:
-        case TypeCode.Int64:
-        case TypeCode.UInt16:
-        case TypeCode.UInt32:
-        case TypeCode.UInt64:
-          return typeof (double);
-        case TypeCode.Decimal:
-        case TypeCode.Single:
-        case TypeCode.Double:
-          return sourceColumnType;
-        default:
-          throw new ArgumentException(string.Format(Strings.ExAggregateXIsNotSupportedForTypeY, aggregateType, sourceColumnType));
+      case AggregateType.Min:
+      case AggregateType.Max:
+        return GetMinMaxColumnType(sourceColumnType, aggregateType);
+      case AggregateType.Sum:
+        return GetSumColumnType(sourceColumnType);
+      case AggregateType.Avg:
+        return GetAvgColumnType(sourceColumnType);
+      default:
+        throw AggregateNotSupported(sourceColumnType, aggregateType);
       }
     }
+
+    #region Private / internal methods
+
+    private static Type GetMinMaxColumnType(Type sourceColumnType, AggregateType aggregateType)
+    {
+      switch (System.Type.GetTypeCode(sourceColumnType)) {
+      case TypeCode.Char:
+      case TypeCode.SByte:
+      case TypeCode.Byte:
+      case TypeCode.Int16:
+      case TypeCode.Int32:
+      case TypeCode.Int64:
+      case TypeCode.UInt16:
+      case TypeCode.UInt32:
+      case TypeCode.UInt64:
+      case TypeCode.Decimal:
+      case TypeCode.Single:
+      case TypeCode.Double:
+      case TypeCode.String:
+      case TypeCode.DateTime:
+        return sourceColumnType;
+      default:
+        if (sourceColumnType == typeof(TimeSpan))
+          return sourceColumnType;
+        throw AggregateNotSupported(sourceColumnType, aggregateType);
+      }
+    }
+
+    private static Type GetSumColumnType(Type sourceColumnType)
+    {
+      switch (System.Type.GetTypeCode(sourceColumnType)) {
+      case TypeCode.SByte:
+      case TypeCode.Byte:
+      case TypeCode.Int16:
+      case TypeCode.Int32:
+      case TypeCode.Int64:
+      case TypeCode.UInt16:
+      case TypeCode.UInt32:
+      case TypeCode.UInt64:
+      case TypeCode.Decimal:
+      case TypeCode.Single:
+      case TypeCode.Double:
+        return sourceColumnType;
+      default:
+        throw AggregateNotSupported(sourceColumnType, AggregateType.Sum);
+      }
+    }
+
+    private static Type GetAvgColumnType(Type sourceColumnType)
+    {
+      switch (System.Type.GetTypeCode(sourceColumnType)) {
+      case TypeCode.SByte:
+      case TypeCode.Byte:
+      case TypeCode.Int16:
+      case TypeCode.Int32:
+      case TypeCode.Int64:
+      case TypeCode.UInt16:
+      case TypeCode.UInt32:
+      case TypeCode.UInt64:
+        return typeof(double);
+      case TypeCode.Decimal:
+      case TypeCode.Single:
+      case TypeCode.Double:
+        return sourceColumnType;
+      default:
+        throw AggregateNotSupported(sourceColumnType, AggregateType.Avg);
+      }
+    }
+
+    private static ArgumentException AggregateNotSupported(Type sourceColumnType, AggregateType aggregateType)
+    {
+      return new ArgumentException(string.Format(
+        Strings.ExAggregateXIsNotSupportedForTypeY, aggregateType, sourceColumnType));
+    }
+
+    #endregion
 
     // Constructors
 
