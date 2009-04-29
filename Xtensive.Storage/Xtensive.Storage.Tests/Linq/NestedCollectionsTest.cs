@@ -62,8 +62,8 @@ namespace Xtensive.Storage.Tests.Linq
         .Select(c => Query<Order>.All
           .Select(o => Query<Employee>.All
             .Take(10)
-            .Where(e=>e.Orders.Contains(o)))
-            .Where(o=>o.Count()>0))
+            .Where(e => e.Orders.Contains(o)))
+          .Where(o => o.Count() > 0))
         .Select(os => os);
       QueryDumper.Dump(result);
     }
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectNestedWithCorrelationTest()
     {
       var result = Query<Customer>.All
-        .Select(c => Query<Order>.All.Where(o => o.Customer == c))
+        .Select(c => Query<Order>.All.Where(o => o.Customer==c))
         .Select(os => os);
       Assert.AreEqual(numberOfOrders, Count(result));
     }
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectNestedWithAggregateTest()
     {
       var result = Query<Customer>.All
-        .Select(c => Query<Order>.All.Where(o => o.Customer == c).Count());
+        .Select(c => Query<Order>.All.Where(o => o.Customer==c).Count());
       QueryDumper.Dump(result);
     }
 
@@ -91,14 +91,14 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query<Customer>.All
         .Take(10)
         .Select(c => new {Orders = Query<Order>.All.Take(10)});
-        QueryDumper.Dump(result);
+      QueryDumper.Dump(result);
     }
 
     [Test]
     public void SubqueryAsQuerySourceTest()
     {
       var result = Query<Customer>.All
-        .Select(c => Query<Order>.All.Where(o => o.Customer == c));
+        .Select(c => Query<Order>.All.Where(o => o.Customer==c));
       foreach (var orders in result) {
         var subQueryCount = orders.Count();
       }
@@ -108,11 +108,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectTwoCollectionsTest()
     {
       var result = Query<Order>.All
-        .Select(o => new
-          {
-            Customers = Query<Customer>.All.Where(c => c==o.Customer),
-            Employees = Query<Employee>.All.Where(e => e==o.Employee)
-          })
+        .Select(o => new {
+          Customers = Query<Customer>.All.Where(c => c==o.Customer),
+          Employees = Query<Employee>.All.Where(e => e==o.Employee)
+        })
         .Select(os => os);
       var list = result.ToList();
       Assert.AreEqual(numberOfOrders, list.Count);
@@ -150,7 +149,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectNestedWithCorrelationSelectManyTest()
     {
       var result = Query<Customer>.All
-        .Select(c => Query<Order>.All.Where(o => o.Customer == c))
+        .Select(c => Query<Order>.All.Where(o => o.Customer==c))
         .SelectMany(i => i);
       Assert.AreEqual(numberOfOrders, Count(result));
     }
@@ -158,42 +157,42 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectNestedWithCorrelationSelectMany2Test()
     {
-        var result = Query<Customer>.All
-          .Select(c => Query<Order>.All.Where(o => o.Customer == c))
-          .SelectMany(i => i.Select(x=>x));
-        Assert.AreEqual(numberOfOrders, Count(result));
+      var result = Query<Customer>.All
+        .Select(c => Query<Order>.All.Where(o => o.Customer==c))
+        .SelectMany(i => i.Select(x => x));
+      Assert.AreEqual(numberOfOrders, Count(result));
     }
 
 
     [Test]
     public void SelectAnonymousSelectMany1Test()
     {
-        var result = Query<Customer>.All
-          .Select(c => new { Customer = c, Orders = Query<Order>.All.Where(o => o.Customer == c) })
-          .SelectMany(i => i.Orders);
-        Assert.AreEqual(numberOfOrders, result.ToList().Count);
+      var result = Query<Customer>.All
+        .Select(c => new {Customer = c, Orders = Query<Order>.All.Where(o => o.Customer==c)})
+        .SelectMany(i => i.Orders);
+      Assert.AreEqual(numberOfOrders, result.ToList().Count);
     }
 
     [Test]
     public void SelectAnonymousSelectMany2Test()
     {
-        var result = Query<Customer>.All
-          .Select(c => new {Orders = Query<Order>.All.Take(10) })
-          .SelectMany(i => i.Orders);
-       QueryDumper.Dump(result);
+      var result = Query<Customer>.All
+        .Select(c => new {Orders = Query<Order>.All.Take(10)})
+        .SelectMany(i => i.Orders);
+      QueryDumper.Dump(result);
     }
 
     [Test]
     public void SelectAnonymousSubqueryTest()
     {
-        var result = Query<Customer>.All
-          .Select(c => new { Customer = c, Orders = Query<Order>.All })
-          .Select(i => i.Customer.Orders);
+      var result = Query<Customer>.All
+        .Select(c => new {Customer = c, Orders = Query<Order>.All})
+        .Select(i => i.Customer.Orders);
       QueryDumper.Dump(result);
     }
 
     [Test]
-    public void   SelectAnonymousSelectMany3Test()
+    public void SelectAnonymousSelectMany3Test()
     {
       var result = Query<Customer>.All
         .Select(c => new {Customer = c, Orders = Query<Order>.All.Where(o => o.Customer==c)})
@@ -202,12 +201,29 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void   SelectAnonymousSelectMany4Test()
+    public void SelectAnonymousSelectMany4Test()
     {
       var result = Query<Customer>.All
         .Select(c => new {Customer = c, Orders = Query<Order>.All.Where(o => o.Customer==c)})
         .SelectMany(i => i.Orders.Select(o => new {i.Customer, Order = o}));
       Assert.AreEqual(numberOfOrders, result.ToList().Count);
+    }
+
+    [Test]
+    public void SelectAnonymousSelectMany5Test()
+    {
+      var result = Query<Customer>.All
+        .Select(c => new {Customer = c, Orders = Query<Order>.All.Where(o => o.Customer==c)})
+        .SelectMany(i => i.Orders.Select(o => i.Customer.CompanyName));
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void SelectAnonymousSelectMany6Test()
+    {
+      var result = Query<Customer>.All
+        .SelectMany(i => i.Orders.Select(t=>i));
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -225,7 +241,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Product>.All
         .Select(p => Query<Category>.All.Where(c => c==p.Category))
-        .Select(q=>q);
+        .Select(q => q);
       foreach (IQueryable<Category> queryable in result) {
         QueryDumper.Dump(queryable);
       }
@@ -253,10 +269,10 @@ namespace Xtensive.Storage.Tests.Linq
       int count = 0;
       bool? nested = null;
       foreach (var item in result) {
-        if (nested == null)
+        if (nested==null)
           nested = item is IEnumerable;
         if (nested.Value)
-          count += Count((IEnumerable)item);
+          count += Count((IEnumerable) item);
         else
           count++;
       }
