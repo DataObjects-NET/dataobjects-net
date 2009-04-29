@@ -210,10 +210,11 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitStore(StoreProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
       ExecutableProvider ex = null;
-      if (provider.Source != null)
+      if (provider.Source != null) {
+        var compiledSource = GetCompiled(provider.Source);
         ex = compiledSource;
+      }
       return new Providers.Executable.StoreProvider(provider, ex);
     }
 
