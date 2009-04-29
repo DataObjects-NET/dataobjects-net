@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Tests.Storage
   {
     protected override IEnumerable<string> GetProviders()
     {
-      return new[] {"pgsql", "mssql2005"};
+      return new[] {"memory", "mssql2005"};
     }
 
     protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration(string provider)

@@ -132,6 +132,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Order>.All.Select(o => o.Employee).Distinct();
       var expected = Query<Order>.All.AsEnumerable().Select(o => o.Employee).Distinct();
+      var i = 0;
       Assert.IsTrue(result.AsEnumerable().SequenceEqual(expected));
     }
 

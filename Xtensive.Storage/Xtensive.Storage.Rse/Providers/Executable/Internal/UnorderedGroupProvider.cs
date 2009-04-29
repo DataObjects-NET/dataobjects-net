@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         actionList.Add((Action<Tuple, int>)
           typeof(AggregateCalculatorProvider)
             .GetMethod("GetAggregateCalculator")
-            .MakeGenericMethod(c.Type)
+            .MakeGenericMethod(Source.Header.TupleDescriptor[c.SourceIndex], c.Type)
             .Invoke(calculator, new object[] { c.AggregateType, c.Index, c.SourceIndex }));
 
       // TODO: optimize with yield return

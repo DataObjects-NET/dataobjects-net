@@ -183,23 +183,23 @@ namespace Xtensive.Storage.Rse.Compilation
       var groupOrder = new bool[provider.GroupColumnIndexes.Length];
       var source = compiledSource.Origin;
 
-      while (source != null)
-      {
-        if (!GroupIsOrdered(groupOrder) &&
-          (typeof(JoinProvider) == source.GetType() || typeof(SelectProvider) == source.GetType()))
+      while (source != null) {
+        if (!GroupIsOrdered(groupOrder) && (source.Type == ProviderType.Join || source.Type == ProviderType.Select))
           break;
 
-        if (typeof(SortProvider) == source.GetType())
-        {
+        if (source.Type == ProviderType.Sort) {
+          var order = ((SortProvider)source).Order;
           for (int i = 0; i < provider.GroupColumnIndexes.Length; i++)
-            if (((SortProvider)source).Order.ContainsKey(provider.GroupColumnIndexes[i]))
+            if (order.ContainsKey(provider.GroupColumnIndexes[i]))
               groupOrder[i] = true;
         }
         if (GroupIsOrdered(groupOrder))
           return new Providers.Executable.OrderedGroupProvider(
               provider,
               compiledSource);
-        source = (source.Sources.Length != 0) ? (CompilableProvider)source.Sources[0] : null;
+        source = source.Sources.Length != 0
+          ? (CompilableProvider)source.Sources[0]
+          : null;
       }
 
       return new Providers.Executable.UnorderedGroupProvider(

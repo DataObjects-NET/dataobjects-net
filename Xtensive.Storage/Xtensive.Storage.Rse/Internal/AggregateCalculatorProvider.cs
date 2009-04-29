@@ -5,12 +5,10 @@
 // Created:    2008.09.12
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.Arithmetic;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Rse
 {
@@ -19,21 +17,19 @@ namespace Xtensive.Storage.Rse
     private readonly Tuple[] accumulators;
     private readonly List<Tuple>[] accumulatorGroups;
 
-    public RecordSetHeader Header { get; private set; }
-
-    public Action<Tuple, int> GetAggregateCalculator<T>(AggregateType aggregateType, int columnIndex, int sourceIndex)
+    public Action<Tuple, int> GetAggregateCalculator<TSource,TResult>(AggregateType aggregateType, int columnIndex, int sourceIndex)
     {
       switch (aggregateType) {
       case AggregateType.Count:
         return Count(columnIndex);
       case AggregateType.Avg:
-        return Avg<T>(columnIndex, sourceIndex);
+        return Avg<TSource,TResult>(columnIndex, sourceIndex);
       case AggregateType.Min:
-        return Min<T>(columnIndex, sourceIndex);
+        return Min<TResult>(columnIndex, sourceIndex);
       case AggregateType.Max:
-        return Max<T>(columnIndex, sourceIndex);
+        return Max<TResult>(columnIndex, sourceIndex);
       case AggregateType.Sum:
-        return Sum<T>(columnIndex, sourceIndex);
+        return Sum<TResult>(columnIndex, sourceIndex);
       default:
         throw new ArgumentOutOfRangeException("aggregateType");
       }
@@ -79,69 +75,81 @@ namespace Xtensive.Storage.Rse
       };
     }
 
-    private Action<Tuple, int> Max<T>(int columnIndex, int sourceIndex)
+    private Action<Tuple, int> Max<TResult>(int columnIndex, int sourceIndex)
     {
-      var comparer = AdvancedComparer<T>.Default.Compare;
+      var comparer = AdvancedComparer<TResult>.Default.Compare;
       return delegate(Tuple src, int groupIndex) {
         var acc = GetAccumulator(columnIndex, groupIndex);
         if (src.GetValue(sourceIndex) != null)
           if (acc == null) {
-            acc = Tuple.Create(src.GetValue<T>(sourceIndex));
+            acc = Tuple.Create(src.GetValue<TResult>(sourceIndex));
             StoreAccumulator(columnIndex, groupIndex, acc);
           }
           else 
-            if (comparer.Invoke(src.GetValue<T>(sourceIndex), acc.GetValue<T>(0)) > 0) {
-              acc.SetValue(0, src.GetValue<T>(sourceIndex));
+            if (comparer.Invoke(src.GetValue<TResult>(sourceIndex), acc.GetValue<TResult>(0)) > 0) {
+              acc.SetValue(0, src.GetValue<TResult>(sourceIndex));
               StoreAccumulator(columnIndex, groupIndex, acc);
             }
       };
     }
 
-    private Action<Tuple, int> Min<T>(int columnIndex, int sourceIndex)
+    private Action<Tuple, int> Min<TResult>(int columnIndex, int sourceIndex)
     {
-      var comparer = AdvancedComparer<T>.Default.Compare;
+      var comparer = AdvancedComparer<TResult>.Default.Compare;
       return delegate(Tuple src, int groupIndex) {
         var acc = GetAccumulator(columnIndex, groupIndex);
         if (src.GetValue(sourceIndex) != null)
           if (acc == null) {
-            acc = Tuple.Create(src.GetValue<T>(sourceIndex));
+            acc = Tuple.Create(src.GetValue<TResult>(sourceIndex));
             StoreAccumulator(columnIndex, groupIndex, acc);
           }
           else
-            if (comparer.Invoke(src.GetValue<T>(sourceIndex), acc.GetValue<T>(0)) < 0) {
-              acc.SetValue(0, src.GetValue<T>(sourceIndex));
+            if (comparer.Invoke(src.GetValue<TResult>(sourceIndex), acc.GetValue<TResult>(0)) < 0) {
+              acc.SetValue(0, src.GetValue<TResult>(sourceIndex));
               StoreAccumulator(columnIndex, groupIndex, acc);
             }
       };
     }
 
-    private Action<Tuple, int> Sum<T>(int columnIndex, int sourceIndex)
+    private Action<Tuple, int> Sum<TResult>(int columnIndex, int sourceIndex)
     {
-      var adder = Arithmetic<T>.Default.Add;
+      var adder = Arithmetic<TResult>.Default.Add;
       return delegate(Tuple src, int groupIndex) {
         var acc = GetAccumulator(columnIndex, groupIndex);
         if (src.GetValue(sourceIndex) != null)
           if (acc==null)
-            acc = Tuple.Create(src.GetValue<T>(sourceIndex));
+            acc = Tuple.Create(src.GetValue<TResult>(sourceIndex));
           else
-            acc.SetValue(0, adder.Invoke(acc.GetValue<T>(0), src.GetValue<T>(sourceIndex)));
+            acc.SetValue(0, adder.Invoke(acc.GetValue<TResult>(0), src.GetValue<TResult>(sourceIndex)));
           StoreAccumulator(columnIndex, groupIndex, acc);
       };
     }
 
-    private Action<Tuple, int> Avg<T>(int columnIndex, int sourceIndex)
+    private Action<Tuple, int> Avg<TSource,TResult>(int columnIndex, int sourceIndex)
     {
-      var adder = Arithmetic<T>.Default.Add;
+      var adder = Arithmetic<TResult>.Default.Add;
+      if (typeof(TSource) == typeof(TResult))
+        return delegate(Tuple src, int groupIndex) {
+          var acc = GetAccumulator(columnIndex, groupIndex);
+          if (src.GetValue(sourceIndex) != null)
+            if (acc==null)
+              acc = Tuple.Create((long)1, (TResult)(object)src.GetValue<TSource>(sourceIndex));
+            else {
+              acc.SetValue(0, acc.GetValue<long>(0) + 1);
+              acc.SetValue(1, adder.Invoke(acc.GetValue<TResult>(1), (TResult)(object)src.GetValue<TSource>(sourceIndex)));
+            }
+            StoreAccumulator(columnIndex, groupIndex, acc);
+        };
       return delegate(Tuple src, int groupIndex) {
         var acc = GetAccumulator(columnIndex, groupIndex);
         if (src.GetValue(sourceIndex) != null)
-          if (acc==null)
-            acc = Tuple.Create((long) 1, src.GetValue<T>(sourceIndex));
+          if (acc == null)
+            acc = Tuple.Create((long)1, Convert.ToDouble(src.GetValue<TSource>(sourceIndex)));
           else {
             acc.SetValue(0, acc.GetValue<long>(0) + 1);
-            acc.SetValue(1, adder.Invoke(acc.GetValue<T>(1), src.GetValue<T>(sourceIndex)));
+            acc.SetValue(1, adder.Invoke(acc.GetValue<TResult>(1), (TResult)(object)Convert.ToDouble(src.GetValue<TSource>(sourceIndex))));
           }
-          StoreAccumulator(columnIndex, groupIndex, acc);
+        StoreAccumulator(columnIndex, groupIndex, acc);
       };
     }
 
@@ -153,7 +161,7 @@ namespace Xtensive.Storage.Rse
       switch (column.AggregateType) {
       case AggregateType.Avg:
         if (acc!=null)
-          result.SetValue(column.Index, Arithmetic<T>.Default.Divide(acc.GetValue<T>(1), (double)acc.GetValue<long>(0)));
+          result.SetValue(column.Index, Arithmetic<T>.Default.Divide(acc.GetValue<T>(1), Convert.ToDouble(acc.GetValue(0))));
         else
           result.SetValue(column.Index, null);
         return result;
@@ -165,13 +173,10 @@ namespace Xtensive.Storage.Rse
         }
         return result;
       case AggregateType.Sum:
-        if (acc!=null)
+        if (acc != null)
           result.SetValue(column.Index, acc.GetValue(0));
-        else {
-          // TODO: Optimize
-          var clone = Tuple.Create(result.Descriptor);
-          result.SetValue(column.Index, clone.GetValueOrDefault(column.Index));
-        }
+        else
+          result.SetValue(column.Index, default(T));
         return result;
       case AggregateType.Max:
       case AggregateType.Min:
@@ -190,7 +195,6 @@ namespace Xtensive.Storage.Rse
 
     public AggregateCalculatorProvider(RecordSetHeader header, bool isGrouping)
     {
-      Header = header;
       var count = header.Columns.Count;
       if (!isGrouping)
         accumulators = new Tuple[count];

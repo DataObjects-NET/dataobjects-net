@@ -16,15 +16,15 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var result = new List<Tuple> { Tuple.Create(Origin.Header.TupleDescriptor) };
-      var calculator = new AggregateCalculatorProvider(Origin.Header, false);
+      var calculator = new AggregateCalculatorProvider(Origin.Header, false); 
       var actionList = new List<Action<Tuple, int>>();
-
+      
       // Preparing actions
       foreach (var c in Origin.AggregateColumns)
         actionList.Add((Action<Tuple, int>)
           typeof(AggregateCalculatorProvider)
             .GetMethod("GetAggregateCalculator")
-            .MakeGenericMethod(c.Type)
+            .MakeGenericMethod(Source.Header.TupleDescriptor[c.SourceIndex], c.Type)
             .Invoke(calculator, new object[] { c.AggregateType, c.Index, c.SourceIndex}));
 
       // Calculating aggregate values
