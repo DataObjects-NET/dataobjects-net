@@ -27,6 +27,13 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void SimpleSelectTest()
+    {
+      var result = Query<Order>.All;
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void SimpleConstantTest()
     {
       var products = Query<Product>.All;

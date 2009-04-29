@@ -295,9 +295,11 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
-  [Entity(MappingName = "Orders")]
+  [Index("OrderDate")]
+  [Index("ShipName")]
+  [Index("Freight")]
   [HierarchyRoot(typeof(KeyGenerator), "Id")]
-  public abstract class OrderBase : Entity
+  public class Order : Entity
   {
     [Field(MappingName = "OrderId")]
     public int Id { get; private set; }
@@ -307,13 +309,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
     [Field]
     public Shipper ShipVia { get; set; }
-  }
 
-  [Index("OrderDate")]
-  [Index("ShipName")]
-  [Index("Freight")]
-  public class Order : OrderBase
-  {
     [Field]
     public Employee Employee { get; set; }
 
