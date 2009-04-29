@@ -63,6 +63,7 @@ namespace Xtensive.Storage.Tests.Rse.AnimalModel
 
 namespace Xtensive.Storage.Tests.Rse
 {
+  [Ignore("Not implemented.")]
   [Serializable]
   [TestFixture]
   public class ComplexRangeTest : AutoBuildTest
