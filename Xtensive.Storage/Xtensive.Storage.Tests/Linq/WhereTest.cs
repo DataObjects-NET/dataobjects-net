@@ -109,9 +109,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void CalculatedTest()
     {
-      var products = Query<Product>.All;
-      var list = products.Where(p => p.UnitPrice * p.UnitsInStock >= 100).ToList();
-      Assert.AreEqual(66, list.Count);
+      var expected = Query<Product>.All.AsEnumerable().Where(p => p.UnitPrice * p.UnitsInStock >= 100).ToList();
+      var actual = Query<Product>.All.Where(p => p.UnitPrice * p.UnitsInStock >= 100).ToList();
+      Assert.AreEqual(expected.Count, actual.Count);
     }
 
     [Test]

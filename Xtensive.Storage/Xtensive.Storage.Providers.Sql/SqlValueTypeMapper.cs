@@ -159,7 +159,11 @@ namespace Xtensive.Storage.Providers.Sql
       var decimalInfo = typeMapping.DataTypeInfo as FractionalDataTypeInfo<decimal>;
       if (decimalInfo != null)
         return new SqlValueType(decimalInfo.SqlType, decimalInfo.Precision.MaxValue, decimalInfo.Scale.DefaultValue.Value);
-      
+
+      var charInfo = typeMapping.DataTypeInfo as RangeDataTypeInfo<char>;
+      if (charInfo != null)
+        return new SqlValueType(charInfo.SqlType, 1);
+
       return new SqlValueType(typeMapping.DataTypeInfo.SqlType);
     }
 
@@ -279,7 +283,6 @@ namespace Xtensive.Storage.Providers.Sql
       case TypeCode.Boolean:
         return (reader, fieldIndex) => reader.GetBoolean(fieldIndex);
       case TypeCode.Char:
-        //return (reader, fieldIndex) => reader.GetChar(fieldIndex);
         return ReadChar;
       case TypeCode.SByte:
         return (reader, fieldIndex) => Convert.ToSByte(reader.GetDecimal(fieldIndex));

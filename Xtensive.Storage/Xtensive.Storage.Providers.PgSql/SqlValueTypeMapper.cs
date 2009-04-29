@@ -106,8 +106,6 @@ namespace Xtensive.Storage.Providers.PgSql
         return base.BuildDataReaderAccessor(dataTypeInfo);
       case TypeCode.Boolean:
         return (reader, fieldIndex) => reader.GetBoolean(fieldIndex);
-      case TypeCode.Char:
-        return (reader, fieldIndex) => reader.GetChar(fieldIndex);
       case TypeCode.SByte:
         return (reader, fieldIndex) => Convert.ToSByte(reader.GetInt16(fieldIndex));
       case TypeCode.Byte:
