@@ -310,6 +310,7 @@ namespace Xtensive.Storage.Rse
 
       orderTupleDescriptor = orderKeyDescriptor ?? TupleDescriptor.Empty;
       Order = order ?? new DirectionCollection<int>();
+      Order.Lock(true);
     }
   }
 }
