@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     public void SelectFirstTest()
     {
       var products = Query<Product>.All;

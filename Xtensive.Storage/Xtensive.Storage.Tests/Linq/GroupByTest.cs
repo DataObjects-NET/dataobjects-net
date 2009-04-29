@@ -250,7 +250,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     public void GroupByWithSelectFirstTest()
     {
       var result = Query<Order>.All

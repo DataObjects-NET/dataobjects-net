@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     public void AnyWithLocalCollectionTest()
     {
       var ids = new[] {"ABCDE", "ALFKI"};
@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     public void AllWithLocalCollectionTest()
     {
       var patterns = new[] {"a", "e"};
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     public void ContainsWithLocalCollectionTest()
     {
       var customerIDs = new[] {"ALFKI", "ANATR", "AROUT", "BERGS"};

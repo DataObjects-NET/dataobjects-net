@@ -493,7 +493,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(q);
     }
 
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     [Category("JOIN")]
     [Test(Description = "GroupJoin - Two way join")]
     [Description("This sample explictly joins two tables and projects results from both tables.")]
@@ -507,7 +507,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(q);
     }
 
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     [Category("JOIN")]
     [Test(Description = "GroupJoin - Three way join")]
     [Description("This sample explictly joins three tables and projects results from each of them.")]
@@ -522,7 +522,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(q);
     }
 
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     [Category("JOIN")]
     [Test(Description = "GroupJoin - LEFT OUTER JOIN")]
     [Description("This sample shows how to get LEFT OUTER JOIN by using DefaultIfEmpty(). The DefaultIfEmpty() method returns null when there is no Order for the Employee.")]
@@ -537,7 +537,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(q);
     }
 
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     [Category("JOIN")]
     [Test(Description = "GroupJoin - Projected let assignment")]
     [Description("This sample projects a 'let' expression resulting from a join.")]
@@ -553,7 +553,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(q);
     }
 
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     [Category("JOIN")]
     [Test(Description = "GroupJoin - Composite Key")]
     [Description("This sample shows a join with a composite key.")]
@@ -571,7 +571,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(q);
     }
 
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     [Category("JOIN")]
     [Test(Description = "GroupJoin - Nullable\\Nonnullable Key Relationship")]
     [Description("This sample shows how to construct a join where one side is nullable and the other isn't.")]

@@ -97,7 +97,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     public void GroupJoinTest()
     {
       var categories = Query<Category>.All;
@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     public void GroupJoinNestedTest()
     {
       var categories = Query<Category>.All;
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     public void GroupJoinSelectManyTest()
     {
       using (Domain.OpenSession())
@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     public void DefaultIfEmptyTest()
     {
       var categories = Query<Category>.All;
@@ -169,7 +169,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotImplementedException))]
+    [Ignore("Not implemented")]
     public void LeftOuterTest()
     {
       var categories = Query<Category>.All;
