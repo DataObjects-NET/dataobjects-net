@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
 //    public City Capital { get; set; }
 
     public Country(string name) : 
-      base(Tuple.Create(name))
+      base(name)
     {
     }
 
@@ -115,7 +115,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
     public string Name { get; private set;}
 
     public City(Country country, string name) 
-      : base(Tuple.Create(country.Name, name))
+      : base(country, name)
     {
     } 
 

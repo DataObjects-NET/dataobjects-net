@@ -290,6 +290,8 @@ namespace Xtensive.Storage
 
     #region Create methods
 
+    #region Create next key methods
+
     /// <summary>
     /// Creates <see cref="Key"/> instance 
     /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
@@ -352,6 +354,10 @@ namespace Xtensive.Storage
           string.Format(Strings.ExUnableToCreateKeyForXHierarchy, hierarchy));
       return keyGenerator.Next();
     }
+
+    #endregion
+
+    #region Create key by tuple methods
 
     /// <summary>
     /// Creates <see cref="Key"/> instance
@@ -437,6 +443,121 @@ namespace Xtensive.Storage
     {
       return Create(Domain.Demand(), type, value, exactType, false);
     }
+
+    #endregion
+
+    #region Create key by params object[] methods
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance
+    /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
+    /// and with specified <paramref name="values"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
+    /// <param name="values">Key values.</param>
+    /// <returns>
+    /// A newly created or existing <see cref="Key"/> instance.
+    /// </returns>
+    public static Key Create<T>(params object[] values)
+      where T : Entity  
+    {
+      return Create(typeof (T), false, values);
+    }
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance
+    /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
+    /// and with specified <paramref name="values"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
+    /// <param name="values">Key values.</param>
+    /// <param name="exactType">Specified whether type is known exactly or not.</param>
+    /// <returns>
+    /// A newly created or existing <see cref="Key"/> instance .
+    /// </returns>
+    public static Key Create<T>(bool exactType, params object[] values)
+      where T : Entity
+    {
+      return Create(typeof (T), exactType, values);
+    }
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance 
+    /// for the specified <see cref="Entity"/> <paramref name="type"/>
+    /// and with specified <paramref name="values"/>.
+    /// </summary>
+    /// <param name="values">Key values.</param>
+    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    public static Key Create(Type type, params object[] values)
+    {
+      var domain = Domain.Demand();
+      return Create(domain.Model.Types[type], false, values);
+    }
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance 
+    /// for the specified <see cref="Entity"/> <paramref name="type"/>
+    /// and with specified <paramref name="values"/>.
+    /// </summary>
+    /// <param name="values">Key values.</param>
+    /// <param name="exactType">Specified whether type is known exactly or not.</param>
+    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    public static Key Create(Type type, bool exactType, params object[] values)
+    {
+      var domain = Domain.Demand();
+      return Create(domain.Model.Types[type], exactType, values);
+    }
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance 
+    /// for the specified <see cref="Entity"/> <paramref name="type"/>
+    /// and with specified <paramref name="values"/>.
+    /// </summary>
+    /// <param name="values">Key values.</param>
+    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    public static Key Create(TypeInfo type, params object[] values)
+    {
+      return Create(type, false, values);
+    }
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance 
+    /// for the specified <see cref="Entity"/> <paramref name="type"/>
+    /// and with specified <paramref name="values"/>.
+    /// </summary>
+    /// <param name="values">Key values.</param>
+    /// <param name="exactType">Specified whether type is known exactly or not.</param>
+    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    public static Key Create(TypeInfo type, bool exactType, params object[] values)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(values, "values");
+
+      KeyInfo keyInfo = type.Hierarchy.KeyInfo;
+      ArgumentValidator.EnsureArgumentIsInRange(values.Length, 1, keyInfo.TupleDescriptor.Count, "values");
+
+      Tuple tuple = Tuple.Create(keyInfo.TupleDescriptor);
+      int tupleIndex = 0;
+      for (int valueIndex = 0; valueIndex < values.Length; valueIndex++) {
+        var value = values[valueIndex];
+        ArgumentValidator.EnsureArgumentNotNull(value, string.Format("values[{0}]", valueIndex));
+        var entity = value as Entity;
+        if (entity!=null)
+          value = entity.Key;
+        var key = value as Key;
+        if (key!=null) {
+          for (int keyIndex = 0; keyIndex < key.value.Count; keyIndex++)
+            tuple[tupleIndex++] = key.value[keyIndex];
+        }
+        else
+          tuple[tupleIndex++] = value;
+      }
+      if (tupleIndex < tuple.Count - 1)
+        throw new ArgumentException(string.Format("Specified values aren't enough to create key for type {0}", type.Name));
+
+      return Create(Domain.Demand(), type, tuple, exactType, false);
+    }
+
+    #endregion
 
     /// <exception cref="ArgumentException">Wrong key structure for the specified <paramref name="type"/>.</exception>
     internal static Key Create(Domain domain, TypeInfo type, Tuple value, bool exactType, bool canCache)
