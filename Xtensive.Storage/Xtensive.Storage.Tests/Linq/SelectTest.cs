@@ -387,9 +387,31 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectEnumTest()
     {
-      var orders = Query<Order>.All;
-      var result = from o in orders select o.OrderDate.Value.DayOfWeek;
-      var list = result.ToList();
+      var result = from o in Query<Order>.All select o.OrderDate.Value.DayOfWeek;
+      result.ToList();
+    }
+
+    [Test]
+    public void SelectAnonymousEnumTest()
+    {
+      var result = from o in Query<Order>.All select new {o.OrderDate.Value.DayOfWeek};
+      result.ToList();
+    }
+
+    [Test]
+    public void SelectEnumFieldTest()
+    {
+      var result = from p in Query<ActiveProduct>.All select p.ProductType;
+      foreach (var p in result)
+        Assert.AreEqual(p, ProductType.Active);
+    }
+
+    [Test]
+    public void SelectAnonymousEnumFieldTest()
+    {
+      var result = from p in Query<ActiveProduct>.All select new {p.ProductType};
+      foreach (var p in result)
+        Assert.AreEqual(p.ProductType, ProductType.Active);      
     }
 
     [Test]

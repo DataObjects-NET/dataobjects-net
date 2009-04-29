@@ -185,5 +185,11 @@ namespace Xtensive.Storage.Tests.Linq
       var result = customers.Max(c => orders.Count(o => o.Customer == c));
       Assert.AreEqual(expected, result);
     }
+
+    [Test]
+    public void SelectNullableAggregateTest()
+    {
+      var result = Query<Order>.All.Select(o => (int?) o.Id).Sum();
+    }
   }
 }

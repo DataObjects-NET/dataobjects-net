@@ -15,6 +15,12 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 {
+  public enum ProductType
+  {
+    Active,
+    Discontinued
+  }
+
   public class Address : Structure
   {
     [Field(Length = 60)]
@@ -180,6 +186,8 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field]
     public Category Category { get; set; }
 
+    [Field]
+    public ProductType ProductType { get; protected set;}
 
     [Field]
     public decimal UnitPrice { get; set; }
@@ -207,11 +215,19 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   [Entity]
   public class ActiveProduct : IntermediateProduct
   {
+    public ActiveProduct()
+    {
+      ProductType = ProductType.Active;
+    }
   }
 
   [Entity]
   public class DiscontinuedProduct : IntermediateProduct
   {
+    public DiscontinuedProduct()
+    {
+      ProductType = ProductType.Discontinued;
+    }
   }
 
   [Entity(MappingName = "Employees")]

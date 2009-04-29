@@ -88,6 +88,8 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <returns>The type of aggregate column.</returns>
     public static Type GetAggregateColumnType(Type sourceColumnType, AggregateType aggregateType)
     {
+      if (sourceColumnType.IsNullable())
+        sourceColumnType = sourceColumnType.GetGenericArguments()[0];
       switch (aggregateType) {
       case AggregateType.Count:
         return typeof (long);
@@ -171,9 +173,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       }
     }
 
-    private static ArgumentException AggregateNotSupported(Type sourceColumnType, AggregateType aggregateType)
+    private static NotSupportedException AggregateNotSupported(Type sourceColumnType, AggregateType aggregateType)
     {
-      return new ArgumentException(string.Format(
+      return new NotSupportedException(string.Format(
         Strings.ExAggregateXIsNotSupportedForTypeY, aggregateType, sourceColumnType));
     }
 

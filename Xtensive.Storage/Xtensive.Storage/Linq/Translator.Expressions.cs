@@ -199,19 +199,19 @@ namespace Xtensive.Storage.Linq
         calculatedColumns.Value = new List<CalculatedColumnDescriptor>();
         var body = Visit(le.Body);
         if (body.IsResult())
-          body = BuildSubqueryResult((ResultExpression)body, le.Body.Type);
-        else if (calculateExpressions.Value && body.GetMemberType()==MemberType.Unknown) {
-          if (!body.IsSubqueryConstructor() &&
-            !body.IsGroupingConstructor() &&
-              (body.NodeType!=ExpressionType.Call ||
-                ((MethodCallExpression) body).Object==null ||
-                  ((MethodCallExpression) body).Object.Type!=typeof (Tuple))) {
-            var calculator = Expression.Lambda(Expression.Convert(body, typeof (object)), tuple.Value);
-            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>) calculator);
+          body = BuildSubqueryResult((ResultExpression) body, le.Body.Type);
+        else if (calculateExpressions.Value && body.GetMemberType() == MemberType.Unknown) {
+          if (!body.IsSubqueryConstructor() && !body.IsGroupingConstructor() && body.AsTupleAccess() == null) {
+            var originalBodyType = body.Type;
+            bool isEnum = ConvertEnumToInteger(ref body);
+            var calculator = Expression.Lambda(Expression.Convert(body, typeof(object)), tuple.Value);
+            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>)calculator);
             calculatedColumns.Value.Add(ccd);
             var parameter = parameters.Value[0];
             int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
             body = MakeTupleAccess(parameter, body.Type, position);
+            if (isEnum)
+              body = Expression.Convert(body, originalBodyType);
             mappingRef.Value.Replace(new PrimitiveMapping(new Segment<int>(position, 1)));
           }
         }
@@ -467,6 +467,7 @@ namespace Xtensive.Storage.Linq
             mappingRef.Value = new MappingReference(false);
             body = Visit(arg);
           }
+          ConvertEnumToInteger(ref body);
           if (body.AsTupleAccess()!=null)
             newArg = body;
           else if (body.IsResult())
@@ -477,11 +478,11 @@ namespace Xtensive.Storage.Linq
                 ? body
                 : Expression.Convert(body, typeof (object)),
               tuple.Value);
-            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), arg.Type, (Expression<Func<Tuple, object>>) calculator);
+            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>) calculator);
             calculatedColumns.Value.Add(ccd);
             var parameter = parameters.Value[0];
             int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
-            newArg = MakeTupleAccess(parameter, arg.Type, position);
+            newArg = MakeTupleAccess(parameter, body.Type, position);
             mappingRef.Value.RegisterField(memberName, new Segment<int>(position, 1));
           }
         }
@@ -498,6 +499,15 @@ namespace Xtensive.Storage.Linq
     }
 
     #region Private helper methods
+
+    private bool ConvertEnumToInteger(ref Expression expression)
+    {
+      if (expression.Type.IsEnum) {
+        expression = Expression.Convert(expression, Enum.GetUnderlyingType(expression.Type));
+        return true;
+      }
+      return false;
+    }
 
     private Expression ConstructQueryable(IQueryable rootPoint)
     {

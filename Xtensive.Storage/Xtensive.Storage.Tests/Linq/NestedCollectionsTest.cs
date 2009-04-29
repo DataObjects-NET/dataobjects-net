@@ -34,6 +34,13 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void SelectOtherParameterTest()
+    {
+      var result = Query<Customer>.All.Select(c => Query<Order>.All.Select(o => c.Orders.Count()));
+      result.ToList();
+    }
+
+    [Test]
     public void SelectNestedTest()
     {
       var result = Query<Customer>.All

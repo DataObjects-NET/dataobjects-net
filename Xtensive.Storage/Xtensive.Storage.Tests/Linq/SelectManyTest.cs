@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void ParameterTest()
     {
       var result = Query<Customer>.All
-        .SelectMany(i => i.Orders.Select(t=>i));
+        .SelectMany(i => i.Orders.Select(t => i));
       QueryDumper.Dump(result);
     }
 
