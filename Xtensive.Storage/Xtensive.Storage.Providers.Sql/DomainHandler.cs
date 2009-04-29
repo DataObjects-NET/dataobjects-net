@@ -77,7 +77,6 @@ namespace Xtensive.Storage.Providers.Sql
     {
       return new[] {
         typeof (NullableMappings),
-        typeof (ArrayMappings),
         typeof (StringMappings),
         typeof (DateTimeMappings),
         typeof (TimeSpanMappings),

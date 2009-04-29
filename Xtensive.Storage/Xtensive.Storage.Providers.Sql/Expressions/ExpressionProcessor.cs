@@ -13,6 +13,7 @@ using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Linq;
@@ -91,6 +92,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         return CompileMember(expression.Method, null, operand);
 
       switch (expression.NodeType) {
+        case ExpressionType.ArrayLength:
+          if (expression.Operand.Type != typeof(byte[]))
+            throw new NotSupportedException(string.Format(Strings.ExTypeXIsNotSupported, expression.Operand.Type));
+          return SqlFactory.Cast(SqlFactory.Length(operand), SqlDataType.Int32);
         case ExpressionType.Negate:
         case ExpressionType.NegateChecked:
           return SqlFactory.Negate(operand);
