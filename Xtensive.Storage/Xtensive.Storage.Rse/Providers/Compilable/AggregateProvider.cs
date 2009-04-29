@@ -88,6 +88,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <returns>The type of aggregate column.</returns>
     public static Type GetAggregateColumnType(Type sourceColumnType, AggregateType aggregateType)
     {
+      // TODO: very stupid - remove when nullables handing fixed everywhere.
       if (sourceColumnType.IsNullable())
         sourceColumnType = sourceColumnType.GetGenericArguments()[0];
       switch (aggregateType) {

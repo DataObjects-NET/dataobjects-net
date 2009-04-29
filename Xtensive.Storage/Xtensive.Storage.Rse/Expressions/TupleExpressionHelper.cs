@@ -40,6 +40,24 @@ namespace Xtensive.Storage.Rse.Expressions
     }
 
     /// <summary>
+    /// If <paramref name="expression"/> is an access to tuple element
+    /// returns <paramref name="expression"/> casted to <see cref="MethodCallExpression"/>.
+    /// Otherwise returns <see langword="null"/>.
+    /// </summary>
+    /// <param name="expression">An expression to check.</param>
+    /// <returns></returns>
+    public static MethodCallExpression AsExactTupleAccess(this Expression expression)
+    {
+      if (expression.NodeType == ExpressionType.Call) {
+        var mc = (MethodCallExpression)expression;
+        if (mc.Object != null && mc.Object.Type == typeof(Tuple))
+          if (mc.Method.Name == WellKnown.Tuple.GetValue || mc.Method.Name == WellKnown.Tuple.GetValueOrDefault)
+            return mc;
+      }
+      return null;      
+    }
+
+    /// <summary>
     /// If <paramref name="expression"/> is an access to tuple element.
     /// returns <paramref name="expression"/> casted to <see cref="MethodCallExpression"/>.
     /// Otherwise returns <see langword="null"/>.

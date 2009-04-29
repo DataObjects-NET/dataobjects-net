@@ -201,7 +201,7 @@ namespace Xtensive.Storage.Linq
         if (body.IsResult())
           body = BuildSubqueryResult((ResultExpression) body, le.Body.Type);
         else if (calculateExpressions.Value && body.GetMemberType() == MemberType.Unknown) {
-          if (!body.IsSubqueryConstructor() && !body.IsGroupingConstructor() && body.AsTupleAccess() == null) {
+          if (!body.IsSubqueryConstructor() && !body.IsGroupingConstructor() && body.AsExactTupleAccess() == null) {
             var originalBodyType = body.Type;
             bool isEnum = ConvertEnumToInteger(ref body);
             var calculator = Expression.Lambda(Expression.Convert(body, typeof(object)), tuple.Value);

@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Storage.NullableTestModel
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  [Explicit("Requires PostgressSQL and MS SQL servers")]
+  [Explicit("Requires PostgreSQL and MSSQL servers")]
   [TestFixture]
   public class NullableTest : CrossStorageTest
   {
