@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Linq
               FieldInfo field;
               if (!type.Fields.TryGetValue(lastItem.Name, out field))
                 throw new InvalidOperationException(string.Format(Strings.ExFieldNotFoundInModel, lastItem.Name));
-              if (field.IsPrimaryKey) {
+              if (field.IsPrimaryKey && expressionType!=MemberType.Anonymous) {
                 item = new MemberPathItem(
                   member.Name + "." + lastItem.Name,
                   lastItem.Type,

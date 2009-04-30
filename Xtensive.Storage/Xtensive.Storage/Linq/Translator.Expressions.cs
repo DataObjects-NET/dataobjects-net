@@ -475,9 +475,12 @@ namespace Xtensive.Storage.Linq
             body = Visit(arg);
           }
           ConvertEnumToInteger(ref body);
-          if (body.StripCasts().AsTupleAccess()!=null 
-            || body.GetMemberType()==MemberType.Array)
+          if (body.StripCasts().AsTupleAccess()!=null)
             newArg = body;
+          else if (body.GetMemberType()==MemberType.Array) {
+            newArg = body;
+            mappingRef.Value.RegisterField(memberName, new Segment<int>(0,0));
+          }
           else if (body.IsResult())
             newArg = BuildSubqueryResult((ResultExpression)body, arg.Type);
           else {

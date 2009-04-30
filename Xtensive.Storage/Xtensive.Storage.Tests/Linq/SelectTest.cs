@@ -19,6 +19,43 @@ namespace Xtensive.Storage.Tests.Linq
   [TestFixture]
   public class SelectTest : NorthwindDOModelTest
   {
+
+    [Test]
+    public void AnoimousEntityTest()
+    {
+      var result = Query<Category>.All
+        .Select(category => new{Category = category} )
+        .Select(a => a.Category);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void AnoimousEntityKeyTest()
+    {
+      var result = Query<Category>.All
+        .Select(category => new{Category = category} )
+        .Select(a => a.Category.Key);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void AnoimousEntityFieldTest()
+    {
+      var result = Query<Category>.All
+        .Select(category => new{Category = category} )
+        .Select(a => a.Category.CategoryName);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void AnoimousEntityKeyFieldTest()
+    {
+      var result = Query<Category>.All
+        .Select(category => new{Category = category} )
+        .Select(a => a.Category.Id);
+      QueryDumper.Dump(result);
+    }
+
     [Test]
     [ExpectedException(typeof (NotSupportedException))]
     public void OutOfHierarchy()
