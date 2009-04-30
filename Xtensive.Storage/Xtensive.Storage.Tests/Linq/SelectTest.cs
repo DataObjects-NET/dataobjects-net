@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Tests.Linq
   public class SelectTest : NorthwindDOModelTest
   {
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof (NotSupportedException))]
     public void OutOfHierarchy()
     {
       Assert.Greater(Query<Person>.All.Count(), 0);
@@ -69,40 +69,12 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var param = new {ProductName = "name"};
       var products = Query<Product>.All.Select(p => param.ProductName);
-      var list = products.ToList();
+      QueryDumper.Dump(products);
     }
 
-    [Test]
-    public void NewIntArrayTest()
-    {
-      var result = Query<Customer>.All.Select(x => new []{1, 2});
-      QueryDumper.Dump(result);
-    }
 
     [Test]
-    public void NewArrayConstantTest()
-    {
-      var method = MethodInfo.GetCurrentMethod().Name;
-      var products = Query<Product>.All;
-      var result =
-        from r in
-          from p in products
-          select new
-                 {
-                   Value = new byte[] {1, 2, 3},
-                   Method = method,
-                   p.ProductName
-                 }
-        orderby r.ProductName
-        where r.Method==method
-        select r;
-      var list = result.ToList();
-      foreach (var i in list)
-        Assert.AreEqual(method, i.Method);
-    }
-
-    [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof (NotSupportedException))]
     public void NewPairTest()
     {
       var method = MethodInfo.GetCurrentMethod().Name;
@@ -110,12 +82,11 @@ namespace Xtensive.Storage.Tests.Linq
       var result =
         from r in
           from p in products
-          select new
-                 {
-                   Value = new Pair<string>(p.ProductName, method),
-                   Method = method,
-                   p.ProductName
-                 }
+          select new {
+            Value = new Pair<string>(p.ProductName, method),
+            Method = method,
+            p.ProductName
+          }
         orderby r.ProductName
         where r.Method==method
         select r;
@@ -418,7 +389,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = from p in Query<ActiveProduct>.All select new {p.ProductType};
       foreach (var p in result)
-        Assert.AreEqual(p.ProductType, ProductType.Active);      
+        Assert.AreEqual(p.ProductType, ProductType.Active);
     }
 
     [Test]
@@ -483,7 +454,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntityWithLazyLoadFieldTest()
     {
-      var category = Query<Category>.All.Where(c => c.Picture != null).First();
+      var category = Query<Category>.All.Where(c => c.Picture!=null).First();
       int columnIndex = Domain.Model.Types[typeof (Category)].Fields["Picture"].MappingInfo.Offset;
       Assert.IsFalse(category.State.Tuple.IsAvailable(columnIndex));
     }

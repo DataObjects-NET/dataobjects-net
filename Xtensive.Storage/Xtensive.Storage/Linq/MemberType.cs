@@ -21,5 +21,6 @@ namespace Xtensive.Storage.Linq
     Anonymous,
     Grouping,
     Subquery,
+    Array,
   }
 }

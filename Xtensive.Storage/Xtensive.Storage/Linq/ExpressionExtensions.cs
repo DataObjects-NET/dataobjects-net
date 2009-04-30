@@ -119,7 +119,9 @@ namespace Xtensive.Storage.Linq
         return MemberType.Grouping;
       if (e.IsSubquery())
         return MemberType.Subquery;
-      
+      if (type.IsArray)
+        return MemberType.Array;
+
       return MemberType.Unknown;
     }
  }
