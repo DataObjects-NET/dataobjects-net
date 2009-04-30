@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Configuration
     {
       this.EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
-      Register(new TypeRegistration(assembly, null));
+      Register(new TypeRegistration(assembly));
     }
 
     /// <summary>

@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Building.Definitions
   {
     private readonly PropertyInfo underlyingProperty;
     private FieldAttributes attributes;
-    private ReferentialAction onRemove;
+    private ReferentialAction onRemove = ReferentialAction.Default;
     private string pairTo;
     private int? length;
 
