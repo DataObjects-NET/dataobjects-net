@@ -11,11 +11,13 @@ using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database.Providers;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Conversion;
 using Xtensive.Storage.Providers.Sql;
-using Xtensive.Storage.Tests.Indexing.Model;
+using Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model;
+using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
 
-namespace Xtensive.Storage.Tests.Indexing
+namespace Xtensive.Storage.Tests.Upgrade
 {
   [TestFixture]
   public class ConvertDomainModelTest
@@ -26,7 +28,9 @@ namespace Xtensive.Storage.Tests.Indexing
 
     protected StorageInfo StorageSchema { get; set; }
 
-    protected Domain BuildDomain(string protocol)
+    protected Domain Domain { get; set; }
+
+    protected void BuildDomain(string protocol)
     {
       var configuration = DomainConfigurationFactory.Create(protocol);
       configuration.Types.Register(Assembly.GetExecutingAssembly(), typeof (A).Namespace);
@@ -39,15 +43,19 @@ namespace Xtensive.Storage.Tests.Indexing
         var sqlModel = new SqlModelProvider(connection).Build();
         var domainModel = domain.Model;
 
-        StorageSchema = new SqlModelConverter()
-          .Convert(sqlModel.DefaultServer.DefaultCatalog.DefaultSchema, server);
+        StorageSchema =
+          new SqlModelConverter(
+            sqlModel.DefaultServer.DefaultCatalog.DefaultSchema,
+            server)
+            .GetConversionResult();
 
         DomainSchema = new DomainModelConverter(
           domain.NameBuilder.BuildForeignKeyName,
-          domain.NameBuilder.BuildForeignKeyName)
+          domain.NameBuilder.BuildForeignKeyName,
+          IsGeneratorPersistent)
           .Convert(domainModel, StorageSchema.Name);
 
-        return domain;
+        Domain = domain;
       }
     }
 
@@ -101,16 +109,30 @@ namespace Xtensive.Storage.Tests.Indexing
         Schema.Tables["C"].Columns["Col1"].Type);
     }
 
+    [Test]
+    public void GeneratorsTest()
+    {
+      Assert.AreEqual(1, Schema.Sequences.Count);
+    }
+
+    private static bool IsGeneratorPersistent(GeneratorInfo generatorInfo)
+    {
+      var isNotPersistent = (generatorInfo.KeyGeneratorType!=typeof (KeyGenerator)
+        || (Type.GetTypeCode(generatorInfo.KeyGeneratorType)==TypeCode.Object
+          && generatorInfo.TupleDescriptor[0]==typeof (Guid)));
+      return !isNotPersistent;
+    }
+
   }
 }
 
 
 #region Model
 
-namespace Xtensive.Storage.Tests.Indexing.Model
+namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
 {
 
-  [HierarchyRoot("Id")]
+  [HierarchyRoot(typeof(KeyGenerator), "Id")]
   [Index("Col1", "Col2", IsUnique = true, IncludedFields = new[] { "Col3" })]
   public class A : Entity
   {
@@ -127,7 +149,7 @@ namespace Xtensive.Storage.Tests.Indexing.Model
     public string Col3 { get; private set; }
   }
 
-  [HierarchyRoot("Id")]
+  [HierarchyRoot(typeof(KeyGenerator), "Id")]
   [Index("ColA", MappingName = "A_IX")]
   public class B : Entity
   {
@@ -141,7 +163,7 @@ namespace Xtensive.Storage.Tests.Indexing.Model
     public A ColA { get; private set; }
   }
 
-  [HierarchyRoot("Id")]
+  [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class C : Entity
   {
     [Field]
@@ -151,7 +173,7 @@ namespace Xtensive.Storage.Tests.Indexing.Model
     public TimeSpan Col1 { get; private set; }
   }
 
-  [HierarchyRoot("Id")]
+  [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class D : Entity
   {
     [Field]
@@ -161,7 +183,7 @@ namespace Xtensive.Storage.Tests.Indexing.Model
     public EntitySet<E> ColE { get; private set; }
   }
 
-  [HierarchyRoot("Id")]
+  [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class E : Entity
   {
     [Field]

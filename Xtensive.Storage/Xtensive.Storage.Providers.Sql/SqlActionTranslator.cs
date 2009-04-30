@@ -21,6 +21,7 @@ using ColumnInfo=Xtensive.Storage.Indexing.Model.ColumnInfo;
 using TableInfo=Xtensive.Storage.Indexing.Model.TableInfo;
 using SqlRefAction = Xtensive.Sql.Dom.ReferentialAction;
 using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
+using SequenceInfo=Xtensive.Storage.Indexing.Model.SequenceInfo;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -30,6 +31,8 @@ namespace Xtensive.Storage.Providers.Sql
   [Serializable]
   public sealed class SqlActionTranslator
   {
+    private const string GeneratorColumnName = "ID";
+
     private readonly ActionSequence actions;
     private readonly StorageInfo newModel;
     private readonly StorageInfo oldModel;
@@ -38,6 +41,7 @@ namespace Xtensive.Storage.Providers.Sql
     private SqlBatch batch;
     private List<Table> createdTables;
     private readonly Func<Type, int, SqlValueType> valueTypeBuilder;
+    private readonly bool isSequencesAllowed;
 
     /// <summary>
     /// Translates actions to Sql.
@@ -76,16 +80,18 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void VisitCreateAction(CreateNodeAction action)
     {
-      if (action.Type==typeof(TableInfo))
+      if (action.Type==typeof (TableInfo))
         VisitCreateTableAction(action);
-      else if (action.Type==typeof(ColumnInfo))
+      else if (action.Type==typeof (ColumnInfo))
         VisitCreateColumnAction(action);
-      else if (action.Type==typeof(PrimaryIndexInfo))
+      else if (action.Type==typeof (PrimaryIndexInfo))
         VisitCreatePrimaryKeyAction(action);
-      else if (action.Type==typeof(SecondaryIndexInfo))
+      else if (action.Type==typeof (SecondaryIndexInfo))
         VisitCreateSecondaryIndexAction(action);
-      else if (action.Type==typeof(ForeignKeyInfo))
+      else if (action.Type==typeof (ForeignKeyInfo))
         VisitCreateForeignKeyAction(action);
+      else if (action.Type==typeof (SequenceInfo))
+        VisitCreateSequenceAction(action);
     }
 
     private void VisitRemoveAction(RemoveNodeAction action)
@@ -101,19 +107,21 @@ namespace Xtensive.Storage.Providers.Sql
         VisitRemoveSecondaryIndexAction(action);
       else if (node.GetType()==typeof (ForeignKeyInfo))
         VisitRemoveForeignKeyAction(action);
+      else if (node.GetType()==typeof (SequenceInfo))
+        VisitRemoveSequenceAction(action);
     }
 
     private void VisitAlterAction(NodeAction action)
     {
       // TODO: Implement PropertyChangeAction translation
+      var node = newModel.Resolve(action.Path);
       if (action is PropertyChangeAction)
         return;
-
+      
       // TODO: Implement MoveNodeAction translation
       if (action is MoveNodeAction)
         throw new NotImplementedException();
       
-      var node = newModel.Resolve(action.Path);
       if (node.GetType()==typeof (TableInfo))
         VisitAlterTableAction(action);
       else if (node.GetType()==typeof (ColumnInfo))
@@ -126,7 +134,7 @@ namespace Xtensive.Storage.Providers.Sql
         VisitAlterForeignKeyAction(action);
     }
 
-    # region Visit concrete actions methods
+    # region Visit concrete action methods
 
     private void VisitCreateTableAction(CreateNodeAction action)
     {
@@ -258,6 +266,20 @@ namespace Xtensive.Storage.Providers.Sql
       var foreignKeyInfo = tableInfo.ForeignKeys[action.Name];
       var table = targetSchema.Tables[tableInfo.Name];
       var foreignKey = CreateForeignKey(foreignKeyInfo);
+
+      // If referencedTable table is newly created 
+      // set referencing fields to default values
+      var referencedTable = foreignKey.ReferencedTable;
+      if (createdTables.Contains(referencedTable)) {
+        var referencingTable = foreignKey.Table;
+        var tableRef = SqlFactory.TableRef(referencingTable);
+        foreach (var column in foreignKey.Columns) {
+          var update =SqlFactory.Update(tableRef);
+          update.Values[tableRef[column.Name]] = SqlFactory.DefaultValue;
+          batch.Add(update);
+        }
+      }
+      
       batch.Add(
         SqlFactory.Alter(table,
           SqlFactory.AddConstraint(foreignKey)));
@@ -287,9 +309,82 @@ namespace Xtensive.Storage.Providers.Sql
       throw new NotImplementedException();
     }
 
+    private void VisitCreateSequenceAction(CreateNodeAction action)
+    {
+      var sequenceInfo = newModel.Sequences[action.Name];
+      if (isSequencesAllowed) {
+        var sequence = targetSchema.CreateSequence(sequenceInfo.Name);
+        sequence.SequenceDescriptor = new SequenceDescriptor(sequence,
+          sequenceInfo.StartValue, sequenceInfo.Increment);
+        batch.Add(SqlFactory.Create(sequence));
+      }
+      else {
+        var sequenceTable = targetSchema.CreateTable(sequenceInfo.Name);
+        var idColumn = sequenceTable.CreateColumn(GeneratorColumnName,
+          GetSqlType(sequenceInfo.Type));
+        idColumn.SequenceDescriptor =
+          new SequenceDescriptor(
+            idColumn,
+            sequenceInfo.Current.HasValue
+              ? sequenceInfo.Current
+              : sequenceInfo.StartValue,
+            sequenceInfo.Increment);
+        batch.Add(SqlFactory.Create(sequenceTable));
+      }
+    }
+
+    private void VisitRemoveSequenceAction(RemoveNodeAction action)
+    {
+      var sequenceInfo = oldModel.Resolve(action.Path) as SequenceInfo;
+      if (isSequencesAllowed) {
+        var sequence = sourceSchema.Sequences[sequenceInfo.Name];
+        batch.Add(SqlFactory.Drop(sequence));
+
+        // Remove sequence from target schema
+        RemoveSequence(sequence);
+      }
+      else {
+        var sequenceTable = sourceSchema.Tables[sequenceInfo.Name];
+        batch.Add(SqlFactory.Drop(sequenceTable));
+
+        // Remove table from target schema
+        RemoveTable(sequenceTable);
+      }
+    }
+
+    private void VisitAlterSequenceAction(NodeAction action)
+    {
+      var sequenceInfo = newModel.Resolve(action.Path) as SequenceInfo;
+      if (isSequencesAllowed) {
+        var sequence = targetSchema.Sequences[sequenceInfo.Name];
+        var sequenceDescriptor = new SequenceDescriptor(sequence,
+          sequenceInfo.StartValue, sequenceInfo.Increment);
+        sequence.SequenceDescriptor = sequenceDescriptor;
+        batch.Add(
+          SqlFactory.Alter(sequence,
+            sequenceDescriptor));
+      }
+      else {
+        var sequenceTable = targetSchema.Tables[sequenceInfo.Name];
+        var idColumn = sequenceTable.TableColumns[GeneratorColumnName];
+        var sequenceDescriptor = new SequenceDescriptor(idColumn,
+          sequenceInfo.StartValue, sequenceInfo.Increment);
+        idColumn.SequenceDescriptor = sequenceDescriptor;
+        batch.Add(
+          SqlFactory.Alter(sequenceTable,
+            SqlFactory.Alter(idColumn, sequenceDescriptor)));
+      }
+    }
+
     # endregion
 
-    # region Helpers methods
+    # region Helper methods
+    
+    private void RemoveTable(Table table)
+    {
+      var targetTable = targetSchema.Tables[table.Name];
+      targetSchema.Tables.Remove(targetTable);
+    }
 
     private void RemoveIndex(Index index)
     {
@@ -319,6 +414,12 @@ namespace Xtensive.Storage.Providers.Sql
       targetTable.TableColumns.Remove(tableColumn);
     }
 
+    private void RemoveSequence(Sequence sequence)
+    {
+      var targetSequence = targetSchema.Sequences[sequence.Name];
+      targetSchema.Sequences.Remove(targetSequence);
+    }
+    
     private Table CreateTable(TableInfo tableInfo)
     {
       var table = targetSchema.CreateTable(tableInfo.Name);
@@ -333,15 +434,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     private TableColumn CreateColumn(ColumnInfo columnInfo, Table table)
     {
-      var type = GetSqlType(columnInfo);
+      var type = GetSqlType(columnInfo.Type);
       var column = table.CreateColumn(columnInfo.Name, type);
       column.IsNullable = columnInfo.Type.IsNullable;
-      if (columnInfo.Sequence != null) {
-        column.SequenceDescriptor =
-          new SequenceDescriptor(column,
-            columnInfo.Sequence.StartValue,
-            columnInfo.Sequence.Increment);
-      }
       return column;
     }
 
@@ -384,17 +479,17 @@ namespace Xtensive.Storage.Providers.Sql
       return index;
     }
 
-    private SqlValueType GetSqlType(ColumnInfo columnInfo)
+    private SqlValueType GetSqlType(TypeInfo typeInfo)
     {
-      var type = columnInfo.Type.Type.IsValueType
-        && columnInfo.Type.Type.IsNullable()
-        ? columnInfo.Type.Type.GetGenericArguments()[0]
-        : columnInfo.Type.Type;
+      var type = typeInfo.Type.IsValueType
+        && typeInfo.Type.IsNullable()
+        ? typeInfo.Type.GetGenericArguments()[0]
+        : typeInfo.Type;
 
       return
         valueTypeBuilder!=null
-          ? valueTypeBuilder.Invoke(type, columnInfo.Type.Length)
-          : BuildSqlValueType(type, columnInfo.Type.Length);
+          ? valueTypeBuilder.Invoke(type, typeInfo.Length)
+          : BuildSqlValueType(type, typeInfo.Length);
     }
 
     private static SqlValueType BuildSqlValueType(Type type, int length)
@@ -474,7 +569,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     public SqlActionTranslator(ActionSequence actions, StorageInfo newModel,
       StorageInfo oldModel, Schema sourceSchema, Schema targetSchema, 
-      Func<Type, int, SqlValueType> valueTypeBuilder)
+      Func<Type, int, SqlValueType> valueTypeBuilder, bool isSequencesAllowed)
     {
       ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
       ArgumentValidator.EnsureArgumentNotNull(newModel, "newModel");
@@ -487,6 +582,7 @@ namespace Xtensive.Storage.Providers.Sql
       this.sourceSchema = sourceSchema;
       this.targetSchema = targetSchema;
       this.valueTypeBuilder = valueTypeBuilder;
+      this.isSequencesAllowed = isSequencesAllowed;
       this.newModel = newModel;
     }
   }

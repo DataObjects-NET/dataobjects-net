@@ -36,6 +36,12 @@ namespace Xtensive.Storage.Indexing.Model
     [Property(Priority = 0)]
     public TableInfoCollection Tables { get; private set; }
 
+    /// <summary>
+    /// Gets sequences.
+    /// </summary>
+    [Property(IsImmutable = true)]
+    public SequenceInfoCollection Sequences { get; private set; }
+
     /// <inheritdoc/>
     protected override void Initialize()
     {
@@ -43,6 +49,8 @@ namespace Xtensive.Storage.Indexing.Model
 
       if (Tables == null)
         Tables = new TableInfoCollection(this);
+      if (Sequences==null)
+        Sequences=new SequenceInfoCollection(this);
     }
 
     /// <inheritdoc/>

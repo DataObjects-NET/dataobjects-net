@@ -5,6 +5,7 @@
 // Created:    2009.04.08
 
 using System;
+using System.Linq;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
@@ -17,7 +18,6 @@ using Xtensive.Sql.Dom;
 using Xtensive.Storage.Model.Conversion;
 using Xtensive.Sql.Dom.Dml;
 using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
-using SequenceInfo=Xtensive.Storage.Indexing.Model.SequenceInfo;
 using TableInfo=Xtensive.Storage.Indexing.Model.TableInfo;
 
 namespace Xtensive.Storage.Providers.MsSql
@@ -50,18 +50,16 @@ namespace Xtensive.Storage.Providers.MsSql
       var sourceSchema = ExtractStorageSchema();
       var taragetSchema = ExtractStorageSchema();
       
-      var buildingContext = BuildingContext.Current;
       var valueTypeMapper = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper;
 
       var storageModel = GetStorageModel(sourceSchema);
       var domainModel = GetDomainModel(storageModel.Name);
-      AddGeneratorTables(buildingContext.Model, domainModel);
 
       var actions = Compare(storageModel, domainModel,
         new HintSet(storageModel, domainModel));
       
       var translator = new SqlActionTranslator(actions, domainModel, storageModel, 
-        sourceSchema, taragetSchema, valueTypeMapper.BuildSqlValueType);
+        sourceSchema, taragetSchema, valueTypeMapper.BuildSqlValueType, false);
       return translator.Translate();
     }
     
@@ -70,15 +68,16 @@ namespace Xtensive.Storage.Providers.MsSql
       var buildingContext = BuildingContext.Current;
       var domainModelConverter = new DomainModelConverter(
         buildingContext.NameBuilder.BuildForeignKeyName,
-        buildingContext.NameBuilder.BuildForeignKeyName);
+        buildingContext.NameBuilder.BuildForeignKeyName,
+        IsGeneratorPersistent);
       return domainModelConverter.Convert(buildingContext.Model, name);
     }
 
     private StorageInfo GetStorageModel(Schema schema)
     {
       var serverInfo = Connection.Driver.ServerInfo;
-      var converter = new SqlModelConverter();
-      return converter.Convert(schema, serverInfo);
+      var converter = new SqlModelConverter(schema, serverInfo);
+      return converter.GetConversionResult();
     }
 
     private static ActionSequence Compare(StorageInfo oldModel, StorageInfo newModel, HintSet hints)
@@ -97,21 +96,12 @@ namespace Xtensive.Storage.Providers.MsSql
       return comparer.Compare(oldModel, newModel, hints);
     }
 
-    private static void AddGeneratorTables(DomainModel domainModel, StorageInfo storageInfo)
+    private static bool IsGeneratorPersistent(GeneratorInfo generatorInfo)
     {
-      foreach (var generator in domainModel.Generators) {
-        if (generator.KeyGeneratorType!=typeof (KeyGenerator)
-          || (Type.GetTypeCode(generator.KeyGeneratorType)==TypeCode.Object
-            && generator.TupleDescriptor[0]==typeof (Guid)))
-          continue;
-        
-        var genTable = new TableInfo(storageInfo, generator.MappingName);
-        var columnType = generator.TupleDescriptor[0];
-        new Indexing.Model.ColumnInfo(genTable, "ID", new TypeInfo(columnType, false))
-          {
-            Sequence = new SequenceInfo(generator.CacheSize, generator.CacheSize)
-          };
-      }
+      var isNotPersistent = (generatorInfo.KeyGeneratorType!=typeof (KeyGenerator)
+        || (Type.GetTypeCode(generatorInfo.KeyGeneratorType)==TypeCode.Object
+          && generatorInfo.TupleDescriptor[0]==typeof (Guid)));
+      return !isNotPersistent;
     }
   }
 }

@@ -6,8 +6,9 @@
 
 using NUnit.Framework;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Tests.Indexing;
 
-namespace Xtensive.Storage.Tests.Indexing
+namespace Xtensive.Storage.Tests.Upgrade
 {
   [TestFixture]
   public class ConvertMsSqlModelTest : ConvertDomainModelTest

@@ -27,6 +27,11 @@ namespace Xtensive.Storage.Model.Conversion
   public class DomainModelConverter : ModelVisitor<IPathNode>
   {
     /// <summary>
+    /// Gets the persistent generator filter.
+    /// </summary>
+    protected Func<GeneratorInfo, bool> PersistentGeneratorFilter { get; private set; }
+
+    /// <summary>
     /// Gets the storage info.
     /// </summary>
     protected virtual StorageInfo StorageInfo { get; private set; }
@@ -82,19 +87,25 @@ namespace Xtensive.Storage.Model.Conversion
     /// <inheritdoc/>
     protected override IPathNode VisitDomainModel(DomainModel domainModel)
     {
-      // Build tables, columns and primary indexes.
+      // Build tables, columns and primary indexes
       foreach (var primaryIndex in domainModel.RealIndexes.Where(i => i.IsPrimary))
         Visit(primaryIndex);
 
-      // Build secondary indexes.
+      // Build secondary indexes
       foreach (var indexInfo in domainModel.RealIndexes.Where(i => !i.IsPrimary))
         Visit(indexInfo);
 
-      // Build foreign keys.
+      // Build foreign keys
       foreach (var association in domainModel.Associations)
         Visit(association);
 
       // TODO: Build forign keys for hierarchy references
+
+      // Build sequnces
+      var persistentGenerators = domainModel.Generators
+        .Where(g => PersistentGeneratorFilter.Invoke(g)).ToArray();
+      foreach (var generator in persistentGenerators)
+        Visit(generator);
 
       return StorageInfo;
     }
@@ -150,8 +161,8 @@ namespace Xtensive.Storage.Model.Conversion
         foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName)
           {
             PrimaryKey = referencedTable.PrimaryIndex,
-            OnRemoveAction = ConvertReferentialAction(association.OnRemove),
-            OnUpdateAction = StorageReferentialAction.Default
+            OnRemoveAction = StorageReferentialAction.None,
+            OnUpdateAction = StorageReferentialAction.None
           };
         foreignKey.ForeignKeyColumns.Set(referencingIndex);
         return foreignKey;
@@ -168,8 +179,8 @@ namespace Xtensive.Storage.Model.Conversion
         foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName)
           {
             PrimaryKey = referencedTable.PrimaryIndex,
-            OnRemoveAction = ConvertReferentialAction(association.OnRemove),
-            OnUpdateAction = StorageReferentialAction.Default
+            OnRemoveAction = StorageReferentialAction.None,
+            OnUpdateAction = StorageReferentialAction.None
           };
         foreignKey.ForeignKeyColumns.Set(referencingIndex);
       }
@@ -195,6 +206,18 @@ namespace Xtensive.Storage.Model.Conversion
       return primaryIndex;
     }
     
+    /// <inheritdoc/>
+    protected override IPathNode VisitGeneratorInfo(GeneratorInfo generator)
+    {
+      var sequence = new SequenceInfo(StorageInfo, generator.MappingName)
+        {
+          StartValue = generator.CacheSize,
+          Increment = generator.CacheSize,
+          Type = new StorageTypeInfo(generator.TupleDescriptor[0])
+        };
+      return sequence;
+    }
+
     /// <summary>
     /// Finds the specific index by key columns.
     /// </summary>
@@ -259,15 +282,20 @@ namespace Xtensive.Storage.Model.Conversion
     /// </summary>
     /// <param name="foreignKeyNameGenerator">The foreign key name generator.</param>
     /// <param name="hierarchyForeignKeyNameGenerator">The hierarchy foreign key name generator.</param>
+    /// <param name="persistentGeneratorFilter">The persistent generator filter.</param>
     public DomainModelConverter(Func<AssociationInfo, FieldInfo, string> foreignKeyNameGenerator,
-      Func<TypeInfo, TypeInfo, string> hierarchyForeignKeyNameGenerator)
+      Func<TypeInfo, TypeInfo, string> hierarchyForeignKeyNameGenerator,
+      Func<GeneratorInfo, bool> persistentGeneratorFilter)
     {
       ArgumentValidator.EnsureArgumentNotNull(foreignKeyNameGenerator, "foreignKeyNameGenerator");
       ArgumentValidator.EnsureArgumentNotNull(hierarchyForeignKeyNameGenerator,
         "hierarchyForeignKeyNameGenerator");
+      ArgumentValidator.EnsureArgumentNotNull(persistentGeneratorFilter, "persistentGeneratorFilter");
+
       
       ForeignKeyNameGenerator = foreignKeyNameGenerator;
       HierarchyForeignKeyNameGenerator = hierarchyForeignKeyNameGenerator;
+      PersistentGeneratorFilter = persistentGeneratorFilter;
     }
     
 
@@ -308,12 +336,7 @@ namespace Xtensive.Storage.Model.Conversion
       throw new NotSupportedException();
     }
 
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitGeneratorInfo(GeneratorInfo generator)
-    {
-      throw new NotSupportedException();
-    }
+    
 
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>

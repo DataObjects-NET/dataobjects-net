@@ -189,4 +189,10 @@
   <data name="ExInvalidPrimaryKeyStructure" xml:space="preserve">
     <value>Invalid PrimaryKeyInfo structure: sequence KeyColumns and ValueColumns do not match sequence of all the Columns of the table.</value>
   </data>
+  <data name="ExInvalideIncrementValue" xml:space="preserve">
+    <value>Increment value must be greater then zero.</value>
+  </data>
+  <data name="ExUndefinedTypeOfSequenceX" xml:space="preserve">
+    <value>Type of sequence "{0}" is undefined.</value>
+  </data>
 </root>

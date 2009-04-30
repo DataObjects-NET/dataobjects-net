@@ -18,10 +18,10 @@ using Xtensive.Storage.Providers.Sql;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Core;
 using Xtensive.Sql.Common;
-using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
 using TableInfo=Xtensive.Storage.Indexing.Model.TableInfo;
 using SqlRefAction = Xtensive.Sql.Dom.ReferentialAction;
 using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
+using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
@@ -31,6 +31,7 @@ namespace Xtensive.Storage.Tests.Upgrade
   public sealed class SchemaManager
   {
     private readonly string url;
+    private readonly bool isSequencesAllowed;
     private ServerInfo serverInfo;
 
     public void ClearSchema()
@@ -71,28 +72,42 @@ namespace Xtensive.Storage.Tests.Upgrade
       return schema;
     }
 
-    private static SqlBatch GenerateClearScript(Schema schema, StorageInfo model)
+    private SqlBatch GenerateClearScript(Schema schema, StorageInfo model)
     {
       var batch = SqlFactory.Batch();
-      foreach (var foreignKey in model.Tables.SelectMany(table => table.ForeignKeys))
-        batch.Add(
-          SqlFactory.Alter(
+      foreach (var foreignKey in model.Tables.SelectMany(table => table.ForeignKeys)) {
+        var statement = SqlFactory.Alter(
             GetTable(schema, foreignKey.Parent.Name),
-            SqlFactory.DropConstraint(GetForeignKey(schema, foreignKey.Parent.Name, foreignKey.Name))));
-      foreach (var table in model.Tables)
-      {
-        batch.Add(SqlFactory.Drop(GetTable(schema, table.Name)));
+            SqlFactory.DropConstraint(
+              GetForeignKey(schema, foreignKey.Parent.Name, foreignKey.Name)));
+        batch.Add(statement);
       }
+      foreach (var table in model.Tables)
+        batch.Add(SqlFactory.Drop(GetTable(schema, table.Name)));
+      foreach (var sequenceInfo in model.Sequences)
+        if (isSequencesAllowed)
+          batch.Add(
+            SqlFactory.Drop(
+              GetSequence(schema, sequenceInfo.Name)));
+        else
+          batch.Add(
+            SqlFactory.Drop(
+              GetTable(schema, sequenceInfo.Name)));
       return batch;
     }
 
-    private static SqlBatch GenerateCreateScript(Schema schema, StorageInfo model)
+    private SqlBatch GenerateCreateScript(Schema schema, StorageInfo model)
     {
       var batch = SqlFactory.Batch();
       foreach (var tableInfo in model.Tables)
         batch.Add(GenerateCreateTableScript(schema, tableInfo));
       foreach (var tableInfo in model.Tables)
         batch.Add(GenerateCreateForeignKeyScript(schema, tableInfo));
+      foreach (var sequence in model.Sequences)
+        if (isSequencesAllowed)
+          batch.Add(GenerateCreateSequenceScript(schema, sequence));
+        else
+          batch.Add(GenerateCreateGeneratorTableScript(schema, sequence));
       return batch;
     }
 
@@ -100,27 +115,45 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       var batch = SqlFactory.Batch();
       var table = schema.CreateTable(tableInfo.Name);
-      foreach (var columnInfo in tableInfo.Columns)
-      {
-        var column = table.CreateColumn(columnInfo.Name, ConvertType(columnInfo));
+      foreach (var columnInfo in tableInfo.Columns) {
+        var column = table.CreateColumn(columnInfo.Name, ConvertType(columnInfo.Type));
         column.IsNullable = columnInfo.Type.IsNullable;
       }
       CreatePrimaryKey(tableInfo, table);
       batch.Add(SqlFactory.Create(table));
 
-      foreach (var indexInfo in tableInfo.SecondaryIndexes)
-      {
+      foreach (var indexInfo in tableInfo.SecondaryIndexes) {
         var index = CreateSecondaryIndex(table, indexInfo);
         batch.Add(SqlFactory.Create(index));
       }
       return batch;
     }
 
+    private static SqlBatch GenerateCreateGeneratorTableScript(Schema schema, SequenceInfo sequenceInfo)
+    {
+      var batch = SqlFactory.Batch();
+      var table = schema.CreateTable(sequenceInfo.Name);
+      var idColumn = table.CreateColumn("ID", ConvertType(sequenceInfo.Type));
+      idColumn.SequenceDescriptor = new SequenceDescriptor(
+        idColumn, sequenceInfo.StartValue, sequenceInfo.Increment);
+      batch.Add(SqlFactory.Create(table));
+      return batch;
+    }
+
+    private static SqlBatch GenerateCreateSequenceScript(Schema schema, SequenceInfo sequenceInfo)
+    {
+      var batch = SqlFactory.Batch();
+      var sequence = schema.CreateSequence(sequenceInfo.Name);
+      sequence.DataType = ConvertType(sequenceInfo.Type);
+      sequence.SequenceDescriptor = new SequenceDescriptor(
+        sequence, sequenceInfo.StartValue, sequenceInfo.Increment);
+      return batch;
+    }
+
     private static SqlBatch GenerateCreateForeignKeyScript(Schema schema, TableInfo tableInfo)
     {
       var batch = SqlFactory.Batch();
-      foreach (var foreignKeyInfo in tableInfo.ForeignKeys)
-      {
+      foreach (var foreignKeyInfo in tableInfo.ForeignKeys) {
         var referencingTable = schema.Tables[tableInfo.Name];
         var foreignKey = referencingTable.CreateForeignKey(foreignKeyInfo.Name);
         foreignKey.OnUpdate = ConvertReferentialAction(foreignKeyInfo.OnUpdateAction);
@@ -180,13 +213,18 @@ namespace Xtensive.Storage.Tests.Upgrade
         schema.Tables.Single(table => table.Name == tableName);
     }
 
-    private static SqlValueType ConvertType(ColumnInfo columnInfo)
+    private static Sequence GetSequence(Schema schema, string name)
     {
-      var dataType = GetDbType(columnInfo.Type.Type);
+      return schema.Sequences.FirstOrDefault(s => s.Name==name);
+    }
+
+    private static SqlValueType ConvertType(TypeInfo typeInfo)
+    {
+      var dataType = GetDbType(typeInfo.Type);
 
       return new SqlValueType(
         dataType,
-        columnInfo.Type.Length);
+        typeInfo.Length);
     }
 
     private static SqlDataType GetDbType(Type type)
@@ -240,8 +278,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private static SqlRefAction ConvertReferentialAction(ReferentialAction toConvert)
     {
-      switch (toConvert)
-      {
+      switch (toConvert) {
       case ReferentialAction.None:
         return SqlRefAction.NoAction;
       case ReferentialAction.Restrict:
@@ -260,18 +297,19 @@ namespace Xtensive.Storage.Tests.Upgrade
       if (serverInfo == null)
         Execute((c) => { serverInfo = c.Driver.ServerInfo; });
 
-      var converter = new SqlModelConverter();
-      return converter.Convert(schema, serverInfo);
+      var converter = new SqlModelConverter(schema, serverInfo);
+      return converter.GetConversionResult();
     }
 
     private void Execute(SqlBatch batch)
     {
-      using (var connection = new SqlConnectionProvider().CreateConnection(url))
-      {
+      if (batch.Count==0)
+        return;
+
+      using (var connection = new SqlConnectionProvider().CreateConnection(url)) {
         connection.Open();
         using (var transaction = connection.BeginTransaction())
-        using (var command = new SqlCommand(connection as SqlConnection))
-        {
+        using (var command = new SqlCommand(connection as SqlConnection)) {
           command.Statement = batch;
           command.Prepare();
           command.Transaction = transaction;
@@ -283,8 +321,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private void Execute(Action<SqlConnection> processor)
     {
-      using (var connection = new SqlConnectionProvider().CreateConnection(url))
-      {
+      using (var connection = new SqlConnectionProvider().CreateConnection(url)) {
         connection.Open();
         processor.Invoke(connection as SqlConnection);
       }
@@ -293,10 +330,11 @@ namespace Xtensive.Storage.Tests.Upgrade
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public SchemaManager(string url)
+    public SchemaManager(string url, bool isSequencesAllowed)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(url, "url");
       this.url = url;
+      this.isSequencesAllowed = isSequencesAllowed;
     }
   }
 }

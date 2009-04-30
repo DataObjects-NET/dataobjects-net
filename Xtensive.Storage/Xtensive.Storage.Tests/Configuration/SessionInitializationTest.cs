@@ -5,12 +5,12 @@
 // Created:    2009.03.13
 
 using System;
-using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Building;
 
 namespace Xtensive.Storage.Tests.Configuration
 {
@@ -21,25 +21,25 @@ namespace Xtensive.Storage.Tests.Configuration
     [Test]
     public void TestSessionCache()
     {
-      string url = "memory://localhost/";
-      //Default CacheType
+      var url = "memory://localhost/DO40-Tests";
+      // Default CacheType
       var config = new DomainConfiguration(url);
-      TestCacheType(config, typeof(LruCache<,>));
-      //Lru CacheType
+      config.BuildMode = DomainBuildMode.Recreate;
+      TestCacheType(config, typeof (LruCache<,>));
+      // Lru CacheType
       config = new DomainConfiguration(url);
       config.Sessions.Add(new SessionConfiguration {CacheType = SessionCacheType.LruWeak});
-      TestCacheType(config, typeof(LruCache<,>));
-      //Infinite CacheType
+      TestCacheType(config, typeof (LruCache<,>));
+      // Infinite CacheType
       config = new DomainConfiguration(url);
-      config.Sessions.Add(new SessionConfiguration{CacheType = SessionCacheType.Infinite});
-      TestCacheType(config, typeof(InfiniteCache<,>));
+      config.Sessions.Add(new SessionConfiguration {CacheType = SessionCacheType.Infinite});
+      TestCacheType(config, typeof (InfiniteCache<,>));
     }
 
     public void TestCacheType(DomainConfiguration config, Type expectedType)
     {
-      Domain d = Domain.Build(config);
-      using (SessionConsumptionScope s = d.OpenSession())
-      {
+      var d = Domain.Build(config);
+      using (var s = d.OpenSession()) {
         Type cacheType = s.Session.EntityStateCache.GetType();
         Log.Debug("Session CacheType: {0}", cacheType.Name);
         Assert.IsTrue(cacheType.IsOfGenericType(expectedType));

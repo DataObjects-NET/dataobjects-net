@@ -8,8 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Sql.Common;
+using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Indexing.Model;
 using SqlModel = Xtensive.Sql.Dom.Database.Model;
 using SqlRefAction = Xtensive.Sql.Dom.ReferentialAction;
@@ -18,6 +20,9 @@ using Xtensive.Sql.Dom.Database;
 using IndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
 using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
 using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
+using Node = Xtensive.Sql.Dom.Database.Node;
+using SequenceInfo=Xtensive.Storage.Indexing.Model.SequenceInfo;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -37,23 +42,26 @@ namespace Xtensive.Storage.Providers.Sql
     protected ServerInfo Server { get; private set; }
 
     /// <summary>
-    /// Converts the specified model <see cref="Schema"/> to <see cref="StorageInfo"/>.
+    /// Gets the schema.
     /// </summary>
-    /// <param name="schema">The schema.</param>
-    /// <param name="server">The server info.</param>
-    /// <returns>The storage model.</returns>
-    public StorageInfo Convert(Schema schema, ServerInfo server)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
-      ArgumentValidator.EnsureArgumentNotNull(server, "server");
-      
-      Server = server;
-      StorageInfo = new StorageInfo(schema.Name);
-      Visit(schema);
+    protected Schema Schema { get; private set; }
 
-      // StorageInfo.Lock(true);
+    /// <summary>
+    /// Get the result of conversion specified 
+    /// <see cref="Schema"/> to <see cref="StorageInfo"/>.
+    /// </summary>
+    /// <returns>The storage model.</returns>
+    public StorageInfo GetConversionResult()
+    {
+      if (StorageInfo == null) {
+        StorageInfo = new StorageInfo(Schema.Name);
+        Visit(Schema);
+      }
+
       return StorageInfo;
     }
+
+    # region SqlModelVisitor<IPathNode> implementation
 
     /// <inheritdoc/>
     protected override IPathNode VisitSchema(Schema schema)
@@ -69,6 +77,16 @@ namespace Xtensive.Storage.Providers.Sql
         Visit(foreignKey);
 
       return null;
+    }
+
+    /// <inheritdoc/>
+    protected override IPathNode Visit(Node node)
+    {
+      var table = node as Table;
+      if (table != null && IsGeneratorTable(table))
+        return VisitGeneratorTable(table);
+
+      return base.Visit(node);
     }
 
     /// <inheritdoc/>
@@ -161,6 +179,32 @@ namespace Xtensive.Storage.Providers.Sql
       return secondaryIndexInfo;
     }
 
+    # endregion
+
+    /// <summary>
+    /// Visits the generator table.
+    /// </summary>
+    /// <param name="generatorTable">The generator table.</param>
+    /// <returns>Visit result.</returns>
+    protected virtual IPathNode VisitGeneratorTable(Table generatorTable)
+    {
+      var idColumn = generatorTable.TableColumns[0];
+      var startValue = idColumn.SequenceDescriptor.StartValue;
+      var increment = idColumn.SequenceDescriptor.Increment;
+      var type = ExtractType(idColumn);
+      var currentValue = 0; // TODO: Get current key value from storage
+      var sequence =
+        new SequenceInfo(StorageInfo, generatorTable.Name)
+          {
+            StartValue = startValue ?? 0,
+            Increment = increment ?? 1,
+            Type = type,
+            Current = currentValue
+          };
+
+      return sequence;
+    }
+
     /// <summary>
     /// Extracts the <see cref="TypeInfo"/> from <see cref="TableColumn"/>.
     /// </summary>
@@ -239,6 +283,39 @@ namespace Xtensive.Storage.Providers.Sql
 
       return null;
     }
+
+    /// <summary>
+    /// Determines whether specific table used as sequence.
+    /// </summary>
+    /// <param name="table">The table.</param>
+    /// <returns>
+    /// <see langword="true"/> if table used as sequence; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    protected virtual bool IsGeneratorTable(Table table)
+    {
+      return table.TableColumns.Count==1 &&
+        table.TableColumns[0].SequenceDescriptor!=null;
+    }
+
+
+    // Constructor
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="storageSchema">The schema.</param>
+    /// <param name="serverInfo">The server info.</param>
+    /// <param name="keyFetcher">The key fetcher.</param>
+    public SqlModelConverter(Schema storageSchema, ServerInfo serverInfo)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(storageSchema, "schema");
+      ArgumentValidator.EnsureArgumentNotNull(serverInfo, "server");
+      
+      Server = serverInfo;
+      Schema = storageSchema;
+    }
+
 
     #region Not supported
 

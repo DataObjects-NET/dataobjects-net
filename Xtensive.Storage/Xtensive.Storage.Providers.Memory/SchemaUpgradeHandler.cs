@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Providers.Memory
     public override void UpgradeStorageSchema()
     {
       var converter = new DomainModelConverter(Handlers.NameBuilder.BuildForeignKeyName,
-        Handlers.NameBuilder.BuildForeignKeyName);
+        Handlers.NameBuilder.BuildForeignKeyName, (g) => false);
       var newSchema = converter.Convert(BuildingContext.Current.Model, StorageView.Storage.Name);
       StorageView.CreateNewSchema(newSchema);
     }

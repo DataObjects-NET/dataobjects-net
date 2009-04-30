@@ -14,7 +14,7 @@ using Xtensive.Sql.Dom;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Core;
 using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
-using TableInfo=Xtensive.Storage.Indexing.Model.TableInfo;
+using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
@@ -37,6 +37,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       new KeyColumnRef(t1fk, t1C1, Direction.Negative);
       new IncludedColumnRef(t1fk, t1C2);
       t1fk.PopulatePrimaryKeyColumns();
+      
 
       var t3 = new TableInfo(storage, "table3");
       var t3Id = new ColumnInfo(t3, "Id", new TypeInfo(typeof(int)));
@@ -49,6 +50,13 @@ namespace Xtensive.Storage.Tests.Upgrade
       var foreignKey = new ForeignKeyInfo(t1, "FK");
       foreignKey.ForeignKeyColumns.Set(t1fk);
       foreignKey.PrimaryKey = t3pk;
+
+      new SequenceInfo(storage, "IntSequence")
+        {
+          StartValue = 0,
+          Increment = 1,
+          Type = new TypeInfo(typeof(int))
+        };
 
       return storage;
     }
@@ -80,12 +88,21 @@ namespace Xtensive.Storage.Tests.Upgrade
       foreignKey.ForeignKeyColumns.Set(t1fk);
       foreignKey.PrimaryKey = t3pk;
 
+      new SequenceInfo(storage, "IntSequence")
+        {
+          StartValue = 1,
+          Increment = 2,
+          Current = 5,
+          Type = new TypeInfo(typeof(int))
+        };
+
       return storage;
     }
 
     [Test]
     public void UpdateSchemaTest()
     {
+      ClearSchema();
       var oldModel = BuildOldModel();
       Create(oldModel);
       var newModel = BuildNewModel();
@@ -130,7 +147,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       var diff = BuildDifference(oldModel, newModel, hints);
       var actions = new ActionSequence() {
         new Upgrader().GetUpgradeSequence(diff, hints, 
-          new Modelling.Comparison.Comparer())
+          new Comparer())
       };
       return actions;
     }
@@ -139,31 +156,31 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       if (hints==null)
         hints = new HintSet(oldModel, newModel);
-      var comparer = new Modelling.Comparison.Comparer();
+      var comparer = new Comparer();
       return comparer.Compare(oldModel, newModel, hints);
     }
 
     private static void Create(StorageInfo model)
     {
-      var manager = new SchemaManager(Url);
+      var manager = new SchemaManager(Url, false);
       manager.CreateSchema(model);
     }
 
     private static void ClearSchema()
     {
-      var manager = new SchemaManager(Url);
+      var manager = new SchemaManager(Url, false);
       manager.ClearSchema();
     }
 
     private static void UpgradeCurrentSchema(StorageInfo newModel, ActionSequence actions)
     {
-      var manager = new SchemaManager(Url);
+      var manager = new SchemaManager(Url, false);
       var schema = manager.GetStorageSchema();
       var newSchema = manager.GetStorageSchema();
       var oldModel = manager.GetStorageModel();
 
       var translator = new SqlActionTranslator(actions, newModel, oldModel, 
-        schema, newSchema, null);
+        schema, newSchema, null, false);
       var batch = translator.Translate();
       var provider = new SqlConnectionProvider();
       using (var connection = provider.CreateConnection(Url) as SqlConnection) {
@@ -181,7 +198,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     
     private static StorageInfo ExtractModel()
     {
-      var manager = new SchemaManager(Url);
+      var manager = new SchemaManager(Url, false);
       return manager.GetStorageModel();
     }
 
