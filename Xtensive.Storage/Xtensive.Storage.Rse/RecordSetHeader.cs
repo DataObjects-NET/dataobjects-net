@@ -203,9 +203,11 @@ namespace Xtensive.Storage.Rse
 
     private static RecordSetHeader CreateHeader(IndexInfo indexInfo)
     {
-      TupleDescriptor resultTupleDescriptor = TupleDescriptor.Create(indexInfo.Columns.Select(columnInfo => columnInfo.ValueType));
+      TupleDescriptor resultTupleDescriptor = TupleDescriptor.Create(
+        indexInfo.Columns.Select(columnInfo => columnInfo.ValueType));
 
-      var keyOrder = new List<KeyValuePair<int, Direction>>(indexInfo.KeyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i, p.Value)));
+      var keyOrder = new List<KeyValuePair<int, Direction>>(
+        indexInfo.KeyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i, p.Value)));
       
       if (!indexInfo.IsPrimary) {
         var pkKeys = indexInfo.ReflectedType.Indexes.PrimaryIndex.KeyColumns;
@@ -216,7 +218,7 @@ namespace Xtensive.Storage.Rse
             .Select(pair => new KeyValuePair<int, Direction>(pair.Second, pkKeys[pair.First])));
       }
 
-      var sortOrder = new DirectionCollection<int>(keyOrder);
+      var order = new DirectionCollection<int>(keyOrder);
       var keyDescriptor = TupleDescriptor.Create(indexInfo.KeyColumns.Select(columnInfo => columnInfo.Key.ValueType));
       var resultColumns = indexInfo.Columns.Select((c,i) => (Column) new MappedColumn(c,i,c.ValueType));
       var resultGroups = new[]{indexInfo.Group};
@@ -226,7 +228,7 @@ namespace Xtensive.Storage.Rse
         resultColumns, 
         resultGroups, 
         keyDescriptor, 
-        sortOrder);
+        order);
     }
 
     /// <inheritdoc/>
