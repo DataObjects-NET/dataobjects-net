@@ -56,12 +56,17 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     protected override Provider VisitIndex(IndexProvider provider)
     {
-      var columnsCount = provider.Header.Length;
-      var value = Merge(mappings.Value[provider], provider.Header.Order.Select(o => o.Key));
-      mappings.Value[provider] = value;
-      if (columnsCount > value.Count)
-        return new SelectProvider(provider, value.ToArray());
-      return provider;
+      return SubstituteSelect(provider);
+    }
+
+    protected override Provider VisitRangeSet(RangeSetProvider provider)
+    {
+      return SubstituteSelect(provider);
+    }
+
+    protected override Provider VisitRange(RangeProvider provider)
+    {
+      return SubstituteSelect(provider);
     }
 
     protected override Provider VisitFilter(FilterProvider provider)
@@ -383,6 +388,15 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     #endregion
 
     #region Private methods
+
+    private Provider SubstituteSelect(CompilableProvider provider)
+    {
+      var columnsCount = provider.Header.Length;
+      var value = mappings.Value[provider];
+      if (columnsCount > value.Count)
+        return new SelectProvider(provider, value.ToArray());
+      return provider;
+    }
 
     private static List<int> Merge(IEnumerable<int> left, IEnumerable<int> right)
     {

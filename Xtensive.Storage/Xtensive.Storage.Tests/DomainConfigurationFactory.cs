@@ -14,12 +14,12 @@ namespace Xtensive.Storage.Tests
     public static DomainConfiguration Create()
     {
       DomainConfiguration config;
-      config = Create("memory");
+//      config = Create("memory");
 //      config = Create("memory", InheritanceSchema.SingleTable);
 //      config = Create("memory", InheritanceSchema.ConcreteTable);
 //      config = Create("memory", InheritanceSchema.Default, TypeIdBehavior.Include);
 
-     //config = Create("mssql2005");
+     config = Create("mssql2005");
 //      config = Create("mssql2005", InheritanceSchema.SingleTable);
 //      config = Create("mssql2005", InheritanceSchema.ConcreteTable);
 //      config = Create("mssql2005", InheritanceSchema.Default, TypeIdBehavior.Include);
