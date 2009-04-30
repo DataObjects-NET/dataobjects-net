@@ -45,13 +45,16 @@ namespace Xtensive.Storage.Building
 
         if (type.TypeId!=TypeInfo.NoTypeId)
           continue;
+        int typeId = LoadTypeId(type);
 
-        SetTypeId(type, LoadTypeId(type));
-        if (type.TypeId!=TypeInfo.NoTypeId)
+        if (typeId!=TypeInfo.NoTypeId) {
+          SetTypeId(type, typeId);
           continue;
-
-        SetTypeId(type, maxTypeId++);
-        SaveTypeId(type, type.TypeId);
+        }
+        maxTypeId++;
+        typeId = maxTypeId;
+        SetTypeId(type, typeId);
+        SaveTypeId(type, typeId);
       }
       context.Model.Types.BuildTypeIdIndex();
     }
@@ -63,16 +66,19 @@ namespace Xtensive.Storage.Building
 
     private static int GetMaxTypeId()
     {
-      if (Query<Type>.All.Count() == 0)
-        return TypeInfo.MinTypeId;
-      return Query<Type>.All.Max(t => t.TypeId);
+      int result = 0;
+      if (Query<Type>.All.Count() > 0)
+        result = Query<Type>.All.Max(type => type.Id);
+      if (result < TypeInfo.MinTypeId)
+        result = TypeInfo.MinTypeId-1;
+      return result;
     }
 
     private static int LoadTypeId(TypeInfo typeInfo)
     {
       string name = GetTypeName(typeInfo);
       var metaType = Query<Type>.All.Where(type => type.Name==name).FirstOrDefault();
-      return metaType==null ? TypeInfo.NoTypeId : metaType.Id;
+      return metaType==null ? TypeInfo.NoTypeId : metaType.Id;  
     }
 
     private static void SaveTypeId(TypeInfo typeInfo, int typeId)
@@ -82,6 +88,7 @@ namespace Xtensive.Storage.Building
         .Where(type => type.Name==name)
         .FirstOrDefault() ?? new Type(typeId);
       metaType.Name = name;
+      Session.Current.Persist();
     }
 
     private static string GetTypeName(TypeInfo typeInfo)

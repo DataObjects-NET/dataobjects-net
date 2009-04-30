@@ -10,6 +10,7 @@ using Xtensive.Core.Testing;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Storage
 {  
@@ -61,9 +62,12 @@ namespace Xtensive.Storage.Tests.Storage
       int bId = GetTypeId(typeof (B));
 
       BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A), typeof (B));
-      Assert.AreEqual(bId, GetTypeId(typeof(B)));
-//      int aId = GetTypeId(typeof (A));
-//
+        Assert.AreEqual(bId, GetTypeId(typeof(B)));
+      int aId = GetTypeId(typeof (A));
+
+      Assert.AreEqual(TypeInfo.MinTypeId, bId);
+      Assert.AreEqual(TypeInfo.MinTypeId+1, aId);
+
 //      BuildDomain(SchemaUpgradeMode.Validate, typeof (A));
 //      BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof(B));
 //
