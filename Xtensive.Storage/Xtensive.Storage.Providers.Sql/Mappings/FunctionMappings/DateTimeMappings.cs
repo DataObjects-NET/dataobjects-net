@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Linq;
+using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Dml;
 using Operator = Xtensive.Core.Reflection.WellKnown.Operator;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
@@ -20,43 +21,43 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(DateTime), "Year", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeYear(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.Year, _this);
+      return ToInt(SqlFactory.Extract(SqlDateTimePart.Year, _this));
     }
 
     [Compiler(typeof(DateTime), "Month", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeMonth(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.Month, _this);
+      return ToInt(SqlFactory.Extract(SqlDateTimePart.Month, _this));
     }
 
     [Compiler(typeof(DateTime), "Day", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeDay(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.Day, _this);
+      return ToInt(SqlFactory.Extract(SqlDateTimePart.Day, _this));
     }
 
     [Compiler(typeof(DateTime), "Hour", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeHour(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.Hour, _this);
+      return ToInt(SqlFactory.Extract(SqlDateTimePart.Hour, _this));
     }
 
     [Compiler(typeof(DateTime), "Minute", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeMinute(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.Minute, _this);
+      return ToInt(SqlFactory.Extract(SqlDateTimePart.Minute, _this));
     }
 
     [Compiler(typeof(DateTime), "Second", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeSecond(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.Second, _this);
+      return ToInt(SqlFactory.Extract(SqlDateTimePart.Second, _this));
     }
 
     [Compiler(typeof(DateTime), "Millisecond", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeMillisecond(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.Millisecond, _this);
+      return ToInt(SqlFactory.Extract(SqlDateTimePart.Millisecond, _this));
     }
 
     [Compiler(typeof(DateTime), "TimeOfDay", TargetKind.PropertyGet)]
@@ -74,13 +75,13 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(DateTime), "DayOfWeek", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeDayOfWeek(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.DayOfWeek, _this);
+      return ToInt(SqlFactory.Extract(SqlDateTimePart.DayOfWeek, _this));
     }
 
     [Compiler(typeof(DateTime), "DayOfYear", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeDayOfYear(SqlExpression _this)
     {
-      return SqlFactory.Extract(SqlDateTimePart.DayOfYear, _this);
+      return ToInt(SqlFactory.Extract(SqlDateTimePart.DayOfYear, _this));
     }
 
     #endregion
@@ -269,6 +270,11 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       result.Else = 30;
 
       return result;
+    }
+
+    private static SqlExpression ToInt(SqlExpression target)
+    {
+      return SqlFactory.Cast(target, SqlDataType.Int32);
     }
   }
 }

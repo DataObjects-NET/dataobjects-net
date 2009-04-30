@@ -496,5 +496,56 @@ namespace Xtensive.Storage.Tests.Linq
         .Select(g => g.OrderDate);
       QueryDumper.Dump(result);
     }
+
+    [Test]
+    public void SelectJustOuterParameterTest()
+    {
+      var result = Query<Customer>.All.Select(c => Query<Supplier>.All.Select(s => c));
+      foreach (var i in result)
+        i.ToList();
+    }
+
+    [Test]
+    public void SelectDateTimeTimeSpanTest()
+    {
+      var dateTime = new DateTime(2001, 1, 1, 1, 1, 1);
+      var timeSpan = new TimeSpan(1, 1, 1, 1);
+
+      var result = Query<Customer>.All
+        .Select(c => new
+          {
+            CustomerId = c.Id,
+            DateTime = dateTime,
+            TimeSpan = timeSpan
+          }
+        )
+        .Select(k => new
+          {
+            DateTime = k.DateTime,
+            DateTimeDate = k.DateTime.Date,
+            DateTimeTime = k.DateTime.TimeOfDay,
+            DateTimeYear = k.DateTime.Year,
+            DateTimeMonth = k.DateTime.Month,
+            DateTimeDay = k.DateTime.Day,
+            DateTimeHour = k.DateTime.Hour,
+            DateTimeMinute = k.DateTime.Minute,
+            DateTimeSecond = k.DateTime.Second,
+            DateTimeDayOfYear = k.DateTime.DayOfYear,
+            DateTimeDayOfWeek = k.DateTime.DayOfWeek,
+            TimeSpan = k.TimeSpan,
+            TimeSpanDays = k.TimeSpan.Days,
+            TimeSpanHours = k.TimeSpan.Hours,
+            TimeSpanMinutes = k.TimeSpan.Minutes,
+            TimeSpanSeconds = k.TimeSpan.Seconds,
+            TimeSpanTotalDays = k.TimeSpan.TotalDays,
+            TimeSpanTotalHours = k.TimeSpan.TotalHours,
+            TimeSpanTotalMinutes = k.TimeSpan.TotalMinutes,
+            TimeSpanTotalSeconds = k.TimeSpan.TotalSeconds,
+            TimeSpanTicks = k.TimeSpan.Ticks,
+            TimeSpanDuration = k.TimeSpan.Duration(),
+          }
+        )
+        .First();
+    }
   }
 }
