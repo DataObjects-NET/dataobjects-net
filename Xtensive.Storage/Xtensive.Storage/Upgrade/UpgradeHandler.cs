@@ -5,16 +5,13 @@
 // Created:    2009.04.30
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Reflection;
 using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.Resources;
 using Xtensive.Storage.Upgrade.Hints;
-using M=Xtensive.Storage.Metadata;
 
 namespace Xtensive.Storage.Upgrade
 {

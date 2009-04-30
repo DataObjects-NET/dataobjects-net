@@ -13,6 +13,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -56,7 +57,7 @@ namespace Xtensive.Storage.Upgrade
     private static void Stage(UpgradeStage stage)
     {
       var context = UpgradeContext.Current;
-      var configuration = context.Configuration = context.Configuration.Clone();
+      var configuration = context.Configuration = context.OriginalConfiguration.Clone();
       context.Stage = stage;
       // Raising "Before upgrade" event
       foreach (var handler in context.AllUpgradeHandlers)
@@ -131,8 +132,8 @@ namespace Xtensive.Storage.Upgrade
           && !type.IsAbstract
           && type.IsClass
           && type!=typeof(UpgradeHandler)
-        let handler = (IUpgradeHandler) type.TypeInitializer.Invoke(null)
-        where handler.IsEnabled
+        let handler = (IUpgradeHandler) type.Activate(ArrayUtils<Type>.EmptyArray, ArrayUtils<Type>.EmptyArray)
+        where handler!=null && handler.IsEnabled
         group handler by assembly;
 
       // Adding user handlers

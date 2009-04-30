@@ -5,6 +5,7 @@
 // Created:    2009.04.09
 
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
@@ -73,10 +74,21 @@ namespace Xtensive.Storage.Tests.Upgrade.Model2
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
-  public class AssemblyUpgradeHandler : UpgradeHandler
+  public class TestUpgradeHandler : UpgradeHandler
   {
     public static string RunningVersion = "1";
 
+    public override bool IsEnabled {
+      get {
+        var context = UpgradeContext.Current;
+        return (
+          from type in context.Configuration.Types
+          where type.Namespace.StartsWith(GetType().Namespace)
+          select type
+          ).Any();
+      }
+    }
+    
     protected override string DetectAssemblyVersion()
     {
       return RunningVersion;
@@ -132,7 +144,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       var dc = DomainConfigurationFactory.Create();
       var ns = persistentType.Namespace;
       dc.Types.Register(Assembly.GetExecutingAssembly(), ns);
-      AssemblyUpgradeHandler.RunningVersion = ns.Substring(ns.Length - 1);
+      TestUpgradeHandler.RunningVersion = ns.Substring(ns.Length - 1);
       return dc;
     }
 
