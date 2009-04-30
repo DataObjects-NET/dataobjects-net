@@ -585,4 +585,7 @@
   <data name="ExCouldNotFindSubqueryMappingForFieldX" xml:space="preserve">
     <value>Could not find subquery mapping for field '{0}'.</value>
   </data>
+  <data name="ExSpecifiedValuesArentEnoughToCreateKeyForTypeX" xml:space="preserve">
+    <value>Specified values aren't enough to create key for type {0}</value>
+  </data>
 </root>

@@ -817,6 +817,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Specified values aren&apos;t enough to create key for type {0}.
+        /// </summary>
+        internal static string ExSpecifiedValuesArentEnoughToCreateKeyForTypeX {
+            get {
+                return ResourceManager.GetString("ExSpecifiedValuesArentEnoughToCreateKeyForTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to StateTransaction property value differs from the current transaction..
         /// </summary>
         internal static string ExStateTransactionIsDifferent {

@@ -552,7 +552,7 @@ namespace Xtensive.Storage
           tuple[tupleIndex++] = value;
       }
       if (tupleIndex < tuple.Count - 1)
-        throw new ArgumentException(string.Format("Specified values aren't enough to create key for type {0}", type.Name));
+        throw new ArgumentException(string.Format(Strings.ExSpecifiedValuesArentEnoughToCreateKeyForTypeX, type.Name));
 
       return Create(Domain.Demand(), type, tuple, exactType, false);
     }
