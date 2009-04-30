@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private void BuildDomain(SchemaUpgradeMode schemaUpgradeMode, params Type[] persistentTypes)
     {
-      var configuration = DomainConfigurationFactory.Create();
+      var configuration =  DomainConfigurationFactory.Create();
       foreach (Type type in persistentTypes)
         configuration.Types.Register(type);
       configuration.TypeNameProviderType = typeof (SimpleTypeNameProvider);
