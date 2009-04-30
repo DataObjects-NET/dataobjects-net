@@ -55,16 +55,12 @@ namespace Xtensive.Storage.Providers.MsSql
       var compiledSource = GetCompiled(provider.Source) as SqlProvider;
       if (compiledSource == null)
         return null;
-
-      //SqlSelect sourceQuery = AddRowNumberColumn(compiledSource, provider, rowNumber);
       var sourceQuery = compiledSource.Request.SelectStatement;
       sourceQuery.Where = sourceQuery.Columns.Last() > provider.Count();
 
       var queryRef = SqlFactory.QueryRef(sourceQuery);
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Where(column => column.Name != rowNumber).Cast<SqlColumn>());
-      //query.OrderBy.Add(queryRef.Columns[rowNumber]); 
-//      AddOrderByForRowNumberColumn(provider, query);
       
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }

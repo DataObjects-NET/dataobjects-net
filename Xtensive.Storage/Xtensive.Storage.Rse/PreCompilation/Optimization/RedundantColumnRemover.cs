@@ -224,7 +224,16 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     protected override Provider VisitRowNumber(RowNumberProvider provider)
     {
-      throw new NotImplementedException();
+      
+      OnRecursionEntrance(provider);
+      var newSource = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
+      var currentMapping = mappings.Value[provider.Source];
+      var rowNumberColumn = provider.Header.Columns.Last();
+      mappings.Value[provider] = Merge(currentMapping, EnumerableUtils.One(rowNumberColumn.Index));
+      if (newSource == provider.Source)
+        return provider;
+      return new RowNumberProvider(newSource, rowNumberColumn.Name);
     }
 
     protected override Provider VisitConcat(ConcatProvider provider)
@@ -356,7 +365,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         case ProviderType.Join:
         case ProviderType.Aggregate:
         case ProviderType.Calculate:
-        case ProviderType.RowNumber:
         case ProviderType.Apply:
           break;
         case ProviderType.Range:
