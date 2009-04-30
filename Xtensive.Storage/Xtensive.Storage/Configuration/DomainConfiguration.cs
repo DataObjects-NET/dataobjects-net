@@ -7,18 +7,16 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Reflection;
 using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
-using Xtensive.Core.Reflection;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration.Elements;
 using Xtensive.Storage.Configuration.Internals;
 using Xtensive.Storage.Resources;
-using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Configuration
 {
@@ -61,6 +59,12 @@ namespace Xtensive.Storage.Configuration
     public const int DefaultKeyGeneratorCacheSize = 128;
 
     /// <summary>
+    /// Default <see cref="DomainConfiguration.QueryCacheSize"/> value: 
+    /// <see langword="1024" />.
+    /// </summary>
+    public const int DefaultQueryCacheSize = 1024;
+
+    /// <summary>
     /// Default <see cref="DomainConfiguration.RecordSetMappingCacheSize"/> value: 
     /// <see langword="1024" />.
     /// </summary>
@@ -96,6 +100,7 @@ namespace Xtensive.Storage.Configuration
     private NamingConvention namingConvention = new NamingConvention();
     private int keyCacheSize = DefaultKeyCacheSize;
     private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
+    private int queryCacheSize = DefaultQueryCacheSize;
     private int sessionPoolSize = DefaultSessionPoolSize;
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
     private bool autoValidation = true;
@@ -207,6 +212,21 @@ namespace Xtensive.Storage.Configuration
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsInRange(value, 1, int.MaxValue, "value");
         keyGeneratorCacheSize = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the size of the query cache (see <see cref="CachedQuery"/>).
+    /// Default value is <see cref="DefaultQueryCacheSize"/>.
+    /// </summary>
+    public int QueryCacheSize
+    {
+      get { return queryCacheSize; }
+      set
+      {
+        this.EnsureNotLocked();
+        ArgumentValidator.EnsureArgumentIsInRange(value, 1, int.MaxValue, "value");
+        queryCacheSize = value;
       }
     }
 
@@ -380,6 +400,7 @@ namespace Xtensive.Storage.Configuration
       namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
       keyCacheSize = configuration.KeyCacheSize;
       keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;
+      queryCacheSize = configuration.QueryCacheSize;
       sessionPoolSize = configuration.SessionPoolSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = (SessionConfigurationCollection)configuration.Sessions.Clone();
@@ -446,7 +467,7 @@ namespace Xtensive.Storage.Configuration
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DomainConfiguration"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="connectionUrl">The string containing connection URL for <see cref="Domain"/>.</param>
     /// <exception cref="ArgumentNullException">When <paramref name="connectionUrl"/> is null or empty string.</exception>
@@ -458,10 +479,11 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DomainConfiguration"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public DomainConfiguration()
     {
+      // This assembly must be always registered
       types.Register(typeof(Persistent).Assembly);
     }
   }

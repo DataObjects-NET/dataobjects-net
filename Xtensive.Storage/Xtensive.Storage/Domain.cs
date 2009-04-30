@@ -194,8 +194,8 @@ namespace Xtensive.Storage
       RecordSetParser = new RecordSetParser(this);
       KeyGenerators = new Registry<GeneratorInfo, KeyGenerator>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
-      //TODO: Make configuration for query cache
-      QueryCache = new LruCache<MethodInfo, Pair<MethodInfo, ParameterizedResultExpression>>(1024, input => input.First);
+      QueryCache = new LruCache<MethodInfo, Pair<MethodInfo, ParameterizedResultExpression>>(
+        Configuration.QueryCacheSize, k => k.First);
       PairSyncActions = new Dictionary<AssociationInfo, ActionSet>(1024);
       TemporaryData = new GlobalTemporaryData();
       ServiceContainer = new UnityContainer();
