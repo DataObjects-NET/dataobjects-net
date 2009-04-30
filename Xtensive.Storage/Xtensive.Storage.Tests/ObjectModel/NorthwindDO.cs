@@ -120,7 +120,6 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field(PairTo = "Customer")]
     public EntitySet<Order> Orders { get; private set; }
 
-
     // Constructors
 
     public Customer(string id)
@@ -285,6 +284,8 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
     [Field]
     public EntitySet<Territory> Territories { get; private set; }
+
+    public string FullName { get { return FirstName + " " + LastName; } }
   }
 
   [Entity(MappingName = "Territories")]

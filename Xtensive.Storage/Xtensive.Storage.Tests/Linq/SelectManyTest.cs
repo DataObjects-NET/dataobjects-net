@@ -147,5 +147,16 @@ namespace Xtensive.Storage.Tests.Linq
         .SelectMany(c => Query<Order>.All.Where(o => o.Customer == c).Where(o => o.Employee.FirstName.StartsWith("A")));
       Assert.AreEqual(expected, result.ToList().Count);
     }
+
+    [Test]
+    public void SelectManySelfTest()
+    {
+      var result =
+        from c1 in Query<Customer>.All
+        from c2 in Query<Customer>.All
+        where c1.Address.City == c2.Address.City
+        select new {c1,c2};
+      result.ToList();
+    }
   }
 }

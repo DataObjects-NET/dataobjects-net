@@ -1053,5 +1053,13 @@ namespace Xtensive.Storage.Tests.Linq
       var maxProcessingTime = new TimeSpan(5, 0, 0, 0);
       Query<Order>.All.Where(o => o.ProcessingTime > maxProcessingTime).ToList();
     }
+
+    [Test]
+    [ExpectedException(typeof (NotSupportedException))]
+    public void NonPersistentFieldTest()
+    {
+      var result = from e in Query<Employee>.All where e.FullName!=null select e;
+      result.ToList();
+    }
   }
 }

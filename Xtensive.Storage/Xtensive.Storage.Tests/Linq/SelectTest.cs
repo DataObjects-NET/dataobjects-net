@@ -514,6 +514,14 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof (NotSupportedException))]
+    public void NonPersistentFieldTest()
+    {
+      var result = from e in Query<Employee>.All select e.FullName;
+      result.ToList();
+    }
+
+    [Test]
     public void SelectDateTimeTimeSpanTest()
     {
       var dateTime = new DateTime(2001, 1, 1, 1, 1, 1);

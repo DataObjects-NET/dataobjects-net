@@ -377,8 +377,7 @@ namespace Xtensive.Storage.Linq
             return ConstructQueryable(rootPoint);
         }
       }
-      else if (ma.Expression.NodeType == ExpressionType.Constant)
-      {
+      else if (ma.Expression.NodeType == ExpressionType.Constant) {
         var rfi = ma.Member as FieldInfo;
         if (rfi!=null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType))) {
           var lambda = Expression.Lambda<Func<IQueryable>>(ma).Compile();
@@ -395,6 +394,10 @@ namespace Xtensive.Storage.Linq
         var member = newExpression.Members.First(m => m.Name==memberName);
         var argument = newExpression.Arguments[newExpression.Members.IndexOf(member)];
         return Visit(argument);
+      }
+      else if (ma.Expression.GetMemberType() == MemberType.Entity && ma.Member.Name != "Key") {
+        if (!context.Model.Types[ma.Expression.Type].Fields.Contains(ma.Member.Name))
+          throw new NotSupportedException("Nonpersistent fields are not supported.");
       }
       return base.VisitMemberAccess(ma);
     }
