@@ -54,6 +54,19 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     
     #region Visit methods
 
+    protected override Provider VisitSelect(SelectProvider provider)
+    {
+      var requiredColumns = mappings.Value[provider];
+      var remappedColumns = requiredColumns.Select(c => provider.ColumnIndexes[c]).ToList();
+      mappings.Value[provider.Source] = remappedColumns;
+      var source = VisitCompilable(provider.Source);
+      if (source == provider.Source && requiredColumns.Count == provider.ColumnIndexes.Length)
+        return provider;
+      var sourceColumns = mappings.Value[provider.Source];
+      var outputColumns = remappedColumns.Select(c => sourceColumns.IndexOf(c)).ToArray();
+      return new SelectProvider(source, outputColumns);
+    }
+
     protected override Provider VisitIndex(IndexProvider provider)
     {
       return SubstituteSelect(provider);
@@ -71,7 +84,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     protected override Provider VisitFilter(FilterProvider provider)
     {
-      List<int> map = mappings.Value[provider];
+      var map = mappings.Value[provider];
       mappings.Value.Add(provider.Source, Merge(map, mappingsGatherer.Gather(provider.Predicate)));
 
       OnRecursionEntrance(provider);
@@ -393,6 +406,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     {
       var columnsCount = provider.Header.Length;
       var value = mappings.Value[provider];
+//      var value = Merge(mappings.Value[provider], provider.Header.Order.Select(o => o.Key));
+//      mappings.Value[provider] = value;
       if (columnsCount > value.Count)
         return new SelectProvider(provider, value.ToArray());
       return provider;
