@@ -161,11 +161,48 @@ namespace Xtensive.Core
     /// <param name="contextType">Type of required context.</param>
     /// <param name="scopeType">Type of <see cref="Scope{TContext}"/> used to set the context.</param>
     /// <returns>Newly created exception.</returns>
-    public static Exception ContextRequired(Type contextType, Type scopeType)
+    public static InvalidOperationException ContextRequired(Type contextType, Type scopeType)
     {
       ArgumentValidator.EnsureArgumentNotNull(contextType, "contextType");
       ArgumentValidator.EnsureArgumentNotNull(scopeType, "scopeType");
-      return new Exception(string.Format(Strings.ExContextRequired, contextType.GetShortName(), scopeType.GetShortName()));
+      return new InvalidOperationException(
+        string.Format(Strings.ExContextRequired, contextType.GetShortName(), scopeType.GetShortName()));
+    }
+
+    /// <summary>
+    /// Returns an exception informing that context is required.
+    /// </summary>
+    /// <typeparam name="TContext">The type of the context.</typeparam>
+    /// <typeparam name="TScope">The type of the scope.</typeparam>
+    /// <returns>Newly created exception.</returns>
+    public static InvalidOperationException ContextRequired<TContext, TScope>()
+    {
+      var contextType = typeof (TContext);
+      var scopeType = typeof (TScope);
+      return ContextRequired(contextType, scopeType);
+    }
+
+    /// <summary>
+    /// Returns an exception informing that scope is required.
+    /// </summary>
+    /// <param name="scopeType">Type of <see cref="SimpleScope{TContext}"/> used to set the context.</param>
+    /// <returns>Newly created exception.</returns>
+    public static InvalidOperationException ScopeRequired(Type scopeType)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(scopeType, "scopeType");
+      return new InvalidOperationException(
+        string.Format(Strings.ExScopeRequired, scopeType.GetShortName()));
+    }
+
+    /// <summary>
+    /// Returns an exception informing that scope is required.
+    /// </summary>
+    /// <typeparam name="TScope">The type of the scope.</typeparam>
+    /// <returns>Newly created exception.</returns>
+    public static InvalidOperationException ScopeRequired<TScope>()
+    {
+      var scopeType = typeof (TScope);
+      return ScopeRequired(scopeType);
     }
   }
 }

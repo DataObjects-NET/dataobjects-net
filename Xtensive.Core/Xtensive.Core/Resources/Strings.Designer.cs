@@ -1105,6 +1105,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} is required..
+        /// </summary>
+        internal static string ExScopeRequired {
+            get {
+                return ResourceManager.GetString("ExScopeRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Service &apos;{0}&apos; is not found..
         /// </summary>
         internal static string ExServiceNotFound {

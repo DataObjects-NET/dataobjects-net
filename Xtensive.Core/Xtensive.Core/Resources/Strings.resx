@@ -630,4 +630,7 @@
   <data name="ExThisOperationIsNotAllowedForParameterContextOperatingWithExpectedValuesOfParameters" xml:space="preserve">
     <value>This operation is not allowed for the parameter context operating with expected values of parameters.</value>
   </data>
+  <data name="ExScopeRequired" xml:space="preserve">
+    <value>{0} is required.</value>
+  </data>
 </root>
