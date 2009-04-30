@@ -27,13 +27,12 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.Greater(list.Count, 0);
     }
 
-    [Ignore("NotImplemented")]
     [Test]
     public void GroupingAsQueryableTest()
     {
       var result = Query<Product>.All.GroupBy(p => p);
       foreach (IGrouping<Product, Product> grouping in result) {
-        Assert.IsTrue(grouping.GetType().IsOfGenericInterface(typeof (IQueryable<>)), "Grouping must implement IQueryable<T> interface.");
+        Assert.IsTrue(grouping.GetType().IsOfGenericInterface(typeof (IQueryable<>)));
       }
     }
 

@@ -5,8 +5,6 @@
 // Created:    2009.03.17
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
@@ -16,39 +14,15 @@ namespace Xtensive.Storage.Linq
 {
   [Serializable]
   internal class Grouping<TKey, TElement> :
+    SubQuery<TElement>,
     IGrouping<TKey, TElement>
   {
-    private readonly TKey key;
-    private readonly ResultExpression resultExpression;
-    private readonly Parameter<Tuple> tupleParameter;
-    private readonly Tuple keyTuple;
-
-    public TKey Key
-    {
-      get { return key; }
-    }
-
-    public IEnumerator<TElement> GetEnumerator()
-    {
-      using (new ParameterScope()) {
-        tupleParameter.Value = keyTuple;
-        var result = resultExpression.GetResult<IEnumerable<TElement>>();
-        foreach (var element in result)
-          yield return element;
-      }
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    public TKey Key { get; private set; }
 
     public Grouping(TKey key, Tuple keyTuple, ResultExpression resultExpression, Parameter<Tuple> tupleParameter)
+      : base(resultExpression, keyTuple, tupleParameter)
     {
-      this.resultExpression = resultExpression;
-      this.tupleParameter = tupleParameter;
-      this.keyTuple = keyTuple;
-      this.key = key;
+      Key = key;
     }
   }
 }
