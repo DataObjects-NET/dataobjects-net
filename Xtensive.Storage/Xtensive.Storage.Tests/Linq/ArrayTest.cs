@@ -98,6 +98,15 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ArrayExpressionIndexAccessTest()
     {
+      var bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+      var result = Query<Category>.All
+        .Select(category => bytes[category.Id]);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void ArrayExpressionIndexAccess2Test()
+    {
       var result = Query<Category>.All
         .Select(x => new{Category = x, Array = new byte[] {1, 2, 3, 4, 5, 6, 7, 8}} )
         .Select(a => a.Array[a.Category.Id]);
