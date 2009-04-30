@@ -759,8 +759,9 @@ namespace Xtensive.Storage.Linq
       if (expression.NodeType!=ExpressionType.ArrayIndex) 
         throw new NotSupportedException();
 
-      var visitedArrayExpression = Visit(expression.Left);
-      throw new NotImplementedException();
+      var arrayExpression = Visit(expression.Left);
+      var arrayIndex = Visit(expression.Right);
+      return Expression.ArrayIndex(arrayExpression, arrayIndex);
     }
 
     private Expression VisitBinaryAnonymous(BinaryExpression binaryExpression)
