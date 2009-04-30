@@ -12,10 +12,12 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Parameters;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Rewriters;
+using Activator=System.Activator;
 
 namespace Xtensive.Storage
 {
@@ -101,24 +103,28 @@ namespace Xtensive.Storage
     private static ParameterizedResultExpression BuildResultExpression(object target, ResultExpression compiledResultExpression)
     {
       ParameterizedResultExpression resultExpression;
-      var queryParameter = new Parameter<object>();
       if (target != null) {
+        var closureType = target.GetType();
+        var parameterType = typeof (Parameter<>).MakeGenericType(closureType);
+        var valueMemberInfo = parameterType.GetProperty("Value", closureType);
+        var queryParameter = (Parameter)Activator.CreateInstance(parameterType, "pClosure", target);
         var replacer = new ExtendedExpressionReplacer(e => {
-          if (e.NodeType == ExpressionType.Constant && e.Type == target.GetType())
-            return Expression.Convert(Expression.MakeMemberAccess(Expression.Constant(queryParameter), WellKnownMembers.ParameterValue), target.GetType());
+          if (e.NodeType == ExpressionType.Constant && e.Type == closureType)
+            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           return null;
         });
         resultExpression = new ParameterizedResultExpression((ResultExpression)replacer.Replace(compiledResultExpression), queryParameter);
       }
       else
-        resultExpression = new ParameterizedResultExpression(compiledResultExpression, queryParameter);
+        resultExpression = new ParameterizedResultExpression(compiledResultExpression, null);
       return resultExpression;
     }
 
     private static IEnumerable<TElement> ExecuteSequence<TElement>(ParameterizedResultExpression resultExpression, object target)
     {
       using (new ParameterScope()) {
-        resultExpression.QueryParameter.Value = target;
+        if (resultExpression.QueryParameter != null)
+          resultExpression.QueryParameter.Value = target;
         foreach (var element in resultExpression.GetResult<IEnumerable<TElement>>())
           yield return element;
       }

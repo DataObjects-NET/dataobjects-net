@@ -1,10 +1,5 @@
-// Copyright (C) 2008 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
-// Created by: Alex Yakunin
-// Created:    2008.09.08
-
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Parameters;
@@ -13,23 +8,22 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.Storage.Performance.CrudModel;
-using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage.Performance
 {
-  [TestFixture]
-  public class CrudTest : AutoBuildTest
+  public abstract class DOCrudTestBase : AutoBuildTest
   {
-    public const int BaseCount = 10000;
-    public const int InsertCount = BaseCount;
     private bool warmup  = false;
     private bool profile = false;
     private int instanceCount;
+    public const int BaseCount = 10000;
+    public const int InsertCount = BaseCount;
 
-    protected override DomainConfiguration BuildConfiguration()
+    protected abstract DomainConfiguration CreateConfiguration();
+
+    protected sealed override DomainConfiguration BuildConfiguration()
     {
-      var config = DomainConfigurationFactory.Create("mssql2005");
-//      var config = DomainConfigurationFactory.Create("memory");
+      var config = CreateConfiguration();
       config.Types.Register(typeof(Simplest).Assembly, typeof(Simplest).Namespace);
       return config;
     }
@@ -130,9 +124,9 @@ namespace Xtensive.Storage.Tests.Storage.Performance
             while (i < count) {
               foreach (var tuple in rs) {
                 var o = new SqlClientCrudModel.Simplest {
-                  Id = tuple.GetValueOrDefault<long>(0), 
-                  Value = tuple.GetValueOrDefault<long>(2)
-                };
+                                                          Id = tuple.GetValueOrDefault<long>(0), 
+                                                          Value = tuple.GetValueOrDefault<long>(2)
+                                                        };
                 sum += o.Id;
                 if (++i >= count)
                   break;
@@ -189,11 +183,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
                 break;
             }
 //          TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Bulk Fetch Cached", count / 2)) {
-            foreach (var entity in entities)
-              entity.Key.Resolve();
-          }
-          ts.Complete();
+            using (warmup ? null : new Measurement("Bulk Fetch Cached", count / 2)) {
+              foreach (var entity in entities)
+                entity.Key.Resolve();
+            }
+            ts.Complete();
           }
         }
         Assert.AreEqual((long)count*(count-1)/2, sum);

@@ -68,6 +68,12 @@ namespace Xtensive.Core.Parameters
       : this(string.Empty, null, expectedValue)
     {}
 
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    public Parameter(string name, TValue expectedValue)
+      : base(name, expectedValue)
+    {}
+
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
