@@ -93,10 +93,8 @@ namespace Xtensive.Storage.Rse.Compilation
       var result = compiler.Compile(optimizedProvider);
       
       if (result!=null && result.IsCacheable)
-        lock (_lock) {
-          Thread.MemoryBarrier(); // Ensures result is fully "flushed"
+        lock (_lock)
           cache.Add(new CacheEntry(provider, result));
-        }
       if (result==null)
         throw new InvalidOperationException(string.Format(
           Strings.ExCantCompileProviderX, provider));
