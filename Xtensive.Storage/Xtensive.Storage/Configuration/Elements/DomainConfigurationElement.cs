@@ -11,6 +11,7 @@ using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Building;
+using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Configuration.Elements
 {
@@ -19,7 +20,7 @@ namespace Xtensive.Storage.Configuration.Elements
   /// </summary>
   public class DomainConfigurationElement : ConfigurationCollectionElementBase
   {
-    private const string BuildModeElementName = "buildMode";
+    private const string UpgradeModeElementName = "upgradeMode";
     private const string ForeignKeyModeElementName = "foreignKeyMode";
     private const string NameElementName = "name";
     private const string ConnectionUrlElementName = "connectionUrl";
@@ -158,13 +159,13 @@ namespace Xtensive.Storage.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.BuildMode" copy="true"/>
+    /// <see cref="DomainConfiguration.UpgradeMode" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(BuildModeElementName, IsRequired = false, DefaultValue = DomainConfiguration.DefaultBuildMode)]
-    public DomainBuildMode BuildMode
+    [ConfigurationProperty(UpgradeModeElementName, IsRequired = false, DefaultValue = DomainConfiguration.DefaultUpgradeMode)]
+    public StorageUpgradeMode UpgradeMode
     {
-      get { return (DomainBuildMode)this[BuildModeElementName]; }
-      set { this[BuildModeElementName] = value; }
+      get { return (StorageUpgradeMode)this[UpgradeModeElementName]; }
+      set { this[UpgradeModeElementName] = value; }
     }
 
     /// <summary>
@@ -241,7 +242,7 @@ namespace Xtensive.Storage.Configuration.Elements
         RecordSetMappingCacheSize = RecordSetMappingCacheSize, 
         AutoValidation = AutoValidation, 
         InconsistentTransactions = InconsistentTransactions, 
-        BuildMode = BuildMode, 
+        UpgradeMode = UpgradeMode, 
         ForeignKeyMode = ForeignKeyMode
       };
       foreach (var builder in Builders) {
@@ -254,7 +255,7 @@ namespace Xtensive.Storage.Configuration.Elements
         dc.CompilerContainers.Register(entry.ToNative());
       foreach (var session in Sessions)
         dc.Sessions.Add(session.ToNative());
-      dc.ServicesConfiguration = Services;      
+      dc.Services = Services;      
       return dc;
     }
   }

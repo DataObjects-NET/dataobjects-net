@@ -57,25 +57,16 @@ namespace Xtensive.Storage.Model
 
     #region Equality members, ==, !=
 
-    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
-    public static bool operator !=(IndexInfoRef x, IndexInfoRef y)
-    {
-      return !Equals(x, y);
-    }
-
-    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
-    public static bool operator ==(IndexInfoRef x, IndexInfoRef y)
-    {
-      return Equals(x, y);
-    }
-
     /// <inheritdoc/>
     public bool Equals(IndexInfoRef other)
     {
-      if (ReferenceEquals(other, null))
+      if (ReferenceEquals(null, other))
         return false;
+      if (ReferenceEquals(this, other))
+        return true;
       return 
-        TypeName==TypeName;
+        other.IndexName==IndexName && 
+        other.TypeName==TypeName;
     }
 
     /// <inheritdoc/>
@@ -89,7 +80,23 @@ namespace Xtensive.Storage.Model
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      return unchecked( TypeName.GetHashCode() );
+      unchecked {
+        return 
+          ((IndexName!=null ? IndexName.GetHashCode() : 0) * 397) ^ 
+          (TypeName!=null ? TypeName.GetHashCode() : 0);
+      }
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
+    public static bool operator ==(IndexInfoRef x, IndexInfoRef y)
+    {
+      return Equals(x, y);
+    }
+
+    /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
+    public static bool operator !=(IndexInfoRef x, IndexInfoRef y)
+    {
+      return !Equals(x, y);
     }
 
     #endregion

@@ -25,9 +25,6 @@ using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
-  /// <summary>
-  /// Manages SqlStorage schema.
-  /// </summary>
   public sealed class SchemaManager
   {
     private readonly string url;

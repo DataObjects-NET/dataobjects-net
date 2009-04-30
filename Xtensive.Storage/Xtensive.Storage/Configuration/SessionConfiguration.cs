@@ -209,6 +209,15 @@ namespace Xtensive.Storage.Configuration
       DefaultIsolationLevel = configuration.DefaultIsolationLevel;
     }
 
+    /// <summary>
+    /// Clones this instance.
+    /// </summary>
+    /// <returns>The clone of this configuration.</returns>
+    public new SessionConfiguration Clone()
+    {
+      return (SessionConfiguration) base.Clone();
+    }
+
     /// <inheritdoc/>
     public override string ToString()
     {

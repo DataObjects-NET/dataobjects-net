@@ -19,14 +19,14 @@ namespace Xtensive.Storage.Internals
     {
       IndexInfo index;
       Tuple keyTuple;
-      RecordSet rs;
+      RecordSet recordSet;
       switch (association.Multiplicity) {
       case Multiplicity.ZeroToOne:
       case Multiplicity.ManyToOne:
         index = association.ReferencingType.Indexes.GetIndex(association.ReferencingField.Name);
         keyTuple = referencedObject.Key.Value;
-        rs = index.ToRecordSet().Range(keyTuple, keyTuple);
-        foreach(Entity item in rs.ToEntities(association.ReferencingField.DeclaringType.UnderlyingType))
+        recordSet = index.ToRecordSet().Range(keyTuple, keyTuple);
+        foreach(Entity item in recordSet.ToEntities(association.ReferencingField.DeclaringType.UnderlyingType))
           yield return item;
           break;
       case Multiplicity.OneToOne:
@@ -39,8 +39,8 @@ namespace Xtensive.Storage.Internals
       case Multiplicity.ManyToMany:
         index = association.UnderlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(association.IsMaster ? 0 : 1).First();
         keyTuple = referencedObject.Key.Value;
-        rs = index.ToRecordSet().Range(keyTuple, keyTuple);
-        foreach (Tuple item in rs)
+        recordSet = index.ToRecordSet().Range(keyTuple, keyTuple);
+        foreach (var item in recordSet)
           yield return Key.Create(association.ReferencingType, association.ExtractForeignKey(item)).Resolve();
           break;
       }

@@ -7,27 +7,33 @@
 namespace Xtensive.Storage.Building
 {
   /// <summary>
-  /// Schema upgrade mode.
+  /// Schema upgrade modes.
   /// </summary>
   public enum SchemaUpgradeMode
   {
     /// <summary>
-    /// Upgrade storage schema, if nothing will be removed.
+    /// Validate schema to be equal to the domain model.
     /// </summary>
-    SafeUpgrade,
+    ValidateExact,
 
     /// <summary>
-    /// Validate schema model to be compatible (not equal) with domain model.
+    /// Validate schema to be compatible (equal or greater) with the domain model.
     /// </summary>
-    Validate,
+    ValidateCompatible,
 
     /// <summary>
-    /// Upgrade schema model to domain model exactly.
+    /// Upgrade schema to domain model.
     /// </summary>
     Upgrade,
 
     /// <summary>
-    /// Recreate schema.
+    /// Upgrade schema to domain model safely - 
+    /// i.e. without any operations leading to data lost.
+    /// </summary>
+    UpgradeSafely,
+
+    /// <summary>
+    /// Completely recreate the schema.
     /// </summary>
     Recreate
   }

@@ -4,13 +4,11 @@
 // Created by: Alexey Kochetov
 // Created:    2007.11.30
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Model.InheritanceSchemaModel;  
 
 namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
@@ -146,15 +144,14 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
 
 namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
 {
- 
   public abstract class InheritanceSchemaTestBase : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof (A).Assembly, typeof(A).Namespace);
-      config.BuildMode = DomainBuildMode.Recreate;
-      return config;
+      var dc = base.BuildConfiguration();
+      dc.Types.Register(typeof (A).Assembly, typeof(A).Namespace);
+      dc.UpgradeMode = StorageUpgradeMode.Recreate;
+      return dc;
     }
 
     [Test]
@@ -163,8 +160,8 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
       Domain.Model.Dump();
       Domain.Model.Types.Dump();
 
-      foreach (TypeInfo type in Domain.Model.Types) {
-        foreach (IndexInfo indexInfo in type.Indexes) {
+      foreach (var type in Domain.Model.Types) {
+        foreach (var indexInfo in type.Indexes) {
           var keyComplexity = type.Hierarchy.KeyInfo.Columns.Count;
           if (indexInfo.IsPrimary)
             Assert.AreEqual(keyComplexity, indexInfo.KeyColumns.Count, "Type: {0}; index: {1}", indexInfo.ReflectedType.Name,
@@ -181,12 +178,12 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration configuration = base.BuildConfiguration();
-      configuration.NamingConvention.LetterCasePolicy = LetterCasePolicy.Uppercase;
-      configuration.NamingConvention.NamingRules = NamingRules.UnderscoreDots | NamingRules.UnderscoreHyphens;
-      configuration.NamingConvention.NamespacePolicy = NamespacePolicy.Hash;
-      configuration.NamingConvention.NamespaceSynonyms.Add("Xtensive.Storage.Tests.Model.DefaultPlacement", "X");
-      return configuration;
+      var dc = base.BuildConfiguration();
+      dc.NamingConvention.LetterCasePolicy = LetterCasePolicy.Uppercase;
+      dc.NamingConvention.NamingRules = NamingRules.UnderscoreDots | NamingRules.UnderscoreHyphens;
+      dc.NamingConvention.NamespacePolicy = NamespacePolicy.Hash;
+      dc.NamingConvention.NamespaceSynonyms.Add("Xtensive.Storage.Tests.Model.DefaultPlacement", "X");
+      return dc;
     }
 
     public override void MainTest()

@@ -37,16 +37,16 @@ namespace Xtensive.Storage.Serialization
     }
 
     /// <summary>
-    /// Gets the current <see cref="DeserializationContext"/>, or throws <see cref="InvalidOperationException"/>, if active context is not found.
+    /// Gets the current <see cref="DeserializationContext"/>, 
+    /// or throws <see cref="InvalidOperationException"/>, if active context is not found.
     /// </summary>
     /// <returns>Current context.</returns>
-    /// <exception cref="InvalidOperationException">Active context is not found.</exception>
+    /// <exception cref="InvalidOperationException"><see cref="DeserializationContext.Current"/> <see cref="DeserializationContext"/> is <see langword="null" />.</exception>
     public static DeserializationContext Demand()
     {
       var currentContext = Current;
       if (currentContext==null)
-        throw new InvalidOperationException(
-          string.Format(Strings.ActiveXIsNotFound, typeof(DeserializationContext)));
+        throw Exceptions.ContextRequired<DeserializationContext,DeserializationScope>();
       return currentContext;
     }
 

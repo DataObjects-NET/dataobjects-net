@@ -61,29 +61,11 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Active {0} is not found..
-        /// </summary>
-        internal static string ActiveXIsNotFound {
-            get {
-                return ResourceManager.GetString("ActiveXIsNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Actual Model.
         /// </summary>
         internal static string ActualModel {
             get {
                 return ResourceManager.GetString("ActualModel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Actual schema version of assembly &apos;{0}&apos; is expected to be &apos;{1}&apos;, but currently is &apos;{2}&apos;..
-        /// </summary>
-        internal static string ActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyIsZ {
-            get {
-                return ResourceManager.GetString("ActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyIsZ", resourceCulture);
             }
         }
         
@@ -124,29 +106,20 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Entity was not removed..
-        /// </summary>
-        internal static string EntityWasNotRemoved {
-            get {
-                return ResourceManager.GetString("EntityWasNotRemoved", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Entity &apos;{0}&apos; is bound to another session..
-        /// </summary>
-        internal static string EntityXIsBoundToAnotherSession {
-            get {
-                return ResourceManager.GetString("EntityXIsBoundToAnotherSession", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Active serialization context is not found..
         /// </summary>
         internal static string ExActiveSerializationContextIsNotFound {
             get {
                 return ResourceManager.GetString("ExActiveSerializationContextIsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Actual schema version of assembly &apos;{0}&apos; is expected to be &apos;{1}&apos;, but currently it is &apos;{2}&apos;..
+        /// </summary>
+        internal static string ExActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyItIsZ {
+            get {
+                return ResourceManager.GetString("ExActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyItIsZ", resourceCulture);
             }
         }
         
@@ -358,6 +331,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Duplicate assembly name: {0}..
+        /// </summary>
+        internal static string ExDuplicateAssemblyNameX {
+            get {
+                return ResourceManager.GetString("ExDuplicateAssemblyNameX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Element with name &apos;{0}&apos; is contained in this instance already..
         /// </summary>
         internal static string ExElementWithNameContainedInThisInstanceAlready {
@@ -421,6 +403,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Entity &apos;{0}&apos; is bound to another session..
+        /// </summary>
+        internal static string ExEntityXIsBoundToAnotherSession {
+            get {
+                return ResourceManager.GetString("ExEntityXIsBoundToAnotherSession", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Some errors have been occurred during storage build. See error log for details..
         /// </summary>
         internal static string ExErrorsDuringStorageBuild {
@@ -466,6 +457,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Field with name &apos;{0}&apos; is already registered..
+        /// </summary>
+        internal static string ExFieldWithNameXIsAlreadyRegistered {
+            get {
+                return ResourceManager.GetString("ExFieldWithNameXIsAlreadyRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Field &apos;{0}&apos; can&apos;t have LazyLoad attribute as it is included in primary key..
         /// </summary>
         internal static string ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey {
@@ -493,6 +493,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Field {0} is already defined in type {1} or its ancestor..
+        /// </summary>
+        internal static string ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor {
+            get {
+                return ResourceManager.GetString("ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Field &apos;{0}.{1}&apos; is not found..
         /// </summary>
         internal static string ExFieldXYIsNotFound {
@@ -507,6 +516,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExIndexAlreadyContainsField {
             get {
                 return ResourceManager.GetString("ExIndexAlreadyContainsField", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Indexed properties are not supported..
+        /// </summary>
+        internal static string ExIndexedPropertiesAreNotSupported {
+            get {
+                return ResourceManager.GetString("ExIndexedPropertiesAreNotSupported", resourceCulture);
             }
         }
         
@@ -669,6 +687,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExNotNullableConstraintViolationOnFieldX {
             get {
                 return ResourceManager.GetString("ExNotNullableConstraintViolationOnFieldX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No upgrade handler is found for assembly &quot;{0}&quot;, version {1}..
+        /// </summary>
+        internal static string ExNoUpgradeHandlerIsFoundForAssemblyXVersionY {
+            get {
+                return ResourceManager.GetString("ExNoUpgradeHandlerIsFoundForAssemblyXVersionY", resourceCulture);
             }
         }
         
@@ -925,6 +952,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type with name &quot;{0}&quot; is not found in metadata..
+        /// </summary>
+        internal static string ExTypeWithNameXIsNotFoundInMetadata {
+            get {
+                return ResourceManager.GetString("ExTypeWithNameXIsNotFoundInMetadata", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type with type id &apos;{0}&apos; is not found..
         /// </summary>
         internal static string ExTypeWithTypeIdXIsNotFound {
@@ -1061,6 +1097,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Upgrade of assembly &quot;{0}&quot; from version {1} to {2} is not supported..
+        /// </summary>
+        internal static string ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value should be &apos;{0}&apos; descendant..
         /// </summary>
         internal static string ExValueShouldBeXDescendant {
@@ -1097,24 +1142,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Field with name &apos;{0}&apos; is already registered..
-        /// </summary>
-        internal static string FieldWithNameXIsAlreadyRegistered {
-            get {
-                return ResourceManager.GetString("FieldWithNameXIsAlreadyRegistered", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Field {0} is already defined in type {1} or its ancestor..
-        /// </summary>
-        internal static string FieldXIsAlreadyDefinedInTypeXOrItsAncestor {
-            get {
-                return ResourceManager.GetString("FieldXIsAlreadyDefinedInTypeXOrItsAncestor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Generators.
         /// </summary>
         internal static string Generators {
@@ -1129,15 +1156,6 @@ namespace Xtensive.Storage.Resources {
         internal static string HierarchyColumns {
             get {
                 return ResourceManager.GetString("HierarchyColumns", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Indexed properties are not supported..
-        /// </summary>
-        internal static string IndexedPropertiesAreNotSupported {
-            get {
-                return ResourceManager.GetString("IndexedPropertiesAreNotSupported", resourceCulture);
             }
         }
         
@@ -1250,6 +1268,33 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Metadata.Assembly created: {0}.
+        /// </summary>
+        internal static string LogMetadataAssemblyCreatedX {
+            get {
+                return ResourceManager.GetString("LogMetadataAssemblyCreatedX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Metadata.Assembly updated: {0}, from version {1} to {2}.
+        /// </summary>
+        internal static string LogMetadataAssemblyUpdatedXFromVersionYToZ {
+            get {
+                return ResourceManager.GetString("LogMetadataAssemblyUpdatedXFromVersionYToZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Metadata.Type renamed: &quot;{0}&quot; to &quot;{1}&quot;..
+        /// </summary>
+        internal static string LogMetadataTypeRenamedXToY {
+            get {
+                return ResourceManager.GetString("LogMetadataTypeRenamedXToY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SessionBound method &apos;{0} &apos;of type &apos;{1}&apos;.
         /// </summary>
         internal static string LogSessionBoundMethodXOfTypeY {
@@ -1264,6 +1309,24 @@ namespace Xtensive.Storage.Resources {
         internal static string LogValidatingX {
             get {
                 return ResourceManager.GetString("LogValidatingX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (Version={1}).
+        /// </summary>
+        internal static string MetadataAssemblyFormat {
+            get {
+                return ResourceManager.GetString("MetadataAssemblyFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (Id={1}).
+        /// </summary>
+        internal static string MetadataTypeFormat {
+            get {
+                return ResourceManager.GetString("MetadataTypeFormat", resourceCulture);
             }
         }
         
@@ -1489,6 +1552,15 @@ namespace Xtensive.Storage.Resources {
         internal static string XIsNotApplicableToYDescendants {
             get {
                 return ResourceManager.GetString("XIsNotApplicableToYDescendants", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;none&gt;.
+        /// </summary>
+        internal static string ZeroAssemblyVersion {
+            get {
+                return ResourceManager.GetString("ZeroAssemblyVersion", resourceCulture);
             }
         }
     }

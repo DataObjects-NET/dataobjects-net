@@ -35,7 +35,6 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       typeRegistrator.Invoke(configuration.Types);
-      configuration.TypeNameProviderType = typeof (SimpleTypeNameProvider);
       Domain = DomainBuilder.BuildDomain(configuration, schemaUpgradeMode);
     }
   }

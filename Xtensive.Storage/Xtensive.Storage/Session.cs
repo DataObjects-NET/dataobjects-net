@@ -161,9 +161,8 @@ namespace Xtensive.Storage
     public static Session Demand()
     {
       var currentSession = Current;
-      if (currentSession==null)        
-        throw new InvalidOperationException(
-          string.Format(Strings.ActiveXIsNotFound, typeof(Session)));
+      if (currentSession==null)
+        throw Exceptions.ContextRequired<Session,SessionScope>();
       return currentSession;
     }
 

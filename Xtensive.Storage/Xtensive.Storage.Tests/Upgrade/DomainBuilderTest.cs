@@ -6,13 +6,10 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
-using Xtensive.Storage.Building.Builders;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Core;
 
@@ -60,22 +57,22 @@ namespace Xtensive.Storage.Tests.Upgrade
       Assert.AreEqual(TypeInfo.MinTypeId, bId);
       Assert.AreEqual(TypeInfo.MinTypeId + 1, aId);
 
-      BuildDomain(SchemaUpgradeMode.Validate, typeof (A));
-      BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof (B));
+      BuildDomain(SchemaUpgradeMode.ValidateCompatible, typeof (A));
+      BuildDomain(SchemaUpgradeMode.ValidateCompatible, typeof (A), typeof (B));
 
       AssertEx.Throws<AggregateException>(() =>
-        BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof (B), typeof (C)));
+        BuildDomain(SchemaUpgradeMode.ValidateCompatible, typeof (A), typeof (B), typeof (C)));
 
       BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A));
 
       Assert.AreEqual(aId, GetTypeId(typeof (A)));
 
       AssertEx.Throws<AggregateException>(() =>
-        BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof (B)));
+        BuildDomain(SchemaUpgradeMode.ValidateCompatible, typeof (A), typeof (B)));
 
       BuildDomain(SchemaUpgradeMode.Recreate, typeof(A), typeof (B));
       AssertEx.Throws<AggregateException>(() =>
-        BuildDomain(SchemaUpgradeMode.SafeUpgrade, typeof (A)));
+        BuildDomain(SchemaUpgradeMode.UpgradeSafely, typeof (A)));
     }
 
     [Test]

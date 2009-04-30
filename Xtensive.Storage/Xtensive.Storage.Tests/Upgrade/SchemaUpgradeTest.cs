@@ -8,13 +8,13 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Attributes;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Tests.Upgrade.Model2;
 using Xtensive.Storage.Upgrade;
 using Xtensive.Storage.Upgrade.Hints;
+using Xtensive.Core.Helpers;
 
-
-namespace Xtensive.Storage.Tests.Upgrade.Model_1
+namespace Xtensive.Storage.Tests.Upgrade.Model1
 {
   [HierarchyRoot(typeof (KeyGenerator), "ID")]
   public class Person : Entity
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model_1
   }
 }
 
-namespace Xtensive.Storage.Tests.Upgrade.Model_2
+namespace Xtensive.Storage.Tests.Upgrade.Model2
 {
   [HierarchyRoot(typeof (KeyGenerator), "ID")]
   public class Person : Entity
@@ -56,50 +56,10 @@ namespace Xtensive.Storage.Tests.Upgrade.Model_2
 
     [Field]
     [Obsolete]
-    public Recycled_2.Address Address { get; set;}
+    public Address Address { get; set;}
   }
 
-  public class UpgraderToVersion_2 : IUpgrader
-  {
-
-
-    public string GetAssemblyName()
-    {
-      return "Xtensive.Storage.Tests.Upgrade.Model";
-    }
-
-    public bool CanUpgradeFrom(string schemaVersion)
-    {
-      return schemaVersion == "1";
-    }
-    
-    public string ResultVersion
-    {
-      get { return "2"; }
-    }
-
-    public void OnBeforeUpgrade()
-    {
-      UpgradeContext.Current.Hints.Add(
-        new RenameFieldHint(typeof(Person), "FullName", "Name"));
-    }
-
-    public void OnUpgrade()
-    {
-      foreach (Person person in Query<Person>.All) {
-        person.City = person.Address.City;
-      }
-    }
-
-    public bool IsAvailable(Type type)
-    {
-      return true;
-    }
-  }
-}
-
-namespace Xtensive.Storage.Tests.Upgrade.Recycled_2
-{
+  [Recycled]
   [HierarchyRoot(typeof (KeyGenerator), "ID")]
   public class Address : Entity
   {
@@ -113,6 +73,54 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled_2
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
+  public class AssemblyUpgradeHandler : UpgradeHandler
+  {
+    public static string RunningVersion = "1";
+
+    protected override string DetectAssemblyVersion()
+    {
+      return RunningVersion;
+    }
+
+    public override bool CanUpgradeFrom(string oldVersion)
+    {
+      return oldVersion==null || new Version(oldVersion) < new Version(RunningVersion);
+    }
+    
+    protected override void AddUpgradeHints()
+    {
+      var context = UpgradeContext.Current;
+      base.AddUpgradeHints();
+      if (RunningVersion!="2")
+        return;
+      context.Hints.Add(new RenameFieldHint(typeof(Person), "FullName", "Name"));
+    }
+
+    public override void OnUpgrade()
+    {
+      var context = UpgradeContext.Current;
+      if (RunningVersion!="2")
+        return;
+      foreach (var person in Query<Person>.All)
+        person.City = person.Address.City;
+    }
+
+    public override bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)
+    {
+      string suffix = "Model" + RunningVersion;
+      var originalNamespace = type.Namespace;
+      var nameSpace = originalNamespace.TryCutSuffix(suffix);
+      return nameSpace!=originalNamespace 
+        && base.IsTypeAvailable(type, upgradeStage);
+    }
+
+    public override string GetTypeName(Type type)
+    {
+      string suffix = "Model" + RunningVersion;
+      return type.Namespace.TryCutSuffix(suffix);
+    }
+  }
+
   [TestFixture]
   public class SchemaUpgradeTest
   {
@@ -121,9 +129,11 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     public DomainConfiguration GetConfiguration(Type persistentType)
     {
-      DomainConfiguration configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), persistentType.Namespace);
-      return configuration;
+      var dc = DomainConfigurationFactory.Create();
+      var ns = persistentType.Namespace;
+      dc.Types.Register(Assembly.GetExecutingAssembly(), ns);
+      AssemblyUpgradeHandler.RunningVersion = ns.Substring(ns.Length - 1);
+      return dc;
     }
 
     [Test]
@@ -135,47 +145,46 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private void BuildFirstModel()
     {
-      DomainConfiguration configuration = GetConfiguration(typeof(Model_1.Person));
-      configuration.BuildMode = DomainBuildMode.Recreate;
-      Domain domain = Domain.Build(configuration);
+      var dc = GetConfiguration(typeof(Model1.Person));
+      dc.UpgradeMode = StorageUpgradeMode.Recreate;
+      var domain = Domain.Build(dc);
       using (domain.OpenSession()) {        
-        using (var transactionScope = Transaction.Open()) {
-
+        using (var ts = Transaction.Open()) {
           assemblyTypeId = domain.Model.Types[typeof (Metadata.Assembly)].TypeId;
-          persionTypeId = domain.Model.Types[typeof (Model_1.Person)].TypeId;
+          persionTypeId = domain.Model.Types[typeof (Model1.Person)].TypeId;
 
-          new Model_1.Person
+          new Model1.Person
             {
-              Address = new Model_1.Address {City = "Mumbai"},
+              Address = new Model1.Address {City = "Mumbai"},
               FullName = "Gaurav"
             };
-          new Model_1.Person
+          new Model1.Person
             {
-              Address = new Model_1.Address {City = "Delhi"},
+              Address = new Model1.Address {City = "Delhi"},
               FullName = "Mihir"
             };
-          transactionScope.Complete();
+          ts.Complete();
         }
       }
     }
 
     private void BuildSecondDomain()
     {
-      DomainConfiguration configuration = GetConfiguration(typeof(Model_2.Person));
-      configuration.BuildMode = DomainBuildMode.PerformStrict;
-      Domain domain = Domain.Build(configuration);
+      var dc = GetConfiguration(typeof(Model2.Person));
+      dc.UpgradeMode = StorageUpgradeMode.PerformSafely;
+      var domain = Domain.Build(dc);
       using (domain.OpenSession()) {
-        using (Transaction.Open()) {
-
+        using (var ts = Transaction.Open()) {
           Assert.AreEqual(assemblyTypeId, domain.Model.Types[typeof (Metadata.Assembly)].TypeId);
-          Assert.AreEqual(persionTypeId, domain.Model.Types[typeof (Model_2.Person)].TypeId);
+          Assert.AreEqual(persionTypeId, domain.Model.Types[typeof (Model2.Person)].TypeId);
 
-          foreach (var person in Query<Model_2.Person>.All) {
+          foreach (var person in Query<Model2.Person>.All) {
             if (person.Name=="Gauvar")
               Assert.AreEqual("Mumbai", person.City);
             else
               Assert.AreEqual("Delhi", person.City);
           }
+          ts.Complete();
         }
       }
     }

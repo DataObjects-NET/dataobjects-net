@@ -4,16 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.06
 
-using Xtensive.Storage.Upgrade;
-
-namespace Xtensive.Storage.Building
+namespace Xtensive.Storage
 {
   /// <summary>
-  /// Enumerates possible storage build modes.
+  /// Enumerates possible storage upgrade modes.
   /// <seealso cref="Domain.Build"/>
   /// <seealso cref="Domain"/>
   /// </summary>
-  public enum DomainBuildMode
+  public enum StorageUpgradeMode
   {
     /// <summary>
     /// Default upgrade mode.
@@ -24,9 +22,9 @@ namespace Xtensive.Storage.Building
     /// <summary>
     /// Restricts any modifications to storage.
     /// <see cref="DomainBuilderException"/> will be 
-    /// thrown if storage different to model.
+    /// thrown if storage schema differs from the expected one.
     /// </summary>
-    BlockUpgrade = 0x00,
+    Validate = 0x00,
 
     /// <summary>
     /// Recreates all storage structures. Storage will
@@ -35,16 +33,16 @@ namespace Xtensive.Storage.Building
     Recreate = 0x01,
 
     /// <summary>
-    /// Storage upgrade will be performed. Missing columns and tables will be added, 
-    /// excess columns and tables will be removed.
+    /// Storage upgrade will be performed. 
+    /// Missing columns and tables will be added, excess columns and tables will be removed.
     /// </summary>
     Perform = 0x02,
     
     /// <summary>
-    /// Storage upgrade with special upgrade routine is needed if storage different to model.
-    /// Storage will be upgraded to intermediate state with reciled types. <see cref="IUpgrader"/> instance
-    /// must bring new storage data to correct state using new model and reciling types.
+    /// Storage upgrade will be performed. 
+    /// Missing columns and tables will be added, 
+    /// excess columns and tables will be removed only if there are corresponding hints.
     /// </summary>
-    PerformStrict = 0x03,
+    PerformSafely = 0x03,
   }
 }

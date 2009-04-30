@@ -15,6 +15,9 @@ namespace Xtensive.Storage.Model
   public sealed class Log: LogTemplate<Log>
   {
     // Copy-paste this code!
+    /// <summary>
+    /// Gets the name of this log.
+    /// </summary>
     public static readonly string Name;
 
     static Log()

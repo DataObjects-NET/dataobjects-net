@@ -234,10 +234,10 @@
   <data name="ValueTypeMismatchForFieldX" xml:space="preserve">
     <value>Value type mismatch for field '{0}'</value>
   </data>
-  <data name="FieldWithNameXIsAlreadyRegistered" xml:space="preserve">
+  <data name="ExFieldWithNameXIsAlreadyRegistered" xml:space="preserve">
     <value>Field with name '{0}' is already registered.</value>
   </data>
-  <data name="FieldXIsAlreadyDefinedInTypeXOrItsAncestor" xml:space="preserve">
+  <data name="ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor" xml:space="preserve">
     <value>Field {0} is already defined in type {1} or its ancestor.</value>
   </data>
   <data name="InterfaceXDoesNotBelongToXHierarchy" xml:space="preserve">
@@ -252,7 +252,7 @@
   <data name="ValueCanNotBeRemovedEntity" xml:space="preserve">
     <value>Value can not be an entity that is already removed.</value>
   </data>
-  <data name="IndexedPropertiesAreNotSupported" xml:space="preserve">
+  <data name="ExIndexedPropertiesAreNotSupported" xml:space="preserve">
     <value>Indexed properties are not supported.</value>
   </data>
   <data name="ExTypeXIsNotRegisteredInTheModel" xml:space="preserve">
@@ -426,16 +426,13 @@
   <data name="ExEntityIsInInconsistentState" xml:space="preserve">
     <value>Entity is in inconsistent state.</value>
   </data>
-  <data name="EntityWasNotRemoved" xml:space="preserve">
-    <value>Entity was not removed.</value>
-  </data>
   <data name="ExCanNotOpenTransactionNoCurrentSession" xml:space="preserve">
     <value>Can't open a transaction, since there is no current Session.</value>
   </data>
   <data name="ExFieldXYIsNotFound" xml:space="preserve">
     <value>Field '{0}.{1}' is not found.</value>
   </data>
-  <data name="EntityXIsBoundToAnotherSession" xml:space="preserve">
+  <data name="ExEntityXIsBoundToAnotherSession" xml:space="preserve">
     <value>Entity '{0}' is bound to another session.</value>
   </data>
   <data name="ExValueShouldBeXDescendant" xml:space="preserve">
@@ -543,9 +540,6 @@
   <data name="ExUnableToCreateKeyForXHierarchy" xml:space="preserve">
     <value>Unable to create key for '{0}' hierarchy. Key value or key generator should be specified.</value>
   </data>
-  <data name="ActiveXIsNotFound" xml:space="preserve">
-    <value>Active {0} is not found.</value>
-  </data>
   <data name="ExCompilerContainerAttributeIsNotAppliedToTypeX" xml:space="preserve">
     <value>'CompilerContainer' attribute isn't applied to type '{0}'.</value>
   </data>
@@ -561,8 +555,8 @@
   <data name="ExExpressionOfTypeXIsNotASequence" xml:space="preserve">
     <value>The expression of type '{0}' is not a sequence</value>
   </data>
-  <data name="ActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyIsZ" xml:space="preserve">
-    <value>Actual schema version of assembly '{0}' is expected to be '{1}', but currently is '{2}'.</value>
+  <data name="ExActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyItIsZ" xml:space="preserve">
+    <value>Actual schema version of assembly '{0}' is expected to be '{1}', but currently it is '{2}'.</value>
   </data>
   <data name="ExOnlyEqualityRangesAreSupported" xml:space="preserve">
     <value>Only equality ranges are supported.</value>
@@ -593,5 +587,35 @@
   </data>
   <data name="ExCanNotUpgradeSchemaSafely" xml:space="preserve">
     <value>Can not upgrade schema safely.</value>
+  </data>
+  <data name="ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported" xml:space="preserve">
+    <value>Upgrade of assembly "{0}" from version {1} to {2} is not supported.</value>
+  </data>
+  <data name="ZeroAssemblyVersion" xml:space="preserve">
+    <value>&lt;none&gt;</value>
+  </data>
+  <data name="ExDuplicateAssemblyNameX" xml:space="preserve">
+    <value>Duplicate assembly name: {0}.</value>
+  </data>
+  <data name="ExNoUpgradeHandlerIsFoundForAssemblyXVersionY" xml:space="preserve">
+    <value>No upgrade handler is found for assembly "{0}", version {1}.</value>
+  </data>
+  <data name="ExTypeWithNameXIsNotFoundInMetadata" xml:space="preserve">
+    <value>Type with name "{0}" is not found in metadata.</value>
+  </data>
+  <data name="LogMetadataTypeRenamedXToY" xml:space="preserve">
+    <value>Metadata.Type renamed: "{0}" to "{1}".</value>
+  </data>
+  <data name="MetadataAssemblyFormat" xml:space="preserve">
+    <value>{0} (Version={1})</value>
+  </data>
+  <data name="MetadataTypeFormat" xml:space="preserve">
+    <value>{0} (Id={1})</value>
+  </data>
+  <data name="LogMetadataAssemblyCreatedX" xml:space="preserve">
+    <value>Metadata.Assembly created: {0}</value>
+  </data>
+  <data name="LogMetadataAssemblyUpdatedXFromVersionYToZ" xml:space="preserve">
+    <value>Metadata.Assembly updated: {0}, from version {1} to {2}</value>
   </data>
 </root>

@@ -1,13 +1,13 @@
-// Copyright (C) 2008 Xtensive LLC.
+// Copyright (C) 2007 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Alex Yakunin
-// Created:    2009.03.18
+// Created by: Alexey Kochetov
+// Created:    2007.11.13
 
 using System.Reflection;
 using Xtensive.Core.Diagnostics;
 
-namespace Xtensive.Storage.Indexing
+namespace Xtensive.Storage.Upgrade
 {
   /// <summary>
   /// Log for this namespace.
@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Indexing
     /// Gets the name of this log.
     /// </summary>
     public static readonly string Name;
-    
+
     static Log()
     {
       string className = MethodInfo.GetCurrentMethod().DeclaringType.FullName;

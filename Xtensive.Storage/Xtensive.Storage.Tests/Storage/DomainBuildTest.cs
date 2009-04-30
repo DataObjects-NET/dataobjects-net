@@ -11,6 +11,7 @@ using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using System;
 using Xtensive.Storage.Building.Builders;
+using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Tests.Storage.DomainBuild
 {
@@ -45,13 +46,13 @@ namespace Xtensive.Storage.Tests.Storage
   {
     private Domain Domain { get; set; }
     
-    private void BuildDomain(DomainBuildMode buildMode)
+    private void BuildDomain(StorageUpgradeMode buildMode)
     {
       if (Domain != null)
         Domain.DisposeSafely();
 
       var config = DomainConfigurationFactory.Create("mssql2005");
-      config.BuildMode = buildMode;
+      config.UpgradeMode = buildMode;
       config.Types.Register(typeof (A).Assembly, typeof (A).Namespace);
       
       Domain = Domain.Build(config);
@@ -60,7 +61,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DomainRecreateTest()
     {
-      BuildDomain(DomainBuildMode.Recreate);
+      BuildDomain(StorageUpgradeMode.Recreate);
       using (var session = Domain.OpenSession()) {
         using (var transaction = session.Session.OpenTransaction()) {
           for (var i = 0; i < 10; i++) {
@@ -75,7 +76,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DomainBlockUpgradeTest()
     {
-      BuildDomain(DomainBuildMode.Recreate);
+      BuildDomain(StorageUpgradeMode.Recreate);
       using (var session = Domain.OpenSession()) {
         using (var transaction = session.Session.OpenTransaction()) {
           for (var i = 0; i < 129; i++) {
@@ -84,7 +85,7 @@ namespace Xtensive.Storage.Tests.Storage
           transaction.Complete();
         }
       }
-      BuildDomain(DomainBuildMode.BlockUpgrade);
+      BuildDomain(StorageUpgradeMode.Validate);
       using (var session = Domain.OpenSession()) {
         using (var transaction = session.Session.OpenTransaction()) {
           var products = Query<A>.All;

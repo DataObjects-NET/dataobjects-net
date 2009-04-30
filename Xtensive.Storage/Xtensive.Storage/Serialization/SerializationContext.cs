@@ -31,13 +31,12 @@ namespace Xtensive.Storage.Serialization
     /// Gets the current <see cref="SerializationContext"/>, or throws <see cref="InvalidOperationException"/>, if active context is not found.
     /// </summary>
     /// <returns>Current context.</returns>
-    /// <exception cref="InvalidOperationException">Active context is not found.</exception>
+    /// <exception cref="InvalidOperationException"><see cref="SerializationContext.Current"/> <see cref="SerializationContext"/> is <see langword="null" />.</exception>
     public static SerializationContext Demand()
     {
       var currentContext = Current;
       if (currentContext==null)        
-        throw new InvalidOperationException(
-          string.Format(Strings.ActiveXIsNotFound, typeof(SerializationContext)));
+        throw Exceptions.ContextRequired<SerializationContext,SerializationScope>();
       return currentContext;
     }
 

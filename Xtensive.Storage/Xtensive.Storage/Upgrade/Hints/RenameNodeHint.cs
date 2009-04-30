@@ -7,34 +7,38 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Upgrade.Hints
 {
   /// <summary>
-  /// Rename type hint.
+  /// Rename storage model node hint.
   /// </summary>
   [Serializable]
-  public sealed class RenameTypeHint : TargetTypeHintBase,
-    IEquatable<RenameTypeHint>
+  public sealed class RenameNodeHint :
+    IEquatable<RenameNodeHint>
   {
     /// <summary>
-    /// Gets the old type name.
+    /// Gets the current node name.
+    /// </summary>
+    public string Name { get; private set; }
+
+    /// <summary>
+    /// Gets the old node name.
     /// </summary>
     public string OldName { get; private set; }
 
     #region Equality members
 
     /// <inheritdoc/>
-    public bool Equals(RenameTypeHint other)
+    public bool Equals(RenameNodeHint other)
     {
       if (ReferenceEquals(null, other))
         return false;
       if (ReferenceEquals(this, other))
         return true;
       return 
-        other.TargetType==TargetType && 
-          other.OldName==OldName;
+        other.Name==Name 
+          && other.OldName==OldName;
     }
 
     /// <inheritdoc/>
@@ -44,23 +48,25 @@ namespace Xtensive.Storage.Upgrade.Hints
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      if (obj.GetType()!=typeof (RenameTypeHint))
+      if (obj.GetType()!=typeof (RenameNodeHint))
         return false;
-      return Equals((RenameTypeHint) obj);
+      return Equals((RenameNodeHint) obj);
     }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      return 
-        ((TargetType!=null ? TargetType.GetHashCode() : 0) * 397) ^ 
-          (OldName!=null ? OldName.GetHashCode() : 0);
+      unchecked {
+        return 
+          ((Name!=null ? Name.GetHashCode() : 0) * 397) ^ 
+            (OldName!=null ? OldName.GetHashCode() : 0);
+      }
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.OperatorEq" copy="true"/>
     /// </summary>
-    public static bool operator ==(RenameTypeHint left, RenameTypeHint right)
+    public static bool operator ==(RenameNodeHint left, RenameNodeHint right)
     {
       return Equals(left, right);
     }
@@ -68,7 +74,7 @@ namespace Xtensive.Storage.Upgrade.Hints
     /// <summary>
     /// <see cref="ClassDocTemplate.OperatorNeq" copy="true"/>
     /// </summary>
-    public static bool operator !=(RenameTypeHint left, RenameTypeHint right)
+    public static bool operator !=(RenameNodeHint left, RenameNodeHint right)
     {
       return !Equals(left, right);
     }
@@ -79,7 +85,7 @@ namespace Xtensive.Storage.Upgrade.Hints
     public override string ToString()
     {
       return string.Format("{0}: {1} -> {2}", 
-        "Rename type", OldName, TargetType.GetFullName());
+        "Rename node", OldName, Name);
     }
 
 
@@ -88,14 +94,13 @@ namespace Xtensive.Storage.Upgrade.Hints
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="targetType">The current type.</param>
-    /// <param name="oldName">The old type name.</param>
-    public RenameTypeHint(Type targetType, string oldName)
-      : base(targetType)
+    /// <param name="name">The current node name.</param>
+    /// <param name="oldName">The old node name.</param>
+    public RenameNodeHint(string name, string oldName)
     {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(oldName, "oldName");
-      if (!oldName.Contains("."))
-        oldName = targetType.Namespace + "." + oldName;
+      Name = name;
       OldName = oldName;
     }
   }

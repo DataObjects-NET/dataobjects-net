@@ -6,7 +6,6 @@
 
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -30,7 +29,7 @@ namespace Xtensive.Storage.Upgrade
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="context">The context.</param>
-    public UpgradeScope(UpgradeContext context) 
+    internal UpgradeScope(UpgradeContext context) 
       : base(context)
     {
     }

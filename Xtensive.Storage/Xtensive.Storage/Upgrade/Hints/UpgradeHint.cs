@@ -10,7 +10,7 @@ using System.Diagnostics;
 namespace Xtensive.Storage.Upgrade.Hints
 {
   /// <summary>
-  /// Base class for upgrade hints.
+  /// Abstract base class for any upgrade hint.
   /// </summary>
   [Serializable]
   public abstract class UpgradeHint

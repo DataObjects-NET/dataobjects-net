@@ -24,6 +24,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse.Providers.Executable;
+using Xtensive.Storage.Upgrade;
 using Activator=System.Activator;
 
 namespace Xtensive.Storage
@@ -75,8 +76,6 @@ namespace Xtensive.Storage
     /// Gets the disposing state of the domain.
     /// </summary>
     public DisposingState DisposingState { get; private set; }
-
-    internal ITypeNameProvider TypeNameProvider { get; private set;}
 
     /// <summary>
     /// Gets the domain model.
@@ -181,7 +180,7 @@ namespace Xtensive.Storage
     /// <returns>Newly built <see cref="Domain"/>.</returns>
     public static Domain Build(DomainConfiguration configuration)
     {
-      return AdvancedDomainBuilder.Build(configuration);
+      return UpgradingDomainBuilder.Build(configuration);
     }
 
 
@@ -201,7 +200,6 @@ namespace Xtensive.Storage
       TemporaryData = new GlobalTemporaryData();
       ServiceContainer = new UnityContainer();
       ServiceContainer.AddExtension(new SingletonExtension());
-      TypeNameProvider = (ITypeNameProvider) Activator.CreateInstance(configuration.TypeNameProviderType);
     }
 
     /// <inheritdoc/>

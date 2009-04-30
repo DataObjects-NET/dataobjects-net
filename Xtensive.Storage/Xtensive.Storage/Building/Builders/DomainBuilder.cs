@@ -43,11 +43,11 @@ namespace Xtensive.Storage.Building.Builders
     /// </summary>
     /// <param name="configuration">The domain configuration.</param>
     /// <param name="schemaUpgradeMode">The schema upgrade mode.</param>
-    /// <param name="dataProcessor">The method that can process storage data when domain is built.</param>
+    /// <param name="upgradeHandler">The method that can process storage data when domain is built.</param>
     /// <returns>Built domain.</returns>
-    public static Domain BuildDomain(DomainConfiguration configuration, SchemaUpgradeMode schemaUpgradeMode, Action dataProcessor)
+    public static Domain BuildDomain(DomainConfiguration configuration, SchemaUpgradeMode schemaUpgradeMode, Action upgradeHandler)
     {
-      return BuildDomain(configuration, schemaUpgradeMode, dataProcessor, type => true);
+      return BuildDomain(configuration, schemaUpgradeMode, upgradeHandler, type => true);
     }
 
     /// <summary>
@@ -55,23 +55,24 @@ namespace Xtensive.Storage.Building.Builders
     /// </summary>
     /// <param name="configuration">The domain configuration.</param>
     /// <param name="schemaUpgradeMode">The schema upgrade mode.</param>
-    /// <param name="dataProcessor">The method that can process storage data when domain is built.</param>
-    /// <param name="persistentTypeFilter">The persistent type filter.</param>
+    /// <param name="upgradeHandler">The method that can process storage data when domain is built.</param>
+    /// <param name="typeFilter">The persistent type filter.</param>
     /// <returns>Built domain.</returns>
     public static Domain BuildDomain(DomainConfiguration configuration, 
-      SchemaUpgradeMode schemaUpgradeMode, Action dataProcessor, Predicate<Type> persistentTypeFilter)
+      SchemaUpgradeMode schemaUpgradeMode, Action upgradeHandler, Func<Type, bool> typeFilter)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-      ArgumentValidator.EnsureArgumentNotNull(dataProcessor, "dataProcessor");
-      ArgumentValidator.EnsureArgumentNotNull(persistentTypeFilter, "persistentTypeFilter");
+      ArgumentValidator.EnsureArgumentNotNull(upgradeHandler, "upgradeHandler");
+      ArgumentValidator.EnsureArgumentNotNull(typeFilter, "typeFilter");
 
       if (!configuration.IsLocked)
         configuration.Lock(true);
 
       Validate(configuration);
 
-      var context = new BuildingContext(configuration);
-      context.PersistentTypeFilter = persistentTypeFilter;
+      var context = new BuildingContext(configuration) {
+        TypeFilter = typeFilter
+      };
 
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
         using (new BuildingScope(context)) {
@@ -89,15 +90,11 @@ namespace Xtensive.Storage.Building.Builders
               context.SystemSessionHandler = Session.Current.Handler;
               using (var transactionScope = Transaction.Open()) {
                 context.Domain.Handler.OnSystemSessionOpen();
-
                 ProcessSchema(schemaUpgradeMode);
-
                 context.Domain.Handler.BuildMapping();
                 CreateGenerators();
                 TypeIdBuilder.BuildTypeIds();
-                
-                dataProcessor.Invoke();
-                
+                upgradeHandler.Invoke();
                 transactionScope.Complete();
               }
             }
@@ -113,10 +110,10 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ConfigureServiceContainer()
     {
-      BuildingContext context = BuildingContext.Current;
-      if (context.Configuration.ServicesConfiguration==null)
+      var context = BuildingContext.Current;
+      if (context.Configuration.Services==null)
         return;
-      foreach (UnityTypeElement typeElement in context.Configuration.ServicesConfiguration)
+      foreach (UnityTypeElement typeElement in context.Configuration.Services)
         typeElement.Configure(BuildingContext.Current.Domain.ServiceContainer);
     }
 
@@ -125,18 +122,19 @@ namespace Xtensive.Storage.Building.Builders
       var upgradeHandler = BuildingContext.Current.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
 
       switch (schemaUpgradeMode) {
-      case SchemaUpgradeMode.Validate:
+      case SchemaUpgradeMode.ValidateCompatible:
+        // TODO: Check this!
         if (upgradeHandler.HasCreateActions)
           throw new DomainBuilderException(
             Strings.ExStorageSchemaIsNotCompatibleForDomainModel);
         break;
-      case SchemaUpgradeMode.Upgrade:
-        upgradeHandler.UpgradeStorageSchema();
-        break;
       case SchemaUpgradeMode.Recreate:
         upgradeHandler.RecreateStorageSchema();
         break;
-      case SchemaUpgradeMode.SafeUpgrade:
+      case SchemaUpgradeMode.Upgrade:
+        upgradeHandler.UpgradeStorageSchema();
+        break;
+      case SchemaUpgradeMode.UpgradeSafely:
         if (upgradeHandler.HasRemoveActions)
           throw new DomainBuilderException(Strings.ExCanNotUpgradeSchemaSafely);
         upgradeHandler.UpgradeStorageSchema();

@@ -13,6 +13,7 @@ using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Resources;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Building.Builders
@@ -68,7 +69,7 @@ namespace Xtensive.Storage.Building.Builders
       ParameterInfo[] indexParameters = propertyInfo.GetIndexParameters();
 
       if (indexParameters.Length > 0)
-        throw new DomainBuilderException(Resources.Strings.IndexedPropertiesAreNotSupported);
+        throw new DomainBuilderException(Strings.ExIndexedPropertiesAreNotSupported);
 
 
       var fieldDef = new FieldDef(propertyInfo);

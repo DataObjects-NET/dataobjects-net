@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Model
       var result = new HashSet<TypeInfo>(descendants[item]);
       if (!recursive)
         return result;
-      foreach (TypeInfo descendant in descendants[item])
+      foreach (var descendant in descendants[item])
         result.UnionWith(FindDescendants(descendant, true));
 
       return result;
@@ -184,12 +184,12 @@ namespace Xtensive.Storage.Model
       var result = new HashSet<TypeInfo>(interfaces[item]);
       if (!recursive)
         return result;
-      foreach (TypeInfo @interface in interfaces[item])
+      foreach (var @interface in interfaces[item])
         result.UnionWith(FindInterfaces(@interface, true));
       if (item.IsEntity) {
-        TypeInfo ancestor = FindAncestor(item);
+        var ancestor = FindAncestor(item);
         while (ancestor != null) {
-          foreach (TypeInfo @interface in FindInterfaces(ancestor, true))
+          foreach (var @interface in FindInterfaces(ancestor, true))
             result.Add(@interface);
           ancestor = FindAncestor(ancestor);
         }
@@ -222,9 +222,9 @@ namespace Xtensive.Storage.Model
       ArgumentValidator.EnsureArgumentNotNull(item, "it   em");
       var result = new HashSet<TypeInfo>(implementors[item]);
       if (recursive)
-        foreach (TypeInfo implementor in implementors[item])
+        foreach (var implementor in implementors[item])
           result.UnionWith(FindDescendants(implementor, true));
-      foreach (TypeInfo descendant in descendants[item])
+      foreach (var descendant in descendants[item])
         result.UnionWith(FindImplementors(descendant, recursive));
       return result;
     }
@@ -242,9 +242,9 @@ namespace Xtensive.Storage.Model
       if (item.IsInterface || item.IsStructure)
         return null;
 
-      TypeInfo candidate = item;
+      var candidate = item;
       while (true) {
-        TypeInfo ancestor = FindAncestor(candidate);
+        var ancestor = FindAncestor(candidate);
         if (ancestor == null)
           return candidate;
         candidate = ancestor;
@@ -257,18 +257,14 @@ namespace Xtensive.Storage.Model
     public void BuildTypeIdIndex()
     {
       typeIdIndex = new Dictionary<int, TypeInfo>(this.Count);
-      foreach (TypeInfo type in this) {
-//        if (type.TypeId==TypeInfo.NoTypeId)
-//          throw new InvalidOperationException(
-//            string.Format(Strings.ExTypeIdIsNotAssignedForTypeX, type.UnderlyingType.Name));
+      foreach (var type in this)
         if (type.TypeId!=TypeInfo.NoTypeId)
           typeIdIndex[type.TypeId] = type;
-      }
     }
 
     private void RegisterDescendant(TypeInfo descendant)
     {
-      TypeInfo ancestor = FindAncestor(descendant.UnderlyingType);
+      var ancestor = FindAncestor(descendant.UnderlyingType);
       if (ancestor==null)
         return;
       ancestors[descendant] = ancestor;
@@ -326,10 +322,10 @@ namespace Xtensive.Storage.Model
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
-      Type[] interfaces = type.GetInterfaces();
-      for (int index = 0; index < interfaces.Length; index++) {
+      var @interfaces = type.GetInterfaces();
+      for (int index = 0; index < @interfaces.Length; index++) {
         TypeInfo result;
-        if (TryGetValue(interfaces[index], out result))
+        if (TryGetValue(@interfaces[index], out result))
           yield return result;
       }
     }

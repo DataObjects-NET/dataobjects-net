@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Building
     internal Dictionary<Type, int> SystemTypeIds { get; private set; }
     internal Domain SystemDomain {get; set;}
     internal object ModelUnlockKey { get; set;}
-    internal Predicate<Type> PersistentTypeFilter { get; set;}
+    internal Func<Type, bool> TypeFilter { get; set;}
 
     #endregion
 
@@ -130,7 +130,7 @@ namespace Xtensive.Storage.Building
       CircularReferenceFinder = new CircularReferenceFinder<Type>(TypeHelper.GetShortName);
       DiscardedAssociations = new HashSet<  AssociationInfo>();
       SystemTypeIds = new Dictionary<Type, int>();
-      PersistentTypeFilter = type => true;
+      TypeFilter = type => true;
     }
   }
 }

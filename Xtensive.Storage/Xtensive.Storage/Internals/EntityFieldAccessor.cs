@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Internals
 
       if (entity!=null && entity.Session!=obj.Session)
         throw new InvalidOperationException(string.Format(
-          Strings.EntityXIsBoundToAnotherSession, entity.Key)); 
+          Strings.ExEntityXIsBoundToAnotherSession, entity.Key)); 
 
       var mappingInfo = field.MappingInfo;
       int fieldIndex = mappingInfo.Offset;

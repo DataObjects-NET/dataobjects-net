@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using Microsoft.Practices.Unity;
+using System.Reflection;
 using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -16,9 +16,9 @@ using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration.Elements;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Configuration.Internals;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Configuration
 {
@@ -31,10 +31,10 @@ namespace Xtensive.Storage.Configuration
     #region Defaults (constants)
 
     /// <summary>
-    /// Default <see cref="BuildMode"/> value:
-    /// "<see cref="DomainBuildMode.Default" />".
+    /// Default <see cref="UpgradeMode"/> value:
+    /// "<see cref="StorageUpgradeMode.Default" />".
     /// </summary>
-    public const DomainBuildMode DefaultBuildMode = DomainBuildMode.Default;
+    public const StorageUpgradeMode DefaultUpgradeMode = StorageUpgradeMode.Default;
 
     /// <summary>
     /// Default <see cref="ForeignKeyMode"/> value:
@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Configuration
     private UrlInfo connectionInfo;
     private TypeRegistry types = new TypeRegistry(new PersistentTypeRegistrationHandler());
     private CollectionBaseSlim<Type> builders = new CollectionBaseSlim<Type>();
-    private NamingConvention namingConvention;
+    private NamingConvention namingConvention = new NamingConvention();
     private int keyCacheSize = DefaultKeyCacheSize;
     private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
     private int sessionPoolSize = DefaultSessionPoolSize;
@@ -101,30 +101,10 @@ namespace Xtensive.Storage.Configuration
     private bool autoValidation = true;
     private bool inconsistentTransactions;    
     private TypeRegistry compilerContainers = new TypeRegistry(new CompilerContainerRegistrationHandler());
-    private SessionConfigurationCollection sessions;
-    private DomainBuildMode buildMode = DefaultBuildMode;
+    private SessionConfigurationCollection sessions = new SessionConfigurationCollection();
+    private StorageUpgradeMode upgradeMode = DefaultUpgradeMode;
     private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
-    private UnityTypeElementCollection servicesConfiguration;
-    private Type typeNameProviderType = typeof(DefaultTypeNameProvider);
-
-    /// <summary>
-    /// Gets or sets the type that implements <see cref="ITypeNameProvider"/>.   
-    /// </summary>
-    /// <remarks>
-    /// Type should have public instance parameterless constructor.
-    /// </remarks>
-    public Type TypeNameProviderType
-    {
-      get { return typeNameProviderType; }
-      set
-      {
-        this.EnsureNotLocked();
-        if (!typeof(ITypeNameProvider).IsAssignableFrom(value))
-          throw new ArgumentException(
-            string.Format(Strings.ExTypeXDoesNotImplementYInterface, value.Name, typeof(ITypeNameProvider).GetShortName()));
-        typeNameProviderType = value;
-      }
-    }
+    private UnityTypeElementCollection services;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -292,15 +272,15 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets or sets a value indicating domain upgrade behavior. 
-    /// Default value is <see cref="DefaultBuildMode"/>.
+    /// Default value is <see cref="DefaultUpgradeMode"/>.
     /// </summary>
-    public DomainBuildMode BuildMode
+    public StorageUpgradeMode UpgradeMode
     {
-      get { return buildMode; }
+      get { return upgradeMode; }
       set
       {
         this.EnsureNotLocked();
-        buildMode = value;
+        upgradeMode = value;
       }
     }
 
@@ -347,13 +327,12 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Gets the services configuration.
     /// </summary>
-    public UnityTypeElementCollection ServicesConfiguration
+    public UnityTypeElementCollection Services
     {
-      get { return servicesConfiguration; }
-      set
-      {
+      get { return services; }
+      set {
         this.EnsureNotLocked();
-        servicesConfiguration = value;
+        services = value;
       }
     }
 
@@ -367,8 +346,8 @@ namespace Xtensive.Storage.Configuration
       builders.Lock(true);
       sessions.Lock(true);
       compilerContainers.Lock(true);
-      if (servicesConfiguration != null)
-        servicesConfiguration.LockItem = true;
+      if (services != null)
+        services.LockItem = true;
       base.Lock(recursive);
     }
 
@@ -405,11 +384,19 @@ namespace Xtensive.Storage.Configuration
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = (SessionConfigurationCollection)configuration.Sessions.Clone();
       compilerContainers = (TypeRegistry) configuration.CompilerContainers.Clone();
-      buildMode = configuration.buildMode;
+      upgradeMode = configuration.upgradeMode;
       foreignKeyMode = configuration.foreignKeyMode;
-      servicesConfiguration = configuration.ServicesConfiguration;
-      servicesConfiguration.LockItem = this.IsLocked;
-      typeNameProviderType = configuration.TypeNameProviderType;
+      services = configuration.Services;
+      services.LockItem = this.IsLocked;
+    }
+
+    /// <summary>
+    /// Clones this instance.
+    /// </summary>
+    /// <returns>The clone of this configuration.</returns>
+    public new DomainConfiguration Clone()
+    {
+      return (DomainConfiguration) base.Clone();
     }
 
     /// <summary>
@@ -475,8 +462,7 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public DomainConfiguration()
     {
-      namingConvention = new NamingConvention();
-      sessions = new SessionConfigurationCollection();
+      types.Register(typeof(Persistent).Assembly);
     }
   }
 }

@@ -4,96 +4,72 @@
 // Created by: Alex Kofman
 // Created:    2009.04.14
 
+using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Metadata;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Building
 {  
   internal static class TypeIdBuilder
   {
-    public static void RegisterSystemTypes(TypeRegistry typeRegistry)
-    {
-      typeRegistry.Register(typeof(Type).Assembly, typeof(Type).Namespace);
-    }
-
     public static void BuildTypeIds()
     {
       BuildSystemTypeIds();
-      ReadTypeIds();
+      BuildRegularTypeIds();
     }
 
     public static void BuildSystemTypeIds()
     {
       var context = BuildingContext.Current;      
-      foreach (System.Type type in context.SystemTypeIds.Keys) {
-        TypeInfo typeInfo = context.Model.Types[type];
-        SetTypeId(typeInfo, context.SystemTypeIds[type]);
+      foreach (var type in context.SystemTypeIds.Keys) {
+        var typeInfo = context.Model.Types[type];
+        AssignTypeId(typeInfo, context.SystemTypeIds[type]);
       }
       context.Model.Types.BuildTypeIdIndex();
     }
 
-    public static void ReadTypeIds()
+    public static void BuildRegularTypeIds()
     {
       var context = BuildingContext.Current;
+      var types = CachedQuery.Execute(() => Query<Type>.All).ToArray();
+      var typeByName = new Dictionary<string, Type>();
+      foreach (var type in types)
+        typeByName.Add(type.Name, type);
+      var maxTypeId = types.Max(t => t.TypeId);
 
-      int maxTypeId = GetMaxTypeId();
-      foreach (TypeInfo type in context.Model.Types) {
-        if (!type.IsEntity)
+      foreach (var type in context.Model.Types) {
+        if (!type.IsEntity || type.TypeId!=TypeInfo.NoTypeId)
           continue;
-
-        if (type.TypeId!=TypeInfo.NoTypeId)
-          continue;
-        int typeId = LoadTypeId(type);
-
-        if (typeId!=TypeInfo.NoTypeId) {
-          SetTypeId(type, typeId);
-          continue;
+        var name = GetTypeName(type.UnderlyingType);
+        if (typeByName.ContainsKey(name))
+          // Type is found in metadata
+          AssignTypeId(type, typeByName[name].Id);
+        else {
+          // Type is not found in metadata
+          AssignTypeId(type, ++maxTypeId);
+          new Type(type.TypeId, name);
         }
-        maxTypeId++;
-        typeId = maxTypeId;
-        SetTypeId(type, typeId);
-        SaveTypeId(type, typeId);
       }
       context.Model.Types.BuildTypeIdIndex();
     }
 
-    private static void SetTypeId(TypeInfo type, int typeId)
+    public static string GetTypeName(System.Type type)
+    {
+      var context = UpgradeContext.Current;
+      string name = type.FullName;
+      if (context==null)
+        return name;
+      var assembly = type.Assembly;
+      if (!context.UpgradeHandlers.ContainsKey(assembly))
+        return name;
+      return context.UpgradeHandlers[assembly].First().GetTypeName(type);
+    }
+
+    private static void AssignTypeId(TypeInfo type, int typeId)
     {
       type.SetTypeId(typeId, BuildingContext.Current.ModelUnlockKey);
-    }
-
-    private static int GetMaxTypeId()
-    {
-      int result = 0;
-      if (Query<Type>.All.Count() > 0)
-        result = Query<Type>.All.Max(type => type.Id);
-      if (result < TypeInfo.MinTypeId)
-        result = TypeInfo.MinTypeId-1;
-      return result;
-    }
-
-    private static int LoadTypeId(TypeInfo typeInfo)
-    {
-      string name = GetTypeName(typeInfo);
-      var metaType = Query<Type>.All.Where(type => type.Name==name).FirstOrDefault();
-      return metaType==null ? TypeInfo.NoTypeId : metaType.Id;  
-    }
-
-    private static void SaveTypeId(TypeInfo typeInfo, int typeId)
-    {
-      string name = GetTypeName(typeInfo);
-      var metaType = Query<Type>.All
-        .Where(type => type.Name==name)
-        .FirstOrDefault() ?? new Type(typeId);
-      metaType.Name = name;
-      Session.Current.Persist();
-    }
-
-    private static string GetTypeName(TypeInfo typeInfo)
-    {
-      return BuildingContext.Current.Domain.TypeNameProvider.GetTypeName(typeInfo.UnderlyingType);
     }
   }
 }
