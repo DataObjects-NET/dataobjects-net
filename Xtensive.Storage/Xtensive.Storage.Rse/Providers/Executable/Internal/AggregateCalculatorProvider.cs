@@ -10,7 +10,7 @@ using Xtensive.Core.Arithmetic;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 
-namespace Xtensive.Storage.Rse
+namespace Xtensive.Storage.Rse.Providers.Executable
 {
   internal sealed class AggregateCalculatorProvider
   {
@@ -20,18 +20,18 @@ namespace Xtensive.Storage.Rse
     public Action<Tuple, int> GetAggregateCalculator<TSource,TResult>(AggregateType aggregateType, int columnIndex, int sourceIndex)
     {
       switch (aggregateType) {
-      case AggregateType.Count:
-        return Count(columnIndex);
-      case AggregateType.Avg:
-        return Avg<TSource,TResult>(columnIndex, sourceIndex);
-      case AggregateType.Min:
-        return Min<TResult>(columnIndex, sourceIndex);
-      case AggregateType.Max:
-        return Max<TResult>(columnIndex, sourceIndex);
-      case AggregateType.Sum:
-        return Sum<TResult>(columnIndex, sourceIndex);
-      default:
-        throw new ArgumentOutOfRangeException("aggregateType");
+        case AggregateType.Count:
+          return Count(columnIndex);
+        case AggregateType.Avg:
+          return Avg<TSource,TResult>(columnIndex, sourceIndex);
+        case AggregateType.Min:
+          return Min<TResult>(columnIndex, sourceIndex);
+        case AggregateType.Max:
+          return Max<TResult>(columnIndex, sourceIndex);
+        case AggregateType.Sum:
+          return Sum<TResult>(columnIndex, sourceIndex);
+        default:
+          throw new ArgumentOutOfRangeException("aggregateType");
       }
     }
 
@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Rse
             acc = Tuple.Create(src.GetValue<TResult>(sourceIndex));
           else
             acc.SetValue(0, adder.Invoke(acc.GetValue<TResult>(0), src.GetValue<TResult>(sourceIndex)));
-          StoreAccumulator(columnIndex, groupIndex, acc);
+        StoreAccumulator(columnIndex, groupIndex, acc);
       };
     }
 
@@ -138,7 +138,7 @@ namespace Xtensive.Storage.Rse
               acc.SetValue(0, acc.GetValue<long>(0) + 1);
               acc.SetValue(1, adder.Invoke(acc.GetValue<TResult>(1), (TResult)(object)src.GetValue<TSource>(sourceIndex)));
             }
-            StoreAccumulator(columnIndex, groupIndex, acc);
+          StoreAccumulator(columnIndex, groupIndex, acc);
         };
       return delegate(Tuple src, int groupIndex) {
         var acc = GetAccumulator(columnIndex, groupIndex);
@@ -159,34 +159,34 @@ namespace Xtensive.Storage.Rse
     {
       var acc = GetAccumulator(column.Index, groupIndex);
       switch (column.AggregateType) {
-      case AggregateType.Avg:
-        if (acc!=null)
-          result.SetValue(column.Index, Arithmetic<T>.Default.Divide(acc.GetValue<T>(1), Convert.ToDouble(acc.GetValue(0))));
-        else
-          result.SetValue(column.Index, null);
-        return result;
-      case AggregateType.Count:
-        if (acc!=null)
-          result.SetValue(column.Index, acc.GetValue(0));
-        else {
-          result.SetValue(column.Index, (long) 0);
-        }
-        return result;
-      case AggregateType.Sum:
-        if (acc != null)
-          result.SetValue(column.Index, acc.GetValue(0));
-        else
-          result.SetValue(column.Index, default(T));
-        return result;
-      case AggregateType.Max:
-      case AggregateType.Min:
-        if (acc!=null)
-          result.SetValue(column.Index, acc.GetValue(0));
-        else
-          result.SetValue(column.Index, null);
-        return result;
-      default:
-        throw new ArgumentOutOfRangeException("column.AggregateType");
+        case AggregateType.Avg:
+          if (acc!=null)
+            result.SetValue(column.Index, Arithmetic<T>.Default.Divide(acc.GetValue<T>(1), Convert.ToDouble(acc.GetValue(0))));
+          else
+            result.SetValue(column.Index, null);
+          return result;
+        case AggregateType.Count:
+          if (acc!=null)
+            result.SetValue(column.Index, acc.GetValue(0));
+          else {
+            result.SetValue(column.Index, (long) 0);
+          }
+          return result;
+        case AggregateType.Sum:
+          if (acc != null)
+            result.SetValue(column.Index, acc.GetValue(0));
+          else
+            result.SetValue(column.Index, default(T));
+          return result;
+        case AggregateType.Max:
+        case AggregateType.Min:
+          if (acc!=null)
+            result.SetValue(column.Index, acc.GetValue(0));
+          else
+            result.SetValue(column.Index, null);
+          return result;
+        default:
+          throw new ArgumentOutOfRangeException("column.AggregateType");
       }
     }
 
