@@ -201,16 +201,16 @@ namespace Xtensive.Storage.Linq
         var body = Visit(le.Body);
         if (body.IsResult())
           body = BuildSubqueryResult((ResultExpression) body, le.Body.Type);
-        else if (calculateExpressions.Value && body.GetMemberType() == MemberType.Unknown) {
-          if (!body.IsSubqueryConstructor() 
-            && !body.IsGroupingConstructor() 
-            && body.AsTupleAccess() == null
-            && body.NodeType!=ExpressionType.ArrayIndex
+        else if (calculateExpressions.Value && body.GetMemberType()==MemberType.Unknown) {
+          if (!body.IsSubqueryConstructor()
+            && !body.IsGroupingConstructor()
+              && body.AsTupleAccess()==null
+                && body.NodeType!=ExpressionType.ArrayIndex
             ) {
             var originalBodyType = body.Type;
             bool isEnum = ConvertEnumToInteger(ref body);
-            var calculator = Expression.Lambda(Expression.Convert(body, typeof(object)), tuple.Value);
-            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>)calculator);
+            var calculator = Expression.Lambda(Expression.Convert(body, typeof (object)), tuple.Value);
+            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>) calculator);
             calculatedColumns.Value.Add(ccd);
             var parameter = parameters.Value[0];
             int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
@@ -271,7 +271,7 @@ namespace Xtensive.Storage.Linq
               context.Bindings.ReplaceBound(pe, source);
             }
             else {
-              if (typeof(IEnumerable).IsAssignableFrom(path.Parameter.Type) && number >= path.Count - 1) {
+              if (typeof (IEnumerable).IsAssignableFrom(path.Parameter.Type) && number >= path.Count - 1) {
                 var columns = innerMapping.GetColumns(false);
                 columns.Sort();
                 var joinedIndex = typeInfo.Indexes.PrimaryIndex;
@@ -406,10 +406,10 @@ namespace Xtensive.Storage.Linq
     {
       var arguments = new List<Expression>();
       if (n.Members==null) {
-        if (n.IsGroupingConstructor() 
-          || n.IsSubqueryConstructor() 
-          || n.Type==typeof (TimeSpan) 
-          || n.Type==typeof (DateTime))
+        if (n.IsGroupingConstructor()
+          || n.IsSubqueryConstructor()
+            || n.Type==typeof (TimeSpan)
+              || n.Type==typeof (DateTime))
           return base.VisitNew(n);
         throw new NotSupportedException();
       }
@@ -478,14 +478,10 @@ namespace Xtensive.Storage.Linq
             body = Visit(arg);
           }
           ConvertEnumToInteger(ref body);
-          if (body.StripCasts().AsTupleAccess()!=null)
+          if (body.StripCasts().AsTupleAccess()!=null || body.GetMemberType()==MemberType.Array)
             newArg = body;
-          else if (body.GetMemberType()==MemberType.Array) {
-            newArg = body;
-            mappingRef.Value.RegisterField(memberName, new Segment<int>(0,0));
-          }
           else if (body.IsResult())
-            newArg = BuildSubqueryResult((ResultExpression)body, arg.Type);
+            newArg = BuildSubqueryResult((ResultExpression) body, arg.Type);
           else {
             var calculator = Expression.Lambda(
               body.Type==typeof (object)
@@ -551,20 +547,19 @@ namespace Xtensive.Storage.Linq
 
     private Expression BuildSubqueryResult(ResultExpression subQuery, Type resultType)
     {
-
       if (parameters.Value.Length!=1)
         throw new NotImplementedException();
 
-      if (!resultType.IsOfGenericInterface(typeof(IEnumerable<>)))         
+      if (!resultType.IsOfGenericInterface(typeof (IEnumerable<>)))
         throw new NotImplementedException();
 
       Type type = resultType
         .GetInterfaces(true)
         .AddOne(resultType)
-        .Where(interfaceType => 
+        .Where(interfaceType =>
           interfaceType.IsGenericType
-            && interfaceType.GetGenericTypeDefinition()==typeof(IEnumerable<>))
-        .Select(interfaceType=>interfaceType.GetGenericArguments()[0])
+            && interfaceType.GetGenericTypeDefinition()==typeof (IEnumerable<>))
+        .Select(interfaceType => interfaceType.GetGenericArguments()[0])
         .First();
 
       var parameterResultExpression = context.Bindings[parameters.Value[0]];
@@ -572,16 +567,16 @@ namespace Xtensive.Storage.Linq
       var tupleParameter = new Parameter<Tuple>("tupleParameter");
 
       var rewrittenRecordset = ApplyParameterToTupleParameterRewriter
-        .Rewrite(subQuery.RecordSet.Provider, tupleParameter, applyParameter) 
+        .Rewrite(subQuery.RecordSet.Provider, tupleParameter, applyParameter)
         .Result;
 
-     //  mappingRef.Value = new MappingReference(mappingRef.Value.FillMapping);
+      //  mappingRef.Value = new MappingReference(mappingRef.Value.FillMapping);
 
       var newResultExpression = new ResultExpression(subQuery.Type, rewrittenRecordset, subQuery.Mapping, subQuery.ItemProjector, subQuery.ResultType);
 
       var constructor = (typeof (SubQuery<>)
         .MakeGenericType(type)
-        .GetConstructor(new[]{typeof (ResultExpression), typeof (Tuple), typeof (Parameter<Tuple>)}));
+        .GetConstructor(new[] {typeof (ResultExpression), typeof (Tuple), typeof (Parameter<Tuple>)}));
 
       var subqueryResult = Expression.New(constructor, new Expression[] {
         Expression.Constant(newResultExpression),
@@ -764,12 +759,19 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitBinaryArray(BinaryExpression expression)
     {
-      if (expression.NodeType!=ExpressionType.ArrayIndex) 
-        throw new NotSupportedException();
-
-      var arrayExpression = Visit(expression.Left);
-      var arrayIndex = Visit(expression.Right);
-      return Expression.ArrayIndex(arrayExpression, arrayIndex);
+      switch (expression.NodeType) {
+      case ExpressionType.ArrayIndex:
+        var arrayExpression = Visit(expression.Left);
+        var arrayIndex = Visit(expression.Right);
+        return Expression.ArrayIndex(arrayExpression, arrayIndex);
+      case ExpressionType.Equal:
+      case ExpressionType.NotEqual:
+        var rightExpression = expression.Right.StripCasts();
+        if (rightExpression.NodeType==ExpressionType.Constant && ((ConstantExpression) rightExpression).Value==null)
+          return base.VisitBinary(expression);
+        break;
+      }
+      throw new NotSupportedException();
     }
 
     private Expression VisitBinaryAnonymous(BinaryExpression binaryExpression)
