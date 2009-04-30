@@ -337,6 +337,8 @@ namespace Xtensive.Storage.Linq
         return VisitBinaryAnonymous(binaryExpression);
       case MemberType.Structure:
         return VisitBinaryStructure(binaryExpression);
+      case MemberType.Array:
+        return VisitBinaryArray(binaryExpression);
       case MemberType.EntitySet:
       case MemberType.Grouping:
         throw new NotSupportedException();
@@ -750,6 +752,15 @@ namespace Xtensive.Storage.Linq
         }
         return result;
       }
+    }
+
+    private Expression VisitBinaryArray(BinaryExpression expression)
+    {
+      if (expression.NodeType!=ExpressionType.ArrayIndex) 
+        throw new NotSupportedException();
+
+      var visitedArrayExpression = Visit(expression.Left);
+      throw new NotImplementedException();
     }
 
     private Expression VisitBinaryAnonymous(BinaryExpression binaryExpression)

@@ -80,8 +80,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void ArrayMemberAccessTest()
     {
       var result = Query<Customer>.All
-        .Select(x => new byte[] {1, 2})
-        .Select(a=>a[0]);
+        .Select(customer => new[] {customer.CompanyName, customer.ContactTitle})
+        .Select(a => a[0]);
       QueryDumper.Dump(result);
     }
 
@@ -90,8 +90,38 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Customer>.All
         .Select(x => new byte[] {1, 2})
-        .Select(a=>a[0])
-        .Sum(b=>b);
+        .Select(a => a[0])
+        .Sum(b => b);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void ComplexTest()
+    {
+      var result = Query<Product>.All
+        .Where(p => p.Category.Id==1 || p.Category.Id==2)
+        .Select(p => new {
+          Product = p,
+          CategoryNames = new[] {
+            Query<Category>.All.Where(c => c.Id==1).First().CategoryName,
+            Query<Category>.All.Where(c => c.Id==2).First().CategoryName,
+          },
+          CategoryIds = new[] {
+            Query<Category>.All.Where(c => c.Id==1).First().Id,
+            Query<Category>.All.Where(c => c.Id==2).First().Id,
+          },
+          Categories = new[] {
+            Query<Category>.All.Where(c => c.Id==1).First(),
+            Query<Category>.All.Where(c => c.Id==2).First(),
+          },
+        })
+        .Select(at => new {
+          at.Product,
+          FirstCategoryName = at.CategoryNames[at.CategoryIds[1]],
+          SecondCategoryName = at.CategoryNames[at.CategoryIds[2]],
+          ProductCategory = at.Categories[at.Product.Category.Id],
+        }
+        );
       QueryDumper.Dump(result);
     }
   }
