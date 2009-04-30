@@ -13,6 +13,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -201,7 +202,9 @@ namespace Xtensive.Storage.Linq
         if (body.IsResult())
           body = BuildSubqueryResult((ResultExpression) body, le.Body.Type);
         else if (calculateExpressions.Value && body.GetMemberType() == MemberType.Unknown) {
-          if (!body.IsSubqueryConstructor() && !body.IsGroupingConstructor() && body.AsExactTupleAccess() == null) {
+          if (!body.IsSubqueryConstructor() 
+            && !body.IsGroupingConstructor() 
+            && body.AsTupleAccess() == null) {
             var originalBodyType = body.Type;
             bool isEnum = ConvertEnumToInteger(ref body);
             var calculator = Expression.Lambda(Expression.Convert(body, typeof(object)), tuple.Value);
@@ -468,7 +471,7 @@ namespace Xtensive.Storage.Linq
             body = Visit(arg);
           }
           ConvertEnumToInteger(ref body);
-          if (body.AsTupleAccess()!=null)
+          if (body.StripCasts().AsTupleAccess()!=null)
             newArg = body;
           else if (body.IsResult())
             newArg = BuildSubqueryResult((ResultExpression)body, arg.Type);
