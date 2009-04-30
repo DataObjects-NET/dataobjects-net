@@ -96,6 +96,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IPreCompiler CreatePreCompiler()
     {
       return new CompositePreCompiler(
+        new SkipCorrector(),
         new OrderingCorrector(ResolveOrderingDescriptor, false),
         new RedundantColumnOptimizer(),
         new OrderingCorrector(ResolveOrderingDescriptor, true)
@@ -116,14 +117,19 @@ namespace Xtensive.Storage.Providers.Sql
 
     private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
     {
-      bool isOrderSensitive = provider.Type==ProviderType.Skip || provider.Type==ProviderType.Take;
-      bool preservesOrder = isOrderSensitive || provider.Type == ProviderType.Index
-        || provider.Type == ProviderType.Reindex || provider.Type == ProviderType.Sort
-        || provider.Type == ProviderType.Range || provider.Type == ProviderType.Seek;
-      bool isOrderingBoundary = provider.Type==ProviderType.Except
+      bool isOrderSensitive = provider.Type==ProviderType.Skip || provider.Type==ProviderType.Take
+        || provider.Type==ProviderType.Seek || provider.Type==ProviderType.Range
+        || provider.Type == ProviderType.RowNumber;
+      bool preservesOrder = isOrderSensitive || provider.Type == ProviderType.Reindex
+        || provider.Type == ProviderType.Sort || provider.Type == ProviderType.Range
+        || provider.Type == ProviderType.Seek;
+      bool isOrderBreaker = provider.Type==ProviderType.Except
         || provider.Type==ProviderType.Intersect || provider.Type==ProviderType.Union
-        || provider.Type==ProviderType.Concat || provider.Type==ProviderType.Existence;
-      return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderingBoundary);
+        || provider.Type==ProviderType.Concat || provider.Type==ProviderType.Existence
+        || provider.Type==ProviderType.Distinct;
+      bool isSorter = provider.Type==ProviderType.Sort || provider.Type==ProviderType.Reindex;
+      return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderBreaker,
+        isSorter);
     }
     /// <summary>
     /// Builds <see cref="DbDataReaderAccessor"/> from specified <see cref="TupleDescriptor"/>.

@@ -62,7 +62,8 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <returns>Existing or newly created provider for the specified <paramref name="index"/>.</returns>
     public static IndexProvider Get(IndexInfo index)
     {
-      return cache.GetValue(index, _index => new IndexProvider(_index));
+      /*return cache.GetValue(index, _index => new IndexProvider(_index));*/
+      return new IndexProvider(index);
     }
 
 

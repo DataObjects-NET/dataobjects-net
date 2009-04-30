@@ -56,13 +56,14 @@ namespace Xtensive.Storage.Providers.MsSql
       if (compiledSource == null)
         return null;
 
-      SqlSelect sourceQuery = AddRowNumberColumn(compiledSource, provider, rowNumber);
+      //SqlSelect sourceQuery = AddRowNumberColumn(compiledSource, provider, rowNumber);
+      var sourceQuery = compiledSource.Request.SelectStatement;
+      sourceQuery.Where = sourceQuery.Columns.Last() > provider.Count();
 
       var queryRef = SqlFactory.QueryRef(sourceQuery);
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Where(column => column.Name != rowNumber).Cast<SqlColumn>());
-      query.Where = sourceQuery[rowNumber] > provider.Count();
-      query.OrderBy.Add(queryRef.Columns[rowNumber]); 
+      //query.OrderBy.Add(queryRef.Columns[rowNumber]); 
 //      AddOrderByForRowNumberColumn(provider, query);
       
       return new SqlProvider(provider, query, Handlers, compiledSource);
@@ -70,17 +71,19 @@ namespace Xtensive.Storage.Providers.MsSql
 
     protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
+      var asSortProvider = provider.Source as SortProvider;
+      var sourceToCompile = asSortProvider != null ? asSortProvider.Source : provider.Source;
+      var compiledSource = GetCompiled(sourceToCompile) as SqlProvider;
       if (compiledSource == null)
         return null;
 
       var rowNumberColumnName = provider.Header.Columns.Last().Name;
-      SqlSelect sourceQuery = AddRowNumberColumn(compiledSource, provider, rowNumberColumnName);
+      var sourceQuery = AddRowNumberColumn(compiledSource, provider, rowNumberColumnName);
 
       var queryRef = SqlFactory.QueryRef(sourceQuery);
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      query.OrderBy.Add(queryRef.Columns[rowNumberColumnName]);
+      //query.OrderBy.Add(queryRef.Columns[rowNumberColumnName]);
 
 //      AddOrderByForRowNumberColumn(provider, query);
 
@@ -104,8 +107,10 @@ namespace Xtensive.Storage.Providers.MsSql
         for (int i = 0; i < provider.Header.Order.Count; i++) {
           if (i != 0)
             rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, SqlFactory.Native(", "));
-          rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, sourceQuery[provider.Header.Order[i].Key]);
-          rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, SqlFactory.Native(provider.Header.Order[i].Value == Direction.Positive ? " ASC" : " DESC"));
+          rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression,
+            sourceQuery[provider.Header.Order[i].Key]);
+          rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression,
+            SqlFactory.Native(provider.Header.Order[i].Value == Direction.Positive ? " ASC" : " DESC"));
         }
       else
         rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, sourceQuery[0]);

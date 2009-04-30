@@ -8,7 +8,6 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.PreCompilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
-using Xtensive.Storage.Rse.PreCompilation.Optimization;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
@@ -32,11 +31,14 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       var asJoin = provider as JoinProvider;
       bool isOrderSensitive = provider.Type==ProviderType.Skip || provider.Type==ProviderType.Take
-        || (asJoin!=null && asJoin.JoinType==JoinType.Merge);
-      bool isOrderingBoundary = provider.Type==ProviderType.Except
+        || (asJoin!=null && asJoin.JoinType==JoinType.Merge)
+        || provider.Type==ProviderType.Seek || provider.Type==ProviderType.RowNumber;
+      bool isOrderBreaker = provider.Type==ProviderType.Except
         || provider.Type==ProviderType.Intersect || provider.Type==ProviderType.Union
-        || provider.Type==ProviderType.Concat || provider.Type==ProviderType.Existence;
-      return new ProviderOrderingDescriptor(isOrderSensitive, true, isOrderingBoundary);
+        || provider.Type==ProviderType.Concat || provider.Type==ProviderType.Existence
+        || provider.Type==ProviderType.Distinct;
+      bool isSorter = provider.Type==ProviderType.Sort || provider.Type==ProviderType.Reindex;
+      return new ProviderOrderingDescriptor(isOrderSensitive, true, isOrderBreaker, isSorter);
     }
 
     /// <inheritdoc/>

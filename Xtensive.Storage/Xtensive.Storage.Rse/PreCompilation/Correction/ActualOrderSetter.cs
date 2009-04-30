@@ -5,13 +5,8 @@
 // Created:    2009.04.28
 
 using System;
-using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Storage.Rse.PreCompilation.Optimization;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction
 {

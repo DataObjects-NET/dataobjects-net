@@ -5,14 +5,15 @@
 // Created:    2009.04.24
 
 using System;
-using System.Diagnostics;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction
 {
   /// <summary>
-  /// Order by <see cref="IPreCompiler"/> implementation.
+  /// Inserts a <see cref="RowNumberProvider"/> as 
+  /// <see cref="UnaryProvider.Source"/> of a <see cref="SkipProvider"/>
   /// </summary>
   [Serializable]
   public sealed class SkipCorrector : IPreCompiler
@@ -20,8 +21,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     /// <inheritdoc/>
     CompilableProvider IPreCompiler.Process(CompilableProvider rootProvider)
     {
-      var rewriter = new SkipRewriter(rootProvider);
-      return rewriter.Rewrite();
+      return new SkipRewriter(rootProvider).Rewrite();
     }
   }
 }

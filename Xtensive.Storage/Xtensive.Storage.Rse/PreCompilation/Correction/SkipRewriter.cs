@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     protected override Provider VisitSkip(SkipProvider provider)
     {
       const string rowNumber = "RowNumber";
-      return new RowNumberProvider(provider, rowNumber);
+      return new SkipProvider(new RowNumberProvider(provider.Source, rowNumber), provider.Count);
     }
 
 

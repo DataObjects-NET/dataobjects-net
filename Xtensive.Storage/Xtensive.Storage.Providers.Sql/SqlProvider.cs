@@ -112,7 +112,10 @@ namespace Xtensive.Storage.Providers.Sql
       var parameterBindings = sources.OfType<SqlProvider>().SelectMany(p => p.Request.ParameterBindings);
       if (extraBindings != null)
         parameterBindings = parameterBindings.Concat(extraBindings);
-      Request = new SqlFetchRequest(statement, origin.Header.TupleDescriptor, parameterBindings);
+      var tupleDescriptor = origin.Header.TupleDescriptor;
+      if(statement.Columns.Count < origin.Header.TupleDescriptor.Count)
+        tupleDescriptor = origin.Header.TupleDescriptor.TrimFields(statement.Columns.Count);
+      Request = new SqlFetchRequest(statement, tupleDescriptor, parameterBindings);
       PermanentReference = SqlFactory.QueryRef(statement);
     }
   }
