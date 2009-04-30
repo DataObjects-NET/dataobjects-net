@@ -4,10 +4,12 @@
 // Created by: Ivan Galkin
 // Created:    2009.04.29
 
+using System;
 using NUnit.Framework;
 using System.Linq;
 using Xtensive.Core.Disposing;
 using Xtensive.Storage.Attributes;
+using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.OldModel;
 using Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.NewModel;
@@ -76,65 +78,42 @@ namespace Xtensive.Storage.Tests.Upgrade
   [TestFixture]
   public class ForeignKeyUpgradeTest
   {
-    private const string Url = "mssql2005://localhost/DO40-Tests";
+    private Domain domain;
 
-    public DomainConfiguration OldModelConfiguration
+    private void BuildDomain(SchemaUpgradeMode schemaUpgradeMode, params Type[] persistentTypes)
     {
-      get
-      {
-        var config = new DomainConfiguration(Url);
-        config.Types.Register(
-          typeof (OldOrder).Assembly,
-          typeof (OldOrder).Namespace);
-        return config;
-      }
-    }
+      var configuration = DomainConfigurationFactory.Create();
+      foreach (Type type in persistentTypes)
+        configuration.Types.Register(type);
+      configuration.TypeNameProviderType = typeof (SimpleTypeNameProvider);
 
-    public DomainConfiguration NewModelConfiguration
-    {
-      get
-      {
-        var config = new DomainConfiguration(Url);
-        config.Types.Register(
-          typeof (NewOrder).Assembly,
-          typeof (NewOrder).Namespace);
-        return config;
-      }
+      domain = DomainBuilder.BuildDomain(configuration, schemaUpgradeMode);
     }
 
     [Test]
-    public void   SetReferencingFieldToDefaultTest()
+    public void SetReferencingFieldToDefaultTest()
     {
-      var config = OldModelConfiguration;
-      config.BuildMode = DomainBuildMode.Recreate;
-      var domain = Domain.Build(config);
+      BuildDomain(SchemaUpgradeMode.Recreate, typeof(OldOrder), typeof(Person));
 
-      using (var s = domain.OpenSession()) {
-        using ( var t = Transaction.Open()) {
+      using (domain.OpenSession()) {
+        using (var transactionScope = Transaction.Open()) {
+          
           var person = new Person {Name = "Person1"};
-          var order1 = new OldOrder {Consumer = person};
-          var order2 = new OldOrder {Consumer = person};
-          var orders = Query<OldOrder>.All;
-          foreach (var order in orders) {
-            Assert.IsNotNull(order.Consumer);
-          }
-          t.Complete();
+
+          new OldOrder {Consumer = person};
+          new OldOrder {Consumer = person};
+          
+          transactionScope.Complete();
         }
       }
-      domain.DisposeSafely();
       
-      config = NewModelConfiguration;
-      config.BuildMode = DomainBuildMode.Perform;
-      domain = Domain.Build(config);
-      using (var s = domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          var orders = Query<NewOrder>.All;
-          Assert.AreEqual(2, orders.Count());
-          orders = Query<NewOrder>.All;
-          foreach (var order in orders) {
+      BuildDomain(SchemaUpgradeMode.Upgrade, typeof(NewOrder), typeof(Company));
+
+      using (domain.OpenSession()) {
+        using (Transaction.Open()) {          
+          Assert.AreEqual(2, Query<NewOrder>.All.Count());          
+          foreach (var order in Query<NewOrder>.All) 
             Assert.IsNull(order.Consumer);
-          }
-          t.Complete();
         }
       }
 

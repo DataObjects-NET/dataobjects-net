@@ -40,17 +40,6 @@ namespace Xtensive.Storage.Tests.Storage
       public int Id { get; private set; }
     }
 
-    [HierarchyRoot(typeof(KeyGenerator), "Id")]
-    [Entity(MappingName = "A")]
-    private class NewA : Entity
-    {
-      [Field]
-      public int Id { get; private set; }
-
-      [Field]
-      private string NewColumn{ get; set;}
-    }
-
     private Domain domain;
 
     private int GetTypeId(Type type)
