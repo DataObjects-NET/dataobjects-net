@@ -11,6 +11,7 @@ using Xtensive.Core.Testing;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Storage
@@ -32,12 +33,22 @@ namespace Xtensive.Storage.Tests.Storage
       public int Id { get; private set; }
     }
 
-    [HierarchyRoot(typeof(KeyGenerator), "Id")]
-    [Entity(MappingName = "")]
+    [HierarchyRoot(typeof(KeyGenerator), "Id")]    
     private class C : Entity
     {
       [Field]
       public int Id { get; private set; }
+    }
+
+    [HierarchyRoot(typeof(KeyGenerator), "Id")]
+    [Entity(MappingName = "A")]
+    private class NewA : Entity
+    {
+      [Field]
+      public int Id { get; private set; }
+
+      [Field]
+      private string NewColumn{ get; set;}
     }
 
     private Domain domain;
@@ -102,9 +113,8 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(1, Query<A>.All.Count());
 
           foreach (A a in Query<A>.All) {
-            Assert.IsNotNull(a);
+            Assert.IsNotNull(a);  
           }
-
         }
       }
     }
