@@ -67,6 +67,7 @@ namespace Xtensive.Storage.Tests.Upgrade
   using NewOrder = ForeignKeyUpgrade.NewModel.Order;
   using Building;
   
+  [TestFixture]
   public class ForeignKeyUpgradeTest : UpgradeTestBase
   {
 

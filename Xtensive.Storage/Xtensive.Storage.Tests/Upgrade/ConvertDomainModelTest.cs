@@ -50,8 +50,8 @@ namespace Xtensive.Storage.Tests.Upgrade
             .GetConversionResult();
 
         DomainSchema = new DomainModelConverter(
-          domain.NameBuilder.BuildForeignKeyName,
-          domain.NameBuilder.BuildForeignKeyName,
+          true, domain.NameBuilder.BuildForeignKeyName,
+          false, domain.NameBuilder.BuildForeignKeyName,
           IsGeneratorPersistent)
           .Convert(domainModel, StorageSchema.Name);
 

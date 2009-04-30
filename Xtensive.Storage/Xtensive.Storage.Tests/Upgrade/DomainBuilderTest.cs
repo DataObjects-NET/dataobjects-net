@@ -14,6 +14,7 @@ using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
@@ -51,30 +52,30 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       BuildDomain(SchemaUpgradeMode.Recreate, typeof (B));
       int bId = GetTypeId(typeof (B));
-      
+
       BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A), typeof (B));
-      Assert.AreEqual(bId, GetTypeId(typeof(B)));
+      Assert.AreEqual(bId, GetTypeId(typeof (B)));
       int aId = GetTypeId(typeof (A));
 
       Assert.AreEqual(TypeInfo.MinTypeId, bId);
-      Assert.AreEqual(TypeInfo.MinTypeId+1, aId);
+      Assert.AreEqual(TypeInfo.MinTypeId + 1, aId);
 
-      // Temporary is not implemented
-      AssertEx.Throws<NotImplementedException>(() => {
+      BuildDomain(SchemaUpgradeMode.Validate, typeof (A));
+      BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof (B));
 
-        BuildDomain(SchemaUpgradeMode.Validate, typeof (A));
-        BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof (B));
+      AssertEx.Throws<AggregateException>(() =>
+        BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof (B), typeof (C)));
 
-        AssertEx.Throws<Exception>(() =>
-          BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof (B), typeof (C)));
+      BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A));
 
-        BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A));
+      Assert.AreEqual(aId, GetTypeId(typeof (A)));
 
-        Assert.AreEqual(aId, GetTypeId(typeof (A)));
+      AssertEx.Throws<AggregateException>(() =>
+        BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof (B)));
 
-        AssertEx.Throws<Exception>(() =>
-          BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof (B)));
-      });
+      BuildDomain(SchemaUpgradeMode.Recreate, typeof(A), typeof (B));
+      AssertEx.Throws<AggregateException>(() =>
+        BuildDomain(SchemaUpgradeMode.SafeUpgrade, typeof (A)));
     }
 
     [Test]

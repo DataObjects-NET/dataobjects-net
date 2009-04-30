@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Providers.Sql
         var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
         if (primaryIndex==null || Mapping[primaryIndex]!=null)
           continue;
-        var storageTableName = Domain.NameBuilder.BuildTableName(primaryIndex);
+        var storageTableName = primaryIndex.ReflectedType.MappingName; // Domain.NameBuilder.BuildTableName(primaryIndex);
         var storageTable = Schema.Tables[storageTableName];
         if (storageTable==null)
           throw new DomainBuilderException(string.Format("Can not find table '{0}' in storage.", storageTableName));

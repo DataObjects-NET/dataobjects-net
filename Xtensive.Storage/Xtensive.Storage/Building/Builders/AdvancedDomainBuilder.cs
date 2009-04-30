@@ -58,6 +58,13 @@ namespace Xtensive.Storage.Building.Builders
         type => false);
     }
 
+    private static Domain BuildSafePerform(DomainConfiguration configuration)
+    {
+      return DomainBuilder.BuildDomain(configuration,
+        SchemaUpgradeMode.SafeUpgrade,
+        () => { });
+    }
+
     /// <summary>
     /// Builds the new <see cref="Domain"/> according to specified configuration.
     /// </summary>

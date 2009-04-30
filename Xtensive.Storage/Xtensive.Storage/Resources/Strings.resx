@@ -588,4 +588,10 @@
   <data name="ExSpecifiedValuesArentEnoughToCreateKeyForTypeX" xml:space="preserve">
     <value>Specified values aren't enough to create key for type {0}</value>
   </data>
+  <data name="ExStorageSchemaIsNotCompatibleForDomainModel" xml:space="preserve">
+    <value>Storage schema is not compatible for domain model.</value>
+  </data>
+  <data name="ExCanNotUpgradeSchemaSafely" xml:space="preserve">
+    <value>Can not upgrade schema safely.</value>
+  </data>
 </root>

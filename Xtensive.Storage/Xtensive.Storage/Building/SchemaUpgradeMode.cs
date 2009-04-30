@@ -12,6 +12,11 @@ namespace Xtensive.Storage.Building
   public enum SchemaUpgradeMode
   {
     /// <summary>
+    /// Upgrade storage schema, if nothing will be removed.
+    /// </summary>
+    SafeUpgrade,
+
+    /// <summary>
     /// Validate schema model to be compatible (not equal) with domain model.
     /// </summary>
     Validate,

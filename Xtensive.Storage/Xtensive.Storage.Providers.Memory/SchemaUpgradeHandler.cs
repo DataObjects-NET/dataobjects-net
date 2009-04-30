@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Storage.Building;
+using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Model.Conversion;
 using Xtensive.Storage.Providers.Index;
 
@@ -23,7 +24,6 @@ namespace Xtensive.Storage.Providers.Memory
       {
         var session = BuildingContext.Current.SystemSessionHandler;
         var view = ((SessionHandler) session).StorageView;
-
         return view as IndexStorageView;
       }
     }
@@ -37,10 +37,18 @@ namespace Xtensive.Storage.Providers.Memory
     /// <inheritdoc/>
     public override void UpgradeStorageSchema()
     {
-      var converter = new DomainModelConverter(Handlers.NameBuilder.BuildForeignKeyName,
-        Handlers.NameBuilder.BuildForeignKeyName, (g) => false);
+      var converter =
+        new DomainModelConverter(
+          false, Handlers.NameBuilder.BuildForeignKeyName,
+          false, Handlers.NameBuilder.BuildForeignKeyName, (g) => false);
       var newSchema = converter.Convert(BuildingContext.Current.Model, StorageView.Storage.Name);
       StorageView.CreateNewSchema(newSchema);
+    }
+
+    /// <inheritdoc/>
+    protected override StorageInfo GetStorageModel()
+    {
+      return StorageView.Model;
     }
   }
 }

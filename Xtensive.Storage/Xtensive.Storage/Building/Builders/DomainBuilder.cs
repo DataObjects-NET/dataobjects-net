@@ -126,13 +126,20 @@ namespace Xtensive.Storage.Building.Builders
 
       switch (schemaUpgradeMode) {
       case SchemaUpgradeMode.Validate:
-        upgradeHandler.ValidateStorageSchema();
+        if (upgradeHandler.HasCreateActions)
+          throw new DomainBuilderException(
+            Strings.ExStorageSchemaIsNotCompatibleForDomainModel);
         break;
       case SchemaUpgradeMode.Upgrade:
         upgradeHandler.UpgradeStorageSchema();
         break;
       case SchemaUpgradeMode.Recreate:
         upgradeHandler.RecreateStorageSchema();
+        break;
+      case SchemaUpgradeMode.SafeUpgrade:
+        if (upgradeHandler.HasRemoveActions)
+          throw new DomainBuilderException(Strings.ExCanNotUpgradeSchemaSafely);
+        upgradeHandler.UpgradeStorageSchema();
         break;
       default:
         throw new ArgumentOutOfRangeException("schemaUpgradeMode");

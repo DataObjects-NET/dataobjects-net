@@ -6,14 +6,12 @@
 
 using System;
 using System.Reflection;
-using NUnit.Framework;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
-  [TestFixture]
   public class UpgradeTestBase
   {
     protected Domain Domain { get; private set; }

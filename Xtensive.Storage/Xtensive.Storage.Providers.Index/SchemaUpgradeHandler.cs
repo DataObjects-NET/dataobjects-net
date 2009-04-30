@@ -5,7 +5,7 @@
 // Created:    2009.04.09
 
 using System;
-using System.Diagnostics;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Index
 {
@@ -13,24 +13,12 @@ namespace Xtensive.Storage.Providers.Index
   /// Upgrades storage schema.
   /// </summary>
   [Serializable]
-  public class SchemaUpgradeHandler : Providers.SchemaUpgradeHandler
+  public abstract class SchemaUpgradeHandler : Providers.SchemaUpgradeHandler
   {
-
     /// <inheritdoc/>
-    public override void ClearStorageSchema()
+    protected override bool IsGeneratorPersistent(GeneratorInfo generatorInfo)
     {
+      return false;
     }
-
-    /// <inheritdoc/>
-    public override void UpgradeStorageSchema()
-    {
-    }
-
-    /// <inheritdoc/>
-    public override void ValidateStorageSchema()
-    {
-      throw new NotImplementedException();
-    }
-
   }
 }

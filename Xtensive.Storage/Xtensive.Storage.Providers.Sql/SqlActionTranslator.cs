@@ -11,17 +11,17 @@ using Xtensive.Core.Reflection;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Modelling.Actions;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 using Xtensive.Core;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom;
 using System.Collections.Generic;
-using ColumnInfo=Xtensive.Storage.Indexing.Model.ColumnInfo;
-using TableInfo=Xtensive.Storage.Indexing.Model.TableInfo;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
+using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
+using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
 using SqlRefAction = Xtensive.Sql.Dom.ReferentialAction;
 using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
-using SequenceInfo=Xtensive.Storage.Indexing.Model.SequenceInfo;
+using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -49,6 +49,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns></returns>
     public SqlBatch Translate()
     {
+      Log.Info(actions.ToString());
       createdTables = new List<Table>();
       batch = SqlFactory.Batch();
       // Cleanup
