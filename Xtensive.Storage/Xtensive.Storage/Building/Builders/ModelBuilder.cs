@@ -9,11 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
-using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Internals;
@@ -34,12 +31,10 @@ namespace Xtensive.Storage.Building.Builders
     private static void BuildDefinition()
     {
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.ModelDefinition)) {
-        BuildingContext context = BuildingContext.Current;
+        var context = BuildingContext.Current;
         try {
           context.Definition = new DomainModelDef();
-
           DefineTypes();
-          DefineServices();
         }
         catch (DomainBuilderException e) {
           context.RegisterError(e);
@@ -48,25 +43,14 @@ namespace Xtensive.Storage.Building.Builders
 
         if (context.Configuration.Builders.Count>0)
           BuildCustomDefinitions();
-
-        DefineSystemTypes();
-      }
-    }
-
-    private static void DefineSystemTypes()
-    {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogDefiningX, Strings.SystemTypes)) {
-        foreach (Type type in GetSystemTypes()) {
-          DefineType(type);
-        }
       }
     }
 
     private static void DefineTypes()
     {
       using (LogTemplate<Log>.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
-        BuildingContext context = BuildingContext.Current;
-        foreach (Type type in context.Configuration.Types)          
+        var context = BuildingContext.Current;
+        foreach (var type in context.Configuration.Types)          
           if (context.TypeFilter.Invoke(type))
             DefineType(type);
       }
@@ -74,9 +58,11 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void DefineType(Type type)
     {      
-      BuildingContext context = BuildingContext.Current;  
+      var context = BuildingContext.Current;
+      if (context.Definition.Types.Contains(type))
+        return;
       try {
-        TypeDef typeDef = TypeBuilder.DefineType(type);
+        var typeDef = TypeBuilder.DefineType(type);
         context.Definition.Types.Add(typeDef);
         IndexBuilder.DefineIndexes(typeDef);
       }
@@ -85,18 +71,11 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    private static IEnumerable<Type> GetSystemTypes()
-    {
-      return AssemblyHelper.FindTypes(
-        Assembly.GetExecutingAssembly(), typeof(Persistent),
-        (type, filterCriteria) => type.GetAttributes<SystemTypeAttribute>(AttributeSearchOptions.Default).Count() > 0);
-    }
-
     private static void BuildCustomDefinitions()
     {
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions)) {
-        BuildingContext context = BuildingContext.Current;
-        foreach (Type type in BuildingContext.Current.Configuration.Builders) {
+        var context = BuildingContext.Current;
+        foreach (var type in BuildingContext.Current.Configuration.Builders) {
           var builder = (IDomainBuilder) Activator.CreateInstance(type);
           builder.Build(context, context.Definition);
         }
@@ -106,7 +85,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void BuildModel()
     {
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
-        BuildingContext context = BuildingContext.Current;
+        var context = BuildingContext.Current;
         context.Model = new DomainModel();
         BuildTypes();
         context.ModelUnlockKey = context.Model.GetUnlockKey();
@@ -114,18 +93,12 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    private static void DefineServices()
-    {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.Services)) {
-      }
-    }
-
     private static void BuildTypes()
     {
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
-        BuildingContext context = BuildingContext.Current;
+        var context = BuildingContext.Current;
 
-        foreach (TypeDef typeDef in context.Definition.Types.Where(t => !t.IsInterface)) {
+        foreach (var typeDef in context.Definition.Types.Where(t => !t.IsInterface)) {
           CheckPersistentAspect(typeDef);
           try {
             TypeBuilder.BuildType(typeDef);
@@ -143,6 +116,7 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
+    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     private static void CheckPersistentAspect(TypeDef typeDef)
     {
       var constructor = typeDef.UnderlyingType.GetConstructor(
@@ -157,10 +131,10 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ValidateHierarchies()
     {
-      BuildingContext context = BuildingContext.Current;
-      foreach (HierarchyDef hierarchy in context.Definition.Hierarchies) {
-        TypeDef root = hierarchy.Root;
-        foreach (KeyField keyField in hierarchy.KeyFields.Keys) {
+      var context = BuildingContext.Current;
+      foreach (var hierarchy in context.Definition.Hierarchies) {
+        var root = hierarchy.Root;
+        foreach (var keyField in hierarchy.KeyFields.Keys) {
           FieldDef srcField;
           if (!root.Fields.TryGetValue(keyField.Name, out srcField))
             context.RegisterError(new DomainBuilderException(
@@ -183,7 +157,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void BuildHierarchyColumns()
     {
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.HierarchyColumns)) {
-        foreach (HierarchyInfo hierarchyInfo in BuildingContext.Current.Model.Hierarchies)
+        foreach (var hierarchyInfo in BuildingContext.Current.Model.Hierarchies)
           HierarchyBuilder.BuildHierarchyColumns(hierarchyInfo);
       }
     }
@@ -191,7 +165,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void BuildColumns()
     {
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.Columns)) {
-        foreach (TypeInfo type in BuildingContext.Current.Model.Types) {
+        foreach (var type in BuildingContext.Current.Model.Types) {
           type.Columns.Clear();
           type.Columns.AddRange(type.Fields.Where(f => f.Column!=null).Select(f => f.Column));
         }
@@ -201,8 +175,8 @@ namespace Xtensive.Storage.Building.Builders
     private static void BuildAssociations()
     {
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.Associations)) {
-        BuildingContext context = BuildingContext.Current;
-        foreach (Pair<AssociationInfo, string> pair in context.PairedAssociations) {
+        var context = BuildingContext.Current;
+        foreach (var pair in context.PairedAssociations) {
           if (context.DiscardedAssociations.Contains(pair.First))
             continue;
           try {
@@ -213,7 +187,7 @@ namespace Xtensive.Storage.Building.Builders
           }
         }
 
-        foreach (AssociationInfo ai in context.DiscardedAssociations)
+        foreach (var ai in context.DiscardedAssociations)
           context.Model.Associations.Remove(ai);
         context.DiscardedAssociations.Clear();
 
@@ -223,8 +197,8 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildEntitySetTypes(IEnumerable<AssociationInfo> associations)
     {
-      BuildingContext context = BuildingContext.Current;
-      foreach (AssociationInfo association in associations) {
+      var context = BuildingContext.Current;
+      foreach (var association in associations) {
         if (!association.IsMaster)
           continue;
 
@@ -235,14 +209,14 @@ namespace Xtensive.Storage.Building.Builders
         var masterFieldType = association.ReferencedType;
         var slaveFieldType = association.ReferencingType;
 
-        Type underlyingGenericType = typeof (EntitySetItem<,>).MakeGenericType(masterFieldType.UnderlyingType, slaveFieldType.UnderlyingType);
-        Type underlyingType = TypeHelper.CreateDummyType(BuildingContext.Current.NameBuilder.Build(association), underlyingGenericType, true);
+        var underlyingGenericType = typeof (EntitySetItem<,>).MakeGenericType(masterFieldType.UnderlyingType, slaveFieldType.UnderlyingType);
+        var underlyingType = TypeHelper.CreateDummyType(BuildingContext.Current.NameBuilder.Build(association), underlyingGenericType, true);
 
-        TypeDef underlyingTypeDef = TypeBuilder.DefineType(underlyingType);
+        var underlyingTypeDef = TypeBuilder.DefineType(underlyingType);
         underlyingTypeDef.Name = association.Name;
 
-        FieldDef masterFieldDef = underlyingTypeDef.DefineField(underlyingType.GetProperty(context.NameBuilder.EntitySetItemMasterFieldName));
-        FieldDef slaveFieldDef = underlyingTypeDef.DefineField(underlyingType.GetProperty(context.NameBuilder.EntitySetItemSlaveFieldName));
+        var masterFieldDef = underlyingTypeDef.DefineField(underlyingType.GetProperty(context.NameBuilder.EntitySetItemMasterFieldName));
+        var slaveFieldDef = underlyingTypeDef.DefineField(underlyingType.GetProperty(context.NameBuilder.EntitySetItemSlaveFieldName));
 
         if (masterFieldType!=slaveFieldType) {
           masterFieldDef.MappingName = context.NameBuilder.NamingConvention.Apply(masterFieldType.Name);
@@ -251,7 +225,7 @@ namespace Xtensive.Storage.Building.Builders
         context.Definition.Types.Add(underlyingTypeDef);
         IndexBuilder.DefineIndexes(underlyingTypeDef);
 
-        HierarchyDef hierarchy = context.Definition.DefineHierarchy(underlyingTypeDef);
+        var hierarchy = context.Definition.DefineHierarchy(underlyingTypeDef);
         hierarchy.KeyFields.Add(new KeyField(masterFieldDef.Name, masterFieldDef.ValueType), Direction.Positive);
         hierarchy.KeyFields.Add(new KeyField(slaveFieldDef.Name, slaveFieldDef.ValueType), Direction.Positive);
 

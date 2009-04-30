@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Building
       var typeByName = new Dictionary<string, Type>();
       foreach (var type in types)
         typeByName.Add(type.Name, type);
-      var maxTypeId = types.Max(t => t.TypeId);
+      var maxTypeId = types.Count()==0 ? TypeInfo.MinTypeId : types.Max(t => t.TypeId);
 
       foreach (var type in context.Model.Types) {
         if (!type.IsEntity || type.TypeId!=TypeInfo.NoTypeId)

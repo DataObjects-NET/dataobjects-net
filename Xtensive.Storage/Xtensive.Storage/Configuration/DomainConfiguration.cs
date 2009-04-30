@@ -387,7 +387,7 @@ namespace Xtensive.Storage.Configuration
       upgradeMode = configuration.upgradeMode;
       foreignKeyMode = configuration.foreignKeyMode;
       services = configuration.Services;
-      services.LockItem = this.IsLocked;
+      services.LockItem = configuration.IsLocked;
     }
 
     /// <summary>

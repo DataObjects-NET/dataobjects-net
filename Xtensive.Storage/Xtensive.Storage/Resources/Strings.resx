@@ -387,9 +387,6 @@
   <data name="Types" xml:space="preserve">
     <value>Types</value>
   </data>
-  <data name="Services" xml:space="preserve">
-    <value>Services</value>
-  </data>
   <data name="LogDefiningX" xml:space="preserve">
     <value>Defining '{0}'</value>
   </data>
