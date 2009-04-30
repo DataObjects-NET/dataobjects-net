@@ -103,19 +103,19 @@ namespace Xtensive.Storage.Tests.Upgrade
     }
 
     [Test]
-    public void SetReferencingFieldToDefaultTest()
+    public void   SetReferencingFieldToDefaultTest()
     {
       var config = OldModelConfiguration;
       config.BuildMode = DomainBuildMode.Recreate;
       var domain = Domain.Build(config);
 
       using (var s = domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+        using ( var t = Transaction.Open()) {
           var person = new Person {Name = "Person1"};
           var order1 = new OldOrder {Consumer = person};
           var order2 = new OldOrder {Consumer = person};
           var orders = Query<OldOrder>.All;
-          foreach (var order in orders.Select(o=>o)) {
+          foreach (var order in orders) {
             Assert.IsNotNull(order.Consumer);
           }
           t.Complete();
@@ -131,7 +131,7 @@ namespace Xtensive.Storage.Tests.Upgrade
           var orders = Query<NewOrder>.All;
           Assert.AreEqual(2, orders.Count());
           orders = Query<NewOrder>.All;
-          foreach (var order in orders.Select(o=>o)) {
+          foreach (var order in orders) {
             Assert.IsNull(order.Consumer);
           }
           t.Complete();

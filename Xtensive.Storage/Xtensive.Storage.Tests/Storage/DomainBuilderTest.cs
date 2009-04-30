@@ -5,6 +5,7 @@
 // Created:    2009.04.27
 
 using System;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Attributes;
@@ -56,18 +57,18 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void TestBuilder()
+    public void TypesTest()
     {
       BuildDomain(SchemaUpgradeMode.Recreate, typeof (B));
       int bId = GetTypeId(typeof (B));
-
+      
       BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A), typeof (B));
-        Assert.AreEqual(bId, GetTypeId(typeof(B)));
+      Assert.AreEqual(bId, GetTypeId(typeof(B)));
       int aId = GetTypeId(typeof (A));
 
       Assert.AreEqual(TypeInfo.MinTypeId, bId);
       Assert.AreEqual(TypeInfo.MinTypeId+1, aId);
-
+        
 //      BuildDomain(SchemaUpgradeMode.Validate, typeof (A));
 //      BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof(B));
 //
@@ -80,6 +81,32 @@ namespace Xtensive.Storage.Tests.Storage
 //
 //      AssertEx.Throws<Exception>(() =>
 //        BuildDomain(SchemaUpgradeMode.Validate, typeof(A), typeof(B)));
+    }
+
+    [Test]
+    public void InstancesTest()
+    {
+      BuildDomain(SchemaUpgradeMode.Recreate, typeof (A));
+
+      using (domain.OpenSession()) {
+        using (var transactionScope = Transaction.Open()) {
+          A a = new A();
+          transactionScope.Complete();
+        }
+      }
+
+      BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A));
+
+      using (domain.OpenSession()) {
+        using (Transaction.Open()) {
+          Assert.AreEqual(1, Query<A>.All.Count());
+
+          foreach (A a in Query<A>.All) {
+            Assert.IsNotNull(a);
+          }
+
+        }
+      }
     }
   }
 }

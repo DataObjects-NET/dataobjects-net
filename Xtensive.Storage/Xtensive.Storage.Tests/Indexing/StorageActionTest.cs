@@ -49,7 +49,6 @@ namespace Xtensive.Storage.Tests.Indexing
       Xtensive.Indexing.Log.Info("Actions: \n{0}", storage.Actions);
       storage.Actions.Apply(newStorage);
       newStorage.Dump();
-
       storage.Actions = new ActionSequence();
       primaryValue1.Type = new TypeInfo(typeof(string));
       storage.Actions.Apply(newStorage);
