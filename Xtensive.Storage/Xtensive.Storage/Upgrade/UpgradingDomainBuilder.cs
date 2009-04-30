@@ -65,22 +65,22 @@ namespace Xtensive.Storage.Upgrade
       var schemaUpgradeMode = SchemaUpgradeMode.Upgrade;
       switch (stage) {
       case UpgradeStage.Validation:
-        if (configuration.UpgradeMode==StorageUpgradeMode.Recreate ||
-            configuration.UpgradeMode==StorageUpgradeMode.Validate)
+        if (configuration.UpgradeMode==DomainUpgradeMode.Recreate ||
+            configuration.UpgradeMode==DomainUpgradeMode.Validate)
           return; // Nothing to do in these modes here
         schemaUpgradeMode = SchemaUpgradeMode.ValidateCompatible;
         break;
       case UpgradeStage.Upgrading:
-        if (configuration.UpgradeMode==StorageUpgradeMode.Recreate ||
-            configuration.UpgradeMode==StorageUpgradeMode.Validate)
+        if (configuration.UpgradeMode==DomainUpgradeMode.Recreate ||
+            configuration.UpgradeMode==DomainUpgradeMode.Validate)
           return; // Nothing to do in these modes here
-        if (configuration.UpgradeMode==StorageUpgradeMode.PerformSafely)
+        if (configuration.UpgradeMode==DomainUpgradeMode.PerformSafely)
           schemaUpgradeMode = SchemaUpgradeMode.UpgradeSafely;
         break;
       case UpgradeStage.Final:
-        if (configuration.UpgradeMode==StorageUpgradeMode.Recreate)
+        if (configuration.UpgradeMode==DomainUpgradeMode.Recreate)
           schemaUpgradeMode = SchemaUpgradeMode.Recreate;
-        if (configuration.UpgradeMode==StorageUpgradeMode.Validate)
+        if (configuration.UpgradeMode==DomainUpgradeMode.Validate)
           schemaUpgradeMode = SchemaUpgradeMode.ValidateExact;
         break;
       default:

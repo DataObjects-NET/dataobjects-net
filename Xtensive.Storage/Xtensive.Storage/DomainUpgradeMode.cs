@@ -7,11 +7,11 @@
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Enumerates possible storage upgrade modes.
+  /// Enumerates possible <see cref="Domain"/> upgrade modes.
   /// <seealso cref="Domain.Build"/>
   /// <seealso cref="Domain"/>
   /// </summary>
-  public enum StorageUpgradeMode
+  public enum DomainUpgradeMode
   {
     /// <summary>
     /// Default upgrade mode.

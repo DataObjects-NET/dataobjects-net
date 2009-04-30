@@ -162,9 +162,9 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <see cref="DomainConfiguration.UpgradeMode" copy="true"/>
     /// </summary>
     [ConfigurationProperty(UpgradeModeElementName, IsRequired = false, DefaultValue = DomainConfiguration.DefaultUpgradeMode)]
-    public StorageUpgradeMode UpgradeMode
+    public DomainUpgradeMode UpgradeMode
     {
-      get { return (StorageUpgradeMode)this[UpgradeModeElementName]; }
+      get { return (DomainUpgradeMode)this[UpgradeModeElementName]; }
       set { this[UpgradeModeElementName] = value; }
     }
 

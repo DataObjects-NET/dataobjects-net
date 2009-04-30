@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Tests.Configuration
       string url = "memory://localhost/DO40-Tests";
       // Default CacheType
       var dc = new DomainConfiguration(url);
-      dc.UpgradeMode = StorageUpgradeMode.Recreate;
+      dc.UpgradeMode = DomainUpgradeMode.Recreate;
       TestCacheType(dc, typeof (LruCache<,>));
       // Lru CacheType
       dc = new DomainConfiguration(url);

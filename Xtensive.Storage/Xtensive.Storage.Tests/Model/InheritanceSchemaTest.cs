@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
     {
       var dc = base.BuildConfiguration();
       dc.Types.Register(typeof (A).Assembly, typeof(A).Namespace);
-      dc.UpgradeMode = StorageUpgradeMode.Recreate;
+      dc.UpgradeMode = DomainUpgradeMode.Recreate;
       return dc;
     }
 

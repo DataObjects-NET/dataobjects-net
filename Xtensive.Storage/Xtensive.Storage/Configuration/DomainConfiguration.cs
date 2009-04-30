@@ -32,9 +32,9 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Default <see cref="UpgradeMode"/> value:
-    /// "<see cref="StorageUpgradeMode.Default" />".
+    /// "<see cref="DomainUpgradeMode.Default" />".
     /// </summary>
-    public const StorageUpgradeMode DefaultUpgradeMode = StorageUpgradeMode.Default;
+    public const DomainUpgradeMode DefaultUpgradeMode = DomainUpgradeMode.Default;
 
     /// <summary>
     /// Default <see cref="ForeignKeyMode"/> value:
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Configuration
     private bool inconsistentTransactions;    
     private TypeRegistry compilerContainers = new TypeRegistry(new CompilerContainerRegistrationHandler());
     private SessionConfigurationCollection sessions = new SessionConfigurationCollection();
-    private StorageUpgradeMode upgradeMode = DefaultUpgradeMode;
+    private DomainUpgradeMode upgradeMode = DefaultUpgradeMode;
     private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
     private UnityTypeElementCollection services;
 
@@ -274,7 +274,7 @@ namespace Xtensive.Storage.Configuration
     /// Gets or sets a value indicating domain upgrade behavior. 
     /// Default value is <see cref="DefaultUpgradeMode"/>.
     /// </summary>
-    public StorageUpgradeMode UpgradeMode
+    public DomainUpgradeMode UpgradeMode
     {
       get { return upgradeMode; }
       set

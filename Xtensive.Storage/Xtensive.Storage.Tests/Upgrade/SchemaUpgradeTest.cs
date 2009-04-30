@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     private void BuildFirstModel()
     {
       var dc = GetConfiguration(typeof(Model1.Person));
-      dc.UpgradeMode = StorageUpgradeMode.Recreate;
+      dc.UpgradeMode = DomainUpgradeMode.Recreate;
       var domain = Domain.Build(dc);
       using (domain.OpenSession()) {        
         using (var ts = Transaction.Open()) {
@@ -171,7 +171,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     private void BuildSecondDomain()
     {
       var dc = GetConfiguration(typeof(Model2.Person));
-      dc.UpgradeMode = StorageUpgradeMode.PerformSafely;
+      dc.UpgradeMode = DomainUpgradeMode.PerformSafely;
       var domain = Domain.Build(dc);
       using (domain.OpenSession()) {
         using (var ts = Transaction.Open()) {
