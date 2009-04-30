@@ -40,10 +40,10 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
+    /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="alias">The <see cref="Alias"/> property value.</param>
-    public AliasProvider(CompilableProvider provider, string alias)
-      : base(ProviderType.Alias, provider)
+    public AliasProvider(CompilableProvider source, string alias)
+      : base(ProviderType.Alias, source)
     {
       Alias = alias;
     }

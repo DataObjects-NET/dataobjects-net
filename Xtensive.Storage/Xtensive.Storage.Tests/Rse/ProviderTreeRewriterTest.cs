@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Tests.Rse
       var extractedRangeSets = CreatedExtractedRangeSets(creatureType);
       var providersTree = CreateTreeForInsertTest(primaryIndex);
       var inserter = new ProviderTreeRewriter(Domain.Model);
-      var modifiedTree = inserter.InsertSecondaryIndexes(providersTree, extractedRangeSets);
+      var modifiedTree = inserter.InsertRangeProviders(providersTree, extractedRangeSets);
 
       Assert.AreEqual(providersTree.GetType(), modifiedTree.GetType());
       var joinProvider = (JoinProvider)((SelectProvider)((FilterProvider) ((UnaryProvider) modifiedTree)
@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Tests.Rse
       var extractedRangeSets = CreatedExtractedRangeSets(creatureType);
       var providersTree = CreateTreeForForDoNotModifyTest(primaryIndex);
       var inserter = new ProviderTreeRewriter(Domain.Model);
-      var nonModifiedTree = inserter.InsertSecondaryIndexes(providersTree, extractedRangeSets);
+      var nonModifiedTree = inserter.InsertRangeProviders(providersTree, extractedRangeSets);
       Assert.AreEqual(providersTree, nonModifiedTree);
     }
 

@@ -446,9 +446,11 @@ namespace Xtensive.Core.Linq
         }
         Write(")");
       }
-      else {
+      else if (l.Parameters.Count == 1) {
         Write(l.Parameters[0].Name);
       }
+      else
+        Write("()");
       Write(" => ");
       Visit(l.Body);
       return l;

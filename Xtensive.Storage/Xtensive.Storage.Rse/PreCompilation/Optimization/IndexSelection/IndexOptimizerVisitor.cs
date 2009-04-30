@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       using (ParameterContext.CreateExpectedValueScope()) {
         selectedIndexes = indexSelector.Select(extractionResult);
       }
-      return treeRewriter.InsertSecondaryIndexes(provider, selectedIndexes);
+      return treeRewriter.InsertRangeProviders(provider, selectedIndexes);
     }
 
     #region Private \ internal methods

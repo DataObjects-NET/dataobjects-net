@@ -18,58 +18,45 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     private readonly DomainModel domainModel;
     private Dictionary<IndexInfo, RangeSetInfo> currentRangeSets;
 
-    public Provider InsertSecondaryIndexes(CompilableProvider source,
-      Dictionary<IndexInfo, RangeSetInfo> rangeSets)
+    public Provider InsertRangeProviders(CompilableProvider source, Dictionary<IndexInfo, RangeSetInfo> rangeSets)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(rangeSets, "rangeSets");
-      if (rangeSets.Count == 0)
-        return source;
       currentRangeSets = rangeSets;
       return Visit(source);
     }
 
     protected override Provider VisitFilter(FilterProvider provider)
     {
-      var primaryProvider = provider.Source as IndexProvider;
-      if (primaryProvider != null)
-        return new FilterProvider(InsertSecondaryIndexProviders(primaryProvider), provider.Predicate);
+      var primaryProvider = provider.Source;
+      if (primaryProvider != null && currentRangeSets.Count > 0) {
+        var primaryIndex = ((IndexProvider)primaryProvider).Index.Resolve(domainModel);
+        if (currentRangeSets.ContainsKey(primaryIndex)) {
+          var rangeSet = currentRangeSets[primaryIndex];
+          primaryProvider = new RangeSetProvider(primaryProvider, rangeSet.GetSourceAsLambda());
+        }
+        CompilableProvider secondaryProvider = null;
+        foreach (var pair in currentRangeSets.Where(p => p.Key.IsSecondary)) {
+          var rangeSetProvider = new RangeSetProvider(IndexProvider.Get(pair.Key), pair.Value.GetSourceAsLambda());
+          var primaryKeyColumnIndexes = GetIndexesOfPrimaryKeyFields(primaryIndex, pair.Key);
+          var selectProvider = new SelectProvider(rangeSetProvider, primaryKeyColumnIndexes);
+          if (secondaryProvider == null)
+            secondaryProvider = selectProvider;
+          else
+            secondaryProvider = new UnionProvider(secondaryProvider, selectProvider);
+        }
+        if (secondaryProvider != null) {
+          var alias = new AliasProvider(secondaryProvider, "secondary");
+          var join = new JoinProvider(primaryProvider, alias, false, JoinType.Hash, GetEqualIndexes(primaryIndex.KeyColumns.Count));
+          var resultSelectProvider = new SelectProvider(join, Enumerable.Range(0, primaryIndex.Columns.Count).ToArray());
+          return new FilterProvider(resultSelectProvider, provider.Predicate);
+        }
+        return new FilterProvider(primaryProvider, provider.Predicate);
+      }
       return base.VisitFilter(provider);
     }
 
     #region Private \ internal methods
-    private CompilableProvider InsertSecondaryIndexProviders(IndexProvider source)
-    {
-      var primaryIndex = source.Index.Resolve(domainModel);
-      var concatedIndexes = BuildSecondaryIndexesConcat(primaryIndex);
-      return BuildJoin(source, primaryIndex, concatedIndexes);
-    }
-
-    private CompilableProvider BuildSecondaryIndexesConcat(IndexInfo primaryIndex)
-    {
-      if(currentRangeSets.Count == 1)
-        return CreateSelectProvider(primaryIndex, currentRangeSets.First());
-
-      CompilableProvider result = null;
-      foreach (var pair in currentRangeSets)
-        if (result == null)
-          result = CreateSelectProvider(primaryIndex, pair);
-        else
-          result = BuildUnion(result, primaryIndex, pair);
-      return result;
-    }
-
-    private static SelectProvider CreateSelectProvider(IndexInfo primaryIndex,
-      KeyValuePair<IndexInfo, RangeSetInfo> pair)
-    {
-      return new SelectProvider(CreateRangeSetProvider(pair),
-        GetIndexesOfPrimaryKeyFields(primaryIndex, pair.Key));
-    }
-
-    private static CompilableProvider CreateRangeSetProvider(KeyValuePair<IndexInfo, RangeSetInfo> pair)
-    {
-      return new RangeSetProvider(IndexProvider.Get(pair.Key), pair.Value.GetSourceAsLambda());
-    }
 
     private static int[] GetIndexesOfPrimaryKeyFields(IndexInfo primaryIndex, IndexInfo secondaryIndex)
     {
@@ -92,29 +79,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
         result[i] = new Pair<int>(i, i);
       return result;
     }
-
-    private static int[] GetSequentialColumnIndexes(int count)
-    {
-      var result = new int[count];
-      for (int i = 0; i < count; i++)
-        result[i] = i;
-      return result;
-    }
-
-    private static CompilableProvider BuildUnion(CompilableProvider source, IndexInfo primaryIndex,
-      KeyValuePair<IndexInfo, RangeSetInfo> targetPair)
-    {
-      return new UnionProvider(source, CreateSelectProvider(primaryIndex, targetPair));
-    }
-
-    private static CompilableProvider BuildJoin(CompilableProvider primaryIndexProvider, IndexInfo primaryIndex,
-      CompilableProvider secondaryIndexes)
-    {
-      var alias = new AliasProvider(secondaryIndexes, "secondary");
-      var join = new JoinProvider(primaryIndexProvider, alias, false, JoinType.Hash,
-        GetEqualIndexes(primaryIndex.KeyColumns.Count));
-      return new SelectProvider(join, GetSequentialColumnIndexes(primaryIndex.Columns.Count));
-    }
+    
     #endregion
 
 

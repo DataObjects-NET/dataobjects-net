@@ -17,13 +17,12 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 
     #region Implementation of IIndexSelector
 
-    public Dictionary<IndexInfo, RangeSetInfo> Select(Dictionary<Expression,
-      List<RsExtractionResult>> extractionResults)
+    public Dictionary<IndexInfo, RangeSetInfo> Select(Dictionary<Expression, List<RsExtractionResult>> extractionResults)
     {
       var result = new Dictionary<IndexInfo, RangeSetInfo>(extractionResults.Count);
       foreach (var pair in extractionResults) {
         var cheapestResult = TrySelectCheapestResult(pair.Value);
-        if (cheapestResult == null || cheapestResult.IndexInfo.IsPrimary) {
+        if (cheapestResult == null) {
           result.Clear();
           return result;
         }

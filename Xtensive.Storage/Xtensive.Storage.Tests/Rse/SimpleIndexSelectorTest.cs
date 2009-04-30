@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Rse
     public void PrimaryIndexIsSelectedTest()
     {
       TestSelector(CreateRangeSet,
-        (indexes, exps, inputData, selectedIndexes) => Assert.AreEqual(0, selectedIndexes.Count), true);
+        (indexes, exps, inputData, selectedIndexes) => Assert.AreEqual(2, selectedIndexes.Count), true);
     }
 
     private void TestSelector(Func<Random, RangeSet<Entire<Tuple>>> rangeSetCreator,
