@@ -5,29 +5,28 @@
 // Created:    2009.04.24
 
 using System;
-using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Parameters;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using System.Linq;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction
 {
   internal sealed class SkipRewriter : CompilableProviderVisitor
   {
     private readonly CompilableProvider origin;
+    private int count;
 
     public CompilableProvider Rewrite()
     {
+      count = 0;
       return VisitCompilable(origin);
     }
 
     protected override Provider VisitSkip(SkipProvider provider)
     {
-      const string rowNumber = "RowNumber";
-      return new SkipProvider(new RowNumberProvider(provider.Source, rowNumber), provider.Count);
+      var visitedSource = VisitCompilable(provider.Source);
+      var columnName = String.Format(Strings.RowNumberX, count++);
+      return new SkipProvider(new RowNumberProvider(visitedSource, columnName), provider.Count);
     }
 
 

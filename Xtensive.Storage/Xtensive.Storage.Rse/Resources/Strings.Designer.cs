@@ -223,6 +223,15 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to RowNumber{0}.
+        /// </summary>
+        internal static string RowNumberX {
+            get {
+                return ResourceManager.GetString("RowNumberX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value with name {0} doesn&apos;t exist..
         /// </summary>
         internal static string ValueWithNameXIsNotSet {

@@ -50,17 +50,15 @@ namespace Xtensive.Storage.Providers.MsSql
 
     protected override ExecutableProvider VisitSkip(SkipProvider provider)
     {
-      const string rowNumber = "RowNumber";
-
       var compiledSource = GetCompiled(provider.Source) as SqlProvider;
       if (compiledSource == null)
         return null;
-      var sourceQuery = compiledSource.Request.SelectStatement;
+      var sourceQuery = (SqlSelect)compiledSource.Request.SelectStatement.Clone();
       sourceQuery.Where = sourceQuery.Columns.Last() > provider.Count();
 
       var queryRef = SqlFactory.QueryRef(sourceQuery);
       var query = SqlFactory.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Where(column => column.Name != rowNumber).Cast<SqlColumn>());
+      query.Columns.AddRange(queryRef.Columns.Take(sourceQuery.Columns.Count - 1).Cast<SqlColumn>());
       
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }
@@ -79,9 +77,6 @@ namespace Xtensive.Storage.Providers.MsSql
       var queryRef = SqlFactory.QueryRef(sourceQuery);
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      //query.OrderBy.Add(queryRef.Columns[rowNumberColumnName]);
-
-//      AddOrderByForRowNumberColumn(provider, query);
 
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }

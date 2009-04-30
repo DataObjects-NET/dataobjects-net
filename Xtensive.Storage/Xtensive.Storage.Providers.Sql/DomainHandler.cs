@@ -120,7 +120,9 @@ namespace Xtensive.Storage.Providers.Sql
       bool isOrderSensitive = provider.Type==ProviderType.Skip || provider.Type==ProviderType.Take
         || provider.Type==ProviderType.Seek || provider.Type==ProviderType.Range
         || provider.Type == ProviderType.RowNumber;
-      bool preservesOrder = isOrderSensitive || provider.Type == ProviderType.Reindex
+      bool preservesOrder = provider.Type==ProviderType.Take
+        || provider.Type==ProviderType.Seek || provider.Type==ProviderType.Range
+        || provider.Type == ProviderType.RowNumber || provider.Type == ProviderType.Reindex
         || provider.Type == ProviderType.Sort || provider.Type == ProviderType.Range
         || provider.Type == ProviderType.Seek;
       bool isOrderBreaker = provider.Type==ProviderType.Except

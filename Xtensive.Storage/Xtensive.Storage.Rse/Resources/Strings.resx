@@ -174,4 +174,7 @@
   <data name="ExAggregateXIsNotSupportedForTypeY" xml:space="preserve">
     <value>Aggregate '{0}' is not supported for type '{1}'</value>
   </data>
+  <data name="RowNumberX" xml:space="preserve">
+    <value>RowNumber{0}</value>
+  </data>
 </root>
