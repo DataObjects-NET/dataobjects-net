@@ -15,6 +15,10 @@ namespace Xtensive.Core.Diagnostics
   public enum MeasurementOptions
   {
     /// <summary>
+    /// Don't collect garbage and don't write to log.
+    /// </summary>
+    None = 0,
+    /// <summary>
     /// Default measurement options: <see cref="Log"/>, <see cref="CollectGarbageOnEnter"/>, <see cref="CollectGarbageOnLeave"/>.
     /// </summary>
     Default = 0x103,

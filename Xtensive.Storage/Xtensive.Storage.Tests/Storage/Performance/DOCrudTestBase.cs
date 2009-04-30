@@ -46,13 +46,16 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       CombinedTest(10, 10);
       warmup = false;
 //      CombinedTest(BaseCount * 10, BaseCount * 10);
-      int instanceCount = 100000;
+//      int instanceCount = 100000;
+      int instanceCount = 10000;
       InsertTest(instanceCount);
       CachedQueryTest(instanceCount / 5);
     }
 
     private void CombinedTest(int baseCount, int insertCount)
     {
+      if (warmup)
+        Log.Info("Warming up...");
       InsertTest(insertCount);
       BulkFetchTest(baseCount);
       BulkFetchCachedTest(baseCount);
