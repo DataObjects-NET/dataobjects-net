@@ -75,5 +75,24 @@ namespace Xtensive.Storage.Tests.Linq
         Assert.AreEqual(method, i.Method);
       QueryDumper.Dump(result);
     }
+
+    [Test]
+    public void ArrayMemberAccessTest()
+    {
+      var result = Query<Customer>.All
+        .Select(x => new byte[] {1, 2})
+        .Select(a=>a[0]);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void ArrayAggregateAccessTest()
+    {
+      var result = Query<Customer>.All
+        .Select(x => new byte[] {1, 2})
+        .Select(a=>a[0])
+        .Sum(b=>b);
+      QueryDumper.Dump(result);
+    }
   }
 }
