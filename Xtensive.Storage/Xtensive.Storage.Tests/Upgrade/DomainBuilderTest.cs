@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Attributes;
@@ -14,10 +15,10 @@ using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Tests.Storage
-{  
+namespace Xtensive.Storage.Tests.Upgrade
+{
   [TestFixture]
-  public class DomainBuilderTest
+  public class DomainBuilderTest : UpgradeTestBase
   {
     [HierarchyRoot(typeof(KeyGenerator), "Id")]
     private class A : Entity
@@ -39,21 +40,10 @@ namespace Xtensive.Storage.Tests.Storage
       [Field]
       public int Id { get; private set; }
     }
-
-    private Domain domain;
-
+    
     private int GetTypeId(Type type)
     {
-      return domain.Model.Types[type].TypeId;
-    }
-
-    private void BuildDomain(SchemaUpgradeMode schemaUpgradeMode, params Type[] persistentTypes)
-    {
-      var configuration = DomainConfigurationFactory.Create();
-      foreach (Type type in persistentTypes)
-        configuration.Types.Register(type);
-
-      domain = DomainBuilder.BuildDomain(configuration, schemaUpgradeMode);
+      return Domain.Model.Types[type].TypeId;
     }
 
     [Test]
@@ -92,7 +82,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       BuildDomain(SchemaUpgradeMode.Recreate, typeof (A));
 
-      using (domain.OpenSession()) {
+      using (Domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           A a = new A();
           transactionScope.Complete();
@@ -101,7 +91,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A));
 
-      using (domain.OpenSession()) {
+      using (Domain.OpenSession()) {
         using (Transaction.Open()) {
           Assert.AreEqual(1, Query<A>.All.Count());
 
