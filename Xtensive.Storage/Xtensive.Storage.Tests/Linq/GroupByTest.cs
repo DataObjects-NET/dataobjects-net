@@ -20,14 +20,6 @@ namespace Xtensive.Storage.Tests.Linq
   public class GroupByTest : NorthwindDOModelTest
   {
     [Test]
-    public void SimpleEntityGroupTest()
-    {
-      var result = Query<Product>.All.GroupBy(p => p);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-    }
-
-    [Test]
     public void GroupingAsQueryableTest()
     {
       var result = Query<Product>.All.GroupBy(p => p);
@@ -37,49 +29,38 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void SimpleEntityGroupTest()
+    {
+      var result = Query<Product>.All.GroupBy(p => p);
+      DumpGrouping(result);
+    }
+
+    [Test]
     public void EntityGroupTest()
     {
       var result = Query<Product>.All.GroupBy(p => p.Category);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-      foreach (IGrouping<Category, Product> products in list)
-        Assert.Greater(products.ToList().Count, 0);
+      DumpGrouping(result);
     }
 
     [Test]
     public void EntityKeyGroupTest()
     {
       var result = Query<Product>.All.GroupBy(p => p.Category.Key);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-      foreach (var grouping in list) {
-        Assert.IsNotNull(grouping.Key);
-        Assert.Greater(grouping.Count(), 0);
-      }
+      DumpGrouping(result);
     }
 
     [Test]
     public void EntityFieldGroupTest()
     {
       var result = Query<Product>.All.GroupBy(p => p.Category.CategoryName);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-      foreach (var grouping in list) {
-        Assert.IsNotNull(grouping.Key);
-        Assert.Greater(grouping.Count(), 0);
-      }
+      DumpGrouping(result);
     }
 
     [Test]
     public void StructureGroupTest()
     {
       var result = Query<Customer>.All.GroupBy(p => p.Address);
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-      foreach (var grouping in list) {
-        Assert.IsNotNull(grouping.Key);
-        Assert.Greater(grouping.Count(), 0);
-      }
+      DumpGrouping(result);
     }
 
 
@@ -96,64 +77,40 @@ namespace Xtensive.Storage.Tests.Linq
     public void AnonymousTypeGroupTest()
     {
       var result = Query<Customer>.All.GroupBy(c => new {c.Address.City, c.Address.Country});
-      QueryDumper.Dump(result);
-//      var list = result.ToList();
-//      Assert.Greater(list.Count, 0);
-//      foreach (var grouping in list) {
-//        Assert.IsNotNull(grouping.Key);
-//        Assert.Greater(grouping.Count(), 0);
-//      }
+      DumpGrouping(result);
     }
 
     [Test]
     public void AnonymousTypeEntityAndStructureGroupTest()
     {
-      var result = Query<Employee>.All.GroupBy(e => new
-                                                    {
-//          e.Address.City,
-                                                      e.Address,
-                                                    });
-      QueryDumper.Dump(result);
+      var result = Query<Employee>.All.GroupBy(e => new {e.Address});
+      DumpGrouping(result);
     }
 
     [Test]
     public void AnonymousStructureGroupTest()
     {
       var result = Query<Customer>.All.GroupBy(p => new {p.Address});
-      QueryDumper.Dump(result);
+      DumpGrouping(result);
     }
 
     [Test]
     public void AnonymousTypeEntityAndFieldTest()
     {
-      var result = Query<Product>.All.GroupBy(product => new
-                                                         {
-                                                           product.Category,
-                                                           product.Category.CategoryName,
-                                                         });
-      QueryDumper.Dump(result);
-      //var list = result.ToList();
-      //Assert.Greater(list.Count, 0);
-      //foreach (var grouping in list) {
-      //  Assert.IsNotNull(grouping.Key);
-      //  Assert.Greater(grouping.ToList().Count, 0);
-      //}
+      var result = Query<Product>.All.GroupBy(product => new {
+        product.Category,
+        product.Category.CategoryName,
+      });
+      DumpGrouping(result);
     }
 
     [Test]
     public void AnonymousTypeEntityGroupTest()
     {
-      var result = Query<Product>.All.GroupBy(product => new
-                                                         {
-                                                           product.Category,
-                                                         });
-      QueryDumper.Dump(result);
-      //var list = result.ToList();
-      //Assert.Greater(list.Count, 0);
-      //foreach (var grouping in list) {
-      //  Assert.IsNotNull(grouping.Key);
-      //  Assert.Greater(grouping.ToList().Count, 0);
-      //}
+      var result = Query<Product>.All.GroupBy(product => new {
+        product.Category,
+      });
+      DumpGrouping(result);
     }
 
 
@@ -161,13 +118,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void DefaultTest()
     {
       var result = Query<Customer>.All.GroupBy(c => c.Address.City);
-      QueryDumper.Dump(result);
-      //var list = result.ToList();
-      //Assert.Greater(list.Count, 0);
-      //foreach (var grouping in list) {
-      //  Assert.IsNotNull(grouping.Key);
-      //  Assert.Greater(grouping.Count(), 0);
-      //}
+      DumpGrouping(result);
     }
 
 
@@ -175,14 +126,14 @@ namespace Xtensive.Storage.Tests.Linq
     public void FilterGroupingByKeyTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Key.StartsWith("L"));
-      QueryDumper.Dump(result);
+      DumpGrouping(result);
     }
 
     [Test]
     public void FilterGroupingByCountAggregateTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Count() > 1);
-      QueryDumper.Dump(result);
+      DumpGrouping(result);
     }
 
 
@@ -190,15 +141,16 @@ namespace Xtensive.Storage.Tests.Linq
     public void FilterGroupingBySumAggregateTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Sum(ord => ord.Freight) > 10);
-      QueryDumper.Dump(result);
+      DumpGrouping(result);
     }
 
     [Test]
     public void GroupByWhereTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City)
+      var result = Query<Order>.All
+        .GroupBy(o => o.ShippingAddress.City)
         .Where(g => g.Key.StartsWith("L") && g.Count() > 1);
-      QueryDumper.Dump(result);
+      DumpGrouping(result);
     }
 
     [Test]
@@ -213,8 +165,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupBySelectTest()
     {
-      IQueryable<IGrouping<string, Order>> result = Query<Order>.All.GroupBy(o => o.ShipName).Select(g => g);
-      QueryDumper.Dump(result);
+      var result = Query<Order>.All.GroupBy(o => o.ShipName).Select(g => g);
+      DumpGrouping(result);
     }
 
 
@@ -244,8 +196,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupBySelectKeyWithCalculableColumnTest()
     {
-      IQueryable<IGrouping<string, Order>> result = Query<Order>.All.GroupBy(o => o.ShipName + "String");
-      QueryDumper.Dump(result);
+      var result = Query<Order>.All.GroupBy(o => o.ShipName + "String");
+      DumpGrouping(result);
     }
 
     [Test]
@@ -264,7 +216,7 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query<Order>.All
         .GroupBy(o => o.Customer)
         .Select(g => g);
-      QueryDumper.Dump(result);
+      DumpGrouping(result);
     }
 
     [Test]
@@ -275,14 +227,15 @@ namespace Xtensive.Storage.Tests.Linq
         .SelectMany(g => g);
       QueryDumper.Dump(result);
     }
-    
+
     [Test]
+    [ExpectedException(typeof(NotSupportedException))]
     public void GroupBySelectManyKeyTest()
     {
       var result = Query<Customer>.All
         .GroupBy(c => c.Address.City)
         .SelectMany(g => g.Key);
-      AssertEx.ThrowsNotSupportedException(() => QueryDumper.Dump(result));
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -327,13 +280,12 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query<Order>.All
         .GroupBy(o => o.Customer)
         .Select(g =>
-        new
-        {
-          Sum = g.Sum(o => o.Freight),
-          Min = g.Min(o => o.Freight),
-          Max = g.Max(o => o.Freight),
-          Avg = g.Average(o => o.Freight)
-        });
+          new {
+            Sum = g.Sum(o => o.Freight),
+            Min = g.Min(o => o.Freight),
+            Max = g.Max(o => o.Freight),
+            Avg = g.Average(o => o.Freight)
+          });
       QueryDumper.Dump(result);
     }
 
@@ -341,8 +293,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void GroupByWithConstantResultSelectorTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer, (c, g) =>
-        new
-        {
+        new {
           ConstString = "ConstantString"
         });
       QueryDumper.Dump(result);
@@ -353,11 +304,10 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Order>.All
         .GroupBy(o => o.Customer)
-        .Select( g =>
-        new
-        {
-          ConstString = "ConstantString"
-        });
+        .Select(g =>
+          new {
+            ConstString = "ConstantString"
+          });
       QueryDumper.Dump(result);
     }
 
@@ -373,8 +323,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void GroupByWithEntityResultSelector2Test()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer, (c, g) =>
-        new
-        {
+        new {
           Customer = c,
         });
       QueryDumper.Dump(result);
@@ -392,14 +341,14 @@ namespace Xtensive.Storage.Tests.Linq
     public void GroupByBooleanTest()
     {
       var result = Query<Customer>.All.GroupBy(c => c.CompanyName.StartsWith("A"));
-      QueryDumper.Dump(result);
+      DumpGrouping(result);
     }
 
     [Test]
     public void GroupByBooleanSubquery1Test()
     {
       var result = Query<Customer>.All.GroupBy(c => c.Orders.Count > 10);
-      QueryDumper.Dump(result);
+      DumpGrouping(result);
     }
 
     [Test]
@@ -408,7 +357,7 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query<Customer>.All
         .Where(c => c.Orders.Count > 0)
         .GroupBy(c => c.Orders.Average(o => o.Freight) >= 80);
-      QueryDumper.Dump(result);
+      DumpGrouping(result);
     }
 
     [Test]
@@ -441,7 +390,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Order>.All
         .GroupBy(o => o.Customer)
-        .Select(g => new { Count = g.Count(), Customer = g.Key });
+        .Select(g => new {Count = g.Count(), Customer = g.Key});
       QueryDumper.Dump(result);
     }
 
@@ -450,7 +399,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Order>.All
         .GroupBy(o => o.Customer)
-        .Select(g => new { Count = g.Count(), Customer = g.Key.CompanyName });
+        .Select(g => new {Count = g.Count(), Customer = g.Key.CompanyName});
       QueryDumper.Dump(result);
     }
 
@@ -459,8 +408,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Order>.All
         .GroupBy(o => o.Customer)
-        .Select(g => new { Count = g.Count(), Customer = g.Key })
-        .Where(g => g.Customer.CompanyName != null);
+        .Select(g => new {Count = g.Count(), Customer = g.Key})
+        .Where(g => g.Customer.CompanyName!=null);
       QueryDumper.Dump(result);
     }
 
@@ -469,7 +418,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Order>.All
         .GroupBy(o => o.Customer)
-        .Select(g => new { Count = g.Count(), Customer = g.Key })
+        .Select(g => new {Count = g.Count(), Customer = g.Key})
         .OrderBy(g => g.Customer.CompanyName);
       QueryDumper.Dump(result);
     }
@@ -495,20 +444,10 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void GroupByWithEntityResultSelector5Bis4Test()
-    {
-      var result = Query<Order>.All
-        .Select(o => new {o.OrderDate, o.Freight})
-        .Select(g => g.OrderDate);
-      QueryDumper.Dump(result);
-    }
-
-    [Test]
     public void GroupByWithResultSelectorTest2Test()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer, (c, g) =>
-        new
-        {
+        new {
           Customer = c,
           Sum = g.Sum(o => o.Freight),
           Min = g.Min(o => o.Freight),
@@ -540,7 +479,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void GroupByWithElementSelectorTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.Customer, o => o.Freight);
-      QueryDumper.Dump(result);
+      DumpGrouping(result);
     }
 
     [Test]
@@ -605,17 +544,29 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var query = Query<Customer>.All
         .GroupBy(c => c.Address.Region)
-        .Join(Query<Customer>.All, 
-        regions => regions.Key, 
-        c2 => c2.Address.Region, 
-        (regions, c2) => new {
-          region = regions.Key, 
-          total = c2.Orders.Sum(o => o.Freight)
-        });
+        .Join(Query<Customer>.All,
+          regions => regions.Key,
+          c2 => c2.Address.Region,
+          (regions, c2) => new {
+            region = regions.Key,
+            total = c2.Orders.Sum(o => o.Freight)
+          });
 
       QueryDumper.Dump(query);
     }
 
-
+    private void DumpGrouping<TKey, TValue>(IQueryable<IGrouping<TKey, TValue>> result)
+    {
+      var list = result.ToList();
+      Assert.Greater(list.Count, 0);
+      Assert.AreEqual(list.Count, result.Count());
+      foreach (var grouping in result) {
+        Assert.IsNotNull(grouping.Key);
+        var count = grouping.ToList().Count();
+        Assert.AreEqual(count, grouping.Count());
+        Assert.AreEqual(count, grouping.AsQueryable().Count());
+      }
+      QueryDumper.Dump(result);
+    }
   }
 }

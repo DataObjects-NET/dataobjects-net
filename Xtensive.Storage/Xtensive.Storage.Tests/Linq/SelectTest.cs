@@ -487,5 +487,14 @@ namespace Xtensive.Storage.Tests.Linq
       int columnIndex = Domain.Model.Types[typeof (Category)].Fields["Picture"].MappingInfo.Offset;
       Assert.IsFalse(category.State.Tuple.IsAvailable(columnIndex));
     }
+
+    [Test]
+    public void AnonymousSelectTest()
+    {
+      var result = Query<Order>.All
+        .Select(o => new {o.OrderDate, o.Freight})
+        .Select(g => g.OrderDate);
+      QueryDumper.Dump(result);
+    }
   }
 }
