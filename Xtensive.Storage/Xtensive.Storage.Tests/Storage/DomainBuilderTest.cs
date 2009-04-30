@@ -79,19 +79,23 @@ namespace Xtensive.Storage.Tests.Storage
 
       Assert.AreEqual(TypeInfo.MinTypeId, bId);
       Assert.AreEqual(TypeInfo.MinTypeId+1, aId);
-        
-//      BuildDomain(SchemaUpgradeMode.Validate, typeof (A));
-//      BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof(B));
-//
-//      AssertEx.Throws<Exception>(() =>
-//        BuildDomain(SchemaUpgradeMode.Validate, typeof(A), typeof(B), typeof(C)));
-//
-//      BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A));
-//
-//      Assert.AreEqual(aId, GetTypeId(typeof(A)));
-//
-//      AssertEx.Throws<Exception>(() =>
-//        BuildDomain(SchemaUpgradeMode.Validate, typeof(A), typeof(B)));
+
+      // Temporary is not implemented
+      AssertEx.Throws<NotImplementedException>(() => {
+
+        BuildDomain(SchemaUpgradeMode.Validate, typeof (A));
+        BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof (B));
+
+        AssertEx.Throws<Exception>(() =>
+          BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof (B), typeof (C)));
+
+        BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A));
+
+        Assert.AreEqual(aId, GetTypeId(typeof (A)));
+
+        AssertEx.Throws<Exception>(() =>
+          BuildDomain(SchemaUpgradeMode.Validate, typeof (A), typeof (B)));
+      });
     }
 
     [Test]
