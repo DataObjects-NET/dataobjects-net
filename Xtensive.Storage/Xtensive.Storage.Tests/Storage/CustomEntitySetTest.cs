@@ -4,10 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.11.07
 
-using System;
 using NUnit.Framework;
-using Xtensive.Core.Reflection;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Storage.CustomEntitySetModel;
 

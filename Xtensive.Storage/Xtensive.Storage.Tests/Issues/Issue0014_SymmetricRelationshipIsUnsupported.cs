@@ -8,7 +8,6 @@
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0014_Model;
 

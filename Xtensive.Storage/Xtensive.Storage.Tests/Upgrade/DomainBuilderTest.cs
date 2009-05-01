@@ -8,10 +8,8 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
-using Xtensive.Core;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {

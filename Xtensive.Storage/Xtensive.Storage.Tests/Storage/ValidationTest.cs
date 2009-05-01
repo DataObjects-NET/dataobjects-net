@@ -10,7 +10,6 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Testing;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.Validation

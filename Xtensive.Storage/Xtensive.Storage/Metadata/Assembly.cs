@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
@@ -19,7 +18,7 @@ namespace Xtensive.Storage.Metadata
   /// Persistent descriptor of an assembly with registered persistent types.
   /// Used for schema upgrade purposes.
   /// </summary>
-  [SystemType(TypeId = 2)]
+  [SystemType(2)]
   [HierarchyRoot("Name")]
   public class Assembly : Entity
   {

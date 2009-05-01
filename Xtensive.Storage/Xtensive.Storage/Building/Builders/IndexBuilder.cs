@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Diagnostics;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;

@@ -4,10 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.12.12
 
-using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Storage;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using InheritedKeyFieldModel;
 

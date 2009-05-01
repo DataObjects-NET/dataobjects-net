@@ -7,7 +7,6 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Tests.Storage.CoreServicesModel;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 

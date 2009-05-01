@@ -6,7 +6,6 @@
 
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.CyclicHierarchyDependenciesModel;
 

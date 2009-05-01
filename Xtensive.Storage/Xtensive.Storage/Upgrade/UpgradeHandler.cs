@@ -12,7 +12,6 @@ using Xtensive.Core.Reflection;
 using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Aspects;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Upgrade.Hints;
 
 namespace Xtensive.Storage.Upgrade
@@ -259,7 +258,7 @@ namespace Xtensive.Storage.Upgrade
           | BindingFlags.Instance
           | BindingFlags.Public
           | BindingFlags.NonPublic)
-        let pa = p.GetAttribute<PersistentAttribute>(AttributeSearchOptions.InheritNone)
+        let pa = p.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritNone)
         let ra = p.GetAttribute<RecycledAttribute>(AttributeSearchOptions.InheritNone)
         where pa!=null && ra!=null
         select new {Property = p, Attribute = ra};

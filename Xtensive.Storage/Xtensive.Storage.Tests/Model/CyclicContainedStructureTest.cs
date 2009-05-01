@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Model.ReferenceTestModel

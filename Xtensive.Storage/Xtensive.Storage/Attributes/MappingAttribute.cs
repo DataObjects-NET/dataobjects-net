@@ -5,8 +5,9 @@
 // Created:    2007.07.04
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Attributes
+namespace Xtensive.Storage
 {
   /// <summary>
   /// Base class for all mapping attributes.
@@ -28,6 +29,25 @@ namespace Xtensive.Storage.Attributes
     {
       get { return mappingName; }
       set { mappingName = value; }
+    }
+
+    
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    protected MappingAttribute()
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="mappingName"><see cref="MappingName"/> property value.</param>
+    protected MappingAttribute(string mappingName)
+    {
+      MappingName = mappingName;
     }
   }
 }

@@ -7,7 +7,6 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Sql.Common;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Tests.Storage.DbTypeSupportModel;
 using Xtensive.Storage.Providers.Sql;
 

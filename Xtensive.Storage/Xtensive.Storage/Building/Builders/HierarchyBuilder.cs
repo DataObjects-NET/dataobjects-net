@@ -4,12 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2008.01.11
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;

@@ -13,7 +13,6 @@ using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Validation;
 using Xtensive.Integrity.Validation.Interfaces;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;

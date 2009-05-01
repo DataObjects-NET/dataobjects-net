@@ -10,7 +10,6 @@ using System.Globalization;
 using System.Reflection;
 using System.Web;
 using NUnit.Framework;
-using Xtensive.Storage.Attributes;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 

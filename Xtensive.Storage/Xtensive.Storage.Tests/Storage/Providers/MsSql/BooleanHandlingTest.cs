@@ -9,7 +9,6 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.Providers.MsSql.BooleanHandlingTestModel;
 

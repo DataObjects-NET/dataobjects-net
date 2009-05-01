@@ -7,11 +7,7 @@
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Disposing;
-using Xtensive.Storage.Attributes;
-using Xtensive.Storage.Building;
 using System;
-using Xtensive.Storage.Building.Builders;
-using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Tests.Storage.DomainBuild
 {

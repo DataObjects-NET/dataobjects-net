@@ -10,7 +10,6 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Testing;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Upgrade.Model2;
 using Xtensive.Storage.Upgrade;

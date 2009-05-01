@@ -5,7 +5,6 @@
 // Created:    2008.09.23
 
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Attributes;
 
 namespace Xtensive.Storage.Tests.Storage.Performance.CrudModel
 {

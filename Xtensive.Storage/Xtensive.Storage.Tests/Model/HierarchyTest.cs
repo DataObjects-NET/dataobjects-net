@@ -6,7 +6,6 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;

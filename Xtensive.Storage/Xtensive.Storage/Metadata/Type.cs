@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Attributes;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
@@ -18,7 +17,7 @@ namespace Xtensive.Storage.Metadata
   /// <summary>
   /// Persistent descriptor of registered type.
   /// </summary>
-  [SystemType(TypeId = 1)]
+  [SystemType(1)]
   [HierarchyRoot("Id")]
   [Index("Name", IsUnique = true)]
   public class Type : Entity

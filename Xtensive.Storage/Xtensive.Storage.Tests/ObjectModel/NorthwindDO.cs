@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 
 

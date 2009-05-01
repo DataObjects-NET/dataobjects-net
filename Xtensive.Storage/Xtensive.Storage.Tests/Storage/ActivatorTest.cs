@@ -6,7 +6,6 @@
 
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.ActivatorModel;
 using System.Linq;

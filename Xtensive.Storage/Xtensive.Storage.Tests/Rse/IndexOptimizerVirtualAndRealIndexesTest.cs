@@ -11,7 +11,6 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Testing;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Rse.VirtualAndRealIndexesModel;
 

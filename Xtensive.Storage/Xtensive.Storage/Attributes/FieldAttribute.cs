@@ -7,10 +7,11 @@
 using System;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Attributes
+namespace Xtensive.Storage
 {
   /// <summary>
-  /// Indicates that property is persistent.
+  /// Indicates that property is persistent field,
+  /// and, optionally, defines its mapping name.
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
@@ -82,5 +83,19 @@ namespace Xtensive.Storage.Attributes
     /// Each master collection can have only one paired collection.
     /// </remarks>
     public string PairTo { get; set; }
+
+
+    // Constructors
+
+    /// <inheritdoc/>
+    public FieldAttribute()
+    {
+    }
+
+    /// <inheritdoc/>
+    public FieldAttribute(string mappingName)
+      : base(mappingName)
+    {
+    }
   }
 }

@@ -6,10 +6,10 @@
 
 using System;
 
-namespace Xtensive.Storage.Attributes
+namespace Xtensive.Storage
 {
   /// <summary>
-  /// Base class for all storage related attributes.
+  /// Abstract base class for any storage related attribute.
   /// </summary>
   [Serializable]
   public abstract class StorageAttribute: Attribute

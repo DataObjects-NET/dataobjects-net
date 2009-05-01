@@ -6,7 +6,6 @@
 
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Tests.Issues.Issue0007_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0007_Model

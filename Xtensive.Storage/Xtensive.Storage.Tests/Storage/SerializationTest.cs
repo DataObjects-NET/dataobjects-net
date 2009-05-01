@@ -6,15 +6,12 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Serialization;
 using Xtensive.Storage.Tests.SerializationTestModel;

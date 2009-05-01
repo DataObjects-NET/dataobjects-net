@@ -5,19 +5,39 @@
 // Created:    2008.12.24
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Attributes
+namespace Xtensive.Storage
 {
   /// <summary>
   /// Marks persistent type as a system type.
   /// </summary>
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, 
     AllowMultiple = false, Inherited = true)]
-  internal class SystemTypeAttribute : Attribute
+  internal class SystemTypeAttribute : StorageAttribute
   {
     /// <summary>
-    /// Type identifier.
+    /// Type identifier to preserve for it.
     /// </summary>
     public new int TypeId { get; set; }
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public SystemTypeAttribute()
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="typeId">The type identifier.</param>
+    public SystemTypeAttribute(int typeId)
+    {
+      TypeId = typeId;
+    }
   }
 }

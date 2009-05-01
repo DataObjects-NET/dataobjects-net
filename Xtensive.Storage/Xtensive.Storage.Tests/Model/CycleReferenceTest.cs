@@ -4,11 +4,8 @@
 // Created by: Alexey Gamzov
 // Created:    2009.04.16
 
-using System;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Storage.Attributes;
-using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Model.CycleReferenceTestModel
 {

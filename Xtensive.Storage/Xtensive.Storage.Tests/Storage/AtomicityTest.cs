@@ -8,7 +8,6 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Integrity.Aspects;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.Atomicity

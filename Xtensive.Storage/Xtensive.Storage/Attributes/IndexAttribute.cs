@@ -6,10 +6,10 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Attributes
+namespace Xtensive.Storage
 {
   /// <summary>
-  /// Describes secondary index.
+  /// Defines secondary index.
   /// </summary>
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true, Inherited = false)]
   [Serializable]
@@ -58,10 +58,10 @@ namespace Xtensive.Storage.Attributes
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
-    /// Initializes a new instance of this class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="keyField">The first key field.</param>
     /// <param name="keyFields">The other (optional) key fields.</param>

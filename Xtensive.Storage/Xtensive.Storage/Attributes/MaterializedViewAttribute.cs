@@ -6,10 +6,26 @@
 
 using System;
 
-namespace Xtensive.Storage.Attributes
+namespace Xtensive.Storage
 {
-  // TODO: Rename
+  /// <summary>
+  /// Indicates that materialized view should be created for
+  /// the interface type it is applied on.
+  /// </summary>
   [AttributeUsage(AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
   public class MaterializedViewAttribute : MappingAttribute
-  {}
+  {
+    // Constructors
+
+    /// <inheritdoc/>
+    public MaterializedViewAttribute()
+    {
+    }
+
+    /// <inheritdoc/>
+    public MaterializedViewAttribute(string mappingName)
+      : base(mappingName)
+    {
+    }
+  }
 }

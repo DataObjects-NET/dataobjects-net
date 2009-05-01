@@ -4,12 +4,9 @@
 // Created by: 
 // Created:    2008.05.28
 
-using System;
-using System.Reflection;
 using NUnit.Framework;
+using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Core.Testing;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.StructureModel;
 

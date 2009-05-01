@@ -15,7 +15,6 @@ using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Aspects;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Resources;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 using System.Linq;

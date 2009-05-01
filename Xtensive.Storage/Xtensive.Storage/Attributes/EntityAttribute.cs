@@ -6,13 +6,26 @@
 
 using System;
 
-namespace Xtensive.Storage.Attributes
+namespace Xtensive.Storage
 {
   /// <summary>
-  /// Defines mapping name for persistent class (i.e. name of the table this class is mapped to).
+  /// Defines mapping name for persistent type
+  /// (i.e. name of the table this class is mapped to).
   /// </summary>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-  public class EntityAttribute: MappingAttribute
+  public class EntityAttribute : MappingAttribute
   {
+    // Constructors
+
+    /// <inheritdoc/>
+    public EntityAttribute()
+    {
+    }
+
+    /// <inheritdoc/>
+    public EntityAttribute(string mappingName)
+      : base(mappingName)
+    {
+    }
   }
 }

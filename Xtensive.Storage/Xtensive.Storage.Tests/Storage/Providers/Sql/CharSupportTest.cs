@@ -6,7 +6,6 @@
 
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.Storage.Providers.Sql.CharSupportTestModel;

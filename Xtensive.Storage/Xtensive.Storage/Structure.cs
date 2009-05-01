@@ -11,7 +11,6 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Validation;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage

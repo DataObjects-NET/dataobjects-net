@@ -5,7 +5,6 @@
 // Created:    2008.12.15
 
 using NUnit.Framework;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0017_Model;
 using Xtensive.Storage.Model;

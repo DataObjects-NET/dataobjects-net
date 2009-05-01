@@ -5,7 +5,6 @@
 // Created:    2009.02.12
 
 using NUnit.Framework;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Model;
 

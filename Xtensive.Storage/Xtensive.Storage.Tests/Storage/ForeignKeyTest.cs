@@ -6,7 +6,6 @@
 
 using NUnit.Framework;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
 using System.Linq;

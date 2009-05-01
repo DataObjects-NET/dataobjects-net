@@ -5,13 +5,9 @@
 // Created:    2008.08.27
 
 using System;
-using System.IO;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.TranscationsTest

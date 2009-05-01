@@ -6,7 +6,6 @@
 
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Tests.PairModel;
 
 namespace Xtensive.Storage.Tests.PairModel

@@ -9,10 +9,10 @@ using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Configuration;
 
-namespace Xtensive.Storage.Attributes
+namespace Xtensive.Storage
 {
   /// <summary>
-  /// Defines the root class of hierarchy of persistent classes.
+  /// Defines the root type of hierarchy of persistent types.
   /// </summary>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
   public class HierarchyRootAttribute : StorageAttribute

@@ -8,9 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -20,14 +18,11 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Tests.Storage.SnakesModel;
-using Xtensive.Storage;
 
 
 namespace Xtensive.Storage.Tests.Storage.SnakesModel

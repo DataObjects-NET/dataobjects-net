@@ -6,7 +6,6 @@
 
 using NUnit.Framework;
 using System.Linq;
-using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.OldModel;
 using Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.NewModel;
 
