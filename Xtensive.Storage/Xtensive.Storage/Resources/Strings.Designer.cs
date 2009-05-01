@@ -898,6 +898,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Storage schema is not equals to domain model..
+        /// </summary>
+        internal static string ExStorageSchemaIsNotEqualToDomainModel {
+            get {
+                return ResourceManager.GetString("ExStorageSchemaIsNotEqualToDomainModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There are no suitable types in &quot;{0}&quot;..
         /// </summary>
         internal static string ExThereAreNoSuitableTypes {

@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Model.Conversion
       ArgumentValidator.EnsureArgumentNotNull(domainModel, "domainModel");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(storageName, "storageName");
       
-      StorageInfo = new StorageInfo(storageName);
+      StorageInfo = new StorageInfo();
       Model = domainModel;
       Visit(domainModel);
       return StorageInfo;

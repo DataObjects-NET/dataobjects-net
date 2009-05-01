@@ -19,6 +19,8 @@ namespace Xtensive.Storage.Indexing.Model
   public sealed class StorageInfo : NodeBase<StorageInfo>,
     IModel
   {
+    private const string DefaultName = ".";
+
     private ActionSequence actions;
 
     /// <inheritdoc/>
@@ -68,6 +70,14 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="name">The storage name.</param>
     public StorageInfo(string name)
       : base(null, name)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public StorageInfo()
+      : base(null, DefaultName)
     {
     }
   }

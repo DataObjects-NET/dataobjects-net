@@ -618,4 +618,7 @@
   <data name="ExMoreThanOneEnabledXIsProvidedForAssemblyY" xml:space="preserve">
     <value>More than one enabled {0} is provided for assembly "{1}".</value>
   </data>
+  <data name="ExStorageSchemaIsNotEqualToDomainModel" xml:space="preserve">
+    <value>Storage schema is not equals to domain model.</value>
+  </data>
 </root>

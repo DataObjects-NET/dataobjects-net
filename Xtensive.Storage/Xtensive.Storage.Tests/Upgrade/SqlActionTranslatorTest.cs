@@ -5,6 +5,7 @@
 // Created:    2009.04.24
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
@@ -25,7 +26,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private static StorageInfo BuildOldModel()
     {
-      var storage = new StorageInfo("dbo");
+      var storage = new StorageInfo();
       var t1 = new TableInfo(storage, "table1");
       var t1Id = new ColumnInfo(t1, "Id", new TypeInfo(typeof(int)));
       var t1C1 = new ColumnInfo(t1, "col1", new TypeInfo(typeof(int?), true));
@@ -63,7 +64,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private static StorageInfo BuildNewModel()
     {
-      var storage = new StorageInfo("dbo");
+      var storage = new StorageInfo();
       var t1 = new TableInfo(storage, "table1");
       var t1Id = new ColumnInfo(t1, "Id", new TypeInfo(typeof(int)));
       var t1C1 = new ColumnInfo(t1, "col1", new TypeInfo(typeof(int?), true));
@@ -112,7 +113,6 @@ namespace Xtensive.Storage.Tests.Upgrade
       var diff = BuildDifference(newModel, ExtractModel(), null);
       Assert.IsNull(diff);
     }
-
 
     # region SchemaManager tests
 
@@ -179,15 +179,16 @@ namespace Xtensive.Storage.Tests.Upgrade
       var newSchema = manager.GetStorageSchema();
       var oldModel = manager.GetStorageModel();
 
-      var translator = new SqlActionTranslator(actions, newModel, oldModel, 
-        schema, newSchema, null, false);
-      var batch = translator.Translate();
+      
       var provider = new SqlConnectionProvider();
       using (var connection = provider.CreateConnection(Url) as SqlConnection) {
         connection.Open();
         using (var transaction = connection.BeginTransaction())
         using (var command = new SqlCommand(connection)) {
-          command.Statement = batch;
+          var translator = new SqlActionTranslator(actions, schema, 
+            connection.Driver, null);
+          command.CommandText = string.Join(";", 
+            translator.UpgradeCommandText.ToArray());
           command.Prepare();
           command.Transaction = transaction;
           command.ExecuteNonQuery();

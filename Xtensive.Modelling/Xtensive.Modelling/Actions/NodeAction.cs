@@ -37,8 +37,9 @@ namespace Xtensive.Modelling.Actions
       }
     }
 
+    /// <inheritdoc/>
     public Difference Difference {
-      get { return Difference; }
+      get { return difference; }
       set {
         this.EnsureNotLocked();
         difference = value;
@@ -67,7 +68,7 @@ namespace Xtensive.Modelling.Actions
 
     #region Protected \ internal methods
 
-    protected string EscapeName(string name)
+    protected static string EscapeName(string name)
     {
       return new[] {name}.RevertibleJoin(Node.PathEscape, Node.PathDelimiter);
     }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Modelling.Actions;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
@@ -47,21 +48,20 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override void ClearStorageSchema()
+    /// <exception cref="NotImplementedException">
+    /// <c>NotImplementedException</c>.</exception>
+    public override StorageInfo GetStorageModel()
     {
-      var clearScript = GenerateClearScript();
-      if (clearScript.Count > 0)
-        SessionHandler.ExecuteNonQuery(clearScript);
+      throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
-    public override void UpgradeStorageSchema()
+    public override void UpgradeStorage(ActionSequence actions, StorageInfo newModel)
     {
-      var updateScript = GenerateUpgradeScript();
-      if (updateScript.Count > 0)
-        SessionHandler.ExecuteNonQuery(updateScript);
+      ClearStorageSchema();
+      UpgradeStorageSchema();
     }
-
+    
     /// <inheritdoc/>
     /// <exception cref="NotImplementedException">
     /// <c>NotImplementedException</c>.</exception>
@@ -70,12 +70,18 @@ namespace Xtensive.Storage.Providers.Sql
       throw new NotImplementedException();
     }
 
-    /// <inheritdoc/>
-    /// <exception cref="NotImplementedException">
-    /// <c>NotImplementedException</c>.</exception>
-    protected override StorageInfo GetStorageModel()
+    private void ClearStorageSchema()
     {
-      throw new NotImplementedException();
+      var clearScript = GenerateClearScript();
+      if (clearScript.Count > 0)
+        SessionHandler.ExecuteNonQuery(clearScript);
+    }
+
+    private void UpgradeStorageSchema()
+    {
+      var updateScript = GenerateUpgradeScript();
+      if (updateScript.Count > 0)
+        SessionHandler.ExecuteNonQuery(updateScript);
     }
     
     private SqlBatch GenerateClearScript()

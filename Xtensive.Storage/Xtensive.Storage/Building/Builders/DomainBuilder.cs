@@ -11,11 +11,14 @@ using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Activator=System.Activator;
+using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -117,27 +120,45 @@ namespace Xtensive.Storage.Building.Builders
         typeElement.Configure(BuildingContext.Current.Domain.ServiceContainer);
     }
 
+    /// <exception cref="DomainBuilderException"><c>DomainBuilderException</c>.</exception>
     private static void ProcessSchema(SchemaUpgradeMode schemaUpgradeMode)
     {
       var upgradeHandler = BuildingContext.Current.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
+      var domainModel = upgradeHandler.GetDomainModel();
+      var storageModel = upgradeHandler.GetStorageModel();
+      
+      // Clear schema if recreate
+      if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
+        var emptyStorage = new StorageInfo();
+        var clearSchema = ModelComparer.Compare(
+          storageModel, emptyStorage, null).UpgradeActions;
+        upgradeHandler.UpgradeStorage(clearSchema, emptyStorage);
+        storageModel = upgradeHandler.GetStorageModel();
+      }
+      
+      var comparisonResult = ModelComparer.Compare(storageModel, domainModel, null);
 
       switch (schemaUpgradeMode) {
+      case SchemaUpgradeMode.Recreate:
+      case SchemaUpgradeMode.Upgrade:
+        upgradeHandler.UpgradeStorage(comparisonResult.UpgradeActions, domainModel);
+        break;
+      case SchemaUpgradeMode.ValidateExact:
+        if (comparisonResult.StorageConformity!=StorageConformityStatus.Match)
+          throw new DomainBuilderException(
+            Strings.ExStorageSchemaIsNotEqualToDomainModel);
+        upgradeHandler.UpgradeStorage(comparisonResult.UpgradeActions, domainModel);
+        break;
       case SchemaUpgradeMode.ValidateCompatible:
-        // TODO: Check this!
-        if (upgradeHandler.HasCreateActions)
+        if (comparisonResult.StorageConformity!=StorageConformityStatus.Greater)
           throw new DomainBuilderException(
             Strings.ExStorageSchemaIsNotCompatibleForDomainModel);
-        break;
-      case SchemaUpgradeMode.Recreate:
-        upgradeHandler.RecreateStorageSchema();
-        break;
-      case SchemaUpgradeMode.Upgrade:
-        upgradeHandler.UpgradeStorageSchema();
+        upgradeHandler.UpgradeStorage(comparisonResult.UpgradeActions, domainModel);
         break;
       case SchemaUpgradeMode.UpgradeSafely:
-        if (upgradeHandler.HasRemoveActions)
+        if (comparisonResult.StorageConformity!=StorageConformityStatus.Less)
           throw new DomainBuilderException(Strings.ExCanNotUpgradeSchemaSafely);
-        upgradeHandler.UpgradeStorageSchema();
+        upgradeHandler.UpgradeStorage(comparisonResult.UpgradeActions, domainModel);
         break;
       default:
         throw new ArgumentOutOfRangeException("schemaUpgradeMode");

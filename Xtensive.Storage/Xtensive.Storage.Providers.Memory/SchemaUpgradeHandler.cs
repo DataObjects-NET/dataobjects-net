@@ -5,8 +5,10 @@
 // Created:    2009.04.09
 
 using System;
+using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Conversion;
 using Xtensive.Storage.Providers.Index;
 
@@ -27,28 +29,41 @@ namespace Xtensive.Storage.Providers.Memory
         return view as IndexStorageView;
       }
     }
+    
+    /// <inheritdoc/>
+    public override StorageInfo GetStorageModel()
+    {
+      return StorageView.Model;
+    }
 
     /// <inheritdoc/>
-    public override void ClearStorageSchema()
+    public override void UpgradeStorage(ActionSequence actions, StorageInfo newModel)
+    {
+      StorageView.ClearSchema();
+      StorageView.CreateNewSchema(newModel);
+    }
+
+    /// <inheritdoc/>
+    protected override bool IsGeneratorPersistent(GeneratorInfo generatorInfo)
+    {
+      return false;
+    }
+
+    private void ClearStorageSchema()
     {
       StorageView.ClearSchema();
     }
 
-    /// <inheritdoc/>
-    public override void UpgradeStorageSchema()
+    private void UpgradeStorageSchema()
     {
       var converter =
         new DomainModelConverter(
           false, Handlers.NameBuilder.BuildForeignKeyName,
           false, Handlers.NameBuilder.BuildForeignKeyName, (g) => false);
-      var newSchema = converter.Convert(BuildingContext.Current.Model, StorageView.Storage.Name);
+      var newSchema = 
+        converter.Convert(BuildingContext.Current.Model, StorageView.Storage.Name);
       StorageView.CreateNewSchema(newSchema);
     }
 
-    /// <inheritdoc/>
-    protected override StorageInfo GetStorageModel()
-    {
-      return StorageView.Model;
-    }
   }
 }

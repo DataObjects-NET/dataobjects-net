@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Providers.Memory
     internal void ClearSchema()
     {
       realIndexes.Clear();
-      Model = new StorageInfo(Name);
+      Model = new StorageInfo();
       Model.Lock(true);
     }
 
@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Providers.Memory
     public MemoryIndexStorage(string name)
       : base(name)
     {
-      Model = new StorageInfo(name);
+      Model = new StorageInfo();
       Model.Lock(true);
     }
   }

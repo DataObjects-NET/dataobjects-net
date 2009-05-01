@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Providers.Sql
     public StorageInfo GetConversionResult()
     {
       if (StorageInfo == null) {
-        StorageInfo = new StorageInfo(Schema.Name);
+        StorageInfo = new StorageInfo();
         Visit(Schema);
       }
 

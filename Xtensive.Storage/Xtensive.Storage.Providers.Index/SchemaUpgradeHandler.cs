@@ -15,10 +15,6 @@ namespace Xtensive.Storage.Providers.Index
   [Serializable]
   public abstract class SchemaUpgradeHandler : Providers.SchemaUpgradeHandler
   {
-    /// <inheritdoc/>
-    protected override bool IsGeneratorPersistent(GeneratorInfo generatorInfo)
-    {
-      return false;
-    }
+    
   }
 }

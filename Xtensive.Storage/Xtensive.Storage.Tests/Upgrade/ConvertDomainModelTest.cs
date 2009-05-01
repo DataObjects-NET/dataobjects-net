@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Upgrade
         Domain = domain;
       }
     }
-
+    
     [SetUp]
     public virtual void SetUp()
     {

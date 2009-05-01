@@ -5,6 +5,8 @@
 // Created:    2009.04.08
 
 using System;
+using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
@@ -27,22 +29,31 @@ namespace Xtensive.Storage.Providers.MsSql
   {
     private SqlConnection Connection
     {
-      get
-      {
-        return ((SessionHandler) Handlers.SessionHandler).Connection;
+      get{return ((SessionHandler) Handlers.SessionHandler).Connection;}
+    }
+
+    private DbTransaction Transaction
+    {
+      get { return ((SessionHandler) Handlers.SessionHandler).Transaction; }
+    }
+
+    /// <inheritdoc/>
+    public override void UpgradeStorage(ActionSequence actions, StorageInfo newModel)
+    {
+      var upgradeScript = GenerateUpgradeScript(actions);
+      if (upgradeScript.Count==0)
+        return;
+      using (var command = new SqlCommand(Connection)) {
+        command.CommandText = string.Join(";",
+          upgradeScript.ToArray());
+        command.Prepare();
+        command.Transaction = Transaction;
+        command.ExecuteNonQuery();
       }
     }
 
     /// <inheritdoc/>
-    public override void UpgradeStorageSchema()
-    {
-      var upgradeScript = GenerateUpgradeScript();
-      if (upgradeScript.Count > 0)
-        SessionHandler.ExecuteNonQuery(upgradeScript);
-    }
-
-    /// <inheritdoc/>
-    protected override StorageInfo GetStorageModel()
+    public override StorageInfo GetStorageModel()
     {
       var schema = ExtractStorageSchema();
       var serverInfo = Connection.Driver.ServerInfo;
@@ -59,16 +70,16 @@ namespace Xtensive.Storage.Providers.MsSql
           || generatorInfo.TupleDescriptor[0]!=typeof (Guid));
     }
 
-    private SqlBatch GenerateUpgradeScript()
+    private List<string> GenerateUpgradeScript(ActionSequence actions)
     {
-      var sourceSchema = ExtractStorageSchema();
-      var taragetSchema = ExtractStorageSchema();
       var valueTypeMapper = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper;
-
-      var translator = new SqlActionTranslator(UpgradeActions, DomainModel, StorageModel, 
-        sourceSchema, taragetSchema, valueTypeMapper.BuildSqlValueType, false);
+      var translator = new SqlActionTranslator(
+        actions,
+        ExtractStorageSchema(),
+        Connection.Driver,
+        valueTypeMapper.BuildSqlValueType);
       
-      return translator.Translate();
+      return translator.UpgradeCommandText;
     }
 
   }
