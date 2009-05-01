@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Tests.Upgrade
         }
       }
       
-      BuildDomain(SchemaUpgradeMode.Upgrade, typeof(NewOrder), typeof(Company));
+      BuildDomain(SchemaUpgradeMode.Perform, typeof(NewOrder), typeof(Company));
 
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {          

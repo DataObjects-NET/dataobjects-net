@@ -24,13 +24,13 @@ namespace Xtensive.Storage.Building
     /// <summary>
     /// Upgrade schema to domain model.
     /// </summary>
-    Upgrade,
+    Perform,
 
     /// <summary>
     /// Upgrade schema to domain model safely - 
     /// i.e. without any operations leading to data lost.
     /// </summary>
-    UpgradeSafely,
+    PerformSafely,
 
     /// <summary>
     /// Completely recreate the schema.

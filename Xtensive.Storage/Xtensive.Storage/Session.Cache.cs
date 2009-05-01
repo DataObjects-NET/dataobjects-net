@@ -45,7 +45,7 @@ namespace Xtensive.Storage
       var result = EntityStateCache[key, true];
       if (result == null) {
         if (!key.IsTypeCached && tuple!=null)
-          throw Exceptions.InternalError(Strings.ExCantAssociateNonEmptyEntityStateWithKeyOfUnknownType, Log.Instance);
+          throw Exceptions.InternalError(Strings.ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType, Log.Instance);
         result = new EntityState(this, key, tuple) {
           PersistenceState = PersistenceState.Synchronized
         };

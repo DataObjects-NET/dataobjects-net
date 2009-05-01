@@ -15,9 +15,9 @@ namespace Xtensive.Storage
   {
     /// <summary>
     /// Default upgrade mode.
-    /// The same as <see cref="Perform"/>
+    /// The same as <see cref="PerformSafely"/>
     /// </summary>
-    Default = Perform,
+    Default = PerformSafely,
     
     /// <summary>
     /// Restricts any modifications to storage.

@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core.Disposing;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Upgrade.Model2;
@@ -76,44 +77,53 @@ namespace Xtensive.Storage.Tests.Upgrade
 {
   public class TestUpgradeHandler : UpgradeHandler
   {
-    public static string RunningVersion = "1";
+    private static bool isEnabled = false;
+    private static string runningVersion;
+
+    /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
+    public static IDisposable Enable(string version)
+    {
+      if (isEnabled)
+        throw new InvalidOperationException();
+      isEnabled = true;
+      runningVersion = version;
+      return new Disposable(_ => {
+        isEnabled = false;
+        runningVersion = null;
+      });
+    }
 
     public override bool IsEnabled {
       get {
-        var context = UpgradeContext.Current;
-        return (
-          from type in context.OriginalConfiguration.Types
-          where type.Namespace.StartsWith(GetType().Namespace)
-          select type
-          ).Any();
+        return isEnabled;
       }
     }
     
     protected override string DetectAssemblyVersion()
     {
-      return RunningVersion;
+      return runningVersion;
     }
 
     public override bool CanUpgradeFrom(string oldVersion)
     {
-      return oldVersion==null || double.Parse(oldVersion) <= double.Parse(RunningVersion);
+      return oldVersion==null || double.Parse(oldVersion) <= double.Parse(runningVersion);
     }
     
     protected override void AddUpgradeHints()
     {
       var context = UpgradeContext.Current;
       base.AddUpgradeHints();
-      if (RunningVersion!="2")
+      if (runningVersion!="2")
         return;
       context.Hints.Add(new RenameNodeHint(
-        "/Tables/Person/Columns/FullName", 
-        "/Tables/Person/Columns/Name"));
+        "Tables/Person/Columns/Name", 
+        "Tables/Person/Columns/FullName"));
     }
 
     public override void OnUpgrade()
     {
       var context = UpgradeContext.Current;
-      if (RunningVersion!="2")
+      if (runningVersion!="2")
         return;
       foreach (var person in Query<Person>.All)
         person.City = person.Address.City;
@@ -121,7 +131,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     public override bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)
     {
-      string suffix = ".Model" + RunningVersion;
+      string suffix = ".Model" + runningVersion;
       var originalNamespace = type.Namespace;
       var nameSpace = originalNamespace.TryCutSuffix(suffix);
       return nameSpace!=originalNamespace 
@@ -130,7 +140,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     public override string GetTypeName(Type type)
     {
-      string suffix = "Model" + RunningVersion;
+      string suffix = "Model" + runningVersion;
       var ns = type.Namespace.TryCutSuffix(suffix);
       return ns + type.Name;
     }
@@ -147,7 +157,6 @@ namespace Xtensive.Storage.Tests.Upgrade
       var dc = DomainConfigurationFactory.Create();
       var ns = persistentType.Namespace;
       dc.Types.Register(Assembly.GetExecutingAssembly(), ns);
-      TestUpgradeHandler.RunningVersion = ns.Substring(ns.Length - 1);
       return dc;
     }
 
@@ -162,7 +171,10 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       var dc = GetConfiguration(typeof(Model1.Person));
       dc.UpgradeMode = DomainUpgradeMode.Recreate;
-      var domain = Domain.Build(dc);
+      Domain domain;
+      using (TestUpgradeHandler.Enable("1")) {
+        domain = Domain.Build(dc);
+      }
       using (domain.OpenSession()) {        
         using (var ts = Transaction.Open()) {
           assemblyTypeId = domain.Model.Types[typeof (Metadata.Assembly)].TypeId;
@@ -185,7 +197,10 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       var dc = GetConfiguration(typeof(Model2.Person));
       dc.UpgradeMode = DomainUpgradeMode.Perform;
-      var domain = Domain.Build(dc);
+      Domain domain;
+      using (TestUpgradeHandler.Enable("2")) {
+        domain = Domain.Build(dc);
+      }
       using (domain.OpenSession()) {
         using (var ts = Transaction.Open()) {
           Assert.AreEqual(assemblyTypeId, domain.Model.Types[typeof (Metadata.Assembly)].TypeId);

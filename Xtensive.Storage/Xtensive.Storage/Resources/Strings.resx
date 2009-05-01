@@ -354,7 +354,7 @@
   <data name="ExKeyXWasNotFoundInStorage" xml:space="preserve">
     <value>Key '{0}' was not found in storage.</value>
   </data>
-  <data name="ExCannotFindHandler" xml:space="preserve">
+  <data name="ExCannotFindHandlerOfTypeX" xml:space="preserve">
     <value>Cannot find a hanlder of type '{0}'.</value>
   </data>
   <data name="ExKeyCanNotBeNull" xml:space="preserve">
@@ -424,7 +424,7 @@
     <value>Entity is in inconsistent state.</value>
   </data>
   <data name="ExCanNotOpenTransactionNoCurrentSession" xml:space="preserve">
-    <value>Can't open a transaction, since there is no current Session.</value>
+    <value>Can not open a transaction: there is no current Session.</value>
   </data>
   <data name="ExFieldXYIsNotFound" xml:space="preserve">
     <value>Field '{0}.{1}' is not found.</value>
@@ -450,14 +450,14 @@
   <data name="ExEntitySetInvalidBecauseTransactionIsNotActive" xml:space="preserve">
     <value>Entity set is invalid due to current transaction is not active.</value>
   </data>
-  <data name="ExCanNotCommitTransactionValidationContextIsInInconsistentState" xml:space="preserve">
-    <value>Can not commit transaction: Validation context is in inconsistent state.</value>
+  <data name="ExCannotCommitATransactionValidationContextIsInInconsistentState" xml:space="preserve">
+    <value>Cannot commit a transaction: ValidationContext is in inconsistent state.</value>
   </data>
   <data name="ExItemNotFoundInEntitySet" xml:space="preserve">
     <value>Item not found in EntitySet</value>
   </data>
   <data name="ExCanNotGetValidationContextThereIsNoActiveTransaction" xml:space="preserve">
-    <value>Can not get validation context: There is no active transaction.</value>
+    <value>Can not get validation context: there is no active transaction.</value>
   </data>
   <data name="ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField" xml:space="preserve">
     <value>Default generator can serve hierarchy with exactly one key field.</value>
@@ -492,7 +492,7 @@
   <data name="ExInvalidKeyString" xml:space="preserve">
     <value>String representaion of the Key has invalid format.</value>
   </data>
-  <data name="ExCantAssociateNonEmptyEntityStateWithKeyOfUnknownType" xml:space="preserve">
+  <data name="ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType" xml:space="preserve">
     <value>Attempt to associate non-empty EntityState with Key of unknown type.</value>
   </data>
   <data name="ExPairToAttributeCanNotBeAppliedToXField" xml:space="preserve">
@@ -525,8 +525,8 @@
   <data name="ExActiveSerializationContextIsNotFound" xml:space="preserve">
     <value>Active serialization context is not found.</value>
   </data>
-  <data name="ExCanNotResolveEntityWithKeyX" xml:space="preserve">
-    <value>Can not resolve entity with key '{0}'</value>
+  <data name="ExCannotResolveEntityWithKeyX" xml:space="preserve">
+    <value>Cannot resolve entity with key '{0}'</value>
   </data>
   <data name="ExUnableToResolveTypeForKeyX" xml:space="preserve">
     <value>Unable to resolve type for Key '{0}'.</value>
@@ -582,8 +582,8 @@
   <data name="ExExtractedSchemaIsNotCompatibleWithTheTargetSchema" xml:space="preserve">
     <value>Extracted schema is not compatible with the target schema.</value>
   </data>
-  <data name="ExCanNotUpgradeSchemaSafely" xml:space="preserve">
-    <value>Can not upgrade schema safely.</value>
+  <data name="ExCannotUpgradeSchemaSafely" xml:space="preserve">
+    <value>Cannot upgrade schema safely.</value>
   </data>
   <data name="ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported" xml:space="preserve">
     <value>Upgrade of assembly "{0}" from version {1} to {2} is not supported.</value>

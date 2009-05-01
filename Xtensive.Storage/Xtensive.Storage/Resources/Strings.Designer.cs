@@ -142,25 +142,34 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not commit transaction: Validation context is in inconsistent state..
+        ///   Looks up a localized string similar to Attempt to associate non-empty EntityState with Key of unknown type..
         /// </summary>
-        internal static string ExCanNotCommitTransactionValidationContextIsInInconsistentState {
+        internal static string ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType {
             get {
-                return ResourceManager.GetString("ExCanNotCommitTransactionValidationContextIsInInconsistentState", resourceCulture);
+                return ResourceManager.GetString("ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot commit a transaction: ValidationContext is in inconsistent state..
+        /// </summary>
+        internal static string ExCannotCommitATransactionValidationContextIsInInconsistentState {
+            get {
+                return ResourceManager.GetString("ExCannotCommitATransactionValidationContextIsInInconsistentState", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Cannot find a hanlder of type &apos;{0}&apos;..
         /// </summary>
-        internal static string ExCannotFindHandler {
+        internal static string ExCannotFindHandlerOfTypeX {
             get {
-                return ResourceManager.GetString("ExCannotFindHandler", resourceCulture);
+                return ResourceManager.GetString("ExCannotFindHandlerOfTypeX", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not get validation context: There is no active transaction..
+        ///   Looks up a localized string similar to Can not get validation context: there is no active transaction..
         /// </summary>
         internal static string ExCanNotGetValidationContextThereIsNoActiveTransaction {
             get {
@@ -169,7 +178,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t open a transaction, since there is no current Session..
+        ///   Looks up a localized string similar to Can not open a transaction: there is no current Session..
         /// </summary>
         internal static string ExCanNotOpenTransactionNoCurrentSession {
             get {
@@ -178,20 +187,20 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not resolve entity with key &apos;{0}&apos;.
+        ///   Looks up a localized string similar to Cannot resolve entity with key &apos;{0}&apos;.
         /// </summary>
-        internal static string ExCanNotResolveEntityWithKeyX {
+        internal static string ExCannotResolveEntityWithKeyX {
             get {
-                return ResourceManager.GetString("ExCanNotResolveEntityWithKeyX", resourceCulture);
+                return ResourceManager.GetString("ExCannotResolveEntityWithKeyX", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not upgrade schema safely..
+        ///   Looks up a localized string similar to Cannot upgrade schema safely..
         /// </summary>
-        internal static string ExCanNotUpgradeSchemaSafely {
+        internal static string ExCannotUpgradeSchemaSafely {
             get {
-                return ResourceManager.GetString("ExCanNotUpgradeSchemaSafely", resourceCulture);
+                return ResourceManager.GetString("ExCannotUpgradeSchemaSafely", resourceCulture);
             }
         }
         
@@ -201,15 +210,6 @@ namespace Xtensive.Storage.Resources {
         internal static string ExCannotUseDefaultGeneratorForComplexKeys {
             get {
                 return ResourceManager.GetString("ExCannotUseDefaultGeneratorForComplexKeys", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Attempt to associate non-empty EntityState with Key of unknown type..
-        /// </summary>
-        internal static string ExCantAssociateNonEmptyEntityStateWithKeyOfUnknownType {
-            get {
-                return ResourceManager.GetString("ExCantAssociateNonEmptyEntityStateWithKeyOfUnknownType", resourceCulture);
             }
         }
         

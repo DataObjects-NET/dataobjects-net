@@ -281,13 +281,13 @@ namespace Xtensive.Storage.Building.Builders
               Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema);
           break;
         case SchemaUpgradeMode.Recreate:
-        case SchemaUpgradeMode.Upgrade:
+        case SchemaUpgradeMode.Perform:
           upgradeHandler.UpgradeSchema(result.UpgradeActions, targetSchema);
           break;
-        case SchemaUpgradeMode.UpgradeSafely:
+        case SchemaUpgradeMode.PerformSafely:
           if (result.Status!=SchemaComparisonStatus.Equal &&
             result.Status!=SchemaComparisonStatus.TargetIsSuperset)
-            throw new SchemaSynchronizationException(Strings.ExCanNotUpgradeSchemaSafely);
+            throw new SchemaSynchronizationException(Strings.ExCannotUpgradeSchemaSafely);
           upgradeHandler.UpgradeSchema(result.UpgradeActions, targetSchema);
           break;
         default:

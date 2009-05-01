@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers
       HandlerBase handler = TryCreateHandler(handlerType);
       
       if (handler==null)
-        throw new NotSupportedException(string.Format(Strings.ExCannotFindHandler, 
+        throw new NotSupportedException(string.Format(Strings.ExCannotFindHandlerOfTypeX, 
           handlerType.GetShortName()));
 
       return handler;

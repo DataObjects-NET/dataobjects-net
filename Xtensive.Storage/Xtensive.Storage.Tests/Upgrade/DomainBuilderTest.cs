@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       BuildDomain(SchemaUpgradeMode.Recreate, typeof (B));
       int bId = GetTypeId(typeof (B));
 
-      BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A), typeof (B));
+      BuildDomain(SchemaUpgradeMode.Perform, typeof (A), typeof (B));
       Assert.AreEqual(bId, GetTypeId(typeof (B)));
       int aId = GetTypeId(typeof (A));
 
@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       AssertEx.Throws<SchemaSynchronizationException>(() =>
         BuildDomain(SchemaUpgradeMode.ValidateCompatible, typeof (A), typeof (B), typeof (C)));
 
-      BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A));
+      BuildDomain(SchemaUpgradeMode.Perform, typeof (A));
 
       Assert.AreEqual(aId, GetTypeId(typeof (A)));
 
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
       BuildDomain(SchemaUpgradeMode.Recreate, typeof(A), typeof (B));
       AssertEx.Throws<SchemaSynchronizationException>(() =>
-        BuildDomain(SchemaUpgradeMode.UpgradeSafely, typeof (A)));
+        BuildDomain(SchemaUpgradeMode.PerformSafely, typeof (A)));
     }
 
     [Test]
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Tests.Upgrade
         }
       }
 
-      BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A));
+      BuildDomain(SchemaUpgradeMode.Perform, typeof (A));
 
       using (Domain.OpenSession()) {
         using (Transaction.Open()) {

@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Upgrade
       foreach (var handler in context.UpgradeHandlers.Values)
         handler.OnBeforeStage();
 
-      var schemaUpgradeMode = SchemaUpgradeMode.Upgrade;
+      var schemaUpgradeMode = SchemaUpgradeMode.Perform;
       switch (stage) {
       case UpgradeStage.Validation:
         if (configuration.UpgradeMode==DomainUpgradeMode.Recreate ||
@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Upgrade
             configuration.UpgradeMode==DomainUpgradeMode.Validate)
           return null; // Nothing to do in these modes here
         if (configuration.UpgradeMode==DomainUpgradeMode.PerformSafely)
-          schemaUpgradeMode = SchemaUpgradeMode.UpgradeSafely;
+          schemaUpgradeMode = SchemaUpgradeMode.PerformSafely;
         break;
       case UpgradeStage.Final:
         if (configuration.UpgradeMode==DomainUpgradeMode.Recreate)

@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Serialization
 
       if (entity==null)
         throw new InvalidOperationException(
-          string.Format(Strings.ExCanNotResolveEntityWithKeyX, key));
+          string.Format(Strings.ExCannotResolveEntityWithKeyX, key));
     }
   }
 }
