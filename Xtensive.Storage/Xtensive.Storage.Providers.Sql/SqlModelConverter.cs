@@ -124,11 +124,10 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var refColumn in key.Columns)
         referencingColumns.Add(referencingTable.Columns[refColumn.Name]);
 
-      var foreignKeyInfo = new ForeignKeyInfo(referencingTable, key.Name)
-        {
-          OnUpdateAction = ConvertReferentialAction(key.OnUpdate),
-          OnRemoveAction = ConvertReferentialAction(key.OnDelete)
-        };
+      var foreignKeyInfo = new ForeignKeyInfo(referencingTable, key.Name) {
+        OnUpdateAction = ConvertReferentialAction(key.OnUpdate),
+        OnRemoveAction = ConvertReferentialAction(key.OnDelete)
+      };
 
       var referencedTable = StorageInfo.Tables[key.ReferencedTable.Name];
       foreignKeyInfo.PrimaryKey = referencedTable.PrimaryIndex;
@@ -158,10 +157,9 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IPathNode VisitIndex(Index index)
     {
       var tableInfo = StorageInfo.Tables[index.DataTable.Name];
-      var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name)
-        {
-          IsUnique = index.IsUnique
-        };
+      var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name) {
+        IsUnique = index.IsUnique
+      };
 
       foreach (var keyColumn in index.Columns) {
         var columnInfo = tableInfo.Columns[keyColumn.Column.Name];
@@ -194,13 +192,12 @@ namespace Xtensive.Storage.Providers.Sql
       var type = ExtractType(idColumn);
       var currentValue = 0; // TODO: Get current key value from storage
       var sequence =
-        new SequenceInfo(StorageInfo, generatorTable.Name)
-          {
-            StartValue = startValue ?? 0,
-            Increment = increment ?? 1,
-            Type = type,
-            Current = currentValue
-          };
+        new SequenceInfo(StorageInfo, generatorTable.Name) {
+          StartValue = startValue ?? 0,
+          Increment = increment ?? 1,
+          Type = type,
+          Current = currentValue
+        };
 
       return sequence;
     }
@@ -306,7 +303,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="storageSchema">The schema.</param>
     /// <param name="serverInfo">The server info.</param>
-    /// <param name="keyFetcher">The key fetcher.</param>
     public SqlModelConverter(Schema storageSchema, ServerInfo serverInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(storageSchema, "schema");

@@ -70,14 +70,14 @@ namespace Xtensive.Storage.Providers.Sql
       throw new NotImplementedException();
     }
 
-    private void ClearStorageSchema()
+    protected void ClearStorageSchema()
     {
       var clearScript = GenerateClearScript();
       if (clearScript.Count > 0)
         SessionHandler.ExecuteNonQuery(clearScript);
     }
 
-    private void UpgradeStorageSchema()
+    protected void UpgradeStorageSchema()
     {
       var updateScript = GenerateUpgradeScript();
       if (updateScript.Count > 0)

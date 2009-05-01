@@ -167,16 +167,14 @@ namespace Xtensive.Storage.Tests.Upgrade
           assemblyTypeId = domain.Model.Types[typeof (Metadata.Assembly)].TypeId;
           persionTypeId = domain.Model.Types[typeof (Model1.Person)].TypeId;
 
-          new Model1.Person
-            {
-              Address = new Model1.Address {City = "Mumbai"},
-              FullName = "Gaurav"
-            };
-          new Model1.Person
-            {
-              Address = new Model1.Address {City = "Delhi"},
-              FullName = "Mihir"
-            };
+          new Model1.Person {
+            Address = new Model1.Address {City = "Mumbai"},
+            FullName = "Gaurav"
+          };
+          new Model1.Person {
+            Address = new Model1.Address {City = "Delhi"},
+            FullName = "Mihir"
+          };
           ts.Complete();
         }
       }
@@ -185,7 +183,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     private void BuildSecondDomain()
     {
       var dc = GetConfiguration(typeof(Model2.Person));
-      dc.UpgradeMode = DomainUpgradeMode.PerformSafely;
+      dc.UpgradeMode = DomainUpgradeMode.Perform;
       var domain = Domain.Build(dc);
       using (domain.OpenSession()) {
         using (var ts = Transaction.Open()) {

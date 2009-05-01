@@ -52,12 +52,11 @@ namespace Xtensive.Storage.Tests.Upgrade
       foreignKey.ForeignKeyColumns.Set(t1fk);
       foreignKey.PrimaryKey = t3pk;
 
-      new SequenceInfo(storage, "IntSequence")
-        {
-          StartValue = 0,
-          Increment = 1,
-          Type = new TypeInfo(typeof(int))
-        };
+      new SequenceInfo(storage, "IntSequence") {
+        StartValue = 0,
+        Increment = 1,
+        Type = new TypeInfo(typeof(int))
+      };
 
       return storage;
     }
@@ -89,13 +88,12 @@ namespace Xtensive.Storage.Tests.Upgrade
       foreignKey.ForeignKeyColumns.Set(t1fk);
       foreignKey.PrimaryKey = t3pk;
 
-      new SequenceInfo(storage, "IntSequence")
-        {
-          StartValue = 1,
-          Increment = 2,
-          Current = 5,
-          Type = new TypeInfo(typeof(int))
-        };
+      new SequenceInfo(storage, "IntSequence") {
+        StartValue = 1,
+        Increment = 2,
+        Current = 5,
+        Type = new TypeInfo(typeof(int))
+      };
 
       return storage;
     }
@@ -176,9 +174,6 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       var manager = new SchemaManager(Url, false);
       var schema = manager.GetStorageSchema();
-      var newSchema = manager.GetStorageSchema();
-      var oldModel = manager.GetStorageModel();
-
       
       var provider = new SqlConnectionProvider();
       using (var connection = provider.CreateConnection(Url) as SqlConnection) {

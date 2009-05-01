@@ -41,8 +41,6 @@ namespace Xtensive.Storage.Model.Conversion
     /// </summary>
     protected DomainModel Model { get; private set; }
 
-    public Func<IndexInfo, string> TableNameGenerator { get; set; }
-
     /// <summary>
     /// Gets a value indicating whether 
     /// build foreign keys for associations.
@@ -102,12 +100,11 @@ namespace Xtensive.Storage.Model.Conversion
     protected override IPathNode VisitDomainModel(DomainModel domainModel)
     {
       // Build tables, columns and primary indexes
-      foreach (var primaryIndex in domainModel.RealIndexes.Where(i => i.IsPrimary)) {
+      foreach (var primaryIndex in domainModel.RealIndexes.Where(i => i.IsPrimary))
         Visit(primaryIndex);
-      }
 
       // Build secondary indexes
-      //foreach (var indexInfo in domainModel.RealIndexes.Where(i => !i.IsPrimary))
+      // foreach (var indexInfo in domainModel.RealIndexes.Where(i => !i.IsPrimary))
       //  Visit(indexInfo);
 
       // Build foreign keys
@@ -115,7 +112,7 @@ namespace Xtensive.Storage.Model.Conversion
         foreach (var association in domainModel.Associations)
           Visit(association);
 
-      // TODO: Build forign keys for hierarchy references
+      // TODO: Build foreign keys for hierarchy references
 
       // Build sequnces
       var persistentGenerators = domainModel.Generators
@@ -129,8 +126,8 @@ namespace Xtensive.Storage.Model.Conversion
     /// <inheritdoc/>
     protected override IPathNode VisitIndexInfo(IndexInfo index)
     {
-      var table = CurrentTable; // StorageInfo.Tables[primaryIndex.ReflectedType.MappingName];
-      var primaryIndex = Model.RealIndexes.First(i => i.MappingName == table.PrimaryIndex.Name); // FindNonVirtualPrimaryIndex(index);
+      var table = CurrentTable;
+      var primaryIndex = Model.RealIndexes.First(i => i.MappingName == table.PrimaryIndex.Name);
       var secondaryIndex = new SecondaryIndexInfo(table, index.MappingName)
         {
           IsUnique = index.IsUnique
@@ -238,12 +235,11 @@ namespace Xtensive.Storage.Model.Conversion
     /// <inheritdoc/>
     protected override IPathNode VisitGeneratorInfo(GeneratorInfo generator)
     {
-      var sequence = new SequenceInfo(StorageInfo, generator.MappingName)
-        {
-          StartValue = generator.CacheSize,
-          Increment = generator.CacheSize,
-          Type = new StorageTypeInfo(generator.TupleDescriptor[0])
-        };
+      var sequence = new SequenceInfo(StorageInfo, generator.MappingName) {
+        StartValue = generator.CacheSize,
+        Increment = generator.CacheSize,
+        Type = new StorageTypeInfo(generator.TupleDescriptor[0])
+      };
       return sequence;
     }
 
@@ -310,6 +306,11 @@ namespace Xtensive.Storage.Model.Conversion
       return null;
     }
 
+    /// <summary>
+    /// Finds the non virtual primary index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>Primary index.</returns>
     protected static IndexInfo FindNonVirtualPrimaryIndex(IndexInfo index)
     {
       if (index.IsPrimary && !index.IsVirtual)
@@ -322,26 +323,32 @@ namespace Xtensive.Storage.Model.Conversion
           ? primaryIndex.DeclaringIndex
           : primaryIndex;
     }
-    
+
+    /// <summary>
+    /// Gets the name of the primary index column.
+    /// </summary>
+    /// <param name="primaryIndex">Index of the primary.</param>
+    /// <param name="secondaryIndexColumn">The secondary index column.</param>
+    /// <param name="secondaryIndex">Index of the secondary.</param>
+    /// <returns>Columns name.</returns>
     protected static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, 
       ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
     {
       string primaryIndexColumnName = null;
-      foreach (ColumnInfo primaryColumn in primaryIndex.Columns) {
+      foreach (ColumnInfo primaryColumn in primaryIndex.Columns)
         if (primaryColumn.Field.Equals(secondaryIndexColumn.Field)) {
           primaryIndexColumnName = primaryColumn.Name;
           break;
         }
-      }
       return primaryIndexColumnName;
     }
+
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="tableNameGenerator">The table name generator.</param>
     /// <param name="buildForeignKeys">If set to <see langword="true"/> foreign keys
     /// will be created for associations.</param>
     /// <param name="foreignKeyNameGenerator">The foreign key name generator.</param>
@@ -353,7 +360,6 @@ namespace Xtensive.Storage.Model.Conversion
       bool buildHierarchyForeignKeys, Func<TypeInfo, TypeInfo, string> hierarchyForeignKeyNameGenerator,
       Func<GeneratorInfo, bool> persistentGeneratorFilter)
     {
-      // ArgumentValidator.EnsureArgumentNotNull(tableNameGenerator, "tableNameGenerator");
       if (buildForeignKeys)
         ArgumentValidator.EnsureArgumentNotNull(foreignKeyNameGenerator, "foreignKeyNameGenerator");
       if (buildHierarchyForeignKeys)
@@ -361,8 +367,6 @@ namespace Xtensive.Storage.Model.Conversion
         "hierarchyForeignKeyNameGenerator");
       ArgumentValidator.EnsureArgumentNotNull(persistentGeneratorFilter, "persistentGeneratorFilter");
 
-
-      // TableNameGenerator = tableNameGenerator;
       BuildForeignKeys = buildForeignKeys;
       ForeignKeyNameGenerator = foreignKeyNameGenerator;
       BuildHierarchyForeignKeys = buildHierarchyForeignKeys;

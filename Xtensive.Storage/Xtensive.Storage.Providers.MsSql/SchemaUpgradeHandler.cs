@@ -7,20 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
 using Xtensive.Modelling.Actions;
-using Xtensive.Modelling.Comparison;
-using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
-using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom;
-using Xtensive.Storage.Model.Conversion;
-using Xtensive.Sql.Dom.Dml;
-using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
-using TableInfo=Xtensive.Storage.Indexing.Model.TableInfo;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
@@ -40,6 +31,12 @@ namespace Xtensive.Storage.Providers.MsSql
     /// <inheritdoc/>
     public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo targetSchema)
     {
+      // TODO: Fix this
+      if (targetSchema.Tables.Count == 0) {
+        ClearStorageSchema();
+        return;
+      }
+
       var upgradeScript = GenerateUpgradeScript(upgradeActions);
       if (upgradeScript.Count==0)
         return;
