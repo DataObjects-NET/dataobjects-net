@@ -1268,6 +1268,26 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Clearing comparison result:
+        ///{0}.
+        /// </summary>
+        internal static string LogClearingComparisonResultX {
+            get {
+                return ResourceManager.GetString("LogClearingComparisonResultX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comparison result:
+        ///{0}.
+        /// </summary>
+        internal static string LogComparisonResultX {
+            get {
+                return ResourceManager.GetString("LogComparisonResultX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Creating {0}.
         /// </summary>
         internal static string LogCreatingX {
@@ -1282,6 +1302,16 @@ namespace Xtensive.Storage.Resources {
         internal static string LogDefiningX {
             get {
                 return ResourceManager.GetString("LogDefiningX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Extracted schema:
+        ///{0}.
+        /// </summary>
+        internal static string LogExtractedSchemaX {
+            get {
+                return ResourceManager.GetString("LogExtractedSchemaX", resourceCulture);
             }
         }
         
@@ -1318,6 +1348,25 @@ namespace Xtensive.Storage.Resources {
         internal static string LogSessionBoundMethodXOfTypeY {
             get {
                 return ResourceManager.GetString("LogSessionBoundMethodXOfTypeY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Synchronizing schema in {0} mode.
+        /// </summary>
+        internal static string LogSynchronizingSchemaInXMode {
+            get {
+                return ResourceManager.GetString("LogSynchronizingSchemaInXMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Target schema:
+        ///{0}.
+        /// </summary>
+        internal static string LogTargetSchemaX {
+            get {
+                return ResourceManager.GetString("LogTargetSchemaX", resourceCulture);
             }
         }
         
@@ -1390,6 +1439,21 @@ namespace Xtensive.Storage.Resources {
         internal static string ReferencedFieldXAndPairedFieldAreEqual {
             get {
                 return ResourceManager.GetString("ReferencedFieldXAndPairedFieldAreEqual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Status: {0}
+        ///Hints:
+        ///{1}
+        ///Difference:
+        ///{2}
+        ///Actions:
+        ///{3}.
+        /// </summary>
+        internal static string SchemaComparisonResultFormat {
+            get {
+                return ResourceManager.GetString("SchemaComparisonResultFormat", resourceCulture);
             }
         }
         

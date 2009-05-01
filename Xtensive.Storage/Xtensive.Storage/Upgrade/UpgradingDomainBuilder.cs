@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Upgrade
         BuildSchemaHints();
     }
 
-    internal static void OnActionsReady(NodeDifference schemaDifference, ActionSequence schemaUpgradeActions)
+    internal static void OnUpgradeActionsReady(NodeDifference schemaDifference, ActionSequence schemaUpgradeActions)
     {
       var context = UpgradeContext.Current;
       if (context==null)

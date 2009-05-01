@@ -9,6 +9,8 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
+using Xtensive.Storage.Resources;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Building
 {
@@ -37,6 +39,16 @@ namespace Xtensive.Storage.Building
     /// Gets upgrade actions.
     /// </summary>
     public ActionSequence UpgradeActions { get; private set; }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format(Strings.SchemaComparisonResultFormat,
+        Status, 
+        Hints.ToString().Indent(2), 
+        Difference.ToString().Indent(2), 
+        UpgradeActions.ToString().Indent(2));
+    }
 
 
     // Constructors
