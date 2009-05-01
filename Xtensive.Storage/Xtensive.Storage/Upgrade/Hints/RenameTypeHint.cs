@@ -8,6 +8,7 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Modelling.Comparison.Hints;
 
 namespace Xtensive.Storage.Upgrade.Hints
 {
@@ -74,6 +75,11 @@ namespace Xtensive.Storage.Upgrade.Hints
     }
 
     #endregion
+
+    /// <inheritdoc/>
+    public override void Translate(HintSet target)
+    {
+    }
 
     /// <inheritdoc/>
     public override string ToString()

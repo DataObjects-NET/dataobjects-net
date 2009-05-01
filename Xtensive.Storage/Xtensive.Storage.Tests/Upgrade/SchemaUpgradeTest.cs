@@ -105,7 +105,9 @@ namespace Xtensive.Storage.Tests.Upgrade
       base.AddUpgradeHints();
       if (RunningVersion!="2")
         return;
-      context.Hints.Add(new RenameFieldHint(typeof(Person), "FullName", "Name"));
+      context.Hints.Add(new RenameNodeHint(
+        "/Tables/Person/Columns/FullName", 
+        "/Tables/Person/Columns/Name"));
     }
 
     public override void OnUpgrade()

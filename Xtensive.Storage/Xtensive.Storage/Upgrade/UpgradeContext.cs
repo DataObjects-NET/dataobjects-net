@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Upgrade
     /// <summary>
     /// Gets the schema upgrade hints.
     /// </summary>
-    public HintSet SchemaHints { get; private set; }
+    public HintSet SchemaHints { get; internal set; }
 
     /// <summary>
     /// Gets the storage model difference 

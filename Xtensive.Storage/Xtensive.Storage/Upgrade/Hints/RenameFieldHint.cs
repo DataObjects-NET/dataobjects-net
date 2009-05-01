@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Upgrade.Hints
   /// Rename field hint.
   /// </summary>
   [Serializable]
-  public sealed class RenameFieldHint : TargetTypeHintBase, 
+  public abstract class RenameFieldHint : TargetTypeHintBase, 
     IEquatable<RenameFieldHint>
   {
     /// <summary>

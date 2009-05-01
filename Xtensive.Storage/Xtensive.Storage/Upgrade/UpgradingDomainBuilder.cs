@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
@@ -23,13 +24,6 @@ namespace Xtensive.Storage.Upgrade
   /// </summary>
   public static class UpgradingDomainBuilder
   {
-    private static Domain BuildUpgradeSafely(DomainConfiguration configuration)
-    {
-      return DomainBuilder.BuildDomain(configuration,
-        SchemaUpgradeMode.UpgradeSafely,
-        () => { });
-    }
-
     /// <summary>
     /// Builds the new <see cref="Domain"/> by the specified configuration.
     /// </summary>
@@ -103,6 +97,15 @@ namespace Xtensive.Storage.Upgrade
         handler.OnStage();
     }
 
+    internal static void OnSchemasReady()
+    {
+      var context = UpgradeContext.Current;
+      if (context==null)
+        return;
+      if (context.Stage==UpgradeStage.Upgrading)
+        BuildSchemaHints();
+    }
+
     private static bool TypeFilter(Type type)
     {
       var context = UpgradeContext.Current;
@@ -111,6 +114,14 @@ namespace Xtensive.Storage.Upgrade
       return 
         handlers.ContainsKey(assembly) 
         && handlers[assembly].IsTypeAvailable(type, context.Stage);
+    }
+
+    private static void BuildSchemaHints()
+    {
+      var context = UpgradeContext.Demand();
+      context.SchemaHints = new HintSet(context.SourceSchema, context.TargetSchema);
+      foreach (var hint in context.Hints)
+        hint.Translate(context.SchemaHints);
     }
 
     /// <exception cref="DomainBuilderException">More then one enabled handler is provided for some assembly.</exception>

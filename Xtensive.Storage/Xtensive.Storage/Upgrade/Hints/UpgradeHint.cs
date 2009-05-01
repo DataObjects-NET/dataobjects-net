@@ -5,7 +5,7 @@
 // Created:    2009.04.29
 
 using System;
-using System.Diagnostics;
+using Xtensive.Modelling.Comparison.Hints;
 
 namespace Xtensive.Storage.Upgrade.Hints
 {
@@ -13,7 +13,9 @@ namespace Xtensive.Storage.Upgrade.Hints
   /// Abstract base class for any upgrade hint.
   /// </summary>
   [Serializable]
-  public abstract class UpgradeHint
+  public abstract class UpgradeHint : IUpgradeHint
   {
+    /// <inheritdoc/>
+    public abstract void Translate(HintSet target);
   }
 }

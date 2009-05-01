@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Modelling.Comparison.Hints;
 
 namespace Xtensive.Storage.Upgrade.Hints
 {
@@ -14,7 +15,7 @@ namespace Xtensive.Storage.Upgrade.Hints
   /// Rename storage model node hint.
   /// </summary>
   [Serializable]
-  public sealed class RenameNodeHint :
+  public sealed class RenameNodeHint : UpgradeHint,
     IEquatable<RenameNodeHint>
   {
     /// <summary>
@@ -80,6 +81,12 @@ namespace Xtensive.Storage.Upgrade.Hints
     }
 
     #endregion
+
+    /// <inheritdoc/>
+    public override void Translate(HintSet target)
+    {
+      target.Add(new RenameHint(OldName, Name));
+    }
 
     /// <inheritdoc/>
     public override string ToString()
