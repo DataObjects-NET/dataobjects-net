@@ -197,9 +197,7 @@ namespace Xtensive.Storage.Upgrade
       var assembliesWithoutUserHandler = assemblies.Except(assemblieswithUserHandlers);
 
       foreach (var assembly in assembliesWithoutUserHandler) {
-        var handler = new UpgradeHandler {
-          UpgradeContext = context
-        };
+        var handler = new UpgradeHandler(assembly);
         handlers.Add(assembly, handler);
       }
 

@@ -7,6 +7,7 @@
 using System;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using System.Linq;
 using Xtensive.Core.Helpers;
@@ -25,21 +26,9 @@ namespace Xtensive.Storage.Upgrade
     /// </summary>
     public static readonly string RecycledSuffix = ".Recycled";
 
-    private UpgradeContext upgradeContext;
     private Assembly assembly;
     private string assemblyName;
     private string assemblyVersion;
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Property is already initialized.</exception>
-    public UpgradeContext UpgradeContext {
-      get { return upgradeContext; }
-      set {
-        if (upgradeContext!=null)
-          throw Exceptions.AlreadyInitialized("UpgradeContext");
-        upgradeContext = value;
-      }
-    }
 
     /// <inheritdoc/>
     public virtual bool IsEnabled {
@@ -130,7 +119,7 @@ namespace Xtensive.Storage.Upgrade
     /// <exception cref="ArgumentOutOfRangeException"><c>UpgradeContext.Stage</c> is out of range.</exception>
     public virtual bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)
     {
-      if (type.Assembly!=GetType().Assembly)
+      if (type.Assembly!=Assembly)
         return false;
       switch (upgradeStage) {
       case UpgradeStage.Validation:
@@ -223,6 +212,7 @@ namespace Xtensive.Storage.Upgrade
     /// </summary>
     protected virtual void AddAutoHints()
     {
+      var context = UpgradeContext.Demand();
       var recycled =
         from t in Assembly.GetTypes()
         where typeof (Entity).IsAssignableFrom(t)
@@ -238,7 +228,7 @@ namespace Xtensive.Storage.Upgrade
           string ns = TryStripRecycledSuffix(r.Type.Namespace);
           oldName = ns + "." + oldName;
         }
-        UpgradeContext.Hints.Add(new RenameTypeHint(r.Type, oldName));
+        context.Hints.Add(new RenameTypeHint(r.Type, oldName));
         // TODO: Add table rename hint as well
       }
     }
@@ -267,5 +257,24 @@ namespace Xtensive.Storage.Upgrade
     }
 
     #endregion
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public UpgradeHandler()
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="assembly">The assembly this handler is bound to.</param>
+    public UpgradeHandler(Assembly assembly)
+    {
+      this.assembly = assembly;
+    }
   }
 }

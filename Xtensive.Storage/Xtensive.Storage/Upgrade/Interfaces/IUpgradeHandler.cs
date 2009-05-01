@@ -16,12 +16,6 @@ namespace Xtensive.Storage.Upgrade
   public interface IUpgradeHandler
   {
     /// <summary>
-    /// Gets or sets the upgrade context.
-    /// This property can be set just once.
-    /// </summary>
-    UpgradeContext UpgradeContext { get; set; }
-
-    /// <summary>
     /// Gets a value indicating whether this handler is enabled.
     /// </summary>
     bool IsEnabled { get; }
