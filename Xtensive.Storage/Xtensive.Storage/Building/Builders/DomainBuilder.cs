@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Building.Builders
               context.SystemSessionHandler = Session.Current.Handler;
               using (var transactionScope = Transaction.Open()) {
                 context.Domain.Handler.OnSystemSessionOpen();
-                ProcessSchema(schemaUpgradeMode);
+                SynchronizeSchema(schemaUpgradeMode);
                 context.Domain.Handler.BuildMapping();
                 CreateGenerators();
                 TypeIdBuilder.BuildTypeIds();
@@ -118,54 +118,6 @@ namespace Xtensive.Storage.Building.Builders
         return;
       foreach (UnityTypeElement typeElement in context.Configuration.Services)
         typeElement.Configure(BuildingContext.Current.Domain.ServiceContainer);
-    }
-
-    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><c>schemaUpgradeMode</c> is out of range.</exception>
-    private static void ProcessSchema(SchemaUpgradeMode schemaUpgradeMode)
-    {
-      var upgradeHandler = BuildingContext.Current.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
-      var domainModel = upgradeHandler.GetTargetSchema();
-      var storageModel = upgradeHandler.GetExtractedSchema();
-      
-      // Clear schema if recreate
-      if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
-        var emptyStorage = new StorageInfo();
-        var clearSchema = SchemaComparer.Compare(
-          storageModel, emptyStorage, null).UpgradeActions;
-        upgradeHandler.UpgradeSchema(clearSchema, emptyStorage);
-        storageModel = upgradeHandler.GetExtractedSchema();
-      }
-      
-      var comparisonResult = SchemaComparer.Compare(storageModel, domainModel, null);
-
-      switch (schemaUpgradeMode) {
-      case SchemaUpgradeMode.Recreate:
-      case SchemaUpgradeMode.Upgrade:
-        upgradeHandler.UpgradeSchema(comparisonResult.UpgradeActions, domainModel);
-        break;
-      case SchemaUpgradeMode.ValidateExact:
-        if (comparisonResult.Status!=SchemaComparisonStatus.Equal)
-          throw new DomainBuilderException(
-            Strings.ExExtractedSchemaIsNotEqualToTheTargetSchema);
-        upgradeHandler.UpgradeSchema(comparisonResult.UpgradeActions, domainModel);
-        break;
-      case SchemaUpgradeMode.ValidateCompatible:
-        if (comparisonResult.Status!=SchemaComparisonStatus.Equal &&
-            comparisonResult.Status!=SchemaComparisonStatus.Superset)
-          throw new DomainBuilderException(
-            Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema);
-        upgradeHandler.UpgradeSchema(comparisonResult.UpgradeActions, domainModel);
-        break;
-      case SchemaUpgradeMode.UpgradeSafely:
-        if (comparisonResult.Status!=SchemaComparisonStatus.Equal &&
-            comparisonResult.Status!=SchemaComparisonStatus.Subset)
-          throw new DomainBuilderException(Strings.ExCanNotUpgradeSchemaSafely);
-        upgradeHandler.UpgradeSchema(comparisonResult.UpgradeActions, domainModel);
-        break;
-      default:
-        throw new ArgumentOutOfRangeException("schemaUpgradeMode");
-      }
     }
 
     #region ValidateXxx methods
@@ -269,6 +221,54 @@ namespace Xtensive.Storage.Building.Builders
           keyGenerators.Register(generatorInfo, keyGenerator);
         }
         keyGenerators.Lock();
+      }
+    }
+
+    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><c>schemaUpgradeMode</c> is out of range.</exception>
+    private static void SynchronizeSchema(SchemaUpgradeMode schemaUpgradeMode)
+    {
+      var upgradeHandler = BuildingContext.Current.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
+      var domainModel = upgradeHandler.GetTargetSchema();
+      var storageModel = upgradeHandler.GetExtractedSchema();
+      
+      // Let's clear the schema if Recreate
+      if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
+        var emptyStorage = new StorageInfo();
+        var clearSchema = SchemaComparer.Compare(storageModel, emptyStorage, null).UpgradeActions;
+        upgradeHandler.UpgradeSchema(clearSchema, emptyStorage);
+        storageModel = upgradeHandler.GetExtractedSchema();
+      }
+      
+      var result = SchemaComparer.Compare(storageModel, domainModel, null);
+
+
+      switch (schemaUpgradeMode) {
+      case SchemaUpgradeMode.Recreate:
+      case SchemaUpgradeMode.Upgrade:
+        upgradeHandler.UpgradeSchema(result.UpgradeActions, domainModel);
+        break;
+      case SchemaUpgradeMode.ValidateExact:
+        if (result.Status!=SchemaComparisonStatus.Equal)
+          throw new DomainBuilderException(
+            Strings.ExExtractedSchemaIsNotEqualToTheTargetSchema);
+        upgradeHandler.UpgradeSchema(result.UpgradeActions, domainModel);
+        break;
+      case SchemaUpgradeMode.ValidateCompatible:
+        if (result.Status!=SchemaComparisonStatus.Equal &&
+          result.Status!=SchemaComparisonStatus.Superset)
+          throw new DomainBuilderException(
+            Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema);
+        upgradeHandler.UpgradeSchema(result.UpgradeActions, domainModel);
+        break;
+      case SchemaUpgradeMode.UpgradeSafely:
+        if (result.Status!=SchemaComparisonStatus.Equal &&
+          result.Status!=SchemaComparisonStatus.Subset)
+          throw new DomainBuilderException(Strings.ExCanNotUpgradeSchemaSafely);
+        upgradeHandler.UpgradeSchema(result.UpgradeActions, domainModel);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException("schemaUpgradeMode");
       }
     }
   }
