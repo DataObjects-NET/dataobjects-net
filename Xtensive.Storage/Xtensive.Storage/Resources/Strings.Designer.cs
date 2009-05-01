@@ -430,6 +430,24 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Extracted schema is not compatible with the target schema..
+        /// </summary>
+        internal static string ExExtractedSchemaIsNotCompatibleWithTheTargetSchema {
+            get {
+                return ResourceManager.GetString("ExExtractedSchemaIsNotCompatibleWithTheTargetSchema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Extracted schema is not equal to the target schemal..
+        /// </summary>
+        internal static string ExExtractedSchemaIsNotEqualToTheTargetSchema {
+            get {
+                return ResourceManager.GetString("ExExtractedSchemaIsNotEqualToTheTargetSchema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Field &apos;{0}&apos; is not an Entity field in Type &apos;{1}&apos;..
         /// </summary>
         internal static string ExFieldIsNotAnEntityField {
@@ -885,24 +903,6 @@ namespace Xtensive.Storage.Resources {
         internal static string ExStorageProviderNotFound {
             get {
                 return ResourceManager.GetString("ExStorageProviderNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Storage schema is not compatible for domain model..
-        /// </summary>
-        internal static string ExStorageSchemaIsNotCompatibleForDomainModel {
-            get {
-                return ResourceManager.GetString("ExStorageSchemaIsNotCompatibleForDomainModel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Storage schema is not equals to domain model..
-        /// </summary>
-        internal static string ExStorageSchemaIsNotEqualToDomainModel {
-            get {
-                return ResourceManager.GetString("ExStorageSchemaIsNotEqualToDomainModel", resourceCulture);
             }
         }
         

@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Upgrade
     /// <summary>
     /// Gets the storage model conformity.
     /// </summary>
-    public StorageConformityStatus StorageConformity { get; private set; }
+    public SchemaComparisonStatus SchemaComparison { get; private set; }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
@@ -47,14 +47,14 @@ namespace Xtensive.Storage.Upgrade
     /// <param name="modelDifference">The model difference.</param>
     /// <param name="upgradeActions">The upgrade actions.</param>
     /// <param name="upgradeHints">The upgrade hints.</param>
-    /// <param name="storageConformity">The storage model conformity.</param>
+    /// <param name="schemaComparison">The storage model conformity.</param>
     public ModelComparisonResult(Difference modelDifference,
       ActionSequence upgradeActions, HintSet upgradeHints, 
-      StorageConformityStatus storageConformity)
+      SchemaComparisonStatus schemaComparison)
     {
       ModelDifference = modelDifference;
       UpgradeActions = upgradeActions;
-      StorageConformity = storageConformity;
+      SchemaComparison = schemaComparison;
       UpgradeHints = upgradeHints;
     }
   }

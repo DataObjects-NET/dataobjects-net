@@ -10,7 +10,6 @@ using Xtensive.Core.Caching;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Building;
 
 namespace Xtensive.Storage.Tests.Configuration
 {

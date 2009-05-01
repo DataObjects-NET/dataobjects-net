@@ -144,19 +144,19 @@ namespace Xtensive.Storage.Building.Builders
         upgradeHandler.UpgradeStorage(comparisonResult.UpgradeActions, domainModel);
         break;
       case SchemaUpgradeMode.ValidateExact:
-        if (comparisonResult.StorageConformity!=StorageConformityStatus.Match)
+        if (comparisonResult.SchemaComparison!=SchemaComparisonStatus.Equal)
           throw new DomainBuilderException(
-            Strings.ExStorageSchemaIsNotEqualToDomainModel);
+            Strings.ExExtractedSchemaIsNotEqualToTheTargetSchema);
         upgradeHandler.UpgradeStorage(comparisonResult.UpgradeActions, domainModel);
         break;
       case SchemaUpgradeMode.ValidateCompatible:
-        if (comparisonResult.StorageConformity!=StorageConformityStatus.Greater)
+        if (comparisonResult.SchemaComparison!=SchemaComparisonStatus.Superset)
           throw new DomainBuilderException(
-            Strings.ExStorageSchemaIsNotCompatibleForDomainModel);
+            Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema);
         upgradeHandler.UpgradeStorage(comparisonResult.UpgradeActions, domainModel);
         break;
       case SchemaUpgradeMode.UpgradeSafely:
-        if (comparisonResult.StorageConformity!=StorageConformityStatus.Less)
+        if (comparisonResult.SchemaComparison!=SchemaComparisonStatus.Subset)
           throw new DomainBuilderException(Strings.ExCanNotUpgradeSchemaSafely);
         upgradeHandler.UpgradeStorage(comparisonResult.UpgradeActions, domainModel);
         break;

@@ -579,8 +579,8 @@
   <data name="ExSpecifiedValuesArentEnoughToCreateKeyForTypeX" xml:space="preserve">
     <value>Specified values aren't enough to create key for type {0}</value>
   </data>
-  <data name="ExStorageSchemaIsNotCompatibleForDomainModel" xml:space="preserve">
-    <value>Storage schema is not compatible for domain model.</value>
+  <data name="ExExtractedSchemaIsNotCompatibleWithTheTargetSchema" xml:space="preserve">
+    <value>Extracted schema is not compatible with the target schema.</value>
   </data>
   <data name="ExCanNotUpgradeSchemaSafely" xml:space="preserve">
     <value>Can not upgrade schema safely.</value>
@@ -618,7 +618,7 @@
   <data name="ExMoreThanOneEnabledXIsProvidedForAssemblyY" xml:space="preserve">
     <value>More than one enabled {0} is provided for assembly "{1}".</value>
   </data>
-  <data name="ExStorageSchemaIsNotEqualToDomainModel" xml:space="preserve">
-    <value>Storage schema is not equals to domain model.</value>
+  <data name="ExExtractedSchemaIsNotEqualToTheTargetSchema" xml:space="preserve">
+    <value>Extracted schema is not equal to the target schemal.</value>
   </data>
 </root>

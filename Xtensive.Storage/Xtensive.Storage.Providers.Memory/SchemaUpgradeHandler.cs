@@ -20,10 +20,8 @@ namespace Xtensive.Storage.Providers.Memory
     /// <summary>
     /// Gets the storage view.
     /// </summary>
-    protected IndexStorageView StorageView
-    {
-      get
-      {
+    protected IndexStorageView StorageView {
+      get {
         var session = BuildingContext.Current.SystemSessionHandler;
         var view = ((SessionHandler) session).StorageView;
         return view as IndexStorageView;
@@ -33,7 +31,7 @@ namespace Xtensive.Storage.Providers.Memory
     /// <inheritdoc/>
     public override StorageInfo GetStorageModel()
     {
-      return StorageView.Model;
+      return (StorageInfo) StorageView.Model.Clone(null, StorageInfo.DefaultName);
     }
 
     /// <inheritdoc/>
@@ -48,22 +46,5 @@ namespace Xtensive.Storage.Providers.Memory
     {
       return false;
     }
-
-    private void ClearStorageSchema()
-    {
-      StorageView.ClearSchema();
-    }
-
-    private void UpgradeStorageSchema()
-    {
-      var converter =
-        new DomainModelConverter(
-          false, Handlers.NameBuilder.BuildForeignKeyName,
-          false, Handlers.NameBuilder.BuildForeignKeyName, (g) => false);
-      var newSchema = 
-        converter.Convert(BuildingContext.Current.Model, StorageView.Storage.Name);
-      StorageView.CreateNewSchema(newSchema);
-    }
-
   }
 }

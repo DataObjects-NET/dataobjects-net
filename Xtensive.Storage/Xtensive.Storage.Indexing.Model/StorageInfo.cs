@@ -19,7 +19,10 @@ namespace Xtensive.Storage.Indexing.Model
   public sealed class StorageInfo : NodeBase<StorageInfo>,
     IModel
   {
-    private const string DefaultName = ".";
+    /// <summary>
+    /// Default <see cref="StorageInfo"/> node name.
+    /// </summary>
+    public readonly static string DefaultName = ".";
 
     private ActionSequence actions;
 

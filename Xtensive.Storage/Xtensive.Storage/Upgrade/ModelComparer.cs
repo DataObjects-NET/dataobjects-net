@@ -5,6 +5,7 @@
 // Created:    2009.05.01
 
 using System.Linq;
+using Xtensive.Core.Collections;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
@@ -31,15 +32,16 @@ namespace Xtensive.Storage.Upgrade
         upgradeHints = new HintSet(sourceModel, targetModel);
       var comparer = new Comparer();
       var difference = comparer.Compare(sourceModel, targetModel, upgradeHints);
-      var actions = new ActionSequence(){
-          new Upgrader().GetUpgradeSequence(difference, upgradeHints,
-            comparer)
-        };
+      var actions = new ActionSequence() {
+        difference==null 
+        ? EnumerableUtils<NodeAction>.Empty 
+        : new Upgrader().GetUpgradeSequence(difference, upgradeHints, comparer)
+      };
       return new ModelComparisonResult(difference, actions, upgradeHints, 
         GetStorageConformity(actions, upgradeHints));
     }
 
-    private static StorageConformityStatus GetStorageConformity(ActionSequence upgradeActions, HintSet hints)
+    private static SchemaComparisonStatus GetStorageConformity(ActionSequence upgradeActions, HintSet hints)
     {
       var hasRemoveActions = upgradeActions
         .OfType<RemoveNodeAction>()
@@ -49,12 +51,12 @@ namespace Xtensive.Storage.Upgrade
         .Any();
 
       if (hasCreateActions && hasRemoveActions)
-        return StorageConformityStatus.Mismatch;
+        return SchemaComparisonStatus.NotEqual;
       if (hasCreateActions)
-        return StorageConformityStatus.Less;
+        return SchemaComparisonStatus.Subset;
       if (hasRemoveActions)
-        return StorageConformityStatus.Greater;
-      return StorageConformityStatus.Match;
+        return SchemaComparisonStatus.Superset;
+      return SchemaComparisonStatus.Equal;
     }
 
   }
