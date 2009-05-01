@@ -53,9 +53,9 @@ namespace Xtensive.Storage.Building
       if (hasCreateActions && hasRemoveActions)
         return SchemaComparisonStatus.NotEqual;
       if (hasCreateActions)
-        return SchemaComparisonStatus.Subset;
+        return SchemaComparisonStatus.TargetIsSuperset;
       if (hasRemoveActions)
-        return SchemaComparisonStatus.Superset;
+        return SchemaComparisonStatus.TargetIsSubset;
       return SchemaComparisonStatus.Equal;
     }
   }

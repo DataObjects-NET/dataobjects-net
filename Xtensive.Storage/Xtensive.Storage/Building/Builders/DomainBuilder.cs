@@ -238,8 +238,10 @@ namespace Xtensive.Storage.Building.Builders
       if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
         var emptySchema = new StorageInfo();
         result = SchemaComparer.Compare(extractedSchema, emptySchema, null);
-        if (result.Status!=SchemaComparisonStatus.Equal)
+        if (result.Status!=SchemaComparisonStatus.Equal) {
           upgradeHandler.UpgradeSchema(result.UpgradeActions, emptySchema);
+          extractedSchema = upgradeHandler.GetExtractedSchema();
+        }
       }
       
       result = SchemaComparer.Compare(extractedSchema, targetSchema, null);
@@ -256,14 +258,14 @@ namespace Xtensive.Storage.Building.Builders
         break;
       case SchemaUpgradeMode.ValidateCompatible:
         if (result.Status!=SchemaComparisonStatus.Equal &&
-          result.Status!=SchemaComparisonStatus.Superset)
+          result.Status!=SchemaComparisonStatus.TargetIsSubset)
           throw new DomainBuilderException(
             Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema);
         upgradeHandler.UpgradeSchema(result.UpgradeActions, targetSchema);
         break;
       case SchemaUpgradeMode.UpgradeSafely:
         if (result.Status!=SchemaComparisonStatus.Equal &&
-          result.Status!=SchemaComparisonStatus.Subset)
+          result.Status!=SchemaComparisonStatus.TargetIsSuperset)
           throw new DomainBuilderException(Strings.ExCanNotUpgradeSchemaSafely);
         upgradeHandler.UpgradeSchema(result.UpgradeActions, targetSchema);
         break;

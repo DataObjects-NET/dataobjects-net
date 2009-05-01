@@ -18,11 +18,11 @@ namespace Xtensive.Storage.Building
     /// <summary>
     /// Target schema contains additional elements.
     /// </summary>
-    Superset = 1,
+    TargetIsSuperset = 1,
     /// <summary>
     /// Target schema doesn't contain some elements of the extracted schema.
     /// </summary>
-    Subset = 2,
+    TargetIsSubset = 2,
     /// <summary>
     /// Both new and removed elements are found.
     /// </summary>
