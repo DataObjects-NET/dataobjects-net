@@ -34,8 +34,8 @@ namespace Xtensive.Storage.Providers
           & ForeignKeyMode.Hierarchy) > 0;
       
       var domainModelConverter = new DomainModelConverter(
-        buildForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName,
-        buildHierarchyForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName,
+        false, buildingContext.NameBuilder.BuildForeignKeyName,
+        false, buildingContext.NameBuilder.BuildForeignKeyName,
         IsSchemaBoundGenerator);
 
       return domainModelConverter.Convert(buildingContext.Model, "Model");

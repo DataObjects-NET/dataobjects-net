@@ -48,11 +48,15 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    /// <exception cref="NotImplementedException">
-    /// <c>NotImplementedException</c>.</exception>
     public override StorageInfo GetExtractedSchema()
     {
-      throw new NotImplementedException();
+      return new StorageInfo();
+    }
+
+    /// <inheritdoc/>
+    protected override bool IsSchemaBoundGenerator(GeneratorInfo generatorInfo)
+    {
+      return false;
     }
 
     /// <inheritdoc/>
@@ -62,14 +66,6 @@ namespace Xtensive.Storage.Providers.Sql
       UpgradeStorageSchema();
     }
     
-    /// <inheritdoc/>
-    /// <exception cref="NotImplementedException">
-    /// <c>NotImplementedException</c>.</exception>
-    protected override bool IsSchemaBoundGenerator(GeneratorInfo generatorInfo)
-    {
-      throw new NotImplementedException();
-    }
-
     protected void ClearStorageSchema()
     {
       var clearScript = GenerateClearScript();
@@ -104,20 +100,19 @@ namespace Xtensive.Storage.Providers.Sql
         batch.Add(SqlFactory.Drop(sequence));
       return batch;
     }
-    
+
     private SqlBatch GenerateUpgradeScript()
     {
       var schema = ExtractDomainSchema();
 
       var batch = SqlFactory.Batch();
       var constraints = new List<Pair<Table, List<TableConstraint>>>();
-      foreach (var table in schema.Tables)
-      {
-        var tableConstraints = new List<TableConstraint>(
-          table.TableConstraints.Where(tableConstraint => tableConstraint is ForeignKey));
-        constraints.Add(new Pair<Table, List<TableConstraint>>(table, tableConstraints));
-        foreach (var foreignKeyConstraint in tableConstraints)
-          table.TableConstraints.Remove(foreignKeyConstraint);
+      foreach (var table in schema.Tables) {
+        // var tableConstraints = new List<TableConstraint>(
+        //   table.TableConstraints.Where(tableConstraint => tableConstraint is ForeignKey));
+        // constraints.Add(new Pair<Table, List<TableConstraint>>(table, tableConstraints));
+        // foreach (var foreignKeyConstraint in tableConstraints)
+        //   table.TableConstraints.Remove(foreignKeyConstraint);
         batch.Add(SqlFactory.Create(table));
         foreach (var index in table.Indexes)
           batch.Add(SqlFactory.Create(index));
@@ -172,10 +167,10 @@ namespace Xtensive.Storage.Providers.Sql
       }
 
       // Foreign keys.
-      if ((Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0)
-        BuildForeignKeys(domainModel.Associations, tables);
-      if ((Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Hierarchy) > 0)
-        BuildHierarchyReferences(domainModel.Types.Entities, tables);
+      // if ((Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0)
+      //   BuildForeignKeys(domainModel.Associations, tables);
+      // if ((Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Hierarchy) > 0)
+      //  BuildHierarchyReferences(domainModel.Types.Entities, tables);
 
       // Sequences.
       foreach (var generator in domainModel.Generators)
