@@ -1306,12 +1306,11 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Extracted schema:
-        ///{0}.
+        ///   Looks up a localized string similar to Extracted schema:.
         /// </summary>
-        internal static string LogExtractedSchemaX {
+        internal static string LogExtractedSchema {
             get {
-                return ResourceManager.GetString("LogExtractedSchemaX", resourceCulture);
+                return ResourceManager.GetString("LogExtractedSchema", resourceCulture);
             }
         }
         
@@ -1361,12 +1360,11 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Target schema:
-        ///{0}.
+        ///   Looks up a localized string similar to Target schema:.
         /// </summary>
-        internal static string LogTargetSchemaX {
+        internal static string LogTargetSchema {
             get {
-                return ResourceManager.GetString("LogTargetSchemaX", resourceCulture);
+                return ResourceManager.GetString("LogTargetSchema", resourceCulture);
             }
         }
         

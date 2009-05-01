@@ -226,7 +226,8 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
+    /// <exception cref="SchemaSynchronizationException">Extracted schema is incompatible 
+    /// with the target schema in specified <paramref name="schemaUpgradeMode"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><c>schemaUpgradeMode</c> is out of range.</exception>
     private static void SynchronizeSchema(SchemaUpgradeMode schemaUpgradeMode)
     {
@@ -234,9 +235,11 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
         var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
         var targetSchema = upgradeHandler.GetTargetSchema();
-        Log.Info(Strings.LogTargetSchemaX, targetSchema);
+        Log.Info(Strings.LogTargetSchema);
+        targetSchema.Dump();
         var extractedSchema = upgradeHandler.GetExtractedSchema();
-        Log.Info(Strings.LogExtractedSchemaX, extractedSchema);
+        Log.Info(Strings.LogExtractedSchema);
+        extractedSchema.Dump();
         UpgradingDomainBuilder.OnSchemasReady(extractedSchema, targetSchema);
         SchemaComparisonResult result;
 
@@ -262,21 +265,21 @@ namespace Xtensive.Storage.Building.Builders
           break;
         case SchemaUpgradeMode.ValidateExact:
           if (result.Status!=SchemaComparisonStatus.Equal)
-            throw new DomainBuilderException(
+            throw new SchemaSynchronizationException(
               Strings.ExExtractedSchemaIsNotEqualToTheTargetSchema);
           upgradeHandler.UpgradeSchema(result.UpgradeActions, targetSchema);
           break;
         case SchemaUpgradeMode.ValidateCompatible:
           if (result.Status!=SchemaComparisonStatus.Equal &&
             result.Status!=SchemaComparisonStatus.TargetIsSubset)
-            throw new DomainBuilderException(
+            throw new SchemaSynchronizationException(
               Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema);
           upgradeHandler.UpgradeSchema(result.UpgradeActions, targetSchema);
           break;
         case SchemaUpgradeMode.UpgradeSafely:
           if (result.Status!=SchemaComparisonStatus.Equal &&
             result.Status!=SchemaComparisonStatus.TargetIsSuperset)
-            throw new DomainBuilderException(Strings.ExCanNotUpgradeSchemaSafely);
+            throw new SchemaSynchronizationException(Strings.ExCanNotUpgradeSchemaSafely);
           upgradeHandler.UpgradeSchema(result.UpgradeActions, targetSchema);
           break;
         default:

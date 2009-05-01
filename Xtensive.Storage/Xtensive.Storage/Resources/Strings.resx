@@ -641,12 +641,10 @@ Actions:
   <data name="LogSynchronizingSchemaInXMode" xml:space="preserve">
     <value>Synchronizing schema in {0} mode</value>
   </data>
-  <data name="LogTargetSchemaX" xml:space="preserve">
-    <value>Target schema:
-{0}</value>
+  <data name="LogTargetSchema" xml:space="preserve">
+    <value>Target schema:</value>
   </data>
-  <data name="LogExtractedSchemaX" xml:space="preserve">
-    <value>Extracted schema:
-{0}</value>
+  <data name="LogExtractedSchema" xml:space="preserve">
+    <value>Extracted schema:</value>
   </data>
 </root>

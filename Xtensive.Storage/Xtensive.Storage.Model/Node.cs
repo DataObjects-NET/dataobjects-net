@@ -19,7 +19,6 @@ namespace Xtensive.Storage.Model
   ///An abstract base class for model node.
   /// </summary>
   [Serializable]
-  [DebuggerDisplay("{Name}")]
   public abstract class Node
     : LockableBase,
       IChangeNotifier,

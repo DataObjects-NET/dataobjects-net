@@ -44,7 +44,19 @@ namespace Xtensive.Storage.Upgrade
         context.OriginalConfiguration = configuration;
         context.Stage = UpgradeStage.Validation;
         BuildUpgradeHandlers();
-        Stage(UpgradeStage.Validation);
+
+        try {
+          Stage(UpgradeStage.Validation);
+        }
+        catch (Exception e) {
+          if (GetInnermostException(e) is SchemaSynchronizationException) {
+            if (context.SchemaUpgradeActions.OfType<RemoveNodeAction>().Any())
+              throw; // There must be no any removes to proceed further 
+                     // (i.e. schema should be clean)
+          }
+          else
+            throw;
+        }
         Stage(UpgradeStage.Upgrading);
         Stage(UpgradeStage.Final);
         return context.Domain;
@@ -128,6 +140,15 @@ namespace Xtensive.Storage.Upgrade
       return 
         handlers.ContainsKey(assembly) 
         && handlers[assembly].IsTypeAvailable(type, context.Stage);
+    }
+
+    private static Exception GetInnermostException(Exception exception)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(exception, "exception");
+      var current = exception;
+      while (current.InnerException!=null)
+        current = current.InnerException;
+      return current;
     }
 
     private static void BuildSchemaHints()
