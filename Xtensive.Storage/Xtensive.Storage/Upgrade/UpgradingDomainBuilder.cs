@@ -128,12 +128,10 @@ namespace Xtensive.Storage.Upgrade
             ? name
             : context.UpgradeHandlers[assembly].GetTypeName(type);
         },
-        SchemaReadyHandler = (sourceSchema, targetSchema) => {
-          context.SourceSchema = sourceSchema;
-          context.TargetSchema = targetSchema;
+        SchemaReadyHandler = (extractedSchema, targetSchema) => {
           context.SchemaHints = null;
           if (context.Stage==UpgradeStage.Upgrading)
-            BuildSchemaHints();
+            BuildSchemaHints(extractedSchema, targetSchema);
           return context.SchemaHints;
         },
         UpgradeActionsReadyHandler = (schemaDifference, schemaUpgradeActions) => {
@@ -156,10 +154,10 @@ namespace Xtensive.Storage.Upgrade
       return current;
     }
 
-    private static void BuildSchemaHints()
+    private static void BuildSchemaHints(StorageInfo extractedSchema, StorageInfo targetSchema)
     {
       var context = UpgradeContext.Demand();
-      context.SchemaHints = new HintSet(context.SourceSchema, context.TargetSchema);
+      context.SchemaHints = new HintSet(extractedSchema, targetSchema);
       foreach (var hint in context.Hints)
         hint.Translate(context.SchemaHints);
     }

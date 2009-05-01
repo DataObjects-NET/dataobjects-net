@@ -13,7 +13,7 @@ using Xtensive.Modelling.Attributes;
 namespace Xtensive.Storage.Indexing.Model
 {
   /// <summary>
-  /// Indexing storage.
+  /// Storage schema.
   /// </summary>
   [Serializable]
   public sealed class StorageInfo : NodeBase<StorageInfo>,

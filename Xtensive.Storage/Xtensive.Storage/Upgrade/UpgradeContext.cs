@@ -74,18 +74,6 @@ namespace Xtensive.Storage.Upgrade
     public SetSlim<UpgradeHint> Hints { get; private set; }
 
     /// <summary>
-    /// Gets the source storage model
-    /// at the current upgrade stage.
-    /// </summary>
-    public StorageInfo SourceSchema { get; internal set; }
-
-    /// <summary>
-    /// Gets the target storage model
-    /// at the current upgrade stage.
-    /// </summary>
-    public StorageInfo TargetSchema { get; internal set; }
-
-    /// <summary>
     /// Gets the schema upgrade hints.
     /// </summary>
     public HintSet SchemaHints { get; internal set; }

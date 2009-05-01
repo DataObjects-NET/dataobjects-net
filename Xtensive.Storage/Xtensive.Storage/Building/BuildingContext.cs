@@ -26,9 +26,6 @@ namespace Xtensive.Storage.Building
   public sealed class BuildingContext
   {
     private readonly List<Exception> errors = new List<Exception>();
-
-    #region Internal properties
-
     internal HashSet<Type> SkippedTypes { get; private set; }
     internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
     internal CircularReferenceFinder<Type> CircularReferenceFinder { get; private set; }
@@ -37,15 +34,29 @@ namespace Xtensive.Storage.Building
     internal Domain SystemDomain {get; set;}
     internal object ModelUnlockKey { get; set;}
 
-    #endregion
+    #region Current property & Demand() method
 
     /// <summary>
     /// Gets the current <see cref="BuildingContext"/>.
     /// </summary>
-    public static BuildingContext Current 
-    {
+    public static BuildingContext Current {
       get { return BuildingScope.Context; }
     }
+
+    /// <summary>
+    /// Gets the current <see cref="BuildingContext"/>, or throws <see cref="InvalidOperationException"/>, if active context is not found.
+    /// </summary>
+    /// <returns>Current context.</returns>
+    /// <exception cref="InvalidOperationException"><see cref="BuildingContext.Current"/> <see cref="BuildingContext"/> is <see langword="null" />.</exception>
+    public static BuildingContext Demand()
+    {
+      var currentContext = Current;
+      if (currentContext==null)        
+        throw Exceptions.ContextRequired<BuildingContext,BuildingScope>();
+      return currentContext;
+    }
+
+    #endregion
 
     /// <summary>
     /// Gets the building stage.

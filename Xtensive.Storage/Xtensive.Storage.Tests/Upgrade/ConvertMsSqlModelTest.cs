@@ -13,8 +13,6 @@ namespace Xtensive.Storage.Tests.Upgrade
   [TestFixture]
   public class ConvertMsSqlModelTest : ConvertDomainModelTest
   {
-    protected override StorageInfo Schema { get { return StorageSchema; } }
-
     [SetUp]
     public override void SetUp()
     {

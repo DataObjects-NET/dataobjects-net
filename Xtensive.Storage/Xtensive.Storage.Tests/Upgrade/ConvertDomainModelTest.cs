@@ -22,41 +22,14 @@ namespace Xtensive.Storage.Tests.Upgrade
   [TestFixture]
   public class ConvertDomainModelTest
   {
-    protected virtual StorageInfo Schema { get { return DomainSchema; } }
-
-    protected StorageInfo DomainSchema { get; set; }
-
-    protected StorageInfo StorageSchema { get; set; }
-
     protected Domain Domain { get; set; }
+    protected StorageInfo Schema { get { return Domain.Schema; } }
 
     protected void BuildDomain(string protocol)
     {
-      var configuration = DomainConfigurationFactory.Create(protocol);
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), typeof (A).Namespace);
-
-      var domain = Domain.Build(configuration);
-      var domainHandler = domain.Handlers.DomainHandler;
-      using (var connection = (SqlConnection) ((DomainHandler) domainHandler).ConnectionProvider
-        .CreateConnection(configuration.ConnectionInfo.ToString())) {
-        var server = connection.Driver.ServerInfo;
-        var sqlModel = new SqlModelProvider(connection).Build();
-        var domainModel = domain.Model;
-
-        StorageSchema =
-          new SqlModelConverter(
-            sqlModel.DefaultServer.DefaultCatalog.DefaultSchema,
-            server)
-            .GetConversionResult();
-
-        DomainSchema = new DomainModelConverter(
-          true, domain.NameBuilder.BuildForeignKeyName,
-          false, domain.NameBuilder.BuildForeignKeyName,
-          IsGeneratorPersistent)
-          .Convert(domainModel, StorageSchema.Name);
-
-        Domain = domain;
-      }
+      var dc = DomainConfigurationFactory.Create(protocol);
+      dc.Types.Register(Assembly.GetExecutingAssembly(), typeof (A).Namespace);
+      Domain  = Domain.Build(dc);
     }
     
     [SetUp]
@@ -122,7 +95,6 @@ namespace Xtensive.Storage.Tests.Upgrade
           && generatorInfo.TupleDescriptor[0]==typeof (Guid)));
       return !isNotPersistent;
     }
-
   }
 }
 

@@ -25,11 +25,7 @@ namespace Xtensive.Storage.Building
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="buildingContext">The context to activate.</param>
-    public BuildingScope(BuildingContext buildingContext)
+    internal BuildingScope(BuildingContext buildingContext)
       : base(buildingContext)
     {
     }

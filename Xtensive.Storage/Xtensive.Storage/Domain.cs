@@ -18,6 +18,7 @@ using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Model;
@@ -81,6 +82,16 @@ namespace Xtensive.Storage
     /// Gets the domain model.
     /// </summary>
     public DomainModel Model { get; internal set; }
+
+    /// <summary>
+    /// Gets the storage schema.
+    /// </summary>
+    public StorageInfo Schema { get; internal set; }
+
+    /// <summary>
+    /// Gets the extracted storage schema.
+    /// </summary>
+    public StorageInfo ExtractedSchema { get; internal set; }
 
     /// <summary>
     /// Gets the handler factory.

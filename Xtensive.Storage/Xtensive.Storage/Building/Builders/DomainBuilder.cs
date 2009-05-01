@@ -220,16 +220,29 @@ namespace Xtensive.Storage.Building.Builders
     private static void SynchronizeSchema(SchemaUpgradeMode schemaUpgradeMode)
     {
       var context = BuildingContext.Current;
+      var domain = context.Domain;
       using (Log.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
         var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
+        
+        // Target schema 
         var targetSchema = upgradeHandler.GetTargetSchema();
+        domain.Schema = ((StorageInfo) targetSchema.Clone(null, StorageInfo.DefaultName));
+        domain.Schema.Lock();
+        // Dumping target schema
         Log.Info(Strings.LogTargetSchema);
         if (Log.IsLogged(LogEventTypes.Info))
           targetSchema.Dump();
+        
+        // Extracted schema 
         var extractedSchema = upgradeHandler.GetExtractedSchema();
+        domain.ExtractedSchema = ((StorageInfo) extractedSchema.Clone(null, StorageInfo.DefaultName));
+        domain.ExtractedSchema.Lock();
+        // Dumping extracted schema
         Log.Info(Strings.LogExtractedSchema);
         if (Log.IsLogged(LogEventTypes.Info))
           extractedSchema.Dump();
+
+        // Hints
         HintSet hints = null;
         if (context.BuilderConfiguration.SchemaReadyHandler!=null)
           hints = context.BuilderConfiguration.SchemaReadyHandler.Invoke(extractedSchema, targetSchema);
