@@ -263,21 +263,19 @@ namespace Xtensive.Storage.Building.Builders
         UpgradingDomainBuilder.OnUpgradeActionsReady((NodeDifference) result.Difference, result.UpgradeActions);
 
         switch (schemaUpgradeMode) {
-        case SchemaUpgradeMode.Recreate:
-        case SchemaUpgradeMode.Upgrade:
-          upgradeHandler.UpgradeSchema(result.UpgradeActions, targetSchema);
-          break;
         case SchemaUpgradeMode.ValidateExact:
           if (result.Status!=SchemaComparisonStatus.Equal)
             throw new SchemaSynchronizationException(
               Strings.ExExtractedSchemaIsNotEqualToTheTargetSchema);
-          upgradeHandler.UpgradeSchema(result.UpgradeActions, targetSchema);
           break;
         case SchemaUpgradeMode.ValidateCompatible:
           if (result.Status!=SchemaComparisonStatus.Equal &&
             result.Status!=SchemaComparisonStatus.TargetIsSubset)
             throw new SchemaSynchronizationException(
               Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema);
+          break;
+        case SchemaUpgradeMode.Recreate:
+        case SchemaUpgradeMode.Upgrade:
           upgradeHandler.UpgradeSchema(result.UpgradeActions, targetSchema);
           break;
         case SchemaUpgradeMode.UpgradeSafely:

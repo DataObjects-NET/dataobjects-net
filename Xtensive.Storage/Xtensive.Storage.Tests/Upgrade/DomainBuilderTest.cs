@@ -60,18 +60,18 @@ namespace Xtensive.Storage.Tests.Upgrade
       BuildDomain(SchemaUpgradeMode.ValidateCompatible, typeof (A));
       BuildDomain(SchemaUpgradeMode.ValidateCompatible, typeof (A), typeof (B));
 
-      AssertEx.Throws<AggregateException>(() =>
+      AssertEx.Throws<SchemaSynchronizationException>(() =>
         BuildDomain(SchemaUpgradeMode.ValidateCompatible, typeof (A), typeof (B), typeof (C)));
 
       BuildDomain(SchemaUpgradeMode.Upgrade, typeof (A));
 
       Assert.AreEqual(aId, GetTypeId(typeof (A)));
 
-      AssertEx.Throws<AggregateException>(() =>
+      AssertEx.Throws<SchemaSynchronizationException>(() =>
         BuildDomain(SchemaUpgradeMode.ValidateCompatible, typeof (A), typeof (B)));
 
       BuildDomain(SchemaUpgradeMode.Recreate, typeof(A), typeof (B));
-      AssertEx.Throws<AggregateException>(() =>
+      AssertEx.Throws<SchemaSynchronizationException>(() =>
         BuildDomain(SchemaUpgradeMode.UpgradeSafely, typeof (A)));
     }
 
