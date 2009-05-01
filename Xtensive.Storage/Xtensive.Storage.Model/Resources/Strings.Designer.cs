@@ -124,6 +124,15 @@ namespace Xtensive.Storage.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} ({1}).
+        /// </summary>
+        internal static string NodeFormat {
+            get {
+                return ResourceManager.GetString("NodeFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TypeId for type {0} is already assigned..
         /// </summary>
         internal static string TypeIdForTypeXIsAlreadyAssigned {
@@ -147,6 +156,15 @@ namespace Xtensive.Storage.Model.Resources {
         internal static string TypeXIsNotRegistered {
             get {
                 return ResourceManager.GetString("TypeXIsNotRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;Unnamed&gt;.
+        /// </summary>
+        internal static string UnnamedNodeDisplayName {
+            get {
+                return ResourceManager.GetString("UnnamedNodeDisplayName", resourceCulture);
             }
         }
     }

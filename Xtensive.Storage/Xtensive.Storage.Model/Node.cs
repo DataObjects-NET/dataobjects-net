@@ -10,6 +10,8 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Notifications;
+using Xtensive.Core.Reflection;
+using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
 {
@@ -93,7 +95,8 @@ namespace Xtensive.Storage.Model
     /// <inheritdoc/>
     public override string ToString()
     {
-      return name;
+      return string.Format(Strings.NodeFormat, 
+        name ?? Strings.UnnamedNodeDisplayName, GetType().GetShortName());
     }
 
 

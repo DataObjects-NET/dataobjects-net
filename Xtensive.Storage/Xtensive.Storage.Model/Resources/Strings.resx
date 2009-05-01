@@ -147,4 +147,10 @@
   <data name="ExTypeIdIsNotAssignedForTypeX" xml:space="preserve">
     <value>TypeId is not assigned for type '{0}'.</value>
   </data>
+  <data name="NodeFormat" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="UnnamedNodeDisplayName" xml:space="preserve">
+    <value>&lt;Unnamed&gt;</value>
+  </data>
 </root>
