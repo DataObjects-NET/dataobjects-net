@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       get {
         var context = UpgradeContext.Current;
         return (
-          from type in context.Configuration.Types
+          from type in context.OriginalConfiguration.Types
           where type.Namespace.StartsWith(GetType().Namespace)
           select type
           ).Any();
@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     public override bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)
     {
-      string suffix = "Model" + RunningVersion;
+      string suffix = ".Model" + RunningVersion;
       var originalNamespace = type.Namespace;
       var nameSpace = originalNamespace.TryCutSuffix(suffix);
       return nameSpace!=originalNamespace 
@@ -131,7 +131,8 @@ namespace Xtensive.Storage.Tests.Upgrade
     public override string GetTypeName(Type type)
     {
       string suffix = "Model" + RunningVersion;
-      return type.Namespace.TryCutSuffix(suffix);
+      var ns = type.Namespace.TryCutSuffix(suffix);
+      return ns + type.Name;
     }
   }
 

@@ -71,15 +71,15 @@ namespace Xtensive.Storage.Upgrade
     {
       var context = UpgradeContext.Current;
       switch (context.Stage) {
-      case UpgradeStage.Validation:
-        break;
-      case UpgradeStage.Upgrading:
-        AddUpgradeHints();
-        break;
-      case UpgradeStage.Final:
-        break;
-      default:
-        throw new ArgumentOutOfRangeException("context.Stage");
+        case UpgradeStage.Validation:
+          break;
+        case UpgradeStage.Upgrading:
+          AddUpgradeHints();
+          break;
+        case UpgradeStage.Final:
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("context.Stage");
       }
     }
 
@@ -89,16 +89,17 @@ namespace Xtensive.Storage.Upgrade
     {
       var context = UpgradeContext.Current;
       switch (context.Stage) {
-      case UpgradeStage.Validation:
-        CheckMetadata();
-        break;
-      case UpgradeStage.Upgrading:
-        UpdateMetadata();
-        break;
-      case UpgradeStage.Final:
-        break;
-      default:
-        throw new ArgumentOutOfRangeException("context.Stage");
+        case UpgradeStage.Validation:
+          CheckMetadata();
+          break;
+        case UpgradeStage.Upgrading:
+          UpdateMetadata();
+          OnUpgrade();
+          break;
+        case UpgradeStage.Final:
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("context.Stage");
       }
     }
 
@@ -240,7 +241,7 @@ namespace Xtensive.Storage.Upgrade
     /// <returns>The original name of the recycled type.</returns>
     protected virtual string GetOriginalName(Type recycledType)
     {
-      return TryStripRecycledSuffix(recycledType.Namespace) + recycledType.Name;
+      return TryStripRecycledSuffix(recycledType.Namespace) + "." + recycledType.Name;
     }
 
     /// <summary>

@@ -180,7 +180,7 @@ namespace Xtensive.Storage.Upgrade
           && !type.IsAbstract
           && type.IsClass
           && type!=typeof(UpgradeHandler)
-        let handler = (IUpgradeHandler) type.Activate(ArrayUtils<Type>.EmptyArray, ArrayUtils<Type>.EmptyArray)
+        let handler = (IUpgradeHandler) type.Activate(null)
         where handler!=null && handler.IsEnabled
         group handler by assembly;
 
