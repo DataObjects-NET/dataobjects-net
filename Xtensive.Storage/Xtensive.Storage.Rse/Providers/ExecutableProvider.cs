@@ -235,8 +235,7 @@ namespace Xtensive.Storage.Rse.Providers
     {
       if (Origin==null)
         return;
-      sb.Append(new string(' ', indent))
-        .AppendFormat(ToString_Origin, Origin.TitleToString())
+      sb.Append(string.Format(ToString_Origin, Origin.TitleToString()).Indent(indent))
         .AppendLine();
     }
 

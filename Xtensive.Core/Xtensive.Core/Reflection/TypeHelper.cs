@@ -605,7 +605,7 @@ namespace Xtensive.Core.Reflection
       if (arguments==null)
         arguments = ArrayUtils<Type>.EmptyArray;
       if (arguments.Length > 0) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.Append(TrimGenericSuffix(result));
         sb.Append("<");
         string comma = "";
@@ -619,7 +619,7 @@ namespace Xtensive.Core.Reflection
         result = sb.ToString();
       }
       if (type.IsArray) {
-        StringBuilder sb = new StringBuilder(result);
+        var sb = new StringBuilder(result);
         Type elementType = type;
         while (elementType.IsArray) {
           sb.Append("[");

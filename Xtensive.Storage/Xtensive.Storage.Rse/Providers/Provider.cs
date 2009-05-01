@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Rse.Providers
       AppendTitleTo(sb, indent);
       indent = indent + ToString_IndentSize;
       AppendDescriptionTo(sb, indent);
-      foreach (Provider source in Sources)
+      foreach (var source in Sources)
         source.AppendBodyTo(sb, indent);
     }
 
@@ -145,8 +145,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// <param name="indent">The indent.</param>
     protected internal void AppendTitleTo(StringBuilder sb, int indent)
     {      
-      sb.Append(new string(' ', indent))
-        .Append(TitleToString())
+      sb.Append(TitleToString().Indent(indent))
         .AppendLine();
     }
 

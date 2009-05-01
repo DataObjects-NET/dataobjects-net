@@ -274,7 +274,7 @@ namespace Xtensive.Core.Linq
     /// <returns>The name of the type.</returns>
     protected virtual string GetTypeName(Type type)
     {
-      string name = type.Name;
+      string name = type.GetShortName();
       name = name.Replace('+', '.');
       
       if (name.IndexOf("__DisplayClass")>0 && 
@@ -286,24 +286,6 @@ namespace Xtensive.Core.Linq
         return string.Format("@<{0}>",
           (from pi in type.GetProperties() select pi.Name).ToCommaDelimitedString());
 
-      int iGeneneric = name.IndexOf('`');
-      if (iGeneneric > 0)
-        name = name.Substring(0, iGeneneric);
-
-      if (type.IsGenericType || type.IsGenericTypeDefinition) {
-        var sb = new StringBuilder();
-        sb.Append(name);
-        sb.Append("<");
-        Type[] args = type.GetGenericArguments();
-        for (int i = 0, n = args.Length; i < n; i++) {
-          if (i > 0)
-            sb.Append(",");
-          if (type.IsGenericType)
-            sb.Append(GetTypeName(args[i]));
-        }
-        sb.Append(">");
-        name = sb.ToString();
-      }
       return name;
     }
 
