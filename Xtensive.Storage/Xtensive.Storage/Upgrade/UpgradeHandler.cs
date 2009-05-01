@@ -216,7 +216,7 @@ namespace Xtensive.Storage.Upgrade
       var context = UpgradeContext.Demand();
       var recycled =
         from t in Assembly.GetTypes()
-        where typeof (Entity).IsAssignableFrom(t)
+        where context.OriginalConfiguration.Types.Contains(t)
         let a = t.GetAttribute<RecycledAttribute>(AttributeSearchOptions.InheritNone)
         where a!=null
         select new {Type = t, Attribute = a};
