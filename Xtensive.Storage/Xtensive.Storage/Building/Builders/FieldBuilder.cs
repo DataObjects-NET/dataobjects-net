@@ -64,16 +64,14 @@ namespace Xtensive.Storage.Building.Builders
     public static FieldDef DefineField(TypeDef typeDef, PropertyInfo propertyInfo)
     {
       var context = BuildingContext.Current;
-      Log.Info("Defining field '{0}'", propertyInfo.Name);
+      Log.Info(Strings.LogDefiningFieldX, propertyInfo.Name);
 
       ValidateValueType(propertyInfo.PropertyType, typeDef.UnderlyingType);
 
       // We do not support "persistent" indexers
       var indexParameters = propertyInfo.GetIndexParameters();
-
       if (indexParameters.Length > 0)
         throw new DomainBuilderException(Strings.ExIndexedPropertiesAreNotSupported);
-
 
       var fieldDef = new FieldDef(propertyInfo);
       fieldDef.Name = context.NameBuilder.Build(fieldDef);
@@ -104,7 +102,7 @@ namespace Xtensive.Storage.Building.Builders
     /// <param name="fieldDef">The field definition.</param>
     public static void BuildDeclaredField(TypeInfo type, FieldDef fieldDef)
     {
-      Log.Info("Building declared field '{0}.{1}'", type.Name, fieldDef.Name);
+      Log.Info(Strings.LogBuildingDeclaredFieldXY, type.Name, fieldDef.Name);
 
       var field = new FieldInfo(type, fieldDef.Attributes)
         {
@@ -201,7 +199,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void BuildInheritedField(TypeInfo type, FieldInfo inheritedField)
     {
-      Log.Info("Building inherited field '{0}.{1}'", type.Name, inheritedField.Name);
+      Log.Info(Strings.LogBuildingInheritedFieldXY, type.Name, inheritedField.Name);
       var field = inheritedField.Clone();
       type.Fields.Add(field);
       field.ReflectedType = type;
@@ -217,7 +215,7 @@ namespace Xtensive.Storage.Building.Builders
     public static void BuildInterfaceField(TypeInfo type, FieldInfo implField, FieldDef fieldDef)
     {
       string name = fieldDef!=null ? fieldDef.Name : implField.Name;
-      Log.Info("Building interface field '{0}.{1}'", type.Name, name);
+      Log.Info(Strings.LogBuildingInterfaceFieldXY, type.Name, name);
       var field = implField.Clone();
       field.Name = name;
       field.ReflectedType = type;

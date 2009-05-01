@@ -152,7 +152,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       var hierarchyDef = BuildingContext.Current.Definition.FindHierarchy(typeDef);
       if (hierarchyDef==null) {
-        Log.Info("Skipping entity '{0}' as it does not belong to any hierarchy thus it cannot be persistent.",
+        Log.Info(Strings.LogSkippingEntityXAsItDoesNotBelongToAnyHierarchyThusItCannotBePersistent,
           typeDef.UnderlyingType);
         BuildingContext.Current.SkippedTypes.Add(typeDef.UnderlyingType);
         return;

@@ -781,6 +781,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Multiple hierarchy attributes are not allowed..
+        /// </summary>
+        internal static string ExMultipleHierarchyAttributesAreNotAllowed {
+            get {
+                return ResourceManager.GetString("ExMultipleHierarchyAttributesAreNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Name {0} is invalid..
         /// </summary>
         internal static string ExNameXIsInvalid {
@@ -1367,6 +1376,42 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Building declared field &apos;{0}.{1}&apos;.
+        /// </summary>
+        internal static string LogBuildingDeclaredFieldXY {
+            get {
+                return ResourceManager.GetString("LogBuildingDeclaredFieldXY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Building index &apos;{0}&apos;.
+        /// </summary>
+        internal static string LogBuildingIndexX {
+            get {
+                return ResourceManager.GetString("LogBuildingIndexX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Building inherited field &apos;{0}.{1}&apos;.
+        /// </summary>
+        internal static string LogBuildingInheritedFieldXY {
+            get {
+                return ResourceManager.GetString("LogBuildingInheritedFieldXY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Building interface field &apos;{0}.{1}&apos;.
+        /// </summary>
+        internal static string LogBuildingInterfaceFieldXY {
+            get {
+                return ResourceManager.GetString("LogBuildingInterfaceFieldXY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Building {0}.
         /// </summary>
         internal static string LogBuildingX {
@@ -1401,6 +1446,33 @@ namespace Xtensive.Storage.Resources {
         internal static string LogCreatingX {
             get {
                 return ResourceManager.GetString("LogCreatingX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Defining field &apos;{0}&apos;.
+        /// </summary>
+        internal static string LogDefiningFieldX {
+            get {
+                return ResourceManager.GetString("LogDefiningFieldX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Defining hierarchy for type &apos;{0}&apos;.
+        /// </summary>
+        internal static string LogDefiningHierarchyForTypeX {
+            get {
+                return ResourceManager.GetString("LogDefiningHierarchyForTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Defining indexes..
+        /// </summary>
+        internal static string LogDefiningIndexes {
+            get {
+                return ResourceManager.GetString("LogDefiningIndexes", resourceCulture);
             }
         }
         
@@ -1455,6 +1527,15 @@ namespace Xtensive.Storage.Resources {
         internal static string LogSessionBoundMethodXOfTypeY {
             get {
                 return ResourceManager.GetString("LogSessionBoundMethodXOfTypeY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Skipping entity &apos;{0}&apos; as it does not belong to any hierarchy thus it cannot be persistent..
+        /// </summary>
+        internal static string LogSkippingEntityXAsItDoesNotBelongToAnyHierarchyThusItCannotBePersistent {
+            get {
+                return ResourceManager.GetString("LogSkippingEntityXAsItDoesNotBelongToAnyHierarchyThusItCannotBePersistent", resourceCulture);
             }
         }
         

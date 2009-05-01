@@ -650,4 +650,31 @@ Actions:
   <data name="ExStructuresDoNotSupportFieldsOfTypeX" xml:space="preserve">
     <value>Structures do not support fields of type '{0}'.</value>
   </data>
+  <data name="ExMultipleHierarchyAttributesAreNotAllowed" xml:space="preserve">
+    <value>Multiple hierarchy attributes are not allowed.</value>
+  </data>
+  <data name="LogDefiningHierarchyForTypeX" xml:space="preserve">
+    <value>Defining hierarchy for type '{0}'</value>
+  </data>
+  <data name="LogDefiningFieldX" xml:space="preserve">
+    <value>Defining field '{0}'</value>
+  </data>
+  <data name="LogBuildingDeclaredFieldXY" xml:space="preserve">
+    <value>Building declared field '{0}.{1}'</value>
+  </data>
+  <data name="LogBuildingInheritedFieldXY" xml:space="preserve">
+    <value>Building inherited field '{0}.{1}'</value>
+  </data>
+  <data name="LogBuildingInterfaceFieldXY" xml:space="preserve">
+    <value>Building interface field '{0}.{1}'</value>
+  </data>
+  <data name="LogDefiningIndexes" xml:space="preserve">
+    <value>Defining indexes.</value>
+  </data>
+  <data name="LogBuildingIndexX" xml:space="preserve">
+    <value>Building index '{0}'</value>
+  </data>
+  <data name="LogSkippingEntityXAsItDoesNotBelongToAnyHierarchyThusItCannotBePersistent" xml:space="preserve">
+    <value>Skipping entity '{0}' as it does not belong to any hierarchy thus it cannot be persistent.</value>
+  </data>
 </root>

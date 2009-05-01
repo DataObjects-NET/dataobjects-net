@@ -13,12 +13,14 @@ using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Building.Builders
 {
   internal static class HierarchyBuilder
   {
+    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     public static HierarchyDef TryDefineHierarchy(TypeDef type)
     {
       if (!type.IsEntity)
@@ -30,56 +32,59 @@ namespace Xtensive.Storage.Building.Builders
         return null;
 
       if (attributes.Length!=1)
-        throw new DomainBuilderException("Multiple hierarchy attributes are not allowed.");
+        throw new DomainBuilderException(Strings.ExMultipleHierarchyAttributesAreNotAllowed);
 
-      TypeDef root = BuildingContext.Current.Definition.FindRoot(type);
+      var root = BuildingContext.Current.Definition.FindRoot(type);
       if (root!=null)
         return null;
 
-      HierarchyDef hierarchy = new HierarchyDef(type);
+      var hierarchy = new HierarchyDef(type);
       AttributeProcessor.Process(hierarchy, type, attributes[0]);
       return hierarchy;
     }
 
+    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     public static HierarchyDef DefineHierarchy(TypeDef typeDef, InheritanceSchema inheritanceSchema)
     {
-      BuildingContext context = BuildingContext.Current;
+      var context = BuildingContext.Current;
 
-      Log.Info("Defining hierarchy for type '{0}'", typeDef.UnderlyingType.FullName);
+      Log.Info(Strings.LogDefiningHierarchyForTypeX, typeDef.UnderlyingType.FullName);
 
       TypeDef root = context.Definition.FindRoot(typeDef);
       if (root!=null)
         throw new DomainBuilderException(
-          string.Format(Resources.Strings.ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY,
+          string.Format(Strings.ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY,
           typeDef.UnderlyingType.FullName,  root.UnderlyingType.FullName));
 
-      foreach (HierarchyDef hierarchy in context.Definition.Hierarchies)
+      foreach (var hierarchy in context.Definition.Hierarchies)
         if (hierarchy.Root.UnderlyingType.IsSubclassOf(typeDef.UnderlyingType)) 
           throw new DomainBuilderException(
-            string.Format(Resources.Strings.ExXDescendantIsAlreadyARootOfAnotherHierarchy, hierarchy.Root.UnderlyingType));
+            string.Format(Strings.ExXDescendantIsAlreadyARootOfAnotherHierarchy, hierarchy.Root.UnderlyingType));
 
       return 
         new HierarchyDef(typeDef) {Schema = inheritanceSchema};
     }
 
+    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     public static HierarchyInfo BuildHierarchy(TypeInfo root, HierarchyDef hierarchyDef)
     {
-      KeyInfo ki = new KeyInfo();
+      var ki = new KeyInfo();
 
       foreach (KeyValuePair<KeyField, Direction> pair in hierarchyDef.KeyFields) {
         FieldInfo field;
         if (!root.Fields.TryGetValue(pair.Key.Name, out field))
           throw new DomainBuilderException(
-            string.Format(Resources.Strings.ExKeyFieldXWasNotFoundInTypeY, pair.Key.Name, root.Name));
+            string.Format(Strings.ExKeyFieldXWasNotFoundInTypeY, pair.Key.Name, root.Name));
 
         ki.Fields.Add(field, pair.Value);
       }
 
       var context = BuildingContext.Current;
-      GeneratorInfo gi = context.Model.Generators[hierarchyDef.KeyGenerator, ki];
+      var gi = context.Model.Generators[hierarchyDef.KeyGenerator, ki];
       if (gi == null) {
-        gi = new GeneratorInfo(hierarchyDef.KeyGenerator, ki);
-        gi.Name = root.Name;
+        gi = new GeneratorInfo(hierarchyDef.KeyGenerator, ki) {
+          Name = root.Name
+        };
         if (hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize > 0)
           gi.CacheSize = hierarchyDef.KeyGeneratorCacheSize.Value;
         else
@@ -93,20 +98,21 @@ namespace Xtensive.Storage.Building.Builders
 
       if (hierarchyDef.KeyGenerator == typeof(KeyGenerator)) {
         if (ki.Fields.Count > 2)
-          throw new DomainBuilderException(Resources.Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
+          throw new DomainBuilderException(Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
         if (ki.Fields.Count==2 && !ki.Fields[1].Key.IsSystem)
-          throw new DomainBuilderException(Resources.Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
+          throw new DomainBuilderException(Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
       }
 
-      HierarchyInfo hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, ki, gi);
-      hierarchy.Name = root.Name;
+      var hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, ki, gi) {
+        Name = root.Name
+      };
       context.Model.Hierarchies.Add(hierarchy);
       return hierarchy;
     }
 
     public static void BuildHierarchyColumns(HierarchyInfo hierarchy)
     {
-      DirectionCollection<ColumnInfo> columnsCollection = hierarchy.Root.Indexes.PrimaryIndex.KeyColumns;
+      var columnsCollection = hierarchy.Root.Indexes.PrimaryIndex.KeyColumns;
 
       for (int i = 0; i < columnsCollection.Count; i++)
         hierarchy.KeyInfo.Columns.Add(columnsCollection[i].Key);
