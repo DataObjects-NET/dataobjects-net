@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     public override bool CanUpgradeFrom(string oldVersion)
     {
-      return oldVersion==null || new Version(oldVersion) < new Version(RunningVersion);
+      return oldVersion==null || double.Parse(oldVersion) <= double.Parse(RunningVersion);
     }
     
     protected override void AddUpgradeHints()

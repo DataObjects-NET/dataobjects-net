@@ -102,12 +102,6 @@ namespace Xtensive.Storage.Upgrade
     /// </summary>
     public ActionSequence SchemaUpgradeActions { get; internal set; }
 
-    /// <summary>
-    /// Gets the <see cref="Domain"/> object built
-    /// at the current upgrade stage.
-    /// </summary>
-    public Domain Domain { get; internal set; }
-
     #region IContext<...> methods
 
     /// <inheritdoc/>

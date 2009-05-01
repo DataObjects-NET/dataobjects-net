@@ -19,6 +19,7 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Resources;
+using Xtensive.Core.Disposing;
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -46,7 +47,7 @@ namespace Xtensive.Storage.Upgrade
         BuildUpgradeHandlers();
 
         try {
-          Stage(UpgradeStage.Validation);
+          BuildStageDomain(UpgradeStage.Validation).DisposeSafely();
         }
         catch (Exception e) {
           if (GetInnermostException(e) is SchemaSynchronizationException) {
@@ -57,14 +58,13 @@ namespace Xtensive.Storage.Upgrade
           else
             throw;
         }
-        Stage(UpgradeStage.Upgrading);
-        Stage(UpgradeStage.Final);
-        return context.Domain;
+        BuildStageDomain(UpgradeStage.Upgrading).DisposeSafely();
+        return BuildStageDomain(UpgradeStage.Final);
       }
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
-    private static void Stage(UpgradeStage stage)
+    private static Domain BuildStageDomain(UpgradeStage stage)
     {
       var context = UpgradeContext.Current;
       var configuration = context.Configuration = context.OriginalConfiguration.Clone();
@@ -78,13 +78,13 @@ namespace Xtensive.Storage.Upgrade
       case UpgradeStage.Validation:
         if (configuration.UpgradeMode==DomainUpgradeMode.Recreate ||
             configuration.UpgradeMode==DomainUpgradeMode.Validate)
-          return; // Nothing to do in these modes here
+          return null; // Nothing to do in these modes here
         schemaUpgradeMode = SchemaUpgradeMode.ValidateCompatible;
         break;
       case UpgradeStage.Upgrading:
         if (configuration.UpgradeMode==DomainUpgradeMode.Recreate ||
             configuration.UpgradeMode==DomainUpgradeMode.Validate)
-          return; // Nothing to do in these modes here
+          return null; // Nothing to do in these modes here
         if (configuration.UpgradeMode==DomainUpgradeMode.PerformSafely)
           schemaUpgradeMode = SchemaUpgradeMode.UpgradeSafely;
         break;
@@ -97,8 +97,8 @@ namespace Xtensive.Storage.Upgrade
       default:
         throw new ArgumentOutOfRangeException("context.Stage");
       }
-      using (DomainBuilder.BuildDomain(configuration, CreateBuilderConfiguration(schemaUpgradeMode))) {
-      };
+      return DomainBuilder.BuildDomain(configuration, 
+        CreateBuilderConfiguration(schemaUpgradeMode));
     }
 
     private static DomainBuilderConfiguration CreateBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode)

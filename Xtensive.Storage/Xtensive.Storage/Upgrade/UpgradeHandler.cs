@@ -11,6 +11,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using System.Linq;
 using Xtensive.Core.Helpers;
+using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Upgrade.Hints;
 
@@ -228,14 +229,19 @@ namespace Xtensive.Storage.Upgrade
     protected virtual void AddAutoHints()
     {
       var context = UpgradeContext.Demand();
-      var recycled =
-        from t in Assembly.GetTypes()
+      var types = Assembly.GetTypes();
+      var registeredTypes = (
+        from t in types
         where context.OriginalConfiguration.Types.Contains(t)
+        select t).ToArray();
+
+      var recycledTypes =
+        from t in registeredTypes
         let a = t.GetAttribute<RecycledAttribute>(AttributeSearchOptions.InheritNone)
         where a!=null
         select new {Type = t, Attribute = a};
 
-      foreach (var r in recycled) {
+      foreach (var r in recycledTypes) {
         var oldName = r.Attribute.OriginalName;
         if (oldName.IsNullOrEmpty())
           oldName = GetOriginalName(r.Type);
@@ -245,6 +251,24 @@ namespace Xtensive.Storage.Upgrade
         }
         context.Hints.Add(new RenameTypeHint(r.Type, oldName));
         // TODO: Add table rename hint as well
+      }
+
+      var recycledProperties =
+        from t in registeredTypes
+        from p in t.GetProperties(BindingFlags.DeclaredOnly 
+          | BindingFlags.Instance
+          | BindingFlags.Public
+          | BindingFlags.NonPublic)
+        let pa = p.GetAttribute<PersistentAttribute>(AttributeSearchOptions.InheritNone)
+        let ra = p.GetAttribute<RecycledAttribute>(AttributeSearchOptions.InheritNone)
+        where pa!=null && ra!=null
+        select new {Property = p, Attribute = ra};
+
+      foreach (var r in recycledProperties) {
+        var oldName = r.Attribute.OriginalName;
+        if (!oldName.IsNullOrEmpty()) {
+          // TODO: Add column rename hint here
+        }
       }
     }
 
