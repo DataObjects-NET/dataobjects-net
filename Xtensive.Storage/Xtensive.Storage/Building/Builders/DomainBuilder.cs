@@ -236,10 +236,12 @@ namespace Xtensive.Storage.Building.Builders
         var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
         var targetSchema = upgradeHandler.GetTargetSchema();
         Log.Info(Strings.LogTargetSchema);
-        targetSchema.Dump();
+        if (Log.IsLogged(LogEventTypes.Info))
+          targetSchema.Dump();
         var extractedSchema = upgradeHandler.GetExtractedSchema();
         Log.Info(Strings.LogExtractedSchema);
-        extractedSchema.Dump();
+        if (Log.IsLogged(LogEventTypes.Info))
+          extractedSchema.Dump();
         UpgradingDomainBuilder.OnSchemasReady(extractedSchema, targetSchema);
         SchemaComparisonResult result;
 
@@ -248,14 +250,16 @@ namespace Xtensive.Storage.Building.Builders
           var emptySchema = new StorageInfo();
           result = SchemaComparer.Compare(extractedSchema, emptySchema, null);
           if (result.Status!=SchemaComparisonStatus.Equal) {
-            Log.Info(Strings.LogClearingComparisonResultX, result);
+            if (Log.IsLogged(LogEventTypes.Info))
+              Log.Info(Strings.LogClearingComparisonResultX, result);
             upgradeHandler.UpgradeSchema(result.UpgradeActions, emptySchema);
             extractedSchema = upgradeHandler.GetExtractedSchema();
           }
         }
 
         result = SchemaComparer.Compare(extractedSchema, targetSchema, null);
-        Log.Info(Strings.LogComparisonResultX, result);
+        if (Log.IsLogged(LogEventTypes.Info))
+          Log.Info(Strings.LogComparisonResultX, result);
         UpgradingDomainBuilder.OnUpgradeActionsReady((NodeDifference) result.Difference, result.UpgradeActions);
 
         switch (schemaUpgradeMode) {

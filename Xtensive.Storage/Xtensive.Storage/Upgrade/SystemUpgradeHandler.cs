@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Upgrade
     {
       var context = UpgradeContext.Current;
 
-      var types = CachedQuery.Execute(() => Query<M.Type>.All).ToArray();
+      var types = Query<M.Type>.All.ToArray();
       var typeByName = new Dictionary<string, M.Type>();
       foreach (var type in types)
         typeByName.Add(type.Name, type);
@@ -112,6 +112,7 @@ namespace Xtensive.Storage.Upgrade
               Strings.ExTypeWithNameXIsNotFoundInMetadata, trh.OldName));
           var newName = TypeIdBuilder.GetTypeName(trh.TargetType);
           typeByName[trh.OldName].Name = newName;
+          // Session.Current.Persist();
           Log.Info(Strings.LogMetadataTypeRenamedXToY, trh.OldName, newName);
         }
       }
@@ -121,7 +122,7 @@ namespace Xtensive.Storage.Upgrade
     {
       var context = UpgradeContext.Current;
 
-      var oldAssemblies = CachedQuery.Execute(() => Query<M.Assembly>.All).ToArray();
+      var oldAssemblies = Query<M.Assembly>.All.ToArray();
       var oldAssemblyByName = new Dictionary<string, M.Assembly>();
       foreach (var oldAssembly in oldAssemblies)
         oldAssemblyByName.Add(oldAssembly.Name, oldAssembly);

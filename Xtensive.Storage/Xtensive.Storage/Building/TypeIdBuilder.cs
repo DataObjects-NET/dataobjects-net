@@ -4,11 +4,12 @@
 // Created by: Alex Kofman
 // Created:    2009.04.14
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Storage.Metadata;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Upgrade;
+using Type=Xtensive.Storage.Metadata.Type;
 
 namespace Xtensive.Storage.Building
 {  
@@ -33,11 +34,13 @@ namespace Xtensive.Storage.Building
     public static void BuildRegularTypeIds()
     {
       var context = BuildingContext.Current;
-      var types = CachedQuery.Execute(() => Query<Type>.All).ToArray();
+      var types = Query<Type>.All.ToArray();
       var typeByName = new Dictionary<string, Type>();
       foreach (var type in types)
         typeByName.Add(type.Name, type);
-      var maxTypeId = types.Count()==0 ? TypeInfo.MinTypeId : types.Max(t => t.TypeId);
+      var nextTypeId = types.Count()==0 
+        ? TypeInfo.MinTypeId 
+        : Math.Max(TypeInfo.MinTypeId, types.Max(t => t.Id) + 1);
 
       foreach (var type in context.Model.Types) {
         if (!type.IsEntity || type.TypeId!=TypeInfo.NoTypeId)
@@ -48,8 +51,9 @@ namespace Xtensive.Storage.Building
           AssignTypeId(type, typeByName[name].Id);
         else {
           // Type is not found in metadata
-          AssignTypeId(type, ++maxTypeId);
+          AssignTypeId(type, nextTypeId++);
           new Type(type.TypeId, name);
+          // Session.Current.Persist();
         }
       }
       context.Model.Types.BuildTypeIdIndex();
