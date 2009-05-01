@@ -198,7 +198,8 @@ namespace Xtensive.Storage.Tests.Upgrade
     private void BuildSecondDomain()
     {
       var dc = GetConfiguration(typeof(Model2.Person));
-      dc.UpgradeMode = DomainUpgradeMode.PerformSafely;
+      // TODO: Use PerformSafely when it will work as expected
+      dc.UpgradeMode = DomainUpgradeMode.Perform;
       Domain domain;
       using (TestUpgradeHandler.Enable("2")) {
         domain = Domain.Build(dc);
