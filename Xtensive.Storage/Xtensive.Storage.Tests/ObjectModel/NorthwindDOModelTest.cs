@@ -33,6 +33,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
       return config;
     }
