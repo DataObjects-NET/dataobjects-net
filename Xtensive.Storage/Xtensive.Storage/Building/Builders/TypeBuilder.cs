@@ -65,6 +65,8 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessSystemTypeAttribute(Type type, TypeDef typeDef)
     {
+      if (type.UnderlyingSystemType.IsInterface || type.IsAbstract)
+        return;
       var attribute = type.GetAttribute<SystemTypeAttribute>(AttributeSearchOptions.Default);
       if (attribute!=null) {
         typeDef.Attributes |= TypeAttributes.System;
