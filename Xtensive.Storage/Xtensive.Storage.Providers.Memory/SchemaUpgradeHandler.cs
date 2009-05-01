@@ -29,20 +29,20 @@ namespace Xtensive.Storage.Providers.Memory
     }
     
     /// <inheritdoc/>
-    public override StorageInfo GetStorageModel()
+    public override StorageInfo GetExtractedSchema()
     {
       return (StorageInfo) StorageView.Model.Clone(null, StorageInfo.DefaultName);
     }
 
     /// <inheritdoc/>
-    public override void UpgradeStorage(ActionSequence actions, StorageInfo newModel)
+    public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo targetSchema)
     {
       StorageView.ClearSchema();
-      StorageView.CreateNewSchema(newModel);
+      StorageView.CreateNewSchema(targetSchema);
     }
 
     /// <inheritdoc/>
-    protected override bool IsGeneratorPersistent(GeneratorInfo generatorInfo)
+    protected override bool IsSchemaBoundGenerator(GeneratorInfo generatorInfo)
     {
       return false;
     }

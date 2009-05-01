@@ -38,9 +38,9 @@ namespace Xtensive.Storage.Providers.MsSql
     }
 
     /// <inheritdoc/>
-    public override void UpgradeStorage(ActionSequence actions, StorageInfo newModel)
+    public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo targetSchema)
     {
-      var upgradeScript = GenerateUpgradeScript(actions);
+      var upgradeScript = GenerateUpgradeScript(upgradeActions);
       if (upgradeScript.Count==0)
         return;
       using (var command = new SqlCommand(Connection)) {
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Providers.MsSql
     }
 
     /// <inheritdoc/>
-    public override StorageInfo GetStorageModel()
+    public override StorageInfo GetExtractedSchema()
     {
       var schema = ExtractStorageSchema();
       var serverInfo = Connection.Driver.ServerInfo;
@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Providers.MsSql
     }
 
     /// <inheritdoc/>
-    protected override bool IsGeneratorPersistent(GeneratorInfo generatorInfo)
+    protected override bool IsSchemaBoundGenerator(GeneratorInfo generatorInfo)
     {
       // TODO: Replace this to KeyGeneratorFactory ?
       return generatorInfo.KeyGeneratorType==typeof (KeyGenerator)

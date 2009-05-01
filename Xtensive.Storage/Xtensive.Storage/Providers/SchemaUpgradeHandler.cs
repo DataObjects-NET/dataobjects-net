@@ -5,17 +5,11 @@
 // Created:    2009.04.06
 
 using System;
-using System.Linq;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Building;
-using Xtensive.Storage.Indexing;
 using Xtensive.Storage.Indexing.Model;
-using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.Modelling.Comparison;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Conversion;
-using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
 
 namespace Xtensive.Storage.Providers
 {
@@ -26,13 +20,11 @@ namespace Xtensive.Storage.Providers
   public abstract class SchemaUpgradeHandler : InitializableHandlerBase
   {
     /// <summary>
-    /// Gets the domain model.
+    /// Gets the target schema.
     /// </summary>
-    /// <returns>The domain model.</returns>
-    public virtual StorageInfo GetDomainModel()
+    /// <returns>The target schema.</returns>
+    public virtual StorageInfo GetTargetSchema()
     {
-      // TODO: Do not compare model name
-
       var buildingContext = BuildingContext.Current;
       var buildForeignKeys =
         (buildingContext.Configuration.ForeignKeyMode
@@ -44,36 +36,33 @@ namespace Xtensive.Storage.Providers
       var domainModelConverter = new DomainModelConverter(
         buildForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName,
         buildHierarchyForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName,
-        IsGeneratorPersistent);
+        IsSchemaBoundGenerator);
 
       return domainModelConverter.Convert(buildingContext.Model, "Model");
     }
 
     /// <summary>
-    /// Gets the storage model.
+    /// Gets the extracted schema.
     /// </summary>
-    /// <returns>The storage model.</returns>
-    public virtual StorageInfo GetStorageModel()
-    {
-      return new StorageInfo();
-    }
+    /// <returns>The extracted schema.</returns>
+    public abstract StorageInfo GetExtractedSchema();
     
     /// <summary>
     /// Upgrades the storage.
     /// </summary>
-    /// <param name="actions">The upgrade actions.</param>
-    /// <param name="newModel">The new model.</param>
-    public abstract void UpgradeStorage(ActionSequence actions, StorageInfo newModel);
+    /// <param name="upgradeActions">The upgrade actions.</param>
+    /// <param name="targetSchema">The target schema.</param>
+    public abstract void UpgradeSchema(ActionSequence upgradeActions, StorageInfo targetSchema);
     
     /// <summary>
-    /// Determines whether specific generator is persistent.
+    /// Determines whether specific generator requires corresponding object in schema.
     /// </summary>
     /// <param name="generatorInfo">The generator info.</param>
     /// <returns>
-    /// <see langword="true"/> if generator is persistent; 
+    /// <see langword="true"/> if generator requires corresponding object in schema.
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    protected abstract bool IsGeneratorPersistent(GeneratorInfo generatorInfo);
+    protected abstract bool IsSchemaBoundGenerator(GeneratorInfo generatorInfo);
     
 
     // Initialization

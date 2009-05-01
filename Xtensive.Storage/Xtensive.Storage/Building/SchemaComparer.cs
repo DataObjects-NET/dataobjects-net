@@ -11,45 +11,45 @@ using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Indexing.Model;
 
-namespace Xtensive.Storage.Upgrade
+namespace Xtensive.Storage.Building
 {
   /// <summary>
-  /// Compare indexing storage models.
+  /// Compares storage models.
   /// </summary>
-  public static class ModelComparer
+  public static class SchemaComparer
   {
     /// <summary>
-    /// Compare models.
+    /// Compares <paramref name="sourceSchema"/> and <paramref name="targetSchema"/>.
     /// </summary>
-    /// <param name="sourceModel">The source model.</param>
-    /// <param name="targetModel">The target model.</param>
-    /// <param name="upgradeHints">The hints.</param>
+    /// <param name="sourceSchema">The source schema.</param>
+    /// <param name="targetSchema">The target schema.</param>
+    /// <param name="hints">The upgrade hints.</param>
     /// <returns>Comparison result.</returns>
-    public static ModelComparisonResult Compare(StorageInfo sourceModel,
-      StorageInfo targetModel, HintSet upgradeHints)
+    public static SchemaComparisonResult Compare(StorageInfo sourceSchema,
+      StorageInfo targetSchema, HintSet hints)
     {
-      if (upgradeHints==null)
-        upgradeHints = new HintSet(sourceModel, targetModel);
+      if (hints==null)
+        hints = new HintSet(sourceSchema, targetSchema);
       var comparer = new Comparer();
-      var difference = comparer.Compare(sourceModel, targetModel, upgradeHints);
+      var difference = comparer.Compare(sourceSchema, targetSchema, hints);
       var actions = new ActionSequence() {
         difference==null 
         ? EnumerableUtils<NodeAction>.Empty 
-        : new Upgrader().GetUpgradeSequence(difference, upgradeHints, comparer)
+        : new Upgrader().GetUpgradeSequence(difference, hints, comparer)
       };
-      return new ModelComparisonResult(difference, actions, upgradeHints, 
-        GetStorageConformity(actions, upgradeHints));
+      return new SchemaComparisonResult(GetComparisonStatus(hints, actions), 
+        hints, difference, actions);
     }
 
-    private static SchemaComparisonStatus GetStorageConformity(ActionSequence upgradeActions, HintSet hints)
+    private static SchemaComparisonStatus GetComparisonStatus(HintSet hints, ActionSequence upgradeActions)
     {
-      var hasRemoveActions = upgradeActions
+      var actions = upgradeActions.Flatten();
+      var hasRemoveActions = actions
         .OfType<RemoveNodeAction>()
         .Any();
-      var hasCreateActions = upgradeActions
+      var hasCreateActions = actions
         .OfType<CreateNodeAction>()
         .Any();
-
       if (hasCreateActions && hasRemoveActions)
         return SchemaComparisonStatus.NotEqual;
       if (hasCreateActions)
@@ -58,6 +58,5 @@ namespace Xtensive.Storage.Upgrade
         return SchemaComparisonStatus.Superset;
       return SchemaComparisonStatus.Equal;
     }
-
   }
 }

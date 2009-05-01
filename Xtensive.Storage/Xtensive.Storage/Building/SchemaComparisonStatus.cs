@@ -4,15 +4,15 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.01
 
-namespace Xtensive.Storage.Upgrade
+namespace Xtensive.Storage.Building
 {
   /// <summary>
-  /// Target and extracted schema comparison status.
+  /// Schema comparison status.
   /// </summary>
   public enum SchemaComparisonStatus
   {
     /// <summary>
-    /// Target schema equal to the extracted schema.
+    /// Target schema is equal to the extracted schema.
     /// </summary>
     Equal = 0,
     /// <summary>

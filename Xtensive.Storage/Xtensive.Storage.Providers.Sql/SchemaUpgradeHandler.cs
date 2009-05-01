@@ -50,13 +50,13 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     /// <exception cref="NotImplementedException">
     /// <c>NotImplementedException</c>.</exception>
-    public override StorageInfo GetStorageModel()
+    public override StorageInfo GetExtractedSchema()
     {
       throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
-    public override void UpgradeStorage(ActionSequence actions, StorageInfo newModel)
+    public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo targetSchema)
     {
       ClearStorageSchema();
       UpgradeStorageSchema();
@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     /// <exception cref="NotImplementedException">
     /// <c>NotImplementedException</c>.</exception>
-    protected override bool IsGeneratorPersistent(GeneratorInfo generatorInfo)
+    protected override bool IsSchemaBoundGenerator(GeneratorInfo generatorInfo)
     {
       throw new NotImplementedException();
     }
