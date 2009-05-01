@@ -403,12 +403,13 @@ namespace Xtensive.Storage.Configuration
       queryCacheSize = configuration.QueryCacheSize;
       sessionPoolSize = configuration.SessionPoolSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
-      sessions = (SessionConfigurationCollection)configuration.Sessions.Clone();
+      sessions = (SessionConfigurationCollection) configuration.Sessions.Clone();
       compilerContainers = (TypeRegistry) configuration.CompilerContainers.Clone();
       upgradeMode = configuration.upgradeMode;
       foreignKeyMode = configuration.foreignKeyMode;
       services = configuration.Services;
-      services.LockItem = configuration.IsLocked;
+      if (services!=null)
+        services.LockItem = configuration.IsLocked;
     }
 
     /// <summary>
