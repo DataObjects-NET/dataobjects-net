@@ -14,6 +14,7 @@ using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -60,7 +61,7 @@ namespace Xtensive.Storage.Upgrade
       var configuration = context.Configuration = context.OriginalConfiguration.Clone();
       context.Stage = stage;
       // Raising "Before upgrade" event
-      foreach (var handler in context.AllUpgradeHandlers)
+      foreach (var handler in context.UpgradeHandlers.Values)
         handler.OnBeforeStage();
 
       var schemaUpgradeMode = SchemaUpgradeMode.Upgrade;
@@ -98,7 +99,7 @@ namespace Xtensive.Storage.Upgrade
     {
       var context = UpgradeContext.Current;
       context.Domain = Domain.Demand();
-      foreach (var handler in context.AllUpgradeHandlers)
+      foreach (var handler in context.UpgradeHandlers.Values)
         handler.OnStage();
     }
 
@@ -106,17 +107,17 @@ namespace Xtensive.Storage.Upgrade
     {
       var context = UpgradeContext.Current;
       var assembly = type.Assembly;
-      bool result = false;
-      foreach (var handler in context.UpgradeHandlers[assembly])
-        result |= handler.IsTypeAvailable(type, context.Stage);
-      return result;
+      var handlers = context.UpgradeHandlers;
+      return 
+        handlers.ContainsKey(assembly) 
+        && handlers[assembly].IsTypeAvailable(type, context.Stage);
     }
 
+    /// <exception cref="DomainBuilderException">More then one enabled handler is provided for some assembly.</exception>
     private static void BuildUpgradeHandlers()
     {
       var context = UpgradeContext.Current;
-      var dHandlers = new Dictionary<Assembly, IList<IUpgradeHandler>>();
-      var lHandlers = new List<IUpgradeHandler>();
+      var handlers = new Dictionary<Assembly, IUpgradeHandler>();
 
       var assemblies = (
         from type in context.OriginalConfiguration.Types
@@ -138,12 +139,11 @@ namespace Xtensive.Storage.Upgrade
 
       // Adding user handlers
       foreach (var group in userHandlers) {
-        var list = new ReadOnlyList<IUpgradeHandler>(group.ToList(), true);
-        foreach (var handler in list) {
-          handler.UpgradeContext = context;
-          lHandlers.Add(handler);
-        }
-        dHandlers.Add(group.Key, list);
+        if (group.Count()>1)
+          throw new DomainBuilderException(string.Format(
+            Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY, 
+            typeof(IUpgradeHandler).GetShortName(), group.Key));
+        handlers.Add(group.Key, group.First());
       }
 
       // Adding default handlers
@@ -154,16 +154,12 @@ namespace Xtensive.Storage.Upgrade
         var handler = new UpgradeHandler {
           UpgradeContext = context
         };
-        lHandlers.Add(handler);
-        var list = new ReadOnlyList<IUpgradeHandler>(new List<IUpgradeHandler>() {handler}, false);
-        dHandlers.Add(assembly, list);
+        handlers.Add(assembly, handler);
       }
 
       // Storing thr result
       context.UpgradeHandlers = 
-        new ReadOnlyDictionary<Assembly, IList<IUpgradeHandler>>(dHandlers, false);
-      context.AllUpgradeHandlers =
-        new ReadOnlyList<IUpgradeHandler>(lHandlers, false);
+        new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers, false);
     }
   }
 }

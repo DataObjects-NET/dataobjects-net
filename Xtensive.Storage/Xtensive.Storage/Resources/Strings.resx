@@ -615,4 +615,7 @@
   <data name="LogMetadataAssemblyUpdatedXFromVersionYToZ" xml:space="preserve">
     <value>Metadata.Assembly updated: {0}, from version {1} to {2}</value>
   </data>
+  <data name="ExMoreThanOneEnabledXIsProvidedForAssemblyY" xml:space="preserve">
+    <value>More than one enabled {0} is provided for assembly "{1}".</value>
+  </data>
 </root>

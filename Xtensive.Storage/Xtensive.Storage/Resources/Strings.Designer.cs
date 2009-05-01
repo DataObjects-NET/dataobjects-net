@@ -673,6 +673,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to More than one enabled {0} is provided for assembly &quot;{1}&quot;..
+        /// </summary>
+        internal static string ExMoreThanOneEnabledXIsProvidedForAssemblyY {
+            get {
+                return ResourceManager.GetString("ExMoreThanOneEnabledXIsProvidedForAssemblyY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There is no current Session..
         /// </summary>
         internal static string ExNoCurrentSession {

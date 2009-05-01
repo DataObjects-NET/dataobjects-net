@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Building
       var assembly = type.Assembly;
       if (!context.UpgradeHandlers.ContainsKey(assembly))
         return name;
-      return context.UpgradeHandlers[assembly].First().GetTypeName(type);
+      return context.UpgradeHandlers[assembly].GetTypeName(type);
     }
 
     private static void AssignTypeId(TypeInfo type, int typeId)

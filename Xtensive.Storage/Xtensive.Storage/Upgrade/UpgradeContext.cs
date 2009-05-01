@@ -66,12 +66,7 @@ namespace Xtensive.Storage.Upgrade
     /// <summary>
     /// Gets the map of upgrade handlers.
     /// </summary>
-    public IDictionary<Assembly, IList<IUpgradeHandler>> UpgradeHandlers { get; internal set; }
-
-    /// <summary>
-    /// Gets all the upgrade handlers.
-    /// </summary>
-    public IList<IUpgradeHandler> AllUpgradeHandlers { get; internal set; }
+    public IDictionary<Assembly, IUpgradeHandler> UpgradeHandlers { get; internal set; }
 
     /// <summary>
     /// Gets the upgrade hints.

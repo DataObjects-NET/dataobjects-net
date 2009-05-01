@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Upgrade
         oldAssemblyByName.Add(oldAssembly.Name, oldAssembly);
       var oldNames = oldAssemblies.Select(a => a.Name);
       
-      var handlers = context.AllUpgradeHandlers.ToArray();
+      var handlers = context.UpgradeHandlers.Values.ToArray();
       var handlerByName = new Dictionary<string, IUpgradeHandler>();
       foreach (var handler in handlers)
         handlerByName.Add(handler.AssemblyName, handler);
