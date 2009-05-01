@@ -29,6 +29,7 @@ namespace Xtensive.Storage
   /// It has a unique identity, independent existence, and forms the operational unit of consistency.
   /// Instance of <see cref="Entity"/> type can be referenced via <see cref="Key"/>.
   /// </summary>
+  [SystemType]
   public abstract class Entity : Persistent,
     IEntity, ISerializable, IDeserializationCallback
   {

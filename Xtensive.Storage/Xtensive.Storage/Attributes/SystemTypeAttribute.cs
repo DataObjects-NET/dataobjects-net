@@ -11,7 +11,8 @@ namespace Xtensive.Storage.Attributes
   /// <summary>
   /// Marks persistent type as a system type.
   /// </summary>
-  [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, 
+    AllowMultiple = false, Inherited = true)]
   internal class SystemTypeAttribute : Attribute
   {
     /// <summary>

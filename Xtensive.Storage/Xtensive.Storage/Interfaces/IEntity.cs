@@ -5,12 +5,14 @@
 // Created:    2007.05.25
 
 using Xtensive.Core;
+using Xtensive.Storage.Attributes;
 
 namespace Xtensive.Storage
 {
   /// <summary>
   /// Should be implemented by any persistent entity.
   /// </summary>
+  [SystemType]
   public interface IEntity: IIdentified<Key>
   {
     /// <summary>

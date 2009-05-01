@@ -11,6 +11,7 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Validation;
+using Xtensive.Storage.Attributes;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
@@ -25,6 +26,7 @@ namespace Xtensive.Storage
   /// and has <see cref="ValueType"/> behavior: it can exist only inside <see cref="Entity"/>, it is stored in
   /// its owners space and cannot be referenced directly.
   /// </remarks>
+  [SystemType]
   public abstract class Structure : Persistent,
     IEquatable<Structure>,
     IFieldValueAdapter
