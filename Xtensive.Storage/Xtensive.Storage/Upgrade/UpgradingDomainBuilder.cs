@@ -10,11 +10,14 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Modelling.Actions;
+using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Upgrade
@@ -97,13 +100,24 @@ namespace Xtensive.Storage.Upgrade
         handler.OnStage();
     }
 
-    internal static void OnSchemasReady()
+    internal static void OnSchemasReady(StorageInfo sourceSchema, StorageInfo targetSchema)
     {
       var context = UpgradeContext.Current;
       if (context==null)
         return;
+      context.SourceSchema = sourceSchema;
+      context.TargetSchema = targetSchema;
       if (context.Stage==UpgradeStage.Upgrading)
         BuildSchemaHints();
+    }
+
+    internal static void OnActionsReady(NodeDifference schemaDifference, ActionSequence schemaUpgradeActions)
+    {
+      var context = UpgradeContext.Current;
+      if (context==null)
+        return;
+      context.SchemaDifference = schemaDifference;
+      context.SchemaUpgradeActions = schemaUpgradeActions;
     }
 
     private static bool TypeFilter(Type type)
