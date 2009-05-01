@@ -40,35 +40,20 @@ namespace Xtensive.Storage.Building.Builders
     /// <returns>Built domain.</returns>
     public static Domain BuildDomain(DomainConfiguration configuration, SchemaUpgradeMode schemaUpgradeMode)
     {
-      return BuildDomain(configuration, schemaUpgradeMode, () => { }, type => true);
+      return BuildDomain(configuration, new DomainBuilderConfiguration(schemaUpgradeMode));
     }
 
     /// <summary>
     /// Builds the domain.
     /// </summary>
     /// <param name="configuration">The domain configuration.</param>
-    /// <param name="schemaUpgradeMode">The schema upgrade mode.</param>
-    /// <param name="upgradeHandler">The method that can process storage data when domain is built.</param>
-    /// <returns>Built domain.</returns>
-    public static Domain BuildDomain(DomainConfiguration configuration, SchemaUpgradeMode schemaUpgradeMode, Action upgradeHandler)
-    {
-      return BuildDomain(configuration, schemaUpgradeMode, upgradeHandler, type => true);
-    }
-
-    /// <summary>
-    /// Builds the domain.
-    /// </summary>
-    /// <param name="configuration">The domain configuration.</param>
-    /// <param name="schemaUpgradeMode">The schema upgrade mode.</param>
-    /// <param name="upgradeHandler">The method that can process storage data when domain is built.</param>
-    /// <param name="typeFilter">The persistent type filter.</param>
+    /// <param name="builderConfiguration">The builder configuration.</param>
     /// <returns>Built domain.</returns>
     public static Domain BuildDomain(DomainConfiguration configuration, 
-      SchemaUpgradeMode schemaUpgradeMode, Action upgradeHandler, Func<Type, bool> typeFilter)
+      DomainBuilderConfiguration builderConfiguration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-      ArgumentValidator.EnsureArgumentNotNull(upgradeHandler, "upgradeHandler");
-      ArgumentValidator.EnsureArgumentNotNull(typeFilter, "typeFilter");
+      ArgumentValidator.EnsureArgumentNotNull(builderConfiguration, "builderConfiguration");
 
       if (!configuration.IsLocked)
         configuration.Lock(true);
@@ -76,7 +61,7 @@ namespace Xtensive.Storage.Building.Builders
       Validate(configuration);
 
       var context = new BuildingContext(configuration) {
-        TypeFilter = typeFilter
+        BuilderConfiguration = builderConfiguration
       };
 
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
@@ -95,11 +80,12 @@ namespace Xtensive.Storage.Building.Builders
               context.SystemSessionHandler = Session.Current.Handler;
               using (var transactionScope = Transaction.Open()) {
                 context.Domain.Handler.OnSystemSessionOpen();
-                SynchronizeSchema(schemaUpgradeMode);
+                SynchronizeSchema(builderConfiguration.SchemaUpgradeMode);
                 context.Domain.Handler.BuildMapping();
                 CreateGenerators();
                 TypeIdBuilder.BuildTypeIds();
-                upgradeHandler.Invoke();
+                if (builderConfiguration.UpgradeHandler!=null)
+                  builderConfiguration.UpgradeHandler.Invoke();
                 transactionScope.Complete();
               }
             }
@@ -244,9 +230,9 @@ namespace Xtensive.Storage.Building.Builders
         Log.Info(Strings.LogExtractedSchema);
         if (Log.IsLogged(LogEventTypes.Info))
           extractedSchema.Dump();
-        UpgradingDomainBuilder.OnSchemasReady(extractedSchema, targetSchema);
-        var upgradeContext = Upgrade.UpgradeContext.Current;
-        var hints = upgradeContext!=null ? upgradeContext.SchemaHints : null;
+        HintSet hints = null;
+        if (context.BuilderConfiguration.SchemaReadyHandler!=null)
+          hints = context.BuilderConfiguration.SchemaReadyHandler.Invoke(extractedSchema, targetSchema);
         SchemaComparisonResult result;
 
         // Let's clear the schema if mode is Recreate
@@ -265,7 +251,9 @@ namespace Xtensive.Storage.Building.Builders
         result = SchemaComparer.Compare(extractedSchema, targetSchema, hints);
         if (Log.IsLogged(LogEventTypes.Info))
           Log.Info(Strings.LogComparisonResultX, result);
-        UpgradingDomainBuilder.OnUpgradeActionsReady((NodeDifference) result.Difference, result.UpgradeActions);
+        if (context.BuilderConfiguration.UpgradeActionsReadyHandler!=null)
+          context.BuilderConfiguration.UpgradeActionsReadyHandler.Invoke(
+            (NodeDifference) result.Difference, result.UpgradeActions);
 
         switch (schemaUpgradeMode) {
         case SchemaUpgradeMode.ValidateExact:

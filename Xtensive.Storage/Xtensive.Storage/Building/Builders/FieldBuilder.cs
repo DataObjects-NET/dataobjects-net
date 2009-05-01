@@ -24,12 +24,14 @@ namespace Xtensive.Storage.Building.Builders
     {
       Log.Info("Defining fields.");
 
+      var context = BuildingContext.Current;
+      var fieldFilter = context.BuilderConfiguration.FieldFilter ?? (p => true);
       var fields = new List<FieldDef>();
       var properties =
         typeDef.UnderlyingType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-      foreach (PropertyInfo propertyInfo in properties)
-        if (IsDeclaredAsPersistent(propertyInfo))
+      foreach (var propertyInfo in properties)
+        if (IsDeclaredAsPersistent(propertyInfo) && fieldFilter(propertyInfo))
           try {
             fields.Add(
               DefineField(typeDef, propertyInfo));
@@ -58,15 +60,16 @@ namespace Xtensive.Storage.Building.Builders
     /// <param name="typeDef">The type definition.</param>
     /// <param name="propertyInfo">The <see cref="PropertyInfo"/> of the property.</param>
     /// <returns>Defined field.</returns>
+    /// <exception cref="DomainBuilderException">Indexed properties aren't supported.</exception>
     public static FieldDef DefineField(TypeDef typeDef, PropertyInfo propertyInfo)
     {
-      BuildingContext context = BuildingContext.Current;
+      var context = BuildingContext.Current;
       Log.Info("Defining field '{0}'", propertyInfo.Name);
 
       ValidateValueType(propertyInfo.PropertyType, typeDef.UnderlyingType);
 
       // We do not support "persistent" indexers
-      ParameterInfo[] indexParameters = propertyInfo.GetIndexParameters();
+      var indexParameters = propertyInfo.GetIndexParameters();
 
       if (indexParameters.Length > 0)
         throw new DomainBuilderException(Strings.ExIndexedPropertiesAreNotSupported);
@@ -153,6 +156,7 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
+    /// <exception cref="DomainBuilderException"><c>DomainBuilderException</c>.</exception>
     private static void ValidateValueType(Type valueType, Type declaringType)
     {
       if (valueType.IsGenericType) {
@@ -180,14 +184,15 @@ namespace Xtensive.Storage.Building.Builders
       if (valueType.IsOfGenericType(typeof(EntitySet<>))) {
         if (declaringType.IsSubclassOf(typeof (Structure)))
           throw new DomainBuilderException(
-            string.Format("Structures do not support fields of type '{0}'.", valueType.Name));
+            string.Format(Strings.ExStructuresDoNotSupportFieldsOfTypeX, valueType.Name));
         return;
       }
 
       throw new DomainBuilderException(
-        string.Format(Resources.Strings.UnsupportedFieldTypeX, valueType.Name));
+        string.Format(Strings.ExUnsupportedFieldTypeX, valueType.Name));
     }
 
+    /// <exception cref="DomainBuilderException">Field cannot be nullable.</exception>
     internal static void ValidateIsNullable(Type valueType)
     {
       if (!(valueType.IsSubclassOf(typeof (Entity)) || valueType==typeof (string) || valueType==typeof (byte[])))
@@ -197,7 +202,7 @@ namespace Xtensive.Storage.Building.Builders
     public static void BuildInheritedField(TypeInfo type, FieldInfo inheritedField)
     {
       Log.Info("Building inherited field '{0}.{1}'", type.Name, inheritedField.Name);
-      FieldInfo field = inheritedField.Clone();
+      var field = inheritedField.Clone();
       type.Fields.Add(field);
       field.ReflectedType = type;
       field.DeclaringType = inheritedField.DeclaringType;
@@ -213,7 +218,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       string name = fieldDef!=null ? fieldDef.Name : implField.Name;
       Log.Info("Building interface field '{0}.{1}'", type.Name, name);
-      FieldInfo field = implField.Clone();
+      var field = implField.Clone();
       field.Name = name;
       field.ReflectedType = type;
       field.DeclaringType = type;
@@ -226,9 +231,9 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void BuildReferenceField(FieldInfo field)
     {
-      BuildingContext context = BuildingContext.Current;
-      TypeInfo type = context.Model.Types[field.ValueType];
-      IEnumerable<FieldInfo> fields = type.Hierarchy.KeyInfo.Fields.Keys.Join(type.Fields, key => key.Name,
+      var context = BuildingContext.Current;
+      var type = context.Model.Types[field.ValueType];
+      var fields = type.Hierarchy.KeyInfo.Fields.Keys.Join(type.Fields, key => key.Name,
         fld => fld.Name, (key, fld) => fld);
 
       BuildNestedFields(field, field, fields);
@@ -236,18 +241,18 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void BuildStructureField(FieldInfo field)
     {
-      BuildingContext context = BuildingContext.Current;
-      TypeInfo type = context.Model.Types[field.ValueType];
+      var context = BuildingContext.Current;
+      var type = context.Model.Types[field.ValueType];
 
       BuildNestedFields(field, field, type.Fields);
     }
 
     private static void BuildNestedFields(FieldInfo root, FieldInfo target, IEnumerable<FieldInfo> fields)
     {
-      BuildingContext context = BuildingContext.Current;
+      var context = BuildingContext.Current;
 
       foreach (FieldInfo field in fields) {
-        FieldInfo clone = field.Clone();
+        var clone = field.Clone();
         if (target.IsDeclared) {
           clone.Name = BuildingContext.Current.NameBuilder.Build(target, field);
           clone.MappingName = BuildingContext.Current.NameBuilder.BuildMappingName(target, field);
@@ -266,8 +271,8 @@ namespace Xtensive.Storage.Building.Builders
           if (field.Column != null)
             clone.Column = ColumnBuilder.BuildInheritedColumn(clone, field.Column);
           if (clone.IsEntity && !IsEntitySetItem(clone.ReflectedType)) {
-            FieldInfo refField = field;
-            AssociationInfo origin = context.Model.Associations.Find(context.Model.Types[field.ValueType]).Where(a => a.ReferencingField == refField).FirstOrDefault();
+            var refField = field;
+            var origin = context.Model.Associations.Find(context.Model.Types[field.ValueType]).Where(a => a.ReferencingField == refField).FirstOrDefault();
             if (origin != null) {
               AssociationBuilder.BuildAssociation(origin, clone);
               context.DiscardedAssociations.Add(origin);

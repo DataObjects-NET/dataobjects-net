@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Building.Builders
 
       if (masterField.IsPrimitive || masterField.IsStructure)
         throw new DomainBuilderException(
-          string.Format(Strings.PairedFieldXHasInsufficientTypeItShouldBeReferenceToEntityOrAEntitySet, masterFieldName));
+          string.Format(Strings.ExPairedFieldXHasWrongTypeItShouldBeReferenceToEntityOrAEntitySet, masterFieldName));
 
 
       FieldInfo pairedField = slave.ReferencingField;

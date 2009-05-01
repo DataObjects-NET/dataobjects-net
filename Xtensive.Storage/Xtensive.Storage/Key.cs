@@ -86,7 +86,7 @@ namespace Xtensive.Storage
           cachedKey = Fetcher.Fetch(this, field);
           if (cachedKey==null)
             throw new InvalidOperationException(
-              string.Format(Strings.UnableToResolveTypeForKeyX, this));
+              string.Format(Strings.ExUnableToResolveTypeForKeyX, this));
         }
         entityType = cachedKey.entityType;
         return entityType;

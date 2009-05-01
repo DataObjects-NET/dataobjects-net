@@ -149,7 +149,7 @@ namespace Xtensive.Storage.Building.Builders
 
       if (!(field.IsEntity || field.IsEntitySet))
         throw new DomainBuilderException(
-          string.Format(Strings.InvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference, field.Name));
+          string.Format(Strings.ExInvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference, field.Name));
 
       field.OnRemove = attribute.OnRemove;
     }
@@ -181,7 +181,7 @@ namespace Xtensive.Storage.Building.Builders
 
       if (!Validator.IsNameValid(attribute.MappingName, rule))
         throw new DomainBuilderException(
-          string.Format(Strings.InvalidMappingNameX, attribute.MappingName));
+          string.Format(Strings.ExInvalidMappingNameX, attribute.MappingName));
 
       if (comparer.Compare(node.MappingName, attribute.MappingName)==0)
         Log.Warning(

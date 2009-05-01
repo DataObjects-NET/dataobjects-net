@@ -120,8 +120,9 @@ namespace Xtensive.Storage.Upgrade
     /// <exception cref="ArgumentOutOfRangeException"><c>UpgradeContext.Stage</c> is out of range.</exception>
     public virtual bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)
     {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
       if (type.Assembly!=Assembly)
-        return false;
+        throw new ArgumentOutOfRangeException("type");
       switch (upgradeStage) {
       case UpgradeStage.Validation:
         return type.GetAttribute<SystemTypeAttribute>(AttributeSearchOptions.InheritNone)!=null;
@@ -133,6 +134,19 @@ namespace Xtensive.Storage.Upgrade
         throw new ArgumentOutOfRangeException("UpgradeContext.Stage");
       }
     }
+
+    /// <exception cref="ArgumentOutOfRangeException"><c>UpgradeContext.Stage</c> is out of range.</exception>
+    public bool IsFieldAvailable(PropertyInfo field, UpgradeStage upgradeStage)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      var type = field.DeclaringType;
+      if (type.Assembly!=Assembly)
+        throw new ArgumentOutOfRangeException("field");
+      if (upgradeStage==UpgradeStage.Final)
+        return field.GetAttribute<RecycledAttribute>(AttributeSearchOptions.InheritNone)==null;
+      return true;
+    }
+
 
     /// <inheritdoc/>
     public virtual string GetTypeName(Type type)

@@ -97,50 +97,54 @@ namespace Xtensive.Storage.Upgrade
       default:
         throw new ArgumentOutOfRangeException("context.Stage");
       }
-      using (DomainBuilder.BuildDomain(
-        configuration, 
-        schemaUpgradeMode, 
-        OnStage, // Raising "Inside upgrade" event
-        TypeFilter)) {};
+      using (DomainBuilder.BuildDomain(configuration, CreateBuilderConfiguration(schemaUpgradeMode))) {
+      };
     }
 
-    private static void OnStage()
+    private static DomainBuilderConfiguration CreateBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode)
     {
       var context = UpgradeContext.Current;
-      context.Domain = Domain.Demand();
-      foreach (var handler in context.UpgradeHandlers.Values)
-        handler.OnStage();
-    }
-
-    internal static void OnSchemasReady(StorageInfo sourceSchema, StorageInfo targetSchema)
-    {
-      var context = UpgradeContext.Current;
-      if (context==null)
-        return;
-      context.SourceSchema = sourceSchema;
-      context.TargetSchema = targetSchema;
-      context.SchemaHints = null;
-      if (context.Stage==UpgradeStage.Upgrading)
-        BuildSchemaHints();
-    }
-
-    internal static void OnUpgradeActionsReady(NodeDifference schemaDifference, ActionSequence schemaUpgradeActions)
-    {
-      var context = UpgradeContext.Current;
-      if (context==null)
-        return;
-      context.SchemaDifference = schemaDifference;
-      context.SchemaUpgradeActions = schemaUpgradeActions;
-    }
-
-    private static bool TypeFilter(Type type)
-    {
-      var context = UpgradeContext.Current;
-      var assembly = type.Assembly;
-      var handlers = context.UpgradeHandlers;
-      return 
-        handlers.ContainsKey(assembly) 
-        && handlers[assembly].IsTypeAvailable(type, context.Stage);
+      return new DomainBuilderConfiguration(schemaUpgradeMode) {
+        TypeFilter = type => {
+          var assembly = type.Assembly;
+          var handlers = context.UpgradeHandlers;
+          return
+            handlers.ContainsKey(assembly)
+              && handlers[assembly].IsTypeAvailable(type, context.Stage);
+        },
+        FieldFilter = field => {
+          var assembly = field.DeclaringType.Assembly;
+          var handlers = context.UpgradeHandlers;
+          return
+            handlers.ContainsKey(assembly)
+              && handlers[assembly].IsFieldAvailable(field, context.Stage);
+        },
+        TypeNameProvider = type => {
+          string name = type.FullName;
+          if (context==null)
+            return name;
+          var assembly = type.Assembly;
+          return !context.UpgradeHandlers.ContainsKey(assembly)
+            ? name
+            : context.UpgradeHandlers[assembly].GetTypeName(type);
+        },
+        SchemaReadyHandler = (sourceSchema, targetSchema) => {
+          context.SourceSchema = sourceSchema;
+          context.TargetSchema = targetSchema;
+          context.SchemaHints = null;
+          if (context.Stage==UpgradeStage.Upgrading)
+            BuildSchemaHints();
+          return context.SchemaHints;
+        },
+        UpgradeActionsReadyHandler = (schemaDifference, schemaUpgradeActions) => {
+          context.SchemaDifference = schemaDifference;
+          context.SchemaUpgradeActions = schemaUpgradeActions;
+        },
+        UpgradeHandler = () => {
+          foreach (var handler in context.UpgradeHandlers.Values)
+            handler.OnStage();
+        }
+      };
     }
 
     private static Exception GetInnermostException(Exception exception)

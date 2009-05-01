@@ -50,8 +50,9 @@ namespace Xtensive.Storage.Building.Builders
     {
       using (LogTemplate<Log>.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
         var context = BuildingContext.Current;
+        var typeFilter = context.BuilderConfiguration.TypeFilter ?? (t => true);
         foreach (var type in context.Configuration.Types)          
-          if (context.TypeFilter.Invoke(type))
+          if (typeFilter.Invoke(type))
             DefineType(type);
       }
     }

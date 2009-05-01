@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogDefiningX, type.FullName)) {
         if (context.Definition.Types.Contains(type))
           throw new DomainBuilderException(string.Format(
-            Strings.TypeXIsAlreadyDefined, type.FullName));
+            Strings.ExTypeXIsAlreadyDefined, type.FullName));
 
         var typeDef = new TypeDef(type);
 
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Building.Builders
 
         if (context.Definition.Types.Contains(typeDef.Name))
           throw new DomainBuilderException(string.Format(
-            Strings.TypeWithNameXIsAlreadyDefined, typeDef.Name));
+            Strings.ExTypeWithNameXIsAlreadyDefined, typeDef.Name));
 
         DefineFields(typeDef);
 

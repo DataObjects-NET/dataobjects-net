@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Building.Definitions
     {
       if (!Validator.IsNameValid(name, ValidationRule.Index))
         throw new DomainBuilderException(
-          string.Format(Resources.Strings.IndexNameXIsInvalid, name));
+          string.Format(Resources.Strings.ExIndexNameXIsInvalid, name));
 
       var indexDef = new IndexDef {Name = name, IsSecondary = true};
       indexes.Add(indexDef);

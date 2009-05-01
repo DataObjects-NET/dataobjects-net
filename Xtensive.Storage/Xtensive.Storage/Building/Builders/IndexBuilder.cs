@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Building.Builders
 
       if (typeDef.Indexes.Contains(index.Name))
         throw new DomainBuilderException(
-          string.Format(Resources.Strings.IndexWithNameXIsAlreadyRegistered, index.Name));
+          string.Format(Resources.Strings.ExIndexWithNameXIsAlreadyRegistered, index.Name));
 
       typeDef.Indexes.Add(index);
     }

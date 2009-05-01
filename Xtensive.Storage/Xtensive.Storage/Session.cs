@@ -196,7 +196,7 @@ namespace Xtensive.Storage
     protected void EnsureNotDisposed()
     {
       if (isDisposed)
-        throw new ObjectDisposedException(Strings.SessionIsAlreadyDisposed);
+        throw new ObjectDisposedException(Strings.ExSessionIsAlreadyDisposed);
     }
 
     #endregion

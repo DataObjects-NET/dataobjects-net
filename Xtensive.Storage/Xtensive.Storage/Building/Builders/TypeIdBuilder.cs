@@ -11,7 +11,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Upgrade;
 using Type=Xtensive.Storage.Metadata.Type;
 
-namespace Xtensive.Storage.Building
+namespace Xtensive.Storage.Building.Builders
 {  
   internal static class TypeIdBuilder
   {
@@ -34,6 +34,7 @@ namespace Xtensive.Storage.Building
     public static void BuildRegularTypeIds()
     {
       var context = BuildingContext.Current;
+      var typeNameProvider = context.BuilderConfiguration.TypeNameProvider ?? (t => t.FullName);
       var types = Query<Type>.All.ToArray();
       var typeByName = new Dictionary<string, Type>();
       foreach (var type in types)
@@ -45,7 +46,7 @@ namespace Xtensive.Storage.Building
       foreach (var type in context.Model.Types) {
         if (!type.IsEntity || type.TypeId!=TypeInfo.NoTypeId)
           continue;
-        var name = GetTypeName(type.UnderlyingType);
+        var name = typeNameProvider.Invoke(type.UnderlyingType);
         if (typeByName.ContainsKey(name))
           // Type is found in metadata
           AssignTypeId(type, typeByName[name].Id);
@@ -57,18 +58,6 @@ namespace Xtensive.Storage.Building
         }
       }
       context.Model.Types.BuildTypeIdIndex();
-    }
-
-    public static string GetTypeName(System.Type type)
-    {
-      var context = UpgradeContext.Current;
-      string name = type.FullName;
-      if (context==null)
-        return name;
-      var assembly = type.Assembly;
-      if (!context.UpgradeHandlers.ContainsKey(assembly))
-        return name;
-      return context.UpgradeHandlers[assembly].GetTypeName(type);
     }
 
     private static void AssignTypeId(TypeInfo type, int typeId)

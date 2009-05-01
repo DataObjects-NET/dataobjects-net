@@ -98,6 +98,9 @@ namespace Xtensive.Storage.Upgrade
     private void UpdateTypes()
     {
       var context = UpgradeContext.Current;
+      var buildingContext = BuildingContext.Current;
+      var typeNameProvider = 
+        buildingContext.BuilderConfiguration.TypeNameProvider ?? (t => t.FullName);
 
       var types = Query<M.Type>.All.ToArray();
       var typeByName = new Dictionary<string, M.Type>();
@@ -110,7 +113,7 @@ namespace Xtensive.Storage.Upgrade
           if (!typeByName.ContainsKey(trh.OldName))
             throw new DomainBuilderException(string.Format(
               Strings.ExTypeWithNameXIsNotFoundInMetadata, trh.OldName));
-          var newName = TypeIdBuilder.GetTypeName(trh.TargetType);
+          var newName = typeNameProvider.Invoke(trh.TargetType);
           typeByName[trh.OldName].Name = newName;
           // Session.Current.Persist();
           Log.Info(Strings.LogMetadataTypeRenamedXToY, trh.OldName, newName);

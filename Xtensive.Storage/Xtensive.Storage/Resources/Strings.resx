@@ -204,7 +204,7 @@
   <data name="LogSessionBoundMethodXOfTypeY" xml:space="preserve">
     <value>SessionBound method '{0} 'of type '{1}'</value>
   </data>
-  <data name="InvalidSession" xml:space="preserve">
+  <data name="ExInvalidSession" xml:space="preserve">
     <value>The Session of specified ISessionBound object is invalid.</value>
   </data>
   <data name="ValueCanNotBeNull" xml:space="preserve">
@@ -219,7 +219,7 @@
   <data name="ValueShouldMatchRegexPatternX" xml:space="preserve">
     <value>Value should match regex pattern '{0}'</value>
   </data>
-  <data name="InvalidFieldValueConstraintXIsViolated" xml:space="preserve">
+  <data name="ExInvalidFieldValueConstraintXIsViolated" xml:space="preserve">
     <value>Invalid field value, constraint {0} is violated.</value>
   </data>
   <data name="ValueCanNotBeLessThenX" xml:space="preserve">
@@ -240,7 +240,7 @@
   <data name="ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor" xml:space="preserve">
     <value>Field {0} is already defined in type {1} or its ancestor.</value>
   </data>
-  <data name="InterfaceXDoesNotBelongToXHierarchy" xml:space="preserve">
+  <data name="ExInterfaceXDoesNotBelongToXHierarchy" xml:space="preserve">
     <value>Interface '{0}' does not belong to '{1}' hierarchy.</value>
   </data>
   <data name="TypeXDoesNotImplementYZField" xml:space="preserve">
@@ -261,17 +261,17 @@
   <data name="ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey" xml:space="preserve">
     <value>Field '{0}' can't have LazyLoad attribute as it is included in primary key.</value>
   </data>
-  <data name="TypeWithNameXIsAlreadyDefined" xml:space="preserve">
+  <data name="ExTypeWithNameXIsAlreadyDefined" xml:space="preserve">
     <value>Type with name '{0}' is already defined.</value>
   </data>
-  <data name="TypeXIsAlreadyDefined" xml:space="preserve">
+  <data name="ExTypeXIsAlreadyDefined" xml:space="preserve">
     <value>Type '{0}' is already defined.</value>
   </data>
-  <data name="IndexWithNameXIsAlreadyRegistered" xml:space="preserve">
+  <data name="ExIndexWithNameXIsAlreadyRegistered" xml:space="preserve">
     <value>Index with name '{0}' is already registered.</value>
   </data>
-  <data name="TypeXWasNotRegisteredForActivation" xml:space="preserve">
-    <value>Type '{0}' was not registered for activation</value>
+  <data name="ExTypeXWasNotRegisteredForActivation" xml:space="preserve">
+    <value>Type '{0}' was not registered for activation.</value>
   </data>
   <data name="ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY" xml:space="preserve">
     <value>TypeDef '{0}' is already belongs to hierarchy with the root = '{1}'.</value>
@@ -279,10 +279,10 @@
   <data name="ExXDescendantIsAlreadyARootOfAnotherHierarchy" xml:space="preserve">
     <value>'{0}' descendant is already a root of another hierarchy.</value>
   </data>
-  <data name="PairedFieldXHasInsufficientTypeItShouldBeReferenceToEntityOrAEntitySet" xml:space="preserve">
-    <value>Paired field '{0}' has insufficient type. It should be reference to Entity or a EntitySet.</value>
+  <data name="ExPairedFieldXHasWrongTypeItShouldBeReferenceToEntityOrAEntitySet" xml:space="preserve">
+    <value>Paired field '{0}' has wrong type. It should be reference to Entity or a EntitySet.</value>
   </data>
-  <data name="ReferencedFieldXAndPairedFieldAreEqual" xml:space="preserve">
+  <data name="ExReferencedFieldXAndPairedFieldAreEqual" xml:space="preserve">
     <value>Referenced field '{0}' and paired field are equal.</value>
   </data>
   <data name="ExPairedFieldXWasNotFoundInYType" xml:space="preserve">
@@ -300,7 +300,7 @@
   <data name="ExInvalidLengthAttributeOnXField" xml:space="preserve">
     <value>Invalid 'Length' attribute on '{0}' field.</value>
   </data>
-  <data name="InvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference" xml:space="preserve">
+  <data name="ExInvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference" xml:space="preserve">
     <value>Invalid 'OnDelete' attribute usage on field '{0}'. Field is not entity reference.</value>
   </data>
   <data name="ExplicitIsNullableAttributeIsRedundant" xml:space="preserve">
@@ -315,7 +315,7 @@
   <data name="ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically" xml:space="preserve">
     <value>Explicit mapping name setting is redundant. The same name '{0}' will be generated automatically.</value>
   </data>
-  <data name="InvalidMappingNameX" xml:space="preserve">
+  <data name="ExInvalidMappingNameX" xml:space="preserve">
     <value>Invalid mapping name '{0}'.</value>
   </data>
   <data name="ExIndexMustContainAtLeastOneField" xml:space="preserve">
@@ -339,16 +339,16 @@
   <data name="XIsNotApplicableToYDescendants" xml:space="preserve">
     <value>'{0}' is not applicable to '{1}' descendants.</value>
   </data>
-  <data name="NameXIsInvalid" xml:space="preserve">
+  <data name="ExNameXIsInvalid" xml:space="preserve">
     <value>Name {0} is invalid.</value>
   </data>
-  <data name="IndexNameXIsInvalid" xml:space="preserve">
+  <data name="ExIndexNameXIsInvalid" xml:space="preserve">
     <value>Index name '{0}' is invalid.</value>
   </data>
   <data name="ExPropertyXMustBeDeclaredInTypeY" xml:space="preserve">
     <value>Property {0} must be declared in type '{1}'.</value>
   </data>
-  <data name="UnsupportedFieldTypeX" xml:space="preserve">
+  <data name="ExUnsupportedFieldTypeX" xml:space="preserve">
     <value>Unsupported field type: '{0}'</value>
   </data>
   <data name="ExKeyXWasNotFoundInStorage" xml:space="preserve">
@@ -357,7 +357,7 @@
   <data name="ExCannotFindHandler" xml:space="preserve">
     <value>Cannot find a hanlder of type '{0}'.</value>
   </data>
-  <data name="KeyCanNotBeNull" xml:space="preserve">
+  <data name="ExKeyCanNotBeNull" xml:space="preserve">
     <value>Key can not be null.</value>
   </data>
   <data name="LogCreatingX" xml:space="preserve">
@@ -411,11 +411,11 @@
   <data name="ExLengthConstraintViolationOnFieldX" xml:space="preserve">
     <value>'Length' constraint violation on field '{0}'</value>
   </data>
-  <data name="SessionIsAlreadyDisposed" xml:space="preserve">
+  <data name="ExSessionIsAlreadyDisposed" xml:space="preserve">
     <value>Session is already disposed.</value>
   </data>
-  <data name="UnableToUseDefaultGeneratorForComplexKeys" xml:space="preserve">
-    <value>UnableToUseDefaultGeneratorForComplexKeys</value>
+  <data name="ExCannotUseDefaultGeneratorForComplexKeys" xml:space="preserve">
+    <value>Cannot use default generator for complex Keys.</value>
   </data>
   <data name="ExUnableToCloneSystemSessionConfiguration" xml:space="preserve">
     <value>Unable to clone system session configuration.</value>
@@ -528,7 +528,7 @@
   <data name="ExCanNotResolveEntityWithKeyX" xml:space="preserve">
     <value>Can not resolve entity with key '{0}'</value>
   </data>
-  <data name="UnableToResolveTypeForKeyX" xml:space="preserve">
+  <data name="ExUnableToResolveTypeForKeyX" xml:space="preserve">
     <value>Unable to resolve type for Key '{0}'.</value>
   </data>
   <data name="ExUnknownEntitySerializationKindX" xml:space="preserve">
@@ -543,8 +543,8 @@
   <data name="ExInvalidUpgraderVersion" xml:space="preserve">
     <value>Invalid upgrader version</value>
   </data>
-  <data name="TypeIdForTypeXIsNotFound" xml:space="preserve">
-    <value>Type id for type '{0}' is not found.</value>
+  <data name="ExTypeIdForTypeXIsNotFound" xml:space="preserve">
+    <value>TypeId for type '{0}' is not found.</value>
   </data>
   <data name="ExTypeWithTypeIdXIsNotFound" xml:space="preserve">
     <value>Type with type id '{0}' is not found.</value>
@@ -646,5 +646,8 @@ Actions:
   </data>
   <data name="LogExtractedSchema" xml:space="preserve">
     <value>Extracted schema:</value>
+  </data>
+  <data name="ExStructuresDoNotSupportFieldsOfTypeX" xml:space="preserve">
+    <value>Structures do not support fields of type '{0}'.</value>
   </data>
 </root>

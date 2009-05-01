@@ -13,7 +13,7 @@ namespace Xtensive.Storage.Upgrade
   /// An attribute describing the recycled type or property.
   /// </summary>
   [Serializable]
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, 
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property, 
     AllowMultiple = false, Inherited = false)]
   public class RecycledAttribute : Attribute
   {

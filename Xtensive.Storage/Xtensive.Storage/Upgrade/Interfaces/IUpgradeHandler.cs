@@ -71,6 +71,18 @@ namespace Xtensive.Storage.Upgrade
     bool IsTypeAvailable(Type type, UpgradeStage upgradeStage);
 
     /// <summary>
+    /// Determines whether specified persistent field (property) should be included into the model
+    /// in the specified <paramref name="upgradeStage"/>, or not.
+    /// </summary>
+    /// <param name="field">The field to filter.</param>
+    /// <param name="upgradeStage">The upgrade stage to check the availability at.</param>
+    /// <returns>
+    /// 	<see langword="true"/> if type should be included into the model in the specified upgrade stage;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool IsFieldAvailable(PropertyInfo field, UpgradeStage upgradeStage);
+
+    /// <summary>
     /// Gets the name of the type to use in metadata.
     /// </summary>
     /// <param name="type">The type to get the name for.</param>

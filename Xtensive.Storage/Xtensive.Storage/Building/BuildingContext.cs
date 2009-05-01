@@ -36,7 +36,6 @@ namespace Xtensive.Storage.Building
     internal Dictionary<Type, int> SystemTypeIds { get; private set; }
     internal Domain SystemDomain {get; set;}
     internal object ModelUnlockKey { get; set;}
-    internal Func<Type, bool> TypeFilter { get; set;}
 
     #endregion
 
@@ -62,6 +61,11 @@ namespace Xtensive.Storage.Building
     /// Gets the configuration of the building <see cref="Storage.Domain"/>.
     /// </summary>
     public DomainConfiguration Configuration { get; private set; }
+
+    /// <summary>
+    /// Gets the building configuration.
+    /// </summary>
+    public DomainBuilderConfiguration BuilderConfiguration { get; internal set; }
 
     /// <summary>
     /// Gets the <see cref="Storage.Domain"/> object.
@@ -117,10 +121,10 @@ namespace Xtensive.Storage.Building
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="configuration">The configuration.</param>
-    public BuildingContext(DomainConfiguration configuration)
+    internal BuildingContext(DomainConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       Log = StringLog.Create("DomainBuilder");
@@ -130,7 +134,6 @@ namespace Xtensive.Storage.Building
       CircularReferenceFinder = new CircularReferenceFinder<Type>(TypeHelper.GetShortName);
       DiscardedAssociations = new HashSet<  AssociationInfo>();
       SystemTypeIds = new Dictionary<Type, int>();
-      TypeFilter = type => true;
     }
   }
 }
