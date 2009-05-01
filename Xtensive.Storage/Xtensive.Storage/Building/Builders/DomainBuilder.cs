@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Comparison;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.PluginManager;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
@@ -19,6 +20,7 @@ using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Upgrade;
 using Activator=System.Activator;
+using UpgradeContext=Xtensive.Modelling.Comparison.UpgradeContext;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -243,6 +245,8 @@ namespace Xtensive.Storage.Building.Builders
         if (Log.IsLogged(LogEventTypes.Info))
           extractedSchema.Dump();
         UpgradingDomainBuilder.OnSchemasReady(extractedSchema, targetSchema);
+        var upgradeContext = Upgrade.UpgradeContext.Current;
+        var hints = upgradeContext!=null ? upgradeContext.SchemaHints : null;
         SchemaComparisonResult result;
 
         // Let's clear the schema if mode is Recreate
@@ -254,10 +258,11 @@ namespace Xtensive.Storage.Building.Builders
               Log.Info(Strings.LogClearingComparisonResultX, result);
             upgradeHandler.UpgradeSchema(result.UpgradeActions, emptySchema);
             extractedSchema = upgradeHandler.GetExtractedSchema();
+            hints = null; // Must re-bind them
           }
         }
 
-        result = SchemaComparer.Compare(extractedSchema, targetSchema, null);
+        result = SchemaComparer.Compare(extractedSchema, targetSchema, hints);
         if (Log.IsLogged(LogEventTypes.Info))
           Log.Info(Strings.LogComparisonResultX, result);
         UpgradingDomainBuilder.OnUpgradeActionsReady((NodeDifference) result.Difference, result.UpgradeActions);

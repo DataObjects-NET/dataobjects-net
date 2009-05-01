@@ -119,6 +119,7 @@ namespace Xtensive.Storage.Upgrade
         return;
       context.SourceSchema = sourceSchema;
       context.TargetSchema = targetSchema;
+      context.SchemaHints = null;
       if (context.Stage==UpgradeStage.Upgrading)
         BuildSchemaHints();
     }
