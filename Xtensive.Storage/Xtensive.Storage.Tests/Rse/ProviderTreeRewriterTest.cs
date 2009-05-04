@@ -33,17 +33,17 @@ namespace Xtensive.Storage.Tests.Rse
     }
 
     [Test]
-    public void InsertTest()
+    public void InsertSecondaryIndexesOnlyTest()
     {
       TypeInfo creatureType = Domain.Model.Types[typeof (Creature)];
       var primaryIndex = creatureType.Indexes.PrimaryIndex;
-      var extractedRangeSets = CreatedExtractedRangeSets(creatureType);
-      var providersTree = CreateTreeForInsertTest(primaryIndex);
+      var extractedRangeSets = CreateRangeSetsForSecondary(creatureType);
+      var providersTree = CreateTreeForInsertSecondaryIndexesOnlyTest(primaryIndex);
       var inserter = new ProviderTreeRewriter(Domain.Model);
       var modifiedTree = inserter.InsertRangeProviders(providersTree, extractedRangeSets);
 
       Assert.AreEqual(providersTree.GetType(), modifiedTree.GetType());
-      var joinProvider = (JoinProvider)((SelectProvider)((FilterProvider) ((UnaryProvider) modifiedTree)
+      var joinProvider = (JoinProvider) ((SelectProvider) ((FilterProvider) ((UnaryProvider) modifiedTree)
         .Source).Source).Source;
       var primaryIndexProvider = (IndexProvider)((UnaryProvider) ((UnaryProvider) providersTree)
         .Source).Source;
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Tests.Rse
       Assert.IsTrue(((AliasProvider)joinProvider.Right).Source is UnionProvider);
     }
 
-    private static CompilableProvider CreateTreeForInsertTest(IndexInfo primaryIndex)
+    private static CompilableProvider CreateTreeForInsertSecondaryIndexesOnlyTest(IndexInfo primaryIndex)
     {
       CompilableProvider result = IndexProvider.Get(primaryIndex);
       result = new FilterProvider(result, t => t.GetValueOrDefault<int>(1) > 1
@@ -59,26 +59,7 @@ namespace Xtensive.Storage.Tests.Rse
       return new SortProvider(result, new DirectionCollection<int>(0));
     }
 
-    [Test]
-    public void DoNotModifyTest()
-    {
-      TypeInfo creatureType = Domain.Model.Types[typeof(Creature)];
-      var primaryIndex = creatureType.Indexes.PrimaryIndex;
-      var extractedRangeSets = CreatedExtractedRangeSets(creatureType);
-      var providersTree = CreateTreeForForDoNotModifyTest(primaryIndex);
-      var inserter = new ProviderTreeRewriter(Domain.Model);
-      var nonModifiedTree = inserter.InsertRangeProviders(providersTree, extractedRangeSets);
-      Assert.AreEqual(providersTree, nonModifiedTree);
-    }
-
-    private static CompilableProvider CreateTreeForForDoNotModifyTest(IndexInfo primaryIndex)
-    {
-      CompilableProvider result = IndexProvider.Get(primaryIndex);
-      result = new RangeProvider(result, Range<Entire<Tuple>>.Full);
-      return new SortProvider(result, new DirectionCollection<int>(0));
-    }
-
-    private static Dictionary<IndexInfo, RangeSetInfo> CreatedExtractedRangeSets(TypeInfo creatureType)
+    private static Dictionary<IndexInfo, RangeSetInfo> CreateRangeSetsForSecondary(TypeInfo creatureType)
     {
       var secondaryIndex0 = creatureType.Indexes.Skip(2).First();
       var secondaryIndex1 = creatureType.Indexes.GetIndex("Name");
@@ -95,6 +76,90 @@ namespace Xtensive.Storage.Tests.Rse
                 AdvancedComparer<Entire<Tuple>>.Default)), null, false)
             }
         };
+    }
+
+    [Test]
+    public void InsertPrimaryIndexOnlyTest()
+    {
+      TypeInfo creatureType = Domain.Model.Types[typeof (Creature)];
+      var primaryIndex = creatureType.Indexes.PrimaryIndex;
+      var extractedRangeSets = CreateRangeSetsForPrimary(creatureType);
+      var providersTree = CreateTreeForInsertSecondaryIndexesOnlyTest(primaryIndex);
+      var inserter = new ProviderTreeRewriter(Domain.Model);
+      var modifiedTree = inserter.InsertRangeProviders(providersTree, extractedRangeSets);
+
+      Assert.AreEqual(providersTree.GetType(), modifiedTree.GetType());
+      var rangeSetProvider = ((FilterProvider) ((SortProvider) modifiedTree)
+        .Source).Source;
+      CheckPrimaryIndex(primaryIndex, rangeSetProvider);
+    }
+
+    private void CheckPrimaryIndex(IndexInfo primaryIndex, Provider rangeSetProvider)
+    {
+      Assert.AreEqual(typeof (RangeSetProvider), rangeSetProvider.GetType());
+      Assert.AreEqual(typeof (IndexProvider), ((RangeSetProvider) rangeSetProvider).Source.GetType());
+      Assert.AreSame(primaryIndex,
+        ((IndexProvider)((RangeSetProvider) rangeSetProvider).Source).Index.Resolve(Domain.Model));
+    }
+
+    private static Dictionary<IndexInfo, RangeSetInfo> CreateRangeSetsForPrimary(TypeInfo creatureType)
+    {
+      var primaryIndex = creatureType.Indexes.PrimaryIndex;
+      return new Dictionary<IndexInfo, RangeSetInfo>
+        {
+          {
+            primaryIndex, new RangeSetInfo(
+              Expression.Constant(new RangeSet<Entire<Tuple>>(Range<Entire<Tuple>>.Full,
+                AdvancedComparer<Entire<Tuple>>.Default)), null, false)
+            }
+        };
+    }
+
+    [Test]
+    public void InsertPrimaryIndexAndSecondaryTest()
+    {
+      TypeInfo creatureType = Domain.Model.Types[typeof (Creature)];
+      var primaryIndex = creatureType.Indexes.PrimaryIndex;
+      var extractedRangeSets = CreateRangeSetsForPrimaryAndSecondary(creatureType);
+      var providersTree = CreateTreeForInsertSecondaryIndexesOnlyTest(primaryIndex);
+      var inserter = new ProviderTreeRewriter(Domain.Model);
+      var modifiedTree = inserter.InsertRangeProviders(providersTree, extractedRangeSets);
+
+      Assert.AreEqual(providersTree.GetType(), modifiedTree.GetType());
+      Assert.AreEqual(typeof (SelectProvider),
+        ((FilterProvider)((SortProvider) modifiedTree).Source).Source.GetType());
+      var joinProvider = (JoinProvider)((SelectProvider)((FilterProvider)((SortProvider) modifiedTree).Source)
+        .Source).Source;
+      CheckPrimaryIndex(primaryIndex, joinProvider.Left);
+      Assert.AreEqual(typeof(UnionProvider), ((AliasProvider)joinProvider.Right).Source.GetType());
+    }
+
+    private static Dictionary<IndexInfo, RangeSetInfo> CreateRangeSetsForPrimaryAndSecondary(
+      TypeInfo creatureType)
+    {
+      var result = new Dictionary<IndexInfo, RangeSetInfo>(CreateRangeSetsForSecondary(creatureType));
+      foreach (var primary in CreateRangeSetsForPrimary(creatureType))
+        result.Add(primary.Key, primary.Value);
+      return result;
+    }
+
+    [Test]
+    public void DoNotModifyTest()
+    {
+      TypeInfo creatureType = Domain.Model.Types[typeof(Creature)];
+      var primaryIndex = creatureType.Indexes.PrimaryIndex;
+      var extractedRangeSets = CreateRangeSetsForSecondary(creatureType);
+      var providersTree = CreateTreeForForDoNotModifyTest(primaryIndex);
+      var inserter = new ProviderTreeRewriter(Domain.Model);
+      var nonModifiedTree = inserter.InsertRangeProviders(providersTree, extractedRangeSets);
+      Assert.AreEqual(providersTree, nonModifiedTree);
+    }
+
+    private static CompilableProvider CreateTreeForForDoNotModifyTest(IndexInfo primaryIndex)
+    {
+      CompilableProvider result = IndexProvider.Get(primaryIndex);
+      result = new RangeProvider(result, Range<Entire<Tuple>>.Full);
+      return new SortProvider(result, new DirectionCollection<int>(0));
     }
   }
 }

@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
         var result = InsertRangeSetForPrimaryIndex(primaryIndexProvider, primaryIndex);
         var secondaryProvider = UniteSecondaryProviders(primaryIndex);
         if (secondaryProvider != null)
-          result = JoinWithPrimaryIndex(secondaryProvider, primaryIndexProvider, primaryIndex);
+          result = JoinWithPrimaryIndex(secondaryProvider, result, primaryIndex);
         return new FilterProvider(result, provider.Predicate);
       }
       return base.VisitFilter(provider);
