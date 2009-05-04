@@ -14,7 +14,7 @@ using Xtensive.Storage.Rse.Providers;
 namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
   /// <summary>
-  /// Optimizer which uses ranges of index keys.
+  /// Optimizer that selects indexes and their key's ranges to be used.
   /// </summary>
   [Serializable]
   public sealed class IndexOptimizer : CompilableProviderVisitor, IPreCompiler

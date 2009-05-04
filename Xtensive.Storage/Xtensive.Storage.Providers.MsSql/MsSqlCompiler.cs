@@ -65,9 +65,7 @@ namespace Xtensive.Storage.Providers.MsSql
 
     protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
     {
-      var asSortProvider = provider.Source as SortProvider;
-      var sourceToCompile = asSortProvider != null ? asSortProvider.Source : provider.Source;
-      var compiledSource = GetCompiled(sourceToCompile) as SqlProvider;
+      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
       if (compiledSource == null)
         return null;
 

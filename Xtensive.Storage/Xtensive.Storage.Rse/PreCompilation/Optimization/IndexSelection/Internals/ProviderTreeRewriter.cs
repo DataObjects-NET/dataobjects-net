@@ -28,35 +28,54 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 
     protected override Provider VisitFilter(FilterProvider provider)
     {
-      var primaryProvider = provider.Source;
-      if (primaryProvider != null && currentRangeSets.Count > 0) {
-        var primaryIndex = ((IndexProvider)primaryProvider).Index.Resolve(domainModel);
-        if (currentRangeSets.ContainsKey(primaryIndex)) {
-          var rangeSet = currentRangeSets[primaryIndex];
-          primaryProvider = new RangeSetProvider(primaryProvider, rangeSet.GetSourceAsLambda());
-        }
-        CompilableProvider secondaryProvider = null;
-        foreach (var pair in currentRangeSets.Where(p => p.Key.IsSecondary)) {
-          var rangeSetProvider = new RangeSetProvider(IndexProvider.Get(pair.Key), pair.Value.GetSourceAsLambda());
-          var primaryKeyColumnIndexes = GetIndexesOfPrimaryKeyFields(primaryIndex, pair.Key);
-          var selectProvider = new SelectProvider(rangeSetProvider, primaryKeyColumnIndexes);
-          if (secondaryProvider == null)
-            secondaryProvider = selectProvider;
-          else
-            secondaryProvider = new UnionProvider(secondaryProvider, selectProvider);
-        }
-        if (secondaryProvider != null) {
-          var alias = new AliasProvider(secondaryProvider, "secondary");
-          var join = new JoinProvider(primaryProvider, alias, false, JoinType.Hash, GetEqualIndexes(primaryIndex.KeyColumns.Count));
-          var resultSelectProvider = new SelectProvider(join, Enumerable.Range(0, primaryIndex.Columns.Count).ToArray());
-          return new FilterProvider(resultSelectProvider, provider.Predicate);
-        }
-        return new FilterProvider(primaryProvider, provider.Predicate);
+      var primaryIndexProvider = provider.Source as IndexProvider;
+      if (primaryIndexProvider != null && currentRangeSets.Count > 0) {
+        var primaryIndex = primaryIndexProvider.Index.Resolve(domainModel);
+        var result = InsertRangeSetForPrimaryIndex(primaryIndexProvider, primaryIndex);
+        var secondaryProvider = UniteSecondaryProviders(primaryIndex);
+        if (secondaryProvider != null)
+          result = JoinWithPrimaryIndex(secondaryProvider, primaryIndexProvider, primaryIndex);
+        return new FilterProvider(result, provider.Predicate);
       }
       return base.VisitFilter(provider);
     }
 
     #region Private \ internal methods
+
+    private static SelectProvider JoinWithPrimaryIndex(CompilableProvider secondaryIndexProvider,
+      CompilableProvider primaryIndexProvider, IndexInfo primaryIndex)
+    {
+      var alias = new AliasProvider(secondaryIndexProvider, "secondary");
+      var join = new JoinProvider(primaryIndexProvider, alias, false, JoinType.Hash,
+        GetEqualIndexes(primaryIndex.KeyColumns.Count));
+      return new SelectProvider(join, Enumerable.Range(0, primaryIndex.Columns.Count).ToArray());
+    }
+
+    private CompilableProvider UniteSecondaryProviders(IndexInfo primaryIndex)
+    {
+      CompilableProvider result = null;
+      foreach (var pair in currentRangeSets.Where(p => p.Key.IsSecondary)) {
+        var rangeSetProvider = new RangeSetProvider(IndexProvider.Get(pair.Key),
+          pair.Value.GetSourceAsLambda());
+        var primaryKeyColumnIndexes = GetIndexesOfPrimaryKeyFields(primaryIndex, pair.Key);
+        var selectProvider = new SelectProvider(rangeSetProvider, primaryKeyColumnIndexes);
+        if (result == null)
+          result = selectProvider;
+        else
+          result = new UnionProvider(result, selectProvider);
+      }
+      return result;
+    }
+
+    private CompilableProvider InsertRangeSetForPrimaryIndex(CompilableProvider primaryProvider,
+      IndexInfo primaryIndex)
+    {
+      if (currentRangeSets.ContainsKey(primaryIndex)) {
+        var rangeSet = currentRangeSets[primaryIndex];
+        primaryProvider = new RangeSetProvider(primaryProvider, rangeSet.GetSourceAsLambda());
+      }
+      return primaryProvider;
+    }
 
     private static int[] GetIndexesOfPrimaryKeyFields(IndexInfo primaryIndex, IndexInfo secondaryIndex)
     {
