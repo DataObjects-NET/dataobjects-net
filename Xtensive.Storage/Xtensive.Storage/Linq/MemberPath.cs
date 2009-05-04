@@ -185,7 +185,8 @@ namespace Xtensive.Storage.Linq
         }
         lastItem = item;
       }
-      if (current!=null && current.NodeType==ExpressionType.Parameter) {
+      if (current!=null && 
+        (current.NodeType==ExpressionType.Parameter)) {
         if (lastItem!=null)
           result.AddHead(lastItem);
         return new MemberPath(result, (ParameterExpression) current);

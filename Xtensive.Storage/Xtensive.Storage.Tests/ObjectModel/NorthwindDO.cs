@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 
@@ -163,6 +164,28 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
     [Field(Length = 24)]
     public string Phone { get; set; }
+
+    /// <summary>
+    /// Tests subqery with 'this' scenario.
+    /// </summary>
+    public IQueryable<Order> Orders
+    {
+      get
+      {
+        return Query<Order>.All.Where(o => o.ShipVia==this);
+      }
+    }
+
+    /// <summary>
+    /// Tests subqery with 'this' scenario.
+    /// </summary>
+    public Order FirstOrder
+    {
+      get
+      {
+        return Query<Order>.All.Where(o => o.ShipVia==this).FirstOrDefault();
+      }
+    }
   }
 
   [Entity(MappingName = "Products")]

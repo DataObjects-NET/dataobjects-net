@@ -19,6 +19,16 @@ namespace Xtensive.Storage.Tests.Linq
   [TestFixture]
   public class SelectTest : NorthwindDOModelTest
   {
+    [Test]
+    public void ParameterTest()
+    {
+      var category = Query<Category>.All.First();
+      var result = Query<Product>.All.Where(p=>p.Category==category);
+      QueryDumper.Dump(result);
+//      Assert.AreEqual(1, result.AsEnumerable().Count());
+//      Assert.AreEqual(category, result.AsEnumerable().First());
+    }
+
 
     [Test]
     public void AnoimousEntityTest()

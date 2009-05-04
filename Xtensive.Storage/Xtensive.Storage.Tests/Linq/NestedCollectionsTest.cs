@@ -34,6 +34,15 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void SubqueryWithThisTest()
+    {
+      var shipper = Query<Shipper>.All.First();
+      var orders = shipper.Orders;
+      QueryDumper.Dump(orders);
+      var firstOrder = shipper.FirstOrder;
+    }
+
+    [Test]
     public void SelectOtherParameterTest()
     {
       var result = Query<Customer>.All.Select(c => Query<Order>.All.Select(o => c.Orders.Count()));
