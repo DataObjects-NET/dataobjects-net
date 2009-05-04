@@ -677,4 +677,10 @@ Actions:
   <data name="LogSkippingEntityXAsItDoesNotBelongToAnyHierarchyThusItCannotBePersistent" xml:space="preserve">
     <value>Skipping entity '{0}' as it does not belong to any hierarchy thus it cannot be persistent.</value>
   </data>
+  <data name="ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead" xml:space="preserve">
+    <value>Downcast from '{0}' to '{1}' not supported. Use 'OfType' or 'as' operator instead.</value>
+  </data>
+  <data name="ExAsOperatorSupportsEntityOnly" xml:space="preserve">
+    <value>'as' operator supports entity only.</value>
+  </data>
 </root>

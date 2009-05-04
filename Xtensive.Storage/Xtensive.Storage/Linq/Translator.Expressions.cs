@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Linq
         if (u.GetMemberType()==MemberType.Entity) {
           if (u.Type==u.Operand.Type || u.Type.IsAssignableFrom(u.Operand.Type))
             return base.VisitUnary(u);
-          throw new NotSupportedException(String.Format("Downcast from '{0}' to '{1}' not supported. Use 'OfType' or 'as' operator instead.", u.Operand.Type, u.Type));
+          throw new NotSupportedException(String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u.Operand.Type, u.Type));
         }
         break;
       }
@@ -97,31 +97,31 @@ namespace Xtensive.Storage.Linq
     private Expression VisitTypeAs(Expression source, Type targetType)
     {
       if (source.GetMemberType()!=MemberType.Entity)
-        throw new NotSupportedException("Only entity cast supported");
+        throw new NotSupportedException(Strings.ExAsOperatorSupportsEntityOnly);
 
+      // Expression is already of requested type.
       if (source.Type==targetType)
         return Visit(source);
 
-
+      // Call convert to parent type.
       if (!targetType.IsSubclassOf(source.Type))
         return Visit(Expression.Convert(source, targetType));
 
+      // Cast to subclass.
       using (state.CreateScope()) {
+        var targetTypeInfo = context.Model.Types[targetType];
         var parameter = state.Parameters[0];
 
         var visitedSource = Visit(source);
 
         var resultExpression = context.Bindings[parameter];
         var recordSet = resultExpression.RecordSet;
+        int offset = recordSet.Header.Columns.Count;
 
         var mapping = new ComplexMapping();
         mapping.Fill(state.MappingRef.Mapping);
 
-        var targetTypeInfo = context.Model.Types[targetType];
-
-
-        int offset = recordSet.Header.Columns.Count;
-
+        // Join primary index of target type
         var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
         var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
         var keySegment = mapping.GetFieldMapping(StorageWellKnown.Key);
@@ -134,6 +134,7 @@ namespace Xtensive.Storage.Linq
         for (int i = 0; i < groupMappings.Length; i++)
           groupMappings[i] = -1;
 
+        // Remap fields to new recordset.
         foreach (var targetField in targetTypeInfo.Fields) {
           int originalGroup = -1;
           Segment<int> originalSegment;
@@ -347,7 +348,7 @@ namespace Xtensive.Storage.Linq
             return ConstructQueryable(rootPoint);
         }
       }
-      else if (ma.Expression.NodeType == ExpressionType.Constant) {
+      else if (ma.Expression.NodeType==ExpressionType.Constant) {
         var rfi = ma.Member as FieldInfo;
         if (rfi!=null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType))) {
           var lambda = Expression.Lambda<Func<IQueryable>>(ma).Compile();
@@ -365,7 +366,7 @@ namespace Xtensive.Storage.Linq
         var argument = newExpression.Arguments[newExpression.Members.IndexOf(member)];
         return Visit(argument);
       }
-      else if (ma.Expression.GetMemberType() == MemberType.Entity && ma.Member.Name != "Key") {
+      else if (ma.Expression.GetMemberType()==MemberType.Entity && ma.Member.Name!="Key") {
         if (!context.Model.Types[ma.Expression.Type].Fields.Contains(ma.Member.Name))
           throw new NotSupportedException("Nonpersistent fields are not supported.");
       }

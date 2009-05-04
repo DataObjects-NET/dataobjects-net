@@ -20,7 +20,6 @@ using Xtensive.Storage.Linq.Expressions.Mappings;
 using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Linq
 {
