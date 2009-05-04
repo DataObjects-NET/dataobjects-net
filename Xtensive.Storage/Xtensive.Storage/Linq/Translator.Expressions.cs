@@ -167,13 +167,7 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitLambda(LambdaExpression le)
     {
       LambdaExpression result;
-      using (state.CreateScope()) {
-        state.RecordIsUsed = false;
-        state.Tuple = Expression.Parameter(typeof (Tuple), "t");
-        state.Record = Expression.Parameter(typeof (Record), "r");
-        state.OuterParameters = state.OuterParameters.Concat(state.Parameters).ToArray();
-        state.Parameters = le.Parameters.ToArray();
-        state.CalculatedColumns = new List<CalculatedColumnDescriptor>();
+      using (state.CreateLambdaScope(le)) {
         var body = Visit(le.Body);
         if (body.IsResult())
           body = BuildSubqueryResult((ResultExpression) body, le.Body.Type);

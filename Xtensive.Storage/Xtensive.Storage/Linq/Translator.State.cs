@@ -7,9 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions.Mappings;
 using Xtensive.Storage.Rse;
 
@@ -31,20 +33,6 @@ namespace Xtensive.Storage.Linq
       private bool entityAsKey;
       private bool calculateExpressions;
       private bool recordIsUsed;
-
-      public bool RecordIsUsed
-      {
-        get { return recordIsUsed; }
-        set
-        {
-          if (value) {
-            if (!entityAsKey)
-              recordIsUsed = true;
-          }
-          else
-            recordIsUsed = false;
-        }
-      }
 
       public List<CalculatedColumnDescriptor> CalculatedColumns
       {
@@ -73,13 +61,11 @@ namespace Xtensive.Storage.Linq
       public ParameterExpression Tuple
       {
         get { return tuple; }
-        set { tuple = value; }
       }
 
       public ParameterExpression Record
       {
         get { return record; }
-        set { record = value; }
       }
 
       public bool EntityAsKey
@@ -94,6 +80,20 @@ namespace Xtensive.Storage.Linq
         set { calculateExpressions = value; }
       }
 
+      public bool RecordIsUsed
+      {
+        get { return recordIsUsed; }
+        set
+        {
+          if (value) {
+            if (!entityAsKey)
+              recordIsUsed = true;
+          }
+          else
+            recordIsUsed = false;
+        }
+      }
+
       public IDisposable CreateScope()
       {
         var currentState = translator.state;
@@ -103,6 +103,20 @@ namespace Xtensive.Storage.Linq
           currentState.RecordIsUsed = currentState.RecordIsUsed | newState.RecordIsUsed;
           translator.state = currentState;
         });
+      }
+
+      public IDisposable CreateLambdaScope(LambdaExpression le)
+      {
+        var currentState = translator.state;
+        var newState = new State(currentState);
+        newState.RecordIsUsed = false;
+        newState.tuple = Expression.Parameter(typeof(Tuple), "t");
+        newState.record = Expression.Parameter(typeof(Record), "r");
+        newState.outerParameters = newState.outerParameters.Concat(newState.parameters).ToArray();
+        newState.parameters = le.Parameters.ToArray();
+        newState.calculatedColumns = new List<CalculatedColumnDescriptor>();
+        translator.state = newState;
+        return new Disposable((b) => translator.state = currentState);
       }
 
 
