@@ -18,6 +18,28 @@ namespace Xtensive.Storage.Tests.Linq
   [TestFixture]
   public class ComplexTest : NorthwindDOModelTest
   {
+    private static IQueryable<Customer> GetQuery(string filter)
+    {
+      var customers = Query<Customer>.All.Where(cn => cn.CompanyName.StartsWith(filter));
+      return customers;
+    }
+
+    [Test]
+    public void TestChached()
+    {
+      for (char c = 'A'; c <= 'Z'; c++) {
+        var cachedQuery = GetQuery(c.ToString());
+        var contactNames = cachedQuery
+          .Select(customer => customer.ContactName)
+          .AsEnumerable();
+        var fullQuery = Query<Customer>.All
+          .Where(cn => cn.CompanyName.StartsWith(c.ToString()))
+          .Select(customer => customer.ContactName)
+          .AsEnumerable();
+        Assert.IsTrue(contactNames.SequenceEqual(fullQuery));
+      }
+    }
+
     [Test]
     public void CorrelatedQueryTest()
     {
