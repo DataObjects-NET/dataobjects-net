@@ -56,6 +56,7 @@ namespace Xtensive.Storage.Tests.Issues
         Assert.AreEqual(2, rsMyEntities.Count());
 
         Assert.AreEqual(0, rsMyEntities.Take(1).Skip(1).Count());
+        Assert.AreEqual(1, rsMyEntities.Skip(1).Take(1).Count());
         Assert.AreEqual(1, rsMyEntities.Take(1).Take(2).Count());
         Assert.AreEqual(0, rsMyEntities.Skip(1).Skip(1).Count());
         trs.Complete();

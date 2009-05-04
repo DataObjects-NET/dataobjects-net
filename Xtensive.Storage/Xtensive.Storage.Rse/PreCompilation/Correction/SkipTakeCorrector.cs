@@ -12,16 +12,15 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 namespace Xtensive.Storage.Rse.PreCompilation.Correction
 {
   /// <summary>
-  /// Inserts a <see cref="RowNumberProvider"/> as 
-  /// <see cref="UnaryProvider.Source"/> of a <see cref="SkipProvider"/>
+  /// Corrects an using of <see cref="SkipProvider"/> and <see cref="TakeProvider"/>
   /// </summary>
   [Serializable]
-  public sealed class SkipCorrector : IPreCompiler
+  public sealed class SkipTakeCorrector : IPreCompiler
   {
     /// <inheritdoc/>
     CompilableProvider IPreCompiler.Process(CompilableProvider rootProvider)
     {
-      return new SkipRewriter(rootProvider).Rewrite();
+      return new SkipTakeRewriter(rootProvider).Rewrite();
     }
   }
 }
