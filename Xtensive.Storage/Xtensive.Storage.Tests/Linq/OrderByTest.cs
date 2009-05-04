@@ -127,6 +127,24 @@ namespace Xtensive.Storage.Tests.Linq
         .OrderBy(c => c.Address.Country).Select(c => c.Address.City);
       var expected = Query<Customer>.All.AsEnumerable().OrderBy(c => c.CompanyName)
         .OrderBy(c => c.Address.Country).Select(c => c.Address.City);
+      Assert.AreEqual(0, expected.Except(result).Count());
+    }
+
+    [Test]
+    public void SequentialOrderByTest()
+    {
+      IQueryable<string> result = Query<Customer>.All
+        .OrderBy(c => c.CompanyName)
+        .Select(c=>c.Address.City)
+        .Distinct()
+        .OrderBy(c => c)
+        .Select(c => c);
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .Select(c=>c.Address.City)
+        .Distinct()
+        .OrderBy(c => c)
+        .Select(c => c);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
