@@ -25,18 +25,23 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void TestChached()
+    public void CachedQueryTest()
     {
       for (char c = 'A'; c <= 'Z'; c++) {
-        var cachedQuery = GetQuery(c.ToString());
-        var contactNames = cachedQuery
-          .Select(customer => customer.ContactName)
-          .AsEnumerable();
+        string firstChar = c.ToString();
+        var builtQuery = GetQuery(firstChar);
+        var query = builtQuery
+          .Select(customer => customer.ContactName);
+        var cachedQuery = CachedQuery
+          .Execute(() => GetQuery(firstChar).Select(customer => customer.ContactName));
         var fullQuery = Query<Customer>.All
-          .Where(cn => cn.CompanyName.StartsWith(c.ToString()))
-          .Select(customer => customer.ContactName)
-          .AsEnumerable();
-        Assert.IsTrue(contactNames.SequenceEqual(fullQuery));
+          .Where(cn => cn.CompanyName.StartsWith(firstChar))
+          .Select(customer => customer.ContactName);
+        Assert.IsTrue(query.AsEnumerable().SequenceEqual(fullQuery.AsEnumerable()));
+        var cachedQueryList = cachedQuery.ToList();
+        var fullQueryList = fullQuery.ToList();
+        var condition = cachedQueryList.SequenceEqual(fullQueryList);
+        Assert.IsTrue(condition);
       }
     }
 
