@@ -34,6 +34,14 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void ParameterTest()
+    {
+      var category = Query<Category>.All.First();
+      var result = Query<Product>.All.Where(p=>p.Category==category);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void MultipleConditionTest()
     {
       var customers = Query<Customer>.All.Select(c=>c.CompanyName).Where(cn => cn.StartsWith("A") || cn.StartsWith("B"));

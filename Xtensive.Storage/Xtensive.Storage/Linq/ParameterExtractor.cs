@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Linq
   public sealed class ParameterExtractor : ExpressionVisitor
   {
     private readonly ExpressionEvaluator evaluator;
-    private bool containsMemberAccess;
+    private bool isParameter;
 
     /// <summary>
     /// Determines whether the specified <paramref name="e"/> is parameter.
@@ -30,9 +30,9 @@ namespace Xtensive.Storage.Linq
     {
       if (!evaluator.CanBeEvaluated(e))
         return false;
-      containsMemberAccess = false;
+      isParameter = false;
       Visit(e);
-      return containsMemberAccess;
+      return isParameter;
     }
 
     /// <summary>
@@ -41,11 +41,11 @@ namespace Xtensive.Storage.Linq
     /// <param name="expression">The expression.</param>
     public Expression<Func<T>> ExtractParameter<T>(Expression expression)
     {
-      if (expression.NodeType == ExpressionType.Lambda)
+      if (expression.NodeType==ExpressionType.Lambda)
         return (Expression<Func<T>>) expression;
       Type type = expression.Type;
       if (type.IsValueType)
-        expression = Expression.Convert(expression, typeof(T));
+        expression = Expression.Convert(expression, typeof (T));
       var lambda = Expression.Lambda<Func<T>>(expression);
       return lambda;
     }
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
-      containsMemberAccess = true;
+      isParameter = true;
       return base.VisitMemberAccess(m);
     }
 
@@ -62,7 +62,18 @@ namespace Xtensive.Storage.Linq
     {
       return e;
     }
-    
+
+    protected override Expression VisitConstant(ConstantExpression c)
+    {
+      switch (c.GetMemberType()) {
+      case MemberType.Entity:
+      case MemberType.Structure:
+        isParameter = true;
+        break;
+      }
+      return c;
+    }
+
     // Constructor
 
     /// <summary>
