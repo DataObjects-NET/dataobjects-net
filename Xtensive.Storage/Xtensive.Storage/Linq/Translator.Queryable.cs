@@ -27,16 +27,10 @@ namespace Xtensive.Storage.Linq
   internal sealed partial class Translator : MemberPathVisitor
   {
     private readonly TranslatorContext context;
-
+    
     public ResultExpression Translate()
     {
-      using (new ParameterScope()) {
-        entityAsKey.Value = true;
-        calculateExpressions.Value = false;
-        RecordIsUsed = false;
-        outerParameters.Value = parameters.Value = ArrayUtils<ParameterExpression>.EmptyArray;
-        return (ResultExpression) Visit(context.Query);
-      }
+      return (ResultExpression)Visit(context.Query);
     }
 
     protected override Expression VisitConstant(ConstantExpression c)
@@ -51,175 +45,175 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitQueryableMethod(MethodCallExpression mc, QueryableMethodKind methodKind)
     {
-      using (new ParameterScope()) {
-        entityAsKey.Value = true;
+      using (state.CreateScope()) {
+        state.EntityAsKey = true;
         switch (methodKind) {
-        case QueryableMethodKind.Cast:
-          break;
-        case QueryableMethodKind.AsEnumerable:
-          break;
-        case QueryableMethodKind.AsQueryable:
-          break;
-        case QueryableMethodKind.ToArray:
-          break;
-        case QueryableMethodKind.ToList:
-          break;
-        case QueryableMethodKind.Aggregate:
-          break;
-        case QueryableMethodKind.ElementAt:
-          break;
-        case QueryableMethodKind.ElementAtOrDefault:
-          break;
-        case QueryableMethodKind.Last:
-          break;
-        case QueryableMethodKind.LastOrDefault:
-          break;
-        case QueryableMethodKind.Except:
-        case QueryableMethodKind.Intersect:
-        case QueryableMethodKind.Concat:
-        case QueryableMethodKind.Union:
-          return VisitSetOperations(mc.Arguments[0], mc.Arguments[1], methodKind);
-        case QueryableMethodKind.Reverse:
-          break;
-        case QueryableMethodKind.SequenceEqual:
-          break;
-        case QueryableMethodKind.DefaultIfEmpty:
-          break;
-        case QueryableMethodKind.SkipWhile:
-          break;
-        case QueryableMethodKind.TakeWhile:
-          break;
-        case QueryableMethodKind.All:
-          if (mc.Arguments.Count==2)
-            return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
-          break;
-        case QueryableMethodKind.OfType:
-          return VisitOfType(mc.Arguments[0], mc.Method.GetGenericArguments()[0], mc.Arguments[0].Type.GetGenericArguments()[0]);
-        case QueryableMethodKind.Any:
-          if (mc.Arguments.Count==1)
-            return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
-          if (mc.Arguments.Count==2)
-            return VisitAny(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
-          break;
-        case QueryableMethodKind.Contains:
-          if (mc.Arguments.Count==2)
-            return VisitContains(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc));
-          break;
-        case QueryableMethodKind.Distinct:
-          if (mc.Arguments.Count==1)
-            return VisitDistinct(mc.Arguments[0]);
-          break;
-        case QueryableMethodKind.First:
-        case QueryableMethodKind.FirstOrDefault:
-        case QueryableMethodKind.Single:
-        case QueryableMethodKind.SingleOrDefault:
-          if (mc.Arguments.Count==1)
-            return VisitFirstSingle(mc.Arguments[0], null, mc.Method, context.IsRoot(mc));
-          if (mc.Arguments.Count==2) {
-            LambdaExpression predicate = (mc.Arguments[1].StripQuotes());
-            return VisitFirstSingle(mc.Arguments[0], predicate, mc.Method, context.IsRoot(mc));
-          }
-          break;
-        case QueryableMethodKind.GroupBy:
-          if (mc.Arguments.Count==2) {
-            return VisitGroupBy(
-              mc.Method,
-              mc.Arguments[0],
-              mc.Arguments[1].StripQuotes(),
-              null,
-              null
-              );
-          }
-          if (mc.Arguments.Count==3) {
-            LambdaExpression lambda1 = mc.Arguments[1].StripQuotes();
-            LambdaExpression lambda2 = mc.Arguments[2].StripQuotes();
-            if (lambda2.Parameters.Count==1) {
-              // second lambda is element selector
+          case QueryableMethodKind.Cast:
+            break;
+          case QueryableMethodKind.AsEnumerable:
+            break;
+          case QueryableMethodKind.AsQueryable:
+            break;
+          case QueryableMethodKind.ToArray:
+            break;
+          case QueryableMethodKind.ToList:
+            break;
+          case QueryableMethodKind.Aggregate:
+            break;
+          case QueryableMethodKind.ElementAt:
+            break;
+          case QueryableMethodKind.ElementAtOrDefault:
+            break;
+          case QueryableMethodKind.Last:
+            break;
+          case QueryableMethodKind.LastOrDefault:
+            break;
+          case QueryableMethodKind.Except:
+          case QueryableMethodKind.Intersect:
+          case QueryableMethodKind.Concat:
+          case QueryableMethodKind.Union:
+            return VisitSetOperations(mc.Arguments[0], mc.Arguments[1], methodKind);
+          case QueryableMethodKind.Reverse:
+            break;
+          case QueryableMethodKind.SequenceEqual:
+            break;
+          case QueryableMethodKind.DefaultIfEmpty:
+            break;
+          case QueryableMethodKind.SkipWhile:
+            break;
+          case QueryableMethodKind.TakeWhile:
+            break;
+          case QueryableMethodKind.All:
+            if (mc.Arguments.Count == 2)
+              return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
+            break;
+          case QueryableMethodKind.OfType:
+            return VisitOfType(mc.Arguments[0], mc.Method.GetGenericArguments()[0], mc.Arguments[0].Type.GetGenericArguments()[0]);
+          case QueryableMethodKind.Any:
+            if (mc.Arguments.Count == 1)
+              return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
+            if (mc.Arguments.Count == 2)
+              return VisitAny(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
+            break;
+          case QueryableMethodKind.Contains:
+            if (mc.Arguments.Count == 2)
+              return VisitContains(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc));
+            break;
+          case QueryableMethodKind.Distinct:
+            if (mc.Arguments.Count == 1)
+              return VisitDistinct(mc.Arguments[0]);
+            break;
+          case QueryableMethodKind.First:
+          case QueryableMethodKind.FirstOrDefault:
+          case QueryableMethodKind.Single:
+          case QueryableMethodKind.SingleOrDefault:
+            if (mc.Arguments.Count == 1)
+              return VisitFirstSingle(mc.Arguments[0], null, mc.Method, context.IsRoot(mc));
+            if (mc.Arguments.Count == 2) {
+              LambdaExpression predicate = (mc.Arguments[1].StripQuotes());
+              return VisitFirstSingle(mc.Arguments[0], predicate, mc.Method, context.IsRoot(mc));
+            }
+            break;
+          case QueryableMethodKind.GroupBy:
+            if (mc.Arguments.Count == 2) {
               return VisitGroupBy(
                 mc.Method,
                 mc.Arguments[0],
-                lambda1,
-                lambda2,
+                mc.Arguments[1].StripQuotes(),
+                null,
+                null
+                );
+            }
+            if (mc.Arguments.Count == 3) {
+              LambdaExpression lambda1 = mc.Arguments[1].StripQuotes();
+              LambdaExpression lambda2 = mc.Arguments[2].StripQuotes();
+              if (lambda2.Parameters.Count == 1) {
+                // second lambda is element selector
+                return VisitGroupBy(
+                  mc.Method,
+                  mc.Arguments[0],
+                  lambda1,
+                  lambda2,
+                  null);
+              }
+              if (lambda2.Parameters.Count == 2) {
+                // second lambda is result selector
+                return VisitGroupBy(
+                  mc.Method,
+                  mc.Arguments[0],
+                  lambda1,
+                  null,
+                  lambda2);
+              }
+            }
+            else if (mc.Arguments.Count == 4) {
+              return VisitGroupBy(
+                mc.Method,
+                mc.Arguments[0],
+                mc.Arguments[1].StripQuotes(),
+                mc.Arguments[2].StripQuotes(),
+                mc.Arguments[3].StripQuotes()
+                );
+            }
+            break;
+          case QueryableMethodKind.GroupJoin:
+            return VisitGroupJoin(
+              mc.Type, mc.Arguments[0], mc.Arguments[1],
+              mc.Arguments[2].StripQuotes(),
+              mc.Arguments[3].StripQuotes(),
+              mc.Arguments[4].StripQuotes());
+          case QueryableMethodKind.Join:
+            return VisitJoin(mc.Arguments[0], mc.Arguments[1],
+              mc.Arguments[2].StripQuotes(),
+              mc.Arguments[3].StripQuotes(),
+              mc.Arguments[4].StripQuotes());
+          case QueryableMethodKind.OrderBy:
+            return VisitOrderBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Positive);
+          case QueryableMethodKind.OrderByDescending:
+            return VisitOrderBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Negative);
+          case QueryableMethodKind.Select:
+            return VisitSelect(mc.Arguments[0], mc.Arguments[1].StripQuotes());
+          case QueryableMethodKind.SelectMany:
+            if (mc.Arguments.Count == 2) {
+              return VisitSelectMany(
+                mc.Type, mc.Arguments[0],
+                mc.Arguments[1].StripQuotes(),
                 null);
             }
-            if (lambda2.Parameters.Count==2) {
-              // second lambda is result selector
-              return VisitGroupBy(
-                mc.Method,
-                mc.Arguments[0],
-                lambda1,
-                null,
-                lambda2);
+            if (mc.Arguments.Count == 3) {
+              return VisitSelectMany(
+                mc.Type, mc.Arguments[0],
+                mc.Arguments[1].StripQuotes(),
+                mc.Arguments[2].StripQuotes());
             }
-          }
-          else if (mc.Arguments.Count==4) {
-            return VisitGroupBy(
-              mc.Method,
-              mc.Arguments[0],
-              mc.Arguments[1].StripQuotes(),
-              mc.Arguments[2].StripQuotes(),
-              mc.Arguments[3].StripQuotes()
-              );
-          }
-          break;
-        case QueryableMethodKind.GroupJoin:
-          return VisitGroupJoin(
-            mc.Type, mc.Arguments[0], mc.Arguments[1],
-            mc.Arguments[2].StripQuotes(),
-            mc.Arguments[3].StripQuotes(),
-            mc.Arguments[4].StripQuotes());
-        case QueryableMethodKind.Join:
-          return VisitJoin(mc.Arguments[0], mc.Arguments[1],
-            mc.Arguments[2].StripQuotes(),
-            mc.Arguments[3].StripQuotes(),
-            mc.Arguments[4].StripQuotes());
-        case QueryableMethodKind.OrderBy:
-          return VisitOrderBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Positive);
-        case QueryableMethodKind.OrderByDescending:
-          return VisitOrderBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Negative);
-        case QueryableMethodKind.Select:
-          return VisitSelect(mc.Arguments[0], mc.Arguments[1].StripQuotes());
-        case QueryableMethodKind.SelectMany:
-          if (mc.Arguments.Count==2) {
-            return VisitSelectMany(
-              mc.Type, mc.Arguments[0],
-              mc.Arguments[1].StripQuotes(),
-              null);
-          }
-          if (mc.Arguments.Count==3) {
-            return VisitSelectMany(
-              mc.Type, mc.Arguments[0],
-              mc.Arguments[1].StripQuotes(),
-              mc.Arguments[2].StripQuotes());
-          }
-          break;
-        case QueryableMethodKind.LongCount:
-        case QueryableMethodKind.Count:
-        case QueryableMethodKind.Max:
-        case QueryableMethodKind.Min:
-        case QueryableMethodKind.Sum:
-        case QueryableMethodKind.Average:
-          if (mc.Arguments.Count==1)
-            return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc));
-          if (mc.Arguments.Count==2)
-            return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
-          break;
-        case QueryableMethodKind.Skip:
-          if (mc.Arguments.Count==2)
-            return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
-          break;
-        case QueryableMethodKind.Take:
-          if (mc.Arguments.Count==2)
-            return VisitTake(mc.Arguments[0], mc.Arguments[1]);
-          break;
-        case QueryableMethodKind.ThenBy:
-          return VisitThenBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Positive);
-        case QueryableMethodKind.ThenByDescending:
-          return VisitThenBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Negative);
-        case QueryableMethodKind.Where:
-          return VisitWhere(mc.Arguments[0], mc.Arguments[1].StripQuotes());
-        default:
-          throw new ArgumentOutOfRangeException("methodKind");
+            break;
+          case QueryableMethodKind.LongCount:
+          case QueryableMethodKind.Count:
+          case QueryableMethodKind.Max:
+          case QueryableMethodKind.Min:
+          case QueryableMethodKind.Sum:
+          case QueryableMethodKind.Average:
+            if (mc.Arguments.Count == 1)
+              return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc));
+            if (mc.Arguments.Count == 2)
+              return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
+            break;
+          case QueryableMethodKind.Skip:
+            if (mc.Arguments.Count == 2)
+              return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
+            break;
+          case QueryableMethodKind.Take:
+            if (mc.Arguments.Count == 2)
+              return VisitTake(mc.Arguments[0], mc.Arguments[1]);
+            break;
+          case QueryableMethodKind.ThenBy:
+            return VisitThenBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Positive);
+          case QueryableMethodKind.ThenByDescending:
+            return VisitThenBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Negative);
+          case QueryableMethodKind.Where:
+            return VisitWhere(mc.Arguments[0], mc.Arguments[1].StripQuotes());
+          default:
+            throw new ArgumentOutOfRangeException("methodKind");
         }
       }
       throw new NotSupportedException();
@@ -411,11 +405,11 @@ namespace Xtensive.Storage.Linq
         }
         else {
           using (context.Bindings.Add(argument.Parameters[0], innerResult))
-          using (new ParameterScope()) {
-            calculateExpressions.Value = true;
-            mappingRef.Value = new MappingReference();
+          using (state.CreateScope()) {
+            state.CalculateExpressions = true;
+            state.MappingRef = new MappingReference();
             var result = Visit(argument);
-            columnList = mappingRef.Value.Mapping.GetColumns(entityAsKey.Value);
+            columnList = state.MappingRef.Mapping.GetColumns(state.EntityAsKey);
             innerResult = context.Bindings[argument.Parameters[0]];
           }
         }
@@ -450,14 +444,14 @@ namespace Xtensive.Storage.Linq
       ResultExpression result;
       var groupByMapping = new MappingReference();
       using (context.Bindings.Add(keySelector.Parameters[0], VisitSequence(source)))
-      using (new ParameterScope()) {
-        mappingRef.Value = groupByMapping;
-        calculateExpressions.Value = true;
+      using (state.CreateScope()) {
+        state.MappingRef = groupByMapping;
+        state.CalculateExpressions = true;
         originalCompiledKeyExpression = (LambdaExpression) Visit(keySelector);
         result = context.Bindings[keySelector.Parameters[0]];
       }
 
-      var columnList = groupByMapping.Mapping.GetColumns(entityAsKey.Value);
+      var columnList = groupByMapping.Mapping.GetColumns(state.EntityAsKey);
       var recordSet = result.RecordSet.Aggregate(columnList.ToArray());
       var groupMapping = result.RecordSet.Header.ColumnGroups
         .Select((cg, i) => new {Group = cg, Index = i})
@@ -573,11 +567,11 @@ namespace Xtensive.Storage.Linq
     private Expression VisitOrderBy(Expression expression, LambdaExpression le, Direction direction)
     {
       using (context.Bindings.Add(le.Parameters[0], VisitSequence(expression)))
-      using (new ParameterScope()) {
-        mappingRef.Value = new MappingReference();
-        calculateExpressions.Value = true;
+      using (state.CreateScope()) {
+        state.MappingRef = new MappingReference();
+        state.CalculateExpressions = true;
         Visit(le);
-        var orderItems = mappingRef.Value.Mapping.GetColumns(entityAsKey.Value)
+        var orderItems = state.MappingRef.Mapping.GetColumns(state.EntityAsKey)
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
         var dc = new DirectionCollection<int>(orderItems);
         var result = context.Bindings[le.Parameters[0]];
@@ -589,11 +583,11 @@ namespace Xtensive.Storage.Linq
     private Expression VisitThenBy(Expression expression, LambdaExpression le, Direction direction)
     {
       using (context.Bindings.Add(le.Parameters[0], VisitSequence(expression)))
-      using (new ParameterScope()) {
-        mappingRef.Value = new MappingReference();
-        calculateExpressions.Value = true;
+      using (state.CreateScope()) {
+        state.MappingRef = new MappingReference();
+        state.CalculateExpressions = true;
         Visit(le);
-        var orderItems = mappingRef.Value.Mapping.GetColumns(entityAsKey.Value)
+        var orderItems = state.MappingRef.Mapping.GetColumns(state.EntityAsKey)
           .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
         var result = context.Bindings[le.Parameters[0]];
         var sortProvider = (SortProvider)result.RecordSet.Provider;
@@ -615,15 +609,15 @@ namespace Xtensive.Storage.Linq
       using (context.Bindings.Add(innerParameter, VisitSequence(innerSource))) {
         var outerMappingRef = new MappingReference();
         var innerMappingRef = new MappingReference();
-        using (new ParameterScope()) {
-          calculateExpressions.Value = true;
-          mappingRef.Value = outerMappingRef;
+        using (state.CreateScope()) {
+          state.CalculateExpressions = true;
+          state.MappingRef = outerMappingRef;
           Visit(outerKey);
-          mappingRef.Value = innerMappingRef;
+          state.MappingRef = innerMappingRef;
           Visit(innerKey);
         }
-        var outerColumns = outerMappingRef.Mapping.GetColumns(entityAsKey.Value);
-        var innerColumns = innerMappingRef.Mapping.GetColumns(entityAsKey.Value);
+        var outerColumns = outerMappingRef.Mapping.GetColumns(state.EntityAsKey);
+        var innerColumns = innerMappingRef.Mapping.GetColumns(state.EntityAsKey);
         var keyPairs = outerColumns.Zip(innerColumns, (o, i) => new Pair<int>(o, i)).ToArray();
 
         var outer = context.Bindings[outerParameter];
@@ -666,7 +660,7 @@ namespace Xtensive.Storage.Linq
 //      using (context.Bindings.Add(innerParameter, VisitSequence(innerSource))) {
 //        var outerMappingRef = new MappingReference();
 //        var innerMappingRef = new MappingReference();
-//        using (new ParameterScope()) {
+//        using (state.CreateScope()) {
 //          mappingRef.Value = outerMappingRef;
 //          Visit(outerKey);
 //          mappingRef.Value = innerMappingRef;
@@ -697,13 +691,13 @@ namespace Xtensive.Storage.Linq
             collectionSelector = Expression.Lambda(call.Arguments[0], parameter);
         }
         ResultExpression innerResult;
-        using (new ParameterScope()) {
-          mappingRef.Value = new MappingReference(false);
-          outerParameters.Value = outerParameters.Value
-            .Concat(parameters.Value)
+        using (state.CreateScope()) {
+          state.MappingRef = new MappingReference(false);
+          state.OuterParameters = state.OuterParameters
+            .Concat(state.Parameters)
             .AddOne(parameter)
             .ToArray();
-          parameters.Value = ArrayUtils<ParameterExpression>.EmptyArray;
+          state.Parameters = ArrayUtils<ParameterExpression>.EmptyArray;
           innerResult = VisitSequence(collectionSelector.Body);
         }
         var outerResult = context.Bindings[parameter];
@@ -730,16 +724,16 @@ namespace Xtensive.Storage.Linq
 
     private ResultExpression BuildProjection(LambdaExpression le)
     {
-      using (new ParameterScope()) {
-        mappingRef.Value = new MappingReference();
-        entityAsKey.Value = false;
-        calculateExpressions.Value = true;
+      using (state.CreateScope()) {
+        state.MappingRef = new MappingReference();
+        state.EntityAsKey = false;
+        state.CalculateExpressions = true;
         var itemProjector = (LambdaExpression) Visit(le);
         var source = context.Bindings[le.Parameters[0]];
         return new ResultExpression(
           typeof (IQueryable<>).MakeGenericType(le.Body.Type),
           source.RecordSet,
-          mappingRef.Value.Mapping,
+          state.MappingRef.Mapping,
           itemProjector);
       }
     }
@@ -748,9 +742,9 @@ namespace Xtensive.Storage.Linq
     {
       var parameter = le.Parameters[0];
       using (context.Bindings.Add(parameter, VisitSequence(expression)))
-      using (new ParameterScope()) {
-        mappingRef.Value = new MappingReference(false);
-        calculateExpressions.Value = false;
+      using (state.CreateScope()) {
+        state.MappingRef = new MappingReference(false);
+        state.CalculateExpressions = false;
         var predicate = Visit(le);
         var source = context.Bindings[parameter];
         var recordSet = source.RecordSet.Filter((Expression<Func<Tuple, bool>>) predicate);
@@ -781,8 +775,8 @@ namespace Xtensive.Storage.Linq
     private Expression VisitExists(Expression source, LambdaExpression predicate, bool notExists)
     {
       ResultExpression subquery;
-      using (new ParameterScope()) {
-        calculateExpressions.Value = false;
+      using (state.CreateScope()) {
+        state.CalculateExpressions = false;
         subquery = predicate==null
           ? VisitSequence(source)
           : VisitWhere(source, predicate);
@@ -845,14 +839,14 @@ namespace Xtensive.Storage.Linq
       if (subquery.Header.Length!=1)
         throw new ArgumentException();
       var column = subquery.Header.Columns[0];
-      var lambdaParameter = parameters.Value[0];
+      var lambdaParameter = state.Parameters[0];
       var oldResult = context.Bindings[lambdaParameter];
       var applyParameter = context.GetApplyParameter(oldResult);
       int columnIndex = oldResult.RecordSet.Header.Length;
       var newMapping = new ComplexMapping();
       newMapping.Fill(oldResult.Mapping);
       newMapping.RegisterField(column.Name, new Segment<int>(columnIndex, 1));
-      mappingRef.Value.RegisterField(column.Name, new Segment<int>(columnIndex, 1));
+      state.MappingRef.RegisterField(column.Name, new Segment<int>(columnIndex, 1));
       var newRecordSet = oldResult.RecordSet.Apply(applyParameter, subquery);
       var newResult = new ResultExpression(
         oldResult.Type, newRecordSet, newMapping, oldResult.ItemProjector);
@@ -929,7 +923,7 @@ namespace Xtensive.Storage.Linq
       : base(context.Model)
     {
       this.context = context;
-      recordIsUsedParameter = new Parameter<bool>("recordIsUsed", RecordIsUsedOnOutOfScope);
+      state = new State(this);
     }
   }
 }

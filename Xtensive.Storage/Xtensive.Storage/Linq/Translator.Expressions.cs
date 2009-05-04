@@ -30,33 +30,9 @@ using FieldInfo=System.Reflection.FieldInfo;
 
 namespace Xtensive.Storage.Linq
 {
-  internal partial class Translator
+  internal sealed partial class Translator
   {
     private const string SurrogateKeyNameFormatString = "#_Key_{0}";
-
-    private readonly Parameter<List<CalculatedColumnDescriptor>> calculatedColumns = new Parameter<List<CalculatedColumnDescriptor>>("calculatedColumns");
-    private readonly Parameter<ParameterExpression[]> parameters = new Parameter<ParameterExpression[]>("parameters");
-    private readonly Parameter<ParameterExpression[]> outerParameters = new Parameter<ParameterExpression[]>("outerParameters");
-    private readonly Parameter<MappingReference> mappingRef = new Parameter<MappingReference>("mapping");
-    private readonly Parameter<ParameterExpression> tuple = new Parameter<ParameterExpression>("tuple");
-    private readonly Parameter<ParameterExpression> record = new Parameter<ParameterExpression>("record");
-    private readonly Parameter<bool> entityAsKey = new Parameter<bool>("entityAsKey");
-    private readonly Parameter<bool> calculateExpressions = new Parameter<bool>("calculateExpressions");
-    private readonly Parameter<bool> recordIsUsedParameter;
-
-    private bool RecordIsUsed
-    {
-      get { return recordIsUsedParameter.Value; }
-      set
-      {
-        if (value) {
-          if (!entityAsKey.HasValue || !entityAsKey.Value)
-            recordIsUsedParameter.Value = true;
-        }
-        else
-          recordIsUsedParameter.Value = false;
-      }
-    }
 
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
@@ -130,8 +106,8 @@ namespace Xtensive.Storage.Linq
       if (!targetType.IsSubclassOf(source.Type))
         return Visit(Expression.Convert(source, targetType));
 
-      using (new ParameterScope()) {
-        var parameter = parameters.Value[0];
+      using (state.CreateScope()) {
+        var parameter = state.Parameters[0];
 
         var visitedSource = Visit(source);
 
@@ -139,7 +115,7 @@ namespace Xtensive.Storage.Linq
         var recordSet = resultExpression.RecordSet;
 
         var mapping = new ComplexMapping();
-        mapping.Fill(mappingRef.Value.Mapping);
+        mapping.Fill(state.MappingRef.Mapping);
 
         var targetTypeInfo = context.Model.Types[targetType];
 
@@ -183,7 +159,7 @@ namespace Xtensive.Storage.Linq
         var rewrittenSource = rewriter.Rewrite(visitedSource);
         var re = new ResultExpression(resultExpression.Type, joinedRecordSet, resultExpression.Mapping, resultExpression.ItemProjector);
         context.Bindings.ReplaceBound(parameter, re);
-        mappingRef.Value.Replace(mapping);
+        state.MappingRef.Replace(mapping);
         return Expression.Convert(rewrittenSource, targetType);
       }
     }
@@ -191,17 +167,17 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitLambda(LambdaExpression le)
     {
       LambdaExpression result;
-      using (new ParameterScope()) {
-        RecordIsUsed = false;
-        tuple.Value = Expression.Parameter(typeof (Tuple), "t");
-        record.Value = Expression.Parameter(typeof (Record), "r");
-        outerParameters.Value = outerParameters.Value.Concat(parameters.Value).ToArray();
-        parameters.Value = le.Parameters.ToArray();
-        calculatedColumns.Value = new List<CalculatedColumnDescriptor>();
+      using (state.CreateScope()) {
+        state.RecordIsUsed = false;
+        state.Tuple = Expression.Parameter(typeof (Tuple), "t");
+        state.Record = Expression.Parameter(typeof (Record), "r");
+        state.OuterParameters = state.OuterParameters.Concat(state.Parameters).ToArray();
+        state.Parameters = le.Parameters.ToArray();
+        state.CalculatedColumns = new List<CalculatedColumnDescriptor>();
         var body = Visit(le.Body);
         if (body.IsResult())
           body = BuildSubqueryResult((ResultExpression) body, le.Body.Type);
-        else if (calculateExpressions.Value && body.GetMemberType()==MemberType.Unknown) {
+        else if (state.CalculateExpressions && body.GetMemberType()==MemberType.Unknown) {
           if (!body.IsSubqueryConstructor()
             && !body.IsGroupingConstructor()
               && body.AsTupleAccess()==null
@@ -209,31 +185,31 @@ namespace Xtensive.Storage.Linq
             ) {
             var originalBodyType = body.Type;
             bool isEnum = ConvertEnumToInteger(ref body);
-            var calculator = Expression.Lambda(Expression.Convert(body, typeof (object)), tuple.Value);
+            var calculator = Expression.Lambda(Expression.Convert(body, typeof (object)), state.Tuple);
             var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>) calculator);
-            calculatedColumns.Value.Add(ccd);
-            var parameter = parameters.Value[0];
-            int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
+            state.CalculatedColumns.Add(ccd);
+            var parameter = state.Parameters[0];
+            int position = context.Bindings[parameter].RecordSet.Header.Length + state.CalculatedColumns.Count - 1;
             body = MakeTupleAccess(parameter, body.Type, position);
             if (isEnum)
               body = Expression.Convert(body, originalBodyType);
-            mappingRef.Value.Replace(new PrimitiveMapping(new Segment<int>(position, 1)));
+            state.MappingRef.Replace(new PrimitiveMapping(new Segment<int>(position, 1)));
           }
         }
-        if (calculatedColumns.Value.Count > 0) {
+        if (state.CalculatedColumns.Count > 0) {
           var source = context.Bindings[le.Parameters[0]];
           var recordSet = source.RecordSet;
-          recordSet = recordSet.Calculate(calculatedColumns.Value.ToArray());
+          recordSet = recordSet.Calculate(state.CalculatedColumns.ToArray());
           var re = new ResultExpression(source.Type, recordSet, source.Mapping, source.ItemProjector);
           context.Bindings.ReplaceBound(le.Parameters[0], re);
         }
-        result = RecordIsUsed
+        result = state.RecordIsUsed
           ? Expression.Lambda(
             typeof (Func<,,>).MakeGenericType(typeof (Tuple), typeof (Record), body.Type),
             body,
-            tuple.Value,
-            record.Value)
-          : Expression.Lambda(body, tuple.Value);
+            state.Tuple,
+            state.Record)
+          : Expression.Lambda(body, state.Tuple);
       }
       return result;
     }
@@ -241,7 +217,7 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitMemberPath(MemberPath path, Expression e)
     {
       var pe = path.Parameter;
-      if (!parameters.Value.Contains(pe) && !outerParameters.Value.Contains(pe)) {
+      if (!state.Parameters.Contains(pe) && !state.OuterParameters.Contains(pe)) {
         var referencedSource = context.Bindings[pe];
         return path.TranslateParameter(referencedSource.ItemProjector.Body);
       }
@@ -256,7 +232,7 @@ namespace Xtensive.Storage.Linq
             ComplexMapping innerMapping;
             var typeInfo = context.Model.Types[item.Expression.Type];
             if (!mapping.TryGetJoinedEntity(name, out innerMapping)) {
-              if (entityAsKey.Value && number==path.Count)
+              if (state.EntityAsKey && number==path.Count)
                 break;
               var joinedIndex = typeInfo.Indexes.PrimaryIndex;
               var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
@@ -308,7 +284,7 @@ namespace Xtensive.Storage.Linq
       case MemberType.Structure:
         return VisitMemberPathStructure(path, source);
       case MemberType.Entity:
-        if (!entityAsKey.Value)
+        if (!state.EntityAsKey)
           return VisitMemberPathEntity(path, source, resultType);
         path = MemberPath.Parse(Expression.MakeMemberAccess(e, WellKnownMembers.IEntityKey), context.Model);
         var keyExpression = VisitMemberPathKey(path, source);
@@ -352,16 +328,16 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitParameter(ParameterExpression p)
     {
-      bool isInnerParameter = parameters.Value.Contains(p);
-      bool isOuterParameter = outerParameters.Value.Contains(p);
+      bool isInnerParameter = state.Parameters.Contains(p);
+      bool isOuterParameter = state.OuterParameters.Contains(p);
       if (!isInnerParameter && !isOuterParameter)
         throw new InvalidOperationException("Lambda parameter is out of scope!");
       if (isOuterParameter)
         return context.Bindings[p].ItemProjector.Body; // TODO: replace outer parameters?
       var source = context.Bindings[p];
-      mappingRef.Value.Replace(source.Mapping);
-      var result = new ParameterRewriter(tuple.Value, record.Value).Rewrite(source.ItemProjector.Body);
-      RecordIsUsed |= result.Second;
+      state.MappingRef.Replace(source.Mapping);
+      var result = new ParameterRewriter(state.Tuple, state.Record).Rewrite(source.ItemProjector.Body);
+      state.RecordIsUsed |= result.Second;
       return result.First;
     }
 
@@ -420,12 +396,12 @@ namespace Xtensive.Storage.Linq
         var memberName = member.Name.TryCutPrefix(WellKnown.GetterPrefix);
         var path = MemberPath.Parse(arg, context.Model);
         if (path.IsValid || arg.NodeType==ExpressionType.New) {
-          var argFMRef = new MappingReference(mappingRef.Value.FillMapping);
-          using (new ParameterScope()) {
-            mappingRef.Value = argFMRef;
+          var argFMRef = new MappingReference(state.MappingRef.FillMapping);
+          using (state.CreateScope()) {
+            state.MappingRef = argFMRef;
             newArg = Visit(arg);
           }
-          if (mappingRef.Value.FillMapping && argFMRef.FillMapping) {
+          if (state.MappingRef.FillMapping && argFMRef.FillMapping) {
             var fieldMapping = argFMRef.Mapping;
             var memberType = arg.NodeType==ExpressionType.New
               ? MemberType.Anonymous
@@ -439,13 +415,13 @@ namespace Xtensive.Storage.Linq
             case MemberType.Primitive:
             case MemberType.Key: {
               var primitiveFieldMapping = (PrimitiveMapping) fieldMapping;
-              mappingRef.Value.RegisterField(memberName, primitiveFieldMapping.Segment);
+              state.MappingRef.RegisterField(memberName, primitiveFieldMapping.Segment);
               break;
             }
             case MemberType.Structure: {
               var complexMapping = (ComplexMapping) fieldMapping;
               foreach (var p in complexMapping.Fields)
-                mappingRef.Value.RegisterField(rename(p.Key, memberName), p.Value);
+                state.MappingRef.RegisterField(rename(p.Key, memberName), p.Value);
               break;
             }
             case MemberType.Entity:
@@ -453,28 +429,28 @@ namespace Xtensive.Storage.Linq
                 var primitiveFieldMapping = (PrimitiveMapping) fieldMapping;
                 var fields = new Dictionary<string, Segment<int>> {{StorageWellKnown.Key, primitiveFieldMapping.Segment}};
                 var entityMapping = new ComplexMapping(fields);
-                mappingRef.Value.RegisterEntity(memberName, entityMapping);
+                state.MappingRef.RegisterEntity(memberName, entityMapping);
               }
               else
-                mappingRef.Value.RegisterEntity(memberName, (ComplexMapping) fieldMapping);
+                state.MappingRef.RegisterEntity(memberName, (ComplexMapping) fieldMapping);
               break;
             case MemberType.Anonymous:
-              mappingRef.Value.RegisterAnonymous(memberName, (ComplexMapping) fieldMapping, newArg);
+              state.MappingRef.RegisterAnonymous(memberName, (ComplexMapping) fieldMapping, newArg);
               break;
             case MemberType.Grouping:
-              mappingRef.Value.RegisterGrouping(memberName, (ComplexMapping) fieldMapping);
+              state.MappingRef.RegisterGrouping(memberName, (ComplexMapping) fieldMapping);
               break;
             case MemberType.Subquery:
-              mappingRef.Value.RegisterSubquery(memberName, (ComplexMapping) fieldMapping);
+              state.MappingRef.RegisterSubquery(memberName, (ComplexMapping) fieldMapping);
               break;
             }
           }
         }
         else {
           Expression body;
-          using (new ParameterScope()) {
-            calculateExpressions.Value = false;
-            mappingRef.Value = new MappingReference(false);
+          using (state.CreateScope()) {
+            state.CalculateExpressions = false;
+            state.MappingRef = new MappingReference(false);
             body = Visit(arg);
           }
           ConvertEnumToInteger(ref body);
@@ -487,13 +463,13 @@ namespace Xtensive.Storage.Linq
               body.Type==typeof (object)
                 ? body
                 : Expression.Convert(body, typeof (object)),
-              tuple.Value);
+              state.Tuple);
             var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>) calculator);
-            calculatedColumns.Value.Add(ccd);
-            var parameter = parameters.Value[0];
-            int position = context.Bindings[parameter].RecordSet.Header.Length + calculatedColumns.Value.Count - 1;
+            state.CalculatedColumns.Add(ccd);
+            var parameter = state.Parameters[0];
+            int position = context.Bindings[parameter].RecordSet.Header.Length + state.CalculatedColumns.Count - 1;
             newArg = MakeTupleAccess(parameter, body.Type, position);
-            mappingRef.Value.RegisterField(memberName, new Segment<int>(position, 1));
+            state.MappingRef.RegisterField(memberName, new Segment<int>(position, 1));
           }
         }
         newArg = newArg ?? Visit(arg);
@@ -547,7 +523,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression BuildSubqueryResult(ResultExpression subQuery, Type resultType)
     {
-      if (parameters.Value.Length!=1)
+      if (state.Parameters.Length!=1)
         throw new NotImplementedException();
 
       if (!resultType.IsOfGenericInterface(typeof (IEnumerable<>)))
@@ -562,7 +538,7 @@ namespace Xtensive.Storage.Linq
         .Select(interfaceType => interfaceType.GetGenericArguments()[0])
         .First();
 
-      var parameterResultExpression = context.Bindings[parameters.Value[0]];
+      var parameterResultExpression = context.Bindings[state.Parameters[0]];
       var applyParameter = context.GetApplyParameter(parameterResultExpression);
       var tupleParameter = new Parameter<Tuple>("tupleParameter");
 
@@ -570,7 +546,7 @@ namespace Xtensive.Storage.Linq
         .Rewrite(subQuery.RecordSet.Provider, tupleParameter, applyParameter)
         .Result;
 
-      //  mappingRef.Value = new MappingReference(mappingRef.Value.FillMapping);
+      //  state.MappingRef = new MappingReference(state.MappingRef.FillMapping);
 
       var newResultExpression = new ResultExpression(subQuery.Type, rewrittenRecordset, subQuery.Mapping, subQuery.ItemProjector, subQuery.ResultType);
 
@@ -580,7 +556,7 @@ namespace Xtensive.Storage.Linq
 
       var subqueryResult = Expression.New(constructor, new Expression[] {
         Expression.Constant(newResultExpression),
-        tuple.Value,
+        state.Tuple,
         Expression.Constant(tupleParameter)
       });
 
@@ -646,20 +622,14 @@ namespace Xtensive.Storage.Linq
 
     private Expression MakeTupleAccess(ParameterExpression parameter, Type accessorType, int index)
     {
-      var target = parameters.Value.Contains(parameter)
-        ? (Expression) tuple.Value
+      var target = state.Parameters.Contains(parameter)
+        ? (Expression) state.Tuple
         : Expression.Property(
           Expression.Constant(context.GetApplyParameter(context.Bindings[parameter])),
           WellKnownMembers.ApplyParameterValue
           );
 
       return ExpressionHelper.TupleAccess(target, accessorType, index);
-    }
-
-    private void RecordIsUsedOnOutOfScope(bool oldValue)
-    {
-      if (recordIsUsedParameter.HasValue)
-        RecordIsUsed |= oldValue;
     }
 
     #endregion
@@ -685,7 +655,7 @@ namespace Xtensive.Storage.Linq
       }
 
       var path = MemberPath.Parse(bLeft, context.Model);
-      if (!parameters.Value.Contains(path.Parameter))
+      if (!state.Parameters.Contains(path.Parameter))
         throw new NotSupportedException();
 
       var source = context.Bindings[path.Parameter];
@@ -733,7 +703,7 @@ namespace Xtensive.Storage.Linq
         }
 
         var path = MemberPath.Parse(bLeft, context.Model);
-        if (!parameters.Value.Contains(path.Parameter))
+        if (!state.Parameters.Contains(path.Parameter))
           throw new NotSupportedException();
 
         var source = context.Bindings[path.Parameter];
@@ -832,7 +802,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitMemberPathSubquery(Expression e)
     {
-      RecordIsUsed = true;
+      state.RecordIsUsed = true;
       var m = (MemberExpression) e;
       var expression = Visit(m.Expression);
       var result = Expression.MakeMemberAccess(expression, m.Member);
@@ -841,18 +811,18 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitMemberPathEntity(MemberPath path, ResultExpression source, Type resultType)
     {
-      RecordIsUsed = true;
+      state.RecordIsUsed = true;
       var segment = source.Mapping.GetMemberSegment(path);
       int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
       var result = Expression.Call(WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(resultType),
-        Expression.Call(record.Value, WellKnownMembers.RecordKey, Expression.Constant(groupIndex)));
-      mappingRef.Value.Replace(source.Mapping.GetMemberMapping(path));
+        Expression.Call(state.Record, WellKnownMembers.RecordKey, Expression.Constant(groupIndex)));
+      state.MappingRef.Replace(source.Mapping.GetMemberMapping(path));
       return result;
     }
 
     private Expression VisitMemberPathStructure(MemberPath path, ResultExpression source)
     {
-      RecordIsUsed = true;
+      state.RecordIsUsed = true;
       var segment = source.Mapping.GetMemberSegment(path);
       var structureColumn = (MappedColumn) source.RecordSet.Header.Columns[segment.Offset];
       var field = structureColumn.ColumnInfoRef.Resolve(context.Model).Field;
@@ -862,7 +832,7 @@ namespace Xtensive.Storage.Linq
       var result =
         Expression.MakeMemberAccess(
           Expression.Call(WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(field.ReflectedType.UnderlyingType),
-            Expression.Call(record.Value, WellKnownMembers.RecordKey, Expression.Constant(groupIndex))),
+            Expression.Call(state.Record, WellKnownMembers.RecordKey, Expression.Constant(groupIndex))),
           field.UnderlyingProperty);
       var columnGroup = source.RecordSet.Header.ColumnGroups[groupIndex];
       var keyOffset = columnGroup.Keys.Min();
@@ -872,9 +842,9 @@ namespace Xtensive.Storage.Linq
       var name = mappedFields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
       foreach (var pair in mappedFields) {
         var key = pair.Key.TryCutPrefix(name).TrimStart('.');
-        mappingRef.Value.RegisterField(key, pair.Value);
+        state.MappingRef.RegisterField(key, pair.Value);
       }
-      mappingRef.Value.RegisterField(string.Format(SurrogateKeyNameFormatString, groupIndex), new Segment<int>(keyOffset, keyLength));
+      state.MappingRef.RegisterField(string.Format(SurrogateKeyNameFormatString, groupIndex), new Segment<int>(keyOffset, keyLength));
       return result;
     }
 
@@ -885,16 +855,16 @@ namespace Xtensive.Storage.Linq
       var anonymousMapping = new Pair<ComplexMapping, Expression>((ComplexMapping) source.Mapping, source.ItemProjector);
       foreach (var pathItem in path)
         anonymousMapping = anonymousMapping.First.GetAnonymousMapping(pathItem.Name);
-      mappingRef.Value.Replace(anonymousMapping.First);
-      var result = new ParameterRewriter(tuple.Value, record.Value).Rewrite(anonymousMapping.Second);
-      RecordIsUsed |= result.Second;
+      state.MappingRef.Replace(anonymousMapping.First);
+      var result = new ParameterRewriter(state.Tuple, state.Record).Rewrite(anonymousMapping.Second);
+      state.RecordIsUsed |= result.Second;
       return result.First;
     }
 
     private Expression VisitMemberPathPrimitive(MemberPath path, ResultExpression source, Type resultType)
     {
       var segment = source.Mapping.GetMemberSegment(path);
-      mappingRef.Value.RegisterPrimitive(segment);
+      state.MappingRef.RegisterPrimitive(segment);
       return MakeTupleAccess(path.Parameter, resultType, segment.Offset);
     }
 
@@ -909,9 +879,9 @@ namespace Xtensive.Storage.Linq
       var transform = new SegmentTransform(true, field.ReflectedType.TupleDescriptor, segment);
       var keyExtractor = Expression.Call(WellKnownMembers.KeyCreate, Expression.Constant(type),
         Expression.Call(Expression.Constant(transform), WellKnownMembers.SegmentTransformApply,
-          Expression.Constant(TupleTransformType.Auto), tuple.Value),
+          Expression.Constant(TupleTransformType.Auto), state.Tuple),
         Expression.Constant(false));
-      mappingRef.Value.RegisterPrimitive(segment);
+      state.MappingRef.RegisterPrimitive(segment);
       return keyExtractor;
     }
 
