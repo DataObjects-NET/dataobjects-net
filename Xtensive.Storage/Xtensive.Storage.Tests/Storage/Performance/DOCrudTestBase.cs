@@ -49,6 +49,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 //      int instanceCount = 100000;
       int instanceCount = 10000;
       InsertTest(instanceCount);
+      QueryTest(instanceCount / 5);
       CachedQueryTest(instanceCount / 5);
     }
 
