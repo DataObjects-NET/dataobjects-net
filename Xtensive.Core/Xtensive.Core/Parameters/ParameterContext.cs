@@ -103,7 +103,7 @@ namespace Xtensive.Core.Parameters
     #endregion
 
 
-    // Constructors
+    // Type initializer
 
     static ParameterContext()
     {
