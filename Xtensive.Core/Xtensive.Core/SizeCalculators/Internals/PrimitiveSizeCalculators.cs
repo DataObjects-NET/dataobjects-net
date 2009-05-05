@@ -9,6 +9,28 @@ using System;
 namespace Xtensive.Core.SizeCalculators
 {
   [Serializable]
+  internal class BooleanSizeCalculator : SizeCalculatorBase<Boolean>
+  {
+    public override int GetDefaultSize()
+    {
+      return sizeof (Boolean);
+    }
+
+    public override int GetValueSize(Boolean value)
+    {
+      return sizeof (Boolean);
+    }
+
+
+    // Constructors
+
+    public BooleanSizeCalculator(ISizeCalculatorProvider provider)
+      : base(provider)
+    {
+    }
+  }
+  
+  [Serializable]
   internal class ByteSizeCalculator : SizeCalculatorBase<Byte>
   {
     public override int GetDefaultSize()

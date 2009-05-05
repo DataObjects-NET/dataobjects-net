@@ -13,6 +13,7 @@ namespace Xtensive.Core.SizeCalculators
 {
 <#
 var types = new[] { 
+  typeof(bool), 
   typeof(byte), 
   typeof(sbyte), 
   typeof(char),
