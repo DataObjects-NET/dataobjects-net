@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Building
   /// <summary>
   /// The scope for <see cref="BuildingContext"/>.
   /// </summary>
-  public class BuildingScope: Scope<BuildingContext>
+  public sealed class BuildingScope: Scope<BuildingContext>
   {
     /// <summary>
     /// Gets the context.

@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Rse.Compilation
   /// <summary>
   /// <see cref="CompilationContext"/> activation scope. 
   /// </summary>
-  public class CompilationScope : Scope<CompilationContext>
+  public sealed class CompilationScope : Scope<CompilationContext>
   {
     private IDisposable toDispose;
 
@@ -63,8 +63,9 @@ namespace Xtensive.Storage.Rse.Compilation
     protected override void Dispose(bool disposing)
     {
       try {
-        toDispose.DisposeSafely();
+        var disposable = toDispose;
         toDispose = null;
+        disposable.DisposeSafely();
       }
       finally {
         base.Dispose(disposing);

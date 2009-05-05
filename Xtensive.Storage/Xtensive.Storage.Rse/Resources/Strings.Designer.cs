@@ -108,9 +108,9 @@ namespace Xtensive.Storage.Rse.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Can&apos;t open EnumerationScope, since there is no current CompilationContext..
         /// </summary>
-        internal static string ExCanTOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext {
+        internal static string ExCantOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext {
             get {
-                return ResourceManager.GetString("ExCanTOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext", resourceCulture);
+                return ResourceManager.GetString("ExCantOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext", resourceCulture);
             }
         }
         
@@ -228,15 +228,6 @@ namespace Xtensive.Storage.Rse.Resources {
         internal static string RowNumberX {
             get {
                 return ResourceManager.GetString("RowNumberX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value with name {0} doesn&apos;t exist..
-        /// </summary>
-        internal static string ValueWithNameXIsNotSet {
-            get {
-                return ResourceManager.GetString("ValueWithNameXIsNotSet", resourceCulture);
             }
         }
     }

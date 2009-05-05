@@ -4,8 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.03.30
 
-using System;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -14,7 +12,7 @@ namespace Xtensive.Storage.Serialization
   /// <summary>
   /// Deserialization scope.
   /// </summary>
-  public class DeserializationScope : Scope<DeserializationContext>
+  public sealed class DeserializationScope : Scope<DeserializationContext>
   {
     /// <summary>
     /// Gets the current context.
@@ -36,5 +34,4 @@ namespace Xtensive.Storage.Serialization
     {
     }
   }
-  
 }

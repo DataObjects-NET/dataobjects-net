@@ -132,16 +132,13 @@
   <data name="ExAtLeastOneColumnIndexPairMustBeSpecified" xml:space="preserve">
     <value>At least one column index pair must be specified.</value>
   </data>
-  <data name="ValueWithNameXIsNotSet" xml:space="preserve">
-    <value>Value with name {0} doesn't exist.</value>
-  </data>
   <data name="ExCanNotCompileNoEnumerationContext" xml:space="preserve">
     <value>Can't compile - no active EnumerationContext exists.</value>
   </data>
   <data name="ExCanNotCompileNoCompiler" xml:space="preserve">
     <value>Can't compile - active CompilationContext has no Compiler (Compiler is null).</value>
   </data>
-  <data name="ExCanTOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext" xml:space="preserve">
+  <data name="ExCantOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext" xml:space="preserve">
     <value>Can't open EnumerationScope, since there is no current CompilationContext.</value>
   </data>
   <data name="NotAvailable" xml:space="preserve">

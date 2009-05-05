@@ -4,8 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.03.18
 
-using System;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -14,7 +12,7 @@ namespace Xtensive.Storage.Serialization
   /// <summary>
   /// Serialization scope.
   /// </summary>
-  public class SerializationScope : Scope<SerializationContext>
+  public sealed class SerializationScope : Scope<SerializationContext>
   {
     /// <summary>
     /// Gets the current context.

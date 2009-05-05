@@ -14,7 +14,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// <see cref="Session"/> activation scope. 
   /// </summary>
-  public class SessionScope : Scope<Session>
+  public sealed class SessionScope : Scope<Session>
   {
     private IDisposable toDispose;
 
@@ -53,8 +53,9 @@ namespace Xtensive.Storage
     protected override void Dispose(bool disposing)
     {
       try {
-        toDispose.DisposeSafely();
+        var disposable = toDispose;
         toDispose = null;
+        disposable.DisposeSafely();
       }
       finally {
         base.Dispose(disposing);

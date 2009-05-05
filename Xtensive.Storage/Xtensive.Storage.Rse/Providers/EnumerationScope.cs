@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Rse.Providers
   /// <summary>
   /// <see cref="EnumerationContext"/> activation scope.
   /// </summary>
-  public class EnumerationScope : Scope<EnumerationContext>
+  public sealed class EnumerationScope : Scope<EnumerationContext>
   {
     /// <summary>
     /// Gets the current context.
@@ -41,13 +41,15 @@ namespace Xtensive.Storage.Rse.Providers
     /// Otherwise, returns <see langword="null" />.
     /// </summary>
     /// <returns>Either new <see cref="EnumerationScope"/> or <see langword="null" />.</returns>
+    /// <exception cref="InvalidOperationException">Active <see cref="CompilationContext"/> absents.</exception>
     public static EnumerationScope Open()
     {
       if (CurrentContext!=null)
         return null;
-      CompilationContext compilationContext = CompilationContext.Current;
+      var compilationContext = CompilationContext.Current;
       if (compilationContext==null)
-        throw new InvalidOperationException(Strings.ExCanTOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext);        
+        throw new InvalidOperationException(
+          Strings.ExCantOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext);        
       return compilationContext.CreateEnumerationContext().Activate();
     }
 
@@ -63,9 +65,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// <returns>Either new <see cref="EnumerationScope"/> or <see langword="null" />.</returns>
     public static EnumerationScope Block()
     {
-      if (CurrentContext==null)
-        return null;
-      return new EnumerationScope(null);
+      return CurrentContext==null ? null : new EnumerationScope(null);
     }
 
 
@@ -77,6 +77,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// <param name="context">The context.</param>
     public EnumerationScope(EnumerationContext context)
       : base(context)
-    {}
+    {
+    }
   }
 }
