@@ -51,16 +51,24 @@ namespace Xtensive.Core.Disposing
     /// <inheritdoc/>
     public void Dispose()
     {
+      var d1 = first;
+      first = null;
       try {
-        first.DisposeSafely();
+        d1.DisposeSafely();
       }
       catch (Exception ex) {
         using (var ea = new ExceptionAggregator()) {
-          ea.Execute(d => d.DisposeSafely(), second);
+          ea.Execute(_this => {
+            var d2 = _this.second;
+            _this.second = null;
+            d2.DisposeSafely();
+          }, this);
           ea.Execute(e => { throw e; }, ex);
         }
       }
-      second.DisposeSafely();
+      d1 = second;
+      second = null;
+      d1.DisposeSafely();
     }
   }
 }
