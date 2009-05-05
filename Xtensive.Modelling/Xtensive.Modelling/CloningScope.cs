@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.23
 
-using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -13,7 +12,7 @@ namespace Xtensive.Modelling
   /// <summary>
   /// <see cref="Node"/> cloning scope.
   /// </summary>
-  public class CloningScope : Scope<CloningContext>
+  public sealed class CloningScope : Scope<CloningContext>
   {
     /// <summary>
     /// Gets the current context.
@@ -41,10 +40,7 @@ namespace Xtensive.Modelling
     /// otherwise, <see langword="null" />.</returns>
     public static CloningScope Open()
     {
-      if (CurrentContext==null)
-        return new CloningContext().Activate();
-      else
-        return null;
+      return CurrentContext==null ? new CloningContext().Activate() : null;
     }
 
 

@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.23
 
-using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -13,7 +12,7 @@ namespace Xtensive.Modelling.Validation
   /// <summary>
   /// Model validation scope.
   /// </summary>
-  public class ValidationScope : Scope<ValidationContext>
+  public sealed class ValidationScope : Scope<ValidationContext>
   {
     /// <summary>
     /// Gets the current context.
@@ -41,10 +40,7 @@ namespace Xtensive.Modelling.Validation
     /// otherwise, <see langword="null" />.</returns>
     public static ValidationScope Open()
     {
-      if (CurrentContext==null)
-        return new ValidationContext().Activate();
-      else
-        return null;
+      return CurrentContext==null ? new ValidationContext().Activate() : null;
     }
 
 
