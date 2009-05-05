@@ -14,7 +14,7 @@ namespace Xtensive.Integrity.Atomicity
   /// <summary>
   /// <see cref="AtomicityContextBase"/> activation scope.
   /// </summary>
-  public class AtomicityScope: Scope<AtomicityContextBase>
+  public sealed class AtomicityScope: Scope<AtomicityContextBase>
   {
     private RedoScope cleanRedoScope;
     private UndoScope cleanUndoScope;

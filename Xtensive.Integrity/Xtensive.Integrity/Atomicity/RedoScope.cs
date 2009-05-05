@@ -18,7 +18,7 @@ namespace Xtensive.Integrity.Atomicity
   /// Redo scope - provides access to <see cref="CurrentDescriptor"/> 
   /// (current <see cref="IRedoDescriptor"/>).
   /// </summary>
-  public class RedoScope: Scope<IRedoDescriptor>
+  public sealed class RedoScope: Scope<IRedoDescriptor>
   {
     public static IRedoDescriptor CurrentDescriptor {
       [DebuggerStepThrough]

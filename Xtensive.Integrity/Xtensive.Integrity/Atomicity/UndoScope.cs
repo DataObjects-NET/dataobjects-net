@@ -4,12 +4,10 @@
 // Created by: Alex Yakunin
 // Created:    2007.11.23
 
-using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Atomicity.Internals;
-using Xtensive.Integrity.Aspects;
 
 namespace Xtensive.Integrity.Atomicity
 {
@@ -17,7 +15,7 @@ namespace Xtensive.Integrity.Atomicity
   /// Undo scope - provides access to <see cref="CurrentDescriptor"/> 
   /// (current <see cref="IUndoDescriptor"/>).
   /// </summary>
-  public class UndoScope: Scope<IUndoDescriptor>
+  public sealed class UndoScope: Scope<IUndoDescriptor>
   {
     public static IUndoDescriptor CurrentDescriptor {
       [DebuggerStepThrough]

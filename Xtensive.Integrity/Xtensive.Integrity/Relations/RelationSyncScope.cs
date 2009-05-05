@@ -4,12 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2008.01.15
 
-using System;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Integrity.Resources;
-using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Integrity.Relations
 {
@@ -17,7 +14,7 @@ namespace Xtensive.Integrity.Relations
   /// Relation synchronization context.
   /// </summary>
   /// <typeparam name="TContext">Actual scope type.</typeparam>
-  public class RelationSyncScope<TContext>: Scope<TContext>
+  public sealed class RelationSyncScope<TContext>: Scope<TContext>
     where TContext: class
   {
     /// <summary>

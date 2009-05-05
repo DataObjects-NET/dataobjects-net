@@ -69,7 +69,7 @@ namespace Xtensive.Indexing.Tests
       }
     }
 
-    public class Scope<TKey, TItem> : Scope<Context<TKey, TItem>>
+    public sealed class Scope<TKey, TItem> : Scope<Context<TKey, TItem>>
     {
       public new static Context<TKey, TItem> CurrentContext
       {
