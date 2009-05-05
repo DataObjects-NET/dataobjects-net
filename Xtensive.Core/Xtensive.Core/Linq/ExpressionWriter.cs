@@ -11,10 +11,8 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Linq
@@ -341,6 +339,11 @@ namespace Xtensive.Core.Linq
         Write(c.Value.ToString());
         Write("\")");
       }
+      else if (c.Value is Type) {
+        Write("typeof(");
+        Write(GetTypeName(c.Value as Type));
+        Write(")");
+      }
       else if (type.IsArray) {
         Type elementType = type.GetElementType();
         VisitNewArray(
@@ -349,8 +352,15 @@ namespace Xtensive.Core.Linq
             ((IEnumerable) c.Value).OfType<object>().Select(v => (Expression) Expression.Constant(v, elementType))
             ));
       }
-      else {
+      else if (type.IsPrimitive) {
         Write(c.Value.ToString());
+      }
+      else {
+        Write("$<");
+        Write(GetTypeName(type));
+        Write(">(");
+        Write(c.Value.ToString());
+        Write(")");
       }
       return c;
     }
