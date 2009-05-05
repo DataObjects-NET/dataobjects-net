@@ -18,9 +18,9 @@ namespace Xtensive.Storage.Rse.Expressions
   public class TupleAccessRewriter : ExpressionVisitor
   {
     protected readonly Func<ApplyParameter, int, int> resolveOuterColumn;
-    protected readonly List<int> mappings;
+    protected readonly IList<int> mappings;
 
-    public List<int> Mappings
+    public IList<int> Mappings
     {
       get { return mappings; }
     }
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Rse.Expressions
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="mappings">The mappings.</param>
-    public TupleAccessRewriter(List<int> mappings)
+    public TupleAccessRewriter(IList<int> mappings)
       : this(mappings, null)
     {
     }
@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Rse.Expressions
     /// </summary>
     /// <param name="resolveOuterColumn">A <see langword="delegate"/> invoked when outer column usage is to be rewritten.</param>
     /// <param name="mappings">The mappings.</param>
-    public TupleAccessRewriter(List<int> mappings, Func<ApplyParameter, int, int> resolveOuterColumn)
+    public TupleAccessRewriter(IList<int> mappings, Func<ApplyParameter, int, int> resolveOuterColumn)
     {
       this.mappings = mappings;
       this.resolveOuterColumn = resolveOuterColumn ?? DefaultResolveOuterColumn;

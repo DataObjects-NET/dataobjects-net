@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Linq.Rewriters
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ItemProjectorRewriter(List<int> mappings, IList<int> groupMapping, RecordSetHeader header)
+    public ItemProjectorRewriter(IList<int> mappings, IList<int> groupMapping, RecordSetHeader header)
       : base(mappings)
     {
       this.groupMapping = groupMapping;

@@ -16,6 +16,17 @@ namespace Xtensive.Storage.Tests.Linq
   public class DistinctTest : NorthwindDOModelTest
   {
     [Test]
+    public void OrderBy2Test()
+    {
+      IQueryable<string> result = Query<Customer>.All
+        //.OrderBy(c => c.CompanyName)
+        .Select(c=>c.Address.City)
+        .Distinct()
+        .OrderBy(c => c);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void DefaultTest()
     {
         var result = Query<Customer>.All.Distinct();

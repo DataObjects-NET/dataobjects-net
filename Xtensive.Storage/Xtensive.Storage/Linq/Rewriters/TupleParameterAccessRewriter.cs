@@ -18,10 +18,10 @@ namespace Xtensive.Storage.Linq.Rewriters
   [Serializable]
   public class TupleParameterAccessRewriter : ExpressionVisitor
   {
-    private readonly List<int> mappings = new List<int>();
+    private readonly IList<int> mappings = new List<int>();
     private readonly Parameter<Tuple> tupleParameter;
 
-    public static CompilableProvider Rewrite(CompilableProvider provider, Parameter<Tuple> tupleParameter, List<int> mappings)
+    public static CompilableProvider Rewrite(CompilableProvider provider, Parameter<Tuple> tupleParameter, IList<int> mappings)
     {
       var expressionAnalyzer = new TupleParameterAccessRewriter(tupleParameter, mappings);
       var providerAnalyzer = new CompilableProviderVisitor(expressionAnalyzer.Rewrite);
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Linq.Rewriters
 
     // Constructor
 
-    private TupleParameterAccessRewriter(Parameter<Tuple> tupleParameter, List<int> mappings)
+    private TupleParameterAccessRewriter(Parameter<Tuple> tupleParameter, IList<int> mappings)
     {
       this.tupleParameter = tupleParameter;
       this.mappings = mappings;
