@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Rse.Providers
   /// <summary>
   /// <see cref="EnumerationContext"/> activation scope.
   /// </summary>
-  public sealed class EnumerationScope : Scope<EnumerationContext>
+  public class EnumerationScope : InheritableScope<EnumerationContext, EnumerationScope>
   {
     /// <summary>
     /// Gets the current context.

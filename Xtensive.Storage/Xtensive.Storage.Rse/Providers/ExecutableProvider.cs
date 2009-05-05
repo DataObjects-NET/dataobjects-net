@@ -226,20 +226,20 @@ namespace Xtensive.Storage.Rse.Providers
 
     #region ToString related methods
 
-//    // Appends Origin to desctiprion part of ToString()
-//    
-//    protected override void AppendDescriptionTo(StringBuilder sb, int indent)
-//    {
-//      AppendOriginTo(sb, indent);
-//    }
-//
-//    protected virtual void AppendOriginTo(StringBuilder sb, int indent)
-//    {
-//      if (Origin==null)
-//        return;
-//      sb.Append(string.Format(ToString_Origin, Origin.TitleToString()).Indent(indent))
-//        .AppendLine();
-//    }
+    protected override void AppendDescriptionTo(StringBuilder sb, int indent)
+    {
+      // Could append Origin to desctiprion part of ToString(),
+      // But here it does nothing.
+      // AppendOriginTo(sb, indent);
+    }
+
+    protected virtual void AppendOriginTo(StringBuilder sb, int indent)
+    {
+      if (Origin==null)
+        return;
+      sb.Append(string.Format(ToString_Origin, Origin.TitleToString()).Indent(indent))
+        .AppendLine();
+    }
 
     /// <inheritdoc/>
     public override string ParametersToString()

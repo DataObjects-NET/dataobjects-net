@@ -5,27 +5,33 @@
 // Created:    2008.08.30
 
 using System;
-using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using RseEnumerationScope=Xtensive.Storage.Rse.Providers.EnumerationScope;
+using RseEnumerationContext=Xtensive.Storage.Rse.Providers.EnumerationContext;
 
 namespace Xtensive.Storage.Providers
 {
   /// <summary>
-  /// An wrapper of <see cref="Rse.Providers.EnumerationScope"/> 
+  /// An implementation of <see cref="Rse.Providers.EnumerationScope"/> 
   /// suitable for storage.
   /// </summary>
-  public class EnumerationScope : SimpleScope<EnumerationScope>
+  public class EnumerationScope : RseEnumerationScope
   {
-    private JoiningDisposable toDispose;
+    private IDisposable toDispose;
 
+    /// <inheritdoc/>
+    public override void Activate(RseEnumerationContext newContext)
+    {
+      base.Activate(newContext);
+      toDispose = Transaction.Open();
+    }
 
     // Constructors
 
     /// <inheritdoc/>
-    public EnumerationScope(Rse.Providers.EnumerationContext context)
+    public EnumerationScope(RseEnumerationContext context)
+      : base(context)
     {
-      toDispose = RseEnumerationScope.Open().Join(Transaction.Open());
     }
 
     // Desctructor

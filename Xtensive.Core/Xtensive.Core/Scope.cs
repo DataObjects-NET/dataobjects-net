@@ -20,8 +20,8 @@ namespace Xtensive.Core
   public class Scope<TContext> : IDisposable
     where TContext: class
   {
-    private readonly static object @lock = new object();
-    private volatile static Type allowedType = null;
+    internal readonly static object @lock = new object();
+    internal volatile static Type allowedType = null;
     [ThreadStatic]
     private static Scope<TContext> currentScope;
 
@@ -75,7 +75,7 @@ namespace Xtensive.Core
 
     
     // Initializer
-    
+
     /// <summary>
     /// Initializes the scope.
     /// </summary>
@@ -97,8 +97,6 @@ namespace Xtensive.Core
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="context">The context of this scope.</param>
-    /// <exception cref="SecurityException">Only one ancestor of each instance 
-    /// of this generic type is allowed.</exception>
     protected internal Scope(TContext context)
       : this()
     {
@@ -109,15 +107,20 @@ namespace Xtensive.Core
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// Does not invoke <see cref="Activate"/> method.
     /// </summary>
-    /// <exception cref="SecurityException">Only one ancestor of each instance 
+    /// <exception cref="SecurityException">Only one ancestor of each instance
     /// of this generic type is allowed.</exception>
     protected internal Scope()
     {
+      var type = GetType();
       if (allowedType==null) lock (@lock) if (allowedType==null)
-        allowedType = GetType();
-      if (allowedType!=GetType())
+        allowedType = type;
+      if (allowedType!=type)
         throw new SecurityException(
           Strings.ExOnlyOneAncestorOfEachInstanceOfThisGenericTypeIsAllowed);
+    }
+
+    internal Scope(bool ignore)
+    {
     }
 
 
@@ -132,6 +135,7 @@ namespace Xtensive.Core
     }
 
     /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">Current scope differs from this one.</exception>
     public void Dispose()
     {
       bool bStop = false;
