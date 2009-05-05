@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Security;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 
@@ -19,6 +20,8 @@ namespace Xtensive.Core
   public class Scope<TContext> : IDisposable
     where TContext: class
   {
+    private readonly static object @lock = new object();
+    private volatile static Type allowedType = null;
     [ThreadStatic]
     private static Scope<TContext> currentScope;
 
@@ -94,7 +97,10 @@ namespace Xtensive.Core
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="context">The context of this scope.</param>
+    /// <exception cref="SecurityException">Only one ancestor of each instance 
+    /// of this generic type is allowed.</exception>
     protected internal Scope(TContext context)
+      : this()
     {
       Activate(context);
     }
@@ -103,8 +109,15 @@ namespace Xtensive.Core
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// Does not invoke <see cref="Activate"/> method.
     /// </summary>
+    /// <exception cref="SecurityException">Only one ancestor of each instance 
+    /// of this generic type is allowed.</exception>
     protected internal Scope()
     {
+      if (allowedType==null) lock (@lock) if (allowedType==null)
+        allowedType = GetType();
+      if (allowedType!=GetType())
+        throw new SecurityException(
+          Strings.ExOnlyOneAncestorOfEachInstanceOfThisGenericTypeIsAllowed);
     }
 
 

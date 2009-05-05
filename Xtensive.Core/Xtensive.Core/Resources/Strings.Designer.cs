@@ -961,6 +961,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Only one ancestor of each instance of this generic type is allowed..
+        /// </summary>
+        internal static string ExOnlyOneAncestorOfEachInstanceOfThisGenericTypeIsAllowed {
+            get {
+                return ResourceManager.GetString("ExOnlyOneAncestorOfEachInstanceOfThisGenericTypeIsAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Operation LinkType should be defined before it can be registered in OperationDictionary..
         /// </summary>
         internal static string ExOperationLinkTypeUndefined {

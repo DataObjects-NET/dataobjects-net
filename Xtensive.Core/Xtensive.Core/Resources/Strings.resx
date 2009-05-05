@@ -633,4 +633,7 @@
   <data name="ExScopeRequired" xml:space="preserve">
     <value>{0} is required.</value>
   </data>
+  <data name="ExOnlyOneAncestorOfEachInstanceOfThisGenericTypeIsAllowed" xml:space="preserve">
+    <value>Only one ancestor of each instance of this generic type is allowed.</value>
+  </data>
 </root>

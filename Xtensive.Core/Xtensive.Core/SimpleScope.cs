@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Security;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 
@@ -18,6 +19,8 @@ namespace Xtensive.Core
   /// <typeparam name="TVariator">The type of the variator. Must be an internal type.</typeparam>
   public class SimpleScope<TVariator> : IDisposable
   {
+    private readonly static object @lock = new object();
+    private volatile static Type allowedType = null;
     [ThreadStatic]
     private static SimpleScope<TVariator> current;
     private SimpleScope<TVariator> outer;
@@ -55,8 +58,15 @@ namespace Xtensive.Core
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
+    /// <exception cref="SecurityException">Only one ancestor of each instance 
+    /// of this generic type is allowed.</exception>
     protected internal SimpleScope()
     {
+      if (allowedType==null) lock (@lock) if (allowedType==null)
+        allowedType = GetType();
+      if (allowedType!=GetType())
+        throw new SecurityException(
+          Strings.ExOnlyOneAncestorOfEachInstanceOfThisGenericTypeIsAllowed);
       outer = current;
       current = this;
     }
