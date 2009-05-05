@@ -385,6 +385,15 @@ namespace Xtensive.Indexing.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to RangeSet&lt;{0}&gt;({1}).
+        /// </summary>
+        internal static string RangeSetFormat {
+            get {
+                return ResourceManager.GetString("RangeSetFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ({0} -&gt; {1}).
         /// </summary>
         internal static string RayFormat {

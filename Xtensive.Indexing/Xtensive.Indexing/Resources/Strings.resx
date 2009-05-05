@@ -237,4 +237,7 @@
   <data name="ExIndexesCannotBeMerged" xml:space="preserve">
     <value>Indexes cannot be merged.</value>
   </data>
+  <data name="RangeSetFormat" xml:space="preserve">
+    <value>RangeSet&lt;{0}&gt;({1})</value>
+  </data>
 </root>

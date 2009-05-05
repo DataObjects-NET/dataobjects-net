@@ -10,6 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Reflection;
+using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing
 {
@@ -20,10 +23,10 @@ namespace Xtensive.Indexing
   [Serializable]
   public sealed class RangeSet<T> : IEnumerable<Range<T>>
   {
-    private readonly Comparison<Range<T>> leftPointsComparison;
-    private readonly AdvancedComparer<T> pointTypeComparer;
-    private const Int32 defaultRangeCashSize = 20;
-    private readonly List<Range<T>> rangeCash = new List<Range<T>>(defaultRangeCashSize);
+    private const Int32 DefaultRangeCashSize = 20;
+    private readonly Comparison<Range<T>> leftPointComparer;
+    private readonly AdvancedComparer<T> pointComparer;
+    private readonly List<Range<T>> rangeCash = new List<Range<T>>(DefaultRangeCashSize);
     private readonly HashSet<Range<T>> ranges = new HashSet<Range<T>>();
 
     /// <summary>
@@ -65,22 +68,6 @@ namespace Xtensive.Indexing
       return ranges.Count == 0;
     }
 
-    #region Implementation of IEnumerable
-
-    /// <inheritdoc/>
-    public IEnumerator<Range<T>> GetEnumerator()
-    {
-      return ranges.GetEnumerator();
-    }
-
-    /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
-
-    #endregion
-
     ///<summary>
     /// Unites the current <see cref="RangeSet{T}"/> with the other one.
     ///</summary>
@@ -92,22 +79,6 @@ namespace Xtensive.Indexing
         Unite(range);
       }
       return this;
-    }
-
-    private void Unite(Range<T> otherRange)
-    {
-      rangeCash.Clear();
-      var mergedRange = NormalizeRangeDirection(otherRange);
-      foreach (var range in ranges) {
-        if (mergedRange.Intersects(range, pointTypeComparer)) {
-          mergedRange = mergedRange.Merge(range, pointTypeComparer).Pop();
-          rangeCash.Add(range);
-        }
-      }
-      foreach (var range in rangeCash) {
-        ranges.Remove(range);
-      }
-      ranges.Add(mergedRange);
     }
 
     /// <summary>
@@ -137,30 +108,64 @@ namespace Xtensive.Indexing
       }
 
       LoadAllRangesTo(rangeCash);
-      rangeCash.Sort(leftPointsComparison);
+      rangeCash.Sort(leftPointComparer);
       ranges.Clear();
-      T left = pointTypeComparer.ValueRangeInfo.MinValue;
+      T left = pointComparer.ValueRangeInfo.MinValue;
       Int32 idxOfRangeBeforeLast = rangeCash.Count - 1;
       for (Int32 i = 0; i < rangeCash.Count; i++) {
         var range = rangeCash[i];
-        if (pointTypeComparer.Compare(left, range.EndPoints.First) < 0)
+        if (pointComparer.Compare(left, range.EndPoints.First) < 0)
           ranges.Add(new Range<T>(left,
-            pointTypeComparer.GetNearestValue(range.EndPoints.First,
+            pointComparer.GetNearestValue(range.EndPoints.First,
               Direction.Negative)));
         if (i < idxOfRangeBeforeLast)
-          left = pointTypeComparer.GetNearestValue(range.EndPoints.Second, Direction.Positive);
-        else if (pointTypeComparer.Compare(range.EndPoints.Second, pointTypeComparer.ValueRangeInfo.MaxValue) < 0) {
-          left = pointTypeComparer.GetNearestValue(range.EndPoints.Second, Direction.Positive);
-          ranges.Add(new Range<T>(left, pointTypeComparer.ValueRangeInfo.MaxValue));
+          left = pointComparer.GetNearestValue(range.EndPoints.Second, Direction.Positive);
+        else if (pointComparer.Compare(range.EndPoints.Second, pointComparer.ValueRangeInfo.MaxValue) < 0) {
+          left = pointComparer.GetNearestValue(range.EndPoints.Second, Direction.Positive);
+          ranges.Add(new Range<T>(left, pointComparer.ValueRangeInfo.MaxValue));
         }
       }
       return this;
     }
 
+    #region IEnumerable<...> methods
+
+    /// <inheritdoc/>
+    public IEnumerator<Range<T>> GetEnumerator()
+    {
+      return ranges.GetEnumerator();
+    }
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
+    #endregion
+
+    #region Private \ internal methods
+
+    private void Unite(Range<T> otherRange)
+    {
+      rangeCash.Clear();
+      var mergedRange = NormalizeRangeDirection(otherRange);
+      foreach (var range in ranges) {
+        if (mergedRange.Intersects(range, pointComparer)) {
+          mergedRange = mergedRange.Merge(range, pointComparer).Pop();
+          rangeCash.Add(range);
+        }
+      }
+      foreach (var range in rangeCash) {
+        ranges.Remove(range);
+      }
+      ranges.Add(mergedRange);
+    }
+
     private Range<T> NormalizeRangeDirection(Range<T> range)
     {
-      if (range.GetDirection(pointTypeComparer) == Direction.Negative)
-        return range.Redirect(Direction.Positive, pointTypeComparer);
+      if (range.GetDirection(pointComparer) == Direction.Negative)
+        return range.Redirect(Direction.Positive, pointComparer);
       return range;
     }
 
@@ -174,8 +179,8 @@ namespace Xtensive.Indexing
     {
       var normilized = NormalizeRangeDirection(otherRange);
       foreach (var range in ranges) {
-        if (normilized.Intersects(range, pointTypeComparer)) {
-          var intersection = normilized.Intersect(range, pointTypeComparer);
+        if (normilized.Intersects(range, pointComparer)) {
+          var intersection = normilized.Intersect(range, pointComparer);
           if(!intersection.IsEmpty)
             intersections.Add(intersection);
         }
@@ -190,6 +195,15 @@ namespace Xtensive.Indexing
       }
     }
 
+    #endregion
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format(Strings.RangeSetFormat, 
+        typeof(T).GetShortName(), ranges.ToCommaDelimitedString());
+    }
+
 
     // Constructors
 
@@ -197,14 +211,14 @@ namespace Xtensive.Indexing
     /// Creates new RangeSet containing a single <see cref="Range{T}"/>.
     /// </summary>
     /// <param name="firstRange"><see cref="Range{T}"/> to be used as base for RangeSet.</param>
-    /// <param name="pointTypeComparer">The comparer for the type of endpoints.</param>
-    public RangeSet(Range<T> firstRange, AdvancedComparer<T> pointTypeComparer)
+    /// <param name="pointComparer">The comparer for the endpoints.</param>
+    public RangeSet(Range<T> firstRange, AdvancedComparer<T> pointComparer)
     {
-      ArgumentValidator.EnsureArgumentNotNull(pointTypeComparer, "pointTypeComparer");
-      this.pointTypeComparer = pointTypeComparer;
-      leftPointsComparison =
-        (x, y) => pointTypeComparer.Compare(x.EndPoints.First, y.EndPoints.First);
-      if(!firstRange.IsEmpty)
+      ArgumentValidator.EnsureArgumentNotNull(pointComparer, "pointTypeComparer");
+      this.pointComparer = pointComparer;
+      leftPointComparer =
+        (x, y) => pointComparer.Compare(x.EndPoints.First, y.EndPoints.First);
+      if (!firstRange.IsEmpty)
         ranges.Add(NormalizeRangeDirection(firstRange));
     }
   }
