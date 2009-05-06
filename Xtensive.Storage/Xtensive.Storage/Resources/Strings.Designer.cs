@@ -457,11 +457,11 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ExpandFields does not support query provider of type &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Expand does not support query provider of type &apos;{0}&apos;..
         /// </summary>
-        internal static string ExExpandFieldsDoesNotSupportQueryProviderOfTypeX {
+        internal static string ExExpandDoesNotSupportQueryProviderOfTypeX {
             get {
-                return ResourceManager.GetString("ExExpandFieldsDoesNotSupportQueryProviderOfTypeX", resourceCulture);
+                return ResourceManager.GetString("ExExpandDoesNotSupportQueryProviderOfTypeX", resourceCulture);
             }
         }
         

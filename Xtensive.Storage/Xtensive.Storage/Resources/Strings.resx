@@ -683,8 +683,8 @@ Actions:
   <data name="ExAsOperatorSupportsEntityOnly" xml:space="preserve">
     <value>'as' operator supports entity only.</value>
   </data>
-  <data name="ExExpandFieldsDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
-    <value>ExpandFields does not support query provider of type '{0}'.</value>
+  <data name="ExExpandDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
+    <value>Expand does not support query provider of type '{0}'.</value>
   </data>
   <data name="ExExcludeFieldsDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>ExcludeFields does not support query provider of type '{0}'.</value>
