@@ -817,6 +817,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Method {0} not found.
+        /// </summary>
+        internal static string ExMethodXNotFound {
+            get {
+                return ResourceManager.GetString("ExMethodXNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to More than one enabled {0} is provided for assembly &quot;{1}&quot;..
         /// </summary>
         internal static string ExMoreThanOneEnabledXIsProvidedForAssemblyY {

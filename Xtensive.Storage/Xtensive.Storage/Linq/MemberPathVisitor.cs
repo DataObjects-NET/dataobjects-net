@@ -28,7 +28,34 @@ namespace Xtensive.Storage.Linq
       var memberPath = MemberPath.Parse(mc, model);
       if (memberPath.IsValid)
         return VisitMemberPath(memberPath, mc);
+      if (mc.Method.DeclaringType==typeof (QueryableExtensions)) {
+        switch (mc.Method.Name) {
+        default:
+          throw new InvalidOperationException();
+        case "Expand":
+          return VisitExpand(mc);
+        case "ExcludeField":
+          return VisitExcludeField(mc);
+        case "IncludeField":
+          return VisitIncludeField(mc);
+        }
+      }
       return base.VisitMethodCall(mc);
+    }
+
+    private Expression VisitIncludeField(MethodCallExpression expression)
+    {
+      throw new NotImplementedException("VisitIncludeField not implemented");
+    }
+
+    private Expression VisitExcludeField(MethodCallExpression expression)
+    {
+      throw new NotImplementedException("VisitExcludeField not implemented");
+    }
+
+    private Expression VisitExpand(MethodCallExpression expression)
+    {
+      throw new NotImplementedException("VisitExpand not implemented");
     }
 
     protected abstract Expression VisitMemberPath(MemberPath path, Expression e);

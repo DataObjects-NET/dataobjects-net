@@ -692,4 +692,7 @@ Actions:
   <data name="ExIncludeFieldsDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>IncludeFields does not support query provider of type '{0}'.</value>
   </data>
+  <data name="ExMethodXNotFound" xml:space="preserve">
+    <value>Method {0} not found</value>
+  </data>
 </root>

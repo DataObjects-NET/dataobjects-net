@@ -18,26 +18,6 @@ namespace Xtensive.Storage.Linq
   public static class QueryableExtensions
   {
     /// <summary>
-    /// Expands <see cref="EntitySet{TItem}"/>, specified in <paramref name="selector"/>.
-    /// This <see cref="EntitySet{TItem}"/> will be queried along with source query.
-    /// </summary>
-    /// <typeparam name="TSource">Type of source.</typeparam>
-    /// <param name="source">Source query.</param>
-    /// <param name="selector"><see cref="EntitySet{TItem}"/> selector.</param>
-    /// <returns>The similar query. Only difference is request to storage. It will contain expanded <see cref="EntitySet{TItem}"/> too.</returns>
-    /// <exception cref="NotSupportedException">Queryable is not <see cref="Xtensive.Storage.Linq"/> query.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="source"/> argument is null.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="selector"/> argument is null.</exception>
-    /// <remarks>Overrides <see cref="FieldAttribute.LazyLoad"/> setting for specified fields.</remarks>
-    public static IQueryable<TSource> Expand<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, EntitySetBase>> selector)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(selector, "selector");
-      var errorMessage = Resources.Strings.ExExpandDoesNotSupportQueryProviderOfTypeX;
-      return CallTranslator<TSource>(source, selector, errorMessage);
-    }
-
-    /// <summary>
     /// Expands <see cref="Entity"/>, specified in <paramref name="selector"/>.
     /// This <see cref="Entity"/> will be queried along with base query.
     /// </summary>
@@ -54,7 +34,7 @@ namespace Xtensive.Storage.Linq
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(selector, "selector");
       var errorMessage = Resources.Strings.ExExpandDoesNotSupportQueryProviderOfTypeX;
-      return CallTranslator<TSource>(source, selector, errorMessage);
+      return CallTranslator<TSource>(WellKnownMembers.QueryableExpandEntity, source, selector, errorMessage);
     }
 
 
@@ -74,7 +54,7 @@ namespace Xtensive.Storage.Linq
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(selector, "selector");
       var errorMessage = Resources.Strings.ExExpandDoesNotSupportQueryProviderOfTypeX;
-      return CallTranslator<TSource>(source, selector, errorMessage);
+      return CallTranslator<TSource>(WellKnownMembers.QueryableExpandSubquery, source, selector, errorMessage);
     }
 
     /// <summary>
@@ -95,7 +75,7 @@ namespace Xtensive.Storage.Linq
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(selector, "selector");
       var errorMessage = Resources.Strings.ExExcludeFieldsDoesNotSupportQueryProviderOfTypeX;
-      return CallTranslator<TSource>(source, selector, errorMessage);
+      return CallTranslator<TSource>(WellKnownMembers.QueryableExcludeFields, source, selector, errorMessage);
     }
 
     /// <summary>
@@ -116,17 +96,16 @@ namespace Xtensive.Storage.Linq
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(selector, "selector");
       var errorMessage = Resources.Strings.ExExcludeFieldsDoesNotSupportQueryProviderOfTypeX;
-      return CallTranslator<TSource>(source, selector, errorMessage);
+      return CallTranslator<TSource>(WellKnownMembers.QueryableIncludeFields, source, selector, errorMessage);
     }
 
     /// <exception cref="NotSupportedException">Queryable is not <see cref="Xtensive.Storage.Linq"/> query.</exception>
-    private static IQueryable<TSource> CallTranslator<TSource>(IQueryable source, Expression fieldSelector, string errorMessage)
+    private static IQueryable<TSource> CallTranslator<TSource>(MethodInfo methodInfo, IQueryable source, Expression fieldSelector, string errorMessage)
     {
       var providerType = source.Provider.GetType();
       if (providerType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
-      var methodInfo = ((MethodInfo) MethodBase.GetCurrentMethod());
       var genericMethod = methodInfo.MakeGenericMethod(new[] {typeof (TSource)});
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, fieldSelector});
       return source.Provider.CreateQuery<TSource>(expression);
