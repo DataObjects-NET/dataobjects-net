@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
         return base.VisitFilter(provider);
       var extractionResult = ExtractRangeSets(provider.Predicate, primaryIndex, indexes);
       Dictionary<IndexInfo, RangeSetInfo> selectedIndexes;
-      using (ParameterContext.CreateExpectedValueScope()) {
+      using (ParameterContext.ExpectedValues.Activate()) {
         selectedIndexes = indexSelector.Select(extractionResult);
       }
       return treeRewriter.InsertRangeProviders(provider, selectedIndexes);

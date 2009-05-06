@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ParameterScopeTest()
     {
-      using (new ParameterScope()) {
+      using (new ParameterContext().Activate()) {
         Query<Customer>.All.ToList();
       }
     }

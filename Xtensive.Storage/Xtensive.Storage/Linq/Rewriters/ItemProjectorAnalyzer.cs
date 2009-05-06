@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Linq.Rewriters
           complexMapping.Subqueries.TryGetValue(arg.First, out newMapping);
           break;
         }
-        using (new ParameterScope()) {
+        using (new ParameterContext().Activate()) {
           if (newMapping!=null)
             fieldMapping.Value = newMapping;
           Visit(arg.Second);
@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Linq.Rewriters
         this.provider = provider;
         this.model = model;
         mappings = new List<int>();
-        using (new ParameterScope()) {
+        using (new ParameterContext().Activate()) {
           this.fieldMapping.Value = fieldMapping;
           Visit(expression);
         }

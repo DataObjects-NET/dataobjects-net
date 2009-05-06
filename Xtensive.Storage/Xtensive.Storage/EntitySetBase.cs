@@ -95,7 +95,7 @@ namespace Xtensive.Storage
         return true;
       
       bool result;
-      using (new ParameterScope()) {
+      using (new ParameterContext().Activate()) {
         pKey.Value = seekTransform.Apply(TupleTransformType.TransformedTuple, ConcreteOwner.Key.Value, key.Value);
         result = seek.FirstOrDefault() != null;
       }

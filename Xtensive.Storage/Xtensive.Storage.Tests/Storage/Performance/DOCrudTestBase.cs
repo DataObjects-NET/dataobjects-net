@@ -323,7 +323,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
               var pKey = new Parameter<Tuple>();
               var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
               rs = rs.Seek(() => pKey.Value);
-              using (new ParameterScope()) {
+              using (new ParameterContext().Activate()) {
                 pKey.Value = Tuple.Create(i % instanceCount);
                 var es = rs.ToEntities<Simplest>();
                 foreach (var o in es) {
@@ -347,7 +347,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           var pKey = new Parameter<Tuple>();
           var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           rs = rs.Seek(() => pKey.Value);
-          using (new ParameterScope()) {
+          using (new ParameterContext().Activate()) {
             using (warmup ? null : new Measurement("Cached RSE Query", count)) {
               for (int i = 0; i < count; i++) {
                 pKey.Value = Tuple.Create(i % instanceCount);

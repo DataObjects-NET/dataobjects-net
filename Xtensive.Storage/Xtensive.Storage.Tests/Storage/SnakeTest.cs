@@ -432,7 +432,7 @@ namespace Xtensive.Storage.Tests.Storage
               .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
               .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID));
           
-          using(new ParameterScope()) {
+          using(new ParameterContext().Activate()) {
             pID.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)), new Entire<Tuple>(Tuple.Create(120)));
             pName.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create("Kaa")), new Entire<Tuple>(Tuple.Create("Kaa900")));
             var count = result.Count();
@@ -488,7 +488,7 @@ namespace Xtensive.Storage.Tests.Storage
           idRange = idRange.Unite(new RangeSet<Entire<Tuple>>(new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(221)), new Entire<Tuple>(Tuple.Create(320))), AdvancedComparer<Entire<Tuple>>.Default));
           var nameRange = new RangeSet<Entire<Tuple>>(new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create("Kaa")), new Entire<Tuple>(Tuple.Create("Kaa900"))), AdvancedComparer<Entire<Tuple>>.Default);
           
-          using (new ParameterScope()) {
+          using (new ParameterContext().Activate()) {
             pID.Value = idRange;
             pName.Value = nameRange;
             var count = result.Count();
@@ -664,7 +664,7 @@ namespace Xtensive.Storage.Tests.Storage
 
           var pLen = new Parameter<int>();
           result = rsSnakePrimary.Filter(tuple => tuple.GetValue<int>(rsSnakePrimary.Header.IndexOf(cLength)) > pLen.Value);
-          using (new ParameterScope()) {
+          using (new ParameterContext().Activate()) {
             pLen.Value = 10;
             Assert.Greater(result.Count(), 0);
           }
@@ -967,7 +967,7 @@ namespace Xtensive.Storage.Tests.Storage
             .Skip(5)
             .Take(50);
 
-          using (new ParameterScope()) {
+          using (new ParameterContext().Activate()) {
             pID.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)), new Entire<Tuple>(Tuple.Create(120)));
             pName.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create("Kaa")), new Entire<Tuple>(Tuple.Create("Kaa900")));
             pLength.Value = 100;

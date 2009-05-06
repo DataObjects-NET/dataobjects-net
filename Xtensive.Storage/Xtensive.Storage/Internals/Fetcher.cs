@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Internals
 
       var columnIndexes = columns.Select(c => index.Columns.IndexOf(c)).ToArray();
       var rs = GetCachedRecordSet(index, columnIndexes);
-      using (new ParameterScope()) {
+      using (new ParameterContext().Activate()) {
         pKey.Value = key.Value;
         var record = session.Domain.RecordSetParser.ParseFirst(rs);
         if (record == null) {

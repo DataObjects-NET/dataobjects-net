@@ -340,7 +340,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
     public void ConfusingParameterTest()
     {
       var parameter = new Parameter<Tuple>();
-      using (new ParameterScope()) {
+      using (new ParameterContext().Activate()) {
         parameter.Value = Tuple.Create(false);
         TestQuery(() =>
           from o in Query<MyEntity>.All

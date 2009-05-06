@@ -200,7 +200,7 @@ namespace Xtensive.Storage.Tests.Rse
     {
       var orderDateParam = new Parameter<DateTime>(new DateTime(1997, 11, 1));
       var freightParam = new Parameter<Decimal>(0);
-      using (new ParameterScope()) {
+      using (new ParameterContext().Activate()) {
         orderDateParam.Value = new DateTime(1900, 1, 1);
         freightParam.Value = 100000;
         Expression<Func<Order, bool>> predicate = order => order.OrderDate > orderDateParam.Value

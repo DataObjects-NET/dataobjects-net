@@ -365,7 +365,7 @@ namespace Xtensive.Storage.Tests.Rse
             .Range(() => parameter.Value)
             .OrderBy(OrderBy.Asc(recordSet.Header.IndexOf("ID")));
 
-          using (new ParameterScope()) {
+          using (new ParameterContext().Activate()) {
             parameter.Value = range;
             var count = result.Count();
             Assert.AreEqual(testCount, count);

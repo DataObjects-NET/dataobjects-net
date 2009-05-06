@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       CompilableProvider resultProvider;
       List<int> resultMap;
 
-      using (new ParameterScope()) {
+      using (new ParameterContext().Activate()) {
         mappings.Value = new Dictionary<Provider, List<int>> {{originalProvider, originalMap}};
         resultProvider = VisitCompilable(originalProvider);
         resultMap = mappings.Value[rootProvider.Source];
@@ -119,13 +119,13 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       CompilableProvider newLeftProvider;
       CompilableProvider newRightProvider;
 
-      using (new ParameterScope()) {
+      using (new ParameterContext().Activate()) {
         mappings.Value = new Dictionary<Provider, List<int>> {{provider.Left, leftMapping}};
         newLeftProvider = VisitCompilable(provider.Left);
         leftMapping = mappings.Value[provider.Left];
       }
 
-      using (new ParameterScope()) {
+      using (new ParameterContext().Activate()) {
         mappings.Value = new Dictionary<Provider, List<int>> {{provider.Right, rightMapping}};
         newRightProvider = VisitCompilable(provider.Right);
         rightMapping = mappings.Value[provider.Right];
@@ -173,13 +173,13 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       CompilableProvider newLeftProvider;
       CompilableProvider newRightProvider;
 
-      using (new ParameterScope()) {
+      using (new ParameterContext().Activate()) {
         mappings.Value = new Dictionary<Provider, List<int>> {{provider.Left, leftMapping}};
         newLeftProvider = VisitCompilable(provider.Left);
         leftMapping = mappings.Value[provider.Left];
       }
 
-      using (new ParameterScope()) {
+      using (new ParameterContext().Activate()) {
         mappings.Value = new Dictionary<Provider, List<int>> {{provider.Right, rightMapping}};
         outerColumnUsages.Add(applyParameter, leftMapping);
         newRightProvider = VisitCompilable(provider.Right);
@@ -281,13 +281,13 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       var leftMapping = mappings.Value[provider];
       var rightMapping = mappings.Value[provider];
 
-      using (new ParameterScope()) {
+      using (new ParameterContext().Activate()) {
         mappings.Value = new Dictionary<Provider, List<int>> {{provider.Left, leftMapping}};
         newLeftProvider = VisitCompilable(provider.Left);
         leftMapping = mappings.Value[provider.Left];
       }
 
-      using (new ParameterScope()) {
+      using (new ParameterContext().Activate()) {
         mappings.Value = new Dictionary<Provider, List<int>> {{provider.Right, rightMapping}};
         newRightProvider = VisitCompilable(provider.Right);
         rightMapping = mappings.Value[provider.Right];

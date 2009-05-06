@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     private IEnumerable<Tuple> CrossApply(EnumerationContext context, IEnumerable<Tuple> left)
     {
-      using (new ParameterScope())
+      using (new ParameterContext().Activate())
       foreach (var tuple in left) {
         Origin.ApplyParameter.Value = tuple;
         // Do not cache right part
@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     private IEnumerable<Tuple> OuterApply(EnumerationContext context, IEnumerable<Tuple> left)
     {
-      using (new ParameterScope())
+      using (new ParameterContext().Activate())
       foreach (var tuple in left) {
         Origin.ApplyParameter.Value = tuple;
         // Do not cache right part
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     private IEnumerable<Tuple> ApplyExisting(EnumerationContext context, IEnumerable<Tuple> left)
     {
-      using (new ParameterScope())
+      using (new ParameterContext().Activate())
       foreach (var tuple in left) {
         Origin.ApplyParameter.Value = tuple;
         // Do not cache right part
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     private IEnumerable<Tuple> ApplyNotExisting(EnumerationContext context, IEnumerable<Tuple> left)
     {
-      using (new ParameterScope())
+      using (new ParameterContext().Activate())
       foreach (var tuple in left) {
         Origin.ApplyParameter.Value = tuple;
         // Do not cache right part

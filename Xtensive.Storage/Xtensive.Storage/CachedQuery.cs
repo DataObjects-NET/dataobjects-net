@@ -91,7 +91,7 @@ namespace Xtensive.Storage
           return result;
         }
       }
-      using (new ParameterScope()) {
+      using (new ParameterContext().Activate()) {
         resultExpression.QueryParameter.Value = target;
         var result = resultExpression.GetResult<TResult>();
         return result;
@@ -122,7 +122,7 @@ namespace Xtensive.Storage
 
     private static IEnumerable<TElement> ExecuteSequence<TElement>(ParameterizedResultExpression resultExpression, object target)
     {
-      using (new ParameterScope()) {
+      using (new ParameterContext().Activate()) {
         if (resultExpression.QueryParameter != null)
           resultExpression.QueryParameter.Value = target;
         foreach (var element in resultExpression.GetResult<IEnumerable<TElement>>())
