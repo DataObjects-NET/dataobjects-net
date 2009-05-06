@@ -20,22 +20,81 @@ namespace Xtensive.Storage.Linq
   public static class QueryableExtensions
   {
     /// <summary>
-    /// Expands fields, specified in <paramref name="fieldSelectors"/>. 
-    /// These fields will be queried and cached along with base query.
-    /// Overrides <see cref="FieldAttribute.LazyLoad"/> setting for specified fields.
+    /// Expands <see cref="EntitySet{TItem}"/>  fields, specified in <paramref name="fieldSelectors"/>.
+    /// Can be used  
+    /// These fields will be queried along with base query.
     /// </summary>
     /// <typeparam name="TSource">Type of source.</typeparam>
     /// <param name="source">Source queryable to expand fields for.</param>
     /// <param name="fieldSelectors">List of field selectors.</param>
-    /// <returns>The similar query. Only difference is request to storage. It will contains expanded fields too.</returns>
-    /// <exception cref="NotSupportedException">Queryable is not <see cref="Xtensive.Storage.Linq"/> query</exception>
+    /// <returns>The similar query. Only difference is request to storage. It will contains expanded <see cref="EntitySet{TItem}"/>s too.</returns>
+    /// <exception cref="NotSupportedException">Queryable is not <see cref="Xtensive.Storage.Linq"/> query.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> argument is null.</exception>
+    /// <remarks>Overrides <see cref="FieldAttribute.LazyLoad"/> setting for specified fields.</remarks>
     public static IQueryable<TSource> ExpandFields<TSource>(this IQueryable<TSource> source, params Expression<Func<TSource, EntitySetBase>>[] fieldSelectors)
     {
+      var errorMessage = Resources.Strings.ExExpandFieldsDoesNotSupportQueryProviderOfTypeX;
+      return CallTranslator(source, fieldSelectors, errorMessage);
+    }
+
+    /// <summary>
+    /// Expands fields, specified in <paramref name="fieldSelectors"/>.
+    /// Can be used  
+    /// These fields will be queried along with base query.
+    /// </summary>
+    /// <typeparam name="TSource">Type of source.</typeparam>
+    /// <param name="source">Source queryable to expand fields for.</param>
+    /// <param name="fieldSelectors">List of field selectors.</param>
+    /// <returns>The similar query. Only difference is request to storage. It will contains expanded <see cref="EntitySet{TItem}"/>s too.</returns>
+    /// <exception cref="NotSupportedException">Queryable is not <see cref="Xtensive.Storage.Linq"/> query.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> argument is null.</exception>
+    /// <remarks>Overrides <see cref="FieldAttribute.LazyLoad"/> setting for specified fields.</remarks>
+    public static IQueryable<TSource> ExpandFields<TSource>(this IQueryable<TSource> source, params Expression<Func<TSource, Entity>>[] fieldSelectors)
+    {
+      var errorMessage = Resources.Strings.ExExpandFieldsDoesNotSupportQueryProviderOfTypeX;
+      return CallTranslator(source, fieldSelectors, errorMessage);
+    }
+
+    /// <summary>
+    /// Includes fields, specified in <paramref name="fieldSelectors"/> in query. 
+    /// </summary>
+    /// <typeparam name="TSource">Type of source.</typeparam>
+    /// <param name="source">Source queryable to exclude fields for.</param>
+    /// <param name="fieldSelectors">List of field selectors.</param>
+    /// <returns>The similar query. Only difference is request to storage. It will not contains excluded fields.</returns>
+    /// <exception cref="NotSupportedException">Queryable is not <see cref="Xtensive.Storage.Linq"/> query.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> argument is null.</exception>
+    /// <remarks>Overrides <see cref="FieldAttribute.LazyLoad"/> setting for specified fields.</remarks>
+    public static IQueryable<TSource> ExcludeFields<TSource>(this IQueryable<TSource> source, params Expression<Func<TSource, EntitySetBase>>[] fieldSelectors)
+    {
+      var errorMessage = Resources.Strings.ExExcludeFieldsDoesNotSupportQueryProviderOfTypeX;
+      return CallTranslator(source, fieldSelectors, errorMessage);
+    }
+
+    /// <summary>
+    /// Includes fields, specified in <paramref name="fieldSelectors"/> from query.
+    /// These fields will become <see cref="FieldAttribute.LazyLoad"/> fields. 
+    /// </summary>
+    /// <typeparam name="TSource">Type of source.</typeparam>
+    /// <param name="source">Source queryable to include fields for.</param>
+    /// <param name="fieldSelectors">List of field selectors.</param>
+    /// <returns>The similar query. Only difference is request to storage. It will contains included fields too.</returns>
+    /// <exception cref="NotSupportedException">Queryable is not <see cref="Xtensive.Storage.Linq"/> query.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> argument is null.</exception>
+    /// <remarks>Overrides <see cref="FieldAttribute.LazyLoad"/> setting for specified fields.</remarks>
+    public static IQueryable<TSource> IncludeFields<TSource>(this IQueryable<TSource> source, params Expression<Func<TSource, EntitySetBase>>[] fieldSelectors)
+    {
+      var errorMessage = Resources.Strings.ExExcludeFieldsDoesNotSupportQueryProviderOfTypeX;
+      return CallTranslator(source, fieldSelectors, errorMessage);
+    }
+
+    /// <exception cref="NotSupportedException">Queryable is not <see cref="Xtensive.Storage.Linq"/> query.</exception>
+    private static IQueryable<TSource> CallTranslator<TSource>(IQueryable<TSource> source, Expression[] fieldSelectors, string errorMessage)
+    {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      var queryType = source.GetType();
-      if (!queryType.IsOfGenericType(typeof (Query<>)))
-        throw new NotSupportedException(String.Format(Resources.Strings.ExExpandFieldsDoesNotSupportQueryableOfTypeX, queryType));
+      var providerType = source.Provider.GetType();
+      if (providerType!=typeof (QueryProvider))
+        throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       if (fieldSelectors==null || fieldSelectors.Length==0)
         return source;
@@ -49,38 +108,6 @@ namespace Xtensive.Storage.Linq
         null
         , ((MethodInfo) MethodBase.GetCurrentMethod()).MakeGenericMethod(new[] {typeof (TSource)})
         , parameters.ToArray()));
-    }
-
-    /// <summary>
-    /// Includes fields, specified in <paramref name="fieldSelectors"/> in query. 
-    /// Overrides <see cref="FieldAttribute.LazyLoad"/> setting for specified fields.
-    /// </summary>
-    /// <typeparam name="TSource"></typeparam>
-    /// <param name="queryable"></param>
-    /// <returns></returns>
-    public static IQueryable<TSource> ExcludeFields<TSource>(this IQueryable<TSource> queryable, params Expression<Func<TSource, EntitySetBase>>[] fieldSelectors)
-    {
-      var queryType = queryable.GetType();
-      if (!queryType.IsOfGenericType(typeof (Query<>)))
-        throw new NotSupportedException(String.Format(Resources.Strings.ExExcludeFieldsDoesNotSupportQueryableOfTypeX, queryType));
-
-      throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Includes fields, specified in <paramref name="fieldSelectors"/> in query. 
-    /// Overrides <see cref="FieldAttribute.LazyLoad"/> setting.
-    /// </summary>
-    /// <typeparam name="TSource"></typeparam>
-    /// <param name="queryable"></param>
-    /// <returns></returns>
-    public static IQueryable<TSource> IncludeFields<TSource>(this IQueryable<TSource> queryable, params Expression<Func<TSource, EntitySetBase>>[] fieldSelectors)
-    {
-      var queryType = queryable.GetType();
-      if (!queryType.IsOfGenericType(typeof (Query<>)))
-        throw new NotSupportedException(String.Format(Resources.Strings.ExIncludeFieldsDoesNotSupportQueryableOfTypeX, queryType));
-
-      throw new NotImplementedException();
     }
   }
 }

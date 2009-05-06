@@ -448,20 +448,20 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ExcludeFields does not support queryable of type &apos;{0}&apos;..
+        ///   Looks up a localized string similar to ExcludeFields does not support query provider of type &apos;{0}&apos;..
         /// </summary>
-        internal static string ExExcludeFieldsDoesNotSupportQueryableOfTypeX {
+        internal static string ExExcludeFieldsDoesNotSupportQueryProviderOfTypeX {
             get {
-                return ResourceManager.GetString("ExExcludeFieldsDoesNotSupportQueryableOfTypeX", resourceCulture);
+                return ResourceManager.GetString("ExExcludeFieldsDoesNotSupportQueryProviderOfTypeX", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ExpandFields does not support queryable of type &apos;{0}&apos;..
+        ///   Looks up a localized string similar to ExpandFields does not support query provider of type &apos;{0}&apos;..
         /// </summary>
-        internal static string ExExpandFieldsDoesNotSupportQueryableOfTypeX {
+        internal static string ExExpandFieldsDoesNotSupportQueryProviderOfTypeX {
             get {
-                return ResourceManager.GetString("ExExpandFieldsDoesNotSupportQueryableOfTypeX", resourceCulture);
+                return ResourceManager.GetString("ExExpandFieldsDoesNotSupportQueryProviderOfTypeX", resourceCulture);
             }
         }
         
@@ -574,11 +574,11 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to IncludeFields does not support queryable of type &apos;{0}&apos;..
+        ///   Looks up a localized string similar to IncludeFields does not support query provider of type &apos;{0}&apos;..
         /// </summary>
-        internal static string ExIncludeFieldsDoesNotSupportQueryableOfTypeX {
+        internal static string ExIncludeFieldsDoesNotSupportQueryProviderOfTypeX {
             get {
-                return ResourceManager.GetString("ExIncludeFieldsDoesNotSupportQueryableOfTypeX", resourceCulture);
+                return ResourceManager.GetString("ExIncludeFieldsDoesNotSupportQueryProviderOfTypeX", resourceCulture);
             }
         }
         
