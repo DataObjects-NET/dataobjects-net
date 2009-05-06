@@ -15,6 +15,7 @@ using Xtensive.Storage.Tests.Storage.Performance.SqlClientCrudModel;
 namespace Xtensive.Storage.Tests.Storage.Performance
 {
   [TestFixture]
+  [Explicit]
   public class SqlClientCrudTest : AutoBuildTest
   {
     public const int BaseCount = 10000;

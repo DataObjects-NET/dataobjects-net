@@ -16,6 +16,7 @@ using Xtensive.Storage.Tests.Storage.Performance.EntityCrudModel;
 namespace Xtensive.Storage.Tests.Storage.Performance
 {
   [TestFixture]
+  [Explicit]
   public class EntityCrudTest : AutoBuildTest
   {
     public const int BaseCount = 10000;

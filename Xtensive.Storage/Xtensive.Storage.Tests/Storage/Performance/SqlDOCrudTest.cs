@@ -10,6 +10,7 @@ using Xtensive.Storage.Configuration;
 namespace Xtensive.Storage.Tests.Storage.Performance
 {
   [TestFixture]
+  [Explicit]
   public class SqlDOCrudTest : DOCrudTestBase
   {
     protected override DomainConfiguration CreateConfiguration()

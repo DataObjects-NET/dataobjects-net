@@ -6,11 +6,13 @@
 
 using System;
 using System.Diagnostics;
+using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.Performance
 {
-  [Serializable]
+  [TestFixture]
+  [Explicit]
   public class MemoryDOCrudTest : DOCrudTestBase
   {
     protected override DomainConfiguration CreateConfiguration()

@@ -17,6 +17,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 {
 
   [TestFixture]
+  [Explicit]
   public class DO39CrudTest
   {
     static DataObjects.NET.Domain domain;
