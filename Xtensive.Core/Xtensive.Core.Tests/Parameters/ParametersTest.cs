@@ -40,7 +40,7 @@ namespace Xtensive.Core.Tests.Parameters
         parameter.Value = 10;
         Assert.AreEqual(10, parameter.Value);
 
-        using (ParameterContext.CreateExpectedValueScope()) {
+        using (ParameterContext.ExpectedValues.Activate()) {
           Assert.AreEqual(1, parameter.Value);
           AssertEx.ThrowsInvalidOperationException(() => parameter.Value = 1);
         }

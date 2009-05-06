@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Parameters
 {
@@ -17,8 +18,8 @@ namespace Xtensive.Core.Parameters
   {
     private readonly Dictionary<Parameter, object> values = 
       new Dictionary<Parameter, object>();
-    private bool useExpectedValue;
-    private static readonly ParameterContext expectedValueContext;
+    private readonly bool isExpectedValuesContext;
+    private static readonly ParameterContext expectedValues = new ParameterContext(true);
 
     /// <summary>
     /// Gets the current <see cref="ParameterContext"/>.
@@ -29,12 +30,12 @@ namespace Xtensive.Core.Parameters
     }
 
     /// <summary>
-    /// Creates the <see cref="ParameterScope"/> associated with 
-    /// <see cref="ParameterContext"/> operating with expected values of parameters.
-    /// </summary>
-    public static ParameterScope CreateExpectedValueScope()
-    {
-      return new ParameterScope(expectedValueContext);
+    /// Gets the special singleton <see cref="ParameterContext"/> instance 
+    /// exposing <see cref="Parameter.ExpectedValue"/>s of <see cref="Parameter{TValue}"/>s.
+    /// </summary>        
+    public static ParameterContext ExpectedValues {
+      [DebuggerStepThrough]
+      get { return expectedValues; }
     }
 
     #region IContext<...> methods
@@ -54,12 +55,12 @@ namespace Xtensive.Core.Parameters
 
     #endregion
 
-    #region Internal methods
+    #region Private \ internal methods
 
     [DebuggerStepThrough]
     internal bool TryGetValue(Parameter parameter, out object value)
     {
-      if (useExpectedValue) {
+      if (isExpectedValuesContext) {
         value = parameter.ExpectedValue;
         return true;
       }
@@ -95,7 +96,7 @@ namespace Xtensive.Core.Parameters
 
     private void VerifyThatOperationIsAllowed()
     {
-      if (useExpectedValue)
+      if (isExpectedValuesContext)
         throw new InvalidOperationException(Resources.Strings
           .ExThisOperationIsNotAllowedForParameterContextOperatingWithExpectedValuesOfParameters);
     }
@@ -103,11 +104,18 @@ namespace Xtensive.Core.Parameters
     #endregion
 
 
-    // Type initializer
+    // Constructors
 
-    static ParameterContext()
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public ParameterContext()
     {
-      expectedValueContext = new ParameterContext {useExpectedValue = true};
+    }
+
+    private ParameterContext(bool isExpectedValuesContext)
+    {
+      this.isExpectedValuesContext = isExpectedValuesContext;
     }
   }
 }
