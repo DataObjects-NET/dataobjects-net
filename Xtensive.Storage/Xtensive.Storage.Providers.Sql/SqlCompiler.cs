@@ -141,13 +141,17 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
-      var query = source.Request.SelectStatement;
+      /*var query = source.Request.SelectStatement;
       if (query.Distinct)
-        return source;
+        return source;*/
 
-      var clone = (SqlSelect) query.Clone();
-      clone.Distinct = true;
-      return new SqlProvider(provider, clone, Handlers, source);
+      var clone = (SqlSelect) source.Request.SelectStatement.Clone();
+      var queryRef = SqlFactory.QueryRef(clone);
+      var query = SqlFactory.Select(queryRef);
+      query.Columns.AddRange(provider.Header.Columns.Select(c => (SqlColumn)queryRef.Columns[c.Index]));
+      query.Distinct = true;
+      query.OrderBy.Clear();
+      return new SqlProvider(provider, query, Handlers, source);
     }
 
     /// <inheritdoc/>

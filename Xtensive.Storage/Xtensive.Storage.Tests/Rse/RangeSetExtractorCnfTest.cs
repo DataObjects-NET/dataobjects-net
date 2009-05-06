@@ -320,5 +320,39 @@ namespace Xtensive.Storage.Tests.Rse
       result.Add(expectedRange);
       return result;
     }
+
+    [Test]
+    public void LikeStartsWithTest()
+    {
+      TypeInfo snakeType = Domain.Model.Types[typeof(ClearSnake)];
+      IndexInfo indexInfo = snakeType.Indexes.GetIndex(NameField);
+      RecordSetHeader rsHeader = snakeType.Indexes.PrimaryIndex.GetRecordSetHeader();
+      int nameIdx = GetFieldIndex(rsHeader, NameField);
+
+      var predicate = new DisjunctiveNormalized()
+        .AddCnf(AsCnf(t => !t.GetValue<string>(nameIdx).StartsWith("abc")));
+      
+      var expectedRanges = CreateExpectedRangesForLikeStartsWithTestTest(indexInfo, NameField);
+      TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
+    }
+
+    private static IEnumerable<Range<Entire<Tuple>>> CreateExpectedRangesForLikeStartsWithTestTest(
+      IndexInfo indexInfo, string keyFieldName)
+    {
+      var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
+      var result = new SetSlim<Range<Entire<Tuple>>>();
+      var tupleDescriptor = indexInfo.KeyTupleDescriptor;
+      const string keyValue = "abc";
+      var expectedFirst = new Entire<Tuple>(InfinityType.Negative);
+      var expectedSecond = new Entire<Tuple>(
+        CreateTuple(tupleDescriptor, keyFieldIndex, keyValue), Direction.Negative);
+      result.Add(new Range<Entire<Tuple>>(expectedFirst, expectedSecond));
+
+      expectedFirst = new Entire<Tuple>(
+        CreateTuple(tupleDescriptor, keyFieldIndex, keyValue + char.MaxValue), Direction.Positive);
+      expectedSecond = new Entire<Tuple>(InfinityType.Positive);
+      result.Add(new Range<Entire<Tuple>>(expectedFirst, expectedSecond));
+      return result;
+    }
   }
 }

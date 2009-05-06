@@ -5,6 +5,7 @@
 // Created:    2009.04.24
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -18,19 +19,34 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     private Expression skipCount;
     private Expression takeCount;
     private int rowNumberCount;
+    private ProviderType? consumerType;
+    private ProviderType? currentType;
 
     public CompilableProvider Rewrite()
     {
       skipCount = null;
       takeCount = null;
       rowNumberCount = 0;
+      consumerType = null;
       return VisitCompilable(origin);
+    }
+
+    protected override Provider Visit(CompilableProvider cp)
+    {
+      var prevConsumerType = consumerType;
+      consumerType = currentType;
+      currentType = cp.Type;
+
+      var prevCurrentType = currentType;
+      var visited = base.Visit(cp);
+      currentType = prevCurrentType;
+      consumerType = prevConsumerType;
+      return visited;
     }
 
     protected override Provider VisitSkip(SkipProvider provider)
     {
       skipCount = AddCount(skipCount, provider.Count);
-
       var prevSkipCount = skipCount;
       var isSourceSkip = provider.Source is SkipProvider;
       if (!isSourceSkip)
@@ -40,8 +56,11 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       if (isSourceSkip)
         return visitedSource;
 
-      return new SkipProvider(CreateRowNumberProvider(visitedSource, ref rowNumberCount),
+      if(!(provider.Source is TakeProvider))
+        visitedSource = CreateRowNumberProvider(visitedSource, ref rowNumberCount);
+      var newProvider = new SkipProvider(visitedSource,
         (Func<int>) Expression.Lambda(skipCount).Compile());
+      return InsertSelectRemovingRowNumber(newProvider);
     }
 
     protected override Provider VisitTake(TakeProvider provider)
@@ -57,8 +76,11 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       if (isSourceTake)
         return visitedSource;
       
-      return new TakeProvider(CreateRowNumberProvider(visitedSource, ref rowNumberCount),
+      if(!(provider.Source is SkipProvider))
+        visitedSource = CreateRowNumberProvider(visitedSource, ref rowNumberCount);
+      var newProvider = new TakeProvider(visitedSource,
         (Func<int>) Expression.Lambda(takeCount).Compile());
+      return InsertSelectRemovingRowNumber(newProvider);
     }
 
     #region Private \ internal methods
@@ -91,6 +113,14 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     private static MethodCallExpression CreateDelegateInvocation(Func<int> arg)
     {
       return Expression.Call(Expression.Constant(arg), "Invoke", null);
+    }
+
+    private CompilableProvider InsertSelectRemovingRowNumber(CompilableProvider source)
+    {
+      if (consumerType != ProviderType.Skip && consumerType != ProviderType.Take)
+        return new SelectProvider(source, source.Header.Columns.Select(c => c.Index)
+          .Take(source.Header.Columns.Count - 1).ToArray());
+      return source;
     }
 
     #endregion

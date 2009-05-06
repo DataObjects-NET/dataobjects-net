@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Tests.Rse
     {
       Expression<Func<Employee, bool>> predicate = employee => employee.Id > 0
         && employee.FirstName.GreaterThan("S")
-        && employee.BirthDate < new DateTime(1960, 1, 1) || employee.Title.StartsWith("Vice")
+        && employee.BirthDate < new DateTime(1960, 1, 1) || employee.Title.GreaterThan("Vice")
         && employee.BirthDate > new DateTime(1950, 1, 1) && employee.BirthDate < new DateTime(1960, 1, 1);
       var expected = Query<Employee>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(empl => empl.Id);
       var query = Query<Employee>.All.Where(predicate).OrderBy(empl => empl.Id);
@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Tests.Rse
       Expression<Func<Product, bool>> predicate = product => product.UnitPrice > 10m
         && product.Supplier.Id == targetSupplier.Id && product.Category.Id == targetCategory.Id
         && product.ProductName.GreaterThan("a")
-        || product.UnitPrice > 10m && product.ProductName.StartsWith("S");
+        || product.UnitPrice > 10m && product.ProductName.GreaterThan("S");
       var expected = Query<Product>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(p => p.Id);
       var query = Query<Product>.All.Where(predicate).OrderBy(p => p.Id);
       var actual = query.ToList();
@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Tests.Rse
     {
       Expression<Func<Order, bool>> orderPredicate = order => order.OrderDate > new DateTime(1997, 11, 1)
         && order.OrderDate < new DateTime(1997, 11, 30);
-      Expression<Func<Employee, bool>> employeePredicate = employee => employee.Title.StartsWith("Sales");
+      Expression<Func<Employee, bool>> employeePredicate = employee => employee.Title.GreaterThan("Sales");
       var expected = Query<Order>.All.AsEnumerable().Where(orderPredicate.Compile())
         .Join(Query<Employee>.All.Where(employeePredicate.Compile()),
           order => order.Employee.Id, empl => empl.Id,

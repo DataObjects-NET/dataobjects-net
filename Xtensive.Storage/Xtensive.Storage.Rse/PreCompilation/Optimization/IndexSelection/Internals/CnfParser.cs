@@ -149,6 +149,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
           return null;
         indexKeyValuesCache.Add(item.First, item.Second.Origin.Comparison.Value);
         lastKeyPosition = i;
+        if (IsNotAllowedComparison(item.Second.Origin.Comparison.Operation))
+          return null;
         if (item.Second.Origin.Comparison.Operation != ComparisonOperation.Equal)
           break;
       }
@@ -156,6 +158,15 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
         return null;
       return indexKeyValuesCache;
     }
+
+    private static bool IsNotAllowedComparison(ComparisonOperation operation)
+    {
+      return operation == ComparisonOperation.LikeStartsWith
+        || operation == ComparisonOperation.NotLikeStartsWith
+        || operation == ComparisonOperation.LikeEndsWith
+        || operation == ComparisonOperation.NotLikeEndsWith;
+    }
+
     #endregion
 
 

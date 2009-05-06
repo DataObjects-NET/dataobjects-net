@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.03.17
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -15,6 +16,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Internals;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
@@ -33,6 +35,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     private static readonly MethodInfo uniteMethod;
     private static readonly MethodInfo invertMethod;
     private static readonly MethodInfo fullOrEmptyMethod;
+    private static readonly MethodInfo concatMethod;
 
     public static RangeSetInfo BuildConstructor(TupleExpressionInfo originTuple,
       IndexInfo indexInfo, AdvancedComparer<Entire<Tuple>> comparer)
@@ -90,11 +93,11 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       return target;
     }
 
-    public static RangeSetInfo BuildFullOrEmpty(Expression booleanExp)
+    public static RangeSetInfo BuildFullOrEmpty(Expression booleanExp,
+      AdvancedComparer<Entire<Tuple>> comparer)
     {
-      //TODO:A comparer from index must be passed here.
       return CreateNotFullExpression(Expression.Call(
-        fullOrEmptyMethod, booleanExp, Expression.Constant(AdvancedComparer<Entire<Tuple>>.Default)), null);
+        fullOrEmptyMethod, booleanExp, Expression.Constant(comparer)), null);
     }
 
     public static RangeSetInfo BuildInvert(RangeSetInfo target)
@@ -185,41 +188,53 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 
     private static void CreateRangeEndpoints(out Expression first, out Expression second,
       IEnumerable<KeyValuePair<int, Expression>> indexKeyValues,
-      ComparisonOperation comparsionType, IndexInfo indexInfo)
+      ComparisonOperation comparisonType, IndexInfo indexInfo)
     {
-      if (comparsionType == ComparisonOperation.Equal || comparsionType == ComparisonOperation.NotEqual) {
+      if (comparisonType == ComparisonOperation.Equal || comparisonType == ComparisonOperation.NotEqual) {
         first = BuildShiftedEntireConstructor(indexKeyValues, indexInfo, false);
         second = BuildShiftedEntireConstructor(indexKeyValues, indexInfo, true);
         return;
       }
-      if(comparsionType == ComparisonOperation.LessThan) {
+      if(comparisonType == ComparisonOperation.LessThan) {
         first = BuildInfiniteEntire(false);
         second = BuildShiftedEntireConstructor(indexKeyValues, indexInfo, false);
         return;
       }
-      if (comparsionType == ComparisonOperation.LessThanOrEqual) {
+      if (comparisonType == ComparisonOperation.LessThanOrEqual) {
         first = BuildInfiniteEntire(false);
         second = BuildEntireConstructor(indexKeyValues, indexInfo);
         return;
       }
-      if (comparsionType == ComparisonOperation.GreaterThan) {
+      if (comparisonType == ComparisonOperation.GreaterThan) {
         first = BuildShiftedEntireConstructor(indexKeyValues, indexInfo, true);
         second = BuildInfiniteEntire(true);
         return;
       }
-      if (comparsionType == ComparisonOperation.GreaterThanOrEqual) {
+      if (comparisonType == ComparisonOperation.GreaterThanOrEqual) {
         first = BuildEntireConstructor(indexKeyValues, indexInfo);
         second = BuildInfiniteEntire(true);
         return;
       }
-      if (comparsionType == ComparisonOperation.LikeStartsWith
-        || comparsionType == ComparisonOperation.NotLikeStartsWith)
+      if (comparisonType == ComparisonOperation.LikeStartsWith
+        || comparisonType == ComparisonOperation.NotLikeStartsWith)
       {
         first = BuildEntireConstructor(indexKeyValues, indexInfo);
-        second = BuildInfiniteEntire(true);
+        second = BuildSecondValueForLikeStartsWith(indexKeyValues, indexInfo);
         return;
       }
-      throw Exceptions.InvalidArgument(comparsionType, "comparsionType");
+      throw Exceptions.InvalidArgument(comparisonType, "comparisonType");
+    }
+
+    private static Expression BuildSecondValueForLikeStartsWith(
+      IEnumerable<KeyValuePair<int, Expression>> indexKeyValues, IndexInfo indexInfo)
+    {
+      if (indexKeyValues.Any(pair => pair.Value.Type != typeof(string)))
+        throw new ArgumentException(String.Format(Strings.ExTypeOfExpressionReturnValueIsNotX,
+          typeof (string)));
+      var nearestKeyValues = indexKeyValues.Select(
+        pair => new KeyValuePair<int, Expression>(pair.Key,
+          Expression.Call(null, concatMethod, pair.Value, Expression.Constant(char.MaxValue.ToString()))));
+      return BuildEntireConstructor(nearestKeyValues, indexInfo);
     }
 
     private static NewExpression BuildEntireConstructor(
@@ -274,23 +289,24 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     static RangeSetExpressionBuilder()
     {
       tupleCreateMethod = typeof (Tuple).GetMethod("Create", new[] {typeof (TupleDescriptor)});
-      tupleUpdaterConstructor = typeof(TupleUpdater).GetConstructor(new[] { typeof(Tuple) });
+      tupleUpdaterConstructor = typeof (TupleUpdater).GetConstructor(new[] {typeof (Tuple)});
       tupleUpdateMethod = typeof(TupleUpdater).GetMethod("UpdateField");
       wrappedTupleProperty = typeof (TupleUpdater).GetProperty("Tuple");
-      entireConstructor = typeof (Entire<Tuple>).GetConstructor(new[]{typeof(Tuple)});
-      shiftedEntireConstutor = typeof (Entire<Tuple>).GetConstructor(new[] {typeof (Tuple),
-                                                                            typeof (Direction)});
+      entireConstructor = typeof (Entire<Tuple>).GetConstructor(new[] {typeof (Tuple)});
+      shiftedEntireConstutor = typeof (Entire<Tuple>)
+        .GetConstructor(new[] {typeof (Tuple), typeof (Direction)});
       infiniteEntireConstructor = typeof (Entire<Tuple>).GetConstructor(new[] {typeof (InfinityType)});
       rangeContructor = typeof (Range<Entire<Tuple>>)
         .GetConstructor(new[] {typeof (Entire<Tuple>), typeof (Entire<Tuple>)});
       rangeSetConstructor = typeof (RangeSet<Entire<Tuple>>)
-        .GetConstructor(new[] { typeof(Range<Entire<Tuple>>), typeof(AdvancedComparer<Entire<Tuple>>) });
+        .GetConstructor(new[] {typeof (Range<Entire<Tuple>>), typeof (AdvancedComparer<Entire<Tuple>>)});
       intersectMethod = typeof (RangeSet<Entire<Tuple>>)
         .GetMethod("Intersect", new[] {typeof (RangeSet<Entire<Tuple>>)});
       uniteMethod = typeof (RangeSet<Entire<Tuple>>)
         .GetMethod("Unite", new[] {typeof (RangeSet<Entire<Tuple>>)});
       invertMethod = typeof(RangeSet<Entire<Tuple>>).GetMethod("Invert");
       fullOrEmptyMethod = typeof (RangeSet<Entire<Tuple>>).GetMethod("CreateFullOrEmpty");
+      concatMethod = typeof (string).GetMethod("Concat", new[] {typeof (string), typeof (string)});
     }
   }
 }

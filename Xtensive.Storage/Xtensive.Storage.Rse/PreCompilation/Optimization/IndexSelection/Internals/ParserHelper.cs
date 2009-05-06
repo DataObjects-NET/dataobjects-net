@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
         if (comparisonExtractor.ContainsKey(exp, DeafultKeySelector))
           return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null, comparer);
         else
-          return RangeSetExpressionBuilder.BuildFullOrEmpty(exp);
+          return RangeSetExpressionBuilder.BuildFullOrEmpty(exp, comparer);
       if(tupleComparison.IsComplex)
         return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null, comparer);
       int fieldIndex = tupleComparison.Key.GetTupleAccessArgument();

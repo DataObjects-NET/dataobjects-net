@@ -159,22 +159,26 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void OrderByTakeSkipTest()
     {
-      IEnumerable<Order> original = Query<Order>.All.AsEnumerable()
+      var original = Query<Order>.All.AsEnumerable()
         .OrderBy(o => o.OrderDate)
         .Skip(100)
         .Take(50)
         .OrderBy(o => o.RequiredDate)
         .Where(o => o.OrderDate != null)
+        .Select(o => o.RequiredDate)
+        .Distinct()
         .Skip(10);
-      IQueryable<Order> result = Query<Order>.All
+      var result = Query<Order>.All
         .OrderBy(o => o.OrderDate)
         .Skip(100)
         .Take(50)
         .OrderBy(o => o.RequiredDate)
         .Where(o => o.OrderDate != null)
+        .Select(o => o.RequiredDate)
+        .Distinct()
         .Skip(10);
-      List<Order> originalList = original.ToList();
-      List<Order> resultList = result.ToList();
+      var originalList = original.ToList();
+      var resultList = result.ToList();
       QueryDumper.Dump(originalList);
       QueryDumper.Dump(resultList);
       Assert.AreEqual(originalList.Count, resultList.Count);
