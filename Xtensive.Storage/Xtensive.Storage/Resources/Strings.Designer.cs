@@ -448,6 +448,24 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ExcludeFields does not support queryable of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExExcludeFieldsDoesNotSupportQueryableOfTypeX {
+            get {
+                return ResourceManager.GetString("ExExcludeFieldsDoesNotSupportQueryableOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ExpandFields does not support queryable of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExExpandFieldsDoesNotSupportQueryableOfTypeX {
+            get {
+                return ResourceManager.GetString("ExExpandFieldsDoesNotSupportQueryableOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The expression of type &apos;{0}&apos; is not a sequence.
         /// </summary>
         internal static string ExExpressionOfTypeXIsNotASequence {
@@ -552,6 +570,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExFieldXYIsNotFound {
             get {
                 return ResourceManager.GetString("ExFieldXYIsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to IncludeFields does not support queryable of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExIncludeFieldsDoesNotSupportQueryableOfTypeX {
+            get {
+                return ResourceManager.GetString("ExIncludeFieldsDoesNotSupportQueryableOfTypeX", resourceCulture);
             }
         }
         
