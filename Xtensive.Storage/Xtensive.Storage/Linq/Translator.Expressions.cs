@@ -782,13 +782,13 @@ namespace Xtensive.Storage.Linq
       if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
         throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported, binaryExpression.NodeType));
 
-      bool leftIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Left);
-      bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);
+//      bool leftIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Left);
+//      bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);
+//
+//      if (!leftIsParameter && !rightIsParameter)
+      return MakeComplexBinaryExpression(binaryExpression.Left, binaryExpression.Right, binaryExpression.NodeType);
 
-      if (!leftIsParameter && !rightIsParameter)
-        return MakeComplexBinaryExpression(binaryExpression.Left, binaryExpression.Right, binaryExpression.NodeType);
-
-      throw new NotSupportedException();
+//      throw new NotSupportedException();
     }
 
     #endregion
