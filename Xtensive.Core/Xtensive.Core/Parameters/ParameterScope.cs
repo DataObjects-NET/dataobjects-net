@@ -97,17 +97,8 @@ namespace Xtensive.Core.Parameters
     /// </summary>
     /// <param name="context">The context of this scope.</param>
     [DebuggerStepThrough]
-    public ParameterScope(ParameterContext context)
+    internal ParameterScope(ParameterContext context)
       : base(context)
-    {
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    [DebuggerStepThrough]
-    public ParameterScope()
-      : this(new ParameterContext())
     {
     }
 
