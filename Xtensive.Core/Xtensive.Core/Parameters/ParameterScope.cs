@@ -122,7 +122,7 @@ namespace Xtensive.Core.Parameters
       }
       var currentContext = Context;
       Dispose();
-      currentContext.NotifyParametersAboutDisposing();
+      currentContext.NotifyParametersOnDisposing();
     }
   }
 }

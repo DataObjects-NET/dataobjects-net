@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Parameters
 {
@@ -70,35 +71,38 @@ namespace Xtensive.Core.Parameters
     [DebuggerStepThrough]
     internal void SetValue(Parameter parameter, object value)
     {
-      VerifyThatOperationIsAllowed();
+      EnsureIsRegular();
       values[parameter] = value;
     }
 
     [DebuggerStepThrough]
     internal void Clear(Parameter parameter)
     {
-      VerifyThatOperationIsAllowed();
+      EnsureIsRegular();
       values.Remove(parameter);
     }
 
     [DebuggerStepThrough]
     internal bool HasValue(Parameter parameter)
     {
-      VerifyThatOperationIsAllowed();
+      EnsureIsRegular();
       return values.ContainsKey(parameter);
     }
 
-    internal void NotifyParametersAboutDisposing()
+    [DebuggerStepThrough]
+    internal void NotifyParametersOnDisposing()
     {
       foreach (var pair in values)
         pair.Key.OnScopeDisposed(pair.Value);
     }
 
-    private void VerifyThatOperationIsAllowed()
+    /// <exception cref="InvalidOperationException">Context is <see cref="ExpectedValues"/> context.</exception>
+    [DebuggerStepThrough]
+    private void EnsureIsRegular()
     {
       if (isExpectedValuesContext)
-        throw new InvalidOperationException(Resources.Strings
-          .ExThisOperationIsNotAllowedForParameterContextOperatingWithExpectedValuesOfParameters);
+        throw new InvalidOperationException(
+          Strings.ExThisOperationIsNotAllowedForParameterContextOperatingWithExpectedValuesOfParameters);
     }
 
     #endregion
