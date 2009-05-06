@@ -37,18 +37,39 @@ namespace Xtensive.Modelling.Tests
     }
 
     [Test]
-    public void RemoveTableTest()
+    public void RemoveDependentPropertyTest1()
+    {
+      var storage = CreateSimpleStorageModel();
+      storage.Dump();
+
+      TestUpdate(storage, (s1, s2, hs) => {
+        var o = (TableInfo) s2.Resolve("Tables/Objects");
+        o.Remove();
+      },
+        (diff, actions) => Assert.IsTrue(
+          actions
+            .Flatten()
+            .OfType<RemoveNodeAction>()
+            .Any(a => a.Path=="Tables/Objects/ForeignKeys/FK_TypeId")));
+    }
+
+    [Test]
+    public void RemoveDependentPropertyTest2()
     {
       var storage = CreateSimpleStorageModel();
       storage.Dump();
 
       TestUpdate(storage, (s1, s2, hs) => {
         var t1 = (TableInfo) s2.Resolve("Tables/Types");
-        var fk = (ForeignKeyInfo) s2.Resolve("Tables/Objects/ForeignKeys/FK_TypeId");
-        fk.Remove();
+        var t2 = (TableInfo) s2.Resolve("Tables/Objects");
         t1.Remove();
+        t2.Remove();
       },
-      (diff, actions) => { });
+        (diff, actions) => Assert.IsTrue(
+          actions
+            .Flatten()
+            .OfType<RemoveNodeAction>()
+            .Any(a => a.Path=="Tables/Objects/ForeignKeys/FK_TypeId")));
     }
 
     [Test]
@@ -179,7 +200,7 @@ namespace Xtensive.Modelling.Tests
     {
       // Классное я слово придумал - мутатор ;)
       TestUpdate(origin, mutator, validator, true);
-      TestUpdate(origin, mutator, null, false);
+      // TestUpdate(origin, mutator, null, false);
     }
 
     private static void TestUpdate(StorageInfo origin, Action<StorageInfo, StorageInfo, HintSet> mutator, Action<Difference, ActionSequence> validator, bool useHints)

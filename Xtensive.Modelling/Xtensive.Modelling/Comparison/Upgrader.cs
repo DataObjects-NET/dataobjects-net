@@ -194,16 +194,17 @@ namespace Xtensive.Modelling.Comparison
       var any = target ?? source;
       var isCleanup = Stage==UpgradeStage.Cleanup;
       bool isImmutable = Context.IsImmutable;
-
+      
       using (OpenActionGroup(string.Format(NodeGroupComment, (target ?? source).Name))) {
         // Processing movement
         if (isCleanup) {
           bool bRemoveSource = (difference.MovementInfo & MovementInfo.Removed)!=0;
           bool bRemoveTarget =
             !bRemoveSource
-            && isImmutable 
-            && difference.HasChanges 
-            && (difference.MovementInfo & MovementInfo.Created)==0;
+              && isImmutable
+              && difference.HasChanges
+              && (difference.MovementInfo & MovementInfo.Created)==0;
+          ProcessProperties(difference, isImmutable, true, any);
           if (bRemoveSource || bRemoveTarget) {
             AddAction(UpgradeActionType.PreCondition, 
               new RemoveNodeAction() {
@@ -233,25 +234,28 @@ namespace Xtensive.Modelling.Comparison
             };
             AddAction(UpgradeActionType.PostCondition, action);
           }
+          ProcessProperties(difference, isImmutable, false, any);
         }
+      }
+    }
 
-        // Processing property changes
-        IEnumerable<KeyValuePair<string, Difference>> propertyChanges = difference.PropertyChanges;
-        if (isCleanup)
-          propertyChanges = propertyChanges.Reverse();
-        foreach (var pair in propertyChanges) {
-          var accessor = any.PropertyAccessors[pair.Key];
-          if (!isCleanup || !isImmutable || IsMutable(difference, accessor))
-            using (CreateContext().Activate()) {
-              Context.Property = pair.Key;
-              if (isCleanup)
-                Context.IsImmutable = IsImmutable(difference, accessor);
-              var dependencyRootType = GetDependencyRootType(difference, accessor);
-              if (dependencyRootType!=null)
-                Context.DependencyRootType = dependencyRootType;
-              Visit(pair.Value);
-            }
-        }
+    protected virtual void ProcessProperties(NodeDifference difference, bool isImmutable, bool isCleanup, Node any)
+    {
+      IEnumerable<KeyValuePair<string, Difference>> propertyChanges = difference.PropertyChanges;
+      if (isCleanup)
+        propertyChanges = propertyChanges.Reverse();
+      foreach (var pair in propertyChanges) {
+        var accessor = any.PropertyAccessors[pair.Key];
+        if (!isCleanup || !isImmutable || IsMutable(difference, accessor))
+          using (CreateContext().Activate()) {
+            Context.Property = pair.Key;
+            if (isCleanup)
+              Context.IsImmutable = IsImmutable(difference, accessor);
+            var dependencyRootType = GetDependencyRootType(difference, accessor);
+            if (dependencyRootType!=null)
+              Context.DependencyRootType = dependencyRootType;
+            Visit(pair.Value);
+          }
       }
     }
 

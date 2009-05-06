@@ -146,7 +146,7 @@ namespace Xtensive.Modelling.Comparison
     /// <exception cref="NullReferenceException">Current difference is not <see cref="NodeDifference"/>.</exception>
     protected virtual Difference VisitNode(Node source, Node target)
     {
-      using (TryActivate(source, target, (s,t) => new NodeDifference(s,t))) {
+      using (TryActivate(source, target, (s, t) => new NodeDifference(s, t))) {
         var context = Context;
         var difference = (NodeDifference) context.Difference;
         if (difference==null)
@@ -154,7 +154,7 @@ namespace Xtensive.Modelling.Comparison
         var any = source ?? target;
         if (any==null)
           throw Exceptions.InternalError(Strings.ExBothSourceAndTargetAreNull, Log.Instance);
-        
+
         bool isNewDifference = TryRegisterDifference(source, target, difference);
         var mi = difference.MovementInfo;
 
@@ -193,45 +193,54 @@ namespace Xtensive.Modelling.Comparison
           difference.MovementInfo = mi;
         }
 
-        // Comparing properties
+        // Getting properties for comparison
         difference.PropertyChanges.Clear();
-        if ((mi & MovementInfo.Removed)==0 || (mi & MovementInfo.Created)!=0) {
-          foreach (var pair in any.PropertyAccessors) {
-            var accessor = pair.Value;
-            if (accessor.IgnoreInComparison)
-              continue;
+        var properties = new List<PropertyAccessor>();
+        var isRemoved = (mi & MovementInfo.Removed)!=0;
+        var isCreated = (mi & MovementInfo.Created)!=0;
+        foreach (var pair in any.PropertyAccessors) {
+          if (isRemoved && pair.Value.DependencyRootType==any.Nesting.PropertyInfo.PropertyType)
+            properties.Add(pair.Value);
+          else if (!isRemoved || isCreated)
+            properties.Add(pair.Value);
+        }
+        
+        // Comparing properties
+        foreach (var accessor in properties) {
+          if (accessor.IgnoreInComparison)
+            continue;
 
-            var property = accessor.PropertyInfo;
-            using (CreateContext().Activate()) {
-              Context.Property = property;
-              object newSource = (source==null || !accessor.HasGetter)
-                ? accessor.Default : accessor.Getter(source);
-              object newTarget = (target==null || !accessor.HasGetter)
-                ? accessor.Default : accessor.Getter(target);
+          var property = accessor.PropertyInfo;
+          using (CreateContext().Activate()) {
+            Context.Property = property;
+            object newSource = (source==null || !accessor.HasGetter)
+              ? accessor.Default : accessor.Getter(source);
+            object newTarget = (target==null || !accessor.HasGetter)
+              ? accessor.Default : accessor.Getter(target);
 
-              var newAny = newSource ?? newTarget;
-              if (newAny==null)
-                continue; // Both are null
+            var newAny = newSource ?? newTarget;
+            if (newAny==null)
+              continue; // Both are null
 
-              if (IsReference(newSource, newTarget)) {
-                if (Stage==ComparisonStage.ReferenceComparison && 
-                    newSource!=null && newTarget!=null) { // Otherwise value is definitely changed
-                  Difference newDifference = null;
-                  if (!Results.TryGetValue(newTarget, out newDifference))
-                    throw new InvalidOperationException(string.Format(
-                      Strings.ExNodeXMustBeProcessedBeforeBeingComparedAsReferenceValueOfYZ,
-                      newTarget, target, property));
-                  if (!IsRelocated(newDifference))
-                    continue;
-                }
-                difference.PropertyChanges.Add(property.Name, 
-                  new ValueDifference(newSource, newTarget));
+            if (IsReference(newSource, newTarget)) {
+              if (Stage==ComparisonStage.ReferenceComparison &&
+                newSource!=null && newTarget!=null) {
+                // Otherwise value is definitely changed
+                Difference newDifference = null;
+                if (!Results.TryGetValue(newTarget, out newDifference))
+                  throw new InvalidOperationException(string.Format(
+                    Strings.ExNodeXMustBeProcessedBeforeBeingComparedAsReferenceValueOfYZ,
+                    newTarget, target, property));
+                if (!IsRelocated(newDifference))
+                  continue;
               }
-              else {
-                var newDifference = Visit(newSource, newTarget);
-                if (newDifference!=null)
-                  difference.PropertyChanges.Add(property.Name, newDifference);
-              }
+              difference.PropertyChanges.Add(property.Name,
+                new ValueDifference(newSource, newTarget));
+            }
+            else {
+              var newDifference = Visit(newSource, newTarget);
+              if (newDifference!=null)
+                difference.PropertyChanges.Add(property.Name, newDifference);
             }
           }
         }
@@ -368,6 +377,7 @@ namespace Xtensive.Modelling.Comparison
         return Equals(source, target) ? null : Context.Difference;
     }
 
+    
     #region Helper methods
 
     /// <summary>
