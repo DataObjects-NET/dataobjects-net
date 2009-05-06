@@ -22,6 +22,7 @@ using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
 using SqlRefAction = Xtensive.Sql.Dom.ReferentialAction;
 using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
 using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
+using Xtensive.Modelling.Comparison;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -37,6 +38,8 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly Schema schema;
 
     private readonly Func<Type, int, SqlValueType> valueTypeBuilder;
+    private readonly StorageInfo sourceModel;
+    private readonly StorageInfo targetModel;
     private readonly SqlDriver driver;
     private readonly List<string> commands = new List<string>();
     private readonly List<Table> createdTables = new List<Table>();
@@ -129,20 +132,23 @@ namespace Xtensive.Storage.Providers.Sql
         return;
       
       // TODO: Implement MoveNodeAction translation
-      if (action is MoveNodeAction)
-        throw new NotImplementedException();
-      
-      var node = action.Difference.Source;
+      // if (action is MoveNodeAction)
+      //   throw new NotImplementedException();
+
+      var moveNodeAction = action as MoveNodeAction;
+      if (moveNodeAction==null)
+        return;
+      var node = moveNodeAction.Difference.Source;
       if (node.GetType()==typeof (TableInfo))
-        VisitAlterTableAction(action);
+        VisitAlterTableAction(moveNodeAction);
       else if (node.GetType()==typeof (ColumnInfo))
-        VisitAlterColumnAction(action);
+        VisitMoveColumnAction(moveNodeAction);
       else if (node.GetType()==typeof (PrimaryIndexInfo))
-        VisitAlterPrimaryKeyAction(action);
+        VisitAlterPrimaryKeyAction(moveNodeAction);
       else if (node.GetType()==typeof (SecondaryIndexInfo))
-        VisitAlterSecondaryIndexAction(action);
+        VisitAlterSecondaryIndexAction(moveNodeAction);
       else if (node.GetType()==typeof (ForeignKeyInfo))
-        VisitAlterForeignKeyAction(action);
+        VisitAlterForeignKeyAction(moveNodeAction);
     }
 
     # region Visit concrete action methods
@@ -157,11 +163,20 @@ namespace Xtensive.Storage.Providers.Sql
     private void VisitRemoveTableAction(RemoveNodeAction action)
     {
       var tableInfo = action.Difference.Source as TableInfo;
-      var table = schema.Tables[tableInfo.Name];
+      var table = FindTable(tableInfo.Name);
       RegisterCommand(SqlFactory.Drop(table));
       schema.Tables.Remove(table);
     }
 
+    private void VisitAlterTableAction(MoveNodeAction action)
+    {
+      var oldTableInfo = sourceModel.Resolve(action.Path) as TableInfo;
+      var table = FindTable(oldTableInfo.Name);
+      RegisterCommand(SqlFactory.Rename(table, action.Name));
+      oldTableInfo.Name = action.Name;
+      table.Name = action.Name;
+    }
+    
     private void VisitAlterTableAction(NodeAction action)
     {
       throw new NotImplementedException();
@@ -170,7 +185,7 @@ namespace Xtensive.Storage.Providers.Sql
     private void VisitCreateColumnAction(CreateNodeAction createColumnAction)
     {
       var columnInfo = createColumnAction.Difference.Target as ColumnInfo;
-      var table = schema.Tables[columnInfo.Parent.Name];
+      var table = FindTable(columnInfo.Parent.Name);
       
       if (createdTables.Contains(table))
         return;
@@ -184,13 +199,13 @@ namespace Xtensive.Storage.Providers.Sql
     private void VisitRemoveColumnAction(RemoveNodeAction removeColumnAction)
     {
       var columnInfo = removeColumnAction.Difference.Source as ColumnInfo;
-      var table = schema.Tables[columnInfo.Parent.Name];
+      var table = FindTable(columnInfo.Parent.Name);
       
       // Ensure table is not removed
       if (table==null)
         return;
       
-      var column = table.TableColumns[columnInfo.Name];
+      var column = FindColumn(table, columnInfo.Name);
       RegisterCommand(SqlFactory.Alter(table,
           SqlFactory.DropColumn(column)));
       table.TableColumns.Remove(column);
@@ -201,10 +216,23 @@ namespace Xtensive.Storage.Providers.Sql
       throw new NotImplementedException();
     }
 
+    private void VisitMoveColumnAction(MoveNodeAction action)
+    {
+      var movementInfo = ((NodeDifference) action.Difference).MovementInfo;
+      if ((movementInfo & MovementInfo.NameChanged) != 0) {
+        // Process name changing
+        var oldColumnInfo = sourceModel.Resolve(action.Path) as ColumnInfo;
+        var column = FindColumn(oldColumnInfo.Parent.Name, oldColumnInfo.Name);
+        RegisterCommand(SqlFactory.Rename(column, action.Name));
+        oldColumnInfo.Name = action.Name;
+        column.Name = action.Name;
+      }
+    }
+
     private void VisitCreatePrimaryKeyAction(CreateNodeAction action)
     {
       var primaryIndex = action.Difference.Target as PrimaryIndexInfo;
-      var table = schema.Tables[primaryIndex.Parent.Name];
+      var table = FindTable(primaryIndex.Parent.Name);
 
       if (createdTables.Contains(table))
         return;
@@ -217,7 +245,7 @@ namespace Xtensive.Storage.Providers.Sql
     private void VisitRemovePrimaryKeyAction(RemoveNodeAction action)
     {
       var primaryIndexInfo = action.Difference.Source as PrimaryIndexInfo;
-      var table = schema.Tables[primaryIndexInfo.Parent.Name];
+      var table = FindTable(primaryIndexInfo.Parent.Name);
 
       // Ensure table is not removed
       if (table==null)
@@ -238,7 +266,7 @@ namespace Xtensive.Storage.Providers.Sql
     private void VisitCreateSecondaryIndexAction(CreateNodeAction action)
     {
       var secondaryIndexInfo = action.Difference.Target as SecondaryIndexInfo;
-      var table = schema.Tables[secondaryIndexInfo.Parent.Name];
+      var table = FindTable(secondaryIndexInfo.Parent.Name);
       var index = CreateSecondaryIndex(table, secondaryIndexInfo);
       RegisterCommand(SqlFactory.Create(index));
     }
@@ -246,7 +274,7 @@ namespace Xtensive.Storage.Providers.Sql
     private void VisitRemoveSecondaryIndexAction(RemoveNodeAction action)
     {
       var secondaryIndexInfo = action.Difference.Source as SecondaryIndexInfo;
-      var table = schema.Tables[secondaryIndexInfo.Parent.Name];
+      var table = FindTable(secondaryIndexInfo.Parent.Name);
       
       // Ensure table is not removed
       if (table==null)
@@ -265,17 +293,17 @@ namespace Xtensive.Storage.Providers.Sql
     private void VisitCreateForeignKeyAction(CreateNodeAction action)
     {
       var foreignKeyInfo = action.Difference.Target as ForeignKeyInfo;
-      var table = schema.Tables[foreignKeyInfo.Parent.Name];
+      var table = FindTable(foreignKeyInfo.Parent.Name);
       var foreignKey = CreateForeignKey(foreignKeyInfo);
 
-      // If referencedTable table is newly created 
+      // If referencedTable table is newly created, 
       // set referencing fields to default values
       var referencedTable = foreignKey.ReferencedTable;
       if (createdTables.Contains(referencedTable)) {
         var referencingTable = foreignKey.Table;
         var tableRef = SqlFactory.TableRef(referencingTable);
         foreach (var column in foreignKey.Columns) {
-          var update =SqlFactory.Update(tableRef);
+          var update = SqlFactory.Update(tableRef);
           update.Values[tableRef[column.Name]] = SqlFactory.DefaultValue;
           RegisterCommand(update);
         }
@@ -285,13 +313,13 @@ namespace Xtensive.Storage.Providers.Sql
           SqlFactory.AddConstraint(foreignKey)));
 
       // Remove foreign key from table for correct sql statement order
-      table.TableConstraints.Remove(foreignKey);
+      // table.TableConstraints.Remove(foreignKey);
     }
 
     private void VisitRemoveForeignKeyAction(RemoveNodeAction action)
     {
       var foreignKeyInfo = action.Difference.Source as ForeignKeyInfo;
-      var table = schema.Tables[foreignKeyInfo.Parent.Name];
+      var table = FindTable(foreignKeyInfo.Parent.Name);
 
       // Ensure table is not removed
       if (table==null)
@@ -341,7 +369,7 @@ namespace Xtensive.Storage.Providers.Sql
         schema.Sequences.Remove(sequence);
       }
       else {
-        var sequenceTable = schema.Tables[sequenceInfo.Name];
+        var sequenceTable = FindTable(sequenceInfo.Name);
         RegisterCommand(SqlFactory.Drop(sequenceTable));
         schema.Tables.Remove(sequenceTable);
       }
@@ -359,7 +387,7 @@ namespace Xtensive.Storage.Providers.Sql
             sequenceDescriptor));
       }
       else {
-        var sequenceTable = schema.Tables[sequenceInfo.Name];
+        var sequenceTable = FindTable(sequenceInfo.Name);
         var idColumn = sequenceTable.TableColumns[GeneratorColumnName];
         var sequenceDescriptor = new SequenceDescriptor(idColumn,
           sequenceInfo.StartValue, sequenceInfo.Increment);
@@ -394,41 +422,58 @@ namespace Xtensive.Storage.Providers.Sql
 
     private ForeignKey CreateForeignKey(ForeignKeyInfo foreignKeyInfo)
     {
-      var referencingTable = schema.Tables[foreignKeyInfo.Parent.Name];
+      var referencingTable = FindTable(foreignKeyInfo.Parent.Name);
       var foreignKey = referencingTable.CreateForeignKey(foreignKeyInfo.Name);
       foreignKey.OnUpdate = ConvertReferentialAction(foreignKeyInfo.OnUpdateAction);
       foreignKey.OnDelete = ConvertReferentialAction(foreignKeyInfo.OnRemoveAction);
       var referncingColumns = foreignKeyInfo.ForeignKeyColumns
-        .Select(cr => referencingTable.TableColumns[cr.Value.Name]);
+        .Select(cr => FindColumn(referencingTable, cr.Value.Name));
       foreignKey.Columns.AddRange(referncingColumns);
-      var referencedTable = schema.Tables[foreignKeyInfo.PrimaryKey.Parent.Name];
+      var referencedTable = FindTable(foreignKeyInfo.PrimaryKey.Parent.Name);
       var referencedColumns = foreignKeyInfo.PrimaryKey.KeyColumns
-        .Select(cr => referencedTable.TableColumns[cr.Value.Name]);
+        .Select(cr => FindColumn(referencedTable, cr.Value.Name));
       foreignKey.ReferencedTable = referencedTable;
       foreignKey.ReferencedColumns.AddRange(referencedColumns);
       return foreignKey;
     }
 
-    private static PrimaryKey CreatePrimaryKey(TableInfo tableInfo, Table table)
+    private PrimaryKey CreatePrimaryKey(TableInfo tableInfo, Table table)
     {
       return
         table.CreatePrimaryKey(tableInfo.PrimaryIndex.Name,
           tableInfo.PrimaryIndex.KeyColumns
-            .Select(cr => table.TableColumns[cr.Value.Name]).ToArray());
+            .Select(cr => FindColumn(table, cr.Value.Name)).ToArray());
     }
 
-    private static Index CreateSecondaryIndex(Table table, SecondaryIndexInfo indexInfo)
+    private Index CreateSecondaryIndex(Table table, SecondaryIndexInfo indexInfo)
     {
       var index = table.CreateIndex(indexInfo.Name);
       index.IsUnique = indexInfo.IsUnique;
       foreach (var keyColumn in indexInfo.KeyColumns)
         index.CreateIndexColumn(
-          table.TableColumns[keyColumn.Value.Name],
+          FindColumn(table, keyColumn.Value.Name),
           keyColumn.Direction==Direction.Positive);
       index.NonkeyColumns.AddRange(
         indexInfo.IncludedColumns
-          .Select(cr => table.TableColumns[cr.Value.Name]).ToArray());
+          .Select(cr => FindColumn(table, cr.Value.Name)).ToArray());
       return index;
+    }
+
+    private Table FindTable(string name)
+    {
+      return schema.Tables.FirstOrDefault(t => t.Name==name);
+    }
+
+    private TableColumn FindColumn(Table table, string name)
+    {
+      return table.TableColumns.
+        FirstOrDefault(c => c.Name==name);
+    }
+
+    private TableColumn FindColumn(string tableName, string columnName)
+    {
+      return FindTable(tableName).TableColumns.
+        FirstOrDefault(c => c.Name==columnName);
     }
 
     private SqlValueType GetSqlType(TypeInfo typeInfo)
@@ -527,8 +572,15 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="actions">The actions to translate.</param>
+    /// <param name="schema">The schema.</param>
+    /// <param name="driver">The driver.</param>
+    /// <param name="valueTypeBuilder">The value type builder.</param>
+    /// <param name="sourceModel">The source model.</param>
+    /// <param name="targetModel">The target model.</param>
     public SqlActionTranslator(ActionSequence actions, Schema schema, SqlDriver driver,
-      Func<Type, int, SqlValueType> valueTypeBuilder)
+      Func<Type, int, SqlValueType> valueTypeBuilder, 
+      StorageInfo sourceModel, StorageInfo targetModel)
     {
       ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
       ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
@@ -538,6 +590,8 @@ namespace Xtensive.Storage.Providers.Sql
       this.driver = driver;
       this.actions = actions;
       this.valueTypeBuilder = valueTypeBuilder;
+      this.sourceModel = sourceModel;
+      this.targetModel = targetModel;
     }
   }
 }

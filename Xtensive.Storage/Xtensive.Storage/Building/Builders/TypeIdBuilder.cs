@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Upgrade;
 using Type=Xtensive.Storage.Metadata.Type;
+using Xtensive.Storage.Upgrade.Hints;
 
 namespace Xtensive.Storage.Building.Builders
 {  
@@ -52,9 +53,16 @@ namespace Xtensive.Storage.Building.Builders
           AssignTypeId(type, typeByName[name].Id);
         else {
           // Type is not found in metadata
-          AssignTypeId(type, nextTypeId++);
-          new Type(type.TypeId, name);
-          // Session.Current.Persist();
+          var upgradeContext = UpgradeContext.Current;
+          var hasRenameHint = upgradeContext!=null &&
+            upgradeContext.Hints
+              .OfType<RenameTypeHint>()
+              .Any(hint => hint.TargetType==type.UnderlyingType);
+          if (!hasRenameHint) {
+            AssignTypeId(type, nextTypeId++);
+            new Type(type.TypeId, name);
+            // Session.Current.Persist();
+          }
         }
       }
       context.Model.Types.BuildTypeIdIndex();

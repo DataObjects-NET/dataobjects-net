@@ -11,65 +11,71 @@ using NUnit.Framework;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Upgrade.Model2;
 using Xtensive.Storage.Upgrade;
 using Xtensive.Storage.Upgrade.Hints;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Tuples;
+using Address=Xtensive.Storage.Tests.Upgrade.Model.Version1.Address;
 
-namespace Xtensive.Storage.Tests.Upgrade.Model1
+namespace Xtensive.Storage.Tests.Upgrade.Model.Version1
 {
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot(typeof (KeyGenerator), "Id")]
   public class Person : Entity
   {
     [Field]
-    public int ID { get; private set; }
+    public int Id { get; private set; }
 
     [Field]
     public string Name  { get; set;}
 
-    [Field] 
-    public Address Address { get; set;}
+    [Field]
+    public Address Address { get; set; }
   }
 
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot("Person")]
   public class Address : Entity
   {
     [Field]
-    public int ID { get; private set; }
+    public Person Person { get; private set; }
 
     [Field]
     public string City { get; set;}
+
+    public Address(Person person)
+      : base(Tuple.Create(person.Id))
+    {
+    }
   }
 }
 
-namespace Xtensive.Storage.Tests.Upgrade.Model2
+namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
 {
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
-  public class Person : Entity
+  [HierarchyRoot(typeof (KeyGenerator), "Id")]
+  public class Contact : Entity
   {
     [Field]
-    public int ID { get; private set; }
+    public int Id { get; private set; }
 
     [Field]
-    public string Name  { get; set;}
-
-    [Field] 
-    public string City { get; set;}
+    public string FullName  { get; set;}
 
     [Field]
-    [Recycled, Obsolete]
-    public Address Address { get; set;}
+    public Address Address { get; set; }
   }
 
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
-  [Recycled, Obsolete]
+  [HierarchyRoot("Contact")]
   public class Address : Entity
   {
     [Field]
-    public int ID { get; private set; }
+    public Contact Contact { get; private set; }
 
     [Field]
     public string City { get; set;}
+
+    public Address(Contact contact)
+      : base(Tuple.Create(contact.Id))
+    {
+    }
   }
 }
 
@@ -108,7 +114,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       return oldVersion==null || double.Parse(oldVersion) <= double.Parse(runningVersion);
     }
-    
+
     protected override void AddUpgradeHints()
     {
       base.AddUpgradeHints();
@@ -116,23 +122,30 @@ namespace Xtensive.Storage.Tests.Upgrade
       if (runningVersion!="2")
         return;
       // TODO: Uncomment this when rename hints will work
-//      context.Hints.Add(new RenameNodeHint(
-//        "Tables/Person/Columns/Name", 
-//        "Tables/Person/Columns/FullName"));
+      context.Hints.Add(new RenameTypeHint(
+        typeof (Model.Version2.Contact), 
+        "Xtensive.Storage.Tests.Upgrade.ModelPerson"));
+      context.Hints.Add(new RenameNodeHint(
+        "Tables/Contact",
+        "Tables/Person"));
+      context.Hints.Add(new RenameNodeHint(
+        "Tables/Contact/Columns/FullName",
+        "Tables/Person/Columns/Name"));
+      context.Hints.Add(new RenameNodeHint(
+        "Tables/Contact/Columns/Address.Contact.Id",
+        "Tables/Person/Columns/Address.Person.Id"));
+      context.Hints.Add(new RenameNodeHint(
+        "Tables/Address/Columns/Contact.Id",
+        "Tables/Address/Columns/Person.Id"));
     }
 
     public override void OnUpgrade()
     {
-      var context = UpgradeContext.Current;
-      if (runningVersion!="2")
-        return;
-      foreach (var person in Query<Person>.All)
-        person.City = person.Address.City;
     }
 
     public override bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)
     {
-      string suffix = ".Model" + runningVersion;
+      string suffix = ".Version" + runningVersion;
       var originalNamespace = type.Namespace;
       var nameSpace = originalNamespace.TryCutSuffix(suffix);
       return nameSpace!=originalNamespace 
@@ -141,9 +154,9 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     public override string GetTypeName(Type type)
     {
-      string suffix = "Model" + runningVersion;
-      var ns = type.Namespace.TryCutSuffix(suffix);
-      return ns + type.Name;
+      string suffix = ".Version" + runningVersion;
+      var nameSpace = type.Namespace.TryCutSuffix(suffix);
+      return nameSpace + type.Name;
     }
   }
 
@@ -170,7 +183,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private void BuildFirstModel()
     {
-      var dc = GetConfiguration(typeof(Model1.Person));
+      var dc = GetConfiguration(typeof(Model.Version1.Person));
       dc.UpgradeMode = DomainUpgradeMode.Recreate;
       Domain domain;
       using (TestUpgradeHandler.Enable("1")) {
@@ -179,16 +192,11 @@ namespace Xtensive.Storage.Tests.Upgrade
       using (domain.OpenSession()) {        
         using (var ts = Transaction.Open()) {
           assemblyTypeId = domain.Model.Types[typeof (Metadata.Assembly)].TypeId;
-          personTypeId = domain.Model.Types[typeof (Model1.Person)].TypeId;
-
-          new Model1.Person {
-            Address = new Model1.Address {City = "Mumbai"},
-            Name = "Gaurav"
-          };
-          new Model1.Person {
-            Address = new Model1.Address {City = "Delhi"},
-            Name = "Mihir"
-          };
+          personTypeId = domain.Model.Types[typeof (Model.Version1.Person)].TypeId;
+          var p1 = new Model.Version1.Person {Name = "Gaurav"};
+          p1.Address = new Address(p1) {City = "Mumbai"};
+          var p2 = new Model.Version1.Person {Name = "Mihir"};
+          p2.Address = new Address(p2) {City = "Delhi"};
           ts.Complete();
         }
       }
@@ -196,9 +204,8 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private void BuildSecondDomain()
     {
-      var dc = GetConfiguration(typeof(Model2.Person));
-      // TODO: Use PerformSafely when it will work as expected
-      dc.UpgradeMode = DomainUpgradeMode.Perform;
+      var dc = GetConfiguration(typeof(Model.Version2.Contact));
+      dc.UpgradeMode = DomainUpgradeMode.PerformSafely;
       Domain domain;
       using (TestUpgradeHandler.Enable("2")) {
         domain = Domain.Build(dc);
@@ -206,18 +213,21 @@ namespace Xtensive.Storage.Tests.Upgrade
       using (domain.OpenSession()) {
         using (var ts = Transaction.Open()) {
           Assert.AreEqual(assemblyTypeId, domain.Model.Types[typeof (Metadata.Assembly)].TypeId);
-          Assert.AreEqual(personTypeId, domain.Model.Types[typeof (Model2.Person)].TypeId);
-          Assert.IsFalse(domain.Model.Types.Contains(typeof(Model2.Address)));
+          Assert.AreEqual(personTypeId, domain.Model.Types[typeof (Model.Version2.Contact)].TypeId);
+          Assert.IsFalse(domain.Model.Types.Contains(typeof (Model.Version1.Address)));
 
-          foreach (var person in Query<Model2.Person>.All) {
-            if (person.Name=="Gauvar")
-              Assert.AreEqual("Mumbai", person.City);
+          foreach (var person in Query<Model.Version2.Contact>.All) {
+            if (person.FullName=="Gaurav")
+              Assert.AreEqual("Mumbai", person.Address.City);
             else
-              Assert.AreEqual("Delhi", person.City);
+              Assert.AreEqual("Delhi", person.Address.City);
             AssertEx.Throws<Exception>(() => {
               var a = person.Address;
             });
           }
+
+          var c1 = new Model.Version2.Contact {FullName = "Some contact"};
+          c1.Address = new Model.Version2.Address(c1) {City = "Delhi"};
           ts.Complete();
         }
       }

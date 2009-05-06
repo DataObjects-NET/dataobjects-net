@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Providers.Memory
     }
 
     /// <inheritdoc/>
-    public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo targetSchema)
+    public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema)
     {
       StorageView.ClearSchema();
       StorageView.CreateNewSchema(targetSchema);

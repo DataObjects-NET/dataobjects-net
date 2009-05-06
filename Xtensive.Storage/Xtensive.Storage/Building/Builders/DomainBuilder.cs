@@ -255,7 +255,7 @@ namespace Xtensive.Storage.Building.Builders
           if (result.Status!=SchemaComparisonStatus.Equal) {
             if (Log.IsLogged(LogEventTypes.Info))
               Log.Info(Strings.LogClearingComparisonResultX, result);
-            upgradeHandler.UpgradeSchema(result.UpgradeActions, emptySchema);
+            upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, emptySchema);
             extractedSchema = upgradeHandler.GetExtractedSchema();
             hints = null; // Must re-bind them
           }
@@ -282,13 +282,13 @@ namespace Xtensive.Storage.Building.Builders
           break;
         case SchemaUpgradeMode.Recreate:
         case SchemaUpgradeMode.Perform:
-          upgradeHandler.UpgradeSchema(result.UpgradeActions, targetSchema);
+          upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;
         case SchemaUpgradeMode.PerformSafely:
           if (result.Status!=SchemaComparisonStatus.Equal &&
             result.Status!=SchemaComparisonStatus.TargetIsSuperset)
             throw new SchemaSynchronizationException(Strings.ExCannotUpgradeSchemaSafely);
-          upgradeHandler.UpgradeSchema(result.UpgradeActions, targetSchema);
+          upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;
         default:
           throw new ArgumentOutOfRangeException("schemaUpgradeMode");

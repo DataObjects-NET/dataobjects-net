@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Providers.MsSql
   {
     private SqlConnection Connection
     {
-      get{return ((SessionHandler) Handlers.SessionHandler).Connection;}
+      get { return ((SessionHandler) Handlers.SessionHandler).Connection; }
     }
 
     private DbTransaction Transaction
@@ -29,20 +29,14 @@ namespace Xtensive.Storage.Providers.MsSql
     }
 
     /// <inheritdoc/>
-    public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo targetSchema)
+    public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema)
     {
-      // TODO: Fix this
-      if (targetSchema.Tables.Count == 0) {
-        ClearStorageSchema();
-        return;
-      }
-
-      var upgradeScript = GenerateUpgradeScript(upgradeActions);
-      if (upgradeScript.Count==0)
+      var upgradeScript = GenerateUpgradeScript(upgradeActions, sourceSchema, targetSchema);
+      if (string.IsNullOrEmpty(upgradeScript))
         return;
       using (var command = new SqlCommand(Connection)) {
-        command.CommandText = string.Join(";",
-          upgradeScript.ToArray());
+        Log.Info(upgradeScript);
+        command.CommandText = upgradeScript;
         command.Prepare();
         command.Transaction = Transaction;
         command.ExecuteNonQuery();
@@ -67,16 +61,20 @@ namespace Xtensive.Storage.Providers.MsSql
           || generatorInfo.TupleDescriptor[0]!=typeof (Guid));
     }
 
-    private List<string> GenerateUpgradeScript(ActionSequence actions)
+    private string GenerateUpgradeScript(ActionSequence actions, StorageInfo sourceSchema, StorageInfo targetSchema)
     {
       var valueTypeMapper = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper;
       var translator = new SqlActionTranslator(
         actions,
         ExtractStorageSchema(),
         Connection.Driver,
-        valueTypeMapper.BuildSqlValueType);
-      
-      return translator.UpgradeCommandText;
+        valueTypeMapper.BuildSqlValueType,
+        sourceSchema, targetSchema);
+
+      var commands = translator.UpgradeCommandText;
+      var delimiter = Connection.Driver.Translator.BatchStatementDelimiter;
+      var batch = string.Join(delimiter, commands.ToArray());
+      return batch;
     }
 
   }

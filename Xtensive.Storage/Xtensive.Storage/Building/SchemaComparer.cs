@@ -46,7 +46,8 @@ namespace Xtensive.Storage.Building
       var actions = upgradeActions.Flatten();
       var hasRemoveActions = actions
         .OfType<RemoveNodeAction>()
-        .Any();
+        .Any(action => action.Difference.Source is TableInfo
+          || action.Difference.Source is ColumnInfo);
       var hasCreateActions = actions
         .OfType<CreateNodeAction>()
         .Any();

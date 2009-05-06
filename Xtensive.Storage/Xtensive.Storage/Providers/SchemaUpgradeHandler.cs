@@ -34,8 +34,8 @@ namespace Xtensive.Storage.Providers
           & ForeignKeyMode.Hierarchy) > 0;
       
       var domainModelConverter = new DomainModelConverter(
-        false, buildingContext.NameBuilder.BuildForeignKeyName,
-        false, buildingContext.NameBuilder.BuildForeignKeyName,
+        buildForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName,
+        buildHierarchyForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName,
         IsSchemaBoundGenerator);
 
       return domainModelConverter.Convert(buildingContext.Model, "Model");
@@ -46,13 +46,14 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <returns>The extracted schema.</returns>
     public abstract StorageInfo GetExtractedSchema();
-    
+
     /// <summary>
     /// Upgrades the storage.
     /// </summary>
     /// <param name="upgradeActions">The upgrade actions.</param>
+    /// <param name="sourceSchema">The source schema.</param>
     /// <param name="targetSchema">The target schema.</param>
-    public abstract void UpgradeSchema(ActionSequence upgradeActions, StorageInfo targetSchema);
+    public abstract void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema);
     
     /// <summary>
     /// Determines whether specific generator requires corresponding object in schema.

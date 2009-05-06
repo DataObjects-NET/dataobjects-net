@@ -28,9 +28,10 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       var storage = new StorageInfo();
       var t1 = new TableInfo(storage, "table1");
-      var t1Id = new ColumnInfo(t1, "Id", new TypeInfo(typeof(int)));
-      var t1C1 = new ColumnInfo(t1, "col1", new TypeInfo(typeof(int?), true));
-      var t1C2 = new ColumnInfo(t1, "col2", new TypeInfo(typeof(string), true, 256));
+      var t1Id = new ColumnInfo(t1, "Id", new TypeInfo(typeof (int)));
+      var t1C1 = new ColumnInfo(t1, "col1", new TypeInfo(typeof (int?), true));
+      var t1C2 = new ColumnInfo(t1, "col2", new TypeInfo(typeof (string), true, 256));
+      var t1C4 = new ColumnInfo(t1, "col4", new TypeInfo(typeof (string), true, 256));
       var t1pk = new PrimaryIndexInfo(t1, "PK_table1");
       new KeyColumnRef(t1pk, t1Id, Direction.Positive);
       t1pk.PopulateValueColumns();
@@ -40,9 +41,9 @@ namespace Xtensive.Storage.Tests.Upgrade
       t1fk.PopulatePrimaryKeyColumns();
       
 
-      var t3 = new TableInfo(storage, "table3");
-      var t3Id = new ColumnInfo(t3, "Id", new TypeInfo(typeof(int)));
-      var t3C1 = new ColumnInfo(t3, "col1", new TypeInfo(typeof(int?), true));
+      var t3 = new TableInfo(storage, "table2");
+      var t3Id = new ColumnInfo(t3, "Id", new TypeInfo(typeof (int)));
+      var t3C1 = new ColumnInfo(t3, "col1", new TypeInfo(typeof (int?), true));
       var t3pk = new PrimaryIndexInfo(t3, "PK_table3");
       new KeyColumnRef(t3pk, t3Id, Direction.Positive);
       t3pk.PopulateValueColumns();
@@ -55,7 +56,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       new SequenceInfo(storage, "IntSequence") {
         StartValue = 0,
         Increment = 1,
-        Type = new TypeInfo(typeof(int))
+        Type = new TypeInfo(typeof (int))
       };
 
       return storage;
@@ -65,9 +66,10 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       var storage = new StorageInfo();
       var t1 = new TableInfo(storage, "table1");
-      var t1Id = new ColumnInfo(t1, "Id", new TypeInfo(typeof(int)));
-      var t1C1 = new ColumnInfo(t1, "col1", new TypeInfo(typeof(int?), true));
-      var t1C3 = new ColumnInfo(t1, "col3", new TypeInfo(typeof(Guid), false));
+      var t1Id = new ColumnInfo(t1, "Id", new TypeInfo(typeof (int)));
+      var t1C1 = new ColumnInfo(t1, "col1", new TypeInfo(typeof (int?), true));
+      var t1C5 = new ColumnInfo(t1, "col5", new TypeInfo(typeof (string), true, 256));
+      var t1C3 = new ColumnInfo(t1, "col3", new TypeInfo(typeof (Guid), false));
       var t1pk = new PrimaryIndexInfo(t1, "PK_table1");
       new KeyColumnRef(t1pk, t1Id, Direction.Positive);
       t1pk.PopulateValueColumns();
@@ -77,8 +79,8 @@ namespace Xtensive.Storage.Tests.Upgrade
       t1fk.PopulatePrimaryKeyColumns();
 
       var t3 = new TableInfo(storage, "table3");
-      var t3Id = new ColumnInfo(t3, "Id", new TypeInfo(typeof(int)));
-      var t3C1 = new ColumnInfo(t3, "col1", new TypeInfo(typeof(int?), true));
+      var t3Id = new ColumnInfo(t3, "Id", new TypeInfo(typeof (int)));
+      var t3C1 = new ColumnInfo(t3, "col2", new TypeInfo(typeof (int?), true));
       var t3pk = new PrimaryIndexInfo(t3, "PK_table3");
       new KeyColumnRef(t3pk, t3Id, Direction.Positive);
       t3pk.PopulateValueColumns();
@@ -92,7 +94,7 @@ namespace Xtensive.Storage.Tests.Upgrade
         StartValue = 1,
         Increment = 2,
         Current = 5,
-        Type = new TypeInfo(typeof(int))
+        Type = new TypeInfo(typeof (int))
       };
 
       return storage;
@@ -105,9 +107,16 @@ namespace Xtensive.Storage.Tests.Upgrade
       var oldModel = BuildOldModel();
       Create(oldModel);
       var newModel = BuildNewModel();
-      var actions = Compare(oldModel, newModel, null);
+
+      var hints = new HintSet(oldModel, newModel);
+      hints.Add(new RenameHint("Tables/table1/Columns/col4", "Tables/table1/Columns/col5"));
+      hints.Add(new RenameHint("Tables/table2", "Tables/table3"));
+      hints.Add(new RenameHint("Tables/table2/Columns/col1", "Tables/table3/Columns/col2"));
+
+      var actions = Compare(oldModel, newModel, hints);
       Tests.Log.Info(actions.ToString());
-      UpgradeCurrentSchema(newModel, actions);
+      
+      UpgradeCurrentSchema(oldModel, newModel, actions);
       var diff = BuildDifference(newModel, ExtractModel(), null);
       Assert.IsNull(diff);
     }
@@ -170,7 +179,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       manager.ClearSchema();
     }
 
-    private static void UpgradeCurrentSchema(StorageInfo newModel, ActionSequence actions)
+    private static void UpgradeCurrentSchema(StorageInfo oldModel, StorageInfo newModel, ActionSequence actions)
     {
       var manager = new SchemaManager(Url, false);
       var schema = manager.GetStorageSchema();
@@ -181,9 +190,11 @@ namespace Xtensive.Storage.Tests.Upgrade
         using (var transaction = connection.BeginTransaction())
         using (var command = new SqlCommand(connection)) {
           var translator = new SqlActionTranslator(actions, schema, 
-            connection.Driver, null);
-          command.CommandText = string.Join(";", 
+            connection.Driver, null, oldModel, newModel);
+          var commandText = string.Join(";" + Environment.NewLine, 
             translator.UpgradeCommandText.ToArray());
+          Log.Info(commandText);
+          command.CommandText = commandText;
           command.Prepare();
           command.Transaction = transaction;
           command.ExecuteNonQuery();
