@@ -145,7 +145,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     {
       return originTuple.Comparison.Operation==ComparisonOperation.Equal
         || originTuple.Comparison.Operation==ComparisonOperation.NotEqual
-        ||  originTuple.Comparison.Operation==ComparisonOperation.LikeStartsWith
+        || originTuple.Comparison.Operation==ComparisonOperation.LikeStartsWith
         || originTuple.Comparison.Operation==ComparisonOperation.NotLikeStartsWith
         || originTuple.Comparison.Operation==ComparisonOperation.LikeEndsWith
         || originTuple.Comparison.Operation==ComparisonOperation.NotLikeEndsWith;
