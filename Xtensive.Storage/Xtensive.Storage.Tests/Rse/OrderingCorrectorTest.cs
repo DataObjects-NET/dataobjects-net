@@ -105,13 +105,14 @@ namespace Xtensive.Storage.Tests.Rse
         .OrderBy(new DirectionCollection<int>() {{2, Direction.Positive}})
         .Filter(t => t.GetValueOrDefault<DateTime?>(6)!=null)
         .OrderBy(new DirectionCollection<int>{{10, Direction.Negative}})
-        .Aggregate(new[] {3});
+        .Aggregate(new[] {2, 3})
+        .Select(1);
       using (EnumerationScope.Open()) {
         var compiledProvider = CompilationContext.Current.Compile(result.Provider);
         Assert.Greater(compiledProvider.Count(), 0);
-        var root = (AggregateProvider) compiledProvider.Origin;
-        Assert.AreEqual(typeof (FilterProvider), root.Source.GetType());
-        var selectAfterIndex = (SelectProvider) ((FilterProvider) root.Source)
+        var root = (SelectProvider) compiledProvider.Origin;
+        Assert.AreEqual(typeof (AggregateProvider), root.Source.GetType());
+        var selectAfterIndex = (SelectProvider) ((FilterProvider)((AggregateProvider)root.Source).Source)
           .Source;
         Assert.AreEqual(typeof (IndexProvider), selectAfterIndex.Source.GetType());
       }

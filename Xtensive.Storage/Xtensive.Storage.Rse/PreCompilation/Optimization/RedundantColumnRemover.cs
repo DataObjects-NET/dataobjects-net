@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       CompilableProvider originalProvider = rootProvider.Source;
       var originalMap = rootProvider.ColumnIndexes.ToList();
 
-      if (originalMap.Count == originalProvider.Header.Length)
+      if (originalMap.Count==originalProvider.Header.Length)
         return rootProvider;
 
       CompilableProvider resultProvider;
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
       return rootProvider;
     }
-    
+
     #region Visit methods
 
     protected override Provider VisitSelect(SelectProvider provider)
@@ -64,6 +64,9 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         return provider;
       var sourceColumns = mappings.Value[provider.Source];
       var outputColumns = remappedColumns.Select(c => sourceColumns.IndexOf(c)).ToArray();
+      var sourceAsSelect = provider.Source as SelectProvider;
+      if(sourceAsSelect != null && sourceAsSelect.ColumnIndexes.SequenceEqual(outputColumns))
+        return sourceAsSelect;
       return new SelectProvider(source, outputColumns);
     }
 

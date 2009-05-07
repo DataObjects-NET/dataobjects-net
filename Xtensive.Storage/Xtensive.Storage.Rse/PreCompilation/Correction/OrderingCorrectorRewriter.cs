@@ -80,6 +80,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
     protected sealed override Provider VisitIndex(IndexProvider provider)
     {
+      SortOrder = provider.ExpectedOrder;
       // If current IndexProvider does not preserve records order, 
       // then we reset value of Header.Order
       if(!descriptor.Value.PreservesOrder)

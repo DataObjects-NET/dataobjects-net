@@ -11,6 +11,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
@@ -238,6 +239,8 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
     {
+      if(provider.Header.Order.Count == 0)
+        throw new InvalidOperationException(Strings.ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider);
       var compiledSource = GetCompiled(provider.Source);
       return new Providers.Executable.RowNumberProvider(
         provider,

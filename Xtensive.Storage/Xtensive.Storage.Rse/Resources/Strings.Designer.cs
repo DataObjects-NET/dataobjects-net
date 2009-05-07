@@ -151,6 +151,15 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The ordering of records is not specified for RowNumberProvider..
+        /// </summary>
+        internal static string ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider {
+            get {
+                return ResourceManager.GetString("ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Parameter &apos;{0}&apos; is not a tuple access expression.
         /// </summary>
         internal static string ExParameterXIsNotATupleAccessExpression {

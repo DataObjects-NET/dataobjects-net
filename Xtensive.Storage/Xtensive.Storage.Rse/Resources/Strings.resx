@@ -174,4 +174,7 @@
   <data name="RowNumberX" xml:space="preserve">
     <value>RowNumber{0}</value>
   </data>
+  <data name="ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider" xml:space="preserve">
+    <value>The ordering of records is not specified for RowNumberProvider.</value>
+  </data>
 </root>

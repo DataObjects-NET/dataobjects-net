@@ -21,11 +21,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       return sortProvider;
     }
 
-    protected override CompilableProvider OnInsertSortProvider(CompilableProvider visited)
-    {
-      return visited;
-    }
-
 
     // Constructors
 
