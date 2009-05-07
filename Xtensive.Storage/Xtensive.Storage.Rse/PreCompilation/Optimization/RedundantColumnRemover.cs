@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         resultMap = mappings.Value[rootProvider.Source];
       }
 
-      if (originalMap.Count < resultMap.Count) {
+      if (originalMap.Count < resultMap.Count || originalProvider != resultProvider) {
         var columnIndexes = originalMap.Select(i => resultMap.IndexOf(i)).ToArray();
         return new SelectProvider(resultProvider, columnIndexes);
       }
