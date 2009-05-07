@@ -17,7 +17,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// Extends <see cref="IEnumerable{T}"/>.
   /// </summary>
-  public static class EnumerableExtensions
+  public static class TupleEnumerableExtensions
   {
     /// <summary>
     /// Converts <see cref="IEnumerable{T}"/> to <see cref="IEnumerable{Tuple}"/>.
@@ -27,7 +27,7 @@ namespace Xtensive.Storage
     /// <param name="source">Source enumerable.</param>
     /// <returns>New <see cref="Enumerable<Tuple>"/></returns>
     /// <exception cref="NotSupportedException"><typeparamref name="T"/> is not supported.</exception>
-    public static IEnumerable<Tuple> ToTupleEnumerable<T>(this IEnumerable<T> source)
+    public static IEnumerable<Tuple> AsTupleEnumerable<T>(this IEnumerable<T> source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       var type = typeof (T);

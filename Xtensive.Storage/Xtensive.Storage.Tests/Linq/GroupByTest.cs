@@ -23,15 +23,22 @@ namespace Xtensive.Storage.Tests.Linq
     public void GroupingAsQueryableTest()
     {
       var result = Query<Product>.All.GroupBy(p => p);
-      foreach (IGrouping<Product, Product> grouping in result) {
+      foreach (IGrouping<Product, Product> grouping in result)
         Assert.IsTrue(grouping.GetType().IsOfGenericInterface(typeof (IQueryable<>)));
-      }
     }
 
     [Test]
     public void SimpleEntityGroupTest()
     {
-      var result = Query<Product>.All.GroupBy(p => p);
+      var result = Query<Product>.All.GroupBy(p => p).OrderBy(g=>g.Key);
+      var resultList = result.ToList();
+      var expectedList = Query<Product>.All.AsEnumerable().GroupBy(p => p).OrderBy(g=>g.Key).ToList();
+      Assert.AreEqual(resultList.Count, expectedList.Count());
+      for (int i = 0; i < resultList.Count; i++) {
+        Assert.AreEqual(expectedList[i].Key, resultList[i].Key);
+        Assert.AreEqual(expectedList[i].Count(), resultList[i].Count());
+        Assert.AreEqual(expectedList[i].Count(), resultList[i].AsQueryable().Count());
+      }
       DumpGrouping(result);
     }
 
