@@ -24,6 +24,11 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query<Customer>.All
         .Select(c => new {OrdersFiled = c.Orders})
         .SelectMany(i => i.OrdersFiled);
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .Select(c => new {OrdersFiled = c.Orders})
+        .SelectMany(i => i.OrdersFiled);
+      Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
     }
 
@@ -31,8 +36,17 @@ namespace Xtensive.Storage.Tests.Linq
     public void QueryTest()
     {
       var customer = GetCustomer();
-      var expected = customer.Orders.AsEnumerable().OrderBy(o => o.Id).Select(o => o.Id).ToList();
-      var actual = customer.Orders.OrderBy(o => o.Id).Select(o => o.Id).ToList();
+      var expected = customer
+        .Orders
+        .AsEnumerable()
+        .OrderBy(o => o.Id)
+        .Select(o => o.Id)
+        .ToList();
+      var actual = customer
+        .Orders
+        .OrderBy(o => o.Id)
+        .Select(o => o.Id)
+        .ToList();
       Assert.IsTrue(expected.SequenceEqual(actual));
     }
 
@@ -47,15 +61,21 @@ namespace Xtensive.Storage.Tests.Linq
     public void CountTest()
     {
       var expected = Query<Order>.All.Count();
-      var count = Query<Customer>.All.Select(c => c.Orders.Count).AsEnumerable().Sum();
+      var count = Query<Customer>.All
+        .Select(c => c.Orders.Count)
+        .AsEnumerable()
+        .Sum();
       Assert.AreEqual(expected, count);
     }
 
     [Test]
     public void ContainsTest()
     {
-      var bestOrder = Query<Order>.All.OrderBy(o => o.Freight).First();
-      var result = Query<Customer>.All.Where(c => c.Orders.Contains(bestOrder));
+      var bestOrder = Query<Order>.All
+        .OrderBy(o => o.Freight)
+        .First();
+      var result = Query<Customer>.All
+        .Where(c => c.Orders.Contains(bestOrder));
       Assert.AreEqual(bestOrder.Customer.Id, result.ToList().Single().Id);
     }
 
