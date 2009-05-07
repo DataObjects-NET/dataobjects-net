@@ -1,0 +1,111 @@
+﻿<#@ output extension="cs" #>
+<#@ template language="C# 3.5" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Linq" #>
+<#
+  int NumberOfParameters = 9;
+
+  Action<int, int> WriteParametersDeclaration = delegate(int firstIndex, int lastIndex) {
+    if (firstIndex > lastIndex)
+      return;
+    for (int k = firstIndex; k < lastIndex; k++)
+      Write(string.Format("T{0} arg{0}, ", k));
+    Write(string.Format("T{0} arg{0}", lastIndex));
+  };
+
+  Action<int, int, bool> WriteGenericParameters = delegate(int firstIndex, int lastIndex, bool forAction) {
+    if (firstIndex > lastIndex) {
+      if (!forAction)
+        Write("<TResult>");
+      return;
+    }
+    Write("<");
+    if (forAction) {
+      for (int k = firstIndex; k < lastIndex; k++)
+        Write(string.Format("T{0}, ", k));
+      Write(string.Format("T{0}", lastIndex));
+    }
+    else {
+      for (int k = firstIndex; k <= lastIndex; k++)
+        Write(string.Format("T{0}, ", k));
+      Write("TResult");
+    }
+    Write(">");
+  };
+
+  Action<int, int> WriteParameters = delegate(int firstIndex, int lastIndex) {
+    if (firstIndex > lastIndex)
+      return;
+    for (int k = firstIndex; k < lastIndex; k++)
+      Write(string.Format("arg{0}, ", k));
+    Write(string.Format("arg{0}", lastIndex));
+  };
+  
+  Action<bool> WriteType = delegate (bool forAction) {
+	Write(forAction ? "Action" : "Func");
+  };
+  
+  Action<int, int, bool> WriteFirstParameter = delegate(int firstIndex, int lastIndex, bool forAction) {
+    Write("this ");
+    WriteType(forAction);
+    WriteGenericParameters(firstIndex, lastIndex, forAction);
+    Write(" d, ");
+  };
+
+  Action<bool> WriteMethods = delegate(bool forAction) {
+    for (int total = 1; total <= NumberOfParameters; total++) {
+      for (int bound = 1; bound <= total; bound++) {
+        Write("/// <summary>Binds first ");
+        Write(bound.ToString());
+        WriteLine(" argument(s) to specified delegate.</summary>");
+        WriteLine("/// <returns> A delegate that takes the rest of arguments of original delegate.</returns>");
+        Write("public static ");
+        WriteType(forAction);
+        WriteGenericParameters(bound+1, total, forAction);
+        Write(" Bind");
+        WriteGenericParameters(1, total, forAction);
+        Write("(");
+        WriteFirstParameter(1, total, forAction);
+        WriteParametersDeclaration(1, bound);
+        WriteLine(")");
+        WriteLine("{");
+        PushIndent("  ");
+        Write("return (");
+        WriteParameters(bound+1, total);
+        Write(") => ");
+        Write("d");
+        Write(".Invoke(");
+        WriteParameters(1, total);
+        WriteLine(");");
+        PopIndent();
+        WriteLine("}");
+        WriteLine("");
+      }
+    }
+  };
+#>
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2009.05.06
+
+using System;
+using Xtensive.Core;
+
+namespace Xtensive.Core.Helpers
+{
+  /// <summary>
+  /// Extension methods for binding delegates to parameters.
+  /// </summary>
+  public static class DelegateBindExtensions
+  {
+<#
+PushIndent("    ");
+WriteMethods(false);
+WriteMethods(true);
+PopIndent();
+#>
+  }
+}

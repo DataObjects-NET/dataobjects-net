@@ -6,14 +6,13 @@
 
 using System;
 using System.Collections;
-using System.Linq;
-using NUnit.Framework;
-using System.Linq.Expressions;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Linq.Normalization;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using NUnit.Framework;
+using Xtensive.Core.Linq;
+using Xtensive.Core.Linq.Normalization;
 using Xtensive.Core.Testing;
-
 
 namespace Xtensive.Core.Tests.Linq
 {

@@ -5,9 +5,9 @@
 // Created:    2009.02.09
 
 using System.Collections.Generic;
-using NUnit.Framework;
 using System.Linq;
-using Xtensive.Core.Helpers;
+using NUnit.Framework;
+using Xtensive.Core.Linq;
 
 namespace Xtensive.Core.Tests.Linq
 {

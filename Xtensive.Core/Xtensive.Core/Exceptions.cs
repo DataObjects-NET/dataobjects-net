@@ -5,6 +5,7 @@
 // Created:    2007.10.03
 
 using System;
+using System.Linq.Expressions;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Reflection;
@@ -203,6 +204,17 @@ namespace Xtensive.Core
     {
       var scopeType = typeof (TScope);
       return ScopeRequired(scopeType);
+    }
+
+    /// <summary>
+    /// Returns an exception informing that specified <see cref="ParameterExpression"/> is out of scope.
+    /// </summary>
+    /// <param name="parameter">The parameter.</param>
+    /// <returns>Newly created exception.</returns>
+    public static InvalidOperationException LambdaParameterIsOutOfScope(ParameterExpression parameter)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(parameter, "parameter");
+      return new InvalidOperationException(string.Format(Strings.ExLambdaParameterXIsOutOfScope, parameter.Name));
     }
   }
 }

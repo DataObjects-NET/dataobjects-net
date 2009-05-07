@@ -5,11 +5,10 @@
 // Created:    2008.09.09
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
-using Xtensive.Core.Helpers;
 using System.Linq.Expressions;
-
+using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Linq;
+using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Rse
 {

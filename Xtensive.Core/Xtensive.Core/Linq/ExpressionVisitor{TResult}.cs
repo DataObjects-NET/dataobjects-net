@@ -19,7 +19,6 @@ namespace Xtensive.Core.Linq
   /// </summary>
   /// <typeparam name="TResult">Type of the visit result.</typeparam>
   public abstract class ExpressionVisitor<TResult>
-    where TResult : class
   {
     private readonly Dictionary<Expression, TResult> cache = null;
 
@@ -44,7 +43,7 @@ namespace Xtensive.Core.Linq
     protected virtual TResult Visit(Expression e)
     {
       if (e==null)
-        return null;
+        return default(TResult);
 
       TResult result;
       if (cache!=null) {
@@ -260,7 +259,6 @@ namespace Xtensive.Core.Linq
     /// <param name="i">The invocation expression.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitInvocation(InvocationExpression i);
-
     
     // Constructors
 

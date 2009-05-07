@@ -6,13 +6,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Reflection;
-using System.Linq;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Helpers;
+using Xtensive.Core.Linq;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Tests.Reflection
 {

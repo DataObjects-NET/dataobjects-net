@@ -636,4 +636,7 @@
   <data name="ExOnlyOneAncestorOfEachInstanceOfThisGenericTypeIsAllowed" xml:space="preserve">
     <value>Only one ancestor of each instance of this generic type is allowed.</value>
   </data>
+  <data name="ExLambdaParameterXIsOutOfScope" xml:space="preserve">
+    <value>Lambda parameter '{0}' is out of scope.</value>
+  </data>
 </root>

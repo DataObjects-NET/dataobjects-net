@@ -835,6 +835,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Lambda parameter &apos;{0}&apos; is out of scope..
+        /// </summary>
+        internal static string ExLambdaParameterXIsOutOfScope {
+            get {
+                return ResourceManager.GetString("ExLambdaParameterXIsOutOfScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Linked operation for property {0} missing..
         /// </summary>
         internal static string ExLinkedOperationMissingFormat {

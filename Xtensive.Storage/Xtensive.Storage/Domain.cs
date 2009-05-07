@@ -163,7 +163,7 @@ namespace Xtensive.Storage
     public SessionConsumptionScope OpenSession(SessionConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-      if (EnumerableExtensions.IsNullOrEmpty(configuration.Name)) {
+      if (string.IsNullOrEmpty(configuration.Name)) {
         configuration.Name = sessionCounter.ToString();
         Interlocked.Increment(ref sessionCounter);
       }

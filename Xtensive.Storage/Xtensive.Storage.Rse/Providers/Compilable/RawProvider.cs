@@ -8,8 +8,8 @@ using System;
 using System.Linq.Expressions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
-using Xtensive.Core.Helpers;
 using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
