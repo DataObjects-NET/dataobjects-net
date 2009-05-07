@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexander Nikolaev
-// Created:    2009.05.06
+// Created:    2009.05.07
 
 using System;
 using System.Collections.Generic;
@@ -11,10 +11,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Storage.Building;
-using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
@@ -24,31 +21,13 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Rse
 {
-  #region Implementation of DomainBuilder
-
-  class SecondaryIndexRemover : IDomainBuilder
-  {
-    public void Build(BuildingContext context, DomainModelDef model)
-    {
-      foreach (var type in model.Types) {
-        var indexCache = new NodeCollection<IndexDef>();
-        indexCache.AddRange(from index in type.Indexes where index.IsPrimary select index);
-        type.Indexes.Clear();
-        type.Indexes.AddRange(indexCache);
-      }
-    }
-  }
-
-  #endregion
-
   [TestFixture]
-  public class OrderingCorrectorTest : NorthwindDOModelTest
+  public class OrderingCorrectorMemoryTest : NorthwindDOModelTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = base.BuildConfiguration();
+      var config = DomainConfiguration.Load("mssql2005");
       config.Types.Register(Assembly.GetExecutingAssembly(), typeof (Customer).Namespace);
-      config.Builders.Add(typeof(SecondaryIndexRemover));
       return config;
     }
 
@@ -59,7 +38,7 @@ namespace Xtensive.Storage.Tests.Rse
       var originalOrder = new DirectionCollection<int> {{10, Direction.Negative}};
       var result = indexProvider.Result
         .OrderBy(new DirectionCollection<int>() {{2, Direction.Positive}})
-        .Filter(t => t.GetValueOrDefault<DateTime?>(6)!=null)
+        .Filter(t => t.GetValueOrDefault<DateTime?>(7)!=null)
         .OrderBy(originalOrder)
         .Select(0, 2, 10);
       using (EnumerationScope.Open()) {
@@ -86,15 +65,13 @@ namespace Xtensive.Storage.Tests.Rse
         .OrderBy(new DirectionCollection<int>{{10, Direction.Negative}})
         .Distinct()
         .Select(0, 2, 10);
-      using (EnumerationScope.Open()) {
-        var compiledProvider = CompilationContext.Current.Compile(result.Provider);
-        Assert.Greater(compiledProvider.Count(), 0);
-        var lastSelect = (SelectProvider) compiledProvider.Origin;
-        Assert.AreEqual(typeof (DistinctProvider), lastSelect.Source.GetType());
-        var selectAfterIndex = (SelectProvider) ((FilterProvider) ((DistinctProvider) lastSelect.Source)
-          .Source).Source;
-        Assert.AreEqual(typeof (IndexProvider), selectAfterIndex.Source.GetType());
-      }
+      var compiledProvider = CompilationContext.Current.Compile(result.Provider);
+      Assert.Greater(compiledProvider.Count(), 0);
+      var lastSelect = (SelectProvider) compiledProvider.Origin;
+      Assert.AreEqual(typeof(DistinctProvider), lastSelect.Source.GetType());
+      var selectAfterIndex = (SelectProvider) ((FilterProvider) ((DistinctProvider) lastSelect.Source)
+        .Source).Source;
+      Assert.AreEqual(typeof (IndexProvider), selectAfterIndex.Source.GetType());
     }
 
     [Test]
@@ -106,15 +83,13 @@ namespace Xtensive.Storage.Tests.Rse
         .Filter(t => t.GetValueOrDefault<DateTime?>(6)!=null)
         .OrderBy(new DirectionCollection<int>{{10, Direction.Negative}})
         .Aggregate(new[] {3});
-      using (EnumerationScope.Open()) {
-        var compiledProvider = CompilationContext.Current.Compile(result.Provider);
-        Assert.Greater(compiledProvider.Count(), 0);
-        var root = (AggregateProvider) compiledProvider.Origin;
-        Assert.AreEqual(typeof (FilterProvider), root.Source.GetType());
-        var selectAfterIndex = (SelectProvider) ((FilterProvider) root.Source)
-          .Source;
-        Assert.AreEqual(typeof (IndexProvider), selectAfterIndex.Source.GetType());
-      }
+      var compiledProvider = CompilationContext.Current.Compile(result.Provider);
+      Assert.Greater(compiledProvider.Count(), 0);
+      var root = (AggregateProvider) compiledProvider.Origin;
+      Assert.AreEqual(typeof(FilterProvider), root.Source.GetType());
+      var selectAfterIndex = (SelectProvider) ((FilterProvider)root.Source)
+        .Source;
+      Assert.AreEqual(typeof (IndexProvider), selectAfterIndex.Source.GetType());
     }
   }
 }
