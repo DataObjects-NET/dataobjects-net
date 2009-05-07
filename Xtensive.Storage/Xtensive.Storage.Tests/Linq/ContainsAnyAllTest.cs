@@ -64,15 +64,26 @@ namespace Xtensive.Storage.Tests.Linq
     public void AnyTest()
     {
       var result = Query<Customer>.All.Any();
+      var expected = Query<Customer>.All.AsEnumerable().Any();
+      Assert.AreEqual(result, expected);
       Assert.IsTrue(result);
     }
 
     [Test]
     public void AllWithSubqueryTest()
     {
-      var result = Query<Customer>.All.Where(c => Query<Order>.All.Where(o => o.Customer==c).All(o => o.Freight > 0));
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      var result = Query<Customer>.All
+        .Where(c => Query<Order>.All
+          .Where(o => o.Customer==c)
+          .All(o => o.Freight > 0));
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .Where(c => Query<Order>.All
+          .AsEnumerable()
+          .Where(o => o.Customer==c)
+          .All(o => o.Freight > 0));
+      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
@@ -89,14 +100,26 @@ namespace Xtensive.Storage.Tests.Linq
     public void AllTest()
     {
       var result = Query<Customer>.All.All(c => c.ContactName.StartsWith("a"));
+      var expected = Query<Customer>.All.AsEnumerable().All(c => c.ContactName.StartsWith("a"));
+      Assert.AreEqual(expected, result);
       Assert.IsFalse(result);
     }
 
     [Test]
     public void ContainsWithSubqueryTest()
     {
-      var result = Query<Customer>.All.Where(c => Query<Order>.All.Select(o => o.Customer).Contains(c));
+      var result = Query<Customer>.All
+        .Where(c => Query<Order>.All
+          .Select(o => o.Customer)
+          .Contains(c));
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .Where(c => Query<Order>.All
+          .AsEnumerable()
+          .Select(o => o.Customer)
+          .Contains(c));
       var list = result.ToList();
+      Assert.AreEqual(0, expected.Except(result).Count());
       Assert.Greater(list.Count, 0);
     }
 
@@ -113,7 +136,14 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ContainsTest()
     {
-      var result = Query<Customer>.All.Select(c => c.Id).Contains("ALFKI");
+      var result = Query<Customer>.All
+        .Select(c => c.Id)
+        .Contains("ALFKI");
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .Select(c => c.Id)
+        .Contains("ALFKI");
+      Assert.AreEqual(expected, result);
       Assert.IsTrue(result);
     }
 
@@ -121,15 +151,33 @@ namespace Xtensive.Storage.Tests.Linq
     public void SubqueryAllStructureTest()
     {
       var result = Query<Customer>.All
-        .Where(c => Query<Order>.All.Where(o => o.Customer==c).All(o => o.ShippingAddress.City==c.Address.City));
-      result.ToList();
+        .Where(c => Query<Order>.All
+          .Where(o => o.Customer==c)
+          .All(o => o.ShippingAddress.City==c.Address.City));
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .Where(c => Query<Order>.All
+          .AsEnumerable()
+          .Where(o => o.Customer==c)
+          .All(o => o.ShippingAddress.City==c.Address.City));
+      Assert.AreEqual(0, expected.Except(result).Count());
+      QueryDumper.Dump(result);
     }
 
     [Test]
     public void SubqueryAnyStructureTest()
     {
       var result = Query<Customer>.All
-        .Where(c => Query<Order>.All.Where(o => o.Customer==c).Any(o => o.ShippingAddress.City==c.Address.City));
+        .Where(c => Query<Order>.All
+          .Where(o => o.Customer==c)
+          .Any(o => o.ShippingAddress.City==c.Address.City));
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .Where(c => Query<Order>.All
+          .AsEnumerable()
+          .Where(o => o.Customer==c)
+          .Any(o => o.ShippingAddress.City==c.Address.City));
+      Assert.AreEqual(0, expected.Except(result).Count());
       result.ToList();
     }
 
@@ -138,9 +186,26 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from o in Query<Order>.All
-        where Query<Customer>.All.Where(c => c==o.Customer).All(c => c.CompanyName.StartsWith("A"))
-          && !Query<Employee>.All.Where(e => e==o.Employee).All(e => e.FirstName.EndsWith("t"))
+        where Query<Customer>.All
+          .Where(c => c==o.Customer)
+          .All(c => c.CompanyName.StartsWith("A"))
+            && !Query<Employee>.All
+              .Where(e => e==o.Employee)
+              .All(e => e.FirstName.EndsWith("t"))
         select o;
+      var expected =
+        from o in Query<Order>.All
+          .AsEnumerable()
+        where Query<Customer>.All
+          .AsEnumerable()
+          .Where(c => c==o.Customer)
+          .All(c => c.CompanyName.StartsWith("A"))
+            && !Query<Employee>.All
+              .AsEnumerable()
+              .Where(e => e==o.Employee)
+              .All(e => e.FirstName.EndsWith("t"))
+        select o;
+      Assert.AreEqual(0, expected.Except(result).Count());
       var list = result.ToList();
       Assert.AreEqual(list.Count, 11);
     }
@@ -150,9 +215,26 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from o in Query<Order>.All
-        where Query<Customer>.All.Where(c => c==o.Customer).All(c => c.CompanyName.StartsWith("A"))
-          || Query<Employee>.All.Where(e => e==o.Employee).All(e => e.FirstName.EndsWith("t"))
+        where Query<Customer>.All
+          .Where(c => c==o.Customer)
+          .All(c => c.CompanyName.StartsWith("A"))
+            || Query<Employee>.All
+              .Where(e => e==o.Employee)
+              .All(e => e.FirstName.EndsWith("t"))
         select o;
+      var expected =
+        from o in Query<Order>.All
+          .AsEnumerable()
+        where Query<Customer>.All
+          .AsEnumerable()
+          .Where(c => c==o.Customer)
+          .All(c => c.CompanyName.StartsWith("A"))
+            || Query<Employee>.All
+              .AsEnumerable()
+              .Where(e => e==o.Employee)
+              .All(e => e.FirstName.EndsWith("t"))
+        select o;
+      Assert.AreEqual(0, expected.Except(result).Count());
       var list = result.ToList();
       Assert.AreEqual(list.Count, 366);
     }
@@ -162,11 +244,27 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from o in Query<Order>.All
-        where !Query<Customer>.All.Where(c => c==o.Customer).Any(c => c.CompanyName.StartsWith("A"))
-          && Query<Employee>.All.Where(e => e==o.Employee).Any(e => e.FirstName.EndsWith("t"))
+        where !Query<Customer>.All
+          .Where(c => c==o.Customer)
+          .Any(c => c.CompanyName.StartsWith("A"))
+            && Query<Employee>.All
+              .Where(e => e==o.Employee)
+              .Any(e => e.FirstName.EndsWith("t"))
         select o;
-      var list = result.ToList();
-      Assert.AreEqual(list.Count, 336);
+      var expected =
+        from o in Query<Order>.All
+          .AsEnumerable()
+        where !Query<Customer>.All
+          .AsEnumerable()
+          .Where(c => c==o.Customer)
+          .Any(c => c.CompanyName.StartsWith("A"))
+            && Query<Employee>.All
+              .AsEnumerable()
+              .Where(e => e==o.Employee)
+              .Any(e => e.FirstName.EndsWith("t"))
+        select o;
+      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.AreEqual(result.ToList().Count, 336);
     }
 
     [Test]
@@ -174,11 +272,27 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from o in Query<Order>.All
-        where Query<Customer>.All.Where(c => c==o.Customer).Any(c => c.CompanyName.StartsWith("A"))
-          || Query<Employee>.All.Where(e => e==o.Employee).Any(e => e.FirstName.EndsWith("t"))
+        where Query<Customer>.All
+          .Where(c => c==o.Customer)
+          .Any(c => c.CompanyName.StartsWith("A"))
+            || Query<Employee>.All
+              .Where(e => e==o.Employee)
+              .Any(e => e.FirstName.EndsWith("t"))
         select o;
-      var list = result.ToList();
-      Assert.AreEqual(list.Count, 366);
+      var expected =
+        from o in Query<Order>.All
+          .AsEnumerable()
+        where Query<Customer>.All
+          .AsEnumerable()
+          .Where(c => c==o.Customer)
+          .Any(c => c.CompanyName.StartsWith("A"))
+            || Query<Employee>.All
+              .AsEnumerable()
+              .Where(e => e==o.Employee)
+              .Any(e => e.FirstName.EndsWith("t"))
+        select o;
+      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.AreEqual(result.ToList().Count, 366);
     }
 
     [Test]
@@ -186,11 +300,27 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from o in Query<Order>.All
-        where Query<Customer>.All.Where(c => c==o.Customer).Any(c => c.CompanyName.StartsWith("A"))
-          && !Query<Employee>.All.Where(e => e==o.Employee).All(e => e.FirstName.EndsWith("t"))
+        where Query<Customer>.All
+          .Where(c => c==o.Customer)
+          .Any(c => c.CompanyName.StartsWith("A"))
+            && !Query<Employee>.All
+              .Where(e => e==o.Employee)
+              .All(e => e.FirstName.EndsWith("t"))
         select o;
-      var list = result.ToList();
-      Assert.AreEqual(list.Count, 11);
+      var expected =
+        from o in Query<Order>.All
+          .AsEnumerable()
+        where Query<Customer>.All
+          .AsEnumerable()
+          .Where(c => c==o.Customer)
+          .Any(c => c.CompanyName.StartsWith("A"))
+            && !Query<Employee>.All
+              .AsEnumerable()
+              .Where(e => e==o.Employee)
+              .All(e => e.FirstName.EndsWith("t"))
+        select o;
+      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.AreEqual(result.ToList().Count, 11);
     }
 
     [Test]
@@ -198,11 +328,27 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from o in Query<Order>.All
-        where !Query<Customer>.All.Where(c => c==o.Customer).Any(c => c.CompanyName.StartsWith("A"))
-          || Query<Employee>.All.Where(e => e==o.Employee).All(e => e.FirstName.EndsWith("t"))
+        where !Query<Customer>.All
+          .Where(c => c==o.Customer)
+          .Any(c => c.CompanyName.StartsWith("A"))
+            || Query<Employee>.All
+              .Where(e => e==o.Employee)
+              .All(e => e.FirstName.EndsWith("t"))
         select o;
-      var list = result.ToList();
-      Assert.AreEqual(list.Count, 819);
+      var expected =
+        from o in Query<Order>.All
+          .AsEnumerable()
+        where !Query<Customer>.All
+          .AsEnumerable()
+          .Where(c => c==o.Customer)
+          .Any(c => c.CompanyName.StartsWith("A"))
+            || Query<Employee>.All
+              .AsEnumerable()
+              .Where(e => e==o.Employee)
+              .All(e => e.FirstName.EndsWith("t"))
+        select o;
+      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.AreEqual(result.ToList().Count, 819);
     }
 
     [Test]
@@ -216,6 +362,17 @@ namespace Xtensive.Storage.Tests.Linq
             .Where(o => o.Customer==c)
             .Any()
         };
+      var expected =
+        from c in Query<Customer>.All
+          .AsEnumerable()
+        select new {
+          Customer = c,
+          HasOrders = Query<Order>.All
+            .AsEnumerable()
+            .Where(o => o.Customer==c)
+            .Any()
+        };
+      Assert.AreEqual(0, expected.Except(result).Count());
       Assert.AreEqual(2, result.ToList().Count(i => !i.HasOrders));
     }
 
@@ -230,6 +387,17 @@ namespace Xtensive.Storage.Tests.Linq
             .Where(o => o.Customer==c)
             .All(o => o.Employee.FirstName=="Cool")
         };
+      var expected =
+        from c in Query<Customer>.All
+          .AsEnumerable()
+        select new {
+          Customer = c,
+          AllEmployeesAreCool = Query<Order>.All
+            .AsEnumerable()
+            .Where(o => o.Customer==c)
+            .All(o => o.Employee.FirstName=="Cool")
+        };
+      Assert.AreEqual(0, expected.Except(result).Count());
       Assert.AreEqual(2, result.ToList().Count(i => i.AllEmployeesAreCool));
     }
 
@@ -245,20 +413,42 @@ namespace Xtensive.Storage.Tests.Linq
             .Select(o => o.Customer)
             .Contains(c)
         };
+      var expected =
+        from c in Query<Customer>.All
+          .AsEnumerable()
+        select new {
+          Customer = c,
+          HasNewOrders = Query<Order>.All
+            .AsEnumerable()
+            .Where(o => o.OrderDate > new DateTime(2001, 1, 1))
+            .Select(o => o.Customer)
+            .Contains(c)
+        };
+      Assert.AreEqual(0, expected.Except(result).Count());
       Assert.AreEqual(0, result.ToList().Count(i => i.HasNewOrders));
     }
 
     [Test]
     public void EntitySetAnyTest()
     {
-      var result = Query<Customer>.All.Where(c => c.Orders.Any(o => o.Freight > 400));
+      var result = Query<Customer>.All
+        .Where(c => c.Orders.Any(o => o.Freight > 400));
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .Where(c => c.Orders.Any(o => o.Freight > 400));
+      Assert.AreEqual(0, expected.Except(result).Count());
       Assert.AreEqual(10, result.ToList().Count);
     }
 
     [Test]
     public void EntitySetAllTest()
     {
-      var result = Query<Customer>.All.Where(c => c.Orders.All(o => o.Employee.FirstName=="???"));
+      var result = Query<Customer>.All
+        .Where(c => c.Orders.All(o => o.Employee.FirstName=="???"));
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .Where(c => c.Orders.All(o => o.Employee.FirstName=="???"));
+      Assert.AreEqual(0, expected.Except(result).Count());
       Assert.AreEqual(2, result.ToList().Count);
     }
 
@@ -266,7 +456,12 @@ namespace Xtensive.Storage.Tests.Linq
     public void EntitySetContainsTest()
     {
       var bestOrder = Query<Order>.All.OrderBy(o => o.Freight).First();
-      var result = Query<Customer>.All.Where(c => Queryable.Contains(c.Orders, bestOrder));
+      var result = Query<Customer>.All
+        .Where(c => Queryable.Contains(c.Orders, bestOrder));
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .Where(c => Queryable.Contains(c.Orders, bestOrder));
+      Assert.AreEqual(0, expected.Except(result).Count());
       Assert.AreEqual(bestOrder.Customer.Id, result.ToList().Single().Id);
     }
 
@@ -275,6 +470,9 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Customer>.All
         .Where(c => c.Orders.All(o => o.ShippingAddress.City==c.Address.City));
+      var expected = Query<Customer>.All
+        .Where(c => c.Orders.All(o => o.ShippingAddress.City==c.Address.City));
+      Assert.AreEqual(0, expected.Except(result).Count());
       result.ToList();
     }
 
@@ -283,6 +481,9 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Customer>.All
         .Where(c => c.Orders.Any(o => o.ShippingAddress.City==c.Address.City));
+      var expected = Query<Customer>.All
+        .Where(c => c.Orders.Any(o => o.ShippingAddress.City==c.Address.City));
+      Assert.AreEqual(0, expected.Except(result).Count());
       result.ToList();
     }
   }
