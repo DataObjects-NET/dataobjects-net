@@ -5,7 +5,6 @@
 // Created:    2009.02.04
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
@@ -29,12 +28,18 @@ namespace Xtensive.Storage.Tests.Linq
     public void IntAverageTest()
     {
       var avg = Query<Order>.All.Average(o => o.Id);
+      var expected = Query<Order>.All
+        .AsEnumerable()
+        .Average(o => o.Id);
+      Assert.AreEqual(expected, avg);
     }
 
     [Test]
     public void SumWithNoArgTest()
     {
       var sum = Query<Order>.All.Select(o => o.Freight).Sum();
+      var expected = Query<Order>.All.AsEnumerable().Select(o => o.Freight).Sum();
+      Assert.AreEqual(expected, sum);
       Assert.Greater(sum, 0);
     }
 
@@ -42,6 +47,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void SumWithArgTest()
     {
       var sum = Query<Order>.All.Sum(o => o.Id);
+      var expected = Query<Order>.All.AsEnumerable().Sum(o => o.Id);
+      Assert.AreEqual(expected, sum);
       Assert.Greater(sum, 0);
     }
 
@@ -56,6 +63,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void CountWithPredicateTest()
     {
       var count = Query<Order>.All.Count(o => o.Id > 10);
+      var expected = Query<Order>.All.AsEnumerable().Count(o => o.Id > 10);
+      Assert.AreEqual(expected, count);
       Assert.Greater(count, 0);
     }
 
@@ -64,8 +73,17 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from c in Query<Customer>.All
-        where Query<Order>.All.Where(o => o.Customer==c).Count() > 10
+        where Query<Order>.All
+          .Where(o => o.Customer==c)
+          .Count() > 10
         select c;
+      var expected = from c in Query<Customer>.All.AsEnumerable()
+      where Query<Order>.All
+        .AsEnumerable()
+        .Where(o => o.Customer==c)
+        .Count() > 10
+      select c;
+      Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -73,7 +91,14 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void WhereCountTest()
     {
-      var result = Query<Customer>.All.Where(c => Query<Order>.All.Count(o => o.Customer == c) > 5);
+      var result = Query<Customer>.All
+        .Where(c => Query<Order>.All.Count(o => o.Customer==c) > 5);
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .Where(c => Query<Order>.All
+          .AsEnumerable()
+          .Count(o => o.Customer==c) > 5);
+      Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -85,6 +110,14 @@ namespace Xtensive.Storage.Tests.Linq
         from c in Query<Customer>.All
         where Query<Order>.All.Count(o => o.Customer==c) > 10
         select c;
+      var expected =
+        from c in Query<Customer>.All.AsEnumerable()
+        where Query<Order>.All
+          .AsEnumerable()
+          .Count(o => o.Customer==c) > 10
+        select c;
+      Assert.AreEqual(0, expected.Except(result).Count());
+
       QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -94,8 +127,18 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from c in Query<Customer>.All
-        where Query<Order>.All.Where(o => o.Customer==c).Max(o => o.OrderDate) < new DateTime(1999, 1, 1)
+        where Query<Order>.All
+          .Where(o => o.Customer==c)
+          .Max(o => o.OrderDate) < new DateTime(1999, 1, 1)
         select c;
+      var expected =
+        from c in Query<Customer>.All.AsEnumerable()
+        where Query<Order>.All
+          .AsEnumerable()
+          .Where(o => o.Customer==c)
+          .Max(o => o.OrderDate) < new DateTime(1999, 1, 1)
+        select c;
+      Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -105,8 +148,18 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from c in Query<Customer>.All
-        where Query<Order>.All.Where(o => o.Customer==c).Min(o => o.Freight) > 5
+        where Query<Order>.All
+          .Where(o => o.Customer==c)
+          .Min(o => o.Freight) > 5
         select c;
+      var expected =
+        from c in Query<Customer>.All.AsEnumerable()
+        where Query<Order>.All
+          .AsEnumerable()
+          .Where(o => o.Customer==c)
+          .Min(o => o.Freight) > 5
+        select c;
+      Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -116,8 +169,18 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from c in Query<Customer>.All
-        where Query<Order>.All.Where(o => o.Customer==c).Average(o => o.Freight) < 5
+        where Query<Order>.All
+          .Where(o => o.Customer==c)
+          .Average(o => o.Freight) < 5
         select c;
+      var expected =
+        from c in Query<Customer>.All.AsEnumerable()
+        where Query<Order>.All
+          .AsEnumerable()
+          .Where(o => o.Customer==c)
+          .Average(o => o.Freight) < 5
+        select c;
+      Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -125,8 +188,12 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectCountTest()
     {
-      var result =
-        Query<Customer>.All.Select(c => Query<Order>.All.Count());
+      var result = Query<Customer>.All
+        .Select(c => Query<Order>.All.Count());
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .Select(c => Query<Order>.All.AsEnumerable().Count());
+      Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -136,7 +203,20 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from c in Query<Customer>.All
-        select new {Customer = c, NumberOfOrders = Query<Order>.All.Count(o => o.Customer==c)};
+        select new {
+          Customer = c,
+          NumberOfOrders = Query<Order>.All
+            .Count(o => o.Customer==c)
+        };
+      var expected =
+        from c in Query<Customer>.All.AsEnumerable()
+        select new {
+          Customer = c,
+          NumberOfOrders = Query<Order>.All
+            .AsEnumerable()
+            .Count(o => o.Customer==c)
+        };
+      Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -144,10 +224,22 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectMaxTest()
     {
-      var products = Query<Product>.All;
-      var suppliers = Query<Supplier>.All;
-      var result = from p in products
-                   select new { Product = p, MaxID = suppliers.Where(s => s == p.Supplier).Max(s => s.Id) };
+      var result = from p in Query<Product>.All
+      select new {
+        Product = p,
+        MaxID = Query<Supplier>.All
+          .Where(s => s==p.Supplier)
+          .Max(s => s.Id)
+      };
+      var expected = from p in Query<Product>.All.AsEnumerable()
+      select new {
+        Product = p,
+        MaxID = Query<Supplier>.All
+          .AsEnumerable()
+          .Where(s => s==p.Supplier)
+          .Max(s => s.Id)
+      };
+      Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -155,8 +247,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SumCountTest()
     {
-      var expected = Query<Order>.All.Count();
-      var count = Query<Customer>.All.Sum(c => Query<Order>.All.Count(o => o.Customer == c));
+      var expected = Query<Order>.All.AsEnumerable().Count();
+      var count = Query<Customer>.All
+        .Sum(c => Query<Order>.All.Count(o => o.Customer==c));
       Assert.AreEqual(expected, count);
     }
 
@@ -181,15 +274,22 @@ namespace Xtensive.Storage.Tests.Linq
       var customers = Query<Customer>.All;
       var orders = Query<Order>.All;
 
-      var expected = localCustomers.Max(c => localOrders.Count(o => o.Customer == c));
-      var result = customers.Max(c => orders.Count(o => o.Customer == c));
+      var expected = localCustomers.Max(c => localOrders.Count(o => o.Customer==c));
+      var result = customers.Max(c => orders.Count(o => o.Customer==c));
       Assert.AreEqual(expected, result);
     }
 
     [Test]
     public void SelectNullableAggregateTest()
     {
-      var result = Query<Order>.All.Select(o => (int?) o.Id).Sum();
+      var result = Query<Order>.All
+        .Select(o => (int?) o.Id)
+        .Sum();
+      var expected = Query<Order>.All
+        .AsEnumerable()
+        .Select(o => (int?) o.Id)
+        .Sum();
+      Assert.AreEqual(expected, result);
     }
   }
 }

@@ -19,17 +19,35 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnyWithSubqueryTest()
     {
-      var result = Query<Customer>.All.Where(c => Query<Order>.All.Where(o => o.Customer==c).Any(o => o.Freight > 0));
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      var result = Query<Customer>.All
+        .Where(c => Query<Order>.All
+          .Where(o => o.Customer==c)
+          .Any(o => o.Freight > 0));
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .Where(c => Query<Order>.All
+          .AsEnumerable()
+          .Where(o => o.Customer==c)
+          .Any(o => o.Freight > 0));
+      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
     public void AnyWithSubqueryNoPredicateTest()
     {
-      var result = Query<Customer>.All.Where(c => Query<Order>.All.Where(o => o.Customer==c).Any());
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      var result = Query<Customer>.All
+        .Where(c => Query<Order>.All
+          .Where(o => o.Customer==c)
+          .Any());
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .Where(c => Query<Order>.All
+          .AsEnumerable()
+          .Where(o => o.Customer==c)
+          .Any());
+      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.Greater(result.ToList().Count, 0);
     }
 
     [Test]
@@ -103,7 +121,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void SubqueryAllStructureTest()
     {
       var result = Query<Customer>.All
-        .Where(c => Query<Order>.All.Where(o => o.Customer == c).All(o => o.ShippingAddress.City == c.Address.City));
+        .Where(c => Query<Order>.All.Where(o => o.Customer==c).All(o => o.ShippingAddress.City==c.Address.City));
       result.ToList();
     }
 
@@ -111,7 +129,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void SubqueryAnyStructureTest()
     {
       var result = Query<Customer>.All
-        .Where(c => Query<Order>.All.Where(o => o.Customer == c).Any(o => o.ShippingAddress.City == c.Address.City));
+        .Where(c => Query<Order>.All.Where(o => o.Customer==c).Any(o => o.ShippingAddress.City==c.Address.City));
       result.ToList();
     }
 
@@ -256,7 +274,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void EntitySetAllStructureTest()
     {
       var result = Query<Customer>.All
-        .Where(c => c.Orders.All(o => o.ShippingAddress.City == c.Address.City));
+        .Where(c => c.Orders.All(o => o.ShippingAddress.City==c.Address.City));
       result.ToList();
     }
 
@@ -264,7 +282,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void EntitySetAnyStructureTest()
     {
       var result = Query<Customer>.All
-        .Where(c => c.Orders.Any(o => o.ShippingAddress.City == c.Address.City));
+        .Where(c => c.Orders.Any(o => o.ShippingAddress.City==c.Address.City));
       result.ToList();
     }
   }

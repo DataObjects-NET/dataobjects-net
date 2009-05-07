@@ -51,7 +51,12 @@ namespace Xtensive.Storage.Tests.Linq
       var products = Query<Product>.All;
       var suppliers = Query<Supplier>.All;
       var result = from p in products
-      select new {Product = p, Suppliers = suppliers.Where(s => s.Id==p.Supplier.Id).Select(s => s.CompanyName)};
+      select new {
+        Product = p,
+        Suppliers = suppliers
+          .Where(s => s.Id==p.Supplier.Id)
+          .Select(s => s.CompanyName)
+      };
       var list = result.ToList();
       Assert.Greater(list.Count, 0);
       foreach (var p in list)
@@ -64,10 +69,17 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from c in Query<Customer>.All
-        orderby Query<Order>.All.Where(o => o.Customer==c).Count()
+        orderby Query<Order>.All.Where(o => o.Customer==c).Count() , c.Id
         select c;
-      var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      var expected =
+        from c in Query<Customer>.All.AsEnumerable()
+        orderby Query<Order>.All.AsEnumerable().Where(o => o.Customer==c).Count() , c.Id
+        select c;
+      var resultList = result.ToList();
+      var expectedList = expected.ToList();
+      Assert.AreEqual(resultList.Count, expectedList.Count);
+      for (int i = 0; i < resultList.Count; i++)
+        Assert.AreEqual(resultList[i], expectedList[i]);
     }
 
     [Test]
@@ -75,8 +87,11 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         from c in Query<Customer>.All
-        where Query<Order>.All.Where(o => o.Customer==c)
-          .All(o => Query<Employee>.All.Where(e => o.Employee==e).Any(e => e.FirstName.StartsWith("A")))
+        where Query<Order>.All
+          .Where(o => o.Customer==c)
+          .All(o => Query<Employee>.All
+            .Where(e => o.Employee==e
+            ).Any(e => e.FirstName.StartsWith("A")))
         select c;
       var list = result.ToList();
       Assert.AreEqual(list.Count, 2);
@@ -89,6 +104,12 @@ namespace Xtensive.Storage.Tests.Linq
         .GroupBy(c => c.Address.Country,
           (country, customers) => customers.Where(k => k.CompanyName.StartsWith(country.Substring(0, 1))))
         .SelectMany(k => k);
+      var expected = Query<Customer>.All
+        .AsEnumerable()
+        .GroupBy(c => c.Address.Country,
+          (country, customers) => customers.Where(k => k.CompanyName.StartsWith(country.Substring(0, 1))))
+        .SelectMany(k => k);
+      Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
     }
 

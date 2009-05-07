@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void MainTest()
     {
       using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
+        using (Transaction.Open()) {
           var a1 = new A();
           var b1 = new B();
           var r1 = new Root2() {Number = 123, Child1 = a1, Child2=b1};
