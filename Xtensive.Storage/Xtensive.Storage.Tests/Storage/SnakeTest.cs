@@ -14,6 +14,7 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
@@ -674,13 +675,13 @@ namespace Xtensive.Storage.Tests.Storage
 
           name = "Kaa90";
           result = rsSnakePrimary
-            .Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).StartsWith(name))
+            .Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).GreaterThan(name))
             .Aggregate(new[] { 0 }, new AggregateColumnDescriptor("Count", 1, AggregateType.Count))
             .Select(0,1)
             .Filter(tuple => tuple.GetValue<long>(1) > 0);
           Assert.Greater(result.Count(), 0);
           Assert.IsTrue(result.ToEntities<Snake>()
-            .Where(s => s != null && s.Name.StartsWith(name)).Count() > 1);
+            .Where(s => s != null && s.Name.GreaterThan(name)).Count() > 1);
 
           t.Complete();
         }

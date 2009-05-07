@@ -18,14 +18,13 @@ using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
+using Xtensive.Storage.Providers.MsSql.Resources;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
   [Serializable]
   internal class MsSqlCompiler : SqlCompiler
   {
-    private SqlColumnRef rowNumberColumn;
-
     protected override ExecutableProvider VisitExistence(ExistenceProvider provider)
     {
       var result = (SqlProvider) base.VisitExistence(provider);
@@ -93,6 +92,8 @@ namespace Xtensive.Storage.Providers.MsSql
 
     protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
     {
+      if(provider.Header.Order.Count == 0)
+        throw new InvalidOperationException(Strings.ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider);
       var compiledSource = GetCompiled(provider.Source) as SqlProvider;
       if (compiledSource == null)
         return null;
@@ -107,15 +108,6 @@ namespace Xtensive.Storage.Providers.MsSql
 
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }
-
-//    private void AddOrderByForRowNumberColumn(Provider provider, SqlSelect query)
-//    {
-//      if (provider.Header.Order.Count > 0)
-//        foreach (KeyValuePair<int, Direction> sortOrder in provider.Header.Order)
-//          query.OrderBy.Add(query.Columns[sortOrder.Key], sortOrder.Value == Direction.Positive);
-//      else
-//        query.OrderBy.Add(query.Columns[0], true);
-//    }
 
     protected override ExecutableProvider VisitApply(ApplyProvider provider)
     {
@@ -139,7 +131,8 @@ namespace Xtensive.Storage.Providers.MsSql
       return new SqlProvider(provider, query, Handlers, left, right);
     }
 
-    protected override SqlExpression TranslateExpression(LambdaExpression le, out HashSet<SqlFetchParameterBinding> parameterBindings, SqlSelect[] selects)
+    protected override SqlExpression TranslateExpression(LambdaExpression le, 
+      out HashSet<SqlFetchParameterBinding> parameterBindings, SqlSelect[] selects)
     {
       le = ExpressionPreprocessor.Preprocess(le);
       var resultExpression = base.TranslateExpression(le, out parameterBindings, selects);
@@ -231,20 +224,18 @@ namespace Xtensive.Storage.Providers.MsSql
       }
     }
 
-    private SqlSelect AddRowNumberColumn(SqlSelect sourceQuery, Provider provider, string rowNumberColumnName)
+    private static SqlSelect AddRowNumberColumn(SqlSelect sourceQuery, Provider provider,
+      string rowNumberColumnName)
     {
       SqlExpression rowNumberExpression = SqlFactory.Native("ROW_NUMBER() OVER (ORDER BY ");
-      if (provider.Header.Order.Count>0) 
-        for (int i = 0; i < provider.Header.Order.Count; i++) {
-          if (i != 0)
-            rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, SqlFactory.Native(", "));
-          rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression,
-            sourceQuery[provider.Header.Order[i].Key]);
-          rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression,
-            SqlFactory.Native(provider.Header.Order[i].Value == Direction.Positive ? " ASC" : " DESC"));
-        }
-      else
-        rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, sourceQuery[0]);
+      for (var i = 0; i < provider.Header.Order.Count; i++) {
+        if (i!=0)
+          rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, SqlFactory.Native(", "));
+        rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression,
+          sourceQuery[provider.Header.Order[i].Key]);
+        rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression,
+          SqlFactory.Native(provider.Header.Order[i].Value==Direction.Positive ? " ASC" : " DESC"));
+      }
       rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, SqlFactory.Native(")"));
       sourceQuery.Columns.Add(rowNumberExpression, rowNumberColumnName);
       sourceQuery.OrderBy.Clear();

@@ -61,7 +61,6 @@ namespace Xtensive.Storage.Rse.Providers
     {
       ArgumentValidator.EnsureArgumentNotNull(ordering, "ordering");
       ordering.Lock(true);
-      expectedOrder = ordering;
       SetHeader(new RecordSetHeader(Header.TupleDescriptor, Header.Columns, Header.ColumnGroups,
         orderTupleDescriptor, ordering));
     }

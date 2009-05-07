@@ -341,7 +341,7 @@ namespace Xtensive.Storage.Tests.Rse
     {
       var keyFieldIndex = indexInfo.GetRecordSetHeader().IndexOf(keyFieldName);
       var result = new SetSlim<Range<Entire<Tuple>>>();
-      var tupleDescriptor = indexInfo.KeyTupleDescriptor;
+      var tupleDescriptor = indexInfo.KeyTupleDescriptor.TrimFields(1);
       const string keyValue = "abc";
       var expectedFirst = new Entire<Tuple>(InfinityType.Negative);
       var expectedSecond = new Entire<Tuple>(

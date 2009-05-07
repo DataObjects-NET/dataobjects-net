@@ -5,6 +5,7 @@
 // Created:    2009.04.24
 
 using System;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Storage.Rse.Providers;
@@ -23,6 +24,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     private bool isOrderOfIndex;
 
     protected DirectionCollection<int> SortOrder { get; set; }
+    protected DirectionCollection<int> OriginalExpectedOrder { get; set; }
 
     public CompilableProvider Rewrite(CompilableProvider originProvider)
     {
@@ -50,6 +52,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       var prevDescriptor = descriptor;
       var visited = (CompilableProvider) base.Visit(cp);
       descriptor = prevDescriptor;
+      OriginalExpectedOrder = cp.ExpectedOrder;
 
       var result = RemoveSortProvider(visited);
       if (result==visited)
@@ -70,6 +73,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
         && consumerDescriptor != null && !consumerDescriptor.Value.BreaksOrder)
         OnValidateRemovingOfOrderedColumns();
       CheckCorruptionOfOrder();
+      OriginalExpectedOrder = provider.ExpectedOrder;
       SaveSortOrder(result);
       return result;
     }
@@ -142,8 +146,11 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     {
       var result = visited;
       CheckCorruptionOfOrder();
-      if (isOrderCorrupted && consumerDescriptor != null && consumerDescriptor.Value.IsOrderSensitive)
+
+      if (isOrderCorrupted && !descriptor.Value.IsSorter
+        && consumerDescriptor!=null && consumerDescriptor.Value.IsOrderSensitive)
         result = OnInsertSortProvider(visited);
+
       if (!(result is SelectProvider)) {
         SaveSortOrder(result);
       }
@@ -155,12 +162,13 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       if (!isOrderCorrupted)
         SetActualOrdering(result, result.ExpectedOrder);
 
-      if (!descriptor.Value.BreaksOrder)
-        SortOrder = isOrderCorrupted ? result.ExpectedOrder : new DirectionCollection<int>();
-      else {
+      if (descriptor.Value.BreaksOrder) {
         isOrderCorrupted = true;
         SortOrder = new DirectionCollection<int>();
       }
+      else
+        SortOrder = isOrderCorrupted ? OriginalExpectedOrder : new DirectionCollection<int>();
+
       if (descriptor.Value.IsSorter)
         isOrderOfIndex = false;
       else if (result is IndexProvider)
@@ -169,7 +177,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
     private void CheckCorruptionOfOrder()
     {
-      isOrderCorrupted = isOrderCorrupted || !descriptor.Value.PreservesOrder;
+      isOrderCorrupted = !descriptor.Value.IsSorter 
+        && (isOrderCorrupted || !descriptor.Value.PreservesOrder);
     }
 
     #endregion

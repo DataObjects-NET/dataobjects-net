@@ -426,7 +426,7 @@ namespace Xtensive.Core.Tuples
     /// describing the specified set of fields.</returns>
     public TupleDescriptor TrimFields(int newTupleFieldCount)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(newTupleFieldCount, 1, Count - 1, "newTupleFieldCount");
+      ArgumentValidator.EnsureArgumentIsInRange(newTupleFieldCount, 1, Count, "newTupleFieldCount");
       return Create(fieldTypes.Take(newTupleFieldCount));
     }
 

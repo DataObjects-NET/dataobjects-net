@@ -88,6 +88,9 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     private static RowNumberProvider CreateRowNumberProvider(CompilableProvider source,
       ref int rowNumberCount)
     {
+      var sourceAsRowNumber = source as RowNumberProvider;
+      if(sourceAsRowNumber != null)
+        return sourceAsRowNumber;
       var columnName = String.Format(Strings.RowNumberX, rowNumberCount++);
       return new RowNumberProvider(source, columnName);
     }
