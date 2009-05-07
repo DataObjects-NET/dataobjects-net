@@ -42,11 +42,12 @@ namespace Xtensive.Storage.Rse
       internal set { parameter.Value = value; }
     }
 
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
+    /// <inheritdoc/>
+    public override string ToString()
     {
-      parameter = new Parameter<Tuple>(Name);
+      return Name;
     }
+
 
     // Constructors
 
@@ -66,6 +67,14 @@ namespace Xtensive.Storage.Rse
     public ApplyParameter()
       : this(string.Empty)
     {
+    }
+
+    // Deserialization
+
+    [OnDeserialized]
+    private void OnDeserialized(StreamingContext context)
+    {
+      parameter = new Parameter<Tuple>(Name);
     }
   }
 }
