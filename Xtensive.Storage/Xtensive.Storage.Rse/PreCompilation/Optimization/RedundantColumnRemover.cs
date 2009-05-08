@@ -159,6 +159,9 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
       leftMapping = Merge(leftMapping, currentOuterUsages);
 
+      if (leftMapping.Count==0)
+        leftMapping.Add(0);
+
       // visit
 
       mappings[provider.Left] = leftMapping;
