@@ -5,9 +5,12 @@
 // Created:    2009.03.24
 
 using System;
+using System.Globalization;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
+using Xtensive.Core.Tuples;
 
 namespace Xtensive.Indexing.Tests
 {
@@ -32,7 +35,43 @@ namespace Xtensive.Indexing.Tests
       TestIndexReader(count - 1, 0, count - 1, 0);
       TestIndexReader(10, count - 10, 5, count - 5);
       TestIndexReader(count - 10, 10, count - 5, 5);
+      TestIndexReader(10, 10, 10, 10);
+
+      var items = index.GetItems(new Range<Entire<int>>(10, 10));
+      Assert.AreEqual(1, items.Count());
+      Assert.AreEqual(10, items.First());
     }
+
+    [Test]
+    public void TupleIndexReaderTest()
+    {
+      var config = new IndexConfiguration<Tuple, Tuple>(
+        t => t, 
+        AdvancedComparer<Tuple>.Default.ApplyRules(new ComparisonRules(ComparisonRule.Positive, ComparisonRules.Positive)));
+      var tupleIndex = new Index<Tuple, Tuple>(config);
+      var aItem = Tuple.Create("A", 0);
+      var bItem = Tuple.Create("B", 1);
+      var xItem = Tuple.Create("X", 1024);
+      var x1Item = Tuple.Create("X1", 4096);
+      var zItem = Tuple.Create("Z", 2048);
+      tupleIndex.Add(aItem);
+      tupleIndex.Add(bItem);
+      tupleIndex.Add(xItem);
+      tupleIndex.Add(zItem);
+      tupleIndex.Add(x1Item);
+
+      var items = tupleIndex.GetItems(new Range<Entire<Tuple>>(Tuple.Create("X"), Tuple.Create("X" + (char) 0xDBFF + (char)0xDFFF)));
+//      var items = tupleIndex.GetItems(new Range<Entire<Tuple>>(
+//                                          new Entire<Tuple>(Tuple.Create("X"), EntireValueType.NegativeInfinitesimal),
+//                                          new Entire<Tuple>(Tuple.Create("X" + (char)0xDBFF + (char)0xDFFF), EntireValueType.PositiveInfinitesimal)));
+//      var items = tupleIndex.GetItems(new Range<Entire<Tuple>>(
+//                                        new Entire<Tuple>(Tuple.Create("X"), EntireValueType.NegativeInfinitesimal),
+//                                        new Entire<Tuple>(Tuple.Create("X"), EntireValueType.PositiveInfinitesimal)));
+      Assert.AreEqual(2, items.Count());
+    }
+
+
+    
 
     #region Private methods
 
