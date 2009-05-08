@@ -22,6 +22,16 @@ namespace Xtensive.Core.Linq.Internals
   {
     private static readonly object _lock = new object();
     private static volatile LambdaExpressionFactory instance;
+
+    public static LambdaExpressionFactory Instance {
+      get {
+        if (instance == null)
+          lock (_lock)
+            if (instance == null)
+              instance = new LambdaExpressionFactory();
+        return instance;
+      }
+    }
     
     #region Nested type : CacheKey
 
@@ -61,24 +71,15 @@ namespace Xtensive.Core.Linq.Internals
     private readonly Type[] funcTypes;
     private readonly Type[] actionTypes;
     private readonly ThreadSafeDictionary<CacheKey, Factory> cache;
-    
-    public static LambdaExpression CreateLambda(Expression body, ParameterExpression[] parameters)
-    {
-      if (instance == null)
-        lock(_lock)
-          if (instance == null)
-            instance = new LambdaExpressionFactory();
-      return instance.CreateLambdaPrivate(body, parameters);
-    }
 
-    #region Private / internal methods
-
-    private LambdaExpression CreateLambdaPrivate(Expression body, ParameterExpression[] parameters)
+    public LambdaExpression CreateLambda(Expression body, ParameterExpression[] parameters)
     {
       var key = CreateCacheKey(body.Type, parameters.Select(p => p.Type));
       var factory = cache.GetValue(key, (_key, _this) => _this.CompileCacheKey(_key), this);
       return factory.Invoke(body, parameters);
     }
+
+    #region Private / internal methods
 
     private CacheKey CreateCacheKey(Type returnType, IEnumerable<Type> argumentTypes)
     {
@@ -86,11 +87,8 @@ namespace Xtensive.Core.Linq.Internals
       int hashCode = returnType.GetHashCode();
       for (int i = 0; i < types.Length; i++)
         hashCode ^= types[i].GetHashCode();
-      var result = new CacheKey();
-      result.hashCode = hashCode;
-      result.argumentTypes = types;
-      result.returnType = returnType==typeof (void) ? null : returnType;
-      return result;
+      returnType = returnType==typeof (void) ? null : returnType;
+      return new CacheKey {hashCode = hashCode, argumentTypes = types, returnType = returnType};
     }
 
     private Factory CompileCacheKey(CacheKey key)

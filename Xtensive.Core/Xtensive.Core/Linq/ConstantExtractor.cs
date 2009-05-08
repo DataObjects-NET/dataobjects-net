@@ -46,7 +46,7 @@ namespace Xtensive.Core.Linq
         throw new InvalidOperationException();
       constantValues = new List<object>();
       var parameters = EnumerableUtils.One(constantParameter).Concat(lambda.Parameters).ToArray();
-      return ExpressionExtensions.FastLambda(Visit(lambda.Body), parameters);
+      return FastExpression.Lambda(Visit(lambda.Body), parameters);
     }
 
     /// <inheritdoc/>

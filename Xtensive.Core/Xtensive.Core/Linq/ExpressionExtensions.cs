@@ -4,10 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.04.21
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Core.Linq.Internals;
 
 namespace Xtensive.Core.Linq
 {
@@ -49,7 +46,7 @@ namespace Xtensive.Core.Linq
     }
 
     /// <summary>
-    /// Strips <see cref="Expression.Convert"/> and <see cref="Expression.TypeAs"/>.
+    /// Strips <see cref="ExpressionType.Convert"/> and <see cref="ExpressionType.TypeAs"/>.
     /// </summary>
     /// <param name="expression">The expression.</param>
     public static Expression StripCasts(this Expression expression)
@@ -68,28 +65,6 @@ namespace Xtensive.Core.Linq
     public static ExpressionTree ToExpressionTree(this Expression expression)
     {
       return new ExpressionTree(expression);
-    }
-
-    /// <summary>
-    /// Generates <see cref="LambdaExpression"/> faster than <see cref="Expression.Lambda(Expression,ParameterExpression[])"/>.
-    /// </summary>
-    /// <param name="body">The body of lambda expression.</param>
-    /// <param name="parameters">The parameters of lambda expression.</param>
-    /// <returns>Constructed lambda expression.</returns>
-    public static LambdaExpression FastLambda(Expression body, params ParameterExpression[] parameters)
-    {
-      return LambdaExpressionFactory.CreateLambda(body, parameters);
-    }
-
-    /// <summary>
-    /// Generates <see cref="LambdaExpression"/> faster than <see cref="Expression.Lambda(Expression,ParameterExpression[])"/>.
-    /// </summary>
-    /// <param name="body">The body of lambda expression.</param>
-    /// <param name="parameters">The parameters of lambda expression.</param>
-    /// <returns>Constructed lambda expression.</returns>
-    public static LambdaExpression FastLambda(Expression body, IEnumerable<ParameterExpression> parameters)
-    {
-      return LambdaExpressionFactory.CreateLambda(body, parameters.ToArray());
     }
   }
 }
