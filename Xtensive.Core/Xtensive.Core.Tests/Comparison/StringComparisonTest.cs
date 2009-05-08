@@ -80,6 +80,7 @@ namespace Xtensive.Core.Tests.Comparison
       var b = "ASDFGHJK KQ WE RTYUI ZXCV BNDFGHJTY UI KJHFVB<J BNDFGHJTY UI XCV BNDF GHJRTYVBNV BN";
 
       Func<string, string, CompareOptions, int> cultureCompare = CultureInfo.CurrentCulture.CompareInfo.Compare;
+      Func<string, string, CompareOptions, int> invariantCompare = CultureInfo.CurrentCulture.CompareInfo.Compare;
       Func<string, string, int> ordinalCompare = string.CompareOrdinal;
       Log.Info("Testing performance of string comparison...");
 
@@ -87,13 +88,21 @@ namespace Xtensive.Core.Tests.Comparison
         for (int i = 0; i < iterationCount; i++)
           ordinalCompare(a, b);
 
-      using (new Measurement("CompareInfo.Compare default", iterationCount))
+      using (new Measurement("CurrentCulture Compare default", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           cultureCompare(a, b, CompareOptions.None);
 
-      using (new Measurement("CompareInfo.Compare ordinal", iterationCount))
+      using (new Measurement("CurrentCulture Compare ordinal", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           cultureCompare(a, b, CompareOptions.Ordinal);
+
+      using (new Measurement("InvariantCulture Compare default", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          invariantCompare(a, b, CompareOptions.None);
+
+      using (new Measurement("InvariantCulture Compare ordinal", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          invariantCompare(a, b, CompareOptions.Ordinal);
     }
   }
 }
