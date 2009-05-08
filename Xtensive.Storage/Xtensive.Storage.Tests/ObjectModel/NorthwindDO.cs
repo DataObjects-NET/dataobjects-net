@@ -92,6 +92,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
   [Entity(MappingName = "Categories")]
   [HierarchyRoot(typeof (KeyGenerator), "Id")]
+  [Index("CategoryName")]
   public class Category : Entity
   {
     [Field(MappingName = "CategoryId")]

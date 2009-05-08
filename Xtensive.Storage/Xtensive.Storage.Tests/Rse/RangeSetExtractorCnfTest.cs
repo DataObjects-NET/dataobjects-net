@@ -6,9 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Linq.Normalization;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
@@ -349,7 +351,11 @@ namespace Xtensive.Storage.Tests.Rse
       result.Add(new Range<Entire<Tuple>>(expectedFirst, expectedSecond));
 
       expectedFirst = new Entire<Tuple>(
-        CreateTuple(tupleDescriptor, keyFieldIndex, keyValue + char.MaxValue), Direction.Positive);
+        CreateTuple(tupleDescriptor, keyFieldIndex, keyValue 
+        + (indexInfo.Columns[keyFieldIndex].CompareOptions==CompareOptions.Ordinal 
+          ? WellKnown.OrdinalMaxChar 
+          : WellKnown.CultureSensitiveMaxChar)),
+        Direction.Positive);
       expectedSecond = new Entire<Tuple>(InfinityType.Positive);
       result.Add(new Range<Entire<Tuple>>(expectedFirst, expectedSecond));
       return result;

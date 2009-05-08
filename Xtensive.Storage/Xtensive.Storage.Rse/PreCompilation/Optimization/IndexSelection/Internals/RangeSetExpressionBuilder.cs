@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -233,7 +234,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
           typeof (string)));
       var nearestKeyValues = indexKeyValues.Select(
         pair => new KeyValuePair<int, Expression>(pair.Key,
-          Expression.Call(null, concatMethod, pair.Value, Expression.Constant(char.MaxValue.ToString()))));
+          Expression.Call(null, concatMethod, pair.Value,
+            Expression.Constant(
+              indexInfo.Columns[pair.Key].CompareOptions==CompareOptions.Ordinal
+              ? WellKnown.OrdinalMaxChar : WellKnown.CultureSensitiveMaxChar))));
       return BuildEntireConstructor(nearestKeyValues, indexInfo);
     }
 

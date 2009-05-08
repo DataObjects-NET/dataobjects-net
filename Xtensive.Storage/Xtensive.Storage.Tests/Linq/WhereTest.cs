@@ -238,8 +238,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void StringStartsWithLiteralTest()
     {
-      var customers = Query<Customer>.All;
-      var customer = customers.Where(c => c.ContactName.StartsWith("M")).First();
+      var customers = Query<Category>.All;
+      var customer = customers.Where(c => c.CategoryName.StartsWith("M")).First();
       Assert.IsNotNull(customer);
     }
 
