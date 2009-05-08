@@ -21,7 +21,6 @@ namespace Xtensive.Core.Comparison
     [NonSerialized]
     private Predicate<string, string, CompareOptions> stringIsSuffix;
 
-
     protected override IAdvancedComparer<string> CreateNew(ComparisonRules rules)
     {
       return new StringComparer(Provider, ComparisonRules.Combine(rules));
@@ -96,12 +95,17 @@ namespace Xtensive.Core.Comparison
         stringIsSuffix = culture.CompareInfo.IsSuffix;
       }
       else {
-        stringCompare  = CultureInfo.InvariantCulture.CompareInfo.Compare;
+        stringCompare  = CompareOrdinal;
         stringIsSuffix = CultureInfo.InvariantCulture.CompareInfo.IsSuffix;
       }
     }
 
+    private static int CompareOrdinal(string first, string second, CompareOptions options)
+    {
+      return string.CompareOrdinal(first, second);
+    }
 
+    
     // Constructors
 
     public StringComparer(IComparerProvider provider, ComparisonRules comparisonRules) 

@@ -25,6 +25,9 @@ namespace Xtensive.Core.Tests.Comparison
       string x = "X" + (char) 0xDBFF + (char) 0xDFFF;
       string y = "X";
 
+      string a = "" +(char) 0xD800 + (char) 0xDC00;
+      string b = "" +(char) 0xD800 + (char) 0xDC00;
+
       //      CultureInfo.CurrentCulture.TextInfo.
 
       foreach (CultureInfo cultureInfo in CultureInfo.GetCultures(CultureTypes.AllCultures)) {
