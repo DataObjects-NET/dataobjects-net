@@ -15,6 +15,7 @@ using Xtensive.Indexing.Optimization;
 namespace Xtensive.Indexing.Tests.Statistics
 {
   [TestFixture]
+  [Ignore]
   public class HistogramTest
   {
     private TupleDescriptor tupleDescriptor;
