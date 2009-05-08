@@ -10,10 +10,9 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
-using System.Threading;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Threading;
-using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Reflection
 {
@@ -25,11 +24,15 @@ namespace Xtensive.Core.Reflection
   {
     #region Constants
 
+    private const string primitiveCastMethodName = "PrimitiveCast";
+    private const string ctorMethodName = "Ctor";
+    private const string createMethodName = "Create";
+
     private static readonly Dictionary<Type, OpCode> opCodeConv = new Dictionary<Type, OpCode>();
     private static readonly Dictionary<Type, Type> typeOnStack = new Dictionary<Type, Type>();
-    private static readonly string primitiveCastMethodName = "PrimitiveCast";
-    private static readonly string ctorMethodName   = "Ctor";
-    private static readonly string createMethodName = "Create";
+
+    private static readonly Type[] actionTypes;
+    private static readonly Type[] funcTypes;
 
     /// <summary>
     /// Aspected private field getter prefix.
@@ -448,6 +451,68 @@ namespace Xtensive.Core.Reflection
       return (TDelegate) (object) result;
     }
 
+    /// <summary>
+    /// Creates a delegate type that represents a delegate that calls a method with specified signature.
+    /// </summary>
+    /// <param name="returnType">Type of return value.</param>
+    /// <param name="parameterTypes">Types of parameters.</param>
+    /// <returns>Created delegate type.</returns>
+    public static Type MakeDelegateType(Type returnType, params Type[] parameterTypes)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(parameterTypes, "parameterTypes");
+      if (parameterTypes.Length > 9)
+        throw new NotSupportedException();
+      if (returnType == typeof(void) || returnType == null) {
+        if (parameterTypes.Length == 0)
+          return actionTypes[0];
+        return actionTypes[parameterTypes.Length].MakeGenericType(parameterTypes);
+      }
+      var funcGenericParameters = parameterTypes.AddSuffix(returnType);
+      return funcTypes[funcGenericParameters.Length - 1].MakeGenericType(funcGenericParameters);
+    }
+
+    /// <summary>
+    /// Creates a delegate type that represents a delegate that calls a method with specified signature.
+    /// </summary>
+    /// <param name="returnType">Type of return value.</param>
+    /// <param name="parameterTypes">Types of parameters.</param>
+    /// <returns>Created delegate type.</returns>
+    public static Type MakeDelegateType(Type returnType, IEnumerable<Type> parameterTypes)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(parameterTypes, "parameterTypes");
+      return MakeDelegateType(returnType, parameterTypes.ToArray());
+    }
+
+    /// <summary>
+    /// Gets signature of a delegate of a <paramref name="delegateType"/>.
+    /// </summary>
+    /// <param name="delegateType">Type of the delegate.</param>
+    /// <returns>A pair that contains return type as first element and parameter types as second arguments.</returns>
+    public static Pair<Type, Type[]> GetDelegateSignature(Type delegateType)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(delegateType, "delegateType");
+      // check for non-generic Action
+      if (delegateType == actionTypes[0])
+        return new Pair<Type, Type[]>(typeof(void), ArrayUtils<Type>.EmptyArray);
+      if (delegateType.IsGenericType) {
+        var definition = delegateType.GetGenericTypeDefinition();
+        var arguments = delegateType.GetGenericArguments();
+        int argumentsLength = arguments.Length;
+        // check for Func<>
+        if (argumentsLength >= 1 && argumentsLength <= 10 && funcTypes[argumentsLength-1] == definition) {
+          var parameterTypes = new Type[arguments.Length - 1];
+          Array.Copy(arguments, parameterTypes, parameterTypes.Length);
+          return new Pair<Type, Type[]>(arguments.Last(), parameterTypes);
+        }
+        // check for Action<>
+        if (argumentsLength >= 1 && argumentsLength <= 9 && actionTypes[argumentsLength] == definition)
+          return new Pair<Type, Type[]>(typeof(void), delegateType.GetGenericArguments());
+      }
+      // universal (but slow) strategy - reflect "Invoke" method
+      var method = delegateType.GetMethod("Invoke", BindingFlags.Public | BindingFlags.Instance);
+      return new Pair<Type, Type[]>(method.ReturnType, method.GetParameterTypes());
+    }
+
     #region Private members
 
     private static Delegate GetCachedDelegate(string delegateKey)
@@ -502,6 +567,33 @@ namespace Xtensive.Core.Reflection
       typeOnStack.Add(typeof(ulong),  typeof(ulong));
       typeOnStack.Add(typeof(float),  typeof(float));
       typeOnStack.Add(typeof(double), typeof(double));
+
+      funcTypes = new[]
+        {
+          typeof (Func<>),
+          typeof (Func<,>),
+          typeof (Func<,,>),
+          typeof (Func<,,,>),
+          typeof (Func<,,,,>),
+          typeof (Func<,,,,,>),
+          typeof (Func<,,,,,,>),
+          typeof (Func<,,,,,,,>),
+          typeof (Func<,,,,,,,,>),
+          typeof (Func<,,,,,,,,,>),
+        };
+
+      actionTypes = new[]
+        {
+          typeof (Action),
+          typeof (Action<,>),
+          typeof (Action<,,>),
+          typeof (Action<,,,>),
+          typeof (Action<,,,,>),
+          typeof (Action<,,,,,>),
+          typeof (Action<,,,,,,>),
+          typeof (Action<,,,,,,,>),
+          typeof (Action<,,,,,,,,>),
+        };
     }
   }
 }

@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     {
       get {
         if (compiledRange==null)
-          compiledRange = Range.Compile();
+          compiledRange = Range.CompileCached();
         return compiledRange;
       }
       internal set { compiledRange = value; }

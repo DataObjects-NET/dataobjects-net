@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse.Resources;
@@ -55,7 +56,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     public RangeSet<Entire<Tuple>> GetRangeSet()
     {
       if (rangeSetCreator == null || creatorIsStale) {
-        rangeSetCreator = (Func<RangeSet<Entire<Tuple>>>) Expression.Lambda(Source).Compile();
+        rangeSetCreator = Expression.Lambda<Func<RangeSet<Entire<Tuple>>>>(Source).CompileCached();
         creatorIsStale = false;
       }
       return rangeSetCreator();
@@ -66,7 +67,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       var lambda = Source as LambdaExpression;
       if (lambda != null)
         return (Expression<Func<RangeSet<Entire<Tuple>>>>)lambda;
-      return (Expression<Func<RangeSet<Entire<Tuple>>>>)Expression.Lambda(Source);
+      return Expression.Lambda<Func<RangeSet<Entire<Tuple>>>>(Source);
     }
 
     #region Private \ internal methods

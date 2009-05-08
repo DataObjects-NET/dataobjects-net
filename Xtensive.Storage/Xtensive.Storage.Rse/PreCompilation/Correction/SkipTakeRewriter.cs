@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core.Linq;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse.Resources;
@@ -58,8 +59,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
       if(!(provider.Source is TakeProvider))
         visitedSource = CreateRowNumberProvider(visitedSource, ref rowNumberCount);
-      var newProvider = new SkipProvider(visitedSource,
-        (Func<int>) Expression.Lambda(skipCount).Compile());
+      var newProvider = new SkipProvider(visitedSource, Expression.Lambda<Func<int>>(skipCount).CompileCached());
       return InsertSelectRemovingRowNumber(newProvider);
     }
 
@@ -78,8 +78,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       
       if(!(provider.Source is SkipProvider))
         visitedSource = CreateRowNumberProvider(visitedSource, ref rowNumberCount);
-      var newProvider = new TakeProvider(visitedSource,
-        (Func<int>) Expression.Lambda(takeCount).Compile());
+      var newProvider = new TakeProvider(visitedSource, Expression.Lambda<Func<int>>(takeCount).CompileCached());
       return InsertSelectRemovingRowNumber(newProvider);
     }
 

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 
@@ -32,7 +33,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public CalculateProvider(Compilable.CalculateProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
-      calculators = Origin.CalculatedColumns.Select(c => c.Expression.Compile()).ToList();
+      calculators = Origin.CalculatedColumns.Select(c => c.Expression.CompileCached()).ToList();
     }
   }
 }

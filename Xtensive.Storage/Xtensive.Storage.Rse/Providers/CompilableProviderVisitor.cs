@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -55,7 +56,7 @@ namespace Xtensive.Storage.Rse.Providers
       var count = translate(provider, expression);
       if (source == provider.Source && count == expression)
         return provider;
-      return new TakeProvider(source, ((Expression<Func<int>>)count).Compile());
+      return new TakeProvider(source, ((Expression<Func<int>>)count).CompileCached());
     }
 
     /// <inheritdoc/>
@@ -68,7 +69,7 @@ namespace Xtensive.Storage.Rse.Providers
       var count = translate(provider, expression);
       if (source == provider.Source && count == expression)
         return provider;
-      return new SkipProvider(source, ((Expression<Func<int>>)count).Compile());
+      return new SkipProvider(source, ((Expression<Func<int>>)count).CompileCached());
     }
 
     /// <inheritdoc/>

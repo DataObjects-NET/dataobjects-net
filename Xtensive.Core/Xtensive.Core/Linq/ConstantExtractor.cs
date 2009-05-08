@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Linq
 {
@@ -46,7 +47,11 @@ namespace Xtensive.Core.Linq
         throw new InvalidOperationException();
       constantValues = new List<object>();
       var parameters = EnumerableUtils.One(constantParameter).Concat(lambda.Parameters).ToArray();
-      return FastExpression.Lambda(Visit(lambda.Body), parameters);
+      var body = Visit(lambda.Body);
+      // preserve original delegate type because it may differ from types of parameters / return value
+      return lambda.GetType().IsOfGenericType(typeof (Expression<>))
+        ? FastExpression.Lambda(AddSpecialParameter(lambda.GetType().GetGenericArguments()[0]), body, parameters)
+        : FastExpression.Lambda(body, parameters);
     }
 
     /// <inheritdoc/>
@@ -57,6 +62,16 @@ namespace Xtensive.Core.Linq
       constantValues.Add(c.Value);
       return result;
     }
+
+    #region Private / internal method
+
+    private Type AddSpecialParameter(Type delegateType)
+    {
+      var signature = DelegateHelper.GetDelegateSignature(delegateType);
+      return DelegateHelper.MakeDelegateType(signature.First, signature.Second.AddPrefix(constantParameter.Type));
+    }
+
+    #endregion
 
     // Constructor
 

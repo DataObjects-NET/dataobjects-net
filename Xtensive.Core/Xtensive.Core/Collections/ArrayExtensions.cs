@@ -174,6 +174,46 @@ namespace Xtensive.Core.Collections
       }
     }
 
+    /// <summary>
+    /// Creates new array consisting of <paramref name="items"/>
+    /// and <paramref name="prefixItem"/> added before array elements.
+    /// If <paramref name="items"/> is <see langword="null"/>
+    /// returns array that contains just <paramref name="prefixItem"/>.
+    /// </summary>
+    /// <typeparam name="TItem">The type of the item.</typeparam>
+    /// <param name="items">The items.</param>
+    /// <param name="prefixItem">The prefix item.</param>
+    /// <returns>Result array.</returns>
+    public static TItem[] AddPrefix<TItem>(this TItem[] items, TItem prefixItem)
+    {
+      if (items == null || items.Length == 0)
+        return new [] {prefixItem};
+      var result = new TItem[items.Length + 1];
+      Array.Copy(items, 0, result, 1, items.Length);
+      result[0] = prefixItem;
+      return result;
+    }
+
+    /// <summary>
+    /// Creates new array consisting of <paramref name="items"/>
+    /// and <paramref name="suffixItem"/> added after array elements.
+    /// If <paramref name="items"/> is <see langword="null"/>
+    /// returns array that contains just <paramref name="suffixItem"/>.
+    /// </summary>
+    /// <typeparam name="TItem">The type of the item.</typeparam>
+    /// <param name="items">The items.</param>
+    /// <param name="suffixItem">The prefix item.</param>
+    /// <returns>Result array.</returns>
+    public static TItem[] AddSuffix<TItem>(this TItem[] items, TItem suffixItem)
+    {
+      if (items == null || items.Length == 0)
+        return new [] {suffixItem};
+      var result = new TItem[items.Length + 1];
+      Array.Copy(items, result, items.Length);
+      result[items.Length] = suffixItem;
+      return result;
+    }
+
     private static int Partition<TItem>(this TItem[] items, Func<TItem, TItem, int> comparer, int leftIndex, int rightIndex, int pivotIndex)
     {
       var pivot = items[pivotIndex];

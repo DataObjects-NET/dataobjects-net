@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public Func<Tuple[]> CompiledSource {
       get {
         if (compiledSource==null)
-          compiledSource = Source.Compile();
+          compiledSource = Source.CompileCached();
         return compiledSource;
       }
     }

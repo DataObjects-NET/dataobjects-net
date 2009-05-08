@@ -229,10 +229,10 @@ namespace Xtensive.Storage.Linq
 
       var parameter = Expression.Parameter(sourceType, "p");
       var isExpression = Expression.TypeIs(parameter, targetType);
-      LambdaExpression le = Expression.Lambda(isExpression, parameter);
+      LambdaExpression le = FastExpression.Lambda(isExpression, parameter);
       var visitedWhere = VisitWhere(source, le);
       var projectorBody = Expression.Convert(visitedWhere.ItemProjector.Body, targetType);
-      var itemProjector = Expression.Lambda(projectorBody, visitedWhere.ItemProjector.Parameters.ToArray());
+      var itemProjector = FastExpression.Lambda(projectorBody, visitedWhere.ItemProjector.Parameters.ToArray());
       var recordSet = visitedWhere.RecordSet;
       var mapping = (ComplexMapping) visitedWhere.Mapping;
 
@@ -275,7 +275,7 @@ namespace Xtensive.Storage.Linq
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
     {
       var p = Expression.Parameter(match.Type, "p");
-      var le = Expression.Lambda(Expression.Equal(p, match), p);
+      var le = FastExpression.Lambda(Expression.Equal(p, match), p);
 
       if (isRoot)
         return VisitRootExists(source, le, false);
@@ -288,7 +288,7 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitAll(Expression source, LambdaExpression predicate, bool isRoot)
     {
-      predicate = Expression.Lambda(Expression.Not(predicate.Body), predicate.Parameters[0]);
+      predicate = FastExpression.Lambda(Expression.Not(predicate.Body), predicate.Parameters[0]);
 
       if (isRoot)
         return VisitRootExists(source, predicate, true);
@@ -336,7 +336,7 @@ namespace Xtensive.Storage.Linq
     {
       var projection = VisitSequence(source);
       var parameter = context.ParameterExtractor.ExtractParameter<int>(take);
-      var rs = projection.RecordSet.Take(parameter.Compile());
+      var rs = projection.RecordSet.Take(parameter.CompileCached());
       return new ResultExpression(projection.Type, rs, projection.Mapping, projection.ItemProjector);
     }
 
@@ -344,7 +344,7 @@ namespace Xtensive.Storage.Linq
     {
       var projection = VisitSequence(source);
       var parameter = context.ParameterExtractor.ExtractParameter<int>(skip);
-      var rs = projection.RecordSet.Skip(parameter.Compile());
+      var rs = projection.RecordSet.Skip(parameter.CompileCached());
       return new ResultExpression(projection.Type, rs, projection.Mapping, projection.ItemProjector);
     }
 
@@ -443,7 +443,7 @@ namespace Xtensive.Storage.Linq
       var projectorBody = isIntCount
         ? Expression.Convert(ExpressionHelper.TupleAccess(pTuple, typeof (long), 0), typeof (int))
         : ExpressionHelper.TupleAccess(pTuple, resultType, 0);
-      var itemProjector = Expression.Lambda(projectorBody, pTuple);
+      var itemProjector = FastExpression.Lambda(projectorBody, pTuple);
       return new ResultExpression(resultType, innerRecordSet, null, itemProjector, ResultType.First);
     }
 
@@ -535,7 +535,7 @@ namespace Xtensive.Storage.Linq
           : Expression.AndAlso(filterBody, equalsExpression);
       }
 
-      var filterPredicate = Expression.Lambda(filterBody, filterTuple);
+      var filterPredicate = FastExpression.Lambda(filterBody, filterTuple);
       var groupingRs = result.RecordSet.Filter((Expression<Func<Tuple, bool>>) filterPredicate);
 
       var groupingResultExpression = new ResultExpression(result.Type, groupingRs, result.Mapping, result.ItemProjector);
@@ -556,7 +556,7 @@ namespace Xtensive.Storage.Linq
         Expression.Constant(tupleParameter));
 
       Expression projectorBody = Expression.Convert(newGroupingExpression, groupingType);
-      LambdaExpression itemProjector = Expression.Lambda(projectorBody, recordKeyExpression.Second
+      LambdaExpression itemProjector = FastExpression.Lambda(projectorBody, recordKeyExpression.Second
         ? new[] {pTuple, pRecord}
         : new[] {pTuple});
 
@@ -567,7 +567,7 @@ namespace Xtensive.Storage.Linq
         var convertedParameter = Expression.Convert(resultSelector.Parameters[1], parameterGroupingType);
         var keyAccess = Expression.MakeMemberAccess(convertedParameter, keyProperty);
         var rewrittenResultSelectorBody = ReplaceParameterRewriter.Rewrite(resultSelector.Body, resultSelector.Parameters[0], keyAccess);
-        var selectLambda = Expression.Lambda(rewrittenResultSelectorBody, resultSelector.Parameters[1]);
+        var selectLambda = FastExpression.Lambda(rewrittenResultSelectorBody, resultSelector.Parameters[1]);
         resultExpression = VisitSelect(resultExpression, selectLambda);
       }
 
@@ -698,7 +698,7 @@ namespace Xtensive.Storage.Linq
           isOuter = call.Method.IsGenericMethod
             && call.Method.GetGenericMethodDefinition()==WellKnownMembers.QueryableDefaultIfEmpty;
           if (isOuter)
-            collectionSelector = Expression.Lambda(call.Arguments[0], parameter);
+            collectionSelector = FastExpression.Lambda(call.Arguments[0], parameter);
         }
         ResultExpression innerResult;
         using (state.CreateScope()) {
@@ -717,7 +717,7 @@ namespace Xtensive.Storage.Linq
         if (resultSelector==null) {
           var outerParameter = Expression.Parameter(SequenceHelper.GetElementType(source.Type), "o");
           var innerParameter = Expression.Parameter(SequenceHelper.GetElementType(collectionSelector.Type), "i");
-          resultSelector = Expression.Lambda(innerParameter, outerParameter, innerParameter);
+          resultSelector = FastExpression.Lambda(innerParameter, outerParameter, innerParameter);
         }
         return CombineResultExpressions(outerResult, innerResult, recordSet, resultSelector);
       }
@@ -777,7 +777,7 @@ namespace Xtensive.Storage.Linq
         ? Expression.Not(ExpressionHelper.TupleAccess(pTuple, typeof (bool), 0))
         : ExpressionHelper.TupleAccess(pTuple, typeof (bool), 0);
 
-      var itemProjector = Expression.Lambda(projectorBody, pTuple);
+      var itemProjector = FastExpression.Lambda(projectorBody, pTuple);
       var newRecordSet = result.RecordSet.Existence(context.GetNextColumnAlias());
       return new ResultExpression(typeof (bool), newRecordSet, null, itemProjector, ResultType.First);
     }

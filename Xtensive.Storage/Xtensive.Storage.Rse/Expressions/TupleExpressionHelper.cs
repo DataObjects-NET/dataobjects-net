@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Rse.Expressions
     {
       if (expression.NodeType == ExpressionType.Constant)
         return (T) ((ConstantExpression) expression).Value;
-      return Expression.Lambda<Func<T>>(expression).Compile().Invoke();
+      return Expression.Lambda<Func<T>>(expression).CompileCached().Invoke();
     }
   }
 }

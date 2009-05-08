@@ -139,10 +139,23 @@ namespace Xtensive.Core.Linq.Internals
 
     private bool VisitNew(NewExpression x, NewExpression y)
     {
-      return x.Constructor==y.Constructor
-        && CompareExpressionSequences(x.Arguments, y.Arguments)
-          && x.Members.Count==y.Members.Count
-            && x.Members.Zip(y.Members).All(p => p.First==p.Second);
+      if (x.Constructor!=y.Constructor)
+        return false;
+      if (!CompareExpressionSequences(x.Arguments, y.Arguments))
+        return false;
+      if (x.Members == null)
+        if (y.Members == null)
+          return true;
+        else
+          return false;
+      if (y.Members == null)
+        return false;
+      if (x.Members.Count != y.Members.Count)
+        return false;
+      for (int i = 0; i < x.Members.Count; i++)
+        if (x.Members[i] != y.Members[i])
+          return false;
+      return true;
     }
 
     private bool VisitLambda(LambdaExpression x, LambdaExpression y)

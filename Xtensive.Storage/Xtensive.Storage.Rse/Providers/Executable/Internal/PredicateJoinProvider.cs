@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Core.Internals.DocTemplates;
@@ -37,7 +38,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       base.Initialize();
       transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
-      predicate = Origin.Predicate.Compile();
+      predicate = Origin.Predicate.CompileCached();
       rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
     }
 

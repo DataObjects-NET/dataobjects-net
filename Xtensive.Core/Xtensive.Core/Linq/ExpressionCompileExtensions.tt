@@ -35,21 +35,21 @@ Action<bool> WriteType = delegate (bool forAction) {
 };
 
 Action<int, bool> WriteMethod = delegate (int numberOfArguments, bool forAction) {
-  WriteLine("/// <summary>Compiles the specified lambda.</summary>");
+  WriteLine("/// <summary>Compiles the specified lambda and caches the result of compilation.</summary>");
   WriteLine("/// <returns>Compiled lambda.</returns>");
   Write("public static ");
   WriteType(forAction);
   WriteGenericParameters(numberOfArguments, forAction, false);
-  Write(" Compile");
+  Write(" CompileCached");
   WriteGenericParameters(numberOfArguments, forAction, false);
-  Write("(this CachingExpressionCompiler compiler, Expression<");
+  Write("(this Expression<");
   WriteType(forAction);
   WriteGenericParameters(numberOfArguments, forAction, false);
   Write("> lambda");
   WriteLine(")");
   WriteLine("{");
   PushIndent("  ");
-  WriteLine("var result = compiler.RawCompile(lambda);");
+  WriteLine("var result = CachingExpressionCompiler.Instance.RawCompile(lambda);");
   Write("return ((");
   WriteType(forAction);
   WriteGenericParameters(numberOfArguments, forAction, true);
@@ -75,13 +75,14 @@ using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Linq.Internals;
 
 namespace Xtensive.Core.Linq
 {
   /// <summary>
   /// Extension methods for compiling strictly typed lambda expressions.
   /// </summary>
-  public static class CachingExpressionCompilerExtensions
+  public static class ExpressionCompileExtensions
   {
 <#
 PushIndent("    ");

@@ -13,6 +13,7 @@ using NUnit.Framework;
 using Rhino.Mocks;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Linq.Normalization;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Testing;
@@ -44,7 +45,7 @@ namespace Xtensive.Storage.Tests.Rse
     {
       Expression<Func<Order, bool>> predicate = order => order.OrderDate > new DateTime(1997, 11, 1)
         && order.OrderDate < new DateTime(1997, 11, 30);
-      var expected = Query<Order>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(o => o.Id);
+      var expected = Query<Order>.All.AsEnumerable().Where(predicate.CompileCached()).OrderBy(o => o.Id);
       var query = Query<Order>.All.Where(predicate).OrderBy(o => o.Id);
       var actual = query.ToList();
       IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
@@ -57,7 +58,7 @@ namespace Xtensive.Storage.Tests.Rse
     {
       Expression<Func<Order, bool>> predicate = order => order.OrderDate > new DateTime(1997, 11, 1)
         && order.Freight > 0 || order.OrderDate > new DateTime(1997, 11, 1) && order.Employee.Id == 125;
-      var expected = Query<Order>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(o => o.Id);
+      var expected = Query<Order>.All.AsEnumerable().Where(predicate.CompileCached()).OrderBy(o => o.Id);
       var query = Query<Order>.All.Where(predicate).OrderBy(o => o.Id);
       var actual = query.ToList();
       IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
@@ -73,7 +74,7 @@ namespace Xtensive.Storage.Tests.Rse
         && employee.FirstName.GreaterThan("S")
         && employee.BirthDate < new DateTime(1960, 1, 1) || employee.Title.GreaterThan("Vice")
         && employee.BirthDate > new DateTime(1950, 1, 1) && employee.BirthDate < new DateTime(1960, 1, 1);
-      var expected = Query<Employee>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(empl => empl.Id);
+      var expected = Query<Employee>.All.AsEnumerable().Where(predicate.CompileCached()).OrderBy(empl => empl.Id);
       var query = Query<Employee>.All.Where(predicate).OrderBy(empl => empl.Id);
       var actual = query.ToList();
       IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
@@ -88,7 +89,7 @@ namespace Xtensive.Storage.Tests.Rse
       var firstEmployee = Query<Employee>.All.AsEnumerable().First();
       Expression<Func<Employee, bool>> predicate = employee => employee.Id == firstEmployee.Id
         && employee.BirthDate < new DateTime(1960, 1, 1);
-      var expected = Query<Employee>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(empl => empl.Id);
+      var expected = Query<Employee>.All.AsEnumerable().Where(predicate.CompileCached()).OrderBy(empl => empl.Id);
       var query = Query<Employee>.All.Where(predicate).OrderBy(empl => empl.Id);
       var actual = query.ToList();
       var optimizedProvider = IndexOptimizerTestHelper.GetOptimizedProvider(query);
@@ -109,7 +110,7 @@ namespace Xtensive.Storage.Tests.Rse
         && product.Supplier.Id == targetSupplier.Id && product.Category.Id == targetCategory.Id
         && product.ProductName.GreaterThan("a")
         || product.UnitPrice > 10m && product.ProductName.GreaterThan("S");
-      var expected = Query<Product>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(p => p.Id);
+      var expected = Query<Product>.All.AsEnumerable().Where(predicate.CompileCached()).OrderBy(p => p.Id);
       var query = Query<Product>.All.Where(predicate).OrderBy(p => p.Id);
       var actual = query.ToList();
       IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
@@ -124,8 +125,8 @@ namespace Xtensive.Storage.Tests.Rse
       Expression<Func<Order, bool>> orderPredicate = order => order.OrderDate > new DateTime(1997, 11, 1)
         && order.OrderDate < new DateTime(1997, 11, 30);
       Expression<Func<Employee, bool>> employeePredicate = employee => employee.Title.GreaterThan("Sales");
-      var expected = Query<Order>.All.AsEnumerable().Where(orderPredicate.Compile())
-        .Join(Query<Employee>.All.Where(employeePredicate.Compile()),
+      var expected = Query<Order>.All.AsEnumerable().Where(orderPredicate.CompileCached())
+        .Join(Query<Employee>.All.Where(employeePredicate.CompileCached()),
           order => order.Employee.Id, empl => empl.Id,
           (order, empl) => new Pair<Order, Employee>(order, empl));
       var query = Query<Order>.All.Where(orderPredicate)
@@ -177,7 +178,7 @@ namespace Xtensive.Storage.Tests.Rse
         BuildCnfPredicate<Employee>(41, employee => employee.FirstName.GreaterThan("B"));
       var normalizer = new DisjunctiveNormalizer(100);
       AssertEx.ThrowsInvalidOperationException(() => normalizer.Normalize(predicate));
-      var expected = Query<Employee>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(o => o.Id);
+      var expected = Query<Employee>.All.AsEnumerable().Where(predicate.CompileCached()).OrderBy(o => o.Id);
       var query = Query<Employee>.All.Where(predicate).OrderBy(o => o.Id);
       var actual = query.ToList();
       IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
@@ -206,7 +207,7 @@ namespace Xtensive.Storage.Tests.Rse
         Expression<Func<Order, bool>> predicate = order => order.OrderDate > orderDateParam.Value
           && order.ShipName.LessThan("K") || order.ShipName.GreaterThan("W")
             && order.Freight < freightParam.Value;
-        var expected = Query<Order>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(o => o.Id);
+        var expected = Query<Order>.All.AsEnumerable().Where(predicate.CompileCached()).OrderBy(o => o.Id);
         var query = Query<Order>.All.Where(predicate).OrderBy(o => o.Id);
         var actual = query.ToList();
         IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,

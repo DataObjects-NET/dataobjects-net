@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Linq;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
@@ -100,7 +101,7 @@ namespace Xtensive.Storage.Tests.Rse
 
       Expression<Func<T, bool>> predicate = product => product.UnitPrice > 10 && product.UnitPrice < 70 
         || product.ProductName.GreaterThan("e") && product.ProductName.GreaterThan("t");
-      var expected = Query<T>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(o => o.Id);
+      var expected = Query<T>.All.AsEnumerable().Where(predicate.CompileCached()).OrderBy(o => o.Id);
       var query = Query<T>.All.Where(predicate).OrderBy(o => o.Id);
       var actual = query.ToList();
       primaryIndexValidator(Domain.Model.Types[typeof (T)].Indexes.GetIndexesContainingAllData()

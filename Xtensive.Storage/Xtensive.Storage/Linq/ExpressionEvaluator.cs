@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Linq
       if (type.IsValueType)
         e = Expression.Convert(e, typeof(object));
       var lambda = Expression.Lambda<Func<object>>(e);
-      var func = lambda.Compile();
+      var func = lambda.CompileCached();
       return Expression.Constant(func(), type);
     }
 

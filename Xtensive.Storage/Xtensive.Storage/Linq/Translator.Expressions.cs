@@ -180,7 +180,7 @@ namespace Xtensive.Storage.Linq
             ) {
             var originalBodyType = body.Type;
             bool isEnum = ConvertEnumToInteger(ref body);
-            var calculator = Expression.Lambda(Expression.Convert(body, typeof (object)), state.Tuple);
+            var calculator = FastExpression.Lambda(Expression.Convert(body, typeof (object)), state.Tuple);
             var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>) calculator);
             state.CalculatedColumns.Add(ccd);
             var parameter = state.Parameters[0];
@@ -204,7 +204,7 @@ namespace Xtensive.Storage.Linq
             body,
             state.Tuple,
             state.Record)
-          : Expression.Lambda(body, state.Tuple);
+          : FastExpression.Lambda(body, state.Tuple);
       }
       return result;
     }
@@ -342,7 +342,7 @@ namespace Xtensive.Storage.Linq
         return ma;
       if (ma.Expression==null) {
         if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
-          var lambda = Expression.Lambda<Func<IQueryable>>(ma).Compile();
+          var lambda = Expression.Lambda<Func<IQueryable>>(ma).CompileCached();
           var rootPoint = lambda();
           if (rootPoint!=null)
             return ConstructQueryable(rootPoint);
@@ -351,7 +351,7 @@ namespace Xtensive.Storage.Linq
       else if (ma.Expression.NodeType==ExpressionType.Constant) {
         var rfi = ma.Member as FieldInfo;
         if (rfi!=null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType))) {
-          var lambda = Expression.Lambda<Func<IQueryable>>(ma).Compile();
+          var lambda = Expression.Lambda<Func<IQueryable>>(ma).CompileCached();
           var rootPoint = lambda();
           if (rootPoint!=null)
             return ConstructQueryable(rootPoint);
@@ -454,7 +454,7 @@ namespace Xtensive.Storage.Linq
           else if (body.IsResult())
             newArg = BuildSubqueryResult((ResultExpression) body, arg.Type);
           else {
-            var calculator = Expression.Lambda(
+            var calculator = FastExpression.Lambda(
               body.Type==typeof (object)
                 ? body
                 : Expression.Convert(body, typeof (object)),
@@ -504,7 +504,7 @@ namespace Xtensive.Storage.Linq
       var recordSet = IndexProvider.Get(index).Result;
       var pRecord = Expression.Parameter(typeof (Record), "r");
       var itemProjector =
-        Expression.Lambda(
+        FastExpression.Lambda(
           Expression.Call(
             WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(elementType),
             Expression.Call(pRecord, WellKnownMembers.RecordKey, Expression.Constant(0))),

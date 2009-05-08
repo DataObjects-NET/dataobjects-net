@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Linq.Expressions.Mappings;
@@ -66,14 +67,14 @@ namespace Xtensive.Storage.Linq.Expressions
             ? body
             : Convert(body, typeof (TResult));
         var projector = Lambda<Func<RecordSet, TResult>>(body, rs);
-        projectionDelegate = projector.Compile();
+        projectionDelegate = projector.CompileCached();
       }
       return (Func<RecordSet, TResult>)projectionDelegate;
     }
 
     private static IEnumerable<TResult> MakeProjection<TResult>(RecordSet rs, Expression<Func<Tuple, Record, TResult>> le)
     {
-      var func = le.Compile();
+      var func = le.CompileCached();
       foreach (var r in rs.Parse())
         yield return func(r.Data, r);
     }

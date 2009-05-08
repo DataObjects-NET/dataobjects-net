@@ -5,51 +5,140 @@
 // Created:    2009.05.07
 
 using System;
+using System.Collections;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Linq;
 
 namespace Xtensive.Core.Tests.Linq
 {
   [TestFixture]
-  [Explicit]
-  [Category("Performance")]
   public class CachingExpressionCompilerTest
   {
+    private const int warmupIterations = 1;
+    private const int realIterations = 1000;
+
     [Test]
+    public void InterfaceImplicitCastTest()
+    {
+      Expression<Func<int, IEnumerable>> lambda = n => Enumerable.Range(1, n);
+      lambda.CompileCached();
+    }
+
+    [Test]
+    [Explicit]
+    [Category("Performance")]
     public void SimpleExpressionPerformanceTest()
     {
       Expression<Func<int, int, int>> lambda = (a, b) => a + b;
-      RunCompileTest(lambda, true, 10);
-      RunCompileTest(lambda, false, 10000);
+      RunCompilePerformanceTest(lambda, true);
+      RunCompilePerformanceTest(lambda, false);
     }
 
     [Test]
+    [Explicit]
+    [Category("Performance")]
     public void ComplexExpressionPerformanceTest()
     {
       Expression<Func<int, int, int>> lambda =
-        (a, b) => new { Result = a + b * 2 / a }.Result + DateTime.Now.Day * a * b - a + b;
-      RunCompileTest(lambda, true, 10);
-      RunCompileTest(lambda, false, 10000);
+        (a, b) => new {Result = a + b * 2 / a}.Result + DateTime.Now.Day * a * b - a + b;
+      RunCompilePerformanceTest(lambda, true);
+      RunCompilePerformanceTest(lambda, false);
     }
 
-    private static void RunCompileTest(Expression<Func<int, int, int>> lambda, bool warmup, int operationCount)
+    [Test]
+    [Explicit]
+    [Category("Performance")]
+    public void CombinedTest()
     {
-      var compiler = new CachingExpressionCompiler();
+      Expression<Func<int, int, int>> lambda =
+        (a, b) => new {Result = a + b * 2 / (a + 1)}.Result + DateTime.Now.Day * a * b - a + b;
+      RunCompileAndInvokePerformanceTest(lambda, true);
+      RunCompileAndInvokePerformanceTest(lambda, false);
+    }
+
+    [Test]
+    [Ignore("Results depend on order of calling")]
+    [Category("Performance")]
+    public void CallOverheadTest()
+    {
+      var parameter = Expression.Parameter(typeof (int), "p");
+      Expression<Func<int, int>> plusOne = Expression.Lambda<Func<int, int>>(
+        Expression.Add(parameter, Expression.Constant(1)), parameter);
+
+      ClearCompilerCache();
+      var original = plusOne.Compile();
+      var cached = plusOne.CompileCached();
+      
+      RunCallOverheadTest(original, cached, true);
+      RunCallOverheadTest(original, cached, false);
+    }
+
+    private static void RunCallOverheadTest(Func<int, int> original, Func<int, int> cached, bool warmup)
+    {
+      int operationCount = warmup ? warmupIterations : realIterations;
+      int k = 0;
+
+      k = 0;
+      using (CreateMeasurement(warmup, "Call cached: ", operationCount))
+        for (int i = 0; i < operationCount; i++)
+          k = cached.Invoke(k);
+
+      k = 0;
+      using (CreateMeasurement(warmup, "Call original: ", operationCount))
+        for (int i = 0; i < operationCount; i++)
+          k = original.Invoke(k);
+    }
+
+    private static void RunCompilePerformanceTest(Expression<Func<int, int, int>> lambda, bool warmup)
+    {
+      int operationCount = warmup ? warmupIterations : realIterations;
       using (CreateMeasurement(warmup, "Without caching: ", operationCount))
         for (int i = 0; i < operationCount; i++)
           lambda.Compile();
+      ClearCompilerCache();
       using (CreateMeasurement(warmup, "With caching: ", operationCount))
         for (int i = 0; i < operationCount; i++)
-          compiler.Compile(lambda);
+          lambda.CompileCached();
+    }
+
+    private static void RunCompileAndInvokePerformanceTest(Expression<Func<int, int, int>> lambda, bool warmup)
+    {
+      int operationCount = warmup ? warmupIterations : realIterations;
+      using (CreateMeasurement(warmup, "Without caching: ", operationCount))
+        for (int i = 0; i < operationCount; i++) {
+          var func = lambda.Compile();
+          func(i, i);
+        }
+
+      ClearCompilerCache();
+      using (CreateMeasurement(warmup, "With caching: ", operationCount))
+        for (int i = 0; i < operationCount; i++) {
+          var func = lambda.CompileCached();
+          func(i, i);
+        }
+    }
+
+    private static void ClearCompilerCache()
+    {
+      var type = typeof(Pair<>).Assembly.GetType("Xtensive.Core.Linq.Internals.CachingExpressionCompiler");
+      var instance = type.InvokeMember("Instance",
+        BindingFlags.Public | BindingFlags.Static | BindingFlags.GetProperty,
+        null, null, ArrayUtils<object>.EmptyArray);
+      type.InvokeMember("ClearCache",
+        BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod,
+        null, instance, ArrayUtils<object>.EmptyArray);
     }
 
     private static IDisposable CreateMeasurement(bool warmup, string name, int operationCount)
     {
       if (warmup) {
         Log.Info("Warming up...");
-        return null;
+        return new Measurement(name, MeasurementOptions.None, operationCount);
       }
       return new Measurement(name, operationCount);
     }

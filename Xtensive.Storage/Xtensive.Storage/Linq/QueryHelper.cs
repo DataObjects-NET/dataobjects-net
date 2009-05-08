@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Model;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
@@ -40,7 +41,7 @@ namespace Xtensive.Storage.Linq
         return Expression.Call(
           WellKnownMembers.QueryableWhere.MakeGenericMethod(elementType),
           CreateEntityQuery(elementType),
-          Expression.Lambda(whereExpression, whereParameter)
+          FastExpression.Lambda(whereExpression, whereParameter)
           );
       }
 
@@ -62,14 +63,14 @@ namespace Xtensive.Storage.Linq
       var outerQuery = Expression.Call(
         WellKnownMembers.QueryableWhere.MakeGenericMethod(connectorType),
         CreateEntityQuery(connectorType),
-        Expression.Lambda(filterExpression, filterParameter)
+        FastExpression.Lambda(filterExpression, filterParameter)
         );
 
       var outerSelectorParameter = Expression.Parameter(connectorType, "o");
-      var outerSelector = Expression.Lambda(Expression.Property(outerSelectorParameter, slave), outerSelectorParameter);
+      var outerSelector = FastExpression.Lambda(Expression.Property(outerSelectorParameter, slave), outerSelectorParameter);
       var innerSelectorParameter = Expression.Parameter(elementType, "i");
-      var innerSelector = Expression.Lambda(innerSelectorParameter, innerSelectorParameter);
-      var resultSelector = Expression.Lambda(innerSelectorParameter, outerSelectorParameter, innerSelectorParameter);
+      var innerSelector = FastExpression.Lambda(innerSelectorParameter, innerSelectorParameter);
+      var resultSelector = FastExpression.Lambda(innerSelectorParameter, outerSelectorParameter, innerSelectorParameter);
 
       return Expression.Call(typeof(Queryable), "Join", new[]
         {

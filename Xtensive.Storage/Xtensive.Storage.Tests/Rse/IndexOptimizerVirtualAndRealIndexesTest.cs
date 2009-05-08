@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Rse.VirtualAndRealIndexesModel;
@@ -64,7 +65,7 @@ namespace Xtensive.Storage.Tests.Rse
         Expression<Func<B, bool>> predicate = b => b.HierarchyField.GreaterThan("k")
           && b.ClassField < int.MaxValue
             || b.HierarchyField.LessThanOrEqual("z") && b.ClassField > int.MaxValue / 2;
-        var expected = Query<B>.All.AsEnumerable().Where(predicate.Compile()).OrderBy(o => o.Id);
+        var expected = Query<B>.All.AsEnumerable().Where(predicate.CompileCached()).OrderBy(o => o.Id);
         var query = Query<B>.All.Where(predicate).OrderBy(o => o.Id);
         var actual = query.ToList();
         var virtualIndex = Domain.Model.Types[typeof (B)].Indexes.GetIndex("HierarchyField");
