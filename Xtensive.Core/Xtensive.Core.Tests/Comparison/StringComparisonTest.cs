@@ -25,9 +25,11 @@ namespace Xtensive.Core.Tests.Comparison
       string x = "X" + (char) 0xDBFF + (char) 0xDFFF;
       string y = "X";
 
-      string a = "" +(char) 0xD800 + (char) 0xDC00;
-      string b = "" +(char) 0xD800 + (char) 0xDC00;
+      string a = "" + (char)0xDBFF + (char)0xDFFF + (char)0xDBFF + (char)0xDFFF;
+      string b = "" + (char)0xDBFF + (char)0xDFFF;
 
+      var ordinal = string.CompareOrdinal(a, b);
+      var ordinal2 = CultureInfo.InvariantCulture.CompareInfo.Compare(a, b, CompareOptions.None);
       //      CultureInfo.CurrentCulture.TextInfo.
 
       foreach (CultureInfo cultureInfo in CultureInfo.GetCultures(CultureTypes.AllCultures)) {
@@ -68,6 +70,30 @@ namespace Xtensive.Core.Tests.Comparison
       Assert.Greater(actual5, 0);
       Assert.Greater(actual6, 0);
       Assert.Greater(actual7, 0);
+    }
+
+    [Test]
+    public void PerformanceTest()
+    {
+      const int iterationCount = 10000000;
+      var a = "ASDFGHJK KQ WE RTYUI ZXCV BNDFGHJTY UI XCV BNDF GHJRTYVBNV BN";
+      var b = "ASDFGHJK KQ WE RTYUI ZXCV BNDFGHJTY UI KJHFVB<J BNDFGHJTY UI XCV BNDF GHJRTYVBNV BN";
+
+      Func<string, string, CompareOptions, int> cultureCompare = CultureInfo.CurrentCulture.CompareInfo.Compare;
+      Func<string, string, int> ordinalCompare = string.CompareOrdinal;
+      Log.Info("Testing performance of string comparison...");
+
+      using (new Measurement("string.CompareOrdinal", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          ordinalCompare(a, b);
+
+      using (new Measurement("CompareInfo.Compare default", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          cultureCompare(a, b, CompareOptions.None);
+
+      using (new Measurement("CompareInfo.Compare ordinal", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          cultureCompare(a, b, CompareOptions.Ordinal);
     }
   }
 }
