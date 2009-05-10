@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.25
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(NotSupportedException))]
     public void CachedQueryTest()
     {
       for (char c = 'A'; c <= 'Z'; c++) {

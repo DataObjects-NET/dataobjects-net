@@ -109,11 +109,7 @@ namespace Xtensive.Storage.Linq
         return MemberType.Structure;
       if (typeof (EntitySetBase).IsAssignableFrom(type))
         return MemberType.EntitySet;
-      if (Attribute.IsDefined(type, typeof (CompilerGeneratedAttribute), false)
-        && type.BaseType==typeof (object)
-          && type.Name.Contains("AnonymousType")
-            && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
-              && (type.Attributes & TypeAttributes.NotPublic)==TypeAttributes.NotPublic)
+      if (type.IsAnonymous())
         return MemberType.Anonymous;
       if (e.IsGrouping())
         return MemberType.Grouping;

@@ -109,8 +109,11 @@ namespace Xtensive.Storage
         var valueMemberInfo = parameterType.GetProperty("Value", closureType);
         var queryParameter = (Parameter)Activator.CreateInstance(parameterType, "pClosure", target);
         var replacer = new ExtendedExpressionReplacer(e => {
-          if (e.NodeType == ExpressionType.Constant && e.Type == closureType)
-            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+          if (e.NodeType == ExpressionType.Constant && e.Type.IsClosure()) {
+            if (e.Type == closureType)
+              return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+            throw new NotSupportedException("CachedQuery supports only queries written within its Execute methods.");
+          }
           return null;
         });
         resultExpression = new ParameterizedResultExpression((ResultExpression)replacer.Replace(compiledResultExpression), queryParameter);

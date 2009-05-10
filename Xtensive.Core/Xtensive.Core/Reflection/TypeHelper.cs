@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using Xtensive.Core.Collections;
@@ -797,6 +798,38 @@ namespace Xtensive.Core.Reflection
       return type.IsValueType && !type.IsNullable()
         ? typeof(Nullable<>).MakeGenericType(type)
         : type;
+    }
+
+    /// <summary>
+    /// Determines whether the specified <paramref name="type"/> is anonymous type.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the specified type is anonymous; otherwise, <see langword="false" />.
+    /// </returns>
+    public static bool IsAnonymous(this Type type)
+    {
+      return ((type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+              && type.BaseType==typeof (object)
+              && Attribute.IsDefined(type, typeof (CompilerGeneratedAttribute), false)
+              && type.Name.Contains("AnonymousType")
+              && (type.Attributes & TypeAttributes.NotPublic)==TypeAttributes.NotPublic);
+    }
+
+    /// <summary>
+    /// Determines whether the specified <paramref name="type"/> is closure type.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the specified type is anonymous; otherwise, <see langword="false" />.
+    /// </returns>
+    public static bool IsClosure(this Type type)
+    {
+      return ((type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+              && type.BaseType == typeof(object)
+              && Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
+              && type.Name.Contains("DisplayClass")
+              && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic);
     }
 
     #region Private \ internal methods
