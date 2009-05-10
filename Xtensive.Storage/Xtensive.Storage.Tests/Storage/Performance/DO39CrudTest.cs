@@ -81,6 +81,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       BulkFetchTest(baseCount);
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
+      CachedQueryTest(baseCount / 5);
       RemoveTest();
     }
 
@@ -163,6 +164,27 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           for (int i = 0; i < count; i++) {
             Query q = s.CreateQuery(queryText);
             q.Parameters.Add("@pId", 0);
+            q.Parameters["@pId"].Value = ((long)i % instanceCount) + firstId;
+            var qr = q.Execute();
+            foreach (var o in qr) {
+              // Doing nothing, just enumerate
+            }
+          }
+          s.Commit();
+        }
+      }
+    }
+
+    private void CachedQueryTest(int count)
+    {
+      string queryText = "Select Simplest instances where {ID}=@pId";
+      using (var s = domain.CreateSession()) {
+        s.BeginTransaction();
+        TestHelper.CollectGarbage();
+        Query q = s.CreateQuery(queryText);
+        q.Parameters.Add("@pId", 0);
+        using (warmup ? null : new Measurement("Cached Query", count)) {
+          for (int i = 0; i < count; i++) {
             q.Parameters["@pId"].Value = ((long)i % instanceCount) + firstId;
             var qr = q.Execute();
             foreach (var o in qr) {
