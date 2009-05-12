@@ -127,14 +127,15 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void VisitAlterAction(NodeAction action)
     {
-      // TODO: Implement PropertyChangeAction translation
-      if (action is PropertyChangeAction)
-        return;
-      
-      // TODO: Implement MoveNodeAction translation
-      // if (action is MoveNodeAction)
-      //   throw new NotImplementedException();
+      var propertyChangeAction = action as PropertyChangeAction;
+      if (propertyChangeAction != null) {
+        var changedNode = targetModel.Resolve(propertyChangeAction.Path);
+        if (changedNode.GetType()==typeof (SequenceInfo))
+          VisitAlterSequenceAction(propertyChangeAction);
 
+        return;
+      }
+      
       var moveNodeAction = action as MoveNodeAction;
       if (moveNodeAction==null)
         return;
@@ -346,17 +347,7 @@ namespace Xtensive.Storage.Providers.Sql
         RegisterCommand(SqlFactory.Create(sequence));
       }
       else {
-        var sequenceTable = schema.CreateTable(sequenceInfo.Name);
-        var idColumn = sequenceTable.CreateColumn(GeneratorColumnName,
-          GetSqlType(sequenceInfo.Type));
-        idColumn.SequenceDescriptor =
-          new SequenceDescriptor(
-            idColumn,
-            sequenceInfo.Current.HasValue
-              ? sequenceInfo.Current
-              : sequenceInfo.StartValue,
-            sequenceInfo.Increment);
-        RegisterCommand(SqlFactory.Create(sequenceTable));
+        CreateGeneratorTable(sequenceInfo);
       }
     }
 
@@ -369,31 +360,24 @@ namespace Xtensive.Storage.Providers.Sql
         schema.Sequences.Remove(sequence);
       }
       else {
-        var sequenceTable = FindTable(sequenceInfo.Name);
-        RegisterCommand(SqlFactory.Drop(sequenceTable));
-        schema.Tables.Remove(sequenceTable);
+        DropGeneratorTable(sequenceInfo);
       }
     }
 
-    private void VisitAlterSequenceAction(NodeAction action)
+    private void VisitAlterSequenceAction(PropertyChangeAction action)
     {
-      var sequenceInfo = action.Difference.Source as SequenceInfo;
+      var sequenceInfo = targetModel.Resolve(action.Path) as SequenceInfo;
       if (IsSequencesAllowed) {
         var sequence = schema.Sequences[sequenceInfo.Name];
         var sequenceDescriptor = new SequenceDescriptor(sequence,
           sequenceInfo.StartValue, sequenceInfo.Increment);
         sequence.SequenceDescriptor = sequenceDescriptor;
         RegisterCommand(SqlFactory.Alter(sequence,
-            sequenceDescriptor));
+          sequenceDescriptor));
       }
-      else {
-        var sequenceTable = FindTable(sequenceInfo.Name);
-        var idColumn = sequenceTable.TableColumns[GeneratorColumnName];
-        var sequenceDescriptor = new SequenceDescriptor(idColumn,
-          sequenceInfo.StartValue, sequenceInfo.Increment);
-        idColumn.SequenceDescriptor = sequenceDescriptor;
-        RegisterCommand(SqlFactory.Alter(sequenceTable,
-            SqlFactory.Alter(idColumn, sequenceDescriptor)));
+      else if (!createdTables.Any(table => table.Name==sequenceInfo.Name)) {
+        DropGeneratorTable(sequenceInfo);
+        CreateGeneratorTable(sequenceInfo);
       }
     }
 
@@ -457,6 +441,28 @@ namespace Xtensive.Storage.Providers.Sql
         indexInfo.IncludedColumns
           .Select(cr => FindColumn(table, cr.Value.Name)).ToArray());
       return index;
+    }
+
+    private void CreateGeneratorTable(SequenceInfo sequenceInfo)
+    {
+      var sequenceTable = schema.CreateTable(sequenceInfo.Name);
+      createdTables.Add(sequenceTable);
+      var idColumn = sequenceTable.CreateColumn(GeneratorColumnName,
+        GetSqlType(sequenceInfo.Type));
+      var currentValue = GetCurrentSequenceValue(sequenceInfo.Name);
+      idColumn.SequenceDescriptor =
+        new SequenceDescriptor(
+          idColumn,
+          currentValue ?? sequenceInfo.StartValue,
+          sequenceInfo.Increment);
+      RegisterCommand(SqlFactory.Create(sequenceTable));
+    }
+
+    private void DropGeneratorTable(SequenceInfo sequenceInfo)
+    {
+      var sequenceTable = FindTable(sequenceInfo.Name);
+      RegisterCommand(SqlFactory.Drop(sequenceTable));
+      schema.Tables.Remove(sequenceTable);
     }
 
     private Table FindTable(string name)
@@ -562,6 +568,12 @@ namespace Xtensive.Storage.Providers.Sql
     private void RegisterCommand(ISqlCompileUnit command)
     {
       commands.Add(driver.Compile(command).GetCommandText());
+    }
+
+    private long? GetCurrentSequenceValue(string sequenceInfoName)
+    {
+      var sequenceInfo = sourceModel.Sequences.FirstOrDefault(si => si.Name==sequenceInfoName);
+      return sequenceInfo==null ? null : sequenceInfo.Current;
     }
 
     # endregion

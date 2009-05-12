@@ -4,19 +4,21 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.10
 
+using System;
 using System.Linq;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
+using Xtensive.Sql.Dom;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
   /// <summary>
   /// Generator factory.
   /// </summary>
-  public sealed class KeyGeneratorFactory : Providers.KeyGeneratorFactory
+  public sealed class KeyGeneratorFactory : Sql.KeyGeneratorFactory
   {
     /// <inheritdoc/>
     /// <exception cref="DomainBuilderException"><c>DomainBuilderException</c>.</exception>
@@ -41,7 +43,6 @@ namespace Xtensive.Storage.Providers.MsSql
       SqlSelect select = SqlFactory.Select();
       select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall("SCOPE_IDENTITY"), columnType.DataType));
       sqlNext.Add(select);
-
       return new SqlCachingKeyGenerator<TFieldType>(generatorInfo, sqlNext);
     }
   }

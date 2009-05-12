@@ -4,17 +4,19 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.10
 
+using System;
 using System.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
+using Xtensive.Sql.Dom;
 
 namespace Xtensive.Storage.Providers.PgSql
 {
   /// <summary>
   /// Generator factory.
   /// </summary>
-  public sealed class KeyGeneratorFactory : Providers.KeyGeneratorFactory
+  public sealed class KeyGeneratorFactory : Sql.KeyGeneratorFactory
   {
     /// <inheritdoc/>
     /// <exception cref="DomainBuilderException"><c>DomainBuilderException</c>.</exception>
@@ -28,10 +30,10 @@ namespace Xtensive.Storage.Providers.PgSql
           string.Format("Can not find sequence '{0}' in storage.", generatorInfo.MappingName));
       dh.ValueTypeMapper.BuildSqlValueType(generatorInfo.TupleDescriptor[0], 0);
       
-      var select = SqlFactory.Select();
-      select.Columns.Add(SqlFactory.NextValue(sequence));
+      var sqlNext = SqlFactory.Select();
+      sqlNext.Columns.Add(SqlFactory.NextValue(sequence));
 
-      return new SqlCachingKeyGenerator<TFieldType>(generatorInfo, select);
+      return new SqlCachingKeyGenerator<TFieldType>(generatorInfo, sqlNext);
     }
   }
 }

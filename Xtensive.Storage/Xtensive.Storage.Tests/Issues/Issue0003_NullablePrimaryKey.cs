@@ -35,7 +35,10 @@ namespace Xtensive.Storage.Tests.Issues
     protected override Domain BuildDomain(Xtensive.Storage.Configuration.DomainConfiguration configuration)
     {
       Domain domain = null;
-      AssertEx.Throws<AggregateException>(() => domain = base.BuildDomain(configuration));
+      // Model builder mark primary key fields as not nullable automatically
+      // AssertEx.Throws<AggregateException>(() => domain = base.BuildDomain(configuration));
+      domain = base.BuildDomain(configuration);
+      Assert.IsFalse(domain.Model.Types["X"].Fields["ID"].IsNullable);
       return domain;
     }
   }

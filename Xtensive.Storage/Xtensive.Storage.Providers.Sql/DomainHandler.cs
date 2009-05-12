@@ -133,6 +133,7 @@ namespace Xtensive.Storage.Providers.Sql
       return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderBreaker,
         isSorter);
     }
+    
     /// <summary>
     /// Builds <see cref="DbDataReaderAccessor"/> from specified <see cref="TupleDescriptor"/>.
     /// You should not use this method directly since it does not provide caching.
@@ -223,9 +224,15 @@ namespace Xtensive.Storage.Providers.Sql
     public override void OnSystemSessionOpen()
     {
       base.OnSystemSessionOpen();
-      Driver = ((SessionHandler)BuildingContext.Current.SystemSessionHandler).Connection.Driver;
+
+      Driver = ((SessionHandler) BuildingContext.Current.SystemSessionHandler).Connection.Driver;
       ValueTypeMapper = Handlers.HandlerFactory.CreateHandler<SqlValueTypeMapper>();
       ValueTypeMapper.Initialize();
+
+      var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
+      var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
+      var storageModel = SqlModel.Build(modelProvider);
+      Schema = storageModel.DefaultServer.DefaultCatalog.DefaultSchema;
     }
 
     #region Obsolete

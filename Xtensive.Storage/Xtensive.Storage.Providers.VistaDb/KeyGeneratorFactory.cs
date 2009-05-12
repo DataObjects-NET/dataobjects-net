@@ -5,6 +5,7 @@
 // Created:    2008.09.10
 
 using System.Linq;
+using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Storage.Providers.Sql;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
@@ -16,13 +17,13 @@ namespace Xtensive.Storage.Providers.VistaDb
   /// <summary>
   /// Generator factory.
   /// </summary>
-  public sealed class KeyGeneratorFactory : Providers.KeyGeneratorFactory
+  public sealed class KeyGeneratorFactory : Sql.KeyGeneratorFactory
   {
     /// <inheritdoc/>
     /// <exception cref="DomainBuilderException"><c>DomainBuilderException</c>.</exception>
     protected override KeyGenerator CreateGenerator<TFieldType>(GeneratorInfo generatorInfo)
     {
-      var dh = (DomainHandler)Handlers.DomainHandler;
+      var dh = (DomainHandler) Handlers.DomainHandler;
       var schema = dh.Schema;
       var columnType = dh.ValueTypeMapper.BuildSqlValueType(generatorInfo.TupleDescriptor[0], 0);
 

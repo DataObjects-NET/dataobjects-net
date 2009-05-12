@@ -63,7 +63,24 @@ namespace Xtensive.Storage.Providers
       result.Handlers = Handlers;
       return result;
     }
+    
+    /// <summary>
+    /// Determines whether specific generator requires corresponding object in schema.
+    /// </summary>
+    /// <param name="generatorInfo">The generator info.</param>
+    /// <returns>
+    /// <see langword="true"/> if generator requires corresponding object in schema.
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public abstract bool IsSchemaBoundGenerator(GeneratorInfo generatorInfo);
 
+    /// <summary>
+    /// Creates the generator.
+    /// </summary>
+    /// <typeparam name="TFieldType">The type of the field.</typeparam>
+    /// <param name="generatorInfo">The generator info.</param>
+    /// <returns>Newly created <see cref="KeyGenerator"/>.</returns>
     protected abstract KeyGenerator CreateGenerator<TFieldType>(GeneratorInfo generatorInfo);
+
   }
 }

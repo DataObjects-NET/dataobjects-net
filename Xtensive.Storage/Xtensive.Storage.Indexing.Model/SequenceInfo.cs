@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <summary>
     /// Gets or sets the type.
     /// </summary>
-    [Property]
+    [Property(IgnoreInComparison = true)]
     public TypeInfo Type
     {
       get { return type; }

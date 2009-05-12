@@ -26,6 +26,8 @@ namespace Xtensive.Storage.Providers
     public virtual StorageInfo GetTargetSchema()
     {
       var buildingContext = BuildingContext.Current;
+      var generatorFactory = Handlers.HandlerFactory.CreateHandler<KeyGeneratorFactory>();
+
       var buildForeignKeys =
         (buildingContext.Configuration.ForeignKeyMode
           & ForeignKeyMode.Reference) > 0;
@@ -36,9 +38,9 @@ namespace Xtensive.Storage.Providers
       var domainModelConverter = new DomainModelConverter(
         buildForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName,
         buildHierarchyForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName,
-        IsSchemaBoundGenerator);
+         generatorFactory.IsSchemaBoundGenerator);
 
-      return domainModelConverter.Convert(buildingContext.Model, "Model");
+      return domainModelConverter.Convert(buildingContext.Model);
     }
 
     /// <summary>
@@ -55,17 +57,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="targetSchema">The target schema.</param>
     public abstract void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema);
     
-    /// <summary>
-    /// Determines whether specific generator requires corresponding object in schema.
-    /// </summary>
-    /// <param name="generatorInfo">The generator info.</param>
-    /// <returns>
-    /// <see langword="true"/> if generator requires corresponding object in schema.
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    protected abstract bool IsSchemaBoundGenerator(GeneratorInfo generatorInfo);
     
-
     // Initialization
 
     /// <inheritdoc/>

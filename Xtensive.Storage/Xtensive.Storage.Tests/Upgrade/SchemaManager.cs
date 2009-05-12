@@ -30,6 +30,18 @@ namespace Xtensive.Storage.Tests.Upgrade
     private readonly string url;
     private readonly bool isSequencesAllowed;
     private ServerInfo serverInfo;
+    private SqlDriver driver;
+
+    public SqlDriver Driver
+    {
+      get
+      {
+        if (driver==null)
+          driver = new SqlConnectionProvider()
+            .CreateConnection(url).Driver as SqlDriver;
+        return driver;
+      }
+    }
 
     public void ClearSchema()
     {
@@ -294,9 +306,27 @@ namespace Xtensive.Storage.Tests.Upgrade
       if (serverInfo == null)
         Execute((c) => { serverInfo = c.Driver.ServerInfo; });
 
-      var converter = new SqlModelConverter(schema, serverInfo);
+      var converter = new SqlModelConverter(schema, ExecuteScalar, ConvertType);
       return converter.GetConversionResult();
     }
+
+    private TypeInfo ConvertType(SqlValueType valueType)
+    {
+      var nativeType = Driver.Translator.Translate(valueType);
+
+      var dataType = 
+        Driver.ServerInfo.DataTypes[nativeType] 
+        ?? Driver.ServerInfo.DataTypes[valueType.DataType];
+      
+      var streamType = dataType as StreamDataTypeInfo;
+      var length =
+        streamType!=null && valueType.Size==streamType.Length.MaxValue
+          ? 0
+          : valueType.Size;
+      
+      return new TypeInfo(dataType.Type, length);
+    }
+
 
     private void Execute(SqlBatch batch)
     {
@@ -312,6 +342,20 @@ namespace Xtensive.Storage.Tests.Upgrade
           command.Transaction = transaction;
           command.ExecuteNonQuery();
           transaction.Commit();
+        }
+      }
+    }
+
+    private object ExecuteScalar(ISqlCompileUnit batch)
+    {
+      using (var connection = new SqlConnectionProvider().CreateConnection(url)) {
+        connection.Open();
+        using (var transaction = connection.BeginTransaction())
+        using (var command = new SqlCommand(connection as SqlConnection)) {
+          command.Statement = batch;
+          command.Prepare();
+          command.Transaction = transaction;
+          return command.ExecuteScalar();
         }
       }
     }

@@ -157,6 +157,7 @@ namespace Xtensive.Storage.Building.Definitions
     public FieldAttributes Attributes
     {
       get { return attributes; }
+      internal set { attributes = value; }
     }
 
     /// <summary>

@@ -8,8 +8,6 @@ using System;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
-using Xtensive.Storage.Model;
-using Xtensive.Storage.Model.Conversion;
 using Xtensive.Storage.Providers.Index;
 
 namespace Xtensive.Storage.Providers.Memory
@@ -39,12 +37,6 @@ namespace Xtensive.Storage.Providers.Memory
     {
       StorageView.ClearSchema();
       StorageView.CreateNewSchema(targetSchema);
-    }
-
-    /// <inheritdoc/>
-    protected override bool IsSchemaBoundGenerator(GeneratorInfo generatorInfo)
-    {
-      return false;
     }
   }
 }

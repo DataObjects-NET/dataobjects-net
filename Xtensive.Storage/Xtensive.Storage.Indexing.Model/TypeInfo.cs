@@ -61,6 +61,7 @@ namespace Xtensive.Storage.Indexing.Model
 
     #region Implementation of ICloneable
 
+    /// <inheritdoc/>
     public object Clone()
     {
       var clone = new TypeInfo(Type, IsNullable);
@@ -75,6 +76,7 @@ namespace Xtensive.Storage.Indexing.Model
 
     #region Equality members
 
+    /// <inheritdoc/>
     public bool Equals(TypeInfo other)
     {
       if (ReferenceEquals(null, other))

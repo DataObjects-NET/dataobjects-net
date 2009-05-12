@@ -75,10 +75,9 @@ namespace Xtensive.Storage.Model.Conversion
     /// <param name="domainModel">The domain model.</param>
     /// <param name="storageName">Name of the storage.</param>
     /// <returns>The storage model.</returns>
-    public StorageInfo Convert(DomainModel domainModel, string storageName)
+    public StorageInfo Convert(DomainModel domainModel)
     {
       ArgumentValidator.EnsureArgumentNotNull(domainModel, "domainModel");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(storageName, "storageName");
       
       StorageInfo = new StorageInfo();
       Model = domainModel;

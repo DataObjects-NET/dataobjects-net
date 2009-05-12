@@ -4,12 +4,16 @@
 // Created by: Ivan Galkin
 // Created:    2009.04.29
 
+using System;
 using NUnit.Framework;
 using System.Linq;
-using Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.OldModel;
-using Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.NewModel;
+using Xtensive.Core.Disposing;
+using Xtensive.Core.Helpers;
+using Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.Model.Version1;
+using Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.Model.Version2;
+using Xtensive.Storage.Upgrade;
 
-namespace Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.OldModel
+namespace Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.Model.Version1
 {
   [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class Order : Entity
@@ -34,7 +38,7 @@ namespace Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.OldModel
   }
 }
 
-namespace Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.NewModel
+namespace Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.Model.Version2
 {
   [HierarchyRoot(typeof(KeyGenerator), "Id")]
   public class Order : Entity
@@ -60,42 +64,107 @@ namespace Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.NewModel
   }
 }
 
+namespace Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade
+{
+  public class TestUpgradeHandler : UpgradeHandler
+  {
+    private static bool isEnabled = false;
+    private static string runningVersion;
+
+    /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
+    public static IDisposable Enable(string version)
+    {
+      if (isEnabled)
+        throw new InvalidOperationException();
+      isEnabled = true;
+      runningVersion = version;
+      return new Disposable(_ => {
+        isEnabled = false;
+        runningVersion = null;
+      });
+    }
+
+    public override bool IsEnabled
+    {
+      get { return isEnabled; }
+    }
+
+    protected override string DetectAssemblyVersion()
+    {
+      return runningVersion;
+    }
+
+    public override bool CanUpgradeFrom(string oldVersion)
+    {
+      return oldVersion == null || double.Parse(oldVersion) <= double.Parse(runningVersion);
+    }
+
+    public override void OnUpgrade()
+    {
+    }
+
+    public override bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)
+    {
+      string suffix = ".Version" + runningVersion;
+      var originalNamespace = type.Namespace;
+      var nameSpace = originalNamespace.TryCutSuffix(suffix);
+      return nameSpace != originalNamespace
+        && base.IsTypeAvailable(type, upgradeStage);
+    }
+
+    public override string GetTypeName(Type type)
+    {
+      string suffix = ".Version" + runningVersion;
+      var nameSpace = type.Namespace.TryCutSuffix(suffix);
+      return nameSpace + type.Name;
+    }
+  }
+}
+
 namespace Xtensive.Storage.Tests.Upgrade
 {
-  using OldOrder = ForeignKeyUpgrade.OldModel.Order;
-  using NewOrder = ForeignKeyUpgrade.NewModel.Order;
-  using Building;
+  using OldOrder = ForeignKeyUpgrade.Model.Version1.Order;
+  using NewOrder = ForeignKeyUpgrade.Model.Version2.Order;
+  using System.Reflection;
   
   [TestFixture]
-  public class ForeignKeyUpgradeTest : UpgradeTestBase
+  public class ForeignKeyUpgradeTest
   {
-
+    private Domain BuildDomain(string @namespace, string version, DomainUpgradeMode mode)
+    {
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.Types.Register(Assembly.GetExecutingAssembly(), @namespace);
+      configuration.UpgradeMode = mode;
+      Domain domain;
+      using (ForeignKeyUpgrade.TestUpgradeHandler.Enable(version)) {
+        domain = Domain.Build(configuration);
+      }
+      return domain;
+    }
+    
     [Test]
     public void SetReferencingFieldToDefaultTest()
     {
-      BuildDomain(SchemaUpgradeMode.Recreate, typeof(OldOrder), typeof(Person));
-
-      using (Domain.OpenSession()) {
+      var domain = BuildDomain(typeof (OldOrder).Namespace, "1", DomainUpgradeMode.Recreate);
+      using (domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
-          
           var person = new Person {Name = "Person1"};
-
           new OldOrder {Consumer = person};
           new OldOrder {Consumer = person};
-          
           transactionScope.Complete();
         }
       }
-      
-      BuildDomain(SchemaUpgradeMode.Perform, typeof(NewOrder), typeof(Company));
+      domain.DisposeSafely();
 
-      using (Domain.OpenSession()) {
+      domain = BuildDomain(typeof(NewOrder).Namespace, "2", DomainUpgradeMode.Perform);
+      using (domain.OpenSession()) {
         using (Transaction.Open()) {          
           Assert.AreEqual(2, Query<NewOrder>.All.Count());          
           foreach (var order in Query<NewOrder>.All) 
             Assert.IsNull(order.Consumer);
         }
       }
+      domain.DisposeSafely();
     }
   }
 }

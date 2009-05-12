@@ -44,10 +44,10 @@ namespace Xtensive.Storage.Building
     public override string ToString()
     {
       return string.Format(Strings.SchemaComparisonResultFormat,
-        Status, 
-        Hints.ToString().Indent(2), 
-        Difference.ToString().Indent(2), 
-        UpgradeActions.ToString().Indent(2));
+        Status,
+        Hints!=null ? Hints.ToString().Indent(2) : string.Empty,
+        Difference!=null ? Difference.ToString().Indent(2) : string.Empty,
+        UpgradeActions!=null ? UpgradeActions.ToString().Indent(2) : string.Empty);
     }
 
 

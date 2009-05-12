@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <summary>
     /// Gets sequences.
     /// </summary>
-    [Property(IsImmutable = true)]
+    [Property]
     public SequenceInfoCollection Sequences { get; private set; }
 
     /// <inheritdoc/>

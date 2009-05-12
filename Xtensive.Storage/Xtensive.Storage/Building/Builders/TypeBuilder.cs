@@ -314,6 +314,10 @@ namespace Xtensive.Storage.Building.Builders
     private static void BuildKeyField(TypeDef typeDef, KeyField keyField, TypeInfo type)
     {
       var srcFieldDef = typeDef.Fields[keyField.Name];
+      srcFieldDef.Attributes |= FieldAttributes.PrimaryKey;
+      if ((srcFieldDef.Attributes & FieldAttributes.Nullable) != 0)
+        srcFieldDef.Attributes ^= FieldAttributes.Nullable;
+
       FieldBuilder.BuildDeclaredField(type, srcFieldDef);
       var field = type.Fields[srcFieldDef.Name];
       field.IsPrimaryKey = true;

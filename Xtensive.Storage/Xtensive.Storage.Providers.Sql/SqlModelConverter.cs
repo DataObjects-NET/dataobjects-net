@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Sql.Common;
+using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Indexing.Model;
 using SqlModel = Xtensive.Sql.Dom.Database.Model;
@@ -21,8 +22,10 @@ using IndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
 using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
 using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
 using Node = Xtensive.Sql.Dom.Database.Node;
-using SequenceInfo=Xtensive.Storage.Indexing.Model.SequenceInfo;
+using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
+using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
+
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -37,9 +40,14 @@ namespace Xtensive.Storage.Providers.Sql
     protected StorageInfo StorageInfo { get; private set; }
 
     /// <summary>
-    /// Gets the server info.
+    /// Gets the key fetcher.
     /// </summary>
-    protected ServerInfo Server { get; private set; }
+    protected Func<ISqlCompileUnit, object> CommandExecutor { get; private set; }
+
+    /// <summary>
+    /// Gets the type converter.
+    /// </summary>
+    protected Func<SqlValueType, TypeInfo> ValueTypeConverter { get; private set; }
 
     /// <summary>
     /// Gets the schema.
@@ -190,7 +198,7 @@ namespace Xtensive.Storage.Providers.Sql
       var startValue = idColumn.SequenceDescriptor.StartValue;
       var increment = idColumn.SequenceDescriptor.Increment;
       var type = ExtractType(idColumn);
-      var currentValue = 0; // TODO: Get current key value from storage
+      var currentValue = GetNextGeneratorValue(generatorTable.Name);
       var sequence =
         new SequenceInfo(StorageInfo, generatorTable.Name) {
           StartValue = startValue ?? 0,
@@ -209,19 +217,16 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>Data type.</returns>
     protected virtual TypeInfo ExtractType(TableColumn column)
     {
-      var dataType = ConvertType(column.DataType.DataType);
-      var columnType = column.IsNullable
-        && dataType.IsValueType
-          && !dataType.IsNullable()
-        ? dataType.ToNullable()
-        : dataType;
+      var typeInfo = ValueTypeConverter.Invoke(column.DataType);
 
-      return new TypeInfo(
-        columnType,
-        column.IsNullable,
-        column.DataType.Size,
-        column.DataType.Scale,
-        column.DataType.Precision);
+      if (column.IsNullable) {
+        if (typeInfo.Type.IsValueType
+          && !typeInfo.Type.IsNullable())
+          typeInfo = new TypeInfo(typeInfo.Type.ToNullable(), true, typeInfo.Length);
+        else
+          typeInfo = new TypeInfo(typeInfo.Type, true, typeInfo.Length);
+      }
+      return typeInfo;
     }
 
     /// <summary>
@@ -246,16 +251,6 @@ namespace Xtensive.Storage.Providers.Sql
       default:
         return ReferentialAction.Default;
       }
-    }
-
-    /// <summary>
-    /// Converts the <see cref="SqlDataType"/> to <see cref="Type"/>.
-    /// </summary>
-    /// <param name="toConvert"><see cref="SqlDataType"/> to convert.</param>
-    /// <returns>Converted type.</returns>
-    protected virtual Type ConvertType(SqlDataType toConvert)
-    {
-      return Server.DataTypes[toConvert].Type;
     }
 
     /// <summary>
@@ -295,6 +290,28 @@ namespace Xtensive.Storage.Providers.Sql
         table.TableColumns[0].SequenceDescriptor!=null;
     }
 
+    /// <summary>
+    /// Gets the next generator value.
+    /// </summary>
+    /// <param name="generatorName">Name of the generator.</param>
+    /// <returns>Next value.</returns>
+    protected virtual long GetNextGeneratorValue(string generatorName)
+    {
+      var generatorTable = Schema.Tables[generatorName];
+
+      SqlBatch sqlNext = SqlFactory.Batch();
+      SqlInsert insert = SqlFactory.Insert(SqlFactory.TableRef(generatorTable));
+      sqlNext.Add(insert);
+      SqlSelect select = SqlFactory.Select();
+      select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall("SCOPE_IDENTITY"), 
+        SqlDataType.Int64));
+      sqlNext.Add(select);
+      SqlDelete delete = SqlFactory.Delete(SqlFactory.TableRef(generatorTable));
+      sqlNext.Add(delete);
+
+      return (long) CommandExecutor.Invoke(sqlNext);
+    }
+
 
     // Constructor
 
@@ -302,13 +319,17 @@ namespace Xtensive.Storage.Providers.Sql
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="storageSchema">The schema.</param>
-    /// <param name="serverInfo">The server info.</param>
-    public SqlModelConverter(Schema storageSchema, ServerInfo serverInfo)
+    /// <param name="commandExecutor">The key fetcher.</param>
+    /// <param name="valueTypeConverter">The value type converter.</param>
+    public SqlModelConverter(Schema storageSchema, Func<ISqlCompileUnit, object> commandExecutor, 
+      Func<SqlValueType, TypeInfo> valueTypeConverter)
     {
       ArgumentValidator.EnsureArgumentNotNull(storageSchema, "schema");
-      ArgumentValidator.EnsureArgumentNotNull(serverInfo, "server");
+      ArgumentValidator.EnsureArgumentNotNull(commandExecutor, "commandExecutor");
+      ArgumentValidator.EnsureArgumentNotNull(valueTypeConverter, "valueTypeConverter");
       
-      Server = serverInfo;
+      CommandExecutor = commandExecutor;
+      ValueTypeConverter = valueTypeConverter;
       Schema = storageSchema;
     }
 

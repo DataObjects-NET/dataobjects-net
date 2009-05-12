@@ -79,6 +79,40 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   }
 }
 
+namespace Xtensive.Storage.Tests.Upgrade.Model.Version3
+{
+  [HierarchyRoot(typeof (KeyGenerator), "Id")]
+  public class Person : Entity
+  {
+    [Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public string Name  { get; set;}
+
+    [Field]
+    public string City { get; set; }
+
+    [Field]
+    public Address Address { get; set; }
+  }
+
+  [HierarchyRoot("Person")]
+  public class Address : Entity
+  {
+    [Field]
+    public Person Person { get; private set; }
+
+    [Field]
+    public string City { get; set;}
+
+    public Address(Person person)
+      : base(Tuple.Create(person.Id))
+    {
+    }
+  }
+}
+
 namespace Xtensive.Storage.Tests.Upgrade
 {
   public class TestUpgradeHandler : UpgradeHandler
@@ -119,24 +153,23 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       base.AddUpgradeHints();
       var context = UpgradeContext.Current;
-      if (runningVersion!="2")
-        return;
-      // TODO: Uncomment this when rename hints will work
-      context.Hints.Add(new RenameTypeHint(
-        typeof (Model.Version2.Contact), 
-        "Xtensive.Storage.Tests.Upgrade.ModelPerson"));
-      context.Hints.Add(new RenameNodeHint(
-        "Tables/Contact",
-        "Tables/Person"));
-      context.Hints.Add(new RenameNodeHint(
-        "Tables/Contact/Columns/FullName",
-        "Tables/Person/Columns/Name"));
-      context.Hints.Add(new RenameNodeHint(
-        "Tables/Contact/Columns/Address.Contact.Id",
-        "Tables/Person/Columns/Address.Person.Id"));
-      context.Hints.Add(new RenameNodeHint(
-        "Tables/Address/Columns/Contact.Id",
-        "Tables/Address/Columns/Person.Id"));
+      if (runningVersion == "2") {
+        context.Hints.Add(new RenameTypeHint(
+          typeof (Model.Version2.Contact),
+          "Xtensive.Storage.Tests.Upgrade.ModelPerson"));
+        context.Hints.Add(new RenameNodeHint(
+          "Tables/Contact",
+          "Tables/Person"));
+        context.Hints.Add(new RenameNodeHint(
+          "Tables/Contact/Columns/FullName",
+          "Tables/Person/Columns/Name"));
+        context.Hints.Add(new RenameNodeHint(
+          "Tables/Contact/Columns/Address.Contact.Id",
+          "Tables/Person/Columns/Address.Person.Id"));
+        context.Hints.Add(new RenameNodeHint(
+          "Tables/Address/Columns/Contact.Id",
+          "Tables/Address/Columns/Person.Id"));
+      }
     }
 
     public override void OnUpgrade()
@@ -177,18 +210,8 @@ namespace Xtensive.Storage.Tests.Upgrade
     [Test]
     public void MainTest()
     {
-      BuildFirstModel();
-      BuildSecondDomain();
-    }
-
-    private void BuildFirstModel()
-    {
-      var dc = GetConfiguration(typeof(Model.Version1.Person));
-      dc.UpgradeMode = DomainUpgradeMode.Recreate;
-      Domain domain;
-      using (TestUpgradeHandler.Enable("1")) {
-        domain = Domain.Build(dc);
-      }
+      // Version = 1
+      var domain = BuildFirstDomain(128, DomainUpgradeMode.Recreate);
       using (domain.OpenSession()) {        
         using (var ts = Transaction.Open()) {
           assemblyTypeId = domain.Model.Types[typeof (Metadata.Assembly)].TypeId;
@@ -200,16 +223,10 @@ namespace Xtensive.Storage.Tests.Upgrade
           ts.Complete();
         }
       }
-    }
+      domain.DisposeSafely();
 
-    private void BuildSecondDomain()
-    {
-      var dc = GetConfiguration(typeof(Model.Version2.Contact));
-      dc.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      Domain domain;
-      using (TestUpgradeHandler.Enable("2")) {
-        domain = Domain.Build(dc);
-      }
+      // Version = 2
+      domain = BuildSecondDomain();
       using (domain.OpenSession()) {
         using (var ts = Transaction.Open()) {
           Assert.AreEqual(assemblyTypeId, domain.Model.Types[typeof (Metadata.Assembly)].TypeId);
@@ -231,6 +248,74 @@ namespace Xtensive.Storage.Tests.Upgrade
           ts.Complete();
         }
       }
+    }
+
+    [Test]
+    public void GeneratorsTest()
+    {
+      int id1;
+      int id2;
+
+      // Version = 1
+      var domain = BuildFirstDomain(1, DomainUpgradeMode.Recreate);
+      using (domain.OpenSession()) {        
+        using (var ts = Transaction.Open()) {
+          assemblyTypeId = domain.Model.Types[typeof (Metadata.Assembly)].TypeId;
+          personTypeId = domain.Model.Types[typeof (Model.Version1.Person)].TypeId;
+          var p1 = new Model.Version1.Person {Name = "Gaurav"};
+          new Model.Version1.Person {Name = "Gaurav"};
+          id1 = p1.Id;
+          ts.Complete();
+        }
+      }
+      domain.DisposeSafely();
+
+      // Version = 2
+      domain = BuildFirstDomain(2, DomainUpgradeMode.Perform);
+      using (domain.OpenSession()) {        
+        using (var ts = Transaction.Open()) {
+          assemblyTypeId = domain.Model.Types[typeof (Metadata.Assembly)].TypeId;
+          personTypeId = domain.Model.Types[typeof (Model.Version1.Person)].TypeId;
+          var p1 = new Model.Version1.Person {Name = "Gaurav"};
+          id2 = p1.Id;
+          ts.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void ColumnTypesTest()
+    {
+      var type = typeof (Storage.DbTypeSupportModel.X);
+      var configuration = GetConfiguration(type);
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      Domain.Build(configuration);
+      configuration = configuration.Clone();
+      configuration.UpgradeMode = DomainUpgradeMode.Perform;
+      Domain.Build(configuration);
+    }
+    
+    private Domain BuildFirstDomain(int generatorCacheSize, DomainUpgradeMode mode)
+    {
+      var dc = GetConfiguration(typeof(Model.Version1.Person));
+      dc.UpgradeMode = mode;
+      dc.KeyGeneratorCacheSize = generatorCacheSize;
+      Domain domain;
+      using (TestUpgradeHandler.Enable("1")) {
+        domain = Domain.Build(dc);
+      }
+      return domain;
+    }
+
+    private Domain BuildSecondDomain()
+    {
+      var dc = GetConfiguration(typeof(Model.Version2.Contact));
+      dc.UpgradeMode = DomainUpgradeMode.PerformSafely;
+      Domain domain;
+      using (TestUpgradeHandler.Enable("2")) {
+        domain = Domain.Build(dc);
+      }
+      return domain;
     }
   }
 }

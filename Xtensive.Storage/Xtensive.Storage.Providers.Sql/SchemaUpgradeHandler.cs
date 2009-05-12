@@ -54,12 +54,6 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override bool IsSchemaBoundGenerator(GeneratorInfo generatorInfo)
-    {
-      return false;
-    }
-
-    /// <inheritdoc/>
     public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema)
     {
       ClearStorageSchema();

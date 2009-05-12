@@ -5,13 +5,14 @@
 // Created:    2009.04.08
 
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using Xtensive.Modelling.Actions;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Sql.Dom;
+using Xtensive.Storage.Building;
+using Xtensive.Sql.Common;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
@@ -47,18 +48,27 @@ namespace Xtensive.Storage.Providers.MsSql
     public override StorageInfo GetExtractedSchema()
     {
       var schema = ExtractStorageSchema();
-      var serverInfo = Connection.Driver.ServerInfo;
-      var converter = new SqlModelConverter(schema, serverInfo);
+      var sessionHandeler = (SessionHandler) BuildingContext.Demand().SystemSessionHandler;
+      var converter = new SqlModelConverter(schema, sessionHandeler.ExecuteScalar, ConvertType);
       return converter.GetConversionResult();
     }
 
-    /// <inheritdoc/>
-    protected override bool IsSchemaBoundGenerator(GeneratorInfo generatorInfo)
+    private static TypeInfo ConvertType(SqlValueType valueType)
     {
-      // TODO: Replace this to KeyGeneratorFactory ?
-      return generatorInfo.KeyGeneratorType==typeof (KeyGenerator)
-        && (Type.GetTypeCode(generatorInfo.KeyGeneratorType)!=TypeCode.Object
-          || generatorInfo.TupleDescriptor[0]!=typeof (Guid));
+      // var typeMapper = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper;
+      var sessionHandeler = (SessionHandler) BuildingContext.Demand().SystemSessionHandler;
+      var dataTypes = sessionHandeler.Connection.Driver.ServerInfo.DataTypes;
+      var nativeType = sessionHandeler.Connection.Driver.Translator.Translate(valueType);
+
+      var dataType = dataTypes[nativeType] ?? dataTypes[valueType.DataType];
+      
+      var streamType = dataType as StreamDataTypeInfo;
+      var length =
+        streamType!=null && valueType.Size==streamType.Length.MaxValue
+          ? 0
+          : valueType.Size;
+      
+      return new TypeInfo(dataType.Type, false, length);
     }
 
     private string GenerateUpgradeScript(ActionSequence actions, StorageInfo sourceSchema, StorageInfo targetSchema)

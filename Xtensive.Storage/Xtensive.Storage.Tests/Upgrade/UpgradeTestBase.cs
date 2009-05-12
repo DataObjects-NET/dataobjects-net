@@ -35,6 +35,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       typeRegistrator.Invoke(configuration.Types);
+      
       Domain = DomainBuilder.BuildDomain(configuration, schemaUpgradeMode);
     }
   }

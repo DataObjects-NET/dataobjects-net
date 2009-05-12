@@ -15,6 +15,12 @@ namespace Xtensive.Storage.Providers.Index
   public class KeyGeneratorFactory : Providers.KeyGeneratorFactory
   {
     /// <inheritdoc/>
+    public override bool IsSchemaBoundGenerator(GeneratorInfo generatorInfo)
+    {
+      return false;
+    }
+
+    /// <inheritdoc/>
     protected override KeyGenerator CreateGenerator<TFieldType>(GeneratorInfo generatorInfo)
     {
       return new IncrementalKeyGenerator<TFieldType>(generatorInfo);
