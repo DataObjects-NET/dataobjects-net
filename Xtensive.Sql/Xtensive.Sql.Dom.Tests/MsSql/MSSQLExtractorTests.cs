@@ -144,6 +144,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     }
   }
 
+  [TestFixture]
   public class MSSQLExtractor_TestColumnTypeExtraction : MSSQLExtractorTestBase
   {
     public override string CleanUpScript

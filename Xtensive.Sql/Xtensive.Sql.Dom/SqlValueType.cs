@@ -165,11 +165,12 @@ namespace Xtensive.Sql.Dom
       if (scale>precision)
         throw new ArgumentException(Strings.ExTheScaleMustBeLessThanOrEqualToPrecision);
 
-      if (dataType!=SqlDataType.Float && dataType!=SqlDataType.Decimal && dataType!=SqlDataType.Double) {
+      if (dataType!=SqlDataType.Float && dataType!=SqlDataType.Decimal 
+        && dataType!=SqlDataType.Double && dataType!=SqlDataType.Money) {
         scale = 0;
         precision = 0;
       }
-      else if (dataType!=SqlDataType.Decimal)
+      else if (dataType!=SqlDataType.Decimal && dataType!=SqlDataType.Money)
         scale = 0;
 
       this.dataType = dataType;

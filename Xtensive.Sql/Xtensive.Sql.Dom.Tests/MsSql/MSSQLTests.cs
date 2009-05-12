@@ -123,7 +123,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     public override void SetUp()
     {
       sqlDriver = new MssqlDriver(new MssqlVersionInfo(new Version(9, 0)));
-      sqlConnection = sqlDriver.CreateConnection(new ConnectionInfo(@"mssql2005://localhost\sql2005/AdventureWorks")) as SqlConnection;
+      sqlConnection = sqlDriver.CreateConnection(new ConnectionInfo(@"mssql2005://localhost/AdventureWorks")) as SqlConnection;
 
       /*
       SqlConnectionProvider provider = new SqlConnectionProvider();
