@@ -30,9 +30,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleEntityGroupTest()
     {
-      var result = Query<Product>.All.GroupBy(p => p).OrderBy(g=>g.Key);
+      var result = Query<Product>.All.GroupBy(p => p).OrderBy(g => g.Key);
       var resultList = result.ToList();
-      var expectedList = Query<Product>.All.AsEnumerable().GroupBy(p => p).OrderBy(g=>g.Key).ToList();
+      var expectedList = Query<Product>.All.AsEnumerable().GroupBy(p => p).OrderBy(g => g.Key).ToList();
       Assert.AreEqual(resultList.Count, expectedList.Count());
       for (int i = 0; i < resultList.Count; i++) {
         Assert.AreEqual(expectedList[i].Key, resultList[i].Key);
@@ -45,29 +45,85 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntityGroupTest()
     {
-      var result = Query<Product>.All.GroupBy(p => p.Category);
-      DumpGrouping(result);
+      var groupByResult = Query<Product>.All.GroupBy(p => p.Category);
+      IEnumerable<Category> result = groupByResult
+        .AsEnumerable()
+        .Select(g => g.Key);
+      IEnumerable<Category> expectedKeys = Query<Product>.All
+        .Select(p => p.Category)
+        .Distinct()
+        .AsEnumerable();
+      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      foreach (var grouping in groupByResult) {
+        var items = Query<Product>.All
+          .Where(product => product.Category==grouping.Key)
+          .AsEnumerable();
+        Assert.AreEqual(0, items.Except(grouping).Count());
+      }
+      DumpGrouping(groupByResult);
     }
 
     [Test]
     public void EntityKeyGroupTest()
     {
-      var result = Query<Product>.All.GroupBy(p => p.Category.Key);
-      DumpGrouping(result);
+      var groupByResult = Query<Product>.All.GroupBy(p => p.Category.Key);
+      var result = groupByResult
+        .AsEnumerable()
+        .Select(g => g.Key);
+      var expectedKeys = Query<Product>.All
+        .Select(p => p.Category.Key)
+        .Distinct()
+        .AsEnumerable();
+      foreach (var grouping in groupByResult) {
+        var items = Query<Product>.All
+          .Where(product => product.Category.Key==grouping.Key)
+          .AsEnumerable();
+        Assert.AreEqual(0, items.Except(grouping).Count());
+      }
+      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      DumpGrouping(groupByResult);
     }
 
     [Test]
     public void EntityFieldGroupTest()
     {
-      var result = Query<Product>.All.GroupBy(p => p.Category.CategoryName);
-      DumpGrouping(result);
+      var groupByResult = Query<Product>.All.GroupBy(p => p.Category.CategoryName);
+      var result = groupByResult
+        .AsEnumerable()
+        .Select(g => g.Key);
+      var expectedKeys = Query<Product>.All
+        .Select(p => p.Category.CategoryName)
+        .Distinct()
+        .AsEnumerable();
+      foreach (var grouping in groupByResult) {
+        var items = Query<Product>.All
+          .Where(product => product.Category.CategoryName==grouping.Key)
+          .AsEnumerable();
+        Assert.AreEqual(0, items.Except(grouping).Count());
+      }
+      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      DumpGrouping(groupByResult);
     }
 
     [Test]
     public void StructureGroupTest()
     {
-      var result = Query<Customer>.All.GroupBy(p => p.Address);
-      DumpGrouping(result);
+      var groupByResult = Query<Customer>.All.GroupBy(customer => customer.Address);
+      var result = groupByResult
+        .AsEnumerable()
+        .Select(g => g.Key);
+      var expectedKeys = Query<Customer>.All
+        .Select(customer => customer.Address)
+        .Distinct()
+        .AsEnumerable();
+      foreach (var grouping in groupByResult) {
+        var items = Query<Customer>.All
+          .Where(customer => customer.Address==grouping.Key)
+          .AsEnumerable();
+        Assert.AreEqual(0, items.Except(grouping).Count());
+      }
+      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      DumpGrouping(groupByResult);
     }
 
 
@@ -83,80 +139,234 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnonymousTypeGroupTest()
     {
-      var result = Query<Customer>.All.GroupBy(c => new {c.Address.City, c.Address.Country});
-      DumpGrouping(result);
+      var groupByResult = Query<Customer>.All.GroupBy(customer => new {customer.Address.City, customer.Address.Country});
+      var result = groupByResult
+        .AsEnumerable()
+        .Select(g => g.Key);
+      var expectedKeys = Query<Customer>.All
+        .Select(customer => new {customer.Address.City, customer.Address.Country})
+        .Distinct()
+        .AsEnumerable();
+      foreach (var grouping in groupByResult) {
+        var items = Query<Customer>.All
+          .Where(customer => new {customer.Address.City, customer.Address.Country}==grouping.Key)
+          .AsEnumerable();
+        Assert.AreEqual(0, items.Except(grouping).Count());
+      }
+      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      DumpGrouping(groupByResult);
     }
 
     [Test]
     public void AnonymousTypeEntityAndStructureGroupTest()
     {
-      var result = Query<Employee>.All.GroupBy(e => new {e.Address});
-      DumpGrouping(result);
+      var groupByResult = Query<Employee>.All.GroupBy(employee => new {employee.Address});
+      var result = groupByResult
+        .AsEnumerable()
+        .Select(g => g.Key);
+      var expectedKeys = Query<Employee>.All
+        .Select(employee => new {employee.Address})
+        .Distinct()
+        .AsEnumerable();
+      foreach (var grouping in groupByResult) {
+        var items = Query<Employee>.All
+          .Where(employee => new {employee.Address}==grouping.Key)
+          .AsEnumerable();
+        Assert.AreEqual(0, items.Except(grouping).Count());
+      }
+      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      DumpGrouping(groupByResult);
     }
 
     [Test]
     public void AnonymousStructureGroupTest()
     {
-      var result = Query<Customer>.All.GroupBy(p => new {p.Address});
-      DumpGrouping(result);
+      var groupByResult = Query<Customer>.All.GroupBy(customer => new {customer.Address});
+      var result = groupByResult
+        .AsEnumerable()
+        .Select(g => g.Key);
+      var expectedKeys = Query<Customer>.All
+        .Select(customer => new {customer.Address})
+        .Distinct()
+        .AsEnumerable();
+      foreach (var grouping in groupByResult) {
+        var items = Query<Customer>.All
+          .Where(customer => new {customer.Address}==grouping.Key)
+          .AsEnumerable();
+        Assert.AreEqual(0, items.Except(grouping).Count());
+      }
+      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      DumpGrouping(groupByResult);
     }
 
     [Test]
     public void AnonymousTypeEntityAndFieldTest()
     {
-      var result = Query<Product>.All.GroupBy(product => new {
+      var groupByResult = Query<Product>.All.GroupBy(product => new {
         product.Category,
         product.Category.CategoryName,
       });
-      DumpGrouping(result);
+      var result = groupByResult
+        .AsEnumerable()
+        .Select(g => g.Key);
+      var expectedKeys = Query<Product>.All
+        .Select(product => new {
+          product.Category,
+          product.Category.CategoryName,
+        })
+        .Distinct()
+        .AsEnumerable();
+      foreach (var grouping in groupByResult) {
+        var items = Query<Product>.All
+          .Where(product => new {
+            product.Category,
+            product.Category.CategoryName,
+          }==grouping.Key)
+          .AsEnumerable();
+        Assert.AreEqual(0, items.Except(grouping).Count());
+      }
+      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      DumpGrouping(groupByResult);
     }
 
     [Test]
     public void AnonymousTypeEntityGroupTest()
     {
-      var result = Query<Product>.All.GroupBy(product => new {
-        product.Category,
-      });
-      DumpGrouping(result);
+      var groupByResult = Query<Product>.All.GroupBy(product => new {product.Category});
+      var result = groupByResult
+        .AsEnumerable()
+        .Select(g => g.Key);
+      var expectedKeys = Query<Product>.All
+        .Select(product => new {product.Category})
+        .Distinct()
+        .AsEnumerable();
+      foreach (var grouping in groupByResult) {
+        var items = Query<Product>.All
+          .Where(product => new {product.Category}==grouping.Key)
+          .AsEnumerable();
+        Assert.AreEqual(0, items.Except(grouping).Count());
+      }
+      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      DumpGrouping(groupByResult);
     }
 
 
     [Test]
     public void DefaultTest()
     {
-      var result = Query<Customer>.All.GroupBy(c => c.Address.City);
-      DumpGrouping(result);
+      var groupByResult = Query<Customer>.All.GroupBy(customer => customer.Address.City);
+      var result = groupByResult
+        .AsEnumerable()
+        .Select(g => g.Key);
+      var expectedKeys = Query<Customer>.All
+        .Select(customer => customer.Address.City)
+        .Distinct()
+        .AsEnumerable();
+      foreach (var grouping in groupByResult) {
+        var items = Query<Customer>.All
+          .Where(customer => customer.Address.City==grouping.Key)
+          .AsEnumerable();
+        Assert.AreEqual(0, items.Except(grouping).Count());
+      }
+      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      DumpGrouping(groupByResult);
     }
 
 
     [Test]
     public void FilterGroupingByKeyTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Key.StartsWith("L"));
-      DumpGrouping(result);
+      var groupByResult = Query<Order>.All
+        .GroupBy(order => order.ShippingAddress.City)
+        .Where(grouping => grouping.Key.StartsWith("L"));
+      var result = groupByResult
+        .AsEnumerable()
+        .Select(g => g.Key);
+      var expectedKeys = Query<Order>.All
+        .Select(order => order.ShippingAddress.City)
+        .Where(city => city.StartsWith("L"))
+        .Distinct()
+        .AsEnumerable();
+      foreach (var grouping in groupByResult) {
+        var items = Query<Order>.All
+          .Where(order => order.ShippingAddress.City==grouping.Key)
+          .AsEnumerable();
+        Assert.AreEqual(0, items.Except(grouping).Count());
+      }
+      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      DumpGrouping(groupByResult);
     }
 
     [Test]
     public void FilterGroupingByCountAggregateTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Count() > 1);
-      DumpGrouping(result);
+      var groupByResult = Query<Order>.All
+        .GroupBy(o => o.ShippingAddress.City)
+        .Where(g => g.Count() > 1);
+      var result = groupByResult
+        .AsEnumerable()
+        .Select(g => g.Key);
+      var expectedKeys = Query<Order>.All
+        .Select(order => order.ShippingAddress.City)
+        .Where(city => city.StartsWith("L"))
+        .Distinct()
+        .AsEnumerable();
+      foreach (var grouping in groupByResult) {
+        var items = Query<Order>.All
+          .Where(order => order.ShippingAddress.City==grouping.Key)
+          .AsEnumerable();
+        Assert.AreEqual(0, items.Except(grouping).Count());
+      }
+      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      DumpGrouping(groupByResult);
     }
 
 
     [Test]
     public void FilterGroupingBySumAggregateTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.ShippingAddress.City).Where(g => g.Sum(ord => ord.Freight) > 10);
-      DumpGrouping(result);
+      var queryable = Query<Order>.All.GroupBy(order => order.ShippingAddress.City);
+
+      var groupByResult = queryable.Where(city => city.Sum(ord => ord.Freight) > 10);
+
+      var groupByAlternativeResult = queryable.Where(city => city.Sum(ord => ord.Freight) <= 10);
+
+      Assert.AreEqual(queryable.Count(), groupByResult.Count()  + groupByAlternativeResult.Count());
+
+      foreach (IGrouping<string, Order> grouping in groupByResult) {
+        var sum = grouping.AsEnumerable().Sum(ord => ord.Freight);
+        Assert.IsTrue(sum > 10);
+      }
+
+      foreach (IGrouping<string, Order> grouping in groupByAlternativeResult) {
+        var sum = grouping.AsEnumerable().Sum(ord => ord.Freight);
+        Assert.IsTrue(sum <= 10);
+      }
+
+      DumpGrouping(groupByResult);
     }
 
     [Test]
     public void GroupByWhereTest()
     {
-      var result = Query<Order>.All
-        .GroupBy(o => o.ShippingAddress.City)
-        .Where(g => g.Key.StartsWith("L") && g.Count() > 1);
+      var queryable = Query<Order>.All.GroupBy(o => o.ShippingAddress.City);
+      var result = queryable.Where(g => g.Key.StartsWith("L") && g.Count() > 2);
+      var alternativeResult = queryable.Where(g => !g.Key.StartsWith("L") || g.Count() <= 2);
+
+      Assert.AreEqual(queryable.Count(), result.Count()  + alternativeResult.Count());
+
+      foreach (IGrouping<string, Order> grouping in result) {
+        var startsWithL = grouping.Key.StartsWith("L");
+        var countGreater2 = grouping.AsEnumerable().Count() > 2;
+        Assert.IsTrue(startsWithL && countGreater2);
+      }
+
+      foreach (IGrouping<string, Order> grouping in alternativeResult) {
+        var startsWithL = grouping.Key.StartsWith("L");
+        var countGreater2 = grouping.AsEnumerable().Count() > 2;
+        Assert.IsTrue(!(startsWithL && countGreater2));
+      }
+
       DumpGrouping(result);
     }
 
@@ -172,7 +382,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupBySelectTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.ShipName).Select(g => g);
+      var groupBy = Query<Order>.All.GroupBy(o => o.ShipName);
+      var result = groupBy.Select(g => g);
+      Assert.AreEqual(groupBy.AsEnumerable().Count(), result.AsEnumerable().Count());
       DumpGrouping(result);
     }
 
@@ -180,7 +392,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupBySelectWithAnonymousTest()
     {
-      var result = Query<Order>.All.GroupBy(o => o.ShipName).Select(g => new {g});
+      var groupBy = Query<Order>.All.GroupBy(o => o.ShipName);
+      var result = groupBy.Select(g => new {g});
+      Assert.AreEqual(groupBy.AsEnumerable().Count(), result.AsEnumerable().Count());
       QueryDumper.Dump(result);
     }
 
@@ -188,7 +402,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupBySelectKeyTest()
     {
-      IQueryable<string> result = Query<Order>.All.GroupBy(o => o.ShipName).Select(g => g.Key);
+      var groupBy = Query<Order>.All.GroupBy(o => o.ShipName);
+      IQueryable<string> result = groupBy.Select(g => g.Key);
+      Assert.AreEqual(groupBy.AsEnumerable().Count(), result.AsEnumerable().Count());
       QueryDumper.Dump(result);
     }
 
@@ -236,7 +452,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof (NotSupportedException))]
     public void GroupBySelectManyKeyTest()
     {
       var result = Query<Customer>.All
