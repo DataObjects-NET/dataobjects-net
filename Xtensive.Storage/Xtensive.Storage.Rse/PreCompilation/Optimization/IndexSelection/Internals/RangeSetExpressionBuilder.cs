@@ -236,7 +236,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
         pair => new KeyValuePair<int, Expression>(pair.Key,
           Expression.Call(null, concatMethod, pair.Value,
             Expression.Constant(
-              indexInfo.Columns[pair.Key].CompareOptions==CompareOptions.Ordinal
+              indexInfo.Columns[pair.Key].CultureInfo==null
               ? WellKnown.OrdinalMaxChar : WellKnown.CultureSensitiveMaxChar))));
       return BuildEntireConstructor(nearestKeyValues, indexInfo);
     }

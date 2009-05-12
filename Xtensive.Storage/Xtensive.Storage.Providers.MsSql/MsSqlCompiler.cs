@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Providers.MsSql
         return null;
 
       var sourceQuery = (SqlSelect)compiledSource.Request.SelectStatement.Clone();
-      sourceQuery.OrderBy.Clear();
+      /*sourceQuery.OrderBy.Clear();*/
       var rowNumberColumnName = provider.Header.Columns.Last().Name;
       var queryRef = SqlFactory.QueryRef(sourceQuery);
       var query = SqlFactory.Select(queryRef);
@@ -238,7 +238,7 @@ namespace Xtensive.Storage.Providers.MsSql
       }
       rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, SqlFactory.Native(")"));
       sourceQuery.Columns.Add(rowNumberExpression, rowNumberColumnName);
-      sourceQuery.OrderBy.Clear();
+      /*sourceQuery.OrderBy.Clear();*/
       return sourceQuery;
     }
 

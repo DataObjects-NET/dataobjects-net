@@ -103,6 +103,12 @@ namespace Xtensive.Storage.Providers.Sql
         );
     }
 
+    /// <inheritdoc/>
+    protected override IPostCompiler CreatePostCompiler()
+    {
+      return new SqlOrderbyCorrector(Handlers);
+    }
+
     /// <summary>
     /// Creates (or retrieves from cache) <see cref="DbDataReaderAccessor"/> 
     /// for the specified <see cref="TupleDescriptor"/>.

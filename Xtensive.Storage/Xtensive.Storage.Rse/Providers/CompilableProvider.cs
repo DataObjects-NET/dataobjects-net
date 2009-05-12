@@ -35,7 +35,10 @@ namespace Xtensive.Storage.Rse.Providers
       get { return new RecordSet(this); }
     }
 
-    internal DirectionCollection<int> ExpectedOrder
+    /// <summary>
+    /// Gets the expected indexes of columns <see cref="Provider.Header"/> should be ordered by.
+    /// </summary>
+    public DirectionCollection<int> ExpectedOrder
     {
       get { return expectedOrder; }
     }

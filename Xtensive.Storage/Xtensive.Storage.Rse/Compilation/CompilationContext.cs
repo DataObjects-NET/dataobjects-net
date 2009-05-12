@@ -25,7 +25,8 @@ namespace Xtensive.Storage.Rse.Compilation
   public abstract class CompilationContext : Context<CompilationScope>
   {
     private readonly Func<ICompiler> compilerProvider;
-    private readonly Func<IPreCompiler> optimizerProvider;
+    private readonly Func<IPreCompiler> preCompilerProvider;
+    private Func<IPostCompiler> postCompilerProvider;
 
     #region Nested type: CacheEntry
 
@@ -68,11 +69,13 @@ namespace Xtensive.Storage.Rse.Compilation
 
 
     /// <summary>
-    /// Compiles the specified provider by passing it to <see cref="Compiler"/>.<see cref="ICompiler.Compile"/> method.
+    /// Compiles the specified provider by passing it to <see cref="Compiler"/>.
+    /// <see cref="ICompiler.Compile"/> method.
     /// </summary>
     /// <param name="provider">The provider to compile.</param>
     /// <returns>The result of the compilation.</returns>
-    /// <exception cref="InvalidOperationException">Can't compile the specified <paramref name="provider"/>.</exception>
+    /// <exception cref="InvalidOperationException">Can't compile the specified 
+    /// <paramref name="provider"/>.</exception>
     public ExecutableProvider Compile(CompilableProvider provider)
     {
       if (provider == null)
@@ -83,14 +86,16 @@ namespace Xtensive.Storage.Rse.Compilation
           return entry.Value;
       }
 
-      var optimizer = optimizerProvider();
+      var preCompiler = preCompilerProvider();
       var compiler = compilerProvider();
       if (compiler == null)
         throw new InvalidOperationException(
           Strings.ExCanNotCompileNoCompiler);
+      var postCompiler = postCompilerProvider();
       
-      var optimizedProvider = optimizer.Process(provider);
-      var result = compiler.Compile(optimizedProvider);
+      var preCompiledProvider = preCompiler.Process(provider);
+      var result = compiler.Compile(preCompiledProvider);
+      result = postCompiler.Process(result);
       
       if (result!=null && result.IsCacheable)
         lock (_lock)
@@ -132,11 +137,14 @@ namespace Xtensive.Storage.Rse.Compilation
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="compilerProvider">The compiler provider.</param>
-    /// <param name="optimizerProvider">The optimizer provider.</param>
-    protected CompilationContext(Func<ICompiler> compilerProvider, Func<IPreCompiler> optimizerProvider)
+    /// <param name="preCompilerProvider">The pre-compiler provider.</param>
+    /// <param name="postCompilerProvider">The post-compiler provider.</param>
+    protected CompilationContext(Func<ICompiler> compilerProvider, Func<IPreCompiler> preCompilerProvider,
+      Func<IPostCompiler> postCompilerProvider)
     {
       this.compilerProvider = compilerProvider;
-      this.optimizerProvider = optimizerProvider;
+      this.preCompilerProvider = preCompilerProvider;
+      this.postCompilerProvider = postCompilerProvider;
       cache = new LruCache<CompilableProvider, CacheEntry>(CacheSize, i => i.Key,
         new WeakestCache<CompilableProvider, CacheEntry>(false, false, i => i.Key));
     }

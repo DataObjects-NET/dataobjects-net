@@ -67,6 +67,12 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
+    protected override IPostCompiler CreatePostCompiler()
+    {
+      return new EmptyPostCompiler();
+    }
+
+    /// <inheritdoc/>
     /// <exception cref="DomainBuilderException">Somethig went wrong.</exception>
     public override void BuildMapping()
     {

@@ -150,7 +150,6 @@ namespace Xtensive.Storage.Providers.Sql
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(provider.Header.Columns.Select(c => (SqlColumn)queryRef.Columns[c.Index]));
       query.Distinct = true;
-      query.OrderBy.Clear();
       return new SqlProvider(provider, query, Handlers, source);
     }
 
@@ -323,22 +322,12 @@ namespace Xtensive.Storage.Providers.Sql
         query.Columns.Clear();
         query.Columns.Add(SqlFactory.Null, "NULL");
       }
-      else if (compiledSource.Origin.Type != ProviderType.Sort) {
-        query = (SqlSelect)compiledSource.Request.SelectStatement.Clone();
+      else {
+        query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
         var originalColumns = query.Columns.ToList();
         query.Columns.Clear();
         query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
       }
-      else {
-        var sortProvider = (SortProvider)compiledSource.Origin;
-        var sourceQuery = (SqlSelect)compiledSource.Request.SelectStatement.Clone();
-        sourceQuery.OrderBy.Clear();
-        var queryRef = SqlFactory.QueryRef(sourceQuery);
-        query = SqlFactory.Select(queryRef);
-        query.Columns.AddRange(provider.ColumnIndexes.Select(i => (SqlColumn)queryRef.Columns[i]));
-        foreach (KeyValuePair<int,Direction> orderItem in sortProvider.Order)
-          query.OrderBy.Add(queryRef.Columns[orderItem.Key], orderItem.Value == Direction.Positive);
-      } 
 
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }
@@ -363,15 +352,7 @@ namespace Xtensive.Storage.Providers.Sql
       var compiledSource = GetCompiled(provider.Source) as SqlProvider;
       if (compiledSource == null)
         return null;
-
-      var query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
-      query.OrderBy.Clear();
-      foreach (KeyValuePair<int, Direction> sortOrder in provider.Order) {
-        var sqlColumn = query.Columns[sortOrder.Key];
-        query.OrderBy.Add(sqlColumn, sortOrder.Value == Direction.Positive);
-      }
-
-      return new SqlProvider(provider, query, Handlers, compiledSource);
+      return new SqlProvider(provider, compiledSource.Request.SelectStatement, Handlers, compiledSource);
     }
 
     /// <inheritdoc/>

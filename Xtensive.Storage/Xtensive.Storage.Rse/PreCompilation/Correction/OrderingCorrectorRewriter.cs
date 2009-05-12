@@ -50,9 +50,11 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       descriptor = descriptorResolver(cp);
 
       var prevDescriptor = descriptor;
+      var prevIsOrderOfIndex = isOrderOfIndex;
       var visited = (CompilableProvider) base.Visit(cp);
       descriptor = prevDescriptor;
       OriginalExpectedOrder = cp.ExpectedOrder;
+      isOrderOfIndex = prevIsOrderOfIndex && isOrderOfIndex;
 
       var result = RemoveSortProvider(visited);
       if (result==visited)

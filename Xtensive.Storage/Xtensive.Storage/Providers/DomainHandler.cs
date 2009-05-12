@@ -73,6 +73,12 @@ namespace Xtensive.Storage.Providers
     protected abstract IPreCompiler CreatePreCompiler();
 
     /// <summary>
+    /// Creates the <see cref="IPostCompiler"/>.
+    /// </summary>
+    /// <returns>A new post-compiler.</returns>
+    protected abstract IPostCompiler CreatePostCompiler();
+
+    /// <summary>
     /// Gets the sequence of compiler provider container types.
     /// </summary>
     /// <returns>The sequence of compiler provider container types.</returns>
@@ -171,7 +177,8 @@ namespace Xtensive.Storage.Providers
             CreateCompiler(compiledSources),
             new ClientCompiler(compiledSources));
         },
-        CreatePreCompiler);
+        CreatePreCompiler,
+        CreatePostCompiler);
       BuildMemberCompilerProviders();
     }
   }

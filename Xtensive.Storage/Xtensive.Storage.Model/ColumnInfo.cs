@@ -24,7 +24,6 @@ namespace Xtensive.Storage.Model
     private FieldInfo field;
     private NodeCollection<IndexInfo> indexes;
     private CultureInfo cultureInfo = CultureInfo.InvariantCulture;
-    private CompareOptions compareOptions = CompareOptions.None;
 
     #region IsXxx properties
 
@@ -179,20 +178,6 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets or sets column <see cref="System.Globalization.CompareOptions"/>.
-    /// </summary>
-    public CompareOptions CompareOptions
-    {
-      [DebuggerStepThrough]
-      get { return compareOptions; }
-      [DebuggerStepThrough]
-      set {
-        this.EnsureNotLocked(); 
-        compareOptions = value;
-      }
-    }
-
-    /// <summary>
     /// Gets or the indexes this field is included to.
     /// </summary>
     public NodeCollection<IndexInfo> Indexes {
@@ -265,7 +250,6 @@ namespace Xtensive.Storage.Model
       clone.length = length;
       clone.indexes = indexes;
       clone.cultureInfo = cultureInfo;
-      clone.compareOptions = compareOptions;
 
       return clone;
     }

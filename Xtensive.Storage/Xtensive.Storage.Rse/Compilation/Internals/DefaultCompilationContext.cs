@@ -55,7 +55,9 @@ namespace Xtensive.Storage.Rse.Compilation
       : base(() => {
         var compiledSource = new BindingCollection<object, ExecutableProvider>();
         return new ManagingCompiler(compiledSource, new ClientCompiler(compiledSource));
-      }, () => new CompositePreCompiler(new OrderingCorrector(ResolveOrderingDescriptor, false)))
+      },
+      () => new CompositePreCompiler(new OrderingCorrector(ResolveOrderingDescriptor, false)),
+      () => new EmptyPostCompiler())
     {
     }
   }

@@ -5,7 +5,6 @@
 // Created:    2008.08.30
 
 using System;
-using Xtensive.Core.Collections;
 using Xtensive.Storage.Rse.Compilation;
 
 namespace Xtensive.Storage.Providers
@@ -25,8 +24,9 @@ namespace Xtensive.Storage.Providers
     // Constructors
 
     /// <inheritdoc/>
-    public CompilationContext(Func<ICompiler> compilerProvider, Func<IPreCompiler> optimizerProvider)
-      : base(compilerProvider, optimizerProvider)
+    public CompilationContext(Func<ICompiler> compilerProvider, Func<IPreCompiler> optimizerProvider,
+      Func<IPostCompiler> postCompilerProvider)
+      : base(compilerProvider, optimizerProvider, postCompilerProvider)
     {}
   }
 }
