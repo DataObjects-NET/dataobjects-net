@@ -24,11 +24,16 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query<OrderDetails>.All
         .Select(od => new {Details = od, Order = od.Order})
         .OrderBy(x => new {x, x.Order.Customer})
-        .Select(x =>  new {x, x.Order.Customer});
+        .Select(x =>  new {x, x.Order.Customer})
+        .ToList()
+        .Select(x => new {OrderId = x.x.Order.Id, ProductId = x.x.Details.Product.Id, CustomerId = x.Customer.Id});
       var expected = Query<OrderDetails>.All.AsEnumerable()
         .Select(od => new {Details = od, Order = od.Order})
-        .OrderBy(x => new {x, x.Order.Customer})
-        .Select(x =>  new {x, x.Order.Customer});
+        .Select(x => new {x, x.Order.Customer})
+        .Select(x => new {OrderId = x.x.Order.Id, ProductId = x.x.Details.Product.Id, CustomerId = x.Customer.Id})
+        .OrderBy(x => x.OrderId)
+        .ThenBy(x => x.ProductId)
+        .ThenBy(x => x.CustomerId);
       Assert.IsTrue(expected.SequenceEqual(result));
       //QueryDumper.Dump(result);
     }
