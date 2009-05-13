@@ -24,18 +24,15 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query<OrderDetails>.All
         .Select(od => new {Details = od, Order = od.Order})
         .OrderBy(x => new {x, x.Order.Customer})
-        .Select(x =>  new {x, x.Order.Customer})
-        .ToList()
-        .Select(x => new {OrderId = x.x.Order.Id, ProductId = x.x.Details.Product.Id, CustomerId = x.Customer.Id});
+        .Select(x => new {x, x.Order.Customer});
       var expected = Query<OrderDetails>.All.AsEnumerable()
         .Select(od => new {Details = od, Order = od.Order})
-        .Select(x => new {x, x.Order.Customer})
-        .Select(x => new {OrderId = x.x.Order.Id, ProductId = x.x.Details.Product.Id, CustomerId = x.Customer.Id})
-        .OrderBy(x => x.OrderId)
-        .ThenBy(x => x.ProductId)
-        .ThenBy(x => x.CustomerId);
+        .OrderBy(x => x.Details.Order.Id)
+        .ThenBy(x => x.Details.Product.Id)
+        .ThenBy(x => x.Order.Customer)
+        .Select(x => new {x, x.Order.Customer});
+        
       Assert.IsTrue(expected.SequenceEqual(result));
-      //QueryDumper.Dump(result);
     }
 
     [Test]
@@ -46,10 +43,10 @@ namespace Xtensive.Storage.Tests.Linq
         .OrderBy(c => new {c.Fax, c.Phone})
         .Select(c => new {c.Fax, c.Phone});
       var expected = customers.AsEnumerable()
-        .OrderBy(c => new {c.Fax, c.Phone})
+        .OrderBy(a => a.Fax)
+        .ThenBy(a => a.Phone)
         .Select(c => new {c.Fax, c.Phone});
       Assert.IsTrue(expected.SequenceEqual(result));
-      //QueryDumper.Dump(result);
     }
 
     [Test]
