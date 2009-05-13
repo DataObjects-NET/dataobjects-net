@@ -4,7 +4,12 @@
 // Created by: Alexis Kochetov
 // Created:    2009.04.21
 
+using System;
+using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core.Linq.SerializableExpressions;
+using Xtensive.Core.Linq.SerializableExpressions.Internals;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Linq
 {
@@ -65,6 +70,38 @@ namespace Xtensive.Core.Linq
     public static ExpressionTree ToExpressionTree(this Expression expression)
     {
       return new ExpressionTree(expression);
+    }
+
+    /// <summary>
+    /// Converts specified <see cref="Expression"/> to <see cref="SerializableExpression"/>.
+    /// </summary>
+    /// <param name="expression">The expression to convert.</param>
+    /// <returns>Serializable expression that represents <paramref name="expression"/>.</returns>
+    public static SerializableExpression ToSerializableExpression(this Expression expression)
+    {
+      return new ExpressionToSerializableExpressionConverter(expression).Convert();
+    }
+
+    /// <summary>
+    /// Converts specified <see cref="SerializableExpression"/> to <see cref="Expression"/>.
+    /// </summary>
+    /// <param name="expression">The expression to convert.</param>
+    /// <returns></returns>
+    public static Expression ToExpression(this SerializableExpression expression)
+    {
+      return new SerializableExpressionToExpressionConverter(expression).Convert();
+    }
+
+    /// <summary>
+    /// Gets the type of the delegate associated with specified <see cref="LambdaExpression"/>.
+    /// </summary>
+    /// <param name="lambda">The lambda to get delegate from.</param>
+    /// <returns>Extracted delegate type.</returns>
+    public static Type GetDelegateType(this LambdaExpression lambda)
+    {
+      return lambda.GetType().IsOfGenericType(typeof (Expression<>))
+        ? lambda.GetType().GetGenericArguments()[0]
+        : DelegateHelper.MakeDelegateType(lambda.Body.Type, lambda.Parameters.Select(p => p.Type));
     }
   }
 }

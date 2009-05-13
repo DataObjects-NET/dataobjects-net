@@ -21,13 +21,15 @@ namespace Xtensive.Core.Tests.Linq
   {
     private const int warmupIterations = 1;
     private const int realIterations = 1000;
-
+    
     [Test]
     public void InterfaceImplicitCastTest()
     {
       Expression<Func<int, IEnumerable>> lambda = n => Enumerable.Range(1, n);
       lambda.CompileCached();
     }
+
+    #region Performance testing
 
     [Test]
     [Explicit]
@@ -142,5 +144,7 @@ namespace Xtensive.Core.Tests.Linq
       }
       return new Measurement(name, operationCount);
     }
+
+    #endregion
   }
 }

@@ -20,6 +20,7 @@ namespace Xtensive.Core.Linq
   /// </summary>
   public sealed class ConstantExtractor : ExpressionVisitor
   {
+    private readonly Func<ConstantExpression, bool> constantFilter;
     private readonly LambdaExpression lambda;
     private readonly ParameterExpression constantParameter;
     private List<object> constantValues;
@@ -50,13 +51,15 @@ namespace Xtensive.Core.Linq
       var body = Visit(lambda.Body);
       // preserve original delegate type because it may differ from types of parameters / return value
       return lambda.GetType().IsOfGenericType(typeof (Expression<>))
-        ? FastExpression.Lambda(AddSpecialParameter(lambda.GetType().GetGenericArguments()[0]), body, parameters)
+        ? FastExpression.Lambda(FixDelegateType(lambda.GetType().GetGenericArguments()[0]), body, parameters)
         : FastExpression.Lambda(body, parameters);
     }
 
     /// <inheritdoc/>
     protected override Expression VisitConstant(ConstantExpression c)
     {
+      if (!constantFilter.Invoke(c))
+        return c;
       var result = Expression.Convert(
         Expression.ArrayIndex(constantParameter, Expression.Constant(constantValues.Count)), c.Type);
       constantValues.Add(c.Value);
@@ -65,10 +68,16 @@ namespace Xtensive.Core.Linq
 
     #region Private / internal method
 
-    private Type AddSpecialParameter(Type delegateType)
+    private Type FixDelegateType(Type delegateType)
     {
       var signature = DelegateHelper.GetDelegateSignature(delegateType);
       return DelegateHelper.MakeDelegateType(signature.First, signature.Second.AddPrefix(constantParameter.Type));
+    }
+
+    private static bool DefaultConstantFilter(ConstantExpression constant)
+    {
+      // maybe: return !constant.Type.IsValueType;
+      return true;
     }
 
     #endregion
@@ -80,10 +89,24 @@ namespace Xtensive.Core.Linq
     /// </summary>
     /// <param name="lambda">An expression to process.</param>
     public ConstantExtractor(LambdaExpression lambda)
+      : this(lambda, null)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="lambda">An expression to process.</param>
+    /// <param name="constantFilter">The constant filter.
+    /// This delegate invoked on each occurrence of <see cref="ConstantExpression"/>.
+    /// If it returns <see langword="true"/>, constant is extracted, otherwise left untouched.
+    /// </param>
+    public ConstantExtractor(LambdaExpression lambda, Func<ConstantExpression, bool> constantFilter)
     {
       ArgumentValidator.EnsureArgumentNotNull(lambda, "lambda");
       this.lambda = lambda;
-      constantParameter = Expression.Parameter(typeof (object[]), "constants");
+      this.constantFilter = constantFilter ?? DefaultConstantFilter;
+      constantParameter = Expression.Parameter(typeof(object[]), "constants");
     }
   }
 }

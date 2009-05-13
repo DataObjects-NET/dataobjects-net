@@ -12,8 +12,21 @@ using Xtensive.Core.Linq;
 namespace Xtensive.Core.Tests.Linq
 {
   [TestFixture]
-  public class ExpressionTreeTest
+  public class ExpressionTreeTest : ExpressionTestBase
   {
+    [Test]
+    public void ComplexTest()
+    {
+      foreach (var e in Expressions) {
+        Console.WriteLine(e.ToString(true));
+        var x = e.ToExpressionTree();
+        var y = e.ToExpressionTree();
+        Assert.AreEqual(x, y);
+        Assert.AreEqual(x.GetHashCode(), y.GetHashCode());
+        Console.WriteLine("OK");
+      }
+    }
+
     [Test]
     public void SameExpressionTest()
     {

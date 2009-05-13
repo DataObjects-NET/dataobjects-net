@@ -12,8 +12,18 @@ using Xtensive.Core.Linq;
 namespace Xtensive.Core.Tests.Linq
 {
   [TestFixture]
-  public class ConstantExtractorTest
+  public class ConstantExtractorTest : ExpressionTestBase
   {
+    [Test]
+    public void ComplexTest()
+    {
+      foreach (var e in Expressions) {
+        Console.WriteLine(e.ToString(true));
+        new ConstantExtractor(e).Process();
+        Console.WriteLine("OK");
+      }
+    }
+
     [Test]
     public void SimpleTest()
     {

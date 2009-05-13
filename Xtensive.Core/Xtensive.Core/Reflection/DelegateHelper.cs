@@ -585,6 +585,7 @@ namespace Xtensive.Core.Reflection
       actionTypes = new[]
         {
           typeof (Action),
+          typeof (Action<>),
           typeof (Action<,>),
           typeof (Action<,,>),
           typeof (Action<,,,>),

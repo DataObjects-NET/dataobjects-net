@@ -197,12 +197,12 @@ namespace Xtensive.Core.Linq.Internals
 
     private bool VisitBinary(BinaryExpression x, BinaryExpression y)
     {
-      return Visit(x.Left, y.Left) && Visit(x.Right, y.Right);
+      return x.Method==y.Method && Visit(x.Left, y.Left) && Visit(x.Right, y.Right);
     }
 
     private bool VisitUnary(UnaryExpression x, UnaryExpression y)
     {
-      return Visit(x.Operand, y.Operand);
+      return x.Method==y.Method && Visit(x.Operand, y.Operand);
     }
 
     private bool CompareExpressionSequences<T>(

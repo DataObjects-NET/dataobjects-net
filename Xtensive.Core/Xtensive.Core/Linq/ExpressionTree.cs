@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq.Internals;
 
 namespace Xtensive.Core.Linq
@@ -16,18 +15,18 @@ namespace Xtensive.Core.Linq
   /// A wrapper for <see cref="Expression"/>
   /// that can be used for comparing expression trees and calculating thier hash codes.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("{Expression}")]
   public sealed class ExpressionTree
     : IEquatable<ExpressionTree>
   {
     private readonly int hashCode;
+    private readonly Expression expression;
 
     /// <summary>
     /// Gets the expression wrapped by this <see cref="ExpressionTree"/>.
     /// </summary>
     /// <value>The expression.</value>
-    public Expression Expression { get; private set; }
+    public Expression Expression { get { return expression; } }
 
     #region ToString, GetHashCode, Equals, ==, != implementation
 
@@ -36,7 +35,13 @@ namespace Xtensive.Core.Linq
     {
       return Expression.ToString(true);
     }
-    
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      return hashCode;
+    }
+
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
@@ -44,12 +49,6 @@ namespace Xtensive.Core.Linq
       if (ReferenceEquals(other, null))
         return false;
       return Equals(other);
-    }
-
-    /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return hashCode;
     }
 
     /// <inheritdoc/>
@@ -77,7 +76,7 @@ namespace Xtensive.Core.Linq
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.
-    /// Otherwise, <see langword="false>.
+    /// Otherwise, <see langword="false">.
     /// </returns>
     public static bool operator != (ExpressionTree left, ExpressionTree right)
     {
@@ -86,14 +85,12 @@ namespace Xtensive.Core.Linq
 
     #endregion
 
-    /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="expression">The expression.</param>
-    public ExpressionTree(Expression expression)
+    // Constructor
+
+    internal ExpressionTree(Expression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      Expression = expression;
+      this.expression = expression;
       hashCode = new ExpressionHashCodeCalculator().CalculateHashCode(expression);
     }
   }

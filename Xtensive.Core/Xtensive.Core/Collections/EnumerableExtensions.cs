@@ -393,6 +393,21 @@ namespace Xtensive.Core.Collections
     }
 
     /// <summary>
+    /// If <paramref name="sequence"/> is not <see langword="null"/>, creates an array from <see cref="IEnumerable{T}"/>.
+    /// Otherwise, returns empty array.
+    /// </summary>
+    /// <typeparam name="T">Element type</typeparam>
+    /// <param name="sequence">The sequence.</param>
+    /// <returns>Array of elements of <paramref name="sequence"/>
+    /// or empty array, if <paramref name="sequence"/> is <see langword="null"/>.</returns>
+    public static T[] ToArraySafely<T>(this IEnumerable<T> sequence)
+    {
+      if (sequence == null)
+        return ArrayUtils<T>.EmptyArray;
+      return sequence.ToArray();
+    }
+    
+    /// <summary>
     /// Gets the items from the segment.
     /// </summary>
     /// <param name="segment">The segment.</param>

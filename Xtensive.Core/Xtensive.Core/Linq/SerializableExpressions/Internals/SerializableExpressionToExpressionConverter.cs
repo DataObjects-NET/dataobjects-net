@@ -1,0 +1,223 @@
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2009.05.13
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+
+namespace Xtensive.Core.Linq.SerializableExpressions.Internals
+{
+  internal sealed class SerializableExpressionToExpressionConverter
+  {
+    private readonly SerializableExpression source;
+    private readonly Dictionary<SerializableExpression, Expression> cache;
+
+    public Expression Convert()
+    {
+      return Visit(source);
+    }
+
+    #region Private / internal methods
+
+    private Expression Visit(SerializableExpression e)
+    {
+      if (e == null)
+        return null;
+
+      Expression result;
+      if (cache.TryGetValue(e, out result))
+        return result;
+
+      switch (e.NodeType)
+      {
+        case ExpressionType.Negate:
+        case ExpressionType.NegateChecked:
+        case ExpressionType.Not:
+        case ExpressionType.Convert:
+        case ExpressionType.ConvertChecked:
+        case ExpressionType.ArrayLength:
+        case ExpressionType.Quote:
+        case ExpressionType.TypeAs:
+          result = VisitUnary((SerializableUnaryExpression)e);
+          break;
+        case ExpressionType.Add:
+        case ExpressionType.AddChecked:
+        case ExpressionType.Subtract:
+        case ExpressionType.SubtractChecked:
+        case ExpressionType.Multiply:
+        case ExpressionType.MultiplyChecked:
+        case ExpressionType.Divide:
+        case ExpressionType.Modulo:
+        case ExpressionType.And:
+        case ExpressionType.AndAlso:
+        case ExpressionType.Or:
+        case ExpressionType.OrElse:
+        case ExpressionType.LessThan:
+        case ExpressionType.LessThanOrEqual:
+        case ExpressionType.GreaterThan:
+        case ExpressionType.GreaterThanOrEqual:
+        case ExpressionType.Equal:
+        case ExpressionType.NotEqual:
+        case ExpressionType.Coalesce:
+        case ExpressionType.ArrayIndex:
+        case ExpressionType.RightShift:
+        case ExpressionType.LeftShift:
+        case ExpressionType.ExclusiveOr:
+          result = VisitBinary((SerializableBinaryExpression)e);
+          break;
+        case ExpressionType.TypeIs:
+          result = VisitTypeIs((SerializableTypeBinaryExpression)e);
+          break;
+        case ExpressionType.Conditional:
+          result = VisitConditional((SerializableConditionalExpression)e);
+          break;
+        case ExpressionType.Constant:
+          result = VisitConstant((SerializableConstantExpression)e);
+          break;
+        case ExpressionType.Parameter:
+          result = VisitParameter((SerializableParameterExpression)e);
+          break;
+        case ExpressionType.MemberAccess:
+          result = VisitMemberAccess((SerializableMemberExpression)e);
+          break;
+        case ExpressionType.Call:
+          result = VisitMethodCall((SerializableMethodCallExpression)e);
+          break;
+        case ExpressionType.Lambda:
+          result = VisitLambda((SerializableLambdaExpression)e);
+          break;
+        case ExpressionType.New:
+          result = VisitNew((SerializableNewExpression)e);
+          break;
+        case ExpressionType.NewArrayInit:
+        case ExpressionType.NewArrayBounds:
+          result = VisitNewArray((SerializableNewArrayExpression)e);
+          break;
+        case ExpressionType.Invoke:
+          result = VisitInvocation((SerializableInvocationExpression)e);
+          break;
+        case ExpressionType.MemberInit:
+          result = VisitMemberInit((SerializableMemberInitExpression)e);
+          break;
+        case ExpressionType.ListInit:
+          result = VisitListInit((SerializableListInitExpression)e);
+          break;
+        default:
+          throw new ArgumentException();
+      }
+
+      cache.Add(e, result);
+      return result;
+    }
+
+    private Expression VisitUnary(SerializableUnaryExpression u)
+    {
+      return Expression.MakeUnary(u.NodeType, Visit(u.Operand), u.Type, u.Method);
+    }
+
+    private Expression VisitBinary(SerializableBinaryExpression b)
+    {
+      return Expression.MakeBinary(b.NodeType, Visit(b.Left), Visit(b.Right), b.IsLiftedToNull, b.Method);
+    }
+
+    private Expression VisitTypeIs(SerializableTypeBinaryExpression tb)
+    {
+      return Expression.TypeIs(Visit(tb.Expression), tb.TypeOperand);
+    }
+
+    private Expression VisitConstant(SerializableConstantExpression c)
+    {
+      return Expression.Constant(c.Value, c.Type);
+    }
+
+    private Expression VisitConditional(SerializableConditionalExpression c)
+    {
+      return Expression.Condition(Visit(c.Test), Visit(c.IfTrue), Visit(c.IfFalse));
+    }
+
+    private Expression VisitParameter(SerializableParameterExpression p)
+    {
+      return Expression.Parameter(p.Type, p.Name);
+    }
+
+    private Expression VisitMemberAccess(SerializableMemberExpression m)
+    {
+      var target = Visit(m.Expression);
+      var field = m.Member as FieldInfo;
+      if (field != null)
+        return Expression.Field(target, field);
+      var property = m.Member as PropertyInfo;
+      if (property != null)
+        return Expression.Property(target, property);
+      var method = m.Member as MethodInfo;
+      if (method != null)
+        return Expression.Property(target, method);
+      throw new ArgumentException();
+    }
+
+    private Expression VisitMethodCall(SerializableMethodCallExpression mc)
+    {
+      return Expression.Call(Visit(mc.Object), mc.Method, VisitExpressionSequence(mc.Arguments));
+    }
+
+    private Expression VisitLambda(SerializableLambdaExpression l)
+    {
+      return FastExpression.Lambda(l.DelegateType, Visit(l.Body),
+        l.Parameters.Select(p => (ParameterExpression)Visit(p)));
+    }
+
+    private Expression VisitNew(SerializableNewExpression n)
+    {
+      if (n.Members != null && n.Members.Length > 0)
+        return Expression.New(n.Constructor, VisitExpressionSequence(n.Arguments), n.Members);
+      return Expression.New(n.Constructor, VisitExpressionSequence(n.Arguments));
+    }
+
+    private Expression VisitMemberInit(SerializableMemberInitExpression mi)
+    {
+      throw new NotImplementedException();
+    }
+
+    private Expression VisitListInit(SerializableListInitExpression li)
+    {
+      throw new NotImplementedException();
+    }
+
+    private Expression VisitNewArray(SerializableNewArrayExpression na)
+    {
+      switch (na.NodeType) {
+      case ExpressionType.NewArrayInit:
+        return Expression.NewArrayInit(na.Type.GetElementType(), VisitExpressionSequence(na.Expressions));
+      case ExpressionType.NewArrayBounds:
+        return Expression.NewArrayBounds(na.Type.GetElementType(), VisitExpressionSequence(na.Expressions));
+      default:
+        throw new ArgumentException();
+      }
+    }
+
+    private Expression VisitInvocation(SerializableInvocationExpression i)
+    {
+      return Expression.Invoke(Visit(i.Expression), VisitExpressionSequence(i.Arguments));
+    }
+
+    private IEnumerable<Expression> VisitExpressionSequence<T>(IEnumerable<T> sequence)
+      where T : SerializableExpression
+    {
+      return sequence.Select(e => Visit(e));
+    }
+
+    #endregion
+
+    public SerializableExpressionToExpressionConverter(SerializableExpression source)
+    {
+      this.source = source;
+      cache = new Dictionary<SerializableExpression, Expression>();
+    }
+  }
+}

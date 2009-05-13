@@ -31,7 +31,7 @@ namespace Xtensive.Core.Linq.Internals
     public Pair<Delegate, object[]> RawCompile(LambdaExpression lambda)
     {
       var constantExtractor = new ConstantExtractor(lambda);
-      var tree = new ExpressionTree(constantExtractor.Process());
+      var tree = constantExtractor.Process().ToExpressionTree();
       var constants = constantExtractor.GetConstants();
       var _delegate = cache.GetValue(tree, _tree => ((LambdaExpression) _tree.Expression).Compile());
       return new Pair<Delegate, object[]>(_delegate, constants);
