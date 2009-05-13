@@ -31,14 +31,8 @@ namespace Xtensive.Storage.Building.Builders
     {
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.ModelDefinition)) {
         var context = BuildingContext.Current;
-        try {
-          context.Definition = new DomainModelDef();
-          DefineTypes();
-        }
-        catch (DomainBuilderException e) {
-          context.RegisterError(e);
-        }
-        context.EnsureBuildSucceed();
+        context.Definition = new DomainModelDef();
+        DefineTypes();
 
         if (context.Configuration.Builders.Count>0)
           BuildCustomDefinitions();
@@ -61,14 +55,9 @@ namespace Xtensive.Storage.Building.Builders
       var context = BuildingContext.Current;
       if (context.Definition.Types.Contains(type))
         return;
-      try {
-        var typeDef = TypeBuilder.DefineType(type);
-        context.Definition.Types.Add(typeDef);
-        IndexBuilder.DefineIndexes(typeDef);
-      }
-      catch (DomainBuilderException e) {
-        context.RegisterError(e);
-      }
+      var typeDef = TypeBuilder.DefineType(type);
+      context.Definition.Types.Add(typeDef);
+      IndexBuilder.DefineIndexes(typeDef);
     }
 
     private static void BuildCustomDefinitions()
@@ -100,14 +89,8 @@ namespace Xtensive.Storage.Building.Builders
 
         foreach (var typeDef in context.Definition.Types.Where(t => !t.IsInterface)) {
           CheckPersistentAspect(typeDef);
-          try {
-            TypeBuilder.BuildType(typeDef);
-          }
-          catch (DomainBuilderException e) {
-            context.RegisterError(e);
-          }
+          TypeBuilder.BuildType(typeDef);
         }
-        context.EnsureBuildSucceed();
         ValidateHierarchies();
         BuildAssociations();
         BuildColumns();
@@ -137,17 +120,17 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var keyField in hierarchy.KeyFields.Keys) {
           FieldDef srcField;
           if (!root.Fields.TryGetValue(keyField.Name, out srcField))
-            context.RegisterError(new DomainBuilderException(
-              string.Format(Strings.ExKeyFieldXWasNotFoundInTypeY, keyField.Name, root.Name)));
+            throw new DomainBuilderException(
+              string.Format(Strings.ExKeyFieldXWasNotFoundInTypeY, keyField.Name, root.Name));
           else if (srcField.ValueType!=keyField.ValueType)
-            context.RegisterError(new DomainBuilderException(
-              string.Format(Strings.ValueTypeMismatchForFieldX, keyField.Name)));
+            throw new DomainBuilderException(
+              string.Format(Strings.ValueTypeMismatchForFieldX, keyField.Name));
           else if (srcField.UnderlyingProperty != null) {
             var setMethod = srcField.UnderlyingProperty.GetSetMethod(true);
             if (setMethod != null) {
               if ((setMethod.Attributes & MethodAttributes.Private) == 0)
-                context.RegisterError(new DomainBuilderException(
-                  string.Format(Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, keyField.Name, root.Name)));
+                throw new DomainBuilderException(
+                  string.Format(Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, keyField.Name, root.Name));
             }
           }
         }
@@ -179,12 +162,7 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var pair in context.PairedAssociations) {
           if (context.DiscardedAssociations.Contains(pair.First))
             continue;
-          try {
-            AssociationBuilder.BuildPairedAssociation(pair.First, pair.Second);
-          }
-          catch (DomainBuilderException e) {
-            context.RegisterError(e);
-          }
+          AssociationBuilder.BuildPairedAssociation(pair.First, pair.Second);
         }
 
         foreach (var ai in context.DiscardedAssociations)

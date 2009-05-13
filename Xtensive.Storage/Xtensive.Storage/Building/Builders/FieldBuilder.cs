@@ -31,13 +31,7 @@ namespace Xtensive.Storage.Building.Builders
 
       foreach (var propertyInfo in properties)
         if (IsDeclaredAsPersistent(propertyInfo) && fieldFilter(propertyInfo))
-          try {
-            fields.Add(
-              DefineField(typeDef, propertyInfo));
-          }
-          catch (DomainBuilderException e) {
-            BuildingContext.Current.RegisterError(e);
-          }
+            fields.Add(DefineField(typeDef, propertyInfo));
 
       return fields;
     }

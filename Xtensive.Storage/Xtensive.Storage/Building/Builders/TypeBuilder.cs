@@ -249,20 +249,16 @@ namespace Xtensive.Storage.Building.Builders
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     private static void BuildDeclaredFields(TypeInfo type, TypeDef srcType)
     {
-      foreach (var srcField in srcType.Fields)
-        try {
-          FieldInfo field;
-          if (type.Fields.TryGetValue(srcField.Name, out field)) {
-            if (field.ValueType!=srcField.ValueType)
-              throw new DomainBuilderException(
-                string.Format(Strings.ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor, srcField.Name, type.Name));
-          }
-          else
-            FieldBuilder.BuildDeclaredField(type, srcField);
+      foreach (var srcField in srcType.Fields) {
+        FieldInfo field;
+        if (type.Fields.TryGetValue(srcField.Name, out field)) {
+          if (field.ValueType!=srcField.ValueType)
+            throw new DomainBuilderException(
+              string.Format(Strings.ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor, srcField.Name, type.Name));
         }
-        catch (DomainBuilderException e) {
-          BuildingContext.Current.RegisterError(e);
-        }
+        else
+          FieldBuilder.BuildDeclaredField(type, srcField);
+      }
     }
 
     private static void ProcessAncestor(TypeInfo type)

@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Tests.Issues
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       Domain result = null;
-      AssertEx.Throws<AggregateException>(() => result = base.BuildDomain(configuration));
+      AssertEx.Throws<DomainBuilderException>(() => result = base.BuildDomain(configuration));
       return result;
     }
   }

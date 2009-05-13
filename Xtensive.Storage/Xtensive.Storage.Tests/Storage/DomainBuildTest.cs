@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Tests.Storage
 //    public void DenyBlockUpgradeTest()
 //    {
 //      ClearSchema();
-//      AssertEx.Throws<AggregateException>(
+//      AssertEx.Throws<DomainBuilderException>(
 //        () => BuildDomain(DomainBuildMode.BlockUpgrade));
 //    }
 

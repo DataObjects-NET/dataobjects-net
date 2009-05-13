@@ -28,12 +28,7 @@ namespace Xtensive.Storage.Building.Builders
           AttributeSearchOptions.Default);
 
         foreach (IndexAttribute attribute in indexAttributes)
-          try {
-            DefineIndex(typeDef, attribute);
-          }
-          catch (DomainBuilderException e) {
-            BuildingContext.Current.RegisterError(e);
-          }
+          DefineIndex(typeDef, attribute);
       }
     }
 

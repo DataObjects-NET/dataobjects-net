@@ -66,34 +66,28 @@ namespace Xtensive.Storage.Building.Builders
 
       using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
         using (new BuildingScope(context)) {
-          try {
-            CreateDomain();
-            ConfigureServiceContainer();
-            CreateHandlerFactory();
-            CreateDomainHandler();
+          CreateDomain();
+          ConfigureServiceContainer();
+          CreateHandlerFactory();
+          CreateDomainHandler();
 
-            CreateNameBuilder();
-            CreateDomainHandler();
-            BuildModel();
+          CreateNameBuilder();
+          CreateDomainHandler();
+          BuildModel();
 
-            using (context.Domain.OpenSystemSession()) {
-              context.SystemSessionHandler = Session.Current.Handler;
-              using (var transactionScope = Transaction.Open()) {
-                context.Domain.Handler.OnSystemSessionOpen();
-                SynchronizeSchema(builderConfiguration.SchemaUpgradeMode);
-                context.Domain.Handler.BuildMapping();
-                CreateGenerators();
-                TypeIdBuilder.BuildTypeIds();
-                if (builderConfiguration.UpgradeHandler!=null)
-                  builderConfiguration.UpgradeHandler.Invoke();
-                transactionScope.Complete();
-              }
+          using (context.Domain.OpenSystemSession()) {
+            context.SystemSessionHandler = Session.Current.Handler;
+            using (var transactionScope = Transaction.Open()) {
+              context.Domain.Handler.OnSystemSessionOpen();
+              SynchronizeSchema(builderConfiguration.SchemaUpgradeMode);
+              context.Domain.Handler.BuildMapping();
+              CreateGenerators();
+              TypeIdBuilder.BuildTypeIds();
+              if (builderConfiguration.UpgradeHandler!=null)
+                builderConfiguration.UpgradeHandler.Invoke();
+              transactionScope.Complete();
             }
           }
-          catch (DomainBuilderException e) {
-            context.RegisterError(e);
-          }
-          context.EnsureBuildSucceed();
         }
       }
       return context.Domain;

@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Model
 //      try {
 //        domain = Domain.Build(configuration);
 //      }
-//      catch (AggregateException e) {
+//      catch (DomainBuilderException e) {
 //        Assert.AreEqual(1, e.Exceptions.Count);
 //      }
 //      return domain;

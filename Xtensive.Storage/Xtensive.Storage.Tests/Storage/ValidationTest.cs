@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           using (Transaction.Open()) {
 
           // Created and modified invalid object. (ScrollingCount > ButtonCount)
-          AssertEx.Throws<AggregateException>(
+          AssertEx.Throws<DomainBuilderException>(
             delegate {
               using (Session.Current.OpenInconsistentRegion()) {
                 new Mouse {ButtonCount = 2, ScrollingCount = 3, Led = new Led { Brightness = 1, Precision = 1 }};
@@ -126,13 +126,13 @@ namespace Xtensive.Storage.Tests.Storage.Validation
             });
 
           // Created, but not modified invalid object.
-          AssertEx.Throws<AggregateException>(
+          AssertEx.Throws<DomainBuilderException>(
             delegate {
               new Mouse();
             });
 
           // Invalid modification of existing object.
-          AssertEx.Throws<AggregateException>(
+          AssertEx.Throws<DomainBuilderException>(
             delegate {
               Mouse m;
               using (Session.Current.OpenInconsistentRegion()) {
@@ -183,7 +183,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
         // Structure become invalid.
         using (var transactionScope = Transaction.Open()) {
-          AssertEx.Throws<AggregateException>(
+          AssertEx.Throws<DomainBuilderException>(
             delegate {
               // structurebug workaround
               mouse.ButtonCount = mouse.ButtonCount;
@@ -195,7 +195,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           
         // Changed structure make entity invalid.
         using (var transactionScope = Transaction.Open()) {
-          AssertEx.Throws<AggregateException>(
+          AssertEx.Throws<DomainBuilderException>(
             delegate {
               mouse.Led.Brightness = 11;
               transactionScope.Complete();

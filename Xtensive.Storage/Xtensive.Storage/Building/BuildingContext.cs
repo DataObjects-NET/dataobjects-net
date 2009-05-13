@@ -16,7 +16,6 @@ using Xtensive.Storage.Building.Internals;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
-using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building
 {
@@ -25,7 +24,6 @@ namespace Xtensive.Storage.Building
   /// </summary>
   public sealed class BuildingContext
   {
-    private readonly List<Exception> errors = new List<Exception>();
     internal HashSet<Type> SkippedTypes { get; private set; }
     internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
     internal CircularReferenceFinder<Type> CircularReferenceFinder { get; private set; }
@@ -111,22 +109,6 @@ namespace Xtensive.Storage.Building
     /// Gets the model.
     /// </summary>
     public DomainModel Model { get; internal set; }
-
-    #region Internal methods
-
-    internal void RegisterError(DomainBuilderException exception)
-    {
-      Log.Error(exception);
-      errors.Add(exception);
-    }
-
-    internal void EnsureBuildSucceed()
-    {
-      if (errors.Count != 0)
-        throw new AggregateException(Strings.ExErrorsDuringStorageBuild, errors);
-    }
-
-    #endregion
 
 
     // Constructors

@@ -5,6 +5,7 @@
 // Created:    2009.03.23
 
 using Xtensive.Core;
+using Xtensive.Storage;
 using Xtensive.Storage.Indexing.Model;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
@@ -52,12 +53,12 @@ namespace Xtensive.Indexing.Tests.Storage
       storage.Validate();
 
       var foreignKey = new ForeignKeyInfo(referencingTable, "ForeignKey");
-      AssertEx.Throws<AggregateException>(foreignKey.Validate);
+      AssertEx.Throws<DomainBuilderException>(foreignKey.Validate);
       foreignKey.PrimaryKey = foreignPrimary;
-      AssertEx.Throws<AggregateException>(foreignKey.Validate);
+      AssertEx.Throws<DomainBuilderException>(foreignKey.Validate);
 
       foreignKey.ForeignKeyColumns.Set(invalideReferencingIndex);
-      AssertEx.Throws<AggregateException>(foreignKey.Validate);
+      AssertEx.Throws<DomainBuilderException>(foreignKey.Validate);
       foreignKey.ForeignKeyColumns.Set(referencingIndex);
       foreignKey.Validate();
     }
