@@ -82,6 +82,11 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       return SubstituteSelect(provider);
     }
 
+    protected override Provider VisitSeek(SeekProvider provider)
+    {
+      return SubstituteSelect(provider);
+    }
+
     protected override Provider VisitFilter(FilterProvider provider)
     {
       mappings[provider.Source] = Merge(mappings[provider], mappingsGatherer.Gather(provider.Predicate));

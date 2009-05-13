@@ -316,6 +316,7 @@ namespace Xtensive.Storage.Tests.Rse
       var rowNumberColumnName = "AuthorRowNumberColumn";
       RecordSet authorRS = authors
         .ToRecordSet(authorHeader)
+        .OrderBy(new DirectionCollection<int>(0))
         .RowNumber(rowNumberColumnName);
 
       Assert.AreEqual(5, authorRS.Header.Length);
@@ -356,6 +357,7 @@ namespace Xtensive.Storage.Tests.Rse
       const string categoryRowNumberColumnName = "CategoryRowNumber";
       RecordSet categoryRS = categories
         .ToRecordSet(categoryHeader)
+        .OrderBy(new DirectionCollection<int>(0))
         .RowNumber(categoryRowNumberColumnName);
       Assert.AreEqual(6, authorRS2.Header.Length);
       int categoryRowNumber = 1;

@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       if (origin.Type==ProviderType.Select) {
         var selectProvider = (SelectProvider) origin;
         var visitedSource = VisitCompilable(selectProvider.Source);
-        if(isOrderCorrupted && !isOrderOfIndex)
+        if (isOrderCorrupted && !isOrderOfIndex)
           visitedSource = OnInsertSortProvider(visitedSource);
         return RecreateSelectProvider(selectProvider, visitedSource);
       }
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       return isOrderCorrupted && !isOrderOfIndex ? OnInsertSortProvider(visited) : visited;
     }
 
-    protected sealed override Provider Visit(CompilableProvider cp)
+    protected override sealed Provider Visit(CompilableProvider cp)
     {
       var prevConsumerDescriptor = consumerDescriptor;
       consumerDescriptor = descriptor;
@@ -65,14 +65,14 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       return result;
     }
 
-    protected sealed override Provider VisitSelect(SelectProvider provider)
+    protected override sealed Provider VisitSelect(SelectProvider provider)
     {
       var result = provider;
       var source = VisitCompilable(provider.Source);
-      if(source != provider.Source)
+      if (source!=provider.Source)
         result = OnRecreateSelectProvider(provider, source);
-      if(SortOrder.Count > 0 && provider.ExpectedOrder.Count == 0
-        && consumerDescriptor != null && !consumerDescriptor.Value.BreaksOrder)
+      if (SortOrder.Count > 0 && provider.ExpectedOrder.Count==0
+        && consumerDescriptor!=null && !consumerDescriptor.Value.BreaksOrder)
         OnValidateRemovingOfOrderedColumns();
       CheckCorruptionOfOrder();
       OriginalExpectedOrder = provider.ExpectedOrder;
@@ -80,19 +80,20 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       return result;
     }
 
-    protected sealed override Provider VisitIndex(IndexProvider provider)
+    protected override sealed Provider VisitIndex(IndexProvider provider)
     {
       SortOrder = provider.ExpectedOrder;
       // If current IndexProvider does not preserve records order, 
       // then we reset value of Header.Order
-      if(!descriptor.Value.PreservesOrder)
+      if (!descriptor.Value.PreservesOrder)
         SetActualOrdering(provider, new DirectionCollection<int>());
       return provider;
     }
 
     protected virtual void OnValidateRemovingOfOrderedColumns()
     {
-      throw new InvalidOperationException(Strings.ExSelectProviderRemovesColumnsUsedForOrdering);
+      if (!isOrderOfIndex)
+        throw new InvalidOperationException(Strings.ExSelectProviderRemovesColumnsUsedForOrdering);
     }
 
     protected SelectProvider OnRecreateSelectProvider(SelectProvider modifiedProvider,
@@ -129,9 +130,9 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
     private Provider RemoveSortProvider(CompilableProvider visited)
     {
-      if (consumerDescriptor != null && !consumerDescriptor.Value.IsOrderSensitive) {
+      if (consumerDescriptor!=null && !consumerDescriptor.Value.IsOrderSensitive) {
         var sortProvider = visited as SortProvider;
-        if (sortProvider != null)
+        if (sortProvider!=null)
           return OnRemoveSortProvider(sortProvider);
       }
       return visited;
@@ -180,12 +181,11 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
     private void CheckCorruptionOfOrder()
     {
-      isOrderCorrupted = !descriptor.Value.IsSorter 
+      isOrderCorrupted = !descriptor.Value.IsSorter
         && (isOrderCorrupted || !descriptor.Value.PreservesOrder);
     }
 
     #endregion
-
 
     // Constructors
 

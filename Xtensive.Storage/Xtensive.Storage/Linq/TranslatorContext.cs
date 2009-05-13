@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Linq
 
     public TranslatorContext(Expression query, DomainModel model)
     {
-      resultAliasGenerator = AliasGenerator.Create();
+      resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
       columnAliasGenerator = AliasGenerator.Create(new[] {"column"});
       this.query = EntitySetAccessRewriter.Rewrite(EqualityRewriter.Rewrite(query));
       this.model = model;

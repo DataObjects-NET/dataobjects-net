@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private static void ApplyOrderingToProvider(ExecutableProvider sqlProvider, SqlSelect query)
     {
-      foreach (KeyValuePair<int, Direction> pair in sqlProvider.Origin.Header.Order)
+      foreach (KeyValuePair<int, Direction> pair in sqlProvider.Origin.ExpectedOrder)
         query.OrderBy.Add(query.Columns[pair.Key], pair.Value==Direction.Positive);
     }
 
