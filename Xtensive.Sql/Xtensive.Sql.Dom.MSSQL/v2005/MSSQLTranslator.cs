@@ -200,6 +200,29 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       }
     }
 
+    public override string Translate(SqlCompilerContext context, SqlCreateDomain node, CreateDomainSection section)
+    {
+      switch (section) {
+        case CreateDomainSection.Entry:
+          StringBuilder sb = new StringBuilder();
+          sb.Append("CREATE TYPE " + Translate(node.Domain));
+          sb.Append(" FROM " + Translate(node.Domain.DataType));
+          return sb.ToString();
+        default:
+          return string.Empty;
+      }
+    }
+
+    public override string Translate(SqlCompilerContext context, SqlDropDomain node)
+    {
+      return "DROP TYPE " + Translate(node.Domain);
+    }
+
+    public override string Translate(SqlCompilerContext context, SqlAlterDomain node, AlterDomainSection section)
+    {
+      throw new NotSupportedException("Alter domain is not supported by storage.");
+    }
+
     public override string Translate(SqlCompilerContext context, SqlDeclareCursor node, DeclareCursorSection section)
     {
       if (section == DeclareCursorSection.Holdability || section == DeclareCursorSection.Returnability)
@@ -572,6 +595,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
 
       return base.Translate(context, node, section, position);
     }
+
 
     // Constructors
 

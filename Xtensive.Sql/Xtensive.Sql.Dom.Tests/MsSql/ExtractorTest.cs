@@ -56,18 +56,14 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     [Test]
     public void ExtractDomainsTest()
     {
-      string createDomain =
-        "create type test_type from bigint";
       string createTable =
         "create table table_with_domained_columns (id int primary key, value test_type)";
-      string dropDomain =
-        "if type_id('test_type') is not null drop type test_type";
       string dropTable =
         "if object_id('table_with_domained_columns') is not null drop table table_with_domained_columns";
 
       ExecuteCommand(dropTable);
-      ExecuteCommand(dropDomain);
-      ExecuteCommand(createDomain);
+      DropDomain();
+      CreateDomain();
       ExecuteCommand(createTable);
 
       var schema = ExtractModel().DefaultServer.DefaultCatalog.DefaultSchema;
@@ -80,5 +76,24 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       Assert.IsNotNull(domain);
       Assert.AreEqual("test_type", domain.Name);
     }
+
+    private void CreateDomain()
+    {
+      var schema = ExtractModel().DefaultServer.DefaultCatalog.DefaultSchema;
+      var domain = schema.CreateDomain("test_type", new SqlValueType(SqlDataType.Int64));
+      var commandText = driver.Compile(Sql.Create(domain)).GetCommandText();
+      ExecuteCommand(commandText);
+    }
+
+    private void DropDomain()
+    {
+      var schema = ExtractModel().DefaultServer.DefaultCatalog.DefaultSchema;
+      var domain = schema.Domains["test_type"];
+      if (domain==null)
+        return;
+      var commandText = driver.Compile(Sql.Drop(domain)).GetCommandText();
+      ExecuteCommand(commandText);
+    }
+
   }
 }
