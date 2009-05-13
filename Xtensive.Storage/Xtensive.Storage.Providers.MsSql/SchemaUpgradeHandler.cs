@@ -5,6 +5,7 @@
 // Created:    2009.04.08
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using Xtensive.Modelling.Actions;
@@ -33,14 +34,16 @@ namespace Xtensive.Storage.Providers.MsSql
     public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema)
     {
       var upgradeScript = GenerateUpgradeScript(upgradeActions, sourceSchema, targetSchema);
-      if (string.IsNullOrEmpty(upgradeScript))
-        return;
-      using (var command = new SqlCommand(Connection)) {
-        Log.Info(upgradeScript);
-        command.CommandText = upgradeScript;
-        command.Prepare();
-        command.Transaction = Transaction;
-        command.ExecuteNonQuery();
+      foreach (var batch in upgradeScript) {
+        if (string.IsNullOrEmpty(batch))
+          continue;
+        using (var command = new SqlCommand(Connection)) {
+          Log.Info(batch);
+          command.CommandText = batch;
+          command.Prepare();
+          command.Transaction = Transaction;
+          command.ExecuteNonQuery();
+        }
       }
     }
 
@@ -61,17 +64,21 @@ namespace Xtensive.Storage.Providers.MsSql
       var nativeType = sessionHandeler.Connection.Driver.Translator.Translate(valueType);
 
       var dataType = dataTypes[nativeType] ?? dataTypes[valueType.DataType];
-      
+
+      int? length = 0;
       var streamType = dataType as StreamDataTypeInfo;
-      var length =
-        streamType!=null && valueType.Size==streamType.Length.MaxValue
-          ? 0
-          : valueType.Size;
-      
+      if (streamType!=null
+        && (streamType.SqlType==SqlDataType.VarBinaryMax
+          || streamType.SqlType==SqlDataType.VarCharMax
+            || streamType.SqlType==SqlDataType.AnsiVarCharMax))
+        length = null;
+      else
+        length = valueType.Size;
+
       return new TypeInfo(dataType.Type, false, length);
     }
 
-    private string GenerateUpgradeScript(ActionSequence actions, StorageInfo sourceSchema, StorageInfo targetSchema)
+    private List<string> GenerateUpgradeScript(ActionSequence actions, StorageInfo sourceSchema, StorageInfo targetSchema)
     {
       var valueTypeMapper = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper;
       var translator = new SqlActionTranslator(
@@ -81,9 +88,13 @@ namespace Xtensive.Storage.Providers.MsSql
         valueTypeMapper.BuildSqlValueType,
         sourceSchema, targetSchema);
 
-      var commands = translator.UpgradeCommandText;
+      var preupgradeCommands = translator.PreUpgradeCommands;
+      var commands = translator.UpgradeCommands;
       var delimiter = Connection.Driver.Translator.BatchStatementDelimiter;
-      var batch = string.Join(delimiter, commands.ToArray());
+      var batch = new List<string>();
+      batch.Add(string.Join(delimiter, preupgradeCommands.ToArray()));
+      batch.Add(string.Join(delimiter, commands.ToArray()));
+
       return batch;
     }
 

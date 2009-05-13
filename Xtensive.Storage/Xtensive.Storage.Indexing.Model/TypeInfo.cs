@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <summary>
     /// Gets the length.
     /// </summary>
-    public int Length { get;  private set; }
+    public int? Length { get;  private set; }
 
     /// <summary>
     /// Gets the culture.
@@ -83,12 +83,15 @@ namespace Xtensive.Storage.Indexing.Model
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return 
-        other.Type==Type && 
-          other.IsNullable==IsNullable && 
-            other.Length==Length && 
-              other.Scale==Scale && 
-                other.Precision==Precision;
+      var isEqual =
+        other.Type==Type &&
+          other.IsNullable==IsNullable &&
+            other.Scale==Scale &&
+              other.Precision==Precision;
+      if (Length.HasValue && other.Length.HasValue)
+        isEqual &= other.Length==Length;
+
+      return isEqual;
     }
 
     /// <inheritdoc/>
@@ -109,7 +112,8 @@ namespace Xtensive.Storage.Indexing.Model
       unchecked {
         int result = (Type!=null ? Type.GetHashCode() : 0);
         result = (result * 397) ^ (IsNullable ? 1 : 0);
-        result = (result * 397) ^ Length;
+        if (Length.HasValue)
+          result = (result * 397) ^ Length.Value;
         result = (result * 397) ^ Scale;
         result = (result * 397) ^ Precision;
         if (Culture!=null)
@@ -152,9 +156,8 @@ namespace Xtensive.Storage.Indexing.Model
       sb.Append(string.Format(Strings.PropertyPairFormat, Strings.Type, type.GetShortName()));
       if (IsNullable)
         sb.Append(Strings.NullableMark);
-      if (Length > 0)
-        sb.Append(Strings.Comma).Append(string.Format(
-          Strings.PropertyPairFormat, Strings.Length, Length));
+      sb.Append(Strings.Comma).Append(string.Format(
+        Strings.PropertyPairFormat, Strings.Length, Length.HasValue ? Length.Value.ToString() : "null"));
       if (Culture!=null)
         sb.Append(Strings.Comma).Append(string.Format(
           Strings.PropertyPairFormat, Strings.Culture, Culture));
@@ -184,7 +187,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// </summary>
     /// <param name="type">Underlying data type.</param>
     /// <param name="length">The length.</param>
-    public TypeInfo(Type type, int length)
+    public TypeInfo(Type type, int? length)
       : this(type, type.IsClass || type.IsNullable(), length)
     {
     }
@@ -195,7 +198,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="type">Underlying data type.</param>
     /// <param name="length">The length.</param>
     /// <param name="culture">The culture.</param>
-    public TypeInfo(Type type, int length, CultureInfo culture)
+    public TypeInfo(Type type, int? length, CultureInfo culture)
       : this(type, type.IsClass || type.IsNullable(), length, culture)
     {
     }
@@ -207,7 +210,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="length">The length.</param>
     /// <param name="scale">The scale.</param>
     /// <param name="precision">The precision.</param>
-    public TypeInfo(Type type, int length, int scale, int precision)
+    public TypeInfo(Type type, int? length, int scale, int precision)
       : this(type, type.IsClass || type.IsNullable(), length, scale, precision)
     {
     }
@@ -232,10 +235,10 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="type">Underlying data type.</param>
     /// <param name="isNullable">Indicates whether type is nullable.</param>
     /// <param name="length">The length.</param>
-    public TypeInfo(Type type, bool isNullable, int length)
+    public TypeInfo(Type type, bool isNullable, int? length)
       : this(type, isNullable)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(length, 0, int.MaxValue, "length");
+      // ArgumentValidator.EnsureArgumentIsInRange(length, 0, int.MaxValue, "length");
       Length = length;
     }
 
@@ -246,7 +249,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="isNullable">Indicates whether type is nullable.</param>
     /// <param name="length">The length.</param>
     /// <param name="culture">The culture.</param>
-    public TypeInfo(Type type, bool isNullable, int length, CultureInfo culture)
+    public TypeInfo(Type type, bool isNullable, int? length, CultureInfo culture)
       : this(type, isNullable, length)
     {
       ArgumentValidator.EnsureArgumentNotNull(culture, "culture");
@@ -261,7 +264,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="length">The length.</param>
     /// <param name="scale">The scale.</param>
     /// <param name="precision">The precision.</param>
-    public TypeInfo(Type type, bool isNullable, int length, int scale, int precision)
+    public TypeInfo(Type type, bool isNullable, int? length, int scale, int precision)
       : this(type, isNullable, length)
     {
       Scale = scale;

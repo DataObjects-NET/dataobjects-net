@@ -88,20 +88,18 @@ namespace Xtensive.Storage.Providers.Sql
     {
       {
         DataTypeMapping mapping = MappingSchema.GetExactMapping(type);
-        if (mapping != null)
+        if (mapping!=null)
           return mapping;
       }
 
       DataTypeMapping[] ambigiousMappings = MappingSchema.GetAmbigiousMappings(type);
-      if (ambigiousMappings != null)
-      {
-        foreach (DataTypeMapping mapping in ambigiousMappings)
-        {
+      if (ambigiousMappings!=null) {
+        foreach (DataTypeMapping mapping in ambigiousMappings) {
           var sdti = mapping.DataTypeInfo as StreamDataTypeInfo;
-          if (sdti == null)
+          if (sdti==null)
             return mapping;
 
-          if (length == 0)
+          if (length==0)
             return mapping;
 
           if (sdti.Length.MaxValue < length)

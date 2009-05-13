@@ -233,7 +233,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
       return new SqlValueType(
         dataType,
-        typeInfo.Length);
+        typeInfo.Length ?? 0);
     }
 
     private static SqlDataType GetDbType(Type type)

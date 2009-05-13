@@ -253,7 +253,7 @@ namespace Xtensive.Storage.Tests.Upgrade
           var translator = new SqlActionTranslator(actions, schema, 
             connection.Driver, null, oldModel, newModel);
           var commandText = string.Join(";" + Environment.NewLine, 
-            translator.UpgradeCommandText.ToArray());
+            translator.UpgradeCommands.ToArray());
           Log.Info(commandText);
           command.CommandText = commandText;
           command.Prepare();

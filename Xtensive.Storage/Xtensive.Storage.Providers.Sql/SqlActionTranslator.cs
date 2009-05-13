@@ -22,6 +22,7 @@ using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
 using SqlRefAction = Xtensive.Sql.Dom.ReferentialAction;
 using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
 using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
+using SqlDomain = Xtensive.Sql.Dom.Database.Domain;
 using Xtensive.Modelling.Comparison;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -32,8 +33,6 @@ namespace Xtensive.Storage.Providers.Sql
   [Serializable]
   public sealed class SqlActionTranslator
   {
-    private const string GeneratorColumnName = "ID";
-
     private readonly ActionSequence actions;
     private readonly Schema schema;
 
@@ -41,7 +40,8 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly StorageInfo sourceModel;
     private readonly StorageInfo targetModel;
     private readonly SqlDriver driver;
-    private readonly List<string> commands = new List<string>();
+    private readonly List<string> preUpgradeCommands = new List<string>();
+    private readonly List<string> upgradeCommands = new List<string>();
     private readonly List<Table> createdTables = new List<Table>();
     private bool translated;
 
@@ -51,15 +51,29 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <summary>
-    /// Gets the translation result.
+    /// Gets the command thats must be 
+    /// executed before upgrade commands.
     /// </summary>
-    public List<string> UpgradeCommandText
+    public List<string> PreUpgradeCommands
     {
       get
       {
         if (!translated)
           Translate();
-        return commands;
+        return preUpgradeCommands;
+      }
+    }
+
+    /// <summary>
+    /// Gets the translation result.
+    /// </summary>
+    public List<string> UpgradeCommands
+    {
+      get
+      {
+        if (!translated)
+          Translate();
+        return upgradeCommands;
       }
     }
 
@@ -400,6 +414,9 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var type = GetSqlType(columnInfo.Type);
       var column = table.CreateColumn(columnInfo.Name, type);
+      if (columnInfo.Type.Type==typeof (TimeSpan)
+        || columnInfo.Type.Type==typeof (TimeSpan?))
+        column.Domain = GetTimeSpanDomain();
       column.IsNullable = columnInfo.Type.IsNullable;
       return column;
     }
@@ -447,7 +464,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var sequenceTable = schema.CreateTable(sequenceInfo.Name);
       createdTables.Add(sequenceTable);
-      var idColumn = sequenceTable.CreateColumn(GeneratorColumnName,
+      var idColumn = sequenceTable.CreateColumn(SqlWellknown.GeneratorColumnName,
         GetSqlType(sequenceInfo.Type));
       var currentValue = GetCurrentSequenceValue(sequenceInfo.Name);
       idColumn.SequenceDescriptor =
@@ -456,6 +473,17 @@ namespace Xtensive.Storage.Providers.Sql
           currentValue ?? sequenceInfo.StartValue,
           sequenceInfo.Increment);
       RegisterCommand(SqlFactory.Create(sequenceTable));
+    }
+
+    private SqlDomain GetTimeSpanDomain()
+    {
+      var domain = schema.Domains[SqlWellknown.TimeSpanDomainName];
+      if (domain == null) {
+        var sqlValueType = GetSqlType(new TypeInfo(typeof (TimeSpan)));
+        domain = schema.CreateDomain(SqlWellknown.TimeSpanDomainName, sqlValueType);
+        RegisterPreCommand(SqlFactory.Create(domain));
+      }
+      return domain;
     }
 
     private void DropGeneratorTable(SequenceInfo sequenceInfo)
@@ -491,14 +519,16 @@ namespace Xtensive.Storage.Providers.Sql
 
       return
         valueTypeBuilder!=null
-          ? valueTypeBuilder.Invoke(type, typeInfo.Length)
+          ? valueTypeBuilder.Invoke(type, typeInfo.Length ?? 0)
           : BuildSqlValueType(type, typeInfo.Length);
     }
 
-    private static SqlValueType BuildSqlValueType(Type type, int length)
+    private static SqlValueType BuildSqlValueType(Type type, int? length)
     {
       var dataType = GetDbType(type);
-      return new SqlValueType(dataType, length);
+      if (length.HasValue)
+        return new SqlValueType(dataType, length.Value);
+      return new SqlValueType(dataType);
     }
 
     private static SqlDataType GetDbType(Type type)
@@ -567,8 +597,14 @@ namespace Xtensive.Storage.Providers.Sql
     
     private void RegisterCommand(ISqlCompileUnit command)
     {
-      commands.Add(driver.Compile(command).GetCommandText());
+      upgradeCommands.Add(driver.Compile(command).GetCommandText());
     }
+
+    private void RegisterPreCommand(ISqlCompileUnit command)
+    {
+      preUpgradeCommands.Add(driver.Compile(command).GetCommandText());
+    }
+
 
     private long? GetCurrentSequenceValue(string sequenceInfoName)
     {

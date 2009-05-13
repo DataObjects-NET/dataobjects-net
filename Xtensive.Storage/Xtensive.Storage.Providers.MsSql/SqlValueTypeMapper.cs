@@ -14,6 +14,7 @@ namespace Xtensive.Storage.Providers.MsSql
 {
   public sealed class SqlValueTypeMapper : Sql.SqlValueTypeMapper
   {
+
     private static readonly long TicksPerMillisecond = TimeSpan.FromMilliseconds(1).Ticks;
 
     protected override void BuildTypeSubstitutes()

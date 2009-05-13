@@ -155,7 +155,7 @@ namespace Xtensive.Storage.Model.Conversion
         ? column.ValueType.ToNullable()
         : column.ValueType;
 
-      var type = new StorageTypeInfo(columnType, column.IsNullable, column.Length ?? 0);
+      var type = new StorageTypeInfo(columnType, column.IsNullable, column.Length);
       return new StorageColumnInfo(CurrentTable, column.Name, type);
     }
 
@@ -334,7 +334,7 @@ namespace Xtensive.Storage.Model.Conversion
       ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
     {
       string primaryIndexColumnName = null;
-      foreach (ColumnInfo primaryColumn in primaryIndex.Columns)
+      foreach (var primaryColumn in primaryIndex.Columns)
         if (primaryColumn.Field.Equals(secondaryIndexColumn.Field)) {
           primaryIndexColumnName = primaryColumn.Name;
           break;
@@ -410,9 +410,7 @@ namespace Xtensive.Storage.Model.Conversion
     {
       throw new NotSupportedException();
     }
-
     
-
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitServiceInfo(ServiceInfo serviceInfo)

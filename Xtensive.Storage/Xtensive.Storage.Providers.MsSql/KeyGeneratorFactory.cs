@@ -32,10 +32,10 @@ namespace Xtensive.Storage.Providers.MsSql
       if (genTable==null)
         throw new DomainBuilderException(
           string.Format("Can not find table '{0}' in storage.", generatorInfo.MappingName));
-      var column = genTable.Columns.FirstOrDefault(c => c.Name=="ID") as TableColumn;
+      var column = genTable.Columns.FirstOrDefault(c => c.Name==SqlWellknown.GeneratorColumnName) as TableColumn;
       if (column==null)
         throw new DomainBuilderException(
-          string.Format("Can not find column '{0}' in table '{1}'.", "ID", genTable.Name));
+          string.Format("Can not find column '{0}' in table '{1}'.", SqlWellknown.GeneratorColumnName, genTable.Name));
 
       SqlBatch sqlNext = SqlFactory.Batch();
       SqlInsert insert = SqlFactory.Insert(SqlFactory.TableRef(genTable));
