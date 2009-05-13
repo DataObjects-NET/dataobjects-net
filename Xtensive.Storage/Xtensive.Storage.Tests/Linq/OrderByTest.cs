@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2009.01.29
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -24,7 +25,12 @@ namespace Xtensive.Storage.Tests.Linq
         .Select(od => new {Details = od, Order = od.Order})
         .OrderBy(x => new {x, x.Order.Customer})
         .Select(x =>  new {x, x.Order.Customer});
-      QueryDumper.Dump(result);
+      var expected = Query<OrderDetails>.All.AsEnumerable()
+        .Select(od => new {Details = od, Order = od.Order})
+        .OrderBy(x => new {x, x.Order.Customer})
+        .Select(x =>  new {x, x.Order.Customer});
+      Assert.IsTrue(expected.SequenceEqual(result));
+      //QueryDumper.Dump(result);
     }
 
     [Test]
@@ -34,7 +40,11 @@ namespace Xtensive.Storage.Tests.Linq
       var result = customers
         .OrderBy(c => new {c.Fax, c.Phone})
         .Select(c => new {c.Fax, c.Phone});
-      QueryDumper.Dump(result);
+      var expected = customers.AsEnumerable()
+        .OrderBy(c => new {c.Fax, c.Phone})
+        .Select(c => new {c.Fax, c.Phone});
+      Assert.IsTrue(expected.SequenceEqual(result));
+      //QueryDumper.Dump(result);
     }
 
     [Test]
@@ -44,7 +54,11 @@ namespace Xtensive.Storage.Tests.Linq
       var result = customers
         .Select(c => new {c.Address.Country, c})
         .OrderBy(x => x);
-      QueryDumper.Dump(result);
+      var expected = customers.AsEnumerable()
+        .Select(c => new {c.Address.Country, c})
+        .OrderBy(x => x);
+      Assert.IsTrue(result.SequenceEqual(expected));
+      //QueryDumper.Dump(result);
     }
 
     [Test]
