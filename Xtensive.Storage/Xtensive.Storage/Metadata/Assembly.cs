@@ -5,11 +5,8 @@
 // Created:    2008.12.24
 
 using System;
-using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Building;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Metadata
