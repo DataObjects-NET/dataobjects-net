@@ -11,8 +11,8 @@ namespace Xtensive.Storage
   /// <summary>
   /// Defines secondary index.
   /// </summary>
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true, Inherited = false)]
   [Serializable]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true, Inherited = false)]
   public sealed class IndexAttribute : MappingAttribute
   {
     private string[] keyFields;

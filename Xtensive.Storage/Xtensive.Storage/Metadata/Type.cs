@@ -19,6 +19,7 @@ namespace Xtensive.Storage.Metadata
   /// </summary>
   [SystemType(1)]
   [HierarchyRoot("Id")]
+  [Entity(MappingName = "Metadata.Type")]
   [Index("Name", IsUnique = true)]
   public class Type : Entity
   {
@@ -33,26 +34,6 @@ namespace Xtensive.Storage.Metadata
     /// </summary>
     [Field(Length = 2048)]
     public string Name { get; set; }
-
-    #region Event handlers
-
-    /// <exception cref="Exception">Object is read-only.</exception>
-    protected override void  OnSettingFieldValue(FieldInfo field, object value)
-    {
-      if (BuildingContext.Current==null)
-        throw Exceptions.ObjectIsReadOnly(null);
-      base.OnSettingFieldValue(field, value);
-    }
-
-    /// <exception cref="Exception">Object is read-only.</exception>
-    protected override void OnRemove()
-    {
-      if (BuildingContext.Current==null)
-        throw Exceptions.ObjectIsReadOnly(null);
-      base.OnRemove();
-    }
-
-    #endregion
 
     /// <inheritdoc/>
     public override string ToString()
@@ -71,8 +52,6 @@ namespace Xtensive.Storage.Metadata
     public Type(int id, string name) 
       : base(Tuple.Create(id))
     {
-      if (BuildingContext.Current==null)
-        throw Exceptions.ObjectIsReadOnly(null);
       Name = name;
     }
   }

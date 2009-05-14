@@ -5,12 +5,8 @@
 // Created:    2008.12.24
 
 using System;
-using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Building;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Model;
-using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Metadata
 {
@@ -20,25 +16,25 @@ namespace Xtensive.Storage.Metadata
   /// </summary>
   [SystemType(2)]
   [HierarchyRoot("Name")]
-  [Entity(MappingName = "Metadata.Assembly")]
-  public class Assembly : MetadataBase
+  [Entity(MappingName = "Metadata.Extension")]
+  public class Extension : MetadataBase
   {
     /// <summary>
-    /// Gets or sets the name of the assembly.
+    /// Gets or sets the name of the extension.
     /// </summary>
     [Field(Length = 1024)]
     public string Name { get; private set; }
 
     /// <summary>
-    /// Gets or sets the assembly version.
+    /// Gets or sets the extension data.
     /// </summary>
-    [Field(Length = 64)]
-    public string Version { get; set; }
+    [Field]
+    public string Data { get; set; }
 
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format(Strings.MetadataAssemblyFormat, Name, Version);
+      return Name;
     }
 
 
@@ -49,7 +45,7 @@ namespace Xtensive.Storage.Metadata
     /// </summary>
     /// <param name="name">The assembly name.</param>
     /// <exception cref="Exception">Object is read-only.</exception>
-    public Assembly(string name) 
+    public Extension(string name) 
       : base(Tuple.Create(name))
     {
     }

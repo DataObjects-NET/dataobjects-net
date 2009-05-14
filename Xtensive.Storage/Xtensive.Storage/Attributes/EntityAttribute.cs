@@ -12,6 +12,7 @@ namespace Xtensive.Storage
   /// Defines mapping name for persistent type
   /// (i.e. name of the table this class is mapped to).
   /// </summary>
+  [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   public class EntityAttribute : MappingAttribute
   {

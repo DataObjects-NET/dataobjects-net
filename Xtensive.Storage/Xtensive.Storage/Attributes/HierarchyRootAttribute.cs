@@ -14,6 +14,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// Defines the root type of hierarchy of persistent types.
   /// </summary>
+  [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
   public class HierarchyRootAttribute : StorageAttribute
   {
