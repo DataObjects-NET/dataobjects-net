@@ -15,9 +15,7 @@ namespace Xtensive.Core.Linq.SerializableExpressions
   [Serializable]
   public class SerializableListInitExpression : SerializableExpression
   {
-    public SerializableListInitExpression()
-    {
-      throw new NotImplementedException();
-    }
+    public SerializableNewExpression NewExpression;
+    public SerializableElementInit[] Initializers;
   }
 }

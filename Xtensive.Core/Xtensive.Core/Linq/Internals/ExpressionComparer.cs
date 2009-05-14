@@ -182,6 +182,10 @@ namespace Xtensive.Core.Linq.Internals
 
     private bool VisitConstant(ConstantExpression x, ConstantExpression y)
     {
+      if (ReferenceEquals(x.Value, y.Value))
+        return true;
+      if (x.Value == null || y.Value == null)
+        return false;
       return x.Value.Equals(y.Value);
     }
 

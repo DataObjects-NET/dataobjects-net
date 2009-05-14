@@ -145,7 +145,19 @@ namespace Xtensive.Core.Linq.SerializableExpressions.Internals
 
     protected override SerializableExpression VisitListInit(ListInitExpression li)
     {
-      throw new NotImplementedException();
+      return new SerializableListInitExpression
+        {
+          NodeType = li.NodeType,
+          Type = li.Type,
+          NewExpression = (SerializableNewExpression) Visit(li.NewExpression),
+          Initializers = li.Initializers
+            .Select(initializer => new SerializableElementInit
+              {
+                AddMethod = initializer.AddMethod,
+                Arguments = VisitExpressionSequence(initializer.Arguments)
+              })
+             .ToArraySafely()
+        };
     }
 
     protected override SerializableExpression VisitNewArray(NewArrayExpression na)

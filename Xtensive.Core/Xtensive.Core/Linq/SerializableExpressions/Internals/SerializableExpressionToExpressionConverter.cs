@@ -186,7 +186,10 @@ namespace Xtensive.Core.Linq.SerializableExpressions.Internals
 
     private Expression VisitListInit(SerializableListInitExpression li)
     {
-      throw new NotImplementedException();
+      return Expression.ListInit(
+        (NewExpression) Visit(li.NewExpression),
+        li.Initializers.Select(initializer =>
+          Expression.ElementInit(initializer.AddMethod, VisitExpressionSequence(initializer.Arguments))));
     }
 
     private Expression VisitNewArray(SerializableNewArrayExpression na)

@@ -13,6 +13,7 @@ namespace Xtensive.Core.Linq.Internals
 {
   internal sealed class ExpressionHashCodeCalculator : ExpressionVisitor<int>
   {
+    private const int nullHashCode = 0x7abf3456;
     private readonly ParameterCollection parameters = new ParameterCollection();
 
     public int CalculateHashCode(Expression expression)
@@ -31,7 +32,7 @@ namespace Xtensive.Core.Linq.Internals
     protected override int Visit(Expression e)
     {
       if (e == null)
-        return 0x7abf3456;
+        return nullHashCode;
       var hash = (uint) (base.Visit(e) ^ (int) e.NodeType ^ e.Type.GetHashCode());
       // transform bytes 0123 -> 1302
       hash = (hash & 0xFF00) >> 8 | (hash & 0xFF000000) >> 16 | (hash & 0xFF) << 16 | (hash & 0xFF0000) << 8;
@@ -55,7 +56,7 @@ namespace Xtensive.Core.Linq.Internals
 
     protected override int VisitConstant(ConstantExpression c)
     {
-      return c.Value.GetHashCode();
+      return c.Value != null ? c.Value.GetHashCode() : nullHashCode;
     }
 
     protected override int VisitConditional(ConditionalExpression c)

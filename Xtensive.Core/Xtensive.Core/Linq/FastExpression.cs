@@ -13,7 +13,7 @@ using Xtensive.Core.Linq.Internals;
 namespace Xtensive.Core.Linq
 {
   /// <summary>
-  /// Factory methods for various descendants of <see cref="Expression"/> that is faster than orignal ones.
+  /// Factory methods for various descendants of <see cref="Expression"/> that are faster than orignal ones.
   /// </summary>
   public static class FastExpression
   {
