@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     {
       var result = Left.ExpectedOrder;
       if (Left.ExpectedOrder.Count > 0) {
-        var leftHeaderLength = Left.ExpectedOrder.Count;
+        var leftHeaderLength = Left.Header.Columns.Count;
         result = new DirectionCollection<int>(
           Enumerable.Union(result, Right.ExpectedOrder.Select(p =>
             new KeyValuePair<int, Direction>(p.Key + leftHeaderLength, p.Value))));

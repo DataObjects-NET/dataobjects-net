@@ -1069,5 +1069,33 @@ namespace Xtensive.Storage.Tests.Linq
       var result = from e in Query<Employee>.All where e.FullName!=null select e;
       result.ToList();
     }
+
+    [Test]
+    public void JoinTest()
+    {
+      var actual = from customer in Query<Customer>.All
+        join order in Query<Order>.All on customer equals order.Customer
+        where order.Freight > 30
+        orderby new {customer, order}
+        select new {customer, order};
+      var expected = from customer in Query<Customer>.All.AsEnumerable()
+        join order in Query<Order>.All.AsEnumerable() on customer equals order.Customer
+        where order.Freight > 30
+        orderby customer.Id, order.Id
+        select new {customer, order};
+      Assert.IsTrue(expected.SequenceEqual(actual));
+    }
+
+    [Test]
+    public void ApplyTest()
+    {
+      var actual = from customer in Query<Customer>.All
+        where customer.Orders.Any(o => o.Freight > 30)
+        select customer;
+      var expected = from customer in Query<Customer>.All.AsEnumerable()
+        where customer.Orders.Any(o => o.Freight > 30)
+        select customer;
+      Assert.IsTrue(expected.SequenceEqual(actual));
+    }
   }
 }

@@ -141,10 +141,6 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
-      /*var query = source.Request.SelectStatement;
-      if (query.Distinct)
-        return source;*/
-
       var clone = (SqlSelect) source.Request.SelectStatement.Clone();
       var queryRef = SqlFactory.QueryRef(clone);
       var query = SqlFactory.Select(queryRef);
@@ -158,36 +154,20 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var compiledSource = GetCompiled(provider.Source);
       var source = compiledSource as SqlProvider;
-      if (source == null)
+      if (source==null)
         return null;
 
-      SqlSelect query;
-      bool shouldUseQueryRef =
-        provider.Source is ApplyProvider ||
-        provider.Source is AggregateProvider ||
-        provider.Source is CalculateProvider ||
-        provider.Source is ExistenceProvider;
-      if (!shouldUseQueryRef && provider.Source is SelectProvider)
-        shouldUseQueryRef =
-          provider.Source.Sources[0] is ApplyProvider ||
-          provider.Source.Sources[0] is AggregateProvider ||
-          provider.Source.Sources[0] is CalculateProvider ||
-          provider.Source.Sources[0] is ExistenceProvider;
-      if (shouldUseQueryRef) {
-        var queryRef = SqlFactory.QueryRef(source.Request.SelectStatement);
-        query = SqlFactory.Select(queryRef);
-        query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      }
-      else
-        query = (SqlSelect) source.Request.SelectStatement.Clone();
+      var queryRef = SqlFactory.QueryRef(source.Request.SelectStatement);
+      var query = SqlFactory.Select(queryRef);
+      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
-     HashSet<SqlFetchParameterBinding> bindings;
+      HashSet<SqlFetchParameterBinding> bindings;
       var predicate = TranslateExpression(provider.Predicate, out bindings, query);
-      if (predicate.NodeType == SqlNodeType.Literal) {
+      if (predicate.NodeType==SqlNodeType.Literal) {
         var value = predicate as SqlLiteral<bool>;
-        if (value != null) {
+        if (value!=null) {
           if (!value.Value)
-            query.Where &= (1 == 0);
+            query.Where &= (1==0);
         }
       }
       else
