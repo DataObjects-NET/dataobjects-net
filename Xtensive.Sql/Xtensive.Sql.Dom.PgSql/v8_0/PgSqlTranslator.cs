@@ -1030,6 +1030,15 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       return string.Empty;
     }
 
+    public override string Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
+    {
+      switch (section) {
+        case NodeSection.Exit:
+          return (node.Ascending) ? "ASC NULLS FIRST" : "DESC NULLS LAST";
+      }
+      return string.Empty;
+    }
+
     public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
     {
       //casting this way behaves differently: -32768::int2 is out of range ! We need (-32768)::int2
