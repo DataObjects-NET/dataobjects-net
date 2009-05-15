@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Building
     static Validator()
     {
       Regex nameRe = new Regex(@"^[A-z][A-z0-9\-\._]*$", RegexOptions.Compiled);
-      regexps.Add(ValidationRule.Type, nameRe);
+      regexps.Add(ValidationRule.Type, new Regex(@"^[A-z][A-z0-9\-\.\(\)_,]*$", RegexOptions.Compiled));
       regexps.Add(ValidationRule.Field, new Regex(@"^[A-z][A-z0-9\-_]*$", RegexOptions.Compiled));
       regexps.Add(ValidationRule.Column, nameRe);
       regexps.Add(ValidationRule.Index, nameRe);

@@ -63,8 +63,7 @@ namespace Xtensive.Storage.Configuration.Internals
     {
       string ns = registration.Namespace;
       return
-        !type.IsGenericTypeDefinition &&
-          type.IsSubclassOf(BaseType) &&
+        type.IsSubclassOf(BaseType) &&
             (ns.IsNullOrEmpty() || (type.FullName.IndexOf(ns + ".") >= 0));
     }
   }

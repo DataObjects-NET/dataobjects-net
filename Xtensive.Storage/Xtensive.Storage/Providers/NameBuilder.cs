@@ -67,31 +67,56 @@ namespace Xtensive.Storage.Providers
     public virtual string Build(TypeDef type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-
       string result;
+
+      if (type.UnderlyingType.IsGenericType) {
+        var context = Building.BuildingContext.Current;
+        Type[] arguments = type.UnderlyingType.GetGenericArguments();
+        var names = new string[arguments.Length];
+        for (int i = 0; i < arguments.Length; i++) {
+          var argument = arguments[i];
+          if (argument.IsSubclassOf(typeof (Persistent))) {
+            TypeDef argTypeDef = context.Definition.Types[argument];
+            names[i] = argTypeDef.Name;
+          }
+          else
+            names[i] = argument.GetShortName();
+        }
+        if (type.MappingName.IsNullOrEmpty()) {
+          result = type.UnderlyingType.GetShortName();
+          result = result.Substring(0, result.IndexOf("<"));
+        }
+        else
+          result = type.MappingName;
+        return NamingConvention.Apply(result + "(" + string.Join(",", names) + ")");
+      }
+
       if (!type.MappingName.IsNullOrEmpty())
-        result = type.MappingName;
-      else {
-        string underlyingName = type.UnderlyingType.Namespace.IsNullOrEmpty() ? type.UnderlyingType.FullName : type.UnderlyingType.FullName.Substring(type.UnderlyingType.Namespace.Length + 1, type.UnderlyingType.FullName.Length - type.UnderlyingType.Namespace.Length - 1);
-        result = type.Name.IsNullOrEmpty() ? underlyingName : type.Name;
-        if (NamingConvention.NamespacePolicy == NamespacePolicy.Synonymize) {
+        return NamingConvention.Apply(type.MappingName);
+
+      string underlyingTypeName = type.UnderlyingType.GetShortName();
+      string @namespace = type.UnderlyingType.Namespace;
+      result = type.Name.IsNullOrEmpty() ? underlyingTypeName : type.Name;
+      switch (NamingConvention.NamespacePolicy) {
+        case NamespacePolicy.Synonymize: {
           string namespacePrefix;
           try {
-            namespacePrefix = NamingConvention.NamespaceSynonyms[type.UnderlyingType.Namespace];
+            namespacePrefix = NamingConvention.NamespaceSynonyms[@namespace];
             if (namespacePrefix.IsNullOrEmpty())
               throw new ApplicationException("Incorrect namespace synonyms.");
           }
           catch (KeyNotFoundException) {
-            namespacePrefix = type.UnderlyingType.Namespace;
+            namespacePrefix = @namespace;
           }
           result = string.Format("{0}.{1}", namespacePrefix, result);
         }
-        else if (NamingConvention.NamespacePolicy == NamespacePolicy.AsIs) {
-          result = string.Format("{0}.{1}", type.UnderlyingType.Namespace, result);
-        }
-        else if (NamingConvention.NamespacePolicy == NamespacePolicy.Hash) {
-          result = string.Format("{0}.{1}", BuildHash(type.UnderlyingType.Namespace), result);
-        }
+          break;
+        case NamespacePolicy.AsIs:
+          result = string.Format("{0}.{1}", @namespace, result);
+          break;
+        case NamespacePolicy.Hash:
+          result = string.Format("{0}.{1}", BuildHash(@namespace), result);
+          break;
       }
       return NamingConvention.Apply(result);
     }

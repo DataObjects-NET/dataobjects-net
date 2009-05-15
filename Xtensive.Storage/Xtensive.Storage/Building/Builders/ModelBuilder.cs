@@ -44,9 +44,39 @@ namespace Xtensive.Storage.Building.Builders
       using (LogTemplate<Log>.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
         var context = BuildingContext.Current;
         var typeFilter = context.BuilderConfiguration.TypeFilter ?? (t => true);
-        foreach (var type in context.Configuration.Types)          
-          if (typeFilter.Invoke(type))
+        var generics = new List<Type>();
+        foreach (var type in context.Configuration.Types)
+          if (typeFilter.Invoke(type)) {
+            // Skip generic type definitions to build them later
+            if (type.IsGenericTypeDefinition) {
+              generics.Add(type);
+              continue;
+            }
             DefineType(type);
+          }
+        // Making a copy of already built hierarchy set to avoid recursiveness
+        var hierarchies = context.Definition.Hierarchies.ToList();
+        foreach (var type in generics) {
+          var parameters = type.GetGenericArguments();
+          // We can produce generic instance types with exactly 1 parameter, e.g. EntityWrapper<TEntity> where TEntity : Entity
+          if (parameters.Length != 1)
+            continue;
+          var parameter = parameters[0];
+          // TEntity parameter must be constrained
+          var constraints = parameter.GetGenericParameterConstraints();
+          if (constraints.Length == 0)
+            continue;
+          foreach (var hierarchy in hierarchies) {
+            foreach (var constraint in constraints) {
+              if (!constraint.IsAssignableFrom(hierarchy.Root.UnderlyingType))
+                goto next;
+            }
+            Type resultingType = type.MakeGenericType(hierarchy.Root.UnderlyingType);
+            DefineType(resultingType);
+          next:
+            continue;
+          }
+        }
       }
     }
 
