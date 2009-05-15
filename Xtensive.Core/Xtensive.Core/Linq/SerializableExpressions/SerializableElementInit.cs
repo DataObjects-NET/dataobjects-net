@@ -11,12 +11,18 @@ using System.Reflection;
 namespace Xtensive.Core.Linq.SerializableExpressions
 {
   /// <summary>
-  /// A serializable representation of <see cref="ElementInit"/>
+  /// A serializable representation of <see cref="ElementInit"/>.
   /// </summary>
   [Serializable]
-  public class SerializableElementInit
+  public sealed class SerializableElementInit
   {
+    /// <summary>
+    /// <see cref="ElementInit.AddMethod"/>
+    /// </summary>
     public MethodInfo AddMethod;
+    /// <summary>
+    /// <see cref="ElementInit.Arguments"/>
+    /// </summary>
     public SerializableExpression[] Arguments;
   }
 }

@@ -13,9 +13,15 @@ namespace Xtensive.Core.Linq.SerializableExpressions
   /// A serializable representation of <see cref="ListInitExpression"/>.
   /// </summary>
   [Serializable]
-  public class SerializableListInitExpression : SerializableExpression
+  public sealed class SerializableListInitExpression : SerializableExpression
   {
+    /// <summary>
+    /// <see cref="ListInitExpression.NewExpression"/>
+    /// </summary>
     public SerializableNewExpression NewExpression;
+    /// <summary>
+    /// <see cref="ListInitExpression.Initializers"/>
+    /// </summary>
     public SerializableElementInit[] Initializers;
   }
 }

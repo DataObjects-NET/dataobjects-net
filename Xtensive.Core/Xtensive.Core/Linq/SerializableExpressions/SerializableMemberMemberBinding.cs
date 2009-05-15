@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
-// Created:    2009.05.13
+// Created:    2009.05.15
 
 using System;
 using System.Linq.Expressions;
@@ -10,17 +10,13 @@ using System.Linq.Expressions;
 namespace Xtensive.Core.Linq.SerializableExpressions
 {
   /// <summary>
-  /// A serializable representation of <see cref="MemberInitExpression"/>
+  /// A serializable representation of <see cref="MemberMemberBinding"/>.
   /// </summary>
   [Serializable]
-  public sealed class SerializableMemberInitExpression : SerializableExpression
+  public sealed class SerializableMemberMemberBinding : SerializableMemberBinding
   {
     /// <summary>
-    /// <see cref="MemberInitExpression.NewExpression"/>
-    /// </summary>
-    public SerializableNewExpression NewExpression;
-    /// <summary>
-    /// <see cref="MemberInitExpression.Bindings"/>
+    /// <see cref="MemberMemberBinding.Bindings"/>
     /// </summary>
     public SerializableMemberBinding[] Bindings;
   }

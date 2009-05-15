@@ -5,9 +5,7 @@
 // Created:    2009.05.13
 
 using System;
-using System.Linq;
 using System.Linq.Expressions;
-using ExpressionFactory = System.Linq.Expressions.Expression;
 
 namespace Xtensive.Core.Linq.SerializableExpressions
 {

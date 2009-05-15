@@ -50,9 +50,7 @@ namespace Xtensive.Core.Linq
       var parameters = EnumerableUtils.One(constantParameter).Concat(lambda.Parameters).ToArray();
       var body = Visit(lambda.Body);
       // preserve original delegate type because it may differ from types of parameters / return value
-      return lambda.GetType().IsOfGenericType(typeof (Expression<>))
-        ? FastExpression.Lambda(FixDelegateType(lambda.GetType().GetGenericArguments()[0]), body, parameters)
-        : FastExpression.Lambda(body, parameters);
+      return FastExpression.Lambda(FixDelegateType(lambda.Type), body, parameters);
     }
 
     /// <inheritdoc/>

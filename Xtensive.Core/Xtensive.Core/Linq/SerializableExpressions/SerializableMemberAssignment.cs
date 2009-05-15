@@ -2,27 +2,22 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
-// Created:    2009.05.12
+// Created:    2009.05.15
 
 using System;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Xtensive.Core.Linq.SerializableExpressions
 {
   /// <summary>
-  /// A serializable representation of <see cref="MemberExpression"/>.
+  /// A serializable representation of <see cref="MemberAssignment"/>
   /// </summary>
   [Serializable]
-  public sealed class SerializableMemberExpression : SerializableExpression
+  public class SerializableMemberAssignment : SerializableMemberBinding
   {
     /// <summary>
-    /// <see cref="MemberExpression.Expression"/>
+    /// <see cref="MemberAssignment.Expression"/>
     /// </summary>
     public SerializableExpression Expression;
-    /// <summary>
-    /// <see cref="MemberExpression.Member"/>
-    /// </summary>
-    public MemberInfo Member;
   }
 }

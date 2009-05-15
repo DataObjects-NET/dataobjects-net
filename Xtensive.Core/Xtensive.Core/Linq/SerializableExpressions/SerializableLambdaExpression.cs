@@ -5,7 +5,6 @@
 // Created:    2009.05.12
 
 using System;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace Xtensive.Core.Linq.SerializableExpressions
@@ -16,11 +15,6 @@ namespace Xtensive.Core.Linq.SerializableExpressions
   [Serializable]
   public sealed class SerializableLambdaExpression : SerializableExpression
   {
-    /// <summary>
-    /// A type of delegate that will of this expression.
-    /// </summary>
-    public Type DelegateType;
-
     /// <summary>
     /// <see cref="LambdaExpression.Body"/>.
     /// </summary>

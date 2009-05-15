@@ -91,17 +91,5 @@ namespace Xtensive.Core.Linq
     {
       return new SerializableExpressionToExpressionConverter(expression).Convert();
     }
-
-    /// <summary>
-    /// Gets the type of the delegate associated with specified <see cref="LambdaExpression"/>.
-    /// </summary>
-    /// <param name="lambda">The lambda to get delegate from.</param>
-    /// <returns>Extracted delegate type.</returns>
-    public static Type GetDelegateType(this LambdaExpression lambda)
-    {
-      return lambda.GetType().IsOfGenericType(typeof (Expression<>))
-        ? lambda.GetType().GetGenericArguments()[0]
-        : DelegateHelper.MakeDelegateType(lambda.Body.Type, lambda.Parameters.Select(p => p.Type));
-    }
   }
 }

@@ -120,7 +120,6 @@ namespace Xtensive.Core.Linq.SerializableExpressions.Internals
         {
           NodeType = l.NodeType,
           Type = l.Type,
-          DelegateType = l.GetDelegateType(),
           Body = Visit(l.Body),
           Parameters = l.Parameters.Select(p => (SerializableParameterExpression) Visit(p)).ToArraySafely()
         };
@@ -140,7 +139,13 @@ namespace Xtensive.Core.Linq.SerializableExpressions.Internals
 
     protected override SerializableExpression VisitMemberInit(MemberInitExpression mi)
     {
-      throw new NotImplementedException();
+      return new SerializableMemberInitExpression()
+        {
+          NodeType = mi.NodeType,
+          Type = mi.Type,
+          Bindings = VisitMemberBindingSequence(mi.Bindings),
+          NewExpression = (SerializableNewExpression) Visit(mi.NewExpression)
+        };
     }
 
     protected override SerializableExpression VisitListInit(ListInitExpression li)
@@ -150,13 +155,7 @@ namespace Xtensive.Core.Linq.SerializableExpressions.Internals
           NodeType = li.NodeType,
           Type = li.Type,
           NewExpression = (SerializableNewExpression) Visit(li.NewExpression),
-          Initializers = li.Initializers
-            .Select(initializer => new SerializableElementInit
-              {
-                AddMethod = initializer.AddMethod,
-                Arguments = VisitExpressionSequence(initializer.Arguments)
-              })
-             .ToArraySafely()
+          Initializers = VisitElementInitSequence(li.Initializers)
         };
     }
 
@@ -183,11 +182,61 @@ namespace Xtensive.Core.Linq.SerializableExpressions.Internals
 
     #endregion
 
-    private SerializableExpression[] VisitExpressionSequence<T>(IEnumerable<T> sequence)
+    #region Private / internal methods
+
+    private SerializableMemberBinding[] VisitMemberBindingSequence(IEnumerable<MemberBinding> bindings)
+    {
+      var result = new List<SerializableMemberBinding>();
+      foreach (var binding in bindings)
+        switch (binding.BindingType) {
+        case MemberBindingType.Assignment:
+          result.Add(new SerializableMemberAssignment
+            {
+              BindingType = MemberBindingType.Assignment,
+              Member = binding.Member,
+              Expression = Visit(((MemberAssignment) binding).Expression)
+            });
+          break;
+        case MemberBindingType.ListBinding:
+          result.Add(new SerializableMemberListBinding
+            {
+              BindingType = MemberBindingType.ListBinding,
+              Member = binding.Member,
+              Initializers = VisitElementInitSequence(((MemberListBinding) binding).Initializers)
+            });
+          break;
+        case MemberBindingType.MemberBinding:
+          result.Add(new SerializableMemberMemberBinding
+            {
+              BindingType = MemberBindingType.MemberBinding,
+              Member = binding.Member,
+              Bindings = VisitMemberBindingSequence(((MemberMemberBinding) binding).Bindings)
+            });
+          break;
+        default:
+          throw new ArgumentOutOfRangeException();
+        }
+      return result.ToArray();
+    }
+
+    private SerializableElementInit[] VisitElementInitSequence(IEnumerable<ElementInit> initializers)
+    {
+      return initializers
+        .Select(initializer => new SerializableElementInit
+          {
+            AddMethod = initializer.AddMethod,
+            Arguments = VisitExpressionSequence(initializer.Arguments)
+          })
+        .ToArray();
+    }
+
+    private SerializableExpression[] VisitExpressionSequence<T>(IEnumerable<T> expressions)
       where T : Expression
     {
-      return sequence.Select(e => Visit(e)).ToArraySafely();
+      return expressions.Select(e => Visit(e)).ToArray();
     }
+
+    #endregion
 
     public ExpressionToSerializableExpressionConverter(Expression source)
       : base(true)

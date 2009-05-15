@@ -1,8 +1,8 @@
 // Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Denis Krjuchkov
-// Created:    2009.05.13
+// Created by: Denis Kryuchkov
+// Created:    2009.05.15
 
 using System;
 using System.Linq.Expressions;
@@ -10,14 +10,14 @@ using System.Linq.Expressions;
 namespace Xtensive.Core.Linq.SerializableExpressions
 {
   /// <summary>
-  /// A serializable representation of <see cref="NewArrayExpression"/>
+  /// A serializable representation of <see cref="MemberListBinding"/>.
   /// </summary>
   [Serializable]
-  public sealed class SerializableNewArrayExpression : SerializableExpression
+  public sealed class SerializableMemberListBinding : SerializableMemberBinding
   {
     /// <summary>
-    /// <see cref="NewArrayExpression.Expressions"/>
+    /// <see cref="MemberListBinding.Initializers"/>
     /// </summary>
-    public SerializableExpression[] Expressions;
+    public SerializableElementInit[] Initializers;
   }
 }

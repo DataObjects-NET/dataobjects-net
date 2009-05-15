@@ -8,10 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Tests.Linq
 {
@@ -24,6 +22,12 @@ namespace Xtensive.Core.Tests.Linq
 
     private class Helper
     {
+      public int Field;
+
+      public Helper NestedClass;
+
+      public List<int> NestedCollection;
+
       public int InstanceGenericMethod<T>(int value)
       {
         return value + typeof(T).Name.Length + +GetHashCode();
@@ -78,7 +82,7 @@ namespace Xtensive.Core.Tests.Linq
           (Expression<Func<int, List<List<List<int>>>>>) (i => new List<List<List<int>>>(i)),
           (Expression<Func<int, List<List<List<List<int>>>>>>) (i => new List<List<List<List<int>>>>(i)),
 
-          // Static generic method call + static method call
+          // Static generic method call + static method call + constant expression
           (Expression<Func<long, Expression<Func<long>>>>) (x => Expression.Lambda<Func<long>>(Expression.Constant(x))),
 
           // Constructor
@@ -90,8 +94,8 @@ namespace Xtensive.Core.Tests.Linq
           // Array init expression
           (Expression<Func<Guid, Guid[]>>) (g => new[] {g}),
 
-          // Delegate invocation
-          (Expression<Func<int>>) (() => ((Func<int, int>) (x => x + 1))(5)),
+          // Delegate call
+          (Expression<Func<int>>) (() => ((Func<int, int>) (x => x + 1)).Invoke(5)),
 
           // Conditional + new array + static property of generic type
           // Stupid casts are required because otherwise expression won't construct at runtime
@@ -100,8 +104,20 @@ namespace Xtensive.Core.Tests.Linq
           // TypeIs
           (Expression<Func<object, bool>>) (o => o is string),
 
-          // Coalesce + constructor + member init
-          //(Expression<Func<object, object>>) (o => o ?? new Parameter<int> {Value = 5}),
+          // Coalesce + constructor + member assignment
+          (Expression<Func<object, object>>) (o => o ?? new Helper {Field = 5}),
+
+          // Member list init
+          (Expression<Func<object>>) (() => new Helper {NestedCollection = {1,2,3}}),
+
+          // Member member binding
+          (Expression<Func<object>>) (() => new Helper {NestedClass = {Field = 5}}),
+
+          // Don't know how to write InvocationExpression in C# syntax :-(
+          Expression.Lambda<Func<int>>(
+            Expression.Invoke(
+              Expression.Lambda<Func<int, int>>(Expression.Constant(0), Expression.Parameter(typeof(int), "p")),
+              Expression.Constant(1)))
         };
     }
   }

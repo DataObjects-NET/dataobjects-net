@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Core.Linq;
@@ -28,18 +29,27 @@ namespace Xtensive.Core.Tests.Linq
     }
 
     [Test]
-    public void SerializeTest()
+    public void BinaryFormatterSerializeTest()
+    {
+      RunSerializeTest(new BinaryFormatter());
+    }
+
+    [Test]
+    public void NetDataContractSerializeTest()
+    {
+      RunSerializeTest(new NetDataContractSerializer());
+    }
+
+    private void RunSerializeTest(IFormatter serializer)
     {
       var stream = new MemoryStream();
-      var formatter = new BinaryFormatter();
       foreach (var expression in Expressions) {
         Console.WriteLine(expression.ToString(true));
-        var origin = expression.ToSerializableExpression();
-        formatter.Serialize(stream, origin);
+        serializer.Serialize(stream, expression.ToSerializableExpression());
         stream.Seek(0, SeekOrigin.Begin);
-        var serialized = (SerializableExpression) formatter.Deserialize(stream);
+        var serialized = (SerializableExpression) serializer.Deserialize(stream);
         stream.SetLength(0);
-        Assert.AreEqual(origin.ToExpression().ToExpressionTree(), serialized.ToExpression().ToExpressionTree());
+        Assert.AreEqual(expression.ToExpressionTree(), serialized.ToExpression().ToExpressionTree());
         Console.WriteLine("OK");
       }
     }

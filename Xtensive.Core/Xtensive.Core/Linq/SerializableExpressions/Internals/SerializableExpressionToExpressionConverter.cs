@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -168,8 +167,7 @@ namespace Xtensive.Core.Linq.SerializableExpressions.Internals
 
     private Expression VisitLambda(SerializableLambdaExpression l)
     {
-      return FastExpression.Lambda(l.DelegateType, Visit(l.Body),
-        l.Parameters.Select(p => (ParameterExpression)Visit(p)));
+      return FastExpression.Lambda(l.Type, Visit(l.Body), l.Parameters.Select(p => (ParameterExpression) Visit(p)));
     }
 
     private Expression VisitNew(SerializableNewExpression n)
@@ -181,15 +179,12 @@ namespace Xtensive.Core.Linq.SerializableExpressions.Internals
 
     private Expression VisitMemberInit(SerializableMemberInitExpression mi)
     {
-      throw new NotImplementedException();
+      return Expression.MemberInit((NewExpression) Visit(mi.NewExpression), VisitMemberBindingSequence(mi.Bindings));
     }
 
     private Expression VisitListInit(SerializableListInitExpression li)
     {
-      return Expression.ListInit(
-        (NewExpression) Visit(li.NewExpression),
-        li.Initializers.Select(initializer =>
-          Expression.ElementInit(initializer.AddMethod, VisitExpressionSequence(initializer.Arguments))));
+      return Expression.ListInit((NewExpression) Visit(li.NewExpression), VisitElementInitSequence(li.Initializers));
     }
 
     private Expression VisitNewArray(SerializableNewArrayExpression na)
@@ -209,10 +204,36 @@ namespace Xtensive.Core.Linq.SerializableExpressions.Internals
       return Expression.Invoke(Visit(i.Expression), VisitExpressionSequence(i.Arguments));
     }
 
-    private IEnumerable<Expression> VisitExpressionSequence<T>(IEnumerable<T> sequence)
+    private IEnumerable<MemberBinding> VisitMemberBindingSequence(IEnumerable<SerializableMemberBinding> bindings)
+    {
+      foreach (var binding in bindings)
+        switch (binding.BindingType) {
+        case MemberBindingType.Assignment:
+          yield return Expression.Bind(binding.Member,
+            Visit(((SerializableMemberAssignment) binding).Expression));
+          break;
+        case MemberBindingType.MemberBinding:
+          yield return Expression.MemberBind(binding.Member,
+            VisitMemberBindingSequence(((SerializableMemberMemberBinding) binding).Bindings));
+          break;
+        case MemberBindingType.ListBinding:
+          yield return Expression.ListBind(binding.Member, VisitElementInitSequence(((SerializableMemberListBinding) binding).Initializers));
+          break;
+        default:
+          throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private IEnumerable<ElementInit> VisitElementInitSequence(IEnumerable<SerializableElementInit> initializers)
+    {
+      return initializers.Select(initializer =>
+        Expression.ElementInit(initializer.AddMethod, VisitExpressionSequence(initializer.Arguments)));
+    }
+
+    private IEnumerable<Expression> VisitExpressionSequence<T>(IEnumerable<T> expressions)
       where T : SerializableExpression
     {
-      return sequence.Select(e => Visit(e));
+      return expressions.Select(e => Visit(e));
     }
 
     #endregion
