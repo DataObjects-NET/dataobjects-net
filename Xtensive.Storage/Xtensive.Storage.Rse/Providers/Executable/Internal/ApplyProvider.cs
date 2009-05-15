@@ -24,14 +24,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       var left = Left.Enumerate(context);
       switch (Origin.ApplyType) {
-        case ApplyType.Cross:
-          return CrossApply(context, left);
-        case ApplyType.Outer:
-          return OuterApply(context, left); ;
-        case ApplyType.Existing:
-          return ApplyExisting(context, left);
-        case ApplyType.NotExisting:
-          return ApplyNotExisting(context, left);
+        case JoinType.Inner:
+          return InnerApply(context, left);
+        case JoinType.LeftOuter:
+          return LeftOuterApply(context, left);
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -39,7 +35,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     #region Private implementation.
 
-    private IEnumerable<Tuple> CrossApply(EnumerationContext context, IEnumerable<Tuple> left)
+    private IEnumerable<Tuple> InnerApply(EnumerationContext context, IEnumerable<Tuple> left)
     {
       using (new ParameterContext().Activate())
       foreach (var tuple in left) {
@@ -53,7 +49,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       }
     }
 
-    private IEnumerable<Tuple> OuterApply(EnumerationContext context, IEnumerable<Tuple> left)
+    private IEnumerable<Tuple> LeftOuterApply(EnumerationContext context, IEnumerable<Tuple> left)
     {
       using (new ParameterContext().Activate())
       foreach (var tuple in left) {

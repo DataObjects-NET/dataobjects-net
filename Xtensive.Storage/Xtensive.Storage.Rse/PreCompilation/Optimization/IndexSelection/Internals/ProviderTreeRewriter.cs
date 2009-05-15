@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       CompilableProvider primaryIndexProvider, IndexInfo primaryIndex)
     {
       var alias = new AliasProvider(secondaryIndexProvider, "secondary");
-      var join = new JoinProvider(primaryIndexProvider, alias, false, JoinAlgorithm.Hash,
+      var join = new JoinProvider(primaryIndexProvider, alias, JoinType.Inner, JoinAlgorithm.Hash,
         GetEqualIndexes(primaryIndex.KeyColumns.Count));
       return new SelectProvider(join, Enumerable.Range(0, primaryIndex.Columns.Count).ToArray());
     }

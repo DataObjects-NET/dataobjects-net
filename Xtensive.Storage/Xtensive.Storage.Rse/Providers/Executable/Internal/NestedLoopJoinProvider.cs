@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   [Serializable]
   internal sealed class NestedLoopJoinProvider : BinaryExecutableProvider<Compilable.JoinProvider>
   {
-    private readonly bool outerJoin;
+    private readonly JoinType joinType;
     private readonly Pair<int>[] joiningPairs;
     private CombineTransform transform;
     private MapTransform leftKeyTransform;
@@ -28,7 +28,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       AdvancedComparer<Tuple> comparer = AdvancedComparer<Tuple>.Default;
-      IEnumerable<Pair<Tuple, Tuple>> loopJoin = outerJoin ? Left.NestedLoopJoinLeft(Right, KeyExtractorLeft, KeyExtractorRight, comparer) : Left.NestedLoopJoin(Right, KeyExtractorLeft, KeyExtractorRight, comparer);
+      IEnumerable<Pair<Tuple, Tuple>> loopJoin = joinType == JoinType.LeftOuter 
+        ? Left.NestedLoopJoinLeft(Right, KeyExtractorLeft, KeyExtractorRight, comparer) 
+        : Left.NestedLoopJoin(Right, KeyExtractorLeft, KeyExtractorRight, comparer);
       foreach (Pair<Tuple, Tuple> pair in loopJoin)
         yield return transform.Apply(TupleTransformType.Auto, pair.First, pair.Second ?? rightBlank);
     }
@@ -54,8 +56,10 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
       int[] leftColumns = joiningPairs.Select(pair => pair.First).ToArray();
       int[] rightColumns = joiningPairs.Select(pair => pair.Second).ToArray();
-      TupleDescriptor leftKeyDescriptor = TupleDescriptor.Create(leftColumns.Select(i => Left.Header.TupleDescriptor[i]));
-      TupleDescriptor rightKeyDescriptor = TupleDescriptor.Create(rightColumns.Select(i => Right.Header.TupleDescriptor[i]));
+      TupleDescriptor leftKeyDescriptor = TupleDescriptor.Create(leftColumns
+        .Select(i => Left.Header.TupleDescriptor[i]));
+      TupleDescriptor rightKeyDescriptor = TupleDescriptor.Create(rightColumns
+        .Select(i => Right.Header.TupleDescriptor[i]));
 
       leftKeyTransform = new MapTransform(true, leftKeyDescriptor, leftColumns);
       rightKeyTransform = new MapTransform(true, rightKeyDescriptor, rightColumns);
@@ -65,10 +69,11 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     // Constructors
 
-    public NestedLoopJoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right)
+    public NestedLoopJoinProvider(Compilable.JoinProvider origin, ExecutableProvider left,
+      ExecutableProvider right)
       : base(origin, left, right)
     {
-      outerJoin = origin.Outer;
+      joinType = origin.JoinType;
       joiningPairs = origin.EqualIndexes;      
     }
   }

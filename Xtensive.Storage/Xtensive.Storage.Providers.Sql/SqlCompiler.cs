@@ -197,7 +197,7 @@ namespace Xtensive.Storage.Providers.Sql
       var rightSelect = right.Request.SelectStatement;
       var rightQuery = SqlFactory.QueryRef(rightSelect);
       var joinedTable = SqlFactory.Join(
-        provider.Outer ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
+        provider.JoinType == JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
         rightQuery,
         provider.EqualIndexes
@@ -226,7 +226,7 @@ namespace Xtensive.Storage.Providers.Sql
       HashSet<SqlFetchParameterBinding> bindings;
       var predicate = TranslateExpression(provider.Predicate, out bindings, leftSelect, rightSelect);
       var joinedTable = SqlFactory.Join(
-        provider.Outer ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
+        provider.JoinType == JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
         rightQuery,
         predicate);
@@ -397,8 +397,8 @@ namespace Xtensive.Storage.Providers.Sql
       if (left == null || right == null)
         return null;
 
-      bool isExisting = provider.ApplyType == ApplyType.Existing;
-      bool isNotExisting = provider.ApplyType == ApplyType.NotExisting;
+      /*bool isExisting = provider.ApplyType == ApplyType.Existing;
+      bool isNotExisting = provider.ApplyType == ApplyType.NotExisting;*/
 
       var leftQuery = left.PermanentReference;
       var rightQuery = right.Request.SelectStatement;
@@ -407,13 +407,13 @@ namespace Xtensive.Storage.Providers.Sql
       if (left.Origin.Header.Length > 0)
         select.Columns.AddRange(leftQuery.Columns.Cast<SqlColumn>());
 
-      if (isExisting || isNotExisting) {
+      /*if (isExisting || isNotExisting) {
         var filter = SqlFactory.Exists(rightQuery);
         if (isNotExisting)
           filter = SqlFactory.Not(filter);
         select.Where = filter;
       }
-      else if (!TranslateSubquery(provider.Right, select, rightQuery))
+      else*/ if (!TranslateSubquery(provider.Right, select, rightQuery))
         return null;
 
       return new SqlProvider(provider, select, Handlers, left, right);
@@ -693,7 +693,8 @@ namespace Xtensive.Storage.Providers.Sql
       return query;
     }
 
-    private static bool TranslateSubquery(CompilableProvider subqueryProvider, SqlSelect select, SqlSelect subquerySelect)
+    private static bool TranslateSubquery(CompilableProvider subqueryProvider, SqlSelect select,
+      SqlSelect subquerySelect)
     {
       if (subqueryProvider is ExistenceProvider) {
         select.Columns.Add(subquerySelect.Columns[0]);

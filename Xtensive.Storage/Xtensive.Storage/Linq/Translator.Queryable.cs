@@ -713,7 +713,8 @@ namespace Xtensive.Storage.Linq
         var outerResult = context.Bindings[parameter];
         var applyParameter = context.GetApplyParameter(outerResult);
         var recordSet = outerResult.RecordSet
-          .Apply(applyParameter, innerResult.RecordSet.Alias(context.GetNextAlias()), isOuter ? ApplyType.Outer : ApplyType.Cross);
+          .Apply(applyParameter, innerResult.RecordSet.Alias(context.GetNextAlias()),
+          isOuter ? JoinType.LeftOuter : JoinType.Inner);
         if (resultSelector==null) {
           var outerParameter = Expression.Parameter(SequenceHelper.GetElementType(source.Type), "o");
           var innerParameter = Expression.Parameter(SequenceHelper.GetElementType(collectionSelector.Type), "i");

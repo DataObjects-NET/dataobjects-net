@@ -10,7 +10,6 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
@@ -25,9 +24,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     private const string ToStringFormat = "{0}, {1}";
 
     /// <summary>
-    /// Indicates whether current join operation should be executed as left join.
+    /// Join operation type.
     /// </summary>
-    public bool Outer { get; private set; }
+    public JoinType JoinType { get; private set; }
 
     /// <summary>
     /// Join algorithm.
@@ -48,7 +47,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public override string ParametersToString()
     {
       return string.Format(ToStringFormat,
-        Outer ? "Outer join" : "Inner join",
+        JoinType,
         EqualColumns.Select(p => p.First.Name + " == " + p.Second.Name).ToCommaDelimitedString());
     }
 
@@ -85,19 +84,18 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="left">The left provider to join.</param>
     /// <param name="right">The right provider to join.</param>
-    /// <param name="outerJoin">If set to <see langword="true"/>, left join will be performed;
-    /// otherwise, inner join will be performed.</param>
-    /// <param name="joinAlgorithm">The join operation type.</param>
+    /// <param name="joinType">The join operation type.</param>
+    /// <param name="joinAlgorithm">The join algorithm.</param>
     /// <param name="equalIndexes">The <see cref="EqualIndexes"/> property value.</param>
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
-    public JoinProvider(CompilableProvider left, CompilableProvider right, bool outerJoin, JoinAlgorithm joinAlgorithm, 
-      params Pair<int>[] equalIndexes)
+    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType,
+      JoinAlgorithm joinAlgorithm, params Pair<int>[] equalIndexes)
       : base(ProviderType.Join, left, right)
     {
       if (equalIndexes==null || equalIndexes.Length==0)
         throw new ArgumentException(
           Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
-      Outer = outerJoin;
+      JoinType = joinType;
       JoinAlgorithm = joinAlgorithm;
       EqualIndexes = equalIndexes;
     }
@@ -107,13 +105,13 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="left">The left provider to join.</param>
     /// <param name="right">The right provider to join.</param>
-    /// <param name="leftJoin">If set to <see langword="true"/>, left join will be performed;
-    /// <param name="joinAlgorithm">The join operation type.</param>
+    /// <param name="joinType">The join operation type.</param>
+    /// <param name="joinAlgorithm">The join algorithm.</param>
     /// <param name="equalIndexes">Transformed to the <see cref="EqualIndexes"/> property value.</param>
     /// otherwise, inner join will be performed.</param>
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
-    public JoinProvider(CompilableProvider left, CompilableProvider right, bool leftJoin, JoinAlgorithm joinAlgorithm, 
-      params int[] equalIndexes)
+    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType,
+      JoinAlgorithm joinAlgorithm, params int[] equalIndexes)
       : base(ProviderType.Join, left, right)
     {
       JoinAlgorithm = joinAlgorithm;
@@ -123,7 +121,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       var ei = new Pair<int>[equalIndexes.Length / 2];
       for (int i = 0, j = 0; i < ei.Length; i++)
         ei[i] = new Pair<int>(equalIndexes[j++], equalIndexes[j++]);
-      Outer = leftJoin;
+      JoinType = joinType;
       JoinAlgorithm = joinAlgorithm;
       EqualIndexes = ei;
     }

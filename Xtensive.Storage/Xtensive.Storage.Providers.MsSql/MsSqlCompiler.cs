@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Providers.MsSql
       var result = base.VisitApply(provider);
       if (result != null)
         return result;
-      bool isOuter = provider.ApplyType==ApplyType.Outer;
+      bool isOuter = provider.ApplyType==JoinType.LeftOuter;
 
       var left = GetCompiled(provider.Left) as SqlProvider;
       var right = GetCompiled(provider.Right) as SqlProvider;

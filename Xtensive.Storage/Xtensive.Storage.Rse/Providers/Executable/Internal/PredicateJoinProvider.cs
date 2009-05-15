@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   [Serializable]
   internal sealed class PredicateJoinProvider : BinaryExecutableProvider<Compilable.PredicateJoinProvider>
   {
-    private readonly bool leftJoin;
+    private readonly JoinType joinType;
     private CombineTransform transform;
     private Func<Tuple, Tuple, bool> predicate;
     private Tuple rightBlank;
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         foreach (var r in right)
           if (predicate(l, r))
             yield return transform.Apply(TupleTransformType.Auto, l, r);
-          else if (leftJoin)
+          else if (joinType == JoinType.LeftOuter)
             yield return transform.Apply(TupleTransformType.Auto, l, rightBlank);
     }
 
@@ -48,10 +48,11 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public PredicateJoinProvider(Compilable.PredicateJoinProvider origin, ExecutableProvider left, ExecutableProvider right)
+    public PredicateJoinProvider(Compilable.PredicateJoinProvider origin, ExecutableProvider left,
+      ExecutableProvider right)
       : base(origin, left, right)
     {
-      leftJoin = Origin.Outer;
+      joinType = Origin.JoinType;
     }
   }
 }

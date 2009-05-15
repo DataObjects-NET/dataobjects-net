@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   [Serializable]
   internal sealed class LoopJoinProvider : BinaryExecutableProvider<Compilable.JoinProvider>
   {
-    private readonly bool outerJoin;
+    private readonly JoinType joinType;
     private readonly Pair<int>[] joiningPairs;
     private CombineTransform transform;
     private MapTransform leftKeyTransform;
@@ -28,7 +28,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       var rightOrdered = Right.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
       var left = Left.Enumerate(context);
-      foreach (Pair<Tuple, Tuple> pair in outerJoin ? left.LoopJoinLeft(rightOrdered, KeyExtractorLeft) : left.LoopJoin(rightOrdered, KeyExtractorLeft)) {
+      foreach (Pair<Tuple, Tuple> pair in joinType == JoinType.LeftOuter 
+        ? left.LoopJoinLeft(rightOrdered, KeyExtractorLeft) 
+        : left.LoopJoin(rightOrdered, KeyExtractorLeft)) {
         Tuple rightTuple = pair.Second ?? rightBlank;
         yield return transform.Apply(TupleTransformType.Auto, pair.First, rightTuple);
       }
@@ -56,7 +58,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public LoopJoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base(origin, left, right)
     {
-      outerJoin = origin.Outer;
+      joinType = origin.JoinType;
       joiningPairs = origin.EqualIndexes;      
     }
   }

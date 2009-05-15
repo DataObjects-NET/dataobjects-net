@@ -103,42 +103,50 @@ namespace Xtensive.Storage.Rse
 
     public static RecordSet Join(this RecordSet left, RecordSet right, params Pair<int>[] joinedColumnIndexes)
     {
-      return new JoinProvider(left.Provider, right.Provider, false, JoinAlgorithm.Default, joinedColumnIndexes).Result;
+      return new JoinProvider(left.Provider, right.Provider, JoinType.Inner, JoinAlgorithm.Default,
+        joinedColumnIndexes).Result;
     }
 
     public static RecordSet Join(this RecordSet left, RecordSet right, params int[] joinedColumnIndexes)
     {
-      return new JoinProvider(left.Provider, right.Provider, false, JoinAlgorithm.Default, joinedColumnIndexes).Result;
+      return new JoinProvider(left.Provider, right.Provider, JoinType.Inner, JoinAlgorithm.Default,
+        joinedColumnIndexes).Result;
     }
 
     public static RecordSet JoinLeft(this RecordSet left, RecordSet right, params Pair<int>[] joinedColumnIndexes)
     {
-      return new JoinProvider(left.Provider, right.Provider, true, JoinAlgorithm.Default, joinedColumnIndexes).Result;
+      return new JoinProvider(left.Provider, right.Provider, JoinType.LeftOuter, JoinAlgorithm.Default,
+        joinedColumnIndexes).Result;
     }
 
     public static RecordSet JoinLeft(this RecordSet left, RecordSet right, params int[] joinedColumnIndexes)
     {
-      return new JoinProvider(left.Provider, right.Provider, true, JoinAlgorithm.Default, joinedColumnIndexes).Result;
+      return new JoinProvider(left.Provider, right.Provider, JoinType.LeftOuter, JoinAlgorithm.Default,
+        joinedColumnIndexes).Result;
     }
 
     public static RecordSet Join(this RecordSet left, RecordSet right, JoinAlgorithm joinAlgorithm, params Pair<int>[] joinedColumnIndexes)
     {
-      return new JoinProvider(left.Provider, right.Provider, false, joinAlgorithm, joinedColumnIndexes).Result;
+      return new JoinProvider(left.Provider, right.Provider, JoinType.Inner, joinAlgorithm,
+        joinedColumnIndexes).Result;
     }
 
     public static RecordSet Join(this RecordSet left, RecordSet right, JoinAlgorithm joinAlgorithm, params int[] joinedColumnIndexes)
     {
-      return new JoinProvider(left.Provider, right.Provider, false, joinAlgorithm, joinedColumnIndexes).Result;
+      return new JoinProvider(left.Provider, right.Provider, JoinType.Inner, joinAlgorithm,
+        joinedColumnIndexes).Result;
     }
 
     public static RecordSet JoinLeft(this RecordSet left, RecordSet right, JoinAlgorithm joinAlgorithm, params Pair<int>[] joinedColumnIndexes)
     {
-      return new JoinProvider(left.Provider, right.Provider, true, joinAlgorithm, joinedColumnIndexes).Result;
+      return new JoinProvider(left.Provider, right.Provider, JoinType.LeftOuter, joinAlgorithm,
+        joinedColumnIndexes).Result;
     }
 
     public static RecordSet JoinLeft(this RecordSet left, RecordSet right, JoinAlgorithm joinAlgorithm, params int[] joinedColumnIndexes)
     {
-      return new JoinProvider(left.Provider, right.Provider, true, joinAlgorithm, joinedColumnIndexes).Result;
+      return new JoinProvider(left.Provider, right.Provider, JoinType.LeftOuter, joinAlgorithm,
+        joinedColumnIndexes).Result;
     }
 
     public static RecordSet OrderBy(this RecordSet recordSet, DirectionCollection<int> columnIndexes)
@@ -249,7 +257,8 @@ namespace Xtensive.Storage.Rse
       return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider).Result;
     }
 
-    public static RecordSet Apply(this RecordSet recordSet, ApplyParameter applyParameter, RecordSet right, ApplyType applyType)
+    public static RecordSet Apply(this RecordSet recordSet, ApplyParameter applyParameter, RecordSet right,
+      JoinType applyType)
     {
       return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider, applyType).Result;
     }

@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Rse.Providers
       var equalIndexes = OnRecursionExit(provider);
       if (left == provider.Left && right == provider.Right)
         return provider;
-      return new JoinProvider(left, right, provider.Outer, provider.JoinAlgorithm,
+      return new JoinProvider(left, right, provider.JoinType, provider.JoinAlgorithm,
         equalIndexes != null ? (Pair<int>[])equalIndexes : provider.EqualIndexes);
     }
 
@@ -274,7 +274,7 @@ namespace Xtensive.Storage.Rse.Providers
       var predicate = (Expression<Func<Tuple, Tuple, bool>>)OnRecursionExit(provider);
       if (left == provider.Left && right == provider.Right)
         return provider;
-      return new PredicateJoinProvider(left, right, predicate ?? provider.Predicate, provider.Outer);
+      return new PredicateJoinProvider(left, right, predicate ?? provider.Predicate, provider.JoinType);
     }
 
     /// <inheritdoc/>
