@@ -19,9 +19,6 @@ namespace Xtensive.Core.Tests.Linq
   [TestFixture]
   public class CachingExpressionCompilerTest
   {
-    private const int warmupIterations = 1;
-    private const int realIterations = 1000;
-    
     [Test]
     public void InterfaceImplicitCastTest()
     {
@@ -30,6 +27,9 @@ namespace Xtensive.Core.Tests.Linq
     }
 
     #region Performance testing
+
+    private const int warpUpOperationCount = 1;
+    private const int actualOperationCount = 1000;
 
     [Test]
     [Explicit]
@@ -80,45 +80,45 @@ namespace Xtensive.Core.Tests.Linq
       RunCallOverheadTest(original, cached, false);
     }
 
-    private static void RunCallOverheadTest(Func<int, int> original, Func<int, int> cached, bool warmup)
+    private static void RunCallOverheadTest(Func<int, int> original, Func<int, int> cached, bool warmUp)
     {
-      int operationCount = warmup ? warmupIterations : realIterations;
+      int operationCount = warmUp ? warpUpOperationCount : actualOperationCount;
       int k = 0;
 
       k = 0;
-      using (CreateMeasurement(warmup, "Call cached: ", operationCount))
+      using (CreateMeasurement(warmUp, "Call cached: ", operationCount))
         for (int i = 0; i < operationCount; i++)
           k = cached.Invoke(k);
 
       k = 0;
-      using (CreateMeasurement(warmup, "Call original: ", operationCount))
+      using (CreateMeasurement(warmUp, "Call original: ", operationCount))
         for (int i = 0; i < operationCount; i++)
           k = original.Invoke(k);
     }
 
-    private static void RunCompilePerformanceTest(Expression<Func<int, int, int>> lambda, bool warmup)
+    private static void RunCompilePerformanceTest(Expression<Func<int, int, int>> lambda, bool warmUp)
     {
-      int operationCount = warmup ? warmupIterations : realIterations;
-      using (CreateMeasurement(warmup, "Without caching: ", operationCount))
+      int operationCount = warmUp ? warpUpOperationCount : actualOperationCount;
+      using (CreateMeasurement(warmUp, "Without caching: ", operationCount))
         for (int i = 0; i < operationCount; i++)
           lambda.Compile();
       ClearCompilerCache();
-      using (CreateMeasurement(warmup, "With caching: ", operationCount))
+      using (CreateMeasurement(warmUp, "With caching: ", operationCount))
         for (int i = 0; i < operationCount; i++)
           lambda.CompileCached();
     }
 
-    private static void RunCompileAndInvokePerformanceTest(Expression<Func<int, int, int>> lambda, bool warmup)
+    private static void RunCompileAndInvokePerformanceTest(Expression<Func<int, int, int>> lambda, bool warmUp)
     {
-      int operationCount = warmup ? warmupIterations : realIterations;
-      using (CreateMeasurement(warmup, "Without caching: ", operationCount))
+      int operationCount = warmUp ? warpUpOperationCount : actualOperationCount;
+      using (CreateMeasurement(warmUp, "Without caching: ", operationCount))
         for (int i = 0; i < operationCount; i++) {
           var func = lambda.Compile();
           func(i, i);
         }
 
       ClearCompilerCache();
-      using (CreateMeasurement(warmup, "With caching: ", operationCount))
+      using (CreateMeasurement(warmUp, "With caching: ", operationCount))
         for (int i = 0; i < operationCount; i++) {
           var func = lambda.CompileCached();
           func(i, i);
@@ -136,13 +136,11 @@ namespace Xtensive.Core.Tests.Linq
         null, instance, ArrayUtils<object>.EmptyArray);
     }
 
-    private static IDisposable CreateMeasurement(bool warmup, string name, int operationCount)
+    private static IDisposable CreateMeasurement(bool warmUp, string name, int operationCount)
     {
-      if (warmup) {
-        Log.Info("Warming up...");
-        return new Measurement(name, MeasurementOptions.None, operationCount);
-      }
-      return new Measurement(name, operationCount);
+      return warmUp
+        ? new Measurement(name, MeasurementOptions.None, operationCount)
+        : new Measurement(name, operationCount);
     }
 
     #endregion

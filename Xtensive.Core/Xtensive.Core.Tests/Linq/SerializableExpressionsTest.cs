@@ -8,7 +8,9 @@ using System;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization.Formatters.Soap;
 using NUnit.Framework;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Linq.SerializableExpressions;
 
@@ -40,6 +42,12 @@ namespace Xtensive.Core.Tests.Linq
       RunSerializeTest(new NetDataContractSerializer());
     }
 
+    [Test]
+    public void SoapSerializeTest()
+    {
+      RunSerializeTest(new SoapFormatter());
+    }
+
     private void RunSerializeTest(IFormatter serializer)
     {
       var stream = new MemoryStream();
@@ -53,5 +61,39 @@ namespace Xtensive.Core.Tests.Linq
         Console.WriteLine("OK");
       }
     }
+
+    #region Performance test
+
+    private const int warmUpOperationCount = 10;
+    private const int actualOperationCount = 10000;
+
+    [Test]
+    [Category("Performance")]
+    [Explicit]
+    public void SerializeBenchmarkTest()
+    {
+      RunSerializeBenchmark(new NetDataContractSerializer(), true, 1);
+      RunSerializeBenchmark(new NetDataContractSerializer(), false, 1);
+    }
+
+    private void RunSerializeBenchmark(IFormatter serializer, bool warmUp, int expressionIndex)
+    {
+      int operationCount = warmUp ? warmUpOperationCount : actualOperationCount;
+      var stream = new MemoryStream();
+      using (CreateMeasurement(warmUp, serializer.GetType().Name, operationCount))
+        for (int i = 0; i < operationCount; i++) {
+          serializer.Serialize(stream, Expressions[expressionIndex].ToSerializableExpression());
+          stream.SetLength(0);
+        }
+    }
+
+    private static IDisposable CreateMeasurement(bool warmUp, string name, int operationCount)
+    {
+      return warmUp
+        ? new Measurement(name, MeasurementOptions.None, operationCount)
+        : new Measurement(name, operationCount);
+    }
+
+    #endregion
   }
 }
