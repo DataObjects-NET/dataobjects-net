@@ -73,19 +73,19 @@ namespace Xtensive.Storage.Tests.Rse
       RecordSet authorsIndexed = authorsRS.OrderBy(OrderBy.Asc(0), true).Alias("Authors");
 
       RecordSet resultLeft = personIndexed.JoinLeft(authorsIndexed, 0, 0);
-      RecordSet resultLeft1 = personIndexed.JoinLeft(authorsIndexed, JoinType.Hash, 0, 0);
+      RecordSet resultLeft1 = personIndexed.JoinLeft(authorsIndexed, JoinAlgorithm.Hash, 0, 0);
       TestJoinCount(resultLeft, resultLeft1, personCount);
 
       resultLeft = personIndexed.Join(authorsIndexed, 0, 0);
-      resultLeft1 = personIndexed.Join(authorsIndexed, JoinType.Hash, 0, 0);
+      resultLeft1 = personIndexed.Join(authorsIndexed, JoinAlgorithm.Hash, 0, 0);
       TestJoinCount(resultLeft, resultLeft1, personCount / 2);
 
       resultLeft = authorsIndexed.JoinLeft(personIndexed, 0, 0);
-      resultLeft1 = authorsIndexed.JoinLeft(personIndexed, JoinType.Hash, 0, 0);
+      resultLeft1 = authorsIndexed.JoinLeft(personIndexed, JoinAlgorithm.Hash, 0, 0);
       TestJoinCount(resultLeft, resultLeft1, personCount / 2);
 
       resultLeft = authorsIndexed.Join(personIndexed, 0, 0);
-      resultLeft1 = authorsIndexed.Join(personIndexed, JoinType.Hash, 0, 0);
+      resultLeft1 = authorsIndexed.Join(personIndexed, JoinAlgorithm.Hash, 0, 0);
       TestJoinCount(resultLeft, resultLeft1, personCount / 2);
     }
 
@@ -367,7 +367,7 @@ namespace Xtensive.Storage.Tests.Rse
       }
 
       const string joinRowNumberColumnName = "JoinRowNumber";
-      var joinRS = authorRS.Join(categoryRS, JoinType.Default, 3, 0).RowNumber(joinRowNumberColumnName);
+      var joinRS = authorRS.Join(categoryRS, JoinAlgorithm.Default, 3, 0).RowNumber(joinRowNumberColumnName);
       Assert.AreEqual(authorRS.Count(), joinRS.Count());
 
       int joinRowNumber = 1;

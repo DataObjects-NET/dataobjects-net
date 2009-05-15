@@ -129,7 +129,7 @@ namespace Xtensive.Storage.Linq
           .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
           .ToArray();
 
-        var joinedRecordSet = recordSet.JoinLeft(joinedRs, JoinType.Default, keyPairs);
+        var joinedRecordSet = recordSet.JoinLeft(joinedRs, JoinAlgorithm.Default, keyPairs);
         var groupMappings = new int[joinedRecordSet.Header.ColumnGroups.Count];
         for (int i = 0; i < groupMappings.Length; i++)
           groupMappings[i] = -1;
@@ -235,7 +235,7 @@ namespace Xtensive.Storage.Linq
               var keyPairs = keySegment.GetItems()
                 .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
                 .ToArray();
-              var rs = source.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
+              var rs = source.RecordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
               var joinedMapping = new ComplexMapping(typeInfo, source.RecordSet.Header.Columns.Count);
               mapping.RegisterJoinedEntity(name, joinedMapping);
               source = new ResultExpression(source.Type, rs, source.Mapping, source.ItemProjector);
@@ -251,7 +251,7 @@ namespace Xtensive.Storage.Linq
                   var keyPairs = columns
                     .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
                     .ToArray();
-                  var rs = source.RecordSet.Join(joinedRs, JoinType.Default, keyPairs);
+                  var rs = source.RecordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
                   var joinedMapping = new ComplexMapping(typeInfo, source.RecordSet.Header.Columns.Count);
                   mapping.OverwriteJoinedEntity(name, joinedMapping);
                   source = new ResultExpression(source.Type, rs, source.Mapping, source.ItemProjector);

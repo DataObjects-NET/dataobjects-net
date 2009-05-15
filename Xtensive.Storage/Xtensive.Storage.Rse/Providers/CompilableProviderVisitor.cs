@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Rse.Providers
       var equalIndexes = OnRecursionExit(provider);
       if (left == provider.Left && right == provider.Right)
         return provider;
-      return new JoinProvider(left, right, provider.Outer, provider.JoinType,
+      return new JoinProvider(left, right, provider.Outer, provider.JoinAlgorithm,
         equalIndexes != null ? (Pair<int>[])equalIndexes : provider.EqualIndexes);
     }
 

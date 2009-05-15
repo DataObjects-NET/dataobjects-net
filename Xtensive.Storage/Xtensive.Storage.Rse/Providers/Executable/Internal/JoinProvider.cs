@@ -28,17 +28,17 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       leftEnumerable = left.GetService<IOrderedEnumerable<Tuple, Tuple>>();
       rightEnumerable = right.GetService<IOrderedEnumerable<Tuple, Tuple>>();
-      switch (Origin.JoinType) {
-      case JoinType.NestedLoop:
+      switch (Origin.JoinAlgorithm) {
+      case JoinAlgorithm.NestedLoop:
         return new NestedLoopJoinProvider(Origin, left, right);
-      case JoinType.Hash:
+      case JoinAlgorithm.Hash:
         return new HashJoinProvider(Origin, left, right);
-      case JoinType.Loop:
+      case JoinAlgorithm.Loop:
         bool isAbleToRange = CheckAbilityToRange();
         if (isAbleToRange)
           return new LoopJoinProvider(Origin, left, right);
         return DefaultProvider(isAbleToRange, CheckAbilityToMerge());
-      case JoinType.Merge:
+      case JoinAlgorithm.Merge:
         bool isAbleToMerge = CheckAbilityToMerge();
         if (isAbleToMerge) {
           if (outerJoin)

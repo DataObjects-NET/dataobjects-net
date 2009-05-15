@@ -7,32 +7,32 @@
 namespace Xtensive.Storage.Rse
 {
   ///<summary>
-  /// Join provider type.
+  /// Join algorithm.
   ///</summary>
-  public enum JoinType
+  public enum JoinAlgorithm
   {
     ///<summary>
-    /// Default join operation.
+    /// Default join algorithm.
     ///</summary>
     Default = 0,
 
     ///<summary>
-    /// Loop join operation.
+    /// Loop join algorithm.
     ///</summary>
     Loop = 1,
 
     ///<summary>
-    /// Nested Loop join operation.
+    /// Nested Loop join algorithm.
     ///</summary>
     NestedLoop = 2,
 
     ///<summary>
-    /// Merge join operation.
+    /// Merge join algorithm.
     ///</summary>
     Merge = 4,
 
     ///<summary>
-    /// Hash join operation.
+    /// Hash join algorithm.
     ///</summary>
     Hash = 8,
   }

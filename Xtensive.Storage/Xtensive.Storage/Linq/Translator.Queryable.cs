@@ -261,7 +261,7 @@ namespace Xtensive.Storage.Linq
             var keyPairs = keySegment.GetItems()
               .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
               .ToArray();
-            recordSet = recordSet.Join(joinedRs, JoinType.Default, keyPairs);
+            recordSet = recordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
             foreach (var field in missingFields)
               mapping.RegisterField(field.Name, new Segment<int>(field.MappingInfo.Offset + offset, field.MappingInfo.Length));
           }

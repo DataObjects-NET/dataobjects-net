@@ -137,7 +137,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       Pair<int>[] equalIndexes = provider.EqualIndexes
         .Select(pair => new Pair<int>(leftMapping.IndexOf(pair.First), rightMapping.IndexOf(pair.Second)))
         .ToArray();
-      return new JoinProvider(newLeftProvider, newRightProvider, provider.Outer, provider.JoinType, equalIndexes);
+      return new JoinProvider(newLeftProvider, newRightProvider, provider.Outer, provider.JoinAlgorithm, equalIndexes);
     }
 
     protected override Provider VisitSort(SortProvider provider)

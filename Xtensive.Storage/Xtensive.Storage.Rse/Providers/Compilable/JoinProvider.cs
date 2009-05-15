@@ -30,9 +30,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public bool Outer { get; private set; }
 
     /// <summary>
-    /// Join operation type.
+    /// Join algorithm.
     /// </summary>
-    public JoinType JoinType { get; private set; }
+    public JoinAlgorithm JoinAlgorithm { get; private set; }
 
     /// <summary>
     /// Pairs of equal column indexes.
@@ -87,10 +87,10 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="right">The right provider to join.</param>
     /// <param name="outerJoin">If set to <see langword="true"/>, left join will be performed;
     /// otherwise, inner join will be performed.</param>
-    /// <param name="joinType">The join operation type.</param>
+    /// <param name="joinAlgorithm">The join operation type.</param>
     /// <param name="equalIndexes">The <see cref="EqualIndexes"/> property value.</param>
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
-    public JoinProvider(CompilableProvider left, CompilableProvider right, bool outerJoin, JoinType joinType, 
+    public JoinProvider(CompilableProvider left, CompilableProvider right, bool outerJoin, JoinAlgorithm joinAlgorithm, 
       params Pair<int>[] equalIndexes)
       : base(ProviderType.Join, left, right)
     {
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
         throw new ArgumentException(
           Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
       Outer = outerJoin;
-      JoinType = joinType;
+      JoinAlgorithm = joinAlgorithm;
       EqualIndexes = equalIndexes;
     }
 
@@ -108,15 +108,15 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="left">The left provider to join.</param>
     /// <param name="right">The right provider to join.</param>
     /// <param name="leftJoin">If set to <see langword="true"/>, left join will be performed;
-    /// <param name="joinType">The join operation type.</param>
+    /// <param name="joinAlgorithm">The join operation type.</param>
     /// <param name="equalIndexes">Transformed to the <see cref="EqualIndexes"/> property value.</param>
     /// otherwise, inner join will be performed.</param>
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
-    public JoinProvider(CompilableProvider left, CompilableProvider right, bool leftJoin, JoinType joinType, 
+    public JoinProvider(CompilableProvider left, CompilableProvider right, bool leftJoin, JoinAlgorithm joinAlgorithm, 
       params int[] equalIndexes)
       : base(ProviderType.Join, left, right)
     {
-      JoinType = joinType;
+      JoinAlgorithm = joinAlgorithm;
       if (equalIndexes==null || equalIndexes.Length<2)
         throw new ArgumentException(
           Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       for (int i = 0, j = 0; i < ei.Length; i++)
         ei[i] = new Pair<int>(equalIndexes[j++], equalIndexes[j++]);
       Outer = leftJoin;
-      JoinType = joinType;
+      JoinAlgorithm = joinAlgorithm;
       EqualIndexes = ei;
     }
   }

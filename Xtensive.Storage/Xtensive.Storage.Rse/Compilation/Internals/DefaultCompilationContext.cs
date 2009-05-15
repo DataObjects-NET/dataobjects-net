@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       var asJoin = provider as JoinProvider;
       bool isOrderSensitive = provider.Type==ProviderType.Skip || provider.Type==ProviderType.Take
-        || (asJoin!=null && asJoin.JoinType==JoinType.Merge)
+        || (asJoin!=null && asJoin.JoinAlgorithm==JoinAlgorithm.Merge)
         || provider.Type==ProviderType.Seek || provider.Type==ProviderType.RowNumber;
       bool isOrderBreaker = provider.Type==ProviderType.Except
         || provider.Type==ProviderType.Intersect || provider.Type==ProviderType.Union
