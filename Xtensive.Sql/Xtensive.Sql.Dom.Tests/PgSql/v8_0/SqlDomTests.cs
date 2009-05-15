@@ -51,8 +51,9 @@ namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
       try {
         Connection.Open();
       }
-      catch (Exception ex) {
-        Assert.Fail(ex.ToString());
+      catch (SystemException e) {
+        Console.WriteLine(mConnection.ConnectionString);
+        Console.WriteLine(e);
       }
     }
 

@@ -81,7 +81,13 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
       SqlDriver = sqlConnection.Driver as SqlDriver;
       dbCommand = sqlConnection.RealConnection.CreateCommand();
       sqlCommand = new SqlCommand(sqlConnection);
-      sqlConnection.Open();
+      try {
+        sqlConnection.Open();
+      }
+      catch (SystemException e) {
+        Console.WriteLine(sqlConnection.ConnectionString);
+        Console.WriteLine(e);
+      }
     }
 
     [TestFixtureTearDown]

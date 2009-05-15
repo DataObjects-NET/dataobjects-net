@@ -133,8 +133,13 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
 
       dbCommand = sqlConnection.RealConnection.CreateCommand();
       sqlCommand = new SqlCommand(sqlConnection);
-      sqlConnection.Open();
-
+      try {
+        sqlConnection.Open();
+      }
+      catch (SystemException e) {
+        Console.WriteLine(sqlConnection.ConnectionString);
+        Console.WriteLine(e);
+      }
 
       SqlModelProvider smd = new SqlModelProvider(sqlConnection);
       model = Model.Build(smd);

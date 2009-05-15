@@ -43,7 +43,13 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       var connectionInfo = new ConnectionInfo(TestUrl.MsSql2005);
       driver = new MssqlDriver(connectionInfo);
       connection = (SqlConnection)driver.CreateConnection(connectionInfo);
-      connection.Open();
+      try {
+        connection.Open();
+      }
+      catch (SystemException e) {
+        Console.WriteLine(connection.ConnectionString);
+        Console.WriteLine(e);
+      }
     }
 
     [TestFixtureTearDown]

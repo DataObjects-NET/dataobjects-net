@@ -24,7 +24,13 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       sqlConnection = (SqlConnection)provider.CreateConnection(TestUrl.MsSql2005AW);
       sqlDriver = sqlConnection.Driver as SqlDriver;
       sqlCommand = new SqlCommand(sqlConnection);
-      sqlConnection.Open();
+      try {
+        sqlConnection.Open();
+      }
+      catch (SystemException e) {
+        Console.WriteLine(sqlConnection.ConnectionString);
+        Console.WriteLine(e);
+      }
     }
 
     [TestFixtureTearDown]

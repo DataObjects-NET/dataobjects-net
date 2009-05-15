@@ -22,9 +22,15 @@ namespace Xtensive.Sql.Dom.Tests
     [TestFixtureSetUp]
     public void SetUp()
     {
-      provider = new SqlConnectionProvider();
-      connection = provider.CreateConnection(Url) as SqlConnection;
-      connection.Open();
+      try {
+        provider = new SqlConnectionProvider();
+        connection = provider.CreateConnection(Url) as SqlConnection;
+        connection.Open();
+      }
+      catch (SystemException e) {
+        Console.WriteLine(connection.ConnectionString);
+        Console.WriteLine(e);
+      }
     }
 
     [TestFixtureTearDown]
