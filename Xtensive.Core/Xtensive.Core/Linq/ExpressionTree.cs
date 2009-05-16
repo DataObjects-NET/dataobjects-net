@@ -13,7 +13,7 @@ namespace Xtensive.Core.Linq
 {
   /// <summary>
   /// A wrapper for <see cref="Expression"/>
-  /// that can be used for comparing expression trees and calculating thier hash codes.
+  /// that can be used for comparing expression trees and calculating their hash codes.
   /// </summary>
   [DebuggerDisplay("{Expression}")]
   public sealed class ExpressionTree
