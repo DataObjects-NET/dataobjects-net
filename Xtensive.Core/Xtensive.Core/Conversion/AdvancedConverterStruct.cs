@@ -48,7 +48,7 @@ namespace Xtensive.Core.Conversion
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />

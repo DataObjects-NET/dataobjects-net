@@ -91,8 +91,7 @@ namespace Xtensive.Core.Helpers
     }
 
 
-
-    // Constructor
+    // Constructors
 
     private AliasGenerator()
       : this (DefaultAliasTemplate)

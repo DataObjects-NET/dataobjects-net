@@ -49,7 +49,7 @@ namespace Xtensive.Core.Linq
       constantValues = new List<object>();
       var parameters = EnumerableUtils.One(constantParameter).Concat(lambda.Parameters).ToArray();
       var body = Visit(lambda.Body);
-      // preserve original delegate type because it may differ from types of parameters / return value
+      // Preserve original delegate type because it may differ from types of parameters / return value
       return FastExpression.Lambda(FixDelegateType(lambda.Type), body, parameters);
     }
 
@@ -80,7 +80,8 @@ namespace Xtensive.Core.Linq
 
     #endregion
 
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

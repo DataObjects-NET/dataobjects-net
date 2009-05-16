@@ -33,7 +33,7 @@ namespace Xtensive.Core.Disposing
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />

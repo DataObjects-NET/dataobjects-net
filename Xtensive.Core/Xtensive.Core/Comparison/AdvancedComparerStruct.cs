@@ -80,7 +80,7 @@ namespace Xtensive.Core.Comparison
     }
 
     
-    // Constructor
+    // Constructors
     
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />

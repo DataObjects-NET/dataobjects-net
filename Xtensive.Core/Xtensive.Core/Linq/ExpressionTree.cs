@@ -85,7 +85,8 @@ namespace Xtensive.Core.Linq
 
     #endregion
 
-    // Constructor
+
+    // Constructors
 
     internal ExpressionTree(Expression expression)
     {

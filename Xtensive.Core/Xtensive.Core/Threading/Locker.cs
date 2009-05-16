@@ -23,7 +23,7 @@ namespace Xtensive.Core.Threading
       private readonly ReaderWriterLockSlim rwLock;      
 
 
-      // Constructor
+      // Constructors
 
       /// <summary>
       /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
@@ -52,7 +52,7 @@ namespace Xtensive.Core.Threading
       private readonly object toLock;      
 
 
-      // Constructor
+      // Constructors
 
       /// <summary>
       /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
@@ -82,7 +82,7 @@ namespace Xtensive.Core.Threading
       private readonly LockCookie? lockCookie;
 
 
-      // Constructor
+      // Constructors
 
       /// <summary>
       /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
@@ -111,7 +111,8 @@ namespace Xtensive.Core.Threading
       private readonly object toLock;
       private readonly LockCookie? lockCookie;
 
-      // Constructor
+
+      // Constructors
 
       /// <summary>
       ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>

@@ -292,7 +292,7 @@ namespace Xtensive.Core.Collections
     #endregion
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

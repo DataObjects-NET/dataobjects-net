@@ -30,7 +30,7 @@ namespace Xtensive.Core.Helpers
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />

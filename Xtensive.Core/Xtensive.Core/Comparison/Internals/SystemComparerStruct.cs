@@ -19,7 +19,7 @@ namespace Xtensive.Core.Comparison
     public readonly new Func<T, int> GetHashCode;
 
     
-    // Constructor
+    // Constructors
     
     private SystemComparerStruct(bool ignore)
     {

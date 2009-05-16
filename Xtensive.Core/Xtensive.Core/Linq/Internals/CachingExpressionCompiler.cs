@@ -12,15 +12,13 @@ namespace Xtensive.Core.Linq.Internals
 {
   internal sealed class CachingExpressionCompiler
   {
-    private static readonly object _lock = new object();
+    private static readonly object @lock = new object();
     private static volatile CachingExpressionCompiler instance = new CachingExpressionCompiler();
 
     public static CachingExpressionCompiler Instance {
       get {
-        if (instance==null)
-          lock (_lock)
-            if (instance==null)
-              instance = new CachingExpressionCompiler();
+        if (instance==null) lock (@lock) if (instance==null)
+          instance = new CachingExpressionCompiler();
         return instance;
       }
     }
@@ -28,22 +26,23 @@ namespace Xtensive.Core.Linq.Internals
     private readonly ThreadSafeDictionary<ExpressionTree, Delegate> cache =
       ThreadSafeDictionary<ExpressionTree, Delegate>.Create(new object());
 
-    public Pair<Delegate, object[]> RawCompile(LambdaExpression lambda)
+    public Pair<Delegate, object[]> Compile(LambdaExpression lambda)
     {
       var constantExtractor = new ConstantExtractor(lambda);
       var tree = constantExtractor.Process().ToExpressionTree();
       var constants = constantExtractor.GetConstants();
-      var _delegate = cache.GetValue(tree, _tree => ((LambdaExpression) _tree.Expression).Compile());
-      return new Pair<Delegate, object[]>(_delegate, constants);
+      var compiled = cache.GetValue(tree, _tree => ((LambdaExpression) _tree.Expression).Compile());
+      return new Pair<Delegate, object[]>(compiled, constants);
     }
 
-    // for testing only
+    // For testing only
     public void ClearCache()
     {
       cache.Clear();
     }
 
-    // Constructor
+
+    // Constructors
 
     private CachingExpressionCompiler()
     {

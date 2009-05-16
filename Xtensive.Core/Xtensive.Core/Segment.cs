@@ -115,7 +115,7 @@ namespace Xtensive.Core
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

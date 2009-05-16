@@ -48,7 +48,7 @@ namespace Xtensive.Core.Hashing
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />

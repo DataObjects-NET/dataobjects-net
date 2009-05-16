@@ -49,7 +49,7 @@ namespace Xtensive.Core.SizeCalculators
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />

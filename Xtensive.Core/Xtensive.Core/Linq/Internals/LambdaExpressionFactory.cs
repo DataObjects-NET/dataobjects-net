@@ -59,7 +59,7 @@ namespace Xtensive.Core.Linq.Internals
 
     #endregion
 
-    // Constructor
+    // Constructors
 
     private LambdaExpressionFactory()
     {

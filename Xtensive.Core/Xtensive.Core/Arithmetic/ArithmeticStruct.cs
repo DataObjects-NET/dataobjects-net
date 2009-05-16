@@ -78,7 +78,7 @@ namespace Xtensive.Core.Arithmetic
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />

@@ -34,6 +34,20 @@ namespace Xtensive.Core.Tests.Linq
     [Test]
     [Explicit]
     [Category("Performance")]
+    public void AlwaysNewExpressionTest()
+    {
+      int i = 0;
+      Func<Expression<Func<int, int, int>>> lambdaGenerator = () => {
+        i++;
+        return (a, b) => i;
+      };
+      RunCompilePerformanceTest(lambdaGenerator, true);
+      RunCompilePerformanceTest(lambdaGenerator, false);
+    }
+
+    [Test]
+    [Explicit]
+    [Category("Performance")]
     public void SimpleExpressionPerformanceTest()
     {
       Expression<Func<int, int, int>> lambda = (a, b) => a + b;
@@ -94,6 +108,18 @@ namespace Xtensive.Core.Tests.Linq
       using (CreateMeasurement(warmUp, "Call original: ", operationCount))
         for (int i = 0; i < operationCount; i++)
           k = original.Invoke(k);
+    }
+
+    private static void RunCompilePerformanceTest(Func<Expression<Func<int, int, int>>> lambdaGenerator, bool warmUp)
+    {
+      int operationCount = warmUp ? warpUpOperationCount : actualOperationCount;
+      using (CreateMeasurement(warmUp, "Without caching: ", operationCount))
+        for (int i = 0; i < operationCount; i++)
+          lambdaGenerator.Invoke().Compile();
+      ClearCompilerCache();
+      using (CreateMeasurement(warmUp, "With caching: ", operationCount))
+        for (int i = 0; i < operationCount; i++)
+          lambdaGenerator.Invoke().CompileCached();
     }
 
     private static void RunCompilePerformanceTest(Expression<Func<int, int, int>> lambda, bool warmUp)
