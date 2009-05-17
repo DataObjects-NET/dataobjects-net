@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public Func<Range<Entire<Tuple>>> CompiledRange {
       get {
         if (compiledRange==null)
-          compiledRange = Range.CompileCached();
+          compiledRange = Range.CachingCompile();
         return compiledRange;
       }
       internal set {

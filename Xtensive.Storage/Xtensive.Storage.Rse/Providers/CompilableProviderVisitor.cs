@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Rse.Providers
       var count = translate(provider, expression);
       if (source == provider.Source && count == expression)
         return provider;
-      return new TakeProvider(source, ((Expression<Func<int>>)count).CompileCached());
+      return new TakeProvider(source, ((Expression<Func<int>>)count).CachingCompile());
     }
 
     /// <inheritdoc/>
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Rse.Providers
       var count = translate(provider, expression);
       if (source == provider.Source && count == expression)
         return provider;
-      return new SkipProvider(source, ((Expression<Func<int>>)count).CompileCached());
+      return new SkipProvider(source, ((Expression<Func<int>>)count).CachingCompile());
     }
 
     /// <inheritdoc/>

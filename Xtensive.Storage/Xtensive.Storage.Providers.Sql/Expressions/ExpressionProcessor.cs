@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         type = type.GetGenericArguments()[0];
       var typeMapping = valueTypeMapper.GetTypeMapping(type);
       var expression = parameterExtractor.ExtractParameter<object>(e);
-      var binding = new SqlFetchParameterBinding(expression.CompileCached(), typeMapping, smartNull);
+      var binding = new SqlFetchParameterBinding(expression.CachingCompile(), typeMapping, smartNull);
       bindings.Add(binding);
       return binding.ParameterReference;
     }

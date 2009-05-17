@@ -67,14 +67,14 @@ namespace Xtensive.Storage.Linq.Expressions
             ? body
             : Convert(body, typeof (TResult));
         var projector = Lambda<Func<RecordSet, TResult>>(body, rs);
-        projectionDelegate = projector.CompileCached();
+        projectionDelegate = projector.CachingCompile();
       }
       return (Func<RecordSet, TResult>)projectionDelegate;
     }
 
     private static IEnumerable<TResult> MakeProjection<TResult>(RecordSet rs, Expression<Func<Tuple, Record, TResult>> le)
     {
-      var func = le.CompileCached();
+      var func = le.CachingCompile();
       foreach (var r in rs.Parse())
         yield return func(r.Data, r);
     }

@@ -336,7 +336,7 @@ namespace Xtensive.Storage.Linq
     {
       var projection = VisitSequence(source);
       var parameter = context.ParameterExtractor.ExtractParameter<int>(take);
-      var rs = projection.RecordSet.Take(parameter.CompileCached());
+      var rs = projection.RecordSet.Take(parameter.CachingCompile());
       return new ResultExpression(projection.Type, rs, projection.Mapping, projection.ItemProjector);
     }
 
@@ -344,7 +344,7 @@ namespace Xtensive.Storage.Linq
     {
       var projection = VisitSequence(source);
       var parameter = context.ParameterExtractor.ExtractParameter<int>(skip);
-      var rs = projection.RecordSet.Skip(parameter.CompileCached());
+      var rs = projection.RecordSet.Skip(parameter.CachingCompile());
       return new ResultExpression(projection.Type, rs, projection.Mapping, projection.ItemProjector);
     }
 

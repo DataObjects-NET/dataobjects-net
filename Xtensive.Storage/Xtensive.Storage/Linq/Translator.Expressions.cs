@@ -342,7 +342,7 @@ namespace Xtensive.Storage.Linq
         return ma;
       if (ma.Expression==null) {
         if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
-          var lambda = Expression.Lambda<Func<IQueryable>>(ma).CompileCached();
+          var lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           var rootPoint = lambda();
           if (rootPoint!=null)
             return ConstructQueryable(rootPoint);
@@ -351,7 +351,7 @@ namespace Xtensive.Storage.Linq
       else if (ma.Expression.NodeType==ExpressionType.Constant) {
         var rfi = ma.Member as FieldInfo;
         if (rfi!=null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType))) {
-          var lambda = Expression.Lambda<Func<IQueryable>>(ma).CompileCached();
+          var lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           var rootPoint = lambda();
           if (rootPoint!=null)
             return ConstructQueryable(rootPoint);

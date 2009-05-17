@@ -23,7 +23,7 @@ namespace Xtensive.Core.Tests.Linq
     public void InterfaceImplicitCastTest()
     {
       Expression<Func<int, IEnumerable>> lambda = n => Enumerable.Range(1, n);
-      lambda.CompileCached();
+      lambda.CachingCompile();
     }
 
     #region Performance testing
@@ -88,7 +88,7 @@ namespace Xtensive.Core.Tests.Linq
 
       ClearCompilerCache();
       var original = plusOne.Compile();
-      var cached = plusOne.CompileCached();
+      var cached = plusOne.CachingCompile();
       
       RunCallOverheadTest(original, cached, true);
       RunCallOverheadTest(original, cached, false);
@@ -119,7 +119,7 @@ namespace Xtensive.Core.Tests.Linq
       ClearCompilerCache();
       using (CreateMeasurement(warmUp, "With caching: ", operationCount))
         for (int i = 0; i < operationCount; i++)
-          lambdaGenerator.Invoke().CompileCached();
+          lambdaGenerator.Invoke().CachingCompile();
     }
 
     private static void RunCompilePerformanceTest(Expression<Func<int, int, int>> lambda, bool warmUp)
@@ -131,7 +131,7 @@ namespace Xtensive.Core.Tests.Linq
       ClearCompilerCache();
       using (CreateMeasurement(warmUp, "With caching: ", operationCount))
         for (int i = 0; i < operationCount; i++)
-          lambda.CompileCached();
+          lambda.CachingCompile();
     }
 
     private static void RunCompileAndInvokePerformanceTest(Expression<Func<int, int, int>> lambda, bool warmUp)
@@ -146,7 +146,7 @@ namespace Xtensive.Core.Tests.Linq
       ClearCompilerCache();
       using (CreateMeasurement(warmUp, "With caching: ", operationCount))
         for (int i = 0; i < operationCount; i++) {
-          var func = lambda.CompileCached();
+          var func = lambda.CachingCompile();
           func(i, i);
         }
     }

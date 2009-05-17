@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     public RangeSet<Entire<Tuple>> GetRangeSet()
     {
       if (rangeSetCreator == null || creatorIsStale) {
-        rangeSetCreator = Expression.Lambda<Func<RangeSet<Entire<Tuple>>>>(Source).CompileCached();
+        rangeSetCreator = Expression.Lambda<Func<RangeSet<Entire<Tuple>>>>(Source).CachingCompile();
         creatorIsStale = false;
       }
       return rangeSetCreator();

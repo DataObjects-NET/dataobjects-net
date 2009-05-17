@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public Func<Tuple> CompiledKey {
       get {
         if (compiledKey==null)
-          compiledKey = Key.CompileCached();
+          compiledKey = Key.CachingCompile();
         return compiledKey;
       }
       internal set {

@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       base.Initialize();
       transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
-      predicate = Origin.Predicate.CompileCached();
+      predicate = Origin.Predicate.CachingCompile();
       rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
     }
 

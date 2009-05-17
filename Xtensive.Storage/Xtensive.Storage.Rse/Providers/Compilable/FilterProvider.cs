@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public Func<Tuple, bool> CompiledPredicate {
       get {
         if (compiledPredicate==null)
-          compiledPredicate = Predicate.CompileCached();
+          compiledPredicate = Predicate.CachingCompile();
         return compiledPredicate;
       }
     }

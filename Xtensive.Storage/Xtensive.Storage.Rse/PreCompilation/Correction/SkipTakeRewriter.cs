@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
       if(!(provider.Source is TakeProvider))
         visitedSource = CreateRowNumberProvider(visitedSource, ref rowNumberCount);
-      var newProvider = new SkipProvider(visitedSource, Expression.Lambda<Func<int>>(skipCount).CompileCached());
+      var newProvider = new SkipProvider(visitedSource, Expression.Lambda<Func<int>>(skipCount).CachingCompile());
       return InsertSelectRemovingRowNumber(newProvider);
     }
 
@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       
       if(!(provider.Source is SkipProvider))
         visitedSource = CreateRowNumberProvider(visitedSource, ref rowNumberCount);
-      var newProvider = new TakeProvider(visitedSource, Expression.Lambda<Func<int>>(takeCount).CompileCached());
+      var newProvider = new TakeProvider(visitedSource, Expression.Lambda<Func<int>>(takeCount).CachingCompile());
       return InsertSelectRemovingRowNumber(newProvider);
     }
 

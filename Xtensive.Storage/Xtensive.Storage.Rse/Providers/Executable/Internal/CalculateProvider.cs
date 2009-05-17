@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     public CalculateProvider(Compilable.CalculateProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
-      calculators = Origin.CalculatedColumns.Select(c => c.Expression.CompileCached()).ToList();
+      calculators = Origin.CalculatedColumns.Select(c => c.Expression.CachingCompile()).ToList();
     }
   }
 }
