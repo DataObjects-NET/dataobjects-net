@@ -6,13 +6,15 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Helpers
 {
   /// <summary>
   /// Provides access to some <see cref="Leased"/> object of type <typeparamref name="T"/>
-  /// Much like <see cref="Xtensive.Core.Disposing"/>, but provides access to its parameter via <see cref="Leased"/> property.
+  /// Much like <see cref="Disposable{T}"/>, but provides 
+  /// access to its parameter via <see cref="Leased"/> property.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="Leased"/> object.</typeparam>
   public class LeasedAccessor<T>: IDisposable
