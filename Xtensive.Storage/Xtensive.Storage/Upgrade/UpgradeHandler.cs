@@ -97,6 +97,8 @@ namespace Xtensive.Storage.Upgrade
           OnUpgrade();
           break;
         case UpgradeStage.Final:
+          if (context.OriginalConfiguration.UpgradeMode==DomainUpgradeMode.Recreate)
+            UpdateMetadata();
           break;
         default:
           throw new ArgumentOutOfRangeException("context.Stage");
