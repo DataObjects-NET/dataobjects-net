@@ -26,21 +26,21 @@ namespace Xtensive.Storage.Tests
       var inheritanceSchema = InheritanceSchema.Default;
 
       // Getting values from the environment variables
-      var value = Environment.GetEnvironmentVariable(StorageTypeKey, EnvironmentVariableTarget.Process);
+      var value = GetEnvironmentVariable(StorageTypeKey);
       if (!string.IsNullOrEmpty(value))
         storageType = value;
 
-      value = Environment.GetEnvironmentVariable(TypeIdKey, EnvironmentVariableTarget.Process);
+      value = GetEnvironmentVariable(TypeIdKey);
       if (!string.IsNullOrEmpty(value)) {
         typeIdBehavior = (TypeIdBehavior) Enum.Parse(typeof (TypeIdBehavior), value, true);
       }
 
-      value = Environment.GetEnvironmentVariable(InheritanceSchemaKey, EnvironmentVariableTarget.Process);
+      value = GetEnvironmentVariable(InheritanceSchemaKey);
       if (!string.IsNullOrEmpty(value)) {
         inheritanceSchema = (InheritanceSchema) Enum.Parse(typeof (InheritanceSchema), value, true);
       }
 
-      value = Environment.GetEnvironmentVariable(ForeignKeysModeKey, EnvironmentVariableTarget.Process);
+      value = GetEnvironmentVariable(ForeignKeysModeKey);
       if (!string.IsNullOrEmpty(value)) {
         foreignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), value, true);
       }
@@ -100,6 +100,14 @@ namespace Xtensive.Storage.Tests
       config.Builders.Add(TypeIdModifier.GetModifier(typeIdBehavior));
       config.ForeignKeyMode = foreignKeyMode;
       return config;
+    }
+
+    private static string GetEnvironmentVariable(string key)
+    {
+      string result = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Process);
+      if (!string.IsNullOrEmpty(result))
+        return result;
+      return Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.User);
     }
   }
 }
