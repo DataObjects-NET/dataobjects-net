@@ -22,24 +22,24 @@ namespace Xtensive.Storage.Building
     Default = None,
 
     /// <summary>
-    /// No foreign keys will be builded for storage.
+    /// No foreign keys will be built for storage.
     /// </summary>
     None = 0x00,
 
     /// <summary>
-    /// Foreign keys for hierarchy inheritance will be builded.
+    /// Foreign keys for hierarchy inheritance will be built.
     /// <see cref="Hierarchy"/>
     /// </summary>
     Hierarchy = 0x01,
 
     /// <summary>
-    /// Foreign keys for <see cref="Entity"/> references will be builded. 
+    /// Foreign keys for <see cref="Entity"/> references will be built. 
     /// <seealso cref="EntitySet{TItem}"/>.
     /// </summary>
     Reference = 0x02,
 
     /// <summary>
-    /// All foreign keys (<see cref="Hierarchy"/> and <see cref="Reference"/>) will be builded for storage.
+    /// All foreign keys (<see cref="Hierarchy"/> and <see cref="Reference"/>) will be built for storage.
     /// </summary>
     All = Hierarchy + Reference,
   }
