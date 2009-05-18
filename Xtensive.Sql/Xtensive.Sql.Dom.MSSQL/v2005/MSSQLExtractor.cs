@@ -259,7 +259,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       
       for (int i = 1; i <= columnsToLoad; i++)
         select.Columns.Add(
-          Sql.FunctionCall("index_col", tSysusersRef["name"] + "." + tSysobjRef["name"], tIndexesRef["indid"], i),
+          Sql.FunctionCall("index_col", "[" + tSysusersRef["name"] + "].[" + tSysobjRef["name"] + "]", tIndexesRef["indid"], i),
           "COL" + i);
 
       for (int i = 1; i <= columnsToLoad; i++)
