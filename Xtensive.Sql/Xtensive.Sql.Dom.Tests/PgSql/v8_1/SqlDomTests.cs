@@ -2,7 +2,7 @@
 
 namespace Xtensive.Sql.Dom.Tests.PgSql.v8_1
 {
-  [TestFixture]
+//  [TestFixture]
   public class SqlDomTests : v8_0.SqlDomTests
   {
     protected override string Url { get { return TestUrl.PgSql81; } }
