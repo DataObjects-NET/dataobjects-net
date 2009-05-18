@@ -5,21 +5,58 @@
 // Created:    2008.08.05
 
 using System;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests
 {
   public static class DomainConfigurationFactory
   {
+    private const string StorageTypeKey =          "env.X_STORAGE";
+    private const string ForeignKeysModeKey =      "env.X_FOREIGN_KEYS";
+    private const string TypeIdKey =               "env.X_TYPE_ID";
+    private const string InheritanceSchemaKey =    "env.X_INHERITANCE_SCHEMA";
+
     public static DomainConfiguration Create()
     {
+      // Default values
+      var storageType = "memory";
+      var foreignKeyMode = ForeignKeyMode.Default;
+      var typeIdBehavior = TypeIdBehavior.Default;
+      var inheritanceSchema = InheritanceSchema.Default;
+
+      // Getting values from the environment variables
+      var value = Environment.GetEnvironmentVariable(StorageTypeKey, EnvironmentVariableTarget.Process);
+      if (!string.IsNullOrEmpty(value))
+        storageType = value;
+
+      value = Environment.GetEnvironmentVariable(TypeIdKey, EnvironmentVariableTarget.Process);
+      if (!string.IsNullOrEmpty(value)) {
+        typeIdBehavior = (TypeIdBehavior) Enum.Parse(typeof (TypeIdBehavior), value, true);
+      }
+
+      value = Environment.GetEnvironmentVariable(InheritanceSchemaKey, EnvironmentVariableTarget.Process);
+      if (!string.IsNullOrEmpty(value)) {
+        inheritanceSchema = (InheritanceSchema) Enum.Parse(typeof (InheritanceSchema), value, true);
+      }
+
+      value = Environment.GetEnvironmentVariable(ForeignKeysModeKey, EnvironmentVariableTarget.Process);
+      if (!string.IsNullOrEmpty(value)) {
+        foreignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), value, true);
+      }
+
       DomainConfiguration config;
+
+      config = Create(storageType, inheritanceSchema, typeIdBehavior, foreignKeyMode);
+
+      // Here you still have the ability to override the above values
+
 //      config = Create("memory");
 //      config = Create("memory", InheritanceSchema.SingleTable);
 //      config = Create("memory", InheritanceSchema.ConcreteTable);
 //      config = Create("memory", InheritanceSchema.Default, TypeIdBehavior.Include);
 
-        config = Create("mssql2005");
+//        config = Create("mssql2005");
 //      config = Create("mssql2005", InheritanceSchema.SingleTable);
 //      config = Create("mssql2005", InheritanceSchema.ConcreteTable);
 //      config = Create("mssql2005", InheritanceSchema.Default, TypeIdBehavior.Include);
@@ -51,7 +88,17 @@ namespace Xtensive.Storage.Tests
     public static DomainConfiguration Create(string protocol, InheritanceSchema schema, TypeIdBehavior typeIdBehavior)
     {
       DomainConfiguration config = Create(protocol, schema);
+      config.Builders.Add(InheritanceSchemaModifier.GetModifier(schema));
       config.Builders.Add(TypeIdModifier.GetModifier(typeIdBehavior));
+      return config;
+    }
+
+    public static DomainConfiguration Create(string protocol, InheritanceSchema schema, TypeIdBehavior typeIdBehavior, ForeignKeyMode foreignKeyMode)
+    {
+      DomainConfiguration config = Create(protocol, schema);
+      config.Builders.Add(InheritanceSchemaModifier.GetModifier(schema));
+      config.Builders.Add(TypeIdModifier.GetModifier(typeIdBehavior));
+      config.ForeignKeyMode = foreignKeyMode;
       return config;
     }
   }
