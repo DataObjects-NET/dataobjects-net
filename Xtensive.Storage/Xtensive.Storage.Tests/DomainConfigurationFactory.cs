@@ -12,10 +12,10 @@ namespace Xtensive.Storage.Tests
 {
   public static class DomainConfigurationFactory
   {
-    private const string StorageTypeKey =          "env.X_STORAGE";
-    private const string ForeignKeysModeKey =      "env.X_FOREIGN_KEYS";
-    private const string TypeIdKey =               "env.X_TYPE_ID";
-    private const string InheritanceSchemaKey =    "env.X_INHERITANCE_SCHEMA";
+    private const string StorageTypeKey =          "X_STORAGE";
+    private const string ForeignKeysModeKey =      "X_FOREIGN_KEYS";
+    private const string TypeIdKey =               "X_TYPE_ID";
+    private const string InheritanceSchemaKey =    "X_INHERITANCE_SCHEMA";
 
     public static DomainConfiguration Create()
     {
