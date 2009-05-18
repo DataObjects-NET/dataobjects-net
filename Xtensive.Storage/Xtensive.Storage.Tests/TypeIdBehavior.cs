@@ -8,6 +8,7 @@ namespace Xtensive.Storage.Tests
 {
   public enum TypeIdBehavior
   {
+    Default = AsIs,
     AsIs = 0,
     Include = 1,
     Exclude = 2,
