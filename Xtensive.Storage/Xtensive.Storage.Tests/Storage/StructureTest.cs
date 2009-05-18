@@ -4,6 +4,7 @@
 // Created by: 
 // Created:    2008.05.28
 
+using System;
 using NUnit.Framework;
 using System.Reflection;
 using Xtensive.Core;
@@ -69,6 +70,43 @@ namespace Xtensive.Storage.Tests.Storage
       DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.StructureModel");
       return config;
+    }
+
+    [Test]
+    public void Process()
+    {
+      var vars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
+      string result = "";
+      foreach (var key in vars.Keys) {
+        result += key + " = " + vars[key] + Environment.NewLine;
+      }
+
+      throw new NotImplementedException(result);
+    }
+
+    [Test]
+    public void User()
+    {
+      var vars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
+      string result = "";
+      foreach (var key in vars.Keys) {
+        result += key + " = " + vars[key] + Environment.NewLine;
+      }
+
+      throw new NotImplementedException(result);
+    }
+
+
+    [Test]
+    public void Machine()
+    {
+      var vars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
+      string result = "";
+      foreach (var key in vars.Keys) {
+        result += key + " = " + vars[key] + Environment.NewLine;
+      }
+
+      throw new NotImplementedException(result);
     }
 
     [Test]
