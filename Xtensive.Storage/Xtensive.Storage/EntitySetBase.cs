@@ -44,7 +44,7 @@ namespace Xtensive.Storage
     private readonly bool notifyInitialization;
 
 
-    #region Public Count, Contains, GetKeys members
+    #region Public Count, Contains members
 
     /// <summary>
     /// Gets the number of elements contained in the <see cref="EntitySetBase"/>.
@@ -57,20 +57,6 @@ namespace Xtensive.Storage
     {
       [DebuggerStepThrough]
       get { return State.Count; }
-    }
-
-    /// <summary>
-    /// Determines whether <see cref="EntitySetBase"/> contains the specified item.
-    /// </summary>
-    /// <param name="item">The item.</param>
-    /// <returns>
-    /// <see langword="true"/> if <see cref="EntitySetBase"/> contains the specified item; otherwise, <see langword="false"/>.
-    /// </returns>
-    [Infrastructure]
-    public bool Contains(Entity item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      return Contains(item.Key);
     }
 
     /// <summary>
@@ -142,7 +128,12 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region Internal Add, Remove, Clear members
+    #region Internal Contains, Add, Remove, Clear, IntersectWith, ExceptWith, UnionWith members
+
+    internal bool Contains(Entity item)
+    {
+      return Contains(item.Key);
+    }
 
     internal bool Add(Entity item, bool notify)
     {
@@ -191,6 +182,39 @@ namespace Xtensive.Storage
       foreach (var entity in GetEntities().ToList())
         Remove(entity, notify);
       OnClear(notify);
+    }
+
+    internal void IntersectWith<TElement>(IEnumerable<TElement> other, bool notify)
+      where TElement : Entity
+    {
+      if (this == other)
+        return;
+      var otherEntities = other.Cast<Entity>().ToHashSet();
+      foreach (var item in GetEntities().ToList())
+        if (!otherEntities.Contains(item))
+          Remove(item, notify);
+    }
+
+    internal void UnionWith<TElement>(IEnumerable<TElement> other, bool notify)
+      where TElement : Entity
+    {
+      if (this == other)
+        return;
+      foreach (var item in other)
+        if (!Contains(item))
+          Add(item, notify);
+    }
+
+    internal void ExceptWith<TElement>(IEnumerable<TElement> other, bool notify)
+      where TElement : Entity
+    {
+      if (this == other) {
+        Clear(notify);
+        return;
+      }
+      foreach (var item in other)
+        if (Contains(item))
+          Remove(item, notify);
     }
 
     #endregion

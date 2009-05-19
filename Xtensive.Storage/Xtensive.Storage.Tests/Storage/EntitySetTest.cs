@@ -5,11 +5,12 @@
 // Created:    2009.03.11
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
-using System.Linq;
 using Xtensive.Storage.Tests.Storage.EntitySetModel;
 
 namespace Xtensive.Storage.Tests.Storage.EntitySetModel
@@ -147,6 +148,48 @@ namespace Xtensive.Storage.Tests.Storage
           t.Complete();
         }
       }
+    }
+
+    [Test]
+    public void SetOperationsTest()
+    {
+      using (Domain.OpenSession())
+      using (var t = Transaction.Open()) {
+        var customer = new Customer("QQQ77");
+        var orders1 = GenerateOrders(2);
+        var orders2 = GenerateOrders(3);
+        var orders3 = GenerateOrders(4);
+        // UnionWith
+        customer.Orders.UnionWith(orders1);
+        customer.Orders.UnionWith(orders2);
+        var orders = customer.Orders.ToList();
+        Assert.IsTrue(orders.ContainsAll(orders1));
+        Assert.IsTrue(orders.ContainsAll(orders2));
+        // IntersectWith
+        customer.Orders.IntersectWith(orders1);
+        orders = customer.Orders.ToList();
+        Assert.IsTrue(orders.ContainsAll(orders1));
+        Assert.IsFalse(orders.ContainsAny(orders2));
+        // ExceptWith
+        customer.Orders.ExceptWith(orders1);
+        orders = customer.Orders.ToList();
+        Assert.AreEqual(0, orders.Count);
+        // Check all operations with self.
+        customer.Orders.UnionWith(orders3);
+        customer.Orders.UnionWith(customer.Orders);
+        customer.Orders.IntersectWith(customer.Orders);
+        customer.Orders.ExceptWith(customer.Orders);
+        Assert.AreEqual(0, customer.Orders.Count);
+        // rolling back
+      }
+    }
+
+    private List<Order> GenerateOrders(int count)
+    {
+      var result = new List<Order>();
+      for (int i = 0; i < count; i++)
+        result.Add(new Order());
+      return result;
     }
   }
 }

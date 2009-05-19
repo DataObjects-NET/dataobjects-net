@@ -12,6 +12,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
@@ -63,6 +64,47 @@ namespace Xtensive.Storage
     public void Clear()
     {
       Clear(true);
+    }
+
+    /// <summary>
+    /// Modifies the current <see cref="EntitySet{TItem}"/> object
+    /// to contain only elements that are present in that object and in the specified collection.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the element.</typeparam>
+    /// <param name="other">The collection to compare to the current <see cref="EntitySet{TItem}"/> object.</param>
+    [Infrastructure]
+    public void IntersectWith<TElement>(IEnumerable<TElement> other)
+     where TElement : TItem
+    {
+      ArgumentValidator.EnsureArgumentNotNull(other, "other");
+      IntersectWith(other, true);
+    }
+
+    /// <summary>
+    /// Modifies the current <see cref="EntitySet{TItem}"/> object
+    /// to contain all elements that are present in both itself and in the specified collection.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the element.</typeparam>
+    /// <param name="other">The collection to compare to the current <see cref="EntitySet{TItem}"/> object.</param>
+    [Infrastructure]
+    public void UnionWith<TElement>(IEnumerable<TElement> other)
+      where TElement : TItem
+    {
+      ArgumentValidator.EnsureArgumentNotNull(other, "other");
+      UnionWith(other, true);
+    }
+
+    /// <summary>
+    /// Removes all elements in the specified collection from the current <see cref="EntitySet{TItem}"/> object.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the element.</typeparam>
+    /// <param name="other">The collection to compare to the current <see cref="EntitySet{TItem}"/> object.</param>
+    [Infrastructure]
+    public void ExceptWith<TElement>(IEnumerable<TElement> other)
+      where TElement : TItem
+    {
+      ArgumentValidator.EnsureArgumentNotNull(other, "other");
+      ExceptWith(other, true);
     }
 
     #region Explicit ICollection<T> members
