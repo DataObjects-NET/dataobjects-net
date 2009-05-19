@@ -175,18 +175,21 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessMappingName(MappingNode node, MappingAttribute attribute, ValidationRule rule)
     {
-      if (attribute.MappingName.IsNullOrEmpty())
+      string mappingName = attribute.MappingName;
+      if (mappingName.IsNullOrEmpty())
         return;
 
-      if (!Validator.IsNameValid(attribute.MappingName, rule))
-        throw new DomainBuilderException(
-          string.Format(Strings.ExInvalidMappingNameX, attribute.MappingName));
+      mappingName = BuildingContext.Current.NameBuilder.NamingConvention.Apply(mappingName);
 
-      if (comparer.Compare(node.MappingName, attribute.MappingName)==0)
+      if (!Validator.IsNameValid(mappingName, rule))
+        throw new DomainBuilderException(
+          string.Format(Strings.ExInvalidMappingNameX, mappingName));
+
+      if (comparer.Compare(node.MappingName, mappingName)==0)
         Log.Warning(
           Strings.ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically, node.MappingName);
       else
-        node.MappingName = attribute.MappingName;
+        node.MappingName = mappingName;
     }
 
     private static void ProcessKeyFields(string[] source, IDictionary<string, Direction> target)
