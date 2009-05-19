@@ -13,7 +13,7 @@ namespace Xtensive.Core.Linq.Internals
   internal sealed class CachingExpressionCompiler
   {
     private static readonly object @lock = new object();
-    private static volatile CachingExpressionCompiler instance = new CachingExpressionCompiler();
+    private static volatile CachingExpressionCompiler instance;
 
     public static CachingExpressionCompiler Instance {
       get {

@@ -40,7 +40,7 @@ Action<int, bool> WriteMethod = delegate (int numberOfArguments, bool forAction)
   Write("public static ");
   WriteType(forAction);
   WriteGenericParameters(numberOfArguments, forAction, false);
-  Write(" CompileCached");
+  Write(" CachingCompile");
   WriteGenericParameters(numberOfArguments, forAction, false);
   Write("(this Expression<");
   WriteType(forAction);
@@ -49,7 +49,7 @@ Action<int, bool> WriteMethod = delegate (int numberOfArguments, bool forAction)
   WriteLine(")");
   WriteLine("{");
   PushIndent("  ");
-  WriteLine("var result = CachingExpressionCompiler.Instance.RawCompile(lambda);");
+  WriteLine("var result = CachingExpressionCompiler.Instance.Compile(lambda);");
   Write("return ((");
   WriteType(forAction);
   WriteGenericParameters(numberOfArguments, forAction, true);
