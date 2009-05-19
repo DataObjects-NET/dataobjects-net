@@ -88,7 +88,6 @@ namespace Xtensive.Storage.Tests
     public static DomainConfiguration Create(string protocol, InheritanceSchema schema, TypeIdBehavior typeIdBehavior)
     {
       DomainConfiguration config = Create(protocol, schema);
-      config.Builders.Add(InheritanceSchemaModifier.GetModifier(schema));
       config.Builders.Add(TypeIdModifier.GetModifier(typeIdBehavior));
       return config;
     }
@@ -96,7 +95,6 @@ namespace Xtensive.Storage.Tests
     public static DomainConfiguration Create(string protocol, InheritanceSchema schema, TypeIdBehavior typeIdBehavior, ForeignKeyMode foreignKeyMode)
     {
       DomainConfiguration config = Create(protocol, schema);
-      config.Builders.Add(InheritanceSchemaModifier.GetModifier(schema));
       config.Builders.Add(TypeIdModifier.GetModifier(typeIdBehavior));
       config.ForeignKeyMode = foreignKeyMode;
       return config;
