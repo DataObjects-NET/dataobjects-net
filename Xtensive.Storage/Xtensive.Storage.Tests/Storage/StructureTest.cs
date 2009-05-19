@@ -73,43 +73,6 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void Process()
-    {
-      var vars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
-      string result = "";
-      foreach (var key in vars.Keys) {
-        result += key + " = " + vars[key] + Environment.NewLine;
-      }
-
-      throw new NotImplementedException(result);
-    }
-
-    [Test]
-    public void User()
-    {
-      var vars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
-      string result = "";
-      foreach (var key in vars.Keys) {
-        result += key + " = " + vars[key] + Environment.NewLine;
-      }
-
-      throw new NotImplementedException(result);
-    }
-
-
-    [Test]
-    public void Machine()
-    {
-      var vars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
-      string result = "";
-      foreach (var key in vars.Keys) {
-        result += key + " = " + vars[key] + Environment.NewLine;
-      }
-
-      throw new NotImplementedException(result);
-    }
-
-    [Test]
     public void PointTest()
     {
       using (Domain.OpenSession()) {
