@@ -115,7 +115,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         rightMapping.Add(item.Second);
       }
 
-      leftMapping = leftMapping.Distinct().OrderBy(i => i).ToList();
+      /*leftMapping = leftMapping.Distinct().OrderBy(i => i).ToList();
       rightMapping = rightMapping.Distinct().OrderBy(i => i).ToList();
 
       // visit
@@ -126,7 +126,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
       mappings[provider.Right] = rightMapping;
       CompilableProvider newRightProvider = VisitCompilable(provider.Right);
-      rightMapping = mappings[provider.Right];
+      rightMapping = mappings[provider.Right];*/
+      var newLeftProvider = provider.Left;
+      var newRightProvider = provider.Right;
+      VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider);
 
       if (newLeftProvider == provider.Left && newRightProvider == provider.Right)
         return provider;
@@ -137,7 +140,54 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       Pair<int>[] equalIndexes = provider.EqualIndexes
         .Select(pair => new Pair<int>(leftMapping.IndexOf(pair.First), rightMapping.IndexOf(pair.Second)))
         .ToArray();
-      return new JoinProvider(newLeftProvider, newRightProvider, provider.JoinType, provider.JoinAlgorithm, equalIndexes);
+      return new JoinProvider(newLeftProvider, newRightProvider, provider.JoinType, provider.JoinAlgorithm,
+        equalIndexes);
+    }
+
+    protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)
+    {
+      List<int> leftMapping;
+      List<int> rightMapping;
+
+      SplitMappings(provider, out leftMapping, out rightMapping);
+
+      leftMapping.AddRange(mappingsGatherer.Gather(provider.Predicate,
+        provider.Predicate.Parameters[0]));
+      rightMapping.AddRange(mappingsGatherer.Gather(provider.Predicate,
+        provider.Predicate.Parameters[1]));
+
+      var newLeftProvider = provider.Left;
+      var newRightProvider = provider.Right;
+      VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider);
+
+      // merge
+
+      mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
+      var predicate = TranslateJoinPredicate(leftMapping, rightMapping, provider.Predicate);
+      if (newLeftProvider == provider.Left && newRightProvider == provider.Right
+        && provider.Predicate == predicate)
+        return provider;
+      return new PredicateJoinProvider(newLeftProvider, newRightProvider,
+        (Expression<Func<Tuple, Tuple, bool>>)predicate, provider.JoinType);
+    }
+
+    private void VisitJoin(ref List<int> leftMapping, ref CompilableProvider left, ref List<int> rightMapping,
+      ref CompilableProvider right)
+    {
+      leftMapping = leftMapping.Distinct().OrderBy(i => i).ToList();
+      rightMapping = rightMapping.Distinct().OrderBy(i => i).ToList();
+
+      // visit
+
+      mappings[left] = leftMapping;
+      CompilableProvider newLeftProvider = VisitCompilable(left);
+      leftMapping = mappings[left];
+
+      mappings[right] = rightMapping;
+      CompilableProvider newRightProvider = VisitCompilable(right);
+      rightMapping = mappings[right];
+      left = newLeftProvider;
+      right = newRightProvider;
     }
 
     protected override Provider VisitSort(SortProvider provider)
@@ -364,6 +414,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         case ProviderType.Sort:
         case ProviderType.Reindex:
         case ProviderType.Join:
+        case ProviderType.PredicateJoin:
         case ProviderType.Aggregate:
         case ProviderType.Calculate:
         case ProviderType.Apply:
@@ -446,11 +497,21 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     private Expression TranslateExpression(Provider originalProvider, Expression expression)
     {
-      if (originalProvider.Type == ProviderType.Filter || originalProvider.Type == ProviderType.Calculate) {
+      if (originalProvider.Type == ProviderType.Filter 
+        || originalProvider.Type == ProviderType.Calculate) {
         var replacer = new TupleAccessRewriter(mappings[originalProvider], ResolveOuterMapping);
         return replacer.Rewrite(expression);
       }
       return expression;
+    }
+
+    private Expression TranslateJoinPredicate(IList<int> leftMapping, 
+      IList<int> rightMapping, Expression<Func<Tuple, Tuple, bool>>expression)
+    {
+      var result = new TupleAccessRewriter(leftMapping, ResolveOuterMapping).Rewrite(expression,
+        expression.Parameters[0]);
+      return new TupleAccessRewriter(rightMapping, ResolveOuterMapping).Rewrite(result,
+        expression.Parameters[1]);
     }
 
     #endregion

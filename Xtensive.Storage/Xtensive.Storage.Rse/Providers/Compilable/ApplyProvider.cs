@@ -30,6 +30,18 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public JoinType ApplyType { get; private set; }
 
+    /// <summary>
+    /// Gets a value indicating whether the right source of 
+    /// this provider is <see cref="ExistenceProvider"/>.
+    /// </summary>
+    public bool IsApplyExistence { get; private set; }
+
+    /// <summary>
+    /// Gets a value indicating whether the right source of this provider 
+    /// is <see cref="AggregateProvider"/> having the single aggregate column.
+    /// </summary>
+    public bool IsApplyAggregate { get; private set; }
+
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
@@ -79,6 +91,14 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       JoinType applyType)
       : base(ProviderType.Apply, left, right)
     {
+      IsApplyExistence = right is ExistenceProvider;
+      if(IsApplyExistence)
+        IsApplyAggregate = false;
+      else {
+        var rightAsAggregate = right as AggregateProvider;
+        IsApplyAggregate = rightAsAggregate!=null && rightAsAggregate.AggregateColumns.Length==1
+          && rightAsAggregate.GroupColumnIndexes.Length==0;
+      }
       ApplyParameter = applyParameter;
       ApplyType = applyType;
     }

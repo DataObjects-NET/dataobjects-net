@@ -106,6 +106,15 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t convert the {0} to the {1}..
+        /// </summary>
+        internal static string ExCantConvertXToY {
+            get {
+                return ResourceManager.GetString("ExCantConvertXToY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t open EnumerationScope, since there is no current CompilationContext..
         /// </summary>
         internal static string ExCantOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext {
@@ -165,6 +174,15 @@ namespace Xtensive.Storage.Rse.Resources {
         internal static string ExParameterXIsNotATupleAccessExpression {
             get {
                 return ResourceManager.GetString("ExParameterXIsNotATupleAccessExpression", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Predicate contains accesses to different ApplyParameters..
+        /// </summary>
+        internal static string ExPredicateContainsAccessesToDifferentApplyParameters {
+            get {
+                return ResourceManager.GetString("ExPredicateContainsAccessesToDifferentApplyParameters", resourceCulture);
             }
         }
         

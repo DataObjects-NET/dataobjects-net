@@ -224,7 +224,15 @@ namespace Xtensive.Storage.Providers.Sql
       var rightSelect = right.Request.SelectStatement;
       var rightQuery = SqlFactory.QueryRef(rightSelect);
       HashSet<SqlFetchParameterBinding> bindings;
-      var predicate = TranslateExpression(provider.Predicate, out bindings, leftSelect, rightSelect);
+
+      var predicate = TranslateExpression(provider.Predicate, out bindings, leftQuery, rightQuery);
+      var value = predicate as SqlLiteral<bool>;
+        if (value!=null) {
+          if (value.Value)
+            predicate = SqlFactory.Literal(1) == 1;
+          else
+            predicate = SqlFactory.Literal(1) == 0;
+        }
       var joinedTable = SqlFactory.Join(
         provider.JoinType == JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
@@ -397,9 +405,6 @@ namespace Xtensive.Storage.Providers.Sql
       if (left == null || right == null)
         return null;
 
-      /*bool isExisting = provider.ApplyType == ApplyType.Existing;
-      bool isNotExisting = provider.ApplyType == ApplyType.NotExisting;*/
-
       var leftQuery = left.PermanentReference;
       var rightQuery = right.Request.SelectStatement;
 
@@ -407,13 +412,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (left.Origin.Header.Length > 0)
         select.Columns.AddRange(leftQuery.Columns.Cast<SqlColumn>());
 
-      /*if (isExisting || isNotExisting) {
-        var filter = SqlFactory.Exists(rightQuery);
-        if (isNotExisting)
-          filter = SqlFactory.Not(filter);
-        select.Where = filter;
-      }
-      else*/ if (!TranslateSubquery(provider.Right, select, rightQuery))
+      if (!TranslateSubquery(provider.Right, select, rightQuery))
         return null;
 
       return new SqlProvider(provider, select, Handlers, left, right);
@@ -536,13 +535,31 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <summary>
+    /// Translates <see cref="LambdaExpression"/> to SQL DOM tree.
+    /// </summary>
+    /// <param name="le">An expression to translate</param>
+    /// <param name="parameterBindings">Parameter bindings generated during translation.</param>
+    /// <param name="queryRefs"><see cref="SqlQueryRef"/> associated with <paramref name="le"/> 
+    /// parameters.</param>
+    /// <returns></returns>
+    protected virtual SqlExpression TranslateExpression(LambdaExpression le,
+      out HashSet<SqlFetchParameterBinding> parameterBindings, params SqlQueryRef[] queryRefs)
+    {
+      var translator = new ExpressionProcessor(this, Handlers, le, queryRefs);
+      var result = translator.Translate();
+      parameterBindings = translator.Bindings;
+      return result;
+    }
+
+    /// <summary>
     /// Translates <see cref="AggregateColumn"/> to corresponding <see cref="SqlExpression"/>.
     /// </summary>
     /// <param name="source">The source <see cref="SqlProvider">.</param>
     /// <param name="sourceColumns">The source columns.</param>
     /// <param name="aggregateColumn">The aggregate column.</param>
     /// <returns></returns>
-    protected virtual SqlExpression TranslateAggregate(SqlProvider source, List<SqlTableColumn> sourceColumns, AggregateColumn aggregateColumn)
+    protected virtual SqlExpression TranslateAggregate(SqlProvider source,
+      List<SqlTableColumn> sourceColumns, AggregateColumn aggregateColumn)
     {
       switch (aggregateColumn.AggregateType) {
         case AggregateType.Avg:

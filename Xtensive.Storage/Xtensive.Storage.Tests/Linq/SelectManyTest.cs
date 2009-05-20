@@ -97,8 +97,8 @@ namespace Xtensive.Storage.Tests.Linq
         Query<Order>.All.Count() +
           Query<Customer>.All.Count(c => !Query<Order>.All.Any(o => o.Customer == c));
       var result = from c in Query<Customer>.All
-      from o in Query<Order>.All.Where(o => o.Customer == c).DefaultIfEmpty()
-      select new {c.ContactName, o.OrderDate};
+        from o in Query<Order>.All.Where(o => o.Customer == c).DefaultIfEmpty()
+        select new {c.ContactName, o.OrderDate};
       var list = result.ToList();
       Assert.AreEqual(assertCount, list.Count);
     }
@@ -117,7 +117,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectManyAfterSelect2Test()
     {
       int expected = Query<Order>.All.Count();
-      IQueryable<Order> result = Query<Customer>.All.Select(c => Query<Order>.All.Where(o => o.Customer == c)).SelectMany(o => o);
+      IQueryable<Order> result = Query<Customer>.All
+        .Select(c => Query<Order>.All.Where(o => o.Customer == c)).SelectMany(o => o);
       Assert.AreEqual(expected, result.ToList().Count);
     }
 
@@ -144,7 +145,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       int expected = Query<Order>.All.Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query<Customer>.All
-        .SelectMany(c => Query<Order>.All.Where(o => o.Customer == c).Where(o => o.Employee.FirstName.StartsWith("A")));
+        .SelectMany(c => Query<Order>.All.Where(o => o.Customer == c)
+          .Where(o => o.Employee.FirstName.StartsWith("A")));
       Assert.AreEqual(expected, result.ToList().Count);
     }
 
@@ -157,6 +159,16 @@ namespace Xtensive.Storage.Tests.Linq
         where c1.Address.City == c2.Address.City
         select new {c1,c2};
       result.ToList();
+    }
+
+    [Test]
+    public void IntersectBeforeWhere()
+    {
+      int expected = Query<Order>.All.Count(o => o.Employee.FirstName.StartsWith("A"));
+      IQueryable<Order> result = Query<Customer>.All
+        .SelectMany(c => Query<Order>.All.Where(o => o.Customer == c).Intersect(Query<Order>.All)
+          .Where(o => o.Employee.FirstName.StartsWith("A")));
+      Assert.AreEqual(expected, result.ToList().Count);
     }
   }
 }

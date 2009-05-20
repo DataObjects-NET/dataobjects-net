@@ -96,6 +96,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IPreCompiler CreatePreCompiler()
     {
       return new CompositePreCompiler(
+        new ApplyProviderCorrector(true),
         new SkipTakeCorrector(),
         new OrderingCorrector(ResolveOrderingDescriptor, false),
         new RedundantColumnOptimizer(),

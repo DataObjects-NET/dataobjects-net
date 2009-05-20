@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="orderingDescriptorResolver">The resolver of
     /// <see cref="ProviderOrderingDescriptor"/>.</param>

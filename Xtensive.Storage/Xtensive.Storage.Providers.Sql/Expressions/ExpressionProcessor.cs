@@ -31,15 +31,18 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly IMemberCompilerProvider<SqlExpression> mappingsProvider;
     private readonly DomainModel model;
     private readonly SqlSelect[] selects;
+    private readonly SqlQueryRef[] queryRefs;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
     private readonly LambdaExpression lambda;
     private readonly HashSet<SqlFetchParameterBinding> bindings;
-    private readonly Dictionary<ParameterExpression, SqlSelect> parameterMapping;
+    private readonly Dictionary<ParameterExpression, SqlSelect> selectParameterMapping;
+    private readonly Dictionary<ParameterExpression, SqlQueryRef> queryRefParameterMapping;
     private readonly SqlValueTypeMapper valueTypeMapper;
     private readonly ICompiler compiler;
     private bool executed;
-
+    private bool useSelect;
+    
     public HashSet<SqlFetchParameterBinding> Bindings { get { return bindings; } }
     public DomainModel Model { get { return model; } }
 
@@ -248,8 +251,12 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         int columnIndex = tupleAccess.GetTupleAccessArgument();
         var parameter = tupleAccess.GetApplyParameter();
         if (parameter == null) {
-          var sqlSelect = parameterMapping[(ParameterExpression)tupleAccess.Object];
-          return sqlSelect[columnIndex];
+          if(useSelect) {
+            var sqlSelect = selectParameterMapping[(ParameterExpression) tupleAccess.Object];
+            return sqlSelect[columnIndex];
+          }
+          var queryRef = queryRefParameterMapping[(ParameterExpression) tupleAccess.Object];
+          return queryRef[columnIndex];
         }
         ExecutableProvider provider;
         if (compiler.CompiledSources.TryGetValue(parameter, out provider)) {
@@ -275,8 +282,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       for (int i = 0; i < l.Parameters.Count; i++) {
         var p = l.Parameters[i];
-        var select = selects[i];
-        parameterMapping[p] = select;
+        if(useSelect)
+          selectParameterMapping[p] = selects[i];
+        else
+          queryRefParameterMapping[p] = queryRefs[i];
       }
       return Visit(l.Body);
     }
@@ -456,20 +465,40 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     // Constructor
 
-    public ExpressionProcessor(ICompiler compiler, HandlerAccessor handlers, LambdaExpression le, params SqlSelect[] selects)
+    public ExpressionProcessor(ICompiler compiler, HandlerAccessor handlers, LambdaExpression le,
+      params SqlSelect[] selects)
+      : this(compiler, handlers, le)
     {
-      this.compiler = compiler;
       if (selects==null)
         throw new ArgumentNullException("selects");
-      mappingsProvider = handlers.DomainHandler.GetMemberCompilerProvider<SqlExpression>();
-      valueTypeMapper = ((DomainHandler) handlers.DomainHandler).ValueTypeMapper;
       if (le.Parameters.Count!=selects.Length)
         throw new InvalidOperationException();
-      model = handlers.Domain.Model;
       this.selects = selects;
+      selectParameterMapping = new Dictionary<ParameterExpression, SqlSelect>();
+      useSelect = true;
+    }
+
+    public ExpressionProcessor(ICompiler compiler, HandlerAccessor handlers, LambdaExpression le,
+      params SqlQueryRef[] queryRefs)
+      : this(compiler, handlers, le)
+    {
+      if (queryRefs==null)
+        throw new ArgumentNullException("queryRefs");
+      if (le.Parameters.Count!=queryRefs.Length)
+        throw new InvalidOperationException();
+      this.queryRefs = queryRefs;
+      queryRefParameterMapping = new Dictionary<ParameterExpression, SqlQueryRef>();
+      useSelect = false;
+    }
+
+    private ExpressionProcessor(ICompiler compiler, HandlerAccessor handlers, LambdaExpression le)
+    {
+      this.compiler = compiler;
+      mappingsProvider = handlers.DomainHandler.GetMemberCompilerProvider<SqlExpression>();
+      valueTypeMapper = ((DomainHandler) handlers.DomainHandler).ValueTypeMapper;
+      model = handlers.Domain.Model;
       lambda = le;
       bindings = new HashSet<SqlFetchParameterBinding>();
-      parameterMapping = new Dictionary<ParameterExpression, SqlSelect>();
       evaluator = new ExpressionEvaluator(le);
       parameterExtractor = new ParameterExtractor(evaluator);
     }

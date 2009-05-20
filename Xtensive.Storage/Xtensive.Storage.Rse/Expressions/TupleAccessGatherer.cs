@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq;
 
@@ -17,6 +18,7 @@ namespace Xtensive.Storage.Rse.Expressions
   /// </summary>
   public class TupleAccessGatherer : ExpressionVisitor
   {
+    private ParameterExpression tupleParameter;
     protected readonly Action<ApplyParameter, int> registerOuterColumn;
     protected List<int> mappings;
 
@@ -29,7 +31,7 @@ namespace Xtensive.Storage.Rse.Expressions
     /// <inheritdoc/>
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (mc.AsTupleAccess() != null) {
+      if (IsTupleAccess(mc)) {
         var columnIndex = mc.GetTupleAccessArgument();
         var outerParameter = mc.GetApplyParameter();
         if (outerParameter != null)
@@ -58,10 +60,37 @@ namespace Xtensive.Storage.Rse.Expressions
       }
     }
 
+    /// <summary>
+    /// Gathers used columns from specified <see cref="Expression"/>.
+    /// </summary>
+    /// <param name="expression">The predicate.</param>
+    /// <param name="parameter">The tuple parameter to be considered.</param>
+    /// <returns>List containing all used columns (order and uniqueness are not guaranteed).</returns>
+    public List<int> Gather(Expression expression, ParameterExpression parameter)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentValidator.EnsureArgumentNotNull(parameter, "parameter");
+      tupleParameter = parameter;
+      try {
+        return Gather(expression);
+      }
+      finally {
+        tupleParameter = null;
+      }
+    }
+
     private static void DefaultRegisterOuterColumn(ApplyParameter parameter, int columnIndex)
     {
       throw new NotSupportedException();
     }
+
+    private bool IsTupleAccess(Expression mc)
+    {
+      if(tupleParameter == null)
+        return mc.AsTupleAccess() != null;
+      return mc.AsTupleAccess(tupleParameter)!=null;
+    }
+
 
     // Constructors
 

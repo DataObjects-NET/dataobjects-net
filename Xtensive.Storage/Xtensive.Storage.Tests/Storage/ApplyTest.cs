@@ -45,48 +45,6 @@ namespace Xtensive.Storage.Tests.Storage
       allOrders = orderPrimary.ToEntities<Order>().ToList();      
     }
 
-    /*[Test]
-    public void ApplyExistingTest()
-    {
-      using (Domain.OpenSession()) {
-        using (Transaction.Open()) {
-          LoadData();
-          long total = 0;
-          foreach (var customer in allCustomers)
-            if (allOrders.Any(o => o.Customer==customer))
-              total++;
-          var parameter = new ApplyParameter();
-          var subquery = orderPrimary
-            .Filter(t => t.GetValue(orderCustomerIndex)==parameter.Value.GetValue(customerIdIndex));
-          var result = customerPrimary
-            .Apply(parameter, subquery, ApplyType.Existing)
-            .Count();
-          Assert.AreEqual(total, result);
-        }
-      }
-    }*/
-
-    /*[Test]
-    public void ApplyNotExistingTest()
-    {
-      using (Domain.OpenSession()) {
-        using (Transaction.Open()) {
-          LoadData();
-          long total = 0;
-          foreach (var customer in allCustomers)
-            if (!allOrders.Any(o => o.Customer == customer))
-              total++;
-          var parameter = new ApplyParameter();
-          var subquery = orderPrimary
-            .Filter(t => t.GetValue(orderCustomerIndex) == parameter.Value.GetValue(customerIdIndex));
-          var result = customerPrimary
-            .Apply(parameter, subquery, ApplyType.NotExisting)
-            .Count();
-          Assert.AreEqual(total, result);
-        }
-      }      
-    }*/
-
     [Test]
     public void CrossApplyTest()
     {

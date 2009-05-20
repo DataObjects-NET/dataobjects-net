@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq;
 
@@ -17,6 +18,7 @@ namespace Xtensive.Storage.Rse.Expressions
   /// </summary>
   public class TupleAccessRewriter : ExpressionVisitor
   {
+    private ParameterExpression tupleParameter;
     protected readonly Func<ApplyParameter, int, int> resolveOuterColumn;
     protected readonly IList<int> mappings;
 
@@ -34,7 +36,7 @@ namespace Xtensive.Storage.Rse.Expressions
     /// <inheritdoc/>
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (mc.AsTupleAccess() != null) {
+      if (IsTupleAccess(mc)) {
         var columnIndex = mc.GetTupleAccessArgument();
         var outerParameter = mc.GetApplyParameter();
         int newIndex = outerParameter != null
@@ -54,11 +56,38 @@ namespace Xtensive.Storage.Rse.Expressions
     {
       return Visit(expression);
     }
+
+    /// <summary>
+    /// Replaces column usages according to a specified map.
+    /// </summary>
+    /// <param name="expression">The predicate.</param>
+    /// <param name="parameter">The tuple parameter to be considered.</param>
+    /// <returns></returns>
+    public virtual Expression Rewrite(Expression expression, ParameterExpression parameter)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentValidator.EnsureArgumentNotNull(parameter, "parameter");
+      tupleParameter = parameter;
+      try {
+        return Visit(expression);
+      }
+      finally {
+        tupleParameter = null;
+      }
+    }
     
     private static int DefaultResolveOuterColumn(ApplyParameter parameter, int columnIndex)
     {
       throw new NotSupportedException();
     }
+
+    private bool IsTupleAccess(Expression mc)
+    {
+      if(tupleParameter == null)
+        return mc.AsTupleAccess() != null;
+      return mc.AsTupleAccess(tupleParameter)!=null;
+    }
+
 
     // Constructors
 

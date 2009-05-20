@@ -177,4 +177,10 @@
   <data name="ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider" xml:space="preserve">
     <value>The ordering of records is not specified for RowNumberProvider.</value>
   </data>
+  <data name="ExCantConvertXToY" xml:space="preserve">
+    <value>Can't convert the {0} to the {1}.</value>
+  </data>
+  <data name="ExPredicateContainsAccessesToDifferentApplyParameters" xml:space="preserve">
+    <value>Predicate contains accesses to different ApplyParameters.</value>
+  </data>
 </root>
