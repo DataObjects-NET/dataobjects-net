@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Tests
 
       // Here you still have the ability to override the above values
 
-      config = Create("memory");
+//      config = Create("memory");
 //      config = Create("memory", InheritanceSchema.SingleTable);
 //      config = Create("memory", InheritanceSchema.ConcreteTable);
 //      config = Create("memory", InheritanceSchema.Default, TypeIdBehavior.Include);
