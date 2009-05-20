@@ -9,14 +9,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.ConstrainedExecution;
-using System.Threading;
 using Microsoft.Practices.Unity;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
-using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Internals;
@@ -26,7 +23,6 @@ using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Upgrade;
-using Activator=System.Activator;
 
 namespace Xtensive.Storage
 {
@@ -36,8 +32,6 @@ namespace Xtensive.Storage
   public sealed class Domain : CriticalFinalizerObject,
     IDisposableContainer
   {
-    private int sessionCounter = 1;    
-
     /// <summary>
     /// Gets the current <see cref="Domain"/> object
     /// using <see cref="Session"/>. <see cref="Session.Current"/>.
@@ -72,7 +66,6 @@ namespace Xtensive.Storage
     /// </summary>
     internal RecordSetParser RecordSetParser { get; private set; }
     
-
     /// <summary>
     /// Gets the disposing state of the domain.
     /// </summary>
@@ -152,7 +145,28 @@ namespace Xtensive.Storage
     /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
     public SessionConsumptionScope OpenSession()
     {
-      return OpenSession((SessionConfiguration)Configuration.Sessions.Default.Clone());
+      return OpenSession(Configuration.Sessions.Default);
+    }
+
+    /// <summary>
+    /// Opens the session of specified <see cref="SessionType"/>.
+    /// </summary>
+    /// <param name="type">The type of session.</param>
+    /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
+    public SessionConsumptionScope OpenSession(SessionType type)
+    {
+      switch (type) {
+      case SessionType.User:
+        return OpenSession(Configuration.Sessions.Default);
+      case SessionType.System:
+        return OpenSession(Configuration.Sessions.System);
+      case SessionType.Generator:
+        return OpenSession(Configuration.Sessions.Generator);
+      case SessionType.Service:
+        return OpenSession(Configuration.Sessions.Service);
+      default:
+        throw new ArgumentOutOfRangeException("type");
+      }
     }
 
     /// <summary>
@@ -163,10 +177,6 @@ namespace Xtensive.Storage
     public SessionConsumptionScope OpenSession(SessionConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-      if (string.IsNullOrEmpty(configuration.Name)) {
-        configuration.Name = sessionCounter.ToString();
-        Interlocked.Increment(ref sessionCounter);
-      }
       configuration.Lock(true);
 
       if (IsDebugEventLoggingEnabled)
@@ -174,11 +184,6 @@ namespace Xtensive.Storage
 
       var session = new Session(this, configuration);
       return new SessionConsumptionScope(session);
-    }
-
-    internal SessionConsumptionScope OpenSystemSession()
-    {
-      return Handler.OpenSession(SessionType.System);
     }
 
     #endregion

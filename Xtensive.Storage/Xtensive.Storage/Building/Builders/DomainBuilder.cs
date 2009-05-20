@@ -75,10 +75,10 @@ namespace Xtensive.Storage.Building.Builders
           CreateDomainHandler();
           BuildModel();
 
-          using (context.Domain.OpenSystemSession()) {
+          using (context.Domain.OpenSession(SessionType.System)) {
             context.SystemSessionHandler = Session.Current.Handler;
             using (var transactionScope = Transaction.Open()) {
-              context.Domain.Handler.OnSystemSessionOpen();
+              context.Domain.Handler.InitializeFirstSession();
               SynchronizeSchema(builderConfiguration.SchemaUpgradeMode);
               context.Domain.Handler.BuildMapping();
               CreateGenerators();

@@ -94,23 +94,18 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Does the same as <see cref="Storage.Session.OpenTransaction()"/>,
+    /// Does the same as <see cref="Storage.Session.OpenTransaction(IsolationLevel)"/>,
     /// but for the <see cref="Current"/> transaction.
     /// </summary>
     /// <param name="isolationLevel">The isolation level.</param>
     /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new
-    /// <see cref="Transaction"/> is created;
+    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
     /// otherwise, <see langword="null"/>.
     /// </returns>
-    /// <exception cref="InvalidOperationException">There is no <see cref="Storage.Session.Current"/> <see cref="Session"/>.</exception>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     public static TransactionScope Open(IsolationLevel isolationLevel)
     {
-      var session = Session.Current;
-      if (session==null)
-        throw new InvalidOperationException(
-          Strings.ExCanNotOpenTransactionNoCurrentSession);
-      return session.OpenTransaction(isolationLevel);
+      return DemandSession().OpenTransaction(isolationLevel);
     }
 
     /// <summary>
@@ -118,22 +113,59 @@ namespace Xtensive.Storage
     /// but for the <see cref="Current"/> transaction.
     /// </summary>
     /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new
-    /// <see cref="Transaction"/> is created;
+    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
     /// otherwise, <see langword="null"/>.
     /// </returns>
-    /// <exception cref="InvalidOperationException">There is no <see cref="Storage.Session.Current"/> <see cref="Session"/>.</exception>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     public static TransactionScope Open()
     {
-      var session = Session.Current;
-      if (session == null)
-        throw new InvalidOperationException(
-          Strings.ExCanNotOpenTransactionNoCurrentSession);
-      return session.OpenTransaction();
+      return DemandSession().OpenTransaction();
+    }
+
+    /// <summary>
+    /// Does the same as <see cref="Storage.Session.OpenTransaction(bool)"/>,
+    /// but for the <see cref="Current"/> transaction.
+    /// </summary>
+    /// <param name="autoTransaction">if set to <see langword="true"/> auto transaction is demanded.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public static TransactionScope Open(bool autoTransaction)
+    {
+      return DemandSession().OpenTransaction(autoTransaction);
+    }
+
+    /// <summary>
+    /// Does the same as <see cref="Storage.Session.OpenTransaction(bool)"/>,
+    /// but for the <see cref="Current"/> transaction.
+    /// </summary>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <param name="autoTransaction">if set to <see langword="true"/> auto transaction is demanded.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public static TransactionScope Open(IsolationLevel isolationLevel, bool autoTransaction)
+    {
+      return DemandSession().OpenTransaction(isolationLevel, autoTransaction);
     }
 
     #endregion
 
+    #region Private / internal methods
+
+    private static Session DemandSession()
+    {
+      var session = Session.Current;
+      if (session == null)
+        throw new InvalidOperationException(Strings.ExCanNotOpenTransactionNoCurrentSession);
+      return session;
+    }
+
+    #endregion
 
     // Constructors
 

@@ -137,10 +137,10 @@ namespace Xtensive.Storage
 
     internal bool Add(Entity item, bool notify)
     {
-      OnAdding(item, notify);
-
       if (Contains(item))
         return false;
+
+      OnAdding(item, notify);
 
       if (association.IsPaired)
         Session.PairSyncManager.Enlist(OperationType.Add, ConcreteOwner, item, association, notify);
@@ -156,10 +156,10 @@ namespace Xtensive.Storage
 
     internal bool Remove(Entity item, bool notify)
     {
-      OnRemoving(item, notify);
-
       if (!Contains(item))
         return false;
+
+      OnRemoving(item, notify);
 
       if (association.IsPaired)
         Session.PairSyncManager.Enlist(OperationType.Remove, ConcreteOwner, item, association, notify);
@@ -201,8 +201,7 @@ namespace Xtensive.Storage
       if (this == other)
         return;
       foreach (var item in other)
-        if (!Contains(item))
-          Add(item, notify);
+        Add(item, notify);
     }
 
     internal void ExceptWith<TElement>(IEnumerable<TElement> other, bool notify)
@@ -213,8 +212,7 @@ namespace Xtensive.Storage
         return;
       }
       foreach (var item in other)
-        if (Contains(item))
-          Remove(item, notify);
+        Remove(item, notify);
     }
 
     #endregion

@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Aspects
     [DebuggerStepThrough]
     public override object OnEntry(object instance)
     {
-      var transactionScope = Transaction.Open();
+      var transactionScope = Transaction.Open(true);
       return transactionScope;
     }
 
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Aspects
     [DebuggerStepThrough]
     public override void OnExit(object instance, object onEntryResult)
     {
-      var transactionScope = (TransactionScope)onEntryResult;
+      var transactionScope = (TransactionScope) onEntryResult;
       transactionScope.DisposeSafely();
     }
 
@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Aspects
     [DebuggerStepThrough]
     public override void OnSuccess(object instance, object onEntryResult)
     {
-      var transactionScope = (TransactionScope)onEntryResult;
+      var transactionScope = (TransactionScope) onEntryResult;
       transactionScope.Complete();
     }
   }

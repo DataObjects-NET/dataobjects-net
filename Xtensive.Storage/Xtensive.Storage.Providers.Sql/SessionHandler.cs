@@ -15,6 +15,9 @@ using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// <see cref="Session"/>-level handler for SQL storages.
+  /// </summary>
   public abstract class SessionHandler : Providers.SessionHandler
   {
     private SqlConnection connection;

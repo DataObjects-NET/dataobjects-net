@@ -417,8 +417,8 @@
   <data name="ExCannotUseDefaultGeneratorForComplexKeys" xml:space="preserve">
     <value>Cannot use default generator for complex Keys.</value>
   </data>
-  <data name="ExUnableToCloneSystemSessionConfiguration" xml:space="preserve">
-    <value>Unable to clone system session configuration.</value>
+  <data name="ExUnableToCloneNonUserSessionConfiguration" xml:space="preserve">
+    <value>Unable to clone non-user session configuration.</value>
   </data>
   <data name="ExEntityIsInInconsistentState" xml:space="preserve">
     <value>Entity is in inconsistent state.</value>

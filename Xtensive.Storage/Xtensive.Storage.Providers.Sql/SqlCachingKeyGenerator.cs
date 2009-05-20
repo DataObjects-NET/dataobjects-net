@@ -40,11 +40,11 @@ namespace Xtensive.Storage.Providers.Sql
     {
       TFieldType upperBound;
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      using (domainHandler.OpenSession(SessionType.System)) {
+      using (domainHandler.Domain.OpenSession(SessionType.Generator)) {
         using (var t = Session.Current.OpenTransaction()) {
           var sessionHandler = (SessionHandler) Handlers.SessionHandler;
           object value = sessionHandler.ExecuteScalarRequest(nextRequest);
-          upperBound = (TFieldType)Convert.ChangeType(value, typeof (TFieldType));
+          upperBound = (TFieldType) Convert.ChangeType(value, typeof (TFieldType));
           t.Complete();
         }
       }
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="generatorInfo">The <see cref="generatorInfo"/> instance that describes generator.</param>
+    /// <param name="generatorInfo">The <see cref="GeneratorInfo"/> instance that describes generator.</param>
     /// <param name="sqlNext">The <see cref="ISqlCompileUnit"/> statement that will be used for fetching next portion of unique values from database.</param>
     public SqlCachingKeyGenerator(GeneratorInfo generatorInfo, ISqlCompileUnit sqlNext)
       : this(generatorInfo, sqlNext, null)
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="generatorInfo">The <see cref="generatorInfo"/> instance that describes generator.</param>
+    /// <param name="generatorInfo">The <see cref="GeneratorInfo"/> instance that describes generator.</param>
     /// <param name="sqlNext">The <see cref="ISqlCompileUnit"/> statement that will be used for fetching next portion of unique values from database.</param>
     /// <param name="sqlInitialize">The <see cref="ISqlCompileUnit"/> statement that will be used for initializing sequence in database (if necessary).</param>
     public SqlCachingKeyGenerator(GeneratorInfo generatorInfo, ISqlCompileUnit sqlNext, ISqlCompileUnit sqlInitialize)

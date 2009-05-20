@@ -5,6 +5,7 @@
 // Created:    2008.10.06
 
 using System;
+using Xtensive.Storage;
 
 namespace Xtensive.Storage.Configuration
 {
@@ -15,15 +16,32 @@ namespace Xtensive.Storage.Configuration
   public enum SessionOptions
   {
     /// <summary>
-    /// Default options.
-    /// Value is <see langword="0x0" />.
+    /// Default options is <see cref="None"/>.
     /// </summary>
-    Default = 0x0,
+    Default = None,
+
+    /// <summary>
+    /// None of <see cref="SessionOptions"/>.
+    /// Value is <see langword="0x0"/>.
+    /// </summary>
+    None = 0x0,
+
+    /// <summary>
+    /// Session allows automatic transaction.
+    /// If transactions is required (i.e. for transactional method),
+    /// but there is no current transaction, transaction is automatically opened.
+    /// If this option is not specified and
+    /// transactional method is called without active transaction an exception is thrown.
+    /// Value is <see langword="0x1"/>.
+    /// </summary>
+    AutoTransactions = 0x1,
+
     /// <summary>
     /// Session uses ambient transactions.
+    /// This option implicitly enables <see cref="AutoTransactions"/>.
     /// This mode must be normally used for UI sessions.
-    /// Value is <see langword="0x1" />.
+    /// Value is <see langword="0x3" />.
     /// </summary>
-    AmbientTransactions = 0x1
+    AmbientTransactions = 0x3,
   }
 }

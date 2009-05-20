@@ -76,21 +76,23 @@ namespace Xtensive.Storage.Tests.Storage
     public void PointTest()
     {
       using (Domain.OpenSession()) {
-        Point p1 = new Point();
-        p1.X = 1;
-        p1.Y = 2;
-        Assert.AreEqual(1, p1.X);
-        Assert.AreEqual(2, p1.Y);
+        using (Transaction.Open()) {
+          Point p1 = new Point();
+          p1.X = 1;
+          p1.Y = 2;
+          Assert.AreEqual(1, p1.X);
+          Assert.AreEqual(2, p1.Y);
 
-        Point p2 = new Point(p1.X, p1.Y);
-        Assert.AreEqual(p1.X, p2.X);
-        Assert.AreEqual(p1.Y, p2.Y);
-        Assert.IsTrue(p1.Equals(p2));
+          Point p2 = new Point(p1.X, p1.Y);
+          Assert.AreEqual(p1.X, p2.X);
+          Assert.AreEqual(p1.Y, p2.Y);
+          Assert.IsTrue(p1.Equals(p2));
+        }
       }
     }
 
     [Test]
-    public void   TransactionalTest()
+    public void TransactionalTest()
     {
       using (Domain.OpenSession()) {
         Ray ray;

@@ -6,21 +6,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
-using Xtensive.Core.Collections;
 using Xtensive.Storage.Building;
-using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Resources;
-using System.Linq;
 
 namespace Xtensive.Storage.Providers
 {
   /// <summary>
-  ///   <see cref="Storage.Domain"/>-level handler.
+  /// <see cref="Storage.Domain"/>-level handler.
   /// </summary>
   public abstract class DomainHandler : InitializableHandlerBase
   {
@@ -55,8 +52,7 @@ namespace Xtensive.Storage.Providers
     {
       return (IMemberCompilerProvider<T>) memberCompilerProviders[typeof(T)];
     }
-
-
+    
     // Abstract methods
 
     /// <summary>
@@ -93,34 +89,10 @@ namespace Xtensive.Storage.Providers
     public abstract void BuildMapping();
 
     /// <summary>
-    /// Opens the session with specified <paramref name="type"/>.
+    /// Initializes the domain.
+    /// This method is called after first session has been open, but domain is not built yet.
     /// </summary>
-    /// <param name="type">The type of the session to open.</param>
-    /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
-    public SessionConsumptionScope OpenSession(SessionType type)
-    {
-      if (type == SessionType.System)
-        return OpenSession(type, (SessionConfiguration)Domain.Configuration.Sessions.System.Clone());
-      return OpenSession(type, (SessionConfiguration)Domain.Configuration.Sessions.Default.Clone());
-    }
-
-    /// <summary>
-    /// Opens the session with specified <paramref name="type"/> 
-    /// and <paramref name="configuration"/>.
-    /// </summary>
-    /// <param name="type">The type of the session to open.</param>
-    /// <param name="configuration">The session configuration.</param>
-    /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
-    public SessionConsumptionScope OpenSession(SessionType type, SessionConfiguration configuration)
-    {
-      configuration.Type = type;
-      return Domain.OpenSession(configuration);
-    }
-
-    /// <summary>
-    /// Initializes the system session.
-    /// </summary>
-    public virtual void OnSystemSessionOpen()
+    public virtual void InitializeFirstSession()
     {
     }
 

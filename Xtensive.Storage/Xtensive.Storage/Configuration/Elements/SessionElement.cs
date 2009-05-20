@@ -106,8 +106,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <returns>The result of conversion.</returns>
     public SessionConfiguration ToNative()
     {
-      var result = new SessionConfiguration {
-        Name = Name,
+      var result = new SessionConfiguration(Name) {
         UserName = UserName,
         Password = Password,
         CacheSize = CacheSize,

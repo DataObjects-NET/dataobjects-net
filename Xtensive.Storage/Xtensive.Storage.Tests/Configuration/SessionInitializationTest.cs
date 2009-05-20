@@ -26,11 +26,11 @@ namespace Xtensive.Storage.Tests.Configuration
       TestCacheType(dc, typeof (LruCache<,>));
       // Lru CacheType
       dc = new DomainConfiguration(url);
-      dc.Sessions.Add(new SessionConfiguration {CacheType = SessionCacheType.LruWeak});
+      dc.Sessions.Add(new SessionConfiguration(SessionConfiguration.DefaultSessionName) {CacheType = SessionCacheType.LruWeak});
       TestCacheType(dc, typeof (LruCache<,>));
       // Infinite CacheType
       dc = new DomainConfiguration(url);
-      dc.Sessions.Add(new SessionConfiguration {CacheType = SessionCacheType.Infinite});
+      dc.Sessions.Add(new SessionConfiguration(SessionConfiguration.DefaultSessionName) { CacheType = SessionCacheType.Infinite });
       TestCacheType(dc, typeof (InfiniteCache<,>));
     }
 

@@ -107,8 +107,10 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
         using (Transaction.Open()) {
           obj = new BusinessObject();
         }
-        obj.PublicMethod(
-          o => Assert.IsNotNull(o.Session.Transaction));
+        using (Transaction.Open()) {
+          obj.PublicMethod(
+            o => Assert.IsNotNull(o.Session.Transaction));
+        }
 
         obj.InfrastructureMethod(
           o => Assert.IsNull(o.Session.Transaction));

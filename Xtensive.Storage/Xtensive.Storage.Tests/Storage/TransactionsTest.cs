@@ -61,16 +61,18 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
       using (Domain.OpenSession()) {
         Hexagon hexagon;
         using (var t = Transaction.Open()) {
-          hexagon = new Hexagon();
-          hexagon.Kwanza = 36;
+          hexagon = new Hexagon {Kwanza = 36};
           t.Complete();
-        }        
-        using (Transaction.Open()) {
-            hexagon.Remove();
-          AssertEx.ThrowsInvalidOperationException( delegate { hexagon.Kwanza = 20; });
         }
-        hexagon.Kwanza = 14;  
-        Assert.AreEqual(14, hexagon.Kwanza);
+        using (Transaction.Open()) {
+          hexagon.Remove();
+          AssertEx.ThrowsInvalidOperationException( delegate { hexagon.Kwanza = 20; });
+          // rolling back removal
+        }
+        using (Transaction.Open()) {
+          hexagon.Kwanza = 14;
+          Assert.AreEqual(14, hexagon.Kwanza);
+        }
       }
     }
 
@@ -81,37 +83,46 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
         Hexagon hexagon;
 
         using (var t = Transaction.Open()) {
-          hexagon = new Hexagon();
-          hexagon.Kwanza = 3;
+          hexagon = new Hexagon {Kwanza = 3};
           t.Complete();
         }
-        Assert.AreEqual(3, hexagon.Kwanza);
-        Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
+        using (Transaction.Open()) {
+          Assert.AreEqual(3, hexagon.Kwanza);
+          Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
+        }
 
         using (Transaction.Open()) {
           hexagon.Kwanza = 11;
         }
-        Assert.AreEqual(3, hexagon.Kwanza);
-        Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
-
+        using (Transaction.Open()) {
+          Assert.AreEqual(3, hexagon.Kwanza);
+          Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
+        }
         using (Transaction.Open()) {
           hexagon.Babuka = new Hexagon();
         }
-        Assert.IsNull(hexagon.Babuka);
-        Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
-
-        using (Transaction.Open())   {
+        using (Transaction.Open()) {
+          Assert.IsNull(hexagon.Babuka);
+          Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
+        }
+        using (Transaction.Open()) {
           hexagon.Kwanza = 12;
           Session.Current.Persist();
         }
-        Assert.AreEqual(3, hexagon.Kwanza);
-        Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
-
-        try {
-          hexagon.Wobble(18);
+        using (Transaction.Open()) {
+          Assert.AreEqual(3, hexagon.Kwanza);
+          Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
         }
-        catch (InvalidOperationException) {}
-        Assert.AreEqual(3, hexagon.Kwanza);
+        using (Transaction.Open()) {
+          try {
+            hexagon.Wobble(18);
+          }
+          catch (InvalidOperationException) {
+          }
+        }
+        using (Transaction.Open()) {
+          Assert.AreEqual(3, hexagon.Kwanza);
+        }
       } 
     }
   }

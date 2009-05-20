@@ -34,8 +34,6 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public abstract class DomainHandler : Providers.DomainHandler
   {
-    private Schema existingSchema;
-
     private ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor> accessorCache;
 
     /// <summary>
@@ -228,18 +226,13 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override void OnSystemSessionOpen()
+    public override void InitializeFirstSession()
     {
-      base.OnSystemSessionOpen();
+      base.InitializeFirstSession();
 
       Driver = ((SessionHandler) BuildingContext.Current.SystemSessionHandler).Connection.Driver;
       ValueTypeMapper = Handlers.HandlerFactory.CreateHandler<SqlValueTypeMapper>();
       ValueTypeMapper.Initialize();
-
-      var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
-      var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
-      var storageModel = SqlModel.Build(modelProvider);
-      Schema = storageModel.DefaultServer.DefaultCatalog.DefaultSchema;
     }
 
     #region Obsolete

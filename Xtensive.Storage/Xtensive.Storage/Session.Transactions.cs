@@ -4,85 +4,106 @@
 // Created by: Alex Yakunin
 // Created:    2008.11.07
 
+using System;
 using System.Transactions;
 using Xtensive.Core.Disposing;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
   public partial class Session
   {
+    private TransactionScope ambientTransactionScope;
+ 
     /// <summary>
     /// Gets the active transaction.
     /// </summary>    
     public Transaction Transaction { get; private set; }
 
     /// <summary>
-    /// Gets the ambient transaction scope.
-    /// </summary>    
-    public TransactionScope AmbientTransactionScope { get; private set; }
+    /// Opens a new or already running transaction.
+    /// </summary>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <param name="autoTransaction">if set to <see langword="true"/> auto transaction is demanded.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    public TransactionScope OpenTransaction(IsolationLevel isolationLevel, bool autoTransaction)
+    {
+      if (Transaction != null)
+        return null;
+      if (autoTransaction && !Configuration.AllowsAutoTransactions)
+        throw new InvalidOperationException(Strings.ExTransactionRequired);
+      var transaction = new Transaction(this, isolationLevel);
+      Transaction = transaction;
+      var ts = (TransactionScope) transaction.Begin();
+      if (ts!=null && Configuration.UsesAmbientTransactions) {
+        ambientTransactionScope = ts;
+        return null;
+      }
+      return ts;
+    }
 
     /// <summary>
     /// Opens a new or already running transaction.
     /// </summary>
     /// <param name="isolationLevel">The isolation level.</param>
     /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new
-    /// <see cref="Transaction"/> is created;
+    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
     /// otherwise, <see langword="null"/>.
     /// </returns>
     public TransactionScope OpenTransaction(IsolationLevel isolationLevel)
     {
-      var transaction = Transaction;
-      if (transaction==null) {
-        transaction = new Transaction(this, isolationLevel);
-        Transaction = transaction;
-        var ts = (TransactionScope) transaction.Begin();
-        if (ts!=null && Configuration.UsesAmbientTransactions) {
-          AmbientTransactionScope = ts;
-          return null;
-        }
-        return ts;
-      }
-      return null;
+      return OpenTransaction(isolationLevel, false);
     }
 
     /// <summary>
     /// Opens a new or already running transaction.
     /// </summary>
     /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new
-    /// <see cref="Transaction"/> is created;
+    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    public TransactionScope OpenTransaction(bool autoTransaction)
+    {
+      return OpenTransaction(Handler.DefaultIsolationLevel, autoTransaction);
+    }
+
+    /// <summary>
+    /// Opens a new or already running transaction.
+    /// </summary>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
     /// otherwise, <see langword="null"/>.
     /// </returns>
     public TransactionScope OpenTransaction()
     {
-      return OpenTransaction(Handler.DefaultIsolationLevel);
+      return OpenTransaction(Handler.DefaultIsolationLevel, false);
     }
 
     /// <summary>
-    /// Commits the ambient transaction - 
-    /// i.e. completes <see cref="AmbientTransactionScope"/> and disposes it.
+    /// Commits the ambient transaction.
     /// </summary>
     public void CommitAmbientTransaction()
     {
-      var ts = AmbientTransactionScope;
+      var ts = ambientTransactionScope;
       try {
         ts.Complete();
       }
       finally {
-        AmbientTransactionScope = null;
+        ambientTransactionScope = null;
         ts.DisposeSafely();
       }
     }
 
     /// <summary>
-    /// Rolls back the ambient transaction - 
-    /// i.e. disposes <see cref="AmbientTransactionScope"/>.
+    /// Rolls back the ambient transaction.
     /// </summary>
     public void RollbackAmbientTransaction()
     {
-      var ts = AmbientTransactionScope;
-      AmbientTransactionScope = null;
+      var ts = ambientTransactionScope;
+      ambientTransactionScope = null;
       ts.DisposeSafely();
     }
 

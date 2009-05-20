@@ -6,8 +6,8 @@
 
 using System;
 using Xtensive.Core.Disposing;
-using RseEnumerationScope=Xtensive.Storage.Rse.Providers.EnumerationScope;
-using RseEnumerationContext=Xtensive.Storage.Rse.Providers.EnumerationContext;
+using RseEnumerationScope = Xtensive.Storage.Rse.Providers.EnumerationScope;
+using RseEnumerationContext = Xtensive.Storage.Rse.Providers.EnumerationContext;
 
 namespace Xtensive.Storage.Providers
 {
@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Providers
     public override void Activate(RseEnumerationContext newContext)
     {
       base.Activate(newContext);
-      toDispose = Transaction.Open();
+      toDispose = Transaction.Open(true);
     }
 
     // Constructors

@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Rse.Expressions
       var target = tupleAccess.Object as ParameterExpression;
       if (target!=null && currentParameters.Contains(target) || GetApplyParameterExpression(tupleAccess) != null)
         return tupleAccess;
-      return null;      
+      return null;
     }
 
     /// <summary>

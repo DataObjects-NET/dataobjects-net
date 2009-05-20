@@ -17,23 +17,6 @@ namespace Xtensive.Storage.Configuration
   public class SessionConfigurationCollection : CollectionBaseSlim<SessionConfiguration>, 
     ICloneable
   {
-    /// <summary>
-    /// Default session configuration name.
-    /// </summary>
-    public readonly static string DefaultSessionName = "Default";
-    /// <summary>
-    /// System session name.
-    /// </summary>
-    public readonly static string SystemSessionName = "System";
-    /// <summary>
-    /// Service session name.
-    /// </summary>
-    public readonly static string ServiceSessionName = "Service";
-    /// <summary>
-    /// Generator session name.
-    /// </summary>
-    public readonly static string GeneratorSessionName = "Generator";
-
     private static readonly StringComparer comparer = StringComparer.OrdinalIgnoreCase;
 
     private SessionConfiguration @default;
@@ -49,7 +32,7 @@ namespace Xtensive.Storage.Configuration
       get
       {
         if (!IsLocked)
-          return this[DefaultSessionName];
+          return this[SessionConfiguration.DefaultSessionName];
         return @default;
       }
     }
@@ -62,7 +45,7 @@ namespace Xtensive.Storage.Configuration
       get
       {
         if (!IsLocked)
-          return this[SystemSessionName];
+          return this[SessionConfiguration.SystemSessionName];
         return system;
       }
     }
@@ -75,7 +58,7 @@ namespace Xtensive.Storage.Configuration
       get
       {
         if (!IsLocked)
-          return this[ServiceSessionName];
+          return this[SessionConfiguration.ServiceSessionName];
         return service;
       }
     }
@@ -88,7 +71,7 @@ namespace Xtensive.Storage.Configuration
       get
       {
         if (!IsLocked)
-          return this[GeneratorSessionName];
+          return this[SessionConfiguration.GeneratorSessionName];
         return generator;
       }
     }
@@ -159,10 +142,10 @@ namespace Xtensive.Storage.Configuration
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
-      @default = BuildConfiguration(DefaultSessionName);
-      system = BuildConfiguration(SystemSessionName);
-      service = BuildConfiguration(ServiceSessionName);
-      generator = BuildConfiguration(GeneratorSessionName);
+      @default = BuildConfiguration(SessionConfiguration.DefaultSessionName);
+      system = BuildConfiguration(SessionConfiguration.SystemSessionName);
+      service = BuildConfiguration(SessionConfiguration.ServiceSessionName);
+      generator = BuildConfiguration(SessionConfiguration.GeneratorSessionName);
       foreach (var item in this) {
         ApplyDefaultSettings(item);
         item.Lock(recursive);
@@ -175,7 +158,7 @@ namespace Xtensive.Storage.Configuration
     {
       var result = new SessionConfigurationCollection();
       foreach (var configuration in this)
-        result.Add((SessionConfiguration) configuration.Clone());
+        result.Add(configuration.Clone());
       return result;
     }
 
@@ -185,7 +168,7 @@ namespace Xtensive.Storage.Configuration
       if (result!=null)
         return result;
 
-      result = new SessionConfiguration {Name = name};
+      result = new SessionConfiguration(name);
       Add(result);
       return result;
     }

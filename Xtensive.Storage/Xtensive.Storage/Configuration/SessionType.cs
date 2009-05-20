@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Configuration
   public enum SessionType
   {
     /// <summary>
-    /// Default session type - a regular user session.
+    /// Default session type - <see cref="User"/>.
     /// Value is <see langword="0x0" />.
     /// </summary>
     Default = User,
@@ -26,5 +26,15 @@ namespace Xtensive.Storage.Configuration
     /// Value is <see langword="0x1" />.
     /// </summary>
     System = 1,
+    /// <summary>
+    /// A generator session.
+    /// Value is <see langword="0x2"/>
+    /// </summary>
+    Generator = 2,
+    /// <summary>
+    /// A service session.
+    /// Value is <see langword="0x3"/>
+    /// </summary>
+    Service = 3,
   }
 }
