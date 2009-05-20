@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 {
   internal sealed class RedundantColumnRemover : CompilableProviderVisitor
   {
-    private readonly Dictionary<Provider, List<int>> mappings;
+    private Dictionary<Provider, List<int>> mappings;
     private readonly TupleAccessGatherer mappingsGatherer;
     private readonly Dictionary<ApplyParameter, List<int>> outerColumnUsages;
 
@@ -115,18 +115,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         rightMapping.Add(item.Second);
       }
 
-      /*leftMapping = leftMapping.Distinct().OrderBy(i => i).ToList();
-      rightMapping = rightMapping.Distinct().OrderBy(i => i).ToList();
-
-      // visit
-
-      mappings[provider.Left] = leftMapping;
-      CompilableProvider newLeftProvider = VisitCompilable(provider.Left);
-      leftMapping = mappings[provider.Left];
-
-      mappings[provider.Right] = rightMapping;
-      CompilableProvider newRightProvider = VisitCompilable(provider.Right);
-      rightMapping = mappings[provider.Right];*/
       var newLeftProvider = provider.Left;
       var newRightProvider = provider.Right;
       VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider);
@@ -171,25 +159,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         (Expression<Func<Tuple, Tuple, bool>>)predicate, provider.JoinType);
     }
 
-    private void VisitJoin(ref List<int> leftMapping, ref CompilableProvider left, ref List<int> rightMapping,
-      ref CompilableProvider right)
-    {
-      leftMapping = leftMapping.Distinct().OrderBy(i => i).ToList();
-      rightMapping = rightMapping.Distinct().OrderBy(i => i).ToList();
-
-      // visit
-
-      mappings[left] = leftMapping;
-      CompilableProvider newLeftProvider = VisitCompilable(left);
-      leftMapping = mappings[left];
-
-      mappings[right] = rightMapping;
-      CompilableProvider newRightProvider = VisitCompilable(right);
-      rightMapping = mappings[right];
-      left = newLeftProvider;
-      right = newRightProvider;
-    }
-
     protected override Provider VisitSort(SortProvider provider)
     {
       mappings[provider.Source] = Merge(mappings[provider], provider.Order.Keys);
@@ -219,15 +188,18 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
       // visit
 
-      mappings[provider.Left] = leftMapping;
+      //mappings[provider.Left] = leftMapping;
+      var oldMappings = ReplaceMappings(provider.Left, leftMapping);
       CompilableProvider newLeftProvider = VisitCompilable(provider.Left);
       leftMapping = mappings[provider.Left];
 
-      mappings[provider.Right] = rightMapping;
+      //mappings[provider.Right] = rightMapping;
+      ReplaceMappings(provider.Right, rightMapping);
       outerColumnUsages.Add(applyParameter, leftMapping);
       CompilableProvider newRightProvider = VisitCompilable(provider.Right);
       outerColumnUsages.Remove(applyParameter);
       rightMapping = mappings[provider.Right];
+      RestoreMappings(oldMappings);
 
       if (newLeftProvider == provider.Left && newRightProvider == provider.Right)
         return provider;
@@ -318,13 +290,16 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       var leftMapping = mappings[provider];
       var rightMapping = mappings[provider];
 
-      mappings[provider.Left] = leftMapping;
+      //mappings[provider.Left] = leftMapping;
+      var oldMappings = ReplaceMappings(provider.Left, leftMapping);
       CompilableProvider newLeftProvider = VisitCompilable(provider.Left);
       leftMapping = mappings[provider.Left];
 
-      mappings[provider.Right] = rightMapping;
+      //mappings[provider.Right] = rightMapping;
+      ReplaceMappings(provider.Right, rightMapping);
       CompilableProvider newRightProvider = VisitCompilable(provider.Right);
       rightMapping = mappings[provider.Right];
+      RestoreMappings(oldMappings);
 
       if (newLeftProvider == provider.Left && newRightProvider == provider.Right)
         return provider;
@@ -512,6 +487,40 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         expression.Parameters[0]);
       return new TupleAccessRewriter(rightMapping, ResolveOuterMapping).Rewrite(result,
         expression.Parameters[1]);
+    }
+
+    private void VisitJoin(ref List<int> leftMapping, ref CompilableProvider left, ref List<int> rightMapping,
+      ref CompilableProvider right)
+    {
+      leftMapping = leftMapping.Distinct().OrderBy(i => i).ToList();
+      rightMapping = rightMapping.Distinct().OrderBy(i => i).ToList();
+
+      // visit
+
+      var oldMapping = ReplaceMappings(left, leftMapping);
+      //mappings[left] = leftMapping;
+      CompilableProvider newLeftProvider = VisitCompilable(left);
+      leftMapping = mappings[left];
+
+      ReplaceMappings(right, rightMapping);
+      //mappings[right] = rightMapping;
+      CompilableProvider newRightProvider = VisitCompilable(right);
+      rightMapping = mappings[right];
+      RestoreMappings(oldMapping);
+      left = newLeftProvider;
+      right = newRightProvider;
+    }
+
+    private Dictionary<Provider, List<int>> ReplaceMappings(Provider firstNewKey, List<int> firstNewValue)
+    {
+      var oldMappings = mappings;
+      mappings = new Dictionary<Provider, List<int>> {{firstNewKey, firstNewValue}};
+      return oldMappings;
+    }
+
+    private void RestoreMappings(Dictionary<Provider, List<int>> savedMappings)
+    {
+      mappings = savedMappings;
     }
 
     #endregion

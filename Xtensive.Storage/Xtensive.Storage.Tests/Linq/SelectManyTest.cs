@@ -162,13 +162,55 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void IntersectBeforeWhere()
+    public void IntersectBetweenFilterAndApplyTest()
     {
       int expected = Query<Order>.All.Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => Query<Order>.All.Where(o => o.Customer == c).Intersect(Query<Order>.All)
-          .Where(o => o.Employee.FirstName.StartsWith("A")));
+        .Where(o => o.Employee.FirstName.StartsWith("A")));
       Assert.AreEqual(expected, result.ToList().Count);
+    }
+
+    [Test]
+    public void DistinctBetweenFilterAndApplyTest()
+    {
+      int expected = Query<Order>.All.Distinct().Count(o => o.Employee.FirstName.StartsWith("A"));
+      IQueryable<Order> result = Query<Customer>.All
+        .SelectMany(c => Query<Order>.All.Where(o => o.Customer == c).Distinct()
+        .Where(o => o.Employee.FirstName.StartsWith("A")));
+      Assert.AreEqual(expected, result.ToList().Count);
+    }
+    
+    [Test]
+    [ExpectedException(typeof(InvalidOperationException))]
+    public void TakeBetweenFilterAndApplyTest()
+    {
+      IQueryable<Order> result = Query<Customer>.All
+        .SelectMany(c => Query<Order>.All.Where(o => o.Customer == c).Take(10));
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    [ExpectedException(typeof(InvalidOperationException))]
+    public void SkipBetweenFilterAndApplyTest()
+    {
+      IQueryable<Order> result = Query<Customer>.All
+        .SelectMany(c => Query<Order>.All.Where(o => o.Customer == c).Skip(10));
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void CalculateWithApply()
+    {
+      var expected = from c in Query<Customer>.All.AsEnumerable()
+      from r in (Query<Order>.All.AsEnumerable().Where(o => o.Customer==c).Select(o => c.Id))
+      orderby r
+      select r;
+      var actual = from c in Query<Customer>.All
+      from r in (Query<Order>.All.Where(o => o.Customer==c).Select(o => c.Id))
+      orderby r
+      select r;
+      Assert.IsTrue(expected.SequenceEqual(actual));
     }
   }
 }

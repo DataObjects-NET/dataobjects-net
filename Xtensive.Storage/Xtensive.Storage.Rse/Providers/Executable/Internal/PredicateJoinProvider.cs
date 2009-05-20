@@ -25,12 +25,16 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     {
       var left = Left.Enumerate(context);
       var right = Right.Enumerate(context);
-      foreach (var l in left)
+      foreach (var l in left) {
+        bool rightTupleWasFound = false;
         foreach (var r in right)
-          if (predicate(l, r))
+          if (predicate(l, r)) {
+            rightTupleWasFound = true;
             yield return transform.Apply(TupleTransformType.Auto, l, r);
-          else if (joinType == JoinType.LeftOuter)
-            yield return transform.Apply(TupleTransformType.Auto, l, rightBlank);
+          }
+        if (joinType==JoinType.LeftOuter && !rightTupleWasFound)
+          yield return transform.Apply(TupleTransformType.Auto, l, rightBlank);
+      }
     }
 
     /// <inheritdoc/>

@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
     private readonly ApplyFilterRewriter predicateRewriter = new ApplyFilterRewriter();
     private readonly ApplyParameterSearcher parameterSearcher = new ApplyParameterSearcher();
-    private readonly ParameterNameRewriter nameRewriter = new ParameterNameRewriter();
+    private readonly ParameterRewriter parameterRewriter = new ParameterRewriter();
 
     public CompilableProvider Rewrite(CompilableProvider rootProvider)
     {
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
         using (new CorrectorState(this))
           return VisitCompilable(rootProvider);
       }
-      catch(InvalidOperationException e) {
+      catch(InvalidOperationException) {
         if(throwOnCorrectionFault)
           throw;
         return rootProvider;
@@ -234,8 +234,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     protected override Provider VisitTake(TakeProvider provider)
     {
       var source = VisitCompilable(provider.Source);
-      if(State.Predicates.Count > 0)
-        ThrowInvalidOperationException();
+      ValidateTakeSkip();
       if(source != provider.Source)
         return new TakeProvider(source, provider.Count);
       return provider;
@@ -244,8 +243,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     protected override Provider VisitSkip(SkipProvider provider)
     {
       var source = VisitCompilable(provider.Source);
-      if(State.Predicates.Count > 0)
-        ThrowInvalidOperationException();
+      ValidateTakeSkip();
       if(source != provider.Source)
         return new SkipProvider(source, provider.Count);
       return provider;
@@ -267,13 +265,12 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     private Expression<Func<Tuple, bool>> CreatePredicatesConjunction(
       Expression<Func<Tuple, bool>> newPredicate, Expression<Func<Tuple, bool>> oldPredicate)
     {
-      var old = oldPredicate;
-      var oldName = oldPredicate.Parameters[0].Name;
-      var newName = newPredicate.Parameters[0].Name;
-      if(oldName != newName)
-        old = (Expression<Func<Tuple, bool>>) nameRewriter.Rename(oldPredicate, oldName, newName);
+      var oldParameter = oldPredicate.Parameters[0];
+      var newParameter = newPredicate.Parameters[0];
+      var result = (Expression<Func<Tuple, bool>>) parameterRewriter
+        .Rewrite(oldPredicate, oldParameter, newParameter);
       return (Expression<Func<Tuple, bool>>) Expression.Lambda(Expression
-        .AndAlso(old.Body, newPredicate.Body),newPredicate.Parameters[0]);
+        .AndAlso(result.Body, newPredicate.Body),newParameter);
     }
 
     private void ValidateColumns(ApplyProvider provider)
@@ -337,30 +334,42 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
     private void UpdateSelectedColumnIndexes(SelectProvider provider)
     {
-      var newColumns = new List<Column>();
-      foreach (var predicataAndColumns in State.Predicates.Values) {
-        if(predicataAndColumns != null) {
-          newColumns.Clear();
-          foreach(var column in predicataAndColumns.Value.Second) {
-            if(!provider.Header.Columns.Contains(column)) {
+      var newParameterAndColumns = CalculateNewColumnIndexes(provider);
+      AssignNewColumnIndexes(newParameterAndColumns);
+    }
+
+    private void AssignNewColumnIndexes(Dictionary<ApplyParameter, List<Column>> newParameterAndColumns)
+    {
+      foreach (var pair in newParameterAndColumns) {
+        if(pair.Value.Count > 0)
+          State.Predicates[pair.Key] =
+            new Pair<Expression<Func<Tuple, bool>>, ColumnCollection>(
+              State.Predicates[pair.Key].Value.First, new ColumnCollection(pair.Value));
+        else
+          State.Predicates[pair.Key] = null;
+      }
+    }
+
+    private Dictionary<ApplyParameter, List<Column>> CalculateNewColumnIndexes(SelectProvider provider)
+    {
+      var result = new Dictionary<ApplyParameter, List<Column>>();
+      foreach (var pair in State.Predicates) {
+        var predicataAndColumns = pair.Value;
+        if (predicataAndColumns!=null) {
+          var newColumns = new List<Column>();
+          result.Add(pair.Key, newColumns);
+          foreach (var column in predicataAndColumns.Value.Second) {
+            if (!provider.Header.Columns.Contains(column)) {
               newColumns.Clear();
               break;
             }
             var columnName = column.Name;
             var newIndex = provider.Header.Columns[columnName].Index;
-            if(newIndex != column.Index)
-              newColumns.Add(column.Clone(newIndex));
-          }
-          if(newColumns.Count == 0) {
-            predicataAndColumns.Value.Second.Clear();
-            return;
-          }
-          foreach (var newColumn in newColumns) {
-            predicataAndColumns.Value.Second.Remove(newColumn);
-            predicataAndColumns.Value.Second.Add(newColumn);
+            newColumns.Add(column.Clone(newIndex));
           }
         }
       }
+      return result;
     }
 
     private Provider ProcesSelfConvertibleApply(ApplyProvider provider, CompilableProvider left,
@@ -400,6 +409,12 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       }
       foreach (var predicate in predicateKeyToBeRemoved)
         State.Predicates[predicate] = null;
+    }
+
+    private void ValidateTakeSkip()
+    {
+      if(State.Predicates.Count > 0 || State.Predicates.Any(p => p.Value != null))
+        ThrowInvalidOperationException();
     }
 
     #endregion

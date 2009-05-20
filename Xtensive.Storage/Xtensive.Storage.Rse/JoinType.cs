@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Rse
     /// <summary>
     /// Default join operation type.
     /// </summary>
-    Default,
+    Default = Inner,
 
     /// <summary>
     /// Inner join.

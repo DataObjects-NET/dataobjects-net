@@ -1,0 +1,34 @@
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexander Nikolaev
+// Created:    2009.05.15
+
+using System.Linq.Expressions;
+using Xtensive.Core;
+using Xtensive.Core.Linq;
+
+namespace Xtensive.Storage.Rse.PreCompilation.Correction
+{
+  internal sealed class ParameterRewriter : ExpressionVisitor
+  {
+    private ParameterExpression newParameter;
+    private ParameterExpression oldParameter;
+
+    public LambdaExpression Rewrite(LambdaExpression sourceExpression, ParameterExpression oldParameter,
+      ParameterExpression newParameter)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(sourceExpression, "sourceExpression");
+      ArgumentValidator.EnsureArgumentNotNull(oldParameter, "oldParameter");
+      ArgumentValidator.EnsureArgumentNotNull(newParameter, "newParameter");
+      this.oldParameter = oldParameter;
+      this.newParameter = newParameter;
+      return (LambdaExpression)Visit(sourceExpression);
+    }
+
+    protected override Expression VisitParameter(ParameterExpression p)
+    {
+      return p == oldParameter ? newParameter : base.VisitParameter(p);
+    }
+  }
+}
