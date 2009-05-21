@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -182,32 +183,36 @@ namespace Xtensive.Storage.Tests.Linq
     }
     
     [Test]
-    [ExpectedException(typeof(InvalidOperationException))]
     public void TakeBetweenFilterAndApplyTest()
     {
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => Query<Order>.All.Where(o => o.Customer == c).Take(10));
-      QueryDumper.Dump(result);
+      if(Domain.Configuration.ConnectionInfo.Protocol != "memory")
+        AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(result));
+      else
+        QueryDumper.Dump(result);
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException))]
     public void SkipBetweenFilterAndApplyTest()
     {
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => Query<Order>.All.Where(o => o.Customer == c).Skip(10));
-      QueryDumper.Dump(result);
+      if(Domain.Configuration.ConnectionInfo.Protocol != "memory")
+        AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(result));
+      else
+        QueryDumper.Dump(result);
     }
 
     [Test]
     public void CalculateWithApply()
     {
       var expected = from c in Query<Customer>.All.AsEnumerable()
-      from r in (Query<Order>.All.AsEnumerable().Where(o => o.Customer==c).Select(o => c.Id))
+      from r in (c.Orders.Select(o => c.ContactName + o.ShipName).Where(x => x.StartsWith("a")))
       orderby r
       select r;
       var actual = from c in Query<Customer>.All
-      from r in (Query<Order>.All.Where(o => o.Customer==c).Select(o => c.Id))
+      from r in (c.Orders.Select(o => c.ContactName + o.ShipName).Where(x => x.StartsWith("a")))
       orderby r
       select r;
       Assert.IsTrue(expected.SequenceEqual(actual));

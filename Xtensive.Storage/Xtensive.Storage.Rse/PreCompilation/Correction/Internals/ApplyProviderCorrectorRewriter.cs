@@ -9,7 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Rse.Expressions;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse.Resources;
@@ -88,16 +90,24 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     private CorrectorState State { get; set;}
     private readonly Dictionary<ApplyParameter, bool> selfConvertibleApplyProviders =
       new Dictionary<ApplyParameter, bool>();
+    private readonly Dictionary<ApplyParameter, List<CalculateProvider>> calculateProviders = 
+      new Dictionary<ApplyParameter, List<CalculateProvider>>();
+    private readonly Dictionary<CalculateProvider, Expression<Func<Tuple, bool>>> calculateFilters = 
+      new Dictionary<CalculateProvider, Expression<Func<Tuple, bool>>>();
 
     private readonly bool throwOnCorrectionFault;
 
     private readonly ApplyFilterRewriter predicateRewriter = new ApplyFilterRewriter();
     private readonly ApplyParameterSearcher parameterSearcher = new ApplyParameterSearcher();
     private readonly ParameterRewriter parameterRewriter = new ParameterRewriter();
+    private readonly TupleAccessGatherer tupleGatherer = new TupleAccessGatherer((p, i) => {});
+    private readonly ApplyCalculateRewriter applyCalculateRewriter = new ApplyCalculateRewriter();
 
     public CompilableProvider Rewrite(CompilableProvider rootProvider)
     {
       selfConvertibleApplyProviders.Clear();
+      calculateProviders.Clear();
+      calculateFilters.Clear();
       try {
         using (new CorrectorState(this))
           return VisitCompilable(rootProvider);
@@ -120,20 +130,50 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       if(isSelfConvertibleApply) {
         return ProcesSelfConvertibleApply(provider, left, right);
       }
-      if(!State.Predicates.ContainsKey(provider.ApplyParameter))
-        return new PredicateJoinProvider(left, right,(tLeft, tRight) => true, provider.ApplyType);
-      return ConvertGenericApply(provider, left, right);
+      CompilableProvider result = !State.Predicates.ContainsKey(provider.ApplyParameter) 
+        ? new PredicateJoinProvider(left, right,(tLeft, tRight) => true, provider.ApplyType)
+        : ConvertGenericApply(provider, left, right);
+      if(!calculateProviders.ContainsKey(provider.ApplyParameter))
+        return result;
+      foreach (var calculateProvider in calculateProviders[provider.ApplyParameter]) {
+        result = RecreateCalculate(calculateProvider, result, left.Header.Length);
+        if(calculateFilters.ContainsKey(calculateProvider)) {
+          var indexOffset = left.Header.Length;
+          var mapping = new List<int>(ArrayUtils<int>.Create(result.Header.Length));
+          foreach (var column in right.Header.Columns) {
+            mapping[column.Index + indexOffset] = column.Index;
+          }
+          mapping[mapping.Count - 1] = calculateProvider.Header.Length - 1;
+          var accessRewriter = new TupleAccessRewriter(mapping);
+          result = new FilterProvider(result,
+            (Expression<Func<Tuple, bool>>) accessRewriter.Rewrite(calculateFilters[calculateProvider]));
+        }
+      }
+      calculateProviders.Remove(provider.ApplyParameter);
+      return result;
     }
 
     protected override Provider VisitFilter(FilterProvider provider)
     {
       var source = VisitCompilable(provider.Source);
-      var applyParameter = parameterSearcher.Find(provider.Predicate);
-      if(applyParameter != null && !selfConvertibleApplyProviders[applyParameter]) {
-        SaveApplyPredicate(provider, applyParameter);
-        return source;
+      var newProvider = source!=provider.Source 
+        ? new FilterProvider(source, provider.Predicate) : provider;
+      var tupleAccesses = tupleGatherer.Gather(provider.Predicate);
+      if(tupleAccesses.Count == 0)
+        return newProvider;
+      var isDependingOnCalculate = TryConcatenateWithCalculateFilter(provider, tupleAccesses);
+      var applyParameter = parameterSearcher.Find(newProvider.Predicate);
+      if(applyParameter != null) {
+        if(isDependingOnCalculate)
+          ThrowInvalidOperationException();
+        if (!selfConvertibleApplyProviders[applyParameter]) {
+          SaveApplyPredicate(newProvider, applyParameter);
+          return source;
+        }
       }
-      return source != provider.Source ? new FilterProvider(source, provider.Predicate) : provider;
+      if(isDependingOnCalculate)
+        return source;
+      return newProvider;
     }
 
     protected override Provider VisitAlias(AliasProvider provider)
@@ -162,6 +202,11 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       CompilableProvider left;
       CompilableProvider right;
       VisitBinaryProvider(provider, out left, out right);
+
+      if(provider.JoinType == JoinType.LeftOuter)
+        foreach (var key in State.Predicates.Keys)
+          State.Predicates[key] = null;
+
       if(left != provider.Left || right != provider.Right)
         return new JoinProvider(left, right, provider.JoinType, provider.JoinAlgorithm,
           provider.EqualIndexes);
@@ -229,6 +274,18 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       }
       CheckGroupedColumnIndexes(newProvider);
       return newProvider;
+    }
+
+    protected override Provider VisitCalculate(CalculateProvider provider)
+    {
+      var source = VisitCompilable(provider.Source);
+      var newProvider = provider;
+      if(source != provider.Source)
+        newProvider = RecreateCalculate(provider, source);
+      List<ApplyParameter> applyParameters = FindApplyParameters(newProvider);
+      if(applyParameters.Count == 0)
+        return newProvider;
+      return VisitCalculateContainingApplyParameter(source, newProvider, applyParameters);
     }
 
     protected override Provider VisitTake(TakeProvider provider)
@@ -382,7 +439,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       return provider;
     }
 
-    private Provider ConvertGenericApply(ApplyProvider provider, CompilableProvider left,
+    private PredicateJoinProvider ConvertGenericApply(ApplyProvider provider, CompilableProvider left,
       CompilableProvider right)
     {
       ValidateColumns(provider);
@@ -415,6 +472,74 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     {
       if(State.Predicates.Count > 0 || State.Predicates.Any(p => p.Value != null))
         ThrowInvalidOperationException();
+    }
+
+    private Provider VisitCalculateContainingApplyParameter(CompilableProvider source,
+      CalculateProvider newProvider, List<ApplyParameter> applyParameters)
+    {
+      if(applyParameters.Count > 1)
+        ThrowInvalidOperationException();
+      var applyParameter = applyParameters[0];
+      if(!State.Predicates.ContainsKey(applyParameter))
+        State.Predicates.Add(applyParameter, null);
+      if(selfConvertibleApplyProviders[applyParameter])
+        return newProvider;
+      if(calculateProviders.ContainsKey(applyParameter))
+        calculateProviders[applyParameter].Add(newProvider);
+      else
+        calculateProviders.Add(applyParameter, new List<CalculateProvider> {newProvider});
+      return source;
+    }
+
+    private List<ApplyParameter> FindApplyParameters(CalculateProvider newProvider)
+    {
+      return (from column in newProvider.CalculatedColumns
+      let parameter = parameterSearcher.Find(column.Expression)
+      where parameter!=null
+      select parameter).Distinct().ToList();
+    }
+
+    private bool TryConcatenateWithCalculateFilter(FilterProvider provider, List<int> tupleAccesses)
+    {
+      var isDependingOnCalculate = false;
+      foreach (var key in State.Predicates.Keys) {
+        if (!calculateProviders.ContainsKey(key))
+          continue;
+        foreach (var calculateProvider in calculateProviders[key]) {
+          if (tupleAccesses.Any(
+            i => calculateProvider.Header.Columns.Contains(provider.Header.Columns[i]))) {
+            isDependingOnCalculate = true;
+            if (calculateFilters.ContainsKey(calculateProvider)) {
+              var newCalculateFilter =
+                CreatePredicatesConjunction(calculateFilters[calculateProvider], provider.Predicate);
+              calculateFilters[calculateProvider] = newCalculateFilter;
+            }
+            else
+              calculateFilters.Add(calculateProvider, provider.Predicate);
+          }
+        }
+      }
+      return isDependingOnCalculate;
+    }
+
+    private static CalculateProvider RecreateCalculate(CalculateProvider provider,
+      CompilableProvider source)
+    {
+      var ccd = provider.CalculatedColumns.Select(
+        column => new CalculatedColumnDescriptor(column.Name, column.Type, column.Expression));
+      return new CalculateProvider(source, ccd.ToArray());
+    }
+
+    private CalculateProvider RecreateCalculate(CalculateProvider provider, CompilableProvider source,
+      int columnIndexOffset)
+    {
+      var ccd = provider.CalculatedColumns.Select(
+        column => {
+          var newColumnExpression = (Expression<Func<Tuple, object>>) applyCalculateRewriter
+            .Rewrite(column.Expression, 0, columnIndexOffset);
+          return new CalculatedColumnDescriptor(column.Name, column.Type, newColumnExpression);
+        });
+      return new CalculateProvider(source, ccd.ToArray());
     }
 
     #endregion

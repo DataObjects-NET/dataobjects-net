@@ -188,12 +188,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
       // visit
 
-      //mappings[provider.Left] = leftMapping;
       var oldMappings = ReplaceMappings(provider.Left, leftMapping);
       CompilableProvider newLeftProvider = VisitCompilable(provider.Left);
       leftMapping = mappings[provider.Left];
 
-      //mappings[provider.Right] = rightMapping;
       ReplaceMappings(provider.Right, rightMapping);
       outerColumnUsages.Add(applyParameter, leftMapping);
       CompilableProvider newRightProvider = VisitCompilable(provider.Right);
@@ -290,12 +288,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       var leftMapping = mappings[provider];
       var rightMapping = mappings[provider];
 
-      //mappings[provider.Left] = leftMapping;
       var oldMappings = ReplaceMappings(provider.Left, leftMapping);
       CompilableProvider newLeftProvider = VisitCompilable(provider.Left);
       leftMapping = mappings[provider.Left];
 
-      //mappings[provider.Right] = rightMapping;
       ReplaceMappings(provider.Right, rightMapping);
       CompilableProvider newRightProvider = VisitCompilable(provider.Right);
       rightMapping = mappings[provider.Right];
@@ -498,12 +494,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       // visit
 
       var oldMapping = ReplaceMappings(left, leftMapping);
-      //mappings[left] = leftMapping;
       CompilableProvider newLeftProvider = VisitCompilable(left);
       leftMapping = mappings[left];
 
       ReplaceMappings(right, rightMapping);
-      //mappings[right] = rightMapping;
       CompilableProvider newRightProvider = VisitCompilable(right);
       rightMapping = mappings[right];
       RestoreMappings(oldMapping);

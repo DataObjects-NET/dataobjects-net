@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
   {
     private ApplyParameter result;
 
-    public ApplyParameter Find(Expression<Func<Tuple, bool>> predicate)
+    public ApplyParameter Find(LambdaExpression predicate)
     {
       ArgumentValidator.EnsureArgumentNotNull(predicate, "predicate");
       result = null;
