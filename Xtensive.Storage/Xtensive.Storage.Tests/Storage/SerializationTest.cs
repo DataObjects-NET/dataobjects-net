@@ -241,7 +241,7 @@ namespace Xtensive.Storage.Tests
 
 //          china.Capital = beijing;
 //          russia.Capital = moscow;
-  
+
           City[] cities = new[] {ekaterinburg, moscow, hongKong, guangzhou, beijing};          
 
           var serializationContext = new SerializationContext(
