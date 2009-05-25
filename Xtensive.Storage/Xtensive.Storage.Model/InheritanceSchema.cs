@@ -4,7 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2007.11.14
 
-namespace Xtensive.Storage.Configuration
+namespace Xtensive.Storage.Model
 {
   /// <summary>
   /// Enumerates all supported 'class to tables mapping' schemes.

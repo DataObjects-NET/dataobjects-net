@@ -11,7 +11,6 @@ using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Building.Definitions;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Resources;

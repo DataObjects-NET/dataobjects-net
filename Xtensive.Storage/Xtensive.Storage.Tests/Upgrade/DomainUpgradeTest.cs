@@ -18,7 +18,8 @@ namespace Xtensive.Storage.Tests.Upgrade
   [TestFixture]
   public class DomainUpgradeTest
   {
-    private string protocol = "mssql2005";
+    private const string protocol = "mssql2005";
+
     private Domain domain;
 
     [SetUp]

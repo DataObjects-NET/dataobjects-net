@@ -7,6 +7,7 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Issues.Issue0021_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0021_Model

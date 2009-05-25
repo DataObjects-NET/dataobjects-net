@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {

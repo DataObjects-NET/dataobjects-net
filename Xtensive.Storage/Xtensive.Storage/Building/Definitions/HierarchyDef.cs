@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Building.Definitions

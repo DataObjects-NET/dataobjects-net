@@ -8,6 +8,7 @@ using NUnit.Framework;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Model.InheritanceSchemaModel;  
 
 namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel

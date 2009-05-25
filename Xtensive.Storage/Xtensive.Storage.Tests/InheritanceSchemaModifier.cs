@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
-using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests
 {

@@ -10,7 +10,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Model;
 
 
 namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO

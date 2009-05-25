@@ -8,90 +8,148 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
-using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Model.Stored
 {
   internal class ReferenceUpdater
   {
-    private readonly Dictionary<object, Dictionary<string, StoredNode>> nodeLookups
-      = new Dictionary<object, Dictionary<string, StoredNode>>();
-
-    private T FindNode<T>(IEnumerable<T> nodes, string name) where T : StoredNode
-    {
-      Dictionary<string, StoredNode> lookup;
-
-      if (!nodeLookups.TryGetValue(nodes, out lookup)) {
-        lookup = new Dictionary<string, StoredNode>();
-        foreach (var item in nodes)
-          lookup.Add(item.Name, item);
-        nodeLookups.Add(nodes, lookup);
-      }
-
-      return (T) lookup[name];
-    }
+    private Dictionary<string, StoredTypeInfo> types;
+    private Dictionary<string, StoredAssociationInfo> associations;
+    private Dictionary<string, StoredFieldInfo> fieldMap;
+    private Dictionary<StoredTypeInfo, StoredHierarchyInfo> hierarchies;
 
     public void UpdateReferences(StoredDomainModel model)
     {
-      // fixing null arrays
+      types = new Dictionary<string, StoredTypeInfo>();
+      associations = new Dictionary<string, StoredAssociationInfo>();
+      hierarchies = new Dictionary<StoredTypeInfo, StoredHierarchyInfo>();
 
-      if (model.Associations == null)
-        model.Associations = ArrayUtils<StoredAssociationInfo>.EmptyArray;
+      // building hierarchies map
 
-      if (model.Hierarchies == null)
-        model.Hierarchies = ArrayUtils<StoredHierarchyInfo>.EmptyArray;
-
-      if (model.Types == null)
-        model.Types = ArrayUtils<StoredTypeInfo>.EmptyArray;
-
-      if (model.Fields == null)
-        model.Fields = ArrayUtils<StoredFieldInfo>.EmptyArray;
+      var generatedHierarchies = model.Types
+        .Where(t => t.IsHierarchyRoot)
+        .Select(t => new StoredHierarchyInfo {Root = t});
       
-      // fixing enums
+      foreach (var hierarchy in generatedHierarchies)
+        hierarchies.Add(hierarchy.Root, hierarchy);
 
-      foreach (var association in model.Associations)
-        association.Multiplicity = (Multiplicity) Enum.Parse(
-          typeof (Multiplicity),
-          association.MultiplicityName);
+      // building types map
 
-      foreach (var hierarchy in model.Hierarchies)
-        hierarchy.Schema = (InheritanceSchema) Enum.Parse(
-          typeof (InheritanceSchema),
-          hierarchy.SchemaName);
+      foreach (var type in model.Types)
+        types.Add(type.Name, type);
+      
+      // building types
 
-      // fixing references
+      foreach (var type in model.Types)
+        UpdateTypeAncestor(type);
+
+      foreach (var type in model.Types)
+        UpdateTypeHierarchy(type);
+
+      // building hierarchies
+     
+      foreach (var hierarchy in hierarchies.Values) {
+        UpdateHierarchySchema(hierarchy);
+        UpdateHierarchyTypes(hierarchy);
+      }
+      
+      // building fields / associations
 
       foreach (var type in model.Types) {
-        if (!string.IsNullOrEmpty(type.HierarchyName))
-          type.Hierarchy = FindNode(model.Hierarchies, type.HierarchyName);
-        type.Fields = type.FieldNames
-          .Select(f => FindNode(model.Fields, NamingHelper.GetFullFieldName(type.Name, f)))
-          .ToArray();
-        if (!string.IsNullOrEmpty(type.AncestorName))
-          type.Ancestor = FindNode(model.Types, type.AncestorName);
-      }
-
-      foreach (var association in model.Associations) {
-        association.ReferencedType = FindNode(model.Types, association.ReferencedTypeName);
-        association.ReferencingField = FindNode(model.Fields, association.ReferencingFieldName);
-        if (!string.IsNullOrEmpty(association.ReversedName))
-          association.Reversed = FindNode(model.Associations, association.ReversedName);
-      }
-
-      foreach (var hierarchy in model.Hierarchies) {
-        hierarchy.Root = FindNode(model.Types, hierarchy.RootName);
-        hierarchy.Types = model.Types.Where(t => t.Hierarchy==hierarchy).ToArray();
-      }
-
-      foreach (var field in model.Fields) {
-        if (!field.Fields.IsNullOrEmpty()) {
-          field.Fields = field.FieldNames
-            .Select(f => FindNode(model.Fields, NamingHelper.ChangeFieldName(field, f)))
-            .ToArray();
-          foreach (var nestedField in field.Fields)
-            nestedField.Parent = field;
+        fieldMap = new Dictionary<string, StoredFieldInfo>();
+        if (type.Fields == null)
+          type.Fields = ArrayUtils<StoredFieldInfo>.EmptyArray;
+        foreach (var field in type.Fields) {
+          fieldMap.Add(field.Name, field);
+          UpdateNestedFields(field);
+          UpdateFieldDeclaringType(field, type);
+        }
+        foreach (var association in type.Associations) {
+          associations.Add(association.Name, association);
+          UpdateAssociationMultiplicity(association);
+          UpdateAssociationReferencingField(association);
         }
       }
+
+      foreach (var association in associations.Values)
+        UpdateAssociationReversed(association);
+
+      model.Hierarchies = hierarchies.Values.ToArray();
+      model.Associations = associations.Values.ToArray();
+
+      types = null;
+      fieldMap = null;
+      associations = null;
+      hierarchies = null;
+    }
+
+    private void UpdateTypeAncestor(StoredTypeInfo type)
+    {
+      if (string.IsNullOrEmpty(type.AncestorName))
+        return;
+      type.Ancestor = types[type.AncestorName];
+    }
+
+    private void UpdateTypeHierarchy(StoredTypeInfo type)
+    {
+      var currentType = type;
+
+      while (currentType != null && !currentType.IsHierarchyRoot)
+        currentType = currentType.Ancestor;
+
+      if (currentType != null && currentType.IsHierarchyRoot)
+        type.Hierarchy = hierarchies[currentType];
+    }
+
+    private void UpdateHierarchySchema(StoredHierarchyInfo hierarchy)
+    {
+      hierarchy.Schema = (InheritanceSchema) Enum.Parse(typeof (InheritanceSchema), hierarchy.Root.HierarchyRoot);
+    }
+
+    private void UpdateHierarchyTypes(StoredHierarchyInfo hierarchy)
+    {
+      hierarchy.Types = types.Values.Where(t => t.Hierarchy==hierarchy).ToArray();
+    }
+
+    private void UpdateNestedFields(StoredFieldInfo field)
+    {
+      if (field.Fields == null) {
+        field.Fields = ArrayUtils<StoredFieldInfo>.EmptyArray;
+        return;
+      }
+
+      foreach (var nestedField in field.Fields) {
+        nestedField.Parent = field;
+        UpdateNestedFields(nestedField);
+      }
+    }
+
+    private void UpdateFieldDeclaringType(StoredFieldInfo field, StoredTypeInfo type)
+    {
+      field.DeclaringType = type;
+      foreach (var nestedField in field.Fields)
+        UpdateFieldDeclaringType(nestedField, type);
+    }
+
+    private void UpdateAssociationMultiplicity(StoredAssociationInfo association)
+    {
+      if (string.IsNullOrEmpty(association.MultiplicityName))
+        throw new ArgumentException();
+      association.Multiplicity = (Multiplicity) Enum.Parse(typeof (Multiplicity), association.MultiplicityName);
+    }
+
+    private void UpdateAssociationReferencingField(StoredAssociationInfo association)
+    {
+      if (string.IsNullOrEmpty(association.ReferencingFieldName))
+        return;
+      association.ReferencingField = fieldMap[association.ReferencingFieldName];
+    }
+
+    private void UpdateAssociationReversed(StoredAssociationInfo association)
+    {
+      if (string.IsNullOrEmpty(association.ReversedName))
+        return;
+      association.Reversed = associations[association.ReversedName];
     }
   }
 }

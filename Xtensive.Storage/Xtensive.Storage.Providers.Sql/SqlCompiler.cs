@@ -17,7 +17,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Expressions;
 using Xtensive.Storage.Rse;

@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.22
 
+using System.ComponentModel;
 using System.Xml.Serialization;
 
 namespace Xtensive.Storage.Model.Stored
@@ -22,7 +23,7 @@ namespace Xtensive.Storage.Model.Stored
     /// <summary>
     /// Name of <see cref="ReferencingField"/>.
     /// </summary>
-    [XmlElement(ElementName = "ReferencingField")]
+    [XmlElement("ReferencingField")]
     public string ReferencingFieldName;
 
     /// <summary>
@@ -34,7 +35,7 @@ namespace Xtensive.Storage.Model.Stored
     /// <summary>
     /// Name of <see cref="ReferencedType"/>
     /// </summary>
-    [XmlElement(ElementName = "ReferencedType")]
+    [XmlElement("ReferencedType")]
     public string ReferencedTypeName;
 
     /// <summary>
@@ -46,7 +47,7 @@ namespace Xtensive.Storage.Model.Stored
     /// <summary>
     /// Name of <see cref="Multiplicity"/>.
     /// </summary>
-    [XmlElement(ElementName = "Multiplicity")]
+    [XmlElement("Multiplicity")]
     public string MultiplicityName;
 
     /// <summary>
@@ -58,18 +59,13 @@ namespace Xtensive.Storage.Model.Stored
     /// <summary>
     /// Name of <see cref="Reversed"/>
     /// </summary>
-    [XmlElement(ElementName = "Reversed")]
+    [XmlElement("Reversed")]
     public string ReversedName;
-
-    /// <summary>
-    /// <see cref="AssociationInfo.UnderlyingType"/>
-    /// </summary>
-    [XmlElement(ElementName = "UnderlyingType")]
-    public string UnderlyingTypeName;
 
     /// <summary>
     /// <see cref="AssociationInfo.IsMaster"/>
     /// </summary>
+    [DefaultValue(false)]
     public bool IsMaster;
   }
 }

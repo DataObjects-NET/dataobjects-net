@@ -7,7 +7,7 @@
 namespace Xtensive.Storage.Model.Stored
 {
   /// <summary>
-  /// A xml serializable representation of <see cref="Node"/>.
+  /// A xml serializable representation of <see cref="MappingName"/>.
   /// </summary>
   public abstract class StoredNode
   {
@@ -15,5 +15,10 @@ namespace Xtensive.Storage.Model.Stored
     /// <see cref="Node.Name"/>
     /// </summary>
     public string Name;
+
+    /// <summary>
+    /// <see cref="MappingNode.MappingName"/>.
+    /// </summary>
+    public string MappingName;
   }
 }

@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.22
 
+using System.ComponentModel;
 using System.Xml.Serialization;
 
 namespace Xtensive.Storage.Model.Stored
@@ -11,12 +12,19 @@ namespace Xtensive.Storage.Model.Stored
   /// <summary>
   /// A xml serializable representation of <see cref="TypeInfo"/>.
   /// </summary>
-  public sealed class StoredTypeInfo : StoredMappingNode
+  public sealed class StoredTypeInfo : StoredNode
   {
     /// <summary>
     /// <see cref="TypeInfo.TypeId"/>.
     /// </summary>
+    [DefaultValue(TypeInfo.NoTypeId)]
     public int TypeId;
+
+    /// <summary>
+    /// If is not <see langword="null"/> declares this instance as hierarchy root
+    /// and value of this property speicifes <see cref="InheritanceSchema"/>.
+    /// </summary>
+    public string HierarchyRoot;
 
     /// <summary>
     /// <see cref="TypeInfo.Hierarchy"/>.
@@ -25,22 +33,16 @@ namespace Xtensive.Storage.Model.Stored
     public StoredHierarchyInfo Hierarchy;
 
     /// <summary>
-    /// Name of <see cref="Hierarchy"/>.
-    /// </summary>
-    [XmlElement(ElementName = "Hierarchy")]
-    public string HierarchyName;
-
-    /// <summary>
     /// <see cref="TypeInfo.Fields"/>.
     /// </summary>
-    [XmlIgnore]
+    [XmlArray("Fields"), XmlArrayItem("Field")]
     public StoredFieldInfo[] Fields;
-
+    
     /// <summary>
-    /// Names of <see cref="Fields"/>.
+    /// Associations outgoing from this <see cref="StoredTypeInfo"/>.
     /// </summary>
-    [XmlArray(ElementName = "Fields")]
-    public string[] FieldNames;
+    [XmlArray("Associations"), XmlArrayItem("Association")]
+    public StoredAssociationInfo[] Associations;
 
     /// <summary>
     /// <see cref="TypeInfo.GetAncestor"/>.
@@ -51,32 +53,47 @@ namespace Xtensive.Storage.Model.Stored
     /// <summary>
     /// Name of <see cref="Ancestor"/>.
     /// </summary>
-    [XmlElement(ElementName = "Ancestor")]
+    [XmlElement("Ancestor")]
     public string AncestorName;
+
+    #region IsXxx fields
 
     /// <summary>
     /// <see cref="TypeInfo.IsEntity"/>.
     /// </summary>
+    [DefaultValue(false)]
     public bool IsEntity;
 
     /// <summary>
     /// <see cref="TypeInfo.IsAbstract"/>.
     /// </summary>
+    [DefaultValue(false)]
     public bool IsAbstract;
 
     /// <summary>
     /// <see cref="TypeInfo.IsInterface"/>.
     /// </summary>
+    [DefaultValue(false)]
     public bool IsInterface;
 
     /// <summary>
     /// <see cref="TypeInfo.IsStructure"/>.
     /// </summary>
+    [DefaultValue(false)]
     public bool IsStructure;
 
     /// <summary>
     /// <see cref="TypeInfo.IsSystem"/>.
     /// </summary>
+    [DefaultValue(false)]
     public bool IsSystem;
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is hierarchy root.
+    /// </summary>
+    [XmlIgnore]
+    public bool IsHierarchyRoot { get { return !string.IsNullOrEmpty(HierarchyRoot); } }
+
+    #endregion
   }
 }

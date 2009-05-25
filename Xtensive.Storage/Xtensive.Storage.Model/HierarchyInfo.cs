@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Model
 {

@@ -7,7 +7,6 @@
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Storage.Building.Definitions;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Reflection;

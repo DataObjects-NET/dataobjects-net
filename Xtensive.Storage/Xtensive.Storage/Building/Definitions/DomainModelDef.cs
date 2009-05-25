@@ -9,7 +9,6 @@ using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Notifications;
 using Xtensive.Storage.Building.Builders;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 

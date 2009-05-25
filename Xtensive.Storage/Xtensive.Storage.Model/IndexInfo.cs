@@ -13,7 +13,6 @@ using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Model
 {

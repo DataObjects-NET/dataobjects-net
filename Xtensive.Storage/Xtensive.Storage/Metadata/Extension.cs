@@ -25,10 +25,16 @@ namespace Xtensive.Storage.Metadata
     public string Name { get; private set; }
 
     /// <summary>
-    /// Gets or sets the extension data.
+    /// Gets or sets the text data.
     /// </summary>
     [Field]
-    public string Data { get; set; }
+    public string Text { get; set; }
+
+    /// <summary>
+    /// Gets or sets the binary data.
+    /// </summary>
+    [Field]
+    public byte[] Data { get; set; }
 
     /// <inheritdoc/>
     public override string ToString()
