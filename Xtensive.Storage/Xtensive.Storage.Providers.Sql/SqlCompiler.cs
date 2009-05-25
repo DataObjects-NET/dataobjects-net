@@ -331,6 +331,7 @@ namespace Xtensive.Storage.Providers.Sql
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Offset = provider.Count();
+      AddOrderByStatement(provider, query);
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
@@ -393,6 +394,8 @@ namespace Xtensive.Storage.Providers.Sql
       var count = provider.Count();
       if (query.Top == 0 || query.Top > count)
         query.Top = count;
+      if(!(provider.Source is TakeProvider) && !(provider.Source is SkipProvider))
+        AddOrderByStatement(provider, query);
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
@@ -727,6 +730,12 @@ namespace Xtensive.Storage.Providers.Sql
       }
 
       return false;
+    }
+
+    private static void AddOrderByStatement(UnaryProvider provider, SqlSelect query)
+    {
+      foreach (KeyValuePair<int, Direction> pair in provider.Source.ExpectedOrder)
+        query.OrderBy.Add(query.Columns[pair.Key], pair.Value==Direction.Positive);
     }
 
     #endregion

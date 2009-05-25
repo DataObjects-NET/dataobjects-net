@@ -24,6 +24,8 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var sqlProvider = (SqlProvider) rootProvider;
       var query = (SqlSelect) sqlProvider.Request.SelectStatement.Clone();
+      if(query.OrderBy.Count > 0)
+        return rootProvider;
       if (rootProvider.Origin.ExpectedOrder.Count > 0)
         ApplyOrderingToProvider(sqlProvider, query);
       else {

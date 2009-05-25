@@ -92,18 +92,6 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override IPreCompiler CreatePreCompiler()
-    {
-      return new CompositePreCompiler(
-        new ApplyProviderCorrector(true),
-        new SkipTakeCorrector(),
-        new OrderingCorrector(ResolveOrderingDescriptor, false),
-        new RedundantColumnOptimizer(),
-        new OrderingCorrector(ResolveOrderingDescriptor, true)
-        );
-    }
-
-    /// <inheritdoc/>
     protected override IPostCompiler CreatePostCompiler()
     {
       return new SqlOrderbyCorrector(Handlers);
@@ -121,7 +109,14 @@ namespace Xtensive.Storage.Providers.Sql
       return accessorCache.GetValue(descriptor, BuildDataReaderAccessor);
     }
 
-    private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
+    /// <summary>
+    /// Creates <see cref="ProviderOrderingDescriptor"/> for specified 
+    /// <see cref="CompilableProvider"/>.
+    /// </summary>
+    /// <param name="provider">The provider for which <see cref="ProviderOrderingDescriptor"/> 
+    /// should be created.</param>
+    /// <returns>A newly created <see cref="ProviderOrderingDescriptor"/>.</returns>
+    protected static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
     {
       bool isOrderSensitive = provider.Type==ProviderType.Skip || provider.Type==ProviderType.Take
         || provider.Type==ProviderType.Seek || provider.Type==ProviderType.Range

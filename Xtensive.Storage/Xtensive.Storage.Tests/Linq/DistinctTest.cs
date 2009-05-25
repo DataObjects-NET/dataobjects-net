@@ -245,14 +245,16 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SkipTest()
     {
-      var result = Query<Customer>.All
-        .OrderBy(c => c.ContactName)
+      var result = Query<Order>.All
+        .OrderBy(o => o.OrderDate)
         .Skip(5)
+        .Select(o => o.OrderDate)
         .Distinct();
-      var expected = Query<Customer>.All
+      var expected = Query<Order>.All
         .AsEnumerable()
-        .OrderBy(c => c.ContactName)
+        .OrderBy(o => o.OrderDate)
         .Skip(5)
+        .Select(o => o.OrderDate)
         .Distinct();
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
@@ -277,16 +279,18 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SkipTakeTest()
     {
-      var result = Query<Customer>.All
-        .OrderBy(c => c.ContactName)
+      var result = Query<Order>.All
+        .OrderBy(o => o.OrderDate)
         .Skip(5)
         .Take(10)
+        .Select(o => o.OrderDate)
         .Distinct();
-      var expected = Query<Customer>.All
+      var expected = Query<Order>.All
         .AsEnumerable()
-        .OrderBy(c => c.ContactName)
+        .OrderBy(o => o.OrderDate)
         .Skip(5)
         .Take(10)
+        .Select(o => o.OrderDate)
         .Distinct();
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
@@ -295,16 +299,18 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TakeSkipTest()
     {
-      var result = Query<Customer>.All
-        .OrderBy(c => c.ContactName)
+      var result = Query<Order>.All
+        .OrderBy(o => o.OrderDate)
         .Take(10)
         .Skip(5)
+        .Select(o => o.OrderDate)
         .Distinct();
-      var expected = Query<Customer>.All
+      var expected = Query<Order>.All
         .AsEnumerable()
-        .OrderBy(c => c.ContactName)
+        .OrderBy(o => o.OrderDate)
         .Take(10)
         .Skip(5)
+        .Select(o => o.OrderDate)
         .Distinct();
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
