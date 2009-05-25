@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
 {
   // BusinessContact renamed to Person
-  // Peron renamed to BusinessContact
+  // Person renamed to BusinessContact
   // Fields LastName and FirstName moved from Employee to BusinessContact (old Person)
   // Field Order.ProcessingTime removed
   

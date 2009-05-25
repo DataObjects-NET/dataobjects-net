@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Model
 
     /// <summary>
     /// Minimal possible <see cref="TypeId"/> value.
-    /// Value is <see langword="1" />.
+    /// Value is <see langword="100" />.
     /// </summary>
     public const int MinTypeId = 100;
 

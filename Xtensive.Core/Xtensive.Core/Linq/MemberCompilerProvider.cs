@@ -82,10 +82,10 @@ namespace Xtensive.Core.Linq
 
       if (withMemberInfo) {
         var d = (Func<MemberInfo, T, T[], T>) result.First;
-        return (this_, arr) => d(source, this_, arr);
+        return d.Bind(source);
       }
 
-      return (Func<T, T[], T>)result.First;
+      return (Func<T, T[], T>) result.First;
     }
 
     /// <inheritdoc/>

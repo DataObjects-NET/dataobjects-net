@@ -11,10 +11,9 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Storage.Metadata
 {
   /// <summary>
-  /// Persistent descriptor of an assembly with registered persistent types.
-  /// Used for schema upgrade purposes.
+  /// Persistent value of any kind indentified by its <see cref="Name"/>.
   /// </summary>
-  [SystemType(2)]
+  [SystemType(3)]
   [HierarchyRoot("Name")]
   [Entity(MappingName = "Metadata.Extension")]
   public class Extension : MetadataBase
@@ -43,7 +42,7 @@ namespace Xtensive.Storage.Metadata
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="name">The assembly name.</param>
+    /// <param name="name">A value for <see cref="Name"/>.</param>
     /// <exception cref="Exception">Object is read-only.</exception>
     public Extension(string name) 
       : base(Tuple.Create(name))

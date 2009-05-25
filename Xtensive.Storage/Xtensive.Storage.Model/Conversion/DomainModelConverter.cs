@@ -73,7 +73,6 @@ namespace Xtensive.Storage.Model.Conversion
     /// <see cref="StorageInfo"/>.
     /// </summary>
     /// <param name="domainModel">The domain model.</param>
-    /// <param name="storageName">Name of the storage.</param>
     /// <returns>The storage model.</returns>
     public StorageInfo Convert(DomainModel domainModel)
     {
