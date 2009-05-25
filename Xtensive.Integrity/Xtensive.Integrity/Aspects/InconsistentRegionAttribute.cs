@@ -23,7 +23,8 @@ namespace Xtensive.Integrity.Aspects
   /// using <see cref="ValidationContextBase.OpenInconsistentRegion"/> method.
   /// </summary>
   // [MulticastAttributeUsage(MulticastTargets.Property | MulticastTargets.Method)]
-  [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Constructor, 
+    AllowMultiple = false, Inherited = false)]
   [Serializable]
   public sealed class InconsistentRegionAttribute : OnMethodBoundaryAspect,
     ILaosWeavableAspect
@@ -41,20 +42,21 @@ namespace Xtensive.Integrity.Aspects
       if (!AspectHelper.ValidateBaseType(this, SeverityType.Error, method.DeclaringType, true, typeof(IValidationAware)))
         return false;
 
-      var methodInfo = method as MethodInfo;      
+      if (!(method is ConstructorInfo)) {
+        var methodInfo = method as MethodInfo;
+        if (methodInfo.IsGetter()) {
+          // This is getter; let's check if it is explicitely marked as [InconsistentRegion]
+          var propertyInfo = methodInfo.GetProperty();
+          if (propertyInfo!=null && propertyInfo.GetAttribute<AtomicAttribute>(
+            AttributeSearchOptions.Default)!=null)
+            // Property itself is marked as [InconsistentRegion]
+            return false;
 
-      if (methodInfo.IsGetter()) {
-        // This is getter; let's check if it is explicitely marked as [InconsistentRegion]
-        var propertyInfo = methodInfo.GetProperty();
-        if (propertyInfo!=null && propertyInfo.GetAttribute<AtomicAttribute>(
-          AttributeSearchOptions.Default)!=null)
-          // Property itself is marked as [InconsistentRegion]
-          return false;
-        
-        // Property getter is marked as [InconsistentRegion]
-        ErrorLog.Write(SeverityType.Warning, AspectMessageType.AspectPossiblyMissapplied,
-          AspectHelper.FormatType(GetType()),
-          AspectHelper.FormatMember(methodInfo.DeclaringType, methodInfo));
+          // Property getter is marked as [InconsistentRegion]
+          ErrorLog.Write(SeverityType.Warning, AspectMessageType.AspectPossiblyMissapplied,
+            AspectHelper.FormatType(GetType()),
+            AspectHelper.FormatMember(methodInfo.DeclaringType, methodInfo));
+        }
       }
 
       return true;

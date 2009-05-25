@@ -28,7 +28,8 @@ namespace Xtensive.Integrity.Aspects
   /// of exception.
   /// </summary>
   // [MulticastAttributeUsage(MulticastTargets.Property | MulticastTargets.Method)]
-  [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Constructor, 
+    AllowMultiple = false, Inherited = false)]
   [Serializable]
   public sealed class AtomicAttribute : OnMethodBoundaryAspect, 
     ILaosWeavableAspect
@@ -53,18 +54,20 @@ namespace Xtensive.Integrity.Aspects
         type, true, typeof(IAtomicityAware)))
         return false;
                   
-      if (methodInfo.IsGetter()) {
-        // This is getter; let's check if it is explicitely marked as [Atomic]
-        var propertyInfo = methodInfo.GetProperty();
-        if (propertyInfo!=null && propertyInfo.GetAttribute<AtomicAttribute>(
-          AttributeSearchOptions.Default)!=null)
-          // Property itself is marked as [Atomic]
-          return false;
+      if (!(method is ConstructorInfo)) {
+        if (methodInfo.IsGetter()) {
+          // This is getter; let's check if it is explicitely marked as [Atomic]
+          var propertyInfo = methodInfo.GetProperty();
+          if (propertyInfo!=null && propertyInfo.GetAttribute<AtomicAttribute>(
+            AttributeSearchOptions.Default)!=null)
+            // Property itself is marked as [Atomic]
+            return false;
 
-        // Property getter is marked as [Atomic]
-        ErrorLog.Write(SeverityType.Warning, AspectMessageType.AspectPossiblyMissapplied,
-          AspectHelper.FormatType(GetType()),
-          AspectHelper.FormatMember(methodInfo.DeclaringType, methodInfo));
+          // Property getter is marked as [Atomic]
+          ErrorLog.Write(SeverityType.Warning, AspectMessageType.AspectPossiblyMissapplied,
+            AspectHelper.FormatType(GetType()),
+            AspectHelper.FormatMember(methodInfo.DeclaringType, methodInfo));
+        }
       }
 
       // Ensure undo method exists (if specified)
