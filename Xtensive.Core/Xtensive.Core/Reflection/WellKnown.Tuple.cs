@@ -59,6 +59,11 @@ namespace Xtensive.Core.Reflection
       public const string Count = "Count";
 
       /// <summary>
+      /// Returns "Create".
+      /// </summary>
+      public const string Create = "Create";
+
+      /// <summary>
       /// Returns "CreateNew".
       /// </summary>
       public const string CreateNew = "CreateNew";
