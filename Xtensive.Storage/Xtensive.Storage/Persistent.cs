@@ -424,7 +424,7 @@ namespace Xtensive.Storage
     ValidationContextBase IContextBound<ValidationContextBase>.Context
     {
       get {
-        return Session.ValidationContext;
+        return (Session ?? Session.Demand()).ValidationContext;
       }
     }
 
