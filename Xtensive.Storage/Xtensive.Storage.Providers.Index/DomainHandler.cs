@@ -19,6 +19,7 @@ using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.PreCompilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
+using Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection;
 using Xtensive.Storage.Rse.PreCompilation.Optimization;
 using Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection;
 using Xtensive.Storage.Rse.Providers;

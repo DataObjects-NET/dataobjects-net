@@ -10,7 +10,7 @@ using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
-namespace Xtensive.Storage.Rse.PreCompilation.Correction
+namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 {
   /// <summary>
   /// Converts <see cref="ApplyProvider"/> to <see cref="PredicateJoinProvider"/>, if possible.

@@ -4,25 +4,32 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.05.21
 
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Expressions;
 
-namespace Xtensive.Storage.Rse.PreCompilation.Correction
+namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 {
-  internal sealed class ApplyCalculateRewriter : ExpressionVisitor
+  internal sealed class CalculateRelatedExpressionRewriter : ExpressionVisitor
   {
     private ParameterExpression substitute;
-    private int fieldIndexOffset;
+    private ColumnCollection sourceColumns;
+    private ColumnCollection targetColumns;
 
     public LambdaExpression Rewrite(LambdaExpression expression,
-      int substituteParameterIndex, int fieldIndexOffset)
+      ParameterExpression substituteParameter, ColumnCollection sourceColumns,
+      ColumnCollection targetColumns)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      substitute = expression.Parameters[substituteParameterIndex];
-      this.fieldIndexOffset = fieldIndexOffset;
+      ArgumentValidator.EnsureArgumentNotNull(substituteParameter, "substituteParameter");
+      ArgumentValidator.EnsureArgumentNotNull(sourceColumns, "sourceColumns");
+      ArgumentValidator.EnsureArgumentNotNull(targetColumns, "targetColumns");
+      substitute = substituteParameter;
+      this.sourceColumns = sourceColumns;
+      this.targetColumns = targetColumns;
       return (LambdaExpression) Visit(expression);
     }
 
@@ -38,9 +45,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       var visited = (MethodCallExpression)base.VisitMethodCall(mc);
       if(mc.Object.NodeType == ExpressionType.Parameter
         && mc.Object.Type == typeof(Tuple)) {
-        var fieldIndex = visited.GetTupleAccessArgument();
-        fieldIndex += fieldIndexOffset;
-        return Expression.Call(visited.Object, visited.Method, Expression.Constant(fieldIndex));
+        var sourceIndex = visited.GetTupleAccessArgument();
+        var name = sourceColumns.Single(column => column.Index == sourceIndex).Name;
+        var currentIndex = targetColumns[name].Index;
+        return Expression.Call(visited.Object, visited.Method, Expression.Constant(currentIndex));
       }
       return visited;
     }

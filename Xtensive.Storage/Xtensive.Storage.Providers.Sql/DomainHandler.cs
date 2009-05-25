@@ -25,6 +25,7 @@ using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.PreCompilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
+using Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection;
 using Xtensive.Storage.Rse.PreCompilation.Optimization;
 using Xtensive.Storage.Rse.Providers;
 using SqlFactory = Xtensive.Sql.Dom.Sql;

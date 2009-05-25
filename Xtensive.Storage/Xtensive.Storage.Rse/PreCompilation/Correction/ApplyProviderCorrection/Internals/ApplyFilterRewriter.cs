@@ -12,7 +12,7 @@ using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Expressions;
 
-namespace Xtensive.Storage.Rse.PreCompilation.Correction
+namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 {
   internal sealed class ApplyFilterRewriter : ExpressionVisitor
   {

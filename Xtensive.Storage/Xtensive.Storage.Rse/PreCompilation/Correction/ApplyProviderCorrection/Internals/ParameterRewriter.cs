@@ -8,14 +8,14 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
 
-namespace Xtensive.Storage.Rse.PreCompilation.Correction
+namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 {
   internal sealed class ParameterRewriter : ExpressionVisitor
   {
     private ParameterExpression newParameter;
     private ParameterExpression oldParameter;
 
-    public LambdaExpression Rewrite(LambdaExpression sourceExpression, ParameterExpression oldParameter,
+    public LambdaExpression Replace(LambdaExpression sourceExpression, ParameterExpression oldParameter,
       ParameterExpression newParameter)
     {
       ArgumentValidator.EnsureArgumentNotNull(sourceExpression, "sourceExpression");
