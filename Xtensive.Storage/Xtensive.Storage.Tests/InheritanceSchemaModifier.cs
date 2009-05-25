@@ -65,5 +65,4 @@ namespace Xtensive.Storage.Tests
     {
     }
   }
-
 }
