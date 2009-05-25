@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Modelling;
 
 namespace Xtensive.Storage.Indexing.Model
 {

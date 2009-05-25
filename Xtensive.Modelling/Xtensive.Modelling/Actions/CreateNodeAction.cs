@@ -26,6 +26,9 @@ namespace Xtensive.Modelling.Actions
     private int? index;
     private object[] parameters;
 
+    /// <summary>
+    /// Gets or sets the node type.
+    /// </summary>
     public Type Type {
       get { return type; }
       set {
@@ -35,6 +38,9 @@ namespace Xtensive.Modelling.Actions
       }
     }
 
+    /// <summary>
+    /// Gets or sets the node name.
+    /// </summary>
     public string Name {
       get { return name; }
       set {
@@ -44,6 +50,10 @@ namespace Xtensive.Modelling.Actions
       }
     }
 
+    /// <summary>
+    /// Gets or sets the node index.
+    /// </summary>
+    /// <value>The index.</value>
     public int? Index {
       get { return index; }
       set {
@@ -52,6 +62,9 @@ namespace Xtensive.Modelling.Actions
       }
     }
 
+    /// <summary>
+    /// Gets or sets the parameters.
+    /// </summary>
     public object[] Parameters {
       get {
         if (!IsLocked)

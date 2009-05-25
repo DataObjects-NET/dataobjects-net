@@ -10,7 +10,7 @@ using Xtensive.Storage.Indexing.Model;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
 
-namespace Xtensive.Indexing.Tests.Storage
+namespace Xtensive.Storage.Tests.Indexing
 {
   [TestFixture]
   public class ForeignKeyInfoTest
@@ -28,9 +28,9 @@ namespace Xtensive.Indexing.Tests.Storage
     {
       storage = new StorageInfo("storage");
       referencingTable = new TableInfo(storage, "referencingTable");
-      var pkColumn = new ColumnInfo(referencingTable, "Id", new TypeInfo(typeof(int)));
-      var fkColumn = new ColumnInfo(referencingTable, "foreignId", new TypeInfo(typeof(int?)));
-      var fkColumn2 = new ColumnInfo(referencingTable, "invalideForeignId", new TypeInfo(typeof(string)));
+      var pkColumn = new ColumnInfo(referencingTable, "Id", new TypeInfo(typeof (int)));
+      var fkColumn = new ColumnInfo(referencingTable, "foreignId", new TypeInfo(typeof (int?)));
+      var fkColumn2 = new ColumnInfo(referencingTable, "invalideForeignId", new TypeInfo(typeof (string)));
       var primaryKey = new PrimaryIndexInfo(referencingTable, "PK1");
       new KeyColumnRef(primaryKey, pkColumn);
       referencingIndex = new SecondaryIndexInfo(referencingTable, "FK");
@@ -42,7 +42,7 @@ namespace Xtensive.Indexing.Tests.Storage
       primaryKey.PopulateValueColumns();
 
       referencedTable = new TableInfo(storage, "referencedTable");
-      pkColumn = new ColumnInfo(referencedTable, "Id", new TypeInfo(typeof(int)));
+      pkColumn = new ColumnInfo(referencedTable, "Id", new TypeInfo(typeof (int)));
       foreignPrimary = new PrimaryIndexInfo(referencedTable, "Id");
       new KeyColumnRef(foreignPrimary, pkColumn);
     }
@@ -53,12 +53,12 @@ namespace Xtensive.Indexing.Tests.Storage
       storage.Validate();
 
       var foreignKey = new ForeignKeyInfo(referencingTable, "ForeignKey");
-      AssertEx.Throws<DomainBuilderException>(foreignKey.Validate);
+      AssertEx.Throws<AggregateException>(foreignKey.Validate);
       foreignKey.PrimaryKey = foreignPrimary;
-      AssertEx.Throws<DomainBuilderException>(foreignKey.Validate);
+      AssertEx.Throws<AggregateException>(foreignKey.Validate);
 
       foreignKey.ForeignKeyColumns.Set(invalideReferencingIndex);
-      AssertEx.Throws<DomainBuilderException>(foreignKey.Validate);
+      AssertEx.Throws<AggregateException>(foreignKey.Validate);
       foreignKey.ForeignKeyColumns.Set(referencingIndex);
       foreignKey.Validate();
     }

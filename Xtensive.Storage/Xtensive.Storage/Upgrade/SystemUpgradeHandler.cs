@@ -9,10 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Upgrade.Hints;
 using M=Xtensive.Storage.Metadata;
+
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -62,7 +64,6 @@ namespace Xtensive.Storage.Upgrade
     /// </summary>
     protected override void UpdateMetadata()
     {
-      var context = UpgradeContext.Current;
       if (Assembly==Assembly.GetExecutingAssembly()) {
         // We're in Xtensive.Storage upgrade handler
         UpdateAssemblies();
@@ -102,23 +103,20 @@ namespace Xtensive.Storage.Upgrade
       var typeNameProvider = 
         buildingContext.BuilderConfiguration.TypeNameProvider ?? (t => t.FullName);
 
-      var types = Query<M.Type>.All.ToArray();
-      var typeByName = new Dictionary<string, M.Type>();
-      foreach (var type in types)
-        typeByName.Add(type.Name, type);
-
-      foreach (var hint in context.Hints) {
-        var trh = hint as RenameTypeHint;
-        if (trh!=null) {
-          if (!typeByName.ContainsKey(trh.OldName))
-            throw new DomainBuilderException(string.Format(
-              Strings.ExTypeWithNameXIsNotFoundInMetadata, trh.OldName));
-          var newName = typeNameProvider.Invoke(trh.TargetType);
-          typeByName[trh.OldName].Name = newName;
-          // Session.Current.Persist();
-          Log.Info(Strings.LogMetadataTypeRenamedXToY, trh.OldName, newName);
-        }
+      var typeByName = Query<M.Type>.All.ToDictionary(type => type.Name);
+      var renamedTypes = new Dictionary<int, string>();
+      foreach (var hint in context.Hints.OfType<RenameTypeHint>()) {
+        M.Type type;
+        if (!typeByName.TryGetValue(hint.OldName, out type))
+          throw new DomainBuilderException(string.Format(
+              Strings.ExTypeWithNameXIsNotFoundInMetadata, hint.OldName));
+        var newName = typeNameProvider.Invoke(hint.TargetType);
+        renamedTypes.Add(type.Id, newName);
+        Log.Info(Strings.LogMetadataTypeRenamedXToY, hint.OldName, newName);
+        type.Remove();
       }
+      Session.Current.Persist();
+      renamedTypes.Apply(idNamePair => new M.Type(idNamePair.Key, idNamePair.Value));
     }
 
     private Pair<IUpgradeHandler, M.Assembly>[] GetAssemblies()

@@ -16,7 +16,7 @@ using System.Linq;
 namespace Xtensive.Modelling.Actions
 {
   /// <summary>
-  /// Describes node creation.
+  /// Any kinds of node movement (parent changed, name changed or index changed).
   /// </summary>
   [Serializable]
   public class MoveNodeAction : NodeAction
@@ -26,6 +26,9 @@ namespace Xtensive.Modelling.Actions
     private int? index;
     private string newPath;
 
+    /// <summary>
+    /// Gets or sets the node parent path.
+    /// </summary>
     public string Parent {
       get { return parent; }
       set {
@@ -34,6 +37,9 @@ namespace Xtensive.Modelling.Actions
       }
     }
 
+    /// <summary>
+    /// Gets or sets the node name.
+    /// </summary>
     public string Name {
       get { return name; }
       set {
@@ -42,6 +48,9 @@ namespace Xtensive.Modelling.Actions
       }
     }
 
+    /// <summary>
+    /// Gets or sets the node index.
+    /// </summary>
     public int? Index {
       get { return index; }
       set {
@@ -50,6 +59,10 @@ namespace Xtensive.Modelling.Actions
       }
     }
 
+    /// <summary>
+    /// Gets or sets the new node path.
+    /// </summary>
+    /// <value>The new path.</value>
     public string NewPath {
       get { return newPath; }
       set {

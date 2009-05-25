@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Tests.Indexing
       new ColumnInfo(table, "c1", new TypeInfo(typeof(string)));
       new ColumnInfo(table, "c2", new TypeInfo(typeof(string)));
 
-      AssertEx.Throws<DomainBuilderException>(index.Validate);
+      AssertEx.Throws<AggregateException>(index.Validate);
     }
 
     [Test]
@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Tests.Indexing
       var col = new ColumnInfo(table, "c2", new TypeInfo(typeof (string), true));
       new KeyColumnRef(index, col, Direction.Positive);
 
-      AssertEx.Throws<DomainBuilderException>(index.Validate);
+      AssertEx.Throws<AggregateException>(index.Validate);
     }
 
     [Test]
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Tests.Indexing
       new KeyColumnRef(index, column, Direction.Positive);
       new ValueColumnRef(index, column);
 
-      AssertEx.Throws<DomainBuilderException>(index.Validate);
+      AssertEx.Throws<AggregateException>(index.Validate);
     }
 
     [Test]
@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Tests.Indexing
       new KeyColumnRef(index, new ColumnInfo(table, "key"), Direction.Positive);
       new ColumnInfo(table, "col");
 
-      AssertEx.Throws<DomainBuilderException>(index.Validate);
+      AssertEx.Throws<AggregateException>(index.Validate);
     }
 
     [Test]
@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Tests.Indexing
       new ValueColumnRef(index, value);
       new ValueColumnRef(index, value);
 
-      AssertEx.Throws<DomainBuilderException>(index.Validate);
+      AssertEx.Throws<AggregateException>(index.Validate);
     }
 
     [Test]
@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Tests.Indexing
       new KeyColumnRef(index, key, Direction.Positive);
       new ValueColumnRef(index, value);
 
-      AssertEx.Throws<DomainBuilderException>(index.Validate);
+      AssertEx.Throws<AggregateException>(index.Validate);
     }
 
 

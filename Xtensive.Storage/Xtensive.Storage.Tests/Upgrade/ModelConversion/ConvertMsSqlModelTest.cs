@@ -5,8 +5,6 @@
 // Created:    2009.04.23
 
 using NUnit.Framework;
-using Xtensive.Storage.Indexing.Model;
-using Xtensive.Storage.Tests.Indexing;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
@@ -16,7 +14,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     [SetUp]
     public override void SetUp()
     {
-      BuildDomain("mssql2005");
+      Schema = BuildDomain("mssql2005").ExtractedSchema;
     }
   }
 }

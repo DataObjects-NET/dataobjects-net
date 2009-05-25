@@ -97,19 +97,5 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
     }
-
-//    [Test]
-//    public void DenyBlockUpgradeTest()
-//    {
-//      ClearSchema();
-//      AssertEx.Throws<DomainBuilderException>(
-//        () => BuildDomain(DomainBuildMode.BlockUpgrade));
-//    }
-
-//    private void ClearSchema()
-//    {
-//      DomainConfiguration configuration = DomainConfigurationFactory.Create("mssql2005");
-//      DomainBuilder.ClearStorageSchema(configuration);
-//    }
   }
 }

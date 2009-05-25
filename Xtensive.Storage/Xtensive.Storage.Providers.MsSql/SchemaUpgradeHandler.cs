@@ -88,12 +88,12 @@ namespace Xtensive.Storage.Providers.MsSql
         valueTypeMapper.BuildSqlValueType,
         sourceSchema, targetSchema);
 
-      var preupgradeCommands = translator.PreUpgradeCommands;
-      var commands = translator.UpgradeCommands;
       var delimiter = Connection.Driver.Translator.BatchStatementDelimiter;
       var batch = new List<string>();
-      batch.Add(string.Join(delimiter, preupgradeCommands.ToArray()));
-      batch.Add(string.Join(delimiter, commands.ToArray()));
+      batch.Add(string.Join(delimiter, translator.PreUpgradeCommands.ToArray()));
+      batch.Add(string.Join(delimiter, translator.UpgradeCommands.ToArray()));
+      batch.Add(string.Join(delimiter, translator.DataManipulateCommands.ToArray()));
+      batch.Add(string.Join(delimiter, translator.PostUpgradeCommands.ToArray()));
 
       return batch;
     }

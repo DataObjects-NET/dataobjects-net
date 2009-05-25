@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Modelling;
 
 namespace Xtensive.Storage.Indexing.Model
 {
@@ -13,7 +14,8 @@ namespace Xtensive.Storage.Indexing.Model
   /// A collection of <see cref="ValueColumnRef"/> instances.
   /// </summary>
   [Serializable]
-  public sealed class ValueColumnRefCollection : NodeCollectionBase<ValueColumnRef, PrimaryIndexInfo>
+  public sealed class ValueColumnRefCollection : NodeCollectionBase<ValueColumnRef, PrimaryIndexInfo>,
+    IUnorderedNodeCollection
   {
     // Constructors
 

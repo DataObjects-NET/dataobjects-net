@@ -42,7 +42,11 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly SqlDriver driver;
     private readonly List<string> preUpgradeCommands = new List<string>();
     private readonly List<string> upgradeCommands = new List<string>();
+    private readonly List<string> dataManipulateCommands = new List<string>();
+    private readonly List<string> postUpgradeCommands = new List<string>();
+    
     private readonly List<Table> createdTables = new List<Table>();
+    private UpgradeStage stage;
     private bool translated;
 
     private bool IsSequencesAllowed
@@ -77,18 +81,65 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
+    /// <summary>
+    /// Gets the data manipulate commands.
+    /// </summary>
+    public List<string> DataManipulateCommands
+    {
+      get
+      {
+        if (!translated)
+          Translate();
+        return dataManipulateCommands;
+      }
+    }
+
+    /// <summary>
+    /// Gets the post upgrade commands, thats
+    /// must be executed after data manipulate commands.
+    /// </summary>
+    public List<string> PostUpgradeCommands
+    {
+      get
+      {
+        if (!translated)
+          Translate();
+        return postUpgradeCommands;
+      }
+    }
+
     private void Translate()
     {
-      // Cleanup
-      var cleanup = actions.OfType<GroupingNodeAction>()
-        .FirstOrDefault(ga => ga.Comment=="Cleanup");
-      if (cleanup!=null)
-        VisitAction(cleanup);
-      // Upgrade
+      // Prepairing
+      stage = UpgradeStage.Prepare;
+      var prepare = actions.OfType<GroupingNodeAction>()
+        .FirstOrDefault(ga => ga.Comment==UpgradeStage.Prepare.ToString());
+      if (prepare!=null)
+        VisitAction(prepare);
+      // Mutual rename
+      stage = UpgradeStage.CyclicRename;
+      var cycleRename = actions.OfType<GroupingNodeAction>()
+        .FirstOrDefault(ga => ga.Comment==UpgradeStage.CyclicRename.ToString());
+      if (cycleRename!=null)
+        VisitAction(cycleRename);
+      // Upgrading
+      stage = UpgradeStage.Upgrade;
       var upgrade = actions.OfType<GroupingNodeAction>()
-        .FirstOrDefault(ga => ga.Comment=="Upgrade");
+        .FirstOrDefault(ga => ga.Comment==UpgradeStage.Upgrade.ToString());
       if (upgrade!=null)
         VisitAction(upgrade);
+      // Data manipulating
+      stage = UpgradeStage.DataManipulate;
+      var dataManipulate = actions.OfType<GroupingNodeAction>()
+        .FirstOrDefault(ga => ga.Comment==UpgradeStage.DataManipulate.ToString());
+      if (dataManipulate!=null)
+        VisitAction(dataManipulate);
+      // Cleanup
+      stage = UpgradeStage.Cleanup;
+      var cleanup = actions.OfType<GroupingNodeAction>()
+        .FirstOrDefault(ga => ga.Comment==UpgradeStage.Cleanup.ToString());
+      if (cleanup!=null)
+        VisitAction(cleanup);
       
       translated = true;
     }
@@ -102,6 +153,8 @@ namespace Xtensive.Storage.Providers.Sql
         VisitCreateAction(action as CreateNodeAction);
       else if (action is RemoveNodeAction)
         VisitRemoveAction(action as RemoveNodeAction);
+      else if (action is CopyDataAction)
+        VisitCopyDataAction(action as CopyDataAction);
       else
         VisitAlterAction(action);
     }
@@ -164,6 +217,33 @@ namespace Xtensive.Storage.Providers.Sql
         VisitAlterSecondaryIndexAction(moveNodeAction);
       else if (node.GetType()==typeof (ForeignKeyInfo))
         VisitAlterForeignKeyAction(moveNodeAction);
+    }
+
+    private void VisitCopyDataAction(CopyDataAction action)
+    {
+      var fromColumnInfo = sourceModel.Resolve(action.Path) as ColumnInfo;
+      var toColumnInfo = targetModel.Resolve(action.NewPath) as ColumnInfo;
+      var identityPairs = action.Parameters
+        .Select(copyParameter=>new Pair<ColumnInfo>(
+          sourceModel.Resolve(copyParameter.SourcePath) as ColumnInfo, 
+           sourceModel.Resolve(copyParameter.TargetPath) as ColumnInfo)).ToArray();
+      
+      var fromTable = SqlFactory.TableRef(FindTable(fromColumnInfo.Parent.Name));
+      var toTable = SqlFactory.TableRef(FindTable(toColumnInfo.Parent.Name));
+
+      var select = SqlFactory.Select(fromTable);
+      select.Columns.Add(fromTable[fromColumnInfo.Name]);
+      foreach (var identityColumns in identityPairs)
+        select.Columns.Add(fromTable[identityColumns.First.Name]);
+      var selectRef = SqlFactory.QueryRef(select, "th");
+      
+      var update = SqlFactory.Update(toTable);
+      update.Values[toTable[toColumnInfo.Name]] = selectRef[fromColumnInfo.Name];
+      update.From = selectRef;
+      foreach (var identityColumns in identityPairs)
+        update.Where = toTable[identityColumns.Second.Name]==selectRef[identityColumns.First.Name];  
+      
+      RegisterCommand(update);
     }
 
     # region Visit concrete action methods
@@ -597,15 +677,29 @@ namespace Xtensive.Storage.Providers.Sql
     
     private void RegisterCommand(ISqlCompileUnit command)
     {
-      upgradeCommands.Add(driver.Compile(command).GetCommandText());
+      var commandText = driver.Compile(command).GetCommandText();
+      switch (stage) {
+        case UpgradeStage.Prepare:
+        case UpgradeStage.CyclicRename:
+          preUpgradeCommands.Add(commandText);
+          break;
+        case UpgradeStage.Upgrade:
+          upgradeCommands.Add(commandText);
+          break;
+        case UpgradeStage.DataManipulate:
+          dataManipulateCommands.Add(commandText);
+          break;
+        case UpgradeStage.Cleanup:
+          postUpgradeCommands.Add(commandText);
+          break;
+      }
     }
 
     private void RegisterPreCommand(ISqlCompileUnit command)
     {
       preUpgradeCommands.Add(driver.Compile(command).GetCommandText());
     }
-
-
+    
     private long? GetCurrentSequenceValue(string sequenceInfoName)
     {
       var sequenceInfo = sourceModel.Sequences.FirstOrDefault(si => si.Name==sequenceInfoName);

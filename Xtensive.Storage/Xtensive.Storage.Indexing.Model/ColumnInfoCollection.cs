@@ -14,7 +14,8 @@ namespace Xtensive.Storage.Indexing.Model
   /// Column collection.
   /// </summary>
   [Serializable]
-  public sealed class ColumnInfoCollection : NodeCollectionBase<ColumnInfo, TableInfo>
+  public sealed class ColumnInfoCollection : NodeCollectionBase<ColumnInfo, TableInfo>,
+    IUnorderedNodeCollection
   {
     // Constructors
 

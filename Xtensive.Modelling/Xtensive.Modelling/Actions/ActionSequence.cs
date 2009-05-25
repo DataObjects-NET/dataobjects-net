@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Modelling.Actions
 {
@@ -108,11 +109,13 @@ namespace Xtensive.Modelling.Actions
 
     #region IEnumerable<...> methods
 
+    /// <inheritdoc/>
     public IEnumerator<NodeAction> GetEnumerator()
     {
       return actions.GetEnumerator();
     }
 
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return actions.GetEnumerator();
@@ -132,6 +135,9 @@ namespace Xtensive.Modelling.Actions
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public ActionSequence()
     {
     }

@@ -17,23 +17,39 @@ namespace Xtensive.Modelling.Tests
   [TestFixture]
   public class IndexingModelTest
   {
+    [Test]
+    public void SimpleTest()
+    {
+      var storage = CreateSimpleStorageModel();
+      TestUpdate(storage, (s1, s2, hs) => { },
+        (diff, actions) => Assert.IsNull(diff));
+    }
 
     [Test]
     public void MutualRenameTest()
     {
       var storage = CreateSimpleStorageModel();
-      storage.Dump();
-
       TestUpdate(storage, (s1, s2, hs) => {
-        var t2 = (TableInfo) s2.Resolve("Tables/Types");
-        t2.Name = "Temp";
-        var o2 = (TableInfo) s2.Resolve("Tables/Objects");
-        o2.Name = "Types";
-        t2.Name = "Objects";
-        hs.Add(new RenameHint(t2.Path, o2.Path));
-        hs.Add(new RenameHint(o2.Path, t2.Path));
+        var oldTTypes = s1.Tables["Types"];
+        var oldCValue = oldTTypes.Columns["Value"];
+        var oldCData = oldTTypes.Columns["Data"];
+        var oldTObjects = s1.Tables["Objects"];
+        var newTTypes = s2.Tables["Types"];
+        var newCValue = newTTypes.Columns["Value"];
+        var newCData = newTTypes.Columns["Data"];
+        var newTObjects = s2.Tables["Objects"];
+        newCValue.Name = "Temp";
+        newCData.Name = "Value";
+        newCValue.Name = "Data";
+        newTTypes.Name = "Temp";
+        newTObjects.Name = "Types";
+        newTTypes.Name = "Objects";
+        hs.Add(new RenameHint(oldCData.Path, newCData.Path));
+        hs.Add(new RenameHint(oldCValue.Path, newCValue.Path));
+        hs.Add(new RenameHint(oldTTypes.Path, newTTypes.Path));
+        hs.Add(new RenameHint(oldTObjects.Path, newTObjects.Path));
       },
-      (diff, actions) => { });
+        (diff, actions) => { });
     }
 
     [Test]
@@ -70,6 +86,40 @@ namespace Xtensive.Modelling.Tests
             .Flatten()
             .OfType<RemoveNodeAction>()
             .Any(a => a.Path=="Tables/Objects/ForeignKeys/FK_TypeId")));
+    }
+
+    [Test]
+    public void RemoveDependentPropertyTest3()
+    {
+      var storage = CreateSimpleStorageModel();
+      storage.Dump();
+
+      TestUpdate(storage, (s1, s2, hs) => {
+        var t1 = (TableInfo) s2.Resolve("Tables/Types");
+        t1.Columns["Value"].Name = "NewValue";
+        RepopulateValueColumns(s2, "Types");
+      },
+        (diff, actions) => Assert.IsTrue(
+          actions
+            .Flatten()
+            .OfType<RemoveNodeAction>()
+            .Any(a => a.Path=="Tables/Objects/ForeignKeys/FK_TypeId")));
+    }
+
+    [Test]
+    public void RemoveDependentPropertyTest4()
+    {
+      var storage = CreateSimpleStorageModel();
+      storage.Dump();
+
+      TestUpdate(storage, (s1, s2, hs) => {
+        var t1 = (TableInfo) s2.Resolve("Tables/Objects");
+        var c1 = t1.Columns["TypeId"];
+        var oldPath = c1.Path;
+        c1.Name = "NewTypeId";
+        hs.Add(new RenameHint(oldPath, c1.Path));
+      },
+      (diff, actions) => { });
     }
 
     [Test]
@@ -136,7 +186,102 @@ namespace Xtensive.Modelling.Tests
       });
     }
 
-    public static StorageInfo CreateSimpleStorageModel()
+    [Test]
+    public void MoveColumnTest()
+    {
+      var storage = CreateSimpleStorageModel();
+      TestUpdate(storage, (s1, s2, hs) => {
+        new ColumnInfo(s1.Tables["Types"], "ColumnToRemove", new TypeInfo(typeof (int)));
+        var oldColumn = s1.Tables["Types"].Columns["Data"];
+        ((Node) s2.Resolve(oldColumn.Path)).Remove();
+        var newColumn = new ColumnInfo(s2.Tables["Objects"], "Data", oldColumn.Type);
+        RepopulateValueColumns(s1, "Types");
+        RepopulateValueColumns(s2, "Types");
+        RepopulateValueColumns(s2, "Objects");
+
+        hs.Add(new CopyHint(oldColumn.Path, newColumn.Path,
+          new[] {new CopyParameter(oldColumn.Path, newColumn.Path)}));
+      },
+        (diff, actions) => { });
+    }
+
+    [Test]
+    public void MoveColumnFromRemovedTableTest()
+    {
+      var storage = CreateSimpleStorageModel();
+      TestUpdate(storage, (s1, s2, hs) => {
+        var oldColumn = s1.Tables["Types"].Columns["Data"];
+        s2.Tables["Objects"].ForeignKeys.Clear();
+        s2.Tables["Types"].Remove();
+        var newColumn = new ColumnInfo(s2.Tables["Objects"], "Data", oldColumn.Type);
+        RepopulateValueColumns(s1, "Types");
+        RepopulateValueColumns(s2, "Objects");
+
+        hs.Add(new CopyHint(oldColumn.Path, newColumn.Path,
+          new[] {new CopyParameter(oldColumn.Path, newColumn.Path)}));
+      },
+        (diff, actions) => { });
+    }
+
+    [Test]
+    public void MoveColumnFromRemovedTableToRenamedTableTest()
+    {
+      var storage = CreateSimpleStorageModel();
+      TestUpdate(storage, (s1, s2, hs) => {
+        var oldColumn = s1.Tables["Types"].Columns["Data"];
+        s2.Tables["Objects"].ForeignKeys.Clear();
+        s2.Tables["Types"].Remove();
+        s2.Tables["Objects"].Name = "NewObjects";
+        var newColumn = new ColumnInfo(s2.Tables["NewObjects"], "NewData", oldColumn.Type);
+        RepopulateValueColumns(s1, "Types");
+        RepopulateValueColumns(s2, "NewObjects");
+
+        hs.Add(new RenameHint(s1.Tables["Objects"].Path, s2.Tables["NewObjects"].Path));
+        hs.Add(new CopyHint(oldColumn.Path, newColumn.Path,
+          new[] {new CopyParameter(oldColumn.Path, newColumn.Path)}));
+      },
+        (diff, actions) => { });
+    }
+
+    [Test]
+    public void ChangeColumnTypeTest()
+    {
+      var storage = CreateSimpleStorageModel();
+      TestUpdate(storage, (s1, s2, hs) => {
+        var column = s2.Tables["Types"].Columns["Value"];
+        column.Type = new TypeInfo(typeof (int));
+      },
+        (diff, actions) => { });
+    }
+
+    [Test]
+    public void ComplexTest()
+    {
+      var storage = CreateSimpleStorageModel();
+      TestUpdate(storage, (s1, s2, hs) => {
+        var oldColumn = s1.Tables["Types"].Columns["Data"];
+        s2.Tables["Types"].Remove();
+        s2.Tables["Objects"].ForeignKeys[0].Remove();
+        s2.Tables["Objects"].Name = "NewObjects";
+        s2.Tables["NewObjects"].Columns["Id"].Name = "NewId";
+        var newColumn = new ColumnInfo(s2.Tables["NewObjects"], "NewData", oldColumn.Type);
+        s2.Tables["NewObjects"].PrimaryIndex.ValueColumns.Clear();
+        s2.Tables["NewObjects"].PrimaryIndex.PopulateValueColumns();
+
+        hs.Add(new RenameHint(s1.Tables["Objects"].Path,
+          s2.Tables["NewObjects"].Path));
+        hs.Add(new RenameHint(s1.Tables["Objects"].Columns["Id"].Path,
+          s2.Tables["NewObjects"].Columns["NewId"].Path));
+        hs.Add(new CopyHint(oldColumn.Path, newColumn.Path,
+          new[] {
+            new CopyParameter(s1.Tables["Types"].Columns["Id"].Path,
+              s2.Tables["NewObjects"].Columns["NewId"].Path)
+          }));
+      },
+        (diff, actions) => { });
+    }
+
+    private static StorageInfo CreateSimpleStorageModel()
     {
       var storage = new StorageInfo("Storage");
       
@@ -195,6 +340,13 @@ namespace Xtensive.Modelling.Tests
     }
 
     #region Private methods
+
+    private static void RepopulateValueColumns(StorageInfo model, string tableName)
+    {
+      var pk = model.Tables[tableName].PrimaryIndex;
+      pk.ValueColumns.Clear();
+      pk.PopulateValueColumns();
+    }
 
     private static void TestUpdate(StorageInfo origin, Action<StorageInfo, StorageInfo, HintSet> mutator, Action<Difference, ActionSequence> validator)
     {

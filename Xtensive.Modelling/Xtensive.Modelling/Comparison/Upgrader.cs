@@ -63,6 +63,11 @@ namespace Xtensive.Modelling.Comparison
     protected internal UpgradeStage Stage { get; private set; }
 
     /// <summary>
+    /// Gets the temporary renames.
+    /// </summary>
+    protected Dictionary<string, Node> TemporaryRenames { get; private set; }
+
+    /// <summary>
     /// Gets the source model to compare.
     /// </summary>
     protected IModel SourceModel { get; private set; }
@@ -84,18 +89,22 @@ namespace Xtensive.Modelling.Comparison
     /// is out of range.</exception>
     public ReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints)
     {
-      return GetUpgradeSequence(difference, hints);
+      return GetUpgradeSequence(difference, hints, new Comparer());
     }
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentOutOfRangeException"><c>hints.SourceModel</c> or <c>hints.TargetModel</c>
     /// is out of range.</exception>
     /// <exception cref="InvalidOperationException">Upgrade sequence validation has failed.</exception>
-    public ReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints, Comparer comparer)
+    public ReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints, IComparer comparer)
     {
-      ArgumentValidator.EnsureArgumentNotNull(difference, "difference");
+      // ArgumentValidator.EnsureArgumentNotNull(difference, "difference");
       ArgumentValidator.EnsureArgumentNotNull(hints, "hints");
       ArgumentValidator.EnsureArgumentNotNull(comparer, "comparer");
+      if (difference == null)
+        return new ReadOnlyList<NodeAction>(new List<NodeAction>());
+
+      TemporaryRenames = new Dictionary<string, Node>();
       SourceModel = (IModel) difference.Source;
       TargetModel = (IModel) difference.Target;
       Hints = hints ?? new HintSet(SourceModel, TargetModel);
@@ -109,24 +118,12 @@ namespace Xtensive.Modelling.Comparison
       current = this;
       using (NullActionHandler.Instance.Activate()) {
         try {
-          Stage = UpgradeStage.Cleanup;
-          var cleanupActions = Visit(Difference);
-//          // TODO: remove
-//          Log.Info(Strings.LogItemFormat+"\r\n{1}", "Cleanup actions", 
-//            new ActionSequence() {cleanupActions});
-          UpdateHints();
-          Difference postCleanupDiff = comparer.Compare(CurrentModel, TargetModel, Hints);
-//          // TODO: remove
-//          Log.Info(Strings.LogItemFormat, "Intermediate difference");
-//          // TODO: remove
-//          Log.Info("{0}", postCleanupDiff);
-          Stage = UpgradeStage.Upgrade;
-          var upgradeActions = Visit(postCleanupDiff);
           var actions = new GroupingNodeAction();
-          if (cleanupActions != null)
-            actions.Add(cleanupActions);
-          if (upgradeActions != null)
-            actions.Add(upgradeActions);
+          ProcessStage(UpgradeStage.Prepare, comparer, actions);
+          ProcessStage(UpgradeStage.CyclicRename, comparer, actions);
+          ProcessStage(UpgradeStage.Upgrade, comparer, actions);
+          ProcessStage(UpgradeStage.DataManipulate, comparer, actions);
+          ProcessStage(UpgradeStage.Cleanup, comparer, actions);
           var diff = comparer.Compare(CurrentModel, TargetModel);
           if (diff!=null) {
             Log.InfoRegion(Strings.LogAutomaticUpgradeSequenceValidation);
@@ -147,6 +144,24 @@ namespace Xtensive.Modelling.Comparison
           current = previous;
         }
       }
+    }
+
+    /// <summary>
+    /// Generate actions for specific <see cref="UpgradeStage"/>.
+    /// </summary>
+    /// <param name="stage">The stage.</param>
+    /// <param name="comparer">The comparer.</param>
+    /// <param name="action">The parent action.</param>
+    protected void ProcessStage(UpgradeStage stage, IComparer comparer, GroupingNodeAction action)
+    {
+      Stage = stage;
+      if (stage==UpgradeStage.Upgrade) {
+        UpdateHints();
+        Difference = comparer.Compare(CurrentModel, TargetModel, Hints);
+      }
+      var stageActions = Visit(Difference);
+      if (stageActions!=null)
+        action.Add(stageActions);
     }
 
     /// <summary>
@@ -189,58 +204,117 @@ namespace Xtensive.Modelling.Comparison
     /// </returns>
     protected virtual void VisitNodeDifference(NodeDifference difference)
     {
-      var source = difference.Source;
-      var target = difference.Target;
-      var any = target ?? source;
-      var isCleanup = Stage==UpgradeStage.Cleanup;
-      bool isImmutable = Context.IsImmutable;
-      
-      using (OpenActionGroup(string.Format(NodeGroupComment, (target ?? source).Name))) {
-        // Processing movement
-        if (isCleanup) {
-          bool bRemoveSource = (difference.MovementInfo & MovementInfo.Removed)!=0;
-          bool bRemoveTarget =
-            !bRemoveSource
-              && isImmutable
-              && difference.HasChanges
-              && (difference.MovementInfo & MovementInfo.Created)==0;
-          ProcessProperties(difference, isImmutable, true, any);
-          if (bRemoveSource || bRemoveTarget) {
-            AddAction(UpgradeActionType.PreCondition, 
-              new RemoveNodeAction() {
-                Path = (source ?? target).Path
-              });
-          }
+      var any = difference.Target ?? difference.Source;
+      var isInvertUpgrade =
+        Stage==UpgradeStage.Prepare
+          || Stage==UpgradeStage.Cleanup
+            || Stage==UpgradeStage.CyclicRename;
+
+      using (OpenActionGroup(string.Format(NodeGroupComment, any.Name))) {
+        if (isInvertUpgrade) {
+          ProcessProperties(difference);
+          if (IsAllowedForCurrentStage(difference))
+            ProcessMovement(difference);
         }
         else {
-          if (target==null)
-            return;
-          if ((difference.MovementInfo & MovementInfo.Created)!=0) {
-            var action = new CreateNodeAction() {
-              Path = target.Parent==null ? string.Empty : target.Parent.Path,
-              Type = target.GetType(),
-              Name = target.Name,
-              Index = target.Nesting.IsNestedToCollection ? (int?) target.Index : null
-            };
-            AddAction(UpgradeActionType.PostCondition, action);
-          }
-          else if ((difference.MovementInfo & MovementInfo.Changed)!=0) {
-            var action = new MoveNodeAction() {
-              Path = source.Path,
-              Parent = target.Parent==null ? string.Empty : target.Parent.Path,
-              Name = target.Name,
-              Index = target.Index,
-              NewPath = target.Path
-            };
-            AddAction(UpgradeActionType.PostCondition, action);
-          }
-          ProcessProperties(difference, isImmutable, false, any);
+          if (IsAllowedForCurrentStage(difference))
+            ProcessMovement(difference);
+          ProcessProperties(difference);
         }
       }
     }
 
-    protected virtual void ProcessProperties(NodeDifference difference, bool isImmutable, bool isCleanup, Node any)
+    /// <summary>
+    /// Generates <see cref="NodeAction"/> according to <see cref="NodeDifference.MovementInfo"/>.
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    protected virtual void ProcessMovement(NodeDifference difference)
     {
+      var source = difference.Source;
+      var target = difference.Target;
+      var any = target ?? source;
+      var isImmutable = Context.IsImmutable;
+      var bRemoveSource = (difference.MovementInfo & MovementInfo.Removed)!=0;
+      var isChanged = (difference.MovementInfo & MovementInfo.Changed)!=0;
+      var isRemoved = (difference.MovementInfo & MovementInfo.Removed)!=0;
+      var isCopied = (difference.MovementInfo & MovementInfo.Copied)!=0;
+      var isCreated = (difference.MovementInfo & MovementInfo.Created)!=0;
+      var isNameChanged = (difference.MovementInfo & MovementInfo.NameChanged)!=0;
+      var bRemoveTarget =
+        !bRemoveSource
+          && isImmutable
+            && difference.HasChanges
+              && (difference.MovementInfo & MovementInfo.Created)==0;
+
+      switch (Stage) {
+      case UpgradeStage.Prepare:
+      case UpgradeStage.Cleanup:
+        if ((bRemoveSource || bRemoveTarget)
+          && (!Context.IsRemoved || difference.IsDependentOnParent)) {
+          AddAction(UpgradeActionType.PreCondition,
+            new RemoveNodeAction() {
+              Path = (source ?? target).Path
+            });
+        }
+        break;
+      case UpgradeStage.CyclicRename:
+        TemporaryRenames.Add(source.Path, CurrentModel.Resolve(source.Path) as Node);
+        AddAction(UpgradeActionType.Rename,
+          new MoveNodeAction() {
+            Path = source.Path,
+            Parent = source.Parent==null ? string.Empty : source.Parent.Path,
+            Name = GetTemporaryName(source),
+            Index = source.Index,
+            NewPath = GetTemporaryPath(source)
+          });
+        break;
+      case UpgradeStage.Upgrade:
+        if (target==null)
+          break;
+        if (isCreated) {
+          var action = new CreateNodeAction() {
+            Path = target.Parent==null ? string.Empty : target.Parent.Path,
+            Type = target.GetType(),
+            Name = target.Name,
+            Index = target.Nesting.IsNestedToCollection ? (int?) target.Index : null
+          };
+          AddAction(UpgradeActionType.PostCondition, action);
+        }
+        else if (isChanged) {
+          var action = new MoveNodeAction() {
+            Path = source.Path,
+            Parent = target.Parent==null ? string.Empty : target.Parent.Path,
+            Name = target.Name,
+            Index = target.Index,
+            NewPath = target.Path
+          };
+          AddAction(UpgradeActionType.PostCondition, action);
+        }
+        break;
+      case UpgradeStage.DataManipulate:
+        if (isCopied) {
+          var hint = Hints.GetHint<CopyHint>(source);
+          var action = new CopyDataAction() {
+            Path = source.Path,
+            NewPath = hint.TargetPath,
+          };
+          action.Parameters.AddRange(hint.CopyParameters);
+          AddAction(UpgradeActionType.Regular, action);
+        }
+        break;
+      }
+    }
+
+    /// <summary>
+    /// Process <see cref="NodeDifference.PropertyChanges"/> for specific <see cref="NodeDifference"/>.
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    protected virtual void ProcessProperties(NodeDifference difference)
+    {
+      var isImmutable = Context.IsImmutable;
+      var isCleanup = Stage==UpgradeStage.Prepare || Stage==UpgradeStage.Cleanup;
+      var any = difference.Target ?? difference.Source;
+
       IEnumerable<KeyValuePair<string, Difference>> propertyChanges = difference.PropertyChanges;
       if (isCleanup)
         propertyChanges = propertyChanges.Reverse();
@@ -251,12 +325,126 @@ namespace Xtensive.Modelling.Comparison
             Context.Property = pair.Key;
             if (isCleanup)
               Context.IsImmutable = IsImmutable(difference, accessor);
+            if ((difference.MovementInfo & MovementInfo.Removed) != 0)
+              Context.IsRemoved = true;
             var dependencyRootType = GetDependencyRootType(difference, accessor);
             if (dependencyRootType!=null)
               Context.DependencyRootType = dependencyRootType;
             Visit(pair.Value);
           }
       }
+    }
+
+    /// <summary>
+    /// Visits the node collection difference.
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    /// <returns>
+    /// A sequence of actions that must be performed to upgrade
+    /// from <see cref="IDifference.Source"/> of the specified
+    /// difference to its <see cref="IDifference.Target"/>.
+    /// </returns>
+    protected virtual void VisitNodeCollectionDifference(NodeCollectionDifference difference)
+    {
+      using (OpenActionGroup(string.Format(NodeCollectionGroupComment, Context.Property))) {
+        foreach (var newDifference in difference.ItemChanges)
+          Visit(newDifference);
+      }
+    }
+
+    /// <summary>
+    /// Visits the value difference.
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    /// <returns>
+    /// A sequence of actions that must be performed to upgrade
+    /// from <see cref="IDifference.Source"/> of the specified
+    /// difference to its <see cref="IDifference.Target"/>.
+    /// </returns>
+    protected virtual void VisitValueDifference(ValueDifference difference)
+    {
+      if (Stage!=UpgradeStage.Upgrade)
+        return;
+
+      var parentContext = Context.Parent;
+      var targetNode = ((NodeDifference) parentContext.Difference).Target;
+      var action = new PropertyChangeAction() {
+        Path = targetNode.Path
+      };
+      action.Properties.Add(parentContext.Property, PathNodeReference.Get(difference.Target));
+      AddAction(UpgradeActionType.PostCondition, action);
+    }
+
+    /// <summary>
+    /// Visits the unknown difference.
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    /// <returns>
+    /// A sequence of actions that must be performed to upgrade
+    /// from <see cref="IDifference.Source"/> of the specified
+    /// difference to its <see cref="IDifference.Target"/>.
+    /// </returns>
+    /// <exception cref="NotSupportedException">Always thrown by this method.</exception>
+    protected virtual void VisitUnknownDifference(Difference difference)
+    {
+      throw new NotSupportedException();
+    }
+
+    /// <summary>
+    /// Determines whether the specified difference allowed for current <see cref="Stage"/>.
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified difference allowed
+    /// for current <see cref="Stage"/>; otherwise, <see langword="false"/>.
+    /// </returns>
+    /// <exception cref="ArgumentOutOfRangeException"><c>Stage</c> is out of range.</exception>
+    protected virtual bool IsAllowedForCurrentStage(NodeDifference difference)
+    {
+      var isRemoved = (difference.MovementInfo & MovementInfo.Removed)!=0;
+      var isCopied = (difference.MovementInfo & MovementInfo.Copied)!=0;
+      var isCreated = (difference.MovementInfo & MovementInfo.Created)!=0;
+      var isNameChanged = (difference.MovementInfo & MovementInfo.NameChanged)!=0;
+      var isImmutable = Context.IsImmutable;
+      var isRemoveOnPrepare =
+        isRemoved && !difference.IsRemoveOnCleanup || (isImmutable && !isCreated);
+
+      switch (Stage) {
+      case UpgradeStage.Prepare:
+        return isRemoveOnPrepare;
+      case UpgradeStage.CyclicRename:
+        return isNameChanged && IsCyclicRename(difference);
+      case UpgradeStage.Upgrade:
+        return !isRemoveOnPrepare && (isCreated || isNameChanged);
+      case UpgradeStage.DataManipulate:
+        return isCopied;
+      case UpgradeStage.Cleanup:
+        return isRemoved && !isRemoveOnPrepare;
+      default:
+        throw new ArgumentOutOfRangeException("Stage");
+      }
+    }
+
+    /// <summary>
+    /// Determines whether is cycle rename detected.
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    /// <returns>
+    /// <see langword="true"/> if is cycle rename exists; otherwise, <see langword="false"/>.
+    /// </returns>
+    protected virtual bool IsCyclicRename(NodeDifference difference)
+    {
+      if ((difference.MovementInfo & MovementInfo.NameChanged)==0
+        || difference.Source==null || difference.Target==null)
+        return false;
+      var source = difference.Source;
+      var target = difference.Target;
+      if (!source.Nesting.IsNestedToCollection)
+        return false;
+      var collection = source.Parent.GetProperty(source.Nesting.PropertyName) as NodeCollection;
+      return collection.Contains(target.Name)
+        || Hints.OfType<RenameHint>()
+          .Any(renameHint => renameHint.TargetPath==source.Path);
     }
 
     /// <summary>
@@ -313,65 +501,23 @@ namespace Xtensive.Modelling.Comparison
     /// Gets the name of the temporary for the renaming node in case of conflict
     /// (mutual rename).
     /// </summary>
-    /// <param name="difference">The difference.</param>
     /// <returns>Temporary node name.</returns>
-    protected virtual string GetTemporaryName(Difference difference)
+    protected virtual string GetTemporaryName(Node node)
     {
-      return string.Format(TemporaryNameFormat, Guid.NewGuid().ToString());
+      return string.Format(TemporaryNameFormat, node.Name);
     }
 
     /// <summary>
-    /// Visits the node collection difference.
+    /// Gets the temporary path.
     /// </summary>
-    /// <param name="difference">The difference.</param>
-    /// <returns>
-    /// A sequence of actions that must be performed to upgrade
-    /// from <see cref="IDifference.Source"/> of the specified
-    /// difference to its <see cref="IDifference.Target"/>.
-    /// </returns>
-    protected virtual void VisitNodeCollectionDifference(NodeCollectionDifference difference)
+    /// <param name="node">The node.</param>
+    /// <returns>Temporary node path.</returns>
+    protected virtual string GetTemporaryPath(Node node)
     {
-      using (OpenActionGroup(string.Format(NodeCollectionGroupComment, Context.Property))) {
-        foreach (var newDifference in difference.ItemChanges)
-          Visit(newDifference);
-      }
-    }
-
-    /// <summary>
-    /// Visits the value difference.
-    /// </summary>
-    /// <param name="difference">The difference.</param>
-    /// <returns>
-    /// A sequence of actions that must be performed to upgrade
-    /// from <see cref="IDifference.Source"/> of the specified
-    /// difference to its <see cref="IDifference.Target"/>.
-    /// </returns>
-    protected virtual void VisitValueDifference(ValueDifference difference)
-    {
-      if (Stage==UpgradeStage.Cleanup)
-        return;
-      var parentContext = Context.Parent;
-      var targetNode = ((NodeDifference) parentContext.Difference).Target;
-      var action = new PropertyChangeAction() {
-        Path = targetNode.Path
-      };
-      action.Properties.Add(parentContext.Property, PathNodeReference.Get(difference.Target));
-      AddAction(UpgradeActionType.PostCondition, action);
-    }
-
-    /// <summary>
-    /// Visits the unknown difference.
-    /// </summary>
-    /// <param name="difference">The difference.</param>
-    /// <returns>
-    /// A sequence of actions that must be performed to upgrade
-    /// from <see cref="IDifference.Source"/> of the specified
-    /// difference to its <see cref="IDifference.Target"/>.
-    /// </returns>
-    /// <exception cref="NotSupportedException">Always thrown by this method.</exception>
-    protected virtual void VisitUnknownDifference(Difference difference)
-    {
-      throw new NotSupportedException();
+      return string.Concat(
+        node.Parent.Path, Node.PathDelimiter,
+        node.Nesting.EscapedPropertyName, Node.PathDelimiter,
+        GetTemporaryName(node));
     }
 
     #region Helper methods
@@ -487,8 +633,15 @@ namespace Xtensive.Modelling.Comparison
     {
       var originalHints = Hints;
       Hints = new HintSet(CurrentModel, TargetModel);
-      foreach (var hint in originalHints)
+      foreach (var hint in originalHints) {
+        var renameHint = hint as RenameHint;
+        Node sourceNode;
+        if (renameHint!=null && TemporaryRenames.TryGetValue(renameHint.SourcePath, out sourceNode)) {
+          Hints.Add(new RenameHint(sourceNode.Path, renameHint.TargetPath));
+          continue;
+        }
         Hints.Add(hint);
+      }
     }
 
     #endregion

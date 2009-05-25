@@ -23,7 +23,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets or sets the type of the column.
     /// </summary>
-    [Property(Priority = -1000)]
+    [Property(Priority = -1000, IsImmutable = true)]
     public TypeInfo Type {
       get { return type; }
       set {

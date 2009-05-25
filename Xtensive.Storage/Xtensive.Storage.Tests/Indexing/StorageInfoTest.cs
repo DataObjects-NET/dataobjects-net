@@ -74,22 +74,22 @@ namespace Xtensive.Storage.Tests.Indexing
     [Test]
     public void StorageLogTest()
     {
-      Xtensive.Indexing.Log.Info("Actions:");
-      Xtensive.Indexing.Log.Info("{0}", storage.Actions);
+      Log.Info("Actions:");
+      Log.Info("{0}", storage.Actions);
     }
 
     [Test]
     public void RemoveReferencedColumnTest()
     {
       column5.Remove();
-      AssertEx.Throws<Exception>(storage.Validate);
+      AssertEx.Throws<AggregateException>(storage.Validate);
     }
 
     [Test]
     public void RemoveReferencedSecondaryIndexTest()
     {
       si2.Remove();
-      AssertEx.Throws<Exception>(storage.Validate);
+      AssertEx.Throws<AggregateException>(storage.Validate);
     }
 
     [TearDown]

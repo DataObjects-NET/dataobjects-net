@@ -66,7 +66,7 @@ namespace Xtensive.Modelling.Comparison
     /// <param name="target">The <see cref="Target"/> value.</param>
     /// <exception cref="InvalidOperationException">Both <paramref name="source"/> and 
     /// <paramref name="target"/> are <see langword="null" />.</exception>
-    public Difference(object source, object target)
+    protected Difference(object source, object target)
     {
       Source = source;
       Target = target;

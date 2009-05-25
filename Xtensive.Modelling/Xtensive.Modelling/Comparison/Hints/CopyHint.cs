@@ -1,22 +1,24 @@
 // Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Alex Yakunin
-// Created:    2009.03.28
+// Created by: Ivan Galkin
+// Created:    2009.05.15
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Modelling.Comparison.Hints
 {
   /// <summary>
-  /// Rename hint.
+  /// Copy hint.
   /// </summary>
   [Serializable]
   [DebuggerDisplay("{SourcePath}, {TargetPath}")]
-  public class RenameHint : Hint
+  public class CopyHint : Hint
   {
     /// <summary>
     /// Gets the source node path.
@@ -27,6 +29,11 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// Gets the target node path.
     /// </summary>
     public string TargetPath { get; private set; }
+
+    /// <summary>
+    /// Gets the copy parameters.
+    /// </summary>
+    public CollectionBaseSlim<CopyParameter> CopyParameters { get; private set; }
 
     /// <inheritdoc/>
     public override IEnumerable<HintTarget> GetTargets()
@@ -43,10 +50,17 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// </summary>
     /// <param name="sourcePath">The source path.</param>
     /// <param name="targetPath">The target path.</param>
-    public RenameHint(string sourcePath, string targetPath)
+    /// <param name="parameters">The parameters.</param>
+    public CopyHint(string sourcePath, string targetPath, 
+      IEnumerable<CopyParameter> parameters)
     {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourcePath, "sourcePath");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(targetPath, "targetPath");
+      ArgumentValidator.EnsureArgumentNotNull(parameters, "parameters");
+
       SourcePath = sourcePath;
       TargetPath = targetPath;
+      CopyParameters = new CollectionBaseSlim<CopyParameter>(parameters);
     }
   }
 }

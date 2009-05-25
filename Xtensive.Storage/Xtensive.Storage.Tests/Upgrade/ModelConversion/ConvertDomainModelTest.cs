@@ -7,30 +7,35 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core.Disposing;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model;
+using Xtensive.Storage.Upgrade;
 using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
+  
   [TestFixture]
   public class ConvertDomainModelTest
   {
-    protected Domain Domain { get; set; }
-    protected StorageInfo Schema { get { return Domain.Schema; } }
-
-    protected void BuildDomain(string protocol)
+    protected StorageInfo Schema { get; set; }
+    
+    protected Domain BuildDomain(string protocol)
     {
       var dc = DomainConfigurationFactory.Create(protocol);
+      dc.UpgradeMode = DomainUpgradeMode.Recreate;
       dc.Types.Register(Assembly.GetExecutingAssembly(), typeof (A).Namespace);
-      Domain  = Domain.Build(dc);
+      return Domain.Build(dc);
     }
     
     [SetUp]
     public virtual void SetUp()
     {
-      BuildDomain("mssql2005");
+      Schema = BuildDomain("mssql2005").Schema;
     }
 
     [Test]
@@ -81,14 +86,6 @@ namespace Xtensive.Storage.Tests.Upgrade
     public void GeneratorsTest()
     {
       Assert.AreEqual(1, Schema.Sequences.Count);
-    }
-
-    private static bool IsGeneratorPersistent(GeneratorInfo generatorInfo)
-    {
-      var isNotPersistent = (generatorInfo.KeyGeneratorType!=typeof (KeyGenerator)
-        || (Type.GetTypeCode(generatorInfo.KeyGeneratorType)==TypeCode.Object
-          && generatorInfo.TupleDescriptor[0]==typeof (Guid)));
-      return !isNotPersistent;
     }
   }
 }

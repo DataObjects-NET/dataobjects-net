@@ -89,6 +89,7 @@ namespace Xtensive.Modelling.Actions
         action.Execute(model);
     }
 
+    /// <inheritdoc/>
     protected override void GetParameters(List<Xtensive.Core.Pair<string>> parameters)
     {
       base.GetParameters(parameters);

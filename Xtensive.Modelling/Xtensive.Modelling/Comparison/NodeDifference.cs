@@ -35,6 +35,18 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     public MovementInfo MovementInfo { get; set; }
 
+    /// <summary>
+    /// Gets or set a value indicating whether source node 
+    /// must be removed on cleanup stage.
+    /// </summary>
+    public bool IsRemoveOnCleanup { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether source node 
+    /// must be removed before his parent.
+    /// </summary>
+    public bool IsDependentOnParent { get; set; }
+
     /// <inheritdoc/>
     public Dictionary<string, Difference> PropertyChanges { get; private set; }
 

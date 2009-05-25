@@ -154,13 +154,15 @@ namespace Xtensive.Storage.Tests.Upgrade
       hints.Add(new RenameHint("Tables/table1/Columns/col4", "Tables/table1/Columns/col5"));
       hints.Add(new RenameHint("Tables/table2", "Tables/table3"));
       hints.Add(new RenameHint("Tables/table2/Columns/col1", "Tables/table3/Columns/col2"));
-
+      
+      var diff = BuildDifference(newModel, ExtractModel(), null);
+      Tests.Log.Info(diff.ToString());
       var actions = Compare(oldModel, newModel, hints);
       Tests.Log.Info(actions.ToString());
       
       UpgradeCurrentSchema(oldModel, newModel, actions);
-      var diff = BuildDifference(newModel, ExtractModel(), null);
-      Assert.IsNull(diff);
+      var postUpgradeDifference = BuildDifference(newModel, ExtractModel(), null);
+      Assert.IsNull(postUpgradeDifference);
     }
 
     [Test]
@@ -171,8 +173,10 @@ namespace Xtensive.Storage.Tests.Upgrade
       Create(oldModel);
       var newModel = BuildNewModel2();
 
-      var hints = new HintSet(oldModel, newModel);
-      hints.Add(new RenameHint("Tables/table2/Columns/col2", "Tables/table1/Columns/col2"));
+      var hints = new HintSet(oldModel, newModel) {
+        new CopyHint("Tables/table2/Columns/col2", "Tables/table1/Columns/col2",
+          new[] {new CopyParameter("Tables/table2/Columns/Id", "Tables/table1/Columns/Id")})
+      };
 
       var actions = Compare(oldModel, newModel, hints);
       Tests.Log.Info(actions.ToString());
@@ -214,7 +218,7 @@ namespace Xtensive.Storage.Tests.Upgrade
         hints = new HintSet(oldModel, newModel);
       var diff = BuildDifference(oldModel, newModel, hints);
       var actions = new ActionSequence() {
-        new Upgrader().GetUpgradeSequence(diff, hints, 
+        new Modelling.Comparison.Upgrader().GetUpgradeSequence(diff, hints, 
           new Comparer())
       };
       return actions;
@@ -244,26 +248,34 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       var manager = new SchemaManager(Url, false);
       var schema = manager.GetStorageSchema();
-      
+
       var provider = new SqlConnectionProvider();
       using (var connection = provider.CreateConnection(Url) as SqlConnection) {
         connection.Open();
-        using (var transaction = connection.BeginTransaction())
-        using (var command = new SqlCommand(connection)) {
-          var translator = new SqlActionTranslator(actions, schema, 
+        using (var transaction = connection.BeginTransaction()) {
+          var translator = new SqlActionTranslator(actions, schema,
             connection.Driver, null, oldModel, newModel);
-          var commandText = string.Join(";" + Environment.NewLine, 
-            translator.UpgradeCommands.ToArray());
-          Log.Info(commandText);
-          command.CommandText = commandText;
-          command.Prepare();
-          command.Transaction = transaction;
-          command.ExecuteNonQuery();
+          var delimiter = connection.Driver.Translator.BatchStatementDelimiter;
+          var batch = new List<string>();
+          batch.Add(string.Join(delimiter, translator.PreUpgradeCommands.ToArray()));
+          batch.Add(string.Join(delimiter, translator.UpgradeCommands.ToArray()));
+          batch.Add(string.Join(delimiter, translator.DataManipulateCommands.ToArray()));
+          batch.Add(string.Join(delimiter, translator.PostUpgradeCommands.ToArray()));
+          foreach (var commandText in batch) {
+            if (!string.IsNullOrEmpty(commandText))
+              using (var command = new SqlCommand(connection)) {
+                Log.Info(commandText);
+                command.CommandText = commandText;
+                command.Prepare();
+                command.Transaction = transaction;
+                command.ExecuteNonQuery();
+              }
+          }
           transaction.Commit();
         }
       }
     }
-    
+
     private static StorageInfo ExtractModel()
     {
       var manager = new SchemaManager(Url, false);

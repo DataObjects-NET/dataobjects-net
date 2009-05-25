@@ -5,8 +5,6 @@
 // Created:    2009.04.16
 
 using System;
-using System.Reflection;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
@@ -15,7 +13,7 @@ using Xtensive.Modelling.Resources;
 namespace Xtensive.Modelling.Comparison
 {
   /// <summary>
-  /// Holds current state of the <see cref="Upgrader"/>.
+  /// Holds current state of the <see cref="Comparison.Upgrader"/>.
   /// </summary>
   public class UpgradeContext
   {
@@ -63,6 +61,11 @@ namespace Xtensive.Modelling.Comparison
     /// Indicates whether node must be copied rather than processed as usual.
     /// </summary>
     public bool IsImmutable { get; set; }
+    
+    /// <summary>
+    /// Indicates whether node must be removed.
+    /// </summary>
+    public bool IsRemoved { get; set; }
 
     /// <summary>
     /// Gets or sets the type of the dependency root.
@@ -150,6 +153,7 @@ namespace Xtensive.Modelling.Comparison
       Difference = Parent.Difference;
       Property = Parent.Property;
       IsImmutable = Parent.IsImmutable;
+      IsRemoved = Parent.IsRemoved;
       DependencyRootType = Parent.DependencyRootType;
 
       PreConditions = Parent.PreConditions;

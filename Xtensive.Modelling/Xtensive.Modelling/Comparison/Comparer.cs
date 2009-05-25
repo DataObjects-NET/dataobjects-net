@@ -16,7 +16,7 @@ using Xtensive.Modelling.Resources;
 namespace Xtensive.Modelling.Comparison
 {
   /// <summary>
-  /// Abstract base class for <see cref="IComparer"/> implementation.
+  /// Implementation of <see cref="IComparer"/> for <see cref="Node"/> comparison.
   /// </summary>
   public class Comparer : IComparer
   {
@@ -157,7 +157,6 @@ namespace Xtensive.Modelling.Comparison
 
         bool isNewDifference = TryRegisterDifference(source, target, difference);
         var mi = difference.MovementInfo;
-
         if (isNewDifference) {
           // Filling MovementInfo
           if (source==null) {
@@ -170,8 +169,9 @@ namespace Xtensive.Modelling.Comparison
                 mi |= MovementInfo.Removed; // = recreated
             }
           }
-          else if (target==null)
+          else if (target==null) {
             mi |= MovementInfo.Removed;
+          }
           else {
             // both source!=null && target!=null
             if (!(source is IUnnamedNode) && source.Name!=target.Name && GetTargetPath(source)==target.Path)
@@ -190,94 +190,81 @@ namespace Xtensive.Modelling.Comparison
                 mi |= MovementInfo.ParentRelocated;
             }
           }
+
+          if (source!=null && Hints.GetHint<CopyHint>(source)!=null)
+            mi |= MovementInfo.Copied;
+
+          difference.IsRemoveOnCleanup =
+            (mi & MovementInfo.Removed)!=0
+              && ((mi & MovementInfo.Copied)!=0
+                || Hints.OfType<CopyHint>()
+                  .SelectMany(copyHint => copyHint.CopyParameters)
+                  .Any(copyCondition => copyCondition.SourcePath==source.Path
+                    || copyCondition.TargetPath==source.Path));
+
           difference.MovementInfo = mi;
         }
 
-        // Getting properties for comparison
+
         difference.PropertyChanges.Clear();
-        var properties = new List<PropertyAccessor>();
         var isRemoved = (mi & MovementInfo.Removed)!=0;
-        var isCreated = (mi & MovementInfo.Created)!=0;
-        foreach (var pair in any.PropertyAccessors) {
-          if (isRemoved && pair.Value.DependencyRootType==any.Nesting.PropertyInfo.PropertyType)
-            properties.Add(pair.Value);
-          else if (!isRemoved || isCreated)
-            properties.Add(pair.Value);
-        }
-        
+
         // Comparing properties
-        foreach (var accessor in properties) {
+        foreach (var pair in any.PropertyAccessors) {
+          var accessor = pair.Value;
           if (accessor.IgnoreInComparison)
             continue;
 
           var property = accessor.PropertyInfo;
           using (CreateContext().Activate()) {
             Context.Property = property;
-            object newSource = (source==null || !accessor.HasGetter)
-              ? accessor.Default : accessor.Getter(source);
-            object newTarget = (target==null || !accessor.HasGetter)
-              ? accessor.Default : accessor.Getter(target);
-
-            var newAny = newSource ?? newTarget;
-            if (newAny==null)
+            object sourceValue = (source==null || !accessor.HasGetter)
+              ? accessor.Default : accessor.Getter.Invoke(source);
+            object targetValue = (target==null || !accessor.HasGetter)
+              ? accessor.Default : accessor.Getter.Invoke(target);
+            object anyValue = sourceValue ?? targetValue;
+            if (anyValue==null)
               continue; // Both are null
 
-            if (IsReference(newSource, newTarget)) {
+            Difference propertyDifference = null;
+            if (!IsReference(sourceValue, targetValue))
+              propertyDifference = Visit(sourceValue, targetValue);
+            else {
+              propertyDifference = new ValueDifference(sourceValue, targetValue);
               if (Stage==ComparisonStage.ReferenceComparison &&
-                newSource!=null && newTarget!=null) {
-                // Otherwise value is definitely changed
-                Difference newDifference = null;
-                if (!Results.TryGetValue(newTarget, out newDifference))
+                sourceValue!=null && targetValue!=null) {
+                Difference referencedPropertyDifference = null;
+                if (!Results.TryGetValue(targetValue, out referencedPropertyDifference)) {
                   throw new InvalidOperationException(string.Format(
                     Strings.ExNodeXMustBeProcessedBeforeBeingComparedAsReferenceValueOfYZ,
-                    newTarget, target, property));
-                if (!IsRelocated(newDifference))
-                  continue;
+                    targetValue, target, property));
+                }
+                if (!IsRelocated(referencedPropertyDifference)
+                  && !HasChangedNodeProperties(referencedPropertyDifference))
+                  propertyDifference = null;
               }
-              difference.PropertyChanges.Add(property.Name,
-                new ValueDifference(newSource, newTarget));
             }
-            else {
-              var newDifference = Visit(newSource, newTarget);
-              if (newDifference!=null)
-                difference.PropertyChanges.Add(property.Name, newDifference);
+            
+            if (propertyDifference==null 
+              || (isRemoved && propertyDifference is ValueDifference))
+              continue;
+
+            if (isRemoved) {
+              var nodeDifferences =
+                propertyDifference is NodeDifference
+                  ? new[] {(NodeDifference) propertyDifference}.ToList()
+                  : ((NodeCollectionDifference) propertyDifference).ItemChanges;
+              if (accessor.DependencyRootType==any.Nesting.PropertyInfo.PropertyType)
+                nodeDifferences.Apply(nodeDifference => nodeDifference.IsDependentOnParent = true);
+              if (nodeDifferences.Any(nodeDifference => nodeDifference.IsRemoveOnCleanup))
+                difference.IsRemoveOnCleanup = true;
             }
+
+            difference.PropertyChanges.Add(property.Name, propertyDifference);
           }
         }
-
         return difference.HasChanges ? difference : null;
       }
-    }
-
-    protected virtual bool IsReference(object source, object target)
-    {
-      var difference = Context.Difference;
-      var any = (target ?? source) as Node;
-      if (any!=null)
-        return any.Parent!=difference.Source && any.Parent!=difference.Target;
-      return false;
-    }
-
-    protected virtual bool IsRelocated(Difference difference)
-    {
-      var nodeDifference = difference as NodeDifference;
-      if (nodeDifference==null)
-        return false;
-      if ((nodeDifference.MovementInfo & MovementInfo.Relocated)==0)
-        return false;
-      var diffs = 
-        EnumerableUtils.Unfold(difference, d => d.Parent).Reverse();
-      var currentDiffs = 
-        EnumerableUtils.Unfold(Context.Difference, d => d.Parent).Reverse();
-      var commonDiffs = diffs.Zip(currentDiffs).Where(p => p.First==p.Second).Select(p => p.First);
-      var newDiffs = diffs.Except(commonDiffs);
-      var query =
-        from diff in newDiffs
-        let nodeDiff = diff as NodeDifference
-        where nodeDiff!=null && (nodeDiff.MovementInfo & MovementInfo.Changed)!=0
-        select nodeDiff;
-      // query = query.ToList();
-      return query.Any();
     }
 
     /// <summary>
@@ -348,6 +335,95 @@ namespace Xtensive.Modelling.Comparison
     }
 
     /// <summary>
+    /// Visits specified objects.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <param name="target">The target.</param>
+    /// <returns>Difference between <paramref name="source"/> 
+    /// and <paramref name="target"/> objects.
+    /// <see langword="null" />, if they're equal.</returns>
+    protected virtual Difference VisitObject(object source, object target)
+    {
+      using (TryActivate(source, target, (s, t) => new ValueDifference(s, t)))
+        return Equals(source, target) ? null : Context.Difference;
+    }
+
+    /// <summary>
+    /// Determines whether the specified source is reference.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <param name="target">The target.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified source is reference; otherwise, <see langword="false"/>.
+    /// </returns>
+    protected virtual bool IsReference(object source, object target)
+    {
+      var difference = Context.Difference;
+      var any = (target ?? source) as Node;
+      if (any!=null)
+        return any.Parent!=difference.Source && any.Parent!=difference.Target;
+      return false;
+    }
+
+    /// <summary>
+    /// Determines whether the specified difference is relocated.
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    /// <returns>
+    ///	<see langword="true"/> if the specified difference is relocated; otherwise, <see langword="false"/>.
+    /// </returns>
+    protected virtual bool IsRelocated(Difference difference)
+    {
+      var nodeDifference = difference as NodeDifference;
+      if (nodeDifference==null)
+        return false;
+      if ((nodeDifference.MovementInfo & MovementInfo.Relocated)==0)
+        return false;
+      var diffs = 
+        EnumerableUtils.Unfold(difference, d => d.Parent).Reverse();
+      var currentDiffs = 
+        EnumerableUtils.Unfold(Context.Difference, d => d.Parent).Reverse();
+      var commonDiffs = diffs.Zip(currentDiffs).Where(p => p.First==p.Second).Select(p => p.First);
+      var newDiffs = diffs.Except(commonDiffs);
+      var query =
+        from diff in newDiffs
+        let nodeDiff = diff as NodeDifference
+        where nodeDiff!=null && (nodeDiff.MovementInfo & MovementInfo.Changed)!=0
+        select nodeDiff;
+      // query = query.ToList();
+      return query.Any();
+    }
+
+    /// <summary>
+    /// Determines whether difference contains node property 
+    /// with <see cref="MovementInfo"/> equals to <see cref="MovementInfo.Changed"/>.
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    /// <returns>
+    /// <see langword="true"/> if difference contains changed node properties; otherwise, <see langword="false"/>.
+    /// </returns>
+    protected virtual bool HasChangedNodeProperties(Difference difference)
+    {
+      var nodeDifference = difference as NodeDifference;
+      if (nodeDifference!=null) {
+        if ((nodeDifference.MovementInfo & MovementInfo.Changed)!=0)
+          return true;
+        foreach (var pair in nodeDifference.PropertyChanges)
+          if (HasChangedNodeProperties(pair.Value))
+            return true;
+      }
+
+      var nodeCollectionDifference = difference as NodeCollectionDifference;
+      if (nodeCollectionDifference!=null)
+        foreach (var itemChange in nodeCollectionDifference.ItemChanges)
+          if (HasChangedNodeProperties(itemChange))
+            return true;
+
+
+      return false;
+    }
+    
+    /// <summary>
     /// Extracts the comparison key, that used to find associations 
     /// between old and new <see cref="NodeCollection"/> items.
     /// </summary>
@@ -362,21 +438,6 @@ namespace Xtensive.Modelling.Comparison
       else
         return GetTargetName(node);
     }
-
-    /// <summary>
-    /// Visits specified objects.
-    /// </summary>
-    /// <param name="source">The source.</param>
-    /// <param name="target">The target.</param>
-    /// <returns>Difference between <paramref name="source"/> 
-    /// and <paramref name="target"/> objects.
-    /// <see langword="null" />, if they're equal.</returns>
-    protected virtual Difference VisitObject(object source, object target)
-    {
-      using (TryActivate(source, target, (s, t) => new ValueDifference(s, t)))
-        return Equals(source, target) ? null : Context.Difference;
-    }
-
     
     #region Helper methods
 
@@ -424,17 +485,6 @@ namespace Xtensive.Modelling.Comparison
     protected virtual ComparisonContext CreateContext()
     {
       return new ComparisonContext();
-    }
-
-    private bool TryRegisterDifference(object source, object target, Difference difference)
-    {
-      if (Results.ContainsKey(target ?? source))
-        return false;
-      if (source!=null)
-        Results.Add(source, difference);
-      if (target!=null)
-        Results.Add(target, difference);
-      return true;
     }
 
     /// <summary>
@@ -500,6 +550,17 @@ namespace Xtensive.Modelling.Comparison
         commonBase = ancestor;
       }
       return commonBase;
+    }
+
+    private bool TryRegisterDifference(object source, object target, Difference difference)
+    {
+      if (Results.ContainsKey(target ?? source))
+        return false;
+      if (source!=null)
+        Results.Add(source, difference);
+      if (target!=null)
+        Results.Add(target, difference);
+      return true;
     }
 
     private List<Type> GetAncestors(Type type)

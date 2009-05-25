@@ -165,7 +165,7 @@ namespace Xtensive.Modelling.Comparison.Hints
       var hint = hintOrList as THint;
       if (hint!=null)
         return new[] {hint};
-      return ((List<Node>) hintOrList).Cast<THint>().ToArray();
+      return ((List<Hint>) hintOrList).Cast<THint>().ToArray();
     }
 
     #region IEnumerable<...> methods
