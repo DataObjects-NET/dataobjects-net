@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Aspects
 
     private static void ProvideSessionBoundAspects(Type type, LaosReflectionAspectCollection collection)
     {
-      foreach (MethodInfo method in type.GetMethods(
+      foreach (var method in type.GetMethods(
         BindingFlags.Public |
         BindingFlags.NonPublic |
         BindingFlags.Instance |
@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Aspects
           continue;
         if (AspectHelper.IsInfrastructureMethod(method))
           continue;
-        if (IsMethodGenerated(method))
+        if (IsCompilerGenerated(method))
           continue;
 
         collection.AddAspect(method, new SessionBoundMethodAspect());
@@ -97,7 +97,7 @@ namespace Xtensive.Storage.Aspects
 
     private static void ProvideTransactionalAspects(Type type, LaosReflectionAspectCollection collection)
     {
-      foreach (MethodInfo method in type.GetMethods(
+      foreach (var method in type.GetMethods(
         BindingFlags.Public |
         BindingFlags.Instance |
         BindingFlags.DeclaredOnly))
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Aspects
           continue;
         if (AspectHelper.IsInfrastructureMethod(method))
           continue;
-        if (IsMethodGenerated(method))
+        if (IsCompilerGenerated(method))
           continue;
 
         collection.AddAspect(method, new TransactionalAttribute());
@@ -115,7 +115,7 @@ namespace Xtensive.Storage.Aspects
 
     private void ProvideAtomicAspects(Type type, LaosReflectionAspectCollection collection)
     {
-      foreach (MethodInfo method in type.GetMethods(
+      foreach (var method in type.GetMethods(
         BindingFlags.Public |
         BindingFlags.NonPublic |
         BindingFlags.Instance |
@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Aspects
           continue;
         if (AspectHelper.IsInfrastructureMethod(method))
           continue;
-        if (IsMethodGenerated(method))
+        if (IsCompilerGenerated(method))
           continue;
 
         collection.AddAspect(method, new AtomicAttribute());
@@ -135,6 +135,7 @@ namespace Xtensive.Storage.Aspects
     private static void ProvidePersistentAspects(Type type, LaosReflectionAspectCollection collection)
     {
       ProvideAutoPropertyAspects(type, collection);
+      ProvideInconsistencyRegionAspects(type, collection);
       ProvideConstructorAspect(type, collection);
       ProvideConstructorAccessorAspect(type, collection);
       new InitializableAttribute().ProvideAspects(type, collection);
@@ -149,7 +150,7 @@ namespace Xtensive.Storage.Aspects
 
     private static void ProvideAutoPropertyAspects(Type type, LaosReflectionAspectCollection collection)
     {
-      foreach (PropertyInfo propertyInfo in type.GetProperties(
+      foreach (var propertyInfo in type.GetProperties(
         BindingFlags.Public |
         BindingFlags.NonPublic |
         BindingFlags.Instance |
@@ -189,6 +190,24 @@ namespace Xtensive.Storage.Aspects
       }
     }
 
+    private static void ProvideInconsistencyRegionAspects(Type type, LaosReflectionAspectCollection collection)
+    {
+      if (type==entityType || type==structureType || type==persistentType)
+        return;
+      foreach (var ctorInfo in type.GetConstructors(
+        BindingFlags.Public |
+        BindingFlags.Instance |
+        BindingFlags.DeclaredOnly))
+      {
+        if (AspectHelper.IsInfrastructureMethod(ctorInfo))
+          continue;
+        if (IsCompilerGenerated(ctorInfo))
+          continue;
+
+        collection.AddAspect(ctorInfo, new InconsistentRegionAttribute());
+      }
+    }
+
     private static void ProvideConstructorAspect(Type type, LaosReflectionAspectCollection collection)
     {
       if (type==entityType || type==structureType || type==persistentType)
@@ -197,9 +216,8 @@ namespace Xtensive.Storage.Aspects
       foreach (var signature in signatures) {
         var aspect = ProtectedConstructorAspect.ApplyOnce(type, signature);
         if (aspect != null && aspect.CompileTimeValidate(type))
-        aspect.ProvideAspects(type, collection);
+          aspect.ProvideAspects(type, collection);
       }
-      
     }
 
     private static void ProvideConstructorAccessorAspect(Type type, LaosReflectionAspectCollection collection)
@@ -226,9 +244,9 @@ namespace Xtensive.Storage.Aspects
 
     #region Private \ internal methods
 
-    private static bool IsMethodGenerated(MethodInfo method)
+    private static bool IsCompilerGenerated(MemberInfo member)
     {
-      return method.Name.StartsWith("<");
+      return member.Name.StartsWith("<");
     }
 
     private static Type GetBasePersistentType(Type type)
@@ -242,7 +260,7 @@ namespace Xtensive.Storage.Aspects
       return null;
     }
 
-    /// <exception cref="Exception">[Suppresses warning]</exception>
+    /// <exception cref="InvalidOperationException">[Suppresses warning]</exception>
     private static Type[][] GetInternalConstructorSignatures(Type type)
     {
       var baseType = GetBasePersistentType(type);
