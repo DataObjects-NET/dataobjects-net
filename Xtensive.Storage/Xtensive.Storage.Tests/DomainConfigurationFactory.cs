@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests
 {
@@ -81,21 +82,24 @@ namespace Xtensive.Storage.Tests
     public static DomainConfiguration Create(string protocol, InheritanceSchema schema)
     {
       DomainConfiguration config = Create(protocol);
-      config.Builders.Add(InheritanceSchemaModifier.GetModifier(schema));
+      if (schema != InheritanceSchema.Default)
+        config.Builders.Add(InheritanceSchemaModifier.GetModifier(schema));
       return config;
     }
 
     public static DomainConfiguration Create(string protocol, InheritanceSchema schema, TypeIdBehavior typeIdBehavior)
     {
       DomainConfiguration config = Create(protocol, schema);
-      config.Builders.Add(TypeIdModifier.GetModifier(typeIdBehavior));
+      if (typeIdBehavior != TypeIdBehavior.Default)
+        config.Builders.Add(TypeIdModifier.GetModifier(typeIdBehavior));
       return config;
     }
 
     public static DomainConfiguration Create(string protocol, InheritanceSchema schema, TypeIdBehavior typeIdBehavior, ForeignKeyMode foreignKeyMode)
     {
       DomainConfiguration config = Create(protocol, schema);
-      config.Builders.Add(TypeIdModifier.GetModifier(typeIdBehavior));
+      if (typeIdBehavior != TypeIdBehavior.Default)
+        config.Builders.Add(TypeIdModifier.GetModifier(typeIdBehavior));
       config.ForeignKeyMode = foreignKeyMode;
       return config;
     }
