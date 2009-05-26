@@ -51,7 +51,6 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     protected override void AddUpgradeHints()
     {
-      base.AddUpgradeHints();
       var context = UpgradeContext.Current;
       if (runningVersion == "2")
         foreach (var hint in Version1To2Hints)

@@ -27,13 +27,13 @@ namespace Xtensive.Storage.Metadata
     /// <summary>
     /// Gets or sets the text data.
     /// </summary>
-    [Field]
+    [Field(Length = int.MaxValue)]
     public string Text { get; set; }
 
     /// <summary>
     /// Gets or sets the binary data.
     /// </summary>
-    [Field]
+    [Field(Length = int.MaxValue)]
     public byte[] Data { get; set; }
 
     /// <inheritdoc/>

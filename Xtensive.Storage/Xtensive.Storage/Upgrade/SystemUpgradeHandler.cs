@@ -6,15 +6,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Reflection;
+using System.Xml.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Storage.Building;
+using Xtensive.Storage.Metadata;
+using Xtensive.Storage.Model;
+using Xtensive.Storage.Model.Stored;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Upgrade.Hints;
 using M=Xtensive.Storage.Metadata;
-
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -24,14 +27,41 @@ namespace Xtensive.Storage.Upgrade
   /// </summary>
   public sealed class SystemUpgradeHandler : UpgradeHandler
   {
-    /// <inheritdoc/>
-    protected override void CheckMetadata()
+    private const string ModelExtensionName = "Xtensive.Storage.Model";
+
+    public override void OnStage()
     {
       var context = UpgradeContext.Current;
-      if (Assembly==Assembly.GetExecutingAssembly()) {
-        // We're in Xtensive.Storage upgrade handler
-        CheckAssemblies();
+      var upgradeMode = context.OriginalConfiguration.UpgradeMode;
+      switch (context.Stage) {
+      case UpgradeStage.Validation:
+        CheckMetadata();
+        if (upgradeMode == DomainUpgradeMode.PerformSafely || upgradeMode == DomainUpgradeMode.Perform)
+          ExtractRecycledModel();
+        break;
+      case UpgradeStage.Upgrading:
+        UpdateMetadata();
+        break;
+      case UpgradeStage.Final:
+        if (upgradeMode == DomainUpgradeMode.Recreate)
+          UpdateMetadata();
+        if (upgradeMode != DomainUpgradeMode.Validate)
+          SaveModel();
+        break;
+      default:
+        throw new ArgumentOutOfRangeException("context.Stage");
       }
+    }
+
+    private void CheckMetadata()
+    {
+      CheckAssemblies();
+    }
+
+    private void UpdateMetadata()
+    {
+      UpdateAssemblies();
+      UpdateTypes();
     }
 
     /// <exception cref="DomainBuilderException">Impossible to upgrade all assemblies.</exception>
@@ -56,18 +86,6 @@ namespace Xtensive.Storage.Upgrade
           throw new DomainBuilderException(string.Format(
             Strings.ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported,
             a.Name, a.Version, h.AssemblyVersion));
-      }
-    }
-
-    /// <summary>
-    /// Upgrades the metadata (see <see cref="Xtensive.Storage.Metadata"/>).
-    /// </summary>
-    protected override void UpdateMetadata()
-    {
-      if (Assembly==Assembly.GetExecutingAssembly()) {
-        // We're in Xtensive.Storage upgrade handler
-        UpdateAssemblies();
-        UpdateTypes();
       }
     }
 
@@ -144,6 +162,40 @@ namespace Xtensive.Storage.Upgrade
           .Concat(commonNames.Select(n => new Pair<IUpgradeHandler, M.Assembly>(handlerByName[n], oldAssemblyByName[n])))
           .Concat(removedNames.Select(n => new Pair<IUpgradeHandler, M.Assembly>(null, oldAssemblyByName[n])))
           .ToArray();
+    }
+
+    private void ExtractRecycledModel()
+    {
+      var modelExtension = Query<Extension>.All.FirstOrDefault(e => e.Name==ModelExtensionName);
+
+      if (modelExtension == null) {
+        Log.Info(Strings.LogDomainModelIsNotFoundInStorage);
+        return;
+      }
+
+      StoredDomainModel model = null;
+      var serializer = new XmlSerializer(typeof(StoredDomainModel));
+      using (var reader = new StringReader(modelExtension.Text))
+        try {
+          model = (StoredDomainModel) serializer.Deserialize(reader);
+        }
+        catch (Exception e) {
+          Log.Warning(e, Strings.LogFailedToExtractDomainModelFromStorage);
+        }
+      var context = UpgradeContext.Demand();
+      context.RecycledModel = model;
+    }
+
+    private void SaveModel()
+    {
+      var domain = Domain.Demand();
+      var modelExtension = Query<Extension>.All.FirstOrDefault(e => e.Name==ModelExtensionName)
+        ?? new Extension(ModelExtensionName);
+      var serializer = new XmlSerializer(typeof (StoredDomainModel));
+      using (var writer = new StringWriter()) {
+        serializer.Serialize(writer, domain.Model.ToStoredModel());
+        modelExtension.Text = writer.GetStringBuilder().ToString();
+      }
     }
   }
 }

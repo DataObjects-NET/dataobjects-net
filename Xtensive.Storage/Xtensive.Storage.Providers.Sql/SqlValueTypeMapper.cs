@@ -107,6 +107,7 @@ namespace Xtensive.Storage.Providers.Sql
 
           return mapping;
         }
+        return ambigiousMappings.Last();
       }
       return null;
     }

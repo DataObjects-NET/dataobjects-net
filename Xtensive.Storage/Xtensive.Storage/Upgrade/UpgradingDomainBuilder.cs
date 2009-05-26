@@ -196,8 +196,8 @@ namespace Xtensive.Storage.Upgrade
       }
 
       // Adding default handlers
-      var assemblieswithUserHandlers = userHandlers.Select(g => g.Key);
-      var assembliesWithoutUserHandler = assemblies.Except(assemblieswithUserHandlers);
+      var assembliesWithUserHandlers = userHandlers.Select(g => g.Key);
+      var assembliesWithoutUserHandler = assemblies.Except(assembliesWithUserHandlers);
 
       foreach (var assembly in assembliesWithoutUserHandler) {
         var handler = new UpgradeHandler(assembly);

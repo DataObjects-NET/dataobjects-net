@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Upgrade
     /// All the types are visible, including upgrade-only types;
     /// schema is upgraded; 
     /// <see cref="IUpgradeHandler.OnStage"/> events are raised at the beginning of this stage;
-    /// <see cref="IUpgradeHandler.OnUpgrade"/> events are raised at the end of this stage.
+    /// <see cref="UpgradeHandler.OnUpgrade"/> events are raised at the end of this stage.
     /// </summary>
     Upgrading,
     /// <summary>

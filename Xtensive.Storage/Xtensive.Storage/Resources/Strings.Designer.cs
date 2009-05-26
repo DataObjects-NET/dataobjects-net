@@ -1540,11 +1540,29 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Domain model is not found in storage..
+        /// </summary>
+        internal static string LogDomainModelIsNotFoundInStorage {
+            get {
+                return ResourceManager.GetString("LogDomainModelIsNotFoundInStorage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Extracted schema:.
         /// </summary>
         internal static string LogExtractedSchema {
             get {
                 return ResourceManager.GetString("LogExtractedSchema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to extract domain model from storage..
+        /// </summary>
+        internal static string LogFailedToExtractDomainModelFromStorage {
+            get {
+                return ResourceManager.GetString("LogFailedToExtractDomainModelFromStorage", resourceCulture);
             }
         }
         

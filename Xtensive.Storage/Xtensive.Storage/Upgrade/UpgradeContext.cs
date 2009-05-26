@@ -14,6 +14,7 @@ using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Model.Stored;
 using Xtensive.Storage.Upgrade.Hints;
 
 namespace Xtensive.Storage.Upgrade
@@ -89,6 +90,11 @@ namespace Xtensive.Storage.Upgrade
     /// at the current upgrade stage.
     /// </summary>
     public ActionSequence SchemaUpgradeActions { get; internal set; }
+
+    /// <summary>
+    /// Gets the recycled model i.e. model that was extracted from storage.
+    /// </summary>
+    public StoredDomainModel RecycledModel { get; internal set; }
 
     #region IContext<...> methods
 

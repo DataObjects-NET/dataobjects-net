@@ -11,7 +11,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using System.Linq;
 using Xtensive.Core.Helpers;
-using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Upgrade.Hints;
 
 namespace Xtensive.Storage.Upgrade
@@ -36,7 +35,7 @@ namespace Xtensive.Storage.Upgrade
     }
 
     /// <inheritdoc/>
-    public Assembly Assembly {
+    public virtual Assembly Assembly {
       get {
         if (assembly!=null)
           return assembly;
@@ -56,7 +55,7 @@ namespace Xtensive.Storage.Upgrade
     }
 
     /// <inheritdoc/>
-    public string AssemblyVersion {
+    public virtual string AssemblyVersion {
       get {
         if (assemblyVersion!=null)
           return assemblyVersion;
@@ -74,6 +73,7 @@ namespace Xtensive.Storage.Upgrade
         case UpgradeStage.Validation:
           break;
         case UpgradeStage.Upgrading:
+          AddAutoHints();
           AddUpgradeHints();
           break;
         case UpgradeStage.Final:
@@ -90,15 +90,11 @@ namespace Xtensive.Storage.Upgrade
       var context = UpgradeContext.Current;
       switch (context.Stage) {
         case UpgradeStage.Validation:
-          CheckMetadata();
           break;
         case UpgradeStage.Upgrading:
-          UpdateMetadata();
           OnUpgrade();
           break;
         case UpgradeStage.Final:
-          if (context.OriginalConfiguration.UpgradeMode==DomainUpgradeMode.Recreate)
-            UpdateMetadata();
           break;
         default:
           throw new ArgumentOutOfRangeException("context.Stage");
@@ -109,14 +105,6 @@ namespace Xtensive.Storage.Upgrade
     public virtual bool CanUpgradeFrom(string oldVersion)
     {
       return oldVersion==null || oldVersion==AssemblyVersion;
-    }
-
-    /// <summary>
-    /// Override this method to implement custom persistent data migration logic.
-    /// </summary>
-    public virtual void OnUpgrade()
-    {
-      return;
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><c>UpgradeContext.Stage</c> is out of range.</exception>
@@ -159,28 +147,18 @@ namespace Xtensive.Storage.Upgrade
     #region Protected methods
 
     /// <summary>
+    /// Override this method to implement custom persistent data migration logic.
+    /// </summary>
+    public virtual void OnUpgrade()
+    {
+    }
+
+    /// <summary>
     /// Override this method to add upgrade hints to 
     /// <see cref="Upgrade.UpgradeContext.Hints"/> collection.
     /// </summary>
     protected virtual void AddUpgradeHints()
     {
-      AddAutoHints();
-    }
-
-    /// <summary>
-    /// Checks the metadata (see <see cref="Xtensive.Storage.Metadata"/>).
-    /// </summary>
-    protected virtual void CheckMetadata()
-    {
-      return;
-    }
-
-    /// <summary>
-    /// Upgrades the metadata (see <see cref="Xtensive.Storage.Metadata"/>).
-    /// </summary>
-    protected virtual void UpdateMetadata()
-    {
-      return;
     }
 
     /// <summary>
