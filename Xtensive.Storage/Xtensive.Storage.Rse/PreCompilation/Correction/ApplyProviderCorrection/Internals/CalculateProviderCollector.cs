@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Expressions;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 {
@@ -28,7 +29,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       if(applyParameters.Count == 0)
         return false;
       if(applyParameters.Count > 1)
-        owner.ThrowInvalidOperationException();
+        ApplyProviderCorrectorRewriter.ThrowInvalidOperationException();
       var applyParameter = applyParameters[0];
       if(owner.State.SelfConvertibleApplyProviders[applyParameter])
         return false;
@@ -51,9 +52,13 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 
     public void ValidateSelectedColumnIndexes(SelectProvider provider)
     {
-      if(owner.State.Predicates.Count == 0)
-        return;
-      ValidateNewFilterColumnIndexes(provider.Header.Columns);
+      if(owner.State.CalculateProviders.Count > 0)
+        collectorHelper.ValidateNewColumnIndexes(owner.State.CalculateProviders,
+          provider.Header.Columns,
+          Strings.ExColumnsUsedByCalculatedColumnExpressionContainingApplyParameterAreRemoved);
+      if(owner.State.CalculateFilters.Count > 0)
+        collectorHelper.ValidateNewColumnIndexes(owner.State.CalculateFilters,
+          provider.Header.Columns, Strings.ExColumnsUsedByPredicateContainingApplyParameterAreRemoved);
     }
 
     public void AliasColumns(AliasProvider provider)
@@ -108,14 +113,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       else
         owner.State.CalculateFilters.Add(calculateProvider,
           new List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>> {newPair});
-    }
-
-    private void ValidateNewFilterColumnIndexes(ICollection<Column> mappedColumns)
-    {
-      foreach (var providerPair in owner.State.CalculateFilters)
-        foreach (var predicatePair in providerPair.Value)
-          if (!collectorHelper.CheckPresenceOfOldColumns(predicatePair.Second, mappedColumns))
-            owner.ThrowInvalidOperationException();
     }
 
     #endregion

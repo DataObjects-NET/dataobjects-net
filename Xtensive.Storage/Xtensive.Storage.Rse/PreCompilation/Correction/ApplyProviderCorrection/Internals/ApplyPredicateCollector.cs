@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 {
@@ -46,7 +47,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
         foreach (var predicatePair in parameterPair.Value)
           foreach (var column in predicatePair.Second)
             if (provider.GroupColumnIndexes.Contains(column.Index))
-              owner.ThrowInvalidOperationException();
+              ApplyProviderCorrectorRewriter.ThrowInvalidOperationException(
+                Strings.ExColumnsUsedByPredicateContainingApplyParameterAreRemoved);
           
     }
 
@@ -54,7 +56,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
     {
       if(owner.State.Predicates.Count == 0)
         return;
-      ValidateNewPredicateColumnIndexes(provider.Header.Columns);
+      collectorHelper.ValidateNewColumnIndexes(owner.State.Predicates, provider.Header.Columns,
+        Strings.ExColumnsUsedByPredicateContainingApplyParameterAreRemoved);
     }
 
     #region Private \ internal methods
@@ -71,31 +74,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
         owner.State.Predicates.Add(applyParameter,
           new List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>> {newPair});
       }
-    }
-
-    /*private void AliasPredicateColumns(AliasProvider provider)
-    {
-      var newPredicates =
-        new Dictionary<ApplyParameter, List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>>>(
-          owner.State.Predicates.Count);
-      foreach (var parameterPair in owner.State.Predicates) {
-        var newParameterPairValue = new List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>>();
-        foreach (var predicatePair in parameterPair.Value) {
-          var newPredicatePair = new Pair<Expression<Func<Tuple, bool>>, ColumnCollection>(
-            predicatePair.First, predicatePair.Second.Alias(provider.Alias));
-          newParameterPairValue.Add(newPredicatePair);
-        }
-        newPredicates.Add(parameterPair.Key, newParameterPairValue);
-      }
-      owner.State.Predicates = newPredicates;
-    }*/
-
-    private void ValidateNewPredicateColumnIndexes(ICollection<Column> mappedColumns)
-    {
-      foreach (var parameterPair in owner.State.Predicates)
-        foreach (var predicatePair in parameterPair.Value)
-          if (!collectorHelper.CheckPresenceOfOldColumns(predicatePair.Second, mappedColumns))
-            owner.ThrowInvalidOperationException();
     }
 
     #endregion

@@ -82,5 +82,15 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       }
       return newFilters;
     }
+
+    public void ValidateNewColumnIndexes<TDictKey, TPairKey>(
+      Dictionary<TDictKey, List<Pair<TPairKey, ColumnCollection>>> currentState,
+      ICollection<Column> mappedColumns, string description)
+    {
+      foreach (var providerPair in currentState)
+        foreach (var predicatePair in providerPair.Value)
+          if (!CheckPresenceOfOldColumns(predicatePair.Second, mappedColumns))
+            ApplyProviderCorrectorRewriter.ThrowInvalidOperationException(description);
+    }
   }
 }

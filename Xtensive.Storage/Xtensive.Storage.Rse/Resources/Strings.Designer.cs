@@ -124,6 +124,24 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Columns used by the CalculatedColumn&apos;s expression containing the ApplyParameter are removed..
+        /// </summary>
+        internal static string ExColumnsUsedByCalculatedColumnExpressionContainingApplyParameterAreRemoved {
+            get {
+                return ResourceManager.GetString("ExColumnsUsedByCalculatedColumnExpressionContainingApplyParameterAreRemoved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Columns used by the predicate containing ApplyParameter are removed..
+        /// </summary>
+        internal static string ExColumnsUsedByPredicateContainingApplyParameterAreRemoved {
+            get {
+                return ResourceManager.GetString("ExColumnsUsedByPredicateContainingApplyParameterAreRemoved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid field name &apos;{0}&apos;..
         /// </summary>
         internal static string ExInvalidFieldNameX {

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Providers;
@@ -100,7 +101,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
         }
         foreach (var pair in Predicates) {
           if (previousState.Predicates.ContainsKey(pair.Key))
-            owner.ThrowInvalidOperationException();
+            ThrowInvalidOperationException();
           else
             previousState.Predicates.Add(pair.Key, pair.Value);
         }
@@ -141,10 +142,20 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       }
     }
 
-    public void ThrowInvalidOperationException()
+    public static void ThrowInvalidOperationException()
     {
       throw new InvalidOperationException(String.Format(Strings.ExCantConvertXToY,
         typeof (ApplyProvider).Name, typeof (PredicateJoinProvider).Name));
+    }
+
+    public static void ThrowInvalidOperationException(string description)
+    {
+      var sb = new StringBuilder();
+      sb.Append(String.Format(Strings.ExCantConvertXToY,
+        typeof (ApplyProvider).Name, typeof (PredicateJoinProvider).Name));
+      sb.Append(" ");
+      sb.Append(description);
+      throw new InvalidOperationException(sb.ToString());
     }
 
     protected override Provider VisitApply(ApplyProvider provider)
@@ -169,11 +180,12 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
     protected override Provider VisitFilter(FilterProvider provider)
     {
       var source = VisitCompilable(provider.Source);
-      var newProvider = source!=provider.Source 
-        ? new FilterProvider(source, provider.Predicate) : provider;
-      
       if(calculateProviderCollector.TryAddFilter(provider))
         return source;
+
+      var newProvider = source!=provider.Source 
+        ? new FilterProvider(source, provider.Predicate) : provider;
+
       if(predicateCollector.TryAdd(newProvider))
         return source;
       return newProvider;
@@ -192,10 +204,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
     {
       var source = VisitCompilable(provider.Source);
       var newProvider = provider;
-      if(source != provider.Source)
-        newProvider = new SelectProvider(source, provider.ColumnIndexes);
       predicateCollector.ValidateSelectedColumnIndexes(provider);
       calculateProviderCollector.ValidateSelectedColumnIndexes(provider);
+      if(source != provider.Source)
+        newProvider = new SelectProvider(source, provider.ColumnIndexes);
       return newProvider;
     }
 
@@ -375,6 +387,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
               .CreatePredicatesConjunction(currentPredicate, concatenatedPredicate);
         }
         result = new FilterProvider(result, concatenatedPredicate);
+        State.CalculateFilters.Remove(calculateProvider);
       }
       return result;
     }

@@ -217,5 +217,45 @@ namespace Xtensive.Storage.Tests.Linq
       select r;
       Assert.IsTrue(expected.SequenceEqual(actual));
     }
+
+    [Test]
+    public void TwoCalculateWithApply()
+    {
+      var actual = from c in Query<Customer>.All
+      from r in (c.Orders.Select(o => c.ContactName + o.ShipName))
+        .Intersect(c.Orders.Select(o => c.ContactName + o.ShipName))
+      orderby r
+      select r;
+      if (Domain.Configuration.ConnectionInfo.Protocol!="memory")
+        AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(actual));
+      else {
+        var expected = from c in Query<Customer>.All.AsEnumerable()
+        from r in (c.Orders.Select(o => c.ContactName + o.ShipName))
+          .Intersect(c.Orders.Select(o => c.ContactName + o.ShipName))
+        orderby r
+        select r;
+        Assert.IsTrue(expected.SequenceEqual(actual));
+      }
+    }
+
+    [Test]
+    public void TwoFilterWithApply()
+    {
+      var actual = from c in Query<Customer>.All
+      from r in (c.Orders.Where(x => x.ShipName.StartsWith("a"))
+        .Intersect(c.Orders.Where(x => x.ShipName.StartsWith("a"))))
+      orderby r
+      select r;
+      if (Domain.Configuration.ConnectionInfo.Protocol!="memory")
+        AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(actual));
+      else {
+        var expected = from c in Query<Customer>.All.AsEnumerable()
+        from r in (c.Orders.Where(x => x.ShipName.StartsWith("a"))
+          .Intersect(c.Orders))
+        orderby r
+        select r;
+        Assert.IsTrue(expected.SequenceEqual(actual));
+      }
+    }
   }
 }

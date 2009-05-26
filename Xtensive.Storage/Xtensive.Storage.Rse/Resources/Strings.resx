@@ -183,4 +183,10 @@
   <data name="ExPredicateContainsAccessesToDifferentApplyParameters" xml:space="preserve">
     <value>Predicate contains accesses to different ApplyParameters.</value>
   </data>
+  <data name="ExColumnsUsedByPredicateContainingApplyParameterAreRemoved" xml:space="preserve">
+    <value>Columns used by the predicate containing ApplyParameter are removed.</value>
+  </data>
+  <data name="ExColumnsUsedByCalculatedColumnExpressionContainingApplyParameterAreRemoved" xml:space="preserve">
+    <value>Columns used by the CalculatedColumn's expression containing the ApplyParameter are removed.</value>
+  </data>
 </root>
