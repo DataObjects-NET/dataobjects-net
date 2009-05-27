@@ -488,5 +488,4 @@ namespace Xtensive.Storage.Configuration
       types.Register(typeof(Persistent).Assembly);
     }
   }
-
 }
