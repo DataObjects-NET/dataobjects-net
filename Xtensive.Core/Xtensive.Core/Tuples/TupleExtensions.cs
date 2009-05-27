@@ -206,7 +206,7 @@ namespace Xtensive.Core.Tuples
 
     #endregion
 
-    #region Combine methods
+    #region Transforms
 
     /// <summary>
     /// Combines the <paramref name="left"/> with <paramref name="right"/>.
@@ -218,6 +218,22 @@ namespace Xtensive.Core.Tuples
     {
       var transform = new CombineTransform(false, new[] {left.Descriptor, right.Descriptor});
       return transform.Apply(TupleTransformType.TransformedTuple, left, right);
+    }
+
+    /// <summary>
+    /// Cuts out <paramref name="segment"/> from <paramref name="left"/> <see cref="Tuple"/>.
+    /// </summary>
+    /// <param name="left">The <see cref="Tuple"/> to get segment from.</param>
+    /// <param name="segment">The <see cref="Segment{T}"/> to cut off.</param>
+    /// <returns></returns>
+    public static Tuple GetSegment(this Tuple left, Segment<int> segment)
+    {
+      var map = new int[segment.Length];
+      for (int i = 0; i < segment.Length; i++)
+        map[i] = segment.Offset + i;
+
+      var transform = new MapTransform(false, left.Descriptor, map);
+      return transform.Apply(TupleTransformType.TransformedTuple, left);
     }
 
     #endregion
