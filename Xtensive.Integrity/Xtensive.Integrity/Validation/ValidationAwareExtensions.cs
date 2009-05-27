@@ -106,9 +106,9 @@ namespace Xtensive.Integrity.Validation
     {
       var constraints = ConstraintRegistry.GetConstraints(target.GetType());
       if (constraints.Length > 0)
-        using (var ea = new ExceptionAggregator())
+        using (var aggregator = new ExceptionAggregator())
           foreach (var constraint in constraints)
-            ea.Execute(constraint.Check, target);
+            aggregator.Execute(constraint.Check, target);
     }
   }
 }

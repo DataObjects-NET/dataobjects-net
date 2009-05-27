@@ -5,7 +5,11 @@
 // Created:    2008.07.23
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Resources;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects;
@@ -41,6 +45,11 @@ namespace Xtensive.Integrity.Aspects
     public ValidationMode Mode { get; set; }
 
     /// <summary>
+    /// Gets or sets the message of exception to show if propery value is invalid.
+    /// </summary>
+    public string Message { get; set;}
+
+    /// <summary>
     /// Validates the <paramref name="target"/> against this constraint.
     /// </summary>
     /// <param name="target">The validation target.</param>
@@ -70,12 +79,6 @@ namespace Xtensive.Integrity.Aspects
         .Invoke(target);
     }
 
-    /// <summary>
-    /// Validates the specified field value.
-    /// </summary>
-    /// <param name="target">The validation target.</param>
-    /// <param name="value">The value to validate.</param>
-    public abstract void CheckValue(IValidationAware target, object value);
 
     /// <summary>
     /// Determines whether the specified <paramref name="valueType"/> 
@@ -84,13 +87,22 @@ namespace Xtensive.Integrity.Aspects
     /// <param name="valueType">The value type to check.</param>
     public abstract bool IsSupported(Type valueType);
 
+    /// <summary>
+    /// Method called at compile-time by the weaver to validate the application of this
+    /// custom attribute on a specific target element.
+    /// </summary>
+    /// <param name="element">Element (<see cref="T:System.Reflection.MethodBase"/>, <see cref="T:System.Reflection.FieldInfo"/>
+    /// or <see cref="T:System.Type"/> on which this instance is applied.</param>
+    /// <returns>
+    /// 	<b>true</b> in case of success, <b>false</b> in case of error.
+    /// </returns>
     /// <inheritdoc/>
-    public override bool CompileTimeValidate(object element)
+    public override sealed bool CompileTimeValidate(object element)
     {
       Property = (PropertyInfo) element;
 
       if (Property.GetSetMethod()==null) {
-        ErrorLog.Write(SeverityType.Error, Strings.FieldConstraintCanNotBeAppliedToReadOnlyProperty);        
+        ErrorLog.Write(SeverityType.Error, Strings.FieldConstraintCanNotBeAppliedToReadOnlyProperty);
         return false;
       }
 
@@ -103,7 +115,27 @@ namespace Xtensive.Integrity.Aspects
         return false;
       }
 
+      // Specifiec constraint properties validation.
+      try {
+        ValidateConstraintProperties();
+      }
+      catch(Exception exception) {
+        ErrorLog.Write(SeverityType.Error,
+          "Appling [{0}] to property '{1}' failed. {2}",
+          AspectHelper.FormatType(GetType()),
+          AspectHelper.FormatMember(Property.DeclaringType, Property),
+          exception.Message);
+        return false;
+      }
+
       return true;
+    }
+
+    /// <summary>
+    /// Validates the constraint properties.
+    /// </summary>
+    protected virtual void ValidateConstraintProperties()
+    {
     }
 
     /// <inheritdoc/>
@@ -112,6 +144,62 @@ namespace Xtensive.Integrity.Aspects
       collection.AddAspect(Property.GetSetMethod(true), 
         new ImplementPropertyConstraintAspect(this));
     }
+
+    /// <summary>
+    /// Determines whether the specified value is valid.
+    /// </summary>
+    /// <param name="value">The value to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified value is valid; otherwise, <see langword="false"/>.
+    /// </returns>
+    public abstract bool IsValid(object value);
+
+    private bool isInitialized = false;
+
+    /// <summary>
+    /// Initializes the constraint.
+    /// </summary>
+    protected virtual void Initialize()
+    {
+    }
+
+    /// <summary>
+    /// Checks the specified value, if not throws <see cref="ConstraintViolationException"/>.
+    /// </summary>
+    /// <param name="target">The validation target.</param>
+    /// <param name="value">The property value.</param>
+    /// <exception cref="ConstraintViolationException">Value is not valid.</exception>
+    public void CheckValue(IValidationAware target, object value)
+    {
+      if (!isInitialized) {
+        ValidateConstraintProperties();
+        if (string.IsNullOrEmpty(Message))
+          Message = GetDefaultMessage();
+        Initialize();
+        isInitialized = true;
+      }
+
+      if (IsValid(value))
+        return;
+
+      string message = Message;
+      var parameters = GetMessageParams()
+        .AddOne(new KeyValuePair<string, string>("PropertyName", Property.Name))
+        .AddOne(new KeyValuePair<string, string>("value", (value ?? "null").ToString()));
+
+      foreach (var param in parameters) {
+        message = message.Replace("{" + param.Key + "}", param.Value);
+      }
+      throw new ConstraintViolationException(message, target.GetType(), Property, value);
+    }
+
+    protected virtual IEnumerable<KeyValuePair<string, string>> GetMessageParams()
+    {
+      return Enumerable.Empty<KeyValuePair<string, string>>();
+    }
+
+    protected abstract string GetDefaultMessage();
+
 
     #region Private \ internal methods
 

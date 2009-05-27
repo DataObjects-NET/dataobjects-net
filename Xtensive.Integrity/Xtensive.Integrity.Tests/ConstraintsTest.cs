@@ -5,6 +5,7 @@
 // Created:    2008.07.23
 
 using System;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Testing;
@@ -17,11 +18,9 @@ namespace Xtensive.Integrity.Tests
   [TestFixture]
   public class ConstraintsTest
   {
-    internal class ConstraintsValidationContext : ValidationContextBase {}    
+    internal class ValidationContext : ValidationContextBase {}
 
-    internal static ConstraintsValidationContext Context = new ConstraintsValidationContext();
-
-    #region Nested types: ValidatableObject, AgedObject, NamedObject, WebObject
+    internal static ValidationContext context = new ValidationContext();
 
     internal class ValidatableObject : IValidationAware
     {
@@ -32,89 +31,100 @@ namespace Xtensive.Integrity.Tests
 
       ValidationContextBase IContextBound<ValidationContextBase>.Context
       {
-        get { return Context; }
+        get { return context; }
       }
     }
 
-    internal class AgedObject : ValidatableObject
-    {      
-      [RangeConstraint(0, 100)]
+    internal class Person : ValidatableObject
+    {
+      [NotNullOrEmptyConstraint]
+      [LengthConstraint(Max = 20, Mode = ValidationMode.Immediate)]
+      public string Name { get; set;}
+
+      [RangeConstraint(Min = 0, Message = "Incorrect age ({value}), age can not be less than {Min}.")]
       public int Age { get; set;}
 
-//      [RangeConstraint(10)]
-//      public AgedObject Wrong { get; set; }
-    }
+      [PastConstraint]
+      public DateTime RegistrationDate { get; set;}
 
-    internal class NamedObject : ValidatableObject
-    {
-      [RegexConstraint(@"^[^1-9]*$", Mode = ValidationMode.Immediate)]
-      [RequiredConstraint(true)]
-      public string Name { get; set;}      
-    }
+      [RegexConstraint(Pattern = @"^(\(\d+\))?[-\d ]+$", Message = "Incorrect phone format '{value}'")]
+      public string Phone { get; set;}
 
-    internal class WebObject : ValidatableObject
-    {      
-      [RegexConstraint(@"^www\.")]
-      public string Url { get; set;}
-    }
+      [EmailConstraint]
+      public string Email { get; set;}
 
-    #endregion
-
-    [Test]
-    public void AgedObjectTest()
-    {
-      AssertEx.Throws<ConstraintViolationException>(() => {
-        var a = new AgedObject {Age = (-1)};
-      });
-      AssertEx.Throws<ConstraintViolationException>(() => {
-        var a = new AgedObject {Age = 101};
-      });
-      using (Context.OpenInconsistentRegion()) {
-        var a = new AgedObject();
-        a.Age = 101;
-        a.Age = 100;
-      }
-      {
-        var a = new AgedObject {Age = 100};
-      }
+      [RangeConstraint(Min = 1, Max = 2.13)]
+      public double Height { get; set; }
     }
 
     [Test]
-    public void NamedObjectTest()
+    public void PersonTest()
     {
-      AssertEx.Throws<ConstraintViolationException>(() => {
-        var c = new NamedObject {Name = null};
-      });
-      AssertEx.Throws<ConstraintViolationException>(() => {
-        var c = new NamedObject {Name = string.Empty};
-      });
-      AssertEx.Throws<Exception>(() => { // Exact type is either AE or CVE 
-                                         // dependently on order of applied aspects
-        using (Context.OpenInconsistentRegion()) {
-          var c = new NamedObject();
-          c.Name = "E1.ru"; // Throws CVE, since Name is validated in immediate mode
-          c.Name = "Xtensive";
-        } // May throw AE, if [required] aspect was applied before [matches regex] aspect.
-      });
-      {
-        var c = new NamedObject {Name = "Xtensive"};
-      }
-    }
+      
+      try {
+        using (context.OpenInconsistentRegion()) {
+          Person person = new Person();
+          
+          person.Age = -1;
+          person.RegistrationDate = new DateTime(2100, 1, 1);
+          person.Phone = "one-one-two-four-seven-one";
+          person.Email = "my name@my domain";
+          person.Height = 2.15;
 
-    [Test]
-    public void WebObjectTest()
-    {
-      using (Context.OpenInconsistentRegion()) {
-        var w = new WebObject();
-        w.Url = "x-tensive.com";
-        w.Url = "www.x-tensive.com";
+          person.Validate();
+        }
       }
-      {
-        var w = new WebObject {Url = "www.x-tensive.com"};
+      catch(AggregateException exception) {
+        var errors = exception.GetFlatExceptions().Cast<ConstraintViolationException>();
+        Assert.AreEqual(6, errors.Count());
+        Assert.IsTrue(errors.Any(error => error.TargetType==typeof(Person)));
+
+        var nameExcepthion = errors.Where(error => error.TargetProperty.Name=="Name").Single();
+        Assert.AreEqual("Name can not be null or empty.", nameExcepthion.Message);
+
+        var ageExcepthion = errors.Where(error => error.TargetProperty.Name=="Age").Single();
+        Assert.AreEqual("Incorrect age (-1), age can not be less than 0.", ageExcepthion.Message);
+
+        var phoneError = errors.Where(error => error.TargetProperty.Name=="Phone").Single();
+        Assert.AreEqual("Incorrect phone format 'one-one-two-four-seven-one'", phoneError.Message);
+        
+        var registrationDateError = errors.Where(error => error.TargetProperty.Name=="RegistrationDate").Single();
+        Assert.AreEqual("RegistrationDate must be in the past.", registrationDateError.Message);
+
+        var emailError = errors.Where(error => error.TargetProperty.Name=="Email").Single();
+        Assert.AreEqual("Email format is incorrect.", emailError.Message);
+
+        var heightError = errors.Where(error => error.TargetProperty.Name=="Height").Single();
+        Assert.AreEqual("Height can not be less than 1 or greater than 2,13.", heightError.Message);
       }
-      AssertEx.Throws<ConstraintViolationException>(() => {
-        var w = new WebObject {Url = "x-tensive.com"};
-      });
+
+      using (context.OpenInconsistentRegion()) {
+        Person person = new Person();
+        
+        AssertEx.Throws<ConstraintViolationException>(() =>
+          person.Name = "Bla-Bla-Bla longer than 20 characters.");
+
+        person.Name = "Alex Kofman";
+        person.Age = 26;
+        person.RegistrationDate = new DateTime(2007, 1, 02);
+        person.Phone = "(343) 111-22-33";
+        person.Email = "alex.kofman@x-tensive.com";
+        person.Height = 1.67;
+        person.Validate();
+      }
+
+      using (context.OpenInconsistentRegion()) {
+        Person person = new Person();
+
+        person.Name = "Mr. Unknown";
+        person.Age = 100;
+        person.RegistrationDate = DateTime.Now;
+        person.Phone = null;
+        person.Email = "";
+        person.Height = 2;
+
+        person.Validate();
+      }
     }
   }
 }

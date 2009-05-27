@@ -6,11 +6,10 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
 using Xtensive.Integrity.Resources;
-using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Aspects.Constraints
 {
@@ -18,49 +17,36 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Ensures field length (or item count) fits in specified range.
   /// </summary>
   [Serializable]
-  public class LengthConstraintAttribute : PropertyConstraintAspect
+  public class LengthConstraint : PropertyConstraintAspect
   {
-    private long minLength = long.MinValue;
-    private long maxLength = long.MaxValue;
-
     /// <summary>
     /// Gets or sets the minimal allowed length.
-    /// Default is <see cref="long.MinValue"/>.
+    /// Default is 0.
     /// </summary>
-    public long MinLength
-    {
-      get { return minLength; }
-      set { minLength = value; }
-    }
+    public long Min { get; set; }
 
     /// <summary>
     /// Gets or sets the maximal allowed length.
     /// Default is <see cref="long.MaxValue"/>.
     /// </summary>
-    public long MaxLength
-    {
-      get { return maxLength; }
-      set { maxLength = value; }
-    }
+    public long Max { get; set;}
 
     /// <inheritdoc/>
-    /// <exception cref="ConstraintViolationException">Value check failed.</exception>
-    public override void CheckValue(IValidationAware target, object value)
+    public override bool IsValid(object value)
     {
-      long length;
       if (value==null)
-        length = 0;
-      else if (value.GetType()==typeof(string))
-        length = (value as string).Length;
+        return true;
+      
+      long length;
+
+      if (value is string)
+        length = ((string) value).Length;
       else if (value is ICountable)
-        length = (value as ICountable).Count;
+        length = ((ICountable) value).Count;
       else 
         length = ((ICollection)value).Count;
 
-      if (length<MinLength || length>MaxLength)
-        throw new ConstraintViolationException(string.Format(
-          Strings.PropertyValueLengthMustBeInXYRange, 
-          Property.GetShortName(true), MinLength, MaxLength));
+      return length >= Min && length <= Max;
     }
 
     /// <inheritdoc/>
@@ -72,34 +58,41 @@ namespace Xtensive.Integrity.Aspects.Constraints
         typeof (ICollection).IsAssignableFrom(valueType);
     }
 
+    protected override void ValidateConstraintProperties()
+    {
+      if (Max==long.MaxValue && Min==0)
+        throw new Exception(
+          string.Concat(Strings.ExMaxOrMinPropertyMustBeSpecified));
+    }
+
+    protected override IEnumerable<KeyValuePair<string, string>> GetMessageParams()
+    {
+      if (Min != 0)
+        yield return new KeyValuePair<string, string>("Min", Min.ToString());
+      if (Max != long.MaxValue)
+        yield return new KeyValuePair<string, string>("Max", Max.ToString());
+    }
+
+    protected override string GetDefaultMessage()
+    {
+      if (Min==0)
+        return Strings.ConstraintMessageValueLengthCanNotBeGreaterThanMax;
+      if (Max==long.MaxValue)
+        return Strings.ConstraintMessageValueLengthCanNotBeLessThanMin;
+
+      return Strings.ConstraintMessageValueLengthCanNotBeLessThanMinAndGreaterThenMax;
+    }
+
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public LengthConstraintAttribute()
+    public LengthConstraint()
     {
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="maxLength"><see cref="MaxLength"/> property value.</param>
-    public LengthConstraintAttribute(long maxLength)
-    {
-      MaxLength = maxLength;
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="minLength"><see cref="MinLength"/> property value.</param>
-    /// <param name="maxLength"><see cref="MaxLength"/> property value.</param>
-    public LengthConstraintAttribute(long minLength, long maxLength)
-    {
-      MinLength = minLength;
-      MaxLength = maxLength;
+      Max = long.MaxValue;
+      Min = 0;
     }
   }
 }

@@ -8,16 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
-using PostSharp.Extensibility;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
-using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 using Xtensive.Integrity.Resources;
-using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Aspects.Constraints
 {
@@ -25,7 +19,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Ensures field value fits in specified range.
   /// </summary>
   [Serializable]
-  public class RangeConstraintAttribute : PropertyConstraintAspect, IDeserializationCallback
+  public class RangeConstraint : PropertyConstraintAspect, IDeserializationCallback
   {
     [NonSerialized]
     private ThreadSafeCached<Func<object, object, int>> cachedComparer = 
@@ -36,49 +30,45 @@ namespace Xtensive.Integrity.Aspects.Constraints
     /// <see langword="null" /> means "ignore this boundary".
     /// Default value is <see langword="null" />.
     /// </summary>
-    public object MinValue { get; set; }
+    public object Min { get; set; }
 
     /// <summary>
     /// Gets or sets the maximal allowed value.
     /// <see langword="null" /> means "ignore this boundary".
     /// Default value is <see langword="null" />.
     /// </summary>
-    public object MaxValue { get; set; }
+    public object Max { get; set; }
 
     /// <inheritdoc/>
-    public override bool CompileTimeValidate(object element)
+    protected override void ValidateConstraintProperties()
     {
-      if (!base.CompileTimeValidate(element))
-        return false;
+      if (Max==null && Min==null)
+        throw new Exception(Strings.ExMaxOrMinPropertyMustBeSpecified);
+
+      if (Max!=null)
+        Convert.ChangeType(Max, Property.PropertyType);
+      if (Min!=null)
+        Convert.ChangeType(Min, Property.PropertyType);
 
       // Checking if a comparer we need exists
       Func<object, object, int> comparer = null;
       try {
         comparer = GetCachedComparer();
-        // ErrorLog.Debug("Comparer: {0} for {1}", comparer, Property.GetShortName(true));
       }
-      catch {}
-      if (comparer==null) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectExNoComparer,
-          AspectHelper.FormatType(GetType()),
-          AspectHelper.FormatMember(Property.DeclaringType, Property),
-          AspectHelper.FormatType(Property.PropertyType));
-        return false;
+      catch {
       }
-
-      return true;
+      if (comparer==null)
+        throw new Exception(
+          string.Format(Strings.ExComparerForTypeXIsNotFound, Property.PropertyType));
     }
 
     /// <inheritdoc/>
-    /// <exception cref="ConstraintViolationException">Value check failed.</exception>
-    public override void CheckValue(IValidationAware target, object value)
+    public override bool IsValid(object value)
     {
       var comparer = GetCachedComparer();
-
-      if (comparer.Invoke(value, MinValue)<0 || comparer.Invoke(value, MaxValue)>0)
-        throw new ConstraintViolationException(string.Format(
-          Strings.PropertyValueMustBeInXYRange, 
-          Property.GetShortName(true), MinValue, MaxValue));
+      return 
+        comparer.Invoke(value, Min) >= 0 && 
+        comparer.Invoke(value, Max) <= 0;
     }
 
     /// <inheritdoc/>
@@ -100,9 +90,9 @@ namespace Xtensive.Integrity.Aspects.Constraints
         this);
     }
 
-// ReSharper disable UnusedPrivateMember
+// ReSharper disable UnusedMember.Local
     private Func<object, object, int> GetComparer<T>()
-// ReSharper restore UnusedPrivateMember
+// ReSharper restore UnusedMember.Local
     {
       if (!typeof(IComparable<T>).IsAssignableFrom(typeof(T)))
         return null;
@@ -112,35 +102,35 @@ namespace Xtensive.Integrity.Aspects.Constraints
       return (l, r) => r==null ? 0 : compare((T) l, (T) r);
     }
 
+    protected override IEnumerable<KeyValuePair<string, string>> GetMessageParams()
+    {
+      if (Min != null)
+        yield return new KeyValuePair<string, string>("Min", Min.ToString());
+      if (Max != null)
+        yield return new KeyValuePair<string, string>("Max", Max.ToString());
+    }
+
+    protected override string GetDefaultMessage()
+    {
+      if (Max == null && Min == null)
+        return string.Empty;
+      if (Min == null)
+        return Strings.ConstraintMessageValueCanNotBeGreaterThanMax;
+      if (Max == null)
+        return Strings.ConstraintMessageValueCanNotBeLessThanMin;
+      return Strings.ConstraintMessageValueCanNotBeLessThanMinOrGreaterThanMax;
+    }
+
+    protected override void Initialize()
+    {
+      if (Max!=null)
+        Max = Convert.ChangeType(Max, Property.PropertyType);
+      if (Min!=null)
+        Min = Convert.ChangeType(Min, Property.PropertyType);
+    }
+
 
     // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public RangeConstraintAttribute()
-    {
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="maxValue"><see cref="MaxValue"/> property value.</param>
-    public RangeConstraintAttribute(object maxValue)
-    {
-      MaxValue = maxValue;
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="minValue"><see cref="MinValue"/> property value.</param>
-    /// <param name="maxValue"><see cref="MaxValue"/> property value.</param>
-    public RangeConstraintAttribute(object minValue, object maxValue)
-    {
-      MinValue = minValue;
-      MaxValue = maxValue;
-    }
 
     /// <inheritdoc/>
     void IDeserializationCallback.OnDeserialization(object sender)

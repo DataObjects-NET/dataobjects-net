@@ -70,6 +70,123 @@ namespace Xtensive.Integrity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {PropertyName} can not be empty..
+        /// </summary>
+        internal static string ConstraintMessageValueCanNotBeEmpty {
+            get {
+                return ResourceManager.GetString("ConstraintMessageValueCanNotBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {PropertyName} can not be greater than {Max}..
+        /// </summary>
+        internal static string ConstraintMessageValueCanNotBeGreaterThanMax {
+            get {
+                return ResourceManager.GetString("ConstraintMessageValueCanNotBeGreaterThanMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {PropertyName} can not be less than {Min}..
+        /// </summary>
+        internal static string ConstraintMessageValueCanNotBeLessThanMin {
+            get {
+                return ResourceManager.GetString("ConstraintMessageValueCanNotBeLessThanMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {PropertyName} can not be less than {Min} or greater than {Max}..
+        /// </summary>
+        internal static string ConstraintMessageValueCanNotBeLessThanMinOrGreaterThanMax {
+            get {
+                return ResourceManager.GetString("ConstraintMessageValueCanNotBeLessThanMinOrGreaterThanMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {PropertyName} can not be null..
+        /// </summary>
+        internal static string ConstraintMessageValueCanNotBeNull {
+            get {
+                return ResourceManager.GetString("ConstraintMessageValueCanNotBeNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {PropertyName} can not be null or empty..
+        /// </summary>
+        internal static string ConstraintMessageValueCanNotBeNullOrEmpty {
+            get {
+                return ResourceManager.GetString("ConstraintMessageValueCanNotBeNullOrEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {PropertyName} format is incorrect..
+        /// </summary>
+        internal static string ConstraintMessageValueFormatIsIncorrect {
+            get {
+                return ResourceManager.GetString("ConstraintMessageValueFormatIsIncorrect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {PropertyName} length can not be greater than {Max}..
+        /// </summary>
+        internal static string ConstraintMessageValueLengthCanNotBeGreaterThanMax {
+            get {
+                return ResourceManager.GetString("ConstraintMessageValueLengthCanNotBeGreaterThanMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {PropertyName} length can not be less than {Min}..
+        /// </summary>
+        internal static string ConstraintMessageValueLengthCanNotBeLessThanMin {
+            get {
+                return ResourceManager.GetString("ConstraintMessageValueLengthCanNotBeLessThanMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {PropertyName} length can not be less than {Min} and greater then {Max}..
+        /// </summary>
+        internal static string ConstraintMessageValueLengthCanNotBeLessThanMinAndGreaterThenMax {
+            get {
+                return ResourceManager.GetString("ConstraintMessageValueLengthCanNotBeLessThanMinAndGreaterThenMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {PropertyName} must be in the future..
+        /// </summary>
+        internal static string ConstraintMessageValueMustBeInTheFuture {
+            get {
+                return ResourceManager.GetString("ConstraintMessageValueMustBeInTheFuture", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {PropertyName} must be in the past..
+        /// </summary>
+        internal static string ConstraintMessageValueMustBeInThePast {
+            get {
+                return ResourceManager.GetString("ConstraintMessageValueMustBeInThePast", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Date must be in the past..
+        /// </summary>
+        internal static string DateMustBeInThePast {
+            get {
+                return ResourceManager.GetString("DateMustBeInThePast", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to UndoDescriptor is already completed..
         /// </summary>
         internal static string ExAlreadyCompleted {
@@ -93,6 +210,15 @@ namespace Xtensive.Integrity.Resources {
         internal static string ExCantInvokeBlockingDescriptor {
             get {
                 return ResourceManager.GetString("ExCantInvokeBlockingDescriptor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comparer for type &apos;{0}&apos; is not found..
+        /// </summary>
+        internal static string ExComparerForTypeXIsNotFound {
+            get {
+                return ResourceManager.GetString("ExComparerForTypeXIsNotFound", resourceCulture);
             }
         }
         
@@ -133,6 +259,15 @@ namespace Xtensive.Integrity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Regular expression pattern is not specified..
+        /// </summary>
+        internal static string ExExpressionPatternIsNotSpecified {
+            get {
+                return ResourceManager.GetString("ExExpressionPatternIsNotSpecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Incorrect Stage value: &apos;{0}&apos;..
         /// </summary>
         internal static string ExIncorrectStageValue {
@@ -147,6 +282,15 @@ namespace Xtensive.Integrity.Resources {
         internal static string ExInvalidTransactionState {
             get {
                 return ResourceManager.GetString("ExInvalidTransactionState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;Max&apos; or &apos;Min&apos; property must be specified..
+        /// </summary>
+        internal static string ExMaxOrMinPropertyMustBeSpecified {
+            get {
+                return ResourceManager.GetString("ExMaxOrMinPropertyMustBeSpecified", resourceCulture);
             }
         }
         
@@ -277,7 +421,7 @@ namespace Xtensive.Integrity.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0}: value does not match regex pattern &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Property value &apos;{value}&apos; does not match regex pattern &apos;{Pattern}&apos;..
         /// </summary>
         internal static string PropertyValueDoesNotMatchRegexPattern {
             get {

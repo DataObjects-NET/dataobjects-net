@@ -92,7 +92,7 @@ namespace Xtensive.Integrity.Validation
       IList<Exception> exceptions = null;
       try {
         foreach (var pair in registry) {
-          try {           
+          try {
             if (pair.Second==null)
               pair.First.Validate();
             else

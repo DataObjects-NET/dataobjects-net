@@ -169,7 +169,7 @@
     <value>Error during undoing the relation synchronization.</value>
   </data>
   <data name="PropertyValueDoesNotMatchRegexPattern" xml:space="preserve">
-    <value>{0}: value does not match regex pattern '{1}'.</value>
+    <value>Property value '{value}' does not match regex pattern '{Pattern}'.</value>
   </data>
   <data name="PropertyValueCanNotBeEmpty" xml:space="preserve">
     <value>{0}: value can not be empty.</value>
@@ -206,5 +206,53 @@
   </data>
   <data name="AspectExNoComparer" xml:space="preserve">
     <value>[{0}] attribute on '{1}' requires a comparer for type '{2}'.</value>
+  </data>
+  <data name="DateMustBeInThePast" xml:space="preserve">
+    <value>Date must be in the past.</value>
+  </data>
+  <data name="ConstraintMessageValueMustBeInTheFuture" xml:space="preserve">
+    <value>{PropertyName} must be in the future.</value>
+  </data>
+  <data name="ConstraintMessageValueLengthCanNotBeGreaterThanMax" xml:space="preserve">
+    <value>{PropertyName} length can not be greater than {Max}.</value>
+  </data>
+  <data name="ConstraintMessageValueLengthCanNotBeLessThanMin" xml:space="preserve">
+    <value>{PropertyName} length can not be less than {Min}.</value>
+  </data>
+  <data name="ExMaxOrMinPropertyMustBeSpecified" xml:space="preserve">
+    <value>'Max' or 'Min' property must be specified.</value>
+  </data>
+  <data name="ConstraintMessageValueCanNotBeEmpty" xml:space="preserve">
+    <value>{PropertyName} can not be empty.</value>
+  </data>
+  <data name="ConstraintMessageValueCanNotBeNull" xml:space="preserve">
+    <value>{PropertyName} can not be null.</value>
+  </data>
+  <data name="ConstraintMessageValueCanNotBeNullOrEmpty" xml:space="preserve">
+    <value>{PropertyName} can not be null or empty.</value>
+  </data>
+  <data name="ConstraintMessageValueMustBeInThePast" xml:space="preserve">
+    <value>{PropertyName} must be in the past.</value>
+  </data>
+  <data name="ExComparerForTypeXIsNotFound" xml:space="preserve">
+    <value>Comparer for type '{0}' is not found.</value>
+  </data>
+  <data name="ConstraintMessageValueCanNotBeGreaterThanMax" xml:space="preserve">
+    <value>{PropertyName} can not be greater than {Max}.</value>
+  </data>
+  <data name="ConstraintMessageValueCanNotBeLessThanMin" xml:space="preserve">
+    <value>{PropertyName} can not be less than {Min}.</value>
+  </data>
+  <data name="ConstraintMessageValueCanNotBeLessThanMinOrGreaterThanMax" xml:space="preserve">
+    <value>{PropertyName} can not be less than {Min} or greater than {Max}.</value>
+  </data>
+  <data name="ExExpressionPatternIsNotSpecified" xml:space="preserve">
+    <value>Regular expression pattern is not specified.</value>
+  </data>
+  <data name="ConstraintMessageValueLengthCanNotBeLessThanMinAndGreaterThenMax" xml:space="preserve">
+    <value>{PropertyName} length can not be less than {Min} and greater then {Max}.</value>
+  </data>
+  <data name="ConstraintMessageValueFormatIsIncorrect" xml:space="preserve">
+    <value>{PropertyName} format is incorrect.</value>
   </data>
 </root>
