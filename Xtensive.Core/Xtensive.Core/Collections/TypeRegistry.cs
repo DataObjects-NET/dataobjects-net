@@ -8,12 +8,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Configuration
+namespace Xtensive.Core.Collections
 {
   /// <summary>
   /// <see cref="Type"/> registration endpoint.

@@ -5,7 +5,6 @@
 // Created:    2008.05.07
 
 using System;
-using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 

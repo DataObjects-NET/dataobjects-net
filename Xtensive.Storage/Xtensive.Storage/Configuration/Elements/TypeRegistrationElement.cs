@@ -6,6 +6,7 @@
 
 using System.Configuration;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using R=System.Reflection;
 

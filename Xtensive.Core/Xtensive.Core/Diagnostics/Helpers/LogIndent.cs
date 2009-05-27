@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Diagnostics;
 
 namespace Xtensive.Core.Diagnostics.Helpers
 {

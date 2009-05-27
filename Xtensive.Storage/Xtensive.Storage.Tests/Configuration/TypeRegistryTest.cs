@@ -6,6 +6,7 @@
 
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Configuration;
@@ -57,8 +58,8 @@ namespace Xtensive.Storage.Tests.Configuration
     [Test]
     public void HierarchyTest()
     {
-      DomainConfiguration config = new DomainConfiguration();
-      TypeRegistry typeRegistry = config.Types;
+      var config = new DomainConfiguration();
+      var typeRegistry = config.Types;
       typeRegistry.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
       Assert.IsTrue(typeRegistry.Contains(typeof (A)));
       Assert.IsTrue(typeRegistry.Contains(typeof (B)));
@@ -77,7 +78,7 @@ namespace Xtensive.Storage.Tests.Configuration
     [Test]
     public void ContiniousRegistrationTest()
     {
-      DomainConfiguration config = new DomainConfiguration();
+      var config = new DomainConfiguration();
       TypeRegistry typeRegistry = config.Types;
       typeRegistry.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
       long amount = typeRegistry.Count;
@@ -88,10 +89,10 @@ namespace Xtensive.Storage.Tests.Configuration
     [Test]
     public void CloneTest()
     {
-      DomainConfiguration config = new DomainConfiguration();
+      var config = new DomainConfiguration();
       TypeRegistry registry1 = config.Types;
       registry1.Register(typeof (A).Assembly, "Xtensive.Storage.Tests.RegistryModel1");
-      TypeRegistry registry2 = registry1.Clone() as TypeRegistry;
+      var registry2 = registry1.Clone() as TypeRegistry;
       Assert.IsNotNull(registry2);
       Assert.AreEqual(registry1.Count, registry2.Count);
     }
@@ -99,8 +100,8 @@ namespace Xtensive.Storage.Tests.Configuration
     [Test]
     public void NamespaceFilterTest()
     {
-      DomainConfiguration config = new DomainConfiguration();
-      TypeRegistry typeRegistry = config.Types;
+      var config = new DomainConfiguration();
+      var typeRegistry = config.Types;
       typeRegistry.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.RegistryModel2");
       Assert.IsFalse(typeRegistry.Contains(typeof (A)));
       Assert.IsFalse(typeRegistry.Contains(typeof (B)));

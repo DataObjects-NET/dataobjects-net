@@ -5,8 +5,6 @@
 // Created:    2008.01.23
 
 using System;
-using System.Runtime.Serialization;
-using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Comparison
 {

@@ -6,11 +6,9 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Storage.Configuration.Internals
+namespace Xtensive.Core.Collections
 {
   /// <summary>
   /// Base class for any <see cref="ITypeRegistrationHandler"/> implementation.

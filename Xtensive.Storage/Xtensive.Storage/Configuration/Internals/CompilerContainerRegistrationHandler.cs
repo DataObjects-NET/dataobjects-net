@@ -5,6 +5,7 @@
 // Created:    2009.04.27
 
 using System;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 

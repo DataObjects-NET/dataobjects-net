@@ -12,7 +12,7 @@ namespace Xtensive.Core.Diagnostics
   public interface ILogBase
   {
     /// <summary>
-    /// Gets the name fo the log.
+    /// Gets the name of the log.
     /// </summary>
     string Name { get; }
 

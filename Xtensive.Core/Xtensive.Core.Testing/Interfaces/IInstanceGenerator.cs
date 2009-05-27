@@ -5,9 +5,7 @@
 // Created:    2008.01.16
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Testing
 {

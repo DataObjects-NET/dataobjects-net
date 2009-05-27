@@ -5,6 +5,7 @@
 // Created:    2007.08.21
 
 using System;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Configuration.Internals
 {
