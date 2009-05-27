@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Providers.MsSql
     {
       var schema = ExtractStorageSchema();
       var sessionHandeler = (SessionHandler) BuildingContext.Demand().SystemSessionHandler;
-      var converter = new SqlModelConverter(schema, sessionHandeler.ExecuteScalar, ConvertType);
+      var converter = new MsSqlModelConverter(schema, sessionHandeler.ExecuteScalar, ConvertType);
       return converter.GetConversionResult();
     }
 

@@ -72,15 +72,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
         if(isDisposed)
           return;
         isDisposed = true;
-        Dispose(true);
-      }
-
-      private void Dispose(bool disposing)
-      {
         UpdateOwnerState();
         owner.State = previousState;
-        if(disposing)
-          GC.SuppressFinalize(this);
       }
 
       private void UpdateOwnerState()
@@ -105,13 +98,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
           else
             previousState.Predicates.Add(pair.Key, pair.Value);
         }
-      }
-
-      // Finalizer
-
-      ~CorrectorState()
-      {
-        Dispose(false);
       }
     }
 

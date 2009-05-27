@@ -438,6 +438,8 @@ namespace Xtensive.Storage.Providers.Sql
         var sequence = schema.CreateSequence(sequenceInfo.Name);
         sequence.SequenceDescriptor = new SequenceDescriptor(sequence,
           sequenceInfo.StartValue, sequenceInfo.Increment);
+        sequence.SequenceDescriptor.MinValue = sequenceInfo.StartValue;
+        sequence.DataType = GetSqlType(sequenceInfo.Type);
         RegisterCommand(SqlFactory.Create(sequence));
       }
       else {
@@ -465,6 +467,7 @@ namespace Xtensive.Storage.Providers.Sql
         var sequence = schema.Sequences[sequenceInfo.Name];
         var sequenceDescriptor = new SequenceDescriptor(sequence,
           sequenceInfo.StartValue, sequenceInfo.Increment);
+        sequenceDescriptor.MinValue = sequenceInfo.StartValue;
         sequence.SequenceDescriptor = sequenceDescriptor;
         RegisterCommand(SqlFactory.Alter(sequence,
           sequenceDescriptor));
@@ -597,66 +600,7 @@ namespace Xtensive.Storage.Providers.Sql
         ? typeInfo.Type.GetGenericArguments()[0]
         : typeInfo.Type;
 
-      return
-        valueTypeBuilder!=null
-          ? valueTypeBuilder.Invoke(type, typeInfo.Length ?? 0)
-          : BuildSqlValueType(type, typeInfo.Length);
-    }
-
-    private static SqlValueType BuildSqlValueType(Type type, int? length)
-    {
-      var dataType = GetDbType(type);
-      if (length.HasValue)
-        return new SqlValueType(dataType, length.Value);
-      return new SqlValueType(dataType);
-    }
-
-    private static SqlDataType GetDbType(Type type)
-    {
-      if (type.IsValueType && type.IsNullable())
-        type = type.GetGenericArguments()[0];
-      
-      TypeCode typeCode = Type.GetTypeCode(type);
-      switch (typeCode) {
-      case TypeCode.Object:
-        if (type==typeof (byte[]))
-          return SqlDataType.Binary;
-        if (type == typeof(Guid))
-          return SqlDataType.Guid;
-        throw new ArgumentOutOfRangeException();
-      case TypeCode.Boolean:
-        return SqlDataType.Boolean;
-      case TypeCode.Char:
-        return SqlDataType.Char;
-      case TypeCode.SByte:
-        return SqlDataType.SByte;
-      case TypeCode.Byte:
-        return SqlDataType.Byte;
-      case TypeCode.Int16:
-        return SqlDataType.Int16;
-      case TypeCode.UInt16:
-        return SqlDataType.UInt16;
-      case TypeCode.Int32:
-        return SqlDataType.Int32;
-      case TypeCode.UInt32:
-        return SqlDataType.UInt32;
-      case TypeCode.Int64:
-        return SqlDataType.Int64;
-      case TypeCode.UInt64:
-        return SqlDataType.UInt64;
-      case TypeCode.Single:
-        return SqlDataType.Float;
-      case TypeCode.Double:
-        return SqlDataType.Double;
-      case TypeCode.Decimal:
-        return SqlDataType.Decimal;
-      case TypeCode.DateTime:
-        return SqlDataType.DateTime;
-      case TypeCode.String:
-        return SqlDataType.VarChar;
-      default:
-        throw new ArgumentOutOfRangeException();
-      }
+      return valueTypeBuilder.Invoke(type, typeInfo.Length ?? 0);
     }
 
     private static SqlRefAction ConvertReferentialAction(ReferentialAction toConvert)
@@ -727,6 +671,7 @@ namespace Xtensive.Storage.Providers.Sql
       ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
       ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
+      ArgumentValidator.EnsureArgumentNotNull(valueTypeBuilder, "valueTypeBuilder");
 
       this.schema = schema;
       this.driver = driver;

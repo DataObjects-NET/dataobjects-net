@@ -405,6 +405,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
           builder.Append(RowItemDelimiter);
         }
         builder.Append(QuoteIdentifier(column.Name));
+        builder.Append(column.Ascending ? " ASC" : " DESC");
       }
       builder.Append(")");
       AppendIndexStorageParameters(builder, index);

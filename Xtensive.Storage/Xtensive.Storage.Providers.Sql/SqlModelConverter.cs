@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Providers.Sql
   /// <summary>
   /// Converts <see cref="Xtensive.Sql.Dom.Database.Model"/> to indexing storage model.
   /// </summary>
-  public class SqlModelConverter : SqlModelVisitor<IPathNode>
+  public abstract class SqlModelConverter : SqlModelVisitor<IPathNode>
   {
     /// <summary>
     /// Gets the storage info.
@@ -83,6 +83,8 @@ namespace Xtensive.Storage.Providers.Sql
         t => t.TableConstraints.OfType<ForeignKey>());
       foreach (var foreignKey in foreignKeys)
         Visit(foreignKey);
+      foreach (var sequence in schema.Sequences)
+        VisitSequence(sequence);
 
       return null;
     }

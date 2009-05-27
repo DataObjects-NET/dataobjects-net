@@ -7,22 +7,41 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
+using Xtensive.Sql.Common;
+using Xtensive.Sql.Dom.Database;
+using Xtensive.Sql.Dom.Database.Providers;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Sql.Dom;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Core;
 using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
+using SequenceInfo=Xtensive.Storage.Indexing.Model.SequenceInfo;
 using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
   [TestFixture]
-  public class SqlActionTranslatorTest
+  public abstract class SqlActionTranslatorTest
   {
-    private static string Url = "mssql2005://localhost/DO40-Tests";
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
+    {
+      Url = GetConnectionUrl();
+    }
+
+    protected abstract string GetConnectionUrl();
+
+    protected abstract TypeInfo ConvertType(SqlValueType valueType);
+
+    protected string Url { get; private set; }
+
+    protected abstract SqlModelConverter CreateSqlModelConverter(Schema storageSchema,
+      Func<ISqlCompileUnit, object> commandExecutor, Func<SqlValueType, TypeInfo> valueTypeConverter);
 
     private static StorageInfo BuildOldModel()
     {
@@ -69,7 +88,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       var t1Id = new ColumnInfo(t1, "Id", new TypeInfo(typeof (int)));
       var t1C1 = new ColumnInfo(t1, "col1", new TypeInfo(typeof (int?), true));
       var t1C5 = new ColumnInfo(t1, "col5", new TypeInfo(typeof (string), true, 256));
-      var t1C3 = new ColumnInfo(t1, "col3", new TypeInfo(typeof (Guid), false));
+      var t1C3 = new ColumnInfo(t1, "col3", new TypeInfo(typeof (string), false, 256));
       var t1pk = new PrimaryIndexInfo(t1, "PK_table1");
       new KeyColumnRef(t1pk, t1Id, Direction.Positive);
       t1pk.PopulateValueColumns();
@@ -232,29 +251,33 @@ namespace Xtensive.Storage.Tests.Upgrade
       return comparer.Compare(oldModel, newModel, hints);
     }
 
-    private static void Create(StorageInfo model)
+    private void Create(StorageInfo model)
     {
-      var manager = new SchemaManager(Url, false);
-      manager.CreateSchema(model);
+      ClearSchema();
+      var emptyModel = new StorageInfo();
+      var actions = Compare(emptyModel, model, null);
+      UpgradeCurrentSchema(emptyModel, model, actions);
     }
 
-    private static void ClearSchema()
+    private void ClearSchema()
     {
-      var manager = new SchemaManager(Url, false);
-      manager.ClearSchema();
+      var emptySchema = new StorageInfo();
+      var currentModel = ExtractModel();
+      var actions = Compare(currentModel, emptySchema, new HintSet(currentModel, emptySchema));
+      UpgradeCurrentSchema(currentModel, emptySchema, actions);
     }
 
-    private static void UpgradeCurrentSchema(StorageInfo oldModel, StorageInfo newModel, ActionSequence actions)
+    private void UpgradeCurrentSchema(StorageInfo oldModel, StorageInfo newModel,
+      ActionSequence actions)
     {
-      var manager = new SchemaManager(Url, false);
-      var schema = manager.GetStorageSchema();
+      var schema = GetSchema();
 
       var provider = new SqlConnectionProvider();
       using (var connection = provider.CreateConnection(Url) as SqlConnection) {
         connection.Open();
         using (var transaction = connection.BeginTransaction()) {
           var translator = new SqlActionTranslator(actions, schema,
-            connection.Driver, null, oldModel, newModel);
+            connection.Driver, BuildSqlValueType, oldModel, newModel);
           var delimiter = connection.Driver.Translator.BatchStatementDelimiter;
           var batch = new List<string>();
           batch.Add(string.Join(delimiter, translator.PreUpgradeCommands.ToArray()));
@@ -276,12 +299,84 @@ namespace Xtensive.Storage.Tests.Upgrade
       }
     }
 
-    private static StorageInfo ExtractModel()
+    private StorageInfo ExtractModel()
     {
-      var manager = new SchemaManager(Url, false);
-      return manager.GetStorageModel();
+      var schema = GetSchema();
+      return CreateSqlModelConverter(schema, GetGeneratorValue, ConvertType).GetConversionResult();
     }
 
-    # endregion
+    private Schema GetSchema()
+    {
+      Schema schema;
+      using (var connection = new SqlConnectionProvider().CreateConnection(Url)) {
+        connection.Open();
+        using (var t = connection.BeginTransaction()) {
+          var modelProvider = new SqlModelProvider(connection as SqlConnection, t);
+          schema = Sql.Dom.Database.Model.Build(modelProvider).DefaultServer
+            .DefaultCatalog.DefaultSchema;
+        }
+      }
+      return schema;
+    }
+
+    private static object GetGeneratorValue(ISqlCompileUnit cmd)
+    {
+      return (long)0;
+    }
+
+    private static SqlValueType BuildSqlValueType(Type type, int length)
+    {
+      var dataType = GetDbType(type);
+      return new SqlValueType(dataType, length);
+    }
+
+    private static SqlDataType GetDbType(Type type)
+    {
+      if (type.IsValueType && type.IsNullable())
+        type = type.GetGenericArguments()[0];
+      
+      TypeCode typeCode = Type.GetTypeCode(type);
+      switch (typeCode) {
+      case TypeCode.Object:
+        if (type==typeof (byte[]))
+          return SqlDataType.Binary;
+        if (type == typeof(Guid))
+          return SqlDataType.Guid;
+        throw new ArgumentOutOfRangeException();
+      case TypeCode.Boolean:
+        return SqlDataType.Boolean;
+      case TypeCode.Char:
+        return SqlDataType.Char;
+      case TypeCode.SByte:
+        return SqlDataType.SByte;
+      case TypeCode.Byte:
+        return SqlDataType.Byte;
+      case TypeCode.Int16:
+        return SqlDataType.Int16;
+      case TypeCode.UInt16:
+        return SqlDataType.UInt16;
+      case TypeCode.Int32:
+        return SqlDataType.Int32;
+      case TypeCode.UInt32:
+        return SqlDataType.UInt32;
+      case TypeCode.Int64:
+        return SqlDataType.Int64;
+      case TypeCode.UInt64:
+        return SqlDataType.UInt64;
+      case TypeCode.Single:
+        return SqlDataType.Float;
+      case TypeCode.Double:
+        return SqlDataType.Double;
+      case TypeCode.Decimal:
+        return SqlDataType.Decimal;
+      case TypeCode.DateTime:
+        return SqlDataType.DateTime;
+      case TypeCode.String:
+        return SqlDataType.VarChar;
+      default:
+        throw new ArgumentOutOfRangeException();
+      }
+    }
+    #endregion
   }
 }

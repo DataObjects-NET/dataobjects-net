@@ -13,6 +13,8 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
 {
   public class PgSqlExtractor : SqlExtractor
   {
+    private const int indoptionDesc = 0x0001;
+
     public PgSqlExtractor(PgSqlDriver driver)
       : base(driver)
     {
@@ -99,6 +101,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       CreateBoolColumn(t, "indisprimary");
       CreateBoolColumn(t, "indisclustered");
       CreateTextColumn(t, "indkey");
+      CreateTextColumn(t, "indoption");
 
       t = schema.CreateTable("pg_attribute");
       CreateOidColumn(t);
@@ -492,6 +495,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
         q.Columns.Add(ind["indisclustered"]);
         q.Columns.Add(ind["indkey"]);
         q.Columns.Add(spc["spcname"]);
+        q.Columns.Add(ind["indoption"]);
         AddSpecialIndexQueryColumns(q, spc, rel, ind, depend);
 
         using (SqlCommand cmd = new SqlCommand(context.Connection)) {
@@ -507,6 +511,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
               string tablespaceName = null;
               if (dr["spcname"]!=DBNull.Value)
                 tablespaceName = dr["spcname"].ToString();
+              string indoption = dr["indoption"].ToString();
 
               Table t = tables[tableOid];
               Index i = t.CreateIndex(indexName);
@@ -530,6 +535,13 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
                   //this means that this index column is an expression
                   //which is not possible with SqlDom tables
                 }
+              }
+
+              string[] columnOption = indoption.Split(' ');
+              for (int j = 0; j < columnOption.Length; j++) {
+                int option = Int32.Parse(columnOption[j]);
+                if((option & indoptionDesc) == indoptionDesc)
+                  i.Columns[j].Ascending = false;
               }
             }
           }
