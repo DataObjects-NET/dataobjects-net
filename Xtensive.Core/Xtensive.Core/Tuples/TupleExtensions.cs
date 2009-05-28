@@ -232,7 +232,9 @@ namespace Xtensive.Core.Tuples
       for (int i = 0; i < segment.Length; i++)
         map[i] = segment.Offset + i;
 
-      var transform = new MapTransform(false, left.Descriptor, map);
+      var types = new Collections.ArraySegment<Type>(left.Descriptor.fieldTypes, segment.Offset, segment.Length);
+      var descriptor = TupleDescriptor.Create(types);
+      var transform = new MapTransform(false, descriptor, map);
       return transform.Apply(TupleTransformType.TransformedTuple, left);
     }
 
