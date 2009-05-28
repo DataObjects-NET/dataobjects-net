@@ -10,6 +10,7 @@ using NUnit.Framework;
 using System.Reflection;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Testing;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Tests.Upgrade.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Upgrade.Model.Version2;
 
@@ -163,6 +164,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
       var configuration = DomainConfigurationFactory.Create(protocol);
       configuration.UpgradeMode = upgradeMode;
+      configuration.ForeignKeyMode = ForeignKeyMode.All;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Storage.Tests.Upgrade.Model.Version" + version);
       using (Upgrader.Enable(version)) {
