@@ -61,7 +61,19 @@ namespace Xtensive.Core.Linq
         expression = ((UnaryExpression)expression).Operand;
       return expression;
     }
-    
+
+
+    /// <summary>
+    /// Converts expression type to nullable type (for value types).
+    /// </summary>
+    /// <param name="expression">The expression.</param>
+    public static Expression LiftToNullable(this Expression expression)
+    {
+      return expression.Type.IsNullable() 
+        ? expression 
+        : Expression.Convert(expression, expression.Type.ToNullable());
+    }
+
     /// <summary>
     /// Converts specified <see cref="Expression"/> to <see cref="ExpressionTree"/>.
     /// </summary>
