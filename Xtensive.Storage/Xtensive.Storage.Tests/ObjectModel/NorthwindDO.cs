@@ -312,6 +312,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public string FullName { get { return FirstName + " " + LastName; } }
   }
 
+  [KeyGenerator(null)]
   [Entity(MappingName = "Territories")]
   [HierarchyRoot]
   public class Territory : Entity
