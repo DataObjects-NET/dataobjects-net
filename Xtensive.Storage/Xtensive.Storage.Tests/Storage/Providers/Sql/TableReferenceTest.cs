@@ -18,6 +18,7 @@ using Xtensive.Storage.Providers.Sql;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.Sql
 {
+  [KeyGenerator(null)]
   [HierarchyRoot]
   public class ABase: Entity
   {
@@ -65,6 +66,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public B ManyToOne { get; set; }
   }
 
+  [KeyGenerator(null)]
   [HierarchyRoot]
   public class BBase:Entity
   {

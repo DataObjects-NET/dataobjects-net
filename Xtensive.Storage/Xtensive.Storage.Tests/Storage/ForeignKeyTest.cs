@@ -57,10 +57,10 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
   [HierarchyRoot]
   public class Project : Entity
   {
-    [Field, KeyField]
+    [Field, KeyField(0)]
     public int Id5 { get; private set; }
 
-    [Field, KeyField]
+    [Field, KeyField(1)]
     public int Id6 { get; private set; }
 
     [Field]

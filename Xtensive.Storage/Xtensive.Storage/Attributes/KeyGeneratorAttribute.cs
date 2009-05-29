@@ -42,6 +42,7 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public KeyGeneratorAttribute()
+      : this(typeof(KeyGenerator))
     {
     }
 
@@ -53,18 +54,6 @@ namespace Xtensive.Storage
     public KeyGeneratorAttribute(Type type)
     {
       Type = type;
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="type">The generator type. Must be inherited from the <see cref="KeyGenerator"/> type</param>
-    /// <param name="cacheSize">Size of the generator cache.</param>
-    /// <remarks><paramref name="type"/> can't be null.</remarks>
-    public KeyGeneratorAttribute(Type type, int cacheSize)
-      : this(type)
-    {
-      CacheSize = cacheSize;
     }
   }
 }

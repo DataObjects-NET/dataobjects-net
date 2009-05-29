@@ -19,6 +19,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
   {
     #region Model
 
+    [KeyGenerator(null)]
     [HierarchyRoot]
     public abstract class Fruit : Entity
     {
@@ -41,6 +42,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
         : base(tag) {}
     }
 
+    [KeyGenerator(null)]
     [HierarchyRoot]
     public class Test : Entity
     {
@@ -52,7 +54,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
       public SByte Key3 { get; private set; }
       [Field, KeyField(3)]
       public DateTime Key4 { get; private set; }
-      [Field,KeyField(4)]
+      [Field]
       public Int32 Key5 { get; private set; }
       [Field]
       public Int64 Key6 { get; private set; }
@@ -121,26 +123,13 @@ namespace Xtensive.Storage.Tests.Storage.Keys
         using (var t = Transaction.Open())
         {
           TupleDescriptor descriptor = TupleDescriptor.Create(new[] { typeof (string), typeof (Byte), typeof (SByte),
-              typeof (DateTime), typeof (Int32), typeof (Int64), typeof (UInt16), typeof (UInt32), typeof (Guid), 
-              typeof (float), typeof (double), typeof (decimal), typeof (bool), typeof (string), typeof(TimeSpan)
-            });
+              typeof (DateTime)});
 
           Tuple tuple = Tuple.Create(descriptor);
           tuple.SetValue(0, " , ");
           tuple.SetValue<Byte>(1, 1);
           tuple.SetValue<SByte>(2, -1);
           tuple.SetValue(3, DateTime.Now);
-          tuple.SetValue(4, -1);
-          tuple.SetValue<Int64>(5, -1);
-          tuple.SetValue<UInt16>(6, 1);
-          tuple.SetValue<UInt32>(7, 1);
-          tuple.SetValue(8, new Guid(new byte[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }));
-          tuple.SetValue<float>(9, 1);
-          tuple.SetValue<double>(10, 1);
-          tuple.SetValue<decimal>(11, 1);
-          tuple.SetValue(12, true);
-          tuple.SetValue(13, " , ");
-          tuple.SetValue(14, new TimeSpan());
 
           Key k1 = Key.Create<Test>(tuple);
           var stringValue = k1.Format();

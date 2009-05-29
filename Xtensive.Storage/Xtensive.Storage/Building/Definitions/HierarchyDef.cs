@@ -49,9 +49,6 @@ namespace Xtensive.Storage.Building.Definitions
       get { return keyGeneratorCacheSize; }
       set
       {
-        if (keyGenerator == null)
-          throw new InvalidOperationException("Key generator type is not set.");
-
         if (value.HasValue)
           ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, Int32.MaxValue, "KeyGeneratorCacheSize");
         keyGeneratorCacheSize = value;
