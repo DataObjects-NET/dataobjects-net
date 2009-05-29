@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Abstract base class for any storage related attribute.
+  /// Base class for all storage-related attributes.
   /// </summary>
   [Serializable]
   public abstract class StorageAttribute: Attribute

@@ -12,13 +12,14 @@ using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage.ForeignKeys
 {
-  [HierarchyRoot("Id1", "Id2", KeyGenerator = typeof (DualIntKeyGenerator))]
+  [KeyGenerator(typeof(DualIntKeyGenerator))]
+  [HierarchyRoot]
   public class User : Entity
   {
-    [Field]
+    [Field, KeyField(0)]
     public int Id1 { get; private set; }
 
-    [Field]
+    [Field, KeyField(1)]
     public int Id2 { get; private set; }
 
     [Field]
@@ -34,13 +35,14 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     public EntitySet<Project> Projects { get; private set; }
   }
 
-  [HierarchyRoot("Id3", "Id4", KeyGenerator = typeof(DualIntKeyGenerator))]
+  [KeyGenerator(typeof(DualIntKeyGenerator))]
+  [HierarchyRoot]
   public class Company : Entity
   {
-    [Field]
+    [Field, KeyField(0)]
     public int Id3 { get; private set; }
 
-    [Field]
+    [Field, KeyField(1)]
     public int Id4 { get; private set; }
 
     [Field]
@@ -51,13 +53,14 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
   }
 
 
-  [HierarchyRoot("Id5", "Id6", KeyGenerator = typeof(DualIntKeyGenerator))]
+  [KeyGenerator(typeof(DualIntKeyGenerator))]
+  [HierarchyRoot]
   public class Project : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id5 { get; private set; }
 
-    [Field]
+    [Field, KeyField]
     public int Id6 { get; private set; }
 
     [Field]

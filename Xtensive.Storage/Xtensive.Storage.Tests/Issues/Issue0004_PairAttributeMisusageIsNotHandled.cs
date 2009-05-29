@@ -12,10 +12,10 @@ using Xtensive.Storage.Tests.Issue0004_Model;
 
 namespace Xtensive.Storage.Tests.Issue0004_Model
 {
-  [HierarchyRoot(typeof(KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class User : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int ID { get; private set; }
 
     [Field]
@@ -25,10 +25,10 @@ namespace Xtensive.Storage.Tests.Issue0004_Model
     public EntitySet<Notification> Notifications { get; set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class Notification : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int ID { get; private set; }
 
     [Field]

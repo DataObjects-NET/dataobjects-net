@@ -13,10 +13,10 @@ using Xtensive.Storage.Tests.Issues.Issue0002_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0002_Model
 {
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class X : Entity
   {
-    [Field(LazyLoad = true)]
+    [Field(LazyLoad = true), KeyField]
     public int ID { get; private set; }
   }
 }

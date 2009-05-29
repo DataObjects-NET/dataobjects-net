@@ -14,24 +14,25 @@ namespace Xtensive.Storage.Tests.Issues.Issue0036_Model
   {
   }
 
-  [HierarchyRoot(typeof (KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Person : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
   }
 
-  [HierarchyRoot(typeof (KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class User : Entity, ISecurable
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
   }
 
-  [HierarchyRoot("Target")]
+  [KeyGenerator(null)]
+  [HierarchyRoot]
   public class SyncInfo<TEntity> : Entity where TEntity : Entity
   {
-    [Field]
+    [Field, KeyField]
     public TEntity Target { get; private set; }
 
     public SyncInfo (TEntity target)
@@ -40,10 +41,11 @@ namespace Xtensive.Storage.Tests.Issues.Issue0036_Model
     }
   }
 
-  [HierarchyRoot("Target")]
+  [KeyGenerator(null)]
+  [HierarchyRoot]
   public class SecurityInfo<TEntity> : Entity where TEntity : Entity, ISecurable
   {
-    [Field]
+    [Field, KeyField]
     public TEntity Target { get; private set; }
 
     public SecurityInfo (TEntity target)

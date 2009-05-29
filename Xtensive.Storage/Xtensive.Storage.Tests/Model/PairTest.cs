@@ -10,20 +10,20 @@ using Xtensive.Storage.Tests.PairModel;
 
 namespace Xtensive.Storage.Tests.PairModel
 {
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Master : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]
     public Slave Slave { get; set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Slave : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field (PairTo = "Slave")]

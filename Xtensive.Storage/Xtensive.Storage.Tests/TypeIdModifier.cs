@@ -8,7 +8,6 @@ using System;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Tests
 {
@@ -18,7 +17,7 @@ namespace Xtensive.Storage.Tests
 
     public virtual void Build(BuildingContext context, DomainModelDef model)
     {
-      TypeIdField = new KeyField(context.NameBuilder.TypeIdFieldName, typeof(int));
+      TypeIdField = new KeyField(context.NameBuilder.TypeIdFieldName);
     }
 
     public static Type GetModifier(TypeIdBehavior typeIdBehavior)
@@ -40,7 +39,7 @@ namespace Xtensive.Storage.Tests
     {
       base.Build(context, model);
       foreach (HierarchyDef hierarchy in model.Hierarchies)
-        if (!hierarchy.KeyFields.ContainsKey(TypeIdField))
+        if (!hierarchy.KeyFields.Contains(TypeIdField))
           hierarchy.KeyFields.Add(TypeIdField);
     }
   }
@@ -51,7 +50,7 @@ namespace Xtensive.Storage.Tests
     {
       base.Build(context, model);
       foreach (HierarchyDef hierarchy in model.Hierarchies)
-        if (hierarchy.KeyFields.ContainsKey(TypeIdField))
+        if (hierarchy.KeyFields.Contains(TypeIdField))
           hierarchy.KeyFields.Remove(TypeIdField);
     }
   }

@@ -19,37 +19,6 @@ namespace Xtensive.Storage.Building.Builders
 {
   internal static class IndexBuilder
   {
-    public static void DefineIndexes(TypeDef typeDef)
-    {
-      using(Log.InfoRegion(Strings.LogDefiningIndexes)) {
-
-        var indexAttributes = typeDef.UnderlyingType.GetAttributes<IndexAttribute>(
-          AttributeSearchOptions.Default);
-
-        foreach (IndexAttribute attribute in indexAttributes)
-          DefineIndex(typeDef, attribute);
-      }
-    }
-
-    /// <exception cref="DomainBuilderException">Index with this name already exists.</exception>
-    private static void DefineIndex(TypeDef typeDef, IndexAttribute attribute)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(attribute, "attribute");      
-      
-      var index = new IndexDef {IsSecondary = true};
-      AttributeProcessor.Process(index, attribute);
-
-      if (index.Name.IsNullOrEmpty() && index.KeyFields.Count > 0)
-        index.Name = BuildingContext.Current.NameBuilder.Build(typeDef, index);
-
-      if (typeDef.Indexes.Contains(index.Name))
-        throw new DomainBuilderException(
-          string.Format(Resources.Strings.ExIndexWithNameXIsAlreadyRegistered, index.Name));
-
-      typeDef.Indexes.Add(index);
-    }
-
-
     public static IndexDef DefineForeignKey(TypeDef type, FieldDef field)
     {
       var index = new IndexDef {IsSecondary = true};
@@ -90,7 +59,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       var context = BuildingContext.Current;
       foreach (var @interface in context.Model.Types.Find(TypeAttributes.Interface).Where(i => i.Hierarchy==hierarchy)) {
-        var interfaceDef = context.Definition.Types[@interface.UnderlyingType];
+        var interfaceDef = context.ModelDef.Types[@interface.UnderlyingType];
         
         // Build virtual declared interface index
         foreach (var indexDescriptor in interfaceDef.Indexes)
@@ -130,7 +99,7 @@ namespace Xtensive.Storage.Building.Builders
         if (implementors.Count==1)
           @interface.Indexes.Add(implementors[0].Indexes.PrimaryIndex);
         else {
-          var rootDef = context.Definition.Types[hierarchy.Root.UnderlyingType];
+          var rootDef = context.ModelDef.Types[hierarchy.Root.UnderlyingType];
           var primaryIndexDefinition = rootDef.Indexes.Where(i => i.IsPrimary).First();
           var index = BuildIndex(@interface, primaryIndexDefinition);
           switch (hierarchy.Schema) {
@@ -185,7 +154,7 @@ namespace Xtensive.Storage.Building.Builders
         return;
 
       var context = BuildingContext.Current;
-      var typeDef = context.Definition.Types[type.UnderlyingType];
+      var typeDef = context.ModelDef.Types[type.UnderlyingType];
 
       var primaryIndexDefinition = typeDef.Indexes.Where(i => i.IsPrimary).FirstOrDefault();
       var indexDefinitions = typeDef.Indexes.Where(i => !i.IsPrimary).ToList();
@@ -283,7 +252,7 @@ namespace Xtensive.Storage.Building.Builders
         return;
 
       var context = BuildingContext.Current;
-      var typeDef = context.Definition.Types[type.UnderlyingType];
+      var typeDef = context.ModelDef.Types[type.UnderlyingType];
       var root = type.Hierarchy.Root;
 
       var primaryIndexDefinition = typeDef.Indexes.Where(i => i.IsPrimary).FirstOrDefault();
@@ -384,7 +353,7 @@ namespace Xtensive.Storage.Building.Builders
         return;
 
       var context = BuildingContext.Current;
-      var typeDef = context.Definition.Types[type.UnderlyingType];
+      var typeDef = context.ModelDef.Types[type.UnderlyingType];
       var root = type.Hierarchy.Root;
 
       var primaryIndexDefinition = typeDef.Indexes.Where(i => i.IsPrimary).FirstOrDefault();

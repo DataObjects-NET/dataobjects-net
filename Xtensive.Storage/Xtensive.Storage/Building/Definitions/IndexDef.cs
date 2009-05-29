@@ -116,8 +116,7 @@ namespace Xtensive.Storage.Building.Definitions
     protected override void ValidateName(string newName)
     {
       base.ValidateName(newName);
-
-      Validator.IsNameValid(newName, ValidationRule.Index);
+      Validator.EnsureNameIsValid(newName, ValidationRule.Index);
     }
 
 

@@ -19,10 +19,10 @@ namespace Xtensive.Storage.Tests.Storage.Keys
   {
     #region Model
 
-    [HierarchyRoot("Tag")]        
+    [HierarchyRoot]
     public abstract class Fruit : Entity
     {
-      [Field(Length = 50)] 
+      [Field(Length = 50), KeyField] 
       public string Tag { get; private set;}    
 
       public Fruit(string tag)
@@ -41,19 +41,18 @@ namespace Xtensive.Storage.Tests.Storage.Keys
         : base(tag) {}
     }
 
-    [HierarchyRoot("Key1", "Key2", "Key3", "Key4", "Key5", "Key6", "Key7", "Key8",
-      "Key9", "Key10", "Key11", "Key12", "Key13", "Key14", "Key15")]
+    [HierarchyRoot]
     public class Test : Entity
     {
-      [Field]
+      [Field, KeyField(0)]
       public string Key1 { get; private set; }
-      [Field]
+      [Field, KeyField(1)]
       public Byte Key2 { get; private set; }
-      [Field]
+      [Field, KeyField(2)]
       public SByte Key3 { get; private set; }
-      [Field]
+      [Field, KeyField(3)]
       public DateTime Key4 { get; private set; }
-      [Field]
+      [Field,KeyField(4)]
       public Int32 Key5 { get; private set; }
       [Field]
       public Int64 Key6 { get; private set; }
@@ -77,10 +76,10 @@ namespace Xtensive.Storage.Tests.Storage.Keys
       public TimeSpan Key15 { get; private set; }
     }
 
-    [HierarchyRoot(typeof(KeyGenerator), "ID")]
+    [HierarchyRoot]
     public class Container : Entity
     {
-      [Field]
+      [Field, KeyField]
       public Guid ID { get; private set; }
       
       [Field]

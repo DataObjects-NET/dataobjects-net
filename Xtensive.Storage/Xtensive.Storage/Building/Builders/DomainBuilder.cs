@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Building.Builders
         BuilderConfiguration = builderConfiguration
       };
 
-      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
+      using (Log.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
         using (new BuildingScope(context)) {
           CreateDomain();
           ConfigureServiceContainer();
@@ -121,12 +121,12 @@ namespace Xtensive.Storage.Building.Builders
 
       if (constructor==null)
         throw new DomainBuilderException(
-          string.Format(Strings.ExTypeXMustHavePublicInstanceParameterlessConstructorInOrderToBeUsedAsStorageDefinitionBuilder, type.FullName));
+          string.Format(Strings.ExTypeXMustHavePublicInstanceParameterlessConstructorInOrderToBeUsedAsStorageDefinitionBuilder, type.GetFullName()));
 
       if (!typeof (IDomainBuilder).IsAssignableFrom(type))
         throw new DomainBuilderException(
           string.Format(CultureInfo.CurrentCulture,
-            Strings.ExTypeXDoesNotImplementYInterface, type.FullName, typeof (IDomainBuilder).FullName));
+            Strings.ExTypeXDoesNotImplementYInterface, type.GetFullName(), typeof (IDomainBuilder).GetFullName()));
     }
 
     #endregion
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void CreateDomain()
     {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
+      using (Log.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
         var domain = new Domain(BuildingContext.Current.Configuration);
         BuildingContext.Current.Domain = domain;
       }
@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Building.Builders
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     private static void CreateHandlerFactory()
     {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogCreatingX, typeof (HandlerFactory).GetShortName())) {
+      using (Log.InfoRegion(Strings.LogCreatingX, typeof (HandlerFactory).GetShortName())) {
         string protocol = BuildingContext.Current.Configuration.ConnectionInfo.Protocol;
         Type handlerProviderType;
         lock (pluginManager) {
@@ -162,7 +162,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void CreateNameBuilder()
     {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogCreatingX, typeof (NameBuilder).GetShortName())) {
+      using (Log.InfoRegion(Strings.LogCreatingX, typeof (NameBuilder).GetShortName())) {
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         handlerAccessor.NameBuilder = handlerAccessor.HandlerFactory.CreateHandler<NameBuilder>();
         handlerAccessor.NameBuilder.Initialize(handlerAccessor.Domain.Configuration.NamingConvention);
@@ -171,7 +171,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void CreateDomainHandler()
     {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
+      using (Log.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         handlerAccessor.DomainHandler = handlerAccessor.HandlerFactory.CreateHandler<DomainHandler>();
         handlerAccessor.DomainHandler.Initialize();
@@ -180,7 +180,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildModel()
     {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
         ModelBuilder.Build();
         var domain = BuildingContext.Current.Domain;
         domain.Model = BuildingContext.Current.Model;
@@ -189,7 +189,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void CreateGenerators()
     {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogCreatingX, Strings.Generators)) {
+      using (Log.InfoRegion(Strings.LogCreatingX, Strings.Generators)) {
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         var keyGenerators = BuildingContext.Current.Domain.KeyGenerators;
         var generatorFactory = handlerAccessor.HandlerFactory.CreateHandler<KeyGeneratorFactory>();

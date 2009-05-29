@@ -10,10 +10,10 @@ using Xtensive.Storage.Tests.Issues.Issue0013_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0013_Model
 {
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class SqlTaskEntity : Entity
   {
-    [Field]
+    [Field, KeyField]
     public long ID { get; private set; }
 
     [Field]

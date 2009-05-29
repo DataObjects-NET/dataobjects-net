@@ -22,11 +22,12 @@ using Xtensive.Storage.Tests.Rse.AnimalModel;
 namespace Xtensive.Storage.Tests.Rse.AnimalModel
 {
   [DebuggerDisplay("Name = '{Name}'")]
-  [HierarchyRoot(typeof(KeyGenerator), "ID", KeyGeneratorCacheSize = 16)]
+  [KeyGenerator(CacheSize = 16)]
+  [HierarchyRoot]
   [Index("Name")]
   public class Animal : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int ID { get; private set; }
 
     [Field]

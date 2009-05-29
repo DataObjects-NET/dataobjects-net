@@ -12,10 +12,10 @@ using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
 {
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class MyEntity : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]

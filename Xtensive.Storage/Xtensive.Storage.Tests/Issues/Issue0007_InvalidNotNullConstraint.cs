@@ -10,10 +10,10 @@ using Xtensive.Storage.Tests.Issues.Issue0007_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0007_Model
 {
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class Person : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int ID { get; private set; }
 
     [Field]
@@ -32,10 +32,10 @@ namespace Xtensive.Storage.Tests.Issues.Issue0007_Model
     public int House { get; set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class City : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int ID { get; private set; }
 
     public string Name { get; set; }

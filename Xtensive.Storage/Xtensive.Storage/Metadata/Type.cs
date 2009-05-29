@@ -15,7 +15,8 @@ namespace Xtensive.Storage.Metadata
   /// Persistent descriptor of registered type.
   /// </summary>
   [SystemType(1)]
-  [HierarchyRoot("Id")]
+  [HierarchyRoot]
+  [KeyGenerator(null)]
   [Entity(MappingName = "Metadata.Type")]
   [Index("Name", IsUnique = true)]
   public class Type : Entity
@@ -23,6 +24,7 @@ namespace Xtensive.Storage.Metadata
     /// <summary>
     /// Gets or sets the type identifier.
     /// </summary>
+    [KeyField]
     [Field]
     public int Id { get; private set; }
 

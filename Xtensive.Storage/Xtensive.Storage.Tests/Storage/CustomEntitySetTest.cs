@@ -10,10 +10,10 @@ using Xtensive.Storage.Tests.Storage.CustomEntitySetModel;
 
 namespace Xtensive.Storage.Tests.Storage.CustomEntitySetModel
 {
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Root : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
   }
 

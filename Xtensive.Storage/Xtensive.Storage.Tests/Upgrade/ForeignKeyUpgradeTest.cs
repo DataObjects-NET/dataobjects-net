@@ -15,10 +15,10 @@ using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.Model.Version1
 {
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Order : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]
@@ -28,10 +28,10 @@ namespace Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.Model.Version1
     public Person Consumer { get; set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Person : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     public string Name { get; set; }
@@ -40,10 +40,10 @@ namespace Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.Model.Version1
 
 namespace Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.Model.Version2
 {
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Order : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]
@@ -53,10 +53,10 @@ namespace Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade.Model.Version2
     public Company Consumer { get; set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Company : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]

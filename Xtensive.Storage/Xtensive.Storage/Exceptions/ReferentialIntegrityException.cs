@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
@@ -35,6 +36,6 @@ namespace Xtensive.Storage
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ReferentialIntegrityException(Entity entity)
-      : this(String.Format("Referential integrity violation on attempt to remove {0}, Key={1}.", entity.GetType().BaseType.FullName, entity.Key)) {}
+      : this(String.Format("Referential integrity violation on attempt to remove {0}, Key={1}.", entity.GetType().BaseType.GetFullName(), entity.Key)) {}
   }
 }

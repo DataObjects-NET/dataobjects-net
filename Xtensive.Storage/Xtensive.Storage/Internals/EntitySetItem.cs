@@ -8,14 +8,16 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Internals
 {
+  [KeyGenerator(null)]
+  [HierarchyRoot]
   public abstract class EntitySetItem<TMaster, TSlave> : Entity
     where TMaster : Entity
     where TSlave : Entity
   {
-    [Field]
+    [Field, KeyField(0)]
     public TMaster Master { get; private set; }
 
-    [Field]
+    [Field, KeyField(1)]
     public TSlave Slave { get; private set; }
 
 

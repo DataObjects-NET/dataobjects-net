@@ -19,10 +19,10 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [ThreadStatic]
     private static int validationCallsCount;
 
-    [HierarchyRoot(typeof (KeyGenerator), "ID")]
+    [HierarchyRoot]
     public class Mouse : Entity
     {
-      [Field]
+      [Field, KeyField]
       public int ID { get; private set; }
         
       [Field]

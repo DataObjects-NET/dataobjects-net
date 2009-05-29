@@ -14,10 +14,10 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
 {
   public class TransactionsTest : AutoBuildTest
   {    
-    [HierarchyRoot(typeof (KeyGenerator), "ID")]
+    [HierarchyRoot]
     public class Hexagon : Entity
     {
-      [Field]
+      [Field, KeyField]
       public int ID { get; private set; }
 
       [Field]

@@ -12,10 +12,10 @@ using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage.ActivatorModel
 {
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot]
   public abstract class Ancestor : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int ID { get; private set; }
   }
 
@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorModel
     public int Number { get; set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class InitializebleClass : Entity
   {
     public object syncRoot = new object();
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorModel
       Assert.IsNotNull(syncRoot);
     }
 
-    [Field]
+    [Field, KeyField]
     public int ID { get; private set; }
   }
 

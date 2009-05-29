@@ -157,7 +157,7 @@ namespace Xtensive.Storage.Aspects
         BindingFlags.Instance |
         BindingFlags.DeclaredOnly)) 
       {
-        var hierarchyRootAttribute = type.GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.InheritNone);
+        var keyFieldAttribute = type.GetAttribute<KeyFieldAttribute>(AttributeSearchOptions.InheritNone);
         try {
           var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(
             AttributeSearchOptions.InheritFromAllBase);
@@ -177,12 +177,10 @@ namespace Xtensive.Storage.Aspects
             collection.AddAspect(getter, getterAspect);
         }
         if (setter!=null) {
-          if (hierarchyRootAttribute!=null) {
-            if (hierarchyRootAttribute.KeyFields.Contains(propertyInfo.Name)) {
-              collection.AddAspect(setter, new NotSupportedMethodAspect(
+          if (keyFieldAttribute!=null) {
+            collection.AddAspect(setter, new NotSupportedMethodAspect(
                 string.Format(Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, propertyInfo.Name, type.Name)));
-              continue;
-            }
+            continue;
           }
           var setterAspect = AutoPropertyReplacementAspect.ApplyOnce(setter, persistentType, HandlerMethodSuffix);
           if (setterAspect!=null)

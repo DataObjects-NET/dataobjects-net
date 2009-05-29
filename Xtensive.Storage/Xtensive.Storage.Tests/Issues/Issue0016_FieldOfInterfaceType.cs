@@ -15,19 +15,19 @@ namespace Xtensive.Storage.Tests.Issues.Issue0016_Model
     Slave Slave { get; set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Master : Entity, IMaster
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     public Slave Slave { get; set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Slave : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field (PairTo = "Slave")]

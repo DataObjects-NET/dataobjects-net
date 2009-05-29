@@ -5,10 +5,13 @@
 // Created:    2007.08.27
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Builders;
+using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Model;
 using TypeAttributes=Xtensive.Storage.Model.TypeAttributes;
 
@@ -25,6 +28,10 @@ namespace Xtensive.Storage.Building.Definitions
     private TypeAttributes attributes;
     private readonly NodeCollection<FieldDef> fields;
     private readonly NodeCollection<IndexDef> indexes;
+
+    internal List<Edge> OutgoingEdges { get; private set; }
+
+    internal List<Edge> IncomingEdges { get; private set; }
   
     /// <summary>
     /// Gets a value indicating whether this instance is entity.
@@ -64,6 +71,14 @@ namespace Xtensive.Storage.Building.Definitions
     public bool IsStructure
     {
       get { return (attributes & TypeAttributes.Structure) > 0; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is generic type definition.
+    /// </summary>
+    public bool IsGenericTypeDefinition
+    {
+      get { return (attributes & TypeAttributes.GenericTypeDefinition) > 0; }
     }
 
     /// <summary>
@@ -107,9 +122,7 @@ namespace Xtensive.Storage.Building.Definitions
     /// <exception cref="ArgumentOutOfRangeException">Argument "name" is invalid.</exception>
     public IndexDef DefineIndex(string name)
     {
-      if (!Validator.IsNameValid(name, ValidationRule.Index))
-        throw new DomainBuilderException(
-          string.Format(Resources.Strings.ExIndexNameXIsInvalid, name));
+      Validator.EnsureNameIsValid(name, ValidationRule.Index);
 
       var indexDef = new IndexDef {Name = name, IsSecondary = true};
       indexes.Add(indexDef);
@@ -127,11 +140,11 @@ namespace Xtensive.Storage.Building.Definitions
 
       if (property.ReflectedType != UnderlyingType)
         throw new DomainBuilderException(
-          string.Format(Resources.Strings.ExPropertyXMustBeDeclaredInTypeY, property.Name, UnderlyingType.FullName));
+          string.Format(Resources.Strings.ExPropertyXMustBeDeclaredInTypeY, property.Name, UnderlyingType.GetFullName()));
             
-      FieldDef fieldDef = FieldBuilder.DefineField(this, property);
+      FieldDef fieldDef = ModelDefBuilder.DefineField(property);
       fields.Add(fieldDef);
-      return fieldDef;      
+      return fieldDef;
     }
 
     /// <summary>
@@ -145,7 +158,7 @@ namespace Xtensive.Storage.Building.Definitions
       ArgumentValidator.EnsureArgumentNotNull(valueType, "type");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 
-      FieldDef field = FieldBuilder.DefineField(name, valueType, underlyingType);
+      FieldDef field = ModelDefBuilder.DefineField(UnderlyingType, name, valueType);
       fields.Add(field);
       return field;
     }
@@ -157,8 +170,7 @@ namespace Xtensive.Storage.Building.Definitions
     protected override void ValidateName(string newName)
     {
       base.ValidateName(newName);
-      if (!Validator.IsNameValid(newName, ValidationRule.Type))
-        throw new ArgumentOutOfRangeException(newName);
+      Validator.EnsureNameIsValid(newName, ValidationRule.Type);
     }
 
 
@@ -170,6 +182,8 @@ namespace Xtensive.Storage.Building.Definitions
     /// <param name="type">The underlying type.</param>
     internal TypeDef(Type type)
     {
+      OutgoingEdges = new List<Edge>();
+      IncomingEdges = new List<Edge>();
       underlyingType = type;
       if (type.IsInterface)
         Attributes = TypeAttributes.Interface;
@@ -179,6 +193,8 @@ namespace Xtensive.Storage.Building.Definitions
         Attributes = type.IsAbstract
           ? TypeAttributes.Entity | TypeAttributes.Abstract
           : TypeAttributes.Entity;
+      if (type.IsGenericTypeDefinition)
+        Attributes = Attributes | TypeAttributes.GenericTypeDefinition;
       fields = new NodeCollection<FieldDef>();
       indexes = new NodeCollection<IndexDef>();
     }

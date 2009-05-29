@@ -19,10 +19,10 @@ using Xtensive.Storage.Tests.SerializationTestModel;
 namespace Xtensive.Storage.Tests.SerializationTestModel
 {
   [Serializable]
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Company : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]
@@ -38,10 +38,10 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
   }
 
   [Serializable]
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Emploee : Entity
   {
-    [Field] 
+    [Field, KeyField] 
     public int Id { get; private set; }
 
     [Field]
@@ -63,10 +63,10 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
   }
 
   [Serializable]
-  [HierarchyRoot("Name")]
+  [HierarchyRoot]
   public class Country : Entity
   {
-    [Field]
+    [Field, KeyField]
     public string Name { get; private set;}
 
 //    [Field]
@@ -79,13 +79,13 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
   }
 
   [Serializable]
-  [HierarchyRoot("Country", "Name")]
+  [HierarchyRoot]
   public class City : Entity
   {
-    [Field]
+    [Field, KeyField(0)]
     public Country Country { get; private set;}
 
-    [Field]
+    [Field, KeyField(1)]
     public string Name { get; private set;}
 
     public City(Country country, string name) 

@@ -96,11 +96,11 @@ namespace Xtensive.Storage.Tests.Upgrade
 namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
 {
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   [Index("Col1", "Col2", IsUnique = true, IncludedFields = new[] { "Col3" })]
   public class A : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]
@@ -113,11 +113,11 @@ namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
     public string Col3 { get; private set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   [Index("ColA", MappingName = "A_IX")]
   public class B : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]
@@ -127,30 +127,30 @@ namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
     public A ColA { get; private set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class C : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]
     public TimeSpan Col1 { get; private set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class D : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]
     public EntitySet<E> ColE { get; private set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class E : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]

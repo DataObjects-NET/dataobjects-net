@@ -31,10 +31,10 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
     public string AName { get; set; }
   }
 
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class AB : A
   {
-    [Field]
+    [Field, KeyField]
     public long ID { get; private set; }
 
     [Field]
@@ -49,27 +49,27 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
   {
   }
 
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class BC : B
   {
-    [Field]
+    [Field, KeyField]
     public Guid ID { get; private set; }
   }
 
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class BD : B
   {
-    [Field]
+    [Field("ID"), KeyField]
     public long ID { get; private set; }
 
     [Field]
     public string AName { get; set; }
   }
 
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class BE : B
   {
-    [Field]
+    [Field("ID"), KeyField]
     public int ID { get; private set; }
   }
 
@@ -80,19 +80,19 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
       TypeDef type;
 
       type = model.Types[typeof(A)];
-      Assert.IsFalse(context.Definition.FindRoot(type)==type);
+      Assert.IsFalse(context.ModelDef.FindRoot(type)==type);
 
       type = model.Types[typeof(AB)];
-      Assert.IsTrue(context.Definition.FindRoot(type)==type);
+      Assert.IsTrue(context.ModelDef.FindRoot(type)==type);
 
       type = model.Types[typeof(ABC)];
-      Assert.IsFalse(context.Definition.FindRoot(type)==type);
+      Assert.IsFalse(context.ModelDef.FindRoot(type)==type);
 
       type = model.Types[typeof(B)];
-      Assert.IsFalse(context.Definition.FindRoot(type)==type);
+      Assert.IsFalse(context.ModelDef.FindRoot(type)==type);
 
       type = model.Types[typeof(BC)];
-      Assert.IsTrue(context.Definition.FindRoot(type)==type);
+      Assert.IsTrue(context.ModelDef.FindRoot(type)==type);
     }
   }
 }

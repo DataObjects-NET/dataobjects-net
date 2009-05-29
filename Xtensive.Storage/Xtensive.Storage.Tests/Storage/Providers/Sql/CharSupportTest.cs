@@ -12,10 +12,10 @@ using Xtensive.Storage.Tests.Storage.Providers.Sql.CharSupportTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.Sql.CharSupportTestModel
 {
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   class MyEntity : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id {get; private set;}
 
     [Field]

@@ -11,10 +11,11 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Tests.Model.ReferencedKeysModel
 {
-  [HierarchyRoot("Name")]
+  [KeyGenerator(null)]
+  [HierarchyRoot]
   public class Country : Entity
   {
-    [Field]
+    [Field, KeyField]
     public string Name { get; private set;}
       
     [Field]
@@ -23,13 +24,14 @@ namespace Xtensive.Storage.Tests.Model.ReferencedKeysModel
     public Country(string name) : base(Tuple.Create(name)) {}
   }
 
-  [HierarchyRoot("Country", "Name")]
+  [KeyGenerator(null)]
+  [HierarchyRoot]
   public class City : Entity
   {
-    [Field]
+    [Field, KeyField(0)]
     public Country Country { get; private set;}
 
-    [Field]
+    [Field, KeyField(1)]
     public string Name { get; private set;}
 
     public City(Country country, string name) : base(Tuple.Create(country.Name, name)) {}

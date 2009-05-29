@@ -88,14 +88,6 @@ namespace Xtensive.Storage.Building.Definitions
       return result==item;
     }
 
-    protected override void OnInserted(TypeDef value, int index)
-    {
-      base.OnInserted(value, index);
-      HierarchyDef hierarchy = HierarchyBuilder.TryDefineHierarchy(value);
-      if (hierarchy != null)
-        BuildingContext.Current.Definition.Hierarchies.Add(hierarchy);
-    }
-
     /// <summary>
     /// Determines whether this instance contains an item with the specified key.
     /// </summary>

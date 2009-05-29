@@ -12,10 +12,10 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.Atomicity
 {
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class Cake : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int ID { get; private set; }
 
     [Field]

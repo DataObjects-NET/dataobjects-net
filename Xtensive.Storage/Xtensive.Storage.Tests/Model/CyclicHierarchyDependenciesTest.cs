@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.12.12
 
+using System;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Storage.Configuration;
@@ -11,33 +12,33 @@ using Xtensive.Storage.Tests.CyclicHierarchyDependenciesModel;
 
 namespace Xtensive.Storage.Tests.CyclicHierarchyDependenciesModel
 {
-  [HierarchyRoot("First", "Second")]
+  [HierarchyRoot]
   public class H1 : Entity
   {
-    [Field]
+    [Field, KeyField(0)]
     public H2 First { get; private set; }
 
-    [Field]
+    [Field, KeyField(1)]
     public H3 Second { get; private set; }
   }
 
-  [HierarchyRoot("First", "Second")]
+  [HierarchyRoot]
   public class H2 : Entity
   {
-    [Field]
+    [Field, KeyField(0)]
     public H1 First { get; private set; }
 
-    [Field]
+    [Field, KeyField(1)]
     public H3 Second { get; private set; }
   }
 
-  [HierarchyRoot("First", "Second")]
+  [HierarchyRoot]
   public class H3 : Entity
   {
-    [Field]
+    [Field, KeyField(0)]
     public H1 First { get; private set; }
 
-    [Field]
+    [Field, KeyField(1)]
     public H2 Second { get; private set; }
   }
 }
@@ -58,8 +59,10 @@ namespace Xtensive.Storage.Tests.Model
       Domain domain = null;
       try {
         domain = Domain.Build(configuration);
+        Assert.Fail("Epic");
       }
       catch (DomainBuilderException e) {
+        Console.WriteLine(e);
       }
       return domain;
     }

@@ -11,10 +11,10 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0017_Model
 {
-  [HierarchyRoot(typeof(KeyGenerator),"ID")]
+  [HierarchyRoot]
   public class Master:Entity
   {
-    [Field]
+    [Field, KeyField]
     public long ID { get; private set; }
 
     [Field(PairTo = "Master1")]
@@ -24,10 +24,10 @@ namespace Xtensive.Storage.Tests.Issues.Issue0017_Model
     public EntitySet<Slave> Slaves { get; private set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class Slave:Entity
   {
-    [Field]
+    [Field, KeyField]
     public long ID { get; private set; }
 
     [Field(OnRemove = ReferentialAction.Cascade)]

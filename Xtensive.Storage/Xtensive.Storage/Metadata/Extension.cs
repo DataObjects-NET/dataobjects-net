@@ -14,13 +14,15 @@ namespace Xtensive.Storage.Metadata
   /// Persistent value of any kind indentified by its <see cref="Name"/>.
   /// </summary>
   [SystemType(3)]
-  [HierarchyRoot("Name")]
+  [HierarchyRoot]
+  [KeyGenerator(null)]
   [Entity(MappingName = "Metadata.Extension")]
   public class Extension : MetadataBase
   {
     /// <summary>
     /// Gets or sets the name of the extension.
     /// </summary>
+    [KeyField]
     [Field(Length = 1024)]
     public string Name { get; private set; }
 

@@ -19,75 +19,6 @@ namespace Xtensive.Storage.Building.Builders
 {
   internal static class FieldBuilder
   {
-    public static IList<FieldDef> DefineFields(TypeDef typeDef)
-    {
-      Log.Info("Defining fields.");
-
-      var context = BuildingContext.Current;
-      var fieldFilter = context.BuilderConfiguration.FieldFilter ?? (p => true);
-      var fields = new List<FieldDef>();
-      var properties =
-        typeDef.UnderlyingType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-      foreach (var propertyInfo in properties)
-        if (IsDeclaredAsPersistent(propertyInfo) && fieldFilter(propertyInfo))
-            fields.Add(DefineField(typeDef, propertyInfo));
-
-      return fields;
-    }
-
-    private static bool IsDeclaredAsPersistent(PropertyInfo propertyInfo)
-    {
-      if (propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritAll)==null)
-        return false;
-
-      if (propertyInfo.DeclaringType!=propertyInfo.ReflectedType)
-        return false;
-
-      return true;
-    }
-
-    /// <summary>
-    /// Defines the field by specified property.
-    /// </summary>
-    /// <param name="typeDef">The type definition.</param>
-    /// <param name="propertyInfo">The <see cref="PropertyInfo"/> of the property.</param>
-    /// <returns>Defined field.</returns>
-    /// <exception cref="DomainBuilderException">Indexed properties aren't supported.</exception>
-    public static FieldDef DefineField(TypeDef typeDef, PropertyInfo propertyInfo)
-    {
-      var context = BuildingContext.Current;
-      Log.Info(Strings.LogDefiningFieldX, propertyInfo.Name);
-
-      ValidateValueType(propertyInfo.PropertyType, typeDef.UnderlyingType);
-
-      // We do not support "persistent" indexers
-      var indexParameters = propertyInfo.GetIndexParameters();
-      if (indexParameters.Length > 0)
-        throw new DomainBuilderException(Strings.ExIndexedPropertiesAreNotSupported);
-
-      var fieldDef = new FieldDef(propertyInfo);
-      fieldDef.Name = context.NameBuilder.Build(fieldDef);
-
-      AttributeProcessor.Process(fieldDef,
-        propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritAll));
-
-      return fieldDef;
-    }
-
-    /// <summary>
-    /// Defines the field manually (without property).
-    /// </summary>
-    /// <param name="name">The field name.</param>
-    /// <param name="valueType">The value type.</param>
-    /// <param name="declaringType">The type where this field is declaring.</param>
-    /// <returns>Defined field.</returns>
-    public static FieldDef DefineField(string name, Type valueType, Type declaringType)
-    {
-      ValidateValueType(valueType, declaringType);
-      return new FieldDef(valueType) {Name = name};
-    }
-
     /// <summary>
     /// Builds the declared field.
     /// </summary>
@@ -126,9 +57,6 @@ namespace Xtensive.Storage.Building.Builders
         var baseType = field.ReflectedType.UnderlyingType.BaseType;
         if (!baseType.IsGenericType || baseType.GetGenericTypeDefinition()!=typeof (EntitySetItem<,>))
           AssociationBuilder.BuildAssociation(fieldDef, field);
-
-        var typeDef = BuildingContext.Current.Definition.Types[field.DeclaringType.UnderlyingType];
-        typeDef.Indexes.Add(IndexBuilder.DefineForeignKey(typeDef, fieldDef));
       }
 
       if (field.IsStructure) {
@@ -141,7 +69,7 @@ namespace Xtensive.Storage.Building.Builders
         ValidateValueType(field.ValueType, type.UnderlyingType);
         field.Column = ColumnBuilder.BuildColumn(field);
         if (field.ValueType==typeof(Key)) {
-          var typeDef = BuildingContext.Current.Definition.Types[field.DeclaringType.UnderlyingType];
+          var typeDef = BuildingContext.Current.ModelDef.Types[field.DeclaringType.UnderlyingType];
           typeDef.Indexes.Add(IndexBuilder.DefineForeignKey(typeDef, fieldDef));
         }
       }

@@ -13,10 +13,10 @@ using Xtensive.Storage.Tests.Storage.NullableTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.NullableTestModel
 {
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class MyEntity : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]

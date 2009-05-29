@@ -197,9 +197,7 @@ namespace Xtensive.Storage.Building.Definitions
     protected override void ValidateName(string newName)
     {
       base.ValidateName(newName);
-
-      if (!Validator.IsNameValid(newName, ValidationRule.Field))
-        throw new ArgumentOutOfRangeException(newName);
+      Validator.EnsureNameIsValid(newName, ValidationRule.Field);
     }
 
 

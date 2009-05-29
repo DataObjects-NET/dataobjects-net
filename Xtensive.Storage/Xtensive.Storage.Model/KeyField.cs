@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Model
 {
@@ -15,43 +16,48 @@ namespace Xtensive.Storage.Model
   [Serializable]
   public sealed class KeyField : Node
   {
-    private Type valueType;
-    private int hashCode;
-
     /// <summary>
-    /// Gets or sets the type of the field.
+    /// Gets or sets the direction.
     /// </summary>
-    public Type ValueType
-    {
-      get { return valueType; }
-      set
-      {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        valueType = value;
-      }
-    }
+    public Direction Direction { get; private set; }
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      if (!IsLocked)
-        return base.GetHashCode();
+      return Name.GetHashCode() ^ Direction.GetHashCode();
+    }
 
-      if (hashCode == 0)
-        hashCode = Name.GetHashCode() ^ valueType.GetHashCode();
+    /// <inheritdoc/>
+    public override bool Equals(object obj)
+    {
+      var kf = obj as KeyField;
+      if (kf == null)
+        return false;
+      if (ReferenceEquals(this, kf))
+        return true;
+      return (Name==kf.Name && Direction==kf.Direction);
+    }
 
-      return hashCode;
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">The name.</param>
+    public KeyField(string name)
+      : this(name, Direction.Positive)
+    {
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="KeyField"/> class.
     /// </summary>
     /// <param name="name">The name.</param>
-    /// <param name="valueType">Type of the field value.</param>
-    public KeyField(string name, Type valueType) : base(name)
+    /// <param name="direction">The direction.</param>
+    public KeyField(string name, Direction direction) : base(name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(valueType, "valueType");
-      this.valueType = valueType;
+      Direction = direction;
     }
   }
 }

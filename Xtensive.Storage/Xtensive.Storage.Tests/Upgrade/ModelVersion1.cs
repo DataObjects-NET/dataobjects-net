@@ -17,10 +17,10 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version1
     public string Country { get; set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Person : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]
@@ -67,10 +67,10 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version1
 
   [Index("OrderDate")]
   [Index("Freight")]
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Order : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]

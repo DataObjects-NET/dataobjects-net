@@ -7,11 +7,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Notifications;
+using Xtensive.Core.Sorting;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
@@ -23,153 +26,94 @@ namespace Xtensive.Storage.Building.Builders
   {
     public static void Build()
     {
-      BuildDefinition();
+      BuildingContext context = BuildingContext.Current;
+      
+      // Initial model
+      context.ModelDef = new DomainModelDef();
+      ModelDefBuilder.Run();
+
+      // Custom model updates
+      BuildCustomDefinitions();
+
+      // Inspecting model
+      ModelInspector.Run();
+
+      // Applying fixup actions
+      if (context.ModelInspectionResult.HasActions) {
+
+        // Add handlers for hierarchies and types that could be created as a result of FixupProcessor work
+        context.ModelDef.Hierarchies.Inserted += OnHierarchyAdded;
+        context.ModelDef.Types.Inserted += OnTypeAdded;
+
+        // Applying fixup actions to the model.
+        FixupActionProcessor.Run();
+      }
+
       BuildModel();
     }
 
-    private static void BuildDefinition()
+    private static void OnHierarchyAdded(object sender, CollectionChangeNotifierEventArgs<HierarchyDef> e)
     {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.ModelDefinition)) {
-        var context = BuildingContext.Current;
-        context.Definition = new DomainModelDef();
-        DefineTypes();
-
-        if (context.Configuration.Builders.Count>0)
-          BuildCustomDefinitions();
-      }
+      ModelInspector.Inspect(e.Item);
+      FixupActionProcessor.Run();
     }
 
-    private static void DefineTypes()
+    private static void OnTypeAdded(object sender, CollectionChangeNotifierEventArgs<TypeDef> e)
     {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
-        var context = BuildingContext.Current;
-        var typeFilter = context.BuilderConfiguration.TypeFilter ?? (t => true);
-        var generics = new List<Type>();
-        foreach (var type in context.Configuration.Types)
-          if (typeFilter.Invoke(type)) {
-            // Skip generic type definitions to build them later
-            if (type.IsGenericTypeDefinition) {
-              generics.Add(type);
-              continue;
-            }
-            DefineType(type);
-          }
-        // Making a copy of already built hierarchy set to avoid recursiveness
-        var hierarchies = context.Definition.Hierarchies.ToList();
-        foreach (var type in generics) {
-          var parameters = type.GetGenericArguments();
-          // We can produce generic instance types with exactly 1 parameter, e.g. EntityWrapper<TEntity> where TEntity : Entity
-          if (parameters.Length != 1)
-            continue;
-          var parameter = parameters[0];
-          // TEntity parameter must be constrained
-          var constraints = parameter.GetGenericParameterConstraints();
-          if (constraints.Length == 0)
-            continue;
-          foreach (var hierarchy in hierarchies) {
-            foreach (var constraint in constraints) {
-              if (!constraint.IsAssignableFrom(hierarchy.Root.UnderlyingType))
-                goto next;
-            }
-            Type resultingType = type.MakeGenericType(hierarchy.Root.UnderlyingType);
-            DefineType(resultingType);
-          next:
-            continue;
-          }
-        }
-      }
-    }
-
-    private static void DefineType(Type type)
-    {      
-      var context = BuildingContext.Current;
-      if (context.Definition.Types.Contains(type))
-        return;
-      var typeDef = TypeBuilder.DefineType(type);
-      context.Definition.Types.Add(typeDef);
-      IndexBuilder.DefineIndexes(typeDef);
+      ModelInspector.Inspect(e.Item);
+      FixupActionProcessor.Run();
     }
 
     private static void BuildCustomDefinitions()
     {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions)) {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions)) {
         var context = BuildingContext.Current;
         foreach (var type in BuildingContext.Current.Configuration.Builders) {
           var builder = (IDomainBuilder) Activator.CreateInstance(type);
-          builder.Build(context, context.Definition);
+          builder.Build(context, context.ModelDef);
         }
       }
     }
 
-    private static void BuildModel()
+    public static void BuildModel()
     {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
         var context = BuildingContext.Current;
+
+        List<Node<TypeDef, object>> loops;
+        List<TypeDef> sequence = TopologicalSorter.Sort<TypeDef>(context.ModelDef.Types, TypeConnector, out loops);
+        if (sequence==null)
+          throw new DomainBuilderException(string.Format("At least one loop have been found in persistent type dependencies graph. Suspicious types: {0}", loops.Select(node => node.Item.Name).ToCommaDelimitedString()));
         context.Model = new DomainModel();
-        BuildTypes();
+        BuildTypes(sequence);
         context.ModelUnlockKey = context.Model.GetUnlockKey();
-        context.Model.Lock(true);
-      }
-    }
-
-    private static void BuildTypes()
-    {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
-        var context = BuildingContext.Current;
-
-        foreach (var typeDef in context.Definition.Types.Where(t => !t.IsInterface)) {
-          CheckPersistentAspect(typeDef);
-          TypeBuilder.BuildType(typeDef);
-        }
-        ValidateHierarchies();
         BuildAssociations();
         BuildColumns();
         IndexBuilder.BuildIndexes();
         BuildHierarchyColumns();
+        context.Model.Lock(true);
       }
     }
 
-    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    private static void CheckPersistentAspect(TypeDef typeDef)
+    private static void BuildTypes(List<TypeDef> types)
     {
-      var constructor = typeDef.UnderlyingType.GetConstructor(
-        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, new[] { typeof(EntityState), typeof(bool) });
-      if (constructor == null && !typeDef.IsStructure) {
-        var assemblyName = typeDef.UnderlyingType.Assembly.ManifestModule.Name;
-        assemblyName = assemblyName.Remove(assemblyName.Length - 4);
-        throw new DomainBuilderException(string.Format(
-          Strings.ExPersistentAttributeIsNotSetOnTypeX, assemblyName));
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
+        foreach (var typeDef in types)
+          TypeBuilder.BuildType(typeDef);
       }
     }
 
-    private static void ValidateHierarchies()
+    private static bool TypeConnector(TypeDef first, TypeDef second)
     {
-      var context = BuildingContext.Current;
-      foreach (var hierarchy in context.Definition.Hierarchies) {
-        var root = hierarchy.Root;
-        foreach (var keyField in hierarchy.KeyFields.Keys) {
-          FieldDef srcField;
-          if (!root.Fields.TryGetValue(keyField.Name, out srcField))
-            throw new DomainBuilderException(
-              string.Format(Strings.ExKeyFieldXWasNotFoundInTypeY, keyField.Name, root.Name));
-          else if (srcField.ValueType!=keyField.ValueType)
-            throw new DomainBuilderException(
-              string.Format(Strings.ValueTypeMismatchForFieldX, keyField.Name));
-          else if (srcField.UnderlyingProperty != null) {
-            var setMethod = srcField.UnderlyingProperty.GetSetMethod(true);
-            if (setMethod != null) {
-              if ((setMethod.Attributes & MethodAttributes.Private) == 0)
-                throw new DomainBuilderException(
-                  string.Format(Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, keyField.Name, root.Name));
-            }
-          }
-        }
-      }
+      foreach (var info in second.OutgoingEdges)
+        if (info.Weight == EdgeWeight.High && info.Head==first)
+          return true;
+      return false;
     }
 
     private static void BuildHierarchyColumns()
     {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.HierarchyColumns)) {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.HierarchyColumns)) {
         foreach (var hierarchyInfo in BuildingContext.Current.Model.Hierarchies)
           HierarchyBuilder.BuildHierarchyColumns(hierarchyInfo);
       }
@@ -177,7 +121,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildColumns()
     {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.Columns)) {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Columns)) {
         foreach (var type in BuildingContext.Current.Model.Types) {
           type.Columns.Clear();
           type.Columns.AddRange(type.Fields.Where(f => f.Column!=null).Select(f => f.Column));
@@ -187,7 +131,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildAssociations()
     {
-      using (LogTemplate<Log>.InfoRegion(Strings.LogBuildingX, Strings.Associations)) {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Associations)) {
         var context = BuildingContext.Current;
         foreach (var pair in context.PairedAssociations) {
           if (context.DiscardedAssociations.Contains(pair.First))
@@ -214,28 +158,36 @@ namespace Xtensive.Storage.Building.Builders
         if (!(multiplicity == Multiplicity.ZeroToMany || multiplicity == Multiplicity.ManyToMany))
           continue;
 
-        var masterFieldType = association.ReferencedType;
-        var slaveFieldType = association.ReferencingType;
+        var masterType = association.ReferencedType;
+        var slaveType = association.ReferencingType;
 
-        var underlyingGenericType = typeof (EntitySetItem<,>).MakeGenericType(masterFieldType.UnderlyingType, slaveFieldType.UnderlyingType);
-        var underlyingType = TypeHelper.CreateDummyType(BuildingContext.Current.NameBuilder.Build(association), underlyingGenericType, true);
+        var genericDefinitionType = typeof (EntitySetItem<,>);
+        var genericInstanceType = genericDefinitionType.MakeGenericType(masterType.UnderlyingType, slaveType.UnderlyingType);
+        var underlyingType = TypeHelper.CreateDummyType(context.NameBuilder.Build(association), genericInstanceType, true);
 
-        var underlyingTypeDef = TypeBuilder.DefineType(underlyingType);
+        // Defining auxiliary type
+        var underlyingTypeDef = ModelDefBuilder.DefineType(underlyingType);
         underlyingTypeDef.Name = association.Name;
 
-        var masterFieldDef = underlyingTypeDef.DefineField(underlyingType.GetProperty(context.NameBuilder.EntitySetItemMasterFieldName));
-        var slaveFieldDef = underlyingTypeDef.DefineField(underlyingType.GetProperty(context.NameBuilder.EntitySetItemSlaveFieldName));
+        // HierarchyRootAttribute is not inherited so we must take it from the generic type definition or generic instance type
+        var hra = genericInstanceType.GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.Default);
+        // Defining the hierarchy
+        var hierarchy = ModelDefBuilder.DefineHierarchy(underlyingTypeDef, hra);
 
-        if (masterFieldType!=slaveFieldType) {
-          masterFieldDef.MappingName = context.NameBuilder.NamingConvention.Apply(masterFieldType.Name);
-          slaveFieldDef.MappingName = context.NameBuilder.NamingConvention.Apply(slaveFieldType.Name);
+        // Processing type properties
+        ModelDefBuilder.ProcessProperties(underlyingTypeDef, hierarchy);
+
+        // Getting fields
+        var masterFieldDef = underlyingTypeDef.Fields[context.NameBuilder.EntitySetItemMasterFieldName];
+        var slaveFieldDef = underlyingTypeDef.Fields[context.NameBuilder.EntitySetItemSlaveFieldName];
+
+        // Updating fields names only if types differ.
+        if (masterType!=slaveType) {
+          masterFieldDef.MappingName = context.NameBuilder.NamingConvention.Apply(masterType.Name);
+          slaveFieldDef.MappingName = context.NameBuilder.NamingConvention.Apply(slaveType.Name);
         }
-        context.Definition.Types.Add(underlyingTypeDef);
-        IndexBuilder.DefineIndexes(underlyingTypeDef);
-
-        var hierarchy = context.Definition.DefineHierarchy(underlyingTypeDef);
-        hierarchy.KeyFields.Add(new KeyField(masterFieldDef.Name, masterFieldDef.ValueType), Direction.Positive);
-        hierarchy.KeyFields.Add(new KeyField(slaveFieldDef.Name, slaveFieldDef.ValueType), Direction.Positive);
+        context.ModelDef.Hierarchies.Add(hierarchy);
+        context.ModelDef.Types.Add(underlyingTypeDef);
 
         TypeBuilder.BuildType(underlyingTypeDef);
         association.UnderlyingType = context.Model.Types[underlyingType];

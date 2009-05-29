@@ -12,7 +12,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Building.Definitions;
-using Xtensive.Storage.Building.Internals;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
@@ -26,11 +25,11 @@ namespace Xtensive.Storage.Building
   {
     internal HashSet<Type> SkippedTypes { get; private set; }
     internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
-    internal CircularReferenceFinder<Type> CircularReferenceFinder { get; private set; }
     internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
     internal Dictionary<Type, int> SystemTypeIds { get; private set; }
     internal Domain SystemDomain {get; set;}
     internal object ModelUnlockKey { get; set;}
+    internal ModelInspectionResult ModelInspectionResult { get; private set; }
 
     #region Current property & Demand() method
 
@@ -103,7 +102,7 @@ namespace Xtensive.Storage.Building
     /// <summary>
     /// Gets or sets the <see cref="Storage.Domain"/> model definition.
     /// </summary>
-    public DomainModelDef Definition { get; internal set; }
+    public DomainModelDef ModelDef { get; internal set; }
 
     /// <summary>
     /// Gets the model.
@@ -124,9 +123,9 @@ namespace Xtensive.Storage.Building
       Configuration = configuration;
       SkippedTypes = new HashSet<Type> {typeof (Entity), typeof (IEntity), typeof (Structure)};
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
-      CircularReferenceFinder = new CircularReferenceFinder<Type>(TypeHelper.GetShortName);
       DiscardedAssociations = new HashSet<  AssociationInfo>();
       SystemTypeIds = new Dictionary<Type, int>();
+      ModelInspectionResult = new ModelInspectionResult();
     }
   }
 }

@@ -16,10 +16,10 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
   public class AspectsTest : AutoBuildTest
   {
     [Persistent]
-    [HierarchyRoot(typeof (KeyGenerator), "ID")]
+    [HierarchyRoot]
     public class BusinessObject : Entity
     {
-      [Field]
+      [Field, KeyField]
       public int ID { get; private set; }
 
       public void PublicMethod(Action<BusinessObject> callback)
@@ -68,10 +68,10 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
 
     }
 
-    [HierarchyRoot(typeof(KeyGenerator), "ID")]
+    [HierarchyRoot]
     public class MasterEntity : Entity
     {
-      [Field]
+      [Field, KeyField]
       public Guid ID { get; private set; }
 
       [Field]
@@ -82,10 +82,10 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
 
     }
 
-    [HierarchyRoot(typeof(KeyGenerator), "ID")]
+    [HierarchyRoot]
     public class SlaveEntity : Entity
     {
-      [Field]
+      [Field, KeyField]
       public Guid ID { get; private set; }
 
       [Field(PairTo = "Slaves")]

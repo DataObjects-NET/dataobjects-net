@@ -13,6 +13,7 @@ using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
@@ -33,6 +34,7 @@ namespace Xtensive.Storage.Providers
     private HashAlgorithm hashAlgorithm;
     private const string AssociationPattern = "{0}-{1}-{2}";
     private const string GeneratorPattern = "{0}-Generator";
+    private const string GenericTypePattern = "{0}({1})";
 
     /// <summary>
     /// Gets the <see cref="Entity.TypeId"/> field name.
@@ -70,25 +72,32 @@ namespace Xtensive.Storage.Providers
       string result;
 
       if (type.UnderlyingType.IsGenericType) {
-        var context = Building.BuildingContext.Current;
         Type[] arguments = type.UnderlyingType.GetGenericArguments();
         var names = new string[arguments.Length];
-        for (int i = 0; i < arguments.Length; i++) {
-          var argument = arguments[i];
-          if (argument.IsSubclassOf(typeof (Persistent))) {
-            TypeDef argTypeDef = context.Definition.Types[argument];
-            names[i] = argTypeDef.Name;
+        if (!type.UnderlyingType.IsGenericTypeDefinition) {
+          var context = BuildingContext.Current;
+          for (int i = 0; i < arguments.Length; i++) {
+            var argument = arguments[i];
+            if (argument.IsSubclassOf(typeof (Persistent))) {
+              TypeDef argTypeDef = context.ModelDef.Types[argument];
+              names[i] = argTypeDef.Name;
+            }
+            else
+              names[i] = argument.GetShortName();
           }
-          else
-            names[i] = argument.GetShortName();
         }
+        else
+          for (int i = 0; i < arguments.Length; i++) {
+            var argument = arguments[i];
+            names[i] = argument.GetShortName();
+          }
         if (type.MappingName.IsNullOrEmpty()) {
           result = type.UnderlyingType.GetShortName();
           result = result.Substring(0, result.IndexOf("<"));
         }
         else
           result = type.MappingName;
-        return NamingConvention.Apply(result + "(" + string.Join(",", names) + ")");
+        return NamingConvention.Apply(string.Format(GenericTypePattern, result, string.Join(",", names)));
       }
 
       if (!type.MappingName.IsNullOrEmpty())

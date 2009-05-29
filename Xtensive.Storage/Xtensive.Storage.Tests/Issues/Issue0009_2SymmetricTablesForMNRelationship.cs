@@ -11,20 +11,20 @@ using Xtensive.Storage.Tests.Issues.Issue0009_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0009_Model
 {
-  [HierarchyRoot(typeof(KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class Book : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int ID { get; private set; }
 
     [Field]
     public EntitySet<Author> Authors { get; private set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class Author : Entity
   {
-    [Field]
+    [Field, KeyField]
     public Guid ID { get; private set; }
 
     [Field(PairTo = "Authors")]

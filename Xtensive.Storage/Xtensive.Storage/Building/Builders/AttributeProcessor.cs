@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
-using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Building.Builders
 {
   internal static class AttributeProcessor
   {
-    private static readonly StringComparer comparer = StringComparer.OrdinalIgnoreCase;
+    private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
 
     public static void Process(TypeDef type, EntityAttribute attribute)
     {
@@ -30,146 +30,125 @@ namespace Xtensive.Storage.Building.Builders
       type.Attributes |= TypeAttributes.Materialized;
     }
 
-    public static void Process(HierarchyDef hierarchy, TypeDef type, HierarchyRootAttribute attribute)
+    public static void Process(TypeDef type, SystemTypeAttribute attribute)
     {
-      ProcessKeyGenerator(hierarchy, attribute);
-      ProcessKeyFields(hierarchy, type, attribute);
-      ProcessInheritanceSchema(hierarchy, attribute);
+        type.Attributes |= TypeAttributes.System;
+        BuildingContext.Current.SystemTypeIds[type.UnderlyingType] = attribute.TypeId;
     }
 
-    public static void Process(FieldDef field, FieldAttribute attribute)
+    public static void Process(HierarchyDef hierarchyDef, HierarchyRootAttribute attribute)
     {
-      ProcessMappingName(field, attribute, ValidationRule.Field);
-      ProcessIsTranslatable(field, attribute);
-      ProcessIsCollatable(field, attribute);
-      ProcessLength(field, attribute);
-      ProcessLazyLoad(field, attribute);
-      ProcessOnDelete(field, attribute);
-      ProcessPairTo(field, attribute);
+      hierarchyDef.Schema = attribute.InheritanceSchema;
+      hierarchyDef.IncludeTypeId = attribute.IncludeTypeId;
     }
 
-    public static void Process(IndexDef index, IndexAttribute attribute)
+    public static void Process(HierarchyDef hierarchyDef, FieldDef fieldDef, KeyFieldAttribute attribute)
     {
-      ProcessMappingName(index, attribute, ValidationRule.Index);
-      ProcessKeyFields(attribute.KeyFields, index.KeyFields);
-      ProcessIncludedFields(attribute.IncludedFields, index.IncludedFields);
-      ProcessFillFactor(index, attribute);
-      ProcessIsUnique(index, attribute);
-    }
-//
-//    public static void Import(FieldDef field, ConstraintAttribute attribute)
-//    {
-//      field.Constraints.Add(attribute.CreateConstraint(field.ValueType));
-//    }
+      ArgumentValidator.EnsureArgumentIsInRange(attribute.Position, 0, MagicNumberProvider.MaxKeyFieldCount-1, "attribute.Position");
 
-    public static void ProcessPairTo(FieldDef field, FieldAttribute attribute)
+      var keyField = new KeyField(fieldDef.Name, attribute.Direction);
+
+      if (hierarchyDef.KeyFields.Count > attribute.Position) {
+        var current = hierarchyDef.KeyFields[attribute.Position];
+        if (current != null)
+          throw new DomainBuilderException(string.Format("Key fields '{0}' & '{1}' have the same position: '{2}'.", current.Name, fieldDef.Name, attribute.Position));
+        hierarchyDef.KeyFields[attribute.Position] = keyField;
+      }
+      else {
+        // Adding null stubs for not yet processed key fields
+        while (hierarchyDef.KeyFields.Count < attribute.Position)
+          hierarchyDef.KeyFields.Add(null);
+
+        // Finally adding target key field at the specified position
+        hierarchyDef.KeyFields.Add(keyField);
+      }
+    }
+
+    public static void Process(HierarchyDef hierarchy, KeyGeneratorAttribute attribute)
     {
-      if (field.IsPrimitive || field.IsStructure) {
+      hierarchy.KeyGenerator = attribute.Type;
+      if (attribute.cacheSize.HasValue)
+        hierarchy.KeyGeneratorCacheSize = attribute.CacheSize;
+    }
+
+    public static void Process(FieldDef fieldDef, FieldAttribute attribute)
+    {
+      ProcessMappingName(fieldDef, attribute, ValidationRule.Field);
+      ProcessIsTranslatable(fieldDef, attribute);
+      ProcessIsCollatable(fieldDef, attribute);
+      ProcessLength(fieldDef, attribute);
+      ProcessLazyLoad(fieldDef, attribute);
+      ProcessOnDelete(fieldDef, attribute);
+      ProcessPairTo(fieldDef, attribute);
+    }
+
+    public static void Process(IndexDef indexDef, IndexAttribute attribute)
+    {
+      ProcessMappingName(indexDef, attribute, ValidationRule.Index);
+      ProcessKeyFields(attribute.KeyFields, indexDef.KeyFields);
+      ProcessIncludedFields(attribute.IncludedFields, indexDef.IncludedFields);
+      ProcessFillFactor(indexDef, attribute);
+      ProcessIsUnique(indexDef, attribute);
+    }
+
+    public static void ProcessPairTo(FieldDef fieldDef, FieldAttribute attribute)
+    {
+      if (fieldDef.IsPrimitive || fieldDef.IsStructure) {
         if (!attribute.PairTo.IsNullOrEmpty())
           throw new DomainBuilderException(
-            string.Format(Strings.ExPairToAttributeCanNotBeUsedWithXField, field.Name));
+            string.Format(Strings.ExPairToAttributeCanNotBeUsedWithXField, fieldDef.Name));
       }
       else
-        field.PairTo = attribute.PairTo;
+        fieldDef.PairTo = attribute.PairTo;
     }
 
-    private static void ProcessKeyGenerator(HierarchyDef hierarchy, HierarchyRootAttribute attribute)
-    {
-      if (attribute.KeyGenerator != null)
-        hierarchy.KeyGenerator = attribute.KeyGenerator;
-      if (attribute.keyGeneratorCacheSize.HasValue)
-        hierarchy.KeyGeneratorCacheSize = attribute.KeyGeneratorCacheSize;
-    }
-
-    private static void ProcessKeyFields(HierarchyDef hierarchy, TypeDef type, HierarchyRootAttribute attribute)
-    {
-//      KeyProviderAttribute ks =
-//        (KeyProviderAttribute)
-//          Attribute.GetCustomAttribute(hierarchy.KeyGeneratorType, typeof (KeyProviderAttribute), true);
-//
-//      if (ks==null)
-//        throw new DomainBuilderException(
-//          string.Format(Strings.ExKeyProviderXShouldDefineAtLeastOneKeyField, attribute.KeyGenerator));
-//
-//      if (attribute.KeyFields.Length!=ks.Fields.Length)
-//        throw new DomainBuilderException(
-//          string.Format(Strings.ExKeyProviderXAndHierarchyYKeyFieldAmountMismatch, 
-//          attribute.KeyGenerator, hierarchy.Root.Name));
-
-      for (int index = 0; index < attribute.KeyFields.Length; index++) {        
-
-        Pair<string, Direction> result = ParseFieldName(attribute.KeyFields[index]);
-        FieldDef field;
-        if (!type.Fields.TryGetValue(result.First, out field))
-          throw new DomainBuilderException(
-            string.Format(Strings.ExFieldXYIsNotFound, type.UnderlyingType.GetShortName(), result.First));
-
-        KeyField keyField = new KeyField(result.First, field.ValueType);
-
-        if (!Validator.IsNameValid(result.First, ValidationRule.Field))
-          throw new DomainBuilderException(
-            string.Format(Strings.ExIndexFieldXIsIncorrect, attribute.KeyFields[index]));
-
-        if (hierarchy.KeyFields.ContainsKey(keyField))
-          throw new DomainBuilderException(
-            string.Format(Strings.ExIndexAlreadyContainsField, attribute.KeyFields[index]));
-
-        hierarchy.KeyFields.Add(keyField, result.Second);
-      }
-    }
-
-    private static void ProcessInheritanceSchema(HierarchyDef hierarchy, HierarchyRootAttribute attribute)
-    {
-      hierarchy.Schema = attribute.InheritanceSchema;
-    }
-
-    private static void ProcessIsUnique(IndexDef index, IndexAttribute attribute)
+    private static void ProcessIsUnique(IndexDef indexDef, IndexAttribute attribute)
     {
       if (attribute.isUnique.HasValue)
-        index.IsUnique = attribute.IsUnique;
+        indexDef.IsUnique = attribute.IsUnique;
     }
 
-    private static void ProcessLength(FieldDef field, FieldAttribute attribute)
+    private static void ProcessLength(FieldDef fieldDef, FieldAttribute attribute)
     {
       if (attribute.length==null)
         return;
 
       if (attribute.Length <= 0)
         throw new DomainBuilderException(
-          string.Format(Strings.ExInvalidLengthAttributeOnXField, field.Name));
+          string.Format(Strings.ExInvalidLengthAttributeOnXField, fieldDef.Name));
 
-      field.Length = attribute.Length;
+      fieldDef.Length = attribute.Length;
     }
 
-    private static void ProcessOnDelete(FieldDef field, FieldAttribute attribute)
+    private static void ProcessOnDelete(FieldDef fieldDef, FieldAttribute attribute)
     {
       if (attribute.referentialAction==null)
         return;
 
-      if (!(field.IsEntity || field.IsEntitySet))
+      if (!(fieldDef.IsEntity || fieldDef.IsEntitySet))
         throw new DomainBuilderException(
-          string.Format(Strings.ExInvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference, field.Name));
+          string.Format(Strings.ExInvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference, fieldDef.Name));
 
-      field.OnRemove = attribute.OnRemove;
+      fieldDef.OnRemove = attribute.OnRemove;
     }
 
-    private static void ProcessIsCollatable(FieldDef field, FieldAttribute attribute)
+    private static void ProcessIsCollatable(FieldDef fieldDef, FieldAttribute attribute)
     {
       if (attribute.isCollatable!=null)
-        field.IsCollatable = attribute.IsCollatable;
+        fieldDef.IsCollatable = attribute.IsCollatable;
     }
 
-    private static void ProcessIsTranslatable(FieldDef field, FieldAttribute attribute)
+    private static void ProcessIsTranslatable(FieldDef fieldDef, FieldAttribute attribute)
     {
       if (attribute.isTranslatable!=null)
-        field.IsTranslatable = attribute.IsTranslatable;
+        fieldDef.IsTranslatable = attribute.IsTranslatable;
     }
 
-    private static void ProcessLazyLoad(FieldDef field, FieldAttribute attribute)
+    private static void ProcessLazyLoad(FieldDef fieldDef, FieldAttribute attribute)
     {
-      field.LazyLoad = attribute.LazyLoad;
-      if (!field.IsPrimitive && field.LazyLoad) {
-        Log.Warning(Strings.ExplicitLazyLoadAttributeOnFieldXIsRedundant, field.Name);
+      fieldDef.LazyLoad = attribute.LazyLoad;
+      if (!fieldDef.IsPrimitive && fieldDef.LazyLoad) {
+        Log.Warning(Strings.ExplicitLazyLoadAttributeOnFieldXIsRedundant, fieldDef.Name);
       }
     }
 
@@ -181,11 +160,9 @@ namespace Xtensive.Storage.Building.Builders
 
       mappingName = BuildingContext.Current.NameBuilder.NamingConvention.Apply(mappingName);
 
-      if (!Validator.IsNameValid(mappingName, rule))
-        throw new DomainBuilderException(
-          string.Format(Strings.ExInvalidMappingNameX, mappingName));
+      Validator.EnsureNameIsValid(mappingName, rule);
 
-      if (comparer.Compare(node.MappingName, mappingName)==0)
+      if (Comparer.Compare(node.MappingName, mappingName)==0)
         Log.Warning(
           Strings.ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically, node.MappingName);
       else
@@ -201,9 +178,7 @@ namespace Xtensive.Storage.Building.Builders
       for (int index = 0; index < source.Length; index++) {
         Pair<string, Direction> result = ParseFieldName(source[index]);
 
-        if (!Validator.IsNameValid(result.First, ValidationRule.Column))
-          throw new DomainBuilderException(
-            string.Format(Strings.ExIndexFieldXIsIncorrect, source[index]));
+        Validator.EnsureNameIsValid(result.First, ValidationRule.Column);
 
         if (target.ContainsKey(result.First))
           throw new DomainBuilderException(
@@ -221,9 +196,7 @@ namespace Xtensive.Storage.Building.Builders
       for (int index = 0; index < source.Length; index++) {
         string fieldName = source[index];
 
-        if (!Validator.IsNameValid(fieldName, ValidationRule.Column))
-          throw new DomainBuilderException(
-            string.Format(Strings.ExIndexFieldXIsIncorrect, source[index]));
+        Validator.EnsureNameIsValid(fieldName, ValidationRule.Column);
 
         if (target.Contains(fieldName))
           throw new DomainBuilderException(

@@ -8,10 +8,10 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Tests.Storage.Performance.CrudModel
 {
-  [HierarchyRoot("Id")]
+  [HierarchyRoot]
   public class Simplest : Entity
   {
-    [Field]
+    [Field, KeyField]
     public long Id { get; private set; }
 
     [Field]

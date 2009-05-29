@@ -14,10 +14,10 @@ using Xtensive.Storage.Tests.ReferentialIntegrityModel;
 
 namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 {
-  [HierarchyRoot(typeof (KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Root : Entity
   {
-    [Field]
+    [Field, KeyField]
     private int Id { get; set; }
   }
 

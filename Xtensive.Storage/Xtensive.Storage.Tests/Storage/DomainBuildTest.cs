@@ -12,20 +12,20 @@ using System;
 namespace Xtensive.Storage.Tests.Storage.DomainBuild
 {
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class A : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]
     public string Col1 { get; set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class B : Entity
   {
-    [Field]
+    [Field, KeyField]
     public Guid Id { get; private set; }
 
     [Field]

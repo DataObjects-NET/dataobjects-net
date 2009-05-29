@@ -33,10 +33,10 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   }
 
   [Entity(MappingName = "A-Root")]
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class A : Entity
   {
-    [Field]
+    [Field, KeyField]
     public long ID { get; private set; }
   }
 
@@ -94,10 +94,10 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
 
   [Index("Name")]
   [Entity]
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class X : Entity
   {
-    [Field]
+    [Field, KeyField]
     public long ID { get; private set; }
 
     [Field(Length = 1000)]

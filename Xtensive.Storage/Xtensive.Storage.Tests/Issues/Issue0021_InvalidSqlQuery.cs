@@ -12,10 +12,10 @@ using Xtensive.Storage.Tests.Issues.Issue0021_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0021_Model
 {
-  [HierarchyRoot(typeof (KeyGenerator), "ID", InheritanceSchema = InheritanceSchema.ClassTable)]
+  [HierarchyRoot(InheritanceSchema.ClassTable)]
   public class RootClassTable : Entity
   {
-    [Field]
+    [Field, KeyField]
     public long ID { get; private set; }
 
     [Field]

@@ -13,19 +13,33 @@ namespace InheritedKeyFieldModel
   public class H0 : Entity
   {
     [Field]
-    public int Id { get; private set; }
+    public virtual int Id { get; private set; }
   }
 
-  [HierarchyRoot(typeof (KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class H1 : H0
   {
-    
+    [KeyField]
+    public override int Id
+    {
+      get
+      {
+        { return base.Id;}
+      }
+    }
   }
 
-  [HierarchyRoot(typeof (KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class H2 : H0
   {
-    
+    [KeyField]
+    public override int Id
+    {
+      get
+      {
+        return base.Id;
+      }
+    }
   }
 }
 

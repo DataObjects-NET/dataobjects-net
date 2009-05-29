@@ -9,10 +9,10 @@ using NUnit.Framework;
 
 namespace Xtensive.Storage.Tests.Model.CycleReferenceTestModel
 {
-  [HierarchyRoot("Id")]
+  [HierarchyRoot]
   public class Parent : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]
@@ -26,10 +26,10 @@ namespace Xtensive.Storage.Tests.Model.CycleReferenceTestModel
   {
   }
 
-  [HierarchyRoot("Id")]
+  [HierarchyRoot]
   public class Neighbor : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]

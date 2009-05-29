@@ -5,9 +5,10 @@
 // Created:    2007.07.11
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Notifications;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
@@ -21,16 +22,7 @@ namespace Xtensive.Storage.Building.Definitions
   public sealed class DomainModelDef : Node
   {
     private readonly HierarchyDefCollection hierarchies;
-    private readonly NodeCollection<ServiceDef> services;
     private readonly TypeDefCollection types;
-
-    /// <summary>
-    /// Gets the <see cref="ServiceDef"/> instances contained in this instance.
-    /// </summary>
-    public NodeCollection<ServiceDef> Services
-    {
-      get { return services; }
-    }
 
     /// <summary>
     /// Gets the <see cref="TypeDef"/> instances contained in this instance.
@@ -55,28 +47,20 @@ namespace Xtensive.Storage.Building.Definitions
     /// <returns>Newly created <see cref="TypeDef"/> instance.</returns>
     public TypeDef DefineType(Type type)
     {
-      bool isValidClass = type.IsClass && type.IsSubclassOf(typeof (Persistent));
-      bool isValidInterface = type.IsInterface && typeof (IEntity).IsAssignableFrom(type);
+      Validator.EnsureTypeIsPersistent(type);
 
-      if (!isValidClass && !isValidInterface)
-        throw new DomainBuilderException(
-          string.Format(Strings.ExUnsupportedType, type));
+      if (types.Contains(type))
+        throw new DomainBuilderException(string.Format(Strings.ExTypeXIsAlreadyDefined, type.GetFullName()));
 
-      TypeDef typeDef = TypeBuilder.DefineType(type);
-      types.Add(typeDef);
-      IndexBuilder.DefineIndexes(typeDef);
-
-      return typeDef;
-
+      return ModelDefBuilder.ProcessType(type);
     }
 
     /// <summary>
     /// Defines new <see cref="HierarchyDef"/> and adds it to the <see cref="DomainModelDef"/> instance.
     /// </summary>
     /// <param name="root">The <see cref="TypeDef"/> instance that will be the root of the hierarchy.</param>
-    /// <param name="inheritanceSchema">The type of inheritance mapping.</param>
     /// <returns>Newly created <see cref="HierarchyDef"/> instance.</returns>
-    public HierarchyDef DefineHierarchy(TypeDef root, InheritanceSchema inheritanceSchema)
+    public HierarchyDef DefineHierarchy(TypeDef root)
     {
       ArgumentValidator.EnsureArgumentNotNull(root, "root");
 
@@ -84,37 +68,9 @@ namespace Xtensive.Storage.Building.Definitions
         throw new ArgumentException("Only entities could be hierarchy roots.");
 
       if (!types.Contains(root))
-        throw new ArgumentException("TypeDef is not registered in the storage definition.");
+        throw new ArgumentException("Hierarchy root is not registered.");
 
-      using (var scope = new LogCaptureScope(BuildingContext.Current.Log)) {
-        HierarchyDef hierarchy = HierarchyBuilder.DefineHierarchy(root, inheritanceSchema);
-        if (scope.IsCaptured(LogEventTypes.Error))
-          throw new DomainBuilderException(
-            "Some errors have been occurred during hierarchy definition process. See error log for details.");
-        hierarchies.Add(hierarchy);
-        return hierarchy;
-      }
-    }
-
-    /// <summary>
-    /// Defines new <see cref="HierarchyDef"/> with <see cref="InheritanceSchema.Default"/> inheritance mapping type
-    ///  and adds it to the <see cref="DomainModelDef"/> instance.
-    /// </summary>
-    /// <param name="root">The <see cref="TypeDef"/> instance that will be the root of the hierarchy.</param>
-    /// <returns>Newly created <see cref="HierarchyDef"/> instance.</returns>
-    public HierarchyDef DefineHierarchy(TypeDef root)
-    {
-      return DefineHierarchy(root, InheritanceSchema.ClassTable);
-    }
-
-    /// <summary>
-    /// Defines new <see cref="ServiceDef"/> object and adds it to the <see cref="DomainModelDef"/> instance.
-    /// </summary>
-    /// <param name="type">The underlying type.</param>
-    /// <returns>Newly created <see cref="ServiceDef"/> instance.</returns>
-    public ServiceDef DefineService(Type type)
-    {
-      throw new NotImplementedException();
+      return ModelDefBuilder.DefineHierarchy(root);
     }
 
     /// <summary>
@@ -174,7 +130,6 @@ namespace Xtensive.Storage.Building.Definitions
     /// </summary>
     internal DomainModelDef()
     {
-      services = new NodeCollection<ServiceDef>();
       types = new TypeDefCollection();
       hierarchies = new HierarchyDefCollection();
 

@@ -193,7 +193,7 @@ namespace Xtensive.Storage
         OnRemoving();
 
       if (Session.IsDebugEventLoggingEnabled)
-        LogTemplate<Log>.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
+        Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
 
       State.EnsureNotRemoved();
 
@@ -229,7 +229,7 @@ namespace Xtensive.Storage
     {
       base.OnGettingFieldValue(field, notify);
       if (Session.IsDebugEventLoggingEnabled)
-        LogTemplate<Log>.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, field);
+        Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       State.EnsureNotRemoved();
       EnsureIsFetched(field);
     }
@@ -244,7 +244,7 @@ namespace Xtensive.Storage
     {
       base.OnSettingFieldValue(field, value, notify);
       if (Session.IsDebugEventLoggingEnabled)
-        LogTemplate<Log>.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
+        Log.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       if (field.IsPrimaryKey)
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
         State.EnsureNotRemoved();

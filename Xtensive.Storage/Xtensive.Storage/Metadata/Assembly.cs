@@ -16,13 +16,15 @@ namespace Xtensive.Storage.Metadata
   /// Used for schema upgrade purposes.
   /// </summary>
   [SystemType(2)]
-  [HierarchyRoot("Name")]
+  [HierarchyRoot]
+  [KeyGenerator(null)]
   [Entity(MappingName = "Metadata.Assembly")]
   public class Assembly : MetadataBase
   {
     /// <summary>
     /// Gets or sets the name of the assembly.
     /// </summary>
+    [KeyField]
     [Field(Length = 1024)]
     public string Name { get; private set; }
 

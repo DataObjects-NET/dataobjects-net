@@ -49,11 +49,12 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
   [DebuggerDisplay("Name = '{Name}'")]
   [Index("Name")]
   [Index("Name", "AlsoKnownAs")]
-  [HierarchyRoot(typeof(KeyGenerator), "ID", KeyGeneratorCacheSize = 16)]
+  [HierarchyRoot]
+  [KeyGenerator(CacheSize = 16)]
   public class Creature : Entity,
     ICreature
   {
-    [Field]
+    [Field, KeyField]
     public int ID { get; private set; }
         
     public string Name { get; set; }

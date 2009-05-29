@@ -20,11 +20,11 @@ namespace Xtensive.Storage.Tests.Rse
   #region Domain model
   namespace VirtualAndRealIndexesModel
   {
-    [HierarchyRoot(typeof(KeyGenerator), "Id")]
+    [HierarchyRoot]
     [Index("HierarchyField")]
     public class A : Entity
     {
-      [Field]
+      [Field, KeyField]
       public Int32 Id { get; private set; }
 
       [Field]

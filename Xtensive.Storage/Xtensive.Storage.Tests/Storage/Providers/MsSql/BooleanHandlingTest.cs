@@ -14,10 +14,10 @@ using Xtensive.Storage.Tests.Storage.Providers.MsSql.BooleanHandlingTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.MsSql.BooleanHandlingTestModel
 {
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class MyEntity : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]

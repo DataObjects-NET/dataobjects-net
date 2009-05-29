@@ -18,16 +18,16 @@ using Xtensive.Storage.Providers.Sql;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.Sql
 {
-  [HierarchyRoot("Id1A", "Id2A", "Id3A")]
+  [HierarchyRoot]
   public class ABase: Entity
   {
-    [Field]
+    [Field, KeyField(0)]
     public int Id1A { get; private set; }
 
-    [Field]
+    [Field, KeyField(1)]
     public double Id2A { get; private set; }
 
-    [Field]
+    [Field, KeyField(2)]
     public Guid Id3A { get; private set; }
   }
 
@@ -65,13 +65,13 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public B ManyToOne { get; set; }
   }
 
-  [HierarchyRoot("Id1", "Id2")]
+  [HierarchyRoot]
   public class BBase:Entity
   {
-    [Field]
+    [Field, KeyField(0)]
     public float Id1 { get; private set; }
 
-    [Field(Length = 20)]
+    [Field(Length = 20), KeyField(1)]
     public byte Id2 { get; private set; }
   }
 
@@ -100,10 +100,10 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
   /// <summary>
   /// Self-references
   /// </summary>
-  [HierarchyRoot(typeof (KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class C : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]

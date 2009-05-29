@@ -23,10 +23,10 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   }
 
   [Index("FirstName")]
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class BusinessContact : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]
@@ -72,10 +72,10 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
 
   [Index("OrderDate")]
   [Index("Freight")]
-  [HierarchyRoot(typeof(KeyGenerator), "Id")]
+  [HierarchyRoot]
   public class Order : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]

@@ -12,13 +12,14 @@ using System.Linq;
 
 namespace Xtensive.Storage.Tests.Linq.ConditionalTestModel
 {
-  [HierarchyRoot("Id1", "Id2", KeyGenerator = typeof(DualIntKeyGenerator))]
+  [KeyGenerator(typeof(DualIntKeyGenerator))]
+  [HierarchyRoot]
   public class Root1 : Entity
   {
-    [Field]
+    [Field, KeyField(0)]
     public int Id1 { get; private set; }
 
-    [Field]
+    [Field, KeyField(1)]
     public int Id2 { get; private set; }
   }
 
@@ -34,10 +35,10 @@ namespace Xtensive.Storage.Tests.Linq.ConditionalTestModel
     public int FieldB { get; private set; }
   }
 
-  [HierarchyRoot("Id", KeyGenerator = typeof(KeyGenerator))]
+  [HierarchyRoot]
   public class Root2 : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int Id { get; private set; }
 
     [Field]

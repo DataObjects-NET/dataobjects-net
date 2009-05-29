@@ -16,62 +16,17 @@ namespace Xtensive.Storage.Building.Builders
   internal static class HierarchyBuilder
   {
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    public static HierarchyDef TryDefineHierarchy(TypeDef type)
-    {
-      if (!type.IsEntity)
-        return null;
-      Log.Info("Detecting hierarchy.");
-
-      var attributes = type.UnderlyingType.GetAttributes<HierarchyRootAttribute>(AttributeSearchOptions.InheritFromAllBase);
-      if (attributes==null || attributes.Length == 0)
-        return null;
-
-      if (attributes.Length!=1)
-        throw new DomainBuilderException(Strings.ExMultipleHierarchyAttributesAreNotAllowed);
-
-      var root = BuildingContext.Current.Definition.FindRoot(type);
-      if (root!=null)
-        return null;
-
-      var hierarchy = new HierarchyDef(type);
-      AttributeProcessor.Process(hierarchy, type, attributes[0]);
-      return hierarchy;
-    }
-
-    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    public static HierarchyDef DefineHierarchy(TypeDef typeDef, InheritanceSchema inheritanceSchema)
-    {
-      var context = BuildingContext.Current;
-
-      Log.Info(Strings.LogDefiningHierarchyForTypeX, typeDef.UnderlyingType.FullName);
-
-      TypeDef root = context.Definition.FindRoot(typeDef);
-      if (root!=null)
-        throw new DomainBuilderException(
-          string.Format(Strings.ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY,
-          typeDef.UnderlyingType.FullName,  root.UnderlyingType.FullName));
-
-      foreach (var hierarchy in context.Definition.Hierarchies)
-        if (hierarchy.Root.UnderlyingType.IsSubclassOf(typeDef.UnderlyingType)) 
-          throw new DomainBuilderException(
-            string.Format(Strings.ExXDescendantIsAlreadyARootOfAnotherHierarchy, hierarchy.Root.UnderlyingType));
-
-      return 
-        new HierarchyDef(typeDef) {Schema = inheritanceSchema};
-    }
-
-    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     public static HierarchyInfo BuildHierarchy(TypeInfo root, HierarchyDef hierarchyDef)
     {
       var ki = new KeyInfo();
 
-      foreach (KeyValuePair<KeyField, Direction> pair in hierarchyDef.KeyFields) {
+      foreach (var keyField in hierarchyDef.KeyFields) {
         FieldInfo field;
-        if (!root.Fields.TryGetValue(pair.Key.Name, out field))
+        if (!root.Fields.TryGetValue(keyField.Name, out field))
           throw new DomainBuilderException(
-            string.Format(Strings.ExKeyFieldXWasNotFoundInTypeY, pair.Key.Name, root.Name));
+            string.Format(Strings.ExKeyFieldXWasNotFoundInTypeY, keyField.Name, root.Name));
 
-        ki.Fields.Add(field, pair.Value);
+        ki.Fields.Add(field, keyField.Direction);
       }
 
       var context = BuildingContext.Current;
@@ -89,13 +44,6 @@ namespace Xtensive.Storage.Building.Builders
       else {
         if (hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize.Value < gi.CacheSize)
           gi.CacheSize = hierarchyDef.KeyGeneratorCacheSize.Value;
-      }
-
-      if (hierarchyDef.KeyGenerator == typeof(KeyGenerator)) {
-        if (ki.Fields.Count > 2)
-          throw new DomainBuilderException(Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
-        if (ki.Fields.Count==2 && !ki.Fields[1].Key.IsSystem)
-          throw new DomainBuilderException(Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
       }
 
       var hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, ki, gi) {

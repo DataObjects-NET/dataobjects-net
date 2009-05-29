@@ -12,10 +12,10 @@ using Xtensive.Storage.Tests.Storage.BookAuthorModel;
 
 namespace Xtensive.Storage.Tests.Storage.BookAuthorModel
 {
-  [HierarchyRoot(typeof(KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class Book : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int ID { get; private set; }
 
     [Field(Length = 10)]
@@ -28,10 +28,10 @@ namespace Xtensive.Storage.Tests.Storage.BookAuthorModel
     public Author Author { get; set; }
   }
 
-  [HierarchyRoot(typeof(KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class Author : Entity
   {
-    [Field]
+    [Field, KeyField]
     public int ID { get; private set; }
 
     [Field]

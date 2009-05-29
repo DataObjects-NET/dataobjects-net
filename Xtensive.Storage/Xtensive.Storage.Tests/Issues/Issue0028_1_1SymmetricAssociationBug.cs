@@ -10,10 +10,10 @@ using Xtensive.Storage.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Model
 {
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class First : Entity
   {
-    [Field]
+    [Field, KeyField]
     public long ID { get; private set; }
 
     //symmetric
@@ -25,10 +25,10 @@ namespace Xtensive.Storage.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Mod
     public Second APair { get; set; }
   }
 
-  [HierarchyRoot(typeof (KeyGenerator), "ID")]
+  [HierarchyRoot]
   public class Second : Entity
   {
-    [Field]
+    [Field, KeyField]
     public long ID { get; private set; }
 
     [Field(PairTo = "APair")]
