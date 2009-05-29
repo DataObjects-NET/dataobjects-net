@@ -34,6 +34,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
   [Entity(MappingName = "Customers")]
   [HierarchyRoot]
+  [KeyGenerator(null)]
   public class Customer : Entity
   {
     [Field(Length = 5, MappingName = "CustomerId"), KeyField]
