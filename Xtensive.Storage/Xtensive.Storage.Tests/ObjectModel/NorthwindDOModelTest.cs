@@ -19,6 +19,8 @@ namespace Xtensive.Storage.Tests.ObjectModel
     [SetUp]
     public virtual void SetUp()
     {
+      if (Domain == null)
+        TestFixtureSetUp();
       disposables = new DisposableSet();
       disposables.Add(Domain.OpenSession());
       disposables.Add(Transaction.Open());

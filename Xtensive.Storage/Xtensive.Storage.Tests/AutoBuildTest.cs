@@ -22,7 +22,6 @@ namespace Xtensive.Storage.Tests
       get { return domain; }
     }
 
-    [TestFixtureSetUp]
     public virtual void TestFixtureSetUp()
     {
       DomainConfiguration config = BuildConfiguration();
@@ -43,6 +42,13 @@ namespace Xtensive.Storage.Tests
     protected virtual Domain BuildDomain(DomainConfiguration configuration)
     {
       return Domain.Build(configuration);
+    }
+
+    [Test]
+    public void FirstTest()
+    {
+      if (Domain == null)
+        TestFixtureSetUp();
     }
 
     protected RecordSet GetRecordSet<T>() where T : Entity
