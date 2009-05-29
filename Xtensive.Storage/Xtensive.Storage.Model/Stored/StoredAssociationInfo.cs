@@ -67,5 +67,17 @@ namespace Xtensive.Storage.Model.Stored
     /// </summary>
     [DefaultValue(false)]
     public bool IsMaster;
+
+    /// <summary>
+    /// <see cref="AssociationInfo.UnderlyingType"/>
+    /// </summary>
+    [XmlIgnore]
+    public StoredTypeInfo ConnectorType;
+
+    /// <summary>
+    /// Name of <see cref="ConnectorType"/>
+    /// </summary>
+    [XmlElement("ConnectorType")]
+    public string ConnectorTypeName;
   }
 }

@@ -228,7 +228,7 @@ namespace Xtensive.Storage.Upgrade
           string ns = TryStripRecycledSuffix(r.Type.Namespace);
           oldName = ns + "." + oldName;
         }
-        context.Hints.Add(new RenameTypeHint(r.Type, oldName));
+        context.Hints.Add(new RenameTypeHint(oldName, r.Type));
         // TODO: Add table rename hint as well
       }
 
@@ -247,6 +247,7 @@ namespace Xtensive.Storage.Upgrade
         var oldName = r.Attribute.OriginalName;
         if (!oldName.IsNullOrEmpty()) {
           // TODO: Add column rename hint here
+          context.Hints.Add(new RenameFieldHint(r.Property.DeclaringType, oldName, r.Property.Name));
         }
       }
     }

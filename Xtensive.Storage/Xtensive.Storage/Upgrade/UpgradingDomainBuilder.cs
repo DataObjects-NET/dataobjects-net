@@ -7,11 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Modelling.Actions;
-using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
@@ -20,6 +18,7 @@ using Xtensive.Core.Reflection;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Disposing;
+using Assembly=System.Reflection.Assembly;
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -119,15 +118,15 @@ namespace Xtensive.Storage.Upgrade
             handlers.ContainsKey(assembly)
               && handlers[assembly].IsFieldAvailable(field, context.Stage);
         },
-        TypeNameProvider = type => {
-          string name = type.FullName;
-          if (context==null)
-            return name;
-          var assembly = type.Assembly;
-          return !context.UpgradeHandlers.ContainsKey(assembly)
-            ? name
-            : context.UpgradeHandlers[assembly].GetTypeName(type);
-        },
+//        TypeNameProvider = type => {
+//          string name = type.FullName;
+//          if (context==null)
+//            return name;
+//          var assembly = type.Assembly;
+//          return !context.UpgradeHandlers.ContainsKey(assembly)
+//            ? name
+//            : context.UpgradeHandlers[assembly].GetTypeName(type);
+//        },
         SchemaReadyHandler = (extractedSchema, targetSchema) => {
           context.SchemaHints = null;
           if (context.Stage==UpgradeStage.Upgrading)
@@ -158,8 +157,13 @@ namespace Xtensive.Storage.Upgrade
     {
       var context = UpgradeContext.Demand();
       context.SchemaHints = new HintSet(extractedSchema, targetSchema);
-      foreach (var hint in context.Hints)
-        hint.Translate(context.SchemaHints);
+      var oldModel = context.RecycledModel;
+      if (oldModel != null) {
+        var newModel = Domain.Demand().Model;
+        var hints = new HintTranslator(oldModel, newModel).Translate(context.Hints);
+        foreach (var hint in hints)
+          context.SchemaHints.Add(hint);
+      }
     }
 
     /// <exception cref="DomainBuilderException">More then one enabled handler is provided for some assembly.</exception>
@@ -204,7 +208,7 @@ namespace Xtensive.Storage.Upgrade
         handlers.Add(assembly, handler);
       }
 
-      // Storing thr result
+      // Storing the result
       context.UpgradeHandlers = 
         new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers, false);
     }

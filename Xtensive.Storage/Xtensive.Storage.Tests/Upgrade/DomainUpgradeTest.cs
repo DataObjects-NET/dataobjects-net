@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       using (domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           personTypeId = Query<Metadata.Type>.All
-            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.ModelPerson").Id;
+            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version1.Person").Id;
           maxTypeId = Query<Metadata.Type>.All.Max(type => type.Id);
         }
       }
@@ -100,9 +100,9 @@ namespace Xtensive.Storage.Tests.Upgrade
       using (domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var businessContactTypeId = Query<Metadata.Type>.All
-            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.ModelBusinessContact").Id;
+            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version1.BusinessContact").Id;
           var newPersonTypeId = Query<Metadata.Type>.All
-            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.ModelPerson").Id;
+            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version1.Person").Id;
 
           Assert.AreEqual(personTypeId, newPersonTypeId);
           Assert.AreEqual(maxTypeId + 1, businessContactTypeId);
@@ -119,9 +119,9 @@ namespace Xtensive.Storage.Tests.Upgrade
       using (domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           personTypeId = Query<Metadata.Type>.All
-            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.ModelPerson").Id;
+            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version1.Person").Id;
           businessContactTypeId = Query<Metadata.Type>.All
-            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.ModelBusinessContact").Id;
+            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version1.BusinessContact").Id;
         }
       }
 
@@ -129,9 +129,9 @@ namespace Xtensive.Storage.Tests.Upgrade
       using (domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var newBusinessContactTypeId = Query<Metadata.Type>.All
-            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.ModelBusinessContact").Id;
+            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version2.BusinessContact").Id;
           var newPersonTypeId = Query<Metadata.Type>.All
-            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.ModelPerson").Id;
+            .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version2.Person").Id;
 
           Assert.AreEqual(personTypeId, newBusinessContactTypeId);
           Assert.AreEqual(businessContactTypeId, newPersonTypeId);

@@ -81,16 +81,28 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       get
       {
-        yield return new RenameTypeHint(typeof (Person), 
-          "Xtensive.Storage.Tests.Upgrade.ModelBusinessContact");
-        yield return new RenameTypeHint(typeof (BusinessContact), 
-          "Xtensive.Storage.Tests.Upgrade.ModelPerson");
-        yield return new RenameNodeHint("Tables/BusinessContact", "Tables/Person");
-        yield return new RenameNodeHint("Tables/Person", "Tables/BusinessContact");
-        yield return new CopyDataHint("Tables/Employee/Columns/LastName", "Tables/BusinessContact/Columns/LastName",
-          "Tables/Employee/Columns/Id", "Tables/BusinessContact/Columns/Id");
-        yield return new CopyDataHint("Tables/Employee/Columns/FirstName", "Tables/BusinessContact/Columns/FirstName",
-          "Tables/Employee/Columns/Id", "Tables/BusinessContact/Columns/Id");
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.BusinessContact", typeof(Person));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Person", typeof(BusinessContact));
+
+        //yield return new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.Model.Version1.Address", typeof (Address));
+
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", typeof (Employee));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Order", typeof (Order));
+        yield return new CopyFieldHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", "FirstName", typeof (BusinessContact));
+        yield return new CopyFieldHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", "LastName", typeof (BusinessContact));
+
+        //yield return new RenameNodeHint("Tables/BusinessContact", "Tables/Person");
+        //yield return new RenameNodeHint("Tables/Person", "Tables/BusinessContact");
+        //yield return new CopyDataHint("Tables/Employee/Columns/LastName", "Tables/BusinessContact/Columns/LastName",
+        //  "Tables/Employee/Columns/Id", "Tables/BusinessContact/Columns/Id");
+        //yield return new CopyDataHint("Tables/Employee/Columns/FirstName", "Tables/BusinessContact/Columns/FirstName",
+        //  "Tables/Employee/Columns/Id", "Tables/BusinessContact/Columns/Id");
       }
     }
   }

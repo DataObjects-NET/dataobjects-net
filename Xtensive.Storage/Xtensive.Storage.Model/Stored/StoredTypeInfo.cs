@@ -15,6 +15,11 @@ namespace Xtensive.Storage.Model.Stored
   public sealed class StoredTypeInfo : StoredNode
   {
     /// <summary>
+    /// <see cref="TypeInfo.UnderlyingType"/>.
+    /// </summary>
+    public string UnderlyingType;
+
+    /// <summary>
     /// <see cref="TypeInfo.TypeId"/>.
     /// </summary>
     [DefaultValue(TypeInfo.NoTypeId)]

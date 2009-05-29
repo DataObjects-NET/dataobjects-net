@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Building.Builders
     /// <summary>
     /// Gets or sets the type name provider.
     /// </summary>
-    public Func<Type, string> TypeNameProvider { get; set; }
+    //public Func<Type, string> TypeNameProvider { get; set; }
 
     /// <summary>
     /// Gets or sets the type filter.

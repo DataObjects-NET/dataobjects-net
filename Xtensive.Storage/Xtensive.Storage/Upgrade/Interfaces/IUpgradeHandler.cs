@@ -5,7 +5,6 @@
 // Created:    2009.04.08
 
 using System;
-using System.Configuration;
 using System.Reflection;
 
 namespace Xtensive.Storage.Upgrade

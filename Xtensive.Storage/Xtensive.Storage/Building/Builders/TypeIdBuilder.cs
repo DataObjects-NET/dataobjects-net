@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Upgrade;
 using Type=Xtensive.Storage.Metadata.Type;
@@ -35,7 +36,7 @@ namespace Xtensive.Storage.Building.Builders
     public static void BuildRegularTypeIds()
     {
       var context = BuildingContext.Current;
-      var typeNameProvider = context.BuilderConfiguration.TypeNameProvider ?? (t => t.FullName);
+      //var typeNameProvider = context.BuilderConfiguration.TypeNameProvider ?? (t => t.FullName);
       var types = Query<Type>.All.ToArray();
       var typeByName = new Dictionary<string, Type>();
       foreach (var type in types)
@@ -47,7 +48,8 @@ namespace Xtensive.Storage.Building.Builders
       foreach (var type in context.Model.Types) {
         if (!type.IsEntity || type.TypeId!=TypeInfo.NoTypeId)
           continue;
-        var name = typeNameProvider.Invoke(type.UnderlyingType);
+        //var name = typeNameProvider.Invoke(type.UnderlyingType);
+        var name = type.UnderlyingType.GetFullName();
         if (typeByName.ContainsKey(name))
           // Type is found in metadata
           AssignTypeId(type, typeByName[name].Id);
@@ -57,7 +59,7 @@ namespace Xtensive.Storage.Building.Builders
           var hasRenameHint = upgradeContext!=null &&
             upgradeContext.Hints
               .OfType<RenameTypeHint>()
-              .Any(hint => hint.TargetType==type.UnderlyingType);
+              .Any(hint => hint.NewType==type.UnderlyingType);
           if (!hasRenameHint) {
             AssignTypeId(type, nextTypeId++);
             new Type(type.TypeId, name);

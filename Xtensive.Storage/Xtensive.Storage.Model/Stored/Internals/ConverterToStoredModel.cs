@@ -6,24 +6,15 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core.Collections;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Model.Stored
 {
   internal class ConverterToStoredModel
   {
-    private const string GenericTypeNameFormat = "{0}{{{1}}}";
-    private const string GenericArgumentsDelimiter = ",";
-    
     public StoredDomainModel Convert(DomainModel model)
     {
-      var badTypes = model.Associations
-        .Where(a => a.UnderlyingType!=null)
-        .Select(a => a.UnderlyingType)
-        .ToHashSet();
-      var goodTypes = model.Types
-        .Where(t => !badTypes.Contains(t));
-      return new StoredDomainModel {Types = goodTypes.Select(t => ConvertType(t)).ToArray()};
+      return new StoredDomainModel {Types = model.Types.Select(t => ConvertType(t)).ToArray()};
     }
 
     private static StoredTypeInfo ConvertType(TypeInfo source)
@@ -39,17 +30,24 @@ namespace Xtensive.Storage.Model.Stored
         .Where(a => declaredFields.Contains(a.ReferencingField))
         .Select(a => ConvertAssociation(a))
         .ToArray();
+      // hack: for SingleTable hierarchies mapping name is not set correctly
+      // and always should be taken from hierarchy root
+      var mappingNameSource =
+        source.Hierarchy!=null && source.Hierarchy.Schema==InheritanceSchema.SingleTable
+          ? source.Hierarchy.Root
+          : source;
       var result = new StoredTypeInfo
         {
-          Name = GetFullTypeName(source),
+          Name = source.Name,
+          UnderlyingType = GetTypeFullName(source.UnderlyingType),
           TypeId = source.TypeId,
-          MappingName = source.MappingName,
+          MappingName = mappingNameSource.MappingName,
           IsEntity = source.IsEntity,
           IsAbstract = source.IsAbstract,
           IsInterface = source.IsInterface,
           IsStructure = source.IsStructure,
           IsSystem = source.IsSystem,
-          AncestorName = GetFullTypeName(sourceAncestor),
+          AncestorName = sourceAncestor != null ? sourceAncestor.Name : null,
           Associations = associations,
           HierarchyRoot = hierarchyRoot,
           Fields = declaredFields.Select(f => ConvertField(f)).ToArray(),
@@ -65,7 +63,7 @@ namespace Xtensive.Storage.Model.Stored
           MappingName = source.UnderlyingType != null ? source.UnderlyingType.MappingName : null,
           IsMaster = source.IsMaster,
           MultiplicityName = source.Multiplicity.ToString(),
-          ReferencedTypeName = GetFullTypeName(source.ReferencedType),
+          ReferencedTypeName = source.ReferencedType.Name,
           ReferencingFieldName = source.ReferencingField.Name,
           ReversedName = source.Reversed != null ? source.Reversed.Name : null,
         };
@@ -79,8 +77,8 @@ namespace Xtensive.Storage.Model.Stored
           Name = source.Name,
           MappingName = source.MappingName,
           PropertyName = source.UnderlyingProperty != null ? source.UnderlyingProperty.Name : null,
-          ValueType = GetFullTypeName(source.ValueType),
-          ItemType = GetFullTypeName(source.ItemType),
+          ValueType = source.ValueType.GetFullName(),
+          ItemType = GetTypeFullName(source.ItemType),
           Fields = source.Fields.Select(f => ConvertField(f)).ToArray(),
           Length = source.Length.HasValue ? source.Length.Value : 0,
           IsCollatable = source.IsCollatable,
@@ -101,27 +99,9 @@ namespace Xtensive.Storage.Model.Stored
       return result;
     }
 
-    public static string GetFullTypeName(Type type)
+    private static string GetTypeFullName(Type type)
     {
-      if (type == null)
-        return null;
-
-      if (!type.IsGenericType)
-        return type.FullName;
-
-      return string.Format(
-        GenericTypeNameFormat,
-        type.GetGenericTypeDefinition().FullName,
-        string.Join(
-          GenericArgumentsDelimiter,
-          type.GetGenericArguments().Select(t => GetFullTypeName(t)).ToArray()));
-    }
-
-    public static string GetFullTypeName(TypeInfo type)
-    {
-      if (type == null)
-        return null;
-      return GetFullTypeName(type.UnderlyingType);
+      return type!=null ? type.GetFullName() : null;
     }
   }
 }

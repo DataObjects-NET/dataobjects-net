@@ -701,4 +701,16 @@ Actions:
   <data name="LogDomainModelIsNotFoundInStorage" xml:space="preserve">
     <value>Domain model is not found in storage.</value>
   </data>
+  <data name="ExTypeXIsNotFound" xml:space="preserve">
+    <value>Type '{0}' is not found.</value>
+  </data>
+  <data name="ExHintXIsConflictingWithHintY" xml:space="preserve">
+    <value>Hint '{0}' is conflicting with hint '{1}'</value>
+  </data>
+  <data name="ExKeyOfXDoesNotMatchKeyOfY" xml:space="preserve">
+    <value>Key of '{0}' does not match key of '{1}'.</value>
+  </data>
+  <data name="ExTypeXMustBelongToHierarchy" xml:space="preserve">
+    <value>Type '{0}' must belong to hierarchy.</value>
+  </data>
 </root>

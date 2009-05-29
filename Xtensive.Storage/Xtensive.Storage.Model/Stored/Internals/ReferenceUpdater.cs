@@ -71,8 +71,10 @@ namespace Xtensive.Storage.Model.Stored
         }
       }
 
-      foreach (var association in associations.Values)
+      foreach (var association in associations.Values) {
         UpdateAssociationReversed(association);
+        UpdadeAssociationConnectorType(association);
+      }
 
       model.Hierarchies = hierarchies.Values.ToArray();
       model.Associations = associations.Values.ToArray();
@@ -150,6 +152,13 @@ namespace Xtensive.Storage.Model.Stored
       if (string.IsNullOrEmpty(association.ReversedName))
         return;
       association.Reversed = associations[association.ReversedName];
+    }
+
+    private void UpdadeAssociationConnectorType(StoredAssociationInfo association)
+    {
+      if (string.IsNullOrEmpty(association.ConnectorTypeName))
+        return;
+      association.ConnectorType = types[association.ConnectorTypeName];
     }
   }
 }

@@ -11,6 +11,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Metadata;
 using Xtensive.Storage.Model;
@@ -27,8 +28,7 @@ namespace Xtensive.Storage.Upgrade
   /// </summary>
   public sealed class SystemUpgradeHandler : UpgradeHandler
   {
-    private const string ModelExtensionName = "Xtensive.Storage.Model";
-
+    /// <inheritdoc/>
     public override void OnStage()
     {
       var context = UpgradeContext.Current;
@@ -36,8 +36,7 @@ namespace Xtensive.Storage.Upgrade
       switch (context.Stage) {
       case UpgradeStage.Validation:
         CheckMetadata();
-        if (upgradeMode == DomainUpgradeMode.PerformSafely || upgradeMode == DomainUpgradeMode.Perform)
-          ExtractRecycledModel();
+        ExtractRecycledModel();
         break;
       case UpgradeStage.Upgrading:
         UpdateMetadata();
@@ -45,8 +44,6 @@ namespace Xtensive.Storage.Upgrade
       case UpgradeStage.Final:
         if (upgradeMode == DomainUpgradeMode.Recreate)
           UpdateMetadata();
-        if (upgradeMode != DomainUpgradeMode.Validate)
-          SaveModel();
         break;
       default:
         throw new ArgumentOutOfRangeException("context.Stage");
@@ -62,6 +59,7 @@ namespace Xtensive.Storage.Upgrade
     {
       UpdateAssemblies();
       UpdateTypes();
+      UpdateDomainModel();
     }
 
     /// <exception cref="DomainBuilderException">Impossible to upgrade all assemblies.</exception>
@@ -118,23 +116,38 @@ namespace Xtensive.Storage.Upgrade
     {
       var context = UpgradeContext.Current;
       var buildingContext = BuildingContext.Current;
-      var typeNameProvider = 
-        buildingContext.BuilderConfiguration.TypeNameProvider ?? (t => t.FullName);
+//      var typeNameProvider = 
+//        buildingContext.BuilderConfiguration.TypeNameProvider ?? (t => t.FullName);
 
       var typeByName = Query<M.Type>.All.ToDictionary(type => type.Name);
       var renamedTypes = new Dictionary<int, string>();
       foreach (var hint in context.Hints.OfType<RenameTypeHint>()) {
         M.Type type;
-        if (!typeByName.TryGetValue(hint.OldName, out type))
+        if (!typeByName.TryGetValue(hint.OldType, out type))
           throw new DomainBuilderException(string.Format(
-              Strings.ExTypeWithNameXIsNotFoundInMetadata, hint.OldName));
-        var newName = typeNameProvider.Invoke(hint.TargetType);
+              Strings.ExTypeWithNameXIsNotFoundInMetadata, hint.OldType));
+        //var newName = typeNameProvider.Invoke(hint.NewType);
+        var newName = hint.NewType.GetFullName();
         renamedTypes.Add(type.Id, newName);
-        Log.Info(Strings.LogMetadataTypeRenamedXToY, hint.OldName, newName);
+        Log.Info(Strings.LogMetadataTypeRenamedXToY, hint.OldType, newName);
         type.Remove();
       }
       Session.Current.Persist();
       renamedTypes.Apply(idNamePair => new M.Type(idNamePair.Key, idNamePair.Value));
+    }
+
+    private void UpdateDomainModel()
+    {
+      var domainModel = Domain.Demand().Model;
+      var modelHolder = Query<Extension>.All
+        .SingleOrDefault(extension => extension.Name==StorageWellKnown.DomainModelExtension);
+      if (modelHolder == null)
+        modelHolder = new Extension(StorageWellKnown.DomainModelExtension);
+      using (var writer = new StringWriter()) {
+        var serializer = new XmlSerializer(typeof (StoredDomainModel));
+        serializer.Serialize(writer, domainModel.ToStoredModel());
+        modelHolder.Text = writer.GetStringBuilder().ToString();
+      }
     }
 
     private Pair<IUpgradeHandler, M.Assembly>[] GetAssemblies()
@@ -166,36 +179,24 @@ namespace Xtensive.Storage.Upgrade
 
     private void ExtractRecycledModel()
     {
-      var modelExtension = Query<Extension>.All.FirstOrDefault(e => e.Name==ModelExtensionName);
-
-      if (modelExtension == null) {
+      var context = UpgradeContext.Demand();
+      var modelHolder = Query<Extension>.All
+        .SingleOrDefault(e => e.Name==StorageWellKnown.DomainModelExtension);
+      if (modelHolder == null) {
         Log.Info(Strings.LogDomainModelIsNotFoundInStorage);
         return;
       }
-
       StoredDomainModel model = null;
-      var serializer = new XmlSerializer(typeof(StoredDomainModel));
-      using (var reader = new StringReader(modelExtension.Text))
+      var serializer = new XmlSerializer(typeof (StoredDomainModel));
+      using (var reader = new StringReader(modelHolder.Text))
         try {
           model = (StoredDomainModel) serializer.Deserialize(reader);
+          model.UpdateReferences();
         }
         catch (Exception e) {
           Log.Warning(e, Strings.LogFailedToExtractDomainModelFromStorage);
         }
-      var context = UpgradeContext.Demand();
       context.RecycledModel = model;
-    }
-
-    private void SaveModel()
-    {
-      var domain = Domain.Demand();
-      var modelExtension = Query<Extension>.All.FirstOrDefault(e => e.Name==ModelExtensionName)
-        ?? new Extension(ModelExtensionName);
-      var serializer = new XmlSerializer(typeof (StoredDomainModel));
-      using (var writer = new StringWriter()) {
-        serializer.Serialize(writer, domain.Model.ToStoredModel());
-        modelExtension.Text = writer.GetStringBuilder().ToString();
-      }
     }
   }
 }

@@ -8,7 +8,6 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
-using Xtensive.Modelling.Comparison.Hints;
 
 namespace Xtensive.Storage.Upgrade.Hints
 {
@@ -16,93 +15,41 @@ namespace Xtensive.Storage.Upgrade.Hints
   /// Rename type hint.
   /// </summary>
   [Serializable]
-  public sealed class RenameTypeHint : TargetTypeHintBase,
-    IEquatable<RenameTypeHint>
+  public sealed class RenameTypeHint : UpgradeHint
   {
-    /// <summary>
-    /// Gets the old type name.
-    /// </summary>
-    public string OldName { get; private set; }
-
-    #region Equality members
-
-    /// <inheritdoc/>
-    public bool Equals(RenameTypeHint other)
-    {
-      if (ReferenceEquals(null, other))
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return 
-        other.TargetType==TargetType && 
-          other.OldName==OldName;
-    }
-
-    /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      if (obj.GetType()!=typeof (RenameTypeHint))
-        return false;
-      return Equals((RenameTypeHint) obj);
-    }
-
-    /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return 
-        ((TargetType!=null ? TargetType.GetHashCode() : 0) * 397) ^ 
-          (OldName!=null ? OldName.GetHashCode() : 0);
-    }
+    private const string ToStringFormat = "Rename type: {0} -> {1}";
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.OperatorEq" copy="true"/>
+    /// Gets the new type.
     /// </summary>
-    public static bool operator ==(RenameTypeHint left, RenameTypeHint right)
-    {
-      return Equals(left, right);
-    }
+    public Type NewType { get; private set; }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true"/>
+    /// Gets the name of old type.
     /// </summary>
-    public static bool operator !=(RenameTypeHint left, RenameTypeHint right)
-    {
-      return !Equals(left, right);
-    }
+    public string OldType { get; private set; }
 
-    #endregion
-
-    /// <inheritdoc/>
-    public override void Translate(HintSet target)
-    {
-    }
-
-    /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("{0}: {1} -> {2}", 
-        "Rename type", OldName, TargetType.GetFullName());
+      return string.Format(ToStringFormat, OldType, NewType.GetFullName());
     }
-
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="targetType">The current type.</param>
-    /// <param name="oldName">The old type name.</param>
-    public RenameTypeHint(Type targetType, string oldName)
-      : base(targetType)
+    /// <param name="oldType">The old type.</param>
+    /// <param name="newType">The new type.</param>
+    public RenameTypeHint(string oldType, Type newType)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(oldName, "oldName");
-      if (!oldName.Contains("."))
-        oldName = targetType.Namespace + "." + oldName;
-      OldName = oldName;
+      ArgumentValidator.EnsureArgumentNotNull(newType, "newType");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(oldType, "oldType");
+
+      if (!oldType.Contains("."))
+        oldType = newType.Namespace + "." + oldType;
+      OldType = oldType;
+      NewType = newType;
     }
   }
 }

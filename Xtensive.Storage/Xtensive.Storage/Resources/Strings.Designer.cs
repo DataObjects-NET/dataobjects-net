@@ -574,6 +574,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Hint &apos;{0}&apos; is conflicting with hint &apos;{1}&apos;.
+        /// </summary>
+        internal static string ExHintXIsConflictingWithHintY {
+            get {
+                return ResourceManager.GetString("ExHintXIsConflictingWithHintY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to IncludeFields does not support query provider of type &apos;{0}&apos;..
         /// </summary>
         internal static string ExIncludeFieldsDoesNotSupportQueryProviderOfTypeX {
@@ -768,6 +777,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExKeyFieldXWasNotFoundInTypeY {
             get {
                 return ResourceManager.GetString("ExKeyFieldXWasNotFoundInTypeY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Key of &apos;{0}&apos; does not match key of &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExKeyOfXDoesNotMatchKeyOfY {
+            get {
+                return ResourceManager.GetString("ExKeyOfXDoesNotMatchKeyOfY", resourceCulture);
             }
         }
         
@@ -1222,6 +1240,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not found..
+        /// </summary>
+        internal static string ExTypeXIsNotFound {
+            get {
+                return ResourceManager.GetString("ExTypeXIsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; is not registered in the model..
         /// </summary>
         internal static string ExTypeXIsNotRegisteredInTheModel {
@@ -1236,6 +1263,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExTypeXIsNotSupported {
             get {
                 return ResourceManager.GetString("ExTypeXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; must belong to hierarchy..
+        /// </summary>
+        internal static string ExTypeXMustBelongToHierarchy {
+            get {
+                return ResourceManager.GetString("ExTypeXMustBelongToHierarchy", resourceCulture);
             }
         }
         
