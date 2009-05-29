@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
 // Created:    2008.08.05
+//
 
 using System;
 using Xtensive.Storage.Building;
