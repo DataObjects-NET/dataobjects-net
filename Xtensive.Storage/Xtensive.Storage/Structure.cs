@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
@@ -196,6 +197,16 @@ namespace Xtensive.Storage
     {
       type = GetTypeInfo();
       tuple = data;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="info">The <see cref="SerializationInfo"/>.</param>
+    /// <param name="context">The <see cref="StreamingContext"/>.</param>
+    protected Structure(SerializationInfo info, StreamingContext context)
+    {
+      throw new NotImplementedException();
     }
   }
 }

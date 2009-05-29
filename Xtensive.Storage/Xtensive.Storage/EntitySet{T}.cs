@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
@@ -245,6 +246,17 @@ namespace Xtensive.Storage
     protected EntitySet(Entity owner, FieldInfo field)
       : base(owner, field, true)
     {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="info">The <see cref="SerializationInfo"/>.</param>
+    /// <param name="context">The <see cref="StreamingContext"/>.</param>
+    protected EntitySet(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      throw new NotImplementedException();
     }
   }
 }

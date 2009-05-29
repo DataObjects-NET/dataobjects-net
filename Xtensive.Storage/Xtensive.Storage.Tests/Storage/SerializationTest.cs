@@ -34,15 +34,6 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
     public override string ToString()
     {
       return Name;
-    } 
-
-    public Company()
-    {
-    }
-
-    protected Company(SerializationInfo info, StreamingContext context) 
-      : base(info, context)
-    {
     }
   }
 
@@ -69,15 +60,6 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
       if (string.IsNullOrEmpty(Name) || Company==null)
         throw new InvalidOperationException("Invalid îbject.");
     }
-
-    public Emploee()
-    {
-    }
-
-    protected Emploee(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
   }
 
   [Serializable]
@@ -94,11 +76,6 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
       base(name)
     {
     }
-
-    protected Country(SerializationInfo info, StreamingContext context) 
-      : base(info, context)
-    {      
-    }
   }
 
   [Serializable]
@@ -114,11 +91,6 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
     public City(Country country, string name) 
       : base(country, name)
     {
-    }
-
-    protected City(SerializationInfo info, StreamingContext context) 
-      : base(info, context)
-    {      
     }
   }
     

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Serialization;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core;
@@ -212,7 +213,8 @@ namespace Xtensive.Storage.Aspects
     {
       if (type==entityType || type==structureType || type==persistentType)
         return;
-      var signatures = GetInternalConstructorSignatures(type);
+      var signatures = GetInternalConstructorSignatures(type)
+        .Concat(new[] {new[] {typeof (SerializationInfo), typeof (StreamingContext)}});
       foreach (var signature in signatures) {
         var aspect = ProtectedConstructorAspect.ApplyOnce(type, signature);
         if (aspect != null && aspect.CompileTimeValidate(type))
@@ -267,7 +269,7 @@ namespace Xtensive.Storage.Aspects
       if (baseType==structureType)
         return new[] {
           new[] {persistentType, typeof (FieldInfo), typeof(bool)},
-          new[] {typeof (Tuple)},
+          new[] {typeof (Tuple)}
         };
       if (baseType==entityType)
         return new[] {
