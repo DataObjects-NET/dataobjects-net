@@ -30,20 +30,26 @@ namespace Xtensive.Storage.Building.Builders
       }
 
       var context = BuildingContext.Current;
-      var gi = context.Model.Generators[hierarchyDef.KeyGenerator, ki];
-      if (gi == null) {
-        gi = new GeneratorInfo(hierarchyDef.KeyGenerator, ki) {
-          Name = root.Name
-        };
-        if (hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize > 0)
-          gi.CacheSize = hierarchyDef.KeyGeneratorCacheSize.Value;
-        else
-          gi.CacheSize = context.Configuration.KeyGeneratorCacheSize;
-        context.Model.Generators.Add(gi);
-      }
-      else {
-        if (hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize.Value < gi.CacheSize)
-          gi.CacheSize = hierarchyDef.KeyGeneratorCacheSize.Value;
+      GeneratorInfo gi = null;
+      if (hierarchyDef.KeyGenerator != null) {
+
+        gi = context.Model.Generators[hierarchyDef.KeyGenerator, ki];
+        if (gi==null) {
+          gi = new GeneratorInfo(hierarchyDef.KeyGenerator, ki) {
+            Name = root.Name
+          };
+          if (gi.KeyGeneratorType==typeof (KeyGenerator))
+            gi.MappingName = BuildingContext.Current.NameBuilder.Build(gi);
+          if (hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize > 0)
+            gi.CacheSize = hierarchyDef.KeyGeneratorCacheSize.Value;
+          else
+            gi.CacheSize = context.Configuration.KeyGeneratorCacheSize;
+          context.Model.Generators.Add(gi);
+        }
+        else {
+          if (hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize.Value < gi.CacheSize)
+            gi.CacheSize = hierarchyDef.KeyGeneratorCacheSize.Value;
+        }
       }
 
       var hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, ki, gi) {
@@ -61,8 +67,6 @@ namespace Xtensive.Storage.Building.Builders
         hierarchy.KeyInfo.Columns.Add(columnsCollection[i].Key);
 
       hierarchy.KeyInfo.Lock();
-      if (hierarchy.GeneratorInfo.KeyGeneratorType==typeof (KeyGenerator))
-        hierarchy.GeneratorInfo.MappingName = BuildingContext.Current.NameBuilder.Build(hierarchy.GeneratorInfo);
     }
   }
 }

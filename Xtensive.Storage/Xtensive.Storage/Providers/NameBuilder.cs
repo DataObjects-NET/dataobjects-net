@@ -368,7 +368,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="generatorInfo">The <see cref="generatorInfo"/> instance to build name for.</param>
     public string Build(GeneratorInfo generatorInfo)
     {
-      return NamingConvention.Apply(string.Format(GeneratorPattern, generatorInfo.TupleDescriptor[0].GetShortName()));
+      return NamingConvention.Apply(string.Format(GeneratorPattern, generatorInfo.KeyInfo.Fields[0].Key.ValueType.GetShortName()));
     }
 
     #region Protected methods
