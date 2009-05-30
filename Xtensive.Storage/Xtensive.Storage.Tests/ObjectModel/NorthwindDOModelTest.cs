@@ -15,10 +15,16 @@ namespace Xtensive.Storage.Tests.ObjectModel
   public abstract class NorthwindDOModelTest : AutoBuildTest
   {
     private DisposableSet disposables;
+    private bool firstRun = true;
 
     [SetUp]
     public virtual void SetUp()
     {
+      if (firstRun) {
+        firstRun = false;
+        if (Domain == null)
+          TestFixtureSetUp();
+      }
       disposables = new DisposableSet();
       disposables.Add(Domain.OpenSession());
       disposables.Add(Transaction.Open());
