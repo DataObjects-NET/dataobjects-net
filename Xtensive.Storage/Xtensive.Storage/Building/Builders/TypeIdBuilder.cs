@@ -4,14 +4,8 @@
 // Created by: Alex Kofman
 // Created:    2009.04.14
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Reflection;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Upgrade;
-using Type=Xtensive.Storage.Metadata.Type;
-using Xtensive.Storage.Upgrade.Hints;
 
 namespace Xtensive.Storage.Building.Builders
 {  
@@ -35,35 +29,25 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void BuildRegularTypeIds()
     {
-      var context = BuildingContext.Current;
-      var types = Query<Type>.All.ToArray();
-      var typeByName = new Dictionary<string, Type>();
-      foreach (var type in types)
-        typeByName.Add(type.Name, type);
-      var nextTypeId = types.Count()==0 
-        ? TypeInfo.MinTypeId 
-        : Math.Max(TypeInfo.MinTypeId, types.Max(t => t.Id) + 1);
-
-      foreach (var type in context.Model.Types) {
-        if (!type.IsEntity || type.TypeId!=TypeInfo.NoTypeId)
-          continue;
-        var name = type.UnderlyingType.GetFullName();
-        if (typeByName.ContainsKey(name))
-          // Type is found in metadata
-          AssignTypeId(type, typeByName[name].Id);
-        else {
-          // Type is not found in metadata
-          var upgradeContext = UpgradeContext.Current;
-          var hasRenameHint = upgradeContext!=null &&
-            upgradeContext.Hints
-              .OfType<RenameTypeHint>()
-              .Any(hint => hint.NewType==type.UnderlyingType);
-          if (!hasRenameHint) {
-            AssignTypeId(type, nextTypeId++);
-            new Type(type.TypeId, name);
-          }
-        }
-      }
+      var context = BuildingContext.Demand();
+      var typeIdProvider = context.BuilderConfiguration.TypeIdProvider
+        ?? (type => TypeInfo.NoTypeId);
+      var typesToProcess = context.Model.Types
+        .Where(type => type.IsEntity && type.TypeId==TypeInfo.NoTypeId)
+        .ToArray();
+      var providedIds = typesToProcess
+        .Select(type => new {Type = type, Id = typeIdProvider.Invoke(type.UnderlyingType)})
+        .Where(item => item.Id!=TypeInfo.NoTypeId)
+        .ToArray();
+      int firstId = providedIds
+        .Select(item => item.Id)
+        .DefaultIfEmpty(TypeInfo.MinTypeId)
+        .Max();
+      firstId++;
+      foreach (var item in providedIds)
+        AssignTypeId(item.Type, item.Id);
+      foreach (var type in typesToProcess.Except(providedIds.Select(item => item.Type)))
+        AssignTypeId(type, firstId++);
       context.Model.Types.BuildTypeIdIndex();
     }
 

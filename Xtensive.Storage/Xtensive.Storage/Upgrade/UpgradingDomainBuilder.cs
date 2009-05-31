@@ -9,16 +9,18 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Disposing;
+using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
-using Xtensive.Core.Reflection;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Resources;
-using Xtensive.Core.Disposing;
-using Assembly=System.Reflection.Assembly;
+using Xtensive.Storage.Upgrade.Hints;
+using Assembly = System.Reflection.Assembly;
+using ModelTypeInfo = Xtensive.Storage.Model.TypeInfo;
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -131,7 +133,8 @@ namespace Xtensive.Storage.Upgrade
         UpgradeHandler = () => {
           foreach (var handler in context.UpgradeHandlers.Values)
             handler.OnStage();
-        }
+        },
+        TypeIdProvider = (type => ProvideTypeId(context, type)),
       };
     }
 
@@ -202,6 +205,24 @@ namespace Xtensive.Storage.Upgrade
       // Storing the result
       context.UpgradeHandlers = 
         new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers, false);
+    }
+
+    private static int ProvideTypeId(UpgradeContext context, Type type)
+    {
+      var oldModel = context.ExtractedDomainModel;
+      if (oldModel==null)
+        return ModelTypeInfo.NoTypeId;
+      // type has been renamed?
+      var renamer = context.Hints.OfType<RenameTypeHint>()
+        .SingleOrDefault(hint => hint.NewType==type);
+      if (renamer != null)
+        return oldModel.Types.Single(t => t.UnderlyingType==renamer.OldType).TypeId;
+      // type has been preserved
+      var oldType = oldModel.Types
+        .SingleOrDefault(t => t.Name==type.GetFullName());
+      if (oldType != null)
+        return oldType.TypeId;
+      return ModelTypeInfo.NoTypeId;
     }
   }
 }

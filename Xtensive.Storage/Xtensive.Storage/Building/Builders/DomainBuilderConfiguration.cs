@@ -51,7 +51,11 @@ namespace Xtensive.Storage.Building.Builders
     /// </summary>
     public Action UpgradeHandler { get; set; }
 
-
+    /// <summary>
+    /// Gets or sets the type id provider.
+    /// </summary>
+    public Func<Type, int> TypeIdProvider { get; set; }
+    
     // Constructors
 
     /// <summary>

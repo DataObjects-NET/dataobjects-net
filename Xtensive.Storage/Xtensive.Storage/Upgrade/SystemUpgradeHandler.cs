@@ -12,13 +12,11 @@ using System.Xml.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Metadata;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Stored;
 using Xtensive.Storage.Resources;
-using Xtensive.Storage.Upgrade.Hints;
-using M=Xtensive.Storage.Metadata;
+using M = Xtensive.Storage.Metadata;
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -31,7 +29,7 @@ namespace Xtensive.Storage.Upgrade
     /// <inheritdoc/>
     public override void OnStage()
     {
-      var context = UpgradeContext.Current;
+      var context = UpgradeContext.Demand();
       var upgradeMode = context.OriginalConfiguration.UpgradeMode;
       switch (context.Stage) {
       case UpgradeStage.Validation:
@@ -114,21 +112,12 @@ namespace Xtensive.Storage.Upgrade
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     private void UpdateTypes()
     {
-      var context = UpgradeContext.Demand();
-      var typeByName = Query<M.Type>.All.ToDictionary(type => type.Name);
-      var renamedTypes = new Dictionary<int, string>();
-      foreach (var hint in context.Hints.OfType<RenameTypeHint>()) {
-        M.Type type;
-        if (!typeByName.TryGetValue(hint.OldType, out type))
-          throw new DomainBuilderException(string.Format(
-              Strings.ExTypeWithNameXIsNotFoundInMetadata, hint.OldType));
-        var newName = hint.NewType.GetFullName();
-        renamedTypes.Add(type.Id, newName);
-        Log.Info(Strings.LogMetadataTypeRenamedXToY, hint.OldType, newName);
-        type.Remove();
-      }
+      var domainModel = Domain.Demand().Model;
+      Query<M.Type>.All.Apply(type => type.Remove());
       Session.Current.Persist();
-      renamedTypes.Apply(idNamePair => new M.Type(idNamePair.Key, idNamePair.Value));
+      domainModel.Types
+        .Where(type => type.TypeId!=TypeInfo.NoTypeId)
+        .Apply(type => new M.Type(type.TypeId, type.UnderlyingType.GetFullName()));
     }
 
     private void UpdateDomainModel()
