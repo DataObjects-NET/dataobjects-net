@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Metadata
   [KeyGenerator(null)]
   [Entity(MappingName = "Metadata.Type")]
   [Index("Name", IsUnique = true)]
-  public class Type : Entity
+  public class Type : MetadataBase
   {
     /// <summary>
     /// Gets or sets the type identifier.

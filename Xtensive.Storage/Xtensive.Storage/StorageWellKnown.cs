@@ -5,6 +5,7 @@
 // Created:    2009.04.21
 
 using Xtensive.Storage.Metadata;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
@@ -22,5 +23,17 @@ namespace Xtensive.Storage
     /// Name of the <see cref="Extension"/> that describes domain model.
     /// </summary>
     public const string DomainModelExtension = "Xtensive.Storage.Model";
+
+    /// <summary>
+    /// Name of the field that describes master in <see cref="Multiplicity.ManyToMany"/>
+    /// or <see cref="Multiplicity.ZeroToMany"/> association.
+    /// </summary>
+    public const string MasterField = "Master";
+
+    /// <summary>
+    /// Name of the field that describes slave in <see cref="Multiplicity.ManyToMany"/>
+    /// or <see cref="Multiplicity.ZeroToMany"/> association.
+    /// </summary>
+    public const string SlaveField = "Slave";
   }
 }

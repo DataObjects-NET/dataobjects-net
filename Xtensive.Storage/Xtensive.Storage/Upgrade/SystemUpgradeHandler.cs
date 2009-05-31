@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Upgrade
       switch (context.Stage) {
       case UpgradeStage.Validation:
         CheckMetadata();
-        ExtractRecycledModel();
+        ExtractDomainModel();
         break;
       case UpgradeStage.Upgrading:
         UpdateMetadata();
@@ -114,11 +114,7 @@ namespace Xtensive.Storage.Upgrade
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     private void UpdateTypes()
     {
-      var context = UpgradeContext.Current;
-      var buildingContext = BuildingContext.Current;
-//      var typeNameProvider = 
-//        buildingContext.BuilderConfiguration.TypeNameProvider ?? (t => t.FullName);
-
+      var context = UpgradeContext.Demand();
       var typeByName = Query<M.Type>.All.ToDictionary(type => type.Name);
       var renamedTypes = new Dictionary<int, string>();
       foreach (var hint in context.Hints.OfType<RenameTypeHint>()) {
@@ -126,7 +122,6 @@ namespace Xtensive.Storage.Upgrade
         if (!typeByName.TryGetValue(hint.OldType, out type))
           throw new DomainBuilderException(string.Format(
               Strings.ExTypeWithNameXIsNotFoundInMetadata, hint.OldType));
-        //var newName = typeNameProvider.Invoke(hint.NewType);
         var newName = hint.NewType.GetFullName();
         renamedTypes.Add(type.Id, newName);
         Log.Info(Strings.LogMetadataTypeRenamedXToY, hint.OldType, newName);
@@ -177,7 +172,7 @@ namespace Xtensive.Storage.Upgrade
           .ToArray();
     }
 
-    private void ExtractRecycledModel()
+    private void ExtractDomainModel()
     {
       var context = UpgradeContext.Demand();
       var modelHolder = Query<Extension>.All
@@ -196,7 +191,7 @@ namespace Xtensive.Storage.Upgrade
         catch (Exception e) {
           Log.Warning(e, Strings.LogFailedToExtractDomainModelFromStorage);
         }
-      context.RecycledModel = model;
+      context.ExtractedDomainModel = model;
     }
   }
 }

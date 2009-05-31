@@ -27,11 +27,6 @@ namespace Xtensive.Storage.Building.Builders
     public SchemaUpgradeMode SchemaUpgradeMode { get; set; }
 
     /// <summary>
-    /// Gets or sets the type name provider.
-    /// </summary>
-    //public Func<Type, string> TypeNameProvider { get; set; }
-
-    /// <summary>
     /// Gets or sets the type filter.
     /// </summary>
     public Func<Type, bool> TypeFilter { get; set; }

@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void BuildSystemTypeIds()
     {
-      var context = BuildingContext.Current;      
+      var context = BuildingContext.Demand();
       foreach (var type in context.SystemTypeIds.Keys) {
         var typeInfo = context.Model.Types[type];
         AssignTypeId(typeInfo, context.SystemTypeIds[type]);
@@ -36,7 +36,6 @@ namespace Xtensive.Storage.Building.Builders
     public static void BuildRegularTypeIds()
     {
       var context = BuildingContext.Current;
-      //var typeNameProvider = context.BuilderConfiguration.TypeNameProvider ?? (t => t.FullName);
       var types = Query<Type>.All.ToArray();
       var typeByName = new Dictionary<string, Type>();
       foreach (var type in types)
@@ -48,7 +47,6 @@ namespace Xtensive.Storage.Building.Builders
       foreach (var type in context.Model.Types) {
         if (!type.IsEntity || type.TypeId!=TypeInfo.NoTypeId)
           continue;
-        //var name = typeNameProvider.Invoke(type.UnderlyingType);
         var name = type.UnderlyingType.GetFullName();
         if (typeByName.ContainsKey(name))
           // Type is found in metadata
@@ -63,7 +61,6 @@ namespace Xtensive.Storage.Building.Builders
           if (!hasRenameHint) {
             AssignTypeId(type, nextTypeId++);
             new Type(type.TypeId, name);
-            // Session.Current.Persist();
           }
         }
       }

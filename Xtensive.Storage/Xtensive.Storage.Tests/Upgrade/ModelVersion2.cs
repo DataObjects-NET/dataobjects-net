@@ -5,6 +5,7 @@
 // Created:    2009.05.20
 
 using System;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
 {
@@ -12,7 +13,17 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   // Person renamed to BusinessContact
   // Fields LastName and FirstName moved from Employee to BusinessContact (old Person)
   // Field Order.ProcessingTime removed
+
+  // Product.Name renamed to Product.Title
+  // Category renamed to ProductGroup
+  // Product.Category renamed to Product.Group
+  // Category.Id renamed to ProductGroup.GroupId
+
+  // Boy.FriendlyGirls renamed to Boy.MeetWith
+  // Girl.FrenldyBoys renamed to Girl.MeetWith
   
+  #region Address, BusinessContact, Person, Employee, Order
+
   public class Address : Structure
   {
     [Field(Length = 15)]
@@ -102,4 +113,75 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
       return string.Format("OrderId: {0}; OrderDate: {1}.", Id, OrderDate);
     }
   }
+
+  #endregion
+
+  #region ProductGroup, Product
+
+  [HierarchyRoot]
+  public class ProductGroup : Entity
+  {
+    [KeyField, Field]
+    public int GroupId { get; private set; }
+
+    [Field(Length = 100)]
+    public string Name { get; set; }
+
+    [Field(PairTo = "Group")]
+    public EntitySet<Product> Products { get; private set; }
+  }
+
+  [HierarchyRoot]
+  public class Product : Entity
+  {
+    [KeyField, Field]
+    public int Id { get; private set; }
+
+    [Field(Length = 200)]
+    public string Title { get; set; }
+
+    [Field]
+    public bool IsActive { get; set; }
+
+    [Field]
+    public ProductGroup Group { get; set; }
+  }
+
+  #endregion
+
+  #region Boy, Girl
+
+  [HierarchyRoot]
+  [KeyGenerator(null)]
+  public class Boy : Entity
+  {
+    [KeyField, Field(Length = 20)]
+    public string Name { get; private set; }
+
+    [Field(PairTo = "MeetWith")]
+    public EntitySet<Girl> MeetWith { get; private set; }
+
+    public Boy(string name)
+      : base(name)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  [KeyGenerator(null)]
+  public class Girl : Entity
+  {
+    [KeyField, Field(Length = 20)]
+    public string Name { get; private set; }
+
+    [Field]
+    public EntitySet<Boy> MeetWith { get; private set; }
+
+    public Girl(string name)
+      : base(name)
+    {
+    }
+  }
+
+  #endregion
 }

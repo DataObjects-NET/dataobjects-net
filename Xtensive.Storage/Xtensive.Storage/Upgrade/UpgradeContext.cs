@@ -92,9 +92,9 @@ namespace Xtensive.Storage.Upgrade
     public ActionSequence SchemaUpgradeActions { get; internal set; }
 
     /// <summary>
-    /// Gets the recycled model i.e. model that was extracted from storage.
+    /// Gets the domain model that was extracted from storage.
     /// </summary>
-    public StoredDomainModel RecycledModel { get; internal set; }
+    public StoredDomainModel ExtractedDomainModel { get; internal set; }
 
     #region IContext<...> methods
 

@@ -70,39 +70,44 @@ namespace Xtensive.Storage.Tests.Upgrade
         && base.IsTypeAvailable(type, upgradeStage);
     }
 
-    public override string GetTypeName(Type type)
+    private static IEnumerable<UpgradeHint> Version1To2Hints
     {
-      string suffix = ".Version" + runningVersion;
-      var nameSpace = type.Namespace.TryCutSuffix(suffix);
-      return nameSpace + type.Name;
-    }
-
-    private IEnumerable<UpgradeHint> Version1To2Hints
-    {
-      get
-      {
+      get {
+        // renaming types
         yield return new RenameTypeHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.BusinessContact", typeof(Person));
         yield return new RenameTypeHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Person", typeof(BusinessContact));
-
-        //yield return new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.Model.Version1.Address", typeof (Address));
-
+        // useless for upgrade purposes but leads to exception in upgrade process
+        //yield return new RenameTypeHint(
+        //  "Xtensive.Storage.Tests.Upgrade.Model.Version1.Address", typeof (Address));
         yield return new RenameTypeHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", typeof (Employee));
         yield return new RenameTypeHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Order", typeof (Order));
+
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Product", typeof (Product));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Category", typeof (ProductGroup));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Boy", typeof (Boy));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Girl", typeof (Girl));
+
+        // renaming fields
+        yield return new RenameFieldHint(typeof (Product), "Name", "Title");
+        yield return new RenameFieldHint(typeof (Product), "Category", "Group");
+        yield return new RenameFieldHint(typeof (ProductGroup), "Id", "GroupId");
+        yield return new RenameFieldHint(typeof (Boy), "FriendlyGirls", "MeetWith");
+        yield return new RenameFieldHint(typeof (Girl), "FriendlyBoys", "MeetWith");
+        
+        // copying data
         yield return new CopyFieldHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", "FirstName", typeof (BusinessContact));
         yield return new CopyFieldHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", "LastName", typeof (BusinessContact));
-
-        //yield return new RenameNodeHint("Tables/BusinessContact", "Tables/Person");
-        //yield return new RenameNodeHint("Tables/Person", "Tables/BusinessContact");
-        //yield return new CopyDataHint("Tables/Employee/Columns/LastName", "Tables/BusinessContact/Columns/LastName",
-        //  "Tables/Employee/Columns/Id", "Tables/BusinessContact/Columns/Id");
-        //yield return new CopyDataHint("Tables/Employee/Columns/FirstName", "Tables/BusinessContact/Columns/FirstName",
-        //  "Tables/Employee/Columns/Id", "Tables/BusinessContact/Columns/Id");
+        
       }
     }
   }

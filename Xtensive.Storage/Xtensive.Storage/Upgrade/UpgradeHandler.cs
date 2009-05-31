@@ -137,13 +137,6 @@ namespace Xtensive.Storage.Upgrade
       return true;
     }
 
-
-    /// <inheritdoc/>
-    public virtual string GetTypeName(Type type)
-    {
-      return type.FullName;
-    }
-
     #region Protected methods
 
     /// <summary>

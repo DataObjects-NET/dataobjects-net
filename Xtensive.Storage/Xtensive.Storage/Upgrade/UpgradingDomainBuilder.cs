@@ -118,15 +118,6 @@ namespace Xtensive.Storage.Upgrade
             handlers.ContainsKey(assembly)
               && handlers[assembly].IsFieldAvailable(field, context.Stage);
         },
-//        TypeNameProvider = type => {
-//          string name = type.FullName;
-//          if (context==null)
-//            return name;
-//          var assembly = type.Assembly;
-//          return !context.UpgradeHandlers.ContainsKey(assembly)
-//            ? name
-//            : context.UpgradeHandlers[assembly].GetTypeName(type);
-//        },
         SchemaReadyHandler = (extractedSchema, targetSchema) => {
           context.SchemaHints = null;
           if (context.Stage==UpgradeStage.Upgrading)
@@ -157,7 +148,7 @@ namespace Xtensive.Storage.Upgrade
     {
       var context = UpgradeContext.Demand();
       context.SchemaHints = new HintSet(extractedSchema, targetSchema);
-      var oldModel = context.RecycledModel;
+      var oldModel = context.ExtractedDomainModel;
       if (oldModel != null) {
         var newModel = Domain.Demand().Model;
         var hints = new HintTranslator(oldModel, newModel).Translate(context.Hints);

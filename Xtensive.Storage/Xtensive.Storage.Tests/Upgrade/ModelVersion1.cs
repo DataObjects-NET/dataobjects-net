@@ -8,6 +8,8 @@ using System;
 
 namespace Xtensive.Storage.Tests.Upgrade.Model.Version1
 {
+  #region Address, Person, BusinessContact, Employee
+
   public class Address : Structure
   {
     [Field(Length = 15)]
@@ -100,4 +102,75 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version1
       return string.Format("OrderId: {0}; OrderDate: {1}.", Id, OrderDate);
     }
   }
+
+  #endregion
+
+  #region Category, Product
+
+  [HierarchyRoot]
+  public class Category : Entity
+  {
+    [KeyField, Field]
+    public int Id { get; private set; }
+
+    [Field(Length = 100)]
+    public string Name { get; set; }
+
+    [Field(PairTo = "Category")]
+    public EntitySet<Product> Products { get; private set; }
+  }
+
+  [HierarchyRoot]
+  public class Product : Entity
+  {
+    [KeyField, Field]
+    public int Id { get; private set; }
+
+    [Field(Length = 200)]
+    public string Name { get; set; }
+
+    [Field]
+    public bool IsActive { get; set; }
+
+    [Field]
+    public Category Category { get; set;}
+  }
+
+  #endregion
+
+  #region Boy, Girl
+
+  [HierarchyRoot]
+  [KeyGenerator(null)]
+  public class Boy : Entity
+  {
+    [KeyField, Field(Length = 20)]
+    public string Name { get; private set; }
+
+    [Field(PairTo = "FriendlyBoys")]
+    public EntitySet<Girl> FriendlyGirls { get; private set; }
+
+    public Boy(string name)
+      : base(name)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  [KeyGenerator(null)]
+  public class Girl : Entity
+  {
+    [KeyField, Field(Length = 20)]
+    public string Name { get; private set; }
+
+    [Field]
+    public EntitySet<Boy> FriendlyBoys { get; private set; }
+
+    public Girl(string name)
+      : base(name)
+    {
+    }
+  }
+
+  #endregion
 }

@@ -19,11 +19,16 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Activator=System.Activator;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Storage.Building.Builders
 {
   internal static class ModelBuilder
   {
+    private const string GeneratedTypeNameFormat = "{0}.EntitySetItems.{1}";
+    private static ThreadSafeDictionary<string, Type> generatedTypes
+      = ThreadSafeDictionary<string, Type>.Create(new object());
+
     public static void Build()
     {
       BuildingContext context = BuildingContext.Current;
@@ -163,7 +168,14 @@ namespace Xtensive.Storage.Building.Builders
 
         var genericDefinitionType = typeof (EntitySetItem<,>);
         var genericInstanceType = genericDefinitionType.MakeGenericType(masterType.UnderlyingType, slaveType.UnderlyingType);
-        var underlyingType = TypeHelper.CreateDummyType(context.NameBuilder.Build(association), genericInstanceType, true);
+
+        var underlyingTypeName = string.Format(GeneratedTypeNameFormat,
+          masterType.UnderlyingType.Namespace,
+          context.NameBuilder.Build(association));
+        var underlyingType = generatedTypes.GetValue(underlyingTypeName,
+          (_underlyingTypeName, _genericInstanceType) =>
+            TypeHelper.CreateInheritedDummyType(_underlyingTypeName, _genericInstanceType, true),
+          genericInstanceType);
 
         // Defining auxiliary type
         var underlyingTypeDef = ModelDefBuilder.DefineType(underlyingType);

@@ -11,7 +11,7 @@ using System.Reflection;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Building;
-using Xtensive.Storage.Tests.Upgrade.Model.Version1;
+using M1 = Xtensive.Storage.Tests.Upgrade.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Upgrade.Model.Version2;
 
 namespace Xtensive.Storage.Tests.Upgrade
@@ -33,41 +33,41 @@ namespace Xtensive.Storage.Tests.Upgrade
     [Test]
     public void UpgradeModeTest()
     {
-      BuildDomain("1", DomainUpgradeMode.Recreate, null, typeof (Address), typeof (Person));
+      BuildDomain("1", DomainUpgradeMode.Recreate, null, typeof (M1.Address), typeof (M1.Person));
 
-      BuildDomain("1", DomainUpgradeMode.PerformSafely, null, typeof (Address), typeof (Person), typeof (BusinessContact));
+      BuildDomain("1", DomainUpgradeMode.PerformSafely, null, typeof (M1.Address), typeof (M1.Person), typeof (M1.BusinessContact));
       AssertEx.Throws<SchemaSynchronizationException>(() =>
-        BuildDomain("1", DomainUpgradeMode.PerformSafely, null, typeof (Address), typeof (Person)));
+        BuildDomain("1", DomainUpgradeMode.PerformSafely, null, typeof (M1.Address), typeof (M1.Person)));
 
-      BuildDomain("1", DomainUpgradeMode.Validate, null, typeof (Address), typeof (Person), typeof (BusinessContact));
+      BuildDomain("1", DomainUpgradeMode.Validate, null, typeof (M1.Address), typeof (M1.Person), typeof (M1.BusinessContact));
       AssertEx.Throws<SchemaSynchronizationException>(() =>
-        BuildDomain("1", DomainUpgradeMode.Validate, null, typeof (Address), typeof (Person)));
+        BuildDomain("1", DomainUpgradeMode.Validate, null, typeof (M1.Address), typeof (M1.Person)));
       AssertEx.Throws<SchemaSynchronizationException>(() =>
-        BuildDomain("1", DomainUpgradeMode.Validate, null, typeof (Address), typeof (Person), 
-        typeof (BusinessContact), typeof (Employee), typeof (Order)));
+        BuildDomain("1", DomainUpgradeMode.Validate, null, typeof (M1.Address), typeof (M1.Person), 
+        typeof (M1.BusinessContact), typeof (M1.Employee), typeof (M1.Order)));
     }
 
     [Test]
     public void UpgradeGeneratorsTest()
     {
-      BuildDomain("1", DomainUpgradeMode.Recreate, 3, typeof (Address), typeof (Person));
+      BuildDomain("1", DomainUpgradeMode.Recreate, 3, typeof (M1.Address), typeof (M1.Person));
       using (domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          new Person {Address = new Address {City = "City", Country = "Country"}};
-          new Person {Address = new Address {City = "City", Country = "Country"}};
-          new Person {Address = new Address {City = "City", Country = "Country"}};
+          new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
+          new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
+          new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
           t.Complete();
         }
       }
 
-      BuildDomain("1", DomainUpgradeMode.Perform, 2, typeof (Address), typeof (Person));
+      BuildDomain("1", DomainUpgradeMode.Perform, 2, typeof (M1.Address), typeof (M1.Person));
       using (domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          Assert.AreEqual(3, Query<Person>.All.Count());
-          new Person {Address = new Address {City = "City", Country = "Country"}};
-          new Person {Address = new Address {City = "City", Country = "Country"}};
-          new Person {Address = new Address {City = "City", Country = "Country"}};
-          Assert.AreEqual(6, Query<Person>.All.Count());
+          Assert.AreEqual(3, Query<M1.Person>.All.Count());
+          new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
+          new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
+          new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
+          Assert.AreEqual(6, Query<M1.Person>.All.Count());
           t.Complete();
         }
       }
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       int personTypeId;
       int maxTypeId;
 
-      BuildDomain("1", DomainUpgradeMode.Recreate, null, typeof (Address), typeof (Person));
+      BuildDomain("1", DomainUpgradeMode.Recreate, null, typeof (M1.Address), typeof (M1.Person));
       using (domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           personTypeId = Query<Metadata.Type>.All
@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Tests.Upgrade
         }
       }
 
-      BuildDomain("1", DomainUpgradeMode.Recreate, null, typeof (Address), typeof (Person), typeof (BusinessContact));
+      BuildDomain("1", DomainUpgradeMode.Recreate, null, typeof (M1.Address), typeof (M1.Person), typeof (M1.BusinessContact));
       using (domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var businessContactTypeId = Query<Metadata.Type>.All
@@ -153,6 +153,22 @@ namespace Xtensive.Storage.Tests.Upgrade
             .First(contact => contact.FirstName=="Michael").LastName);
           Assert.AreEqual("Fuller", Query<M2.Employee>.All
             .First(employee => employee.FirstName=="Nancy").ReportsTo.LastName);
+
+          Query<M2.Product>.All.Single(product => product.Title=="DataObjects.NET");
+          Query<M2.Product>.All.Single(product => product.Title=="HelpServer");
+          Assert.AreEqual(2, Query<M2.Product>.All.Count());
+          var webApps = Query<M2.ProductGroup>.All.Single(group => group.Name=="Web applications");
+          var frameworks = Query<M2.ProductGroup>.All.Single(group => group.Name=="Frameworks");
+          Assert.AreEqual(1, webApps.Products.Count);
+          Assert.AreEqual(1, frameworks.Products.Count);
+
+          var allBoys = Query<M2.Boy>.All.ToArray();
+          var allGirls = Query<M2.Girl>.All.ToArray();
+          Assert.AreEqual(2, allBoys.Length);
+          Assert.AreEqual(2, allGirls.Length);
+          var alex = allBoys.Single(boy => boy.Name=="Alex");
+          foreach (var girl in allGirls)
+            Assert.IsTrue(alex.MeetWith.Contains(girl));
         }
       }
     }
@@ -187,31 +203,34 @@ namespace Xtensive.Storage.Tests.Upgrade
         domain = Domain.Build(configuration);
       }
     }
-    
+
+    #region Data filler
+
     private void FillData()
     {
       using (domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           // BusinessContacts
-          var helen = new BusinessContact {
-            Address = new Address {
+          var helen = new M1.BusinessContact {
+            Address = new M1.Address {
               City = "Cowes",
               Country = "UK"
             },
             CompanyName = "Island Trading",
             ContactName = "Helen Bennett"
           };
-          var philip = new BusinessContact {
-            Address = new Address {
+          var philip = new M1.BusinessContact {
+            Address = new M1.Address {
               City = "Brandenburg",
               Country = "Germany"
             },
             CompanyName = "Koniglich Essen",
             ContactName = "Philip Cramer"
           };
+
           // Employies
-          var director = new Employee {
-            Address = new Address {
+          var director = new M1.Employee {
+            Address = new M1.Address {
               City = "Tacoma",
               Country = "USA"
             },
@@ -219,8 +238,8 @@ namespace Xtensive.Storage.Tests.Upgrade
             LastName = "Fuller",
             HireDate = DateTime.Parse("14.08.1992 0:00:00")
           };
-          var nancy = new Employee {
-            Address = new Address {
+          var nancy = new M1.Employee {
+            Address = new M1.Address {
               City = "Seattle",
               Country = "USA"
             },
@@ -229,8 +248,8 @@ namespace Xtensive.Storage.Tests.Upgrade
             HireDate = DateTime.Parse("01.05.1992 0:00:00"),
             ReportsTo = director
           };
-          var michael = new Employee {
-            Address = new Address {
+          var michael = new M1.Employee {
+            Address = new M1.Address {
               City = "London",
               Country = "UK"
             },
@@ -239,38 +258,65 @@ namespace Xtensive.Storage.Tests.Upgrade
             HireDate = DateTime.Parse("17.10.1993 0:00:00"),
             ReportsTo = director
           };
+
           // Orders
-          new Order {
+          new M1.Order {
             Customer = helen,
             Employee = michael,
             Freight = 12,
             OrderDate = DateTime.Parse("04.07.1996 0:00:00"),
             ProductName = "Maxilaku"
           };
-          new Order {
+          new M1.Order {
             Customer = helen,
             Employee = nancy,
             Freight = 12,
             OrderDate = DateTime.Parse("04.07.1996 0:00:00"),
             ProductName = "Filo Mix"
           };
-          new Order {
+          new M1.Order {
             Customer = philip,
             Employee = michael,
             Freight = 12,
             OrderDate = DateTime.Parse("04.07.1996 0:00:00"),
             ProductName = "Tourtiere"
           };
-          new Order {
+          new M1.Order {
             Customer = philip,
             Employee = nancy,
             Freight = 12,
             OrderDate = DateTime.Parse("04.07.1996 0:00:00"),
             ProductName = "Pate chinois"
           };
+
+          // Products & catgories
+          new M1.Category
+            {
+              Name = "Web applications",
+              Products = {new M1.Product {Name = "HelpServer", IsActive = true}}
+            };
+
+          new M1.Category
+            {
+              Name = "Frameworks",
+              Products = {new M1.Product {Name = "DataObjects.NET", IsActive = true}}
+            };
+
+          // Boys & girls
+          var alex = new M1.Boy("Alex");
+          var dmitry = new M1.Boy("Dmitry");
+          var elena = new M1.Girl("Elena");
+          var tanya = new M1.Girl("Tanya");
+          alex.FriendlyGirls.Add(elena);
+          alex.FriendlyGirls.Add(tanya);
+          elena.FriendlyBoys.Add(dmitry);
+
+          // Commiting changes
           transactionScope.Complete();
         }
       }
     }
+
+    #endregion
   }
 }

@@ -80,12 +80,5 @@ namespace Xtensive.Storage.Upgrade
     /// otherwise, <see langword="false"/>.
     /// </returns>
     bool IsFieldAvailable(PropertyInfo field, UpgradeStage upgradeStage);
-
-    /// <summary>
-    /// Gets the name of the type to use in metadata.
-    /// </summary>
-    /// <param name="type">The type to get the name for.</param>
-    /// <returns>The name of the type to use in metadata.</returns>
-    string GetTypeName(Type type);
   }
 }

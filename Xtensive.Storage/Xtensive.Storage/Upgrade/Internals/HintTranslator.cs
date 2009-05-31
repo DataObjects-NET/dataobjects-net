@@ -26,8 +26,8 @@ namespace Xtensive.Storage.Upgrade
       = new Dictionary<TypeInfo, StoredTypeInfo>();
     private readonly Dictionary<StoredFieldInfo, FieldInfo> fieldMapping
       = new Dictionary<StoredFieldInfo, FieldInfo>();
-    private readonly Dictionary<StoredAssociationInfo, AssociationInfo> associationMapping
-      = new Dictionary<StoredAssociationInfo, AssociationInfo>();
+    private readonly HashSet<StoredAssociationInfo> touchedAssociations
+      = new HashSet<StoredAssociationInfo>();
 
     private readonly StoredDomainModel oldModel;
     private readonly DomainModel newModel;
@@ -43,6 +43,7 @@ namespace Xtensive.Storage.Upgrade
 
       renameTypeHints.Apply(ProcessRenameTypeHint);
       renameFieldHints.Apply(ProcessRenameFieldHint);
+      touchedAssociations.Apply(ProcessAssociation);
 
       return GenerateRenameTableHints()
         .Concat(GenerateRenameColumnHints())
@@ -98,12 +99,55 @@ namespace Xtensive.Storage.Upgrade
       RemapField(oldField, newField);
     }
     
+    private void ProcessAssociation(StoredAssociationInfo oldAssociation)
+    {
+      if (oldAssociation.ConnectorType==null)
+        return;
+
+      // ignoring remap from paired association
+      if (forwardTypeMapping.ContainsKey(oldAssociation.ConnectorType))
+        return;
+
+      var newReferencingField = ResolveNewField(oldAssociation.ReferencingField);
+      var newAssociation = newReferencingField.Association;
+
+      RemapType(oldAssociation.ConnectorType, newAssociation.UnderlyingType);
+
+      var oldMaster = ResolveOldField(oldAssociation.ConnectorType, StorageWellKnown.MasterField, true);
+      var newMaster = ResolveNewField(newAssociation.UnderlyingType, StorageWellKnown.MasterField, true);
+      var oldSlave = ResolveOldField(oldAssociation.ConnectorType, StorageWellKnown.SlaveField, true);
+      var newSlave = ResolveNewField(newAssociation.UnderlyingType, StorageWellKnown.SlaveField, true);
+
+      RemapField(oldMaster, newMaster);
+      RemapField(oldSlave, newSlave);
+    }
+
     private void RemapField(StoredFieldInfo oldField, FieldInfo newField)
     {
       fieldMapping[oldField] = newField;
       var type = oldField.DeclaringType;
+      
+      if (oldField.Fields.Length>1)
+        throw new NotImplementedException();
+      if (oldField.Fields.Length==1)
+        RemapField(oldField.Fields[0], newField.Fields[0]);
+
+      // primary key -> rename all referencers
       if (type.IsEntity && oldField.IsPrimaryKey)
-        FindEntityUsages(type).Apply(association => RemapAssociation(association, ResolveAssociation(association)));
+        foreach (var association in FindEntityUsages(type)) {
+          var oldReferencingField = association.ReferencingField;
+          var newReferencingField = ResolveNewField(oldReferencingField);
+          RemapField(oldReferencingField, newReferencingField);
+          touchedAssociations.Add(association);
+        }
+
+      // renaming referencing field -> (posibly) rename corresponding association
+      var affectedAssociation = oldModel.Associations
+        .SingleOrDefault(association => association.ReferencingField==oldField);
+      if (affectedAssociation != null)
+        touchedAssociations.Add(affectedAssociation);
+
+      // renaming structure field -> rename all usages
       if (type.IsStructure)
         FindStructureUsages(type).Apply(usage => RemapField(usage, ResolveNewField(usage)));
     }
@@ -112,19 +156,11 @@ namespace Xtensive.Storage.Upgrade
     {
       if (!oldType.IsEntity)
         return;
+
       forwardTypeMapping[oldType] = newType;
       backwardTypeMapping[newType] = oldType;
-      foreach (var association in FindEntityUsages(oldType)) {
-        if (association.ConnectorType!=null) {
-          // todo: remap association type
-        }
-      }
-    }
 
-    private void RemapAssociation(StoredAssociationInfo oldAssociation, AssociationInfo newAssociation)
-    {
-      associationMapping[oldAssociation] = newAssociation;
-      // todo: remap fields
+      FindEntityUsages(oldType).Apply(association => touchedAssociations.Add(association));
     }
 
     private IEnumerable<StoredFieldInfo> FindStructureUsages(StoredTypeInfo type)
@@ -138,6 +174,8 @@ namespace Xtensive.Storage.Upgrade
       return oldModel.Associations
         .Where(a => a.ReferencedType==type);
     }
+
+    #region Resolve{New,Old}{Type,Field}
 
     private StoredTypeInfo ResolveOldType(string name)
     {
@@ -172,23 +210,23 @@ namespace Xtensive.Storage.Upgrade
       return result;
     }
     
-    private StoredFieldInfo ResolveOldField(StoredTypeInfo type, string name, bool lookAncestors)
+    private StoredFieldInfo ResolveOldField(StoredTypeInfo type, string name, bool includeInheritedFields)
     {
       StoredFieldInfo result;
       StoredTypeInfo currentType = type;
       do {
         result = currentType.Fields.SingleOrDefault(f => f.Name==name);
         currentType = currentType.Ancestor;
-      } while (lookAncestors && result==null && currentType!=null);
+      } while (includeInheritedFields && result==null && currentType!=null);
       if (result == null)
         throw FieldIsNotFound(type.Name, name);
       return result;
     }
 
-    private FieldInfo ResolveNewField(TypeInfo type, string name, bool lookAncestors)
+    private FieldInfo ResolveNewField(TypeInfo type, string name, bool includeInheritedFields)
     {
       var result = type.Fields
-        .SingleOrDefault(f => f.Name==name && (f.IsDeclared || lookAncestors));
+        .SingleOrDefault(f => f.Name==name && (f.IsDeclared || includeInheritedFields));
       if (result == null)
         throw FieldIsNotFound(type.UnderlyingType.GetFullName(), name);
       return result;
@@ -202,11 +240,7 @@ namespace Xtensive.Storage.Upgrade
         : ResolveNewType(field.DeclaringType).Fields.Single(f => f.IsDeclared && f.Name==field.Name);
     }
 
-    private AssociationInfo ResolveAssociation(StoredAssociationInfo association)
-    {
-      var field = ResolveNewField(association.ReferencingField);
-      return field.Association;
-    }
+    #endregion
 
     private IEnumerable<Hint> GenerateRenameTableHints()
     {
@@ -220,12 +254,12 @@ namespace Xtensive.Storage.Upgrade
 
     private IEnumerable<Hint> GenerateRenameColumnHints()
     {
-      foreach (var mapping in fieldMapping) {
+      foreach (var mapping in fieldMapping.Where(m => m.Key.IsPrimitive && m.Key.DeclaringType.IsEntity)) {
         var oldTable = mapping.Key.DeclaringType.MappingName;
         var newTable = mapping.Value.DeclaringType.MappingName;
         var oldColumn = mapping.Key.MappingName;
         var newColumn = mapping.Value.MappingName;
-        if (oldTable != newTable || oldColumn != newColumn)
+        if (oldColumn != newColumn)
           yield return new RenameHint(GetColumnName(oldTable, oldColumn), GetColumnName(newTable, newColumn));
       }
     }
@@ -264,15 +298,15 @@ namespace Xtensive.Storage.Upgrade
 
       // checking that keys match: all key columns must have the same name and the same type.
       if (sourceKeys.Count != destinationKeys.Count)
-        throw KeysMismatch(sourceType.Name, destinationTypeName);
+        throw KeysDoNotMatch(sourceType.Name, destinationTypeName);
       var keyPairs = new List<Pair<string>>();
       foreach (var sourceKey in sourceKeys) {
         Pair<string> destinationKey;
-        var keysMismatch =
+        var mismatch =
           !destinationKeys.TryGetValue(sourceKey.Key, out destinationKey) ||
             destinationKey.Second!=sourceKey.Value.Second; // comparing types
-        if (keysMismatch)
-          throw KeysMismatch(sourceType.Name, destinationTypeName);
+        if (mismatch)
+          throw KeysDoNotMatch(sourceType.Name, destinationTypeName);
         keyPairs.Add(new Pair<string>(sourceKey.Value.First, destinationKey.First));
       }
 
@@ -332,7 +366,7 @@ namespace Xtensive.Storage.Upgrade
         Strings.ExHintXIsConflictingWithHintY, hintOne, hintTwo));
     }
 
-    private static InvalidOperationException KeysMismatch(string typeOne, string typeTwo)
+    private static InvalidOperationException KeysDoNotMatch(string typeOne, string typeTwo)
     {
       return new InvalidOperationException(string.Format(
         Strings.ExKeyOfXDoesNotMatchKeyOfY, typeOne, typeTwo));

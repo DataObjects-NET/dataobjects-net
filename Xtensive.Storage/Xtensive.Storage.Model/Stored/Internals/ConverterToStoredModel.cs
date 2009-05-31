@@ -61,6 +61,7 @@ namespace Xtensive.Storage.Model.Stored
         {
           Name = source.Name,
           MappingName = source.UnderlyingType != null ? source.UnderlyingType.MappingName : null,
+          ConnectorTypeName = source.UnderlyingType != null ? source.UnderlyingType.Name : null,
           IsMaster = source.IsMaster,
           MultiplicityName = source.Multiplicity.ToString(),
           ReferencedTypeName = source.ReferencedType.Name,

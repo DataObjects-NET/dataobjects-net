@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Metadata
     /// Ensures the entity is writable.
     /// </summary>
     /// <exception cref="Exception">Object is read-only.</exception>
-    protected virtual void EnsureIsWritable()
+    protected void EnsureIsWritable()
     {
       if (BuildingContext.Current==null)
         throw Exceptions.ObjectIsReadOnly(null);

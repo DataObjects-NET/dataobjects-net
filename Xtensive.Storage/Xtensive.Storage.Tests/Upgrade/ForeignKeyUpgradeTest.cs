@@ -111,13 +111,6 @@ namespace Xtensive.Storage.Tests.Upgrade.ForeignKeyUpgrade
       return nameSpace != originalNamespace
         && base.IsTypeAvailable(type, upgradeStage);
     }
-
-    public override string GetTypeName(Type type)
-    {
-      string suffix = ".Version" + runningVersion;
-      var nameSpace = type.Namespace.TryCutSuffix(suffix);
-      return nameSpace + type.Name;
-    }
   }
 }
 
