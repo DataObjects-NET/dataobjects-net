@@ -11,7 +11,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Modelling.Attributes
 {
   /// <summary>
-  /// Node property marker.
+  /// System property marker.
   /// </summary>
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   [Serializable]
