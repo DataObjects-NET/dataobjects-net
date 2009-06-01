@@ -10,11 +10,17 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Model;
 
 
 namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 {
+  public interface IHasShippingAddress : IEntity
+  {
+    Address ShippingAddress { get; set; }
+  }
+
   public enum ProductType
   {
     Active,
@@ -341,7 +347,8 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   [Index("ShipName")]
   [Index("Freight")]
   [HierarchyRoot]
-  public class Order : Entity
+  public class Order : Entity,
+    IHasShippingAddress
   {
     [Field(MappingName = "OrderId"), KeyField]
     public int Id { get; private set; }
