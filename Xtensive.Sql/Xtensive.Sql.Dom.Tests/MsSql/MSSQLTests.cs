@@ -3932,6 +3932,26 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     }
 
     [Test]
+    public void Test207()
+    {
+      string nativeSql =
+        "DELETE FROM [Sales].[SpecialOfferProduct] WHERE EXISTS (SELECT [ProductID] FROM [Production].[Product]"
+      + " WHERE [Production].[Product].[ProductID] = [Sales].[SpecialOfferProduct].[ProductID])";
+
+      var products = Sql.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var specialOfferProduct = Sql.TableRef(Catalog.Schemas["Sales"].Tables["SpecialOfferProduct"]);
+      
+      var select = Sql.Select(products);
+      select.Columns.Add(products["ProductID"]);
+      select.Where = products["ProductID"]==specialOfferProduct["ProductID"];
+      
+      var delete = Sql.Delete(specialOfferProduct);
+      delete.Where = Sql.Exists(select);
+      
+      Assert.IsTrue(CompareExecuteNonQuery("SELECT * FROM [Sales].[SpecialOfferProduct]", delete));
+    }
+
+    [Test]
     public void RenameTest()
     {
       Model model = new Model("default");
