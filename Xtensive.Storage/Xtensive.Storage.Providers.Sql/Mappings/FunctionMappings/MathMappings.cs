@@ -6,6 +6,8 @@
 
 using System;
 using Xtensive.Core.Linq;
+using Xtensive.Sql.Common;
+using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 
@@ -69,46 +71,58 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     #region Math.Sign mappings
 
+    private static SqlExpression Sign(SqlExpression target)
+    {
+      return SqlFactory.Cast(SqlFactory.Sign(target), SqlDataType.Int32);
+    }
+
     [Compiler(typeof(Math), "Sign", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathSignSByte(
       [Type(typeof(sbyte))] SqlExpression d)
     {
-      return SqlFactory.Sign(d);
+      return Sign(d);
     }
 
     [Compiler(typeof(Math), "Sign", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathSignShort(
       [Type(typeof(short))] SqlExpression d)
     {
-      return SqlFactory.Sign(d);
+      return Sign(d);
     }
 
     [Compiler(typeof(Math), "Sign", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathSignInt(
       [Type(typeof(int))] SqlExpression d)
     {
-      return SqlFactory.Sign(d);
+      return Sign(d);
     }
 
     [Compiler(typeof(Math), "Sign", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathSignLong(
       [Type(typeof(long))] SqlExpression d)
     {
-      return SqlFactory.Sign(d);
+      return Sign(d);
     }
 
     [Compiler(typeof(Math), "Sign", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathSignDouble(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Sign(d);
+      return Sign(d);
     }
 
     [Compiler(typeof(Math), "Sign", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathSignDecimal(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return SqlFactory.Sign(d);
+      return Sign(d);
+    }
+
+    [Compiler(typeof(Math), "Sign", TargetKind.Static | TargetKind.Method)]
+    public static SqlExpression MathSignFloat(
+      [Type(typeof(float))] SqlExpression d)
+    {
+      return Sign(d);
     }
 
     #endregion
@@ -347,7 +361,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression a,
       [Type(typeof(int))] SqlExpression b)
     {
-      return a * b;
+      return SqlFactory.Cast(a, SqlDataType.Int64) * b;
     }
 
     [Compiler(typeof(Math), "Ceiling", TargetKind.Static | TargetKind.Method)]

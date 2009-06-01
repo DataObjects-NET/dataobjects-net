@@ -10,7 +10,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
     private static readonly SqlNative OneYearInterval = Sql.Native("interval '1 year'");
     private static readonly SqlNative OneMonthInterval = Sql.Native("interval '1 month'");
     private static readonly SqlNative OneDayInterval = Sql.Native("interval '1 day'");
-    private static readonly SqlNative OneMillisecondInterval = Sql.Native("interval '1 millisecond'");
+    private static readonly SqlNative OneMillisecondInterval = Sql.Native("interval '0.001 second'");
 
     public override void Visit(SqlDeclareCursor node)
     {

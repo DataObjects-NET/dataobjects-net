@@ -1031,15 +1031,6 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       return string.Empty;
     }
 
-    public override string Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
-    {
-      switch (section) {
-        case NodeSection.Exit:
-          return (node.Ascending) ? "ASC NULLS FIRST" : "DESC NULLS LAST";
-      }
-      return string.Empty;
-    }
-
     public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
     {
       //casting this way behaves differently: -32768::int2 is out of range ! We need (-32768)::int2
@@ -1107,28 +1098,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
         return ((SqlIntervalPart) obj).ToString().ToUpperInvariant(); //default names are acceptable
       }
       else if (obj is TimeSpan) {
-        TimeSpan ts = (TimeSpan) obj;
-        if (ts.Ticks==0)
-          return "'0 day'::interval";
-
-        StringBuilder sb = new StringBuilder("'");
-        if (ts.Days!=0) {
-          sb.AppendFormat("{0} day ", ts.Days);
-        }
-        if (ts.Hours!=0) {
-          sb.AppendFormat("{0} hour ", ts.Hours);
-        }
-        if (ts.Minutes!=0) {
-          sb.AppendFormat("{0} minute ", ts.Minutes);
-        }
-        if (ts.Seconds!=0) {
-          sb.AppendFormat("{0} second ", ts.Seconds);
-        }
-        if (ts.Milliseconds!=0) {
-          sb.AppendFormat("{0} millisecond ", ts.Milliseconds);
-        }
-        sb.Append("'::interval");
-        return sb.ToString();
+        return string.Format("'{0}'::interval", TimeSpanToString((TimeSpan) obj));
       }
       else if (obj is byte[]) {
         byte[] array = obj as byte[];
@@ -1224,5 +1194,32 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       }
       }
     }
+
+    private static string TimeSpanToString(TimeSpan value)
+    {
+      int days = value.Days;
+      int hours = value.Hours;
+      int minutes = value.Minutes;
+      int seconds = value.Seconds;
+      int milliseconds = value.Milliseconds;
+
+      bool negative = hours < 0 || minutes < 0 || seconds < 0 || milliseconds < 0;
+
+      if (hours < 0)
+        hours = -hours;
+
+      if (minutes < 0)
+        minutes = -minutes;
+
+      if (seconds < 0)
+        seconds = -seconds;
+
+      if (milliseconds < 0)
+        milliseconds = -milliseconds;
+
+      return String.Format("{0} days {1}{2}:{3}:{4}.{5:000}",
+          days, negative ? "-" : "", hours, minutes, seconds, milliseconds);
+    }
+
   }
 }

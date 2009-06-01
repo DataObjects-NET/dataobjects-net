@@ -242,6 +242,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
   [Entity(MappingName = "Territories")]
   [HierarchyRoot]
+  [KeyGenerator(null)]
   public class Territory : Entity
   {
     [Field(Length = 20, MappingName = "TerritoryId"), KeyField]
@@ -313,6 +314,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
   [Entity(MappingName = "OrderDetails")]
   [HierarchyRoot]
+  [KeyGenerator(null)]
   public class OrderDetails : Entity
   {
     [Field, KeyField(0)]

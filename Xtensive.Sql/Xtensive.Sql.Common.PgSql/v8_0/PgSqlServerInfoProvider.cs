@@ -212,9 +212,13 @@ namespace Xtensive.Sql.Common.PgSql.v8_0
         dtc.VarChar.Features = commonFeatures;
         dtc.VarChar.Length = new ValueRange<int>(0, mMaxCharLength);
 
-        dtc.Text = new StreamDataTypeInfo(SqlDataType.Text, typeof (string), new[] {"text"});
-        dtc.Text.Features = commonFeatures;
-        dtc.Text.Length = new ValueRange<int>(0, mMaxTextLength);
+//        dtc.Text = new StreamDataTypeInfo(SqlDataType.Text, typeof (string), new[] {"text"});
+//        dtc.Text.Features = commonFeatures;
+//        dtc.Text.Length = new ValueRange<int>(0, mMaxTextLength);
+
+        dtc.VarCharMax = new StreamDataTypeInfo(SqlDataType.VarCharMax, typeof (string), new[] {"text"});
+        dtc.VarCharMax.Features = commonFeatures;
+        dtc.VarCharMax.Length = new ValueRange<int>(0, mMaxTextLength);
 
         dtc.Boolean = new RangeDataTypeInfo<bool>(SqlDataType.Boolean, new[] {"boolean", "bool"});
         dtc.Boolean.Value = new ValueRange<bool>(false, true);

@@ -64,6 +64,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
 
   [Serializable]
   [HierarchyRoot]
+  [KeyGenerator(null)]
   public class Country : Entity
   {
     [Field, KeyField]
@@ -80,6 +81,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
 
   [Serializable]
   [HierarchyRoot]
+  [KeyGenerator(null)]
   public class City : Entity
   {
     [Field, KeyField(0)]

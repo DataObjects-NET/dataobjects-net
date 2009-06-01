@@ -521,6 +521,53 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void SelectBigMulTest()
+    {
+      var result =
+        from order in Query<Order>.All
+        select Math.BigMul(order.Id, order.Employee.Id);
+      result.ToList();
+    }
+
+    [Test]
+    public void SelectSignTest()
+    {
+      var result =
+        from order in Query<Order>.All
+        where order.Id > 0 && order.Id < 50
+        let values = new
+          {
+            Byte = (sbyte) order.Id,
+            Short = (short) order.Id,
+            Int = order.Id,
+            Long = (long) order.Id,
+            Decimal = (decimal) order.Id,
+            Float = (float) order.Id,
+            Double = (double) order.Id,
+          }
+        select new
+          {
+            ByteSign = Math.Sign(values.Byte),
+            ShortSign = Math.Sign(values.Short),
+            IntSign = Math.Sign(values.Int),
+            LongSign = Math.Sign(values.Long),
+            DecimalSign = Math.Sign(values.Decimal),
+            FloatSign = Math.Sign(values.Float),
+            DoubleSign = Math.Sign(values.Double)
+          };
+      foreach (var item in result) {
+        Assert.AreEqual(1, item.ByteSign);
+        Assert.AreEqual(1, item.ShortSign);
+        Assert.AreEqual(1, item.IntSign);
+        Assert.AreEqual(1, item.LongSign);
+        Assert.AreEqual(1, item.DecimalSign);
+        Assert.AreEqual(1, item.FloatSign);
+        Assert.AreEqual(1, item.DoubleSign);
+      }
+        
+    }
+
+    [Test]
     public void SelectDateTimeTimeSpanTest()
     {
       var dateTime = new DateTime(2001, 1, 1, 1, 1, 1);

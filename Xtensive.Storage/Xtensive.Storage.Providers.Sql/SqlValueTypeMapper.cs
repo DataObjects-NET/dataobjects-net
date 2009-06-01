@@ -107,7 +107,9 @@ namespace Xtensive.Storage.Providers.Sql
 
           return mapping;
         }
-        return ambigiousMappings.Last();
+        return ambigiousMappings
+          .OrderByDescending(mapping => ((StreamDataTypeInfo) mapping.DataTypeInfo).Length.MaxValue)
+          .FirstOrDefault();
       }
       return null;
     }
