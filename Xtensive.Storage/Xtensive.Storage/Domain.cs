@@ -118,6 +118,11 @@ namespace Xtensive.Storage
     /// </summary>
     public bool IsDebugEventLoggingEnabled { get; private set; }
 
+    /// <summary>
+    /// Gets the information about provider's capabilities.
+    /// </summary>
+    public ProviderInfo ProviderInfo {get { return Handler.ProviderInfo;} }
+
     internal DomainHandler Handler {
       [DebuggerStepThrough]
       get { return Handlers.DomainHandler; }

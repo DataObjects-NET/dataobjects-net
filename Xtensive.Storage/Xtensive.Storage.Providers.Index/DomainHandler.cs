@@ -122,6 +122,35 @@ namespace Xtensive.Storage.Providers.Index
       return indexInfoMapping[indexInfo];
     }
 
+    /// <inheritdoc/>
+    protected override ProviderInfo CreateProviderInfo()
+    {
+      var result = new ProviderInfo();
+      result.DatabaseNameLength = int.MaxValue;
+      result.EmptyBlobIsNull = false;
+      result.EmptyStringIsNull = false;
+      result.MaxColumnNameLength = int.MaxValue;
+      result.MaxComparisonOperations = int.MaxValue;
+      result.MaxForeignKeyNameLength = int.MaxValue;
+      result.MaxIndexColumnsCount = int.MaxValue;
+      result.MaxIndexKeyLength = int.MaxValue;
+      result.MaxIndexNameLength = int.MaxValue;
+      result.MaxQueryLength = int.MaxValue;
+      result.MaxTableNameLength = int.MaxValue;
+      result.NamedParameters = false;
+      result.ParameterPrefix = string.Empty;
+      result.SupportsBatches = true;
+      result.SupportsClusteredIndexes = true;
+      result.SupportsCollations = false;
+      result.SupportsEnlist = false;
+      result.SupportsForeignKeyConstraints = false;
+      result.SupportsRealBoolean = true;
+      result.SupportsIncludedColumns = true;
+      result.Version = new Version(0, 3);
+      result.Lock(true);
+      return result;
+    }
+
     #region Storage access methods
 
     /// <summary>

@@ -5,6 +5,7 @@
 // Created:    2008.07.04
 
 using Xtensive.Core.Collections;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.PreCompilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
@@ -31,6 +32,16 @@ namespace Xtensive.Storage.Providers.MsSql
     protected override ICompiler CreateCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
     {
       return new MsSqlCompiler(Handlers, compiledSources);
+    }
+
+    /// <inheritdoc/>
+    protected override ProviderInfo CreateProviderInfo()
+    {
+      var serverInfo = ((SessionHandler) BuildingContext.Current.SystemSessionHandler).Connection
+        .Driver.ServerInfo;
+      var result = new ProviderInfo(serverInfo, false, false, true);
+      result.Lock(true);
+      return result;
     }
   }
 }

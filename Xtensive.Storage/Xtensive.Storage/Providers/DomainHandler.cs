@@ -41,6 +41,11 @@ namespace Xtensive.Storage.Providers
     public ICompiler ServerSideCompiler { get; protected set; }
 
     /// <summary>
+    /// Gets the information about provider's capabilities.
+    /// </summary>
+    public ProviderInfo ProviderInfo { get; private set; }
+
+    /// <summary>
     /// Gets the member compiler provider by its type parameter.
     /// </summary>
     /// <typeparam name="T">The type of member compiler provider type parameter.</typeparam>
@@ -94,7 +99,14 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public virtual void InitializeFirstSession()
     {
+      ProviderInfo = CreateProviderInfo();
     }
+
+    /// <summary>
+    /// Creates <see cref="ProviderInfo"/>.
+    /// </summary>
+    /// <returns></returns>
+    protected abstract ProviderInfo CreateProviderInfo();
 
     #region Private \ internal methods
 

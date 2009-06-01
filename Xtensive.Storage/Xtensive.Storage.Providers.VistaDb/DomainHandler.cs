@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.07.04
 
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.PreCompilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
@@ -23,6 +24,16 @@ namespace Xtensive.Storage.Providers.VistaDb
         new RedundantColumnOptimizer(),
         new OrderingCorrector(ResolveOrderingDescriptor, true)
         );
+    }
+
+    /// <inheritdoc/>
+    protected override ProviderInfo CreateProviderInfo()
+    {
+      var serverInfo = ((SessionHandler) BuildingContext.Current.SystemSessionHandler).Connection
+        .Driver.ServerInfo;
+      var result = new ProviderInfo(serverInfo, false, false, true);
+      result.Lock(true);
+      return result;
     }
   }
 }
