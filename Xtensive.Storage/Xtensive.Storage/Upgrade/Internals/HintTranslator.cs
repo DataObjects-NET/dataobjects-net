@@ -113,10 +113,10 @@ namespace Xtensive.Storage.Upgrade
 
       RemapType(oldAssociation.ConnectorType, newAssociation.UnderlyingType);
 
-      var oldMaster = ResolveOldField(oldAssociation.ConnectorType, StorageWellKnown.MasterField, true);
-      var newMaster = ResolveNewField(newAssociation.UnderlyingType, StorageWellKnown.MasterField, true);
-      var oldSlave = ResolveOldField(oldAssociation.ConnectorType, StorageWellKnown.SlaveField, true);
-      var newSlave = ResolveNewField(newAssociation.UnderlyingType, StorageWellKnown.SlaveField, true);
+      var oldMaster = ResolveOldField(oldAssociation.ConnectorType, WellKnown.MasterField, true);
+      var newMaster = ResolveNewField(newAssociation.UnderlyingType, WellKnown.MasterField, true);
+      var oldSlave = ResolveOldField(oldAssociation.ConnectorType, WellKnown.SlaveField, true);
+      var newSlave = ResolveNewField(newAssociation.UnderlyingType, WellKnown.SlaveField, true);
 
       RemapField(oldMaster, newMaster);
       RemapField(oldSlave, newSlave);

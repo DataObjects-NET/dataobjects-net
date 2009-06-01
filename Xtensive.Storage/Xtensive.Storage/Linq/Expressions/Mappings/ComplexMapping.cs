@@ -90,7 +90,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
       if (FillOrder.Count==0) {
         // mapping for entity
         if (entityAsKey)
-          result.AddRange(GetFieldMapping(StorageWellKnown.Key).GetItems());
+          result.AddRange(GetFieldMapping(WellKnown.KeyField).GetItems());
         else
           result.AddRange(CalculateMemberSegment().GetItems());
       }
@@ -301,7 +301,7 @@ namespace Xtensive.Storage.Linq.Expressions.Mappings
     {
       var fields = new Dictionary<string, Segment<int>>();
       var keySegment = new Segment<int>(offset, type.Hierarchy.KeyInfo.Fields.Sum(pair => pair.Key.MappingInfo.Length));
-      fields.Add(StorageWellKnown.Key, keySegment);
+      fields.Add(WellKnown.KeyField, keySegment);
       foreach (var field in type.Fields) {
         fields.Add(field.Name, new Segment<int>(offset + field.MappingInfo.Offset, field.MappingInfo.Length));
         if (field.IsEntity)

@@ -171,10 +171,10 @@ namespace Xtensive.Storage.Building.Builders
     {
       if (type.GetAncestor()!=null)
         return;
-      if (type.Fields.Contains(BuildingContext.Current.NameBuilder.TypeIdFieldName))
+      if (type.Fields.Contains(WellKnown.TypeIdField))
         return;
 
-      var typeId = new FieldDef(typeof (int)) {Name = BuildingContext.Current.NameBuilder.TypeIdFieldName, IsTypeId = true};
+      var typeId = new FieldDef(typeof (int)) {Name = WellKnown.TypeIdField, IsTypeId = true};
       FieldBuilder.BuildDeclaredField(type, typeId);
     }
 

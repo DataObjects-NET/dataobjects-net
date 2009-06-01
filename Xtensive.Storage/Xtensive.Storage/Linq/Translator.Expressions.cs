@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Linq
         // Join primary index of target type
         var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
         var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-        var keySegment = mapping.GetFieldMapping(StorageWellKnown.Key);
+        var keySegment = mapping.GetFieldMapping(WellKnown.KeyField);
         var keyPairs = keySegment.GetItems()
           .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
           .ToArray();
@@ -388,7 +388,7 @@ namespace Xtensive.Storage.Linq
         var arg = n.Arguments[i];
         Expression newArg;
         var member = n.Members[i];
-        var memberName = member.Name.TryCutPrefix(WellKnown.GetterPrefix);
+        var memberName = member.Name.TryCutPrefix(Core.Reflection.WellKnown.GetterPrefix);
         var path = MemberPath.Parse(arg, context.Model);
         if (path.IsValid || arg.NodeType==ExpressionType.New) {
           var argFMRef = new MappingReference(state.MappingRef.FillMapping);
@@ -422,7 +422,7 @@ namespace Xtensive.Storage.Linq
             case MemberType.Entity:
               if (fieldMapping is PrimitiveMapping) {
                 var primitiveFieldMapping = (PrimitiveMapping) fieldMapping;
-                var fields = new Dictionary<string, Segment<int>> {{StorageWellKnown.Key, primitiveFieldMapping.Segment}};
+                var fields = new Dictionary<string, Segment<int>> {{WellKnown.KeyField, primitiveFieldMapping.Segment}};
                 var entityMapping = new ComplexMapping(fields);
                 state.MappingRef.RegisterEntity(memberName, entityMapping);
               }

@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Linq.Rewriters
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (mc.Method.Name != WellKnown.Object.Equals)
+      if (mc.Method.Name != Core.Reflection.WellKnown.Object.Equals)
         return base.VisitMethodCall(mc);
 
       var declaringType = mc.Method.DeclaringType;

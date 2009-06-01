@@ -229,7 +229,7 @@ namespace Xtensive.Storage.Tests.Linq
             var groupAttribute = document.CreateAttribute("group");
             groupAttribute.Value = groupIndex.ToString();
             var keyAttribute = document.CreateAttribute("key");
-            keyAttribute.Value = KeyToString(value.GetType().GetProperty(StorageWellKnown.Key).GetValue(value, null));
+            keyAttribute.Value = KeyToString(value.GetType().GetProperty(WellKnown.KeyField).GetValue(value, null));
             itemNode.Attributes.Append(groupAttribute);
             itemNode.Attributes.Append(keyAttribute);
             var properties = val.GetType().GetProperties();
@@ -309,7 +309,7 @@ namespace Xtensive.Storage.Tests.Linq
           case MemberType.Entity:
             parentNode.AppendChild(node);
             var entityValue = property.GetValue(value, null);
-            valueAttribute.Value = (entityValue!=null) ? entityValue.GetType().GetProperty(StorageWellKnown.Key).GetValue(entityValue, null).ToString() : "NULL";
+            valueAttribute.Value = (entityValue!=null) ? entityValue.GetType().GetProperty(WellKnown.KeyField).GetValue(entityValue, null).ToString() : "NULL";
             node.Attributes.Append(valueAttribute);
             break;
           case MemberType.Structure:
@@ -510,7 +510,7 @@ namespace Xtensive.Storage.Tests.Linq
             str.Append(info.Name).Append(" = ");
             var propertyValue = info.GetValue(key, null);
             if (GetMemberType(info.PropertyType)==MemberType.Entity)
-              str.Append((propertyValue!=null) ? info.PropertyType.GetProperty(StorageWellKnown.Key).GetValue(propertyValue, null).ToString() : "NULL");
+              str.Append((propertyValue!=null) ? info.PropertyType.GetProperty(WellKnown.KeyField).GetValue(propertyValue, null).ToString() : "NULL");
             if (GetMemberType(info.PropertyType)==MemberType.Structure || GetMemberType(info.PropertyType)==MemberType.Anonymous)
               str.Append(ReplaceTabs(KeyToString(info.GetValue(key, null))));
             else
@@ -520,7 +520,7 @@ namespace Xtensive.Storage.Tests.Linq
         }
         break;
       case MemberType.Entity:
-        str.Append(key.GetType().GetProperty(StorageWellKnown.Key).GetValue(key, null).ToString());
+        str.Append(key.GetType().GetProperty(WellKnown.KeyField).GetValue(key, null).ToString());
         break;
 
       default:

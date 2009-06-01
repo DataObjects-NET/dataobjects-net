@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Building
       Validator.EnsureHierarchyIsValid(hierarchyDef);
 
       // Should TypeId field be added?
-      if (hierarchyDef.IncludeTypeId && hierarchyDef.KeyFields.Find(f => f.Name == context.NameBuilder.TypeIdFieldName) == null)
+      if (hierarchyDef.IncludeTypeId && hierarchyDef.KeyFields.Find(f => f.Name == WellKnown.TypeIdField) == null)
         context.ModelInspectionResult.Register(new TypeIdAsKeyFieldAction(hierarchyDef));
 
       // Should fields be resorted according to keyfields order?

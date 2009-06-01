@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Linq.Rewriters
     private NewExpression VisitAnonymous(NewExpression newExpression)
     {
       var complexMapping = (ComplexMapping) fieldMapping.Value;
-      var arguments = newExpression.Members.Select(m => m.Name.TryCutPrefix(WellKnown.GetterPrefix)).Zip(newExpression.Arguments);
+      var arguments = newExpression.Members.Select(m => m.Name.TryCutPrefix(Core.Reflection.WellKnown.GetterPrefix)).Zip(newExpression.Arguments);
       foreach (var arg in arguments) {
         ComplexMapping newMapping = null;
         switch (arg.Second.GetMemberType()) {

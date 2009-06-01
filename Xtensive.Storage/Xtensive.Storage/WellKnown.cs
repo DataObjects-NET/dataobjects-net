@@ -12,17 +12,17 @@ namespace Xtensive.Storage
   /// <summary>
   /// Various well-known constants related to this namespace.
   /// </summary>
-  public static class StorageWellKnown
+  public static class WellKnown
   {
     /// <summary>
-    /// Name of the <see cref="Entity.Key"/>
+    /// Name of the <see cref="Entity.Key"/> field.
     /// </summary>
-    public const string Key = "Key";
+    public const string KeyField = "Key";
 
     /// <summary>
-    /// Name of the <see cref="Extension"/> that describes domain model.
+    /// Name of the <see cref="Entity.TypeId"/> field.
     /// </summary>
-    public const string DomainModelExtension = "Xtensive.Storage.Model";
+    public const string TypeIdField = "TypeId";
 
     /// <summary>
     /// Name of the field that describes master in <see cref="Multiplicity.ManyToMany"/>
@@ -35,5 +35,10 @@ namespace Xtensive.Storage
     /// or <see cref="Multiplicity.ZeroToMany"/> association.
     /// </summary>
     public const string SlaveField = "Slave";
+
+    /// <summary>
+    /// Name of the <see cref="Extension"/> that describes domain model.
+    /// </summary>
+    public const string DomainModelExtension = "Xtensive.Storage.Model";
   }
 }

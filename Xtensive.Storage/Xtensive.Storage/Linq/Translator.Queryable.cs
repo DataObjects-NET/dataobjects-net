@@ -257,7 +257,7 @@ namespace Xtensive.Storage.Linq
 
             var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
             var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-            var keySegment = mapping.GetFieldMapping(StorageWellKnown.Key);
+            var keySegment = mapping.GetFieldMapping(WellKnown.KeyField);
             var keyPairs = keySegment.GetItems()
               .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
               .ToArray();
@@ -319,12 +319,12 @@ namespace Xtensive.Storage.Linq
         : VisitSequence(source);
       RecordSet recordSet = null;
       switch (method.Name) {
-      case WellKnown.Queryable.First:
-      case WellKnown.Queryable.FirstOrDefault:
+      case Core.Reflection.WellKnown.Queryable.First:
+      case Core.Reflection.WellKnown.Queryable.FirstOrDefault:
         recordSet = result.RecordSet.Take(1);
         break;
-      case WellKnown.Queryable.Single:
-      case WellKnown.Queryable.SingleOrDefault:
+      case Core.Reflection.WellKnown.Queryable.Single:
+      case Core.Reflection.WellKnown.Queryable.SingleOrDefault:
         recordSet = result.RecordSet.Take(2);
         break;
       }
@@ -374,23 +374,23 @@ namespace Xtensive.Storage.Linq
       ResultExpression innerResult;
 
       switch (method.Name) {
-      case WellKnown.Queryable.Count:
+      case Core.Reflection.WellKnown.Queryable.Count:
         isIntCount = true;
         aggregateType = AggregateType.Count;
         break;
-      case WellKnown.Queryable.LongCount:
+      case Core.Reflection.WellKnown.Queryable.LongCount:
         aggregateType = AggregateType.Count;
         break;
-      case WellKnown.Queryable.Min:
+      case Core.Reflection.WellKnown.Queryable.Min:
         aggregateType = AggregateType.Min;
         break;
-      case WellKnown.Queryable.Max:
+      case Core.Reflection.WellKnown.Queryable.Max:
         aggregateType = AggregateType.Max;
         break;
-      case WellKnown.Queryable.Sum:
+      case Core.Reflection.WellKnown.Queryable.Sum:
         aggregateType = AggregateType.Sum;
         break;
-      case WellKnown.Queryable.Average:
+      case Core.Reflection.WellKnown.Queryable.Average:
         aggregateType = AggregateType.Avg;
         break;
       default:
@@ -477,7 +477,7 @@ namespace Xtensive.Storage.Linq
       case MemberType.Primitive:
       case MemberType.Key: {
         var primitiveFieldMapping = (PrimitiveMapping) rewrittenMapping;
-        newResultMapping.RegisterField(StorageWellKnown.Key, primitiveFieldMapping.Segment);
+        newResultMapping.RegisterField(WellKnown.KeyField, primitiveFieldMapping.Segment);
         break;
       }
       case MemberType.Structure:
@@ -487,21 +487,21 @@ namespace Xtensive.Storage.Linq
         int length = endOffset - offset + 1;
         var keySegment = new Segment<int>(offset, length);
         foreach (var p in complexMapping.Fields)
-          newResultMapping.RegisterField(StorageWellKnown.Key + "." + p.Key, p.Value);
-        newResultMapping.RegisterField(StorageWellKnown.Key, keySegment);
+          newResultMapping.RegisterField(WellKnown.KeyField + "." + p.Key, p.Value);
+        newResultMapping.RegisterField(WellKnown.KeyField, keySegment);
         break;
       case MemberType.Entity:
         if (rewrittenMapping is PrimitiveMapping) {
           var primitiveFieldMapping = (PrimitiveMapping) rewrittenMapping;
-          var fields = new Dictionary<string, Segment<int>> {{StorageWellKnown.Key, primitiveFieldMapping.Segment}};
+          var fields = new Dictionary<string, Segment<int>> {{WellKnown.KeyField, primitiveFieldMapping.Segment}};
           var entityMapping = new ComplexMapping(fields);
-          newResultMapping.RegisterEntity(StorageWellKnown.Key, entityMapping);
+          newResultMapping.RegisterEntity(WellKnown.KeyField, entityMapping);
         }
         else
-          newResultMapping.RegisterEntity(StorageWellKnown.Key, (ComplexMapping) rewrittenMapping);
+          newResultMapping.RegisterEntity(WellKnown.KeyField, (ComplexMapping) rewrittenMapping);
         break;
       case MemberType.Anonymous:
-        newResultMapping.RegisterAnonymous(StorageWellKnown.Key, (ComplexMapping) rewrittenMapping, projectorRewriter.Rewrite(originalCompiledKeyExpression.Body));
+        newResultMapping.RegisterAnonymous(WellKnown.KeyField, (ComplexMapping) rewrittenMapping, projectorRewriter.Rewrite(originalCompiledKeyExpression.Body));
         break;
       default:
         throw new NotSupportedException();
@@ -563,7 +563,7 @@ namespace Xtensive.Storage.Linq
       var resultExpression = new ResultExpression(method.ReturnType, recordSet, newResultMapping, itemProjector);
 
       if (resultSelector!=null) {
-        var keyProperty = parameterGroupingType.GetProperty(StorageWellKnown.Key);
+        var keyProperty = parameterGroupingType.GetProperty(WellKnown.KeyField);
         var convertedParameter = Expression.Convert(resultSelector.Parameters[1], parameterGroupingType);
         var keyAccess = Expression.MakeMemberAccess(convertedParameter, keyProperty);
         var rewrittenResultSelectorBody = ReplaceParameterRewriter.Rewrite(resultSelector.Body, resultSelector.Parameters[0], keyAccess);

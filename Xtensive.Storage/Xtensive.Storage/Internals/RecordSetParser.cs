@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Internals
           return result;
       }
       var mappings = new List<ColumnGroupMapping>();
-      var typeIdColumnName = Domain.NameBuilder.TypeIdColumnName;
+      var typeIdColumnName = Domain.NameBuilder.TypeIdColumn;
 
       foreach (var group in header.ColumnGroups) {
         var model = Domain.Model;

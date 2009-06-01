@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Building
         if (hierarchyDef.KeyFields.Count > 2)
           throw new DomainBuilderException(Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
         // if one of key fields is TypeId field and number of fields == 2 then it is OK
-        if (hierarchyDef.KeyFields.Count==2 && hierarchyDef.KeyFields.Find(f => f.Name == context.NameBuilder.TypeIdFieldName) != null)
+        if (hierarchyDef.KeyFields.Count==2 && hierarchyDef.KeyFields.Find(f => f.Name == WellKnown.TypeIdField) != null)
           throw new DomainBuilderException(Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
       }
 

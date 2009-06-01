@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Linq
     {
       // Tuple
       TupleGenericAccessor = typeof (Tuple).GetMethods()
-        .Where(mi => mi.Name==WellKnown.Tuple.GetValueOrDefault && mi.IsGenericMethod)
+        .Where(mi => mi.Name==Core.Reflection.WellKnown.Tuple.GetValueOrDefault && mi.IsGenericMethod)
         .Single();
 
       // Key
@@ -120,19 +120,19 @@ namespace Xtensive.Storage.Linq
       EnumerableSelect = typeof (Enumerable).GetMethods().Where(m => m.Name=="Select").First();
       EnumerableFirst = typeof (Enumerable)
         .GetMethods(BindingFlags.Static | BindingFlags.Public)
-        .First(m => m.Name==WellKnown.Queryable.First && m.GetParameters().Length==1);
+        .First(m => m.Name==Core.Reflection.WellKnown.Queryable.First && m.GetParameters().Length==1);
       EnumerableOfTuple = typeof (IEnumerable<>).MakeGenericType(typeof (Tuple));
 
       // Queryable
-      QueryableDefaultIfEmpty = GetQueryableMethod(WellKnown.Queryable.DefaultIfEmpty, 1, 1);
-      QueryableCount = GetQueryableMethod(WellKnown.Queryable.Count, 1, 1);
-      QueryableCountWithPredicate = GetQueryableMethod(WellKnown.Queryable.Count, 1, 2);
-      QueryableTake = GetQueryableMethod(WellKnown.Queryable.Take, 1, 2);
-      QueryableContains = GetQueryableMethod(WellKnown.Queryable.Contains, 1, 2);
-      QueryableLongCount = GetQueryableMethod(WellKnown.Queryable.LongCount, 1, 1);
+      QueryableDefaultIfEmpty = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.DefaultIfEmpty, 1, 1);
+      QueryableCount = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Count, 1, 1);
+      QueryableCountWithPredicate = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Count, 1, 2);
+      QueryableTake = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Take, 1, 2);
+      QueryableContains = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Contains, 1, 2);
+      QueryableLongCount = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.LongCount, 1, 1);
       QueryableWhere = typeof (Queryable).GetMethods().Where(methodInfo => {
         ParameterInfo[] parameterInfos = methodInfo.GetParameters();
-        return methodInfo.Name==WellKnown.Queryable.Where
+        return methodInfo.Name==Core.Reflection.WellKnown.Queryable.Where
           && methodInfo.IsGenericMethod
             && parameterInfos.Length==2
               && parameterInfos[1].ParameterType.IsGenericType
@@ -161,7 +161,7 @@ namespace Xtensive.Storage.Linq
       QueryableIncludeFields = GetQueryableExtensionsMethod("IncludeFields", 2, 2);
 
       // IEntity
-      IEntityKey = typeof (IEntity).GetProperty(StorageWellKnown.Key);
+      IEntityKey = typeof (IEntity).GetProperty(WellKnown.KeyField);
 
       // ApplyParameter
       ApplyParameterValue = typeof (ApplyParameter).GetProperty("Value");

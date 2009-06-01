@@ -37,24 +37,9 @@ namespace Xtensive.Storage.Providers
     private const string GenericTypePattern = "{0}({1})";
 
     /// <summary>
-    /// Gets the <see cref="Entity.TypeId"/> field name.
-    /// </summary>
-    public string TypeIdFieldName { get; private set; }
-
-    /// <summary>
     /// Gets the <see cref="Entity.TypeId"/> column name.
     /// </summary>
-    public string TypeIdColumnName { get; private set; }
-
-    /// <summary>
-    /// Gets the name of the <see cref="EntitySetItem{TMaster,TSlave}.Master"/> field.
-    /// </summary>
-    public string EntitySetItemMasterFieldName { get; private set; }
-
-    /// <summary>
-    /// Gets the name of the <see cref="EntitySetItem{TMaster,TSlave}.Slave"/> field.
-    /// </summary>
-    public string EntitySetItemSlaveFieldName { get; private set; }
+    public string TypeIdColumn { get; private set; }
 
     /// <summary>
     /// Gets the naming convention object.
@@ -398,10 +383,7 @@ namespace Xtensive.Storage.Providers
       ArgumentValidator.EnsureArgumentNotNull(namingConvention, "namingConvention");
       NamingConvention = namingConvention;
       hashAlgorithm = new MD5CryptoServiceProvider();
-      TypeIdFieldName = "TypeId";
-      EntitySetItemMasterFieldName = "Master";
-      EntitySetItemSlaveFieldName = "Slave";
-      TypeIdColumnName = NamingConvention.Apply(TypeIdFieldName);
+      TypeIdColumn = NamingConvention.Apply(WellKnown.TypeIdField);
     }
   }
 }

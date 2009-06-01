@@ -275,7 +275,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
       var parameterBindings = new List<SqlFetchParameterBinding>();
-      var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
+      var typeIdColumnName = Handlers.NameBuilder.TypeIdColumn;
       Func<KeyValuePair<int, Direction>, bool> filterNonTypeId =
         pair => ((MappedColumn) provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName != typeIdColumnName;
       var keyColumns = provider.Header.Order
@@ -695,7 +695,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var underlyingIndex = index.UnderlyingIndexes[0];
       var baseQuery = BuildProviderQuery(underlyingIndex);
-      SqlColumn typeIdColumn = baseQuery.Columns[Handlers.Domain.NameBuilder.TypeIdColumnName];
+      SqlColumn typeIdColumn = baseQuery.Columns[Handlers.Domain.NameBuilder.TypeIdColumn];
       SqlBinary inQuery = SqlFactory.In(typeIdColumn, SqlFactory.Array(typeIds));
       SqlSelect query = SqlFactory.Select(baseQuery.From);
       var atRootPolicy = index.ReflectedType.Hierarchy.Schema == InheritanceSchema.SingleTable;

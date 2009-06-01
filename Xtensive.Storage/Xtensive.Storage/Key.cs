@@ -82,7 +82,7 @@ namespace Xtensive.Storage
           if (session.IsDebugEventLoggingEnabled)
             Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, this);
 
-          var field = Hierarchy.Root.Fields[domain.NameBuilder.TypeIdFieldName];
+          var field = Hierarchy.Root.Fields[WellKnown.TypeIdField];
           cachedKey = Fetcher.Fetch(this, field);
           if (cachedKey==null)
             throw new InvalidOperationException(

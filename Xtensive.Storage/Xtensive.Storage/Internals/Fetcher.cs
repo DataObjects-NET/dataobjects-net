@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Internals
   internal static class Fetcher
   {
     private static readonly Dictionary<RequestKey, RecordSet> cache = new Dictionary<RequestKey, RecordSet>();
-    private static readonly Parameter<Tuple> pKey = new Parameter<Tuple>(StorageWellKnown.Key);
+    private static readonly Parameter<Tuple> pKey = new Parameter<Tuple>(WellKnown.KeyField);
     private static readonly object _lock = new object();
 
     #region Nested type: RequestKey

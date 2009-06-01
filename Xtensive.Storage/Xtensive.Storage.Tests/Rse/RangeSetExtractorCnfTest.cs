@@ -353,8 +353,8 @@ namespace Xtensive.Storage.Tests.Rse
       expectedFirst = new Entire<Tuple>(
         CreateTuple(tupleDescriptor, keyFieldIndex, keyValue
           + (indexInfo.Columns[keyFieldIndex].CultureInfo==null
-            ? WellKnown.OrdinalMaxChar
-            : WellKnown.CultureSensitiveMaxChar)),
+            ? Core.Comparison.WellKnown.OrdinalMaxChar
+            : Core.Comparison.WellKnown.CultureSensitiveMaxChar)),
         Direction.Positive);
       expectedSecond = new Entire<Tuple>(InfinityType.Positive);
       result.Add(new Range<Entire<Tuple>>(expectedFirst, expectedSecond));

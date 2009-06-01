@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Building
     public static void Process(TypeIdAsKeyFieldAction action)
     {
       var context = BuildingContext.Current;
-      action.Hierarchy.KeyFields.Add(new KeyField(context.NameBuilder.TypeIdFieldName));
+      action.Hierarchy.KeyFields.Add(new KeyField(WellKnown.TypeIdField));
     }
 
     public static void Process(ReorderFieldsAction action)
@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Building
         root.Fields.Remove(fieldDef);
       }
       if (!action.Hierarchy.IncludeTypeId) {
-        var typeIdField = root.Fields[BuildingContext.Current.NameBuilder.TypeIdFieldName];
+        var typeIdField = root.Fields[WellKnown.TypeIdField];
         buffer.Add(typeIdField);
         root.Fields.Remove(typeIdField);
       }

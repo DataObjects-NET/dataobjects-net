@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Tests
 
     public virtual void Build(BuildingContext context, DomainModelDef model)
     {
-      TypeIdField = new KeyField(context.NameBuilder.TypeIdFieldName);
+      TypeIdField = new KeyField(WellKnown.TypeIdField);
     }
 
     public static Type GetModifier(TypeIdBehavior typeIdBehavior)

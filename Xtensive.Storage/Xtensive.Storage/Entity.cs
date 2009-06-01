@@ -41,7 +41,7 @@ namespace Xtensive.Storage
     internal int TypeId
     {
       [DebuggerStepThrough]
-      get { return GetFieldValue<int>(Session.Domain.NameBuilder.TypeIdFieldName); }
+      get { return GetFieldValue<int>(WellKnown.TypeIdField); }
     }
 
     #endregion
