@@ -20,6 +20,11 @@ namespace Xtensive.Storage
 
     internal EntityState CreateEntityState(Key key)
     {
+      // checking for deleted entity with the same key
+      var cachedState = EntityStateCache[key, false];
+      if (cachedState != null && cachedState.PersistenceState==PersistenceState.Removed)
+        Persist();
+
       // If type is unknown, we consider tuple is null, 
       // so its Entity is considered as non-existing
       Tuple tuple = null;
