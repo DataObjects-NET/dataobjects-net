@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Metadata
     /// <param name="name">The name of the type.</param>
     /// <exception cref="Exception">Object is read-only.</exception>
     public Type(int id, string name) 
-      : base(Tuple.Create(id))
+      : base(id)
     {
       Name = name;
     }

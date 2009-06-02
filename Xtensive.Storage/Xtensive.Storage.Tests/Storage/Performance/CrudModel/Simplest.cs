@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance.CrudModel
     // Constructors
 
     public Simplest(long id, long value)
-      : base (Tuple.Create(id))
+      : base (id)
     {
       Value = value;
     }

@@ -52,9 +52,18 @@ namespace Xtensive.Storage.Metadata
     /// <summary>
     /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="keyTuple">The key tuple.</param>
-    protected MetadataBase(Tuple keyTuple)
-      : base(keyTuple)
+    /// <param name="id">The identifier.</param>
+    protected MetadataBase(int id)
+      : base(id)
+    {
+      EnsureIsWritable();
+    }
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">The identifier.</param>
+    protected MetadataBase(string name)
+      : base(name)
     {
       EnsureIsWritable();
     }

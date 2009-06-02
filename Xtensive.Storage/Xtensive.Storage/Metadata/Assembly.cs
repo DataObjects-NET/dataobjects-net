@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Metadata
     /// <param name="name">The assembly name.</param>
     /// <exception cref="Exception">Object is read-only.</exception>
     public Assembly(string name) 
-      : base(Tuple.Create(name))
+      : base(name)
     {
     }
   }

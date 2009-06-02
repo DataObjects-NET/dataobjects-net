@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Metadata
     /// <param name="name">A value for <see cref="Name"/>.</param>
     /// <exception cref="Exception">Object is read-only.</exception>
     public Extension(string name) 
-      : base(Tuple.Create(name))
+      : base(name)
     {
     }
   }

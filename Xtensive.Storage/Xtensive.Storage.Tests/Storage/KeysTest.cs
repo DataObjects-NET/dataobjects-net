@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
       public string Tag { get; private set;}    
 
       public Fruit(string tag)
-        : base(Tuple.Create(tag)) {}
+        : base(tag) {}
     }
 
     public class Banana : Fruit
@@ -102,11 +102,11 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          Key k1 = Key.Create<Apple>(Tuple.Create("1"));
-          Key k2 = Key.Create<Apple>(Tuple.Create("1"));
+          Key k1 = Key.Create<Apple>("1");
+          Key k2 = Key.Create<Apple>("1");
           Assert.AreEqual(k1, k2);
 
-          Key kk = Key.Create<Apple>(Tuple.Create(""));
+          Key kk = Key.Create<Apple>("");
           var s = kk.Format();
           var k = Key.Parse(s);
           Assert.AreEqual(k, kk);
@@ -145,7 +145,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          Key key = Key.Create(typeof (Fruit), Tuple.Create("NotExistingFruit"));
+          Key key = Key.Create(typeof (Fruit), "NotExistingFruit");
           var entity = key.Resolve();
           Assert.IsNull(entity);
         }

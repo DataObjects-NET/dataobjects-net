@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Tests.Model.ReferencedKeysModel
     [Field]
     public City Capital { get; set; }
 
-    public Country(string name) : base(Tuple.Create(name)) {}
+    public Country(string name) : base(name) {}
   }
 
   [KeyGenerator(null)]

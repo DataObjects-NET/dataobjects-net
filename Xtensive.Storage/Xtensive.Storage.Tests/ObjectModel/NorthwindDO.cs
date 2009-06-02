@@ -65,8 +65,12 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     {
     }
 
-    protected Person(Tuple tuple)
-      : base(tuple)
+    protected Person(string id)
+      : base(id)
+    {}
+
+    protected Person(int id)
+      : base(id)
     {
     }
   }
@@ -90,8 +94,12 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     {
     }
 
-    protected BusinessContact(Tuple tuple)
-      : base(tuple)
+    protected BusinessContact(string id)
+      : base(id)
+    {}
+
+    protected BusinessContact(int id)
+      : base(id)
     {
     }
   }
@@ -131,7 +139,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     // Constructors
 
     public Customer(string id)
-      : base(Tuple.Create(id))
+      : base(id)
     {
     }
   }
@@ -338,7 +346,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     // Constructors
 
     public Territory(string id)
-      : base(Tuple.Create(id))
+      : base(id)
     {
     }
   }
@@ -393,6 +401,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
+  [KeyGenerator(null)]
   [Entity(MappingName = "OrderDetails")]
   [HierarchyRoot]
   public class OrderDetails : Entity
@@ -416,7 +425,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     // Constructors
 
     public OrderDetails(Order order, Product product)
-      : base(Tuple.Create(order.Id, product.Id))
+      : base(order, product)
     {
     }
   }

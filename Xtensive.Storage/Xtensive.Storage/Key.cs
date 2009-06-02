@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -568,6 +569,12 @@ namespace Xtensive.Storage
       var hierarchy = type.Hierarchy;
       if (value.Descriptor!=hierarchy.KeyInfo.TupleDescriptor)
         throw new ArgumentException(Strings.ExWrongKeyStructure);
+
+      // Check if TypeId must be present in key and it is not specified in values
+      if (exactType && hierarchy.KeyInfo.Fields.Count > 1 && hierarchy.KeyInfo.Fields.Keys.Where(f => f.IsTypeId).FirstOrDefault() != null) {
+        if (!value.IsAvailable(value.Count-1))
+          value[value.Count - 1] = type.TypeId;
+      }
       var key = new Key(type.Hierarchy, exactType ? type : null, value);
       if (!canCache || domain==null) {
         key.value = value.ToFastReadOnly();
