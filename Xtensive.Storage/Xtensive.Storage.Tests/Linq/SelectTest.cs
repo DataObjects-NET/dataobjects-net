@@ -4,11 +4,10 @@
 // Created by: Alexey Kochetov
 // Created:    2009.01.12
 
+using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
@@ -564,7 +563,108 @@ namespace Xtensive.Storage.Tests.Linq
         Assert.AreEqual(1, item.FloatSign);
         Assert.AreEqual(1, item.DoubleSign);
       }
-        
+    }
+
+    [Test]
+    public void SelectStringIndexerTest()
+    {
+      var result =
+        Query<Customer>.All
+          .Select(c => new
+            {
+              String = c.Id,
+              Char0 = c.Id[0],
+              Char1 = c.Id[1],
+              Char2 = c.Id[2],
+              Char3 = c.Id[3],
+              Char4 = c.Id[4],
+            })
+          .OrderBy(item => item.String)
+          .ToArray();
+      var expected =
+        Query<Customer>.All
+          .AsEnumerable()
+          .Select(c => new
+            {
+              String = c.Id,
+              Char0 = c.Id[0],
+              Char1 = c.Id[1],
+              Char2 = c.Id[2],
+              Char3 = c.Id[3],
+              Char4 = c.Id[4],
+            })
+          .OrderBy(item => item.String)
+          .ToArray();
+      Assert.AreEqual(expected.Length, result.Length);
+      for (int i = 0; i < expected.Length; i++) {
+        Assert.AreEqual(expected[0].String, result[0].String);
+        Assert.AreEqual(expected[0].Char0, result[0].Char0);
+        Assert.AreEqual(expected[0].Char1, result[0].Char1);
+        Assert.AreEqual(expected[0].Char2, result[0].Char2);
+        Assert.AreEqual(expected[0].Char3, result[0].Char3);
+        Assert.AreEqual(expected[0].Char4, result[0].Char4);
+      }
+    }
+
+    [Test]
+    public void SelectIndexOfTest()
+    {
+      var result =
+        Query<Customer>.All
+          .Select(c => new
+            {
+              String = c.Id,
+              IndexOfChar = c.Id.IndexOf('A'),
+              IndexOfCharStart = c.Id.IndexOf('A', 1),
+              IndexOfCharStartCount = c.Id.IndexOf('A', 1, 1),
+              IndexOfString = c.Id.IndexOf("A"),
+              IndexOfStringStart = c.Id.IndexOf("A", 1),
+              IndexOfStringStartCount = c.Id.IndexOf("A", 1, 1)
+            })
+          .OrderBy(item => item.String)
+          .ToArray();
+      var expected =
+        Query<Customer>.All
+          .AsEnumerable()
+          .Select(c => new
+            {
+              String = c.Id,
+              IndexOfChar = c.Id.IndexOf('A'),
+              IndexOfCharStart = c.Id.IndexOf('A', 1),
+              IndexOfCharStartCount = c.Id.IndexOf('A', 1, 1),
+              IndexOfString = c.Id.IndexOf("A"),
+              IndexOfStringStart = c.Id.IndexOf("A", 1),
+              IndexOfStringStartCount = c.Id.IndexOf("A", 1, 1)
+            })
+          .OrderBy(item => item.String)
+          .ToArray();
+      Assert.AreEqual(expected.Length, result.Length);
+      for (int i = 0; i < expected.Length; i++) {
+        Assert.AreEqual(expected[0].String, result[0].String);
+        Assert.AreEqual(expected[0].IndexOfChar, result[0].IndexOfChar);
+        Assert.AreEqual(expected[0].IndexOfCharStart, result[0].IndexOfCharStart);
+        Assert.AreEqual(expected[0].IndexOfCharStartCount, result[0].IndexOfCharStartCount);
+        Assert.AreEqual(expected[0].IndexOfString, result[0].IndexOfString);
+        Assert.AreEqual(expected[0].IndexOfStringStart, result[0].IndexOfStringStart);
+        Assert.AreEqual(expected[0].IndexOfStringStartCount, result[0].IndexOfStringStartCount);
+      }
+    }
+
+    [Test]
+    public void SelectStringContainsTest()
+    {
+      var result =
+        Query<Customer>.All
+          .Where(c => c.Id.Contains('C'))
+          .OrderBy(c => c.Id)
+          .ToArray();
+      var expected =
+        Query<Customer>.All
+          .AsEnumerable()
+          .Where(c => c.Id.Contains('C'))
+          .OrderBy(c => c.Id)
+          .ToArray();
+      Assert.IsTrue(expected.SequenceEqual(result));
     }
 
     [Test]

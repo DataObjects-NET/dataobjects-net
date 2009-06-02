@@ -217,23 +217,57 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     }
 
     [Compiler(typeof(string), "IndexOf")]
-    public static SqlExpression StringIndexOfStr(SqlExpression _this,
+    public static SqlExpression StringIndexOfString(SqlExpression _this,
       [Type(typeof(string))] SqlExpression str)
     {
       return SqlFactory.Position(str, _this);
     }
 
     [Compiler(typeof(string), "IndexOf")]
-    public static SqlExpression StringIndexOfCh(SqlExpression _this,
+    public static SqlExpression StringIndexOfString(SqlExpression _this,
+      [Type(typeof(string))] SqlExpression str,
+      [Type(typeof(int))] SqlExpression startIndex)
+    {
+      return SqlFactory.Position(str, SqlFactory.Substring(_this, startIndex));
+    }
+
+    [Compiler(typeof(string), "IndexOf")]
+    public static SqlExpression StringIndexOfString(SqlExpression _this,
+      [Type(typeof(string))] SqlExpression str,
+      [Type(typeof(int))] SqlExpression startIndex,
+      [Type(typeof(int))] SqlExpression length)
+    {
+      return SqlFactory.Position(str, SqlFactory.Substring(_this, startIndex, length));
+    }
+
+    [Compiler(typeof(string), "IndexOf")]
+    public static SqlExpression StringIndexOfChar(SqlExpression _this,
       [Type(typeof(char))] SqlExpression ch)
     {
       return SqlFactory.Position(ch, _this);
     }
 
+    [Compiler(typeof(string), "IndexOf")]
+    public static SqlExpression StringIndexOfChar(SqlExpression _this,
+      [Type(typeof(char))] SqlExpression ch,
+      [Type(typeof(int))] SqlExpression startIndex)
+    {
+      return SqlFactory.Position(ch, SqlFactory.Substring(_this, startIndex));
+    }
+
+    [Compiler(typeof(string), "IndexOf")]
+    public static SqlExpression StringIndexOfChar(SqlExpression _this,
+      [Type(typeof(char))] SqlExpression ch,
+      [Type(typeof(int))] SqlExpression startIndex,
+      [Type(typeof(int))] SqlExpression length)
+    {
+      return SqlFactory.Position(ch, SqlFactory.Substring(_this, startIndex, length));
+    }
+
     [Compiler(typeof(string), "Chars", TargetKind.PropertyGet)]
     public static SqlExpression StringChars(SqlExpression _this, [Type(typeof(int))] SqlExpression index)
     {
-      return SqlFactory.Substring(_this, index, index + 1);
+      return SqlFactory.Substring(_this, index, 1);
     }
 
     [Compiler(typeof(string), "Equals")]
