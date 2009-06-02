@@ -43,8 +43,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Indicates that RDBMS supports distributed transactions.
     /// </summary>
-    public bool SupportsEnlist
-    {
+    public bool SupportsEnlist {
       get { return supportsEnlist; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -55,8 +54,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Indicates that RDBMS supports collations.
     /// </summary>
-    public bool SupportsCollations
-    {
+    public bool SupportsCollations {
       get { return supportsCollations; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -67,8 +65,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Indicates that RDBMS supports batch query execution.
     /// </summary>
-    public bool SupportsBatches
-    {
+    public bool SupportsBatches {
       get { return supportsBatches; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -81,8 +78,7 @@ namespace Xtensive.Storage.Providers
     /// If the value of this property is <see langword="false"/>,
     /// RDMBS uses integer-like type to store boolean values.
     /// </summary>
-    public bool SupportsRealBoolean
-    {
+    public bool SupportsRealBoolean {
       get { return supportsRealBoolean; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -93,8 +89,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Indicates that RDBMS supports foreign key constraints.
     /// </summary>
-    public bool SupportsForeignKeyConstraints
-    {
+    public bool SupportsForeignKeyConstraints {
       get { return supportsForeignKeyConstraints; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -105,8 +100,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Indicates that RDBMS supports clustered indexes.
     /// </summary>
-    public bool SupportsClusteredIndexes
-    {
+    public bool SupportsClusteredIndexes {
       get { return supportsClusteredIndexes; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -117,8 +111,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Maximal length of a query text (characters).
     /// </summary>
-    public int MaxQueryLength
-    {
+    public int MaxQueryLength {
       get { return maxQueryLength; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -129,8 +122,7 @@ namespace Xtensive.Storage.Providers
     ///<summary>
     /// Maximal number of comparison operations for a single query.
     /// </summary>
-    public int MaxComparisonOperations
-    {
+    public int MaxComparisonOperations {
       get { return maxComparisonOperations; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -152,8 +144,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Maximal length of a table's name.
     /// </summary>
-    public int MaxTableNameLength
-    {
+    public int MaxTableNameLength {
       get { return maxTableNameLength; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -164,8 +155,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Maximal length of an index's name.
     /// </summary>
-    public int MaxIndexNameLength
-    {
+    public int MaxIndexNameLength {
       get { return maxIndexNameLength; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -176,8 +166,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Maximal length of a column's name.
     /// </summary>
-    public int MaxColumnNameLength
-    {
+    public int MaxColumnNameLength {
       get { return maxColumnNameLength; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -188,8 +177,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Maximal length of the name of a foreign key.
     /// </summary>
-    public int MaxForeignKeyNameLength
-    {
+    public int MaxForeignKeyNameLength {
       get { return maxForeignKeyNameLength; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -200,8 +188,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Maximal length of index key (bytes).
     /// </summary>
-    public int MaxIndexKeyLength
-    {
+    public int MaxIndexKeyLength {
       get { return maxIndexKeyLength; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -212,8 +199,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Maximal count of index columns.
     /// </summary>
-    public int MaxIndexColumnsCount
-    {
+    public int MaxIndexColumnsCount {
       get { return maxIndexColumnsCount; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -224,8 +210,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Indicates that it is possible to use named query parameters.
     /// </summary>
-    public bool NamedParameters
-    {
+    public bool NamedParameters {
       get { return namedParameters; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -236,8 +221,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Parameter prefix.
     /// </summary>
-    public string ParameterPrefix
-    {
+    public string ParameterPrefix {
       get { return parameterPrefix; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -248,8 +232,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// <see langword="True"/> if empty string ('') is considered as NULL.
     /// </summary>
-    public bool EmptyStringIsNull
-    {
+    public bool EmptyStringIsNull {
       get { return emptyStringIsNull; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -260,8 +243,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// <see langword="True"/> if empty BLOB is considered as NULL.
     /// </summary>
-    public bool EmptyBlobIsNull
-    {
+    public bool EmptyBlobIsNull {
       get { return emptyBlobIsNull; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -272,8 +254,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Indicates that RDBMS supports included columns in indexes.
     /// </summary>
-    public bool SupportsIncludedColumns
-    {
+    public bool SupportsIncludedColumns {
       get { return supportsIncludedColumns; }
       set {
         LockableExtensions.EnsureNotLocked(this);
@@ -284,8 +265,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Version of the RDBMS.
     /// </summary>
-    public Version Version
-    {
+    public Version Version {
       get { return version; }
       set {
         LockableExtensions.EnsureNotLocked(this);

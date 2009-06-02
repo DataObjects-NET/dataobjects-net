@@ -147,7 +147,6 @@ namespace Xtensive.Storage.Providers.Index
       result.SupportsRealBoolean = true;
       result.SupportsIncludedColumns = true;
       result.Version = new Version(0, 3);
-      result.Lock(true);
       return result;
     }
 

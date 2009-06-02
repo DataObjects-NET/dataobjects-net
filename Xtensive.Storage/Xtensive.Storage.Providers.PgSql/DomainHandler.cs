@@ -42,9 +42,7 @@ namespace Xtensive.Storage.Providers.PgSql
     {
       var serverInfo = ((SessionHandler) BuildingContext.Current.SystemSessionHandler).Connection
         .Driver.ServerInfo;
-      var result = new ProviderInfo(serverInfo, false, false, true);
-      result.Lock(true);
-      return result;
+      return new ProviderInfo(serverInfo, false, false, true);
     }
   }
 }

@@ -99,7 +99,9 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public virtual void InitializeFirstSession()
     {
-      ProviderInfo = CreateProviderInfo();
+      var providerInfo = CreateProviderInfo();
+      providerInfo.Lock(true);
+      ProviderInfo = providerInfo;
     }
 
     /// <summary>
