@@ -52,6 +52,12 @@ namespace Xtensive.Sql.Dom.Compiler
       suffix = 0;
     }
 
+    internal void Register (SqlTable table, string alias)
+    {
+      aliasTable[table] = alias;
+      aliasIndex.Add(alias);
+    }
+
     internal void Substitute(SqlTable table)
     {
       if (aliasTable.ContainsKey(table))

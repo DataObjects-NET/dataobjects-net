@@ -3935,7 +3935,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
     public void Test207()
     {
       string nativeSql =
-        "DELETE FROM [Sales].[SpecialOfferProduct] WHERE EXISTS (SELECT [ProductID] FROM [Production].[Product]"
+        "DELETE FROM [Sales].[SpecialOfferProduct] WHERE NOT EXISTS (SELECT [ProductID] FROM [Production].[Product]"
       + " WHERE [Production].[Product].[ProductID] = [Sales].[SpecialOfferProduct].[ProductID])";
 
       var products = Sql.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
@@ -3946,9 +3946,9 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       select.Where = products["ProductID"]==specialOfferProduct["ProductID"];
       
       var delete = Sql.Delete(specialOfferProduct);
-      delete.Where = Sql.Exists(select);
+      delete.Where = Sql.Not(Sql.Exists(select));
       
-      Assert.IsTrue(CompareExecuteNonQuery("SELECT * FROM [Sales].[SpecialOfferProduct]", delete));
+      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, delete));
     }
 
     [Test]

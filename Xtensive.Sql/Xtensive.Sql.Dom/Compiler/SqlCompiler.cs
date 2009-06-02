@@ -591,6 +591,7 @@ namespace Xtensive.Sql.Dom.Compiler
         context.AppendText(translator.Translate(context, node, DeleteSection.Entry));
         if (node.From==null)
           throw new SqlCompilerException(Strings.ExTablePropertyIsNotSet);
+        context.AliasProvider.Register(node.From, node.From.Name);
         node.From.AcceptVisitor(this);
         if (!SqlExpression.IsNull(node.Where)) {
           context.AppendText(translator.Translate(context, node, DeleteSection.Where));
@@ -1048,6 +1049,7 @@ namespace Xtensive.Sql.Dom.Compiler
 
         if (node.Update==null)
           throw new SqlCompilerException(Strings.ExTablePropertyIsNotSet);
+        context.AliasProvider.Register(node.Update, node.Update.Name);
         node.Update.AcceptVisitor(this);
 
         context.AppendText(translator.Translate(context, node, UpdateSection.Set));
