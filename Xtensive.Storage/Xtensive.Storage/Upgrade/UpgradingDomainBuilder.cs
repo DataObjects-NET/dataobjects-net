@@ -219,7 +219,7 @@ namespace Xtensive.Storage.Upgrade
         return oldModel.Types.Single(t => t.UnderlyingType==renamer.OldType).TypeId;
       // type has been preserved
       var oldType = oldModel.Types
-        .SingleOrDefault(t => t.Name==type.GetFullName());
+        .SingleOrDefault(t => t.UnderlyingType==type.GetFullName());
       if (oldType != null)
         return oldType.TypeId;
       return ModelTypeInfo.NoTypeId;
