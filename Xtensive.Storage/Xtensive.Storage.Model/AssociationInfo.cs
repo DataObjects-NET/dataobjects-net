@@ -179,11 +179,11 @@ namespace Xtensive.Storage.Model
           UnderlyingIndex = underlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
         else
           UnderlyingIndex = Reversed.UnderlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
+        if (ForeignKeyExtractorTransform == null) {
+          var foreignKeySegment = new Segment<int>(ReferencingType.Hierarchy.KeyInfo.Columns.Count, ReferencedType.Hierarchy.KeyInfo.Columns.Count);
+          ForeignKeyExtractorTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
+        }
         break;
-      }
-      if (ForeignKeyExtractorTransform == null) {
-        var foreignKeySegment = new Segment<int>(ReferencingType.Hierarchy.KeyInfo.Columns.Count, ReferencedType.Hierarchy.KeyInfo.Columns.Count);
-        ForeignKeyExtractorTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
       }
     }
 

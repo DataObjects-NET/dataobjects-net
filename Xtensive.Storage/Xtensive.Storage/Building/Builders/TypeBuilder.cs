@@ -95,9 +95,7 @@ namespace Xtensive.Storage.Building.Builders
         var type = CreateType(typeDef);
 
         if (type.UnderlyingType==hierarchyDef.Root.UnderlyingType) {
-          ProcessSkippedAncestors(typeDef);
           BuildHierarchyRoot(type, typeDef, hierarchyDef);
-          BuildSystemFields(type);
           BuildInterfaces(type);
           BuildDeclaredFields(type, typeDef);
           BuildInterfaceFields(type);
@@ -165,17 +163,6 @@ namespace Xtensive.Storage.Building.Builders
 
       foreach (var @interface in implementor.GetInterfaces(true))
         BuildFieldMap(@interface, implementor);
-    }
-
-    private static void BuildSystemFields(TypeInfo type)
-    {
-      if (type.GetAncestor()!=null)
-        return;
-      if (type.Fields.Contains(WellKnown.TypeIdField))
-        return;
-
-      var typeId = new FieldDef(typeof (int)) {Name = WellKnown.TypeIdField, IsTypeId = true};
-      FieldBuilder.BuildDeclaredField(type, typeId);
     }
 
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
@@ -311,20 +298,6 @@ namespace Xtensive.Storage.Building.Builders
 
         if (!implementor.FieldMap.ContainsKey(field))
           implementor.FieldMap.Add(field, implField);
-      }
-    }
-
-    private static void ProcessSkippedAncestors(TypeDef type)
-    {
-      return;
-      var ancestor = BuildingContext.Current.ModelDef.Types.FindAncestor(type);
-      while (ancestor!=null) {
-        foreach (var field in ancestor.Fields) {
-          if (field.UnderlyingProperty.DeclaringType.Assembly==Assembly.GetExecutingAssembly())
-            field.IsSystem = true;
-          type.Fields.Add(field);
-        }
-        ancestor = BuildingContext.Current.ModelDef.Types.FindAncestor(ancestor);
       }
     }
 

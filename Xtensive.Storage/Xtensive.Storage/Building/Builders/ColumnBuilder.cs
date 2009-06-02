@@ -29,6 +29,7 @@ namespace Xtensive.Storage.Building.Builders
       column.IsDeclared = field.IsDeclared;
       column.IsPrimaryKey = field.IsPrimaryKey;
       column.IsNullable = field.IsNullable;
+      column.IsSystem = field.IsSystem;
 
       return column;
     }

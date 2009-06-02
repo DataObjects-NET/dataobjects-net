@@ -172,6 +172,7 @@ namespace Xtensive.Storage.Building.Builders
 
       foreach (FieldInfo field in fields) {
         var clone = field.Clone();
+        clone.IsSystem = false;
         if (target.IsDeclared) {
           clone.Name = BuildingContext.Current.NameBuilder.Build(target, field);
           clone.MappingName = BuildingContext.Current.NameBuilder.BuildMappingName(target, field);

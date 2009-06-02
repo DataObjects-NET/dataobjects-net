@@ -44,6 +44,13 @@ namespace Xtensive.Storage.Model
     public bool IsSystem {
       [DebuggerStepThrough]
       get { return (Attributes & FieldAttributes.System) != 0; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        Attributes = value
+          ? (Attributes | FieldAttributes.System)
+          : (Attributes & ~FieldAttributes.System);
+      }
     }
 
     /// <summary>

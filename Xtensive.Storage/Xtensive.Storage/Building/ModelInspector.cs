@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;
@@ -36,20 +37,33 @@ namespace Xtensive.Storage.Building
       Log.Info("Inspecting hierarchy '{0}'", hierarchyDef.Root.Name);
       Validator.EnsureHierarchyIsValid(hierarchyDef);
 
-      // Should TypeId field be added?
+      var requiresFieldReordering = false;
+      // Check the presence of TypeId field
+      FieldDef typeIdField = hierarchyDef.Root.Fields[WellKnown.TypeIdField];
+      if (typeIdField == null) {
+        context.ModelInspectionResult.Actions.Enqueue(new AddTypeIdFieldAction(hierarchyDef.Root));
+        context.ModelInspectionResult.Register(new ReorderFieldsAction(hierarchyDef));
+        requiresFieldReordering = true;
+      }
+      else if(!typeIdField.IsTypeId || !typeIdField.IsSystem) {
+        context.ModelInspectionResult.Actions.Enqueue(new MarkFieldAsSystemFieldAction(hierarchyDef.Root, typeIdField));
+      }
+
+      // Should TypeId field be added to key fields?
       if (hierarchyDef.IncludeTypeId && hierarchyDef.KeyFields.Find(f => f.Name == WellKnown.TypeIdField) == null)
         context.ModelInspectionResult.Register(new TypeIdAsKeyFieldAction(hierarchyDef));
 
-      // Should fields be resorted according to keyfields order?
-      for (int i = 0; i < hierarchyDef.KeyFields.Count; i++) {
-        KeyField keyField = hierarchyDef.KeyFields[i];
-        FieldDef fieldDef = hierarchyDef.Root.Fields[i];
-        if (keyField.Name != fieldDef.Name) {
-          context.ModelInspectionResult.Register(new ReorderFieldsAction(hierarchyDef));
-          break;
+      // Should fields be reordered according to key fields order?
+      if (!requiresFieldReordering) {
+        for (int i = 0; i < hierarchyDef.KeyFields.Count; i++) {
+          KeyField keyField = hierarchyDef.KeyFields[i];
+          FieldDef fieldDef = hierarchyDef.Root.Fields[i];
+          if (keyField.Name != fieldDef.Name) {
+            context.ModelInspectionResult.Register(new ReorderFieldsAction(hierarchyDef));
+            break;
+          }
         }
       }
-
       foreach (var keyField in hierarchyDef.KeyFields) {
         FieldDef field = hierarchyDef.Root.Fields[keyField.Name];
         InspectField(hierarchyDef.Root, field, EdgeWeight.High);
@@ -77,7 +91,7 @@ namespace Xtensive.Storage.Building
             context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
             return;
           }
-          // We must remove key fields as they have been inspected already
+          // We must skip key fields as they have been inspected already
           foreach (var keyField in hierarchyDef.KeyFields) {
             KeyField field = keyField;
             fields.RemoveAll(f => f.Name==field.Name);
@@ -106,6 +120,11 @@ namespace Xtensive.Storage.Building
 
     private static void InspectField(TypeDef typeDef, FieldDef fieldDef, EdgeWeight weight)
     {
+      var context = BuildingContext.Current;
+      if (fieldDef.UnderlyingProperty != null &&
+        fieldDef.UnderlyingProperty.DeclaringType.Assembly == Assembly.GetExecutingAssembly())
+        context.ModelInspectionResult.Actions.Enqueue(new MarkFieldAsSystemFieldAction(typeDef, fieldDef));
+
       if (fieldDef.IsPrimitive)
         return;
       if (fieldDef.IsStructure) {
@@ -114,7 +133,6 @@ namespace Xtensive.Storage.Building
         RegisterDependency(typeDef, FindTypeDef(fieldDef.ValueType), EdgeKind.Aggregation, EdgeWeight.High);
         return;
       }
-      var context = BuildingContext.Current;
 
       Type referencedType = fieldDef.IsEntitySet ? fieldDef.ItemType : fieldDef.ValueType;
 

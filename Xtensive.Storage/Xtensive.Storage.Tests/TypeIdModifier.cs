@@ -39,8 +39,7 @@ namespace Xtensive.Storage.Tests
     {
       base.Build(context, model);
       foreach (HierarchyDef hierarchy in model.Hierarchies)
-        if (!hierarchy.KeyFields.Contains(TypeIdField))
-          hierarchy.KeyFields.Add(TypeIdField);
+        hierarchy.IncludeTypeId = true;
     }
   }
 
@@ -49,9 +48,11 @@ namespace Xtensive.Storage.Tests
     public override void Build(BuildingContext context, DomainModelDef model)
     {
       base.Build(context, model);
-      foreach (HierarchyDef hierarchy in model.Hierarchies)
+      foreach (HierarchyDef hierarchy in model.Hierarchies) {
+        hierarchy.IncludeTypeId = false;
         if (hierarchy.KeyFields.Contains(TypeIdField))
           hierarchy.KeyFields.Remove(TypeIdField);
+      }
     }
   }
 }

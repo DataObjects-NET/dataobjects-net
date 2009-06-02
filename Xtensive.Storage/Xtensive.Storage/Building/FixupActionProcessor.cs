@@ -101,5 +101,20 @@ namespace Xtensive.Storage.Building
       var indexDef = ModelDefBuilder.DefineIndex(action.Type, attribute);
       action.Type.Indexes.Add(indexDef);
     }
+
+    public static void Process(MarkFieldAsSystemFieldAction action)
+    {
+      action.Field.IsSystem = true;
+      if (action.Type.IsEntity && action.Field.Name == WellKnown.TypeIdField)
+        action.Field.IsTypeId = true;
+    }
+
+    public static void Process(AddTypeIdFieldAction action)
+    {
+      FieldDef fieldDef = ModelDefBuilder.DefineField(typeof (Entity).GetProperty(WellKnown.TypeIdField));
+      fieldDef.IsTypeId = true;
+      fieldDef.IsSystem = true;
+      action.Type.Fields.Add(fieldDef);
+    }
   }
 }

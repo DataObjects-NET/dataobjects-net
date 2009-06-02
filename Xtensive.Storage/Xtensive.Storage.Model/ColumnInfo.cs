@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Model
       [DebuggerStepThrough]
       get { return (attributes & ColumnAttributes.System) != 0; }
       [DebuggerStepThrough]
-      private set {
+      set {
         this.EnsureNotLocked();
         attributes = value ? Attributes | ColumnAttributes.System : Attributes & ~ColumnAttributes.System;
       }
