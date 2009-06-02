@@ -107,9 +107,9 @@ namespace Xtensive.Storage.Building
     private static void InspectField(TypeDef typeDef, FieldDef fieldDef, EdgeWeight weight)
     {
       var context = BuildingContext.Current;
-      if (fieldDef.UnderlyingProperty != null &&
-        fieldDef.UnderlyingProperty.DeclaringType.Assembly == Assembly.GetExecutingAssembly())
-        context.ModelInspectionResult.Actions.Enqueue(new MarkFieldAsSystemFieldAction(typeDef, fieldDef));
+//      if (fieldDef.UnderlyingProperty != null &&
+//        fieldDef.UnderlyingProperty.DeclaringType.Assembly == Assembly.GetExecutingAssembly())
+//        context.ModelInspectionResult.Actions.Enqueue(new MarkFieldAsSystemFieldAction(typeDef, fieldDef));
 
       if (fieldDef.IsPrimitive)
         return;
