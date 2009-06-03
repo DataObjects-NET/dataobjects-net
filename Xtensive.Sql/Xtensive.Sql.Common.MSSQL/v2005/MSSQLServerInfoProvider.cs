@@ -272,7 +272,7 @@ namespace Xtensive.Sql.Common.Mssql.v2005
         indexInfo.MaxLength = 900;
         indexInfo.AllowedDdlStatements = DdlStatements.All;
         indexInfo.Features = IndexFeatures.Clustered | IndexFeatures.FillFactor |
-                             IndexFeatures.Unique | IndexFeatures.NonKeyColumns;
+                             IndexFeatures.Unique | IndexFeatures.NonKeyColumns | IndexFeatures.SortOrder;
 
         if (versionInfo.Edition == MssqlEdition.EnterpriseEdition || versionInfo.Edition == MssqlEdition.DeveloperEdition)
           indexInfo.PartitionMethods = PartitionMethods.Range;

@@ -5,6 +5,12 @@
     public PgSqlServerInfoProvider(Connection conn)
       : base(conn)
     {
+
+    }
+
+    protected override IndexFeatures IndexFeatures
+    {
+      get { return base.IndexFeatures | IndexFeatures.SortOrder; }
     }
   }
 }

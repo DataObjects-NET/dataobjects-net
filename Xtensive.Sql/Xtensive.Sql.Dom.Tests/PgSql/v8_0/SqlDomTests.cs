@@ -15,7 +15,7 @@ using UniqueConstraint=Xtensive.Sql.Dom.Database.UniqueConstraint;
 
 namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
 {
-//  [TestFixture]
+  [TestFixture, Explicit]
   public class SqlDomTests
   {
     protected virtual string Url { get { return TestUrl.PgSql80; } }

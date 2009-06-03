@@ -1,5 +1,6 @@
 ﻿using Xtensive.Sql.Dom.Compiler;
 using Xtensive.Sql.Dom.Dml;
+using System.Text;
 
 namespace Xtensive.Sql.Dom.PgSql.v8_3
 {
@@ -17,6 +18,11 @@ namespace Xtensive.Sql.Dom.PgSql.v8_3
           return (node.Ascending) ? "ASC NULLS FIRST" : "DESC NULLS LAST";
       }
       return string.Empty;
+    }
+
+    protected override void AppendIndexColumnSortingOrder(StringBuilder builder, bool ascending)
+    {
+      builder.Append(ascending ? " ASC" : " DESC");
     }
   }
 }

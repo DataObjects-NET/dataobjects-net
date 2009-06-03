@@ -81,7 +81,7 @@ namespace Xtensive.Sql.Common.VistaDB.v3
         indexInfo.MaxIdentifierLength = cDefaultIdentifierLength;
         indexInfo.MaxColumnAmount = 256;
         indexInfo.MaxLength = 256;
-        indexInfo.Features = IndexFeatures.Clustered | IndexFeatures.Unique;
+        indexInfo.Features = IndexFeatures.Clustered | IndexFeatures.Unique | IndexFeatures.SortOrder;
         indexInfo.PartitionMethods = PartitionMethods.None;
         indexInfo.AllowedDdlStatements = DdlStatements.All;
         return indexInfo;

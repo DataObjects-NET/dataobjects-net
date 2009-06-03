@@ -48,6 +48,11 @@ namespace Xtensive.Sql.Common
     /// <summary>
     /// Indicates that RDBMS supports full-text indexes.
     /// </summary>
-    FullText = 0x20
+    FullText = 0x20,
+
+    /// <summary>
+    /// Indicates that RDBMS supports specifying sort order (i.e. asc or desc) for each column in index.
+    /// </summary>
+    SortOrder = 0x40
   }
 }

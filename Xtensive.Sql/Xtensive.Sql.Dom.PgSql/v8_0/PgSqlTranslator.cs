@@ -405,7 +405,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
           builder.Append(RowItemDelimiter);
         }
         builder.Append(QuoteIdentifier(column.Name));
-        builder.Append(column.Ascending ? " ASC" : " DESC");
+        AppendIndexColumnSortingOrder(builder, column.Ascending);
       }
       builder.Append(")");
       AppendIndexStorageParameters(builder, index);
@@ -423,6 +423,11 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       }
 
       return builder.ToString();
+    }
+
+    protected virtual void AppendIndexColumnSortingOrder(StringBuilder builder, bool ascending)
+    {
+      // to nothing since PgSql before 8.3 does not support such feature
     }
 
     protected virtual void AppendIndexStorageParameters(StringBuilder builder, Index index)
