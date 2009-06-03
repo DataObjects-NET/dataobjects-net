@@ -32,6 +32,7 @@ namespace Xtensive.Storage.Building.Builders
         {
           UnderlyingProperty = fieldDef.UnderlyingProperty,
           Name = fieldDef.Name,
+          OriginalName = fieldDef.Name,
           MappingName = fieldDef.MappingName,
           ValueType = fieldDef.ValueType,
           ItemType = fieldDef.ItemType,
@@ -139,6 +140,7 @@ namespace Xtensive.Storage.Building.Builders
       Log.Info(Strings.LogBuildingInterfaceFieldXY, type.Name, name);
       var field = implField.Clone();
       field.Name = name;
+      field.OriginalName = name;
       field.ReflectedType = type;
       field.DeclaringType = type;
       field.IsInherited = false;
@@ -175,6 +177,7 @@ namespace Xtensive.Storage.Building.Builders
         clone.IsSystem = false;
         if (target.IsDeclared) {
           clone.Name = BuildingContext.Current.NameBuilder.Build(target, field);
+          clone.OriginalName = field.Name;
           clone.MappingName = BuildingContext.Current.NameBuilder.BuildMappingName(target, field);
         }
         if (root.Fields.Contains(clone.Name))

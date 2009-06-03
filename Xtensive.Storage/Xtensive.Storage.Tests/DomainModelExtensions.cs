@@ -233,6 +233,7 @@ namespace Xtensive.Storage.Tests
 
     private static void Dump(this FieldInfo target, int indent)
     {
+      WriteLine(indent, "OriginalName: " + target.OriginalName);
       WriteLine(indent, "ValueType: " + target.ValueType.Name);
       WriteLine(indent, "Attributes: " + target.Attributes);
       if (target.DeclaringType!=target.ReflectedType)

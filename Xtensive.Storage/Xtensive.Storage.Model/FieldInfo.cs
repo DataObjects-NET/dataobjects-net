@@ -24,17 +24,18 @@ namespace Xtensive.Storage.Model
   public sealed class FieldInfo : MappingNode,
     ICloneable
   {
-    private PropertyInfo underlyingProperty;
-    private Type valueType;
-    private int? length;
-    private TypeInfo reflectedType;
-    private TypeInfo declaringType;
-    private FieldInfo parent;
-    private ColumnInfo column;
-    private AssociationInfo association;
-    private CultureInfo cultureInfo = CultureInfo.InvariantCulture;
-    private ThreadSafeCached<int> cachedHashCode = ThreadSafeCached<int>.Create(new object());
-    private Type itemType;
+    private PropertyInfo                  underlyingProperty;
+    private Type                          valueType;
+    private int?                          length;
+    private TypeInfo                      reflectedType;
+    private TypeInfo                      declaringType;
+    private FieldInfo                     parent;
+    private ColumnInfo                    column;
+    private AssociationInfo               association;
+    private CultureInfo                   cultureInfo = CultureInfo.InvariantCulture;
+    private ThreadSafeCached<int>         cachedHashCode = ThreadSafeCached<int>.Create(new object());
+    private Type                          itemType;
+    private string                        originalName;
 
     #region IsXxx properties
 
@@ -239,6 +240,20 @@ namespace Xtensive.Storage.Model
     }
 
     #endregion
+
+    /// <summary>
+    /// Gets or sets original name of this instance.
+    /// </summary>
+    public string OriginalName
+    {
+      get { return originalName; }
+      set
+      {
+        this.EnsureNotLocked();
+        ValidateName(value);
+        originalName = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets the type of the value of this instance.
@@ -512,6 +527,7 @@ namespace Xtensive.Storage.Model
       var clone= new FieldInfo(declaringType, reflectedType, Attributes)
         {
           Name = Name, 
+          OriginalName = OriginalName,
           MappingName = MappingName, 
           underlyingProperty = underlyingProperty, 
           valueType = valueType, 
