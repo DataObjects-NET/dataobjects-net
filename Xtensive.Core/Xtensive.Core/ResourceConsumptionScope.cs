@@ -121,7 +121,7 @@ namespace Xtensive.Core
 
     /// <summary>
     /// <see cref="DisposableDocTemplate.Dtor" copy="true"/>
-    /// /// </summary>
+    /// </summary>
     ~ResourceConsumptionScope()
     {
       Dispose(false);
