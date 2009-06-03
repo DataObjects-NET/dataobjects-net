@@ -231,4 +231,7 @@
   <data name="ExDifferenceRelatedToXTypeIsNotFoundOnTheUpgradeContextStack" xml:space="preserve">
     <value>Difference related to {0} type is not found on the UpgradeContext stack.</value>
   </data>
+  <data name="ExPropertyXYIsNotFound" xml:space="preserve">
+    <value>Property "{0}.{1}" is not found.</value>
+  </data>
 </root>

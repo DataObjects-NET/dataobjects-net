@@ -82,6 +82,11 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     protected IModel CurrentModel { get; private set; }
 
+    /// <summary>
+    /// Gets the comparer.
+    /// </summary>
+    protected IComparer Comparer { get; private set; }
+
     #endregion
 
     /// <inheritdoc/>
@@ -98,16 +103,16 @@ namespace Xtensive.Modelling.Comparison
     /// <exception cref="InvalidOperationException">Upgrade sequence validation has failed.</exception>
     public ReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints, IComparer comparer)
     {
-      // ArgumentValidator.EnsureArgumentNotNull(difference, "difference");
       ArgumentValidator.EnsureArgumentNotNull(hints, "hints");
       ArgumentValidator.EnsureArgumentNotNull(comparer, "comparer");
       if (difference == null)
-        return new ReadOnlyList<NodeAction>(new List<NodeAction>());
+        return new ReadOnlyList<NodeAction>(Enumerable.Empty<NodeAction>().ToList());
 
       TemporaryRenames = new Dictionary<string, Node>();
       SourceModel = (IModel) difference.Source;
       TargetModel = (IModel) difference.Target;
       Hints = hints ?? new HintSet(SourceModel, TargetModel);
+      Comparer = comparer;
       if (Hints.SourceModel!=SourceModel)
         throw new ArgumentOutOfRangeException("hints.SourceModel");
       if (Hints.TargetModel!=TargetModel)
@@ -119,12 +124,14 @@ namespace Xtensive.Modelling.Comparison
       using (NullActionHandler.Instance.Activate()) {
         try {
           var actions = new GroupingNodeAction();
-          ProcessStage(UpgradeStage.Prepare, comparer, actions);
-          ProcessStage(UpgradeStage.CyclicRename, comparer, actions);
-          ProcessStage(UpgradeStage.Upgrade, comparer, actions);
-          ProcessStage(UpgradeStage.DataManipulate, comparer, actions);
-          ProcessStage(UpgradeStage.Cleanup, comparer, actions);
-          var diff = comparer.Compare(CurrentModel, TargetModel);
+          ProcessStage(UpgradeStage.Prepare, actions);
+          ProcessStage(UpgradeStage.TemporaryRename, actions);
+          ProcessStage(UpgradeStage.Upgrade, actions);
+          ProcessStage(UpgradeStage.DataManipulate, actions);
+          ProcessStage(UpgradeStage.Cleanup, actions);
+          var validationHints = new HintSet(CurrentModel, TargetModel);
+          Hints.OfType<IgnoreHint>().Apply(validationHints.Add);
+          var diff = comparer.Compare(CurrentModel, TargetModel, validationHints);
           if (diff!=null) {
             Log.InfoRegion(Strings.LogAutomaticUpgradeSequenceValidation);
             Log.Info(Strings.LogValidationFailed);
@@ -150,18 +157,18 @@ namespace Xtensive.Modelling.Comparison
     /// Generate actions for specific <see cref="UpgradeStage"/>.
     /// </summary>
     /// <param name="stage">The stage.</param>
-    /// <param name="comparer">The comparer.</param>
     /// <param name="action">The parent action.</param>
-    protected void ProcessStage(UpgradeStage stage, IComparer comparer, GroupingNodeAction action)
+    protected void ProcessStage(UpgradeStage stage, GroupingNodeAction action)
     {
       Stage = stage;
       if (stage==UpgradeStage.Upgrade) {
         UpdateHints();
-        Difference = comparer.Compare(CurrentModel, TargetModel, Hints);
+        Difference = Comparer.Compare(CurrentModel, TargetModel, Hints);
       }
       var stageActions = Visit(Difference);
       if (stageActions!=null)
         action.Add(stageActions);
+      Log.Info(string.Format("Stage {0} complete.", stage));
     }
 
     /// <summary>
@@ -207,8 +214,8 @@ namespace Xtensive.Modelling.Comparison
       var any = difference.Target ?? difference.Source;
       var isInvertUpgrade =
         Stage==UpgradeStage.Prepare
-          || Stage==UpgradeStage.Cleanup
-            || Stage==UpgradeStage.CyclicRename;
+        || Stage==UpgradeStage.Cleanup
+        || Stage==UpgradeStage.TemporaryRename;
 
       using (OpenActionGroup(string.Format(NodeGroupComment, any.Name))) {
         if (isInvertUpgrade) {
@@ -232,47 +239,54 @@ namespace Xtensive.Modelling.Comparison
     {
       var source = difference.Source;
       var target = difference.Target;
-      var any = target ?? source;
       var isImmutable = Context.IsImmutable;
-      var bRemoveSource = (difference.MovementInfo & MovementInfo.Removed)!=0;
       var isChanged = (difference.MovementInfo & MovementInfo.Changed)!=0;
-      var isRemoved = (difference.MovementInfo & MovementInfo.Removed)!=0;
-      var isCopied = (difference.MovementInfo & MovementInfo.Copied)!=0;
       var isCreated = (difference.MovementInfo & MovementInfo.Created)!=0;
-      var isNameChanged = (difference.MovementInfo & MovementInfo.NameChanged)!=0;
-      var bRemoveTarget =
-        !bRemoveSource
-          && isImmutable
-            && difference.HasChanges
-              && (difference.MovementInfo & MovementInfo.Created)==0;
+      var isRemoved = (difference.MovementInfo & MovementInfo.Removed)!=0
+        || (isImmutable && difference.HasChanges && !isCreated);
 
       switch (Stage) {
       case UpgradeStage.Prepare:
+        if (isRemoved && !difference.IsRemoveOnCleanup) {
+          if (!Context.IsRemoved || difference.IsDependentOnParent) {
+            AddAction(UpgradeActionType.PreCondition,
+              new RemoveNodeAction() {
+                Path = (source ?? target).Path
+              });
+          }
+        }
+        else if (difference.IsDataChanged) {
+          Hints.GetHints<UpdateDataHint>(difference.Source).Where(hint => hint.SourceTablePath==difference.Source.Path)
+            .Apply(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
+          Hints.GetHints<DeleteDataHint>(difference.Source).Where(hint => hint.SourceTablePath==difference.Source.Path)
+            .Apply(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
+        }
+        break;
       case UpgradeStage.Cleanup:
-        if ((bRemoveSource || bRemoveTarget)
-          && (!Context.IsRemoved || difference.IsDependentOnParent)) {
+        if (!Context.IsRemoved || difference.IsDependentOnParent) {
           AddAction(UpgradeActionType.PreCondition,
             new RemoveNodeAction() {
               Path = (source ?? target).Path
             });
         }
         break;
-      case UpgradeStage.CyclicRename:
-        TemporaryRenames.Add(source.Path, CurrentModel.Resolve(source.Path) as Node);
+      case UpgradeStage.TemporaryRename:
+        RegisterTemporaryRename(source);
+        var temporaryName = GetTemporaryName(source);
         AddAction(UpgradeActionType.Rename,
-          new MoveNodeAction() {
+          new MoveNodeAction {
             Path = source.Path,
             Parent = source.Parent==null ? string.Empty : source.Parent.Path,
-            Name = GetTemporaryName(source),
+            Name = temporaryName,
             Index = source.Index,
-            NewPath = GetTemporaryPath(source)
+            NewPath = GetPathWithoutName(source) + temporaryName
           });
         break;
       case UpgradeStage.Upgrade:
         if (target==null)
           break;
         if (isCreated) {
-          var action = new CreateNodeAction() {
+          var action = new CreateNodeAction {
             Path = target.Parent==null ? string.Empty : target.Parent.Path,
             Type = target.GetType(),
             Name = target.Name,
@@ -281,27 +295,45 @@ namespace Xtensive.Modelling.Comparison
           AddAction(UpgradeActionType.PostCondition, action);
         }
         else if (isChanged) {
-          var action = new MoveNodeAction() {
+          var action = new MoveNodeAction {
             Path = source.Path,
             Parent = target.Parent==null ? string.Empty : target.Parent.Path,
             Name = target.Name,
-            Index = target.Index,
+            Index = target.Nesting.IsNestedToCollection ? (int?) target.Index : null,
             NewPath = target.Path
           };
           AddAction(UpgradeActionType.PostCondition, action);
         }
         break;
       case UpgradeStage.DataManipulate:
-        if (isCopied) {
-          var hint = Hints.GetHint<CopyHint>(source);
-          var action = new CopyDataAction() {
-            Path = source.Path,
-            NewPath = hint.TargetPath,
-          };
-          action.Parameters.AddRange(hint.CopyParameters);
-          AddAction(UpgradeActionType.Regular, action);
-        }
+        Hints.GetHints<CopyDataHint>(difference.Source).Where(hint => hint.SourceTablePath==difference.Source.Path)
+            .Apply(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
         break;
+      }
+    }
+
+    /// <summary>
+    /// Registers the temporary rename.
+    /// </summary>
+    /// <param name="source">The renamed node.</param>
+    protected void RegisterTemporaryRename(Node source)
+    {
+      TemporaryRenames.Add(source.Path, CurrentModel.Resolve(source.Path) as Node);
+
+      var children = source.PropertyAccessors.Values
+        .Where(pa => pa.IsDataContainer).Select(pa=>pa.Getter.Invoke(source));
+      foreach (var child in children) {
+        var childNode = child as Node;
+        if (childNode != null) {
+          if (!TemporaryRenames.ContainsKey(childNode.Path))
+            TemporaryRenames.Add(childNode.Path, CurrentModel.Resolve(childNode.Path) as Node);
+          continue;
+        }
+        var childNodeCollection = child as NodeCollection;
+        if (childNodeCollection != null)
+          foreach (Node node in childNodeCollection)
+            if (!TemporaryRenames.ContainsKey(node.Path))
+              TemporaryRenames.Add(node.Path, CurrentModel.Resolve(node.Path) as Node);
       }
     }
 
@@ -323,8 +355,7 @@ namespace Xtensive.Modelling.Comparison
         if (!isCleanup || !isImmutable || IsMutable(difference, accessor))
           using (CreateContext().Activate()) {
             Context.Property = pair.Key;
-            if (isCleanup)
-              Context.IsImmutable = IsImmutable(difference, accessor);
+            Context.IsImmutable = IsImmutable(difference, accessor);
             if ((difference.MovementInfo & MovementInfo.Removed) != 0)
               Context.IsRemoved = true;
             var dependencyRootType = GetDependencyRootType(difference, accessor);
@@ -368,6 +399,8 @@ namespace Xtensive.Modelling.Comparison
 
       var parentContext = Context.Parent;
       var targetNode = ((NodeDifference) parentContext.Difference).Target;
+      if (targetNode==null)
+        return;
       var action = new PropertyChangeAction() {
         Path = targetNode.Path
       };
@@ -402,7 +435,6 @@ namespace Xtensive.Modelling.Comparison
     protected virtual bool IsAllowedForCurrentStage(NodeDifference difference)
     {
       var isRemoved = (difference.MovementInfo & MovementInfo.Removed)!=0;
-      var isCopied = (difference.MovementInfo & MovementInfo.Copied)!=0;
       var isCreated = (difference.MovementInfo & MovementInfo.Created)!=0;
       var isNameChanged = (difference.MovementInfo & MovementInfo.NameChanged)!=0;
       var isImmutable = Context.IsImmutable;
@@ -411,15 +443,15 @@ namespace Xtensive.Modelling.Comparison
 
       switch (Stage) {
       case UpgradeStage.Prepare:
-        return isRemoveOnPrepare;
-      case UpgradeStage.CyclicRename:
+          return isRemoveOnPrepare || difference.IsDataChanged;
+      case UpgradeStage.TemporaryRename:
         return isNameChanged && IsCyclicRename(difference);
       case UpgradeStage.Upgrade:
         return !isRemoveOnPrepare && (isCreated || isNameChanged);
       case UpgradeStage.DataManipulate:
-        return isCopied;
+        return difference.IsDataChanged;
       case UpgradeStage.Cleanup:
-        return isRemoved && !isRemoveOnPrepare;
+        return isRemoved;
       default:
         throw new ArgumentOutOfRangeException("Stage");
       }
@@ -434,8 +466,7 @@ namespace Xtensive.Modelling.Comparison
     /// </returns>
     protected virtual bool IsCyclicRename(NodeDifference difference)
     {
-      if ((difference.MovementInfo & MovementInfo.NameChanged)==0
-        || difference.Source==null || difference.Target==null)
+      if (!difference.IsNameChanged() || difference.Source==null || difference.Target==null)
         return false;
       var source = difference.Source;
       var target = difference.Target;
@@ -504,20 +535,21 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>Temporary node name.</returns>
     protected virtual string GetTemporaryName(Node node)
     {
-      return string.Format(TemporaryNameFormat, node.Name);
+      var tempSuffix = Guid.NewGuid().ToString("N").Substring(0, 16);
+      return string.Format(TemporaryNameFormat, tempSuffix);
     }
 
     /// <summary>
-    /// Gets the temporary path.
+    /// Gets the node path without node name.
     /// </summary>
     /// <param name="node">The node.</param>
-    /// <returns>Temporary node path.</returns>
-    protected virtual string GetTemporaryPath(Node node)
+    /// <returns>Path.</returns>
+    protected static string GetPathWithoutName(Node node)
     {
-      return string.Concat(
-        node.Parent.Path, Node.PathDelimiter,
-        node.Nesting.EscapedPropertyName, Node.PathDelimiter,
-        GetTemporaryName(node));
+      var path = node.Path;
+      return !path.Contains(Node.PathDelimiter) 
+        ? string.Empty 
+        : path.Substring(0, path.LastIndexOf(Node.PathDelimiter));
     }
 
     #region Helper methods
@@ -633,15 +665,23 @@ namespace Xtensive.Modelling.Comparison
     {
       var originalHints = Hints;
       Hints = new HintSet(CurrentModel, TargetModel);
-      foreach (var hint in originalHints) {
-        var renameHint = hint as RenameHint;
+
+      // Process RenameHints
+      foreach (var renameHint in originalHints.OfType<RenameHint>()) {
         Node sourceNode;
-        if (renameHint!=null && TemporaryRenames.TryGetValue(renameHint.SourcePath, out sourceNode)) {
+        if (renameHint!=null && TemporaryRenames.TryGetValue(renameHint.SourcePath, out sourceNode))
           Hints.Add(new RenameHint(sourceNode.Path, renameHint.TargetPath));
-          continue;
-        }
-        Hints.Add(hint);
+        else
+          Hints.Add(renameHint);
       }
+
+      // Process CopyDataHints
+      originalHints.OfType<CopyDataHint>().Apply(hint => Hints.Add(hint.Update(TemporaryRenames)));
+
+      // Process IgnoreHints
+      originalHints.OfType<IgnoreHint>().Apply(ignoreHint => Hints.Add(ignoreHint));
+      
+      // ClearDataHints is not needed now.
     }
 
     #endregion

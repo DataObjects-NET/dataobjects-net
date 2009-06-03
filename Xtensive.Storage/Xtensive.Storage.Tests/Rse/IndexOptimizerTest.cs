@@ -220,7 +220,7 @@ namespace Xtensive.Storage.Tests.Rse
     private IndexInfo GetMultiColumnIndex<T>(params string[] fieldNames)
     {
       var sb = new StringBuilder();
-      sb.Append(Domain.Model.Types[typeof(T)].MappingName);
+      sb.Append(Domain.Model.Types[typeof(T)].Name);
       sb.Append(".");
       sb.Append("IX_");
       foreach (var name in fieldNames)

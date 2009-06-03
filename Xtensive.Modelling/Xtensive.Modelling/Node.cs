@@ -517,7 +517,7 @@ namespace Xtensive.Modelling
           throw Exceptions.InternalError(string.Format(
             Strings.ExInvalidNestingOfNodeX, this), Log.Instance);
       }
-      else {
+      else if (Nesting.IsNestedToCollection) {
         // Parent isn't changed
         var collection = (NodeCollection) propertyGetter(newParent);
         int minIndex, maxIndex, shift;

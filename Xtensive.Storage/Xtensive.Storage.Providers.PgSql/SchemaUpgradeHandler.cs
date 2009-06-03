@@ -32,6 +32,7 @@ namespace Xtensive.Storage.Providers.PgSql
     /// <inheritdoc/>
     public override StorageInfo GetExtractedSchema()
     {
+      // return new StorageInfo();
       var schema = ExtractStorageSchema();
       var sessionHandeler = (SessionHandler) BuildingContext.Demand().SystemSessionHandler;
       var converter = new PgSqlModelConverter(schema, sessionHandeler.ExecuteScalar, ConvertType);

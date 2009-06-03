@@ -23,13 +23,18 @@ namespace Xtensive.Storage.Tests.Upgrade
   public class ConvertDomainModelTest
   {
     protected StorageInfo Schema { get; set; }
+
+    protected Domain Domain { get; set; }
     
     protected Domain BuildDomain(string protocol)
     {
       var dc = DomainConfigurationFactory.Create(protocol);
       dc.UpgradeMode = DomainUpgradeMode.Recreate;
+      dc.ForeignKeyMode = ForeignKeyMode.Reference;
       dc.Types.Register(Assembly.GetExecutingAssembly(), typeof (A).Namespace);
-      return Domain.Build(dc);
+      Domain.Build(dc);
+      Domain = Domain.Build(dc);
+      return Domain;
     }
     
     [SetUp]
@@ -49,19 +54,19 @@ namespace Xtensive.Storage.Tests.Upgrade
       Assert.AreEqual(1, Schema.Tables["A"].SecondaryIndexes.Count);
       Assert.AreEqual(2, Schema.Tables["A"].SecondaryIndexes[0].KeyColumns.Count);
       Assert.IsTrue(Schema.Tables["A"].SecondaryIndexes[0].IsUnique);
-      Assert.AreEqual(new TypeInfo(typeof(string), 125),
+      Assert.AreEqual(new TypeInfo(typeof (string), 125),
         Schema.Tables["A"].Columns["Col3"].Type);
 
       Assert.IsNotNull(Schema.Tables["B"]);
       Assert.IsNotNull(Schema.Tables["B"].PrimaryIndex);
       Assert.AreEqual(1, Schema.Tables["B"].PrimaryIndex.KeyColumns.Count);
       Assert.AreEqual(3, Schema.Tables["B"].PrimaryIndex.ValueColumns.Count);
-      Assert.AreEqual(2, Schema.Tables["B"].SecondaryIndexes.Count);
+      Assert.AreEqual(1, Schema.Tables["B"].SecondaryIndexes.Count);
       Assert.IsFalse(Schema.Tables["B"].SecondaryIndexes[0].IsUnique);
     }
 
     [Test]
-    public void IncludedColumnsTest()
+    public virtual void IncludedColumnsTest()
     {
       Assert.AreEqual(2,
         Schema.Tables["A"].SecondaryIndexes[0].IncludedColumns.Count);

@@ -319,12 +319,15 @@ namespace Xtensive.Storage.Upgrade
       // generating result hints
       var sourceTable = sourceType.MappingName;
       foreach (var destinationTable in destinationTables) {
-        var identityParameters = keyPairs.Select(pair => new CopyParameter(
+        var identityParameters = keyPairs.Select(pair => new IdentityPair(
             GetColumnName(sourceTable, pair.First),
-            GetColumnName(destinationTable, pair.Second)));
-        yield return new CopyHint(
+            GetColumnName(destinationTable, pair.Second), false));
+        var copyDataHint = new CopyDataHint {SourceTablePath = GetTableName(sourceTable)};
+        copyDataHint.CopiedColumns.Add(new Pair<string>(
           GetColumnName(sourceTable, sourceField.MappingName),
-          GetColumnName(destinationTable, destinationField.MappingName), identityParameters);
+          GetColumnName(destinationTable, destinationField.MappingName)));
+        copyDataHint.Identities.AddRange(identityParameters);
+        yield return copyDataHint;
       }
     }
 

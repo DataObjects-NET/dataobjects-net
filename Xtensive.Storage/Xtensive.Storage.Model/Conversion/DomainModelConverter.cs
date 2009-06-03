@@ -101,16 +101,10 @@ namespace Xtensive.Storage.Model.Conversion
       foreach (var primaryIndex in domainModel.RealIndexes.Where(i => i.IsPrimary))
         Visit(primaryIndex);
 
-      // Build secondary indexes
-      // foreach (var indexInfo in domainModel.RealIndexes.Where(i => !i.IsPrimary))
-      //  Visit(indexInfo);
-
-      // Build foreign keys
+     // Build foreign keys
       if (BuildForeignKeys)
         foreach (var association in domainModel.Associations)
           Visit(association);
-
-      // TODO: Build foreign keys for hierarchy references
 
       // Build sequnces
       var persistentGenerators = domainModel.Generators
@@ -118,6 +112,34 @@ namespace Xtensive.Storage.Model.Conversion
       foreach (var generator in persistentGenerators)
         Visit(generator);
 
+      if (!BuildHierarchyForeignKeys)
+        return StorageInfo;
+
+      // Build hierarchy foreign keys
+      var indexPairs = new Dictionary<Pair<IndexInfo>, object>();
+      foreach (TypeInfo type in domainModel.Types.Entities) {
+        if (type.Indexes.PrimaryIndex.IsVirtual) {
+          var realPrimaryIndexes = type.Indexes.RealPrimaryIndexes;
+          for (var i = 0; i < realPrimaryIndexes.Count - 1; i++) {
+            if (realPrimaryIndexes[i]!=realPrimaryIndexes[i + 1]) {
+              var pair = new Pair<IndexInfo>(realPrimaryIndexes[i], realPrimaryIndexes[i + 1]);
+              indexPairs[pair] = null;
+            }
+          }
+        }
+      }
+      foreach (Pair<IndexInfo> indexPair in indexPairs.Keys) {
+        var referencingIndex = indexPair.Second;
+        var referencedIndex = indexPair.First;
+        var referencingTable = StorageInfo.Tables[referencingIndex.ReflectedType.MappingName];
+        var referencedTable = StorageInfo.Tables[referencedIndex.ReflectedType.MappingName];
+        var storageReferencingIndex = FindIndex(referencingTable,
+          new List<string>(referencingIndex.KeyColumns.Select(ci => ci.Key.Name)));
+        
+        var foreignKeyName = HierarchyForeignKeyNameGenerator.Invoke(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
+        CreateForeignKey(referencingTable, foreignKeyName, referencedTable, storageReferencingIndex);
+      }
+      
       return StorageInfo;
     }
 
@@ -125,13 +147,11 @@ namespace Xtensive.Storage.Model.Conversion
     protected override IPathNode VisitIndexInfo(IndexInfo index)
     {
       var table = CurrentTable;
-      var primaryIndex = Model.RealIndexes.First(i => i.MappingName == table.PrimaryIndex.Name);
-      var secondaryIndex = new SecondaryIndexInfo(table, index.MappingName)
-        {
-          IsUnique = index.IsUnique
-        };
-      foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns)
-      {
+      var primaryIndex = Model.RealIndexes.First(i => i.MappingName==table.PrimaryIndex.Name);
+      var secondaryIndex = new SecondaryIndexInfo(table, index.MappingName) {
+        IsUnique = index.IsUnique
+      };
+      foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
         var columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key, index);
         var column = table.Columns[columName];
         new KeyColumnRef(secondaryIndex, column, pair.Value);
@@ -171,37 +191,25 @@ namespace Xtensive.Storage.Model.Conversion
 
       if (association.UnderlyingType==null) {
         if (association.ReferencingType.Indexes.PrimaryIndex==null)
-            return null;
-        referencedTable = StorageInfo.Tables[association.ReferencedType.MappingName];
-        referencingTable = StorageInfo.Tables[association.ReferencingType.MappingName];
+          return null;
+        referencedTable = GetTable(association.ReferencedType);
+        referencingTable = GetTable(association.ReferencingType);
         referencingIndex = FindIndex(referencingTable,
           new List<string>(association.ReferencingField.ExtractColumns().Select(ci => ci.Name)));
         var foreignKeyName = ForeignKeyNameGenerator(association, association.ReferencingField);
-        foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName)
-          {
-            PrimaryKey = referencedTable.PrimaryIndex,
-            OnRemoveAction = StorageReferentialAction.None,
-            OnUpdateAction = StorageReferentialAction.None
-          };
-        foreignKey.ForeignKeyColumns.Set(referencingIndex);
+        foreignKey = CreateForeignKey(referencingTable, foreignKeyName, referencedTable, referencingIndex);
         return foreignKey;
       }
 
       foreignKey = null;
-      referencingTable = StorageInfo.Tables[association.UnderlyingType.MappingName];
+      referencingTable = GetTable(association.UnderlyingType);
       foreach (var field in association.UnderlyingType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
         var referencedIndex = FindIndex(Model.Types[field.ValueType].Indexes.PrimaryIndex, null);
-        referencedTable = StorageInfo.Tables[referencedIndex.DeclaringType.MappingName];
+        referencedTable = GetTable(referencedIndex.DeclaringType);
         referencingIndex = FindIndex(referencingTable,
           new List<string>(field.ExtractColumns().Select(ci => ci.Name)));
         var foreignKeyName = ForeignKeyNameGenerator(association, field);
-        foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName)
-          {
-            PrimaryKey = referencedTable.PrimaryIndex,
-            OnRemoveAction = StorageReferentialAction.None,
-            OnUpdateAction = StorageReferentialAction.None
-          };
-        foreignKey.ForeignKeyColumns.Set(referencingIndex);
+        foreignKey = CreateForeignKey(referencingTable, foreignKeyName, referencedTable, referencingIndex);
       }
       return foreignKey;
     }
@@ -247,7 +255,7 @@ namespace Xtensive.Storage.Model.Conversion
     /// <param name="table">The table.</param>
     /// <param name="keyColumns">The key columns.</param>
     /// <returns>The index.</returns>
-    protected StorageIndexInfo FindIndex(TableInfo table, List<string> keyColumns)
+    protected static StorageIndexInfo FindIndex(TableInfo table, List<string> keyColumns)
     {
       var primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name);
       if (primaryKeyColumns.Except(keyColumns)
@@ -269,7 +277,7 @@ namespace Xtensive.Storage.Model.Conversion
     /// </summary>
     /// <param name="toConvert">The action to convert.</param>
     /// <returns>Converted action.</returns>
-    protected StorageReferentialAction ConvertReferentialAction(ReferentialAction toConvert)
+    protected static StorageReferentialAction ConvertReferentialAction(ReferentialAction toConvert)
     {
       switch (toConvert) {
       case ReferentialAction.Restrict:
@@ -341,6 +349,31 @@ namespace Xtensive.Storage.Model.Conversion
       return primaryIndexColumnName;
     }
 
+    private static ForeignKeyInfo CreateForeignKey(TableInfo referencingTable, string foreignKeyName, 
+      TableInfo referencedTable, StorageIndexInfo referencingIndex)
+    {
+      var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
+        PrimaryKey = referencedTable.PrimaryIndex,
+        OnRemoveAction = StorageReferentialAction.None,
+        OnUpdateAction = StorageReferentialAction.None
+      };
+      foreignKey.ForeignKeyColumns.Set(referencingIndex);
+      return foreignKey;
+    }
+
+    /// <summary>
+    /// Gets the table.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>Table.</returns>
+    protected TableInfo GetTable(TypeInfo type)
+    {
+      if (type.Hierarchy==null 
+        || type.Hierarchy.Schema!=InheritanceSchema.SingleTable)
+        return StorageInfo.Tables[type.MappingName];
+      return StorageInfo.Tables[type.Hierarchy.Root.MappingName];
+    }
+
 
     // Constructors
 
@@ -372,7 +405,6 @@ namespace Xtensive.Storage.Model.Conversion
       PersistentGeneratorFilter = persistentGeneratorFilter;
     }
     
-
     #region Not supported
 
     /// <inheritdoc/>

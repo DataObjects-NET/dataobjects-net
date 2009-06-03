@@ -104,7 +104,6 @@ namespace Xtensive.Storage.Tests.Upgrade
       new KeyColumnRef(t3pk, t3Id, Direction.Positive);
       t3pk.PopulateValueColumns();
       
-
       var foreignKey = new ForeignKeyInfo(t1, "FK");
       foreignKey.ForeignKeyColumns.Set(t1fk);
       foreignKey.PrimaryKey = t3pk;
@@ -129,7 +128,6 @@ namespace Xtensive.Storage.Tests.Upgrade
       new KeyColumnRef(t1pk, t1Id, Direction.Positive);
       t1pk.PopulateValueColumns();
       
-
       var t3 = new TableInfo(storage, "table2");
       var t3Id = new ColumnInfo(t3, "Id", new TypeInfo(typeof (int)));
       var t3C1 = new ColumnInfo(t3, "col2", new TypeInfo(typeof (int?), true));
@@ -151,7 +149,6 @@ namespace Xtensive.Storage.Tests.Upgrade
       new KeyColumnRef(t1pk, t1Id, Direction.Positive);
       t1pk.PopulateValueColumns();
       
-
       var t2 = new TableInfo(storage, "table2");
       var t2Id = new ColumnInfo(t2, "Id", new TypeInfo(typeof (int)));
       var t2pk = new PrimaryIndexInfo(t2, "PK_table3");
@@ -173,13 +170,13 @@ namespace Xtensive.Storage.Tests.Upgrade
       hints.Add(new RenameHint("Tables/table1/Columns/col4", "Tables/table1/Columns/col5"));
       hints.Add(new RenameHint("Tables/table2", "Tables/table3"));
       hints.Add(new RenameHint("Tables/table2/Columns/col1", "Tables/table3/Columns/col2"));
-      
-      var diff = BuildDifference(newModel, ExtractModel(), null);
-      Tests.Log.Info(diff.ToString());
+
+      //var diff = BuildDifference(newModel, ExtractModel(), hints);
+      //Tests.Log.Info(diff.ToString());
       var actions = Compare(oldModel, newModel, hints);
       Tests.Log.Info(actions.ToString());
-      
       UpgradeCurrentSchema(oldModel, newModel, actions);
+
       var postUpgradeDifference = BuildDifference(newModel, ExtractModel(), null);
       Assert.IsNull(postUpgradeDifference);
     }
@@ -192,10 +189,11 @@ namespace Xtensive.Storage.Tests.Upgrade
       Create(oldModel);
       var newModel = BuildNewModel2();
 
-      var hints = new HintSet(oldModel, newModel) {
-        new CopyHint("Tables/table2/Columns/col2", "Tables/table1/Columns/col2",
-          new[] {new CopyParameter("Tables/table2/Columns/Id", "Tables/table1/Columns/Id")})
-      };
+      var hints = new HintSet(oldModel, newModel);
+      // {
+      //  new CopyDataHint("Tables/table2/Columns/col2", "Tables/table1/Columns/col2",
+      //    new[] {new IdentityParameter("Tables/table2/Columns/Id", "Tables/table1/Columns/Id")})
+      // };
 
       var actions = Compare(oldModel, newModel, hints);
       Tests.Log.Info(actions.ToString());
@@ -233,7 +231,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private static ActionSequence Compare(StorageInfo oldModel, StorageInfo newModel, HintSet hints)
     {
-      if (hints==null) 
+      if (hints==null)
         hints = new HintSet(oldModel, newModel);
       var diff = BuildDifference(oldModel, newModel, hints);
       var actions = new ActionSequence() {

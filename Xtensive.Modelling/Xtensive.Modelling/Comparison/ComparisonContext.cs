@@ -5,7 +5,6 @@
 // Created:    2009.04.16
 
 using System;
-using System.Reflection;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Resources;
@@ -70,9 +69,9 @@ namespace Xtensive.Modelling.Comparison
     public Difference Difference { get; set; }
 
     /// <summary>
-    /// Gets or sets the currently processed property.
+    /// Gets or sets the currently processed property accessor.
     /// </summary>
-    public PropertyInfo Property { get; set; }
+    public PropertyAccessor PropertyAccessor { get; set; }
 
     /// <summary>
     /// Activates this instance.
@@ -121,7 +120,7 @@ namespace Xtensive.Modelling.Comparison
       if (Parent==null)
         return;
       Difference = Parent.Difference;
-      Property = Parent.Property;
+      PropertyAccessor = Parent.PropertyAccessor;
     }
   }
 }

@@ -153,7 +153,7 @@ namespace Xtensive.Storage.Providers.Sql
         var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
         if (primaryIndex==null || tables.ContainsKey(primaryIndex))
           continue;
-        var table = schema.CreateTable(NameBuilder.BuildTableName(primaryIndex));
+        var table = schema.CreateTable(primaryIndex.ReflectedType.MappingName);
         tables.Add(primaryIndex, table);
         CreateColumns(primaryIndex, table);
         CreateSecondaryIndexes(type, primaryIndex, table);

@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Storage.Indexing.Model;

@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// Gets foreign keys.
     /// </summary>
     [Property(Priority = -1000,
-      IsImmutable = true, DependencyRootType = typeof(TableInfoCollection))]
+      IsImmutable = true, DependencyRootType = typeof (TableInfoCollection))]
     public ForeignKeyCollection ForeignKeys { get; private set; }
 
     /// <summary>

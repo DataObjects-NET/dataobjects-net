@@ -12,13 +12,13 @@ namespace Xtensive.Modelling.Comparison
   public enum UpgradeStage
   {
     /// <summary>
-    /// Remove unnesessery structures.
+    /// 
     /// </summary>
     Prepare,
     /// <summary>
     /// Rename cycle participants.
     /// </summary>
-    CyclicRename,
+    TemporaryRename,
     /// <summary>
     /// Create and rename structures, change property values.
     /// </summary>
@@ -29,8 +29,8 @@ namespace Xtensive.Modelling.Comparison
     DataManipulate,
     /// <summary>
     /// Remove structures thats have not been 
-    /// removed on <see cref="Prepare"/> stage.
+    /// removed on <see cref="UpgradeStage.Prepare"/> stage.
     /// </summary>
-    Cleanup
+    Cleanup,
   }
 }

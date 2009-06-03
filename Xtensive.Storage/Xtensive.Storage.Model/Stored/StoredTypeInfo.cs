@@ -5,6 +5,7 @@
 // Created:    2009.05.22
 
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Xml.Serialization;
 
 namespace Xtensive.Storage.Model.Stored

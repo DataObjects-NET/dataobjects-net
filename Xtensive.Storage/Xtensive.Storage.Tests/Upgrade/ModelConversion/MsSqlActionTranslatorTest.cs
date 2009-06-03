@@ -5,7 +5,6 @@
 // Created:    2009.05.27
 
 using System;
-using System.Diagnostics;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;

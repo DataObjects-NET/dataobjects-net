@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using System.Linq;
@@ -43,7 +44,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     private readonly HashSet<Hint> hints = new HashSet<Hint>();
     private readonly Dictionary<Node, Dictionary<Type, object>> hintMap =
       new Dictionary<Node, Dictionary<Type, object>>();
-
+    
     /// <summary>
     /// Gets the number of elements contained in a collection.
     /// </summary>
@@ -69,6 +70,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     public void Add(Hint hint)
     {
       ArgumentValidator.EnsureArgumentNotNull(hint, "hint");
+
       if (hints.Contains(hint))
         throw new InvalidOperationException(Strings.ExItemAlreadyExists);
 
@@ -157,15 +159,28 @@ namespace Xtensive.Modelling.Comparison.Hints
         hintMap.Add(node, new Dictionary<Type, object>());
       Dictionary<Type, object> nodeHintMap;
       if (!hintMap.TryGetValue(node, out nodeHintMap))
-        return null;
-      var hintType = typeof(THint);
+        return ArrayUtils<THint>.EmptyArray;
+      var hintType = typeof (THint);
       object hintOrList;
       if (!nodeHintMap.TryGetValue(hintType, out hintOrList))
-        return null;
+        return ArrayUtils<THint>.EmptyArray;
       var hint = hintOrList as THint;
       if (hint!=null)
         return new[] {hint};
       return ((List<Hint>) hintOrList).Cast<THint>().ToArray();
+    }
+
+    public bool HetHints(Node node)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(node, "node");
+
+      if (!hintMap.ContainsKey(node))
+        hintMap.Add(node, new Dictionary<Type, object>());
+      Dictionary<Type, object> nodeHintMap;
+      if (!hintMap.TryGetValue(node, out nodeHintMap))
+        return false;
+
+      return nodeHintMap.Values.Count > 0;
     }
 
     #region IEnumerable<...> methods

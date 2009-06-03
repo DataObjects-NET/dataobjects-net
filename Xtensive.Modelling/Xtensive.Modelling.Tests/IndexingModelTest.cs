@@ -5,7 +5,10 @@
 // Created:    2009.04.17
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
+using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
@@ -17,6 +20,15 @@ namespace Xtensive.Modelling.Tests
   [TestFixture]
   public class IndexingModelTest
   {
+    [Test]
+    public void RenameNodeTest()
+    {
+      var storage = CreateSimpleStorageModel();
+      var tTypes = storage.Tables["Types"];
+      tTypes.SecondaryIndexes["IX_Value"].Name = "IX_Value_New";
+      tTypes.PrimaryIndex.Name = "PK_Types_New";
+    }
+
     [Test]
     public void SimpleTest()
     {
@@ -38,6 +50,8 @@ namespace Xtensive.Modelling.Tests
         var newCValue = newTTypes.Columns["Value"];
         var newCData = newTTypes.Columns["Data"];
         var newTObjects = s2.Tables["Objects"];
+        oldTTypes.PrimaryIndex.Name = "PK_Types_Old";
+        newTTypes.PrimaryIndex.Name = "PK_Types_New";
         newCValue.Name = "Temp";
         newCData.Name = "Value";
         newCValue.Name = "Data";
@@ -123,6 +137,22 @@ namespace Xtensive.Modelling.Tests
     }
 
     [Test]
+    public void IgnoreHintTest()
+    {
+      var storage = CreateSimpleStorageModel();
+      storage.Dump();
+
+      TestUpdate(storage, (s1, s2, hs) => {
+        var o = s1.Resolve("Tables/Objects") as TableInfo;
+        new ColumnInfo(o, "IgnoredColumn", new TypeInfo(typeof (int)));
+        RepopulateValueColumns(s1, "Objects");
+        hs.Add(new IgnoreHint("Tables/Objects/Columns/IgnoredColumn"));
+      },
+      (diff, actions) => 
+        Assert.IsNull(diff));
+    }
+
+    [Test]
     public void RenameTest1()
     {
       var storage = CreateSimpleStorageModel();
@@ -199,10 +229,13 @@ namespace Xtensive.Modelling.Tests
         RepopulateValueColumns(s2, "Types");
         RepopulateValueColumns(s2, "Objects");
 
-        hs.Add(new CopyHint(oldColumn.Path, newColumn.Path,
-          new[] {new CopyParameter(oldColumn.Path, newColumn.Path)}));
+        var copyDataHint = new CopyDataHint();
+        copyDataHint.SourceTablePath = "Tables/Types";
+        copyDataHint.CopiedColumns.Add(new Pair<string>("Tables/Types/Columns/Data", "Tables/Objects/Columns/Data"));
+        copyDataHint.Identities.Add(new IdentityPair("Tables/Types/Columns/Id", "Tables/Objects/Columns/TypeId", false));
+        hs.Add(copyDataHint);
       },
-        (diff, actions) => { });
+        (diff, actions)=> { });
     }
 
     [Test]
@@ -217,8 +250,11 @@ namespace Xtensive.Modelling.Tests
         RepopulateValueColumns(s1, "Types");
         RepopulateValueColumns(s2, "Objects");
 
-        hs.Add(new CopyHint(oldColumn.Path, newColumn.Path,
-          new[] {new CopyParameter(oldColumn.Path, newColumn.Path)}));
+        var copyDataHint = new CopyDataHint();
+        copyDataHint.SourceTablePath = "Tables/Types";
+        copyDataHint.CopiedColumns.Add(new Pair<string>("Tables/Types/Columns/Data", "Tables/Objects/Columns/Data"));
+        copyDataHint.Identities.Add(new IdentityPair("Tables/Types/Columns/Id", "Tables/Objects/Columns/TypeId", false));
+        hs.Add(copyDataHint);
       },
         (diff, actions) => { });
     }
@@ -237,8 +273,11 @@ namespace Xtensive.Modelling.Tests
         RepopulateValueColumns(s2, "NewObjects");
 
         hs.Add(new RenameHint(s1.Tables["Objects"].Path, s2.Tables["NewObjects"].Path));
-        hs.Add(new CopyHint(oldColumn.Path, newColumn.Path,
-          new[] {new CopyParameter(oldColumn.Path, newColumn.Path)}));
+        var copyDataHint = new CopyDataHint();
+        copyDataHint.SourceTablePath = "Tables/Types";
+        copyDataHint.CopiedColumns.Add(new Pair<string>("Tables/Types/Columns/Data", "Tables/NewObjects/Columns/NewData"));
+        copyDataHint.Identities.Add(new IdentityPair("Tables/Types/Columns/Id", "Tables/NewObjects/Columns/TypeId", false));
+        hs.Add(copyDataHint);
       },
         (diff, actions) => { });
     }
@@ -248,10 +287,29 @@ namespace Xtensive.Modelling.Tests
     {
       var storage = CreateSimpleStorageModel();
       TestUpdate(storage, (s1, s2, hs) => {
-        var column = s2.Tables["Types"].Columns["Value"];
+        var column = s2.Tables["Types"].Columns["Data"];
         column.Type = new TypeInfo(typeof (int));
       },
         (diff, actions) => { });
+    }
+
+    [Test]
+    public void RemoveReferencedTable()
+    {
+      var storage = CreateSimpleStorageModel();
+      storage.Dump();
+
+      TestUpdate(storage, (s1, s2, hs) => {
+        var types = (TableInfo) s2.Resolve("Tables/Types");
+        var objects = (TableInfo) s2.Resolve("Tables/Objects");
+        objects.ForeignKeys.Clear();
+        types.Remove();
+      },
+        (diff, actions) => Assert.IsTrue(
+          actions
+            .Flatten()
+            .OfType<RemoveNodeAction>()
+            .Any(a => a.Path=="Tables/Objects/ForeignKeys/FK_TypeId")));
     }
 
     [Test]
@@ -272,11 +330,11 @@ namespace Xtensive.Modelling.Tests
           s2.Tables["NewObjects"].Path));
         hs.Add(new RenameHint(s1.Tables["Objects"].Columns["Id"].Path,
           s2.Tables["NewObjects"].Columns["NewId"].Path));
-        hs.Add(new CopyHint(oldColumn.Path, newColumn.Path,
-          new[] {
-            new CopyParameter(s1.Tables["Types"].Columns["Id"].Path,
-              s2.Tables["NewObjects"].Columns["NewId"].Path)
-          }));
+        var copyDataHint = new CopyDataHint();
+        copyDataHint.SourceTablePath = "Tables/Types";
+        copyDataHint.CopiedColumns.Add(new Pair<string>("Tables/Types/Columns/Data", "Tables/NewObjects/Columns/NewData"));
+        copyDataHint.Identities.Add(new IdentityPair("Tables/Types/Columns/Id", "Tables/NewObjects/Columns/NewId", false));
+        hs.Add(copyDataHint);
       },
         (diff, actions) => { });
     }

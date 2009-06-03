@@ -45,7 +45,7 @@ namespace Xtensive.Modelling.Attributes
     /// </summary>
     public Type DependencyRootType { get; set; }
 
-
+    
     // Constructors
 
     /// <summary>

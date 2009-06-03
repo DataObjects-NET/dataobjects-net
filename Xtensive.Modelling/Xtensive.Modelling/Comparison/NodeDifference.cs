@@ -47,12 +47,20 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     public bool IsDependentOnParent { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether data is changed.
+    /// </summary>
+    public bool IsDataChanged { get; set; }
+
     /// <inheritdoc/>
     public Dictionary<string, Difference> PropertyChanges { get; private set; }
 
     /// <inheritdoc/>
     public override bool HasChanges {
-      get { return (MovementInfo & MovementInfo.Changed)!=0 || PropertyChanges.Count!=0; }
+      get { 
+        return (MovementInfo & MovementInfo.Changed)!=0 
+        || PropertyChanges.Count!=0 || IsDataChanged; 
+      }
     }
 
     /// <inheritdoc/>
@@ -60,6 +68,10 @@ namespace Xtensive.Modelling.Comparison
     {
       var sb = new StringBuilder();
       sb.Append(MovementInfo);
+      if (IsRemoveOnCleanup)
+        sb.Append(" RemoveOnCleanup");
+      if (IsDataChanged)
+        sb.Append(" DataChanged");
       foreach (var pair in PropertyChanges)
         sb.AppendLine().AppendFormat(Strings.PropertyChangeFormat,
           pair.Key, pair.Value);

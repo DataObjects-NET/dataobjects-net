@@ -304,6 +304,15 @@ namespace Xtensive.Modelling.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Property &quot;{0}.{1}&quot; is not found..
+        /// </summary>
+        internal static string ExPropertyXYIsNotFound {
+            get {
+                return ResourceManager.GetString("ExPropertyXYIsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Target object already exists: &quot;{0}&quot;. To assign a new one, you must remove the old one first..
         /// </summary>
         internal static string ExTargetObjectExistsX {
