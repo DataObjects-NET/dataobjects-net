@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     // Constructors
 
     public Customer(string id)
-      : base(Tuple.Create(id))
+      : base(id)
     {
     }
   }
@@ -260,7 +260,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     // Constructors
 
     public Territory(string id)
-      : base(Tuple.Create(id))
+      : base(id)
     {
     }
   }
@@ -336,7 +336,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     // Constructors
 
     public OrderDetails(Order order, Product product)
-      : base(Tuple.Create(order.Id, product.Id))
+      : base(order, product)
     {
     }
   }

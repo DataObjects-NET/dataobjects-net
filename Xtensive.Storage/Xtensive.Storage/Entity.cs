@@ -286,6 +286,16 @@ namespace Xtensive.Storage
       this.Validate();
     }
 
+    // Is used for EntitySetItem<,> instance construction
+    internal Entity(Tuple keyTuple)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
+      Key key = Key.Create(GetTypeInfo(), keyTuple, true);
+      State = Session.CreateEntityState(key);
+      OnInitializing(true);
+      this.Validate();
+    }
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

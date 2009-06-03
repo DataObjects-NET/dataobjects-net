@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0036_Model
     public TEntity Target { get; private set; }
 
     public SyncInfo (TEntity target)
-      : base(target.Key.Value)
+      : base(target)
     {
     }
   }
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0036_Model
     public TEntity Target { get; private set; }
 
     public SecurityInfo (TEntity target)
-      : base(target.Key.Value)
+      : base(target)
     {
     }
   }

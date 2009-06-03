@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Model.ReferencedKeysModel
     [Field, KeyField(1)]
     public string Name { get; private set;}
 
-    public City(Country country, string name) : base(Tuple.Create(country.Name, name)) {}
+    public City(Country country, string name) : base(country.Name, name) {}
   }
 }
 
