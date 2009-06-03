@@ -84,7 +84,11 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var expression = parameterExtractor.ExtractParameter<object>(e);
       var binding = new SqlFetchParameterBinding(expression.CachingCompile(), typeMapping, smartNull);
       bindings.Add(binding);
-      return binding.ParameterReference;
+      SqlExpression result = binding.ParameterReference;
+      // hack to make interval/datetime parameters work
+      if (type == typeof(DateTime) || type==typeof(TimeSpan))
+        result = SqlFactory.Cast(result, typeMapping.DataTypeInfo.SqlType);
+      return result;
     }
 
     protected override SqlExpression VisitUnary(UnaryExpression expression)

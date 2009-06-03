@@ -40,6 +40,13 @@ namespace Xtensive.Storage.Tests.Storage.Providers.PgSql
       Check("00:04:02.9980000");
       Check("05:04:02.9980000");
       Check("-100000.00:00:00.0230000");
+      Check("00:00:00.2000000");
+      Check("-00:00:00.2000000");
+      Check("00:00:00.0200000");
+      Check("-00:00:00.0200000");
+      Check("-6360.11:25:03.2100000");
+      Check("6360.11:25:03.2100000");
+      Check("-6361.12:34:56.7900000");
     }
 
     private static void Check(string timeSpan)

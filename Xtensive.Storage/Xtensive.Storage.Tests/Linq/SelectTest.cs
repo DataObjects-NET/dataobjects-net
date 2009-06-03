@@ -708,6 +708,56 @@ namespace Xtensive.Storage.Tests.Linq
           }
         )
         .First();
+
+      var expected =
+        new
+          {
+            DateTime = dateTime,
+            DateTimeDate = dateTime.Date,
+            DateTimeTime = dateTime.TimeOfDay,
+            DateTimeYear = dateTime.Year,
+            DateTimeMonth = dateTime.Month,
+            DateTimeDay = dateTime.Day,
+            DateTimeHour = dateTime.Hour,
+            DateTimeMinute = dateTime.Minute,
+            DateTimeSecond = dateTime.Second,
+            DateTimeDayOfYear = dateTime.DayOfYear,
+            DateTimeDayOfWeek = dateTime.DayOfWeek,
+            TimeSpan = timeSpan,
+            TimeSpanDays = timeSpan.Days,
+            TimeSpanHours = timeSpan.Hours,
+            TimeSpanMinutes = timeSpan.Minutes,
+            TimeSpanSeconds = timeSpan.Seconds,
+            TimeSpanTotalDays = timeSpan.TotalDays,
+            TimeSpanTotalHours = timeSpan.TotalHours,
+            TimeSpanTotalMinutes = timeSpan.TotalMinutes,
+            TimeSpanTotalSeconds = timeSpan.TotalSeconds,
+            TimeSpanTicks = timeSpan.Ticks,
+            TimeSpanDuration = timeSpan.Duration(),
+          };
+
+      Assert.AreEqual(expected.DateTime, result.DateTime);
+      Assert.AreEqual(expected.DateTimeDate, result.DateTimeDate);
+      Assert.AreEqual(expected.DateTimeTime, result.DateTimeTime);
+      Assert.AreEqual(expected.DateTimeYear, result.DateTimeYear);
+      Assert.AreEqual(expected.DateTimeMonth, result.DateTimeMonth);
+      Assert.AreEqual(expected.DateTimeDay, result.DateTimeDay);
+      Assert.AreEqual(expected.DateTimeHour, result.DateTimeHour);
+      Assert.AreEqual(expected.DateTimeMinute, result.DateTimeMinute);
+      Assert.AreEqual(expected.DateTimeSecond, result.DateTimeSecond);
+      Assert.AreEqual(expected.DateTimeDayOfYear, result.DateTimeDayOfYear);
+      Assert.AreEqual(expected.DateTimeDayOfWeek, result.DateTimeDayOfWeek);
+      Assert.AreEqual(expected.TimeSpan, result.TimeSpan);
+      Assert.AreEqual(expected.TimeSpanDays, result.TimeSpanDays);
+      Assert.AreEqual(expected.TimeSpanHours, result.TimeSpanHours);
+      Assert.AreEqual(expected.TimeSpanMinutes, result.TimeSpanMinutes);
+      Assert.AreEqual(expected.TimeSpanSeconds, result.TimeSpanSeconds);
+      Assert.AreEqual(expected.TimeSpanTotalDays, result.TimeSpanTotalDays);
+      Assert.AreEqual(expected.TimeSpanTotalHours, result.TimeSpanTotalHours);
+      Assert.AreEqual(expected.TimeSpanTotalMinutes, result.TimeSpanTotalMinutes);
+      Assert.AreEqual(expected.TimeSpanTotalSeconds, result.TimeSpanTotalSeconds);
+      Assert.AreEqual(expected.TimeSpanTicks, result.TimeSpanTicks);
+      Assert.AreEqual(expected.TimeSpanDuration, result.TimeSpanDuration);
     }
   }
 }
