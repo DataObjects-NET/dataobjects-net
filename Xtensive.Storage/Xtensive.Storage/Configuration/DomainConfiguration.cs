@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Configuration
 
     private string name = string.Empty;
     private UrlInfo connectionInfo;
-    private TypeRegistry types = new TypeRegistry(new PersistentTypeRegistrationHandler());
+    private TypeRegistry types = new TypeRegistry(new SessionBoundTypeRegistrationHandler());
     private CollectionBaseSlim<Type> builders = new CollectionBaseSlim<Type>();
     private NamingConvention namingConvention = new NamingConvention();
     private int keyCacheSize = DefaultKeyCacheSize;
@@ -345,18 +345,6 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets the services configuration.
-    /// </summary>
-    public UnityTypeElementCollection Services
-    {
-      get { return services; }
-      set {
-        this.EnsureNotLocked();
-        services = value;
-      }
-    }
-
-    /// <summary>
     /// Locks the instance and (possible) all dependent objects.
     /// </summary>
     /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
@@ -374,6 +362,15 @@ namespace Xtensive.Storage.Configuration
     /// <inheritdoc/>
     public override void Validate()
     {
+    }
+
+    internal UnityTypeElementCollection Services
+    {
+      get { return services; }
+      set {
+        this.EnsureNotLocked();
+        services = value;
+      }
     }
 
     /// <inheritdoc/>

@@ -27,6 +27,12 @@ namespace Xtensive.Core.Collections
     private readonly HashSet<TypeRegistration> actionSet = new HashSet<TypeRegistration>();
     private readonly ITypeRegistrationHandler processor;
     private bool isProcessingPendingActions = false;
+    private readonly Set<Assembly> assemblies = new Set<Assembly>();
+
+    /// <summary>
+    /// Gets assemblies containing registered types.
+    /// </summary>
+    public Set<Assembly> Assemblies{ get { return assemblies; } }
 
     /// <summary>
     /// Determines whether the specified <see cref="Type"/> is contained in this instance.
@@ -54,6 +60,7 @@ namespace Xtensive.Core.Collections
           return;
         types.Add(type);
         typeSet.Add(type);
+        assemblies.Add(type.Assembly);
       }
     }
 
@@ -126,6 +133,8 @@ namespace Xtensive.Core.Collections
     public override void Lock(bool recursive)
     {
       ProcessPendingActions();
+      assemblies.Lock(true);
+      base.Lock(recursive);
     }
 
     #region ICloneable members
@@ -202,6 +211,7 @@ namespace Xtensive.Core.Collections
       types = new List<Type>(typeRegistry.types);
       typeSet = new HashSet<Type>(typeRegistry.typeSet);
       processor = typeRegistry.processor;
+      assemblies = new Set<Assembly>(typeRegistry.assemblies);
     }
   }
 }

@@ -14,13 +14,18 @@ namespace Xtensive.Storage.Tests.Storage
 {
   namespace Services
   {
-    public class SimpleService
+    public class SimpleService : SessionBound
     {
       private int value;
 
       public int Value
       {
         get { return value; }
+      }
+
+      public CoreServiceAccessor GetCoreServices()
+      {
+        return CoreServices;
       }
 
       public SimpleService(int value)
@@ -47,6 +52,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using(domain.OpenSession()) {
         using (Transaction.Open()) {
+          Assert.IsNotNull(Session.Current.Services.Get<SimpleService>("ss1").GetCoreServices());
           var ss1_1 = Session.Current.Services.Get<SimpleService>("ss1");
           var ss1_2 = Session.Current.Services.Get<SimpleService>("ss1");
           Assert.AreSame(ss1_1, ss1_2);

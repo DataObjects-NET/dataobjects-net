@@ -1349,6 +1349,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unauthorized access. The declaration of the caller&apos;s type is not in a registered assembly..
+        /// </summary>
+        internal static string ExUnauthorizedAccessDeclarationOfCallerTypeIsNotInRegisteredAssembly {
+            get {
+                return ResourceManager.GetString("ExUnauthorizedAccessDeclarationOfCallerTypeIsNotInRegisteredAssembly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unknown entity serialization kind &apos;{0}&apos;..
         /// </summary>
         internal static string ExUnknownEntitySerializationKindX {

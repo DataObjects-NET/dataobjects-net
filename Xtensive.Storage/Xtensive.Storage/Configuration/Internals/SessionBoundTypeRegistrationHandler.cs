@@ -10,17 +10,17 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Storage.Configuration.Internals
 {
   /// <summary>
-  /// <see cref="ITypeRegistrationHandler"/> for processing <see cref="Persistent"/> 
+  /// <see cref="ITypeRegistrationHandler"/> for processing <see cref="SessionBound"/> 
   /// and <see cref="IEntity"/> descendants registration in 
   /// <see cref="DomainConfiguration.Types"/> registry.
   /// </summary>
   /// <remarks>This implementation provides topologically sorted list 
   /// of <see cref="Type"/>s.</remarks>
   [Serializable]
-  public sealed class PersistentTypeRegistrationHandler : TypeRegistrationHandlerBase
+  public sealed class SessionBoundTypeRegistrationHandler : TypeRegistrationHandlerBase
   {
     private readonly static Type baseInterface = typeof (IEntity);
-    private readonly static Type baseType = typeof (Persistent);
+    private readonly static Type baseType = typeof (SessionBound);
 
     /// <inheritdoc/>
     public Type BaseInterface

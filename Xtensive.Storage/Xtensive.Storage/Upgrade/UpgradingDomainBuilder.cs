@@ -17,6 +17,7 @@ using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Upgrade.Hints;
 using Assembly = System.Reflection.Assembly;
@@ -110,7 +111,7 @@ namespace Xtensive.Storage.Upgrade
           var assembly = type.Assembly;
           var handlers = context.UpgradeHandlers;
           return
-            handlers.ContainsKey(assembly)
+            handlers.ContainsKey(assembly) && TypeFilteringHelper.IsPersistentType(type)
               && handlers[assembly].IsTypeAvailable(type, context.Stage);
         },
         FieldFilter = field => {

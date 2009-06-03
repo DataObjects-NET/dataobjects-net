@@ -713,4 +713,7 @@ Actions:
   <data name="ExTypeXMustBelongToHierarchy" xml:space="preserve">
     <value>Type '{0}' must belong to hierarchy.</value>
   </data>
+  <data name="ExUnauthorizedAccessDeclarationOfCallerTypeIsNotInRegisteredAssembly" xml:space="preserve">
+    <value>Unauthorized access. The declaration of the caller's type is not in a registered assembly.</value>
+  </data>
 </root>

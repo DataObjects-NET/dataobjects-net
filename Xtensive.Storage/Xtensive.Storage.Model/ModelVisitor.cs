@@ -26,9 +26,6 @@ namespace Xtensive.Storage.Model
       var domainModel = node as DomainModel;
       if (domainModel != null)
         return VisitDomainModel(domainModel);
-      var serviceInfo = node as ServiceInfo;
-      if (serviceInfo != null)
-        return VisitServiceInfo(serviceInfo);
       var generator = node as GeneratorInfo;
       if (generator != null)
         return VisitGeneratorInfo(generator);
@@ -122,13 +119,6 @@ namespace Xtensive.Storage.Model
     /// <param name="generator">The generator.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitGeneratorInfo(GeneratorInfo generator);
-
-    /// <summary>
-    /// Visits a service.
-    /// </summary>
-    /// <param name="serviceInfo">The service.</param>
-    /// <returns>Visit result.</returns>
-    protected abstract TResult VisitServiceInfo(ServiceInfo serviceInfo);
 
     /// <summary>
     /// Visits domain model.

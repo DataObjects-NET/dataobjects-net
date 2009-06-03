@@ -6,6 +6,7 @@
 
 using System;
 using Microsoft.Practices.Unity;
+using Xtensive.Core.Aspects;
 
 namespace Xtensive.Storage
 {
@@ -14,17 +15,20 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed class ServiceProvider : SessionBound
   {
-    private readonly IUnityContainer servicesContainer;
+    private readonly IUnityContainer serviceContainer;
 
     /// <summary>
     /// Gets the service of specified type.
     /// </summary>
     /// <typeparam name="TService">The type of the service.</typeparam>
     /// <returns>Resolved service.</returns>
+    [Infrastructure]
     public TService Get<TService>()
      where TService : class
     {
-      return servicesContainer.Resolve<TService>();
+      using (Session.Activate()) {
+        return serviceContainer.Resolve<TService>();
+      }
     }
 
     /// <summary>
@@ -33,10 +37,13 @@ namespace Xtensive.Storage
     /// <typeparam name="TService">The type of the service.</typeparam>
     /// <param name="name">The name of the service.</param>
     /// <returns>Resolved service.</returns>
+    [Infrastructure]
     public TService Get<TService>(string name)
       where TService : class
     {
-      return servicesContainer.Resolve<TService>(name);
+      using (Session.Activate()) {
+        return serviceContainer.Resolve<TService>(name);
+      }
     }
 
     /// <summary>
@@ -44,9 +51,12 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="type">The type.</param>
     /// <returns>Resolved service.</returns>
+    [Infrastructure]
     public object Get(Type type)
     {
-      return servicesContainer.Resolve(type);
+      using (Session.Activate()) {
+        return serviceContainer.Resolve(type);
+      }
     }
 
     /// <summary>
@@ -55,9 +65,12 @@ namespace Xtensive.Storage
     /// <param name="type">The service type type.</param>
     /// <param name="name">The service name.</param>
     /// <returns>Resolved service.</returns>
+    [Infrastructure]
     public object Get(Type type, string name)
     {
-      return servicesContainer.Resolve(type, name);
+      using (Session.Activate()) {
+        return serviceContainer.Resolve(type, name);
+      }
     }
 
 
@@ -66,7 +79,7 @@ namespace Xtensive.Storage
     internal ServiceProvider(Session session)
       : base(session)
     {
-      servicesContainer = session.Domain.ServiceContainer.CreateChildContainer();
+      serviceContainer = session.Domain.ServiceContainer.CreateChildContainer();
     }
   }
 }

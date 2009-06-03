@@ -20,11 +20,6 @@ namespace Xtensive.Storage.Model
     internal readonly object unlockKey = new object();
 
     /// <summary>
-    /// Gets the services contained in this instance.
-    /// </summary>
-    public ServiceInfoCollection Services { get; private set; }
-
-    /// <summary>
     /// Gets the <see cref="TypeInfo"/> instances contained in this instance.
     /// </summary>
     public TypeInfoCollection Types { get; private set; }
@@ -61,7 +56,6 @@ namespace Xtensive.Storage.Model
       base.Lock(recursive);
       if (!recursive)
         return;
-      Services.Lock(true);
       Hierarchies.Lock(true);
       Generators.Lock(true);
       Types.Lock(true);
@@ -77,7 +71,6 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public DomainModel()
     {
-      Services = new ServiceInfoCollection();
       Types = new TypeInfoCollection();
       RealIndexes = new IndexInfoCollection();
       Hierarchies = new HierarchyInfoCollection();

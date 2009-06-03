@@ -224,7 +224,8 @@ namespace Xtensive.Storage.Building.Builders
 
     private static Func<Type, bool> GetTypeFilter()
     {
-      var filter = BuildingContext.Current.BuilderConfiguration.TypeFilter ?? (t => true);
+      var filter = BuildingContext.Current.BuilderConfiguration.TypeFilter 
+        ?? TypeFilteringHelper.IsPersistentType;
       return (t => filter(t) && t!=typeof (EntitySetItem<,>));
     }
 

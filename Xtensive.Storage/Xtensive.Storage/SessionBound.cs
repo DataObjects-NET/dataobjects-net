@@ -10,6 +10,7 @@ using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Aspects;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -42,9 +43,9 @@ namespace Xtensive.Storage
     protected internal CoreServiceAccessor CoreServices {
       [DebuggerStepThrough]
       get {
-        // TODO: Add check for services also.
-        if (!Session.Domain.Model.Types.Contains(GetType()))
-          throw new InvalidOperationException("Unauthorized access. Caller is not registered in model.");
+        if (!Session.Domain.Configuration.Types.Assemblies.Contains(GetType().Assembly))
+          throw new InvalidOperationException(
+            Strings.ExUnauthorizedAccessDeclarationOfCallerTypeIsNotInRegisteredAssembly);
         return session.CoreServices;
       }
     }

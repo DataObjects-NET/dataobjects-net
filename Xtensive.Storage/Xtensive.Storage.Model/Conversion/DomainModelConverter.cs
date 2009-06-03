@@ -441,13 +441,6 @@ namespace Xtensive.Storage.Model.Conversion
     {
       throw new NotSupportedException();
     }
-    
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitServiceInfo(ServiceInfo serviceInfo)
-    {
-      throw new NotSupportedException();
-    }
 
     #endregion
   }
