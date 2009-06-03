@@ -289,20 +289,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="keyTuple">The <see cref="Tuple"/> that will be used for key building.</param>
-    /// <remarks>Use this kind of constructor when you need to explicitly set key for this instance.</remarks>
-    protected Entity(Tuple keyTuple)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
-      Key key = Key.Create(GetTypeInfo(), keyTuple, true);
-      State = Session.CreateEntityState(key);
-      OnInitializing(true);
-      this.Validate();
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
     /// <param name="values">The field values that will be used for key building.</param>
     /// <remarks>Use this kind of constructor when you need to explicitly set key for this instance.</remarks>
     protected Entity(params object[] values)
