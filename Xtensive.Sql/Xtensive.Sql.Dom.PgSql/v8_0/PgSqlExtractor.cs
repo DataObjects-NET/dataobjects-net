@@ -515,9 +515,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
               i.IsClustered = isClustered;
               i.IsUnique = isUnique;
               i.Filegroup = tablespaceName;
-
-              ReadSpecialIndexProperties(dr, i);
-
+              
               //index columns
               string[] indKeyArray = indKey.Split(' ');
               for (int j = 0; j < indKeyArray.Length; j++) {
@@ -532,6 +530,8 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
                   //which is not possible with SqlDom tables
                 }
               }
+
+              ReadSpecialIndexProperties(dr, i);
             }
           }
         }
