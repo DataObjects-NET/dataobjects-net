@@ -4,8 +4,11 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.31
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using NUnit.Framework;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Configuration;
 using Xtensive.Core.Disposing;
 using Xtensive.Storage.Rse;
@@ -42,7 +45,14 @@ namespace Xtensive.Storage.Tests
 
     protected virtual Domain BuildDomain(DomainConfiguration configuration)
     {
-      return Domain.Build(configuration);
+      try {
+        return Domain.Build(configuration);
+      }
+      catch (Exception e) {
+        Log.Error(GetType().GetFullName());
+        Log.Error(e);
+        throw;
+      }
     }
 
     protected RecordSet GetRecordSet<T>() where T : Entity
