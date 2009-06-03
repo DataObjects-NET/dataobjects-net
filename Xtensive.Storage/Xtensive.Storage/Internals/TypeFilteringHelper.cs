@@ -12,9 +12,8 @@ namespace Xtensive.Storage.Internals
   {
     public static bool IsPersistentType(Type type)
     {
-      var persistent = typeof (Persistent);
-      return type!=persistent && persistent.IsAssignableFrom(type)
-        || persistent.IsAssignableFrom(typeof (IEntity));
+      return type.IsSubclassOf(typeof(Persistent))
+        || (type.IsInterface && typeof(IEntity).IsAssignableFrom(type));
     }
   }
 }
