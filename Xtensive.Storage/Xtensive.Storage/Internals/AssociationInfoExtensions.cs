@@ -37,7 +37,10 @@ namespace Xtensive.Storage.Internals
         break;
       case Multiplicity.ZeroToMany:
       case Multiplicity.ManyToMany:
-        index = association.UnderlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(association.IsMaster ? 0 : 1).First();
+          if (association.IsMaster) 
+            index = association.UnderlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
+          else
+            index = association.Master.UnderlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
         keyTuple = referencedObject.Key.Value;
         recordSet = index.ToRecordSet().Range(keyTuple, keyTuple);
         foreach (var item in recordSet)
