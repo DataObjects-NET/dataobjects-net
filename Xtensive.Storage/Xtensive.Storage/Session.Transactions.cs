@@ -21,6 +21,31 @@ namespace Xtensive.Storage
     public Transaction Transaction { get; private set; }
 
     /// <summary>
+    /// Occurs on <see cref="Transaction"/> opening.
+    /// </summary>
+    public EventHandler<TransactionEventArgs> OnOpenTransaction;
+
+    /// <summary>
+    /// Occurs when <see cref="Transaction"/> is about to commit.
+    /// </summary>
+    public EventHandler<TransactionEventArgs> OnCommittingTransaction;
+
+    /// <summary>
+    /// Occurs when <see cref="Transaction"/> committed.
+    /// </summary>
+    public EventHandler<TransactionEventArgs> OnCommitTransaction;
+
+    /// <summary>
+    /// Occurs when <see cref="Transaction"/> is about to rollback.
+    /// </summary>
+    public EventHandler<TransactionEventArgs> OnRollbackingTransaction;
+
+    /// <summary>
+    /// Occurs when <see cref="Transaction"/> rolled back.
+    /// </summary>
+    public EventHandler<TransactionEventArgs> OnRollbackTransaction;
+
+    /// <summary>
     /// Opens a new or already running transaction.
     /// </summary>
     /// <param name="isolationLevel">The isolation level.</param>
@@ -109,28 +134,65 @@ namespace Xtensive.Storage
 
     #region OnXxx event-like methods
 
-    internal void OnBeginTransaction()
+    internal void BeginTransaction()
     {
       Handler.BeginTransaction();
+      NotifyOpenTransaction(Transaction);
+
     }
 
-    internal void OnCommitTransaction()
+    private void NotifyOpenTransaction(Transaction transaction)
+    {
+      if (OnOpenTransaction!=null)
+        OnOpenTransaction(this, new TransactionEventArgs(transaction));
+    }
+
+    private void NotifyCommittingTransaction(Transaction transaction)
+    {
+      if (OnCommittingTransaction!=null)
+        OnCommittingTransaction(this, new TransactionEventArgs(transaction));
+    }
+
+    private void NotifyCommitTransaction(Transaction transaction)
+    {
+      if (OnCommitTransaction!=null)
+        OnCommitTransaction(this, new TransactionEventArgs(transaction));
+    }
+
+    private void NotifyRollbackingTransaction(Transaction transaction)
+    {
+      if (OnRollbackingTransaction!=null)
+        OnRollbackingTransaction(this, new TransactionEventArgs(transaction));
+    }
+
+    private void NotifyRollbackTransaction(Transaction transaction)
+    {
+      if (OnRollbackTransaction!=null)
+        OnRollbackTransaction(this, new TransactionEventArgs(transaction));
+    }
+
+
+    internal void CommitTransaction()
     {
       try {
         Persist();
+        NotifyCommittingTransaction(Transaction);
         Handler.CommitTransaction();
-        OnCompleteTransaction();
+        NotifyCommitTransaction(Transaction);
+        CompleteTransaction();
       }
       catch {        
-        OnRollbackTransaction();
+        RollbackTransaction();
         throw;
       }
     }
 
-    internal void OnRollbackTransaction()
+    internal void RollbackTransaction()
     {
       try {
+        NotifyRollbackingTransaction(Transaction);
         Handler.RollbackTransaction();
+        NotifyRollbackTransaction(Transaction);
       }
       finally {
         foreach (var item in EntityStateRegistry.GetItems(PersistenceState.New))
@@ -140,11 +202,11 @@ namespace Xtensive.Storage
         foreach (var item in EntityStateRegistry.GetItems(PersistenceState.Removed))
           item.PersistenceState = PersistenceState.Synchronized;
         EntityStateRegistry.Clear();
-        OnCompleteTransaction();
+        CompleteTransaction();
       }
     }
 
-    private void OnCompleteTransaction()
+    private void CompleteTransaction()
     {
       Transaction = null;
     }

@@ -33,6 +33,16 @@ namespace Xtensive.Storage
     IDisposableContainer
   {
     /// <summary>
+    /// Occurs on <see cref="Session"/> opening.
+    /// </summary>
+    public EventHandler<SessionEventArgs> OnOpenSession;
+
+    /// <summary>
+    /// Occurs when <see cref="Domain"/> is about to <see cref="Dispose"/>.
+    /// </summary>
+    public EventHandler OnDisposing;
+
+    /// <summary>
     /// Gets the current <see cref="Domain"/> object
     /// using <see cref="Session"/>. <see cref="Session.Current"/>.
     /// </summary>
@@ -128,7 +138,7 @@ namespace Xtensive.Storage
       get { return Handlers.DomainHandler; }
     }
 
-    #region Private \ internal properties
+    #region Private \ internal members
 
     internal HandlerAccessor Handlers { get; private set; }
 
@@ -139,6 +149,18 @@ namespace Xtensive.Storage
     internal ICache<MethodInfo, Pair<MethodInfo, ParameterizedResultExpression>> QueryCache { get; private set; }
 
     internal Dictionary<AssociationInfo, ActionSet> PairSyncActions { get; private set; }
+
+    private void NotifyOpenSession(Session session)
+    {
+      if (OnOpenSession!=null)
+        OnOpenSession(this, new SessionEventArgs(session));
+    }
+
+    private void NotifyDisposing()
+    {
+      if (OnDisposing!=null)
+        OnDisposing(this, EventArgs.Empty);
+    }
 
     #endregion
 
@@ -188,6 +210,7 @@ namespace Xtensive.Storage
         Log.Debug("Opening session '{0}'", configuration);
 
       var session = new Session(this, configuration);
+      NotifyOpenSession(session);
       return new SessionConsumptionScope(session);
     }
 
@@ -237,17 +260,20 @@ namespace Xtensive.Storage
 
     private void Dispose(bool isDisposing)
     {
-      if (DisposingState == DisposingState.None) lock(this) if (DisposingState == DisposingState.None) {
-        DisposingState = DisposingState.Disposing;
-        try {
-          if (IsDebugEventLoggingEnabled)
-            Log.Debug("Domain disposing {0}.", isDisposing ? "explicitly" : "by calling finalizer.");
-          KeyGenerators.DisposeSafely();
-        }
-        finally {
-          DisposingState=DisposingState.Disposed;
-        }
-      }
+      if (DisposingState==DisposingState.None)
+        lock (this)
+          if (DisposingState==DisposingState.None) {
+            DisposingState = DisposingState.Disposing;
+            try {
+              if (IsDebugEventLoggingEnabled)
+                LogTemplate<Log>.Debug("Domain disposing {0}.", isDisposing ? "explicitly" : "by calling finalizer.");
+              NotifyDisposing();
+              KeyGenerators.DisposeSafely();
+            }
+            finally {
+              DisposingState = DisposingState.Disposed;
+            }
+          }
     }
   }
 }

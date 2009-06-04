@@ -35,6 +35,35 @@ namespace Xtensive.Storage
     private readonly object _lock = new object();
     private ServiceProvider serviceProvider;
 
+    /// <summary>
+    /// Occurs when <see cref="Session"/> is about to <see cref="Dispose"/>.
+    /// </summary>
+    public EventHandler OnDisposing;
+
+    /// <summary>
+    /// Occurs when <see cref="Session"/> is about to <see cref="Persist"/>.
+    /// </summary>
+    public EventHandler OnPersisting;
+
+    /// <summary>
+    /// Occurs when <see cref="Session"/> persisted.
+    /// </summary>
+    public EventHandler OnPersist;
+
+    /// <summary>
+    /// Occurs when <see cref="Entity"/> created.
+    /// </summary>
+    public EventHandler<EntityEventArgs> OnCreateEntity;
+
+    /// <summary>
+    /// Occurs when <see cref="Entity"/> is about to remove.
+    /// </summary>
+    public EventHandler<EntityEventArgs> OnRemovingEntity;
+
+    /// <summary>
+    /// Occurs when <see cref="Entity"/> removed.
+    /// </summary>
+    public EventHandler<EntityEventArgs> OnRemoveEntity;
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -53,7 +82,7 @@ namespace Xtensive.Storage
     /// </summary>
     public bool IsDebugEventLoggingEnabled { get; private set; }
 
-    #region Private \ internal properties
+    #region Private \ internal members
 
     internal SessionHandler Handler { get; private set; }
     
@@ -64,6 +93,42 @@ namespace Xtensive.Storage
     internal SyncManager PairSyncManager { get; private set; }
 
     internal ReferenceManager ReferenceManager { get; private set; }
+
+    private void NotifyDisposing()
+    {
+      if (OnDisposing!=null)
+        OnDisposing(this, EventArgs.Empty);
+    }
+
+    private void NotifyPersisting()
+    {
+      if (OnPersisting!=null)
+        OnPersisting(this, EventArgs.Empty);
+    }
+
+    private void NotifyPersist()
+    {
+      if (OnPersist!=null)
+        OnPersist(this, EventArgs.Empty);
+    }
+
+    internal void NotifyCreateEntity(Entity entity)
+    {
+      if (OnCreateEntity!=null)
+        OnCreateEntity(this, new EntityEventArgs(entity));
+    }
+
+    internal void NotifyRemovingEntity(Entity entity)
+    {
+      if (OnRemovingEntity!=null)
+        OnRemovingEntity(this, new EntityEventArgs(entity));
+    }
+
+    internal void NotifyRemoveEntity(Entity entity)
+    {
+      if (OnRemoveEntity!=null)
+        OnRemoveEntity(this, new EntityEventArgs(entity));
+    }
 
     #endregion
 
@@ -100,11 +165,13 @@ namespace Xtensive.Storage
 
         if (IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Persisting...", this);
+        NotifyPersisting();
 
         Handler.Persist();
 
         if (IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Persisted.", this);
+        NotifyPersist();
 
         foreach (var item in EntityStateRegistry.GetItems(PersistenceState.New))
           item.PersistenceState = PersistenceState.Synchronized;
@@ -273,7 +340,8 @@ namespace Xtensive.Storage
           return;
         try {
           if (IsDebugEventLoggingEnabled)
-            Log.Debug("Session '{0}'. Disposing.", this);          
+            Log.Debug("Session '{0}'. Disposing.", this);
+          NotifyDisposing();
           Handler.DisposeSafely();
         }
         finally {

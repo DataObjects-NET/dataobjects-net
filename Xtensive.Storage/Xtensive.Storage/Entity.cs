@@ -194,6 +194,8 @@ namespace Xtensive.Storage
 
       if (Session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
+      if(notify)
+        Session.NotifyRemovingEntity(this);
 
       State.EnsureNotRemoved();
 
@@ -202,8 +204,10 @@ namespace Xtensive.Storage
       Session.Persist();
       State.PersistenceState = PersistenceState.Removed;
 
-      if (notify)
+      if (notify) {
         OnRemove();
+        Session.NotifyRemoveEntity(this);
+      }
     }
 
     #endregion
@@ -283,6 +287,7 @@ namespace Xtensive.Storage
       Key key = Key.Create(GetTypeInfo());
       State = Session.CreateEntityState(key);
       OnInitializing(true);
+      Session.NotifyCreateEntity(this);
       this.Validate();
     }
 
@@ -307,6 +312,7 @@ namespace Xtensive.Storage
       Key key = Key.Create(GetTypeInfo(), true, values);
       State = Session.CreateEntityState(key);
       OnInitializing(true);
+      Session.NotifyCreateEntity(this);
       this.Validate();
     }
 
