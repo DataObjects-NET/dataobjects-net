@@ -137,8 +137,10 @@ namespace Xtensive.Storage.Providers.Sql
 
     private static int GetFieldIndex(TypeInfo type, ColumnInfo column)
     {
-      var field = type.Fields[column.Field.Name];
-      return field == null ? -1 : field.MappingInfo.Offset;
+      FieldInfo field;
+      if (!type.Fields.TryGetValue(column.Field.Name, out field))
+        return -1;
+      return field.MappingInfo.Offset;
     }
 
     private static Func<Tuple, object> GetTupleFieldAccessor(int fieldIndex)
