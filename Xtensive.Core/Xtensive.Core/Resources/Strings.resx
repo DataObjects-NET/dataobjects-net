@@ -639,4 +639,7 @@
   <data name="ExLambdaParameterXIsOutOfScope" xml:space="preserve">
     <value>Lambda parameter '{0}' is out of scope.</value>
   </data>
+  <data name="ExArgumentXIsLessThanArgumentY" xml:space="preserve">
+    <value>The argument '{0}' is less than the argument '{1}'.</value>
+  </data>
 </root>

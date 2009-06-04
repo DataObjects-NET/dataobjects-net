@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xtensive.Core.Comparison;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Collections
 {
@@ -18,6 +19,10 @@ namespace Xtensive.Core.Collections
   /// </summary>
   public static class EnumerableExtensions
   {
+    private const int defaultInitialBatchSize = 8;
+    private const int defaultMaximalBatchSize = 1024;
+    private const int defaultFirstFastCount = 0;
+
     /// <summary>
     /// Applies the specified <paramref name="action"/> to all the items 
     /// from the <paramref name="items"/> sequence.
@@ -452,6 +457,131 @@ namespace Xtensive.Core.Collections
       if (!ReferenceEquals(value, null))
         source = source.Union(EnumerableUtils.One(value));
       return source;
+    }
+
+    /// <summary>
+    /// Splits the specified <see cref="IEnumerable{T}"/> into batches.
+    /// </summary>
+    /// <typeparam name="T">The type of enumerated items.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="firstFastCount">The count of the source sequence's items 
+    /// which will be returned without batching.</param>
+    /// <param name="initialBatchSize">The initial size of a batch.</param>
+    /// <param name="maximalBatchSize">The maximal sized of a batch.</param>
+    /// <returns>The source sequence split into batches.</returns>
+    public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int firstFastCount,
+      int initialBatchSize, int maximalBatchSize)
+    {
+      ArgumentValidator.EnsureArgumentIsInRange(initialBatchSize, 0, int.MaxValue, "initialBatchSize");
+      ArgumentValidator.EnsureArgumentIsInRange(maximalBatchSize, 0, int.MaxValue, "maximalBatchSize");
+      if(maximalBatchSize < initialBatchSize)
+        throw new ArgumentException(String.Format(Strings.ExArgumentXIsLessThanArgumentY,
+          "maximalBatchSize", "initialBatchSize"));
+      var currentCount = 0;
+      var currentBatchSize = initialBatchSize;
+      using (var enumerator = source.GetEnumerator()) {
+        while (currentCount < firstFastCount && enumerator.MoveNext()) {
+          currentCount++;
+          yield return EnumerableUtils.One(enumerator.Current);
+        }
+        while (enumerator.MoveNext()) {
+          currentCount = 0;
+          var batch = new List<T>(currentBatchSize);
+          do {
+            batch.Add(enumerator.Current);
+            currentCount++;
+          } while (currentCount < currentBatchSize && enumerator.MoveNext());
+          if(currentBatchSize < maximalBatchSize) {
+            currentBatchSize *= 2;
+            if(currentBatchSize > maximalBatchSize)
+              currentBatchSize = maximalBatchSize;
+          }
+          yield return batch;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Splits the specified <see cref="IEnumerable{T}"/> into batches.
+    /// </summary>
+    /// <typeparam name="T">The type of enumerated items.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <returns>The source sequence split into batches.</returns>
+    public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source)
+    {
+      return source.Batch(defaultFirstFastCount, defaultInitialBatchSize, defaultMaximalBatchSize);
+    }
+
+    /// <summary>
+    /// Splits the specified <see cref="IEnumerable{T}"/> into batches.
+    /// </summary>
+    /// <typeparam name="T">The type of enumerated items.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="firstFastCount">The count of the source sequence's items 
+    /// which will be returned without batching.</param>
+    /// <returns>The source sequence split into batches.</returns>
+    public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int firstFastCount)
+    {
+      return source.Batch(firstFastCount, defaultInitialBatchSize, defaultMaximalBatchSize);
+    }
+
+    /// <summary>
+    /// Invokes the specified delegate before the enumeration of each batch.
+    /// </summary>
+    /// <typeparam name="T">The type of enumerated items.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="action">The delegate that will be invoked before 
+    /// the enumeration of each batch.</param>
+    /// <returns>The source sequence.</returns>
+    public static IEnumerable<IEnumerable<T>> ApplyBefore<T>(this IEnumerable<IEnumerable<T>> source,
+      Action action)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(action, "action");
+      return source.ApplyBeforeAndAfter(action, null);
+    }
+
+    /// <summary>
+    /// Invokes the specified delegate after the enumeration of each batch.
+    /// </summary>
+    /// <typeparam name="T">The type of enumerated items.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="action">The delegate that will be invoked after 
+    /// the enumeration of each batch.</param>
+    /// <returns>The source sequence.</returns>
+    public static IEnumerable<IEnumerable<T>> ApplyAfter<T>(this IEnumerable<IEnumerable<T>> source,
+      Action<IEnumerable<T>> action)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(action, "action");
+      return source.ApplyBeforeAndAfter(null, action);
+    }
+
+    /// <summary>
+    /// Invokes specified delegates before and after the enumeration of each batch.
+    /// </summary>
+    /// <typeparam name="T">The type of enumerated items.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="beforeAction">The delegate that will be invoked before 
+    /// the enumeration of each batch. Set this parameter to <see langword="null" /> to omit 
+    /// the invocation.</param>
+    /// <param name="afterAction">The delegate that will be invoked after 
+    /// the enumeration of each batch. Set this parameter to <see langword="null" /> to omit 
+    /// the invocation.
+    /// <returns>The source sequence.</returns>
+    public static IEnumerable<IEnumerable<T>> ApplyBeforeAndAfter<T>(this IEnumerable<IEnumerable<T>> source,
+      Action beforeAction, Action<IEnumerable<T>> afterAction)
+    {
+      using (var enumerator = source.GetEnumerator()) {
+        while (true) {
+          if(beforeAction != null)
+            beforeAction.Invoke();
+          if (!enumerator.MoveNext())
+            yield break;
+          var batch = enumerator.Current;
+          if(afterAction != null)
+            afterAction.Invoke(batch);
+          yield return batch;
+        }
+      }
     }
   }
 }

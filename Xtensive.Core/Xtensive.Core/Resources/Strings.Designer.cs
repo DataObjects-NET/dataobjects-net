@@ -196,6 +196,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The argument &apos;{0}&apos; is less than the argument &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExArgumentXIsLessThanArgumentY {
+            get {
+                return ResourceManager.GetString("ExArgumentXIsLessThanArgumentY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Array does not have zero-based indexing..
         /// </summary>
         internal static string ExArrayDoesNotHaveZeroBasedIndexing {
