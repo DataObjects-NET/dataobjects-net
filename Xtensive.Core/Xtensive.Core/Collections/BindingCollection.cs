@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Notifications;
 
 namespace Xtensive.Core.Collections
 {
@@ -23,6 +24,7 @@ namespace Xtensive.Core.Collections
   public sealed class BindingCollection<TKey, TValue> : ICountable<KeyValuePair<TKey, TValue>>
   {
     private readonly Dictionary<TKey, TValue> bindings = new Dictionary<TKey, TValue>();
+    private readonly HashSet<TKey> permanentBindings = new HashSet<TKey>();
 
     /// <summary>
     /// Gets the number of currently bound items.
@@ -59,12 +61,32 @@ namespace Xtensive.Core.Collections
       TValue previous;
       if (bindings.TryGetValue(key, out previous)) {
         bindings[key] = value;
-        return new Disposable((isDisposing) => bindings[key] = previous);
+        return new Disposable((isDisposing) => {
+          if (!permanentBindings.Contains(key))
+            bindings[key] = previous;
+        });
       }
       else {
         bindings.Add(key, value);
-        return new Disposable((isDisposing) => bindings.Remove(key));
+        return new Disposable((isDisposing) => {
+          if (!permanentBindings.Contains(key))
+            bindings.Remove(key);
+        });
       }
+    }
+
+    /// <summary>
+    /// Binds the specified <paramref name="value"/> to <paramref name="key"/>.
+    /// </summary>
+    /// <param name="key">The key to bind to.</param>
+    /// <param name="value">The value to bind.</param>
+    /// <returns><see langword="null" />, so this binding will not be removed.</returns>
+    public Disposable PermanentAdd(TKey key, TValue value)
+    {
+      bindings[key] = value;
+      if (!permanentBindings.Contains(key))
+        permanentBindings.Add(key);
+      return null;
     }
 
     /// <summary>
