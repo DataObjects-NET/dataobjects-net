@@ -46,17 +46,9 @@ namespace Xtensive.Core.Tests.Collections
       var count = 0;
       Assert.AreEqual(totalCount / batchSize, batches.ApplyBeforeAndAfter(() => count++, null).Count());
       Assert.AreEqual(totalCount / batchSize + 1, count);
-      var takenCount = 1;
-      var remainedCount = totalCount;
-      batches = source.Batch(1, 2, totalCount);
-      batches.ApplyBeforeAndAfter(null, (e) => {
-        Assert.AreEqual(takenCount, e.Count());
-        remainedCount = remainedCount - takenCount;
-        if(remainedCount > takenCount)
-          takenCount *= 2;
-        else
-          takenCount = remainedCount;
-      }).Count();
+      count = 0;
+      Assert.AreEqual(totalCount / batchSize, batches.ApplyBeforeAndAfter(null, () => count++).Count());
+      Assert.AreEqual(totalCount / batchSize + 1, count);
     }
   }
 }

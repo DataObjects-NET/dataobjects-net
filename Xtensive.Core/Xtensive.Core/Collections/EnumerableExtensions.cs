@@ -549,7 +549,7 @@ namespace Xtensive.Core.Collections
     /// the enumeration of each batch.</param>
     /// <returns>The source sequence.</returns>
     public static IEnumerable<IEnumerable<T>> ApplyAfter<T>(this IEnumerable<IEnumerable<T>> source,
-      Action<IEnumerable<T>> action)
+      Action action)
     {
       ArgumentValidator.EnsureArgumentNotNull(action, "action");
       return source.ApplyBeforeAndAfter(null, action);
@@ -568,17 +568,22 @@ namespace Xtensive.Core.Collections
     /// the invocation.
     /// <returns>The source sequence.</returns>
     public static IEnumerable<IEnumerable<T>> ApplyBeforeAndAfter<T>(this IEnumerable<IEnumerable<T>> source,
-      Action beforeAction, Action<IEnumerable<T>> afterAction)
+      Action beforeAction, Action afterAction)
     {
       using (var enumerator = source.GetEnumerator()) {
         while (true) {
           if(beforeAction != null)
             beforeAction.Invoke();
-          if (!enumerator.MoveNext())
-            yield break;
-          var batch = enumerator.Current;
-          if(afterAction != null)
-            afterAction.Invoke(batch);
+          IEnumerable<T> batch;
+          try {
+            if (!enumerator.MoveNext())
+              yield break;
+            batch = enumerator.Current;
+          }
+          finally {
+            if (afterAction!=null)
+              afterAction.Invoke();
+          }
           yield return batch;
         }
       }
