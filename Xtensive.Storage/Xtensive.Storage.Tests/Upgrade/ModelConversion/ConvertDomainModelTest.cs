@@ -7,18 +7,14 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Disposing;
 using Xtensive.Storage.Building;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
-using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model;
-using Xtensive.Storage.Upgrade;
 using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
-  
   [TestFixture]
   public class ConvertDomainModelTest
   {
@@ -28,7 +24,12 @@ namespace Xtensive.Storage.Tests.Upgrade
     
     protected Domain BuildDomain(string protocol)
     {
-      var dc = DomainConfigurationFactory.Create(protocol);
+      DomainConfiguration dc;
+      if (protocol == null)
+        dc = DomainConfigurationFactory.Create();
+      else
+        dc = DomainConfigurationFactory.Create(protocol);
+
       dc.UpgradeMode = DomainUpgradeMode.Recreate;
       dc.ForeignKeyMode = ForeignKeyMode.Reference;
       dc.Types.Register(Assembly.GetExecutingAssembly(), typeof (A).Namespace);
@@ -40,7 +41,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     [SetUp]
     public virtual void SetUp()
     {
-      Schema = BuildDomain("mssql2005").Schema;
+      Schema = BuildDomain(null).Schema;
     }
 
     [Test]

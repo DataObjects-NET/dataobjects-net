@@ -5,6 +5,7 @@
 // Created:    2009.05.27
 
 using System;
+using NUnit.Framework;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
@@ -14,6 +15,7 @@ using Xtensive.Storage.Providers.Sql;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
+  [Explicit("Requires PostgreSQL")]
   public sealed class PgSqlActionTranslatorTest : SqlActionTranslatorTest
   {
     protected override string GetConnectionUrl()
@@ -44,6 +46,8 @@ namespace Xtensive.Storage.Tests.Upgrade
         return new TypeInfo(dataType.Type, false, length);
       }
     }
+
+    protected override bool IsIncludedColumnsSupported { get { return false; } }
 
     protected override SqlModelConverter CreateSqlModelConverter(Schema storageSchema,
       Func<ISqlCompileUnit, object> commandExecutor, Func<SqlValueType, TypeInfo> valueTypeConverter)

@@ -5,13 +5,11 @@
 // Created:    2009.05.30
 
 using System;
-using System.Diagnostics;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version1
 {
   [Serializable]
-  [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
+  [HierarchyRoot]
   public class A : Entity
   {
     [Field, KeyField]

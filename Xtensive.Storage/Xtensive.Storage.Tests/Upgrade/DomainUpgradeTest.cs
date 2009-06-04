@@ -19,8 +19,6 @@ namespace Xtensive.Storage.Tests.Upgrade
   [TestFixture]
   public class DomainUpgradeTest
   {
-    private const string protocol = "mssql2005";
-
     private Domain domain;
 
     [SetUp]
@@ -178,9 +176,8 @@ namespace Xtensive.Storage.Tests.Upgrade
       if (domain != null)
         domain.DisposeSafely();
 
-      var configuration = DomainConfigurationFactory.Create(protocol);
+      var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.ForeignKeyMode = ForeignKeyMode.All;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Storage.Tests.Upgrade.Model.Version" + version);
       using (Upgrader.Enable(version)) {
@@ -193,7 +190,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       if (domain != null)
         domain.DisposeSafely();
 
-      var configuration = DomainConfigurationFactory.Create(protocol);
+      var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       foreach (var type in types)
         configuration.Types.Register(type);

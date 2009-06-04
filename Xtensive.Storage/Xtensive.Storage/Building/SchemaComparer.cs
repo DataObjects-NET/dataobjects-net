@@ -37,8 +37,18 @@ namespace Xtensive.Storage.Building
         ? EnumerableUtils<NodeAction>.Empty 
         : new Upgrader().GetUpgradeSequence(difference, hints, comparer)
       };
-      return new SchemaComparisonResult(GetComparisonStatus(hints, actions), 
-        hints, difference, actions);
+      var status = GetComparisonStatus(hints, actions);
+      return new SchemaComparisonResult(status, hints, difference, actions);
+    }
+
+    private static bool IsCanPerformed(SchemaComparisonStatus status, ActionSequence upgradeActions, HintSet hints)
+    {
+      return true;
+    }
+
+    private static bool IsCanPerformedSafely(SchemaComparisonStatus status, ActionSequence upgradeActions, HintSet hints)
+    {
+      return true;
     }
 
     private static SchemaComparisonStatus GetComparisonStatus(HintSet hints, ActionSequence upgradeActions)

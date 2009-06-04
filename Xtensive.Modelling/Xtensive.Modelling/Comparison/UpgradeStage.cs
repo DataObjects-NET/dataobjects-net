@@ -12,7 +12,7 @@ namespace Xtensive.Modelling.Comparison
   public enum UpgradeStage
   {
     /// <summary>
-    /// 
+    /// Remove unnecesery structures.
     /// </summary>
     Prepare,
     /// <summary>

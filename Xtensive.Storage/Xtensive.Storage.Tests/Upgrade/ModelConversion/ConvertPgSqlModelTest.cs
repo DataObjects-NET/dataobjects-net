@@ -9,6 +9,7 @@ using NUnit.Framework;
 namespace Xtensive.Storage.Tests.Upgrade
 {
   [TestFixture]
+  [Explicit("Requires PostgreSQL")]
   public sealed class ConvertPgSqlModelTest : ConvertDomainModelTest
   {
     [SetUp]

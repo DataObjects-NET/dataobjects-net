@@ -5,13 +5,11 @@
 // Created:    2009.05.30
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Stored;
 using Xtensive.Storage.Upgrade;
@@ -24,8 +22,6 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
   [TestFixture]
   public class DataUpgradeTest
   {
-    private const string protocol = "mssql2005";
-
     private Domain domain;
     private StoredDomainModel storedModel;
 
@@ -87,9 +83,8 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
       if (domain != null)
         domain.DisposeSafely();
 
-      var configuration = DomainConfigurationFactory.Create(protocol);
+      var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.ForeignKeyMode = ForeignKeyMode.All;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version" + version);
       using (Upgrader.Enable(version)) {
@@ -102,9 +97,8 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
       if (domain != null)
         domain.DisposeSafely();
 
-      var configuration = DomainConfigurationFactory.Create(protocol);
+      var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.ForeignKeyMode = ForeignKeyMode.All;
       foreach (var type in types)
         configuration.Types.Register(type);
       using (Upgrader.Enable("1")) {

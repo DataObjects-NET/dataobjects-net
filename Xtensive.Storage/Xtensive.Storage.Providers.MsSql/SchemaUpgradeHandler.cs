@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using Xtensive.Core.Collections;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Storage.Indexing.Model;
@@ -16,7 +17,9 @@ using Xtensive.Sql.Common;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
-  [Serializable]
+  /// <summary>
+  /// Upgrades storage schema.
+  /// </summary>
   public class SchemaUpgradeHandler : Sql.SchemaUpgradeHandler
   {
     private SqlConnection Connection
@@ -37,7 +40,6 @@ namespace Xtensive.Storage.Providers.MsSql
         if (string.IsNullOrEmpty(batch))
           continue;
         using (var command = new SqlCommand(Connection)) {
-          Log.Info(batch);
           command.CommandText = batch;
           command.Prepare();
           command.Transaction = Transaction;
@@ -57,7 +59,6 @@ namespace Xtensive.Storage.Providers.MsSql
 
     private static TypeInfo ConvertType(SqlValueType valueType)
     {
-      // var typeMapper = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper;
       var sessionHandeler = (SessionHandler) BuildingContext.Demand().SystemSessionHandler;
       var dataTypes = sessionHandeler.Connection.Driver.ServerInfo.DataTypes;
       var nativeType = sessionHandeler.Connection.Driver.Translator.Translate(valueType);
@@ -85,7 +86,7 @@ namespace Xtensive.Storage.Providers.MsSql
         ExtractStorageSchema(),
         Connection.Driver,
         valueTypeMapper.BuildSqlValueType,
-        sourceSchema, targetSchema);
+        sourceSchema, targetSchema, true);
 
       var delimiter = Connection.Driver.Translator.BatchStatementDelimiter;
       var batch = new List<string>();
@@ -94,7 +95,22 @@ namespace Xtensive.Storage.Providers.MsSql
       batch.Add(string.Join(delimiter, translator.DataManipulateCommands.ToArray()));
       batch.Add(string.Join(delimiter, translator.PostUpgradeCommands.ToArray()));
 
+      WriteToLog(delimiter, translator);
+
       return batch;
+    }
+
+    private void WriteToLog(string delimiter, SqlActionTranslator translator)
+    {
+      var logDelimiter = delimiter + Environment.NewLine;
+      var logBatch = new List<string>();
+      translator.PreUpgradeCommands.Apply(logBatch.Add);
+      translator.UpgradeCommands.Apply(logBatch.Add);
+      translator.DataManipulateCommands.Apply(logBatch.Add);
+      translator.PostUpgradeCommands.Apply(logBatch.Add);
+      if (logBatch.Count > 0)
+        Log.Info("Upgrade DDL: {0}", 
+          Environment.NewLine + string.Join(logDelimiter, logBatch.ToArray()));
     }
 
   }

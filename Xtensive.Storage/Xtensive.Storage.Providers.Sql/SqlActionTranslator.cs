@@ -30,11 +30,12 @@ using Xtensive.Modelling.Comparison.Hints;
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
-  /// Translates actions to Sql.
+  /// Translates upgrade <see cref="NodeAction"/>s to Sql.
   /// </summary>
   [Serializable]
   public sealed class SqlActionTranslator
   {
+    private readonly bool buildDomainForTimeSpan;
     private readonly ActionSequence actions;
     private readonly Schema schema;
 
@@ -331,7 +332,9 @@ namespace Xtensive.Storage.Providers.Sql
       var table = FindTable(oldTableInfo.Name);
       RegisterCommand(SqlFactory.Rename(table, action.Name));
       oldTableInfo.Name = action.Name;
+      schema.Tables.Remove(table);
       table.Name = action.Name;
+      schema.Tables.Add(table);
     }
     
     private void VisitAlterTableAction(NodeAction action)
@@ -411,7 +414,10 @@ namespace Xtensive.Storage.Providers.Sql
         var column = FindColumn(oldColumnInfo.Parent.Name, oldColumnInfo.Name);
         RegisterCommand(SqlFactory.Rename(column, action.Name));
         oldColumnInfo.Name = action.Name;
+        var table = FindTable(column.Table.Name);
+        table.TableColumns.Remove(column);
         column.Name = action.Name;
+        table.TableColumns.Add(column);
       }
     }
 
@@ -588,8 +594,8 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var type = GetSqlType(columnInfo.Type);
       var column = table.CreateColumn(columnInfo.Name, type);
-      if (columnInfo.Type.Type==typeof (TimeSpan)
-        || columnInfo.Type.Type==typeof (TimeSpan?))
+      if (buildDomainForTimeSpan && (columnInfo.Type.Type==typeof (TimeSpan)
+        || columnInfo.Type.Type==typeof (TimeSpan?)))
         column.Domain = GetTimeSpanDomain();
       column.IsNullable = columnInfo.Type.IsNullable;
       return column;
@@ -788,7 +794,7 @@ namespace Xtensive.Storage.Providers.Sql
     // Constructor
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="actions">The actions to translate.</param>
     /// <param name="schema">The schema.</param>
@@ -796,15 +802,17 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="valueTypeBuilder">The value type builder.</param>
     /// <param name="sourceModel">The source model.</param>
     /// <param name="targetModel">The target model.</param>
+    /// <param name="buildDomainForTimeSpan">if set to <see langword="true"/> build domain for time span column types.</param>
     public SqlActionTranslator(ActionSequence actions, Schema schema, SqlDriver driver,
       Func<Type, int, SqlValueType> valueTypeBuilder, 
-      StorageInfo sourceModel, StorageInfo targetModel)
+      StorageInfo sourceModel, StorageInfo targetModel, bool buildDomainForTimeSpan)
     {
       ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
       ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
       ArgumentValidator.EnsureArgumentNotNull(valueTypeBuilder, "valueTypeBuilder");
-
+      
+      this.buildDomainForTimeSpan = buildDomainForTimeSpan;
       this.schema = schema;
       this.driver = driver;
       this.actions = actions;

@@ -168,7 +168,7 @@ namespace Xtensive.Modelling.Comparison
           // Build movement info
           difference.MovementInfo = BuildMovementInfo(source, target);
           // Detect data changes
-          difference.IsDataChanged = IsDataChanged(difference);
+          difference.IsDataChanged = HasDataChangeHint(difference);
         }
 
         difference.PropertyChanges.Clear();
@@ -178,7 +178,7 @@ namespace Xtensive.Modelling.Comparison
 
         // Check if remove on cleanup
         if (difference.IsRemoved()) {
-          var nodeProperties = GetNodeProperties(difference);
+          var nodeProperties = GetPropertyDifferences(difference);
           difference.IsRemoveOnCleanup = HasDependencies(source) 
             || nodeProperties.Any(nodeProperty => nodeProperty.IsRemoveOnCleanup);
         }
@@ -187,6 +187,12 @@ namespace Xtensive.Modelling.Comparison
       }
     }
 
+    /// <summary>
+    /// Builds the <see cref="MovementInfo"/> by specific source and target nodes.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <param name="target">The target.</param>
+    /// <returns>Movement info.</returns>
     protected virtual MovementInfo BuildMovementInfo(Node source, Node target)
     {
       MovementInfo movementInfo = 0;
@@ -229,6 +235,12 @@ namespace Xtensive.Modelling.Comparison
       return movementInfo;
     }
 
+    /// <summary>
+    /// Compares source and target node properties.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <param name="target">The target.</param>
+    /// <param name="difference">The difference.</param>
     protected virtual void CompareProperties(Node source, Node target, NodeDifference difference)
     {
       var any = source ?? target;
@@ -256,7 +268,7 @@ namespace Xtensive.Modelling.Comparison
             if (IsIgnored(sourceValue))
               difference.MovementInfo = 0;
             else
-              propertyDifference = GetReferencedPropertyDifference(sourceValue, targetValue);
+              propertyDifference = GetReferencedPropertyDifference(sourceValue, targetValue, target, property.Name);
           }
 
           if (propertyDifference==null)
@@ -276,27 +288,40 @@ namespace Xtensive.Modelling.Comparison
       }
     }
 
-    protected Difference GetReferencedPropertyDifference(object sourceValue, object targetValue)
+    /// <summary>
+    /// Gets the referenced property difference.
+    /// </summary>
+    /// <param name="sourceValue">The source value.</param>
+    /// <param name="targetValue">The target value.</param>
+    /// <param name="target">The target.</param>
+    /// <param name="property">The property.</param>
+    /// <returns>Difference.</returns>
+    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
+    protected Difference GetReferencedPropertyDifference(object sourceValue, object targetValue, Node target, string property)
     {
 
       if (targetValue!=null && sourceValue!=null) {
         Difference referencedPropertyDifference = null;
         if (Results.TryGetValue(targetValue, out referencedPropertyDifference))
-          if (HasChanges(referencedPropertyDifference))
-            return new ValueDifference(sourceValue, targetValue);
+          return HasChanges(referencedPropertyDifference) 
+            ? new ValueDifference(sourceValue, targetValue) 
+            : null;
 
-        return null;
+        throw new InvalidOperationException(string.Format(
+        Strings.ExNodeXMustBeProcessedBeforeBeingComparedAsReferenceValueOfYZ,
+        targetValue, target, property));
       }
 
       return new ValueDifference(sourceValue, targetValue);
-      //else
-      //  difference.MovementInfo = 0;
-      //throw new InvalidOperationException(string.Format(
-      //  Strings.ExNodeXMustBeProcessedBeforeBeingComparedAsReferenceValueOfYZ,
-      //  targetValue, target, property));
+      
     }
 
-    protected IEnumerable<NodeDifference> GetNodeProperties(NodeDifference difference)
+    /// <summary>
+    /// Gets the property differences for each property of type <see cref="Node"/> or <see cref="NodeCollection"/>.
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    /// <returns>Property differences set.</returns>
+    protected IEnumerable<NodeDifference> GetPropertyDifferences(NodeDifference difference)
     {
       return
         difference.PropertyChanges.Values.OfType<NodeDifference>().Union(
@@ -517,12 +542,6 @@ namespace Xtensive.Modelling.Comparison
     protected bool HasDependencies(Node source)
     {
       return Hints.HetHints(source);
-
-      //var isIdentityParameter = Hints.OfType<CopyDataHint>()
-      //  .SelectMany(copyHint => copyHint.IdentityParameters)
-      //  .Any(copyCondition => copyCondition.Source==source.Path
-      //    || copyCondition.Target==source.Path);
-
     }
 
     /// <summary>
@@ -578,18 +597,30 @@ namespace Xtensive.Modelling.Comparison
       return false;
     }
 
-    protected bool IsDataChanged(NodeDifference difference)
+    /// <summary>
+    /// Determines whether <see cref="Hints"/> contains data change hints.
+    /// </summary>
+    /// <param name="difference">The difference.</param>
+    /// <returns>
+    /// <see langword="true"/> if data change hints exists; otherwise, <see langword="false"/>.
+    /// </returns>
+    protected bool HasDataChangeHint(NodeDifference difference)
     {
       if (difference.Source==null)
         return false;
 
-      var copyData = Hints.GetHints<CopyDataHint>(difference.Source).Any();
-      var removeData = Hints.GetHints<DeleteDataHint>(difference.Source).Any();// .Any(hint=>hint.TablePath==difference.Source.Path);
-      var updated = Hints.GetHints<UpdateDataHint>(difference.Source).Any(); // (hint => hint.TablePath == difference.Source.Path);
-
-      return copyData || removeData || updated;
+      return Hints.GetHints<CopyDataHint>(difference.Source).Any()
+        || Hints.GetHints<DeleteDataHint>(difference.Source).Any()
+        || Hints.GetHints<UpdateDataHint>(difference.Source).Any();
     }
 
+    /// <summary>
+    /// Determines whether the specified value must be ignored in comparison.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified value must be ignored; otherwise, <see langword="false"/>.
+    /// </returns>
     protected bool IsIgnored(object value)
     {
       return value is Node && Hints.GetHint<IgnoreHint>(value as Node)!=null;

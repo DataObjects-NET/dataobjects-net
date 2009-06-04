@@ -5,6 +5,7 @@
 // Created:    2009.05.27
 
 using System;
+using NUnit.Framework;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
@@ -14,12 +15,15 @@ using Xtensive.Storage.Providers.Sql;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
+  [Explicit("Requires MSSQL servers")]
   public sealed class MsSqlActionTranslatorTest : SqlActionTranslatorTest
   {
     protected override string GetConnectionUrl()
     {
       return "mssql2005://localhost/DO40-Tests";
     }
+
+    protected override bool IsIncludedColumnsSupported { get { return true; } }
 
     protected override TypeInfo ConvertType(SqlValueType valueType)
     {

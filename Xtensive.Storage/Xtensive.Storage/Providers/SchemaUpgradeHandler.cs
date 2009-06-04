@@ -8,8 +8,7 @@ using System;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
-using Xtensive.Storage.Model;
-using Xtensive.Storage.Model.Conversion;
+using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Providers
 {
@@ -23,10 +22,11 @@ namespace Xtensive.Storage.Providers
     /// Gets the target schema.
     /// </summary>
     /// <returns>The target schema.</returns>
-    public virtual StorageInfo GetTargetSchema()
+    public StorageInfo GetTargetSchema()
     {
-      var buildingContext = BuildingContext.Current;
+      var buildingContext = BuildingContext.Demand();
       var generatorFactory = Handlers.HandlerFactory.CreateHandler<KeyGeneratorFactory>();
+      var domainHandler = Handlers.DomainHandler;
 
       var buildForeignKeys =
         (buildingContext.Configuration.ForeignKeyMode
@@ -34,11 +34,12 @@ namespace Xtensive.Storage.Providers
       var buildHierarchyForeignKeys =
         (buildingContext.Configuration.ForeignKeyMode
           & ForeignKeyMode.Hierarchy) > 0;
-      
+      var providerInfo = domainHandler.ProviderInfo;
+
       var domainModelConverter = new DomainModelConverter(
         buildForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName,
         buildHierarchyForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName,
-         generatorFactory.IsSchemaBoundGenerator);
+         generatorFactory.IsSchemaBoundGenerator, providerInfo);
 
       return domainModelConverter.Convert(buildingContext.Model);
     }

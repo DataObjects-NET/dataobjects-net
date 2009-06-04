@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
@@ -299,7 +300,7 @@ namespace Xtensive.Modelling.Comparison
             Path = source.Path,
             Parent = target.Parent==null ? string.Empty : target.Parent.Path,
             Name = target.Name,
-            Index = target.Nesting.IsNestedToCollection ? (int?) target.Index : null,
+            Index = target.Nesting.IsNestedToCollection ? (int?) source.Index : null,
             NewPath = target.Path
           };
           AddAction(UpgradeActionType.PostCondition, action);
@@ -321,7 +322,7 @@ namespace Xtensive.Modelling.Comparison
       TemporaryRenames.Add(source.Path, CurrentModel.Resolve(source.Path) as Node);
 
       var children = source.PropertyAccessors.Values
-        .Where(pa => pa.IsDataContainer).Select(pa=>pa.Getter.Invoke(source));
+        .Where(pa => !pa.IsImmutable).Select(pa=>pa.Getter.Invoke(source));
       foreach (var child in children) {
         var childNode = child as Node;
         if (childNode != null) {
@@ -378,7 +379,13 @@ namespace Xtensive.Modelling.Comparison
     protected virtual void VisitNodeCollectionDifference(NodeCollectionDifference difference)
     {
       using (OpenActionGroup(string.Format(NodeCollectionGroupComment, Context.Property))) {
-        foreach (var newDifference in difference.ItemChanges)
+        var itemChanges = difference.ItemChanges;
+        if (Stage == UpgradeStage.Upgrade)
+          itemChanges = itemChanges.Where(nodeDifference =>
+            (nodeDifference.MovementInfo & MovementInfo.NameChanged)!=0)
+            .Concat(itemChanges.Where(nodeDifference =>
+              (nodeDifference.MovementInfo & MovementInfo.NameChanged)==0)).ToList();
+        foreach (var newDifference in itemChanges)
           Visit(newDifference);
       }
     }
@@ -535,8 +542,17 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>Temporary node name.</returns>
     protected virtual string GetTemporaryName(Node node)
     {
-      var tempSuffix = Guid.NewGuid().ToString("N").Substring(0, 16);
-      return string.Format(TemporaryNameFormat, tempSuffix);
+      var currentNode = CurrentModel.Resolve(node.Path) as Node;
+      var collection = currentNode.Parent.GetProperty(currentNode.Nesting.PropertyName) as NodeCollection;
+      if (collection==null)
+        return node.Name;
+      
+      var tempName = string.Format(TemporaryNameFormat, node.Name);
+      var counter = 0;
+      while (collection.Contains(tempName))
+        tempName = string.Format(TemporaryNameFormat, node.Name + ++counter);
+
+      return tempName;
     }
 
     /// <summary>

@@ -42,6 +42,10 @@ namespace Xtensive.Modelling.Tests
     {
       var storage = CreateSimpleStorageModel();
       TestUpdate(storage, (s1, s2, hs) => {
+        new ColumnInfo(s1.Tables["Types"], "Temp_Data", new TypeInfo(typeof (int)));
+        RepopulateValueColumns(s1, "Types");
+        new ColumnInfo(s2.Tables["Types"], "Temp_Data", new TypeInfo(typeof (int)));
+        RepopulateValueColumns(s2, "Types");
         var oldTTypes = s1.Tables["Types"];
         var oldCValue = oldTTypes.Columns["Value"];
         var oldCData = oldTTypes.Columns["Data"];
@@ -62,6 +66,25 @@ namespace Xtensive.Modelling.Tests
         hs.Add(new RenameHint(oldCValue.Path, newCValue.Path));
         hs.Add(new RenameHint(oldTTypes.Path, newTTypes.Path));
         hs.Add(new RenameHint(oldTObjects.Path, newTObjects.Path));
+      },
+        (diff, actions) => { });
+    }
+
+    [Test]
+    public void MutualRenameTest2()
+    {
+      var storage = CreateSimpleStorageModel();
+      TestUpdate(storage, (s1, s2, hs) => {
+        var types = s2.Resolve("Tables/Types") as TableInfo;
+        var objects= s2.Resolve("Tables/Objects") as TableInfo;
+        types.Name = "Temp";
+        objects.Name = "Types";
+        types.Name = "Objects";
+        types.Columns["Value"].Name = "NewValue";
+        RepopulateValueColumns(s2, "Objects");
+        hs.Add(new RenameHint("Tables/Types", "Tables/Objects"));
+        hs.Add(new RenameHint("Tables/Objects", "Tables/Types"));
+        hs.Add(new RenameHint("Tables/Types/Columns/Value", "Tables/Objects/Columns/NewValue"));
       },
         (diff, actions) => { });
     }
@@ -213,6 +236,23 @@ namespace Xtensive.Modelling.Tests
           where cna!=null && cna.Name=="FK_TypeId"
           select a;
         Assert.IsTrue(query.Any());
+      });
+    }
+
+    [Test]
+    public void RenameTest4()
+    {
+      var storage = new StorageInfo(".");
+      new TableInfo(storage, "Employee");
+      
+      TestUpdate(storage, (s1, s2, hs) => {
+        s2.Tables.Clear();
+        new TableInfo(s2, "Employee");
+        new TableInfo(s2, "RcEmployee");
+        
+        hs.Add(new RenameHint("Tables/Employee", "Tables/RcEmployee"));
+      },
+      (diff, actions) => {
       });
     }
 

@@ -11,7 +11,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version2
 {
   [Serializable]
-  [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
+  [HierarchyRoot]
   public class A : Entity
   {
     [Field, KeyField]

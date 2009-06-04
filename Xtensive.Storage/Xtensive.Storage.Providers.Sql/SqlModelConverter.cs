@@ -219,10 +219,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>Data type.</returns>
     protected virtual TypeInfo ExtractType(TableColumn column)
     {
-      if (column.Domain!=null && column.Domain.Name==SqlWellknown.TimeSpanDomainName)
-        return new TypeInfo(
-          column.IsNullable ? typeof (TimeSpan?) : typeof (TimeSpan), column.IsNullable);
-
       var typeInfo = ValueTypeConverter.Invoke(column.DataType);
 
       if (column.IsNullable) {
@@ -319,7 +315,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

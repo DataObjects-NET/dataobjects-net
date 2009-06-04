@@ -24,6 +24,7 @@ namespace Xtensive.Storage.Providers
     private bool supportsRealBoolean;
     private bool supportsForeignKeyConstraints;
     private bool supportsClusteredIndexes;
+    private bool supportKeyColumnSortOrder;
     private int maxQueryLength;
     private int maxComparisonOperations;
     private int databaseNameLength;
@@ -105,6 +106,17 @@ namespace Xtensive.Storage.Providers
       set {
         LockableExtensions.EnsureNotLocked(this);
         supportsClusteredIndexes = value;
+      }
+    }
+
+    /// <summary>
+    /// Indicates that RDBMS supports index key columns ordering .
+    /// </summary>
+    public bool SupportKeyColumnSortOrder {
+      get { return supportKeyColumnSortOrder; }
+      set {
+        this.EnsureNotLocked();
+        supportKeyColumnSortOrder = value;
       }
     }
 
@@ -323,6 +335,8 @@ namespace Xtensive.Storage.Providers
       supportsRealBoolean = serverInfo.DataTypes.Boolean!=null;
       supportsIncludedColumns = (serverInfo.Index.Features & IndexFeatures.NonKeyColumns)
         ==IndexFeatures.NonKeyColumns;
+      supportKeyColumnSortOrder = (serverInfo.Index.Features & IndexFeatures.SortOrder)
+        ==IndexFeatures.SortOrder;
       version = (Version)serverInfo.Version.ProductVersion.Clone();
     }
   }

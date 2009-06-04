@@ -31,8 +31,6 @@ namespace Xtensive.Modelling
     [NonSerialized]
     private bool isMutable;
     [NonSerialized]
-    private bool isDataContainer;
-    [NonSerialized]
     private Type dependencyRootType;
 
     /// <summary>
@@ -76,14 +74,6 @@ namespace Xtensive.Modelling
     /// </summary>
     public bool IsMutable {
       get { return isMutable; }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether 
-    /// underlying property is node described some data related object.
-    /// </summary>
-    public bool IsDataContainer {
-      get { return isDataContainer; }
     }
 
     /// <summary>

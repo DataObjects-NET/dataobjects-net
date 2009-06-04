@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Providers.Sql
               binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
               context.ParameterBindings.Add(column, binding);
             }
-            query.Values[table[i]] = binding.ParameterReference;
+            query.Values[table[column.Name]] = binding.ParameterReference;
           }
         }
         context.Batch.Add(query);
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Providers.Sql
               binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
               context.ParameterBindings.Add(column, binding);
             }
-            query.Values[table[i]] = binding.ParameterReference;
+            query.Values[table[column.Name]] = binding.ParameterReference;
           }
         }
 
@@ -130,7 +130,8 @@ namespace Xtensive.Storage.Providers.Sql
           binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
           context.ParameterBindings.Add(column, binding);
         }
-        expression &= table[i++]==binding.ParameterReference;
+        expression &= table[column.Name]==binding.ParameterReference;
+        i++;
       }
       return expression;
     }

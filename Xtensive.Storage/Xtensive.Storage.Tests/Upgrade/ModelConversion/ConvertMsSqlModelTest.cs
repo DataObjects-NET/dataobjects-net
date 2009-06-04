@@ -9,6 +9,7 @@ using NUnit.Framework;
 namespace Xtensive.Storage.Tests.Upgrade
 {
   [TestFixture]
+  [Explicit("Requires MSSQL servers")]
   public class ConvertMsSqlModelTest : ConvertDomainModelTest
   {
     [SetUp]

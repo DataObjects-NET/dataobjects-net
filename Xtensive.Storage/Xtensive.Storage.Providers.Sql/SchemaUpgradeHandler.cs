@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Modelling.Actions;
+using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
@@ -28,7 +29,6 @@ namespace Xtensive.Storage.Providers.Sql
   /// <summary>
   /// Upgrades storage schema.
   /// </summary>
-  [Serializable]
   public class SchemaUpgradeHandler : Providers.SchemaUpgradeHandler
   {
     /// <summary>
@@ -182,11 +182,21 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="generator">The generator.</param>
     protected virtual void BuildSequence(Schema schema, GeneratorInfo generator)
     {
-      var genTable = schema.CreateTable(generator.MappingName);
-      var columnType =
-        SessionHandler.DomainHandler.ValueTypeMapper.BuildSqlValueType(generator.TupleDescriptor[0], 0);
-      var column = genTable.CreateColumn("ID", columnType);
-      column.SequenceDescriptor = new SequenceDescriptor(column, generator.CacheSize, generator.CacheSize);
+      var isSequencesAllowed = (SessionHandler.Connection.Driver.ServerInfo.Sequence.Features & SequenceFeatures.None)==0;
+      if (isSequencesAllowed) {
+        var domainHandler = (DomainHandler) Handlers.DomainHandler;
+        var sequence = schema.CreateSequence(generator.MappingName);
+        sequence.SequenceDescriptor.StartValue = generator.CacheSize;
+        sequence.SequenceDescriptor.Increment = generator.CacheSize;
+        sequence.DataType = domainHandler.ValueTypeMapper.BuildSqlValueType(generator.TupleDescriptor[0], 0);
+      }
+      else {
+        var genTable = schema.CreateTable(generator.MappingName);
+        var columnType =
+          SessionHandler.DomainHandler.ValueTypeMapper.BuildSqlValueType(generator.TupleDescriptor[0], 0);
+        var column = genTable.CreateColumn(SqlWellknown.GeneratorColumnName, columnType);
+        column.SequenceDescriptor = new SequenceDescriptor(column, generator.CacheSize, generator.CacheSize);
+      }
     }
 
     private void CreateColumns(IndexInfo primaryIndex, Table table)

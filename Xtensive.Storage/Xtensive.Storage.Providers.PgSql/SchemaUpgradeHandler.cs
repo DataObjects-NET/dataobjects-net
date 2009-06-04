@@ -5,6 +5,10 @@
 // Created:    2009.04.09
 
 using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using Xtensive.Core.Collections;
+using Xtensive.Modelling.Actions;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
@@ -16,27 +20,79 @@ using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage.Providers.PgSql
 {
-  [Serializable]
+  /// <summary>
+  /// Upgrades storage schema.
+  /// </summary>
   public class SchemaUpgradeHandler : Sql.SchemaUpgradeHandler
   {
-    /// <inheritdoc/>
-    protected override void BuildSequence(Schema schema, GeneratorInfo generator)
+    private SqlConnection Connection
     {
-      var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      var sequence = schema.CreateSequence(generator.MappingName);
-      sequence.SequenceDescriptor.StartValue = generator.CacheSize;
-      sequence.SequenceDescriptor.Increment = generator.CacheSize;
-      sequence.DataType = domainHandler.ValueTypeMapper.BuildSqlValueType(generator.TupleDescriptor[0], 0);
+      get { return ((SessionHandler) Handlers.SessionHandler).Connection; }
     }
 
+    private DbTransaction Transaction
+    {
+      get { return ((SessionHandler) Handlers.SessionHandler).Transaction; }
+    }
+    
     /// <inheritdoc/>
     public override StorageInfo GetExtractedSchema()
     {
-      // return new StorageInfo();
       var schema = ExtractStorageSchema();
       var sessionHandeler = (SessionHandler) BuildingContext.Demand().SystemSessionHandler;
       var converter = new PgSqlModelConverter(schema, sessionHandeler.ExecuteScalar, ConvertType);
       return converter.GetConversionResult();
+    }
+
+    /// <inheritdoc/>
+    public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema)
+    {
+      var upgradeScript = GenerateUpgradeScript(upgradeActions, sourceSchema, targetSchema);
+      foreach (var batch in upgradeScript) {
+        if (string.IsNullOrEmpty(batch))
+          continue;
+        using (var command = new SqlCommand(Connection)) {
+          command.CommandText = batch;
+          command.Prepare();
+          command.Transaction = Transaction;
+          command.ExecuteNonQuery();
+        }
+      }
+    }
+
+    private List<string> GenerateUpgradeScript(ActionSequence actions, StorageInfo sourceSchema, StorageInfo targetSchema)
+    {
+      var valueTypeMapper = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper;
+      var translator = new SqlActionTranslator(
+        actions,
+        ExtractStorageSchema(),
+        Connection.Driver,
+        valueTypeMapper.BuildSqlValueType,
+        sourceSchema, targetSchema, false);
+
+      var delimiter = Connection.Driver.Translator.BatchStatementDelimiter;
+      var batch = new List<string>();
+      batch.Add(string.Join(delimiter, translator.PreUpgradeCommands.ToArray()));
+      batch.Add(string.Join(delimiter, translator.UpgradeCommands.ToArray()));
+      batch.Add(string.Join(delimiter, translator.DataManipulateCommands.ToArray()));
+      batch.Add(string.Join(delimiter, translator.PostUpgradeCommands.ToArray()));
+
+      WriteToLog(delimiter, translator);
+
+      return batch;
+    }
+
+    private void WriteToLog(string delimiter, SqlActionTranslator translator)
+    {
+      var logDelimiter = delimiter + Environment.NewLine;
+      var logBatch = new List<string>();
+      translator.PreUpgradeCommands.Apply(logBatch.Add);
+      translator.UpgradeCommands.Apply(logBatch.Add);
+      translator.DataManipulateCommands.Apply(logBatch.Add);
+      translator.PostUpgradeCommands.Apply(logBatch.Add);
+      if (logBatch.Count > 0)
+        Log.Info("Upgrade DDL: {0}", 
+          Environment.NewLine + string.Join(logDelimiter, logBatch.ToArray()));
     }
 
     private static TypeInfo ConvertType(SqlValueType valueType)
@@ -57,7 +113,8 @@ namespace Xtensive.Storage.Providers.PgSql
       else
         length = valueType.Size;
 
-      return new TypeInfo(dataType.Type, false, length);
+      var type = dataType!=null ? dataType.Type : typeof (object);
+      return new TypeInfo(type, false, length);
     }
   }
 }

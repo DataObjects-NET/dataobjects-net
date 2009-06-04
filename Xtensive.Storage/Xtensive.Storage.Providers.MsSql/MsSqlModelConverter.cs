@@ -15,6 +15,16 @@ namespace Xtensive.Storage.Providers.MsSql
 {
   internal sealed class MsSqlModelConverter : SqlModelConverter
   {
+    protected override TypeInfo ExtractType(TableColumn column)
+    {
+      if (column.Domain!=null && column.Domain.Name==SqlWellknown.TimeSpanDomainName)
+        return new TypeInfo(
+          column.IsNullable ? typeof (TimeSpan?) : typeof (TimeSpan), column.IsNullable);
+
+      return base.ExtractType(column);
+    }
+
+
     // Constructor
 
     /// <inheritdoc/>

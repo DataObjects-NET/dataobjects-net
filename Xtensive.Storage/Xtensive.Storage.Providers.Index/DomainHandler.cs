@@ -146,6 +146,7 @@ namespace Xtensive.Storage.Providers.Index
       result.SupportsForeignKeyConstraints = false;
       result.SupportsRealBoolean = true;
       result.SupportsIncludedColumns = true;
+      result.SupportKeyColumnSortOrder = true;
       result.Version = new Version(0, 3);
       return result;
     }

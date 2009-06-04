@@ -14,7 +14,6 @@ using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Sql.Dom;
 using Xtensive.Storage.Providers.Sql;
@@ -26,6 +25,7 @@ using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
 namespace Xtensive.Storage.Tests.Upgrade
 {
   [TestFixture]
+  [Explicit("Requires MSSQL servers")]
   public abstract class SqlActionTranslatorTest
   {
     [TestFixtureSetUp]
@@ -36,6 +36,8 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     protected abstract string GetConnectionUrl();
 
+    protected abstract bool IsIncludedColumnsSupported { get; }
+
     protected abstract TypeInfo ConvertType(SqlValueType valueType);
 
     protected string Url { get; private set; }
@@ -43,7 +45,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     protected abstract SqlModelConverter CreateSqlModelConverter(Schema storageSchema,
       Func<ISqlCompileUnit, object> commandExecutor, Func<SqlValueType, TypeInfo> valueTypeConverter);
 
-    private static StorageInfo BuildOldModel()
+    private StorageInfo BuildOldModel()
     {
       var storage = new StorageInfo();
       var t1 = new TableInfo(storage, "table1");
@@ -56,7 +58,8 @@ namespace Xtensive.Storage.Tests.Upgrade
       t1pk.PopulateValueColumns();
       var t1fk = new SecondaryIndexInfo(t1, "FK_Col1");
       new KeyColumnRef(t1fk, t1C1, Direction.Negative);
-      new IncludedColumnRef(t1fk, t1C2);
+      if (IsIncludedColumnsSupported)
+        new IncludedColumnRef(t1fk, t1C2);
       t1fk.PopulatePrimaryKeyColumns();
       
 
@@ -81,7 +84,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       return storage;
     }
 
-    private static StorageInfo BuildNewModel()
+    private StorageInfo BuildNewModel()
     {
       var storage = new StorageInfo();
       var t1 = new TableInfo(storage, "table1");
@@ -94,7 +97,8 @@ namespace Xtensive.Storage.Tests.Upgrade
       t1pk.PopulateValueColumns();
       var t1fk = new SecondaryIndexInfo(t1, "FK_Col1");
       new KeyColumnRef(t1fk, t1C1, Direction.Negative);
-      new IncludedColumnRef(t1fk, t1C3);
+      if (IsIncludedColumnsSupported)
+        new IncludedColumnRef(t1fk, t1C3);
       t1fk.PopulatePrimaryKeyColumns();
 
       var t3 = new TableInfo(storage, "table3");
@@ -114,46 +118,6 @@ namespace Xtensive.Storage.Tests.Upgrade
         Current = 5,
         Type = new TypeInfo(typeof (int))
       };
-
-      return storage;
-    }
-
-    private static StorageInfo BuildOldModel2()
-    {
-      var storage = new StorageInfo();
-      var t1 = new TableInfo(storage, "table1");
-      var t1Id = new ColumnInfo(t1, "Id", new TypeInfo(typeof (int)));
-      var t1C1 = new ColumnInfo(t1, "col1", new TypeInfo(typeof (int?), true));
-      var t1pk = new PrimaryIndexInfo(t1, "PK_table1");
-      new KeyColumnRef(t1pk, t1Id, Direction.Positive);
-      t1pk.PopulateValueColumns();
-      
-      var t3 = new TableInfo(storage, "table2");
-      var t3Id = new ColumnInfo(t3, "Id", new TypeInfo(typeof (int)));
-      var t3C1 = new ColumnInfo(t3, "col2", new TypeInfo(typeof (int?), true));
-      var t3pk = new PrimaryIndexInfo(t3, "PK_table3");
-      new KeyColumnRef(t3pk, t3Id, Direction.Positive);
-      t3pk.PopulateValueColumns();
-
-      return storage;
-    }
-
-    private static StorageInfo BuildNewModel2()
-    {
-      var storage = new StorageInfo();
-      var t1 = new TableInfo(storage, "table1");
-      var t1Id = new ColumnInfo(t1, "Id", new TypeInfo(typeof (int)));
-      var t1C1 = new ColumnInfo(t1, "col1", new TypeInfo(typeof (int?), true));
-      var t1C2 = new ColumnInfo(t1, "col2", new TypeInfo(typeof (int?), true));
-      var t1pk = new PrimaryIndexInfo(t1, "PK_table1");
-      new KeyColumnRef(t1pk, t1Id, Direction.Positive);
-      t1pk.PopulateValueColumns();
-      
-      var t2 = new TableInfo(storage, "table2");
-      var t2Id = new ColumnInfo(t2, "Id", new TypeInfo(typeof (int)));
-      var t2pk = new PrimaryIndexInfo(t2, "PK_table3");
-      new KeyColumnRef(t2pk, t2Id, Direction.Positive);
-      t2pk.PopulateValueColumns();
 
       return storage;
     }
@@ -180,52 +144,6 @@ namespace Xtensive.Storage.Tests.Upgrade
       var postUpgradeDifference = BuildDifference(newModel, ExtractModel(), null);
       Assert.IsNull(postUpgradeDifference);
     }
-
-    [Test]
-    public void MoveColumnTest()
-    {
-      ClearSchema();
-      var oldModel = BuildOldModel2();
-      Create(oldModel);
-      var newModel = BuildNewModel2();
-
-      var hints = new HintSet(oldModel, newModel);
-      // {
-      //  new CopyDataHint("Tables/table2/Columns/col2", "Tables/table1/Columns/col2",
-      //    new[] {new IdentityParameter("Tables/table2/Columns/Id", "Tables/table1/Columns/Id")})
-      // };
-
-      var actions = Compare(oldModel, newModel, hints);
-      Tests.Log.Info(actions.ToString());
-      
-      UpgradeCurrentSchema(oldModel, newModel, actions);
-      var diff = BuildDifference(newModel, ExtractModel(), null);
-      Assert.IsNull(diff);
-    }
-
-    # region SchemaManager tests
-
-    [Test]
-    public void CreateNewSchemaTest()
-    {
-      var model = BuildNewModel();
-      Create(model);
-      var storageModel = ExtractModel();
-      var diff = BuildDifference(model, storageModel, null);
-      Assert.IsNull(diff);
-    }
-
-    [Test]
-    public void CreateOldSchemaTest()
-    {
-      var model = BuildOldModel();
-      Create(model);
-      var storageModel = ExtractModel();
-      var diff = BuildDifference(model, storageModel, null);
-      Assert.IsNull(diff);
-    }
-
-    # endregion
 
     # region Helper methods
 
@@ -275,7 +193,7 @@ namespace Xtensive.Storage.Tests.Upgrade
         connection.Open();
         using (var transaction = connection.BeginTransaction()) {
           var translator = new SqlActionTranslator(actions, schema,
-            connection.Driver, BuildSqlValueType, oldModel, newModel);
+            connection.Driver, BuildSqlValueType, oldModel, newModel, false);
           var delimiter = connection.Driver.Translator.BatchStatementDelimiter;
           var batch = new List<string>();
           batch.Add(string.Join(delimiter, translator.PreUpgradeCommands.ToArray()));
