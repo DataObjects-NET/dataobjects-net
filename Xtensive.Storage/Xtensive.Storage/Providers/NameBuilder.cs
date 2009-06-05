@@ -201,9 +201,12 @@ namespace Xtensive.Storage.Providers
     {
       ArgumentValidator.EnsureArgumentNotNull(complexField, "complexField");
       ArgumentValidator.EnsureArgumentNotNull(childField, "childField");
-      if (complexField.Parent!=null)
-        return string.Concat(complexField.Parent.Name, ".", childField.Name);
-      return string.Concat(complexField.Name, ".", childField.Name);
+      var nameSource = complexField;
+      while (nameSource.Parent != null)
+        nameSource = nameSource.Parent;
+//      if (complexField.Parent!=null)
+//        return string.Concat(complexField.Parent.Name, ".", childField.Name);
+      return string.Concat(nameSource.Name, ".", childField.Name);
     }
 
 
@@ -215,9 +218,12 @@ namespace Xtensive.Storage.Providers
     public string BuildMappingName(FieldInfo complexField, FieldInfo childField)
     {
       Func<FieldInfo, string> getMappingName = f => f.MappingName ?? f.Name;
-      if (complexField.Parent != null)
-        return string.Concat(getMappingName(complexField.Parent), ".", getMappingName(childField));
-      return string.Concat(getMappingName(complexField), ".", getMappingName(childField));
+      var nameSource = complexField;
+      while (nameSource.Parent != null)
+        nameSource = nameSource.Parent;
+//      if (complexField.Parent != null)
+//        return string.Concat(getMappingName(complexField.Parent), ".", getMappingName(childField));
+      return string.Concat(getMappingName(nameSource), ".", getMappingName(childField));
     }
 
     /// <summary>

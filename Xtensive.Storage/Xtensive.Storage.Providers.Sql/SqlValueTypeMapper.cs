@@ -220,7 +220,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (dataTypeInfo.Type==typeof(char))
         return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), GetDbType(dataTypeInfo),
-          o => new string((char)o, 1), null);
+          o => new string((char) o, 1), null);
       return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), GetDbType(dataTypeInfo));
     }
 

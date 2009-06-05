@@ -173,4 +173,142 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version1
   }
 
   #endregion
+
+  #region Crazy association/structure nesting
+  
+  [HierarchyRoot]
+  [KeyGenerator(null)]
+  public class Entity1 : Entity
+  {
+    [KeyField, Field]
+    public int Id { get; private set; }
+
+    public Entity1(int id)
+      : base(id)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  [KeyGenerator(null)]
+  public class Entity2 : Entity
+  {
+    [KeyField(0), Field]
+    public int Id { get; private set; }
+
+    [KeyField(1), Field]
+    public Entity1 E1 { get; private set; }
+
+    public Entity2(int id, Entity1 e1)
+      : base(id, e1)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  [KeyGenerator(null)]
+  public class Entity3 : Entity
+  {
+    [KeyField(0), Field]
+    public int Id { get; private set; }
+
+    [KeyField(1), Field]
+    public Entity2 E2 { get; private set; }
+
+    public Entity3(int id, Entity2 e2)
+      : base(id, e2)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  [KeyGenerator(null)]
+  public class Entity4 : Entity
+  {
+    [KeyField(0), Field]
+    public int Id { get; private set; }
+
+    [KeyField(1), Field]
+    public Entity3 E3 { get; private set; }
+
+    public Entity4(int id, Entity3 e3)
+      : base(id, e3)
+    {
+    }
+  }
+  
+  public class Structure1 : Structure
+  {
+    [Field]
+    public Entity1 E1 { get; set; }
+  }
+
+  public class Structure2 : Structure
+  {
+    [Field]
+    public Structure1 S1 { get; set; }
+
+    [Field]
+    public Entity2 E2 { get; set; }
+  }
+
+  public class Structure3 : Structure
+  {
+    [Field]
+    public Structure2 S2 { get; set; }
+
+    [Field]
+    public Entity3 E3 { get; set; }
+  }
+
+  public class Structure4 : Structure
+  {
+    [Field]
+    public Structure3 S3 { get; set; }
+
+    [Field]
+    public Entity4 E4 { get; set; }
+  }
+  
+  [HierarchyRoot]
+  public class StructureContainer1 : Entity
+  {
+    [KeyField, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public Structure1 S1 { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class StructureContainer2 : Entity
+  {
+    [KeyField, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public Structure2 S2 { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class StructureContainer3 : Entity
+  {
+    [KeyField, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public Structure3 S3 { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class StructureContainer4 : Entity
+  {
+    [KeyField, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public Structure4 S4 { get; set; }
+  }
+
+  #endregion
 }

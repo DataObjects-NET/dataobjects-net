@@ -125,16 +125,11 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets a value indicating whether this property is contained by primary key.
+    /// Gets a value indicating whether this property is nested.
     /// </summary>
     public bool IsNested {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.Nested) != 0; }
-      [DebuggerStepThrough]
-      set {
-        this.EnsureNotLocked();
-        Attributes = value ? Attributes | FieldAttributes.Nested : Attributes & ~FieldAttributes.Nested;
-      }
+      get { return Parent != null; }
     }
 
     /// <summary>

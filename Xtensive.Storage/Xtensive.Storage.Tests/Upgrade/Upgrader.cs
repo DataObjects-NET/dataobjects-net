@@ -103,13 +103,49 @@ namespace Xtensive.Storage.Tests.Upgrade
         yield return new RenameTypeHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Girl", typeof (M2.Girl));
 
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Entity1", typeof (M2.Entity1));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Entity2", typeof (M2.Entity2));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Entity3", typeof (M2.Entity3));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Entity4", typeof (M2.Entity4));
+
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Structure1", typeof (M2.Structure1));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Structure2", typeof (M2.Structure2));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Structure3", typeof (M2.Structure3));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Structure4", typeof (M2.Structure4));
+
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.StructureContainer1", typeof (M2.StructureContainer1));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.StructureContainer2", typeof (M2.StructureContainer2));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.StructureContainer3", typeof (M2.StructureContainer3));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.StructureContainer4", typeof (M2.StructureContainer4));
+        
         // renaming fields
         yield return new RenameFieldHint(typeof (M2.Product), "Name", "Title");
         yield return new RenameFieldHint(typeof (M2.Product), "Category", "Group");
         yield return new RenameFieldHint(typeof (M2.ProductGroup), "Id", "GroupId");
         yield return new RenameFieldHint(typeof (M2.Boy), "FriendlyGirls", "MeetWith");
         yield return new RenameFieldHint(typeof (M2.Girl), "FriendlyBoys", "MeetWith");
+        yield return new RenameFieldHint(typeof (M2.Entity1), "Id", "Code");
+        yield return new RenameFieldHint(typeof (M2.Entity2), "Id", "Code");
+        yield return new RenameFieldHint(typeof (M2.Entity3), "Id", "Code");
+        yield return new RenameFieldHint(typeof (M2.Entity4), "Id", "Code");
         
+        yield return new RenameFieldHint(typeof (M2.Structure1), "E1", "MyE1");
+        yield return new RenameFieldHint(typeof (M2.Structure2), "E2", "MyE2");
+        yield return new RenameFieldHint(typeof (M2.Structure3), "E3", "MyE3");
+        yield return new RenameFieldHint(typeof (M2.Structure4), "E4", "MyE4");
+
         // copying data
         yield return new CopyFieldHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", "FirstName", typeof (M2.BusinessContact));

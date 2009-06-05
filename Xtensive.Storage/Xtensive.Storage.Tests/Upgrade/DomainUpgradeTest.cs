@@ -167,6 +167,38 @@ namespace Xtensive.Storage.Tests.Upgrade
           var alex = allBoys.Single(boy => boy.Name=="Alex");
           foreach (var girl in allGirls)
             Assert.IsTrue(alex.MeetWith.Contains(girl));
+
+          var e1 = Query<M2.Entity1>.All.Single();
+          var e2 = Query<M2.Entity2>.All.Single();
+          var e3 = Query<M2.Entity3>.All.Single();
+          var e4 = Query<M2.Entity4>.All.Single();
+          var se1 = Query<M2.StructureContainer1>.All.Single();
+          var se2 = Query<M2.StructureContainer2>.All.Single();
+          var se3 = Query<M2.StructureContainer3>.All.Single();
+          var se4 = Query<M2.StructureContainer4>.All.Single();
+
+          Assert.AreEqual(1, e1.Code);
+          Assert.AreEqual(2, e2.Code);
+          Assert.AreEqual(3, e3.Code);
+          Assert.AreEqual(4, e4.Code);
+
+          Assert.AreEqual(e1, e2.E1);
+          Assert.AreEqual(e2, e3.E2);
+          Assert.AreEqual(e3, e4.E3);
+
+          Assert.AreEqual(se1.S1.MyE1, e1);
+
+          Assert.AreEqual(se2.S2.MyE2, e2);
+          Assert.AreEqual(se2.S2.S1.MyE1, e1);
+
+          Assert.AreEqual(se3.S3.MyE3, e3);
+          Assert.AreEqual(se3.S3.S2.MyE2, e2);
+          Assert.AreEqual(se3.S3.S2.S1.MyE1, e1);
+
+          Assert.AreEqual(se4.S4.MyE4, e4);
+          Assert.AreEqual(se4.S4.S3.MyE3, e3);
+          Assert.AreEqual(se4.S4.S3.S2.MyE2, e2);
+          Assert.AreEqual(se4.S4.S3.S2.S1.MyE1, e1);
         }
       }
     }
@@ -307,6 +339,18 @@ namespace Xtensive.Storage.Tests.Upgrade
           alex.FriendlyGirls.Add(elena);
           alex.FriendlyGirls.Add(tanya);
           elena.FriendlyBoys.Add(dmitry);
+
+          // EntityX
+          var e1 = new M1.Entity1(1);
+          var e2 = new M1.Entity2(2, e1);
+          var e3 = new M1.Entity3(3, e2);
+          var e4 = new M1.Entity4(4, e3);
+
+          // StructureContainerX
+          var se1 = new M1.StructureContainer1 {S1 = new M1.Structure1 {E1 = e1}};
+          var se2 = new M1.StructureContainer2 {S2 = new M1.Structure2 {E2 = e2, S1 = se1.S1}};
+          var se3 = new M1.StructureContainer3 {S3 = new M1.Structure3 {E3 = e3, S2 = se2.S2}};
+          var se4 = new M1.StructureContainer4 {S4 = new M1.Structure4 {E4 = e4, S3 = se3.S3}};
 
           // Commiting changes
           transactionScope.Complete();

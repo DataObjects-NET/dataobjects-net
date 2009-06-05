@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Model.Stored
     private static StoredTypeInfo ConvertType(TypeInfo source)
     {
       var declaredFields = source.Fields
-        .Where(f => f.IsDeclared && !f.IsNested)
+        .Where(field => field.IsDeclared && !field.IsNested)
         .ToArray();
       var sourceAncestor = source.GetAncestor();
       string hierarchyRoot = null;
@@ -73,6 +73,8 @@ namespace Xtensive.Storage.Model.Stored
 
     private static StoredFieldInfo ConvertField(FieldInfo source)
     {
+      var nestedFields = source.Fields
+        .Where(field => field.Parent==source);
       var result = new StoredFieldInfo
         {
           Name = source.Name,
@@ -81,7 +83,7 @@ namespace Xtensive.Storage.Model.Stored
           OriginalName = source.OriginalName,
           ValueType = source.ValueType.GetFullName(),
           ItemType = GetTypeFullName(source.ItemType),
-          Fields = source.Fields.Select(f => ConvertField(f)).ToArray(),
+          Fields = nestedFields.Select(f => ConvertField(f)).ToArray(),
           Length = source.Length.HasValue ? source.Length.Value : 0,
           IsCollatable = source.IsCollatable,
           IsEntity = source.IsEntity,

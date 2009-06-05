@@ -22,7 +22,6 @@ namespace Xtensive.Storage.Model
     EntitySet = 0x80,
     PrimaryKey = 0x0100,
     NonPrimitive = Entity | EntitySet | Structure,
-    Nested = 0x0200,
     System = 0x0400,
     LazyLoad = 0x0800,
     InterfaceImplementation = 0x1000,

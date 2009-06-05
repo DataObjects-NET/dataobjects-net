@@ -208,7 +208,8 @@ namespace Xtensive.Storage.Upgrade
           .Single(field => field.Name==oldNestedFieldOriginalName);
         var newNestedFieldOrigin = fieldMapping[oldNestedFieldOrigin];
         var newNestedField = newField.Fields
-          .Single(field => field.OriginalName==newNestedFieldOrigin.Name);
+          .Single(field => field.OriginalName==newNestedFieldOrigin.Name
+               && field.Parent==newField);
         MapField(oldNestedField, newNestedField);
         ProcessFieldMapping(oldNestedField, newNestedField);
       }
