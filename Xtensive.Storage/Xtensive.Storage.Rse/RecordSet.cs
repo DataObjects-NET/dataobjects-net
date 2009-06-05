@@ -7,6 +7,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Compilation;
@@ -54,14 +56,21 @@ namespace Xtensive.Storage.Rse
     /// <inheritdoc/>
     public IEnumerator<Tuple> GetEnumerator()
     {
+      EnumerationContext ctx;
+      ExecutableProvider compiled;
       using (EnumerationScope.Open()) {
+        ctx = EnumerationContext.Current;
         var compilationContext = CompilationContext.Current;
-        if (compilationContext == null)
+        if (compilationContext==null)
           throw new InvalidOperationException();
-        var compiled = compilationContext.Compile(Provider);
-        foreach (var tuple in compiled)
-          yield return tuple;
+        compiled = compilationContext.Compile(Provider);
       }
+      EnumerationScope currentScope = null;
+      var batched = compiled.Batch(2).ApplyBeforeAndAfter(
+        () => currentScope = ctx.Activate(), () => currentScope.DisposeSafely());
+      foreach (var batch in batched)
+        foreach (var tuple in batch)
+          yield return tuple;
     }
 
     /// <inheritdoc/>
