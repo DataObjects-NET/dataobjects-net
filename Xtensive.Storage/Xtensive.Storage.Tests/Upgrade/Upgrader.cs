@@ -87,9 +87,8 @@ namespace Xtensive.Storage.Tests.Upgrade
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.BusinessContact", typeof(M2.Person));
         yield return new RenameTypeHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Person", typeof(M2.BusinessContact));
-        // useless for upgrade purposes but leads to exception in upgrade process
-        //yield return new RenameTypeHint(
-        //  "Xtensive.Storage.Tests.Upgrade.Model.Version1.Address", typeof (Address));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Address", typeof (M2.Address));
         yield return new RenameTypeHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", typeof (M2.Employee));
         yield return new RenameTypeHint(

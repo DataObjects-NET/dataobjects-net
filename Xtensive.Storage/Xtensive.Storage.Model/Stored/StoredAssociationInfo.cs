@@ -79,5 +79,10 @@ namespace Xtensive.Storage.Model.Stored
     /// </summary>
     [XmlElement("ConnectorType")]
     public string ConnectorTypeName;
+
+    public override string ToString()
+    {
+      return Name;
+    }
   }
 }

@@ -59,6 +59,7 @@ namespace Xtensive.Storage.Model.Stored
         fieldMap = new Dictionary<string, StoredFieldInfo>();
         if (type.Fields == null)
           type.Fields = ArrayUtils<StoredFieldInfo>.EmptyArray;
+        UpdateTypeAllFields(type);
         foreach (var field in type.Fields) {
           fieldMap.Add(field.Name, field);
           UpdateNestedFields(field);
@@ -101,6 +102,17 @@ namespace Xtensive.Storage.Model.Stored
 
       if (currentType != null && currentType.IsHierarchyRoot)
         type.Hierarchy = hierarchies[currentType];
+    }
+
+    private void UpdateTypeAllFields(StoredTypeInfo type)
+    {
+      var fields = new List<StoredFieldInfo>();
+      var currentType = type;
+      while (currentType != null) {
+        fields.AddRange(currentType.Fields);
+        currentType = currentType.Ancestor;
+      }
+      type.AllFields = fields.ToArray();
     }
 
     private void UpdateHierarchySchema(StoredHierarchyInfo hierarchy)

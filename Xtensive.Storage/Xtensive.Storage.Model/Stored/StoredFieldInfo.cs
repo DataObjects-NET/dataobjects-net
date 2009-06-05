@@ -26,6 +26,11 @@ namespace Xtensive.Storage.Model.Stored
     public string PropertyName;
 
     /// <summary>
+    /// <see cref="FieldInfo.OriginalName"/>.
+    /// </summary>
+    public string OriginalName;
+
+    /// <summary>
     /// <see cref="FieldInfo.ValueType"/>.
     /// </summary>
     public string ValueType;
@@ -146,5 +151,10 @@ namespace Xtensive.Storage.Model.Stored
     public bool IsCollatable;
 
     #endregion
+
+    public override string ToString()
+    {
+      return DeclaringType.Name + "." + Name;
+    }
   }
 }

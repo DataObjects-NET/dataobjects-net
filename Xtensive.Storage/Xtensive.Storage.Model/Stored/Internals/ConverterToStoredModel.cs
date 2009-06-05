@@ -78,6 +78,7 @@ namespace Xtensive.Storage.Model.Stored
           Name = source.Name,
           MappingName = source.MappingName,
           PropertyName = source.UnderlyingProperty != null ? source.UnderlyingProperty.Name : null,
+          OriginalName = source.OriginalName,
           ValueType = source.ValueType.GetFullName(),
           ItemType = GetTypeFullName(source.ItemType),
           Fields = source.Fields.Select(f => ConvertField(f)).ToArray(),

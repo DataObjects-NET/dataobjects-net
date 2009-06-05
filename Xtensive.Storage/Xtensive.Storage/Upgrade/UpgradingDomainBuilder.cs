@@ -155,8 +155,8 @@ namespace Xtensive.Storage.Upgrade
       var oldModel = context.ExtractedDomainModel;
       if (oldModel != null) {
         var newModel = Domain.Demand().Model;
-        var translatedHints = new HintTranslator(oldModel, newModel)
-          .Translate(context.Hints);
+        var translatedHints = new HintGenerator(oldModel, newModel)
+          .GenerateHints(context.Hints);
         var dataHints = new DataUpgrader()
           .GetDataUpgradeHints(oldModel, newModel, context.Hints);
         translatedHints.Apply(context.SchemaHints.Add);

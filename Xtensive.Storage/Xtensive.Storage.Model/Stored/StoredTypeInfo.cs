@@ -43,7 +43,14 @@ namespace Xtensive.Storage.Model.Stored
     /// </summary>
     [XmlArray("Fields"), XmlArrayItem("Field")]
     public StoredFieldInfo[] Fields;
-    
+
+    /// <summary>
+    /// Contains all fields inherited by this <see cref="StoredTypeInfo"/>
+    /// plus all fields in declared in this <see cref="StoredTypeInfo"/>.
+    /// </summary>
+    [XmlIgnore]
+    public StoredFieldInfo[] AllFields;
+
     /// <summary>
     /// Associations outgoing from this <see cref="StoredTypeInfo"/>.
     /// </summary>
@@ -101,5 +108,10 @@ namespace Xtensive.Storage.Model.Stored
     public bool IsHierarchyRoot { get { return !string.IsNullOrEmpty(HierarchyRoot); } }
 
     #endregion
+
+    public override string ToString()
+    {
+      return Name;
+    }
   }
 }
