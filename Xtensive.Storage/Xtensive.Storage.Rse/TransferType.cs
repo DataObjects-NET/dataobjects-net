@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Storage.Rse.Providers.Compilable
+namespace Xtensive.Storage.Rse
 {
   /// <summary>
   /// Enumerates transfer preference options.

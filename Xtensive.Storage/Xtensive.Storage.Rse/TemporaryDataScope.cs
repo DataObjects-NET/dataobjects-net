@@ -5,8 +5,9 @@
 // Created:    2008.08.29
 
 using System;
+using Xtensive.Storage.Rse.Providers;
 
-namespace Xtensive.Storage.Rse.Providers.Compilable
+namespace Xtensive.Storage.Rse
 {
   /// <summary>
   /// Temporary data lifetime scope.
