@@ -75,6 +75,23 @@ namespace Xtensive.Core.Linq
     }
 
     /// <summary>
+    /// Determines whether the specified expression is ConstantExpression with <see langword="null" /> <see cref="ConstantExpression.Value"/>.
+    /// </summary>
+    /// <param name="expression">The expression.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the specified expression is null; otherwise, <see langword="false" />.
+    /// </returns>
+    public static bool IsNull(this Expression expression)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      if (expression.NodeType == ExpressionType.Constant) {
+        var constantExpression = (ConstantExpression)expression;
+        return constantExpression.Value == null;
+      }
+      return false;
+    }
+
+    /// <summary>
     /// Converts specified <see cref="Expression"/> to <see cref="ExpressionTree"/>.
     /// </summary>
     /// <param name="expression">The expression to convert.</param>
