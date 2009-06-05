@@ -13,7 +13,7 @@ using Xtensive.Storage.Tests.Issues.Issue0021_Model;
 namespace Xtensive.Storage.Tests.Issues.Issue0021_Model
 {
   [HierarchyRoot(InheritanceSchema.ClassTable)]
-  public class RootClassTable : Entity
+  public class Root : Entity
   {
     [Field, KeyField]
     public long ID { get; private set; }
@@ -22,14 +22,14 @@ namespace Xtensive.Storage.Tests.Issues.Issue0021_Model
     public string StringField { get; set; }
   }
 
-  public class DerivedClassTable1 : RootClassTable
+  public class Child1 : Root
   {
     [Field]
     public Guid GuidField { get; set; }
 
   }
 
-  public class DerivedClassTable2 : DerivedClassTable1
+  public class Child2 : Child1
   {
     [Field]
     public DateTime DateTimeField { get; set; }
@@ -46,8 +46,16 @@ namespace Xtensive.Storage.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (RootClassTable).Assembly, typeof (RootClassTable).Namespace);
+      config.Types.Register(typeof (Root).Assembly, typeof (Root).Namespace);
       return config;
+    }
+
+    protected override Domain BuildDomain(DomainConfiguration configuration)
+    {
+      if (configuration.ConnectionInfo.Url.StartsWith("memory") && configuration.Builders.Contains(typeof(IncludeTypeIdModifier))) {
+        throw new IgnoreException("This configuration hangs the test");
+      }
+      return base.BuildDomain(configuration);
     }
 
     [Test]
@@ -55,13 +63,13 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          var d1 = new DerivedClassTable2
+          new Child2
             {
               StringField = "1",
               BoolField = true,
               DateTimeField = new DateTime(1967, 10, 23)
             };
-          var d2 = new DerivedClassTable2
+          new Child2
             {
               StringField = "2",
               BoolField = false,
@@ -71,9 +79,9 @@ namespace Xtensive.Storage.Tests.Issues
           t.Complete();
         }
         using (var t = Transaction.Open()) {
-          var allD = Query<DerivedClassTable2>.All;
-          foreach (var d in allD) {
-            d.Remove();
+          var all = Query<Child2>.All;
+          foreach (var obj in all) {
+            obj.Remove();
           }
           t.Complete();
         }
