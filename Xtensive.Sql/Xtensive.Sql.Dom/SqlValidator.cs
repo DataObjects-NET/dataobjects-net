@@ -121,6 +121,7 @@ namespace Xtensive.Sql.Dom
         case SqlNodeType.Case:
         case SqlNodeType.Cast:
         case SqlNodeType.Column:
+        case SqlNodeType.Concat:
         case SqlNodeType.Constant:
         case SqlNodeType.Count:
         case SqlNodeType.Divide:
