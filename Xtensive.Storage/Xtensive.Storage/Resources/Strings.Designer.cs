@@ -1105,6 +1105,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Structure of field &apos;{0}&apos; does not match structure of field &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExStructureOfFieldXDoesNotMatchStructureOfFieldY {
+            get {
+                return ResourceManager.GetString("ExStructureOfFieldXDoesNotMatchStructureOfFieldY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Structures do not support fields of type &apos;{0}&apos;..
         /// </summary>
         internal static string ExStructuresDoNotSupportFieldsOfTypeX {

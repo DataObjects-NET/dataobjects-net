@@ -716,4 +716,7 @@ Actions:
   <data name="ExUnauthorizedAccessDeclarationOfCallerTypeIsNotInRegisteredAssembly" xml:space="preserve">
     <value>Unauthorized access. The declaration of the caller's type is not in a registered assembly.</value>
   </data>
+  <data name="ExStructureOfFieldXDoesNotMatchStructureOfFieldY" xml:space="preserve">
+    <value>Structure of field '{0}' does not match structure of field '{1}'.</value>
+  </data>
 </root>

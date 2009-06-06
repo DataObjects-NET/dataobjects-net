@@ -28,18 +28,18 @@ namespace Xtensive.Storage.Upgrade.Hints
     /// </summary>
     public string SourceField { get; private set; }
     /// <summary>
-    /// Gets the destination type.
+    /// Gets the target type.
     /// </summary>
-    public Type DestinationType { get; private set; }
+    public Type TargetType { get; private set; }
     /// <summary>
-    /// Gets the destination field.
+    /// Gets the target field.
     /// </summary>
-    public string DestinationField { get; private set; }
+    public string TargetField { get; private set; }
 
     public override string ToString()
     {
       return string.Format(ToStringFormat,
-        SourceType, SourceField, DestinationType.GetFullName(), DestinationField);
+        SourceType, SourceField, TargetType.GetFullName(), TargetField);
     }
 
     // Constructors
@@ -49,28 +49,28 @@ namespace Xtensive.Storage.Upgrade.Hints
     /// </summary>
     /// <param name="sourceType">Value for <see cref="SourceType"/>.</param>
     /// <param name="sourceField">Value for <see cref="SourceField"/>.</param>
-    /// <param name="destinationType">Value for <see cref="DestinationType"/>.</param>
-    /// <param name="destinationField">Value for <see cref="DestinationField"/>.</param>
-    public CopyFieldHint(string sourceType, string sourceField, Type destinationType, string destinationField)
+    /// <param name="targetType">Value for <see cref="TargetType"/>.</param>
+    /// <param name="targetField">Value for <see cref="TargetField"/>.</param>
+    public CopyFieldHint(string sourceType, string sourceField, Type targetType, string targetField)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceType, "sourceType");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceField, "sourceField");
-      ArgumentValidator.EnsureArgumentNotNull(destinationType, "destinationType");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(destinationField, "destinationField");
+      ArgumentValidator.EnsureArgumentNotNull(targetType, "targetType");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(targetField, "targetField");
       SourceType = sourceType;
       SourceField = sourceField;
-      DestinationType = destinationType;
-      DestinationField = destinationField;
+      TargetType = targetType;
+      TargetField = targetField;
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="sourceType">Value for <see cref="SourceType"/>.</param>
-    /// <param name="sourceField">Value for <see cref="SourceField"/>.</param>
-    /// <param name="destinationType">Value for <see cref="DestinationType"/>.</param>
-    public CopyFieldHint(string sourceType, string sourceField, Type destinationType)
-      : this(sourceType, sourceField, destinationType, sourceField)
+    /// <param name="field">Value for <see cref="SourceField"/> and <see cref="TargetField"/>.</param>
+    /// <param name="targetType">Value for <see cref="TargetType"/>.</param>
+    public CopyFieldHint(string sourceType, string field, Type targetType)
+      : this(sourceType, field, targetType, field)
     {
     }
   }

@@ -85,9 +85,9 @@ namespace Xtensive.Storage.Upgrade
           throw TypeIsNotFound(hint.TargetType.GetFullName());
         var targetType = currentModel.Types[hint.TargetType];
         var sourceType = backwardTypeMapping[targetType];
-        if (!sourceType.Fields.Any(field => field.Name==hint.OldFieldName))
+        if (!GetDeclaredFields(sourceType).Any(field => field.Name==hint.OldFieldName))
           throw FieldIsNotFound(sourceType.UnderlyingType, hint.OldFieldName);
-        if (!targetType.Fields.Contains(hint.NewFieldName))
+        if (!GetDeclaredFields(targetType).Any(field => field.Name==hint.NewFieldName))
           throw FieldIsNotFound(hint.TargetType.GetFullName(), hint.NewFieldName);
         // each source field should be used only once
         // each destination field should be used only once
@@ -107,17 +107,19 @@ namespace Xtensive.Storage.Upgrade
     {
       foreach (var hint in hints) {
         // checking source type/field
+        var sourceTypeName = hint.SourceType;
         if (!storedModel.Types.Any(type => type.UnderlyingType==hint.SourceType))
-          throw TypeIsNotFound(hint.SourceType);
+          throw TypeIsNotFound(sourceTypeName);
         var sourceType = storedModel.Types.Single(type => type.UnderlyingType==hint.SourceType);
-        if (!sourceType.AllFields.Any(field => field.Name==hint.SourceField))
-          throw FieldIsNotFound(sourceType.UnderlyingType, hint.SourceField);
+        if (!GetAllFields(sourceType).Any(field => field.Name==hint.SourceField))
+          throw FieldIsNotFound(sourceTypeName, hint.SourceField);
         // checking destination type/field
-        if (!currentModel.Types.Contains(hint.DestinationType))
-          throw TypeIsNotFound(hint.DestinationType.GetFullName());
-        var destinationType = currentModel.Types[hint.DestinationType];
-        if (!destinationType.Fields.Contains(hint.DestinationField))
-          throw FieldIsNotFound(hint.DestinationType.GetFullName(), hint.DestinationField);
+        var targetTypeName = hint.TargetType.GetFullName();
+        if (!currentModel.Types.Any(type => type.UnderlyingType==hint.TargetType))
+          throw TypeIsNotFound(targetTypeName);
+        var targetType = currentModel.Types[hint.TargetType];
+        if (!GetAllFields(targetType).Any(field => field.Name==hint.TargetField))
+          throw FieldIsNotFound(targetTypeName, hint.TargetField);
       }
     }
 
@@ -128,7 +130,7 @@ namespace Xtensive.Storage.Upgrade
     private void MapType(StoredTypeInfo oldType, TypeInfo newType)
     {
       if (typeMapping.ContainsKey(oldType))
-        return;
+        throw new InvalidOperationException();
       typeMapping[oldType] = newType;
       backwardTypeMapping[newType] = oldType;
     }
@@ -136,10 +138,34 @@ namespace Xtensive.Storage.Upgrade
     private void MapField(StoredFieldInfo oldField, FieldInfo newField)
     {
       if (fieldMapping.ContainsKey(oldField))
-        return;
+        throw new InvalidOperationException();
       fieldMapping[oldField] = newField;
     }
 
+    private void MapNestedFields(StoredFieldInfo oldField, FieldInfo newField)
+    {
+      var oldNestedFields = GetNestedFields(oldField).ToArray();
+      if (oldNestedFields.Length==0)
+        return;
+      var oldValueType = storedModel.Types
+        .Single(type => type.UnderlyingType==oldField.ValueType);
+      foreach (var oldNestedField in oldNestedFields) {
+        var oldNestedFieldOriginalName = oldNestedField.OriginalName;
+        var oldNestedFieldOrigin = GetAllFields(oldValueType)
+          .Single(field => field.Name==oldNestedFieldOriginalName);
+        var newNestedFieldOrigin = fieldMapping[oldNestedFieldOrigin];
+        var newNestedField = GetNestedFields(newField)
+          .Single(field => field.OriginalName==newNestedFieldOrigin.Name);
+        MapFieldRecursively(oldNestedField, newNestedField);
+      }
+    }
+
+    private void MapFieldRecursively(StoredFieldInfo oldField, FieldInfo newField)
+    {
+      MapField(oldField, newField);
+      MapNestedFields(oldField, newField);
+    }
+    
     private void BuildTypeMapping(IEnumerable<RenameTypeHint> renames)
     {
       var oldConnectorTypes = storedModel.Associations
@@ -168,23 +194,20 @@ namespace Xtensive.Storage.Upgrade
           MapType(oldType, newType);
       }
     }
-
- 
+    
     private void BuildFieldMapping(IEnumerable<RenameFieldHint> renames)
     {
       foreach (var pair in typeMapping)
         BuildFieldMapping(renames, pair.Key, pair.Value);
 
       foreach (var pair in fieldMapping.ToList())
-        ProcessFieldMapping(pair.Key, pair.Value);
+        MapNestedFields(pair.Key, pair.Value);
     }
 
     private void BuildFieldMapping(IEnumerable<RenameFieldHint> renames, StoredTypeInfo oldType, TypeInfo newType)
     {
-      var newFields = newType.Fields
-        .Where(field => field.IsDeclared && !field.IsNested)
-        .ToDictionary(field => field.Name);
-      foreach (var oldField in oldType.Fields) {
+      var newFields = GetDeclaredFields(newType).ToDictionary(field => field.Name);
+      foreach (var oldField in GetDeclaredFields(oldType)) {
         var maybeHint = renames
           .FirstOrDefault(hint => hint.OldFieldName==oldField.Name && hint.TargetType==newType.UnderlyingType);
         var newFieldName = maybeHint!=null
@@ -193,25 +216,6 @@ namespace Xtensive.Storage.Upgrade
         FieldInfo newField;
         if (newFields.TryGetValue(newFieldName, out newField))
           MapField(oldField, newField);
-      }
-    }
-
-    private void ProcessFieldMapping(StoredFieldInfo oldField, FieldInfo newField)
-    {
-      if (oldField.Fields.Length==0)
-        return;
-      var oldValueType = storedModel.Types
-        .Single(type => type.UnderlyingType==oldField.ValueType);
-      foreach (var oldNestedField in oldField.Fields) {
-        var oldNestedFieldOriginalName = oldNestedField.OriginalName;
-        var oldNestedFieldOrigin = oldValueType.AllFields
-          .Single(field => field.Name==oldNestedFieldOriginalName);
-        var newNestedFieldOrigin = fieldMapping[oldNestedFieldOrigin];
-        var newNestedField = newField.Fields
-          .Single(field => field.OriginalName==newNestedFieldOrigin.Name
-               && field.Parent==newField);
-        MapField(oldNestedField, newNestedField);
-        ProcessFieldMapping(oldNestedField, newNestedField);
       }
     }
 
@@ -229,22 +233,24 @@ namespace Xtensive.Storage.Upgrade
           continue;
         FieldInfo newReferencingField;
         if (!fieldMapping.TryGetValue(oldReferencingField, out newReferencingField))
-          newReferencingField = newReferencingType.Fields
+          newReferencingField = GetDeclaredFields(newReferencingType)
             .SingleOrDefault(field => field.Name==oldReferencingField.Name);
         if (newReferencingField==null)
           continue;
         var newAssociation = newReferencingField.Association;
         MapType(oldAssociation.ConnectorType, newAssociation.UnderlyingType);
 
-        var oldMaster = oldAssociation.ConnectorType.Fields.Single(field => field.Name==WellKnown.MasterField);
-        var newMaster = newAssociation.UnderlyingType.Fields.Single(field => field.Name==WellKnown.MasterField);
-        var oldSlave = oldAssociation.ConnectorType.Fields.Single(field => field.Name==WellKnown.SlaveField);
-        var newSlave = newAssociation.UnderlyingType.Fields.Single(field => field.Name==WellKnown.SlaveField);
+        var oldMaster = GetAllFields(oldAssociation.ConnectorType)
+          .Single(field => field.Name==WellKnown.MasterField);
+        var newMaster = GetAllFields(newAssociation.UnderlyingType)
+          .Single(field => field.Name==WellKnown.MasterField);
+        var oldSlave = GetAllFields(oldAssociation.ConnectorType)
+          .Single(field => field.Name==WellKnown.SlaveField);
+        var newSlave = GetAllFields(newAssociation.UnderlyingType)
+          .Single(field => field.Name==WellKnown.SlaveField);
 
-        MapField(oldMaster, newMaster);
-        ProcessFieldMapping(oldMaster, newMaster);
-        MapField(oldSlave, newSlave);
-        ProcessFieldMapping(oldSlave, newSlave);
+        MapFieldRecursively(oldMaster, newMaster);
+        MapFieldRecursively(oldSlave, newSlave);
       }
     }
 
@@ -258,8 +264,8 @@ namespace Xtensive.Storage.Upgrade
         .Where(type => type.Key.IsEntity)
         .Where(type => type.Key.Hierarchy.Schema!=InheritanceSchema.SingleTable || type.Key.Hierarchy.Root==type.Key);
       foreach (var mapping in mappingsToProcess) {
-        var oldTable = mapping.Key.MappingName;
-        var newTable = mapping.Value.MappingName;
+        var oldTable = GetMappingName(mapping.Key);
+        var newTable = GetMappingName(mapping.Value);
         if (oldTable != newTable)
           resultHints.Add(new RenameHint(GetTablePath(oldTable), GetTablePath(newTable)));
       }
@@ -292,27 +298,18 @@ namespace Xtensive.Storage.Upgrade
       }
     }
 
-    private void GenerateRenameFieldHint(StoredFieldInfo oldField, FieldInfo newField, TypeInfo newType, bool recursive)
+    private void GenerateRenameFieldHint(StoredFieldInfo oldField, FieldInfo newField,
+      TypeInfo newType, bool includeInheritors)
     {
       if (oldField.MappingName==newField.MappingName)
         return;
-
-      if (!recursive) {
-        resultHints.Add(new RenameHint(
-          GetColumnPath(backwardTypeMapping[newType].MappingName, oldField.MappingName),
-          GetColumnPath(newType.MappingName, newField.MappingName)));
-        return;
-      }
-
-      var typesToProcess = EnumerableUtils.One(newType)
-        .Concat(currentModel.Types.FindDescendants(newType, true));
-      foreach (var newInheritor in typesToProcess) {
-        StoredTypeInfo oldInheritor;
-        if (!backwardTypeMapping.TryGetValue(newInheritor, out oldInheritor))
+      foreach (var newTargetType in GenerateTargetTypes(newType, includeInheritors)) {
+        StoredTypeInfo oldTargetType;
+        if (!backwardTypeMapping.TryGetValue(newTargetType, out oldTargetType))
           continue;
         resultHints.Add(new RenameHint(
-          GetColumnPath(oldInheritor.MappingName, oldField.MappingName),
-          GetColumnPath(newInheritor.MappingName, newField.MappingName)));
+          GetColumnPath(GetMappingName(oldTargetType), oldField.MappingName),
+          GetColumnPath(GetMappingName(newTargetType), newField.MappingName)));
       }
     }
     
@@ -325,69 +322,59 @@ namespace Xtensive.Storage.Upgrade
     private void TranslateCopyColumnHint(CopyFieldHint hint)
     {
       // searching for all required objects
-      var destinationTypeName = hint.DestinationType.GetFullName();
-      var destinationType = currentModel.Types[hint.DestinationType];
-      var destinationField = destinationType.Fields.Single(field => field.Name==hint.DestinationField);
-      var sourceType = storedModel.Types.Single(type => type.UnderlyingType==hint.SourceType);
-      var sourceField = sourceType.AllFields.Single(field => field.Name==hint.SourceField);
-      
+      var targetTypeName = hint.TargetType.GetFullName();
+      var targetType = currentModel.Types[hint.TargetType];
+      var targetField = GetAllFields(targetType).Single(field => field.Name==hint.TargetField);
+      var targetHierarchy = targetType.Hierarchy;
+
+      var sourceTypeName = hint.SourceType;
+      var sourceType = storedModel.Types.Single(type => type.UnderlyingType==sourceTypeName);
+      var sourceField = GetAllFields(sourceType).Single(field => field.Name==hint.SourceField);
       var sourceHierarchy = sourceType.Hierarchy;
-      var destinationHierarchy = destinationType.Hierarchy;
-
-      if (!sourceField.IsPrimitive || !destinationField.IsPrimitive)
-        throw new NotImplementedException();
-
+      
       // checking that types have hierarchies
       if (sourceHierarchy==null)
         throw TypeIsNotInHierarchy(hint.SourceType);
-      if (destinationHierarchy == null)
-        throw TypeIsNotInHierarchy(destinationTypeName);
+      if (targetHierarchy == null)
+        throw TypeIsNotInHierarchy(targetTypeName);
       
-      // building sets of key columns
-      var sourceKeys = sourceHierarchy.Root.Fields
-        .Where(f => f.IsPrimaryKey)
-        .ToDictionary(
-          f => f.Name,
-          f => new Pair<string>(f.MappingName, f.ValueType));
-      var destinationKeys = destinationHierarchy.Root.Fields
-        .Where(f => f.IsPrimaryKey)
-        .ToDictionary(
-          f => f.Name,
-          f => new Pair<string>(f.MappingName, f.ValueType.GetFullName()));
+      // building set of key columns
+      var pairedKeyColumns = AssociateMappedKeyFields(sourceHierarchy, targetHierarchy);
+      if (pairedKeyColumns==null)
+        throw KeysDoNotMatch(sourceTypeName, targetTypeName);
 
-      // checking that keys match: all key columns must have the same name and the same type.
-      if (sourceKeys.Count != destinationKeys.Count)
-        throw KeysDoNotMatch(sourceType.Name, destinationTypeName);
-      var keyPairs = new List<Pair<string>>();
-      foreach (var sourceKey in sourceKeys) {
-        Pair<string> destinationKey;
-        var mismatch =
-          !destinationKeys.TryGetValue(sourceKey.Key, out destinationKey) ||
-            destinationKey.Second!=sourceKey.Value.Second; // comparing types
-        if (mismatch)
-          throw KeysDoNotMatch(sourceType.Name, destinationTypeName);
-        keyPairs.Add(new Pair<string>(sourceKey.Value.First, destinationKey.First));
-      }
+      // building set of copied columns
+      var pairedColumns = AssociateMappedFields(new Pair<StoredFieldInfo, FieldInfo>(sourceField, targetField));
+      if (pairedColumns==null)
+        throw FieldsDoNotMatch(sourceField, targetField);
 
-      // building destination table names
-      var destinationTables = EnumerableUtils.One(destinationType.MappingName);
-      if (destinationHierarchy.Schema==InheritanceSchema.ConcreteTable)
-        destinationTables = destinationTables
-          .Concat(destinationType.GetDescendants(true).Select(type => type.MappingName));
+      // building source/destination table/column names
+      var sourceTable = GetMappingName(sourceType);
+      var targetTables = GenerateTargetTypes(targetType, targetHierarchy.Schema==InheritanceSchema.ConcreteTable)
+        .Select(type => GetMappingName(type));
 
       // generating result hints
-      var sourceTable = sourceType.MappingName;
-      foreach (var destinationTable in destinationTables) {
-        var identityParameters = keyPairs.Select(pair => new IdentityPair(
-            GetColumnPath(sourceTable, pair.First),
-            GetColumnPath(destinationTable, pair.Second), false));
-        var copyDataHint = new CopyDataHint {SourceTablePath = GetTablePath(sourceTable)};
-        copyDataHint.CopiedColumns.Add(new Pair<string>(
-          GetColumnPath(sourceTable, sourceField.MappingName),
-          GetColumnPath(destinationTable, destinationField.MappingName)));
-        copyDataHint.Identities.AddRange(identityParameters);
-        resultHints.Add(copyDataHint);
+      foreach (var targetTable in targetTables) {
+        var resultHint = new CopyDataHint {SourceTablePath = GetTablePath(sourceTable)};
+        foreach (var keyColumnPair in pairedKeyColumns)
+          resultHint.Identities.Add(new IdentityPair(
+            GetColumnPath(sourceTable, keyColumnPair.First),
+            GetColumnPath(targetTable, keyColumnPair.Second),
+            false));
+        foreach (var columnPair in pairedColumns)
+          resultHint.CopiedColumns.Add(new Pair<string>(
+            GetColumnPath(sourceTable, columnPair.First),
+            GetColumnPath(targetTable, columnPair.Second)));
+        resultHints.Add(resultHint);
       }
+    }
+
+    private IEnumerable<TypeInfo> GenerateTargetTypes(TypeInfo type, bool includeInheritors)
+    {
+      var result = EnumerableUtils.One(type);
+      if (includeInheritors)
+        result = result.Concat(currentModel.Types.FindDescendants(type, true));
+      return result;
     }
 
     #endregion
@@ -412,6 +399,115 @@ namespace Xtensive.Storage.Upgrade
     {
       return string.Format("Tables/{0}/Columns/{1}", tableName, columnName);
     }
+    
+    private static string GetMappingName(StoredTypeInfo type)
+    {
+      // for StoredTypeInfo MappingName is always correct
+      return type.MappingName;
+    }
+
+    private static string GetMappingName(TypeInfo type)
+    {
+      // for TypeInfo MappingName is not correct for types beyond hierarchy root
+      // when inheritance schema is SingleTable
+      if (type.Hierarchy!=null && type.Hierarchy.Schema==InheritanceSchema.SingleTable)
+        type = type.Hierarchy.Root;
+      return type.MappingName;
+    }
+
+    private static IEnumerable<StoredFieldInfo> GetDeclaredFields(StoredTypeInfo type)
+    {
+      return type.Fields;
+    }
+
+    private static IEnumerable<FieldInfo> GetDeclaredFields(TypeInfo type)
+    {
+      return type.Fields.Where(field => field.IsDeclared && !field.IsNested);
+    }
+
+    private static IEnumerable<StoredFieldInfo> GetAllFields(StoredTypeInfo type)
+    {
+      return type.AllFields;
+    }
+
+    private static IEnumerable<FieldInfo> GetAllFields(TypeInfo type)
+    {
+      return type.Fields.Where(field => !field.IsNested);
+    }
+
+    private static IEnumerable<StoredFieldInfo> GetNestedFields(StoredFieldInfo parentField)
+    {
+      return parentField.Fields;
+    }
+
+    private static IEnumerable<FieldInfo> GetNestedFields(FieldInfo parentField)
+    {
+      return parentField.Fields.Where(field => field.Parent==parentField);
+    }
+
+
+    private static Pair<StoredFieldInfo, FieldInfo>[] JoinFieldsByName(
+      IEnumerable<StoredFieldInfo> sources, IEnumerable<FieldInfo> targets)
+    {
+      var result =
+        from source in sources
+        join target in targets
+          on source.Name equals target.Name
+        select new Pair<StoredFieldInfo, FieldInfo>(source, target);
+      return result.ToArray();
+    }
+
+    private static Pair<string>[] AssociateMappedKeyFields(StoredHierarchyInfo sourceHierarchy, HierarchyInfo targetHierarchy)
+    {
+      var sourceKeyFields = GetDeclaredFields(sourceHierarchy.Root)
+        .Where(field => field.IsPrimaryKey)
+        .ToArray();
+      var targetKeyFields = GetDeclaredFields(targetHierarchy.Root)
+        .Where(field => field.IsPrimaryKey)
+        .ToArray();
+      if (sourceKeyFields.Length != targetKeyFields.Length)
+        return null;
+      var pairedKeyFields = JoinFieldsByName(sourceKeyFields, targetKeyFields);
+      if (pairedKeyFields.Length != sourceKeyFields.Length)
+        return null;
+      return AssociateMappedFields(pairedKeyFields);
+    }
+
+    private static Pair<string>[] AssociateMappedFields(params Pair<StoredFieldInfo, FieldInfo>[] fieldsToProcess)
+    {
+      var result = new List<Pair<StoredFieldInfo, FieldInfo>>();
+      var tasks = new Queue<Pair<StoredFieldInfo, FieldInfo>>();
+      foreach (var task in fieldsToProcess)
+        tasks.Enqueue(task);
+      while (tasks.Count > 0) {
+        var task = tasks.Dequeue();
+        var source = task.First;
+        var target = task.Second;
+        // both fields are primitive -> put to result is types match
+        if (source.IsPrimitive && target.IsPrimitive) {
+          if (source.ValueType!=target.ValueType.GetFullName())
+            return null;
+          result.Add(task);
+          continue;
+        }
+        // exactly one of the fields is primitive -> failure
+        if (source.IsPrimitive || target.IsPrimitive)
+          return null;
+        // both fields are not primitive -> recursively process nested fields
+        var sourceNestedFields = GetNestedFields(source).ToArray();
+        var targetNestedFields = GetNestedFields(target).ToArray();
+        if (sourceNestedFields.Length != targetNestedFields.Length)
+          return null;
+        var pairedNestedFields = JoinFieldsByName(sourceNestedFields, targetNestedFields);
+        if (pairedNestedFields.Length != sourceNestedFields.Length)
+          return null;
+        foreach (var newTask in pairedNestedFields)
+          tasks.Enqueue(newTask);
+      }
+      return result
+        .Select(mapping => new Pair<string>(mapping.First.MappingName, mapping.Second.MappingName))
+        .ToArray();
+    }
 
     private static InvalidOperationException TypeIsNotFound(string name)
     {
@@ -435,6 +531,14 @@ namespace Xtensive.Storage.Upgrade
     {
       return new InvalidOperationException(string.Format(
         Strings.ExKeyOfXDoesNotMatchKeyOfY, typeOne, typeTwo));
+    }
+
+    private static InvalidOperationException FieldsDoNotMatch(StoredFieldInfo fieldOne, FieldInfo fieldTwo)
+    {
+      var nameOne = fieldOne.DeclaringType.UnderlyingType + "." + fieldOne.Name;
+      var nameTwo = fieldTwo.DeclaringType.UnderlyingType.GetFullName() + "." + fieldTwo.Name;
+      return new InvalidOperationException(string.Format(
+        Strings.ExStructureOfFieldXDoesNotMatchStructureOfFieldY, nameOne, nameTwo));
     }
 
     private static InvalidOperationException TypeIsNotInHierarchy(string type)
