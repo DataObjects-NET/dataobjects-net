@@ -152,7 +152,7 @@ namespace Xtensive.Storage.Providers.Memory
     #endregion
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

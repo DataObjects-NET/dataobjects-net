@@ -137,7 +137,7 @@ namespace Xtensive.Storage.Providers.Memory
     #endregion
 
 
-    // Constructor
+    // Constructors
 
     /// <inheritdoc/>
     public MemoryIndexStorage(string name)

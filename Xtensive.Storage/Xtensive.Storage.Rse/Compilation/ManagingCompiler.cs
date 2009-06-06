@@ -113,14 +113,16 @@ namespace Xtensive.Storage.Rse.Compilation
       }
     }
 
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ManagingCompiler(BindingCollection<object, ExecutableProvider> compiledSources, params ICompiler[] compilers)
       : this(compiledSources, (IEnumerable<ICompiler>)compilers)
-    {}
+    {
+    }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

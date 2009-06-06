@@ -33,10 +33,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     public TupleDescriptor TupleDescriptor { get; private set; }
 
-    // Constructor
+
+    // Constructors
 
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///  <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="statement">The statement.</param>
     /// <param name="tupleDescriptor">The tuple descriptor.</param>

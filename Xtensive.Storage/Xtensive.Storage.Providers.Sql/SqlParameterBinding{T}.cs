@@ -16,7 +16,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     public TValueAccessor ValueAccessor { get; private set; }
 
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

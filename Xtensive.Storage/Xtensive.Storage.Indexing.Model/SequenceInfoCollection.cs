@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Indexing.Model
   public sealed class SequenceInfoCollection : NodeCollectionBase<SequenceInfo, StorageInfo>,
     IUnorderedNodeCollection
   {
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

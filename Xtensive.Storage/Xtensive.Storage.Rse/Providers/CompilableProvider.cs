@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <inheritdoc/>
     protected CompilableProvider(ProviderType type, params Provider[] sources)

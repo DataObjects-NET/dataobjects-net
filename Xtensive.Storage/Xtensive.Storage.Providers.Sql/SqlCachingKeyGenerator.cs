@@ -70,7 +70,8 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

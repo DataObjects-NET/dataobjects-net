@@ -27,7 +27,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <remarks>Usually is the number of touched rows.</remarks>
     public int ExpectedResult { get; private set; }
 
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

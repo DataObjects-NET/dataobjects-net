@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Rse.Compilation
     public abstract ExecutableProvider ToCompatible(ExecutableProvider provider);
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

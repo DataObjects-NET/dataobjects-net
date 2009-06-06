@@ -191,7 +191,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
 
-    // Constructor
+    // Constructors
 
     public AggregateCalculatorProvider(RecordSetHeader header, bool isGrouping)
     {

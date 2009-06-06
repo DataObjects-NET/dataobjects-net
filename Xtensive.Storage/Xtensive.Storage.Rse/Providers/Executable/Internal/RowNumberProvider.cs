@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 
@@ -15,7 +14,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   [Serializable]
   internal class RowNumberProvider : UnaryExecutableProvider<Compilable.RowNumberProvider>
   {
-    // Constructor
+    // Constructors
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {

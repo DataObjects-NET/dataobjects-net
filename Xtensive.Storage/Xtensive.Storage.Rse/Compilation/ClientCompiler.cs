@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Rse.Compilation
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

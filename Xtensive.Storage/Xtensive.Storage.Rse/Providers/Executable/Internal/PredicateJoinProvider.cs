@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

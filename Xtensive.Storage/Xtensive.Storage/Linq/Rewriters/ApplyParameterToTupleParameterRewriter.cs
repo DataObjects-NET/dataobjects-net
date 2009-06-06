@@ -45,7 +45,8 @@ namespace Xtensive.Storage.Linq.Rewriters
       return Visit(expression);
     }
 
-    // Constructor
+
+    // Constructors
 
     private ApplyParameterToTupleParameterRewriter(Parameter<Tuple> parameterOfTuple, ApplyParameter applyParameter)
     {

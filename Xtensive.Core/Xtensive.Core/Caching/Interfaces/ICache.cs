@@ -81,7 +81,7 @@ namespace Xtensive.Core.Caching
     void Add(TItem item);
 
     /// <summary>
-    /// Adds a new item to the cache. If item with this key is already in cache - replaces is with new item.
+    /// Adds a new item to the cache.
     /// </summary>
     /// <param name="item">The item to add.</param>
     /// <param name="replaceIfExists">Indicates whether existing item must be replaced or not.</param>

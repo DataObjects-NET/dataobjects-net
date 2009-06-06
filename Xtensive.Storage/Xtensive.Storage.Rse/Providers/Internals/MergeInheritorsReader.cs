@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
     #endregion
 
 
-    // Constructor
+    // Constructors
 
     public MergeInheritorsReader(ExecutableProvider provider, Range<Entire<Tuple>> range, ExecutableProvider[] inheritors, MapTransform[] transforms)
       : base(provider, range)

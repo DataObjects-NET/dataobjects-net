@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class ReindexProvider : OrderProviderBase
   {
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

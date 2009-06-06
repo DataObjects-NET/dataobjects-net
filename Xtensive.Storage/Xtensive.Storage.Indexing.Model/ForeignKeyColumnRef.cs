@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Indexing.Model
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <inheritdoc/>
     public ForeignKeyColumnRef(ForeignKeyInfo parent)

@@ -108,7 +108,8 @@ namespace Xtensive.Storage.Linq
       return result;
     }
 
-    // Constructor
+
+    // Constructors
 
     public TranslatorContext(Expression query, DomainModel model)
     {

@@ -467,7 +467,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     #endregion
 
-    // Constructor
+    // Constructors
 
     public ExpressionProcessor(ICompiler compiler, HandlerAccessor handlers, LambdaExpression le,
       params SqlSelect[] selects)

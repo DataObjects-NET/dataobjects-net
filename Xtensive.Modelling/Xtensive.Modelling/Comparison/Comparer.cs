@@ -431,7 +431,7 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     /// <param name="difference">The difference.</param>
     /// <returns>
-    ///	<see langword="true"/> if the specified difference is relocated; otherwise, <see langword="false"/>.
+    ///  <see langword="true"/> if the specified difference is relocated; otherwise, <see langword="false"/>.
     /// </returns>
     protected virtual bool IsRelocated(Difference difference)
     {

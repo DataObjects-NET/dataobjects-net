@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Linq.Expressions
     }
 
 
-    // Constructor
+    // Constructors
 
     protected FieldExpression(ExtendedExpressionType expressionType, FieldInfo field, Segment<int> mapping, ParameterExpression parameterExpression, bool defaultIfEmpty)
       : base(

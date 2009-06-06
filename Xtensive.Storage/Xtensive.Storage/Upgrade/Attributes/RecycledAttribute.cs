@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Upgrade
     }
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="originalName">The original name of the type or property.</param>
     public RecycledAttribute(string originalName)

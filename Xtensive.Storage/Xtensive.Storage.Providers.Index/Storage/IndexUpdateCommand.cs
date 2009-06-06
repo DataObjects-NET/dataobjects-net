@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Providers.Index
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
 
-    // Constructor
+    // Constructors
 
     public JoinProvider(Compilable.JoinProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base(origin, left, right)

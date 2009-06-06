@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
     public Index Index { get; private set; }
 
 
-    // Constructor
+    // Constructors
 
     internal SecondaryIndexMapping(IndexInfo indexInfo, Index index)
     {

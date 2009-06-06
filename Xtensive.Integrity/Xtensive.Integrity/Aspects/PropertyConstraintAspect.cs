@@ -94,7 +94,7 @@ namespace Xtensive.Integrity.Aspects
     /// <param name="element">Element (<see cref="T:System.Reflection.MethodBase"/>, <see cref="T:System.Reflection.FieldInfo"/>
     /// or <see cref="T:System.Type"/> on which this instance is applied.</param>
     /// <returns>
-    /// 	<b>true</b> in case of success, <b>false</b> in case of error.
+    ///   <b>true</b> in case of success, <b>false</b> in case of error.
     /// </returns>
     /// <inheritdoc/>
     public override sealed bool CompileTimeValidate(object element)

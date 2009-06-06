@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
 
-    // Constructor
+    // Constructors
 
     public ConcatProvider(Compilable.ConcatProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base(origin, left, right)

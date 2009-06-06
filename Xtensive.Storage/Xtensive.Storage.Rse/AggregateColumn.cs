@@ -49,7 +49,8 @@ namespace Xtensive.Storage.Rse
       return new AggregateColumn(this, newName);
     }
 
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

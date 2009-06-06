@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Providers.MsSql
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <inheritdoc/>
     public MsSqlModelConverter(Schema storageSchema, Func<ISqlCompileUnit, object> commandExecutor, 

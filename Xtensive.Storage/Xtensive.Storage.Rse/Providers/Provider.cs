@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Rse.Providers
     #endregion
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>

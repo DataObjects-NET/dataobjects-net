@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Upgrade
     /// <param name="field">The field to filter.</param>
     /// <param name="upgradeStage">The upgrade stage to check the availability at.</param>
     /// <returns>
-    /// 	<see langword="true"/> if type should be included into the model in the specified upgrade stage;
+    ///   <see langword="true"/> if type should be included into the model in the specified upgrade stage;
     /// otherwise, <see langword="false"/>.
     /// </returns>
     bool IsFieldAvailable(PropertyInfo field, UpgradeStage upgradeStage);

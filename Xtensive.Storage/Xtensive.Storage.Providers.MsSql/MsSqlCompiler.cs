@@ -296,7 +296,8 @@ namespace Xtensive.Storage.Providers.MsSql
 
     #endregion
 
-    // Constructor
+
+    // Constructors
 
     public MsSqlCompiler(HandlerAccessor handlers, BindingCollection<object, ExecutableProvider> compiledSources)
       : base(handlers, compiledSources)

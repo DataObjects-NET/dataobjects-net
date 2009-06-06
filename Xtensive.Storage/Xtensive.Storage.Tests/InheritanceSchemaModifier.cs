@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests
     }
 
 
-    // Constructor
+    // Constructors
 
     protected InheritanceSchemaModifier(InheritanceSchema schema)
     {

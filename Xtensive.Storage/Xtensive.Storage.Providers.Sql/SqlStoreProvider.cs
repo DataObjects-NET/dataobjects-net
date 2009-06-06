@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
 
-    // Constructor
+    // Constructors
 
     public SqlStoreProvider(StoreProvider origin, SqlSelect request, HandlerAccessor handlers, ExecutableProvider source, Table table)
       : base(origin, request, handlers, source)

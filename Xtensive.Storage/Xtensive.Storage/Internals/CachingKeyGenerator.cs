@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Internals
     protected abstract void CacheNext();
 
 
-    // Constructor
+    // Constructors
 
     /// <inheritdoc/>
     protected CachingKeyGenerator(GeneratorInfo generatorInfo)

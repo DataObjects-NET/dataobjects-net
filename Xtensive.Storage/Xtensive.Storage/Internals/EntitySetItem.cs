@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Internals
     public TSlave Slave { get; private set; }
 
 
-    // Constructor
+    // Constructors
 
     protected EntitySetItem(Tuple tuple)
       :base(tuple)

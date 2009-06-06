@@ -269,7 +269,7 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>

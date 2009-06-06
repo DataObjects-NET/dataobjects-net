@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Internals
     }
 
 
-    // Constructor
+    // Constructors
 
     internal RecordSetParser(Domain domain)
       : base(domain)

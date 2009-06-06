@@ -67,7 +67,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
     }
 
 
-    // Constructor
+    // Constructors
 
     public ReferenceManager(Session session)
       : base(session)

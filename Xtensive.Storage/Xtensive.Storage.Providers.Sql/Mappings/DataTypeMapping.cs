@@ -38,7 +38,8 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
         : (value ?? DBNull.Value);
     }
 
-    // Constructor
+
+    // Constructors
 
     private DataTypeMapping(Type type, DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor)
     {

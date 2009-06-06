@@ -44,7 +44,8 @@ namespace Xtensive.Storage.Rse
       return new CalculatedColumn(this, newName);
     }
 
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

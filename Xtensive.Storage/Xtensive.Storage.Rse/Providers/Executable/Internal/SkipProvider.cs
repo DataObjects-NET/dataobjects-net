@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
 
-    // Constructor
+    // Constructors
 
     public SkipProvider(Compilable.SkipProvider origin, ExecutableProvider source)
       : base(origin, source)

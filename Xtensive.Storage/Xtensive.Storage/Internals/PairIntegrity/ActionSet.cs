@@ -17,7 +17,7 @@ namespace Xtensive.Storage.PairIntegrity
     public Action<IEntity, IEntity, bool> CreateAssociation { get; private set; }
 
 
-    // Constructor
+    // Constructors
 
     public ActionSet(Func<IEntity, bool, IEntity> getPairedValue, Action<IEntity, IEntity, bool> breakAssociation, Action<IEntity, IEntity, bool> createAssociation)
       : this()

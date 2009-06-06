@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Linq.Materialization
     public readonly TypeInfo EntityType;
 
 
-    // Constructor
+    // Constructors
 
     public EntityMaterializationData(MapTransform transform, MapTransform keyTransform, TypeInfo entityType)
     {

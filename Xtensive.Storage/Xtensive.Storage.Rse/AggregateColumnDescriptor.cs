@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Rse
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

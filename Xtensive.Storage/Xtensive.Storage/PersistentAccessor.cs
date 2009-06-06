@@ -99,7 +99,7 @@ namespace Xtensive.Storage
     #endregion
 
 
-    // Constructor
+    // Constructors
 
     internal PersistentAccessor(Session session)
       : base(session)

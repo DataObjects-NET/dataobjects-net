@@ -520,7 +520,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     #endregion
 
 
-    // Constructor
+    // Constructors
 
     public RedundantColumnRemover(SelectProvider originalProvider)
     {

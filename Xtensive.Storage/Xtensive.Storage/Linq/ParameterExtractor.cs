@@ -74,7 +74,8 @@ namespace Xtensive.Storage.Linq
       return c;
     }
 
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>

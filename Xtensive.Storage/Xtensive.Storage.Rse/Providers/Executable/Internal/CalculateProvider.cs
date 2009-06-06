@@ -28,7 +28,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       }
     }
 
-    // Constructor
+
+    // Constructors
 
     public CalculateProvider(Compilable.CalculateProvider origin, ExecutableProvider source)
       : base(origin, source)

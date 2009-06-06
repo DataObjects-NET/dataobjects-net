@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

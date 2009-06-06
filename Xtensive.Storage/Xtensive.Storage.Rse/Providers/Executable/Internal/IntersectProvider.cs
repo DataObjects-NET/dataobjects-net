@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
 
-    // Constructor
+    // Constructors
 
     public IntersectProvider(Compilable.IntersectProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base(origin, left, right)

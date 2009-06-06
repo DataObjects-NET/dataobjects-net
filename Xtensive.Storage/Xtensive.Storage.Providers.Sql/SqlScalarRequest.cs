@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public class SqlScalarRequest : SqlRequest
   {
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

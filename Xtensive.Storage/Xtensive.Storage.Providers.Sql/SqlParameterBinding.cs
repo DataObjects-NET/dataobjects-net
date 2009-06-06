@@ -24,7 +24,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <value>The parameter reference.</value>
     public SqlParameterRef ParameterReference { get; private set; }
 
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

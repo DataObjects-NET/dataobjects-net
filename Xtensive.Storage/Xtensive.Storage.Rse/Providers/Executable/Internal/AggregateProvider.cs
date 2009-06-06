@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
 
-    // Constructor
+    // Constructors
 
     public AggregateProvider(Compilable.AggregateProvider origin, ExecutableProvider source)
       : base(origin, source)

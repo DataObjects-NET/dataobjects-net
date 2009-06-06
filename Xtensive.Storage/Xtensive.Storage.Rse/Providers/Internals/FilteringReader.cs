@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
     }
 
 
-    // Constructor
+    // Constructors
 
     public FilteringReader(ExecutableProvider provider, Range<Entire<Tuple>> range, ExecutableProvider toFilter, Func<Tuple,bool> predicate)
       : base(provider, range)

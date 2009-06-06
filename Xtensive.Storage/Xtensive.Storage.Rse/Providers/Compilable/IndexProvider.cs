@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     }
 
 
-    // Constructor
+    // Constructors
 
     private IndexProvider(IndexInfo index)
       : base (ProviderType.Index, RseCompiler.DefaultServerLocation)

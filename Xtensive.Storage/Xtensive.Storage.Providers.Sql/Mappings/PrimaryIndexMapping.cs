@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
     #endregion
 
 
-    // Constructor
+    // Constructors
 
     internal PrimaryIndexMapping(IndexInfo index, Table table)
     {

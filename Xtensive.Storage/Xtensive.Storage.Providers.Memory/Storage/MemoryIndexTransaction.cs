@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Providers.Memory
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

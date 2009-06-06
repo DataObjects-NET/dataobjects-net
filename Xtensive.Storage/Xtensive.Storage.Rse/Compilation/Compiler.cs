@@ -300,7 +300,7 @@ namespace Xtensive.Storage.Rse.Compilation
     protected abstract ExecutableProvider VisitUnion(UnionProvider provider);
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>

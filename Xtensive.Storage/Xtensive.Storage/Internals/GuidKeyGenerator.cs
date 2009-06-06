@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Internals
     }
 
 
-    // Constructor
+    // Constructors
 
     public GuidKeyGenerator(GeneratorInfo generatorInfo)
       : base(generatorInfo)

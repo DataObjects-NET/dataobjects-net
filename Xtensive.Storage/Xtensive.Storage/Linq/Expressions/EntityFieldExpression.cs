@@ -164,7 +164,7 @@ namespace Xtensive.Storage.Linq.Expressions
     }
 
 
-    // Constructor
+    // Constructors
 
     private EntityFieldExpression(TypeInfo persistentType, FieldInfo field, List<PersistentFieldExpression> fields,
       Segment<int> mapping, KeyExpression key, EntityExpression entity, ParameterExpression parameterExpression, bool defaultIfEmpty)

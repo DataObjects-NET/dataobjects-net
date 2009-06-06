@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Metadata
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="id">The identifier.</param>
     protected MetadataBase(int id)
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Metadata
       EnsureIsWritable();
     }
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="name">The identifier.</param>
     protected MetadataBase(string name)

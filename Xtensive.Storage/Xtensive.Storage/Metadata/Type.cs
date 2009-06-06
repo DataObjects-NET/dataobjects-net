@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Metadata
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="id">The type identifier.</param>
     /// <param name="name">The name of the type.</param>

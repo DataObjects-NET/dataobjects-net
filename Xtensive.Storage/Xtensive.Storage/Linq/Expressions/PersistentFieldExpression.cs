@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Linq.Expressions
     }
 
 
-    // Constructor
+    // Constructors
 
     protected PersistentFieldExpression(
       ExtendedExpressionType expressionType, 

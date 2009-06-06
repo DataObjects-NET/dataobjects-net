@@ -59,12 +59,11 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
 
-    // Constructor
+    // Constructors
 
     public UnorderedGroupProvider(Compilable.AggregateProvider origin, ExecutableProvider source)
       : base(origin, source)
     {
     }
-
   }
 }

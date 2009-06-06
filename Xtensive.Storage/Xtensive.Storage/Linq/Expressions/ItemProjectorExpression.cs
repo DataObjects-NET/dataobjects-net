@@ -97,7 +97,7 @@ namespace Xtensive.Storage.Linq.Expressions
     }
 
 
-    // Constructor
+    // Constructors
 
     public ItemProjectorExpression(Expression expression, RecordSet dataSource)
       : base(ExtendedExpressionType.ItemProjector, expression.Type)

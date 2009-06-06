@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     }
 
 
-    // Constructor
+    // Constructors
 
     public ExceptProvider(Compilable.ExceptProvider origin, ExecutableProvider left, ExecutableProvider right)
       : base(origin, left, right)

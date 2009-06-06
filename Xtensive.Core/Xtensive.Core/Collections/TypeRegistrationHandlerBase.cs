@@ -54,7 +54,7 @@ namespace Xtensive.Core.Collections
     /// <param name="registration">The currently processed registration.</param>
     /// <param name="type">The type to check.</param>
     /// <returns>
-    /// 	<see langword="true"/> if the specified type is acceptable for registration;
+    ///   <see langword="true"/> if the specified type is acceptable for registration;
     /// otherwise, <see langword="false"/>.
     /// </returns>
     protected virtual bool IsAcceptable(TypeRegistry registry, TypeRegistration registration, Type type)

@@ -14,7 +14,7 @@ namespace Xtensive.Core
     /// Object isn't changed, while its
     /// <c>oldVersion.Equals(newVersion)</c>.
     /// </summary>
-    object Version {get;}
+    object Version { get; }
   }
 
   /// <summary>
@@ -28,6 +28,6 @@ namespace Xtensive.Core
     /// Object isn't changed, while its
     /// <c>oldVersion.Equals(newVersion)</c>.
     /// </summary>
-    new T Version {get;}
+    new T Version { get; }
   }
 }

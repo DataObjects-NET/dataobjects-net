@@ -24,7 +24,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
     }
 
 
-    // Constructor
+    // Constructors
 
     public RemovalContext(ReferenceManager referenceManager, bool notify)
     {

@@ -102,7 +102,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
     }
     
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

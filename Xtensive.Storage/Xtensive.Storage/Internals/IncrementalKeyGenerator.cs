@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Internals
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <inheritdoc/>
     public IncrementalKeyGenerator(GeneratorInfo generatorInfo)

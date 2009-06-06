@@ -43,7 +43,8 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return Source.Header.Add(EnumerableUtils.One((Column) SystemColumn));
     }
 
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
     }
 
 
-    // Constructor
+    // Constructors
 
     internal ModelMapping()
     {

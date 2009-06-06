@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Providers.Index
     public abstract MapTransform GetTransform(IndexInfo indexInfo);
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

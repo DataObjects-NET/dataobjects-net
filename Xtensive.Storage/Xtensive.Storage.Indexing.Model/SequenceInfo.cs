@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Indexing.Model
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

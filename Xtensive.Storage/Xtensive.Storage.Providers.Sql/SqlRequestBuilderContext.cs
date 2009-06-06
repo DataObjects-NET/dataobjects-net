@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Providers.Sql
     public Dictionary<ColumnInfo, SqlUpdateParameterBinding> ParameterBindings { get; private set; }
 
 
-    // Constructor
+    // Constructors
 
     public SqlRequestBuilderContext(SqlRequestBuilderTask task, SqlBatch batch)
     {

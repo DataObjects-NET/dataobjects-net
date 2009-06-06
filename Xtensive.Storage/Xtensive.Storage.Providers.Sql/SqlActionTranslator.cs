@@ -791,7 +791,7 @@ namespace Xtensive.Storage.Providers.Sql
     # endregion
     
 
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>

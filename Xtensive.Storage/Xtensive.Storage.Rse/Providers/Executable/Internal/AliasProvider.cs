@@ -11,7 +11,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   [Serializable]
   internal sealed class AliasProvider : TransparentProvider<Compilable.AliasProvider>
   {
-    // Constructor
+    // Constructors
 
     public AliasProvider(Compilable.AliasProvider origin, ExecutableProvider source)
       : base(origin, source)

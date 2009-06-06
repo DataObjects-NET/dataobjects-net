@@ -92,7 +92,8 @@ namespace Xtensive.Storage.Internals
 
     #endregion
 
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

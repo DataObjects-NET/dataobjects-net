@@ -589,7 +589,7 @@ namespace Xtensive.Storage.Providers.Sql
       return ((DomainHandler)Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(type).DataTypeInfo.SqlType;
     }
 
-    #region Private methods.
+    #region Private methods
 
     private SqlSelect BuildProviderQuery(IndexInfo index)
     {
@@ -739,7 +739,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     #endregion
 
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

@@ -15,8 +15,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public sealed class DistinctProvider : UnaryProvider
   {
-
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

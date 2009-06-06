@@ -74,7 +74,7 @@ namespace Xtensive.Storage
     }
 
 
-    // Constructor
+    // Constructors
     
     internal ServiceProvider(Session session)
       : base(session)

@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Building.FixupActions
     }
 
 
-    // Constructor
+    // Constructors
 
     public RemoveTypeAction(TypeDef type)
       : base(type)

@@ -90,7 +90,8 @@ namespace Xtensive.Storage.Rse
     /// <returns>Clone of the column, but with another <see cref="Name"/>.</returns>
     public abstract Column Clone(string newName);
 
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>.

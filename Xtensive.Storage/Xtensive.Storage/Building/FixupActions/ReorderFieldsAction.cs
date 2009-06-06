@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Building.FixupActions
     }
 
 
-    // Constructor
+    // Constructors
 
     public ReorderFieldsAction(HierarchyDef hierarchy)
       : base(hierarchy)

@@ -155,7 +155,8 @@ namespace Xtensive.Storage.Providers.Sql
       DomainHandler = Handlers.DomainHandler as DomainHandler;
     }
     
-    // Constructor
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Providers.PgSql
     }
 
 
-    // Constructor
+    // Constructors
 
     /// <inheritdoc/>
     public PgSqlModelConverter(Schema storageSchema, Func<ISqlCompileUnit, object> commandExecutor, 
