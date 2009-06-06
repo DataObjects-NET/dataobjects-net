@@ -43,8 +43,14 @@ namespace Xtensive.Storage.Model.Stored
       foreach (var type in model.Types)
         UpdateTypeAncestor(type);
 
-      foreach (var type in model.Types)
+      foreach (var type in model.Types) {
         UpdateTypeHierarchy(type);
+        UpdateTypeDescendants(type);
+        UpdateTypeAllAncestors(type);
+      }
+
+      foreach (var type in model.Types)
+        UpdateTypeAllDescendants(type);
 
       // building hierarchies
      
@@ -75,6 +81,7 @@ namespace Xtensive.Storage.Model.Stored
       foreach (var association in associations.Values) {
         UpdateAssociationReversed(association);
         UpdadeAssociationConnectorType(association);
+        UpdateAssociationReferencedType(association);
       }
 
       model.Hierarchies = hierarchies.Values.ToArray();
@@ -113,6 +120,30 @@ namespace Xtensive.Storage.Model.Stored
         currentType = currentType.Ancestor;
       }
       type.AllFields = fields.ToArray();
+    }
+
+    private void UpdateTypeDescendants(StoredTypeInfo type)
+    {
+      type.Descendants = types.Values
+        .Where(t => t.Ancestor==type)
+        .ToArray();
+    }
+    
+    private void UpdateTypeAllAncestors(StoredTypeInfo type)
+    {
+      var result = new List<StoredTypeInfo>();
+      var currentAncestor = type.Ancestor;
+      while (currentAncestor != null) {
+        result.Add(currentAncestor);
+        currentAncestor = currentAncestor.Ancestor;
+      }
+      result.Reverse();
+      type.AllAncestors = result.ToArray();
+    }
+    
+    private void UpdateTypeAllDescendants(StoredTypeInfo type)
+    {
+      type.AllDescendants = EnumerableUtils.Flatten(type.Descendants, t => t.Descendants, item => { }, true).ToArray();
     }
 
     private void UpdateHierarchySchema(StoredHierarchyInfo hierarchy)
@@ -164,6 +195,13 @@ namespace Xtensive.Storage.Model.Stored
       if (string.IsNullOrEmpty(association.ReversedName))
         return;
       association.Reversed = associations[association.ReversedName];
+    }
+
+    private void UpdateAssociationReferencedType(StoredAssociationInfo association)
+    {
+      if (string.IsNullOrEmpty(association.ReferencedTypeName))
+        return;
+      association.ReferencedType = types[association.ReferencedTypeName];
     }
 
     private void UpdadeAssociationConnectorType(StoredAssociationInfo association)

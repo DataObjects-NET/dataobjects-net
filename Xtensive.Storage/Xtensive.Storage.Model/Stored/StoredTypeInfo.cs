@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Model.Stored
     public StoredAssociationInfo[] Associations;
 
     /// <summary>
-    /// <see cref="TypeInfo.GetAncestor"/>.
+    /// Gets the ancestors of this <see cref="StoredTypeInfo"/>.
     /// </summary>
     [XmlIgnore]
     public StoredTypeInfo Ancestor;
@@ -68,6 +68,24 @@ namespace Xtensive.Storage.Model.Stored
     /// </summary>
     [XmlElement("Ancestor")]
     public string AncestorName;
+
+    /// <summary>
+    /// Gets both direct and indirect ancestors of this <see cref="StoredTypeInfo"/>.
+    /// </summary>
+    [XmlIgnore]
+    public StoredTypeInfo[] AllAncestors;
+
+    /// <summary>
+    /// Gets direct descendants of this <see cref="StoredTypeInfo"/>.
+    /// </summary>
+    [XmlIgnore]
+    public StoredTypeInfo[] Descendants;
+
+    /// <summary>
+    /// Gets both direct and indirect descendants of this <see cref="StoredTypeInfo"/>.
+    /// </summary>
+    [XmlIgnore]
+    public StoredTypeInfo[] AllDescendants;
 
     #region IsXxx fields
 
