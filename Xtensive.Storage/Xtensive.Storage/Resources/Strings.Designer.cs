@@ -817,6 +817,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Lambda parameter is out of scope!.
+        /// </summary>
+        internal static string ExLambdaParameterIsOutOfScope {
+            get {
+                return ResourceManager.GetString("ExLambdaParameterIsOutOfScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;Length&apos; constraint violation on field &apos;{0}&apos;.
         /// </summary>
         internal static string ExLengthConstraintViolationOnFieldX {
@@ -894,6 +903,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExNoUpgradeHandlerIsFoundForAssemblyXVersionY {
             get {
                 return ResourceManager.GetString("ExNoUpgradeHandlerIsFoundForAssemblyXVersionY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OfType supports only &apos;Entity&apos; conversion..
+        /// </summary>
+        internal static string ExOfTypeSupportsOnlyEntityConversion {
+            get {
+                return ResourceManager.GetString("ExOfTypeSupportsOnlyEntityConversion", resourceCulture);
             }
         }
         

@@ -1481,7 +1481,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq105()
     {
       var q =
-        from p in Query<Product>.All.AsEnumerable()
+        from p in Query<Product>.All.ToList()
         where isValidProduct(p)
         select p;
 

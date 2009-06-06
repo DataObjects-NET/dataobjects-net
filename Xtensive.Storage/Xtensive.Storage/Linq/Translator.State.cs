@@ -6,13 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
-using Xtensive.Core.Tuples;
-using Xtensive.Storage.Linq.Expressions.Mappings;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
@@ -27,23 +24,12 @@ namespace Xtensive.Storage.Linq
       private List<CalculatedColumnDescriptor> calculatedColumns;
       private ParameterExpression[] parameters;
       private ParameterExpression[] outerParameters;
-      private MappingReference mappingRef;
-      private ParameterExpression tuple;
-      private ParameterExpression record;
-      private bool entityAsKey;
+      private bool buildingProjection;
       private bool calculateExpressions;
-      private bool recordIsUsed;
 
       public List<CalculatedColumnDescriptor> CalculatedColumns
       {
         get { return calculatedColumns; }
-        set { calculatedColumns = value; }
-      }
-
-      public MappingReference MappingRef
-      {
-        get { return mappingRef; }
-        set { mappingRef = value; }
       }
 
       public ParameterExpression[] Parameters
@@ -58,20 +44,10 @@ namespace Xtensive.Storage.Linq
         set { outerParameters = value; }
       }
 
-      public ParameterExpression Tuple
+      public bool BuildingProjection
       {
-        get { return tuple; }
-      }
-
-      public ParameterExpression Record
-      {
-        get { return record; }
-      }
-
-      public bool EntityAsKey
-      {
-        get { return entityAsKey; }
-        set { entityAsKey = value; }
+        get { return buildingProjection; }
+        set { buildingProjection = value; }
       }
 
       public bool CalculateExpressions
@@ -80,43 +56,23 @@ namespace Xtensive.Storage.Linq
         set { calculateExpressions = value; }
       }
 
-      public bool RecordIsUsed
-      {
-        get { return recordIsUsed; }
-        set
-        {
-          if (value) {
-            if (!entityAsKey)
-              recordIsUsed = true;
-          }
-          else
-            recordIsUsed = false;
-        }
-      }
-
       public IDisposable CreateScope()
       {
         var currentState = translator.state;
         var newState = new State(currentState);
         translator.state = newState;
-        return new Disposable((b) => {
-          currentState.RecordIsUsed = currentState.RecordIsUsed | newState.RecordIsUsed;
-          translator.state = currentState;
-        });
+        return new Disposable(_ => translator.state = currentState);
       }
 
       public IDisposable CreateLambdaScope(LambdaExpression le)
       {
         var currentState = translator.state;
         var newState = new State(currentState);
-        newState.RecordIsUsed = false;
-        newState.tuple = Expression.Parameter(typeof(Tuple), "t");
-        newState.record = Expression.Parameter(typeof(Record), "r");
         newState.outerParameters = newState.outerParameters.Concat(newState.parameters).ToArray();
         newState.parameters = le.Parameters.ToArray();
         newState.calculatedColumns = new List<CalculatedColumnDescriptor>();
         translator.state = newState;
-        return new Disposable((b) => translator.state = currentState);
+        return new Disposable(_ => translator.state = currentState);
       }
 
 
@@ -125,10 +81,9 @@ namespace Xtensive.Storage.Linq
       public State(Translator translator)
       {
         this.translator = translator;
-        entityAsKey = true;
+        buildingProjection = true;
         outerParameters = parameters = ArrayUtils<ParameterExpression>.EmptyArray;
         calculatedColumns = new List<CalculatedColumnDescriptor>();
-        mappingRef = new MappingReference();
       }
 
       private State(State currentState)
@@ -137,12 +92,8 @@ namespace Xtensive.Storage.Linq
         calculatedColumns = currentState.calculatedColumns;
         parameters = currentState.parameters;
         outerParameters = currentState.outerParameters;
-        mappingRef = currentState.mappingRef;
-        tuple = currentState.tuple;
-        record = currentState.record;
         calculateExpressions = currentState.calculateExpressions;
-        entityAsKey = currentState.entityAsKey;
-        recordIsUsed = currentState.recordIsUsed;
+        buildingProjection = currentState.buildingProjection;
       }
     }
   }

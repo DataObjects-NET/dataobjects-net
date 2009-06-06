@@ -198,7 +198,7 @@ namespace Xtensive.Storage.Model
       [DebuggerStepThrough]
       get { return (Attributes & FieldAttributes.Nullable) != 0; }
       [DebuggerStepThrough]
-      set {
+      private set {
         this.EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.Nullable : Attributes & ~FieldAttributes.Nullable;
       }
@@ -260,7 +260,12 @@ namespace Xtensive.Storage.Model
       set {
         this.EnsureNotLocked();
         valueType = value;
-        IsEnum = value.IsEnum;
+        if (valueType.IsGenericType) {
+          if (valueType.GetGenericTypeDefinition() == typeof (Nullable<>))
+            IsEnum = Nullable.GetUnderlyingType(valueType).IsEnum;
+        }
+        else
+          IsEnum = value.IsEnum;
       }
     }
 

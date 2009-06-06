@@ -151,11 +151,10 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         long sum = 0;
         int i = 0;
         using (var ts = s.OpenTransaction()) {
-          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Bulk Fetch & GetField", count)) {
             while (i<count) {
-              foreach (var o in rs.ToEntities<Simplest>()) {
+              foreach (var o in Query<Simplest>.All) {
                 sum += o.Id;
                 if (++i >= count)
                   break;
@@ -176,10 +175,9 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         long sum = 0;
         int i = 0;
         var entities = new List<Entity>(count/2);
-        var rs = d.Model.Types[typeof(Simplest)].Indexes.PrimaryIndex.ToRecordSet();
         using (var ts = s.OpenTransaction()) {
           while (i<count) {
-            foreach (var o in rs.ToEntities<Simplest>()) {
+            foreach (var o in Query<Simplest>.All) {
               sum += o.Id;
               if (i % 2 == 0)
                 entities.Add(o);

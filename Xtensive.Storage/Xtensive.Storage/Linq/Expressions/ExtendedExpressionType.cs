@@ -11,6 +11,17 @@ namespace Xtensive.Storage.Linq.Expressions
   [Serializable]
   internal enum ExtendedExpressionType
   {
-    Result = 1000
+    Projection = 1000,
+    Key,
+    Column,
+    Field,
+    Structure,
+    Entity,
+    EntityField,
+    EntitySet,
+    ItemProjector,
+    MemberPath,
+    Grouping,
+    SubQuery,
   }
 }

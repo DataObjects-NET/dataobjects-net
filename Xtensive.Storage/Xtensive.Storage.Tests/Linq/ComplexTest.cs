@@ -39,12 +39,61 @@ namespace Xtensive.Storage.Tests.Linq
         var fullQuery = Query<Customer>.All
           .Where(cn => cn.CompanyName.StartsWith(firstChar))
           .Select(customer => customer.ContactName);
-        Assert.IsTrue(query.AsEnumerable().SequenceEqual(fullQuery.AsEnumerable()));
+        Assert.IsTrue(query.ToList().SequenceEqual(fullQuery.ToList()));
         var cachedQueryList = cachedQuery.ToList();
         var fullQueryList = fullQuery.ToList();
         var condition = cachedQueryList.SequenceEqual(fullQueryList);
         Assert.IsTrue(condition);
       }
+    }
+
+
+    [Test]
+    public void SubquerySimpleTest()
+    {
+      var result = Query<Product>.All
+        .Select(p => Query<Supplier>.All);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void SubqueryMutipleTest()
+    {
+      var result = Query<Supplier>.All
+        .Select(supplier => 
+          Query<Product>.All
+          .Select(product=> Query<Product>.All
+            .Where(p=>p==product && p.Supplier==supplier)));
+      QueryDumper.Dump(result);
+    }
+
+    [Ignore("Not implemented")]
+    [Test]
+    public void SubqueryCalculableFieldTest()
+    {
+      var result = Query<Supplier>.All
+        .Select(supplier => Query<Product>.All
+          .Where(p=>p.Supplier == supplier)
+          .First()
+          .UnitPrice);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void SubqueryCalculableColumnTest()
+    {
+      var result = Query<Supplier>.All
+        .Select(supplier => Query<Product>.All
+          .Where(p=>p.Supplier == supplier)
+          .Count());
+      var expectedResult = Query<Supplier>.All
+        .ToList()
+        .Select(supplier => Query<Product>.All
+          .ToList()
+          .Where(p=>p.Supplier == supplier)
+          .Count());
+      Assert.AreEqual(0, expectedResult.Except(result).Count());
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -74,8 +123,8 @@ namespace Xtensive.Storage.Tests.Linq
         orderby Query<Order>.All.Where(o => o.Customer==c).Count() , c.Id
         select c;
       var expected =
-        from c in Query<Customer>.All.AsEnumerable()
-        orderby Query<Order>.All.AsEnumerable().Where(o => o.Customer==c).Count() , c.Id
+        from c in Query<Customer>.All.ToList()
+        orderby Query<Order>.All.ToList().Where(o => o.Customer==c).Count() , c.Id
         select c;
       var resultList = result.ToList();
       var expectedList = expected.ToList();
@@ -107,7 +156,7 @@ namespace Xtensive.Storage.Tests.Linq
           (country, customers) => customers.Where(k => k.CompanyName.StartsWith(country.Substring(0, 1))))
         .SelectMany(k => k);
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .GroupBy(c => c.Address.Country,
           (country, customers) => customers.Where(k => k.CompanyName.StartsWith(country.Substring(0, 1))))
         .SelectMany(k => k);
@@ -126,7 +175,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AsEnumerableSelectDistinctTest()
     {
-      var result = Query<Order>.All.AsEnumerable().Select(o => o.Employee).Distinct();
+      var result = Query<Order>.All.ToList().Select(o => o.Employee).Distinct();
       Assert.IsNotNull(result.First());
       Assert.Greater(result.Count(), 2);
     }

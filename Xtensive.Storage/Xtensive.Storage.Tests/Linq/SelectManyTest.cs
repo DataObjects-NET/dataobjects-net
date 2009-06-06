@@ -92,16 +92,60 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void OuterJoinTest()
+    public void OuterJoinAnonymousTest()
     {
       int assertCount =
         Query<Order>.All.Count() +
           Query<Customer>.All.Count(c => !Query<Order>.All.Any(o => o.Customer == c));
       var result = from c in Query<Customer>.All
-        from o in Query<Order>.All.Where(o => o.Customer == c).DefaultIfEmpty()
-        select new {c.ContactName, o.OrderDate};
+                   from o in Query<Order>.All.Where(o => o.Customer == c).Select(o => new { o.Id, c.CompanyName }).DefaultIfEmpty()
+                   select new { c.ContactName, o };
       var list = result.ToList();
       Assert.AreEqual(assertCount, list.Count);
+      QueryDumper.Dump(list);
+    }
+
+    [Test]
+    public void OuterJoinAnonymousFieldTest()
+    {
+      int assertCount =
+        Query<Order>.All.Count() +
+          Query<Customer>.All.Count(c => !Query<Order>.All.Any(o => o.Customer == c));
+      var result = from c in Query<Customer>.All
+                   from o in Query<Order>.All.Where(o => o.Customer == c).Select(o => new {o.Id, c.CompanyName}).DefaultIfEmpty()
+                   select new { c.ContactName, o.Id };
+      var list = result.ToList();
+      Assert.AreEqual(assertCount, list.Count);
+      QueryDumper.Dump(list);
+    }
+
+    [Test]
+    [ExpectedException(typeof(NullReferenceException))]
+    public void OuterJoinEntityTest()
+    {
+      int assertCount =
+        Query<Order>.All.Count() +
+          Query<Customer>.All.Count(c => !Query<Order>.All.Any(o => o.Customer == c));
+      var result = from c in Query<Customer>.All
+                   from o in Query<Order>.All.Where(o => o.Customer == c).DefaultIfEmpty()
+                   select new { c.ContactName, o.OrderDate };
+      var list = result.ToList();
+      Assert.AreEqual(assertCount, list.Count);
+      QueryDumper.Dump(list);
+    }
+
+    [Test]
+    public void OuterJoinValueTest()
+    {
+      int assertCount =
+        Query<Order>.All.Count() +
+          Query<Customer>.All.Count(c => !Query<Order>.All.Any(o => o.Customer == c));
+      var result = from c in Query<Customer>.All
+                   from o in Query<Order>.All.Where(o => o.Customer == c).Select(o => o.OrderDate).DefaultIfEmpty()
+                   select new { c.ContactName, o };
+      var list = result.ToList();
+      Assert.AreEqual(assertCount, list.Count);
+      QueryDumper.Dump(list);
     }
 
 
@@ -207,7 +251,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void CalculateWithApply()
     {
-      var expected = from c in Query<Customer>.All.AsEnumerable()
+      var expected = from c in Query<Customer>.All.ToList()
       from r in (c.Orders.Select(o => c.ContactName + o.ShipName).Where(x => x.StartsWith("a")))
       orderby r
       select r;
@@ -229,7 +273,7 @@ namespace Xtensive.Storage.Tests.Linq
       if (Domain.Configuration.ConnectionInfo.Protocol!="memory")
         AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(actual));
       else {
-        var expected = from c in Query<Customer>.All.AsEnumerable()
+        var expected = from c in Query<Customer>.All.ToList()
         from r in (c.Orders.Select(o => c.ContactName + o.ShipName))
           .Intersect(c.Orders.Select(o => c.ContactName + o.ShipName))
         orderby r
@@ -249,7 +293,7 @@ namespace Xtensive.Storage.Tests.Linq
       if (Domain.Configuration.ConnectionInfo.Protocol!="memory")
         AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(actual));
       else {
-        var expected = from c in Query<Customer>.All.AsEnumerable()
+        var expected = from c in Query<Customer>.All.ToList()
         from r in (c.Orders.Where(x => x.ShipName.StartsWith("a"))
           .Intersect(c.Orders))
         orderby r

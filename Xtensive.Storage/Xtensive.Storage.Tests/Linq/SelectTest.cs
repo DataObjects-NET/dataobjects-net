@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void AnoimousEntityTest()
     {
       var result = Query<Category>.All
-        .Select(category => new{Category = category} )
+        .Select(category => new {Category = category})
         .Select(a => a.Category);
       QueryDumper.Dump(result);
     }
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void AnoimousEntityKeyTest()
     {
       var result = Query<Category>.All
-        .Select(category => new{Category = category} )
+        .Select(category => new {Category = category})
         .Select(a => a.Category.Key);
       QueryDumper.Dump(result);
     }
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void AnoimousEntityFieldTest()
     {
       var result = Query<Category>.All
-        .Select(category => new{Category = category} )
+        .Select(category => new {Category = category})
         .Select(a => a.Category.CategoryName);
       QueryDumper.Dump(result);
     }
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void AnoimousEntityKeyFieldTest()
     {
       var result = Query<Category>.All
-        .Select(category => new{Category = category} )
+        .Select(category => new {Category = category})
         .Select(a => a.Category.Id);
       QueryDumper.Dump(result);
     }
@@ -202,7 +202,7 @@ namespace Xtensive.Storage.Tests.Linq
       where r > 0
       select r;
       var list = result.ToList();
-      var checkList = products.AsEnumerable().Select(p => p.UnitsInStock * p.UnitPrice).ToList();
+      var checkList = products.ToList().Select(p => p.UnitsInStock * p.UnitPrice).ToList();
       list.SequenceEqual(checkList);
     }
 
@@ -210,12 +210,9 @@ namespace Xtensive.Storage.Tests.Linq
     public void KeyTest()
     {
       var products = Query<Product>.All;
-      var result =
-        from r in
-          from p in products
-          select p.Key
-        where r!=null
-        select r;
+      var result = products
+        .Select(p => p.Key)
+        .Where(r => r!=null);
       var list = result.ToList();
       Assert.Greater(list.Count, 0);
       foreach (var k in list) {
@@ -223,6 +220,16 @@ namespace Xtensive.Storage.Tests.Linq
         var p = k.Resolve<Product>();
         Assert.IsNotNull(p);
       }
+    }
+
+
+    [Test]
+    public void KeySimpleTest()
+    {
+      var result = Query<Product>
+        .All
+        .Select(p => p.Key);
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -583,7 +590,7 @@ namespace Xtensive.Storage.Tests.Linq
           .ToArray();
       var expected =
         Query<Customer>.All
-          .AsEnumerable()
+          .ToList()
           .Select(c => new
             {
               String = c.Id,
@@ -625,7 +632,7 @@ namespace Xtensive.Storage.Tests.Linq
           .ToArray();
       var expected =
         Query<Customer>.All
-          .AsEnumerable()
+          .ToList()
           .Select(c => new
             {
               String = c.Id,
@@ -660,7 +667,7 @@ namespace Xtensive.Storage.Tests.Linq
           .ToArray();
       var expected =
         Query<Customer>.All
-          .AsEnumerable()
+          .ToList()
           .Where(c => c.Id.Contains('C'))
           .OrderBy(c => c.Id)
           .ToArray();
@@ -674,38 +681,36 @@ namespace Xtensive.Storage.Tests.Linq
       var timeSpan = new TimeSpan(1, 1, 1, 1);
 
       var result = Query<Customer>.All
-        .Select(c => new
-          {
-            CustomerId = c.Id,
-            DateTime = dateTime,
-            TimeSpan = timeSpan
-          }
+        .Select(c => new {
+          CustomerId = c.Id,
+          DateTime = dateTime,
+          TimeSpan = timeSpan
+        }
         )
-        .Select(k => new
-          {
-            DateTime = k.DateTime,
-            DateTimeDate = k.DateTime.Date,
-            DateTimeTime = k.DateTime.TimeOfDay,
-            DateTimeYear = k.DateTime.Year,
-            DateTimeMonth = k.DateTime.Month,
-            DateTimeDay = k.DateTime.Day,
-            DateTimeHour = k.DateTime.Hour,
-            DateTimeMinute = k.DateTime.Minute,
-            DateTimeSecond = k.DateTime.Second,
-            DateTimeDayOfYear = k.DateTime.DayOfYear,
-            DateTimeDayOfWeek = k.DateTime.DayOfWeek,
-            TimeSpan = k.TimeSpan,
-            TimeSpanDays = k.TimeSpan.Days,
-            TimeSpanHours = k.TimeSpan.Hours,
-            TimeSpanMinutes = k.TimeSpan.Minutes,
-            TimeSpanSeconds = k.TimeSpan.Seconds,
-            TimeSpanTotalDays = k.TimeSpan.TotalDays,
-            TimeSpanTotalHours = k.TimeSpan.TotalHours,
-            TimeSpanTotalMinutes = k.TimeSpan.TotalMinutes,
-            TimeSpanTotalSeconds = k.TimeSpan.TotalSeconds,
-            TimeSpanTicks = k.TimeSpan.Ticks,
-            TimeSpanDuration = k.TimeSpan.Duration(),
-          }
+        .Select(k => new {
+          DateTime = k.DateTime,
+          DateTimeDate = k.DateTime.Date,
+          DateTimeTime = k.DateTime.TimeOfDay,
+          DateTimeYear = k.DateTime.Year,
+          DateTimeMonth = k.DateTime.Month,
+          DateTimeDay = k.DateTime.Day,
+          DateTimeHour = k.DateTime.Hour,
+          DateTimeMinute = k.DateTime.Minute,
+          DateTimeSecond = k.DateTime.Second,
+          DateTimeDayOfYear = k.DateTime.DayOfYear,
+          DateTimeDayOfWeek = k.DateTime.DayOfWeek,
+          TimeSpan = k.TimeSpan,
+          TimeSpanDays = k.TimeSpan.Days,
+          TimeSpanHours = k.TimeSpan.Hours,
+          TimeSpanMinutes = k.TimeSpan.Minutes,
+          TimeSpanSeconds = k.TimeSpan.Seconds,
+          TimeSpanTotalDays = k.TimeSpan.TotalDays,
+          TimeSpanTotalHours = k.TimeSpan.TotalHours,
+          TimeSpanTotalMinutes = k.TimeSpan.TotalMinutes,
+          TimeSpanTotalSeconds = k.TimeSpan.TotalSeconds,
+          TimeSpanTicks = k.TimeSpan.Ticks,
+          TimeSpanDuration = k.TimeSpan.Duration(),
+        }
         )
         .First();
 

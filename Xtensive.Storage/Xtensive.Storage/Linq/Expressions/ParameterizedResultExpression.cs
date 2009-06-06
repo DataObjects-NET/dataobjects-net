@@ -10,14 +10,15 @@ using Xtensive.Core.Parameters;
 namespace Xtensive.Storage.Linq.Expressions
 {
   [Serializable]
-  internal class ParameterizedResultExpression : ResultExpression
+  internal class ParameterizedResultExpression : ProjectionExpression
   {
-    public Parameter QueryParameter { get; set; }
+    public Parameter QueryParameter { get; private set; }
+
 
     // Constructors
 
-    public ParameterizedResultExpression(ResultExpression resultExpression, Parameter parameter)
-      : base(resultExpression.Type, resultExpression.RecordSet, resultExpression.Mapping, resultExpression.ItemProjector, resultExpression.ResultType)
+    public ParameterizedResultExpression(ProjectionExpression projectionExpression, Parameter parameter)
+      : base(projectionExpression.Type, projectionExpression.ItemProjector, projectionExpression.ResultType)
     {
       QueryParameter = parameter;
     }

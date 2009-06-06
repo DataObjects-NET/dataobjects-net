@@ -19,13 +19,20 @@ namespace Xtensive.Storage.Tests.Linq
   public class OrderByTest : NorthwindDOModelTest
   {
     [Test]
+    public void EntityFieldTest()
+    {
+      var result = Query<Product>.All.Select(p => p).OrderBy(g => g.Id);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void OrderByAnonymousEntityTest()
     {
       var result = Query<OrderDetails>.All
         .Select(od => new {Details = od, Order = od.Order})
         .OrderBy(x => new {x, x.Order.Customer})
         .Select(x => new {x, x.Order.Customer});
-      var expected = Query<OrderDetails>.All.AsEnumerable()
+      var expected = Query<OrderDetails>.All.ToList()
         .Select(od => new {Details = od, Order = od.Order})
         .OrderBy(x => x.Details.Order.Id)
         .ThenBy(x => x.Details.Product.Id)
@@ -42,7 +49,7 @@ namespace Xtensive.Storage.Tests.Linq
       var result = customers
         .OrderBy(c => new {c.Fax, c.Phone})
         .Select(c => new {c.Fax, c.Phone});
-      var expected = customers.AsEnumerable()
+      var expected = customers.ToList()
         .OrderBy(a => a.Fax)
         .ThenBy(a => a.Phone)
         .Select(c => new {c.Fax, c.Phone});
@@ -56,7 +63,7 @@ namespace Xtensive.Storage.Tests.Linq
       var result = customers
         .Select(c => new {c.Address.Country, c})
         .OrderBy(x => x);
-      var expected = customers.AsEnumerable()
+      var expected = customers.ToList()
         .Select(c => new {c.Address.Country, c})
         .OrderBy(x => x.Country)
         .ThenBy(x => x.c.Id);
@@ -68,7 +75,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Customer>.All.OrderByDescending(c => c.CompanyName)
         .ThenByDescending(c => c.Address.Country).Select(c => c.Address.City);
-      var expected = Query<Customer>.All.AsEnumerable().OrderByDescending(c => c.CompanyName)
+      var expected = Query<Customer>.All.ToList().OrderByDescending(c => c.CompanyName)
         .ThenByDescending(c => c.Address.Country).Select(c => c.Address.City);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
@@ -78,7 +85,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var customers = Query<Customer>.All;
       var result = customers.OrderBy(c => c);
-      var expected = customers.AsEnumerable().OrderBy(c => c.Id);
+      var expected = customers.ToList().OrderBy(c => c.Id);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
@@ -86,12 +93,12 @@ namespace Xtensive.Storage.Tests.Linq
     public void OrderByExpressionTest()
     {
       IQueryable<Customer> customers = Query<Customer>.All;
-      List<string> original = customers.Select(c => c.ContactName).AsEnumerable().Select(s => s.ToUpper()).ToList();
+      List<string> original = customers.Select(c => c.ContactName).ToList().Select(s => s.ToUpper()).ToList();
       original.Sort();
       Assert.IsTrue(original.SequenceEqual(
         customers
           .OrderBy(c => c.ContactName.ToUpper())
-          .AsEnumerable()
+          .ToList()
           .Select(c => c.ContactName.ToUpper())));
     }
 
@@ -103,8 +110,8 @@ namespace Xtensive.Storage.Tests.Linq
         join o in Query<Order>.All.OrderBy(o => o.OrderDate) on c equals o.Customer
         select new {c.ContactName, o.OrderDate};
       var expected =
-        from c in Query<Customer>.All.AsEnumerable().OrderBy(c => c.ContactName)
-        join o in Query<Order>.All.AsEnumerable().OrderBy(o => o.OrderDate) on c equals o.Customer
+        from c in Query<Customer>.All.ToList().OrderBy(c => c.ContactName)
+        join o in Query<Order>.All.ToList().OrderBy(o => o.OrderDate) on c equals o.Customer
         select new {c.ContactName, o.OrderDate};
       Assert.IsTrue(expected.SequenceEqual(result));
     }
@@ -119,7 +126,7 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.IsTrue(original.SequenceEqual(
         customers
           .OrderBy(c => c.ContactName)
-          .AsEnumerable()
+          .ToList()
           .Select(c => c.ContactName)));
     }
 
@@ -130,7 +137,7 @@ namespace Xtensive.Storage.Tests.Linq
       var result = customers
         .OrderBy(c => c.Phone)
         .Select(c => new {c.Fax, c.Phone});
-      var expected = customers.AsEnumerable()
+      var expected = customers.ToList()
         .OrderBy(c => c.Phone)
         .Select(c => new {c.Fax, c.Phone});
       Assert.IsTrue(expected.SequenceEqual(result));
@@ -142,12 +149,12 @@ namespace Xtensive.Storage.Tests.Linq
       var result =
         from c in Query<Customer>.All.OrderBy(c => c.ContactName)
         from o in Query<Order>.All.OrderBy(o => o.OrderDate)
-        where c == o.Customer
+        where c==o.Customer
         select new {c.ContactName, o.OrderDate};
       var expected =
-        from c in Query<Customer>.All.AsEnumerable().OrderBy(c => c.ContactName)
-        from o in Query<Order>.All.AsEnumerable().OrderBy(o => o.OrderDate)
-        where c == o.Customer
+        from c in Query<Customer>.All.ToList().OrderBy(c => c.ContactName)
+        from o in Query<Order>.All.ToList().OrderBy(o => o.OrderDate)
+        where c==o.Customer
         select new {c.ContactName, o.OrderDate};
       Assert.IsTrue(expected.SequenceEqual(result));
     }
@@ -157,7 +164,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       IQueryable<string> result = Query<Customer>.All.OrderBy(c => c.CompanyName)
         .OrderBy(c => c.Address.Country).Select(c => c.Address.City);
-      var expected = Query<Customer>.All.AsEnumerable().OrderBy(c => c.CompanyName)
+      var expected = Query<Customer>.All.ToList().OrderBy(c => c.CompanyName)
         .OrderBy(c => c.Address.Country).Select(c => c.Address.City);
       Assert.AreEqual(0, expected.Except(result).Count());
     }
@@ -167,13 +174,13 @@ namespace Xtensive.Storage.Tests.Linq
     {
       IQueryable<string> result = Query<Customer>.All
         .OrderBy(c => c.CompanyName)
-        .Select(c=>c.Address.City)
+        .Select(c => c.Address.City)
         .Distinct()
         .OrderBy(c => c)
         .Select(c => c);
       var expected = Query<Customer>.All
-        .AsEnumerable()
-        .Select(c=>c.Address.City)
+        .ToList()
+        .Select(c => c.Address.City)
         .Distinct()
         .OrderBy(c => c)
         .Select(c => c);
@@ -184,19 +191,19 @@ namespace Xtensive.Storage.Tests.Linq
     public void DistinctTest()
     {
       var result = Query<Order>.All.Select(o => o.Employee).Distinct();
-      var expected = Query<Order>.All.AsEnumerable().Select(o => o.Employee).Distinct();
-      Assert.AreEqual(0, result.AsEnumerable().Except(expected).Count());
+      var expected = Query<Order>.All.ToList().Select(o => o.Employee).Distinct();
+      Assert.AreEqual(0, result.ToList().Except(expected).Count());
     }
 
     [Test]
     public void OrderByTakeSkipTest()
     {
-      var original = Query<Order>.All.AsEnumerable()
+      var original = Query<Order>.All.ToList()
         .OrderBy(o => o.OrderDate)
         .Skip(100)
         .Take(50)
         .OrderBy(o => o.RequiredDate)
-        .Where(o => o.OrderDate != null)
+        .Where(o => o.OrderDate!=null)
         .Select(o => o.RequiredDate)
         .Distinct()
         .Skip(10);
@@ -205,7 +212,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Skip(100)
         .Take(50)
         .OrderBy(o => o.RequiredDate)
-        .Where(o => o.OrderDate != null)
+        .Where(o => o.OrderDate!=null)
         .Select(o => o.RequiredDate)
         .Distinct()
         .Skip(10);
@@ -220,9 +227,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void PredicateTest()
     {
-      IQueryable<int> result = Query<Order>.All.OrderBy(o => o.Freight > 0 && o.ShippedDate != null).ThenBy(o => o.Id).Select(o => o.Id);
+      IQueryable<int> result = Query<Order>.All.OrderBy(o => o.Freight > 0 && o.ShippedDate!=null).ThenBy(o => o.Id).Select(o => o.Id);
       List<int> list = result.ToList();
-      List<int> original = Query<Order>.All.AsEnumerable().OrderBy(o => o.Freight > 0 && o.ShippedDate != null).ThenBy(o => o.Id).Select(o => o.Id).ToList();
+      List<int> original = Query<Order>.All.ToList().OrderBy(o => o.Freight > 0 && o.ShippedDate!=null).ThenBy(o => o.Id).Select(o => o.Id).ToList();
       Assert.IsTrue(list.SequenceEqual(original));
     }
 
@@ -231,7 +238,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       IQueryable<string> result = Query<Customer>.All.OrderBy(c => c.CompanyName)
         .Select(c => c.ContactName);
-      var expected = Query<Customer>.All.AsEnumerable().OrderBy(c => c.CompanyName)
+      var expected = Query<Customer>.All.ToList().OrderBy(c => c.CompanyName)
         .Select(c => c.ContactName);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
@@ -241,7 +248,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       IQueryable<string> result = Query<Customer>.All.OrderBy(c => c.CompanyName)
         .ThenBy(c => c.Address.Country).Select(c => c.Address.City);
-      var expected = Query<Customer>.All.AsEnumerable().OrderBy(c => c.CompanyName)
+      var expected = Query<Customer>.All.ToList().OrderBy(c => c.CompanyName)
         .ThenBy(c => c.Address.Country).Select(c => c.Address.City);
       Assert.IsTrue(expected.SequenceEqual(result));
     }

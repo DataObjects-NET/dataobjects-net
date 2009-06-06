@@ -6,28 +6,43 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Core.Parameters;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions;
+using Xtensive.Storage.Linq.Expressions.Visitors;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class QueryCachingScope : SimpleScope<QueryCachingScope.Variator>
+  internal sealed class QueryCachingScope : SimpleScope<QueryCachingScope.Variator>
   {
-    internal class Variator {}
+    internal abstract class Variator {}
 
-    private ResultExpression compilationResult;
+    private TranslatedQuery parameterizedQuery;
 
     public static new QueryCachingScope Current {
       get { return (QueryCachingScope) SimpleScope<Variator>.Current; }
     }
 
+    public Parameter QueryParameter { get; private set; }
+    public ExtendedExpressionReplacer QueryParameterReplacer { get; private set; }
+
     /// <exception cref="NotSupportedException">Second attempt to set this property.</exception>
-    public ResultExpression CompilationResult {
-      get { return compilationResult; }
+    public TranslatedQuery ParameterizedQuery {
+      get { return parameterizedQuery; }
       set {
-        if (compilationResult != null)
-          throw Exceptions.AlreadyInitialized("CompilationResult");
-        compilationResult = value;
+        if (parameterizedQuery != null)
+          throw Exceptions.AlreadyInitialized("ParameterizedQuery");
+        parameterizedQuery = value;
       }
+    }
+
+  
+    // Constructors
+
+    public QueryCachingScope(Parameter queryParameter, ExtendedExpressionReplacer queryParameterReplacer)
+    {
+      QueryParameter = queryParameter;
+      QueryParameterReplacer = queryParameterReplacer;
     }
   }
 }

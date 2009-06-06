@@ -11,9 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Reflection;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq;
-using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
@@ -45,13 +43,12 @@ namespace Xtensive.Storage
       get { return provider; }
     }
 
-
     /// <summary>
     /// Gets the <see cref="RecordSet"/> this query is compiled to.
     /// </summary>
     public RecordSet Compiled
     {
-      get { return provider.Compile(expression).RecordSet; }
+      get { return provider.Translate<IEnumerable<T>>(expression).DataSource; }
     }
 
     #region IEnumerable<...> members

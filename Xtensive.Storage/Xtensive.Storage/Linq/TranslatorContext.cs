@@ -27,14 +27,10 @@ namespace Xtensive.Storage.Linq
     private readonly ParameterExtractor parameterExtractor;
     private readonly AliasGenerator resultAliasGenerator;
     private readonly AliasGenerator columnAliasGenerator;
-    private readonly BindingCollection<ParameterExpression, ResultExpression> bindings;
-    private readonly Dictionary<ParameterExpression, Parameter<Tuple>> groupingParameters;
+    private readonly BindingCollection<ParameterExpression, ProjectionExpression> bindings;
+    private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
-
-    public Dictionary<ParameterExpression, Parameter<Tuple>> GroupingParameters
-    {
-      get { return groupingParameters; }
-    }
+    private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors;
 
     public Expression Query
     {
@@ -61,7 +57,7 @@ namespace Xtensive.Storage.Linq
       get { return parameterExtractor; }
     }
 
-    public BindingCollection<ParameterExpression, ResultExpression> Bindings
+    public BindingCollection<ParameterExpression, ProjectionExpression> Bindings
     {
       get { return bindings; }
     }
@@ -81,15 +77,35 @@ namespace Xtensive.Storage.Linq
       return columnAliasGenerator.Next();
     }
 
-    public ApplyParameter GetApplyParameter(ResultExpression result)
+    public ApplyParameter GetApplyParameter(ProjectionExpression projection)
     {
-      var provider = result.RecordSet.Provider;
+      var provider = projection.ItemProjector.DataSource.Provider;
       ApplyParameter parameter;
       if (!applyParameters.TryGetValue(provider, out parameter)) {
         parameter = new ApplyParameter(provider.ToString());
         applyParameters.Add(provider, parameter);
       }
       return parameter;
+    }
+
+    public Parameter<Tuple> GetTupleParameter(ParameterExpression expression)
+    {
+      Parameter<Tuple> parameter;
+      if (!tupleParameters.TryGetValue(expression, out parameter)) {
+        parameter = new Parameter<Tuple>(expression.ToString());
+        tupleParameters.Add(expression, parameter);
+      }
+      return parameter;
+    }
+
+    public ItemProjectorExpression GetBoundItemProjector(ParameterExpression parameter, ItemProjectorExpression itemProjector)
+    {
+      ItemProjectorExpression result;
+      if (!boundItemProjectors.TryGetValue(parameter, out result)) {
+        result = itemProjector.BindOuterParameter(parameter);
+        boundItemProjectors.Add(parameter, result);
+      }
+      return result;
     }
 
     // Constructor
@@ -103,9 +119,10 @@ namespace Xtensive.Storage.Linq
       translator = new Translator(this);
       evaluator = new ExpressionEvaluator(this.query);
       parameterExtractor = new ParameterExtractor(evaluator);
-      bindings = new BindingCollection<ParameterExpression, ResultExpression>();
-      groupingParameters = new Dictionary<ParameterExpression, Parameter<Tuple>>();
+      bindings = new BindingCollection<ParameterExpression, ProjectionExpression>();
       applyParameters = new Dictionary<CompilableProvider, ApplyParameter>();
+      tupleParameters = new Dictionary<ParameterExpression, Parameter<Tuple>>();
+      boundItemProjectors = new Dictionary<ParameterExpression, ItemProjectorExpression>();
     }
   }
 }

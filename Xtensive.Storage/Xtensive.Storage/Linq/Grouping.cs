@@ -19,8 +19,8 @@ namespace Xtensive.Storage.Linq
   {
     public TKey Key { get; private set; }
 
-    public Grouping(TKey key, Tuple keyTuple, ResultExpression resultExpression, Parameter<Tuple> tupleParameter)
-      : base(resultExpression, keyTuple, tupleParameter)
+    public Grouping(ProjectionExpression projectionExpression, TranslatedQuery translatedQuery, Parameter<Tuple> parameter, Tuple tuple, TKey key)
+      : base(projectionExpression, translatedQuery, parameter, tuple)
     {
       Key = key;
     }

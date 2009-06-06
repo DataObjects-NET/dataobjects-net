@@ -16,9 +16,10 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 {
-  public interface IHasShippingAddress : IEntity
+  public interface IHasFreight : IEntity
   {
-    Address ShippingAddress { get; set; }
+    [Field]
+    decimal? Freight { get; set; }
   }
 
   public enum ProductType
@@ -356,7 +357,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   [Index("Freight")]
   [HierarchyRoot]
   public class Order : Entity,
-    IHasShippingAddress
+    IHasFreight
   {
     [Field(MappingName = "OrderId"), KeyField]
     public int Id { get; private set; }
@@ -382,7 +383,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field]
     public DateTime? ShippedDate { get; set; }
 
-    [Field]
+    /*[Field]*/
     public decimal? Freight { get; set; }
 
     [Field(Length = 60)]

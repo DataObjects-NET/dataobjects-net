@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinByCalculatedColumnTest()
     {
       var customers = Query<Customer>.All;
-      var localCustomers = customers.AsEnumerable();
+      var localCustomers = customers.ToList();
       var expected =
         from c1 in localCustomers
         join c2 in localCustomers

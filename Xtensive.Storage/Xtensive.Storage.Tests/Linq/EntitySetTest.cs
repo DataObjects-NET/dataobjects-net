@@ -18,14 +18,25 @@ namespace Xtensive.Storage.Tests.Linq
   public class EntitySetTest : NorthwindDOModelTest
   {
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    public void EntitySetAnonymousTest()
+    {
+      var result = Query<Customer>.All
+        .Select(c => new {OrdersFiled = c.Orders});
+      var expected = Query<Customer>.All
+        .ToList()
+        .Select(c => new {OrdersFiled = c.Orders});
+      Assert.AreEqual(0, expected.Except(result).Count());
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void EntitySetSelectManyAnonymousTest()
     {
       var result = Query<Customer>.All
         .Select(c => new {OrdersFiled = c.Orders})
         .SelectMany(i => i.OrdersFiled);
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .Select(c => new {OrdersFiled = c.Orders})
         .SelectMany(i => i.OrdersFiled);
       Assert.AreEqual(0, expected.Except(result).Count());
@@ -38,7 +49,7 @@ namespace Xtensive.Storage.Tests.Linq
       var customer = GetCustomer();
       var expected = customer
         .Orders
-        .AsEnumerable()
+        .ToList()
         .OrderBy(o => o.Id)
         .Select(o => o.Id)
         .ToList();
@@ -63,7 +74,7 @@ namespace Xtensive.Storage.Tests.Linq
       var expected = Query<Order>.All.Count();
       var count = Query<Customer>.All
         .Select(c => c.Orders.Count)
-        .AsEnumerable()
+        .ToList()
         .Sum();
       Assert.AreEqual(expected, count);
     }

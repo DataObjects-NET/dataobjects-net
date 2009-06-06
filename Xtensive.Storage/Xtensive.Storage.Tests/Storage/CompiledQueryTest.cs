@@ -24,6 +24,22 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
+    public void ScalarLongTest()
+    {
+      var productName = "Chai";
+      var unitPrice = 10;
+      var result = Query<Product>.All.Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).LongCount();
+    }
+
+    [Test]
+    public void CachedScalarLongTest()
+    {
+      var productName = "Chai";
+      var unitPrice = 10;
+      var result = CachedQuery.Execute(() => Query<Product>.All.Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).LongCount());
+    }
+
+    [Test]
     public void CachedScalarTest()
     {
       var productName = "Chai";

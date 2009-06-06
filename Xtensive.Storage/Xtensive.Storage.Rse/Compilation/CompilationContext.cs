@@ -87,22 +87,22 @@ namespace Xtensive.Storage.Rse.Compilation
       }
 
       var preCompiler = preCompilerProvider();
+      var postCompiler = postCompilerProvider();
       var compiler = compilerProvider();
       if (compiler == null)
-        throw new InvalidOperationException(
-          Strings.ExCanNotCompileNoCompiler);
-      var postCompiler = postCompilerProvider();
+        throw new InvalidOperationException(Strings.ExCanNotCompileNoCompiler);
       
       var preCompiledProvider = preCompiler.Process(provider);
       var result = compiler.Compile(preCompiledProvider);
       result = postCompiler.Process(result);
       
-      if (result!=null && result.IsCacheable)
+      if (result==null)
+        throw new InvalidOperationException(string.Format(Strings.ExCantCompileProviderX, provider));
+
+      if (result.IsCacheable)
         lock (_lock)
           cache.Add(new CacheEntry(provider, result));
-      if (result==null)
-        throw new InvalidOperationException(string.Format(
-          Strings.ExCantCompileProviderX, provider));
+
       return result;
     }
 

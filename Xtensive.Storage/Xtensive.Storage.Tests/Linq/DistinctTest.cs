@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Distinct()
         .OrderBy(c => c);
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .OrderBy(c => c.CompanyName)
         .Select(c => c.Address.City)
         .Distinct()
@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void DefaultTest()
     {
       var result = Query<Customer>.All.Distinct();
-      var expected = Query<Customer>.All.AsEnumerable().Distinct();
+      var expected = Query<Customer>.All.ToList().Distinct();
       Assert.AreEqual(0, expected.Except(result).Count());
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Select(c => c.Address.City)
         .Distinct();
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .Select(c => c.Address.City)
         .Distinct();
       Assert.AreEqual(0, expected.Except(result).Count());
@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Select(c => c.Address.City)
         .Distinct();
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .OrderBy(c => c.Id)
         .Select(c => c.Address.City)
         .Distinct();
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Distinct()
         .OrderBy(c => c);
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .Select(c => c.Address.City)
         .Distinct()
         .OrderBy(c => c);
@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Distinct()
         .Count();
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .Distinct()
         .Count();
       Assert.AreEqual(expected, result);
@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Distinct()
         .Count();
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .Select(c => c.Address.City)
         .Distinct()
         .Count();
@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Distinct()
         .Count();
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .Select(c => c.Address)
         .Select(a => a.City)
         .Distinct()
@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Distinct()
         .Count(c => c.Id=="ALFKI");
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .Distinct()
         .Count(c => c.Id=="ALFKI");
       Assert.AreEqual(expected, result);
@@ -157,7 +157,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Distinct()
         .Sum(o => o.Id);
       var expected = Query<Order>.All
-        .AsEnumerable()
+        .ToList()
         .Distinct()
         .Sum(o => o.Id);
       Assert.AreEqual(expected, result);
@@ -172,7 +172,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Distinct()
         .Sum();
       var expected = Query<Order>.All
-        .AsEnumerable()
+        .ToList()
         .Select(o => o.Id)
         .Distinct()
         .Sum();
@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Take(5)
         .Distinct();
       var expected = Query<Order>.All
-        .AsEnumerable()
+        .ToList()
         .Take(5)
         .Distinct();
       Assert.IsTrue(expected.SequenceEqual(result));
@@ -203,7 +203,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Distinct()
         .Take(5);
       var expected = Query<Order>.All
-        .AsEnumerable()
+        .ToList()
         .Distinct()
         .Take(5);
       Assert.IsTrue(expected.SequenceEqual(result));
@@ -218,7 +218,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Take(5)
         .Count();
       var expected = Query<Order>.All
-        .AsEnumerable()
+        .ToList()
         .Distinct()
         .Take(5)
         .Count();
@@ -234,7 +234,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Distinct()
         .Count();
       var expected = Query<Order>.All
-        .AsEnumerable()
+        .ToList()
         .Take(5)
         .Distinct()
         .Count();
@@ -251,7 +251,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Select(o => o.OrderDate)
         .Distinct();
       var expected = Query<Order>.All
-        .AsEnumerable()
+        .ToList()
         .OrderBy(o => o.OrderDate)
         .Skip(5)
         .Select(o => o.OrderDate)
@@ -268,7 +268,7 @@ namespace Xtensive.Storage.Tests.Linq
         .OrderBy(c => c.ContactName)
         .Skip(5);
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .Distinct()
         .OrderBy(c => c.ContactName)
         .Skip(5);
@@ -286,7 +286,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Select(o => o.OrderDate)
         .Distinct();
       var expected = Query<Order>.All
-        .AsEnumerable()
+        .ToList()
         .OrderBy(o => o.OrderDate)
         .Skip(5)
         .Take(10)
@@ -306,7 +306,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Select(o => o.OrderDate)
         .Distinct();
       var expected = Query<Order>.All
-        .AsEnumerable()
+        .ToList()
         .OrderBy(o => o.OrderDate)
         .Take(10)
         .Skip(5)
@@ -326,7 +326,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Skip(5)
         .Take(10);
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .Select(c => c.ContactName)
         .Distinct()
         .OrderBy(c => c)

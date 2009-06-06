@@ -210,7 +210,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectAnonymousSelectMany3Test()
     {
-      var result = Query<Customer>.All
+      IQueryable<Customer> result = Query<Customer>.All
         .Select(c => new {Customer = c, Orders = Query<Order>.All.Where(o => o.Customer==c)})
         .SelectMany(i => i.Orders.Select(o => i.Customer));
       QueryDumper.Dump(result);
@@ -238,8 +238,29 @@ namespace Xtensive.Storage.Tests.Linq
     public void SubquerySimpleTest()
     {
       var result = Query<Product>.All
+        .Select(p => Query<Category>.All);
+      foreach (IQueryable<Category> queryable in result) {
+        QueryDumper.Dump(queryable);
+      }
+    }
+
+    [Test]
+    public void SubqueryWhereTest()
+    {
+      var result = Query<Product>.All
         .Select(p => Query<Category>.All.Where(c => c==p.Category));
       foreach (IQueryable<Category> queryable in result) {
+        QueryDumper.Dump(queryable);
+      }
+    }
+
+    [Test]
+    public void SubqueryParametrizedFieldTest()
+    {
+      var result = Query<Product>.All
+        .Select(p => Query<Category>.All.Select(c => p.UnitPrice));
+
+      foreach (var queryable in result) {
         QueryDumper.Dump(queryable);
       }
     }

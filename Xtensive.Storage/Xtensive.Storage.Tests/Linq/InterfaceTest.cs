@@ -11,13 +11,14 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {
+  [Ignore("Not implemented")]
   [TestFixture]
   public sealed class InterfaceTest : NorthwindDOModelTest
   {
     [Test]
     public void QueryByInterfaceTest()
     {
-      var actual = Query<IHasShippingAddress>.All.ToList();
+      var actual = Query<IHasFreight>.All.ToList();
       var expected = Query<Order>.All.ToList();
       Assert.AreEqual(0, expected.Except(actual.Cast<Order>()).Count());
     }

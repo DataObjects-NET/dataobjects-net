@@ -37,14 +37,14 @@ namespace Xtensive.Storage.Tests.Linq
     public void ParameterTest()
     {
       var category = Query<Category>.All.First();
-      var result = Query<Product>.All.Where(p=>p.Category==category);
+      var result = Query<Product>.All.Where(p => p.Category==category);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void MultipleConditionTest()
     {
-      var customers = Query<Customer>.All.Select(c=>c.CompanyName).Where(cn => cn.StartsWith("A") || cn.StartsWith("B"));
+      var customers = Query<Customer>.All.Select(c => c.CompanyName).Where(cn => cn.StartsWith("A") || cn.StartsWith("B"));
       var list = customers.ToList();
     }
 
@@ -68,12 +68,33 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void Anonymous2Test()
+    public void AnonymousWithParameterTest()
     {
       Customer first = Query<Customer>.All.First();
       var p = new {first.CompanyName, first.ContactName};
       var result = Query<Customer>.All.Where(c => new {c.CompanyName, c.ContactName}==p);
       var list = result.ToList();
+    }
+
+    [Test]
+    public void AnonymousWithParameter2Test()
+    {
+      Customer first = Query<Customer>.All.First();
+      var p = new {first.CompanyName, first.ContactName};
+      var k = new {InternalFiled = p};
+      var result = Query<Customer>.All.Where(c => new {c.CompanyName, c.ContactName}==k.InternalFiled);
+      QueryDumper.Dump(result);
+    }
+
+
+    [Test]
+    public void AnonymousWithParameter3Test()
+    {
+      Customer first = Query<Customer>.All.First();
+      var p = new {first.CompanyName, first.ContactName};
+      var k = new {InternalFiled = p};
+      var result = Query<Customer>.All.Where(c => new {X = new {c.CompanyName, c.ContactName}}.X==k.InternalFiled);
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -117,7 +138,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void CalculatedTest()
     {
-      var expected = Query<Product>.All.AsEnumerable().Where(p => p.UnitPrice * p.UnitsInStock >= 100).ToList();
+      var expected = Query<Product>.All.ToList().Where(p => p.UnitPrice * p.UnitsInStock >= 100).ToList();
       var actual = Query<Product>.All.Where(p => p.UnitPrice * p.UnitsInStock >= 100).ToList();
       Assert.AreEqual(expected.Count, actual.Count);
     }
@@ -1074,27 +1095,26 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinTest()
     {
       var actual = from customer in Query<Customer>.All
-        join order in Query<Order>.All on customer equals order.Customer
-        where order.Freight > 30
-        orderby new {customer, order}
-        select new {customer, order};
-      var expected = from customer in Query<Customer>.All.AsEnumerable()
-        join order in Query<Order>.All.AsEnumerable() on customer equals order.Customer
-        where order.Freight > 30
-        orderby customer.Id, order.Id
-        select new {customer, order};
+      join order in Query<Order>.All on customer equals order.Customer
+      where order.Freight > 30
+      orderby new {customer, order}
+      select new {customer, order};
+      var expected = from customer in Query<Customer>.All.ToList()
+      join order in Query<Order>.All.ToList() on customer equals order.Customer
+      where order.Freight > 30
+      orderby customer.Id , order.Id
+      select new {customer, order};
       Assert.IsTrue(expected.SequenceEqual(actual));
     }
 
     [Test]
     public void ApplyTest()
     {
-      var actual = from customer in Query<Customer>.All
-        where customer.Orders.Any(o => o.Freight > 30)
-        select customer;
-      var expected = from customer in Query<Customer>.All.AsEnumerable()
-        where customer.Orders.Any(o => o.Freight > 30)
-        select customer;
+      var actual = Query<Customer>.All
+        .Where(customer => customer.Orders.Any(o => o.Freight > 30));
+      var expected = Query<Customer>.All
+        .AsEnumerable() // AG: Just to remeber about it.
+        .Where(customer => customer.Orders.Any(o => o.Freight > 30));
       Assert.IsTrue(expected.SequenceEqual(actual));
     }
   }

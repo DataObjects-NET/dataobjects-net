@@ -5,26 +5,21 @@
 // Created:    2009.02.27
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
-using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Linq.Expressions;
-using Xtensive.Storage.Linq.Expressions.Mappings;
-using Xtensive.Storage.Linq.Rewriters;
+using Xtensive.Storage.Linq.Materialization;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Expressions;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using FieldInfo=System.Reflection.FieldInfo;
 
@@ -32,8 +27,6 @@ namespace Xtensive.Storage.Linq
 {
   internal sealed partial class Translator
   {
-    private const string SurrogateKeyNameFormatString = "#_Key_{0}";
-
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
       var expressionType = tb.Expression.Type;
@@ -51,7 +44,7 @@ namespace Xtensive.Storage.Linq
         && typeof (IEntity).IsAssignableFrom(operandType)) {
         var typeInfo = context.Model.Types[operandType];
         var typeIds = typeInfo.GetDescendants().AddOne(typeInfo).Select(ti => ti.TypeId);
-        var memberExpression = Expression.Property(tb.Expression, "TypeId");
+        var memberExpression = Expression.Property(tb.Expression, WellKnown.TypeIdField);
         Expression boolExpression = null;
         foreach (int typeId in typeIds)
           boolExpression = MakeBinaryExpression(boolExpression, memberExpression, Expression.Constant(typeId), ExpressionType.Equal, ExpressionType.OrElse);
@@ -66,7 +59,7 @@ namespace Xtensive.Storage.Linq
     {
       if (e==null)
         return null;
-      if (e.IsResult())
+      if (e.IsProjection())
         return e;
       if (context.Evaluator.CanBeEvaluated(e))
         return context.ParameterExtractor.IsParameter(e)
@@ -75,6 +68,7 @@ namespace Xtensive.Storage.Linq
       return base.Visit(e);
     }
 
+    /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     protected override Expression VisitUnary(UnaryExpression u)
     {
       switch (u.NodeType) {
@@ -94,246 +88,132 @@ namespace Xtensive.Storage.Linq
       return base.VisitUnary(u);
     }
 
-    private Expression VisitTypeAs(Expression source, Type targetType)
-    {
-      if (source.GetMemberType()!=MemberType.Entity)
-        throw new NotSupportedException(Strings.ExAsOperatorSupportsEntityOnly);
 
-      // Expression is already of requested type.
-      if (source.Type==targetType)
-        return Visit(source);
 
-      // Call convert to parent type.
-      if (!targetType.IsSubclassOf(source.Type))
-        return Visit(Expression.Convert(source, targetType));
 
-      // Cast to subclass.
-      using (state.CreateScope()) {
-        var targetTypeInfo = context.Model.Types[targetType];
-        var parameter = state.Parameters[0];
 
-        var visitedSource = Visit(source);
 
-        var resultExpression = context.Bindings[parameter];
-        var recordSet = resultExpression.RecordSet;
-        int offset = recordSet.Header.Columns.Count;
 
-        var mapping = new ComplexMapping();
-        mapping.Fill(state.MappingRef.Mapping);
 
-        // Join primary index of target type
-        var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
-        var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-        var keySegment = mapping.GetFieldMapping(WellKnown.KeyField);
-        var keyPairs = keySegment.GetItems()
-          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-          .ToArray();
 
-        var joinedRecordSet = recordSet.JoinLeft(joinedRs, JoinAlgorithm.Default, keyPairs);
-        var groupMappings = new int[joinedRecordSet.Header.ColumnGroups.Count];
-        for (int i = 0; i < groupMappings.Length; i++)
-          groupMappings[i] = -1;
 
-        // Remap fields to new recordset.
-        foreach (var targetField in targetTypeInfo.Fields) {
-          int originalGroup = -1;
-          Segment<int> originalSegment;
-          if (mapping.Fields.TryGetValue(targetField.Name, out originalSegment))
-            originalGroup = recordSet.Header.ColumnGroups.GetGroupIndexBySegment(originalSegment);
 
-          var segment = new Segment<int>(targetField.MappingInfo.Offset + offset, targetField.MappingInfo.Length);
-          mapping.RegisterField(targetField.Name, segment);
-          if (targetField.IsEntity)
-            mapping.RegisterField(targetField.Name + ".Key", segment);
-          if (targetField.IsPrimaryKey)
-            mapping.RegisterField("Key", segment);
 
-          if (originalGroup >= 0) {
-            int newGroup = joinedRecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
-            if (newGroup!=originalGroup)
-              groupMappings[newGroup] = originalGroup;
-          }
-        }
 
-        var columnList = mapping.GetColumns(false);
-        var rewriter = new ItemProjectorRewriter(columnList, groupMappings, joinedRecordSet.Header);
-        var rewrittenSource = rewriter.Rewrite(visitedSource);
-        var re = new ResultExpression(resultExpression.Type, joinedRecordSet, resultExpression.Mapping, resultExpression.ItemProjector);
-        context.Bindings.ReplaceBound(parameter, re);
-        state.MappingRef.Replace(mapping);
-        return Expression.Convert(rewrittenSource, targetType);
-      }
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     protected override Expression VisitLambda(LambdaExpression le)
     {
-      LambdaExpression result;
       using (state.CreateLambdaScope(le)) {
         var body = Visit(le.Body);
-        if (body.IsResult())
-          body = BuildSubqueryResult((ResultExpression) body, le.Body.Type);
-        else if (state.CalculateExpressions && body.GetMemberType()==MemberType.Unknown) {
-          if (!body.IsSubqueryConstructor()
-            && !body.IsGroupingConstructor()
-              && body.AsTupleAccess()==null
-                && body.NodeType!=ExpressionType.ArrayIndex
-            ) {
-            var originalBodyType = body.Type;
-            bool isEnum = ConvertEnumToInteger(ref body);
-            var calculator = FastExpression.Lambda(Expression.Convert(body, typeof (object)), state.Tuple);
-            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>) calculator);
-            state.CalculatedColumns.Add(ccd);
-            var parameter = state.Parameters[0];
-            int position = context.Bindings[parameter].RecordSet.Header.Length + state.CalculatedColumns.Count - 1;
-            body = MakeTupleAccess(parameter, body.Type, position);
-            if (isEnum)
-              body = Expression.Convert(body, originalBodyType);
-            state.MappingRef.Replace(new PrimitiveMapping(new Segment<int>(position, 1)));
-          }
-        }
+        var parameter = le.Parameters[0];
+        var projection = context.Bindings[parameter];
+        body = body.IsProjection()
+          ? BuildSubqueryResult((ProjectionExpression) body, le.Body.Type)
+          : ProcessProjectionElement(body);
         if (state.CalculatedColumns.Count > 0) {
-          var source = context.Bindings[le.Parameters[0]];
-          var recordSet = source.RecordSet;
-          recordSet = recordSet.Calculate(state.CalculatedColumns.ToArray());
-          var re = new ResultExpression(source.Type, recordSet, source.Mapping, source.ItemProjector);
-          context.Bindings.ReplaceBound(le.Parameters[0], re);
+          var dataSource = projection.ItemProjector.DataSource.Calculate(state.CalculatedColumns.ToArray());
+          var itemProjector = new ItemProjectorExpression(body, dataSource);
+          context.Bindings.ReplaceBound(parameter, new ProjectionExpression(
+            projection.Type, 
+            state.BuildingProjection
+              ? itemProjector
+              : projection.ItemProjector.Remap(dataSource, 0), 
+            projection.ResultType,
+            projection.TupleParameterBindings));
+          return itemProjector;
         }
-        result = state.RecordIsUsed
-          ? Expression.Lambda(
-            typeof (Func<,,>).MakeGenericType(typeof (Tuple), typeof (Record), body.Type),
-            body,
-            state.Tuple,
-            state.Record)
-          : FastExpression.Lambda(body, state.Tuple);
-      }
-      return result;
-    }
-
-    protected override Expression VisitMemberPath(MemberPath path, Expression e)
-    {
-      var pe = path.Parameter;
-      if (!state.Parameters.Contains(pe) && !state.OuterParameters.Contains(pe)) {
-        var referencedSource = context.Bindings[pe];
-        return path.TranslateParameter(referencedSource.ItemProjector.Body);
-      }
-      var source = context.Bindings[pe];
-      var mapping = source.Mapping as ComplexMapping;
-      int number = 0;
-      if (mapping!=null) {
-        foreach (var item in path) {
-          number++;
-          var name = item.Name;
-          if (item.Type==MemberType.Entity) {
-            ComplexMapping innerMapping;
-            var typeInfo = context.Model.Types[item.Expression.Type];
-            if (!mapping.TryGetJoinedEntity(name, out innerMapping)) {
-              if (state.EntityAsKey && number==path.Count)
-                break;
-              var joinedIndex = typeInfo.Indexes.PrimaryIndex;
-              var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-              var keySegment = mapping.GetFieldMapping(name);
-              var keyPairs = keySegment.GetItems()
-                .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-                .ToArray();
-              var rs = source.RecordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
-              var joinedMapping = new ComplexMapping(typeInfo, source.RecordSet.Header.Columns.Count);
-              mapping.RegisterJoinedEntity(name, joinedMapping);
-              source = new ResultExpression(source.Type, rs, source.Mapping, source.ItemProjector);
-              context.Bindings.ReplaceBound(pe, source);
-            }
-            else {
-              if (typeof (IEnumerable).IsAssignableFrom(path.Parameter.Type) && number >= path.Count - 1) {
-                var columns = innerMapping.GetColumns(false);
-                columns.Sort();
-                var joinedIndex = typeInfo.Indexes.PrimaryIndex;
-                if (columns.Count < joinedIndex.Columns.Count) {
-                  var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-                  var keyPairs = columns
-                    .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-                    .ToArray();
-                  var rs = source.RecordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
-                  var joinedMapping = new ComplexMapping(typeInfo, source.RecordSet.Header.Columns.Count);
-                  mapping.OverwriteJoinedEntity(name, joinedMapping);
-                  source = new ResultExpression(source.Type, rs, source.Mapping, source.ItemProjector);
-                  context.Bindings.ReplaceBound(pe, source);
-                  break;
-                }
-              }
-            }
-            mapping = innerMapping;
-          }
-          else if (item.Type==MemberType.Anonymous)
-            mapping = mapping.GetAnonymousMapping(name).First;
-          else if (item.Type==MemberType.Grouping)
-            mapping = mapping.GetGroupingMapping(name);
-        }
-      }
-
-      var resultType = e.Type;
-      source = context.Bindings[path.Parameter];
-      switch (path.PathType) {
-      case MemberType.Primitive:
-        return VisitMemberPathPrimitive(path, source, resultType);
-      case MemberType.Key:
-        return VisitMemberPathKey(path, source);
-      case MemberType.Structure:
-        return VisitMemberPathStructure(path, source);
-      case MemberType.Entity:
-        if (!state.EntityAsKey)
-          return VisitMemberPathEntity(path, source, resultType);
-        path = MemberPath.Parse(Expression.MakeMemberAccess(e, WellKnownMembers.IEntityKey), context.Model);
-        var keyExpression = VisitMemberPathKey(path, source);
-        var result = Expression.Call(WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(resultType), keyExpression);
-        return result;
-      case MemberType.EntitySet:
-        return VisitMemberPathSubquery(e);
-      case MemberType.Anonymous:
-        return VisitMemberPathAnonymous(path, source);
-      case MemberType.Subquery:
-        return VisitMemberPathSubquery(e);
-      default:
-        throw new ArgumentOutOfRangeException();
+        return new ItemProjectorExpression(body, projection.ItemProjector.DataSource);
       }
     }
 
+    /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
+    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
-      switch (binaryExpression.Left.GetMemberType()) {
-      case MemberType.Unknown:
-      case MemberType.Primitive:
-        break;
-      case MemberType.Key:
-        return VisitBinaryKey(binaryExpression);
-      case MemberType.Entity:
-        return VisitBinaryEntity(binaryExpression);
-      case MemberType.Anonymous:
-        return VisitBinaryAnonymous(binaryExpression);
-      case MemberType.Structure:
-        return VisitBinaryStructure(binaryExpression);
-      case MemberType.Array:
-        return VisitBinaryArray(binaryExpression);
-      case MemberType.EntitySet:
-      case MemberType.Grouping:
-        throw new NotSupportedException();
-      default:
-        throw new ArgumentOutOfRangeException();
-      }
-      return base.VisitBinary(binaryExpression);
+      var left = Visit(binaryExpression.Left);
+      var right = Visit(binaryExpression.Right);
+      var resultBinaryExpression = Expression.MakeBinary(binaryExpression.NodeType,
+        left,
+        right,
+        binaryExpression.IsLiftedToNull,
+        binaryExpression.Method);
+
+      if (binaryExpression.NodeType == ExpressionType.Equal 
+        || binaryExpression.NodeType == ExpressionType.NotEqual)
+        return VisitBinaryRecursive(resultBinaryExpression);
+      return resultBinaryExpression;
     }
 
+    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     protected override Expression VisitParameter(ParameterExpression p)
     {
       bool isInnerParameter = state.Parameters.Contains(p);
       bool isOuterParameter = state.OuterParameters.Contains(p);
+
       if (!isInnerParameter && !isOuterParameter)
-        throw new InvalidOperationException("Lambda parameter is out of scope!");
+        throw new InvalidOperationException(Strings.ExLambdaParameterIsOutOfScope);
+      var itemProjector = context.Bindings[p].ItemProjector;
       if (isOuterParameter)
-        return context.Bindings[p].ItemProjector.Body; // TODO: replace outer parameters?
-      var source = context.Bindings[p];
-      state.MappingRef.Replace(source.Mapping);
-      var result = new ParameterRewriter(state.Tuple, state.Record).Rewrite(source.ItemProjector.Body);
-      state.RecordIsUsed |= result.Second;
-      return result.First;
+        return context.GetBoundItemProjector(p, itemProjector).Item;
+      return itemProjector.Item;
     }
 
     protected override Expression VisitMemberAccess(MemberExpression ma)
@@ -357,137 +237,339 @@ namespace Xtensive.Storage.Linq
             return ConstructQueryable(rootPoint);
         }
       }
-      else if (ma.Expression.NodeType==ExpressionType.New && ma.Expression.GetMemberType()==MemberType.Anonymous) {
-        var name = ma.Member.Name;
-        var newExpression = (NewExpression) ma.Expression;
-        var propertyInfo = newExpression.Type.GetProperty(name);
-        var memberName = propertyInfo.GetGetMethod().Name;
-        var member = newExpression.Members.First(m => m.Name==memberName);
-        var argument = newExpression.Arguments[newExpression.Members.IndexOf(member)];
-        return Visit(argument);
-      }
-      else if (ma.Expression.GetMemberType()==MemberType.Entity && ma.Member.Name!="Key") {
+      else if (ma.Expression.GetMemberType()==MemberType.Entity && ma.Member.Name!="Key")
         if (!context.Model.Types[ma.Expression.Type].Fields.Contains(ma.Member.Name))
           throw new NotSupportedException("Nonpersistent fields are not supported.");
-      }
-      return base.VisitMemberAccess(ma);
+      var source = Visit(ma.Expression);
+      var result = GetMember(source, ma.Member);
+      return result ?? base.VisitMemberAccess(ma);
+    }
+
+    protected override Expression VisitMethodCall(MethodCallExpression mc)
+    {
+      if (mc.Method.DeclaringType==typeof (QueryableExtensions))
+        switch (mc.Method.Name) {
+        default:
+          throw new InvalidOperationException();
+        case "Expand":
+          return VisitExpand(mc);
+        case "ExcludeField":
+          return VisitExcludeField(mc);
+        case "IncludeField":
+          return VisitIncludeField(mc);
+        }
+      return base.VisitMethodCall(mc);
     }
 
     protected override Expression VisitNew(NewExpression n)
     {
-      var arguments = new List<Expression>();
       if (n.Members==null) {
-        if (n.IsGroupingConstructor()
-          || n.IsSubqueryConstructor()
+        if (n.IsGroupingProjection()
+          || n.IsSubqueryProjection()
             || n.Type==typeof (TimeSpan)
               || n.Type==typeof (DateTime))
           return base.VisitNew(n);
         throw new NotSupportedException();
       }
+      var arguments = new List<Expression>();
       for (int i = 0; i < n.Arguments.Count; i++) {
-        var arg = n.Arguments[i];
-        Expression newArg;
+        var argument = n.Arguments[i];
         var member = n.Members[i];
-        var memberName = member.Name.TryCutPrefix(Core.Reflection.WellKnown.GetterPrefix);
-        var path = MemberPath.Parse(arg, context.Model);
-        if (path.IsValid || arg.NodeType==ExpressionType.New) {
-          var argFMRef = new MappingReference(state.MappingRef.FillMapping);
-          using (state.CreateScope()) {
-            state.MappingRef = argFMRef;
-            newArg = Visit(arg);
-          }
-          if (state.MappingRef.FillMapping && argFMRef.FillMapping) {
-            var fieldMapping = argFMRef.Mapping;
-            var memberType = arg.NodeType==ExpressionType.New
-              ? MemberType.Anonymous
-              : path.PathType;
-            Func<string, string, string> rename = (oldName, newName) => oldName.IsNullOrEmpty()
-              ? newName
-              : newName + "." + oldName;
+        Expression body;
+        using (state.CreateScope()) {
+          state.CalculateExpressions = false;
+          body = Visit(argument);
 
-            switch (memberType) {
-            case MemberType.Default:
-            case MemberType.Primitive:
-            case MemberType.Key: {
-              var primitiveFieldMapping = (PrimitiveMapping) fieldMapping;
-              state.MappingRef.RegisterField(memberName, primitiveFieldMapping.Segment);
-              break;
-            }
-            case MemberType.Structure: {
-              var complexMapping = (ComplexMapping) fieldMapping;
-              foreach (var p in complexMapping.Fields)
-                state.MappingRef.RegisterField(rename(p.Key, memberName), p.Value);
-              break;
-            }
-            case MemberType.Entity:
-              if (fieldMapping is PrimitiveMapping) {
-                var primitiveFieldMapping = (PrimitiveMapping) fieldMapping;
-                var fields = new Dictionary<string, Segment<int>> {{WellKnown.KeyField, primitiveFieldMapping.Segment}};
-                var entityMapping = new ComplexMapping(fields);
-                state.MappingRef.RegisterEntity(memberName, entityMapping);
-              }
-              else
-                state.MappingRef.RegisterEntity(memberName, (ComplexMapping) fieldMapping);
-              break;
-            case MemberType.Anonymous:
-              state.MappingRef.RegisterAnonymous(memberName, (ComplexMapping) fieldMapping, newArg);
-              break;
-            case MemberType.Grouping:
-              state.MappingRef.RegisterGrouping(memberName, (ComplexMapping) fieldMapping);
-              break;
-            case MemberType.Subquery:
-              state.MappingRef.RegisterSubquery(memberName, (ComplexMapping) fieldMapping);
-              break;
-            }
-          }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        else {
-          Expression body;
-          using (state.CreateScope()) {
-            state.CalculateExpressions = false;
-            state.MappingRef = new MappingReference(false);
-            body = Visit(arg);
-          }
-          ConvertEnumToInteger(ref body);
-          if (body.StripCasts().AsTupleAccess()!=null || body.GetMemberType()==MemberType.Array)
-            newArg = body;
-          else if (body.IsResult())
-            newArg = BuildSubqueryResult((ResultExpression) body, arg.Type);
-          else {
-            var calculator = FastExpression.Lambda(
-              body.Type==typeof (object)
-                ? body
-                : Expression.Convert(body, typeof (object)),
-              state.Tuple);
-            var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>) calculator);
-            state.CalculatedColumns.Add(ccd);
-            var parameter = state.Parameters[0];
-            int position = context.Bindings[parameter].RecordSet.Header.Length + state.CalculatedColumns.Count - 1;
-            newArg = MakeTupleAccess(parameter, body.Type, position);
-            state.MappingRef.RegisterField(memberName, new Segment<int>(position, 1));
-          }
-        }
-        newArg = newArg ?? Visit(arg);
-        arguments.Add(newArg);
+        body = body.IsProjection()
+          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
+          : ProcessProjectionElement(body);
+        arguments.Add(body);
       }
       var constructorParameters = n.Constructor.GetParameters();
       for (int i = 0; i < arguments.Count; i++) {
         if (arguments[i].Type!=constructorParameters[i].ParameterType)
           arguments[i] = Expression.Convert(arguments[i], constructorParameters[i].ParameterType);
       }
-      var result = Expression.New(n.Constructor, arguments, n.Members);
-      return result;
+      return Expression.New(n.Constructor, arguments, n.Members);
     }
 
     #region Private helper methods
 
-    private bool ConvertEnumToInteger(ref Expression expression)
+    /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
+    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
+    private Expression VisitBinaryRecursive(BinaryExpression binaryExpression)
     {
-      if (expression.Type.IsEnum) {
-        expression = Expression.Convert(expression, Enum.GetUnderlyingType(expression.Type));
-        return true;
+      if (context.Evaluator.CanBeEvaluated(binaryExpression))
+        return context.ParameterExtractor.IsParameter(binaryExpression)
+          ? (Expression) binaryExpression
+          : context.Evaluator.Evaluate(binaryExpression);
+
+      var left = binaryExpression.Left.StripCasts();
+      var right = binaryExpression.Right.StripCasts();
+
+      IList<Expression> leftExpressions;
+      IList<Expression> rightExpressions;
+
+      // Split left and right arguments to subexpressions.
+      switch (left.GetMemberType()) {
+      case MemberType.Key:
+        var leftKeyExpression = left as KeyExpression;
+        var rightKeyExpression = right as KeyExpression;
+        if (leftKeyExpression==null && rightKeyExpression==null)
+          throw new NotSupportedException();
+        // Key split to it's fields.
+        var keyFields = (leftKeyExpression ?? rightKeyExpression)
+          .KeyFields
+          .Select(fieldExpression => fieldExpression.Type);
+        leftExpressions = GetKeyFields(left, keyFields);
+        rightExpressions = GetKeyFields(right, keyFields);
+        break;
+      case MemberType.Entity:
+        // Entity split to key fields.
+        var leftEntityExpression = (Expression)(left as EntityExpression) ?? left as EntityFieldExpression;
+        var rightEntityExpression = (Expression)(right as EntityExpression) ?? right as EntityFieldExpression;
+        if (leftEntityExpression==null && rightEntityExpression==null)
+          throw new NotSupportedException();
+
+
+        var keyFieldTypes = context
+          .Model
+          .Types[(leftEntityExpression ?? rightEntityExpression).Type]
+          .Hierarchy
+          .KeyInfo
+          .Fields
+          .Select(keyInfo => keyInfo.Key.ValueType);
+
+        leftExpressions = GetEntityFields(left, keyFieldTypes);
+        rightExpressions = GetEntityFields(right, keyFieldTypes);
+        break;
+      case MemberType.Anonymous:
+        // Anonimous type split to constructor arguments.
+        leftExpressions = GetAnonymousArguments(left);
+        rightExpressions = GetAnonymousArguments(right);
+        break;
+      case MemberType.Structure:
+        // Structure split to it's fields.
+        var leftStructureExpression = left as StructureExpression;
+        var rightStructureExpression = right as StructureExpression;
+        if (leftStructureExpression==null && rightStructureExpression==null)
+          throw new NotSupportedException();
+
+        var structureExpression = (leftStructureExpression ?? rightStructureExpression);
+        leftExpressions = GetStructureFields(left, structureExpression.Fields, structureExpression.Type);
+        rightExpressions = GetStructureFields(right, structureExpression.Fields, structureExpression.Type);
+        break;
+      case MemberType.Array:
+        // Special case. ArrayIndex expression. 
+        if (binaryExpression.NodeType==ExpressionType.ArrayIndex) {
+          var arrayExpression = Visit(left);
+          var arrayIndex = Visit(right);
+          return Expression.ArrayIndex(arrayExpression, arrayIndex);
+        }
+
+        // If array compares to null use standart routine. 
+        if (right.NodeType==ExpressionType.Constant
+          && ((ConstantExpression) right).Value==null)
+          return Expression.MakeBinary(binaryExpression.NodeType,
+            left,
+            right,
+            binaryExpression.IsLiftedToNull,
+            binaryExpression.Method);
+
+
+        // Array split to it's members.
+        leftExpressions = ((NewArrayExpression) left).Expressions;
+        rightExpressions = ((NewArrayExpression) right).Expressions;
+        break;
+      default:
+        // Primitive types don't has subexpressions. Use standart routine.
+        return binaryExpression;
       }
-      return false;
+
+      if (leftExpressions.Count!=rightExpressions.Count
+        || leftExpressions.Count==0)
+        throw new InvalidOperationException();
+
+      // Combine new binary expression from subexpression pairs.
+      Expression resultExpression = null;
+      for (int i = 0; i < leftExpressions.Count; i++) {
+        BinaryExpression pairExpression;
+        switch (binaryExpression.NodeType) {
+        case ExpressionType.Equal:
+          pairExpression = Expression.Equal(leftExpressions[i], rightExpressions[i]);
+          break;
+        case ExpressionType.NotEqual:
+          pairExpression = Expression.NotEqual(leftExpressions[i], rightExpressions[i]);
+          break;
+        default:
+          throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported, binaryExpression.NodeType));
+        }
+
+        // visit new expression recursively
+        var visitedResultExpression = VisitBinaryRecursive(pairExpression);
+
+        // Combine expression chain with AndAlso
+        resultExpression = resultExpression==null
+          ? visitedResultExpression
+          : Expression.AndAlso(resultExpression, visitedResultExpression);
+      }
+
+      // Return result.
+      return resultExpression;
+    }
+
+    private static IList<Expression> GetStructureFields(Expression expression, List<PersistentFieldExpression> structureFieldTypes, Type structureType)
+    {
+      expression = expression.StripCasts();
+      if (expression is StructureExpression) {
+        return ((StructureExpression) expression)
+          .Fields
+          .Select(e => (Expression) e)
+          .ToList();
+      }
+
+      var nullExpression = Expression.Constant(null, structureType);
+      var isNullExpression = Expression.Equal(expression, nullExpression);
+
+      return structureFieldTypes
+        .Select(persistentFieldExpression => {
+          var nullableType = persistentFieldExpression.Type.ToNullable();
+          return (Expression) Expression.Condition(
+            isNullExpression,
+            Expression.Constant(null, nullableType),
+            Expression.Convert(Expression.MakeMemberAccess(Expression.Convert(expression, structureType), persistentFieldExpression.UnderlyingProperty), nullableType));
+        })
+        .ToList();
+    }
+
+    private static IList<Expression> GetEntityFields(Expression expression, IEnumerable<Type> keyFieldTypes)
+    {
+      expression = expression.StripCasts();
+      if (expression is IEntityExpression)
+        return GetKeyFields(((IEntityExpression) expression).Key, null);
+
+      Expression keyExpression;
+
+      if (expression.IsNull())
+        keyExpression = Expression.Constant(null, typeof (Key));
+      else {
+        var nullEntityExpression = Expression.Constant(null, expression.Type);
+        var isNullExpression = Expression.Equal(expression, nullEntityExpression);
+        var entityExpression = Expression.Convert(expression, typeof (Entity));
+
+        keyExpression = Expression.Condition(
+          isNullExpression, 
+          Expression.Constant(null, typeof (Key)),
+          Expression.MakeMemberAccess(entityExpression, WellKnownMembers.IEntityKey));
+      }
+      return GetKeyFields(keyExpression, keyFieldTypes);
+    }
+
+    private static IList<Expression> GetKeyFields(Expression expression, IEnumerable<Type> keyFieldTypes)
+    {
+      expression = expression.StripCasts();
+      if (expression is KeyExpression) {
+        return ((KeyExpression) expression)
+          .KeyFields
+          .Select(fieldExpression => fieldExpression.LiftToNullable())
+          .ToList();
+      }
+
+      if (expression.IsNull()) {
+        return keyFieldTypes
+          .Select(type => (Expression)Expression.Constant(null, type.ToNullable()))
+          .ToList();
+      }
+      var nullExpression = Expression.Constant(null, expression.Type);
+      var isNullExpression = Expression.Equal(expression, nullExpression);
+      var keyExpression = Expression.Convert(expression, typeof (Key));
+      var keyTupleExpression = Expression.MakeMemberAccess(keyExpression, WellKnownMembers.KeyValue);
+
+      return keyFieldTypes
+        .Select((type, index) => {
+           var nullableType = type.ToNullable();
+           return (Expression) Expression.Condition(
+             isNullExpression,
+             Expression.Constant(null, nullableType),
+             keyTupleExpression.MakeTupleAccess(nullableType, index));
+          })
+        .ToList();
+    }
+
+    private Expression ProcessProjectionElement(Expression body)
+    {
+      var originalBodyType = body.Type;
+      var reduceCastBody = body.StripCasts();
+      if (state.CalculateExpressions
+        && reduceCastBody.GetMemberType()==MemberType.Unknown
+          && reduceCastBody.NodeType!=ExpressionType.ArrayIndex) {
+        if (body.Type.IsEnum)
+          body = Expression.Convert(body, Enum.GetUnderlyingType(body.Type));
+        var convertExpression = Expression.Convert(body, typeof (object));
+        
+        // Gather Parameter<Tuple> from lamda parameters
+        // , IEnumerable<Parameter<Tuple>> tuleParameters
+        var tuleParameters = state
+          .Parameters
+          .Select(parameterExpresssion => context.Bindings[parameterExpresssion])
+          .SelectMany(projectionExpression => projectionExpression.TupleParameterBindings.Keys);
+
+        var calculator = ExpressionMaterializer.MakeLambda(convertExpression, context, tuleParameters);
+        var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type, (Expression<Func<Tuple, object>>) calculator);
+        state.CalculatedColumns.Add(ccd);
+        var parameter = state.Parameters[0];
+        var position = context.Bindings[parameter].ItemProjector.DataSource.Header.Length + state.CalculatedColumns.Count - 1;
+        body = ColumnExpression.Create(originalBodyType, position);
+      }
+      return body;
     }
 
     private Expression ConstructQueryable(IQueryable rootPoint)
@@ -499,24 +581,15 @@ namespace Xtensive.Storage.Linq
         throw new NotSupportedException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
 
       var index = type.Indexes.PrimaryIndex;
-
-      var mapping = new ComplexMapping(type, 0);
-      var recordSet = IndexProvider.Get(index).Result;
-      var pRecord = Expression.Parameter(typeof (Record), "r");
-      var itemProjector =
-        FastExpression.Lambda(
-          Expression.Call(
-            WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(elementType),
-            Expression.Call(pRecord, WellKnownMembers.RecordKey, Expression.Constant(0))),
-          pRecord);
-      return new ResultExpression(
+      var entityExpression = EntityExpression.Create(type, 0);
+      var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result);
+      return new ProjectionExpression(
         typeof (IQueryable<>).MakeGenericType(elementType),
-        recordSet,
-        mapping,
-        itemProjector);
+        itemProjector, 
+        new Dictionary<Parameter<Tuple>, Tuple>());
     }
 
-    private Expression BuildSubqueryResult(ResultExpression subQuery, Type resultType)
+    private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
     {
       if (state.Parameters.Length!=1)
         throw new NotImplementedException();
@@ -524,38 +597,167 @@ namespace Xtensive.Storage.Linq
       if (!resultType.IsOfGenericInterface(typeof (IEnumerable<>)))
         throw new NotImplementedException();
 
-      Type type = resultType
-        .GetInterfaces(true)
-        .AddOne(resultType)
-        .Where(interfaceType =>
-          interfaceType.IsGenericType
-            && interfaceType.GetGenericTypeDefinition()==typeof (IEnumerable<>))
-        .Select(interfaceType => interfaceType.GetGenericArguments()[0])
-        .First();
+      ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[state.Parameters[0]]);
+      return new SubQueryExpression(resultType, state.Parameters[0], subQuery, applyParameter, false);
+    }
 
-      var parameterResultExpression = context.Bindings[state.Parameters[0]];
-      var applyParameter = context.GetApplyParameter(parameterResultExpression);
-      var tupleParameter = new Parameter<Tuple>("tupleParameter");
+    private static IList<Expression> GetAnonymousArguments(Expression expression)
+    {
+      if (expression.NodeType==ExpressionType.New) {
+        var newExpression = ((NewExpression) expression);
+        var arguments = newExpression
+          .Members
+          .Select((methodInfo, index) => new {methodInfo.Name, Argument = newExpression.Arguments[index]})
+          .OrderBy(a => a.Name)
+          .Select(a => a.Argument);
+        return arguments.ToList();
+      }
 
-      var rewrittenRecordset = ApplyParameterToTupleParameterRewriter
-        .Rewrite(subQuery.RecordSet.Provider, tupleParameter, applyParameter)
-        .Result;
+      return expression
+        .Type
+        .GetProperties()
+        .OrderBy(property => property.Name)
+        .Select(p => Expression.MakeMemberAccess(expression, p))
+        .Select(e => (Expression) e)
+        .ToList();
+    }
 
-      //  state.MappingRef = new MappingReference(state.MappingRef.FillMapping);
+    private Expression GetMember(Expression expression, MemberInfo member)
+    {
+      if (expression.StripCasts().IsGroupingProjection() && member.Name=="Key")
+        return ((GroupingExpression) expression.StripCasts()).KeyExpression;
+      if (expression.IsAnonymousConstructor()) {
+        var newExpression = (NewExpression) expression;
+        if (member.MemberType==MemberTypes.Property)
+          member = ((PropertyInfo) member).GetGetMethod();
+        var memberIndex = newExpression.Members.IndexOf(member);
+        if (memberIndex < 0)
+          throw new InvalidOperationException(
+            string.Format("Could not get member {0} from expression.",
+              member));
+        return newExpression.Arguments[memberIndex];
+      }
+      var extendedExpression = expression as ExtendedExpression;
+      if (extendedExpression==null)
+        return null;
+      Expression result = null;
+      Func<PersistentFieldExpression, bool> propertyFilter = f => f.Name==member.Name;
+      switch (extendedExpression.ExtendedType) {
+      case ExtendedExpressionType.Structure:
+        var persistentExpression = (IPersistentExpression) expression;
+        result = persistentExpression.Fields.First(propertyFilter);
+        break;
+      case ExtendedExpressionType.Entity:
+        var entityExpression = (EntityExpression) expression;
+        result = entityExpression.Fields.FirstOrDefault(propertyFilter);
+        if (result==null) {
+          EnsureEntityFieldsAreJoined(entityExpression);
+          result = entityExpression.Fields.First(propertyFilter);
+        }
+        break;
+      case ExtendedExpressionType.EntityField:
+        var entityFieldExpression = (EntityFieldExpression) expression;
+        result = entityFieldExpression.Fields.FirstOrDefault(propertyFilter);
+        if (result==null) {
+          EnsureEntityReferenceIsJoined(entityFieldExpression);
+          result = entityFieldExpression.Entity.Fields.First(propertyFilter);
+        }
+        break;
+      }
+      if (state.BuildingProjection && result is EntityFieldExpression) {
+        var entityFieldExpression = (EntityFieldExpression) result;
+        EnsureEntityReferenceIsJoined(entityFieldExpression);
+        return entityFieldExpression.Entity;
+      }
+      return result;
+    }
 
-      var newResultExpression = new ResultExpression(subQuery.Type, rewrittenRecordset, subQuery.Mapping, subQuery.ItemProjector, subQuery.ResultType);
+    /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
+    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
+    private Expression VisitTypeAs(Expression source, Type targetType)
+    {
+      if (source.GetMemberType()!=MemberType.Entity)
+        throw new NotSupportedException(Strings.ExAsOperatorSupportsEntityOnly);
 
-      var constructor = (typeof (SubQuery<>)
-        .MakeGenericType(type)
-        .GetConstructor(new[] {typeof (ResultExpression), typeof (Tuple), typeof (Parameter<Tuple>)}));
+      // Expression is already of requested type.
+      var visitedSource = Visit(source);
+      if (source.Type==targetType)
+        return visitedSource;
 
-      var subqueryResult = Expression.New(constructor, new Expression[] {
-        Expression.Constant(newResultExpression),
-        state.Tuple,
-        Expression.Constant(tupleParameter)
-      });
+      // Call convert to parent type.
+      if (!targetType.IsSubclassOf(source.Type))
+        return Visit(Expression.Convert(source, targetType));
 
-      return Expression.Convert(subqueryResult, resultType);
+      // Cast to subclass.
+      using (state.CreateScope()) {
+        var targetTypeInfo = context.Model.Types[targetType];
+        var parameter = state.Parameters[0];
+        var entityExpression = visitedSource.StripCasts() as IEntityExpression;
+
+        if (entityExpression==null)
+          throw new InvalidOperationException(Strings.ExAsOperatorSupportsEntityOnly);
+
+        // Replace original recordset. New recordset is left join with old recordset
+        var originalResultExpression = context.Bindings[parameter];
+        var originalRecordset = originalResultExpression.ItemProjector.DataSource;
+        int offset = originalRecordset.Header.Columns.Count;
+
+        // Join primary index of target type
+        var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
+        var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+        var keySegment = entityExpression.Key.Mapping.GetItems();
+        var keyPairs = keySegment
+          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+          .ToArray();
+
+        // Replace recordset.
+        var joinedRecordSet = originalRecordset.JoinLeft(joinedRs, JoinAlgorithm.Default, keyPairs);
+        var itemProjectorExpression = new ItemProjectorExpression(originalResultExpression.ItemProjector.Item, joinedRecordSet);
+        var projectionExpression = new ProjectionExpression(originalResultExpression.Type, itemProjectorExpression, originalResultExpression.TupleParameterBindings);
+        context.Bindings.ReplaceBound(parameter, projectionExpression);
+
+        // return new EntityExpression
+        var result = EntityExpression.Create(context.Model.Types[targetType], offset);
+        return result;
+      }
+    }
+
+    private void EnsureEntityFieldsAreJoined(EntityExpression entityExpression)
+    {
+      var typeInfo = entityExpression.PersistentType;
+      if (typeInfo.Fields.All(fieldInfo=>entityExpression.Fields.Any(entityField=>entityField.Name==fieldInfo.Name)))
+        return; // All fields are already 
+      var joinedIndex = typeInfo.Indexes.PrimaryIndex;
+      var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+      var keySegment = entityExpression.Key.Mapping;
+      var keyPairs = keySegment.GetItems()
+        .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+        .ToArray();
+      var originalItemProjector = entityExpression.OuterParameter==null
+        ? context.Bindings[state.Parameters[0]].ItemProjector
+        : context.Bindings[entityExpression.OuterParameter].ItemProjector;
+      var offset = originalItemProjector.DataSource.Header.Length;
+      originalItemProjector.DataSource = originalItemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+      EntityExpression.Fill(entityExpression, offset);
+    }
+
+    private void EnsureEntityReferenceIsJoined(EntityFieldExpression entityFieldExpression)
+    {
+      if (entityFieldExpression.Entity!=null)
+        return;
+      var typeInfo = entityFieldExpression.PersistentType;
+      var joinedIndex = typeInfo.Indexes.PrimaryIndex;
+      var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+      var keySegment = entityFieldExpression.Mapping;
+      var keyPairs = keySegment.GetItems()
+        .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+        .ToArray();
+      var originalItemProjector = entityFieldExpression.OuterParameter==null
+        ? context.Bindings[state.Parameters[0]].ItemProjector
+        : context.Bindings[entityFieldExpression.OuterParameter].ItemProjector;
+      var offset = originalItemProjector.DataSource.Header.Length;
+      originalItemProjector.DataSource = originalItemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+      entityFieldExpression.RegisterEntityExpression(offset);
     }
 
     private static Expression MakeBinaryExpression(Expression previous, Expression left, Expression right, ExpressionType operationType, ExpressionType concatenationExpression)
@@ -575,309 +777,6 @@ namespace Xtensive.Storage.Linq
       default:
         throw new ArgumentOutOfRangeException("concatenationExpression");
       }
-    }
-
-    private Expression MakeComplexBinaryExpression(Expression bLeft, Expression bRight, ExpressionType operationType)
-    {
-      Expression result = null;
-      if (bLeft.NodeType==ExpressionType.Constant || bRight.NodeType==ExpressionType.Constant) {
-        var constant = bLeft.NodeType==ExpressionType.Constant
-          ? (ConstantExpression) bLeft
-          : (ConstantExpression) bRight;
-        var member = bLeft.NodeType!=ExpressionType.Constant
-          ? bLeft
-          : bRight;
-        if (constant.Value==null) {
-          var path = MemberPath.Parse(member, context.Model);
-          var source = context.Bindings[path.Parameter];
-          var segment = source.Mapping.GetMemberSegment(path);
-          foreach (var i in segment.GetItems()) {
-            var columnType = source.RecordSet.Header.Columns[i].Type.ToNullable();
-            Expression left = MakeTupleAccess(path.Parameter, columnType, i);
-            Expression right = Expression.Constant(null, columnType);
-            result = MakeBinaryExpression(result, left, right, operationType, ExpressionType.AndAlso);
-          }
-          return result;
-        }
-      }
-      var leftPath = MemberPath.Parse(bLeft, context.Model);
-      var leftSource = context.Bindings[leftPath.Parameter];
-      var leftSegment = leftSource.Mapping.GetMemberSegment(leftPath);
-      var rightPath = MemberPath.Parse(bRight, context.Model);
-      var rightSource = context.Bindings[rightPath.Parameter];
-      var rightSegment = rightSource.Mapping.GetMemberSegment(rightPath);
-      foreach (var pair in leftSegment.GetItems().Zip(rightSegment.GetItems(), (l, r) => new {l, r})) {
-        var type = leftSource.RecordSet.Header.TupleDescriptor[pair.l];
-        Expression left = MakeTupleAccess(leftPath.Parameter, type, pair.l);
-        Expression right = MakeTupleAccess(rightPath.Parameter, type, pair.r);
-        result = MakeBinaryExpression(result, left, right, operationType, ExpressionType.AndAlso);
-      }
-      return result;
-    }
-
-    private Expression MakeTupleAccess(ParameterExpression parameter, Type accessorType, int index)
-    {
-      var target = state.Parameters.Contains(parameter)
-        ? (Expression) state.Tuple
-        : Expression.Property(
-          Expression.Constant(context.GetApplyParameter(context.Bindings[parameter])),
-          WellKnownMembers.ApplyParameterValue
-          );
-
-      return ExpressionHelper.TupleAccess(target, accessorType, index);
-    }
-
-    #endregion
-
-    #region VisitBinary implementations
-
-    private Expression VisitBinaryKey(BinaryExpression binaryExpression)
-    {
-      if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
-        throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported, binaryExpression.NodeType));
-
-      bool leftIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Left);
-      bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);
-
-      if (!leftIsParameter && !rightIsParameter)
-        return MakeComplexBinaryExpression(binaryExpression.Left, binaryExpression.Right, binaryExpression.NodeType);
-
-      var bLeft = binaryExpression.Left;
-      var bRight = binaryExpression.Right;
-      if (leftIsParameter) {
-        bLeft = binaryExpression.Right;
-        bRight = binaryExpression.Left;
-      }
-
-      var path = MemberPath.Parse(bLeft, context.Model);
-      if (!state.Parameters.Contains(path.Parameter))
-        throw new NotSupportedException();
-
-      var source = context.Bindings[path.Parameter];
-      var segment = source.Mapping.GetMemberSegment(path);
-      Expression result = null;
-      foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
-        Type columnType = source.RecordSet.Header.Columns[pair.ColumnIndex].Type.ToNullable();
-        Expression left = MakeTupleAccess(path.Parameter, columnType, pair.ColumnIndex);
-        Expression right = ExpressionHelper.IsNullCondition(bRight,
-          Expression.Constant(null, columnType),
-          ExpressionHelper.TupleAccess(
-            Expression.MakeMemberAccess(bRight, WellKnownMembers.KeyValue),
-            columnType,
-            pair.ParameterIndex
-            )
-          );
-        result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType, ExpressionType.AndAlso);
-      }
-      return result;
-    }
-
-    private Expression VisitBinaryEntity(BinaryExpression binaryExpression)
-    {
-      if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
-        throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported, binaryExpression.NodeType));
-
-      bool leftIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Left);
-      bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);
-
-      if (!leftIsParameter && !rightIsParameter) {
-        var bLeft = binaryExpression.Left.NodeType==ExpressionType.Constant && ((ConstantExpression) binaryExpression.Left).Value==null
-          ? binaryExpression.Left
-          : Expression.MakeMemberAccess(binaryExpression.Left, WellKnownMembers.IEntityKey);
-        var bRight = binaryExpression.Right.NodeType==ExpressionType.Constant && ((ConstantExpression) binaryExpression.Right).Value==null
-          ? binaryExpression.Right
-          : Expression.MakeMemberAccess(binaryExpression.Right, WellKnownMembers.IEntityKey);
-        return MakeComplexBinaryExpression(bLeft, bRight, binaryExpression.NodeType);
-      }
-      else {
-        var bLeft = Expression.MakeMemberAccess(binaryExpression.Left, WellKnownMembers.IEntityKey);
-        var bRight = binaryExpression.Right;
-        if (leftIsParameter) {
-          bLeft = Expression.MakeMemberAccess(binaryExpression.Right, WellKnownMembers.IEntityKey);
-          bRight = binaryExpression.Left;
-        }
-
-        var path = MemberPath.Parse(bLeft, context.Model);
-        if (!state.Parameters.Contains(path.Parameter))
-          throw new NotSupportedException();
-
-        var source = context.Bindings[path.Parameter];
-        var segment = source.Mapping.GetMemberSegment(path);
-
-        Expression result = null;
-        foreach (var pair in segment.GetItems().Select((ci, pi) => new {ColumnIndex = ci, ParameterIndex = pi})) {
-          Type columnType = source.RecordSet.Header.Columns[pair.ColumnIndex].Type.ToNullable();
-          Expression left = MakeTupleAccess(path.Parameter, columnType, pair.ColumnIndex);
-          Expression right = ExpressionHelper.IsNullCondition(bRight,
-            Expression.Constant(null, columnType),
-            ExpressionHelper.TupleAccess(
-              Expression.MakeMemberAccess(Expression.MakeMemberAccess(bRight, WellKnownMembers.IEntityKey), WellKnownMembers.KeyValue),
-              columnType,
-              pair.ParameterIndex
-              )
-            );
-          result = MakeBinaryExpression(result, left, right, binaryExpression.NodeType, ExpressionType.AndAlso);
-        }
-        return result;
-      }
-    }
-
-    private Expression VisitBinaryArray(BinaryExpression expression)
-    {
-      switch (expression.NodeType) {
-      case ExpressionType.ArrayIndex:
-        var arrayExpression = Visit(expression.Left);
-        var arrayIndex = Visit(expression.Right);
-        return Expression.ArrayIndex(arrayExpression, arrayIndex);
-      case ExpressionType.Equal:
-      case ExpressionType.NotEqual:
-        var rightExpression = expression.Right.StripCasts();
-        if (rightExpression.NodeType==ExpressionType.Constant && ((ConstantExpression) rightExpression).Value==null)
-          return base.VisitBinary(expression);
-        break;
-      }
-      throw new NotSupportedException();
-    }
-
-    private Expression VisitBinaryAnonymous(BinaryExpression binaryExpression)
-    {
-      if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
-        throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported, binaryExpression.NodeType));
-
-      Expression leftExpression = binaryExpression.Left;
-      Expression rightExpression = binaryExpression.Right;
-
-      var properties = leftExpression.Type.GetProperties();
-      Expression result = null;
-      foreach (PropertyInfo propertyInfo in properties) {
-        Expression left;
-        string propertyName = propertyInfo.GetGetMethod().Name;
-        if (leftExpression.NodeType==ExpressionType.New) {
-          var newExpression = ((NewExpression) leftExpression);
-          var member = newExpression.Members.First(memberInfo => memberInfo.Name==propertyName);
-          int index = newExpression.Members.IndexOf(member);
-          left = newExpression.Arguments[index];
-        }
-        else
-          left = Expression.Property(leftExpression, propertyInfo);
-        Expression right;
-        if (rightExpression.NodeType==ExpressionType.New) {
-          var newExpression = ((NewExpression) rightExpression);
-          var member = newExpression.Members.First(memberInfo => memberInfo.Name==propertyName);
-          int index = newExpression.Members.IndexOf(member);
-          right = newExpression.Arguments[index];
-        }
-        else
-          right = Expression.Property(leftExpression, propertyInfo);
-        var expression = VisitBinary((BinaryExpression) MakeBinaryExpression(null, left, right, binaryExpression.NodeType, ExpressionType.AndAlso));
-        result = result==null
-          ? expression
-          : Expression.AndAlso(result, expression);
-      }
-      return result;
-    }
-
-    private Expression VisitBinaryStructure(BinaryExpression binaryExpression)
-    {
-      if (binaryExpression.NodeType!=ExpressionType.Equal && binaryExpression.NodeType!=ExpressionType.NotEqual)
-        throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported, binaryExpression.NodeType));
-
-//      bool leftIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Left);
-//      bool rightIsParameter = context.ParameterExtractor.IsParameter(binaryExpression.Right);
-//
-//      if (!leftIsParameter && !rightIsParameter)
-      return MakeComplexBinaryExpression(binaryExpression.Left, binaryExpression.Right, binaryExpression.NodeType);
-
-//      throw new NotSupportedException();
-    }
-
-    #endregion
-
-    #region VisitMemberPathImplementation
-
-    private Expression VisitMemberPathSubquery(Expression e)
-    {
-      state.RecordIsUsed = true;
-      var m = (MemberExpression) e;
-      var expression = Visit(m.Expression);
-      var result = Expression.MakeMemberAccess(expression, m.Member);
-      return result;
-    }
-
-    private Expression VisitMemberPathEntity(MemberPath path, ResultExpression source, Type resultType)
-    {
-      state.RecordIsUsed = true;
-      var segment = source.Mapping.GetMemberSegment(path);
-      int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
-      var result = Expression.Call(WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(resultType),
-        Expression.Call(state.Record, WellKnownMembers.RecordKey, Expression.Constant(groupIndex)));
-      state.MappingRef.Replace(source.Mapping.GetMemberMapping(path));
-      return result;
-    }
-
-    private Expression VisitMemberPathStructure(MemberPath path, ResultExpression source)
-    {
-      state.RecordIsUsed = true;
-      var segment = source.Mapping.GetMemberSegment(path);
-      var structureColumn = (MappedColumn) source.RecordSet.Header.Columns[segment.Offset];
-      var field = structureColumn.ColumnInfoRef.Resolve(context.Model).Field;
-      while (field.Parent!=null)
-        field = field.Parent;
-      int groupIndex = source.RecordSet.Header.ColumnGroups.GetGroupIndexBySegment(segment);
-      var result =
-        Expression.MakeMemberAccess(
-          Expression.Call(WellKnownMembers.KeyTryResolveOfT.MakeGenericMethod(field.ReflectedType.UnderlyingType),
-            Expression.Call(state.Record, WellKnownMembers.RecordKey, Expression.Constant(groupIndex))),
-          field.UnderlyingProperty);
-      var columnGroup = source.RecordSet.Header.ColumnGroups[groupIndex];
-      var keyOffset = columnGroup.Keys.Min();
-      var keyLength = columnGroup.Keys.Max() - keyOffset + 1;
-      var cfm = (ComplexMapping) source.Mapping.GetMemberMapping(path);
-      var mappedFields = cfm.Fields.Where(p => (p.Value.Offset >= segment.Offset && p.Value.EndOffset <= segment.EndOffset)).ToList();
-      var name = mappedFields.Select(pair => pair.Key).OrderBy(s => s.Length).First();
-      foreach (var pair in mappedFields) {
-        var key = pair.Key.TryCutPrefix(name).TrimStart('.');
-        state.MappingRef.RegisterField(key, pair.Value);
-      }
-      state.MappingRef.RegisterField(string.Format(SurrogateKeyNameFormatString, groupIndex), new Segment<int>(keyOffset, keyLength));
-      return result;
-    }
-
-    private Expression VisitMemberPathAnonymous(MemberPath path, ResultExpression source)
-    {
-      if (path.Count==0)
-        return VisitParameter(path.Parameter);
-      var anonymousMapping = new Pair<ComplexMapping, Expression>((ComplexMapping) source.Mapping, source.ItemProjector);
-      foreach (var pathItem in path)
-        anonymousMapping = anonymousMapping.First.GetAnonymousMapping(pathItem.Name);
-      state.MappingRef.Replace(anonymousMapping.First);
-      var result = new ParameterRewriter(state.Tuple, state.Record).Rewrite(anonymousMapping.Second);
-      state.RecordIsUsed |= result.Second;
-      return result.First;
-    }
-
-    private Expression VisitMemberPathPrimitive(MemberPath path, ResultExpression source, Type resultType)
-    {
-      var segment = source.Mapping.GetMemberSegment(path);
-      state.MappingRef.RegisterPrimitive(segment);
-      return MakeTupleAccess(path.Parameter, resultType, segment.Offset);
-    }
-
-    private Expression VisitMemberPathKey(MemberPath path, ResultExpression source)
-    {
-      Segment<int> segment = source.Mapping.GetMemberSegment(path);
-      var keyColumn = (MappedColumn) source.RecordSet.Header.Columns[segment.Offset];
-      var field = keyColumn.ColumnInfoRef.Resolve(context.Model).Field;
-      var type = field.Parent==null
-        ? field.ReflectedType
-        : context.Model.Types[field.Parent.ValueType];
-      var transform = new SegmentTransform(true, field.ReflectedType.TupleDescriptor, segment);
-      var keyExtractor = Expression.Call(WellKnownMembers.KeyCreate, Expression.Constant(type),
-        Expression.Call(Expression.Constant(transform), WellKnownMembers.SegmentTransformApply,
-          Expression.Constant(TupleTransformType.Auto), state.Tuple),
-        Expression.Constant(false));
-      state.MappingRef.RegisterPrimitive(segment);
-      return keyExtractor;
     }
 
     #endregion

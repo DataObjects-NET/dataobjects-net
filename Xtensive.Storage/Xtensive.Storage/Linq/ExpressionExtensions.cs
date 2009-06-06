@@ -19,40 +19,62 @@ namespace Xtensive.Storage.Linq
 {
   internal static class ExpressionExtensions
   {
+    public static Expression MakeTupleAccess(this Expression target, Type accessorType, int index)
+    {
+      return Expression.Call(
+        target,
+        WellKnownMembers.TupleGenericAccessor.MakeGenericMethod(accessorType),
+        Expression.Constant(index)
+        );
+    }
+
+    public static Expression MakeIsNullCondition(this Expression target, Expression ifNull, Expression ifNotNull)
+    {
+      return Expression.Condition(
+        Expression.Equal(target, Expression.Constant(null, target.Type)),
+        ifNull, ifNotNull
+        );
+    }
+
+    public static bool IsAnonymousConstructor(this Expression expression)
+    {
+      if (expression.NodeType != ExpressionType.New) return false;
+      return expression.GetMemberType() == MemberType.Anonymous;
+    }
+
+    public static bool IsConversionOperation(this Expression expression)
+    {
+      return expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.TypeAs;
+    }
+
     public static bool IsQuery(this Expression expression)
     {
       return expression.Type.IsOfGenericInterface(typeof(IQueryable<>));
     }
 
-    public static bool IsResult(this Expression expression)
+    public static bool IsItemProjector(this Expression expression)
     {
-      return (ExtendedExpressionType) expression.NodeType==ExtendedExpressionType.Result;
+      return (ExtendedExpressionType)expression.NodeType == ExtendedExpressionType.ItemProjector;
     }
 
-    public static bool IsGroupingConstructor(this Expression expression)
+    public static bool IsProjection(this Expression expression)
     {
-      expression = expression.StripCasts();
-      if (expression.NodeType==ExpressionType.New)
-        return expression.Type.IsOfGenericType(typeof(Grouping<,>));
-      return false;
+      return (ExtendedExpressionType) expression.NodeType==ExtendedExpressionType.Projection;
     }
 
-    public static bool IsSubqueryConstructor(this Expression expression)
+    public static bool IsEntitySetProjection(this Expression expression)
     {
-      expression = expression.StripCasts();
-      if (expression.NodeType==ExpressionType.New)
-        return expression.Type.IsOfGenericType(typeof(SubQuery<>));
-      return false;
+      return (ExtendedExpressionType)expression.NodeType == ExtendedExpressionType.EntitySet;
     }
 
-    public static bool IsGrouping(this Expression expression)
+    public static bool IsGroupingProjection(this Expression expression)
     {
-      return expression.Type.IsOfGenericInterface(typeof(IGrouping<,>));
+      return (ExtendedExpressionType)expression.NodeType==ExtendedExpressionType.Grouping;
     }
 
-    public static bool IsSubquery(this Expression expression)
+    public static bool IsSubqueryProjection(this Expression expression)
     {
-      return expression.Type.IsOfGenericInterface(typeof(IQueryable<>));
+      return (ExtendedExpressionType)expression.NodeType==ExtendedExpressionType.SubQuery;
     }
 
     public static bool IsEntitySet(this Expression expression)
@@ -67,36 +89,36 @@ namespace Xtensive.Storage.Linq
       return newExpression.Type.GetGenericArguments()[0];
     }
 
-    public static Type GetGroupingElementType(this Expression expression)
-    {
-      var newExpression = (NewExpression)expression.StripCasts();
-      return newExpression.Type.GetGenericArguments()[1];
-    }
+//    public static Type GetGroupingElementType(this Expression expression)
+//    {
+//      var newExpression = (NewExpression)expression.StripCasts();
+//      return newExpression.Type.GetGenericArguments()[1];
+//    }
+//
+//    public static Parameter<Tuple> GetGroupingParameter(this Expression expression)
+//    {
+//      var newExpression = (NewExpression)expression.StripCasts();
+//      return (Parameter<Tuple>) ((ConstantExpression) newExpression.Arguments[3]).Value;
+//    }
 
-    public static Parameter<Tuple> GetGroupingParameter(this Expression expression)
-    {
-      var newExpression = (NewExpression)expression.StripCasts();
-      return (Parameter<Tuple>) ((ConstantExpression) newExpression.Arguments[3]).Value;
-    }
 
+//    public static Parameter<Tuple> GetSubqueryParameter(this Expression expression)
+//    {
+//      var newExpression = (NewExpression)expression.StripCasts();
+//      return (Parameter<Tuple>) ((ConstantExpression) newExpression.Arguments[2]).Value;
+//    }
+//
+//    public static ProjectionExpression GetGroupingItemsResult(this Expression expression)
+//    {
+//      var newExpression = (NewExpression)expression.StripCasts();
+//      return (ProjectionExpression) ((ConstantExpression) newExpression.Arguments[2]).Value;
+//    }
 
-    public static Parameter<Tuple> GetSubqueryParameter(this Expression expression)
-    {
-      var newExpression = (NewExpression)expression.StripCasts();
-      return (Parameter<Tuple>) ((ConstantExpression) newExpression.Arguments[2]).Value;
-    }
-
-    public static ResultExpression GetGroupingItemsResult(this Expression expression)
-    {
-      var newExpression = (NewExpression)expression.StripCasts();
-      return (ResultExpression) ((ConstantExpression) newExpression.Arguments[2]).Value;
-    }
-
-    public static ResultExpression GetSubqueryItemsResult(this Expression expression)
-    {
-      var newExpression = (NewExpression)expression.StripCasts();
-      return (ResultExpression) ((ConstantExpression) newExpression.Arguments[0]).Value;
-    }
+//    public static ProjectionExpression GetSubqueryItemsResult(this Expression expression)
+//    {
+//      var newExpression = (NewExpression)expression.StripCasts();
+//      return (ProjectionExpression) ((ConstantExpression) newExpression.Arguments[0]).Value;
+//    }
 
     public static MemberType GetMemberType(this Expression e)
     {
@@ -111,12 +133,16 @@ namespace Xtensive.Storage.Linq
         return MemberType.EntitySet;
       if (type.IsAnonymous())
         return MemberType.Anonymous;
-      if (e.IsGrouping())
+      if (e.IsGroupingProjection())
         return MemberType.Grouping;
-      if (e.IsSubquery())
+      if (e.IsSubqueryProjection())
         return MemberType.Subquery;
       if (type.IsArray)
         return MemberType.Array;
+
+      if ((ExtendedExpressionType)e.NodeType==ExtendedExpressionType.Field 
+        || (ExtendedExpressionType)e.NodeType==ExtendedExpressionType.Column)
+        return MemberType.Primitive;
 
       return MemberType.Unknown;
     }

@@ -11,7 +11,6 @@ using System.Reflection;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
-using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
@@ -22,6 +21,8 @@ namespace Xtensive.Storage.Linq
   {
     // Tuple
     public static readonly MethodInfo TupleGenericAccessor;
+    public static readonly MethodInfo TupleCreate;
+    public static readonly PropertyInfo TupleDescriptor;
 
     // Key
     public static readonly PropertyInfo KeyValue;
@@ -66,14 +67,17 @@ namespace Xtensive.Storage.Linq
     // Parameter
     public static readonly PropertyInfo ParameterValue;
 
-    // SegmentTransform
-    public static readonly MethodInfo SegmentTransformApply;
-
     // Record
     public static readonly MethodInfo RecordKey;
 
     // RecordSet
     public static readonly MethodInfo RecordSetParse;
+
+    // Structure
+    public static readonly MethodInfo CreateStructure;
+
+    // EntitySet
+    public static readonly MethodInfo CreateEntitySet;
 
     /// <exception cref="InvalidOperationException">Method not found.</exception>
     private static MethodInfo GetMethod(Type type, string name, int numberOfGenericArgument, int numberOfArguments)
@@ -100,9 +104,18 @@ namespace Xtensive.Storage.Linq
     static WellKnownMembers()
     {
       // Tuple
-      TupleGenericAccessor = typeof (Tuple).GetMethods()
+      TupleGenericAccessor = typeof (Tuple)
+        .GetMethods()
         .Where(mi => mi.Name==Core.Reflection.WellKnown.Tuple.GetValueOrDefault && mi.IsGenericMethod)
         .Single();
+      TupleCreate = typeof (Tuple)
+        .GetMethods()
+        .Where(mi => mi.Name == Core.Reflection.WellKnown.Tuple.Create
+          && !mi.IsGenericMethod
+            && mi.GetParameters().Count()==1
+              && mi.GetParameters()[0].ParameterType==typeof (TupleDescriptor))
+        .Single();
+      TupleDescriptor = typeof(Tuple).GetProperty(Core.Reflection.WellKnown.Tuple.Descriptor);
 
       // Key
       KeyValue = typeof (Key).GetProperty("Value");
@@ -163,6 +176,7 @@ namespace Xtensive.Storage.Linq
       // IEntity
       IEntityKey = typeof (IEntity).GetProperty(WellKnown.KeyField);
 
+
       // ApplyParameter
       ApplyParameterValue = typeof (ApplyParameter).GetProperty("Value");
 
@@ -172,14 +186,21 @@ namespace Xtensive.Storage.Linq
       // Parameter
       ParameterValue = typeof (Parameter).GetProperty("Value");
 
-      // SegmentTransform
-      SegmentTransformApply = typeof (SegmentTransform).GetMethod("Apply", new[] {typeof (TupleTransformType), typeof (Tuple)});
-
       // Record
       RecordKey = typeof (Record).GetProperty("Item", typeof (Key), new[] {typeof (int)}).GetGetMethod();
 
       // RecordSet
       RecordSetParse = typeof (RecordSetExtensions).GetMethod("Parse");
+
+      // Structure
+      CreateStructure = typeof (Internals.Activator).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
+        .Where(methodInfo => methodInfo.Name=="CreateStructure" && methodInfo.GetParameters().Length==2)
+        .Single();
+
+      // EntitySet
+      CreateEntitySet = typeof(Internals.Activator).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
+        .Where(methodInfo => methodInfo.Name == "CreateEntitySet" && methodInfo.GetParameters().Length == 3)
+        .Single();
     }
   }
 }

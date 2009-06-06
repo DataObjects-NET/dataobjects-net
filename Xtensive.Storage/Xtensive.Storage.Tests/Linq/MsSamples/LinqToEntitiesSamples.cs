@@ -547,7 +547,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       select o;
 
       // Feb CTP requires AsEnumerable()
-      var result = query.AsEnumerable().First();
+      var result = query.ToList().First();
 
       QueryDumper.Dump(result);
     }
@@ -562,7 +562,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 
       // Feb CTP requires AsEnumerable()
       var result = query
-        .AsEnumerable()
+        .ToList()
         .First(x => x.ShippingAddress.City=="Seattle");
 
       QueryDumper.Dump(result);
@@ -579,7 +579,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       select o;
 
       // Feb CTP requires AsEnumerable()
-      var result = query.AsEnumerable().First();
+      var result = query.ToList().First();
 
       QueryDumper.Dump(result);
     }
@@ -618,15 +618,15 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 
       var query = union.Distinct();
 
-      var actualMexico = Query<Order>.All.AsEnumerable()
+      var actualMexico = Query<Order>.All.ToList()
         .Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
-      var actualCanada = Query<Order>.All.AsEnumerable()
+      var actualCanada = Query<Order>.All.ToList()
         .Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
       var actualUnion = actualMexico.Union(actualCanada).Select(o => o.Employee);
 
       var actual = actualUnion.Distinct();
 
-      Assert.AreEqual(0, actual.Select(o => o.Id).Except(query.AsEnumerable().Select(o => o.Id)).Count());
+      Assert.AreEqual(0, actual.Select(o => o.Id).Except(query.ToList().Select(o => o.Id)).Count());
 
       QueryDumper.Dump(query);
     }
@@ -1011,7 +1011,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 
       // we need AsEnumerable to force execution, as GetType is not defined in store
       var query2 = query
-        .AsEnumerable()
+        .ToList()
         .Select(p => new {type = p.GetType().ToString(), prod = p});
 
       QueryDumper.Dump(query2);
@@ -1072,7 +1072,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 
       // we need AsEnumerable to force execution, as GetType is not defined in store
       var query2 = query
-        .AsEnumerable()
+        .ToList()
         .Select(c => new {type = c.GetType().ToString()});
 
       QueryDumper.Dump(query2);
@@ -1115,7 +1115,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
                 .OfType<CustomerContact>()
                 .Cast<FullContact>()
                 .Union(northwindContext.Contacts.OfType<EmployeeContact>().Cast<FullContact>().Select(ec => ec ))
-                .AsEnumerable()
+                .ToList()
                 .Select(c => new {type = c.GetType().ToString(), companyName =  c.CompanyName } );
 
             QueryDumper.Dump(query);
@@ -1130,7 +1130,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         [Description("Select all federated products and display thier types.")]
         public void LinqToEntities86()
         {
-            var query = Query<Product>.AllFedarated.AsEnumerable().Select(p => new { type = p.GetType().ToString(), p });
+            var query = Query<Product>.AllFedarated.ToList().Select(p => new { type = p.GetType().ToString(), p });
 
             QueryDumper.Dump(query);
         }
@@ -1140,7 +1140,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         [Description("Select all discontinued federated products.")]
         public void LinqToEntities87()
         {
-            var query = Query<Product>.AllFedarated.OfType<DiscontinuedProductFedarated>().AsEnumerable().Select(p => new { type = p.GetType().ToString(), p });
+            var query = Query<Product>.AllFedarated.OfType<DiscontinuedProductFedarated>().ToList().Select(p => new { type = p.GetType().ToString(), p });
 
             QueryDumper.Dump(query);
         }
@@ -1150,7 +1150,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         [Description("Select all contacts and shows their types.")]
         public void LinqToEntities88()
         {
-            var query = northwindContext.ContactsSplit.AsEnumerable().Select(c => new { type = c.GetType().ToString(), c });
+            var query = northwindContext.ContactsSplit.ToList().Select(c => new { type = c.GetType().ToString(), c });
 
             QueryDumper.Dump(query);
         }
@@ -1163,7 +1163,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
             var query = northwindContext
                 .ContactsSplit
                 .OfType<CustomerContactSplit>()
-                .AsEnumerable()
+                .ToList()
                 .Select(c => new { type = c.GetType().ToString(), c });
 
             QueryDumper.Dump(query);
@@ -1182,7 +1182,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
                 .OfType<CustomerContactSplit>()
                 .Cast<ContactSplit>()
                 .Intersect(northwindContext.ContactsSplit.OfType<EmployeeContactSplit>().Cast<ContactSplit>())
-                .AsEnumerable()
+                .ToList()
                 .Select(c => new { type = c.GetType().ToString(), c });
 
             QueryDumper.Dump(query);

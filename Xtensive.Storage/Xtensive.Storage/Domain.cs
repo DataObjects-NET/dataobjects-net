@@ -17,6 +17,7 @@ using Xtensive.Core.Disposing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
@@ -146,7 +147,7 @@ namespace Xtensive.Storage
 
     internal ICache<Key, Key> KeyCache { get; private set; }
 
-    internal ICache<MethodInfo, Pair<MethodInfo, ParameterizedResultExpression>> QueryCache { get; private set; }
+    internal ICache<MethodInfo, Pair<MethodInfo, TranslatedQuery>> QueryCache { get; private set; }
 
     internal Dictionary<AssociationInfo, ActionSet> PairSyncActions { get; private set; }
 
@@ -238,7 +239,7 @@ namespace Xtensive.Storage
       RecordSetParser = new RecordSetParser(this);
       KeyGenerators = new Registry<GeneratorInfo, KeyGenerator>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
-      QueryCache = new LruCache<MethodInfo, Pair<MethodInfo, ParameterizedResultExpression>>(
+      QueryCache = new LruCache<MethodInfo, Pair<MethodInfo, TranslatedQuery>>(
         Configuration.QueryCacheSize, k => k.First);
       PairSyncActions = new Dictionary<AssociationInfo, ActionSet>(1024);
       TemporaryData = new GlobalTemporaryData();

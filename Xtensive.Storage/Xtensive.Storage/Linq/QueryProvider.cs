@@ -60,52 +60,15 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     public TResult Execute<TResult>(Expression expression)
     {
-      var compiled = Compile(expression);
-      // Providing the result to caching layer, if possible
-      var cachingScope = QueryCachingScope.Current;
-      if (cachingScope != null)
-        cachingScope.CompilationResult = compiled;
-      return compiled.GetResult<TResult>();
+      var query = Translate<TResult>(expression);
+      return query.Execute();
     }
 
-    internal ResultExpression Compile(Expression expression)
+    internal TranslatedQuery<TResult> Translate<TResult>(Expression expression)
     {
       var model = Domain.Demand().Model;
-      ResultExpression result;
-      if (expression.IsResult())
-        result = (ResultExpression) expression;
-      else {
-        var context = new TranslatorContext(expression, model);
-        result = context.Translator.Translate();
-      }
-      result = Optimize(result, model);
-      return result;
-    }
-
-    private ResultExpression Optimize(ResultExpression origin, DomainModel model)
-    {
-      var mappingsGatherer = new ItemProjectorAnalyzer();
-
-      var originProvider = origin.RecordSet.Provider;
-      var usedColumns = mappingsGatherer
-        .Gather(origin.ItemProjector, originProvider, model, origin.Mapping)
-        .Distinct()
-        .OrderBy(i => i)
-        .ToList();
-
-      if (usedColumns.Count==0)
-        usedColumns.Add(0);
-      if (usedColumns.Count < origin.RecordSet.Header.Length) {
-        var resultProvider = new SelectProvider(originProvider, usedColumns.ToArray());
-
-        var rs = resultProvider.Result;
-        var groupMap = MappingHelper.BuildGroupMapping(usedColumns, originProvider, resultProvider);
-        var mappingsReplacer = new ItemProjectorRewriter(usedColumns, groupMap, origin.RecordSet.Header);
-        var itemProjector = mappingsReplacer.Rewrite(origin.ItemProjector);
-        var result = new ResultExpression(origin.Type, rs, null, (LambdaExpression) itemProjector, origin.ResultType);
-        return result;
-      }
-      return origin;
+      var context = new TranslatorContext(expression, model);
+      return context.Translator.Translate<TResult>();
     }
 
 

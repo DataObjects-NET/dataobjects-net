@@ -9,6 +9,7 @@ using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
+using Xtensive.Core.Tuples;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Internals
@@ -20,6 +21,9 @@ namespace Xtensive.Storage.Internals
 
     private static readonly ThreadSafeDictionary<Type, Func<Entity>> newEntityActivators =
       ThreadSafeDictionary<Type, Func<Entity>>.Create(new object());
+
+    private static readonly ThreadSafeDictionary<Type, Func<Tuple, Structure>> structureTupleActivators =
+      ThreadSafeDictionary<Type, Func<Tuple, Structure>>.Create(new object());
 
     private static readonly ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, bool, Structure>> structureActivators =
       ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, bool, Structure>>.Create(new object());
@@ -50,6 +54,14 @@ namespace Xtensive.Storage.Internals
         DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo, bool, Structure>>);
       Structure result = activator(owner, field, notify);
       result.OnInitialize(notify);
+      return result;
+    }
+
+    internal static Structure CreateStructure(Type type, Tuple tuple)
+    {
+      var activator = structureTupleActivators.GetValue(type,
+        DelegateHelper.CreateConstructorDelegate<Func<Tuple, Structure>>);
+      Structure result = activator(tuple);
       return result;
     }
 

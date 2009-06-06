@@ -26,6 +26,12 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public ColumnInfoCollection Columns { get; private set; }
 
+
+    public int Length
+    {
+      get { return Columns.Count; }
+    }
+
     /// <summary>
     /// Gets the tuple descriptor of the key.
     /// </summary>

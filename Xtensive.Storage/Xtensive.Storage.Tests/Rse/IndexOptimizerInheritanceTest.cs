@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Tests.Rse
 
       Expression<Func<T, bool>> predicate = product => product.UnitPrice > 10 && product.UnitPrice < 70 
         || product.ProductName.GreaterThan("e") && product.ProductName.GreaterThan("t");
-      var expected = Query<T>.All.AsEnumerable().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
+      var expected = Query<T>.All.ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
       var query = Query<T>.All.Where(predicate).OrderBy(o => o.Id);
       var actual = query.ToList();
       primaryIndexValidator(Domain.Model.Types[typeof (T)].Indexes.GetIndexesContainingAllData()

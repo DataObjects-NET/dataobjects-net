@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void NewByteArrayTest()
     {
       var result = Query<Customer>.All.Select(x => new byte[] {1, 2});
-      var expected = Query<Customer>.All.AsEnumerable().Select(x => new byte[] {1, 2});
+      var expected = Query<Customer>.All.ToList().Select(x => new byte[] {1, 2});
       var comparer = AdvancedComparer<byte[]>.Default.EqualityComparerImplementation;
       Assert.AreEqual(0, expected.Except(result, comparer).Count());
       QueryDumper.Dump(result);
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Linq
           customer.ContactTitle
         });
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .Select(customer => new[] {
           customer.CompanyName,
           customer.ContactTitle
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Linq
           p.ProductName
         });
       var expected = Query<Product>.All
-        .AsEnumerable()
+        .ToList()
         .Select(p => new {
           Value = new byte[] {1, 2, 3},
           p.ProductName
@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Tests.Linq
         Assert.AreEqual(method, i.Method);
       var expected =
         from r in
-          from p in Query<Product>.All.AsEnumerable()
+          from p in Query<Product>.All.ToList()
           select new {
             Value = new byte[] {1, 2, 3},
             Method = method,
@@ -138,7 +138,7 @@ namespace Xtensive.Storage.Tests.Linq
         })
         .Select(a => a[0]);
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .Select(customer => new[] {
           customer.CompanyName,
           customer.ContactTitle
@@ -156,7 +156,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Select(a => a[0])
         .Sum(b => b);
       var expected = Query<Customer>.All
-        .AsEnumerable()
+        .ToList()
         .Select(x => new byte[] {1, 2})
         .Select(a => a[0])
         .Sum(b => b);
@@ -171,7 +171,7 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query<Category>.All
         .Select(category => bytes[category.Id]);
       var expected = Query<Category>.All
-        .AsEnumerable()
+        .ToList()
         .Select(category => bytes[category.Id]);
       Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);

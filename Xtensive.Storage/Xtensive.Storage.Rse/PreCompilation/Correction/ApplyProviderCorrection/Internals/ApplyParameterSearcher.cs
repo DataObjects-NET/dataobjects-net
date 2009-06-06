@@ -37,5 +37,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       }
       return base.VisitMethodCall(mc);
     }
+
+    protected override Expression VisitUnknown(Expression e)
+    {
+      return e;
+    }
   }
 }

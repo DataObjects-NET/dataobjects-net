@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
@@ -77,7 +78,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
     {
       return new DirectionCollection<int>(
-          Source.ExpectedOrder.Where(p => GroupColumnIndexes.Contains(p.Key)));
+          Source.ExpectedOrder
+            .Where(p => GroupColumnIndexes.Contains(p.Key))
+            .Select(p => new KeyValuePair<int,Direction>(GroupColumnIndexes.IndexOf(p.Key), p.Value)));
     }
 
     /// <summary>

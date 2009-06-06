@@ -401,6 +401,18 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void AsUpcastWithConditionalTest()
+    {
+      var result = Query<DiscontinuedProduct>.All
+        .Select(discontinuedProduct => discontinuedProduct as Product)
+        .Select(product => 
+          product == null 
+          ? null 
+          : product);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void WrongCastTest()
     {
       var result = Query<DiscontinuedProduct>.All

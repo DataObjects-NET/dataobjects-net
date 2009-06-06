@@ -12,21 +12,18 @@ using System.Linq.Expressions;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
-using Xtensive.Storage.Linq.Rewriters;
 
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
-  internal class SubQuery<T> : IQueryable<T>
+  internal class SubQuery<TElement> : IQueryable<TElement>
   {
-    private readonly ResultExpression resultExpression;
+    private readonly ProjectionExpression projectionExpression;
+    private readonly TranslatedQuery<IEnumerable<TElement>> translatedQuery;
 
-
-    public IEnumerator<T> GetEnumerator()
+    public IEnumerator<TElement> GetEnumerator()
     {
-        var result = resultExpression.GetResult<IEnumerable<T>>();
-        foreach (var element in result)
-          yield return element;
+      return translatedQuery.Execute().GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -38,13 +35,13 @@ namespace Xtensive.Storage.Linq
     {
       get
       {
-        return resultExpression;
+        return projectionExpression;
       }
     }
 
     public Type ElementType
     {
-      get { return typeof (T); }
+      get { return typeof (TElement); }
     }
 
     public IQueryProvider Provider
@@ -52,20 +49,15 @@ namespace Xtensive.Storage.Linq
       get { return QueryProvider.Instance; }
     }
 
-    public SubQuery(ResultExpression resultExpression, Tuple tuple, Parameter<Tuple> parameter)
-    {
-      var newRecordset = TupleParameterToTupleRewriter.Rewrite(
-        resultExpression.RecordSet.Provider, 
-        parameter, 
-        tuple)
-        .Result;
-      this.resultExpression = new ResultExpression(
-        resultExpression.Type, 
-        newRecordset, 
-        resultExpression.Mapping, 
-        resultExpression.ItemProjector, 
-        resultExpression.ResultType);
-    }
 
+    // Constructors
+
+    public SubQuery(ProjectionExpression projectionExpression, TranslatedQuery translatedQuery, Parameter<Tuple> parameter, Tuple tuple)
+    {
+      this.projectionExpression = new ProjectionExpression(projectionExpression.Type, projectionExpression.ItemProjector, projectionExpression.ResultType, projectionExpression.TupleParameterBindings);
+      this.translatedQuery = new TranslatedQuery<IEnumerable<TElement>>(translatedQuery.DataSource, ((TranslatedQuery<IEnumerable<TElement>>)translatedQuery).Materializer, ((TranslatedQuery<IEnumerable<TElement>>)translatedQuery).TupleParameterBindings);
+      this.translatedQuery.TupleParameterBindings[parameter] = tuple;
+      this.projectionExpression.TupleParameterBindings[parameter] = tuple;
+    }
   }
 }

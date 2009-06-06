@@ -1,0 +1,43 @@
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexis Kochetov
+// Created:    2009.05.27
+
+using System;
+using System.Collections;
+using System.Diagnostics;
+using Xtensive.Core.Parameters;
+using Xtensive.Core.Tuples;
+using Xtensive.Storage.Rse;
+using System.Collections.Generic;
+
+namespace Xtensive.Storage.Linq
+{
+  [Serializable]
+  internal class TranslatedQuery<TResult> : TranslatedQuery
+  {
+    public readonly Func<RecordSet, IDictionary<Parameter<Tuple>, Tuple>, TResult> Materializer;
+    public IDictionary<Parameter<Tuple>, Tuple> TupleParameterBindings { get; private set; }
+    
+    public sealed override Delegate UntypedMaterializer
+    {
+      get { return Materializer; }
+    }
+
+    public TResult Execute()
+    {
+      return Materializer(DataSource, TupleParameterBindings);
+    }
+
+
+    // Constructors
+
+    public TranslatedQuery(RecordSet dataSource, Func<RecordSet, IDictionary<Parameter<Tuple>, Tuple>, TResult> materializer, IDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
+      :base (dataSource)
+    {
+      Materializer = materializer;
+      TupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(tupleParameterBindings);
+    }
+  }
+}

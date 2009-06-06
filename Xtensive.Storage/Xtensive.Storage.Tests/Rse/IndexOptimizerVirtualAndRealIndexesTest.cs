@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.Rse
         Expression<Func<B, bool>> predicate = b => b.HierarchyField.GreaterThan("k")
           && b.ClassField < int.MaxValue
             || b.HierarchyField.LessThanOrEqual("z") && b.ClassField > int.MaxValue / 2;
-        var expected = Query<B>.All.AsEnumerable().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
+        var expected = Query<B>.All.ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
         var query = Query<B>.All.Where(predicate).OrderBy(o => o.Id);
         var actual = query.ToList();
         var virtualIndex = Domain.Model.Types[typeof (B)].Indexes.GetIndex("HierarchyField");

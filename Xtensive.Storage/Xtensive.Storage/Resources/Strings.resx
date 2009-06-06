@@ -695,6 +695,12 @@ Actions:
   <data name="ExMethodXNotFound" xml:space="preserve">
     <value>Method {0} not found</value>
   </data>
+  <data name="ExOfTypeSupportsOnlyEntityConversion" xml:space="preserve">
+    <value>OfType supports only 'Entity' conversion.</value>
+  </data>
+  <data name="ExLambdaParameterIsOutOfScope" xml:space="preserve">
+    <value>Lambda parameter is out of scope!</value>
+  </data>
   <data name="LogFailedToExtractDomainModelFromStorage" xml:space="preserve">
     <value>Failed to extract domain model from storage.</value>
   </data>

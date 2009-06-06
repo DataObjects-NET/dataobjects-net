@@ -217,14 +217,12 @@ namespace Xtensive.Storage.Building.Definitions
         attributes |= FieldAttributes.Nullable;
       ValueType = valueType;
       if (valueType.IsGenericType) {
-        Type genericType = valueType.GetGenericTypeDefinition();
+        var genericType = valueType.GetGenericTypeDefinition();
         IsEntitySet = genericType.IsOfGenericType(typeof(EntitySet<>));
         if (IsEntitySet)
           ItemType = valueType.GetGenericArguments()[0];
-        if (genericType == typeof(Nullable<>)) {
-          ValueType = Nullable.GetUnderlyingType(valueType);
+        if (genericType == typeof (Nullable<>))
           attributes |= FieldAttributes.Nullable;
-        }
       }
       LazyLoad = false;
     }
