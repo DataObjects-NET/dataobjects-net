@@ -6,7 +6,7 @@
 
 using System;
 using PostSharp.Laos;
-using Xtensive.Integrity.Validation.Interfaces;
+using Xtensive.Integrity.Validation;
 
 namespace Xtensive.Integrity.Aspects
 {  

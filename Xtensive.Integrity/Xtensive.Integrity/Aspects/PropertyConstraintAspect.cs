@@ -19,7 +19,6 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 using Xtensive.Integrity.Resources;
 using Xtensive.Integrity.Validation;
-using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Aspects
 {

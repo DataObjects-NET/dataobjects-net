@@ -12,7 +12,6 @@ using Xtensive.Core.Aspects;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Validation;
-using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Tests
 {

@@ -10,7 +10,6 @@ using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Resources;
-using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Validation
 {

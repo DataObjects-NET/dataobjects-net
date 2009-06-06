@@ -13,7 +13,6 @@ using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Relations;
 using Xtensive.Integrity.Validation;
-using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Tests
 {

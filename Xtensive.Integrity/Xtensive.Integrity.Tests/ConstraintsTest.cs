@@ -11,7 +11,6 @@ using Xtensive.Core;
 using Xtensive.Core.Testing;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Integrity.Validation;
-using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Tests
 {

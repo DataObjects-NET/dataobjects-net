@@ -6,7 +6,7 @@
 
 using Xtensive.Core;
 
-namespace Xtensive.Integrity.Validation.Interfaces
+namespace Xtensive.Integrity.Validation
 {
   /// <summary>
   /// Implemented by objects supporting validation framework.

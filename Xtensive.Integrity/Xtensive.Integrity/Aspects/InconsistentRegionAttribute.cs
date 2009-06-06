@@ -14,7 +14,6 @@ using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Reflection;
 using Xtensive.Integrity.Validation;
-using Xtensive.Integrity.Validation.Interfaces;
 
 namespace Xtensive.Integrity.Aspects
 {
