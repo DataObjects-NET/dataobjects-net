@@ -10,10 +10,7 @@ using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Helpers;
-using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;
-using Xtensive.Storage.Upgrade.Hints;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version2;
 
 namespace Xtensive.Storage.Tests.Upgrade.Recycled

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Storage.Upgrade.Hints
+namespace Xtensive.Storage.Upgrade
 {
   /// <summary>
   /// Abstract base class for any upgrade hint.

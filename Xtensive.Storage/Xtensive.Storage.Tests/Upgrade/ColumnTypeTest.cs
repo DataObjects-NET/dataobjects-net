@@ -5,22 +5,13 @@
 // Created:    2009.06.04
 
 using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Disposing;
-using Xtensive.Core.Helpers;
-using Xtensive.Core.Reflection;
-using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Upgrade;
-using Xtensive.Storage.Upgrade.Hints;
 using Mode = Xtensive.Storage.DomainUpgradeMode;
 
 namespace Xtensive.Storage.Tests.Upgrade

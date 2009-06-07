@@ -14,8 +14,6 @@ using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Upgrade;
-using Xtensive.Storage.Upgrade.Hints;
-using UpgradeContext=Xtensive.Storage.Upgrade.UpgradeContext;
 
 namespace Xtensive.Storage.Building
 {

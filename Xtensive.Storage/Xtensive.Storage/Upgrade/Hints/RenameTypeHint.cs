@@ -9,7 +9,7 @@ using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Storage.Upgrade.Hints
+namespace Xtensive.Storage.Upgrade
 {
   /// <summary>
   /// Rename type hint.
@@ -29,6 +29,7 @@ namespace Xtensive.Storage.Upgrade.Hints
     /// </summary>
     public string OldType { get; private set; }
 
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(ToStringFormat, OldType, NewType.GetFullName());

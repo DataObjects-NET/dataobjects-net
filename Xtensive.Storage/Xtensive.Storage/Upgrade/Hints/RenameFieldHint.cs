@@ -8,7 +8,7 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Upgrade.Hints
+namespace Xtensive.Storage.Upgrade
 {
   /// <summary>
   /// Rename field hint.
@@ -33,6 +33,7 @@ namespace Xtensive.Storage.Upgrade.Hints
     /// </summary>
     public string NewFieldName { get; private set; }
 
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(ToStringFormat, TargetType.FullName, OldFieldName, NewFieldName);

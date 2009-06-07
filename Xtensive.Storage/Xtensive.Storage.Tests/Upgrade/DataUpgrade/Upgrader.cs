@@ -6,14 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Helpers;
-using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;
-using Xtensive.Storage.Upgrade.Hints;
-using Xtensive.Storage.Building;
 using M1 = Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version2;
 

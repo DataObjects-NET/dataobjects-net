@@ -13,7 +13,6 @@ using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Stored;
-using Xtensive.Storage.Upgrade.Hints;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Upgrade

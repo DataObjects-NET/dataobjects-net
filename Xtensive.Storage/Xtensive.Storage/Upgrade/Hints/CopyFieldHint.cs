@@ -9,7 +9,7 @@ using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Storage.Upgrade.Hints
+namespace Xtensive.Storage.Upgrade
 {
   /// <summary>
   /// Copy field hint.

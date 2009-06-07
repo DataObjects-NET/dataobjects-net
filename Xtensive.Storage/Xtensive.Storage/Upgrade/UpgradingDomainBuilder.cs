@@ -19,7 +19,6 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
-using Xtensive.Storage.Upgrade.Hints;
 using Assembly = System.Reflection.Assembly;
 using ModelTypeInfo = Xtensive.Storage.Model.TypeInfo;
 

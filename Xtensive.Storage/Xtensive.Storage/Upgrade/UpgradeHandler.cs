@@ -11,7 +11,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using System.Linq;
 using Xtensive.Core.Helpers;
-using Xtensive.Storage.Upgrade.Hints;
 
 namespace Xtensive.Storage.Upgrade
 {
