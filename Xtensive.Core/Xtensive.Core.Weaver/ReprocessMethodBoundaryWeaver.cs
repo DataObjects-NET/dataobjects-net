@@ -73,7 +73,8 @@ namespace Xtensive.Core.Weaver
         WeaveOnError(context, block);
         break;
       default:
-        throw new InvalidOperationException(string.Format("UnexpectedJoinPoint: {0}", joinPointKind));
+        throw new InvalidOperationException(string.Format(
+          "Unexpected JoinPointKind: {0}", joinPointKind));
       }
     }
 

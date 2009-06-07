@@ -44,7 +44,7 @@ namespace Xtensive.Core.Weaver
           ctorSignature.Translate(module),
           BindingOptions.Default);
       } catch (Exception e) {
-        ErrorLog.Debug("..Error: {0}", e);
+        ErrorLog.Debug("Error: {0}", e);
         return;
       }
 
