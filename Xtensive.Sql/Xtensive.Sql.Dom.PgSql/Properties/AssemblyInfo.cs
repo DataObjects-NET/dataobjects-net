@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Xtensive LLC.
+﻿// Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
@@ -44,3 +44,7 @@ using System.Security.Permissions;
 [assembly : AssemblyFileVersion("1.0.0.0")]
 [assembly : CLSCompliant(true)]
 [assembly : SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
+
+#if XTENSIVEBUILD
+[assembly: AssemblyKeyFile(@"..\..\..\Lib\Key.snk")]
+#endif

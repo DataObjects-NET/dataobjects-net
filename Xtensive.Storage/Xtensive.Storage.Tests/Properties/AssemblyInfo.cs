@@ -49,3 +49,7 @@ using Xtensive.Storage.Aspects;
 
 // This ensures the methods of Persistent & SessionBound will be aspected
 [assembly : Persistent(AttributeTargetAssemblies = "Xtensive.Storage.Tests")]
+
+#if XTENSIVEBUILD
+[assembly: AssemblyKeyFile(@"..\..\..\Lib\Key.snk")]
+#endif

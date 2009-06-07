@@ -54,20 +54,22 @@ namespace Xtensive.Storage.Tests
 
       // Here you still have the ability to override the above values
 
+      config = Create("mssql2005", InheritanceSchema.SingleTable, TypeIdBehavior.Default, ForeignKeyMode.All);
+
 //      config = Create("memory");
 //      config = Create("memory", InheritanceSchema.SingleTable);
 //      config = Create("memory", InheritanceSchema.ConcreteTable);
 //      config = Create("memory", InheritanceSchema.Default, TypeIdBehavior.Include);
 
-//        config = Create("mssql2005");
+//      config = Create("mssql2005");
 //      config = Create("mssql2005", InheritanceSchema.SingleTable);
 //      config = Create("mssql2005", InheritanceSchema.ConcreteTable);
 //      config = Create("mssql2005", InheritanceSchema.Default, TypeIdBehavior.Include);
 
 //      config = Create("pgsql");
-//      config = Create("mssql2005", InheritanceSchema.SingleTable);
-//      config = Create("mssql2005", InheritanceSchema.ConcreteTable);
-//      config = Create("mssql2005", InheritanceSchema.Default, TypeIdBehavior.Include);
+//      config = Create("pgsql", InheritanceSchema.SingleTable);
+//      config = Create("pgsql", InheritanceSchema.ConcreteTable);
+//      config = Create("pgsql", InheritanceSchema.Default, TypeIdBehavior.Include);
 
 //      config = Create("vistadb");
 //      config = Create("vistadb", InheritanceSchema.SingleTable);
