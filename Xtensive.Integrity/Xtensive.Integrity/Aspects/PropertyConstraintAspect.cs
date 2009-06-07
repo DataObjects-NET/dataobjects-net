@@ -118,7 +118,7 @@ namespace Xtensive.Integrity.Aspects
       try {
         ValidateConstraintProperties();
       }
-      catch(Exception exception) {
+      catch (Exception exception) {
         ErrorLog.Write(SeverityType.Error,
           "Appling [{0}] to property '{1}' failed. {2}",
           AspectHelper.FormatType(GetType()),
