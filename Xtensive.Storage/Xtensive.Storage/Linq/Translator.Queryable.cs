@@ -351,14 +351,12 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitAggregate(Expression source, MethodInfo method, LambdaExpression argument, bool isRoot)
     {
-      bool isIntCount = false;
       int aggregateColumn;
       AggregateType aggregateType;
       ProjectionExpression innerProjection;
 
       switch (method.Name) {
       case Core.Reflection.WellKnown.Queryable.Count:
-        isIntCount = true;
         aggregateType = AggregateType.Count;
         break;
       case Core.Reflection.WellKnown.Queryable.LongCount:
@@ -415,16 +413,18 @@ namespace Xtensive.Storage.Linq
       var dataSource = innerProjection.ItemProjector.DataSource
         .Aggregate(null, new AggregateColumnDescriptor(context.GetNextColumnAlias(), aggregateColumn, aggregateType));
 
+      var resultType = method.ReturnType;
+      var columnType = dataSource.Header.TupleDescriptor[0];
       if (!isRoot) {
-        return isIntCount
-          ? Expression.Convert(AddSubqueryColumn(typeof (long), dataSource), typeof (int))
+        return resultType != columnType
+          ? Expression.Convert(AddSubqueryColumn(columnType, dataSource), resultType)
           : AddSubqueryColumn(method.ReturnType, dataSource);
       }
 
-      var resultType = method.ReturnType;
-      var projectorBody = isIntCount
-        ? Expression.Convert(ColumnExpression.Create(typeof (long), 0), typeof (int))
+      var projectorBody = resultType != columnType
+        ? Expression.Convert(ColumnExpression.Create(columnType, 0), resultType)
         : (Expression) ColumnExpression.Create(resultType, 0);
+
       var itemProjector = new ItemProjectorExpression(projectorBody, dataSource);
       return new ProjectionExpression(resultType, itemProjector, ResultType.First, innerProjection.TupleParameterBindings);
     }
@@ -497,140 +497,6 @@ namespace Xtensive.Storage.Linq
       }
 
       return resultProjection;
-//      throw new NotImplementedException();
-
-//      ProjectionExpression projection;
-//      ItemProjectorExpression visitedKeySelector;
-//
-//      // 1. Visit source, keySelector
-//
-//      // Visit source
-//      var visitedSource = VisitSequence(source);
-//
-//      // Visit key selector
-//      using (context.Bindings.Add(keySelector.Parameters[0], visitedSource))
-//      using (state.CreateScope()) {
-//        state.CalculateExpressions = true;
-//        visitedKeySelector = (ItemProjectorExpression) Visit(keySelector);
-//        visitedKeySelector = visitedKeySelector.RemoveOwner();
-//        projection = context.Bindings[keySelector.Parameters[0]];
-//      }
-//
-//      var columnList = projection.ItemProjector
-//        .GetColumns(ColumnExtractionModes.KeepSegment | ColumnExtractionModes.TreatEntityAsKey)
-//        .ToArray();
-//
-//      // 2. Build IGrouping<,> ProjectionExpression. 
-//
-//      var keyType = keySelector.Type.GetGenericArguments()[1];
-//      var elementType = elementSelector==null
-//        ? keySelector.Parameters[0].Type
-//        : elementSelector.Type.GetGenericArguments()[1];
-//
-//
-//      // Aggregate recordset.
-//      var recordSet = projection.ItemProjector.DataSource.Aggregate(columnList);
-//
-//      // Create Key ItemProjector
-//      ItemProjectorExpression keyItemProjector;
-//      using (new SkipOwnerCheckScope())
-//        keyItemProjector = visitedKeySelector.Remap(recordSet, columnList);
-//
-//      var groupingParameter = Expression.Parameter(elementType, "groupingParameter");
-//      var parameterizedItemProjector = keyItemProjector.BindOuterParameter(groupingParameter);
-//
-//      // TODO: Add to item projector.
-//      var filterExpression = VisitBinaryRecursive(Expression.Equal(visitedKeySelector.Item, parameterizedItemProjector.Item));
-//
-//
-//      var groupingExpression = new GroupingExpression(
-//        projection.Type,
-//        groupingParameter,
-//        visitedSource,
-//        context.GetApplyParameter(visitedSource), // TODO: ???? I dont sure.
-//        parameterizedItemProjector.Item,
-//        elementSelector);
-//
-//
-////      var filterExpression = Expression.Equal()
-////
-////      // Create TupleParameter for subquery
-////      var tupleParameter = new Parameter<Tuple>("groupingParameter");
-////      var tupleParameterValue = Expression.Property(Expression.Constant(tupleParameter), WellKnownMembers.ParameterOfTupleValue);
-////
-////      // Create filter for grouping subquery
-////      var filterTuple = Expression.Parameter(typeof (Tuple), "t");
-////      Expression filterBody = null;
-////      for (int i = 0; i < columnList.Length; i++) {
-////        var columnIndex = columnList[i];
-////        var columnType = projection.ItemProjector.DataSource.Header.Columns[columnIndex].Type;
-////
-////        var leftExpression = ExpressionHelper.TupleAccess(filterTuple, columnType, columnIndex);
-////        var rightExpression = ExpressionHelper.TupleAccess(tupleParameterValue, columnType, i);
-////        var equalsExpression = Expression.Equal(leftExpression, rightExpression);
-////        filterBody = filterBody==null
-////          ? equalsExpression
-////          : Expression.AndAlso(filterBody, equalsExpression);
-////      }
-////      var filterPredicate = FastExpression.Lambda(filterBody, filterTuple);
-//
-//      // Build datasource for IGrouping<,>
-////      var groupingRs = projection.ItemProjector.DataSource.Filter((Expression<Func<Tuple, bool>>) filterPredicate);
-//
-//
-//      // Create item projector for IGrouping<,>
-////      var groupingItemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, groupingRs);
-//
-//      // Create IGrouping<,> projection.
-////      var groupingResultExpression = new ProjectionExpression(projection.Type, groupingItemProjector);
-////      if (elementSelector!=null)
-////        groupingResultExpression = VisitSelect(groupingResultExpression, elementSelector);
-//
-//
-//      // 3. Build main projection. new Grouping<TKey,TValue>(groupingProjection, tuple, tupleParameter, keyValue)
-//
-//
-//      var groupingGenericType = typeof (Grouping<,>).MakeGenericType(keyType, elementType);
-////      var groupingConstructor = groupingGenericType.GetConstructor(new[] {
-////        typeof (ProjectionExpression), 
-////        typeof (Tuple),  
-////        typeof (Parameter<Tuple>), 
-////        keyType
-////      });
-//
-////      var newGroupingExpression = Expression.New(
-////        groupingConstructor,
-////        Expression.Constant(groupingResultExpression),
-////        pTuple,
-////        Expression.Constant(tupleParameter),
-////        remappedItemProjector.Item
-////        );
-////
-////      var groupingType = resultSelector==null 
-////        ? typeof (IGrouping<,>).MakeGenericType(keyType, elementType) 
-////        : typeof (IEnumerable<>).MakeGenericType(elementType);
-////      Expression projectorBody = Expression.Convert(newGroupingExpression, groupingType);
-////      
-//////      LambdaExpression itemProjector = FastExpression.Lambda(projectorBody, recordKeyExpression.Second
-////        ? new[] {pTuple, pRecord}
-////        : new[] {pTuple});
-//
-//      var itemProjector = new ItemProjectorExpression(groupingExpression, recordSet);
-//      var resultExpression = new ProjectionExpression(method.ReturnType, itemProjector, projection.TupleParameterBindings);
-//
-////      if (resultSelector!=null) {
-////        var keyProperty = groupingGenericType.GetProperty(StorageWellKnown.Key);
-////        var convertedParameter = Expression.Convert(resultSelector.Parameters[1], groupingGenericType);
-////        var keyAccess = Expression.MakeMemberAccess(convertedParameter, keyProperty);
-////        var rewrittenResultSelectorBody = ReplaceParameterRewriter.Rewrite(resultSelector.Body, resultSelector.Parameters[0], keyAccess);
-////        var selectLambda = FastExpression.Lambda(rewrittenResultSelectorBody, resultSelector.Parameters[1]);
-////        resultExpression = VisitSelect(resultExpression, selectLambda);
-////      }
-//
-//      if (resultSelector!=null)
-//        resultExpression = VisitSelect(resultExpression, resultSelector);
-//
-//      return resultExpression;
     }
 
     private Expression VisitOrderBy(Expression expression, LambdaExpression le, Direction direction)
