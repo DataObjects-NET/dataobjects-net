@@ -2120,14 +2120,14 @@ namespace Xtensive.Sql.Dom
     public static SqlUnary IsNull(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      SqlValidator.EnsureIsArithmeticExpression(operand);
+      // SqlValidator.EnsureIsArithmeticExpression(operand);
       return Unary(SqlNodeType.IsNull, operand);
     }
 
     public static SqlUnary IsNotNull(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      SqlValidator.EnsureIsArithmeticExpression(operand);
+      // SqlValidator.EnsureIsArithmeticExpression(operand);
       return Unary(SqlNodeType.Not, Unary(SqlNodeType.IsNull, operand));
     }
 
