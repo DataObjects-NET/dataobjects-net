@@ -553,29 +553,37 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void GenerateChangeColumnTypeCommands(PropertyChangeAction action)
     {
-      var sourceColumn = targetModel.Resolve(action.Path) as ColumnInfo;
-      var column = FindColumn(sourceColumn.Parent.Name, sourceColumn.Name);
+      var targetColumn = targetModel.Resolve(action.Path) as ColumnInfo;
+      var sourceColumn = sourceModel.Resolve(action.Path) as ColumnInfo;
+      var column = FindColumn(targetColumn.Parent.Name, targetColumn.Name);
       var table = column.Table;
       var originalName = column.Name;
+      
+      // Rename old column
       var tempName = GetTemporaryName(column);
       var renameColumn = SqlFactory.Rename(column, tempName);
       RegisterCommand(renameColumn, UpgradeStage.Upgrade);
       RenameSchemaColumn(column, tempName);
 
+      // Create new columns
       var newTypeInfo = action.Properties["Type"] as TypeInfo;
       var type = GetSqlType(newTypeInfo);
       var newColumn = table.CreateColumn(originalName, type);
       newColumn.IsNullable = newTypeInfo.IsNullable;
       if (!newColumn.IsNullable)
-        newColumn.DefaultValue = GetDefaultValue(sourceColumn);
+        newColumn.DefaultValue = GetDefaultValue(targetColumn);
       var addColumnWithNewType = SqlFactory.Alter(column.Table, SqlFactory.AddColumn(newColumn));
       RegisterCommand(addColumnWithNewType, UpgradeStage.Upgrade);
 
-      var tableRef = SqlFactory.TableRef(column.Table);
-      var copyValues = SqlFactory.Update(tableRef);
-      copyValues.Values[tableRef[originalName]] = SqlFactory.Cast(tableRef[tempName], type);
-      RegisterCommand(copyValues, UpgradeStage.DataManipulate);
+      // Copy values if possible to convert type
+      if (Upgrade.TypeConversionVerifier.CanConvert(sourceColumn.Type, newTypeInfo)) {
+        var tableRef = SqlFactory.TableRef(column.Table);
+        var copyValues = SqlFactory.Update(tableRef);
+        copyValues.Values[tableRef[originalName]] = SqlFactory.Cast(tableRef[tempName], type);
+        RegisterCommand(copyValues, UpgradeStage.DataManipulate);
+      }
 
+      // Drop old column
       if (column.DefaultValue!=null) {
         var constraint = table.TableConstraints
           .OfType<DefaultConstraint>().FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);

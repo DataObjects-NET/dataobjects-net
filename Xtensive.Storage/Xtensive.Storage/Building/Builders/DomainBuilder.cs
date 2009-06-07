@@ -279,8 +279,9 @@ namespace Xtensive.Storage.Building.Builders
             upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;
         case SchemaUpgradeMode.PerformSafely:
-          if(result.Status != SchemaComparisonStatus.Equal &&
-            result.Status != SchemaComparisonStatus.TargetIsSuperset)
+          if((result.Status != SchemaComparisonStatus.Equal 
+            && result.Status != SchemaComparisonStatus.TargetIsSuperset)
+            || !result.CanUpgradeTypesSafely)
             throw new SchemaSynchronizationException(Strings.ExCannotUpgradeSchemaSafely);
           upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;

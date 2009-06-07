@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Building
   /// <summary>
   /// Compares storage models.
   /// </summary>
-  public static class SchemaComparer
+  internal static class SchemaComparer
   {
     /// <summary>
     /// Compares <paramref name="sourceSchema"/> and <paramref name="targetSchema"/>.
@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Building
     public static SchemaComparisonResult Compare(StorageInfo sourceSchema,
       StorageInfo targetSchema, HintSet hints)
     {
-      if (hints==null)
+      if (hints == null)
         hints = new HintSet(sourceSchema, targetSchema);
       var comparer = new Comparer();
       var difference = comparer.Compare(sourceSchema, targetSchema, hints);
@@ -44,7 +44,8 @@ namespace Xtensive.Storage.Building
         : new Upgrader().GetUpgradeSequence(difference, hints, comparer)
       };
       var status = GetComparisonStatus(hints, actions);
-      return new SchemaComparisonResult(status, hints, difference, actions);
+      var canPerformSafely = CanPerform(difference as NodeDifference, true);
+      return new SchemaComparisonResult(status, hints, difference, actions, canPerformSafely);
     }
 
     private static SchemaComparisonStatus GetComparisonStatus(HintSet hints, ActionSequence upgradeActions)
@@ -64,6 +65,53 @@ namespace Xtensive.Storage.Building
       if (hasRemoveActions)
         return SchemaComparisonStatus.TargetIsSubset;
       return SchemaComparisonStatus.Equal;
+    }
+
+    private static bool CanPerform(NodeDifference schemaDifference, bool safely)
+    {
+      if (schemaDifference == null)
+        return true;
+
+      return
+        !GetTypeChanges(schemaDifference).Any(triplet =>
+          (safely
+            ? !TypeConversionVerifier.CanConvertSafely(triplet.Second, triplet.Third)
+            : !TypeConversionVerifier.CanConvert(triplet.Second, triplet.Third)));
+    }
+
+    private static IEnumerable<Triplet<string, TypeInfo, TypeInfo>> GetTypeChanges(NodeDifference schemaDifference)
+    {
+      if (schemaDifference == null)
+        return Enumerable.Empty<Triplet<string, TypeInfo, TypeInfo>>();
+
+      return GetColumnDifferences(schemaDifference)
+        .Where(columnDifference =>
+          columnDifference.Source != null
+            && columnDifference.Target != null
+            && columnDifference.PropertyChanges.ContainsKey("Type"))
+        .Select(columnDifference =>
+        {
+          var typeChange = columnDifference.PropertyChanges["Type"];
+          return new Triplet<string, TypeInfo, TypeInfo>(
+            columnDifference.Target.Path,
+            typeChange.Source as TypeInfo,
+            typeChange.Target as TypeInfo);
+        });
+    }
+
+    private static IEnumerable<NodeDifference> GetColumnDifferences(NodeDifference schemaDifference)
+    {
+      Func<Difference, IEnumerable<Difference>> itemExtractor =
+        diff => {
+          if (diff is NodeDifference)
+            return ((NodeDifference) diff).PropertyChanges.Values;
+          else if (diff is NodeCollectionDifference)
+            return ((NodeCollectionDifference) diff).ItemChanges.Cast<Difference>();
+          else
+            return Enumerable.Empty<Difference>();
+        };
+      return EnumerableUtils.Flatten(schemaDifference.PropertyChanges.Values, itemExtractor, diff => { }, true)
+        .OfType<NodeDifference>().Where(nodeDifference => (nodeDifference.Source ?? nodeDifference.Target) is ColumnInfo);
     }
   }
 }

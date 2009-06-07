@@ -40,6 +40,11 @@ namespace Xtensive.Storage.Building
     /// </summary>
     public ActionSequence UpgradeActions { get; private set; }
 
+    /// <summary>
+    /// Gets a value indicating whether possible to upgrade data types safely.
+    /// </summary>
+    public bool CanUpgradeTypesSafely { get; private set; }
+
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -63,10 +68,11 @@ namespace Xtensive.Storage.Building
     /// <param name="canPerform">if set to <see langword="true"/> [can perform].</param>
     /// <param name="canPerformSafely">if set to <see langword="true"/> [can perform safely].</param>
     public SchemaComparisonResult(SchemaComparisonStatus status, HintSet hints, 
-      Difference difference, ActionSequence upgradeActions)
+      Difference difference, ActionSequence upgradeActions, bool canPerformSchemaSafely)
     {
       Difference = difference;
       UpgradeActions = upgradeActions;
+      CanUpgradeTypesSafely = canPerformSchemaSafely;
       Status = status;
       Hints = hints;
     }

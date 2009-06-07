@@ -66,22 +66,12 @@ namespace Xtensive.Storage.Upgrade
         return length >= 9;
       if (from.Type==typeof (UInt64))
         return length >= 20;
-      if (from.Type==typeof (Single))
-        return length >= 13;
-      if (from.Type==typeof (Double))
-        return length >= 26;
-      if (from.Type==typeof (Decimal))
-        return length >= 30;
       if (from.Type==typeof (Char))
         return length >= 1;
       if (from.Type==typeof (Byte))
         return length >= 3;
       if (from.Type==typeof (SByte))
         return length >= 4;
-      if (from.Type == typeof (Boolean))
-        return length >= 5;
-      if (from.Type == typeof (Guid))
-        return length >= 36;
       return false;
     }
 

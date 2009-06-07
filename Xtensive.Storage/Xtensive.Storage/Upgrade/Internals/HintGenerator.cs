@@ -38,7 +38,6 @@ namespace Xtensive.Storage.Upgrade
       var typeRenames = upgradeHints.OfType<RenameTypeHint>().ToArray();
       var fieldRenames = upgradeHints.OfType<RenameFieldHint>().ToArray();
       var fieldCopyHints = upgradeHints.OfType<CopyFieldHint>().ToArray();
-      var changeFieldTypeHints = upgradeHints.OfType<ChangeFieldTypeHint>().ToArray();
       
       ValidateRenameTypeHints(typeRenames);
       BuildTypeMapping(typeRenames);
@@ -52,11 +51,8 @@ namespace Xtensive.Storage.Upgrade
       GenerateRenameColumnHints();
       GenerateCopyColumnHints(fieldCopyHints);
       GenerateClearDataHints();
-      UpdateChangeFieldTypeHints(changeFieldTypeHints);
       return resultHints;
     }
-
-    
 
     #region Validation
 
@@ -488,33 +484,6 @@ namespace Xtensive.Storage.Upgrade
         resultHints.Add(new UpdateDataHint(sourceTablePath, identities, updatedColumns));
       else
         resultHints.Add(new DeleteDataHint(sourceTablePath, identities));
-    }
-
-    private void UpdateChangeFieldTypeHints(ChangeFieldTypeHint[] changeFieldTypeHints)
-    {
-      changeFieldTypeHints.Apply(UpdateChangeFieldTypeHint);
-    }
-
-    private void UpdateChangeFieldTypeHint(ChangeFieldTypeHint hint)
-    {
-      var currentTypeName = hint.Type.GetFullName();
-      var currentType = currentModel.Types.SingleOrDefault(type => 
-        type.UnderlyingType==currentTypeName);
-      if (currentType==null)
-        throw TypeIsNotFound(currentTypeName);
-      var currentField = currentType.AllFields
-        .SingleOrDefault(field => field.Name==hint.FieldName);
-      if (currentField==null)
-        throw FieldIsNotFound(currentTypeName, hint.FieldName);
-      StoredFieldInfo sourceField;
-      if (!backwardFieldMapping.TryGetValue(currentField, out sourceField))
-        throw FieldIsNotFound(currentTypeName, hint.FieldName);
-
-      var sourceType = sourceField.DeclaringType;
-      var typeToProcess = GetAffectedMappedTypes(sourceType, 
-        sourceType.Hierarchy.Schema==InheritanceSchema.ConcreteTable);
-      hint.AffectedColumns.AddRange(
-        typeToProcess.Select(type => GetColumnPath(type.MappingName, sourceField.MappingName)));
     }
 
     private bool IsRemoved(StoredTypeInfo type)

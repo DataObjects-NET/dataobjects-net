@@ -57,73 +57,28 @@ namespace Xtensive.Storage.Tests.Upgrade
       Build(newValue, "FInt", Mode.Perform);
       SetUp();
       Build(newValue, "FInt", Mode.PerformSafely);
-      SetUp();
-      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof (X), "FInt"))) {
-        Build(newValue, "FInt", Mode.Perform);
-      }
     }
 
     [Test]
     public void Int32ToShortStringTest()
     {
-      var newValue = "123";
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, 3, "FInt2", Mode.Perform));
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, 3, "FInt2", Mode.PerformSafely));
-      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof (X), "FInt2"))) {
-        AssertEx.Throws<SqlException>(() => Build(newValue, 3, "FInt2", Mode.Perform));
-      }
+      AssertEx.Throws<SchemaSynchronizationException>(() => Build(typeof (int), 3, "FInt2", Mode.PerformSafely));
+      Build(typeof (int), 3, "FInt2", Mode.Perform);
     }
 
     [Test]
-    public void HintGeneration()
+    public void StringToInt32Test()
     {
-      var newValue = "123";
-      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof (X), "FInt2"))) {
-        AssertEx.Throws<SqlException>(() => Build(newValue, 3, "FInt2", Mode.PerformSafely));
-      }
-    }
-
-    [Test]
-    public void GuidToBoolTest()
-    {
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(true, "FGuid", Mode.Perform));
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(true, "FGuid", Mode.PerformSafely));
-      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof (X), "FGuid"))) {
-        AssertEx.Throws<SqlException>(() => Build(true, "FGuid", Mode.Perform));
-      }
-    }
-
-    [Test]
-    public void NumericStringToIntTest()
-    {
-      var newValue = 12345;
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, "FString5", Mode.Perform));
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, "FString5", Mode.PerformSafely));
-      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof(X), "FString5"))) {
-        Build(newValue, "FString5", Mode.Perform);
-      }
-    }
-
-    [Test]
-    public void NonNumericStringToInt32Test()
-    {
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(0, "FString1", Mode.Perform));
       AssertEx.Throws<SchemaSynchronizationException>(() => Build(0, "FString1", Mode.PerformSafely));
-      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof(X), "FString1"))) {
-        AssertEx.Throws<SqlException>(() => Build(0, "FString1", Mode.Perform));
-      }
+      Build(typeof (int), null, "FString1", Mode.Perform);
     }
 
     [Test]
     public void StringToShortStringTest()
     {
       var newValue = "123";
-      Build(newValue, 3, "FString5", Mode.Perform);
-      SetUp();
       AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, 3, "FString5", Mode.PerformSafely));
-      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof(X), "FString5"))) {
-        Build(newValue, 3, "FString5", Mode.PerformSafely);
-      }
+      Build(newValue, 3, "FString5", Mode.Perform);
     }
 
     [Test]
@@ -134,42 +89,21 @@ namespace Xtensive.Storage.Tests.Upgrade
       SetUp();
       Build(newValue, 3, "FString1", Mode.PerformSafely);
       SetUp();
-      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof(X), "FString1"))) {
-        Build(newValue, 3, "FString1", Mode.Perform);
-      }
     }
 
     [Test]
     public void BoolToStringTest()
     {
-      var newValue = "true";
-      Build(newValue, 5, "FBool", Mode.Perform);
-      SetUp();
-      Build(newValue, 5, "FBool", Mode.PerformSafely);
-    }
-
-    [Test]
-    public void GuidToShortStringTest()
-    {
-      var newValue = "E484EE28-3801-445B-9DF0-FBCBE5AA4883";
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, 3, "FGuid", Mode.Perform));
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, 3, "FGuid", Mode.PerformSafely));
-      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof(X), "FGuid"))) {
-        AssertEx.Throws<SqlException>(() => Build(newValue, 3, "FGuid", Mode.Perform));
-      }
+      AssertEx.Throws<SchemaSynchronizationException>(() => Build(typeof (string), 100, "FBool", Mode.PerformSafely));
+      Build(typeof (string), 100, "FBool", Mode.Perform);
     }
 
     [Test]
     public void GuidToStringTest()
     {
       var newValue = "E484EE28-3801-445B-9DF0-FBCBE5AA4883";
-      Build(newValue, 100, "FGuid", Mode.Perform);
-      SetUp();
-      Build(newValue, 100, "FGuid", Mode.PerformSafely);
-      SetUp();
-      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof(X), "FGuid"))) {
-        Build(newValue, 100, "FGuid", Mode.Perform);
-      }
+      AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, 100, "FGuid", Mode.PerformSafely));
+      Build(typeof (string), 100, "FGuid", Mode.Perform);
     }
 
     [Test]
@@ -180,22 +114,17 @@ namespace Xtensive.Storage.Tests.Upgrade
       SetUp();
       Build(newValue, "FInt2", Mode.PerformSafely);
       SetUp();
-      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof (X), "FInt2"))) {
-        Build(newValue, "FInt2", Mode.Perform);
-      }
     }
 
     [Test]
     public void Int64ToInt32Test()
     {
       var newValue = 12345;
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, "FLong", Mode.Perform));
       AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, "FLong", Mode.PerformSafely));
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, "FLong2", Mode.Perform));
       AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, "FLong2", Mode.PerformSafely));
-      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof(X), "FLong2"))) {
-        Build(newValue, "FLong2", Mode.Perform);
-      }
+      Build(0, "FLong", Mode.Perform);
+      SetUp();
+      Build(0, "FLong2", Mode.Perform);
     }
 
     [Test]
@@ -244,6 +173,13 @@ namespace Xtensive.Storage.Tests.Upgrade
       }
     }
 
+    public void Build(Type newType, int? length, string fieldName, DomainUpgradeMode mode)
+    {
+      using (FieldTypeChanger.Enable(newType, fieldName, length)) {
+        BuildDomain(mode);
+      }
+    }
+
     public void Build<T>(T value, string fieldName, DomainUpgradeMode mode)
     {
       Build<T>(value, null, fieldName, mode);
@@ -279,7 +215,6 @@ namespace Xtensive.Storage.Tests.Upgrade
   public class FieldTypeChanger : IDomainBuilder
   {
     private static Type ColumnType { get; set; }
-    private static object DefaultValue { get; set; }
     private static string ColumnName { get; set; }
     private static int? ColumnLength { get; set; }
     private static bool isEnabled;
@@ -287,17 +222,21 @@ namespace Xtensive.Storage.Tests.Upgrade
     /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
     public static IDisposable Enable<T>(string fieldName, int? length)
     {
+      return Enable(typeof (T), fieldName, length);
+    }
+
+    /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
+    public static IDisposable Enable(Type newType, string fieldName, int? length)
+    {
       if (isEnabled)
         throw new InvalidOperationException();
       isEnabled = true;
-      ColumnType = typeof (T);
-      DefaultValue = default(T);
+      ColumnType = newType;
       ColumnName = fieldName;
       ColumnLength = length;
       return new Disposable(_ => {
         isEnabled = false;
         ColumnType = null;
-        DefaultValue = null;
         ColumnName = null;
         ColumnLength = null;
       });
