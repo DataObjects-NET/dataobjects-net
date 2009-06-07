@@ -5,16 +5,15 @@
 // Created:    2008.07.23
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Resources;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 using Xtensive.Integrity.Resources;
@@ -30,6 +29,10 @@ namespace Xtensive.Integrity.Aspects
   [MulticastAttributeUsage(MulticastTargets.Property)]
   public abstract class PropertyConstraintAspect : CompoundAspect
   {
+    private const string MessageParameterFormat = "{{{0}}}";
+    private const string PropertyNameParameter = "PropertyName";
+    private const string ValueParameter = "value";
+
     private ThreadSafeCached<Func<IValidationAware, object>> getter =
       ThreadSafeCached<Func<IValidationAware, object>>.Create(new object());
 
@@ -44,47 +47,16 @@ namespace Xtensive.Integrity.Aspects
     public ValidationMode Mode { get; set; }
 
     /// <summary>
-    /// Gets or sets the message of exception to show if propery value is invalid.
+    /// Gets or sets the message of exception to show if property value is invalid.
     /// </summary>
-    public string Message { get; set;}
+    public string Message { get; set; }
 
-    /// <summary>
-    /// Validates the <paramref name="target"/> against this constraint.
-    /// </summary>
-    /// <param name="target">The validation target.</param>
-    public void Check(IValidationAware target)
+    /// <inheritdoc/>
+    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {
-      CheckValue(target, GetPropertyValue(target));
+      collection.AddAspect(Property.GetSetMethod(true), 
+        new ImplementPropertyConstraintAspect(this));
     }
-
-    /// <summary>
-    /// Gets the property value.
-    /// </summary>
-    /// <param name="target">The target to get the property value of.</param>
-    /// <returns>Property value.</returns>
-    protected object GetPropertyValue(IValidationAware target)
-    {
-      return
-        getter.GetValue(
-          _this => _this
-            .GetType()
-            .GetMethod("GetPropertyGetter", 
-              BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
-            .GetGenericMethodDefinition()
-            .MakeGenericMethod(new[] {_this.Property.DeclaringType, _this.Property.PropertyType})
-            .Invoke(_this, null)
-            as Func<IValidationAware, object>, 
-          this)
-        .Invoke(target);
-    }
-
-
-    /// <summary>
-    /// Determines whether the specified <paramref name="valueType"/> 
-    /// is supported by this constraint.
-    /// </summary>
-    /// <param name="valueType">The value type to check.</param>
-    public abstract bool IsSupported(Type valueType);
 
     /// <summary>
     /// Method called at compile-time by the weaver to validate the application of this
@@ -116,11 +88,11 @@ namespace Xtensive.Integrity.Aspects
 
       // Specifiec constraint properties validation.
       try {
-        ValidateConstraintProperties();
+        ValidateSelf(true);
       }
       catch (Exception exception) {
         ErrorLog.Write(SeverityType.Error,
-          "Appling [{0}] to property '{1}' failed. {2}",
+          Strings.AspectExApplyingXToPropertyYFailedZ,
           AspectHelper.FormatType(GetType()),
           AspectHelper.FormatMember(Property.DeclaringType, Property),
           exception.Message);
@@ -130,81 +102,122 @@ namespace Xtensive.Integrity.Aspects
       return true;
     }
 
-    /// <summary>
-    /// Validates the constraint properties.
-    /// </summary>
-    protected virtual void ValidateConstraintProperties()
-    {
-    }
-
-    /// <inheritdoc/>
-    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
-    {
-      collection.AddAspect(Property.GetSetMethod(true), 
-        new ImplementPropertyConstraintAspect(this));
-    }
 
     /// <summary>
-    /// Determines whether the specified value is valid.
+    /// Determines whether the specified <paramref name="valueType"/> 
+    /// is supported by this constraint.
     /// </summary>
-    /// <param name="value">The value to check.</param>
-    /// <returns>
-    /// <see langword="true"/> if the specified value is valid; otherwise, <see langword="false"/>.
-    /// </returns>
-    public abstract bool IsValid(object value);
-
-    private bool isInitialized = false;
+    /// <param name="valueType">The value type to check.</param>
+    public abstract bool IsSupported(Type valueType);
 
     /// <summary>
-    /// Initializes the constraint.
+    /// Validates itself.
     /// </summary>
-    protected virtual void Initialize()
+    /// <param name="compileTime">Indicates whether this method is invoked 
+    /// in compile time or in runtime.</param>
+    protected virtual void ValidateSelf(bool compileTime)
     {
     }
 
     /// <summary>
-    /// Checks the specified value, if not throws <see cref="ConstraintViolationException"/>.
+    /// Validates the <paramref name="target"/> against this constraint.
+    /// </summary>
+    /// <param name="target">The validation target.</param>
+    public void Check(IValidationAware target)
+    {
+      CheckValue(target, GetPropertyValue(target));
+    }
+
+    #region Check value methods
+
+    /// <summary>
+    /// Validates the specified value. 
+    /// Throws <see cref="ConstraintViolationException"/> on failure.
     /// </summary>
     /// <param name="target">The validation target.</param>
     /// <param name="value">The property value.</param>
     /// <exception cref="ConstraintViolationException">Value is not valid.</exception>
-    public void CheckValue(IValidationAware target, object value)
+    public virtual void CheckValue(IValidationAware target, object value)
     {
-      if (!isInitialized) {
-        ValidateConstraintProperties();
-        if (string.IsNullOrEmpty(Message))
-          Message = GetDefaultMessage();
-        Initialize();
-        isInitialized = true;
-      }
-
-      if (IsValid(value))
+      if (CheckValue(value))
         return;
 
+      // We've got an error. Let's format its message.
       string message = Message;
-      var parameters = GetMessageParams()
-        .AddOne(new KeyValuePair<string, string>("PropertyName", Property.Name))
-        .AddOne(new KeyValuePair<string, string>("value", (value ?? "null").ToString()));
+      var parameters = new Dictionary<string, object> {
+        {PropertyNameParameter, Property.Name}, 
+        {ValueParameter, value}
+      };
+      AddCustomMessageParameters(parameters);
+      foreach (var p in parameters)
+        message = message.Replace(
+          string.Format(MessageParameterFormat, p.Key), 
+          p.Value==null ? Strings.Null : p.Value.ToString());
 
-      foreach (var param in parameters) {
-        message = message.Replace("{" + param.Key + "}", param.Value);
-      }
       throw new ConstraintViolationException(message, target.GetType(), Property, value);
     }
 
-    protected virtual IEnumerable<KeyValuePair<string, string>> GetMessageParams()
+    /// <summary>
+    /// Validates the specified value. 
+    /// Throws <see cref="ConstraintViolationException"/> on failure.
+    /// </summary>
+    /// <param name="value">The value to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified value is valid; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public abstract bool CheckValue(object value);
+
+    #endregion
+
+    /// <summary>
+    /// Gets the property value.
+    /// </summary>
+    /// <param name="target">The target to get the property value of.</param>
+    /// <returns>Property value.</returns>
+    protected object GetPropertyValue(IValidationAware target)
     {
-      return Enumerable.Empty<KeyValuePair<string, string>>();
+      return
+        getter.GetValue(
+          _this => _this
+            .GetType()
+            .GetMethod("GetPropertyGetter", 
+              BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
+            .GetGenericMethodDefinition()
+            .MakeGenericMethod(new[] {_this.Property.DeclaringType, _this.Property.PropertyType})
+            .Invoke(_this, null)
+            as Func<IValidationAware, object>, 
+          this)
+          .Invoke(target);
     }
 
+    #region Message related methods
+
+    /// <summary>
+    /// Gets the default message.
+    /// </summary>
+    /// <returns>Default message.</returns>
     protected abstract string GetDefaultMessage();
 
+    /// <summary>
+    /// Adds custom message parameters.
+    /// </summary>
+    /// <param name="parameters">The parameters to add to.</param>
+    protected virtual void AddCustomMessageParameters(Dictionary<string, object> parameters)
+    {
+    }
+
+    #endregion
 
     #region Private \ internal methods
 
     internal void OnRuntimeInitialize()
     {
       ConstraintRegistry.RegisterConstraint(Property.ReflectedType, this);
+      ValidateSelf(false);
+      Initialize();
+      if (string.IsNullOrEmpty(Message))
+        Message = GetDefaultMessage();
     }
 
     internal void OnSetValue(IValidationAware target, object value)
@@ -214,11 +227,11 @@ namespace Xtensive.Integrity.Aspects
       if (immediate)
         CheckValue(target, value);
       else
-        context.EnqueueValidate(target, _target => Check(_target));   
+        context.EnqueueValidate(target, Check);   
     }
 
 // ReSharper disable UnusedPrivateMember
-    protected Func<IValidationAware, object> GetPropertyGetter<TOwner, TProperty>()
+    internal Func<IValidationAware, object> GetPropertyGetter<TOwner, TProperty>()
 // ReSharper restore UnusedPrivateMember
     {
       var typedGetter = DelegateHelper.CreateGetMemberDelegate<TOwner, TProperty>(Property.Name);
@@ -227,9 +240,19 @@ namespace Xtensive.Integrity.Aspects
 
     #endregion
 
+    /// <summary>
+    /// Initializes this instance in runtime.
+    /// </summary>
+    protected virtual void Initialize()
+    {
+    }
+
 
     // Constructor
-    
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// </summary>
     protected PropertyConstraintAspect()
     {
       Mode = ValidationMode.Default;

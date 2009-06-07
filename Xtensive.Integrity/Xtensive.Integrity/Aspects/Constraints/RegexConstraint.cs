@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
 
@@ -19,6 +18,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
   [Serializable]
   public class RegexConstraint : PropertyConstraintAspect
   {
+    private const string PatternParameter = "Pattern";
     private Regex regex;
 
     /// <summary>
@@ -32,12 +32,12 @@ namespace Xtensive.Integrity.Aspects.Constraints
     public RegexOptions Options { get; set; }
 
     /// <inheritdoc/>
-    public override bool IsValid(object value)
+    public override bool CheckValue(object value)
     {
       string stringValue = (string) value;
       return 
         string.IsNullOrEmpty(stringValue) || 
-        regex.IsMatch(stringValue);
+          regex.IsMatch(stringValue);
     }
 
     /// <inheritdoc/>
@@ -46,22 +46,26 @@ namespace Xtensive.Integrity.Aspects.Constraints
       return valueType==typeof (string);
     }
 
-    protected override IEnumerable<KeyValuePair<string, string>> GetMessageParams()
+    /// <inheritdoc/>
+    protected override void ValidateSelf(bool compileTime)
     {
-      yield return new KeyValuePair<string, string>("Pattern", Pattern);
+      if (string.IsNullOrEmpty(Pattern))
+        throw new ArgumentException(Strings.ExExpressionPatternIsNotSpecified);
     }
 
+    /// <inheritdoc/>
     protected override string GetDefaultMessage()
     {
       return Strings.ConstraintMessageValueFormatIsIncorrect;
     }
 
-    protected override void ValidateConstraintProperties()
+    /// <inheritdoc/>
+    protected override void AddCustomMessageParameters(Dictionary<string, object> parameters)
     {
-      if (string.IsNullOrEmpty(Pattern))
-        throw new Exception(Strings.ExExpressionPatternIsNotSpecified);
+      parameters.Add(PatternParameter, Pattern);
     }
 
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();

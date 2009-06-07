@@ -10,11 +10,17 @@ using Xtensive.Integrity.Resources;
 namespace Xtensive.Integrity.Aspects.Constraints
 {
   /// <summary>
-  /// Ensures thet property value is not <see cref="string.Empty"/>.
+  /// Ensures that property value is not <see cref="string.Empty"/>.
   /// </summary>
   [Serializable]
   public class NotEmptyConstraint : PropertyConstraintAspect
   {
+    /// <inheritdoc/>
+    public override bool CheckValue(object value)
+    {
+      return (string) value!=string.Empty;
+    }
+
     /// <inheritdoc/>
     public override bool IsSupported(Type valueType)
     {
@@ -22,11 +28,6 @@ namespace Xtensive.Integrity.Aspects.Constraints
     }
 
     /// <inheritdoc/>
-    public override bool IsValid(object value)
-    {
-      return (string) value!=string.Empty;
-    }
-
     protected override string GetDefaultMessage()
     {
       return Strings.ConstraintMessageValueCanNotBeEmpty;

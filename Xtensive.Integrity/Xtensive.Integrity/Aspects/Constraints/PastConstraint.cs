@@ -5,8 +5,6 @@
 // Created:    2009.05.27
 
 using System;
-using System.Collections.Generic;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
 
 namespace Xtensive.Integrity.Aspects.Constraints
@@ -18,17 +16,18 @@ namespace Xtensive.Integrity.Aspects.Constraints
   public class PastConstraint : PropertyConstraintAspect
   {
     /// <inheritdoc/>
+    public override bool CheckValue(object value)
+    {
+      return (DateTime) value <= DateTime.Now;
+    }
+
+    /// <inheritdoc/>
     public override bool IsSupported(Type valueType)
     {
       return valueType == typeof (DateTime);
     }
 
     /// <inheritdoc/>
-    public override bool IsValid(object value)
-    {
-      return (DateTime) value <= DateTime.Now;
-    }
-
     protected override string GetDefaultMessage()
     {
       return Strings.ConstraintMessageValueMustBeInThePast;

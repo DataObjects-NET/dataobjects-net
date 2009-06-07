@@ -19,6 +19,9 @@ namespace Xtensive.Integrity.Aspects.Constraints
   [Serializable]
   public class LengthConstraint : PropertyConstraintAspect
   {
+    private const string MinParameter = "Min";
+    private const string MaxParameter = "Max";
+
     /// <summary>
     /// Gets or sets the minimal allowed length.
     /// Default is 0.
@@ -32,7 +35,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
     public long Max { get; set;}
 
     /// <inheritdoc/>
-    public override bool IsValid(object value)
+    public override bool CheckValue(object value)
     {
       if (value==null)
         return true;
@@ -54,25 +57,19 @@ namespace Xtensive.Integrity.Aspects.Constraints
     {
       return
         valueType==typeof (string) ||
-        typeof (ICountable).IsAssignableFrom(valueType) ||
-        typeof (ICollection).IsAssignableFrom(valueType);
+          typeof (ICountable).IsAssignableFrom(valueType) ||
+            typeof (ICollection).IsAssignableFrom(valueType);
     }
 
-    protected override void ValidateConstraintProperties()
+    /// <inheritdoc/>
+    protected override void ValidateSelf(bool compileTime)
     {
       if (Max==long.MaxValue && Min==0)
-        throw new Exception(
+        throw new ArgumentException(
           string.Concat(Strings.ExMaxOrMinPropertyMustBeSpecified));
     }
 
-    protected override IEnumerable<KeyValuePair<string, string>> GetMessageParams()
-    {
-      if (Min != 0)
-        yield return new KeyValuePair<string, string>("Min", Min.ToString());
-      if (Max != long.MaxValue)
-        yield return new KeyValuePair<string, string>("Max", Max.ToString());
-    }
-
+    /// <inheritdoc/>
     protected override string GetDefaultMessage()
     {
       if (Min==0)
@@ -81,6 +78,15 @@ namespace Xtensive.Integrity.Aspects.Constraints
         return Strings.ConstraintMessageValueLengthCanNotBeLessThanMin;
 
       return Strings.ConstraintMessageValueLengthCanNotBeLessThanMinAndGreaterThenMax;
+    }
+
+    /// <inheritdoc/>
+    protected override void AddCustomMessageParameters(Dictionary<string, object> parameters)
+    {
+      if (Min != 0)
+        parameters.Add(MinParameter, Min);
+      if (Max != long.MaxValue)
+        parameters.Add(MaxParameter, Max);
     }
 
 

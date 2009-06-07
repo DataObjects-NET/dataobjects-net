@@ -10,21 +10,24 @@ using Xtensive.Integrity.Resources;
 namespace Xtensive.Integrity.Aspects.Constraints
 {
   /// <summary>
-  /// Ensures property value is not null.
+  /// Ensures property value is not <see langword="null" />.
   /// </summary>
   [Serializable]
   public class NotNullConstraint : PropertyConstraintAspect
   {
+    /// <inheritdoc/>
+    public override bool CheckValue(object value)
+    {
+      return value != null;
+    }
+
+    /// <inheritdoc/>
     public override bool IsSupported(Type valueType)
     {
       return true;
     }
 
-    public override bool IsValid(object value)
-    {
-      return value != null;
-    }
-
+    /// <inheritdoc/>
     protected override string GetDefaultMessage()
     {
       return Strings.ConstraintMessageValueCanNotBeNull;

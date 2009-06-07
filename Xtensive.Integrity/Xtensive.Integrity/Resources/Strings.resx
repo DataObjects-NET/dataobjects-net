@@ -255,4 +255,10 @@
   <data name="ConstraintMessageValueFormatIsIncorrect" xml:space="preserve">
     <value>{PropertyName} format is incorrect.</value>
   </data>
+  <data name="AspectExApplyingXToPropertyYFailedZ" xml:space="preserve">
+    <value>Applying [{0}] to property '{1}' failed. {2}</value>
+  </data>
+  <data name="Null" xml:space="preserve">
+    <value>null</value>
+  </data>
 </root>

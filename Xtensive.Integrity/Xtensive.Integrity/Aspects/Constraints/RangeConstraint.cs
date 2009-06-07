@@ -16,11 +16,13 @@ using Xtensive.Integrity.Resources;
 namespace Xtensive.Integrity.Aspects.Constraints
 {
   /// <summary>
-  /// Ensures field value fits in specified range.
+  /// Ensures field value fits in the specified range.
   /// </summary>
   [Serializable]
   public class RangeConstraint : PropertyConstraintAspect, IDeserializationCallback
   {
+    private const string MinParameter = "Min";
+    private const string MaxParameter = "Max";
     [NonSerialized]
     private ThreadSafeCached<Func<object, object, int>> cachedComparer = 
       ThreadSafeCached<Func<object, object, int>>.Create(new object());
@@ -40,10 +42,25 @@ namespace Xtensive.Integrity.Aspects.Constraints
     public object Max { get; set; }
 
     /// <inheritdoc/>
-    protected override void ValidateConstraintProperties()
+    public override bool CheckValue(object value)
+    {
+      var comparer = GetCachedComparer();
+      return 
+        comparer.Invoke(value, Min) >= 0 && 
+          comparer.Invoke(value, Max) <= 0;
+    }
+
+    /// <inheritdoc/>
+    public override bool IsSupported(Type valueType)
+    {
+      return valueType==Property.PropertyType;
+    }
+
+    /// <inheritdoc/>
+    protected override void ValidateSelf(bool compileTime)
     {
       if (Max==null && Min==null)
-        throw new Exception(Strings.ExMaxOrMinPropertyMustBeSpecified);
+        throw new ArgumentException(Strings.ExMaxOrMinPropertyMustBeSpecified);
 
       if (Max!=null)
         Convert.ChangeType(Max, Property.PropertyType);
@@ -55,27 +72,35 @@ namespace Xtensive.Integrity.Aspects.Constraints
       try {
         comparer = GetCachedComparer();
       }
-      catch {
-      }
+      catch {}
+
       if (comparer==null)
-        throw new Exception(
+        throw new ArgumentException(
           string.Format(Strings.ExComparerForTypeXIsNotFound, Property.PropertyType));
     }
 
     /// <inheritdoc/>
-    public override bool IsValid(object value)
+    protected override string GetDefaultMessage()
     {
-      var comparer = GetCachedComparer();
-      return 
-        comparer.Invoke(value, Min) >= 0 && 
-        comparer.Invoke(value, Max) <= 0;
+      if (Max == null && Min == null)
+        return string.Empty;
+      if (Min == null)
+        return Strings.ConstraintMessageValueCanNotBeGreaterThanMax;
+      if (Max == null)
+        return Strings.ConstraintMessageValueCanNotBeLessThanMin;
+      return Strings.ConstraintMessageValueCanNotBeLessThanMinOrGreaterThanMax;
     }
 
     /// <inheritdoc/>
-    public override bool IsSupported(Type valueType)
+    protected override void AddCustomMessageParameters(Dictionary<string, object> parameters)
     {
-      return valueType==Property.PropertyType;
+      if (Min != null)
+        parameters.Add(MinParameter, Min);
+      if (Max != null)
+        parameters.Add(MaxParameter, Max);
     }
+
+    #region Private \ internal methods
 
     private Func<object, object, int> GetCachedComparer()
     {
@@ -102,25 +127,9 @@ namespace Xtensive.Integrity.Aspects.Constraints
       return (l, r) => r==null ? 0 : compare((T) l, (T) r);
     }
 
-    protected override IEnumerable<KeyValuePair<string, string>> GetMessageParams()
-    {
-      if (Min != null)
-        yield return new KeyValuePair<string, string>("Min", Min.ToString());
-      if (Max != null)
-        yield return new KeyValuePair<string, string>("Max", Max.ToString());
-    }
+    #endregion
 
-    protected override string GetDefaultMessage()
-    {
-      if (Max == null && Min == null)
-        return string.Empty;
-      if (Min == null)
-        return Strings.ConstraintMessageValueCanNotBeGreaterThanMax;
-      if (Max == null)
-        return Strings.ConstraintMessageValueCanNotBeLessThanMin;
-      return Strings.ConstraintMessageValueCanNotBeLessThanMinOrGreaterThanMax;
-    }
-
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       if (Max!=null)

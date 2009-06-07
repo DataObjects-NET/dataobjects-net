@@ -18,15 +18,10 @@ namespace Xtensive.Integrity.Aspects.Constraints
   public class EmailConstraint : PropertyConstraintAspect
   {
     private const string EmailPattern = @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$";
-
     private Regex emailRegex;
 
-    public override bool IsSupported(Type valueType)
-    {
-      return valueType==typeof(string);
-    }
-
-    public override bool IsValid(object value)
+    /// <inheritdoc/>
+    public override bool CheckValue(object value)
     {
       string stringValue = (string) value;
       return
@@ -34,15 +29,23 @@ namespace Xtensive.Integrity.Aspects.Constraints
           emailRegex.IsMatch(stringValue);
     }
 
+    /// <inheritdoc/>
+    public override bool IsSupported(Type valueType)
+    {
+      return valueType==typeof(string);
+    }
+
+    /// <inheritdoc/>
+    protected override string GetDefaultMessage()
+    {
+      return Strings.ConstraintMessageValueFormatIsIncorrect;
+    }
+
+    /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();
       emailRegex = new Regex(EmailPattern);
-    }
-
-    protected override string GetDefaultMessage()
-    {
-      return Strings.ConstraintMessageValueFormatIsIncorrect;
     }
   }
 }
