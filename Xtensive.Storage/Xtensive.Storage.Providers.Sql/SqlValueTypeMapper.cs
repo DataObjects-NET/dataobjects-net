@@ -19,6 +19,9 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public class SqlValueTypeMapper : InitializableHandlerBase
   {
+    private const short MaxDecimalScale = 30;
+    private const short MaxDecimalPrecision = 60;
+
     protected DomainHandler DomainHandler { get; private set; }
 
     /// <summary>
@@ -221,6 +224,8 @@ namespace Xtensive.Storage.Providers.Sql
       if (dataTypeInfo.Type==typeof(char))
         return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), GetDbType(dataTypeInfo),
           o => new string((char) o, 1), null);
+      if (dataTypeInfo.Type==typeof (decimal))
+        dataTypeInfo = GetCorrectDecimalTypeInfo();
       return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), GetDbType(dataTypeInfo));
     }
 
@@ -316,8 +321,18 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-
-
+    private DataTypeInfo GetCorrectDecimalTypeInfo()
+    {
+      var oldTypeInfo = DomainHandler.Driver.ServerInfo.DataTypes.Decimal;
+      var newPrecisionMinValue = oldTypeInfo.Precision.MinValue;
+      var newPrecisionMaxValue = Math.Min(oldTypeInfo.Precision.MaxValue, MaxDecimalPrecision);
+      var newPrecision = new ValueRange<short>(newPrecisionMinValue, newPrecisionMaxValue, newPrecisionMaxValue);
+      var newScaleDefaultValue = (short) (newPrecisionMaxValue / 2);
+      var newScale = new ValueRange<short>(oldTypeInfo.Scale.MinValue, oldTypeInfo.Scale.MaxValue, newScaleDefaultValue);
+      var result = new FractionalDataTypeInfo<decimal>(oldTypeInfo.SqlType, null) {Scale = newScale, Precision = newPrecision};
+      return result;
+    }
+    
     private static object ReadChar(DbDataReader reader, int fieldIndex)
     {
       var s = reader.GetString(fieldIndex);

@@ -28,22 +28,6 @@ namespace Xtensive.Storage.Providers.MsSql
 
     protected override DataTypeMapping CreateDataTypeMapping(DataTypeInfo dataTypeInfo)
     {
-      if (dataTypeInfo.Type == typeof(decimal)) {
-        var oldTypeInfo = DomainHandler.Driver.ServerInfo.DataTypes.Decimal;
-        var oldMapping = base.CreateDataTypeMapping(oldTypeInfo);
-
-        var newTypeInfo = new FractionalDataTypeInfo<decimal>(oldTypeInfo.SqlType, null);
-        newTypeInfo.Scale = new ValueRange<short>(oldTypeInfo.Scale.MinValue, oldTypeInfo.Scale.MaxValue,
-          (short) ((oldTypeInfo.Scale.MinValue + oldTypeInfo.Scale.MaxValue) / 2));
-        newTypeInfo.Precision = oldTypeInfo.Precision;
-        return new DataTypeMapping(
-          newTypeInfo,
-          oldMapping.DataReaderAccessor,
-          oldMapping.DbType,
-          oldMapping.ToSqlValue,
-          oldMapping.FromSqlValue);
-      }
-
       if (dataTypeInfo.Type == typeof(DateTime)) {
         RangeDataTypeInfo<DateTime> dti = DomainHandler.Driver.ServerInfo.DataTypes.DateTime;
         DateTime min = dti.Value.MinValue;
