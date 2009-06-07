@@ -11,29 +11,26 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Modelling.Comparison.Hints
 {
   /// <summary>
-  /// Pair of column paths or column path and constant.
+  /// Pair of node paths or node path and constant.
   /// </summary>
   [Serializable]
   [DebuggerDisplay("{Source} == {Target}")]
   public class IdentityPair
   {
     /// <summary>
-    /// Gets or sets the source column path.
+    /// Gets the source node path.
     /// </summary>
-    public string Source { get; set; }
+    public string Source { get; private set; }
 
     /// <summary>
-    /// Gets or sets the target column path or constant.
+    /// Gets the target node path or constant.
     /// </summary>
-    public string Target { get; set; }
+    public string Target { get; private set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this <see cref="Target"/> value is constant.
+    /// Gets a value indicating whether this <see cref="Target"/> value is constant.
     /// </summary>
-    /// <value>
-    /// <see langword="true"/> if this <see cref="Target"/> value is constant; otherwise, <see langword="false"/>.
-    /// </value>
-    public bool IsIdentifiedByConstant { get; set; }
+    public bool IsIdentifiedByConstant { get; private set; }
 
     /// <inheritdoc/>
     public override string ToString()
@@ -44,8 +41,8 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="source">The source.</param>
-    /// <param name="target">The target.</param>
+    /// <param name="source">The source node path.</param>
+    /// <param name="target">The target node path.</param>
     /// <param name="isIdentifiedByConstant">if set to <see langword="true"/> the target value is constant.</param>
     public IdentityPair(string source, string target, bool isIdentifiedByConstant)
     {

@@ -269,10 +269,11 @@ namespace Xtensive.Modelling.Tests
         RepopulateValueColumns(s2, "Types");
         RepopulateValueColumns(s2, "Objects");
 
-        var copyDataHint = new CopyDataHint();
-        copyDataHint.SourceTablePath = "Tables/Types";
-        copyDataHint.CopiedColumns.Add(new Pair<string>("Tables/Types/Columns/Data", "Tables/Objects/Columns/Data"));
-        copyDataHint.Identities.Add(new IdentityPair("Tables/Types/Columns/Id", "Tables/Objects/Columns/TypeId", false));
+        var copyDataHint = new CopyDataHint(
+          "Tables/Types",
+          new List<IdentityPair> {new IdentityPair("Tables/Types/Columns/Id", "Tables/Objects/Columns/TypeId", false)},
+          new List<Pair<string>> {new Pair<string>("Tables/Types/Columns/Data", "Tables/Objects/Columns/Data")});
+        
         hs.Add(copyDataHint);
       },
         (diff, actions)=> { });
@@ -290,10 +291,11 @@ namespace Xtensive.Modelling.Tests
         RepopulateValueColumns(s1, "Types");
         RepopulateValueColumns(s2, "Objects");
 
-        var copyDataHint = new CopyDataHint();
-        copyDataHint.SourceTablePath = "Tables/Types";
-        copyDataHint.CopiedColumns.Add(new Pair<string>("Tables/Types/Columns/Data", "Tables/Objects/Columns/Data"));
-        copyDataHint.Identities.Add(new IdentityPair("Tables/Types/Columns/Id", "Tables/Objects/Columns/TypeId", false));
+        var copyDataHint = new CopyDataHint(
+          "Tables/Types",
+          new List<IdentityPair> {new IdentityPair("Tables/Types/Columns/Id", "Tables/Objects/Columns/TypeId", false)},
+          new List<Pair<string>> {new Pair<string>("Tables/Types/Columns/Data", "Tables/Objects/Columns/Data")});
+
         hs.Add(copyDataHint);
       },
         (diff, actions) => { });
@@ -313,10 +315,11 @@ namespace Xtensive.Modelling.Tests
         RepopulateValueColumns(s2, "NewObjects");
 
         hs.Add(new RenameHint(s1.Tables["Objects"].Path, s2.Tables["NewObjects"].Path));
-        var copyDataHint = new CopyDataHint();
-        copyDataHint.SourceTablePath = "Tables/Types";
-        copyDataHint.CopiedColumns.Add(new Pair<string>("Tables/Types/Columns/Data", "Tables/NewObjects/Columns/NewData"));
-        copyDataHint.Identities.Add(new IdentityPair("Tables/Types/Columns/Id", "Tables/NewObjects/Columns/TypeId", false));
+        var copyDataHint = new CopyDataHint(
+          "Tables/Types",
+          new List<IdentityPair> {new IdentityPair("Tables/Types/Columns/Id", "Tables/NewObjects/Columns/TypeId", false)},
+          new List<Pair<string>> {new Pair<string>("Tables/Types/Columns/Data", "Tables/NewObjects/Columns/NewData")});
+
         hs.Add(copyDataHint);
       },
         (diff, actions) => { });
@@ -370,10 +373,11 @@ namespace Xtensive.Modelling.Tests
           s2.Tables["NewObjects"].Path));
         hs.Add(new RenameHint(s1.Tables["Objects"].Columns["Id"].Path,
           s2.Tables["NewObjects"].Columns["NewId"].Path));
-        var copyDataHint = new CopyDataHint();
-        copyDataHint.SourceTablePath = "Tables/Types";
-        copyDataHint.CopiedColumns.Add(new Pair<string>("Tables/Types/Columns/Data", "Tables/NewObjects/Columns/NewData"));
-        copyDataHint.Identities.Add(new IdentityPair("Tables/Types/Columns/Id", "Tables/NewObjects/Columns/NewId", false));
+        var copyDataHint = new CopyDataHint(
+          "Tables/Types",
+          new List<IdentityPair> {new IdentityPair("Tables/Types/Columns/Id", "Tables/NewObjects/Columns/TypeId", false)},
+          new List<Pair<string>> {new Pair<string>("Tables/Types/Columns/Data", "Tables/NewObjects/Columns/NewData")});
+        
         hs.Add(copyDataHint);
       },
         (diff, actions) => { });

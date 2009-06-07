@@ -19,10 +19,10 @@ namespace Xtensive.Storage.Tests.Upgrade
     [Test]
     public void ConversionToStringTest()
     {
-      var stringTypeInfo = new TypeInfo(typeof(String));
+      var stringTypeInfo = new TypeInfo(typeof (String));
       var isByteArrFound = false;
       foreach (var type in CreateTypeList()) {
-        if(type != typeof(Byte[]))
+        if (type!=typeof (Byte[]))
           Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type), stringTypeInfo));
         else {
           Assert.IsFalse(TypeConversionVerifier.CanConvert(new TypeInfo(type), stringTypeInfo));
@@ -56,8 +56,8 @@ namespace Xtensive.Storage.Tests.Upgrade
       var typeList = CreateTypeList();
       foreach (var type in typeList.Where(t => t.IsValueType)) {
         Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type), new TypeInfo(type)));
-        if(supportedConversions.ContainsKey(type))
-          foreach (var targetType in typeList.Where(t => t != type && t.IsValueType)) {
+        if (supportedConversions.ContainsKey(type))
+          foreach (var targetType in typeList.Where(t => t!=type && t.IsValueType)) {
             var nullableSource = nullableDefinition.MakeGenericType(type);
             var nullableTarget = nullableDefinition.MakeGenericType(targetType);
             if (supportedConversions[type].Contains(targetType)) {
@@ -83,9 +83,9 @@ namespace Xtensive.Storage.Tests.Upgrade
       var targetType = new TypeInfo(typeof (String), 5);
       Assert.IsTrue(TypeConversionVerifier.CanConvert(sourceType, targetType));
       Assert.IsFalse(TypeConversionVerifier.CanConvertSafely(sourceType, targetType));
-      targetType = new TypeInfo(typeof(String), 10);
+      targetType = new TypeInfo(typeof (String), 10);
       Assert.IsTrue(TypeConversionVerifier.CanConvertSafely(sourceType, targetType));
-      targetType = new TypeInfo(typeof(String), 11);
+      targetType = new TypeInfo(typeof (String), 11);
       Assert.IsTrue(TypeConversionVerifier.CanConvertSafely(sourceType, targetType));
     }
 
@@ -129,21 +129,21 @@ namespace Xtensive.Storage.Tests.Upgrade
     private List<Type> CreateTypeList()
     {
       var result = new List<Type>();
-      result.Add(typeof(Byte));
-      result.Add(typeof(SByte));
-      result.Add(typeof(Int16));
-      result.Add(typeof(UInt16));
-      result.Add(typeof(Int32));
-      result.Add(typeof(UInt32));
-      result.Add(typeof(Int64));
-      result.Add(typeof(UInt64));
-      result.Add(typeof(Char));
-      result.Add(typeof(Single));
-      result.Add(typeof(Double));
-      result.Add(typeof(Decimal));
-      result.Add(typeof(DateTime));
-      result.Add(typeof(TimeSpan));
-      result.Add(typeof(Byte[]));
+      result.Add(typeof (Byte));
+      result.Add(typeof (SByte));
+      result.Add(typeof (Int16));
+      result.Add(typeof (UInt16));
+      result.Add(typeof (Int32));
+      result.Add(typeof (UInt32));
+      result.Add(typeof (Int64));
+      result.Add(typeof (UInt64));
+      result.Add(typeof (Char));
+      result.Add(typeof (Single));
+      result.Add(typeof (Double));
+      result.Add(typeof (Decimal));
+      result.Add(typeof (DateTime));
+      result.Add(typeof (TimeSpan));
+      result.Add(typeof (Byte[]));
       return result;
     }
   }

@@ -29,6 +29,8 @@ namespace Xtensive.Storage.Upgrade
       = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
     private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping
       = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
+    private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> backwardFieldMapping
+      = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
     private readonly List<Hint> resultHints = new List<Hint>();
 
     public IEnumerable<Hint> GenerateHints(IEnumerable<UpgradeHint> upgradeHints)
@@ -36,7 +38,8 @@ namespace Xtensive.Storage.Upgrade
       var typeRenames = upgradeHints.OfType<RenameTypeHint>().ToArray();
       var fieldRenames = upgradeHints.OfType<RenameFieldHint>().ToArray();
       var fieldCopyHints = upgradeHints.OfType<CopyFieldHint>().ToArray();
-
+      var changeFieldTypeHints = upgradeHints.OfType<ChangeFieldTypeHint>().ToArray();
+      
       ValidateRenameTypeHints(typeRenames);
       BuildTypeMapping(typeRenames);
 
@@ -49,8 +52,11 @@ namespace Xtensive.Storage.Upgrade
       GenerateRenameColumnHints();
       GenerateCopyColumnHints(fieldCopyHints);
       GenerateClearDataHints();
+      UpdateChangeFieldTypeHints(changeFieldTypeHints);
       return resultHints;
     }
+
+    
 
     #region Validation
 
@@ -145,6 +151,7 @@ namespace Xtensive.Storage.Upgrade
       if (fieldMapping.ContainsKey(oldField))
         throw new InvalidOperationException();
       fieldMapping[oldField] = newField;
+      backwardFieldMapping[newField] = oldField;
     }
 
     private void MapNestedFields(StoredFieldInfo oldField, StoredFieldInfo newField)
@@ -362,17 +369,19 @@ namespace Xtensive.Storage.Upgrade
 
       // generating result hints
       foreach (var targetTable in targetTables) {
-        var resultHint = new CopyDataHint {SourceTablePath = GetTablePath(sourceTable)};
+        var sourceTablePath = GetTablePath(sourceTable);
+        var identities = new List<IdentityPair>();
+        var copiedColumns = new List<Pair<string>>();
         foreach (var keyColumnPair in pairedKeyColumns)
-          resultHint.Identities.Add(new IdentityPair(
+          identities.Add(new IdentityPair(
             GetColumnPath(sourceTable, keyColumnPair.First),
             GetColumnPath(targetTable, keyColumnPair.Second),
             false));
         foreach (var columnPair in pairedColumns)
-          resultHint.CopiedColumns.Add(new Pair<string>(
+          copiedColumns.Add(new Pair<string>(
             GetColumnPath(sourceTable, columnPair.First),
             GetColumnPath(targetTable, columnPair.Second)));
-        resultHints.Add(resultHint);
+        resultHints.Add(new CopyDataHint(sourceTablePath, identities, copiedColumns));
       }
     }
 
@@ -414,19 +423,24 @@ namespace Xtensive.Storage.Upgrade
       }
       foreach (var type in typesToProcess) {
         var tableName = type.MappingName;
-        var hint = new DeleteDataHint {SourceTablePath = GetTablePath(tableName)};
-        hint.Identities.Add(new IdentityPair(
-          GetColumnPath(tableName, GetTypeIdMappingName(type)),
-          removedType.TypeId.ToString(),
-          true));
-        resultHints.Add(hint);
+        var sourceTablePath = GetTablePath(tableName);
+        var identities = new List<IdentityPair> {
+          new IdentityPair(
+            GetColumnPath(tableName, GetTypeIdMappingName(type)),
+            removedType.TypeId.ToString(),
+            true)
+        };
+        resultHints.Add(new DeleteDataHint(sourceTablePath, identities));
       }
     }
     
     private void GenerateClearReferencesHints(StoredTypeInfo removedType)
     {
       var affectedAssociations = storedModel.Associations
-        .Where(association => association.ReferencedType==removedType);
+        .Where(association => association.ReferencedType==removedType)
+        .Concat(removedType.AllAncestors.SelectMany(ancestor =>
+          storedModel.Associations
+            .Where(association => association.ReferencedType==ancestor)));
       foreach (var association in affectedAssociations) {
         var typesToProcess = new List<StoredTypeInfo>();
         if (IsRemoved(association.ReferencingField))
@@ -438,11 +452,11 @@ namespace Xtensive.Storage.Upgrade
         }
         else
           typesToProcess.Add(association.ConnectorType);
-        foreach (var currentType in typesToProcess.Where(IsRemoved))
+        foreach (var currentType in typesToProcess.Where(type=>!IsRemoved(type)))
           GenerateClearReferenceHint(removedType, currentType, association);
       }
     }
-    
+
     private void GenerateClearReferenceHint(StoredTypeInfo removedType, StoredTypeInfo updatedType,
       StoredAssociationInfo association)
     {
@@ -456,26 +470,51 @@ namespace Xtensive.Storage.Upgrade
       var pairedIdentityColumns = AssociateMappedFields(pairedIdentityFields);
       if (pairedIdentityColumns==null)
         throw new InvalidOperationException();
-      
-      DataHint resultHint;
-      if (association.ConnectorType==null) {
-        var updateHint = new UpdateDataHint();
-        resultHint = updateHint;
-        foreach (var pair in pairedIdentityColumns)
-          updateHint.UpdateParameter.Add(new Pair<string, object>(
-            GetColumnPath(updatedType.MappingName, pair.Second), null));
-      }
-      else
-        resultHint = new DeleteDataHint();
-      resultHint.SourceTablePath = GetTablePath(updatedType.MappingName);
-      pairedIdentityColumns.Apply(pair => resultHint.Identities.Add(new IdentityPair(
-        GetColumnPath(updatedType.MappingName, pair.Second),
-        GetColumnPath(removedType.MappingName, pair.First), false)));
-      resultHint.Identities.Add(new IdentityPair(
+
+      var sourceTablePath = GetTablePath(updatedType.MappingName);
+      var identities = pairedIdentityColumns.Select(pair =>
+        new IdentityPair(
+          GetColumnPath(updatedType.MappingName, pair.Second),
+          GetColumnPath(removedType.MappingName, pair.First), false))
+        .ToList();
+      identities.Add(new IdentityPair(
         GetColumnPath(removedType.MappingName, GetTypeIdMappingName(removedType)),
         removedType.TypeId.ToString(), true));
-      resultHints.Add(resultHint);
-      return;
+      var updatedColumns = pairedIdentityColumns.Select(pair =>
+        new Pair<string, object>(GetColumnPath(updatedType.MappingName, pair.Second), null))
+        .ToList();
+
+      if (association.ConnectorType==null)
+        resultHints.Add(new UpdateDataHint(sourceTablePath, identities, updatedColumns));
+      else
+        resultHints.Add(new DeleteDataHint(sourceTablePath, identities));
+    }
+
+    private void UpdateChangeFieldTypeHints(ChangeFieldTypeHint[] changeFieldTypeHints)
+    {
+      changeFieldTypeHints.Apply(UpdateChangeFieldTypeHint);
+    }
+
+    private void UpdateChangeFieldTypeHint(ChangeFieldTypeHint hint)
+    {
+      var currentTypeName = hint.Type.GetFullName();
+      var currentType = currentModel.Types.SingleOrDefault(type => 
+        type.UnderlyingType==currentTypeName);
+      if (currentType==null)
+        throw TypeIsNotFound(currentTypeName);
+      var currentField = currentType.AllFields
+        .SingleOrDefault(field => field.Name==hint.FieldName);
+      if (currentField==null)
+        throw FieldIsNotFound(currentTypeName, hint.FieldName);
+      StoredFieldInfo sourceField;
+      if (!backwardFieldMapping.TryGetValue(currentField, out sourceField))
+        throw FieldIsNotFound(currentTypeName, hint.FieldName);
+
+      var sourceType = sourceField.DeclaringType;
+      var typeToProcess = GetAffectedMappedTypes(sourceType, 
+        sourceType.Hierarchy.Schema==InheritanceSchema.ConcreteTable);
+      hint.AffectedColumns.AddRange(
+        typeToProcess.Select(type => GetColumnPath(type.MappingName, sourceField.MappingName)));
     }
 
     private bool IsRemoved(StoredTypeInfo type)

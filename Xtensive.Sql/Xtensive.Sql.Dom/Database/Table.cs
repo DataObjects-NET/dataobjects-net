@@ -51,6 +51,17 @@ namespace Xtensive.Sql.Dom.Database
     }
 
     /// <summary>
+    /// Creates the default constraint.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <param name="column">The column.</param>
+    /// <returns>Default constraint.</returns>
+    public DefaultConstraint CreateDefaultConstraint(string name, TableColumn column)
+    {
+      return new DefaultConstraint(this, name, column);
+    }
+
+    /// <summary>
     /// Creates the primary key.
     /// </summary>
     /// <param name="name">The name.</param>

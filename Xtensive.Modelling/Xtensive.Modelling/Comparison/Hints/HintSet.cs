@@ -170,7 +170,7 @@ namespace Xtensive.Modelling.Comparison.Hints
       return ((List<Hint>) hintOrList).Cast<THint>().ToArray();
     }
 
-    public bool HetHints(Node node)
+    public bool HasHints(Node node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
 
@@ -212,6 +212,13 @@ namespace Xtensive.Modelling.Comparison.Hints
     }
 
     #endregion
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Join(Environment.NewLine, 
+        hints.Select(hint => hint.ToString()).ToArray());
+    }
 
 
     // Constructors

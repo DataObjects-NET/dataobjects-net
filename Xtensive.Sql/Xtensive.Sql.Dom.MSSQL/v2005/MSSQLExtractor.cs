@@ -359,6 +359,50 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
     }
 
     /// <summary>
+    /// Extracts the default constraints.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="schema">The schema.</param>
+    /// <param name="table">The table.</param>
+    public override void ExtractDefaultConstraints(SqlExtractorContext context, Schema schema, Table table)
+    {
+      var tDefaultConstraints = model.DefaultServer.Catalogs["master"].Schemas["sys"].Views["default_constraints"];
+      var tTables = model.DefaultServer.Catalogs["master"].Schemas["sys"].Views["objects"];
+      var tColumns = model.DefaultServer.Catalogs["master"].Schemas["sys"].Views["columns"];
+      var tSchemas = model.DefaultServer.Catalogs["master"].Schemas["sys"].Views["schemas"];
+
+      var tDefaultConstraintsRef = Sql.TableRef(tDefaultConstraints, "dc");
+      var tTablesRef = Sql.TableRef(tTables, "t");
+      var tColumnsRef = Sql.TableRef(tColumns, "c");
+      var tSchemasRef = Sql.TableRef(tSchemas);
+
+      var select = Sql.Select(tDefaultConstraintsRef
+        .InnerJoin(tTablesRef, tDefaultConstraintsRef["parent_object_id"]==tTablesRef["object_id"])
+        .InnerJoin(tColumnsRef, tTablesRef["object_id"]==tColumnsRef["object_id"]
+          & tDefaultConstraintsRef["parent_column_id"]==tColumnsRef["column_id"])
+        .InnerJoin(tSchemasRef, tDefaultConstraintsRef["schema_id"]==tSchemasRef["schema_id"]));
+      
+      select.Columns.Add(tDefaultConstraintsRef["name"], "CONSTRAINT_NAME");
+      select.Columns.Add(tSchemasRef["name"], "SCHEMA_NAME");
+      select.Columns.Add(tTablesRef["name"], "TABLE_NAME");
+      select.Columns.Add(tColumnsRef["name"], "COLUMN_NAME");
+      select.Where &= tDefaultConstraintsRef["type"]=="D";
+      select.Where &= tTablesRef["name"]==table.Name;
+      select.Where &= tSchemasRef["name"]==schema.Name;
+
+      using (var cmd = new SqlCommand(context.Connection)) {
+        cmd.Transaction = context.Transaction;
+        cmd.Statement = select;
+        using (IDataReader reader = cmd.ExecuteReader())
+          while (reader.Read()) {
+            var columnName = reader["COLUMN_NAME"].ToString();
+            var column = table.TableColumns[columnName];
+            table.CreateDefaultConstraint(reader["CONSTRAINT_NAME"].ToString(), column);
+          }
+      }
+    }
+
+    /// <summary>
     /// Extracts the foreign keys.
     /// </summary>
     /// <param name="context">The context.</param>

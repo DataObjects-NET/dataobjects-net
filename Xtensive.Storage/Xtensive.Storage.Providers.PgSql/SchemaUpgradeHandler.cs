@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Providers.PgSql
         actions,
         ExtractStorageSchema(),
         Connection.Driver,
-        valueTypeMapper.BuildSqlValueType,
+        valueTypeMapper,
         sourceSchema, targetSchema, false);
 
       var delimiter = Connection.Driver.Translator.BatchStatementDelimiter;

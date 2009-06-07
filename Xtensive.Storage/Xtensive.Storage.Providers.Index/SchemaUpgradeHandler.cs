@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Storage.Model;
+using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage.Providers.Index
 {
@@ -15,6 +16,9 @@ namespace Xtensive.Storage.Providers.Index
   [Serializable]
   public abstract class SchemaUpgradeHandler : Providers.SchemaUpgradeHandler
   {
-    
+    protected override TypeInfo CreateTypeInfo(Type type, int? length)
+    {
+      return new TypeInfo(type, length);
+    }
   }
 }

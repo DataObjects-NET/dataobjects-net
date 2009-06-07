@@ -20,44 +20,11 @@ namespace Xtensive.Modelling.Comparison.Hints
   public sealed class CopyDataHint : DataHint
   {
     /// <summary>
-    /// Gets or sets the copied columns. The first value is source column path, 
+    /// Gets copied columns. The first value is source column path, 
     /// the second value is destination column path.
     /// </summary>
-    public List<Pair<string>> CopiedColumns { get; private set; }
+    public ReadOnlyList<Pair<string>> CopiedColumns { get; private set; }
     
-    /// <summary>
-    /// Creates new <see cref="CopyDataHint"/> according to temporary renames.
-    /// </summary>
-    /// <param name="temporaryRenames">The temporary renames set.</param>
-    /// <returns>Updates hint.</returns>
-    public CopyDataHint Update(Dictionary<string, Node> temporaryRenames)
-    {
-      var copyDataHint = new CopyDataHint();
-      {
-        Node newNode;
-        if (temporaryRenames.TryGetValue(SourceTablePath, out newNode))
-          copyDataHint.SourceTablePath = newNode.Path;
-        else
-          copyDataHint.SourceTablePath = SourceTablePath;
-      }
-      foreach (var pair in CopiedColumns) {
-        Node newNode;
-        if (temporaryRenames.TryGetValue(pair.First, out newNode))
-          copyDataHint.CopiedColumns.Add(new Pair<string>(newNode.Path, pair.Second));
-        else
-          copyDataHint.CopiedColumns.Add(pair);
-      }
-      foreach (var pair in Identities) {
-        Node newNode;
-        if (temporaryRenames.TryGetValue(pair.Source, out newNode))
-          copyDataHint.Identities.Add(
-            new IdentityPair(newNode.Path, pair.Target, pair.IsIdentifiedByConstant));
-        else
-          copyDataHint.Identities.Add(pair);
-      }
-      return copyDataHint;
-    }
-
     /// <inheritdoc/>
     public override IEnumerable<HintTarget> GetTargets()
     {
@@ -94,9 +61,12 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public CopyDataHint()
+    public CopyDataHint(string sourceTablePath,  IList<IdentityPair> identities, 
+      IList<Pair<string>> copiedColumns)
+      : base(sourceTablePath, identities)
     {
-      CopiedColumns = new List<Pair<string>>();
+      ArgumentValidator.EnsureArgumentNotNull(copiedColumns, "copiedColumns");
+      CopiedColumns = new ReadOnlyList<Pair<string>>(copiedColumns);
     }
 
     

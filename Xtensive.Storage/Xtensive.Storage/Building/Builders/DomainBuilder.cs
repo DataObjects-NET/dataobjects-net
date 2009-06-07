@@ -276,11 +276,11 @@ namespace Xtensive.Storage.Building.Builders
           break;
         case SchemaUpgradeMode.Recreate:
         case SchemaUpgradeMode.Perform:
-          upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
+            upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;
         case SchemaUpgradeMode.PerformSafely:
-          if (result.Status!=SchemaComparisonStatus.Equal &&
-            result.Status!=SchemaComparisonStatus.TargetIsSuperset)
+          if(result.Status != SchemaComparisonStatus.Equal &&
+            result.Status != SchemaComparisonStatus.TargetIsSuperset)
             throw new SchemaSynchronizationException(Strings.ExCannotUpgradeSchemaSafely);
           upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;

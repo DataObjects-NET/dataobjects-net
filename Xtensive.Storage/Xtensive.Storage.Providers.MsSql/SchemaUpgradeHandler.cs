@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Providers.MsSql
         actions,
         ExtractStorageSchema(),
         Connection.Driver,
-        valueTypeMapper.BuildSqlValueType,
+        valueTypeMapper,
         sourceSchema, targetSchema, true);
 
       var delimiter = Connection.Driver.Translator.BatchStatementDelimiter;

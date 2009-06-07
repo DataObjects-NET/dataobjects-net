@@ -21,14 +21,14 @@ namespace Xtensive.Modelling.Comparison.Hints
   public abstract class DataHint : Hint
   {
     /// <summary>
-    /// Gets or sets the source table path.
+    /// Gets the source table path.
     /// </summary>
-    public string SourceTablePath { get; set; }
+    public string SourceTablePath { get; private set; }
 
     /// <summary>
-    /// Gets or sets the identities for data operation.
+    /// Gets the identities for data operation.
     /// </summary>
-    public List<IdentityPair> Identities { get; private set; }
+    public ReadOnlyList<IdentityPair> Identities { get; private set; }
     
     /// <inheritdoc/>
     public override IEnumerable<HintTarget> GetTargets()
@@ -49,9 +49,13 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected DataHint()
+    protected DataHint(string sourceTablePath,  IList<IdentityPair> identities)
     {
-      Identities = new List<IdentityPair>();
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceTablePath, "sourceTablePath");
+      ArgumentValidator.EnsureArgumentNotNull(identities, "pairs");
+      
+      SourceTablePath = sourceTablePath;
+      Identities = new ReadOnlyList<IdentityPair>(identities);
     }
   }
 }

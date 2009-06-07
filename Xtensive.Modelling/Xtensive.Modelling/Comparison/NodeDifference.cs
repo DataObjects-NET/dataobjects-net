@@ -52,6 +52,42 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     public bool IsDataChanged { get; set; }
 
+    /// <summary>
+    /// Gets a value indicating whether this <see cref="MovementInfo"/> contain flag 
+    /// <see cref="Comparison.MovementInfo.Removed"/>.
+    /// </summary>
+    public bool IsRemoved
+    {
+      get { return (MovementInfo & MovementInfo.Removed)!=0; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this <see cref="MovementInfo"/> contain flag 
+    /// <see cref="Comparison.MovementInfo.Created"/>.
+    /// </summary>
+    public bool IsCreated
+    {
+      get { return (MovementInfo & MovementInfo.Created)!=0; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this <see cref="MovementInfo"/> contain flag 
+    /// <see cref="Comparison.MovementInfo.Changed"/>.
+    /// </summary>
+    public bool IsChanged
+    {
+      get { return (MovementInfo & MovementInfo.Changed)!=0; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this <see cref="MovementInfo"/> contain flag 
+    /// <see cref="Comparison.MovementInfo.NameChanged"/>.
+    /// </summary>
+    public bool IsNameChanged
+    {
+      get { return (MovementInfo & MovementInfo.NameChanged)!=0; }
+    }
+
     /// <inheritdoc/>
     public Dictionary<string, Difference> PropertyChanges { get; private set; }
 

@@ -56,10 +56,12 @@ namespace Xtensive.Storage.Building
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="difference">The difference.</param>
-    /// <param name="hints">The upgrade hints.</param>
-    /// <param name="upgradeActions">The upgrade actions.</param>
     /// <param name="status">The comparison status.</param>
+    /// <param name="hints">The upgrade hints.</param>
+    /// <param name="difference">The difference.</param>
+    /// <param name="upgradeActions">The upgrade actions.</param>
+    /// <param name="canPerform">if set to <see langword="true"/> [can perform].</param>
+    /// <param name="canPerformSafely">if set to <see langword="true"/> [can perform safely].</param>
     public SchemaComparisonResult(SchemaComparisonStatus status, HintSet hints, 
       Difference difference, ActionSequence upgradeActions)
     {

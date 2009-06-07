@@ -177,7 +177,7 @@ namespace Xtensive.Modelling.Comparison
         CompareProperties(source, target, difference);
 
         // Check if remove on cleanup
-        if (difference.IsRemoved()) {
+        if (difference.IsRemoved) {
           var nodeProperties = GetPropertyDifferences(difference);
           difference.IsRemoveOnCleanup = HasDependencies(source) 
             || nodeProperties.Any(nodeProperty => nodeProperty.IsRemoveOnCleanup);
@@ -498,7 +498,7 @@ namespace Xtensive.Modelling.Comparison
 
       var nodeDifference = difference as NodeDifference;
       if (nodeDifference!=null) {
-        if (nodeDifference.IsChanged() || nodeDifference.IsDataChanged 
+        if (nodeDifference.IsChanged || nodeDifference.IsDataChanged 
           || (nodeDifference.MovementInfo & MovementInfo.Relocated) != 0 || nodeDifference.HasChanges)
           return true;
         
@@ -541,7 +541,7 @@ namespace Xtensive.Modelling.Comparison
     /// </returns>
     protected bool HasDependencies(Node source)
     {
-      return Hints.HetHints(source);
+      return Hints.HasHints(source);
     }
 
     /// <summary>

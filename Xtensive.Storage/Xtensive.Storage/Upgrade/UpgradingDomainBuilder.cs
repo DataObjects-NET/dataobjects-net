@@ -157,10 +157,7 @@ namespace Xtensive.Storage.Upgrade
         var newModel = Domain.Demand().Model;
         var generatedHints = new HintGenerator(oldModel, newModel)
           .GenerateHints(context.Hints);
-//        var dataHints = new DataUpgrader()
-//          .GetDataUpgradeHints(oldModel, newModel, context.Hints);
         generatedHints.Apply(context.SchemaHints.Add);
-//        dataHints.Apply(context.SchemaHints.Add);
       }
     }
 

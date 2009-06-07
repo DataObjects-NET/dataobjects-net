@@ -193,7 +193,7 @@ namespace Xtensive.Storage.Tests.Upgrade
         connection.Open();
         using (var transaction = connection.BeginTransaction()) {
           var translator = new SqlActionTranslator(actions, schema,
-            connection.Driver, BuildSqlValueType, oldModel, newModel, false);
+            connection.Driver, new SqlValueTypeMapper(), oldModel, newModel, false);
           var delimiter = connection.Driver.Translator.BatchStatementDelimiter;
           var batch = new List<string>();
           batch.Add(string.Join(delimiter, translator.PreUpgradeCommands.ToArray()));

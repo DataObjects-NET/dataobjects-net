@@ -198,6 +198,16 @@ namespace Xtensive.Sql.Dom.Database.Extractor
     }
 
     /// <summary>
+    /// Extracts the default constraints.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="schema">The schema.</param>
+    /// <param name="table">The table.</param>
+    public virtual void ExtractDefaultConstraints(SqlExtractorContext context, Schema schema, Table table)
+    {
+    }
+
+    /// <summary>
     /// Initialize the model
     /// </summary>
     /// <param name="context">The context.</param>

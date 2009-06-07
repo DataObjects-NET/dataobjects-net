@@ -4,12 +4,18 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.01
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Upgrade;
+using Xtensive.Storage.Upgrade.Hints;
+using UpgradeContext=Xtensive.Storage.Upgrade.UpgradeContext;
 
 namespace Xtensive.Storage.Building
 {
@@ -39,16 +45,6 @@ namespace Xtensive.Storage.Building
       };
       var status = GetComparisonStatus(hints, actions);
       return new SchemaComparisonResult(status, hints, difference, actions);
-    }
-
-    private static bool IsCanPerformed(SchemaComparisonStatus status, ActionSequence upgradeActions, HintSet hints)
-    {
-      return true;
-    }
-
-    private static bool IsCanPerformedSafely(SchemaComparisonStatus status, ActionSequence upgradeActions, HintSet hints)
-    {
-      return true;
     }
 
     private static SchemaComparisonStatus GetComparisonStatus(HintSet hints, ActionSequence upgradeActions)

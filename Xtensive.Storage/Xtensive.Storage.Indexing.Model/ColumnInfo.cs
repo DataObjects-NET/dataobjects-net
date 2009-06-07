@@ -20,6 +20,7 @@ namespace Xtensive.Storage.Indexing.Model
   public sealed class ColumnInfo : NodeBase<TableInfo>
   {
     private TypeInfo type;
+    private object defaultValue;
 
     /// <summary>
     /// Gets or sets the type of the column.
@@ -31,6 +32,22 @@ namespace Xtensive.Storage.Indexing.Model
         EnsureIsEditable();
         using (var scope = LogPropertyChange("Type", value)) {
           type = value;
+          scope.Commit();
+        }
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the default column value.
+    /// </summary>
+    [Property(IgnoreInComparison = true)]
+    public object DefaultValue
+    {
+      get { return defaultValue; }
+      set {
+        EnsureIsEditable();
+        using (var scope = LogPropertyChange("DefaultValue", value)) {
+          defaultValue = value;
           scope.Commit();
         }
       }

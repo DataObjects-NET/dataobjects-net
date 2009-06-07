@@ -559,8 +559,11 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
 
     public override string Translate<T>(SqlCompilerContext context, SqlLiteral<T> node)
     {
-      if (typeof(T) == typeof(TimeSpan))
-        return Convert.ToString(((TimeSpan)(object)node.Value).Ticks / 10000, this);
+      if (typeof (T)==typeof (TimeSpan))
+        return Convert.ToString(((TimeSpan) (object) node.Value).Ticks / 10000, this);
+      if (typeof (T)==typeof (Boolean))
+        return Convert.ToString(((bool) (object) node.Value) ? 1 : 0, this);
+
       return base.Translate(context, node);
     }
 

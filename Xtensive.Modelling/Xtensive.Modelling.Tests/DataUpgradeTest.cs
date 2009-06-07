@@ -36,18 +36,19 @@ namespace Xtensive.Modelling.Tests
         fkCRefB.Remove();
         tB.Remove();
 
-        var deleteDataHint = new DeleteDataHint();
-        deleteDataHint.SourceTablePath = "Tables/A";
-        deleteDataHint.Identities.Add(new IdentityPair("Tables/A/Columns/Id", "102", true));
+        var deleteDataHint = new DeleteDataHint(
+          "Tables/A",
+          new List<IdentityPair> {new IdentityPair("Tables/A/Columns/Id", "102", true)});
+        var updateDataHint1 = new UpdateDataHint(
+          "Tables/C",
+          new List<IdentityPair>() {new IdentityPair("Tables/C/Columns/RefA", "Tables/B/Columns/Id", false)},
+          new List<Pair<string, object>> {new Pair<string, object>("Tables/C/Columns/RefA", "null")});
+        var updateDataHint2 = new UpdateDataHint(
+        "Tables/C",
+        new List<IdentityPair>{new IdentityPair("Tables/C/Columns/RefB", "Tables/B/Columns/Id", false)},
+        new List<Pair<string, object>>{new Pair<string, object>("Tables/C/Columns/RefB", "null")});
+        
         hs.Add(deleteDataHint);
-        var updateDataHint1 = new UpdateDataHint();
-        updateDataHint1.SourceTablePath = "Tables/C";
-        updateDataHint1.UpdateParameter.Add(new Pair<string, object>("Tables/C/Columns/RefA", "null"));
-        updateDataHint1.Identities.Add(new IdentityPair("Tables/C/Columns/RefA", "Tables/B/Columns/Id", false));
-        var updateDataHint2 = new UpdateDataHint();
-        updateDataHint2.SourceTablePath = "Tables/C";
-        updateDataHint2.UpdateParameter.Add(new Pair<string, object>("Tables/C/Columns/RefB", "null"));
-        updateDataHint2.Identities.Add(new IdentityPair("Tables/C/Columns/RefB", "Tables/B/Columns/Id", false));
         hs.Add(updateDataHint1);
         hs.Add(updateDataHint2);
       },
@@ -111,27 +112,7 @@ namespace Xtensive.Modelling.Tests
       return storage;
     }
 
-    private static void AddClearHints(HintSet hintSet)
-    {
-      //var clearTypeIdHint = new ClearDataHint("Tables/Objects/Columns/TypeId", ClearAction.SetToDefault);
-      //clearTypeIdHint.Dependences.Add("Tables/Types/Columns/Id");
-      //hintSet.Add(clearTypeIdHint);
-     
-      //var removeTypesRecords = new ClearDataHint("Tables/Objects", ClearAction.Remove);
-      //removeTypesRecords.Dependences.Add("Tables/Types/Columns/Id");
-      //removeTypesRecords.IdentityParameters.Add(new IdentityParameter("Tables/Types/Columns/Id", "Tables/Objects/Columns/TypeId"));
-
-      //hintSet.Add(removeTypesRecords);
-    }
-
     #region Private methods
-
-    private static void RepopulateValueColumns(StorageInfo model, string tableName)
-    {
-      var pk = model.Tables[tableName].PrimaryIndex;
-      pk.ValueColumns.Clear();
-      pk.PopulateValueColumns();
-    }
 
     private static void TestUpdate(StorageInfo origin, Action<StorageInfo, StorageInfo, HintSet> mutator, Action<Difference, ActionSequence> validator)
     {

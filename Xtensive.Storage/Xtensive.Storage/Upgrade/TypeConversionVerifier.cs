@@ -33,8 +33,10 @@ namespace Xtensive.Storage.Upgrade
     {
       ArgumentValidator.EnsureArgumentNotNull(from, "from");
       ArgumentValidator.EnsureArgumentNotNull(to, "to");
-      if(from == to || (from.Type != typeof(Byte[]) && to.Type == typeof(String)))
+      if(from == to)
         return true;
+      if (to.Type == typeof(string))
+        return !to.Length.HasValue || CanConvertToString(from, to.Length.Value);
       if(from.IsNullable && !to.IsNullable)
         return false;
       var fromType = from.Type;
@@ -46,6 +48,41 @@ namespace Xtensive.Storage.Upgrade
       if(!supportedConversions.ContainsKey(fromType))
         return false;
       return supportedConversions[fromType].Contains(toType);
+    }
+
+    private static bool CanConvertToString(TypeInfo from, int length)
+    {
+      if (from.Type==typeof (String))
+        return true;
+      if (from.Type==typeof (Int16))
+        return length >= 6;
+      if (from.Type==typeof (Int32))
+        return length >= 11;
+      if (from.Type==typeof (Int64))
+        return length >= 20;
+      if (from.Type==typeof (UInt16))
+        return length >= 5;
+      if (from.Type==typeof (UInt32))
+        return length >= 9;
+      if (from.Type==typeof (UInt64))
+        return length >= 20;
+      if (from.Type==typeof (Single))
+        return length >= 13;
+      if (from.Type==typeof (Double))
+        return length >= 26;
+      if (from.Type==typeof (Decimal))
+        return length >= 30;
+      if (from.Type==typeof (Char))
+        return length >= 1;
+      if (from.Type==typeof (Byte))
+        return length >= 3;
+      if (from.Type==typeof (SByte))
+        return length >= 4;
+      if (from.Type == typeof (Boolean))
+        return length >= 5;
+      if (from.Type == typeof (Guid))
+        return length >= 36;
+      return false;
     }
 
     /// <summary>
@@ -62,7 +99,8 @@ namespace Xtensive.Storage.Upgrade
     {
       if(!CanConvert(from, to))
         return false;
-      return to.Length >= from.Length;
+
+      return !to.Length.HasValue | to.Length >= from.Length;
     }
 
 
@@ -72,8 +110,7 @@ namespace Xtensive.Storage.Upgrade
     {
       supportedConversions = new Dictionary<Type, List<Type>>();
       AddConverter<Boolean>(typeof(Int16), typeof(UInt16), typeof(Int32), typeof(UInt32),
-        typeof(Int64), typeof(UInt64), typeof(Char), typeof(Double), typeof(Single),
-        typeof(Decimal));
+        typeof(Int64), typeof(UInt64), typeof(Double), typeof(Single), typeof(Decimal));
       AddConverter<Byte>(typeof(Int16), typeof(UInt16), typeof(Char), typeof(Int32),
         typeof(UInt32), typeof(Int64), typeof(UInt64), typeof(Double), typeof(Single),
         typeof(Decimal));

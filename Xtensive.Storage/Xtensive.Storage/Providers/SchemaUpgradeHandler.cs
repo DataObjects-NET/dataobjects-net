@@ -39,10 +39,12 @@ namespace Xtensive.Storage.Providers
       var domainModelConverter = new DomainModelConverter(
         buildForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName,
         buildHierarchyForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName,
-         generatorFactory.IsSchemaBoundGenerator, providerInfo);
+         generatorFactory.IsSchemaBoundGenerator, providerInfo, CreateTypeInfo);
 
       return domainModelConverter.Convert(buildingContext.Model);
     }
+
+    protected abstract TypeInfo CreateTypeInfo(Type type, int? length);
 
     /// <summary>
     /// Gets the extracted schema.

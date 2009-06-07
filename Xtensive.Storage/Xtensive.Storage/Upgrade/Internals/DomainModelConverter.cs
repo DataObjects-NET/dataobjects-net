@@ -47,6 +47,8 @@ namespace Xtensive.Storage.Upgrade
     /// </summary>
     public ProviderInfo ProviderInfo { get; private set; }
 
+    public Func<Type, int?, TypeInfo> TypeBuilder { get; set; }
+
     /// <summary>
     /// Gets the storage info.
     /// </summary>
@@ -190,14 +192,19 @@ namespace Xtensive.Storage.Upgrade
     /// <inheritdoc/>
     protected override IPathNode VisitColumnInfo(DomainColumnInfo column)
     {
-      var columnType = column.IsNullable
-        && column.ValueType.IsValueType
-          && !column.ValueType.IsNullable()
-        ? column.ValueType.ToNullable()
-        : column.ValueType;
+      var domainType = column.ValueType;
+      var storageType = GetTypeInfo(domainType, column.Length).Type;
 
-      var type = new TypeInfo(columnType, column.IsNullable, column.Length);
-      return new ColumnInfo(CurrentTable, column.Name, type);
+      var columnType = column.IsNullable && storageType.IsValueType && !storageType.IsNullable()
+        ? storageType.ToNullable()
+        : storageType;
+
+      var defaultValue = !column.IsNullable && domainType.IsValueType
+        ? Activator.CreateInstance(domainType)
+        : null;
+
+      var typeInfo = new TypeInfo(columnType, column.IsNullable, column.Length);
+      return new ColumnInfo(CurrentTable, column.Name, typeInfo) {DefaultValue = defaultValue};
     }
 
     /// <inheritdoc/>
@@ -273,9 +280,14 @@ namespace Xtensive.Storage.Upgrade
       var sequence = new SequenceInfo(StorageInfo, generator.MappingName) {
         StartValue = generator.CacheSize,
         Increment = generator.CacheSize,
-        Type = new TypeInfo(generator.TupleDescriptor[0])
+        Type = GetTypeInfo(generator.TupleDescriptor[0], null) // new TypeInfo(generator.TupleDescriptor[0])
       };
       return sequence;
+    }
+
+    private TypeInfo GetTypeInfo(Type type, int? length)
+    {
+      return TypeBuilder.Invoke(type, length);
     }
 
     /// <summary>
@@ -419,7 +431,7 @@ namespace Xtensive.Storage.Upgrade
     /// <param name="providerInfo">The provider info.</param>
     public DomainModelConverter(bool buildForeignKeys, Func<AssociationInfo, FieldInfo, string> foreignKeyNameGenerator,
       bool buildHierarchyForeignKeys, Func<DomainTypeInfo, DomainTypeInfo, string> hierarchyForeignKeyNameGenerator,
-      Func<GeneratorInfo, bool> persistentGeneratorFilter, ProviderInfo providerInfo)
+      Func<GeneratorInfo, bool> persistentGeneratorFilter, ProviderInfo providerInfo, Func<Type, int?, TypeInfo> typeBuilder)
     {
       if (buildForeignKeys)
         ArgumentValidator.EnsureArgumentNotNull(foreignKeyNameGenerator, "foreignKeyNameGenerator");
@@ -435,6 +447,7 @@ namespace Xtensive.Storage.Upgrade
       HierarchyForeignKeyNameGenerator = hierarchyForeignKeyNameGenerator;
       PersistentGeneratorFilter = persistentGeneratorFilter;
       ProviderInfo = providerInfo;
+      TypeBuilder = typeBuilder;
     }
     
     #region Not supported

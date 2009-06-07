@@ -8,12 +8,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Stored;
-using Xtensive.Storage.Upgrade;
-using Xtensive.Storage.Upgrade.Hints;
 using M1 = Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version2;
 
@@ -38,9 +35,6 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
     public void ClearDataTest1()
     {
       BuildDomain(DomainUpgradeMode.Perform, typeof (M1.A));
-      var model = domain.Model;
-      var dataActions = new DataUpgrader().GetDataUpgradeHints(storedModel, model, Enumerable.Empty<UpgradeHint>());
-      dataActions.Apply(action => Log.Info(action.ToString()));
       using (var s = domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Assert.AreEqual(1, Query<M1.A>.All.Count());
@@ -52,9 +46,6 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
     public void ClearDataTest2()
     {
       BuildDomain(DomainUpgradeMode.Perform, typeof (M1.A), typeof (M1.B));
-      var model = domain.Model;
-      var dataActions = new DataUpgrader().GetDataUpgradeHints(storedModel, model, Enumerable.Empty<UpgradeHint>());
-      dataActions.Apply(action => Log.Info(action.ToString()));
       using (var s = domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Assert.AreEqual(2, Query<M1.A>.All.Count());
@@ -66,9 +57,6 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
     public void ClearDataTest3()
     {
       BuildDomain("2", DomainUpgradeMode.Perform);
-      var model = domain.Model;
-      var dataActions = new DataUpgrader().GetDataUpgradeHints(storedModel, model, Enumerable.Empty<UpgradeHint>());
-      dataActions.Apply(action => Log.Info(action.ToString()));
       using (var s = domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           Assert.AreEqual(4, Query<M2.A>.All.Count());

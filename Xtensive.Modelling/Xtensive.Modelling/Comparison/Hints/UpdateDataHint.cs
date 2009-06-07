@@ -23,7 +23,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// Gets the update parameter. The first is updated column path, 
     /// the second is new value or null (default value).
     /// </summary>
-    public List<Pair<string, object>> UpdateParameter { get; private set; }
+    public ReadOnlyList<Pair<string, object>> UpdateParameter { get; private set; }
 
     /// <inheritdoc/>
     public override string ToString()
@@ -52,9 +52,12 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public UpdateDataHint()
+    public UpdateDataHint(string sourceTablePath,  IList<IdentityPair> identities,
+      IList<Pair<string, object>> updateParameters)
+      : base(sourceTablePath, identities)
     {
-      UpdateParameter = new List<Pair<string, object>>();
+      ArgumentValidator.EnsureArgumentNotNull(updateParameters, "updateParameters");
+      UpdateParameter = new ReadOnlyList<Pair<string, object>>(updateParameters);
     }
 
   }

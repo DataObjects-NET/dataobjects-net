@@ -67,6 +67,8 @@ namespace Xtensive.Sql.Dom.Database.Providers
               extractor.ExtractTables(context, schema);
               extractor.ExtractViews(context, schema);
               extractor.ExtractColumns(context, schema);
+              foreach (var table in schema.Tables)
+                extractor.ExtractDefaultConstraints(context, schema, table);
               extractor.ExtractUniqueConstraints(context, schema);
               extractor.ExtractIndexes(context, schema);
               extractor.ExtractStoredProcedures(context, schema);

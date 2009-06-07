@@ -5,6 +5,7 @@
 // Created:    2009.05.30
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -32,7 +33,8 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public DeleteDataHint()
+    public DeleteDataHint(string sourceTablePath,  IList<IdentityPair> identities)
+      :base(sourceTablePath, identities)
     {
     }
   }

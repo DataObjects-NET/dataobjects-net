@@ -83,6 +83,23 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       Assert.AreEqual("test_type", domain.Name);
     }
 
+    [Test]
+    public void ExtractDefaultConstraintTest()
+    {
+      string createTable =
+        "create table table_with_default_constraint (id int default 0)";
+      string dropTable =
+        "if object_id('table_with_default_constraint') is not null drop table table_with_default_constraint";
+
+      ExecuteCommand(dropTable);
+      ExecuteCommand(createTable);
+
+      var schema = ExtractModel().DefaultServer.DefaultCatalog.DefaultSchema;
+      var table = schema.Tables["table_with_default_constraint"];
+      Assert.AreEqual(1, table.TableConstraints.Count);
+      Assert.AreEqual("id", ((DefaultConstraint) table.TableConstraints[0]).Column.Name);
+    }
+
     private void CreateDomain()
     {
       var schema = ExtractModel().DefaultServer.DefaultCatalog.DefaultSchema;

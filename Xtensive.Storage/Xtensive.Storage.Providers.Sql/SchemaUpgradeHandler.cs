@@ -23,6 +23,7 @@ using IndexInfo = Xtensive.Storage.Model.IndexInfo;
 using SqlModel = Xtensive.Sql.Dom.Database.Model;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 using TypeInfo = Xtensive.Storage.Model.TypeInfo;
+using ModelTypeInfo = Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -31,6 +32,14 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public class SchemaUpgradeHandler : Providers.SchemaUpgradeHandler
   {
+    /// <summary>
+    /// Gets the domain handler.
+    /// </summary>
+    protected DomainHandler DomainHandler
+    {
+      get { return (DomainHandler) Handlers.DomainHandler; }
+    }
+
     /// <summary>
     /// Gets the session handler.
     /// </summary>
@@ -117,6 +126,16 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var sequence in schema.Sequences)
         batch.Add(SqlFactory.Create(sequence));
       return batch;
+    }
+
+    protected override ModelTypeInfo CreateTypeInfo(Type type, int? length)
+    {
+      var valueTypeMapper = DomainHandler.ValueTypeMapper;
+      var sqlValueType = length.HasValue
+        ? valueTypeMapper.BuildSqlValueType(type, length.Value)
+        : valueTypeMapper.BuildSqlValueType(type, 0);
+      var convertedType = DomainHandler.Driver.ServerInfo.DataTypes[sqlValueType.DataType].Type;
+      return new ModelTypeInfo(convertedType, length);
     }
 
     #region ExtractSchema methods

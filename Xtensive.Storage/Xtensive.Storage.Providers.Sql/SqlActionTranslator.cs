@@ -26,6 +26,7 @@ using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
 using SqlDomain = Xtensive.Sql.Dom.Database.Domain;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
+using System.Text;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -35,11 +36,12 @@ namespace Xtensive.Storage.Providers.Sql
   [Serializable]
   public sealed class SqlActionTranslator
   {
+    
     private readonly bool buildDomainForTimeSpan;
     private readonly ActionSequence actions;
     private readonly Schema schema;
 
-    private readonly Func<Type, int, SqlValueType> valueTypeBuilder;
+    private readonly SqlValueTypeMapper valueTypeMapper;
     private readonly StorageInfo sourceModel;
     private readonly StorageInfo targetModel;
     private readonly SqlDriver driver;
@@ -49,6 +51,7 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly List<string> postUpgradeCommands = new List<string>();
     
     private readonly List<Table> createdTables = new List<Table>();
+    private readonly List<PropertyChangeAction> changeColumnTypeActions = new List<PropertyChangeAction>();
     private UpgradeStage stage;
     private bool translated;
 
@@ -133,6 +136,8 @@ namespace Xtensive.Storage.Providers.Sql
         VisitAction(upgrade);
       // Data manipulating
       stage = UpgradeStage.DataManipulate;
+      // Process column type changes
+      changeColumnTypeActions.Apply(GenerateChangeColumnTypeCommands);
       var dataManipulate = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.DataManipulate.ToString());
       if (dataManipulate!=null)
@@ -332,14 +337,12 @@ namespace Xtensive.Storage.Providers.Sql
       var table = FindTable(oldTableInfo.Name);
       RegisterCommand(SqlFactory.Rename(table, action.Name));
       oldTableInfo.Name = action.Name;
-      schema.Tables.Remove(table);
-      table.Name = action.Name;
-      schema.Tables.Add(table);
+      RenameSchemaTable(table, action.Name);
     }
     
     private void VisitAlterTableAction(NodeAction action)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
 
     private void VisitCreateColumnAction(CreateNodeAction createColumnAction)
@@ -347,27 +350,38 @@ namespace Xtensive.Storage.Providers.Sql
       var columnInfo = createColumnAction.Difference.Target as ColumnInfo;
       var table = FindTable(columnInfo.Parent.Name);
       
+      // Ensure table is not newly created
       if (createdTables.Contains(table))
         return;
       
       var column = CreateColumn(columnInfo, table);
+      column.IsNullable = column.IsNullable;
+      if (!column.IsNullable)
+        column.DefaultValue = GetDefaultValue(columnInfo);
       RegisterCommand(
         SqlFactory.Alter(table,
           SqlFactory.AddColumn(column)));
     }
-    
+
     private void VisitRemoveColumnAction(RemoveNodeAction removeColumnAction)
     {
       var columnInfo = removeColumnAction.Difference.Source as ColumnInfo;
       var table = FindTable(columnInfo.Parent.Name);
-      
+
       // Ensure table is not removed
       if (table==null)
         return;
-      
+
       var column = FindColumn(table, columnInfo.Name);
+      if (column.DefaultValue!=null) {
+        var constraint = table.TableConstraints
+          .OfType<DefaultConstraint>().FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
+        if (constraint!=null)
+          RegisterCommand(SqlFactory.Alter(table,
+            SqlFactory.DropConstraint(constraint)));
+      }
       RegisterCommand(SqlFactory.Alter(table,
-          SqlFactory.DropColumn(column)));
+        SqlFactory.DropColumn(column)));
       table.TableColumns.Remove(column);
     }
 
@@ -379,46 +393,23 @@ namespace Xtensive.Storage.Providers.Sql
 
       if (!action.Properties.ContainsKey("Type"))
         return;
-
-      var sourceColumn = sourceModel.Resolve(action.Path) as ColumnInfo;
-      var column = FindColumn(sourceColumn.Parent.Name, sourceColumn.Name);
-      var table = column.Table;
-      var originalName = column.Name;
-      var tempName = "ToRename_" + column.Name;
-      RegisterCommand(SqlFactory.Rename(column, tempName));
-      table.TableColumns.Remove(column);
-      column.Name = tempName;
-      table.TableColumns.Add(column);
-
-      var newTypeInfo = action.Properties["Type"] as TypeInfo;
-      var type = GetSqlType(newTypeInfo);
-      var newColumn = column.Table.CreateColumn(originalName, type);
-      newColumn.IsNullable = newTypeInfo.IsNullable;
-      RegisterCommand(SqlFactory.Alter(column.Table, SqlFactory.AddColumn(newColumn)));
-
-      var tableRef = SqlFactory.TableRef(column.Table);
-      var update = SqlFactory.Update(tableRef);
-      update.Values[tableRef[originalName]] = SqlFactory.Cast(tableRef[tempName], type);
-      RegisterCommand(update, UpgradeStage.DataManipulate);
-
-      RegisterCommand(SqlFactory.Alter(column.Table, SqlFactory.DropColumn(column)), UpgradeStage.Cleanup);
-      column.Table.TableColumns.Remove(column);
+      
+      changeColumnTypeActions.Add(action);
     }
 
     private void VisitMoveColumnAction(MoveNodeAction action)
     {
       var movementInfo = ((NodeDifference) action.Difference).MovementInfo;
-      if ((movementInfo & MovementInfo.NameChanged) != 0) {
+      if ((movementInfo & MovementInfo.NameChanged)!=0) {
         // Process name changing
         var oldColumnInfo = sourceModel.Resolve(action.Path) as ColumnInfo;
         var column = FindColumn(oldColumnInfo.Parent.Name, oldColumnInfo.Name);
         RegisterCommand(SqlFactory.Rename(column, action.Name));
         oldColumnInfo.Name = action.Name;
-        var table = FindTable(column.Table.Name);
-        table.TableColumns.Remove(column);
-        column.Name = action.Name;
-        table.TableColumns.Add(column);
+        RenameSchemaColumn(column, action.Name);
       }
+      else
+        throw new NotSupportedException();
     }
 
     private void VisitCreatePrimaryKeyAction(CreateNodeAction action)
@@ -426,6 +417,7 @@ namespace Xtensive.Storage.Providers.Sql
       var primaryIndex = action.Difference.Target as PrimaryIndexInfo;
       var table = FindTable(primaryIndex.Parent.Name);
 
+      // Ensure table is not newly created
       if (createdTables.Contains(table))
         return;
 
@@ -452,7 +444,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void VisitAlterPrimaryKeyAction(NodeAction action)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
     
     private void VisitCreateSecondaryIndexAction(CreateNodeAction action)
@@ -479,7 +471,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void VisitAlterSecondaryIndexAction(NodeAction action)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
     
     private void VisitCreateForeignKeyAction(CreateNodeAction action)
@@ -488,24 +480,8 @@ namespace Xtensive.Storage.Providers.Sql
       var table = FindTable(foreignKeyInfo.Parent.Name);
       var foreignKey = CreateForeignKey(foreignKeyInfo);
 
-      // If referencedTable table is newly created, 
-      // set referencing fields to default values
-      // var referencedTable = foreignKey.ReferencedTable;
-      // if (createdTables.Contains(referencedTable)) {
-      //  var referencingTable = foreignKey.Table;
-      //  var tableRef = SqlFactory.TableRef(referencingTable);
-      //  foreach (var column in foreignKey.Columns) {
-      //    var update = SqlFactory.Update(tableRef);
-      //    update.Values[tableRef[column.Name]] = SqlFactory.DefaultValue;
-      //    RegisterCommand(update);
-      //  }
-      // }
-      
       RegisterCommand(SqlFactory.Alter(table,
           SqlFactory.AddConstraint(foreignKey)));
-
-      // Remove foreign key from table for correct sql statement order
-      // table.TableConstraints.Remove(foreignKey);
     }
 
     private void VisitRemoveForeignKeyAction(RemoveNodeAction action)
@@ -525,7 +501,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void VisitAlterForeignKeyAction(NodeAction action)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException();
     }
 
     private void VisitCreateSequenceAction(CreateNodeAction action)
@@ -574,6 +550,45 @@ namespace Xtensive.Storage.Providers.Sql
         CreateGeneratorTable(sequenceInfo);
       }
     }
+
+    private void GenerateChangeColumnTypeCommands(PropertyChangeAction action)
+    {
+      var sourceColumn = targetModel.Resolve(action.Path) as ColumnInfo;
+      var column = FindColumn(sourceColumn.Parent.Name, sourceColumn.Name);
+      var table = column.Table;
+      var originalName = column.Name;
+      var tempName = GetTemporaryName(column);
+      var renameColumn = SqlFactory.Rename(column, tempName);
+      RegisterCommand(renameColumn, UpgradeStage.Upgrade);
+      RenameSchemaColumn(column, tempName);
+
+      var newTypeInfo = action.Properties["Type"] as TypeInfo;
+      var type = GetSqlType(newTypeInfo);
+      var newColumn = table.CreateColumn(originalName, type);
+      newColumn.IsNullable = newTypeInfo.IsNullable;
+      if (!newColumn.IsNullable)
+        newColumn.DefaultValue = GetDefaultValue(sourceColumn);
+      var addColumnWithNewType = SqlFactory.Alter(column.Table, SqlFactory.AddColumn(newColumn));
+      RegisterCommand(addColumnWithNewType, UpgradeStage.Upgrade);
+
+      var tableRef = SqlFactory.TableRef(column.Table);
+      var copyValues = SqlFactory.Update(tableRef);
+      copyValues.Values[tableRef[originalName]] = SqlFactory.Cast(tableRef[tempName], type);
+      RegisterCommand(copyValues, UpgradeStage.DataManipulate);
+
+      if (column.DefaultValue!=null) {
+        var constraint = table.TableConstraints
+          .OfType<DefaultConstraint>().FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
+        if (constraint!=null)
+          RegisterCommand(SqlFactory.Alter(table,
+            SqlFactory.DropConstraint(constraint)),
+            UpgradeStage.Cleanup);
+      }
+      var removeOldColumn = SqlFactory.Alter(column.Table, SqlFactory.DropColumn(column));
+      RegisterCommand(removeOldColumn, UpgradeStage.Cleanup);
+      column.Table.TableColumns.Remove(column);
+    }
+
 
     # endregion
 
@@ -673,6 +688,35 @@ namespace Xtensive.Storage.Providers.Sql
       schema.Tables.Remove(sequenceTable);
     }
 
+    private void RenameSchemaTable(Table table, string newName)
+    {
+      // Renamed table must be removed and added with new name
+      // for reregistring in dictionary
+      schema.Tables.Remove(table);
+      table.Name = newName;
+      schema.Tables.Add(table);
+    }
+
+    private void RenameSchemaColumn(TableColumn column, string newName)
+    {
+      // Renamed column must be removed and added with new name
+      // for reregistring in dictionary
+      var table = column.Table;
+      table.TableColumns.Remove(column);
+      column.Name = newName;
+      table.TableColumns.Add(column);
+    }
+
+    private string GetTemporaryName(TableColumn column)
+    {
+      var tempName = string.Format("Temp_{0}", column.Name);
+      var counter = 0;
+      while (column.Table.Columns.Any(tableColumn=>tableColumn.Name==tempName))
+        tempName = string.Format("Temp_{0}", column.Name + ++counter);
+
+      return tempName;
+    }
+
     private Table FindTable(string name)
     {
       return schema.Tables.FirstOrDefault(t => t.Name==name);
@@ -697,7 +741,7 @@ namespace Xtensive.Storage.Providers.Sql
         ? typeInfo.Type.GetGenericArguments()[0]
         : typeInfo.Type;
 
-      return valueTypeBuilder.Invoke(type, typeInfo.Length ?? 0);
+      return valueTypeMapper.BuildSqlValueType(type, typeInfo.Length ?? 0);
     }
 
     private static SqlRefAction ConvertReferentialAction(ReferentialAction toConvert)
@@ -788,6 +832,25 @@ namespace Xtensive.Storage.Providers.Sql
       return sequenceInfo==null ? null : sequenceInfo.Current;
     }
 
+    private SqlExpression GetDefaultValue(ColumnInfo columnInfo)
+    {
+      if (columnInfo.DefaultValue==null)
+        return null;
+
+      var defaultValueType = columnInfo.DefaultValue.GetType();
+      var mapping =
+        columnInfo.Type.Length.HasValue
+          ? valueTypeMapper.GetTypeMapping(defaultValueType, columnInfo.Type.Length.Value)
+          : valueTypeMapper.GetTypeMapping(defaultValueType);
+      var value = mapping.ToSqlValue!=null
+        ? mapping.ToSqlValue.Invoke(columnInfo.DefaultValue)
+        : columnInfo.DefaultValue;
+      if (value == null)
+        return null;
+      
+      return SqlFactory.Literal(value, value.GetType());
+    }
+
     # endregion
     
 
@@ -799,24 +862,24 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="actions">The actions to translate.</param>
     /// <param name="schema">The schema.</param>
     /// <param name="driver">The driver.</param>
-    /// <param name="valueTypeBuilder">The value type builder.</param>
+    /// <param name="valueTypeMapper">The value type mapper.</param>
     /// <param name="sourceModel">The source model.</param>
     /// <param name="targetModel">The target model.</param>
     /// <param name="buildDomainForTimeSpan">if set to <see langword="true"/> build domain for time span column types.</param>
     public SqlActionTranslator(ActionSequence actions, Schema schema, SqlDriver driver,
-      Func<Type, int, SqlValueType> valueTypeBuilder, 
-      StorageInfo sourceModel, StorageInfo targetModel, bool buildDomainForTimeSpan)
+      SqlValueTypeMapper valueTypeMapper, StorageInfo sourceModel, 
+      StorageInfo targetModel, bool buildDomainForTimeSpan)
     {
       ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
       ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(valueTypeBuilder, "valueTypeBuilder");
+      ArgumentValidator.EnsureArgumentNotNull(valueTypeMapper, "valueTypeMapper");
       
       this.buildDomainForTimeSpan = buildDomainForTimeSpan;
       this.schema = schema;
       this.driver = driver;
       this.actions = actions;
-      this.valueTypeBuilder = valueTypeBuilder;
+      this.valueTypeMapper = valueTypeMapper;
       this.sourceModel = sourceModel;
       this.targetModel = targetModel;
     }

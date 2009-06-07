@@ -473,7 +473,7 @@ namespace Xtensive.Modelling.Comparison
     /// </returns>
     protected virtual bool IsCyclicRename(NodeDifference difference)
     {
-      if (!difference.IsNameChanged() || difference.Source==null || difference.Target==null)
+      if (!difference.IsNameChanged || difference.Source==null || difference.Target==null)
         return false;
       var source = difference.Source;
       var target = difference.Target;
@@ -543,13 +543,13 @@ namespace Xtensive.Modelling.Comparison
     protected virtual string GetTemporaryName(Node node)
     {
       var currentNode = CurrentModel.Resolve(node.Path) as Node;
-      var collection = currentNode.Parent.GetProperty(currentNode.Nesting.PropertyName) as NodeCollection;
-      if (collection==null)
+      var currentCollection = currentNode.Parent.GetProperty(currentNode.Nesting.PropertyName) as NodeCollection;
+      if (currentCollection==null)
         return node.Name;
       
       var tempName = string.Format(TemporaryNameFormat, node.Name);
       var counter = 0;
-      while (collection.Contains(tempName))
+      while (currentCollection.Contains(tempName))
         tempName = string.Format(TemporaryNameFormat, node.Name + ++counter);
 
       return tempName;
@@ -692,12 +692,29 @@ namespace Xtensive.Modelling.Comparison
       }
 
       // Process CopyDataHints
-      originalHints.OfType<CopyDataHint>().Apply(hint => Hints.Add(hint.Update(TemporaryRenames)));
+      foreach (var copyDataHint in originalHints.OfType<CopyDataHint>()) {
+        var sourceTablePath = GetActualPath(copyDataHint.SourceTablePath);
+        var identities = copyDataHint.Identities.Select(pair => 
+          new IdentityPair(GetActualPath(pair.Source), pair.Target, pair.IsIdentifiedByConstant))
+          .ToList();
+        var copiedColumns = copyDataHint.CopiedColumns.Select(pair =>
+          new Pair<string>(GetActualPath(pair.First), pair.Second))
+          .ToList();
+        var newCopyDataHint = new CopyDataHint(sourceTablePath, identities, copiedColumns);
+        Hints.Add(newCopyDataHint);
+      }
 
       // Process IgnoreHints
       originalHints.OfType<IgnoreHint>().Apply(ignoreHint => Hints.Add(ignoreHint));
       
       // ClearDataHints is not needed now.
+    }
+
+    private string GetActualPath(string oldNodePath)
+    {
+      Node actualNode;
+      return TemporaryRenames.TryGetValue(oldNodePath, out actualNode) 
+        ? actualNode.Path : oldNodePath;
     }
 
     #endregion
