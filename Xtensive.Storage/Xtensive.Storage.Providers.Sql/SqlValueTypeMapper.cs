@@ -316,10 +316,12 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
+
+
     private static object ReadChar(DbDataReader reader, int fieldIndex)
     {
       var s = reader.GetString(fieldIndex);
-      return s==null ? null : (object)s.Single();
+      return s==null ? null : (object) s.Single();
     }
   }
 }

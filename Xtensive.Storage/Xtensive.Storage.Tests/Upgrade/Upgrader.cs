@@ -129,7 +129,11 @@ namespace Xtensive.Storage.Tests.Upgrade
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.StructureContainer3", typeof (M2.StructureContainer3));
         yield return new RenameTypeHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.StructureContainer4", typeof (M2.StructureContainer4));
-        
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.MyStructureOwner", typeof (M2.MyStructureOwner));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.ReferencedEntity", typeof (M2.ReferencedEntity));
+
         // renaming fields
         yield return new RenameFieldHint(typeof (M2.Product), "Name", "Title");
         yield return new RenameFieldHint(typeof (M2.Product), "Category", "Group");
@@ -151,6 +155,8 @@ namespace Xtensive.Storage.Tests.Upgrade
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", "FirstName", typeof (M2.BusinessContact));
         yield return new CopyFieldHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", "LastName", typeof (M2.BusinessContact));
+        yield return new CopyFieldHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.MyStructureOwner", "Structure", typeof (M2.MyStructureOwner), "Reference");
         
       }
     }

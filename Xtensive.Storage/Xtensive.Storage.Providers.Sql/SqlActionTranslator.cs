@@ -269,7 +269,7 @@ namespace Xtensive.Storage.Providers.Sql
       
       var update = SqlFactory.Update(toTable);
       update.From = selectRef;
-      copiedColumns.Apply(pair => update.Values[toTable[pair.First.Name]] = selectRef[pair.Second.Name]);
+      copiedColumns.Apply(pair => update.Values[toTable[pair.Second.Name]] = selectRef[pair.First.Name]);
       identityColumns.Apply(pair => update.Where &= toTable[pair.Second.Name]==selectRef[pair.First.Name]);
 
       RegisterCommand(update);

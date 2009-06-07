@@ -187,7 +187,6 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   }
 
   #endregion
-
   
   #region Crazy association nesting
   
@@ -323,6 +322,42 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
 
     [Field]
     public Structure4 S4 { get; set; }
+  }
+
+  #endregion
+
+  #region Complex field copy
+
+  [HierarchyRoot]
+  [KeyGenerator(null)]
+  public class MyStructureOwner : Entity
+  {
+    [KeyField, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public ReferencedEntity Reference { get; set; }
+
+    public MyStructureOwner(int id)
+      : base(id)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  [KeyGenerator(null)]
+  public class ReferencedEntity : Entity
+  {
+    [KeyField(0), Field]
+    public int A { get; private set; }
+
+    [KeyField(1), Field]
+    public int B { get; private set; }
+
+    public ReferencedEntity(int a, int b)
+      : base(a, b)
+    {
+    }
   }
 
   #endregion

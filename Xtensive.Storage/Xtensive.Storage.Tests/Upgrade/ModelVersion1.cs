@@ -311,4 +311,52 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version1
   }
 
   #endregion
+
+  #region Complex field copy
+
+  public class MyStructure : Structure
+  {
+    [Field]
+    public int A { get; set; }
+
+    [Field]
+    public int B { get; set; }
+  }
+
+  [HierarchyRoot]
+  [KeyGenerator(null)]
+  public class MyStructureOwner : Entity
+  {
+    [KeyField, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public MyStructure Structure { get; set; }
+
+    [Field]
+    public ReferencedEntity Reference { get; set; }
+
+    public MyStructureOwner(int id)
+      : base(id)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  [KeyGenerator(null)]
+  public class ReferencedEntity : Entity
+  {
+    [KeyField(0), Field]
+    public int A { get; private set; }
+
+    [KeyField(1), Field]
+    public int B { get; private set; }
+
+    public ReferencedEntity(int a, int b)
+      : base(a, b)
+    {
+    }
+  }
+
+  #endregion
 }
