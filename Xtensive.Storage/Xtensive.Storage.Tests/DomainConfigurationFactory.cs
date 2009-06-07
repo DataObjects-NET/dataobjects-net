@@ -50,11 +50,8 @@ namespace Xtensive.Storage.Tests
       DomainConfiguration config;
 
       config = Create(storageType, inheritanceSchema, typeIdBehavior, foreignKeyMode);
-      config = Create("pgsql", InheritanceSchema.ClassTable, TypeIdBehavior.Exclude, ForeignKeyMode.All);
 
       // Here you still have the ability to override the above values
-
-      config = Create("mssql2005", InheritanceSchema.SingleTable, TypeIdBehavior.Default, ForeignKeyMode.All);
 
 //      config = Create("memory");
 //      config = Create("memory", InheritanceSchema.SingleTable);
