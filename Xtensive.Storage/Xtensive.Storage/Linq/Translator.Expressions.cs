@@ -550,7 +550,7 @@ namespace Xtensive.Storage.Linq
       var reduceCastBody = body.StripCasts();
       if (state.CalculateExpressions
         && reduceCastBody.GetMemberType()==MemberType.Unknown
-          && reduceCastBody.NodeType!=ExpressionType.ArrayIndex) {
+        && reduceCastBody.NodeType!=ExpressionType.ArrayIndex) {
         if (body.Type.IsEnum)
           body = Expression.Convert(body, Enum.GetUnderlyingType(body.Type));
         var convertExpression = Expression.Convert(body, typeof (object));
