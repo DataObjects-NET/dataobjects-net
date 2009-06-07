@@ -12,7 +12,7 @@ namespace Xtensive.Core.Aspects
   /// Marks a method or property as infrastructure method or property.
   /// No any aspects will be applied to it by default.
   /// </summary>
-  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, 
+  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Event, 
     AllowMultiple = false, Inherited = false)]
   [Serializable]
   public sealed class InfrastructureAttribute : Attribute

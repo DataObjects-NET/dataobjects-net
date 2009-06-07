@@ -448,6 +448,7 @@ namespace Xtensive.Storage
     #endregion
 
     /// <inheritdoc/>
+    [Infrastructure]
     public event PropertyChangedEventHandler PropertyChanged;
 
     protected internal void NotifyPropertyChanged(FieldInfo field)
