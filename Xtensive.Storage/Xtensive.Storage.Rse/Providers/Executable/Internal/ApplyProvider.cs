@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
@@ -37,39 +39,47 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     private IEnumerable<Tuple> InnerApply(EnumerationContext context, IEnumerable<Tuple> left)
     {
-      using (new ParameterContext().Activate())
-      foreach (var tuple in left) {
-        Origin.ApplyParameter.Value = tuple;
-        // Do not cache right part
-        var right = Right.OnEnumerate(context);
-        foreach (var rTuple in right) {
-          var item = combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple);
-          yield return item;
+      var ctx = new ParameterContext();
+      ParameterScope scope = null;
+      var batched = left.Batch(0, 1, 1).ApplyBeforeAndAfter(() => scope = ctx.Activate(),
+        () => scope.DisposeSafely());
+      foreach (var batch in batched)
+        foreach (var tuple in batch) {
+          Origin.ApplyParameter.Value = tuple;
+          // Do not cache right part
+          var right = Right.OnEnumerate(context);
+          foreach (var rTuple in right) {
+            var item = combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple);
+            yield return item;
+          }
         }
-      }
     }
 
     private IEnumerable<Tuple> LeftOuterApply(EnumerationContext context, IEnumerable<Tuple> left)
     {
-      using (new ParameterContext().Activate())
-      foreach (var tuple in left) {
-        Origin.ApplyParameter.Value = tuple;
-        // Do not cache right part
-        var right = Right.OnEnumerate(context);
-        bool empty = true;
-        foreach (var rTuple in right) {
-          empty = false;
-          var item = combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple);
-          yield return item;
+      var ctx = new ParameterContext();
+      ParameterScope scope = null;
+      var batched = left.Batch(0, 1, 1).ApplyBeforeAndAfter(() => scope = ctx.Activate(),
+        () => scope.DisposeSafely());
+      foreach (var batch in batched)
+        foreach (var tuple in batch) {
+          Origin.ApplyParameter.Value = tuple;
+          // Do not cache right part
+          var right = Right.OnEnumerate(context);
+          bool empty = true;
+          foreach (var rTuple in right) {
+            empty = false;
+            var item = combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple);
+            yield return item;
+          }
+          if (empty) {
+            var item = combineTransform.Apply(TupleTransformType.Auto, tuple, rightBlank);
+            yield return item;
+          }
         }
-        if (empty) {
-          var item = combineTransform.Apply(TupleTransformType.Auto, tuple, rightBlank);
-          yield return item;
-        }
-      }
     }
 
-    private IEnumerable<Tuple> ApplyExisting(EnumerationContext context, IEnumerable<Tuple> left)
+    /*private IEnumerable<Tuple> ApplyExisting(EnumerationContext context, IEnumerable<Tuple> left)
     {
       using (new ParameterContext().Activate())
       foreach (var tuple in left) {
@@ -91,7 +101,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         if (!right.Any())
           yield return tuple;
       }
-    }
+    }*/
 
     #endregion
     
