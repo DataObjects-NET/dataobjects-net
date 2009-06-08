@@ -30,7 +30,7 @@ namespace Xtensive.Core.Weaver
     private MethodDefDeclaration targetMethodDef;
     private LocalVariableSymbol onEntryResult;
     private JoinPointKinds joinPoints;
-    private InstructionSequence beforeMethodSequence;
+    private InstructionSequence restartSequence;
 
     #region IMethodLevelAdvice Members
 
@@ -128,6 +128,7 @@ namespace Xtensive.Core.Weaver
       var instructionSequence = block.MethodBody.CreateInstructionSequence();
       block.AddInstructionSequence( instructionSequence, NodePosition.Before, null );
       writer.AttachInstructionSequence( instructionSequence );
+      restartSequence = instructionSequence; // Reprocessing point
 
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
@@ -201,7 +202,7 @@ namespace Xtensive.Core.Weaver
       writer.EmitInstruction(OpCodeNumber.Rethrow);
       writer.DetachInstructionSequence();
       writer.AttachInstructionSequence(reprocessSequence);
-      writer.EmitBranchingInstruction(OpCodeNumber.Leave, beforeMethodSequence);
+      writer.EmitBranchingInstruction(OpCodeNumber.Leave, restartSequence);
       writer.DetachInstructionSequence();
     }
 
