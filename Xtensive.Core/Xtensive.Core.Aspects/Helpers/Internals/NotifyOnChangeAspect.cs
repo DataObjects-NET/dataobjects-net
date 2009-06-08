@@ -39,7 +39,7 @@ namespace Xtensive.Core.Aspects.Helpers.Internals
       var methodInfo = method as MethodInfo;
       if (methodInfo.IsGetter()) {
         // This is getter; let's check if it is explicitely marked as [Changer]
-        PropertyInfo propertyInfo = methodInfo.GetProperty();
+        var propertyInfo = methodInfo.GetProperty();
         if (propertyInfo!=null && propertyInfo.GetAttribute<ChangerAttribute>(
           AttributeSearchOptions.Default)!=null)
           // Property itself is marked as [Changer]
@@ -56,15 +56,15 @@ namespace Xtensive.Core.Aspects.Helpers.Internals
     [DebuggerStepThrough]
     public override void OnEntry(MethodExecutionEventArgs eventArgs)
     {
-      IComposed<IChangeNotifier> composed = eventArgs.Instance as IComposed<IChangeNotifier>;
+      var composed = eventArgs.Instance as IComposed<IChangeNotifier>;
       if (composed==null)
         // TODO: AY: Support custom IChangeNotifier implementations?
         return;
-      ChangeNotifier implementation = (ChangeNotifier)composed.GetImplementation(eventArgs.InstanceCredentials);
+      var implementation = (ChangeNotifier)composed.GetImplementation(eventArgs.InstanceCredentials);
       if (!implementation.IsEnabled)
         return;
 
-      ChangeNotifierEventArgs notifyEventArgs = new ChangeNotifierEventArgs(eventArgs);
+      var notifyEventArgs = new ChangeNotifierEventArgs(eventArgs);
       eventArgs.MethodExecutionTag = notifyEventArgs;
       implementation.OnChanging(notifyEventArgs);
       implementation.IsEnabled = false;
@@ -74,11 +74,11 @@ namespace Xtensive.Core.Aspects.Helpers.Internals
     [DebuggerStepThrough]
     public override void OnExit(MethodExecutionEventArgs eventArgs)
     {
-      IComposed<IChangeNotifier> composed = eventArgs.Instance as IComposed<IChangeNotifier>;
+      var composed = eventArgs.Instance as IComposed<IChangeNotifier>;
       if (composed==null)
         return;
-      ChangeNotifier implementation = (ChangeNotifier)composed.GetImplementation(eventArgs.InstanceCredentials);
-      ChangeNotifierEventArgs notifyEventArgs = (ChangeNotifierEventArgs)eventArgs.MethodExecutionTag;
+      var implementation = (ChangeNotifier)composed.GetImplementation(eventArgs.InstanceCredentials);
+      var notifyEventArgs = (ChangeNotifierEventArgs)eventArgs.MethodExecutionTag;
       if (notifyEventArgs==null)
         return; // There was no notification
       implementation.IsEnabled = true;

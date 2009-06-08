@@ -18,7 +18,7 @@ namespace Xtensive.Core.Aspects.Tests
   {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = true, Inherited = false)]
     [Serializable]
-    internal class LogMethodAspect : ReprocessMethodBoundaryAspect
+    internal class LogMethodFastAspect : ReprocessMethodBoundaryAspect
     {
       public MethodBase Method { get; private set; }
 
@@ -67,25 +67,26 @@ namespace Xtensive.Core.Aspects.Tests
 
     struct TestStruct
     {
-      [LogMethodAspect]
+      [LogMethodFastAspect]
+      [Trace]
       public string Method(int value)
       {
         return value.ToString();
       }
 
-      [LogMethodAspect]
+      [LogMethodFastAspect]
       public string Method(string value)
       {
         return value;
       }
 
-      [LogMethodAspect]
+      [LogMethodFastAspect]
       public string MethodGeneric<T>(T value)
       {
         return value.ToString();
       }
 
-      [LogMethodAspect]
+      [LogMethodFastAspect]
       public string MethodGeneric<T>(T value, bool isTrue)
       {
         if (isTrue)
@@ -96,25 +97,26 @@ namespace Xtensive.Core.Aspects.Tests
 
     static class TestClassStatic
     {
-      [LogMethodAspect]
+      [LogMethodFastAspect]
+      [Trace]
       public static string Method(int value)
       {
         return value.ToString();
       }
 
-      [LogMethodAspect]
+      [LogMethodFastAspect]
       public static string Method(string value)
       {
         return value;
       }
 
-      [LogMethodAspect]
+      [LogMethodFastAspect]
       public static string MethodGeneric<T>(T value)
       {
         return value.ToString();
       }
 
-      [LogMethodAspect]
+      [LogMethodFastAspect]
       public static string MethodGeneric<T>(T value, bool isTrue)
       {
         if (isTrue)
@@ -126,10 +128,21 @@ namespace Xtensive.Core.Aspects.Tests
 
     class TestClass : BaseClass<int>
     {
-      private static LogMethodAspect testAspect = new LogMethodAspect();
+      private static LogMethodFastAspect testAspect = new LogMethodFastAspect();
       private int iterationCount = 0;
+      private int property;
 
-      [LogMethodAspect]
+      [Changer]
+      public int Property
+      {
+        [LogMethodFastAspect]
+        get { return property; }
+        [LogMethodFastAspect]
+        set { property = value; }
+      }
+
+      [LogMethodFastAspect]
+      [Trace]
       public override string Method(int value)
       {
         if (iterationCount == 0) {
@@ -139,19 +152,19 @@ namespace Xtensive.Core.Aspects.Tests
         return value.ToString();
       }
 
-      [LogMethodAspect]
+      [LogMethodFastAspect]
       public string Method(string value)
       {
         return value;
       }
 
-      [LogMethodAspect]
+      [LogMethodFastAspect]
       public string MethodGeneric<T>(T value)
       {
         return value.ToString();
       }
 
-      [LogMethodAspect]
+      [LogMethodFastAspect]
       public string MethodGeneric<T>(T value, bool isTrue)
       {
         if (isTrue)
@@ -159,8 +172,8 @@ namespace Xtensive.Core.Aspects.Tests
         return value.ToString();
       }
 
-      [LogMethodAspect]
-      [LogMethodAspect]
+      [LogMethodFastAspect]
+      [LogMethodFastAspect]
       public TestClass(int value)
       {
         Log.Info(string.Format("Passed value: {0}", value));
@@ -196,7 +209,7 @@ namespace Xtensive.Core.Aspects.Tests
     public void GenericTest()
     {
       var method = ReflectionHelper.GetMethod(typeof(TestClass), "MethodGeneric", "System.String MethodGeneric[T](T, Boolean)");
-      var type = typeof (LogMethodAspect);
+      var type = typeof (LogMethodFastAspect);
       var i = 10;
 
     }

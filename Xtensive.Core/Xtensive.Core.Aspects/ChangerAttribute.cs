@@ -23,16 +23,16 @@ namespace Xtensive.Core.Aspects
 
     public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {
-      PropertyInfo pi = element as PropertyInfo;
-      if (pi!=null)
+      var propertyInfo = element as PropertyInfo;
+      if (propertyInfo!=null)
         return; // Will be anyway called for get\set methods with MethodInfo element further
-      MethodInfo mi = (MethodInfo)element;
-      Type t = mi.DeclaringType;
-      ImplementChangeNotifierAspect icna = ImplementChangeNotifierAspect.ApplyOnce(t);
+      var methodInfo = (MethodInfo) element;
+      var type = methodInfo.DeclaringType;
+      var icna = ImplementChangeNotifierAspect.ApplyOnce(type);
       if (icna!=null)
-        collection.AddAspect(t, icna);
+        collection.AddAspect(type, icna);
       // AspectDebug.WriteLine("Providing NotifyOnChangeAspect for {0}.{1}", t.Name, mi.Name);
-      collection.AddAspect(mi, new NotifyOnChangeAspect(this));
+      collection.AddAspect(methodInfo, new NotifyOnChangeAspect(this));
     }
 
 

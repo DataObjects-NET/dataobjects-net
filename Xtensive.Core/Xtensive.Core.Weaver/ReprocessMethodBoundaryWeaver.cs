@@ -16,6 +16,7 @@ using PostSharp.Laos.Weaver;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using System.Linq;
+using Xtensive.Core.Weaver.Resources;
 
 namespace Xtensive.Core.Weaver
 {
@@ -29,14 +30,14 @@ namespace Xtensive.Core.Weaver
     private IMethod onSuccessMethod;
     private MethodDefDeclaration targetMethodDef;
     private LocalVariableSymbol onEntryResult;
-    private JoinPointKinds joinPoints;
+    private JoinPointKinds joinPointKinds;
     private InstructionSequence restartSequence;
 
     #region IMethodLevelAdvice Members
 
     public int Priority
     {
-      get { return ((LaosMethodLevelAspect) Aspect).AspectPriority; }
+      get { return ((ILaosWeavableAspect) Aspect).AspectPriority; }
     }
 
     public MethodDefDeclaration Method
@@ -49,12 +50,8 @@ namespace Xtensive.Core.Weaver
       get { return null; }
     }
 
-    public JoinPointKinds JoinPointKinds
-    {
-      get
-      {
-        return joinPoints;
-      }
+    public JoinPointKinds JoinPointKinds {
+      get { return joinPointKinds; }
     }
 
     public bool RequiresWeave(WeavingContext context)
@@ -64,7 +61,7 @@ namespace Xtensive.Core.Weaver
 
     public void Weave(WeavingContext context, InstructionBlock block)
     {
-      JoinPointKinds joinPointKind = context.JoinPoint.JoinPointKind;
+      var joinPointKind = context.JoinPoint.JoinPointKind;
       switch (joinPointKind) {
       case JoinPointKinds.BeforeMethodBody:
         WeaveOnEntry(context, block);
@@ -80,7 +77,7 @@ namespace Xtensive.Core.Weaver
         break;
       default:
         throw new InvalidOperationException(string.Format(
-          "Unexpected JoinPointKind: {0}", joinPointKind));
+          Strings.ExUnexpectedJoinPointKindX, joinPointKind));
       }
     }
 
@@ -104,7 +101,7 @@ namespace Xtensive.Core.Weaver
 //      foreach (var a in aspectsOnSameTarget.Select(w => w.Aspect as ILaosMethodLevelAspect))
 //        sequence.AppendFormat("{0} ({1})\n", a.GetType().Name, a.AspectPriority);
 //      ErrorLog.Write(SeverityType.Warning,
-//        "Sequence for {0}:\n{1}", target, sequence);
+//        "Sequence for {0} ({1}):\n{2}", target, joinPointKinds, sequence);
 //    }
 
     public override void Implement()
@@ -125,11 +122,11 @@ namespace Xtensive.Core.Weaver
       onEntryResult = methodBody.RootInstructionBlock.DefineLocalVariable(objectType, "onEntryResult");
 
       var writer = context.InstructionWriter;
-      var instructionSequence = block.MethodBody.CreateInstructionSequence();
-      block.AddInstructionSequence( instructionSequence, NodePosition.Before, null );
-      writer.AttachInstructionSequence( instructionSequence );
-      restartSequence = instructionSequence; // Reprocessing point
-
+      var sequence = block.MethodBody.CreateInstructionSequence();
+      block.AddInstructionSequence(sequence, NodePosition.Before, null);
+      restartSequence = sequence; // Reprocessing point
+      
+      writer.AttachInstructionSequence(sequence);
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
       writer.EmitInstruction(OpCodeNumber.Ldarg_0);
@@ -142,11 +139,10 @@ namespace Xtensive.Core.Weaver
     {
       var writer = context.InstructionWriter;
       var methodBody = block.MethodBody;
-      
-      var instructionSequence = methodBody.CreateInstructionSequence();
-      block.AddInstructionSequence( instructionSequence, NodePosition.Before, null );
-      writer.AttachInstructionSequence( instructionSequence );
+      var sequence = methodBody.CreateInstructionSequence();
+      block.AddInstructionSequence(sequence, NodePosition.Before, null);
 
+      writer.AttachInstructionSequence(sequence);
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
       writer.EmitInstruction(OpCodeNumber.Ldarg_0);
@@ -159,11 +155,10 @@ namespace Xtensive.Core.Weaver
     {
       var writer = context.InstructionWriter;
       var methodBody = block.MethodBody;
-      
-      var instructionSequence = methodBody.CreateInstructionSequence();
-      block.AddInstructionSequence( instructionSequence, NodePosition.Before, null );
-      writer.AttachInstructionSequence( instructionSequence );
+      var sequence = methodBody.CreateInstructionSequence();
+      block.AddInstructionSequence( sequence, NodePosition.Before, null );
 
+      writer.AttachInstructionSequence( sequence );
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
       writer.EmitInstruction(OpCodeNumber.Ldarg_0);
@@ -178,11 +173,10 @@ namespace Xtensive.Core.Weaver
       var module = block.Module;
       var methodBody = block.MethodBody;
       var exceptionLocal = methodBody.RootInstructionBlock.DefineLocalVariable(module.Cache.GetType(typeof(Exception)), "~exception~{0}");
-
-      var instructionSequence = methodBody.CreateInstructionSequence();
-      block.AddInstructionSequence( instructionSequence, NodePosition.Before, null );
-      writer.AttachInstructionSequence( instructionSequence );
-
+      var sequence = methodBody.CreateInstructionSequence();
+      block.AddInstructionSequence( sequence, NodePosition.Before, null );
+      
+      writer.AttachInstructionSequence( sequence );
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstructionLocalVariable(OpCodeNumber.Stloc, exceptionLocal);
       writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
@@ -196,11 +190,15 @@ namespace Xtensive.Core.Weaver
       block.AddInstructionSequence(reprocessSequence, NodePosition.After, null);
       var skipSequence = methodBody.CreateInstructionSequence();
       block.AddInstructionSequence(skipSequence, NodePosition.After, null);
-      writer.EmitSwitchInstruction(new[]{rethrowSequence, reprocessSequence, skipSequence});
+      
+      writer.EmitSwitchInstruction(
+        new[] {rethrowSequence, reprocessSequence, skipSequence});
       writer.DetachInstructionSequence();
+
       writer.AttachInstructionSequence(rethrowSequence);
       writer.EmitInstruction(OpCodeNumber.Rethrow);
       writer.DetachInstructionSequence();
+
       writer.AttachInstructionSequence(reprocessSequence);
       writer.EmitBranchingInstruction(OpCodeNumber.Leave, restartSequence);
       writer.DetachInstructionSequence();
@@ -221,13 +219,13 @@ namespace Xtensive.Core.Weaver
       var onSuccess = aspectType.GetMethod("OnSuccess");
       var onError = aspectType.GetMethod("OnError");
 
-      joinPoints = JoinPointKinds.BeforeMethodBody;
+      joinPointKinds = JoinPointKinds.BeforeMethodBody;
       if (onExit.DeclaringType != baseType)
-        joinPoints |= JoinPointKinds.AfterMethodBodyAlways;
+        joinPointKinds |= JoinPointKinds.AfterMethodBodyAlways;
       if (onSuccess.DeclaringType != baseType)
-        joinPoints |= JoinPointKinds.AfterMethodBodySuccess;
+        joinPointKinds |= JoinPointKinds.AfterMethodBodySuccess;
       if (onError.DeclaringType != baseType)
-        joinPoints |= JoinPointKinds.AfterMethodBodyException;
+        joinPointKinds |= JoinPointKinds.AfterMethodBodyException;
     }
   }
 }

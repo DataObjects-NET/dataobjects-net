@@ -7,25 +7,25 @@
 namespace Xtensive.Core.Aspects.Helpers
 {
   /// <summary>
-  /// Specifies how the control flow will behave after throwed exception in the aspected method.
+  /// Specifies the control flow mode on catching an exception in the aspected method.
   /// </summary>
   public enum ErrorFlowBehavior
   {
     /// <summary>
-    /// Default behavior is <see cref="Rethrow"/>.
-    /// </summary>
-    Default = Rethrow,
-    /// <summary>
     /// Rethrow the original exception.
+    /// This is default behavior.
+    /// Value is <see langword="0" />.
     /// </summary>
     Rethrow = 0,
     /// <summary>
     /// Reprocess aspected method.
+    /// Value is <see langword="1" />.
     /// </summary>
-    Reprocess,
+    Reprocess = 1,
     /// <summary>
     /// Skip the exception.
+    /// Value is <see langword="2" />.
     /// </summary>
-    Skip
+    Skip = 2,
   }
 }

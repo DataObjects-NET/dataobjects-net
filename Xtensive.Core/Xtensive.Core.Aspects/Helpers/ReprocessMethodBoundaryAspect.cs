@@ -69,7 +69,7 @@ namespace Xtensive.Core.Aspects.Helpers
 
     /// <summary>
     /// Method executed <b>after</b> the body of methods to which this aspect is applied,
-    /// but only when the method succesfully returns (i.e. when no exception flies out
+    /// but only when the method successfully returns (i.e. when no exception flies out
     /// the method.).
     /// </summary>
     /// <param name="instance">Current object instance on which this attribute is applied.</param>
@@ -82,7 +82,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// </summary>
     /// <returns>An exception will be thrown when result is <see langword="true"/>.</returns>
     /// <param name="instance">Current object instance on which this attribute is applied.</param>
-    /// <param name="e">Throwed exception.</param>
+    /// <param name="e">Thrown exception.</param>
     public virtual ErrorFlowBehavior OnError(object instance, Exception e)
     {
       return ErrorFlowBehavior.Rethrow;

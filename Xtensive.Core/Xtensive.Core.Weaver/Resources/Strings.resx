@@ -126,4 +126,7 @@
   <data name="WeaverDebug" xml:space="preserve">
     <value>{{{0}}}</value>
   </data>
+  <data name="ExUnexpectedJoinPointKindX" xml:space="preserve">
+    <value>Unexpected join point kind: {0}</value>
+  </data>
 </root>
