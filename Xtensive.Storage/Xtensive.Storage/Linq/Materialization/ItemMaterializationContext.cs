@@ -35,18 +35,21 @@ namespace Xtensive.Storage.Linq.Materialization
       if (result!=null)
         return result;
 
+
       int typeId;
-      if (typeIdIndex >= 0 && tuple.HasValue(typeIdIndex))
-        typeId = tuple.GetValueOrDefault<int>(typeIdIndex);
-      else {
-        if (typeIdIndex==-1)
-          typeId = TypeInfo.NoTypeId;
-        else if (tuple.IsNull(typeIdIndex))
+      if (typeIdIndex >= 0) {
+        if (tuple.HasValue(typeIdIndex))
+          typeId = tuple.GetValueOrDefault<int>(typeIdIndex);
+        else if (tuple.IsAvailable(typeIdIndex))
           return null;
         else
-          throw new InvalidOperationException(string.Format("Unable to materialize entity. There is no TypeId field."));
+          return null;
+        // throw new InvalidOperationException(string.Format("Unable to materialize entity. There is no TypeId field."));
       }
-      var exactType = typeId!=TypeInfo.NoTypeId;
+      else
+        typeId = TypeInfo.NoTypeId;
+
+      var exactType = typeId != TypeInfo.NoTypeId;
       if (!exactType) {
         typeId = typeInfo.TypeId;
         exactType = typeInfo.GetDescendants().Count()==0;
