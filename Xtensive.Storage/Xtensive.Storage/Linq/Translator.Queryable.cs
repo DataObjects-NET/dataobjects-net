@@ -416,12 +416,12 @@ namespace Xtensive.Storage.Linq
       var resultType = method.ReturnType;
       var columnType = dataSource.Header.TupleDescriptor[0];
       if (!isRoot) {
-        return resultType != columnType
+        return resultType != columnType && !resultType.IsNullable()
           ? Expression.Convert(AddSubqueryColumn(columnType, dataSource), resultType)
           : AddSubqueryColumn(method.ReturnType, dataSource);
       }
 
-      var projectorBody = resultType != columnType
+      var projectorBody = resultType != columnType && !resultType.IsNullable()
         ? Expression.Convert(ColumnExpression.Create(columnType, 0), resultType)
         : (Expression) ColumnExpression.Create(resultType, 0);
 

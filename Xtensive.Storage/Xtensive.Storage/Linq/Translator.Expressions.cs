@@ -432,12 +432,11 @@ namespace Xtensive.Storage.Linq
       else {
         var nullEntityExpression = Expression.Constant(null, expression.Type);
         var isNullExpression = Expression.Equal(expression, nullEntityExpression);
-        var entityExpression = Expression.Convert(expression, typeof (Entity));
 
         keyExpression = Expression.Condition(
           isNullExpression, 
           Expression.Constant(null, typeof (Key)),
-          Expression.MakeMemberAccess(entityExpression, WellKnownMembers.IEntityKey));
+          Expression.MakeMemberAccess(expression, WellKnownMembers.IEntityKey));
       }
       return GetKeyFields(keyExpression, keyFieldTypes);
     }
@@ -459,8 +458,7 @@ namespace Xtensive.Storage.Linq
       }
       var nullExpression = Expression.Constant(null, expression.Type);
       var isNullExpression = Expression.Equal(expression, nullExpression);
-      var keyExpression = Expression.Convert(expression, typeof (Key));
-      var keyTupleExpression = Expression.MakeMemberAccess(keyExpression, WellKnownMembers.KeyValue);
+      var keyTupleExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.KeyValue);
 
       return keyFieldTypes
         .Select((type, index) => {
