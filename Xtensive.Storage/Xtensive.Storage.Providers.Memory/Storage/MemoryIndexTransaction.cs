@@ -19,6 +19,14 @@ namespace Xtensive.Storage.Providers.Memory
   {
     private TransactionState state;
 
+    private DateTime timeStamp;
+
+    /// <inheritdoc/>
+    public override DateTime TimeStamp
+    {
+      get { return timeStamp; }
+    }
+
     /// <inheritdoc/>
     public override void Commit()
     {
@@ -53,6 +61,7 @@ namespace Xtensive.Storage.Providers.Memory
       Identifier = identifier;
       IsolationLevel = isolationLevel;
       state = TransactionState.Active;
+      timeStamp = DateTime.Now;
     }
   }
 }

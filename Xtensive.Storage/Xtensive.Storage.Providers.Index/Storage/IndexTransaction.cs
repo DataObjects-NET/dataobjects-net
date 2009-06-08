@@ -27,6 +27,9 @@ namespace Xtensive.Storage.Providers.Index
     public IsolationLevel IsolationLevel { get; protected set; }
 
     /// <inheritdoc/>
+    public abstract DateTime TimeStamp { get; }
+
+    /// <inheritdoc/>
     public abstract void Commit();
 
     /// <inheritdoc/>

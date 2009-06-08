@@ -16,7 +16,7 @@ namespace Xtensive.Integrity.Transactions
   /// <summary>
   /// Base class for any transaction.
   /// </summary>
-  public abstract class TransactionBase : ITransaction    
+  public abstract class TransactionBase : ITransaction
   {
     private readonly Guid identifier;
     private TransactionScope scope;
@@ -42,6 +42,9 @@ namespace Xtensive.Integrity.Transactions
 
     /// <inheritdoc/>
     public IsolationLevel IsolationLevel { get; protected set; }
+
+    /// <inheritdoc/>
+    public DateTime TimeStamp { get; private set; }
 
     /// <summary>
     /// Begins this transaction.
@@ -137,6 +140,7 @@ namespace Xtensive.Integrity.Transactions
       IsolationLevel = isolationLevel;
       this.identifier = identifier;
       State = TransactionState.NotActivated;
+      TimeStamp = DateTime.Now;
     }
   }
 }

@@ -25,6 +25,11 @@ namespace Xtensive.Integrity.Transactions
     IsolationLevel IsolationLevel { get; }
 
     /// <summary>
+    /// Gets the start time of the current transaction.
+    /// </summary>
+    DateTime TimeStamp { get; }
+
+    /// <summary>
     /// Commits the transaction.
     /// </summary>
     void Commit();

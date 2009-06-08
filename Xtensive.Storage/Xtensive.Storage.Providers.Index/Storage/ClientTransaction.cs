@@ -47,7 +47,9 @@ namespace Xtensive.Storage.Providers.Index
       get { throw new System.NotImplementedException(); }
     }
 
-
-
+    public DateTime TimeStamp
+    {
+      get { throw new NotImplementedException(); }
+    }
   }
 }
