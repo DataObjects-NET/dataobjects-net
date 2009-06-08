@@ -189,24 +189,27 @@ namespace Xtensive.Storage
 
     internal void Remove(bool notify)
     {
-      if (notify)
-        OnRemoving();
+      using (Session.OpenInconsistentRegion()) {
 
-      if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
-      if(notify)
-        Session.NotifyRemovingEntity(this);
+        if (notify)
+          OnRemoving();
 
-      State.EnsureNotRemoved();
+        if (Session.IsDebugEventLoggingEnabled)
+          Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
+        if (notify)
+          Session.NotifyRemovingEntity(this);
 
-      Session.Persist();
-      Session.ReferenceManager.ClearReferencesTo(this, notify);
-      Session.Persist();
-      State.PersistenceState = PersistenceState.Removed;
+        State.EnsureNotRemoved();
 
-      if (notify) {
-        OnRemove();
-        Session.NotifyRemoveEntity(this);
+        Session.Persist();
+        Session.ReferenceManager.ClearReferencesTo(this, notify);
+        Session.Persist();
+        State.PersistenceState = PersistenceState.Removed;
+
+        if (notify) {
+          OnRemove();
+          Session.NotifyRemoveEntity(this);
+        }
       }
     }
 

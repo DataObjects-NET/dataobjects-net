@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
 

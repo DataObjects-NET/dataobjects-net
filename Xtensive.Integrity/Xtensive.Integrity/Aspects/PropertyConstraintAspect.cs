@@ -158,8 +158,7 @@ namespace Xtensive.Integrity.Aspects
     }
 
     /// <summary>
-    /// Validates the specified value. 
-    /// Throws <see cref="ConstraintViolationException"/> on failure.
+    /// Validates the specified value.
     /// </summary>
     /// <param name="value">The value to check.</param>
     /// <returns>

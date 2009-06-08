@@ -46,11 +46,11 @@ namespace Xtensive.Integrity.Validation
             throw new AggregateException(Strings.ExValidationFailed, e);
           }
         else
-          validator.Invoke(target);      
+          validator.Invoke(target);
       else
         context.EnqueueValidate(target, validator);   
 
-      return immediate;      
+      return immediate;
     }
 
     /// <summary>
