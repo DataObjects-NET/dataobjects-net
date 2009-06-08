@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       CompilableProvider newSourceProvider = VisitCompilable(provider.Source);
       OnRecursionExit(provider);
 
-      Expression predicate = TranslateExpression(provider, provider.Predicate);
+      Expression predicate = TranslateLambda(provider, provider.Predicate);
       if (newSourceProvider == provider.Source && predicate == provider.Predicate)
         return provider;
       return new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>)predicate);
@@ -239,7 +239,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       bool translated = false;
       var descriptors = new List<CalculatedColumnDescriptor>(provider.CalculatedColumns.Length);
       foreach (CalculatedColumn column in provider.CalculatedColumns) {
-        Expression expression = TranslateExpression(provider, column.Expression);
+        Expression expression = TranslateLambda(provider, column.Expression);
         if (expression != column.Expression)
           translated = true;
         var ccd = new CalculatedColumnDescriptor(column.Name, column.Type, (Expression<Func<Tuple, object>>)expression);
@@ -466,14 +466,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       return result;
     }
 
-    private Expression TranslateExpression(Provider originalProvider, Expression expression)
+    private Expression TranslateLambda(Provider originalProvider, LambdaExpression expression)
     {
-      if (originalProvider.Type == ProviderType.Filter 
-        || originalProvider.Type == ProviderType.Calculate) {
-        var replacer = new TupleAccessRewriter(mappings[originalProvider], ResolveOuterMapping);
-        return replacer.Rewrite(expression);
-      }
-      return expression;
+      var replacer = new TupleAccessRewriter(mappings[originalProvider], ResolveOuterMapping);
+      return replacer.Rewrite(expression, expression.Parameters[0]);
     }
 
     private Expression TranslateJoinPredicate(IList<int> leftMapping, 
