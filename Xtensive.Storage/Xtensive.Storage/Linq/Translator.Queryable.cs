@@ -417,27 +417,29 @@ namespace Xtensive.Storage.Linq
       var resultType = method.ReturnType;
       var columnType = dataSource.Header.TupleDescriptor[0];
       if (!isRoot) {
-        if (source.IsGrouping() && source is ParameterExpression) {
+        if (source is ParameterExpression) {
           var groupingParameter = (ParameterExpression) source;
           var groupingProjection = context.Bindings[groupingParameter];
-          var groupingDataSource = groupingProjection.ItemProjector.DataSource;
-          var groupingProvider = ((AggregateProvider) groupingDataSource.Provider);
-          var newProvider = new AggregateProvider(groupingProvider.Source, groupingProvider.GroupColumnIndexes, groupingProvider.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateColumnDescriptor).ToArray());
-          var newItemProjector = groupingProjection.ItemProjector.Remap(newProvider.Result, 0);
-          groupingProjection = new ProjectionExpression(groupingProjection.Type, newItemProjector, groupingProjection.ResultType, groupingProjection.TupleParameterBindings);
-          context.Bindings.ReplaceBound(groupingParameter, groupingProjection);
-          var isSubqueryParameter = state.OuterParameters.Contains(groupingParameter);
-          if (resultType!=columnType && !resultType.IsNullable()) {
-            var columnExpression = ColumnExpression.Create(columnType, newProvider.Header.Length - 1);
-            if (isSubqueryParameter)
-              columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
-            return Expression.Convert(columnExpression, resultType);
-          }
-          else {
-            var columnExpression = ColumnExpression.Create(resultType, newProvider.Header.Length - 1);
-            if (isSubqueryParameter)
-              columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
-            return columnExpression;
+          if (groupingProjection.ItemProjector.Item.IsGroupingProjection()) {
+            var groupingDataSource = groupingProjection.ItemProjector.DataSource;
+            var groupingProvider = ((AggregateProvider) groupingDataSource.Provider);
+            var newProvider = new AggregateProvider(groupingProvider.Source, groupingProvider.GroupColumnIndexes, groupingProvider.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateColumnDescriptor).ToArray());
+            var newItemProjector = groupingProjection.ItemProjector.Remap(newProvider.Result, 0);
+            groupingProjection = new ProjectionExpression(groupingProjection.Type, newItemProjector, groupingProjection.ResultType, groupingProjection.TupleParameterBindings);
+            context.Bindings.ReplaceBound(groupingParameter, groupingProjection);
+            var isSubqueryParameter = state.OuterParameters.Contains(groupingParameter);
+            if (resultType!=columnType && !resultType.IsNullable()) {
+              var columnExpression = ColumnExpression.Create(columnType, newProvider.Header.Length - 1);
+              if (isSubqueryParameter)
+                columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
+              return Expression.Convert(columnExpression, resultType);
+            }
+            else {
+              var columnExpression = ColumnExpression.Create(resultType, newProvider.Header.Length - 1);
+              if (isSubqueryParameter)
+                columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
+              return columnExpression;
+            }
           }
         }
         return resultType!=columnType && !resultType.IsNullable()

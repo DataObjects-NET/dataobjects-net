@@ -727,6 +727,34 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void GroupByWithResultSelectorTest3Test()
+    {
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .Select(g => new {
+          Sum = g.Sum(o => o.Freight),
+          Min = g.Min(o => o.Freight),
+          Max = g.Max(o => o.Freight),
+          Avg = g.Average(o => o.Freight)
+        });
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void GroupByWithResultSelectorTest4Test()
+    {
+      var result = Query<Order>.All.GroupBy(o => o.Customer, (c, g) =>
+        new {
+          // Customer = c,
+          Sum = g.Sum(o => o.Freight),
+          Min = g.Min(o => o.Freight),
+          Max = g.Max(o => o.Freight),
+          Avg = g.Average(o => o.Freight)
+        });
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void GroupByWithElementSelectorSumTest()
     {
       var result = Query<Order>.All
