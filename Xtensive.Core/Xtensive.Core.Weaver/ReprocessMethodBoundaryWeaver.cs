@@ -5,18 +5,24 @@
 // Created:    2008.09.25
 
 using System;
+using System.Collections.Generic;
+using System.Text;
 using PostSharp.CodeModel;
 using PostSharp.CodeWeaver;
 using PostSharp.Collections;
+using PostSharp.Extensibility;
 using PostSharp.Laos;
 using PostSharp.Laos.Weaver;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
+using System.Linq;
 
 namespace Xtensive.Core.Weaver
 {
   internal class ReprocessMethodBoundaryWeaver : MethodLevelAspectWeaver, 
     IMethodLevelAdvice
   {
+//    private static HashSet<object> processedMethods = new HashSet<object>();
     private IMethod onEntryMethod;
     private IMethod onErrorMethod;
     private IMethod onExitMethod;
@@ -85,6 +91,22 @@ namespace Xtensive.Core.Weaver
       targetMethodDef = (MethodDefDeclaration) TargetMethod;
     }
 
+//    public override void ValidateInteractions(LaosAspectWeaver[] aspectsOnSameTarget)
+//    {
+//      // Uncomment this method to dump method-level aspect sequence
+//
+//      if (processedMethods.Contains(targetMethodDef))
+//        return;
+//      processedMethods.Add(targetMethodDef);
+//
+//      string target = string.Format("{0}.{1}", targetMethodDef.DeclaringType.Name, targetMethodDef.Name);
+//      var sequence = new StringBuilder();
+//      foreach (var a in aspectsOnSameTarget.Select(w => w.Aspect as ILaosMethodLevelAspect))
+//        sequence.AppendFormat("{0} ({1})\n", a.GetType().Name, a.AspectPriority);
+//      ErrorLog.Write(SeverityType.Warning,
+//        "Sequence for {0}:\n{1}", target, sequence);
+//    }
+
     public override void Implement()
     {
       base.Implement();
@@ -101,10 +123,11 @@ namespace Xtensive.Core.Weaver
       var objectType = module.FindType(typeof(object), BindingOptions.Default);
 
       onEntryResult = methodBody.RootInstructionBlock.DefineLocalVariable(objectType, "onEntryResult");
+
       var writer = context.InstructionWriter;
-      beforeMethodSequence = block.MethodBody.CreateInstructionSequence();
-      block.AddInstructionSequence(beforeMethodSequence, NodePosition.Before, null);
-      writer.AttachInstructionSequence(beforeMethodSequence);
+      var instructionSequence = block.MethodBody.CreateInstructionSequence();
+      block.AddInstructionSequence( instructionSequence, NodePosition.Before, null );
+      writer.AttachInstructionSequence( instructionSequence );
 
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
@@ -116,10 +139,12 @@ namespace Xtensive.Core.Weaver
 
     private void WeaveOnExit(WeavingContext context, InstructionBlock block)
     {
-      InstructionWriter writer = context.InstructionWriter;
-      InstructionSequence sequence = block.MethodBody.CreateInstructionSequence();
-      block.AddInstructionSequence(sequence, NodePosition.Before, null);
-      writer.AttachInstructionSequence(sequence);
+      var writer = context.InstructionWriter;
+      var methodBody = block.MethodBody;
+      
+      var instructionSequence = methodBody.CreateInstructionSequence();
+      block.AddInstructionSequence( instructionSequence, NodePosition.Before, null );
+      writer.AttachInstructionSequence( instructionSequence );
 
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
@@ -127,15 +152,16 @@ namespace Xtensive.Core.Weaver
       writer.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, onEntryResult);
       writer.EmitInstructionMethod(OpCodeNumber.Callvirt, onExitMethod);
       writer.DetachInstructionSequence();
-
     }
 
     private void WeaveOnSuccess(WeavingContext context, InstructionBlock block)
     {
-      InstructionWriter writer = context.InstructionWriter;
-      InstructionSequence sequence = block.MethodBody.CreateInstructionSequence();
-      block.AddInstructionSequence(sequence, NodePosition.Before, null);
-      writer.AttachInstructionSequence(sequence);
+      var writer = context.InstructionWriter;
+      var methodBody = block.MethodBody;
+      
+      var instructionSequence = methodBody.CreateInstructionSequence();
+      block.AddInstructionSequence( instructionSequence, NodePosition.Before, null );
+      writer.AttachInstructionSequence( instructionSequence );
 
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstructionField(OpCodeNumber.Ldsfld, AspectRuntimeInstanceField);
@@ -147,13 +173,14 @@ namespace Xtensive.Core.Weaver
 
     private void WeaveOnError(WeavingContext context, InstructionBlock block)
     {
-      InstructionWriter writer = context.InstructionWriter;
-      ModuleDeclaration module = block.Module;
-      MethodBodyDeclaration methodBody = block.MethodBody;
-      LocalVariableSymbol exceptionLocal = methodBody.RootInstructionBlock.DefineLocalVariable(module.Cache.GetType(typeof(Exception)), "~exception~{0}");
-      InstructionSequence sequence = methodBody.CreateInstructionSequence();
-      block.AddInstructionSequence(sequence, NodePosition.Before, null);
-      writer.AttachInstructionSequence(sequence);
+      var writer = context.InstructionWriter;
+      var module = block.Module;
+      var methodBody = block.MethodBody;
+      var exceptionLocal = methodBody.RootInstructionBlock.DefineLocalVariable(module.Cache.GetType(typeof(Exception)), "~exception~{0}");
+
+      var instructionSequence = methodBody.CreateInstructionSequence();
+      block.AddInstructionSequence( instructionSequence, NodePosition.Before, null );
+      writer.AttachInstructionSequence( instructionSequence );
 
       writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
       writer.EmitInstructionLocalVariable(OpCodeNumber.Stloc, exceptionLocal);
