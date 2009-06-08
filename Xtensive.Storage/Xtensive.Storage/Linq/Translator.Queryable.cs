@@ -426,9 +426,19 @@ namespace Xtensive.Storage.Linq
           var newItemProjector = groupingProjection.ItemProjector.Remap(newProvider.Result, 0);
           groupingProjection = new ProjectionExpression(groupingProjection.Type, newItemProjector, groupingProjection.ResultType, groupingProjection.TupleParameterBindings);
           context.Bindings.ReplaceBound(groupingParameter, groupingProjection);
-          return resultType!=columnType && !resultType.IsNullable()
-            ? Expression.Convert(ColumnExpression.Create(columnType, newProvider.Header.Length - 1).BindParameter(groupingParameter, new Dictionary<Expression, Expression>()), resultType)
-            : (Expression) ColumnExpression.Create(resultType, newProvider.Header.Length - 1).BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
+          var isSubqueryParameter = state.OuterParameters.Contains(groupingParameter);
+          if (resultType!=columnType && !resultType.IsNullable()) {
+            var columnExpression = ColumnExpression.Create(columnType, newProvider.Header.Length - 1);
+            if (isSubqueryParameter)
+              columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
+            return Expression.Convert(columnExpression, resultType);
+          }
+          else {
+            var columnExpression = ColumnExpression.Create(resultType, newProvider.Header.Length - 1);
+            if (isSubqueryParameter)
+              columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
+            return columnExpression;
+          }
         }
         return resultType!=columnType && !resultType.IsNullable()
           ? Expression.Convert(AddSubqueryColumn(columnType, dataSource), resultType)
