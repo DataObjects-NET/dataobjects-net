@@ -212,7 +212,7 @@ namespace Xtensive.Storage.Providers.PgSql
               millisececonds /= 10;
             }
             else
-              millisececonds = int.Parse(parts[3]);
+              millisececonds = int.Parse(parts[3].PadRight(3, '0'));
         }
       }
       
