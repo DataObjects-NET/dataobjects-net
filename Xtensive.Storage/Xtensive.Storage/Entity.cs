@@ -150,9 +150,9 @@ namespace Xtensive.Storage
     #region Protected event-like methods
 
     /// <inheritdoc/>
-    protected internal override bool SkipValidation
+    protected internal override bool CanBeValidated
     {
-      get { return IsRemoved; }
+      get { return !IsRemoved; }
     }
 
     /// <summary>

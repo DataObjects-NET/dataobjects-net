@@ -402,16 +402,16 @@ namespace Xtensive.Storage
     #region IValidationAware members
 
     /// <summary>
-    /// Gets a value indicating whether validation should be skipped for this entity.
+    /// Gets a value indicating whether validation can be performed for this entity.
     /// </summary>
     [Infrastructure]
-    protected internal abstract bool SkipValidation { get; }
+    protected internal abstract bool CanBeValidated { get; }
 
     /// <inheritdoc/>
     [Infrastructure]
     void IValidationAware.OnValidate()
     {
-      if (SkipValidation)
+      if (!CanBeValidated)
         return;
 
       this.CheckConstraints();

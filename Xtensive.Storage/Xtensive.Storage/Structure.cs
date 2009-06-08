@@ -72,8 +72,8 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/> 
-    protected internal override bool SkipValidation {
-      get { return !IsBoundToEntity; }
+    protected internal override bool CanBeValidated {
+      get { return IsBoundToEntity; }
     }
 
     internal override sealed void EnsureIsFetched(FieldInfo field)
@@ -94,7 +94,7 @@ namespace Xtensive.Storage
     internal sealed override void OnInitialize(bool notify)
     {
       base.OnInitialize();
-      if (!SkipValidation)
+      if (CanBeValidated)
         this.Validate();
     }
 
