@@ -120,4 +120,7 @@
   <data name="ExUnsupportedColumnType" xml:space="preserve">
     <value>Type {0} is not supported by current storage.</value>
   </data>
+  <data name="ExSequenceXIsNotFound" xml:space="preserve">
+    <value>Sequence '{0}' is not found in storage.</value>
+  </data>
 </root>

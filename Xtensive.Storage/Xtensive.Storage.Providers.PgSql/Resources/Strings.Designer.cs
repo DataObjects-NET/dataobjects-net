@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.Storage.Providers.PgSql.Resources {
-    using Metadata;
+    using System;
     
     
     /// <summary>
@@ -57,6 +57,15 @@ namespace Xtensive.Storage.Providers.PgSql.Resources {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sequence &apos;{0}&apos; is not found in storage..
+        /// </summary>
+        internal static string ExSequenceXIsNotFound {
+            get {
+                return ResourceManager.GetString("ExSequenceXIsNotFound", resourceCulture);
             }
         }
         

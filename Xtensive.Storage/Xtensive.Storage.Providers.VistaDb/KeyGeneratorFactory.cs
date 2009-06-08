@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Providers.VistaDb
       var genTable = schema.Tables.FirstOrDefault(t => t.Name == generatorInfo.MappingName);
       if (genTable == null)
         throw new DomainBuilderException(
-          string.Format("Can not find table '{0}' in storage.", generatorInfo.MappingName));
+          string.Format("Table '{0}' is not found in storage.", generatorInfo.MappingName));
       var column = genTable.Columns.FirstOrDefault(c => c.Name == "ID") as TableColumn;
       if (column == null)
         throw new DomainBuilderException(

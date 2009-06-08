@@ -26,35 +26,39 @@ using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
 using SqlDomain = Xtensive.Sql.Dom.Database.Domain;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
-using System.Text;
+using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
   /// Translates upgrade <see cref="NodeAction"/>s to Sql.
   /// </summary>
-  [Serializable]
   public sealed class SqlActionTranslator
   {
-    
+    private const string SubqueryAliasName = "th";
+    private const string TemporaryNameFormat = "Temp_{0}";
+    private const string SubqueryTableAliasNameFormat = "a{0}";
+    private const string ColumnTypePropertyName = "Type";
+
     private readonly bool buildDomainForTimeSpan;
     private readonly ActionSequence actions;
     private readonly Schema schema;
-
     private readonly SqlValueTypeMapper valueTypeMapper;
     private readonly StorageInfo sourceModel;
     private readonly StorageInfo targetModel;
     private readonly SqlDriver driver;
+    
     private readonly List<string> preUpgradeCommands = new List<string>();
     private readonly List<string> upgradeCommands = new List<string>();
     private readonly List<string> dataManipulateCommands = new List<string>();
     private readonly List<string> postUpgradeCommands = new List<string>();
     
+    private bool translated;
     private readonly List<Table> createdTables = new List<Table>();
     private readonly List<PropertyChangeAction> changeColumnTypeActions = new List<PropertyChangeAction>();
+    private readonly List<DataAction> clearDataActions = new List<DataAction>();
     private UpgradeStage stage;
-    private bool translated;
-
+    
     private bool IsSequencesAllowed
     {
       get { return driver.ServerInfo.Sequence.Features!=SequenceFeatures.None; }
@@ -122,6 +126,7 @@ namespace Xtensive.Storage.Providers.Sql
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.Prepare.ToString());
       if (prepare!=null)
         VisitAction(prepare);
+      ProcessClearDataActions();
       // Mutual renaming
       stage = UpgradeStage.TemporaryRename;
       var cycleRename = actions.OfType<GroupingNodeAction>()
@@ -250,6 +255,8 @@ namespace Xtensive.Storage.Providers.Sql
     
     # region Visit concrete action methods
 
+    /// <exception cref="InvalidOperationException">Can not create copy command 
+    /// with specific hint parameters.</exception>
     private void VisitCopyDataAction(DataAction action)
     {
       var hint = action.DataHint as CopyDataHint;
@@ -262,7 +269,7 @@ namespace Xtensive.Storage.Providers.Sql
           sourceModel.Resolve(pair.Source) as ColumnInfo,
           targetModel.Resolve(pair.Target) as ColumnInfo)).ToArray();
       if (copiedColumns.Length == 0 || identityColumns.Length == 0)
-        throw new InvalidOperationException("Incorrect command parameters.");
+        throw new InvalidOperationException(Resources.Strings.ExIncorrectCommandParameters);
 
       var fromTable = SqlFactory.TableRef(FindTable(copiedColumns[0].First.Parent.Name));
       var toTable = SqlFactory.TableRef(FindTable(copiedColumns[0].Second.Parent.Name));
@@ -270,7 +277,7 @@ namespace Xtensive.Storage.Providers.Sql
       var select = SqlFactory.Select(fromTable);
       identityColumns.Apply(pair => select.Columns.Add(fromTable[pair.First.Name]));
       copiedColumns.Apply(pair => select.Columns.Add(fromTable[pair.First.Name]));
-      var selectRef = SqlFactory.QueryRef(select, "th");
+      var selectRef = SqlFactory.QueryRef(select, SubqueryAliasName);
       
       var update = SqlFactory.Update(toTable);
       update.From = selectRef;
@@ -282,38 +289,12 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void VisitDeleteDataAction(DataAction action)
     {
-      var hint = action.DataHint as DeleteDataHint;
-      var soureTableInfo = sourceModel.Resolve(hint.SourceTablePath) as TableInfo;
-      var table = SqlFactory.TableRef(FindTable(soureTableInfo.Name));
-      var delete = SqlFactory.Delete(table);
-      
-      delete.Where = CreateConditionalExpression(hint, table);
-
-      RegisterCommand(delete);
+      clearDataActions.Add(action);
     }
 
     private void VisitUpdateDataAction(DataAction action)
     {
-      var hint = action.DataHint as  UpdateDataHint;
-      var soureTableInfo = sourceModel.Resolve(hint.SourceTablePath) as TableInfo;
-      var table = SqlFactory.TableRef(FindTable(soureTableInfo.Name));
-      var update = SqlFactory.Update(table);
-
-      var updatedColumns = hint.UpdateParameter
-        .Select(pair => new Pair<ColumnInfo, object>(
-          sourceModel.Resolve(pair.First) as ColumnInfo,
-          pair.Second)).ToArray();
-      if (updatedColumns.Length==0)
-          throw new InvalidOperationException("Incorrect command parameters.");
-      foreach (var pair in updatedColumns)
-        if (pair.Second==null)
-          update.Values[table[pair.First.Name]] = SqlFactory.DefaultValue;
-        else
-          update.Values[table[pair.First.Name]] = SqlFactory.Literal(pair.Second);
-
-      update.Where = CreateConditionalExpression(hint, table);
-      
-      RegisterCommand(update);
+      clearDataActions.Add(action);
     }
 
     private void VisitCreateTableAction(CreateNodeAction action)
@@ -375,7 +356,8 @@ namespace Xtensive.Storage.Providers.Sql
       var column = FindColumn(table, columnInfo.Name);
       if (column.DefaultValue!=null) {
         var constraint = table.TableConstraints
-          .OfType<DefaultConstraint>().FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
+          .OfType<DefaultConstraint>()
+          .FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
         if (constraint!=null)
           RegisterCommand(SqlFactory.Alter(table,
             SqlFactory.DropConstraint(constraint)));
@@ -391,7 +373,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (isNewlyCreatedColumn)
         return; // Properties already initilized
 
-      if (!action.Properties.ContainsKey("Type"))
+      if (!action.Properties.ContainsKey(ColumnTypePropertyName))
         return;
       
       changeColumnTypeActions.Add(action);
@@ -551,6 +533,63 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
+    private void ProcessClearDataActions()
+    {
+      var updateActions = clearDataActions.Where(action => action.DataHint is UpdateDataHint).ToList();
+
+      var deleteFromConnectorTableActions = new List<DataAction>();
+      var deleteFromAncestorTableActions = new List<DataAction>();
+
+      foreach (var deleteAction in clearDataActions.Where(action=>action.DataHint is DeleteDataHint)) {
+        var hint = deleteAction.DataHint as DeleteDataHint;
+        if (hint.Identities.Any(pair => !pair.IsIdentifiedByConstant))
+          deleteFromConnectorTableActions.Add(deleteAction);
+        else
+          deleteFromAncestorTableActions.Add(deleteAction);
+      }
+      updateActions.Apply(ProcessUpdateDataAction);
+      deleteFromConnectorTableActions.Apply(ProcessDeleteDataAction);
+      deleteFromAncestorTableActions.Apply(ProcessDeleteDataAction);
+    }
+
+    private void ProcessDeleteDataAction(DataAction action)
+    {
+      var hint = action.DataHint as DeleteDataHint;
+      var soureTableInfo = sourceModel.Resolve(hint.SourceTablePath) as TableInfo;
+      var table = SqlFactory.TableRef(FindTable(soureTableInfo.Name));
+      var delete = SqlFactory.Delete(table);
+      
+      delete.Where = CreateConditionalExpression(hint, table);
+
+      RegisterCommand(delete, UpgradeStage.Prepare);
+    }
+
+    /// <exception cref="InvalidOperationException">Can not create update command 
+    /// with specific hint parameters.</exception>
+    private void ProcessUpdateDataAction(DataAction action)
+    {
+      var hint = action.DataHint as  UpdateDataHint;
+      var soureTableInfo = sourceModel.Resolve(hint.SourceTablePath) as TableInfo;
+      var table = SqlFactory.TableRef(FindTable(soureTableInfo.Name));
+      var update = SqlFactory.Update(table);
+
+      var updatedColumns = hint.UpdateParameter
+        .Select(pair => new Pair<ColumnInfo, object>(
+          sourceModel.Resolve(pair.First) as ColumnInfo,
+          pair.Second)).ToArray();
+      if (updatedColumns.Length==0)
+        throw new InvalidOperationException(Resources.Strings.ExIncorrectCommandParameters);
+      foreach (var pair in updatedColumns)
+        if (pair.Second==null)
+          update.Values[table[pair.First.Name]] = SqlFactory.DefaultValue;
+        else
+          update.Values[table[pair.First.Name]] = SqlFactory.Literal(pair.Second);
+
+      update.Where = CreateConditionalExpression(hint, table);
+      
+      RegisterCommand(update, UpgradeStage.Prepare);
+    }
+
     private void GenerateChangeColumnTypeCommands(PropertyChangeAction action)
     {
       var targetColumn = targetModel.Resolve(action.Path) as ColumnInfo;
@@ -566,7 +605,7 @@ namespace Xtensive.Storage.Providers.Sql
       RenameSchemaColumn(column, tempName);
 
       // Create new columns
-      var newTypeInfo = action.Properties["Type"] as TypeInfo;
+      var newTypeInfo = action.Properties[ColumnTypePropertyName] as TypeInfo;
       var type = GetSqlType(newTypeInfo);
       var newColumn = table.CreateColumn(originalName, type);
       newColumn.IsNullable = newTypeInfo.IsNullable;
@@ -596,8 +635,7 @@ namespace Xtensive.Storage.Providers.Sql
       RegisterCommand(removeOldColumn, UpgradeStage.Cleanup);
       column.Table.TableColumns.Remove(column);
     }
-
-
+    
     # endregion
 
     # region Helper methods
@@ -646,7 +684,8 @@ namespace Xtensive.Storage.Providers.Sql
       return
         table.CreatePrimaryKey(tableInfo.PrimaryIndex.Name,
           tableInfo.PrimaryIndex.KeyColumns
-            .Select(cr => FindColumn(table, cr.Value.Name)).ToArray());
+            .Select(cr => FindColumn(table, cr.Value.Name))
+            .ToArray());
     }
 
     private Index CreateSecondaryIndex(Table table, SecondaryIndexInfo indexInfo)
@@ -717,10 +756,10 @@ namespace Xtensive.Storage.Providers.Sql
 
     private string GetTemporaryName(TableColumn column)
     {
-      var tempName = string.Format("Temp_{0}", column.Name);
+      var tempName = string.Format(TemporaryNameFormat, column.Name);
       var counter = 0;
       while (column.Table.Columns.Any(tableColumn=>tableColumn.Name==tempName))
-        tempName = string.Format("Temp_{0}", column.Name + ++counter);
+        tempName = string.Format(TemporaryNameFormat, column.Name + ++counter);
 
       return tempName;
     }
@@ -767,7 +806,9 @@ namespace Xtensive.Storage.Providers.Sql
         return SqlRefAction.Restrict;
       }
     }
-    
+
+    /// <exception cref="InvalidOperationException">Can not create expression 
+    /// with specific hint parameters.</exception>
     private SqlExpression CreateConditionalExpression(DataHint hint, SqlTableRef table)
     {
       if (hint.Identities.Any(pair => !pair.IsIdentifiedByConstant)) {
@@ -784,15 +825,17 @@ namespace Xtensive.Storage.Providers.Sql
         var selectColumns = identityColumnPairs.Select(columnPair => columnPair.First)
           .Concat(identityConstantPairs.Select(constantPair => constantPair.First)).ToArray();
         if (selectColumns.Count() == 0)
-          throw new InvalidOperationException("Incorrect command parameters.");
+          throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
 
-        var identifiedTable = SqlFactory.TableRef(FindTable(selectColumns[0].Parent.Name));
-        var select = SqlFactory.Select(identifiedTable);
-        selectColumns.Apply(column => select.Columns.Add(identifiedTable[column.Name]));
+        var identifiedTable = FindTable(selectColumns[0].Parent.Name);
+        var identifiedTableRef = SqlFactory.TableRef(identifiedTable, 
+          string.Format(SubqueryTableAliasNameFormat, identifiedTable.Name));
+        var select = SqlFactory.Select(identifiedTableRef);
+        selectColumns.Apply(column => select.Columns.Add(identifiedTableRef[column.Name]));
         identityColumnPairs.Apply(pair =>
-          select.Where &= identifiedTable[pair.First.Name]==table[pair.Second.Name]);
+          select.Where &= identifiedTableRef[pair.First.Name]==table[pair.Second.Name]);
         identityConstantPairs.Apply(pair =>
-          select.Where &= identifiedTable[pair.First.Name]==SqlFactory.Literal(pair.Second));
+          select.Where &= identifiedTableRef[pair.First.Name]==SqlFactory.Literal(pair.Second));
         return SqlFactory.Exists(select);
       }
       else {
@@ -802,9 +845,10 @@ namespace Xtensive.Storage.Providers.Sql
               sourceModel.Resolve(pair.Source) as ColumnInfo,
               pair.Target)).ToArray();
         if (identityConstantPairs.Count() == 0)
-          throw new InvalidOperationException("Incorrect command parameters.");
+          throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
         SqlExpression expression = null;
-        identityConstantPairs.Apply(pair => expression &= table[pair.First.Name]==SqlFactory.Literal(pair.Second));
+        identityConstantPairs.Apply(pair => 
+          expression &= table[pair.First.Name]==SqlFactory.Literal(pair.Second));
         return expression;
       }
     }

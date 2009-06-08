@@ -174,4 +174,16 @@
   <data name="ExTypeXIsNotSupported" xml:space="preserve">
     <value>Type '{0}' is not supported.</value>
   </data>
+  <data name="ExTableXIsNotFound" xml:space="preserve">
+    <value>Table '{0}' is not found in storage.</value>
+  </data>
+  <data name="ExColumnXIsNotFoundInTableY" xml:space="preserve">
+    <value>Column '{0}' is not found in table '{1}'.</value>
+  </data>
+  <data name="ExIndexXIsNotFound" xml:space="preserve">
+    <value>Index '{0}' is not found.</value>
+  </data>
+  <data name="ExIncorrectCommandParameters" xml:space="preserve">
+    <value>Incorrect command parameters.</value>
+  </data>
 </root>

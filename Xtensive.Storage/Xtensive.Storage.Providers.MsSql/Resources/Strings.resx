@@ -123,4 +123,10 @@
   <data name="ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider" xml:space="preserve">
     <value>The ordering of records is not specified for RowNumberProvider.</value>
   </data>
+  <data name="ExTableXIsNotFound" xml:space="preserve">
+    <value>Table '{0}' is not found in storage.</value>
+  </data>
+  <data name="ExColumnXIsNotFoundInTableY" xml:space="preserve">
+    <value>Column '{0}' is not found in table '{1}'.</value>
+  </data>
 </root>

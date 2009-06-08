@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Storage.Model;
-using Xtensive.Sql.Dom;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -24,12 +23,12 @@ namespace Xtensive.Storage.Providers.Sql
       var generatorTypeCode = Type.GetTypeCode(generatorInfo.TupleDescriptor[0]);
       return generatorTypeCode==TypeCode.SByte
         || generatorTypeCode==TypeCode.Byte
-          || generatorTypeCode==TypeCode.Int16
-            || generatorTypeCode==TypeCode.UInt16
-              || generatorTypeCode==TypeCode.Int32
-                || generatorTypeCode==TypeCode.UInt32
-                  || generatorTypeCode==TypeCode.Int64
-                    || generatorTypeCode==TypeCode.UInt64;
+        || generatorTypeCode==TypeCode.Int16
+        || generatorTypeCode==TypeCode.UInt16
+        || generatorTypeCode==TypeCode.Int32
+        || generatorTypeCode==TypeCode.UInt32
+        || generatorTypeCode==TypeCode.Int64
+        || generatorTypeCode==TypeCode.UInt64;
     }
   }
 }

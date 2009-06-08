@@ -472,9 +472,10 @@ namespace Xtensive.Storage.Upgrade
           GetColumnPath(updatedType.MappingName, pair.Second),
           GetColumnPath(removedType.MappingName, pair.First), false))
         .ToList();
-      identities.Add(new IdentityPair(
-        GetColumnPath(removedType.MappingName, GetTypeIdMappingName(removedType)),
-        removedType.TypeId.ToString(), true));
+      if (removedType.Hierarchy.Schema!=InheritanceSchema.ConcreteTable)
+        identities.Add(new IdentityPair(
+          GetColumnPath(removedType.MappingName, GetTypeIdMappingName(removedType)),
+          removedType.TypeId.ToString(), true));
       var updatedColumns = pairedIdentityColumns.Select(pair =>
         new Pair<string, object>(GetColumnPath(updatedType.MappingName, pair.Second), null))
         .ToList();

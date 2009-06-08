@@ -4,14 +4,11 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.10
 
-using System;
 using System.Linq;
 using Xtensive.Sql.Dom.Database;
-using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
-using Xtensive.Sql.Dom;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
@@ -20,6 +17,8 @@ namespace Xtensive.Storage.Providers.MsSql
   /// </summary>
   public sealed class KeyGeneratorFactory : Sql.KeyGeneratorFactory
   {
+    private const string ScopeIdentityFunctionName = "SCOPE_IDENTITY";
+
     /// <inheritdoc/>
     /// <exception cref="DomainBuilderException"><c>DomainBuilderException</c>.</exception>
     protected override KeyGenerator CreateGenerator<TFieldType>(GeneratorInfo generatorInfo)
@@ -31,17 +30,17 @@ namespace Xtensive.Storage.Providers.MsSql
       var genTable = schema.Tables.FirstOrDefault(t => t.Name==generatorInfo.MappingName);
       if (genTable==null)
         throw new DomainBuilderException(
-          string.Format("Can not find table '{0}' in storage.", generatorInfo.MappingName));
+          string.Format(Resources.Strings.ExTableXIsNotFound, generatorInfo.MappingName));
       var column = genTable.Columns.FirstOrDefault(c => c.Name==SqlWellknown.GeneratorColumnName) as TableColumn;
       if (column==null)
         throw new DomainBuilderException(
-          string.Format("Can not find column '{0}' in table '{1}'.", SqlWellknown.GeneratorColumnName, genTable.Name));
+          string.Format(Resources.Strings.ExColumnXIsNotFoundInTableY, SqlWellknown.GeneratorColumnName, genTable.Name));
 
-      SqlBatch sqlNext = SqlFactory.Batch();
-      SqlInsert insert = SqlFactory.Insert(SqlFactory.TableRef(genTable));
+      var sqlNext = SqlFactory.Batch();
+      var insert = SqlFactory.Insert(SqlFactory.TableRef(genTable));
       sqlNext.Add(insert);
-      SqlSelect select = SqlFactory.Select();
-      select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall("SCOPE_IDENTITY"), columnType.DataType));
+      var select = SqlFactory.Select();
+      select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall(ScopeIdentityFunctionName), columnType.DataType));
       sqlNext.Add(select);
       return new SqlCachingKeyGenerator<TFieldType>(generatorInfo, sqlNext);
     }

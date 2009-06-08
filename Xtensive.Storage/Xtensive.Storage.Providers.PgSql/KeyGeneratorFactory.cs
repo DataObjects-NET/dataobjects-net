@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.PgSql
       var sequence = schema.Sequences.FirstOrDefault(s => s.Name==generatorInfo.MappingName);
       if (sequence==null)
         throw new DomainBuilderException(
-          string.Format("Can not find sequence '{0}' in storage.", generatorInfo.MappingName));
+          string.Format(Resources.Strings.ExSequenceXIsNotFound, generatorInfo.MappingName));
       dh.ValueTypeMapper.BuildSqlValueType(generatorInfo.TupleDescriptor[0], 0);
       
       var sqlNext = SqlFactory.Select();

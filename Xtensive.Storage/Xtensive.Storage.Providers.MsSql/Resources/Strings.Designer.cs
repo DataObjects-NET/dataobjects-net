@@ -61,11 +61,29 @@ namespace Xtensive.Storage.Providers.MsSql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Column &apos;{0}&apos; is not found in table &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExColumnXIsNotFoundInTableY {
+            get {
+                return ResourceManager.GetString("ExColumnXIsNotFoundInTableY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The ordering of records is not specified for RowNumberProvider..
         /// </summary>
         internal static string ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider {
             get {
                 return ResourceManager.GetString("ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Table &apos;{0}&apos; is not found in storage..
+        /// </summary>
+        internal static string ExTableXIsNotFound {
+            get {
+                return ResourceManager.GetString("ExTableXIsNotFound", resourceCulture);
             }
         }
         

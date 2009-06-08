@@ -61,6 +61,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Column &apos;{0}&apos; is not found in table &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExColumnXIsNotFoundInTableY {
+            get {
+                return ResourceManager.GetString("ExColumnXIsNotFoundInTableY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enumeration is already finished..
         /// </summary>
         internal static string ExEnumerationIsAlreadyFinished {
@@ -97,11 +106,29 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Incorrect command parameters..
+        /// </summary>
+        internal static string ExIncorrectCommandParameters {
+            get {
+                return ResourceManager.GetString("ExIncorrectCommandParameters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Index &apos;{0}&apos; is changed..
         /// </summary>
         internal static string ExIndexIsChanged {
             get {
                 return ResourceManager.GetString("ExIndexIsChanged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Index &apos;{0}&apos; is not found..
+        /// </summary>
+        internal static string ExIndexXIsNotFound {
+            get {
+                return ResourceManager.GetString("ExIndexXIsNotFound", resourceCulture);
             }
         }
         
@@ -156,6 +183,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         internal static string ExReaderIsNotInConsistentState {
             get {
                 return ResourceManager.GetString("ExReaderIsNotInConsistentState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Table &apos;{0}&apos; is not found in storage..
+        /// </summary>
+        internal static string ExTableXIsNotFound {
+            get {
+                return ResourceManager.GetString("ExTableXIsNotFound", resourceCulture);
             }
         }
         

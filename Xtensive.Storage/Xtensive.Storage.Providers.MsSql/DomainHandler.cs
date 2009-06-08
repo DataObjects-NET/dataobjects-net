@@ -15,6 +15,9 @@ using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
+  /// <summary>
+  /// A domain handler specific to MSSql RDBMS.
+  /// </summary>
   public class DomainHandler : Sql.DomainHandler
   {
     /// <inheritdoc/>
@@ -29,6 +32,7 @@ namespace Xtensive.Storage.Providers.MsSql
         );
     }
 
+    /// <inheritdoc/>
     protected override ICompiler CreateCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
     {
       return new MsSqlCompiler(Handlers, compiledSources);
