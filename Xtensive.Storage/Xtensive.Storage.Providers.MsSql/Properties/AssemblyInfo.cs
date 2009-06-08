@@ -40,7 +40,6 @@ using System.Security.Permissions;
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
 
 #if XTENSIVEBUILD
-[assembly: AssemblyKeyFile(@"..\..\..\Lib\Key.snk")]
 [assembly: InternalsVisibleTo("Xtensive.Storage.Tests, PublicKey=" + 
 "0024000004800000940000000602000000240000525341310004000001000100fbdd689d62e9c6" +
 "7bb6356267f95e0b58d478cf56393c4f060fbaff42a9686272e37009ab71bfa2e41046e952f389" +
