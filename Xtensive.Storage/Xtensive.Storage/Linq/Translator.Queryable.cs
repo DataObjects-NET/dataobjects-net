@@ -427,8 +427,8 @@ namespace Xtensive.Storage.Linq
           groupingProjection = new ProjectionExpression(groupingProjection.Type, newItemProjector, groupingProjection.ResultType, groupingProjection.TupleParameterBindings);
           context.Bindings.ReplaceBound(groupingParameter, groupingProjection);
           return resultType!=columnType && !resultType.IsNullable()
-            ? Expression.Convert(ColumnExpression.Create(columnType, newProvider.Header.Length - 1), resultType)
-            : (Expression) ColumnExpression.Create(resultType, newProvider.Header.Length - 1);
+            ? Expression.Convert(ColumnExpression.Create(columnType, newProvider.Header.Length - 1).BindParameter(groupingParameter, new Dictionary<Expression, Expression>()), resultType)
+            : (Expression) ColumnExpression.Create(resultType, newProvider.Header.Length - 1).BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
         }
         return resultType!=columnType && !resultType.IsNullable()
           ? Expression.Convert(AddSubqueryColumn(columnType, dataSource), resultType)
