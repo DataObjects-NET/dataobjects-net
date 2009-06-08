@@ -60,19 +60,20 @@ namespace Xtensive.Storage.Linq.Materialization
     public static IEnumerable<TResult> Materialize<TResult>(RecordSet rs, MaterializationContext context, Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer, IDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
     {
       ParameterContext ctx;
-      Session session;
-      using (new ParameterContext().Activate()) {
-        ctx = ParameterContext.Current;
-        foreach (var tupleParameterBinding in tupleParameterBindings)
-          tupleParameterBinding.Key.Value = tupleParameterBinding.Value;
-        session = Session.Demand();
+      var session = Session.Demand();
+      using (session.OpenTransaction(true)) {
+        using (new ParameterContext().Activate()) {
+          ctx = ParameterContext.Current;
+          foreach (var tupleParameterBinding in tupleParameterBindings)
+            tupleParameterBinding.Key.Value = tupleParameterBinding.Value;
+        }
+        ParameterScope scope = null;
+        var batched = rs.Select(tuple => itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, session))).Batch(2)
+          .ApplyBeforeAndAfter(() => scope = ctx.Activate(), () => scope.DisposeSafely());
+        foreach (var batch in batched)
+          foreach (var result in batch)
+            yield return result;
       }
-      ParameterScope scope = null;
-      var batched = rs.Select(tuple=>itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, session))).Batch(2)
-        .ApplyBeforeAndAfter(() => scope = ctx.Activate(), () => scope.DisposeSafely());
-      foreach (var batch in batched)
-        foreach (var result in batch)
-          yield return result;
     }
 
     public static Func<Tuple, ItemMaterializationContext, TResult> CompileItemMaterializer<TResult>(Expression<Func<Tuple, ItemMaterializationContext, TResult>> itemMaterializerLambda)

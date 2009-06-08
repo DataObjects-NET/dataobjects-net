@@ -6,8 +6,13 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
+using PostSharp.Laos;
 using Xtensive.Core;
+using Xtensive.Core.Aspects;
+using Xtensive.Core.Aspects.Helpers;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Integrity.Validation;
@@ -34,11 +39,53 @@ namespace Xtensive.Integrity.Tests
       }
     }
 
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = true, Inherited = false)]
+    [Serializable]
+    internal class LogMethodFastAspect : ReprocessMethodBoundaryAspect, ILaosWeavableAspect
+    {
+      public MethodBase Method { get; private set; }
+
+      public int AspectPriority
+      {
+        get { return -200000; }
+      }
+
+      public override object OnEntry(object instance)
+      {
+        Log.Info("OnEntry called on {0}.", Method.GetShortName(true));
+        return "OnEntry";
+      }
+
+      public override void OnExit(object instance, object onEntryResult)
+      {
+        Log.Info("OnExit called.");
+        Log.Info(string.Format("OnEntry result: {0}", onEntryResult));
+      }
+
+      public override void OnSuccess(object instance, object onEntryResult)
+      {
+        Log.Info("OnSuccess called.");
+      }
+
+      public override ErrorFlowBehavior OnError(object instance, Exception e)
+      {
+        Log.Error(e);
+        return ErrorFlowBehavior.Reprocess;
+      }
+
+      public override void RuntimeInitialize(MethodBase method)
+      {
+        Method = method;
+        Log.Info("RuntimeInitialize for {0}.", method.GetShortName(true));
+      }
+    }
+
     internal class Person : ValidatableObject
     {
+      [Trace]
       [NotNullOrEmptyConstraint]
       [LengthConstraint(Max = 20, Mode = ValidationMode.Immediate)]
-      public string Name { get; set;}
+      public string Name { [LogMethodFastAspect] get; [LogMethodFastAspect] set;}
 
       [RangeConstraint(Min = 0, Message = "Incorrect age ({value}), age can not be less than {Min}.")]
       public int Age { get; set;}
