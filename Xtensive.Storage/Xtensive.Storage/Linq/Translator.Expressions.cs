@@ -130,12 +130,14 @@ namespace Xtensive.Storage.Linq
         return VisitBinaryRecursive(resultBinaryExpression);
 
       if (binaryExpression.NodeType ==ExpressionType.ArrayIndex) {
-        var visitedArrayIndex = Expression.ArrayIndex(left, right);
-        var expressionEvaluator = new ExpressionEvaluator(visitedArrayIndex);
-        if (expressionEvaluator.CanBeEvaluated(visitedArrayIndex))
-          return expressionEvaluator.Evaluate(visitedArrayIndex);
-        throw new NotSupportedException("Only constant array expressions supported.");
+        var newArrayExpression = left.StripCasts() as NewArrayExpression;
+        var indexExpression = right.StripCasts() as ConstantExpression;
+        if (newArrayExpression!=null && indexExpression!=null && indexExpression.Type==typeof (int))
+          return newArrayExpression.Expressions[(int) indexExpression.Value];
+
+        throw new NotSupportedException();
       }
+
       return resultBinaryExpression;
     }
 

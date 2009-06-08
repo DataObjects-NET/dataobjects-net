@@ -685,6 +685,15 @@ namespace Xtensive.Storage.Tests.Linq
 
 
     [Test]
+    public void GroupByWithEntityResultSelector5Bis212Test()
+    {
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .Select(g => new {Count = new {Count1 = g.Count(), Count2 = g.Count()}});
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void GroupByWithEntityResultSelector5Bis21Test()
     {
       var result = Query<Order>.All

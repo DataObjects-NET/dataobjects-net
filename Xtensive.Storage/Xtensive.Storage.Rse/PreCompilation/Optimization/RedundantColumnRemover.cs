@@ -347,6 +347,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
           }
           foreach (int index in aggregateProvider.GroupColumnIndexes)
             groupIndexes.Add(sourceMap.IndexOf(index));
+          mappings[aggregateProvider] = aggregateProvider.Header.Columns.Select(c => c.Index).ToList();
           return new Pair<int[], AggregateColumnDescriptor[]>(groupIndexes.ToArray(), columns.ToArray());
         }
         case ProviderType.Sort: {

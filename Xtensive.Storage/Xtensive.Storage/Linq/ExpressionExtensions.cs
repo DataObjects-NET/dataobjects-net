@@ -67,6 +67,11 @@ namespace Xtensive.Storage.Linq
       return (ExtendedExpressionType)expression.NodeType == ExtendedExpressionType.EntitySet;
     }
 
+    public static bool IsGrouping(this Expression expression)
+    {
+      return expression.Type.IsOfGenericInterface(typeof(IGrouping<,>));
+    }
+
     public static bool IsGroupingProjection(this Expression expression)
     {
       return (ExtendedExpressionType)expression.NodeType==ExtendedExpressionType.Grouping;

@@ -410,18 +410,32 @@ namespace Xtensive.Storage.Linq
         aggregateColumn = columnList[0];
       }
 
-      var dataSource = innerProjection.ItemProjector.DataSource
-        .Aggregate(null, new AggregateColumnDescriptor(context.GetNextColumnAlias(), aggregateColumn, aggregateType));
 
+      var aggregateColumnDescriptor = new AggregateColumnDescriptor(context.GetNextColumnAlias(), aggregateColumn, aggregateType);
+      var dataSource = innerProjection.ItemProjector.DataSource
+        .Aggregate(null, aggregateColumnDescriptor);
       var resultType = method.ReturnType;
       var columnType = dataSource.Header.TupleDescriptor[0];
       if (!isRoot) {
-        return resultType != columnType && !resultType.IsNullable()
+        if (source.IsGrouping() && source is ParameterExpression) {
+          var groupingParameter = (ParameterExpression) source;
+          var groupingProjection = context.Bindings[groupingParameter];
+          var groupingDataSource = groupingProjection.ItemProjector.DataSource;
+          var groupingProvider = ((AggregateProvider) groupingDataSource.Provider);
+          var newProvider = new AggregateProvider(groupingProvider.Source, groupingProvider.GroupColumnIndexes, groupingProvider.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateColumnDescriptor).ToArray());
+          var newItemProjector = groupingProjection.ItemProjector.Remap(newProvider.Result, 0);
+          groupingProjection = new ProjectionExpression(groupingProjection.Type, newItemProjector, groupingProjection.ResultType, groupingProjection.TupleParameterBindings);
+          context.Bindings.ReplaceBound(groupingParameter, groupingProjection);
+          return resultType!=columnType && !resultType.IsNullable()
+            ? Expression.Convert(ColumnExpression.Create(columnType, newProvider.Header.Length - 1), resultType)
+            : (Expression) ColumnExpression.Create(resultType, newProvider.Header.Length - 1);
+        }
+        return resultType!=columnType && !resultType.IsNullable()
           ? Expression.Convert(AddSubqueryColumn(columnType, dataSource), resultType)
           : AddSubqueryColumn(method.ReturnType, dataSource);
       }
 
-      var projectorBody = resultType != columnType && !resultType.IsNullable()
+      var projectorBody = resultType!=columnType && !resultType.IsNullable()
         ? Expression.Convert(ColumnExpression.Create(columnType, 0), resultType)
         : (Expression) ColumnExpression.Create(resultType, 0);
 
@@ -447,7 +461,7 @@ namespace Xtensive.Storage.Linq
 
       var keyColumns = keyProjection.ItemProjector.GetColumns(ColumnExtractionModes.KeepSegment
         | ColumnExtractionModes.TreatEntityAsKey
-        | ColumnExtractionModes.KeepTypeId)
+          | ColumnExtractionModes.KeepTypeId)
         .ToArray();
       var keyDataSource = keyProjection.ItemProjector.DataSource.Aggregate(keyColumns);
       var remappedKeyItemProjector = keyProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, keyColumns);
@@ -482,8 +496,8 @@ namespace Xtensive.Storage.Linq
 
       var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, elementSelector, new Segment<int>(0, keyColumns.Length), false);
       var groupingItemProjector = new ItemProjectorExpression(groupingExpression, keyDataSource);
-      var returnType = resultSelector==null 
-        ? method.ReturnType 
+      var returnType = resultSelector==null
+        ? method.ReturnType
         : resultSelector.Parameters[1].Type;
       var resultProjection = new ProjectionExpression(returnType, groupingItemProjector, VisitSequence(source).TupleParameterBindings);
 

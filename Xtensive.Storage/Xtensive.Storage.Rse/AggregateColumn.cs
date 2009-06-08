@@ -30,6 +30,11 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     public int SourceIndex { get; private set; }
 
+    /// <summary>
+    /// Gets column descriptor.
+    /// </summary>
+    public AggregateColumnDescriptor Descriptor { get; private set; }
+
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -63,6 +68,7 @@ namespace Xtensive.Storage.Rse
     {
       AggregateType = descriptor.AggregateType;
       SourceIndex = descriptor.SourceIndex;
+      Descriptor = descriptor;
     }
 
     #region Clone constructors

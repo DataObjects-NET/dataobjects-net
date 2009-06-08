@@ -149,6 +149,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [Ignore("Not supported")]
     public void ArrayAggregateAccessTest()
     {
       var result = Query<Customer>.All
@@ -165,6 +166,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [Ignore("Not supported")]
     public void ArrayExpressionIndexAccessTest()
     {
       var bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
