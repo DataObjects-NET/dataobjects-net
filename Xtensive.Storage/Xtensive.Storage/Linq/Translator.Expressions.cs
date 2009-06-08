@@ -128,6 +128,14 @@ namespace Xtensive.Storage.Linq
       if (binaryExpression.NodeType == ExpressionType.Equal 
         || binaryExpression.NodeType == ExpressionType.NotEqual)
         return VisitBinaryRecursive(resultBinaryExpression);
+
+      if (binaryExpression.NodeType ==ExpressionType.ArrayIndex) {
+        var visitedArrayIndex = Expression.ArrayIndex(left, right);
+        var expressionEvaluator = new ExpressionEvaluator(visitedArrayIndex);
+        if (expressionEvaluator.CanBeEvaluated(visitedArrayIndex))
+          return expressionEvaluator.Evaluate(visitedArrayIndex);
+        throw new NotSupportedException("Only constant array expressions supported.");
+      }
       return resultBinaryExpression;
     }
 
