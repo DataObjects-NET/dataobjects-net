@@ -20,28 +20,30 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ParameterTest()
     {
+      var expectedCount = Query<Order>.All.Count();
       var result = Query<Customer>.All
         .SelectMany(i => i.Orders.Select(t => i));
-      QueryDumper.Dump(result);
+      Assert.AreEqual(expectedCount, result.Count());
+      foreach (var customer in result)
+        Assert.IsNotNull(customer);
     }
 
     [Test]
     public void EntitySetDefaultIfEmptyTest()
     {
-      int expected =
-        Query<Order>.All.Count() +
-          Query<Customer>.All.Count(c => !Query<Order>.All.Any(o => o.Customer == c));
+      int expectedCount =
+        Query<Order>.All.Count() + Query<Customer>.All.Count(c => !Query<Order>.All.Any(o => o.Customer == c));
       IQueryable<Order> result = Query<Customer>.All.SelectMany(c => c.Orders.DefaultIfEmpty());
-      Assert.AreEqual(expected, result.ToList().Count);
+      Assert.AreEqual(expectedCount, result.ToList().Count);
     }
 
     [Test]
     public void EntitySetSubqueryTest()
     {
-      int expected = Query<Order>.All.Count(o => o.Employee.FirstName.StartsWith("A"));
+      int expectedCount = Query<Order>.All.Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => c.Orders.Where(o => o.Employee.FirstName.StartsWith("A")));
-      Assert.AreEqual(expected, result.ToList().Count);
+      Assert.AreEqual(expectedCount, result.ToList().Count);
     }
 
     [Test]
@@ -102,6 +104,11 @@ namespace Xtensive.Storage.Tests.Linq
                    select new { c.ContactName, o };
       var list = result.ToList();
       Assert.AreEqual(assertCount, list.Count);
+      foreach (var item in result) {
+        Assert.IsNotNull(item);
+        Assert.IsNotNull(item.ContactName);
+        Assert.IsNotNull(item.o);
+      }
       QueryDumper.Dump(list);
     }
 

@@ -586,11 +586,11 @@ namespace Xtensive.Storage.Linq
         var outer = context.Bindings[outerParameter];
         var inner = context.Bindings[innerParameter];
         var recordSet = outer.ItemProjector.DataSource.Join(inner.ItemProjector.DataSource.Alias(context.GetNextAlias()), keyPairs);
-        return CombineResultExpressions(outer, inner, recordSet, resultSelector);
+        return CombineProjections(outer, inner, recordSet, resultSelector);
       }
     }
 
-    private ProjectionExpression CombineResultExpressions(ProjectionExpression outer, ProjectionExpression inner,
+    private ProjectionExpression CombineProjections(ProjectionExpression outer, ProjectionExpression inner,
       RecordSet recordSet, LambdaExpression resultSelector)
     {
       var outerDataSource = outer.ItemProjector.DataSource;
@@ -624,7 +624,7 @@ namespace Xtensive.Storage.Linq
 //        var outer = context.Bindings[outerParameter];
 //        var inner = context.Bindings[innerParameter];
 //        var recordSet = outer.RecordSet.Join(inner.RecordSet.Alias(context.GetNextAlias()), keyPairs);
-//        return CombineResultExpressions(outer, inner, recordSet, resultSelector);
+//        return CombineProjections(outer, inner, recordSet, resultSelector);
 //      }
       throw new NotImplementedException();
     }
@@ -651,7 +651,7 @@ namespace Xtensive.Storage.Linq
             .ToArray();
           state.Parameters = ArrayUtils<ParameterExpression>.EmptyArray;
           var projection = VisitSequence(collectionSelector.Body);
-          var innerItemProjector = projection.ItemProjector.RemoveOuterParameter();
+          var innerItemProjector = projection.ItemProjector;
           if (isOuter)
             innerItemProjector = innerItemProjector.SetDefaultIfEmpty();
           innerProjection = new ProjectionExpression(projection.Type, innerItemProjector, projection.ResultType, projection.TupleParameterBindings);
@@ -665,7 +665,10 @@ namespace Xtensive.Storage.Linq
           var innerParameter = Expression.Parameter(SequenceHelper.GetElementType(collectionSelector.Body.Type), "inner");
           resultSelector = FastExpression.Lambda(innerParameter, outerParameter, innerParameter);
         }
-        return CombineResultExpressions(outerProjection, innerProjection, recordSet, resultSelector);
+        var resultProjection = CombineProjections(outerProjection, innerProjection, recordSet, resultSelector);
+        var resultItemProjector = resultProjection.ItemProjector.RemoveOuterParameter();
+        resultProjection = new ProjectionExpression(resultProjection.Type, resultItemProjector, resultProjection.ResultType, resultProjection.TupleParameterBindings);
+        return resultProjection;
       }
     }
 
