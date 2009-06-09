@@ -660,18 +660,14 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq41()
     {
       var categories =
-        from p in Query<Product>.All
-        group p by p.Id
-        into g
-          orderby g.Key
-          select new
-                 {
-                   g.Key,
-                   MostExpensiveProducts =
-                     from p2 in g
-                     where p2.UnitPrice==g.Max(p3 => p3.UnitPrice)
-                     select p2
-                 };
+        Query<Product>.All
+        .GroupBy(p => p.Id)
+        .OrderBy(g => g.Key)
+        .Select(g => new {
+          g.Key,
+          MostExpensiveProducts =
+            g.Where(p2 => p2.UnitPrice==g.Max(p3 => p3.UnitPrice))
+        });
 
       QueryDumper.Dump(categories);
     }
