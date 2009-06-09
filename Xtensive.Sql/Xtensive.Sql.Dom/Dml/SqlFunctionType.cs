@@ -52,6 +52,7 @@ namespace Xtensive.Sql.Dom.Dml
     Radians,
     Rand,
     Round,
+    Truncate,
     Sign,
     Sin,
     Sqrt,

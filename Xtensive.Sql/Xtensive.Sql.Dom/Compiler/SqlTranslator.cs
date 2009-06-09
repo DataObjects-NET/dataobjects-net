@@ -1633,8 +1633,8 @@ namespace Xtensive.Sql.Dom.Compiler
           return "LENGTH";
         case SqlFunctionType.Concat:
           return "CONCAT";
-          //        case SqlFunctionType.Convert:
-          //          return "CONVERT";
+//      case SqlFunctionType.Convert:
+//        return "CONVERT";
         case SqlFunctionType.CurrentDate:
           return "CURRENT_DATE";
         case SqlFunctionType.CurrentTime:
@@ -1650,10 +1650,10 @@ namespace Xtensive.Sql.Dom.Compiler
           return "POSITION";
         case SqlFunctionType.Substring:
           return "SUBSTRING";
-          //        case SqlFunctionType.Translate:
-          //          return "TRANSLATE";
-//        case SqlFunctionType.Trim:
-//          return "TRIM";
+//      case SqlFunctionType.Translate:
+//        return "TRANSLATE";
+//      case SqlFunctionType.Trim:
+//        return "TRIM";
         case SqlFunctionType.Upper:
           return "UPPER";
         case SqlFunctionType.Abs:
@@ -1698,6 +1698,8 @@ namespace Xtensive.Sql.Dom.Compiler
           return "REPLACE";
         case SqlFunctionType.Round:
           return "ROUND";
+        case SqlFunctionType.Truncate:
+          return "TRUNCATE";
         case SqlFunctionType.SessionUser:
           return "SESSION_USER";
         case SqlFunctionType.Sign:

@@ -1474,23 +1474,27 @@ namespace Xtensive.Sql.Dom
       return Rand(null);
     }
 
-    public static SqlFunctionCall Round(SqlExpression argument, SqlExpression length, SqlExpression function)
+    public static SqlFunctionCall Round(SqlExpression argument, SqlExpression length)
     {
       ArgumentValidator.EnsureArgumentNotNull(argument, "argument");
       SqlValidator.EnsureIsArithmeticExpression(argument);
       ArgumentValidator.EnsureArgumentNotNull(length, "length");
       SqlValidator.EnsureIsArithmeticExpression(length);
-      if (!SqlExpression.IsNull(function)) {
-        SqlValidator.EnsureIsArithmeticExpression(function);
-        return new SqlFunctionCall(SqlFunctionType.Round, argument, length, function);
-      }
-      else
-        return new SqlFunctionCall(SqlFunctionType.Round, argument, length);
+      return new SqlFunctionCall(SqlFunctionType.Round, argument, length);
+    }
+    
+    public static SqlFunctionCall Round(SqlExpression argument)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(argument, "argument");
+      SqlValidator.EnsureIsArithmeticExpression(argument);
+      return new SqlFunctionCall(SqlFunctionType.Round, argument);
     }
 
-    public static SqlFunctionCall Round(SqlExpression argument, SqlExpression length)
+    public static SqlFunctionCall Truncate(SqlExpression argument)
     {
-      return Round(argument, length, null);
+      ArgumentValidator.EnsureArgumentNotNull(argument, "argument");
+      SqlValidator.EnsureIsArithmeticExpression(argument);
+      return new SqlFunctionCall(SqlFunctionType.Truncate, argument);
     }
 
     public static SqlFunctionCall Sign(SqlExpression argument)

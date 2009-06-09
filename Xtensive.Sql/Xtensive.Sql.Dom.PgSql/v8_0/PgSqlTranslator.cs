@@ -73,7 +73,6 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
         return String.Empty;
       case SqlFunctionType.UserDefined:
         return String.Empty;
-
       case SqlFunctionType.User:
       case SqlFunctionType.CurrentUser:
         return "current_user";
@@ -179,6 +178,9 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
 
       case SqlFunctionType.Round:
         return "round";
+
+      case SqlFunctionType.Truncate:
+        return "trunc";
 
       case SqlFunctionType.Sign:
         return "sign";

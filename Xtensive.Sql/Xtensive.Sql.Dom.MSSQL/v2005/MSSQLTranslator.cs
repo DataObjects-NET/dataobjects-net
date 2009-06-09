@@ -41,8 +41,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
 
     public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
     {
-      switch (section)
-      {
+      switch (section) {
         case FunctionCallSection.ArgumentEntry:
           return String.Empty;
         case FunctionCallSection.ArgumentDelimiter:

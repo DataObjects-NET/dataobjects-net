@@ -36,20 +36,34 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
     /// <inheritdoc/>
     public override void Visit(SqlFunctionCall node)
     {
-      switch (node.FunctionType)
-      {
+      switch (node.FunctionType) {
+        case SqlFunctionType.Round:
+          // Round should always be called with 2 arguments
+          if (node.Arguments.Count == 1) {
+            Visit(Sql.FunctionCall(
+              translator.Translate(SqlFunctionType.Round),
+              node.Arguments[0],
+              Sql.Literal(0)));
+            return;
+          }
+        break;
+        case SqlFunctionType.Truncate:
+          // Truncate is implemented as round(arg, 0, 1) call in MSSQL.
+          // It's stupid, isn't it?
+          Visit(Sql.FunctionCall(
+            translator.Translate(SqlFunctionType.Round),
+            Sql.Literal(0),
+            Sql.Literal(1)));
+          return;
         case SqlFunctionType.Substring:
-          if (node.Arguments.Count == 2)
-          {
+          if (node.Arguments.Count == 2) {
+            node = (SqlFunctionCall) node.Clone();
             SqlExpression len = Sql.Length(node.Arguments[0]);
             node.Arguments.Add(len);
             base.Visit(node);
-            if (node.Arguments.Contains(len))
-              node.Arguments.Remove(len);
             return;
           }
           break;
-
         case SqlFunctionType.IntervalConstruct:
         case SqlFunctionType.IntervalToMilliseconds:
           Visit(CastToLong(node.Arguments[0]));
