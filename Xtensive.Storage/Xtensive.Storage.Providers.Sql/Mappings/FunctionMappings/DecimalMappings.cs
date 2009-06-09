@@ -4,13 +4,11 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.02.18
 
-using System;
 using Xtensive.Core.Linq;
-using Xtensive.Core.Reflection;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Dml;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 using Operator = Xtensive.Core.Reflection.WellKnown.Operator;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 {
@@ -99,7 +97,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression DecimalRound(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return SqlFactory.Round(d, SqlFactory.Literal(0));
+      return SqlFactory.Round(d);
     }
 
     [Compiler(typeof(decimal), "Round", TargetKind.Static | TargetKind.Method)]
@@ -389,8 +387,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     {
       return d;
     }
-
-
+    
     #endregion
   }
 }

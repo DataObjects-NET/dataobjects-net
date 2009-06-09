@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Core.Linq;
 using Xtensive.Sql.Common;
-using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 
