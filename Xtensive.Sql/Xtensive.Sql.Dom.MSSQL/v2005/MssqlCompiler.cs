@@ -52,6 +52,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
           // It's stupid, isn't it?
           Visit(Sql.FunctionCall(
             translator.Translate(SqlFunctionType.Round),
+            node.Arguments[0],
             Sql.Literal(0),
             Sql.Literal(1)));
           return;
