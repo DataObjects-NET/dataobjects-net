@@ -56,7 +56,9 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       List<int> requiredColumns = mappings[provider];
       List<int> remappedColumns = requiredColumns.Select(c => provider.ColumnIndexes[c]).ToList();
       mappings[provider.Source] = remappedColumns;
+      OnRecursionEntrance(provider);
       CompilableProvider source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
       if (source == provider.Source && requiredColumns.Count == provider.ColumnIndexes.Length)
         return provider;
       List<int> sourceColumns = mappings[provider.Source];
@@ -319,10 +321,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     private static CompilableProvider BuildSetOperationSource(CompilableProvider provider, IEnumerable<int> expectedColumns, IList<int> returningColumns)
     {
+      if(provider.Type == ProviderType.Select)
+        return provider;
       var columns = expectedColumns.Select(c => returningColumns.IndexOf(c)).ToArray();
-      return provider.Type == ProviderType.Select
-        ? new SelectProvider(((SelectProvider)provider).Source, columns)
-        : new SelectProvider(provider, columns);
+      return new SelectProvider(provider, columns);
     }
 
     #endregion
@@ -390,6 +392,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         case ProviderType.Aggregate:
         case ProviderType.Calculate:
         case ProviderType.Apply:
+        case ProviderType.Select:
           break;
         case ProviderType.Range:
         case ProviderType.RangeSet:

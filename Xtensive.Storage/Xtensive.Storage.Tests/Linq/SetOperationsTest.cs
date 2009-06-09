@@ -206,5 +206,21 @@ namespace Xtensive.Storage.Tests.Linq
         .Where(c => c.Region == "BC");
       QueryDumper.Dump(result);
     }
+
+    [Test]
+    public void IntersectWithoutOneOfSelect()
+    {
+      var actual = from c in Query<Customer>.All
+      from r in (c.Orders.Select(o => o))
+        .Intersect(c.Orders).Select(o => o.ShippedDate)
+      orderby r
+      select r;
+      var expected = from c in Query<Customer>.All.ToList()
+      from r in (c.Orders.Select(o => o))
+        .Intersect(c.Orders).Select(o => o.ShippedDate)
+      orderby r
+      select r;
+      Assert.IsTrue(expected.SequenceEqual(actual));
+    }
   }
 }
