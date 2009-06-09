@@ -521,8 +521,9 @@ namespace Xtensive.Storage.Linq
 
     private Expression GetMember(Expression expression, MemberInfo member)
     {
-      if (expression.StripCasts().IsGroupingProjection() && member.Name == "Key")
-        return ((GroupingExpression) expression.StripCasts()).KeyExpression;
+      expression = expression.StripCasts();
+      if (expression.IsGroupingProjection() && member.Name == "Key")
+        return ((GroupingExpression) expression).KeyExpression;
       if (expression.IsAnonymousConstructor()) {
         var newExpression = (NewExpression) expression;
         if (member.MemberType == MemberTypes.Property)
