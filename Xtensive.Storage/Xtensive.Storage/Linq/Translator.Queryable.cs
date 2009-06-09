@@ -417,31 +417,32 @@ namespace Xtensive.Storage.Linq
       var resultType = method.ReturnType;
       var columnType = dataSource.Header.TupleDescriptor[0];
       if (!isRoot) {
-        if (source is ParameterExpression) {
-          var groupingParameter = (ParameterExpression) source;
-          var groupingProjection = context.Bindings[groupingParameter];
-          var groupingDataSource = groupingProjection.ItemProjector.DataSource;
-          var groupingProvider = groupingDataSource.Provider as AggregateProvider;
-          if (groupingProjection.ItemProjector.Item.IsGroupingProjection() && groupingProvider!=null) {
-            var newProvider = new AggregateProvider(groupingProvider.Source, groupingProvider.GroupColumnIndexes, groupingProvider.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateColumnDescriptor).ToArray());
-            var newItemProjector = groupingProjection.ItemProjector.Remap(newProvider.Result, 0);
-            groupingProjection = new ProjectionExpression(groupingProjection.Type, newItemProjector, groupingProjection.ResultType, groupingProjection.TupleParameterBindings);
-            context.Bindings.ReplaceBound(groupingParameter, groupingProjection);
-            var isSubqueryParameter = state.OuterParameters.Contains(groupingParameter);
-            if (resultType!=columnType && !resultType.IsNullable()) {
-              var columnExpression = ColumnExpression.Create(columnType, newProvider.Header.Length - 1);
-              if (isSubqueryParameter)
-                columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
-              return Expression.Convert(columnExpression, resultType);
-            }
-            else {
-              var columnExpression = ColumnExpression.Create(resultType, newProvider.Header.Length - 1);
-              if (isSubqueryParameter)
-                columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
-              return columnExpression;
-            }
-          }
-        }
+//        if (source is ParameterExpression) {
+//          var groupingParameter = (ParameterExpression) source;
+//          var groupingProjection = context.Bindings[groupingParameter];
+//          var groupingDataSource = groupingProjection.ItemProjector.DataSource;
+//          var groupingProvider = groupingDataSource.Provider as AggregateProvider;
+//          if (groupingProjection.ItemProjector.Item.IsGroupingExpression() && groupingProvider!=null) {
+//            var newProvider = new AggregateProvider(groupingProvider.Source, groupingProvider.GroupColumnIndexes, groupingProvider.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateColumnDescriptor).ToArray());
+//            var newItemProjector = groupingProjection.ItemProjector.Remap(newProvider.Result, 0);
+//            groupingProjection = new ProjectionExpression(groupingProjection.Type, newItemProjector, groupingProjection.ResultType, groupingProjection.TupleParameterBindings);
+//            context.Bindings.ReplaceBound(groupingParameter, groupingProjection);
+//            var isSubqueryParameter = state.OuterParameters.Contains(groupingParameter);
+//            if (resultType!=columnType && !resultType.IsNullable()) {
+//              var columnExpression = ColumnExpression.Create(columnType, newProvider.Header.Length - 1);
+//              if (isSubqueryParameter)
+//                columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
+//              return Expression.Convert(columnExpression, resultType);
+//            }
+//            else {
+//              var columnExpression = ColumnExpression.Create(resultType, newProvider.Header.Length - 1);
+//              if (isSubqueryParameter)
+//                columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
+//              return columnExpression;
+//            }
+//          }
+//        }
+//        throw new NotSupportedException();
         return resultType!=columnType && !resultType.IsNullable()
           ? Expression.Convert(AddSubqueryColumn(columnType, dataSource), resultType)
           : AddSubqueryColumn(method.ReturnType, dataSource);
@@ -789,17 +790,27 @@ namespace Xtensive.Storage.Linq
     {
       if (subquery.Header.Length!=1)
         throw new ArgumentException();
-      var column = subquery.Header.Columns[0];
       var lambdaParameter = state.Parameters[0];
       var oldResult = context.Bindings[lambdaParameter];
+      if (oldResult.ItemProjector.Item.IsSubqueryExpression())
+        throw new NotSupportedException();
+
       var applyParameter = context.GetApplyParameter(oldResult);
       int columnIndex = oldResult.ItemProjector.DataSource.Header.Length;
       var newRecordSet = oldResult.ItemProjector.DataSource.Apply(applyParameter, subquery);
-      var newItemProjector = oldResult.ItemProjector.Remap(newRecordSet, 0);
+      ItemProjectorExpression newItemProjector = oldResult.ItemProjector.Remap(newRecordSet, 0);
+
+      if (oldResult.ItemProjector.Item.IsGroupingExpression()) {
+        var newApplyParameter = context.GetApplyParameter(newRecordSet);
+        var oldGroupingExpression = (GroupingExpression) oldResult.ItemProjector.Item;
+        var groupingItemProjector = oldGroupingExpression.ProjectionExpression.ItemProjector.RewriteApplyParameter(applyParameter, newApplyParameter);
+        var groupingProjection = new ProjectionExpression(oldGroupingExpression.ProjectionExpression.Type, groupingItemProjector, oldGroupingExpression.ProjectionExpression.ResultType, oldGroupingExpression.ProjectionExpression.TupleParameterBindings);
+        var newGroupingExpression = new GroupingExpression(oldGroupingExpression.Type, oldGroupingExpression.OuterParameter, groupingProjection, newApplyParameter, oldGroupingExpression.KeyExpression, oldGroupingExpression.ElementSelector, oldGroupingExpression.Mapping, oldGroupingExpression.DefaultIfEmpty);
+        newItemProjector = new ItemProjectorExpression(newGroupingExpression, newRecordSet);
+      }
       var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
       context.Bindings.ReplaceBound(lambdaParameter, newResult);
       return ColumnExpression.Create(columnType, columnIndex);
-//      return MakeTupleAccess(lambdaParameter, columnType, columnIndex);
     }
 
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
@@ -822,10 +833,10 @@ namespace Xtensive.Storage.Linq
 
       var visitedExpression = Visit(sequenceExpression);
 
-      if (visitedExpression.IsGroupingProjection())
+      if (visitedExpression.IsGroupingExpression())
         return ((GroupingExpression) visitedExpression).ProjectionExpression;
 
-      if (visitedExpression.IsSubqueryProjection())
+      if (visitedExpression.IsSubqueryExpression())
         return ((SubQueryExpression) visitedExpression).ProjectionExpression;
 
       if (visitedExpression.IsProjection())

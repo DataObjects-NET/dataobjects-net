@@ -79,7 +79,12 @@ namespace Xtensive.Storage.Linq
 
     public ApplyParameter GetApplyParameter(ProjectionExpression projection)
     {
-      var provider = projection.ItemProjector.DataSource.Provider;
+      return GetApplyParameter(projection.ItemProjector.DataSource);
+    }
+
+    internal ApplyParameter GetApplyParameter(RecordSet newRecordSet)
+    {
+      var provider = newRecordSet.Provider;
       ApplyParameter parameter;
       if (!applyParameters.TryGetValue(provider, out parameter)) {
         parameter = new ApplyParameter(provider.ToString());

@@ -4,12 +4,14 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.06
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Linq.Materialization;
+using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Rse;
 using Xtensive.Core.Linq;
 
@@ -27,10 +29,10 @@ namespace Xtensive.Storage.Linq.Expressions
       {
         var expression = Item.StripCasts();
         var extendedExpression = expression as ExtendedExpression;
-        if (extendedExpression == null)
+        if (extendedExpression==null)
           return false;
-        return extendedExpression.ExtendedType == ExtendedExpressionType.Column ||
-               extendedExpression.ExtendedType == ExtendedExpressionType.Field;
+        return extendedExpression.ExtendedType==ExtendedExpressionType.Column ||
+          extendedExpression.ExtendedType==ExtendedExpressionType.Field;
       }
     }
 
@@ -41,9 +43,9 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public ItemProjectorExpression Remap(RecordSet dataSource, int offset)
     {
-      if (offset == 0)
+      if (offset==0)
         return new ItemProjectorExpression(Item, dataSource);
-      var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.Remap(offset, new Dictionary<Expression,Expression>()));
+      var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.Remap(offset, new Dictionary<Expression, Expression>()));
       return new ItemProjectorExpression(item, dataSource);
     }
 
@@ -83,12 +85,21 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public ItemProjectorExpression SetDefaultIfEmpty()
     {
-      var item = GenericExpressionVisitor<ParameterizedExpression>.Process(Item, mapped => 
-        {
-          mapped.DefaultIfEmpty = true; 
-          return mapped; 
-        });
+      var item = GenericExpressionVisitor<ParameterizedExpression>.Process(Item, mapped => {
+        mapped.DefaultIfEmpty = true;
+        return mapped;
+      });
       return new ItemProjectorExpression(item, DataSource);
+    }
+
+    public ItemProjectorExpression RewriteApplyParameter(ApplyParameter oldParameter, ApplyParameter newParameter)
+    {
+      var newDataSource = ApplyParameterRewriter.Rewrite(
+        DataSource.Provider,
+        oldParameter,
+        newParameter)
+        .Result;
+      return new ItemProjectorExpression(Item, newDataSource);
     }
 
     public override string ToString()

@@ -405,14 +405,13 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       var query = from p in Query<Product>.All
       group p by p.Category
       into g
-        select new
-               {
-                 CategoryID = g.Key,
-                 CheapestProducts =
-                   from p2 in g
-                   where p2.UnitPrice==g.Min(p3 => p3.UnitPrice)
-                   select p2
-               };
+        select new {
+          CategoryID = g.Key,
+          CheapestProducts =
+            from p2 in g
+            where p2.UnitPrice==g.Min(p3 => p3.UnitPrice)
+            select p2
+        };
 
       QueryDumper.Dump(query);
     }
@@ -454,14 +453,13 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       var query = from p in Query<Product>.All
       group p by p.Category
       into g
-        select new
-               {
-                 g.Key,
-                 MostExpensiveProducts =
-                   from p2 in g
-                   where p2.UnitPrice==g.Max(p3 => p3.UnitPrice)
-                   select p2
-               };
+        select new {
+          g.Key,
+          MostExpensiveProducts =
+            from p2 in g
+            where p2.UnitPrice==g.Max(p3 => p3.UnitPrice)
+            select p2
+        };
 
       QueryDumper.Dump(query);
     }
@@ -504,14 +502,13 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       var query = from p in Query<Product>.All
       group p by p.Category
       into g
-        select new
-               {
-                 g.Key,
-                 ExpensiveProducts =
-                   from p2 in g
-                   where p2.UnitPrice > g.Average(p3 => p3.UnitPrice)
-                   select p2
-               };
+        select new {
+          g.Key,
+          ExpensiveProducts =
+            from p2 in g
+            where p2.UnitPrice > g.Average(p3 => p3.UnitPrice)
+            select p2
+        };
 
       QueryDumper.Dump(query);
     }
@@ -521,14 +518,12 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses AVERAGE to find the average unit price of each category.")]
     public void LinqToEntities41()
     {
-      var query = from p in Query<Product>.All
-      group p by p.Category
-      into g
-        select new
-               {
-                 g.Key,
-                 Average = g.Average(p => p.UnitPrice)
-               };
+      var query = Query<Product>.All
+        .GroupBy(p => p.Category)
+        .Select(g => new {
+          g.Key,
+          Average = g.Average(p => p.UnitPrice)
+        });
 
       QueryDumper.Dump(query);
     }
@@ -666,8 +661,8 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         .Where(o => o.ShippingAddress.Country=="Mexico")
         .Select(o => o.Employee)
         .Intersect(Query<Order>.All
-        .Where(o => o.ShippingAddress.Country=="Canada")
-        .Select(o => o.Employee));
+          .Where(o => o.ShippingAddress.Country=="Canada")
+          .Select(o => o.Employee));
 
       QueryDumper.Dump(query);
     }
@@ -681,8 +676,8 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         .Where(o => o.ShippingAddress.Country=="Mexico")
         .Select(o => o.Employee)
         .Except(Query<Order>.All
-        .Where(o => o.ShippingAddress.Country=="Canada")
-        .Select(o => o.Employee));
+          .Where(o => o.ShippingAddress.Country=="Canada")
+          .Select(o => o.Employee));
 
       QueryDumper.Dump(query);
     }
@@ -899,12 +894,11 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void LinqToEntities69()
     {
       var query = Query<Customer>.All.GroupBy(c => c.Address.Region)
-        .Select(g => new
-                     {
-                       Region = g.Key, FreightTotal = g
-                         .SelectMany(c2 => c2.Orders)
-                         .Sum(o => o.Freight)
-                     });
+        .Select(g => new {
+          Region = g.Key, FreightTotal = g
+            .SelectMany(c2 => c2.Orders)
+            .Sum(o => o.Freight)
+        });
 
       QueryDumper.Dump(query);
     }
@@ -1062,7 +1056,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 
     // Modified according to DO model.
 
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof (NotSupportedException))]
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "Complex Hierarchy - Simple")]
     [Description("Select all contacts and show the type of each.")]
@@ -1080,7 +1074,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 
     // Modified according to DO model.
 
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof (NotSupportedException))]
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "Complex Hierarchy - OfType 1")]
     [Description("Select all Shipper contacts.")]
@@ -1093,7 +1087,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 
     // Modified according to DO model.
 
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof (NotSupportedException))]
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "Complex Hierarchy - OfType 2")]
     [Description("Select all Full contacts, which includes suppliers, customers, and employees.")]

@@ -67,12 +67,12 @@ namespace Xtensive.Storage.Linq
       return (ExtendedExpressionType)expression.NodeType == ExtendedExpressionType.EntitySet;
     }
 
-    public static bool IsGroupingProjection(this Expression expression)
+    public static bool IsGroupingExpression(this Expression expression)
     {
       return (ExtendedExpressionType)expression.NodeType==ExtendedExpressionType.Grouping;
     }
 
-    public static bool IsSubqueryProjection(this Expression expression)
+    public static bool IsSubqueryExpression(this Expression expression)
     {
       return (ExtendedExpressionType)expression.NodeType==ExtendedExpressionType.SubQuery;
     }
@@ -133,9 +133,9 @@ namespace Xtensive.Storage.Linq
         return MemberType.EntitySet;
       if (type.IsAnonymous())
         return MemberType.Anonymous;
-      if (e.IsGroupingProjection())
+      if (e.IsGroupingExpression())
         return MemberType.Grouping;
-      if (e.IsSubqueryProjection())
+      if (e.IsSubqueryExpression())
         return MemberType.Subquery;
       if (type.IsArray)
         return MemberType.Array;

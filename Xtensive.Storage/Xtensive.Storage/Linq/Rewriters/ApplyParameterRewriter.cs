@@ -2,28 +2,29 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Gamzov
-// Created:    2009.04.24
+// Created:    2009.06.09
 
 using System;
+using System.Diagnostics;
 using System.Linq.Expressions;
-using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Core.Linq;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {
   [Serializable]
-  internal class ApplyParameterToTupleParameterRewriter : ExpressionVisitor
+  public class ApplyParameterRewriter: ExpressionVisitor
   {
-    private readonly Expression parameterOfTupleExpression;
-    private readonly ApplyParameter applyParameter;
+    private readonly Expression newApplyParameterValueExpression;
+    private readonly ApplyParameter oldApplyParameter;
 
     public static CompilableProvider Rewrite(CompilableProvider provider,
-      Parameter<Tuple> parameterOfTuple, ApplyParameter applyParameter)
+      ApplyParameter oldParameter, ApplyParameter newParameter)
     {
-      var expressionRewriter = new ApplyParameterToTupleParameterRewriter(parameterOfTuple, applyParameter);
+      var expressionRewriter = new ApplyParameterRewriter(oldParameter, newParameter);
       var providerRewriter = new CompilableProviderVisitor(expressionRewriter.RewriteExpression);
       return providerRewriter.VisitCompilable(provider);
     }
@@ -35,9 +36,9 @@ namespace Xtensive.Storage.Linq.Rewriters
       if (m.Expression.NodeType!=ExpressionType.Constant)
         return base.VisitMemberAccess(m);
       var parameter = ((ConstantExpression) m.Expression).Value;
-      if (parameter!=applyParameter)
+      if (parameter!=oldApplyParameter)
         return base.VisitMemberAccess(m);
-      return parameterOfTupleExpression;
+      return newApplyParameterValueExpression;
     }
 
     private Expression RewriteExpression(Provider provider, Expression expression)
@@ -45,12 +46,13 @@ namespace Xtensive.Storage.Linq.Rewriters
       return Visit(expression);
     }
 
+
     // Constructors
 
-    private ApplyParameterToTupleParameterRewriter(Parameter<Tuple> parameterOfTuple, ApplyParameter applyParameter)
+    private ApplyParameterRewriter(ApplyParameter oldParameter, ApplyParameter newParameter)
     {
-      parameterOfTupleExpression = Expression.Property(Expression.Constant(parameterOfTuple), WellKnownMembers.ParameterOfTupleValue);
-      this.applyParameter = applyParameter;
+      newApplyParameterValueExpression = Expression.Property(Expression.Constant(newParameter), WellKnownMembers.ApplyParameterValue);
+      this.oldApplyParameter = oldParameter;
     }
   }
 }
