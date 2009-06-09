@@ -204,11 +204,11 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitNew(NewExpression n)
     {
-      if (n.Members==null) {
-        if (n.IsGroupingExpression()
-          || n.IsSubqueryExpression()
-            || n.Type==typeof (TimeSpan)
-              || n.Type==typeof (DateTime))
+      if (n.Members == null) {
+        if (n.IsGroupingExpression() ||
+            n.IsSubqueryExpression() ||
+            n.Type == typeof (TimeSpan) ||
+            n.Type == typeof (DateTime))
           return base.VisitNew(n);
         throw new NotSupportedException();
       }
@@ -521,8 +521,9 @@ namespace Xtensive.Storage.Linq
 
     private Expression GetMember(Expression expression, MemberInfo member)
     {
-      if (expression.StripCasts().IsGroupingExpression() && member.Name=="Key")
-        return ((GroupingExpression) expression.StripCasts()).KeyExpression;
+      expression = expression.StripCasts();
+      if (expression.IsGroupingExpression() && member.Name == "Key")
+        return ((GroupingExpression) expression).KeyExpression;
       if (expression.IsAnonymousConstructor()) {
         var newExpression = (NewExpression) expression;
         if (member.MemberType == MemberTypes.Property)
