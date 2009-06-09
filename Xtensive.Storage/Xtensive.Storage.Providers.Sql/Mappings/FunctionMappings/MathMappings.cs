@@ -453,7 +453,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression MathRoundDouble(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Round(d, SqlFactory.Literal(0));
+      return SqlFactory.Round(d);
     }
 
     [Compiler(typeof(Math), "Round", TargetKind.Static | TargetKind.Method)]
@@ -468,7 +468,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression MathRoundDecimal(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return SqlFactory.Round(d, SqlFactory.Literal(0));
+      return SqlFactory.Round(d);
     }
 
     [Compiler(typeof(Math), "Round", TargetKind.Static | TargetKind.Method)]
@@ -517,27 +517,18 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       return (exp2d - one) / (exp2d + one);
     }
 
-    // made internal for using in DecimalMappings
-    internal static SqlExpression Truncate(SqlExpression d)
-    {
-      var result = SqlFactory.Case();
-      result.Add(d > 0, SqlFactory.Floor(d));
-      result.Else = SqlFactory.Ceiling(d);
-      return result;
-    }
-
     [Compiler(typeof(Math), "Truncate", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathTruncateDouble(
       [Type(typeof(double))] SqlExpression d)
     {
-      return Truncate(d);
+      return SqlFactory.Truncate(d);
     }
 
     [Compiler(typeof(Math), "Truncate", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathTruncateDecimal(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return Truncate(d);
+      return SqlFactory.Truncate(d);
     }
 
   }

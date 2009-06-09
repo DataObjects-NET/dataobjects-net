@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression DecimalTruncate(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return MathMappings.Truncate(d);
+      return SqlFactory.Truncate(d);
     }
 
     #endregion
