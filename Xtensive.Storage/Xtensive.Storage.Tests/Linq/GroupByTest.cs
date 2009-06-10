@@ -28,6 +28,18 @@ namespace Xtensive.Storage.Tests.Linq
 
 
     [Test]
+    public void GroupByWithWhereTest()
+    {
+      var query =
+        Query<Product>.All
+        .GroupBy(product => product.Id)
+        .Where(grouping => true)
+        .Select(products => products.Count());
+
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
     public void GroupingAsQueryableTest()
     {
       var result = Query<Product>.All.GroupBy(p => p.UnitPrice);

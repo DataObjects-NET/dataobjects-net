@@ -801,7 +801,7 @@ namespace Xtensive.Storage.Linq
       if (oldResult.ItemProjector.Item.IsGroupingExpression()) {
         var newApplyParameter = context.GetApplyParameter(newRecordSet);
         var oldGroupingExpression = (GroupingExpression) oldResult.ItemProjector.Item;
-        var groupingItemProjector = oldGroupingExpression.ProjectionExpression.ItemProjector.RewriteApplyParameter(applyParameter, newApplyParameter);
+        var groupingItemProjector = oldGroupingExpression.ProjectionExpression.ItemProjector.RewriteApplyParameter(oldGroupingExpression.ApplyParameter, newApplyParameter);
         var groupingProjection = new ProjectionExpression(oldGroupingExpression.ProjectionExpression.Type, groupingItemProjector, oldGroupingExpression.ProjectionExpression.ResultType, oldGroupingExpression.ProjectionExpression.TupleParameterBindings);
         var newGroupingExpression = new GroupingExpression(oldGroupingExpression.Type, oldGroupingExpression.OuterParameter, groupingProjection, newApplyParameter, oldGroupingExpression.KeyExpression, oldGroupingExpression.ElementSelector, oldGroupingExpression.Mapping, oldGroupingExpression.DefaultIfEmpty);
         newItemProjector = new ItemProjectorExpression(newGroupingExpression, newRecordSet);
@@ -809,7 +809,7 @@ namespace Xtensive.Storage.Linq
       else if (oldResult.ItemProjector.Item.IsSubqueryExpression()) {
         var newApplyParameter = context.GetApplyParameter(newRecordSet);
         var oldSubqueryExpression = (SubQueryExpression) oldResult.ItemProjector.Item;
-        var subqueryItemProjector = oldSubqueryExpression.ProjectionExpression.ItemProjector.RewriteApplyParameter(applyParameter, newApplyParameter);
+        var subqueryItemProjector = oldSubqueryExpression.ProjectionExpression.ItemProjector.RewriteApplyParameter(oldSubqueryExpression.ApplyParameter, newApplyParameter);
         var subqueryProjection = new ProjectionExpression(oldSubqueryExpression.ProjectionExpression.Type, subqueryItemProjector, oldSubqueryExpression.ProjectionExpression.ResultType, oldSubqueryExpression.ProjectionExpression.TupleParameterBindings);
         var newSubqueryExpression = new SubQueryExpression(oldSubqueryExpression.Type, oldSubqueryExpression.OuterParameter, subqueryProjection, newApplyParameter, oldSubqueryExpression.ExtendedType, oldSubqueryExpression.DefaultIfEmpty);
         newItemProjector = new ItemProjectorExpression(newSubqueryExpression, newRecordSet);
@@ -839,10 +839,7 @@ namespace Xtensive.Storage.Linq
 
       var visitedExpression = Visit(sequenceExpression);
 
-      if (visitedExpression.IsGroupingExpression())
-        return ((GroupingExpression) visitedExpression).ProjectionExpression;
-
-      if (visitedExpression.IsSubqueryExpression())
+      if (visitedExpression.IsGroupingExpression() || visitedExpression.IsSubqueryExpression())
         return ((SubQueryExpression) visitedExpression).ProjectionExpression;
 
       if (visitedExpression.IsProjection())
