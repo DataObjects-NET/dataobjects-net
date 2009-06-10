@@ -428,14 +428,13 @@ namespace Xtensive.Storage.Linq
       var keyTupleExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.KeyValue);
 
       return keyFieldTypes
-        .Select((type, index) =>
-                {
-                  var nullableType = type.ToNullable();
-                  return (Expression) Expression.Condition(
-                                        isNullExpression,
-                                        Expression.Constant(null, nullableType),
-                                        keyTupleExpression.MakeTupleAccess(nullableType, index));
-                })
+        .Select((type, index) => {
+            var nullableType = type.ToNullable();
+            return (Expression) Expression.Condition(
+              isNullExpression,
+              Expression.Constant(null, nullableType),
+              keyTupleExpression.MakeTupleAccess(nullableType, index));
+          })
         .ToList();
     }
 

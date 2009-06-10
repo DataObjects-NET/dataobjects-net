@@ -19,6 +19,7 @@ using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Linq.Materialization
 {
@@ -276,6 +277,19 @@ namespace Xtensive.Storage.Linq.Materialization
     {
       var tupleExpression = GetTupleExpression(expression);
       return tupleExpression.MakeTupleAccess(expression.Type, expression.Mapping.Offset);
+    }
+
+    protected override Expression VisitUnary(UnaryExpression u)
+    {
+      if (u.NodeType == ExpressionType.Convert && u.Type.IsNullable()) {
+        var fieldExpression = u.Operand as FieldExpression;
+        if (fieldExpression != null) {
+          var tupleExpression = GetTupleExpression(fieldExpression);
+          var tupleAccess = tupleExpression.MakeTupleAccess(u.Type, fieldExpression.Mapping.Offset);
+          return tupleAccess;
+        }
+      }
+      return base.VisitUnary(u);
     }
 
     #endregion
