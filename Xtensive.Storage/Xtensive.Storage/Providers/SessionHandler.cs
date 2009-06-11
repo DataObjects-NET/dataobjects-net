@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Providers
       // Insert
       IEnumerable<EntityState> insertEntities = Session.EntityStateRegistry.GetItems(PersistenceState.New).Where(entityState=>!entityState.IsRemoved);
       if (foreignKeysEnabled)
-        InsertAccordingForeignKeys(insertEntities);
+        InsertInAccordanceWithForeignKeys(insertEntities);
       else
         foreach (EntityState data in insertEntities) {
           Insert(data);
@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Providers
     /// <inheritdoc/>
     public abstract void Dispose();
 
-    private void InsertAccordingForeignKeys(IEnumerable<EntityState> entityStates)
+    private void InsertInAccordanceWithForeignKeys(IEnumerable<EntityState> entityStates)
     {
       // Topological sorting
       List<Triplet<EntityState, FieldInfo, Entity>> loopReferences;

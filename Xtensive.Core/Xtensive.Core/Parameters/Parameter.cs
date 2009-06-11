@@ -15,7 +15,7 @@ namespace Xtensive.Core.Parameters
   /// </summary>
   public abstract class Parameter
   {
-    private readonly object expectedValue;
+    private object expectedValue;
 
     /// <summary>
     /// Gets or sets the parameter name.
@@ -41,6 +41,11 @@ namespace Xtensive.Core.Parameters
       [DebuggerStepThrough]
       get{
         return expectedValue;
+      }
+      [DebuggerStepThrough]
+      set
+      {
+        expectedValue = value;        
       }
     }
 
