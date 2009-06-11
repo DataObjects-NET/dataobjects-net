@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Linq.Materialization
           ctx = ParameterContext.Current;
           foreach (var tupleParameterBinding in tupleParameterBindings) {
             tupleParameterBinding.Key.Value = tupleParameterBinding.Value;
-            tupleParameterBinding.Key.ExpectedValue = tupleParameterBinding.Value;
+            tupleParameterBinding.Key.ExpectedValue = Tuple.Create(tupleParameterBinding.Value.Descriptor);
           }
         }
         ParameterScope scope = null;
