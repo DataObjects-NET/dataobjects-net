@@ -27,6 +27,7 @@ namespace Xtensive.Sql.Dom
     void Visit(SqlCollate node);
     void Visit(SqlColumnRef node);
     void Visit(SqlContinue node);
+    void Visit(SqlContainer node);
     void Visit(SqlCreateAssertion node);
     void Visit(SqlCreateCharacterSet node);
     void Visit(SqlCreateCollation node);

@@ -19,7 +19,6 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public class SqlValueTypeMapper : InitializableHandlerBase
   {
-    private const short MaxDecimalScale = 30;
     private const short MaxDecimalPrecision = 60;
 
     protected DomainHandler DomainHandler { get; private set; }
@@ -46,37 +45,12 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the type mapping.
     /// </summary>
-    /// <param name="column">The column.</param>
-    /// <returns><see cref="DataTypeMapping"/> instance for the specified <paramref name="column"/>.</returns>
-    /// <exception cref="InvalidOperationException">Type of column is not supported.</exception>
-    public DataTypeMapping GetTypeMapping(ColumnInfo column)
-    {
-      int length = column.Length.HasValue ? column.Length.Value : 0;
-      Type type = column.ValueType;
-
-      return GetTypeMapping(type, length);
-    }
-
-    /// <summary>
-    /// Gets the type mapping.
-    /// </summary>
     /// <param name="type">The column type.</param>
     /// <returns><see cref="DataTypeMapping"/> instance for the specified <paramref name="type"/>.
     /// If no mapping exists returns null.</returns>
     public DataTypeMapping TryGetTypeMapping(Type type)
     {
       return TryGetTypeMapping(type, 0);
-    }
-
-    /// <summary>
-    /// Gets the type mapping.
-    /// </summary>
-    /// <param name="type">The column type.</param>
-    /// <returns><see cref="DataTypeMapping"/> instance for the specified <paramref name="type"/>.</returns>
-    /// <exception cref="InvalidOperationException"><param name="type">Type</param> is not supported.</exception>
-    public DataTypeMapping GetTypeMapping(Type type)
-    {
-      return GetTypeMapping(type, 0);
     }
 
     /// <summary>
@@ -120,6 +94,31 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the type mapping.
     /// </summary>
+    /// <param name="column">The column.</param>
+    /// <returns><see cref="DataTypeMapping"/> instance for the specified <paramref name="column"/>.</returns>
+    /// <exception cref="InvalidOperationException">Type of column is not supported.</exception>
+    public DataTypeMapping GetTypeMapping(ColumnInfo column)
+    {
+      int length = column.Length.HasValue ? column.Length.Value : 0;
+      Type type = column.ValueType;
+
+      return GetTypeMapping(type, length);
+    }
+
+    /// <summary>
+    /// Gets the type mapping.
+    /// </summary>
+    /// <param name="type">The column type.</param>
+    /// <returns><see cref="DataTypeMapping"/> instance for the specified <paramref name="type"/>.</returns>
+    /// <exception cref="InvalidOperationException"><param name="type">Type</param> is not supported.</exception>
+    public DataTypeMapping GetTypeMapping(Type type)
+    {
+      return GetTypeMapping(type, 0);
+    }
+
+    /// <summary>
+    /// Gets the type mapping.
+    /// </summary>
     /// <param name="type">The column type.</param>
     /// <param name="length">The column length.</param>
     /// <returns><see cref="DataTypeMapping"/> instance for the specified <paramref name="type"/> and <paramref name="length"/>.</returns>
@@ -132,37 +131,59 @@ namespace Xtensive.Storage.Providers.Sql
       return result;
     }
 
+    /// <summary>
+    /// Builds the type of the SQL value.
+    /// </summary>
+    /// <param name="columnInfo">The column info.</param>
+    /// <returns></returns>
     public SqlValueType BuildSqlValueType(ColumnInfo columnInfo)
     {
       DataTypeMapping dtm = GetTypeMapping(columnInfo);
-      return BuildSqlValueType(columnInfo, dtm);
+      return BuildSqlValueType(dtm, columnInfo);
     }
 
+    /// <summary>
+    /// Builds the <see cref="SqlValueType"/> from specified <see cref="Type"/> and length.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="length">The length.</param>
+    /// <returns></returns>
     public SqlValueType BuildSqlValueType(Type type, int length)
     {
       DataTypeMapping dtm = GetTypeMapping(type, length);
-      return BuildSqlValueType(length, dtm);
+      return BuildSqlValueType(dtm, length);
     }
 
-    private SqlValueType BuildSqlValueType(ColumnInfo column, DataTypeMapping typeMapping)
+    /// <summary>
+    /// Builds the <see cref="SqlValueType"/> from specified <see cref="DataTypeMapping"/>
+    /// and <see cref="ColumnInfo"/>.
+    /// </summary>
+    /// <param name="typeMapping">The type mapping.</param>
+    /// <param name="column">The column.</param>
+    /// <returns></returns>
+    public SqlValueType BuildSqlValueType(DataTypeMapping typeMapping, ColumnInfo column)
     {
       int length = column.Length.HasValue ? column.Length.Value : 0;
-      Type type = column.ValueType;
-
-      return BuildSqlValueType(length, typeMapping);
+      return BuildSqlValueType(typeMapping, length);
     }
 
-    private SqlValueType BuildSqlValueType(int length, DataTypeMapping typeMapping)
+    /// <summary>
+    /// Builds the <see cref="SqlValueType"/> from specified <see cref="DataTypeMapping"/>
+    /// and length.
+    /// </summary>
+    /// <param name="typeMapping">The type mapping.</param>
+    /// <param name="length">The length.</param>
+    /// <returns></returns>
+    public SqlValueType BuildSqlValueType(DataTypeMapping typeMapping, int length)
     {
       var streamInfo = typeMapping.DataTypeInfo as StreamDataTypeInfo;
-      if (streamInfo!=null) {
-        if (length==0)
-          return new SqlValueType(streamInfo.SqlType, streamInfo.Length.MaxValue);
-        return new SqlValueType(streamInfo.SqlType, length);
-      }
+      if (streamInfo!=null)
+        return length==0
+          ? new SqlValueType(streamInfo.SqlType, streamInfo.Length.MaxValue)
+          : new SqlValueType(streamInfo.SqlType, length);
       var decimalInfo = typeMapping.DataTypeInfo as FractionalDataTypeInfo<decimal>;
       if (decimalInfo != null)
-        return new SqlValueType(decimalInfo.SqlType, decimalInfo.Precision.MaxValue, decimalInfo.Scale.DefaultValue.Value);
+        return new SqlValueType(decimalInfo.SqlType, decimalInfo.Precision.MaxValue, decimalInfo.Scale.MaxValue);
 
       var charInfo = typeMapping.DataTypeInfo as RangeDataTypeInfo<char>;
       if (charInfo != null)
@@ -202,7 +223,7 @@ namespace Xtensive.Storage.Providers.Sql
       BuildDataTypeMapping(types.VarChar);
       BuildDataTypeMapping(types.VarCharMax);
       var charTypeInfo = new RangeDataTypeInfo<char>(SqlDataType.Char, null);
-      charTypeInfo.Value = new ValueRange<char>(char.MinValue, char.MaxValue, (char)0);
+      charTypeInfo.Value = new ValueRange<char>(char.MinValue, char.MaxValue, (char) 0);
       BuildDataTypeMapping(charTypeInfo);
     }
 
@@ -327,8 +348,8 @@ namespace Xtensive.Storage.Providers.Sql
       var newPrecisionMinValue = oldTypeInfo.Precision.MinValue;
       var newPrecisionMaxValue = Math.Min(oldTypeInfo.Precision.MaxValue, MaxDecimalPrecision);
       var newPrecision = new ValueRange<short>(newPrecisionMinValue, newPrecisionMaxValue, newPrecisionMaxValue);
-      var newScaleDefaultValue = (short) (newPrecisionMaxValue / 2);
-      var newScale = new ValueRange<short>(oldTypeInfo.Scale.MinValue, oldTypeInfo.Scale.MaxValue, newScaleDefaultValue);
+      var newScaleMaxValue = (short) (newPrecisionMaxValue / 2);
+      var newScale = new ValueRange<short>(oldTypeInfo.Scale.MinValue, newScaleMaxValue, newScaleMaxValue);
       var result = new FractionalDataTypeInfo<decimal>(oldTypeInfo.SqlType, null) {Scale = newScale, Precision = newPrecision};
       return result;
     }

@@ -78,8 +78,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       // In rare cases (when calculated column is just parameter access) we need to strip cast to object.
       if (e.NodeType == ExpressionType.Convert && e.Type == typeof(object))
         type = ((UnaryExpression) e).Operand.Type;
-      if (type.IsNullable())
-        type = type.GetGenericArguments()[0];
+      type = StripNullable(type);
       var typeMapping = valueTypeMapper.GetTypeMapping(type);
       var expression = parameterExtractor.ExtractParameter<object>(e);
       var binding = new SqlFetchParameterBinding(expression.CachingCompile(), typeMapping, smartNull);
@@ -119,7 +118,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           var mapping = valueTypeMapper.TryGetTypeMapping(expression.Type);
           if (mapping == null)
             return operand;
-          return SqlFactory.Cast(operand, mapping.DataTypeInfo.SqlType);
+          return SqlFactory.Cast(operand, valueTypeMapper.BuildSqlValueType(expression.Type, 0));
       }
       return operand;
     }
@@ -232,10 +231,13 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitConstant(ConstantExpression expression)
     {
-      var constant = expression.Value!=null
-        ? SqlFactory.Literal(expression.Value, expression.Type)
-        : SqlFactory.Null;
-      return constant;
+      if (expression.Value==null)
+        return SqlFactory.Null;
+      var type = expression.Type;
+      if (type==typeof(object))
+        type = expression.Value.GetType();
+      type = StripNullable(type);
+      return SqlFactory.LiteralOrContainer(expression.Value, type);
     }
 
     protected override SqlExpression VisitParameter(ParameterExpression expression)
@@ -301,7 +303,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitNewArray(NewArrayExpression expression)
     {
-      throw new NotSupportedException();
+      if (expression.NodeType!=ExpressionType.NewArrayInit)
+        throw new NotSupportedException();
+      var expressions = expression.Expressions.Select(e => Visit(e)).ToArray();
+      return SqlFactory.Container(expressions);
     }
 
     protected override SqlExpression VisitInvocation(InvocationExpression i)
@@ -463,6 +468,11 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       return e.NodeType==ExpressionType.Convert
           && e.Type==typeof (int)
           && ((UnaryExpression) e).Operand.Type==typeof (char);
+    }
+
+    private static Type StripNullable(Type type)
+    {
+      return type.IsNullable() ? type.GetGenericArguments()[0] : type;
     }
 
     #endregion

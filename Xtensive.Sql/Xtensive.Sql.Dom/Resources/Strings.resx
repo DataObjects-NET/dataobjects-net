@@ -204,4 +204,7 @@
   <data name="ExNodeTypeIsUnknown" xml:space="preserve">
     <value>Node type is unknown.</value>
   </data>
+  <data name="ExSqlContainerExpressionCanNotBeCompiled" xml:space="preserve">
+    <value>Sql container expression can not be compiled.</value>
+  </data>
 </root>

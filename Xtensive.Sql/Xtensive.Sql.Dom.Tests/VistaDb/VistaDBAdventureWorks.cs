@@ -9,7 +9,7 @@ using Constraint=Xtensive.Sql.Dom.Database.Constraint;
 
 namespace Xtensive.Sql.Dom.Tests.VistaDb
 {
-  [TestFixture]
+  [TestFixture, Explicit]
   public class VistaDBAdventureWorks
   {
     private Model model;

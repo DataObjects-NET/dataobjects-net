@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.DbTypeSupportModel;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.Sql
@@ -14,7 +15,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
   [TestFixture]
   public class RoundingTest : AutoBuildTest
   {
-    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
@@ -24,65 +25,60 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
-        RunTest(6.56m);
-        RunTest(5.75m);
-        RunTest(1.21m);
-        RunTest(-6.56m);
-        RunTest(-5.75m);
-        RunTest(-1.21m);
-      }
+      var testValues = new [] {
+        1.3m, 1.5m, 1.6m,
+        2.3m, 2.5m, 2.6m,
+        -1.3m, -1.5m, -1.6m,
+        -2.3m, -2.5m, -2.6m};
+
+      using (Domain.OpenSession())
+        foreach (var value in testValues)
+          RunTest(value);
     }
 
     private void RunTest(decimal value)
     {
-      // Current implementation of Math.Round always produces this kind of rounding.
-      var roundingMode = MidpointRounding.AwayFromZero;
-
-      using (Transaction.Open()) {
-        new X
-          {
-            FFloat = (float) value,
-            FDouble = (double) value,
-            FDecimal = value,
-          };
+      using (var t = Transaction.Open()) {
+        new X {FDouble = (double) value, FDecimal = value};
         var result = Query<X>.All
           .Select(x => new
             {
-              Float = x.FFloat,
-              FloatRound = Math.Round(x.FFloat),
-              FloatRound1 = Math.Round(x.FFloat, 1),
-              FloatTrunc = Math.Truncate(x.FFloat),
-              FloatCeil = Math.Ceiling(x.FFloat),
-              FloatFloor = Math.Floor(x.FFloat),
+              Id = x.Id,
               Double = x.FDouble,
               DoubleRound = Math.Round(x.FDouble),
-              DoubleRound1 = Math.Round(x.FDouble, 1),
+              DoubleRoundAwayFromZero = Math.Round(x.FDouble, MidpointRounding.AwayFromZero),
+              DoubleRoundToEven = Math.Round(x.FDouble, MidpointRounding.ToEven),
+              //DoubleRound1 = Math.Round(x.FDouble, 1),
               DoubleTrunc = Math.Truncate(x.FDouble),
               DoubleCeil = Math.Ceiling(x.FDouble),
               DoubleFloor = Math.Floor(x.FDouble),
+
               Decimal = x.FDecimal,
               DecimalRound = Math.Round(x.FDecimal),
-              DecimalRound1 = Math.Round(x.FDecimal, 1),
+              DecimalRoundAwayFromZero = Math.Round(x.FDecimal, MidpointRounding.AwayFromZero),
+              DecimalRoundToEven = Math.Round(x.FDecimal, MidpointRounding.ToEven),
+              //DecimalRound1 = Math.Round(x.FDecimal, 1),
               DecimalTrunc = Math.Truncate(x.FDecimal),
               DecimalCeil = Math.Ceiling(x.FDecimal),
               DecimalFloor = Math.Floor(x.FDecimal),
-            }).Single();
+            })
+          .OrderByDescending(item => item.Id)
+          .First();
 
-        Assert.AreEqual(Math.Round(result.Float, roundingMode), result.FloatRound);
-        Assert.AreEqual(Math.Round(result.Float, 1, roundingMode), result.FloatRound1);
-        Assert.AreEqual(Math.Truncate(result.Float), result.FloatTrunc);
-        Assert.AreEqual(Math.Ceiling(result.Float), result.FloatCeil);
-        Assert.AreEqual(Math.Floor(result.Float), result.FloatFloor);
+        t.Complete();
 
-        Assert.AreEqual(Math.Round(result.Double, roundingMode), result.DoubleRound);
-        Assert.AreEqual(Math.Round(result.Double, 1, roundingMode), result.DoubleRound1);
+        Assert.AreEqual(Math.Round(result.Double), result.DoubleRound);
+        Assert.AreEqual(Math.Round(result.Double, MidpointRounding.AwayFromZero), result.DoubleRoundAwayFromZero);
+        Assert.AreEqual(Math.Round(result.Double, MidpointRounding.ToEven), result.DoubleRoundToEven);
+        //Assert.AreEqual(Math.Round(result.Double, 1), result.DoubleRound1);
         Assert.AreEqual(Math.Truncate(result.Double), result.DoubleTrunc);
         Assert.AreEqual(Math.Ceiling(result.Double), result.DoubleCeil);
         Assert.AreEqual(Math.Floor(result.Double), result.DoubleFloor);
 
-        Assert.AreEqual(Math.Round(result.Decimal, roundingMode), result.DecimalRound);
-        Assert.AreEqual(Math.Round(result.Decimal, 1, roundingMode), result.DecimalRound1);
+        Assert.AreEqual(Math.Round(result.Decimal), result.DecimalRound);
+        Assert.AreEqual(Math.Round(result.Decimal, MidpointRounding.AwayFromZero), result.DecimalRoundAwayFromZero);
+        Assert.AreEqual(Math.Round(result.Decimal, MidpointRounding.ToEven), result.DecimalRoundToEven);
+        //Assert.AreEqual(Math.Round(result.Decimal, 1), result.DecimalRound1);
         Assert.AreEqual(Math.Truncate(result.Decimal), result.DecimalTrunc);
         Assert.AreEqual(Math.Ceiling(result.Decimal), result.DecimalCeil);
         Assert.AreEqual(Math.Floor(result.Decimal), result.DecimalFloor);

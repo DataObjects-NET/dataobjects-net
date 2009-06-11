@@ -125,7 +125,7 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
     }
   }
 
-  [TestFixture]
+  [TestFixture, Explicit]
   public class VDBExtractor_TestSchemaExtraction : VDBExtractorTestBase
   {
     public override string CleanUpScript
@@ -170,7 +170,7 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
     }
   }
 
-  [TestFixture]
+  [TestFixture, Explicit]
   public class VDBExtractor_TestColumnTypeExtraction : VDBExtractorTestBase
   {
     public override string CleanUpScript
@@ -253,7 +253,7 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
     }
   }
 
-  [TestFixture]
+  [TestFixture, Explicit]
   public class VDBExtractor_TestExtractingViews : VDBExtractorTestBase
   {
     public override string CleanUpScript
@@ -293,7 +293,7 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
     }
   }
 
-  [TestFixture]
+  [TestFixture, Explicit]
   public class VDBExtractor_TestExtractingForeignKeys : VDBExtractorTestBase
   {
     public override string CleanUpScript
@@ -377,7 +377,7 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
     }
   }
 
-  [TestFixture]
+  [TestFixture, Explicit]
   public class VDBExtractor_TestExtractingUniqueConstraints : VDBExtractorTestBase
   {
     public override string CleanUpScript
@@ -415,7 +415,7 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
     }
   }
 
-  [TestFixture]
+  [TestFixture, Explicit]
   public class VDBExtractor_TestIndexesExtracted : VDBExtractorTestBase
   {
     public override string CleanUpScript
@@ -451,7 +451,7 @@ namespace Xtensive.Sql.Dom.Tests.VistaDb
     }
   }
 
-  [TestFixture]
+  [TestFixture, Explicit]
   public class VDBExtractor_ExtractCleanupTest : VDBExtractorTestBase
   {
     [Test]

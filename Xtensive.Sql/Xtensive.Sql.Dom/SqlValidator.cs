@@ -16,52 +16,52 @@ namespace Xtensive.Sql.Dom
   {
     private static readonly Dictionary<Type,Type> supportedTypes;
 
-    internal static void EnsureAreSqlRowArguments(IEnumerable<SqlExpression> nodes)
+    public static void EnsureAreSqlRowArguments(IEnumerable<SqlExpression> nodes)
     {
       ArgumentValidator.EnsureArgumentNotNull(nodes, "expressions");
       foreach (SqlExpression se in nodes)
         ArgumentValidator.EnsureArgumentNotNull(se, "expression");
     }
 
-    internal static void EnsureIsBooleanExpression(SqlExpression node)
+    public static void EnsureIsBooleanExpression(SqlExpression node)
     {
       if (!IsBooleanExpression(node))
         throw new ArgumentException(Strings.ExInvalidExpressionType);
     }
 
-    internal static void EnsureIsCharacterExpression(SqlExpression node)
+    public static void EnsureIsCharacterExpression(SqlExpression node)
     {
       if (!IsCharacterExpression(node))
         throw new ArgumentException(Strings.ExInvalidExpressionType);
     }
 
-    internal static void EnsureIsRowValueConstructor(SqlExpression node)
+    public static void EnsureIsRowValueConstructor(SqlExpression node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "expression");
       if (!(IsArithmeticExpression(node) || node is SqlRow || node is SqlSubQuery))
         throw new ArgumentException(Strings.ExInvalidExpressionType);
     }
 
-    internal static void EnsureIsArithmeticExpression(SqlExpression node)
+    public static void EnsureIsArithmeticExpression(SqlExpression node)
     {
       if (!IsArithmeticExpression(node))
         throw new ArgumentException(Strings.ExInvalidExpressionType);
     }
 
-    internal static void EnsureIsSubSelect(SqlExpression node)
+    public static void EnsureIsSubSelect(SqlExpression node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "expression");
       if (!(node is SqlSubQuery))
         throw new ArgumentException(Strings.ExInvalidExpressionType);
     }
 
-    internal static void EnsureLiteralTypeIsSupported(Type type)
+    public static void EnsureLiteralTypeIsSupported(Type type)
     {
       if (!supportedTypes.ContainsKey(type))
         throw new InvalidOperationException(string.Format(Strings.ExLiteralTypeXIsNotSupported, type));
     }
 
-    internal static bool IsBooleanExpression(SqlExpression node)
+    public static bool IsBooleanExpression(SqlExpression node)
     {
       if (node==null)
         return true;
@@ -107,7 +107,7 @@ namespace Xtensive.Sql.Dom
       }
     }
 
-    internal static bool IsArithmeticExpression(SqlExpression node)
+    public static bool IsArithmeticExpression(SqlExpression node)
     {
       if (node==null)
         return true;
@@ -147,7 +147,7 @@ namespace Xtensive.Sql.Dom
       }
     }
 
-    internal static bool IsCharacterExpression(SqlExpression node)
+    public static bool IsCharacterExpression(SqlExpression node)
     {
       if (node==null)
         return true;
@@ -173,6 +173,11 @@ namespace Xtensive.Sql.Dom
         default:
           return false;
       }
+    }
+
+    public static bool IsLiteralTypeSupported(Type type)
+    {
+      return supportedTypes.ContainsKey(type);
     }
 
 

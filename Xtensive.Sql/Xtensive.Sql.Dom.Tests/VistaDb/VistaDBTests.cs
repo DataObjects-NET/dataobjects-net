@@ -11,7 +11,7 @@ using Xtensive.Sql.Dom.Tests.VistaDb;
 
 namespace Xtensive.Sql.Dom.Tests.VistaDb
 {
-  [TestFixture]
+  [TestFixture, Explicit]
   public class VistaDBTests : VistaDBAdventureWorks
   {
     private SqlDriver SqlDriver;

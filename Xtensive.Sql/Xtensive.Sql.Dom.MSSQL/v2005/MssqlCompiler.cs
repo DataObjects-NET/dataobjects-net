@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
 {
   public class MssqlCompiler : SqlCompiler
   {
-    private const int MillisecondsPerDay = 24 * 60 * 60 * 1000;
+    private static readonly int MillisecondsPerDay = (int) TimeSpan.FromDays(1).TotalMilliseconds;
     private static readonly SqlExpression DateFirst = Sql.FunctionCall(MssqlTranslator.DateFirst);
 
     public override void Visit(SqlAlterTable node)

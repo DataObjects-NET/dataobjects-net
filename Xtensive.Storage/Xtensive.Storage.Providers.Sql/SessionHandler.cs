@@ -11,6 +11,7 @@ using System.Data.Common;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
+using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -235,9 +236,7 @@ namespace Xtensive.Storage.Providers.Sql
           variantKeys.Add(binding.ParameterReference.Parameter);
         else {
           string parameterName = compilationResult.GetParameterName(binding.ParameterReference.Parameter);
-          var parameterType = binding.TypeMapping.DbType;
-          var parameter = new SqlParameter(parameterName, parameterType) {Value = parameterValue};
-          command.Parameters.Add(parameter);
+          command.Parameters.Add(CreateParameter(parameterName, parameterValue, binding.TypeMapping));
         }
       }
       command.CommandText = compilationResult.GetCommandText(variantKeys);
@@ -258,13 +257,38 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var binding in request.ParameterBindings) {
         object parameterValue = binding.TypeMapping.TranslateToSqlValue(binding.ValueAccessor.Invoke(value));
         string parameterName = compilationResult.GetParameterName(binding.ParameterReference.Parameter);
-        var parameterType = binding.TypeMapping.DbType;
-        var parameter = new SqlParameter(parameterName, parameterType) {Value = parameterValue};
-        command.Parameters.Add(parameter);
+        command.Parameters.Add(CreateParameter(parameterName, parameterValue, binding.TypeMapping));
       }
 
       command.CommandText = compilationResult.GetCommandText();
       return command;
+    }
+
+    /// <summary>
+    /// Creates the parameter with the specified <paramref name="name"/> and <paramref name="value"/>
+    /// taking into account <paramref name="mapping"/>.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <param name="value">The value.</param>
+    /// <param name="mapping">The mapping.</param>
+    /// <returns>Created parameter.</returns>
+    protected virtual SqlParameter CreateParameter(string name, object value, DataTypeMapping mapping)
+    {
+      var typeOfValue = value.GetType();
+      int length = 0;
+      if (typeOfValue==typeof(string))
+        length = ((string) value).Length;
+      if (typeOfValue==typeof(byte[]))
+        length = ((byte[]) value).Length;
+      var valueType = DomainHandler.ValueTypeMapper.BuildSqlValueType(mapping, length);
+      return new SqlParameter(name)
+        {
+          Value = value,
+          DbType = mapping.DbType,
+          Size = valueType.Size,
+          Scale = (byte) valueType.Scale,
+          Precision = (byte) valueType.Precision,
+        };
     }
 
     #endregion

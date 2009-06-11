@@ -277,6 +277,15 @@ namespace Xtensive.Sql.Dom.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sql container expression can not be compiled..
+        /// </summary>
+        internal static string ExSqlContainerExpressionCanNotBeCompiled {
+            get {
+                return ResourceManager.GetString("ExSqlContainerExpressionCanNotBeCompiled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Table is not set..
         /// </summary>
         internal static string ExTablePropertyIsNotSet {

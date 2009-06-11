@@ -46,6 +46,7 @@ namespace Xtensive.Sql.Dom
     Conditional,
     Constant,
     Continue,
+    Container,
 //    Convert,
     Count,
 //    Covar,

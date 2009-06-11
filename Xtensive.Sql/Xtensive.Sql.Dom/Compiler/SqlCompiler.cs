@@ -1139,6 +1139,11 @@ namespace Xtensive.Sql.Dom.Compiler
       }
     }
 
+    public virtual void Visit(SqlContainer node)
+    {
+      throw new SqlCompilerException(Strings.ExSqlContainerExpressionCanNotBeCompiled);
+    }
+
     private void Visit(TableColumn column)
     {
       context.AppendText(translator.Translate(context, column, TableColumnSection.Entry));

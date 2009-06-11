@@ -8,27 +8,20 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
-using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.PreCompilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
-using Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection;
-using Xtensive.Storage.Rse.PreCompilation.Optimization;
 using Xtensive.Storage.Rse.Providers;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 using SqlModel = Xtensive.Sql.Dom.Database.Model;
 
 namespace Xtensive.Storage.Providers.Sql

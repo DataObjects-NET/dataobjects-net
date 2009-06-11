@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Linq;
+using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
 using Operator = Xtensive.Core.Reflection.WellKnown.Operator;
@@ -76,7 +77,14 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     private static SqlExpression TrimHelper(SqlExpression _this,
       SqlExpression trimChars, SqlTrimType trimType)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException();
+//      if (trimChars.NodeType!=SqlNodeType.Container)
+//        throw new NotSupportedException();
+//      var container = (SqlContainer) trimChars;
+//      if (container.Value.GetType() != typeof(SqlExpression[]))
+//        throw new NotSupportedException();
+//      var expressions = (SqlExpression[]) container.Value;
+//      return expressions.Aggregate(_this, (all, current) => SqlFactory.Trim(all, trimType, current));
     }
 
     [Compiler(typeof(string), "Trim")]
@@ -193,8 +201,15 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression StringConcat(
       [Type(typeof(string[]))] SqlExpression values)
     {
-      // before implementing ExpressionProcessor.VisitNewArray this does not matter
-      throw new NotImplementedException();
+      if (values.NodeType!=SqlNodeType.Container)
+        throw new NotSupportedException();
+      var container = (SqlContainer) values;
+      if (container.Value.GetType() != typeof(SqlExpression[]))
+        throw new NotSupportedException();
+      var expressions = (SqlExpression[]) container.Value;
+      if (expressions.Length==0)
+        return SqlFactory.Literal("");
+      return expressions.Aggregate(SqlFactory.Concat);
     }
 
     [Compiler(typeof(string), "Compare", TargetKind.Static | TargetKind.Method)]

@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.02.18
 
+using System;
 using Xtensive.Core.Linq;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Dml;
@@ -29,7 +30,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression DecimalCeiling(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return SqlFactory.Ceiling(d);
+      return MathMappings.MathCeilingDecimal(d);
     }
 
     [Compiler(typeof(decimal), "Compare", TargetKind.Static | TargetKind.Method)]
@@ -37,7 +38,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(decimal))] SqlExpression d1,
       [Type(typeof(decimal))] SqlExpression d2)
     {
-      return SqlFactory.Sign(d1 - d2);
+      return SqlFactory.Cast(SqlFactory.Sign(d1 - d2), SqlDataType.Int32);
     }
 
     [Compiler(typeof(decimal), "Divide", TargetKind.Static | TargetKind.Method)]
@@ -60,7 +61,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression DecimalFloor(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return SqlFactory.Floor(d);
+      return MathMappings.MathFloorDecimal(d);
     }
 
     [Compiler(typeof(decimal), "Multiply", TargetKind.Static | TargetKind.Method)]
@@ -97,7 +98,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression DecimalRound(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return SqlFactory.Round(d);
+      return MathMappings.MathRoundDecimal(d);
     }
 
     [Compiler(typeof(decimal), "Round", TargetKind.Static | TargetKind.Method)]
@@ -105,7 +106,24 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(decimal))] SqlExpression d,
       [Type(typeof(int))] SqlExpression decimals)
     {
-      return SqlFactory.Round(d, decimals);
+      return MathMappings.MathRoundDecimal(d, decimals);
+    }
+
+    [Compiler(typeof(decimal), "Round", TargetKind.Static | TargetKind.Method)]
+    public static SqlExpression DecimalRoundWithMode(
+      [Type(typeof(decimal))] SqlExpression d,
+      [Type(typeof(MidpointRounding))] SqlExpression mode)
+    {
+      return MathMappings.MathRoundDecimalWithMode(d, mode);
+    }
+
+    [Compiler(typeof(decimal), "Round", TargetKind.Static | TargetKind.Method)]
+    public static SqlExpression DecimalRoundWithMode(
+      [Type(typeof(decimal))] SqlExpression d,
+      [Type(typeof(int))] SqlExpression decimals,
+      [Type(typeof(MidpointRounding))] SqlExpression mode)
+    {
+      return MathMappings.MathRoundDecimalWithMode(d, decimals, mode);
     }
 
     [Compiler(typeof(decimal), "Subtract", TargetKind.Static | TargetKind.Method)]
@@ -120,7 +138,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression DecimalTruncate(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return SqlFactory.Truncate(d);
+      return MathMappings.MathTruncateDecimal(d);
     }
 
     #endregion

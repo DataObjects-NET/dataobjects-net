@@ -1285,13 +1285,19 @@ namespace Xtensive.Sql.Dom
 
     public static SqlExpression Literal(object value, Type valueType)
     {
+      SqlValidator.EnsureLiteralTypeIsSupported(valueType);
       var type = typeof (SqlLiteral<>).MakeGenericType(valueType);
       var method = type.GetMethod("Create", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
       var result = (SqlExpression)method.Invoke(null, new[] {value});
       return result;
     }
 
-
+    public static SqlExpression LiteralOrContainer(object value, Type valueType)
+    {
+      return SqlValidator.IsLiteralTypeSupported(valueType)
+        ? Literal(value, valueType)
+        : Container(value);
+    }
 
     #endregion
 
@@ -1598,6 +1604,11 @@ namespace Xtensive.Sql.Dom
       ArgumentValidator.EnsureArgumentNotNull(alternative, "alternative");
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       return new SqlVariant(main, alternative, key);
+    }
+
+    public static SqlContainer Container(object value)
+    {
+      return new SqlContainer(value);
     }
 
     #endregion
