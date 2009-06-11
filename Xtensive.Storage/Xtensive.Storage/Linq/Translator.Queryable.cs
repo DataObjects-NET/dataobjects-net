@@ -518,7 +518,7 @@ namespace Xtensive.Storage.Linq
         var keyProperty = groupingType.GetProperty(WellKnown.KeyField);
         var convertedParameter = Expression.Convert(resultSelector.Parameters[1], groupingType);
         var keyAccess = Expression.MakeMemberAccess(convertedParameter, keyProperty);
-        var rewrittenResultSelectorBody = ReplaceParameterRewriter.Rewrite(resultSelector.Body, resultSelector.Parameters[0], keyAccess);
+        var rewrittenResultSelectorBody = ParameterRewriter.Rewrite(resultSelector.Body, resultSelector.Parameters[0], keyAccess);
         var selectLambda = FastExpression.Lambda(rewrittenResultSelectorBody, resultSelector.Parameters[1]);
         resultProjection = VisitSelect(resultProjection, selectLambda);
       }

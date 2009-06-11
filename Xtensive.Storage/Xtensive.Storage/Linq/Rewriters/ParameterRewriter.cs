@@ -14,18 +14,18 @@ using Xtensive.Core;
 namespace Xtensive.Storage.Linq.Rewriters
 {
   [Serializable]
-  internal class ReplaceParameterRewriter: ExpressionVisitor
+  internal class ParameterRewriter: ExpressionVisitor
   {
     private readonly Dictionary<ParameterExpression, Expression> parameterReplacements = new Dictionary<ParameterExpression, Expression>();
 
     public static Expression Rewrite(Expression expression, params Pair<ParameterExpression, Expression>[] parameterReplacements)
     {
-      return new ReplaceParameterRewriter(parameterReplacements).Visit(expression);
+      return new ParameterRewriter(parameterReplacements).Visit(expression);
     }
 
     public static Expression Rewrite(Expression expression, ParameterExpression parameter, Expression parameterReplacement)
     {
-      return new ReplaceParameterRewriter(parameter, parameterReplacement).Visit(expression);
+      return new ParameterRewriter(parameter, parameterReplacement).Visit(expression);
     }
 
     protected override Expression VisitParameter(ParameterExpression p)
@@ -38,14 +38,14 @@ namespace Xtensive.Storage.Linq.Rewriters
       return base.VisitParameter(p);
     }
 
-    private ReplaceParameterRewriter(params Pair<ParameterExpression, Expression>[] parameterReplacements)
+    private ParameterRewriter(params Pair<ParameterExpression, Expression>[] parameterReplacements)
     {
       foreach (Pair<ParameterExpression, Expression> parameterReplacement in parameterReplacements) {
         this.parameterReplacements.Add(parameterReplacement.First, parameterReplacement.Second);
       }
     }
 
-    private ReplaceParameterRewriter(ParameterExpression parameter, Expression parameterReplacement)
+    private ParameterRewriter(ParameterExpression parameter, Expression parameterReplacement)
     {
       parameterReplacements.Add(parameter, parameterReplacement);
     }
