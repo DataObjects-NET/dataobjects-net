@@ -14,6 +14,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Core.Linq;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse.Expressions;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
@@ -38,7 +39,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     private readonly Dictionary<int, Expression> indexKeyValuesCache =
       new Dictionary<int, Expression>(defaultExpressionsListSize);
 
-    private readonly ComparisonExtractor extractor = new ComparisonExtractor();  
+    private readonly ComparisonExtractor extractor = new ComparisonExtractor();
 
     public RangeSetInfo Parse(Conjunction<Expression> normalized, IndexInfo info,
       RecordSetHeader primaryIdxRecordSetHeader)
@@ -58,7 +59,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     {
       extractedExpressions.Clear();
       foreach (var exp in normalized.Operands) {
-        var tupleComparison = extractor.Extract(exp, ParserHelper.DeafultKeySelector);
+        var tupleComparison = extractor.Extract(exp, ParserHelper.DefaultKeySelector);
         extractedExpressions.Add(parserHelper.ConvertToRangeSetInfo(exp, tupleComparison, indexInfo,
           recordSetHeader, comparer));
       }

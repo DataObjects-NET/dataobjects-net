@@ -101,8 +101,9 @@ namespace Xtensive.Core.Parameters
     /// Action argument is parameter's value within disposed scope.</param>
     /// <param name="onOutOfScope">Out of scope action. 
     public Parameter(string name, Action<TValue> onOutOfScope)
-      : this(name, onOutOfScope, default(TValue))
+      : base(name)
     {
+      this.onOutOfScope = onOutOfScope;
     }
 
     /// <summary>

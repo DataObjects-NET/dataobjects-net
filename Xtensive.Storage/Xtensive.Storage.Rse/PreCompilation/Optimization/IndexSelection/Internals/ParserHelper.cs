@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
@@ -19,8 +20,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
   internal sealed class ParserHelper
   {
-    public static readonly Func<Expression, bool> DeafultKeySelector = exp => exp.AsTupleAccess() != null;
-    
     private readonly DomainModel domainModel;
     private readonly ComparisonExtractor comparisonExtractor = new ComparisonExtractor();
 
@@ -29,11 +28,12 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     {
       // The validation of arguments is omitted to increase performance.
       if (tupleComparison == null)
-        if (comparisonExtractor.ContainsKey(exp, DeafultKeySelector))
+        if (comparisonExtractor.ContainsKey(exp, KeySelectorIngnoringParameterOfTuple))
           return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null, comparer);
         else
           return RangeSetExpressionBuilder.BuildFullOrEmpty(exp, comparer);
-      if(tupleComparison.IsComplex)
+      if(tupleComparison.IsComplex
+        || comparisonExtractor.ContainsKey(tupleComparison.Value, KeySelectorIngnoringParameterOfTuple))
         return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null, comparer);
       int fieldIndex = tupleComparison.Key.GetTupleAccessArgument();
       var tupleExp = new TupleExpressionInfo(fieldIndex, tupleComparison);
@@ -70,12 +70,33 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       return -1;
     }
 
+    public static bool DefaultKeySelector(Expression exp)
+    {
+      var tupleExp = exp.AsTupleAccess();
+      if(tupleExp == null)
+        return false;
+      return !(tupleExp.Object is MemberExpression);
+    }
+
     #region Private \ internal methods
+
     private bool IndexHasKeyAtZeroPoisition(int tupleFieldIndex, IndexInfo indexInfo,
       RecordSetHeader recordSetHeader)
     {
       return IndexHasKeyAtSpecifiedPoisition(tupleFieldIndex, 0, indexInfo, recordSetHeader);
     }
+
+    public static bool KeySelectorIngnoringParameterOfTuple(Expression exp)
+    {
+      var tupleExp = exp.AsTupleAccess();
+      if(tupleExp == null)
+        return false;
+      var asMemberExpression = tupleExp.Object as MemberExpression;
+      if(asMemberExpression == null)
+        return true;
+      return asMemberExpression.Expression.Type!=typeof (Parameter<Tuple>);
+    }
+
     #endregion
 
     // Constructors

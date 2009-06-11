@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Building
           else
             return Enumerable.Empty<Difference>();
         };
-      return EnumerableUtils.Flatten(schemaDifference.PropertyChanges.Values, itemExtractor, diff => { }, true)
+      return schemaDifference.PropertyChanges.Values.Flatten(itemExtractor, diff => { }, true)
         .OfType<NodeDifference>().Where(nodeDifference => (nodeDifference.Source ?? nodeDifference.Target) is ColumnInfo);
     }
   }

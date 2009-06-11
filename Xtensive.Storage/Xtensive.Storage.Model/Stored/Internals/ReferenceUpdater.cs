@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Model.Stored
     
     private void UpdateTypeAllDescendants(StoredTypeInfo type)
     {
-      type.AllDescendants = EnumerableUtils.Flatten(type.Descendants, t => t.Descendants, item => { }, true).ToArray();
+      type.AllDescendants = type.Descendants.Flatten(t => t.Descendants, item => { }, true).ToArray();
     }
 
     private void UpdateHierarchySchema(StoredHierarchyInfo hierarchy)

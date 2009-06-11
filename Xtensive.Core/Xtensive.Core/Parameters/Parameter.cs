@@ -15,7 +15,12 @@ namespace Xtensive.Core.Parameters
   /// </summary>
   public abstract class Parameter
   {
-    private object expectedValue;
+    private readonly object expectedValue;
+
+    /// <summary>
+    /// Indicates whether the property <see cref="ExpectedValue"/> is set.
+    /// </summary>
+    public readonly bool IsExpectedValueSet;
 
     /// <summary>
     /// Gets or sets the parameter name.
@@ -39,14 +44,7 @@ namespace Xtensive.Core.Parameters
     /// </summary>
     public virtual object ExpectedValue {
       [DebuggerStepThrough]
-      get{
-        return expectedValue;
-      }
-      [DebuggerStepThrough]
-      set
-      {
-        expectedValue = value;        
-      }
+      get { return expectedValue; }
     }
 
     /// <summary>
@@ -126,6 +124,19 @@ namespace Xtensive.Core.Parameters
       ArgumentValidator.EnsureArgumentNotNull(name, "name");
       Name = name;
       this.expectedValue = expectedValue;
+      IsExpectedValueSet = true;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">The <see cref="Name"/> property value.</param>
+    [DebuggerStepThrough]
+    protected Parameter(string name)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(name, "name");
+      Name = name;
+      IsExpectedValueSet = false;
     }
   }
 }

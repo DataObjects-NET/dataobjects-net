@@ -32,7 +32,8 @@ namespace Xtensive.Core.Parameters
 
     /// <summary>
     /// Gets the special singleton <see cref="ParameterContext"/> instance 
-    /// exposing <see cref="Parameter.ExpectedValue"/>s of <see cref="Parameter{TValue}"/>s.
+    /// returning <see cref="Parameter.ExpectedValue"/> instead of <see cref="Parameter.Value"/> 
+    /// if <see cref="Parameter.ExpectedValue"/> is set.
     /// </summary>        
     public static ParameterContext ExpectedValues {
       [DebuggerStepThrough]
@@ -61,7 +62,7 @@ namespace Xtensive.Core.Parameters
     [DebuggerStepThrough]
     internal bool TryGetValue(Parameter parameter, out object value)
     {
-      if (isExpectedValuesContext) {
+      if (isExpectedValuesContext && parameter.IsExpectedValueSet) {
         value = parameter.ExpectedValue;
         return true;
       }

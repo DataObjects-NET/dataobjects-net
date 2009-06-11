@@ -64,10 +64,8 @@ namespace Xtensive.Storage.Linq.Materialization
       using (session.OpenTransaction(true)) {
         using (new ParameterContext().Activate()) {
           ctx = ParameterContext.Current;
-          foreach (var tupleParameterBinding in tupleParameterBindings) {
+          foreach (var tupleParameterBinding in tupleParameterBindings)
             tupleParameterBinding.Key.Value = tupleParameterBinding.Value;
-            tupleParameterBinding.Key.ExpectedValue = Tuple.Create(tupleParameterBinding.Value.Descriptor);
-          }
         }
         ParameterScope scope = null;
         var batched = rs.Select(tuple => itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, session))).Batch(2)

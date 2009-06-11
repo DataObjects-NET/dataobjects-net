@@ -604,7 +604,14 @@ namespace Xtensive.Storage.Tests.Linq
     public void GroupByBooleanTest()
     {
       var result = Query<Customer>.All.GroupBy(c => c.CompanyName.StartsWith("A"));
-      DumpGrouping(result);
+      var expected = Query<Customer>.All.AsEnumerable().GroupBy(c => c.CompanyName.StartsWith("A"));
+      Assert.IsTrue(expected.Select(g => g.Key).OrderBy(k => k)
+        .SequenceEqual(result.AsEnumerable().Select(g => g.Key).OrderBy(k => k)));
+      foreach (var group in expected)
+        Assert.IsTrue(expected.Where(g => g.Key==group.Key)
+          .SelectMany(g => g).OrderBy(i => i.Id)
+          .SequenceEqual(result.AsEnumerable()
+            .Where(g => g.Key==group.Key).SelectMany(g => g).OrderBy(i => i.Id)));
     }
 
     [Test]

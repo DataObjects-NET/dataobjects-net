@@ -19,7 +19,8 @@ namespace Xtensive.Core.Tests.Parameters
     {
       var parameter = new Parameter<int>();
 
-      Assert.AreEqual(default(int), parameter.ExpectedValue);
+      Assert.AreEqual(null, parameter.ExpectedValue);
+      Assert.IsFalse(parameter.IsExpectedValueSet);
 
       parameter = new Parameter<int>(1);
 

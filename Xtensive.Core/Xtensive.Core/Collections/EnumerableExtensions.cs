@@ -588,5 +588,36 @@ namespace Xtensive.Core.Collections
         }
       }
     }
+
+    /// <summary>
+    /// Flattens the item's hierarchy.
+    /// </summary>
+    /// <typeparam name="TItem">The type of the item.</typeparam>
+    /// <param name="root">The root of the hierarchy.</param>
+    /// <param name="childrenExtractor">The children extractor. It's always executed 
+    /// before a root item will be returned.</param>
+    /// <param name="exitAction">This action is always executed after a root item 
+    /// was returned.</param>
+    /// <param name="rootFirst">If set to <see langword="true"/> then a root item 
+    /// will be returned before its children.</param>
+    /// <returns>The <see cref="IEnumerable{T}"/> containing all items in the 
+    /// specified hierarchy.</returns>
+    public static IEnumerable<TItem> Flatten<TItem>(this IEnumerable<TItem> root,
+      Func<TItem, IEnumerable<TItem>> childrenExtractor, Action<TItem> exitAction, bool rootFirst)
+    {
+      // The validation of arguments is omitted to increase performance.
+      foreach (var item in root) {
+        var children = childrenExtractor.Invoke(item);
+        if(rootFirst)
+          yield return item;
+        if(children != null)
+          foreach (var childItem in children.Flatten(childrenExtractor, exitAction, rootFirst))
+            yield return childItem;
+        if(!rootFirst)
+          yield return item;
+        if(exitAction != null)
+          exitAction.Invoke(item);
+      }
+    }
   }
 }

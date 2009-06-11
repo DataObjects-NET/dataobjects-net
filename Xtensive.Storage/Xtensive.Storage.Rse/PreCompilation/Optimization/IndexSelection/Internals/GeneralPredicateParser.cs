@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     {
       if (!CanBeParsed(u))
         return null;
-      var comparison = extractor.Extract(u, ParserHelper.DeafultKeySelector);
+      var comparison = extractor.Extract(u, ParserHelper.DefaultKeySelector);
       if(comparison != null)
         return parserHelper.ConvertToRangeSetInfo(u, comparison, indexInfo, recordSetHeader, comparer);
       var prevInversionState = SwitchInversion(u);
@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     {
       if (!CanBeParsed(b))
         return null;
-      var comparison = extractor.Extract(b, ParserHelper.DeafultKeySelector);
+      var comparison = extractor.Extract(b, ParserHelper.DefaultKeySelector);
       if(comparison != null)
         return parserHelper.ConvertToRangeSetInfo(b, comparison, indexInfo, recordSetHeader, comparer);
       if(b.Type != typeof(bool)
@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     {
       if (!CanBeParsed(mc))
         return null;
-      var comparison = extractor.Extract(mc, ParserHelper.DeafultKeySelector);
+      var comparison = extractor.Extract(mc, ParserHelper.DefaultKeySelector);
       return parserHelper.ConvertToRangeSetInfo(mc, comparison, indexInfo, recordSetHeader, comparer);
     }
 

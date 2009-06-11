@@ -58,11 +58,9 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       mappings[provider.Source] = remappedColumns;
       OnRecursionEntrance(provider);
       CompilableProvider source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
+      var outputColumns = (int[])OnRecursionExit(provider);
       if (source == provider.Source && requiredColumns.Count == provider.ColumnIndexes.Length)
         return provider;
-      List<int> sourceColumns = mappings[provider.Source];
-      int[] outputColumns = remappedColumns.Select(c => sourceColumns.IndexOf(c)).ToArray();
       var sourceAsSelect = provider.Source as SelectProvider;
       if (sourceAsSelect != null && sourceAsSelect.ColumnIndexes.SequenceEqual(outputColumns))
         return sourceAsSelect;
