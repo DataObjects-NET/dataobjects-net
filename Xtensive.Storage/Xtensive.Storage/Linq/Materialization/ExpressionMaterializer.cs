@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Linq.Materialization
         subQueryExpression.ApplyParameter)
         .Result;
 
-      var itemProjector = new ItemProjectorExpression(subQueryExpression.ProjectionExpression.ItemProjector.Item, dataSource);
+      var itemProjector = new ItemProjectorExpression(subQueryExpression.ProjectionExpression.ItemProjector.Item, dataSource, subQueryExpression.ProjectionExpression.ItemProjector.Context);
       parameterOfTuple = context.GetTupleParameter(subQueryExpression.OuterParameter);
 
       // 2. Add only parameter<tuple>. Tuple value will be assigned 

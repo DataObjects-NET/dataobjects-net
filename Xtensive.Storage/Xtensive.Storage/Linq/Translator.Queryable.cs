@@ -251,7 +251,7 @@ namespace Xtensive.Storage.Linq
         recordSet = recordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
       }
       var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset);
-      var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet);
+      var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
       return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
     }
 
@@ -313,7 +313,7 @@ namespace Xtensive.Storage.Linq
         break;
       }
       var resultType = (ResultType) Enum.Parse(typeof (ResultType), method.Name);
-      var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, recordSet);
+      var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, recordSet, context);
       return new ProjectionExpression(method.ReturnType, itemProjector, resultType, projection.TupleParameterBindings);
     }
 
@@ -322,7 +322,7 @@ namespace Xtensive.Storage.Linq
       var projection = VisitSequence(source);
       var parameter = context.ParameterExtractor.ExtractParameter<int>(take);
       var rs = projection.ItemProjector.DataSource.Take(parameter.CachingCompile());
-      var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rs);
+      var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rs, context);
       return new ProjectionExpression(projection.Type, itemProjector, projection.TupleParameterBindings);
     }
 
@@ -331,7 +331,7 @@ namespace Xtensive.Storage.Linq
       var projection = VisitSequence(source);
       var parameter = context.ParameterExtractor.ExtractParameter<int>(skip);
       var rs = projection.ItemProjector.DataSource.Skip(parameter.CachingCompile());
-      var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rs);
+      var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rs, context);
       return new ProjectionExpression(projection.Type, itemProjector, projection.TupleParameterBindings);
     }
 
@@ -452,7 +452,7 @@ namespace Xtensive.Storage.Linq
         ? Expression.Convert(ColumnExpression.Create(columnType, 0), resultType)
         : (Expression) ColumnExpression.Create(resultType, 0);
 
-      var itemProjector = new ItemProjectorExpression(projectorBody, dataSource);
+      var itemProjector = new ItemProjectorExpression(projectorBody, dataSource, context);
       return new ProjectionExpression(resultType, itemProjector, ResultType.First, innerProjection.TupleParameterBindings);
     }
 
@@ -479,7 +479,7 @@ namespace Xtensive.Storage.Linq
       var keyDataSource = keyProjection.ItemProjector.DataSource.Aggregate(keyColumns);
       var remappedKeyItemProjector = keyProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, keyColumns);
 
-      var newItemProjector = new ItemProjectorExpression(remappedKeyItemProjector.Item, keyDataSource);
+      var newItemProjector = new ItemProjectorExpression(remappedKeyItemProjector.Item, keyDataSource, context);
 
       keyProjection = new ProjectionExpression(keyProjection.Type, newItemProjector, keyProjection.TupleParameterBindings);
 
@@ -508,7 +508,7 @@ namespace Xtensive.Storage.Linq
         subqueryProjection = VisitSelect(subqueryProjection, elementSelector);
 
       var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, elementSelector, new Segment<int>(0, keyColumns.Length), false);
-      var groupingItemProjector = new ItemProjectorExpression(groupingExpression, keyDataSource);
+      var groupingItemProjector = new ItemProjectorExpression(groupingExpression, keyDataSource, context);
       var returnType = resultSelector==null
         ? method.ReturnType
         : resultSelector.Parameters[1].Type;
@@ -538,7 +538,7 @@ namespace Xtensive.Storage.Linq
         var dc = new DirectionCollection<int>(orderItems);
         var result = context.Bindings[le.Parameters[0]];
         var dataSource = result.ItemProjector.DataSource.OrderBy(dc);
-        var itemProjector = new ItemProjectorExpression(result.ItemProjector.Item, dataSource);
+        var itemProjector = new ItemProjectorExpression(result.ItemProjector.Item, dataSource, context);
         return new ProjectionExpression(result.Type, itemProjector, result.TupleParameterBindings);
       }
     }
@@ -560,7 +560,7 @@ namespace Xtensive.Storage.Linq
             sortOrder.Add(item);
         }
         var recordSet = new SortProvider(sortProvider.Source, sortOrder).Result;
-        var itemProjector = new ItemProjectorExpression(result.ItemProjector.Item, recordSet);
+        var itemProjector = new ItemProjectorExpression(result.ItemProjector.Item, recordSet, context);
         return new ProjectionExpression(result.Type, itemProjector, result.TupleParameterBindings);
       }
     }
@@ -706,7 +706,7 @@ namespace Xtensive.Storage.Linq
         var predicate = predicateExpression.ToLambda(context, visitedSource.TupleParameterBindings.Keys);
         var source = context.Bindings[parameter];
         var recordSet = source.ItemProjector.DataSource.Filter((Expression<Func<Tuple, bool>>) predicate);
-        var itemProjector = new ItemProjectorExpression(source.ItemProjector.Item, recordSet);
+        var itemProjector = new ItemProjectorExpression(source.ItemProjector.Item, recordSet, context);
         return new ProjectionExpression(
           expression.Type,
           itemProjector,
@@ -725,7 +725,7 @@ namespace Xtensive.Storage.Linq
         ? Expression.Not(existenceColumn)
         : (Expression) existenceColumn;
       var newRecordSet = result.ItemProjector.DataSource.Existence(context.GetNextColumnAlias());
-      var itemProjector = new ItemProjectorExpression(projectorBody, newRecordSet);
+      var itemProjector = new ItemProjectorExpression(projectorBody, newRecordSet, context);
       return new ProjectionExpression(typeof (bool), itemProjector, ResultType.Single, result.TupleParameterBindings);
     }
 
@@ -804,7 +804,7 @@ namespace Xtensive.Storage.Linq
         var groupingItemProjector = oldGroupingExpression.ProjectionExpression.ItemProjector.RewriteApplyParameter(oldGroupingExpression.ApplyParameter, newApplyParameter);
         var groupingProjection = new ProjectionExpression(oldGroupingExpression.ProjectionExpression.Type, groupingItemProjector, oldGroupingExpression.ProjectionExpression.ResultType, oldGroupingExpression.ProjectionExpression.TupleParameterBindings);
         var newGroupingExpression = new GroupingExpression(oldGroupingExpression.Type, oldGroupingExpression.OuterParameter, groupingProjection, newApplyParameter, oldGroupingExpression.KeyExpression, oldGroupingExpression.ElementSelector, oldGroupingExpression.Mapping, oldGroupingExpression.DefaultIfEmpty);
-        newItemProjector = new ItemProjectorExpression(newGroupingExpression, newRecordSet);
+        newItemProjector = new ItemProjectorExpression(newGroupingExpression, newRecordSet, context);
       }
       else if (oldResult.ItemProjector.Item.IsSubqueryExpression()) {
         var newApplyParameter = context.GetApplyParameter(newRecordSet);
@@ -812,7 +812,7 @@ namespace Xtensive.Storage.Linq
         var subqueryItemProjector = oldSubqueryExpression.ProjectionExpression.ItemProjector.RewriteApplyParameter(oldSubqueryExpression.ApplyParameter, newApplyParameter);
         var subqueryProjection = new ProjectionExpression(oldSubqueryExpression.ProjectionExpression.Type, subqueryItemProjector, oldSubqueryExpression.ProjectionExpression.ResultType, oldSubqueryExpression.ProjectionExpression.TupleParameterBindings);
         var newSubqueryExpression = new SubQueryExpression(oldSubqueryExpression.Type, oldSubqueryExpression.OuterParameter, subqueryProjection, newApplyParameter, oldSubqueryExpression.ExtendedType, oldSubqueryExpression.DefaultIfEmpty);
-        newItemProjector = new ItemProjectorExpression(newSubqueryExpression, newRecordSet);
+        newItemProjector = new ItemProjectorExpression(newSubqueryExpression, newRecordSet, context);
       }
       var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
       context.Bindings.ReplaceBound(lambdaParameter, newResult);

@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.06
 
-using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core.Parameters;
@@ -20,6 +19,8 @@ namespace Xtensive.Storage.Linq.Expressions
   internal class ItemProjectorExpression : ExtendedExpression
   {
     public RecordSet DataSource { get; set; }
+
+    public TranslatorContext Context { get; private set; }
 
     public Expression Item { get; private set; }
 
@@ -44,15 +45,15 @@ namespace Xtensive.Storage.Linq.Expressions
     public ItemProjectorExpression Remap(RecordSet dataSource, int offset)
     {
       if (offset==0)
-        return new ItemProjectorExpression(Item, dataSource);
+        return new ItemProjectorExpression(Item, dataSource, Context);
       var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.Remap(offset, new Dictionary<Expression, Expression>()));
-      return new ItemProjectorExpression(item, dataSource);
+      return new ItemProjectorExpression(item, dataSource, Context);
     }
 
     public ItemProjectorExpression Remap(RecordSet dataSource, int[] columnMap)
     {
       var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.Remap(columnMap, new Dictionary<Expression, Expression>()));
-      return new ItemProjectorExpression(item, dataSource);
+      return new ItemProjectorExpression(item, dataSource, Context);
     }
 
     public LambdaExpression ToLambda(TranslatorContext context, IEnumerable<Parameter<Tuple>> tupleParameters)
@@ -68,19 +69,19 @@ namespace Xtensive.Storage.Linq.Expressions
     public ItemProjectorExpression BindOuterParameter(ParameterExpression parameter)
     {
       var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.BindParameter(parameter, new Dictionary<Expression, Expression>()));
-      return new ItemProjectorExpression(item, DataSource);
+      return new ItemProjectorExpression(item, DataSource, Context);
     }
 
     public ItemProjectorExpression RemoveOuterParameter()
     {
       var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.RemoveOuterParameter(new Dictionary<Expression, Expression>()));
-      return new ItemProjectorExpression(item, DataSource);
+      return new ItemProjectorExpression(item, DataSource, Context);
     }
 
     public ItemProjectorExpression RemoveOwner()
     {
       var item = OwnerRemover.RemoveOwner(Item);
-      return new ItemProjectorExpression(item, DataSource);
+      return new ItemProjectorExpression(item, DataSource, Context);
     }
 
     public ItemProjectorExpression SetDefaultIfEmpty()
@@ -89,7 +90,7 @@ namespace Xtensive.Storage.Linq.Expressions
         mapped.DefaultIfEmpty = true;
         return mapped;
       });
-      return new ItemProjectorExpression(item, DataSource);
+      return new ItemProjectorExpression(item, DataSource, Context);
     }
 
     public ItemProjectorExpression RewriteApplyParameter(ApplyParameter oldParameter, ApplyParameter newParameter)
@@ -99,7 +100,7 @@ namespace Xtensive.Storage.Linq.Expressions
         oldParameter,
         newParameter)
         .Result;
-      return new ItemProjectorExpression(Item, newDataSource);
+      return new ItemProjectorExpression(Item, newDataSource, Context);
     }
 
     public override string ToString()
@@ -110,11 +111,12 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    public ItemProjectorExpression(Expression expression, RecordSet dataSource)
+    public ItemProjectorExpression(Expression expression, RecordSet dataSource, TranslatorContext context)
       : base(ExtendedExpressionType.ItemProjector, expression.Type)
     {
       Item = expression;
       DataSource = dataSource;
+      Context = context;
     }
   }
 }

@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Storage.Linq.Expressions.Visitors;
-using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Core.Collections;
@@ -70,7 +69,7 @@ namespace Xtensive.Storage.Linq.Expressions
           return mapped.Remap(offset, new Dictionary<Expression, Expression>());
         return (Expression) mapped;
       });
-      var newItemProjector = new ItemProjectorExpression(item, newDataSource);
+      var newItemProjector = new ItemProjectorExpression(item, newDataSource, ProjectionExpression.ItemProjector.Context);
       var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings);
       var result = new SubQueryExpression(Type, OuterParameter, newProjectionExpression, ApplyParameter, ExtendedType, DefaultIfEmpty);
       processedExpressions.Add(this, result);
@@ -104,7 +103,7 @@ namespace Xtensive.Storage.Linq.Expressions
           return mapped.Remap(map, new Dictionary<Expression, Expression>());
         return (Expression) mapped;
       });
-      var newItemProjector = new ItemProjectorExpression(item, newDataSource);
+      var newItemProjector = new ItemProjectorExpression(item, newDataSource, ProjectionExpression.ItemProjector.Context);
       var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings);
       var result = new SubQueryExpression(Type, OuterParameter, newProjectionExpression, ApplyParameter, ExtendedType, DefaultIfEmpty);
       processedExpressions.Add(this, result);

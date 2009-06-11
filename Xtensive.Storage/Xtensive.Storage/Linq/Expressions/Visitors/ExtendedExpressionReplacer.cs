@@ -6,7 +6,6 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core.Collections;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors
@@ -36,7 +35,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         var providerChanged = provider != projectionExpression.ItemProjector.DataSource.Provider;
         var itemChanged = item != projectionExpression.ItemProjector.Item;
         if (providerChanged || itemChanged) {
-          var itemProjector = new ItemProjectorExpression(item, provider.Result);
+          var itemProjector = new ItemProjectorExpression(item, provider.Result, projectionExpression.ItemProjector.Context);
           return new ProjectionExpression(
             projectionExpression.Type, 
             itemProjector, 

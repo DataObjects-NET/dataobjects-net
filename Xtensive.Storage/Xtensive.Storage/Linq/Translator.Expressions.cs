@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Linq
                  : ProcessProjectionElement(body);
         if (state.CalculatedColumns.Count > 0) {
           var dataSource = projection.ItemProjector.DataSource.Calculate(state.CalculatedColumns.ToArray());
-          var itemProjector = new ItemProjectorExpression(body, dataSource);
+          var itemProjector = new ItemProjectorExpression(body, dataSource, context);
           context.Bindings.ReplaceBound(parameter, new ProjectionExpression(
                                                      projection.Type,
                                                      state.BuildingProjection
@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Linq
                                                      projection.TupleParameterBindings));
           return itemProjector;
         }
-        return new ItemProjectorExpression(body, projection.ItemProjector.DataSource);
+        return new ItemProjectorExpression(body, projection.ItemProjector.DataSource, context);
       }
     }
 
@@ -478,7 +478,7 @@ namespace Xtensive.Storage.Linq
 
       var index = type.Indexes.PrimaryIndex;
       var entityExpression = EntityExpression.Create(type, 0);
-      var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result);
+      var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
       return new ProjectionExpression(
         typeof (IQueryable<>).MakeGenericType(elementType),
         itemProjector,
@@ -610,7 +610,8 @@ namespace Xtensive.Storage.Linq
         // Replace recordset.
         var joinedRecordSet = originalRecordset.JoinLeft(joinedRs, JoinAlgorithm.Default, keyPairs);
         var itemProjectorExpression = new ItemProjectorExpression(originalResultExpression.ItemProjector.Item,
-                                                                  joinedRecordSet);
+                                                                  joinedRecordSet,
+                                                                  context);
         var projectionExpression = new ProjectionExpression(originalResultExpression.Type, itemProjectorExpression,
                                                             originalResultExpression.TupleParameterBindings);
         context.Bindings.ReplaceBound(parameter, projectionExpression);
