@@ -23,7 +23,6 @@ namespace Xtensive.Storage.Building
   /// </summary>
   public sealed class BuildingContext
   {
-    internal HashSet<Type> SkippedTypes { get; private set; }
     internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
     internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
     internal Dictionary<Type, int> SystemTypeIds { get; private set; }
@@ -121,7 +120,6 @@ namespace Xtensive.Storage.Building
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       Log = StringLog.Create("DomainBuilder");
       Configuration = configuration;
-      SkippedTypes = new HashSet<Type> {typeof (Entity), typeof (IEntity), typeof (Structure)};
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
       DiscardedAssociations = new HashSet<  AssociationInfo>();
       SystemTypeIds = new Dictionary<Type, int>();

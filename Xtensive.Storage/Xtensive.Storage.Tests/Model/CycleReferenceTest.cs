@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Tests.Model.CycleReferenceTestModel
     [Field]
     public string Name { get; set; }
 
-    [Field(PairTo = "As")]
+    [Field]
     public Neighbor Neighbor { get; set; }
   }
 
@@ -32,8 +32,8 @@ namespace Xtensive.Storage.Tests.Model.CycleReferenceTestModel
     [Field, KeyField]
     public int Id { get; private set; }
 
-    [Field]
-    public EntitySet<Child> As { get; set; }
+    [Field(PairTo = "Neighbor")]
+    public EntitySet<Child> Persons { get; set; }
   }
 }
 

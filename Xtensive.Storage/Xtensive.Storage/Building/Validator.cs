@@ -78,7 +78,6 @@ namespace Xtensive.Storage.Building
       if (hierarchyDef.KeyFields.Count==0)
         throw new DomainBuilderException(string.Format("Hierarchy '{0}' doesn't contain any key fields.", hierarchyDef.Root.Name));
 
-      var context = BuildingContext.Current;
       var root = hierarchyDef.Root;
 
       if (hierarchyDef.KeyGenerator == typeof(KeyGenerator)) {
@@ -170,6 +169,13 @@ namespace Xtensive.Storage.Building
         return;
 
       throw new DomainBuilderException(string.Format(Strings.ExUnsupportedType, type));
+    }
+
+    /// <exception cref="DomainBuilderException">Field cannot be nullable.</exception>
+    internal static void EnsureIsNullable(Type valueType)
+    {
+      if (!(valueType.IsSubclassOf(typeof (Entity)) || valueType==typeof (string) || valueType==typeof (byte[])))
+        throw new DomainBuilderException(String.Format("Field of type '{0}' cannot be nullable. For value types consider using Nullable<T>.", valueType));
     }
 
     // Type initializer

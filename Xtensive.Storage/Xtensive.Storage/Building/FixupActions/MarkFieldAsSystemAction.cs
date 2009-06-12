@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
-// Created:    2009.05.28
+// Created:    2009.06.02
 
 using System;
 using Xtensive.Storage.Building.Definitions;
@@ -10,7 +10,7 @@ using Xtensive.Storage.Building.Definitions;
 namespace Xtensive.Storage.Building.FixupActions
 {
   [Serializable]
-  internal class TypeIdAsKeyFieldAction : HierarchyAction
+  internal class MarkFieldAsSystemAction : FieldAction
   {
     public override void Run()
     {
@@ -19,14 +19,14 @@ namespace Xtensive.Storage.Building.FixupActions
 
     public override string ToString()
     {
-      return string.Format("Add TypeId as key field to '{0}' type.", Hierarchy.Root.Name);
+      return string.Format("Mark '{0}' field as system.", Field.Name);
     }
 
 
     // Constructors
 
-    public TypeIdAsKeyFieldAction(HierarchyDef hierarchy)
-      : base(hierarchy)
+    public MarkFieldAsSystemAction(TypeDef typeDef, FieldDef fieldDef)
+      : base(typeDef, fieldDef)
     {
     }
   }

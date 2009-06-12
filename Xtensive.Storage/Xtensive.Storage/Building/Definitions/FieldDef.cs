@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Building.Definitions
       get { return (attributes & FieldAttributes.Nullable) != 0; }
       internal set
       {
-        FieldBuilder.ValidateIsNullable(ValueType);
+        Validator.EnsureIsNullable(ValueType);
         attributes = value ? attributes | FieldAttributes.Nullable : attributes & ~FieldAttributes.Nullable;
       }
     }
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether property is translatable.
+    /// Gets or sets a value indicating whether property is collatable.
     /// </summary>
     public bool IsCollatable
     {

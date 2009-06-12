@@ -34,26 +34,29 @@ namespace Xtensive.Storage.Building
     public static void Inspect(HierarchyDef hierarchyDef)
     {
       var context = BuildingContext.Current;
-      Log.Info("Inspecting hierarchy '{0}'", hierarchyDef.Root.Name);
+      var root = hierarchyDef.Root;
+      Log.Info("Inspecting hierarchy '{0}'", root.Name);
       Validator.EnsureHierarchyIsValid(hierarchyDef);
 
       // Check the presence of TypeId field
-      FieldDef typeIdField = hierarchyDef.Root.Fields[WellKnown.TypeIdField];
+      FieldDef typeIdField = root.Fields[WellKnown.TypeIdField];
       if (typeIdField==null)
-        context.ModelInspectionResult.Actions.Enqueue(new AddTypeIdFieldAction(hierarchyDef.Root));
+        context.ModelInspectionResult.Actions.Enqueue(new AddTypeIdFieldAction(root));
       else
-        context.ModelInspectionResult.Actions.Enqueue(new MarkFieldAsSystemFieldAction(hierarchyDef.Root, typeIdField));
+        context.ModelInspectionResult.Actions.Enqueue(new MarkFieldAsSystemAction(root, typeIdField));
 
       // Should TypeId field be added to key fields?
       if (hierarchyDef.IncludeTypeId && hierarchyDef.KeyFields.Find(f => f.Name == WellKnown.TypeIdField) == null)
-        context.ModelInspectionResult.Register(new TypeIdAsKeyFieldAction(hierarchyDef));
+        context.ModelInspectionResult.Register(new AddTypeIdToKeyFieldsAction(hierarchyDef));
 
       context.ModelInspectionResult.Actions.Enqueue(new ReorderFieldsAction(hierarchyDef));
 
       foreach (var keyField in hierarchyDef.KeyFields) {
-        FieldDef field = hierarchyDef.Root.Fields[keyField.Name];
-        InspectField(hierarchyDef.Root, field, EdgeWeight.High);
+        FieldDef field = root.Fields[keyField.Name];
+        InspectField(root, field, true);
       }
+
+      context.ModelInspectionResult.Actions.Enqueue(new AddPrimaryIndexAction(hierarchyDef));
     }
 
     public static void Inspect(TypeDef typeDef)
@@ -61,14 +64,18 @@ namespace Xtensive.Storage.Building
       var context = BuildingContext.Current;
       Log.Info("Inspecting type '{0}'", typeDef.Name);
 
-      if (typeDef.IsInterface)
-        InspectBaseInterfaces(typeDef);
+      if (typeDef.IsInterface) {
+        if (typeDef.UnderlyingType==typeof (IEntity))
+          context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
+        else
+          InspectBaseInterfaces(typeDef);
+      }
       else {
         var fields = new List<FieldDef>(typeDef.Fields);
         if (typeDef.IsEntity) {
           Validator.EnsureUnderlyingTypeIsAspected(typeDef);
           if (typeDef.IsGenericTypeDefinition) {
-            context.ModelInspectionResult.Register(new BuildGenericInstancesAction(typeDef));
+            context.ModelInspectionResult.Register(new BuildGenericTypeInstancesAction(typeDef));
             context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
             return;
           }
@@ -83,9 +90,10 @@ namespace Xtensive.Storage.Building
             fields.RemoveAll(f => f.Name==field.Name);
           }
         }
+
         InspectAncestor(typeDef);
         foreach (var field in fields)
-          InspectField(typeDef, field, EdgeWeight.Low);
+          InspectField(typeDef, field, false);
         InspectInterfaces(typeDef);
       }
     }
@@ -104,12 +112,20 @@ namespace Xtensive.Storage.Building
       }
     }
 
-    private static void InspectField(TypeDef typeDef, FieldDef fieldDef, EdgeWeight weight)
+    private static void InspectField(TypeDef typeDef, FieldDef fieldDef, bool isKeyField)
     {
       var context = BuildingContext.Current;
 //      if (fieldDef.UnderlyingProperty != null &&
 //        fieldDef.UnderlyingProperty.DeclaringType.Assembly == Assembly.GetExecutingAssembly())
-//        context.ModelInspectionResult.Actions.Enqueue(new MarkFieldAsSystemFieldAction(typeDef, fieldDef));
+//        context.ModelInspectionResult.Actions.Enqueue(new MarkFieldAsSystemAction(typeDef, fieldDef));
+
+      if (isKeyField) {
+        if (fieldDef.IsNullable)
+          context.ModelInspectionResult.Register(new MarkFieldAsNotNullableAction(typeDef, fieldDef));
+
+        if (fieldDef.LazyLoad)
+          throw new DomainBuilderException(string.Format(Strings.ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, fieldDef.Name));
+      }
 
       if (fieldDef.IsPrimitive)
         return;
@@ -126,11 +142,11 @@ namespace Xtensive.Storage.Building
       if (fieldDef.IsEntity) {
         IndexDef indexDef = typeDef.Indexes.Where(i => i.IsSecondary && i.KeyFields.Count==1 && i.KeyFields[0].Key==fieldDef.Name).FirstOrDefault();
         if (indexDef==null)
-          context.ModelInspectionResult.Register(new AddIndexAction(typeDef, fieldDef));
+          context.ModelInspectionResult.Register(new AddSecondaryIndexAction(typeDef, fieldDef));
       }
       TypeDef referencedTypeDef = FindTypeDef(referencedType);
 //      TypeDef headDef = context.ModelDef.FindRoot(referencedTypeDef);
-      RegisterDependency(typeDef, referencedTypeDef, EdgeKind.Reference, weight);
+      RegisterDependency(typeDef, referencedTypeDef, EdgeKind.Reference, isKeyField ? EdgeWeight.High : EdgeWeight.Low);
     }
 
     private static void InspectAncestor(TypeDef descendant)
@@ -148,9 +164,9 @@ namespace Xtensive.Storage.Building
 
       Type[] interfaces = typeDef.UnderlyingType.GetInterfaces();
       foreach (var @interface in interfaces) {
-        var baseInterface = context.ModelDef.Types.TryGetValue(@interface);
-        if (baseInterface != null)
-          RegisterDependency(typeDef, baseInterface, EdgeKind.Implementation, EdgeWeight.High);
+        var @base = context.ModelDef.Types.TryGetValue(@interface);
+        if (@base != null)
+          RegisterDependency(typeDef, @base, EdgeKind.Inheritance, EdgeWeight.High);
       }
     }
 

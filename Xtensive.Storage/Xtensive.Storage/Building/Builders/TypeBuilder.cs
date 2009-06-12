@@ -5,8 +5,6 @@
 // Created:    2007.10.02
 
 using System;
-using System.Collections.Generic;
-using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
@@ -15,7 +13,6 @@ using FieldAttributes=Xtensive.Storage.Model.FieldAttributes;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 using Xtensive.Storage.Resources;
 using System.Linq;
-using TypeAttributes=Xtensive.Storage.Model.TypeAttributes;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -24,41 +21,12 @@ namespace Xtensive.Storage.Building.Builders
     /// <exception cref="DomainBuilderException">Type is not registered.</exception>
     public static void BuildType(Type type)
     {
-      var typeDef = BuildingContext.Current.ModelDef.Types.TryGetValue(type);
-
-      if (typeDef==null)
-        throw new DomainBuilderException(string.Format(
-          Strings.ExTypeXIsNotRegisteredInTheModel, type.GetFullName()));
-
-      BuildType(typeDef);
+      BuildType(BuildingContext.Current.ModelDef.Types.TryGetValue(type));
     }
 
     public static void BuildType(TypeDef typeDef)
     {
-      var context = BuildingContext.Current;
-
-      if (context.SkippedTypes.Contains(typeDef.UnderlyingType))
-        return;
-
-      if (typeDef.IsInterface) {
-        if (context.Model.Types.Contains(typeDef.UnderlyingType))
-          return;
-        foreach (var implementor in context.ModelDef.Types) {
-          if (!implementor.IsEntity)
-            continue;
-          if (implementor.UnderlyingType.IsInterface)
-            continue;
-          if (context.Model.Types.Contains(implementor.UnderlyingType))
-            continue;
-          foreach (var @interface in context.ModelDef.Types.FindInterfaces(implementor.UnderlyingType))
-            if (@interface==typeDef) {
-              BuildType(implementor);
-              return;
-            }
-        }
-      }
-
-      if (context.Model.Types.Contains(typeDef.UnderlyingType))
+      if (BuildingContext.Current.Model.Types.Contains(typeDef.UnderlyingType))
         return;
 
       if (typeDef.IsEntity)
@@ -70,43 +38,23 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildStructure(TypeDef typeDef)
     {
-      BuildAnsector(typeDef);
-
       using (Log.InfoRegion(Strings.LogBuildingX, typeDef.UnderlyingType.GetFullName())) {
-        var type = CreateType(typeDef);
-        ProcessAncestor(type);
-        BuildDeclaredFields(type, typeDef);
+        CreateType(typeDef);
       }
     }
 
     private static void BuildEntity(TypeDef typeDef)
     {
       var hierarchyDef = BuildingContext.Current.ModelDef.FindHierarchy(typeDef);
-      if (hierarchyDef==null) {
-        Log.Info(Strings.LogSkippingEntityXAsItDoesNotBelongToAnyHierarchyThusItCannotBePersistent,
-          typeDef.UnderlyingType);
-        BuildingContext.Current.SkippedTypes.Add(typeDef.UnderlyingType);
-        return;
-      }
-
-      BuildAnsector(typeDef);
 
       using (Log.InfoRegion(Strings.LogBuildingX, typeDef.UnderlyingType.GetShortName())) {
-        var type = CreateType(typeDef);
+        var typeInfo = CreateType(typeDef);
 
-        if (type.UnderlyingType==hierarchyDef.Root.UnderlyingType) {
-          BuildHierarchyRoot(type, typeDef, hierarchyDef);
-          BuildInterfaces(type);
-          BuildDeclaredFields(type, typeDef);
-          BuildInterfaceFields(type);
-        }
-        else {
-          AssignHierarchy(type);
-          ProcessAncestor(type);
-          BuildInterfaces(type);
-          BuildDeclaredFields(type, typeDef);
-          BuildInterfaceFields(type);
-        }
+        if (typeInfo.UnderlyingType==hierarchyDef.Root.UnderlyingType)
+          BuildHierarchyRoot(hierarchyDef, typeDef, typeInfo);
+        else
+          AssignHierarchy(typeInfo);
+        BuildInterfaces(typeInfo);
       }
     }
 
@@ -119,13 +67,6 @@ namespace Xtensive.Storage.Building.Builders
       };
       BuildingContext.Current.Model.Types.Add(type);
       return type;
-    }
-
-    private static void BuildAnsector(TypeDef type)
-    {
-      var ancestorDef = BuildingContext.Current.ModelDef.Types.FindAncestor(type);
-      if (ancestorDef!=null)
-        BuildType(ancestorDef);
     }
 
     private static void BuildInterfaces(TypeInfo type)
@@ -187,10 +128,8 @@ namespace Xtensive.Storage.Building.Builders
         return;
 
       foreach (var srcField in ancestor.Fields.Find(FieldAttributes.Explicit, MatchType.None).Where(f => f.Parent==null)) {
-        if (type.Fields.Contains(srcField.Name))
-          continue;
-
-        FieldBuilder.BuildInheritedField(type, srcField);
+        if (!type.Fields.Contains(srcField.Name))
+          FieldBuilder.BuildInheritedField(type, srcField);
       }
       foreach (var pair in ancestor.FieldMap)
         if (!pair.Value.IsExplicit)
@@ -207,40 +146,17 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    private static void BuildHierarchyRoot(TypeInfo type, TypeDef typeDef, HierarchyDef hierarchy)
+    private static void BuildHierarchyRoot(HierarchyDef hierarchy, TypeDef typeDef, TypeInfo typeInfo)
     {
-      foreach (var keyField in hierarchy.KeyFields)
-        BuildKeyField(typeDef, keyField, type);
+      foreach (var keyField in hierarchy.KeyFields) {
+        var fieldInfo = FieldBuilder.BuildDeclaredField(typeInfo, typeDef.Fields[keyField.Name]);
+        fieldInfo.IsPrimaryKey = true;
+      }
 
-      type.Hierarchy = HierarchyBuilder.BuildHierarchy(type, hierarchy);
+      if (!typeInfo.Fields.Contains(WellKnown.TypeIdField))
+        FieldBuilder.BuildDeclaredField(typeInfo, typeDef.Fields[WellKnown.TypeIdField]);
 
-      var indexDef = new IndexDef {IsPrimary = true};
-      indexDef.Name = BuildingContext.Current.NameBuilder.Build(typeDef, indexDef);
-      if (typeDef.Indexes.Contains(indexDef.Name))
-        return;
-
-      foreach (KeyField pair in hierarchy.KeyFields)
-        indexDef.KeyFields.Add(pair.Name, pair.Direction);
-
-      typeDef.Indexes.Add(indexDef);
-    }
-
-    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    private static void BuildKeyField(TypeDef typeDef, KeyField keyField, TypeInfo type)
-    {
-      var srcFieldDef = typeDef.Fields[keyField.Name];
-      srcFieldDef.Attributes |= FieldAttributes.PrimaryKey;
-      if ((srcFieldDef.Attributes & FieldAttributes.Nullable) != 0)
-        srcFieldDef.Attributes ^= FieldAttributes.Nullable;
-
-      FieldBuilder.BuildDeclaredField(type, srcFieldDef);
-      var field = type.Fields[srcFieldDef.Name];
-      field.IsPrimaryKey = true;
-
-      if (field.IsLazyLoad)
-        throw new DomainBuilderException(string.Format(Strings.ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, field.Name));
-      if (field.IsNullable && !field.ValueType.IsClass)
-        throw new DomainBuilderException(string.Format(Strings.ExFieldXCanTBeNullableAsItIsIncludedInPrimaryKey, field.Name));
+      typeInfo.Hierarchy = HierarchyBuilder.BuildHierarchy(typeInfo, hierarchy);
     }
 
     private static TypeInfo BuildInterface(TypeDef typeDef, TypeInfo implementor)
@@ -249,14 +165,6 @@ namespace Xtensive.Storage.Building.Builders
 
       TypeInfo type;
       context.Model.Types.TryGetValue(typeDef.UnderlyingType, out type);
-
-      // TODO: Check interface key structure
-//      if (type.Hierarchy!=implementor.Hierarchy) 
-//          throw new DomainBuilderException(
-//            string.Format(Strings.InterfaceXDoesNotBelongToXHierarchy, type.Name, implementor.Hierarchy.Root.Name));
-
-      if (context.SkippedTypes.Contains(typeDef.UnderlyingType))
-        return null;
 
       if (type!=null)
         return type;
@@ -272,7 +180,7 @@ namespace Xtensive.Storage.Building.Builders
 
       using (Log.InfoRegion(Strings.LogBuildingX, typeDef.UnderlyingType.GetFullName())) {
         // Building key & system fields according to implementor
-        foreach (FieldInfo implField in implementor.Fields.Find(FieldAttributes.PrimaryKey | FieldAttributes.System)) {
+        foreach (FieldInfo implField in implementor.Fields.Find(FieldAttributes.PrimaryKey | FieldAttributes.TypeId)) {
           if (!type.Fields.Contains(implField.Name))
             FieldBuilder.BuildInterfaceField(type, implField, null);
         }
@@ -301,9 +209,22 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    private static void AssignHierarchy(TypeInfo type)
+    private static void AssignHierarchy(TypeInfo typeInfo)
     {
-      type.Hierarchy = type.GetRoot().Hierarchy;
+      var root = typeInfo.GetRoot();
+      typeInfo.Hierarchy = root.Hierarchy;
+      foreach (var fieldInfo in root.Fields)
+        FieldBuilder.BuildInheritedField(typeInfo, fieldInfo);
+    }
+
+    public static void BuildFields(TypeDef typeDef)
+    {
+      TypeInfo typeInfo = BuildingContext.Current.Model.Types[typeDef.UnderlyingType];
+
+      ProcessAncestor(typeInfo);
+      BuildDeclaredFields(typeInfo, typeDef);
+      if (typeInfo.IsEntity)
+        BuildInterfaceFields(typeInfo);
     }
   }
 }

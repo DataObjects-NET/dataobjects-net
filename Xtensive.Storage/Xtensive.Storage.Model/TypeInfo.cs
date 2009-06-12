@@ -416,8 +416,9 @@ namespace Xtensive.Storage.Model
       var tuple = Tuple.Create(TupleDescriptor);
       tuple.Initialize(nullableMap);
       if (IsEntity){
-        var typeIdField = Fields.Where(f => f.IsTypeId).First();
-        tuple.SetValue(typeIdField.MappingInfo.Offset, TypeId);
+        var typeIdField = Fields.Where(f => f.IsTypeId).FirstOrDefault();
+        if (typeIdField != null)
+          tuple.SetValue(typeIdField.MappingInfo.Offset, TypeId);
 
         // Building primary key injector
         var fieldCount = TupleDescriptor.Count;

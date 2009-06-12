@@ -36,9 +36,7 @@ namespace Xtensive.Storage.Tests.Issues
     {
       Domain domain = null;
       // Model builder mark primary key fields as not nullable automatically
-      // AssertEx.Throws<DomainBuilderException>(() => domain = base.BuildDomain(configuration));
-      domain = base.BuildDomain(configuration);
-      Assert.IsFalse(domain.Model.Types["X"].Fields["ID"].IsNullable);
+       AssertEx.Throws<DomainBuilderException>(() => domain = base.BuildDomain(configuration));
       return domain;
     }
   }

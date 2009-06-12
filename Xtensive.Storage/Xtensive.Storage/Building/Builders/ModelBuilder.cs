@@ -91,6 +91,7 @@ namespace Xtensive.Storage.Building.Builders
           throw new DomainBuilderException(string.Format("At least one loop have been found in persistent type dependencies graph. Suspicious types: {0}", loops.Select(node => node.Item.Name).ToCommaDelimitedString()));
         context.Model = new DomainModel();
         BuildTypes(sequence);
+        BuildFields(sequence);
         context.ModelUnlockKey = context.Model.GetUnlockKey();
         BuildAssociations();
         BuildColumns();
@@ -105,6 +106,14 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
         foreach (var typeDef in types)
           TypeBuilder.BuildType(typeDef);
+      }
+    }
+
+    private static void BuildFields(List<TypeDef> types)
+    {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
+        foreach (var typeDef in types)
+          TypeBuilder.BuildFields(typeDef);
       }
     }
 

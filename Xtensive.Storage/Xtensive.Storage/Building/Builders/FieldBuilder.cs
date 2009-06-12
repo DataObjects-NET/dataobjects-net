@@ -24,11 +24,11 @@ namespace Xtensive.Storage.Building.Builders
     /// </summary>
     /// <param name="type">The type field belongs to.</param>
     /// <param name="fieldDef">The field definition.</param>
-    public static void BuildDeclaredField(TypeInfo type, FieldDef fieldDef)
+    public static FieldInfo BuildDeclaredField(TypeInfo type, FieldDef fieldDef)
     {
       Log.Info(Strings.LogBuildingDeclaredFieldXY, type.Name, fieldDef.Name);
 
-      var field = new FieldInfo(type, fieldDef.Attributes)
+      var fieldInfo = new FieldInfo(type, fieldDef.Attributes)
         {
           UnderlyingProperty = fieldDef.UnderlyingProperty,
           Name = fieldDef.Name,
@@ -39,84 +39,38 @@ namespace Xtensive.Storage.Building.Builders
           Length = fieldDef.Length
         };
 
-      type.Fields.Add(field);
+      type.Fields.Add(fieldInfo);
 
 
-      if (field.IsEntitySet) {
-        ValidateValueType(field.ItemType, type.UnderlyingType);
-        TypeBuilder.BuildType(field.ItemType);
+      if (fieldInfo.IsEntitySet) {
+        TypeBuilder.BuildType(fieldInfo.ItemType);
 
-        AssociationBuilder.BuildAssociation(fieldDef, field);
-        return;
+        AssociationBuilder.BuildAssociation(fieldDef, fieldInfo);
+        return fieldInfo;
       }
 
-      if (field.IsEntity) {
-        ValidateValueType(field.ValueType, type.UnderlyingType);
-        TypeBuilder.BuildType(field.ValueType);
-        BuildReferenceField(field);
+      if (fieldInfo.IsEntity) {
+        TypeBuilder.BuildType(fieldInfo.ValueType);
+        BuildReferenceField(fieldInfo);
 
-        var baseType = field.ReflectedType.UnderlyingType.BaseType;
+        var baseType = fieldInfo.ReflectedType.UnderlyingType.BaseType;
         if (!baseType.IsGenericType || baseType.GetGenericTypeDefinition()!=typeof (EntitySetItem<,>))
-          AssociationBuilder.BuildAssociation(fieldDef, field);
+          AssociationBuilder.BuildAssociation(fieldDef, fieldInfo);
       }
 
-      if (field.IsStructure) {
-        ValidateValueType(field.ValueType, type.UnderlyingType);
-        TypeBuilder.BuildType(field.ValueType);
-        BuildStructureField(field);
+      if (fieldInfo.IsStructure) {
+        TypeBuilder.BuildType(fieldInfo.ValueType);
+        BuildStructureField(fieldInfo);
       }
 
-      if (field.IsPrimitive) {
-        ValidateValueType(field.ValueType, type.UnderlyingType);
-        field.Column = ColumnBuilder.BuildColumn(field);
-        if (field.ValueType==typeof(Key)) {
-          var typeDef = BuildingContext.Current.ModelDef.Types[field.DeclaringType.UnderlyingType];
+      if (fieldInfo.IsPrimitive) {
+        fieldInfo.Column = ColumnBuilder.BuildColumn(fieldInfo);
+        if (fieldInfo.ValueType==typeof(Key)) {
+          var typeDef = BuildingContext.Current.ModelDef.Types[fieldInfo.DeclaringType.UnderlyingType];
           typeDef.Indexes.Add(IndexBuilder.DefineForeignKey(typeDef, fieldDef));
         }
       }
-    }
-
-    /// <exception cref="DomainBuilderException"><c>DomainBuilderException</c>.</exception>
-    private static void ValidateValueType(Type valueType, Type declaringType)
-    {
-      if (valueType.IsGenericType) {
-        Type genericType = valueType.GetGenericTypeDefinition();
-        if (genericType==typeof (Nullable<>)) {
-          ValidateValueType(Nullable.GetUnderlyingType(valueType), declaringType);
-          return;
-        }
-      }
-
-      if (valueType.IsPrimitive || valueType.IsEnum || typeof (string)==valueType
-        || typeof (byte[])==valueType || typeof (Guid)==valueType || valueType==typeof (DateTime)
-          || valueType==typeof (TimeSpan) || valueType==typeof (decimal) || valueType==typeof (Key))
-        return;
-
-      if (typeof (Entity).IsAssignableFrom(valueType))
-        return;
-
-      if (valueType.IsSubclassOf(typeof (Structure)))
-        return;
-
-      if (valueType.IsInterface && typeof (IEntity).IsAssignableFrom(valueType) && valueType!=typeof (IEntity))
-        return;
-
-      if (valueType.IsOfGenericType(typeof(EntitySet<>))) {
-        if (declaringType.IsSubclassOf(typeof (Structure)))
-          throw new DomainBuilderException(
-            string.Format(Strings.ExStructuresDoNotSupportFieldsOfTypeX, valueType.Name));
-        return;
-      }
-
-      throw new DomainBuilderException(
-        string.Format(Strings.ExUnsupportedFieldTypeX, valueType.Name));
-    }
-
-    /// <exception cref="DomainBuilderException">Field cannot be nullable.</exception>
-    internal static void ValidateIsNullable(Type valueType)
-    {
-      if (!(valueType.IsSubclassOf(typeof (Entity)) || valueType==typeof (string) || valueType==typeof (byte[])))
-        throw new DomainBuilderException(String.Format("Field of type '{0}' cannot be nullable. For value types consider using Nullable<T>.", valueType));
+      return fieldInfo;
     }
 
     public static void BuildInheritedField(TypeInfo type, FieldInfo inheritedField)

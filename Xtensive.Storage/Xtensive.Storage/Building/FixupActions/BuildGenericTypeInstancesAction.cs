@@ -10,7 +10,7 @@ using Xtensive.Storage.Building.Definitions;
 namespace Xtensive.Storage.Building.FixupActions
 {
   [Serializable]
-  internal class BuildGenericInstancesAction : TypeAction
+  internal class BuildGenericTypeInstancesAction : TypeAction
   {
     public override void Run()
     {
@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Building.FixupActions
 
     // Constructors
 
-    public BuildGenericInstancesAction(TypeDef type)
+    public BuildGenericTypeInstancesAction(TypeDef type)
       : base(type)
     {
     }

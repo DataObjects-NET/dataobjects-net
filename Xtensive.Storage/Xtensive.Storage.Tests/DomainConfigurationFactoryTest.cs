@@ -36,15 +36,7 @@ namespace Xtensive.Storage.Tests
           result.AppendLine(builder.GetShortName());
         }
       }
-      throw new FyiException(result.ToString());
-    }
-  }
-
-  public class FyiException : Exception
-  {
-    public FyiException(string message)
-      : base(message)
-    {
+      Log.Error(result.ToString());
     }
   }
 }

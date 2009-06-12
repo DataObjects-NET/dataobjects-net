@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
-// Created:    2009.06.02
+// Created:    2009.05.29
 
 using System;
 using Xtensive.Storage.Building.Definitions;
@@ -10,7 +10,7 @@ using Xtensive.Storage.Building.Definitions;
 namespace Xtensive.Storage.Building.FixupActions
 {
   [Serializable]
-  internal class MarkFieldAsSystemFieldAction : FieldAction
+  internal class AddSecondaryIndexAction : FieldAction
   {
     public override void Run()
     {
@@ -19,14 +19,14 @@ namespace Xtensive.Storage.Building.FixupActions
 
     public override string ToString()
     {
-      return string.Format("Mark '{0}' field as system field.", Field.Name);
+      return string.Format("Add secondary index to '{0}.{1}'", Type.Name, Field.Name);
     }
 
 
-    // Constructors
+    //  Constructors
 
-    public MarkFieldAsSystemFieldAction(TypeDef typeDef, FieldDef fieldDef)
-      : base(typeDef, fieldDef)
+    public AddSecondaryIndexAction(TypeDef type, FieldDef field)
+      : base(type, field)
     {
     }
   }

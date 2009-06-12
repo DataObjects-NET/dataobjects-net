@@ -7,8 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.FixupActions;
@@ -31,9 +29,8 @@ namespace Xtensive.Storage.Building
         }
     }
 
-    public static void Process(TypeIdAsKeyFieldAction action)
+    public static void Process(AddTypeIdToKeyFieldsAction action)
     {
-      var context = BuildingContext.Current;
       action.Hierarchy.KeyFields.Add(new KeyField(WellKnown.TypeIdField));
     }
 
@@ -62,7 +59,7 @@ namespace Xtensive.Storage.Building
       BuildingContext.Current.ModelDef.Types.Remove(action.Type);
     }
 
-    public static void Process(BuildGenericInstancesAction action)
+    public static void Process(BuildGenericTypeInstancesAction action)
     {
       var context = BuildingContext.Current;
 
@@ -95,14 +92,32 @@ namespace Xtensive.Storage.Building
       }
     }
 
-    public static void Process(AddIndexAction action)
+    public static void Process(AddSecondaryIndexAction action)
     {
       var attribute = new IndexAttribute(action.Field.Name);
       var indexDef = ModelDefBuilder.DefineIndex(action.Type, attribute);
       action.Type.Indexes.Add(indexDef);
     }
 
-    public static void Process(MarkFieldAsSystemFieldAction action)
+    public static void Process(AddPrimaryIndexAction action)
+    {
+      var root = action.Hierarchy.Root;
+
+      var primaryIndexes = root.Indexes.Where(i => i.IsPrimary).ToList();
+      if (primaryIndexes.Count > 0)
+        foreach (var primaryIndex in primaryIndexes)
+          root.Indexes.Remove(primaryIndex);
+
+      var indexDef = new IndexDef {IsPrimary = true};
+      indexDef.Name = BuildingContext.Current.NameBuilder.Build(root, indexDef);
+
+      foreach (KeyField pair in action.Hierarchy.KeyFields)
+        indexDef.KeyFields.Add(pair.Name, pair.Direction);
+
+      root.Indexes.Add(indexDef);
+    }
+
+    public static void Process(MarkFieldAsSystemAction action)
     {
       action.Field.IsSystem = true;
       if (action.Type.IsEntity && action.Field.Name == WellKnown.TypeIdField)
@@ -115,6 +130,11 @@ namespace Xtensive.Storage.Building
       fieldDef.IsTypeId = true;
       fieldDef.IsSystem = true;
       action.Type.Fields.Add(fieldDef);
+    }
+
+    public static void Process(MarkFieldAsNotNullableAction action)
+    {
+      action.Field.IsNullable = false;
     }
   }
 }
