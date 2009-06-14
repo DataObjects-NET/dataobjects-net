@@ -16,7 +16,7 @@ using System.Reflection;
   var p = new Process();
   p.StartInfo.UseShellExecute = false;
   p.StartInfo.RedirectStandardOutput = true;
-  p.StartInfo.FileName = "SubWCRev.exe";
+  p.StartInfo.FileName = Path.Combine(Environment.GetEnvironmentVariable("SubWCRevPath") ?? string.Empty, "SubWCRev.exe");
   string path = Host.TemplateFile;
   path = Path.Combine(Path.GetPathRoot(path), Path.GetDirectoryName(path));
   path = Path.Combine(path, @"..");
