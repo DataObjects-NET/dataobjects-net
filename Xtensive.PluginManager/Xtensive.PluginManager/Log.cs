@@ -15,6 +15,9 @@ namespace Xtensive.PluginManager
   public sealed class Log: LogTemplate<Log>
   {
     // Copy-paste this code!
+    /// <summary>
+    /// Log name.
+    /// </summary>
     public static readonly string Name;
     
     static Log()
