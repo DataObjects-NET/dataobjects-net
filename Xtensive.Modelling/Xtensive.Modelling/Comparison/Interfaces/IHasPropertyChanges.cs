@@ -8,6 +8,9 @@ using System.Collections.Generic;
 
 namespace Xtensive.Modelling.Comparison
 {
+  /// <summary>
+  /// A contract of describing property change set.
+  /// </summary>
   public interface IHasPropertyChanges : IDifference
   {
     /// <summary>

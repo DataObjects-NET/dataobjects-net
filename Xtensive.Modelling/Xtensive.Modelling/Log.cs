@@ -15,6 +15,9 @@ namespace Xtensive.Modelling
   public sealed class Log: LogTemplate<Log>
   {
     // Copy-paste this code!
+    /// <summary>
+    /// The name of the log.
+    /// </summary>
     public static readonly string Name;
     
     static Log()

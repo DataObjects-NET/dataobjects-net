@@ -24,11 +24,29 @@ namespace Xtensive.Modelling.Comparison
   /// </summary>
   public class Upgrader : IUpgrader
   {
+    /// <summary>
+    /// Node group comment (in action sequence).
+    /// </summary>
     public readonly static string NodeGroupComment           = "{0}";
+    /// <summary>
+    /// Node collection group comment (in action sequence).
+    /// </summary>
     public readonly static string NodeCollectionGroupComment = "{0}[]";
+    /// <summary>
+    /// Preconditions group comment (in action sequence).
+    /// </summary>
     public readonly static string PreConditionsGroupComment  = "<PreConditions>";
+    /// <summary>
+    /// Renames group comment (in action sequence).
+    /// </summary>
     public readonly static string RenamesGroupComment        = "<Renames>";
+    /// <summary>
+    /// Postconditions group comment (in action sequence).
+    /// </summary>
     public readonly static string PostConditionsGroupComment = "<PostConditions>";
+    /// <summary>
+    /// Temporary name format string.
+    /// </summary>
     public readonly static string TemporaryNameFormat        = "Temp_{0}";
 
     [ThreadStatic]

@@ -15,7 +15,7 @@ namespace Xtensive.Modelling.Attributes
   /// </summary>
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public class SystemPropertyAttribute : Attribute
+  internal class SystemPropertyAttribute : Attribute
   {
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

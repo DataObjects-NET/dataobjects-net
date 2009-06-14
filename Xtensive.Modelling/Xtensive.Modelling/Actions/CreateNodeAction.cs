@@ -93,15 +93,22 @@ namespace Xtensive.Modelling.Actions
         node.Index = index.Value;
     }
 
-    protected Node TryConstructor(IModel model, params object[] args)
+    /// <summary>
+    /// Tries to invoke node constructor with the specified set of arguments.
+    /// </summary>
+    /// <param name="model">The model to pass as the first argument.</param>
+    /// <param name="arguments">The other arguments.</param>
+    /// <returns>Created node, if the constructor was successfully bound;
+    /// otherwise, <see langword="null" />.</returns>
+    protected Node TryConstructor(IModel model, params object[] arguments)
     {
       if (parameters!=null)
-        args = args.Concat(parameters.Select(p => PathNodeReference.Resolve(model, p))).ToArray();
-      var argTypes = args.Select(a => a.GetType()).ToArray();
+        arguments = arguments.Concat(parameters.Select(p => PathNodeReference.Resolve(model, p))).ToArray();
+      var argTypes = arguments.Select(a => a.GetType()).ToArray();
       var ci = type.GetConstructor(argTypes);
       if (ci==null)
         return null;
-      return (Node) ci.Invoke(args);
+      return (Node) ci.Invoke(arguments);
     }
 
     /// <inheritdoc/>

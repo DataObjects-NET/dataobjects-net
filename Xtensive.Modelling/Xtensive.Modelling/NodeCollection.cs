@@ -202,6 +202,7 @@ namespace Xtensive.Modelling
 
     #region IEnumerable<...> members
 
+    /// <inheritdoc/>
     [DebuggerStepThrough]
     public IEnumerator GetEnumerator()
     {

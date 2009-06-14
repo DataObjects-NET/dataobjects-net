@@ -32,7 +32,7 @@ namespace Xtensive.Modelling
     #region IEnumerable methods
 
     /// <inheritdoc/>
-    public IEnumerator<KeyValuePair<string, PropertyAccessor>> GetEnumerator()
+    public new IEnumerator<KeyValuePair<string, PropertyAccessor>> GetEnumerator()
     {
       foreach (var pair in sequence)
         yield return pair;

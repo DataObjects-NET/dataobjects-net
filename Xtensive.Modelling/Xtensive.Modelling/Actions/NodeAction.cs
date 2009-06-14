@@ -66,6 +66,11 @@ namespace Xtensive.Modelling.Actions
 
     #region Protected \ internal methods
 
+    /// <summary>
+    /// Escapes the name in path.
+    /// </summary>
+    /// <param name="name">The name to escape.</param>
+    /// <returns>Escaped name.</returns>
     protected static string EscapeName(string name)
     {
       return new[] {name}.RevertibleJoin(Node.PathEscape, Node.PathDelimiter);

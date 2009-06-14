@@ -39,7 +39,6 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="path">The ignored node path.</param>
-    /// <param name="recursively">if set to <see langword="true"/> node properties will be ignored.</param>
     public IgnoreHint(string path)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(path, "path");

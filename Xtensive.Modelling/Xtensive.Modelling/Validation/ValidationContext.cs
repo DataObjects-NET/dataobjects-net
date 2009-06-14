@@ -17,7 +17,7 @@ namespace Xtensive.Modelling.Validation
   [Serializable]
   public class ValidationContext : IContext<ValidationScope>
   {
-    public HashSet<object> validated = new HashSet<object>();
+    private readonly HashSet<object> validated = new HashSet<object>();
 
     /// <summary>
     /// Determines whether the specified target is validated.

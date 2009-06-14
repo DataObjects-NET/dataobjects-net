@@ -170,6 +170,14 @@ namespace Xtensive.Modelling.Comparison.Hints
       return ((List<Hint>) hintOrList).Cast<THint>().ToArray();
     }
 
+    /// <summary>
+    /// Determines whether there are any hints associated with the specified.
+    /// </summary>
+    /// <param name="node">The node to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified node has associated hints; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
     public bool HasHints(Node node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
@@ -185,11 +193,13 @@ namespace Xtensive.Modelling.Comparison.Hints
 
     #region IEnumerable<...> methods
 
+    /// <inheritdoc/>
     public IEnumerator<Hint> GetEnumerator()
     {
       return hints.GetEnumerator();
     }
 
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

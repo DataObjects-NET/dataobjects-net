@@ -17,7 +17,7 @@ namespace Xtensive.Modelling.Actions
     /// <summary>
     /// Gets the current <see cref="ActionHandler"/>.
     /// </summary>
-    public new static ActionHandler CurrentHandler {
+    public static ActionHandler CurrentHandler {
       get {
         return CurrentContext ?? NullActionHandler.Instance;
       }

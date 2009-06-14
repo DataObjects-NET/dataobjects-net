@@ -9,27 +9,38 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Modelling.Comparison.Hints
 {
+  /// <summary>
+  /// Hint target reference.
+  /// </summary>
   [Serializable]
   public struct HintTarget : IEquatable<HintTarget>
   {
     private ModelType model;
     private string path;
 
+    /// <summary>
+    /// Gets the model this hint target points to.
+    /// </summary>
     public ModelType Model {
       get { return model; }
     }
 
+    /// <summary>
+    /// Gets the node path this hint target points to.
+    /// </summary>
     public string Path {
       get { return path; }
     }
 
     #region Equality members
 
+    /// <inheritdoc/>
     public bool Equals(HintTarget obj)
     {
       return obj.model==model && obj.path==path;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (obj.GetType()!=typeof (HintTarget))
@@ -37,6 +48,7 @@ namespace Xtensive.Modelling.Comparison.Hints
       return Equals((HintTarget) obj);
     }
 
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
@@ -44,11 +56,17 @@ namespace Xtensive.Modelling.Comparison.Hints
       }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.OperatorEq" copy="true"/>
+    /// </summary>
     public static bool operator ==(HintTarget left, HintTarget right)
     {
       return left.Equals(right);
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true"/>
+    /// </summary>
     public static bool operator !=(HintTarget left, HintTarget right)
     {
       return !left.Equals(right);

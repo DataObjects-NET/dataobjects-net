@@ -13,7 +13,7 @@ namespace Xtensive.Modelling
   /// <see cref="Node"/> collection.
   /// </summary>
   public interface INodeCollection : IPathNode, 
-    ICountable,
+    ICountable, 
     INotifyCollectionChanged
   {
     /// <summary>
@@ -24,7 +24,7 @@ namespace Xtensive.Modelling
     /// <summary>
     /// An indexer that provides access to collection items by their index.
     /// </summary>
-    new Node this[int index] { get; }
+    Node this[int index] { get; }
 
     /// <summary>
     /// An indexer that provides access to collection items by their names.

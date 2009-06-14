@@ -7,15 +7,13 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Modelling.Comparison;
 
 namespace Xtensive.Modelling
 {
   /// <summary>
   /// Node interface.
   /// </summary>
-  public interface INode : IPathNode,
+  public interface INode : IPathNode, 
     INotifyPropertyChanged
   {
     /// <summary>

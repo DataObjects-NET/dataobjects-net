@@ -54,7 +54,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
       if (PropertyAccessors.TryGetValue(name, out accessor)) {
         if (!accessor.HasGetter)
           return;
-        if (accessor.PropertyInfo.GetAttribute<SystemPropertyAttribute>(AttributeSearchOptions.InheritNone)!=null)
+        if (accessor.IsSystem)
           return;
         Log.Info("Changed: {0}, {1} = {2}", this, name, GetProperty(name));
       }

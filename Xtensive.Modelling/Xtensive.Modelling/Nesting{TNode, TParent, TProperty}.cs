@@ -104,7 +104,7 @@ namespace Xtensive.Modelling
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="node"><see cref="Node"/> property value.</param>
-    /// <param name="propertyName"><see cref="PropertyName"/> property value.</param>
+    /// <param name="propertyName"><see cref="Nesting.PropertyName"/> property value.</param>
     public Nesting(TNode node, string propertyName)
       : base(node, propertyName)
     {

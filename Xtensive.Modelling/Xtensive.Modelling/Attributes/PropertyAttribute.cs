@@ -30,7 +30,7 @@ namespace Xtensive.Modelling.Attributes
 
     /// <summary>
     /// Gets or sets a value indicating whether underlying property value must be re-created
-    /// rather than created & processed as usual.
+    /// rather than created &amp; processed as usual.
     /// </summary>
     public bool IsImmutable { get; set; }
 
