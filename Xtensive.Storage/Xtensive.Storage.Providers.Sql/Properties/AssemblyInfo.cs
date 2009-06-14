@@ -38,7 +38,6 @@ using Xtensive.Core.Aspects;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
 
 // This ensures the RecordSetProvider & its ancestors will be "initializable"
 [assembly:Initializable(AttributeTargetTypes = "*")]

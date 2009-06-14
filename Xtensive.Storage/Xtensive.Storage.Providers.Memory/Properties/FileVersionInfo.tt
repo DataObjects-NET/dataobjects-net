@@ -1,0 +1,37 @@
+﻿<#@ template language="C#v3.5" hostspecific="True" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Diagnostics" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+// Copyright (C) 2007-2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alex Yakunin
+// Created:    2009.06.14
+
+using System.Reflection;
+
+<#
+  var p = new Process();
+  p.StartInfo.UseShellExecute = false;
+  p.StartInfo.RedirectStandardOutput = true;
+  p.StartInfo.FileName = Environment.GetEnvironmentVariable("SubWCRevPath") ?? "SubWCRev.exe";
+  string path = Host.TemplateFile;
+  path = Path.Combine(Path.GetPathRoot(path), Path.GetDirectoryName(path));
+  path = Path.Combine(path, @"..");
+  path = Path.GetFullPath(path);
+  p.StartInfo.Arguments = "\"" + path + "\"";
+  p.StartInfo.CreateNoWindow = true;
+  string revision = "0";
+  try {
+    p.Start();
+    revision = Regex.Match(p.StandardOutput.ReadToEnd(),
+      @"Last committed at revision (\d+)", RegexOptions.Multiline).Groups[1].Value;
+    p.WaitForExit();
+  }
+  catch {
+  }
+#>
+
+[assembly: AssemblyFileVersion("1.0.0.<#= revision #>")]
