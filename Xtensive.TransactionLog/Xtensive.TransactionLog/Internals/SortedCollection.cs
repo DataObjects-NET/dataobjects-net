@@ -76,16 +76,14 @@ namespace Xtensive.TransactionLog
     {
     }
 
-
-    ///<summary>
-    ///Initializes a new instance of class <see cref="SortedCollection{T}"/> that is empty.
-    ///</summary>
-    ///<param name="comparer">Comparer for elements of the collection.</param>
+    /// <summary>
+    /// <see cref="ClassDocTemplate" copy="true"/>
+    /// </summary>
+    /// <param name="comparer">Comparer for elements of the collection.</param>
     public SortedCollection(IComparer<T> comparer)
     {
       this.comparer = comparer;
       innerList = new List<T>();
     }
-
   }
 }

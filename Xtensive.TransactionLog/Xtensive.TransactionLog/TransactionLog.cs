@@ -281,6 +281,7 @@ namespace Xtensive.TransactionLog
 
     #endregion
 
+
     // Constructors
 
     /// <summary>
