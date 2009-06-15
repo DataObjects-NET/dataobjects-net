@@ -18,6 +18,8 @@ namespace Xtensive.Storage.Linq.Expressions
 {
   internal class ItemProjectorExpression : ExtendedExpression
   {
+//    private static readonly ExtendedExpressionReplacer ApplyParameterReplacer = new ExtendedExpressionReplacer(ex => ex is SubQueryExpression ? ((SubQueryExpression) ex).ReplaceApplyParameter(newApplyParameter) : expression);
+
     public RecordSet DataSource { get; set; }
 
     public TranslatorContext Context { get; private set; }
@@ -114,9 +116,11 @@ namespace Xtensive.Storage.Linq.Expressions
     public ItemProjectorExpression(Expression expression, RecordSet dataSource, TranslatorContext context)
       : base(ExtendedExpressionType.ItemProjector, expression.Type)
     {
-      Item = expression;
       DataSource = dataSource;
       Context = context;
+      var newApplyParameter = Context.GetApplyParameter(dataSource);
+      var applyParameterReplacer = new ExtendedExpressionReplacer(ex => ex is SubQueryExpression ? ((SubQueryExpression) ex).ReplaceApplyParameter(newApplyParameter) : expression);
+      Item = applyParameterReplacer.Replace(expression);
     }
   }
 }

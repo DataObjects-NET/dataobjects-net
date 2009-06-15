@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Linq
 
     public SubQuery(ProjectionExpression projectionExpression, TranslatedQuery translatedQuery, Parameter<Tuple> parameter, Tuple tuple)
     {
-      this.projectionExpression = new ProjectionExpression(projectionExpression.Type, projectionExpression.ItemProjector, projectionExpression.ResultType, projectionExpression.TupleParameterBindings);
+      this.projectionExpression = new ProjectionExpression(projectionExpression.Type, projectionExpression.ItemProjector, projectionExpression.TupleParameterBindings, projectionExpression.ResultType);
       this.translatedQuery = new TranslatedQuery<IEnumerable<TElement>>(translatedQuery.DataSource, ((TranslatedQuery<IEnumerable<TElement>>)translatedQuery).Materializer, ((TranslatedQuery<IEnumerable<TElement>>)translatedQuery).TupleParameterBindings);
       this.translatedQuery.TupleParameterBindings[parameter] = tuple;
       this.projectionExpression.TupleParameterBindings[parameter] = tuple;

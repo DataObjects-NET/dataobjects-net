@@ -134,8 +134,7 @@ namespace Xtensive.Storage.Linq.Materialization
       projection = new ProjectionExpression(
         subQueryExpression.ProjectionExpression.Type,
         itemProjector,
-        subQueryExpression.ProjectionExpression.ResultType,
-        tupleParameterBindings);
+        tupleParameterBindings, subQueryExpression.ProjectionExpression.ResultType);
 
       // 3. make translation 
       elementType = subQueryExpression.ProjectionExpression.ItemProjector.Item.Type;

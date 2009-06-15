@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Storage.Linq.Expressions.Visitors;
+using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Core.Collections;
@@ -138,6 +139,13 @@ namespace Xtensive.Storage.Linq.Expressions
     {
       ProjectionExpression = projectionExpression;
       this.applyParameter = applyParameter;
+    }
+
+    public virtual SubQueryExpression ReplaceApplyParameter(ApplyParameter newApplyParameter)
+    {
+      var newItemProjector = ProjectionExpression.ItemProjector.RewriteApplyParameter(ApplyParameter, newApplyParameter);
+      var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings, ProjectionExpression.ResultType);
+      return new SubQueryExpression(Type, OuterParameter, newProjectionExpression, newApplyParameter, DefaultIfEmpty);
     }
   }
 }

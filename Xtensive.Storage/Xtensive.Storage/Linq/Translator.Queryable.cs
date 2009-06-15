@@ -314,7 +314,7 @@ namespace Xtensive.Storage.Linq
       }
       var resultType = (ResultType) Enum.Parse(typeof (ResultType), method.Name);
       var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, recordSet, context);
-      return new ProjectionExpression(method.ReturnType, itemProjector, resultType, projection.TupleParameterBindings);
+      return new ProjectionExpression(method.ReturnType, itemProjector, projection.TupleParameterBindings, resultType);
     }
 
     private ProjectionExpression VisitTake(Expression source, Expression take)
@@ -453,7 +453,7 @@ namespace Xtensive.Storage.Linq
         : (Expression) ColumnExpression.Create(resultType, 0);
 
       var itemProjector = new ItemProjectorExpression(projectorBody, dataSource, context);
-      return new ProjectionExpression(resultType, itemProjector, ResultType.First, innerProjection.TupleParameterBindings);
+      return new ProjectionExpression(resultType, itemProjector, innerProjection.TupleParameterBindings, ResultType.First);
     }
 
     private ProjectionExpression VisitGroupBy(MethodInfo method, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
@@ -655,7 +655,7 @@ namespace Xtensive.Storage.Linq
           var innerItemProjector = projection.ItemProjector;
           if (isOuter)
             innerItemProjector = innerItemProjector.SetDefaultIfEmpty();
-          innerProjection = new ProjectionExpression(projection.Type, innerItemProjector, projection.ResultType, projection.TupleParameterBindings);
+          innerProjection = new ProjectionExpression(projection.Type, innerItemProjector, projection.TupleParameterBindings, projection.ResultType);
         }
         var outerProjection = context.Bindings[outerParameter];
         var applyParameter = context.GetApplyParameter(outerProjection);
@@ -668,7 +668,7 @@ namespace Xtensive.Storage.Linq
         }
         var resultProjection = CombineProjections(outerProjection, innerProjection, recordSet, resultSelector);
         var resultItemProjector = resultProjection.ItemProjector.RemoveOuterParameter();
-        resultProjection = new ProjectionExpression(resultProjection.Type, resultItemProjector, resultProjection.ResultType, resultProjection.TupleParameterBindings);
+        resultProjection = new ProjectionExpression(resultProjection.Type, resultItemProjector, resultProjection.TupleParameterBindings, resultProjection.ResultType);
         return resultProjection;
       }
     }
@@ -726,7 +726,7 @@ namespace Xtensive.Storage.Linq
         : (Expression) existenceColumn;
       var newRecordSet = result.ItemProjector.DataSource.Existence(context.GetNextColumnAlias());
       var itemProjector = new ItemProjectorExpression(projectorBody, newRecordSet, context);
-      return new ProjectionExpression(typeof (bool), itemProjector, ResultType.Single, result.TupleParameterBindings);
+      return new ProjectionExpression(typeof (bool), itemProjector, result.TupleParameterBindings, ResultType.Single);
     }
 
     private Expression VisitExists(Expression source, LambdaExpression predicate, bool notExists)
@@ -798,22 +798,22 @@ namespace Xtensive.Storage.Linq
       var newRecordSet = oldResult.ItemProjector.DataSource.Apply(applyParameter, subquery);
       ItemProjectorExpression newItemProjector = oldResult.ItemProjector.Remap(newRecordSet, 0);
 
-      if (oldResult.ItemProjector.Item.IsGroupingExpression()) {
-        var newApplyParameter = context.GetApplyParameter(newRecordSet);
-        var oldGroupingExpression = (GroupingExpression) oldResult.ItemProjector.Item;
-        var groupingItemProjector = oldGroupingExpression.ProjectionExpression.ItemProjector.RewriteApplyParameter(oldGroupingExpression.ApplyParameter, newApplyParameter);
-        var groupingProjection = new ProjectionExpression(oldGroupingExpression.ProjectionExpression.Type, groupingItemProjector, oldGroupingExpression.ProjectionExpression.ResultType, oldGroupingExpression.ProjectionExpression.TupleParameterBindings);
-        var newGroupingExpression = new GroupingExpression(oldGroupingExpression.Type, oldGroupingExpression.OuterParameter, groupingProjection, newApplyParameter, oldGroupingExpression.KeyExpression, oldGroupingExpression.ElementSelector, oldGroupingExpression.Mapping, oldGroupingExpression.DefaultIfEmpty);
-        newItemProjector = new ItemProjectorExpression(newGroupingExpression, newRecordSet, context);
-      }
-      else if (oldResult.ItemProjector.Item.IsSubqueryExpression()) {
-        var newApplyParameter = context.GetApplyParameter(newRecordSet);
-        var oldSubqueryExpression = (SubQueryExpression) oldResult.ItemProjector.Item;
-        var subqueryItemProjector = oldSubqueryExpression.ProjectionExpression.ItemProjector.RewriteApplyParameter(oldSubqueryExpression.ApplyParameter, newApplyParameter);
-        var subqueryProjection = new ProjectionExpression(oldSubqueryExpression.ProjectionExpression.Type, subqueryItemProjector, oldSubqueryExpression.ProjectionExpression.ResultType, oldSubqueryExpression.ProjectionExpression.TupleParameterBindings);
-        var newSubqueryExpression = new SubQueryExpression(oldSubqueryExpression.Type, oldSubqueryExpression.OuterParameter, subqueryProjection, newApplyParameter, oldSubqueryExpression.ExtendedType, oldSubqueryExpression.DefaultIfEmpty);
-        newItemProjector = new ItemProjectorExpression(newSubqueryExpression, newRecordSet, context);
-      }
+//      if (oldResult.ItemProjector.Item.IsGroupingExpression()) {
+//        var newApplyParameter = context.GetApplyParameter(newRecordSet);
+//        var oldGroupingExpression = (GroupingExpression) oldResult.ItemProjector.Item;
+//        var groupingItemProjector = oldGroupingExpression.ProjectionExpression.ItemProjector.RewriteApplyParameter(oldGroupingExpression.ApplyParameter, newApplyParameter);
+//        var groupingProjection = new ProjectionExpression(oldGroupingExpression.ProjectionExpression.Type, groupingItemProjector, oldGroupingExpression.ProjectionExpression.TupleParameterBindings, oldGroupingExpression.ProjectionExpression.ResultType);
+//        var newGroupingExpression = new GroupingExpression(oldGroupingExpression.Type, oldGroupingExpression.OuterParameter, groupingProjection, newApplyParameter, oldGroupingExpression.KeyExpression, oldGroupingExpression.ElementSelector, oldGroupingExpression.Mapping, oldGroupingExpression.DefaultIfEmpty);
+//        newItemProjector = new ItemProjectorExpression(newGroupingExpression, newRecordSet, context);
+//      }
+//      else if (oldResult.ItemProjector.Item.IsSubqueryExpression()) {
+//        var newApplyParameter = context.GetApplyParameter(newRecordSet);
+//        var oldSubqueryExpression = (SubQueryExpression) oldResult.ItemProjector.Item;
+//        var subqueryItemProjector = oldSubqueryExpression.ProjectionExpression.ItemProjector.RewriteApplyParameter(oldSubqueryExpression.ApplyParameter, newApplyParameter);
+//        var subqueryProjection = new ProjectionExpression(oldSubqueryExpression.ProjectionExpression.Type, subqueryItemProjector, oldSubqueryExpression.ProjectionExpression.TupleParameterBindings, oldSubqueryExpression.ProjectionExpression.ResultType);
+//        var newSubqueryExpression = new SubQueryExpression(oldSubqueryExpression.Type, oldSubqueryExpression.OuterParameter, subqueryProjection, newApplyParameter, oldSubqueryExpression.ExtendedType, oldSubqueryExpression.DefaultIfEmpty);
+//        newItemProjector = new ItemProjectorExpression(newSubqueryExpression, newRecordSet, context);
+//      }
       var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
       context.Bindings.ReplaceBound(lambdaParameter, newResult);
       return ColumnExpression.Create(columnType, columnIndex);
