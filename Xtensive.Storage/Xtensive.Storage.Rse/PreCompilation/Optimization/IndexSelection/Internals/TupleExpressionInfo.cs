@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 
     public TupleExpressionInfo(int fieldIndex, ComparisonInfo comparison)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(fieldIndex, 0, int.MaxValue, "fieldIndex");
+      ArgumentValidator.EnsureArgumentIsGreaterThan(fieldIndex, -1, "fieldIndex");
       FieldIndex = fieldIndex;
       Comparison = comparison;
     }

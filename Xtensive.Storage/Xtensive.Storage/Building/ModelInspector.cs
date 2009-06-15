@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Building
         if (fieldDef.IsNullable)
           context.ModelInspectionResult.Register(new MarkFieldAsNotNullableAction(typeDef, fieldDef));
 
-        if (fieldDef.LazyLoad)
+        if (fieldDef.IsLazyLoad)
           throw new DomainBuilderException(string.Format(Strings.ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, fieldDef.Name));
       }
 

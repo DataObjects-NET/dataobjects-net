@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Upgrade
 
     private static void AddConverter<T>(params Type[] types)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(types.Length, 0, int.MaxValue, "types.Length");
+      ArgumentValidator.EnsureArgumentIsGreaterThan(types.Length, -1, "types.Length");
       supportedConversions.Add(typeof(T), new List<Type>(types));
     }
   }

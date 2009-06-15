@@ -36,7 +36,9 @@ namespace Xtensive.Storage.Building.Builders
           MappingName = fieldDef.MappingName,
           ValueType = fieldDef.ValueType,
           ItemType = fieldDef.ItemType,
-          Length = fieldDef.Length
+          Length = fieldDef.Length,
+          Scale = fieldDef.Scale,
+          Precision = fieldDef.Precision
         };
 
       type.Fields.Add(fieldInfo);

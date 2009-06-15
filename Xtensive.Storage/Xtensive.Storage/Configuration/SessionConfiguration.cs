@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Configuration
       get { return cacheSize; }
       set {
         this.EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentIsInRange(value, 0, Int32.MaxValue, "CacheSize");
+        ArgumentValidator.EnsureArgumentIsGreaterThan(value, 1, "CacheSize");
         cacheSize = value;
       }
     }
@@ -167,7 +167,7 @@ namespace Xtensive.Storage.Configuration
     /// <inheritdoc/>
     public override void Validate()
     {
-      ArgumentValidator.EnsureArgumentIsInRange(CacheSize, 0, Int32.MaxValue, "CacheSize");
+      ArgumentValidator.EnsureArgumentIsGreaterThan(CacheSize, -1, "CacheSize");
     }
 
     /// <inheritdoc/>

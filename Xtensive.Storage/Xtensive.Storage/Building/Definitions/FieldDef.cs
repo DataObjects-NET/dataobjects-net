@@ -5,12 +5,10 @@
 // Created:    2007.09.10
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Reflection;
-using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Model;
 using FieldAttributes=Xtensive.Storage.Model.FieldAttributes;
 
@@ -25,18 +23,11 @@ namespace Xtensive.Storage.Building.Definitions
     private ReferentialAction onRemove = ReferentialAction.Default;
     private string pairTo;
     private int? length;
+    private int? scale;
+    private int? precision;
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance should be loaded on demand.
-    /// </summary>
-    public bool LazyLoad
-    {
-      get { return (attributes & FieldAttributes.LazyLoad) != 0; }
-      set { attributes = value ? attributes | FieldAttributes.LazyLoad : attributes & ~FieldAttributes.LazyLoad; }
-    }
-
-    /// <summary>
-    /// Gets or sets the length of the field.
+    /// Gets or sets the maximal length of the field.
     /// </summary>
     public int? Length
     {
@@ -44,9 +35,46 @@ namespace Xtensive.Storage.Building.Definitions
       set
       {
         if (value.HasValue)
-          ArgumentValidator.EnsureArgumentIsInRange(value.Value, 1, Int32.MaxValue, "Length");
+          ArgumentValidator.EnsureArgumentIsGreaterThan(value.Value, 0, "Length");
         length = value;
       }
+    }
+
+    /// <summary>
+    /// Gets or sets the scale of the field.
+    /// </summary>
+    public int? Scale
+    {
+      get { return scale; }
+      set
+      {
+        if (value.HasValue)
+          ArgumentValidator.EnsureArgumentIsGreaterThan(value.Value, 0, "Scale");
+        scale = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the precision of the field.
+    /// </summary>
+    public int? Precision
+    {
+      get { return precision; }
+      set
+      {
+        if (value.HasValue)
+          ArgumentValidator.EnsureArgumentIsGreaterThan(value.Value, 0, "Precision");
+        precision = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this instance should be loaded on demand.
+    /// </summary>
+    public bool IsLazyLoad
+    {
+      get { return (attributes & FieldAttributes.LazyLoad) != 0; }
+      set { attributes = value ? attributes | FieldAttributes.LazyLoad : attributes & ~FieldAttributes.LazyLoad; }
     }
 
     /// <summary>
@@ -161,7 +189,7 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Gets or sets the referential action.
+    /// Gets or sets the referential action that will be executed on referenced Entity removal.
     /// </summary>
     /// <exception cref="InvalidOperationException">Field is not reference to entity.</exception>
     public ReferentialAction OnRemove
@@ -176,7 +204,7 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Gets or sets the referential action.
+    /// Gets or sets the name of the paired field.
     /// </summary>
     /// <exception cref="InvalidOperationException">Field is not reference to entity.</exception>
     public string PairTo
@@ -185,7 +213,7 @@ namespace Xtensive.Storage.Building.Definitions
       set
       {
         if (IsPrimitive || IsStructure)
-          throw new InvalidOperationException("Field is not an entity reference nor is entity set.");
+          throw new InvalidOperationException("Field is not an Entity reference nor is EntitySet.");
         pairTo = value;
       }
     }
@@ -224,7 +252,7 @@ namespace Xtensive.Storage.Building.Definitions
         if (genericType == typeof (Nullable<>))
           attributes |= FieldAttributes.Nullable;
       }
-      LazyLoad = false;
+      IsLazyLoad = false;
     }
   }
 }

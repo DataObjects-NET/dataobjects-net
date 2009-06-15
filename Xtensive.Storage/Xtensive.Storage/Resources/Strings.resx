@@ -725,4 +725,10 @@ Actions:
   <data name="ExStructureOfFieldXDoesNotMatchStructureOfFieldY" xml:space="preserve">
     <value>Structure of field '{0}' does not match structure of field '{1}'.</value>
   </data>
+  <data name="InvalidScaleAttributeOnFieldX" xml:space="preserve">
+    <value>Invalid 'Scale' attribute on field '{0}'</value>
+  </data>
+  <data name="InvalidPrecisionAttributeOnFieldX" xml:space="preserve">
+    <value>Invalid 'Precision' attribute on field '{0}'</value>
+  </data>
 </root>

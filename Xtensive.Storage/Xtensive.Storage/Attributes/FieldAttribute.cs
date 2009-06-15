@@ -21,6 +21,8 @@ namespace Xtensive.Storage
     internal bool? isTranslatable;
     internal int? length;
     internal bool? lazyLoad;
+    internal int? scale;
+    internal int? precision;
     internal ReferentialAction? referentialAction;
 
     /// <summary>
@@ -33,9 +35,27 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Gets or sets the scale of the field.
+    /// </summary>
+    public int Scale
+    {
+      get { return scale.HasValue ? scale.Value : 0; }
+      set { scale = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the precision of the field.
+    /// </summary>
+    public int Precision
+    {
+      get { return precision.HasValue ? precision.Value : 0; }
+      set { precision = value; }
+    }
+
+    /// <summary>
     /// Gets or sets a value indicating whether this instance is translatable.
     /// </summary>
-    public bool IsTranslatable
+    public bool Translatable
     {
       get { return isTranslatable.HasValue ? isTranslatable.Value : false; }
       set { isTranslatable = value; }
@@ -44,7 +64,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets or sets a value indicating whether this instance is collatable.
     /// </summary>
-    public bool IsCollatable
+    public bool Collatable
     {
       get { return isCollatable.HasValue ? isCollatable.Value : false; }
       set { isCollatable = value; }
@@ -60,7 +80,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets or sets the referential action.
+    /// Gets or sets the referential action that will be executed on referenced Entity removal.
     /// </summary>
     public ReferentialAction OnRemove
     {

@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Building.Definitions
       set
       {
         if (value.HasValue)
-          ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, Int32.MaxValue, "KeyGeneratorCacheSize");
+          ArgumentValidator.EnsureArgumentIsGreaterThan(value.Value, -1, "KeyGeneratorCacheSize");
         keyGeneratorCacheSize = value;
       }
     }

@@ -195,7 +195,7 @@ namespace Xtensive.Storage.Configuration
       set
       {
         this.EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentIsInRange(value, 1, int.MaxValue, "value");
+        ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         keyCacheSize = value;
       }
     }
@@ -210,7 +210,7 @@ namespace Xtensive.Storage.Configuration
       set
       {
         this.EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentIsInRange(value, 1, int.MaxValue, "value");
+        ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         keyGeneratorCacheSize = value;
       }
     }
@@ -225,7 +225,7 @@ namespace Xtensive.Storage.Configuration
       set
       {
         this.EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentIsInRange(value, 1, int.MaxValue, "value");
+        ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         queryCacheSize = value;
       }
     }
@@ -240,7 +240,7 @@ namespace Xtensive.Storage.Configuration
       set
       {
         this.EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentIsInRange(value, 1, int.MaxValue, "value");
+        ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         sessionPoolSize = value;
       }
     }
@@ -255,7 +255,7 @@ namespace Xtensive.Storage.Configuration
       set
       {
         this.EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentIsInRange(value, 1, int.MaxValue, "value");
+        ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         recordSetMappingCacheSize = value;
       }
     }

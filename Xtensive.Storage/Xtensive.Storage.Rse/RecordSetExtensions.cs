@@ -176,7 +176,7 @@ namespace Xtensive.Storage.Rse
     public static RecordSet Select(this RecordSet recordSet, params int[] columnIndexes)
     {
       ArgumentValidator.EnsureArgumentNotNull(columnIndexes, "columnIndexes");
-      ArgumentValidator.EnsureArgumentIsInRange(columnIndexes.Length, 1, int.MaxValue, "columnIndexes.Length");
+      ArgumentValidator.EnsureArgumentIsGreaterThan(columnIndexes.Length, 0, "columnIndexes.Length");
       return new SelectProvider(recordSet.Provider, columnIndexes).Result;
     }
 

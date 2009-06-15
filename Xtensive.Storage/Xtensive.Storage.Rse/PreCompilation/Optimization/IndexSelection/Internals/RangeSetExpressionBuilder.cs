@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     public static RangeSetInfo BuildConstructorForMultiColumnIndex(Dictionary<int, Expression> indexKeyValues,
       TupleExpressionInfo originTuple, IndexInfo indexInfo, AdvancedComparer<Entire<Tuple>> comparer)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(indexKeyValues.Count, 2, int.MaxValue, "indexKeyValues.Count");
+      ArgumentValidator.EnsureArgumentIsGreaterThan(indexKeyValues.Count, 1, "indexKeyValues.Count");
       if (!CanBuildNonFullRangeSet(originTuple.Comparison.Operation))
         return BuildFullRangeSetConstructor(null, comparer);
       var firstBoundary = BuildFirstBoundaryOfMuliColumnIndex(indexKeyValues, originTuple.Comparison.Operation,

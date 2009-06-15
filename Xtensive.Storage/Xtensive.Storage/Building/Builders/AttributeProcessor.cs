@@ -77,7 +77,9 @@ namespace Xtensive.Storage.Building.Builders
       ProcessIsTranslatable(fieldDef, attribute);
       ProcessIsCollatable(fieldDef, attribute);
       ProcessLength(fieldDef, attribute);
-      ProcessLazyLoad(fieldDef, attribute);
+      ProcessScale(fieldDef, attribute);
+      ProcessPrecision(fieldDef, attribute);
+      ProcessIsLazyLoad(fieldDef, attribute);
       ProcessOnDelete(fieldDef, attribute);
       ProcessPairTo(fieldDef, attribute);
     }
@@ -120,6 +122,30 @@ namespace Xtensive.Storage.Building.Builders
       fieldDef.Length = attribute.Length;
     }
 
+    private static void ProcessScale(FieldDef fieldDef, FieldAttribute attribute)
+    {
+      if (attribute.scale==null)
+        return;
+
+      if (attribute.Scale <= 0)
+        throw new DomainBuilderException(
+          string.Format(Strings.InvalidScaleAttributeOnFieldX, fieldDef.Name));
+
+      fieldDef.Scale = attribute.Scale;
+    }
+
+    private static void ProcessPrecision(FieldDef fieldDef, FieldAttribute attribute)
+    {
+      if (attribute.precision==null)
+        return;
+
+      if (attribute.Precision <= 0)
+        throw new DomainBuilderException(
+          string.Format(Strings.InvalidPrecisionAttributeOnFieldX, fieldDef.Name));
+
+      fieldDef.Precision = attribute.Precision;
+    }
+
     private static void ProcessOnDelete(FieldDef fieldDef, FieldAttribute attribute)
     {
       if (attribute.referentialAction==null)
@@ -135,19 +161,19 @@ namespace Xtensive.Storage.Building.Builders
     private static void ProcessIsCollatable(FieldDef fieldDef, FieldAttribute attribute)
     {
       if (attribute.isCollatable!=null)
-        fieldDef.IsCollatable = attribute.IsCollatable;
+        fieldDef.IsCollatable = attribute.Collatable;
     }
 
     private static void ProcessIsTranslatable(FieldDef fieldDef, FieldAttribute attribute)
     {
       if (attribute.isTranslatable!=null)
-        fieldDef.IsTranslatable = attribute.IsTranslatable;
+        fieldDef.IsTranslatable = attribute.Translatable;
     }
 
-    private static void ProcessLazyLoad(FieldDef fieldDef, FieldAttribute attribute)
+    private static void ProcessIsLazyLoad(FieldDef fieldDef, FieldAttribute attribute)
     {
-      fieldDef.LazyLoad = attribute.LazyLoad;
-      if (!fieldDef.IsPrimitive && fieldDef.LazyLoad) {
+      fieldDef.IsLazyLoad = attribute.LazyLoad;
+      if (!fieldDef.IsPrimitive && fieldDef.IsLazyLoad) {
         Log.Warning(Strings.ExplicitLazyLoadAttributeOnFieldXIsRedundant, fieldDef.Name);
       }
     }

@@ -27,6 +27,8 @@ namespace Xtensive.Storage.Model
     private PropertyInfo                  underlyingProperty;
     private Type                          valueType;
     private int?                          length;
+    private int?                          scale;
+    private int?                          precision;
     private TypeInfo                      reflectedType;
     private TypeInfo                      declaringType;
     private FieldInfo                     parent;
@@ -283,7 +285,7 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets or sets the length of the property.
+    /// Gets or sets the maximal length of the field.
     /// </summary>
     public int? Length {
       [DebuggerStepThrough]
@@ -292,6 +294,32 @@ namespace Xtensive.Storage.Model
       set {
         this.EnsureNotLocked();
         length = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the scale of the field.
+    /// </summary>
+    public int? Scale {
+      [DebuggerStepThrough]
+      get { return scale; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        scale = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the precision of the field.
+    /// </summary>
+    public int? Precision {
+      [DebuggerStepThrough]
+      get { return precision; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        precision = value;
       }
     }
 
@@ -532,6 +560,8 @@ namespace Xtensive.Storage.Model
           underlyingProperty = underlyingProperty, 
           valueType = valueType, 
           length = length, 
+          scale = scale,
+          precision = precision,
           association = association
         };
       return clone;

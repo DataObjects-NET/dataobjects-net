@@ -21,6 +21,8 @@ namespace Xtensive.Storage.Model
     private ColumnAttributes attributes;
     private Type valueType;
     private int? length;
+    private int? scale;
+    private int? precision;
     private FieldInfo field;
     private NodeCollection<IndexInfo> indexes;
     private CultureInfo cultureInfo = CultureInfo.InvariantCulture;
@@ -147,6 +149,22 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
+    /// Gets or sets the scale of the column.
+    /// </summary>
+    public int? Scale {
+      [DebuggerStepThrough]
+      get { return scale; }
+    }
+
+    /// <summary>
+    /// Gets or sets the precision of the column.
+    /// </summary>
+    public int? Precision {
+      [DebuggerStepThrough]
+      get { return precision; }
+    }
+
+    /// <summary>
     /// Specifies the type that should be used to store the
     /// value of the field (available for properties that can be mapped
     /// to multiple data types).
@@ -248,6 +266,8 @@ namespace Xtensive.Storage.Model
       clone.attributes = attributes;
       clone.valueType = valueType;
       clone.length = length;
+      clone.scale = scale;
+      clone.precision = precision;
       clone.indexes = indexes;
       clone.cultureInfo = cultureInfo;
 
@@ -282,6 +302,8 @@ namespace Xtensive.Storage.Model
         ? Enum.GetUnderlyingType(valueType) 
         : valueType;
       length = field.Length;
+      scale = field.Scale;
+      precision = field.Precision;
     }
 
     /// <summary>
@@ -300,6 +322,8 @@ namespace Xtensive.Storage.Model
       IsLazyLoad = field.IsLazyLoad;
       IsCollatable = field.IsCollatable;
       length = field.Length;
+      scale = field.Scale;
+      precision = field.Precision;
     }
   }
 }

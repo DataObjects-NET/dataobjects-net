@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Indexing.Model
       set
       {
         ArgumentValidator
-          .EnsureArgumentIsInRange(value, 1, long.MaxValue, "Increment");
+          .EnsureArgumentIsGreaterThan(value, 0, "Increment");
         EnsureIsEditable();
         using (var scope = LogPropertyChange("Increment", value)) {
           increment = value;
