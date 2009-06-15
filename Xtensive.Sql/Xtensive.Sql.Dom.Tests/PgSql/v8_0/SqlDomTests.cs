@@ -69,7 +69,7 @@ namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
         }
 
         mDbModel.CreateServer("localhost");
-        mDbModel.DefaultServer.CreateCatalog("do4test");
+        mDbModel.DefaultServer.CreateCatalog("do40test");
 
         mDbModel.DefaultServer.CreateUser("do4test");
 
@@ -2151,7 +2151,7 @@ namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
       Model model = new Model("default");
 
       model.CreateServer("localhost");
-      model.DefaultServer.CreateCatalog("do4test");
+      model.DefaultServer.CreateCatalog("do40test");
       model.DefaultServer.CreateUser("do4test");
       Schema schema = MyCatalog.CreateSchema("S1");
       Table table = schema.CreateTable("T1");
