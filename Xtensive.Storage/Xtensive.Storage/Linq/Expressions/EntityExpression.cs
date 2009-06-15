@@ -157,7 +157,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (nestedField.IsEntity)
         return EntityFieldExpression.CreateEntityField(nestedField, offset);
       if (nestedField.IsEntitySet)
-        return EntitySetExpression.CreateEntitySet(nestedField, offset);
+        return EntitySetExpression.CreateEntitySet(nestedField);
       throw new NotSupportedException(string.Format("Nested field {0} is not supported.", nestedField.Attributes));
     }
 
