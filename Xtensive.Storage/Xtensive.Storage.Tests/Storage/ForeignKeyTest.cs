@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
 
     public override Tuple Next()
     {
-      return Tuple.Create(seed++, seed++);
+      return Tuple.Create(GeneratorInfo.TupleDescriptor, seed++, seed++);
     }
   }
 

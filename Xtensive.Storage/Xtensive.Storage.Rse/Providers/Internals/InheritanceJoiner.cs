@@ -55,9 +55,9 @@ namespace Xtensive.Storage.Rse.Providers.Internals
         Tuple leftTuple = left.Current;
         Tuple leftKey = keyExtractorLeft(leftTuple);
         for (int i = 0; i < rightEnumerators.Length; i++) {
+          comparisonStep:
           if (rightHaveValue[i]) {
             IEnumerator<Tuple> rEnum = rightEnumerators[i];
-            comparisonStep:
             Tuple rightTuple = rEnum.Current;
             Tuple rightKey = rightKeyExtractors[i](rightTuple);
             int result = comparer.Compare(leftKey, rightKey);

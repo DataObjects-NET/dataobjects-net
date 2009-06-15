@@ -50,13 +50,13 @@ namespace Xtensive.Storage.Tests.Issues
       return config;
     }
 
-    protected override Domain BuildDomain(DomainConfiguration configuration)
+    /*protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       if (configuration.ConnectionInfo.Url.StartsWith("memory") && configuration.Builders.Contains(typeof(IncludeTypeIdModifier))) {
         throw new IgnoreException("This configuration hangs the test");
       }
       return base.BuildDomain(configuration);
-    }
+    }*/
 
     [Test]
     public void MainTest()
