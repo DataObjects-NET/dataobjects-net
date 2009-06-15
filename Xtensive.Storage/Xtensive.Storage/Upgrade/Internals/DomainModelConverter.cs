@@ -203,6 +203,9 @@ namespace Xtensive.Storage.Upgrade
         ? Activator.CreateInstance(domainType)
         : null;
 
+      if (defaultValue is char)
+        defaultValue = '0';
+
       var typeInfo = new TypeInfo(columnType, column.IsNullable, column.Length);
       return new ColumnInfo(CurrentTable, column.Name, typeInfo) {DefaultValue = defaultValue};
     }
@@ -429,6 +432,7 @@ namespace Xtensive.Storage.Upgrade
     /// <param name="hierarchyForeignKeyNameGenerator">The hierarchy foreign key name generator.</param>
     /// <param name="persistentGeneratorFilter">The persistent generator filter.</param>
     /// <param name="providerInfo">The provider info.</param>
+    /// <param name="typeBuilder">The type builder.</param>
     public DomainModelConverter(bool buildForeignKeys, Func<AssociationInfo, FieldInfo, string> foreignKeyNameGenerator,
       bool buildHierarchyForeignKeys, Func<DomainTypeInfo, DomainTypeInfo, string> hierarchyForeignKeyNameGenerator,
       Func<GeneratorInfo, bool> persistentGeneratorFilter, ProviderInfo providerInfo, Func<Type, int?, TypeInfo> typeBuilder)

@@ -44,8 +44,6 @@ namespace Xtensive.Storage.Providers
       return domainModelConverter.Convert(buildingContext.Model);
     }
 
-    protected abstract TypeInfo CreateTypeInfo(Type type, int? length);
-
     /// <summary>
     /// Gets the extracted schema.
     /// </summary>
@@ -59,8 +57,26 @@ namespace Xtensive.Storage.Providers
     /// <param name="sourceSchema">The source schema.</param>
     /// <param name="targetSchema">The target schema.</param>
     public abstract void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema);
+
+    /// <summary>
+    /// Creates the type info.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="length">The length.</param>
+    /// <returns>Newly created <see cref="TypeInfo"/>.</returns>
+    protected abstract TypeInfo CreateTypeInfo(Type type, int? length);
+
+    /// <summary>
+    /// Saves the schema in context.
+    /// </summary>
+    /// <param name="schema">The schema.</param>
+    protected void SaveSchemaInContext(object schema)
+    {
+      var context = UpgradeContext.Demand();
+      context.LegacyExtractedSchema = schema;
+    }
     
-    
+
     // Initialization
 
     /// <inheritdoc/>

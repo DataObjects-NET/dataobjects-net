@@ -250,13 +250,13 @@ namespace Xtensive.Storage.Upgrade
         MapType(oldAssociation.ConnectorType, newAssociation.ConnectorType);
 
         var oldMaster = oldAssociation.ConnectorType.AllFields
-          .Single(field => field.Name==WellKnown.MasterField);
+          .Single(field => field.Name==WellKnown.MasterFieldName);
         var newMaster = newAssociation.ConnectorType.AllFields
-          .Single(field => field.Name==WellKnown.MasterField);
+          .Single(field => field.Name==WellKnown.MasterFieldName);
         var oldSlave = oldAssociation.ConnectorType.AllFields
-          .Single(field => field.Name==WellKnown.SlaveField);
+          .Single(field => field.Name==WellKnown.SlaveFieldName);
         var newSlave = newAssociation.ConnectorType.AllFields
-          .Single(field => field.Name==WellKnown.SlaveField);
+          .Single(field => field.Name==WellKnown.SlaveFieldName);
 
         MapFieldRecursively(oldMaster, newMaster);
         MapFieldRecursively(oldSlave, newSlave);
@@ -458,7 +458,7 @@ namespace Xtensive.Storage.Upgrade
       var identityFieldsOfRemovedType = removedType.AllFields.Where(f => f.IsPrimaryKey).ToList();
       var identityFieldsOfUpdatedType = association.ConnectorType!=null
         ? association.ConnectorType.Fields
-          .Single(field => field.Name==(association.IsMaster ? WellKnown.MasterField : WellKnown.SlaveField))
+          .Single(field => field.Name==(association.IsMaster ? WellKnown.MasterFieldName : WellKnown.SlaveFieldName))
           .Fields
         : association.ReferencingField.Fields;
       var pairedIdentityFields = JoinFieldsByOriginalName(identityFieldsOfRemovedType, identityFieldsOfUpdatedType);
@@ -522,7 +522,7 @@ namespace Xtensive.Storage.Upgrade
 
     private static string GetTypeIdMappingName(StoredTypeInfo type)
     {
-      var typeIdField = type.AllFields.Single(field => field.Name==WellKnown.TypeIdField);
+      var typeIdField = type.AllFields.Single(field => field.Name==WellKnown.TypeIdFieldName);
       return typeIdField.MappingName;
     }
 

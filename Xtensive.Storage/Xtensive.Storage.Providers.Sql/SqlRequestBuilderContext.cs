@@ -5,6 +5,7 @@
 // Created:    2008.08.29
 
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
@@ -33,7 +34,14 @@ namespace Xtensive.Storage.Providers.Sql
       Task = task;
       Batch = batch;
       Type = task.Type;
-      AffectedIndexes = Type.Indexes.RealPrimaryIndexes;
+      var affectedIndexes = Type.AffectedIndexes.Where(index => index.IsPrimary).ToList();
+      affectedIndexes.Sort((left, right)=>{
+          if (left.ReflectedType.GetAncestors().Contains(right.ReflectedType))
+            return 1;
+          if (right.ReflectedType.GetAncestors().Contains(left.ReflectedType))
+            return -1;
+          return 0;});
+      AffectedIndexes = new ReadOnlyList<IndexInfo>(affectedIndexes);
       PrimaryIndex = Task.Type.Indexes.PrimaryIndex;
       ParameterBindings = new Dictionary<ColumnInfo, SqlUpdateParameterBinding>();
     }

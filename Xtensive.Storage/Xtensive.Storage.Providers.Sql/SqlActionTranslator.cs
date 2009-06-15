@@ -9,7 +9,6 @@ using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
-using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Modelling.Actions;
 using Xtensive.Core;
@@ -27,6 +26,7 @@ using SqlDomain = Xtensive.Sql.Dom.Database.Domain;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Providers.Sql.Resources;
+using Xtensive.Core.Sorting;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -36,11 +36,13 @@ namespace Xtensive.Storage.Providers.Sql
   public sealed class SqlActionTranslator
   {
     private const string SubqueryAliasName = "th";
-    private const string TemporaryNameFormat = "Temp_{0}";
+    private const string TemporaryNameFormat = "Temp{0}";
     private const string SubqueryTableAliasNameFormat = "a{0}";
     private const string ColumnTypePropertyName = "Type";
 
-    private readonly bool buildDomainForTimeSpan;
+    private readonly ProviderInfo providerInfo;
+    private readonly string typeIdColumnName;
+
     private readonly ActionSequence actions;
     private readonly Schema schema;
     private readonly SqlValueTypeMapper valueTypeMapper;
@@ -61,7 +63,12 @@ namespace Xtensive.Storage.Providers.Sql
     
     private bool IsSequencesAllowed
     {
-      get { return driver.ServerInfo.Sequence.Features!=SequenceFeatures.None; }
+      get { return providerInfo.SupportSequences; }
+    }
+
+    private bool IsTimeSpanSupported
+    {
+      get { return providerInfo.SupportsRealTimeSpan; }
     }
 
     /// <summary>
@@ -336,9 +343,6 @@ namespace Xtensive.Storage.Providers.Sql
         return;
       
       var column = CreateColumn(columnInfo, table);
-      column.IsNullable = column.IsNullable;
-      if (!column.IsNullable)
-        column.DefaultValue = GetDefaultValue(columnInfo);
       RegisterCommand(
         SqlFactory.Alter(table,
           SqlFactory.AddColumn(column)));
@@ -536,10 +540,8 @@ namespace Xtensive.Storage.Providers.Sql
     private void ProcessClearDataActions()
     {
       var updateActions = clearDataActions.Where(action => action.DataHint is UpdateDataHint).ToList();
-
       var deleteFromConnectorTableActions = new List<DataAction>();
       var deleteFromAncestorTableActions = new List<DataAction>();
-
       foreach (var deleteAction in clearDataActions.Where(action=>action.DataHint is DeleteDataHint)) {
         var hint = deleteAction.DataHint as DeleteDataHint;
         if (hint.Identities.Any(pair => !pair.IsIdentifiedByConstant))
@@ -547,9 +549,10 @@ namespace Xtensive.Storage.Providers.Sql
         else
           deleteFromAncestorTableActions.Add(deleteAction);
       }
+
       updateActions.Apply(ProcessUpdateDataAction);
       deleteFromConnectorTableActions.Apply(ProcessDeleteDataAction);
-      deleteFromAncestorTableActions.Apply(ProcessDeleteDataAction);
+      ProcessClearAncestorsActions(deleteFromAncestorTableActions);
     }
 
     private void ProcessDeleteDataAction(DataAction action)
@@ -590,6 +593,52 @@ namespace Xtensive.Storage.Providers.Sql
       RegisterCommand(update, UpgradeStage.Prepare);
     }
 
+    private void ProcessClearAncestorsActions(List<DataAction> originalActions)
+    {
+      if (originalActions.Count==0)
+        return;
+
+      // Merge actions
+      var deleteActions = new Dictionary<TableInfo, List<string>>();
+      foreach (var action in originalActions) {
+        var soureTableInfo = sourceModel.Resolve(action.DataHint.SourceTablePath) as TableInfo;
+        List<string> list;
+        if (!deleteActions.TryGetValue(soureTableInfo, out list)) {
+          list = new List<string>();
+          deleteActions.Add(soureTableInfo, list);
+        }
+        list.AddRange(action.DataHint.Identities.Select(pair => pair.Target));
+      }
+
+      // Sort actions topologicaly according to foreign keys
+      var nodes = new List<Node<TableInfo, ForeignKeyInfo>>();
+      var foreignKeys = sourceModel.Tables.SelectMany(table => table.ForeignKeys).ToList();
+      foreach (var pair in deleteActions)
+        nodes.Add(new Node<TableInfo, ForeignKeyInfo>(pair.Key));
+      foreach (var foreignKey in foreignKeys) {
+        var referencedNode = nodes.FirstOrDefault(node => node.Item==foreignKey.PrimaryKey.Parent);
+        var referencingNode = nodes.FirstOrDefault(node => node.Item==foreignKey.Parent);
+        if (referencedNode!=null && referencingNode!=null)
+          referencingNode.AddConnection(
+            new NodeConnection<TableInfo, ForeignKeyInfo>(
+              referencedNode, referencingNode, foreignKey));
+      }
+      List<NodeConnection<TableInfo, ForeignKeyInfo>> edges;
+      var sortedTables = TopologicalSorter.Sort(nodes, out edges);
+      sortedTables.Reverse();
+      // TODO: Process removed edges
+      
+      // Build DML commands
+      foreach (var table in sortedTables) {
+        var tableRef = SqlFactory.TableRef(FindTable(table.Name));
+        var delete = SqlFactory.Delete(tableRef);
+        var typeIds = deleteActions[table];
+        foreach (var typeId in typeIds)
+          delete.Where |= tableRef[typeIdColumnName]==typeId;
+        RegisterCommand(delete, UpgradeStage.Prepare);
+      }
+    }
+
     private void GenerateChangeColumnTypeCommands(PropertyChangeAction action)
     {
       var targetColumn = targetModel.Resolve(action.Path) as ColumnInfo;
@@ -610,7 +659,7 @@ namespace Xtensive.Storage.Providers.Sql
       var newColumn = table.CreateColumn(originalName, type);
       newColumn.IsNullable = newTypeInfo.IsNullable;
       if (!newColumn.IsNullable)
-        newColumn.DefaultValue = GetDefaultValue(targetColumn);
+        newColumn.DefaultValue = GetDefaultValueExpression(targetColumn);
       var addColumnWithNewType = SqlFactory.Alter(column.Table, SqlFactory.AddColumn(newColumn));
       RegisterCommand(addColumnWithNewType, UpgradeStage.Upgrade);
 
@@ -639,13 +688,13 @@ namespace Xtensive.Storage.Providers.Sql
     # endregion
 
     # region Helper methods
-    
+
     private Table CreateTable(TableInfo tableInfo)
     {
       var table = schema.CreateTable(tableInfo.Name);
       foreach (var columnInfo in tableInfo.Columns)
         CreateColumn(columnInfo, table);
-      if(tableInfo.PrimaryIndex!=null)
+      if (tableInfo.PrimaryIndex!=null)
         CreatePrimaryKey(tableInfo, table);
       createdTables.Add(table);
       return table;
@@ -655,9 +704,21 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var type = GetSqlType(columnInfo.Type);
       var column = table.CreateColumn(columnInfo.Name, type);
-      if (buildDomainForTimeSpan && (columnInfo.Type.Type==typeof (TimeSpan)
+      var isPrimaryKeyColumn = columnInfo.Parent.PrimaryIndex!=null
+        && columnInfo.Parent.PrimaryIndex.KeyColumns
+          .Any(keyColumn => keyColumn.Value==columnInfo);
+
+      // Create MsSql user type for TimeSpan columns
+      if (!IsTimeSpanSupported
+        && (columnInfo.Type.Type==typeof (TimeSpan)
         || columnInfo.Type.Type==typeof (TimeSpan?)))
         column.Domain = GetTimeSpanDomain();
+
+      if (!column.IsNullable
+        && column.Name!=typeIdColumnName
+        && !isPrimaryKeyColumn)
+        column.DefaultValue = GetDefaultValueExpression(columnInfo);
+
       column.IsNullable = columnInfo.Type.IsNullable;
       return column;
     }
@@ -706,7 +767,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var sequenceTable = schema.CreateTable(sequenceInfo.Name);
       createdTables.Add(sequenceTable);
-      var idColumn = sequenceTable.CreateColumn(SqlWellknown.GeneratorColumnName,
+      var idColumn = sequenceTable.CreateColumn(WellKnown.GeneratorColumnName,
         GetSqlType(sequenceInfo.Type));
       var currentValue = GetCurrentSequenceValue(sequenceInfo.Name);
       idColumn.SequenceDescriptor =
@@ -719,10 +780,10 @@ namespace Xtensive.Storage.Providers.Sql
 
     private SqlDomain GetTimeSpanDomain()
     {
-      var domain = schema.Domains[SqlWellknown.TimeSpanDomainName];
+      var domain = schema.Domains[WellKnown.TimeSpanDomainName];
       if (domain == null) {
         var sqlValueType = GetSqlType(new TypeInfo(typeof (TimeSpan)));
-        domain = schema.CreateDomain(SqlWellknown.TimeSpanDomainName, sqlValueType);
+        domain = schema.CreateDomain(WellKnown.TimeSpanDomainName, sqlValueType);
         RegisterCommand(SqlFactory.Create(domain), UpgradeStage.Prepare);
       }
       return domain;
@@ -884,7 +945,7 @@ namespace Xtensive.Storage.Providers.Sql
       return sequenceInfo==null ? null : sequenceInfo.Current;
     }
 
-    private SqlExpression GetDefaultValue(ColumnInfo columnInfo)
+    private SqlExpression GetDefaultValueExpression(ColumnInfo columnInfo)
     {
       if (columnInfo.DefaultValue==null)
         return null;
@@ -897,10 +958,8 @@ namespace Xtensive.Storage.Providers.Sql
       var value = mapping.ToSqlValue!=null
         ? mapping.ToSqlValue.Invoke(columnInfo.DefaultValue)
         : columnInfo.DefaultValue;
-      if (value == null)
-        return null;
       
-      return SqlFactory.Literal(value, value.GetType());
+      return value == null ? null : SqlFactory.Literal(value, value.GetType());
     }
 
     # endregion
@@ -909,7 +968,7 @@ namespace Xtensive.Storage.Providers.Sql
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="actions">The actions to translate.</param>
     /// <param name="schema">The schema.</param>
@@ -917,17 +976,22 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="valueTypeMapper">The value type mapper.</param>
     /// <param name="sourceModel">The source model.</param>
     /// <param name="targetModel">The target model.</param>
-    /// <param name="buildDomainForTimeSpan">if set to <see langword="true"/> build domain for time span column types.</param>
-    public SqlActionTranslator(ActionSequence actions, Schema schema, SqlDriver driver,
-      SqlValueTypeMapper valueTypeMapper, StorageInfo sourceModel, 
-      StorageInfo targetModel, bool buildDomainForTimeSpan)
+    /// <param name="providerInfo">The provider info.</param>
+    /// <param name="typeIdColumnName">Name of the type id column.</param>
+    public SqlActionTranslator(ActionSequence actions, Schema schema, 
+      StorageInfo sourceModel, StorageInfo targetModel, 
+      ProviderInfo providerInfo, SqlDriver driver, 
+      SqlValueTypeMapper valueTypeMapper, string typeIdColumnName)
     {
       ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
       ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(valueTypeMapper, "valueTypeMapper");
+      ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
+      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeIdColumnName, "typeIdColumnName");
       
-      this.buildDomainForTimeSpan = buildDomainForTimeSpan;
+      this.typeIdColumnName = typeIdColumnName;
+      this.providerInfo = providerInfo;
       this.schema = schema;
       this.driver = driver;
       this.actions = actions;

@@ -7,18 +7,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Indexing;
-using Xtensive.Storage.Linq;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Index.Resources;
-using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Indexing;
 
 namespace Xtensive.Storage.Providers.Index
 {
+  /// <summary>
+  /// <see cref="Session"/>-level handler for index storage.
+  /// </summary>
   public class SessionHandler : Providers.SessionHandler
   {
     private IndexStorage storage;

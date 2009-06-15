@@ -199,8 +199,8 @@ namespace Xtensive.Storage.Building.Builders
         ModelDefBuilder.ProcessProperties(underlyingTypeDef, hierarchy);
 
         // Getting fields
-        var masterFieldDef = underlyingTypeDef.Fields[WellKnown.MasterField];
-        var slaveFieldDef = underlyingTypeDef.Fields[WellKnown.SlaveField];
+        var masterFieldDef = underlyingTypeDef.Fields[WellKnown.MasterFieldName];
+        var slaveFieldDef = underlyingTypeDef.Fields[WellKnown.SlaveFieldName];
 
         // Updating fields names only if types differ.
         if (masterType!=slaveType) {

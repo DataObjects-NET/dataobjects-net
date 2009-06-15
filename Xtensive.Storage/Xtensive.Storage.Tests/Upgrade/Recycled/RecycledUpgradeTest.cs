@@ -4,13 +4,10 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
-using System;
 using System.Linq;
 using NUnit.Framework;
 using System.Reflection;
 using Xtensive.Core.Disposing;
-using Xtensive.Core.Testing;
-using Xtensive.Storage.Building;
 using M1 = Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version2;
 

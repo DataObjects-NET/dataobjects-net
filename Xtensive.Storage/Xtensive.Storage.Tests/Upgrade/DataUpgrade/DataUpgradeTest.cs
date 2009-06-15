@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
         }
       }
     }
-    
+
     private void BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
       if (domain != null)

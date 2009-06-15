@@ -10,7 +10,6 @@ using NUnit.Framework;
 using System.Reflection;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Testing;
-using Xtensive.Storage.Building;
 using M1 = Xtensive.Storage.Tests.Upgrade.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Upgrade.Model.Version2;
 
@@ -69,14 +68,6 @@ namespace Xtensive.Storage.Tests.Upgrade
           t.Complete();
         }
       }
-    }
-
-    [Test]
-    public void ColumnTypesTest()
-    {
-      var type = typeof (Storage.DbTypeSupportModel.X);
-      BuildDomain("1", DomainUpgradeMode.Recreate, null, type);
-      BuildDomain("1", DomainUpgradeMode.Validate, null, type);
     }
 
     [Test]
@@ -247,110 +238,94 @@ namespace Xtensive.Storage.Tests.Upgrade
       using (domain.OpenSession()) {
         using (var transactionScope = Transaction.Open()) {
           // BusinessContacts
-          var helen = new M1.BusinessContact
-            {
-              Address = new M1.Address
-                {
-                  City = "Cowes",
-                  Country = "UK"
-                },
-              CompanyName = "Island Trading",
-              ContactName = "Helen Bennett"
-            };
-          var philip = new M1.BusinessContact
-            {
-              Address = new M1.Address
-                {
-                  City = "Brandenburg",
-                  Country = "Germany"
-                },
-              CompanyName = "Koniglich Essen",
-              ContactName = "Philip Cramer"
-            };
+          var helen = new M1.BusinessContact {
+            Address = new M1.Address {
+              City = "Cowes",
+              Country = "UK"
+            },
+            CompanyName = "Island Trading",
+            ContactName = "Helen Bennett"
+          };
+          var philip = new M1.BusinessContact {
+            Address = new M1.Address {
+              City = "Brandenburg",
+              Country = "Germany"
+            },
+            CompanyName = "Koniglich Essen",
+            ContactName = "Philip Cramer"
+          };
 
           // Employies
-          var director = new M1.Employee
-            {
-              Address = new M1.Address
-                {
-                  City = "Tacoma",
-                  Country = "USA"
-                },
-              FirstName = "Andrew",
-              LastName = "Fuller",
-              HireDate = DateTime.Parse("14.08.1992 0:00:00")
-            };
-          var nancy = new M1.Employee
-            {
-              Address = new M1.Address
-                {
-                  City = "Seattle",
-                  Country = "USA"
-                },
-              FirstName = "Nancy",
-              LastName = "Davolio",
-              HireDate = DateTime.Parse("01.05.1992 0:00:00"),
-              ReportsTo = director
-            };
-          var michael = new M1.Employee
-            {
-              Address = new M1.Address
-                {
-                  City = "London",
-                  Country = "UK"
-                },
-              FirstName = "Michael",
-              LastName = "Suyama",
-              HireDate = DateTime.Parse("17.10.1993 0:00:00"),
-              ReportsTo = director
-            };
+          var director = new M1.Employee {
+            Address = new M1.Address {
+              City = "Tacoma",
+              Country = "USA"
+            },
+            FirstName = "Andrew",
+            LastName = "Fuller",
+            HireDate = new DateTime(1992, 8, 13)
+          };
+          var nancy = new M1.Employee {
+            Address = new M1.Address {
+              City = "Seattle",
+              Country = "USA"
+            },
+            FirstName = "Nancy",
+            LastName = "Davolio",
+            HireDate = new DateTime(1992, 5, 1),
+            ReportsTo = director
+          };
+          var michael = new M1.Employee {
+            Address = new M1.Address {
+              City = "London",
+              Country = "UK"
+            },
+            FirstName = "Michael",
+            LastName = "Suyama",
+            HireDate = new DateTime(1993, 10, 17),
+            ReportsTo = director
+          };
 
           // Orders
-          new M1.Order
-            {
-              Customer = helen,
-              Employee = michael,
-              Freight = 12,
-              OrderDate = DateTime.Parse("04.07.1996 0:00:00"),
-              ProductName = "Maxilaku"
-            };
-          new M1.Order
-            {
-              Customer = helen,
-              Employee = nancy,
-              Freight = 12,
-              OrderDate = DateTime.Parse("04.07.1996 0:00:00"),
-              ProductName = "Filo Mix"
-            };
-          new M1.Order
-            {
-              Customer = philip,
-              Employee = michael,
-              Freight = 12,
-              OrderDate = DateTime.Parse("04.07.1996 0:00:00"),
-              ProductName = "Tourtiere"
-            };
-          new M1.Order
-            {
-              Customer = philip,
-              Employee = nancy,
-              Freight = 12,
-              OrderDate = DateTime.Parse("04.07.1996 0:00:00"),
-              ProductName = "Pate chinois"
-            };
+          new M1.Order {
+            Customer = helen,
+            Employee = michael,
+            Freight = 12,
+            OrderDate = new DateTime(1996, 7, 4),
+            ProductName = "Maxilaku"
+          };
+          new M1.Order {
+            Customer = helen,
+            Employee = nancy,
+            Freight = 12,
+            OrderDate = new DateTime(1996, 7, 4),
+            ProductName = "Filo Mix"
+          };
+          new M1.Order {
+            Customer = philip,
+            Employee = michael,
+            Freight = 12,
+            OrderDate = new DateTime(1996, 7, 4),
+            ProductName = "Tourtiere"
+          };
+          new M1.Order {
+            Customer = philip,
+            Employee = nancy,
+            Freight = 12,
+            OrderDate = new DateTime(1996, 7, 4),
+            ProductName = "Pate chinois"
+          };
 
           // Products & catgories
-          new M1.Category
-            {
-              Name = "Web applications",
-              Products = {new M1.Product {Name = "HelpServer", IsActive = true}}
-            };
+          new M1.Category {
+            Name = "Web applications",
+            Products = {new M1.Product {Name = "HelpServer", IsActive = true}}
+          };
 
-          new M1.Category
-            {
-              Name = "Frameworks",
-              Products = {new M1.Product {Name = "DataObjects.NET", IsActive = true}}
-            };
+          new M1.Category {
+            Name = "Frameworks",
+            Products = {new M1.Product {Name = "DataObjects.NET", IsActive = true}}
+          };
 
           // Boys & girls
           var alex = new M1.Boy("Alex");
@@ -378,7 +353,7 @@ namespace Xtensive.Storage.Tests.Upgrade
           new M1.MyStructureOwner(1) {Structure = new M1.MyStructure {A = 2, B = 3}};
           new M1.ReferencedEntity(1, 2);
           new M1.ReferencedEntity(2, 3);
-          
+
           // Commiting changes
           transactionScope.Complete();
         }

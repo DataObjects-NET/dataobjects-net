@@ -31,10 +31,10 @@ namespace Xtensive.Storage.Providers.MsSql
       if (genTable==null)
         throw new DomainBuilderException(
           string.Format(Resources.Strings.ExTableXIsNotFound, generatorInfo.MappingName));
-      var column = genTable.Columns.FirstOrDefault(c => c.Name==SqlWellknown.GeneratorColumnName) as TableColumn;
+      var column = genTable.Columns.FirstOrDefault(c => c.Name==WellKnown.GeneratorColumnName) as TableColumn;
       if (column==null)
         throw new DomainBuilderException(
-          string.Format(Resources.Strings.ExColumnXIsNotFoundInTableY, SqlWellknown.GeneratorColumnName, genTable.Name));
+          string.Format(Resources.Strings.ExColumnXIsNotFoundInTableY, WellKnown.GeneratorColumnName, genTable.Name));
 
       var sqlNext = SqlFactory.Batch();
       var insert = SqlFactory.Insert(SqlFactory.TableRef(genTable));

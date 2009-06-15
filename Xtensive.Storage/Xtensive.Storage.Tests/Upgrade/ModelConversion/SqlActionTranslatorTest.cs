@@ -16,6 +16,7 @@ using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Sql.Dom;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Core;
 using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
@@ -42,8 +43,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     protected string Url { get; private set; }
 
-    protected abstract SqlModelConverter CreateSqlModelConverter(Schema storageSchema,
-      Func<ISqlCompileUnit, object> commandExecutor, Func<SqlValueType, TypeInfo> valueTypeConverter);
+    protected abstract ProviderInfo CreateProviderInfo();
 
     private StorageInfo BuildOldModel()
     {
@@ -135,8 +135,6 @@ namespace Xtensive.Storage.Tests.Upgrade
       hints.Add(new RenameHint("Tables/table2", "Tables/table3"));
       hints.Add(new RenameHint("Tables/table2/Columns/col1", "Tables/table3/Columns/col2"));
 
-      //var diff = BuildDifference(newModel, ExtractModel(), hints);
-      //Tests.Log.Info(diff.ToString());
       var actions = Compare(oldModel, newModel, hints);
       Tests.Log.Info(actions.ToString());
       UpgradeCurrentSchema(oldModel, newModel, actions);
@@ -189,11 +187,15 @@ namespace Xtensive.Storage.Tests.Upgrade
       var schema = GetSchema();
 
       var provider = new SqlConnectionProvider();
+      var valueTypeMapper = new SqlValueTypeMapper();
+      valueTypeMapper.Initialize();
+
       using (var connection = provider.CreateConnection(Url) as SqlConnection) {
         connection.Open();
         using (var transaction = connection.BeginTransaction()) {
-          var translator = new SqlActionTranslator(actions, schema,
-            connection.Driver, new SqlValueTypeMapper(), oldModel, newModel, false);
+          var translator = new SqlActionTranslator(actions,
+            schema, oldModel, newModel, CreateProviderInfo(),
+            connection.Driver, valueTypeMapper, "TypeId");
           var delimiter = connection.Driver.Translator.BatchStatementDelimiter;
           var batch = new List<string>();
           batch.Add(string.Join(delimiter, translator.PreUpgradeCommands.ToArray()));
@@ -218,7 +220,9 @@ namespace Xtensive.Storage.Tests.Upgrade
     private StorageInfo ExtractModel()
     {
       var schema = GetSchema();
-      return CreateSqlModelConverter(schema, GetGeneratorValue, ConvertType).GetConversionResult();
+      return new SqlModelConverter(schema, ConvertType, 
+        CreateProviderInfo(), GetGeneratorValue)
+        .GetConversionResult();
     }
 
     private Schema GetSchema()
@@ -237,7 +241,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private static object GetGeneratorValue(ISqlCompileUnit cmd)
     {
-      return (long)0;
+      return (long) 0;
     }
 
     private static SqlValueType BuildSqlValueType(Type type, int length)

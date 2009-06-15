@@ -44,78 +44,78 @@ namespace Xtensive.Storage.Tests.Upgrade
     [Test]
     public void Int32ToStringTest()
     {
-      var newValue = "1";
-      Build(newValue, "FInt", Mode.Perform);
+      Build(typeof (string), null, "FInt", "1", Mode.Perform);
       SetUp();
-      Build(newValue, "FInt", Mode.PerformSafely);
+      Build(typeof (string), null, "FInt", "1", Mode.PerformSafely);
     }
 
     [Test]
     public void Int32ToShortStringTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(typeof (int), 3, "FInt2", Mode.PerformSafely));
-      Build(typeof (int), 3, "FInt2", Mode.Perform);
+      AssertEx.Throws<SchemaSynchronizationException>(() => 
+        Build(typeof (string), 3, "FInt2", null, Mode.PerformSafely));
+      Build(typeof (string), 3, "FInt2", null, Mode.Perform);
     }
 
     [Test]
     public void StringToInt32Test()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(0, "FString1", Mode.PerformSafely));
-      Build(typeof (int), null, "FString1", Mode.Perform);
+      AssertEx.Throws<SchemaSynchronizationException>(() => 
+        Build(typeof (int), null, "FString1", 0, Mode.PerformSafely));
+      Build(typeof (int), null, "FString1", 0, Mode.Perform);
     }
 
     [Test]
     public void StringToShortStringTest()
     {
-      var newValue = "123";
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, 3, "FString5", Mode.PerformSafely));
-      Build(newValue, 3, "FString5", Mode.Perform);
+      AssertEx.Throws<SchemaSynchronizationException>(() => 
+        Build(typeof (string), 3, "FString5", "", Mode.PerformSafely));
+      Build(typeof (string), 3, "FString5", "123", Mode.Perform);
     }
 
     [Test]
     public void StringToStringTest()
     {
-      var newValue = "a";
-      Build(newValue, 3, "FString1", Mode.Perform);
+      Build(typeof (string), 3, "FString1", "a", Mode.Perform);
       SetUp();
-      Build(newValue, 3, "FString1", Mode.PerformSafely);
-      SetUp();
+      Build(typeof (string), 3, "FString1", "a", Mode.PerformSafely);
     }
 
     [Test]
     public void BoolToStringTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(typeof (string), 100, "FBool", Mode.PerformSafely));
-      Build(typeof (string), 100, "FBool", Mode.Perform);
+      AssertEx.Throws<SchemaSynchronizationException>(() => 
+        Build(typeof (string), 100, "FBool", "", Mode.PerformSafely));
+      Build(typeof (string), 100, "FBool", null, Mode.Perform);
     }
 
     [Test]
     public void GuidToStringTest()
     {
-      var newValue = "E484EE28-3801-445B-9DF0-FBCBE5AA4883";
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, 100, "FGuid", Mode.PerformSafely));
-      Build(typeof (string), 100, "FGuid", Mode.Perform);
+      AssertEx.Throws<SchemaSynchronizationException>(() => 
+        Build(typeof (string), 100, "FGuid", "", Mode.PerformSafely));
+      Build(typeof (string), 100, "FGuid", null, Mode.Perform);
     }
 
     [Test]
     public void Int32ToInt64Test()
     {
-      var newValue = 12345L;
-      Build(newValue, "FInt2", Mode.Perform);
+      Build(typeof (long), null, "FInt2", 12345L, Mode.Perform);
       SetUp();
-      Build(newValue, "FInt2", Mode.PerformSafely);
-      SetUp();
+      Build(typeof (long), null, "FInt2", 12345L, Mode.PerformSafely);
     }
 
     [Test]
     public void Int64ToInt32Test()
     {
       var newValue = 12345;
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, "FLong", Mode.PerformSafely));
-      AssertEx.Throws<SchemaSynchronizationException>(() => Build(newValue, "FLong2", Mode.PerformSafely));
-      Build(0, "FLong", Mode.Perform);
+      AssertEx.Throws<SchemaSynchronizationException>(() => 
+        Build(typeof (int), null, "FLong", 12345, Mode.PerformSafely));
+      AssertEx.Throws<SchemaSynchronizationException>(() => 
+        Build(typeof (int), null, "FLong2", 12345, Mode.PerformSafely));
+      Build(typeof (int), null, "FLong", 0, Mode.Perform);
       SetUp();
-      Build(0, "FLong2", Mode.Perform);
+      Build(typeof (int), null, "FLong", 0, Mode.Perform);
     }
 
     [Test]
@@ -143,37 +143,26 @@ namespace Xtensive.Storage.Tests.Upgrade
       if (domain != null)
         domain.DisposeSafely();
       configuration = DomainConfigurationFactory.Create();
-      configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
+      configuration.UpgradeMode = DomainUpgradeMode.Validate;
       configuration.Types.Register(typeof (Storage.DbTypeSupportModel.X));
       domain = Domain.Build(configuration);
     }
 
     # region Helper methods
 
-    public void Build<T>(T value, int? length, string fieldName, DomainUpgradeMode mode)
+    public void Build(Type newColumnType, int? newLength, string changedFieldName, 
+      object expectedValue, DomainUpgradeMode mode)
     {
-      using (FieldTypeChanger.Enable<T>(fieldName, length)) {
+      using (FieldTypeChanger.Enable(newColumnType, changedFieldName, newLength)) {
         BuildDomain(mode);
       }
 
       using (domain.OpenSession()) {
         using (var t = Transaction.Open()) {
           var x = Query<X>.All.First();
-          Assert.AreEqual(value, x.GetFieldValue<T>(x.Type.Fields[fieldName], false));
+          Assert.AreEqual(expectedValue, x[changedFieldName]);
         }
       }
-    }
-
-    public void Build(Type newType, int? length, string fieldName, DomainUpgradeMode mode)
-    {
-      using (FieldTypeChanger.Enable(newType, fieldName, length)) {
-        BuildDomain(mode);
-      }
-    }
-
-    public void Build<T>(T value, string fieldName, DomainUpgradeMode mode)
-    {
-      Build<T>(value, null, fieldName, mode);
     }
 
     private void BuildDomain(DomainUpgradeMode upgradeMode)
@@ -209,12 +198,6 @@ namespace Xtensive.Storage.Tests.Upgrade
     private static string ColumnName { get; set; }
     private static int? ColumnLength { get; set; }
     private static bool isEnabled;
-
-    /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
-    public static IDisposable Enable<T>(string fieldName, int? length)
-    {
-      return Enable(typeof (T), fieldName, length);
-    }
 
     /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
     public static IDisposable Enable(Type newType, string fieldName, int? length)

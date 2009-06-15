@@ -6,6 +6,9 @@
 
 namespace Xtensive.Storage.Providers.Memory
 {
+  /// <summary>
+  /// <see cref="Domain"/>-level handler for memory index storage.
+  /// </summary>
   public class DomainHandler : Index.DomainHandler
   {
     /// <inheritdoc/>

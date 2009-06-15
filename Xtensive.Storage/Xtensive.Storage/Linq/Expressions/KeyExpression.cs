@@ -114,14 +114,14 @@ namespace Xtensive.Storage.Linq.Expressions
         .ToList()
         .AsReadOnly();
       return new KeyExpression(entityType, fields, mapping,
-                               entityType.UnderlyingType.GetProperty(WellKnown.KeyField, typeof(Key)), null, false);
+                               entityType.UnderlyingType.GetProperty(WellKnown.KeyFieldName, typeof(Key)), null, false);
     }
 
 
     // Constructors
 
     private KeyExpression(TypeInfo entityType, System.Collections.ObjectModel.ReadOnlyCollection<FieldExpression> keyFields, Segment<int> segment, PropertyInfo underlyingProperty, ParameterExpression parameterExpression, bool defaultIfEmpty)
-      : base(ExtendedExpressionType.Key, WellKnown.KeyField, typeof(Key), segment, underlyingProperty, parameterExpression, defaultIfEmpty)
+      : base(ExtendedExpressionType.Key, WellKnown.KeyFieldName, typeof(Key), segment, underlyingProperty, parameterExpression, defaultIfEmpty)
     {
       EntityType = entityType;
       KeyFields = keyFields;

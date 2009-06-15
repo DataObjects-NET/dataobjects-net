@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Linq
           && typeof (IEntity).IsAssignableFrom(operandType)) {
         var typeInfo = context.Model.Types[operandType];
         var typeIds = typeInfo.GetDescendants().AddOne(typeInfo).Select(ti => ti.TypeId);
-        var memberExpression = Expression.Property(tb.Expression, WellKnown.TypeIdField);
+        var memberExpression = Expression.Property(tb.Expression, WellKnown.TypeIdFieldName);
         Expression boolExpression = null;
         foreach (int typeId in typeIds)
           boolExpression = MakeBinaryExpression(boolExpression, memberExpression, Expression.Constant(typeId),

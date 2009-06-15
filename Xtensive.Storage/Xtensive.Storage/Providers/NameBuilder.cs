@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Gets the <see cref="Entity.TypeId"/> column name.
     /// </summary>
-    public string TypeIdColumn { get; private set; }
+    public string TypeIdColumnName { get; private set; }
 
     /// <summary>
     /// Gets the naming convention object.
@@ -389,7 +389,7 @@ namespace Xtensive.Storage.Providers
       ArgumentValidator.EnsureArgumentNotNull(namingConvention, "namingConvention");
       NamingConvention = namingConvention;
       hashAlgorithm = new MD5CryptoServiceProvider();
-      TypeIdColumn = NamingConvention.Apply(WellKnown.TypeIdField);
+      TypeIdColumnName = NamingConvention.Apply(WellKnown.TypeIdFieldName);
     }
   }
 }

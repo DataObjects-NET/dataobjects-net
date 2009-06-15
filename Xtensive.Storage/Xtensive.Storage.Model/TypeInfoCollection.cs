@@ -219,7 +219,7 @@ namespace Xtensive.Storage.Model
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
     public IEnumerable<TypeInfo> FindImplementors(TypeInfo item, bool recursive)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "it   em");
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var result = new HashSet<TypeInfo>(implementors[item]);
       if (recursive)
         foreach (var implementor in implementors[item])

@@ -153,8 +153,8 @@ namespace Xtensive.Storage.Building.Builders
         fieldInfo.IsPrimaryKey = true;
       }
 
-      if (!typeInfo.Fields.Contains(WellKnown.TypeIdField))
-        FieldBuilder.BuildDeclaredField(typeInfo, typeDef.Fields[WellKnown.TypeIdField]);
+      if (!typeInfo.Fields.Contains(WellKnown.TypeIdFieldName))
+        FieldBuilder.BuildDeclaredField(typeInfo, typeDef.Fields[WellKnown.TypeIdFieldName]);
 
       typeInfo.Hierarchy = HierarchyBuilder.BuildHierarchy(typeInfo, hierarchy);
     }

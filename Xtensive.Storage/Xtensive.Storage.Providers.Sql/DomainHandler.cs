@@ -22,7 +22,7 @@ using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
 using Xtensive.Storage.Rse.Providers;
-using SqlModel = Xtensive.Sql.Dom.Database.Model;
+using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the storage schema.
     /// </summary>
-    public Schema Schema { get; private set; }
+    public Schema Schema { get; internal set; }
 
     /// <summary>
     /// Gets the model mapping.
@@ -157,10 +157,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// <exception cref="DomainBuilderException">Somethig went wrong.</exception>
     public override void BuildMapping()
     {
-      var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
-      var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
-      var storageModel = SqlModel.Build(modelProvider);
-      Schema = storageModel.DefaultServer.DefaultCatalog.DefaultSchema;
+//      var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
+//      var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
+//      var storageModel = SqlModel.Build(modelProvider);
+      Schema = UpgradeContext.Demand().LegacyExtractedSchema as Schema; // storageModel.DefaultServer.DefaultCatalog.DefaultSchema;
       var domainModel = Handlers.Domain.Model;
 
       foreach (var type in domainModel.Types) {

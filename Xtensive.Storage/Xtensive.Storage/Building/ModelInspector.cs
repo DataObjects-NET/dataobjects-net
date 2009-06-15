@@ -39,14 +39,14 @@ namespace Xtensive.Storage.Building
       Validator.EnsureHierarchyIsValid(hierarchyDef);
 
       // Check the presence of TypeId field
-      FieldDef typeIdField = root.Fields[WellKnown.TypeIdField];
+      FieldDef typeIdField = root.Fields[WellKnown.TypeIdFieldName];
       if (typeIdField==null)
         context.ModelInspectionResult.Actions.Enqueue(new AddTypeIdFieldAction(root));
       else
         context.ModelInspectionResult.Actions.Enqueue(new MarkFieldAsSystemAction(root, typeIdField));
 
       // Should TypeId field be added to key fields?
-      if (hierarchyDef.IncludeTypeId && hierarchyDef.KeyFields.Find(f => f.Name == WellKnown.TypeIdField) == null)
+      if (hierarchyDef.IncludeTypeId && hierarchyDef.KeyFields.Find(f => f.Name == WellKnown.TypeIdFieldName) == null)
         context.ModelInspectionResult.Register(new AddTypeIdToKeyFieldsAction(hierarchyDef));
 
       context.ModelInspectionResult.Actions.Enqueue(new ReorderFieldsAction(hierarchyDef));

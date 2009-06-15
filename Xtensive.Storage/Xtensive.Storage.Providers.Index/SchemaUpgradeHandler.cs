@@ -5,7 +5,6 @@
 // Created:    2009.04.09
 
 using System;
-using Xtensive.Storage.Model;
 using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage.Providers.Index

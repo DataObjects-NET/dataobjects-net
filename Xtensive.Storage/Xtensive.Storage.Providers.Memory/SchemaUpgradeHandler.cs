@@ -12,6 +12,9 @@ using Xtensive.Storage.Providers.Index;
 
 namespace Xtensive.Storage.Providers.Memory
 {
+  /// <summary>
+  /// Upgrades storage schema.
+  /// </summary>
   [Serializable]
   public class SchemaUpgradeHandler : Index.SchemaUpgradeHandler
   {
@@ -20,7 +23,7 @@ namespace Xtensive.Storage.Providers.Memory
     /// </summary>
     protected IndexStorageView StorageView {
       get {
-        var session = BuildingContext.Current.SystemSessionHandler;
+        var session = BuildingContext.Demand().SystemSessionHandler;
         var view = ((SessionHandler) session).StorageView;
         return view as IndexStorageView;
       }

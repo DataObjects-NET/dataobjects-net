@@ -22,9 +22,11 @@ namespace Xtensive.Storage.Providers
     private bool supportsCollations;
     private bool supportsBatches;
     private bool supportsRealBoolean;
+    private bool supportsRealTimeSpan;
     private bool supportsForeignKeyConstraints;
     private bool supportsClusteredIndexes;
     private bool supportKeyColumnSortOrder;
+    private bool supportSequences;
     private int maxQueryLength;
     private int maxComparisonOperations;
     private int databaseNameLength;
@@ -88,6 +90,20 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
+    /// Indicates that RDBMS supports boolean data type.
+    /// If the value of this property is <see langword="false"/>,
+    /// RDMBS uses integer-like type to store boolean values.
+    /// </summary>
+    public bool SupportsRealTimeSpan
+    {
+      get { return supportsRealTimeSpan; }
+      set {
+        LockableExtensions.EnsureNotLocked(this);
+        supportsRealTimeSpan = value;
+      }
+    }
+
+    /// <summary>
     /// Indicates that RDBMS supports foreign key constraints.
     /// </summary>
     public bool SupportsForeignKeyConstraints {
@@ -110,13 +126,24 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
-    /// Indicates that RDBMS supports index key columns ordering .
+    /// Indicates that RDBMS supports index key columns ordering.
     /// </summary>
     public bool SupportKeyColumnSortOrder {
       get { return supportKeyColumnSortOrder; }
       set {
         this.EnsureNotLocked();
         supportKeyColumnSortOrder = value;
+      }
+    }
+
+    /// <summary>
+    /// Indicates that RDBMS supports sequences.
+    /// </summary>
+    public bool SupportSequences {
+      get { return supportSequences; }
+      set {
+        this.EnsureNotLocked();
+        supportSequences = value;
       }
     }
 
@@ -337,6 +364,7 @@ namespace Xtensive.Storage.Providers
         ==IndexFeatures.NonKeyColumns;
       supportKeyColumnSortOrder = (serverInfo.Index.Features & IndexFeatures.SortOrder)
         ==IndexFeatures.SortOrder;
+      supportSequences = serverInfo.Sequence.Features!=SequenceFeatures.None;
       version = (Version)serverInfo.Version.ProductVersion.Clone();
     }
   }

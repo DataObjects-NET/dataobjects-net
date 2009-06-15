@@ -19,17 +19,31 @@ namespace Xtensive.Storage.Tests.Upgrade
     [Test]
     public void ConversionToStringTest()
     {
-      var stringTypeInfo = new TypeInfo(typeof (String));
-      var isByteArrFound = false;
-      foreach (var type in CreateTypeList()) {
-        if (type!=typeof (Byte[]))
-          Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type), stringTypeInfo));
-        else {
-          Assert.IsFalse(TypeConversionVerifier.CanConvert(new TypeInfo(type), stringTypeInfo));
-          isByteArrFound = true;
-        }
-      }
-      Assert.IsTrue(isByteArrFound);
+      var stringTypeInfo = new TypeInfo(typeof (String), 100);
+      var typeList = new[] {
+        typeof (String),
+        typeof (Int16),
+        typeof (Int32),
+        typeof (Int64),
+        typeof (UInt16),
+        typeof (UInt32), 
+        typeof (UInt64), 
+        typeof (Char), 
+        typeof (Byte), 
+        typeof (SByte)
+      };
+      foreach (var type in typeList)
+          Assert.IsTrue(TypeConversionVerifier
+            .CanConvert(new TypeInfo(type), stringTypeInfo));
+      typeList = new[] {
+        typeof (Guid),
+        typeof (DateTime),
+        typeof (TimeSpan),
+        typeof (Byte[])
+      };
+      foreach (var type in typeList)
+          Assert.IsFalse(TypeConversionVerifier
+            .CanConvert(new TypeInfo(type), stringTypeInfo));
     }
 
     [Test]

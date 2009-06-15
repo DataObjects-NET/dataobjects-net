@@ -124,9 +124,9 @@ namespace Xtensive.Storage.Upgrade
     {
       var domainModel = Domain.Demand().Model;
       var modelHolder = Query<Extension>.All
-        .SingleOrDefault(extension => extension.Name==WellKnown.DomainModelExtension);
+        .SingleOrDefault(extension => extension.Name==WellKnown.DomainModelExtensionName);
       if (modelHolder == null)
-        modelHolder = new Extension(WellKnown.DomainModelExtension);
+        modelHolder = new Extension(WellKnown.DomainModelExtensionName);
       using (var writer = new StringWriter()) {
         var serializer = new XmlSerializer(typeof (StoredDomainModel));
         serializer.Serialize(writer, domainModel.ToStoredModel());
@@ -165,7 +165,7 @@ namespace Xtensive.Storage.Upgrade
     {
       var context = UpgradeContext.Demand();
       var modelHolder = Query<Extension>.All
-        .SingleOrDefault(e => e.Name==WellKnown.DomainModelExtension);
+        .SingleOrDefault(e => e.Name==WellKnown.DomainModelExtensionName);
       if (modelHolder == null) {
         Log.Info(Strings.LogDomainModelIsNotFoundInStorage);
         return;

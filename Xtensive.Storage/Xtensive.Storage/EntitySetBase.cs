@@ -34,7 +34,7 @@ namespace Xtensive.Storage
     INotifyPropertyChanged,
     INotifyCollectionChanged
   {
-    private static readonly Parameter<Tuple> pKey = new Parameter<Tuple>(WellKnown.KeyField);
+    private static readonly Parameter<Tuple> pKey = new Parameter<Tuple>(WellKnown.KeyFieldName);
     internal RecordSet items;
     internal RecordSet count;
     private RecordSet seek;

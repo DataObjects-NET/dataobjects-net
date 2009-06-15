@@ -6,6 +6,9 @@
 
 namespace Xtensive.Storage.Providers.Memory
 {
+  /// <summary>
+  /// Handlers factory for memory index storage.
+  /// </summary>
   [Provider("memory", Description = "General storage provider for in-memory storages.")]
   public class HandlerFactory : Providers.HandlerFactory
   {

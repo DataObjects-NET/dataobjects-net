@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.MsSql
     {
       var serverInfo = ((SessionHandler) BuildingContext.Current.SystemSessionHandler).Connection
         .Driver.ServerInfo;
-      return new ProviderInfo(serverInfo, false, false, true);
+      return new ProviderInfo(serverInfo, false, false, true) {SupportsRealTimeSpan = false};
     }
   }
 }

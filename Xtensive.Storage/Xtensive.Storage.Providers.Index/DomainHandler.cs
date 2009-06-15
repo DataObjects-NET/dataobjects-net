@@ -31,6 +31,9 @@ using TypeInfo=Xtensive.Storage.Model.TypeInfo;
 
 namespace Xtensive.Storage.Providers.Index
 {
+  /// <summary>
+  /// <see cref="Domain"/>-level handler for index storage.
+  /// </summary>
   public abstract class DomainHandler : Providers.DomainHandler
   {
     private readonly Dictionary<Pair<IndexInfo, TypeInfo>, MapTransform> primaryIndexTransforms = 
@@ -145,6 +148,7 @@ namespace Xtensive.Storage.Providers.Index
       result.SupportsEnlist = false;
       result.SupportsForeignKeyConstraints = false;
       result.SupportsRealBoolean = true;
+      result.SupportsRealTimeSpan = true;
       result.SupportsIncludedColumns = true;
       result.SupportKeyColumnSortOrder = true;
       result.Version = new Version(0, 3);

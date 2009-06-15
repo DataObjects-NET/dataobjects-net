@@ -515,7 +515,7 @@ namespace Xtensive.Storage.Linq
       var resultProjection = new ProjectionExpression(returnType, groupingItemProjector, VisitSequence(source).TupleParameterBindings);
 
       if (resultSelector!=null) {
-        var keyProperty = groupingType.GetProperty(WellKnown.KeyField);
+        var keyProperty = groupingType.GetProperty(WellKnown.KeyFieldName);
         var convertedParameter = Expression.Convert(resultSelector.Parameters[1], groupingType);
         var keyAccess = Expression.MakeMemberAccess(convertedParameter, keyProperty);
         var rewrittenResultSelectorBody = ParameterRewriter.Rewrite(resultSelector.Body, resultSelector.Parameters[0], keyAccess);

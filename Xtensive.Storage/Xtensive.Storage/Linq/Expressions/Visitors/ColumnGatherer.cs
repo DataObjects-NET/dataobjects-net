@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         var keyExpression = (KeyExpression) e.Fields.First(f => f.ExtendedType==ExtendedExpressionType.Key);
         AddColumns(e, keyExpression.Mapping.GetItems());
         if (KeepTypeId)
-          AddColumns(e, e.Fields.First(f => f.Name==WellKnown.TypeIdField).Mapping.GetItems());
+          AddColumns(e, e.Fields.First(f => f.Name==WellKnown.TypeIdFieldName).Mapping.GetItems());
       }
       else {
         AddColumns(e,
@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
           .GetItems()
           .AddOne(entity
             .Fields
-            .Single(field => field.Name==WellKnown.TypeIdField)
+            .Single(field => field.Name==WellKnown.TypeIdFieldName)
             .Mapping
             .Offset));
     }

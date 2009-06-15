@@ -94,6 +94,11 @@ namespace Xtensive.Storage.Upgrade
     /// </summary>
     public StoredDomainModel ExtractedDomainModel { get; internal set; }
 
+    /// <summary>
+    /// Gets the legacy storage schema.
+    /// </summary>
+    public object LegacyExtractedSchema { get; internal set; }
+
     #region IContext<...> methods
 
     /// <inheritdoc/>

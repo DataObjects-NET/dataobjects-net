@@ -10,6 +10,7 @@ using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Providers.MsSql;
 using Xtensive.Storage.Providers.Sql;
 
@@ -49,10 +50,15 @@ namespace Xtensive.Storage.Tests.Upgrade
       }
     }
 
-    protected override SqlModelConverter CreateSqlModelConverter(Schema storageSchema,
-      Func<ISqlCompileUnit, object> commandExecutor, Func<SqlValueType, TypeInfo> valueTypeConverter)
+    protected override ProviderInfo CreateProviderInfo()
     {
-      return new MsSqlModelConverter(storageSchema, commandExecutor, valueTypeConverter);
+      var providerInfo = new ProviderInfo();
+      providerInfo.SupportsRealTimeSpan = false;
+      providerInfo.SupportSequences = false;
+      providerInfo.SupportKeyColumnSortOrder = true;
+      providerInfo.SupportsIncludedColumns = true;
+      providerInfo.SupportsForeignKeyConstraints = true;
+      return providerInfo;
     }
   }
 }

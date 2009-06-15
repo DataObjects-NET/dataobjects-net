@@ -82,13 +82,6 @@ namespace Xtensive.Storage.Tests.Upgrade
     }
 
     [Test]
-    public void TimeSpanColumnTest()
-    {
-      Assert.AreEqual(new TypeInfo(typeof(TimeSpan)),
-        Schema.Tables["C"].Columns["Col1"].Type);
-    }
-
-    [Test]
     public void GeneratorsTest()
     {
       Assert.AreEqual(1, Schema.Sequences.Count);

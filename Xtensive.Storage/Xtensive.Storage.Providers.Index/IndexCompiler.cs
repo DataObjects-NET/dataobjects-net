@@ -64,11 +64,11 @@ namespace Xtensive.Storage.Providers.Index
           int columnIndex;
           if (indexInfo.IsPrimary)
           {
-            FieldInfo typeIdField = indexInfo.ReflectedType.Fields[WellKnown.TypeIdField];
+            FieldInfo typeIdField = indexInfo.ReflectedType.Fields[WellKnown.TypeIdFieldName];
             columnIndex = typeIdField.MappingInfo.Offset;
           }
           else
-            columnIndex = indexInfo.Columns.Select((c, i) => c.Field.Name == WellKnown.TypeIdField ? i : 0).Sum();
+            columnIndex = indexInfo.Columns.Select((c, i) => c.Field.Name == WellKnown.TypeIdFieldName ? i : 0).Sum();
           List<int> typeIdList = indexInfo.ReflectedType.GetDescendants(true).Select(info => info.TypeId).ToList();
           typeIdList.Add(indexInfo.ReflectedType.TypeId);
           result = new FilterInheritorsProvider(provider, source, columnIndex, typeIdList.ToArray());

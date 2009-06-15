@@ -174,7 +174,7 @@ namespace Xtensive.Storage.Linq
       QueryableIncludeFields = GetQueryableExtensionsMethod("IncludeFields", 2, 2);
 
       // IEntity
-      IEntityKey = typeof (IEntity).GetProperty(WellKnown.KeyField);
+      IEntityKey = typeof (IEntity).GetProperty(WellKnown.KeyFieldName);
 
 
       // ApplyParameter

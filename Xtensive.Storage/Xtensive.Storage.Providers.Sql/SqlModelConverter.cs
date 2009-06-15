@@ -32,12 +32,17 @@ namespace Xtensive.Storage.Providers.Sql
   /// <summary>
   /// Converts <see cref="Xtensive.Sql.Dom.Database.Model"/> to indexing storage model.
   /// </summary>
-  public abstract class SqlModelConverter : SqlModelVisitor<IPathNode>
+  public class SqlModelConverter : SqlModelVisitor<IPathNode>
   {
     /// <summary>
     /// Gets the storage info.
     /// </summary>
     protected StorageInfo StorageInfo { get; private set; }
+
+    /// <summary>
+    /// Gets the provider info.
+    /// </summary>
+    protected ProviderInfo ProviderInfo {get; private set;}
 
     /// <summary>
     /// Gets the key fetcher.
@@ -92,9 +97,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode Visit(Node node)
     {
-      var table = node as Table;
-      if (table != null && IsGeneratorTable(table))
-        return VisitGeneratorTable(table);
+      if (!ProviderInfo.SupportSequences) {
+        var table = node as Table;
+        if (table!=null && IsGeneratorTable(table))
+          return VisitGeneratorTable(table);
+      }
 
       return base.Visit(node);
     }
@@ -187,6 +194,18 @@ namespace Xtensive.Storage.Providers.Sql
       return secondaryIndexInfo;
     }
 
+    /// <inheritdoc/>
+    protected override IPathNode VisitSequence(Sequence sequence)
+    {
+      var sequenceInfo = new SequenceInfo(StorageInfo, sequence.Name) {
+        Current = GetNextGeneratorValue(sequence.Name),
+        Increment = sequence.SequenceDescriptor.Increment.Value,
+        StartValue = sequence.SequenceDescriptor.StartValue.Value,
+        Type = ValueTypeConverter.Invoke(sequence.DataType)
+      };
+      return sequenceInfo;
+    }
+
     # endregion
 
     /// <summary>
@@ -219,6 +238,12 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>Data type.</returns>
     protected virtual TypeInfo ExtractType(TableColumn column)
     {
+      if (!ProviderInfo.SupportsRealTimeSpan 
+        && column.Domain!=null 
+        && column.Domain.Name==WellKnown.TimeSpanDomainName)
+        return new TypeInfo(
+          column.IsNullable ? typeof (TimeSpan?) : typeof (TimeSpan), column.IsNullable);
+      
       var typeInfo = ValueTypeConverter.Invoke(column.DataType);
 
       if (column.IsNullable) {
@@ -299,21 +324,27 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>Next value.</returns>
     protected virtual long GetNextGeneratorValue(string generatorName)
     {
-      var generatorTable = Schema.Tables[generatorName];
-
-      SqlBatch sqlNext = SqlFactory.Batch();
-      SqlInsert insert = SqlFactory.Insert(SqlFactory.TableRef(generatorTable));
-      sqlNext.Add(insert);
-      SqlSelect select = SqlFactory.Select();
-      select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall("SCOPE_IDENTITY"), 
-        SqlDataType.Int64));
-      sqlNext.Add(select);
-      SqlDelete delete = SqlFactory.Delete(SqlFactory.TableRef(generatorTable));
-      sqlNext.Add(delete);
-
-      return (long) CommandExecutor.Invoke(sqlNext);
+      if (ProviderInfo.SupportSequences) {
+        var sequence = Schema.Sequences[generatorName];
+        var sqlNext = SqlFactory.Select();
+        sqlNext.Columns.Add(SqlFactory.NextValue(sequence));
+        return (long) CommandExecutor.Invoke(sqlNext);
+      }
+      else {
+        var generatorTable = Schema.Tables[generatorName];
+        SqlBatch sqlNext = SqlFactory.Batch();
+        SqlInsert insert = SqlFactory.Insert(SqlFactory.TableRef(generatorTable));
+        sqlNext.Add(insert);
+        SqlSelect select = SqlFactory.Select();
+        select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall("SCOPE_IDENTITY"),
+          SqlDataType.Int64));
+        sqlNext.Add(select);
+        SqlDelete delete = SqlFactory.Delete(SqlFactory.TableRef(generatorTable));
+        sqlNext.Add(delete);
+        return (long) CommandExecutor.Invoke(sqlNext);
+      }
     }
-
+    
 
     // Constructors
 
@@ -323,16 +354,19 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="storageSchema">The schema.</param>
     /// <param name="commandExecutor">The key fetcher.</param>
     /// <param name="valueTypeConverter">The value type converter.</param>
-    public SqlModelConverter(Schema storageSchema, Func<ISqlCompileUnit, object> commandExecutor, 
-      Func<SqlValueType, TypeInfo> valueTypeConverter)
+    /// <param name="providerInfo">The provider info.</param>
+    public SqlModelConverter(Schema storageSchema, Func<SqlValueType, TypeInfo> valueTypeConverter, 
+      ProviderInfo providerInfo, Func<ISqlCompileUnit, object> commandExecutor)
     {
       ArgumentValidator.EnsureArgumentNotNull(storageSchema, "schema");
       ArgumentValidator.EnsureArgumentNotNull(commandExecutor, "commandExecutor");
       ArgumentValidator.EnsureArgumentNotNull(valueTypeConverter, "valueTypeConverter");
+      ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
       
       CommandExecutor = commandExecutor;
       ValueTypeConverter = valueTypeConverter;
       Schema = storageSchema;
+      ProviderInfo = providerInfo;
     }
 
 
@@ -474,13 +508,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitRangePartition(RangePartition rangePartition)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitSequence(Sequence sequence)
     {
       throw new NotSupportedException();
     }

@@ -6,6 +6,9 @@
 
 namespace Xtensive.Storage.Providers.Memory
 {
+  /// <summary>
+  /// <see cref="Session"/>-level handler for memory index storage.
+  /// </summary>
   public class SessionHandler : Index.SessionHandler
   {
     /// <inheritdoc/>

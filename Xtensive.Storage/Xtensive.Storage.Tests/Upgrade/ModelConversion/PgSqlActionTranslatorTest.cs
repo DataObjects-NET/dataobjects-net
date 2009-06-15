@@ -10,6 +10,7 @@ using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Providers.PgSql;
 using Xtensive.Storage.Providers.Sql;
 
@@ -49,10 +50,15 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     protected override bool IsIncludedColumnsSupported { get { return false; } }
 
-    protected override SqlModelConverter CreateSqlModelConverter(Schema storageSchema,
-      Func<ISqlCompileUnit, object> commandExecutor, Func<SqlValueType, TypeInfo> valueTypeConverter)
+    protected override ProviderInfo CreateProviderInfo()
     {
-      return new PgSqlModelConverter(storageSchema, commandExecutor, valueTypeConverter);
+      var providerInfo = new ProviderInfo();
+      providerInfo.SupportsRealTimeSpan = true;
+      providerInfo.SupportSequences = true;
+      providerInfo.SupportKeyColumnSortOrder = false;
+      providerInfo.SupportsIncludedColumns = false;
+      providerInfo.SupportsForeignKeyConstraints = true;
+      return providerInfo;
     }
   }
 }

@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <summary>
     /// Gets value columns.
     /// </summary>
-    [Property(Priority = -100)]
+    [Property(Priority = -100, IgnoreInComparison = true)]
     public ValueColumnRefCollection ValueColumns { get; private set; }
 
     /// <summary>

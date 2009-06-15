@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Building
 
     public static void Process(AddTypeIdToKeyFieldsAction action)
     {
-      action.Hierarchy.KeyFields.Add(new KeyField(WellKnown.TypeIdField));
+      action.Hierarchy.KeyFields.Add(new KeyField(WellKnown.TypeIdFieldName));
     }
 
     public static void Process(ReorderFieldsAction action)
@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Building
         root.Fields.Remove(fieldDef);
       }
       if (!action.Hierarchy.IncludeTypeId) {
-        var typeIdField = root.Fields[WellKnown.TypeIdField];
+        var typeIdField = root.Fields[WellKnown.TypeIdFieldName];
         buffer.Add(typeIdField);
         root.Fields.Remove(typeIdField);
       }
@@ -120,13 +120,13 @@ namespace Xtensive.Storage.Building
     public static void Process(MarkFieldAsSystemAction action)
     {
       action.Field.IsSystem = true;
-      if (action.Type.IsEntity && action.Field.Name == WellKnown.TypeIdField)
+      if (action.Type.IsEntity && action.Field.Name == WellKnown.TypeIdFieldName)
         action.Field.IsTypeId = true;
     }
 
     public static void Process(AddTypeIdFieldAction action)
     {
-      FieldDef fieldDef = ModelDefBuilder.DefineField(typeof (Entity).GetProperty(WellKnown.TypeIdField));
+      FieldDef fieldDef = ModelDefBuilder.DefineField(typeof (Entity).GetProperty(WellKnown.TypeIdFieldName));
       fieldDef.IsTypeId = true;
       fieldDef.IsSystem = true;
       action.Type.Fields.Add(fieldDef);

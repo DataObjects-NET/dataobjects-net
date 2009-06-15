@@ -27,21 +27,10 @@ namespace Xtensive.Storage.Building.Builders
   /// <summary>
   /// Utility class for <see cref="Storage"/> building.
   /// </summary>
-  public static class DomainBuilder
+  internal static class DomainBuilder
   {
     private static readonly PluginManager<ProviderAttribute> pluginManager =
       new PluginManager<ProviderAttribute>(typeof (HandlerFactory), AppDomain.CurrentDomain.BaseDirectory);
-
-    /// <summary>
-    /// Builds the domain.
-    /// </summary>
-    /// <param name="configuration">The domain configuration.</param>
-    /// <param name="schemaUpgradeMode">The schema upgrade mode.</param>
-    /// <returns>Built domain.</returns>
-    public static Domain BuildDomain(DomainConfiguration configuration, SchemaUpgradeMode schemaUpgradeMode)
-    {
-      return BuildDomain(configuration, new DomainBuilderConfiguration(schemaUpgradeMode));
-    }
 
     /// <summary>
     /// Builds the domain.
