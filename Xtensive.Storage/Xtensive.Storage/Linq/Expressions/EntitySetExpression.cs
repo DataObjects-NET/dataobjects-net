@@ -9,10 +9,12 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq.Expressions
 {
-  internal sealed class EntitySetExpression : FieldExpression
+  internal sealed class EntitySetExpression : FieldExpression,
+    ISubQueryExpression
   {
     private TypeInfo elementType;
     
@@ -116,6 +118,20 @@ namespace Xtensive.Storage.Linq.Expressions
       return string.Format("{0} {1}", base.ToString(), Name);
     }
 
+    public ProjectionExpression ProjectionExpression
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public ApplyParameter ApplyParameter
+    {
+      get { throw new NotImplementedException(); }
+    }
+
+    public ISubQueryExpression ReplaceApplyParameter(ApplyParameter newApplyParameter)
+    {
+      throw new NotImplementedException();
+    }
 
     // Constructors
 

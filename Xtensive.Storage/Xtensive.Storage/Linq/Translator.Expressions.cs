@@ -493,7 +493,7 @@ namespace Xtensive.Storage.Linq
         throw new NotImplementedException();
 
       ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[state.Parameters[0]]);
-      return new SubQueryExpression(resultType, state.Parameters[0], subQuery, applyParameter, false);
+      return new SubQueryExpression(resultType, state.Parameters[0], false, subQuery, applyParameter);
     }
 
     private static IList<Expression> GetAnonymousArguments(Expression expression)

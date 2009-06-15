@@ -119,7 +119,10 @@ namespace Xtensive.Storage.Linq.Expressions
       DataSource = dataSource;
       Context = context;
       var newApplyParameter = Context.GetApplyParameter(dataSource);
-      var applyParameterReplacer = new ExtendedExpressionReplacer(ex => ex is SubQueryExpression ? ((SubQueryExpression) ex).ReplaceApplyParameter(newApplyParameter) : expression);
+      var applyParameterReplacer = new ExtendedExpressionReplacer(ex => 
+        ex is ISubQueryExpression 
+        ? (Expression)((ISubQueryExpression) ex).ReplaceApplyParameter(newApplyParameter) 
+        : expression);
       Item = applyParameterReplacer.Replace(expression);
     }
   }

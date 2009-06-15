@@ -18,7 +18,8 @@ namespace Xtensive.Storage.Linq.Expressions
 {
   [Serializable]
   internal class SubQueryExpression : ParameterizedExpression,
-    IMappedExpression
+    IMappedExpression, 
+    ISubQueryExpression
   {
     private readonly ApplyParameter applyParameter;
 
@@ -72,7 +73,7 @@ namespace Xtensive.Storage.Linq.Expressions
       });
       var newItemProjector = new ItemProjectorExpression(item, newDataSource, ProjectionExpression.ItemProjector.Context);
       var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings);
-      var result = new SubQueryExpression(Type, OuterParameter, newProjectionExpression, ApplyParameter, ExtendedType, DefaultIfEmpty);
+      var result = new SubQueryExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, ApplyParameter, ExtendedType);
       processedExpressions.Add(this, result);
 
       // Restore subquery parameter
@@ -106,7 +107,7 @@ namespace Xtensive.Storage.Linq.Expressions
       });
       var newItemProjector = new ItemProjectorExpression(item, newDataSource, ProjectionExpression.ItemProjector.Context);
       var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings);
-      var result = new SubQueryExpression(Type, OuterParameter, newProjectionExpression, ApplyParameter, ExtendedType, DefaultIfEmpty);
+      var result = new SubQueryExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, ApplyParameter, ExtendedType);
       processedExpressions.Add(this, result);
       
       // Restore subquery parameter
@@ -118,34 +119,36 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    public SubQueryExpression(Type type,
-      ParameterExpression parameterExpression,
-      ProjectionExpression projectionExpression,
-      ApplyParameter applyParameter,
-      bool defaultIfEmpty)
+    public virtual ISubQueryExpression ReplaceApplyParameter(ApplyParameter newApplyParameter)
+    {
+      var newItemProjector = ProjectionExpression.ItemProjector.RewriteApplyParameter(ApplyParameter, newApplyParameter);
+      var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings, ProjectionExpression.ResultType);
+      return new SubQueryExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter);
+    }
+
+    public SubQueryExpression(
+      Type type, 
+      ParameterExpression parameterExpression, 
+      bool defaultIfEmpty, 
+      ProjectionExpression projectionExpression, 
+      ApplyParameter applyParameter)
       : base(ExtendedExpressionType.SubQuery, type, parameterExpression, defaultIfEmpty)
     {
       ProjectionExpression = projectionExpression;
       this.applyParameter = applyParameter;
     }
 
-    public SubQueryExpression(Type type,
-      ParameterExpression parameterExpression,
-      ProjectionExpression projectionExpression,
-      ApplyParameter applyParameter,
-      ExtendedExpressionType expressionType,
-      bool defaultIfEmpty)
+    public SubQueryExpression(
+      Type type, 
+      ParameterExpression parameterExpression, 
+      bool defaultIfEmpty, 
+      ProjectionExpression projectionExpression, 
+      ApplyParameter applyParameter, 
+      ExtendedExpressionType expressionType)
       : base(expressionType, type, parameterExpression, defaultIfEmpty)
     {
       ProjectionExpression = projectionExpression;
       this.applyParameter = applyParameter;
-    }
-
-    public virtual SubQueryExpression ReplaceApplyParameter(ApplyParameter newApplyParameter)
-    {
-      var newItemProjector = ProjectionExpression.ItemProjector.RewriteApplyParameter(ApplyParameter, newApplyParameter);
-      var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings, ProjectionExpression.ResultType);
-      return new SubQueryExpression(Type, OuterParameter, newProjectionExpression, newApplyParameter, DefaultIfEmpty);
     }
   }
 }

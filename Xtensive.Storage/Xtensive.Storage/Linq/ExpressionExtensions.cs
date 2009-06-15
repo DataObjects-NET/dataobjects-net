@@ -77,6 +77,11 @@ namespace Xtensive.Storage.Linq
       return (ExtendedExpressionType)expression.NodeType==ExtendedExpressionType.SubQuery;
     }
 
+    public static bool IsEntitySetExpression(this Expression expression)
+    {
+      return (ExtendedExpressionType)expression.NodeType==ExtendedExpressionType.EntitySet;
+    }
+
     public static bool IsEntitySet(this Expression expression)
     {
       return expression.Type.IsGenericType 

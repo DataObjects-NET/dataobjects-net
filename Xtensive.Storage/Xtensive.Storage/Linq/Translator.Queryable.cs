@@ -507,7 +507,7 @@ namespace Xtensive.Storage.Linq
       if (elementSelector!=null)
         subqueryProjection = VisitSelect(subqueryProjection, elementSelector);
 
-      var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, elementSelector, new Segment<int>(0, keyColumns.Length), false);
+      var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, false, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, elementSelector, new Segment<int>(0, keyColumns.Length));
       var groupingItemProjector = new ItemProjectorExpression(groupingExpression, keyDataSource, context);
       var returnType = resultSelector==null
         ? method.ReturnType
@@ -823,8 +823,10 @@ namespace Xtensive.Storage.Linq
 
       var visitedExpression = Visit(sequenceExpression);
 
-      if (visitedExpression.IsGroupingExpression() || visitedExpression.IsSubqueryExpression())
-        return ((SubQueryExpression) visitedExpression).ProjectionExpression;
+      if (visitedExpression.IsGroupingExpression() 
+        || visitedExpression.IsSubqueryExpression()
+        || visitedExpression.IsEntitySetExpression())
+        return ((ISubQueryExpression) visitedExpression).ProjectionExpression;
 
       if (visitedExpression.IsProjection())
         return (ProjectionExpression) visitedExpression;
