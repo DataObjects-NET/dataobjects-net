@@ -17,12 +17,12 @@ namespace Xtensive.Storage.Linq.Expressions
     ISubQueryExpression
   {
     private TypeInfo elementType;
-    
+
     public TypeInfo ElementType
     {
       get
       {
-        if (elementType == null)
+        if (elementType==null)
           elementType = Owner.PersistentType.Model.Types[Field.ItemType];
         return elementType;
       }
@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Linq.Expressions
       get
       {
         var value = base.Owner;
-        if (value == null)
+        if (value==null)
           throw new InvalidOperationException("Unable to handle EntitySetExpression without specified Owner.");
         return value;
       }
@@ -58,8 +58,8 @@ namespace Xtensive.Storage.Linq.Expressions
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
         return result;
-      result = new EntitySetExpression(Field, null, DefaultIfEmpty);
-      if (base.Owner == null)
+      result = new EntitySetExpression(Field, null, DefaultIfEmpty, ProjectionExpression, ApplyParameter);
+      if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);
       Owner.Remap(offset, processedExpressions);
@@ -74,8 +74,8 @@ namespace Xtensive.Storage.Linq.Expressions
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
         return result;
-      result = new EntitySetExpression(Field, null, DefaultIfEmpty);
-      if (base.Owner == null)
+      result = new EntitySetExpression(Field, null, DefaultIfEmpty, ProjectionExpression, ApplyParameter);
+      if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);
       Owner.Remap(map, processedExpressions);
@@ -87,8 +87,8 @@ namespace Xtensive.Storage.Linq.Expressions
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
         return result;
-      result = new EntitySetExpression(Field, parameter, DefaultIfEmpty);
-      if (base.Owner == null)
+      result = new EntitySetExpression(Field, parameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter);
+      if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);
       Owner.BindParameter(parameter, processedExpressions);
@@ -100,8 +100,8 @@ namespace Xtensive.Storage.Linq.Expressions
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
         return result;
-      result = new EntitySetExpression(Field, null, DefaultIfEmpty);
-      if (base.Owner == null)
+      result = new EntitySetExpression(Field, null, DefaultIfEmpty, ProjectionExpression, ApplyParameter);
+      if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);
       Owner.RemoveOuterParameter(processedExpressions);
@@ -110,7 +110,8 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public static EntitySetExpression CreateEntitySet(FieldInfo field)
     {
-      return new EntitySetExpression(field, null, false);
+      // TODO: AG : Rewrite
+      return new EntitySetExpression(field, null, false, null, null);
     }
 
     public override string ToString()
@@ -118,26 +119,27 @@ namespace Xtensive.Storage.Linq.Expressions
       return string.Format("{0} {1}", base.ToString(), Name);
     }
 
-    public ProjectionExpression ProjectionExpression
-    {
-      get { throw new NotImplementedException(); }
-    }
+    public ProjectionExpression ProjectionExpression { get; private set; }
 
-    public ApplyParameter ApplyParameter
-    {
-      get { throw new NotImplementedException(); }
-    }
+    public ApplyParameter ApplyParameter { get; private set; }
 
-    public ISubQueryExpression ReplaceApplyParameter(ApplyParameter newApplyParameter)
+    public Expression ReplaceApplyParameter(ApplyParameter newApplyParameter)
     {
       throw new NotImplementedException();
     }
 
     // Constructors
 
-    private EntitySetExpression(FieldInfo field, ParameterExpression parameterExpression, bool defaultIfEmpty)
+    private EntitySetExpression(
+      FieldInfo field,
+      ParameterExpression parameterExpression,
+      bool defaultIfEmpty,
+      ProjectionExpression projectionExpression,
+      ApplyParameter applyParameter)
       : base(ExtendedExpressionType.EntitySet, field, default(Segment<int>), parameterExpression, defaultIfEmpty)
     {
+      ProjectionExpression = projectionExpression;
+      ApplyParameter = applyParameter;
     }
   }
 }

@@ -4,15 +4,15 @@
 // Created by: Alexey Gamzov
 // Created:    2009.06.15
 
-using Xtensive.Storage.Linq.Expressions;
+using System.Linq.Expressions;
 using Xtensive.Storage.Rse;
 
-namespace Xtensive.Storage.Linq
+namespace Xtensive.Storage.Linq.Expressions
 {
   internal interface ISubQueryExpression
   {
     ProjectionExpression ProjectionExpression { get; }
     ApplyParameter ApplyParameter { get; }
-    ISubQueryExpression ReplaceApplyParameter(ApplyParameter newApplyParameter);
+    Expression ReplaceApplyParameter(ApplyParameter newApplyParameter);
   }
 }

@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Linq.Expressions
       return new GroupingExpression(remappedSubquery.Type, remappedSubquery.OuterParameter, DefaultIfEmpty, remappedSubquery.ProjectionExpression, remappedSubquery.ApplyParameter, remappedKeyExpression, ElementSelector, mapping);
     }
 
-    public override ISubQueryExpression ReplaceApplyParameter(ApplyParameter newApplyParameter)
+    public override Expression ReplaceApplyParameter(ApplyParameter newApplyParameter)
     {
       var newItemProjector = ProjectionExpression.ItemProjector.RewriteApplyParameter(ApplyParameter, newApplyParameter);
       var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings, ProjectionExpression.ResultType);

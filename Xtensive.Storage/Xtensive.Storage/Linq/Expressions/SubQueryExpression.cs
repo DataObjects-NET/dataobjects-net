@@ -21,14 +21,9 @@ namespace Xtensive.Storage.Linq.Expressions
     IMappedExpression, 
     ISubQueryExpression
   {
-    private readonly ApplyParameter applyParameter;
-
     public ProjectionExpression ProjectionExpression { get; private set; }
 
-    public ApplyParameter ApplyParameter
-    {
-      get { return applyParameter; }
-    }
+    public ApplyParameter ApplyParameter{ get; private set;}
 
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     public virtual Segment<int> Mapping
@@ -119,7 +114,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    public virtual ISubQueryExpression ReplaceApplyParameter(ApplyParameter newApplyParameter)
+    public virtual Expression ReplaceApplyParameter(ApplyParameter newApplyParameter)
     {
       var newItemProjector = ProjectionExpression.ItemProjector.RewriteApplyParameter(ApplyParameter, newApplyParameter);
       var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings, ProjectionExpression.ResultType);
@@ -135,7 +130,7 @@ namespace Xtensive.Storage.Linq.Expressions
       : base(ExtendedExpressionType.SubQuery, type, parameterExpression, defaultIfEmpty)
     {
       ProjectionExpression = projectionExpression;
-      this.applyParameter = applyParameter;
+      ApplyParameter = applyParameter;
     }
 
     public SubQueryExpression(
@@ -148,7 +143,7 @@ namespace Xtensive.Storage.Linq.Expressions
       : base(expressionType, type, parameterExpression, defaultIfEmpty)
     {
       ProjectionExpression = projectionExpression;
-      this.applyParameter = applyParameter;
+      ApplyParameter = applyParameter;
     }
   }
 }
