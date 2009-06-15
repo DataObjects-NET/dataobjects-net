@@ -636,8 +636,10 @@ namespace Xtensive.Storage.Providers.Sql
         int i = 0;
         foreach (var columnInfo in index.Columns) {
           var column = select.Columns[columnInfo.Name];
-          if (SqlExpression.IsNull(column))
-            select.Columns.Insert(i, SqlFactory.Null, columnInfo.Name);
+          if (SqlExpression.IsNull(column)) {
+            var valueType = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper.BuildSqlValueType(columnInfo);
+            select.Columns.Insert(i, SqlFactory.Cast(SqlFactory.Null, valueType), columnInfo.Name);
+          }
           i++;
         }
         if (result == null)
