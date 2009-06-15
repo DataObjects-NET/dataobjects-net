@@ -237,9 +237,9 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Called when entity should be validated.
-    /// </summary>    
+    /// </summary>
     /// <remarks>
-    /// Override this method to perform custom validation.
+    /// Override this method to perform custom object validation.
     /// </remarks>
     /// <example>
     /// <code>

@@ -23,10 +23,29 @@ using Xtensive.Storage.Serialization;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Principal data objects about which information has to be managed. 
-  /// It has a unique identity, independent existence, and forms the operational unit of consistency.
-  /// Instance of <see cref="Entity"/> type can be referenced via <see cref="Key"/>.
+  /// Base class for all entities in a model.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// <see cref="Entity"/> encapsulates infrastructure to store transactional persistent data.
+  /// It has <see cref="Key"/> property that uniquly identifies the instace within its <see cref="Session"/>.
+  /// </para>
+  /// <para>All entities in a model should be inherited from this classs.
+  /// </para>
+  /// </remarks>
+  /// <example>
+  /// <code>
+  /// [HierarchyRoot]
+  /// public class Customer : Entity
+  /// {
+  ///   [Field, KeyField]
+  ///   public int Id { get; set; }
+  ///   
+  ///   [Field]
+  ///   public string Name { get; set; }
+  /// }
+  /// </code>
+  /// </example>
   [SystemType]
   public abstract class Entity : Persistent,
     IEntity, ISerializable, IDeserializationCallback
@@ -48,6 +67,10 @@ namespace Xtensive.Storage
 
     #region Properties: Key, Type, Tuple, PersistenceState
 
+    /// <summary>
+    /// Gets the <see cref="Key"/> that idetifies this entity.
+    /// </summary>
+    /// <value></value>
     /// <exception cref="Exception">Property is already initialized.</exception>
     [Infrastructure]
     public Key Key
@@ -59,6 +82,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets a value indicating whether this entity is removed.
     /// </summary>
+    /// <seealso cref="Remove"/>
     [Infrastructure]
     public bool IsRemoved
     {
@@ -113,7 +137,11 @@ namespace Xtensive.Storage
 
     #region Public members
 
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Removes this entity.
+    /// </summary>
+    /// <seealso cref="IsRemoved"/>
     [Infrastructure]
     public void Remove()
     {
@@ -158,6 +186,9 @@ namespace Xtensive.Storage
     /// <summary>
     /// Called when entity is about to be removed.
     /// </summary>
+    /// <remarks>
+    /// Override it to perform some actions when entity is about to be removed.
+    /// </remarks>
     [Infrastructure]
     protected virtual void OnRemoving()
     {
@@ -166,6 +197,9 @@ namespace Xtensive.Storage
     /// <summary>
     /// Called when entity becomes removed.
     /// </summary>
+    /// <remarks>
+    /// Override this method to perform some actions when entity is removed.
+    /// </remarks>
     [Infrastructure]
     protected virtual void OnRemove()
     {
@@ -309,6 +343,18 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="values">The field values that will be used for key building.</param>
     /// <remarks>Use this kind of constructor when you need to explicitly set key for this instance.</remarks>
+    /// <example>
+    /// <code>
+    /// [HierarchyRoot]
+    /// public class Book : Entity
+    /// {
+    ///   [Field, KeyField]
+    ///   public string ISBN { get; set; }
+    ///   
+    ///   public Book(string isbn) : base(isbn) { }
+    /// }
+    /// </code>
+    /// </example>
     protected Entity(params object[] values)
     {
       ArgumentValidator.EnsureArgumentNotNull(values, "values");

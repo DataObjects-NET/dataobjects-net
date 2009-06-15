@@ -24,7 +24,7 @@ namespace Xtensive.Storage
 {
   /// <summary>
   /// Contains a set of identifying values of an <see cref="Entity"/>.
-  /// Every entity is uniquely identified by its <see cref="Key"/>.
+  /// Every entity is uniquely identified by its <see cref="Entity.Key"/>.
   /// </summary>
   [Serializable]
   public sealed class Key : IEquatable<Key>
