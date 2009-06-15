@@ -137,5 +137,39 @@ namespace Xtensive.Core
           string.Format(Strings.ExArgumentShouldBeInRange, lowerBoundary, upperBoundary));
       }
     }
+
+    /// <summary>
+    /// Ensures argument (<paramref name="value"/>) is greater then the specified <paramref name="boundary"/> value.
+    /// </summary>
+    /// <param name="value">Value to compare check.</param>
+    /// <param name="boundary">Value boundary.</param>
+    /// <param name="parameterName">Name of the method parameter.</param>
+    /// <typeparam name="T">The type of value.</typeparam>
+    public static void EnsureArgumentIsGreaterThan<T>(T value, T boundary, string parameterName)
+      where T: struct, IComparable<T>
+    {
+      if (value.CompareTo(boundary) > 0)
+        return;
+      EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+      throw new ArgumentOutOfRangeException(parameterName, value,
+        string.Format(Strings.ArgumentMustBeGreaterThan0, boundary));
+    }
+
+    /// <summary>
+    /// Ensures argument (<paramref name="value"/>) is less then the specified <paramref name="boundary"/> value.
+    /// </summary>
+    /// <param name="value">Value to compare check.</param>
+    /// <param name="boundary">Value boundary.</param>
+    /// <param name="parameterName">Name of the method parameter.</param>
+    /// <typeparam name="T">The type of value.</typeparam>
+    public static void EnsureArgumentIsLessThan<T>(T value, T boundary, string parameterName)
+      where T: struct, IComparable<T>
+    {
+      if (value.CompareTo(boundary) < 0)
+        return;
+      EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+      throw new ArgumentOutOfRangeException(parameterName, value,
+        string.Format(Strings.ArgumentMustBeLessThan0, boundary));
+    }
   }
 }
