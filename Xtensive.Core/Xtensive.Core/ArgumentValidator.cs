@@ -152,7 +152,7 @@ namespace Xtensive.Core
         return;
       EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
       throw new ArgumentOutOfRangeException(parameterName, value,
-        string.Format(Strings.ArgumentMustBeGreaterThan0, boundary));
+        string.Format(Strings.ExArgumentMustBeGreaterThanX, boundary));
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ namespace Xtensive.Core
         return;
       EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
       throw new ArgumentOutOfRangeException(parameterName, value,
-        string.Format(Strings.ArgumentMustBeLessThan0, boundary));
+        string.Format(Strings.ExArgumentMustBeLessThanX, boundary));
     }
   }
 }

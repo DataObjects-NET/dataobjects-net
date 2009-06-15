@@ -70,24 +70,6 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Argument must be greater than &apos;{0}&apos;.
-        /// </summary>
-        internal static string ArgumentMustBeGreaterThan0 {
-            get {
-                return ResourceManager.GetString("ArgumentMustBeGreaterThan0", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Argument must be less than &apos;{0}&apos;.
-        /// </summary>
-        internal static string ArgumentMustBeLessThan0 {
-            get {
-                return ResourceManager.GetString("ArgumentMustBeLessThan0", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Box({0}).
         /// </summary>
         internal static string BoxFormat {
@@ -174,6 +156,24 @@ namespace Xtensive.Core.Resources {
         internal static string ExArgumentCannotBeEmptyString {
             get {
                 return ResourceManager.GetString("ExArgumentCannotBeEmptyString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Argument must be greater than &apos;{0}&apos;.
+        /// </summary>
+        internal static string ExArgumentMustBeGreaterThanX {
+            get {
+                return ResourceManager.GetString("ExArgumentMustBeGreaterThanX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Argument must be less than &apos;{0}&apos;.
+        /// </summary>
+        internal static string ExArgumentMustBeLessThanX {
+            get {
+                return ResourceManager.GetString("ExArgumentMustBeLessThanX", resourceCulture);
             }
         }
         

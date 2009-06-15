@@ -642,10 +642,10 @@
   <data name="ExArgumentXIsLessThanArgumentY" xml:space="preserve">
     <value>The argument '{0}' is less than the argument '{1}'.</value>
   </data>
-  <data name="ArgumentMustBeGreaterThan0" xml:space="preserve">
+  <data name="ExArgumentMustBeGreaterThanX" xml:space="preserve">
     <value>Argument must be greater than '{0}'</value>
   </data>
-  <data name="ArgumentMustBeLessThan0" xml:space="preserve">
+  <data name="ExArgumentMustBeLessThanX" xml:space="preserve">
     <value>Argument must be less than '{0}'</value>
   </data>
 </root>
