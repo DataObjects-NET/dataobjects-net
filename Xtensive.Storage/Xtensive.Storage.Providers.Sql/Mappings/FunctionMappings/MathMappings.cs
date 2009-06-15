@@ -605,7 +605,8 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     private static SqlExpression BankersRound(SqlExpression value, SqlExpression digits)
     {
-      throw new NotImplementedException();
+      var multiplier = SqlFactory.Power(10, digits);
+      return BankersRound(value * multiplier) / multiplier;
     }
 
     #endregion

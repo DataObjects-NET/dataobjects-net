@@ -2,6 +2,7 @@
 using Xtensive.Sql.Dom.Compiler;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Sql.Common;
+using System.Text;
 
 namespace Xtensive.Sql.Dom.PgSql.v8_0
 {
@@ -132,6 +133,8 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
       return false;
     }
 
+    #region Static helpers
+
     protected static SqlCast CastToLong(SqlExpression arg)
     {
       return Sql.Cast(arg, SqlDataType.Int64);
@@ -161,6 +164,8 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
 
       return ((days * 24L + hours) * 60L + minutes) * 60L * 1000L + milliseconds;
     }
+
+    #endregion
 
     // Constructors
 

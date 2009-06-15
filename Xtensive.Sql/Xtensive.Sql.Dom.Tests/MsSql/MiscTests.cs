@@ -166,7 +166,7 @@ namespace Xtensive.Sql.Dom.Tests.MsSql
       select.Columns.Add(Sql.Trim(" abc ", SqlTrimType.Leading));
       select.Columns.Add(Sql.Trim(" abc ", SqlTrimType.Trailing));
       select.Columns.Add(Sql.Trim(" abc ", SqlTrimType.Both));
-      select.Columns.Add(Sql.Trim(" abc ", SqlTrimType.Both, ' '));
+      select.Columns.Add(Sql.Trim(" abc ", SqlTrimType.Both, " "));
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
 

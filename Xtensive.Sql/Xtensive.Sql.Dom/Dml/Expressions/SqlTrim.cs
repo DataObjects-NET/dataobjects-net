@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Dom.Dml
   public class SqlTrim : SqlExpression
   {
     private SqlExpression expression;
-    private SqlExpression pattern;
+    private string trimCharacters;
     private SqlTrimType trimType;
 
     /// <summary>
@@ -28,12 +28,11 @@ namespace Xtensive.Sql.Dom.Dml
     }
 
     /// <summary>
-    /// Gets the pattern expression.
+    /// Gets the trim characters.
     /// </summary>
-    /// <value>The pattern.</value>
-    public SqlExpression Pattern {
+    public string TrimCharacters {
       get {
-        return pattern;
+        return trimCharacters;
       }
     }
 
@@ -46,9 +45,9 @@ namespace Xtensive.Sql.Dom.Dml
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentIs<SqlTrim>(expression, "expression");
-      SqlTrim replacingExpression = expression as SqlTrim;
+      var replacingExpression = (SqlTrim) expression;
       this.expression = replacingExpression.expression;
-      pattern = replacingExpression.Pattern;
+      trimCharacters = replacingExpression.trimCharacters;
       trimType = replacingExpression.TrimType;
     }
 
@@ -56,18 +55,16 @@ namespace Xtensive.Sql.Dom.Dml
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
-      
-      SqlTrim clone = new SqlTrim((SqlExpression)expression.Clone(context),
-                                  pattern != null ?  (SqlExpression)pattern.Clone(context) : null,
-                                  trimType);
+
+      var clone = new SqlTrim((SqlExpression) expression.Clone(context), trimCharacters, trimType);
       context.NodeMapping[this] = clone;
       return clone;
     }
 
-    internal SqlTrim(SqlExpression expression, SqlExpression pattern, SqlTrimType trimType) : base (SqlNodeType.Trim)
+    internal SqlTrim(SqlExpression expression, string trimCharacters, SqlTrimType trimType) : base (SqlNodeType.Trim)
     {
       this.expression = expression;
-      this.pattern = pattern;
+      this.trimCharacters = trimCharacters;
       this.trimType = trimType;
     }
 

@@ -463,26 +463,31 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
 
     public override string Translate(SqlCompilerContext context, SqlTrim node, TrimSection section)
     {
-      switch (section)
-      {
-        case TrimSection.Entry:
-          if (!SqlExpression.IsNull(node.Pattern))
-            node.ReplaceWith(Sql.Trim(node.Expression, node.TrimType));
-          switch (node.TrimType)
-          {
-            case SqlTrimType.Leading:
-              return "LTRIM(";
-            case SqlTrimType.Trailing:
-              return "RTRIM(";
-            case SqlTrimType.Both:
-              node.ReplaceWith(Sql.Trim(Sql.Trim(node.Expression, SqlTrimType.Trailing), SqlTrimType.Leading));
-              return Translate(context, node, section);
-          }
-          break;
-        case TrimSection.From:
-          return string.Empty;
+      switch (section) {
+      case TrimSection.Entry:
+        switch (node.TrimType) {
+        case SqlTrimType.Leading:
+          return "LTRIM(";
+        case SqlTrimType.Trailing:
+          return "RTRIM(";
+        case SqlTrimType.Both:
+          return "LTRIM(RTRIM(";
+        default:
+          throw new ArgumentOutOfRangeException();
+        }
+      case TrimSection.Exit:
+        switch (node.TrimType) {
+        case SqlTrimType.Leading:
+        case SqlTrimType.Trailing:
+          return ")";
+        case SqlTrimType.Both:
+          return "))";
+        default:
+          throw new ArgumentOutOfRangeException();
+        }
+      default:
+        throw new ArgumentOutOfRangeException();
       }
-      return base.Translate(context, node, section);
     }
 
     public override string Translate(SqlTableIsolationLevel level)

@@ -1020,8 +1020,8 @@ namespace Xtensive.Sql.Dom.Compiler
       using (context.EnterNode(node)) {
         context.AppendText(translator.Translate(context, node, TrimSection.Entry));
         context.AppendText(translator.Translate(node.TrimType));
-        if (!SqlExpression.IsNull(node.Pattern))
-          node.Pattern.AcceptVisitor(this);
+        if (node.TrimCharacters!=null)
+          context.AppendText(translator.Translate(context, Sql.Literal(node.TrimCharacters)));
         context.AppendText(translator.Translate(context, node, TrimSection.From));
         node.Expression.AcceptVisitor(this);
         context.AppendText(translator.Translate(context, node, TrimSection.Exit));

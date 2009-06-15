@@ -5,6 +5,7 @@
 // Created:    2009.03.11
 
 using System;
+using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom.Compiler;
@@ -19,14 +20,15 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
     private static readonly int MillisecondsPerDay = (int) TimeSpan.FromDays(1).TotalMilliseconds;
     private static readonly SqlExpression DateFirst = Sql.FunctionCall(MssqlTranslator.DateFirst);
 
+    /// <inheritdoc/>
     public override void Visit(SqlAlterTable node)
     {
       if (!(node.Action is SqlRenameAction)) {
         base.Visit(node);
         return;
       }
-      SqlRenameAction action = node.Action as SqlRenameAction;
-      TableColumn column = action.Node as TableColumn;
+      var action = (SqlRenameAction) node.Action;
+      var column = action.Node as TableColumn;
       if (column != null)
         context.AppendText(translator.Translate(context, column, action));
       else
@@ -112,6 +114,18 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
       base.Visit(node);
     }
 
+    public override void Visit(SqlTrim node)
+    {
+      if (node.TrimCharacters!=null && !node.TrimCharacters.All(_char => _char==' '))
+        throw new NotSupportedException("MSSQL supports trimming of space characters only.");
+      
+      using (context.EnterNode(node)) {
+        context.AppendText(translator.Translate(context, node, TrimSection.Entry));
+        node.Expression.AcceptVisitor(this);
+        context.AppendText(translator.Translate(context, node, TrimSection.Exit));
+      }
+    }
+
     private void DateTimeTruncate(SqlExpression date)
     {
       Visit(DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(date,
@@ -159,6 +173,8 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
           return;
       }
     }
+
+    #region Static helpers
 
     private static SqlCast CastToLong(SqlExpression arg)
     {
@@ -214,6 +230,8 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
     {
       return Sql.FunctionCall(MssqlTranslator.DateAddMillisecond, milliseconds, date);
     }
+
+    #endregion
 
     // Constructors
 

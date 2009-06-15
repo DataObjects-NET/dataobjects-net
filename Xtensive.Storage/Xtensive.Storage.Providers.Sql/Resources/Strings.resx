@@ -186,4 +186,7 @@
   <data name="ExIncorrectCommandParameters" xml:space="preserve">
     <value>Incorrect command parameters.</value>
   </data>
+  <data name="ExStringTrimSupportedOnlyWithConstants" xml:space="preserve">
+    <value>String.Trim(char[]), String.TrimStart(char[]), string.TrimEnd(char[]) supported only with argument being array of constants.</value>
+  </data>
 </root>

@@ -10,8 +10,9 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Linq;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
+using Xtensive.Storage.Providers.Sql.Resources;
 using Operator = Xtensive.Core.Reflection.WellKnown.Operator;
+using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 {
@@ -74,38 +75,33 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       return SqlFactory.Trim(_this);
     }
 
-    private static SqlExpression TrimHelper(SqlExpression _this,
-      SqlExpression trimChars, SqlTrimType trimType)
+    private static SqlExpression GenericTrim(SqlExpression _this, SqlExpression trimChars, SqlTrimType trimType)
     {
-      throw new NotSupportedException();
-//      if (trimChars.NodeType!=SqlNodeType.Container)
-//        throw new NotSupportedException();
-//      var container = (SqlContainer) trimChars;
-//      if (container.Value.GetType() != typeof(SqlExpression[]))
-//        throw new NotSupportedException();
-//      var expressions = (SqlExpression[]) container.Value;
-//      return expressions.Aggregate(_this, (all, current) => SqlFactory.Trim(all, trimType, current));
+      var exactTrimChars = trimChars as SqlLiteral<char[]>;
+      if (exactTrimChars == null)
+        throw new NotSupportedException(Strings.ExStringTrimSupportedOnlyWithConstants);
+      return SqlFactory.Trim(_this, trimType, new string(exactTrimChars.Value));
     }
 
     [Compiler(typeof(string), "Trim")]
     public static SqlExpression StringTrim(SqlExpression _this,
       [Type(typeof(char[]))] SqlExpression trimChars)
     {
-      return TrimHelper(_this, trimChars, SqlTrimType.Both);
+      return GenericTrim(_this, trimChars, SqlTrimType.Both);
     }
 
     [Compiler(typeof(string), "TrimStart")]
     public static SqlExpression StringTrimStart(SqlExpression _this,
       [Type(typeof(char[]))] SqlExpression trimChars)
     {
-      return TrimHelper(_this, trimChars, SqlTrimType.Leading);
+      return GenericTrim(_this, trimChars, SqlTrimType.Leading);
     }
 
     [Compiler(typeof(string), "TrimEnd")]
     public static SqlExpression StringTrimEnd(SqlExpression _this,
       [Type(typeof(char[]))] SqlExpression trimChars)
     {
-      return TrimHelper(_this, trimChars, SqlTrimType.Trailing);
+      return GenericTrim(_this, trimChars, SqlTrimType.Trailing);
     }
 
     [Compiler(typeof(string), "Length", TargetKind.PropertyGet)]

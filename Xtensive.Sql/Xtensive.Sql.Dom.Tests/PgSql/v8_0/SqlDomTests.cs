@@ -1269,8 +1269,8 @@ namespace Xtensive.Sql.Dom.Tests.PgSql.v8_0
         q.Columns.Add(Sql.Trim("  555    ", SqlTrimType.Both)=="555", "trim_both");
         q.Columns.Add(Sql.Trim("  555    ", SqlTrimType.Leading)=="555    ", "trim_leading");
         q.Columns.Add(Sql.Trim("  555    ", SqlTrimType.Trailing)=="  555", "trim_trailing");
-        q.Columns.Add(Sql.Trim("555cccc", SqlTrimType.Trailing, 'c')=="555", "trim_trailing2");
-        q.Columns.Add(Sql.Trim("555cccc", SqlTrimType.Leading, '5')=="cccc", "trim_leading2");
+        q.Columns.Add(Sql.Trim("555cccc", SqlTrimType.Trailing, "c")=="555", "trim_trailing2");
+        q.Columns.Add(Sql.Trim("555cccc", SqlTrimType.Leading, "5")=="cccc", "trim_leading2");
         q.Columns.Add(Sql.Like("Xtensive", "X%"), "like_%");
         q.Columns.Add(!Sql.Like("Xtensive", "%ee%"), "like_%ee%_1");
         q.Columns.Add(Sql.NotLike("Xtensive", "%ee%"), "like_%ee%_2");

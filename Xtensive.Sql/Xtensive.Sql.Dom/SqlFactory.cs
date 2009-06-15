@@ -1839,11 +1839,12 @@ namespace Xtensive.Sql.Dom
       return new SqlFunctionCall(SqlFunctionType.Lower, arguments);
     }
 
-    public static SqlTrim Trim(SqlExpression operand, SqlTrimType trimType, char character)
+    public static SqlTrim Trim(SqlExpression operand, SqlTrimType trimType, string trimCharacters)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
       SqlValidator.EnsureIsCharacterExpression(operand);
-      return new SqlTrim(operand, new SqlLiteral<char>(character), trimType);
+      ArgumentValidator.EnsureArgumentNotNull(trimCharacters, "trimCharacters");
+      return new SqlTrim(operand, trimCharacters, trimType);
     }
 
     public static SqlTrim Trim(SqlExpression operand, SqlTrimType trimType)
