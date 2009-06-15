@@ -426,7 +426,7 @@ namespace Xtensive.Storage.Linq
           if (groupingProjection.ItemProjector.Item.IsGroupingExpression() && groupingProvider!=null) {
             var newProvider = new AggregateProvider(groupingProvider.Source, groupingProvider.GroupColumnIndexes, groupingProvider.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateColumnDescriptor).ToArray());
             var newItemProjector = groupingProjection.ItemProjector.Remap(newProvider.Result, 0);
-            groupingProjection = new ProjectionExpression(groupingProjection.Type, newItemProjector, groupingProjection.ResultType, groupingProjection.TupleParameterBindings);
+            groupingProjection = new ProjectionExpression(groupingProjection.Type, newItemProjector, groupingProjection.TupleParameterBindings, groupingProjection.ResultType);
             context.Bindings.ReplaceBound(groupingParameter, groupingProjection);
             var isSubqueryParameter = state.OuterParameters.Contains(groupingParameter);
             if (resultType!=columnType && !resultType.IsNullable()) {
