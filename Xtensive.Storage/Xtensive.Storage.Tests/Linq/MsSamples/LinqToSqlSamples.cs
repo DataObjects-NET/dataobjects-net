@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(q);
     }
 
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof (NotSupportedException))]
     [Category("SELECT/DISTINCT")]
     [Test(Description = "Select - Named Type")]
     [Description("This sample uses SELECT and a known type to return a sequence of employees' names.")]
@@ -220,12 +220,11 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     {
       var q =
         from c in Query<Customer>.All
-        select new
-               {
-                 c.Id,
-                 CompanyInfo = new {c.CompanyName, c.Address.City, c.Address.Country},
-                 ContactInfo = new {c.ContactName, c.ContactTitle}
-               };
+        select new {
+          c.Id,
+          CompanyInfo = new {c.CompanyName, c.Address.City, c.Address.Country},
+          ContactInfo = new {c.ContactName, c.ContactTitle}
+        };
 
       QueryDumper.Dump(q);
     }
@@ -240,15 +239,14 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     {
       var q =
         from o in Query<Order>.All
-        select new
-               {
-                 o.Id,
-                 DiscountedProducts =
-                   from od in o.OrderDetails
-                   where od.Discount > 0.0
-                   select od,
-                 FreeShippingDiscount = o.Freight
-               };
+        select new {
+          o.Id,
+          DiscountedProducts =
+            from od in o.OrderDetails
+            where od.Discount > 0.0
+            select od,
+          FreeShippingDiscount = o.Freight
+        };
 
       QueryDumper.Dump(q);
     }
@@ -332,14 +330,13 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         from p in Query<Product>.All
         group p by p.Id
         into g
-          select new
-                 {
-                   Id = g.Key,
-                   CheapestProducts =
-                     from p2 in g
-                     where p2.UnitPrice==g.Min(p3 => p3.UnitPrice)
-                     select p2
-                 };
+          select new {
+            Id = g.Key,
+            CheapestProducts =
+              from p2 in g
+              where p2.UnitPrice==g.Min(p3 => p3.UnitPrice)
+              select p2
+          };
 
       QueryDumper.Dump(categories);
     }
@@ -369,10 +366,12 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void DLinq28()
     {
       var categories =
-        Query<Product>.All.GroupBy(p => p.Id).Select(g => new {
-          g.Key,
-          MostExpensiveProducts = g.Where(p2 => p2.UnitPrice==g.Max(p3 => p3.UnitPrice))
-        });
+        Query<Product>.All
+          .GroupBy(p => p.Id)
+          .Select(g => new {
+            g.Key,
+            MostExpensiveProducts = g.Where(p2 => p2.UnitPrice==g.Max(p3 => p3.UnitPrice))
+          });
 
       QueryDumper.Dump(categories);
     }
@@ -405,14 +404,13 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         from p in Query<Product>.All
         group p by p.Id
         into g
-          select new
-                 {
-                   g.Key,
-                   ExpensiveProducts =
-                     from p2 in g
-                     where p2.UnitPrice > g.Average(p3 => p3.UnitPrice)
-                     select p2
-                 };
+          select new {
+            g.Key,
+            ExpensiveProducts =
+              from p2 in g
+              where p2.UnitPrice > g.Average(p3 => p3.UnitPrice)
+              select p2
+          };
 
       QueryDumper.Dump(categories);
     }
@@ -476,12 +474,11 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         from e1 in Query<Employee>.All
         from e2 in e1.ReportingEmployees
         where e1.Address.City==e2.Address.City
-        select new
-               {
-                 FirstName1 = e1.FirstName, LastName1 = e1.LastName,
-                 FirstName2 = e2.FirstName, LastName2 = e2.LastName,
-                 e1.Address.City
-               };
+        select new {
+          FirstName1 = e1.FirstName, LastName1 = e1.LastName,
+          FirstName2 = e2.FirstName, LastName2 = e2.LastName,
+          e1.Address.City
+        };
 
       QueryDumper.Dump(q);
     }
@@ -661,13 +658,13 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     {
       var categories =
         Query<Product>.All
-        .GroupBy(p => p.Id)
-        .OrderBy(g => g.Key)
-        .Select(g => new {
-          g.Key,
-          MostExpensiveProducts =
-            g.Where(p2 => p2.UnitPrice==g.Max(p3 => p3.UnitPrice))
-        });
+          .GroupBy(p => p.Id)
+          .OrderBy(g => g.Key)
+          .Select(g => new {
+            g.Key,
+            MostExpensiveProducts =
+              g.Where(p2 => p2.UnitPrice==g.Max(p3 => p3.UnitPrice))
+          });
 
       QueryDumper.Dump(categories);
     }
@@ -697,11 +694,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         from p in Query<Product>.All
         group p by p.Id
         into g
-          select new
-                 {
-                   g.Key,
-                   MaxPrice = g.Max(p => p.UnitPrice)
-                 };
+          select new {
+            g.Key,
+            MaxPrice = g.Max(p => p.UnitPrice)
+          };
 
       QueryDumper.Dump(q);
     }
@@ -716,11 +712,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         from p in Query<Product>.All
         group p by p.Id
         into g
-          select new
-                 {
-                   g.Key,
-                   MinPrice = g.Min(p => p.UnitPrice)
-                 };
+          select new {
+            g.Key,
+            MinPrice = g.Min(p => p.UnitPrice)
+          };
 
       QueryDumper.Dump(q);
     }
@@ -735,11 +730,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         from p in Query<Product>.All
         group p by p.Id
         into g
-          select new
-                 {
-                   g.Key,
-                   AveragePrice = g.Average(p => p.UnitPrice)
-                 };
+          select new {
+            g.Key,
+            AveragePrice = g.Average(p => p.UnitPrice)
+          };
 
       QueryDumper.Dump(q);
     }
@@ -754,11 +748,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         from p in Query<Product>.All
         group p by p.Id
         into g
-          select new
-                 {
-                   g.Key,
-                   TotalPrice = g.Sum(p => p.UnitPrice)
-                 };
+          select new {
+            g.Key,
+            TotalPrice = g.Sum(p => p.UnitPrice)
+          };
 
       QueryDumper.Dump(q);
     }
@@ -773,11 +766,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         from p in Query<Product>.All
         group p by p.Id
         into g
-          select new
-                 {
-                   g.Key,
-                   NumProducts = g.Count()
-                 };
+          select new {
+            g.Key,
+            NumProducts = g.Count()
+          };
 
       QueryDumper.Dump(q);
     }
@@ -793,11 +785,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         from p in Query<Product>.All
         group p by p.Id
         into g
-          select new
-                 {
-                   g.Key,
-                   NumProducts = g.Count(p => (p is DiscontinuedProduct))
-                 };
+          select new {
+            g.Key,
+            NumProducts = g.Count(p => (p is DiscontinuedProduct))
+          };
 
       QueryDumper.Dump(q);
     }
@@ -813,11 +804,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         group p by p.Id
         into g
           where g.Count() >= 10
-          select new
-                 {
-                   g.Key,
-                   ProductCount = g.Count()
-                 };
+          select new {
+            g.Key,
+            ProductCount = g.Count()
+          };
 
       QueryDumper.Dump(q);
     }
@@ -1296,12 +1286,11 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     {
       var q =
         from s in Query<Supplier>.All
-        select new
-               {
-                 s.CompanyName,
-                 Country = s.Address.Country.Replace("UK", "United Kingdom")
-                   .Replace("USA", "United States of America")
-               };
+        select new {
+          s.CompanyName,
+          Country = s.Address.Country.Replace("UK", "United Kingdom")
+            .Replace("USA", "United States of America")
+        };
 
       QueryDumper.Dump(q);
     }
@@ -1658,7 +1647,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     }
 
 
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof (NotSupportedException))]
     [Category("Inheritance")]
     [Test(Description = "Simple")]
     [Description("This sample returns all contacts where the city is London.")]
@@ -1678,7 +1667,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Category("Inheritance")]
     [Test(Description = "OfType")]
     [Description("This sample uses OfType to return all customer contacts.")]
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof (NotSupportedException))]
     public void DLinq136()
     {
       var cons = from c in Query<Person>.All.OfType<Customer>()
@@ -1687,7 +1676,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(cons);
     }
 
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof (NotSupportedException))]
     [Category("Inheritance")]
     [Test(Description = "IS")]
     [Description("This sample uses IS to return all shipper contacts.")]
@@ -1700,7 +1689,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(cons);
     }
 
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof (NotSupportedException))]
     [Category("Inheritance")]
     [Test(Description = "AS")]
     [Description("This sample uses AS to return FullContact or null.")]
@@ -1712,7 +1701,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(cons);
     }
 
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof (NotSupportedException))]
     [Category("Inheritance")]
     [Test(Description = "Cast")]
     [Description("This sample uses a cast to retrieve customer contacts who work in 'Around the Horn'.")]

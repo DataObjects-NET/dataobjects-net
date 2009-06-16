@@ -229,6 +229,9 @@ namespace Xtensive.Storage.Linq
         body = body.IsProjection()
                  ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
                  : ProcessProjectionElement(body);
+        if (body.IsEntitySetExpression()) {
+//          ((EntitySetExpression)body)
+        }
         arguments.Add(body);
       }
       var constructorParameters = n.Constructor.GetParameters();

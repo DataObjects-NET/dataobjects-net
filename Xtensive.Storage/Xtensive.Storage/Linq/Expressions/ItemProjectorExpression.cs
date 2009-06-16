@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Linq.Expressions
       var applyParameterReplacer = new ExtendedExpressionReplacer(ex => 
         ex is SubQueryExpression 
         ? ((SubQueryExpression) ex).ReplaceApplyParameter(newApplyParameter) 
-        : expression);
+        : ex);
       Item = applyParameterReplacer.Replace(expression);
     }
   }

@@ -829,11 +829,9 @@ namespace Xtensive.Storage.Linq
 
       if (visitedExpression.IsEntitySetExpression()) {
         var entitySetExpression = (EntitySetExpression) visitedExpression;
-        using (state.CreateScope()) {
-          state.Parameters = state.Parameters.AddOne(entitySetExpression.SubQueryParameter).ToArray();
-          using (context.Bindings.Add(entitySetExpression.SubQueryParameter, context.Bindings[state.Parameters[0]]))
-            return (ProjectionExpression) Visit(entitySetExpression.SubQueryExpression);
-        }
+        var parameter = entitySetExpression.OuterParameter ?? state.Parameters[0];
+        var entitySetQuery = QueryHelper.CreateEntitySetQuery(parameter, entitySetExpression.Field);
+        return (ProjectionExpression) Visit(entitySetQuery);
       }
 
       if (visitedExpression.IsProjection())

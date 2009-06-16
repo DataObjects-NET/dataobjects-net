@@ -9,7 +9,6 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Linq.Expressions
@@ -118,7 +117,7 @@ namespace Xtensive.Storage.Linq.Expressions
       var keyExpression = KeyExpression.Create(typeInfo, offset);
       entityExpression.fields.Add(keyExpression);
       foreach (var nestedField in typeInfo.Fields)
-        entityExpression.fields.Add(BuildNestedFieldExpression(nestedField, offset, entityExpression));
+        entityExpression.fields.Add(BuildNestedFieldExpression(nestedField, offset));
     }
 
     public static EntityExpression Create(TypeInfo typeInfo, int offset)
@@ -130,7 +129,7 @@ namespace Xtensive.Storage.Linq.Expressions
       fields.Add(keyExpression);
       var result = new EntityExpression(typeInfo, keyExpression, null, false);
       foreach (var nestedField in typeInfo.Fields)
-        fields.Add(BuildNestedFieldExpression(nestedField, offset, result));
+        fields.Add(BuildNestedFieldExpression(nestedField, offset));
       result.Fields = fields;
       return result;
     }
@@ -142,14 +141,14 @@ namespace Xtensive.Storage.Linq.Expressions
       var keyExpression = KeyExpression.Create(typeInfo, offset);
       fields.Add(keyExpression);
       foreach (var nestedField in typeInfo.Fields)
-          fields.Add(BuildNestedFieldExpression(nestedField, offset, entityFieldExpression));
+          fields.Add(BuildNestedFieldExpression(nestedField, offset));
       var result = new EntityExpression(typeInfo, keyExpression, null, entityFieldExpression.DefaultIfEmpty) {Fields = fields};
       if (entityFieldExpression.OuterParameter==null)
         return result;
       return (EntityExpression) result.BindParameter(entityFieldExpression.OuterParameter, new Dictionary<Expression, Expression>());
     }
 
-    private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, int offset, IPersistentExpression ownerExpression)
+    private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, int offset)
     {
       if (nestedField.IsPrimitive)
         return FieldExpression.CreateField(nestedField, offset);
@@ -158,7 +157,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (nestedField.IsEntity)
         return EntityFieldExpression.CreateEntityField(nestedField, offset);
       if (nestedField.IsEntitySet)
-          return EntitySetExpression.CreateEntitySet(nestedField, ownerExpression);
+          return EntitySetExpression.CreateEntitySet(nestedField);
       throw new NotSupportedException(string.Format("Nested field {0} is not supported.", nestedField.Attributes));
     }
 

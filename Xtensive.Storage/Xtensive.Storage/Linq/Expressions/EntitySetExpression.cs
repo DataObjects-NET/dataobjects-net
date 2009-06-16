@@ -27,10 +27,6 @@ namespace Xtensive.Storage.Linq.Expressions
       }
     }
 
-    public Expression SubQueryExpression { get; private set; }
-
-    public ParameterExpression SubQueryParameter { get; private set; }
-
     public override IPersistentExpression Owner
     {
       get
@@ -61,7 +57,7 @@ namespace Xtensive.Storage.Linq.Expressions
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
         return result;
-      result = new EntitySetExpression(Field, null, DefaultIfEmpty, SubQueryExpression, SubQueryParameter);
+      result = new EntitySetExpression(Field, null, DefaultIfEmpty);
       if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);
@@ -77,7 +73,7 @@ namespace Xtensive.Storage.Linq.Expressions
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
         return result;
-      result = new EntitySetExpression(Field, null, DefaultIfEmpty, SubQueryExpression, SubQueryParameter);
+      result = new EntitySetExpression(Field, null, DefaultIfEmpty);
       if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);
@@ -90,7 +86,7 @@ namespace Xtensive.Storage.Linq.Expressions
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
         return result;
-      result = new EntitySetExpression(Field, parameter, DefaultIfEmpty, SubQueryExpression, SubQueryParameter);
+      result = new EntitySetExpression(Field, parameter, DefaultIfEmpty);
       if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);
@@ -103,7 +99,7 @@ namespace Xtensive.Storage.Linq.Expressions
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
         return result;
-      result = new EntitySetExpression(Field, null, DefaultIfEmpty, SubQueryExpression, SubQueryParameter);
+      result = new EntitySetExpression(Field, null, DefaultIfEmpty);
       if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);
@@ -111,11 +107,9 @@ namespace Xtensive.Storage.Linq.Expressions
       return result;
     }
 
-    public static EntitySetExpression CreateEntitySet(FieldInfo field, IPersistentExpression ownerExpression)
+    public static EntitySetExpression CreateEntitySet(FieldInfo field)
     {
-      var parameterExpression = Expression.Parameter(field.ReflectedType.UnderlyingType, "entitySetParameter");
-      var entitySetExpression = QueryHelper.CreateEntitySetQuery(parameterExpression, field);
-      return new EntitySetExpression(field, null, false, entitySetExpression, parameterExpression);
+      return new EntitySetExpression(field, null, false);
     }
 
     public override string ToString()
@@ -129,13 +123,9 @@ namespace Xtensive.Storage.Linq.Expressions
     private EntitySetExpression(
       FieldInfo field,
       ParameterExpression parameterExpression,
-      bool defaultIfEmpty,
-      Expression subQueryExpression,
-      ParameterExpression subQueryParameter)
+      bool defaultIfEmpty)
       : base(ExtendedExpressionType.EntitySet, field, default(Segment<int>), parameterExpression, defaultIfEmpty)
     {
-      SubQueryExpression = subQueryExpression;
-      SubQueryParameter = subQueryParameter;
     }
   }
 }
