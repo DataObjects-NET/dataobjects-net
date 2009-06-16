@@ -18,8 +18,7 @@ namespace Xtensive.Storage.Linq.Expressions
 {
   [Serializable]
   internal class SubQueryExpression : ParameterizedExpression,
-    IMappedExpression, 
-    ISubQueryExpression
+    IMappedExpression
   {
     public ProjectionExpression ProjectionExpression { get; private set; }
 

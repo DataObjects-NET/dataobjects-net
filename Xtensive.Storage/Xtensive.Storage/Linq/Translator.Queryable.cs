@@ -806,27 +806,35 @@ namespace Xtensive.Storage.Linq
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     private ProjectionExpression VisitSequence(Expression sequenceExpression)
     {
-//      if (sequenceExpression.GetMemberType()==MemberType.EntitySet) {
-//        if (sequenceExpression.NodeType!=ExpressionType.MemberAccess)
-//          throw new NotSupportedException();
-//        var memberAccess = (MemberExpression) sequenceExpression;
-//        if (!(memberAccess.Member is PropertyInfo) || memberAccess.Expression==null)
-//          throw new NotSupportedException();
-//        if (!memberAccess.Expression.Type.IsSubclassOf(typeof (Entity)))
-//          throw new NotSupportedException();
-//        var field = context
-//          .Model
-//          .Types[memberAccess.Expression.Type]
-//          .Fields[memberAccess.Member.Name];
-//        sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccess.Expression, field);
-//      }
+      if (sequenceExpression.GetMemberType()==MemberType.EntitySet) {
+        if (sequenceExpression.NodeType!=ExpressionType.MemberAccess)
+          throw new NotSupportedException();
+        var memberAccess = (MemberExpression) sequenceExpression;
+        if ((memberAccess.Member is PropertyInfo) && memberAccess.Expression!=null) {
+          if (memberAccess.Expression.Type.IsSubclassOf(typeof (Entity))) {
+            var field = context
+              .Model
+              .Types[memberAccess.Expression.Type]
+              .Fields[memberAccess.Member.Name];
+            sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccess.Expression, field);
+          }
+        }
+      }
 
       var visitedExpression = Visit(sequenceExpression);
 
-      if (visitedExpression.IsGroupingExpression() 
-        || visitedExpression.IsSubqueryExpression()
-        || visitedExpression.IsEntitySetExpression())
-        return ((ISubQueryExpression) visitedExpression).ProjectionExpression;
+      if (visitedExpression.IsGroupingExpression()
+        || visitedExpression.IsSubqueryExpression())
+        return ((SubQueryExpression) visitedExpression).ProjectionExpression;
+
+      if (visitedExpression.IsEntitySetExpression()) {
+        var entitySetExpression = (EntitySetExpression) visitedExpression;
+        using (state.CreateScope()) {
+          state.Parameters = state.Parameters.AddOne(entitySetExpression.SubQueryParameter).ToArray();
+          using (context.Bindings.Add(entitySetExpression.SubQueryParameter, context.Bindings[state.Parameters[0]]))
+            return (ProjectionExpression) Visit(entitySetExpression.SubQueryExpression);
+        }
+      }
 
       if (visitedExpression.IsProjection())
         return (ProjectionExpression) visitedExpression;

@@ -69,6 +69,13 @@ namespace Xtensive.Storage.Linq
       return base.Visit(e);
     }
 
+    protected override Expression VisitUnknown(Expression e)
+    {
+      if (e is ExtendedExpression)
+        return e;
+      return base.VisitUnknown(e);
+    }
+
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     protected override Expression VisitUnary(UnaryExpression u)
     {
