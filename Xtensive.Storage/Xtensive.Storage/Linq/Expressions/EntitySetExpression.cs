@@ -108,8 +108,10 @@ namespace Xtensive.Storage.Linq.Expressions
       return result;
     }
 
-    public static EntitySetExpression CreateEntitySet(FieldInfo field)
+    public static EntitySetExpression CreateEntitySet(FieldInfo field, IPersistentExpression ownerExpression)
     {
+      var entitySetExpression = QueryHelper.CreateEntitySetQuery((Expression) ownerExpression, field);
+      // var projectionExpression = translator.Visit()
       // TODO: AG : Rewrite
       return new EntitySetExpression(field, null, false, null, null);
     }

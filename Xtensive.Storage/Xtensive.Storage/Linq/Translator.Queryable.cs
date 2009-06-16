@@ -806,20 +806,20 @@ namespace Xtensive.Storage.Linq
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     private ProjectionExpression VisitSequence(Expression sequenceExpression)
     {
-      if (sequenceExpression.GetMemberType()==MemberType.EntitySet) {
-        if (sequenceExpression.NodeType!=ExpressionType.MemberAccess)
-          throw new NotSupportedException();
-        var memberAccess = (MemberExpression) sequenceExpression;
-        if (!(memberAccess.Member is PropertyInfo) || memberAccess.Expression==null)
-          throw new NotSupportedException();
-        if (!memberAccess.Expression.Type.IsSubclassOf(typeof (Entity)))
-          throw new NotSupportedException();
-        var field = context
-          .Model
-          .Types[memberAccess.Expression.Type]
-          .Fields[memberAccess.Member.Name];
-        sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccess.Expression, field);
-      }
+//      if (sequenceExpression.GetMemberType()==MemberType.EntitySet) {
+//        if (sequenceExpression.NodeType!=ExpressionType.MemberAccess)
+//          throw new NotSupportedException();
+//        var memberAccess = (MemberExpression) sequenceExpression;
+//        if (!(memberAccess.Member is PropertyInfo) || memberAccess.Expression==null)
+//          throw new NotSupportedException();
+//        if (!memberAccess.Expression.Type.IsSubclassOf(typeof (Entity)))
+//          throw new NotSupportedException();
+//        var field = context
+//          .Model
+//          .Types[memberAccess.Expression.Type]
+//          .Fields[memberAccess.Member.Name];
+//        sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccess.Expression, field);
+//      }
 
       var visitedExpression = Visit(sequenceExpression);
 
