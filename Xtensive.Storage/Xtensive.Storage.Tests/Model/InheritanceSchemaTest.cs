@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   [HierarchyRoot]
   public class A : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public long ID { get; private set; }
   }
 
@@ -97,7 +97,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   [HierarchyRoot]
   public class X : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public long ID { get; private set; }
 
     [Field(Length = 1000)]

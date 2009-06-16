@@ -13,7 +13,7 @@ namespace Xtensive.Storage.Tests.PairModel
   [HierarchyRoot]
   public class Master : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]
@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Tests.PairModel
   [HierarchyRoot]
   public class Slave : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field (PairTo = "Slave")]

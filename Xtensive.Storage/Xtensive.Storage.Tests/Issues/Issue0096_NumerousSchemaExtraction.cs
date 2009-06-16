@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0096_NumerousSchemaExtraction_Model
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.SingleTable)]
   public class Ancestor : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
   }
 }

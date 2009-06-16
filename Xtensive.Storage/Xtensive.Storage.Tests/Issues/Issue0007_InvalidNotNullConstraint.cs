@@ -13,7 +13,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0007_Model
   [HierarchyRoot]
   public class Person : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int ID { get; private set; }
 
     [Field]
@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0007_Model
   [HierarchyRoot]
   public class City : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int ID { get; private set; }
 
     public string Name { get; set; }

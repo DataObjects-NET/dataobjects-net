@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Storage.DomainBuild
   [HierarchyRoot]
   public class A : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]
@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Tests.Storage.DomainBuild
   [HierarchyRoot]
   public class B : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public Guid Id { get; private set; }
 
     [Field]

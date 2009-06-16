@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorModel
   [HierarchyRoot]
   public abstract class Ancestor : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int ID { get; private set; }
   }
 
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorModel
       Assert.IsNotNull(syncRoot);
     }
 
-    [Field, KeyField]
+    [Field, Key]
     public int ID { get; private set; }
   }
 

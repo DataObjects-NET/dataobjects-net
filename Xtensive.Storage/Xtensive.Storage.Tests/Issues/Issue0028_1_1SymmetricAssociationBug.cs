@@ -13,7 +13,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Mod
   [HierarchyRoot]
   public class First : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public long ID { get; private set; }
 
     //symmetric
@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Mod
   [HierarchyRoot]
   public class Second : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public long ID { get; private set; }
 
     [Field(PairTo = "APair")]

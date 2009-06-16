@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version2
   [HierarchyRoot]
   public class Person : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version2
   [HierarchyRoot]
   public class Order : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]
@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version2
   [HierarchyRoot]
   public class RcCustomer : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field(Length = 256)]
@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version2
   [HierarchyRoot]
   public class RcEmployee : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field(Length = 30)]

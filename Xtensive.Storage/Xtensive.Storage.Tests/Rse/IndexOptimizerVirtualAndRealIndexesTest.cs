@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Rse
     [Index("HierarchyField")]
     public class A : Entity
     {
-      [Field, KeyField]
+      [Field, Key]
       public Int32 Id { get; private set; }
 
       [Field]

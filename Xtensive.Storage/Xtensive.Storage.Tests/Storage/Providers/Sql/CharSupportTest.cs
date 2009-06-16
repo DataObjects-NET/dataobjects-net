@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql.CharSupportTestModel
   [HierarchyRoot]
   class MyEntity : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id {get; private set;}
 
     [Field]

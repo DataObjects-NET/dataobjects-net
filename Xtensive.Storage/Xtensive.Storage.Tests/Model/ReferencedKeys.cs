@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Model.ReferencedKeysModel
   [HierarchyRoot]
   public class Country : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public string Name { get; private set;}
       
     [Field]
@@ -28,10 +28,10 @@ namespace Xtensive.Storage.Tests.Model.ReferencedKeysModel
   [HierarchyRoot]
   public class City : Entity
   {
-    [Field, KeyField(0)]
+    [Field, Key(0)]
     public Country Country { get; private set;}
 
-    [Field, KeyField(1)]
+    [Field, Key(1)]
     public string Name { get; private set;}
 
     public City(Country country, string name) : base(country.Name, name) {}

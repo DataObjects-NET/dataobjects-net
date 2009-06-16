@@ -11,7 +11,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance.CrudModel
   [HierarchyRoot]
   public class Simplest : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public long Id { get; private set; }
 
     [Field]

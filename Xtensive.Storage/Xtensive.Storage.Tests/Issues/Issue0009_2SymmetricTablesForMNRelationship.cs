@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0009_Model
   [HierarchyRoot]
   public class Book : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int ID { get; private set; }
 
     [Field]
@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0009_Model
   [HierarchyRoot]
   public class Author : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public Guid ID { get; private set; }
 
     [Field(PairTo = "Authors")]

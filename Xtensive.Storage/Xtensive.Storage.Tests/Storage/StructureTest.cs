@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
   [HierarchyRoot]
   public class Ray : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int ID { get; private set; }
 
     [Field]

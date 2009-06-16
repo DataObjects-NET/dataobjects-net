@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0017_Model
   [HierarchyRoot]
   public class Master:Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public long ID { get; private set; }
 
     [Field(PairTo = "Master1")]
@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0017_Model
   [HierarchyRoot]
   public class Slave:Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public long ID { get; private set; }
 
     [Field(OnRemove = ReferentialAction.Cascade)]

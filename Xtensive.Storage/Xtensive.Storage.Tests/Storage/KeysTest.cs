@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     [HierarchyRoot]
     public abstract class Fruit : Entity
     {
-      [Field(Length = 50), KeyField] 
+      [Field(Length = 50), Key] 
       public string Tag { get; private set;}    
 
       public Fruit(string tag)
@@ -46,13 +46,13 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     [HierarchyRoot]
     public class Test : Entity
     {
-      [Field, KeyField(0)]
+      [Field, Key(0)]
       public string Key1 { get; private set; }
-      [Field, KeyField(1)]
+      [Field, Key(1)]
       public Byte Key2 { get; private set; }
-      [Field, KeyField(2)]
+      [Field, Key(2)]
       public SByte Key3 { get; private set; }
-      [Field, KeyField(3)]
+      [Field, Key(3)]
       public DateTime Key4 { get; private set; }
       [Field]
       public Int32 Key5 { get; private set; }
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     [HierarchyRoot]
     public class Container : Entity
     {
-      [Field, KeyField]
+      [Field, Key]
       public Guid ID { get; private set; }
       
       [Field]

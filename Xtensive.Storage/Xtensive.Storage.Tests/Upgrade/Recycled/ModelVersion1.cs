@@ -9,7 +9,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version1
   [HierarchyRoot]
   public class Customer : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field(Length = 256)]
@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version1
   [HierarchyRoot]
   public class Employee : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field(Length = 30)]
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version1
   [HierarchyRoot]
   public class Order : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]

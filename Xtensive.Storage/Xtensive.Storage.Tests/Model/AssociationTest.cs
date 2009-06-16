@@ -19,14 +19,14 @@ namespace Xtensive.Storage.Tests.Model.Association
   [HierarchyRoot]
   public abstract class Root : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
   }
 
   [HierarchyRoot]
   public abstract class Root2 : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public Guid Id { get; private set; }
   }
 

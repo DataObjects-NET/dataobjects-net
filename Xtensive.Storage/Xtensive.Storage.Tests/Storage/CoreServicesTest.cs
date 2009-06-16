@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
   [HierarchyRoot]
   public class MyEntity : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]

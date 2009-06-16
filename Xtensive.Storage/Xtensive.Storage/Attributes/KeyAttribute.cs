@@ -15,7 +15,7 @@ namespace Xtensive.Storage
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-  public sealed class KeyFieldAttribute : StorageAttribute
+  public sealed class KeyAttribute : StorageAttribute
   {
     /// <summary>
     /// Gets or sets the position of persistent property inside primary key.
@@ -30,7 +30,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public KeyFieldAttribute()
+    public KeyAttribute()
       : this(0)
     {
     }
@@ -39,7 +39,7 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="position">The position of persistent property inside primary key.</param>
-    public KeyFieldAttribute(int position)
+    public KeyAttribute(int position)
       : this(position, Direction.Positive)
     {
     }
@@ -48,7 +48,7 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="direction">The sort direction.</param>
-    public KeyFieldAttribute(Direction direction)
+    public KeyAttribute(Direction direction)
       : this(0, direction)
     {
     }
@@ -58,7 +58,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="position">The position of persistent property inside primary key.</param>
     /// <param name="direction">The sort direction.</param>
-    public KeyFieldAttribute(int position, Direction direction)
+    public KeyAttribute(int position, Direction direction)
     {
       Position = position;
       Direction = direction;

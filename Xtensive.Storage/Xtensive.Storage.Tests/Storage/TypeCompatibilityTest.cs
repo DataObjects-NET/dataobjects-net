@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Tests.Storage.DbTypeSupportModel
   [HierarchyRoot]
   public class X : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]

@@ -13,7 +13,7 @@ namespace Xtensive.Storage.Tests.Storage.CustomEntitySetModel
   [HierarchyRoot]
   public class Root : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
   }
 

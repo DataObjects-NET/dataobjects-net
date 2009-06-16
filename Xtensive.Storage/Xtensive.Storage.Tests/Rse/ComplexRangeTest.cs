@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Tests.Rse.AnimalModel
   [Index("Name")]
   public class Animal : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int ID { get; private set; }
 
     [Field]

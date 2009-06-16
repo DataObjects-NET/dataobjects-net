@@ -22,13 +22,13 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
   [HierarchyRoot]
   public class ABase: Entity
   {
-    [Field, KeyField(0)]
+    [Field, Key(0)]
     public int Id1A { get; private set; }
 
-    [Field, KeyField(1)]
+    [Field, Key(1)]
     public double Id2A { get; private set; }
 
-    [Field, KeyField(2)]
+    [Field, Key(2)]
     public Guid Id3A { get; private set; }
   }
 
@@ -70,10 +70,10 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
   [HierarchyRoot]
   public class BBase:Entity
   {
-    [Field, KeyField(0)]
+    [Field, Key(0)]
     public float Id1 { get; private set; }
 
-    [Field(Length = 20), KeyField(1)]
+    [Field(Length = 20), Key(1)]
     public byte Id2 { get; private set; }
   }
 
@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
   [HierarchyRoot]
   public class C : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]

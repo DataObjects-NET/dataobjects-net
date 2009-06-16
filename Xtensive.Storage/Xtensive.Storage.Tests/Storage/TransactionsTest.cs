@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
     [HierarchyRoot]
     public class Hexagon : Entity
     {
-      [Field, KeyField]
+      [Field, Key]
       public int ID { get; private set; }
 
       [Field]

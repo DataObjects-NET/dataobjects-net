@@ -13,7 +13,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0013_Model
   [HierarchyRoot]
   public class SqlTaskEntity : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public long ID { get; private set; }
 
     [Field]

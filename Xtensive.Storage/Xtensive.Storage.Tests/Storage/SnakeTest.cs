@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
   public class Creature : Entity,
     ICreature
   {
-    [Field, KeyField]
+    [Field, Key]
     public int ID { get; private set; }
         
     public string Name { get; set; }

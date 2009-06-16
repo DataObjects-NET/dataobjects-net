@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Issue0004_Model
   [HierarchyRoot]
   public class User : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int ID { get; private set; }
 
     [Field]
@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Tests.Issue0004_Model
   [HierarchyRoot]
   public class Notification : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int ID { get; private set; }
 
     [Field]

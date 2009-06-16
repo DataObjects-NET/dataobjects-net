@@ -14,10 +14,10 @@ namespace Xtensive.Storage.Internals
     where TMaster : Entity
     where TSlave : Entity
   {
-    [Field, KeyField(0)]
+    [Field, Key(0)]
     public TMaster Master { get; private set; }
 
-    [Field, KeyField(1)]
+    [Field, Key(1)]
     public TSlave Slave { get; private set; }
 
 

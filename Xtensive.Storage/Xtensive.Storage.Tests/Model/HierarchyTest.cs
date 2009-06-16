@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
   [HierarchyRoot]
   public class AB : A
   {
-    [Field, KeyField]
+    [Field, Key]
     public long ID { get; private set; }
 
     [Field]
@@ -52,14 +52,14 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
   [HierarchyRoot]
   public class BC : B
   {
-    [Field, KeyField]
+    [Field, Key]
     public Guid ID { get; private set; }
   }
 
   [HierarchyRoot]
   public class BD : B
   {
-    [Field("ID"), KeyField]
+    [Field("ID"), Key]
     public long ID { get; private set; }
 
     [Field]
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
   [HierarchyRoot]
   public class BE : B
   {
-    [Field("ID"), KeyField]
+    [Field("ID"), Key]
     public int ID { get; private set; }
   }
 

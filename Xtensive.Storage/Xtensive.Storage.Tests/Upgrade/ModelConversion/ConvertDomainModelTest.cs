@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
   [Index("Col1", "Col2", IsUnique = true, IncludedFields = new[] { "Col3" })]
   public class A : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]
@@ -116,7 +116,7 @@ namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
   [Index("ColA", MappingName = "A_IX")]
   public class B : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]
@@ -129,7 +129,7 @@ namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
   [HierarchyRoot]
   public class C : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]
@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
   [HierarchyRoot]
   public class D : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]
@@ -149,7 +149,7 @@ namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
   [HierarchyRoot]
   public class E : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]

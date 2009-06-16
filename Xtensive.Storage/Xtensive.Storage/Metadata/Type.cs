@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Metadata
     /// <summary>
     /// Gets or sets the type identifier.
     /// </summary>
-    [KeyField]
+    [Key]
     [Field]
     public int Id { get; private set; }
 

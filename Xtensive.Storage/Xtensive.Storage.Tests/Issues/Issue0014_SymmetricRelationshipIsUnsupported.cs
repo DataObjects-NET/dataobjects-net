@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0014_Model
   [HierarchyRoot]
   public class Person : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int ID { get; private set; }
 
     [Field]

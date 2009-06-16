@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [HierarchyRoot]
   public class BusinessContact : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [HierarchyRoot]
   public class Order : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]
@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [HierarchyRoot]
   public class ProductGroup : Entity
   {
-    [KeyField, Field]
+    [Key, Field]
     public int GroupId { get; private set; }
 
     [Field(Length = 100)]
@@ -137,7 +137,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [HierarchyRoot]
   public class Product : Entity
   {
-    [KeyField, Field]
+    [Key, Field]
     public int Id { get; private set; }
 
     [Field(Length = 200)]
@@ -158,7 +158,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [KeyGenerator(null)]
   public class Boy : Entity
   {
-    [KeyField, Field(Length = 20)]
+    [Key, Field(Length = 20)]
     public string Name { get; private set; }
 
     [Field(PairTo = "MeetWith")]
@@ -174,7 +174,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [KeyGenerator(null)]
   public class Girl : Entity
   {
-    [KeyField, Field(Length = 20)]
+    [Key, Field(Length = 20)]
     public string Name { get; private set; }
 
     [Field]
@@ -194,7 +194,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [KeyGenerator(null)]
   public class Entity1 : Entity
   {
-    [KeyField, Field]
+    [Key, Field]
     public int Code { get; private set; }
 
     public Entity1(int id)
@@ -207,10 +207,10 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [KeyGenerator(null)]
   public class Entity2 : Entity
   {
-    [KeyField(0), Field]
+    [Key(0), Field]
     public int Code { get; private set; }
 
-    [KeyField(1), Field]
+    [Key(1), Field]
     public Entity1 E1 { get; private set; }
 
     public Entity2(int id, Entity1 e1)
@@ -223,10 +223,10 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [KeyGenerator(null)]
   public class Entity3 : Entity
   {
-    [KeyField(0), Field]
+    [Key(0), Field]
     public int Code { get; private set; }
 
-    [KeyField(1), Field]
+    [Key(1), Field]
     public Entity2 E2 { get; private set; }
 
     public Entity3(int id, Entity2 e2)
@@ -239,10 +239,10 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [KeyGenerator(null)]
   public class Entity4 : Entity
   {
-    [KeyField(0), Field]
+    [Key(0), Field]
     public int Code { get; private set; }
 
-    [KeyField(1), Field]
+    [Key(1), Field]
     public Entity3 E3 { get; private set; }
 
     public Entity4(int id, Entity3 e3)
@@ -287,7 +287,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [HierarchyRoot]
   public class StructureContainer1 : Entity
   {
-    [KeyField, Field]
+    [Key, Field]
     public int Id { get; private set; }
 
     [Field]
@@ -297,7 +297,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [HierarchyRoot]
   public class StructureContainer2 : Entity
   {
-    [KeyField, Field]
+    [Key, Field]
     public int Id { get; private set; }
 
     [Field]
@@ -307,7 +307,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [HierarchyRoot]
   public class StructureContainer3 : Entity
   {
-    [KeyField, Field]
+    [Key, Field]
     public int Id { get; private set; }
 
     [Field]
@@ -317,7 +317,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [HierarchyRoot]
   public class StructureContainer4 : Entity
   {
-    [KeyField, Field]
+    [Key, Field]
     public int Id { get; private set; }
 
     [Field]
@@ -332,7 +332,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [KeyGenerator(null)]
   public class MyStructureOwner : Entity
   {
-    [KeyField, Field]
+    [Key, Field]
     public int Id { get; private set; }
 
     [Field]
@@ -348,10 +348,10 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   [KeyGenerator(null)]
   public class ReferencedEntity : Entity
   {
-    [KeyField(0), Field]
+    [Key(0), Field]
     public int A { get; private set; }
 
-    [KeyField(1), Field]
+    [Key(1), Field]
     public int B { get; private set; }
 
     public ReferencedEntity(int a, int b)

@@ -16,10 +16,10 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
   [HierarchyRoot]
   public class User : Entity
   {
-    [Field, KeyField(0)]
+    [Field, Key(0)]
     public int Id1 { get; private set; }
 
-    [Field, KeyField(1)]
+    [Field, Key(1)]
     public int Id2 { get; private set; }
 
     [Field]
@@ -39,10 +39,10 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
   [HierarchyRoot]
   public class Company : Entity
   {
-    [Field, KeyField(0)]
+    [Field, Key(0)]
     public int Id3 { get; private set; }
 
-    [Field, KeyField(1)]
+    [Field, Key(1)]
     public int Id4 { get; private set; }
 
     [Field]
@@ -57,10 +57,10 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
   [HierarchyRoot]
   public class Project : Entity
   {
-    [Field, KeyField(0)]
+    [Field, Key(0)]
     public int Id5 { get; private set; }
 
-    [Field, KeyField(1)]
+    [Field, Key(1)]
     public int Id6 { get; private set; }
 
     [Field]

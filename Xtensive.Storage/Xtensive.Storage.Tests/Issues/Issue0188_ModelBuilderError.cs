@@ -13,7 +13,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0188_ModelBuilderError_Model
 [HierarchyRoot]
   public class A : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
     
     [Field]

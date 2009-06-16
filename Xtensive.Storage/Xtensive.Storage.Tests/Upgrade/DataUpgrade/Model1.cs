@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version1
   [HierarchyRoot]
   public class A : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
   }
 

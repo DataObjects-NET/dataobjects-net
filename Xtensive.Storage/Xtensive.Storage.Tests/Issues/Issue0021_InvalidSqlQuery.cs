@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0021_Model
   [HierarchyRoot(InheritanceSchema.ClassTable)]
   public class Root : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public long ID { get; private set; }
 
     [Field]

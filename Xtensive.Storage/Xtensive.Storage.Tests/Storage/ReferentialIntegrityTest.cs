@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
   [HierarchyRoot]
   public class Root : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     private int Id { get; set; }
   }
 

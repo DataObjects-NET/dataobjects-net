@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Storage.Atomicity
   [HierarchyRoot]
   public class Cake : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int ID { get; private set; }
 
     [Field]

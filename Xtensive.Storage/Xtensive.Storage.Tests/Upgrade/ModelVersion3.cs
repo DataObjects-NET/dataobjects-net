@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version3
   [HierarchyRoot]
   public class Person : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version3
   [HierarchyRoot]
   public class Contact : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field(Length = 40)]
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version3
   [HierarchyRoot]
   public class Order : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]

@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Building.Builders
           // Declared & inherited fields must be processed for hierarchy root
           typeDef.Fields.Add(field);
           Log.Info("Field: '{0}'", field.Name);
-          var ka = propertyInfo.GetAttribute<KeyFieldAttribute>(AttributeSearchOptions.InheritAll);
+          var ka = propertyInfo.GetAttribute<KeyAttribute>(AttributeSearchOptions.InheritAll);
           if (ka == null)
             continue;
           AttributeProcessor.Process(hierarchyDef, field, ka);

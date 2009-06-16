@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0082_ReferentialManagerProblem_Mode
   [HierarchyRoot]
   public class Ancestor : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
   }
 

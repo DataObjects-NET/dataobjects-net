@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0002_Model
   [HierarchyRoot]
   public class X : Entity
   {
-    [Field(LazyLoad = true), KeyField]
+    [Field(LazyLoad = true), Key]
     public int ID { get; private set; }
   }
 }

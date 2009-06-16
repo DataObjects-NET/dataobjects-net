@@ -16,10 +16,10 @@ namespace Xtensive.Storage.Tests.Linq.ConditionalTestModel
   [HierarchyRoot]
   public class Root1 : Entity
   {
-    [Field, KeyField(0)]
+    [Field, Key(0)]
     public int Id1 { get; private set; }
 
-    [Field, KeyField(1)]
+    [Field, Key(1)]
     public int Id2 { get; private set; }
   }
 
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Tests.Linq.ConditionalTestModel
   [HierarchyRoot]
   public class Root2 : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]

@@ -157,7 +157,7 @@ namespace Xtensive.Storage.Aspects
         BindingFlags.Instance |
         BindingFlags.DeclaredOnly)) 
       {
-        var keyFieldAttribute = type.GetAttribute<KeyFieldAttribute>(AttributeSearchOptions.InheritNone);
+        var keyFieldAttribute = type.GetAttribute<KeyAttribute>(AttributeSearchOptions.InheritNone);
         try {
           var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(
             AttributeSearchOptions.InheritFromAllBase);

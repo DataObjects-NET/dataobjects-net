@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Tests.Storage.ValidationReferentialTestModel
   [HierarchyRoot]
   public class Company : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field(OnRemove = ReferentialAction.Clear)]
@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Tests.Storage.ValidationReferentialTestModel
   [HierarchyRoot]
   public class Contact : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field(PairTo = "Contacts", OnRemove = ReferentialAction.Cascade)]

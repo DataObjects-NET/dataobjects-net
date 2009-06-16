@@ -19,7 +19,7 @@ namespace InheritedKeyFieldModel
   [HierarchyRoot]
   public class H1 : H0
   {
-    [KeyField]
+    [Key]
     public override int Id
     {
       get
@@ -32,7 +32,7 @@ namespace InheritedKeyFieldModel
   [HierarchyRoot]
   public class H2 : H0
   {
-    [KeyField]
+    [Key]
     public override int Id
     {
       get

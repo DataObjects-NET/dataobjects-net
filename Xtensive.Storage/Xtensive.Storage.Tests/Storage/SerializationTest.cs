@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
   [HierarchyRoot]
   public class Company : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
   [HierarchyRoot]
   public class Emploee : Entity
   {
-    [Field, KeyField] 
+    [Field, Key] 
     public int Id { get; private set; }
 
     [Field]
@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
   [KeyGenerator(null)]
   public class Country : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public string Name { get; private set;}
 
 //    [Field]
@@ -84,10 +84,10 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
   [KeyGenerator(null)]
   public class City : Entity
   {
-    [Field, KeyField(0)]
+    [Field, Key(0)]
     public Country Country { get; private set;}
 
-    [Field, KeyField(1)]
+    [Field, Key(1)]
     public string Name { get; private set;}
 
     public City(Country country, string name) 

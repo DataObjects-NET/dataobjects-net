@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [HierarchyRoot]
     public class Mouse : Entity
     {
-      [Field, KeyField]
+      [Field, Key]
       public int ID { get; private set; }
         
       [Field]

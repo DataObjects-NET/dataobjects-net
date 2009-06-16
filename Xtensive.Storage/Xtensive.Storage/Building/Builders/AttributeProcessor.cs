@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Building.Builders
       hierarchyDef.IncludeTypeId = attribute.IncludeTypeId;
     }
 
-    public static void Process(HierarchyDef hierarchyDef, FieldDef fieldDef, KeyFieldAttribute attribute)
+    public static void Process(HierarchyDef hierarchyDef, FieldDef fieldDef, KeyAttribute attribute)
     {
       ArgumentValidator.EnsureArgumentIsInRange(attribute.Position, 0, MagicNumberProvider.MaxKeyFieldCount-1, "attribute.Position");
 

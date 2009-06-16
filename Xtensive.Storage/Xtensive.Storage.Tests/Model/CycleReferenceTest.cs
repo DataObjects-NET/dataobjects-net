@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Tests.Model.CycleReferenceTestModel
   [HierarchyRoot]
   public class Parent : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field]
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests.Model.CycleReferenceTestModel
   [HierarchyRoot]
   public class Neighbor : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field(PairTo = "Neighbor")]

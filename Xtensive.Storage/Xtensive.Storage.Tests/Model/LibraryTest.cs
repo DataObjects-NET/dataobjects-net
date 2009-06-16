@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
   [HierarchyRoot]
   public class Person : Entity
   {
-    [Field(MappingName = "PassportNumber"), KeyField]
+    [Field(MappingName = "PassportNumber"), Key]
     public int Number
     {
       get { return GetFieldValue<int>("Number"); }
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
   [Index("Title:ASC")]
   public class Book : Entity
   {
-    [Field(Length = 32), KeyField]
+    [Field(Length = 32), Key]
     public string Isbn { get; private set; }
 
     [Field(Length = 128)]
@@ -107,10 +107,10 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
   [HierarchyRoot]
   public class BookReview : Entity
   {
-    [Field(OnRemove = ReferentialAction.Clear), KeyField(1)]
+    [Field(OnRemove = ReferentialAction.Clear), Key(1)]
     public Person Reviewer { get; private set; }
 
-    [Field(MappingName = "Book", OnRemove = ReferentialAction.Cascade), KeyField(0)]
+    [Field(MappingName = "Book", OnRemove = ReferentialAction.Cascade), Key(0)]
     public Book Book { get; private set; }
 
     [Field(Length = 4096)]

@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Metadata
     /// <summary>
     /// Gets or sets the name of the extension.
     /// </summary>
-    [KeyField]
+    [Key]
     [Field(Length = 1024)]
     public string Name { get; private set; }
 

@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0016_Model
   [HierarchyRoot]
   public class Master : Entity, IMaster
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     public Slave Slave { get; set; }
@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0016_Model
   [HierarchyRoot]
   public class Slave : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int Id { get; private set; }
 
     [Field (PairTo = "Slave")]

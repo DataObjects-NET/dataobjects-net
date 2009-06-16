@@ -15,30 +15,30 @@ namespace Xtensive.Storage.Tests.CyclicHierarchyDependenciesModel
   [HierarchyRoot]
   public class H1 : Entity
   {
-    [Field, KeyField(0)]
+    [Field, Key(0)]
     public H2 First { get; private set; }
 
-    [Field, KeyField(1)]
+    [Field, Key(1)]
     public H3 Second { get; private set; }
   }
 
   [HierarchyRoot]
   public class H2 : Entity
   {
-    [Field, KeyField(0)]
+    [Field, Key(0)]
     public H1 First { get; private set; }
 
-    [Field, KeyField(1)]
+    [Field, Key(1)]
     public H3 Second { get; private set; }
   }
 
   [HierarchyRoot]
   public class H3 : Entity
   {
-    [Field, KeyField(0)]
+    [Field, Key(0)]
     public H1 First { get; private set; }
 
-    [Field, KeyField(1)]
+    [Field, Key(1)]
     public H2 Second { get; private set; }
   }
 }

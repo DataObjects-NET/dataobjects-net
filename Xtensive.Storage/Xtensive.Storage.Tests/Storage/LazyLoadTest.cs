@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Storage.BookAuthorModel
   [HierarchyRoot]
   public class Book : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int ID { get; private set; }
 
     [Field(Length = 10)]
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Storage.BookAuthorModel
   [HierarchyRoot]
   public class Author : Entity
   {
-    [Field, KeyField]
+    [Field, Key]
     public int ID { get; private set; }
 
     [Field]
