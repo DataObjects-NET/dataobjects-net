@@ -402,16 +402,13 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses Min to find the Products that have the lowest unit price in each category, and returns the result as an anonoymous type.")]
     public void LinqToEntities32()
     {
-      var query = from p in Query<Product>.All
-      group p by p.Category
-      into g
-        select new {
-          CategoryID = g.Key,
-          CheapestProducts =
-            from p2 in g
-            where p2.UnitPrice==g.Min(p3 => p3.UnitPrice)
-            select p2
-        };
+      var query = Query<Product>.All
+        .GroupBy(p => p.Category)
+        .Select(g => new {
+        CategoryID = g.Key,
+        CheapestProducts =
+          g.Where(p2 => p2.UnitPrice==g.Min(p3 => p3.UnitPrice))
+      });
 
       QueryDumper.Dump(query);
     }
