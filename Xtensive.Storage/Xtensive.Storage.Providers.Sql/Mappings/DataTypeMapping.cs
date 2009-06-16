@@ -7,66 +7,81 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Common;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings
 {
+  /// <summary>
+  /// Represents a mapping from the native .NET type to the server specific data type.
+  /// </summary>
   [Serializable]
   public sealed class DataTypeMapping
   {
+    /// <summary>
+    /// Gets the native type.
+    /// </summary>
     public Type Type { get; private set; }
 
+    /// <summary>
+    /// Gets the data type information.
+    /// </summary>
     public DataTypeInfo DataTypeInfo { get; private set; }
 
+    /// <summary>
+    /// Gets the <see cref="DbType"/>
+    /// </summary>
     public DbType DbType { get; private set; }
 
+    /// <summary>
+    /// Gets the data reader accessor.
+    /// </summary>
     public Func<DbDataReader, int, object> DataReaderAccessor { get; private set; }
 
+    /// <summary>
+    /// Gets the converter from native to SQL value.
+    /// </summary>
     public Func<object, object> ToSqlValue { get; private set; }
 
-    public Func<object, object> FromSqlValue { get; private set; }
-
     /// <summary>
-    /// Translates to SQL value.
+    /// Gets the converter from SQL to native value.
     /// </summary>
-    /// <param name="value">A value to translate.</param>
-    /// <returns></returns>
-    public object TranslateToSqlValue(object value)
-    {
-      return value!=null && value!=DBNull.Value && ToSqlValue!=null
-        ? ToSqlValue(value)
-        : (value ?? DBNull.Value);
-    }
-
+    public Func<object, object> FromSqlValue { get; private set; }
 
     // Constructors
 
-    private DataTypeMapping(Type type, DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="dataTypeInfo">A value for <see cref="DataTypeInfo"/>.</param>
+    /// <param name="dbType">A value for <see cref="DbType"/>.</param>
+    /// <param name="dataReaderAccessor">A value for <see cref="DataReaderAccessor"/>.</param>/// 
+    public DataTypeMapping(Type type, DataTypeInfo dataTypeInfo, DbType dbType,
+      Func<DbDataReader, int, object> dataReaderAccessor)
     {
       Type = type;
       DataTypeInfo = dataTypeInfo;
+      DbType = dbType;
       DataReaderAccessor = dataReaderAccessor;
     }
-
-    public DataTypeMapping(DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor, DbType dbType)
-      : this(dataTypeInfo.Type, dataTypeInfo, dataReaderAccessor)
+    
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="dataTypeInfo">A value for <see cref="DataTypeInfo"/>.</param>
+    /// <param name="dbType">A value for <see cref="DbType"/>.</param>
+    /// <param name="dataReaderAccessor">A value for <see cref="DataReaderAccessor"/>.</param>
+    /// <param name="toSqlValue">A value for <see cref="ToSqlValue"/>.</param>
+    public DataTypeMapping(Type type, DataTypeInfo dataTypeInfo, DbType dbType,
+      Func<DbDataReader, int, object> dataReaderAccessor, Func<object, object> toSqlValue)
     {
+      Type = type;
+      DataTypeInfo = dataTypeInfo;
       DbType = dbType;
-    }
-
-    public DataTypeMapping(DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor, DbType dbType, Func<object, object> toSqlValue, Func<object, object> fromSqlValue)
-      : this(dataTypeInfo, dataReaderAccessor, dbType)
-    {
+      DataReaderAccessor = dataReaderAccessor;
       ToSqlValue = toSqlValue;
-      FromSqlValue = fromSqlValue;
-    }
-
-    public DataTypeMapping(Type type, DataTypeInfo dataTypeInfo, Func<DbDataReader, int, object> dataReaderAccessor, DbType dbType, Func<object, object> toSqlValue, Func<object, object> fromSqlValue)
-      : this(type, dataTypeInfo, dataReaderAccessor)
-    {
-      DbType = dbType;
-      ToSqlValue = toSqlValue;
-      FromSqlValue = fromSqlValue;
     }
   }
 }

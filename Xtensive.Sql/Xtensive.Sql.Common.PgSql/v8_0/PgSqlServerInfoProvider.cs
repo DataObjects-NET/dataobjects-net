@@ -261,6 +261,10 @@ namespace Xtensive.Sql.Common.PgSql.v8_0
         dtc.Interval.Value = new ValueRange<TimeSpan>(TimeSpan.MinValue, TimeSpan.MaxValue, TimeSpan.FromTicks(0));
         dtc.Interval.Features = commonFeatures;
 
+        dtc.VarBinary = new StreamDataTypeInfo(SqlDataType.VarBinary, typeof (byte[]), new string[0]);
+        dtc.VarBinary.Length = new ValueRange<int>(0, mMaxTextLength, 0);
+        dtc.VarBinary.Features = commonFeatures;
+        
         dtc.VarBinaryMax = new StreamDataTypeInfo(SqlDataType.VarBinaryMax, typeof (byte[]), new[] {"bytea"});
         dtc.VarBinaryMax.Length = new ValueRange<int>(0, mMaxTextLength, 0);
         dtc.VarBinaryMax.Features = commonFeatures;

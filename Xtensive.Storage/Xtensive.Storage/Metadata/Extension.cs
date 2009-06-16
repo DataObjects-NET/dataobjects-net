@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Metadata
 {
@@ -29,13 +28,13 @@ namespace Xtensive.Storage.Metadata
     /// <summary>
     /// Gets or sets the text data.
     /// </summary>
-    [Field(Length = 10000000)]
+    [Field(Length = int.MaxValue)]
     public string Text { get; set; }
 
     /// <summary>
     /// Gets or sets the binary data.
     /// </summary>
-    [Field(Length = 10000000)]
+    [Field(Length = int.MaxValue)]
     public byte[] Data { get; set; }
 
     /// <inheritdoc/>

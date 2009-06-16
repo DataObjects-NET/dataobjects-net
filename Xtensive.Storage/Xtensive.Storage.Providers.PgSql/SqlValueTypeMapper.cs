@@ -14,129 +14,64 @@ using Xtensive.Storage.Providers.Sql.Mappings;
 
 namespace Xtensive.Storage.Providers.PgSql
 {
+  /// <summary>
+  /// A <see cref="Sql.SqlValueTypeMapper"/> descendant specific to PostgreSQL server.
+  /// </summary>
   public sealed class SqlValueTypeMapper : Sql.SqlValueTypeMapper
   {
-    /// <inheritdoc/>
-    protected override void BuildTypeSubstitutes()
+    protected override DataTypeMapping CreateByteMapping(DataTypeInfo type)
     {
-      base.BuildTypeSubstitutes();
-
       var @int16 = DomainHandler.Driver.ServerInfo.DataTypes.Int16;
+      var @byte = new IntegerDataTypeInfo<byte>(@int16.SqlType, null)
+        {
+          Value = new ValueRange<byte>(byte.MinValue, byte.MaxValue)
+        };
+      return new DataTypeMapping(typeof(byte), @byte, DbType.Int16,
+        (reader, index) => Convert.ToByte(reader.GetValue(index)));
+    }
 
-      var @byte = new IntegerDataTypeInfo<byte>(@int16.SqlType, null);
-      @byte.Value = new ValueRange<byte>(byte.MinValue, byte.MaxValue);
-      BuildDataTypeMapping(@byte);
+    protected override DataTypeMapping CreateTimeSpanMapping(DataTypeInfo type)
+    {
+      return new DataTypeMapping(typeof (TimeSpan), type, DbType.String,
+        ReadTimeSpan, v => TimeSpanToString((TimeSpan) v));
+    }
 
-      var @sbyte = new IntegerDataTypeInfo<sbyte>(@int16.SqlType, null);
-      @sbyte.Value = new ValueRange<sbyte>(sbyte.MinValue, sbyte.MaxValue);
-      BuildDataTypeMapping(@sbyte);
-
-      var @int32 = DomainHandler.Driver.ServerInfo.DataTypes.Int32;
-      var @ushort = new IntegerDataTypeInfo<ushort>(@int32.SqlType, null);
-      @ushort.Value = new ValueRange<ushort>(ushort.MinValue, ushort.MaxValue);
-      BuildDataTypeMapping(@ushort);
-
-      var @int64 = DomainHandler.Driver.ServerInfo.DataTypes.Int64;
-      var @uint = new IntegerDataTypeInfo<uint>(@int64.SqlType, null);
-      @uint.Value = new ValueRange<uint>(uint.MinValue, uint.MaxValue);
-      BuildDataTypeMapping(@uint);
-
-      var @decimal = DomainHandler.Driver.ServerInfo.DataTypes.Decimal;
-      var @ulong = new IntegerDataTypeInfo<ulong>(@decimal.SqlType, null);
-      @ulong.Value = new ValueRange<ulong>(ulong.MinValue, ulong.MaxValue);
-      BuildDataTypeMapping(@ulong);
-
+    protected override DataTypeMapping CreateGuidMapping(DataTypeInfo type)
+    {
       var @binary = DomainHandler.Driver.ServerInfo.DataTypes.VarBinaryMax;
       var @guid = new StreamDataTypeInfo(@binary.SqlType, typeof(Guid), null);
       @guid.Length = new ValueRange<int>(16, 16, 16);
-      BuildDataTypeMapping(@guid);
-
-      var @timespan = DomainHandler.Driver.ServerInfo.DataTypes.Interval;
-      BuildDataTypeMapping(@timespan);
+      return new DataTypeMapping(typeof (Guid), @guid, DbType.Binary,
+        ReadGuid, g => ((Guid) g).ToByteArray());
     }
 
-    protected override DataTypeMapping CreateDataTypeMapping(DataTypeInfo dataTypeInfo)
+    #region Helper methods
+
+    private static object ReadGuid(DbDataReader reader, int index)
     {
-      if (dataTypeInfo.Type==typeof(Guid))
-        return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), DbType.Binary,
-          v => ((Guid)v).ToByteArray(), v => new Guid((byte[])v));
-
-      if (dataTypeInfo.Type==typeof (TimeSpan))
-        return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), DbType.String,
-          v => TimeSpanToString((TimeSpan)v), v => ReadTimeSpan(v));
-
-      return base.CreateDataTypeMapping(dataTypeInfo);
+      var bytes = new byte[16];
+      reader.GetBytes(index, 0, bytes, 0, 16);
+      return new Guid(bytes);
     }
-
-    protected override DbType GetDbType(DataTypeInfo dataTypeInfo)
+    
+    private static object ReadTimeSpan(DbDataReader reader, int index)
     {
-      Type type = dataTypeInfo.Type;
-      TypeCode typeCode = Type.GetTypeCode(type);
-      switch (typeCode) {
-      case TypeCode.Byte:
-        return DbType.Int16;
-      case TypeCode.SByte:
-        return DbType.Int16;
-      case TypeCode.UInt16:
-        return DbType.Int32;
-      case TypeCode.UInt32:
-        return DbType.Int64;
-      case TypeCode.UInt64:
-        return DbType.Decimal;
-      default:
-        return base.GetDbType(dataTypeInfo);
-      }
-    }
-
-    /// <inheritdoc/>
-    protected override Func<DbDataReader, int, object> BuildDataReaderAccessor(DataTypeInfo dataTypeInfo)
-    {
-      Type type = dataTypeInfo.Type;
-      TypeCode typeCode = Type.GetTypeCode(type);
-      switch (typeCode) {
-      case TypeCode.Object:
-        if (type == typeof(Guid))
-          return (reader, fieldIndex) => {
-            byte[] result = new byte[16];
-            reader.GetBytes(fieldIndex, 0, result, 0, 16);
-            return result;
-          };
-        if (type == typeof(TimeSpan))
-          return (reader, fieldIndex) => ReadTimeSpan(reader[fieldIndex]);
-        return base.BuildDataReaderAccessor(dataTypeInfo);
-      case TypeCode.Boolean:
-        return (reader, fieldIndex) => reader.GetBoolean(fieldIndex);
-      case TypeCode.SByte:
-        return (reader, fieldIndex) => Convert.ToSByte(reader.GetInt16(fieldIndex));
-      case TypeCode.Byte:
-        return (reader, fieldIndex) => Convert.ToByte(reader.GetInt16(fieldIndex));
-      case TypeCode.UInt16:
-        return (reader, fieldIndex) => Convert.ToUInt16(reader.GetInt32(fieldIndex));
-      case TypeCode.UInt32:
-        return (reader, fieldIndex) => Convert.ToUInt32(reader.GetInt64(fieldIndex));
-      case TypeCode.UInt64:
-        return (reader, fieldIndex) => Convert.ToUInt64(reader.GetDecimal(fieldIndex));
-      default:
-        return base.BuildDataReaderAccessor(dataTypeInfo);
-      }
-    }
-
-    private static TimeSpan ReadTimeSpan(object value)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      object value = reader.GetValue(index);
+      if (value==null)
+        return null;
 
       switch (Type.GetTypeCode(value.GetType())) {
-        case TypeCode.String:
-          return StringToTimeSpan((string)value);
-        case TypeCode.Byte:
-        case TypeCode.SByte:
-        case TypeCode.Int16:
-        case TypeCode.Int32:
-        case TypeCode.Int64:
-        case TypeCode.UInt16:
-        case TypeCode.UInt32:
-        case TypeCode.UInt64:
-          return new TimeSpan(Convert.ToInt64(value));
+      case TypeCode.String:
+        return StringToTimeSpan((string) value);
+      case TypeCode.Byte:
+      case TypeCode.SByte:
+      case TypeCode.Int16:
+      case TypeCode.Int32:
+      case TypeCode.Int64:
+      case TypeCode.UInt16:
+      case TypeCode.UInt32:
+      case TypeCode.UInt64:
+        return new TimeSpan(Convert.ToInt64(value));
       }
 
       if (value is TimeSpan)
@@ -244,5 +179,7 @@ namespace Xtensive.Storage.Providers.PgSql
       return String.Format("{0} days {1}{2}:{3}:{4}.{5:000}",
           days, negative ? "-" : "", hours, minutes, seconds, milliseconds);
     }
+
+    #endregion
   }
 }

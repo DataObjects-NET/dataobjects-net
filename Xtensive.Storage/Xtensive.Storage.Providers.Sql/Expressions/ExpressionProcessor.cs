@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (e.NodeType == ExpressionType.Convert && e.Type == typeof(object))
         type = ((UnaryExpression) e).Operand.Type;
       type = StripNullable(type);
-      var typeMapping = valueTypeMapper.GetTypeMapping(type);
+      var typeMapping = valueTypeMapper.GetTypeMapping(type, null);
       var expression = parameterExtractor.ExtractParameter<object>(e);
       var binding = new SqlFetchParameterBinding(expression.CachingCompile(), typeMapping, smartNull);
       bindings.Add(binding);
@@ -113,12 +113,11 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           return SqlFactory.Not(operand);
         case ExpressionType.Convert:
         case ExpressionType.ConvertChecked:
-          if (expression.Operand.Type == expression.Type)
+          var sourceType = StripNullable(expression.Operand.Type);
+          var targetType = StripNullable(expression.Type);
+          if (sourceType==targetType || targetType==typeof(object))
             return operand;
-          var mapping = valueTypeMapper.TryGetTypeMapping(expression.Type);
-          if (mapping == null)
-            return operand;
-          return SqlFactory.Cast(operand, valueTypeMapper.BuildSqlValueType(expression.Type, 0));
+          return SqlFactory.Cast(operand, valueTypeMapper.BuildSqlValueType(targetType, null));
       }
       return operand;
     }

@@ -145,7 +145,7 @@ namespace Xtensive.Storage.Providers.Sql
       var converters = new List<Func<object, object>>(descriptor.Count);
 
       foreach (var item in descriptor) {
-        var typeMapping = ValueTypeMapper.GetTypeMapping(item);
+        var typeMapping = ValueTypeMapper.GetTypeMapping(item, null);
         readers.Add(typeMapping.DataReaderAccessor);
         converters.Add(typeMapping.FromSqlValue);
       }

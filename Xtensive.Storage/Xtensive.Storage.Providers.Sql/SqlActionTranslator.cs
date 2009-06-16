@@ -951,10 +951,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       var defaultValueType = columnInfo.DefaultValue.GetType();
-      var mapping =
-        columnInfo.Type.Length.HasValue
-          ? valueTypeMapper.GetTypeMapping(defaultValueType, columnInfo.Type.Length.Value)
-          : valueTypeMapper.GetTypeMapping(defaultValueType);
+      var mapping = valueTypeMapper.GetTypeMapping(defaultValueType, columnInfo.Type.Length);
       var value = mapping.ToSqlValue!=null
         ? mapping.ToSqlValue.Invoke(columnInfo.DefaultValue)
         : columnInfo.DefaultValue;

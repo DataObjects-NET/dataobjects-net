@@ -108,16 +108,16 @@ namespace Xtensive.Storage.Tests.Storage.DbTypeSupportModel
     [Field]
     public TimeSpan FTimeSpan { get; set; }
 
-    [Field]
+    [Field(Length = 1000)]
     public byte[] FByteArray { get; set; }
 
-    [Field(Length = 8001)]
+    [Field(Length = int.MaxValue)]
     public byte[] FLongByteArray { get; set; }
 
-    [Field]
+    [Field(Length = 1000)]
     public string FString { get; set; }
 
-    [Field(Length = 4001)]
+    [Field(Length = int.MaxValue)]
     public string FLongString { get; set; }
 
     [Field]

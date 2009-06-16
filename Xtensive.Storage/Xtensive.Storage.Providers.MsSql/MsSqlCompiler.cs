@@ -162,12 +162,12 @@ namespace Xtensive.Storage.Providers.MsSql
         // floats are promoted to doubles, but we need the same type
         if (originType == aggregateType && originType != typeof (float))
           return result;
-        var sqlType = GetSqlDataType(aggregateType);
+        var sqlType = ValueTypeMapper.BuildSqlValueType(aggregateType, null);
         return SqlFactory.Cast(SqlFactory.Avg(SqlFactory.Cast(sourceColumns[aggregateColumn.SourceIndex], sqlType)), sqlType);
       }
       // cast to decimal is dangerous, because 'decimal' defaults to integer type
       if (aggregateColumn.AggregateType == AggregateType.Sum && aggregateType != typeof(decimal))
-        return SqlFactory.Cast(result, GetSqlDataType(aggregateType));
+        return SqlFactory.Cast(result, ValueTypeMapper.BuildSqlValueType(aggregateType, null));
       return result;
     }
 

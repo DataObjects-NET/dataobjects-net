@@ -28,11 +28,21 @@ using SqlDataType = Xtensive.Sql.Common.SqlDataType;
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// 
+  /// </summary>
   /// <inheritdoc/>
   [Serializable]
   public class SqlCompiler : RseCompiler
   {
     protected const string TableNamePattern = "Tmp_{0}";
+
+    /// <summary>
+    /// Gets the value type mapper.
+    /// </summary>
+    protected SqlValueTypeMapper ValueTypeMapper {
+      get { return ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper; }
+    }
 
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> object providing access to available storage handlers.
@@ -257,7 +267,7 @@ namespace Xtensive.Storage.Providers.Sql
       var bindings = (HashSet<SqlFetchParameterBinding>) rangeProvider.Request.ParameterBindings;
       for (int i = 0; i < originalRange.EndPoints.First.Value.Count; i++) {
         var column = provider.Header.Columns[keyColumns[i].Key];
-        DataTypeMapping typeMapping = ((DomainHandler)Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
+        DataTypeMapping typeMapping = ((DomainHandler)Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type, null);
         int fieldIndex = i;
         var binding = new SqlFetchParameterBinding(() => rangeProvider.CurrentRange.EndPoints.First.Value.GetValue(fieldIndex), typeMapping);
         bindings.Add(binding);
@@ -286,7 +296,7 @@ namespace Xtensive.Storage.Providers.Sql
         int columnIndex = keyColumns[i].Key;
         var sqlColumn = query.Columns[columnIndex];
         var column = provider.Header.Columns[columnIndex];
-        DataTypeMapping typeMapping = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
+        DataTypeMapping typeMapping = ValueTypeMapper.GetTypeMapping(column.Type, null);
         int index = i;
         var binding = new SqlFetchParameterBinding(() => provider.CompiledKey.Invoke().GetValue(index), typeMapping);
         parameterBindings.Add(binding);
@@ -579,16 +589,6 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    /// <summary>
-    /// Gets the <see cref="SqlDataType"/> by <see cref="Type"/>.
-    /// </summary>
-    /// <param name="type">The type.</param>
-    /// <returns></returns>
-    protected SqlDataType GetSqlDataType(Type type)
-    {
-      return ((DomainHandler)Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(type).DataTypeInfo.SqlType;
-    }
-
     #region Private methods
 
     private SqlSelect BuildProviderQuery(IndexInfo index)
@@ -637,7 +637,7 @@ namespace Xtensive.Storage.Providers.Sql
         foreach (var columnInfo in index.Columns) {
           var column = select.Columns[columnInfo.Name];
           if (SqlExpression.IsNull(column)) {
-            var valueType = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper.BuildSqlValueType(columnInfo);
+            var valueType = ValueTypeMapper.BuildSqlValueType(columnInfo);
             select.Columns.Insert(i, SqlFactory.Cast(SqlFactory.Null, valueType), columnInfo.Name);
           }
           i++;

@@ -9,6 +9,9 @@ using System.Collections.Generic;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings
 {
+  /// <summary>
+  /// A collection of mappings from native .NET types to server specific data types.
+  /// </summary>
   [Serializable]
   public sealed class DataTypeMappingSchema
   {
@@ -31,6 +34,11 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
       exactMappings.Add(mapping.Type, mapping);
     }
 
+    /// <summary>
+    /// Gets the exact mapping of <paramref name="type"/>
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>Exact mapping or null if no exact mapping found.</returns>
     public DataTypeMapping GetExactMapping(Type type)
     {
       DataTypeMapping result;
@@ -38,6 +46,11 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
       return result;
     }
 
+    /// <summary>
+    /// Gets the ambigious mappings of <paramref name="type"/>
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>Array of ambigious mappings or null if no ambigious mappings found.</returns>
     public DataTypeMapping[] GetAmbigiousMappings(Type type)
     {
       List<DataTypeMapping> result;

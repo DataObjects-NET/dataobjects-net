@@ -75,6 +75,11 @@ namespace Xtensive.Storage.Providers.Sql
 
     #endregion
 
+    /// <summary>
+    /// Executes the specified <see cref="SqlFetchRequest"/>.
+    /// </summary>
+    /// <param name="request">The request.</param>
+    /// <returns></returns>
     public IEnumerator<Tuple> Execute(SqlFetchRequest request)
     {
       var descriptor = request.TupleDescriptor;
@@ -89,6 +94,12 @@ namespace Xtensive.Storage.Providers.Sql
 
     #region Execute statement methods
 
+    /// <summary>
+    /// Executes the specified statement.
+    /// Works similar to <see cref="SqlCommand.ExecuteDbDataReader"/>
+    /// </summary>
+    /// <param name="statement">The statement to execute.</param>
+    /// <returns><see cref="DbDataReader"/> with results of statement execution.</returns>
     public virtual DbDataReader ExecuteReader(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
@@ -99,6 +110,12 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
+    /// <summary>
+    /// Executes the specified statement.
+    /// Works similar to <see cref="SqlCommand.ExecuteNonQuery"/>.
+    /// </summary>
+    /// <param name="statement">The statement.</param>
+    /// <returns>Number of affected rows.</returns>
     public virtual int ExecuteNonQuery(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
@@ -109,6 +126,12 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
+    /// <summary>
+    /// Executes the specified statement.
+    /// Works similar to <see cref="SqlCommand.ExecuteScalar"/>
+    /// </summary>
+    /// <param name="statement">The statement.</param>
+    /// <returns>The first column of the first row of executed result set.</returns>
     public virtual object ExecuteScalar(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
@@ -123,6 +146,12 @@ namespace Xtensive.Storage.Providers.Sql
 
     #region Execute request methods
 
+    /// <summary>
+    /// Executes the specified <see cref="SqlUpdateRequest"/>.
+    /// </summary>
+    /// <param name="request">The request to execute.</param>
+    /// <param name="tuple">A state tuple.</param>
+    /// <returns>Number of modified rows.</returns>
     public virtual int ExecuteUpdateRequest(SqlUpdateRequest request, Tuple tuple)
     {
       EnsureConnectionIsOpen();
@@ -133,6 +162,11 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
+    /// <summary>
+    /// Executes the specified <see cref="SqlScalarRequest"/>.
+    /// </summary>
+    /// <param name="request">The request to execute.</param>
+    /// <returns>The first column of the first row of executed result set.</returns>
     public virtual object ExecuteScalarRequest(SqlScalarRequest request)
     {
       EnsureConnectionIsOpen();
@@ -143,6 +177,11 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
+    /// <summary>
+    /// Executes the specified <see cref="SqlFetchRequest"/>.
+    /// </summary>
+    /// <param name="request">The request to execute.</param>
+    /// <returns><see cref="DbDataReader"/> with results of statement execution.</returns>
     public virtual DbDataReader ExecuteFetchRequest(SqlFetchRequest request)
     {
       EnsureConnectionIsOpen();
@@ -201,7 +240,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// Creates the <see cref="SqlCommand"/> bound to connection associated with this <see cref="SessionHandler"/>.
     /// </summary>
     /// <param name="statement">The statement.</param>
-    /// <returns></returns>
+    /// <returns>A created command.</returns>
     protected virtual SqlCommand CreateCommand(ISqlCompileUnit statement)
     {
       return new SqlCommand(Connection) {Statement = statement};
@@ -211,7 +250,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// Creates <see cref="SqlCommand"/> from specified <see cref="SqlScalarRequest"/>.
     /// </summary>
     /// <param name="request">The request.</param>
-    /// <returns></returns>
+    /// <returns>A created command.</returns>
     protected virtual SqlCommand CreateScalarCommand(SqlScalarRequest request)
     {
       var command = new SqlCommand(connection);
@@ -223,7 +262,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// Creates <see cref="SqlCommand"/> from specified <see cref="SqlFetchRequest"/>.
     /// </summary>
     /// <param name="request">The request.</param>
-    /// <returns></returns>
+    /// <returns>A created command.</returns>
     protected virtual SqlCommand CreateFetchCommand(SqlFetchRequest request)
     {
       var command = new SqlCommand(Connection);
@@ -231,8 +270,7 @@ namespace Xtensive.Storage.Providers.Sql
       var variantKeys = new List<object>();
       foreach (var binding in request.ParameterBindings) {
         object parameterValue = binding.ValueAccessor.Invoke();
-        parameterValue = binding.TypeMapping.TranslateToSqlValue(parameterValue);
-        if (parameterValue == DBNull.Value && binding.SmartNull)
+        if ((parameterValue == null || parameterValue == DBNull.Value) && binding.SmartNull)
           variantKeys.Add(binding.ParameterReference.Parameter);
         else {
           string parameterName = compilationResult.GetParameterName(binding.ParameterReference.Parameter);
@@ -248,14 +286,14 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="request">The request.</param>
     /// <param name="value">Tuple that contain values for update parameters.</param>
-    /// <returns></returns>
+    /// <returns>A created command.</returns>
     protected virtual SqlCommand CreateUpdateCommand(SqlUpdateRequest request, Tuple value)
     {
       var command = new SqlCommand(Connection);
       var compilationResult = request.Compile(DomainHandler);
 
       foreach (var binding in request.ParameterBindings) {
-        object parameterValue = binding.TypeMapping.TranslateToSqlValue(binding.ValueAccessor.Invoke(value));
+        object parameterValue = binding.ValueAccessor.Invoke(value);
         string parameterName = compilationResult.GetParameterName(binding.ParameterReference.Parameter);
         command.Parameters.Add(CreateParameter(parameterName, parameterValue, binding.TypeMapping));
       }
@@ -271,9 +309,13 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="name">The name.</param>
     /// <param name="value">The value.</param>
     /// <param name="mapping">The mapping.</param>
-    /// <returns>Created parameter.</returns>
+    /// <returns>A created parameter.</returns>
     protected virtual SqlParameter CreateParameter(string name, object value, DataTypeMapping mapping)
     {
+      value = value!=null && value!=DBNull.Value && mapping.ToSqlValue!=null
+        ? mapping.ToSqlValue(value)
+        : (value ?? DBNull.Value);
+
       var typeOfValue = value.GetType();
       int length = 0;
       if (typeOfValue==typeof(string))

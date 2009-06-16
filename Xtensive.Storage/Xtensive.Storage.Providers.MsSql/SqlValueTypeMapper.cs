@@ -12,62 +12,35 @@ using Xtensive.Storage.Providers.Sql.Mappings;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
+  /// <summary>
+  /// A <see cref="Sql.SqlValueTypeMapper"/> descendant specific to MSSQL server.
+  /// </summary>
   public sealed class SqlValueTypeMapper : Sql.SqlValueTypeMapper
   {
-
     private static readonly long TicksPerMillisecond = TimeSpan.FromMilliseconds(1).Ticks;
 
-    protected override void BuildTypeSubstitutes()
+    protected override DataTypeMapping CreateDateTimeMapping(DataTypeInfo type)
     {
-      base.BuildTypeSubstitutes();
+      var dti = DomainHandler.Driver.ServerInfo.DataTypes.DateTime;
+      var min = dti.Value.MinValue;
+      return new DataTypeMapping(typeof(DateTime), type, DbType.DateTime,
+        (reader, index) => reader.GetDateTime(index),
+        value => ((DateTime) value < min) ? min : value);
+    }
+
+    protected override DataTypeMapping CreateTimeSpanMapping(DataTypeInfo type)
+    {
       var @int64 = DomainHandler.Driver.ServerInfo.DataTypes.Int64;
-      var @timespan = new RangeDataTypeInfo<TimeSpan>(SqlDataType.Int64, null);
-      @timespan.Value = new ValueRange<TimeSpan>(TimeSpan.FromTicks(@int64.Value.MinValue), TimeSpan.FromTicks(@int64.Value.MaxValue));
-      BuildDataTypeMapping(@timespan);
-    }
+      var timespan = new RangeDataTypeInfo<TimeSpan>(SqlDataType.Int64, null)
+        {
+          Value = new ValueRange<TimeSpan>(
+            TimeSpan.FromTicks(@int64.Value.MinValue),
+            TimeSpan.FromTicks(@int64.Value.MaxValue))
+        };
 
-    protected override DataTypeMapping CreateDataTypeMapping(DataTypeInfo dataTypeInfo)
-    {
-      if (dataTypeInfo.Type == typeof(DateTime)) {
-        RangeDataTypeInfo<DateTime> dti = DomainHandler.Driver.ServerInfo.DataTypes.DateTime;
-        DateTime min = dti.Value.MinValue;
-        return new DataTypeMapping(dataTypeInfo, BuildDataReaderAccessor(dataTypeInfo), DbType.DateTime, value => (DateTime) value < min ? min : value, null);
-      }
-
-      if (dataTypeInfo.Type == typeof(TimeSpan))
-        return new DataTypeMapping(
-          dataTypeInfo,
-          BuildDataReaderAccessor(dataTypeInfo),
-          DbType.Int64,
-          value => ((TimeSpan) value).Ticks / TicksPerMillisecond,
-          value => TimeSpan.FromMilliseconds((long) value)
-          );
-
-      return base.CreateDataTypeMapping(dataTypeInfo);
-    }
-
-    protected override DbType GetDbType(DataTypeInfo dataTypeInfo)
-    {
-      Type type = dataTypeInfo.Type;
-      TypeCode typeCode = Type.GetTypeCode(type);
-      switch (typeCode) {
-      case TypeCode.SByte:
-        return DbType.Int16;
-      case TypeCode.UInt16:
-        return DbType.Int32;
-      case TypeCode.UInt32:
-        return DbType.Int64;
-      case TypeCode.UInt64:
-        return DbType.Decimal;
-      }
-      return base.GetDbType(dataTypeInfo);
-    }
-
-    protected override Func<DbDataReader, int, object> BuildDataReaderAccessor(DataTypeInfo dataTypeInfo)
-    {
-      if (dataTypeInfo.Type == typeof(TimeSpan))
-        return (reader, fieldIndex) => reader.GetInt64(fieldIndex);
-      return base.BuildDataReaderAccessor(dataTypeInfo);
+      return new DataTypeMapping(typeof (TimeSpan), timespan, DbType.Int64,
+        (reader, index) => TimeSpan.FromMilliseconds(reader.GetInt64(index)),
+        value => ((TimeSpan) value).Ticks / TicksPerMillisecond);
     }
   }
 }
