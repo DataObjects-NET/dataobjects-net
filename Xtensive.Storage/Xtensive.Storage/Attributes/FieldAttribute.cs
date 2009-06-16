@@ -11,7 +11,7 @@ namespace Xtensive.Storage
 {
   /// <summary>
   /// Indicates that property is persistent field,
-  /// and, optionally, defines its mapping name.
+  /// and defines its percistence-related properies.
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
@@ -28,6 +28,9 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets or sets the length of the field.
     /// </summary>
+    /// <remarks>
+    /// This property can be specified for <see cref="string"/> or array of <see cref="byte"/> fields.
+    /// </remarks>
     public int Length
     {
       get { return length.HasValue ? length.Value : 0; }
@@ -37,6 +40,9 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets or sets the scale of the field.
     /// </summary>
+    /// <remarks>
+    /// This property can be specified for <see cref="decimal"/> type.
+    /// </remarks>
     public int Scale
     {
       get { return scale.HasValue ? scale.Value : 0; }
@@ -46,6 +52,9 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets or sets the precision of the field.
     /// </summary>
+    /// <remarks>
+    /// This property can be specified for <see cref="decimal"/> type.
+    /// </remarks>
     public int Precision
     {
       get { return precision.HasValue ? precision.Value : 0; }
@@ -53,8 +62,11 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is translatable.
+    /// Gets or sets a value indicating whether this field should be stored as translatable.
     /// </summary>
+    /// <remarks>
+    /// This property can be specified for <see cref="string"/> fields.
+    /// </remarks>
     public bool Translatable
     {
       get { return isTranslatable.HasValue ? isTranslatable.Value : false; }
@@ -62,8 +74,11 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is collatable.
+    /// Gets or sets a value indicating whether this field should be stored as collatable.
     /// </summary>
+    /// <remarks>
+    /// This property can be specified for <see cref="string"/> fields.
+    /// </remarks>
     public bool Collatable
     {
       get { return isCollatable.HasValue ? isCollatable.Value : false; }
@@ -71,8 +86,12 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance should be loaded on demand.
+    /// Gets or sets a value indicating whether value of this field should be loaded on demand.
     /// </summary>
+    /// <remarks>
+    /// Usually lazy loading is used for byte-arrays, large string fields or <see cref="Structure">structures</see>.
+    /// <see cref="Entity"/> and <see cref="EntitySet{TItem}"/> fields are always loaded on demand.
+    /// </remarks>
     public bool LazyLoad
     {
       get { return lazyLoad.HasValue ? lazyLoad.Value : false; }
@@ -82,6 +101,10 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets or sets the referential action that will be executed on referenced Entity removal.
     /// </summary>
+    /// <remarks>
+    /// This property can be specified for <see cref="Entity"/> and <see cref="EntitySet{TItem}"/>.
+    /// </remarks>
+    /// <seealso cref="ReferentialAction">Referential actions</seealso>
     public ReferentialAction OnRemove
     {
       get { return referentialAction.HasValue ? referentialAction.Value : ReferentialAction.Default; }
@@ -90,18 +113,46 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Indicates that persistent collection or persistent field
-    /// is a "mirror" of another ("master") collection or reference field.
+    /// is a paired proprty with another collection or reference field.
     /// </summary>
     /// <remarks>
-    /// <note>This attribute can be applied to persistent properties
-    /// of <see cref="Entity"/> and <see cref="EntitySet{T}"/> types.</note>
-    /// A collection marked by this attribute does not allocate any space in the database,
-    /// except it transparently uses a table allocated for master collection, but
-    /// flipped horizontally. Moreover, paired and master collections are always
-    /// synchronized with each other, so when you change a paired
-    /// collection, its master collection changes too, and vice versa. 
-    /// Each master collection can have only one paired collection.
+    /// <para>
+    /// This attribute can be applied to persistent properties of <see cref="Entity"/> 
+    /// or <see cref="EntitySet{T}"/> types.
+    /// </para>
+    /// <para>
+    /// When reference field is paired to another reference field, their value is automatically synchronized.
+    /// </para>
+    /// <para>
+    /// When collection is paired to reference field (One-to-Many association), 
+    /// it does not allocate any space in the database and all operations on this EntitySet are 
+    /// automatically synchronized to paired reference field.
+    /// </para>
+    /// <para>
+    /// When collection is paired to another collection (Many-to-Many) association, auxiliary table
+    /// will be automatically created to support this association.
+    /// </para>
     /// </remarks>
+    /// <example>In following example User entity has three associated fields of diffirent association type.
+    /// <code>
+    /// public class User : Entity
+    /// {
+    ///   ...
+    ///   
+    ///   // One-to-one association with "User" propery of "Account" class.
+    ///   [Field(PairTo = "User")]
+    ///   public Account Account { get; private set; }
+    ///   
+    ///   // One-to-many association
+    ///   [Field(PairTo = "Author")]
+    ///   public EntitySet&lt;BlogItem&gt; BlogItems { get; private set; }
+    ///   
+    ///   // Many-to-many association
+    ///   [Field(PairTo = "Friends")]
+    ///   public EntitySet&lt;User&gt; Friends { get; private set; }
+    /// }
+    /// </code>
+    /// </example>
     public string PairTo { get; set; }
 
 

@@ -17,15 +17,40 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Represents a set of related values.
+  /// Persistent type that has a value-type behavior.
   /// </summary>
   /// <remarks>
   /// Like <see cref="Entity"/>, it supports inheritance and consists of one or more properties 
-  /// of <see cref="ValueType"/>, <see cref="Structure"/>, or <see cref="Entity"/> references.
-  /// However unlike <see cref="Entity"/>, <see cref="Structure"/> it is not identified by <see cref="Key"/> 
-  /// and has <see cref="ValueType"/> behavior: it can exist only inside <see cref="Entity"/>, it is stored in
+  /// of value type, <see cref="Structure"/>, or <see cref="Entity"/> references.
+  /// However unlike entity, structure is not identified by <see cref="Key"/>
+  /// and has value type behavior: it can exist only inside entity, it is stored in
   /// its owners space and cannot be referenced directly.
   /// </remarks>
+  /// <example> In following example address fields (City, Street and Building) will be included in Person table.
+  /// <code>
+  /// public class Person : Entity
+  /// {
+  ///   [Field, Key]
+  ///   public int Id { get; set; }
+  /// 
+  ///   public string Name { get; set; }
+  /// 
+  ///   public Address Address { get; set; }
+  /// }
+  /// 
+  /// public class Address : Structure
+  /// {
+  ///   [Field]
+  ///   public City City { get; set; }
+  ///   
+  ///   [Field]
+  ///   public string Street { get; set; }
+  /// 
+  ///   [Field]
+  ///   public string Building { get; set; }
+  /// }
+  /// </code>
+  /// </example>
   [SystemType]
   public abstract class Structure : Persistent,
     IEquatable<Structure>,

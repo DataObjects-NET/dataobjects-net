@@ -27,7 +27,7 @@ namespace Xtensive.Storage
   /// </summary>
   /// <remarks>
   /// <para>
-  /// <see cref="Entity"/> encapsulates infrastructure to store transactional persistent data.
+  /// <see cref="Entity"/> class encapsulates infrastructure to store persistent transactional data.
   /// It has <see cref="Key"/> property that uniquly identifies the instace within its <see cref="Session"/>.
   /// </para>
   /// <para>All entities in a model should be inherited from this classs.
@@ -38,7 +38,7 @@ namespace Xtensive.Storage
   /// [HierarchyRoot]
   /// public class Customer : Entity
   /// {
-  ///   [Field, KeyField]
+  ///   [Field, Key]
   ///   public int Id { get; set; }
   ///   
   ///   [Field]
@@ -46,6 +46,8 @@ namespace Xtensive.Storage
   /// }
   /// </code>
   /// </example>
+  /// <seealso cref="Structure">Structure class</seealso>
+  /// <seealso cref="EntitySet{TItem}">EntitySet class</seealso>
   [SystemType]
   public abstract class Entity : Persistent,
     IEntity, ISerializable, IDeserializationCallback

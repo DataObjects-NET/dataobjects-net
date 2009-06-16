@@ -13,7 +13,6 @@ using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
@@ -21,6 +20,45 @@ using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage
 {
+  /// <summary>
+  /// Non-ordered persistent entity-bound set (with no duplicate items).
+  /// </summary>
+  /// <typeparam name="TItem">The type of the entities in this set.</typeparam>
+  /// <remarks>
+  /// <para>
+  /// Use <see cref="EntitySet{TItem}"/> when you need to declare persistent property of entity set type.
+  /// </para>
+  /// <para>
+  /// EntitySets can be used as a <see cref="FieldAttribute.PairTo">paired property</see> with reference 
+  /// (One-To-Many) or EntitySet (Many-To-Many) properties. In such case DataObjects.Net automatically
+  /// modifies collection or it's paired property. If paired propery is not specified, auxiliary table
+  /// will be automatically created in database.
+  /// </para>
+  /// <para>EntitySet class implements <see cref="IQueryable{T}"/> interface and fully supported by 
+  /// DataObjects.Net LINQ transalator.</para>
+  /// </remarks>
+  /// <example>In following example User entity has three EntitySet properties with different association kinds.
+  /// <code>
+  /// public class User : Entity
+  /// {
+  ///   ...
+  ///   
+  ///   // persistent collection with auxiliary table
+  ///   [Field]
+  ///   public EntitySet&lt;Photo&gt; Photos { get; private set; }
+  ///   
+  ///   // One-to-many association
+  ///   [Field(PairTo = "Author")]
+  ///   public EntitySet&lt;BlogItem&gt; BlogItems { get; private set; }
+  ///   
+  ///   // Many-to-many association
+  ///   [Field(PairTo = "Friends")]
+  ///   public EntitySet&lt;User&gt; Friends { get; private set; }
+  /// }
+  /// </code>
+  /// </example>
+  /// <seealso cref="Entity">Entity class</seealso>
+  /// <seealso cref="FieldAttribute.PairTo">Using EntitySets with paired associations</seealso>
   public class EntitySet<TItem> : EntitySetBase,
     ICollection<TItem>, IOrderedQueryable<TItem>
     where TItem : Entity

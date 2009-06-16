@@ -9,9 +9,19 @@ using System;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Defines mapping name for persistent type
+  /// Defines <see cref="MappingAttribute.MappingName">mapping name</see> for persistent type 
   /// (i.e. name of the table this class is mapped to).
   /// </summary>
+  /// <example>In following example order's data will be stored in "MyOrderTable" table.
+  /// <code>
+  /// [Entity(MappingName = "OrdersTable")]
+  /// public class Order : Document
+  /// {
+  ///   ...
+  /// }
+  /// </code>
+  /// </example>
+  /// <seealso cref="MappingAttribute.MappingName">MappingName property</seealso>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   public class EntityAttribute : MappingAttribute

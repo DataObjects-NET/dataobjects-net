@@ -24,7 +24,7 @@ namespace Xtensive.Storage
     private Session session;
 
     /// <summary>
-    /// Gets <see cref="Session"/> to which current instance is bound.
+    /// Gets <see cref="Session"/> which current instance is bound to.
     /// </summary>
     [Infrastructure]
     public Session Session {

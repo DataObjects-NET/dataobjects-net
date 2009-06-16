@@ -215,7 +215,7 @@ namespace Xtensive.Storage.Tests.Model
         using (var t = Transaction.Open()) {
           c = new C();
           a = new A();
-          t.Complete();        
+          t.Complete();
         }
 
         using (Transaction.Open()) {

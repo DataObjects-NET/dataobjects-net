@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.ReferentialIntegrity
 {
