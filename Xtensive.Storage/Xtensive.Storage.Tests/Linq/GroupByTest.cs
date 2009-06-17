@@ -20,6 +20,29 @@ namespace Xtensive.Storage.Tests.Linq
   public class GroupByTest : NorthwindDOModelTest
   {
     [Test]
+    public void AggregateAfterGroupingTest()
+    {
+      var query = Query<Product>.All
+        .GroupBy(p => p.Category)
+        .Select(g => g.Where(p2 => p2.UnitPrice==g.Count()));
+
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public void AggregateAfterGroupingAnonymousTest()
+    {
+      var query = Query<Product>.All
+        .GroupBy(p => p.Category)
+        .Select(g => new {
+        CheapestProducts =
+          g.Where(p2 => p2.UnitPrice==g.Count())
+      });
+
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
     public void SimpleTest()
     {
       var result = Query<Product>.All.GroupBy(p => p.UnitPrice);
