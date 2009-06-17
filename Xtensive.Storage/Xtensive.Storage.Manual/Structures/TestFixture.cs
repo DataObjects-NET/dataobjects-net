@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Manual.Structures
   [HierarchyRoot]
   public class Range : Entity
   {
-    [Field, Key]
+    [Key, Field]
     public int Id { get; private set; }
 
     [Field]
