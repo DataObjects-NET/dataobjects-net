@@ -224,7 +224,7 @@ namespace Xtensive.Indexing
     {
       foreach (TValue lValue in left) {
         TKey key = keyExtractor(lValue);
-        foreach (TRightValue rValue in right.GetItems(new Range<Entire<TKey>>(new Entire<TKey>(key), new Entire<TKey>(key))))
+        foreach (TRightValue rValue in right.GetItems(new Range<Entire<TKey>>(new Entire<TKey>(key, Direction.Negative), new Entire<TKey>(key, Direction.Positive))))
           yield return new Pair<TValue, TRightValue>(lValue, rValue);
       }
     }
@@ -237,7 +237,7 @@ namespace Xtensive.Indexing
       foreach (TValue lValue in left) {
         TKey key = keyExtractor(lValue);
         bool match = false;
-        foreach (TRightValue rValue in right.GetItems(new Range<Entire<TKey>>(new Entire<TKey>(key), new Entire<TKey>(key)))) {
+        foreach (TRightValue rValue in right.GetItems(new Range<Entire<TKey>>(new Entire<TKey>(key, Direction.Negative), new Entire<TKey>(key, Direction.Positive)))) {
           yield return new Pair<TValue, TRightValue>(lValue, rValue);
           match = true;
         }

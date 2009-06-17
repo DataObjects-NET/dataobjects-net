@@ -55,11 +55,12 @@ namespace Xtensive.Storage.Tests.Rse
     [Test]
     public void RemovingOfSortProviderTest()
     {
-      var indexProvider = IndexProvider.Get(Domain.Model.Types[typeof (Order)].Indexes.PrimaryIndex);
+      var primaryIndex = Domain.Model.Types[typeof (Order)].Indexes.PrimaryIndex;
+      var indexProvider = IndexProvider.Get(primaryIndex);
       var originalOrder = new DirectionCollection<int> {{10, Direction.Negative}};
       var result = indexProvider.Result
         .OrderBy(new DirectionCollection<int>() {{2, Direction.Positive}})
-        .Filter(t => t.GetValueOrDefault<DateTime?>(6)!=null)
+        .Filter(t => t.GetValueOrDefault<DateTime?>(GetColumnIndex(primaryIndex, "OrderDate"))!=null)
         .OrderBy(originalOrder)
         .Select(0, 2, 10);
       using (EnumerationScope.Open()) {
@@ -79,10 +80,11 @@ namespace Xtensive.Storage.Tests.Rse
     [Test]
     public void RemovingOfSortWhenOrderBreakerIsPresentTest()
     {
-      var indexProvider = IndexProvider.Get(Domain.Model.Types[typeof (Order)].Indexes.PrimaryIndex);
+      var primaryIndex = Domain.Model.Types[typeof (Order)].Indexes.PrimaryIndex;
+      var indexProvider = IndexProvider.Get(primaryIndex);
       var result = indexProvider.Result
         .OrderBy(new DirectionCollection<int>() {{2, Direction.Positive}})
-        .Filter(t => t.GetValueOrDefault<DateTime?>(6)!=null)
+        .Filter(t => t.GetValueOrDefault<DateTime?>(GetColumnIndex(primaryIndex, "OrderDate"))!=null)
         .OrderBy(new DirectionCollection<int>{{10, Direction.Negative}})
         .Distinct()
         .Select(0, 2, 10);
@@ -100,10 +102,11 @@ namespace Xtensive.Storage.Tests.Rse
     [Test]
     public void OrderColumnsRemoverIsPresentTest()
     {
-      var indexProvider = IndexProvider.Get(Domain.Model.Types[typeof (Order)].Indexes.PrimaryIndex);
+      var primaryIndex = Domain.Model.Types[typeof (Order)].Indexes.PrimaryIndex;
+      var indexProvider = IndexProvider.Get(primaryIndex);
       var result = indexProvider.Result
         .OrderBy(new DirectionCollection<int>() {{2, Direction.Positive}})
-        .Filter(t => t.GetValueOrDefault<DateTime?>(6)!=null)
+        .Filter(t => t.GetValueOrDefault<DateTime?>(GetColumnIndex(primaryIndex, "OrderDate"))!=null)
         .OrderBy(new DirectionCollection<int>{{10, Direction.Negative}})
         .Aggregate(new[] {2, 3})
         .Select(1);
@@ -116,6 +119,13 @@ namespace Xtensive.Storage.Tests.Rse
           .Source;
         Assert.AreEqual(typeof (IndexProvider), selectAfterIndex.Source.GetType());
       }
+    }
+
+    private static int GetColumnIndex(IndexInfo primaryIndex, string fieldName)
+    {
+      return primaryIndex.Columns
+        .Where(c => c.Field.Name == fieldName)
+        .Select(c => primaryIndex.Columns.IndexOf(c)).First();
     }
   }
 }
