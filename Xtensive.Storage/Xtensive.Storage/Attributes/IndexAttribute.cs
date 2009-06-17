@@ -11,6 +11,9 @@ namespace Xtensive.Storage
   /// <summary>
   /// Defines secondary index.
   /// </summary>
+  /// <example>
+  ///   <code lang="cs" source="..\..\Xtensive.Storage.Manual\IndexAttributeSample.cs" region="Sample" />
+  /// </example>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true, Inherited = false)]
   public sealed class IndexAttribute : MappingAttribute
@@ -49,7 +52,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is unique.
+    /// Gets or sets a value indicating whether the index is unique.
     /// </summary>
     public bool IsUnique
     {
