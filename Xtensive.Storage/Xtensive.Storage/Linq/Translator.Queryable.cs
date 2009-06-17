@@ -296,25 +296,26 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitFirstSingle(Expression source, LambdaExpression predicate, MethodInfo method, bool isRoot)
     {
-      if (!isRoot)
-        throw new NotImplementedException();
-      var projection = predicate!=null
+      var projection = predicate != null
         ? VisitWhere(source, predicate)
         : VisitSequence(source);
       RecordSet recordSet = null;
       switch (method.Name) {
-      case Core.Reflection.WellKnown.Queryable.First:
-      case Core.Reflection.WellKnown.Queryable.FirstOrDefault:
-        recordSet = projection.ItemProjector.DataSource.Take(1);
-        break;
-      case Core.Reflection.WellKnown.Queryable.Single:
-      case Core.Reflection.WellKnown.Queryable.SingleOrDefault:
-        recordSet = projection.ItemProjector.DataSource.Take(2);
-        break;
+        case Core.Reflection.WellKnown.Queryable.First:
+        case Core.Reflection.WellKnown.Queryable.FirstOrDefault:
+          recordSet = projection.ItemProjector.DataSource.Take(1);
+          break;
+        case Core.Reflection.WellKnown.Queryable.Single:
+        case Core.Reflection.WellKnown.Queryable.SingleOrDefault:
+          recordSet = projection.ItemProjector.DataSource.Take(2);
+          break;
       }
-      var resultType = (ResultType) Enum.Parse(typeof (ResultType), method.Name);
-      var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, recordSet, context);
-      return new ProjectionExpression(method.ReturnType, itemProjector, projection.TupleParameterBindings, resultType);
+      var resultType = (ResultType)Enum.Parse(typeof(ResultType), method.Name);
+      if (isRoot) {
+        var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, recordSet, context);
+        return new ProjectionExpression(method.ReturnType, itemProjector, projection.TupleParameterBindings, resultType);
+      }
+      throw new NotImplementedException();
     }
 
     private ProjectionExpression VisitTake(Expression source, Expression take)
