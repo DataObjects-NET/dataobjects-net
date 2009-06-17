@@ -5,7 +5,6 @@
 // Created:    2007.07.04
 
 using System;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
@@ -23,7 +22,7 @@ namespace Xtensive.Storage
     internal bool? lazyLoad;
     internal int? scale;
     internal int? precision;
-    internal ReferentialAction? referentialAction;
+    internal OnRemoveAction? onTargetRemove;
 
     /// <summary>
     /// Gets or sets the length of the field.
@@ -104,11 +103,11 @@ namespace Xtensive.Storage
     /// <remarks>
     /// This property can be specified for <see cref="Entity"/> and <see cref="EntitySet{TItem}"/>.
     /// </remarks>
-    /// <seealso cref="ReferentialAction">Referential actions</seealso>
-    public ReferentialAction OnRemove
+    /// <seealso cref="OnRemoveAction">Referential actions</seealso>
+    public OnRemoveAction OnRemove
     {
-      get { return referentialAction.HasValue ? referentialAction.Value : ReferentialAction.Default; }
-      set { referentialAction = value; }
+      get { return onTargetRemove.HasValue ? onTargetRemove.Value : OnRemoveAction.Default; }
+      set { onTargetRemove = value; }
     }
 
     /// <summary>

@@ -7,7 +7,6 @@
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0017_Model;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0017_Model
 {
@@ -30,10 +29,10 @@ namespace Xtensive.Storage.Tests.Issues.Issue0017_Model
     [Field, Key]
     public long ID { get; private set; }
 
-    [Field(OnRemove = ReferentialAction.Cascade)]
+    [Field(OnRemove = OnRemoveAction.Cascade)]
     public Master Master1 { get; set; }
 
-    [Field(OnRemove = ReferentialAction.Cascade)]
+    [Field(OnRemove = OnRemoveAction.Cascade)]
     public Master Master2 { get; set; }
   }
 }

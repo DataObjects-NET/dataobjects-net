@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Building.Definitions
   {
     private readonly PropertyInfo underlyingProperty;
     private FieldAttributes attributes;
-    private ReferentialAction onRemove = ReferentialAction.Default;
+    private OnRemoveAction onRemove = OnRemoveAction.Default;
     private string pairTo;
     private int? length;
     private int? scale;
@@ -192,7 +192,7 @@ namespace Xtensive.Storage.Building.Definitions
     /// Gets or sets the referential action that will be executed on referenced Entity removal.
     /// </summary>
     /// <exception cref="InvalidOperationException">Field is not reference to entity.</exception>
-    public ReferentialAction OnRemove
+    public OnRemoveAction OnRemove
     {
       get { return onRemove; }
       set

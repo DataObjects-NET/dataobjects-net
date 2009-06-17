@@ -34,12 +34,12 @@ namespace Xtensive.Storage.ReferentialIntegrity
     private void ClearReferencesTo(RemovalContext context, Entity referencedObject)
     {
       context.RemovalQueue.Add(referencedObject.State);
-      ApplyAction(context, referencedObject, ReferentialAction.Restrict);
-      ApplyAction(context, referencedObject, ReferentialAction.Clear);
-      ApplyAction(context, referencedObject, ReferentialAction.Cascade);
+      ApplyAction(context, referencedObject, OnRemoveAction.Deny);
+      ApplyAction(context, referencedObject, OnRemoveAction.Clear);
+      ApplyAction(context, referencedObject, OnRemoveAction.Cascade);
     }
 
-    public void ApplyAction(RemovalContext context, Entity referencedObject, ReferentialAction action)
+    public void ApplyAction(RemovalContext context, Entity referencedObject, OnRemoveAction action)
     {
       List<AssociationInfo> associations = referencedObject.Type.GetAssociations().Where(a => a.OnRemove==action).ToList();
       if (associations.Count==0)
@@ -51,14 +51,14 @@ namespace Xtensive.Storage.ReferentialIntegrity
           processor.Process(context, association, referencingObject, referencedObject);
     }
 
-    public ActionProcessor GetProcessor(ReferentialAction action)
+    public ActionProcessor GetProcessor(OnRemoveAction action)
     {
       switch (action) {
-        case ReferentialAction.Clear:
+        case OnRemoveAction.Clear:
           return clearProcessor;
-        case ReferentialAction.Default:
+        case OnRemoveAction.Default:
           return restrictProcessor;
-        case ReferentialAction.Cascade:
+        case OnRemoveAction.Cascade:
           return cascadeProcessor;
         default:
           throw new ArgumentOutOfRangeException("action");

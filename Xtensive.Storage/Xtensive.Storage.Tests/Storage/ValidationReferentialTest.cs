@@ -8,7 +8,6 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Storage.ValidationReferentialTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.ValidationReferentialTestModel
@@ -19,7 +18,7 @@ namespace Xtensive.Storage.Tests.Storage.ValidationReferentialTestModel
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field(OnRemove = ReferentialAction.Clear)]
+    [Field(OnRemove = OnRemoveAction.Clear)]
     public EntitySet<Contact> Contacts { get; private set; }
 
   }
@@ -30,7 +29,7 @@ namespace Xtensive.Storage.Tests.Storage.ValidationReferentialTestModel
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field(PairTo = "Contacts", OnRemove = ReferentialAction.Cascade)]
+    [Field(PairTo = "Contacts", OnRemove = OnRemoveAction.Cascade)]
     [NotNullConstraint]
     public Company Company { get; set; }
   }

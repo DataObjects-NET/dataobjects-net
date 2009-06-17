@@ -138,9 +138,9 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets the <see cref="ReferentialAction"/> that will be applied on <see cref="ReferencedType"/> object removal.
+    /// Gets the <see cref="OnRemoveAction"/> that will be applied on <see cref="ReferencedType"/> object removal.
     /// </summary>
-    public ReferentialAction OnRemove { get; private set; }
+    public OnRemoveAction OnRemove { get; private set; }
 
     /// <summary>
     /// Gets the foreign key extraction transform.
@@ -196,8 +196,8 @@ namespace Xtensive.Storage.Model
     /// <param name="referencingField">The referencing field.</param>
     /// <param name="referencedType">The referenced type.</param>
     /// <param name="multiplicity">The association multiplicity.</param>
-    /// <param name="onRemove">The <see cref="ReferentialAction"/> that will be applied on <see cref="ReferencedType"/> object removal.</param>
-    public AssociationInfo(FieldInfo referencingField, TypeInfo referencedType, Multiplicity multiplicity, ReferentialAction onRemove)
+    /// <param name="onRemove">The <see cref="OnRemoveAction"/> that will be applied on <see cref="ReferencedType"/> object removal.</param>
+    public AssociationInfo(FieldInfo referencingField, TypeInfo referencedType, Multiplicity multiplicity, OnRemoveAction onRemove)
     {
       ReferencingField = referencingField;
       ReferencedType = referencedType;

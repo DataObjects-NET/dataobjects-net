@@ -9,7 +9,6 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.ReferentialIntegrityModel;
 
 namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
@@ -23,10 +22,10 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 
   public class A : Root
   {
-    [Field(OnRemove = ReferentialAction.Clear)]
+    [Field(OnRemove = OnRemoveAction.Clear)]
     public B B { get; set; }
 
-    [Field(OnRemove = ReferentialAction.Restrict)]
+    [Field(OnRemove = OnRemoveAction.Deny)]
     public C C { get; set; }
 
     [Field]
@@ -35,25 +34,25 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 
   public class B : Root
   {
-    [Field(OnRemove = ReferentialAction.Cascade, PairTo = "B")]
+    [Field(OnRemove = OnRemoveAction.Cascade, PairTo = "B")]
     public A A { get; set; }
   }
 
   public class C : Root
   {
-    [Field(OnRemove = ReferentialAction.Cascade, PairTo = "C")]
+    [Field(OnRemove = OnRemoveAction.Cascade, PairTo = "C")]
     public A A { get; set; }
   }
 
   public class Master : Root
   {
-    [Field(OnRemove = ReferentialAction.Clear)]
+    [Field(OnRemove = OnRemoveAction.Clear)]
     public EntitySet<Slave> OneToMany { get; private set; }
 
-    [Field(OnRemove = ReferentialAction.Clear)]
+    [Field(OnRemove = OnRemoveAction.Clear)]
     public EntitySet<Slave> ZeroToMany { get; private set; }
 
-    [Field(OnRemove = ReferentialAction.Clear)]
+    [Field(OnRemove = OnRemoveAction.Clear)]
     public EntitySet<Slave> ManyToMany { get; private set; }
   }
 

@@ -7,13 +7,12 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
   /// <summary>
   /// Thrown on attempt to remove an object having
-  /// reference with <see cref="ReferentialAction.Restrict"/>
+  /// reference with <see cref="OnRemoveAction.Deny"/>
   /// option pointing to it.
   /// </summary>
   [Serializable]

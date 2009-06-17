@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessOnDelete(FieldDef fieldDef, FieldAttribute attribute)
     {
-      if (attribute.referentialAction==null)
+      if (attribute.onTargetRemove==null)
         return;
 
       if (!(fieldDef.IsEntity || fieldDef.IsEntitySet))

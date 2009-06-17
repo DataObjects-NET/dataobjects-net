@@ -17,6 +17,7 @@ using Xtensive.Storage.Providers;
 using DomainIndexInfo=Xtensive.Storage.Model.IndexInfo;
 using DomainTypeInfo = Xtensive.Storage.Model.TypeInfo;
 using AssociationInfo = Xtensive.Storage.Model.AssociationInfo;
+using ColumnInfo=Xtensive.Storage.Indexing.Model.ColumnInfo;
 using GeneratorInfo = Xtensive.Storage.Model.GeneratorInfo;
 using DomainModel = Xtensive.Storage.Model.DomainModel;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
@@ -26,9 +27,9 @@ using HierarchyInfo = Xtensive.Storage.Model.HierarchyInfo;
 using KeyInfo = Xtensive.Storage.Model.KeyInfo;
 using InheritanceSchema = Xtensive.Storage.Model.InheritanceSchema;
 using Node = Xtensive.Storage.Model.Node;
-using DomainReferentialAction = Xtensive.Storage.Model.ReferentialAction;
 using IndexInfo=Xtensive.Storage.Indexing.Model.IndexInfo;
 using ReferentialAction=Xtensive.Storage.Indexing.Model.ReferentialAction;
+using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -316,21 +317,21 @@ namespace Xtensive.Storage.Upgrade
     }
 
     /// <summary>
-    /// Converts the <see cref="Xtensive.Storage.Model.ReferentialAction"/> to 
+    /// Converts the <see cref="OnRemoveAction"/> to 
     /// <see cref="Xtensive.Storage.Indexing.Model.ReferentialAction"/>.
     /// </summary>
     /// <param name="toConvert">The action to convert.</param>
     /// <returns>Converted action.</returns>
-    protected static ReferentialAction ConvertReferentialAction(DomainReferentialAction toConvert)
+    protected static ReferentialAction ConvertReferentialAction(OnRemoveAction toConvert)
     {
       switch (toConvert) {
-      case DomainReferentialAction.Restrict:
+      case OnRemoveAction.Deny:
         return ReferentialAction.Restrict;
-      case DomainReferentialAction.NoAction:
+      case OnRemoveAction.None:
         return ReferentialAction.None;
-      case DomainReferentialAction.Cascade:
+      case OnRemoveAction.Cascade:
         return ReferentialAction.Cascade;
-      case DomainReferentialAction.Clear:
+      case OnRemoveAction.Clear:
         return ReferentialAction.Clear;
       default:
         return ReferentialAction.Default;
