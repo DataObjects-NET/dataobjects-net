@@ -382,7 +382,7 @@ namespace Xtensive.Sql.Common.PgSql.v8_0
 
     #region MaxTextLength property
 
-    private int mMaxTextLength = Int32.MaxValue >> 1 - 1000;
+    private int mMaxTextLength = (int.MaxValue >> 1) - 1000;
 
     protected virtual int MaxTextLength
     {
