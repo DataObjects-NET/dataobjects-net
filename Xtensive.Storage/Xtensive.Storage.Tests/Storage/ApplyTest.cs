@@ -8,10 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core.Parameters;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -59,7 +56,7 @@ namespace Xtensive.Storage.Tests.Storage
             .Filter(t => t.GetValue(orderCustomerIndex)==parameter.Value.GetValue(customerIdIndex))
             .Alias("XYZ");
           var result = customerPrimary
-            .Apply(parameter, subquery, JoinType.Inner)
+            .Apply(parameter, subquery, false, JoinType.Inner)
             .Count();
           Assert.AreEqual(total, result);
         }
@@ -80,7 +77,7 @@ namespace Xtensive.Storage.Tests.Storage
             .Filter(t => t.GetValue(orderCustomerIndex) == parameter.Value.GetValue(customerIdIndex))
             .Alias("XYZ");
           var result = customerPrimary
-            .Apply(parameter, subquery, JoinType.LeftOuter)
+            .Apply(parameter, subquery, false, JoinType.LeftOuter)
             .Count();
           Assert.AreEqual(total, result);
         }
@@ -102,7 +99,7 @@ namespace Xtensive.Storage.Tests.Storage
             .Filter(t => t.GetValue(orderCustomerIndex)==parameter.Value.GetValue(customerIdIndex))
             .Existence("LALALA");
           var result = customerPrimary
-            .Apply(parameter, subquery, JoinType.Inner)
+            .Apply(parameter, subquery, true, JoinType.Inner)
             .Count(t => (bool) t.GetValue(t.Count-1));
           Assert.AreEqual(total, result);
         }

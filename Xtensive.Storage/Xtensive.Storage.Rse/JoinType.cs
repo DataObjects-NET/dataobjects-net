@@ -11,7 +11,6 @@ namespace Xtensive.Storage.Rse
   /// </summary>
   public enum JoinType
   {
-    // TODO: remove or make Default = Inner; Probably we should add Cross join type
     /// <summary>
     /// Default join operation type.
     /// </summary>

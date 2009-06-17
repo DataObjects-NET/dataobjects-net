@@ -257,16 +257,16 @@ namespace Xtensive.Storage.Rse
       return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider).Result;
     }
 
-    public static RecordSet Apply(this RecordSet recordSet, ApplyParameter applyParameter, RecordSet right,
-      JoinType applyType)
+    public static RecordSet Apply(this RecordSet recordSet, ApplyParameter applyParameter, RecordSet right, bool applySingleRow, JoinType applyType)
     {
-      return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider, applyType).Result;
+      return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider, applySingleRow, applyType).Result;
     }
 
     public static RecordSet Existence(this RecordSet recordSet, string existenceColumnName)
     {
       return new ExistenceProvider(recordSet.Provider, existenceColumnName).Result;
     }
+
     public static RecordSet Intersect(this RecordSet left, RecordSet right)
     {
       return new IntersectProvider(left.Provider, right.Provider).Result;

@@ -31,16 +31,10 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public JoinType ApplyType { get; private set; }
 
     /// <summary>
-    /// Gets a value indicating whether the right source of 
-    /// this provider is <see cref="ExistenceProvider"/>.
+    /// Gets or sets a value indicating whether applying of single row expected.
     /// </summary>
-    public bool IsApplyExistence { get; private set; }
-
-    /// <summary>
-    /// Gets a value indicating whether the right source of this provider 
-    /// is <see cref="AggregateProvider"/> having the single aggregate column.
-    /// </summary>
-    public bool IsApplyAggregate { get; private set; }
+    /// <value><see langword="true" /> if applying of single row expected; otherwise, <see langword="false" />.</value>
+    public bool ApplySingleRow { get; private set;}
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
@@ -68,7 +62,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
         var leftHeaderLength = Left.Header.Length;
         result = new DirectionCollection<int>(
           result.Union(Right.ExpectedOrder.Select(p =>
-            new KeyValuePair<int, Direction>(p.Key + leftHeaderLength, p.Value))));
+                                                  new KeyValuePair<int, Direction>(p.Key + leftHeaderLength, p.Value))));
       }
       return result;
     }
@@ -80,26 +74,18 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right)
-      : this(applyParameter, left, right, JoinType.Inner)
+      : this(applyParameter, left, right, false, JoinType.Inner)
     {
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right,
-      JoinType applyType)
+    public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right, bool applySingleRow, JoinType applyType)
       : base(ProviderType.Apply, left, right)
     {
-      IsApplyExistence = right is ExistenceProvider;
-      if(IsApplyExistence)
-        IsApplyAggregate = false;
-      else {
-        var rightAsAggregate = right as AggregateProvider;
-        IsApplyAggregate = rightAsAggregate!=null && rightAsAggregate.AggregateColumns.Length==1
-          && rightAsAggregate.GroupColumnIndexes.Length==0;
-      }
       ApplyParameter = applyParameter;
+      ApplySingleRow = applySingleRow;
       ApplyType = applyType;
     }
   }

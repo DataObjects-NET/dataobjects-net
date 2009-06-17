@@ -659,8 +659,11 @@ namespace Xtensive.Storage.Linq
         }
         var outerProjection = context.Bindings[outerParameter];
         var applyParameter = context.GetApplyParameter(outerProjection);
-        var recordSet = outerProjection.ItemProjector.DataSource
-          .Apply(applyParameter, innerProjection.ItemProjector.DataSource.Alias(context.GetNextAlias()), isOuter ? JoinType.LeftOuter : JoinType.Inner);
+        var recordSet = outerProjection.ItemProjector.DataSource.Apply(
+            applyParameter, 
+            innerProjection.ItemProjector.DataSource.Alias(context.GetNextAlias()), 
+            false, 
+            isOuter ? JoinType.LeftOuter : JoinType.Inner);
 
         if (resultSelector==null) {
           var innerParameter = Expression.Parameter(SequenceHelper.GetElementType(collectionSelector.Body.Type), "inner");
@@ -795,7 +798,7 @@ namespace Xtensive.Storage.Linq
 
       var applyParameter = context.GetApplyParameter(oldResult);
       int columnIndex = oldResult.ItemProjector.DataSource.Header.Length;
-      var newRecordSet = oldResult.ItemProjector.DataSource.Apply(applyParameter, subquery);
+      var newRecordSet = oldResult.ItemProjector.DataSource.Apply(applyParameter, subquery, true, JoinType.Inner);
       ItemProjectorExpression newItemProjector = oldResult.ItemProjector.Remap(newRecordSet, 0);
       var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
       context.Bindings.ReplaceBound(lambdaParameter, newResult);

@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
     {
       CompilableProvider left;
       CompilableProvider right;
-      var isSelfConvertibleApply = provider.IsApplyExistence || provider.IsApplyAggregate;
+      var isSelfConvertibleApply = provider.ApplySingleRow;
       State.SelfConvertibleApplyProviders.Add(provider.ApplyParameter, isSelfConvertibleApply);
       VisitBinaryProvider(provider, out left, out right);
       State.SelfConvertibleApplyProviders.Remove(provider.ApplyParameter);
@@ -321,7 +321,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       if(State.Predicates.ContainsKey(provider.ApplyParameter))
         State.Predicates.Remove(provider.ApplyParameter);
       if(left != provider.Left || right != provider.Right)
-        return new ApplyProvider(provider.ApplyParameter, left, right, provider.ApplyType);
+        return new ApplyProvider(provider.ApplyParameter, left, right, provider.ApplySingleRow, provider.ApplyType);
       return provider;
     }
 

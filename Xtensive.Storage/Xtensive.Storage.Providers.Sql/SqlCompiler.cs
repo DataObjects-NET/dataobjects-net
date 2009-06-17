@@ -424,8 +424,21 @@ namespace Xtensive.Storage.Providers.Sql
       if (left.Origin.Header.Length > 0)
         select.Columns.AddRange(leftQuery.Columns.Cast<SqlColumn>());
 
-      if (!TranslateSubquery(provider.Right, select, rightQuery))
+      if (!provider.ApplySingleRow)
         return null;
+
+      if (provider.Right.Type == ProviderType.Existence)
+        select.Columns.Add(rightQuery.Columns[0]);
+      else {
+        for (int i = 0; i < rightQuery.Columns.Count; i++) {
+          var subquery = (SqlSelect)rightQuery.Clone();
+          var columnRef = (SqlColumnRef) subquery.Columns[i];
+          var column = columnRef.SqlColumn;
+          subquery.Columns.Clear();
+          subquery.Columns.Add(column);
+          select.Columns.Add(subquery, provider.Right.Header.Columns[i].Name);
+        }
+      }
 
       return new SqlProvider(provider, select, Handlers, left, right);
     }
