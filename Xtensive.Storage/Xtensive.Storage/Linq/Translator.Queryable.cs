@@ -829,7 +829,6 @@ namespace Xtensive.Storage.Linq
 
       if (visitedExpression.IsEntitySetExpression()) {
         var entitySetExpression = (EntitySetExpression) visitedExpression;
-        // var parameter = entitySetExpression.OuterParameter ?? state.Parameters[0];
         var entitySetQuery = QueryHelper.CreateEntitySetQuery((Expression)entitySetExpression.Owner, entitySetExpression.Field);
         return (ProjectionExpression) Visit(entitySetQuery);
       }
