@@ -166,9 +166,24 @@ namespace Xtensive.Storage.Providers.Sql
       if (source==null)
         return null;
 
-      var queryRef = SqlFactory.QueryRef(source.Request.SelectStatement);
-      var query = SqlFactory.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      var containsCalculatedColumns = source.Request.SelectStatement.Columns.Any(c =>
+       {
+         if (c is SqlUserColumn)
+           return true;
+         var cRef = c as SqlColumnRef;
+         if (!ReferenceEquals(null, cRef))
+           return cRef.SqlColumn is SqlUserColumn;
+         return false;
+       });
+
+      SqlSelect query;
+      if (containsCalculatedColumns) {
+        var queryRef = SqlFactory.QueryRef(source.Request.SelectStatement);
+        query = SqlFactory.Select(queryRef);
+        query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      }
+      else
+        query = (SqlSelect) source.Request.SelectStatement.Clone();
 
       HashSet<SqlFetchParameterBinding> bindings;
       var predicate = TranslateExpression(provider.Predicate, out bindings, query);
