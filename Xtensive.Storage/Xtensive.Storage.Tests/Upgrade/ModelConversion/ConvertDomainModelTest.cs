@@ -12,6 +12,7 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model;
 using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
@@ -69,16 +70,25 @@ namespace Xtensive.Storage.Tests.Upgrade
     [Test]
     public virtual void IncludedColumnsTest()
     {
-      Assert.AreEqual(2,
-        Schema.Tables["A"].SecondaryIndexes[0].IncludedColumns.Count);
+      if (Domain.StorageProviderInfo.SupportsIncludedColumns)
+        Assert.AreEqual(2,
+          Schema.Tables["A"].SecondaryIndexes[0].IncludedColumns.Count);
+      else
+        Assert.AreEqual(0,
+          Schema.Tables["A"].SecondaryIndexes[0].IncludedColumns.Count);
     }
 
     [Test]
     public void ForeignKeyTest()
     {
-      Assert.AreEqual(1, Schema.Tables["B"].ForeignKeys.Count);
-      Assert.AreEqual(Schema.Tables["A"].PrimaryIndex,
-        Schema.Tables["B"].ForeignKeys[0].PrimaryKey);
+      var isConcreteTable = Domain.Model.Types["B"].Hierarchy.Schema==InheritanceSchema.ConcreteTable;
+      if (!isConcreteTable) {
+        Assert.AreEqual(1, Schema.Tables["B"].ForeignKeys.Count);
+        Assert.AreEqual(Schema.Tables["A"].PrimaryIndex,
+          Schema.Tables["B"].ForeignKeys[0].PrimaryKey);
+      }
+      else
+        Assert.AreEqual(0, Schema.Tables["B"].ForeignKeys.Count);
     }
 
     [Test]
@@ -95,7 +105,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
 {
 
-  [HierarchyRoot]
+  [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
   [Index("Col1", "Col2", IsUnique = true, IncludedFields = new[] { "Col3" })]
   public class A : Entity
   {
@@ -112,7 +122,7 @@ namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
     public string Col3 { get; private set; }
   }
 
-  [HierarchyRoot]
+  [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
   [Index("ColA", MappingName = "A_IX")]
   public class B : Entity
   {
@@ -126,7 +136,7 @@ namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
     public A ColA { get; private set; }
   }
 
-  [HierarchyRoot]
+  [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
   public class C : Entity
   {
     [Field, Key]
@@ -136,7 +146,7 @@ namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
     public TimeSpan Col1 { get; private set; }
   }
 
-  [HierarchyRoot]
+  [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
   public class D : Entity
   {
     [Field, Key]
@@ -146,7 +156,7 @@ namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
     public EntitySet<E> ColE { get; private set; }
   }
 
-  [HierarchyRoot]
+  [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
   public class E : Entity
   {
     [Field, Key]

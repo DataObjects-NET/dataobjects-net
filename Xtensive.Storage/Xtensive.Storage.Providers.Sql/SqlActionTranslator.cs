@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Providers.Sql
   /// <summary>
   /// Translates upgrade <see cref="NodeAction"/>s to Sql.
   /// </summary>
-  public sealed class SqlActionTranslator
+  internal sealed class SqlActionTranslator
   {
     private const string SubqueryAliasName = "th";
     private const string TemporaryNameFormat = "Temp{0}";
@@ -42,6 +42,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private readonly ProviderInfo providerInfo;
     private readonly string typeIdColumnName;
+    private readonly List<string> enforceChangedColumns = new List<string>();
 
     private readonly ActionSequence actions;
     private readonly Schema schema;
@@ -664,10 +665,18 @@ namespace Xtensive.Storage.Providers.Sql
       RegisterCommand(addColumnWithNewType, UpgradeStage.Upgrade);
 
       // Copy values if possible to convert type
-      if (Upgrade.TypeConversionVerifier.CanConvert(sourceColumn.Type, newTypeInfo)) {
+      if (Upgrade.TypeConversionVerifier.CanConvert(sourceColumn.Type, newTypeInfo)
+        || enforceChangedColumns.Contains(sourceColumn.Path)) {
         var tableRef = SqlFactory.TableRef(column.Table);
         var copyValues = SqlFactory.Update(tableRef);
-        copyValues.Values[tableRef[originalName]] = SqlFactory.Cast(tableRef[tempName], type);
+        if (newTypeInfo.IsNullable)
+          copyValues.Values[tableRef[originalName]] = SqlFactory.Cast(tableRef[tempName], type);
+        else {
+          var getValue = SqlFactory.Case();
+          getValue.Add(SqlFactory.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
+          getValue.Add(SqlFactory.IsNotNull(tableRef[tempName]), SqlFactory.Cast(tableRef[tempName], type));
+          copyValues.Values[tableRef[originalName]] = getValue;
+        }
         RegisterCommand(copyValues, UpgradeStage.DataManipulate);
       }
 
@@ -702,7 +711,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private TableColumn CreateColumn(ColumnInfo columnInfo, Table table)
     {
-      var type = GetSqlType(columnInfo.Type);
+      var type = GetSqlType(columnInfo.OriginalType);
       var column = table.CreateColumn(columnInfo.Name, type);
       var isPrimaryKeyColumn = columnInfo.Parent.PrimaryIndex!=null
         && columnInfo.Parent.PrimaryIndex.KeyColumns
@@ -849,7 +858,7 @@ namespace Xtensive.Storage.Providers.Sql
         ? typeInfo.Type.GetGenericArguments()[0]
         : typeInfo.Type;
 
-      return valueTypeMapper.BuildSqlValueType(type, typeInfo.Length ?? 0);
+      return valueTypeMapper.BuildSqlValueType(type, typeInfo.Length);
     }
 
     private static SqlRefAction ConvertReferentialAction(ReferentialAction toConvert)
@@ -969,16 +978,18 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="actions">The actions to translate.</param>
     /// <param name="schema">The schema.</param>
-    /// <param name="driver">The driver.</param>
-    /// <param name="valueTypeMapper">The value type mapper.</param>
     /// <param name="sourceModel">The source model.</param>
     /// <param name="targetModel">The target model.</param>
     /// <param name="providerInfo">The provider info.</param>
+    /// <param name="driver">The driver.</param>
+    /// <param name="valueTypeMapper">The value type mapper.</param>
     /// <param name="typeIdColumnName">Name of the type id column.</param>
+    /// <param name="enforceChangedColumns">Columns thats types must be changed 
+    /// enforced (without type conversion verification).</param>
     public SqlActionTranslator(ActionSequence actions, Schema schema, 
       StorageInfo sourceModel, StorageInfo targetModel, 
       ProviderInfo providerInfo, SqlDriver driver, 
-      SqlValueTypeMapper valueTypeMapper, string typeIdColumnName)
+      SqlValueTypeMapper valueTypeMapper, string typeIdColumnName, List<string> enforceChangedColumns)
     {
       ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
       ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
@@ -995,6 +1006,7 @@ namespace Xtensive.Storage.Providers.Sql
       this.valueTypeMapper = valueTypeMapper;
       this.sourceModel = sourceModel;
       this.targetModel = targetModel;
+      this.enforceChangedColumns = enforceChangedColumns;
     }
   }
 }

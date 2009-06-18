@@ -13,6 +13,9 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   // Person renamed to BusinessContact
   // Fields LastName and FirstName moved from Employee to BusinessContact (old Person)
   // Field Order.ProcessingTime removed
+  // Field Order.OrderNumber renamed to Order.Number
+  // Type of field Order.Number chaged to int
+  // Type of field BusinessContact.PassportNumber (old Person.PassportNumber) chaged to int
 
   // Product.Name renamed to Product.Title
   // Category renamed to ProductGroup
@@ -42,6 +45,9 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   {
     [Field, Key]
     public int Id { get; private set; }
+
+    [Field]
+    public int PassportNumber { get; set; }
 
     [Field]
     public Address Address { get; set; }
@@ -109,6 +115,9 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
 
     [Field]
     public Address ShippingAddress { get; set; }
+
+    [Field]
+    public int Number { get; set; }
 
     /// <inheritdoc/>
     public override string ToString()

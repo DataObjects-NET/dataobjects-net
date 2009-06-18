@@ -195,7 +195,7 @@ namespace Xtensive.Storage.Tests.Upgrade
         using (var transaction = connection.BeginTransaction()) {
           var translator = new SqlActionTranslator(actions,
             schema, oldModel, newModel, CreateProviderInfo(),
-            connection.Driver, valueTypeMapper, "TypeId");
+            connection.Driver, valueTypeMapper, "TypeId", new List<string>());
           var delimiter = connection.Driver.Translator.BatchStatementDelimiter;
           var batch = new List<string>();
           batch.Add(string.Join(delimiter, translator.PreUpgradeCommands.ToArray()));

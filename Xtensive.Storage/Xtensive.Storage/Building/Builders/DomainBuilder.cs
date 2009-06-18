@@ -207,7 +207,7 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
         var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
         
-        // Target schema 
+        // Target schema
         var targetSchema = upgradeHandler.GetTargetSchema();
         domain.Schema = ((StorageInfo) targetSchema.Clone(null, StorageInfo.DefaultName));
         domain.Schema.Lock();
@@ -216,7 +216,7 @@ namespace Xtensive.Storage.Building.Builders
         if (Log.IsLogged(LogEventTypes.Info))
           targetSchema.Dump();
         
-        // Extracted schema 
+        // Extracted schema
         var extractedSchema = upgradeHandler.GetExtractedSchema();
         domain.ExtractedSchema = ((StorageInfo) extractedSchema.Clone(null, StorageInfo.DefaultName));
         domain.ExtractedSchema.Lock();
@@ -253,13 +253,14 @@ namespace Xtensive.Storage.Building.Builders
 
         switch (schemaUpgradeMode) {
         case SchemaUpgradeMode.ValidateExact:
-          if (result.Status!=SchemaComparisonStatus.Equal)
+          if (result.Status!=SchemaComparisonStatus.Equal || result.HasTypeChanges)
             throw new SchemaSynchronizationException(
               Strings.ExExtractedSchemaIsNotEqualToTheTargetSchema);
           break;
         case SchemaUpgradeMode.ValidateCompatible:
           if (result.Status!=SchemaComparisonStatus.Equal &&
-            result.Status!=SchemaComparisonStatus.TargetIsSubset)
+            result.Status!=SchemaComparisonStatus.TargetIsSubset &&
+            !result.HasTypeChanges)
             throw new SchemaSynchronizationException(
               Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema);
           break;
@@ -268,9 +269,9 @@ namespace Xtensive.Storage.Building.Builders
             upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;
         case SchemaUpgradeMode.PerformSafely:
-          if((result.Status != SchemaComparisonStatus.Equal 
-            && result.Status != SchemaComparisonStatus.TargetIsSuperset)
-            || !result.CanUpgradeTypesSafely)
+          if ((result.Status!=SchemaComparisonStatus.Equal 
+            && result.Status!=SchemaComparisonStatus.TargetIsSuperset)
+            || (result.HasTypeChanges && !result.CanUpgradeTypesSafely))
             throw new SchemaSynchronizationException(Strings.ExCannotUpgradeSchemaSafely);
           upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;

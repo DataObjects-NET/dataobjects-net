@@ -17,7 +17,6 @@ using Xtensive.Storage.Providers;
 using DomainIndexInfo=Xtensive.Storage.Model.IndexInfo;
 using DomainTypeInfo = Xtensive.Storage.Model.TypeInfo;
 using AssociationInfo = Xtensive.Storage.Model.AssociationInfo;
-using ColumnInfo=Xtensive.Storage.Indexing.Model.ColumnInfo;
 using GeneratorInfo = Xtensive.Storage.Model.GeneratorInfo;
 using DomainModel = Xtensive.Storage.Model.DomainModel;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
@@ -27,65 +26,67 @@ using HierarchyInfo = Xtensive.Storage.Model.HierarchyInfo;
 using KeyInfo = Xtensive.Storage.Model.KeyInfo;
 using InheritanceSchema = Xtensive.Storage.Model.InheritanceSchema;
 using Node = Xtensive.Storage.Model.Node;
-using IndexInfo=Xtensive.Storage.Indexing.Model.IndexInfo;
-using ReferentialAction=Xtensive.Storage.Indexing.Model.ReferentialAction;
-using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
+using IndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
+using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
 
 namespace Xtensive.Storage.Upgrade
 {
   /// <summary>
   /// Converts <see cref="Storage.Model.DomainModel"/> to indexing storage model.
   /// </summary>
-  internal class DomainModelConverter : Model.ModelVisitor<IPathNode>
+  internal sealed class DomainModelConverter : Model.ModelVisitor<IPathNode>
   {
     /// <summary>
     /// Gets the persistent generator filter.
     /// </summary>
-    protected Func<GeneratorInfo, bool> PersistentGeneratorFilter { get; private set; }
+    private Func<GeneratorInfo, bool> PersistentGeneratorFilter { get; set; }
 
     /// <summary>
     /// Gets the provider info.
     /// </summary>
-    public ProviderInfo ProviderInfo { get; private set; }
+    private ProviderInfo ProviderInfo { get; set; }
 
-    public Func<Type, int?, TypeInfo> TypeBuilder { get; set; }
+    /// <summary>
+    /// Gets the type builder.
+    /// </summary>
+    private Func<Type, int?, TypeInfo> TypeBuilder { get; set; }
 
     /// <summary>
     /// Gets the storage info.
     /// </summary>
-    protected StorageInfo StorageInfo { get; private set; }
+    private StorageInfo StorageInfo { get; set; }
 
     /// <summary>
     /// Gets the currently converting model.
     /// </summary>
-    protected DomainModel Model { get; private set; }
+    private DomainModel Model { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether 
     /// build foreign keys for associations.
     /// </summary>
-    public bool BuildForeignKeys { get; private set; }
+    private bool BuildForeignKeys { get; set; }
 
     /// <summary>
     /// Gets the foreign key name generator.
     /// </summary>
-    protected Func<AssociationInfo, FieldInfo, string> ForeignKeyNameGenerator { get; private set; }
+    private Func<AssociationInfo, FieldInfo, string> ForeignKeyNameGenerator { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether 
     /// build foreign keys for hierarchies.
     /// </summary>
-    public bool BuildHierarchyForeignKeys { get; private set; }
+    private bool BuildHierarchyForeignKeys { get; set; }
 
     /// <summary>
     /// Gets the hierarchy foreign key name generator.
     /// </summary>
-    protected Func<DomainTypeInfo, DomainTypeInfo, string> HierarchyForeignKeyNameGenerator { get; private set; }
+    private Func<DomainTypeInfo, DomainTypeInfo, string> HierarchyForeignKeyNameGenerator { get; set; }
 
     /// <summary>
     /// Gets or sets the currently visiting table.
     /// </summary>
-    protected TableInfo CurrentTable { get; set; }
+    private TableInfo CurrentTable { get; set; }
 
     /// <summary>
     /// Converts the specified <see cref="DomainModel"/> to
@@ -193,22 +194,21 @@ namespace Xtensive.Storage.Upgrade
     /// <inheritdoc/>
     protected override IPathNode VisitColumnInfo(DomainColumnInfo column)
     {
-      var domainType = column.ValueType;
-      var storageType = GetTypeInfo(domainType, column.Length).Type;
+      var originalType = column.ValueType;
+      var originalTypeInfo = new TypeInfo(GetType(originalType, column.IsNullable), column.IsNullable, column.Length);
+      var storageTypeInfo = TypeBuilder.Invoke(originalType, column.Length);
+      storageTypeInfo = new TypeInfo(GetType(storageTypeInfo.Type, column.IsNullable), column.IsNullable, storageTypeInfo.Length);
 
-      var columnType = column.IsNullable && storageType.IsValueType && !storageType.IsNullable()
-        ? storageType.ToNullable()
-        : storageType;
-
-      var defaultValue = !column.IsNullable && domainType.IsValueType
-        ? Activator.CreateInstance(domainType)
+      var defaultValue = !column.IsNullable && originalType.IsValueType
+        ? Activator.CreateInstance(originalType)
         : null;
-
       if (defaultValue is char)
         defaultValue = '0';
 
-      var typeInfo = new TypeInfo(columnType, column.IsNullable, column.Length);
-      return new ColumnInfo(CurrentTable, column.Name, typeInfo) {DefaultValue = defaultValue};
+      return new ColumnInfo(CurrentTable, column.Name, storageTypeInfo) {
+        DefaultValue = defaultValue,
+        OriginalType = originalTypeInfo
+      };
     }
 
     /// <inheritdoc/>
@@ -253,7 +253,7 @@ namespace Xtensive.Storage.Upgrade
     /// </summary>
     /// <param name="index">The index.</param>
     /// <returns>Visit result.</returns>
-    protected IPathNode VisitPrimaryIndexInfo(DomainIndexInfo index)
+    private IPathNode VisitPrimaryIndexInfo(DomainIndexInfo index)
     {
       var tableName = index.ReflectedType.MappingName;
       CurrentTable = new TableInfo(StorageInfo, tableName);
@@ -284,14 +284,9 @@ namespace Xtensive.Storage.Upgrade
       var sequence = new SequenceInfo(StorageInfo, generator.MappingName) {
         StartValue = generator.CacheSize,
         Increment = generator.CacheSize,
-        Type = GetTypeInfo(generator.TupleDescriptor[0], null) // new TypeInfo(generator.TupleDescriptor[0])
+        Type = TypeBuilder.Invoke(generator.TupleDescriptor[0], null)
       };
       return sequence;
-    }
-
-    private TypeInfo GetTypeInfo(Type type, int? length)
-    {
-      return TypeBuilder.Invoke(type, length);
     }
 
     /// <summary>
@@ -300,7 +295,7 @@ namespace Xtensive.Storage.Upgrade
     /// <param name="table">The table.</param>
     /// <param name="keyColumns">The key columns.</param>
     /// <returns>The index.</returns>
-    protected static IndexInfo FindIndex(TableInfo table, List<string> keyColumns)
+    private static IndexInfo FindIndex(TableInfo table, List<string> keyColumns)
     {
       var primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name);
       if (primaryKeyColumns.Except(keyColumns)
@@ -317,12 +312,12 @@ namespace Xtensive.Storage.Upgrade
     }
 
     /// <summary>
-    /// Converts the <see cref="OnRemoveAction"/> to 
+    /// Converts the <see cref="Xtensive.Storage.OnRemoveAction"/> to 
     /// <see cref="Xtensive.Storage.Indexing.Model.ReferentialAction"/>.
     /// </summary>
     /// <param name="toConvert">The action to convert.</param>
     /// <returns>Converted action.</returns>
-    protected static ReferentialAction ConvertReferentialAction(OnRemoveAction toConvert)
+    private static ReferentialAction ConvertReferentialAction(OnRemoveAction toConvert)
     {
       switch (toConvert) {
       case OnRemoveAction.Deny:
@@ -344,7 +339,7 @@ namespace Xtensive.Storage.Upgrade
     /// <param name="index">The index.</param>
     /// <param name="field">The field.</param>
     /// <returns></returns>
-    protected static DomainIndexInfo FindIndex(DomainIndexInfo index, FieldInfo field)
+    private static DomainIndexInfo FindIndex(DomainIndexInfo index, FieldInfo field)
     {
       if (index.IsVirtual)
         foreach (var underlyingIndex in index.UnderlyingIndexes) {
@@ -362,13 +357,12 @@ namespace Xtensive.Storage.Upgrade
     /// </summary>
     /// <param name="index">The index.</param>
     /// <returns>Primary index.</returns>
-    protected static DomainIndexInfo FindNonVirtualPrimaryIndex(DomainIndexInfo index)
+    private static DomainIndexInfo FindNonVirtualPrimaryIndex(DomainIndexInfo index)
     {
       if (index.IsPrimary && !index.IsVirtual)
         return index;
-
       var primaryIndex = index.ReflectedType.Indexes.PrimaryIndex;
-
+      
       return
         primaryIndex.IsVirtual
           ? primaryIndex.DeclaringIndex
@@ -382,7 +376,7 @@ namespace Xtensive.Storage.Upgrade
     /// <param name="secondaryIndexColumn">The secondary index column.</param>
     /// <param name="secondaryIndex">Index of the secondary.</param>
     /// <returns>Columns name.</returns>
-    protected static string GetPrimaryIndexColumnName(DomainIndexInfo primaryIndex, 
+    private static string GetPrimaryIndexColumnName(DomainIndexInfo primaryIndex, 
       DomainColumnInfo secondaryIndexColumn, DomainIndexInfo secondaryIndex)
     {
       string primaryIndexColumnName = null;
@@ -392,6 +386,19 @@ namespace Xtensive.Storage.Upgrade
           break;
         }
       return primaryIndexColumnName;
+    }
+
+    /// <summary>
+    /// Gets the table.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>Table.</returns>
+    private TableInfo GetTable(DomainTypeInfo type)
+    {
+      if (type.Hierarchy==null 
+        || type.Hierarchy.Schema!=InheritanceSchema.SingleTable)
+        return StorageInfo.Tables[type.MappingName];
+      return StorageInfo.Tables[type.Hierarchy.Root.MappingName];
     }
 
     private static ForeignKeyInfo CreateForeignKey(TableInfo referencingTable, string foreignKeyName, 
@@ -406,19 +413,12 @@ namespace Xtensive.Storage.Upgrade
       return foreignKey;
     }
 
-    /// <summary>
-    /// Gets the table.
-    /// </summary>
-    /// <param name="type">The type.</param>
-    /// <returns>Table.</returns>
-    protected TableInfo GetTable(DomainTypeInfo type)
+    private static Type GetType(Type type, bool isNullable)
     {
-      if (type.Hierarchy==null 
-        || type.Hierarchy.Schema!=InheritanceSchema.SingleTable)
-        return StorageInfo.Tables[type.MappingName];
-      return StorageInfo.Tables[type.Hierarchy.Root.MappingName];
+      return isNullable && type.IsValueType && !type.IsNullable()
+        ? type.ToNullable()
+        : type;
     }
-
 
     // Constructors
 

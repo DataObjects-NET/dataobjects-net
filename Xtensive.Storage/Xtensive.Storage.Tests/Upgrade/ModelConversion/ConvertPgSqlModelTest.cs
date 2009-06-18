@@ -18,11 +18,5 @@ namespace Xtensive.Storage.Tests.Upgrade
       Schema = BuildDomain("pgsql").ExtractedSchema;
     }
 
-    [Test]
-    public override void IncludedColumnsTest()
-    {
-      Assert.AreEqual(0,
-        Schema.Tables["A"].SecondaryIndexes[0].IncludedColumns.Count);
-    }
   }
 }

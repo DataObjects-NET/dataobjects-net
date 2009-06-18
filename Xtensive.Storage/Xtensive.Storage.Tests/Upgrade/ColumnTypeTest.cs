@@ -42,6 +42,13 @@ namespace Xtensive.Storage.Tests.Upgrade
     }
 
     [Test]
+    public void ValidateModeTest()
+    {
+      AssertEx.Throws<SchemaSynchronizationException>(() => 
+        Build(typeof (string), null, "FInt", "1", Mode.Validate));
+    }
+    
+    [Test]
     public void Int32ToStringTest()
     {
       Build(typeof (string), null, "FInt", "1", Mode.Perform);
@@ -146,6 +153,18 @@ namespace Xtensive.Storage.Tests.Upgrade
       configuration.UpgradeMode = DomainUpgradeMode.Validate;
       configuration.Types.Register(typeof (Storage.DbTypeSupportModel.X));
       domain = Domain.Build(configuration);
+    }
+
+    [Test]
+    public void ChangeColumnTypeTest()
+    {
+//      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof (X), "FString5"))) {
+//        Build(typeof (string), 3, "FString5", "123", Mode.PerformSafely);
+//      }
+//      SetUp();
+      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof (X), "FString5"))) {
+        Build(typeof (int), null, "FString5", 12345, Mode.PerformSafely);
+      }
     }
 
     # region Helper methods

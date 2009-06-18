@@ -160,7 +160,7 @@ namespace Xtensive.Storage.Providers.Sql
 //      var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
 //      var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
 //      var storageModel = SqlModel.Build(modelProvider);
-      Schema = UpgradeContext.Demand().LegacyExtractedSchema as Schema; // storageModel.DefaultServer.DefaultCatalog.DefaultSchema;
+      Schema = UpgradeContext.Demand().NativeExtractedSchema as Schema; // storageModel.DefaultServer.DefaultCatalog.DefaultSchema;
       var domainModel = Handlers.Domain.Model;
 
       foreach (var type in domainModel.Types) {

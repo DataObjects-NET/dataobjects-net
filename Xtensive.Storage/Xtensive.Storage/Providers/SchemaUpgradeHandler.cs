@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Providers
     protected void SaveSchemaInContext(object schema)
     {
       var context = UpgradeContext.Demand();
-      context.LegacyExtractedSchema = schema;
+      context.NativeExtractedSchema = schema;
     }
     
 

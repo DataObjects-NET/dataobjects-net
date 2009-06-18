@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -505,7 +506,10 @@ namespace Xtensive.Storage.Tests.Model
       Assert.AreEqual(64, typeInfo.Columns["Passport.Card.LastName"].Length);
 
       // Indexes
-      Assert.AreEqual(typeInfo.Indexes.Count, 1);
+      if (IsSingleTable(typeInfo) || IsConcreteTable(typeInfo))
+        Assert.AreEqual(2, typeInfo.Indexes.Count);
+      else
+        Assert.AreEqual(1, typeInfo.Indexes.Count);
       Assert.IsNotNull(typeInfo.Indexes["PK_Person"]);
       Assert.IsTrue(typeInfo.Indexes["PK_Person"].IsPrimary);
       Assert.IsTrue(typeInfo.Indexes["PK_Person"].IsUnique);
@@ -559,13 +563,18 @@ namespace Xtensive.Storage.Tests.Model
       Assert.IsFalse(typeInfo.Columns.Contains("Reviews"));
 
       // Indexes
-      Assert.AreEqual(3, typeInfo.Indexes.Count);
-      Assert.IsNotNull(typeInfo.Indexes["Author.IX_PENNAME"]);
-      Assert.IsNotNull(typeInfo.Indexes[0]);
-      Assert.AreEqual(typeInfo.Indexes[0], typeInfo.Indexes["Author.IX_PENNAME"]);
-      Assert.AreEqual(1, typeInfo.Indexes[0].KeyColumns.Count);
-      Assert.IsNotNull(typeInfo.Indexes[0].KeyColumns[0]);
-      Assert.AreEqual(typeInfo.Columns["PenName"], typeInfo.Indexes[0].KeyColumns[0].Key);
+      if (!IsSingleTable(typeInfo)) {
+        if (IsConcreteTable(typeInfo))
+          Assert.AreEqual(2, typeInfo.Indexes.Count);
+        else
+          Assert.AreEqual(3, typeInfo.Indexes.Count);
+        Assert.IsNotNull(typeInfo.Indexes["Author.IX_PENNAME"]);
+        Assert.IsNotNull(typeInfo.Indexes[0]);
+        Assert.AreEqual(typeInfo.Indexes[0], typeInfo.Indexes["Author.IX_PENNAME"]);
+        Assert.AreEqual(1, typeInfo.Indexes[0].KeyColumns.Count);
+        Assert.IsNotNull(typeInfo.Indexes[0].KeyColumns[0]);
+        Assert.AreEqual(typeInfo.Columns["PenName"], typeInfo.Indexes[0].KeyColumns[0].Key);
+      }
 
       #endregion
 
@@ -700,6 +709,16 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual((object) reviewer, review.Reviewer);
         }
       }
+    }
+
+    private static bool IsConcreteTable(TypeInfo typeInfo)
+    {
+      return typeInfo.Hierarchy.Schema==InheritanceSchema.ConcreteTable;
+    }
+
+    private static bool IsSingleTable(TypeInfo typeInfo)
+    {
+      return typeInfo.Hierarchy.Schema==InheritanceSchema.SingleTable;
     }
   }
 }

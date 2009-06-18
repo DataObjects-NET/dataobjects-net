@@ -142,6 +142,10 @@ namespace Xtensive.Storage.Tests.Upgrade
             .First(contact => contact.FirstName=="Michael").LastName);
           Assert.AreEqual("Fuller", Query<M2.Employee>.All
             .First(employee => employee.FirstName=="Nancy").ReportsTo.LastName);
+          Assert.AreEqual(123, Query<M2.Person>.All
+            .First(person => person.ContactName=="Helen Bennett").PassportNumber);
+          Assert.AreEqual(1, Query<M2.Order>.All
+            .First(order => order.ProductName=="Maxilaku").Number);
 
           Query<M2.Product>.All.Single(product => product.Title=="DataObjects.NET");
           Query<M2.Product>.All.Single(product => product.Title=="HelpServer");
@@ -244,7 +248,8 @@ namespace Xtensive.Storage.Tests.Upgrade
               Country = "UK"
             },
             CompanyName = "Island Trading",
-            ContactName = "Helen Bennett"
+            ContactName = "Helen Bennett",
+            PassportNumber = "123"
           };
           var philip = new M1.BusinessContact {
             Address = new M1.Address {
@@ -252,7 +257,8 @@ namespace Xtensive.Storage.Tests.Upgrade
               Country = "Germany"
             },
             CompanyName = "Koniglich Essen",
-            ContactName = "Philip Cramer"
+            ContactName = "Philip Cramer",
+            PassportNumber = "321"
           };
 
           // Employies
@@ -288,6 +294,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
           // Orders
           new M1.Order {
+            OrderNumber = "1",
             Customer = helen,
             Employee = michael,
             Freight = 12,
@@ -295,6 +302,7 @@ namespace Xtensive.Storage.Tests.Upgrade
             ProductName = "Maxilaku"
           };
           new M1.Order {
+            OrderNumber = "2",
             Customer = helen,
             Employee = nancy,
             Freight = 12,
@@ -302,6 +310,7 @@ namespace Xtensive.Storage.Tests.Upgrade
             ProductName = "Filo Mix"
           };
           new M1.Order {
+            OrderNumber = "3",
             Customer = philip,
             Employee = michael,
             Freight = 12,
@@ -309,6 +318,7 @@ namespace Xtensive.Storage.Tests.Upgrade
             ProductName = "Tourtiere"
           };
           new M1.Order {
+            OrderNumber = "4",
             Customer = philip,
             Employee = nancy,
             Freight = 12,

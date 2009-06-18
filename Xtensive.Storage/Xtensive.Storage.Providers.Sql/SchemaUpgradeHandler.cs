@@ -8,23 +8,16 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Modelling.Actions;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
-using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Upgrade;
-using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
-using IndexInfo = Xtensive.Storage.Model.IndexInfo;
 using SqlModel = Xtensive.Sql.Dom.Database.Model;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
-using TypeInfo = Xtensive.Storage.Model.TypeInfo;
 using ModelTypeInfo = Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -50,22 +43,9 @@ namespace Xtensive.Storage.Providers.Sql
       get { return (SessionHandler) BuildingContext.Current.SystemSessionHandler; }
     }
 
-    /// <summary>
-    /// Gets the name builder.
-    /// </summary>
-    protected NameBuilder NameBuilder
-    {
-      get { return BuildingContext.Current.NameBuilder; }
-    }
-
     private SqlConnection Connection
     {
       get { return ((SessionHandler) Handlers.SessionHandler).Connection; }
-    }
-
-    private DbTransaction Transaction
-    {
-      get { return ((SessionHandler) Handlers.SessionHandler).Transaction; }
     }
 
     /// <inheritdoc/>
@@ -78,7 +58,7 @@ namespace Xtensive.Storage.Providers.Sql
         using (var command = new SqlCommand(Connection)) {
           command.CommandText = batch;
           command.Prepare();
-          command.Transaction = Transaction;
+          command.Transaction = SessionHandler.Transaction;
           command.ExecuteNonQuery();
         }
       }
@@ -96,18 +76,19 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ModelTypeInfo CreateTypeInfo(Type type, int? length)
     {
-      var valueTypeMapper = DomainHandler.ValueTypeMapper;
-      var sqlValueType = length.HasValue
-        ? valueTypeMapper.BuildSqlValueType(type, length.Value)
-        : valueTypeMapper.BuildSqlValueType(type, 0);
+      var sqlValueType = DomainHandler.ValueTypeMapper.BuildSqlValueType(type, length);
       var convertedType = DomainHandler.Driver.ServerInfo.DataTypes[sqlValueType.DataType].Type;
-      return new ModelTypeInfo(convertedType, length);
+      int? typeLength = null;
+      if (sqlValueType.DataType != SqlDataType.Text
+        && sqlValueType.DataType != SqlDataType.VarBinaryMax)
+        typeLength = length;
+      return new ModelTypeInfo(convertedType, typeLength);
     }
 
     private Schema GetStorageSchema()
     {
       var context = UpgradeContext.Demand();
-      var schema = context.LegacyExtractedSchema as Schema;
+      var schema = context.NativeExtractedSchema as Schema;
       if (schema == null) {
         var modelProvider = new SqlModelProvider(SessionHandler.Connection, SessionHandler.Transaction);
         var storageModel = SqlModel.Build(modelProvider);
@@ -117,23 +98,14 @@ namespace Xtensive.Storage.Providers.Sql
       return schema;
     }
 
-    private ModelTypeInfo ConvertType(SqlValueType valueType)
+    protected virtual ModelTypeInfo ConvertType(SqlValueType valueType)
     {
       var driver = SessionHandler.Connection.Driver;
-      var dataTypes = driver.ServerInfo.DataTypes;
-      var nativeType = driver.Translator.Translate(valueType);
-
-      var dataType = dataTypes[nativeType] ?? dataTypes[valueType.DataType];
-
-      int? length = 0;
+      var dataType = driver.ServerInfo.DataTypes[valueType.DataType];
+      var length = valueType.Size;
       var streamType = dataType as StreamDataTypeInfo;
-      if (streamType!=null
-        && (streamType.SqlType==SqlDataType.VarBinaryMax
-        || streamType.SqlType==SqlDataType.VarCharMax
-        || streamType.SqlType==SqlDataType.AnsiVarCharMax))
-        length = null;
-      else
-        length = valueType.Size;
+      if (streamType!=null && valueType.Size == 0)
+        length = streamType.Length.MaxValue;
 
       var type = dataType!=null ? dataType.Type : typeof (object);
       return new ModelTypeInfo(type, false, length);
@@ -141,12 +113,17 @@ namespace Xtensive.Storage.Providers.Sql
     
     private List<string> GenerateUpgradeScript(ActionSequence actions, StorageInfo sourceSchema, StorageInfo targetSchema)
     {
-      var valueTypeMapper = ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper;
+      var valueTypeMapper = DomainHandler.ValueTypeMapper;
+      var enforceChangedColumns = UpgradeContext.Demand().Hints
+        .OfType<ChangeFieldTypeHint>()
+        .SelectMany(hint => hint.AffectedColumns)
+        .ToList();
       var translator = new SqlActionTranslator(
         actions,
         GetStorageSchema(),
         sourceSchema, targetSchema, DomainHandler.ProviderInfo, 
-        Connection.Driver, valueTypeMapper, Handlers.NameBuilder.TypeIdColumnName);
+        Connection.Driver, valueTypeMapper, 
+        Handlers.NameBuilder.TypeIdColumnName, enforceChangedColumns);
 
       var delimiter = Connection.Driver.Translator.BatchStatementDelimiter;
       var batch = new List<string>();

@@ -67,6 +67,9 @@ namespace Xtensive.Storage.Tests.Storage.DbTypeSupportModel
     public bool FBool { get; set; }
 
     [Field]
+    public char FChar { get; set; }
+
+    [Field]
     public byte FByte { get; set; }
 
     [Field]
@@ -147,6 +150,9 @@ namespace Xtensive.Storage.Tests.Storage.DbTypeSupportModel
 
     [Field]
     public bool? FNBool { get; set; }
+
+    [Field]
+    public char? FNChar { get; set; }
 
     [Field]
     public byte? FNByte { get; set; }

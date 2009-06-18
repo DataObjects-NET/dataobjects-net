@@ -129,7 +129,8 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IPathNode VisitTableColumn(TableColumn tableColumn)
     {
       var tableInfo = StorageInfo.Tables[tableColumn.Table.Name];
-      var columnInfo = new ColumnInfo(tableInfo, tableColumn.Name, ExtractType(tableColumn));
+      var typeInfo = ExtractType(tableColumn);
+      var columnInfo = new ColumnInfo(tableInfo, tableColumn.Name, typeInfo) {OriginalType = typeInfo};
       return columnInfo;
     }
 

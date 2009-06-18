@@ -153,10 +153,11 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlValueType BuildSqlValueType(DataTypeMapping typeMapping, int? length)
     {
       var streamInfo = typeMapping.DataTypeInfo as StreamDataTypeInfo;
-      if (streamInfo!=null)
+      if (streamInfo != null) {
         return length==null || length==0
           ? new SqlValueType(streamInfo.SqlType, streamInfo.Length.MaxValue)
           : new SqlValueType(streamInfo.SqlType, Math.Min(length.Value, streamInfo.Length.MaxValue));
+      }
       var decimalInfo = typeMapping.DataTypeInfo as FractionalDataTypeInfo<decimal>;
       if (decimalInfo != null)
         return new SqlValueType(decimalInfo.SqlType, decimalInfo.Precision.MaxValue, decimalInfo.Scale.MaxValue);

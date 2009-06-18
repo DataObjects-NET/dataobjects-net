@@ -14,6 +14,7 @@ using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Upgrade;
+using UpgradeContext=Xtensive.Storage.Upgrade.UpgradeContext;
 
 namespace Xtensive.Storage.Building
 {
@@ -41,21 +42,28 @@ namespace Xtensive.Storage.Building
         ? EnumerableUtils<NodeAction>.Empty 
         : new Upgrader().GetUpgradeSequence(difference, hints, comparer)
       };
-      var status = GetComparisonStatus(hints, actions);
-      var canPerformSafely = CanPerform(difference as NodeDifference, true);
-      return new SchemaComparisonResult(status, hints, difference, actions, canPerformSafely);
+      var typeChanges = GetTypeChanges(difference as NodeDifference);
+      var status = GetComparisonStatus(actions);
+      var typeChangedColumns = UpgradeContext.Demand().Hints
+        .OfType<ChangeFieldTypeHint>().SelectMany(hint => hint.AffectedColumns).ToHashSet();
+      var canPerformSafely = CanPerformSafely(typeChanges, typeChangedColumns);
+
+      return new SchemaComparisonResult(status, hints, difference, actions, 
+        typeChanges.Any(), canPerformSafely);
     }
 
-    private static SchemaComparisonStatus GetComparisonStatus(HintSet hints, ActionSequence upgradeActions)
+    private static SchemaComparisonStatus GetComparisonStatus(ActionSequence upgradeActions)
     {
       var actions = upgradeActions.Flatten();
+      
+      var hasCreateActions = actions
+        .OfType<CreateNodeAction>()
+        .Any();
       var hasRemoveActions = actions
         .OfType<RemoveNodeAction>()
         .Any(action => action.Difference.Source is TableInfo
           || action.Difference.Source is ColumnInfo);
-      var hasCreateActions = actions
-        .OfType<CreateNodeAction>()
-        .Any();
+
       if (hasCreateActions && hasRemoveActions)
         return SchemaComparisonStatus.NotEqual;
       if (hasCreateActions)
@@ -65,16 +73,13 @@ namespace Xtensive.Storage.Building
       return SchemaComparisonStatus.Equal;
     }
 
-    private static bool CanPerform(NodeDifference schemaDifference, bool safely)
+    private static bool CanPerformSafely(IEnumerable<Triplet<string, TypeInfo, TypeInfo>> typeChanges, 
+      HashSet<string> typeChangedColumns)
     {
-      if (schemaDifference == null)
-        return true;
-
       return
-        !GetTypeChanges(schemaDifference).Any(triplet =>
-          (safely
-            ? !TypeConversionVerifier.CanConvertSafely(triplet.Second, triplet.Third)
-            : !TypeConversionVerifier.CanConvert(triplet.Second, triplet.Third)));
+        !typeChanges.Any(triplet =>
+          !TypeConversionVerifier.CanConvertSafely(triplet.Second, triplet.Third)
+           && !typeChangedColumns.Contains(triplet.First));
     }
 
     private static IEnumerable<Triplet<string, TypeInfo, TypeInfo>> GetTypeChanges(NodeDifference schemaDifference)

@@ -89,8 +89,12 @@ namespace Xtensive.Storage.Providers.Index
           var primaryIndex = type.Indexes.PrimaryIndex;
           var primaryIndexColumns = primaryIndex.Columns.ToList();
           var indexColumns = indexInfo.Columns.ToList();
+          var typeColumns = type.Columns.ToList();
           var map = indexColumns
-            .Select(column => primaryIndexColumns.IndexOf(column))
+            .Select(column => 
+              typeColumns.Contains(column) 
+              ? primaryIndexColumns.IndexOf(column) 
+              : MapTransform.NoMapping)
             .ToArray();
           primaryIndexTransforms.Add(
             new Pair<IndexInfo, TypeInfo>(indexInfo, type),

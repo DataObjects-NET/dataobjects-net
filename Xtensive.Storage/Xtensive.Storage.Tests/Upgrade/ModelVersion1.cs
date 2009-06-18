@@ -30,6 +30,9 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version1
 
     [Field(Length = 24)]
     public string Phone { get; set; }
+
+    [Field(Length = 10)]
+    public string PassportNumber { get; set; }
   }
 
   [Index("CompanyName")]
@@ -74,6 +77,9 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version1
   {
     [Field, Key]
     public int Id { get; private set; }
+
+    [Field(Length = 10)]
+    public string OrderNumber { get; set; }
 
     [Field]
     public TimeSpan? ProcessingTime { get; set; }

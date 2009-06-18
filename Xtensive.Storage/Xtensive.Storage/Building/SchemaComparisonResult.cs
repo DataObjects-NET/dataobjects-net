@@ -41,6 +41,11 @@ namespace Xtensive.Storage.Building
     public ActionSequence UpgradeActions { get; private set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether extracted column types are different with target column types.
+    /// </summary>
+    public bool HasTypeChanges { get; private set; }
+
+    /// <summary>
     /// Gets a value indicating whether possible to upgrade data types safely.
     /// </summary>
     public bool CanUpgradeTypesSafely { get; private set; }
@@ -65,14 +70,16 @@ namespace Xtensive.Storage.Building
     /// <param name="hints">The upgrade hints.</param>
     /// <param name="difference">The difference.</param>
     /// <param name="upgradeActions">The upgrade actions.</param>
-    /// <param name="canPerform">if set to <see langword="true"/> [can perform].</param>
-    /// <param name="canPerformSafely">if set to <see langword="true"/> [can perform safely].</param>
+    /// <param name="hasTypeChanges">if set to <see langword="true"/> extracted column type are 
+    /// different with target column types.</param>
+    /// <param name="canUpgradeTypesSafely">if set to <see langword="true"/> all types changes are safely.</param>
     public SchemaComparisonResult(SchemaComparisonStatus status, HintSet hints, 
-      Difference difference, ActionSequence upgradeActions, bool canPerformSchemaSafely)
+      Difference difference, ActionSequence upgradeActions, bool hasTypeChanges, bool canUpgradeTypesSafely)
     {
       Difference = difference;
       UpgradeActions = upgradeActions;
-      CanUpgradeTypesSafely = canPerformSchemaSafely;
+      CanUpgradeTypesSafely = canUpgradeTypesSafely;
+      HasTypeChanges = hasTypeChanges;
       Status = status;
       Hints = hints;
     }

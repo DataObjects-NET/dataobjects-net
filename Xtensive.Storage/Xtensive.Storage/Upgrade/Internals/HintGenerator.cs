@@ -37,7 +37,8 @@ namespace Xtensive.Storage.Upgrade
       var typeRenames = upgradeHints.OfType<RenameTypeHint>().ToArray();
       var fieldRenames = upgradeHints.OfType<RenameFieldHint>().ToArray();
       var fieldCopyHints = upgradeHints.OfType<CopyFieldHint>().ToArray();
-      
+      var changeTypeHints = upgradeHints.OfType<ChangeFieldTypeHint>().ToArray();
+
       ValidateRenameTypeHints(typeRenames);
       BuildTypeMapping(typeRenames);
 
@@ -50,6 +51,7 @@ namespace Xtensive.Storage.Upgrade
       GenerateRenameColumnHints();
       GenerateCopyColumnHints(fieldCopyHints);
       GenerateClearDataHints();
+      UpdateChangeFieldTypeHints(changeTypeHints);
       return resultHints;
     }
 
@@ -486,6 +488,44 @@ namespace Xtensive.Storage.Upgrade
         resultHints.Add(new DeleteDataHint(sourceTablePath, identities));
     }
 
+    private void UpdateChangeFieldTypeHints(ChangeFieldTypeHint[] changeFieldTypeHints)
+    {
+      changeFieldTypeHints.Apply(UpdateChangeFieldTypeHint);
+    }
+
+    private void UpdateChangeFieldTypeHint(ChangeFieldTypeHint hint)
+    {
+      var affectedColumns = new List<string>();
+      var currentTypeName = hint.Type.GetFullName();
+      var currentType = currentModel.Types.SingleOrDefault(type => 
+        type.UnderlyingType==currentTypeName);
+      if (currentType==null)
+        throw TypeIsNotFound(currentTypeName);
+      var currentField = currentType.AllFields
+        .SingleOrDefault(field => field.Name==hint.FieldName);
+      if (currentField==null)
+        throw FieldIsNotFound(currentTypeName, hint.FieldName);
+      var inheritanceScheme = currentType.Hierarchy.Schema;
+      
+      switch (inheritanceScheme) {
+      case InheritanceSchema.ClassTable:
+        affectedColumns.Add(GetColumnPath(currentField.DeclaringType.MappingName, currentField.MappingName));
+        break;
+      case InheritanceSchema.SingleTable:
+        affectedColumns.Add(GetColumnPath(currentType.Hierarchy.Root.MappingName, currentField.MappingName));
+        break;
+      case InheritanceSchema.ConcreteTable:
+        var typeToProcess = GetAffectedMappedTypes(currentType,
+          currentType.Hierarchy.Schema==InheritanceSchema.ConcreteTable);
+        affectedColumns.AddRange(
+          typeToProcess.Select(type => GetColumnPath(type.MappingName, currentField.MappingName)));
+        break;
+      default:
+        throw new ArgumentOutOfRangeException();
+      }
+      hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
+    }
+    
     private bool IsRemoved(StoredTypeInfo type)
     {
       return !typeMapping.ContainsKey(type);
