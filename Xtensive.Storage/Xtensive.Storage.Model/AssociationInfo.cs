@@ -6,11 +6,8 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
-using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
@@ -142,21 +139,6 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public OnRemoveAction OnRemove { get; private set; }
 
-    /// <summary>
-    /// Gets the foreign key extraction transform.
-    /// </summary>
-    public SegmentTransform ForeignKeyExtractorTransform { get; private set; }
-
-    /// <summary>
-    /// Extracts the foreign key from the specified <see cref="Tuple"/>.
-    /// </summary>
-    /// <param name="tuple">The tuple.</param>
-    /// <returns><see cref="Tuple"/> instance with the extracted foreign key.</returns>
-    public Tuple ExtractForeignKey(Tuple tuple)
-    {
-      return ForeignKeyExtractorTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-    }
-
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
@@ -168,7 +150,6 @@ namespace Xtensive.Storage.Model
       case Multiplicity.OneToOne:
       case Multiplicity.ManyToOne:
         UnderlyingIndex = ReferencingType.Indexes.PrimaryIndex;
-        ForeignKeyExtractorTransform = ReferencingField.ValueExtractorTransform;
         break;
       case Multiplicity.OneToMany:
         UnderlyingIndex = Reversed.ReferencingType.Indexes.GetIndex(Reversed.ReferencingField.Name);
@@ -179,10 +160,6 @@ namespace Xtensive.Storage.Model
           UnderlyingIndex = underlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
         else
           UnderlyingIndex = Reversed.UnderlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
-        if (ForeignKeyExtractorTransform == null) {
-          var foreignKeySegment = new Segment<int>(ReferencingType.Hierarchy.KeyInfo.Columns.Count, ReferencedType.Hierarchy.KeyInfo.Columns.Count);
-          ForeignKeyExtractorTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
-        }
         break;
       }
     }

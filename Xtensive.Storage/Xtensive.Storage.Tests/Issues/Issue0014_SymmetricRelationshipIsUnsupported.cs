@@ -22,10 +22,10 @@ namespace Xtensive.Storage.Tests.Issues.Issue0014_Model
     [Field]
     public string Name { get; set; }
 
-    [Field(PairTo = "Friends")]
+    [Field, Association(PairTo = "Friends")]
     public EntitySet<Person> Friends { get; set; }
 
-    [Field(PairTo = "BestFriend")]
+    [Field, Association(PairTo = "BestFriend")]
     public Person BestFriend { get; set;}
   }
 }

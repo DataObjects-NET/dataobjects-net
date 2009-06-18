@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Mod
     public long ID { get; private set; }
 
     //symmetric
-    [Field(PairTo = "SPair")]
+    [Field, Association(PairTo = "SPair")]
     public First SPair { get; set; }
 
     //assymetric
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Mod
     [Field, Key]
     public long ID { get; private set; }
 
-    [Field(PairTo = "APair")]
+    [Field, Association(PairTo = "APair")]
     public First APair { get; set; }
   }
 }

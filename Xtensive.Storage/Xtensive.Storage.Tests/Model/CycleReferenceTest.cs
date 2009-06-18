@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Tests.Model.CycleReferenceTestModel
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field(PairTo = "Neighbor")]
+    [Field, Association(PairTo = "Neighbor")]
     public EntitySet<Child> Persons { get; set; }
   }
 }

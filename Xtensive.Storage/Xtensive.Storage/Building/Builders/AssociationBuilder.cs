@@ -22,13 +22,12 @@ namespace Xtensive.Storage.Building.Builders
       BuildingContext context = BuildingContext.Current;
       TypeInfo referencedType = field.IsEntity ? context.Model.Types[field.ValueType] : context.Model.Types[field.ItemType];
       Multiplicity multiplicity = field.IsEntitySet ? Multiplicity.ZeroToMany : Multiplicity.ZeroToOne;
-      var association = new AssociationInfo(field, referencedType, multiplicity, fieldDef.OnRemove);
+      var association = new AssociationInfo(field, referencedType, multiplicity, fieldDef.OnTargetRemove);
       association.Name = context.NameBuilder.Build(association);
       context.Model.Associations.Add(association);
 
-      if (!fieldDef.PairTo.IsNullOrEmpty()) {
+      if (!fieldDef.PairTo.IsNullOrEmpty())
         context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, fieldDef.PairTo));
-      }
     }
 
     public static void BuildAssociation(AssociationInfo origin, FieldInfo field)
@@ -53,7 +52,6 @@ namespace Xtensive.Storage.Building.Builders
       if (masterField.IsPrimitive || masterField.IsStructure)
         throw new DomainBuilderException(
           string.Format(Strings.ExPairedFieldXHasWrongTypeItShouldBeReferenceToEntityOrAEntitySet, masterFieldName));
-
 
       FieldInfo pairedField = slave.ReferencingField;
 

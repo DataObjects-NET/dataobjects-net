@@ -19,10 +19,8 @@ namespace Xtensive.Storage
     internal bool? isCollatable;
     internal bool? isTranslatable;
     internal int? length;
-    internal bool? lazyLoad;
     internal int? scale;
     internal int? precision;
-    internal OnRemoveAction? onTargetRemove;
 
     /// <summary>
     /// Gets or sets the length of the field.
@@ -91,68 +89,7 @@ namespace Xtensive.Storage
     /// Usually lazy loading is used for byte-arrays, large string fields or <see cref="Structure">structures</see>.
     /// <see cref="Entity"/> and <see cref="EntitySet{TItem}"/> fields are always loaded on demand.
     /// </remarks>
-    public bool LazyLoad
-    {
-      get { return lazyLoad.HasValue ? lazyLoad.Value : false; }
-      set { lazyLoad = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the referential action that will be executed on referenced Entity removal.
-    /// </summary>
-    /// <remarks>
-    /// This property can be specified for <see cref="Entity"/> and <see cref="EntitySet{TItem}"/>.
-    /// </remarks>
-    /// <seealso cref="OnRemoveAction">Referential actions</seealso>
-    public OnRemoveAction OnRemove
-    {
-      get { return onTargetRemove.HasValue ? onTargetRemove.Value : OnRemoveAction.Default; }
-      set { onTargetRemove = value; }
-    }
-
-    /// <summary>
-    /// Indicates that persistent collection or persistent field
-    /// is a paired proprty with another collection or reference field.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This attribute can be applied to persistent properties of <see cref="Entity"/> 
-    /// or <see cref="EntitySet{T}"/> types.
-    /// </para>
-    /// <para>
-    /// When reference field is paired to another reference field, their value is automatically synchronized.
-    /// </para>
-    /// <para>
-    /// When collection is paired to reference field (One-to-Many association), 
-    /// it does not allocate any space in the database and all operations on this EntitySet are 
-    /// automatically synchronized to paired reference field.
-    /// </para>
-    /// <para>
-    /// When collection is paired to another collection (Many-to-Many) association, auxiliary table
-    /// will be automatically created to support this association.
-    /// </para>
-    /// </remarks>
-    /// <example>In following example User entity has three associated fields of diffirent association type.
-    /// <code>
-    /// public class User : Entity
-    /// {
-    ///   ...
-    ///   
-    ///   // One-to-one association with "User" propery of "Account" class.
-    ///   [Field(PairTo = "User")]
-    ///   public Account Account { get; private set; }
-    ///   
-    ///   // One-to-many association
-    ///   [Field(PairTo = "Author")]
-    ///   public EntitySet&lt;BlogItem&gt; BlogItems { get; private set; }
-    ///   
-    ///   // Many-to-many association
-    ///   [Field(PairTo = "Friends")]
-    ///   public EntitySet&lt;User&gt; Friends { get; private set; }
-    /// }
-    /// </code>
-    /// </example>
-    public string PairTo { get; set; }
+    public bool LazyLoad { get; set; }
 
 
     // Constructors

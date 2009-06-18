@@ -254,7 +254,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     [Field]
     public Region Region { get; set; }
 
-    [Field(PairTo = "Territories")]
+    [Field, Association(PairTo = "Territories")]
     public EntitySet<Employee> Employees { get; private set; }
 
     // Constructors

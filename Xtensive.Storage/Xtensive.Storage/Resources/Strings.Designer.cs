@@ -133,6 +133,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;AssociationAttribute&apos; can&apos;t be applied to &apos;{0}&apos; field..
+        /// </summary>
+        internal static string ExAssociationAttributeCanNotBeAppliedToXField {
+            get {
+                return ResourceManager.GetString("ExAssociationAttributeCanNotBeAppliedToXField", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Association multiplicity &apos;{0}&apos; is not valid for field &apos;{1}&apos;.
         /// </summary>
         internal static string ExAssociationMultiplicityIsNotValidForField {
@@ -957,15 +966,6 @@ namespace Xtensive.Storage.Resources {
         internal static string ExPairToAttributeCanNotBeAppliedToXField {
             get {
                 return ResourceManager.GetString("ExPairToAttributeCanNotBeAppliedToXField", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &apos;PairTo&apos; attribute can not be used with &apos;{0}&apos; field..
-        /// </summary>
-        internal static string ExPairToAttributeCanNotBeUsedWithXField {
-            get {
-                return ResourceManager.GetString("ExPairToAttributeCanNotBeUsedWithXField", resourceCulture);
             }
         }
         

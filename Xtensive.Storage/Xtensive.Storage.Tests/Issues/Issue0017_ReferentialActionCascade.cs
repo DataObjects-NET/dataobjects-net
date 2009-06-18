@@ -16,10 +16,10 @@ namespace Xtensive.Storage.Tests.Issues.Issue0017_Model
     [Field, Key]
     public long ID { get; private set; }
 
-    [Field(PairTo = "Master1")]
+    [Field, Association(PairTo = "Master1")]
     public Slave Slave { get; set; }
 
-    [Field(PairTo = "Master2")]
+    [Field, Association(PairTo = "Master2")]
     public EntitySet<Slave> Slaves { get; private set; }
   }
 
@@ -29,10 +29,10 @@ namespace Xtensive.Storage.Tests.Issues.Issue0017_Model
     [Field, Key]
     public long ID { get; private set; }
 
-    [Field(OnRemove = OnRemoveAction.Cascade)]
+    [Field, Association(OnTargetRemove = OnRemoveAction.Cascade)]
     public Master Master1 { get; set; }
 
-    [Field(OnRemove = OnRemoveAction.Cascade)]
+    [Field, Association(OnTargetRemove = OnRemoveAction.Cascade)]
     public Master Master2 { get; set; }
   }
 }

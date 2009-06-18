@@ -61,10 +61,10 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version1
     [Field]
     public Employee ReportsTo { get; set; }
 
-    [Field(PairTo = "ReportsTo")]
+    [Field, Association(PairTo = "ReportsTo")]
     public EntitySet<Employee> ReportingEmployees { get; set; }
 
-    [Field(PairTo = "Employee")]
+    [Field, Association(PairTo = "Employee")]
     public EntitySet<Order> Orders { get; private set; }
 
     public string FullName { get { return FirstName + " " + LastName; } }
@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version1
     [Field(Length = 100)]
     public string Name { get; set; }
 
-    [Field(PairTo = "Category")]
+    [Field, Association(PairTo = "Category")]
     public EntitySet<Product> Products { get; private set; }
   }
 
@@ -153,7 +153,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version1
     [Key, Field(Length = 20)]
     public string Name { get; private set; }
 
-    [Field(PairTo = "FriendlyBoys")]
+    [Field, Association(PairTo = "FriendlyBoys")]
     public EntitySet<Girl> FriendlyGirls { get; private set; }
 
     public Boy(string name)

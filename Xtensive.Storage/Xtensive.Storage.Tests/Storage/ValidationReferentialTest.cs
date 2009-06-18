@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Tests.Storage.ValidationReferentialTestModel
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field(OnRemove = OnRemoveAction.Clear)]
+    [Field, Association(OnTargetRemove = OnRemoveAction.Clear)]
     public EntitySet<Contact> Contacts { get; private set; }
 
   }
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests.Storage.ValidationReferentialTestModel
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field(PairTo = "Contacts", OnRemove = OnRemoveAction.Cascade)]
+    [Field, Association(PairTo = "Contacts", OnTargetRemove = OnRemoveAction.Cascade)]
     [NotNullConstraint]
     public Company Company { get; set; }
   }

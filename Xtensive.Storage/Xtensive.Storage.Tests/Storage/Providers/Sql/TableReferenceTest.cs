@@ -50,19 +50,19 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Field]
     public B OneToZero { get; set; }
 
-    [Field(PairTo = "OneToOne")]
+    [Field, Association(PairTo = "OneToOne")]
     public B OneToOne { get; set; }
 
     [Field]
     public EntitySet<B> ZeroToMany { get; private set; }
 
-    [Field(PairTo = "ManyToOne")]
+    [Field, Association(PairTo = "ManyToOne")]
     public EntitySet<B> OneToMany { get; private set; }
 
-    [Field(PairTo = "ManyToMany")]
+    [Field, Association(PairTo = "ManyToMany")]
     public EntitySet<B> ManyToMany { get; private set; }
 
-    [Field(PairTo = "OneToMany")]
+    [Field, Association(PairTo = "OneToMany")]
     public B ManyToOne { get; set; }
   }
 
@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Field]
     public C OneToZero { get; set; }
 
-    [Field(PairTo = "OneToOne2")]
+    [Field, Association(PairTo = "OneToOne2")]
     public C OneToOne1 { get; set; }
 
     [Field]
@@ -123,13 +123,13 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Field]
     public EntitySet<C> OneToMany { get; private set; }
 
-    [Field(PairTo = "ManyToMany2")]
+    [Field, Association(PairTo = "ManyToMany2")]
     public EntitySet<C> ManyToMany1 { get; private set; }
 
     [Field]
     public EntitySet<C> ManyToMany2 { get; private set; }
 
-    [Field(PairTo = "OneToMany")]
+    [Field, Association(PairTo = "OneToMany")]
     public C ManyToOne { get; set; }
   }
 

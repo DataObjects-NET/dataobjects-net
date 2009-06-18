@@ -80,8 +80,18 @@ namespace Xtensive.Storage.Building.Builders
       ProcessScale(fieldDef, attribute);
       ProcessPrecision(fieldDef, attribute);
       ProcessIsLazyLoad(fieldDef, attribute);
-      ProcessOnDelete(fieldDef, attribute);
+    }
+
+    public static void Process(FieldDef fieldDef, AssociationAttribute attribute)
+    {
+      if (fieldDef.IsPrimitive || fieldDef.IsStructure) {
+        if (!attribute.PairTo.IsNullOrEmpty())
+          throw new DomainBuilderException(
+            string.Format(Strings.ExAssociationAttributeCanNotBeAppliedToXField, fieldDef.Name));
+      }
       ProcessPairTo(fieldDef, attribute);
+      ProcessOnOwnerRemove(fieldDef, attribute);
+      ProcessOnTargetRemove(fieldDef, attribute);
     }
 
     public static void Process(IndexDef indexDef, IndexAttribute attribute)
@@ -93,15 +103,23 @@ namespace Xtensive.Storage.Building.Builders
       ProcessIsUnique(indexDef, attribute);
     }
 
-    public static void ProcessPairTo(FieldDef fieldDef, FieldAttribute attribute)
+    public static void ProcessPairTo(FieldDef fieldDef, AssociationAttribute attribute)
     {
-      if (fieldDef.IsPrimitive || fieldDef.IsStructure) {
-        if (!attribute.PairTo.IsNullOrEmpty())
-          throw new DomainBuilderException(
-            string.Format(Strings.ExPairToAttributeCanNotBeUsedWithXField, fieldDef.Name));
-      }
-      else
-        fieldDef.PairTo = attribute.PairTo;
+      fieldDef.PairTo = attribute.PairTo;
+    }
+
+    public static void ProcessOnOwnerRemove(FieldDef fieldDef, AssociationAttribute attribute)
+    {
+      if (attribute.onOwnerRemove==null)
+        return;
+      fieldDef.OnOwnerRemove = attribute.OnOwnerRemove;
+    }
+
+    public static void ProcessOnTargetRemove(FieldDef fieldDef, AssociationAttribute attribute)
+    {
+      if (attribute.onTargetRemove==null)
+        return;
+      fieldDef.OnTargetRemove = attribute.OnTargetRemove;
     }
 
     private static void ProcessIsUnique(IndexDef indexDef, IndexAttribute attribute)
@@ -144,18 +162,6 @@ namespace Xtensive.Storage.Building.Builders
           string.Format(Strings.InvalidPrecisionAttributeOnFieldX, fieldDef.Name));
 
       fieldDef.Precision = attribute.Precision;
-    }
-
-    private static void ProcessOnDelete(FieldDef fieldDef, FieldAttribute attribute)
-    {
-      if (attribute.onTargetRemove==null)
-        return;
-
-      if (!(fieldDef.IsEntity || fieldDef.IsEntitySet))
-        throw new DomainBuilderException(
-          string.Format(Strings.ExInvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference, fieldDef.Name));
-
-      fieldDef.OnRemove = attribute.OnRemove;
     }
 
     private static void ProcessIsCollatable(FieldDef fieldDef, FieldAttribute attribute)

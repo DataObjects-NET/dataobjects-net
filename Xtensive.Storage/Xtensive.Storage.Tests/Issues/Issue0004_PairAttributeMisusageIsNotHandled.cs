@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Tests.Issue0004_Model
     [Field]
     public string Name { get; set; }
 
-    [Field(PairTo = "User")]
+    [Field, Association(PairTo = "User")]
     public EntitySet<Notification> Notifications { get; set; }
   }
 
@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Issue0004_Model
     [Field]
     public string Description { get; set; }
 
-    [Field(PairTo = "Notifications")]
+    [Field, Association(PairTo = "Notifications")]
     public User User { get; set; }
   }
 }

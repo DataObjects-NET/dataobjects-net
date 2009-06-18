@@ -288,8 +288,8 @@
   <data name="ExPairedFieldXWasNotFoundInYType" xml:space="preserve">
     <value>Paired field '{0}' was not found in '{1}' type.</value>
   </data>
-  <data name="ExPairToAttributeCanNotBeUsedWithXField" xml:space="preserve">
-    <value>'PairTo' attribute can not be used with '{0}' field.</value>
+  <data name="ExAssociationAttributeCanNotBeAppliedToXField" xml:space="preserve">
+    <value>'AssociationAttribute' can't be applied to '{0}' field.</value>
   </data>
   <data name="ExKeyProviderXShouldDefineAtLeastOneKeyField" xml:space="preserve">
     <value>Key provider '{0}' should define at least one key field.</value>

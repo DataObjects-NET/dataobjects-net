@@ -22,10 +22,10 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 
   public class A : Root
   {
-    [Field(OnRemove = OnRemoveAction.Clear)]
+    [Field, Association(OnTargetRemove = OnRemoveAction.Clear)]
     public B B { get; set; }
 
-    [Field(OnRemove = OnRemoveAction.Deny)]
+    [Field, Association(OnTargetRemove = OnRemoveAction.Deny)]
     public C C { get; set; }
 
     [Field]
@@ -34,34 +34,34 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
 
   public class B : Root
   {
-    [Field(OnRemove = OnRemoveAction.Cascade, PairTo = "B")]
+    [Field, Association(OnTargetRemove = OnRemoveAction.Cascade, PairTo = "B")]
     public A A { get; set; }
   }
 
   public class C : Root
   {
-    [Field(OnRemove = OnRemoveAction.Cascade, PairTo = "C")]
+    [Field, Association(OnTargetRemove = OnRemoveAction.Cascade, PairTo = "C")]
     public A A { get; set; }
   }
 
   public class Master : Root
   {
-    [Field(OnRemove = OnRemoveAction.Clear)]
+    [Field, Association(OnTargetRemove = OnRemoveAction.Clear)]
     public EntitySet<Slave> OneToMany { get; private set; }
 
-    [Field(OnRemove = OnRemoveAction.Clear)]
+    [Field, Association(OnTargetRemove = OnRemoveAction.Clear)]
     public EntitySet<Slave> ZeroToMany { get; private set; }
 
-    [Field(OnRemove = OnRemoveAction.Clear)]
+    [Field, Association(OnTargetRemove = OnRemoveAction.Clear)]
     public EntitySet<Slave> ManyToMany { get; private set; }
   }
 
   public class Slave : Root
   {
-    [Field(PairTo = "OneToMany")]
+    [Field, Association(PairTo = "OneToMany")]
     public Master ManyToOne { get; private set; }
 
-    [Field(PairTo = "ManyToMany")]
+    [Field, Association(PairTo = "ManyToMany")]
     public EntitySet<Master> ManyToMany { get; private set; }
   }
 }

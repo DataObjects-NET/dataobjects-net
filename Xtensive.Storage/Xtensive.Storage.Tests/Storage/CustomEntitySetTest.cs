@@ -31,10 +31,10 @@ namespace Xtensive.Storage.Tests.Storage.CustomEntitySetModel
 
   public class Slave : Root
   {
-    [Field(PairTo="OneToMany")]
+    [Field, Association(PairTo = "OneToMany")]
     public Master ManyToOne { get; set; }
 
-    [Field(PairTo="ManyToMany")]
+    [Field, Association(PairTo = "ManyToMany")]
     public CustomEntitySet<Master> ManyToMany { get; private set; }
   }
 

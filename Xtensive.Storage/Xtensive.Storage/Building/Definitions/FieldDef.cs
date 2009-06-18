@@ -18,13 +18,14 @@ namespace Xtensive.Storage.Building.Definitions
   [Serializable]
   public class FieldDef : MappingNode
   {
-    private readonly PropertyInfo underlyingProperty;
-    private FieldAttributes attributes;
-    private OnRemoveAction onRemove = OnRemoveAction.Default;
-    private string pairTo;
-    private int? length;
-    private int? scale;
-    private int? precision;
+    private readonly PropertyInfo           underlyingProperty;
+    private FieldAttributes                 attributes;
+    private OnRemoveAction                  onTargetRemove = OnRemoveAction.Default;
+    private OnRemoveAction                  onOwnerRemove = OnRemoveAction.Default;
+    private string                          pairTo;
+    private int?                            length;
+    private int?                            scale;
+    private int?                            precision;
 
     /// <summary>
     /// Gets or sets the maximal length of the field.
@@ -189,17 +190,32 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Gets or sets the referential action that will be executed on referenced Entity removal.
+    /// Gets or sets the <see cref="OnRemoveAction"/> action that will be executed on referenced Entity removal.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Field is not reference to entity.</exception>
-    public OnRemoveAction OnRemove
+    /// <exception cref="InvalidOperationException">Field is not reference to entity, nor <see cref="EntitySet{TItem}"/>.</exception>
+    public OnRemoveAction OnTargetRemove
     {
-      get { return onRemove; }
+      get { return onTargetRemove; }
       set
       {
         if (!(IsEntity || IsEntitySet))
-          throw new InvalidOperationException("Field is not an entity reference or entity set.");
-        onRemove = value;
+          throw new InvalidOperationException("Field is not an entity reference, nor entity set.");
+        onTargetRemove = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the <see cref="OnRemoveAction"/> action that will be executed with referenced Entity on field owner removal.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Field is not reference to entity, nor <see cref="EntitySet{TItem}"/>.</exception>
+    public OnRemoveAction OnOwnerRemove
+    {
+      get { return onOwnerRemove; }
+      set
+      {
+        if (!(IsEntity || IsEntitySet))
+          throw new InvalidOperationException("Field is not an entity reference, nor entity set.");
+        onOwnerRemove = value;
       }
     }
 
@@ -213,7 +229,7 @@ namespace Xtensive.Storage.Building.Definitions
       set
       {
         if (IsPrimitive || IsStructure)
-          throw new InvalidOperationException("Field is not an Entity reference nor is EntitySet.");
+          throw new InvalidOperationException("Field is not an Entity reference, nor is EntitySet.");
         pairTo = value;
       }
     }

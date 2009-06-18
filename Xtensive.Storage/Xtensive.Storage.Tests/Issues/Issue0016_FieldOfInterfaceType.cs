@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0016_Model
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field (PairTo = "Slave")]
+    [Field , Association(PairTo = "Slave")]
     public IMaster Master { get; set; }
   }
 }

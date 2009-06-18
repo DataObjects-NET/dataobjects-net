@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
       }
     }
 
-    [Field(PairTo = "Reviewer")]
+    [Field, Association(PairTo = "Reviewer")]
     public EntitySet<BookReview> Reviews { get; private set; }
   }
 
@@ -87,7 +87,8 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     [Field(Length = 128)]
     public string Title { get; set; }
 
-    [Field(OnRemove = OnRemoveAction.Deny, MappingName = "BookAuthor")]
+    [Field(MappingName = "BookAuthor")]
+    [Association(OnTargetRemove = OnRemoveAction.Deny)]
     public Author Author { get; set; }
 
     public int Rating { get; set; }
@@ -108,10 +109,10 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
   [HierarchyRoot]
   public class BookReview : Entity
   {
-    [Field(OnRemove = OnRemoveAction.Clear), Key(1)]
+    [Field, Association(OnTargetRemove = OnRemoveAction.Clear), Key(1)]
     public Person Reviewer { get; private set; }
 
-    [Field(MappingName = "Book", OnRemove = OnRemoveAction.Cascade), Key(0)]
+    [Field(MappingName = "Book"), Association(OnTargetRemove = OnRemoveAction.Cascade), Key(0)]
     public Book Book { get; private set; }
 
     [Field(Length = 4096)]
@@ -191,9 +192,9 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
         }
       }
 
-      types["Book"].Fields["Author"].OnRemove = OnRemoveAction.Deny;
-      types["BookReview"].Fields["Book"].OnRemove = OnRemoveAction.Cascade;
-      types["BookReview"].Fields["Reviewer"].OnRemove = OnRemoveAction.Clear;
+      types["Book"].Fields["Author"].OnTargetRemove = OnRemoveAction.Deny;
+      types["BookReview"].Fields["Book"].OnTargetRemove = OnRemoveAction.Cascade;
+      types["BookReview"].Fields["Reviewer"].OnTargetRemove = OnRemoveAction.Clear;
 
 
       IndexDef indexDef;
@@ -302,7 +303,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
       Assert.AreEqual(128, typeDef.Fields["Title"].Length);
 
       Assert.IsNotNull(typeDef.Fields["Author"]);
-      Assert.AreEqual(OnRemoveAction.Deny, typeDef.Fields["Author"].OnRemove);
+      Assert.AreEqual(OnRemoveAction.Deny, typeDef.Fields["Author"].OnTargetRemove);
       Assert.AreEqual("Author", typeDef.Fields["Author"].Name);
 
       Assert.IsNotNull(typeDef.Indexes["IX_Title"]);
@@ -325,11 +326,11 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
       // Fields
       Assert.IsNotNull(typeDef.Fields["Book"]);
       Assert.AreEqual("Book", typeDef.Fields["Book"].Name);
-      Assert.AreEqual(OnRemoveAction.Cascade, typeDef.Fields["Book"].OnRemove);
+      Assert.AreEqual(OnRemoveAction.Cascade, typeDef.Fields["Book"].OnTargetRemove);
 
       Assert.IsNotNull(typeDef.Fields["Reviewer"]);
       Assert.AreEqual("Reviewer", typeDef.Fields["Reviewer"].Name);
-      Assert.AreEqual(OnRemoveAction.Clear, typeDef.Fields["Reviewer"].OnRemove);
+      Assert.AreEqual(OnRemoveAction.Clear, typeDef.Fields["Reviewer"].OnTargetRemove);
 
       Assert.IsNotNull(typeDef.Fields["Text"]);
       Assert.AreEqual("Text", typeDef.Fields["Text"].Name);

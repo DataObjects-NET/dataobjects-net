@@ -129,6 +129,7 @@ namespace Xtensive.Storage.Building
 
       if (fieldDef.IsPrimitive)
         return;
+
       if (fieldDef.IsStructure) {
         if (fieldDef.ValueType==typeDef.UnderlyingType)
           throw new DomainBuilderException(string.Format("Structure '{0}' can't contain field of the same type.", typeDef.Name));
@@ -136,7 +137,9 @@ namespace Xtensive.Storage.Building
         return;
       }
 
-      Type referencedType = fieldDef.IsEntitySet ? fieldDef.ItemType : fieldDef.ValueType;
+      // Restriction for all reference properties
+      if (fieldDef.OnOwnerRemove == OnRemoveAction.None)
+        throw new DomainBuilderException(string.Format("'{0}.{1}': 'None' value is not acceptable for 'OnOwnerRemove' property.", typeDef.Name, fieldDef.Name));
 
       // Inspecting index for the reference field
       if (fieldDef.IsEntity) {
@@ -144,6 +147,13 @@ namespace Xtensive.Storage.Building
         if (indexDef==null)
           context.ModelInspectionResult.Register(new AddSecondaryIndexAction(typeDef, fieldDef));
       }
+      else {
+        // Restriction for EntitySet properties only
+        if (fieldDef.OnTargetRemove == OnRemoveAction.None || fieldDef.OnTargetRemove == OnRemoveAction.Cascade)
+          throw new DomainBuilderException(string.Format("'{0}.{1}': '{2}' value is not acceptable for 'OnTargetRemove' property.", typeDef.Name, fieldDef.Name, fieldDef.OnTargetRemove));
+      }
+
+      Type referencedType = fieldDef.IsEntitySet ? fieldDef.ItemType : fieldDef.ValueType;
       TypeDef referencedTypeDef = FindTypeDef(referencedType);
 //      TypeDef headDef = context.ModelDef.FindRoot(referencedTypeDef);
       RegisterDependency(typeDef, referencedTypeDef, EdgeKind.Reference, isKeyField ? EdgeWeight.High : EdgeWeight.Low);

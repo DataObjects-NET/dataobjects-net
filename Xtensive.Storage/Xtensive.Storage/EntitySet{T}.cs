@@ -48,11 +48,11 @@ namespace Xtensive.Storage
   ///   public EntitySet&lt;Photo&gt; Photos { get; private set; }
   ///   
   ///   // One-to-many association
-  ///   [Field(PairTo = "Author")]
+  ///   [Field, Association(PairTo = "Author")]
   ///   public EntitySet&lt;BlogItem&gt; BlogItems { get; private set; }
   ///   
   ///   // Many-to-many association
-  ///   [Field(PairTo = "Friends")]
+  ///   [Field, Association(PairTo = "Friends")]
   ///   public EntitySet&lt;User&gt; Friends { get; private set; }
   /// }
   /// </code>

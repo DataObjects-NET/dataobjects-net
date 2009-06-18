@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0082_ReferentialManagerProblem_Mode
     [Field]
     public EntitySet<Descendant> Set1 { get; private set; }
 
-    [Field(PairTo = "Set3")]
+    [Field, Association(PairTo = "Set3")]
     public EntitySet<Descendant> Set2 { get; private set; }
 
     [Field]

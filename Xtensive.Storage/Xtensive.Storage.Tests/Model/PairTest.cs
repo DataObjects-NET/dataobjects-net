@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Tests.PairModel
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field (PairTo = "Slave")]
+    [Field , Association(PairTo = "Slave")]
     public Master Master { get; set; }
   }
 

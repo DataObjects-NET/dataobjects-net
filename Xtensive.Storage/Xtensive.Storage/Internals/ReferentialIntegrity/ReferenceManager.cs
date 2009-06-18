@@ -14,9 +14,9 @@ namespace Xtensive.Storage.ReferentialIntegrity
 {
   internal class ReferenceManager : SessionBound
   {
-    private static readonly CascadeProcessor cascadeProcessor = new CascadeProcessor();
-    private static readonly RestrictProcessor restrictProcessor = new RestrictProcessor();
-    private static readonly ClearProcessor clearProcessor = new ClearProcessor();
+    private static readonly CascadeProcessor CascadeProcessor = new CascadeProcessor();
+    private static readonly RestrictProcessor DenyProcessor = new RestrictProcessor();
+    private static readonly ClearProcessor ClearProcessor = new ClearProcessor();
 
     public RemovalContext Context { get; internal set; }
 
@@ -55,11 +55,11 @@ namespace Xtensive.Storage.ReferentialIntegrity
     {
       switch (action) {
         case OnRemoveAction.Clear:
-          return clearProcessor;
+          return ClearProcessor;
         case OnRemoveAction.Default:
-          return restrictProcessor;
+          return DenyProcessor;
         case OnRemoveAction.Cascade:
-          return cascadeProcessor;
+          return CascadeProcessor;
         default:
           throw new ArgumentOutOfRangeException("action");
       }

@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field(LazyLoad = true, Length = 1073741823)]
     public byte[] Picture { get; set; }
 
-    [Field(PairTo = "Category")]
+    [Field, Association(PairTo = "Category")]
     public EntitySet<Product> Products { get; private set; }
   }
 
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field(Length = 5, MappingName = "CustomerId"), Key]
     public string Id { get; private set; }
 
-    [Field(PairTo = "Customer")]
+    [Field, Association(PairTo = "Customer")]
     public EntitySet<Order> Orders { get; private set; }
 
     // Constructors
@@ -165,7 +165,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field]
     public string HomePage { get; set; }
 
-    [Field(PairTo = "Supplier")]
+    [Field, Association(PairTo = "Supplier")]
     public EntitySet<Product> Products { get; private set; }
   }
 
@@ -312,13 +312,13 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field]
     public Employee ReportsTo { get; set; }
 
-    [Field(PairTo = "ReportsTo")]
+    [Field, Association(PairTo = "ReportsTo")]
     public EntitySet<Employee> ReportingEmployees { get; set; }
 
     [Field(Length = 255)]
     public string PhotoPath { get; set; }
 
-    [Field(PairTo = "Employee")]
+    [Field, Association(PairTo = "Employee")]
     public EntitySet<Order> Orders { get; private set; }
 
     [Field]
@@ -341,7 +341,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field]
     public Region Region { get; set; }
 
-    [Field(PairTo = "Territories")]
+    [Field, Association(PairTo = "Territories")]
     public EntitySet<Employee> Employees { get; private set; }
 
     // Constructors
@@ -392,7 +392,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field]
     public Address ShippingAddress { get; set; }
 
-    [Field(PairTo = "Order")]
+    [Field, Association(PairTo = "Order")]
     public EntitySet<OrderDetails> OrderDetails { get; private set; }
 
     /// <inheritdoc/>

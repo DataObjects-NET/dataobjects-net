@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Tests.Model.Association
 
   public class C : Root2
   {
-    [Field(PairTo = "OneToOneMaster")]
+    [Field, Association(PairTo = "OneToOneMaster")]
     public A OneToOnePaired { get; set; }
 
     [Field]
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Model.Association
 
   public class D : Root2
   {
-    [Field(PairTo = "ManyToOneMaster")]
+    [Field, Association(PairTo = "ManyToOneMaster")]
     public EntitySet<A> OneToManyPaired { get; private set; }
   }
 
@@ -79,13 +79,13 @@ namespace Xtensive.Storage.Tests.Model.Association
 
   public class F : Root2
   {
-    [Field(PairTo = "OneToManyMaster")]
+    [Field, Association(PairTo = "OneToManyMaster")]
     public A ManyToOnePaired { get; set; }
   }
 
   public class G : Root2
   {
-    [Field(PairTo = "ManyToManyMaster")]
+    [Field, Association(PairTo = "ManyToManyMaster")]
     public EntitySet<A> ManytoManyPaired { get; private set; }
   }
 
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Tests.Model.Association
     [Field]
     public H Parent { get; set; }
 
-    [Field(PairTo = "Parent")]
+    [Field, Association(PairTo = "Parent")]
     public EntitySet<H> Children { get; private set; }
   }
 

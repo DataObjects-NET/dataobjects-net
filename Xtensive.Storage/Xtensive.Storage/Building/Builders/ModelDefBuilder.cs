@@ -177,8 +177,23 @@ namespace Xtensive.Storage.Building.Builders
 
     public static FieldDef DefineField(PropertyInfo propertyInfo)
     {
+      // Persistent indexers are not supported
+      var indexParameters = propertyInfo.GetIndexParameters();
+      if (indexParameters.Length > 0)
+        throw new DomainBuilderException(Strings.ExIndexedPropertiesAreNotSupported);
+
+      var fieldDef = new FieldDef(propertyInfo);
+      fieldDef.Name = BuildingContext.Current.NameBuilder.Build(fieldDef);
+
       var fa = propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritAll);
-      return DefineField(propertyInfo, fa);
+      if (fa!=null) {
+        AttributeProcessor.Process(fieldDef, fa);
+        var aa = propertyInfo.GetAttribute<AssociationAttribute>(AttributeSearchOptions.InheritAll);
+        if (aa!=null)
+          AttributeProcessor.Process(fieldDef, aa);
+      }
+
+      return fieldDef;
     }
 
     public static FieldDef DefineField(Type declaringType, string name, Type valueType)
@@ -189,22 +204,6 @@ namespace Xtensive.Storage.Building.Builders
         return DefineField(propertyInfo);
 
       return new FieldDef(valueType) {Name = name};
-    }
-
-    private static FieldDef DefineField(PropertyInfo propertyInfo, FieldAttribute attribute)
-    {
-      // Persistent indexers are not supported
-      var indexParameters = propertyInfo.GetIndexParameters();
-      if (indexParameters.Length > 0)
-        throw new DomainBuilderException(Strings.ExIndexedPropertiesAreNotSupported);
-
-      var fieldDef = new FieldDef(propertyInfo);
-      fieldDef.Name = BuildingContext.Current.NameBuilder.Build(fieldDef);
-
-      if (attribute!=null)
-        AttributeProcessor.Process(fieldDef, attribute);
-
-      return fieldDef;
     }
 
     public static IndexDef DefineIndex(TypeDef typeDef, IndexAttribute attribute)

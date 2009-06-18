@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
       [Field, Key]
       public Guid ID { get; private set; }
 
-      [Field(PairTo = "Slaves")]
+      [Field, Association(PairTo = "Slaves")]
       public MasterEntity Master { get; set; }
     }
 

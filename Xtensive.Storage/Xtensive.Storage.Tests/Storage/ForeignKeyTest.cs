@@ -28,7 +28,8 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Field]
     public User Boss { get; set; }
 
-    [Field(OnRemove=OnRemoveAction.Clear)]
+    [Field]
+    [Association(OnTargetRemove=OnRemoveAction.Clear)]
     public Company Company { get; set; }
 
     [Field]
@@ -48,7 +49,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Field]
     public string Name { get; set; }
 
-    [Field(OnRemove = OnRemoveAction.Clear)]
+    [Field, Association(OnTargetRemove = OnRemoveAction.Clear)]
     public User Director { get; set; }
   }
 
@@ -66,7 +67,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     [Field]
     public string Name { get; set; }
 
-    [Field(PairTo = "Projects")]
+    [Field, Association(PairTo = "Projects")]
     public EntitySet<User> Users { get; private set; }
   }
 

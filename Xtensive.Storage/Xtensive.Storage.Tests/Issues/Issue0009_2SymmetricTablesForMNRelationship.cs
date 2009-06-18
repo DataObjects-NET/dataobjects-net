@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0009_Model
     [Field, Key]
     public Guid ID { get; private set; }
 
-    [Field(PairTo = "Authors")]
+    [Field, Association(PairTo = "Authors")]
     public EntitySet<Book> Books { get; private set; }
   }
 

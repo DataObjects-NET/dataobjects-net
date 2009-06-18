@@ -38,6 +38,7 @@ namespace Xtensive.Storage.Model
     private ThreadSafeCached<int>         cachedHashCode = ThreadSafeCached<int>.Create(new object());
     private Type                          itemType;
     private string                        originalName;
+    internal SegmentTransform             valueExtractorTransform;
 
     #region IsXxx properties
 
@@ -443,18 +444,13 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets the extract value transform.
-    /// </summary>
-    public SegmentTransform ValueExtractorTransform { get; private set; }
-
-    /// <summary>
     /// Extracts the field value from the specified <see cref="Tuple"/>.
     /// </summary>
     /// <param name="tuple">The tuple to extract value from.</param>
     /// <returns><see cref="Tuple"/> instance with the extracted value.</returns>
     public Tuple ExtractValue (Tuple tuple)
     {
-      return ValueExtractorTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+      return valueExtractorTransform.Apply(TupleTransformType.TransformedTuple, tuple);
     }
 
     /// <summary>
@@ -494,7 +490,7 @@ namespace Xtensive.Storage.Model
             Fields.First().MappingInfo.Offset, Fields.Sum(f => f.IsPrimitive ? f.MappingInfo.Length : 0));
 
       if (IsEntity || IsStructure) {
-        ValueExtractorTransform = new SegmentTransform(
+        valueExtractorTransform = new SegmentTransform(
           false, reflectedType.TupleDescriptor, new Segment<int>(MappingInfo.Offset, MappingInfo.Length));
       }
     }

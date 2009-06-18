@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Storage.EntitySetModel
     [Field]
     public int Name { get; set; }
 
-    [Field(PairTo = "Books")]
+    [Field, Association(PairTo = "Books")]
     public Author Author { get; private set; }
   }
 
