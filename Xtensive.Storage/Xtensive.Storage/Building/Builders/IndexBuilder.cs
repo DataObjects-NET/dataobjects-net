@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildVirtualInheritedInterfaceIndex(TypeInfo @interface, IndexInfo parentIndex)
     {
-      var index = BuildInheritedIndex(@interface, parentIndex);
+      var index = BuildInheritedIndex(@interface, parentIndex, false);
 
       @interface.Indexes.Add(index);
       if ((@interface.Attributes & TypeAttributes.Materialized) != 0)
@@ -146,12 +146,18 @@ namespace Xtensive.Storage.Building.Builders
 
     #region Build IndexInfo methods
 
-    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     private static IndexInfo BuildIndex(TypeInfo typeInfo, IndexDef indexDef)
+    {
+      return BuildIndex(typeInfo, indexDef, false);
+    }
+
+    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
+    private static IndexInfo BuildIndex(TypeInfo typeInfo, IndexDef indexDef, bool buildAbstract)
     {
       var context = BuildingContext.Current;
       Log.Info(Strings.LogBuildingIndexX, indexDef.Name);
-      var result = new IndexInfo(typeInfo, indexDef.Attributes) {
+      var indexAttr = !buildAbstract ? indexDef.Attributes : indexDef.Attributes | IndexAttributes.Abstract;
+      var result = new IndexInfo(typeInfo, indexAttr) {
         FillFactor = indexDef.FillFactor, 
         ShortName = indexDef.Name, 
         MappingName = indexDef.MappingName
@@ -236,8 +242,14 @@ namespace Xtensive.Storage.Building.Builders
 
     private static IndexInfo BuildInheritedIndex(TypeInfo reflectedType, IndexInfo ancestorIndexInfo)
     {
+      return BuildInheritedIndex(reflectedType, ancestorIndexInfo, false);
+    }
+
+    private static IndexInfo BuildInheritedIndex(TypeInfo reflectedType, IndexInfo ancestorIndexInfo,
+      bool buildAbstract)
+    {
       Log.Info(Strings.LogBuildingIndexX, ancestorIndexInfo.Name);
-      var result = new IndexInfo(reflectedType, ancestorIndexInfo);
+      var result = new IndexInfo(reflectedType, ancestorIndexInfo, buildAbstract);
       var useFieldMap = ancestorIndexInfo.ReflectedType.IsInterface && !reflectedType.IsInterface;
 
       // Adding key columns
@@ -295,7 +307,8 @@ namespace Xtensive.Storage.Building.Builders
     {
       Log.Info(Strings.LogBuildingIndexX, baseIndex.Name);
       var nameBuilder = BuildingContext.Current.NameBuilder;
-      var result = new IndexInfo(reflectedType, indexAttributes, baseIndex, baseIndexes);
+      var result = new IndexInfo(reflectedType, indexAttributes,
+        baseIndex, baseIndexes);
 
       var allBaseIndexes = new List<IndexInfo> { baseIndex };
       allBaseIndexes.AddRange(baseIndexes);
@@ -357,6 +370,10 @@ namespace Xtensive.Storage.Building.Builders
 
       result.Name = nameBuilder.Build(reflectedType, result);
       result.Group = BuildColumnGroup(result);
+
+      foreach (var index in allBaseIndexes)
+        if((index.Attributes & IndexAttributes.Abstract) == IndexAttributes.Abstract)
+          result.UnderlyingIndexes.Remove(index);
 
       return result;
     }

@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Building.Builders
       // Building primary index for root of the hierarchy
       if (primaryIndexDefinition != null)
         using (var scope = new LogCaptureScope(context.Log)) {
-          var primaryIndex = BuildIndex(root, primaryIndexDefinition);
+          var primaryIndex = BuildIndex(root, primaryIndexDefinition, type.UnderlyingType.IsAbstract);
           if (!scope.IsCaptured(LogEventTypes.Error)) {
             type.Indexes.Add(primaryIndex);
             context.Model.RealIndexes.Add(primaryIndex);
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Building.Builders
       // Building declared indexes
       foreach (var indexDescriptor in indexDefinitions)
         using (var scope = new LogCaptureScope(context.Log)) {
-          var indexInfo = BuildIndex(type, indexDescriptor); 
+          var indexInfo = BuildIndex(type, indexDescriptor, type.UnderlyingType.IsAbstract); 
           if (!scope.IsCaptured(LogEventTypes.Error)) {
             type.Indexes.Add(indexInfo);
             context.Model.RealIndexes.Add(indexInfo);
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Building.Builders
       var parent = type.GetAncestor();
       if (parent != null) {
         var parentPrimaryIndex = parent.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
-        var primaryIndex = BuildInheritedIndex(type, parentPrimaryIndex);
+        var primaryIndex = BuildInheritedIndex(type, parentPrimaryIndex, type.UnderlyingType.IsAbstract);
        
         // Registering built primary index
         type.Indexes.Add(primaryIndex);
@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Building.Builders
 
           if (parentIndex.DeclaringIndex == parentIndex)
             using (var scope = new LogCaptureScope(context.Log)) {
-              var index = BuildInheritedIndex(type, parentIndex);
+              var index = BuildInheritedIndex(type, parentIndex, type.UnderlyingType.IsAbstract);
               // TODO: AK: discover this check
               if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
                 continue;
@@ -97,7 +97,8 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var ancestor in ancestors)
           foreach (var ancestorSecondaryIndex in ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None)) {
             if (ancestorSecondaryIndex.DeclaringIndex == ancestorSecondaryIndex) {
-              var secondaryIndex = BuildInheritedIndex(type, ancestorSecondaryIndex);
+              var secondaryIndex = BuildInheritedIndex(type, ancestorSecondaryIndex,
+                type.UnderlyingType.IsAbstract);
               type.Indexes.Add(secondaryIndex);
               context.Model.RealIndexes.Add(secondaryIndex);
             }
@@ -108,7 +109,8 @@ namespace Xtensive.Storage.Building.Builders
           foreach (var index in type.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None)) {
             var secondaryIndex = index;
             var baseIndexes = descendants.SelectMany(t => t.Indexes.Where(i => i.DeclaringIndex==secondaryIndex.DeclaringIndex)).ToList();
-            var virtualSecondaryIndex = BuildVirtualIndex(type, IndexAttributes.Union, index, baseIndexes.ToArray());
+            var virtualSecondaryIndex = BuildVirtualIndex(type, IndexAttributes.Union, index,
+              baseIndexes.ToArray());
             type.Indexes.Add(virtualSecondaryIndex);
           }
       }

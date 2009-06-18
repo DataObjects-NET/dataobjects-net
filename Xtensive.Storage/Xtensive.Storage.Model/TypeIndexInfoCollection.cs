@@ -133,6 +133,7 @@ namespace Xtensive.Storage.Model
       var virtualIndexes = from index in this where index.IsVirtual select index;
       result.AddRange(virtualIndexes);
       var realIndexes = from index in this where !index.IsVirtual 
+                          && (index.Attributes & IndexAttributes.Abstract) == 0
                           && result.Count(virtualIndex => virtualIndex.UnderlyingIndexes.Contains(index)) == 0
                         select index;
       result.AddRange(realIndexes);

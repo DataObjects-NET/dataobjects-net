@@ -268,7 +268,10 @@ namespace Xtensive.Storage.Model
     /// </summary>
     /// <param name="reflectedType">Reflected type.</param>
     /// <param name="ancestorIndex">The ancestors index.</param>
-    public  IndexInfo(TypeInfo reflectedType,  IndexInfo ancestorIndex)
+    /// <param name="isAbstract">If set to <see langword="true"/> then 
+    /// the flag <see cref="IndexAttributes.Abstract"/> will be added to 
+    /// the property <see cref="Attributes"/>.</param>
+    public  IndexInfo(TypeInfo reflectedType,  IndexInfo ancestorIndex, bool isAbstract)
     {
       declaringType = ancestorIndex.DeclaringType;
       this.reflectedType = reflectedType;
@@ -276,7 +279,11 @@ namespace Xtensive.Storage.Model
         attributes = (ancestorIndex.Attributes | IndexAttributes.Virtual | IndexAttributes.Union) &
                      ~(IndexAttributes.Real | IndexAttributes.Join | IndexAttributes.Filtered);
       else
-        attributes = (ancestorIndex.Attributes | IndexAttributes.Real) & ~(IndexAttributes.Join | IndexAttributes.Union | IndexAttributes.Filtered | IndexAttributes.Virtual);
+        attributes = (ancestorIndex.Attributes | IndexAttributes.Real) 
+          & ~(IndexAttributes.Join | IndexAttributes.Union | IndexAttributes.Filtered 
+          | IndexAttributes.Virtual | IndexAttributes.Abstract);
+      if(isAbstract)
+        attributes = attributes | IndexAttributes.Abstract;
       FillFactor = ancestorIndex.FillFactor;
       shortName = ancestorIndex.ShortName;
       declaringIndex = ancestorIndex.DeclaringIndex;
@@ -290,10 +297,11 @@ namespace Xtensive.Storage.Model
     /// <param name="baseIndex">Base index.</param>
     /// <param name="baseIndexes">The base indexes.</param>
     public IndexInfo(TypeInfo reflectedType, IndexAttributes indexAttributes, IndexInfo baseIndex, params IndexInfo[] baseIndexes)
-      : this (baseIndex.DeclaringType, baseIndex)
+      : this (baseIndex.DeclaringType, baseIndex, false)
     {
       attributes = baseIndex.Attributes &
-                   ~(IndexAttributes.Join | IndexAttributes.Union | IndexAttributes.Filtered | IndexAttributes.Real) |
+                   ~(IndexAttributes.Abstract | IndexAttributes.Join 
+                   | IndexAttributes.Union | IndexAttributes.Filtered | IndexAttributes.Real) |
                    indexAttributes | IndexAttributes.Virtual;
       UnderlyingIndexes.Add(baseIndex);
       foreach (IndexInfo info in baseIndexes)
