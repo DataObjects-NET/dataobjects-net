@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Internals
         keyTuple = referencedObject.Key.Value;
         recordSet = index.ToRecordSet().Range(keyTuple, keyTuple);
         foreach (var item in recordSet)
-          yield return Key.Create(association.ReferencingType, association.ReferencingField.ExtractValue(item)).Resolve();
+          yield return Key.Create(association.ReferencingType, association.ExtractForeignKey(item)).Resolve();
           break;
       }
     }

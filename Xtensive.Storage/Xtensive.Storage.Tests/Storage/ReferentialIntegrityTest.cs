@@ -70,56 +70,6 @@ namespace Xtensive.Storage.Tests.Storage
 {
   public class ReferentialIntegrityTest : AutoBuildTest
   {
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.ReferentialIntegrityModel");
-      return config;
-    }
-
-    [Test]
-    public void RemoveWithException()
-    {
-      using (Domain.OpenSession()) {
-        A a;
-        C c;
-        using (var t = Transaction.Open()) {
-          a = new A();
-          c = new C();
-          a.C = c;
-          Log.Debug(a.Key.ToString());
-          Log.Debug(c.Key.ToString());
-          a.Remove();
-          Session.Current.Persist();
-        }
-      }
-    }
-
-    [Test]
-    public void DeletedEntityAddToReference()
-    {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          A a = new A();
-          B b = new B();
-          b.Remove();
-          AssertEx.ThrowsInvalidOperationException(() => a.B = b);
-        }
-      }
-    }
-
-    [Test]
-    public void DeletedEntityChangeFields()
-    {
-      using (Domain.OpenSession()) {
-        using (var t = Transaction.Open()) {
-          A a = new A();
-          a.Remove();
-          AssertEx.ThrowsInvalidOperationException(() => a.Name = "newName");
-        }
-      }
-    }
-
     [Test]
     public void MainTest()
     {
@@ -166,6 +116,56 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(2, m.ManyToMany.Count);
 
           t.Complete();
+        }
+      }
+    }
+
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      DomainConfiguration config = base.BuildConfiguration();
+      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.ReferentialIntegrityModel");
+      return config;
+    }
+
+    [Test]
+    public void RemoveWithException()
+    {
+      using (Domain.OpenSession()) {
+        A a;
+        C c;
+        using (var t = Transaction.Open()) {
+          a = new A();
+          c = new C();
+          a.C = c;
+          Log.Debug(a.Key.ToString());
+          Log.Debug(c.Key.ToString());
+          a.Remove();
+          Session.Current.Persist();
+        }
+      }
+    }
+
+    [Test]
+    public void DeletedEntityAddToReference()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          A a = new A();
+          B b = new B();
+          b.Remove();
+          AssertEx.ThrowsInvalidOperationException(() => a.B = b);
+        }
+      }
+    }
+
+    [Test]
+    public void DeletedEntityChangeFields()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          A a = new A();
+          a.Remove();
+          AssertEx.ThrowsInvalidOperationException(() => a.Name = "newName");
         }
       }
     }
