@@ -70,8 +70,8 @@ namespace Xtensive.Modelling.Tests
     public void SerializationTest()
     {
       var clone = (Server) LegacyBinarySerializer.Instance.Clone(srv);
-      clone.Validate();
       clone.Dump();
+      clone.Validate();
     }
 
     [Test]
