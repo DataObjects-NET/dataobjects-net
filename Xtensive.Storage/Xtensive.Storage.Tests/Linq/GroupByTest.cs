@@ -481,7 +481,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore("Not implemented")]
     public void GroupByWithSelectFirstTest()
     {
       var result = Query<Order>.All

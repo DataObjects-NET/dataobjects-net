@@ -67,7 +67,6 @@ namespace Xtensive.Storage.Tests.Linq
       QueryDumper.Dump(result);
     }
 
-    [Ignore("Not implemented")]
     [Test]
     public void SubqueryCalculableFieldTest()
     {

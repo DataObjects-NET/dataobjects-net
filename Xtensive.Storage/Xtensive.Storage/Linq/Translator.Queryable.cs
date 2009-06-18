@@ -315,7 +315,18 @@ namespace Xtensive.Storage.Linq
         var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, recordSet, context);
         return new ProjectionExpression(method.ReturnType, itemProjector, projection.TupleParameterBindings, resultType);
       }
-      throw new NotImplementedException();
+
+      var lambdaParameter = state.Parameters[0];
+      var oldResult = context.Bindings[lambdaParameter];
+      var applyParameter = context.GetApplyParameter(oldResult);
+
+      int columnIndex = oldResult.ItemProjector.DataSource.Header.Length;
+      var newRecordSet = oldResult.ItemProjector.DataSource.Apply(applyParameter, recordSet.Alias(context.GetNextAlias()), true, JoinType.Inner);
+      var newItemProjector = projection.ItemProjector.Remap(newRecordSet, columnIndex);
+      var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
+      context.Bindings.ReplaceBound(lambdaParameter, newResult);
+
+      return newItemProjector.Item;
     }
 
     private ProjectionExpression VisitTake(Expression source, Expression take)

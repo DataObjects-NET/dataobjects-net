@@ -99,7 +99,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore("Not implemented")]
     public void SelectFirstTest()
     {
       var products = Query<Product>.All;
@@ -116,6 +115,64 @@ namespace Xtensive.Storage.Tests.Linq
                      };
       var list = result.ToList();
       Assert.Greater(list.Count, 0);
+    }
+
+    [Test]
+    public void SubqueryFirstTest()
+    {
+      var customersCount = Query<Customer>.All.Count(c => c.Orders.Count > 0);
+      var result = Query<Customer>.All.Where(c => c.Orders.Count > 0).Select(c => c.Orders.First());
+      var list = result.ToList();
+      Assert.AreEqual(customersCount, list.Count);
+    }
+
+    [Test]
+    public void SubqueryFirstExpectedExceptionTest()
+    {
+      var result = Query<Customer>.All.Select(c => c.Orders.First());
+      AssertEx.ThrowsInvalidOperationException(() => result.ToList());
+    }
+
+    [Test]
+    public void SubqueryFirstOrDefaultTest()
+    {
+      var customersCount = Query<Customer>.All.Count();
+      var result = Query<Customer>.All.Select(c => c.Orders.FirstOrDefault());
+      var list = result.ToList();
+      Assert.AreEqual(customersCount, list.Count);
+    }
+
+    [Test]
+    public void SubquerySingleTest()
+    {
+      var customersCount = Query<Customer>.All.Count(c => c.Orders.Count > 0);
+      var result = Query<Customer>.All.Where(c => c.Orders.Count > 0).Select(c => c.Orders.Take(1).Single());
+      var list = result.ToList();
+      Assert.AreEqual(customersCount, list.Count);
+    }
+
+    [Test]
+    public void SubquerySingleExpectedException1Test()
+    {
+      var result = Query<Customer>.All.Select(c => c.Orders.Take(1).Single());
+      AssertEx.ThrowsInvalidOperationException(() => result.ToList());
+    }
+
+    [Test]
+    [ExpectedException]
+    public void SubquerySingleExpectedException2Test()
+    {
+      var result = Query<Customer>.All.Where(c => c.Orders.Count > 0).Select(c => c.Orders.Single());
+      result.ToList();
+    }
+
+    [Test]
+    public void SubquerySingleOrDefaultTest()
+    {
+      var customersCount = Query<Customer>.All.Count();
+      var result = Query<Customer>.All.Select(c => c.Orders.Take(1).SingleOrDefault());
+      var list = result.ToList();
+      Assert.AreEqual(customersCount, list.Count);
     }
   }
 }
