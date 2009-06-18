@@ -23,8 +23,29 @@ using Xtensive.Storage.Resources;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Session implementation.
+  /// Data context, which all persistent objects are bound to.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Each session has its own connection to database and set of materialized persistent instates.
+  /// It contains identity map and tracks changes in bound persistent classes.
+  /// </para>
+  /// <para>
+  /// <c>Session</c> implements <see cref="IContext"/> interface, it means that each <c>Session</c>
+  /// can be either active or not active in particular thread (see <see cref="IsActive"/> property).
+  /// Each thread can contain only one active session, it can be a accessed via 
+  /// <see cref="Current">Session.Current</see> property or <see cref="Demand">Session.Demand()</see> method.
+  /// </para>
+  /// <para>
+  /// Session can be open and activated by <see cref="Domain.OpenSession()">Domain.OpenSession()</see> method. 
+  /// Existing session can be activated by <see cref="Activate"/> method.
+  /// </para>
+  /// </remarks>
+  /// <example>
+  /// <code source="..\Xtensive.Storage.Manual\DomainAndSessionSample.cs" region="Session sample"></code>
+  /// </example>
+  /// <seealso cref="Domain"/>
+  /// <seealso cref="SessionBound" />
   public partial class Session : DomainBound,
     IContext<SessionScope>,
     IResource

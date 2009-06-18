@@ -11,8 +11,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Base class for all objects that are bound to the <see cref="Domain"/>
-  /// instance.
+  /// Base class for all objects that are bound to the <see cref="Domain"/> instance.
   /// </summary>
   public abstract class DomainBound: IContextBound<Domain>
   {

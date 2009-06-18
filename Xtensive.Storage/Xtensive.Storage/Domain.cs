@@ -18,7 +18,6 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
-using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
@@ -30,6 +29,9 @@ namespace Xtensive.Storage
   /// <summary>
   /// An access point to a single storage.
   /// </summary>
+  /// <sample>
+  /// <code source="..\Xtensive.Storage.Manual\DomainAndSessionSample.cs" region="Domain sample"></code>
+  /// </sample>
   public sealed class Domain : CriticalFinalizerObject,
     IDisposableContainer
   {
@@ -44,9 +46,10 @@ namespace Xtensive.Storage
     public EventHandler OnDisposing;
 
     /// <summary>
-    /// Gets the current <see cref="Domain"/> object
-    /// using <see cref="Session"/>. <see cref="Session.Current"/>.
+    /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>. 
     /// </summary>
+    /// <seealso cref="Session.Current"/>
+    /// <seealso cref="Demand"/>
     public static Domain Current {
       get {
         var session = Session.Current;
@@ -55,12 +58,12 @@ namespace Xtensive.Storage
     }    
 
     /// <summary>
-    /// Gets the current <see cref="Domain"/>, 
-    /// or throws <see cref="InvalidOperationException"/>, 
+    /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>, or throws <see cref="InvalidOperationException"/>, 
     /// if active <see cref="Session"/> is not found.
     /// </summary>
     /// <returns>Current domain.</returns>
-    /// <exception cref="InvalidOperationException"><see cref="Session.Current"/> <see cref="Session"/> is <see langword="null" />.</exception>
+    /// <exception cref="InvalidOperationException">Current session is <see langword="null" />.</exception>
+    /// <seealso cref="Session.Demand">Session.Current property</seealso>
     public static Domain Demand()
     {
       var session = Session.Demand();
@@ -68,7 +71,7 @@ namespace Xtensive.Storage
     }    
     
     /// <summary>
-    /// Gets the configuration.
+    /// Gets the domain configuration.
     /// </summary>
     public DomainConfiguration Configuration { get; private set; }
     
@@ -90,12 +93,12 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the storage schema.
     /// </summary>
-    public StorageInfo Schema { get; internal set; }
+    public StorageInfo Schema { get; set; }
 
     /// <summary>
     /// Gets the extracted storage schema.
     /// </summary>
-    public StorageInfo ExtractedSchema { get; internal set; }
+    public StorageInfo ExtractedSchema { get; set; }
 
     /// <summary>
     /// Gets the handler factory.
@@ -116,7 +119,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the domain-level temporary data.
     /// </summary>
-    public GlobalTemporaryData TemporaryData { get; private set; }    
+    public GlobalTemporaryData TemporaryData { get; private set; }
 
     /// <summary>
     /// Gets the service container.
@@ -125,14 +128,19 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Indicates whether debug event logging is enabled.
-    /// Caches <see cref="Log.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
     /// </summary>
+    /// <remarks>
+    /// Caches <see cref="Log.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
+    /// </remarks>
     public bool IsDebugEventLoggingEnabled { get; private set; }
 
     /// <summary>
     /// Gets the information about provider's capabilities.
     /// </summary>
-    public ProviderInfo ProviderInfo {get { return Handler.ProviderInfo;} }
+    public ProviderInfo StorageProviderInfo
+    {
+      get { return Handler.ProviderInfo;}
+    }
 
     internal DomainHandler Handler {
       [DebuggerStepThrough]
@@ -168,19 +176,36 @@ namespace Xtensive.Storage
     #region OpenSession methods
 
     /// <summary>
-    /// Opens the session with default <see cref="SessionConfiguration"/>.
+    /// Opens and activates the <see cref="Session"/> with default <see cref="SessionConfiguration"/>.
     /// </summary>
     /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
+    /// <remarks>
+    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
+    /// </remarks>
+    /// <sample><code>
+    /// using (domain.OpenSession()) {
+    ///   // work with persistent objects here
+    /// {
+    /// </code></sample>
+    /// <seealso cref="Session"/>
     public SessionConsumptionScope OpenSession()
     {
       return OpenSession(Configuration.Sessions.Default);
     }
 
     /// <summary>
-    /// Opens the session of specified <see cref="SessionType"/>.
+    /// Opens and activates the <see cref="Session"/> of specified <see cref="SessionType"/>.
     /// </summary>
     /// <param name="type">The type of session.</param>
     /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
+    /// <remarks>
+    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
+    /// </remarks>
+    /// <sample><code>
+    /// using (domain.OpenSession(sessionType)) {
+    ///   // work with persistent objects here
+    /// {
+    /// </code></sample>
     public SessionConsumptionScope OpenSession(SessionType type)
     {
       switch (type) {
@@ -198,10 +223,19 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Opens the session with specified <paramref name="configuration"/>.
+    /// Opens and activates the <see cref="Session"/> with specified <paramref name="configuration"/>.
     /// </summary>
     /// <param name="configuration">The session configuration.</param>
+    /// <remarks>
+    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
+    /// </remarks>
+    /// <sample><code>
+    /// using (domain.OpenSession(sessionConfiguration)) {
+    ///   // work with persistent objects here
+    /// {
+    /// </code></sample>
     /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
+    /// <seealso cref="Session"/>
     public SessionConsumptionScope OpenSession(SessionConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
@@ -218,10 +252,9 @@ namespace Xtensive.Storage
     #endregion
 
     /// <summary>
-    /// Builds the new <see cref="Domain"/> according to the specified 
-    /// <see cref="DomainConfiguration"/>.
+    /// Builds the new <see cref="Domain"/> according to the specified <see cref="DomainConfiguration"/>.
     /// </summary>
-    /// <param name="configuration">The <see cref="DomainConfiguration"/>.</param>
+    /// <param name="configuration">The configuration of domain to build.</param>
     /// <returns>Newly built <see cref="Domain"/>.</returns>
     public static Domain Build(DomainConfiguration configuration)
     {

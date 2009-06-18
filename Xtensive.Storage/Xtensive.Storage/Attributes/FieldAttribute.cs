@@ -10,7 +10,7 @@ namespace Xtensive.Storage
 {
   /// <summary>
   /// Indicates that property is persistent field,
-  /// and defines its percistence-related properies.
+  /// and defines its persistence-related properties.
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]

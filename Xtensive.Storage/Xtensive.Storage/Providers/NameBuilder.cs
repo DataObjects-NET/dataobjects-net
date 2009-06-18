@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Providers
   /// <summary>
   /// Name builder for <see cref="DomainModel"/> nodes 
   /// Provides names according to a set of naming rules contained in
-  /// <see cref="NamingConvention"/> object.
+  /// <see cref="NamingConvention"/>.
   /// </summary>
   public class NameBuilder : HandlerBase
   {
