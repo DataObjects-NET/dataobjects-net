@@ -23,27 +23,27 @@ namespace Xtensive.Storage
     /// <summary>
     /// Occurs on <see cref="Transaction"/> opening.
     /// </summary>
-    public EventHandler<TransactionEventArgs> OnOpenTransaction;
+    public event EventHandler<TransactionEventArgs> TransactionOpen;
 
     /// <summary>
-    /// Occurs when <see cref="Transaction"/> is about to commit.
+    /// Occurs when <see cref="Transaction"/> is about to be committed.
     /// </summary>
-    public EventHandler<TransactionEventArgs> OnCommittingTransaction;
+    public event EventHandler<TransactionEventArgs> TransactionCommitting;
 
     /// <summary>
-    /// Occurs when <see cref="Transaction"/> committed.
+    /// Occurs when <see cref="Transaction"/> is committed.
     /// </summary>
-    public EventHandler<TransactionEventArgs> OnCommitTransaction;
+    public event EventHandler<TransactionEventArgs> TransactionCommitted;
 
     /// <summary>
-    /// Occurs when <see cref="Transaction"/> is about to rollback.
+    /// Occurs when <see cref="Transaction"/> is about to be rolled back.
     /// </summary>
-    public EventHandler<TransactionEventArgs> OnRollbackingTransaction;
+    public event EventHandler<TransactionEventArgs> TransactionRollbacking;
 
     /// <summary>
-    /// Occurs when <see cref="Transaction"/> rolled back.
+    /// Occurs when <see cref="Transaction"/> is rolled back.
     /// </summary>
-    public EventHandler<TransactionEventArgs> OnRollbackTransaction;
+    public event EventHandler<TransactionEventArgs> TransactionRollbacked;
 
     /// <summary>
     /// Opens a new or already running transaction.
@@ -62,12 +62,12 @@ namespace Xtensive.Storage
         throw new InvalidOperationException(Strings.ExTransactionRequired);
       var transaction = new Transaction(this, isolationLevel);
       Transaction = transaction;
-      var ts = (TransactionScope) transaction.Begin();
-      if (ts!=null && Configuration.UsesAmbientTransactions) {
-        ambientTransactionScope = ts;
+      var transactionScope = (TransactionScope) transaction.Begin();
+      if (transactionScope!=null && Configuration.UsesAmbientTransactions) {
+        ambientTransactionScope = transactionScope;
         return null;
       }
-      return ts;
+      return transactionScope;
     }
 
     /// <summary>
@@ -112,13 +112,13 @@ namespace Xtensive.Storage
     /// </summary>
     public void CommitAmbientTransaction()
     {
-      var ts = ambientTransactionScope;
+      var scope = ambientTransactionScope;
       try {
-        ts.Complete();
+        scope.Complete();
       }
       finally {
         ambientTransactionScope = null;
-        ts.DisposeSafely();
+        scope.DisposeSafely();
       }
     }
 
@@ -127,9 +127,9 @@ namespace Xtensive.Storage
     /// </summary>
     public void RollbackAmbientTransaction()
     {
-      var ts = ambientTransactionScope;
+      var scope = ambientTransactionScope;
       ambientTransactionScope = null;
-      ts.DisposeSafely();
+      scope.DisposeSafely();
     }
 
     #region OnXxx event-like methods
@@ -137,38 +137,37 @@ namespace Xtensive.Storage
     internal void BeginTransaction()
     {
       Handler.BeginTransaction();
-      NotifyOpenTransaction(Transaction);
-
+      OnTransactionOpen(Transaction);
     }
 
-    private void NotifyOpenTransaction(Transaction transaction)
+    private void OnTransactionOpen(Transaction transaction)
     {
-      if (OnOpenTransaction!=null)
-        OnOpenTransaction(this, new TransactionEventArgs(transaction));
+      if (TransactionOpen!=null)
+        TransactionOpen(this, new TransactionEventArgs(transaction));
     }
 
-    private void NotifyCommittingTransaction(Transaction transaction)
+    private void OnTransactionCommitting(Transaction transaction)
     {
-      if (OnCommittingTransaction!=null)
-        OnCommittingTransaction(this, new TransactionEventArgs(transaction));
+      if (TransactionCommitting!=null)
+        TransactionCommitting(this, new TransactionEventArgs(transaction));
     }
 
-    private void NotifyCommitTransaction(Transaction transaction)
+    private void OnTransactionCommitted(Transaction transaction)
     {
-      if (OnCommitTransaction!=null)
-        OnCommitTransaction(this, new TransactionEventArgs(transaction));
+      if (TransactionCommitted!=null)
+        TransactionCommitted(this, new TransactionEventArgs(transaction));
     }
 
-    private void NotifyRollbackingTransaction(Transaction transaction)
+    private void OnTransactionRollbacking(Transaction transaction)
     {
-      if (OnRollbackingTransaction!=null)
-        OnRollbackingTransaction(this, new TransactionEventArgs(transaction));
+      if (TransactionRollbacking!=null)
+        TransactionRollbacking(this, new TransactionEventArgs(transaction));
     }
 
     private void NotifyRollbackTransaction(Transaction transaction)
     {
-      if (OnRollbackTransaction!=null)
-        OnRollbackTransaction(this, new TransactionEventArgs(transaction));
+      if (TransactionRollbacked!=null)
+        TransactionRollbacked(this, new TransactionEventArgs(transaction));
     }
 
 
@@ -176,9 +175,9 @@ namespace Xtensive.Storage
     {
       try {
         Persist();
-        NotifyCommittingTransaction(Transaction);
+        OnTransactionCommitting(Transaction);
         Handler.CommitTransaction();
-        NotifyCommitTransaction(Transaction);
+        OnTransactionCommitted(Transaction);
         CompleteTransaction();
       }
       catch {        
@@ -190,7 +189,7 @@ namespace Xtensive.Storage
     internal void RollbackTransaction()
     {
       try {
-        NotifyRollbackingTransaction(Transaction);
+        OnTransactionRollbacking(Transaction);
         Handler.RollbackTransaction();
         NotifyRollbackTransaction(Transaction);
       }

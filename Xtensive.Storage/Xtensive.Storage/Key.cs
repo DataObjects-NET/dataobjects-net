@@ -5,27 +5,26 @@
 // Created:    2007.12.20
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Web;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
-using Xtensive.Storage.Serialization;
 
 namespace Xtensive.Storage
 {
   /// <summary>
   /// Contains a set of identifying values of an <see cref="Entity"/>.
-  /// Every entity is uniquely identified by its <see cref="Entity.Key"/>.
   /// </summary>
+  /// <remarks>
+  /// Every entity is uniquely identified by its <see cref="Entity.Key"/>.
+  /// </remarks>
+  /// <seealso cref="Entity.Key"/>
   [Serializable]
   public sealed class Key : IEquatable<Key>
   {    
@@ -42,7 +41,7 @@ namespace Xtensive.Storage
     private string cachedFormatResult;
 
     /// <summary>
-    /// Gets the hierarchy this instance belongs to.
+    /// Gets the hierarchy identified entity belongs to.
     /// </summary>
     public HierarchyInfo Hierarchy
     {

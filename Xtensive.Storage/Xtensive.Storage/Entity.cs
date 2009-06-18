@@ -47,7 +47,7 @@ namespace Xtensive.Storage
   /// </code>
   /// </example>
   /// <seealso cref="Structure">Structure class</seealso>
-  /// <seealso cref="EntitySet{TItem}">EntitySet class</seealso>
+  /// <seealso cref="EntitySet{TItem}"><c>EntitySet</c> class</seealso>
   [SystemType]
   public abstract class Entity : Persistent,
     IEntity, ISerializable, IDeserializationCallback
@@ -70,10 +70,8 @@ namespace Xtensive.Storage
     #region Properties: Key, Type, Tuple, PersistenceState
 
     /// <summary>
-    /// Gets the <see cref="Key"/> that idetifies this entity.
+    /// Gets the <see cref="Key"/> that identifies this entity.
     /// </summary>
-    /// <value></value>
-    /// <exception cref="Exception">Property is already initialized.</exception>
     [Infrastructure]
     public Key Key
     {
