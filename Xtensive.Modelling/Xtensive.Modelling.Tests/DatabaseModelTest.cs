@@ -88,13 +88,13 @@ namespace Xtensive.Modelling.Tests
       var source = new Server("Source");
       var target = srv;
       target.Validate();
-      
+       
       Log.Info("Source model:");
       source.Dump();
       Log.Info("Target model:");
       target.Dump();
 
-      var comparer = new Comparison.Comparer();
+      var comparer = new Comparer();
       var hints = new HintSet(source, target) {
         new RenameHint("", "")
       };
@@ -141,7 +141,7 @@ namespace Xtensive.Modelling.Tests
 
     private void RemoveReferencesTo(Role role)
     {
-      var s = role.Model as Server;
+      var s = role.Model;
       var roleRefs = new List<RoleRef>();
       foreach (var roleRef in s.Security.Users.SelectMany(u => u.Roles))
         if (roleRef.Value==role)
