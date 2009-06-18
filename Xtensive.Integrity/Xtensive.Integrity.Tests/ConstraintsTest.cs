@@ -141,7 +141,7 @@ namespace Xtensive.Integrity.Tests
         Assert.AreEqual("Email format is incorrect.", emailError.Message);
 
         var heightError = errors.Where(error => error.TargetProperty.Name=="Height").Single();
-        Assert.AreEqual("Height can not be less than 1 or greater than 2,13.", heightError.Message);
+        Assert.AreEqual(string.Format("Height can not be less than 1 or greater than {0}.", 2.13), heightError.Message);
       }
 
       using (context.OpenInconsistentRegion()) {
