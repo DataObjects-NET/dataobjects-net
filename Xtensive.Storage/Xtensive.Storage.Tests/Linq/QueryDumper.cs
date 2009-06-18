@@ -16,18 +16,22 @@ using System.Xml;
 using System.Xml.XPath;
 using Xtensive.Core;
 using Xtensive.Storage.Linq;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Tests.Linq
 {
-  [Serializable]
-  public static class QueryDumper
+  public class QueryDumper
   {
-    private static int treeDepth;
-    private static int fillStringLength;
-    private static bool containsEnumerable;
+    private int treeDepth;
+    private int fillStringLength;
+    private bool containsEnumerable;
 
-    public static void Dump(IEnumerable query)
+    private void DumpInternal(IEnumerable query, bool showResults)
     {
+      EnumerateAll(query);
+
+      if (showResults) {
+
       treeDepth = 1;
       fillStringLength = 0;
       containsEnumerable = false;
@@ -68,22 +72,28 @@ namespace Xtensive.Storage.Tests.Linq
         }
         else {
           Log.Info("Correct output is impossible.");
-          EnumerateAll(query);
+//          EnumerateAll(query);
         }
       }
       catch {
         Log.Info("Errors occurred during execution.");
-        EnumerateAll(query);
+//        EnumerateAll(query);
+      }
       }
     }
 
     public static void Dump(object value)
     {
+      Dump(value, false);
+    }
+
+    public static void Dump(object value, bool showResults)
+    {
       if (value is IEnumerable)
-        Dump((IEnumerable) value);
+        Dump((IEnumerable) value, showResults);
       else {
         try {
-          Dump(new[] {value});
+          Dump(new[] {value}, showResults);
         }
         catch {
           Log.Info(value==null ? "NULL" : value.ToString());
@@ -91,9 +101,20 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+    public static void Dump(IEnumerable value)
+    {
+      Dump(value, false);
+    }
+
+    public static void Dump(IEnumerable value, bool showResults)
+    {
+      var dumper = new QueryDumper();
+      dumper.DumpInternal(value, showResults);
+    }
+
     #region Private Length related methods
 
-    private static void FillLength(ref XmlDocument document, XmlNode rootNode)
+    private void FillLength(ref XmlDocument document, XmlNode rootNode)
     {
       foreach (XmlNode node in rootNode.ChildNodes) {
         if (!node.HasChildNodes) {
@@ -110,13 +131,13 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    private static void FillLengths(ref XmlDocument document, XmlNodeList nodes)
+    private void FillLengths(ref XmlDocument document, XmlNodeList nodes)
     {
       foreach (XmlNode node in nodes)
         FillLength(ref document, node);
     }
 
-    private static void CorrectMaxLengths(ref XmlDocument document, XmlNodeList nodes)
+    private void CorrectMaxLengths(ref XmlDocument document, XmlNodeList nodes)
     {
       var firstNodes = nodes;
       if (nodes[0].HasChildNodes && nodes[0].ParentNode==document.DocumentElement)
@@ -142,7 +163,7 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    private static int FillMaxLengths(ref XmlDocument document, XmlNodeList nodes)
+    private int FillMaxLengths(ref XmlDocument document, XmlNodeList nodes)
     {
       var sum = 0;
       var correctNodes = nodes;
@@ -162,7 +183,7 @@ namespace Xtensive.Storage.Tests.Linq
       return sum;
     }
 
-    private static void FillCorrectMaxLengths(ref XmlDocument document, XmlNodeList nodes)
+    private void FillCorrectMaxLengths(ref XmlDocument document, XmlNodeList nodes)
     {
       var correctNodes = nodes;
       if (nodes[0].HasChildNodes && nodes[0].ParentNode==document.DocumentElement)
@@ -178,7 +199,7 @@ namespace Xtensive.Storage.Tests.Linq
 
     #endregion
 
-    private static void CreateNodeTree(List<object> values, ref XmlDocument document, string rootElement, XmlNode parentElement)
+    private void CreateNodeTree(List<object> values, ref XmlDocument document, string rootElement, XmlNode parentElement)
     {
       var parentNode = document.CreateElement(rootElement);
       parentElement.AppendChild(parentNode);
@@ -247,7 +268,7 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    private static void CorrectNodeTree(ref XmlDocument document)
+    private void CorrectNodeTree(ref XmlDocument document)
     {
       FillLengths(ref document, document.DocumentElement.ChildNodes);
       CorrectMaxLengths(ref document, document.DocumentElement.ChildNodes);
@@ -255,7 +276,7 @@ namespace Xtensive.Storage.Tests.Linq
       FillCorrectMaxLengths(ref document, document.DocumentElement.ChildNodes);
     }
 
-    private static int AddNode(object value, PropertyInfo property, ref XmlDocument document, XmlNode parentNode, int depthValue)
+    private int AddNode(object value, PropertyInfo property, ref XmlDocument document, XmlNode parentNode, int depthValue)
     {
       var depth = depthValue;
 
@@ -330,7 +351,7 @@ namespace Xtensive.Storage.Tests.Linq
       return depth;
     }
 
-    private static void OutputLog(XmlDocument document, List<string> groupHeader)
+    private void OutputLog(XmlDocument document, List<string> groupHeader)
     {
       int currentGroup = 1;
       if (groupHeader!=null) {
@@ -405,7 +426,7 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    private static void DrawSingleLine(List<Pair<XmlNode, int>> listOfNodes)
+    private void DrawSingleLine(List<Pair<XmlNode, int>> listOfNodes)
     {
       var str = new StringBuilder("|");
       var separateLine = new StringBuilder("|");
@@ -448,7 +469,7 @@ namespace Xtensive.Storage.Tests.Linq
         Log.Info(separateLine.ToString());
     }
 
-    private static MemberType GetMemberType(Type type)
+    private MemberType GetMemberType(Type type)
     {
       if (typeof (Key).IsAssignableFrom(type))
         return MemberType.Key;
@@ -467,7 +488,7 @@ namespace Xtensive.Storage.Tests.Linq
       return MemberType.Unknown;
     }
 
-    private static string ReplaceTabs(object value)
+    private string ReplaceTabs(object value)
     {
       if (value==null)
         return "NULL";
@@ -478,7 +499,7 @@ namespace Xtensive.Storage.Tests.Linq
         .Replace("\"", " ").Replace("\r", " ").Trim();
     }
 
-    private static string CreateFillString(int count, char element)
+    private string CreateFillString(int count, char element)
     {
       var list = Enumerable.Repeat(element, count);
       string result = String.Empty;
@@ -487,7 +508,7 @@ namespace Xtensive.Storage.Tests.Linq
       return result;
     }
 
-    private static bool ValueIsForOutput(PropertyInfo info)
+    private bool ValueIsForOutput(PropertyInfo info)
     {
       var memberType = GetMemberType(info.PropertyType);
       return ((!info.CanWrite && info.PropertyType!=typeof (bool)
@@ -498,7 +519,7 @@ namespace Xtensive.Storage.Tests.Linq
                 && memberType!=MemberType.EntitySet;
     }
 
-    private static string KeyToString(object key)
+    private string KeyToString(object key)
     {
       var properties = key.GetType().GetProperties();
       var str = new StringBuilder("{ ");
@@ -537,12 +558,18 @@ namespace Xtensive.Storage.Tests.Linq
       foreach (var o in enumerable)
         if (o!=null) {
           if (o.GetType().IsGenericType && (o.GetType().GetGenericTypeDefinition()==typeof (IQueryable<>)
-            || o.GetType().GetGenericTypeDefinition()==typeof (IEnumerable<>)))
+            || o.GetType().GetGenericTypeDefinition()==typeof (IEnumerable<>)
+            || o.GetType().GetGenericTypeDefinition()==typeof (SubQuery<>)
+            || o.GetType().GetGenericTypeDefinition()==typeof (Grouping<,>)))
             EnumerateAll((IEnumerable) o);
           var properties = o.GetType().GetProperties();
           foreach (var info in properties) {
-            if (info.PropertyType.IsGenericType && (info.PropertyType.GetGenericTypeDefinition()==typeof (IQueryable<>)
-              || info.PropertyType.GetGenericTypeDefinition()==typeof (IEnumerable<>)))
+            if (info.PropertyType.IsGenericType && 
+              (info.PropertyType.GetGenericTypeDefinition()==typeof (IQueryable<>)
+              || info.PropertyType.GetGenericTypeDefinition()==typeof (IEnumerable<>)
+              || info.PropertyType.GetGenericTypeDefinition()==typeof (SubQuery<>)
+              || info.PropertyType.GetGenericTypeDefinition()==typeof (Grouping<,>)
+              ))
               EnumerateAll((IEnumerable) info.GetValue(o, null));
           }
         }

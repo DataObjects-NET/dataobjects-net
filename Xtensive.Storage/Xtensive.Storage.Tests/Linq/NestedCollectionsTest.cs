@@ -62,10 +62,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectDoubleNestedTest()
     {
       var result = Query<Customer>.All
-        .Take(10)
+        .Take(2)
         .Select(c => Query<Order>.All
-          .Take(10)
-          .Select(o => Query<Employee>.All))
+          .Take(2)
+          .Select(o => Query<Employee>.All.Take(2)))
         .Select(os => os);
       QueryDumper.Dump(result);
     }
@@ -74,10 +74,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void ComplexSubqueryTest()
     {
       var result = Query<Customer>.All
-        .Take(10)
+        .Take(2)
         .Select(c => Query<Order>.All
           .Select(o => Query<Employee>.All
-            .Take(10)
+            .Take(2)
             .Where(e => e.Orders.Contains(o)))
           .Where(o => o.Count() > 0))
         .Select(os => os);

@@ -22,9 +22,15 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AggregateAfterGroupingTest()
     {
-      var query = Query<Product>.All
+      IQueryable<IEnumerable<Product>> query = Query<Product>.All
         .GroupBy(p => p.Category)
         .Select(g => g.Where(p2 => p2.UnitPrice==g.Count()));
+
+//      foreach (IEnumerable<Product> products in query) {
+//        foreach (Product product in products) {
+//          // do nothing
+//        }
+//      }
 
       QueryDumper.Dump(query);
     }
