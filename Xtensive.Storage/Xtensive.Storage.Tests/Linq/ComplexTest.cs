@@ -57,7 +57,29 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void SubqueryMutipleTest()
+    public void SubqueryMutiple1Test()
+    {
+      var result = Query<Supplier>.All
+        .Select(supplier => 
+          Query<Product>.All
+          .Select(product=> Query<Product>.All
+            .Where(p=>p==product)));
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void SubqueryMutiple2Test()
+    {
+      var result = Query<Supplier>.All
+        .Select(supplier => 
+          Query<Product>.All
+          .Select(product=> Query<Product>.All
+            .Where(p=>p.Supplier==supplier)));
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void SubqueryMutiple3Test()
     {
       var result = Query<Supplier>.All
         .Select(supplier => 

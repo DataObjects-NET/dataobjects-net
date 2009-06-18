@@ -5,7 +5,6 @@
 // Created:    2009.05.06
 
 using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core.Linq;
 
@@ -42,30 +41,63 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         case ExtendedExpressionType.Grouping:
         return VisitGroupingExpression((GroupingExpression) expression);
       default:
-        throw new ArgumentOutOfRangeException("expression");
+        return base.VisitUnknown(expression);
       }
     }
 
-    protected abstract Expression VisitGroupingExpression(GroupingExpression expression);
+    protected virtual Expression VisitGroupingExpression(GroupingExpression expression)
+    {
+      return expression;
+    }
 
-    protected abstract Expression VisitSubQueryExpression(SubQueryExpression expression);
+    protected virtual Expression VisitSubQueryExpression(SubQueryExpression expression)
+    {
+      return expression;
+    }
 
-    protected abstract Expression VisitProjectionExpression(ProjectionExpression projectionExpression);
+    protected virtual Expression VisitProjectionExpression(ProjectionExpression projectionExpression)
+    {
+      return projectionExpression;
+    }
 
-    protected abstract Expression VisitFieldExpression(FieldExpression expression);
+    protected virtual Expression VisitFieldExpression(FieldExpression expression)
+    {
+      return expression;
+    }
 
-    protected abstract Expression VisitStructureExpression(StructureExpression expression);
+    protected virtual Expression VisitStructureExpression(StructureExpression expression)
+    {
+      return expression;
+    }
 
-    protected abstract Expression VisitKeyExpression(KeyExpression expression);
+    protected virtual Expression VisitKeyExpression(KeyExpression expression)
+    {
+      return expression;
+    }
 
-    protected abstract Expression VisitEntityExpression(EntityExpression expression);
+    protected virtual Expression VisitEntityExpression(EntityExpression expression)
+    {
+      return expression;
+    }
 
-    protected abstract Expression VisitEntityFieldExpression(EntityFieldExpression expression);
+    protected virtual Expression VisitEntityFieldExpression(EntityFieldExpression expression)
+    {
+      return expression;
+    }
 
-    protected abstract Expression VisitEntitySetExpression(EntitySetExpression expression);
+    protected virtual Expression VisitEntitySetExpression(EntitySetExpression expression)
+    {
+      return expression;
+    }
 
-    protected abstract Expression VisitItemProjectorExpression(ItemProjectorExpression itemProjectorExpression);
+    protected virtual Expression VisitItemProjectorExpression(ItemProjectorExpression itemProjectorExpression)
+    {
+      return itemProjectorExpression;
+    }
 
-    protected abstract Expression VisitColumnExpression(ColumnExpression expression);
+    protected virtual Expression VisitColumnExpression(ColumnExpression expression)
+    {
+      return expression;
+    }
   }
 }

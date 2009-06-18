@@ -112,15 +112,22 @@ namespace Xtensive.Storage.Linq.Materialization
 
     private TranslatedQuery PrepareSubqueryParameters(SubQueryExpression subQueryExpression, out Parameter<Tuple> parameterOfTuple, out Type elementType, out ProjectionExpression projection)
     {
-      // 1. Rewrite recordset to parameter<tuple>
+      // 1. Rewrite recordset and ItemProjector to parameter<tuple>
       var subqueryTupleParameter = context.GetTupleParameter(subQueryExpression.OuterParameter);
-      var dataSource = ApplyParameterToTupleParameterRewriter.Rewrite(
+      var newDataSource = ApplyParameterToTupleParameterRewriter.Rewrite(
         subQueryExpression.ProjectionExpression.ItemProjector.DataSource.Provider,
         subqueryTupleParameter,
         subQueryExpression.ApplyParameter)
         .Result;
 
-      var itemProjector = new ItemProjectorExpression(subQueryExpression.ProjectionExpression.ItemProjector.Item, dataSource, subQueryExpression.ProjectionExpression.ItemProjector.Context);
+
+
+      var newItemProjectorBody = ApplyParameterToTupleParameterRewriter.Rewrite(
+        subQueryExpression.ProjectionExpression.ItemProjector.Item,
+        subqueryTupleParameter,
+        subQueryExpression.ApplyParameter);
+
+      var itemProjector = new ItemProjectorExpression(newItemProjectorBody, newDataSource, subQueryExpression.ProjectionExpression.ItemProjector.Context);
       parameterOfTuple = context.GetTupleParameter(subQueryExpression.OuterParameter);
 
       // 2. Add only parameter<tuple>. Tuple value will be assigned 

@@ -102,7 +102,11 @@ namespace Xtensive.Storage.Linq.Expressions
         oldParameter,
         newParameter)
         .Result;
-      return new ItemProjectorExpression(Item, newDataSource, Context);
+      var newItemProjectorBody = ApplyParameterRewriter.Rewrite(
+        Item,
+        oldParameter,
+        newParameter);
+      return new ItemProjectorExpression(newItemProjectorBody, newDataSource, Context);
     }
 
     public override string ToString()
