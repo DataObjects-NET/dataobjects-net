@@ -8,17 +8,18 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.ReferentialIntegrity
 {
-  internal class RestrictProcessor : ActionProcessor
+  internal class DenyProcessor : ActionProcessor
   {
-    public override void Process(RemovalContext context, AssociationInfo association, Entity referencingObject, Entity referencedObject)
+    public override void Process(RemovalContext context, AssociationInfo association, Entity owner, Entity target)
     {
-      if (!context.RemovalQueue.Contains(referencingObject.State))
-        throw new ReferentialIntegrityException(referencedObject);
+      if (!context.RemovalQueue.Contains(owner.State))
+        throw new ReferentialIntegrityException(target);
+
       switch (association.Multiplicity) {
         case Multiplicity.ZeroToOne:
         case Multiplicity.OneToOne:
         case Multiplicity.ManyToOne:
-          referencingObject.SetFieldValue<Entity>(association.OwnerField, null, context.Notify);
+          owner.SetFieldValue<Entity>(association.OwnerField, null, context.Notify);
           break;
       }
     }

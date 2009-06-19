@@ -10,10 +10,10 @@ namespace Xtensive.Storage.ReferentialIntegrity
 {
   internal class CascadeProcessor : ActionProcessor
   {
-    public override void Process(RemovalContext context, AssociationInfo association, Entity referencingObject, Entity referencedObject)
+    public override void Process(RemovalContext context, AssociationInfo association, Entity owner, Entity target)
     {
-      if (!context.RemovalQueue.Contains(referencingObject.State))
-        referencingObject.Remove(context.Notify);
+      if (!context.RemovalQueue.Contains(owner.State))
+        owner.Remove(context.Notify);
     }
   }
 }

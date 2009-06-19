@@ -223,7 +223,7 @@ namespace Xtensive.Storage.Upgrade
       IndexInfo referencingIndex;
       ForeignKeyInfo foreignKey;
 
-      if (association.UnderlyingType==null) {
+      if (association.AuxiliaryType==null) {
         if (association.OwnerType.Indexes.PrimaryIndex==null)
           return null;
         referencedTable = GetTable(association.TargetType);
@@ -236,8 +236,8 @@ namespace Xtensive.Storage.Upgrade
       }
 
       foreignKey = null;
-      referencingTable = GetTable(association.UnderlyingType);
-      foreach (var field in association.UnderlyingType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
+      referencingTable = GetTable(association.AuxiliaryType);
+      foreach (var field in association.AuxiliaryType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
         var referencedIndex = FindIndex(Model.Types[field.ValueType].Indexes.PrimaryIndex, null);
         referencedTable = GetTable(referencedIndex.DeclaringType);
         referencingIndex = FindIndex(referencingTable,

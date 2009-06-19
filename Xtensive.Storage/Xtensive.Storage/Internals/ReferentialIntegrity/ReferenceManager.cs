@@ -15,43 +15,51 @@ namespace Xtensive.Storage.ReferentialIntegrity
   internal class ReferenceManager : SessionBound
   {
     private static readonly CascadeProcessor CascadeProcessor = new CascadeProcessor();
-    private static readonly RestrictProcessor DenyProcessor = new RestrictProcessor();
+    private static readonly DenyProcessor DenyProcessor = new DenyProcessor();
     private static readonly ClearProcessor ClearProcessor = new ClearProcessor();
 
-    public RemovalContext Context { get; internal set; }
+    public RemovalContext Context { private get; set; }
 
-    public void ClearReferencesTo(Entity referencedObject, bool notify)
+    public void BreakAssociations(Entity target, bool notify)
     {
       if (Context!=null) {
-        ClearReferencesTo(Context, referencedObject);
+        BreakAssociations(Context, target);
         return;
       }
 
       using (Context = new RemovalContext(this, notify))
-        ClearReferencesTo(Context, referencedObject);
+        BreakAssociations(Context, target);
     }
 
-    private void ClearReferencesTo(RemovalContext context, Entity referencedObject)
+    private static void BreakAssociations(RemovalContext context, Entity target)
     {
-      context.RemovalQueue.Add(referencedObject.State);
-      ApplyAction(context, referencedObject, OnRemoveAction.Deny);
-      ApplyAction(context, referencedObject, OnRemoveAction.Clear);
-      ApplyAction(context, referencedObject, OnRemoveAction.Cascade);
+      context.RemovalQueue.Add(target.State);
+      ApplyAction(context, target, OnRemoveAction.Deny);
+      ApplyAction(context, target, OnRemoveAction.Clear);
+      ApplyAction(context, target, OnRemoveAction.Cascade);
     }
 
-    public void ApplyAction(RemovalContext context, Entity referencedObject, OnRemoveAction action)
+    private static void ApplyAction(RemovalContext context, Entity entity, OnRemoveAction action)
     {
-      List<AssociationInfo> associations = referencedObject.Type.GetTargetAssociations().Where(a => a.OnRemove==action).ToList();
+      var associations = new HashSet<AssociationInfo>(entity.Type.GetTargetAssociations().Where(a => a.OnTargetRemove==action));
+      associations.UnionWith(entity.Type.GetOwnerAssociations().Where(a => a.OnOwnerRemove==action));
+
       if (associations.Count==0)
         return;
 
       ActionProcessor processor = GetProcessor(action);
-      foreach (AssociationInfo association in associations)
-        foreach (Entity referencingObject in association.FindReferencingObjects(referencedObject))
-          processor.Process(context, association, referencingObject, referencedObject);
+
+      foreach (AssociationInfo association in associations) {
+        if (association.OwnerType == entity.Type)
+          foreach (Entity target in association.FindTargets(entity))
+            processor.Process(context, association, entity, target);
+        else
+          foreach (Entity owner in association.FindOwners(entity))
+            processor.Process(context, association, owner, entity);
+      }
     }
 
-    public ActionProcessor GetProcessor(OnRemoveAction action)
+    private static ActionProcessor GetProcessor(OnRemoveAction action)
     {
       switch (action) {
         case OnRemoveAction.Clear:

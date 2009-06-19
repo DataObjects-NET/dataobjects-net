@@ -117,8 +117,8 @@ namespace Xtensive.Storage
     protected virtual void Initialize()
     {
       association = Field.Association;
-      if (association.UnderlyingType!=null)
-        itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null, association.UnderlyingType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
+      if (association.AuxiliaryType!=null)
+        itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null, association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
       items = association.UnderlyingIndex.ToRecordSet().Range(ConcreteOwner.Key.Value, ConcreteOwner.Key.Value);
       seek = association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
       count = items.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
@@ -146,7 +146,7 @@ namespace Xtensive.Storage
       if (association.IsPaired)
         Session.PairSyncManager.Enlist(OperationType.Add, ConcreteOwner, item, association, notify);
 
-      if (association.UnderlyingType!=null && association.IsMaster)
+      if (association.AuxiliaryType!=null && association.IsMaster)
         itemCtor(item.Key.Value.Combine(ConcreteOwner.Key.Value));
 
       State.Add(item.Key);
@@ -165,8 +165,8 @@ namespace Xtensive.Storage
       if (association.IsPaired)
         Session.PairSyncManager.Enlist(OperationType.Remove, ConcreteOwner, item, association, notify);
 
-      if (association.UnderlyingType!=null && association.IsMaster) {
-        var combinedKey = Key.Create(association.UnderlyingType, item.Key.Value.Combine(ConcreteOwner.Key.Value));
+      if (association.AuxiliaryType!=null && association.IsMaster) {
+        var combinedKey = Key.Create(association.AuxiliaryType, item.Key.Value.Combine(ConcreteOwner.Key.Value));
         Entity underlyingItem = combinedKey.Resolve();
         underlyingItem.Remove();
       }
@@ -231,7 +231,7 @@ namespace Xtensive.Storage
         throw Exceptions.CollectionHasBeenChanged(null);
     }
 
-    protected abstract IEnumerable<Entity> GetEntities();
+    protected internal abstract IEnumerable<Entity> GetEntities();
 
     #endregion
 

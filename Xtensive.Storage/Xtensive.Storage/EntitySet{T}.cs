@@ -238,7 +238,7 @@ namespace Xtensive.Storage
       return state;
     }
 
-    protected sealed override IEnumerable<Entity> GetEntities()
+    protected internal sealed override IEnumerable<Entity> GetEntities()
     {
       return State.IsFullyLoaded 
         ? GetCachedEntities() 

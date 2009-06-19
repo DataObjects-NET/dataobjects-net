@@ -156,6 +156,10 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var ai in context.DiscardedAssociations)
           context.Model.Associations.Remove(ai);
         context.DiscardedAssociations.Clear();
+        foreach (var association in context.Model.Associations) {
+          if (!association.IsPaired && !association.OnOwnerRemove.HasValue)
+            association.OnOwnerRemove = OnRemoveAction.Clear;
+        }
 
         BuildEntitySetTypes(context.Model.Associations);
       }
@@ -211,7 +215,7 @@ namespace Xtensive.Storage.Building.Builders
         context.ModelDef.Types.Add(underlyingTypeDef);
 
         TypeBuilder.BuildType(underlyingTypeDef);
-        association.UnderlyingType = context.Model.Types[underlyingType];
+        association.AuxiliaryType = context.Model.Types[underlyingType];
       }
     }
   }

@@ -60,8 +60,8 @@ namespace Xtensive.Storage.Model.Stored
       var result = new StoredAssociationInfo
         {
           Name = source.Name,
-          MappingName = source.UnderlyingType != null ? source.UnderlyingType.MappingName : null,
-          ConnectorTypeName = source.UnderlyingType != null ? source.UnderlyingType.Name : null,
+          MappingName = source.AuxiliaryType != null ? source.AuxiliaryType.MappingName : null,
+          ConnectorTypeName = source.AuxiliaryType != null ? source.AuxiliaryType.Name : null,
           IsMaster = source.IsMaster,
           MultiplicityName = source.Multiplicity.ToString(),
           ReferencedTypeName = source.TargetType.Name,

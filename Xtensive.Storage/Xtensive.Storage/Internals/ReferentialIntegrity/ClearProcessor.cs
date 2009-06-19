@@ -10,19 +10,19 @@ namespace Xtensive.Storage.ReferentialIntegrity
 {
   internal class ClearProcessor : ActionProcessor
   {
-    public override void Process(RemovalContext context, AssociationInfo association, Entity referencingObject, Entity referencedObject)
+    public override void Process(RemovalContext context, AssociationInfo association, Entity owner, Entity target)
     {
-      if (!context.RemovalQueue.Contains(referencingObject.State))
+      if (!context.RemovalQueue.Contains(owner.State))
         switch (association.Multiplicity) {
           case Multiplicity.ZeroToOne:
           case Multiplicity.OneToOne:
           case Multiplicity.ManyToOne:
-            referencingObject.SetFieldValue<Entity>(association.OwnerField, null, context.Notify);
+            owner.SetFieldValue<Entity>(association.OwnerField, null, context.Notify);
             break;
           case Multiplicity.ZeroToMany:
           case Multiplicity.OneToMany:
           case Multiplicity.ManyToMany:
-            referencingObject.GetProperty<EntitySetBase>(association.OwnerField.Name).Remove(referencedObject, context.Notify);
+            owner.GetProperty<EntitySetBase>(association.OwnerField.Name).Remove(target, context.Notify);
             break;
         }
     }

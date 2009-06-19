@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Building.Builders
       BuildingContext context = BuildingContext.Current;
       TypeInfo referencedType = field.IsEntity ? context.Model.Types[field.ValueType] : context.Model.Types[field.ItemType];
       Multiplicity multiplicity = field.IsEntitySet ? Multiplicity.ZeroToMany : Multiplicity.ZeroToOne;
-      var association = new AssociationInfo(field, referencedType, multiplicity, fieldDef.OnTargetRemove);
+      var association = new AssociationInfo(field, referencedType, multiplicity, fieldDef.OnOwnerRemove, fieldDef.OnTargetRemove);
       association.Name = context.NameBuilder.Build(association);
       context.Model.Associations.Add(association);
 
@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Building.Builders
     public static void BuildAssociation(AssociationInfo origin, FieldInfo field)
     {
       BuildingContext context = BuildingContext.Current;
-      var association = new AssociationInfo(field, origin.TargetType, origin.Multiplicity, origin.OnRemove);
+      var association = new AssociationInfo(field, origin.TargetType, origin.Multiplicity, origin.OnOwnerRemove, origin.OnTargetRemove);
       association.Name = context.NameBuilder.Build(association);
       context.Model.Associations.Add(association);
 
@@ -91,6 +91,30 @@ namespace Xtensive.Storage.Building.Builders
         master.IsMaster = false;
         slave.IsMaster = true;
       }
+
+      // First pair of actions. They must always be equal
+      if (!slave.OnTargetRemove.HasValue && !master.OnOwnerRemove.HasValue) {
+        slave.OnTargetRemove = OnRemoveAction.Deny;
+        master.OnOwnerRemove = OnRemoveAction.Deny;
+      }
+      if (!slave.OnTargetRemove.HasValue)
+        slave.OnTargetRemove = master.OnOwnerRemove;
+      if (!master.OnOwnerRemove.HasValue)
+        master.OnOwnerRemove = slave.OnTargetRemove;
+      if (master.OnOwnerRemove != slave.OnTargetRemove)
+        throw new DomainBuilderException("");
+
+      // Second pair of actions. They also must be equal to each other
+      if (!master.OnTargetRemove.HasValue && !slave.OnOwnerRemove.HasValue) {
+        master.OnTargetRemove = OnRemoveAction.Deny;
+        slave.OnOwnerRemove = OnRemoveAction.Deny;
+      }
+      if (!master.OnTargetRemove.HasValue)
+        master.OnTargetRemove = slave.OnOwnerRemove;
+      if (!slave.OnOwnerRemove.HasValue)
+        slave.OnOwnerRemove = master.OnTargetRemove;
+      if (slave.OnOwnerRemove != master.OnTargetRemove)
+        throw new DomainBuilderException("");
 
       BuildPairSyncActions(master);
       if (!master.IsLoop)

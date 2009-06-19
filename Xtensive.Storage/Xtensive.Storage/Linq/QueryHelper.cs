@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Linq
           );
       }
 
-      var connectorType = field.Association.Master.UnderlyingType.UnderlyingType;
+      var connectorType = field.Association.Master.AuxiliaryType.UnderlyingType;
       string master = "Master";
       string slave = "Slave";
 

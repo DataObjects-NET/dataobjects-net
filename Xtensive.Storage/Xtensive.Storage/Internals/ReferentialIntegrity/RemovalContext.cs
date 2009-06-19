@@ -11,7 +11,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
 {
   internal class RemovalContext : IDisposable
   {
-    public ReferenceManager ReferenceManager { get; private set; }
+    private readonly ReferenceManager referenceManager;
 
     public bool Notify { get; private set; }
 
@@ -20,7 +20,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
     public void Dispose()
     {
       RemovalQueue.Clear();
-      ReferenceManager.Context = null;
+      referenceManager.Context = null;
     }
 
 
@@ -28,7 +28,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
     public RemovalContext(ReferenceManager referenceManager, bool notify)
     {
-      ReferenceManager = referenceManager;
+      this.referenceManager = referenceManager;
       RemovalQueue = new HashSet<EntityState>();
       Notify = notify;
     }

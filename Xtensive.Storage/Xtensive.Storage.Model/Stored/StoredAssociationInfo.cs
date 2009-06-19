@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Model.Stored
     public bool IsMaster;
 
     /// <summary>
-    /// <see cref="AssociationInfo.UnderlyingType"/>
+    /// <see cref="AssociationInfo.AuxiliaryType"/>
     /// </summary>
     [XmlIgnore]
     public StoredTypeInfo ConnectorType;

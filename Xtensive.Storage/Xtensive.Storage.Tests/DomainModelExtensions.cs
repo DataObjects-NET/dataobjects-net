@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Tests
       WriteLine(indent, "Referencing field: " + target.OwnerField.Name);
       WriteLine(indent, "Referenced type: " + target.TargetType.Name);
       WriteLine(indent, "Multiplicity: " + target.Multiplicity);
-      WriteLine(indent, "On Delete: " + target.OnRemove);
+      WriteLine(indent, "On Delete: " + target.OnTargetRemove);
       WriteLine(indent, "Master: " + target.IsMaster);
       if (target.Reversed!=null)
         WriteLine(indent, "Reversed: " + target.Reversed.Name);

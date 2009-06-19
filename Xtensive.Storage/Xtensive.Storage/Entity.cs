@@ -156,7 +156,7 @@ namespace Xtensive.Storage
     public IEnumerable<Entity> FindReferencingObjects()
     {
       foreach (AssociationInfo association in Type.GetTargetAssociations())
-        foreach (Entity item in association.FindReferencingObjects(this))
+        foreach (Entity item in association.FindOwners(this))
           yield return item;
     }
 
@@ -170,7 +170,7 @@ namespace Xtensive.Storage
     {
       if (!association.TargetType.UnderlyingType.IsAssignableFrom(Type.UnderlyingType))
         throw new InvalidOperationException(string.Format("Type '{0}' doesn't participate in the specified association.", Type.Name));
-      return association.FindReferencingObjects(this);
+      return association.FindOwners(this);
     }
 
     #endregion
@@ -236,7 +236,7 @@ namespace Xtensive.Storage
         State.EnsureNotRemoved();
 
         Session.Persist();
-        Session.ReferenceManager.ClearReferencesTo(this, notify);
+        Session.ReferenceManager.BreakAssociations(this, notify);
         Session.Persist();
         State.PersistenceState = PersistenceState.Removed;
 

@@ -21,11 +21,13 @@ namespace Xtensive.Storage.Model
   [Serializable]
   public class AssociationInfo : Node
   {
-    private Multiplicity multiplicity;
-    private AssociationInfo reversed;
-    private TypeInfo underlyingType;
-    private bool isMaster = true;
-    private SegmentTransform foreignKeyExtractorTransform;
+    private Multiplicity                multiplicity;
+    private AssociationInfo             reversed;
+    private TypeInfo                    auxiliaryType;
+    private bool                        isMaster = true;
+    private OnRemoveAction?              onTargetRemove;
+    private OnRemoveAction?              onOwnerRemove;
+    private SegmentTransform            foreignKeyExtractorTransform;
 
     /// <summary>
     /// Gets the owner type.
@@ -46,15 +48,15 @@ namespace Xtensive.Storage.Model
     public TypeInfo TargetType { get; private set; }
 
     /// <summary>
-    /// Gets the persistent type that represents this association.
+    /// Gets the auxiliary persistent type that represents this association.
     /// </summary>
-    public TypeInfo UnderlyingType
+    public TypeInfo AuxiliaryType
     {
-      get { return underlyingType; }
+      get { return auxiliaryType; }
       set
       {
         this.EnsureNotLocked();
-        underlyingType = value;
+        auxiliaryType = value;
       }
     }
 
@@ -144,7 +146,28 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the <see cref="OnRemoveAction"/> that will be applied on <see cref="TargetType"/> object removal.
     /// </summary>
-    public OnRemoveAction OnRemove { get; private set; }
+    public OnRemoveAction? OnTargetRemove
+    {
+      get { return onTargetRemove; }
+      set
+      {
+        this.EnsureNotLocked();
+        onTargetRemove = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets the <see cref="OnRemoveAction"/> that will be applied on <see cref="OwnerType"/> object removal.
+    /// </summary>
+    public OnRemoveAction? OnOwnerRemove
+    {
+      get { return onOwnerRemove; }
+      set
+      {
+        this.EnsureNotLocked();
+        onOwnerRemove = value;
+      }
+    }
 
     /// <summary>
     /// Extracts the foreign key from the specified <see cref="Tuple"/>.
@@ -175,9 +198,9 @@ namespace Xtensive.Storage.Model
       case Multiplicity.ZeroToMany:
       case Multiplicity.ManyToMany:
         if (IsMaster)
-          UnderlyingIndex = underlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
+          UnderlyingIndex = auxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
         else
-          UnderlyingIndex = Reversed.UnderlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
+          UnderlyingIndex = Reversed.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
         if (foreignKeyExtractorTransform == null) {
           var foreignKeySegment = new Segment<int>(OwnerType.Hierarchy.KeyInfo.Columns.Count, TargetType.Hierarchy.KeyInfo.Columns.Count);
           foreignKeyExtractorTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
@@ -192,17 +215,19 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="referencingField">The referencing field.</param>
-    /// <param name="referencedType">The referenced type.</param>
+    /// <param name="ownerField">The referencing field.</param>
+    /// <param name="targetType">The referenced type.</param>
     /// <param name="multiplicity">The association multiplicity.</param>
-    /// <param name="onRemove">The <see cref="OnRemoveAction"/> that will be applied on <see cref="TargetType"/> object removal.</param>
-    public AssociationInfo(FieldInfo referencingField, TypeInfo referencedType, Multiplicity multiplicity, OnRemoveAction onRemove)
+    /// <param name="onTargetRemove">The <see cref="OnRemoveAction"/> that will be applied on <see cref="TargetType"/> object removal.</param>
+    /// <param name="onOwnerRemove">The <see cref="OnRemoveAction"/> that will be applied on <see cref="OwnerType"/> object removal.</param>
+    public AssociationInfo(FieldInfo ownerField, TypeInfo targetType, Multiplicity multiplicity, OnRemoveAction? onOwnerRemove, OnRemoveAction? onTargetRemove)
     {
-      OwnerField = referencingField;
-      TargetType = referencedType;
+      OwnerField = ownerField;
+      TargetType = targetType;
       Multiplicity = multiplicity;
-      OnRemove = onRemove;
-      referencingField.Association = this;
+      OnOwnerRemove = onOwnerRemove;
+      OnTargetRemove = onTargetRemove;
+      ownerField.Association = this;
     }
   }
 }
