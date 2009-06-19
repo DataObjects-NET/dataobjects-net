@@ -731,4 +731,7 @@ Actions:
   <data name="InvalidPrecisionAttributeOnFieldX" xml:space="preserve">
     <value>Invalid 'Precision' attribute on field '{0}'</value>
   </data>
+  <data name="ExKeyComparerNotSupportedInGroupJoin" xml:space="preserve">
+    <value>Key comparer not supported in GroupJoin.</value>
+  </data>
 </root>

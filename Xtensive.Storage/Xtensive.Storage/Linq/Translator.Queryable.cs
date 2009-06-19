@@ -154,7 +154,8 @@ namespace Xtensive.Storage.Linq
             mc.Type, mc.Arguments[0], mc.Arguments[1],
             mc.Arguments[2].StripQuotes(),
             mc.Arguments[3].StripQuotes(),
-            mc.Arguments[4].StripQuotes());
+            mc.Arguments[4].StripQuotes(),
+            mc.Arguments.Count>5 ? mc.Arguments[5] : null);
         case QueryableMethodKind.Join:
           return VisitJoin(mc.Arguments[0], mc.Arguments[1],
             mc.Arguments[2].StripQuotes(),
@@ -627,8 +628,10 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    private Expression VisitGroupJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
+    private Expression VisitGroupJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, Expression keyComparer)
     {
+      if (keyComparer!=null) 
+        throw new NotSupportedException(Resources.Strings.ExKeyComparerNotSupportedInGroupJoin);
 //      var outerParameter = outerKey.Parameters[0];
 //      var innerParameter = innerKey.Parameters[0];
 //      using (context.Bindings.Add(outerParameter, VisitSequence(outerSource)))
