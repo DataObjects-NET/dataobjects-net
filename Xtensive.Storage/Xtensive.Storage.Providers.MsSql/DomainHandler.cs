@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Providers.MsSql
     protected override IPreCompiler CreatePreCompiler()
     {
       return new CompositePreCompiler(
-        new ApplyProviderCorrector(true),
+        new ApplyProviderCorrector(false),
         new SkipTakeCorrector(),
         new OrderingCorrector(ResolveOrderingDescriptor, false),
         new RedundantColumnOptimizer(),
