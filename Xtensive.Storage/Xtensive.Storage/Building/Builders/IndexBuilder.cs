@@ -404,20 +404,6 @@ namespace Xtensive.Storage.Building.Builders
         if (assignAliases || valueColumns.Contains(column.Name)) {
           if (column.IsSystem)
             continue;
-          if (!assignAliases) {
-            assignAliases = true;
-            var addedValueColumns = new List<ColumnInfo>(valueColumns);
-            valueColumns = new ColumnInfoCollection();
-            foreach (ColumnInfo addedColumn in addedValueColumns) {
-              if (!addedColumn.IsSystem) {
-                var aliasedColumn = addedColumn.Clone();
-                aliasedColumn.Name = nameBuilder.Build(aliasedColumn);
-                valueColumns.Add(aliasedColumn);
-              }
-              else
-                valueColumns.Add(addedColumn);
-            }
-          }
           var clone = column.Clone();
           clone.Name = nameBuilder.Build(column);
           valueColumns.Add(clone);

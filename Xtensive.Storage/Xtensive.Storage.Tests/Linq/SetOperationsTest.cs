@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -211,16 +212,20 @@ namespace Xtensive.Storage.Tests.Linq
     public void IntersectWithoutOneOfSelect()
     {
       var actual = from c in Query<Customer>.All
-      from r in (c.Orders.Select(o => o))
+      from r in (c.Orders)
         .Intersect(c.Orders).Select(o => o.ShippedDate)
       orderby r
       select r;
-      var expected = from c in Query<Customer>.All.ToList()
-      from r in (c.Orders.Select(o => o))
-        .Intersect(c.Orders).Select(o => o.ShippedDate)
-      orderby r
-      select r;
-      Assert.IsTrue(expected.SequenceEqual(actual));
+      if (Domain.Configuration.ConnectionInfo.Protocol!="memory")
+        AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(actual));
+      else {
+        var expected = from c in Query<Customer>.All.ToList()
+        from r in (c.Orders)
+          .Intersect(c.Orders).Select(o => o.ShippedDate)
+        orderby r
+        select r;
+        Assert.IsTrue(expected.SequenceEqual(actual));
+      }
     }
   }
 }
