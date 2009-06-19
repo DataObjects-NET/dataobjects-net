@@ -159,12 +159,20 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException]
     public void SubquerySingleExpectedException2Test()
     {
+      bool exceptionThrown = false;
       var result = Query<Customer>.All.Where(c => c.Orders.Count > 0).Select(c => c.Orders.Single());
-      result.ToList();
+      try {
+        result.ToList();
+      }
+      catch {
+        exceptionThrown = true;
+      }
+      if (!exceptionThrown)
+        Assert.Fail("Exception was not thrown.");
     }
+
 
     [Test]
     public void SubquerySingleOrDefaultTest()

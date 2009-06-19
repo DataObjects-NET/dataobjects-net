@@ -111,7 +111,9 @@ namespace Xtensive.Storage.Providers.MsSql
 
     protected override ExecutableProvider VisitApply(ApplyProvider provider)
     {
-      var result = base.VisitApply(provider);
+      ExecutableProvider result = null;
+      if (provider.ApplySingleRow && provider.Header.Length == 1)
+        result = base.VisitApply(provider);
       if (result != null)
         return result;
       bool isOuter = provider.ApplyType==JoinType.LeftOuter;
