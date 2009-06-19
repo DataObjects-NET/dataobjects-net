@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Linq
         case QueryableMethodKind.GroupBy:
           if (mc.Arguments.Count==2) {
             return VisitGroupBy(
-              mc.Method,
+              mc.Method.ReturnType,
               mc.Arguments[0],
               mc.Arguments[1].StripQuotes(),
               null,
@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Linq
             if (lambda2.Parameters.Count==1) {
               // second lambda is element selector
               return VisitGroupBy(
-                mc.Method,
+                mc.Method.ReturnType,
                 mc.Arguments[0],
                 lambda1,
                 lambda2,
@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Linq
             if (lambda2.Parameters.Count==2) {
               // second lambda is result selector
               return VisitGroupBy(
-                mc.Method,
+                mc.Method.ReturnType,
                 mc.Arguments[0],
                 lambda1,
                 null,
@@ -141,7 +141,7 @@ namespace Xtensive.Storage.Linq
           }
           else if (mc.Arguments.Count==4) {
             return VisitGroupBy(
-              mc.Method,
+              mc.Method.ReturnType,
               mc.Arguments[0],
               mc.Arguments[1].StripQuotes(),
               mc.Arguments[2].StripQuotes(),
@@ -160,7 +160,8 @@ namespace Xtensive.Storage.Linq
           return VisitJoin(mc.Arguments[0], mc.Arguments[1],
             mc.Arguments[2].StripQuotes(),
             mc.Arguments[3].StripQuotes(),
-            mc.Arguments[4].StripQuotes());
+            mc.Arguments[4].StripQuotes(),
+            false);
         case QueryableMethodKind.OrderBy:
           return VisitOrderBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Positive);
         case QueryableMethodKind.OrderByDescending:
@@ -479,7 +480,7 @@ namespace Xtensive.Storage.Linq
       return new ProjectionExpression(resultType, itemProjector, innerProjection.TupleParameterBindings, ResultType.First);
     }
 
-    private ProjectionExpression VisitGroupBy(MethodInfo method, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
+    private ProjectionExpression VisitGroupBy(Type returnType, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
     {
       var sequence = VisitSequence(source);
 
@@ -532,8 +533,8 @@ namespace Xtensive.Storage.Linq
 
       var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, false, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, new Segment<int>(0, keyColumns.Length));
       var groupingItemProjector = new ItemProjectorExpression(groupingExpression, keyDataSource, context);
-      var returnType = resultSelector==null
-        ? method.ReturnType
+      returnType = resultSelector==null
+        ? returnType
         : resultSelector.Parameters[1].Type;
       var resultProjection = new ProjectionExpression(returnType, groupingItemProjector, VisitSequence(source).TupleParameterBindings);
 
@@ -588,7 +589,7 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    private ProjectionExpression VisitJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
+    private ProjectionExpression VisitJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, bool isLeftJoin)
     {
       var outerParameter = outerKey.Parameters[0];
       var innerParameter = innerKey.Parameters[0];
@@ -609,7 +610,10 @@ namespace Xtensive.Storage.Linq
 
         var outer = context.Bindings[outerParameter];
         var inner = context.Bindings[innerParameter];
-        var recordSet = outer.ItemProjector.DataSource.Join(inner.ItemProjector.DataSource.Alias(context.GetNextAlias()), keyPairs);
+        var innerAlias = inner.ItemProjector.DataSource.Alias(context.GetNextAlias());
+        var recordSet = isLeftJoin 
+          ? outer.ItemProjector.DataSource.JoinLeft(innerAlias, keyPairs) 
+          : outer.ItemProjector.DataSource.Join(innerAlias, keyPairs);
         return CombineProjections(outer, inner, recordSet, resultSelector);
       }
     }
@@ -633,6 +637,10 @@ namespace Xtensive.Storage.Linq
     {
       if (keyComparer!=null) 
         throw new NotSupportedException(Resources.Strings.ExKeyComparerNotSupportedInGroupJoin);
+      var groupingResultType = typeof (IGrouping<,>).MakeGenericType(innerKey.Type, innerSource.Type);
+      var innerGrouping = VisitGroupBy(groupingResultType, innerSource, innerKey, null, null);
+      var joinedResult = VisitJoin(outerSource, innerGrouping, outerKey, (LambdaExpression) ((GroupingExpression) innerGrouping.ItemProjector.Item).KeyExpression, resultSelector, true);
+      return joinedResult;
 //      var outerParameter = outerKey.Parameters[0];
 //      var innerParameter = innerKey.Parameters[0];
 //      using (context.Bindings.Add(outerParameter, VisitSequence(outerSource)))
