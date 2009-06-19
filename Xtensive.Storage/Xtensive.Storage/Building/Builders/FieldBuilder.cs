@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Building.Builders
             clone.Column = ColumnBuilder.BuildInheritedColumn(clone, field.Column);
           if (clone.IsEntity && !IsEntitySetItem(clone.ReflectedType)) {
             var refField = field;
-            var origin = context.Model.Associations.Find(context.Model.Types[field.ValueType]).Where(a => a.ReferencingField == refField).FirstOrDefault();
+            var origin = context.Model.Associations.Find(context.Model.Types[field.ValueType], true).Where(a => a.OwnerField == refField).FirstOrDefault();
             if (origin != null) {
               AssociationBuilder.BuildAssociation(origin, clone);
               context.DiscardedAssociations.Add(origin);

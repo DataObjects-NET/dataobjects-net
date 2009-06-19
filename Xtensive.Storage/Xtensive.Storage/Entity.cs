@@ -155,7 +155,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public IEnumerable<Entity> FindReferencingObjects()
     {
-      foreach (AssociationInfo association in Type.GetAssociations())
+      foreach (AssociationInfo association in Type.GetTargetAssociations())
         foreach (Entity item in association.FindReferencingObjects(this))
           yield return item;
     }
@@ -168,7 +168,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public IEnumerable<Entity> FindReferencingObjects(AssociationInfo association)
     {
-      if (!association.ReferencedType.UnderlyingType.IsAssignableFrom(Type.UnderlyingType))
+      if (!association.TargetType.UnderlyingType.IsAssignableFrom(Type.UnderlyingType))
         throw new InvalidOperationException(string.Format("Type '{0}' doesn't participate in the specified association.", Type.Name));
       return association.FindReferencingObjects(this);
     }

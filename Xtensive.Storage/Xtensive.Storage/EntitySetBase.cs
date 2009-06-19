@@ -123,7 +123,7 @@ namespace Xtensive.Storage
       seek = association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
       count = items.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
 
-      seekTransform = new CombineTransform(true, association.ReferencingType.Hierarchy.KeyInfo.TupleDescriptor, association.ReferencedType.Hierarchy.KeyInfo.TupleDescriptor);
+      seekTransform = new CombineTransform(true, association.OwnerType.Hierarchy.KeyInfo.TupleDescriptor, association.TargetType.Hierarchy.KeyInfo.TupleDescriptor);
       OnInitialize(notifyInitialization);
     }
 

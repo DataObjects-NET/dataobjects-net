@@ -13,45 +13,30 @@ namespace Xtensive.Storage.Model
   [Serializable]
   public class AssociationInfoCollection : NodeCollection<AssociationInfo>
   {
-    private readonly Dictionary<TypeInfo, List<AssociationInfo>> typeIndex = new Dictionary<TypeInfo, List<AssociationInfo>>();
+    /// <summary>
+    /// Finds the associations for the specified <see cref="TypeInfo"/>.
+    /// </summary>
+    /// <param name="type"><see cref="TypeInfo"/> to find associations for.</param>
+    /// <returns></returns>
+    public IEnumerable<AssociationInfo> Find(TypeInfo type)
+    {
+      var ancestors = new HashSet<TypeInfo>(type.GetAncestors());
+      return this.Where(a => (a.TargetType==type || ancestors.Contains(a.TargetType) ||
+        a.OwnerType==type || ancestors.Contains(a.OwnerType)));
+    }
 
     /// <summary>
     /// Finds the associations for the specified <see cref="TypeInfo"/>.
     /// </summary>
-    /// <param name="referencedType"><see cref="TypeInfo"/> to find associations for.</param>
+    /// <param name="type"><see cref="TypeInfo"/> to find outgoing associations for.</param>
+    /// <param name="incoming">if set to <see langword="true"/> [incoming].</param>
     /// <returns></returns>
-    public IEnumerable<AssociationInfo> Find(TypeInfo referencedType)
+    public IEnumerable<AssociationInfo> Find(TypeInfo type, bool incoming)
     {
-      List<AssociationInfo> associations;
-      if (typeIndex.TryGetValue(referencedType, out associations))
-        foreach (AssociationInfo association in associations)
-          yield return association;
-
-      foreach (TypeInfo ancestor in referencedType.GetAncestors()) {
-        if (!typeIndex.TryGetValue(ancestor, out associations))
-          continue;
-        foreach (AssociationInfo association in associations)
-          yield return association;
-      }
-    }
-
-    /// <summary>
-    /// Finds the outgoing associations for the specified <see cref="TypeInfo"/>.
-    /// </summary>
-    /// <param name="referencingType"><see cref="TypeInfo"/> to find outgoing associations for.</param>
-    /// <returns></returns>
-    public IEnumerable<AssociationInfo> FindOutgoingAssocitions(TypeInfo referencingType)
-    {
-      return this.Where(associationInfo => (associationInfo.ReferencingType==referencingType || referencingType.GetAncestors().Contains(associationInfo.ReferencingType)));
-    }
-
-    /// <inheritdoc/>
-    protected override void OnInserted(AssociationInfo value, int index)
-    {
-      base.OnInserted(value, index);
-      if (!typeIndex.ContainsKey(value.ReferencedType))
-        typeIndex[value.ReferencedType] = new List<AssociationInfo>(1);
-      typeIndex[value.ReferencedType].Add(value);
+      var ancestors = type.GetAncestors();
+      Func<AssociationInfo, TypeInfo> accessor;
+      accessor = incoming ? (Func<AssociationInfo, TypeInfo>) (a => a.TargetType) : (a => a.OwnerType);
+      return this.Where(a => (accessor(a)==type || ancestors.Contains(accessor(a))));
     }
   }
 }

@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Model.Stored
   public sealed class StoredAssociationInfo : StoredNode
   {
     /// <summary>
-    /// <see cref="AssociationInfo.ReferencingField"/>.
+    /// <see cref="AssociationInfo.OwnerField"/>.
     /// </summary>
     [XmlIgnore]
     public StoredFieldInfo ReferencingField;
@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Model.Stored
     public string ReferencingFieldName;
 
     /// <summary>
-    /// <see cref="AssociationInfo.ReferencedType"/>.
+    /// <see cref="AssociationInfo.TargetType"/>.
     /// </summary>
     [XmlIgnore]
     public StoredTypeInfo ReferencedType;

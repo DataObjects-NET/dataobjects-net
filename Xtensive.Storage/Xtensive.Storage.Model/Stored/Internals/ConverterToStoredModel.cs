@@ -26,8 +26,8 @@ namespace Xtensive.Storage.Model.Stored
       string hierarchyRoot = null;
       if (source.Hierarchy != null && source.Hierarchy.Root == source)
         hierarchyRoot = source.Hierarchy.Schema.ToString();
-      var associations = source.GetOutgoingAssociations()
-        .Where(a => declaredFields.Contains(a.ReferencingField))
+      var associations = source.GetOwnerAssociations()
+        .Where(a => declaredFields.Contains(a.OwnerField))
         .Select(a => ConvertAssociation(a))
         .ToArray();
       // hack: for SingleTable hierarchies mapping name is not set correctly
@@ -64,8 +64,8 @@ namespace Xtensive.Storage.Model.Stored
           ConnectorTypeName = source.UnderlyingType != null ? source.UnderlyingType.Name : null,
           IsMaster = source.IsMaster,
           MultiplicityName = source.Multiplicity.ToString(),
-          ReferencedTypeName = source.ReferencedType.Name,
-          ReferencingFieldName = source.ReferencingField.Name,
+          ReferencedTypeName = source.TargetType.Name,
+          ReferencingFieldName = source.OwnerField.Name,
           ReversedName = source.Reversed != null ? source.Reversed.Name : null,
         };
       return result;

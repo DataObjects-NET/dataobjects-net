@@ -46,12 +46,12 @@ namespace Xtensive.Storage.Model
     private readonly DomainModel                            model;
     private readonly TypeAttributes                         attributes;
     private ReadOnlyList<TypeInfo>                          ancestors;
-    private ReadOnlyList<AssociationInfo>                   associations;
-    private ReadOnlyList<AssociationInfo>                   outgoingAssociations;
+    private ReadOnlyList<AssociationInfo>                   targetAssociations;
+    private ReadOnlyList<AssociationInfo>                   ownerAssociations;
     private Type                                            underlyingType;
     private HierarchyInfo                                   hierarchy;
     private int                                             typeId = NoTypeId;
-    private TupleDescriptor                                 tupleDescriptor;
+    private MapTransform                                    primaryKeyInjector;
 
     /// <summary>
     /// Gets a value indicating whether this instance is entity.
@@ -225,12 +225,7 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the tuple descriptor.
     /// </summary>
-    /// <value></value>
-    public TupleDescriptor TupleDescriptor
-    {
-      [DebuggerStepThrough]
-      get { return tupleDescriptor; }
-    }
+    public TupleDescriptor TupleDescriptor { get; private set; }
 
     /// <summary>
     /// Gets the persistent type prototype.
@@ -238,21 +233,16 @@ namespace Xtensive.Storage.Model
     public Tuple TuplePrototype { get; private set; }
 
     /// <summary>
-    /// Gets the primary key injection transform.
-    /// </summary>
-    public MapTransform PrimaryKeyInjector { get; private set; }
-
-    /// <summary>
     /// Creates the tuple prototype with specified <paramref name="primaryKey"/>.
     /// </summary>
     /// <param name="primaryKey">The primary key to use.</param>
     /// <returns>
     /// The <see cref="TuplePrototype"/> with "injected"
-    /// (see <see cref="PrimaryKeyInjector"/>) <paramref name="primaryKey"/>.
+    /// (see <see cref="primaryKeyInjector"/>) <paramref name="primaryKey"/>.
     /// </returns>
     public Tuple CreateEntityTuple(Tuple primaryKey)
     {
-      return PrimaryKeyInjector.Apply(TupleTransformType.TransformedTuple, primaryKey, TuplePrototype);
+      return primaryKeyInjector.Apply(TupleTransformType.TransformedTuple, primaryKey, TuplePrototype);
     }
 
     /// <summary>
@@ -348,31 +338,31 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the associations this instance is participating in.
     /// </summary>
-    public IList<AssociationInfo> GetAssociations()
+    public IList<AssociationInfo> GetTargetAssociations()
     {
       if (IsLocked)
-        return associations;
+        return targetAssociations;
 
-      return model.Associations.Find(this).ToList();
+      return model.Associations.Find(this, true).ToList();
     }
 
     /// <summary>
     /// Gets the associations this instance is participating in.
     /// </summary>
-    public IList<AssociationInfo> GetOutgoingAssociations()
+    public IList<AssociationInfo> GetOwnerAssociations()
     {
       if (IsLocked)
-        return outgoingAssociations;
+        return ownerAssociations;
 
-      return model.Associations.FindOutgoingAssocitions(this).ToList();
+      return model.Associations.Find(this, false).ToList();
     }
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       ancestors = new ReadOnlyList<TypeInfo>(GetAncestors());
-      associations = new ReadOnlyList<AssociationInfo>(GetAssociations());
-      outgoingAssociations = new ReadOnlyList<AssociationInfo>(GetOutgoingAssociations());
+      targetAssociations = new ReadOnlyList<AssociationInfo>(GetTargetAssociations());
+      ownerAssociations = new ReadOnlyList<AssociationInfo>(GetOwnerAssociations());
       base.Lock(recursive);
       if (recursive) {
         affectedIndexes.Lock(true);
@@ -387,7 +377,7 @@ namespace Xtensive.Storage.Model
       }
       CreateTupleDescriptor();
 
-      columns.Lock(true);      
+      columns.Lock(true);
       fields.Lock(true);
 
       if (IsEntity || IsStructure) {
@@ -400,7 +390,7 @@ namespace Xtensive.Storage.Model
       var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList();
       columns = new ColumnInfoCollection();
       columns.AddRange(orderedColumns);
-      tupleDescriptor = TupleDescriptor.Create(
+      TupleDescriptor = TupleDescriptor.Create(
         from c in Columns select c.ValueType);
     }
 
@@ -426,7 +416,7 @@ namespace Xtensive.Storage.Model
         var keyFieldMap = new Pair<int, int>[fieldCount];
         for (i = 0; i < fieldCount; i++)
           keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);
-        PrimaryKeyInjector = new MapTransform(true, TupleDescriptor, keyFieldMap);
+        primaryKeyInjector = new MapTransform(true, TupleDescriptor, keyFieldMap);
       }
       TuplePrototype = IsEntity ? tuple.ToFastReadOnly() : tuple;
     }

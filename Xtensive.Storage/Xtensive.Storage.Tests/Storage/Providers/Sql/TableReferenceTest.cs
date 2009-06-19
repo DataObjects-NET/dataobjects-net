@@ -167,15 +167,15 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       TypeInfo typeA = Domain.Model.Types[typeof (A)];
       Assert.IsNotNull(typeA);
-      CheckAssociations(typeA.GetAssociations(), 6, Multiplicity.ManyToMany, Multiplicity.ManyToOne, Multiplicity.OneToMany, Multiplicity.OneToOne, Multiplicity.ZeroToMany, Multiplicity.ZeroToOne);
+      CheckAssociations(typeA.GetTargetAssociations(), 6, Multiplicity.ManyToMany, Multiplicity.ManyToOne, Multiplicity.OneToMany, Multiplicity.OneToOne, Multiplicity.ZeroToMany, Multiplicity.ZeroToOne);
 
       TypeInfo typeB = Domain.Model.Types[typeof (B)];
       Assert.IsNotNull(typeB);
-      CheckAssociations(typeB.GetAssociations(), 6, Multiplicity.ManyToMany, Multiplicity.ManyToOne, Multiplicity.OneToMany, Multiplicity.OneToOne, Multiplicity.ZeroToMany, Multiplicity.ZeroToOne);
+      CheckAssociations(typeB.GetTargetAssociations(), 6, Multiplicity.ManyToMany, Multiplicity.ManyToOne, Multiplicity.OneToMany, Multiplicity.OneToOne, Multiplicity.ZeroToMany, Multiplicity.ZeroToOne);
 
       TypeInfo typeC = Domain.Model.Types[typeof (C)];
       Assert.IsNotNull(typeC);
-      CheckAssociations(typeC.GetAssociations(), 8, Multiplicity.ManyToMany, Multiplicity.ManyToOne, Multiplicity.OneToMany, Multiplicity.OneToOne, Multiplicity.ZeroToMany, Multiplicity.ZeroToOne);
+      CheckAssociations(typeC.GetTargetAssociations(), 8, Multiplicity.ManyToMany, Multiplicity.ManyToOne, Multiplicity.OneToMany, Multiplicity.OneToOne, Multiplicity.ZeroToMany, Multiplicity.ZeroToOne);
     }
 
     private void CheckAssociations(IEnumerable<AssociationInfo> associations, int count, params Multiplicity[] multiplicities)

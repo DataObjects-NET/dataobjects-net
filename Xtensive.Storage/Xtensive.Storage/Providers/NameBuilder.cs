@@ -350,7 +350,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>The built name.</returns>
     public virtual string Build(AssociationInfo target)
     {
-      return NamingConvention.Apply(string.Format(AssociationPattern, target.ReferencingType.Name, target.ReferencingField.Name, target.ReferencedType.Name));
+      return NamingConvention.Apply(string.Format(AssociationPattern, target.OwnerType.Name, target.OwnerField.Name, target.TargetType.Name));
     }
 
     /// <summary>

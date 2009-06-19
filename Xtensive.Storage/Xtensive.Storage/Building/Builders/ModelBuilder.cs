@@ -172,8 +172,8 @@ namespace Xtensive.Storage.Building.Builders
         if (!(multiplicity == Multiplicity.ZeroToMany || multiplicity == Multiplicity.ManyToMany))
           continue;
 
-        var masterType = association.ReferencedType;
-        var slaveType = association.ReferencingType;
+        var masterType = association.TargetType;
+        var slaveType = association.OwnerType;
 
         var genericDefinitionType = typeof (EntitySetItem<,>);
         var genericInstanceType = genericDefinitionType.MakeGenericType(masterType.UnderlyingType, slaveType.UnderlyingType);

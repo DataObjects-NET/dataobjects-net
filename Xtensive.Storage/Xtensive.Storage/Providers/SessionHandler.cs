@@ -136,7 +136,7 @@ namespace Xtensive.Storage.Providers
       var sortData = new Dictionary<Key, Node<EntityState, AssociationInfo>>();
       unreferencedData = new List<EntityState>();
       foreach (EntityState data in entityStates) {
-        if (data.Type.GetAssociations().Count==0 && data.Type.GetOutgoingAssociations().Count==0)
+        if (data.Type.GetTargetAssociations().Count==0 && data.Type.GetOwnerAssociations().Count==0)
           unreferencedData.Add(data);
         else
           sortData.Add(data.Key, new Node<EntityState, AssociationInfo>(data));
@@ -145,8 +145,8 @@ namespace Xtensive.Storage.Providers
       // Add connections
       foreach (var data in sortData) {
         EntityState processingEntityState = data.Value.Item;
-        foreach (var association in processingEntityState.Type.GetOutgoingAssociations().Where(associationInfo => associationInfo.ReferencingField.IsEntity)) {
-          Key foreignKey = processingEntityState.Entity.GetKey(association.ReferencingField);
+        foreach (var association in processingEntityState.Type.GetOwnerAssociations().Where(associationInfo => associationInfo.OwnerField.IsEntity)) {
+          Key foreignKey = processingEntityState.Entity.GetKey(association.OwnerField);
           Node<EntityState, AssociationInfo> destination;
           if (foreignKey!=null && !foreignKey.Equals(data.Value.Item.Key) && sortData.TryGetValue(foreignKey, out destination))
             data.Value.AddConnection(destination, true, association);
@@ -161,8 +161,8 @@ namespace Xtensive.Storage.Providers
       keysToRestore = new List<Triplet<EntityState, FieldInfo, Entity>>();
       foreach (var edge in removedEdges) {
         AssociationInfo associationInfo = edge.ConnectionItem;
-        keysToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.ReferencingField, edge.Destination.Item.Entity));
-        associationInfo.ReferencingField.GetAccessor<object>().SetValue(edge.Source.Item.Entity, associationInfo.ReferencingField, null, false);
+        keysToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.OwnerField, edge.Destination.Item.Entity));
+        associationInfo.OwnerField.GetAccessor<object>().SetValue(edge.Source.Item.Entity, associationInfo.OwnerField, null, false);
       }
     }
   }

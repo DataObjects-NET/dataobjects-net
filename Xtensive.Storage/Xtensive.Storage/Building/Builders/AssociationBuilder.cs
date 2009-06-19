@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Building.Builders
     public static void BuildAssociation(AssociationInfo origin, FieldInfo field)
     {
       BuildingContext context = BuildingContext.Current;
-      var association = new AssociationInfo(field, origin.ReferencedType, origin.Multiplicity, origin.OnRemove);
+      var association = new AssociationInfo(field, origin.TargetType, origin.Multiplicity, origin.OnRemove);
       association.Name = context.NameBuilder.Build(association);
       context.Model.Associations.Add(association);
 
@@ -45,15 +45,15 @@ namespace Xtensive.Storage.Building.Builders
     public static void BuildPairedAssociation(AssociationInfo slave, string masterFieldName)
     {
       FieldInfo masterField;
-      if (!slave.ReferencedType.Fields.TryGetValue(masterFieldName, out masterField))
+      if (!slave.TargetType.Fields.TryGetValue(masterFieldName, out masterField))
         throw new DomainBuilderException(
-          string.Format(Strings.ExPairedFieldXWasNotFoundInYType, masterFieldName, slave.ReferencedType.Name));
+          string.Format(Strings.ExPairedFieldXWasNotFoundInYType, masterFieldName, slave.TargetType.Name));
 
       if (masterField.IsPrimitive || masterField.IsStructure)
         throw new DomainBuilderException(
           string.Format(Strings.ExPairedFieldXHasWrongTypeItShouldBeReferenceToEntityOrAEntitySet, masterFieldName));
 
-      FieldInfo pairedField = slave.ReferencingField;
+      FieldInfo pairedField = slave.OwnerField;
 
       AssociationInfo master = masterField.Association;
       if (master.Reversed!=null && master.Reversed!=slave)
@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       if (BuildingContext.Current.Domain.PairSyncActions.ContainsKey(association))
         throw new DomainBuilderException(string.Format(Strings.ExPairToAttributeCanNotBeAppliedToXField,
-          association.ReferencingField, association.ReferencingType.UnderlyingType.FullName, association.Reversed.ReferencingField, association.Reversed.ReferencingType.UnderlyingType.FullName));
+          association.OwnerField, association.OwnerType.UnderlyingType.FullName, association.Reversed.OwnerField, association.Reversed.OwnerType.UnderlyingType.FullName));
 
       Func<IEntity, bool, IEntity> getValue = null;
       Action<IEntity, IEntity, bool> @break;
@@ -136,23 +136,23 @@ namespace Xtensive.Storage.Building.Builders
 
     private static Func<IEntity, bool, IEntity> BuildGetPairedValueAction(AssociationInfo association)
     {
-      return (entity, notify) => ((Entity)entity).GetFieldValue<IEntity>(association.ReferencingField, notify);
+      return (entity, notify) => ((Entity)entity).GetFieldValue<IEntity>(association.OwnerField, notify);
     }
 
     private static Action<IEntity, IEntity, bool> BuildBreakAssociationAction(AssociationInfo association, OperationType type)
     {
       if (type==OperationType.Set)
-        return (master, slave, notify) => ((Entity)master).SetFieldValue<IEntity>(association.ReferencingField, null, notify);
+        return (master, slave, notify) => ((Entity)master).SetFieldValue<IEntity>(association.OwnerField, null, notify);
       else
-        return (master, slave, notify) => ((Entity)master).GetFieldValue<EntitySetBase>(association.ReferencingField, notify).Remove((Entity)slave, notify);
+        return (master, slave, notify) => ((Entity)master).GetFieldValue<EntitySetBase>(association.OwnerField, notify).Remove((Entity)slave, notify);
     }
 
     private static Action<IEntity, IEntity, bool> BuildCreateAssociationAction(AssociationInfo association, OperationType type)
     {
       if (type==OperationType.Set)
-        return (master, slave, notify) => ((Entity)master).SetFieldValue(association.ReferencingField, slave, notify);
+        return (master, slave, notify) => ((Entity)master).SetFieldValue(association.OwnerField, slave, notify);
       else
-        return (master, slave, notify) => ((Entity)master).GetFieldValue<EntitySetBase>(association.ReferencingField, notify).Add((Entity)slave, notify);
+        return (master, slave, notify) => ((Entity)master).GetFieldValue<EntitySetBase>(association.OwnerField, notify).Add((Entity)slave, notify);
     }
   }
 }

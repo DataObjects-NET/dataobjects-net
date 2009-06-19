@@ -215,7 +215,7 @@ namespace Xtensive.Storage.Upgrade
     protected override IPathNode VisitAssociationInfo(AssociationInfo association)
     {
       if (!association.IsMaster 
-        || association.ReferencedType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
+        || association.TargetType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
         return null;
 
       TableInfo referencedTable;
@@ -224,13 +224,13 @@ namespace Xtensive.Storage.Upgrade
       ForeignKeyInfo foreignKey;
 
       if (association.UnderlyingType==null) {
-        if (association.ReferencingType.Indexes.PrimaryIndex==null)
+        if (association.OwnerType.Indexes.PrimaryIndex==null)
           return null;
-        referencedTable = GetTable(association.ReferencedType);
-        referencingTable = GetTable(association.ReferencingType);
+        referencedTable = GetTable(association.TargetType);
+        referencingTable = GetTable(association.OwnerType);
         referencingIndex = FindIndex(referencingTable,
-          new List<string>(association.ReferencingField.ExtractColumns().Select(ci => ci.Name)));
-        var foreignKeyName = ForeignKeyNameGenerator(association, association.ReferencingField);
+          new List<string>(association.OwnerField.ExtractColumns().Select(ci => ci.Name)));
+        var foreignKeyName = ForeignKeyNameGenerator(association, association.OwnerField);
         foreignKey = CreateForeignKey(referencingTable, foreignKeyName, referencedTable, referencingIndex);
         return foreignKey;
       }

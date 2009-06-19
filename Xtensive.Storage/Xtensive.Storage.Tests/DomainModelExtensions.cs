@@ -150,9 +150,9 @@ namespace Xtensive.Storage.Tests
 
     private static void Dump(this AssociationInfo target, int indent)
     {
-      WriteLine(indent, "Referencing type: " + target.ReferencingType.Name);
-      WriteLine(indent, "Referencing field: " + target.ReferencingField.Name);
-      WriteLine(indent, "Referenced type: " + target.ReferencedType.Name);
+      WriteLine(indent, "Referencing type: " + target.OwnerType.Name);
+      WriteLine(indent, "Referencing field: " + target.OwnerField.Name);
+      WriteLine(indent, "Referenced type: " + target.TargetType.Name);
       WriteLine(indent, "Multiplicity: " + target.Multiplicity);
       WriteLine(indent, "On Delete: " + target.OnRemove);
       WriteLine(indent, "Master: " + target.IsMaster);

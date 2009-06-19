@@ -15,6 +15,9 @@ using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// Describes single association.
+  /// </summary>
   [Serializable]
   public class AssociationInfo : Node
   {
@@ -25,22 +28,22 @@ namespace Xtensive.Storage.Model
     private SegmentTransform foreignKeyExtractorTransform;
 
     /// <summary>
-    /// Gets the referencing type.
+    /// Gets the owner type.
     /// </summary>
-    public TypeInfo ReferencingType
+    public TypeInfo OwnerType
     {
-      get { return ReferencingField.DeclaringType; }
+      get { return OwnerField.DeclaringType; }
     }
 
     /// <summary>
-    /// Gets the referencing field.
+    /// Gets the owner field.
     /// </summary>
-    public FieldInfo ReferencingField { get; private set; }
+    public FieldInfo OwnerField { get; private set; }
 
     /// <summary>
-    /// Gets the referenced type.
+    /// Gets the target type.
     /// </summary>
-    public TypeInfo ReferencedType { get; private set; }
+    public TypeInfo TargetType { get; private set; }
 
     /// <summary>
     /// Gets the persistent type that represents this association.
@@ -139,7 +142,7 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets the <see cref="OnRemoveAction"/> that will be applied on <see cref="ReferencedType"/> object removal.
+    /// Gets the <see cref="OnRemoveAction"/> that will be applied on <see cref="TargetType"/> object removal.
     /// </summary>
     public OnRemoveAction OnRemove { get; private set; }
 
@@ -157,17 +160,17 @@ namespace Xtensive.Storage.Model
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
-      if (!ReferencingType.IsEntity)
+      if (!OwnerType.IsEntity)
         return;
       switch (Multiplicity) {
       case Multiplicity.ZeroToOne:
       case Multiplicity.OneToOne:
       case Multiplicity.ManyToOne:
-        UnderlyingIndex = ReferencingType.Indexes.PrimaryIndex;
-        foreignKeyExtractorTransform = ReferencingField.valueExtractorTransform;
+        UnderlyingIndex = OwnerType.Indexes.PrimaryIndex;
+        foreignKeyExtractorTransform = OwnerField.valueExtractorTransform;
         break;
       case Multiplicity.OneToMany:
-        UnderlyingIndex = Reversed.ReferencingType.Indexes.GetIndex(Reversed.ReferencingField.Name);
+        UnderlyingIndex = Reversed.OwnerType.Indexes.GetIndex(Reversed.OwnerField.Name);
         break;
       case Multiplicity.ZeroToMany:
       case Multiplicity.ManyToMany:
@@ -176,7 +179,7 @@ namespace Xtensive.Storage.Model
         else
           UnderlyingIndex = Reversed.UnderlyingType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
         if (foreignKeyExtractorTransform == null) {
-          var foreignKeySegment = new Segment<int>(ReferencingType.Hierarchy.KeyInfo.Columns.Count, ReferencedType.Hierarchy.KeyInfo.Columns.Count);
+          var foreignKeySegment = new Segment<int>(OwnerType.Hierarchy.KeyInfo.Columns.Count, TargetType.Hierarchy.KeyInfo.Columns.Count);
           foreignKeyExtractorTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
         }
         break;
@@ -192,11 +195,11 @@ namespace Xtensive.Storage.Model
     /// <param name="referencingField">The referencing field.</param>
     /// <param name="referencedType">The referenced type.</param>
     /// <param name="multiplicity">The association multiplicity.</param>
-    /// <param name="onRemove">The <see cref="OnRemoveAction"/> that will be applied on <see cref="ReferencedType"/> object removal.</param>
+    /// <param name="onRemove">The <see cref="OnRemoveAction"/> that will be applied on <see cref="TargetType"/> object removal.</param>
     public AssociationInfo(FieldInfo referencingField, TypeInfo referencedType, Multiplicity multiplicity, OnRemoveAction onRemove)
     {
-      ReferencingField = referencingField;
-      ReferencedType = referencedType;
+      OwnerField = referencingField;
+      TargetType = referencedType;
       Multiplicity = multiplicity;
       OnRemove = onRemove;
       referencingField.Association = this;

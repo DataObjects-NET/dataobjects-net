@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Linq
       if (field.Association.Multiplicity == Multiplicity.OneToMany) {
         var whereParameter = Expression.Parameter(elementType, "p");
         var whereExpression = Expression.Equal(
-          Expression.Property(whereParameter, field.Association.Reversed.ReferencingField.Name),
+          Expression.Property(whereParameter, field.Association.Reversed.OwnerField.Name),
           ownerEntity
           );
         return Expression.Call(
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Linq
       string master = "Master";
       string slave = "Slave";
 
-      if (field.ReflectedType.UnderlyingType != field.Association.Master.ReferencedType.UnderlyingType) {
+      if (field.ReflectedType.UnderlyingType != field.Association.Master.TargetType.UnderlyingType) {
         var s = master;
         master = slave;
         slave = s;
