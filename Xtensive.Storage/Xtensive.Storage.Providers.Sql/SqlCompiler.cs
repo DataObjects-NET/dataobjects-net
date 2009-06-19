@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
-      var queryRef = SqlFactory.QueryRef(source.Request.SelectStatement);
+      SqlTable queryRef = SqlFactory.QueryRef(source.Request.SelectStatement);
       SqlSelect sqlSelect = SqlFactory.Select(queryRef);
 
       var columns = queryRef.Columns.ToList();
@@ -150,10 +150,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
-      var clone = (SqlSelect) source.Request.SelectStatement.Clone();
-      var queryRef = SqlFactory.QueryRef(clone);
-      var query = SqlFactory.Select(queryRef);
-      query.Columns.AddRange(provider.Header.Columns.Select(c => (SqlColumn)queryRef.Columns[c.Index]));
+      var query = (SqlSelect) source.Request.SelectStatement.Clone();
       query.Distinct = true;
       return new SqlProvider(provider, query, Handlers, source);
     }
@@ -351,9 +348,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (compiledSource == null)
         return null;
 
-      var queryRef = SqlFactory.QueryRef(compiledSource.Request.SelectStatement);
-      var query = SqlFactory.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      var query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
       query.Offset = provider.Count();
       AddOrderByStatement(provider, query);
       return new SqlProvider(provider, query, Handlers, compiledSource);
@@ -765,6 +760,31 @@ namespace Xtensive.Storage.Providers.Sql
     {
       foreach (KeyValuePair<int, Direction> pair in provider.Source.ExpectedOrder)
         query.OrderBy.Add(query.Columns[pair.Key], pair.Value==Direction.Positive);
+    }
+
+    private static SqlTable GetSourceReference(SqlSelect sqlSelect)
+    {
+      if (sqlSelect.Top == 0 &&
+          sqlSelect.Offset == 0 &&
+          !sqlSelect.Distinct &&
+          sqlSelect.OrderBy.Count == 0 &&
+          sqlSelect.GroupBy.Count == 0 &&
+          ReferenceEquals(sqlSelect.Having, null) &&
+          ReferenceEquals(sqlSelect.Where, null)) 
+      {
+        var containsCalculatedColumns = sqlSelect.Columns.Any(c => {
+            if (c is SqlUserColumn)
+              return true;
+            var cRef = c as SqlColumnRef;
+            if (!ReferenceEquals(null, cRef))
+              return cRef.SqlColumn is SqlUserColumn;
+            return false;
+          });
+
+        if (!containsCalculatedColumns)
+          return sqlSelect.From;
+      }
+      return SqlFactory.QueryRef(sqlSelect);
     }
 
     #endregion
