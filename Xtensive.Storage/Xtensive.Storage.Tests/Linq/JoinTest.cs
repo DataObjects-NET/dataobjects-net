@@ -97,13 +97,12 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore("Not implemented")]
     public void GroupJoinTest()
     {
       var categories = Query<Category>.All;
       var products = Query<Product>.All;
       var categoryCount = categories.Count();
-      var result = 
+      var result =
         from c in categories
         join p in products on c equals p.Category into pGroup
         select pGroup;
@@ -112,29 +111,26 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore("Not implemented")]
     public void GroupJoinNestedTest()
     {
       var categories = Query<Category>.All;
       var products = Query<Product>.All;
       var categoryCount = categories.Count();
-      var result = 
+      var result =
         from c in categories
         orderby c.CategoryName
         join p in products on c equals p.Category into pGroup
-        select new
-             {
-               Category = c.CategoryName,
-               Products = from ip in pGroup
-               orderby ip.ProductName
-               select ip
-             };
+        select new {
+          Category = c.CategoryName,
+          Products = from ip in pGroup
+          orderby ip.ProductName
+          select ip
+        };
       var list = result.ToList();
       Assert.AreEqual(categoryCount, list.Count);
     }
 
     [Test]
-    [Ignore("Not implemented")]
     public void GroupJoinSelectManyTest()
     {
       using (Domain.OpenSession())
@@ -142,7 +138,7 @@ namespace Xtensive.Storage.Tests.Linq
         var categories = Query<Category>.All;
         var products = Query<Product>.All;
         var productsCount = products.Count();
-        var result = 
+        var result =
           from c in categories
           orderby c.CategoryName
           join p in products on c equals p.Category into pGroup
@@ -154,13 +150,12 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore("Not implemented")]
     public void DefaultIfEmptyTest()
     {
       var categories = Query<Category>.All;
       var products = Query<Product>.All;
       var categoryCount = categories.Count();
-      var result = 
+      var result =
         from c in categories
         join p in products on c equals p.Category into pGroup
         select pGroup.DefaultIfEmpty();
@@ -169,19 +164,31 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore("Not implemented")]
     public void LeftOuterTest()
     {
       var categories = Query<Category>.All;
       var products = Query<Product>.All;
       var productsCount = products.Count();
-      var result = 
+      var result =
         from c in categories
         join p in products on c equals p.Category into pGroup
         from p in pGroup.DefaultIfEmpty()
         select new {Name = p==null ? "Nothing!" : p.ProductName, c.CategoryName};
       var list = result.ToList();
       Assert.AreEqual(productsCount, list.Count);
+    }
+
+    [Test]
+    public void GroupJoinAnonimousTest()
+    {
+      var query = Query<Supplier>.All
+        .GroupJoin(Query<Product>.All,s => s, p => p.Supplier,(s, products) => new {
+          s.CompanyName,
+          s.ContactName,
+          s.Phone,
+          Products = products
+        });
+      QueryDumper.Dump(query);
     }
   }
 }
