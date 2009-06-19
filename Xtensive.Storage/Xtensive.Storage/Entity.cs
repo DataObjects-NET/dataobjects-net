@@ -28,9 +28,9 @@ namespace Xtensive.Storage
   /// <remarks>
   /// <para>
   /// <see cref="Entity"/> class encapsulates infrastructure to store persistent transactional data.
-  /// It has <see cref="Key"/> property that uniquly identifies the instace within its <see cref="Session"/>.
+  /// It has <see cref="Key"/> property that uniquely identifies the instance within its <see cref="Session"/>.
   /// </para>
-  /// <para>All entities in a model should be inherited from this classs.
+  /// <para>All entities in a model should be inherited from this class.
   /// </para>
   /// </remarks>
   /// <example>

@@ -31,11 +31,11 @@ namespace Xtensive.Storage
   /// <para>
   /// EntitySets can be used as a <see cref="FieldAttribute.PairTo">paired property</see> with reference 
   /// (One-To-Many) or EntitySet (Many-To-Many) properties. In such case DataObjects.Net automatically
-  /// modifies collection or it's paired property. If paired propery is not specified, auxiliary table
+  /// modifies collection or it's paired property. If paired property is not specified, auxiliary table
   /// will be automatically created in database.
   /// </para>
   /// <para>EntitySet class implements <see cref="IQueryable{T}"/> interface and fully supported by 
-  /// DataObjects.Net LINQ transalator.</para>
+  /// DataObjects.Net LINQ translator.</para>
   /// </remarks>
   /// <example>In following example User entity has three EntitySet properties with different association kinds.
   /// <code>
@@ -82,7 +82,8 @@ namespace Xtensive.Storage
     /// Adds the specified element to the <see cref="EntitySet{TItem}"/>.
     /// </summary>
     /// <param name="item">Item to add to the set.</param>
-    /// <returns><see langword="True"/> if the element is added to the <see cref="EntitySet{TItem}"/> object; otherwise, <see langword="false"/>.</returns>
+    /// <returns><see langword="True"/> if the element is added to the <see cref="EntitySet{TItem}"/> object;
+    /// otherwise, <see langword="false"/>.</returns>
     [Infrastructure]
     public bool Add(TItem item)
     {
