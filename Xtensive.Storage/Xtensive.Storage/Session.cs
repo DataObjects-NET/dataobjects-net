@@ -42,13 +42,12 @@ namespace Xtensive.Storage
   /// </para>
   /// </remarks>
   /// <example>
-  /// <code source="..\Xtensive.Storage.Manual\DomainAndSessionSample.cs" region="Session sample"></code>
+  /// <code source="..\..\Xtensive.Storage\Xtensive.Storage.Manual\DomainAndSessionSample.cs" region="Session sample"></code>
   /// </example>
   /// <seealso cref="Domain"/>
   /// <seealso cref="SessionBound" />
   public partial class Session : DomainBound,
-    IContext<SessionScope>,
-    IResource
+    IContext<SessionScope>,IResource
   {
     private bool isPersisting;
     private volatile bool isDisposed;

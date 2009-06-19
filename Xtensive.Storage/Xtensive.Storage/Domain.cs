@@ -30,7 +30,7 @@ namespace Xtensive.Storage
   /// An access point to a single storage.
   /// </summary>
   /// <sample>
-  /// <code source="..\Xtensive.Storage.Manual\DomainAndSessionSample.cs" region="Domain sample"></code>
+  /// <code source="..\..\Xtensive.Storage\Xtensive.Storage.Manual\DomainAndSessionSample.cs" region="Domain sample"></code>
   /// </sample>
   public sealed class Domain : CriticalFinalizerObject,
     IDisposableContainer
