@@ -526,7 +526,11 @@ namespace Xtensive.Storage.Linq
 
     private Expression GetMember(Expression expression, MemberInfo member)
     {
+      bool checkSequence = context.SequenceCheckSet.Contains(expression);
       expression = expression.StripCasts();
+      if (checkSequence && !context.SequenceCheckSet.Contains(expression))
+        context.SequenceCheckSet.Add(expression);
+
       if (expression.IsGroupingExpression() && member.Name == "Key")
         return ((GroupingExpression) expression).KeyExpression;
       if (expression.IsAnonymousConstructor()) {
@@ -538,7 +542,10 @@ namespace Xtensive.Storage.Linq
           throw new InvalidOperationException(
             string.Format("Could not get member {0} from expression.",
                           member));
-        return newExpression.Arguments[memberIndex];
+        var argument = newExpression.Arguments[memberIndex];
+        if (checkSequence)
+          context.SequenceCheckSet.Add(argument);
+        return argument;
       }
       var extendedExpression = expression as ExtendedExpression;
       if (extendedExpression == null)
@@ -570,8 +577,10 @@ namespace Xtensive.Storage.Linq
       if (state.BuildingProjection && result is EntityFieldExpression) {
         var entityFieldExpression = (EntityFieldExpression) result;
         EnsureEntityReferenceIsJoined(entityFieldExpression);
-        return entityFieldExpression.Entity;
+        result = entityFieldExpression.Entity;
       }
+      if (checkSequence)
+        context.SequenceCheckSet.Add(result);
       return result;
     }
 

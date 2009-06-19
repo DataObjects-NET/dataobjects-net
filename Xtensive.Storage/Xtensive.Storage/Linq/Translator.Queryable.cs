@@ -322,10 +322,11 @@ namespace Xtensive.Storage.Linq
       var applyParameter = context.GetApplyParameter(oldResult);
 
       int columnIndex = oldResult.ItemProjector.DataSource.Header.Length;
-      var newRecordSet = oldResult.ItemProjector.DataSource.Apply(applyParameter, recordSet.Alias(context.GetNextAlias()), true, JoinType.Inner);
+      var newRecordSet = oldResult.ItemProjector.DataSource.Apply(applyParameter, recordSet.Alias(context.GetNextAlias()), true, JoinType.LeftOuter);
       var newItemProjector = projection.ItemProjector.Remap(newRecordSet, columnIndex);
       var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
       context.Bindings.ReplaceBound(lambdaParameter, newResult);
+      context.SequenceCheckSet.Add(newItemProjector.Item);
 
       return newItemProjector.Item;
     }
