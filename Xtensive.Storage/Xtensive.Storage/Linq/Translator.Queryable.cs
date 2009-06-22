@@ -298,16 +298,23 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitFirstSingle(Expression source, LambdaExpression predicate, MethodInfo method, bool isRoot)
     {
+      bool addSequenceCheckMarker = false;
       var projection = predicate != null
         ? VisitWhere(source, predicate)
         : VisitSequence(source);
       RecordSet recordSet = null;
       switch (method.Name) {
         case Core.Reflection.WellKnown.Queryable.First:
+          addSequenceCheckMarker = true;
+          recordSet = projection.ItemProjector.DataSource.Take(1);
+          break;
         case Core.Reflection.WellKnown.Queryable.FirstOrDefault:
           recordSet = projection.ItemProjector.DataSource.Take(1);
           break;
         case Core.Reflection.WellKnown.Queryable.Single:
+          addSequenceCheckMarker = true;
+          recordSet = projection.ItemProjector.DataSource.Take(2);
+          break;
         case Core.Reflection.WellKnown.Queryable.SingleOrDefault:
           recordSet = projection.ItemProjector.DataSource.Take(2);
           break;
@@ -327,9 +334,10 @@ namespace Xtensive.Storage.Linq
       var newItemProjector = projection.ItemProjector.Remap(newRecordSet, columnIndex);
       var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
       context.Bindings.ReplaceBound(lambdaParameter, newResult);
-      context.SequenceCheckSet.Add(newItemProjector.Item);
 
-      return newItemProjector.Item;
+      return addSequenceCheckMarker
+        ? new SequenceCheckMarker(newItemProjector.Item)
+        : newItemProjector.Item;
     }
 
     private ProjectionExpression VisitTake(Expression source, Expression take)

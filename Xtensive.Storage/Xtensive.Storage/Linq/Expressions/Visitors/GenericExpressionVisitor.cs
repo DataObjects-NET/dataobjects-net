@@ -33,6 +33,15 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       if (mapped!=null)
         return VisitGenericExpression(mapped);
 
+      var extendedExpression = e as ExtendedExpression;
+      if (extendedExpression != null && extendedExpression.ExtendedType == ExtendedExpressionType.SequenceCheckMarker) {
+        var marker = (SequenceCheckMarker) e;
+        var result = Visit(marker.Target);
+        if (result == marker.Target)
+          return result;
+        return new SequenceCheckMarker(result);
+      }
+
       return base.VisitUnknown(e);
     }
 

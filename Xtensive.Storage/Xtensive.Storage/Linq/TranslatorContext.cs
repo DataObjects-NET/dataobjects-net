@@ -27,7 +27,6 @@ namespace Xtensive.Storage.Linq
     private readonly ParameterExtractor parameterExtractor;
     private readonly AliasGenerator resultAliasGenerator;
     private readonly AliasGenerator columnAliasGenerator;
-    private readonly HashSet<Expression> sequenceCheckSet;
     private readonly BindingCollection<ParameterExpression, ProjectionExpression> bindings;
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
@@ -61,11 +60,6 @@ namespace Xtensive.Storage.Linq
     public BindingCollection<ParameterExpression, ProjectionExpression> Bindings
     {
       get { return bindings; }
-    }
-
-    public HashSet<Expression> SequenceCheckSet
-    {
-      get { return sequenceCheckSet; }
     }
 
     public bool IsRoot(Expression expression)
@@ -126,7 +120,6 @@ namespace Xtensive.Storage.Linq
     {
       resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
       columnAliasGenerator = AliasGenerator.Create(new[] {"column"});
-      sequenceCheckSet = new HashSet<Expression>();
       this.query = EntitySetAccessRewriter.Rewrite(EqualityRewriter.Rewrite(query));
       this.model = model;
       translator = new Translator(this);

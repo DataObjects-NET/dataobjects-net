@@ -20,8 +20,8 @@ namespace Xtensive.Storage.Linq.Expressions
     EntityField,
     EntitySet,
     ItemProjector,
-    MemberPath,
     Grouping,
     SubQuery,
+    SequenceCheckMarker
   }
 }

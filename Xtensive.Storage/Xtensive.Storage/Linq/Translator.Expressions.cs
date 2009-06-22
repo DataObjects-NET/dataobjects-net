@@ -526,11 +526,10 @@ namespace Xtensive.Storage.Linq
 
     private Expression GetMember(Expression expression, MemberInfo member)
     {
-      bool checkSequence = context.SequenceCheckSet.Contains(expression);
       expression = expression.StripCasts();
-      if (checkSequence && !context.SequenceCheckSet.Contains(expression))
-        context.SequenceCheckSet.Add(expression);
-
+      bool sequenceCheckMarker = expression.IsSequenceCheckMarker();
+      expression = expression.StripMarkers();
+      expression = expression.StripCasts();
       if (expression.IsGroupingExpression() && member.Name == "Key")
         return ((GroupingExpression) expression).KeyExpression;
       if (expression.IsAnonymousConstructor()) {
@@ -543,9 +542,9 @@ namespace Xtensive.Storage.Linq
             string.Format("Could not get member {0} from expression.",
                           member));
         var argument = newExpression.Arguments[memberIndex];
-        if (checkSequence)
-          context.SequenceCheckSet.Add(argument);
-        return argument;
+        return sequenceCheckMarker
+          ? new SequenceCheckMarker(argument)
+          : argument;
       }
       var extendedExpression = expression as ExtendedExpression;
       if (extendedExpression == null)
@@ -579,9 +578,9 @@ namespace Xtensive.Storage.Linq
         EnsureEntityReferenceIsJoined(entityFieldExpression);
         result = entityFieldExpression.Entity;
       }
-      if (checkSequence)
-        context.SequenceCheckSet.Add(result);
-      return result;
+      return sequenceCheckMarker
+        ? new SequenceCheckMarker(result)
+        : result;
     }
 
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>

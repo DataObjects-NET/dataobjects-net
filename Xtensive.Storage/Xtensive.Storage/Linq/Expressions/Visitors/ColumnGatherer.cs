@@ -57,6 +57,12 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return ordered.ToList();
     }
 
+    protected override Expression VisitSequenceCheckMarker(SequenceCheckMarker expression)
+    {
+      Visit(expression.Target);
+      return expression;
+    }
+
     protected override Expression VisitFieldExpression(FieldExpression f)
     {
       ProcessFieldOwner(f);

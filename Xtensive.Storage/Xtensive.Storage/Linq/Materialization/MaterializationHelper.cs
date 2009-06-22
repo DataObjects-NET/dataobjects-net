@@ -25,6 +25,8 @@ namespace Xtensive.Storage.Linq.Materialization
     public static readonly MethodInfo MaterializeMethodInfo;
     public static readonly MethodInfo GetDefaultMethodInfo;
     public static readonly MethodInfo CompileItemMaterializerMethodInfo;
+    public static readonly MethodInfo IsNullMethodInfo;
+    public static readonly MethodInfo ThrowSequenceExceptionMethodInfo;
 
     public static int[] GetColumnMap(int targetLength, Pair<int>[] columns)
     {
@@ -55,6 +57,11 @@ namespace Xtensive.Storage.Linq.Materialization
         result &= tuple.IsNull(column);
       }
       return result;
+    }
+
+    public static object ThrowSequenceException()
+    {
+      throw new InvalidOperationException("Sequence contains no elements.");
     }
 
     public static IEnumerable<TResult> Materialize<TResult>(RecordSet rs, MaterializationContext context, Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer, IDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
@@ -94,6 +101,10 @@ namespace Xtensive.Storage.Linq.Materialization
         .GetMethod("CompileItemMaterializer", BindingFlags.Public | BindingFlags.Static);
       GetDefaultMethodInfo = typeof(MaterializationHelper)
         .GetMethod("GetDefault", BindingFlags.Public | BindingFlags.Static);
+      IsNullMethodInfo = typeof(MaterializationHelper)
+        .GetMethod("IsNull", BindingFlags.Public | BindingFlags.Static);
+      ThrowSequenceExceptionMethodInfo = typeof(MaterializationHelper)
+        .GetMethod("ThrowSequenceException", BindingFlags.Public | BindingFlags.Static);
     }
   }
 }

@@ -58,6 +58,16 @@ namespace Xtensive.Storage.Linq.Materialization
 
     #region Visitor methods overrsides
 
+    protected override Expression VisitSequenceCheckMarker(SequenceCheckMarker expression)
+    {
+      var target = expression.Target;
+      var columns = ColumnGatherer.GetColumns(target, ColumnExtractionModes.Distinct | ColumnExtractionModes.Ordered).ToArray();
+      var processedTarget = Visit(target);
+      var sequenceCheck = Expression.Call(MaterializationHelper.IsNullMethodInfo, tupleParameter, Expression.Constant(columns));
+      var throwException = Expression.Convert(Expression.Call(MaterializationHelper.ThrowSequenceExceptionMethodInfo), target.Type);
+      return Expression.Condition(sequenceCheck, throwException, processedTarget);
+    }
+
     protected override Expression VisitGroupingExpression(GroupingExpression groupingExpression)
     {
       // 1. Prepare subquery parameters.
