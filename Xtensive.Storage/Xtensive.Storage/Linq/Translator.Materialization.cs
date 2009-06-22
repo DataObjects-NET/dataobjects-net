@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
@@ -29,10 +30,10 @@ namespace Xtensive.Storage.Linq
     public TranslatedQuery<TResult> Translate<TResult>()
     {
       var projection = (ProjectionExpression)Visit(context.Query);
-      return Translate<TResult>(projection);
+      return Translate<TResult>(projection, EnumerableUtils<Parameter<Tuple>>.Empty);
     }
 
-    private TranslatedQuery<TResult> Translate<TResult>(ProjectionExpression projection)
+    private TranslatedQuery<TResult> Translate<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
       var optimized = Optimize(projection);
 
@@ -43,15 +44,14 @@ namespace Xtensive.Storage.Linq
         : optimized;
 
       var dataSource = prepared.ItemProjector.DataSource;
-      var materializer = BuildMaterializer<TResult>(prepared);
-      var translatedQuery = new TranslatedQuery<TResult>(dataSource, materializer, projection.TupleParameterBindings);
+      var materializer = BuildMaterializer<TResult>(prepared, tupleParameterBindings);
+      var translatedQuery = new TranslatedQuery<TResult>(dataSource, materializer, tupleParameterBindings.Select(p=>new Pair<Parameter<Tuple>,Tuple>(p, null)));
 
       // Providing the result to caching layer, if required
       if (cachingScope != null) {
         var parameterizedQuery = new ParameterizedQuery<TResult>(
           translatedQuery, 
-          cachingScope.QueryParameter, 
-          projection.TupleParameterBindings);
+          cachingScope.QueryParameter);
         cachingScope.ParameterizedQuery = parameterizedQuery;
         return parameterizedQuery;
       }
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Linq
         var result = new ProjectionExpression(
           origin.Type, 
           itemProjector, 
-          origin.TupleParameterBindings, origin.ResultType);
+          origin.ResultType);
         return result;
       }
       return origin;
@@ -90,12 +90,12 @@ namespace Xtensive.Storage.Linq
       return origin;
     }
 
-    private Func<RecordSet, IDictionary<Parameter<Tuple>, Tuple>, TResult> BuildMaterializer<TResult>(ProjectionExpression projection)
+    private Func<RecordSet, IEnumerable<Pair<Parameter<Tuple>, Tuple>>, TResult> BuildMaterializer<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var itemProjector = projection.ItemProjector;
-      var materializationInfo = itemProjector.Materialize(context, projection.TupleParameterBindings.Keys);
+      var materializationInfo = itemProjector.Materialize(context, tupleParameters);
       var rs = Expression.Parameter(typeof(RecordSet), "rs");
-      var tupleParameterBindings = Expression.Parameter(typeof(IDictionary<Parameter<Tuple>, Tuple>), "tupleParameterBindings");
+      var tupleParameterBindings = Expression.Parameter(typeof(IEnumerable<Pair<Parameter<Tuple>, Tuple>>), "tupleParameterBindings");
       var elementType = itemProjector.Item.Type;
       var materializeMethod = MaterializationHelper.MaterializeMethodInfo
         .MakeGenericMethod(elementType);
@@ -124,14 +124,14 @@ namespace Xtensive.Storage.Linq
           ? body
           : Expression.Convert(body, typeof(TResult));
       
-      var projectorExpression =  Expression.Lambda<Func<RecordSet, IDictionary<Parameter<Tuple>, Tuple>, TResult>>(body, rs, tupleParameterBindings);
+      var projectorExpression =  Expression.Lambda<Func<RecordSet, IEnumerable<Pair<Parameter<Tuple>, Tuple>>, TResult>>(body, rs, tupleParameterBindings);
       return projectorExpression.CachingCompile();
     }
 
     static Translator()
     {
       TranslateMethodInfo = typeof(Translator)
-        .GetMethod("Translate", BindingFlags.NonPublic | BindingFlags.Instance, new[]{"TResult"}, new[]{typeof(ProjectionExpression)});
+        .GetMethod("Translate", BindingFlags.NonPublic | BindingFlags.Instance, new[]{"TResult"}, new[]{typeof(ProjectionExpression), typeof(IEnumerable<Parameter<Tuple>>)});
     }
   }
 }

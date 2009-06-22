@@ -9,9 +9,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Linq
 {
@@ -54,10 +56,16 @@ namespace Xtensive.Storage.Linq
 
     public SubQuery(ProjectionExpression projectionExpression, TranslatedQuery translatedQuery, Parameter<Tuple> parameter, Tuple tuple)
     {
-      this.projectionExpression = new ProjectionExpression(projectionExpression.Type, projectionExpression.ItemProjector, projectionExpression.TupleParameterBindings, projectionExpression.ResultType);
-      this.translatedQuery = new TranslatedQuery<IEnumerable<TElement>>(translatedQuery.DataSource, ((TranslatedQuery<IEnumerable<TElement>>)translatedQuery).Materializer, ((TranslatedQuery<IEnumerable<TElement>>)translatedQuery).TupleParameterBindings);
-      this.translatedQuery.TupleParameterBindings[parameter] = tuple;
-      this.projectionExpression.TupleParameterBindings[parameter] = tuple;
+      this.projectionExpression = new ProjectionExpression(projectionExpression.Type, projectionExpression.ItemProjector, projectionExpression.ResultType);
+
+      var query = ((TranslatedQuery<IEnumerable<TElement>>)translatedQuery);
+      // Gather Parameter<Tuple> values from current ParameterScope for future use. 
+      parameter.Value = tuple;
+      var tupleParameterBindings = query
+        .TupleParameterBindings
+        .Select(pair => new Pair<Parameter<Tuple>, Tuple>(pair.First, pair.First.Value))
+        .ToList();
+      this.translatedQuery = new TranslatedQuery<IEnumerable<TElement>>(translatedQuery.DataSource, query.Materializer, tupleParameterBindings);
     }
   }
 }

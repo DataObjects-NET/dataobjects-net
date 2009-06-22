@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void SubqueryMutiple2Test()
+    public void SubqueryMultiple2Test()
     {
       var result = Query<Supplier>.All
         .Select(supplier => 
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void SubqueryMutiple3Test()
+    public void SubqueryMultiple3Test()
     {
       var result = Query<Supplier>.All
         .Select(supplier => 

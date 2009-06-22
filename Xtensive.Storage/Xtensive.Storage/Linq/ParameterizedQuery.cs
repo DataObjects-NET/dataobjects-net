@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 
@@ -16,8 +17,8 @@ namespace Xtensive.Storage.Linq
   {
     public readonly Parameter QueryParameter;
 
-    public ParameterizedQuery(TranslatedQuery<TResult> translatedQuery, Parameter parameter, IDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
-      : base(translatedQuery.DataSource, translatedQuery.Materializer, tupleParameterBindings)
+    public ParameterizedQuery(TranslatedQuery<TResult> translatedQuery, Parameter parameter)
+      : base(translatedQuery.DataSource, translatedQuery.Materializer)
     {
       QueryParameter = parameter;
     }

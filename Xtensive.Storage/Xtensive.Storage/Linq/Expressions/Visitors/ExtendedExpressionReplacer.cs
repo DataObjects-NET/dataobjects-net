@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
           return new ProjectionExpression(
             projectionExpression.Type, 
             itemProjector, 
-            projectionExpression.TupleParameterBindings, projectionExpression.ResultType);
+            projectionExpression.ResultType);
         }
         return projectionExpression;
     }

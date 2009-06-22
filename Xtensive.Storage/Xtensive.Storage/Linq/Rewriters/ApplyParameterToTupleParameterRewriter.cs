@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Linq.Rewriters
         || newKeyExpression!=expression.KeyExpression
         ) {
         var newItemProjector = new ItemProjectorExpression(newItemProjectorBody, newProvider.Result, expression.ProjectionExpression.ItemProjector.Context);
-        var newProjectionExpression = new ProjectionExpression(expression.ProjectionExpression.Type, newItemProjector, expression.ProjectionExpression.TupleParameterBindings, expression.ProjectionExpression.ResultType);
+        var newProjectionExpression = new ProjectionExpression(expression.ProjectionExpression.Type, newItemProjector, expression.ProjectionExpression.ResultType);
         return new GroupingExpression(expression.Type, expression.OuterParameter, expression.DefaultIfEmpty, newProjectionExpression, expression.ApplyParameter, expression.KeyExpression, expression.Mapping);
       }
       return expression;
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Linq.Rewriters
       var newItemProjectorBody = Visit(expression.ProjectionExpression.ItemProjector.Item);
       if (newProvider != expression.ProjectionExpression.ItemProjector.DataSource.Provider || newItemProjectorBody!=expression.ProjectionExpression.ItemProjector.Item) {
         var newItemProjector = new ItemProjectorExpression(newItemProjectorBody, newProvider.Result, expression.ProjectionExpression.ItemProjector.Context);
-        var newProjectionExpression = new ProjectionExpression(expression.ProjectionExpression.Type, newItemProjector, expression.ProjectionExpression.TupleParameterBindings, expression.ProjectionExpression.ResultType);
+        var newProjectionExpression = new ProjectionExpression(expression.ProjectionExpression.Type, newItemProjector, expression.ProjectionExpression.ResultType);
         return new SubQueryExpression(expression.Type, expression.OuterParameter, expression.DefaultIfEmpty, newProjectionExpression, expression.ApplyParameter, expression.ExtendedType);
       }
       return expression;

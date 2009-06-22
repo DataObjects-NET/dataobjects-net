@@ -5,8 +5,8 @@
 // Created:    2009.05.27
 
 using System;
-using System.Collections;
-using System.Diagnostics;
+using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
@@ -17,8 +17,8 @@ namespace Xtensive.Storage.Linq
   [Serializable]
   internal class TranslatedQuery<TResult> : TranslatedQuery
   {
-    public readonly Func<RecordSet, IDictionary<Parameter<Tuple>, Tuple>, TResult> Materializer;
-    public IDictionary<Parameter<Tuple>, Tuple> TupleParameterBindings { get; private set; }
+    public readonly Func<RecordSet, IEnumerable<Pair<Parameter<Tuple>, Tuple>>, TResult> Materializer;
+    public IEnumerable<Pair<Parameter<Tuple>, Tuple>> TupleParameterBindings { get; private set; }
     
     public sealed override Delegate UntypedMaterializer
     {
@@ -33,11 +33,16 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    public TranslatedQuery(RecordSet dataSource, Func<RecordSet, IDictionary<Parameter<Tuple>, Tuple>, TResult> materializer, IDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
+    public TranslatedQuery(RecordSet dataSource, Func<RecordSet, IEnumerable<Pair<Parameter<Tuple>, Tuple>>, TResult> materializer)
+      : this(dataSource, materializer, ArrayUtils<Pair<Parameter<Tuple>, Tuple>>.EmptyArray)
+    {
+    }
+
+    public TranslatedQuery(RecordSet dataSource, Func<RecordSet, IEnumerable<Pair<Parameter<Tuple>, Tuple>>, TResult> materializer, IEnumerable<Pair<Parameter<Tuple>, Tuple>> tupleParameterBindings)
       :base (dataSource)
     {
       Materializer = materializer;
-      TupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(tupleParameterBindings);
+      TupleParameterBindings = tupleParameterBindings;
     }
   }
 }

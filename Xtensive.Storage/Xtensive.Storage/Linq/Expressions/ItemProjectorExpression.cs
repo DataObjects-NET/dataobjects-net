@@ -58,9 +58,9 @@ namespace Xtensive.Storage.Linq.Expressions
       return new ItemProjectorExpression(item, dataSource, Context);
     }
 
-    public LambdaExpression ToLambda(TranslatorContext context, IEnumerable<Parameter<Tuple>> tupleParameters)
+    public LambdaExpression ToLambda(TranslatorContext context)
     {
-      return ExpressionMaterializer.MakeLambda(Item, context, tupleParameters);
+      return ExpressionMaterializer.MakeLambda(Item, context);
     }
 
     public MaterializationInfo Materialize(TranslatorContext context, IEnumerable<Parameter<Tuple>> tupleParameters)

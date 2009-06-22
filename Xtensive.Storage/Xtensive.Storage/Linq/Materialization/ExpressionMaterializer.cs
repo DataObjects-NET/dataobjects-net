@@ -36,10 +36,10 @@ namespace Xtensive.Storage.Linq.Materialization
 
     #region Public static methods
 
-    public static LambdaExpression MakeLambda(Expression expression, TranslatorContext context, IEnumerable<Parameter<Tuple>> tupleParameters)
+    public static LambdaExpression MakeLambda(Expression expression, TranslatorContext context)
     {
       var tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
-      var visitor = new ExpressionMaterializer(tupleParameter, context, null, tupleParameters);
+      var visitor = new ExpressionMaterializer(tupleParameter, context, null, EnumerableUtils<Parameter<Tuple>>.Empty);
       var processedExpression = OwnerRemover.RemoveOwner(expression);
       return FastExpression.Lambda(visitor.Visit(processedExpression), tupleParameter);
     }
@@ -142,22 +142,17 @@ namespace Xtensive.Storage.Linq.Materialization
 
       // 2. Add only parameter<tuple>. Tuple value will be assigned 
       // at the moment of materialization in SubqQuery constructor
-      var tupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(subQueryExpression
-        .ProjectionExpression
-        .TupleParameterBindings) {
-          {parameterOfTuple, null}
-        };
 
       projection = new ProjectionExpression(
         subQueryExpression.ProjectionExpression.Type,
         itemProjector,
-        tupleParameterBindings, subQueryExpression.ProjectionExpression.ResultType);
+        subQueryExpression.ProjectionExpression.ResultType);
 
       // 3. make translation 
       elementType = subQueryExpression.ProjectionExpression.ItemProjector.Item.Type;
-      var resultType = Core.Reflection.SequenceHelper.GetSequenceType(elementType);
+      var resultType = SequenceHelper.GetSequenceType(elementType);
       var translateMethod = Translator.TranslateMethodInfo.MakeGenericMethod(new[] {resultType});
-      return (TranslatedQuery) translateMethod.Invoke(context.Translator, new[] {projection});
+        return (TranslatedQuery) translateMethod.Invoke(context.Translator, new object[] {projection, tupleParameters.AddOne(parameterOfTuple)});
     }
 
     protected override Expression VisitFieldExpression(FieldExpression expression)
