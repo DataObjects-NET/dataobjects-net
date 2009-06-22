@@ -639,7 +639,11 @@ namespace Xtensive.Storage.Linq
         throw new NotSupportedException(Resources.Strings.ExKeyComparerNotSupportedInGroupJoin);
       var groupingResultType = typeof (IGrouping<,>).MakeGenericType(innerKey.Type, innerSource.Type);
       var innerGrouping = VisitGroupBy(groupingResultType, innerSource, innerKey, null, null);
-      var joinedResult = VisitJoin(outerSource, innerGrouping, outerKey, (LambdaExpression) ((GroupingExpression) innerGrouping.ItemProjector.Item).KeyExpression, resultSelector, true);
+      var groupingKeyPropertyInfo = groupingResultType.GetProperty("Key");
+      var groupingJoinParameter = Expression.Parameter(innerGrouping.Type, "groupingJoinParameter");
+      var groupingKeyExpression = Expression.MakeMemberAccess(groupingJoinParameter, groupingKeyPropertyInfo);
+      var lambda = FastExpression.Lambda(groupingKeyExpression, groupingJoinParameter);
+      var joinedResult = VisitJoin(outerSource, innerGrouping, outerKey, lambda, resultSelector, true);
       return joinedResult;
 //      var outerParameter = outerKey.Parameters[0];
 //      var innerParameter = innerKey.Parameters[0];
@@ -660,7 +664,7 @@ namespace Xtensive.Storage.Linq
 //        var recordSet = outer.RecordSet.Join(inner.RecordSet.Alias(context.GetNextAlias()), keyPairs);
 //        return CombineProjections(outer, inner, recordSet, resultSelector);
 //      }
-      throw new NotImplementedException();
+//      throw new NotImplementedException();
     }
 
     private ProjectionExpression VisitSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
