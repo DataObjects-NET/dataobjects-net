@@ -458,7 +458,7 @@ namespace Xtensive.Storage.Linq
             groupingProjection = new ProjectionExpression(groupingProjection.Type, newItemProjector, groupingProjection.TupleParameterBindings, groupingProjection.ResultType);
             context.Bindings.ReplaceBound(groupingParameter, groupingProjection);
             var isSubqueryParameter = state.OuterParameters.Contains(groupingParameter);
-            if (state.OuterParameters.Contains(groupingParameter)) {
+            if (isSubqueryParameter) {
               var newApplyParameter = context.GetApplyParameter(newRecordSet);
               foreach (var innerParameter in state.Parameters) {
                 var projectionExpression = context.Bindings[innerParameter];
@@ -469,13 +469,13 @@ namespace Xtensive.Storage.Linq
             if (resultType!=columnType && !resultType.IsNullable()) {
               var columnExpression = ColumnExpression.Create(columnType, newRecordSet.Header.Length - 1);
               if (isSubqueryParameter)
-                columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
+                columnExpression = (ColumnExpression) columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
               return Expression.Convert(columnExpression, resultType);
             }
             else {
               var columnExpression = ColumnExpression.Create(resultType, newRecordSet.Header.Length - 1);
               if (isSubqueryParameter)
-                columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
+                columnExpression = (ColumnExpression) columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
               return columnExpression;
             }
           }
