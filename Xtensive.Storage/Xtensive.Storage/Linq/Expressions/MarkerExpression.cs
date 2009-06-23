@@ -4,27 +4,27 @@
 // Created by: Alexis Kochetov
 // Created:    2009.06.22
 
-using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Linq.Expressions
 {
-  internal class SequenceCheckMarker : ExtendedExpression
+  internal class MarkerExpression : ExtendedExpression
   {
-    public Expression Target { get; set; }
+    public Expression Target { get; private set; }
+    public MarkerType MarkerType { get; private set; }
 
-    
+
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public SequenceCheckMarker(Expression target)
-      : base(ExtendedExpressionType.SequenceCheckMarker, target.Type)
+    public MarkerExpression(Expression target, MarkerType markerType)
+      : base(ExtendedExpressionType.Marker, target.Type)
     {
       Target = target;
+      MarkerType = markerType;
     }
   }
 }

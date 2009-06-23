@@ -36,8 +36,8 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         return VisitItemProjectorExpression((ItemProjectorExpression) expression);
       case ExtendedExpressionType.Column:
         return VisitColumnExpression((ColumnExpression) expression);
-      case ExtendedExpressionType.SequenceCheckMarker:
-        return VisitSequenceCheckMarker((SequenceCheckMarker) expression);
+      case ExtendedExpressionType.Marker:
+        return VisitMarker((MarkerExpression) expression);
       case ExtendedExpressionType.SubQuery:
         return VisitSubQueryExpression((SubQueryExpression) expression);
         case ExtendedExpressionType.Grouping:
@@ -47,12 +47,12 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       }
     }
 
-    protected virtual Expression VisitSequenceCheckMarker(SequenceCheckMarker expression)
+    protected virtual Expression VisitMarker(MarkerExpression expression)
     {
       var processedTarget = Visit(expression.Target);
       if (processedTarget == expression.Target)
         return expression;
-      return new SequenceCheckMarker(processedTarget);
+      return new MarkerExpression(processedTarget, expression.MarkerType);
     }
 
     protected virtual Expression VisitGroupingExpression(GroupingExpression expression)

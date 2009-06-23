@@ -514,8 +514,9 @@ namespace Xtensive.Storage.Linq
 
     private Expression GetMember(Expression expression, MemberInfo member)
     {
+      MarkerType markerType;
       expression = expression.StripCasts();
-      bool sequenceCheckMarker = expression.IsSequenceCheckMarker();
+      var isMarker = expression.TryGetMarker(out markerType);
       expression = expression.StripMarkers();
       expression = expression.StripCasts();
       if (expression.IsGroupingExpression() && member.Name=="Key")
@@ -530,8 +531,8 @@ namespace Xtensive.Storage.Linq
             string.Format("Could not get member {0} from expression.",
               member));
         var argument = newExpression.Arguments[memberIndex];
-        return sequenceCheckMarker
-          ? new SequenceCheckMarker(argument)
+        return isMarker
+          ? new MarkerExpression(argument, markerType)
           : argument;
       }
       var extendedExpression = expression as ExtendedExpression;
@@ -566,8 +567,8 @@ namespace Xtensive.Storage.Linq
         EnsureEntityReferenceIsJoined(entityFieldExpression);
         result = entityFieldExpression.Entity;
       }
-      return sequenceCheckMarker
-        ? new SequenceCheckMarker(result)
+      return isMarker
+        ? new MarkerExpression(result, markerType)
         : result;
     }
 

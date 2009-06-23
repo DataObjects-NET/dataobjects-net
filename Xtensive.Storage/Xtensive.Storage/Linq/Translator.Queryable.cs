@@ -298,24 +298,31 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitFirstSingle(Expression source, LambdaExpression predicate, MethodInfo method, bool isRoot)
     {
-      bool addSequenceCheckMarker = false;
+      var markerType = MarkerType.None;
+      var applySequenceType = ApplySequenceType.All;
       var projection = predicate != null
         ? VisitWhere(source, predicate)
         : VisitSequence(source);
       RecordSet recordSet = null;
       switch (method.Name) {
         case Core.Reflection.WellKnown.Queryable.First:
-          addSequenceCheckMarker = true;
+          applySequenceType = ApplySequenceType.First;
+          markerType = MarkerType.First;
           recordSet = projection.ItemProjector.DataSource.Take(1);
           break;
         case Core.Reflection.WellKnown.Queryable.FirstOrDefault:
+          applySequenceType = ApplySequenceType.FirstOrDefault;
+          markerType = MarkerType.First | MarkerType.Default;
           recordSet = projection.ItemProjector.DataSource.Take(1);
           break;
         case Core.Reflection.WellKnown.Queryable.Single:
-          addSequenceCheckMarker = true;
+          applySequenceType = ApplySequenceType.Single;
+          markerType = MarkerType.Single;
           recordSet = projection.ItemProjector.DataSource.Take(2);
           break;
         case Core.Reflection.WellKnown.Queryable.SingleOrDefault:
+          applySequenceType = ApplySequenceType.SingleOrDefault;
+          markerType = MarkerType.Single | MarkerType.Default;
           recordSet = projection.ItemProjector.DataSource.Take(2);
           break;
       }
@@ -330,14 +337,12 @@ namespace Xtensive.Storage.Linq
       var applyParameter = context.GetApplyParameter(oldResult);
 
       int columnIndex = oldResult.ItemProjector.DataSource.Header.Length;
-      var newRecordSet = oldResult.ItemProjector.DataSource.Apply(applyParameter, recordSet.Alias(context.GetNextAlias()), true, JoinType.LeftOuter);
+      var newRecordSet = oldResult.ItemProjector.DataSource.Apply(applyParameter, recordSet.Alias(context.GetNextAlias()), applySequenceType, JoinType.LeftOuter);
       var newItemProjector = projection.ItemProjector.Remap(newRecordSet, columnIndex);
       var newResult = new ProjectionExpression(oldResult.Type, newItemProjector);
       context.Bindings.ReplaceBound(lambdaParameter, newResult);
 
-      return addSequenceCheckMarker
-        ? new SequenceCheckMarker(newItemProjector.Item)
-        : newItemProjector.Item;
+      return new MarkerExpression(newItemProjector.Item, markerType);
     }
 
     private ProjectionExpression VisitTake(Expression source, Expression take)
@@ -706,7 +711,7 @@ namespace Xtensive.Storage.Linq
         var recordSet = outerProjection.ItemProjector.DataSource.Apply(
             applyParameter, 
             innerProjection.ItemProjector.DataSource.Alias(context.GetNextAlias()), 
-            false, 
+            ApplySequenceType.All, 
             isOuter ? JoinType.LeftOuter : JoinType.Inner);
 
         if (resultSelector==null) {
@@ -840,7 +845,7 @@ namespace Xtensive.Storage.Linq
 
       var applyParameter = context.GetApplyParameter(oldResult);
       int columnIndex = oldResult.ItemProjector.DataSource.Header.Length;
-      var newRecordSet = oldResult.ItemProjector.DataSource.Apply(applyParameter, subquery, true, JoinType.Inner);
+      var newRecordSet = oldResult.ItemProjector.DataSource.Apply(applyParameter, subquery, ApplySequenceType.Single, JoinType.Inner);
       ItemProjectorExpression newItemProjector = oldResult.ItemProjector.Remap(newRecordSet, 0);
       var newResult = new ProjectionExpression(oldResult.Type, newItemProjector);
       context.Bindings.ReplaceBound(lambdaParameter, newResult);

@@ -205,7 +205,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       // merge
 
       mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
-      return new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.ApplySingleRow, provider.ApplyType);
+      return new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.SequenceType, provider.ApplyType);
     }
 
     protected override Provider VisitReindex(ReindexProvider provider)

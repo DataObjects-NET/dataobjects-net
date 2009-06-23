@@ -22,6 +22,6 @@ namespace Xtensive.Storage.Linq.Expressions
     ItemProjector,
     Grouping,
     SubQuery,
-    SequenceCheckMarker
+    Marker
   }
 }

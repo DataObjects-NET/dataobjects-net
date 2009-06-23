@@ -257,9 +257,9 @@ namespace Xtensive.Storage.Rse
       return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider).Result;
     }
 
-    public static RecordSet Apply(this RecordSet recordSet, ApplyParameter applyParameter, RecordSet right, bool applySingleRow, JoinType applyType)
+    public static RecordSet Apply(this RecordSet recordSet, ApplyParameter applyParameter, RecordSet right, ApplySequenceType sequenceType, JoinType applyType)
     {
-      return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider, applySingleRow, applyType).Result;
+      return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider, sequenceType, applyType).Result;
     }
 
     public static RecordSet Existence(this RecordSet recordSet, string existenceColumnName)

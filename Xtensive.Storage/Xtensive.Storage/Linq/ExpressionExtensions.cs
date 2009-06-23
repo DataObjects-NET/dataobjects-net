@@ -100,17 +100,29 @@ namespace Xtensive.Storage.Linq
     public static Expression StripMarkers(this Expression e)
     {
       var ee = e as ExtendedExpression;
-      if (ee != null && ee.ExtendedType == ExtendedExpressionType.SequenceCheckMarker) {
-        var marker = (SequenceCheckMarker) ee;
+      if (ee != null && ee.ExtendedType == ExtendedExpressionType.Marker) {
+        var marker = (MarkerExpression) ee;
         return marker.Target;
       }
       return e;
     }
 
-    public static bool IsSequenceCheckMarker(this Expression e)
+    public static bool IsMarker(this Expression e)
     {
       e = e.StripCasts();
-      return (ExtendedExpressionType)e.NodeType == ExtendedExpressionType.SequenceCheckMarker;
+      return (ExtendedExpressionType)e.NodeType == ExtendedExpressionType.Marker;
+    }
+
+    public static bool TryGetMarker(this Expression e, out MarkerType markerType)
+    {
+      e = e.StripCasts();
+      markerType = MarkerType.None;
+      var result = (ExtendedExpressionType)e.NodeType == ExtendedExpressionType.Marker;
+      if (result) {
+        var marker = (MarkerExpression) e;
+        markerType = marker.MarkerType;
+      }
+      return result;
     }
 
     public static MemberType GetMemberType(this Expression e)

@@ -434,7 +434,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (left.Origin.Header.Length > 0)
         select.Columns.AddRange(leftQuery.Columns.Cast<SqlColumn>());
 
-      if (!provider.ApplySingleRow)
+      if (provider.SequenceType == ApplySequenceType.All)
         return null;
 
       if (provider.Right.Type == ProviderType.Existence)

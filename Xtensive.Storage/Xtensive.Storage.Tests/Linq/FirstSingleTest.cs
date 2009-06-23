@@ -115,6 +115,7 @@ namespace Xtensive.Storage.Tests.Linq
                      };
       var list = result.ToList();
       Assert.Greater(list.Count, 0);
+      QueryDumper.Dump(list, true);
     }
 
     [Test]
@@ -124,6 +125,7 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query<Customer>.All.Where(c => c.Orders.Count > 0).Select(c => c.Orders.First());
       var list = result.ToList();
       Assert.AreEqual(customersCount, list.Count);
+      QueryDumper.Dump(list, true);
     }
 
     [Test]

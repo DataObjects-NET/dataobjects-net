@@ -31,10 +31,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public JoinType ApplyType { get; private set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether applying of single row expected.
+    /// Gets a value indicating whether applying of single or first row expected.
     /// </summary>
-    /// <value><see langword="true" /> if applying of single row expected; otherwise, <see langword="false" />.</value>
-    public bool ApplySingleRow { get; private set;}
+    public ApplySequenceType SequenceType { get; private set;}
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
@@ -74,18 +73,18 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right)
-      : this(applyParameter, left, right, false, JoinType.Inner)
+      : this(applyParameter, left, right, ApplySequenceType.All, JoinType.Inner)
     {
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right, bool applySingleRow, JoinType applyType)
+    public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right, ApplySequenceType applySequenceType, JoinType applyType)
       : base(ProviderType.Apply, left, right)
     {
       ApplyParameter = applyParameter;
-      ApplySingleRow = applySingleRow;
+      SequenceType = applySequenceType;
       ApplyType = applyType;
     }
   }
