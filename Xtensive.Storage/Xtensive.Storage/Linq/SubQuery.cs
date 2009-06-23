@@ -35,10 +35,7 @@ namespace Xtensive.Storage.Linq
 
     public Expression Expression
     {
-      get
-      {
-        return projectionExpression;
-      }
+      get { return projectionExpression; }
     }
 
     public Type ElementType
@@ -56,8 +53,8 @@ namespace Xtensive.Storage.Linq
 
     public SubQuery(ProjectionExpression projectionExpression, TranslatedQuery translatedQuery, Parameter<Tuple> parameter, Tuple tuple)
     {
-      this.projectionExpression = new ProjectionExpression(projectionExpression.Type, projectionExpression.ItemProjector, projectionExpression.ResultType, projectionExpression.TupleParameterBindings);
-      var query = ((TranslatedQuery<IEnumerable<TElement>>)translatedQuery);
+      this.projectionExpression = new ProjectionExpression(projectionExpression.Type, projectionExpression.ItemProjector, projectionExpression.TupleParameterBindings, projectionExpression.ResultType);
+      var query = ((TranslatedQuery<IEnumerable<TElement>>) translatedQuery);
       this.translatedQuery = new TranslatedQuery<IEnumerable<TElement>>(translatedQuery.DataSource, query.Materializer, query.TupleParameterBindings, EnumerableUtils<Parameter<Tuple>>.Empty);
 
       // Gather Parameter<Tuple> values from current ParameterScope for future use. 

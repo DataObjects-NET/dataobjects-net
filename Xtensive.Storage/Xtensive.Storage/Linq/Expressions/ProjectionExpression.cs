@@ -33,14 +33,14 @@ namespace Xtensive.Storage.Linq.Expressions
       Type type,
       ItemProjectorExpression itemProjectorExpression,
       Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
-      : this(type, itemProjectorExpression, ResultType.All, tupleParameterBindings)
+      : this(type, itemProjectorExpression, tupleParameterBindings, ResultType.All)
     {}
 
     public ProjectionExpression(
       Type type, 
       ItemProjectorExpression itemProjectorExpression, 
-      ResultType resultType, 
-      Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
+      Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, 
+      ResultType resultType)
       : base(ExtendedExpressionType.Projection, type)
     {
       ItemProjector = itemProjectorExpression;

@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Linq.Materialization
     {
       var target = expression.Target;
       var processedTarget = Visit(target);
-      if (expression.MarkerType != MarkerType.None && (expression.MarkerType & MarkerType.Default) == MarkerType.None) {
+      if (expression.MarkerType!=MarkerType.None && (expression.MarkerType & MarkerType.Default)==MarkerType.None) {
         var columns = ColumnGatherer.GetColumns(target, ColumnExtractionModes.Distinct | ColumnExtractionModes.Ordered).ToArray();
         var sequenceCheck = Expression.Call(MaterializationHelper.IsNullMethodInfo, tupleParameter, Expression.Constant(columns));
         var throwException = Expression.Convert(Expression.Call(MaterializationHelper.ThrowSequenceExceptionMethodInfo), target.Type);
@@ -134,7 +134,6 @@ namespace Xtensive.Storage.Linq.Materialization
         .Result;
 
 
-
       var newItemProjectorBody = ApplyParameterToTupleParameterRewriter.Rewrite(
         subQueryExpression.ProjectionExpression.ItemProjector.Item,
         subqueryTupleParameter,
@@ -149,14 +148,14 @@ namespace Xtensive.Storage.Linq.Materialization
       projection = new ProjectionExpression(
         subQueryExpression.ProjectionExpression.Type,
         itemProjector,
-        subQueryExpression.ProjectionExpression.ResultType,
-        subQueryExpression.ProjectionExpression.TupleParameterBindings);
+        subQueryExpression.ProjectionExpression.TupleParameterBindings, 
+        subQueryExpression.ProjectionExpression.ResultType);
 
       // 3. make translation 
       elementType = subQueryExpression.ProjectionExpression.ItemProjector.Item.Type;
       var resultType = SequenceHelper.GetSequenceType(elementType);
       var translateMethod = Translator.TranslateMethodInfo.MakeGenericMethod(new[] {resultType});
-        return (TranslatedQuery) translateMethod.Invoke(context.Translator, new object[] {projection, tupleParameters.AddOne(parameterOfTuple)});
+      return (TranslatedQuery) translateMethod.Invoke(context.Translator, new object[] {projection, tupleParameters.AddOne(parameterOfTuple)});
     }
 
     protected override Expression VisitFieldExpression(FieldExpression expression)
@@ -296,9 +295,9 @@ namespace Xtensive.Storage.Linq.Materialization
 
     protected override Expression VisitUnary(UnaryExpression u)
     {
-      if (u.NodeType == ExpressionType.Convert && u.Type.IsNullable()) {
+      if (u.NodeType==ExpressionType.Convert && u.Type.IsNullable()) {
         var fieldExpression = u.Operand as FieldExpression;
-        if (fieldExpression != null) {
+        if (fieldExpression!=null) {
           var tupleExpression = GetTupleExpression(fieldExpression);
           var tupleAccess = tupleExpression.MakeTupleAccess(u.Type, fieldExpression.Mapping.Offset);
           return tupleAccess;

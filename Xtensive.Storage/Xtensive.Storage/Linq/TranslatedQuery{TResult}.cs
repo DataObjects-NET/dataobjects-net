@@ -21,8 +21,8 @@ namespace Xtensive.Storage.Linq
     public readonly Func<RecordSet, Dictionary<Parameter<Tuple>, Tuple>, TResult> Materializer;
     public Dictionary<Parameter<Tuple>, Tuple> TupleParameterBindings { get; private set; }
     public IEnumerable<Parameter<Tuple>> TupleParameters { get; private set; }
-    
-    public sealed override Delegate UntypedMaterializer
+
+    public override sealed Delegate UntypedMaterializer
     {
       get { return Materializer; }
     }
@@ -36,12 +36,12 @@ namespace Xtensive.Storage.Linq
     // Constructors
 
     public TranslatedQuery(RecordSet dataSource, Func<RecordSet, Dictionary<Parameter<Tuple>, Tuple>, TResult> materializer)
-      : this(dataSource, materializer, new Dictionary<Parameter<Tuple>,Tuple>(), EnumerableUtils<Parameter<Tuple>>.Empty)
+      : this(dataSource, materializer, new Dictionary<Parameter<Tuple>, Tuple>(), EnumerableUtils<Parameter<Tuple>>.Empty)
     {
     }
 
     public TranslatedQuery(RecordSet dataSource, Func<RecordSet, Dictionary<Parameter<Tuple>, Tuple>, TResult> materializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
-      :base (dataSource)
+      : base(dataSource)
     {
       Materializer = materializer;
       TupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(tupleParameterBindings);

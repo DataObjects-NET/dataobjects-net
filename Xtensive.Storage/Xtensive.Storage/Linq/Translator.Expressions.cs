@@ -114,8 +114,8 @@ namespace Xtensive.Storage.Linq
             state.BuildingProjection
               ? itemProjector
               : projection.ItemProjector.Remap(dataSource, 0),
-            projection.ResultType,
-            projection.TupleParameterBindings));
+            projection.TupleParameterBindings, 
+            projection.ResultType));
           return itemProjector;
         }
         return new ItemProjectorExpression(body, projection.ItemProjector.DataSource, context);
