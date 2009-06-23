@@ -70,6 +70,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       leftKeyTransform = new MapTransform(true, leftKeyDescriptor, leftColumns);
       rightKeyTransform = new MapTransform(true, rightKeyDescriptor, rightColumns);
       rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
+      rightBlank.Initialize(new BitArray(Right.Header.Length, true));
     }
 
 

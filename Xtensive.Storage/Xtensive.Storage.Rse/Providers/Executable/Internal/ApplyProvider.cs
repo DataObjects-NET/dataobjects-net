@@ -5,6 +5,7 @@
 // Created:    2009.02.16
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
@@ -57,52 +58,52 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     private IEnumerable<Tuple> LeftOuterApply(EnumerationContext context, IEnumerable<Tuple> left)
     {
-      var ctx = new ParameterContext();
-      ParameterScope scope = null;
-      var batched = left
-        .SelectMany(tuple => {
+      using (new ParameterContext().Activate())
+        foreach (var tuple in left) {
           Origin.ApplyParameter.Value = tuple;
           // Do not cache right part
           var right = Right.OnEnumerate(context);
+          var result = new List<Tuple>();
           bool isEmpty = true;
-          var result = right.Select(rTuple => {
+          foreach (var rTuple in right) {
+            if (!isEmpty) 
+              if (Origin.SequenceType == ApplySequenceType.Single || Origin.SequenceType == ApplySequenceType.SingleOrDefault)
+                throw new InvalidOperationException("Sequence contains more than one element.");
             isEmpty = false;
-            return combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple);
-          });
-          return isEmpty 
-            ? EnumerableUtils.One(combineTransform.Apply(TupleTransformType.Auto, tuple, rightBlank)) 
-            : result;
-        })
-        .Batch(0, 1, 1)
-        .ApplyBeforeAndAfter(() => scope = ctx.Activate(),() => scope.DisposeSafely());
-      foreach (var batch in batched)
-        foreach (var tuple in batch)
-          yield return tuple;
-    }
+            result.Add(combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple));
+          }
+          if (isEmpty)
+            result.Add(combineTransform.Apply(TupleTransformType.Auto, tuple, rightBlank));
+          foreach (var item in result)
+            yield return item;
+        }
 
-    /*private IEnumerable<Tuple> ApplyExisting(EnumerationContext context, IEnumerable<Tuple> left)
-    {
-      using (new ParameterContext().Activate())
-      foreach (var tuple in left) {
-        Origin.ApplyParameter.Value = tuple;
-        // Do not cache right part
-        var right = Right.OnEnumerate(context);
-        if (right.Any())
-          yield return tuple;
-      }
+//      var ctx = new ParameterContext();
+//      ParameterScope scope = null;
+//      var batched = left
+//        .SelectMany(tuple => {
+//          Origin.ApplyParameter.Value = tuple;
+//          // Do not cache right part
+//          var right = Right.OnEnumerate(context);
+//          bool isEmpty = true;
+//          var result = right.Select(rTuple => {
+//            if (!isEmpty) 
+//              if (Origin.SequenceType == ApplySequenceType.Single || Origin.SequenceType == ApplySequenceType.SingleOrDefault)
+//                throw new InvalidOperationException("Sequence contains more than one element.");
+//            
+//            isEmpty = false;
+//            return combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple);
+//          });
+//          return isEmpty 
+//            ? EnumerableUtils.One(combineTransform.Apply(TupleTransformType.Auto, tuple, rightBlank)) 
+//            : result;
+//        })
+//        .Batch(0, 1, 1)
+//        .ApplyBeforeAndAfter(() => scope = ctx.Activate(),() => scope.DisposeSafely());
+//      foreach (var batch in batched)
+//        foreach (var tuple in batch)
+//          yield return tuple;
     }
-
-    private IEnumerable<Tuple> ApplyNotExisting(EnumerationContext context, IEnumerable<Tuple> left)
-    {
-      using (new ParameterContext().Activate())
-      foreach (var tuple in left) {
-        Origin.ApplyParameter.Value = tuple;
-        // Do not cache right part
-        var right = Right.OnEnumerate(context);
-        if (!right.Any())
-          yield return tuple;
-      }
-    }*/
 
     #endregion
 
@@ -111,6 +112,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       base.Initialize();
       combineTransform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
       rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
+      rightBlank.Initialize(new BitArray(Right.Header.Length, true));
     }
 
 

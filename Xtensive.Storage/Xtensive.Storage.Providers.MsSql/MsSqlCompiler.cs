@@ -111,9 +111,13 @@ namespace Xtensive.Storage.Providers.MsSql
 
     protected override ExecutableProvider VisitApply(ApplyProvider provider)
     {
-      var result = base.VisitApply(provider);
-      if (result != null)
-        return result;
+      var overrideDefaultCompilation = provider.SequenceType == ApplySequenceType.First ||
+                                       provider.SequenceType == ApplySequenceType.FirstOrDefault;
+      if (!overrideDefaultCompilation) {
+        var result = base.VisitApply(provider);
+        if (result != null)
+          return result;
+      }
       bool isOuter = provider.ApplyType==JoinType.LeftOuter;
 
       var left = GetCompiled(provider.Left) as SqlProvider;

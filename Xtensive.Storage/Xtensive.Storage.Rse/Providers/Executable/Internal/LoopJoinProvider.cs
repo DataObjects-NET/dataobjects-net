@@ -5,6 +5,7 @@
 // Created:    2008.05.21
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -50,6 +51,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       TupleDescriptor leftKeyDescriptor = TupleDescriptor.Create(map.Select(i => Left.Header.TupleDescriptor[i]));
       leftKeyTransform = new MapTransform(true, leftKeyDescriptor, map);
       rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
+      rightBlank.Initialize(new BitArray(Right.Header.Length, true));
     }
 
 

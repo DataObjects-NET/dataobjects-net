@@ -5,6 +5,7 @@
 // Created:    2008.05.30
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
@@ -35,6 +36,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       base.Initialize();
       transform = new CombineTransform(true, Left.Header.TupleDescriptor, Right.Header.TupleDescriptor);
       rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
+      rightBlank.Initialize(new BitArray(Right.Header.Length, true));
     }
 
 

@@ -5,6 +5,7 @@
 // Created:    2008.05.13
 
 using System;
+using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using Xtensive.Core;
@@ -64,6 +65,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       leftKeyTransform = new MapTransform(true, leftKeyDescriptor, leftColumns);
       rightKeyTransform = new MapTransform(true, rightKeyDescriptor, rightColumns);
       rightBlank = Tuple.Create(Right.Header.TupleDescriptor);
+      rightBlank.Initialize(new BitArray(Right.Header.Length, true));
     }
 
 
