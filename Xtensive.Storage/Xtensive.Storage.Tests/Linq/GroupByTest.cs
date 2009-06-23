@@ -900,6 +900,14 @@ namespace Xtensive.Storage.Tests.Linq
 
     private void DumpGrouping<TKey, TValue>(IQueryable<IGrouping<TKey, TValue>> result, bool logOutput)
     {
+      // Just enumerate
+      foreach (IGrouping<TKey, TValue> grouping in result) {
+        foreach (var group in grouping) {
+          int i = 10;
+        }
+      }
+
+      // Check
       var list = result.ToList();
       Assert.Greater(list.Count, 0);
       Assert.AreEqual(list.Count, result.Count());

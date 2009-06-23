@@ -57,15 +57,16 @@ namespace Xtensive.Storage.Linq
     public SubQuery(ProjectionExpression projectionExpression, TranslatedQuery translatedQuery, Parameter<Tuple> parameter, Tuple tuple)
     {
       this.projectionExpression = new ProjectionExpression(projectionExpression.Type, projectionExpression.ItemProjector, projectionExpression.ResultType, projectionExpression.TupleParameterBindings);
-
       var query = ((TranslatedQuery<IEnumerable<TElement>>)translatedQuery);
+      this.translatedQuery = new TranslatedQuery<IEnumerable<TElement>>(translatedQuery.DataSource, query.Materializer, query.TupleParameterBindings, EnumerableUtils<Parameter<Tuple>>.Empty);
+
       // Gather Parameter<Tuple> values from current ParameterScope for future use. 
       parameter.Value = tuple;
-      var tupleParameterBindings = query
-        .TupleParameterBindings
-        .Select(pair => new Pair<Parameter<Tuple>, Tuple>(pair.First, pair.First.Value))
-        .ToList();
-      this.translatedQuery = new TranslatedQuery<IEnumerable<TElement>>(translatedQuery.DataSource, query.Materializer, tupleParameterBindings);
+      foreach (var tupleParameter in query.TupleParameters) {
+        var value = tupleParameter.Value;
+        this.translatedQuery.TupleParameterBindings[tupleParameter] = value;
+        this.projectionExpression.TupleParameterBindings[tupleParameter] = value;
+      }
     }
   }
 }

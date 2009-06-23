@@ -11,14 +11,16 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
   internal class TranslatedQuery<TResult> : TranslatedQuery
   {
-    public readonly Func<RecordSet, IEnumerable<Pair<Parameter<Tuple>, Tuple>>, TResult> Materializer;
-    public IEnumerable<Pair<Parameter<Tuple>, Tuple>> TupleParameterBindings { get; private set; }
+    public readonly Func<RecordSet, Dictionary<Parameter<Tuple>, Tuple>, TResult> Materializer;
+    public Dictionary<Parameter<Tuple>, Tuple> TupleParameterBindings { get; private set; }
+    public IEnumerable<Parameter<Tuple>> TupleParameters { get; private set; }
     
     public sealed override Delegate UntypedMaterializer
     {
@@ -33,16 +35,17 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    public TranslatedQuery(RecordSet dataSource, Func<RecordSet, IEnumerable<Pair<Parameter<Tuple>, Tuple>>, TResult> materializer)
-      : this(dataSource, materializer, ArrayUtils<Pair<Parameter<Tuple>, Tuple>>.EmptyArray)
+    public TranslatedQuery(RecordSet dataSource, Func<RecordSet, Dictionary<Parameter<Tuple>, Tuple>, TResult> materializer)
+      : this(dataSource, materializer, new Dictionary<Parameter<Tuple>,Tuple>(), EnumerableUtils<Parameter<Tuple>>.Empty)
     {
     }
 
-    public TranslatedQuery(RecordSet dataSource, Func<RecordSet, IEnumerable<Pair<Parameter<Tuple>, Tuple>>, TResult> materializer, IEnumerable<Pair<Parameter<Tuple>, Tuple>> tupleParameterBindings)
+    public TranslatedQuery(RecordSet dataSource, Func<RecordSet, Dictionary<Parameter<Tuple>, Tuple>, TResult> materializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
       :base (dataSource)
     {
       Materializer = materializer;
-      TupleParameterBindings = tupleParameterBindings;
+      TupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(tupleParameterBindings);
+      TupleParameters = tupleParameters.ToList();
     }
   }
 }

@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Linq
 
       var dataSource = prepared.ItemProjector.DataSource;
       var materializer = BuildMaterializer<TResult>(prepared, tupleParameterBindings);
-      var translatedQuery = new TranslatedQuery<TResult>(dataSource, materializer, tupleParameterBindings.Select(p=>new Pair<Parameter<Tuple>,Tuple>(p, null)));
+      var translatedQuery = new TranslatedQuery<TResult>(dataSource, materializer, projection.TupleParameterBindings, tupleParameterBindings);
 
       // Providing the result to caching layer, if required
       if (cachingScope != null) {
@@ -91,12 +91,12 @@ namespace Xtensive.Storage.Linq
       return origin;
     }
 
-    private Func<RecordSet, IEnumerable<Pair<Parameter<Tuple>, Tuple>>, TResult> BuildMaterializer<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
+    private Func<RecordSet, Dictionary<Parameter<Tuple>, Tuple>, TResult> BuildMaterializer<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var itemProjector = projection.ItemProjector;
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);
       var rs = Expression.Parameter(typeof(RecordSet), "rs");
-      var tupleParameterBindings = Expression.Parameter(typeof(IEnumerable<Pair<Parameter<Tuple>, Tuple>>), "tupleParameterBindings");
+      var tupleParameterBindings = Expression.Parameter(typeof(Dictionary<Parameter<Tuple>, Tuple>), "tupleParameterBindings");
       var elementType = itemProjector.Item.Type;
       var materializeMethod = MaterializationHelper.MaterializeMethodInfo
         .MakeGenericMethod(elementType);
@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Linq
           ? body
           : Expression.Convert(body, typeof(TResult));
       
-      var projectorExpression =  Expression.Lambda<Func<RecordSet, IEnumerable<Pair<Parameter<Tuple>, Tuple>>, TResult>>(body, rs, tupleParameterBindings);
+      var projectorExpression =  Expression.Lambda<Func<RecordSet, Dictionary<Parameter<Tuple>, Tuple>, TResult>>(body, rs, tupleParameterBindings);
       return projectorExpression.CachingCompile();
     }
 
