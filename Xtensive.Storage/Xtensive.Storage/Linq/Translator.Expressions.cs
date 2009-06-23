@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
@@ -113,7 +114,8 @@ namespace Xtensive.Storage.Linq
             state.BuildingProjection
               ? itemProjector
               : projection.ItemProjector.Remap(dataSource, 0),
-            projection.ResultType));
+            projection.ResultType,
+            projection.TupleParameterBindings));
           return itemProjector;
         }
         return new ItemProjectorExpression(body, projection.ItemProjector.DataSource, context);
@@ -476,7 +478,7 @@ namespace Xtensive.Storage.Linq
       var index = type.Indexes.PrimaryIndex;
       var entityExpression = EntityExpression.Create(type, 0);
       var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
-      return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector);
+      return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
     }
 
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
@@ -615,7 +617,7 @@ namespace Xtensive.Storage.Linq
         var itemProjectorExpression = new ItemProjectorExpression(originalResultExpression.ItemProjector.Item,
           joinedRecordSet,
           context);
-        var projectionExpression = new ProjectionExpression(originalResultExpression.Type, itemProjectorExpression);
+        var projectionExpression = new ProjectionExpression(originalResultExpression.Type, itemProjectorExpression, originalResultExpression.TupleParameterBindings);
         context.Bindings.ReplaceBound(parameter, projectionExpression);
 
         // return new EntityExpression

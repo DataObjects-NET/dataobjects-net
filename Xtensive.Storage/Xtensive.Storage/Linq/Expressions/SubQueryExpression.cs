@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Linq.Expressions
         return (Expression) mapped;
       });
       var newItemProjector = new ItemProjectorExpression(item, newDataSource, ProjectionExpression.ItemProjector.Context);
-      var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector);
+      var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings);
       var result = new SubQueryExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, ApplyParameter, ExtendedType);
       processedExpressions.Add(this, result);
 
@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Linq.Expressions
         return (Expression) mapped;
       });
       var newItemProjector = new ItemProjectorExpression(item, newDataSource, ProjectionExpression.ItemProjector.Context);
-      var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector);
+      var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings);
       var result = new SubQueryExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, ApplyParameter, ExtendedType);
       processedExpressions.Add(this, result);
 
@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Linq.Expressions
         return new SubQueryExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter);
       
       var newItemProjector = ProjectionExpression.ItemProjector.RewriteApplyParameter(ApplyParameter, newApplyParameter);
-      var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.ResultType);
+      var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.ResultType, ProjectionExpression.TupleParameterBindings);
       return new SubQueryExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter);
     }
 

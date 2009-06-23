@@ -5,6 +5,9 @@
 // Created:    2008.12.11
 
 using System;
+using System.Collections.Generic;
+using Xtensive.Core.Parameters;
+using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Linq.Expressions
 {
@@ -12,6 +15,7 @@ namespace Xtensive.Storage.Linq.Expressions
   {
     public ItemProjectorExpression ItemProjector { get; private set;}
     public ResultType ResultType { get; private set; }
+    public Dictionary<Parameter<Tuple>, Tuple> TupleParameterBindings { get; private set; }
 
     public bool IsScalar
     {
@@ -27,18 +31,21 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public ProjectionExpression(
       Type type,
-      ItemProjectorExpression itemProjectorExpression)
-      : this(type, itemProjectorExpression, ResultType.All)
+      ItemProjectorExpression itemProjectorExpression,
+      Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
+      : this(type, itemProjectorExpression, ResultType.All, tupleParameterBindings)
     {}
 
     public ProjectionExpression(
       Type type, 
       ItemProjectorExpression itemProjectorExpression, 
-      ResultType resultType)
+      ResultType resultType, 
+      Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
       : base(ExtendedExpressionType.Projection, type)
     {
       ItemProjector = itemProjectorExpression;
       ResultType = resultType;
+      TupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(tupleParameterBindings); 
     }
   }
 }

@@ -75,7 +75,8 @@ namespace Xtensive.Storage.Linq
         var result = new ProjectionExpression(
           origin.Type, 
           itemProjector, 
-          origin.ResultType);
+          origin.ResultType,
+          origin.TupleParameterBindings);
         return result;
       }
       return origin;
