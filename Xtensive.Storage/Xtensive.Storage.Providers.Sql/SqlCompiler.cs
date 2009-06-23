@@ -348,7 +348,9 @@ namespace Xtensive.Storage.Providers.Sql
       if (compiledSource == null)
         return null;
 
-      var query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
+      var queryRef = SqlFactory.QueryRef(compiledSource.Request.SelectStatement);
+      var query = SqlFactory.Select(queryRef);
+      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Offset = provider.Count();
       AddOrderByStatement(provider, query);
       return new SqlProvider(provider, query, Handlers, compiledSource);
