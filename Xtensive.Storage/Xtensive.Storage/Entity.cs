@@ -148,31 +148,6 @@ namespace Xtensive.Storage
       Remove(true);
     }
 
-    /// <summary>
-    /// Finds the objects that reference this instance.
-    /// </summary>
-    /// <returns>The set of objects that reference this instance</returns>
-    [Infrastructure]
-    public IEnumerable<Entity> FindReferencingObjects()
-    {
-      foreach (AssociationInfo association in Type.GetTargetAssociations())
-        foreach (Entity item in association.FindOwners(this))
-          yield return item;
-    }
-
-    /// <summary>
-    /// Finds the objects that reference this instance within specified <paramref name="association"/>.
-    /// </summary>
-    /// <returns>The set of objects that reference this instance within specified <paramref name="association"/>.</returns>
-    /// <exception cref="InvalidOperationException">Type doesn't participate in the specified association.</exception>
-    [Infrastructure]
-    public IEnumerable<Entity> FindReferencingObjects(AssociationInfo association)
-    {
-      if (!association.TargetType.UnderlyingType.IsAssignableFrom(Type.UnderlyingType))
-        throw new InvalidOperationException(string.Format("Type '{0}' doesn't participate in the specified association.", Type.Name));
-      return association.FindOwners(this);
-    }
-
     #endregion
 
     #region Protected event-like methods

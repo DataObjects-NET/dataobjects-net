@@ -36,14 +36,15 @@ namespace Xtensive.Storage
     IDisposableContainer
   {
     /// <summary>
-    /// Occurs on <see cref="Session"/> opening.
+    /// Occurs when new <see cref="Session"/> is open and activated.
     /// </summary>
-    public EventHandler<SessionEventArgs> OnOpenSession;
+    /// <seealso cref="OpenSession()"/>
+    public event EventHandler<SessionEventArgs> SessionOpen;
 
     /// <summary>
-    /// Occurs when <see cref="Domain"/> is about to <see cref="Dispose"/>.
+    /// Occurs when <see cref="Domain"/> is about to be disposed.
     /// </summary>
-    public EventHandler OnDisposing;
+    public event EventHandler Disposing;
 
     /// <summary>
     /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>. 
@@ -159,16 +160,16 @@ namespace Xtensive.Storage
 
     internal Dictionary<AssociationInfo, ActionSet> PairSyncActions { get; private set; }
 
-    private void NotifyOpenSession(Session session)
+    private void OnSessionOpen(Session session)
     {
-      if (OnOpenSession!=null)
-        OnOpenSession(this, new SessionEventArgs(session));
+      if (SessionOpen!=null)
+        SessionOpen(this, new SessionEventArgs(session));
     }
 
-    private void NotifyDisposing()
+    private void OnDisposing()
     {
-      if (OnDisposing!=null)
-        OnDisposing(this, EventArgs.Empty);
+      if (Disposing!=null)
+        Disposing(this, EventArgs.Empty);
     }
 
     #endregion
@@ -176,7 +177,7 @@ namespace Xtensive.Storage
     #region OpenSession methods
 
     /// <summary>
-    /// Opens and activates the <see cref="Session"/> with default <see cref="SessionConfiguration"/>.
+    /// Opens and activates new <see cref="Session"/> with default <see cref="SessionConfiguration"/>.
     /// </summary>
     /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
     /// <remarks>
@@ -194,7 +195,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Opens and activates the <see cref="Session"/> of specified <see cref="SessionType"/>.
+    /// Opens and activates new <see cref="Session"/> of specified <see cref="SessionType"/>.
     /// </summary>
     /// <param name="type">The type of session.</param>
     /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
@@ -223,7 +224,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Opens and activates the <see cref="Session"/> with specified <paramref name="configuration"/>.
+    /// Opens and activates new <see cref="Session"/> with specified <see cref="SessionConfiguration"/>.
     /// </summary>
     /// <param name="configuration">The session configuration.</param>
     /// <remarks>
@@ -245,8 +246,9 @@ namespace Xtensive.Storage
         Log.Debug("Opening session '{0}'", configuration);
 
       var session = new Session(this, configuration);
-      NotifyOpenSession(session);
-      return new SessionConsumptionScope(session);
+      var sessionScope = new SessionConsumptionScope(session);
+      OnSessionOpen(session);
+      return sessionScope;
     }
 
     #endregion
@@ -301,7 +303,7 @@ namespace Xtensive.Storage
             try {
               if (IsDebugEventLoggingEnabled)
                 LogTemplate<Log>.Debug("Domain disposing {0}.", isDisposing ? "explicitly" : "by calling finalizer.");
-              NotifyDisposing();
+              OnDisposing();
               KeyGenerators.DisposeSafely();
             }
             finally {

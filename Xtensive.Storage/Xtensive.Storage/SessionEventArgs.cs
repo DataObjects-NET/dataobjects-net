@@ -10,7 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Provides data for <see cref="Domain.OnOpenSession"/> event.
+  /// Provides data for <see cref="Domain.SessionOpen"/> event.
   /// </summary>
   public sealed class SessionEventArgs : EventArgs
   {

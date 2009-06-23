@@ -27,14 +27,17 @@ namespace Xtensive.Storage.Configuration
     /// Name of default session configuration.
     /// </summary>
     public const string DefaultSessionName = "Default";
+
     /// <summary>
     /// System session name.
     /// </summary>
     public const string SystemSessionName = "System";
+
     /// <summary>
     /// Service session name.
     /// </summary>
     public const string ServiceSessionName = "Service";
+
     /// <summary>
     /// Generator session name.
     /// </summary>
@@ -44,10 +47,12 @@ namespace Xtensive.Storage.Configuration
     /// Default cache size.
     /// </summary>
     public const int DefaultCacheSize = 16 * 1024;
+
     /// <summary>
     /// Default cache type.
     /// </summary>
     public const SessionCacheType DefaultCacheType = SessionCacheType.LruWeak;
+
     ///<summary>
     /// Default isolation level.
     ///</summary>
@@ -95,7 +100,7 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets or sets the size of the session cache. 
+    /// Gets or sets the size of the session entity state cache. 
     /// Default value is <see cref="DefaultCacheSize"/>.
     /// </summary>
     public int CacheSize {
@@ -193,7 +198,7 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Clones this instance.
+    /// Clones this configuration.
     /// </summary>
     /// <returns>The clone of this configuration.</returns>
     public new SessionConfiguration Clone()
@@ -208,6 +213,7 @@ namespace Xtensive.Storage.Configuration
         return string.Format("Name = {0}, Options = {1}, CacheType = {2}, CacheSize = {3}, DefaultIsolationLevel = {4}", Name, Options, CacheType, CacheSize, DefaultIsolationLevel);
       return string.Format("Name = {0}, UserName = {1}, Options = {2}, CacheType = {3}, CacheSize = {4}, DefaultIsolationLevel = {5}", Name, UserName, Options, CacheType, CacheSize, DefaultIsolationLevel);
     }
+
 
     // Constructors
 

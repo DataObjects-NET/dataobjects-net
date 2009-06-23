@@ -734,4 +734,7 @@ Actions:
   <data name="ExKeyComparerNotSupportedInGroupJoin" xml:space="preserve">
     <value>Key comparer not supported in GroupJoin.</value>
   </data>
+  <data name="TypeXDoesNotParticipateInTheSpecifiedAssociation" xml:space="preserve">
+    <value>Type '{0}' doesn't participate in the specified association.</value>
+  </data>
 </root>

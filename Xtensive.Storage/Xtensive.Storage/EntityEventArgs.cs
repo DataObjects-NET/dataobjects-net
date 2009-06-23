@@ -10,7 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Provides data for <see cref="Session.OnCreateEntity"/> event.
+  /// Arguments for <see cref="Entity"/>-related events.
   /// </summary>
   public class EntityEventArgs : EventArgs
   {

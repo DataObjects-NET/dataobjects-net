@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets a value indicating whether this instance represents loop.
+    /// Gets a value indicating whether this instance represents a loop.
     /// </summary>
     public bool IsLoop
     {

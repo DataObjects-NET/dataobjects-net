@@ -16,21 +16,25 @@ namespace Xtensive.Storage.Configuration
     /// Value is <see langword="0x0" />.
     /// </summary>
     Default = User,
+
     /// <summary>
     /// A regular user session.
     /// Value is <see langword="0x0" />.
     /// </summary>
     User = 0,
+
     /// <summary>
     /// A system session.
     /// Value is <see langword="0x1" />.
     /// </summary>
     System = 1,
+
     /// <summary>
     /// A generator session.
     /// Value is <see langword="0x2"/>
     /// </summary>
     Generator = 2,
+
     /// <summary>
     /// A service session.
     /// Value is <see langword="0x3"/>
