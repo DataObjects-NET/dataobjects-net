@@ -205,7 +205,12 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var categoriesCount = Query<Category>.All.Count();
       var result = Query<Category>.All.Select(
-        c => new { Product = c.Products.First(), c.Products.First().ProductName, c.Products.First().Supplier });
+        c => new
+             {
+               Product = c.Products.First(), 
+               c.Products.First().ProductName, 
+               c.Products.First().Supplier
+             });
       var list = result.ToList();
       Assert.AreEqual(categoriesCount, list.Count);
     }

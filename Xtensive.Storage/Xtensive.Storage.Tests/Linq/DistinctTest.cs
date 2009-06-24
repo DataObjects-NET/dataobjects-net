@@ -196,6 +196,24 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void TakeTakeTest()
+    {
+      var result = Query<Order>.All
+        .OrderBy(o => o.Id)
+        .Take(2)
+        .Take(1);
+      var expected = Query<Order>.All
+        .ToList()
+        .OrderBy(o => o.Id)
+        .Take(2)
+        .Take(1);
+      var list = result.ToList();
+      Assert.IsTrue(expected.SequenceEqual(list));
+      Assert.Greater(list.Count, 0);
+    }
+
+
+    [Test]
     public void DistinctTakeTest()
     {
       // NOTE: Top must be forced to apply after distinct has been computed
