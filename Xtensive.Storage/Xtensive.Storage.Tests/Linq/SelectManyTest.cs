@@ -238,7 +238,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => Query<Order>.All.Where(o => o.Customer == c).Take(10));
-      if(Domain.Configuration.ConnectionInfo.Protocol != "memory")
+      if (Domain.Configuration.ConnectionInfo.Protocol != "memory" && Domain.Configuration.ConnectionInfo.Protocol != "mssql2005")
         AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(result));
       else
         QueryDumper.Dump(result);
@@ -249,7 +249,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => Query<Order>.All.Where(o => o.Customer == c).Skip(10));
-      if(Domain.Configuration.ConnectionInfo.Protocol != "memory")
+      if (Domain.Configuration.ConnectionInfo.Protocol != "memory" && Domain.Configuration.ConnectionInfo.Protocol != "mssql2005")
         AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(result));
       else
         QueryDumper.Dump(result);

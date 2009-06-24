@@ -29,6 +29,8 @@ namespace Xtensive.Core.Linq
         catch(ArgumentException) {
           return base.VisitMethodCall(mc);
         }
+        if (mc.Arguments.Count > 0 && mc.Arguments[0].Type == typeof(string))
+          return base.VisitMethodCall(mc);
         return VisitQueryableMethod(mc, kind);
       }
       return base.VisitMethodCall(mc);
