@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Rse.Expressions;
+using Xtensive.Storage.Rse.Helpers;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 {

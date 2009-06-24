@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq;
 
-namespace Xtensive.Storage.Rse.Expressions
+namespace Xtensive.Storage.Rse.Helpers
 {
   /// <summary>
   /// An expression visitor specialized for finding tuple access expressions.

@@ -129,7 +129,7 @@ namespace Xtensive.Sql.Dom.Tests
         SqlTableColumn cClone = (SqlTableColumn)c.Clone();
 
         Assert.AreNotEqual(c, cClone);
-        Assert.AreEqual(c.SqlTable, cClone.SqlTable);
+        Assert.AreNotEqual(c.SqlTable, cClone.SqlTable);
         Assert.AreEqual(c.NodeType, cClone.NodeType);
       }
     }

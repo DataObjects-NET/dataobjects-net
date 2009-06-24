@@ -13,7 +13,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Resources;
 using Xtensive.Core.Linq;
 
-namespace Xtensive.Storage.Rse.Expressions
+namespace Xtensive.Storage.Rse.Helpers
 {
   /// <summary>
   /// Various extension methods for manipulating expressions with <see cref="Tuple"/>.
@@ -113,7 +113,7 @@ namespace Xtensive.Storage.Rse.Expressions
         return null;
       var memberAccess = (MemberExpression)tupleAccess.Object;
       if (memberAccess.Expression == null ||
-          memberAccess.Expression.Type != typeof(ApplyParameter) ||
+        memberAccess.Expression.Type != typeof(ApplyParameter) ||
           memberAccess.Member.Name != "Value")
         return null;
       return memberAccess.Expression;

@@ -14,7 +14,6 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 using Xtensive.Core.Linq;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse.Expressions;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {

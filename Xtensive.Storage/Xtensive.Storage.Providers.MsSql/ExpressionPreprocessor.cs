@@ -8,7 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core.Linq;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Expressions;
+using Xtensive.Storage.Rse.Helpers;
 
 namespace Xtensive.Storage.Providers.MsSql
 {

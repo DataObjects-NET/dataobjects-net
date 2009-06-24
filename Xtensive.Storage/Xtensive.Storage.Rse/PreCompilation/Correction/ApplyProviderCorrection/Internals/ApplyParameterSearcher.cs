@@ -8,7 +8,7 @@ using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
-using Xtensive.Storage.Rse.Expressions;
+using Xtensive.Storage.Rse.Helpers;
 using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection

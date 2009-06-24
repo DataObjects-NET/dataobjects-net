@@ -10,7 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Rse.Expressions;
+using Xtensive.Storage.Rse.Helpers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse.Resources;
 

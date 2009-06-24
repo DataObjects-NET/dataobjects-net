@@ -8,7 +8,7 @@ namespace Xtensive.Sql.Dom.Tests
 {
   public static class TestUrl
   {
-    public const string MsSql2005 = "mssql2005://localhost/SqlDomTests";
+    public const string MsSql2005 = "mssql2005://localhost/DO40-Tests";
     public const string MsSql2005AW = "mssql2005://localhost/AdventureWorks";
 
     public const string PgSql80 = "pgsql://do4test:do4testpwd@127.0.0.1:8032/do40test?Encoding=ASCII&Pooling=on&MinPoolSize=1&MaxPoolSize=5";
