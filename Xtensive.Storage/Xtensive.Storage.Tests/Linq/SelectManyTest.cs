@@ -5,8 +5,10 @@
 // Created:    2009.04.01
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
@@ -64,6 +66,14 @@ namespace Xtensive.Storage.Tests.Linq
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => c.Orders);
       Assert.AreEqual(expected, result.ToList().Count);
+    }
+
+    [Test]
+    public void EntitySetWithCastTest()
+    {
+      var result = Query<Customer>.All.SelectMany(c => (IEnumerable<Order>) c.Orders).ToList();
+      var expected = Query<Order>.All.ToList();
+      Assert.IsTrue(result.Except(expected).IsNullOrEmpty());
     }
 
     [Test]
