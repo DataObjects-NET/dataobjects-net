@@ -184,5 +184,40 @@ namespace Xtensive.Storage.Tests.Linq
       var list = result.ToList();
       Assert.AreEqual(customersCount, list.Count);
     }
+
+    [Test]
+    public void ComplexSubquerySingleOrDefaultTest()
+    {
+      var categoriesCount = Query<Category>.All.Count();
+      var result = Query<Category>.All.Select(
+        c => new
+             {
+               Product = c.Products.Take(1).SingleOrDefault(), 
+               c.Products.Take(1).SingleOrDefault().ProductName, 
+               c.Products.Take(1).SingleOrDefault().Supplier
+             });
+      var list = result.ToList();
+      Assert.AreEqual(categoriesCount, list.Count);
+    }
+
+    [Test]
+    public void ComplexSubqueryFirstTest()
+    {
+      var categoriesCount = Query<Category>.All.Count();
+      var result = Query<Category>.All.Select(
+        c => new { Product = c.Products.First(), c.Products.First().ProductName, c.Products.First().Supplier });
+      var list = result.ToList();
+      Assert.AreEqual(categoriesCount, list.Count);
+    }
+
+    [Test]
+    public void ComplexSubquerySelectFirstTest()
+    {
+      var categoriesCount = Query<Category>.All.Count();
+      var result = Query<Category>.All.Select(c => c.Products.First()).Select(p => new { Product = p, p.ProductName, p.Supplier });
+      var list = result.ToList();
+      Assert.AreEqual(categoriesCount, list.Count);
+    }
+  
   }
 }

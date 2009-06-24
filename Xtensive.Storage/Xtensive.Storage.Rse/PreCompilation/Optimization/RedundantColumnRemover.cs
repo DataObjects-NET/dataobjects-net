@@ -252,6 +252,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     protected override Provider VisitRowNumber(RowNumberProvider provider)
     {
+      int sourceLength = provider.Source.Header.Length;
+      mappings[provider.Source] = mappings[provider].Where(i => i < sourceLength).ToList();
       OnRecursionEntrance(provider);
       CompilableProvider newSource = VisitCompilable(provider.Source);
       OnRecursionExit(provider);
@@ -391,6 +393,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         case ProviderType.Calculate:
         case ProviderType.Apply:
         case ProviderType.Select:
+        case ProviderType.RowNumber:
           break;
         case ProviderType.Range:
         case ProviderType.RangeSet:
