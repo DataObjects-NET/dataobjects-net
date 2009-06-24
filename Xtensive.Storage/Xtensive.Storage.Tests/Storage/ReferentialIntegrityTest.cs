@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.01
 
-using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -98,8 +97,7 @@ namespace Xtensive.Storage.Tests.Storage
           m.OneToMany.Add(new Slave());
           m.OneToMany.Add(new Slave());
           Assert.AreEqual(3, m.OneToMany.Count);
-          throw new Exception("AKf, uncomment and fix the following line!");
-          // Assert.AreEqual(3, m.FindReferencingObjects(m.Type.Fields["OneToMany"].Association.Reversed).Count());
+          Assert.AreEqual(3, ReferentialHelper.FindReferencingEntities(m, m.Type.Fields["OneToMany"].Association.Reversed).Count());
           m.OneToMany.First().Remove();
           Assert.AreEqual(2, m.OneToMany.Count);
 
