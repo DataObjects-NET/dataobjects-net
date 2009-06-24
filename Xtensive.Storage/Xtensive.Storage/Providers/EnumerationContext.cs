@@ -31,6 +31,12 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <inheritdoc/>
+    public override Rse.Providers.EnumerationContext CreateNew()
+    {
+      return new EnumerationContext();
+    }
+
+    /// <inheritdoc/>
     protected override Rse.Providers.EnumerationScope CreateActiveScope()
     {
       return new EnumerationScope(this);

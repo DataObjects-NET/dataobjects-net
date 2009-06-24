@@ -40,6 +40,11 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
     /// <summary>
+    /// Factory method. Creates new <see cref="EnumerationContext"/>.
+    /// </summary>
+    public abstract EnumerationContext CreateNew();
+
+    /// <summary>
     /// Caches the value in the current <see cref="EnumerationContext"/>.
     /// </summary>
     /// <typeparam name="T">The type of the value.</typeparam>

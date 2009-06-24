@@ -36,24 +36,51 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       }
     }
 
+    protected internal override void OnBeforeEnumerate(EnumerationContext context)
+    {
+      Left.OnBeforeEnumerate(context);
+    }
+
+    protected internal override void OnAfterEnumerate(EnumerationContext context)
+    {
+      Left.OnAfterEnumerate(context);
+    }
+
     #region Private implementation.
 
     private IEnumerable<Tuple> InnerApply(EnumerationContext context, IEnumerable<Tuple> left)
     {
-      var ctx = new ParameterContext();
-      ParameterScope scope = null;
-      var batched = left
-        .SelectMany(tuple => {
+      using (new ParameterContext().Activate())
+        foreach (var tuple in left) {
           Origin.ApplyParameter.Value = tuple;
-          // Do not cache right part
-          var right = Right.OnEnumerate(context);
-          return right.Select(rTuple => combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple));
-        })
-        .Batch(0, 1, 1)
-        .ApplyBeforeAndAfter(() => scope = ctx.Activate(), () => scope.DisposeSafely());
-      foreach (var batch in batched)
-        foreach (var tuple in batch)
-          yield return tuple;
+          var result = new List<Tuple>();
+          var rightContext = context.CreateNew();
+          using (rightContext.Activate()) {
+            Right.OnBeforeEnumerate(rightContext);
+            // Do not cache right part
+            var right = Right.OnEnumerate(context);
+            foreach (var rTuple in right)
+              result.Add(combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple));
+            Right.OnAfterEnumerate(rightContext);
+          }
+          foreach (var item in result)
+            yield return item;
+        }
+
+//      var ctx = new ParameterContext();
+//      ParameterScope scope = null;
+//      var batched = left
+//        .SelectMany(tuple => {
+//          Origin.ApplyParameter.Value = tuple;
+//          // Do not cache right part
+//          var right = Right.OnEnumerate(context);
+//          return right.Select(rTuple => combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple));
+//        })
+//        .Batch(0, 1, 1)
+//        .ApplyBeforeAndAfter(() => scope = ctx.Activate(), () => scope.DisposeSafely());
+//      foreach (var batch in batched)
+//        foreach (var tuple in batch)
+//          yield return tuple;
     }
 
     private IEnumerable<Tuple> LeftOuterApply(EnumerationContext context, IEnumerable<Tuple> left)
@@ -61,19 +88,25 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       using (new ParameterContext().Activate())
         foreach (var tuple in left) {
           Origin.ApplyParameter.Value = tuple;
-          // Do not cache right part
-          var right = Right.OnEnumerate(context);
+
           var result = new List<Tuple>();
-          bool isEmpty = true;
-          foreach (var rTuple in right) {
-            if (!isEmpty) 
-              if (Origin.SequenceType == ApplySequenceType.Single || Origin.SequenceType == ApplySequenceType.SingleOrDefault)
-                throw new InvalidOperationException("Sequence contains more than one element.");
-            isEmpty = false;
-            result.Add(combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple));
+          var rightContext = context.CreateNew();
+          using (rightContext.Activate()) {
+            Right.OnBeforeEnumerate(rightContext);
+            // Do not cache right part
+            var right = Right.OnEnumerate(context);
+            bool isEmpty = true;
+            foreach (var rTuple in right) {
+              if (!isEmpty) 
+                if (Origin.SequenceType == ApplySequenceType.Single || Origin.SequenceType == ApplySequenceType.SingleOrDefault)
+                  throw new InvalidOperationException("Sequence contains more than one element.");
+              isEmpty = false;
+              result.Add(combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple));
+            }
+            if (isEmpty)
+              result.Add(combineTransform.Apply(TupleTransformType.Auto, tuple, rightBlank));
+            Right.OnAfterEnumerate(rightContext);
           }
-          if (isEmpty)
-            result.Add(combineTransform.Apply(TupleTransformType.Auto, tuple, rightBlank));
           foreach (var item in result)
             yield return item;
         }

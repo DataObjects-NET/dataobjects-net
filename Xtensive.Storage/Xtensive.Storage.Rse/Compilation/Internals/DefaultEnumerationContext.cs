@@ -32,6 +32,12 @@ namespace Xtensive.Storage.Rse.Compilation
     }
 
     /// <inheritdoc/>
+    public override EnumerationContext CreateNew()
+    {
+      return new DefaultEnumerationContext();
+    }
+
+    /// <inheritdoc/>
     protected override EnumerationScope CreateActiveScope()
     {
       return new EnumerationScope(this);
