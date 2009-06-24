@@ -586,11 +586,12 @@ namespace Xtensive.Storage.Tests.Linq
               Char3 = c.Id[3],
               Char4 = c.Id[4],
             })
+          .ToArray()
           .OrderBy(item => item.String)
           .ToArray();
       var expected =
         Query<Customer>.All
-          .ToList()
+          .ToArray()
           .Select(c => new
             {
               String = c.Id,
@@ -616,44 +617,46 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectIndexOfTest()
     {
+      char _char = 'A';
       var result =
         Query<Customer>.All
           .Select(c => new
             {
               String = c.Id,
-              IndexOfChar = c.Id.IndexOf('A'),
-              IndexOfCharStart = c.Id.IndexOf('A', 1),
-              IndexOfCharStartCount = c.Id.IndexOf('A', 1, 1),
-              IndexOfString = c.Id.IndexOf("A"),
-              IndexOfStringStart = c.Id.IndexOf("A", 1),
-              IndexOfStringStartCount = c.Id.IndexOf("A", 1, 1)
+              IndexOfChar = c.Id.IndexOf(_char),
+              IndexOfCharStart = c.Id.IndexOf(_char, 1),
+              IndexOfCharStartCount = c.Id.IndexOf(_char, 1, 1),
+              IndexOfString = c.Id.IndexOf(_char.ToString()),
+              IndexOfStringStart = c.Id.IndexOf(_char.ToString(), 1),
+              IndexOfStringStartCount = c.Id.IndexOf(_char.ToString(), 1, 1)
             })
+          .ToArray()
           .OrderBy(item => item.String)
           .ToArray();
       var expected =
         Query<Customer>.All
-          .ToList()
+          .ToArray()
           .Select(c => new
             {
               String = c.Id,
-              IndexOfChar = c.Id.IndexOf('A'),
-              IndexOfCharStart = c.Id.IndexOf('A', 1),
-              IndexOfCharStartCount = c.Id.IndexOf('A', 1, 1),
-              IndexOfString = c.Id.IndexOf("A"),
-              IndexOfStringStart = c.Id.IndexOf("A", 1),
-              IndexOfStringStartCount = c.Id.IndexOf("A", 1, 1)
+              IndexOfChar = c.Id.IndexOf(_char),
+              IndexOfCharStart = c.Id.IndexOf(_char, 1),
+              IndexOfCharStartCount = c.Id.IndexOf(_char, 1, 1),
+              IndexOfString = c.Id.IndexOf(_char.ToString()),
+              IndexOfStringStart = c.Id.IndexOf(_char.ToString(), 1),
+              IndexOfStringStartCount = c.Id.IndexOf(_char.ToString(), 1, 1)
             })
           .OrderBy(item => item.String)
           .ToArray();
       Assert.AreEqual(expected.Length, result.Length);
       for (int i = 0; i < expected.Length; i++) {
-        Assert.AreEqual(expected[0].String, result[0].String);
-        Assert.AreEqual(expected[0].IndexOfChar, result[0].IndexOfChar);
-        Assert.AreEqual(expected[0].IndexOfCharStart, result[0].IndexOfCharStart);
-        Assert.AreEqual(expected[0].IndexOfCharStartCount, result[0].IndexOfCharStartCount);
-        Assert.AreEqual(expected[0].IndexOfString, result[0].IndexOfString);
-        Assert.AreEqual(expected[0].IndexOfStringStart, result[0].IndexOfStringStart);
-        Assert.AreEqual(expected[0].IndexOfStringStartCount, result[0].IndexOfStringStartCount);
+        Assert.AreEqual(expected[i].String, result[i].String);
+        Assert.AreEqual(expected[i].IndexOfChar, result[i].IndexOfChar);
+        Assert.AreEqual(expected[i].IndexOfCharStart, result[i].IndexOfCharStart);
+        Assert.AreEqual(expected[i].IndexOfCharStartCount, result[i].IndexOfCharStartCount);
+        Assert.AreEqual(expected[i].IndexOfString, result[i].IndexOfString);
+        Assert.AreEqual(expected[i].IndexOfStringStart, result[i].IndexOfStringStart);
+        Assert.AreEqual(expected[i].IndexOfStringStartCount, result[i].IndexOfStringStartCount);
       }
     }
 
@@ -712,6 +715,10 @@ namespace Xtensive.Storage.Tests.Linq
             TimeSpanTotalSeconds = k.TimeSpan.TotalSeconds,
             TimeSpanTicks = k.TimeSpan.Ticks,
             TimeSpanDuration = k.TimeSpan.Duration(),
+            TimeSpanFromDays = TimeSpan.FromDays(k.TimeSpan.TotalDays),
+            TimeSpanFromHours = TimeSpan.FromHours(k.TimeSpan.TotalHours),
+            TimeSpanFromMinutes = TimeSpan.FromMinutes(k.TimeSpan.TotalMinutes),
+            TimeSpanFromSeconds = TimeSpan.FromSeconds(k.TimeSpan.TotalSeconds),
           })
         .First();
       Assert.AreEqual(dateTime, result.DateTime);
@@ -736,6 +743,25 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.IsTrue(Math.Abs(timeSpan.TotalSeconds - result.TimeSpanTotalSeconds) < 0.1);
       Assert.AreEqual(timeSpan.Ticks, result.TimeSpanTicks);
       Assert.AreEqual(timeSpan.Duration(), result.TimeSpanDuration);
+      Assert.AreEqual(timeSpan, result.TimeSpanFromDays);
+      Assert.AreEqual(timeSpan, result.TimeSpanFromHours);
+      Assert.AreEqual(timeSpan, result.TimeSpanFromMinutes);
+      Assert.AreEqual(timeSpan, result.TimeSpanFromSeconds);
+    }
+
+    [Test]
+    public void SelectSubstringTest()
+    {
+      var result = Query<Customer>.All.Select(c => new
+        {
+          String = c.Id,
+          FromTwo = c.Id.Substring(2),
+          FromThreeTakeOne = c.Id.Substring(3, 1),
+        }).ToArray();
+      foreach (var item in result) {
+        Assert.AreEqual(item.String.Substring(2), item.FromTwo);
+        Assert.AreEqual(item.String.Substring(3, 1), item.FromThreeTakeOne);
+      }
     }
   }
 }

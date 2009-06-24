@@ -1686,6 +1686,8 @@ namespace Xtensive.Sql.Dom.Compiler
           return "LOG";
         case SqlFunctionType.Log10:
           return "LOG10";
+        case SqlFunctionType.NullIf:
+          return "NULLIF";
         case SqlFunctionType.Pi:
           return "PI";
         case SqlFunctionType.Power:

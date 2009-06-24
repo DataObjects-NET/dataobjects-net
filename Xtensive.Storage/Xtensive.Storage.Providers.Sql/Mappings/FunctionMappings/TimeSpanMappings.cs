@@ -16,9 +16,16 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
   [CompilerContainer(typeof(SqlExpression))]
   internal static class TimeSpanMappings
   {
+    private static readonly long TicksPerMillisecond = TimeSpan.FromMilliseconds(1).Ticks;
+    private static readonly double MillisecondsPerDay = TimeSpan.FromDays(1).TotalMilliseconds;
+    private static readonly double MillisecondsPerHour = TimeSpan.FromHours(1).TotalMilliseconds;
+    private static readonly double MillisecondsPerMinute = TimeSpan.FromMinutes(1).TotalMilliseconds;
+    private static readonly double MillisecondsPerSecond = TimeSpan.FromSeconds(1).TotalMilliseconds;
+    private static readonly double MillisecondsPerTick = TimeSpan.FromTicks(1).TotalMilliseconds;
+
     #region Constructors
 
-    internal static SqlExpression IntervalConstruct(
+    internal static SqlExpression GenericIntervalConstruct(
       SqlExpression days,
       SqlExpression hours,
       SqlExpression minutes,
@@ -27,15 +34,14 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     {
       // to be optimized
       return SqlFactory.IntervalConstruct(
-        milliseconds + 1000L * (seconds + 60L * (minutes + 60L * (hours + 24L * days)))
-        );
+        milliseconds + 1000L * (seconds + 60L * (minutes + 60L * (hours + 24L * days))));
     }
 
     [Compiler(typeof(TimeSpan), null, TargetKind.Constructor)]
     public static SqlExpression TimeSpanCtor(
       [Type(typeof(long))] SqlExpression ticks)
     {
-      return SqlFactory.IntervalConstruct(ticks / 10000);
+      return SqlFactory.IntervalConstruct(ticks * MillisecondsPerTick);
     }
 
     [Compiler(typeof(TimeSpan), null, TargetKind.Constructor)]
@@ -44,7 +50,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression minutes,
       [Type(typeof(int))] SqlExpression seconds)
     {
-      return IntervalConstruct(0, hours, minutes, seconds, 0);
+      return GenericIntervalConstruct(0, hours, minutes, seconds, 0);
     }
 
     [Compiler(typeof(TimeSpan), null, TargetKind.Constructor)]
@@ -54,7 +60,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression minutes,
       [Type(typeof(int))] SqlExpression seconds)
     {
-      return IntervalConstruct(days, hours, minutes, seconds, 0);
+      return GenericIntervalConstruct(days, hours, minutes, seconds, 0);
     }
 
     [Compiler(typeof(TimeSpan), null, TargetKind.Constructor)]
@@ -65,7 +71,49 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression seconds,
       [Type(typeof(int))] SqlExpression millliseconds)
     {
-      return IntervalConstruct(days, hours, minutes, seconds, millliseconds);
+      return GenericIntervalConstruct(days, hours, minutes, seconds, millliseconds);
+    }
+
+    [Compiler(typeof(TimeSpan), "FromDays", TargetKind.Method | TargetKind.Static)]
+    public static SqlExpression TimeSpanFromDays(
+      [Type(typeof(double))] SqlExpression days)
+    {
+      return SqlFactory.IntervalConstruct(days * MillisecondsPerDay);
+    }
+
+    [Compiler(typeof(TimeSpan), "FromHours", TargetKind.Method | TargetKind.Static)]
+    public static SqlExpression TimeSpanFromHours(
+      [Type(typeof(double))] SqlExpression hours)
+    {
+      return SqlFactory.IntervalConstruct(hours * MillisecondsPerHour);
+    }
+
+    [Compiler(typeof(TimeSpan), "FromMinutes", TargetKind.Method | TargetKind.Static)]
+    public static SqlExpression TimeSpanFromMinutes(
+      [Type(typeof(double))] SqlExpression minutes)
+    {
+      return SqlFactory.IntervalConstruct(minutes * MillisecondsPerMinute);
+    }
+
+    [Compiler(typeof(TimeSpan), "FromSeconds", TargetKind.Method | TargetKind.Static)]
+    public static SqlExpression TimeSpanFromSeconds(
+      [Type(typeof(double))] SqlExpression seconds)
+    {
+      return SqlFactory.IntervalConstruct(seconds * MillisecondsPerSecond);
+    }
+
+    [Compiler(typeof(TimeSpan), "FromMilliseconds", TargetKind.Method | TargetKind.Static)]
+    public static SqlExpression TimeSpanFromMilliseconds(
+      [Type(typeof(double))] SqlExpression milliseconds)
+    {
+      return SqlFactory.IntervalConstruct(milliseconds);
+    }
+
+    [Compiler(typeof(TimeSpan), "FromTicks", TargetKind.Method | TargetKind.Static)]
+    public static SqlExpression TimeSpanFromTicks(
+      [Type(typeof(long))] SqlExpression ticks)
+    {
+      return SqlFactory.IntervalConstruct(ticks * MillisecondsPerTick);
     }
 
     #endregion
@@ -109,7 +157,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(TimeSpan), "Ticks", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTicks(SqlExpression _this)
     {
-      return ToLong(SqlFactory.IntervalToMilliseconds(_this) * 10000);
+      return ToLong(SqlFactory.IntervalToMilliseconds(_this)) * TicksPerMillisecond;
     }
 
     [Compiler(typeof(TimeSpan), "TotalMilliseconds", TargetKind.PropertyGet)]
@@ -121,25 +169,25 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(TimeSpan), "TotalSeconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalSeconds(SqlExpression _this)
     {
-      return ToDouble(SqlFactory.IntervalToMilliseconds(_this) / 1000.0);
+      return ToDouble(SqlFactory.IntervalToMilliseconds(_this)) / MillisecondsPerSecond;
     }
 
     [Compiler(typeof(TimeSpan), "TotalMinutes", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalMinutes(SqlExpression _this)
     {
-      return ToDouble(SqlFactory.IntervalToMilliseconds(_this) / (1000.0 * 60.0));
+      return ToDouble(SqlFactory.IntervalToMilliseconds(_this)) / MillisecondsPerMinute;
     }
 
     [Compiler(typeof(TimeSpan), "TotalHours", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalHours(SqlExpression _this)
     {
-      return ToDouble(SqlFactory.IntervalToMilliseconds(_this) / (1000.0 * 60.0 * 60.0));
+      return ToDouble(SqlFactory.IntervalToMilliseconds(_this)) / MillisecondsPerHour;
     }
 
     [Compiler(typeof(TimeSpan), "TotalDays", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalDays(SqlExpression _this)
     {
-      return ToDouble(SqlFactory.IntervalToMilliseconds(_this) / (1000.0 * 60.0 * 60.0 * 24.0));
+      return ToDouble(SqlFactory.IntervalToMilliseconds(_this)) / MillisecondsPerDay;
     }
 
     #endregion

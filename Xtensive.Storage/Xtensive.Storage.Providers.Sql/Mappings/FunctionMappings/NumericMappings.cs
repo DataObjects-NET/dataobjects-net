@@ -93,77 +93,77 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression ByteCompareTo(SqlExpression _this,
       [Type(typeof(byte))] SqlExpression value)
     {
-      return SqlFactory.Sign(_this - value);
+      return MathMappings.GenericSign(_this - value);
     }
     
     [Compiler(typeof(sbyte), "CompareTo")]
     public static SqlExpression SByteCompareTo(SqlExpression _this,
       [Type(typeof(sbyte))] SqlExpression value)
     {
-      return SqlFactory.Sign(_this - value);
+      return MathMappings.GenericSign(_this - value);
     }
 
     [Compiler(typeof(short), "CompareTo")]
     public static SqlExpression ShortCompareTo(SqlExpression _this,
       [Type(typeof(short))] SqlExpression value)
     {
-      return SqlFactory.Sign(_this - value);
+      return MathMappings.GenericSign(_this - value);
     }
 
     [Compiler(typeof(ushort), "CompareTo")]
     public static SqlExpression UShortCompareTo(SqlExpression _this,
       [Type(typeof(ushort))] SqlExpression value)
     {
-      return SqlFactory.Sign(_this - value);
+      return MathMappings.GenericSign(_this - value);
     }
 
     [Compiler(typeof(int), "CompareTo")]
     public static SqlExpression IntCompareTo(SqlExpression _this,
       [Type(typeof(int))] SqlExpression value)
     {
-      return SqlFactory.Sign(_this - value);
+      return MathMappings.GenericSign(_this - value);
     }
 
     [Compiler(typeof(uint), "CompareTo")]
     public static SqlExpression UIntCompareTo(SqlExpression _this,
       [Type(typeof(uint))] SqlExpression value)
     {
-      return SqlFactory.Sign(_this - value);
+      return MathMappings.GenericSign(_this - value);
     }
 
     [Compiler(typeof(long), "CompareTo")]
     public static SqlExpression LongCompareTo(SqlExpression _this,
       [Type(typeof(long))] SqlExpression value)
     {
-      return SqlFactory.Sign(_this - value);
+      return MathMappings.GenericSign(_this - value);
     }
 
     [Compiler(typeof(ulong), "CompareTo")]
     public static SqlExpression ULongCompareTo(SqlExpression _this,
       [Type(typeof(ulong))] SqlExpression value)
     {
-      return SqlFactory.Sign(_this - value);
+      return MathMappings.GenericSign(_this - value);
     }
 
     [Compiler(typeof(float), "CompareTo")]
     public static SqlExpression FloatCompareTo(SqlExpression _this,
       [Type(typeof(float))] SqlExpression value)
     {
-      return SqlFactory.Sign(_this - value);
+      return MathMappings.GenericSign(_this - value);
     }
 
     [Compiler(typeof(double), "CompareTo")]
     public static SqlExpression DoubleCompareTo(SqlExpression _this,
       [Type(typeof(double))] SqlExpression value)
     {
-      return SqlFactory.Sign(_this - value);
+      return MathMappings.GenericSign(_this - value);
     }
 
     [Compiler(typeof(decimal), "CompareTo")]
     public static SqlExpression DecimalCompareTo(SqlExpression _this,
       [Type(typeof(decimal))] SqlExpression value)
     {
-      return SqlFactory.Sign(_this - value);
+      return MathMappings.GenericSign(_this - value);
     }
 
     #endregion

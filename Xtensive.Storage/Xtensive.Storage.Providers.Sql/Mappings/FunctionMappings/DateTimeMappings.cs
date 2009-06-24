@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009 Xtensive LLC.
+// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     {
       return SqlFactory.DateTimeAddInterval(
         SqlFactory.DateTimeConstruct(year, month, day),
-        TimeSpanMappings.IntervalConstruct(0, hour, minute, second, millisecond)
+        TimeSpanMappings.GenericIntervalConstruct(0, hour, minute, second, millisecond)
         );
     }
 

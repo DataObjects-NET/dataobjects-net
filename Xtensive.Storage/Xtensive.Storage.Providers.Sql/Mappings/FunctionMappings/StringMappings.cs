@@ -163,7 +163,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression StringIsNullOrEmpty(
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.IsNull(value) || SqlFactory.Length(value) == SqlFactory.Literal(0);
+      return SqlFactory.IsNull(value) || SqlFactory.Length(value)==SqlFactory.Literal(0);
     }
 
     [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
@@ -227,11 +227,33 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       return StringCompare(_this, strB);
     }
 
+    private static SqlExpression GenericStringIndexOf(SqlExpression _this,
+      SqlExpression substring)
+    {
+      return SqlFactory.Position(substring, _this);
+    }
+
+    private static SqlExpression GenericStringIndexOf(SqlExpression _this,
+      SqlExpression substring, SqlExpression startIndex)
+    {
+      return SqlFactory.Coalesce(startIndex + 
+        SqlFactory.NullIf(SqlFactory.Position(substring, SqlFactory.Substring(_this, startIndex)), -1),
+        -1);
+    }
+
+    private static SqlExpression GenericStringIndexOf(SqlExpression _this,
+      SqlExpression substring, SqlExpression startIndex, SqlExpression length)
+    {
+      return SqlFactory.Coalesce(startIndex + 
+        SqlFactory.NullIf(SqlFactory.Position(substring, SqlFactory.Substring(_this, startIndex, length)), -1),
+        -1);
+    }
+
     [Compiler(typeof(string), "IndexOf")]
     public static SqlExpression StringIndexOfString(SqlExpression _this,
       [Type(typeof(string))] SqlExpression str)
     {
-      return SqlFactory.Position(str, _this);
+      return GenericStringIndexOf(_this, str);
     }
 
     [Compiler(typeof(string), "IndexOf")]
@@ -239,7 +261,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(string))] SqlExpression str,
       [Type(typeof(int))] SqlExpression startIndex)
     {
-      return SqlFactory.Position(str, SqlFactory.Substring(_this, startIndex));
+      return GenericStringIndexOf(_this, str, startIndex);
     }
 
     [Compiler(typeof(string), "IndexOf")]
@@ -248,14 +270,14 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression startIndex,
       [Type(typeof(int))] SqlExpression length)
     {
-      return SqlFactory.Position(str, SqlFactory.Substring(_this, startIndex, length));
+      return GenericStringIndexOf(_this, str, startIndex, length);
     }
 
     [Compiler(typeof(string), "IndexOf")]
     public static SqlExpression StringIndexOfChar(SqlExpression _this,
       [Type(typeof(char))] SqlExpression ch)
     {
-      return SqlFactory.Position(ch, _this);
+      return GenericStringIndexOf(_this, ch);
     }
 
     [Compiler(typeof(string), "IndexOf")]
@@ -263,7 +285,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(char))] SqlExpression ch,
       [Type(typeof(int))] SqlExpression startIndex)
     {
-      return SqlFactory.Position(ch, SqlFactory.Substring(_this, startIndex));
+      return GenericStringIndexOf(_this, ch, startIndex);
     }
 
     [Compiler(typeof(string), "IndexOf")]
@@ -272,7 +294,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression startIndex,
       [Type(typeof(int))] SqlExpression length)
     {
-      return SqlFactory.Position(ch, SqlFactory.Substring(_this, startIndex, length));
+      return GenericStringIndexOf(_this, ch, startIndex, length);
     }
 
     [Compiler(typeof(string), "Chars", TargetKind.PropertyGet)]
@@ -318,6 +340,13 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(string))] SqlExpression value)
     {
       return SqlFactory.GreaterThanOrEquals(_this, value);
+    }
+
+    [Compiler(typeof(StringExtensions), "IsNullOrEmpty", TargetKind.Static | TargetKind.Method)]
+    public static SqlExpression StringIsNullOrEmptyExtension(
+      [Type(typeof(string))] SqlExpression value)
+    {
+      return StringIsNullOrEmpty(value);
     }
 
     [Compiler(typeof(string), Operator.Equality, TargetKind.Operator)]
