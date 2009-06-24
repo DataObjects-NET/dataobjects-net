@@ -37,7 +37,9 @@ namespace Xtensive.Sql.Dom.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlQueryExpression clone = new SqlQueryExpression(NodeType, left, right, all);
+      SqlQueryExpression clone = new SqlQueryExpression(NodeType,
+        (ISqlQueryExpression)((SqlNode) left).Clone(context),
+        (ISqlQueryExpression)((SqlNode) right).Clone(context), all);
       context.NodeMapping[this] = clone;
       return clone;
     }

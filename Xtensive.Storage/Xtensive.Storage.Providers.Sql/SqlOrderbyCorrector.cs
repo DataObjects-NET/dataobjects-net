@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Providers.Sql
     private static SqlSelect ApplyOrderingToSelectProvider(Provider rootProvider,
       SelectProvider originAsSelect)
     {
-      var queryRef = SqlFactory.QueryRef(((SqlProvider) rootProvider.Sources[0]).Request.SelectStatement);
+      var queryRef = ((SqlProvider) rootProvider.Sources[0]).PermanentReference;
       var result = SqlFactory.Select(queryRef);
       var columnIndexes = originAsSelect.ColumnIndexes;
       result.Columns.AddRange(from index in columnIndexes select (SqlColumn) queryRef.Columns[index]);

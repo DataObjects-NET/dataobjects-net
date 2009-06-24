@@ -216,7 +216,8 @@ namespace Xtensive.Storage.Tests.Linq
         .Intersect(c.Orders).Select(o => o.ShippedDate)
       orderby r
       select r;
-      if (Domain.Configuration.ConnectionInfo.Protocol!="memory")
+      if (Domain.Configuration.ConnectionInfo.Protocol!="memory" 
+        && Domain.Configuration.ConnectionInfo.Protocol!="mssql2005")
         AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(actual));
       else {
         var expected = from c in Query<Customer>.All.ToList()

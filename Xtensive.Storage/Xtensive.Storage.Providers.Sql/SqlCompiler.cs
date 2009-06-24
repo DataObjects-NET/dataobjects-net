@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
-      SqlTable queryRef = SqlFactory.QueryRef(source.Request.SelectStatement);
+      SqlTable queryRef = source.PermanentReference;
       SqlSelect sqlSelect = SqlFactory.Select(queryRef);
 
       var columns = queryRef.Columns.ToList();
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
-      var sqlSelect = (SqlSelect) source.Request.SelectStatement.Clone();
+      var sqlSelect = ShallowCopy(source.Request.SelectStatement);
       var columns = sqlSelect.Columns.ToList();
       sqlSelect.Columns.Clear();
       for (int i = 0; i < columns.Count; i++) {
@@ -122,11 +122,11 @@ namespace Xtensive.Storage.Providers.Sql
       
       SqlSelect sqlSelect;
       if (provider.Source.Header.Length == 0) {
-        sqlSelect = (SqlSelect)source.Request.SelectStatement.Clone();
+        sqlSelect = ShallowCopy(source.Request.SelectStatement);
         sqlSelect.Columns.Clear();
       }
       else {
-        var queryRef = SqlFactory.QueryRef(source.Request.SelectStatement);
+        var queryRef = source.PermanentReference;
         sqlSelect = SqlFactory.Select(queryRef);
         sqlSelect.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       }
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
-      var query = (SqlSelect) source.Request.SelectStatement.Clone();
+      var query = ShallowCopy(source.Request.SelectStatement);
       query.Distinct = true;
       return new SqlProvider(provider, query, Handlers, source);
     }
@@ -175,12 +175,12 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlSelect query;
       if (containsCalculatedColumns) {
-        var queryRef = SqlFactory.QueryRef(source.Request.SelectStatement);
+        var queryRef = source.PermanentReference;
         query = SqlFactory.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       }
       else
-        query = (SqlSelect) source.Request.SelectStatement.Clone();
+        query = ShallowCopy(source.Request.SelectStatement);
 
       HashSet<SqlFetchParameterBinding> bindings;
       var predicate = TranslateExpression(provider.Predicate, out bindings, query);
@@ -213,10 +213,8 @@ namespace Xtensive.Storage.Providers.Sql
 
       if (left == null || right == null)
         return null;
-      var leftSelect = left.Request.SelectStatement;
-      var leftQuery = SqlFactory.QueryRef(leftSelect);
-      var rightSelect = right.Request.SelectStatement;
-      var rightQuery = SqlFactory.QueryRef(rightSelect);
+      var leftQuery = left.PermanentReference;
+      var rightQuery = right.PermanentReference;
       var joinedTable = SqlFactory.Join(
         provider.JoinType == JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
@@ -240,10 +238,8 @@ namespace Xtensive.Storage.Providers.Sql
       if (left == null || right == null)
         return null;
 
-      var leftSelect = left.Request.SelectStatement;
-      var leftQuery = SqlFactory.QueryRef(leftSelect);
-      var rightSelect = right.Request.SelectStatement;
-      var rightQuery = SqlFactory.QueryRef(rightSelect);
+      var leftQuery = left.PermanentReference;
+      var rightQuery = right.PermanentReference;
       HashSet<SqlFetchParameterBinding> bindings;
 
       var predicate = TranslateExpression(provider.Predicate, out bindings, leftQuery, rightQuery);
@@ -273,7 +269,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       var originalRange = provider.CompiledRange.Invoke();
-      var query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
+      var query = ShallowCopy(compiledSource.Request.SelectStatement);
       var keyColumns = provider.Header.Order.ToList();
       var rangeProvider = new SqlRangeProvider(provider, query, Handlers, compiledSource);
       var bindings = (HashSet<SqlFetchParameterBinding>) rangeProvider.Request.ParameterBindings;
@@ -295,7 +291,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (compiledSource == null)
         return null;
 
-      var query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
+      var query = ShallowCopy(compiledSource.Request.SelectStatement);
       var parameterBindings = new List<SqlFetchParameterBinding>();
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
       Func<KeyValuePair<int, Direction>, bool> filterNonTypeId =
@@ -327,12 +323,12 @@ namespace Xtensive.Storage.Providers.Sql
       SqlSelect query;
 
       if (provider.ColumnIndexes.Length == 0) {
-        query = (SqlSelect)compiledSource.Request.SelectStatement.Clone();
+        query = ShallowCopy(compiledSource.Request.SelectStatement);
         query.Columns.Clear();
         query.Columns.Add(SqlFactory.Null, "NULL");
       }
       else {
-        query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
+        query = ShallowCopy(compiledSource.Request.SelectStatement);
         var originalColumns = query.Columns.ToList();
         query.Columns.Clear();
         query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
@@ -348,7 +344,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (compiledSource == null)
         return null;
 
-      var queryRef = SqlFactory.QueryRef(compiledSource.Request.SelectStatement);
+      var queryRef = compiledSource.PermanentReference;
       var query = SqlFactory.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Offset = provider.Count();
@@ -411,7 +407,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (compiledSource == null)
         return null;
 
-      var query = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
+      var query = ShallowCopy(compiledSource.Request.SelectStatement);
       var count = provider.Count();
       if (query.Top == 0 || query.Top > count)
         query.Top = count;
@@ -443,7 +439,7 @@ namespace Xtensive.Storage.Providers.Sql
         select.Columns.Add(rightQuery.Columns[0]);
       else {
         for (int i = 0; i < rightQuery.Columns.Count; i++) {
-          var subquery = (SqlSelect)rightQuery.Clone();
+          var subquery = ShallowCopy(rightQuery);
           var columnRef = (SqlColumnRef) subquery.Columns[i];
           var column = columnRef.SqlColumn;
           subquery.Columns.Clear();
@@ -612,6 +608,30 @@ namespace Xtensive.Storage.Providers.Sql
         default:
           throw new ArgumentException();
       }
+    }
+
+    /// <summary>
+    /// Create shallow copy of the specified <see cref="SqlSelect"/>.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <returns>The shallow copy of <paramref name="source"/>.</returns>
+    protected static SqlSelect ShallowCopy(SqlSelect source)
+    {
+      var result = ReferenceEquals(source.From, null) 
+        ? SqlFactory.Select() 
+        : SqlFactory.Select(source.From);
+      result.Columns.AddRange(source.Columns);
+      result.Distinct = source.Distinct;
+      result.GroupBy.AddRange(source.GroupBy);
+      result.Having = source.Having;
+      result.Offset = source.Offset;
+      result.Top = source.Top;
+      foreach (var order in source.OrderBy)
+        result.OrderBy.Add(order);
+      foreach (var hint in source.Hints)
+        result.Hints.Add(hint);
+      result.Where = source.Where;
+      return result;
     }
 
     #region Private methods

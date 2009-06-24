@@ -36,7 +36,9 @@ namespace Xtensive.Sql.Dom.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlColumnRef clone = new SqlColumnRef(SqlTable, (SqlColumn)sqlColumn.Clone(context), Name);
+      SqlColumnRef clone = new SqlColumnRef(
+        SqlTable != null ? (SqlTable) SqlTable.Clone(context) : null,
+        (SqlColumn) sqlColumn.Clone(context), Name);
       context.NodeMapping[this] = clone;
       return clone;
     }

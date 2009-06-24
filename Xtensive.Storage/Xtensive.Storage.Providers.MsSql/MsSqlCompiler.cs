@@ -55,7 +55,8 @@ namespace Xtensive.Storage.Providers.MsSql
       var compiledSource = GetCompiled(provider.Source) as SqlProvider;
       if (compiledSource==null)
         return null;
-      var sourceQuery = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
+      //var sourceQuery = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
+      var sourceQuery = ShallowCopy(compiledSource.Request.SelectStatement);
       if (isSourceTake) {
         sourceQuery.Where = AddSkipPartToTakeWhereExpression(sourceQuery, provider, provider.Source);
         return new SqlProvider(provider.Source, sourceQuery, Handlers,
@@ -76,7 +77,8 @@ namespace Xtensive.Storage.Providers.MsSql
       if (compiledSource==null)
         return null;
 
-      var sourceQuery = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
+      //var sourceQuery = (SqlSelect) compiledSource.Request.SelectStatement.Clone();
+      var sourceQuery = ShallowCopy(compiledSource.Request.SelectStatement);
       if (isSourceSkip) {
         sourceQuery.Where = AddTakePartToSkipWhereExpression(sourceQuery, provider, provider.Source);
         return new SqlProvider(provider.Source, sourceQuery, Handlers,
@@ -98,7 +100,8 @@ namespace Xtensive.Storage.Providers.MsSql
       if (compiledSource == null)
         return null;
 
-      var sourceQuery = (SqlSelect)compiledSource.Request.SelectStatement.Clone();
+      //var sourceQuery = (SqlSelect)compiledSource.Request.SelectStatement.Clone();
+      var sourceQuery = ShallowCopy(compiledSource.Request.SelectStatement);
       /*sourceQuery.OrderBy.Clear();*/
       var rowNumberColumnName = provider.Header.Columns.Last().Name;
       var queryRef = SqlFactory.QueryRef(sourceQuery);
@@ -126,7 +129,8 @@ namespace Xtensive.Storage.Providers.MsSql
       if (left == null || right == null)
         return null;
       var leftQuery = left.PermanentReference;
-      var rightQuery = SqlFactory.QueryRef(right.Request.SelectStatement);
+      //var rightQuery = SqlFactory.QueryRef(right.Request.SelectStatement);
+      var rightQuery = right.PermanentReference;
       var joinedTable = SqlFactory.Join(isOuter ? SqlJoinType.LeftOuterApply : SqlJoinType.CrossApply,
         leftQuery, rightQuery);
 

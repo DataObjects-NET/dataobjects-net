@@ -60,7 +60,7 @@ namespace Xtensive.Sql.Dom.Mssql.v2005
           return;
         case SqlFunctionType.Substring:
           if (node.Arguments.Count == 2) {
-            node = (SqlFunctionCall) node.Clone();
+            node = Sql.Substring(node.Arguments[0], node.Arguments[1]);
             SqlExpression len = Sql.Length(node.Arguments[0]);
             node.Arguments.Add(len);
             base.Visit(node);
