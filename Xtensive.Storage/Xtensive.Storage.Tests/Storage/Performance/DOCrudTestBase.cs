@@ -24,6 +24,9 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     protected sealed override DomainConfiguration BuildConfiguration()
     {
       var config = CreateConfiguration();
+      config.Sessions.Add(new SessionConfiguration("Default"));
+      config.Sessions.Default.CacheSize = BaseCount;
+      config.Sessions.Default.CacheType = SessionCacheType.Infinite;
       config.Types.Register(typeof(Simplest).Assembly, typeof(Simplest).Namespace);
       return config;
     }
@@ -45,12 +48,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       warmup = true;
       CombinedTest(10, 10);
       warmup = false;
-//      CombinedTest(BaseCount * 10, BaseCount * 10);
-//      int instanceCount = 100000;
-      int instanceCount = 10000;
-      InsertTest(instanceCount);
-      QueryTest(instanceCount / 5);
-      CachedQueryTest(instanceCount / 5);
+      InsertTest(BaseCount);
+      //QueryTest(instanceCount / 5);
+      //CachedQueryTest(instanceCount / 5);
+      BulkFetchTest(BaseCount);
+      BulkFetchCachedTest(BaseCount);
     }
 
     private void CombinedTest(int baseCount, int insertCount)
@@ -174,21 +176,15 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss.Session;
         long sum = 0;
         int i = 0;
-        var entities = new List<Entity>(count/2);
         using (var ts = s.OpenTransaction()) {
-          while (i<count) {
-            foreach (var o in Query<Simplest>.All) {
-              sum += o.Id;
-              if (i % 2 == 0)
-                entities.Add(o);
-              if (++i >= count)
-                break;
-            }
-//          TestHelper.CollectGarbage();
-            using (warmup ? null : new Measurement("Bulk Fetch Cached", count / 2)) {
-              foreach (var entity in entities)
-                entity.Key.Resolve();
-            }
+          TestHelper.CollectGarbage();
+          using (warmup ? null : new Measurement("Bulk Fetch Cached & GetField", count)) {
+            while (i < count)
+              foreach (var o in CachedQuery.Execute(() => Query<Simplest>.All)) {
+                sum += o.Id;
+                if (++i >= count)
+                  break;
+              }
             ts.Complete();
           }
         }
