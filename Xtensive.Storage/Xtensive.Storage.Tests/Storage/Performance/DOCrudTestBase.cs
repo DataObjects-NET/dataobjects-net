@@ -13,11 +13,10 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 {
   public abstract class DOCrudTestBase : AutoBuildTest
   {
-    private bool warmup  = false;
-    private bool profile = false;
+    private bool warmup;
     private int instanceCount;
-    public const int BaseCount = 10000;
-    public const int InsertCount = BaseCount;
+    private const int BaseCount = 10000;
+    private const int InsertCount = BaseCount;
 
     protected abstract DomainConfiguration CreateConfiguration();
 
@@ -50,9 +49,9 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       warmup = false;
       InsertTest(BaseCount);
       //QueryTest(instanceCount / 5);
-      //CachedQueryTest(instanceCount / 5);
-      BulkFetchTest(BaseCount);
-      BulkFetchCachedTest(BaseCount);
+      CachedQueryTest(instanceCount / 5);
+      MaterializeGetFieldTest(BaseCount);
+      MaterializeCachedTest(BaseCount);
     }
 
     private void CombinedTest(int baseCount, int insertCount)
@@ -60,10 +59,10 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       if (warmup)
         Log.Info("Warming up...");
       InsertTest(insertCount);
-      BulkFetchTest(baseCount);
-      BulkFetchCachedTest(baseCount);
-      BulkFetchOnlyTest(baseCount);
-      RawBulkFetchTest(baseCount);
+      MaterializeCachedTest(baseCount);
+      MaterializeTest(baseCount);
+      MaterializeGetFieldTest(baseCount);
+      ExplicitMaterializeTest(baseCount);
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
       CachedQueryExpressionTest(baseCount / 5);
@@ -79,14 +78,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss.Session;
-        long sum = 0;
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Insert", insertCount)) {
           using (var ts = s.OpenTransaction()) {
-            for (int i = 0; i < insertCount; i++) {
-              var o = new Simplest(i, i);
-              sum += i;
-            }
+            for (int i = 0; i < insertCount; i++)
+              new Simplest(i, i);
             ts.Complete();
           }
         }
@@ -116,24 +112,23 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       }
     }
 
-    private void RawBulkFetchTest(int count)
+    private void ExplicitMaterializeTest(int count)
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss.Session;
-        long sum = 0;
         int i = 0;
         using (var ts = s.OpenTransaction()) {
           var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Raw Bulk Fetch & GetField", count)) {
+          using (warmup ? null : new Measurement("Explicit Materialize", count)) {
             while (i < count) {
               foreach (var tuple in rs) {
-                var o = new SqlClientCrudModel.Simplest {
-                                                          Id = tuple.GetValueOrDefault<long>(0), 
-                                                          Value = tuple.GetValueOrDefault<long>(2)
-                                                        };
-                sum += o.Id;
+                var o = new SqlClientCrudModel.Simplest 
+                  {
+                    Id = tuple.GetValueOrDefault<long>(0), 
+                    Value = tuple.GetValueOrDefault<long>(2)
+                  };
                 if (++i >= count)
                   break;
               }
@@ -141,11 +136,37 @@ namespace Xtensive.Storage.Tests.Storage.Performance
             ts.Complete();
           }
         }
-        Assert.AreEqual((long) count * (count - 1) / 2, sum);
       }
     }
 
-    private void BulkFetchTest(int count)
+    private void MaterializeCachedTest(int count)
+    {
+      var d = Domain;
+      using (var ss = d.OpenSession()) {
+        var s = ss.Session;
+        long sum = 0;
+        int i = 0;
+        var entities = new List<Entity>(count/2);
+        using (var ts = s.OpenTransaction()) {
+          while (i < count) {
+            foreach (var o in Query<Simplest>.All) {
+              sum += o.Id;
+              if (i%2 == 0)
+                entities.Add(o);
+              if (++i >= count)
+                break;
+            }
+            using (warmup ? null : new Measurement("Materialize Cached", count/2)) {
+              foreach (var entity in entities)
+                entity.Key.Resolve();
+            }
+          }
+          Assert.AreEqual((long) count*(count - 1)/2, sum);
+        }
+      }
+    }
+
+    private void MaterializeGetFieldTest(int count)
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
@@ -154,31 +175,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         int i = 0;
         using (var ts = s.OpenTransaction()) {
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Bulk Fetch & GetField", count)) {
-            while (i<count) {
-              foreach (var o in Query<Simplest>.All) {
-                sum += o.Id;
-                if (++i >= count)
-                  break;
-              }
-            }
-            ts.Complete();
-          }
-        }
-        Assert.AreEqual((long)count*(count-1)/2, sum);
-      }
-    }
-
-    private void BulkFetchCachedTest(int count)
-    {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss.Session;
-        long sum = 0;
-        int i = 0;
-        using (var ts = s.OpenTransaction()) {
-          TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Bulk Fetch Cached & GetField", count)) {
+          using (warmup ? null : new Measurement("Materialize & GetField", count)) {
             while (i < count)
               foreach (var o in CachedQuery.Execute(() => Query<Simplest>.All)) {
                 sum += o.Id;
@@ -192,23 +189,20 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       }
     }
 
-    private void BulkFetchOnlyTest(int count)
+    private void MaterializeTest(int count)
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss.Session;
-        long sum = 0;
         int i = 0;
         using (var ts = s.OpenTransaction()) {
-          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Bulk Fetch", count)) {
-            while (i<count) {
-              foreach (var o in rs.ToEntities<Simplest>()) {
+          using (warmup ? null : new Measurement("Materialize", count)) {
+            while (i < count)
+              foreach (var o in CachedQuery.Execute(() => Query<Simplest>.All)) {
                 if (++i >= count)
                   break;
               }
-            }
             ts.Complete();
           }
         }
