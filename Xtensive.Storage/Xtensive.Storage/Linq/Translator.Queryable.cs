@@ -537,9 +537,11 @@ namespace Xtensive.Storage.Linq
         : elementSelector.Type.GetGenericArguments()[1];
       var groupingType = typeof (IGrouping<,>).MakeGenericType(keyType, elementType);
 
-      var realGroupingType = groupingType;
-      if (resultSelector!=null)
-        realGroupingType = resultSelector.Parameters[1].Type;
+      //      var realGroupingType = groupingType;
+      Type realGroupingType = 
+        resultSelector!=null 
+        ? resultSelector.Parameters[1].Type 
+        : returnType.GetGenericArguments()[0];
 
       if (elementSelector!=null)
         subqueryProjection = VisitSelect(subqueryProjection, elementSelector);
@@ -651,11 +653,16 @@ namespace Xtensive.Storage.Linq
     {
       if (keyComparer!=null)
         throw new NotSupportedException(Resources.Strings.ExKeyComparerNotSupportedInGroupJoin);
-      var groupingResultType = typeof (IGrouping<,>).MakeGenericType(innerKey.Type, innerSource.Type);
-      var innerGrouping = VisitGroupBy(groupingResultType, innerSource, innerKey, null, null);
-      var groupingKeyPropertyInfo = groupingResultType.GetProperty("Key");
-      var groupingJoinParameter = Expression.Parameter(innerGrouping.Type, "groupingJoinParameter");
-      var groupingKeyExpression = Expression.MakeMemberAccess(groupingJoinParameter, groupingKeyPropertyInfo);
+      var visitedInnerSource = Visit(innerSource);
+      var groupingType = typeof (IGrouping<,>).MakeGenericType(innerKey.Type, visitedInnerSource.Type.GetGenericArguments()[0]);
+      var enumerableType = typeof (IEnumerable<>).MakeGenericType(visitedInnerSource.Type.GetGenericArguments()[0]);
+      var groupingResultType = typeof(IQueryable<>).MakeGenericType(enumerableType);
+      var innerGrouping = VisitGroupBy(groupingResultType, visitedInnerSource, innerKey, null, null);
+      var groupingKeyPropertyInfo = groupingType.GetProperty("Key");
+      var groupingJoinParameter = Expression.Parameter(enumerableType, "groupingJoinParameter");
+      var groupingKeyExpression = Expression.MakeMemberAccess(
+        Expression.Convert(groupingJoinParameter, groupingType) 
+        , groupingKeyPropertyInfo);
       var lambda = FastExpression.Lambda(groupingKeyExpression, groupingJoinParameter);
       var joinedResult = VisitJoin(outerSource, innerGrouping, outerKey, lambda, resultSelector, true);
       return joinedResult;
