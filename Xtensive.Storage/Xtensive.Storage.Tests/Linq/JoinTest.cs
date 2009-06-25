@@ -20,6 +20,25 @@ namespace Xtensive.Storage.Tests.Linq
   public class JoinTest : NorthwindDOModelTest
   {
     [Test]
+    public void GroupJoinAggregateTest()
+    {
+      var q = Query<Customer>.All
+        .GroupJoin(Query<Order>.All,
+          customer => customer.Id,
+          order => order.Customer.Id,
+          (customer, orders) => new {customer, orders})
+        .GroupJoin(Query<Employee>.All,
+          customerOrders => customerOrders.customer.Address.City,
+          employee => employee.Address.City,
+          (customerOrders, employees) => new {
+            ords = customerOrders.orders.Count(),
+            emps = employees.Count()
+          });
+
+      QueryDumper.Dump(q);
+    }
+
+    [Test]
     public void SingleTest()
     {
       var products = Query<Product>.All;
@@ -107,16 +126,16 @@ namespace Xtensive.Storage.Tests.Linq
       var categoryCount = categories.Count();
       IQueryable<IEnumerable<Product>> result =
         categories.GroupJoin(
-        products, 
-        c => c, 
-        p => p.Category, 
-        (c, pGroup) => pGroup);
+          products,
+          c => c,
+          p => p.Category,
+          (c, pGroup) => pGroup);
       var expected =
         categories.AsEnumerable().GroupJoin(
-        products.AsEnumerable(), 
-        c => c, 
-        p => p.Category, 
-        (c, pGroup) => pGroup);
+          products.AsEnumerable(),
+          c => c,
+          p => p.Category,
+          (c, pGroup) => pGroup);
       var list = result.ToList();
       Assert.AreEqual(categoryCount, list.Count);
       QueryDumper.Dump(result, true);
@@ -129,12 +148,12 @@ namespace Xtensive.Storage.Tests.Linq
       var products = Query<Product>.All;
       var result =
         categories.GroupJoin(
-        products, 
-        c => c.Id, 
-        p => p.Id, 
-        (c, pGroup) => pGroup, 
-        AdvancedComparer<int>.Default.EqualityComparerImplementation);
-      AssertEx.Throws<NotSupportedException>(()=>result.ToList());
+          products,
+          c => c.Id,
+          p => p.Id,
+          (c, pGroup) => pGroup,
+          AdvancedComparer<int>.Default.EqualityComparerImplementation);
+      AssertEx.Throws<NotSupportedException>(() => result.ToList());
     }
 
     [Test]
@@ -145,10 +164,10 @@ namespace Xtensive.Storage.Tests.Linq
       var categoryCount = categories.Count();
       var result =
         categories.OrderBy(c => c.CategoryName)
-        .GroupJoin(products, c => c, p => p.Category, (c, pGroup) => new {
-          Category = c.CategoryName,
-          Products = pGroup.OrderBy(ip => ip.ProductName)
-        });
+          .GroupJoin(products, c => c, p => p.Category, (c, pGroup) => new {
+            Category = c.CategoryName,
+            Products = pGroup.OrderBy(ip => ip.ProductName)
+          });
       var list = result.ToList();
       Assert.AreEqual(categoryCount, list.Count);
       QueryDumper.Dump(result, true);
@@ -165,9 +184,9 @@ namespace Xtensive.Storage.Tests.Linq
         var result = categories
           .OrderBy(c => c.CategoryName)
           .GroupJoin(
-          products, 
-          c => c, 
-          p => p.Category, 
+          products,
+          c => c,
+          p => p.Category,
           (c, pGroup) => new {c, pGroup})
           .SelectMany(@t1 => @t1.pGroup, (@t1, gp) => new {@t1, gp})
           .OrderBy(@t1 => @t1.gp.ProductName)
@@ -178,16 +197,16 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof (NotSupportedException))]
     public void DefaultIfEmptyTest()
     {
       var categories = Query<Category>.All;
       var products = Query<Product>.All;
       var categoryCount = categories.Count();
       var result = categories.GroupJoin(
-        products, 
-        c => c, 
-        p => p.Category, 
+        products,
+        c => c,
+        p => p.Category,
         (c, pGroup) => pGroup.DefaultIfEmpty());
       var list = result.ToList();
       Assert.AreEqual(categoryCount, list.Count);
@@ -201,9 +220,9 @@ namespace Xtensive.Storage.Tests.Linq
       var products = Query<Product>.All;
       var productsCount = products.Count();
       var result = categories.GroupJoin(
-        products, 
-        c => c, 
-        p => p.Category, 
+        products,
+        c => c,
+        p => p.Category,
         (c, pGroup) => new {c, pGroup})
         .SelectMany(@t => @t.pGroup.DefaultIfEmpty(), (@t, p) => new {Name = p==null ? "Nothing!" : p.ProductName, @t.c.CategoryName});
       var list = result.ToList();

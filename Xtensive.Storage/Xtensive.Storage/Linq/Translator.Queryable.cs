@@ -150,8 +150,7 @@ namespace Xtensive.Storage.Linq
           }
           break;
         case QueryableMethodKind.GroupJoin:
-          return VisitGroupJoin(
-            mc.Type, mc.Arguments[0], mc.Arguments[1],
+          return VisitGroupJoin(mc.Arguments[0], mc.Arguments[1],
             mc.Arguments[2].StripQuotes(),
             mc.Arguments[3].StripQuotes(),
             mc.Arguments[4].StripQuotes(),
@@ -637,7 +636,6 @@ namespace Xtensive.Storage.Linq
       RecordSet recordSet, LambdaExpression resultSelector)
     {
       var outerDataSource = outer.ItemProjector.DataSource;
-      var innerDataSource = inner.ItemProjector.DataSource;
       var outerLength = outerDataSource.Header.Length;
       var tupleParameterBindings = outer.TupleParameterBindings.Union(inner.TupleParameterBindings).ToDictionary(pair => pair.Key, pair => pair.Value);
       outer = new ProjectionExpression(outer.Type, outer.ItemProjector.Remap(recordSet, 0), tupleParameterBindings);
@@ -649,7 +647,7 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    private Expression VisitGroupJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, Expression keyComparer)
+    private Expression VisitGroupJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, Expression keyComparer)
     {
       if (keyComparer!=null)
         throw new NotSupportedException(Resources.Strings.ExKeyComparerNotSupportedInGroupJoin);
