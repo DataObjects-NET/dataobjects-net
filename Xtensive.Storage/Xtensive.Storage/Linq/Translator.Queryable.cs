@@ -666,26 +666,6 @@ namespace Xtensive.Storage.Linq
       var lambda = FastExpression.Lambda(groupingKeyExpression, groupingJoinParameter);
       var joinedResult = VisitJoin(outerSource, innerGrouping, outerKey, lambda, resultSelector, true);
       return joinedResult;
-//      var outerParameter = outerKey.Parameters[0];
-//      var innerParameter = innerKey.Parameters[0];
-//      using (context.Bindings.Add(outerParameter, VisitSequence(outerSource)))
-//      using (context.Bindings.Add(innerParameter, VisitSequence(innerSource))) {
-//        var outerMappingRef = new MappingReference();
-//        var innerMappingRef = new MappingReference();
-//        using (state.CreateScope()) {
-//          mappingRef.Value = outerMappingRef;
-//          Visit(outerKey);
-//          mappingRef.Value = innerMappingRef;
-//          Visit(innerKey);
-//        }
-//        var keyPairs = outerMappingRef.Mapping.GetColumns().Zip(innerMappingRef.Mapping.GetColumns(), (o, i) => new Pair<int>(o, i)).ToArray();
-//
-//        var outer = context.Bindings[outerParameter];
-//        var inner = context.Bindings[innerParameter];
-//        var recordSet = outer.RecordSet.Join(inner.RecordSet.Alias(context.GetNextAlias()), keyPairs);
-//        return CombineProjections(outer, inner, recordSet, resultSelector);
-//      }
-//      throw new NotImplementedException();
     }
 
     private ProjectionExpression VisitSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)

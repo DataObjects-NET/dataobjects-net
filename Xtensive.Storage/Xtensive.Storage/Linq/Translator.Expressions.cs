@@ -497,13 +497,15 @@ namespace Xtensive.Storage.Linq
 
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
     {
-      if (state.Parameters.Length!=1)
-        throw new NotImplementedException();
+      if (state.Parameters.Length==0)
+        throw new InvalidOperationException();
 
       if (!resultType.IsOfGenericInterface(typeof (IEnumerable<>)))
         throw new NotImplementedException();
 
       ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[state.Parameters[0]]);
+      if (subQuery.Type!=resultType)
+        subQuery = new ProjectionExpression(resultType, subQuery.ItemProjector, subQuery.TupleParameterBindings, subQuery.ResultType);
       return new SubQueryExpression(resultType, state.Parameters[0], false, subQuery, applyParameter);
     }
 

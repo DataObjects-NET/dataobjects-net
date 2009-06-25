@@ -18,10 +18,16 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
-  internal class SubQuery<TElement> : IQueryable<TElement>
+  internal class SubQuery<TElement> : IOrderedQueryable<TElement>, 
+    IOrderedEnumerable<TElement>
   {
     private readonly ProjectionExpression projectionExpression;
     private readonly TranslatedQuery<IEnumerable<TElement>> translatedQuery;
+
+    public IOrderedEnumerable<TElement> CreateOrderedEnumerable<TKey>(Func<TElement, TKey> keySelector, IComparer<TKey> comparer, bool descending)
+    {
+      throw new NotSupportedException();
+    }
 
     public IEnumerator<TElement> GetEnumerator()
     {

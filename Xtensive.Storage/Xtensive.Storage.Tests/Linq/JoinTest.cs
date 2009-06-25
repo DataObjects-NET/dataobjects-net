@@ -5,6 +5,7 @@
 // Created:    2008.12.17
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Comparison;
@@ -104,14 +105,21 @@ namespace Xtensive.Storage.Tests.Linq
       var categories = Query<Category>.All;
       var products = Query<Product>.All;
       var categoryCount = categories.Count();
-      var result =
+      IQueryable<IEnumerable<Product>> result =
         categories.GroupJoin(
         products, 
         c => c, 
         p => p.Category, 
         (c, pGroup) => pGroup);
+      var expected =
+        categories.AsEnumerable().GroupJoin(
+        products.AsEnumerable(), 
+        c => c, 
+        p => p.Category, 
+        (c, pGroup) => pGroup);
       var list = result.ToList();
       Assert.AreEqual(categoryCount, list.Count);
+      QueryDumper.Dump(result, true);
     }
 
     [Test]
@@ -143,6 +151,7 @@ namespace Xtensive.Storage.Tests.Linq
         });
       var list = result.ToList();
       Assert.AreEqual(categoryCount, list.Count);
+      QueryDumper.Dump(result, true);
     }
 
     [Test]
@@ -164,10 +173,12 @@ namespace Xtensive.Storage.Tests.Linq
           .OrderBy(@t1 => @t1.gp.ProductName)
           .Select(@t1 => new {Category = @t1.@t1.c.CategoryName, @t1.gp.ProductName});
         var list = result.ToList();
+        QueryDumper.Dump(result, true);
       }
     }
 
     [Test]
+    [ExpectedException(typeof(NotSupportedException))]
     public void DefaultIfEmptyTest()
     {
       var categories = Query<Category>.All;
@@ -180,6 +191,7 @@ namespace Xtensive.Storage.Tests.Linq
         (c, pGroup) => pGroup.DefaultIfEmpty());
       var list = result.ToList();
       Assert.AreEqual(categoryCount, list.Count);
+      QueryDumper.Dump(result, true);
     }
 
     [Test]
@@ -196,6 +208,7 @@ namespace Xtensive.Storage.Tests.Linq
         .SelectMany(@t => @t.pGroup.DefaultIfEmpty(), (@t, p) => new {Name = p==null ? "Nothing!" : p.ProductName, @t.c.CategoryName});
       var list = result.ToList();
       Assert.AreEqual(productsCount, list.Count);
+      QueryDumper.Dump(result, true);
     }
 
     [Test]
