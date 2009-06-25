@@ -24,7 +24,7 @@ namespace Xtensive.Storage
     /// Gets or sets the key generator type.
     /// </summary>
     /// <exception cref="InvalidOperationException">Value is not inherited from <see cref="KeyGenerator"/> type.</exception>
-    public Type Type { get; set; }
+    public Type Type { get; private set; }
 
     /// <summary>
     /// Gets or sets the size of the key generator cache.
