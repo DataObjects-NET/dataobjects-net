@@ -341,12 +341,24 @@ namespace Xtensive.Storage.Linq
       Expression resultExpression = null;
       for (int i = 0; i < leftExpressions.Count; i++) {
         BinaryExpression pairExpression;
+        var leftItem = leftExpressions[i];
+        var rightItem = rightExpressions[i];
+        var leftIsNullable = leftItem.Type.IsNullable();
+        var rightIsNullable = rightItem.Type.IsNullable();
+        if (leftIsNullable ^ rightIsNullable) {
+          leftItem = leftIsNullable
+            ? leftItem
+            : leftItem.LiftToNullable();
+          rightItem = rightIsNullable
+            ? rightItem
+            : rightItem.LiftToNullable();
+        }
         switch (binaryExpression.NodeType) {
         case ExpressionType.Equal:
-          pairExpression = Expression.Equal(leftExpressions[i], rightExpressions[i]);
+          pairExpression = Expression.Equal(leftItem, rightItem);
           break;
         case ExpressionType.NotEqual:
-          pairExpression = Expression.NotEqual(leftExpressions[i], rightExpressions[i]);
+          pairExpression = Expression.NotEqual(leftItem, rightItem);
           break;
         default:
           throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported,
@@ -366,8 +378,9 @@ namespace Xtensive.Storage.Linq
       return resultExpression;
     }
 
-    private static IList<Expression> GetStructureFields(Expression expression,
-      List<PersistentFieldExpression> structureFieldTypes,
+    private static IList<Expression> GetStructureFields(
+      Expression expression,
+      IEnumerable<PersistentFieldExpression> structureFieldTypes,
       Type structureType)
     {
       expression = expression.StripCasts();
@@ -380,18 +393,19 @@ namespace Xtensive.Storage.Linq
       var nullExpression = Expression.Constant(null, structureType);
       var isNullExpression = Expression.Equal(expression, nullExpression);
 
-      return structureFieldTypes
-        .Select(persistentFieldExpression => {
-          var nullableType = persistentFieldExpression.Type.ToNullable();
-          return (Expression) Expression.Condition(
+      var result = new List<Expression>();
+      foreach (var fieldExpression in structureFieldTypes) {
+        var nullableType = fieldExpression.Type.ToNullable();
+        var item = (Expression)Expression.Condition(
             isNullExpression,
             Expression.Constant(null, nullableType),
             Expression.Convert(
               Expression.MakeMemberAccess(Expression.Convert(expression, structureType),
-                persistentFieldExpression.UnderlyingProperty),
+                fieldExpression.UnderlyingProperty),
               nullableType));
-        })
-        .ToList();
+        result.Add(item);
+      }
+      return result;
     }
 
     private static IList<Expression> GetEntityFields(Expression expression, IEnumerable<Type> keyFieldTypes)
@@ -422,7 +436,7 @@ namespace Xtensive.Storage.Linq
       if (expression is KeyExpression)
         return ((KeyExpression) expression)
           .KeyFields
-          .Select(fieldExpression => fieldExpression.LiftToNullable())
+          .Select(fieldExpression => (Expression)fieldExpression)
           .ToList();
 
       if (expression.IsNull())
