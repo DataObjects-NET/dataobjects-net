@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Linq;
 using Xtensive.Sql.Dom;
@@ -347,6 +348,15 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(string))] SqlExpression value)
     {
       return StringIsNullOrEmpty(value);
+    }
+
+    [Compiler(typeof(Enumerable), "Contains", TargetKind.Static | TargetKind.Method, 1)]
+    public static SqlExpression EnumerableContains(MemberInfo member, SqlExpression sequence, SqlExpression value)
+    {
+      var method = (MethodInfo) member;
+      if (method.GetGenericArguments()[0] != typeof(char))
+        throw new NotSupportedException();
+      return StringContains(sequence, value);
     }
 
     [Compiler(typeof(string), Operator.Equality, TargetKind.Operator)]
