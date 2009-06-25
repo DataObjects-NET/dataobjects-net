@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Manual.Structures
           // Example 3
           var points = Query<Range>.All.Select(r => r.Left);
           // or
-          var ranges = Query<Range>.All.Where(r => r.Left = new Point(0, 10));
+          var ranges = Query<Range>.All.Where(r => r.Left == new Point(0, 10));
         }
       }
     }
