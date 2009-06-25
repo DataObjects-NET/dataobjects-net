@@ -697,8 +697,10 @@ namespace Xtensive.Storage.Linq
         bool isOuter = false;
         if (collectionSelector.Body.NodeType==ExpressionType.Call) {
           var call = (MethodCallExpression) collectionSelector.Body;
+          var genericMethodDefinition = call.Method.GetGenericMethodDefinition();
           isOuter = call.Method.IsGenericMethod
-            && call.Method.GetGenericMethodDefinition()==WellKnownMembers.QueryableDefaultIfEmpty;
+            && (genericMethodDefinition==WellKnownMembers.QueryableDefaultIfEmpty 
+            || genericMethodDefinition==WellKnownMembers.EnumerableDefaultIfEmpty);
           if (isOuter)
             collectionSelector = FastExpression.Lambda(call.Arguments[0], outerParameter);
         }

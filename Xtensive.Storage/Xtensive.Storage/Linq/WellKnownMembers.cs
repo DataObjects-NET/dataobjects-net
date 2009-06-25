@@ -38,6 +38,7 @@ namespace Xtensive.Storage.Linq
     public static readonly MethodInfo EnumerableSelect;
     public static readonly MethodInfo EnumerableFirst;
     public static readonly Type EnumerableOfTuple;
+    public static readonly MethodInfo EnumerableDefaultIfEmpty;
 
     // Queryable
     public static readonly MethodInfo QueryableDefaultIfEmpty;
@@ -135,6 +136,8 @@ namespace Xtensive.Storage.Linq
         .GetMethods(BindingFlags.Static | BindingFlags.Public)
         .First(m => m.Name==Core.Reflection.WellKnown.Queryable.First && m.GetParameters().Length==1);
       EnumerableOfTuple = typeof (IEnumerable<>).MakeGenericType(typeof (Tuple));
+      EnumerableDefaultIfEmpty = typeof (Enumerable).GetMethods().Where(m => m.Name=="DefaultIfEmpty").First();
+      ;
 
       // Queryable
       QueryableDefaultIfEmpty = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.DefaultIfEmpty, 1, 1);

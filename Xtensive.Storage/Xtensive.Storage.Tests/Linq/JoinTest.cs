@@ -136,15 +136,11 @@ namespace Xtensive.Storage.Tests.Linq
       var products = Query<Product>.All;
       var categoryCount = categories.Count();
       var result =
-        from c in categories
-        orderby c.CategoryName
-        join p in products on c equals p.Category into pGroup
-        select new {
+        categories.OrderBy(c => c.CategoryName)
+        .GroupJoin(products, c => c, p => p.Category, (c, pGroup) => new {
           Category = c.CategoryName,
-          Products = from ip in pGroup
-          orderby ip.ProductName
-          select ip
-        };
+          Products = pGroup.OrderBy(ip => ip.ProductName)
+        });
       var list = result.ToList();
       Assert.AreEqual(categoryCount, list.Count);
     }
