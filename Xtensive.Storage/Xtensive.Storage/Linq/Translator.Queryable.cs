@@ -862,10 +862,11 @@ namespace Xtensive.Storage.Linq
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     private ProjectionExpression VisitSequence(Expression sequenceExpression)
     {
-      if (sequenceExpression.GetMemberType()==MemberType.EntitySet) {
-        if (sequenceExpression.NodeType!=ExpressionType.MemberAccess)
+      var sequence = sequenceExpression.StripCasts();
+      if (sequence.GetMemberType() == MemberType.EntitySet) {
+        if (sequence.NodeType != ExpressionType.MemberAccess)
           throw new NotSupportedException();
-        var memberAccess = (MemberExpression) sequenceExpression;
+        var memberAccess = (MemberExpression)sequence;
         if ((memberAccess.Member is PropertyInfo) && memberAccess.Expression!=null) {
           if (memberAccess.Expression.Type.IsSubclassOf(typeof (Entity))) {
             var field = context
@@ -878,6 +879,7 @@ namespace Xtensive.Storage.Linq
       }
 
       var visitedExpression = Visit(sequenceExpression);
+      visitedExpression = visitedExpression.StripCasts();
 
       if (visitedExpression.IsGroupingExpression()
         || visitedExpression.IsSubqueryExpression())

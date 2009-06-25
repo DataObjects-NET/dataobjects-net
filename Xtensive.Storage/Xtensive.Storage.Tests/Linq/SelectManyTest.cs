@@ -77,6 +77,14 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void SelectManyWithCastTest()
+    {
+      var result = Query<Customer>.All.SelectMany(c => (IEnumerable<Order>) Query<Order>.All.Where(o => o.Customer == c)).ToList();
+      var expected = Query<Order>.All.ToList();
+      Assert.IsTrue(result.Except(expected).IsNullOrEmpty());
+    }
+
+    [Test]
     public void InnerJoinTest()
     {
       int ordersCount = Query<Order>.All.Count();
