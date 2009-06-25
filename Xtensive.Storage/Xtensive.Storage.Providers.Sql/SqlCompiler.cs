@@ -150,7 +150,9 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
-      var query = ShallowCopy(source.Request.SelectStatement);
+      var queryRef = SqlFactory.QueryRef(source.Request.SelectStatement);
+      var query = SqlFactory.Select(queryRef);
+      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Distinct = true;
       return new SqlProvider(provider, query, Handlers, source);
     }
