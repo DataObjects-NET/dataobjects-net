@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       var visitedSource = VisitCompilable(provider.Source);
       skipCount = prevSkipCount;
       if (isSourceSkip)
-        return visitedSource;
+        return InsertSelectRemovingRowNumber(visitedSource);
 
       if(!(provider.Source is TakeProvider))
         visitedSource = CreateRowNumberProvider(visitedSource, ref rowNumberCount);
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       var visitedSource = VisitCompilable(provider.Source);
       takeCount = prevTakeCount;
       if (isSourceTake)
-        return visitedSource;
+        return InsertSelectRemovingRowNumber(visitedSource);
       
       if(!(provider.Source is SkipProvider))
         visitedSource = CreateRowNumberProvider(visitedSource, ref rowNumberCount);
@@ -120,8 +120,9 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     private CompilableProvider InsertSelectRemovingRowNumber(CompilableProvider source)
     {
       if (consumerType != ProviderType.Skip && consumerType != ProviderType.Take)
-        return new SelectProvider(source, source.Header.Columns.Select(c => c.Index)
-          .Take(source.Header.Columns.Count - 1).ToArray());
+        return new SelectProvider(
+          source,
+          Enumerable.Range(0, source.Header.Length - 1).ToArray());
       return source;
     }
 

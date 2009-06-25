@@ -201,6 +201,22 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void ComplexSubquerySelectSingleOrDefaultTest()
+    {
+      var categoriesCount = Query<Category>.All.Count();
+      var result = Query<Category>.All.Select(c => c.Products.Take(1).SingleOrDefault()).Select(
+        p => new
+        {
+          Product = p,
+          p.ProductName,
+          p.Supplier
+        });
+      var list = result.ToList();
+      Assert.AreEqual(categoriesCount, list.Count);
+    }
+
+
+    [Test]
     public void ComplexSubqueryFirstTest()
     {
       var categoriesCount = Query<Category>.All.Count();
