@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
           using (rightContext.Activate()) {
             Right.OnBeforeEnumerate(rightContext);
             // Do not cache right part
-            var right = Right.OnEnumerate(context);
+            var right = Right.OnEnumerate(rightContext);
             foreach (var rTuple in right)
               result.Add(combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple));
             Right.OnAfterEnumerate(rightContext);
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
           using (rightContext.Activate()) {
             Right.OnBeforeEnumerate(rightContext);
             // Do not cache right part
-            var right = Right.OnEnumerate(context);
+            var right = Right.OnEnumerate(rightContext);
             bool isEmpty = true;
             foreach (var rTuple in right) {
               if (!isEmpty) 
