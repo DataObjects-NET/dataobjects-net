@@ -21,6 +21,8 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public Expression KeyExpression { get; private set; }
 
+    public ApplyParameter OriginalApplyParameter { get; private set; }
+
     public override Segment<int> Mapping
     {
       get
@@ -58,6 +60,7 @@ namespace Xtensive.Storage.Linq.Expressions
     public GroupingExpression(Type type, ParameterExpression parameterExpression, bool defaultIfEmpty, ProjectionExpression projectionExpression, ApplyParameter applyParameter, Expression keyExpression, Segment<int> segment)
       : base(type, parameterExpression, defaultIfEmpty, projectionExpression, applyParameter, ExtendedExpressionType.Grouping)
     {
+      OriginalApplyParameter = applyParameter;
       KeyExpression = keyExpression;
       this.segment = segment;
     }
