@@ -4,6 +4,8 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.03
 
+using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Disposing;
 using Xtensive.Storage.Configuration;
@@ -15,6 +17,34 @@ namespace Xtensive.Storage.Tests.ObjectModel
   public abstract class NorthwindDOModelTest : AutoBuildTest
   {
     private DisposableSet disposables;
+
+    private List<Customer> customers;
+    private List<Order> orders;
+    private List<Employee> employees;
+
+    protected IEnumerable<Customer> Customers {
+      get {
+        if (customers==null)
+          customers = Query<Customer>.All.ToList();
+        return customers;
+      }
+    }
+
+    protected IEnumerable<Order> Orders {
+      get {
+        if (orders==null)
+          orders = Query<Order>.All.ToList();
+        return orders;
+      }
+    }
+
+    protected IEnumerable<Employee> Employees {
+      get {
+        if (employees==null)
+          employees = Query<Employee>.All.ToList();
+        return employees;
+      }
+    }
 
     [SetUp]
     public virtual void SetUp()
@@ -28,6 +58,9 @@ namespace Xtensive.Storage.Tests.ObjectModel
     public virtual void TearDown()
     {
       disposables.DisposeSafely();
+      customers = null;
+      orders = null;
+      employees = null;
     }
 
     protected override DomainConfiguration BuildConfiguration()

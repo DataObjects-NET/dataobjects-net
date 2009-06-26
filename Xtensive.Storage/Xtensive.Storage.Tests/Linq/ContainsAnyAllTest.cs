@@ -5,6 +5,7 @@
 // Created:    2009.02.04
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.ObjectModel;
@@ -23,10 +24,8 @@ namespace Xtensive.Storage.Tests.Linq
         .Where(c => Query<Order>.All
           .Where(o => o.Customer==c)
           .Any(o => o.Freight > 0));
-      var expected = Query<Customer>.All
-        .ToList()
-        .Where(c => Query<Order>.All
-          .ToList()
+      var expected = Customers
+        .Where(c => Orders
           .Where(o => o.Customer==c)
           .Any(o => o.Freight > 0));
       Assert.AreEqual(0, expected.Except(result).Count());
@@ -40,10 +39,8 @@ namespace Xtensive.Storage.Tests.Linq
         .Where(c => Query<Order>.All
           .Where(o => o.Customer==c)
           .Any());
-      var expected = Query<Customer>.All
-        .ToList()
-        .Where(c => Query<Order>.All
-          .ToList()
+      var expected = Customers
+        .Where(c => Orders
           .Where(o => o.Customer==c)
           .Any());
       Assert.AreEqual(0, expected.Except(result).Count());
@@ -64,7 +61,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void AnyTest()
     {
       var result = Query<Customer>.All.Any();
-      var expected = Query<Customer>.All.ToList().Any();
+      var expected = Customers.Any();
       Assert.AreEqual(result, expected);
       Assert.IsTrue(result);
     }
@@ -76,10 +73,8 @@ namespace Xtensive.Storage.Tests.Linq
         .Where(c => Query<Order>.All
           .Where(o => o.Customer==c)
           .All(o => o.Freight > 0));
-      var expected = Query<Customer>.All
-        .ToList()
-        .Where(c => Query<Order>.All
-          .ToList()
+      var expected = Customers
+        .Where(c => Orders
           .Where(o => o.Customer==c)
           .All(o => o.Freight > 0));
       Assert.AreEqual(0, expected.Except(result).Count());
@@ -100,7 +95,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void AllTest()
     {
       var result = Query<Customer>.All.All(c => c.ContactName.StartsWith("a"));
-      var expected = Query<Customer>.All.ToList().All(c => c.ContactName.StartsWith("a"));
+      var expected = Customers.All(c => c.ContactName.StartsWith("a"));
       Assert.AreEqual(expected, result);
       Assert.IsFalse(result);
     }
@@ -112,10 +107,8 @@ namespace Xtensive.Storage.Tests.Linq
         .Where(c => Query<Order>.All
           .Select(o => o.Customer)
           .Contains(c));
-      var expected = Query<Customer>.All
-        .ToList()
-        .Where(c => Query<Order>.All
-          .ToList()
+      var expected = Customers
+        .Where(c => Orders
           .Select(o => o.Customer)
           .Contains(c));
       var list = result.ToList();
@@ -139,8 +132,7 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query<Customer>.All
         .Select(c => c.Id)
         .Contains("ALFKI");
-      var expected = Query<Customer>.All
-        .ToList()
+      var expected = Customers
         .Select(c => c.Id)
         .Contains("ALFKI");
       Assert.AreEqual(expected, result);
@@ -154,10 +146,8 @@ namespace Xtensive.Storage.Tests.Linq
         .Where(c => Query<Order>.All
           .Where(o => o.Customer==c)
           .All(o => o.ShippingAddress.City==c.Address.City));
-      var expected = Query<Customer>.All
-        .ToList()
-        .Where(c => Query<Order>.All
-          .ToList()
+      var expected = Customers
+        .Where(c => Orders
           .Where(o => o.Customer==c)
           .All(o => o.ShippingAddress.City==c.Address.City));
       Assert.AreEqual(0, expected.Except(result).Count());
@@ -171,10 +161,8 @@ namespace Xtensive.Storage.Tests.Linq
         .Where(c => Query<Order>.All
           .Where(o => o.Customer==c)
           .Any(o => o.ShippingAddress.City==c.Address.City));
-      var expected = Query<Customer>.All
-        .ToList()
-        .Where(c => Query<Order>.All
-          .ToList()
+      var expected = Customers
+        .Where(c => Orders
           .Where(o => o.Customer==c)
           .Any(o => o.ShippingAddress.City==c.Address.City));
       Assert.AreEqual(0, expected.Except(result).Count());
@@ -194,14 +182,11 @@ namespace Xtensive.Storage.Tests.Linq
               .All(e => e.FirstName.EndsWith("t"))
         select o;
       var expected =
-        from o in Query<Order>.All
-          .ToList()
-        where Query<Customer>.All
-          .ToList()
+        from o in Orders
+        where Customers
           .Where(c => c==o.Customer)
           .All(c => c.CompanyName.StartsWith("A"))
-            && !Query<Employee>.All
-              .ToList()
+            && !Employees
               .Where(e => e==o.Employee)
               .All(e => e.FirstName.EndsWith("t"))
         select o;
@@ -223,14 +208,11 @@ namespace Xtensive.Storage.Tests.Linq
               .All(e => e.FirstName.EndsWith("t"))
         select o;
       var expected =
-        from o in Query<Order>.All
-          .ToList()
-        where Query<Customer>.All
-          .ToList()
+        from o in Orders
+        where Customers
           .Where(c => c==o.Customer)
           .All(c => c.CompanyName.StartsWith("A"))
-            || Query<Employee>.All
-              .ToList()
+            || Employees
               .Where(e => e==o.Employee)
               .All(e => e.FirstName.EndsWith("t"))
         select o;
@@ -252,14 +234,11 @@ namespace Xtensive.Storage.Tests.Linq
               .Any(e => e.FirstName.EndsWith("t"))
         select o;
       var expected =
-        from o in Query<Order>.All
-          .ToList()
-        where !Query<Customer>.All
-          .ToList()
+        from o in Orders
+        where !Customers
           .Where(c => c==o.Customer)
           .Any(c => c.CompanyName.StartsWith("A"))
-            && Query<Employee>.All
-              .ToList()
+            && Employees
               .Where(e => e==o.Employee)
               .Any(e => e.FirstName.EndsWith("t"))
         select o;
@@ -280,14 +259,11 @@ namespace Xtensive.Storage.Tests.Linq
               .Any(e => e.FirstName.EndsWith("t"))
         select o;
       var expected =
-        from o in Query<Order>.All
-          .ToList()
-        where Query<Customer>.All
-          .ToList()
+        from o in Orders
+        where Customers
           .Where(c => c==o.Customer)
           .Any(c => c.CompanyName.StartsWith("A"))
-            || Query<Employee>.All
-              .ToList()
+            || Employees
               .Where(e => e==o.Employee)
               .Any(e => e.FirstName.EndsWith("t"))
         select o;
@@ -308,14 +284,11 @@ namespace Xtensive.Storage.Tests.Linq
               .All(e => e.FirstName.EndsWith("t"))
         select o;
       var expected =
-        from o in Query<Order>.All
-          .ToList()
-        where Query<Customer>.All
-          .ToList()
+        from o in Orders
+        where Customers
           .Where(c => c==o.Customer)
           .Any(c => c.CompanyName.StartsWith("A"))
-            && !Query<Employee>.All
-              .ToList()
+            && !Employees
               .Where(e => e==o.Employee)
               .All(e => e.FirstName.EndsWith("t"))
         select o;
@@ -336,14 +309,11 @@ namespace Xtensive.Storage.Tests.Linq
               .All(e => e.FirstName.EndsWith("t"))
         select o;
       var expected =
-        from o in Query<Order>.All
-          .ToList()
-        where !Query<Customer>.All
-          .ToList()
+        from o in Orders
+        where !Customers
           .Where(c => c==o.Customer)
           .Any(c => c.CompanyName.StartsWith("A"))
-            || Query<Employee>.All
-              .ToList()
+            || Employees
               .Where(e => e==o.Employee)
               .All(e => e.FirstName.EndsWith("t"))
         select o;
@@ -363,12 +333,10 @@ namespace Xtensive.Storage.Tests.Linq
             .Any()
         };
       var expected =
-        from c in Query<Customer>.All
-          .ToList()
+        from c in Customers
         select new {
           Customer = c,
-          HasOrders = Query<Order>.All
-            .ToList()
+          HasOrders = Orders
             .Where(o => o.Customer==c)
             .Any()
         };
@@ -388,12 +356,10 @@ namespace Xtensive.Storage.Tests.Linq
             .All(o => o.Employee.FirstName=="Cool")
         };
       var expected =
-        from c in Query<Customer>.All
-          .ToList()
+        from c in Customers
         select new {
           Customer = c,
-          AllEmployeesAreCool = Query<Order>.All
-            .ToList()
+          AllEmployeesAreCool = Orders
             .Where(o => o.Customer==c)
             .All(o => o.Employee.FirstName=="Cool")
         };
@@ -414,12 +380,10 @@ namespace Xtensive.Storage.Tests.Linq
             .Contains(c)
         };
       var expected =
-        from c in Query<Customer>.All
-          .ToList()
+        from c in Customers
         select new {
           Customer = c,
-          HasNewOrders = Query<Order>.All
-            .ToList()
+          HasNewOrders = Orders
             .Where(o => o.OrderDate > new DateTime(2001, 1, 1))
             .Select(o => o.Customer)
             .Contains(c)
@@ -433,8 +397,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Customer>.All
         .Where(c => c.Orders.Any(o => o.Freight > 400));
-      var expected = Query<Customer>.All
-        .ToList()
+      var expected = Customers
         .Where(c => c.Orders.Any(o => o.Freight > 400));
       Assert.AreEqual(0, expected.Except(result).Count());
       Assert.AreEqual(10, result.ToList().Count);
@@ -445,8 +408,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Customer>.All
         .Where(c => c.Orders.All(o => o.Employee.FirstName=="???"));
-      var expected = Query<Customer>.All
-        .ToList()
+      var expected = Customers
         .Where(c => c.Orders.All(o => o.Employee.FirstName=="???"));
       Assert.AreEqual(0, expected.Except(result).Count());
       Assert.AreEqual(2, result.ToList().Count);
@@ -458,8 +420,7 @@ namespace Xtensive.Storage.Tests.Linq
       var bestOrder = Query<Order>.All.OrderBy(o => o.Freight).First();
       var result = Query<Customer>.All
         .Where(c => Queryable.Contains(c.Orders, bestOrder));
-      var expected = Query<Customer>.All
-        .ToList()
+      var expected = Customers
         .Where(c => Queryable.Contains(c.Orders, bestOrder));
       Assert.AreEqual(0, expected.Except(result).Count());
       Assert.AreEqual(bestOrder.Customer.Id, result.ToList().Single().Id);
@@ -470,7 +431,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Customer>.All
         .Where(c => c.Orders.All(o => o.ShippingAddress.City==c.Address.City));
-      var expected = Query<Customer>.All
+      var expected = Customers
         .Where(c => c.Orders.All(o => o.ShippingAddress.City==c.Address.City));
       Assert.AreEqual(0, expected.Except(result).Count());
       result.ToList();
@@ -481,7 +442,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Customer>.All
         .Where(c => c.Orders.Any(o => o.ShippingAddress.City==c.Address.City));
-      var expected = Query<Customer>.All
+      var expected = Customers
         .Where(c => c.Orders.Any(o => o.ShippingAddress.City==c.Address.City));
       Assert.AreEqual(0, expected.Except(result).Count());
       result.ToList();
