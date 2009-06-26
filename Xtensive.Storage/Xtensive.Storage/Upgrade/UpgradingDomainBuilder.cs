@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Sorting;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Building;
@@ -71,7 +72,7 @@ namespace Xtensive.Storage.Upgrade
       var configuration = context.Configuration = context.OriginalConfiguration.Clone();
       context.Stage = stage;
       // Raising "Before upgrade" event
-      foreach (var handler in context.UpgradeHandlers.Values)
+      foreach (var handler in context.OrderedUpgradeHandlers)
         handler.OnBeforeStage();
 
       var schemaUpgradeMode = SchemaUpgradeMode.Perform;
@@ -131,11 +132,22 @@ namespace Xtensive.Storage.Upgrade
           context.SchemaUpgradeActions = schemaUpgradeActions;
         },
         UpgradeHandler = () => {
-          foreach (var handler in context.UpgradeHandlers.Values)
+          foreach (var handler in context.OrderedUpgradeHandlers)
             handler.OnStage();
         },
         TypeIdProvider = (type => ProvideTypeId(context, type)),
       };
+    }
+
+    private static List<IUpgradeHandler> SortUpgradeHandlers(
+      IDictionary<Assembly, IUpgradeHandler> unsortedHandlers)
+    {
+      var references = (from asm in unsortedHandlers.Keys
+      select new {asm, Reference = asm.GetReferencedAssemblies().Select(a => a.ToString())})
+        .ToDictionary(a => a.asm, a => a.Reference);
+      return TopologicalSorter.Sort(unsortedHandlers,
+        (asm0, asm1) => references[asm1.Key].Any(asmName => asmName==asm0.Key.GetName().ToString()))
+        .Select(pair => pair.Value).ToList();
     }
 
     private static Exception GetInnermostException(Exception exception)
@@ -169,8 +181,8 @@ namespace Xtensive.Storage.Upgrade
       var assemblies = (
         from type in context.OriginalConfiguration.Types
         let assembly = type.Assembly
-        select assembly).Distinct().ToList();
-      
+        select assembly).Distinct();
+
       // Creating user handlers
       var userHandlers =
         from assembly in assemblies
@@ -205,6 +217,8 @@ namespace Xtensive.Storage.Upgrade
       // Storing the result
       context.UpgradeHandlers = 
         new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers, false);
+      context.OrderedUpgradeHandlers = 
+        new ReadOnlyList<IUpgradeHandler>(SortUpgradeHandlers(handlers));
     }
 
     private static int ProvideTypeId(UpgradeContext context, Type type)

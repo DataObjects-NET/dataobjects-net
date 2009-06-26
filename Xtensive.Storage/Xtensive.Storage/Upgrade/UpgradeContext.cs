@@ -5,6 +5,7 @@
 // Created:    2008.12.30
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core;
@@ -61,6 +62,11 @@ namespace Xtensive.Storage.Upgrade
     /// at the current upgrade stage.
     /// </summary>
     public DomainConfiguration Configuration { get; internal set; }
+
+    /// <summary>
+    /// Gets the ordered collection of upgrade handlers.
+    /// </summary>
+    public IList<IUpgradeHandler> OrderedUpgradeHandlers { get; internal set; }
 
     /// <summary>
     /// Gets the map of upgrade handlers.
