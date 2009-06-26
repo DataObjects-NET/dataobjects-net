@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Linq
         .SelectMany(g => g);
       var list = result.ToList();
       var expected = Query<Order>.All.ToList();
-      Assert.IsTrue(list.SequenceEqual(expected));
+      Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
     }
 
     [Test]
@@ -56,8 +56,8 @@ namespace Xtensive.Storage.Tests.Linq
         .GroupBy(o => o.Customer)
         .SelectMany(g => g.Select(o => o.Customer));
       var list = result.ToList();
-      var expected = Query<Order>.All.Select(o => o.Customer).OrderBy(c=>c).ToList();
-      Assert.IsTrue(list.SequenceEqual(expected));
+      var expected = Query<Order>.All.Select(o => o.Customer).ToList();
+      Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
     }
 
     [Test]
@@ -70,9 +70,8 @@ namespace Xtensive.Storage.Tests.Linq
       var expected = Query<Order>.All.ToList()
         .GroupBy(o => o.Customer)
         .SelectMany(g => g.Select(o => o.Customer).Where(c => g.Count() > 2))
-        .OrderBy(c => c.Id)
         .ToList();
-      Assert.IsTrue(list.SequenceEqual(expected));
+      Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
     }
 
     [Test]
@@ -86,9 +85,8 @@ namespace Xtensive.Storage.Tests.Linq
       var expected = Query<Order>.All.ToList()
         .GroupBy(o => o.Customer)
         .SelectMany(g => g.Select(o => o.Customer).Where(c => g.Count() > 2))
-        .OrderBy(c => c.Id)
         .ToList();
-      Assert.IsTrue(list.SequenceEqual(expected));
+      Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
     }
 
     [Test]
