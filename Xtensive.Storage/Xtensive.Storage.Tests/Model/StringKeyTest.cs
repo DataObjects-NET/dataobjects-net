@@ -11,6 +11,7 @@ using Xtensive.Storage.Tests.Model.StringKeyTestModel;
 namespace Xtensive.Storage.Tests.Model.StringKeyTestModel
 {
   [HierarchyRoot]
+  [KeyGenerator(null)]
   public class Product : Entity
   {
     [Key, Field(Length = 100)]

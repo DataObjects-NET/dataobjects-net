@@ -390,7 +390,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void StringRemoveNoCountTest()
     {
       var customers = Query<Customer>.All;
-      var customer = customers.Where(c => c.Address.City.Remove(4)=="Seat").First();
+      var customer = customers.Where(c => c.Address.City.Remove(3)=="Sea").First();
       Assert.IsNotNull(customer);
     }
 
