@@ -41,6 +41,17 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void GroupBySelectorTest()
+    {
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .SelectMany(g => g.Select(o => o.Customer));
+      var list = result.ToList();
+      var expected = Query<Order>.All.Select(o => o.Customer).OrderBy(c=>c).ToList();
+      Assert.IsTrue(list.SequenceEqual(expected));
+    }
+
+    [Test]
     public void ParameterTest()
     {
       var expectedCount = Query<Order>.All.Count();
