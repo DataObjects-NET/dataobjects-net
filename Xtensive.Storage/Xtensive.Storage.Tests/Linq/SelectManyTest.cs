@@ -20,6 +20,27 @@ namespace Xtensive.Storage.Tests.Linq
   public class SelectManyTest : NorthwindDOModelTest
   {
     [Test]
+    public void GroupJoinTest()
+    {
+      var result = from o in Query<Order>.All
+                   join c in Query<Customer>.All on o.Customer equals c into oc
+                   from x in oc.DefaultIfEmpty()
+                   select new {CustomerId = x.Id, CompanyName = x.CompanyName, Country = x.Address.Country};
+      var list = result.ToList();
+    }
+
+    [Test]
+    public void GroupByTest()
+    {
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .SelectMany(g => g);
+      var list = result.ToList();
+      var expected = Query<Order>.All.ToList();
+      Assert.IsTrue(list.SequenceEqual(expected));
+    }
+
+    [Test]
     public void ParameterTest()
     {
       var expectedCount = Query<Order>.All.Count();
