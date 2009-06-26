@@ -21,6 +21,8 @@ namespace Xtensive.Storage.Tests.ObjectModel
     private List<Customer> customers;
     private List<Order> orders;
     private List<Employee> employees;
+    private List<Product> products;
+    private List<Supplier> suppliers;
 
     protected IEnumerable<Customer> Customers {
       get {
@@ -46,6 +48,22 @@ namespace Xtensive.Storage.Tests.ObjectModel
       }
     }
 
+    protected IEnumerable<Product> Products {
+      get {
+        if (products==null)
+          products = Query<Product>.All.ToList();
+        return products;
+      }
+    }
+
+    protected IEnumerable<Supplier> Suppliers {
+      get {
+        if (suppliers==null)
+          suppliers = Query<Supplier>.All.ToList();
+        return suppliers;
+      }
+    }
+
     [SetUp]
     public virtual void SetUp()
     {
@@ -61,6 +79,8 @@ namespace Xtensive.Storage.Tests.ObjectModel
       customers = null;
       orders = null;
       employees = null;
+      products = null;
+      suppliers = null;
     }
 
     protected override DomainConfiguration BuildConfiguration()
