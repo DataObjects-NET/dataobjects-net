@@ -25,7 +25,7 @@ using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
-  [TestFixture]
+  [TestFixture, Category("Upgrade")]
   [Explicit("Requires MSSQL servers")]
   public abstract class SqlActionTranslatorTest
   {

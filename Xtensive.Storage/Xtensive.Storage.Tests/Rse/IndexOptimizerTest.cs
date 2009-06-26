@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Tests.Rse
 {
   
 
-  [TestFixture]
+  [TestFixture, Category("Rse")]
   public class IndexOptimizerTest : NorthwindDOModelTest
   {
     protected override DomainConfiguration BuildConfiguration()

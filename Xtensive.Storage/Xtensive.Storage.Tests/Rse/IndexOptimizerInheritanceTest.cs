@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Tests.Rse
     }
   }
   #endregion
-  [TestFixture]
+  [TestFixture, Category("Rse")]
   public class IndexOptimizerInheritanceTest : NorthwindDOModelTest
   {
     protected override DomainConfiguration BuildConfiguration()

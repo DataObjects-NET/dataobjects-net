@@ -16,7 +16,7 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
-  [TestFixture]
+  [TestFixture, Category("Upgrade")]
   public class ConvertDomainModelTest
   {
     protected StorageInfo Schema { get; set; }

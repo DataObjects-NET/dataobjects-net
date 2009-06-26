@@ -22,7 +22,7 @@ using Xtensive.Storage.Tests.Storage.SnakesModel;
 
 namespace Xtensive.Storage.Tests.Rse
 {
-  [TestFixture]
+  [TestFixture, Category("Rse")]
   public class RangeSetExtractorCnfTest : BaseRangeSetExtractorTest
   {
     [Test]

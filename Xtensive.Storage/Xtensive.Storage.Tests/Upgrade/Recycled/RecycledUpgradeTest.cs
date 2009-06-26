@@ -13,7 +13,7 @@ using M2 = Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version2;
 
 namespace Xtensive.Storage.Tests.Upgrade.Recycled
 {
-  [TestFixture]
+  [TestFixture, Category("Upgrade")]
   public class RecycledUpgradeTest
   {
     private Domain domain;

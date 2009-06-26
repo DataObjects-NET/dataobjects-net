@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Rse
 
   #endregion
 
-  [TestFixture]
+  [TestFixture, Category("Rse")]
   public class OrderingCorrectorTest : NorthwindDOModelTest
   {
     protected override DomainConfiguration BuildConfiguration()

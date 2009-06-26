@@ -16,7 +16,7 @@ using M2 = Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version2;
 
 namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
 {
-  [TestFixture]
+  [TestFixture, Category("Upgrade")]
   public class DataUpgradeTest
   {
     private Domain domain;

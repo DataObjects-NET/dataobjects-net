@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Tests.Rse
   }
   #endregion
 
-  [TestFixture]
+  [TestFixture, Category("Rse")]
   public class IndexOptimizerVirtualAndRealIndexesTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

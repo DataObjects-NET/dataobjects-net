@@ -12,7 +12,7 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 namespace Xtensive.Storage.Tests.Linq
 {
   [Ignore("Not implemented")]
-  [TestFixture]
+  [TestFixture, Category("Linq")]
   public sealed class InterfaceTest : NorthwindDOModelTest
   {
     [Test]

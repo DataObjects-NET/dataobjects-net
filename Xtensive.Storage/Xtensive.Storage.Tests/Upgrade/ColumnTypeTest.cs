@@ -16,7 +16,7 @@ using Mode = Xtensive.Storage.DomainUpgradeMode;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
-  [TestFixture]
+  [TestFixture, Category("Upgrade")]
   public class ColumnTypeTest
   {
     private Domain domain;

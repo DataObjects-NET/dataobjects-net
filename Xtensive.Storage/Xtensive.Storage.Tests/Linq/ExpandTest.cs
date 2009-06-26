@@ -14,7 +14,7 @@ using System.Linq;
 namespace Xtensive.Storage.Tests.Linq
 {
   [Ignore("Not implemented")]
-  [TestFixture]
+  [TestFixture, Category("Linq")]
   public class ExpandTest: NorthwindDOModelTest
   {
     [Test]

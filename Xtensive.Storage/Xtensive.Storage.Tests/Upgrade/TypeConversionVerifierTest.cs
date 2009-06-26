@@ -13,7 +13,7 @@ using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
-  [TestFixture]
+  [TestFixture, Category("Upgrade")]
   public sealed class TypeConversionVerifierTest
   {
     [Test]

@@ -13,7 +13,7 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {
-  [TestFixture]
+  [TestFixture, Category("Linq")]
   public class TypeCastAndInheritanceTest : NorthwindDOModelTest
   {
     [Test]

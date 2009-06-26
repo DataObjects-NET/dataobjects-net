@@ -21,7 +21,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Tests.Rse
 {
-  [TestFixture]
+  [TestFixture, Category("Rse")]
   public class BehaviorTest
   {
     [Test]

@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Rse
 {
   [Ignore("Not implemented.")]
   [Serializable]
-  [TestFixture]
+  [TestFixture, Category("Rse")]
   public class ComplexRangeTest : AutoBuildTest
   {
     private RecordSet rsCat;
