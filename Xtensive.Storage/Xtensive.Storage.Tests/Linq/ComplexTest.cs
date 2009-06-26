@@ -200,5 +200,22 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.IsNotNull(result.First());
       Assert.Greater(result.Count(), 2);
     }
+
+    [Test]
+    public void ModifiedClosuresTest()
+    {
+      var customers = from o in Query<Order>.All
+                      join c in Query<Customer>.All on o.Customer equals c into oc
+                      from x in oc.DefaultIfEmpty()
+                      select new { CustomerId = x.Id, CompanyName = x.CompanyName, Country = x.Address.Country };
+
+      string searchTerms = "U A";
+      var searchCriteria = searchTerms.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+      foreach (var search in searchCriteria) {
+        var searchTerm = search;
+        customers = customers.Where(p => p.Country.Contains(searchTerm));
+      }
+      var ids = (from c in customers select c.CustomerId).ToArray();
+    }
   }
 }

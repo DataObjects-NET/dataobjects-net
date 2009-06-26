@@ -50,6 +50,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       InsertTest(BaseCount);
       //QueryTest(instanceCount / 5);
       CachedQueryTest(instanceCount / 5);
+      MaterializeTest(BaseCount);
       MaterializeGetFieldTest(BaseCount);
       MaterializeCachedTest(BaseCount);
     }
