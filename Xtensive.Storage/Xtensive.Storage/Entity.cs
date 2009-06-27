@@ -310,6 +310,7 @@ namespace Xtensive.Storage
       Key key = Key.Create(GetTypeInfo(), keyTuple, true);
       State = Session.CreateEntityState(key);
       OnInitializing(true);
+      // TODO: Add Session.NotifyCreateEntity()?
       this.Validate();
     }
 
