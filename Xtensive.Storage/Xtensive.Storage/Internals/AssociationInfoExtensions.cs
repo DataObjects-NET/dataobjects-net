@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Internals
           break;
         case Multiplicity.OneToOne:
         case Multiplicity.OneToMany:
-          Key key = target.GetKey(association.Reversed.OwnerField);
+          Key key = target.GetReferenceKey(association.Reversed.OwnerField);
           if (key!=null)
             yield return key.Resolve();
           break;

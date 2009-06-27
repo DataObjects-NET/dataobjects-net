@@ -29,7 +29,7 @@ namespace Xtensive.Storage
   /// Use <see cref="EntitySet{TItem}"/> when you need to declare persistent property of entity set type.
   /// </para>
   /// <para>
-  /// EntitySets can be used as a <see cref="FieldAttribute.PairTo">paired property</see> with reference 
+  /// EntitySets can be used as a <see cref="AssociationAttribute.PairTo">paired property</see> with reference 
   /// (One-To-Many) or EntitySet (Many-To-Many) properties. In such case DataObjects.Net automatically
   /// modifies collection or it's paired property. If paired property is not specified, auxiliary table
   /// will be automatically created in database.
@@ -58,7 +58,7 @@ namespace Xtensive.Storage
   /// </code>
   /// </example>
   /// <seealso cref="Entity">Entity class</seealso>
-  /// <seealso cref="FieldAttribute.PairTo">Using EntitySets with paired associations</seealso>
+  /// <seealso cref="AssociationAttribute.PairTo">Using EntitySets with paired associations</seealso>
   public class EntitySet<TItem> : EntitySetBase,
     ICollection<TItem>, IOrderedQueryable<TItem>
     where TItem : Entity

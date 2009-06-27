@@ -15,8 +15,7 @@ using Xtensive.Storage.Resources;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Base class for all objects that are bound to the <see cref="Session"/>
-  /// instance.
+  /// Base class for all objects that are bound to the <see cref="Session"/> instance.
   /// </summary>
   public abstract class SessionBound : 
     IContextBound<Session>
@@ -81,7 +80,7 @@ namespace Xtensive.Storage
     {
       if (session==null)
         throw new InvalidOperationException(
-          Resources.Strings.ExSessionIsNotOpen);
+          Strings.ExSessionIsNotOpen);
 
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       this.session = session;

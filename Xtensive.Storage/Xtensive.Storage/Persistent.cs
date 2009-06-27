@@ -15,6 +15,7 @@ using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -258,7 +259,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region System-level GetField, SetField, GetKey, Remove members
+    #region System-level GetField, SetField, GetReferenceKey, Remove members
 
     [Infrastructure]
     internal T GetFieldValue<T>(FieldInfo field, bool notify)
@@ -283,7 +284,7 @@ namespace Xtensive.Storage
       var oldValue = GetFieldValue<T>(field, false);
       AssociationInfo association = field.Association;
       if (association!=null && association.IsPaired) {
-        Key currentKey = GetKey(field);
+        Key currentKey = GetReferenceKey(field);
         Key newKey = null;
         var newReference = (Entity) (object) value;
         if (newReference!=null)
@@ -299,10 +300,11 @@ namespace Xtensive.Storage
     }
 
     [Infrastructure]
-    internal Key GetKey(FieldInfo field)
+    internal Key GetReferenceKey(FieldInfo field)
     {
       if (!field.IsEntity)
-        throw new InvalidOperationException(string.Format(Resources.Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
+        throw new InvalidOperationException(
+          string.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
 
       OnGettingFieldValue(field, false);
       var type = Session.Domain.Model.Types[field.ValueType];

@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Providers
       foreach (var data in sortData) {
         EntityState processingEntityState = data.Value.Item;
         foreach (var association in processingEntityState.Type.GetOwnerAssociations().Where(associationInfo => associationInfo.OwnerField.IsEntity)) {
-          Key foreignKey = processingEntityState.Entity.GetKey(association.OwnerField);
+          Key foreignKey = processingEntityState.Entity.GetReferenceKey(association.OwnerField);
           Node<EntityState, AssociationInfo> destination;
           if (foreignKey!=null && !foreignKey.Equals(data.Value.Item.Key) && sortData.TryGetValue(foreignKey, out destination))
             data.Value.AddConnection(destination, true, association);

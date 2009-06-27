@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Internals
     public override T GetValue(Persistent obj, FieldInfo field, bool notify)
     {
       ValidateType(field);
-      Key key = obj.GetKey(field);
+      Key key = obj.GetReferenceKey(field);
       if (key==null)
         return default(T);
       return (T) (object) key.Resolve();
