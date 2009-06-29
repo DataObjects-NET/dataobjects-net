@@ -7,48 +7,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Sql.Common;
-using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
+using Xtensive.Storage.Providers.MsSql.Resources;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
-using Xtensive.Storage.Providers.MsSql.Resources;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
   [Serializable]
   internal class MsSqlCompiler : SqlCompiler
   {
-    protected override ExecutableProvider VisitExistence(ExistenceProvider provider)
-    {
-      var result = (SqlProvider) base.VisitExistence(provider);
-      if (result == null)
-        return null;
-      var select = result.Request.SelectStatement;
-      ReplaceBooleanColumn(select, 0);
-      return result;
-    }
-
-    protected override ExecutableProvider VisitCalculate(CalculateProvider provider)
-    {
-      var result = (SqlProvider)base.VisitCalculate(provider);
-      if (result == null)
-        return null;
-      var select = result.Request.SelectStatement;
-
-      foreach (var column in provider.CalculatedColumns)
-        if (column.Type == typeof(bool))
-          ReplaceBooleanColumn(select, column.Index);
-
-      return result;
-    }
-
     protected override ExecutableProvider VisitSkip(SkipProvider provider)
     {
       var isSourceTake = provider.Source is TakeProvider;
@@ -133,28 +106,6 @@ namespace Xtensive.Storage.Providers.MsSql
       SqlSelect query = SqlFactory.Select(joinedTable);
       query.Columns.AddRange(leftQuery.Columns.Concat(rightQuery.Columns).Cast<SqlColumn>());
       return new SqlProvider(provider, query, Handlers, left, right);
-    }
-
-    protected override SqlExpression TranslateExpression(LambdaExpression le, 
-      out HashSet<SqlFetchParameterBinding> parameterBindings, SqlSelect[] selects)
-    {
-      le = ExpressionPreprocessor.Preprocess(le);
-      var resultExpression = base.TranslateExpression(le, out parameterBindings, selects);
-
-      var expression = le.Body;
-      while (expression.Type == typeof(object) && expression.NodeType == ExpressionType.Convert)
-        expression = ((UnaryExpression) expression).Operand;
-      if (expression.Type == typeof(bool)) {
-        if (resultExpression.NodeType == SqlNodeType.Parameter)
-          return SqlFactory.NotEquals(resultExpression, 0);
-        if (resultExpression.NodeType == SqlNodeType.Not) {
-          var operand = ((SqlUnary) resultExpression).Operand;
-          if (operand.NodeType == SqlNodeType.Parameter)
-            return SqlFactory.Equals(operand, 0);
-        }
-      }
-      ReplaceBooleanParameters(resultExpression);
-      return resultExpression;
     }
 
     protected override SqlExpression TranslateAggregate(SqlProvider source, List<SqlTableColumn> sourceColumns, AggregateColumn aggregateColumn)
@@ -244,59 +195,7 @@ namespace Xtensive.Storage.Providers.MsSql
       sourceQuery.Columns.Add(rowNumberExpression, rowNumberColumnName);
       return sourceQuery;
     }
-
-    private static void ReplaceBooleanParameters(SqlExpression expression)
-    {
-      var binary = expression as SqlBinary;
-      if (binary == null)
-        return;
-
-      var left = binary.Left;
-      var right = binary.Right;
-
-      switch (expression.NodeType) {
-        case SqlNodeType.Or:
-        case SqlNodeType.And:
-          break;
-        default:
-          ReplaceBooleanParameters(left);
-          ReplaceBooleanParameters(right);
-          return;
-      }
-
-      if (left.NodeType == SqlNodeType.Parameter)
-        left = SqlFactory.NotEquals(left, 0);
-      else
-        ReplaceBooleanParameters(left);
-
-      if (right.NodeType == SqlNodeType.Parameter)
-        right = SqlFactory.NotEquals(right, 0);
-      else
-        ReplaceBooleanParameters(right);
-
-      switch (binary.NodeType) {
-        case SqlNodeType.Or:
-          binary.ReplaceWith(SqlFactory.Or(left, right));
-          break;
-        case SqlNodeType.And:
-          binary.ReplaceWith(SqlFactory.And(left, right));
-          break;
-      }
-    }
-
-    private static void ReplaceBooleanColumn(SqlSelect select, int index)
-    {
-      var columnRef = (SqlColumnRef) select.Columns[index];
-      var oldExpression = ((SqlUserColumn)columnRef.SqlColumn).Expression;
-      if (oldExpression.NodeType == SqlNodeType.Parameter)
-        return;
-      var caseExpression = SqlFactory.Case();
-      caseExpression.Add(oldExpression, 1);
-      caseExpression.Else = 0;
-      var newExpression = SqlFactory.Cast(caseExpression, SqlDataType.Boolean);
-      select[index].ReplaceWith(SqlFactory.ColumnRef(SqlFactory.Column(newExpression), columnRef.Name));
-    }
-
+    
     #endregion
 
 
@@ -305,6 +204,7 @@ namespace Xtensive.Storage.Providers.MsSql
     public MsSqlCompiler(HandlerAccessor handlers, BindingCollection<object, ExecutableProvider> compiledSources)
       : base(handlers, compiledSources)
     {
+      BoolIsNativelySupported = false;
     }
   }
 }

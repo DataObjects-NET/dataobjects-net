@@ -5,38 +5,38 @@
 // Created:    2009.02.13
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Indexing;
-using Xtensive.Storage.Providers.Sql.Mappings;
-using Xtensive.Storage.Providers.Sql.Resources;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Dml;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Expressions;
+using Xtensive.Storage.Providers.Sql.Mappings;
+using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using SqlFactory = Xtensive.Sql.Dom.Sql;
-using SqlDataType = Xtensive.Sql.Common.SqlDataType;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  /// <summary>
-  /// 
-  /// </summary>
   /// <inheritdoc/>
   [Serializable]
   public class SqlCompiler : RseCompiler
   {
     protected const string TableNamePattern = "Tmp_{0}";
 
+    /// <summary>
+    /// Gets or sets a value indicating whether <see cref="bool"/> is natively supported by undelying RDBMS.
+    /// </summary>
+    protected bool BoolIsNativelySupported { get; set; }
+    
     /// <summary>
     /// Gets the value type mapper.
     /// </summary>
@@ -135,6 +135,8 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var column in provider.CalculatedColumns) {
         HashSet<SqlFetchParameterBinding> bindings;
         var predicate = TranslateExpression(column.Expression, out bindings, sqlSelect);
+        if (!BoolIsNativelySupported && column.Type==typeof(bool))
+          predicate = ExpressionProcessor.BooleanToInt(predicate);
         sqlSelect.Columns.Add(predicate, column.Name);
         allBindings = allBindings.Concat(bindings);
       }
@@ -461,8 +463,11 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
+      SqlExpression existsExpression = SqlFactory.Exists(source.Request.SelectStatement);
+      if (!BoolIsNativelySupported)
+        existsExpression = ExpressionProcessor.BooleanToInt(existsExpression);
       var select = SqlFactory.Select();
-      select.Columns.Add(SqlFactory.Exists(source.Request.SelectStatement), provider.ExistenceColumnName);
+      select.Columns.Add(existsExpression, provider.ExistenceColumnName);
 
       return new SqlProvider(provider, select, Handlers, source);
     }
@@ -563,7 +568,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual SqlExpression TranslateExpression(LambdaExpression le,
       out HashSet<SqlFetchParameterBinding> parameterBindings, params SqlSelect[] selects)
     {
-      var translator = new ExpressionProcessor(this, Handlers, le, selects);
+      var translator = new ExpressionProcessor(le, this, Handlers, !BoolIsNativelySupported, selects);
       var result = translator.Translate();
       parameterBindings = translator.Bindings;
       return result;
@@ -580,7 +585,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual SqlExpression TranslateExpression(LambdaExpression le,
       out HashSet<SqlFetchParameterBinding> parameterBindings, params SqlQueryRef[] queryRefs)
     {
-      var translator = new ExpressionProcessor(this, Handlers, le, queryRefs);
+      var translator = new ExpressionProcessor(le, this, Handlers, !BoolIsNativelySupported, queryRefs);
       var result = translator.Translate();
       parameterBindings = translator.Bindings;
       return result;
@@ -747,7 +752,7 @@ namespace Xtensive.Storage.Providers.Sql
       SqlColumn typeIdColumn = baseQuery.Columns[Handlers.Domain.NameBuilder.TypeIdColumnName];
       SqlBinary inQuery = SqlFactory.In(typeIdColumn, SqlFactory.Array(typeIds));
       SqlSelect query = SqlFactory.Select(baseQuery.From);
-      var atRootPolicy = index.ReflectedType.Hierarchy.Schema == InheritanceSchema.SingleTable;
+      var atRootPolicy = index.ReflectedType.Hierarchy.Schema==InheritanceSchema.SingleTable;
       Dictionary<FieldInfo, string> lookup;
       if (atRootPolicy) {
         var rootIndex = index.ReflectedType.GetRoot().AffectedIndexes.First(i => i.IsPrimary);
@@ -760,26 +765,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       return query;
     }
-
-    private static bool TranslateSubquery(CompilableProvider subqueryProvider, SqlSelect select,
-      SqlSelect subquerySelect)
-    {
-      if (subqueryProvider is ExistenceProvider) {
-        select.Columns.Add(subquerySelect.Columns[0]);
-        return true;
-      }
-
-      if (subqueryProvider is AggregateProvider) {
-        var aggregateProvider = (AggregateProvider) subqueryProvider;
-        if (aggregateProvider.GroupColumnIndexes.Length != 0 || aggregateProvider.AggregateColumns.Length != 1)
-          return false;
-        select.Columns.Add(subquerySelect, aggregateProvider.AggregateColumns[0].Name);
-        return true;
-      }
-
-      return false;
-    }
-
+    
     private static void AddOrderByStatement(UnaryProvider provider, SqlSelect query)
     {
       foreach (KeyValuePair<int, Direction> pair in provider.Source.ExpectedOrder)
@@ -812,8 +798,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     #endregion
-
-
+    
     // Constructors
 
     /// <summary>
@@ -823,6 +808,7 @@ namespace Xtensive.Storage.Providers.Sql
       : base(handlers.Domain.Configuration.ConnectionInfo, compiledSources)
     {
       Handlers = handlers;
+      BoolIsNativelySupported = true;
     }
   }
 }

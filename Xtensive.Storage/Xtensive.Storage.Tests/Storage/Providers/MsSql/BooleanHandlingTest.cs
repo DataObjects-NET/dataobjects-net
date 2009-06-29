@@ -325,6 +325,19 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
     }
 
     [Test]
+    public void IifTest()
+    {
+      TestQuery(() =>
+        from it in Query<MyEntity>.All
+        where
+          (it.Name==null ? null : (bool?) it.Name.StartsWith("Y"))==null
+            ? false
+            : (it.Name==null ? null : (bool?) (it.Name.StartsWith("Y"))).Value
+        select it
+        );
+    }
+
+    [Test]
     public void ComplexTest()
     {
       var parameter1 = true;

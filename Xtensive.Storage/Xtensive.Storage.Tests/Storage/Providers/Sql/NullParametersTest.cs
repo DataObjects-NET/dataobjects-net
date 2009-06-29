@@ -25,9 +25,9 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void SelectNullParameter()
     {
       string name = null;
-      var result = Query<Order>.All.Select(o => new {o.Id, name}).ToList();
+      var result = Query<Order>.All.Select(o => new {o.Id, Name = name}).ToList();
       foreach (var i in result)
-        ReferenceEquals(i.name, name);
+        Assert.IsNull(i.Name);
     }
   }
 }

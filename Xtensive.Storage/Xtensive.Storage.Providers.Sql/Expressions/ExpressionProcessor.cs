@@ -9,10 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Core.Linq;
-using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
-using Xtensive.Core.Tuples;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Dml;
@@ -28,7 +27,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 {
   internal class ExpressionProcessor : ExpressionVisitor<SqlExpression>
   {
-    private readonly IMemberCompilerProvider<SqlExpression> mappingsProvider;
+    private readonly IMemberCompilerProvider<SqlExpression> memberCompilerProvider;
     private readonly DomainModel model;
     private readonly SqlSelect[] selects;
     private readonly SqlQueryRef[] queryRefs;
@@ -36,10 +35,13 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly ParameterExtractor parameterExtractor;
     private readonly LambdaExpression lambda;
     private readonly HashSet<SqlFetchParameterBinding> bindings;
+    private readonly List<ParameterExpression> activeParameters;
     private readonly Dictionary<ParameterExpression, SqlSelect> selectParameterMapping;
     private readonly Dictionary<ParameterExpression, SqlQueryRef> queryRefParameterMapping;
     private readonly SqlValueTypeMapper valueTypeMapper;
     private readonly ICompiler compiler;
+
+    private bool fixBooleanExpressions;
     private bool executed;
     private bool useSelect;
     
@@ -85,8 +87,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       bindings.Add(binding);
       SqlExpression result = binding.ParameterReference;
       // hack to make interval/datetime parameters work
-      if (type == typeof(DateTime) || type==typeof(TimeSpan))
+      if (type==typeof(DateTime) || type==typeof(TimeSpan))
         result = SqlFactory.Cast(result, typeMapping.DataTypeInfo.SqlType);
+      if (fixBooleanExpressions && type==typeof(bool))
+        result = IntToBoolean(result);
       return result;
     }
 
@@ -108,9 +112,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         case ExpressionType.UnaryPlus:
           return operand;
         case ExpressionType.Not:
-          if ((expression.Operand.Type!=typeof (bool)) && (expression.Operand.Type!=typeof (bool?)))
-            return SqlFactory.BitNot(operand);
-          return SqlFactory.Not(operand);
+          return IsBooleanExpression(expression.Operand)
+            ? SqlFactory.Not(operand)
+            : SqlFactory.BitNot(operand);
         case ExpressionType.Convert:
         case ExpressionType.ConvertChecked:
           var sourceType = StripNullable(expression.Operand.Type);
@@ -131,16 +135,24 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       SqlExpression left;
       SqlExpression right;
 
-      bool smartNull = expression.NodeType==ExpressionType.Equal || expression.NodeType==ExpressionType.NotEqual;
+      bool isEqualityCheck = expression.NodeType==ExpressionType.Equal
+                          || expression.NodeType==ExpressionType.NotEqual;
 
-      // chars are compared as integers, but we store them as strings and should compare them like strings.
-      if (IsCharToIntConvert(expression.Left) && IsCharToIntConvert(expression.Right)) {
-        left = Visit(((UnaryExpression) expression.Left).Operand, smartNull);
-        right = Visit(((UnaryExpression)expression.Right).Operand, smartNull);
-      }
-      else {
-        left = Visit(expression.Left, smartNull);
-        right = Visit(expression.Right, smartNull);
+      if (IsCharToIntConvert(expression.Left)
+       && IsCharToIntConvert(expression.Right)) {
+        // chars are compared as integers, but we store them as strings and should compare them like strings.
+        left = Visit(((UnaryExpression) expression.Left).Operand, isEqualityCheck);
+        right = Visit(((UnaryExpression) expression.Right).Operand, isEqualityCheck);
+      } else if (fixBooleanExpressions
+              && isEqualityCheck
+              && IsBooleanExpression(expression.Left)
+              && IsBooleanExpression(expression.Right)) {
+        // boolean expressions should be compared as integers
+        left = BooleanToInt(Visit(expression.Left, isEqualityCheck));
+        right = BooleanToInt(Visit(expression.Right, isEqualityCheck));
+      } else {
+        left = Visit(expression.Left, isEqualityCheck);
+        right = Visit(expression.Right, isEqualityCheck);
       }
       
       // handle special cases
@@ -170,9 +182,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         case ExpressionType.AddChecked:
           return SqlFactory.Add(left, right);
         case ExpressionType.And:
-          if ((expression.Left.Type!=typeof (bool)) && (expression.Left.Type!=typeof (bool?)))
-            return SqlFactory.BitAnd(left, right);
-          return SqlFactory.And(left, right);
+          return IsBooleanExpression(expression.Left)
+            ? SqlFactory.And(left, right)
+            : SqlFactory.BitAnd(left, right);
         case ExpressionType.AndAlso:
           return SqlFactory.And(left, right);
         case ExpressionType.Coalesce:
@@ -199,9 +211,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         case ExpressionType.NotEqual:
           return SqlFactory.NotEquals(left, right);
         case ExpressionType.Or:
-          if ((expression.Left.Type!=typeof (bool)) && (expression.Left.Type!=typeof (bool?)))
-            return SqlFactory.BitOr(left, right);
-          return SqlFactory.Or(left, right);
+          return IsBooleanExpression(expression.Left)
+            ? SqlFactory.Or(left, right)
+            : SqlFactory.BitOr(left, right);
         case ExpressionType.OrElse:
           return SqlFactory.Or(left, right);
         case ExpressionType.Subtract:
@@ -222,20 +234,31 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var check = Visit(expression.Test);
       var ifTrue = Visit(expression.IfTrue);
       var ifFalse = Visit(expression.IfFalse);
-      var c = SqlFactory.Case();
-      c[check] = ifTrue;
-      c.Else = ifFalse;
-      return c;
+      if (fixBooleanExpressions && IsBooleanExpression(expression)) {
+        var c = SqlFactory.Case();
+        c[check] = BooleanToInt(ifTrue);
+        c.Else = BooleanToInt(ifFalse);
+        return IntToBoolean(c);
+      } else {
+        var c = SqlFactory.Case();
+        c[check] = ifTrue;
+        c.Else = ifFalse;
+        return c;
+      }
     }
 
     protected override SqlExpression VisitConstant(ConstantExpression expression)
     {
       if (expression.Value==null)
-        return SqlFactory.Null;
+        return fixBooleanExpressions && expression.Type==typeof (bool?)
+          ? IntToBoolean(SqlFactory.Null)
+          : SqlFactory.Null;
       var type = expression.Type;
       if (type==typeof(object))
         type = expression.Value.GetType();
       type = StripNullable(type);
+      if (fixBooleanExpressions && type==typeof (bool))
+        return (bool) expression.Value ? IntToBoolean(1) : IntToBoolean(0);
       return SqlFactory.LiteralOrContainer(expression.Value, type);
     }
 
@@ -251,28 +274,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitMethodCall(MethodCallExpression mc)
     {
-      var tupleAccess = mc.AsTupleAccess();
-      if (tupleAccess!=null) {
-        int columnIndex = tupleAccess.GetTupleAccessArgument();
-        var parameter = tupleAccess.GetApplyParameter();
-        if (parameter == null) {
-          if(useSelect) {
-            var sqlSelect = selectParameterMapping[(ParameterExpression) tupleAccess.Object];
-            return sqlSelect[columnIndex];
-          }
-          var queryRef = queryRefParameterMapping[(ParameterExpression) tupleAccess.Object];
-          return queryRef[columnIndex];
-        }
-        ExecutableProvider provider;
-        if (compiler.CompiledSources.TryGetValue(parameter, out provider)) {
-          if (!compiler.IsCompatible(provider)) {
-            provider = compiler.ToCompatible(provider);
-            compiler.CompiledSources.ReplaceBound(parameter, provider);
-          }
-          var sqlProvider = (SqlProvider)provider;
-          return sqlProvider.PermanentReference[columnIndex];
-        }
-      }
+      if (mc.AsTupleAccess(activeParameters) != null)
+        return VisitTupleAccess(mc);
 
       var arguments = mc.Arguments.Select(a => Visit(a)).ToArray();
       var mi = mc.Method;
@@ -283,11 +286,40 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       return CompileMember(mi, Visit(mc.Object), arguments);
     }
 
+    private SqlExpression VisitTupleAccess(MethodCallExpression tupleAccess)
+    {
+      int columnIndex = tupleAccess.GetTupleAccessArgument();
+      var parameter = tupleAccess.GetApplyParameter();
+      if (parameter!=null) {
+        ExecutableProvider provider = compiler.CompiledSources[parameter];
+        if (!compiler.IsCompatible(provider)) {
+          provider = compiler.ToCompatible(provider);
+          compiler.CompiledSources.ReplaceBound(parameter, provider);
+        }
+        var sqlProvider = (SqlProvider) provider;
+        return sqlProvider.PermanentReference[columnIndex];
+      }
+      SqlExpression result;
+      if (useSelect) {
+        var sqlSelect = selectParameterMapping[(ParameterExpression) tupleAccess.Object];
+        result = sqlSelect[columnIndex];
+      } else {
+        var queryRef = queryRefParameterMapping[(ParameterExpression) tupleAccess.Object];
+        result = queryRef[columnIndex];
+      }
+      if (fixBooleanExpressions && IsBooleanExpression(tupleAccess))
+        result = IntToBoolean(result);
+      return result;
+    }
+    
     protected override SqlExpression VisitLambda(LambdaExpression l)
     {
+      if (activeParameters.Count>0)
+        throw new InvalidOperationException();
+      activeParameters.AddRange(l.Parameters);
       for (int i = 0; i < l.Parameters.Count; i++) {
         var p = l.Parameters[i];
-        if(useSelect)
+        if (useSelect)
           selectParameterMapping[p] = selects[i];
         else
           queryRefParameterMapping[p] = queryRefs[i];
@@ -328,10 +360,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private SqlExpression TryTranslateCompareExpression(BinaryExpression expression)
     {
       bool isGoodExpression =
-        expression.Left.NodeType==ExpressionType.Call
-          && expression.Right.NodeType==ExpressionType.Constant ||
-            expression.Right.NodeType==ExpressionType.Call
-              && expression.Left.NodeType==ExpressionType.Constant;
+        expression.Left.NodeType==ExpressionType.Call && expression.Right.NodeType==ExpressionType.Constant ||
+        expression.Right.NodeType==ExpressionType.Call && expression.Left.NodeType==ExpressionType.Constant;
 
       if (!isGoodExpression)
         return null;
@@ -456,7 +486,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     private SqlExpression CompileMember(MemberInfo member, SqlExpression instance, params SqlExpression[] arguments)
     {
-      var memberCompiler = mappingsProvider.GetCompiler(member);
+      var memberCompiler = memberCompilerProvider.GetCompiler(member);
       if (memberCompiler == null)
         throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, member.GetFullName(true)));
       return memberCompiler.Invoke(instance, arguments);
@@ -474,16 +504,60 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       return type.IsNullable() ? type.GetGenericArguments()[0] : type;
     }
 
+    private static bool IsBooleanExpression(Expression expression)
+    {
+      return StripNullable(expression.Type)==typeof (bool);
+    }
+
     #endregion
 
+    public static SqlExpression IntToBoolean(SqlExpression expression)
+    {
+      // optimization: omitting IntToBoolean(BooleanToInt(x)) sequences
+      if (expression.NodeType==SqlNodeType.Cast) {
+        var operand = ((SqlCast) expression).Operand;
+        if (operand.NodeType==SqlNodeType.Case) {
+          var _case = (SqlCase) operand;
+          if (_case.Count == 1) {
+            var firstCaseItem = _case.First();
+            var whenTrue = firstCaseItem.Value as SqlLiteral<int>;
+            var whenFalse = _case.Else as SqlLiteral<int>;
+            if (!ReferenceEquals(whenTrue, null)
+             && !ReferenceEquals(whenFalse, null)
+             && whenTrue.Value==1
+             && whenFalse.Value==0)
+              return firstCaseItem.Key;
+          }
+        }
+      }
+
+      return SqlFactory.NotEquals(expression, 0);
+    }
+
+    public static SqlExpression BooleanToInt(SqlExpression expression)
+    {
+      // optimization: omitting BooleanToInt(IntToBoolean(x)) sequences
+      if (expression.NodeType==SqlNodeType.NotEquals) {
+        var binary = (SqlBinary) expression;
+        var left = binary.Left;
+        var right = binary.Right as SqlLiteral<int>;
+        if (!ReferenceEquals(right, null) && right.Value==0)
+          return left;
+      }
+
+      var result = SqlFactory.Case();
+      result.Add(expression, 1);
+      result.Else = 0;
+      return SqlFactory.Cast(result, SqlDataType.Boolean);
+    }
+    
     // Constructors
 
-    public ExpressionProcessor(ICompiler compiler, HandlerAccessor handlers, LambdaExpression le,
-      params SqlSelect[] selects)
-      : this(compiler, handlers, le)
+    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers,
+      bool fixBooleanExpressions, params SqlSelect[] selects)
+      : this(le, compiler, handlers, fixBooleanExpressions)
     {
-      if (selects==null)
-        throw new ArgumentNullException("selects");
+      ArgumentValidator.EnsureArgumentNotNull(selects, "selects");
       if (le.Parameters.Count!=selects.Length)
         throw new InvalidOperationException();
       this.selects = selects;
@@ -491,12 +565,11 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       useSelect = true;
     }
 
-    public ExpressionProcessor(ICompiler compiler, HandlerAccessor handlers, LambdaExpression le,
-      params SqlQueryRef[] queryRefs)
-      : this(compiler, handlers, le)
+    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers,
+      bool fixBooleanExpressions, params SqlQueryRef[] queryRefs)
+      : this(le, compiler, handlers, fixBooleanExpressions)
     {
-      if (queryRefs==null)
-        throw new ArgumentNullException("queryRefs");
+      ArgumentValidator.EnsureArgumentNotNull(queryRefs, "queryRefs");
       if (le.Parameters.Count!=queryRefs.Length)
         throw new InvalidOperationException();
       this.queryRefs = queryRefs;
@@ -504,14 +577,16 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       useSelect = false;
     }
 
-    private ExpressionProcessor(ICompiler compiler, HandlerAccessor handlers, LambdaExpression le)
+    private ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, bool fixBooleanExpressions)
     {
       this.compiler = compiler;
-      mappingsProvider = handlers.DomainHandler.GetMemberCompilerProvider<SqlExpression>();
+      this.fixBooleanExpressions = fixBooleanExpressions;
+      memberCompilerProvider = handlers.DomainHandler.GetMemberCompilerProvider<SqlExpression>();
       valueTypeMapper = ((DomainHandler) handlers.DomainHandler).ValueTypeMapper;
       model = handlers.Domain.Model;
       lambda = le;
       bindings = new HashSet<SqlFetchParameterBinding>();
+      activeParameters = new List<ParameterExpression>();
       evaluator = new ExpressionEvaluator(le);
       parameterExtractor = new ParameterExtractor(evaluator);
     }
