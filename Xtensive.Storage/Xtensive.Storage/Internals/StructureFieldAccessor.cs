@@ -4,9 +4,11 @@
 // Created by: Dmitri Maximov
 // Created:    2008.05.30
 
+using System;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals
 {
@@ -21,7 +23,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override T GetValue(Persistent obj, FieldInfo field, bool notify)
     {
-      ValidateType(field);
+      EnsureTypeIsAssignable(field);
       IFieldValueAdapter result;
       if (obj.FieldHandlers.TryGetValue(field, out result))
         return (T) result;
@@ -34,7 +36,12 @@ namespace Xtensive.Storage.Internals
     public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
     {
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
-      ValidateType(field);
+      EnsureTypeIsAssignable(field);
+      var valueType = value.GetType();
+      if (field.ValueType != valueType)
+        throw new InvalidOperationException(String.Format(
+          Strings.ExResultTypeIncorrect, valueType.Name, field.ValueType.Name));
+
       var structure = (Structure) (object) value;
       var adapter = (IFieldValueAdapter)value;
       if (adapter.Owner!=null)

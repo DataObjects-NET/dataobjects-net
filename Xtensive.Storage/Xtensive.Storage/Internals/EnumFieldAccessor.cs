@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override T GetValue(Persistent obj, FieldInfo field, bool notify)
     {
-      ValidateType(field);
+      EnsureTypeIsAssignable(field);
       int fieldIndex = field.MappingInfo.Offset;
       var tuple = obj.Tuple;
 
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
     {
-      ValidateType(field);
+      EnsureTypeIsAssignable(field);
       // Biconverter<object, T> converter = GetConverter(field.ValueType);
       obj.Tuple.SetValue(field.MappingInfo.Offset, Convert.ChangeType(value, field.Column.ValueType));
     }

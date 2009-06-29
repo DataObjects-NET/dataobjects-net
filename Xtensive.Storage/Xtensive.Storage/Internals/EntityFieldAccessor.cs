@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Internals
           obj.Tuple.SetValue(i, null);
       }
       else {
-        ValidateType(field);
+        EnsureTypeIsAssignable(field);
         entity.Key.Value.CopyTo(obj.Tuple, 0, fieldIndex, mappingInfo.Length);
       }
     }
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override T GetValue(Persistent obj, FieldInfo field, bool notify)
     {
-      ValidateType(field);
+      EnsureTypeIsAssignable(field);
       Key key = obj.GetReferenceKey(field);
       if (key==null)
         return default(T);

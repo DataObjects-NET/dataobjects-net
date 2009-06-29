@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Internals
 
     public abstract T GetValue(Persistent obj, FieldInfo field, bool notify);
 
-    public static void ValidateType(FieldInfo fieldInfo)
+    protected static void EnsureTypeIsAssignable(FieldInfo fieldInfo)
     {
       Type resultType = typeof(T);
       Type valueType = fieldInfo.IsEntitySet ? fieldInfo.UnderlyingProperty.PropertyType : fieldInfo.ValueType;

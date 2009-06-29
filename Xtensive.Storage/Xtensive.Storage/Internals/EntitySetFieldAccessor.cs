@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override T GetValue(Persistent obj, FieldInfo field, bool notify)
     {
-      ValidateType(field);
+      EnsureTypeIsAssignable(field);
       IFieldValueAdapter result;
       if (obj.FieldHandlers.TryGetValue(field, out result))
         return (T)result;

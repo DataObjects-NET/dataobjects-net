@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override T GetValue(Persistent obj, FieldInfo field, bool notify)
     {
-      ValidateType(field);
+      EnsureTypeIsAssignable(field);
       int fieldIndex = field.MappingInfo.Offset;
       var tuple = obj.Tuple;
 
@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
     {
-      ValidateType(field);
+      EnsureTypeIsAssignable(field);
       var key = (Key) (object) value;
       obj.Tuple.SetValue(field.MappingInfo.Offset, key==null ? null : key.Format());
     }

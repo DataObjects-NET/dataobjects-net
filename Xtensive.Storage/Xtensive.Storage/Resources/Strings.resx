@@ -172,7 +172,7 @@
     <value>Field {0} not found in model.</value>
   </data>
   <data name="ExResultTypeIncorrect" xml:space="preserve">
-    <value>Type {0} is not dervied from {1}.</value>
+    <value>Value of {0} type can't be assign to property of {1} type.</value>
   </data>
   <data name="ExStorageProviderNotFound" xml:space="preserve">
     <value>Handler provider not found for "{0}" connection type. Search folder "{1}".</value>
