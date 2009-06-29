@@ -47,7 +47,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
           if (exists)
             foreach (var rightItem in entry)
               yield return transform.Apply(TupleTransformType.Auto, leftItem, rightItem);
-          yield return transform.Apply(TupleTransformType.Auto, leftItem, rightBlank);
+          else
+            yield return transform.Apply(TupleTransformType.Auto, leftItem, rightBlank);
         }
         else if (exists)
           foreach (var rightItem in entry)
