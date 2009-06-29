@@ -27,12 +27,12 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     string Name { get; set; }
   }
 
-  [MaterializedView(MappingName = "Creatures")]
+  [MaterializedView, Mapping("Creatures")]
   public interface ICreature : IHasName
   {
   }
 
-  [Entity(MappingName = "A-Root")]
+  [Mapping("A-Root")]
   [HierarchyRoot]
   public class A : Entity
   {
@@ -40,7 +40,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public long ID { get; private set; }
   }
 
-  [Entity]
   [Index("Tag")]
 //  [Index("Name")]
   // TODO: Alex Kochetov: Log error if duplicate index is specified.
@@ -52,15 +51,13 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public int Tag { get; set; }
   }
 
-  [Entity]
   [Index("Age")]
   public class C : A
   {
-    [Field(MappingName = "MyAge")]
+    [Field, Mapping("MyAge")]
     public int Age { get; set; }
   }
 
-  [Entity]
   [Index("Tag")]
   public class D : C, ICreature
   {
@@ -70,7 +67,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public virtual string Tag { get; set; }
   }
 
-  [Entity]
   public class E : D
   {
     public override string Tag
@@ -80,7 +76,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     }
   }
 
-  [Entity]
   public class F : A, ICreature, IHasName2
   {
     string IHasName.Name
@@ -93,7 +88,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   }
 
   [Index("Name")]
-  [Entity]
   [HierarchyRoot]
   public class X : Entity
   {
@@ -104,12 +98,10 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public string Name { get; set; }
   }
 
-  [Entity]
   public class Y : X
   {
   }
 
-  [Entity]
   public class Z : Y
   {
   }

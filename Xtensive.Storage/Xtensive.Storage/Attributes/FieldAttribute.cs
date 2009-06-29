@@ -14,10 +14,8 @@ namespace Xtensive.Storage
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-  public sealed class FieldAttribute : MappingAttribute
+  public sealed class FieldAttribute : StorageAttribute
   {
-    internal bool? isCollatable;
-    internal bool? isTranslatable;
     internal int? length;
     internal int? scale;
     internal int? precision;
@@ -59,30 +57,6 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this field should be stored as translatable.
-    /// </summary>
-    /// <remarks>
-    /// This property can be specified for <see cref="string"/> fields.
-    /// </remarks>
-    public bool Translatable
-    {
-      get { return isTranslatable.HasValue ? isTranslatable.Value : false; }
-      set { isTranslatable = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this field should be stored as collatable.
-    /// </summary>
-    /// <remarks>
-    /// This property can be specified for <see cref="string"/> fields.
-    /// </remarks>
-    public bool Collatable
-    {
-      get { return isCollatable.HasValue ? isCollatable.Value : false; }
-      set { isCollatable = value; }
-    }
-
-    /// <summary>
     /// Gets or sets a value indicating whether value of this field should be loaded on demand.
     /// </summary>
     /// <remarks>
@@ -90,19 +64,5 @@ namespace Xtensive.Storage
     /// <see cref="Entity"/> and <see cref="EntitySet{TItem}"/> fields are always loaded on demand.
     /// </remarks>
     public bool LazyLoad { get; set; }
-
-
-    // Constructors
-
-    /// <inheritdoc/>
-    public FieldAttribute()
-    {
-    }
-
-    /// <inheritdoc/>
-    public FieldAttribute(string mappingName)
-      : base(mappingName)
-    {
-    }
   }
 }

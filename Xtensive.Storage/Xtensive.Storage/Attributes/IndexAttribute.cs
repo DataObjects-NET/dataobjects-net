@@ -16,12 +16,17 @@ namespace Xtensive.Storage
   /// </example>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true, Inherited = false)]
-  public sealed class IndexAttribute : MappingAttribute
+  public sealed class IndexAttribute : StorageAttribute
   {
     private string[] keyFields;
     private string[] includedFields;
     internal double? fillFactor;
     internal bool? isUnique;
+
+    /// <summary>
+    /// Gets or sets the index name.
+    /// </summary>
+    public string Name { get; set; }
 
     /// <summary>
     /// Key fields that compose the index.

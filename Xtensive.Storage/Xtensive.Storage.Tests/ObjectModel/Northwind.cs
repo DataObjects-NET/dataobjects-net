@@ -15,11 +15,11 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
   #region Model
 
-  [Entity(MappingName = "Categories")]
+  [Mapping("Categories")]
   [HierarchyRoot]
   public class Category : Entity
   {
-    [Field(MappingName = "CategoryId"), Key]
+    [Field, Mapping("CategoryId"), Key]
     public int Id { get; private set; }
 
     [Field(Length = 15)]
@@ -32,12 +32,12 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     public byte[] Picture { get; set; }
   }
 
-  [Entity(MappingName = "Customers")]
+  [Mapping("Customers")]
   [HierarchyRoot]
   [KeyGenerator(null)]
   public class Customer : Entity
   {
-    [Field(Length = 5, MappingName = "CustomerId"), Key]
+    [Field(Length = 5), Mapping("CustomerId"), Key]
     public string Id { get; private set; }
 
     [Field(Length = 40)]
@@ -81,18 +81,18 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
   [HierarchyRoot]
   public class Region : Entity
   {
-    [Field(MappingName = "RegionId"), Key]
+    [Field, Mapping("RegionId"), Key]
     public int Id { get; private set; }
 
     [Field(Length = 50)]
     public string RegionDescription { get; set; }
   }
 
-  [Entity(MappingName = "Suppliers")]
+  [Mapping("Suppliers")]
   [HierarchyRoot]
   public class Supplier : Entity
   {
-    [Field(MappingName = "SupplierId"), Key]
+    [Field, Mapping("SupplierId"), Key]
     public int Id { get; private set; }
 
     [Field(Length = 40)]
@@ -129,11 +129,11 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     public string HomePage { get; set; }
   }
 
-  [Entity(MappingName = "Shippers")]
+  [Mapping("Shippers")]
   [HierarchyRoot]
   public class Shipper : Entity
   {
-    [Field(MappingName = "ShipperId"), Key]
+    [Field, Mapping("ShipperId"), Key]
     public int Id { get; private set; }
 
     [Field(Length = 40)]
@@ -143,11 +143,11 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     public string Phone { get; set; }
   }
 
-  [Entity(MappingName = "Products")]
+  [Mapping("Products")]
   [HierarchyRoot]
   public class Product : Entity
   {
-    [Field(MappingName = "ProductId"), Key]
+    [Field, Mapping("ProductId"), Key]
     public int Id { get; private set; }
 
     [Field(Length = 40)]
@@ -178,7 +178,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     public bool Discontinued { get; set; }
   }
 
-  [Entity(MappingName = "Employees")]
+  [Mapping("Employees")]
   [HierarchyRoot]
   public class Employee : Entity
   {
@@ -240,12 +240,12 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     public EntitySet<Territory> Territories { get; private set; }
   }
 
-  [Entity(MappingName = "Territories")]
+  [Mapping("Territories")]
   [HierarchyRoot]
   [KeyGenerator(null)]
   public class Territory : Entity
   {
-    [Field(Length = 20, MappingName = "TerritoryId"), Key]
+    [Field(Length = 20), Mapping("TerritoryId"), Key]
     public string Id { get; private set; }
 
     [Field(Length = 50)]
@@ -265,11 +265,11 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     }
   }
 
-  [Entity(MappingName = "Orders")]
+  [Mapping("Orders")]
   [HierarchyRoot]
   public class Order : Entity
   {
-    [Field(MappingName = "OrderId"), Key]
+    [Field, Mapping("OrderId"), Key]
     public int Id { get; private set; }
 
     [Field]
@@ -312,7 +312,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     public string ShipCountry { get; set; }
   }
 
-  [Entity(MappingName = "OrderDetails")]
+  [Mapping("OrderDetails")]
   [HierarchyRoot]
   [KeyGenerator(null)]
   public class OrderDetails : Entity

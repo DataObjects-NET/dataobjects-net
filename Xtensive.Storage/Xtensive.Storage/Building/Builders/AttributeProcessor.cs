@@ -19,14 +19,18 @@ namespace Xtensive.Storage.Building.Builders
   {
     private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
 
-    public static void Process(TypeDef type, EntityAttribute attribute)
+    public static void Process(TypeDef type, MappingAttribute attribute)
     {
       ProcessMappingName(type, attribute, ValidationRule.Type);
     }
 
+    public static void Process(FieldDef field, MappingAttribute attribute)
+    {
+      ProcessMappingName(field, attribute, ValidationRule.Field);
+    }
+
     public static void Process(TypeDef type, MaterializedViewAttribute attribute)
     {
-      ProcessMappingName(type, attribute, ValidationRule.Type);
       type.Attributes |= TypeAttributes.Materialized;
     }
 
@@ -73,9 +77,6 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void Process(FieldDef fieldDef, FieldAttribute attribute)
     {
-      ProcessMappingName(fieldDef, attribute, ValidationRule.Field);
-      ProcessIsTranslatable(fieldDef, attribute);
-      ProcessIsCollatable(fieldDef, attribute);
       ProcessLength(fieldDef, attribute);
       ProcessScale(fieldDef, attribute);
       ProcessPrecision(fieldDef, attribute);
@@ -96,7 +97,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void Process(IndexDef indexDef, IndexAttribute attribute)
     {
-      ProcessMappingName(indexDef, attribute, ValidationRule.Index);
+      ProcessMappingName(indexDef, attribute.Name, ValidationRule.Index);
       ProcessKeyFields(attribute.KeyFields, indexDef.KeyFields);
       ProcessIncludedFields(attribute.IncludedFields, indexDef.IncludedFields);
       ProcessFillFactor(indexDef, attribute);
@@ -164,18 +165,6 @@ namespace Xtensive.Storage.Building.Builders
       fieldDef.Precision = attribute.Precision;
     }
 
-    private static void ProcessIsCollatable(FieldDef fieldDef, FieldAttribute attribute)
-    {
-      if (attribute.isCollatable!=null)
-        fieldDef.IsCollatable = attribute.Collatable;
-    }
-
-    private static void ProcessIsTranslatable(FieldDef fieldDef, FieldAttribute attribute)
-    {
-      if (attribute.isTranslatable!=null)
-        fieldDef.IsTranslatable = attribute.Translatable;
-    }
-
     private static void ProcessIsLazyLoad(FieldDef fieldDef, FieldAttribute attribute)
     {
       fieldDef.IsLazyLoad = attribute.LazyLoad;
@@ -186,7 +175,11 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessMappingName(MappingNode node, MappingAttribute attribute, ValidationRule rule)
     {
-      string mappingName = attribute.MappingName;
+      ProcessMappingName(node, attribute.Name, rule);
+    }
+
+    private static void ProcessMappingName(MappingNode node, string mappingName, ValidationRule rule)
+    {
       if (mappingName.IsNullOrEmpty())
         return;
 

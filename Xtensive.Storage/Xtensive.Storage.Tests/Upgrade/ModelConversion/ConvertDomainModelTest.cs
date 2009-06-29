@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
   }
 
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
-  [Index("ColA", MappingName = "A_IX")]
+  [Index("ColA", Name = "A_IX")]
   public class B : Entity
   {
     [Field, Key]

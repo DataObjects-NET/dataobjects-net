@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using Xtensive.Core.Tuples;
-using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Model;
 
 
@@ -105,12 +103,12 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
-  [Entity(MappingName = "Categories")]
+  [Mapping("Categories")]
   [HierarchyRoot]
   [Index("CategoryName")]
   public class Category : Entity
   {
-    [Field(MappingName = "CategoryId"), Key]
+    [Field, Mapping("CategoryId"), Key]
     public int Id { get; private set; }
 
     [Field(Length = 15)]
@@ -127,11 +125,11 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   }
 
   [KeyGenerator(null)]
-  [Entity(MappingName = "Customers")]
+  [Mapping("Customers")]
   [HierarchyRoot]
   public class Customer : BusinessContact
   {
-    [Field(Length = 5, MappingName = "CustomerId"), Key]
+    [Field(Length = 5), Mapping("CustomerId"), Key]
     public string Id { get; private set; }
 
     [Field, Association(PairTo = "Customer")]
@@ -148,18 +146,18 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   [HierarchyRoot]
   public class Region : Entity
   {
-    [Field(MappingName = "RegionId"), Key]
+    [Field, Mapping("RegionId"), Key]
     public int Id { get; private set; }
 
     [Field(Length = 50)]
     public string RegionDescription { get; set; }
   }
 
-  [Entity(MappingName = "Suppliers")]
+  [Mapping("Suppliers")]
   [HierarchyRoot]
   public class Supplier : BusinessContact
   {
-    [Field(MappingName = "SupplierId"), Key]
+    [Field, Mapping("SupplierId"), Key]
     public int Id { get; private set; }
 
     [Field]
@@ -169,11 +167,11 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public EntitySet<Product> Products { get; private set; }
   }
 
-  [Entity(MappingName = "Shippers")]
+  [Mapping("Shippers")]
   [HierarchyRoot]
   public class Shipper : Entity
   {
-    [Field(MappingName = "ShipperId"), Key]
+    [Field, Mapping("ShipperId"), Key]
     public int Id { get; private set; }
 
     [Field(Length = 40)]
@@ -205,20 +203,20 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
-  [Entity(MappingName = "Products")]
+  [Mapping("Products")]
   [HierarchyRoot(InheritanceSchema.SingleTable)]
   [Index("UnitPrice")]
   [Index("ProductName")]
   [Index("Category", "Supplier", "UnitPrice")]
   public abstract class Product : Entity
   {
-    [Field(MappingName = "ProductId"), Key]
+    [Field, Mapping("ProductId"), Key]
     public int Id { get; private set; }
 
     [Field(Length = 40)]
     public string ProductName { get; set; }
 
-    [Field(MappingName = "Seller")]
+    [Field, Mapping("Seller")]
     public Supplier Supplier { get; set; }
 
     [Field]
@@ -243,14 +241,12 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   /// <summary>
   /// Just for Linq type inheritance tests.
   /// </summary>
-  [Entity]
   public abstract class IntermediateProduct : Product
   {
     [Field(Length = 20)]
     public string QuantityPerUnit { get; set; }
   }
 
-  [Entity]
   public class ActiveProduct : IntermediateProduct
   {
     public ActiveProduct()
@@ -259,7 +255,6 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
-  [Entity]
   public class DiscontinuedProduct : IntermediateProduct
   {
     public DiscontinuedProduct()
@@ -268,7 +263,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
-  [Entity(MappingName = "Employees")]
+  [Mapping("Employees")]
   [HierarchyRoot]
   [Index("FirstName")]
   [Index("BirthDate")]
@@ -328,11 +323,11 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   }
 
   [KeyGenerator(null)]
-  [Entity(MappingName = "Territories")]
+  [Mapping("Territories")]
   [HierarchyRoot]
   public class Territory : Entity
   {
-    [Field(Length = 20, MappingName = "TerritoryId"), Key]
+    [Field(Length = 20), Mapping("TerritoryId"), Key]
     public string Id { get; private set; }
 
     [Field(Length = 50)]
@@ -359,7 +354,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   public class Order : Entity,
     IHasFreight
   {
-    [Field(MappingName = "OrderId"), Key]
+    [Field, Mapping("OrderId"), Key]
     public int Id { get; private set; }
 
     [Field]
@@ -403,7 +398,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   }
 
   [KeyGenerator(null)]
-  [Entity(MappingName = "OrderDetails")]
+  [Mapping("OrderDetails")]
   [HierarchyRoot]
   public class OrderDetails : Entity
   {

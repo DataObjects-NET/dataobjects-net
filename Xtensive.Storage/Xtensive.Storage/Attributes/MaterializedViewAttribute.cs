@@ -14,19 +14,7 @@ namespace Xtensive.Storage
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
-  public class MaterializedViewAttribute : MappingAttribute
+  public sealed class MaterializedViewAttribute : StorageAttribute
   {
-    // Constructors
-
-    /// <inheritdoc/>
-    public MaterializedViewAttribute()
-    {
-    }
-
-    /// <inheritdoc/>
-    public MaterializedViewAttribute(string mappingName)
-      : base(mappingName)
-    {
-    }
   }
 }

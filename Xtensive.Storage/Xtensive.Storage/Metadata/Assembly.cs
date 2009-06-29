@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Metadata
   [SystemType(2)]
   [HierarchyRoot]
   [KeyGenerator(null)]
-  [Entity(MappingName = "Metadata.Assembly")]
+  [Mapping("Metadata.Assembly")]
   public class Assembly : MetadataBase
   {
     /// <summary>

@@ -13,41 +13,28 @@ namespace Xtensive.Storage
   /// Base class for all mapping attributes.
   /// </summary>
   [Serializable]
-  public abstract class MappingAttribute : StorageAttribute
+  public sealed class MappingAttribute : StorageAttribute
   {
-    private string mappingName = string.Empty;
-
     /// <summary>
     /// Gets or sets the base part of the field's related column name 
     /// or the base part of the class' related table name.
     /// </summary>
     /// <remarks>
-    /// You can use the following characters in <see cref="MappingName"/>s: [_A-Za-z0-9-.]. 
-    /// <see cref="MappingName"/> can't be an empty string or <see langword="null"/>.
+    /// You can use the following characters in <see cref="Name"/>s: [_A-Za-z0-9-.]. 
+    /// <see cref="Name"/> can't be an empty string or <see langword="null"/>.
     /// </remarks>
-    public string MappingName
-    {
-      get { return mappingName; }
-      set { mappingName = value; }
-    }
+    public string Name { get; private set; }
 
-    
+
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected MappingAttribute()
+    /// <param name="mappingName"><see cref="Name"/> property value.</param>
+    public MappingAttribute(string mappingName)
     {
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="mappingName"><see cref="MappingName"/> property value.</param>
-    protected MappingAttribute(string mappingName)
-    {
-      MappingName = mappingName;
+      Name = mappingName;
     }
   }
 }

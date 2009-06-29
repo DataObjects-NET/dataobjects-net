@@ -92,24 +92,6 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether property is translatable.
-    /// </summary>
-    public bool IsTranslatable
-    {
-      get { return (attributes & FieldAttributes.Translatable) != 0; }
-      set { attributes = value ? attributes | FieldAttributes.Translatable : attributes & ~FieldAttributes.Translatable; }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether property is collatable.
-    /// </summary>
-    public bool IsCollatable
-    {
-      get { return (attributes & FieldAttributes.Collatable) != 0; }
-      set { attributes = value ? attributes | FieldAttributes.Collatable : attributes & ~FieldAttributes.Collatable; }
-    }
-
-    /// <summary>
     /// Gets a value indicating whether this property is structure field.
     /// </summary>
     public bool IsStructure

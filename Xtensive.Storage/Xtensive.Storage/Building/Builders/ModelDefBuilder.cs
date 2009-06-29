@@ -135,16 +135,14 @@ namespace Xtensive.Storage.Building.Builders
         if (sta!=null)
           AttributeProcessor.Process(typeDef, sta);
       }
-      if (typeDef.IsEntity) {
-        var ea = typeDef.UnderlyingType.GetAttribute<EntityAttribute>(AttributeSearchOptions.Default);
-        if (ea!=null)
-          AttributeProcessor.Process(typeDef, ea);
-      }
       if (typeDef.IsInterface) {
         var mva = typeDef.UnderlyingType.GetAttribute<MaterializedViewAttribute>(AttributeSearchOptions.Default);
         if (mva!=null)
           AttributeProcessor.Process(typeDef, mva);
       }
+      var ma = typeDef.UnderlyingType.GetAttribute<MappingAttribute>(AttributeSearchOptions.Default);
+      if (ma!=null)
+        AttributeProcessor.Process(typeDef, ma);
       return typeDef;
     }
 
@@ -191,6 +189,9 @@ namespace Xtensive.Storage.Building.Builders
         var aa = propertyInfo.GetAttribute<AssociationAttribute>(AttributeSearchOptions.InheritAll);
         if (aa!=null)
           AttributeProcessor.Process(fieldDef, aa);
+        var ma = propertyInfo.GetAttribute<MappingAttribute>(AttributeSearchOptions.InheritAll);
+        if (ma!=null)
+          AttributeProcessor.Process(fieldDef, ma);
       }
 
       return fieldDef;
