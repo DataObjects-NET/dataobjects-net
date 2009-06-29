@@ -22,23 +22,36 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     private CombineTransform transform;
     private MapTransform leftKeyTransform;
     private MapTransform rightKeyTransform;
-    private Hashtable hashTable;
     private Tuple rightBlank;
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      hashTable = new Hashtable();
+      var hashTable = new Dictionary<Tuple,List<Tuple>>();
       var left = Left.Enumerate(context);
       var right = Right.Enumerate(context);
-      foreach (var item in right)
-        hashTable.Add(KeyExtractorRight(item), item);
-      foreach (var item in left) {
-        var hashValue = hashTable[KeyExtractorLeft(item)];
-        if (joinType == JoinType.LeftOuter)
-          yield return hashValue!=null ? transform.Apply(TupleTransformType.Auto, item, (Tuple) hashValue)
-            : transform.Apply(TupleTransformType.Auto, item, rightBlank);
-        else if (hashValue!=null)
-          yield return transform.Apply(TupleTransformType.Auto, item, (Tuple) hashValue);
+      foreach (var item in right) {
+        var key = KeyExtractorRight(item);
+        List<Tuple> entry;
+        if (hashTable.TryGetValue(key, out entry))
+          entry.Add(item);
+        else {
+          entry = new List<Tuple> {item};
+          hashTable.Add(key, entry);
+        }
+      }
+      foreach (var leftItem in left) {
+        var key = KeyExtractorLeft(leftItem);
+        List<Tuple> entry;// = hashTable[key];
+        var exists = hashTable.TryGetValue(key, out entry);
+        if (joinType == JoinType.LeftOuter) {
+          if (exists)
+            foreach (var rightItem in entry)
+              yield return transform.Apply(TupleTransformType.Auto, leftItem, rightItem);
+          yield return transform.Apply(TupleTransformType.Auto, leftItem, rightBlank);
+        }
+        else if (exists)
+          foreach (var rightItem in entry)
+            yield return transform.Apply(TupleTransformType.Auto, leftItem, rightItem);
       }
     }
 

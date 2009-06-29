@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Tests.Linq
       var products = Query<Product>.All;
       var product = products.Where(p => p.Supplier.Key==supplierLeka.Key).First();
       Assert.IsNotNull(product);
-      Assert.AreEqual("Singaporean Hokkien Fried Mee", product.ProductName);
+      Assert.AreEqual("Leka Trading", product.Supplier.CompanyName);
     }
 
     [Test]
@@ -198,7 +198,7 @@ namespace Xtensive.Storage.Tests.Linq
       var products = Query<Product>.All;
       var product = products.Where(p => p.Supplier.Id==supplier20.Id).First();
       Assert.IsNotNull(product);
-      Assert.AreEqual("Singaporean Hokkien Fried Mee", product.ProductName);
+      Assert.AreEqual("Leka Trading", product.Supplier.CompanyName);
     }
 
     [Test]
@@ -208,7 +208,7 @@ namespace Xtensive.Storage.Tests.Linq
       var products = Query<Product>.All;
       var product = products.Where(p => p.Supplier==supplier20).First();
       Assert.IsNotNull(product);
-      Assert.AreEqual("Singaporean Hokkien Fried Mee", product.ProductName);
+      Assert.AreEqual("Leka Trading", product.Supplier.CompanyName);
     }
 
     [Test]
