@@ -46,8 +46,6 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    
-
     /// <inheritdoc/>
     public override T GetValue(Persistent obj, FieldInfo field, bool notify)
     {
