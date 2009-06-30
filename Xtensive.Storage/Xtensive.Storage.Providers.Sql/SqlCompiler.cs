@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var column in provider.CalculatedColumns) {
         HashSet<SqlFetchParameterBinding> bindings;
         var predicate = TranslateExpression(column.Expression, out bindings, sqlSelect);
-        if (!BoolIsNativelySupported && column.Type==typeof(bool))
+        if (!BoolIsNativelySupported && (column.Type==typeof(bool) || column.Type==typeof(bool?)))
           predicate = ExpressionProcessor.BooleanToInt(predicate);
         sqlSelect.Columns.Add(predicate, column.Name);
         allBindings = allBindings.Concat(bindings);

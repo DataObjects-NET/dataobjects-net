@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.Storage.DbTypeSupportModel;
 
@@ -18,12 +19,7 @@ namespace Xtensive.Storage.Tests.Storage
   [Explicit("Requires PostgreSQL and MSSQL servers")]
   public class AggregateTest : CrossStorageTest
   {
-    protected override IEnumerable<string> GetProviders()
-    {
-      return new[] {"memory", "mssql2005", "pgsql"};
-    }
-
-    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration(string provider)
+    protected override DomainConfiguration BuildConfiguration(string provider)
     {
       var configuration = base.BuildConfiguration(provider);
       configuration.Types.Register(typeof (X).Assembly, typeof (X).Namespace);

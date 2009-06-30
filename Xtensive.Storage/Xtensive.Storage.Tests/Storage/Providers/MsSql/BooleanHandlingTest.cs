@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql.BooleanHandlingTestMode
     public string Name { get; set; }
 
     [Field]
-    public bool Flag { get; set; }
+    public bool? Flag { get; set; }
 
     [Field]
     public bool HasStupidName { get; set; }
@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
     {
       TestQuery(() =>
         from o in Query<MyEntity>.All
-        where o.Flag
+        where o.Flag.Value
         select o
         );
     }
@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
     {
       TestQuery(() => 
         from o in Query<MyEntity>.All
-        where !o.Flag
+        where !o.Flag.Value
         select o
         );
     }
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
     {
       TestQuery(() =>
         from o in Query<MyEntity>.All
-        where o.Flag && o.HasStupidName
+        where o.Flag.Value && o.HasStupidName
         select o
         );
     }
@@ -129,7 +129,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
     {
       TestQuery(() =>
         from o in Query<MyEntity>.All
-        where o.Flag || o.HasStupidName
+        where o.Flag.Value || o.HasStupidName
         select o
         );
     }
@@ -159,7 +159,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
     {
       TestQuery(() =>
         from o in Query<MyEntity>.All
-        where o.Flag || (o.Id > 6)
+        where o.Flag.Value || (o.Id > 6)
         select o
         );
     }
@@ -169,7 +169,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
     {
       TestQuery(() =>
         from o in Query<MyEntity>.All
-        where o.Flag && o.Name.StartsWith("Yes")
+        where o.Flag.Value && o.Name.StartsWith("Yes")
         select o
         );
     }
@@ -242,7 +242,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
       var parameter = true;
       TestQuery(() =>
         from o in Query<MyEntity>.All
-        where parameter || o.Flag
+        where parameter || o.Flag.Value
         select o
         );
     }
@@ -338,13 +338,22 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
     }
 
     [Test]
+    public void CoalesceTest()
+    {
+      TestQuery(() =>
+        from it in Query<MyEntity>.All
+        select it.Flag ?? it.HasStupidName
+        );
+    }
+
+    [Test]
     public void ComplexTest()
     {
       var parameter1 = true;
       var parameter2 = false;
       TestQuery(() =>
         from o in Query<MyEntity>.All
-        where (!o.Flag && o.Name.StartsWith("No") || parameter1) && (o.HasStupidName || !parameter2)
+        where (!o.Flag.Value && o.Name.StartsWith("No") || parameter1) && (o.HasStupidName || !parameter2)
         select new {value = o.Id % 10 < 5, flag = o.Flag, notflag = !o.Flag}
         );
     }

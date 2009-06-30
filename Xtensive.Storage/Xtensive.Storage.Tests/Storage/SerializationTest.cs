@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
   }
 }
 
-namespace Xtensive.Storage.Tests
+namespace Xtensive.Storage.Tests.Storage
 {
   public class SerializationTest : AutoBuildTest
   {

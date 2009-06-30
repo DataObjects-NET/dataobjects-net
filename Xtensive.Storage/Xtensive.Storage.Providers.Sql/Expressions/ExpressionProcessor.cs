@@ -117,13 +117,18 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
             : SqlFactory.BitNot(operand);
         case ExpressionType.Convert:
         case ExpressionType.ConvertChecked:
-          var sourceType = StripNullable(expression.Operand.Type);
-          var targetType = StripNullable(expression.Type);
-          if (sourceType==targetType || targetType==typeof(object))
-            return operand;
-          return SqlFactory.Cast(operand, valueTypeMapper.BuildSqlValueType(targetType, null));
+          return VisitCast(expression, operand);
       }
       return operand;
+    }
+
+    private SqlExpression VisitCast(UnaryExpression cast, SqlExpression operand)
+    {
+      var sourceType = StripNullable(cast.Operand.Type);
+      var targetType = StripNullable(cast.Type);
+      if (sourceType==targetType || targetType==typeof(object))
+        return operand;
+      return SqlFactory.Cast(operand, valueTypeMapper.BuildSqlValueType(targetType, null));
     }
 
     protected override SqlExpression VisitBinary(BinaryExpression expression)
@@ -138,15 +143,16 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       bool isEqualityCheck = expression.NodeType==ExpressionType.Equal
                           || expression.NodeType==ExpressionType.NotEqual;
 
-      if (IsCharToIntConvert(expression.Left)
-       && IsCharToIntConvert(expression.Right)) {
+      bool isBooleanFixRequired = fixBooleanExpressions
+        && (isEqualityCheck || expression.NodeType==ExpressionType.Coalesce)
+        && IsBooleanExpression(expression.Left)
+        && IsBooleanExpression(expression.Right);
+
+      if (IsCharToIntConvert(expression.Left) && IsCharToIntConvert(expression.Right)) {
         // chars are compared as integers, but we store them as strings and should compare them like strings.
         left = Visit(((UnaryExpression) expression.Left).Operand, isEqualityCheck);
         right = Visit(((UnaryExpression) expression.Right).Operand, isEqualityCheck);
-      } else if (fixBooleanExpressions
-              && isEqualityCheck
-              && IsBooleanExpression(expression.Left)
-              && IsBooleanExpression(expression.Right)) {
+      } else if (isBooleanFixRequired) {
         // boolean expressions should be compared as integers
         left = BooleanToInt(Visit(expression.Left, isEqualityCheck));
         right = BooleanToInt(Visit(expression.Right, isEqualityCheck));
@@ -188,7 +194,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         case ExpressionType.AndAlso:
           return SqlFactory.And(left, right);
         case ExpressionType.Coalesce:
-          return SqlFactory.Coalesce(left, right);
+          SqlExpression coalesce = SqlFactory.Coalesce(left, right);
+          if (isBooleanFixRequired)
+            coalesce = IntToBoolean(coalesce);
+          return coalesce;
         case ExpressionType.Divide:
           return SqlFactory.Divide(left, right);
         case ExpressionType.Equal:
