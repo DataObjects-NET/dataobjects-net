@@ -898,6 +898,13 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void FkCompareTest()
+    {
+      var employee = Query<Employee>.All.Where(e => e.ReportsTo.Id > 20).First();
+      Assert.IsNotNull(employee);
+    }
+
+    [Test]
     public void IntLessThanTest()
     {
       var orders = Query<Order>.All;
