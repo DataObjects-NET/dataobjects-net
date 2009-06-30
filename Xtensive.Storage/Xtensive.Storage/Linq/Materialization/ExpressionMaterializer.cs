@@ -164,7 +164,7 @@ namespace Xtensive.Storage.Linq.Materialization
 
       // Materialize non-owned field.
       if (expression.Owner==null) {
-        var tupleAccess = tupleExpression.MakeTupleAccess(expression.Field.ValueType, expression.Mapping.Offset);
+        var tupleAccess = tupleExpression.MakeTupleAccess(expression.Type, expression.Mapping.Offset);
         return tupleAccess;
       }
 

@@ -345,14 +345,21 @@ namespace Xtensive.Storage.Linq
         var rightItem = rightExpressions[i];
         var leftIsNullable = leftItem.Type.IsNullable();
         var rightIsNullable = rightItem.Type.IsNullable();
-        if (leftIsNullable ^ rightIsNullable) {
-          leftItem = leftIsNullable
-            ? leftItem
-            : leftItem.LiftToNullable();
-          rightItem = rightIsNullable
-            ? rightItem
-            : rightItem.LiftToNullable();
-        }
+        leftItem = leftIsNullable
+          ? leftItem
+          : leftItem.LiftToNullable();
+        rightItem = rightIsNullable
+          ? rightItem
+          : rightItem.LiftToNullable();
+
+//        if (leftIsNullable ^ rightIsNullable) {
+//          leftItem = leftIsNullable
+//            ? leftItem
+//            : leftItem.LiftToNullable();
+//          rightItem = rightIsNullable
+//            ? rightItem
+//            : rightItem.LiftToNullable();
+//        }
         switch (binaryExpression.NodeType) {
         case ExpressionType.Equal:
           pairExpression = Expression.Equal(leftItem, rightItem);
