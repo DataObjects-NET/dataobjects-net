@@ -45,14 +45,13 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void OrderByAnonymousTest()
     {
-      IQueryable<Customer> customers = Query<Customer>.All;
-      var result = customers
-        .OrderBy(c => new {c.Fax, c.Phone})
-        .Select(c => new {c.Fax, c.Phone});
-      var expected = customers.ToList()
-        .OrderBy(a => a.Fax)
-        .ThenBy(a => a.Phone)
-        .Select(c => new {c.Fax, c.Phone});
+      var result = Query<Order>.All
+        .OrderBy(o => new {o.OrderDate, o.Freight})
+        .Select(o => new {o.OrderDate, o.Freight});
+      var expected = Orders
+        .OrderBy(o => o.OrderDate)
+        .ThenBy(o => o.Freight)
+        .Select(o => new {o.OrderDate, o.Freight});
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
@@ -73,10 +72,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void OrderByDescendingTest()
     {
-      var result = Query<Customer>.All.OrderByDescending(c => c.CompanyName)
-        .ThenByDescending(c => c.Address.Country).Select(c => c.Address.City);
-      var expected = Query<Customer>.All.ToList().OrderByDescending(c => c.CompanyName)
-        .ThenByDescending(c => c.Address.Country).Select(c => c.Address.City);
+      var result = Query<Customer>.All.OrderByDescending(c => c.Address.Country)
+        .ThenByDescending(c => c.Id).Select(c => c.Address.City);
+      var expected = Customers.OrderByDescending(c => c.Address.Country)
+        .ThenByDescending(c => c.Id).Select(c => c.Address.City);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
@@ -133,12 +132,11 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void OrderBySelectAnonymousTest()
     {
-      IQueryable<Customer> customers = Query<Customer>.All;
-      var result = customers
-        .OrderBy(c => c.Phone)
+      var result = Query<Customer>.All
+        .OrderBy(c => c.Id)
         .Select(c => new {c.Fax, c.Phone});
-      var expected = customers.ToList()
-        .OrderBy(c => c.Phone)
+      var expected = Customers.ToList()
+        .OrderBy(c => c.Id)
         .Select(c => new {c.Fax, c.Phone});
       Assert.IsTrue(expected.SequenceEqual(result));
     }
@@ -236,9 +234,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectTest()
     {
-      IQueryable<string> result = Query<Customer>.All.OrderBy(c => c.CompanyName)
+      var result = Query<Customer>.All.OrderBy(c => c.Id)
         .Select(c => c.ContactName);
-      var expected = Query<Customer>.All.ToList().OrderBy(c => c.CompanyName)
+      var expected = Customers.OrderBy(c => c.Id)
         .Select(c => c.ContactName);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
@@ -246,10 +244,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ThenByTest()
     {
-      IQueryable<string> result = Query<Customer>.All.OrderBy(c => c.CompanyName)
-        .ThenBy(c => c.Address.Country).Select(c => c.Address.City);
-      var expected = Query<Customer>.All.ToList().OrderBy(c => c.CompanyName)
-        .ThenBy(c => c.Address.Country).Select(c => c.Address.City);
+      var result = Query<Customer>.All.OrderBy(c => c.Address.Country)
+        .ThenBy(c => c.Id).Select(c => c.Address.City);
+      var expected = Customers.OrderBy(c => c.Address.Country)
+        .ThenBy(c => c.Id).Select(c => c.Address.City);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
   }
