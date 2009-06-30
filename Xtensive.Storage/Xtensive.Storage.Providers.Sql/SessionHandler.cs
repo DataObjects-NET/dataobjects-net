@@ -10,6 +10,7 @@ using System.Data;
 using System.Data.Common;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Tuples;
+using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Providers.Sql.Resources;
@@ -342,8 +343,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (connection!=null && connection.State==ConnectionState.Open)
         return;
-      connection = DomainHandler.ConnectionProvider.CreateConnection(
-        Handlers.Domain.Configuration.ConnectionInfo.ToString()) as SqlConnection;
+      connection = DomainHandler.SqlDriver.CreateConnection(new ConnectionInfo(Handlers.Domain.Configuration.ConnectionInfo.ToString())) as SqlConnection;
       if (connection==null)
         throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
       connection.Open();

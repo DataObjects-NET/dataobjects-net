@@ -11,6 +11,7 @@ using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
+using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
 using Xtensive.Sql.Dom.Database;
 using Xtensive.Sql.Dom.Database.Providers;
@@ -61,7 +62,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the connection provider.
     /// </summary>
-    internal SqlConnectionProvider ConnectionProvider { get; private set; }
+    internal SqlDriver SqlDriver { get; private set; }
 
     /// <summary>
     /// Gets the SQL driver.
@@ -202,13 +203,15 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Initialize()
     {
       base.Initialize();
+      SqlDriver = CreateSqlDriver(new ConnectionInfo(Handlers.Domain.Configuration.ConnectionInfo.ToString()));
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
-      ConnectionProvider = new SqlConnectionProvider();
       Mapping = new ModelMapping();
       RequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest>.Create(new object());
       RequestBuilder = Handlers.HandlerFactory.CreateHandler<SqlRequestBuilder>();
       RequestBuilder.Initialize();
     }
+
+    protected abstract SqlDriver CreateSqlDriver(ConnectionInfo connectionInfo);
 
     /// <inheritdoc/>
     public override void InitializeFirstSession()
