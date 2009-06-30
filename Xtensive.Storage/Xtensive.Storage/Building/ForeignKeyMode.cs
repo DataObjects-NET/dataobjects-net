@@ -17,9 +17,9 @@ namespace Xtensive.Storage.Building
   public enum ForeignKeyMode
   {
     /// <summary>
-    /// Default foreign key mode. Equlas to <see cref="None"/>.
+    /// Default foreign key mode. Equlas to <see cref="All"/>.
     /// </summary>
-    Default = None,
+    Default = All,
 
     /// <summary>
     /// No foreign keys will be built for storage.
