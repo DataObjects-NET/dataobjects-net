@@ -7,11 +7,9 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core.Disposing;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
-using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers.Internals;
 
 namespace Xtensive.Storage.Rse.Providers.Internals
 {
@@ -19,11 +17,12 @@ namespace Xtensive.Storage.Rse.Providers.Internals
   {
     private readonly ExecutableProvider toFilter;
     private readonly Func<Tuple, bool> predicate;
+    private readonly MapTransform transform;
     private readonly IIndexReader<Tuple, Tuple> reader;
 
     public override Tuple Current
     {
-      get { return reader.Current; }
+      get { return transform.Apply(TupleTransformType.Auto, reader.Current); }
     }
 
     public override bool MoveNext()
@@ -45,17 +44,18 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
     public override IEnumerator<Tuple> GetEnumerator()
     {
-      return new FilteringReader(Provider, Range, toFilter, predicate);
+      return new FilteringReader(Provider, Range, toFilter, predicate, transform);
     }
 
 
     // Constructors
 
-    public FilteringReader(ExecutableProvider provider, Range<Entire<Tuple>> range, ExecutableProvider toFilter, Func<Tuple,bool> predicate)
+    public FilteringReader(ExecutableProvider provider, Range<Entire<Tuple>> range, ExecutableProvider toFilter, Func<Tuple,bool> predicate, MapTransform transform)
       : base(provider, range)
     {
       this.toFilter = toFilter;
       this.predicate = predicate;
+      this.transform = transform;
       var orderedEnumerable = toFilter.GetService<IOrderedEnumerable<Tuple, Tuple>>();
       reader = orderedEnumerable.CreateReader(range);
     }

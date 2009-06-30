@@ -10,6 +10,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using System.Linq;
 using Xtensive.Storage.Model;
@@ -29,8 +30,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
   {
     private readonly IOrderedEnumerable<Tuple,Tuple> source;
     private readonly Func<Tuple, bool> predicate;
-    private readonly bool[] typeIdMatch;
-    private readonly IEnumerable<int> typeIds;
+    private MapTransform transform;
 
     /// <inheritdoc/>
     public long Count {
@@ -72,14 +72,14 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     public IEnumerable<Tuple> GetItems(Range<Entire<Tuple>> range)
     {
       IEnumerable<Tuple> items = source.GetItems(range);
-      return items.Where(predicate);
+      return items.Where(predicate).Select(t => transform.Apply(TupleTransformType.Auto, t));
     }
 
     /// <inheritdoc/>
     public IEnumerable<Tuple> GetItems(RangeSet<Entire<Tuple>> range)
     {
       IEnumerable<Tuple> items = source.GetItems(range);
-      return items.Where(predicate);
+      return items.Where(predicate).Select(t => transform.Apply(TupleTransformType.Auto, t));
     }
 
     /// <inheritdoc/>
@@ -94,9 +94,14 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     {
       SeekResult<Tuple> seek = source.Seek(ray);
       if (seek.ResultType==SeekResultType.Exact)
-        if (!predicate(seek.Result))
-          return new SeekResult<Tuple>(SeekResultType.Nearest, seek.Result);
-      return seek;
+        if (!predicate(seek.Result)) {
+          var nonExactResult = transform.Apply(TupleTransformType.Auto, seek.Result);
+          return new SeekResult<Tuple>(SeekResultType.Nearest, nonExactResult);
+        }
+      var result = seek.ResultType == SeekResultType.None
+        ? default(Tuple)
+        : transform.Apply(TupleTransformType.Auto, seek.Result);
+      return new SeekResult<Tuple>(seek.ResultType, result);
     }
 
     /// <inheritdoc/>
@@ -104,21 +109,48 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     {
       SeekResult<Tuple> seek = source.Seek(key);
       if (seek.ResultType == SeekResultType.Exact)
-        if (!predicate(seek.Result))
-          return new SeekResult<Tuple>(SeekResultType.Nearest, seek.Result);
-      return seek;
+        if (!predicate(seek.Result)) {
+          var nonExactResult = transform.Apply(TupleTransformType.Auto, seek.Result);
+          return new SeekResult<Tuple>(SeekResultType.Nearest, nonExactResult);
+        }
+      var result = seek.ResultType == SeekResultType.None
+        ? default(Tuple)
+        : transform.Apply(TupleTransformType.Auto, seek.Result);
+      return new SeekResult<Tuple>(seek.ResultType, result);
     }
 
     /// <inheritdoc/>
     public IIndexReader<Tuple, Tuple> CreateReader(Range<Entire<Tuple>> range)
     {
-      return new FilteringReader(this, range, Source, predicate);
+      return new FilteringReader(this, range, Source, predicate, transform);
     }
 
     /// <inheritdoc/>
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      return source.Where(predicate);
+      return source.Where(predicate).Select(t => transform.Apply(TupleTransformType.Auto, t));
+    }
+
+    protected override void Initialize()
+    {
+      base.Initialize();
+      
+      var sourceProvider = Source;
+      var sourceColumns = sourceProvider.Header.Columns;
+      var targetColumns = Header.Columns;
+      var map = new int[Header.TupleDescriptor.Count];
+      for (int i = 0; i < map.Length; i++) {
+        map[i] = MapTransform.NoMapping;
+        var columnRef = ((MappedColumn)targetColumns[i]).ColumnInfoRef;
+        for (int j = 0; j < sourceColumns.Count; j++) {
+          var sourceColumnRef = ((MappedColumn)sourceColumns[j]).ColumnInfoRef;
+          if (sourceColumnRef == columnRef) {
+            map[i] = j;
+            break;
+          }
+        }
+      }
+      transform = new MapTransform(true, Header.TupleDescriptor, map);
     }
 
 
@@ -138,12 +170,8 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
       AddService<ICountable>();
 
       source = provider.GetService<IOrderedEnumerable<Tuple,Tuple>>(true);
-      this.typeIds = typeIds;
 
-      predicate = delegate(Tuple item) {
-        int typeId = item.GetValueOrDefault<int>(typeIdColumn);
-        return typeIds.Contains(typeId);
-      };
+      predicate = tuple => typeIds.Contains(tuple.GetValueOrDefault<int>(typeIdColumn));
     }
   }
 }
