@@ -45,5 +45,14 @@ namespace Xtensive.PluginManager
     /// <param name="baseType">The base type.</param>
     /// <param name="attributeType">The attribute type.</param>
     void FindTypes(string file, Type baseType, Type attributeType);
+
+    /// <summary>
+    /// Searches for types inherited from baseType and optionally marked with attributes of attributeType.
+    /// </summary>
+    /// <param name="assemblyName">Display name of the <see cref="Assembly"/> to analyze.</param>
+    /// <param name="baseType">The base type.</param>
+    /// <param name="attributeType">The attribute type.</param>
+    void FindTypes(AssemblyName assemblyName, Type baseType, Type attributeType);
+
   }
 }

@@ -7,13 +7,16 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Security.Permissions;
 using System.Threading;
+using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.PluginManager
 {
   /// <summary>
-  /// Descibes the object that is capable for finding and loading plugins by their base <see cref="Type"/>
+  /// Type that is capable for finding and loading plugins by their base <see cref="Type"/>
   /// and <see cref="Attribute"/>s.
   /// </summary>
   /// <typeparam name="T">The type of attribute.</typeparam>
@@ -22,22 +25,27 @@ namespace Xtensive.PluginManager
     where T: Attribute
   {
     private readonly Type pluginType;
-    private readonly string path;
+    private readonly string searchPath;
     private readonly PluginRegistry<T> pluginRegistry;
     private PluginManagerState state;
     private readonly AttributeActivator<T> activator;
+    private readonly string searchPattern = "*.dll";
+    private readonly AssemblyName assemblyName;
 
     /// <summary>
     /// Finds the plugins of specified type and marked with specified attribute.
     /// </summary>
     private void Find()
     {
-      string[] files = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories);
-      Type attributeType = typeof (T);
       using (AssemblyInspector ai = new AssemblyInspector()) {
+        Type attributeType = typeof (T);
         ai.TypeFound += TypeFound;
-        for (int i = 0, count = files.Length; i < count; i++) {
-          ai.FindTypes(files[i], pluginType, attributeType);
+        if (assemblyName!=null)
+          ai.FindTypes(assemblyName, pluginType, attributeType);
+        else {
+          string[] files = Directory.GetFiles(searchPath, searchPattern, SearchOption.AllDirectories);
+          for (int i = 0, count = files.Length; i < count; i++)
+            ai.FindTypes(files[i], pluginType, attributeType);
         }
         ai.TypeFound -= TypeFound;
       }
@@ -80,9 +88,9 @@ namespace Xtensive.PluginManager
     /// Gets the path to search for plugins.
     /// </summary>
     /// <value>The path.</value>
-    public string Path
+    public string SearchPath
     {
-      get { return path; }
+      get { return searchPath; }
     }
 
     /// <summary>
@@ -161,20 +169,49 @@ namespace Xtensive.PluginManager
     #region Constructors
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="PluginManager&lt;T&gt;"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="pluginType">Plugin base type.</param>
-    /// <param name="path">The path to search for plugins.</param>
-    public PluginManager(Type pluginType, string path)
+    /// <param name="assemblyName">Name of the assembly to analyze.</param>
+    public PluginManager(Type pluginType, AssemblyName assemblyName)
+      : this(pluginType)
     {
-      if (string.IsNullOrEmpty(path))
-        throw new ArgumentNullException("path");
-      if (!Directory.Exists(path))
-        throw new DirectoryNotFoundException(path);
-      if (pluginType == null)
-        throw new ArgumentNullException("pluginType");
+      this.assemblyName = assemblyName;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="pluginType">Plugin base type.</param>
+    /// <param name="searchPath">The path to search for plugins.</param>
+    /// <param name="searchPattern">The file search pattern.</param>
+    public PluginManager(Type pluginType, string searchPath, string searchPattern)
+      : this(pluginType, searchPath)
+    {
       this.pluginType = pluginType;
-      this.path = path;
+      this.searchPath = searchPath;
+      this.searchPattern = searchPattern;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="pluginType">Plugin base type.</param>
+    /// <param name="searchPath">The path to search for plugins.</param>
+    public PluginManager(Type pluginType, string searchPath)
+      : this(pluginType)
+    {
+      if (string.IsNullOrEmpty(searchPath))
+        throw new ArgumentNullException("path");
+      if (!Directory.Exists(searchPath))
+        throw new DirectoryNotFoundException(searchPath);
+      this.searchPath = searchPath;
+    }
+
+    private PluginManager(Type pluginType)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(pluginType, "pluginType");
+      this.pluginType = pluginType;
       pluginRegistry = new PluginRegistry<T>();
       state = PluginManagerState.Initial;
       activator = new AttributeActivator<T>();

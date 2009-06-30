@@ -86,6 +86,17 @@ namespace Xtensive.PluginManager
       inspector.FindTypes(file, baseType, attributeType);
     }
 
+    /// <summary>
+    /// Searches for types inherited from baseType and optionally marked with attributes of attributeType.
+    /// </summary>
+    /// <param name="assemblyName">Display name of the <see cref="Assembly"/> to analyze.</param>
+    /// <param name="baseType">The base type.</param>
+    /// <param name="attributeType">The attribute type.</param>
+    public void FindTypes(AssemblyName assemblyName, Type baseType, Type attributeType)
+    {
+      inspector.FindTypes(assemblyName, baseType, attributeType);
+    }
+
     private void DomainRecreate(object sender, EventArgs e)
     {
       InitializeRemoteInspector();

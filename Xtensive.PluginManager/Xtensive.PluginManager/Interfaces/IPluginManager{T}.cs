@@ -31,7 +31,7 @@ namespace Xtensive.PluginManager
     /// Gets the path to search for plugins.
     /// </summary>
     /// <value>The path.</value>
-    string Path { get; }
+    string SearchPath { get; }
 
     /// <summary>
     /// Determines whether plugin with specified attribute exists.

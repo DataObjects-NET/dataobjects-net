@@ -29,9 +29,6 @@ namespace Xtensive.Storage.Building.Builders
   /// </summary>
   internal static class DomainBuilder
   {
-    private static readonly PluginManager<ProviderAttribute> pluginManager =
-      new PluginManager<ProviderAttribute>(typeof (HandlerFactory), AppDomain.CurrentDomain.BaseDirectory);
-
     /// <summary>
     /// Builds the domain.
     /// </summary>
@@ -134,15 +131,35 @@ namespace Xtensive.Storage.Building.Builders
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (HandlerFactory).GetShortName())) {
         string protocol = BuildingContext.Current.Configuration.ConnectionInfo.Protocol;
-        Type handlerProviderType;
-        lock (pluginManager) {
-          handlerProviderType = pluginManager[new ProviderAttribute(protocol)];
+
+        // PluginManager & GAC interoperability-related dirty workaround
+        // TODO: Remove in 4.1 version!!!
+        var currentAssemblyFullName = Assembly.GetExecutingAssembly().GetName().ToString();
+        var providerName = string.Empty;
+        switch (protocol) {
+          case "memory":
+            providerName = "Xtensive.Storage.Providers.Memory";
+            break;
+          case "mssql2005":
+            providerName = "Xtensive.Storage.Providers.MsSql";
+            break;
+          case "pgsql":
+          case "postgres":
+          case "postgresql":
+            providerName = "Xtensive.Storage.Providers.PgSql";
+            break;
+        }
+        var providerAssemblyFullName = currentAssemblyFullName.Replace(Assembly.GetExecutingAssembly().GetName().Name, providerName);
+        var providerAssemblyName = new AssemblyName(providerAssemblyFullName);
+        var pluginManager =
+          new PluginManager<ProviderAttribute>(typeof (HandlerFactory), providerAssemblyName);
+
+        Type handlerProviderType = pluginManager[new ProviderAttribute(protocol)];
           if (handlerProviderType==null)
             throw new DomainBuilderException(
               string.Format(Strings.ExStorageProviderNotFound,
                 protocol,
                 Environment.CurrentDirectory));
-        }
         var handlerFactory = (HandlerFactory) Activator.CreateInstance(handlerProviderType, new object[] {BuildingContext.Current.Domain});
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         handlerAccessor.HandlerFactory = handlerFactory;
