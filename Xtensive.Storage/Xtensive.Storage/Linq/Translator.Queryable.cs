@@ -642,9 +642,9 @@ namespace Xtensive.Storage.Linq
       inner = new ProjectionExpression(inner.Type, inner.ItemProjector.Remap(recordSet, outerLength), tupleParameterBindings);
 
       using (context.Bindings.PermanentAdd(resultSelector.Parameters[0], outer))
-      using (context.Bindings.PermanentAdd(resultSelector.Parameters[1], inner)) {
+      using (context.Bindings.PermanentAdd(resultSelector.Parameters[1], inner))
+      using (context.Bindings.LinkParameters(resultSelector.Parameters))
         return BuildProjection(resultSelector);
-      }
     }
 
     private Expression VisitGroupJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, Expression keyComparer)
@@ -833,7 +833,7 @@ namespace Xtensive.Storage.Linq
     {
       if (subquery.Header.Length!=1)
         throw new ArgumentException();
-      var lambdaParameter = state.Parameters[0];
+      ParameterExpression lambdaParameter = state.Parameters[0];
       var oldResult = context.Bindings[lambdaParameter];
 
       var applyParameter = context.GetApplyParameter(oldResult);

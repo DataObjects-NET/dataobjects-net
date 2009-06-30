@@ -100,6 +100,9 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitLambda(LambdaExpression le)
     {
       using (state.CreateLambdaScope(le)) {
+        if (!state.BuildingProjection && le.Parameters.Count>1)
+          throw new InvalidOperationException();
+
         var body = Visit(le.Body);
         var parameter = le.Parameters[0];
         var projection = context.Bindings[parameter];

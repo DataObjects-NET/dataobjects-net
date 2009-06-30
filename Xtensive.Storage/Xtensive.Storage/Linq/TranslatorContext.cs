@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Linq
     private readonly ParameterExtractor parameterExtractor;
     private readonly AliasGenerator resultAliasGenerator;
     private readonly AliasGenerator columnAliasGenerator;
-    private readonly BindingCollection<ParameterExpression, ProjectionExpression> bindings;
+    private readonly LinqBindingCollection bindings;
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
     private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors;
@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Linq
       get { return parameterExtractor; }
     }
 
-    public BindingCollection<ParameterExpression, ProjectionExpression> Bindings
+    public LinqBindingCollection Bindings
     {
       get { return bindings; }
     }
@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Linq
       translator = new Translator(this);
       evaluator = new ExpressionEvaluator(this.query);
       parameterExtractor = new ParameterExtractor(evaluator);
-      bindings = new BindingCollection<ParameterExpression, ProjectionExpression>();
+      bindings = new LinqBindingCollection();
       applyParameters = new Dictionary<CompilableProvider, ApplyParameter>();
       tupleParameters = new Dictionary<ParameterExpression, Parameter<Tuple>>();
       boundItemProjectors = new Dictionary<ParameterExpression, ItemProjectorExpression>();

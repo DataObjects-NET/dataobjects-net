@@ -35,7 +35,59 @@ namespace Xtensive.Storage.Tests.Linq
             emps = employees.Count()
           });
 
-      QueryDumper.Dump(q);
+      var expected = Query<Customer>.All.AsEnumerable()
+        .GroupJoin(Query<Order>.All.AsEnumerable(),
+          customer => customer.Id,
+          order => order.Customer.Id,
+          (customer, orders) => new {customer, orders})
+        .GroupJoin(Query<Employee>.All.AsEnumerable(),
+          customerOrders => customerOrders.customer.Address.City,
+          employee => employee.Address.City,
+          (customerOrders, employees) => new {
+            ords = customerOrders.orders.Count(),
+            emps = employees.Count()
+          });
+      QueryDumper.Dump(expected, true);
+      QueryDumper.Dump(q, true);
+
+      Assert.IsTrue(expected.SequenceEqual(q));
+    }
+
+    [Test]
+    public void GroupJoinAggregate2Test()
+    {
+      var q = Query<Customer>.All
+        .GroupJoin(Query<Order>.All,
+          customer => customer.Id,
+          order => order.Customer.Id,
+          (customer, orders) => new {customer, orders})
+        .GroupJoin(Query<Employee>.All,
+          customerOrders => customerOrders.customer.Address.City,
+          employee => employee.Address.City,
+          (customerOrders, employees) => new {
+            ords = customerOrders.orders.Count(),
+            emps = employees.Count(),
+            sum = employees.Count() + customerOrders.orders.Count()
+          });
+
+      var expected = Query<Customer>.All.AsEnumerable()
+        .GroupJoin(Query<Order>.All.AsEnumerable(),
+          customer => customer.Id,
+          order => order.Customer.Id,
+          (customer, orders) => new {customer, orders})
+        .GroupJoin(Query<Employee>.All.AsEnumerable(),
+          customerOrders => customerOrders.customer.Address.City,
+          employee => employee.Address.City,
+          (customerOrders, employees) => new {
+            ords = customerOrders.orders.Count(),
+            emps = employees.Count(),
+            sum = employees.Count() + customerOrders.orders.Count()
+          });
+
+      Assert.IsTrue(expected.SequenceEqual(q));
+
+      QueryDumper.Dump(expected, true);
+      QueryDumper.Dump(q, true);
     }
 
     [Test]

@@ -21,15 +21,15 @@ namespace Xtensive.Core.Collections
   /// isn't disposed.
   /// </summary>
   [Serializable]
-  public sealed class BindingCollection<TKey, TValue> : ICountable<KeyValuePair<TKey, TValue>>
+  public class BindingCollection<TKey, TValue> : ICountable<KeyValuePair<TKey, TValue>>
   {
-    private readonly Dictionary<TKey, TValue> bindings = new Dictionary<TKey, TValue>();
-    private readonly HashSet<TKey> permanentBindings = new HashSet<TKey>();
+    protected readonly Dictionary<TKey, TValue> bindings = new Dictionary<TKey, TValue>();
+    protected readonly HashSet<TKey> permanentBindings = new HashSet<TKey>();
 
     /// <summary>
     /// Gets the number of currently bound items.
     /// </summary>
-    public int Count {
+    public virtual int Count {
       [DebuggerStepThrough]
       get { return bindings.Count; }
     }
@@ -44,7 +44,7 @@ namespace Xtensive.Core.Collections
     /// Gets the bound value by its key.
     /// </summary>
     /// <value></value>
-    public TValue this[TKey key] {
+    public virtual TValue this[TKey key] {
       [DebuggerStepThrough]
       get { return bindings[key]; }
     }
@@ -56,7 +56,7 @@ namespace Xtensive.Core.Collections
     /// <param name="value">The value to bind.</param>
     /// <returns>Disposable object that will 
     /// destroy the binding on its disposal.</returns>
-    public Disposable Add(TKey key, TValue value)
+    public virtual Disposable Add(TKey key, TValue value)
     {
       TValue previous;
       if (bindings.TryGetValue(key, out previous)) {
@@ -81,7 +81,7 @@ namespace Xtensive.Core.Collections
     /// <param name="key">The key to bind to.</param>
     /// <param name="value">The value to bind.</param>
     /// <returns><see langword="null" />, so this binding will not be removed.</returns>
-    public Disposable PermanentAdd(TKey key, TValue value)
+    public virtual Disposable PermanentAdd(TKey key, TValue value)
     {
       bindings[key] = value;
       if (!permanentBindings.Contains(key))
@@ -95,7 +95,7 @@ namespace Xtensive.Core.Collections
     /// <param name="key">The binding key of the value to replace.</param>
     /// <param name="value">The new value.</param>
     /// <exception cref="KeyNotFoundException">Key isn't found.</exception>
-    public void ReplaceBound(TKey key, TValue value)
+    public virtual void ReplaceBound(TKey key, TValue value)
     {
       if (!bindings.ContainsKey(key))
         throw new KeyNotFoundException();
@@ -113,7 +113,7 @@ namespace Xtensive.Core.Collections
     /// contains an element with the specified key;
     /// otherwise, <see langword="false" />.</returns>
     [DebuggerStepThrough]
-    public bool TryGetValue(TKey key, out TValue value)
+    public virtual bool TryGetValue(TKey key, out TValue value)
     {
       return bindings.TryGetValue(key, out value);
     }
@@ -122,7 +122,7 @@ namespace Xtensive.Core.Collections
     /// Gets the sequence of bound keys.
     /// </summary>
     /// <returns>The sequence of bound keys.</returns>
-    public IEnumerable GetKeys()
+    public virtual IEnumerable GetKeys()
     {
       foreach (var key in bindings.Keys)
         yield return key;
@@ -131,7 +131,7 @@ namespace Xtensive.Core.Collections
     #region IEnumerable<...> methods
 
     /// <inheritdoc/>
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+    public virtual IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
     {
       return bindings.GetEnumerator();
     }
