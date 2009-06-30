@@ -59,8 +59,13 @@ namespace Xtensive.Storage.Tests.Storage
       using (Domain.OpenSession())
       using (var t = Transaction.Open()) {
         var categories = Query<Category>.All;
+        Assert.AreSame(categories.First().Products, categories.First().Products);
         var resultCount = categories.First().Products.Count();
-        var queryResult = categories.First().Products.ToList().Count();
+        var set = categories.First().Products;
+        var list = set.ToList();
+        var queryResult = list.Count;
+        var setCount = categories.First().Products.Count;
+        Assert.AreEqual(setCount, queryResult);
         Assert.AreEqual(queryResult, resultCount);
         t.Complete();
       }

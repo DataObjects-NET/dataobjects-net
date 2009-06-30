@@ -97,8 +97,7 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var ancestor in ancestors)
           foreach (var ancestorSecondaryIndex in ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None)) {
             if (ancestorSecondaryIndex.DeclaringIndex == ancestorSecondaryIndex) {
-              var secondaryIndex = BuildInheritedIndex(type, ancestorSecondaryIndex,
-                type.UnderlyingType.IsAbstract);
+              var secondaryIndex = BuildInheritedIndex(type, ancestorSecondaryIndex, type.UnderlyingType.IsAbstract);
               type.Indexes.Add(secondaryIndex);
               context.Model.RealIndexes.Add(secondaryIndex);
             }
@@ -108,9 +107,8 @@ namespace Xtensive.Storage.Building.Builders
         if (descendants.Count > 0)
           foreach (var index in type.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None)) {
             var secondaryIndex = index;
-            var baseIndexes = descendants.SelectMany(t => t.Indexes.Where(i => i.DeclaringIndex==secondaryIndex.DeclaringIndex)).ToList();
-            var virtualSecondaryIndex = BuildVirtualIndex(type, IndexAttributes.Union, index,
-              baseIndexes.ToArray());
+            var baseIndexes = descendants.SelectMany(t => t.Indexes.Where(i => !i.IsVirtual && i.DeclaringIndex == secondaryIndex.DeclaringIndex)).ToList();
+            var virtualSecondaryIndex = BuildVirtualIndex(type, IndexAttributes.Union, index, baseIndexes.ToArray());
             type.Indexes.Add(virtualSecondaryIndex);
           }
       }
