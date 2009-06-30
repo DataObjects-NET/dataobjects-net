@@ -41,8 +41,12 @@ namespace Xtensive.Storage.Model
       if (!model.Types.TryGetValue(TypeName, out type))
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "type", TypeName));
       IndexInfo index;
-      if (!type.Indexes.TryGetValue(IndexName, out index))
+      if (!type.Indexes.TryGetValue(IndexName, out index)) {
+        if (type.Hierarchy.Schema == InheritanceSchema.SingleTable &&
+            type.Hierarchy.Root.Indexes.TryGetValue(IndexName, out index)) 
+          return index;
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "index", IndexName));
+      }
 
       return index;
     }
