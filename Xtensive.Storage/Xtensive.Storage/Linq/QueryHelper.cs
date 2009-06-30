@@ -35,8 +35,12 @@ namespace Xtensive.Storage.Linq
       if (field.Association.Multiplicity == Multiplicity.OneToMany) {
         var whereParameter = Expression.Parameter(elementType, "p");
         var whereExpression = Expression.Equal(
-          Expression.Property(whereParameter, field.Association.Reversed.OwnerField.Name),
-          ownerEntity
+          Expression.Property(
+            Expression.Property(whereParameter, field.Association.Reversed.OwnerField.Name),
+            WellKnown.KeyFieldName),
+          Expression.Property(
+            ownerEntity,
+            WellKnown.KeyFieldName)
           );
         return Expression.Call(
           WellKnownMembers.QueryableWhere.MakeGenericMethod(elementType),
@@ -56,8 +60,12 @@ namespace Xtensive.Storage.Linq
       }
       var filterParameter = Expression.Parameter(connectorType, "t");
       var filterExpression = Expression.Equal(
-        Expression.Property(filterParameter, master),
-        ownerEntity
+        Expression.Property(
+          Expression.Property(filterParameter, master),
+          WellKnown.KeyFieldName),
+        Expression.Property(
+          ownerEntity,
+          WellKnown.KeyFieldName)
         );
 
       var outerQuery = Expression.Call(

@@ -757,9 +757,11 @@ namespace Xtensive.Storage.Tests.Model
     {
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {
-          H h = new H();
-          h.Children.Add(new H());
-          Assert.AreSame(h, h.Children.First().Parent);
+          var h = new H();
+          var children = h.Children;
+          children.Add(new H());
+          var first = children.First();
+          Assert.AreSame(h, first.Parent);
           // Rollback
         }
       }
