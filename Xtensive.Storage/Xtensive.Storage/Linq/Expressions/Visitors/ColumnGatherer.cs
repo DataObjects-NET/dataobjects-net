@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       }
 
       Visit(subQueryExpression.ProjectionExpression.ItemProjector.Item);
-      var visitor = new ApplyParameterAccessVisitor(subQueryExpression.ApplyParameter, (mc, index) => {
+      var visitor = new ApplyParameterAccessVisitor(topSubquery.ApplyParameter, (mc, index) => {
         columns.Add(index);
         return mc;
       });
