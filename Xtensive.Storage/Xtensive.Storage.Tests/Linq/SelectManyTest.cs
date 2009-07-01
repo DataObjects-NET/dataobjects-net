@@ -400,5 +400,16 @@ namespace Xtensive.Storage.Tests.Linq
         Assert.IsTrue(expected.SequenceEqual(actual));
       }
     }
+
+    [Test]
+    public void TwoSelectManyTest()
+    {
+      var q =
+        from o in Query<Order>.All
+        from d in Query<OrderDetails>.All
+        select new {OrderId = o.Id, d.UnitPrice};
+
+      QueryDumper.Dump(q);
+    }
   }
 }
