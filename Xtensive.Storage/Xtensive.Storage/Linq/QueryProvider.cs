@@ -9,11 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core.Reflection;
-using Xtensive.Storage.Internals;
-using Xtensive.Storage.Linq.Expressions;
-using Xtensive.Storage.Linq.Rewriters;
-using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Linq
 {
@@ -37,7 +32,7 @@ namespace Xtensive.Storage.Linq
     {
       Type elementType = SequenceHelper.GetElementType(expression.Type);
       try {
-        var query = (IQueryable) typeof (Query<>).Activate(new[] {elementType}, new object[] {expression});
+        var query = (IQueryable) typeof (Queryable<>).Activate(new[] {elementType}, new object[] {expression});
         return query;
       }
       catch (TargetInvocationException e) {
@@ -48,7 +43,7 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     IQueryable<TElement> IQueryProvider.CreateQuery<TElement>(Expression expression)
     {
-      return new Query<TElement>(expression);
+      return new Queryable<TElement>(expression);
     }
 
     /// <inheritdoc/>

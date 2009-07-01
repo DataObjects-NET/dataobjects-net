@@ -68,7 +68,7 @@ namespace Xtensive.Storage
     private const int LoadStateCount = 32;
 
     private Expression expression;
-    private Query<TItem> query;
+    private Queryable<TItem> query;
 
     /// <inheritdoc/>
     [Infrastructure]
@@ -272,7 +272,7 @@ namespace Xtensive.Storage
       // hack to make expression look like regular parameter (ParameterExtractor.IsParameter => true)
       var owner = Expression.Property(Expression.Constant(new {Owner = (Entity)Owner}), "Owner");
       expression = QueryHelper.CreateEntitySetQuery(owner, Field);
-      query = new Query<TItem>(expression);
+      query = new Queryable<TItem>(expression);
     }
 
     // Constructors

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Rhino.Mocks;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
@@ -56,7 +57,7 @@ namespace Xtensive.Storage.Tests.Rse
     {
       CompilableProvider optimizedProvider;
       using (EnumerationScope.Open()) {
-        var recordSet = ((Query<T>) query).Compiled;
+        var recordSet = ((Queryable<T>) query).Compiled;
         optimizedProvider = CompilationContext.Current.Compile(recordSet.Provider).Origin;
       }
       return optimizedProvider;

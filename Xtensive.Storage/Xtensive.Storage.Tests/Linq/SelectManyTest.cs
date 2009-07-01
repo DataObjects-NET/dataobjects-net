@@ -410,6 +410,8 @@ namespace Xtensive.Storage.Tests.Linq
         from d in Query<OrderDetails>.All
         select new {OrderId = o.Id, d.UnitPrice};
 
+      var count = q.Count();
+      Log.Info("Records count: {0}", count);
       QueryDumper.Dump(q);
     }
   }
