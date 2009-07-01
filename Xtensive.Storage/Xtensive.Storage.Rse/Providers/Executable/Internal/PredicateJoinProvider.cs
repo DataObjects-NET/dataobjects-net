@@ -24,7 +24,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      var result = new List<Tuple>();
       var left = Left.Enumerate(context);
       var right = Right.Enumerate(context);
       foreach (var l in left) {
@@ -33,16 +32,13 @@ namespace Xtensive.Storage.Rse.Providers.Executable
           if (predicate(l, r)) {
             rightTupleWasFound = true;
             var item = transform.Apply(TupleTransformType.Auto, l, r);
-            result.Add(item);
-//            yield return transform.Apply(TupleTransformType.Auto, l, r);
+            yield return item;
           }
         if (joinType == JoinType.LeftOuter && !rightTupleWasFound) {
           var item = transform.Apply(TupleTransformType.Auto, l, rightBlank);
-          //          yield return transform.Apply(TupleTransformType.Auto, l, rightBlank);
-          result.Add(item);
+          yield return item;
         }
       }
-      return result;
     }
 
     /// <inheritdoc/>
