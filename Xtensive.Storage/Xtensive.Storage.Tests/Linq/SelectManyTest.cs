@@ -401,6 +401,7 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+    [Ignore("Too slow")]
     [Test]
     public void TwoSelectManyTest()
     {

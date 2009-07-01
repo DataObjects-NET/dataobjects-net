@@ -539,6 +539,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(q);
     }
 
+    [Ignore("Too slow")]
     [Category("JOIN")]
     [Test(Description = "GroupJoin - Composite Key")]
     [Description("This sample shows a join with a composite key.")]
