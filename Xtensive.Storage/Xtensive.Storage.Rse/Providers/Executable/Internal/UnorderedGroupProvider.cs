@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
       // Calculating aggregate values
       foreach (var tuple in Source.Enumerate(context)){
-        var resultTuple = Origin.Transform.Apply(TupleTransformType.Tuple, tuple);
+        var resultTuple = Origin.Transform.Apply(TupleTransformType.Auto, tuple);
         int groupIndex;
         if (!groupMapping.TryGetValue(resultTuple, out groupIndex)){
           groupIndex = groupMapping.Count;
