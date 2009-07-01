@@ -70,7 +70,7 @@ namespace Xtensive.Integrity.Tests
       public override ErrorFlowBehavior OnError(object instance, Exception e)
       {
         Log.Error(e);
-        return ErrorFlowBehavior.Reprocess;
+        return ErrorFlowBehavior.Rethrow;
       }
 
       public override void RuntimeInitialize(MethodBase method)
