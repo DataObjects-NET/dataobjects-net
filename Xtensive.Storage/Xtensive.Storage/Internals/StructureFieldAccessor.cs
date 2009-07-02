@@ -21,19 +21,19 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override T GetValue(Persistent obj, FieldInfo field, bool notify)
+    public override T GetValue(Persistent obj, FieldInfo field)
     {
       EnsureTypeIsAssignable(field);
       IFieldValueAdapter result;
       if (obj.FieldHandlers.TryGetValue(field, out result))
         return (T) result;
-      result = Activator.CreateStructure(field.ValueType, obj, field, notify);
+      result = Activator.CreateStructure(field.ValueType, obj, field);
       obj.FieldHandlers.Add(field, result);
       return (T) result;
     }
 
     /// <inheritdoc/>
-    public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
+    public override void SetValue(Persistent obj, FieldInfo field, T value)
     {
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       EnsureTypeIsAssignable(field);

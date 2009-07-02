@@ -266,16 +266,16 @@ namespace Xtensive.Storage.Aspects
       var baseType = GetBasePersistentType(type);
       if (baseType==structureType)
         return new[] {
-          new[] {persistentType, typeof (FieldInfo), typeof(bool)},
+          new[] {persistentType, typeof (FieldInfo)},
           new[] {typeof (Tuple)}
         };
       if (baseType==entityType)
         return new[] {
-          new[] {typeof (EntityState), typeof(bool)}
+          new[] {typeof (EntityState)}
         };
       if (baseType==entitySetType)
         return new[] {
-          new[] {entityType, typeof (FieldInfo), typeof(bool)}
+          new[] {entityType, typeof (FieldInfo)}
         };
       throw Exceptions.InternalError(
         string.Format(Strings.ExWrongPersistentTypeCandidate, type.GetType()), 

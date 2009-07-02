@@ -13,7 +13,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
     public override void Process(RemovalContext context, AssociationInfo association, Entity owner, Entity target)
     {
       if (!context.RemovalQueue.Contains(owner.State))
-        owner.Remove(context.Notify);
+        owner.Remove();
     }
   }
 }

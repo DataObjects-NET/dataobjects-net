@@ -20,14 +20,14 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
     public RemovalContext Context { private get; set; }
 
-    public void BreakAssociations(Entity target, bool notify)
+    public void BreakAssociations(Entity target)
     {
       if (Context!=null) {
         BreakAssociations(Context, target);
         return;
       }
 
-      using (Context = new RemovalContext(this, notify))
+      using (Context = new RemovalContext(this))
         BreakAssociations(Context, target);
     }
 

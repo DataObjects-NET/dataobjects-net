@@ -5,8 +5,6 @@
 // Created:    2008.11.01
 
 using System;
-using System.Reflection;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
@@ -16,8 +14,8 @@ namespace Xtensive.Storage.Internals
 {
   internal static class Activator
   {
-    private static readonly ThreadSafeDictionary<Type, Func<EntityState, bool, Entity>> entityActivators =
-      ThreadSafeDictionary<Type, Func<EntityState, bool, Entity>>.Create(new object());
+    private static readonly ThreadSafeDictionary<Type, Func<EntityState, Entity>> entityActivators =
+      ThreadSafeDictionary<Type, Func<EntityState, Entity>>.Create(new object());
 
     private static readonly ThreadSafeDictionary<Type, Func<Entity>> newEntityActivators =
       ThreadSafeDictionary<Type, Func<Entity>>.Create(new object());
@@ -25,18 +23,20 @@ namespace Xtensive.Storage.Internals
     private static readonly ThreadSafeDictionary<Type, Func<Tuple, Structure>> structureTupleActivators =
       ThreadSafeDictionary<Type, Func<Tuple, Structure>>.Create(new object());
 
-    private static readonly ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, bool, Structure>> structureActivators =
-      ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, bool, Structure>>.Create(new object());
+    private static readonly ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, Structure>> 
+      structureActivators = ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, Structure>>
+      .Create(new object());
 
-    private static readonly ThreadSafeDictionary<Type, Func<Entity, FieldInfo, bool, EntitySetBase>> entitySetActivators =
-      ThreadSafeDictionary<Type, Func<Entity, FieldInfo, bool, EntitySetBase>>.Create(new object());
+    private static readonly ThreadSafeDictionary<Type, Func<Entity, FieldInfo, EntitySetBase>>
+      entitySetActivators = ThreadSafeDictionary<Type, Func<Entity, FieldInfo, EntitySetBase>>
+      .Create(new object());
 
-    internal static Entity CreateEntity(Type type, EntityState state, bool notify)
+    internal static Entity CreateEntity(Type type, EntityState state)
     {
       var activator = entityActivators.GetValue(type,
-        DelegateHelper.CreateConstructorDelegate<Func<EntityState, bool, Entity>>);
-      Entity result = activator(state, notify);
-      result.OnInitialize(notify);
+        DelegateHelper.CreateConstructorDelegate<Func<EntityState, Entity>>);
+      Entity result = activator(state);
+      result.NotifyInitialize();
       return result;
     }
 
@@ -48,12 +48,12 @@ namespace Xtensive.Storage.Internals
       return result;
     }
 
-    internal static Structure CreateStructure(Type type, Persistent owner, FieldInfo field, bool notify)
+    internal static Structure CreateStructure(Type type, Persistent owner, FieldInfo field)
     {
       var activator = structureActivators.GetValue(type,
-        DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo, bool, Structure>>);
-      Structure result = activator(owner, field, notify);
-      result.OnInitialize(notify);
+        DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo,Structure>>);
+      Structure result = activator(owner, field);
+      result.NotifyInitialize();
       return result;
     }
 
@@ -65,11 +65,11 @@ namespace Xtensive.Storage.Internals
       return result;
     }
 
-    internal static EntitySetBase CreateEntitySet(Entity owner, FieldInfo field, bool notify)
+    internal static EntitySetBase CreateEntitySet(Entity owner, FieldInfo field)
     {
       var activator = entitySetActivators.GetValue(field.ValueType,
-        DelegateHelper.CreateConstructorDelegate<Func<Entity, FieldInfo, bool, EntitySetBase>>);
-      EntitySetBase result = activator.Invoke(owner, field, notify);
+        DelegateHelper.CreateConstructorDelegate<Func<Entity, FieldInfo, EntitySetBase>>);
+      EntitySetBase result = activator.Invoke(owner, field);
       return result;
     }
   }

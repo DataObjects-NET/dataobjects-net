@@ -27,8 +27,8 @@ namespace UpgradeHandlersSorting.Model
     public Simple0()
     {}
 
-    protected Simple0(EntityState state, bool notify)
-      : base(state, notify)
+    protected Simple0(EntityState state)
+      : base(state)
     {}
   }
 }

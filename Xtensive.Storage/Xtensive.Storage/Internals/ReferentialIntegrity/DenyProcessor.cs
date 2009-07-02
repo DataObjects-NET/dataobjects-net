@@ -19,7 +19,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
         case Multiplicity.ZeroToOne:
         case Multiplicity.OneToOne:
         case Multiplicity.ManyToOne:
-          owner.SetFieldValue<Entity>(association.OwnerField, null, context.Notify);
+          owner.SetFieldValue<Entity>(association.OwnerField, null);
           break;
       }
     }

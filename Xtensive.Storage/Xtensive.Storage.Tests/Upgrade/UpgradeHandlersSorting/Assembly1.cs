@@ -26,8 +26,8 @@ namespace UpgradeHandlersSorting.Model
       get { return GetFieldValue<int>("Id");}
     }
 
-    protected Simple1(EntityState state, bool notify)
-      : base(state, notify)
+    protected Simple1(EntityState state)
+      : base(state)
     {}
   }
 

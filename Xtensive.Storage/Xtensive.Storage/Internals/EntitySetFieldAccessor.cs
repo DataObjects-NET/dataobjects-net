@@ -19,13 +19,13 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override T GetValue(Persistent obj, FieldInfo field, bool notify)
+    public override T GetValue(Persistent obj, FieldInfo field)
     {
       EnsureTypeIsAssignable(field);
       IFieldValueAdapter result;
       if (obj.FieldHandlers.TryGetValue(field, out result))
         return (T)result;
-      result = Activator.CreateEntitySet((Entity) obj, field, notify);
+      result = Activator.CreateEntitySet((Entity) obj, field);
       obj.FieldHandlers.Add(field, result);
       return (T) result;
 
@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Internals
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Always thrown by this method.</exception>
-    public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
+    public override void SetValue(Persistent obj, FieldInfo field, T value)
     {
       throw new InvalidOperationException(Strings.ExEntitySetCanTBeAssigned);
     }

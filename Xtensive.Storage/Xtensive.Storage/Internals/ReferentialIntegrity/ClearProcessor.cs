@@ -17,12 +17,12 @@ namespace Xtensive.Storage.ReferentialIntegrity
           case Multiplicity.ZeroToOne:
           case Multiplicity.OneToOne:
           case Multiplicity.ManyToOne:
-            owner.SetFieldValue<Entity>(association.OwnerField, null, context.Notify);
+            owner.SetFieldValue<Entity>(association.OwnerField, null);
             break;
           case Multiplicity.ZeroToMany:
           case Multiplicity.OneToMany:
           case Multiplicity.ManyToMany:
-            owner.GetProperty<EntitySetBase>(association.OwnerField.Name).Remove(target, context.Notify);
+            owner.GetProperty<EntitySetBase>(association.OwnerField.Name).Remove(target);
             break;
         }
     }

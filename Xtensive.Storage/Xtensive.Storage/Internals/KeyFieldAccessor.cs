@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override T GetValue(Persistent obj, FieldInfo field, bool notify)
+    public override T GetValue(Persistent obj, FieldInfo field)
     {
       EnsureTypeIsAssignable(field);
       int fieldIndex = field.MappingInfo.Offset;
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
+    public override void SetValue(Persistent obj, FieldInfo field, T value)
     {
       EnsureTypeIsAssignable(field);
       var key = (Key) (object) value;

@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Building
     public static void EnsureUnderlyingTypeIsAspected(TypeDef type)
     {
       var constructor = type.UnderlyingType.GetConstructor(
-        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, new[] {typeof (EntityState), typeof (bool)});
+        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, new[] {typeof (EntityState)});
       if (constructor!=null)
         return;
       var assemblyName = type.UnderlyingType.Assembly.GetName().Name;

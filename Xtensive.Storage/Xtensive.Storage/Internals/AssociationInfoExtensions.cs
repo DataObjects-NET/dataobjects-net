@@ -55,14 +55,14 @@ namespace Xtensive.Storage.Internals
         case Multiplicity.ZeroToOne:
         case Multiplicity.OneToOne:
         case Multiplicity.ManyToOne:
-          var target = owner.GetFieldValue<Entity>(association.OwnerField, false);
+          var target = owner.GetFieldValue<Entity>(association.OwnerField);
           if (target != null)
             yield return target;
           break;
         case Multiplicity.ZeroToMany:
         case Multiplicity.OneToMany:
         case Multiplicity.ManyToMany:
-          var targets = owner.GetFieldValue<EntitySetBase>(association.OwnerField, false);
+          var targets = owner.GetFieldValue<EntitySetBase>(association.OwnerField);
           foreach (var item in targets.GetEntities())
             yield return item;
           break;

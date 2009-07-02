@@ -14,7 +14,7 @@ namespace Xtensive.Storage.PairIntegrity
   {
     private readonly Stack<SyncContext> contextStack = new Stack<SyncContext>();
 
-    public void Enlist(OperationType type, Entity owner, Entity value, AssociationInfo association, bool notify)
+    public void Enlist(OperationType type, Entity owner, Entity value, AssociationInfo association)
     {
       SyncContext context = null;
       if (contextStack.Count > 0)
@@ -37,9 +37,9 @@ namespace Xtensive.Storage.PairIntegrity
         Entity master2 = null;
       
         if (masterActions.GetPairedValue!=null)
-          slave1 = (Entity) masterActions.GetPairedValue(master1, notify);
+          slave1 = (Entity) masterActions.GetPairedValue(master1);
         if (slave2 != null && slaveActions.GetPairedValue != null)
-          master2 = (Entity) slaveActions.GetPairedValue(slave2, notify);
+          master2 = (Entity) slaveActions.GetPairedValue(slave2);
 
         context = new SyncContext();
         contextStack.Push(context);
@@ -49,22 +49,22 @@ namespace Xtensive.Storage.PairIntegrity
         case OperationType.Set:
           // Setting new association value for slave
           if (slave2!=null && !(association.IsLoop && master1 == slave2)) {
-            context.RegisterAction(slaveActions.CreateAssociation, slave2, master1, notify);
+            context.RegisterAction(slaveActions.CreateAssociation, slave2, master1);
             context.RegisterParticipant(slave2, association.Reversed);
           }
           // Breaking existing associations
           if (master2!=null) {
-            context.RegisterAction(masterActions.BreakAssociation, master2, slave2, notify);
+            context.RegisterAction(masterActions.BreakAssociation, master2, slave2);
             context.RegisterParticipant(master2, association);
           }
           if (slave1!=null) {
-            context.RegisterAction(slaveActions.BreakAssociation, slave1, master1, notify);
+            context.RegisterAction(slaveActions.BreakAssociation, slave1, master1);
             context.RegisterParticipant(slave1, association.Reversed);
           }
           break;
         case OperationType.Remove:
           if (!(association.IsLoop && master1 == slave2)) {
-            context.RegisterAction(slaveActions.BreakAssociation, slave2, master1, notify);
+            context.RegisterAction(slaveActions.BreakAssociation, slave2, master1);
             context.RegisterParticipant(slave2, association.Reversed);
           }
           break;

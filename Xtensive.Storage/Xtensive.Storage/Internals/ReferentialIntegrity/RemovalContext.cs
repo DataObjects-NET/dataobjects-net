@@ -13,8 +13,6 @@ namespace Xtensive.Storage.ReferentialIntegrity
   {
     private readonly ReferenceManager referenceManager;
 
-    public bool Notify { get; private set; }
-
     public HashSet<EntityState> RemovalQueue { get; private set; }
 
     public void Dispose()
@@ -26,11 +24,10 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
     // Constructors
 
-    public RemovalContext(ReferenceManager referenceManager, bool notify)
+    public RemovalContext(ReferenceManager referenceManager)
     {
       this.referenceManager = referenceManager;
       RemovalQueue = new HashSet<EntityState>();
-      Notify = notify;
     }
   }
 }

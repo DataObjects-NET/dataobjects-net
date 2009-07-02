@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Serialization
         if (!IsSerializable(field))
           continue;
           
-        object value = entity.GetFieldValue<object>(field, false);
+        object value = entity.GetFieldValue<object>(field);
         info.AddValue(field.Name, value, field.ValueType);
       }
     }
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Serialization
 
       Key key = Key.Create(entityType, keyValue, true);
       entity.State = session.CreateEntityState(key);
-      entity.OnInitializing(false);
+      entity.NotifyInitializing();
     }
 
     public static Tuple DeserializeKeyFields(TypeInfo entityType, SerializationInfo info, StreamingContext context)
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Serialization
           continue;
 
         object value = info.GetValue(field.Name, field.ValueType);
-        entity.SetFieldValue(field, value, false);
+        entity.SetFieldValue(field, value);
       }
     }
 

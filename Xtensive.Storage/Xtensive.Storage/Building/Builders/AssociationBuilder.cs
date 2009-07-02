@@ -131,9 +131,9 @@ namespace Xtensive.Storage.Building.Builders
         throw new DomainBuilderException(string.Format(Strings.ExPairToAttributeCanNotBeAppliedToXField,
           association.OwnerField, association.OwnerType.UnderlyingType.FullName, association.Reversed.OwnerField, association.Reversed.OwnerType.UnderlyingType.FullName));
 
-      Func<IEntity, bool, IEntity> getValue = null;
-      Action<IEntity, IEntity, bool> @break;
-      Action<IEntity, IEntity, bool> create;
+      Func<IEntity, IEntity> getValue = null;
+      Action<IEntity, IEntity> @break;
+      Action<IEntity, IEntity> create;
 
       switch (association.Multiplicity) {
       case Multiplicity.OneToOne:
@@ -162,25 +162,28 @@ namespace Xtensive.Storage.Building.Builders
       BuildingContext.Current.Domain.PairSyncActions.Add(association, actionSet);
     }
 
-    private static Func<IEntity, bool, IEntity> BuildGetPairedValueAction(AssociationInfo association)
+    private static Func<IEntity, IEntity> BuildGetPairedValueAction(AssociationInfo association)
     {
-      return (entity, notify) => ((Entity)entity).GetFieldValue<IEntity>(association.OwnerField, notify);
+      return (entity) => ((Entity)entity).GetFieldValue<IEntity>(association.OwnerField);
     }
 
-    private static Action<IEntity, IEntity, bool> BuildBreakAssociationAction(AssociationInfo association, OperationType type)
+    private static Action<IEntity, IEntity> BuildBreakAssociationAction(AssociationInfo association, OperationType type)
     {
       if (type==OperationType.Set)
-        return (master, slave, notify) => ((Entity)master).SetFieldValue<IEntity>(association.OwnerField, null, notify);
+        return (master, slave) => ((Entity)master).SetFieldValue<IEntity>(association.OwnerField, null);
       else
-        return (master, slave, notify) => ((Entity)master).GetFieldValue<EntitySetBase>(association.OwnerField, notify).Remove((Entity)slave, notify);
+        return (master, slave) => ((Entity)master).GetFieldValue<EntitySetBase>(association.OwnerField)
+          .Remove((Entity)slave);
     }
 
-    private static Action<IEntity, IEntity, bool> BuildCreateAssociationAction(AssociationInfo association, OperationType type)
+    private static Action<IEntity, IEntity> BuildCreateAssociationAction(AssociationInfo association,
+      OperationType type)
     {
       if (type==OperationType.Set)
-        return (master, slave, notify) => ((Entity)master).SetFieldValue(association.OwnerField, slave, notify);
+        return (master, slave) => ((Entity)master).SetFieldValue(association.OwnerField, slave);
       else
-        return (master, slave, notify) => ((Entity)master).GetFieldValue<EntitySetBase>(association.OwnerField, notify).Add((Entity)slave, notify);
+        return (master, slave) => ((Entity)master).GetFieldValue<EntitySetBase>(association.OwnerField)
+          .Add((Entity)slave);
     }
   }
 }

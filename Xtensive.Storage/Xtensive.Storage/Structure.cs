@@ -5,8 +5,10 @@
 // Created:    2007.08.01
 
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
@@ -62,6 +64,14 @@ namespace Xtensive.Storage
     private readonly TypeInfo type;
 
     /// <inheritdoc/>
+    public override event PropertyChangedEventHandler PropertyChanged {
+      add {Session.EntityEvents.AddSubscriber(FindOwnerEntityKey(owner), field,
+        EntityEventManager.PropertyChangedEventKey, value);}
+      remove {Session.EntityEvents.RemoveSubscriber(FindOwnerEntityKey(owner), field,
+        EntityEventManager.PropertyChangedEventKey, value);}
+    }
+
+    /// <inheritdoc/>
     internal override TypeInfo Type {
       [DebuggerStepThrough]
       get { return type; }
@@ -109,45 +119,115 @@ namespace Xtensive.Storage
 
     #region System-level event-like members
 
-    // This is done just to make it sealed
-    internal override sealed void OnInitializing(bool notify)
+    internal override sealed void NotifyInitializing()
     {
-      base.OnInitializing(notify);
+      if (!Session.SystemLogicOnly) {
+        Key entityKey;
+        Delegate subscriber;
+        GetSubscription(EntityEventManager.InitializingPersistentEventKey, out entityKey, out subscriber);
+        if (subscriber!=null)
+          ((Action<Key, FieldInfo>) subscriber).Invoke(entityKey, field);
+      }
     }
 
-    // This is done just to make it sealed
-    internal sealed override void OnInitialize(bool notify)
+    internal sealed override void NotifyInitialize()
     {
-      base.OnInitialize();
+      if (!Session.SystemLogicOnly) {
+        Key entityKey;
+        Delegate subscriber;
+        GetSubscription(EntityEventManager.InitializePersistentEventKey, out entityKey, out subscriber);
+        if (subscriber!=null)
+          ((Action<Key, FieldInfo>) subscriber).Invoke(entityKey, field);
+        OnInitialize();
+      }
       if (CanBeValidated)
         this.Validate();
     }
 
-    internal override sealed void OnGettingFieldValue(FieldInfo field, bool notify)
+    internal override sealed void NotifyGettingFieldValue(FieldInfo fieldInfo)
     {
-      base.OnGettingFieldValue(field, notify);
+      if (!Session.SystemLogicOnly) {
+        Key entityKey;
+        Delegate subscriber;
+        GetSubscription(EntityEventManager.GettingFieldEventKey, out entityKey, out subscriber);
+        if (subscriber!=null)
+          ((Action<Key, FieldInfo, FieldInfo>) subscriber).Invoke(entityKey, field, fieldInfo);
+        OnGettingFieldValue(fieldInfo);
+      }
       if (owner!=null)
-        owner.OnGettingFieldValue(this.field, notify);
+        owner.NotifyGettingFieldValue(field);
     }
 
-    // This is done just to make it sealed
-    internal override sealed void OnGetFieldValue(FieldInfo field, object value, bool notify)
+    internal override sealed void NotifyGetFieldValue(FieldInfo fieldInfo, object value)
     {
-      base.OnGetFieldValue(field, value, notify);
+      if (Session.SystemLogicOnly)
+        return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.GetFieldEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key, FieldInfo, FieldInfo, object>) subscriber).Invoke(entityKey, field, fieldInfo, value);
+      OnGetFieldValue(field, value);
     }
 
-    internal override sealed void OnSettingFieldValue(FieldInfo field, object value, bool notify)
+    internal override sealed void NotifySettingFieldValue(FieldInfo fieldInfo, object value)
     {
-      base.OnSettingFieldValue(field, value, notify);
       if (owner!=null)
-        owner.OnSettingFieldValue(this.field, value, notify);
+        owner.NotifySettingFieldValue(field, value);
+      if (Session.SystemLogicOnly)
+        return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.SettingFieldEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key, FieldInfo, FieldInfo, object>) subscriber).Invoke(entityKey, field, fieldInfo, value);
+      OnSettingFieldValue(field, value);
     }
 
-    internal override sealed void OnSetFieldValue(FieldInfo field, object oldValue, object newValue, bool notify)
+    internal override sealed void NotifySetFieldValue(FieldInfo fieldInfo, object oldValue, object newValue)
     {
       if (owner!=null)
-        owner.OnSetFieldValue(this.field, oldValue, newValue, notify);
-      base.OnSetFieldValue(field, oldValue, newValue, notify);
+        owner.NotifySetFieldValue(field, oldValue, newValue);
+      if (Session.SystemLogicOnly)
+        return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.SetFieldEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key, FieldInfo, FieldInfo, object, object>) subscriber)
+          .Invoke(entityKey, field, fieldInfo, oldValue, newValue);
+      OnSetFieldValue(field, oldValue, newValue);
+      base.NotifySetFieldValue(fieldInfo, oldValue, newValue);
+    }
+
+    protected internal override void NotifyPropertyChanged(FieldInfo fieldInfo)
+    {
+      if(!Session.EntityEvents.HasSubscribers)
+        return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.PropertyChangedEventKey, out entityKey, out subscriber);
+      if(subscriber != null)
+        ((PropertyChangedEventHandler)subscriber).Invoke(this, new PropertyChangedEventArgs(fieldInfo.Name));
+    }
+
+    private void GetSubscription(object eventKey, out Key entityKey,
+      out Delegate subscriber)
+    {
+      entityKey = FindOwnerEntityKey(owner);
+      if(entityKey == null) {
+        subscriber = null;
+        return;
+      }
+      subscriber = Session.EntityEvents.GetSubscriber(entityKey, field, eventKey);
+    }
+
+    private static Key FindOwnerEntityKey(Persistent owner)
+    {
+      var asFieldValueAdapter = owner as IFieldValueAdapter;
+      if(asFieldValueAdapter != null)
+        return FindOwnerEntityKey(asFieldValueAdapter.Owner);
+      return owner != null ? ((Entity) owner).Key : null;
     }
 
     #endregion
@@ -199,9 +279,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="owner">The owner of this instance.</param>
     /// <param name="field">The owner field that describes this instance.</param>
-    /// <param name="notify">If set to <see langword="true"/>, 
-    /// initialization related events will be raised.</param>
-    protected Structure(Persistent owner, FieldInfo field, bool notify)
+    protected Structure(Persistent owner, FieldInfo field)
     {
       type = GetTypeInfo();
       this.owner = owner;
@@ -211,7 +289,7 @@ namespace Xtensive.Storage
       else
         tuple = field.ExtractValue(
           new ReferencedTuple(() => this.owner.Tuple));
-      OnInitializing(notify);
+      NotifyInitializing();
     }
 
     /// <summary>

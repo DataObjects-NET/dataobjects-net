@@ -56,36 +56,6 @@ namespace Xtensive.Storage
     private ServiceProvider serviceProvider;
 
     /// <summary>
-    /// Occurs when <see cref="Session"/> is about to <see cref="Dispose"/>.
-    /// </summary>
-    public EventHandler OnDisposing;
-
-    /// <summary>
-    /// Occurs when <see cref="Session"/> is about to <see cref="Persist"/>.
-    /// </summary>
-    public EventHandler OnPersisting;
-
-    /// <summary>
-    /// Occurs when <see cref="Session"/> persisted.
-    /// </summary>
-    public EventHandler OnPersist;
-
-    /// <summary>
-    /// Occurs when <see cref="Entity"/> created.
-    /// </summary>
-    public EventHandler<EntityEventArgs> OnCreateEntity;
-
-    /// <summary>
-    /// Occurs when <see cref="Entity"/> is about to remove.
-    /// </summary>
-    public EventHandler<EntityEventArgs> OnRemovingEntity;
-
-    /// <summary>
-    /// Occurs when <see cref="Entity"/> removed.
-    /// </summary>
-    public EventHandler<EntityEventArgs> OnRemoveEntity;
-
-    /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
     /// </summary>
     public SessionConfiguration Configuration { get; private set; }
@@ -116,37 +86,37 @@ namespace Xtensive.Storage
 
     private void NotifyDisposing()
     {
-      if (OnDisposing!=null)
+      if (!SystemLogicOnly && OnDisposing!=null)
         OnDisposing(this, EventArgs.Empty);
     }
 
     private void NotifyPersisting()
     {
-      if (OnPersisting!=null)
+      if (!SystemLogicOnly && OnPersisting!=null)
         OnPersisting(this, EventArgs.Empty);
     }
 
     private void NotifyPersist()
     {
-      if (OnPersist!=null)
+      if (!SystemLogicOnly && OnPersist!=null)
         OnPersist(this, EventArgs.Empty);
     }
 
     internal void NotifyCreateEntity(Entity entity)
     {
-      if (OnCreateEntity!=null)
+      if (!SystemLogicOnly && OnCreateEntity!=null)
         OnCreateEntity(this, new EntityEventArgs(entity));
     }
 
     internal void NotifyRemovingEntity(Entity entity)
     {
-      if (OnRemovingEntity!=null)
+      if (!SystemLogicOnly && OnRemovingEntity!=null)
         OnRemovingEntity(this, new EntityEventArgs(entity));
     }
 
     internal void NotifyRemoveEntity(Entity entity)
     {
-      if (OnRemoveEntity!=null)
+      if (!SystemLogicOnly && OnRemoveEntity!=null)
         OnRemoveEntity(this, new EntityEventArgs(entity));
     }
 
@@ -327,6 +297,7 @@ namespace Xtensive.Storage
       CoreServices = new CoreServiceAccessor(this);
       PairSyncManager = new SyncManager(this);
       ReferenceManager = new ReferenceManager(this);
+      EntityEvents = new EntityEventManager();
     }
 
     #region Dispose pattern

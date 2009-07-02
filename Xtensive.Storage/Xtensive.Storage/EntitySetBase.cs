@@ -42,7 +42,6 @@ namespace Xtensive.Storage
     private AssociationInfo association;
     private CombineTransform seekTransform;
     private bool isInitialized;
-    private readonly bool notifyInitialization;
 
 
     #region Public Count, Contains members
@@ -124,7 +123,7 @@ namespace Xtensive.Storage
       count = items.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
 
       seekTransform = new CombineTransform(true, association.OwnerType.Hierarchy.KeyInfo.TupleDescriptor, association.TargetType.Hierarchy.KeyInfo.TupleDescriptor);
-      OnInitialize(notifyInitialization);
+      NotifyInitialize();
     }
 
     #endregion
@@ -136,34 +135,34 @@ namespace Xtensive.Storage
       return Contains(item.Key);
     }
 
-    internal bool Add(Entity item, bool notify)
+    internal bool Add(Entity item)
     {
       if (Contains(item))
         return false;
 
-      OnAdding(item, notify);
+      NotifyAdding(item);
 
       if (association.IsPaired)
-        Session.PairSyncManager.Enlist(OperationType.Add, ConcreteOwner, item, association, notify);
+        Session.PairSyncManager.Enlist(OperationType.Add, ConcreteOwner, item, association);
 
       if (association.AuxiliaryType!=null && association.IsMaster)
         itemCtor(item.Key.Value.Combine(ConcreteOwner.Key.Value));
 
       State.Add(item.Key);
-      OnAdd(item, notify);
+      NotifyAdd(item);
 
       return true;
     }
 
-    internal bool Remove(Entity item, bool notify)
+    internal bool Remove(Entity item)
     {
       if (!Contains(item))
         return false;
 
-      OnRemoving(item, notify);
+      NotifyRemoving(item);
 
       if (association.IsPaired)
-        Session.PairSyncManager.Enlist(OperationType.Remove, ConcreteOwner, item, association, notify);
+        Session.PairSyncManager.Enlist(OperationType.Remove, ConcreteOwner, item, association);
 
       if (association.AuxiliaryType!=null && association.IsMaster) {
         var combinedKey = Key.Create(association.AuxiliaryType, item.Key.Value.Combine(ConcreteOwner.Key.Value));
@@ -172,20 +171,20 @@ namespace Xtensive.Storage
       }
 
       State.Remove(item.Key);
-      OnRemove(item, notify);
+      NotifyRemove(item);
 
       return true;
     }
 
-    internal void Clear(bool notify)
+    internal void Clear()
     {
-      OnClearing(notify);
+      NotifyClearing();
       foreach (var entity in GetEntities().ToList())
-        Remove(entity, notify);
-      OnClear(notify);
+        Remove(entity);
+      NotifyClear();
     }
 
-    internal void IntersectWith<TElement>(IEnumerable<TElement> other, bool notify)
+    internal void IntersectWith<TElement>(IEnumerable<TElement> other)
       where TElement : Entity
     {
       if (this == other)
@@ -193,27 +192,27 @@ namespace Xtensive.Storage
       var otherEntities = other.Cast<Entity>().ToHashSet();
       foreach (var item in GetEntities().ToList())
         if (!otherEntities.Contains(item))
-          Remove(item, notify);
+          Remove(item);
     }
 
-    internal void UnionWith<TElement>(IEnumerable<TElement> other, bool notify)
+    internal void UnionWith<TElement>(IEnumerable<TElement> other)
       where TElement : Entity
     {
       if (this == other)
         return;
       foreach (var item in other)
-        Add(item, notify);
+        Add(item);
     }
 
-    internal void ExceptWith<TElement>(IEnumerable<TElement> other, bool notify)
+    internal void ExceptWith<TElement>(IEnumerable<TElement> other)
       where TElement : Entity
     {
       if (this == other) {
-        Clear(notify);
+        Clear();
         return;
       }
       foreach (var item in other)
-        Remove(item, notify);
+        Remove(item);
     }
 
     #endregion
@@ -237,56 +236,106 @@ namespace Xtensive.Storage
 
     #region System-level events
 
-    private void OnInitialize(bool notify)
+    private void NotifyInitialize()
     {
-      if (!notify)
+      if (Session.SystemLogicOnly)
         return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.InitializeEntitySetEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key, FieldInfo>) subscriber).Invoke(entityKey, Field);
       OnInitialize();
     }
 
-    private void OnAdding(Entity item, bool notify)
+    private void NotifyAdding(Entity item)
     {
-      if (!notify)
+      if (Session.SystemLogicOnly)
         return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.AddingEntitySetItemEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key, FieldInfo, Entity>) subscriber).Invoke(entityKey, Field, item);
       OnAdding(item);
     }
 
-    private void OnAdd(Entity item, bool notify)
+    private void NotifyAdd(Entity item)
     {
-      if (!notify)
+      if (Session.SystemLogicOnly)
         return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.AddEntitySetItemEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key, FieldInfo, Entity>) subscriber).Invoke(entityKey, Field, item);
       OnAdd(item);
-      OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
+      NotifyCollectionChanged(NotifyCollectionChangedAction.Add, item);
     }
 
-    private void OnRemoving(Entity item, bool notify)
+    private void NotifyRemoving(Entity item)
     {
-      if (!notify)
+      if (Session.SystemLogicOnly)
         return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.RemovingEntitySetItemEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key, FieldInfo, Entity>) subscriber).Invoke(entityKey, Field, item);
       OnRemoving(item);
     }
 
-    private void OnRemove(Entity item, bool notify)
+    private void NotifyRemove(Entity item)
     {
-      if (!notify)
+      if (Session.SystemLogicOnly)
         return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.RemoveEntitySetItemEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key, FieldInfo, Entity>) subscriber).Invoke(entityKey, Field, item);
       OnRemove(item);
-      OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
+      NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, item);
     }
 
-    private void OnClearing(bool notify)
+    private void NotifyClearing()
     {
-      if (!notify)
+      if (Session.SystemLogicOnly)
         return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.ClearingEntitySetEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key, FieldInfo>) subscriber).Invoke(entityKey, Field);
       OnClearing();
     }
 
-    private void OnClear(bool notify)
+    private void NotifyClear()
     {
-      if (!notify)
+      if (Session.SystemLogicOnly)
         return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.ClearEntitySetEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key, FieldInfo>) subscriber).Invoke(entityKey, Field);
       OnClear();
-      OnCollectionChanged(NotifyCollectionChangedAction.Reset, null);
+      NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null);
+    }
+
+    private void GetSubscription(object eventKey, out Key entityKey,
+      out Delegate subscriber)
+    {
+      entityKey = FindOwnerEntityKey(Owner);
+      subscriber = Session.EntityEvents.GetSubscriber(entityKey, Field, eventKey);
+    }
+
+    private static Key FindOwnerEntityKey(Persistent owner)
+    {
+      var asFieldValueAdapter = owner as IFieldValueAdapter;
+      if(asFieldValueAdapter != null)
+        return FindOwnerEntityKey(asFieldValueAdapter.Owner);
+      return ((Entity) owner).Key;
     }
 
     #endregion
@@ -346,12 +395,22 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     [Infrastructure]
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler PropertyChanged {
+      add {Session.EntityEvents.AddSubscriber(FindOwnerEntityKey(Owner), Field,
+        EntityEventManager.PropertyChangedEventKey, value);}
+      remove {Session.EntityEvents.RemoveSubscriber(FindOwnerEntityKey(Owner), Field,
+        EntityEventManager.PropertyChangedEventKey, value);}
+    }
 
-    protected void OnPropertyChanged(string name)
+    protected void NotifyPropertyChanged(string name)
     {
-      if (PropertyChanged!=null)
-        PropertyChanged(this, new PropertyChangedEventArgs(name));
+      if(!Session.EntityEvents.HasSubscribers)
+        return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.PropertyChangedEventKey, out entityKey, out subscriber);
+      if(subscriber != null)
+        ((PropertyChangedEventHandler)subscriber).Invoke(this, new PropertyChangedEventArgs(name));
     }
 
     #endregion
@@ -362,15 +421,24 @@ namespace Xtensive.Storage
     /// Occurs when the collection changes.
     /// </summary>
     [Infrastructure]
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler CollectionChanged{
+      add {Session.EntityEvents.AddSubscriber(FindOwnerEntityKey(Owner), Field,
+        EntityEventManager.CollectionChangedEventKey, value);}
+      remove {Session.EntityEvents.RemoveSubscriber(FindOwnerEntityKey(Owner), Field,
+        EntityEventManager.CollectionChangedEventKey, value);}
+    }
 
-    private void OnCollectionChanged(NotifyCollectionChangedAction action, Entity item)
+    private void NotifyCollectionChanged(NotifyCollectionChangedAction action, Entity item)
     {
-      if (CollectionChanged==null)
+      if(!Session.EntityEvents.HasSubscribers)
         return;
-
-      CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-      OnPropertyChanged("Count");
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.PropertyChangedEventKey, out entityKey, out subscriber);
+      if(subscriber != null)
+        ((NotifyCollectionChangedEventHandler)subscriber)
+          .Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+      NotifyPropertyChanged("Count");
     }
 
     #endregion
@@ -383,13 +451,10 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="owner">Persistent this entity set belongs to.</param>
     /// <param name="field">Field corresponds to this entity set.</param>
-    /// <param name="notify">If set to <see langword="true"/>, 
-    /// initialization related events will be raised.</param>
-    protected EntitySetBase(Entity owner, FieldInfo field, bool notify)
+    protected EntitySetBase(Entity owner, FieldInfo field)
     {
       Field = field;
       Owner = owner;
-      notifyInitialization = notify;
       Initialize(GetType());
     }
 

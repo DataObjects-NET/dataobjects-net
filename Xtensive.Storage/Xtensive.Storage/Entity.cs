@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
@@ -145,7 +146,31 @@ namespace Xtensive.Storage
     [Infrastructure]
     public void Remove()
     {
-      Remove(true);
+      using (Session.OpenInconsistentRegion()) {
+
+        NotifyRemoving();
+
+        if (Session.IsDebugEventLoggingEnabled)
+          Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
+        Session.NotifyRemovingEntity(this);
+
+        State.EnsureNotRemoved();
+
+        Session.Persist();
+        Session.ReferenceManager.BreakAssociations(this);
+        Session.Persist();
+        State.PersistenceState = PersistenceState.Removed;
+
+        NotifyRemove();
+        Session.NotifyRemoveEntity(this);
+      }
+    }
+
+    /// <inheritdoc/>
+    public override event PropertyChangedEventHandler PropertyChanged
+    {
+      add {Session.EntityEvents.AddSubscriber(Key, EntityEventManager.PropertyChangedEventKey, value);}
+      remove {Session.EntityEvents.RemoveSubscriber(Key, EntityEventManager.PropertyChangedEventKey, value);}
     }
 
     #endregion
@@ -192,99 +217,154 @@ namespace Xtensive.Storage
         Fetcher.Fetch(Key, field);
     }
 
-    #endregion
-
-    #region System-level members
-
-    internal void Remove(bool notify)
+    internal virtual void NotifyRemoving()
     {
-      using (Session.OpenInconsistentRegion()) {
+      if (Session.SystemLogicOnly)
+        return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.RemovingEntityEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key>) subscriber).Invoke(entityKey);
+      OnRemoving();
+    }
 
-        if (notify)
-          OnRemoving();
-
-        if (Session.IsDebugEventLoggingEnabled)
-          Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
-        if (notify)
-          Session.NotifyRemovingEntity(this);
-
-        State.EnsureNotRemoved();
-
-        Session.Persist();
-        Session.ReferenceManager.BreakAssociations(this, notify);
-        Session.Persist();
-        State.PersistenceState = PersistenceState.Removed;
-
-        if (notify) {
-          OnRemove();
-          Session.NotifyRemoveEntity(this);
-        }
-      }
+    internal virtual void NotifyRemove()
+    {
+      if (Session.SystemLogicOnly)
+        return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.RemoveEntityEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key>) subscriber).Invoke(entityKey);
+      OnRemove();
     }
 
     #endregion
 
     #region System-level event-like members
 
-    internal override sealed void OnInitializing(bool notify)
+    internal override sealed void NotifyInitializing()
     {
-      base.OnInitializing(notify);
+      if (!Session.SystemLogicOnly) {
+        Key entityKey;
+        Delegate subscriber;
+        GetSubscription(EntityEventManager.InitializingPersistentEventKey, out entityKey, out subscriber);
+        if (subscriber!=null)
+          ((Action<Key>) subscriber).Invoke(entityKey);
+      }
       State.Entity = this;
       if (Session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Materializing {1}: Key = '{2}'",
           Session, GetType().GetShortName(), State.Key);
     }
 
-    // This is done just to make it sealed
-    internal override sealed void OnInitialize(bool notify)
+    internal override sealed void NotifyInitialize()
     {
-      base.OnInitialize(notify);
+      if (Session.SystemLogicOnly)
+        return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.InitializePersistentEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key>) subscriber).Invoke(entityKey);
+      OnInitialize();
     }
 
-    internal override sealed void OnGettingFieldValue(FieldInfo field, bool notify)
+    internal override sealed void NotifyGettingFieldValue(FieldInfo fieldInfo)
     {
-      base.OnGettingFieldValue(field, notify);
       if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, field);
+        Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, fieldInfo);
       State.EnsureNotRemoved();
-      EnsureIsFetched(field);
+      EnsureIsFetched(fieldInfo);
+      if (Session.SystemLogicOnly)
+        return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.GettingFieldEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key, FieldInfo>) subscriber).Invoke(entityKey, fieldInfo);
+      OnGettingFieldValue(fieldInfo);
     }
 
-    // This is done just to make it sealed
-    internal override sealed void OnGetFieldValue(FieldInfo field, object value, bool notify)
+    internal override sealed void NotifyGetFieldValue(FieldInfo field, object value)
     {
-      base.OnGetFieldValue(field, value, notify);
+      if (Session.SystemLogicOnly)
+        return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.GetFieldEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key, FieldInfo, object>) subscriber).Invoke(entityKey, field, value);
+      OnGetFieldValue(field, value);
     }
 
-    internal override sealed void OnSettingFieldValue(FieldInfo field, object value, bool notify)
+    internal override sealed void NotifySettingFieldValue(FieldInfo field, object value)
     {
-      base.OnSettingFieldValue(field, value, notify);
       if (Session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       if (field.IsPrimaryKey)
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
-        State.EnsureNotRemoved();
+      State.EnsureNotRemoved();
+      if (Session.SystemLogicOnly)
+        return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.SettingFieldEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key, FieldInfo, object>) subscriber).Invoke(entityKey, field, value);
+      OnSettingFieldValue(field, value);
     }
 
-    internal override sealed void OnSetFieldValue(FieldInfo field, object oldValue, object newValue, bool notify)
+    internal override sealed void NotifySetFieldValue(FieldInfo field, object oldValue, object newValue)
     {
       if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified)
         State.PersistenceState = PersistenceState.Modified;
-      base.OnSetFieldValue(field, oldValue, newValue, notify);
+      if (Session.SystemLogicOnly)
+        return;
+      Key entityKey;
+      Delegate subscriber;
+      GetSubscription(EntityEventManager.SetFieldEventKey, out entityKey, out subscriber);
+      if (subscriber!=null)
+        ((Action<Key, FieldInfo, object, object>) subscriber).Invoke(entityKey, field, oldValue, newValue);
+      OnSetFieldValue(field, oldValue, newValue);
+      base.NotifySetFieldValue(field, oldValue, newValue);
     }
 
+    protected internal override void NotifyPropertyChanged(FieldInfo field)
+    {
+      if(!Session.EntityEvents.HasSubscribers)
+        return;
+      var subscriber = Session.EntityEvents.GetSubscriber(Key, field,
+        EntityEventManager.PropertyChangedEventKey);
+      if(subscriber != null)
+        ((PropertyChangedEventHandler)subscriber).Invoke(this, new PropertyChangedEventArgs(field.Name));
+    }
+
+    private void GetSubscription(object eventKey, out Key entityKey,
+      out Delegate subscriber)
+    {
+      entityKey = Key;
+      subscriber = Session.EntityEvents.GetSubscriber(entityKey, eventKey);
+    }
+    
     #endregion
 
     #region Serialization-related methods
 
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
-    {     
-      SerializationContext.Demand().GetEntityData(this, info, context);
+    {
+      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+        SerializationContext.Demand().GetEntityData(this, info, context);
+      }
     }
 
     void IDeserializationCallback.OnDeserialization(object sender)
     {
-      DeserializationContext.Demand().OnDeserialization(); 
+      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+        DeserializationContext.Demand().OnDeserialization();
+      }
     }
 
     #endregion
@@ -298,7 +378,7 @@ namespace Xtensive.Storage
     {
       Key key = Key.Create(GetTypeInfo());
       State = Session.CreateEntityState(key);
-      OnInitializing(true);
+      NotifyInitializing();
       Session.NotifyCreateEntity(this);
       this.Validate();
     }
@@ -309,7 +389,7 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
       Key key = Key.Create(GetTypeInfo(), keyTuple, true);
       State = Session.CreateEntityState(key);
-      OnInitializing(true);
+      NotifyInitializing();
       // TODO: Add Session.NotifyCreateEntity()?
       this.Validate();
     }
@@ -336,7 +416,7 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
       Key key = Key.Create(GetTypeInfo(), true, values);
       State = Session.CreateEntityState(key);
-      OnInitializing(true);
+      NotifyInitializing();
       Session.NotifyCreateEntity(this);
       this.Validate();
     }
@@ -345,12 +425,10 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate()" copy="true"/>
     /// </summary>
     /// <param name="state">The initial state of this instance fetched from storage.</param>
-    /// <param name="notify">If set to <see langword="true"/>, 
-    /// initialization related events will be raised.</param>
-    protected Entity(EntityState state, bool notify)
+    protected Entity(EntityState state)
     {
       State = state;
-      OnInitializing(notify);
+      NotifyInitializing();
     }
 
     /// <summary>
@@ -360,7 +438,9 @@ namespace Xtensive.Storage
     /// <param name="context">The <see cref="StreamingContext"/>.</param>
     protected Entity(SerializationInfo info, StreamingContext context)
     {
-      DeserializationContext.Demand().SetEntityData(this, info, context);
+      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+        DeserializationContext.Demand().SetEntityData(this, info, context);
+      }
     }    
   }
 }

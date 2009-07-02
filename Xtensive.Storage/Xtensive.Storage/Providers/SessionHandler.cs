@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Providers
 
       // Restore loop links
       foreach (var restoreData in loopReferences) {
-        restoreData.Second.GetAccessor<object>().SetValue(restoreData.First.Entity, restoreData.Second, restoreData.Third, false);
+        restoreData.Second.GetAccessor<object>().SetValue(restoreData.First.Entity, restoreData.Second, restoreData.Third);
         Update(restoreData.First);
       }
 
@@ -162,7 +162,7 @@ namespace Xtensive.Storage.Providers
       foreach (var edge in removedEdges) {
         AssociationInfo associationInfo = edge.ConnectionItem;
         keysToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.OwnerField, edge.Destination.Item.Entity));
-        associationInfo.OwnerField.GetAccessor<object>().SetValue(edge.Source.Item.Entity, associationInfo.OwnerField, null, false);
+        associationInfo.OwnerField.GetAccessor<object>().SetValue(edge.Source.Item.Entity, associationInfo.OwnerField, null);
       }
     }
   }

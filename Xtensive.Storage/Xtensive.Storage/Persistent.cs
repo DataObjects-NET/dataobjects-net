@@ -130,7 +130,7 @@ namespace Xtensive.Storage
     /// <param name="fieldName">The field name.</param>
     /// <returns>Field value.</returns>
     [Infrastructure]
-    protected T GetFieldValue<T>(string fieldName)
+    protected internal T GetFieldValue<T>(string fieldName)
     {
       return GetFieldValue<T>(Type.Fields[fieldName]);
     }
@@ -142,9 +142,13 @@ namespace Xtensive.Storage
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
     [Infrastructure]
-    protected T GetFieldValue<T>(FieldInfo field)
+    protected internal T GetFieldValue<T>(FieldInfo field)
     {
-      return GetFieldValue<T>(field, true);
+      NotifyGettingFieldValue(field);
+      T result = field.GetAccessor<T>().GetValue(this, field);
+      NotifyGetFieldValue(field, result);
+
+      return result;
     }
 
     /// <summary>
@@ -154,7 +158,7 @@ namespace Xtensive.Storage
     /// <param name="fieldName">The field name.</param>
     /// <param name="value">The value to set.</param>
     [Infrastructure]
-    protected void SetFieldValue<T>(string fieldName, T value)
+    protected internal void SetFieldValue<T>(string fieldName, T value)
     {
       SetFieldValue(Type.Fields[fieldName], value);
     }
@@ -166,9 +170,25 @@ namespace Xtensive.Storage
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
     [Infrastructure]
-    protected void SetFieldValue<T>(FieldInfo field, T value)
+    protected internal void SetFieldValue<T>(FieldInfo field, T value)
     {
-      SetFieldValue(field, value, true);
+      NotifySettingFieldValue(field, value);
+      var oldValue = GetFieldValue<T>(field);
+      AssociationInfo association = field.Association;
+      if (association!=null && association.IsPaired) {
+        Key currentKey = GetReferenceKey(field);
+        Key newKey = null;
+        var newReference = (Entity) (object) value;
+        if (newReference!=null)
+          newKey = newReference.Key;
+        if (currentKey!=newKey) {
+          Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newReference, association);
+          field.GetAccessor<T>().SetValue(this, field, value);
+        }
+      }
+      else
+        field.GetAccessor<T>().SetValue(this, field, value);
+      NotifySetFieldValue(field, oldValue, value);
     }
 
     [Infrastructure]
@@ -262,55 +282,17 @@ namespace Xtensive.Storage
     #region System-level GetField, SetField, GetReferenceKey, Remove members
 
     [Infrastructure]
-    internal T GetFieldValue<T>(FieldInfo field, bool notify)
-    {
-      OnGettingFieldValue(field, notify);
-      T result = field.GetAccessor<T>().GetValue(this, field, notify);
-      OnGetFieldValue(field, result, notify);
-
-      return result;
-    }
-
-    [Infrastructure]
-    internal void SetFieldValue<T>(string fieldName, T value, bool notify)
-    {
-      SetFieldValue(Type.Fields[fieldName], value, false);
-    }
-
-    [Infrastructure]
-    internal void SetFieldValue<T>(FieldInfo field, T value, bool notify)
-    {
-      OnSettingFieldValue(field, value, notify);
-      var oldValue = GetFieldValue<T>(field, false);
-      AssociationInfo association = field.Association;
-      if (association!=null && association.IsPaired) {
-        Key currentKey = GetReferenceKey(field);
-        Key newKey = null;
-        var newReference = (Entity) (object) value;
-        if (newReference!=null)
-          newKey = newReference.Key;
-        if (currentKey!=newKey) {
-          Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newReference, association, notify);
-          field.GetAccessor<T>().SetValue(this, field, value, notify);
-        }
-      }
-      else
-        field.GetAccessor<T>().SetValue(this, field, value, notify);
-      OnSetFieldValue(field, oldValue, value, notify);
-    }
-
-    [Infrastructure]
     internal Key GetReferenceKey(FieldInfo field)
     {
       if (!field.IsEntity)
         throw new InvalidOperationException(
           string.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
 
-      OnGettingFieldValue(field, false);
+      NotifyGettingFieldValue(field);
       var type = Session.Domain.Model.Types[field.ValueType];
       var tuple = field.ExtractValue(Tuple);
       Key result = tuple.ContainsEmptyValues() ? null : Key.Create(type, tuple);
-      OnGetFieldValue(field, result, false);
+      NotifyGetFieldValue(field, result);
 
       return result;
     }
@@ -320,48 +302,23 @@ namespace Xtensive.Storage
     #region System-level event-like members
 
     [Infrastructure]
-    internal virtual void OnInitializing(bool notify)
-    {
-    }
+    internal abstract void NotifyInitializing();
 
     [Infrastructure]
-    internal virtual void OnInitialize(bool notify)
-    {
-      if (!notify)
-        return;
-      OnInitialize();
-    }
+    internal abstract void NotifyInitialize();
 
     [Infrastructure]
-    internal virtual void OnGettingFieldValue(FieldInfo field, bool notify)
-    {
-      if (!notify)
-        return;
-      OnGettingFieldValue(field);
-    }
+    internal abstract void NotifyGettingFieldValue(FieldInfo field);
 
     [Infrastructure]
-    internal virtual void OnGetFieldValue(FieldInfo field, object value, bool notify)
-    {
-      if (!notify)
-        return;
-      OnGetFieldValue(field, value);
-    }
+    internal abstract void NotifyGetFieldValue(FieldInfo field, object value);
 
     [Infrastructure]
-    internal virtual void OnSettingFieldValue(FieldInfo field, object value, bool notify)
-    {
-      if (!notify)
-        return;
-      OnSettingFieldValue(field, value);
-    }
+    internal abstract void NotifySettingFieldValue(FieldInfo field, object value);
 
     [Infrastructure]
-    internal virtual void OnSetFieldValue(FieldInfo field, object oldValue, object newValue, bool notify)
+    internal virtual void NotifySetFieldValue(FieldInfo field, object oldValue, object newValue)
     {
-      if (!notify)
-        return;
-      OnSetFieldValue(field, oldValue, newValue);
       if (Session.Domain.Configuration.AutoValidation)
         this.Validate();
       NotifyPropertyChanged(field);
@@ -444,20 +401,16 @@ namespace Xtensive.Storage
     {
       if (ctorType!=GetType())
         return;
-      OnInitialize(true);
+      NotifyInitialize();
     }
 
     #endregion
 
     /// <inheritdoc/>
     [Infrastructure]
-    public event PropertyChangedEventHandler PropertyChanged;
+    public abstract event PropertyChangedEventHandler PropertyChanged;
 
-    protected internal void NotifyPropertyChanged(FieldInfo field)
-    {
-      if (PropertyChanged != null)
-        PropertyChanged(this, new PropertyChangedEventArgs(field.Name));
-    }
+    protected internal abstract void NotifyPropertyChanged(FieldInfo field);
 
     internal Persistent()
     {

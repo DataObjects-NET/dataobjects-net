@@ -17,8 +17,10 @@ namespace Xtensive.Storage
     [Infrastructure]
     public EntitySetBase GetEntitySet(Entity target, FieldInfo field)
     {
-      ValidateArguments(target, field);
-      return target.GetFieldValue<EntitySetBase>(field, false);
+      using(CoreServices.OpenSystemLogicOnlyRegion()) {
+        ValidateArguments(target, field);
+        return target.GetFieldValue<EntitySetBase>(field);
+      }
     }
 
 //    [Infrastructure]
@@ -38,8 +40,10 @@ namespace Xtensive.Storage
     [Infrastructure]
     public bool Add(EntitySetBase target, Entity item)
     {
-      ValidateArguments(target, item);
-      return target.Add(item, false);
+      using(CoreServices.OpenSystemLogicOnlyRegion()) {
+        ValidateArguments(target, item);
+        return target.Add(item);
+      }
     }
 
     [Infrastructure]
@@ -52,8 +56,10 @@ namespace Xtensive.Storage
     [Infrastructure]
     public bool Remove(EntitySetBase target, Entity item)
     {
-      ValidateArguments(target, item);
-      return target.Remove(item, false);
+      using(CoreServices.OpenSystemLogicOnlyRegion()) {
+        ValidateArguments(target, item);
+        return target.Remove(item);
+      }
     }
 
     [Infrastructure]
@@ -66,8 +72,10 @@ namespace Xtensive.Storage
     [Infrastructure]
     public void Clear(EntitySetBase target)
     {
-      ValidateArguments(target);
-      target.Clear(false);
+      using(CoreServices.OpenSystemLogicOnlyRegion()) {
+        ValidateArguments(target);
+        target.Clear();
+      }
     }
 
     [Infrastructure]

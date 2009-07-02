@@ -88,7 +88,7 @@ namespace Xtensive.Storage
     public bool Add(TItem item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      return Add(item, true);
+      return base.Add(item);
     }
 
     /// <inheritdoc/>
@@ -96,14 +96,14 @@ namespace Xtensive.Storage
     public bool Remove(TItem item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      return Remove(item, true);
+      return base.Remove(item);
     }
 
     /// <inheritdoc/>
     [Infrastructure]
     public void Clear()
     {
-      Clear(true);
+      base.Clear();
     }
 
     /// <summary>
@@ -117,7 +117,7 @@ namespace Xtensive.Storage
      where TElement : TItem
     {
       ArgumentValidator.EnsureArgumentNotNull(other, "other");
-      IntersectWith(other, true);
+      base.IntersectWith(other);
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ namespace Xtensive.Storage
       where TElement : TItem
     {
       ArgumentValidator.EnsureArgumentNotNull(other, "other");
-      UnionWith(other, true);
+      base.UnionWith(other);
     }
 
     /// <summary>
@@ -144,7 +144,7 @@ namespace Xtensive.Storage
       where TElement : TItem
     {
       ArgumentValidator.EnsureArgumentNotNull(other, "other");
-      ExceptWith(other, true);
+      base.ExceptWith(other);
     }
 
     #region Explicit ICollection<T> members
@@ -283,7 +283,7 @@ namespace Xtensive.Storage
     /// <param name="owner">Persistent this entity set belongs to.</param>
     /// <param name="field">Field corresponds to this entity set.</param>
     protected EntitySet(Entity owner, FieldInfo field)
-      : base(owner, field, true)
+      : base(owner, field)
     {
     }
 

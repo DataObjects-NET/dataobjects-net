@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Internals
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Invalid arguments.</exception>
-    public override void SetValue(Persistent obj, FieldInfo field, T value, bool notify)
+    public override void SetValue(Persistent obj, FieldInfo field, T value)
     {
       var entity = value as Entity;
 
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override T GetValue(Persistent obj, FieldInfo field, bool notify)
+    public override T GetValue(Persistent obj, FieldInfo field)
     {
       EnsureTypeIsAssignable(field);
       Key key = obj.GetReferenceKey(field);

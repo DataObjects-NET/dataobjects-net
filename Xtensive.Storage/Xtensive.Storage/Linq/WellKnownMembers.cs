@@ -202,7 +202,7 @@ namespace Xtensive.Storage.Linq
 
       // EntitySet
       CreateEntitySet = typeof(Internals.Activator).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
-        .Where(methodInfo => methodInfo.Name == "CreateEntitySet" && methodInfo.GetParameters().Length == 3)
+        .Where(methodInfo => methodInfo.Name == "CreateEntitySet" && methodInfo.GetParameters().Length == 2)
         .Single();
     }
   }
