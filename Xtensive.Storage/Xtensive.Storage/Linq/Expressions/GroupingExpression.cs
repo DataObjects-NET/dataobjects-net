@@ -44,7 +44,6 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public Expression KeyExpression { get; private set; }
 
-    public LambdaExpression OriginalKeySelector { get; private set; }
     public SelectManyGroupingInfo SelectManyInfo { get; private set; }
 
     public override Segment<int> Mapping
@@ -57,7 +56,7 @@ namespace Xtensive.Storage.Linq.Expressions
       var remappedSubquery = (SubQueryExpression) base.Remap(map, processedExpressions);
       var mapping = new Segment<int>(map.IndexOf(Mapping.Offset), 1);
       var remappedKeyExpression = GenericExpressionVisitor<IMappedExpression>.Process(KeyExpression, mapped => mapped.Remap(map, processedExpressions));
-      return new GroupingExpression(remappedSubquery.Type, remappedSubquery.OuterParameter, DefaultIfEmpty, remappedSubquery.ProjectionExpression, remappedSubquery.ApplyParameter, remappedKeyExpression, mapping, OriginalKeySelector, SelectManyInfo);
+      return new GroupingExpression(remappedSubquery.Type, remappedSubquery.OuterParameter, DefaultIfEmpty, remappedSubquery.ProjectionExpression, remappedSubquery.ApplyParameter, remappedKeyExpression, mapping, SelectManyInfo);
     }
 
     public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
@@ -65,24 +64,23 @@ namespace Xtensive.Storage.Linq.Expressions
       var remappedSubquery = (SubQueryExpression) base.Remap(offset, processedExpressions);
       var mapping = new Segment<int>(Mapping.Offset + offset, 1);
       var remappedKeyExpression = GenericExpressionVisitor<IMappedExpression>.Process(KeyExpression, mapped => mapped.Remap(offset, processedExpressions));
-      return new GroupingExpression(remappedSubquery.Type, remappedSubquery.OuterParameter, DefaultIfEmpty, remappedSubquery.ProjectionExpression, remappedSubquery.ApplyParameter, remappedKeyExpression, mapping, OriginalKeySelector, SelectManyInfo);
+      return new GroupingExpression(remappedSubquery.Type, remappedSubquery.OuterParameter, DefaultIfEmpty, remappedSubquery.ProjectionExpression, remappedSubquery.ApplyParameter, remappedKeyExpression, mapping, SelectManyInfo);
     }
 
     public override Expression ReplaceApplyParameter(ApplyParameter newApplyParameter)
     {
       if (newApplyParameter==ApplyParameter)
-        return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, KeyExpression, Mapping, OriginalKeySelector, SelectManyInfo);
+        return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, KeyExpression, Mapping, SelectManyInfo);
 
       var newItemProjector = ProjectionExpression.ItemProjector.RewriteApplyParameter(ApplyParameter, newApplyParameter);
       var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings, ProjectionExpression.ResultType);
-      return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter, KeyExpression, Mapping, OriginalKeySelector, SelectManyInfo);
+      return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter, KeyExpression, Mapping, SelectManyInfo);
     }
 
-    public GroupingExpression(Type type, ParameterExpression parameterExpression, bool defaultIfEmpty, ProjectionExpression projectionExpression, ApplyParameter applyParameter, Expression keyExpression, Segment<int> segment, LambdaExpression originalKeySelector, SelectManyGroupingInfo selectManyInfo)
+    public GroupingExpression(Type type, ParameterExpression parameterExpression, bool defaultIfEmpty, ProjectionExpression projectionExpression, ApplyParameter applyParameter, Expression keyExpression, Segment<int> segment, SelectManyGroupingInfo selectManyInfo)
       : base(type, parameterExpression, defaultIfEmpty, projectionExpression, applyParameter, ExtendedExpressionType.Grouping)
     {
       SelectManyInfo = selectManyInfo;
-      OriginalKeySelector = originalKeySelector;
       KeyExpression = keyExpression;
       this.segment = segment;
     }

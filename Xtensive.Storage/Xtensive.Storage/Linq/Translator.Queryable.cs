@@ -545,7 +545,7 @@ namespace Xtensive.Storage.Linq
         subqueryProjection = VisitSelect(subqueryProjection, elementSelector);
 
       var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo(sequence);
-      var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, false, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, new Segment<int>(0, keyColumns.Length), keySelector, selectManyInfo);
+      var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, false, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, new Segment<int>(0, keyColumns.Length), selectManyInfo);
       var groupingItemProjector = new ItemProjectorExpression(groupingExpression, keyDataSource, context);
       returnType = resultSelector==null
         ? returnType
@@ -661,7 +661,7 @@ namespace Xtensive.Storage.Linq
       if (innerGrouping.ItemProjector.Item.IsGroupingExpression()) {
         var groupingExpression = (GroupingExpression) innerGrouping.ItemProjector.Item;
         var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo((ProjectionExpression) visitedOuterSource, (ProjectionExpression) visitedInnerSource, outerKey, innerKey);
-        var newGroupingExpression = new GroupingExpression(groupingExpression.Type, groupingExpression.OuterParameter, groupingExpression.DefaultIfEmpty, groupingExpression.ProjectionExpression, groupingExpression.ApplyParameter, groupingExpression.KeyExpression, groupingExpression.Mapping, groupingExpression.OriginalKeySelector, selectManyInfo);
+        var newGroupingExpression = new GroupingExpression(groupingExpression.Type, groupingExpression.OuterParameter, groupingExpression.DefaultIfEmpty, groupingExpression.ProjectionExpression, groupingExpression.ApplyParameter, groupingExpression.KeyExpression, groupingExpression.Mapping, selectManyInfo);
         var newGroupingItemProjector = new ItemProjectorExpression(newGroupingExpression, innerGrouping.ItemProjector.DataSource, innerGrouping.ItemProjector.Context);
         innerGrouping = new ProjectionExpression(innerGrouping.Type, newGroupingItemProjector, innerGrouping.TupleParameterBindings, innerGrouping.ResultType);
       }
