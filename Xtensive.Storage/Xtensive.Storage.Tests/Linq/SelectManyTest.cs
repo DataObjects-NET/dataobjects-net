@@ -34,7 +34,19 @@ namespace Xtensive.Storage.Tests.Linq
             Country = x.Address.Country
           })
           ;
-//      var list = result.ToList();
+      var expected = Query<Order>.All.AsEnumerable()
+        .GroupJoin(Query<Customer>.All.AsEnumerable(),
+          o => o.Customer,
+          c => c,
+          (o, oc) => new {o, oc})
+        .SelectMany(@t => @t.oc.DefaultIfEmpty(),
+          (@t, x) => new {
+            CustomerId = x.Id,
+            CompanyName = x.CompanyName,
+            Country = x.Address.Country
+          })
+          ;
+      Assert.IsTrue(expected.SequenceEqual(result));
       QueryDumper.Dump(result);
     }
 

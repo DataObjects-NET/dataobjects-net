@@ -232,17 +232,17 @@ namespace Xtensive.Storage.Tests.Linq
       using (var t = Transaction.Open()) {
         var categories = Query<Category>.All;
         var products = Query<Product>.All;
-        var productsCount = products.Count();
         var result = categories
-          .OrderBy(c => c.CategoryName)
+//          .OrderBy(c => c.CategoryName)
           .GroupJoin(
           products,
           c => c,
           p => p.Category,
           (c, pGroup) => new {c, pGroup})
           .SelectMany(@t1 => @t1.pGroup, (@t1, gp) => new {@t1, gp})
-          .OrderBy(@t1 => @t1.gp.ProductName)
-          .Select(@t1 => new {Category = @t1.@t1.c.CategoryName, @t1.gp.ProductName});
+//          .OrderBy(@t1 => @t1.gp.ProductName)
+//          .Select(@t1 => new {Category = @t1.@t1.c.CategoryName, @t1.gp.ProductName})
+          ;
         var list = result.ToList();
         QueryDumper.Dump(result, true);
       }

@@ -17,50 +17,72 @@ namespace Xtensive.Storage.Linq.Expressions
   [Serializable]
   internal class GroupingExpression : SubQueryExpression
   {
+    public class SelectManyGroupingInfo
+    {
+      public ProjectionExpression GroupByProjection { get; private set; }
+
+      public ProjectionExpression GroupJoinOuterProjection { get; private set; }
+      public ProjectionExpression GroupJoinInnerProjection { get; private set; }
+      public LambdaExpression GroupJoinOuterKeySelector { get; private set; }
+      public LambdaExpression GroupJoinInnerKeySelector { get; private set; }
+
+      public SelectManyGroupingInfo(ProjectionExpression groupJoinOuterProjection, ProjectionExpression groupJoinInnerProjection, LambdaExpression groupJoinOuterKeySelector, LambdaExpression groupJoinInnerKeySelector)
+      {
+        GroupJoinOuterProjection = groupJoinOuterProjection;
+        GroupJoinInnerProjection = groupJoinInnerProjection;
+        GroupJoinOuterKeySelector = groupJoinOuterKeySelector;
+        GroupJoinInnerKeySelector = groupJoinInnerKeySelector;
+      }
+
+      public SelectManyGroupingInfo(ProjectionExpression groupByProjection)
+      {
+        GroupByProjection = groupByProjection;
+      }
+    }
+
     private readonly Segment<int> segment;
 
     public Expression KeyExpression { get; private set; }
 
-    public ApplyParameter OriginalApplyParameter { get; private set; }
+    public LambdaExpression OriginalKeySelector { get; private set; }
+    public SelectManyGroupingInfo SelectManyInfo { get; private set; }
 
     public override Segment<int> Mapping
     {
-      get
-      {
-        return segment;
-      }
-    } 
+      get { return segment; }
+    }
 
     public override Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
     {
-      var remappedSubquery = (SubQueryExpression)base.Remap(map, processedExpressions);
+      var remappedSubquery = (SubQueryExpression) base.Remap(map, processedExpressions);
       var mapping = new Segment<int>(map.IndexOf(Mapping.Offset), 1);
       var remappedKeyExpression = GenericExpressionVisitor<IMappedExpression>.Process(KeyExpression, mapped => mapped.Remap(map, processedExpressions));
-      return new GroupingExpression(remappedSubquery.Type, remappedSubquery.OuterParameter, DefaultIfEmpty, remappedSubquery.ProjectionExpression, remappedSubquery.ApplyParameter, remappedKeyExpression, mapping);
+      return new GroupingExpression(remappedSubquery.Type, remappedSubquery.OuterParameter, DefaultIfEmpty, remappedSubquery.ProjectionExpression, remappedSubquery.ApplyParameter, remappedKeyExpression, mapping, OriginalKeySelector, SelectManyInfo);
     }
 
     public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
     {
-      var remappedSubquery = (SubQueryExpression)base.Remap(offset, processedExpressions);
+      var remappedSubquery = (SubQueryExpression) base.Remap(offset, processedExpressions);
       var mapping = new Segment<int>(Mapping.Offset + offset, 1);
       var remappedKeyExpression = GenericExpressionVisitor<IMappedExpression>.Process(KeyExpression, mapped => mapped.Remap(offset, processedExpressions));
-      return new GroupingExpression(remappedSubquery.Type, remappedSubquery.OuterParameter, DefaultIfEmpty, remappedSubquery.ProjectionExpression, remappedSubquery.ApplyParameter, remappedKeyExpression, mapping);
+      return new GroupingExpression(remappedSubquery.Type, remappedSubquery.OuterParameter, DefaultIfEmpty, remappedSubquery.ProjectionExpression, remappedSubquery.ApplyParameter, remappedKeyExpression, mapping, OriginalKeySelector, SelectManyInfo);
     }
 
     public override Expression ReplaceApplyParameter(ApplyParameter newApplyParameter)
     {
       if (newApplyParameter==ApplyParameter)
-        return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, KeyExpression, Mapping);
+        return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, KeyExpression, Mapping, OriginalKeySelector, SelectManyInfo);
 
       var newItemProjector = ProjectionExpression.ItemProjector.RewriteApplyParameter(ApplyParameter, newApplyParameter);
       var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings, ProjectionExpression.ResultType);
-      return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter, KeyExpression, Mapping);
+      return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter, KeyExpression, Mapping, OriginalKeySelector, SelectManyInfo);
     }
 
-    public GroupingExpression(Type type, ParameterExpression parameterExpression, bool defaultIfEmpty, ProjectionExpression projectionExpression, ApplyParameter applyParameter, Expression keyExpression, Segment<int> segment)
+    public GroupingExpression(Type type, ParameterExpression parameterExpression, bool defaultIfEmpty, ProjectionExpression projectionExpression, ApplyParameter applyParameter, Expression keyExpression, Segment<int> segment, LambdaExpression originalKeySelector, SelectManyGroupingInfo selectManyInfo)
       : base(type, parameterExpression, defaultIfEmpty, projectionExpression, applyParameter, ExtendedExpressionType.Grouping)
     {
-      OriginalApplyParameter = applyParameter;
+      SelectManyInfo = selectManyInfo;
+      OriginalKeySelector = originalKeySelector;
       KeyExpression = keyExpression;
       this.segment = segment;
     }
