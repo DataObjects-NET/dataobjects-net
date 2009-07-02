@@ -15,7 +15,7 @@ using NUnit.Framework;
 
 namespace Xtensive.Storage.Tests.Upgrade.UpgradeHandlersSorting
 {
-  [TestFixture]
+  [TestFixture, Category("Upgrade")]
   public sealed class UpgradeHandlersSortingTest : AutoBuildTest
   {
     public override void TestFixtureSetUp()
