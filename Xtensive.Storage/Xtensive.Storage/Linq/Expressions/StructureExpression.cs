@@ -74,12 +74,12 @@ namespace Xtensive.Storage.Linq.Expressions
         .Where(f => f != null)
         .Cast<PersistentFieldExpression>()
         .ToList();
-      if (fields.Count == 0) {
+      if (processedFields.Count == 0) {
         processedExpressions[this] = null;
         return null;
       }
-      var length = fields.Select(f => f.Mapping.Offset).Distinct().Count();
-      var offset = fields.Min(f => f.Mapping.Offset);
+      var length = processedFields.Select(f => f.Mapping.Offset).Distinct().Count();
+      var offset = processedFields.Min(f => f.Mapping.Offset);
       result.Mapping = new Segment<int>(offset, length);
       if (Owner == null) {
         result.fields = processedFields;
