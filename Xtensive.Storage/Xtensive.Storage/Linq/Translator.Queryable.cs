@@ -707,9 +707,24 @@ namespace Xtensive.Storage.Linq
 
           if (visitedCollectionSelector.IsGroupingExpression()) {
             var selectManyInfo = ((GroupingExpression) visitedCollectionSelector).SelectManyInfo;
-            if (selectManyInfo.GroupByProjection==null)
-              return VisitJoin(selectManyInfo.GroupJoinOuterProjection, selectManyInfo.GroupJoinInnerProjection, selectManyInfo.GroupJoinOuterKeySelector, selectManyInfo.GroupJoinInnerKeySelector, resultSelector, true);
-            return selectManyInfo.GroupByProjection;
+            if (selectManyInfo.GroupByProjection == null) {
+              LambdaExpression newResultSelector;
+              bool rewriteSucceeded = SelectManySelectorRewriter.TryRewrite(
+                resultSelector,
+                resultSelector.Parameters[0],
+                selectManyInfo.GroupJoinOuterKeySelector.Parameters[0],
+                out newResultSelector);
+
+              if (rewriteSucceeded)
+                return VisitJoin(
+                  selectManyInfo.GroupJoinOuterProjection,
+                  selectManyInfo.GroupJoinInnerProjection,
+                  selectManyInfo.GroupJoinOuterKeySelector,
+                  selectManyInfo.GroupJoinInnerKeySelector,
+                  newResultSelector, true);
+            }
+            else
+              return selectManyInfo.GroupByProjection;
           }
 
           var projection = VisitSequence(visitedCollectionSelector);
