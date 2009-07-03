@@ -721,7 +721,7 @@ namespace Xtensive.Storage.Linq
                   selectManyInfo.GroupJoinInnerProjection,
                   selectManyInfo.GroupJoinOuterKeySelector,
                   selectManyInfo.GroupJoinInnerKeySelector,
-                  newResultSelector, true);
+                  newResultSelector, isOuter);
             }
             else
               return selectManyInfo.GroupByProjection;
