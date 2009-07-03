@@ -204,10 +204,12 @@ namespace Xtensive.Storage.Linq
           throw new InvalidOperationException();
         case "Expand":
           return VisitExpand(mc);
-        case "ExcludeField":
-          return VisitExcludeField(mc);
-        case "IncludeField":
-          return VisitIncludeField(mc);
+        case "ExcludeFields":
+          return VisitExcludeFields(mc);
+        case "IncludeFields":
+          return VisitIncludeFields(mc);
+        case "JoinLeft":
+          return VisitJoinLeft(mc);
         }
       return base.VisitMethodCall(mc);
     }

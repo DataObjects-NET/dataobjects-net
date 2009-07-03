@@ -5,6 +5,7 @@
 // Created:    2009.05.06
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -99,6 +100,43 @@ namespace Xtensive.Storage.Linq
       return CallTranslator<TSource>(WellKnownMembers.QueryableIncludeFields, source, selector, errorMessage);
     }
 
+    /// <summary>
+    /// Correlates the elements of two sequences based on matching keys. 
+    /// </summary>
+    /// <typeparam name="TOuter">The type of the elements of the first sequence.</typeparam>
+    /// <typeparam name="TInner">The type of the elements of the second sequence.</typeparam>
+    /// <typeparam name="TKey">The type of the keys returned by the key selector functions.</typeparam>
+    /// <typeparam name="TResult">The type of the result elements.</typeparam>
+    /// <param name="outer">The first sequence to join.</param>
+    /// <param name="inner">The sequence to join to the first sequence.</param>
+    /// <param name="outerKeySelector">A function to extract the join key from each element of the first sequence.</param>
+    /// <param name="innerKeySelector">A function to extract the join key from each element of the second sequence.</param>
+    /// <param name="resultSelector">A function to create a result element from two matching elements.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"><paramref name="outer"/> argument is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="inner"/> argument is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="outerKeySelector"/> argument is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="innerKeySelector"/> argument is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="resultSelector"/> argument is null.</exception>
+    /// <exception cref="NotSupportedException">Queryable is not <see cref="Xtensive.Storage.Linq"/> query.</exception>
+    public static IQueryable<TResult> JoinLeft<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(outer, "outer");
+      ArgumentValidator.EnsureArgumentNotNull(inner, "inner");
+      ArgumentValidator.EnsureArgumentNotNull(outerKeySelector, "outerKeySelector");
+      ArgumentValidator.EnsureArgumentNotNull(innerKeySelector, "innerKeySelector");
+      ArgumentValidator.EnsureArgumentNotNull(resultSelector, "resultSelector");
+      var errorMessage = Resources.Strings.ExJoinLeftDoesNotSupportQueryProviderOfTypeX;
+
+      var outerProviderType = outer.Provider.GetType();
+      if (outerProviderType!=typeof (QueryProvider))
+        throw new NotSupportedException(String.Format(errorMessage, outerProviderType));
+
+      var genericMethod = WellKnownMembers.QueryableJoinLeft.MakeGenericMethod(new[] {typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)});
+      var expression = Expression.Call(null, genericMethod, new[] {outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector});
+      return outer.Provider.CreateQuery<TResult>(expression);
+    }
+
     /// <exception cref="NotSupportedException">Queryable is not <see cref="Xtensive.Storage.Linq"/> query.</exception>
     private static IQueryable<TSource> CallTranslator<TSource>(MethodInfo methodInfo, IQueryable source, Expression fieldSelector, string errorMessage)
     {
@@ -109,6 +147,14 @@ namespace Xtensive.Storage.Linq
       var genericMethod = methodInfo.MakeGenericMethod(new[] {typeof (TSource)});
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, fieldSelector});
       return source.Provider.CreateQuery<TSource>(expression);
+    }
+
+    private static Expression GetSourceExpression<TSource>(IEnumerable<TSource> source)
+    {
+      var queryable = source as IQueryable<TSource>;
+      if (queryable!=null)
+        return queryable.Expression;
+      return Expression.Constant(source, typeof (IEnumerable<TSource>));
     }
   }
 }

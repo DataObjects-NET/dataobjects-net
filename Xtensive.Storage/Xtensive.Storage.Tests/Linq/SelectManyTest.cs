@@ -62,6 +62,18 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void GroupBy2Test()
+    {
+      var result = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .SelectMany(g => g, (grouping, order)=>new {Count = grouping.Count(), order});
+      var expected = Query<Order>.All
+        .GroupBy(o => o.Customer)
+        .SelectMany(g => g, (grouping, order)=>new {Count = grouping.Count(), order});
+      Assert.IsTrue(expected.Except(result).IsNullOrEmpty());
+    }
+
+    [Test]
     public void GroupBySelectorTest()
     {
       var result = Query<Order>.All

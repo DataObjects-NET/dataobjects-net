@@ -150,13 +150,15 @@ namespace Xtensive.Storage.Linq
           }
           break;
         case QueryableMethodKind.GroupJoin:
-          return VisitGroupJoin(mc.Arguments[0], mc.Arguments[1],
+          return VisitGroupJoin(mc.Arguments[0],
+            mc.Arguments[1],
             mc.Arguments[2].StripQuotes(),
             mc.Arguments[3].StripQuotes(),
             mc.Arguments[4].StripQuotes(),
             mc.Arguments.Count > 5 ? mc.Arguments[5] : null);
         case QueryableMethodKind.Join:
-          return VisitJoin(mc.Arguments[0], mc.Arguments[1],
+          return VisitJoin(mc.Arguments[0],
+            mc.Arguments[1],
             mc.Arguments[2].StripQuotes(),
             mc.Arguments[3].StripQuotes(),
             mc.Arguments[4].StripQuotes(),
@@ -213,14 +215,24 @@ namespace Xtensive.Storage.Linq
       throw new NotSupportedException();
     }
 
-    private Expression VisitIncludeField(MethodCallExpression expression)
+    private Expression VisitJoinLeft(MethodCallExpression mc)
     {
-      throw new NotImplementedException("VisitIncludeField not implemented");
+      return VisitJoin(mc.Arguments[0],
+        mc.Arguments[1],
+        mc.Arguments[2].StripQuotes(),
+        mc.Arguments[3].StripQuotes(),
+        mc.Arguments[4].StripQuotes(),
+        true);
     }
 
-    private Expression VisitExcludeField(MethodCallExpression expression)
+    private Expression VisitIncludeFields(MethodCallExpression expression)
     {
-      throw new NotImplementedException("VisitExcludeField not implemented");
+      throw new NotImplementedException("VisitIncludeFields not implemented");
+    }
+
+    private Expression VisitExcludeFields(MethodCallExpression expression)
+    {
+      throw new NotImplementedException("VisitExcludeFields not implemented");
     }
 
     private Expression VisitExpand(MethodCallExpression expression)
@@ -707,7 +719,7 @@ namespace Xtensive.Storage.Linq
 
           if (visitedCollectionSelector.IsGroupingExpression()) {
             var selectManyInfo = ((GroupingExpression) visitedCollectionSelector).SelectManyInfo;
-            if (selectManyInfo.GroupByProjection == null) {
+            if (selectManyInfo.GroupByProjection==null) {
               LambdaExpression newResultSelector;
               bool rewriteSucceeded = SelectManySelectorRewriter.TryRewrite(
                 resultSelector,

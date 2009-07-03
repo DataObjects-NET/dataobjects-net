@@ -54,6 +54,7 @@ namespace Xtensive.Storage.Linq
     public static readonly MethodInfo QueryableExpandSubquery;
     public static readonly MethodInfo QueryableExcludeFields;
     public static readonly MethodInfo QueryableIncludeFields;
+    public static readonly MethodInfo QueryableJoinLeft;
 
 
     // IEntity
@@ -175,6 +176,7 @@ namespace Xtensive.Storage.Linq
 
       QueryableExcludeFields = GetQueryableExtensionsMethod("ExcludeFields", 2, 2);
       QueryableIncludeFields = GetQueryableExtensionsMethod("IncludeFields", 2, 2);
+      QueryableJoinLeft = GetQueryableExtensionsMethod("JoinLeft", 4, 5);
 
       // IEntity
       IEntityKey = typeof (IEntity).GetProperty(WellKnown.KeyFieldName);
