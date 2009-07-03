@@ -302,32 +302,32 @@ namespace Xtensive.Storage.Linq
       var projection = predicate!=null
         ? VisitWhere(source, predicate)
         : VisitSequence(source);
-      RecordSet recordSet = null;
+      RecordSet rightDataSource = null;
       switch (method.Name) {
       case Core.Reflection.WellKnown.Queryable.First:
         applySequenceType = ApplySequenceType.First;
         markerType = MarkerType.First;
-        recordSet = projection.ItemProjector.DataSource.Take(1);
+        rightDataSource = projection.ItemProjector.DataSource.Take(1);
         break;
       case Core.Reflection.WellKnown.Queryable.FirstOrDefault:
         applySequenceType = ApplySequenceType.FirstOrDefault;
         markerType = MarkerType.First | MarkerType.Default;
-        recordSet = projection.ItemProjector.DataSource.Take(1);
+        rightDataSource = projection.ItemProjector.DataSource.Take(1);
         break;
       case Core.Reflection.WellKnown.Queryable.Single:
         applySequenceType = ApplySequenceType.Single;
         markerType = MarkerType.Single;
-        recordSet = projection.ItemProjector.DataSource.Take(2);
+        rightDataSource = projection.ItemProjector.DataSource.Take(2);
         break;
       case Core.Reflection.WellKnown.Queryable.SingleOrDefault:
         applySequenceType = ApplySequenceType.SingleOrDefault;
         markerType = MarkerType.Single | MarkerType.Default;
-        recordSet = projection.ItemProjector.DataSource.Take(2);
+        rightDataSource = projection.ItemProjector.DataSource.Take(2);
         break;
       }
       var resultType = (ResultType) Enum.Parse(typeof (ResultType), method.Name);
       if (isRoot) {
-        var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, recordSet, context);
+        var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rightDataSource, context);
         return new ProjectionExpression(method.ReturnType, itemProjector, projection.TupleParameterBindings, resultType);
       }
 
@@ -335,13 +335,14 @@ namespace Xtensive.Storage.Linq
       var oldResult = context.Bindings[lambdaParameter];
       var applyParameter = context.GetApplyParameter(oldResult);
 
-      int columnIndex = oldResult.ItemProjector.DataSource.Header.Length;
-      var newRecordSet = oldResult.ItemProjector.DataSource.Apply(applyParameter, recordSet.Alias(context.GetNextAlias()), applySequenceType, JoinType.LeftOuter);
-      var newItemProjector = projection.ItemProjector.Remap(newRecordSet, columnIndex);
-      var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
-      context.Bindings.ReplaceBound(lambdaParameter, newResult);
+      var leftDataSource = oldResult.ItemProjector.DataSource;
+      var columnIndex = leftDataSource.Header.Length;
+      var dataSource = leftDataSource.Apply(applyParameter, rightDataSource.Alias(context.GetNextAlias()), applySequenceType, JoinType.LeftOuter);
+      var rightItemProjector = projection.ItemProjector.Remap(dataSource, columnIndex);
+      var result = new ProjectionExpression(oldResult.Type, oldResult.ItemProjector.Remap(dataSource, 0), oldResult.TupleParameterBindings);
+      context.Bindings.ReplaceBound(lambdaParameter, result);
 
-      return new MarkerExpression(newItemProjector.Item, markerType);
+      return new MarkerExpression(rightItemProjector.Item, markerType);
     }
 
     private ProjectionExpression VisitTake(Expression source, Expression take)

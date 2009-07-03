@@ -20,6 +20,20 @@ namespace Xtensive.Storage.Linq
   {
     private readonly Dictionary<ParameterExpression, IEnumerable<ParameterExpression>> linkedParameters = new Dictionary<ParameterExpression, IEnumerable<ParameterExpression>>();
 
+    public override Disposable Add(ParameterExpression key, ProjectionExpression value)
+    {
+      if (key.Type != value.ItemProjector.Type)
+        throw new ArgumentException("ParameterExpression must have same type as ProjectionExpression.ItemProjector");
+      return base.Add(key, value);
+    }
+
+    public override Disposable PermanentAdd(ParameterExpression key, ProjectionExpression value)
+    {
+      if (key.Type != value.ItemProjector.Type)
+        throw new ArgumentException("ParameterExpression must have same type as ProjectionExpression.ItemProjector");
+      return base.PermanentAdd(key, value);
+    }
+
     public override void ReplaceBound(ParameterExpression key, ProjectionExpression value)
     {
       base.ReplaceBound(key, value);
