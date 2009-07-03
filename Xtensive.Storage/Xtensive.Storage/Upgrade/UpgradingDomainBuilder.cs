@@ -46,6 +46,7 @@ namespace Xtensive.Storage.Upgrade
       using (context.Activate()) {
         context.OriginalConfiguration = configuration;
         context.Stage = UpgradeStage.Validation;
+        context.Modules = new ModuleProvider(configuration);
         BuildUpgradeHandlers();
 
         try {
@@ -61,8 +62,17 @@ namespace Xtensive.Storage.Upgrade
             throw;
         }
         BuildStageDomain(UpgradeStage.Upgrading).DisposeSafely();
-        return BuildStageDomain(UpgradeStage.Final);
+        var result = BuildStageDomain(UpgradeStage.Final);
+        NotifyModules(result);
+        return result;
       }
+    }
+
+    private static void NotifyModules(Domain domain)
+    {
+      domain.Modules.BuildModules();
+      foreach (var module in domain.Modules.OrderedModules)
+        module.OnBuildCompleted(domain);
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
@@ -204,6 +214,8 @@ namespace Xtensive.Storage.Upgrade
             typeof(IUpgradeHandler).GetShortName(), group.Key));
         handlers.Add(group.Key, group.First());
       }
+
+      context.Modules.SetUpgradeHandlers(handlers.Values);
 
       // Adding default handlers
       var assembliesWithUserHandlers = userHandlers.Select(g => g.Key);

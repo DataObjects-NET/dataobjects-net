@@ -740,4 +740,7 @@ Actions:
   <data name="ExJoinLeftDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>JoinLeft does not support query provider of type '{0}'.</value>
   </data>
+  <data name="ExTypeXImplementsInterfacesYAndZ" xml:space="preserve">
+    <value>The type {0} implements interfaces {1} and {2}.</value>
+  </data>
 </root>

@@ -105,6 +105,11 @@ namespace Xtensive.Storage.Upgrade
     /// </summary>
     public object NativeExtractedSchema { get; internal set; }
 
+    /// <summary>
+    /// Gets or sets the collection of extension modules.
+    /// </summary>
+    public ModuleProvider Modules { get; internal set; }
+
     #region IContext<...> methods
 
     /// <inheritdoc/>

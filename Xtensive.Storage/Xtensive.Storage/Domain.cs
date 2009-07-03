@@ -12,6 +12,7 @@ using System.Runtime.ConstrainedExecution;
 using Microsoft.Practices.Unity;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
 using Xtensive.Storage.Configuration;
@@ -142,6 +143,11 @@ namespace Xtensive.Storage
     {
       get { return Handler.ProviderInfo;}
     }
+
+    /// <summary>
+    /// Gets the collection of extension modules.
+    /// </summary>
+    public ModuleProvider Modules { get; private set; }
 
     internal DomainHandler Handler {
       [DebuggerStepThrough]
@@ -280,6 +286,7 @@ namespace Xtensive.Storage
       TemporaryData = new GlobalTemporaryData();
       ServiceContainer = new UnityContainer();
       ServiceContainer.AddExtension(new SingletonExtension());
+      Modules = UpgradeContext.Current.Modules;
     }
 
     /// <inheritdoc/>
