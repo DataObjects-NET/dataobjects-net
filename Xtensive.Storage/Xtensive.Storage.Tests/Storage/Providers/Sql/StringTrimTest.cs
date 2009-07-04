@@ -67,11 +67,23 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
           {
             String = x.FString,
             StringTrim = x.FString.Trim(),
+            StringTrimLeading = x.FString.TrimStart(),
+            StringTrimTrailing = x.FString.TrimEnd(),
+            StringTrimNull = x.FString.Trim(null),
+            StringTrimLeadingNull = x.FString.TrimStart(null),
+            StringTrimTrailingNull = x.FString.TrimEnd(null),
+            StringTrimSpace = x.FString.Trim(' '),
             StringTrimLeadingSpace = x.FString.TrimStart(' '),
             StringTrimTrailingSpace = x.FString.TrimEnd(' '),
           });
       foreach (var x in results) {
         Assert.AreEqual(x.String.Trim(), x.StringTrim);
+        Assert.AreEqual(x.String.TrimStart(), x.StringTrimLeading);
+        Assert.AreEqual(x.String.TrimEnd(), x.StringTrimTrailing);
+        Assert.AreEqual(x.String.Trim(null), x.StringTrimNull);
+        Assert.AreEqual(x.String.TrimStart(null), x.StringTrimLeadingNull);
+        Assert.AreEqual(x.String.TrimEnd(null), x.StringTrimTrailingNull);
+        Assert.AreEqual(x.String.Trim(' '), x.StringTrimSpace);
         Assert.AreEqual(x.String.TrimStart(' '), x.StringTrimLeadingSpace);
         Assert.AreEqual(x.String.TrimEnd(' '), x.StringTrimTrailingSpace);
       }
@@ -81,7 +93,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void ExtendedTest()
     {
       if (Domain.Configuration.ConnectionInfo.Protocol.StartsWith("mssql"))
-        Assert.Ignore("MSSQL does not support trimming of non-space characters.");
+        Assert.Ignore("MS SQL does not support trimming of non-space characters.");
       var results = Query<X>.All
         .Select(x => new
           {

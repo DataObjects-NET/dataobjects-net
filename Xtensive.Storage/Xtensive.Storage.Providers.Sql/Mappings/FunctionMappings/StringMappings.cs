@@ -78,10 +78,14 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     private static SqlExpression GenericTrim(SqlExpression _this, SqlExpression trimChars, SqlTrimType trimType)
     {
+      if (trimChars is SqlNull)
+        return SqlFactory.Trim(_this, trimType);
       var exactTrimChars = trimChars as SqlLiteral<char[]>;
-      if (exactTrimChars == null)
+      if (exactTrimChars==null)
         throw new NotSupportedException(Strings.ExStringTrimSupportedOnlyWithConstants);
-      return SqlFactory.Trim(_this, trimType, new string(exactTrimChars.Value));
+      return exactTrimChars.Value.Length==0
+        ? SqlFactory.Trim(_this, trimType)
+        : SqlFactory.Trim(_this, trimType, new string(exactTrimChars.Value));
     }
 
     [Compiler(typeof(string), "Trim")]
