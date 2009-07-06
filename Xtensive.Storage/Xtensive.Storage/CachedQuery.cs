@@ -49,7 +49,7 @@ namespace Xtensive.Storage
         var queryParameter = BuildQueryParameter(target, out replacer);
         using (new QueryCachingScope(queryParameter, replacer)) {
           var result = query.Invoke();
-          var translatedQuery = QueryProvider.Instance.Translate<IEnumerable<TElement>>(result.Expression);
+          var translatedQuery = Session.Demand().Handler.Translate<TElement>(result.Expression);
           parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) translatedQuery;
           lock (cache)
             if (!cache.TryGetItem(query.Method, false, out item))

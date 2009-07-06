@@ -74,7 +74,7 @@ namespace Xtensive.Storage
 
     #region Private \ internal members
 
-    internal SessionHandler Handler { get; private set; }
+    internal SessionHandler Handler { get; set; }
     
     internal HandlerAccessor Handlers { get; private set; }
 

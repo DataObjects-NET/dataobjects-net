@@ -10,7 +10,7 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
-  internal abstract class TranslatedQuery
+  public abstract class TranslatedQuery
   {
     public readonly RecordSet DataSource;
 

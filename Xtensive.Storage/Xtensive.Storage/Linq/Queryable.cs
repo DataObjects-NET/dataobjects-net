@@ -21,7 +21,6 @@ namespace Xtensive.Storage.Linq
   /// <typeparam name="T">The type of the content item of the data source.</typeparam>
   public sealed class Queryable<T> : IOrderedQueryable<T>
   {
-    private static readonly QueryProvider provider = QueryProvider.Instance;
     private readonly Expression expression;
 
     /// <inheritdoc/>
@@ -39,7 +38,7 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     IQueryProvider IQueryable.Provider
     {
-      get { return provider; }
+      get { return Session.Demand().Handler.Provider; }
     }
 
     /// <summary>
@@ -47,7 +46,7 @@ namespace Xtensive.Storage.Linq
     /// </summary>
     public RecordSet Compiled
     {
-      get { return provider.Translate<IEnumerable<T>>(expression).DataSource; }
+      get { return Session.Demand().Handler.Translate<T>(expression).DataSource; }
     }
 
     #region IEnumerable<...> members
@@ -55,7 +54,7 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
-      var result = provider.Execute<IEnumerable<T>>(expression);
+      var result = Session.Demand().Handler.Execute<T>(expression);
       return result.GetEnumerator();
     }
 

@@ -154,7 +154,7 @@ namespace Xtensive.Storage
     protected override DifferentialTuple LoadState()
     {
       Tuple = null;
-      Fetcher.Fetch(key);
+      Session.Handler.Fetch(key);
       return Tuple;
     }
 

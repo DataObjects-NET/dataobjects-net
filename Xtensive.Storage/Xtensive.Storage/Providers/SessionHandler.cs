@@ -6,15 +6,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Transactions;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Sorting;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Indexing.Model;
-using Xtensive.Modelling.Actions;
 
 namespace Xtensive.Storage.Providers
 {
@@ -105,6 +105,28 @@ namespace Xtensive.Storage.Providers
     /// <inheritdoc/>
     public abstract void Dispose();
 
+    protected internal virtual Key Fetch(Key key)
+    {
+      return Fetcher.Fetch(key);
+    }
+
+    protected internal virtual Key Fetch(Key key, FieldInfo field)
+    {
+      return Fetcher.Fetch(key, field);
+    }
+
+    protected internal virtual QueryProvider Provider {get { return QueryProvider.Instance; }}
+
+    protected internal virtual IEnumerable<T> Execute<T>(Expression expression)
+    {
+      return Provider.Execute<IEnumerable<T>>(expression);
+    }
+
+    protected internal virtual TranslatedQuery<IEnumerable<T>> Translate<T>(Expression expression)
+    {
+      return Provider.Translate<IEnumerable<T>>(expression);
+    }
+    
     private void InsertInAccordanceWithForeignKeys(IEnumerable<EntityState> entityStates)
     {
       // Topological sorting

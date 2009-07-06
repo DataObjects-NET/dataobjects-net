@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Disposing;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage
 {
@@ -32,9 +33,24 @@ namespace Xtensive.Storage
     /// <see cref="Session.SystemLogicOnly"/> property.</returns>
     public IDisposable OpenSystemLogicOnlyRegion()
     {
-      var result = new Disposable<bool, Session>(Session.SystemLogicOnly, Session,
-        (disposing, previousState, session) => session.SystemLogicOnly = previousState);
+      var result = new Disposable<Session, bool>(Session, Session.SystemLogicOnly,
+        (disposing, session, previousState) => session.SystemLogicOnly = previousState);
       Session.SystemLogicOnly = true;
+      return result;
+    }
+
+    /// <summary>
+    /// Changes the value of <see cref="Session.Handler"/>.
+    /// </summary>
+    /// <param name="newHandler">The new handler.</param>
+    /// <returns>An object implementing <see cref="IDisposable"/> which 
+    /// may be disposed to restore a previous state of the 
+    /// <see cref="Session.Handler"/> property.</returns>
+    public IDisposable ChangeSessionHandler(SessionHandler newHandler)
+    {
+      var result = new Disposable<Session, SessionHandler>(Session, Session.Handler,
+        (disposing, session, previousHandler) => session.Handler = previousHandler);
+      Session.Handler = newHandler;
       return result;
     }
 

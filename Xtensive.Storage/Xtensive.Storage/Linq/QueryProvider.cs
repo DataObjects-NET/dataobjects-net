@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Linq
   /// <summary>
   /// <see cref="IQueryProvider"/> implementation.
   /// </summary>
-  internal sealed class QueryProvider : IQueryProvider
+  public sealed class QueryProvider : IQueryProvider
   {
     private static readonly QueryProvider instance = new QueryProvider();
 

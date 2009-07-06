@@ -214,7 +214,7 @@ namespace Xtensive.Storage
       var state = State;
       if (!(state.PersistenceState==PersistenceState.New ||
         state.Tuple.IsAvailable(field.MappingInfo.Offset)))
-        Fetcher.Fetch(Key, field);
+        Session.Handler.Fetch(Key, field);
     }
 
     internal virtual void NotifyRemoving()

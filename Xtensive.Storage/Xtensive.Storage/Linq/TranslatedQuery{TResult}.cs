@@ -16,7 +16,7 @@ using System.Linq;
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
-  internal class TranslatedQuery<TResult> : TranslatedQuery
+  public class TranslatedQuery<TResult> : TranslatedQuery
   {
     public readonly Func<RecordSet, Dictionary<Parameter<Tuple>, Tuple>, TResult> Materializer;
     public Dictionary<Parameter<Tuple>, Tuple> TupleParameterBindings { get; private set; }
