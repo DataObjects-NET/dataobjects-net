@@ -202,8 +202,8 @@ namespace Xtensive.Storage.Upgrade
       var defaultValue = !column.IsNullable && originalType.IsValueType
         ? Activator.CreateInstance(originalType)
         : null;
-      if (defaultValue is char)
-        defaultValue = '0';
+//      if (defaultValue is char)
+//        defaultValue = '0';
 
       return new ColumnInfo(CurrentTable, column.Name, storageTypeInfo) {
         DefaultValue = defaultValue,

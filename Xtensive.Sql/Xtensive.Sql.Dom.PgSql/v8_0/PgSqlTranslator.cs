@@ -63,7 +63,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_0
     [DebuggerStepThrough]
     public override string QuoteString(string str)
     {
-      return "'" + str.Replace("'", "''").Replace(@"\", @"\\") + "'";
+      return "'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
     }
 
     public override string Translate(SqlFunctionType type)

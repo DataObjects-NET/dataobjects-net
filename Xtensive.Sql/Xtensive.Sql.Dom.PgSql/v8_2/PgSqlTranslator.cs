@@ -15,7 +15,7 @@ namespace Xtensive.Sql.Dom.PgSql.v8_2
     [DebuggerStepThrough]
     public override string QuoteString(string str)
     {
-      return "E'" + str.Replace("'", "''").Replace(@"\", @"\\") + "'";
+      return "E'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
     }
 
     protected override void AppendIndexStorageParameters(StringBuilder builder, Index index)

@@ -300,7 +300,7 @@ namespace Xtensive.Storage.Providers.Sql
         {
           Value = new ValueRange<char>(char.MinValue, char.MaxValue, (char) 0)
         };
-      return new DataTypeMapping(typeof (char), @char, DbType.String, ReadChar, _char => new string((char) _char, 1));
+      return new DataTypeMapping(typeof (char), @char, DbType.String, ReadChar, ToSqlChar);
     }
 
     #endregion
@@ -340,8 +340,13 @@ namespace Xtensive.Storage.Providers.Sql
 
     private static object ReadChar(DbDataReader reader, int index)
     {
-      var s = reader.GetString(index);
-      return s==null ? null : (object) s.Single();
+      return reader.GetString(index).SingleOrDefault();
+    }
+
+    private static object ToSqlChar(object value)
+    {
+      var _char = (char) value;
+      return _char==default(char) ? string.Empty : _char.ToString();
     }
   }
 }

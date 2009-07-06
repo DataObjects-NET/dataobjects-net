@@ -1742,7 +1742,7 @@ namespace Xtensive.Sql.Dom.Compiler
     /// <returns>Quoted string.</returns>
     public virtual string QuoteString(string str)
     {
-      return "'" + str.Replace("'", "''") + "'";
+      return "'" + str.Replace("'", "''").Replace("\0", string.Empty) + "'";
     }
 
     /// <summary>
