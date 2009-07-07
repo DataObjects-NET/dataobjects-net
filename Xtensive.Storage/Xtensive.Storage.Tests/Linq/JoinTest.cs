@@ -113,10 +113,13 @@ namespace Xtensive.Storage.Tests.Linq
       var territories = Query<Territory>.All;
       var regions = Query<Region>.All;
       var result = territories.JoinLeft(
-        regions, 
-        territory => territory.Region, 
-        region => region, 
-        (territory, region) => new {territory.TerritoryDescription, region.RegionDescription});
+        regions,
+        territory => territory.Region,
+        region => region,
+        (territory, region) => new {
+          territory.TerritoryDescription,
+          RegionDescription = region==null ? (string) null : region.RegionDescription
+        });
       foreach (var item in result)
         Console.WriteLine("{0} {1}", item.RegionDescription, item.TerritoryDescription);
       QueryDumper.Dump(result);
@@ -129,9 +132,9 @@ namespace Xtensive.Storage.Tests.Linq
       var territories = Query<Territory>.All;
       var regions = Query<Region>.All;
       var result = territories.JoinLeft(
-        regions, 
-        territory => territory.Region.Id, 
-        region => region.Id, 
+        regions,
+        territory => territory.Region.Id,
+        region => region.Id,
         (territory, region) => new {territory.TerritoryDescription, region.RegionDescription});
       foreach (var item in result)
         Console.WriteLine("{0} {1}", item.RegionDescription, item.TerritoryDescription);
