@@ -191,7 +191,11 @@ namespace Xtensive.Storage.Linq
       else if (ma.Expression.GetMemberType()==MemberType.Entity && ma.Member.Name!="Key")
         if (!context.Model.Types[ma.Expression.Type].Fields.Contains(ma.Member.Name))
           throw new NotSupportedException("Nonpersistent fields are not supported.");
-      var source = Visit(ma.Expression);
+      Expression source;
+      using (state.CreateScope()) {
+        state.BuildingProjection = false;
+        source = Visit(ma.Expression);
+      }
       var result = GetMember(source, ma.Member);
       return result ?? base.VisitMemberAccess(ma);
     }
@@ -689,7 +693,7 @@ namespace Xtensive.Storage.Linq
         ? context.Bindings[state.Parameters[0]].ItemProjector
         : context.Bindings[entityFieldExpression.OuterParameter].ItemProjector;
       var offset = originalItemProjector.DataSource.Header.Length;
-      originalItemProjector.DataSource = originalItemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+      originalItemProjector.DataSource = originalItemProjector.DataSource.JoinLeft(joinedRs, JoinAlgorithm.Default, keyPairs);
       entityFieldExpression.RegisterEntityExpression(offset);
     }
 

@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests.Linq
       var result = territories.Select(t => t.Region.Id);
 
       var expectedCount = territories.ToList().Count();
-      var actualCount = result.ToList().Count();
+      var actualCount = result.Count();
       Assert.AreEqual(expectedCount, actualCount);
     }
 
