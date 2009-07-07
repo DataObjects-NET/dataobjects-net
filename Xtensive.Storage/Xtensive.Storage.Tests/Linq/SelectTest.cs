@@ -19,6 +19,21 @@ namespace Xtensive.Storage.Tests.Linq
   public class SelectTest : NorthwindDOModelTest
   {
     [Test]
+    public void NullJoinTest()
+    {
+      Query<Territory>.All.First().Region = null; // Set one region reference to NULL
+      Session.Current.Persist();
+
+      var territories = Query<Territory>.All;
+
+      var result = territories.Select(t => t.Region.Id);
+
+      var expectedCount = territories.ToList().Count();
+      var actualCount = result.ToList().Count();
+      Assert.AreEqual(expectedCount, actualCount);
+    }
+
+    [Test]
     public void AnoimousEntityTest()
     {
       var result = Query<Category>.All
@@ -541,26 +556,24 @@ namespace Xtensive.Storage.Tests.Linq
       var result =
         from order in Query<Order>.All
         where order.Id > 0 && order.Id < 50
-        let values = new
-          {
-            Byte = (sbyte) order.Id,
-            Short = (short) order.Id,
-            Int = order.Id,
-            Long = (long) order.Id,
-            Decimal = (decimal) order.Id,
-            Float = (float) order.Id,
-            Double = (double) order.Id,
-          }
-        select new
-          {
-            ByteSign = Math.Sign(values.Byte),
-            ShortSign = Math.Sign(values.Short),
-            IntSign = Math.Sign(values.Int),
-            LongSign = Math.Sign(values.Long),
-            DecimalSign = Math.Sign(values.Decimal),
-            FloatSign = Math.Sign(values.Float),
-            DoubleSign = Math.Sign(values.Double)
-          };
+        let values = new {
+          Byte = (sbyte) order.Id,
+          Short = (short) order.Id,
+          Int = order.Id,
+          Long = (long) order.Id,
+          Decimal = (decimal) order.Id,
+          Float = (float) order.Id,
+          Double = (double) order.Id,
+        }
+        select new {
+          ByteSign = Math.Sign(values.Byte),
+          ShortSign = Math.Sign(values.Short),
+          IntSign = Math.Sign(values.Int),
+          LongSign = Math.Sign(values.Long),
+          DecimalSign = Math.Sign(values.Decimal),
+          FloatSign = Math.Sign(values.Float),
+          DoubleSign = Math.Sign(values.Double)
+        };
       foreach (var item in result) {
         Assert.AreEqual(1, item.ByteSign);
         Assert.AreEqual(1, item.ShortSign);
@@ -577,30 +590,28 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result =
         Query<Customer>.All
-          .Select(c => new
-            {
-              String = c.Id,
-              Char0 = c.Id[0],
-              Char1 = c.Id[1],
-              Char2 = c.Id[2],
-              Char3 = c.Id[3],
-              Char4 = c.Id[4],
-            })
+          .Select(c => new {
+            String = c.Id,
+            Char0 = c.Id[0],
+            Char1 = c.Id[1],
+            Char2 = c.Id[2],
+            Char3 = c.Id[3],
+            Char4 = c.Id[4],
+          })
           .ToArray()
           .OrderBy(item => item.String)
           .ToArray();
       var expected =
         Query<Customer>.All
           .ToArray()
-          .Select(c => new
-            {
-              String = c.Id,
-              Char0 = c.Id[0],
-              Char1 = c.Id[1],
-              Char2 = c.Id[2],
-              Char3 = c.Id[3],
-              Char4 = c.Id[4],
-            })
+          .Select(c => new {
+            String = c.Id,
+            Char0 = c.Id[0],
+            Char1 = c.Id[1],
+            Char2 = c.Id[2],
+            Char3 = c.Id[3],
+            Char4 = c.Id[4],
+          })
           .OrderBy(item => item.String)
           .ToArray();
       Assert.AreEqual(expected.Length, result.Length);
@@ -620,32 +631,30 @@ namespace Xtensive.Storage.Tests.Linq
       char _char = 'A';
       var result =
         Query<Customer>.All
-          .Select(c => new
-            {
-              String = c.Id,
-              IndexOfChar = c.Id.IndexOf(_char),
-              IndexOfCharStart = c.Id.IndexOf(_char, 1),
-              IndexOfCharStartCount = c.Id.IndexOf(_char, 1, 1),
-              IndexOfString = c.Id.IndexOf(_char.ToString()),
-              IndexOfStringStart = c.Id.IndexOf(_char.ToString(), 1),
-              IndexOfStringStartCount = c.Id.IndexOf(_char.ToString(), 1, 1)
-            })
+          .Select(c => new {
+            String = c.Id,
+            IndexOfChar = c.Id.IndexOf(_char),
+            IndexOfCharStart = c.Id.IndexOf(_char, 1),
+            IndexOfCharStartCount = c.Id.IndexOf(_char, 1, 1),
+            IndexOfString = c.Id.IndexOf(_char.ToString()),
+            IndexOfStringStart = c.Id.IndexOf(_char.ToString(), 1),
+            IndexOfStringStartCount = c.Id.IndexOf(_char.ToString(), 1, 1)
+          })
           .ToArray()
           .OrderBy(item => item.String)
           .ToArray();
       var expected =
         Query<Customer>.All
           .ToArray()
-          .Select(c => new
-            {
-              String = c.Id,
-              IndexOfChar = c.Id.IndexOf(_char),
-              IndexOfCharStart = c.Id.IndexOf(_char, 1),
-              IndexOfCharStartCount = c.Id.IndexOf(_char, 1, 1),
-              IndexOfString = c.Id.IndexOf(_char.ToString()),
-              IndexOfStringStart = c.Id.IndexOf(_char.ToString(), 1),
-              IndexOfStringStartCount = c.Id.IndexOf(_char.ToString(), 1, 1)
-            })
+          .Select(c => new {
+            String = c.Id,
+            IndexOfChar = c.Id.IndexOf(_char),
+            IndexOfCharStart = c.Id.IndexOf(_char, 1),
+            IndexOfCharStartCount = c.Id.IndexOf(_char, 1, 1),
+            IndexOfString = c.Id.IndexOf(_char.ToString()),
+            IndexOfStringStart = c.Id.IndexOf(_char.ToString(), 1),
+            IndexOfStringStartCount = c.Id.IndexOf(_char.ToString(), 1, 1)
+          })
           .OrderBy(item => item.String)
           .ToArray();
       Assert.AreEqual(expected.Length, result.Length);
@@ -684,42 +693,40 @@ namespace Xtensive.Storage.Tests.Linq
       var timeSpan = new TimeSpan(1, 1, 1, 1);
 
       var result = Query<Customer>.All
-        .Select(c => new
-          {
-            CustomerId = c.Id,
-            DateTime = dateTime,
-            TimeSpan = timeSpan
-          }
+        .Select(c => new {
+          CustomerId = c.Id,
+          DateTime = dateTime,
+          TimeSpan = timeSpan
+        }
         )
-        .Select(k => new
-          {
-            DateTime = k.DateTime,
-            DateTimeDate = k.DateTime.Date,
-            DateTimeTime = k.DateTime.TimeOfDay,
-            DateTimeYear = k.DateTime.Year,
-            DateTimeMonth = k.DateTime.Month,
-            DateTimeDay = k.DateTime.Day,
-            DateTimeHour = k.DateTime.Hour,
-            DateTimeMinute = k.DateTime.Minute,
-            DateTimeSecond = k.DateTime.Second,
-            DateTimeDayOfYear = k.DateTime.DayOfYear,
-            DateTimeDayOfWeek = k.DateTime.DayOfWeek,
-            TimeSpan = k.TimeSpan,
-            TimeSpanDays = k.TimeSpan.Days,
-            TimeSpanHours = k.TimeSpan.Hours,
-            TimeSpanMinutes = k.TimeSpan.Minutes,
-            TimeSpanSeconds = k.TimeSpan.Seconds,
-            TimeSpanTotalDays = k.TimeSpan.TotalDays,
-            TimeSpanTotalHours = k.TimeSpan.TotalHours,
-            TimeSpanTotalMinutes = k.TimeSpan.TotalMinutes,
-            TimeSpanTotalSeconds = k.TimeSpan.TotalSeconds,
-            TimeSpanTicks = k.TimeSpan.Ticks,
-            TimeSpanDuration = k.TimeSpan.Duration(),
-            TimeSpanFromDays = TimeSpan.FromDays(k.TimeSpan.TotalDays),
-            TimeSpanFromHours = TimeSpan.FromHours(k.TimeSpan.TotalHours),
-            TimeSpanFromMinutes = TimeSpan.FromMinutes(k.TimeSpan.TotalMinutes),
-            TimeSpanFromSeconds = TimeSpan.FromSeconds(k.TimeSpan.TotalSeconds),
-          })
+        .Select(k => new {
+          DateTime = k.DateTime,
+          DateTimeDate = k.DateTime.Date,
+          DateTimeTime = k.DateTime.TimeOfDay,
+          DateTimeYear = k.DateTime.Year,
+          DateTimeMonth = k.DateTime.Month,
+          DateTimeDay = k.DateTime.Day,
+          DateTimeHour = k.DateTime.Hour,
+          DateTimeMinute = k.DateTime.Minute,
+          DateTimeSecond = k.DateTime.Second,
+          DateTimeDayOfYear = k.DateTime.DayOfYear,
+          DateTimeDayOfWeek = k.DateTime.DayOfWeek,
+          TimeSpan = k.TimeSpan,
+          TimeSpanDays = k.TimeSpan.Days,
+          TimeSpanHours = k.TimeSpan.Hours,
+          TimeSpanMinutes = k.TimeSpan.Minutes,
+          TimeSpanSeconds = k.TimeSpan.Seconds,
+          TimeSpanTotalDays = k.TimeSpan.TotalDays,
+          TimeSpanTotalHours = k.TimeSpan.TotalHours,
+          TimeSpanTotalMinutes = k.TimeSpan.TotalMinutes,
+          TimeSpanTotalSeconds = k.TimeSpan.TotalSeconds,
+          TimeSpanTicks = k.TimeSpan.Ticks,
+          TimeSpanDuration = k.TimeSpan.Duration(),
+          TimeSpanFromDays = TimeSpan.FromDays(k.TimeSpan.TotalDays),
+          TimeSpanFromHours = TimeSpan.FromHours(k.TimeSpan.TotalHours),
+          TimeSpanFromMinutes = TimeSpan.FromMinutes(k.TimeSpan.TotalMinutes),
+          TimeSpanFromSeconds = TimeSpan.FromSeconds(k.TimeSpan.TotalSeconds),
+        })
         .First();
       Assert.AreEqual(dateTime, result.DateTime);
       Assert.AreEqual(dateTime.Date, result.DateTimeDate);
@@ -752,12 +759,11 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectSubstringTest()
     {
-      var result = Query<Customer>.All.Select(c => new
-        {
-          String = c.Id,
-          FromTwo = c.Id.Substring(2),
-          FromThreeTakeOne = c.Id.Substring(3, 1),
-        }).ToArray();
+      var result = Query<Customer>.All.Select(c => new {
+        String = c.Id,
+        FromTwo = c.Id.Substring(2),
+        FromThreeTakeOne = c.Id.Substring(3, 1),
+      }).ToArray();
       foreach (var item in result) {
         Assert.AreEqual(item.String.Substring(2), item.FromTwo);
         Assert.AreEqual(item.String.Substring(3, 1), item.FromThreeTakeOne);

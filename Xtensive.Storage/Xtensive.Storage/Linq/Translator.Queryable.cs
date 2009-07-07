@@ -620,8 +620,10 @@ namespace Xtensive.Storage.Linq
     {
       var outerParameter = outerKey.Parameters[0];
       var innerParameter = innerKey.Parameters[0];
-      using (context.Bindings.Add(outerParameter, VisitSequence(outerSource)))
-      using (context.Bindings.Add(innerParameter, VisitSequence(innerSource))) {
+      var outerSequence = VisitSequence(outerSource);
+      var innerSequence = VisitSequence(innerSource);
+      using (context.Bindings.Add(outerParameter, outerSequence))
+      using (context.Bindings.Add(innerParameter, innerSequence)) {
         ItemProjectorExpression outerKeyProjector;
         ItemProjectorExpression innerKeyProjector;
         using (state.CreateScope()) {

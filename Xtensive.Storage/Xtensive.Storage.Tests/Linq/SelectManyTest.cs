@@ -425,13 +425,12 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
-    [Ignore("Too slow")]
     [Test]
     public void TwoSelectManyTest()
     {
       var q =
-        from o in Query<Order>.All
-        from d in Query<OrderDetails>.All
+        from o in Query<Order>.All.Take(10)
+        from d in Query<OrderDetails>.All.Take(10)
         select new {OrderId = o.Id, d.UnitPrice};
 
       var count = q.Count();

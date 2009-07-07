@@ -10,8 +10,10 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Testing;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
+using Region=Xtensive.Storage.Tests.ObjectModel.NorthwindDO.Region;
 
 namespace Xtensive.Storage.Tests.Linq
 {
@@ -101,6 +103,39 @@ namespace Xtensive.Storage.Tests.Linq
       select new {p.ProductName, s.ContactName, s.Phone};
       var list = result.ToList();
       Assert.AreEqual(productsCount, list.Count);
+    }
+
+    [Test]
+    public void LeftJoin1Test()
+    {
+      Query<Territory>.All.First().Region = null;
+      Session.Current.Persist();
+      var territories = Query<Territory>.All;
+      var regions = Query<Region>.All;
+      var result = territories.JoinLeft(
+        regions, 
+        territory => territory.Region, 
+        region => region, 
+        (territory, region) => new {territory.TerritoryDescription, region.RegionDescription});
+      foreach (var item in result)
+        Console.WriteLine("{0} {1}", item.RegionDescription, item.TerritoryDescription);
+      QueryDumper.Dump(result);
+    }
+
+    public void LeftJoin2Test()
+    {
+      Query<Territory>.All.First().Region = null;
+      Session.Current.Persist();
+      var territories = Query<Territory>.All;
+      var regions = Query<Region>.All;
+      var result = territories.JoinLeft(
+        regions, 
+        territory => territory.Region.Id, 
+        region => region.Id, 
+        (territory, region) => new {territory.TerritoryDescription, region.RegionDescription});
+      foreach (var item in result)
+        Console.WriteLine("{0} {1}", item.RegionDescription, item.TerritoryDescription);
+      QueryDumper.Dump(result);
     }
 
     [Test]
