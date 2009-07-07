@@ -72,16 +72,17 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       int instanceCount = 100000;
       Initialize();
       InsertTest(instanceCount);
-      BulkFetchTest(instanceCount);
+      MaterializeTest(instanceCount);
     }
 
     private void CombinedTest(int baseCount, int insertCount)
     {
       InsertTest(insertCount);
-      BulkFetchTest(baseCount);
+      MaterializeTest(baseCount);
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
       CachedQueryTest(baseCount / 5);
+      UpdateTest();
       RemoveTest();
     }
 
@@ -131,7 +132,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       }
     }
 
-    private void BulkFetchTest(int count)
+    private void MaterializeTest(int count)
     {
       string queryText = "Select Simplest instances";
       using (var s = domain.CreateSession()) {
@@ -140,7 +141,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         s.BeginTransaction();
         TestHelper.CollectGarbage();
         Query q = s.CreateQuery(queryText);
-        using (warmup ? null : new Measurement("Bulk Fetch & GetField", count)) {
+        using (warmup ? null : new Measurement("Materialize & GetField", count)) {
           while (i < count) {
             foreach (Simplest o in q.Execute()) {
               sum += o.Value;
@@ -191,6 +192,20 @@ namespace Xtensive.Storage.Tests.Storage.Performance
               // Doing nothing, just enumerate
             }
           }
+          s.Commit();
+        }
+      }
+    }
+
+    private void UpdateTest()
+    {
+      string queryText = "Select Simplest instances";
+      using (var s = domain.CreateSession()) {
+        TestHelper.CollectGarbage();
+        using (warmup ? null : new Measurement("Update", instanceCount)) {
+          s.BeginTransaction();
+          foreach (var o in s.CreateQuery(queryText).Execute<Simplest>())
+            o.Value++;
           s.Commit();
         }
       }

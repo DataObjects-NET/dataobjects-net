@@ -50,18 +50,19 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     {
       int instanceCount = 10000;
       InsertTest(instanceCount);
-      BulkFetchTest(instanceCount);
+      MaterializeTest(instanceCount);
     }
 
     private void CombinedTest(int baseCount, int insertCount)
     {
       InsertTest(insertCount);
-      BulkFetchTest(baseCount);
+      MaterializeTest(baseCount);
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
       CachedQueryTest(baseCount / 5);
       NoMaterializationQueryTest(baseCount / 5);
       CompiledQueryTest(baseCount / 5);
+      UpdateTest();
       RemoveTest();
     }
 
@@ -104,7 +105,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       }
     }
 
-    private void BulkFetchTest(int count)
+    private void MaterializeTest(int count)
     {
       using (var dataContext = new Entities()) {
         dataContext.Connection.Open();
@@ -113,7 +114,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         using (var transaction = dataContext.Connection.BeginTransaction()) {
           TestHelper.CollectGarbage();
           var simplest = dataContext.Simplest;
-          using (warmup ? null : new Measurement("Bulk Fetch & GetField", count)) {
+          using (warmup ? null : new Measurement("Materialize & GetField", count)) {
             while (i < count)
               foreach (var o in simplest) {
                 sum += o.Id;
@@ -209,6 +210,23 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       }
     }
 
+    private void UpdateTest()
+    {
+      using (var dataContext = new Entities()) {
+        dataContext.Connection.Open();
+        var simplest = dataContext.Simplest;
+        TestHelper.CollectGarbage();
+        using (warmup ? null : new Measurement("Update", instanceCount)) {
+          using (var transaction = dataContext.Connection.BeginTransaction()) {
+            foreach (var s in simplest)
+              s.Value++;
+            dataContext.SaveChanges();
+            transaction.Commit();
+          }
+        }
+      }
+    }
+
     private void RemoveTest()
     {
       using (var dataContext = new Entities()) {
@@ -217,10 +235,9 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Remove", instanceCount)) {
           using (var transaction = dataContext.Connection.BeginTransaction()) {
-            foreach (var s in simplest) {
+            foreach (var s in simplest)
               dataContext.DeleteObject(s);
-              dataContext.SaveChanges();
-            }
+            dataContext.SaveChanges();
             transaction.Commit();
           }
         }

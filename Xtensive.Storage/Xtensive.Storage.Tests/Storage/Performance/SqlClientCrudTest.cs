@@ -53,15 +53,16 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     {
       int instanceCount = 10000;
       InsertTest(instanceCount);
-      BulkFetchTest(instanceCount);
+      MaterializeTest(instanceCount);
     }
 
     private void CombinedTest(int baseCount, int insertCount)
     {
       InsertTest(insertCount);
-      BulkFetchTest(baseCount);
+      MaterializeTest(baseCount);
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
+      UpdateTest();
       RemoveTest();
     }
     
@@ -91,7 +92,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       con.Close();
     }
 
-    private void BulkFetchTest(int count)
+    private void MaterializeTest(int count)
     {
       long sum = 0;
       int i = 0;
@@ -99,7 +100,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       SqlTransaction transaction = con.BeginTransaction();
 
       TestHelper.CollectGarbage();
-      using (warmup ? null : new Measurement("Bulk Fetch & GetField", count)) {
+      using (warmup ? null : new Measurement("Materialize & GetField", count)) {
         while (i < count) {
           SqlCommand cmd = con.CreateCommand();
           cmd.Transaction = transaction;
@@ -185,6 +186,38 @@ namespace Xtensive.Storage.Tests.Storage.Performance
               s.Value = (long) dr.GetValue(2);
           }
           dr.Close();
+        }
+        transaction.Commit();
+      }
+      con.Close();
+    }
+
+    private void UpdateTest()
+    {
+      con.Open();
+      TestHelper.CollectGarbage();
+      using (warmup ? null : new Measurement("Update", instanceCount)) {
+        SqlTransaction transaction = con.BeginTransaction();
+        SqlCommand cmd = con.CreateCommand();
+        cmd.Transaction = transaction;
+        cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
+          "FROM [dbo].[Simplest]";
+        cmd.Parameters.AddWithValue("@pId", 0);
+        cmd.Parameters.AddWithValue("@pValue", 0);
+        
+        SqlDataReader dr = cmd.ExecuteReader();
+        var list = new List<Simplest>();
+        while (dr.Read()) {
+          if (!dr.IsDBNull(0) && !dr.IsDBNull(2))
+            list.Add(new Simplest((long)dr.GetValue(0), (long)dr.GetValue(2)));
+        }
+        dr.Close();
+
+        cmd.CommandText = "UPDATE [dbo].[Simplest] SET [Simplest].[Value] = @pValue WHERE [Simplest].[Id] = @pId";
+        foreach (var l in list) {
+          cmd.Parameters["@pId"].SqlValue = l.Id;
+          cmd.Parameters["@pValue"].SqlValue = l.Value + 1;
+          cmd.ExecuteNonQuery();
         }
         transaction.Commit();
       }

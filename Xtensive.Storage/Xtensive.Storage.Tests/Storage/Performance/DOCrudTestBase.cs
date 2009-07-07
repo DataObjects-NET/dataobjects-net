@@ -71,6 +71,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       ProjectingCachedQueryTest(baseCount / 2);
       RseQueryTest(baseCount / 5);
       CachedRseQueryTest(baseCount / 5);
+      UpdateTest();
       RemoveTest();
     }
 
@@ -352,6 +353,23 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       }
     }
 
+    private void UpdateTest()
+    {
+      var d = Domain;
+      using (var ss = d.OpenSession()) {
+        var s = ss.Session;
+        TestHelper.CollectGarbage();
+        using (warmup ? null : new Measurement("Update", instanceCount)) {
+          using (var ts = s.OpenTransaction()) {
+            var query = CachedQuery.Execute(() => Query<Simplest>.All);
+            foreach (var o in query)
+              o.Value++;
+            ts.Complete();
+          }
+        }
+      }
+    }
+
     private void RemoveTest()
     {
       var d = Domain;
@@ -360,9 +378,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Remove", instanceCount)) {
           using (var ts = s.OpenTransaction()) {
-            var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
-            var es = rs.ToEntities<Simplest>();
-            foreach (var o in es)
+            var query = CachedQuery.Execute(() => Query<Simplest>.All);
+            foreach (var o in query)
               o.Remove();
             ts.Complete();
           }
