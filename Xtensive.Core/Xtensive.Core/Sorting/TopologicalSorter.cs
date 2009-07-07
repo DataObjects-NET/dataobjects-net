@@ -109,20 +109,62 @@ namespace Xtensive.Core.Sorting
     public static List<TNodeItem> Sort<TNodeItem, TConnectionItem>(IEnumerable<Node<TNodeItem, TConnectionItem>> nodes, out List<NodeConnection<TNodeItem, TConnectionItem>> removedEdges)
     {
       ArgumentValidator.EnsureArgumentNotNull(nodes, "nodes");
-      var nodeList = nodes.ToList();
-      var queue = new Queue<Node<TNodeItem, TConnectionItem>>();
-      var result = new List<TNodeItem>();
+      var head = new Queue<TNodeItem>();
+      var tail = new Queue<TNodeItem>();
       removedEdges = new List<NodeConnection<TNodeItem, TConnectionItem>>();
-      do {
-        SortInternal(nodeList, queue, result);
-        nodeList = new List<Node<TNodeItem, TConnectionItem>>(nodeList.Where(node => node.GetConnectionCount(true) > 0));
-        if (nodeList.Count > 0) {
-          var connection = nodeList[0].OutgoingConnections.First();
-          removedEdges.Add(connection);
-          nodeList[0].RemoveConnection(connection);
+      var nodeList = nodes.ToList();
+      var nodesToRemove = new List<Node<TNodeItem, TConnectionItem>>();
+      while (nodeList.Count > 0) {
+        nodesToRemove.Clear();
+        foreach (var node in nodeList) {
+          if (node.GetConnectionCount(false)==0) {
+            // Add to head
+            head.Enqueue(node.Item);
+            nodesToRemove.Add(node);
+            var connections = node.OutgoingConnections.ToArray();
+            foreach (var connection in connections)
+              node.RemoveConnection(connection);
+          } else if (node.GetConnectionCount(true)==0) {
+            // Add to tail
+            tail.Enqueue(node.Item);
+            nodesToRemove.Add(node);
+            var connections = node.IncomingConnections.ToArray();
+            foreach (var connection in connections)
+              node.RemoveConnection(connection);
+          }
         }
-      } while (nodeList.Count > 0);
-      return result;
+        if (nodesToRemove.Count==0) {
+          // remove edge
+          var removedConnection = nodeList[0].OutgoingConnections.First();
+          removedEdges.Add(removedConnection);
+          nodeList[0].RemoveConnection(removedConnection);
+        }
+        foreach (var nodeToRemove in nodesToRemove)
+          nodeList.Remove(nodeToRemove);
+      }
+      return head.Concat(tail.Reverse()).ToList();
+//      var nodeList = nodes.ToList();
+//      var queue = new Queue<Node<TNodeItem, TConnectionItem>>();
+//      var result = new List<TNodeItem>();
+//      var endNodes = new List<TNodeItem>();
+//      removedEdges = new List<NodeConnection<TNodeItem, TConnectionItem>>();
+//      do {
+//        SortInternal(nodeList, queue, result);
+//        var endNodeList = nodeList.Where(node => node.GetConnectionCount(true) == 0);
+//        foreach (var node in endNodeList) {
+//          node.RemoveConnection();
+//        }
+//        endNodes.AddRange(endNodes.Select(n=>n.Item).Where(node=>!result.Contains(node)));
+//        nodeList = new List<Node<TNodeItem, TConnectionItem>>(nodeList.Where(node => node.GetConnectionCount(true) > 0));
+//        if (nodeList.Count > 0) {
+//          var connection = nodeList[0].OutgoingConnections.First();
+//          removedEdges.Add(connection);
+//          nodeList[0].RemoveConnection(connection);
+//        }
+//      } while (nodeList.Count > 0);
+//      endNodes.Reverse();
+//      result.AddRange(endNodes);
+//      return result;
     }
 
 

@@ -6,12 +6,11 @@
 
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Storage.Tests.Issues.Issue0271_Model;
+
 
 namespace Xtensive.Storage.Tests.Issues.Issue0271_Model
 {
-  [TestFixture]
-  public class Issue0271_EntityNotInserted : AutoBuildTest
-  {
     [HierarchyRoot]
     public class Address : Entity
     {
@@ -41,11 +40,17 @@ namespace Xtensive.Storage.Tests.Issues.Issue0271_Model
       [Field]
       public User User { get; set; }
     }
+}
+namespace Xtensive.Storage.Tests.Issues
+{
+  [TestFixture]
+  public class Issue0271_EntityNotInserted : AutoBuildTest
+  {
 
     protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), typeof (Address).Namespace);
+      config.Types.Register(Assembly.GetExecutingAssembly(), typeof (Issue0271_Model.Address).Namespace);
       return config;
     }
 
