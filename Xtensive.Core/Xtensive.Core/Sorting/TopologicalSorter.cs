@@ -143,28 +143,6 @@ namespace Xtensive.Core.Sorting
           nodeList.Remove(nodeToRemove);
       }
       return head.Concat(tail.Reverse()).ToList();
-//      var nodeList = nodes.ToList();
-//      var queue = new Queue<Node<TNodeItem, TConnectionItem>>();
-//      var result = new List<TNodeItem>();
-//      var endNodes = new List<TNodeItem>();
-//      removedEdges = new List<NodeConnection<TNodeItem, TConnectionItem>>();
-//      do {
-//        SortInternal(nodeList, queue, result);
-//        var endNodeList = nodeList.Where(node => node.GetConnectionCount(true) == 0);
-//        foreach (var node in endNodeList) {
-//          node.RemoveConnection();
-//        }
-//        endNodes.AddRange(endNodes.Select(n=>n.Item).Where(node=>!result.Contains(node)));
-//        nodeList = new List<Node<TNodeItem, TConnectionItem>>(nodeList.Where(node => node.GetConnectionCount(true) > 0));
-//        if (nodeList.Count > 0) {
-//          var connection = nodeList[0].OutgoingConnections.First();
-//          removedEdges.Add(connection);
-//          nodeList[0].RemoveConnection(connection);
-//        }
-//      } while (nodeList.Count > 0);
-//      endNodes.Reverse();
-//      result.AddRange(endNodes);
-//      return result;
     }
 
 
