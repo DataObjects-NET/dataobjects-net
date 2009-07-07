@@ -21,7 +21,7 @@ namespace Xtensive.Storage
     private string[] keyFields;
     private string[] includedFields;
     internal double? fillFactor;
-    internal bool? isUnique;
+    internal bool? unique;
 
     /// <summary>
     /// Gets or sets the index name.
@@ -59,10 +59,10 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets or sets a value indicating whether the index is unique.
     /// </summary>
-    public bool IsUnique
+    public bool Unique
     {
-      get { return isUnique.HasValue ? isUnique.Value : false; }
-      set { isUnique = value; }
+      get { return unique.HasValue ? unique.Value : false; }
+      set { unique = value; }
     }
 
 

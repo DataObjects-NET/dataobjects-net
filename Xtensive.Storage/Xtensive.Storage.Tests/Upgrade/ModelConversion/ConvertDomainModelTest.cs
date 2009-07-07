@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model
 {
 
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
-  [Index("Col1", "Col2", IsUnique = true, IncludedFields = new[] { "Col3" })]
+  [Index("Col1", "Col2", Unique = true, IncludedFields = new[] { "Col3" })]
   public class A : Entity
   {
     [Field, Key]

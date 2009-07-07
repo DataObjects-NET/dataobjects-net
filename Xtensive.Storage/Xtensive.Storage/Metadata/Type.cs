@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Metadata
   [HierarchyRoot]
   [KeyGenerator(null)]
   [Mapping("Metadata.Type")]
-  [Index("Name", IsUnique = true)]
+  [Index("Name", Unique = true)]
   public class Type : MetadataBase
   {
     /// <summary>

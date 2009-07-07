@@ -138,18 +138,6 @@ namespace Xtensive.Storage.Model.Stored
     [DefaultValue(false)]
     public bool IsLazyLoad;
 
-    /// <summary>
-    /// <see cref="FieldInfo.IsTranslatable"/>.
-    /// </summary>
-    [DefaultValue(false)]
-    public bool IsTranslatable;
-
-    /// <summary>
-    /// <see cref="FieldInfo.IsCollatable"/>.
-    /// </summary>
-    [DefaultValue(false)]
-    public bool IsCollatable;
-
     #endregion
 
     public override string ToString()

@@ -221,22 +221,6 @@ namespace Xtensive.Storage.Model
       }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether property is translatable.
-    /// </summary>
-    public bool IsTranslatable {
-      [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.Translatable) != 0; }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether property is translatable.
-    /// </summary>
-    public bool IsCollatable {
-      [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.Collatable) != 0; }
-    }
-
     #endregion
 
     /// <summary>

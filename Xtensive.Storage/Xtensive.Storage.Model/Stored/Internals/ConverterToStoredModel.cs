@@ -85,7 +85,6 @@ namespace Xtensive.Storage.Model.Stored
           ItemType = GetTypeFullName(source.ItemType),
           Fields = nestedFields.Select(f => ConvertField(f)).ToArray(),
           Length = source.Length.HasValue ? source.Length.Value : 0,
-          IsCollatable = source.IsCollatable,
           IsEntity = source.IsEntity,
           IsEntitySet = source.IsEntitySet,
           IsEnum = source.IsEnum,
@@ -97,7 +96,6 @@ namespace Xtensive.Storage.Model.Stored
           IsPrimitive = source.IsPrimitive,
           IsStructure = source.IsStructure,
           IsSystem = source.IsSystem,
-          IsTranslatable = source.IsTranslatable,
           IsTypeId = source.IsTypeId,
         };
       return result;

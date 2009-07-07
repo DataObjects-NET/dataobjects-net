@@ -125,8 +125,8 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessIsUnique(IndexDef indexDef, IndexAttribute attribute)
     {
-      if (attribute.isUnique.HasValue)
-        indexDef.IsUnique = attribute.IsUnique;
+      if (attribute.unique.HasValue)
+        indexDef.IsUnique = attribute.Unique;
     }
 
     private static void ProcessLength(FieldDef fieldDef, FieldAttribute attribute)

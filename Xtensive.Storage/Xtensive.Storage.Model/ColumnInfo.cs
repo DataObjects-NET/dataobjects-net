@@ -112,19 +112,6 @@ namespace Xtensive.Storage.Model
       }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether column is translatable.
-    /// </summary>
-    public bool IsCollatable {
-      [DebuggerStepThrough]
-      get { return (attributes & ColumnAttributes.Collatable) != 0; }
-      [DebuggerStepThrough]
-      set {
-        this.EnsureNotLocked();
-        attributes = value ? Attributes | ColumnAttributes.Collatable : Attributes & ~ColumnAttributes.Collatable;
-      }
-    }
-
     #endregion
 
     /// <summary>
@@ -291,7 +278,6 @@ namespace Xtensive.Storage.Model
       IsDeclared = true;
       IsNullable = field.IsNullable;
       IsLazyLoad = field.IsLazyLoad;
-      IsCollatable = field.IsCollatable;
       valueType = field.ValueType;
       if (valueType.IsGenericType) {
         var genericType = valueType.GetGenericTypeDefinition();
@@ -320,7 +306,6 @@ namespace Xtensive.Storage.Model
       IsDeclared = true;
       IsNullable = field.IsNullable;
       IsLazyLoad = field.IsLazyLoad;
-      IsCollatable = field.IsCollatable;
       length = field.Length;
       scale = field.Scale;
       precision = field.Precision;

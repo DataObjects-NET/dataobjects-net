@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Manual
   public class IndexAttributeSample
   {
     #region Sample
-    [Index("FirstName", "LastName", IsUnique = true)]
+    [Index("FirstName", "LastName", Unique = true)]
     [Index("Age")]
     [HierarchyRoot]
     public class Person : Entity
