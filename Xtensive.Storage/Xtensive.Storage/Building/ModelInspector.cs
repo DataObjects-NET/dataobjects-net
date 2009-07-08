@@ -137,10 +137,6 @@ namespace Xtensive.Storage.Building
         return;
       }
 
-      // Restriction for all reference properties
-      if (fieldDef.OnOwnerRemove == OnRemoveAction.None)
-        throw new DomainBuilderException(string.Format("'{0}.{1}': 'None' value is not acceptable for 'OnOwnerRemove' property.", typeDef.Name, fieldDef.Name));
-
       // Inspecting index for the reference field
       if (fieldDef.IsEntity) {
         IndexDef indexDef = typeDef.Indexes.Where(i => i.IsSecondary && i.KeyFields.Count==1 && i.KeyFields[0].Key==fieldDef.Name).FirstOrDefault();
