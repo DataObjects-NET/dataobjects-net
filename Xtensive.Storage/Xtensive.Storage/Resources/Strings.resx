@@ -737,6 +737,15 @@ Actions:
   <data name="TypeXDoesNotParticipateInTheSpecifiedAssociation" xml:space="preserve">
     <value>Type '{0}' doesn't participate in the specified association.</value>
   </data>
+  <data name="ExActiveSessionIsRequiredForThisOperation" xml:space="preserve">
+    <value>Active Session is required for this operation. Try to perform it inside 'using(Domain.OpenSession()) { ... }' block.</value>
+  </data>
+  <data name="ExReferentialIntegrityViolation" xml:space="preserve">
+    <value>Referential integrity violation.</value>
+  </data>
+  <data name="ReferentialIntegrityViolationOnAttemptToRemoveXKeyY" xml:space="preserve">
+    <value>Referential integrity violation on attempt to remove {0}, Key={1}.</value>
+  </data>
   <data name="ExJoinLeftDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>JoinLeft does not support query provider of type '{0}'.</value>
   </data>

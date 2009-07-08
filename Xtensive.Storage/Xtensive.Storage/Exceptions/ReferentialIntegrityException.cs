@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -22,19 +23,20 @@ namespace Xtensive.Storage
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ReferentialIntegrityException()
-      : base("Referential integrity violation.") {}
+      : base(Strings.ExReferentialIntegrityViolation) {}
 
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="text">Text of message.</param>
-    public ReferentialIntegrityException(string text)
-      : base(text) {}
+    /// <param name="message">Text of message.</param>
+    public ReferentialIntegrityException(string message)
+      : base(message) {}
 
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ReferentialIntegrityException(Entity entity)
-      : this(String.Format("Referential integrity violation on attempt to remove {0}, Key={1}.", entity.GetType().BaseType.GetFullName(), entity.Key)) {}
+      : this(string.Format(
+      Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY, entity.GetType().BaseType.GetFullName(), entity.Key)) {}
   }
 }

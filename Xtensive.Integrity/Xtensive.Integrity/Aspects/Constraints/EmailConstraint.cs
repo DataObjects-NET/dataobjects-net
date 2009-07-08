@@ -12,7 +12,7 @@ using Xtensive.Integrity.Resources;
 namespace Xtensive.Integrity.Aspects.Constraints
 {
   /// <summary>
-  /// Ensures that email address is in correrct format.
+  /// Ensures that email address is in correct format.
   /// </summary>
   [Serializable]
   public class EmailConstraint : PropertyConstraintAspect

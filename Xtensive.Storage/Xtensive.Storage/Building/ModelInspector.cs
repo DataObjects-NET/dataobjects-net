@@ -145,7 +145,7 @@ namespace Xtensive.Storage.Building
       }
       else {
         // Restriction for EntitySet properties only
-        if (fieldDef.OnTargetRemove == OnRemoveAction.None || fieldDef.OnTargetRemove == OnRemoveAction.Cascade)
+        if (fieldDef.OnTargetRemove == OnRemoveAction.Cascade)
           throw new DomainBuilderException(string.Format("'{0}.{1}': '{2}' value is not acceptable for 'OnTargetRemove' property.", typeDef.Name, fieldDef.Name, fieldDef.OnTargetRemove));
       }
 

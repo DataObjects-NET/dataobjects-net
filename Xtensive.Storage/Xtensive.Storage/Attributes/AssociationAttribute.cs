@@ -70,7 +70,7 @@ namespace Xtensive.Storage
     ///   
     ///   // One-to-many association
     ///   [Association, Association(PairTo = "Author")]
-    ///   public EntitySet&lt;BlogItem&gt; BlogItems { get; private set; }
+    ///   public EntitySet&lt;BlogPost&gt; BlogPostss { get; private set; }
     ///   
     ///   // Many-to-many association
     ///   [Association, Association(PairTo = "Friends")]

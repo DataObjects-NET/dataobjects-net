@@ -5,6 +5,7 @@
 // Created:    2007.08.10
 
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
@@ -137,12 +138,16 @@ namespace Xtensive.Storage
     /// Persists all modified instances immediately.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// This method should be called to ensure that all delayed
     /// updates are flushed to the storage. 
+    /// </para>
+    /// <para>
     /// Note, that this method is called automatically when it's necessary,
-    /// e.g. before beginning\committing\rolling back a transaction, performing a
+    /// e.g. before beginning, committing and rolling back a transaction, performing a
     /// query and so further. So generally you should not worry
     /// about calling this method.
+    /// </para>
     /// </remarks>
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
     public void Persist()
@@ -219,7 +224,7 @@ namespace Xtensive.Storage
     {
       var currentSession = Current;
       if (currentSession==null)
-        throw Exceptions.ContextRequired<Session,SessionScope>();
+        throw new InvalidOperationException(Strings.ExActiveSessionIsRequiredForThisOperation);
       return currentSession;
     }
 
@@ -227,8 +232,8 @@ namespace Xtensive.Storage
     public SessionScope Activate()
     {
       if (IsActive)
-        return null;      
-      return new SessionScope(this);      
+        return null;
+      return new SessionScope(this);
     }
 
     /// <inheritdoc/>

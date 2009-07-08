@@ -15,32 +15,27 @@ namespace Xtensive.Storage
   public enum OnRemoveAction
   {
     /// <summary>
-    /// Indicates that no action will be taken.
-    /// </summary>
-    None = 0,
-
-    /// <summary>
     /// The same as <see cref="Deny"/>.
     /// </summary>
     Default = Deny,
 
     /// <summary>
-    /// Indicates that exception will be thrown in case that removing entity 
-    /// is referenced by other entities.
+    /// Indicates that exception will be thrown in case that removing object 
+    /// is referenced by other object.
     /// </summary>
-    Deny = 1,
+    Deny = 0,
 
     /// <summary>
-    /// Indicates that delete cascading operation will be taken on entities 
-    /// that are referenced by removing entity.
+    /// Indicates that delete cascading operation will be taken on objects 
+    /// that are referenced by removing object.
     /// </summary>
-    Cascade = 2,
+    Cascade = 1,
 
     /// <summary>
     /// Indicates that <see langword="null"/> value will be assigned 
-    /// to corresponding reference fields of referencing entities
+    /// to corresponding reference fields of referencing object
     /// or the whole item that is used in n-ry relations will be removed.
     /// </summary>
-    Clear = 3,
+    Clear = 2,
   }
 }

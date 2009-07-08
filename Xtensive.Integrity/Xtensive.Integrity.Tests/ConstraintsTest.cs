@@ -39,6 +39,8 @@ namespace Xtensive.Integrity.Tests
       }
     }
 
+    #region LogMethodFastAspect
+
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = true, Inherited = false)]
     [Serializable]
     internal class LogMethodFastAspect : ReprocessMethodBoundaryAspect, ILaosWeavableAspect
@@ -80,6 +82,8 @@ namespace Xtensive.Integrity.Tests
       }
     }
 
+    #endregion
+
     internal class Person : ValidatableObject
     {
       [Trace]
@@ -106,7 +110,7 @@ namespace Xtensive.Integrity.Tests
     [Test]
     public void PersonTest()
     {
-      
+
       try {
         using (context.OpenInconsistentRegion()) {
           Person person = new Person();
@@ -133,7 +137,7 @@ namespace Xtensive.Integrity.Tests
 
         var phoneError = errors.Where(error => error.TargetProperty.Name=="Phone").Single();
         Assert.AreEqual("Incorrect phone format 'one-one-two-four-seven-one'", phoneError.Message);
-        
+
         var registrationDateError = errors.Where(error => error.TargetProperty.Name=="RegistrationDate").Single();
         Assert.AreEqual("RegistrationDate must be in the past.", registrationDateError.Message);
 

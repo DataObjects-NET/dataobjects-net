@@ -142,6 +142,8 @@ namespace Xtensive.Storage
     /// <summary>
     /// Removes this entity.
     /// </summary>
+    /// <exception cref="ReferentialIntegrityException">
+    /// Entity is associated with another entity with <see cref="OnRemoveAction.Deny"/> on-remove action.</exception>
     /// <seealso cref="IsRemoved"/>
     [Infrastructure]
     public void Remove()

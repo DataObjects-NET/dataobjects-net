@@ -322,8 +322,6 @@ namespace Xtensive.Storage.Upgrade
       switch (toConvert) {
       case OnRemoveAction.Deny:
         return ReferentialAction.Restrict;
-      case OnRemoveAction.None:
-        return ReferentialAction.None;
       case OnRemoveAction.Cascade:
         return ReferentialAction.Cascade;
       case OnRemoveAction.Clear:

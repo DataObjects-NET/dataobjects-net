@@ -115,6 +115,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Active Session is required for this operation. Try to perform it inside &apos;using(Domain.OpenSession()) { ... }&apos; block..
+        /// </summary>
+        internal static string ExActiveSessionIsRequiredForThisOperation {
+            get {
+                return ResourceManager.GetString("ExActiveSessionIsRequiredForThisOperation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Actual schema version of assembly &apos;{0}&apos; is expected to be &apos;{1}&apos;, but currently it is &apos;{2}&apos;..
         /// </summary>
         internal static string ExActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyItIsZ {
@@ -1051,6 +1060,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Referential integrity violation..
+        /// </summary>
+        internal static string ExReferentialIntegrityViolation {
+            get {
+                return ResourceManager.GetString("ExReferentialIntegrityViolation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value of {0} type can&apos;t be assign to property of {1} type..
         /// </summary>
         internal static string ExResultTypeIncorrect {
@@ -1788,6 +1806,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ModelDefinition {
             get {
                 return ResourceManager.GetString("ModelDefinition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Referential integrity violation on attempt to remove {0}, Key={1}..
+        /// </summary>
+        internal static string ReferentialIntegrityViolationOnAttemptToRemoveXKeyY {
+            get {
+                return ResourceManager.GetString("ReferentialIntegrityViolationOnAttemptToRemoveXKeyY", resourceCulture);
             }
         }
         
