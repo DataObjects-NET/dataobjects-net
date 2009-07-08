@@ -710,7 +710,6 @@ namespace Xtensive.Storage.Linq
             collectionSelector = FastExpression.Lambda(call.Arguments[0], outerParameter);
         }
         ProjectionExpression innerProjection;
-        var outerProjection = context.Bindings[outerParameter];
         using (state.CreateScope()) {
           state.OuterParameters = state.OuterParameters
             .Concat(state.Parameters)
@@ -747,6 +746,7 @@ namespace Xtensive.Storage.Linq
             innerItemProjector = innerItemProjector.SetDefaultIfEmpty();
           innerProjection = new ProjectionExpression(projection.Type, innerItemProjector, projection.TupleParameterBindings, projection.ResultType);
         }
+        var outerProjection = context.Bindings[outerParameter];
         var applyParameter = context.GetApplyParameter(outerProjection);
         var recordSet = outerProjection.ItemProjector.DataSource.Apply(
           applyParameter,
