@@ -35,7 +35,7 @@ namespace Xtensive.Storage
     INotifyCollectionChanged
   {
     private static readonly Parameter<Tuple> pKey = new Parameter<Tuple>(WellKnown.KeyFieldName);
-    internal RecordSet items;
+    private RecordSet items;
     internal RecordSet count;
     private RecordSet seek;
     private Func<Tuple, Entity> itemCtor;
@@ -396,10 +396,14 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     [Infrastructure]
     public event PropertyChangedEventHandler PropertyChanged {
-      add {Session.EntityEvents.AddSubscriber(FindOwnerEntityKey(Owner), Field,
-        EntityEventManager.PropertyChangedEventKey, value);}
-      remove {Session.EntityEvents.RemoveSubscriber(FindOwnerEntityKey(Owner), Field,
-        EntityEventManager.PropertyChangedEventKey, value);}
+      add {
+        Session.EntityEvents.AddSubscriber(FindOwnerEntityKey(Owner), Field,
+        EntityEventManager.PropertyChangedEventKey, value);
+      }
+      remove {
+        Session.EntityEvents.RemoveSubscriber(FindOwnerEntityKey(Owner), Field,
+        EntityEventManager.PropertyChangedEventKey, value);
+      }
     }
 
     protected void NotifyPropertyChanged(string name)
@@ -422,10 +426,14 @@ namespace Xtensive.Storage
     /// </summary>
     [Infrastructure]
     public event NotifyCollectionChangedEventHandler CollectionChanged{
-      add {Session.EntityEvents.AddSubscriber(FindOwnerEntityKey(Owner), Field,
-        EntityEventManager.CollectionChangedEventKey, value);}
-      remove {Session.EntityEvents.RemoveSubscriber(FindOwnerEntityKey(Owner), Field,
-        EntityEventManager.CollectionChangedEventKey, value);}
+      add {
+        Session.EntityEvents.AddSubscriber(FindOwnerEntityKey(Owner), Field,
+        EntityEventManager.CollectionChangedEventKey, value);
+      }
+      remove {
+        Session.EntityEvents.RemoveSubscriber(FindOwnerEntityKey(Owner), Field,
+        EntityEventManager.CollectionChangedEventKey, value);
+      }
     }
 
     private void NotifyCollectionChanged(NotifyCollectionChangedAction action, Entity item)
