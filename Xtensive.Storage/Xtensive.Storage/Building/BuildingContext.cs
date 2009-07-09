@@ -26,8 +26,6 @@ namespace Xtensive.Storage.Building
     internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
     internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
     internal Dictionary<Type, int> SystemTypeIds { get; private set; }
-    internal Domain SystemDomain {get; set;}
-    internal object ModelUnlockKey { get; set;}
     internal ModelInspectionResult ModelInspectionResult { get; private set; }
 
     #region Current property & Demand() method

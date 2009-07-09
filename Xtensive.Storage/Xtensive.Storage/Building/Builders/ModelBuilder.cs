@@ -90,7 +90,6 @@ namespace Xtensive.Storage.Building.Builders
         context.Model = new DomainModel();
         BuildTypes(sequence);
         BuildFields(sequence);
-        context.ModelUnlockKey = context.Model.GetUnlockKey();
         BuildAssociations();
         BuildColumns();
         IndexBuilder.BuildIndexes();
