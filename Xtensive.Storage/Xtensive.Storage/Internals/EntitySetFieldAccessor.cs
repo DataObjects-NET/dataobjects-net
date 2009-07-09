@@ -10,9 +10,9 @@ using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class EntitySetFieldValueAdapter<T> : CachingFieldValueAdapter<T> 
+  internal class EntitySetFieldAccessor<T> : CachingFieldAccessor<T> 
   {
-    public static readonly FieldValueAdapter<T> Instance = new EntitySetFieldValueAdapter<T>();
+    public static readonly FieldAccessor<T> Instance = new EntitySetFieldAccessor<T>();
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Always thrown by this method.</exception>
@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Internals
     }
 
 
-    static EntitySetFieldValueAdapter()
+    static EntitySetFieldAccessor()
     {
        ctor = (obj, field) => Activator.CreateEntitySet((Entity) obj, field);
     }

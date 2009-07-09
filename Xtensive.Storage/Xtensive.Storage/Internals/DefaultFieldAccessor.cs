@@ -11,9 +11,9 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class DefaultFieldValueAdapter<T> : FieldValueAdapter<T>
+  internal class DefaultFieldAccessor<T> : FieldAccessor<T>
   {
-    public static readonly FieldValueAdapter<T> Instance = new DefaultFieldValueAdapter<T>();
+    public static readonly FieldAccessor<T> Instance = new DefaultFieldAccessor<T>();
     private static readonly bool isObject = (typeof (T)==typeof (object));
     private static readonly bool isString = (typeof (T)==typeof (string));
     private static readonly bool isByteArray = (typeof (T)==typeof (byte[]));

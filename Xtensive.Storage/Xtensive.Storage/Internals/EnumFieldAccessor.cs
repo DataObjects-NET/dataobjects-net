@@ -12,9 +12,9 @@ using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class EnumFieldValueAdapter<T> : FieldValueAdapter<T> 
+  internal class EnumFieldAccessor<T> : FieldAccessor<T> 
   {
-    public static readonly FieldValueAdapter<T> Instance = new EnumFieldValueAdapter<T>();
+    public static readonly FieldAccessor<T> Instance = new EnumFieldAccessor<T>();
     private static readonly Type type = typeof(T);
     private static readonly object @default = 
       type.IsNullable() ? null : Enum.GetValues(type).GetValue(0);

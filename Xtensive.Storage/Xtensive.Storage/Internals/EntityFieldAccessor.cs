@@ -11,9 +11,9 @@ using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class EntityFieldValueAdapter<T> : FieldValueAdapter<T>
+  internal class EntityFieldAccessor<T> : FieldAccessor<T>
   {
-    public static readonly FieldValueAdapter<T> Instance = new EntityFieldValueAdapter<T>();
+    public static readonly FieldAccessor<T> Instance = new EntityFieldAccessor<T>();
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Invalid arguments.</exception>

@@ -10,7 +10,7 @@ using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals
 {
-  internal abstract class FieldValueAdapter<T>
+  internal abstract class FieldAccessor<T>
   {
     public abstract void SetValue(Persistent obj, FieldInfo field, T value);
 

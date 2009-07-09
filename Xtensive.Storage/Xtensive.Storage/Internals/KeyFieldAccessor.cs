@@ -8,9 +8,9 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class KeyFieldValueAdapter<T> : FieldValueAdapter<T> 
+  internal class KeyFieldAccessor<T> : FieldAccessor<T> 
   {
-    public static readonly FieldValueAdapter<T> Instance = new KeyFieldValueAdapter<T>();
+    public static readonly FieldAccessor<T> Instance = new KeyFieldAccessor<T>();
     private static readonly T @default = (T) (object) null;
 
     /// <inheritdoc/>

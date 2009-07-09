@@ -9,7 +9,7 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
-  internal abstract class CachingFieldValueAdapter<T> : FieldValueAdapter<T>
+  internal abstract class CachingFieldAccessor<T> : FieldAccessor<T>
   {
     protected static Func<Persistent, FieldInfo, IFieldValueAdapter> ctor;
 

@@ -426,19 +426,19 @@ namespace Xtensive.Storage
     {
     }
 
-    internal static FieldValueAdapter<T> GetAccessor<T>(FieldInfo field)
+    internal static FieldAccessor<T> GetAccessor<T>(FieldInfo field)
     {
       if (field.IsEntity)
-        return EntityFieldValueAdapter<T>.Instance;
+        return EntityFieldAccessor<T>.Instance;
       if (field.IsStructure)
-        return StructureFieldValueAdapter<T>.Instance;
+        return StructureFieldAccessor<T>.Instance;
       if (field.IsEnum)
-        return EnumFieldValueAdapter<T>.Instance;
+        return EnumFieldAccessor<T>.Instance;
       if (field.IsEntitySet)
-        return EntitySetFieldValueAdapter<T>.Instance;
+        return EntitySetFieldAccessor<T>.Instance;
       if (field.ValueType==typeof(Key))
-        return KeyFieldValueAdapter<T>.Instance;
-      return DefaultFieldValueAdapter<T>.Instance;
+        return KeyFieldAccessor<T>.Instance;
+      return DefaultFieldAccessor<T>.Instance;
     }
   }
 }

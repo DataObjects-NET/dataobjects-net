@@ -12,9 +12,9 @@ using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class StructureFieldValueAdapter<T> : CachingFieldValueAdapter<T>
+  internal class StructureFieldAccessor<T> : CachingFieldAccessor<T>
   {
-    public static readonly FieldValueAdapter<T> Instance = new StructureFieldValueAdapter<T>();
+    public static readonly FieldAccessor<T> Instance = new StructureFieldAccessor<T>();
 
     /// <inheritdoc/>
     public override void SetValue(Persistent obj, FieldInfo field, T value)
@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Internals
       structure.Tuple.CopyTo(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
     }
 
-    static StructureFieldValueAdapter()
+    static StructureFieldAccessor()
     {
        ctor = (obj, field) => Activator.CreateStructure(field.ValueType, obj, field);
     }
