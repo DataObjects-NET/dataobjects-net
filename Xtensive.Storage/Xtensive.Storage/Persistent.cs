@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Tuples;
@@ -32,7 +33,7 @@ namespace Xtensive.Storage
     INotifyPropertyChanged,
     IInitializable
   {
-    private Dictionary<FieldInfo, IFieldValueAdapter> fieldHandlers;
+    private IFieldValueAdapter[] fieldAdapters;
 
     /// <summary>
     /// Gets the type of this instance.
@@ -47,12 +48,21 @@ namespace Xtensive.Storage
     protected internal abstract Tuple Tuple { get; }
 
     [Infrastructure]
-    internal Dictionary<FieldInfo, IFieldValueAdapter> FieldHandlers {
-      get {
-        if (fieldHandlers==null)
-          fieldHandlers = new Dictionary<FieldInfo, IFieldValueAdapter>();
-        return fieldHandlers;
+    internal IFieldValueAdapter GetFieldValueAdapter (FieldInfo field, Func<Persistent, FieldInfo, IFieldValueAdapter> ctor)
+    {
+      // Building adapter container if necessary
+      if (fieldAdapters==null) {
+        int maxAdapterIndex = Type.Fields.Select(f => f.AdapterIndex).Max();
+        fieldAdapters = new IFieldValueAdapter[maxAdapterIndex + 1];
       }
+
+      // Building adapter
+      var adapter = fieldAdapters[field.AdapterIndex];
+      if (adapter != null)
+        return adapter;
+      adapter = ctor(this, field);
+      fieldAdapters[field.AdapterIndex] = adapter;
+      return adapter;
     }
 
     [Infrastructure]
@@ -145,7 +155,7 @@ namespace Xtensive.Storage
     protected internal T GetFieldValue<T>(FieldInfo field)
     {
       NotifyGettingFieldValue(field);
-      T result = field.GetAccessor<T>().GetValue(this, field);
+      T result = GetAccessor<T>(field).GetValue(this, field);
       NotifyGetFieldValue(field, result);
 
       return result;
@@ -183,11 +193,11 @@ namespace Xtensive.Storage
           newKey = newReference.Key;
         if (currentKey!=newKey) {
           Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newReference, association);
-          field.GetAccessor<T>().SetValue(this, field, value);
+          GetAccessor<T>(field).SetValue(this, field, value);
         }
       }
       else
-        field.GetAccessor<T>().SetValue(this, field, value);
+        GetAccessor<T>(field).SetValue(this, field, value);
       NotifySetFieldValue(field, oldValue, value);
     }
 
@@ -286,7 +296,7 @@ namespace Xtensive.Storage
     {
       if (!field.IsEntity)
         throw new InvalidOperationException(
-          string.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
+          String.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
 
       NotifyGettingFieldValue(field);
       var type = Session.Domain.Model.Types[field.ValueType];
@@ -414,6 +424,21 @@ namespace Xtensive.Storage
 
     internal Persistent()
     {
+    }
+
+    internal static FieldValueAdapter<T> GetAccessor<T>(FieldInfo field)
+    {
+      if (field.IsEntity)
+        return EntityFieldValueAdapter<T>.Instance;
+      if (field.IsStructure)
+        return StructureFieldValueAdapter<T>.Instance;
+      if (field.IsEnum)
+        return EnumFieldValueAdapter<T>.Instance;
+      if (field.IsEntitySet)
+        return EntitySetFieldValueAdapter<T>.Instance;
+      if (field.ValueType==typeof(Key))
+        return KeyFieldValueAdapter<T>.Instance;
+      return DefaultFieldValueAdapter<T>.Instance;
     }
   }
 }

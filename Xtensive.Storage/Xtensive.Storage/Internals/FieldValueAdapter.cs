@@ -10,13 +10,13 @@ using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals
 {
-  internal abstract class FieldAccessorBase<T>
+  internal abstract class FieldValueAdapter<T>
   {
     public abstract void SetValue(Persistent obj, FieldInfo field, T value);
 
     public abstract T GetValue(Persistent obj, FieldInfo field);
 
-    protected static void EnsureTypeIsAssignable(FieldInfo fieldInfo)
+    protected static void EnsureGenericParameterIsValid(FieldInfo fieldInfo)
     {
       Type resultType = typeof(T);
       Type valueType = fieldInfo.IsEntitySet ? fieldInfo.UnderlyingProperty.PropertyType : fieldInfo.ValueType;

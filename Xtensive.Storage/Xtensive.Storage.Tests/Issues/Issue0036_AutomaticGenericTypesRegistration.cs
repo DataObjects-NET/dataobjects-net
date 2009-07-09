@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      Domain.Model.Dump();
+//      Domain.Model.Dump();
 
       using (Domain.OpenSession()) {
         using (var t = Transaction.Open()) {

@@ -177,7 +177,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
     [Test]
     public virtual void MainTest()
     {
-      Domain.Model.Dump();
+//      Domain.Model.Dump();
 //      Domain.Model.Types.Dump();
 
       foreach (var type in Domain.Model.Types) {

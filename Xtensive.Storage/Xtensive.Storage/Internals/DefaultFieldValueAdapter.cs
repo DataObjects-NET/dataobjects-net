@@ -11,21 +11,17 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class DefaultFieldAccessor<T> : FieldAccessorBase<T>
+  internal class DefaultFieldValueAdapter<T> : FieldValueAdapter<T>
   {
-    private static readonly FieldAccessorBase<T> instance = new DefaultFieldAccessor<T>();
+    public static readonly FieldValueAdapter<T> Instance = new DefaultFieldValueAdapter<T>();
     private static readonly bool isObject = (typeof (T)==typeof (object));
     private static readonly bool isString = (typeof (T)==typeof (string));
     private static readonly bool isByteArray = (typeof (T)==typeof (byte[]));
 
-    public static FieldAccessorBase<T> Instance {
-      get { return instance; }
-    }
-
     /// <inheritdoc/>
     public override T GetValue(Persistent obj, FieldInfo field)
     {
-      EnsureTypeIsAssignable(field);
+      EnsureGenericParameterIsValid(field);
       int fieldIndex = field.MappingInfo.Offset;
       var tuple = obj.Tuple;
 
@@ -52,7 +48,7 @@ namespace Xtensive.Storage.Internals
             Strings.ExLengthConstraintViolationOnFieldX, field));
       }
 
-      EnsureTypeIsAssignable(field);
+      EnsureGenericParameterIsValid(field);
       obj.Tuple.SetValue(field.MappingInfo.Offset, value);
     }
   }

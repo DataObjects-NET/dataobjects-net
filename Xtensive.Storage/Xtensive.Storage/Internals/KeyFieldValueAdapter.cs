@@ -4,24 +4,19 @@
 // Created by: Alex Yakunin
 // Created:    2008.11.21
 
-using System;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class KeyFieldAccessor<T> : FieldAccessorBase<T> 
+  internal class KeyFieldValueAdapter<T> : FieldValueAdapter<T> 
   {
-    private static readonly FieldAccessorBase<T> instance = new KeyFieldAccessor<T>();
+    public static readonly FieldValueAdapter<T> Instance = new KeyFieldValueAdapter<T>();
     private static readonly T @default = (T) (object) null;
-
-    public static FieldAccessorBase<T> Instance {
-      get { return instance; }
-    }
 
     /// <inheritdoc/>
     public override T GetValue(Persistent obj, FieldInfo field)
     {
-      EnsureTypeIsAssignable(field);
+      EnsureGenericParameterIsValid(field);
       int fieldIndex = field.MappingInfo.Offset;
       var tuple = obj.Tuple;
 
@@ -34,7 +29,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override void SetValue(Persistent obj, FieldInfo field, T value)
     {
-      EnsureTypeIsAssignable(field);
+      EnsureGenericParameterIsValid(field);
       var key = (Key) (object) value;
       obj.Tuple.SetValue(field.MappingInfo.Offset, key==null ? null : key.Format());
     }

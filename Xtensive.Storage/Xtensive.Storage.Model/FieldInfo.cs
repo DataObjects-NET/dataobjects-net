@@ -39,6 +39,7 @@ namespace Xtensive.Storage.Model
     private Type                          itemType;
     private string                        originalName;
     internal SegmentTransform             valueExtractorTransform;
+    private int                           adapterIndex = -1;
 
     #region IsXxx properties
 
@@ -424,6 +425,19 @@ namespace Xtensive.Storage.Model
       set {
         this.EnsureNotLocked();
         cultureInfo = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets field's adapter index.
+    /// </summary>
+    public int AdapterIndex {
+      [DebuggerStepThrough]
+      get { return adapterIndex; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        adapterIndex = value;
       }
     }
 

@@ -363,7 +363,16 @@ namespace Xtensive.Storage.Model
       ancestors = new ReadOnlyList<TypeInfo>(GetAncestors());
       targetAssociations = new ReadOnlyList<AssociationInfo>(GetTargetAssociations());
       ownerAssociations = new ReadOnlyList<AssociationInfo>(GetOwnerAssociations());
+
+      if (!fields.IsLocked) {
+        int adapterIndex = 0;
+        foreach (FieldInfo field in Fields)
+          if (field.IsStructure || field.IsEntitySet)
+            field.AdapterIndex = adapterIndex++;
+      }
+
       base.Lock(recursive);
+
       if (recursive) {
         affectedIndexes.Lock(true);
         indexes.Lock(true);
@@ -380,9 +389,8 @@ namespace Xtensive.Storage.Model
       columns.Lock(true);
       fields.Lock(true);
 
-      if (IsEntity || IsStructure) {
+      if (IsEntity || IsStructure)
         BuildTuplePrototype();
-      }
     }
 
     private void CreateTupleDescriptor()

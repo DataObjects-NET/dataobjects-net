@@ -698,7 +698,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void ModelVerificationTest()
     {
-      Domain.Model.Dump();
+//      Domain.Model.Dump();
       VerifyModel(Domain);
     }
 

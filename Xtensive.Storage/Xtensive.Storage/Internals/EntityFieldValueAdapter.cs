@@ -11,13 +11,9 @@ using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class EntityFieldAccessor<T> : FieldAccessorBase<T>
+  internal class EntityFieldValueAdapter<T> : FieldValueAdapter<T>
   {
-    private static readonly FieldAccessorBase<T> instance = new EntityFieldAccessor<T>();
-
-    public static FieldAccessorBase<T> Instance {
-      get { return instance; }
-    }
+    public static readonly FieldValueAdapter<T> Instance = new EntityFieldValueAdapter<T>();
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Invalid arguments.</exception>
@@ -41,7 +37,7 @@ namespace Xtensive.Storage.Internals
           obj.Tuple.SetValue(i, null);
       }
       else {
-        EnsureTypeIsAssignable(field);
+        EnsureGenericParameterIsValid(field);
         entity.Key.Value.CopyTo(obj.Tuple, 0, fieldIndex, mappingInfo.Length);
       }
     }
@@ -49,7 +45,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override T GetValue(Persistent obj, FieldInfo field)
     {
-      EnsureTypeIsAssignable(field);
+      EnsureGenericParameterIsValid(field);
       Key key = obj.GetReferenceKey(field);
       if (key==null)
         return default(T);
