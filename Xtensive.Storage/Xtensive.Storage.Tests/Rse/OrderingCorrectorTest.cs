@@ -26,10 +26,17 @@ namespace Xtensive.Storage.Tests.Rse
 {
   #region Implementation of DomainBuilder
 
-  class SecondaryIndexRemover : IDomainBuilder
+  class SecondaryIndexRemover : IModule
   {
-    public void Build(BuildingContext context, DomainModelDef model)
+    public static bool IsEnabled;
+
+    public void OnBuilt(Domain domain)
+    {}
+
+    public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
+      if (!IsEnabled)
+        return;
       foreach (var type in model.Types) {
         var indexCache = new NodeCollection<IndexDef>();
         indexCache.AddRange(from index in type.Indexes where index.IsPrimary select index);
@@ -48,8 +55,19 @@ namespace Xtensive.Storage.Tests.Rse
     {
       var config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), typeof (Customer).Namespace);
-      config.Builders.Add(typeof(SecondaryIndexRemover));
       return config;
+    }
+
+    public override void TestFixtureSetUp()
+    {
+      SecondaryIndexRemover.IsEnabled = true;
+      base.TestFixtureSetUp();
+    }
+
+    public override void TestFixtureTearDown()
+    {
+      SecondaryIndexRemover.IsEnabled = false;
+      base.TestFixtureTearDown();
     }
 
     [Test]

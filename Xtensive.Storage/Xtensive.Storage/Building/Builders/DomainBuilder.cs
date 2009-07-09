@@ -44,8 +44,6 @@ namespace Xtensive.Storage.Building.Builders
       if (!configuration.IsLocked)
         configuration.Lock(true);
 
-      Validate(configuration);
-
       var context = new BuildingContext(configuration) {
         BuilderConfiguration = builderConfiguration
       };
@@ -87,41 +85,12 @@ namespace Xtensive.Storage.Building.Builders
       foreach (UnityTypeElement typeElement in context.Configuration.Services)
         typeElement.Configure(BuildingContext.Current.Domain.ServiceContainer);
     }
-
-    #region ValidateXxx methods
-
-    private static void Validate(DomainConfiguration configuration)
-    {
-      if (configuration.Builders.Count > 0)
-        foreach (Type type in configuration.Builders)
-          ValidateBuilder(type);
-    }
-
-    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    private static void ValidateBuilder(Type type)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-
-      ConstructorInfo constructor =
-        type.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[0], null);
-
-      if (constructor==null)
-        throw new DomainBuilderException(
-          string.Format(Strings.ExTypeXMustHavePublicInstanceParameterlessConstructorInOrderToBeUsedAsStorageDefinitionBuilder, type.GetFullName()));
-
-      if (!typeof (IDomainBuilder).IsAssignableFrom(type))
-        throw new DomainBuilderException(
-          string.Format(CultureInfo.CurrentCulture,
-            Strings.ExTypeXDoesNotImplementYInterface, type.GetFullName(), typeof (IDomainBuilder).GetFullName()));
-    }
-
-    #endregion
-
-
+    
     private static void CreateDomain()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
-        var domain = new Domain(BuildingContext.Current.Configuration);
+        var domain = new Domain(BuildingContext.Current.Configuration,
+          BuildingContext.Current.BuilderConfiguration.Modules);
         BuildingContext.Current.Domain = domain;
       }
     }

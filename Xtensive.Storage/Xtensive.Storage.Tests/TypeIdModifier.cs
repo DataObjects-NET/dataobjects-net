@@ -11,33 +11,51 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests
 {
-  public class TypeIdModifier : IDomainBuilder
+  public class TypeIdModifier : IModule
   {
+    public static bool IsEnabled;
+
     protected KeyField TypeIdField { get; private set; }
 
-    public virtual void Build(BuildingContext context, DomainModelDef model)
+    public virtual void OnBuilt(Domain domain)
+    {}
+
+    public virtual void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
+      if (!IsEnabled)
+        return;
       TypeIdField = new KeyField(WellKnown.TypeIdFieldName);
     }
 
-    public static Type GetModifier(TypeIdBehavior typeIdBehavior)
+    public static void ActivateModifier(TypeIdBehavior typeIdBehavior)
     {
+      IncludeTypeIdModifier.IsEnabled = false;
+      ExcludeTypeIdModifier.IsEnabled = false;
+      IsEnabled = false;
+
       switch (typeIdBehavior) {
         case TypeIdBehavior.Include:
-          return typeof (IncludeTypeIdModifier);
+          IncludeTypeIdModifier.IsEnabled = true;
+          break;
         case TypeIdBehavior.Exclude:
-          return typeof (ExcludeTypeIdModifier);
+          ExcludeTypeIdModifier.IsEnabled = true;
+          break;
         default:
-          return typeof (TypeIdModifier);
+          IsEnabled = true;
+          break;
       }
     }
   }
 
   public class IncludeTypeIdModifier : TypeIdModifier
   {
-    public override void Build(BuildingContext context, DomainModelDef model)
+    public static bool IsEnabled;
+
+    public override void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
-      base.Build(context, model);
+      if (!IsEnabled)
+        return;
+      base.OnDefinitionsBuilt(context, model);
       foreach (HierarchyDef hierarchy in model.Hierarchies)
         hierarchy.IncludeTypeId = true;
     }
@@ -45,9 +63,13 @@ namespace Xtensive.Storage.Tests
 
   public class ExcludeTypeIdModifier : TypeIdModifier
   {
-    public override void Build(BuildingContext context, DomainModelDef model)
+    public static bool IsEnabled;
+
+    public override void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
-      base.Build(context, model);
+      if (!IsEnabled)
+        return;
+      base.OnDefinitionsBuilt(context, model);
       foreach (HierarchyDef hierarchy in model.Hierarchies) {
         hierarchy.IncludeTypeId = false;
         if (hierarchy.KeyFields.Contains(TypeIdField))

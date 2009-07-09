@@ -11,25 +11,35 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests
 {
-  public abstract class InheritanceSchemaModifier : IDomainBuilder
+  public abstract class InheritanceSchemaModifier : IModule
   {
     protected InheritanceSchema Schema { get; private set; }
 
-    public void Build(BuildingContext context, DomainModelDef model)
+    public virtual void OnBuilt(Domain domain)
+    {}
+
+    public virtual void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
       foreach (HierarchyDef hierarchy in model.Hierarchies)
         hierarchy.Schema = Schema;
     }
 
-    public static Type GetModifier(InheritanceSchema schema)
+    public static void ActivateModifier(InheritanceSchema schema)
     {
+      ConcreteTableSchemaModifier.IsEnabled = false;
+      SingleTableSchemaModifier.IsEnabled = false;
+      ClassTableSchemaModifier.IsEnabled = false;
+
       switch (schema) {
         case InheritanceSchema.ConcreteTable:
-          return typeof(ConcreteTableSchemaModifier);
+          ConcreteTableSchemaModifier.IsEnabled = true;
+          break;
         case InheritanceSchema.SingleTable:
-          return typeof(SingleTableSchemaModifier);
+          SingleTableSchemaModifier.IsEnabled = true;
+          break;
         default:
-          return typeof(ClassTableSchemaModifier);
+          ClassTableSchemaModifier.IsEnabled = true;
+          break;
       }
     }
 
@@ -44,6 +54,15 @@ namespace Xtensive.Storage.Tests
 
   public class ClassTableSchemaModifier : InheritanceSchemaModifier
   {
+    public static bool IsEnabled;
+
+    public override void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
+    {
+      if (!IsEnabled)
+        return;
+      base.OnDefinitionsBuilt(context, model);
+    }
+
     public ClassTableSchemaModifier()
       : base(InheritanceSchema.ClassTable)
     {
@@ -52,6 +71,15 @@ namespace Xtensive.Storage.Tests
 
   public class SingleTableSchemaModifier : InheritanceSchemaModifier
   {
+    public static bool IsEnabled;
+
+    public override void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
+    {
+      if (!IsEnabled)
+        return;
+      base.OnDefinitionsBuilt(context, model);
+    }
+
     public SingleTableSchemaModifier()
       : base(InheritanceSchema.SingleTable)
     {
@@ -60,6 +88,15 @@ namespace Xtensive.Storage.Tests
 
   public class ConcreteTableSchemaModifier : InheritanceSchemaModifier
   {
+    public static bool IsEnabled;
+
+    public override void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
+    {
+      if (!IsEnabled)
+        return;
+      base.OnDefinitionsBuilt(context, model);
+    }
+
     public ConcreteTableSchemaModifier()
       : base(InheritanceSchema.ConcreteTable)
     {

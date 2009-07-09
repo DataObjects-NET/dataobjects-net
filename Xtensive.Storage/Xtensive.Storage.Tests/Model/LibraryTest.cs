@@ -141,8 +141,14 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     }
   }
 
-  public class LibraryDomainBuilder : IDomainBuilder
+  public class LibraryDomainBuilder : IModule
   {
+    public static bool IsEnabled;
+
+    public void OnBuilt(Domain domain)
+    {
+    }
+
     private static void VerifyTypeCollection()
     {
       BuildingContext context = BuildingContext.Current;
@@ -341,10 +347,13 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
       Console.WriteLine("-- Model verification is completed --");
     }
 
-    #region IDomainBuilder Members
+    #region IModule Members
 
-    public void Build(BuildingContext context, DomainModelDef model)
+    public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
+      if (!IsEnabled)
+        return;
+
       Console.WriteLine("-- Verifying model --");
       VerifyDefinition();
       Console.WriteLine("-- Redefining types --");

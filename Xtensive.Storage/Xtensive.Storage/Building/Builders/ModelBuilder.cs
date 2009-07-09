@@ -73,10 +73,8 @@ namespace Xtensive.Storage.Building.Builders
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions)) {
         var context = BuildingContext.Current;
-        foreach (var type in BuildingContext.Current.Configuration.Builders) {
-          var builder = (IDomainBuilder) Activator.CreateInstance(type);
-          builder.Build(context, context.ModelDef);
-        }
+        foreach (var module in context.BuilderConfiguration.Modules)
+          module.OnDefinitionsBuilt(context, context.ModelDef);
       }
     }
 

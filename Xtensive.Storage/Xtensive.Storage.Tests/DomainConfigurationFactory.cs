@@ -61,46 +61,59 @@ namespace Xtensive.Storage.Tests
 //      config = Create("mssql2005");
 //      config = Create("mssql2005", InheritanceSchema.SingleTable);
 //      config = Create("mssql2005", InheritanceSchema.ConcreteTable);
-//      config = Create("mssql2005", InheritanceSchema.Default, TypeIdBehavior.Include);
+      config = Create("mssql2005", InheritanceSchema.ConcreteTable, TypeIdBehavior.Include);
 
 //      config = Create("pgsql");
 //      config = Create("pgsql", InheritanceSchema.SingleTable);
 //      config = Create("pgsql", InheritanceSchema.ConcreteTable);
 //      config = Create("pgsql", InheritanceSchema.Default, TypeIdBehavior.Include);
-
-//      config = Create("vistadb");
-//      config = Create("vistadb", InheritanceSchema.SingleTable);
-//      config = Create("vistadb", InheritanceSchema.ConcreteTable);
-//      config = Create("vistadb", InheritanceSchema.Default, TypeIdBehavior.Include);
       return config;
     }
 
     public static DomainConfiguration Create(string protocol)
     {
+      ConcreteTableSchemaModifier.IsEnabled = false;
+      SingleTableSchemaModifier.IsEnabled = false;
+      ClassTableSchemaModifier.IsEnabled = false;
+      IncludeTypeIdModifier.IsEnabled = false;
+      ExcludeTypeIdModifier.IsEnabled = false;
+      TypeIdModifier.IsEnabled = false;
       return DomainConfiguration.Load(protocol);
     }
 
     public static DomainConfiguration Create(string protocol, InheritanceSchema schema)
     {
+      ConcreteTableSchemaModifier.IsEnabled = false;
+      SingleTableSchemaModifier.IsEnabled = false;
+      ClassTableSchemaModifier.IsEnabled = false;
+      IncludeTypeIdModifier.IsEnabled = false;
+      ExcludeTypeIdModifier.IsEnabled = false;
+      TypeIdModifier.IsEnabled = false;
       DomainConfiguration config = Create(protocol);
       if (schema != InheritanceSchema.Default)
-        config.Builders.Add(InheritanceSchemaModifier.GetModifier(schema));
+        InheritanceSchemaModifier.ActivateModifier(schema);
       return config;
     }
 
     public static DomainConfiguration Create(string protocol, InheritanceSchema schema, TypeIdBehavior typeIdBehavior)
     {
+      IncludeTypeIdModifier.IsEnabled = false;
+      ExcludeTypeIdModifier.IsEnabled = false;
+      TypeIdModifier.IsEnabled = false;
       DomainConfiguration config = Create(protocol, schema);
       if (typeIdBehavior != TypeIdBehavior.Default)
-        config.Builders.Add(TypeIdModifier.GetModifier(typeIdBehavior));
+        TypeIdModifier.ActivateModifier(typeIdBehavior);
       return config;
     }
 
     public static DomainConfiguration Create(string protocol, InheritanceSchema schema, TypeIdBehavior typeIdBehavior, ForeignKeyMode foreignKeyMode)
     {
+      IncludeTypeIdModifier.IsEnabled = false;
+      ExcludeTypeIdModifier.IsEnabled = false;
+      TypeIdModifier.IsEnabled = false;
       DomainConfiguration config = Create(protocol, schema);
       if (typeIdBehavior != TypeIdBehavior.Default)
-        config.Builders.Add(TypeIdModifier.GetModifier(typeIdBehavior));
+        TypeIdModifier.ActivateModifier(typeIdBehavior);
       config.ForeignKeyMode = foreignKeyMode;
       return config;
     }

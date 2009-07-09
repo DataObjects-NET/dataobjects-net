@@ -5,6 +5,7 @@
 // Created:    2009.05.19
 
 using System;
+using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Core.Reflection;
@@ -29,13 +30,6 @@ namespace Xtensive.Storage.Tests
       var result = new StringBuilder();
       result.Append("ConnectionString: ").AppendLine(config.ConnectionInfo.Url);
       result.Append("ForeignKeyMode: ").AppendLine(config.ForeignKeyMode.ToString());
-      if (config.Builders.Count > 0) {
-        result.AppendLine("CustomBuilders:");
-        foreach (var builder in config.Builders) {
-          result.Append("\t- ");
-          result.AppendLine(builder.GetShortName());
-        }
-      }
       Log.Error(result.ToString());
     }
   }

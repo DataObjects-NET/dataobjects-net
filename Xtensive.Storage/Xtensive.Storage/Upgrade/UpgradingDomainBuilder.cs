@@ -48,6 +48,7 @@ namespace Xtensive.Storage.Upgrade
         context.Stage = UpgradeStage.Validation;
         context.Modules = new ModuleProvider(configuration);
         BuildUpgradeHandlers();
+        context.Modules.BuildModules();
 
         try {
           BuildStageDomain(UpgradeStage.Validation).DisposeSafely();
@@ -70,9 +71,8 @@ namespace Xtensive.Storage.Upgrade
 
     private static void NotifyModules(Domain domain)
     {
-      domain.Modules.BuildModules();
-      foreach (var module in domain.Modules.OrderedModules)
-        module.OnBuildCompleted(domain);
+      foreach (var module in domain.Modules)
+        module.OnBuilt(domain);
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
@@ -116,7 +116,7 @@ namespace Xtensive.Storage.Upgrade
     private static DomainBuilderConfiguration CreateBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode)
     {
       var context = UpgradeContext.Current;
-      return new DomainBuilderConfiguration(schemaUpgradeMode) {
+      return new DomainBuilderConfiguration(schemaUpgradeMode, context.Modules) {
         TypeFilter = type => {
           var assembly = type.Assembly;
           var handlers = context.UpgradeHandlers;

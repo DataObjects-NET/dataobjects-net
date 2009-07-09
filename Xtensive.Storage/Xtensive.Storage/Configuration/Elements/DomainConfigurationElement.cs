@@ -4,14 +4,10 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.11
 
-using System;
 using System.Configuration;
-using System.Reflection;
 using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
 using Xtensive.Storage.Building;
-using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Configuration.Elements
 {
@@ -25,7 +21,6 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string NameElementName = "name";
     private const string ConnectionUrlElementName = "connectionUrl";
     private const string TypesElementName = "types";
-    private const string BuildersElementName = "builders";
     private const string NamingConventionElementName = "namingConvention";
     private const string KeyCacheSizeElementName = "keyCacheSize";
     private const string KeyGeneratorCacheSizeElementName = "generatorCacheSize";
@@ -73,16 +68,6 @@ namespace Xtensive.Storage.Configuration.Elements
     public ConfigurationCollection<TypeRegistrationElement> Types
     {
       get { return (ConfigurationCollection<TypeRegistrationElement>) base[TypesElementName]; }
-    }
-
-    /// <summary>
-    /// <see cref="DomainConfiguration.Builders" copy="true"/>
-    /// </summary>
-    [ConfigurationProperty(BuildersElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<BuilderElement>), AddItemName = "builder")]
-    public ConfigurationCollection<BuilderElement> Builders
-    {
-      get { return (ConfigurationCollection<BuilderElement>) base[BuildersElementName]; }
     }
 
     /// <summary>
@@ -258,10 +243,6 @@ namespace Xtensive.Storage.Configuration.Elements
         UpgradeMode = UpgradeMode, 
         ForeignKeyMode = ForeignKeyMode
       };
-      foreach (var builder in Builders) {
-        var type = Type.GetType(builder.Type, true);
-        dc.Builders.Add(type);
-      }
       foreach (var entry in Types)
         dc.Types.Register(entry.ToNative());
       foreach (var entry in CompilerContainers)

@@ -272,7 +272,7 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal Domain(DomainConfiguration configuration)
+    internal Domain(DomainConfiguration configuration, ModuleProvider modules)
     {
       IsDebugEventLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
       Configuration = configuration;
@@ -286,7 +286,7 @@ namespace Xtensive.Storage
       TemporaryData = new GlobalTemporaryData();
       ServiceContainer = new UnityContainer();
       ServiceContainer.AddExtension(new SingletonExtension());
-      Modules = UpgradeContext.Current.Modules;
+      Modules = modules;
     }
 
     /// <inheritdoc/>

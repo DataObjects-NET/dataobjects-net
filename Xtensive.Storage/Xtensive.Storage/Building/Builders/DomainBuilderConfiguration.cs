@@ -55,6 +55,12 @@ namespace Xtensive.Storage.Building.Builders
     /// Gets or sets the type id provider.
     /// </summary>
     public Func<Type, int> TypeIdProvider { get; set; }
+
+    /// <summary>
+    /// Gets or sets the collection of extension modules.
+    /// </summary>
+    public ModuleProvider Modules { get; private set; }
+
     
     // Constructors
 
@@ -62,9 +68,11 @@ namespace Xtensive.Storage.Building.Builders
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="schemaUpgradeMode">The schema upgrade mode.</param>
-    public DomainBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode)
+    /// <param name="modules">The collection of modules.</param>
+    public DomainBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode, ModuleProvider modules)
     {
       SchemaUpgradeMode = schemaUpgradeMode;
+      Modules = modules;
     }
   }
 }

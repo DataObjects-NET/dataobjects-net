@@ -25,11 +25,14 @@ namespace Xtensive.Storage.Tests.Issues
   [TestFixture]
   public class Issue0096_NumerousSchemaExtraction
   {
-    public class ModelChanger : IDomainBuilder
+    public class ModelChanger : IModule
     {
       public static bool IsActive { get; set; }
 
-      public void Build(BuildingContext context, DomainModelDef model)
+      public void OnBuilt(Domain domain)
+      {}
+
+      public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
       {
         if (!IsActive)
           return;
@@ -49,7 +52,6 @@ namespace Xtensive.Storage.Tests.Issues
       var config = DomainConfigurationFactory.Create("mssql2005");
       config.UpgradeMode = mode;
       config.Types.Register(typeof (Ancestor).Assembly, typeof (Ancestor).Namespace);
-      config.Builders.Add(typeof (ModelChanger));
       var domain = Domain.Build(config);
 
       using (domain.OpenSession()) {
@@ -71,6 +73,8 @@ namespace Xtensive.Storage.Tests.Issues
       ModelChanger.IsActive = true;
 
       BuildDomain(DomainUpgradeMode.Perform);
+
+      ModelChanger.IsActive = false;
     }
   }
 }

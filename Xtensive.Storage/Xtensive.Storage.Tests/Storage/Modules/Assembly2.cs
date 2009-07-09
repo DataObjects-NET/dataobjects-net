@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Storage;
+using Xtensive.Storage.Building;
+using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Upgrade;
 using Xtensive.Storage.Aspects;
 
@@ -66,7 +68,7 @@ namespace Modules.Model
       return result;
     }
 
-    public void OnBuildCompleted(Domain domain)
+    public void OnBuilt(Domain domain)
     {
       if (domain==null)
         throw new ArgumentNullException();
@@ -74,13 +76,16 @@ namespace Modules.Model
       int handler1Count = (int) handler1Type.GetField("ModuleCount").GetValue(null);
       ModuleCount += handler1Count;
     }
+
+    public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
+    {}
   }
 
   public class Module2 : IModule
   {
     public static int ModuleCount = 2;
 
-    public void OnBuildCompleted(Domain domain)
+    public void OnBuilt(Domain domain)
     {
       if (domain==null)
         throw new ArgumentNullException();
@@ -88,6 +93,9 @@ namespace Modules.Model
       int module1Count = (int) module1Type.GetField("ModuleCount").GetValue(null);
       ModuleCount += module1Count;
     }
+
+    public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
+    {}
   }
 #endif
 }

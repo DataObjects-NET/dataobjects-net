@@ -1276,20 +1276,20 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The type {0} does not have a parameterless constructor..
+        /// </summary>
+        internal static string ExTypeXDoesNotHaveAParameterlessConstructor {
+            get {
+                return ResourceManager.GetString("ExTypeXDoesNotHaveAParameterlessConstructor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; does not implement &apos;{1}&apos; interface..
         /// </summary>
         internal static string ExTypeXDoesNotImplementYInterface {
             get {
                 return ResourceManager.GetString("ExTypeXDoesNotImplementYInterface", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The type {0} implements interfaces {1} and {2}..
-        /// </summary>
-        internal static string ExTypeXImplementsInterfacesYAndZ {
-            get {
-                return ResourceManager.GetString("ExTypeXImplementsInterfacesYAndZ", resourceCulture);
             }
         }
         
@@ -1344,16 +1344,6 @@ namespace Xtensive.Storage.Resources {
         internal static string ExTypeXMustBelongToHierarchy {
             get {
                 return ResourceManager.GetString("ExTypeXMustBelongToHierarchy", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; must have public instance parameterless constructor in order to be used as storage definition builder..
-        /// </summary>
-        internal static string ExTypeXMustHavePublicInstanceParameterlessConstructorInOrderToBeUsedAsStorageDefinitionBuilder {
-            get {
-                return ResourceManager.GetString("ExTypeXMustHavePublicInstanceParameterlessConstructorInOrderToBeUsedAsStorageDefi" +
-                        "nitionBuilder", resourceCulture);
             }
         }
         

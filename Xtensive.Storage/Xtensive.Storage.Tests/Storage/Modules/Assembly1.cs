@@ -8,6 +8,8 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using Xtensive.Storage;
+using Xtensive.Storage.Building;
+using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Upgrade;
 using Xtensive.Storage.Aspects;
 
@@ -65,24 +67,30 @@ namespace Modules.Model
       base.OnStage();
     }
 
-    public void OnBuildCompleted(Domain domain)
+    public void OnBuilt(Domain domain)
     {
       if (domain == null)
         throw new ArgumentNullException();
       ModuleCount = 1;
     }
+
+    public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
+    {}
   }
 
   public class Module1 : IModule
   {
     public static int ModuleCount = 0;
 
-    public void OnBuildCompleted(Domain domain)
+    public void OnBuilt(Domain domain)
     {
       if (domain == null)
         throw new ArgumentNullException();
       ModuleCount = 1;
     }
+
+    public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
+    {}
   }
 #endif
 }

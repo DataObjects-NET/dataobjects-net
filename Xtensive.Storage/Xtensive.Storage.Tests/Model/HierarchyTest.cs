@@ -73,10 +73,17 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
     public int ID { get; private set; }
   }
 
-  public class CustomStorageDefinitionBuilder : IDomainBuilder
+  public class CustomStorageDefinitionBuilder : IModule
   {
-    public void Build(BuildingContext context, DomainModelDef model)
+    public static bool IsEnabled;
+
+    public virtual void OnBuilt(Domain domain)
+    {}
+
+    public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
+      if (!IsEnabled)
+        return;
       TypeDef type;
 
       type = model.Types[typeof(A)];
@@ -105,10 +112,21 @@ namespace Xtensive.Storage.Tests.Model
     {
       DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(typeof (A).Assembly, typeof(A).Namespace);
-      config.Builders.Add(typeof (CustomStorageDefinitionBuilder));
       return config;
     }
 
+    public override void TestFixtureSetUp()
+    {
+      CustomStorageDefinitionBuilder.IsEnabled = true;
+      base.TestFixtureSetUp();
+    }
+
+    public override void TestFixtureTearDown()
+    {
+      CustomStorageDefinitionBuilder.IsEnabled = false;
+      base.TestFixtureTearDown();
+    }
+    
     [Test]
     public void MainTest()
     {

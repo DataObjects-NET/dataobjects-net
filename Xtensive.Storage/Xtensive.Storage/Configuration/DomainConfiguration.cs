@@ -5,7 +5,6 @@
 // Created:    2007.08.03
 
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
@@ -13,7 +12,6 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Building;
-using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration.Elements;
 using Xtensive.Storage.Configuration.Internals;
 using Xtensive.Storage.Resources;
@@ -96,7 +94,6 @@ namespace Xtensive.Storage.Configuration
     private string name = string.Empty;
     private UrlInfo connectionInfo;
     private TypeRegistry types = new TypeRegistry(new SessionBoundTypeRegistrationHandler());
-    private CollectionBaseSlim<Type> builders = new CollectionBaseSlim<Type>();
     private NamingConvention namingConvention = new NamingConvention();
     private int keyCacheSize = DefaultKeyCacheSize;
     private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
@@ -163,15 +160,7 @@ namespace Xtensive.Storage.Configuration
     {
       get { return types; }
     }
-
-    /// <summary>
-    /// Gets the collection of custom <see cref="DomainModelDef"/> builders.
-    /// </summary>
-    public IList<Type> Builders
-    {
-      get { return builders; }
-    }
-
+    
     /// <summary>
     /// Gets or sets the naming convention.
     /// </summary>
@@ -351,7 +340,6 @@ namespace Xtensive.Storage.Configuration
     public override void Lock(bool recursive)
     {
       types.Lock(true);
-      builders.Lock(true);
       sessions.Lock(true);
       compilerContainers.Lock(true);
       if (services != null)
@@ -393,7 +381,6 @@ namespace Xtensive.Storage.Configuration
       name = configuration.Name;
       connectionInfo = new UrlInfo(configuration.ConnectionInfo.Url);
       types = (TypeRegistry) configuration.Types.Clone();
-      builders = new CollectionBase<Type>(configuration.Builders);
       namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
       keyCacheSize = configuration.KeyCacheSize;
       keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;

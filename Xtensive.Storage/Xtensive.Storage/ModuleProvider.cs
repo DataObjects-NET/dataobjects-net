@@ -5,14 +5,17 @@
 // Created:    2009.07.02
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Sorting;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Upgrade;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -20,25 +23,42 @@ namespace Xtensive.Storage
   /// Provides access to extension modules.
   /// </summary>
   [Serializable]
-  public sealed class ModuleProvider
+  public sealed class ModuleProvider : IEnumerable<IModule>
   {
     private readonly Dictionary<Type, IModule> modules = new Dictionary<Type, IModule>();
     private readonly List<IUpgradeHandler> upgradeHandlers = new List<IUpgradeHandler>();
+    private ReadOnlyList<IModule> orderedModules = new ReadOnlyList<IModule>(new List<IModule>(), false);
 
     /// <summary>
     /// Gets instances of all extension modules which implement <see cref="IUpgradeHandler"/>.
     /// </summary>
-    public ReadOnlyList<IUpgradeHandler> UpgradeHandlers { get; private set; }
+    internal ReadOnlyList<IUpgradeHandler> UpgradeHandlers { get; private set; }
 
     /// <summary>
-    /// Gets instances of all extension modules.
+    /// Gets instance of a module's type.
     /// </summary>
-    public ReadOnlyDictionary<Type, IModule> Modules { get; private set; }
+    /// <param name="type">The type of a module.</param>
+    /// <returns>The instance of module's type or <see langword="null" /> 
+    /// if <paramref name="type"/> is not registered.</returns>
+    public IModule Get(Type type)
+    {
+      IModule result;
+      if (modules.TryGetValue(type, out result))
+        return result;
+      return null;
+    }
+    
+    /// <inheritdoc/>
+    public IEnumerator<IModule> GetEnumerator()
+    {
+      return orderedModules.GetEnumerator();
+    }
 
-    /// <summary>
-    /// Gets the ordered collection of all extension modules.
-    /// </summary>
-    public ReadOnlyList<IModule> OrderedModules { get; private set; }
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
 
     #region Private \ internal methods
 
@@ -58,7 +78,6 @@ namespace Xtensive.Storage
       var nonInstantiatedTypes = modules.Where(pair => pair.Value==null).Select(pair => pair.Key).ToList();
       foreach (var type in nonInstantiatedTypes)
         modules[type] = (IModule)type.Activate(null);
-      Modules = new ReadOnlyDictionary<Type, IModule>(modules, false);
       SetOrderedModules();
     }
 
@@ -68,10 +87,20 @@ namespace Xtensive.Storage
       select new {module, Reference = module.GetType().Assembly.GetReferencedAssemblies()
         .Select(a => a.ToString())})
         .ToDictionary(a => a.module, a => a.Reference);
-      var orderedModules = TopologicalSorter.Sort(modules,
+      var sortedModules = TopologicalSorter.Sort(modules,
         (module0, module1) => references[module1.Key].Any(asmName => asmName==module0.Key.Assembly.GetName().ToString()))
         .Select(module => module.Value).ToList();
-      OrderedModules = new ReadOnlyList<IModule>(orderedModules, false);
+      orderedModules = new ReadOnlyList<IModule>(sortedModules, false);
+    }
+
+    private static void ValidateModule(Type type)
+    {
+      ConstructorInfo constructor =
+        type.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[0], null);
+
+      if (constructor==null)
+        throw new DomainBuilderException(string
+          .Format(Strings.ExTypeXDoesNotHaveAParameterlessConstructor, type.GetFullName()));
     }
 
     #endregion
@@ -85,14 +114,12 @@ namespace Xtensive.Storage
       var types = configuration.Types.Assemblies.SelectMany(assembly => assembly.GetTypes());
       foreach (var type in types)
         if (typeof(IModule).IsAssignableFrom(type)) {
-          if (typeof(IDomainBuilder).IsAssignableFrom(type))
-            throw new NotSupportedException(String.Format(Resources.Strings.ExTypeXImplementsInterfacesYAndZ,
-              type.FullName, typeof(IModule).FullName, typeof(IDomainBuilder).FullName));
-          if (!type.IsAbstract && type.IsClass)
+          if (!type.IsAbstract && type.IsClass) {
+            ValidateModule(type);
             modules.Add(type, null);
+          }
         }
       UpgradeHandlers = new ReadOnlyList<IUpgradeHandler>(upgradeHandlers, false);
-      //OrderedModules = new ReadOnlyList<IModule>(new List<IModule>(), false);
     }
   }
 }

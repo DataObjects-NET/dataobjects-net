@@ -4,6 +4,9 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.07.02
 
+using Xtensive.Storage.Building;
+using Xtensive.Storage.Building.Definitions;
+
 namespace Xtensive.Storage
 {
   /// <summary>
@@ -12,9 +15,16 @@ namespace Xtensive.Storage
   public interface IModule
   {
     /// <summary>
-    /// Initializes the module.
+    /// Called when 'complex' build process is completed.
     /// </summary>
-    /// <param name="domain">The domain.</param>
-    void OnBuildCompleted(Domain domain);
+    /// <param name="domain">The built domain.</param>
+    void OnBuilt(Domain domain);
+
+    /// <summary>
+    /// Called when the build of <see cref="DomainModelDef"/> is completed.
+    /// </summary>
+    /// <param name="context">The domain building context.</param>
+    /// <param name="model">The domain model definition.</param>
+    void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model);
   }
 }

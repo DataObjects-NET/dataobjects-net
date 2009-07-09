@@ -20,14 +20,21 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 namespace Xtensive.Storage.Tests.Rse
 {
   #region Implementation of DomainBuilder
-  class TypeModifier : IDomainBuilder
+  class TypeModifier : IModule
   {
+    public static bool IsEnabled;
+
     public static readonly TypeModifier Current = new TypeModifier();
 
     public InheritanceSchema InheritanceSchema { get; set; }
 
-    public void Build(BuildingContext context, DomainModelDef model)
+    public void OnBuilt(Domain domain)
+    {}
+
+    public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
+      if (!IsEnabled)
+        return;
       Current.BuildReal(context, model);
     }
 
@@ -44,16 +51,17 @@ namespace Xtensive.Storage.Tests.Rse
     {
       var config = DomainConfiguration.Load("memory");
       config.Types.Register(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
-      config.Builders.Add(typeof(TypeModifier));
       return config;
     }
 
     public override void TestFixtureSetUp()
     {
+      TypeModifier.IsEnabled = true;
     }
 
     public override void TestFixtureTearDown()
     {
+      TypeModifier.IsEnabled = false;
     }
 
     public override void SetUp()

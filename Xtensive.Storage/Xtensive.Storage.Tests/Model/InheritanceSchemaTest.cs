@@ -106,11 +106,14 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   {
   }
 
-  internal abstract class DomainBuilderBase : IDomainBuilder
+  internal abstract class DomainBuilderBase : IModule
   {
     protected abstract InheritanceSchema InheritanceSchema { get; }
 
-    public void Build(BuildingContext context, DomainModelDef model)
+    public void OnBuilt(Domain domain)
+    {}
+
+    public virtual void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
       foreach (HierarchyDef hierarchyDef in model.Hierarchies)
         hierarchyDef.Schema = InheritanceSchema;
@@ -119,14 +122,32 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
 
   internal class SingleTableInheritanceBuilder : DomainBuilderBase
   {
+    public static bool IsEnabled;
+
+    public override void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
+    {
+      if (!IsEnabled)
+        return;
+      base.OnDefinitionsBuilt(context, model);
+    }
+
     protected override InheritanceSchema InheritanceSchema
     {
       get { return InheritanceSchema.SingleTable; }
     }
   }
 
-  internal class ConcreteTableInheritanceBuilder : SingleTableInheritanceBuilder
+  internal class ConcreteTableInheritanceBuilder : DomainBuilderBase
   {
+    public static bool IsEnabled;
+
+    public override void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
+    {
+      if (!IsEnabled)
+        return;
+      base.OnDefinitionsBuilt(context, model);
+    }
+
     protected override InheritanceSchema InheritanceSchema
     {
       get { return InheritanceSchema.ConcreteTable; }
@@ -144,6 +165,13 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
       dc.Types.Register(typeof (A).Assembly, typeof(A).Namespace);
       dc.UpgradeMode = DomainUpgradeMode.Recreate;
       return dc;
+    }
+
+    public override void TestFixtureTearDown()
+    {
+      ConcreteTableInheritanceBuilder.IsEnabled = false;
+      SingleTableInheritanceBuilder.IsEnabled = false;
+      base.TestFixtureTearDown();
     }
 
     [Test]
@@ -175,6 +203,8 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
       dc.NamingConvention.NamingRules = NamingRules.UnderscoreDots | NamingRules.UnderscoreHyphens;
       dc.NamingConvention.NamespacePolicy = NamespacePolicy.Hash;
       dc.NamingConvention.NamespaceSynonyms.Add("Xtensive.Storage.Tests.Model.DefaultPlacement", "X");
+      ConcreteTableInheritanceBuilder.IsEnabled = false;
+      SingleTableInheritanceBuilder.IsEnabled = false;
       return dc;
     }
 
@@ -230,7 +260,8 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration configuration = base.BuildConfiguration();
-      configuration.Builders.Add(typeof (ConcreteTableInheritanceBuilder));
+      ConcreteTableInheritanceBuilder.IsEnabled = true;
+      SingleTableInheritanceBuilder.IsEnabled = false;
       return configuration;
     }
 
@@ -278,7 +309,8 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration configuration = base.BuildConfiguration();
-      configuration.Builders.Add(typeof (SingleTableInheritanceBuilder));
+      ConcreteTableInheritanceBuilder.IsEnabled = false;
+      SingleTableInheritanceBuilder.IsEnabled = true;
       return configuration;
     }
 

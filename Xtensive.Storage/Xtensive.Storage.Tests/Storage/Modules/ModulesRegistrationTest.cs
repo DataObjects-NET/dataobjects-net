@@ -13,7 +13,7 @@ using System.Reflection;
 using Microsoft.CSharp;
 using NUnit.Framework;
 
-namespace Xtensive.Storage.Tests.Upgrade.UpgradeHandlersSorting
+namespace Xtensive.Storage.Tests.Storage.Modules
 {
   [TestFixture, Category("Upgrade")]
   public sealed class ModulesRegistrationTest : AutoBuildTest

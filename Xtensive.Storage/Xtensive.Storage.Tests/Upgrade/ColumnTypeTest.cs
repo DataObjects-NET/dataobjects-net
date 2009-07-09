@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Tests.Upgrade
   public class ColumnTypeTest
   {
     private Domain domain;
-
+    
     [SetUp]
     public void SetUp()
     {
@@ -191,7 +191,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(typeof (X));
-      configuration.Builders.Add(typeof (FieldTypeChanger));
+      AddColumnBuilder.IsEnabled = false;
       domain = Domain.Build(configuration);
     }
 
@@ -204,14 +204,19 @@ namespace Xtensive.Storage.Tests.Upgrade
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Perform;
       configuration.Types.Register(typeof (X));
-      configuration.Builders.Add(typeof (AddColumnBuilder));
-      domain = Domain.Build(configuration);
+      AddColumnBuilder.IsEnabled = true;
+      try {
+        domain = Domain.Build(configuration);
+      }
+      finally {
+        AddColumnBuilder.IsEnabled = false;
+      }
     }
 
     # endregion
   }
 
-  public class FieldTypeChanger : IDomainBuilder
+  public class FieldTypeChanger : IModule
   {
     private static Type ColumnType { get; set; }
     private static string ColumnName { get; set; }
@@ -235,7 +240,10 @@ namespace Xtensive.Storage.Tests.Upgrade
       });
     }
 
-    public void Build(BuildingContext context, DomainModelDef model)
+    public virtual void OnBuilt(Domain domain)
+    {}
+
+    public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
       if (!isEnabled || !model.Types.Contains("X"))
         return;
@@ -252,12 +260,19 @@ namespace Xtensive.Storage.Tests.Upgrade
     
   }
 
-  public class AddColumnBuilder : IDomainBuilder
+  public class AddColumnBuilder : IModule
   {
+    public static bool IsEnabled;
+
     public static Type NewColumnType { get; set; }
 
-    public void Build(BuildingContext context, DomainModelDef model)
+    public void OnBuilt(Domain domain)
+    {}
+
+    public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
+      if (!IsEnabled)
+        return;
       if (!model.Types.Contains("X"))
         return;
       
