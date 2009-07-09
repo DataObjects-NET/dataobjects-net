@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Linq;
 using Xtensive.Sql.Dom;
@@ -20,27 +21,55 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
   [CompilerContainer(typeof(SqlExpression))]
   internal static class StringMappings
   {
-    private static readonly SqlLiteral<string> Percent = SqlFactory.Literal("%");
-    
+    private static SqlExpression GenericLike(SqlExpression _this,
+      SqlExpression patternExpression, bool percentAtStart, bool percentAtEnd)
+    {
+      const string percent = "%";
+      const string ground = "_";
+      const string escape = "^";
+      const string escapeEscape = "^^";
+      const string escapeGround = "^_";
+      const string escapePercent = "^%";
+
+      var exactPatternExpression = patternExpression as SqlLiteral<string>;
+      if (exactPatternExpression==null)
+        throw new NotSupportedException();
+      var originalPattern = exactPatternExpression.Value;
+      var escapedPattern = new StringBuilder(originalPattern);
+      escapedPattern
+        .Replace(escape, escapeEscape)
+        .Replace(percent, escapePercent)
+        .Replace(ground, escapeGround);
+      bool escaped = escapedPattern.Length > originalPattern.Length;
+      if (percentAtStart)
+        escapedPattern.Insert(0, percent);
+      if (percentAtEnd)
+        escapedPattern.Append(percent);
+      var pattern = escapedPattern.ToString();
+      return escaped
+        ? SqlFactory.Like(_this, pattern, escape)
+        : SqlFactory.Like(_this, pattern);
+     }
+
     [Compiler(typeof(string), "StartsWith")]
     public static SqlExpression StringStartsWith(SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.Like(_this, SqlFactory.Concat(value, Percent));
+      return GenericLike(_this, value, false, true);
     }
   
     [Compiler(typeof(string), "EndsWith")]
     public static SqlExpression StringEndsWith(SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.Like(_this, SqlFactory.Concat(Percent, value));
+      return GenericLike(_this, value, true, false);
     }
 
     [Compiler(typeof(string), "Contains")]
     public static SqlExpression StringContains(SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.Like(_this, SqlFactory.Concat(Percent, SqlFactory.Concat(value, Percent)));
+      return GenericLike(_this, value, true, true);
     }
 
     [Compiler(typeof(string), "Substring")]
