@@ -51,6 +51,19 @@ namespace Xtensive.Storage.Model
     }
  
     /// <inheritdoc/>
+    public override void UpdateState(bool recursive)
+    {
+      base.UpdateState(recursive);
+      if (!recursive)
+        return;
+      Hierarchies.UpdateState(true);
+      Generators.UpdateState(true);
+      Types.UpdateState(true);
+      RealIndexes.UpdateState(true);
+      Associations.UpdateState(true);
+    }
+ 
+    /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);

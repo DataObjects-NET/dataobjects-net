@@ -78,7 +78,6 @@ namespace Xtensive.Storage.Model
     static FieldMap()
     {
       Empty = new FieldMap();
-      Empty.Lock();
     }
   }
 }

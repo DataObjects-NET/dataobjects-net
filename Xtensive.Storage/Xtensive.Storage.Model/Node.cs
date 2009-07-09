@@ -5,7 +5,6 @@
 // Created:    2007.07.25
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
@@ -41,12 +40,7 @@ namespace Xtensive.Storage.Model
       }
     }
 
-    /// <summary>
-    /// Changes the state of this instance.
-    /// </summary>
-    /// <param name="property">The property to change.</param>
-    /// <param name="onChangeStateDelegate">Delegate that changes the state of this instance.</param>
-    protected void ChangeState(string property, Action onChangeStateDelegate)
+    private void ChangeState(string property, Action onChangeStateDelegate)
     {
       if (Changing != null)
         Changing(this, new ChangeNotifierEventArgs(property));
@@ -90,6 +84,23 @@ namespace Xtensive.Storage.Model
     }
 
     #endregion
+
+    /// <summary>
+    /// Updates the internal state of this instance.
+    /// </summary>
+    /// <param name="recursive"><see langword="True"/> if all dependent objects should be updated as well.</param>
+    public virtual void UpdateState(bool recursive)
+    {
+      this.EnsureNotLocked();
+    }
+
+    /// <summary>
+    /// Updates the internal state of this instance.
+    /// </summary>
+    public void UpdateState()
+    {
+      UpdateState(false);
+    }
 
     /// <inheritdoc/>
     public override string ToString()

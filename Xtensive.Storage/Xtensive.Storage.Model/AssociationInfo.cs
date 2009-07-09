@@ -180,9 +180,9 @@ namespace Xtensive.Storage.Model
     }
 
     /// <inheritdoc/>
-    public override void Lock(bool recursive)
+    public override void UpdateState(bool recursive)
     {
-      base.Lock(recursive);
+      base.UpdateState(recursive);
       if (!OwnerType.IsEntity)
         return;
       switch (Multiplicity) {

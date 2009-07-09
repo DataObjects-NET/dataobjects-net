@@ -438,15 +438,5 @@ namespace Xtensive.Storage.Model
         RegisterInterface(value);
       }
     }
-
-    /// <inheritdoc/>
-    public override void Lock(bool recursive)
-    {
-      base.Lock(recursive);
-      if (recursive)
-        foreach (TypeInfo node in this)
-          node.Lock(recursive);
-    }
-
   }
 }

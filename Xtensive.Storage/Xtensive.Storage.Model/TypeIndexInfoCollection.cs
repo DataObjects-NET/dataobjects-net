@@ -78,18 +78,16 @@ namespace Xtensive.Storage.Model
     }
 
     /// <inheritdoc/>
-    public override void Lock(bool recursive)
+    public override void UpdateState(bool recursive)
     {
+      base.UpdateState(recursive);
       primaryIndex = FindPrimaryIndex();
       realPrimaryIndexes = new ReadOnlyList<IndexInfo>(FindRealPrimaryIndexes(primaryIndex));
       indexesContainingAllData = new ReadOnlyList<IndexInfo>(FindIndexesContainingAllData());
-      base.Lock(recursive);
     }
 
-    public IndexInfo GetIndex(IEnumerable<FieldInfo> fields)
+    private IndexInfo GetIndex(IEnumerable<FieldInfo> fields)
     {
-      if (!IsLocked)
-        throw new InvalidOperationException();
       Action<IEnumerable<FieldInfo>, IList<ColumnInfo>> columnsExtractor = null;
       columnsExtractor = ((fieldsToExtract, extractedColumns) => {
         foreach (var field in fieldsToExtract) {

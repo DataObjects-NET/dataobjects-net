@@ -358,39 +358,49 @@ namespace Xtensive.Storage.Model
     }
 
     /// <inheritdoc/>
-    public override void Lock(bool recursive)
+    public override void UpdateState(bool recursive)
     {
+      base.UpdateState(recursive);
       ancestors = new ReadOnlyList<TypeInfo>(GetAncestors());
       targetAssociations = new ReadOnlyList<AssociationInfo>(GetTargetAssociations());
       ownerAssociations = new ReadOnlyList<AssociationInfo>(GetOwnerAssociations());
 
-      if (!fields.IsLocked) {
-        int adapterIndex = 0;
-        foreach (FieldInfo field in Fields)
-          if (field.IsStructure || field.IsEntitySet)
-            field.AdapterIndex = adapterIndex++;
-      }
-
-      base.Lock(recursive);
+      int adapterIndex = 0;
+      foreach (FieldInfo field in Fields)
+        if (field.IsStructure || field.IsEntitySet)
+          field.AdapterIndex = adapterIndex++;
 
       if (recursive) {
-        affectedIndexes.Lock(true);
-        indexes.Lock(true);
-        columns.Lock(true);
-        fieldMap.Lock(true);
+        affectedIndexes.UpdateState(true);
+        indexes.UpdateState(true);
+        columns.UpdateState(true);
       }
       if (IsInterface) {
         if (recursive)
-          fields.Lock(true);
+          fields.UpdateState(true);
         return;
       }
       CreateTupleDescriptor();
 
-      columns.Lock(true);
-      fields.Lock(true);
+      columns.UpdateState(true);
+      fields.UpdateState(true);
 
       if (IsEntity || IsStructure)
         BuildTuplePrototype();
+    }
+
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      base.Lock(recursive);
+
+      if (!recursive)
+        return;
+      affectedIndexes.Lock(true);
+      indexes.Lock(true);
+      columns.Lock(true);
+      fieldMap.Lock(true);
+      fields.Lock(true);
     }
 
     private void CreateTupleDescriptor()

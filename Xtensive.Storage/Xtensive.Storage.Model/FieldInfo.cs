@@ -463,6 +463,19 @@ namespace Xtensive.Storage.Model
     }
 
     /// <inheritdoc/>
+    public override void UpdateState(bool recursive)
+    {
+      base.UpdateState(recursive);
+      if (!recursive)
+        return;
+      Fields.UpdateState(true);
+      if (column!=null) 
+        column.UpdateState(true);
+
+      CreateMappingInfo();
+    }
+
+    /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
@@ -471,8 +484,6 @@ namespace Xtensive.Storage.Model
       Fields.Lock(true);
       if (column!=null) 
         column.Lock(true);
-
-      CreateMappingInfo();
     }
 
     private void CreateMappingInfo()

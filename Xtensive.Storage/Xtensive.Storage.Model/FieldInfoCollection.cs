@@ -48,7 +48,6 @@ namespace Xtensive.Storage.Model
     static FieldInfoCollection()
     {
       Empty = new FieldInfoCollection();
-      Empty.Lock();
     }
   }
 }

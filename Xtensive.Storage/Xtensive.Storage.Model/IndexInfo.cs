@@ -210,10 +210,22 @@ namespace Xtensive.Storage.Model
     }
 
     /// <inheritdoc/>
+    public override void UpdateState(bool recursive)
+    {
+      base.UpdateState(recursive);
+      CreateColumns();
+      if (!recursive)
+        return;
+      valueColumns.UpdateState(true);
+      foreach (IndexInfo baseIndex in underlyingIndexes)
+        baseIndex.UpdateState();
+      CreateTupleDescriptors();
+    }
+
+    /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
-      CreateColumns();
       if (!recursive)
         return;
       keyColumns.Lock(true);
@@ -221,7 +233,6 @@ namespace Xtensive.Storage.Model
       foreach (IndexInfo baseIndex in underlyingIndexes)
         baseIndex.Lock();
       underlyingIndexes.Lock();
-      CreateTupleDescriptors();
     }
 
     private void CreateTupleDescriptors()

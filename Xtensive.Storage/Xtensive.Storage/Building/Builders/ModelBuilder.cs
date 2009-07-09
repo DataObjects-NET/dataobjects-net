@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Building.Builders
         BuildColumns();
         IndexBuilder.BuildIndexes();
         BuildHierarchyColumns();
-        context.Model.Lock(true);
+        context.Model.UpdateState(true);
       }
     }
 

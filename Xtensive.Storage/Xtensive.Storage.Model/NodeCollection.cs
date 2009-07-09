@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Notifications;
 using Xtensive.Storage.Model.Resources;
@@ -53,12 +54,13 @@ namespace Xtensive.Storage.Model
     }
 
     /// <inheritdoc/>
-    public override void Lock(bool recursive)
+    public virtual void UpdateState(bool recursive)
     {
-      base.Lock(recursive);
-      if (recursive)
-        foreach (TNode node in this)
-          node.Lock(recursive);
+      this.EnsureNotLocked();
+      if (!recursive)
+        return;
+      foreach (TNode node in this)
+        node.UpdateState(true);
     }
 
     /// <summary>
@@ -151,7 +153,6 @@ namespace Xtensive.Storage.Model
     static NodeCollection()
     {
       Empty = new NodeCollection<TNode>();
-      Empty.Lock();
     }
   }
 }

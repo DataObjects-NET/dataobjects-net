@@ -39,9 +39,9 @@ namespace Xtensive.Storage.Model
     public TupleDescriptor TupleDescriptor { get; private set; }
 
     /// <inheritdoc/>
-    public override void Lock(bool recursive)
+    public override void UpdateState(bool recursive)
     {
-      base.Lock(recursive);
+      base.UpdateState(recursive);
       TupleDescriptor = TupleDescriptor.Create(
         from c in Columns select c.ValueType);
     }

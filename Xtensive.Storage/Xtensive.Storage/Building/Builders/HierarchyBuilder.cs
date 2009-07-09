@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Building.Builders
       for (int i = 0; i < columnsCollection.Count; i++)
         hierarchy.KeyInfo.Columns.Add(columnsCollection[i].Key);
 
-      hierarchy.KeyInfo.Lock();
+      hierarchy.KeyInfo.UpdateState();
     }
   }
 }

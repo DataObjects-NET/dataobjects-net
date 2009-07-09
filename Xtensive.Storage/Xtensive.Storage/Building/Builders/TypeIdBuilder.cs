@@ -17,17 +17,17 @@ namespace Xtensive.Storage.Building.Builders
       BuildRegularTypeIds();
     }
 
-    public static void BuildSystemTypeIds()
+    private static void BuildSystemTypeIds()
     {
       var context = BuildingContext.Demand();
       foreach (var type in context.SystemTypeIds.Keys) {
         var typeInfo = context.Model.Types[type];
-        AssignTypeId(typeInfo, context.SystemTypeIds[type]);
+        typeInfo.TypeId = context.SystemTypeIds[type];
       }
       context.Model.Types.BuildTypeIdIndex();
     }
 
-    public static void BuildRegularTypeIds()
+    private static void BuildRegularTypeIds()
     {
       var context = BuildingContext.Demand();
       var typeIdProvider = context.BuilderConfiguration.TypeIdProvider
@@ -44,16 +44,13 @@ namespace Xtensive.Storage.Building.Builders
         .DefaultIfEmpty(TypeInfo.MinTypeId)
         .Max();
       firstId++;
-      foreach (var item in providedIds)
-        AssignTypeId(item.Type, item.Id);
-      foreach (var type in typesToProcess.Except(providedIds.Select(item => item.Type)))
-        AssignTypeId(type, firstId++);
+      foreach (var item in providedIds) {
+        item.Type.TypeId = item.Id;
+      }
+      foreach (var type in typesToProcess.Except(providedIds.Select(item => item.Type))) {
+        type.TypeId = firstId++;
+      }
       context.Model.Types.BuildTypeIdIndex();
-    }
-
-    private static void AssignTypeId(TypeInfo type, int typeId)
-    {
-      type.SetTypeId(typeId, BuildingContext.Current.ModelUnlockKey);
     }
   }
 }

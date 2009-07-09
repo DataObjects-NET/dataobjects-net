@@ -64,6 +64,7 @@ namespace Xtensive.Storage.Upgrade
         }
         BuildStageDomain(UpgradeStage.Upgrading).DisposeSafely();
         var result = BuildStageDomain(UpgradeStage.Final);
+        result.Model.Lock(true);
         NotifyModules(result);
         return result;
       }

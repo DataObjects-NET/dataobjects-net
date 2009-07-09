@@ -40,13 +40,20 @@ namespace Xtensive.Storage.Model
     public GeneratorInfo GeneratorInfo { get; private set; }
 
     /// <inheritdoc/>
+    public override void UpdateState(bool recursive)
+    {
+      base.UpdateState(recursive);
+      KeyInfo.UpdateState(recursive);
+      var list = new List<TypeInfo> {Root};
+      list.AddRange(Root.GetDescendants(true));
+      Types = new ReadOnlyList<TypeInfo>(list);
+    }
+
+    /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
       KeyInfo.Lock(recursive);
-      var list = new List<TypeInfo> {Root};
-      list.AddRange(Root.GetDescendants(true));
-      Types = new ReadOnlyList<TypeInfo>(list);
     }
 
 
