@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Tests
 //      config = Create("mssql2005");
 //      config = Create("mssql2005", InheritanceSchema.SingleTable);
 //      config = Create("mssql2005", InheritanceSchema.ConcreteTable);
-      config = Create("mssql2005", InheritanceSchema.ConcreteTable, TypeIdBehavior.Include);
+//      config = Create("mssql2005", InheritanceSchema.ConcreteTable, TypeIdBehavior.Include);
 
 //      config = Create("pgsql");
 //      config = Create("pgsql", InheritanceSchema.SingleTable);
