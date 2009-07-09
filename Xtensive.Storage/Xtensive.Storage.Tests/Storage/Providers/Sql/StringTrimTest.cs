@@ -18,10 +18,17 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
   {
     private DisposableSet disposableSet;
 
+    protected override void CheckRequirements()
+    {
+      EnsureIs(StorageProtocols.Sql);
+    }
+
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-
+      disposableSet = new DisposableSet();
+      disposableSet.Add(Domain.OpenSession());
+      disposableSet.Add(Transaction.Open());
       var testValues = new[]
         {
           " :-P  ",
@@ -37,11 +44,6 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
           "?????? ",
           " PROFIT",
         };
-
-      disposableSet = new DisposableSet();
-      disposableSet.Add(Domain.OpenSession());
-      disposableSet.Add(Transaction.Open());
-
       foreach (var value in testValues)
         new X {FString = value};
     }

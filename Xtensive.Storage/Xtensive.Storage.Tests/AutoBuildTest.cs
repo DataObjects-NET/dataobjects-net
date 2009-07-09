@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Configuration;
 using Xtensive.Core.Disposing;
@@ -18,29 +18,39 @@ namespace Xtensive.Storage.Tests
   [TestFixture]
   public abstract class AutoBuildTest
   {
-    private Domain domain;
+    private string protocolName;
+    private StorageProtocols protocol;
 
-    protected Domain Domain
-    {
-      get { return domain; }
-    }
-
+    protected Domain Domain { get; private set; }
+    
     [TestFixtureSetUp]
     public virtual void TestFixtureSetUp()
     {
       DomainConfiguration config = BuildConfiguration();
-      domain = BuildDomain(config);
+      SelectProtocol(config);
+      CheckRequirements();
+      Domain = BuildDomain(config);
     }
 
     [TestFixtureTearDown]
     public virtual void TestFixtureTearDown()
     {
-      domain.DisposeSafely();
+      Domain.DisposeSafely();
     }
 
     protected virtual DomainConfiguration BuildConfiguration()
     {
       return DomainConfigurationFactory.Create();
+    }
+
+    protected virtual void CheckRequirements()
+    {
+    }
+
+    protected void EnsureIs(StorageProtocols allowedProtocols)
+    {
+      if ((protocol & allowedProtocols) == 0)
+        throw new IgnoreException(string.Format("This test is not suitable for '{0}' protocol", protocolName));
     }
 
     protected virtual Domain BuildDomain(DomainConfiguration configuration)
@@ -55,14 +65,22 @@ namespace Xtensive.Storage.Tests
       }
     }
 
-    protected RecordSet GetRecordSet<T>() where T : Entity
+    private void SelectProtocol(DomainConfiguration config)
     {
-      return Domain.Model.Types[typeof(T)].Indexes.PrimaryIndex.ToRecordSet();
-    }
-
-    protected IEnumerable<T> GetEntities<T>() where T : Entity
-    {
-      return GetRecordSet<T>().ToEntities<T>();
+      protocolName = config.ConnectionInfo.Protocol;
+      switch (protocolName) {
+      case "mssql2005":
+        protocol = StorageProtocols.SqlServer;
+        break;
+      case "pgsql":
+        protocol = StorageProtocols.PostgreSql;
+        break;
+      case "memory":
+        protocol = StorageProtocols.Memory;
+        break;
+      default:
+        throw new ArgumentOutOfRangeException();
+      }
     }
   }
 }

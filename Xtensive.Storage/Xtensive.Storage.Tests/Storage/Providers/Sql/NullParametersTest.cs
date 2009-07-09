@@ -6,28 +6,60 @@
 
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Storage.Tests.ObjectModel;
-using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Core.Disposing;
+using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Tests.Storage.DbTypeSupportModel;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.Sql
 {
-  public class NullParametersTest : NorthwindDOModelTest
+  public class NullParametersTest : AutoBuildTest
   {
+    private DisposableSet disposableSet;
+
+    protected override void CheckRequirements()
+    {
+      EnsureIs(StorageProtocols.Sql);
+    }
+
+    public override void TestFixtureSetUp()
+    {
+      base.TestFixtureSetUp();
+      disposableSet = new DisposableSet();
+      disposableSet.Add(Domain.OpenSession());
+      disposableSet.Add(Transaction.Open());
+
+      new X {FString = "Xtensive"};
+      new X {FString = null};
+    }
+    
+    public override void TestFixtureTearDown()
+    {
+      disposableSet.DisposeSafely();
+      base.TestFixtureTearDown();
+    }
+
     [Test]
     public void CompareWithNullParameterTest()
     {
-      string region = null;
-      var result = Query<Order>.All.Where(o => o.ShippingAddress.Region == region).ToList();
-      Assert.AreNotEqual(0, result.Count);
+      string value = null;
+      var result = Query<X>.All.Where(x => x.FString==value).ToList();
+      Assert.AreEqual(1, result.Count);
     }
 
     [Test]
     public void SelectNullParameter()
     {
-      string name = null;
-      var result = Query<Order>.All.Select(o => new {o.Id, Name = name}).ToList();
+      string value = null;
+      var result = Query<X>.All.Select(x => new {x.Id, Value = value}).ToList();
       foreach (var i in result)
-        Assert.IsNull(i.Name);
+        Assert.IsNull(i.Value);
+    }
+
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      var config = base.BuildConfiguration();
+      config.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
+      return config;
     }
   }
 }

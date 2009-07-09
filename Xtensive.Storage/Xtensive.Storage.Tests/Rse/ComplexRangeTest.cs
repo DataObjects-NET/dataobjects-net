@@ -73,10 +73,15 @@ namespace Xtensive.Storage.Tests.Rse
     private const int CatCount = 100;
     private const int DogCount = 100;
     private const int BirdCount = 100;
-    
+
+    protected override void CheckRequirements()
+    {
+      EnsureIs(StorageProtocols.Index);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = DomainConfigurationFactory.Create("memory"); 
+      DomainConfiguration config = base.BuildConfiguration(); 
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Rse.AnimalModel");
       return config;
     }

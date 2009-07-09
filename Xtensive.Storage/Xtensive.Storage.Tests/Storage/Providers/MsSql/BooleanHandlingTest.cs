@@ -11,6 +11,7 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.Providers.MsSql.BooleanHandlingTestModel;
+using System.Collections.Generic;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.MsSql.BooleanHandlingTestModel
 {
@@ -36,9 +37,14 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
   [TestFixture]
   public class BooleanHandlingTest : AutoBuildTest
   {
+    protected override void CheckRequirements()
+    {
+      EnsureIs(StorageProtocols.SqlServer);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
-      var configuration = DomainConfigurationFactory.Create("mssql2005");
+      var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(MyEntity).Assembly, typeof(MyEntity).Namespace);
       return configuration;
     }

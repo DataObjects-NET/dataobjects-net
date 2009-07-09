@@ -139,6 +139,11 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
   {
     private Schema existingSchema;
 
+    protected override void CheckRequirements()
+    {
+      EnsureIs(StorageProtocols.Sql);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
@@ -148,9 +153,6 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
 
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
-      if (configuration.ConnectionInfo.Url.StartsWith("memory")) {
-        throw new IgnoreException("This configuration is not supported");
-      }
       var domain = base.BuildDomain(configuration);
       // Get current SQL model
       var domainHandler = domain.Handlers.DomainHandler;

@@ -31,7 +31,12 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
         Kwanza = newKanza;
         throw new InvalidOperationException();
       }
-    }    
+    }
+
+    protected override void CheckRequirements()
+    {
+      EnsureIs(StorageProtocols.Sql);
+    }
 
     protected override DomainConfiguration BuildConfiguration()
     {

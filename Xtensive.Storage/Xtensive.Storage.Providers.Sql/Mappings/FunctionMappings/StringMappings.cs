@@ -31,10 +31,13 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       const string escapeGround = "^_";
       const string escapePercent = "^%";
 
-      var exactPatternExpression = patternExpression as SqlLiteral<string>;
-      if (exactPatternExpression==null)
+      var stringPattern = patternExpression as SqlLiteral<string>;
+      var charPattern = patternExpression as SqlLiteral<char>;
+      if (ReferenceEquals(stringPattern, null) && ReferenceEquals(charPattern, null))
         throw new NotSupportedException();
-      var originalPattern = exactPatternExpression.Value;
+      var originalPattern = !ReferenceEquals(stringPattern, null)
+        ? stringPattern.Value
+        : charPattern.Value.ToString();
       var escapedPattern = new StringBuilder(originalPattern);
       escapedPattern
         .Replace(escape, escapeEscape)

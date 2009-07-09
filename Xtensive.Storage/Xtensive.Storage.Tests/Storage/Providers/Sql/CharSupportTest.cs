@@ -29,6 +29,11 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
   {
     private string charColumn;
 
+    protected override void CheckRequirements()
+    {
+      EnsureIs(StorageProtocols.Sql);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
@@ -85,6 +90,11 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
         Assert.AreEqual(y, result[0]);
         transaction.Complete();
       }
+    }
+
+    private RecordSet GetRecordSet<T>() where T : Entity
+    {
+      return Domain.Model.Types[typeof(T)].Indexes.PrimaryIndex.ToRecordSet();
     }
   }
 }

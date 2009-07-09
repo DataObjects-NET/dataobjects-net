@@ -103,9 +103,14 @@ namespace Xtensive.Storage.Tests.Storage
     private string cLength;
     private string cFeatures;
 
+    protected override void CheckRequirements()
+    {
+      EnsureIs(StorageProtocols.Index);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = DomainConfigurationFactory.Create("memory");
+      var config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.SnakesModel");
       return config;
     }

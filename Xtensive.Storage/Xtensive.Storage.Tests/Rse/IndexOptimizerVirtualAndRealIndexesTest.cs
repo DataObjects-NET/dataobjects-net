@@ -43,9 +43,14 @@ namespace Xtensive.Storage.Tests.Rse
   [TestFixture, Category("Rse")]
   public class IndexOptimizerVirtualAndRealIndexesTest : AutoBuildTest
   {
+    protected override void CheckRequirements()
+    {
+      EnsureIs(StorageProtocols.Index);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = DomainConfigurationFactory.Create("memory");
+      var config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Storage.Tests.Rse.VirtualAndRealIndexesModel");
       return config;

@@ -23,6 +23,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0096_NumerousSchemaExtraction_Model
 namespace Xtensive.Storage.Tests.Issues
 {
   [TestFixture]
+  [Explicit("Manual usage only")]
   public class Issue0096_NumerousSchemaExtraction
   {
     public class ModelChanger : IModule

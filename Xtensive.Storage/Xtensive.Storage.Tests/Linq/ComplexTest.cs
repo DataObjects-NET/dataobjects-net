@@ -174,12 +174,12 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query<Customer>.All
         .GroupBy(c => c.Address.Country,
-          (country, customers) => customers.Where(k => k.CompanyName.StartsWith(country.Substring(0, 1))))
+          (country, customers) => customers.Where(k => k.CompanyName.Substring(0, 1)==country.Substring(0, 1)))
         .SelectMany(k => k);
       var expected = Query<Customer>.All
         .ToList()
         .GroupBy(c => c.Address.Country,
-          (country, customers) => customers.Where(k => k.CompanyName.StartsWith(country.Substring(0, 1))))
+          (country, customers) => customers.Where(k => k.CompanyName.Substring(0, 1)==country.Substring(0, 1)))
         .SelectMany(k => k);
       Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
@@ -204,6 +204,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ModifiedClosuresTest()
     {
+      EnsureIs(StorageProtocols.Index);
       var customers = from o in Query<Order>.All
                       join c in Query<Customer>.All on o.Customer equals c into oc
                       from x in oc.DefaultIfEmpty()

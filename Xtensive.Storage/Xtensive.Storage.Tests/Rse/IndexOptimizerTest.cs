@@ -28,14 +28,17 @@ using IndexProvider=Xtensive.Storage.Rse.Providers.Compilable.IndexProvider;
 
 namespace Xtensive.Storage.Tests.Rse
 {
-  
-
   [TestFixture, Category("Rse")]
   public class IndexOptimizerTest : NorthwindDOModelTest
   {
+    protected override void CheckRequirements()
+    {
+      EnsureIs(StorageProtocols.Index);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = DomainConfigurationFactory.Create("memory");
+      var config = base.BuildConfiguration();
       config.Types.Register(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
       return config;
     }

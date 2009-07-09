@@ -31,9 +31,14 @@ namespace Xtensive.Storage.Tests.Rse
     protected string FeaturesField { get; set; }
     protected string DescriptionField { get; set; }
 
+    protected override void CheckRequirements()
+    {
+      EnsureIs(StorageProtocols.Index);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = DomainConfigurationFactory.Create("memory");
+      DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.SnakesModel");
       config.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Storage.Tests.ObjectModel.NorthwindDO");
