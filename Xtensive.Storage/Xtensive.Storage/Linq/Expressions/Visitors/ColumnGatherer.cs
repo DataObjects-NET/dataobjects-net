@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
 
     protected override Expression VisitGroupingExpression(GroupingExpression expression)
     {
-      columns.AddRange(expression.Mapping.GetItems());
+      Visit(expression.KeyExpression);
       VisitSubQueryExpression(expression);
       return expression;
     }

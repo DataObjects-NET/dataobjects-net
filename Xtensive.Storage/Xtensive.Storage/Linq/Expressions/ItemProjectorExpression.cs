@@ -4,8 +4,12 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.06
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions.Visitors;
@@ -13,6 +17,7 @@ using Xtensive.Storage.Linq.Materialization;
 using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Rse;
 using Xtensive.Core.Linq;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Linq.Expressions
 {
@@ -109,6 +114,46 @@ namespace Xtensive.Storage.Linq.Expressions
       return new ItemProjectorExpression(newItemProjectorBody, newDataSource, Context);
     }
 
+    public ItemProjectorExpression EnusreEntityIsJoined()
+    {
+      var dataSource = DataSource;
+      var newItem = new ExtendedExpressionReplacer(e => {
+        if (e is EntityExpression) {
+          var entityExpression = (EntityExpression) e;
+          var typeInfo = entityExpression.PersistentType;
+          if (typeInfo.Fields.All(fieldInfo => entityExpression.Fields.Any(entityField => entityField.Name==fieldInfo.Name)))
+            return entityExpression;
+          var joinedIndex = typeInfo.Indexes.PrimaryIndex;
+          var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(Context.GetNextAlias());
+          var keySegment = entityExpression.Key.Mapping;
+          var keyPairs = keySegment.GetItems()
+            .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+            .ToArray();
+          var offset = dataSource.Header.Length;
+          dataSource = dataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+          EntityExpression.Fill(entityExpression, offset);
+          return entityExpression;
+        }
+        else if (e is EntityFieldExpression) {
+          var entityFieldExpression = (EntityFieldExpression) e;
+          var typeInfo = entityFieldExpression.PersistentType;
+          var joinedIndex = typeInfo.Indexes.PrimaryIndex;
+          var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(Context.GetNextAlias());
+          var keySegment = entityFieldExpression.Mapping;
+          var keyPairs = keySegment.GetItems()
+            .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+            .ToArray();
+          var offset = dataSource.Header.Length;
+          dataSource = dataSource.JoinLeft(joinedRs, JoinAlgorithm.Default, keyPairs);
+          entityFieldExpression.RegisterEntityExpression(offset);
+          return entityFieldExpression;
+        }
+        return e;
+      })
+        .Replace(Item);
+      return new ItemProjectorExpression(newItem, dataSource, Context);
+    }
+
     public override string ToString()
     {
       return string.Format("ItemProjectorExpression: IsPrimitive = {0} Item = {1}, DataSource = {2}", IsPrimitive, Item, DataSource);
@@ -123,9 +168,9 @@ namespace Xtensive.Storage.Linq.Expressions
       DataSource = dataSource;
       Context = context;
       var newApplyParameter = Context.GetApplyParameter(dataSource);
-      var applyParameterReplacer = new ExtendedExpressionReplacer(ex => 
-        ex is SubQueryExpression 
-          ? ((SubQueryExpression) ex).ReplaceApplyParameter(newApplyParameter) 
+      var applyParameterReplacer = new ExtendedExpressionReplacer(ex =>
+        ex is SubQueryExpression
+          ? ((SubQueryExpression) ex).ReplaceApplyParameter(newApplyParameter)
           : null);
       Item = applyParameterReplacer.Replace(expression);
     }

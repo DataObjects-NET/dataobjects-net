@@ -19,6 +19,18 @@ namespace Xtensive.Storage.Tests.Linq
   [TestFixture]
   public class GroupByTest : NorthwindDOModelTest
   {
+
+    [Test]
+    public void EntityWithLazyLoadFieldTest()
+    {
+      var category = Query<Product>.All
+        .GroupBy(p => p.Category)
+        .First()
+        .Key;
+      int columnIndex = Domain.Model.Types[typeof (Category)].Fields["CategoryName"].MappingInfo.Offset;
+      Assert.IsTrue(category.State.Tuple.IsAvailable(columnIndex));
+    }
+
     [Test]
     public void AggregateAfterGroupingTest()
     {

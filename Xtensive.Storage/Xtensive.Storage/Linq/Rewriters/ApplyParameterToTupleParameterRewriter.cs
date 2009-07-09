@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Linq.Rewriters
           || newKeyExpression!=expression.KeyExpression) {
         var newItemProjector = new ItemProjectorExpression(newItemProjectorBody, newProvider.Result, expression.ProjectionExpression.ItemProjector.Context);
         var newProjectionExpression = new ProjectionExpression(expression.ProjectionExpression.Type, newItemProjector, expression.ProjectionExpression.TupleParameterBindings, expression.ProjectionExpression.ResultType);
-        return new GroupingExpression(expression.Type, expression.OuterParameter, expression.DefaultIfEmpty, newProjectionExpression, expression.ApplyParameter, expression.KeyExpression, expression.Mapping, expression.SelectManyInfo);
+        return new GroupingExpression(expression.Type, expression.OuterParameter, expression.DefaultIfEmpty, newProjectionExpression, expression.ApplyParameter, expression.KeyExpression, expression.SelectManyInfo);
       }
       return expression;
     }

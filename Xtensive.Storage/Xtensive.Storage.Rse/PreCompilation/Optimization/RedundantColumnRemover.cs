@@ -218,7 +218,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     {
       var map = provider.AggregateColumns
         .Select(c => c.SourceIndex)
-        .Concat(provider.GroupColumnIndexes);
+        .Union(provider.GroupColumnIndexes);
       mappings[provider.Source] = Merge(mappings[provider], map);
       return base.VisitAggregate(provider);
     }
@@ -460,7 +460,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     {
       List<int> map;
       if (outerColumnUsages.TryGetValue(parameter, out map))
-        map.Add(value);
+        if (!map.Contains(value)) 
+          map.Add(value);
     }
 
     private int ResolveOuterMapping(ApplyParameter parameter, int value)

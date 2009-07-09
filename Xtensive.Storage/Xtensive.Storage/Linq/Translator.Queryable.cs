@@ -528,7 +528,7 @@ namespace Xtensive.Storage.Linq
       var keyDataSource = keyProjection.ItemProjector.DataSource.Aggregate(keyColumns);
       var remappedKeyItemProjector = keyProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, keyColumns);
 
-      var newItemProjector = new ItemProjectorExpression(remappedKeyItemProjector.Item, keyDataSource, context);
+      var newItemProjector = new ItemProjectorExpression(remappedKeyItemProjector.Item, keyDataSource, context).EnusreEntityIsJoined();
 
       keyProjection = new ProjectionExpression(keyProjection.Type, newItemProjector, sequence.TupleParameterBindings);
 
@@ -558,8 +558,8 @@ namespace Xtensive.Storage.Linq
         subqueryProjection = VisitSelect(subqueryProjection, elementSelector);
 
       var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo(sequence);
-      var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, false, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, new Segment<int>(0, keyColumns.Length), selectManyInfo);
-      var groupingItemProjector = new ItemProjectorExpression(groupingExpression, keyDataSource, context);
+      var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, false, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, selectManyInfo);
+      var groupingItemProjector = new ItemProjectorExpression(groupingExpression, newItemProjector.DataSource, context);
       returnType = resultSelector==null
         ? returnType
         : resultSelector.Parameters[1].Type;
@@ -676,7 +676,7 @@ namespace Xtensive.Storage.Linq
       if (innerGrouping.ItemProjector.Item.IsGroupingExpression()) {
         var groupingExpression = (GroupingExpression) innerGrouping.ItemProjector.Item;
         var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo((ProjectionExpression) visitedOuterSource, (ProjectionExpression) visitedInnerSource, outerKey, innerKey);
-        var newGroupingExpression = new GroupingExpression(groupingExpression.Type, groupingExpression.OuterParameter, groupingExpression.DefaultIfEmpty, groupingExpression.ProjectionExpression, groupingExpression.ApplyParameter, groupingExpression.KeyExpression, groupingExpression.Mapping, selectManyInfo);
+        var newGroupingExpression = new GroupingExpression(groupingExpression.Type, groupingExpression.OuterParameter, groupingExpression.DefaultIfEmpty, groupingExpression.ProjectionExpression, groupingExpression.ApplyParameter, groupingExpression.KeyExpression, selectManyInfo);
         var newGroupingItemProjector = new ItemProjectorExpression(newGroupingExpression, innerGrouping.ItemProjector.DataSource, innerGrouping.ItemProjector.Context);
         innerGrouping = new ProjectionExpression(innerGrouping.Type, newGroupingItemProjector, innerGrouping.TupleParameterBindings, innerGrouping.ResultType);
       }
