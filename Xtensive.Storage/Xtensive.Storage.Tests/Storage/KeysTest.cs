@@ -139,6 +139,8 @@ namespace Xtensive.Storage.Tests.Storage.Keys
       }
     }
 
+
+
     [Test]
     public void ResolveNotExistingKeyTest()
     {
@@ -146,7 +148,9 @@ namespace Xtensive.Storage.Tests.Storage.Keys
         using (var t = Transaction.Open()) {
           Key key = Key.Create(typeof (Fruit), "NotExistingFruit");
           var entity = key.Resolve();
+          var entity2 = Query<Fruit>.Resolve("NotExistingFruit");
           Assert.IsNull(entity);
+          Assert.IsNull(entity2);
         }
       }
     }
@@ -171,6 +175,18 @@ namespace Xtensive.Storage.Tests.Storage.Keys
           c.StringKey = null;
           Session.Current.Persist();
           Assert.AreEqual(c.StringKey, null);
+
+          var appleEntity1 = Query<Apple>.Resolve("1");
+          var appleEntity2 = Query<Apple>.Resolve(a);
+          var appleEntity3 = Query<Apple>.Resolve((object)a);
+
+          Assert.AreEqual(a.Key, appleEntity1.Key);
+          Assert.AreEqual(a.Key, appleEntity2.Key);
+          Assert.AreEqual(a.Key, appleEntity3.Key);
+
+          Assert.AreEqual(appleEntity1, appleEntity2);
+          Assert.AreEqual(appleEntity1, appleEntity3);
+
           t.Complete();
         }
       }

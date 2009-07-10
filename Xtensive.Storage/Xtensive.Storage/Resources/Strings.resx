@@ -749,4 +749,7 @@ Actions:
   <data name="ExTypeXDoesNotHaveAParameterlessConstructor" xml:space="preserve">
     <value>The type {0} does not have a parameterless constructor.</value>
   </data>
+  <data name="ExTypeXIsNotEntity" xml:space="preserve">
+    <value>Type '{0} is not Entity'</value>
+  </data>
 </root>
