@@ -10,7 +10,6 @@ using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
-using System.Linq.Parallel;
 
 namespace Xtensive.Core.Tests.DotNetFramework
 {
