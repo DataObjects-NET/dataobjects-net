@@ -1032,48 +1032,48 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       if (obj==null || obj==DBNull.Value) {
         return "NULL";
       }
-      else if (obj is bool) {
+      if (obj is bool) {
         return (bool) obj ? "TRUE" : "FALSE";
       }
-      else if (obj is char) {
+      if (obj is char) {
         return QuoteString(obj.ToString());
       }
-      else if (obj is string) {
+      if (obj is string) {
         return QuoteString(obj as string);
       }
-      else if (obj is sbyte || obj is short || obj is int) {
+      if (obj is sbyte || obj is short || obj is int) {
         return Convert.ToInt32(obj).ToString(this);
       }
-      else if (obj is long) {
+      if (obj is long) {
         return ((long) obj).ToString(this);
       }
-      else if (obj is byte || obj is ushort || obj is uint) {
+      if (obj is byte || obj is ushort || obj is uint) {
         return Convert.ToUInt32(obj).ToString(this);
       }
-      else if (obj is ulong) {
+      if (obj is ulong) {
         return ((ulong) obj).ToString(this);
       }
-      else if (obj is decimal) {
+      if (obj is decimal) {
         return ((decimal) obj).ToString(this);
       }
-      else if (obj is float) {
+      if (obj is float) {
         return ((float) obj).ToString(this);
       }
-      else if (obj is double) {
+      if (obj is double) {
         return ((double) obj).ToString(this);
       }
-      else if (obj is DateTime) {
+      if (obj is DateTime) {
         return "'" + ((DateTime) obj).ToString("yyyyMMdd HHmmss.ffffff") + "'::timestamp(6)";
       }
-      else if (obj is SqlDateTimePart) {
+      if (obj is SqlDateTimePart) {
         return TranslateDateTimePart((SqlDateTimePart) obj);
       } if (obj is SqlIntervalPart) {
         return ((SqlIntervalPart) obj).ToString().ToUpperInvariant(); //default names are acceptable
       }
-      else if (obj is TimeSpan) {
+      if (obj is TimeSpan) {
         return string.Format("'{0}'::interval", IntervalHelper.TimeSpanToString((TimeSpan) obj));
       }
-      else if (obj is byte[]) {
+      if (obj is byte[]) {
         byte[] array = obj as byte[];
         if (array.Length==0)
           return "''::bytea";
@@ -1097,9 +1097,10 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         }
         return new String(chars);
       }
-      else {
-        return obj.ToString();
+      if (obj is Guid) {
+        return TranslateLiteral(((Guid) obj).ToByteArray());
       }
+      return obj.ToString();
     }
     
     protected static string TranslateDateTimePart(SqlDateTimePart part)
