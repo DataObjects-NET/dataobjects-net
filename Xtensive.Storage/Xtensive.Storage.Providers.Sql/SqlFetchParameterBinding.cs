@@ -6,14 +6,19 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Providers.Sql.Mappings;
+using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public sealed class SqlFetchParameterBinding : SqlParameterBinding<Func<object>>
+  public sealed class SqlFetchParameterBinding : SqlParameterBinding
   {
     /// <summary>
-    /// If set to true and <see cref="SqlParameterBinding{TValueAccessor}.ValueAccessor"/> returns <see langword="null"/>
+    /// Gets the value accessor.
+    /// </summary>
+    public Func<object> ValueAccessor { get; private set; }
+
+    /// <summary>
+    /// If set to true and <see cref="ValueAccessor"/> returns <see langword="null"/>
     /// generated query with contain "something is null" check instead of "something = @p".
     /// </summary>
     public bool SmartNull { get; private set; }
@@ -23,12 +28,13 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="valueAccessor">Value for <see cref="SqlParameterBinding{TValueAccessor}.ValueAccessor"/>.</param>
+    /// <param name="valueAccessor">Value for <see cref="ValueAccessor"/>.</param>
     /// <param name="typeMapping">Value for <see cref="SqlParameterBinding.TypeMapping"/>.</param>
     /// <param name="smartNull">Value for <see cref="SmartNull"/>.</param>
-    public SqlFetchParameterBinding(Func<object> valueAccessor, DataTypeMapping typeMapping, bool smartNull)
-      : base(valueAccessor, typeMapping)
+    public SqlFetchParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping, bool smartNull)
+      : base(typeMapping)
     {
+      ValueAccessor = valueAccessor;
       SmartNull = smartNull;
     }
 
@@ -37,7 +43,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="valueAccessor"></param>
     /// <param name="typeMapping"></param>
-    public SqlFetchParameterBinding(Func<object> valueAccessor, DataTypeMapping typeMapping)
+    public SqlFetchParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping)
       : this(valueAccessor, typeMapping, false)
     {
     }

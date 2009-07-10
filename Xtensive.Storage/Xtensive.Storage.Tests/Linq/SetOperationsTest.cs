@@ -211,22 +211,17 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IntersectWithoutOneOfSelect()
     {
+      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
       var actual = from c in Query<Customer>.All
       from r in (c.Orders)
         .Intersect(c.Orders).Select(o => o.ShippedDate)
       orderby r
       select r;
-      if (Domain.Configuration.ConnectionInfo.Protocol!="memory" 
-        && Domain.Configuration.ConnectionInfo.Protocol!="mssql2005")
-        AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(actual));
-      else {
-        var expected = from c in Query<Customer>.All.ToList()
-        from r in (c.Orders)
-          .Intersect(c.Orders).Select(o => o.ShippedDate)
-        orderby r
-        select r;
-        Assert.IsTrue(expected.SequenceEqual(actual));
-      }
+      var expected = from c in Query<Customer>.All.ToList()
+      from r in (c.Orders)
+        .Intersect(c.Orders).Select(o => o.ShippedDate)
+      orderby r
+      select r;
     }
   }
 }

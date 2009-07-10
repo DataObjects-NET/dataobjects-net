@@ -9,10 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Sql.Common;
-using Xtensive.Sql.Dom;
-using Xtensive.Sql.Dom.Database;
-using Xtensive.Sql.Dom.Database.Providers;
+using Xtensive.Sql.Model;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql;
@@ -156,10 +153,11 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       var domain = base.BuildDomain(configuration);
       // Get current SQL model
       var domainHandler = domain.Handlers.DomainHandler;
-      using (var connection = (SqlConnection) ((DomainHandler) domainHandler).SqlDriver.CreateConnection(new ConnectionInfo(configuration.ConnectionInfo.ToString()))) {
-        var modelProvider = new SqlModelProvider(connection);
-        var sqlModel = Xtensive.Sql.Dom.Database.Model.Build(modelProvider);
-        existingSchema = sqlModel.DefaultServer.DefaultCatalog.DefaultSchema;
+      var driver = ((DomainHandler) domainHandler).Driver;
+      using (var connection = driver.CreateConnection(configuration.ConnectionInfo.ToString())) {
+        connection.Open();
+        using (var t = connection.BeginTransaction())
+          existingSchema = driver.ExtractModel(connection, t).DefaultSchema;
         Assert.IsNotNull(existingSchema);
         return domain;
       }

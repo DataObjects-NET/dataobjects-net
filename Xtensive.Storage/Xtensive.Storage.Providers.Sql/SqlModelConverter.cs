@@ -10,27 +10,24 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
-using Xtensive.Sql.Common;
-using Xtensive.Sql.Dom;
-using Xtensive.Sql.Dom.Dml;
-using Xtensive.Storage.Indexing.Model;
-using SqlModel = Xtensive.Sql.Dom.Database.Model;
-using SqlRefAction = Xtensive.Sql.Dom.ReferentialAction;
 using Xtensive.Modelling;
-using Xtensive.Sql.Dom.Database;
-using IndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
-using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
+using Xtensive.Sql.Model;
+using Xtensive.Storage.Indexing.Model;
 using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
-using Node = Xtensive.Sql.Dom.Database.Node;
+using IndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
+using Node = Xtensive.Sql.Model.Node;
 using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
 using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
+using SqlRefAction = Xtensive.Sql.ReferentialAction;
+using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
 
 
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
-  /// Converts <see cref="Xtensive.Sql.Dom.Database.Model"/> to indexing storage model.
+  /// Converts <see cref="Catalog"/> to indexing storage model.
   /// </summary>
   public class SqlModelConverter : SqlModelVisitor<IPathNode>
   {
@@ -258,7 +255,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <summary>
-    /// Converts the <see cref="Xtensive.Sql.Dom.ReferentialAction"/> to 
+    /// Converts the <see cref="Xtensive.Sql.ReferentialAction"/> to 
     /// <see cref="Xtensive.Storage.Indexing.Model.ReferentialAction"/>.
     /// </summary>
     /// <param name="toConvert">The action to convert.</param>
@@ -327,20 +324,19 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (ProviderInfo.SupportSequences) {
         var sequence = Schema.Sequences[generatorName];
-        var sqlNext = SqlFactory.Select();
-        sqlNext.Columns.Add(SqlFactory.NextValue(sequence));
+        var sqlNext = SqlDml.Select();
+        sqlNext.Columns.Add(SqlDml.NextValue(sequence));
         return (long) CommandExecutor.Invoke(sqlNext);
       }
       else {
         var generatorTable = Schema.Tables[generatorName];
-        SqlBatch sqlNext = SqlFactory.Batch();
-        SqlInsert insert = SqlFactory.Insert(SqlFactory.TableRef(generatorTable));
+        SqlBatch sqlNext = SqlDml.Batch();
+        SqlInsert insert = SqlDml.Insert(SqlDml.TableRef(generatorTable));
         sqlNext.Add(insert);
-        SqlSelect select = SqlFactory.Select();
-        select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall("SCOPE_IDENTITY"),
-          SqlDataType.Int64));
+        SqlSelect select = SqlDml.Select();
+        select.Columns.Add(SqlDml.Cast(SqlDml.FunctionCall("SCOPE_IDENTITY"), SqlType.Int64));
         sqlNext.Add(select);
-        SqlDelete delete = SqlFactory.Delete(SqlFactory.TableRef(generatorTable));
+        SqlDelete delete = SqlDml.Delete(SqlDml.TableRef(generatorTable));
         sqlNext.Add(delete);
         return (long) CommandExecutor.Invoke(sqlNext);
       }
@@ -424,7 +420,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitDomain(Xtensive.Sql.Dom.Database.Domain domain)
+    protected override IPathNode VisitDomain(Xtensive.Sql.Model.Domain domain)
     {
       throw new NotSupportedException();
     }
@@ -439,13 +435,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitListPartition(ListPartition listPartition)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitModel(SqlModel model)
     {
       throw new NotSupportedException();
     }
@@ -522,13 +511,6 @@ namespace Xtensive.Storage.Providers.Sql
 
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitServer(Server server)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitTemporaryTable(TemporaryTable temporaryTable)
     {
       throw new NotSupportedException();
@@ -537,13 +519,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitTranslation(Translation translation)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitUser(User user)
     {
       throw new NotSupportedException();
     }

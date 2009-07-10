@@ -6,8 +6,8 @@
 
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
-using Xtensive.Sql.Dom;
-using Xtensive.Sql.Dom.Compiler;
+using Xtensive.Sql;
+using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Storage.Providers.Sql
 {

@@ -6,7 +6,7 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Sql.Common;
+using Xtensive.Sql.Info;
 using Xtensive.Storage.Tests.Storage.DbTypeSupportModel;
 using Xtensive.Storage.Providers.Sql;
 
@@ -248,8 +248,8 @@ namespace Xtensive.Storage.Tests.Storage
         DomainHandler dh =Domain.Handlers.DomainHandler as DomainHandler;
         DateTime dt = new DateTime();
         if (dh != null) {
-          RangeDataTypeInfo<DateTime> dti = dh.Driver.ServerInfo.DataTypes.DateTime;
-          dt = dti.Value.MinValue;
+          DataTypeInfo dti = dh.Driver.ServerInfo.DataTypes.DateTime;
+          dt = ((ValueRange<DateTime>) dti.ValueRange).MinValue;
         }
         using (var t = Session.Current.OpenTransaction()) {
           X x = key.Resolve<X>();

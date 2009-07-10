@@ -69,10 +69,10 @@ namespace Xtensive.Storage.Tests
     {
       protocolName = config.ConnectionInfo.Protocol;
       switch (protocolName) {
-      case "mssql2005":
+      case "sqlserver":
         protocol = StorageProtocols.SqlServer;
         break;
-      case "pgsql":
+      case "postgresql":
         protocol = StorageProtocols.PostgreSql;
         break;
       case "memory":

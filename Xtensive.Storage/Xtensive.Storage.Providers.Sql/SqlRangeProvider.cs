@@ -8,7 +8,7 @@ using System;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql.Dml;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;

@@ -5,10 +5,8 @@
 // Created:    2009.06.01
 
 using System;
-using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Sql.Common;
 
 namespace Xtensive.Storage.Providers
 {
@@ -21,7 +19,7 @@ namespace Xtensive.Storage.Providers
     private bool supportsEnlist;
     private bool supportsCollations;
     private bool supportsBatches;
-    private bool supportsRealBoolean;
+    private bool supportsAllBooleanExpressions;
     private bool supportsRealTimeSpan;
     private bool supportsForeignKeyConstraints;
     private bool supportsClusteredIndexes;
@@ -49,7 +47,7 @@ namespace Xtensive.Storage.Providers
     public bool SupportsEnlist {
       get { return supportsEnlist; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         supportsEnlist = value; 
       }
     }
@@ -60,7 +58,7 @@ namespace Xtensive.Storage.Providers
     public bool SupportsCollations {
       get { return supportsCollations; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         supportsCollations = value;
       }
     }
@@ -71,21 +69,8 @@ namespace Xtensive.Storage.Providers
     public bool SupportsBatches {
       get { return supportsBatches; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         supportsBatches = value;
-      }
-    }
-
-    /// <summary>
-    /// Indicates that RDBMS supports boolean data type.
-    /// If the value of this property is <see langword="false"/>,
-    /// RDMBS uses integer-like type to store boolean values.
-    /// </summary>
-    public bool SupportsRealBoolean {
-      get { return supportsRealBoolean; }
-      set {
-        LockableExtensions.EnsureNotLocked(this);
-        supportsRealBoolean = value;
       }
     }
 
@@ -98,7 +83,7 @@ namespace Xtensive.Storage.Providers
     {
       get { return supportsRealTimeSpan; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         supportsRealTimeSpan = value;
       }
     }
@@ -109,7 +94,7 @@ namespace Xtensive.Storage.Providers
     public bool SupportsForeignKeyConstraints {
       get { return supportsForeignKeyConstraints; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         supportsForeignKeyConstraints = value;
       }
     }
@@ -120,7 +105,7 @@ namespace Xtensive.Storage.Providers
     public bool SupportsClusteredIndexes {
       get { return supportsClusteredIndexes; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         supportsClusteredIndexes = value;
       }
     }
@@ -153,7 +138,7 @@ namespace Xtensive.Storage.Providers
     public int MaxQueryLength {
       get { return maxQueryLength; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         maxQueryLength = value;
       }
     }
@@ -164,7 +149,7 @@ namespace Xtensive.Storage.Providers
     public int MaxComparisonOperations {
       get { return maxComparisonOperations; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         maxComparisonOperations = value;
       }
     }
@@ -175,7 +160,7 @@ namespace Xtensive.Storage.Providers
     public int DatabaseNameLength {
       get { return databaseNameLength; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         databaseNameLength = value;
       }
     }
@@ -186,7 +171,7 @@ namespace Xtensive.Storage.Providers
     public int MaxTableNameLength {
       get { return maxTableNameLength; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         maxTableNameLength = value;
       }
     }
@@ -197,7 +182,7 @@ namespace Xtensive.Storage.Providers
     public int MaxIndexNameLength {
       get { return maxIndexNameLength; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         maxIndexNameLength = value;
       }
     }
@@ -208,7 +193,7 @@ namespace Xtensive.Storage.Providers
     public int MaxColumnNameLength {
       get { return maxColumnNameLength; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         maxColumnNameLength = value;
       }
     }
@@ -219,7 +204,7 @@ namespace Xtensive.Storage.Providers
     public int MaxForeignKeyNameLength {
       get { return maxForeignKeyNameLength; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         maxForeignKeyNameLength = value;
       }
     }
@@ -230,7 +215,7 @@ namespace Xtensive.Storage.Providers
     public int MaxIndexKeyLength {
       get { return maxIndexKeyLength; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         maxIndexKeyLength = value;
       }
     }
@@ -241,7 +226,7 @@ namespace Xtensive.Storage.Providers
     public int MaxIndexColumnsCount {
       get { return maxIndexColumnsCount; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         maxIndexColumnsCount = value;
       }
     }
@@ -252,7 +237,7 @@ namespace Xtensive.Storage.Providers
     public bool NamedParameters {
       get { return namedParameters; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         namedParameters = value;
       }
     }
@@ -263,7 +248,7 @@ namespace Xtensive.Storage.Providers
     public string ParameterPrefix {
       get { return parameterPrefix; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         parameterPrefix = value;
       }
     }
@@ -274,7 +259,7 @@ namespace Xtensive.Storage.Providers
     public bool EmptyStringIsNull {
       get { return emptyStringIsNull; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         emptyStringIsNull = value;
       }
     }
@@ -285,7 +270,7 @@ namespace Xtensive.Storage.Providers
     public bool EmptyBlobIsNull {
       get { return emptyBlobIsNull; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         emptyBlobIsNull = value;
       }
     }
@@ -296,7 +281,7 @@ namespace Xtensive.Storage.Providers
     public bool SupportsIncludedColumns {
       get { return supportsIncludedColumns; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         supportsIncludedColumns = value;
       }
     }
@@ -307,16 +292,10 @@ namespace Xtensive.Storage.Providers
     public Version Version {
       get { return version; }
       set {
-        LockableExtensions.EnsureNotLocked(this);
+        this.EnsureNotLocked();
         version = value;
       }
     }
-
-    /// <summary>
-    /// Gets the <see cref="ServerInfo"/> which was used to create this instance.
-    /// </summary>
-    public ServerInfo ServerInfo { get; private set; }
-
 
     // Constructors
 
@@ -324,48 +303,7 @@ namespace Xtensive.Storage.Providers
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ProviderInfo()
-    {}
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="serverInfo">The SQL DOM information about RDBMS.</param>
-    /// <param name="emptyBlobIsNull">The value of the <see cref="EmptyBlobIsNull"/> property.</param>
-    /// <param name="emptyStringIsNull">The value of the <see cref="EmptyStringIsNull"/> property.</param>
-    /// <param name="supportsEnlist">The value of the <see cref="SupportsEnlist"/> property.</param>
-    public ProviderInfo(ServerInfo serverInfo, bool emptyBlobIsNull, bool emptyStringIsNull,
-      bool supportsEnlist)
     {
-      ArgumentValidator.EnsureArgumentNotNull(serverInfo, "serverInfo");
-
-      ServerInfo = serverInfo;
-
-      this.emptyBlobIsNull = emptyBlobIsNull;
-      this.emptyStringIsNull = emptyStringIsNull;
-      this.supportsEnlist = supportsEnlist;
-
-      databaseNameLength = serverInfo.Database.MaxIdentifierLength;
-      maxIndexColumnsCount = serverInfo.Index.MaxColumnAmount;
-      maxIndexKeyLength = serverInfo.Index.MaxLength;
-      maxIndexNameLength = serverInfo.Index.MaxIdentifierLength;
-      maxTableNameLength = serverInfo.Table.MaxIdentifierLength;
-      namedParameters = (serverInfo.Query.Features & QueryFeatures.NamedParameters)
-        ==QueryFeatures.NamedParameters;
-      parameterPrefix = serverInfo.Query.ParameterPrefix;
-      maxComparisonOperations = serverInfo.Query.MaxComparisonOperations;
-      maxQueryLength = serverInfo.Query.MaxLength;
-      supportsBatches = (serverInfo.Query.Features & QueryFeatures.Batches)==QueryFeatures.Batches;
-      supportsClusteredIndexes = (serverInfo.Index.Features & IndexFeatures.Clustered)
-        ==IndexFeatures.Clustered;
-      supportsCollations = serverInfo.Collation!=null;
-      supportsForeignKeyConstraints = serverInfo.ForeignKey!=null;
-      supportsRealBoolean = serverInfo.DataTypes.Boolean!=null;
-      supportsIncludedColumns = (serverInfo.Index.Features & IndexFeatures.NonKeyColumns)
-        ==IndexFeatures.NonKeyColumns;
-      supportKeyColumnSortOrder = (serverInfo.Index.Features & IndexFeatures.SortOrder)
-        ==IndexFeatures.SortOrder;
-      supportSequences = serverInfo.Sequence.Features!=SequenceFeatures.None;
-      version = (Version)serverInfo.Version.ProductVersion.Clone();
     }
   }
 }

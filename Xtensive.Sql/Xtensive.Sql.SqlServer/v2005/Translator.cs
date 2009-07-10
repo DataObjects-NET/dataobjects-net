@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
@@ -561,13 +562,18 @@ namespace Xtensive.Sql.SqlServer.v2005
       return string.Empty;
     }
 
-    public override string Translate<T>(SqlCompilerContext context, SqlLiteral<T> node)
+    public override string TranslateLiteral(SqlCompilerContext context, Type type, object value)
     {
-      if (typeof (T)==typeof (TimeSpan))
-        return Convert.ToString((long) ((TimeSpan) (object) node.Value).TotalMilliseconds, this);
-      if (typeof (T)==typeof (Boolean))
-        return Convert.ToString(((bool) (object) node.Value) ? 1 : 0, this);
-      return base.Translate(context, node);
+      if (type==typeof (TimeSpan))
+        return Convert.ToString((long) ((TimeSpan) value).TotalMilliseconds, this);
+      if (type==typeof (Boolean))
+        return Convert.ToString(((bool) value) ? 1 : 0, this);
+      if (type==typeof(DateTime)) {
+        var dateTime = (DateTime) value;
+        var minAllowedValue = ((ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange).MinValue;
+        return base.TranslateLiteral(context, type, dateTime > minAllowedValue ? dateTime : (object) minAllowedValue);
+      }
+      return base.TranslateLiteral(context, type, value);
     }
 
     public override string Translate(SqlCompilerContext context, SqlUserFunctionCall node, FunctionCallSection section, int position)

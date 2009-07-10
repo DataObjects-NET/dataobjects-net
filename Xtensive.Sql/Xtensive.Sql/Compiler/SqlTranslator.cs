@@ -1061,12 +1061,17 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual string Translate<T>(SqlCompilerContext context, SqlLiteral<T> node)
+    public string Translate<T>(SqlCompilerContext context, SqlLiteral<T> node)
     {
-      TypeCode t = Type.GetTypeCode(typeof (T));
-      if (t == TypeCode.String || t == TypeCode.Char || typeof(T) == typeof(Guid))
-        return QuoteString(Convert.ToString(node.Value, this));
-      return Convert.ToString(node.Value, this);
+      return TranslateLiteral(context, typeof(T), node.Value);
+    }
+
+    public virtual string TranslateLiteral(SqlCompilerContext context, Type type, object value)
+    {
+      TypeCode t = Type.GetTypeCode(type);
+      if (t==TypeCode.String || t==TypeCode.Char || type==typeof(Guid))
+        return QuoteString(Convert.ToString(value, this));
+      return Convert.ToString(value, this);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)

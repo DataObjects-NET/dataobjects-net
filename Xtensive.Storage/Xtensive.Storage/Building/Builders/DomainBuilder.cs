@@ -109,11 +109,9 @@ namespace Xtensive.Storage.Building.Builders
           case "memory":
             providerName = "Xtensive.Storage.Providers.Memory";
             break;
-          case "mssql2005":
+          case "sqlserver":
             providerName = "Xtensive.Storage.Providers.MsSql";
             break;
-          case "pgsql":
-          case "postgres":
           case "postgresql":
             providerName = "Xtensive.Storage.Providers.PgSql";
             break;

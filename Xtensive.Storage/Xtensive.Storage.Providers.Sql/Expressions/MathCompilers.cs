@@ -6,15 +6,13 @@
 
 using System;
 using Xtensive.Core.Linq;
-using Xtensive.Sql.Common;
-using Xtensive.Sql.Dom.Dml;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
-using Xtensive.Sql.Dom;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 
-namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
+namespace Xtensive.Storage.Providers.Sql.Expressions
 {
   [CompilerContainer(typeof(SqlExpression))]
-  internal static class MathMappings
+  internal static class MathCompilers
   {
     #region Math.Abs mapppings
 
@@ -22,49 +20,49 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression MathAbsSByte(
       [Type(typeof(sbyte))] SqlExpression d)
     {
-      return SqlFactory.Abs(d);
+      return SqlDml.Abs(d);
     }
 
     [Compiler(typeof(Math), "Abs", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathAbsShort(
       [Type(typeof(short))] SqlExpression d)
     {
-      return SqlFactory.Abs(d);
+      return SqlDml.Abs(d);
     }
 
     [Compiler(typeof(Math), "Abs", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathAbsInt(
       [Type(typeof(int))] SqlExpression d)
     {
-      return SqlFactory.Abs(d);
+      return SqlDml.Abs(d);
     }
 
     [Compiler(typeof(Math), "Abs", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathAbsLong(
       [Type(typeof(long))] SqlExpression d)
     {
-      return SqlFactory.Abs(d);
+      return SqlDml.Abs(d);
     }
 
     [Compiler(typeof(Math), "Abs", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathAbsFloat(
       [Type(typeof(float))] SqlExpression d)
     {
-      return SqlFactory.Abs(d);
+      return SqlDml.Abs(d);
     }
 
     [Compiler(typeof(Math), "Abs", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathAbsDouble(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Abs(d);
+      return SqlDml.Abs(d);
     }
 
     [Compiler(typeof(Math), "Abs", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathAbsDecimal(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return SqlFactory.Abs(d);
+      return SqlDml.Abs(d);
     }
 
     #endregion
@@ -73,7 +71,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     public static SqlExpression GenericSign(SqlExpression target)
     {
-      return SqlFactory.Cast(SqlFactory.Sign(target), SqlDataType.Int32);
+      return SqlDml.Cast(SqlDml.Sign(target), SqlType.Int32);
     }
 
     [Compiler(typeof(Math), "Sign", TargetKind.Static | TargetKind.Method)]
@@ -131,7 +129,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     private static SqlExpression Min(SqlExpression left, SqlExpression right)
     {
-      var result = SqlFactory.Case();
+      var result = SqlDml.Case();
       result.Add(left < right, left);
       result.Else = right;
       return result;
@@ -231,7 +229,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     private static SqlExpression Max(SqlExpression left, SqlExpression right)
     {
-      var result = SqlFactory.Case();
+      var result = SqlDml.Case();
       result.Add(left > right, left);
       result.Else = right;
       return result;
@@ -331,21 +329,21 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression MathAcos(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Acos(d);
+      return SqlDml.Acos(d);
     }
 
     [Compiler(typeof(Math), "Asin", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathAsin(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Asin(d);
+      return SqlDml.Asin(d);
     }
 
     [Compiler(typeof(Math), "Atan", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathAtan(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Atan(d);
+      return SqlDml.Atan(d);
     }
 
     [Compiler(typeof(Math), "Atan2", TargetKind.Static | TargetKind.Method)]
@@ -353,7 +351,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(double))] SqlExpression y,
       [Type(typeof(double))] SqlExpression x)
     {
-      return SqlFactory.Atan2(y, x);
+      return SqlDml.Atan2(y, x);
     }
 
     [Compiler(typeof(Math), "BigMul", TargetKind.Static | TargetKind.Method)]
@@ -361,63 +359,63 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression a,
       [Type(typeof(int))] SqlExpression b)
     {
-      return SqlFactory.Cast(a, SqlDataType.Int64) * b;
+      return SqlDml.Cast(a, SqlType.Int64) * b;
     }
 
     [Compiler(typeof(Math), "Ceiling", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathCeilingDouble(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Ceiling(d);
+      return SqlDml.Ceiling(d);
     }
 
     [Compiler(typeof(Math), "Ceiling", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathCeilingDecimal(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return SqlFactory.Ceiling(d);
+      return SqlDml.Ceiling(d);
     }
 
     [Compiler(typeof(Math), "Cos", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathCos(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Cos(d);
+      return SqlDml.Cos(d);
     }
 
     [Compiler(typeof(Math), "Cosh", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathCosh(
       [Type(typeof(double))] SqlExpression d)
     {
-      return (SqlFactory.Exp(d) + SqlFactory.Exp(-d)) / SqlFactory.Literal(2);
+      return (SqlDml.Exp(d) + SqlDml.Exp(-d)) / SqlDml.Literal(2);
     }
 
     [Compiler(typeof(Math), "Exp", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathExp(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Exp(d);
+      return SqlDml.Exp(d);
     }
 
     [Compiler(typeof(Math), "Floor", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathFloorDouble(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Floor(d);
+      return SqlDml.Floor(d);
     }
 
     [Compiler(typeof(Math), "Floor", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathFloorDecimal(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return SqlFactory.Floor(d);
+      return SqlDml.Floor(d);
     }
 
     [Compiler(typeof(Math), "Log", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathLog(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Log(d);
+      return SqlDml.Log(d);
     }
 
     [Compiler(typeof(Math), "Log", TargetKind.Static | TargetKind.Method)]
@@ -425,20 +423,20 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(double))] SqlExpression d,
       [Type(typeof(double))] SqlExpression newBase)
     {
-      return SqlFactory.Log(d) / SqlFactory.Log(newBase);
+      return SqlDml.Log(d) / SqlDml.Log(newBase);
     }
 
     [Compiler(typeof(Math), "Log10", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathLog10(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Log10(d);
+      return SqlDml.Log10(d);
     }
 
     [Compiler(typeof(Math), "PI", TargetKind.Static | TargetKind.Field)]
     public static SqlExpression MathPI()
     {
-      return SqlFactory.Pi();
+      return SqlDml.Pi();
     }
 
     [Compiler(typeof(Math), "Pow", TargetKind.Static | TargetKind.Method)]
@@ -446,7 +444,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(double))] SqlExpression x,
       [Type(typeof(double))] SqlExpression y)
     {
-      return SqlFactory.Power(x, y);
+      return SqlDml.Power(x, y);
     }
 
     [Compiler(typeof(Math), "Round", TargetKind.Static | TargetKind.Method)]
@@ -517,36 +515,36 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression MathSin(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Sin(d);
+      return SqlDml.Sin(d);
     }
 
     [Compiler(typeof(Math), "Sinh", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathSinh(
       [Type(typeof(double))] SqlExpression d)
     {
-      return (SqlFactory.Exp(d) - SqlFactory.Exp(-d)) / SqlFactory.Literal(2);
+      return (SqlDml.Exp(d) - SqlDml.Exp(-d)) / SqlDml.Literal(2);
     }
 
     [Compiler(typeof(Math), "Sqrt", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathSqrt(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Sqrt(d);
+      return SqlDml.Sqrt(d);
     }
 
     [Compiler(typeof(Math), "Tan", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathTan(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Tan(d);
+      return SqlDml.Tan(d);
     }
 
     [Compiler(typeof(Math), "Tanh", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathTanh(
       [Type(typeof(double))] SqlExpression d)
     {
-      var exp2d = SqlFactory.Exp(SqlFactory.Literal(2) * d);
-      var one = SqlFactory.Literal(1);
+      var exp2d = SqlDml.Exp(SqlDml.Literal(2) * d);
+      var one = SqlDml.Literal(1);
 
       return (exp2d - one) / (exp2d + one);
     }
@@ -555,14 +553,14 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression MathTruncateDouble(
       [Type(typeof(double))] SqlExpression d)
     {
-      return SqlFactory.Truncate(d);
+      return SqlDml.Truncate(d);
     }
 
     [Compiler(typeof(Math), "Truncate", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathTruncateDecimal(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return SqlFactory.Truncate(d);
+      return SqlDml.Truncate(d);
     }
 
     #region Round helpers
@@ -586,18 +584,18 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     private static SqlExpression RoundAsToughtInSchool(SqlExpression value)
     {
-      return SqlFactory.Round(value);
+      return SqlDml.Round(value);
     }
 
     private static SqlExpression RoundAsToughtInSchool(SqlExpression value, SqlExpression digits)
     {
-      return SqlFactory.Round(value, digits);
+      return SqlDml.Round(value, digits);
     }
 
     private static SqlExpression BankersRound(SqlExpression value)
     {
-      var mainPart = 2 * SqlFactory.Floor((value + 0.5) / 2);
-      var extraPart = SqlFactory.Case();
+      var mainPart = 2 * SqlDml.Floor((value + 0.5) / 2);
+      var extraPart = SqlDml.Case();
       extraPart.Add(value - mainPart > 0.5, 1);
       extraPart.Else = 0;
       return mainPart + extraPart;
@@ -605,7 +603,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
 
     private static SqlExpression BankersRound(SqlExpression value, SqlExpression digits)
     {
-      var multiplier = SqlFactory.Power(10, digits);
+      var multiplier = SqlDml.Power(10, digits);
       return BankersRound(value * multiplier) / multiplier;
     }
 

@@ -5,7 +5,7 @@
 // Created:    2008.09.23
 
 using System;
-using Xtensive.Sql.Dom.Database;
+using Xtensive.Sql.Model;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings

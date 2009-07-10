@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Sql.Dom;
+using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {

@@ -10,16 +10,15 @@ using System.Reflection;
 using System.Text;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Linq;
-using Xtensive.Sql.Dom;
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Operator = Xtensive.Core.Reflection.WellKnown.Operator;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
-namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
+namespace Xtensive.Storage.Providers.Sql.Expressions
 {
   [CompilerContainer(typeof(SqlExpression))]
-  internal static class StringMappings
+  internal static class StringCompilers
   {
     private static SqlExpression GenericLike(SqlExpression _this,
       SqlExpression patternExpression, bool percentAtStart, bool percentAtEnd)
@@ -50,9 +49,9 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
         escapedPattern.Append(percent);
       var pattern = escapedPattern.ToString();
       return escaped
-        ? SqlFactory.Like(_this, pattern, escape)
-        : SqlFactory.Like(_this, pattern);
-     }
+        ? SqlDml.Like(_this, pattern, escape)
+        : SqlDml.Like(_this, pattern);
+    }
 
     [Compiler(typeof(string), "StartsWith")]
     public static SqlExpression StringStartsWith(SqlExpression _this,
@@ -79,7 +78,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression StringSubstring(SqlExpression _this,
       [Type(typeof(int))] SqlExpression startIndex)
     {
-      return SqlFactory.Substring(_this, startIndex);
+      return SqlDml.Substring(_this, startIndex);
     }
 
     [Compiler(typeof(string), "Substring")]
@@ -87,37 +86,37 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression startIndex,
       [Type(typeof(int))] SqlExpression length)
     {
-      return SqlFactory.Substring(_this, startIndex, length);
+      return SqlDml.Substring(_this, startIndex, length);
     }
 
     [Compiler(typeof(string), "ToUpper")]
     public static SqlExpression StringToUpper(SqlExpression _this)
     {
-      return SqlFactory.Upper(_this);
+      return SqlDml.Upper(_this);
     }
 
     [Compiler(typeof(string), "ToLower")]
     public static SqlExpression StringToLower(SqlExpression _this)
     {
-      return SqlFactory.Lower(_this);
+      return SqlDml.Lower(_this);
     }
 
     [Compiler(typeof(string), "Trim")]
     public static SqlExpression StringTrim(SqlExpression _this)
     {
-      return SqlFactory.Trim(_this);
+      return SqlDml.Trim(_this);
     }
 
     private static SqlExpression GenericTrim(SqlExpression _this, SqlExpression trimChars, SqlTrimType trimType)
     {
       if (trimChars is SqlNull)
-        return SqlFactory.Trim(_this, trimType);
+        return SqlDml.Trim(_this, trimType);
       var exactTrimChars = trimChars as SqlLiteral<char[]>;
       if (exactTrimChars==null)
         throw new NotSupportedException(Strings.ExStringTrimSupportedOnlyWithConstants);
       return exactTrimChars.Value.Length==0
-        ? SqlFactory.Trim(_this, trimType)
-        : SqlFactory.Trim(_this, trimType, new string(exactTrimChars.Value));
+        ? SqlDml.Trim(_this, trimType)
+        : SqlDml.Trim(_this, trimType, new string(exactTrimChars.Value));
     }
 
     [Compiler(typeof(string), "Trim")]
@@ -144,7 +143,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(string), "Length", TargetKind.PropertyGet)]
     public static SqlExpression StringLength(SqlExpression _this)
     {
-      return SqlFactory.Length(_this);
+      return SqlDml.Length(_this);
     }
 
     [Compiler(typeof(string), "ToString")]
@@ -158,7 +157,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(char))] SqlExpression oldChar,
       [Type(typeof(char))] SqlExpression newChar)
     {
-      return SqlFactory.Replace(_this, oldChar, newChar);
+      return SqlDml.Replace(_this, oldChar, newChar);
     }
 
     [Compiler(typeof(string), "Replace")]
@@ -166,7 +165,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(string))] SqlExpression oldValue,
       [Type(typeof(string))] SqlExpression newValue)
     {
-      return SqlFactory.Replace(_this, oldValue, newValue);
+      return SqlDml.Replace(_this, oldValue, newValue);
     }
 
     [Compiler(typeof(string), "Insert")]
@@ -174,16 +173,16 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression startIndex,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.Concat(SqlFactory.Concat(
-        SqlFactory.Substring(_this, 0, startIndex), value),
-        SqlFactory.Substring(_this, startIndex, SqlFactory.Length(_this) - startIndex));
+      return SqlDml.Concat(SqlDml.Concat(
+        SqlDml.Substring(_this, 0, startIndex), value),
+        SqlDml.Substring(_this, startIndex, SqlDml.Length(_this) - startIndex));
     }
 
     [Compiler(typeof(string), "Remove")]
     public static SqlExpression StringRemove(SqlExpression _this,
       [Type(typeof(int))] SqlExpression startIndex)
     {
-      return SqlFactory.Substring(_this, SqlFactory.Literal(0), startIndex);
+      return SqlDml.Substring(_this, SqlDml.Literal(0), startIndex);
     }
 
     [Compiler(typeof(string), "Remove")]
@@ -191,16 +190,16 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression startIndex,
       [Type(typeof(int))] SqlExpression count)
     {
-      return SqlFactory.Concat(
-        SqlFactory.Substring(_this, SqlFactory.Literal(0), startIndex),
-        SqlFactory.Substring(_this, startIndex + count));
+      return SqlDml.Concat(
+        SqlDml.Substring(_this, SqlDml.Literal(0), startIndex),
+        SqlDml.Substring(_this, startIndex + count));
     }
 
     [Compiler(typeof(string), "IsNullOrEmpty", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringIsNullOrEmpty(
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.IsNull(value) || SqlFactory.Length(value)==SqlFactory.Literal(0);
+      return SqlDml.IsNull(value) || SqlDml.Length(value)==SqlDml.Literal(0);
     }
 
     [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
@@ -208,7 +207,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(string))] SqlExpression str0,
       [Type(typeof(string))] SqlExpression str1)
     {
-      return SqlFactory.Concat(str0, str1);
+      return SqlDml.Concat(str0, str1);
     }
 
     [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
@@ -217,7 +216,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(string))] SqlExpression str1,
       [Type(typeof(string))] SqlExpression str2)
     {
-      return SqlFactory.Concat(SqlFactory.Concat(str0, str1), str2);
+      return SqlDml.Concat(SqlDml.Concat(str0, str1), str2);
     }
 
     [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
@@ -227,7 +226,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(string))] SqlExpression str2,
       [Type(typeof(string))] SqlExpression str3)
     {
-      return SqlFactory.Concat(SqlFactory.Concat(SqlFactory.Concat(str0, str1), str2), str3);
+      return SqlDml.Concat(SqlDml.Concat(SqlDml.Concat(str0, str1), str2), str3);
     }
 
     [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
@@ -241,8 +240,8 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
         throw new NotSupportedException();
       var expressions = (SqlExpression[]) container.Value;
       if (expressions.Length==0)
-        return SqlFactory.Literal("");
-      return expressions.Aggregate(SqlFactory.Concat);
+        return SqlDml.Literal("");
+      return expressions.Aggregate(SqlDml.Concat);
     }
 
     [Compiler(typeof(string), "Compare", TargetKind.Static | TargetKind.Method)]
@@ -250,10 +249,10 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(string))] SqlExpression strA,
       [Type(typeof(string))] SqlExpression strB)
     {
-      var result = SqlFactory.Case();
-      result.Add(strA > strB, SqlFactory.Literal(1));
-      result.Add(strA < strB, SqlFactory.Literal(-1));
-      result.Else = SqlFactory.Literal(0);
+      var result = SqlDml.Case();
+      result.Add(strA > strB, SqlDml.Literal(1));
+      result.Add(strA < strB, SqlDml.Literal(-1));
+      result.Else = SqlDml.Literal(0);
       return result;
     }
 
@@ -267,22 +266,22 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     private static SqlExpression GenericStringIndexOf(SqlExpression _this,
       SqlExpression substring)
     {
-      return SqlFactory.Position(substring, _this);
+      return SqlDml.Position(substring, _this);
     }
 
     private static SqlExpression GenericStringIndexOf(SqlExpression _this,
       SqlExpression substring, SqlExpression startIndex)
     {
-      return SqlFactory.Coalesce(startIndex + 
-        SqlFactory.NullIf(SqlFactory.Position(substring, SqlFactory.Substring(_this, startIndex)), -1),
+      return SqlDml.Coalesce(startIndex + 
+        SqlDml.NullIf(SqlDml.Position(substring, SqlDml.Substring(_this, startIndex)), -1),
         -1);
     }
 
     private static SqlExpression GenericStringIndexOf(SqlExpression _this,
       SqlExpression substring, SqlExpression startIndex, SqlExpression length)
     {
-      return SqlFactory.Coalesce(startIndex + 
-        SqlFactory.NullIf(SqlFactory.Position(substring, SqlFactory.Substring(_this, startIndex, length)), -1),
+      return SqlDml.Coalesce(startIndex + 
+        SqlDml.NullIf(SqlDml.Position(substring, SqlDml.Substring(_this, startIndex, length)), -1),
         -1);
     }
 
@@ -337,14 +336,14 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(string), "Chars", TargetKind.PropertyGet)]
     public static SqlExpression StringChars(SqlExpression _this, [Type(typeof(int))] SqlExpression index)
     {
-      return SqlFactory.Substring(_this, index, 1);
+      return SqlDml.Substring(_this, index, 1);
     }
 
     [Compiler(typeof(string), "Equals")]
     public static SqlExpression StringEquals(SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return value is SqlNull ? (SqlExpression) SqlFactory.IsNull(_this) : _this==value;
+      return value is SqlNull ? (SqlExpression) SqlDml.IsNull(_this) : _this==value;
     }
 
     [Compiler(typeof(StringExtensions), "LessThan", TargetKind.Static | TargetKind.Method)]
@@ -352,7 +351,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(string))] SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.LessThan(_this, value);
+      return SqlDml.LessThan(_this, value);
     }
 
     [Compiler(typeof(StringExtensions), "LessThanOrEqual", TargetKind.Static | TargetKind.Method)]
@@ -360,7 +359,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(string))] SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.LessThanOrEquals(_this, value);
+      return SqlDml.LessThanOrEquals(_this, value);
     }
 
     [Compiler(typeof(StringExtensions), "GreaterThan", TargetKind.Static | TargetKind.Method)]
@@ -368,7 +367,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(string))] SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.GreaterThan(_this, value);
+      return SqlDml.GreaterThan(_this, value);
     }
 
     [Compiler(typeof(StringExtensions), "GreaterThanOrEqual", TargetKind.Static | TargetKind.Method)]
@@ -376,7 +375,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(string))] SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlFactory.GreaterThanOrEquals(_this, value);
+      return SqlDml.GreaterThanOrEquals(_this, value);
     }
 
     [Compiler(typeof(StringExtensions), "IsNullOrEmpty", TargetKind.Static | TargetKind.Method)]
@@ -398,13 +397,13 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(string), Operator.Equality, TargetKind.Operator)]
     public static SqlExpression StringOperatorEquality(SqlExpression left, SqlExpression right)
     {
-      return SqlFactory.Equals(left, right);
+      return SqlDml.Equals(left, right);
     }
 
     [Compiler(typeof(string), Operator.Inequality, TargetKind.Operator)]
     public static SqlExpression StringOperatorInequality(SqlExpression left, SqlExpression right)
     {
-      return SqlFactory.NotEquals(left, right);
+      return SqlDml.NotEquals(left, right);
     }
   }
 }

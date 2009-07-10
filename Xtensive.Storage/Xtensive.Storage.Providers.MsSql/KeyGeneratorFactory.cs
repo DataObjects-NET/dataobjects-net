@@ -5,10 +5,10 @@
 // Created:    2008.09.10
 
 using System.Linq;
-using Xtensive.Sql.Dom.Database;
+using Xtensive.Sql;
+using Xtensive.Sql.Model;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
@@ -36,11 +36,11 @@ namespace Xtensive.Storage.Providers.MsSql
         throw new DomainBuilderException(
           string.Format(Resources.Strings.ExColumnXIsNotFoundInTableY, WellKnown.GeneratorColumnName, genTable.Name));
 
-      var sqlNext = SqlFactory.Batch();
-      var insert = SqlFactory.Insert(SqlFactory.TableRef(genTable));
+      var sqlNext = SqlDml.Batch();
+      var insert = SqlDml.Insert(SqlDml.TableRef(genTable));
       sqlNext.Add(insert);
-      var select = SqlFactory.Select();
-      select.Columns.Add(SqlFactory.Cast(SqlFactory.FunctionCall(ScopeIdentityFunctionName), columnType.DataType));
+      var select = SqlDml.Select();
+      select.Columns.Add(SqlDml.Cast(SqlDml.FunctionCall(ScopeIdentityFunctionName), columnType));
       sqlNext.Add(select);
       return new SqlCachingKeyGenerator<TFieldType>(generatorInfo, sqlNext);
     }

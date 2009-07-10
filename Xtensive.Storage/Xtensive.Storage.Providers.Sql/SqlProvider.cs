@@ -11,20 +11,17 @@ using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Sql.Dom.Compiler;
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql;
+using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse.Providers;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
   public class SqlProvider : ExecutableProvider
   {
+    private const string ToStringFormat = "[Command: \"{0}\"]";
     protected readonly HandlerAccessor handlers;
-    private const string ToString_Command = "[Command: \"{0}\"]";
-    private const string ToString_ParametersBegin = "[Parameters: ";
-    private const string ToString_ParametersEnd = "]";
-    private const string ToString_Parameter = "{0} = \"{1}\"";
 
     /// <summary>
     /// Gets <see cref="SqlFetchRequest"/> associated with this provider.
@@ -68,7 +65,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual void AppendCommandTo(SqlCompilationResult result, StringBuilder sb, int indent)
     {
       sb.Append(new string(' ', indent))
-        .AppendFormat(ToString_Command, result.GetCommandText())
+        .AppendFormat(ToStringFormat, result.GetCommandText())
         .AppendLine();
     }
 
@@ -116,7 +113,7 @@ namespace Xtensive.Storage.Providers.Sql
       if(statement.Columns.Count < origin.Header.TupleDescriptor.Count)
         tupleDescriptor = origin.Header.TupleDescriptor.TrimFields(statement.Columns.Count);
       Request = new SqlFetchRequest(statement, tupleDescriptor, parameterBindings);
-      PermanentReference = SqlFactory.QueryRef(statement);
+      PermanentReference = SqlDml.QueryRef(statement);
     }
   }
 }

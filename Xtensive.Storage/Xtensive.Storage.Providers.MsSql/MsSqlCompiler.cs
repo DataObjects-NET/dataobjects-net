@@ -9,13 +9,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 using Xtensive.Storage.Providers.MsSql.Resources;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
@@ -36,8 +36,8 @@ namespace Xtensive.Storage.Providers.MsSql
           (ExecutableProvider[]) compiledSource.Sources);
       }
 
-      var queryRef = SqlFactory.QueryRef(sourceQuery);
-      var query = SqlFactory.Select(queryRef);
+      var queryRef = SqlDml.QueryRef(sourceQuery);
+      var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Where = AddSkipPartToTakeWhereExpression(sourceQuery, provider, provider.Source);
       return new SqlProvider(provider, query, Handlers, compiledSource);
@@ -57,8 +57,8 @@ namespace Xtensive.Storage.Providers.MsSql
           (ExecutableProvider[]) compiledSource.Sources);
       }
 
-      var queryRef = SqlFactory.QueryRef(sourceQuery);
-      var query = SqlFactory.Select(queryRef);
+      var queryRef = SqlDml.QueryRef(sourceQuery);
+      var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Where = AddTakePartToSkipWhereExpression(sourceQuery, provider, provider.Source);
       return new SqlProvider(provider, query, Handlers, compiledSource);
@@ -74,8 +74,8 @@ namespace Xtensive.Storage.Providers.MsSql
 
       var sourceQuery = ShallowCopy(compiledSource.Request.SelectStatement);
       var rowNumberColumnName = provider.Header.Columns.Last().Name;
-      var queryRef = SqlFactory.QueryRef(sourceQuery);
-      var query = SqlFactory.Select(queryRef);
+      var queryRef = SqlDml.QueryRef(sourceQuery);
+      var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query = AddRowNumberColumn(query, provider, rowNumberColumnName);
 
@@ -100,10 +100,10 @@ namespace Xtensive.Storage.Providers.MsSql
         return null;
       var leftQuery = left.PermanentReference;
       var rightQuery = right.PermanentReference;
-      var joinedTable = SqlFactory.Join(isOuter ? SqlJoinType.LeftOuterApply : SqlJoinType.CrossApply,
+      var joinedTable = SqlDml.Join(isOuter ? SqlJoinType.LeftOuterApply : SqlJoinType.CrossApply,
         leftQuery, rightQuery);
 
-      SqlSelect query = SqlFactory.Select(joinedTable);
+      SqlSelect query = SqlDml.Select(joinedTable);
       query.Columns.AddRange(leftQuery.Columns.Concat(rightQuery.Columns).Cast<SqlColumn>());
       return new SqlProvider(provider, query, Handlers, left, right);
     }
@@ -118,11 +118,11 @@ namespace Xtensive.Storage.Providers.MsSql
         if (originType == aggregateType && originType != typeof (float))
           return result;
         var sqlType = ValueTypeMapper.BuildSqlValueType(aggregateType, null);
-        return SqlFactory.Cast(SqlFactory.Avg(SqlFactory.Cast(sourceColumns[aggregateColumn.SourceIndex], sqlType)), sqlType);
+        return SqlDml.Cast(SqlDml.Avg(SqlDml.Cast(sourceColumns[aggregateColumn.SourceIndex], sqlType)), sqlType);
       }
       // cast to decimal is dangerous, because 'decimal' defaults to integer type
       if (aggregateColumn.AggregateType == AggregateType.Sum && aggregateType != typeof(decimal))
-        return SqlFactory.Cast(result, ValueTypeMapper.BuildSqlValueType(aggregateType, null));
+        return SqlDml.Cast(result, ValueTypeMapper.BuildSqlValueType(aggregateType, null));
       return result;
     }
 
@@ -182,16 +182,16 @@ namespace Xtensive.Storage.Providers.MsSql
     private static SqlSelect AddRowNumberColumn(SqlSelect sourceQuery, Provider provider,
       string rowNumberColumnName)
     {
-      SqlExpression rowNumberExpression = SqlFactory.Native("ROW_NUMBER() OVER (ORDER BY ");
+      SqlExpression rowNumberExpression = SqlDml.Native("ROW_NUMBER() OVER (ORDER BY ");
       for (var i = 0; i < provider.Header.Order.Count; i++) {
         if (i!=0)
-          rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, SqlFactory.Native(", "));
-        rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression,
+          rowNumberExpression = SqlDml.RawConcat(rowNumberExpression, SqlDml.Native(", "));
+        rowNumberExpression = SqlDml.RawConcat(rowNumberExpression,
           sourceQuery[provider.Header.Order[i].Key]);
-        rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression,
-          SqlFactory.Native(provider.Header.Order[i].Value==Direction.Positive ? " ASC" : " DESC"));
+        rowNumberExpression = SqlDml.RawConcat(rowNumberExpression,
+          SqlDml.Native(provider.Header.Order[i].Value==Direction.Positive ? " ASC" : " DESC"));
       }
-      rowNumberExpression = SqlFactory.RawConcat(rowNumberExpression, SqlFactory.Native(")"));
+      rowNumberExpression = SqlDml.RawConcat(rowNumberExpression, SqlDml.Native(")"));
       sourceQuery.Columns.Add(rowNumberExpression, rowNumberColumnName);
       return sourceQuery;
     }

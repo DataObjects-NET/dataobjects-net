@@ -6,15 +6,14 @@
 
 using System;
 using Xtensive.Core.Linq;
-using Xtensive.Sql.Common;
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 using Operator = Xtensive.Core.Reflection.WellKnown.Operator;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
-namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
+namespace Xtensive.Storage.Providers.Sql.Expressions
 {
   [CompilerContainer(typeof(SqlExpression))]
-  internal static class TimeSpanMappings
+  internal static class TimeSpanCompilers
   {
     private static readonly long TicksPerMillisecond = TimeSpan.FromMilliseconds(1).Ticks;
     private static readonly double MillisecondsPerDay = TimeSpan.FromDays(1).TotalMilliseconds;
@@ -33,7 +32,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       SqlExpression milliseconds)
     {
       // to be optimized
-      return SqlFactory.IntervalConstruct(
+      return SqlDml.IntervalConstruct(
         milliseconds + 1000L * (seconds + 60L * (minutes + 60L * (hours + 24L * days))));
     }
 
@@ -41,7 +40,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression TimeSpanCtor(
       [Type(typeof(long))] SqlExpression ticks)
     {
-      return SqlFactory.IntervalConstruct(ticks * MillisecondsPerTick);
+      return SqlDml.IntervalConstruct(ticks * MillisecondsPerTick);
     }
 
     [Compiler(typeof(TimeSpan), null, TargetKind.Constructor)]
@@ -78,42 +77,42 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression TimeSpanFromDays(
       [Type(typeof(double))] SqlExpression days)
     {
-      return SqlFactory.IntervalConstruct(days * MillisecondsPerDay);
+      return SqlDml.IntervalConstruct(days * MillisecondsPerDay);
     }
 
     [Compiler(typeof(TimeSpan), "FromHours", TargetKind.Method | TargetKind.Static)]
     public static SqlExpression TimeSpanFromHours(
       [Type(typeof(double))] SqlExpression hours)
     {
-      return SqlFactory.IntervalConstruct(hours * MillisecondsPerHour);
+      return SqlDml.IntervalConstruct(hours * MillisecondsPerHour);
     }
 
     [Compiler(typeof(TimeSpan), "FromMinutes", TargetKind.Method | TargetKind.Static)]
     public static SqlExpression TimeSpanFromMinutes(
       [Type(typeof(double))] SqlExpression minutes)
     {
-      return SqlFactory.IntervalConstruct(minutes * MillisecondsPerMinute);
+      return SqlDml.IntervalConstruct(minutes * MillisecondsPerMinute);
     }
 
     [Compiler(typeof(TimeSpan), "FromSeconds", TargetKind.Method | TargetKind.Static)]
     public static SqlExpression TimeSpanFromSeconds(
       [Type(typeof(double))] SqlExpression seconds)
     {
-      return SqlFactory.IntervalConstruct(seconds * MillisecondsPerSecond);
+      return SqlDml.IntervalConstruct(seconds * MillisecondsPerSecond);
     }
 
     [Compiler(typeof(TimeSpan), "FromMilliseconds", TargetKind.Method | TargetKind.Static)]
     public static SqlExpression TimeSpanFromMilliseconds(
       [Type(typeof(double))] SqlExpression milliseconds)
     {
-      return SqlFactory.IntervalConstruct(milliseconds);
+      return SqlDml.IntervalConstruct(milliseconds);
     }
 
     [Compiler(typeof(TimeSpan), "FromTicks", TargetKind.Method | TargetKind.Static)]
     public static SqlExpression TimeSpanFromTicks(
       [Type(typeof(long))] SqlExpression ticks)
     {
-      return SqlFactory.IntervalConstruct(ticks * MillisecondsPerTick);
+      return SqlDml.IntervalConstruct(ticks * MillisecondsPerTick);
     }
 
     #endregion
@@ -123,31 +122,31 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(TimeSpan), "Milliseconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanMilliseconds(SqlExpression _this)
     {
-      return ToInt(SqlFactory.IntervalExtract(SqlIntervalPart.Millisecond, _this));
+      return ToInt(SqlDml.IntervalExtract(SqlIntervalPart.Millisecond, _this));
     }
 
     [Compiler(typeof(TimeSpan), "Seconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanSeconds(SqlExpression _this)
     {
-      return ToInt(SqlFactory.IntervalExtract(SqlIntervalPart.Second, _this));
+      return ToInt(SqlDml.IntervalExtract(SqlIntervalPart.Second, _this));
     }
 
     [Compiler(typeof(TimeSpan), "Minutes", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanMinutes(SqlExpression _this)
     {
-      return ToInt(SqlFactory.IntervalExtract(SqlIntervalPart.Minute, _this));
+      return ToInt(SqlDml.IntervalExtract(SqlIntervalPart.Minute, _this));
     }
 
     [Compiler(typeof(TimeSpan), "Hours", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanHours(SqlExpression _this)
     {
-      return ToInt(SqlFactory.IntervalExtract(SqlIntervalPart.Hour, _this));
+      return ToInt(SqlDml.IntervalExtract(SqlIntervalPart.Hour, _this));
     }
     
     [Compiler(typeof(TimeSpan), "Days", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanDays(SqlExpression _this)
     {
-      return ToInt(SqlFactory.IntervalExtract(SqlIntervalPart.Day, _this));
+      return ToInt(SqlDml.IntervalExtract(SqlIntervalPart.Day, _this));
     }
 
     #endregion
@@ -157,37 +156,37 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(TimeSpan), "Ticks", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTicks(SqlExpression _this)
     {
-      return ToLong(SqlFactory.IntervalToMilliseconds(_this)) * TicksPerMillisecond;
+      return ToLong(SqlDml.IntervalToMilliseconds(_this)) * TicksPerMillisecond;
     }
 
     [Compiler(typeof(TimeSpan), "TotalMilliseconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalMilliseconds(SqlExpression _this)
     {
-      return ToDouble(SqlFactory.IntervalToMilliseconds(_this));
+      return ToDouble(SqlDml.IntervalToMilliseconds(_this));
     }
 
     [Compiler(typeof(TimeSpan), "TotalSeconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalSeconds(SqlExpression _this)
     {
-      return ToDouble(SqlFactory.IntervalToMilliseconds(_this)) / MillisecondsPerSecond;
+      return ToDouble(SqlDml.IntervalToMilliseconds(_this)) / MillisecondsPerSecond;
     }
 
     [Compiler(typeof(TimeSpan), "TotalMinutes", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalMinutes(SqlExpression _this)
     {
-      return ToDouble(SqlFactory.IntervalToMilliseconds(_this)) / MillisecondsPerMinute;
+      return ToDouble(SqlDml.IntervalToMilliseconds(_this)) / MillisecondsPerMinute;
     }
 
     [Compiler(typeof(TimeSpan), "TotalHours", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalHours(SqlExpression _this)
     {
-      return ToDouble(SqlFactory.IntervalToMilliseconds(_this)) / MillisecondsPerHour;
+      return ToDouble(SqlDml.IntervalToMilliseconds(_this)) / MillisecondsPerHour;
     }
 
     [Compiler(typeof(TimeSpan), "TotalDays", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalDays(SqlExpression _this)
     {
-      return ToDouble(SqlFactory.IntervalToMilliseconds(_this)) / MillisecondsPerDay;
+      return ToDouble(SqlDml.IntervalToMilliseconds(_this)) / MillisecondsPerDay;
     }
 
     #endregion
@@ -299,24 +298,24 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(TimeSpan), "Duration")]
     public static SqlExpression TimeSpanDuration(SqlExpression _this)
     {
-      return SqlFactory.IntervalDuration(_this);
+      return SqlDml.IntervalDuration(_this);
     }
 
     #endregion
 
     private static SqlExpression ToInt(SqlExpression target)
     {
-      return SqlFactory.Cast(target, SqlDataType.Int32);
+      return SqlDml.Cast(target, SqlType.Int32);
     }
 
     private static SqlExpression ToDouble(SqlExpression target)
     {
-      return SqlFactory.Cast(target, SqlDataType.Double);
+      return SqlDml.Cast(target, SqlType.Double);
     }
 
     private static SqlExpression ToLong(SqlExpression target)
     {
-      return SqlFactory.Cast(target, SqlDataType.Int64);
+      return SqlDml.Cast(target, SqlType.Int64);
     }
   }
 }

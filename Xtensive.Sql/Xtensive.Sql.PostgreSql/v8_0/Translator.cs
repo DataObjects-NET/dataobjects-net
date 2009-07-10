@@ -427,11 +427,10 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       return string.Empty;
     }
-
-
-    public override string Translate<T>(SqlCompilerContext context, SqlLiteral<T> node)
+    
+    public override string TranslateLiteral(SqlCompilerContext context, Type type, object value)
     {
-      return TranslateLiteral(node.Value);
+      return TranslateLiteral(value);
     }
 
     public override string Translate<T>(SqlCompilerContext context, SqlArray<T> node)

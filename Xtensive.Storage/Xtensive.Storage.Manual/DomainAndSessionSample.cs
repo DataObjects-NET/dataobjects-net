@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Manual
     #region Domain sample
     public void Main()
     {
-      var configuration = new DomainConfiguration("mssql2005://localhost/MyDatabase");
+      var configuration = new DomainConfiguration("sqlserver://localhost/MyDatabase");
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof (Person));
 

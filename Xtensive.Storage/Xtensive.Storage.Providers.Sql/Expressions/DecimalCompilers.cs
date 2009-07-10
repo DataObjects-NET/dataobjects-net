@@ -6,15 +6,14 @@
 
 using System;
 using Xtensive.Core.Linq;
-using Xtensive.Sql.Common;
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 using Operator = Xtensive.Core.Reflection.WellKnown.Operator;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
-namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
+namespace Xtensive.Storage.Providers.Sql.Expressions
 {
   [CompilerContainer(typeof(SqlExpression))]
-  internal static class DecimalMappings
+  internal static class DecimalCompilers
   {
     #region Static methods
 
@@ -30,7 +29,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression DecimalCeiling(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return MathMappings.MathCeilingDecimal(d);
+      return MathCompilers.MathCeilingDecimal(d);
     }
 
     [Compiler(typeof(decimal), "Compare", TargetKind.Static | TargetKind.Method)]
@@ -38,7 +37,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(decimal))] SqlExpression d1,
       [Type(typeof(decimal))] SqlExpression d2)
     {
-      return SqlFactory.Cast(SqlFactory.Sign(d1 - d2), SqlDataType.Int32);
+      return SqlDml.Cast(SqlDml.Sign(d1 - d2), SqlType.Int32);
     }
 
     [Compiler(typeof(decimal), "Divide", TargetKind.Static | TargetKind.Method)]
@@ -61,7 +60,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression DecimalFloor(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return MathMappings.MathFloorDecimal(d);
+      return MathCompilers.MathFloorDecimal(d);
     }
 
     [Compiler(typeof(decimal), "Multiply", TargetKind.Static | TargetKind.Method)]
@@ -83,7 +82,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression DecimalParse(
       [Type(typeof(string))] SqlExpression str)
     {
-      return SqlFactory.Cast(str, SqlDataType.Decimal);
+      return SqlDml.Cast(str, SqlType.Decimal); // TODO: fix this
     }
 
     [Compiler(typeof(decimal), "Remainder", TargetKind.Static | TargetKind.Method)]
@@ -98,7 +97,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression DecimalRound(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return MathMappings.MathRoundDecimal(d);
+      return MathCompilers.MathRoundDecimal(d);
     }
 
     [Compiler(typeof(decimal), "Round", TargetKind.Static | TargetKind.Method)]
@@ -106,7 +105,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(decimal))] SqlExpression d,
       [Type(typeof(int))] SqlExpression decimals)
     {
-      return MathMappings.MathRoundDecimal(d, decimals);
+      return MathCompilers.MathRoundDecimal(d, decimals);
     }
 
     [Compiler(typeof(decimal), "Round", TargetKind.Static | TargetKind.Method)]
@@ -114,7 +113,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(decimal))] SqlExpression d,
       [Type(typeof(MidpointRounding))] SqlExpression mode)
     {
-      return MathMappings.MathRoundDecimalWithMode(d, mode);
+      return MathCompilers.MathRoundDecimalWithMode(d, mode);
     }
 
     [Compiler(typeof(decimal), "Round", TargetKind.Static | TargetKind.Method)]
@@ -123,7 +122,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
       [Type(typeof(int))] SqlExpression decimals,
       [Type(typeof(MidpointRounding))] SqlExpression mode)
     {
-      return MathMappings.MathRoundDecimalWithMode(d, decimals, mode);
+      return MathCompilers.MathRoundDecimalWithMode(d, decimals, mode);
     }
 
     [Compiler(typeof(decimal), "Subtract", TargetKind.Static | TargetKind.Method)]
@@ -138,7 +137,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     public static SqlExpression DecimalTruncate(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return MathMappings.MathTruncateDecimal(d);
+      return MathCompilers.MathTruncateDecimal(d);
     }
 
     #endregion

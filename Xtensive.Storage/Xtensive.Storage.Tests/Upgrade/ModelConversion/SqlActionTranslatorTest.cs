@@ -4,29 +4,25 @@
 // Created by: Ivan Galkin
 // Created:    2009.04.24
 
-using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.Sql.Common;
-using Xtensive.Sql.Dom.Database;
-using Xtensive.Sql.Dom.Database.Providers;
+using Xtensive.Sql;
+using Xtensive.Sql.Model;
 using Xtensive.Storage.Indexing.Model;
-using Xtensive.Sql.Dom;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Core;
 using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
+using SchemaUpgradeHandler=Xtensive.Storage.Providers.Sql.SchemaUpgradeHandler;
 using SequenceInfo=Xtensive.Storage.Indexing.Model.SequenceInfo;
 using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
-  [TestFixture, Category("Upgrade")]
-  [Explicit("Requires MSSQL servers")]
+  [TestFixture, Explicit, Category("Upgrade")]
   public abstract class SqlActionTranslatorTest
   {
     [TestFixtureSetUp]
@@ -39,7 +35,10 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     protected abstract bool IsIncludedColumnsSupported { get; }
 
-    protected abstract TypeInfo ConvertType(SqlValueType valueType);
+    private TypeInfo ConvertType(SqlValueType valueType)
+    {
+      return new TypeInfo(SchemaUpgradeHandler.ConvertSqlType(valueType.Type), false, valueType.Length);
+    }
 
     protected string Url { get; private set; }
 
@@ -136,7 +135,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       hints.Add(new RenameHint("Tables/table2/Columns/col1", "Tables/table3/Columns/col2"));
 
       var actions = Compare(oldModel, newModel, hints);
-      Tests.Log.Info(actions.ToString());
+      Log.Info(actions.ToString());
       UpgradeCurrentSchema(oldModel, newModel, actions);
 
       var postUpgradeDifference = BuildDifference(newModel, ExtractModel(), null);
@@ -186,11 +185,10 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       var schema = GetSchema();
 
-      var provider = new SqlConnectionProvider();
-      var valueTypeMapper = new SqlValueTypeMapper();
-      valueTypeMapper.Initialize();
+      var driver = SqlDriver.Create(Url);
+      var valueTypeMapper = new SqlValueTypeMapper(driver);
 
-      using (var connection = provider.CreateConnection(Url) as SqlConnection) {
+      using (var connection = driver.CreateConnection(Url)) {
         connection.Open();
         using (var transaction = connection.BeginTransaction()) {
           var translator = new SqlActionTranslator(actions,
@@ -204,10 +202,10 @@ namespace Xtensive.Storage.Tests.Upgrade
           batch.Add(string.Join(delimiter, translator.PostUpgradeCommands.ToArray()));
           foreach (var commandText in batch) {
             if (!string.IsNullOrEmpty(commandText))
-              using (var command = new SqlCommand(connection)) {
+              using (var command = connection.CreateCommand()) {
                 Log.Info(commandText);
                 command.CommandText = commandText;
-                command.Prepare();
+//                command.Prepare();
                 command.Transaction = transaction;
                 command.ExecuteNonQuery();
               }
@@ -220,21 +218,18 @@ namespace Xtensive.Storage.Tests.Upgrade
     private StorageInfo ExtractModel()
     {
       var schema = GetSchema();
-      return new SqlModelConverter(schema, ConvertType, 
-        CreateProviderInfo(), GetGeneratorValue)
+      return new SqlModelConverter(schema, ConvertType, CreateProviderInfo(), GetGeneratorValue)
         .GetConversionResult();
     }
 
     private Schema GetSchema()
     {
       Schema schema;
-      using (var connection = new SqlConnectionProvider().CreateConnection(Url)) {
+      var driver = SqlDriver.Create(Url);
+      using (var connection = driver.CreateConnection(Url)) {
         connection.Open();
-        using (var t = connection.BeginTransaction()) {
-          var modelProvider = new SqlModelProvider(connection as SqlConnection, t);
-          schema = Sql.Dom.Database.Model.Build(modelProvider).DefaultServer
-            .DefaultCatalog.DefaultSchema;
-        }
+        using (var t = connection.BeginTransaction())
+          schema = driver.ExtractModel(connection, t).DefaultSchema;
       }
       return schema;
     }
@@ -244,59 +239,59 @@ namespace Xtensive.Storage.Tests.Upgrade
       return (long) 0;
     }
 
-    private static SqlValueType BuildSqlValueType(Type type, int length)
-    {
-      var dataType = GetDbType(type);
-      return new SqlValueType(dataType, length);
-    }
+//    private static SqlValueType BuildSqlValueType(Type type, int length)
+//    {
+//      var dataType = GetDbType(type);
+//      return new SqlValueType(dataType, length);
+//    }
 
-    private static SqlDataType GetDbType(Type type)
-    {
-      if (type.IsValueType && type.IsNullable())
-        type = type.GetGenericArguments()[0];
-      
-      TypeCode typeCode = Type.GetTypeCode(type);
-      switch (typeCode) {
-      case TypeCode.Object:
-        if (type==typeof (byte[]))
-          return SqlDataType.Binary;
-        if (type == typeof(Guid))
-          return SqlDataType.Guid;
-        throw new ArgumentOutOfRangeException();
-      case TypeCode.Boolean:
-        return SqlDataType.Boolean;
-      case TypeCode.Char:
-        return SqlDataType.Char;
-      case TypeCode.SByte:
-        return SqlDataType.SByte;
-      case TypeCode.Byte:
-        return SqlDataType.Byte;
-      case TypeCode.Int16:
-        return SqlDataType.Int16;
-      case TypeCode.UInt16:
-        return SqlDataType.UInt16;
-      case TypeCode.Int32:
-        return SqlDataType.Int32;
-      case TypeCode.UInt32:
-        return SqlDataType.UInt32;
-      case TypeCode.Int64:
-        return SqlDataType.Int64;
-      case TypeCode.UInt64:
-        return SqlDataType.UInt64;
-      case TypeCode.Single:
-        return SqlDataType.Float;
-      case TypeCode.Double:
-        return SqlDataType.Double;
-      case TypeCode.Decimal:
-        return SqlDataType.Decimal;
-      case TypeCode.DateTime:
-        return SqlDataType.DateTime;
-      case TypeCode.String:
-        return SqlDataType.VarChar;
-      default:
-        throw new ArgumentOutOfRangeException();
-      }
-    }
+//    private static SqlType GetDbType(Type type)
+//    {
+//      if (type.IsValueType && type.IsNullable())
+//        type = type.GetGenericArguments()[0];
+//      
+//      TypeCode typeCode = Type.GetTypeCode(type);
+//      switch (typeCode) {
+//      case TypeCode.Object:
+//        if (type==typeof (byte[]))
+//          return SqlType.Binary;
+//        if (type == typeof(Guid))
+//          return SqlType.Guid;
+//        throw new ArgumentOutOfRangeException();
+//      case TypeCode.Boolean:
+//        return SqlType.Boolean;
+//      case TypeCode.Char:
+//        return SqlType.Char;
+//      case TypeCode.SByte:
+//        return SqlType.Int8;
+//      case TypeCode.Byte:
+//        return SqlType.UInt8;
+//      case TypeCode.Int16:
+//        return SqlType.Int16;
+//      case TypeCode.UInt16:
+//        return SqlType.UInt16;
+//      case TypeCode.Int32:
+//        return SqlType.Int32;
+//      case TypeCode.UInt32:
+//        return SqlType.UInt32;
+//      case TypeCode.Int64:
+//        return SqlType.Int64;
+//      case TypeCode.UInt64:
+//        return SqlType.UInt64;
+//      case TypeCode.Single:
+//        return SqlType.Float;
+//      case TypeCode.Double:
+//        return SqlType.Double;
+//      case TypeCode.Decimal:
+//        return SqlType.Decimal;
+//      case TypeCode.DateTime:
+//        return SqlType.DateTime;
+//      case TypeCode.String:
+//        return SqlType.VarChar;
+//      default:
+//        throw new ArgumentOutOfRangeException();
+//      }
+//    }
     #endregion
   }
 }

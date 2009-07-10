@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.19
 
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Storage.Providers.PgSql
 {

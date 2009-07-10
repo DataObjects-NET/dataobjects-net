@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql.Dml;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql

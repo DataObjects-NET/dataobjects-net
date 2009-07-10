@@ -5,7 +5,7 @@
 // Created:    2008.09.11
 
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Sql.Dom;
+using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {

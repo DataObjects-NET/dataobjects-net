@@ -348,25 +348,19 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TakeBetweenFilterAndApplyTest()
     {
+      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => Query<Order>.All.Where(o => o.Customer==c).Take(10));
-      if (Domain.Configuration.ConnectionInfo.Protocol!="memory"
-        && Domain.Configuration.ConnectionInfo.Protocol!="mssql2005")
-        AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(result));
-      else
-        QueryDumper.Dump(result);
+      QueryDumper.Dump(result);
     }
 
     [Test]
     public void SkipBetweenFilterAndApplyTest()
     {
+      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => Query<Order>.All.Where(o => o.Customer==c).Skip(10));
-      if (Domain.Configuration.ConnectionInfo.Protocol!="memory"
-        && Domain.Configuration.ConnectionInfo.Protocol!="mssql2005")
-        AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(result));
-      else
-        QueryDumper.Dump(result);
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -386,43 +380,35 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TwoCalculateWithApplyTest()
     {
+      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
       var actual = from c in Query<Customer>.All
       from r in (c.Orders.Select(o => c.ContactName + o.ShipName))
         .Union(c.Orders.Select(o => c.ContactName + o.ShipName))
       orderby r
       select r;
-      if (Domain.Configuration.ConnectionInfo.Protocol!="memory"
-        && Domain.Configuration.ConnectionInfo.Protocol!="mssql2005")
-        AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(actual));
-      else {
-        var expected = from c in Query<Customer>.All.ToList()
-        from r in (c.Orders.Select(o => c.ContactName + o.ShipName))
-          .Union(c.Orders.Select(o => c.ContactName + o.ShipName))
-        orderby r
-        select r;
-        Assert.IsTrue(expected.SequenceEqual(actual));
-      }
+      var expected = from c in Query<Customer>.All.ToList()
+      from r in (c.Orders.Select(o => c.ContactName + o.ShipName))
+        .Union(c.Orders.Select(o => c.ContactName + o.ShipName))
+      orderby r
+      select r;
+      Assert.IsTrue(expected.SequenceEqual(actual));
     }
 
     [Test]
     public void TwoFilterWithApplyTest()
     {
+      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
       var actual = from c in Query<Customer>.All
       from r in (c.Orders.Where(x => x.ShipName.StartsWith("a"))
         .Intersect(c.Orders.Where(x => x.ShipName.StartsWith("a"))))
       orderby r.Id
       select r.Id;
-      if (Domain.Configuration.ConnectionInfo.Protocol!="memory"
-        && Domain.Configuration.ConnectionInfo.Protocol!="mssql2005")
-        AssertEx.ThrowsInvalidOperationException(() => QueryDumper.Dump(actual));
-      else {
-        var expected = from c in Query<Customer>.All.ToList()
-        from r in (c.Orders.Where(x => x.ShipName.StartsWith("a"))
-          .Intersect(c.Orders))
-        orderby r.Id
-        select r.Id;
-        Assert.IsTrue(expected.SequenceEqual(actual));
-      }
+      var expected = from c in Query<Customer>.All.ToList()
+      from r in (c.Orders.Where(x => x.ShipName.StartsWith("a"))
+        .Intersect(c.Orders))
+      orderby r.Id
+      select r.Id;
+      Assert.IsTrue(expected.SequenceEqual(actual));
     }
 
     [Test]

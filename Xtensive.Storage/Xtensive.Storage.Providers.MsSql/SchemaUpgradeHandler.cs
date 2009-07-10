@@ -4,17 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.04.08
 
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using Xtensive.Core.Collections;
-using Xtensive.Modelling.Actions;
-using Xtensive.Storage.Providers.Sql;
-using Xtensive.Storage.Indexing.Model;
-using Xtensive.Sql.Dom;
-using Xtensive.Storage.Building;
-using Xtensive.Sql.Common;
-
 namespace Xtensive.Storage.Providers.MsSql
 {
   /// <summary>
@@ -22,6 +11,5 @@ namespace Xtensive.Storage.Providers.MsSql
   /// </summary>
   public class SchemaUpgradeHandler : Sql.SchemaUpgradeHandler
   {
-    
   }
 }

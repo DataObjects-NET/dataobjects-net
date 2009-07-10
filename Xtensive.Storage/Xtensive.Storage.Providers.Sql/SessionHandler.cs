@@ -13,11 +13,10 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Tuples;
-using Xtensive.Sql.Common;
-using Xtensive.Sql.Dom;
+using Xtensive.Sql;
+using Xtensive.Sql.ValueTypeMapping;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -102,15 +101,15 @@ namespace Xtensive.Storage.Providers.Sql
 
     /// <summary>
     /// Executes the specified statement.
-    /// Works similar to <see cref="SqlCommand.ExecuteDbDataReader"/>
+    /// Works similar to <see cref="DbCommand.ExecuteDbDataReader"/>
     /// </summary>
     /// <param name="statement">The statement to execute.</param>
     /// <returns><see cref="DbDataReader"/> with results of statement execution.</returns>
-    public virtual DbDataReader ExecuteReader(ISqlCompileUnit statement)
+    public DbDataReader ExecuteReader(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
       using (var command = CreateCommand(statement)) {
-        command.Prepare();
+//        command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteReader();
       }
@@ -118,7 +117,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     /// <summary>
     /// Executes the specified statement.
-    /// Works similar to <see cref="SqlCommand.ExecuteNonQuery"/>.
+    /// Works similar to <see cref="DbCommand.ExecuteNonQuery"/>.
     /// </summary>
     /// <param name="statement">The statement.</param>
     /// <returns>Number of affected rows.</returns>
@@ -126,7 +125,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       EnsureConnectionIsOpen();
       using (var command = CreateCommand(statement)) {
-        command.Prepare();
+//        command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteNonQuery();
       }
@@ -134,15 +133,15 @@ namespace Xtensive.Storage.Providers.Sql
 
     /// <summary>
     /// Executes the specified statement.
-    /// Works similar to <see cref="SqlCommand.ExecuteScalar"/>
+    /// Works similar to <see cref="DbCommand.ExecuteScalar"/>
     /// </summary>
     /// <param name="statement">The statement.</param>
     /// <returns>The first column of the first row of executed result set.</returns>
-    public virtual object ExecuteScalar(ISqlCompileUnit statement)
+    public object ExecuteScalar(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
       using (var command = CreateCommand(statement)) {
-        command.Prepare();
+//        command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteScalar();
       }
@@ -158,11 +157,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="request">The request to execute.</param>
     /// <param name="tuple">A state tuple.</param>
     /// <returns>Number of modified rows.</returns>
-    public virtual int ExecuteUpdateRequest(SqlUpdateRequest request, Tuple tuple)
+    public int ExecuteUpdateRequest(SqlUpdateRequest request, Tuple tuple)
     {
       EnsureConnectionIsOpen();
       using (var command = CreateUpdateCommand(request, tuple)) {
-        command.Prepare();
+//        command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteNonQuery();
       }
@@ -173,11 +172,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="request">The request to execute.</param>
     /// <returns>The first column of the first row of executed result set.</returns>
-    public virtual object ExecuteScalarRequest(SqlScalarRequest request)
+    public object ExecuteScalarRequest(SqlScalarRequest request)
     {
       EnsureConnectionIsOpen();
       using (var command = CreateScalarCommand(request)) {
-        command.Prepare();
+//        command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteScalar();
       }
@@ -188,11 +187,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="request">The request to execute.</param>
     /// <returns><see cref="DbDataReader"/> with results of statement execution.</returns>
-    public virtual DbDataReader ExecuteFetchRequest(SqlFetchRequest request)
+    public DbDataReader ExecuteFetchRequest(SqlFetchRequest request)
     {
       EnsureConnectionIsOpen();
       using (var command = CreateFetchCommand(request)) {
-        command.Prepare();
+//        command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteReader();
       }
@@ -318,44 +317,44 @@ namespace Xtensive.Storage.Providers.Sql
     #region CreateCommand methods
 
     /// <summary>
-    /// Creates the <see cref="SqlCommand"/> bound to connection associated with this <see cref="SessionHandler"/>.
+    /// Creates the <see cref="DbCommand"/> bound to connection associated with this <see cref="SessionHandler"/>.
     /// </summary>
     /// <param name="statement">The statement.</param>
     /// <returns>A created command.</returns>
-    protected virtual SqlCommand CreateCommand(ISqlCompileUnit statement)
+    protected DbCommand CreateCommand(ISqlCompileUnit statement)
     {
-      return new SqlCommand(Connection) {Statement = statement};
+      return Connection.CreateCommand(statement);
     }
 
     /// <summary>
-    /// Creates <see cref="SqlCommand"/> from specified <see cref="SqlScalarRequest"/>.
+    /// Creates <see cref="DbCommand"/> from specified <see cref="SqlScalarRequest"/>.
     /// </summary>
     /// <param name="request">The request.</param>
     /// <returns>A created command.</returns>
-    protected virtual SqlCommand CreateScalarCommand(SqlScalarRequest request)
+    protected DbCommand CreateScalarCommand(SqlScalarRequest request)
     {
-      var command = new SqlCommand(connection);
+      var command = Connection.CreateCommand();
       command.CommandText = request.Compile(DomainHandler).GetCommandText();
       return command;
     }
 
     /// <summary>
-    /// Creates <see cref="SqlCommand"/> from specified <see cref="SqlFetchRequest"/>.
+    /// Creates <see cref="DbCommand"/> from specified <see cref="SqlFetchRequest"/>.
     /// </summary>
     /// <param name="request">The request.</param>
     /// <returns>A created command.</returns>
-    protected virtual SqlCommand CreateFetchCommand(SqlFetchRequest request)
+    protected DbCommand CreateFetchCommand(SqlFetchRequest request)
     {
-      var command = new SqlCommand(Connection);
+      var command = Connection.CreateCommand();
       var compilationResult = request.Compile(DomainHandler);
       var variantKeys = new List<object>();
       foreach (var binding in request.ParameterBindings) {
         object parameterValue = binding.ValueAccessor.Invoke();
-        if ((parameterValue == null || parameterValue == DBNull.Value) && binding.SmartNull)
+        if (parameterValue==null && binding.SmartNull)
           variantKeys.Add(binding.ParameterReference.Parameter);
         else {
           string parameterName = compilationResult.GetParameterName(binding.ParameterReference.Parameter);
-          command.Parameters.Add(CreateParameter(parameterName, parameterValue, binding.TypeMapping));
+          AddParameter(command, parameterName, parameterValue, binding.TypeMapping);
         }
       }
       command.CommandText = compilationResult.GetCommandText(variantKeys);
@@ -363,20 +362,20 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <summary>
-    /// Creates <see cref="SqlCommand"/> from specified <see cref="SqlUpdateRequest"/>.
+    /// Creates <see cref="DbCommand"/> from specified <see cref="SqlUpdateRequest"/>.
     /// </summary>
     /// <param name="request">The request.</param>
     /// <param name="value">Tuple that contain values for update parameters.</param>
     /// <returns>A created command.</returns>
-    protected virtual SqlCommand CreateUpdateCommand(SqlUpdateRequest request, Tuple value)
+    protected DbCommand CreateUpdateCommand(SqlUpdateRequest request, Tuple value)
     {
-      var command = new SqlCommand(Connection);
+      var command = Connection.CreateCommand();
       var compilationResult = request.Compile(DomainHandler);
 
       foreach (var binding in request.ParameterBindings) {
         object parameterValue = binding.ValueAccessor.Invoke(value);
         string parameterName = compilationResult.GetParameterName(binding.ParameterReference.Parameter);
-        command.Parameters.Add(CreateParameter(parameterName, parameterValue, binding.TypeMapping));
+        AddParameter(command, parameterName, parameterValue, binding.TypeMapping);
       }
 
       command.CommandText = compilationResult.GetCommandText();
@@ -386,32 +385,18 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Creates the parameter with the specified <paramref name="name"/> and <paramref name="value"/>
     /// taking into account <paramref name="mapping"/>.
+    /// Created parameter is registered in <paramref name="command"/>.
     /// </summary>
+    /// <param name="command">The command.</param>
     /// <param name="name">The name.</param>
     /// <param name="value">The value.</param>
     /// <param name="mapping">The mapping.</param>
-    /// <returns>A created parameter.</returns>
-    protected virtual SqlParameter CreateParameter(string name, object value, DataTypeMapping mapping)
+    protected void AddParameter(DbCommand command, string name, object value, TypeMapping mapping)
     {
-      value = value!=null && value!=DBNull.Value && mapping.ToSqlValue!=null
-        ? mapping.ToSqlValue(value)
-        : (value ?? DBNull.Value);
-
-      var typeOfValue = value.GetType();
-      int length = 0;
-      if (typeOfValue==typeof(string))
-        length = ((string) value).Length;
-      if (typeOfValue==typeof(byte[]))
-        length = ((byte[]) value).Length;
-      var valueType = DomainHandler.ValueTypeMapper.BuildSqlValueType(mapping, length);
-      return new SqlParameter(name)
-        {
-          Value = value,
-          DbType = mapping.DbType,
-          Size = valueType.Size,
-          Scale = (byte) valueType.Scale,
-          Precision = (byte) valueType.Precision,
-        };
+      var parameter = command.CreateParameter();
+      parameter.ParameterName = name;
+      mapping.SetParameterValue(parameter, value);
+      command.Parameters.Add(parameter);
     }
 
     #endregion
@@ -423,7 +408,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (connection!=null && connection.State==ConnectionState.Open)
         return;
-      connection = DomainHandler.SqlDriver.CreateConnection(new ConnectionInfo(Handlers.Domain.Configuration.ConnectionInfo.ToString())) as SqlConnection;
+      connection = DomainHandler.Driver.CreateConnection(Handlers.Domain.Configuration.ConnectionInfo.ToString());
       if (connection==null)
         throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
       connection.Open();

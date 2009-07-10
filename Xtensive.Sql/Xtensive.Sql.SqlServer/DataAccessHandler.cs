@@ -7,6 +7,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using Xtensive.Sql.Info;
 using SqlServerCommand = System.Data.SqlClient.SqlCommand;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 using SqlServerTransaction = System.Data.SqlClient.SqlTransaction;
@@ -16,6 +17,8 @@ namespace Xtensive.Sql.SqlServer
 {
   internal class DataAccessHandler : ValueTypeMapping.DataAccessHandler
   {
+    private DateTime MinDateTimeValue;
+
     public override void SetSByteParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int16;
@@ -38,6 +41,17 @@ namespace Xtensive.Sql.SqlServer
     {
       parameter.DbType = DbType.Decimal;
       parameter.Value = value ?? DBNull.Value;
+    }
+
+    public override void SetDateTimeParameterValue(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.DateTime;
+      if (value==null) {
+        parameter.Value = DBNull.Value;
+        return;
+      }
+      var dateTime = (DateTime) value;
+      parameter.Value = dateTime > MinDateTimeValue ? value : MinDateTimeValue;
     }
 
     public override void SetTimeSpanParameterValue(DbParameter parameter, object value)
@@ -79,6 +93,12 @@ namespace Xtensive.Sql.SqlServer
     public override object ReadTimeSpan(DbDataReader reader, int index)
     {
       return TimeSpan.FromMilliseconds(reader.GetInt64(index));
+    }
+
+    public override void Initialize()
+    {
+      base.Initialize();
+      MinDateTimeValue = ((ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange).MinValue;
     }
 
     // Constructors

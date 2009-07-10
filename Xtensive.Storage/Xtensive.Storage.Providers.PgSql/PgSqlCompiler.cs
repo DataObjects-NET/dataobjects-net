@@ -7,12 +7,11 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
-using Xtensive.Sql.Dom;
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql.Dml;
+using Xtensive.Sql;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.PgSql
 {
@@ -24,7 +23,7 @@ namespace Xtensive.Storage.Providers.PgSql
       var result = base.TranslateAggregate(source, sourceColumns, aggregateColumn);
       if (aggregateColumn.AggregateType == AggregateType.Sum || aggregateColumn.AggregateType == AggregateType.Avg) {
         Type type = aggregateColumn.Type;
-        return SqlFactory.Cast(result, ValueTypeMapper.BuildSqlValueType(type, null));
+        return SqlDml.Cast(result, ValueTypeMapper.BuildSqlValueType(type, null));
       }
       return result;
     }

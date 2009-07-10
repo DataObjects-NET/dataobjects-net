@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
+using Xtensive.Sql.ValueTypeMapping;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers.Sql.Mappings;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns><see cref="SqlUpdateRequest"/> instance for the specified <paramref name="task"/>.</returns>
     public SqlUpdateRequest Build(SqlRequestBuilderTask task)
     {
-      var context = new SqlRequestBuilderContext(task, SqlFactory.Batch());
+      var context = new SqlRequestBuilderContext(task, SqlDml.Batch());
       switch (task.Kind) {
       case SqlUpdateRequestKind.Insert:
         BuildInsertRequest(context);
@@ -58,8 +58,8 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual void BuildInsertRequest(SqlRequestBuilderContext context)
     {
       foreach (IndexInfo index in context.AffectedIndexes) {
-        SqlTableRef table = SqlFactory.TableRef(DomainHandler.Mapping[index].Table);
-        SqlInsert query = SqlFactory.Insert(table);
+        SqlTableRef table = SqlDml.TableRef(DomainHandler.Mapping[index].Table);
+        SqlInsert query = SqlDml.Insert(table);
 
         for (int i = 0; i < index.Columns.Count; i++) {
           ColumnInfo column = index.Columns[i];
@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Providers.Sql
           if (fieldIndex >= 0) {
             SqlUpdateParameterBinding binding;
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
-              DataTypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
+              TypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
               binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
               context.ParameterBindings.Add(column, binding);
             }
@@ -81,8 +81,8 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual void BuildUpdateRequest(SqlRequestBuilderContext context)
     {
       foreach (IndexInfo index in context.AffectedIndexes) {
-        SqlTableRef table = SqlFactory.TableRef(DomainHandler.Mapping[index].Table);
-        SqlUpdate query = SqlFactory.Update(table);
+        SqlTableRef table = SqlDml.TableRef(DomainHandler.Mapping[index].Table);
+        SqlUpdate query = SqlDml.Update(table);
 
         for (int i = 0; i < index.Columns.Count; i++) {
           ColumnInfo column = index.Columns[i];
@@ -90,7 +90,7 @@ namespace Xtensive.Storage.Providers.Sql
           if (fieldIndex >= 0 && context.Task.FieldMap[fieldIndex]) {
             SqlUpdateParameterBinding binding;
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
-              DataTypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
+              TypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
               binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
               context.ParameterBindings.Add(column, binding);
             }
@@ -110,8 +110,8 @@ namespace Xtensive.Storage.Providers.Sql
     {
       for (int i = context.AffectedIndexes.Count - 1; i >= 0; i--) {
         IndexInfo index = context.AffectedIndexes[i];
-        SqlTableRef table = SqlFactory.TableRef(DomainHandler.Mapping[index].Table);
-        SqlDelete query = SqlFactory.Delete(table);
+        SqlTableRef table = SqlDml.TableRef(DomainHandler.Mapping[index].Table);
+        SqlDelete query = SqlDml.Delete(table);
         query.Where &= BuildWhereExpression(context, table);
         context.Batch.Add(query);
       }
@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Providers.Sql
         int fieldIndex = GetFieldIndex(context.Task.Type, column);
         SqlUpdateParameterBinding binding;
         if (!context.ParameterBindings.TryGetValue(column, out binding)) {
-          DataTypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
+          TypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
           binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
           context.ParameterBindings.Add(column, binding);
         }
@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private static Func<Tuple, object> GetTupleFieldAccessor(int fieldIndex)
     {
-      return (tuple => tuple.IsNull(fieldIndex) ? DBNull.Value : tuple.GetValue(fieldIndex));
+      return (tuple => tuple.IsNull(fieldIndex) ? null : tuple.GetValue(fieldIndex));
     }
 
     /// <inheritdoc/>

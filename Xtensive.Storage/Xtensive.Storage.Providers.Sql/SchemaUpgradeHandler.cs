@@ -6,18 +6,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Modelling.Actions;
-using Xtensive.Sql.Common;
-using Xtensive.Sql.Dom;
-using Xtensive.Sql.Dom.Database;
-using Xtensive.Sql.Dom.Database.Providers;
+using Xtensive.Sql;
+using Xtensive.Sql.Model;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Upgrade;
-using SqlModel = Xtensive.Sql.Dom.Database.Model;
 using ModelTypeInfo = Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -55,9 +51,10 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var batch in upgradeScript) {
         if (string.IsNullOrEmpty(batch))
           continue;
-        using (var command = new SqlCommand(Connection)) {
+        using (var command = Connection.CreateCommand()) {
           command.CommandText = batch;
-          command.Prepare();
+          //TODO: check whenever this statement matters
+          //command.Prepare();
           command.Transaction = SessionHandler.Transaction;
           command.ExecuteNonQuery();
         }
@@ -77,10 +74,9 @@ namespace Xtensive.Storage.Providers.Sql
     protected override ModelTypeInfo CreateTypeInfo(Type type, int? length)
     {
       var sqlValueType = DomainHandler.ValueTypeMapper.BuildSqlValueType(type, length);
-      var convertedType = DomainHandler.Driver.ServerInfo.DataTypes[sqlValueType.DataType].Type;
+      var convertedType = ConvertSqlType(sqlValueType.Type);
       int? typeLength = null;
-      if (sqlValueType.DataType != SqlDataType.Text
-        && sqlValueType.DataType != SqlDataType.VarBinaryMax)
+      if (sqlValueType.Type!=SqlType.VarCharMax && sqlValueType.Type!=SqlType.VarBinaryMax)
         typeLength = length;
       return new ModelTypeInfo(convertedType, typeLength);
     }
@@ -90,9 +86,9 @@ namespace Xtensive.Storage.Providers.Sql
       var context = UpgradeContext.Demand();
       var schema = context.NativeExtractedSchema as Schema;
       if (schema == null) {
-        var modelProvider = new SqlModelProvider(SessionHandler.Connection, SessionHandler.Transaction);
-        var storageModel = SqlModel.Build(modelProvider);
-        schema = storageModel.DefaultServer.DefaultCatalog.DefaultSchema;
+        schema = DomainHandler.Driver
+          .ExtractModel(SessionHandler.Connection, SessionHandler.Transaction)
+          .DefaultSchema;
         SaveSchemaInContext(schema);
       }
       return schema;
@@ -100,15 +96,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected virtual ModelTypeInfo ConvertType(SqlValueType valueType)
     {
-      var driver = SessionHandler.Connection.Driver;
-      var dataType = driver.ServerInfo.DataTypes[valueType.DataType];
-      var length = valueType.Size;
-      var streamType = dataType as StreamDataTypeInfo;
-      if (streamType!=null && valueType.Size == 0)
-        length = streamType.Length.MaxValue;
-
-      var type = dataType!=null ? dataType.Type : typeof (object);
-      return new ModelTypeInfo(type, false, length);
+      return new ModelTypeInfo(ConvertSqlType(valueType.Type), false, valueType.Length);
     }
     
     private List<string> GenerateUpgradeScript(ActionSequence actions, StorageInfo sourceSchema, StorageInfo targetSchema)
@@ -148,6 +136,52 @@ namespace Xtensive.Storage.Providers.Sql
       if (logBatch.Count > 0)
         Log.Info("Upgrade DDL: {0}", 
           Environment.NewLine + string.Join(logDelimiter, logBatch.ToArray()));
+    }
+
+    internal static Type ConvertSqlType(SqlType type)
+    {
+      switch (type) {
+      case SqlType.Boolean:
+        return typeof (bool);
+      case SqlType.Int8:
+        return typeof (sbyte);
+      case SqlType.UInt8:
+        return typeof (byte);
+      case SqlType.Int16:
+        return typeof (short);
+      case SqlType.UInt16:
+        return typeof (ushort);
+      case SqlType.Int32:
+        return typeof (int);
+      case SqlType.UInt32:
+        return typeof (uint);
+      case SqlType.Int64:
+        return typeof (long);
+      case SqlType.UInt64:
+        return typeof (ulong);
+      case SqlType.Decimal:
+        return typeof (decimal);
+      case SqlType.Float:
+        return typeof (float);
+      case SqlType.Double:
+        return typeof (double);
+      case SqlType.DateTime:
+        return typeof (DateTime);
+      case SqlType.Interval:
+        return typeof (TimeSpan);
+      case SqlType.Char:
+      case SqlType.VarChar:
+      case SqlType.VarCharMax:
+        return typeof (string);
+      case SqlType.Binary:
+      case SqlType.VarBinary:
+      case SqlType.VarBinaryMax:
+        return typeof (byte[]);
+      case SqlType.Guid:
+        return typeof (Guid);
+      default:
+        throw new ArgumentOutOfRangeException("type");
+      }
     }
   }
 }

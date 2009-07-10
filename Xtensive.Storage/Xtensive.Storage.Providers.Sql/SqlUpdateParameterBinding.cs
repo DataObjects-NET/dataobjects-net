@@ -7,12 +7,14 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Providers.Sql.Mappings;
+using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public sealed class SqlUpdateParameterBinding : SqlParameterBinding<Func<Tuple, object>>
+  public sealed class SqlUpdateParameterBinding : SqlParameterBinding
   {
+    public Func<Tuple, object> ValueAccessor { get; private set; }
+
     // Constructors
 
     /// <summary>
@@ -20,9 +22,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="typeMapping">The type mapping.</param>
     /// <param name="valueAccessor">The value accessor.</param>
-    public SqlUpdateParameterBinding(Func<Tuple, object> valueAccessor, DataTypeMapping typeMapping)
-      : base(valueAccessor, typeMapping)
+    public SqlUpdateParameterBinding(Func<Tuple, object> valueAccessor, TypeMapping typeMapping)
+      : base(typeMapping)
     {
+      ValueAccessor = valueAccessor;
     }
   }
 }

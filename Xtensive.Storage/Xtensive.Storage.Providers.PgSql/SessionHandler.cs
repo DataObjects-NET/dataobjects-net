@@ -8,15 +8,6 @@ namespace Xtensive.Storage.Providers.PgSql
 {
   public class SessionHandler : Sql.SessionHandler
   {
-    public override void Initialize()
-    {
-      base.Initialize();
-      // TODO: Think what should be done here
-    }
 
-    internal protected new DomainHandler DomainHandler
-    {
-      get { return base.DomainHandler as DomainHandler; }
-    }
   }
 }

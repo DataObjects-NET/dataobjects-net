@@ -94,8 +94,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void ExtendedTest()
     {
-      if (Domain.Configuration.ConnectionInfo.Protocol.StartsWith("mssql"))
-        Assert.Ignore("MS SQL does not support trimming of non-space characters.");
+      EnsureIs(~StorageProtocols.SqlServer);
       var results = Query<X>.All
         .Select(x => new
           {

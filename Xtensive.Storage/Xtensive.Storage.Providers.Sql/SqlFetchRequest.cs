@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Storage.Providers.Sql
 {

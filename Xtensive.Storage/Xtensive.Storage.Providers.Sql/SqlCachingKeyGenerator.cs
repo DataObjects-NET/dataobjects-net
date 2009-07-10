@@ -7,11 +7,10 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Sql.Dom;
+using Xtensive.Sql;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {

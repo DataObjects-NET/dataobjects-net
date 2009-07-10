@@ -8,11 +8,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Providers.Sql
       SelectProvider originAsSelect)
     {
       var queryRef = ((SqlProvider) rootProvider.Sources[0]).PermanentReference;
-      var result = SqlFactory.Select(queryRef);
+      var result = SqlDml.Select(queryRef);
       var columnIndexes = originAsSelect.ColumnIndexes;
       result.Columns.AddRange(from index in columnIndexes select (SqlColumn) queryRef.Columns[index]);
       foreach (KeyValuePair<int, Direction> pair in originAsSelect.Source.Header.Order)

@@ -6,19 +6,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
-using Xtensive.Sql.Common;
-using Xtensive.Sql.Dom;
-using Xtensive.Sql.Dom.Database;
-using Xtensive.Sql.Dom.Database.Providers;
-using Xtensive.Storage.Building;
+using Xtensive.Sql;
+using Xtensive.Sql.Info;
+using Xtensive.Sql.Model;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Sql.Expressions;
 using Xtensive.Storage.Providers.Sql.Mappings;
-using Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
@@ -37,7 +34,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the storage schema.
     /// </summary>
-    public Schema Schema { get; internal set; }
+    public Schema Schema { get; private set; }
 
     /// <summary>
     /// Gets the model mapping.
@@ -60,11 +57,6 @@ namespace Xtensive.Storage.Providers.Sql
     public ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest> RequestCache { get; private set; }
 
     /// <summary>
-    /// Gets the connection provider.
-    /// </summary>
-    internal SqlDriver SqlDriver { get; private set; }
-
-    /// <summary>
     /// Gets the SQL driver.
     /// </summary>
     public SqlDriver Driver { get; private set; }
@@ -73,13 +65,14 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IEnumerable<Type> GetCompilerProviderContainerTypes()
     {
       return new[] {
-        typeof (NullableMappings),
-        typeof (StringMappings),
-        typeof (DateTimeMappings),
-        typeof (TimeSpanMappings),
-        typeof (MathMappings),
-        typeof (NumericMappings),
-        typeof (DecimalMappings)
+        typeof (NullableCompilers),
+        typeof (StringCompilers),
+        typeof (DateTimeCompilers),
+        typeof (TimeSpanCompilers),
+        typeof (MathCompilers),
+        typeof (NumericCompilers),
+        typeof (DecimalCompilers),
+        typeof (GuidCompilers)
       };
     }
 
@@ -140,18 +133,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="descriptor">The tuple descriptor.</param>
     /// <returns></returns>
-    protected virtual DbDataReaderAccessor BuildDataReaderAccessor(TupleDescriptor descriptor)
+    protected DbDataReaderAccessor BuildDataReaderAccessor(TupleDescriptor descriptor)
     {
-      var readers = new List<Func<DbDataReader, int, object>>(descriptor.Count);
-      var converters = new List<Func<object, object>>(descriptor.Count);
-
-      foreach (var item in descriptor) {
-        var typeMapping = ValueTypeMapper.GetTypeMapping(item, null);
-        readers.Add(typeMapping.DataReaderAccessor);
-        converters.Add(typeMapping.FromSqlValue);
-      }
-
-      return new DbDataReaderAccessor(readers, converters);
+      return new DbDataReaderAccessor(
+        descriptor.Select(type => ValueTypeMapper.GetTypeMapping(type)));
     }
 
     /// <inheritdoc/>
@@ -197,30 +182,55 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
+    protected override ProviderInfo CreateProviderInfo()
+    {
+      var result = new ProviderInfo();
+      var serverInfo = Driver.ServerInfo;
+
+      // TODO: add corresponding features to Sql.Info and read them here
+      result.EmptyBlobIsNull = false;
+      result.EmptyStringIsNull = false;
+      result.SupportsEnlist = false;
+
+      result.DatabaseNameLength = serverInfo.Database.MaxIdentifierLength;
+      result.MaxIndexColumnsCount = serverInfo.Index.MaxColumnAmount;
+      result.MaxIndexKeyLength = serverInfo.Index.MaxLength;
+      result.MaxIndexNameLength = serverInfo.Index.MaxIdentifierLength;
+      result.MaxTableNameLength = serverInfo.Table.MaxIdentifierLength;
+      result.NamedParameters = (serverInfo.Query.Features & QueryFeatures.NamedParameters)
+        ==QueryFeatures.NamedParameters;
+      result.ParameterPrefix = serverInfo.Query.ParameterPrefix;
+      result.MaxComparisonOperations = serverInfo.Query.MaxComparisonOperations;
+      result.MaxQueryLength = serverInfo.Query.MaxLength;
+      result.SupportsBatches = (serverInfo.Query.Features & QueryFeatures.Batches)==QueryFeatures.Batches;
+      result.SupportsClusteredIndexes = (serverInfo.Index.Features & IndexFeatures.Clustered)
+        ==IndexFeatures.Clustered;
+      result.SupportsCollations = serverInfo.Collation!=null;
+      result.SupportsForeignKeyConstraints = serverInfo.ForeignKey!=null;
+      result.SupportsIncludedColumns = (serverInfo.Index.Features & IndexFeatures.NonKeyColumns)
+        ==IndexFeatures.NonKeyColumns;
+      result.SupportKeyColumnSortOrder = (serverInfo.Index.Features & IndexFeatures.SortOrder)
+        ==IndexFeatures.SortOrder;
+      result.SupportSequences = serverInfo.Sequence.Features!=SequenceFeatures.None;
+      result.SupportsRealTimeSpan = serverInfo.DataTypes.Interval!=null;
+      result.Version = (Version) serverInfo.Version.ProductVersion.Clone();
+      result.Lock();
+      return result;
+    }
+
     // Initialization
 
     /// <inheritdoc/>
     public override void Initialize()
     {
       base.Initialize();
-      SqlDriver = CreateSqlDriver(new ConnectionInfo(Handlers.Domain.Configuration.ConnectionInfo.ToString()));
+      Driver = SqlDriver.Create(Handlers.Domain.Configuration.ConnectionInfo.ToString());
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
+      ValueTypeMapper = new SqlValueTypeMapper(Driver);
       Mapping = new ModelMapping();
       RequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest>.Create(new object());
       RequestBuilder = Handlers.HandlerFactory.CreateHandler<SqlRequestBuilder>();
       RequestBuilder.Initialize();
-    }
-
-    protected abstract SqlDriver CreateSqlDriver(ConnectionInfo connectionInfo);
-
-    /// <inheritdoc/>
-    public override void InitializeFirstSession()
-    {
-      base.InitializeFirstSession();
-
-      Driver = ((SessionHandler) BuildingContext.Current.SystemSessionHandler).Connection.Driver;
-      ValueTypeMapper = Handlers.HandlerFactory.CreateHandler<SqlValueTypeMapper>();
-      ValueTypeMapper.Initialize();
     }
   }
 }

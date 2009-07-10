@@ -6,16 +6,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core.Tuples;
-using Xtensive.Sql.Dom;
-using Xtensive.Sql.Dom.Database;
-using Xtensive.Sql.Dom.Dml;
-using Xtensive.Storage.Providers.Sql.Mappings;
+using Xtensive.Sql.Dml;
+using Xtensive.Sql.Model;
+using Xtensive.Sql.ValueTypeMapping;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
+using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -41,18 +39,18 @@ namespace Xtensive.Storage.Providers.Sql
         return;
 
       SessionHandler sessionHandler = (SessionHandler) handlers.SessionHandler;
-      SqlBatch batch = SqlFactory.Batch();
-      batch.Add(SqlFactory.Create(Table));
+      SqlBatch batch = SqlDml.Batch();
+      batch.Add(SqlDdl.Create(Table));
       sessionHandler.ExecuteNonQuery(batch);
       Schema.Tables.Add(Table);
 
-      SqlTableRef tableRef = SqlFactory.TableRef(Table);
-      SqlInsert insert = SqlFactory.Insert(tableRef);
+      SqlTableRef tableRef = SqlDml.TableRef(Table);
+      SqlInsert insert = SqlDml.Insert(tableRef);
       var bindings = new List<SqlUpdateParameterBinding>();
       int i = 0;
       foreach (SqlTableColumn column in tableRef.Columns) {
         int fieldIndex = i;
-        DataTypeMapping typeMapping = ((DomainHandler) handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(Header.Columns[i].Type, null);
+        TypeMapping typeMapping = ((DomainHandler) handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(Header.Columns[i].Type);
         var binding = new SqlUpdateParameterBinding((target => target.IsNull(fieldIndex) ? DBNull.Value : target.GetValue(fieldIndex)), typeMapping);
         insert.Values[column] = binding.ParameterReference;
         bindings.Add(binding);
@@ -73,25 +71,18 @@ namespace Xtensive.Storage.Providers.Sql
       if (Scope==TemporaryDataScope.Global)
         return;
 
-      SqlBatch batch = SqlFactory.Batch();
-      batch.Add(SqlFactory.Drop(Table));
+      SqlBatch batch = SqlDml.Batch();
+      batch.Add(SqlDdl.Drop(Table));
       ((SessionHandler) handlers.SessionHandler).ExecuteNonQuery(batch);
       Schema.Tables.Remove(Table);
     }
 
     /// <inheritdoc/>
-    public TemporaryDataScope Scope
-    {
-      get { return Origin.Scope; }
-    }
+    public TemporaryDataScope Scope { get { return Origin.Scope; } }
 
     /// <inheritdoc/>
-    public string Name
-    {
-      get { return Origin.Name; }
-    }
-
-
+    public string Name { get { return Origin.Name; } }
+    
     // Constructors
 
     public SqlStoreProvider(StoreProvider origin, SqlSelect request, HandlerAccessor handlers, ExecutableProvider source, Table table)

@@ -6,7 +6,7 @@
 
 namespace Xtensive.Storage.Providers.MsSql
 {
-  [Provider("mssql2005", Description = "General storage provider for MS SQL 2005 based storages.")]
+  [Provider("sqlserver", Description = "General storage provider for MS SQL 2005 based storages.")]
   public class HandlerFactory : Providers.HandlerFactory
   {
     // Constructors

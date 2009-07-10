@@ -62,18 +62,16 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      if (hashCode == 0)
+      if (hashCode==0)
         UpdateHashCode();
       return hashCode;
     }
 
-    /// <inheritdoc/>
-    public void UpdateHashCode()
+    private void UpdateHashCode()
     {
       hashCode = Type.GetHashCode() ^ Kind.GetHashCode();
     }
-
-
+    
     // Constructors
 
     internal SqlRequestBuilderTask(SqlUpdateRequestKind kind, TypeInfo type, BitArray fieldMap)

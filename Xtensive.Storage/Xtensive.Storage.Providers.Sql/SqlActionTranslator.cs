@@ -9,20 +9,19 @@ using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
-using Xtensive.Sql.Dom.Dml;
 using Xtensive.Modelling.Actions;
 using Xtensive.Core;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
+using Xtensive.Sql.Model;
 using Xtensive.Storage.Indexing.Model;
-using Xtensive.Sql.Dom.Database;
-using Xtensive.Sql.Dom;
 using System.Collections.Generic;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
 using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
-using SqlRefAction = Xtensive.Sql.Dom.ReferentialAction;
+using SqlRefAction = Xtensive.Sql.ReferentialAction;
 using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
 using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
-using SqlDomain = Xtensive.Sql.Dom.Database.Domain;
+using SqlDomain = Xtensive.Sql.Model.Domain;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Providers.Sql.Resources;
@@ -277,17 +276,17 @@ namespace Xtensive.Storage.Providers.Sql
           sourceModel.Resolve(pair.Source) as ColumnInfo,
           targetModel.Resolve(pair.Target) as ColumnInfo)).ToArray();
       if (copiedColumns.Length == 0 || identityColumns.Length == 0)
-        throw new InvalidOperationException(Resources.Strings.ExIncorrectCommandParameters);
+        throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
 
-      var fromTable = SqlFactory.TableRef(FindTable(copiedColumns[0].First.Parent.Name));
-      var toTable = SqlFactory.TableRef(FindTable(copiedColumns[0].Second.Parent.Name));
+      var fromTable = SqlDml.TableRef(FindTable(copiedColumns[0].First.Parent.Name));
+      var toTable = SqlDml.TableRef(FindTable(copiedColumns[0].Second.Parent.Name));
 
-      var select = SqlFactory.Select(fromTable);
+      var select = SqlDml.Select(fromTable);
       identityColumns.Apply(pair => select.Columns.Add(fromTable[pair.First.Name]));
       copiedColumns.Apply(pair => select.Columns.Add(fromTable[pair.First.Name]));
-      var selectRef = SqlFactory.QueryRef(select, SubqueryAliasName);
+      var selectRef = SqlDml.QueryRef(select, SubqueryAliasName);
       
-      var update = SqlFactory.Update(toTable);
+      var update = SqlDml.Update(toTable);
       update.From = selectRef;
       copiedColumns.Apply(pair => update.Values[toTable[pair.Second.Name]] = selectRef[pair.First.Name]);
       identityColumns.Apply(pair => update.Where &= toTable[pair.Second.Name]==selectRef[pair.First.Name]);
@@ -309,14 +308,14 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var tableInfo = action.Difference.Target as TableInfo;
       var table = CreateTable(tableInfo);
-      RegisterCommand(SqlFactory.Create(table));
+      RegisterCommand(SqlDdl.Create(table));
     }
 
     private void VisitRemoveTableAction(RemoveNodeAction action)
     {
       var tableInfo = action.Difference.Source as TableInfo;
       var table = FindTable(tableInfo.Name);
-      RegisterCommand(SqlFactory.Drop(table));
+      RegisterCommand(SqlDdl.Drop(table));
       schema.Tables.Remove(table);
     }
 
@@ -324,7 +323,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var oldTableInfo = sourceModel.Resolve(action.Path) as TableInfo;
       var table = FindTable(oldTableInfo.Name);
-      RegisterCommand(SqlFactory.Rename(table, action.Name));
+      RegisterCommand(SqlDdl.Rename(table, action.Name));
       oldTableInfo.Name = action.Name;
       RenameSchemaTable(table, action.Name);
     }
@@ -344,9 +343,7 @@ namespace Xtensive.Storage.Providers.Sql
         return;
       
       var column = CreateColumn(columnInfo, table);
-      RegisterCommand(
-        SqlFactory.Alter(table,
-          SqlFactory.AddColumn(column)));
+      RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddColumn(column)));
     }
 
     private void VisitRemoveColumnAction(RemoveNodeAction removeColumnAction)
@@ -364,11 +361,10 @@ namespace Xtensive.Storage.Providers.Sql
           .OfType<DefaultConstraint>()
           .FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
         if (constraint!=null)
-          RegisterCommand(SqlFactory.Alter(table,
-            SqlFactory.DropConstraint(constraint)));
+          RegisterCommand(SqlDdl.Alter(table,
+            SqlDdl.DropConstraint(constraint)));
       }
-      RegisterCommand(SqlFactory.Alter(table,
-        SqlFactory.DropColumn(column)));
+      RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropColumn(column)));
       table.TableColumns.Remove(column);
     }
 
@@ -391,7 +387,7 @@ namespace Xtensive.Storage.Providers.Sql
         // Process name changing
         var oldColumnInfo = sourceModel.Resolve(action.Path) as ColumnInfo;
         var column = FindColumn(oldColumnInfo.Parent.Name, oldColumnInfo.Name);
-        RegisterCommand(SqlFactory.Rename(column, action.Name));
+        RegisterCommand(SqlDdl.Rename(column, action.Name));
         oldColumnInfo.Name = action.Name;
         RenameSchemaColumn(column, action.Name);
       }
@@ -409,8 +405,7 @@ namespace Xtensive.Storage.Providers.Sql
         return;
 
       var primaryKey = CreatePrimaryKey(primaryIndex.Parent, table);
-      RegisterCommand(SqlFactory.Alter(table,
-          SqlFactory.AddConstraint(primaryKey)));
+      RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddConstraint(primaryKey)));
     }
 
     private void VisitRemovePrimaryKeyAction(RemoveNodeAction action)
@@ -424,8 +419,7 @@ namespace Xtensive.Storage.Providers.Sql
       
       var primaryKey = table.TableConstraints[primaryIndexInfo.Name];
 
-      RegisterCommand(SqlFactory.Alter(table,
-          SqlFactory.DropConstraint(primaryKey)));
+      RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(primaryKey)));
       table.TableConstraints.Remove(primaryKey);
     }
 
@@ -439,7 +433,7 @@ namespace Xtensive.Storage.Providers.Sql
       var secondaryIndexInfo = action.Difference.Target as SecondaryIndexInfo;
       var table = FindTable(secondaryIndexInfo.Parent.Name);
       var index = CreateSecondaryIndex(table, secondaryIndexInfo);
-      RegisterCommand(SqlFactory.Create(index));
+      RegisterCommand(SqlDdl.Create(index));
     }
 
     private void VisitRemoveSecondaryIndexAction(RemoveNodeAction action)
@@ -452,7 +446,7 @@ namespace Xtensive.Storage.Providers.Sql
         return;
       
       var index = table.Indexes[secondaryIndexInfo.Name];
-      RegisterCommand(SqlFactory.Drop(index));
+      RegisterCommand(SqlDdl.Drop(index));
       table.Indexes.Remove(index);
     }
 
@@ -467,8 +461,7 @@ namespace Xtensive.Storage.Providers.Sql
       var table = FindTable(foreignKeyInfo.Parent.Name);
       var foreignKey = CreateForeignKey(foreignKeyInfo);
 
-      RegisterCommand(SqlFactory.Alter(table,
-          SqlFactory.AddConstraint(foreignKey)));
+      RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddConstraint(foreignKey)));
     }
 
     private void VisitRemoveForeignKeyAction(RemoveNodeAction action)
@@ -481,8 +474,7 @@ namespace Xtensive.Storage.Providers.Sql
         return;
 
       var foreignKey = table.TableConstraints[foreignKeyInfo.Name];
-      RegisterCommand(SqlFactory.Alter(table,
-          SqlFactory.DropConstraint(foreignKey)));
+      RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(foreignKey)));
       table.TableConstraints.Remove(foreignKey);
     }
 
@@ -500,7 +492,7 @@ namespace Xtensive.Storage.Providers.Sql
           sequenceInfo.StartValue, sequenceInfo.Increment);
         sequence.SequenceDescriptor.MinValue = sequenceInfo.StartValue;
         sequence.DataType = GetSqlType(sequenceInfo.Type);
-        RegisterCommand(SqlFactory.Create(sequence));
+        RegisterCommand(SqlDdl.Create(sequence));
       }
       else {
         CreateGeneratorTable(sequenceInfo);
@@ -512,7 +504,7 @@ namespace Xtensive.Storage.Providers.Sql
       var sequenceInfo = action.Difference.Source as SequenceInfo;
       if (IsSequencesAllowed) {
         var sequence = schema.Sequences[sequenceInfo.Name];
-        RegisterCommand(SqlFactory.Drop(sequence));
+        RegisterCommand(SqlDdl.Drop(sequence));
         schema.Sequences.Remove(sequence);
       }
       else {
@@ -529,8 +521,7 @@ namespace Xtensive.Storage.Providers.Sql
           sequenceInfo.StartValue, sequenceInfo.Increment);
         sequenceDescriptor.MinValue = sequenceInfo.StartValue;
         sequence.SequenceDescriptor = sequenceDescriptor;
-        RegisterCommand(SqlFactory.Alter(sequence,
-          sequenceDescriptor));
+        RegisterCommand(SqlDdl.Alter(sequence, sequenceDescriptor));
       }
       else if (!createdTables.Any(table => table.Name==sequenceInfo.Name)) {
         DropGeneratorTable(sequenceInfo);
@@ -560,8 +551,8 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var hint = action.DataHint as DeleteDataHint;
       var soureTableInfo = sourceModel.Resolve(hint.SourceTablePath) as TableInfo;
-      var table = SqlFactory.TableRef(FindTable(soureTableInfo.Name));
-      var delete = SqlFactory.Delete(table);
+      var table = SqlDml.TableRef(FindTable(soureTableInfo.Name));
+      var delete = SqlDml.Delete(table);
       
       delete.Where = CreateConditionalExpression(hint, table);
 
@@ -574,8 +565,8 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var hint = action.DataHint as  UpdateDataHint;
       var soureTableInfo = sourceModel.Resolve(hint.SourceTablePath) as TableInfo;
-      var table = SqlFactory.TableRef(FindTable(soureTableInfo.Name));
-      var update = SqlFactory.Update(table);
+      var table = SqlDml.TableRef(FindTable(soureTableInfo.Name));
+      var update = SqlDml.Update(table);
 
       var updatedColumns = hint.UpdateParameter
         .Select(pair => new Pair<ColumnInfo, object>(
@@ -585,9 +576,9 @@ namespace Xtensive.Storage.Providers.Sql
         throw new InvalidOperationException(Resources.Strings.ExIncorrectCommandParameters);
       foreach (var pair in updatedColumns)
         if (pair.Second==null)
-          update.Values[table[pair.First.Name]] = SqlFactory.DefaultValue;
+          update.Values[table[pair.First.Name]] = SqlDml.DefaultValue;
         else
-          update.Values[table[pair.First.Name]] = SqlFactory.Literal(pair.Second);
+          update.Values[table[pair.First.Name]] = SqlDml.Literal(pair.Second);
 
       update.Where = CreateConditionalExpression(hint, table);
       
@@ -631,8 +622,8 @@ namespace Xtensive.Storage.Providers.Sql
       
       // Build DML commands
       foreach (var table in sortedTables) {
-        var tableRef = SqlFactory.TableRef(FindTable(table.Name));
-        var delete = SqlFactory.Delete(tableRef);
+        var tableRef = SqlDml.TableRef(FindTable(table.Name));
+        var delete = SqlDml.Delete(tableRef);
         var typeIds = deleteActions[table];
         foreach (var typeId in typeIds)
           delete.Where |= tableRef[typeIdColumnName]==typeId;
@@ -650,7 +641,7 @@ namespace Xtensive.Storage.Providers.Sql
       
       // Rename old column
       var tempName = GetTemporaryName(column);
-      var renameColumn = SqlFactory.Rename(column, tempName);
+      var renameColumn = SqlDdl.Rename(column, tempName);
       RegisterCommand(renameColumn, UpgradeStage.Upgrade);
       RenameSchemaColumn(column, tempName);
 
@@ -661,20 +652,20 @@ namespace Xtensive.Storage.Providers.Sql
       newColumn.IsNullable = newTypeInfo.IsNullable;
       if (!newColumn.IsNullable)
         newColumn.DefaultValue = GetDefaultValueExpression(targetColumn);
-      var addColumnWithNewType = SqlFactory.Alter(column.Table, SqlFactory.AddColumn(newColumn));
+      var addColumnWithNewType = SqlDdl.Alter(column.Table, SqlDdl.AddColumn(newColumn));
       RegisterCommand(addColumnWithNewType, UpgradeStage.Upgrade);
 
       // Copy values if possible to convert type
       if (Upgrade.TypeConversionVerifier.CanConvert(sourceColumn.Type, newTypeInfo)
         || enforceChangedColumns.Contains(sourceColumn.Path)) {
-        var tableRef = SqlFactory.TableRef(column.Table);
-        var copyValues = SqlFactory.Update(tableRef);
+        var tableRef = SqlDml.TableRef(column.Table);
+        var copyValues = SqlDml.Update(tableRef);
         if (newTypeInfo.IsNullable)
-          copyValues.Values[tableRef[originalName]] = SqlFactory.Cast(tableRef[tempName], type);
+          copyValues.Values[tableRef[originalName]] = SqlDml.Cast(tableRef[tempName], type);
         else {
-          var getValue = SqlFactory.Case();
-          getValue.Add(SqlFactory.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
-          getValue.Add(SqlFactory.IsNotNull(tableRef[tempName]), SqlFactory.Cast(tableRef[tempName], type));
+          var getValue = SqlDml.Case();
+          getValue.Add(SqlDml.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
+          getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], type));
           copyValues.Values[tableRef[originalName]] = getValue;
         }
         RegisterCommand(copyValues, UpgradeStage.DataManipulate);
@@ -685,11 +676,9 @@ namespace Xtensive.Storage.Providers.Sql
         var constraint = table.TableConstraints
           .OfType<DefaultConstraint>().FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
         if (constraint!=null)
-          RegisterCommand(SqlFactory.Alter(table,
-            SqlFactory.DropConstraint(constraint)),
-            UpgradeStage.Cleanup);
+          RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(constraint)), UpgradeStage.Cleanup);
       }
-      var removeOldColumn = SqlFactory.Alter(column.Table, SqlFactory.DropColumn(column));
+      var removeOldColumn = SqlDdl.Alter(column.Table, SqlDdl.DropColumn(column));
       RegisterCommand(removeOldColumn, UpgradeStage.Cleanup);
       column.Table.TableColumns.Remove(column);
     }
@@ -784,7 +773,7 @@ namespace Xtensive.Storage.Providers.Sql
           idColumn,
           currentValue ?? sequenceInfo.StartValue,
           sequenceInfo.Increment);
-      RegisterCommand(SqlFactory.Create(sequenceTable));
+      RegisterCommand(SqlDdl.Create(sequenceTable));
     }
 
     private SqlDomain GetTimeSpanDomain()
@@ -793,7 +782,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (domain == null) {
         var sqlValueType = GetSqlType(new TypeInfo(typeof (TimeSpan)));
         domain = schema.CreateDomain(WellKnown.TimeSpanDomainName, sqlValueType);
-        RegisterCommand(SqlFactory.Create(domain), UpgradeStage.Prepare);
+        RegisterCommand(SqlDdl.Create(domain), UpgradeStage.Prepare);
       }
       return domain;
     }
@@ -801,7 +790,7 @@ namespace Xtensive.Storage.Providers.Sql
     private void DropGeneratorTable(SequenceInfo sequenceInfo)
     {
       var sequenceTable = FindTable(sequenceInfo.Name);
-      RegisterCommand(SqlFactory.Drop(sequenceTable));
+      RegisterCommand(SqlDdl.Drop(sequenceTable));
       schema.Tables.Remove(sequenceTable);
     }
 
@@ -898,15 +887,15 @@ namespace Xtensive.Storage.Providers.Sql
           throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
 
         var identifiedTable = FindTable(selectColumns[0].Parent.Name);
-        var identifiedTableRef = SqlFactory.TableRef(identifiedTable, 
+        var identifiedTableRef = SqlDml.TableRef(identifiedTable, 
           string.Format(SubqueryTableAliasNameFormat, identifiedTable.Name));
-        var select = SqlFactory.Select(identifiedTableRef);
+        var select = SqlDml.Select(identifiedTableRef);
         selectColumns.Apply(column => select.Columns.Add(identifiedTableRef[column.Name]));
         identityColumnPairs.Apply(pair =>
           select.Where &= identifiedTableRef[pair.First.Name]==table[pair.Second.Name]);
         identityConstantPairs.Apply(pair =>
-          select.Where &= identifiedTableRef[pair.First.Name]==SqlFactory.Literal(pair.Second));
-        return SqlFactory.Exists(select);
+          select.Where &= identifiedTableRef[pair.First.Name]==SqlDml.Literal(pair.Second));
+        return SqlDml.Exists(select);
       }
       else {
         var identityConstantPairs = hint.Identities
@@ -918,7 +907,7 @@ namespace Xtensive.Storage.Providers.Sql
           throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
         SqlExpression expression = null;
         identityConstantPairs.Apply(pair => 
-          expression &= table[pair.First.Name]==SqlFactory.Literal(pair.Second));
+          expression &= table[pair.First.Name]==SqlDml.Literal(pair.Second));
         return expression;
       }
     }
@@ -956,16 +945,16 @@ namespace Xtensive.Storage.Providers.Sql
 
     private SqlExpression GetDefaultValueExpression(ColumnInfo columnInfo)
     {
-      if (columnInfo.DefaultValue==null)
-        return null;
-
-      var defaultValueType = columnInfo.DefaultValue.GetType();
-      var mapping = valueTypeMapper.GetTypeMapping(defaultValueType, columnInfo.Type.Length);
-      var value = mapping.ToSqlValue!=null
-        ? mapping.ToSqlValue.Invoke(columnInfo.DefaultValue)
-        : columnInfo.DefaultValue;
-      
-      return value == null ? null : SqlFactory.Literal(value, value.GetType());
+      var result = columnInfo.DefaultValue==null
+        ? SqlDml.Null
+        : SqlDml.Literal(columnInfo.DefaultValue, columnInfo.DefaultValue.GetType());
+      var type = columnInfo.Type.Type;
+      if (type.IsNullable())
+        type = type.GetGenericArguments()[0];
+      var mapping = driver.TypeMappings[type];
+      if (mapping.ParameterCastRequired)
+        result = SqlDml.Cast(result, mapping.BuildSqlType(columnInfo.Type.Length, null, null));
+      return result;
     }
 
     # endregion

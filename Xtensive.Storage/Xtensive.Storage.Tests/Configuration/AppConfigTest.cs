@@ -12,12 +12,12 @@ using Xtensive.Core.Caching;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using System.Reflection;
 using Xtensive.Storage.Tests.Storage.TranscationsTest;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 
 namespace Xtensive.Storage.Tests.Configuration.UserDefinedMappings
@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Tests.Configuration.UserDefinedMappings
     [Compiler(typeof(byte[]), "Length", TargetKind.PropertyGet)]
     public static SqlExpression ByteArrayLength(SqlExpression _this)
     {
-      return SqlFactory.Length(_this);
+      return SqlDml.Length(_this);
     }
   }
 }

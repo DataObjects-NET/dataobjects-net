@@ -12,16 +12,14 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
-using Xtensive.Sql.Common;
-using Xtensive.Sql.Dom;
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Helpers;
 using Xtensive.Storage.Rse.Providers;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
 {
@@ -81,16 +79,15 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (e.NodeType == ExpressionType.Convert && e.Type == typeof(object))
         type = ((UnaryExpression) e).Operand.Type;
       type = StripNullable(type);
-      var typeMapping = valueTypeMapper.GetTypeMapping(type, null);
+      var typeMapping = valueTypeMapper.GetTypeMapping(type);
       var expression = parameterExtractor.ExtractParameter<object>(e);
       var binding = new SqlFetchParameterBinding(expression.CachingCompile(), typeMapping, smartNull);
       bindings.Add(binding);
       SqlExpression result = binding.ParameterReference;
-      // hack to make interval/datetime parameters work
-      if (type==typeof(DateTime) || type==typeof(TimeSpan))
-        result = SqlFactory.Cast(result, typeMapping.DataTypeInfo.SqlType);
       if (fixBooleanExpressions && type==typeof(bool))
         result = IntToBoolean(result);
+      else if (typeMapping.ParameterCastRequired)
+        result = SqlDml.Cast(result, typeMapping.BuildSqlType());
       return result;
     }
 
@@ -105,16 +102,16 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         case ExpressionType.ArrayLength:
           if (expression.Operand.Type != typeof(byte[]))
             throw new NotSupportedException(string.Format(Strings.ExTypeXIsNotSupported, expression.Operand.Type));
-          return SqlFactory.Cast(SqlFactory.Length(operand), SqlDataType.Int32);
+          return SqlDml.Cast(SqlDml.Length(operand), SqlType.Int32);
         case ExpressionType.Negate:
         case ExpressionType.NegateChecked:
-          return SqlFactory.Negate(operand);
+          return SqlDml.Negate(operand);
         case ExpressionType.UnaryPlus:
           return operand;
         case ExpressionType.Not:
           return IsBooleanExpression(expression.Operand)
-            ? SqlFactory.Not(operand)
-            : SqlFactory.BitNot(operand);
+            ? SqlDml.Not(operand)
+            : SqlDml.BitNot(operand);
         case ExpressionType.Convert:
         case ExpressionType.ConvertChecked:
           return VisitCast(expression, operand);
@@ -128,7 +125,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var targetType = StripNullable(cast.Type);
       if (sourceType==targetType || targetType==typeof(object))
         return operand;
-      return SqlFactory.Cast(operand, valueTypeMapper.BuildSqlValueType(targetType, null));
+      return SqlDml.Cast(operand, valueTypeMapper.BuildSqlValueType(targetType, null));
     }
 
     protected override SqlExpression VisitBinary(BinaryExpression expression)
@@ -186,48 +183,48 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       switch (expression.NodeType) {
         case ExpressionType.Add:
         case ExpressionType.AddChecked:
-          return SqlFactory.Add(left, right);
+          return SqlDml.Add(left, right);
         case ExpressionType.And:
           return IsBooleanExpression(expression.Left)
-            ? SqlFactory.And(left, right)
-            : SqlFactory.BitAnd(left, right);
+            ? SqlDml.And(left, right)
+            : SqlDml.BitAnd(left, right);
         case ExpressionType.AndAlso:
-          return SqlFactory.And(left, right);
+          return SqlDml.And(left, right);
         case ExpressionType.Coalesce:
-          SqlExpression coalesce = SqlFactory.Coalesce(left, right);
+          SqlExpression coalesce = SqlDml.Coalesce(left, right);
           if (isBooleanFixRequired)
             coalesce = IntToBoolean(coalesce);
           return coalesce;
         case ExpressionType.Divide:
-          return SqlFactory.Divide(left, right);
+          return SqlDml.Divide(left, right);
         case ExpressionType.Equal:
-          return SqlFactory.Equals(left, right);
+          return SqlDml.Equals(left, right);
         case ExpressionType.ExclusiveOr:
-          return SqlFactory.BitXor(left, right);
+          return SqlDml.BitXor(left, right);
         case ExpressionType.GreaterThan:
-          return SqlFactory.GreaterThan(left, right);
+          return SqlDml.GreaterThan(left, right);
         case ExpressionType.GreaterThanOrEqual:
-          return SqlFactory.GreaterThanOrEquals(left, right);
+          return SqlDml.GreaterThanOrEquals(left, right);
         case ExpressionType.LessThan:
-          return SqlFactory.LessThan(left, right);
+          return SqlDml.LessThan(left, right);
         case ExpressionType.LessThanOrEqual:
-          return SqlFactory.LessThanOrEquals(left, right);
+          return SqlDml.LessThanOrEquals(left, right);
         case ExpressionType.Modulo:
-          return SqlFactory.Modulo(left, right);
+          return SqlDml.Modulo(left, right);
         case ExpressionType.Multiply:
         case ExpressionType.MultiplyChecked:
-          return SqlFactory.Multiply(left, right);
+          return SqlDml.Multiply(left, right);
         case ExpressionType.NotEqual:
-          return SqlFactory.NotEquals(left, right);
+          return SqlDml.NotEquals(left, right);
         case ExpressionType.Or:
           return IsBooleanExpression(expression.Left)
-            ? SqlFactory.Or(left, right)
-            : SqlFactory.BitOr(left, right);
+            ? SqlDml.Or(left, right)
+            : SqlDml.BitOr(left, right);
         case ExpressionType.OrElse:
-          return SqlFactory.Or(left, right);
+          return SqlDml.Or(left, right);
         case ExpressionType.Subtract:
         case ExpressionType.SubtractChecked:
-          return SqlFactory.Subtract(left, right);
+          return SqlDml.Subtract(left, right);
         default:
           throw new ArgumentOutOfRangeException("expression");
       }
@@ -244,12 +241,12 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var ifTrue = Visit(expression.IfTrue);
       var ifFalse = Visit(expression.IfFalse);
       if (fixBooleanExpressions && IsBooleanExpression(expression)) {
-        var c = SqlFactory.Case();
+        var c = SqlDml.Case();
         c[check] = BooleanToInt(ifTrue);
         c.Else = BooleanToInt(ifFalse);
         return IntToBoolean(c);
       } else {
-        var c = SqlFactory.Case();
+        var c = SqlDml.Case();
         c[check] = ifTrue;
         c.Else = ifFalse;
         return c;
@@ -260,15 +257,15 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       if (expression.Value==null)
         return fixBooleanExpressions && expression.Type==typeof (bool?)
-          ? IntToBoolean(SqlFactory.Null)
-          : SqlFactory.Null;
+          ? IntToBoolean(SqlDml.Null)
+          : SqlDml.Null;
       var type = expression.Type;
       if (type==typeof(object))
         type = expression.Value.GetType();
       type = StripNullable(type);
       if (fixBooleanExpressions && type==typeof (bool))
         return (bool) expression.Value ? IntToBoolean(1) : IntToBoolean(0);
-      return SqlFactory.LiteralOrContainer(expression.Value, type);
+      return SqlDml.LiteralOrContainer(expression.Value, type);
     }
 
     protected override SqlExpression VisitParameter(ParameterExpression expression)
@@ -346,7 +343,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (expression.NodeType!=ExpressionType.NewArrayInit)
         throw new NotSupportedException();
       var expressions = expression.Expressions.Select(e => Visit(e)).ToArray();
-      return SqlFactory.Container(expressions);
+      return SqlDml.Container(expressions);
     }
 
     protected override SqlExpression VisitInvocation(InvocationExpression i)
@@ -434,11 +431,11 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           case ExpressionType.Equal:
           case ExpressionType.GreaterThan:
           case ExpressionType.GreaterThanOrEqual:
-            return SqlFactory.GreaterThan(leftComparand, rightComparand);
+            return SqlDml.GreaterThan(leftComparand, rightComparand);
           case ExpressionType.NotEqual:
           case ExpressionType.LessThanOrEqual:
           case ExpressionType.LessThan:
-            return SqlFactory.LessThanOrEquals(leftComparand, rightComparand);
+            return SqlDml.LessThanOrEquals(leftComparand, rightComparand);
           default:
             return null;
         }
@@ -448,28 +445,28 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           case ExpressionType.NotEqual:
           case ExpressionType.GreaterThan:
           case ExpressionType.GreaterThanOrEqual:
-            return SqlFactory.GreaterThanOrEquals(leftComparand, rightComparand);
+            return SqlDml.GreaterThanOrEquals(leftComparand, rightComparand);
           case ExpressionType.Equal:
           case ExpressionType.LessThanOrEqual:
           case ExpressionType.LessThan:
-            return SqlFactory.LessThan(leftComparand, rightComparand);
+            return SqlDml.LessThan(leftComparand, rightComparand);
           default:
             return null;
         }
 
       switch (expression.NodeType) {
         case ExpressionType.GreaterThan:
-          return SqlFactory.GreaterThan(leftComparand, rightComparand);
+          return SqlDml.GreaterThan(leftComparand, rightComparand);
         case ExpressionType.GreaterThanOrEqual:
-          return SqlFactory.GreaterThanOrEquals(leftComparand, rightComparand);
+          return SqlDml.GreaterThanOrEquals(leftComparand, rightComparand);
         case ExpressionType.Equal:
-          return SqlFactory.Equals(leftComparand, rightComparand);
+          return SqlDml.Equals(leftComparand, rightComparand);
         case ExpressionType.NotEqual:
-          return SqlFactory.NotEquals(leftComparand, rightComparand);
+          return SqlDml.NotEquals(leftComparand, rightComparand);
         case ExpressionType.LessThanOrEqual:
-          return SqlFactory.LessThanOrEquals(leftComparand, rightComparand);
+          return SqlDml.LessThanOrEquals(leftComparand, rightComparand);
         case ExpressionType.LessThan:
-          return SqlFactory.LessThan(leftComparand, rightComparand);
+          return SqlDml.LessThan(leftComparand, rightComparand);
         default:
           return null;
       }
@@ -478,18 +475,18 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private static SqlExpression TryTranslateEqualitySpecialCases(SqlExpression left, SqlExpression right)
     {
       if (right.NodeType == SqlNodeType.Null)
-        return SqlFactory.IsNull(left);
+        return SqlDml.IsNull(left);
       if (right.NodeType == SqlNodeType.Parameter)
-        return SqlFactory.Variant(SqlFactory.Equals(left, right), SqlFactory.IsNull(left), ((SqlParameterRef) right).Parameter);
+        return SqlDml.Variant(SqlDml.Equals(left, right), SqlDml.IsNull(left), ((SqlParameterRef) right).Parameter);
       return null;
     }
 
     private static SqlExpression TryTranslateInequalitySpecialCases(SqlExpression left, SqlExpression right)
     {
       if (right.NodeType == SqlNodeType.Null)
-        return SqlFactory.IsNotNull(left);
+        return SqlDml.IsNotNull(left);
       if (right.NodeType == SqlNodeType.Parameter)
-        return SqlFactory.Variant(SqlFactory.NotEquals(left, right), SqlFactory.IsNotNull(left), ((SqlParameterRef)right).Parameter);
+        return SqlDml.Variant(SqlDml.NotEquals(left, right), SqlDml.IsNotNull(left), ((SqlParameterRef)right).Parameter);
       return null;
     }
 
@@ -540,7 +537,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         }
       }
 
-      return SqlFactory.NotEquals(expression, 0);
+      return SqlDml.NotEquals(expression, 0);
     }
 
     public static SqlExpression BooleanToInt(SqlExpression expression)
@@ -554,10 +551,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           return left;
       }
 
-      var result = SqlFactory.Case();
+      var result = SqlDml.Case();
       result.Add(expression, 1);
       result.Else = 0;
-      return SqlFactory.Cast(result, SqlDataType.Boolean);
+      return SqlDml.Cast(result, SqlType.Boolean);
     }
     
     // Constructors

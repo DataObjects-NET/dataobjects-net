@@ -6,7 +6,8 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Sql.Dom.Database;
+using Xtensive.Sql.Model;
+using Xtensive.Sql.ValueTypeMapping;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings
@@ -19,12 +20,11 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
 
     public TableColumn Column { get; private set; }
 
-    public DataTypeMapping TypeMapping { get; private set; }
-
-
+    public TypeMapping TypeMapping { get; private set; }
+    
     // Constructors
 
-    internal ColumnMapping(ColumnInfo columnInfo, TableColumn column, DataTypeMapping typeMapping)
+    internal ColumnMapping(ColumnInfo columnInfo, TableColumn column, TypeMapping typeMapping)
     {
       ColumnInfo = columnInfo;
       Column = column;

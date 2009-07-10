@@ -6,8 +6,6 @@
 
 namespace Xtensive.Storage.Providers.PgSql
 {
-  [Provider("pgsql", Description = "Storage provider for PostgreSQL.")]
-  [Provider("postgres", Description = "Storage provider for PostgreSQL.")]
   [Provider("postgresql", Description = "Storage provider for PostgreSQL.")]
   public class HandlerFactory : Providers.HandlerFactory
   {

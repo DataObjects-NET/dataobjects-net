@@ -4,12 +4,10 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.10
 
-using System;
 using System.Linq;
+using Xtensive.Sql;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
-using Xtensive.Sql.Dom;
 
 namespace Xtensive.Storage.Providers.PgSql
 {
@@ -30,8 +28,8 @@ namespace Xtensive.Storage.Providers.PgSql
           string.Format(Resources.Strings.ExSequenceXIsNotFound, generatorInfo.MappingName));
       dh.ValueTypeMapper.BuildSqlValueType(generatorInfo.TupleDescriptor[0], 0);
       
-      var sqlNext = SqlFactory.Select();
-      sqlNext.Columns.Add(SqlFactory.NextValue(sequence));
+      var sqlNext = SqlDml.Select();
+      sqlNext.Columns.Add(SqlDml.NextValue(sequence));
 
       return new SqlCachingKeyGenerator<TFieldType>(generatorInfo, sqlNext);
     }

@@ -6,7 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Sql.Dom.Database;
+using Xtensive.Sql.Model;
+using Xtensive.Sql.ValueTypeMapping;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql.Mappings
@@ -49,7 +50,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings
 
     private readonly Dictionary<ColumnInfo, ColumnMapping> columnMappings = new Dictionary<ColumnInfo, ColumnMapping>();
 
-    internal ColumnMapping RegisterMapping(ColumnInfo columnInfo, TableColumn column, DataTypeMapping typeMapping)
+    internal ColumnMapping RegisterMapping(ColumnInfo columnInfo, TableColumn column, TypeMapping typeMapping)
     {
       ColumnMapping result = new ColumnMapping(columnInfo, column, typeMapping);
       columnMappings[columnInfo] = result;

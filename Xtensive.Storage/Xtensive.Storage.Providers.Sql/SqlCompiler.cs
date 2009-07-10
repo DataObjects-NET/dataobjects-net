@@ -11,18 +11,17 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Sql.Dom;
-using Xtensive.Sql.Dom.Database;
-using Xtensive.Sql.Dom.Dml;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
+using Xtensive.Sql.Model;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Expressions;
-using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
+using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -70,7 +69,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       SqlTable queryRef = source.PermanentReference;
-      SqlSelect sqlSelect = SqlFactory.Select(queryRef);
+      SqlSelect sqlSelect = SqlDml.Select(queryRef);
 
       var columns = queryRef.Columns.ToList();
       sqlSelect.Columns.Clear();
@@ -105,7 +104,7 @@ namespace Xtensive.Storage.Providers.Sql
         var columnName = provider.Header.Columns[i].Name;
         var columnRef = columns[i] as SqlColumnRef;
         if (columnRef != null)
-          sqlSelect.Columns.Add(SqlFactory.ColumnRef(columnRef.SqlColumn, columnName));
+          sqlSelect.Columns.Add(SqlDml.ColumnRef(columnRef.SqlColumn, columnName));
         else
           sqlSelect.Columns.Add(columns[i], columnName);
       }
@@ -127,7 +126,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
       else {
         var queryRef = source.PermanentReference;
-        sqlSelect = SqlFactory.Select(queryRef);
+        sqlSelect = SqlDml.Select(queryRef);
         sqlSelect.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       }
       
@@ -152,8 +151,8 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
-      var queryRef = SqlFactory.QueryRef(source.Request.SelectStatement);
-      var query = SqlFactory.Select(queryRef);
+      var queryRef = SqlDml.QueryRef(source.Request.SelectStatement);
+      var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Distinct = true;
       return new SqlProvider(provider, query, Handlers, source);
@@ -202,7 +201,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
       var leftQuery = left.PermanentReference;
       var rightQuery = right.PermanentReference;
-      var joinedTable = SqlFactory.Join(
+      var joinedTable = SqlDml.Join(
         provider.JoinType == JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
         rightQuery,
@@ -211,7 +210,7 @@ namespace Xtensive.Storage.Providers.Sql
           .Aggregate(null as SqlExpression, (expression, binary) => expression & binary)
         );
 
-      SqlSelect query = SqlFactory.Select(joinedTable);
+      SqlSelect query = SqlDml.Select(joinedTable);
       query.Columns.AddRange(leftQuery.Columns.Concat(rightQuery.Columns).Cast<SqlColumn>());
       return new SqlProvider(provider, query, Handlers, left, right);
     }
@@ -233,17 +232,17 @@ namespace Xtensive.Storage.Providers.Sql
       var value = predicate as SqlLiteral<bool>;
         if (value!=null) {
           if (value.Value)
-            predicate = SqlFactory.Literal(1) == 1;
+            predicate = SqlDml.Literal(1) == 1;
           else
-            predicate = SqlFactory.Literal(1) == 0;
+            predicate = SqlDml.Literal(1) == 0;
         }
-      var joinedTable = SqlFactory.Join(
+      var joinedTable = SqlDml.Join(
         provider.JoinType == JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
         rightQuery,
         predicate);
 
-      SqlSelect query = SqlFactory.Select(joinedTable);
+      SqlSelect query = SqlDml.Select(joinedTable);
       query.Columns.AddRange(leftQuery.Columns.Concat(rightQuery.Columns).Cast<SqlColumn>());
       return new SqlProvider(provider, query, Handlers, bindings, left, right);
     }
@@ -262,7 +261,7 @@ namespace Xtensive.Storage.Providers.Sql
       var bindings = (HashSet<SqlFetchParameterBinding>) rangeProvider.Request.ParameterBindings;
       for (int i = 0; i < originalRange.EndPoints.First.Value.Count; i++) {
         var column = provider.Header.Columns[keyColumns[i].Key];
-        DataTypeMapping typeMapping = ((DomainHandler)Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type, null);
+        TypeMapping typeMapping = ((DomainHandler)Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
         int fieldIndex = i;
         var binding = new SqlFetchParameterBinding(() => rangeProvider.CurrentRange.EndPoints.First.Value.GetValue(fieldIndex), typeMapping);
         bindings.Add(binding);
@@ -291,7 +290,7 @@ namespace Xtensive.Storage.Providers.Sql
         int columnIndex = keyColumns[i].Key;
         var sqlColumn = query.Columns[columnIndex];
         var column = provider.Header.Columns[columnIndex];
-        DataTypeMapping typeMapping = ValueTypeMapper.GetTypeMapping(column.Type, null);
+        TypeMapping typeMapping = ValueTypeMapper.GetTypeMapping(column.Type);
         int index = i;
         var binding = new SqlFetchParameterBinding(() => provider.CompiledKey.Invoke().GetValue(index), typeMapping);
         parameterBindings.Add(binding);
@@ -312,7 +311,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (provider.ColumnIndexes.Length == 0) {
         query = ShallowCopy(compiledSource.Request.SelectStatement);
         query.Columns.Clear();
-        query.Columns.Add(SqlFactory.Null, "NULL");
+        query.Columns.Add(SqlDml.Null, "NULL");
       }
       else {
         query = ShallowCopy(compiledSource.Request.SelectStatement);
@@ -332,7 +331,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       var queryRef = compiledSource.PermanentReference;
-      var query = SqlFactory.Select(queryRef);
+      var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Offset = provider.Count();
       AddOrderByStatement(provider, query);
@@ -366,7 +365,7 @@ namespace Xtensive.Storage.Providers.Sql
           var mappedColumn = column as MappedColumn;
           if (mappedColumn != null) {
             ColumnInfo ci = mappedColumn.ColumnInfoRef.Resolve(domainHandler.Domain.Model);
-            DataTypeMapping tm = domainHandler.ValueTypeMapper.GetTypeMapping(ci);
+            TypeMapping tm = domainHandler.ValueTypeMapper.GetTypeMapping(ci);
             svt = domainHandler.ValueTypeMapper.BuildSqlValueType(ci);
           }
           else
@@ -378,8 +377,8 @@ namespace Xtensive.Storage.Providers.Sql
       else
         table = schema.Tables[tableName];
 
-      SqlTableRef tr = SqlFactory.TableRef(table);
-      SqlSelect query = SqlFactory.Select(tr);
+      SqlTableRef tr = SqlDml.TableRef(table);
+      SqlSelect query = SqlDml.Select(tr);
       foreach (SqlTableColumn column in tr.Columns)
         query.Columns.Add(column);
       schema.Tables.Remove(table);
@@ -416,7 +415,7 @@ namespace Xtensive.Storage.Providers.Sql
       var leftQuery = left.PermanentReference;
       var rightQuery = right.Request.SelectStatement;
 
-      var select = SqlFactory.Select(leftQuery);
+      var select = SqlDml.Select(leftQuery);
       if (left.Origin.Header.Length > 0)
         select.Columns.AddRange(leftQuery.Columns.Cast<SqlColumn>());
 
@@ -447,10 +446,10 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
 
-      SqlExpression existsExpression = SqlFactory.Exists(source.Request.SelectStatement);
+      SqlExpression existsExpression = SqlDml.Exists(source.Request.SelectStatement);
       if (!BoolIsNativelySupported)
         existsExpression = ExpressionProcessor.BooleanToInt(existsExpression);
-      var select = SqlFactory.Select();
+      var select = SqlDml.Select();
       select.Columns.Add(existsExpression, provider.ExistenceColumnName);
 
       return new SqlProvider(provider, select, Handlers, source);
@@ -467,12 +466,12 @@ namespace Xtensive.Storage.Providers.Sql
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
       
-      var result = SqlFactory.Intersect(
+      var result = SqlDml.Intersect(
         leftSelect,
         rightSelect);
 
-      var queryRef = SqlFactory.QueryRef(result);
-      SqlSelect query = SqlFactory.Select(queryRef);
+      var queryRef = SqlDml.QueryRef(result);
+      SqlSelect query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
       return new SqlProvider(provider, query, Handlers, left, right);
@@ -489,12 +488,12 @@ namespace Xtensive.Storage.Providers.Sql
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
 
-      var result = SqlFactory.Except(
+      var result = SqlDml.Except(
         leftSelect,
         rightSelect);
 
-      var queryRef = SqlFactory.QueryRef(result);
-      SqlSelect query = SqlFactory.Select(queryRef);
+      var queryRef = SqlDml.QueryRef(result);
+      SqlSelect query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
       return new SqlProvider(provider, query, Handlers, left, right);
@@ -511,10 +510,10 @@ namespace Xtensive.Storage.Providers.Sql
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
 
-      var result = SqlFactory.UnionAll(leftSelect, rightSelect);
+      var result = SqlDml.UnionAll(leftSelect, rightSelect);
 
-      var queryRef = SqlFactory.QueryRef(result);
-      SqlSelect query = SqlFactory.Select(queryRef);
+      var queryRef = SqlDml.QueryRef(result);
+      SqlSelect query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
       return new SqlProvider(provider, query, Handlers, left, right);
@@ -531,12 +530,12 @@ namespace Xtensive.Storage.Providers.Sql
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
 
-      var result = SqlFactory.Union(
+      var result = SqlDml.Union(
         leftSelect,
         rightSelect);
 
-      var queryRef = SqlFactory.QueryRef(result);
-      SqlSelect query = SqlFactory.Select(queryRef);
+      var queryRef = SqlDml.QueryRef(result);
+      SqlSelect query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
       return new SqlProvider(provider, query, Handlers, left, right);
@@ -587,15 +586,15 @@ namespace Xtensive.Storage.Providers.Sql
     {
       switch (aggregateColumn.AggregateType) {
         case AggregateType.Avg:
-          return SqlFactory.Avg(sourceColumns[aggregateColumn.SourceIndex]);
+          return SqlDml.Avg(sourceColumns[aggregateColumn.SourceIndex]);
         case AggregateType.Count:
-          return SqlFactory.Count(SqlFactory.Asterisk);
+          return SqlDml.Count(SqlDml.Asterisk);
         case AggregateType.Max:
-          return SqlFactory.Max(sourceColumns[aggregateColumn.SourceIndex]);
+          return SqlDml.Max(sourceColumns[aggregateColumn.SourceIndex]);
         case AggregateType.Min:
-          return SqlFactory.Min(sourceColumns[aggregateColumn.SourceIndex]);
+          return SqlDml.Min(sourceColumns[aggregateColumn.SourceIndex]);
         case AggregateType.Sum:
-          return SqlFactory.Sum(sourceColumns[aggregateColumn.SourceIndex]);
+          return SqlDml.Sum(sourceColumns[aggregateColumn.SourceIndex]);
         default:
           throw new ArgumentException();
       }
@@ -609,8 +608,8 @@ namespace Xtensive.Storage.Providers.Sql
     protected static SqlSelect ShallowCopy(SqlSelect source)
     {
       var result = ReferenceEquals(source.From, null) 
-        ? SqlFactory.Select() 
-        : SqlFactory.Select(source.From);
+        ? SqlDml.Select() 
+        : SqlDml.Select(source.From);
       result.Columns.AddRange(source.Columns);
       result.Distinct = source.Distinct;
       result.GroupBy.AddRange(source.GroupBy);
@@ -651,8 +650,8 @@ namespace Xtensive.Storage.Providers.Sql
         atRootPolicy = true;
       }
 
-      SqlTableRef tableRef = SqlFactory.TableRef(table);
-      SqlSelect query = SqlFactory.Select(tableRef);
+      SqlTableRef tableRef = SqlDml.TableRef(table);
+      SqlSelect query = SqlDml.Select(tableRef);
       if (!atRootPolicy)
         query.Columns.AddRange(index.Columns.Select(c => (SqlColumn) tableRef.Columns[c.Name]));
       else {
@@ -674,7 +673,7 @@ namespace Xtensive.Storage.Providers.Sql
           var column = select.Columns[columnInfo.Name];
           if (SqlExpression.IsNull(column)) {
             var valueType = ValueTypeMapper.BuildSqlValueType(columnInfo);
-            select.Columns.Insert(i, SqlFactory.Cast(SqlFactory.Null, valueType), columnInfo.Name);
+            select.Columns.Insert(i, SqlDml.Cast(SqlDml.Null, valueType), columnInfo.Name);
           }
           i++;
         }
@@ -684,8 +683,8 @@ namespace Xtensive.Storage.Providers.Sql
           result = result.Union(select);
       }
 
-      var unionRef = SqlFactory.QueryRef(result);
-      SqlSelect query = SqlFactory.Select(unionRef);
+      var unionRef = SqlDml.QueryRef(result);
+      SqlSelect query = SqlDml.Select(unionRef);
       query.Columns.AddRange(unionRef.Columns.Cast<SqlColumn>());
       return query;
     }
@@ -700,12 +699,12 @@ namespace Xtensive.Storage.Providers.Sql
       var baseQueries = index.UnderlyingIndexes.Select(i => BuildProviderQuery(i)).ToList();
       foreach (var baseQuery in baseQueries) {
         if (result == null) {
-          result = SqlExpression.IsNull(baseQuery.Where) ? baseQuery.From : SqlFactory.QueryRef(baseQuery);
+          result = SqlExpression.IsNull(baseQuery.Where) ? baseQuery.From : SqlDml.QueryRef(baseQuery);
           rootTable = result;
           columns = rootTable.Columns.Cast<SqlColumn>();
         }
         else {
-          var queryRef = SqlExpression.IsNull(baseQuery.Where) ? baseQuery.From : SqlFactory.QueryRef(baseQuery);
+          var queryRef = SqlExpression.IsNull(baseQuery.Where) ? baseQuery.From : SqlDml.QueryRef(baseQuery);
           SqlExpression joinExpression = null;
           for (int i = 0; i < keyColumnCount; i++) {
             SqlBinary binary = (queryRef.Columns[i] == rootTable.Columns[i]);
@@ -719,7 +718,7 @@ namespace Xtensive.Storage.Providers.Sql
         }
       }
 
-      SqlSelect query = SqlFactory.Select(result);
+      SqlSelect query = SqlDml.Select(result);
       query.Columns.AddRange(columns);
 
       return query;
@@ -734,8 +733,8 @@ namespace Xtensive.Storage.Providers.Sql
       var underlyingIndex = index.UnderlyingIndexes[0];
       var baseQuery = BuildProviderQuery(underlyingIndex);
       SqlColumn typeIdColumn = baseQuery.Columns[Handlers.Domain.NameBuilder.TypeIdColumnName];
-      SqlBinary inQuery = SqlFactory.In(typeIdColumn, SqlFactory.Array(typeIds));
-      SqlSelect query = SqlFactory.Select(baseQuery.From);
+      SqlBinary inQuery = SqlDml.In(typeIdColumn, SqlDml.Array(typeIds));
+      SqlSelect query = SqlDml.Select(baseQuery.From);
       var atRootPolicy = index.ReflectedType.Hierarchy.Schema==InheritanceSchema.SingleTable;
       Dictionary<FieldInfo, string> lookup;
       if (atRootPolicy) {
@@ -770,7 +769,7 @@ namespace Xtensive.Storage.Providers.Sql
       SqlSelect query;
       if (containsCalculatedColumns) {
         var queryRef = source.PermanentReference;
-        query = SqlFactory.Select(queryRef);
+        query = SqlDml.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       }
       else

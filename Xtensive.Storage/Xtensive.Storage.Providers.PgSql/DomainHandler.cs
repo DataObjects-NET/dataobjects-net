@@ -5,7 +5,6 @@
 // Created:    2008.07.04
 
 using Xtensive.Core.Collections;
-using Xtensive.Sql.Common;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.PreCompilation;
@@ -36,19 +35,6 @@ namespace Xtensive.Storage.Providers.PgSql
         new RedundantColumnOptimizer(),
         new OrderingCorrector(ResolveOrderingDescriptor, true)
         );
-    }
-
-    /// <inheritdoc/>
-    protected override ProviderInfo CreateProviderInfo()
-    {
-      var serverInfo = ((SessionHandler) BuildingContext.Current.SystemSessionHandler).Connection
-        .Driver.ServerInfo;
-      return new ProviderInfo(serverInfo, false, false, true) {SupportsRealTimeSpan = true};
-    }
-
-    protected override Xtensive.Sql.Dom.SqlDriver CreateSqlDriver(ConnectionInfo connectionInfo)
-    {
-      return new Xtensive.Sql.Dom.PgSql.PgSqlDriver(connectionInfo);
     }
   }
 }

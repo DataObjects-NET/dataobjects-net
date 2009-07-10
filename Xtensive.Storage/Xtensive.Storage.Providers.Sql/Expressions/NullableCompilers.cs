@@ -7,13 +7,13 @@
 using System;
 using System.Reflection;
 using Xtensive.Core.Linq;
-using Xtensive.Sql.Dom.Dml;
-using SqlFactory = Xtensive.Sql.Dom.Sql;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 
-namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
+namespace Xtensive.Storage.Providers.Sql.Expressions
 {
   [CompilerContainer(typeof(SqlExpression))]
-  internal static class NullableMappings
+  internal static class NullableCompilers
   {
     [Compiler(typeof(Nullable<>), "Value", TargetKind.PropertyGet)]
     public static SqlExpression NullableValue(MemberInfo memberInfo, SqlExpression _this)
@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Providers.Sql.Mappings.FunctionMappings
     [Compiler(typeof(Nullable<>), "HasValue", TargetKind.PropertyGet)]
     public static SqlExpression NullableHasValue(MemberInfo memberInfo, SqlExpression _this)
     {
-      return SqlFactory.IsNotNull(_this);
+      return SqlDml.IsNotNull(_this);
     }
   }
 }
