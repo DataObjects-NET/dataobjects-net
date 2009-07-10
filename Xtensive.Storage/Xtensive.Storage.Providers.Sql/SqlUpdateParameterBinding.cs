@@ -4,28 +4,26 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.25
 
-using System;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Storage.Providers.Sql
 {
   public sealed class SqlUpdateParameterBinding : SqlParameterBinding
   {
-    public Func<Tuple, object> ValueAccessor { get; private set; }
+    public int FieldIndex { get; private set;}
 
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="fieldIndex">Index of the field that contain new value.</param>
     /// <param name="typeMapping">The type mapping.</param>
-    /// <param name="valueAccessor">The value accessor.</param>
-    public SqlUpdateParameterBinding(Func<Tuple, object> valueAccessor, TypeMapping typeMapping)
+    public SqlUpdateParameterBinding(int fieldIndex, TypeMapping typeMapping)
       : base(typeMapping)
     {
-      ValueAccessor = valueAccessor;
+      FieldIndex = fieldIndex;
     }
   }
 }

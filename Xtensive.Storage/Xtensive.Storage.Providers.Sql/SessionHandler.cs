@@ -373,7 +373,7 @@ namespace Xtensive.Storage.Providers.Sql
       var compilationResult = request.Compile(DomainHandler);
 
       foreach (var binding in request.ParameterBindings) {
-        object parameterValue = binding.ValueAccessor.Invoke(value);
+        object parameterValue = value.IsNull(binding.FieldIndex) ? null : value.GetValue(binding.FieldIndex);
         string parameterName = compilationResult.GetParameterName(binding.ParameterReference.Parameter);
         AddParameter(command, parameterName, parameterValue, binding.TypeMapping);
       }

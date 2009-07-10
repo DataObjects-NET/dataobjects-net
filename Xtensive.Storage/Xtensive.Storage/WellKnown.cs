@@ -51,5 +51,24 @@ namespace Xtensive.Storage
     /// Name of <see cref="TimeSpan"/> domain.
     /// </summary>
     public const string TimeSpanDomainName = "dTimeSpan";
+
+    /// <summary>
+    /// Well-known storage protocol names.
+    /// </summary>
+    public static class Protocol
+    {
+      /// <summary>
+      /// In-memory index storage.
+      /// </summary>
+      public const string Memory = "memory";
+      /// <summary>
+      /// Microsoft SQL Server.
+      /// </summary>
+      public const string SqlServer = "sqlserver";
+      /// <summary>
+      /// PostgreSQL.
+      /// </summary>
+      public const string PostgreSql = "postgresql";
+    }
   }
 }

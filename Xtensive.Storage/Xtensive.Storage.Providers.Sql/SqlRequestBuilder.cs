@@ -4,10 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.28
 
-using System;
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.ValueTypeMapping;
@@ -68,7 +66,7 @@ namespace Xtensive.Storage.Providers.Sql
             SqlUpdateParameterBinding binding;
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
               TypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
-              binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
+              binding = new SqlUpdateParameterBinding(fieldIndex, typeMapping);
               context.ParameterBindings.Add(column, binding);
             }
             query.Values[table[column.Name]] = binding.ParameterReference;
@@ -91,7 +89,7 @@ namespace Xtensive.Storage.Providers.Sql
             SqlUpdateParameterBinding binding;
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
               TypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
-              binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
+              binding = new SqlUpdateParameterBinding(fieldIndex, typeMapping);
               context.ParameterBindings.Add(column, binding);
             }
             query.Values[table[column.Name]] = binding.ParameterReference;
@@ -120,18 +118,15 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual SqlExpression BuildWhereExpression(SqlRequestBuilderContext context, SqlTableRef table)
     {
       SqlExpression expression = null;
-      int i = 0;
       foreach (ColumnInfo column in context.PrimaryIndex.KeyColumns.Keys) {
-        IndexInfo index = column.Field.DeclaringType.Indexes.PrimaryIndex;
         int fieldIndex = GetFieldIndex(context.Task.Type, column);
         SqlUpdateParameterBinding binding;
         if (!context.ParameterBindings.TryGetValue(column, out binding)) {
           TypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
-          binding = new SqlUpdateParameterBinding(GetTupleFieldAccessor(fieldIndex), typeMapping);
+          binding = new SqlUpdateParameterBinding(fieldIndex, typeMapping);
           context.ParameterBindings.Add(column, binding);
         }
         expression &= table[column.Name]==binding.ParameterReference;
-        i++;
       }
       return expression;
     }
@@ -142,11 +137,6 @@ namespace Xtensive.Storage.Providers.Sql
       if (!type.Fields.TryGetValue(column.Field.Name, out field))
         return -1;
       return field.MappingInfo.Offset;
-    }
-
-    private static Func<Tuple, object> GetTupleFieldAccessor(int fieldIndex)
-    {
-      return (tuple => tuple.IsNull(fieldIndex) ? null : tuple.GetValue(fieldIndex));
     }
 
     /// <inheritdoc/>

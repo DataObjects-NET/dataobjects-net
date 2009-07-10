@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (SqlTableColumn column in tableRef.Columns) {
         int fieldIndex = i;
         TypeMapping typeMapping = ((DomainHandler) handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(Header.Columns[i].Type);
-        var binding = new SqlUpdateParameterBinding((target => target.IsNull(fieldIndex) ? DBNull.Value : target.GetValue(fieldIndex)), typeMapping);
+        var binding = new SqlUpdateParameterBinding(fieldIndex, typeMapping);
         insert.Values[column] = binding.ParameterReference;
         bindings.Add(binding);
         i++;

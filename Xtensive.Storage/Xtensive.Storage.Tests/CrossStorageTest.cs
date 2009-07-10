@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Tests
   public abstract class CrossStorageTest
   {
     private static readonly string[] providers = new[] {
-        "memory", "sqlserver", "postgresql"
+        "memory", "mssql2005", "pgsql"
       };
 
     private DisposableSet disposableSet;

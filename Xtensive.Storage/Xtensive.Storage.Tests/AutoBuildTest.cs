@@ -69,13 +69,13 @@ namespace Xtensive.Storage.Tests
     {
       protocolName = config.ConnectionInfo.Protocol;
       switch (protocolName) {
-      case "sqlserver":
+      case WellKnown.Protocol.SqlServer:
         protocol = StorageProtocols.SqlServer;
         break;
-      case "postgresql":
+      case WellKnown.Protocol.PostgreSql:
         protocol = StorageProtocols.PostgreSql;
         break;
-      case "memory":
+      case WellKnown.Protocol.Memory:
         protocol = StorageProtocols.Memory;
         break;
       default:
