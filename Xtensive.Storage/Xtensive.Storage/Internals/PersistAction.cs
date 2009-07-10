@@ -1,0 +1,27 @@
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexander Nikolaev
+// Created:    2009.07.09
+
+namespace Xtensive.Storage.Internals
+{
+  /// <summary>
+  /// Action to be executed during a persisting.
+  /// </summary>
+  public enum PersistAction
+  {
+    /// <summary>
+    /// 'Insert' action.
+    /// </summary>
+    Insert = 0,
+    /// <summary>
+    /// 'Update' action.
+    /// </summary>
+    Update = 1,
+    /// <summary>
+    /// 'Remove' action.
+    /// </summary>
+    Remove = 2
+  }
+}

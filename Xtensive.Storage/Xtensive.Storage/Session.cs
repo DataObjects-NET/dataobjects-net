@@ -5,17 +5,21 @@
 // Created:    2007.08.10
 
 using System;
-using System.ComponentModel;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Sorting;
 using Xtensive.Integrity.Atomicity;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.ReferentialIntegrity;
@@ -162,7 +166,7 @@ namespace Xtensive.Storage
           Log.Debug("Session '{0}'. Persisting...", this);
         NotifyPersisting();
 
-        Handler.Persist();
+        Handler.Persist(GetStatesToPersist());
 
         if (IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Persisted.", this);
@@ -176,6 +180,98 @@ namespace Xtensive.Storage
       }
       finally {
         isPersisting = false;
+      }
+    }
+
+    private IEnumerable<EntityStateAction> GetStatesToPersist()
+    {
+      bool foreignKeysEnabled = (Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0;
+
+      // Insert
+      IEnumerable<EntityState> insertEntities = EntityStateRegistry.GetItems(PersistenceState.New).Where(entityState=>!entityState.IsRemoved);
+      if (foreignKeysEnabled)
+        foreach (var statePair in InsertInAccordanceWithForeignKeys(insertEntities))
+          yield return statePair;
+      else
+        foreach (EntityState data in insertEntities) {
+          yield return new EntityStateAction(data, PersistAction.Insert);
+          data.Tuple.Merge();
+        }
+
+      // Update
+      foreach (EntityState data in EntityStateRegistry.GetItems(PersistenceState.Modified)) {
+        if (data.IsRemoved)
+          continue;
+        yield return new EntityStateAction(data, PersistAction.Update);
+        data.Tuple.Merge();
+      }
+
+      // Delete
+      foreach (EntityState data in EntityStateRegistry.GetItems(PersistenceState.Removed))
+        yield return new EntityStateAction(data, PersistAction.Remove);
+    }
+
+    private static IEnumerable<EntityStateAction> InsertInAccordanceWithForeignKeys(
+      IEnumerable<EntityState> entityStates)
+    {
+      // Topological sorting
+      List<Triplet<EntityState, FieldInfo, Entity>> loopReferences;
+      List<EntityState> sortedEntities;
+      List<EntityState> unreferencedEntities;
+      SortAndRemoveLoopEdges(entityStates, out sortedEntities, out unreferencedEntities, out loopReferences);
+
+      // Insert 
+      sortedEntities.Reverse();
+      sortedEntities.AddRange(unreferencedEntities);
+
+      foreach (EntityState data in sortedEntities)
+        yield return new EntityStateAction(data, PersistAction.Insert);
+
+      // Restore loop links
+      foreach (var restoreData in loopReferences) {
+        Persistent.GetAccessor<Entity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, restoreData.Third);
+        yield return new EntityStateAction(restoreData.First, PersistAction.Update);
+      }
+
+      // Merge
+      foreach (EntityState data in sortedEntities)
+        data.Tuple.Merge();
+    }
+
+    private static void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates,
+      out List<EntityState> sortResult, out List<EntityState> unreferencedData,
+      out List<Triplet<EntityState, FieldInfo, Entity>> keysToRestore)
+    {
+      var sortData = new Dictionary<Key, Node<EntityState, AssociationInfo>>();
+      unreferencedData = new List<EntityState>();
+      foreach (EntityState data in entityStates) {
+        if (data.Type.GetTargetAssociations().Count==0 && data.Type.GetOwnerAssociations().Count==0)
+          unreferencedData.Add(data);
+        else
+          sortData.Add(data.Key, new Node<EntityState, AssociationInfo>(data));
+      }
+
+      // Add connections
+      foreach (var data in sortData) {
+        EntityState processingEntityState = data.Value.Item;
+        foreach (var association in processingEntityState.Type.GetOwnerAssociations().Where(associationInfo => associationInfo.OwnerField.IsEntity)) {
+          Key foreignKey = processingEntityState.Entity.GetReferenceKey(association.OwnerField);
+          Node<EntityState, AssociationInfo> destination;
+          if (foreignKey!=null && !foreignKey.Equals(data.Value.Item.Key) && sortData.TryGetValue(foreignKey, out destination))
+            data.Value.AddConnection(destination, true, association);
+        }
+      }
+
+      // Sort
+      List<NodeConnection<EntityState, AssociationInfo>> removedEdges;
+      sortResult = TopologicalSorter.Sort(sortData.Values, out removedEdges);
+
+      // Remove loop links
+      keysToRestore = new List<Triplet<EntityState, FieldInfo, Entity>>();
+      foreach (var edge in removedEdges) {
+        AssociationInfo associationInfo = edge.ConnectionItem;
+        keysToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.OwnerField, edge.Destination.Item.Entity));
+        Persistent.GetAccessor<Entity>(associationInfo.OwnerField).SetValue(edge.Source.Item.Entity, associationInfo.OwnerField, null);
       }
     }
 

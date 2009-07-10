@@ -8,10 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
+using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql.Common;
 using Xtensive.Sql.Dom;
+using Xtensive.Storage.Internals;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Providers.Sql.Resources;
 
@@ -198,39 +203,114 @@ namespace Xtensive.Storage.Providers.Sql
     #region Insert, Update, Delete
 
     /// <inheritdoc/>
-    protected override void Insert(EntityState state)
+    public override void Persist(IEnumerable<EntityStateAction> entityStateActions)
     {
-      var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Insert, state.Type);
-      var request = DomainHandler.RequestCache.GetValue(task, _task => DomainHandler.RequestBuilder.Build(_task));
-      int rowsAffected = ExecuteUpdateRequest(request, state.Tuple);
-      if (rowsAffected!=request.ExpectedResult)
-        throw new InvalidOperationException(
-          string.Format(Strings.ExErrorOnInsert, state.Type.Name, rowsAffected, request.ExpectedResult));
+      var batched = entityStateActions.Select(entityStateAction =>
+        new Triplet<SqlUpdateRequest, EntityStateAction, Tuple>(
+          CreateRequest(entityStateAction),
+          entityStateAction,
+          CloneValue(entityStateAction)))
+        .Batch(0, 1, 1);
+      foreach (var batch in batched)
+        PersistBatch(batch);
     }
 
-    /// <inheritdoc/>
-    protected override void Update(EntityState state)
+    private SqlUpdateRequest CreateRequest(EntityStateAction entityStateAction)
+    {
+      switch (entityStateAction.PersistAction) {
+        case PersistAction.Insert:
+          return CreateInsert(entityStateAction.EntityState);
+        case PersistAction.Update:
+          return CreateUpdate(entityStateAction.EntityState);
+        case PersistAction.Remove:
+          return CreateRemove(entityStateAction.EntityState);
+        default:
+          throw new ArgumentOutOfRangeException("entityStateAction.PersistAction");
+      }
+    }
+
+    private static Tuple CloneValue(EntityStateAction entityStateAction)
+    {
+      switch (entityStateAction.PersistAction) {
+        case PersistAction.Insert:
+          case PersistAction.Update:
+          return entityStateAction.EntityState.Tuple.ToRegular();
+        case PersistAction.Remove:
+          return entityStateAction.EntityState.Key.Value;
+        default:
+          throw new ArgumentOutOfRangeException("entityStateAction.PersistAction");
+      }
+    }
+    
+    private SqlUpdateRequest CreateInsert(EntityState state)
+    {
+      var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Insert, state.Type);
+      return DomainHandler.RequestCache
+        .GetValue(task, _task => DomainHandler.RequestBuilder.Build(_task));
+    }
+
+    private SqlUpdateRequest CreateUpdate(EntityState state)
     {
       var fieldStateMap = state.Tuple.Difference.GetFieldStateMap(TupleFieldState.Available);
       var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Update, state.Type, fieldStateMap);
-      var request = DomainHandler.RequestCache.GetValue(task, _task => DomainHandler.RequestBuilder.Build(_task));
-      int rowsAffected = ExecuteUpdateRequest(request, state.Tuple);
-      if (rowsAffected!=request.ExpectedResult)
-        throw new InvalidOperationException(
-          string.Format(Strings.ExErrorOnUpdate, state.Type.Name, rowsAffected, request.ExpectedResult));
+      return DomainHandler.RequestCache.GetValue(task, _task => DomainHandler.RequestBuilder.Build(_task));
     }
 
-    /// <inheritdoc/>
-    protected override void Remove(EntityState state)
+    private SqlUpdateRequest CreateRemove(EntityState state)
     {
       var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Remove, state.Type);
-      var request = DomainHandler.RequestCache.GetValue(task, _task => DomainHandler.RequestBuilder.Build(_task));
-      int rowsAffected = ExecuteUpdateRequest(request, state.Key.Value);
+      return DomainHandler.RequestCache.GetValue(task, _task => DomainHandler.RequestBuilder.Build(_task));
+    }
+
+    private void PersistBatch(
+      IEnumerable<Triplet<SqlUpdateRequest, EntityStateAction, Tuple>> requestTriplets)
+    {
+      foreach (var requestTriplet in requestTriplets) {
+        switch (requestTriplet.Second.PersistAction) {
+          case PersistAction.Insert:
+            ExecuteInsert(requestTriplet.First, requestTriplet.Second.EntityState.Type,
+              requestTriplet.Third);
+            break;
+          case PersistAction.Update:
+            ExecuteUpdate(requestTriplet.First, requestTriplet.Second.EntityState.Type,
+              requestTriplet.Third);
+            break;
+          case PersistAction.Remove:
+            ExecuteRemove(requestTriplet.First, requestTriplet.Second.EntityState.Type,
+              requestTriplet.Third);
+            break;
+          default:
+            throw new ArgumentOutOfRangeException("requestTriplet.Third");
+        }
+      }
+    }
+
+    private void ExecuteInsert(SqlUpdateRequest request, TypeInfo typeInfo, Tuple value)
+    {
+      int rowsAffected = ExecuteUpdateRequest(request, value);
+      if (rowsAffected!=request.ExpectedResult)
+        throw new InvalidOperationException(
+          string.Format(Strings.ExErrorOnInsert, typeInfo.Name, rowsAffected,
+            request.ExpectedResult));
+    }
+
+    private void ExecuteUpdate(SqlUpdateRequest request, TypeInfo typeInfo, Tuple value)
+    {
+      int rowsAffected = ExecuteUpdateRequest(request, value);
+      if (rowsAffected!=request.ExpectedResult)
+        throw new InvalidOperationException(
+          string.Format(Strings.ExErrorOnUpdate, typeInfo.Name, rowsAffected,
+            request.ExpectedResult));
+    }
+
+    private void ExecuteRemove(SqlUpdateRequest request, TypeInfo typeInfo, Tuple value)
+    {
+      int rowsAffected = ExecuteUpdateRequest(request, value);
       if (rowsAffected!=request.ExpectedResult)
         throw new InvalidOperationException(
           string.Format(
             rowsAffected==0 ? Strings.ExInstanceNotFound : Strings.ExInstanceMultipleResults,
-            state.Key.EntityType.Name));
+            typeInfo.Name));
     }
 
     #endregion

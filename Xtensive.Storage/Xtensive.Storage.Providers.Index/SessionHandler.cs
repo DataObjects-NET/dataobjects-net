@@ -7,8 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Providers.Index.Resources;
 using Xtensive.Storage.Indexing;
 
@@ -59,39 +62,50 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    protected override void Insert(EntityState state)
+    public override void Persist(IEnumerable<EntityStateAction> entityStateActions)
     {
-      var batch = new List<Command>();
+      var batched = entityStateActions.SelectMany(statePair => CreateCommandBatch(statePair)).Batch(0, 256, 256);
+      foreach (var batch in batched)
+        foreach (var command in batch)
+          StorageView.Execute(command);
+    }
+
+    private IEnumerable<Command> CreateCommandBatch(EntityStateAction entityStateAction)
+    {
+      switch (entityStateAction.PersistAction) {
+        case PersistAction.Insert:
+          return CreateInsert(entityStateAction.EntityState);
+        case PersistAction.Update:
+          return CreateUpdate(entityStateAction.EntityState);
+        case PersistAction.Remove:
+          return CreateRemove(entityStateAction.EntityState);
+        default:
+          throw new ArgumentOutOfRangeException("statePair.Second");
+      }
+    }
+
+    private IEnumerable<Command> CreateInsert(EntityState state)
+    {
       foreach (var index in state.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
         var transform = ((DomainHandler) Handlers.DomainHandler).GetTransform(index, state.Type);
         var transformed = transform.Apply(TupleTransformType.Tuple, state.Tuple).ToFastReadOnly();
-        batch.Add(IndexUpdateCommand.Insert(index.MappingName, state.Key.Value, transformed));
+        yield return IndexUpdateCommand.Insert(index.MappingName, state.Key.Value, transformed);
       }
-
-      StorageView.Execute(batch);
     }
 
-    /// <inheritdoc/>
-    protected override void Update(EntityState state)
+    private IEnumerable<Command> CreateUpdate(EntityState state)
     {
-      var batch = new List<Command>();
       foreach (var index in state.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
         var transform = ((DomainHandler) Handlers.DomainHandler).GetTransform(index, state.Type);
         var transformed = transform.Apply(TupleTransformType.Tuple, state.Tuple).ToFastReadOnly();
-        batch.Add(IndexUpdateCommand.Update(index.MappingName, state.Key.Value, transformed));
+        yield return IndexUpdateCommand.Update(index.MappingName, state.Key.Value, transformed);
       }
-
-      StorageView.Execute(batch);
     }
 
-    /// <inheritdoc/>
-    protected override void Remove(EntityState state)
+    private static IEnumerable<Command> CreateRemove(EntityState state)
     {
-      var batch = new List<Command>();
       foreach (var index in state.Type.AffectedIndexes.Where(i => i.IsPrimary))
-        batch.Add(IndexUpdateCommand.Remove(index.MappingName, state.Key.Value));
-
-      StorageView.Execute(batch);
+        yield return IndexUpdateCommand.Remove(index.MappingName, state.Key.Value);
     }
 
     /// <inheritdoc/>
