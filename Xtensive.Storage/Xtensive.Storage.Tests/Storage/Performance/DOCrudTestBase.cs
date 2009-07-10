@@ -48,11 +48,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       CombinedTest(10, 10);
       warmup = false;
       InsertTest(BaseCount);
-      //QueryTest(instanceCount / 5);
-      CachedQueryTest(instanceCount / 5);
       MaterializeTest(BaseCount);
-      MaterializeGetFieldTest(BaseCount);
-      MaterializeCachedTest(BaseCount);
     }
 
     private void CombinedTest(int baseCount, int insertCount)
@@ -60,15 +56,14 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       if (warmup)
         Log.Info("Warming up...");
       InsertTest(insertCount);
-      MaterializeCachedTest(baseCount);
       MaterializeTest(baseCount);
+      MaterializeAnonymousTypeTest(baseCount);
       MaterializeGetFieldTest(baseCount);
-      ExplicitMaterializeTest(baseCount);
+      ManualMaterializeTest(baseCount);
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
-      CachedQueryExpressionTest(baseCount / 5);
+      SameQueryExpressionTest(baseCount / 5);
       CachedQueryTest(baseCount / 2);
-      ProjectingCachedQueryTest(baseCount / 2);
       RseQueryTest(baseCount / 5);
       CachedRseQueryTest(baseCount / 5);
       UpdateTest();
@@ -114,56 +109,42 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       }
     }
 
-    private void ExplicitMaterializeTest(int count)
+    private void MaterializeTest(int count)
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss.Session;
         int i = 0;
         using (var ts = s.OpenTransaction()) {
-          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Explicit Materialize", count)) {
-            while (i < count) {
-              foreach (var tuple in rs) {
-                var o = new SqlClientCrudModel.Simplest 
-                  {
-                    Id = tuple.GetValueOrDefault<long>(0), 
-                    Value = tuple.GetValueOrDefault<long>(2)
-                  };
+          using (warmup ? null : new Measurement("Materialize", count)) {
+            while (i < count)
+              foreach (var o in CachedQuery.Execute(() => Query<Simplest>.All)) {
                 if (++i >= count)
                   break;
               }
-            }
             ts.Complete();
           }
         }
       }
     }
 
-    private void MaterializeCachedTest(int count)
+    private void MaterializeAnonymousTypeTest(int count)
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss.Session;
-        long sum = 0;
         int i = 0;
-        var entities = new List<Entity>(count/2);
         using (var ts = s.OpenTransaction()) {
-          while (i < count) {
-            foreach (var o in Query<Simplest>.All) {
-              sum += o.Id;
-              if (i%2 == 0)
-                entities.Add(o);
-              if (++i >= count)
-                break;
-            }
-            using (warmup ? null : new Measurement("Materialize Cached", count/2)) {
-              foreach (var entity in entities)
-                entity.Key.Resolve();
-            }
+          TestHelper.CollectGarbage();
+          using (warmup ? null : new Measurement("Materialize anonymous type", count)) {
+            while (i < count)
+              foreach (var o in CachedQuery.Execute(() => Query<Simplest>.All.Select(t => new {t.Id, t.Value}))) {
+                if (++i >= count)
+                  break;
+              }
+            ts.Complete();
           }
-          Assert.AreEqual((long) count*(count - 1)/2, sum);
         }
       }
     }
@@ -191,20 +172,27 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       }
     }
 
-    private void MaterializeTest(int count)
+    private void ManualMaterializeTest(int count)
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
         var s = ss.Session;
         int i = 0;
         using (var ts = s.OpenTransaction()) {
+          var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Materialize", count)) {
-            while (i < count)
-              foreach (var o in CachedQuery.Execute(() => Query<Simplest>.All)) {
+          using (warmup ? null : new Measurement("Manual materialize", count)) {
+            while (i < count) {
+              foreach (var tuple in rs) {
+                var o = new SqlClientCrudModel.Simplest 
+                {
+                  Id = tuple.GetValueOrDefault<long>(0), 
+                  Value = tuple.GetValueOrDefault<long>(2)
+                };
                 if (++i >= count)
                   break;
               }
+            }
             ts.Complete();
           }
         }
@@ -232,7 +220,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       }
     }
 
-    private void CachedQueryExpressionTest(int count)
+    private void SameQueryExpressionTest(int count)
     {
       var d = Domain;
       using (var ss = d.OpenSession()) {
@@ -241,7 +229,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           var id = 0;
           var query = Query<Simplest>.All.Where(o => o.Id == id);
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Cached Query Expression", count)) {
+          using (warmup ? null : new Measurement("Single query expression", count)) {
             for (int i = 0; i < count; i++) {
               id = i % instanceCount;
               foreach (var simplest in query) {
@@ -262,35 +250,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         using (var ts = s.OpenTransaction()) {
           var id = 0;
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Cached Query", count)) {
+          using (warmup ? null : new Measurement("Cached query", count)) {
             for (int i = 0; i < count; i++) {
               id = i % instanceCount;
               var query = CachedQuery.Execute(() => Query<Simplest>.All
                 .Where(o => o.Id == id));
-              foreach (var simplest in query) {
-                // Doing nothing, just enumerate
-              }
-            }
-            ts.Complete();
-          }
-        }
-      }
-    }
-
-    private void ProjectingCachedQueryTest(int count)
-    {
-      var d = Domain;
-      using (var ss = d.OpenSession()) {
-        var s = ss.Session;
-        using (var ts = s.OpenTransaction()) {
-          var id = 0;
-          TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Projecting Cached Query", count)) {
-            for (int i = 0; i < count; i++) {
-              id = i % instanceCount;
-              var query = CachedQuery.Execute(() => Query<Simplest>.All
-                .Where(o => o.Id == id)
-                .Select(o => new {o.Id, o.Value}));
               foreach (var simplest in query) {
                 // Doing nothing, just enumerate
               }
@@ -308,7 +272,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss.Session;
         using (var ts = s.OpenTransaction()) {
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("RSE Query", count)) {
+          using (warmup ? null : new Measurement("RSE query", count)) {
             for (int i = 0; i < count; i++) {
               var pKey = new Parameter<Tuple>();
               var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
@@ -338,7 +302,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
           rs = rs.Seek(() => pKey.Value);
           using (new ParameterContext().Activate()) {
-            using (warmup ? null : new Measurement("Cached RSE Query", count)) {
+            using (warmup ? null : new Measurement("Cached RSE query", count)) {
               for (int i = 0; i < count; i++) {
                 pKey.Value = Tuple.Create(i % instanceCount);
                 var es = rs.ToEntities<Simplest>();
