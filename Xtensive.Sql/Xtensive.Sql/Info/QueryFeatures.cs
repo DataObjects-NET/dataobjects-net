@@ -54,6 +54,12 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Indicates that RDBMS supports CROSS APPLY and OUTER APPLY operators.
     /// </summary>
-    CrossApply = 0x40
+    CrossApply = 0x40,
+
+    /// <summary>
+    /// Indicates that RDBMS allows boolean expressions in equality/inequality comparisons,
+    /// inside CASE and COALESCE operators.
+    /// </summary>
+    FullBooleanExpressionSupport = 0x80,
   }
 }

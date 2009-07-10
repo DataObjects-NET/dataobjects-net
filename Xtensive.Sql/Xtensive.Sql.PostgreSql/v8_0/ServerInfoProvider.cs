@@ -262,7 +262,11 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     public override QueryInfo GetQueryInfo()
     {
       var info = new QueryInfo();
-      info.Features = QueryFeatures.Batches | QueryFeatures.NamedParameters | QueryFeatures.UseParameterPrefix;
+      info.Features =
+        QueryFeatures.Batches |
+        QueryFeatures.NamedParameters |
+        QueryFeatures.UseParameterPrefix |
+        QueryFeatures.FullBooleanExpressionSupport;
       info.ParameterPrefix = "@";
       info.MaxComparisonOperations = 1000000;
       info.MaxLength = 1000000;
@@ -270,8 +274,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       info.QuoteToken = "'";
       return info;
     }
-
-
+    
     public override IdentityInfo GetIdentityInfo()
     {
       return null;
