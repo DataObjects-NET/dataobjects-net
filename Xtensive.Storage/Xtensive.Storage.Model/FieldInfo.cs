@@ -564,6 +564,7 @@ namespace Xtensive.Storage.Model
           MappingName = MappingName, 
           underlyingProperty = underlyingProperty, 
           valueType = valueType, 
+          itemType = itemType,
           length = length, 
           scale = scale,
           precision = precision,
