@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         TestHelper.CollectGarbage();
         Query q = s.CreateQuery(queryText);
         q.Parameters.Add("@pId", 0);
-        using (warmup ? null : new Measurement("Cached Query", count)) {
+        using (warmup ? null : new Measurement("Cached query", count)) {
           for (int i = 0; i < count; i++) {
             q.Parameters["@pId"].Value = ((long)i % instanceCount) + firstId;
             var qr = q.Execute();

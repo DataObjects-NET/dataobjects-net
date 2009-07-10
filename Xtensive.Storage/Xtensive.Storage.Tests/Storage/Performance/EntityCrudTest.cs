@@ -57,10 +57,10 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     {
       InsertTest(insertCount);
       MaterializeTest(baseCount);
+      MaterializeAnonymousTypeTest(baseCount);
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
-      CachedQueryTest(baseCount / 5);
-      NoMaterializationQueryTest(baseCount / 5);
+      SameQueryExpressionTest(baseCount / 5);
       CompiledQueryTest(baseCount / 5);
       UpdateTest();
       RemoveTest();
@@ -109,12 +109,33 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     {
       using (var dataContext = new Entities()) {
         dataContext.Connection.Open();
-        long sum = 0;
         int i = 0;
         using (var transaction = dataContext.Connection.BeginTransaction()) {
           TestHelper.CollectGarbage();
           var simplest = dataContext.Simplest;
           using (warmup ? null : new Measurement("Materialize & GetField", count)) {
+            while (i < count)
+              foreach (var o in simplest) {
+                if (++i >= count)
+                  break;
+              }
+            transaction.Commit();
+          }
+        }
+        Assert.AreEqual((long) count * (count - 1) / 2, sum);
+      }
+    }
+
+    private void MaterializeAnonymousTypeTest(int count)
+    {
+      using (var dataContext = new Entities()) {
+        dataContext.Connection.Open();
+        long sum = 0;
+        int i = 0;
+        using (var transaction = dataContext.Connection.BeginTransaction()) {
+          TestHelper.CollectGarbage();
+          var simplest = dataContext.Simplest.Select(t => new {t.Id, t.Value});
+          using (warmup ? null : new Measurement("Materialize anonymous type", count)) {
             while (i < count)
               foreach (var o in simplest) {
                 sum += o.Id;
@@ -148,7 +169,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       }
     }
 
-    private void CachedQueryTest(int count)
+    private void SameQueryExpressionTest(int count)
     {
       using (var dataContext = new Entities()) {
         dataContext.Connection.Open();
@@ -156,28 +177,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           var id = 0;
           var result = dataContext.Simplest.Where(o => o.Id == id);
-          using (warmup ? null : new Measurement("Cached Query", count)) {
-            for (int i = 0; i < count; i++) {
-              id = i % instanceCount;
-              foreach (var o in result) {
-                // Doing nothing, just enumerate
-              }
-            }
-            transaction.Commit();
-          }
-        }
-      }
-    }
-
-    private void NoMaterializationQueryTest(int count)
-    {
-      using (var dataContext = new Entities()) {
-        dataContext.Connection.Open();
-        using (var transaction = dataContext.Connection.BeginTransaction()) {
-          TestHelper.CollectGarbage();
-          var id = 0;
-          var result = dataContext.Simplest.Where(o => o.Id == id).Select(o => new { o.Id, o.Value });
-          using (warmup ? null : new Measurement("No Materialization Query", count)) {
+          using (warmup ? null : new Measurement("Single query expression", count)) {
             for (int i = 0; i < count; i++) {
               id = i % instanceCount;
               foreach (var o in result) {
@@ -197,7 +197,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         using (var transaction = dataContext.Connection.BeginTransaction()) {
           TestHelper.CollectGarbage();
           var resultQuery = System.Data.Objects.CompiledQuery.Compile((Entities context, long id) => context.Simplest.Where(o => o.Id == id));
-          using (warmup ? null : new Measurement("Compiled Query", count)) {
+          using (warmup ? null : new Measurement("Compiled query", count)) {
             for (int i = 0; i < count; i++) {
               var id = i % instanceCount;
               foreach (var o in resultQuery(dataContext, id)) {
