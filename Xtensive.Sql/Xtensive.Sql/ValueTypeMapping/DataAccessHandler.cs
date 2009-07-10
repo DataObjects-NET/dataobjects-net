@@ -31,92 +31,96 @@ namespace Xtensive.Sql.ValueTypeMapping
     public virtual void SetBooleanParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Boolean;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetCharParameterValue(DbParameter parameter, object value)
     {
-      var _char = (char) value;
       parameter.DbType = DbType.String;
+      if (value==null) {
+        parameter.Value = DBNull.Value;
+        return;
+      }
+      var _char = (char) value;
       parameter.Value = _char==default(char) ? string.Empty : _char.ToString();
     }
 
     public virtual void SetStringParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.String;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetByteParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Byte;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetSByteParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.SByte;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetShortParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int16;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetUShortParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.UInt16;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetIntParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int32;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetUIntParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.UInt32;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetLongParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetULongParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.UInt64;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetFloatParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Single;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetDoubleParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Double;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetDecimalParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetDateTimeParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.DateTime;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetTimeSpanParameterValue(DbParameter parameter, object value)
@@ -127,13 +131,13 @@ namespace Xtensive.Sql.ValueTypeMapping
     public virtual void SetGuidParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Guid;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public virtual void SetByteArrayParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Binary;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     #endregion

@@ -69,7 +69,8 @@ namespace Xtensive.Sql.Tests
       table.CreatePrimaryKey("PK_" + TableName, idColumn);
       for (int columnIndex = 0; columnIndex < typeMappings.Length; columnIndex++) {
         var mapping = typeMappings[columnIndex];
-        table.CreateColumn(GetColumnName(columnIndex), mapping.BuildSqlType());
+        var column = table.CreateColumn(GetColumnName(columnIndex), mapping.BuildSqlType());
+        column.IsNullable = true;
       }
       using (var createCommand = connection.CreateCommand(SqlDdl.Create(table)))
         createCommand.ExecuteNonQuery();
@@ -147,7 +148,9 @@ namespace Xtensive.Sql.Tests
       using (reader)
       while (reader.Read()) {
         for (int columnIndex = 0; columnIndex < testValues.Length; columnIndex++) {
-          var value = typeMappings[columnIndex].ReadValue(reader, columnIndex + 1);
+          var value = !reader.IsDBNull(columnIndex + 1)
+            ? typeMappings[columnIndex].ReadValue(reader, columnIndex + 1)
+            : null;
           Assert.AreEqual(testValues[columnIndex][rowIndex], value);
         }
         rowIndex++;
@@ -160,39 +163,40 @@ namespace Xtensive.Sql.Tests
       // NOTE: there should be the same number of test values for each type
       switch (Type.GetTypeCode(type)) {
       case TypeCode.Boolean:
-        return new object[] {default(bool), false, true};
+        return new object[] {default(bool), false, true, null};
       case TypeCode.Char:
-        return new object[] {default(char), 'Y', '\n'};
+        return new object[] {default(char), 'Y', '\n', null};
       case TypeCode.String:
-        return new object[] {"write code", "??????", "profit"};
+        return new object[] {"write code", "??????", "profit", null};
       case TypeCode.Byte:
-        return new object[] {default(byte), (byte) 10, (byte) 20};
+        return new object[] {default(byte), (byte) 10, (byte) 20, null};
       case TypeCode.SByte:
-        return new object[] {default(sbyte), (sbyte) -10, (sbyte) 10};
+        return new object[] {default(sbyte), (sbyte) -10, (sbyte) 10, null};
       case TypeCode.Int16:
-        return new object[] {default(short), (short) (sbyte.MinValue - 1), (short) (sbyte.MaxValue + 1)};
+        return new object[] {default(short), (short) (sbyte.MinValue - 1), (short) (sbyte.MaxValue + 1), null};
       case TypeCode.UInt16:
-        return new object[] {default(ushort), (ushort) 10, (ushort) (short.MaxValue + 1)};
+        return new object[] {default(ushort), (ushort) 10, (ushort) (short.MaxValue + 1), null};
       case TypeCode.Int32:
-        return new object[] {default(int), short.MinValue - 1, short.MaxValue + 1};
+        return new object[] {default(int), short.MinValue - 1, short.MaxValue + 1, null};
       case TypeCode.UInt32:
-        return new object[] {default(uint), (uint) 10, ((uint) int.MaxValue + 1)};
+        return new object[] {default(uint), (uint) 10, ((uint) int.MaxValue + 1), null};
       case TypeCode.Int64:
-        return new object[] {default(long), ((long) int.MinValue - 1), ((long) int.MaxValue + 1)};
+        return new object[] {default(long), ((long) int.MinValue - 1), ((long) int.MaxValue + 1), null};
       case TypeCode.UInt64:
-        return new object[] {default(ulong), (ulong) 10, ((ulong) long.MaxValue + 1)};
+        return new object[] {default(ulong), (ulong) 10, ((ulong) long.MaxValue + 1), null};
       case TypeCode.Single:
-        return new object[] {default(float), -5.55f, 0.34f};
+        return new object[] {default(float), -5.55f, 0.34f, null};
       case TypeCode.Double:
-        return new object[] {default(double), 3.98d, -3.3333d};
+        return new object[] {default(double), 3.98d, -3.3333d, null};
       case TypeCode.Decimal:
-        return new object[] {default(decimal), 222.4444m, -0.0005m};
+        return new object[] {default(decimal), 222.4444m, -0.0005m, null};
       case TypeCode.DateTime:
         return new object[]
           {
             new DateTime(2005, 5, 5, 5, 5, 5),
             new DateTime(1998, 8, 8, 8, 8, 8),
-            new DateTime(1856, 4, 1, 5, 6, 7)
+            new DateTime(1856, 4, 1, 5, 6, 7),
+            null
           };
       }
       if (type==typeof(TimeSpan))
@@ -200,7 +204,8 @@ namespace Xtensive.Sql.Tests
           {
             new TimeSpan(10, 10, 10, 10),
             new TimeSpan(-3, -3, -3, -3),
-            new TimeSpan(113, 4, 6, 8)
+            new TimeSpan(113, 4, 6, 8),
+            null
           };
       if (type==typeof(Guid))
         return new object[] 
@@ -208,6 +213,7 @@ namespace Xtensive.Sql.Tests
             new Guid("{13826748-1625-4934-8CDC-3B2047138DD5}"),
             new Guid("{42D3CD2D-E909-4a7c-8C43-B35DE4BF4740}"),
             new Guid("{EA8496CC-2034-458f-91AA-2A77BCA407DA}"),
+            null
           };
       if (type==typeof(byte[]))
         return new object[]
@@ -215,6 +221,7 @@ namespace Xtensive.Sql.Tests
             new byte[0],
             new [] {(byte) 5, (byte) 6, (byte)8},
             new [] {(byte) 0},
+            null,
           };
       throw new ArgumentOutOfRangeException();
     }

@@ -37,43 +37,53 @@ namespace Xtensive.Sql.PostgreSql
     public override void SetSByteParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int16;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public override void SetUShortParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int32;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
     
     public override void SetUIntParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public override void SetULongParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public override void SetTimeSpanParameterValue(DbParameter parameter, object value)
     {
 #if OLD_NPGSQL
       parameter.DbType = DbType.String;
+      if (value==null) {
+        parameter.Value = DBNull.Value;
+        return;
+      }
       parameter.Value = IntervalHelper.TimeSpanToString((TimeSpan) value);
 #else
       var nativeParameter = (NpgsqlParameter) parameter;
       nativeParameter.NpgsqlDbType = NpgsqlDbType.Interval;
-      nativeParameter.Value = new NpgsqlInterval((TimeSpan) value);
+      nativeParameter.Value = value!=null
+        ? new NpgsqlInterval((TimeSpan) value)
+        : DBNull.Value;
 #endif
     }
 
     public override void SetGuidParameterValue(DbParameter parameter, object value)
     {
-      var guid = (Guid) value;
       parameter.DbType = DbType.Binary;
+      if (value==null) {
+        parameter.Value = DBNull.Value;
+        return;
+      }
+      var guid = (Guid) value;
       parameter.Value = guid.ToByteArray();
     }
 

@@ -19,31 +19,35 @@ namespace Xtensive.Sql.SqlServer
     public override void SetSByteParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int16;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public override void SetUShortParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int32;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public override void SetUIntParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public override void SetULongParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public override void SetTimeSpanParameterValue(DbParameter parameter, object value)
     {
-      var timeSpan = (TimeSpan) value;
       parameter.DbType = DbType.Int64;
+      if (value==null) {
+        parameter.Value = DBNull.Value;
+        return;
+      }
+      var timeSpan = (TimeSpan) value;
       parameter.Value = (long) timeSpan.TotalMilliseconds;
     }
 
