@@ -1276,7 +1276,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The type {0} does not have a parameterless constructor..
+        ///   Looks up a localized string similar to The type &apos;{0}&apos; does not have a parameterless constructor..
         /// </summary>
         internal static string ExTypeXDoesNotHaveAParameterlessConstructor {
             get {
@@ -1303,20 +1303,11 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type {0} is not collatable..
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not collatable..
         /// </summary>
         internal static string ExTypeXIsNotCollatable {
             get {
                 return ResourceManager.GetString("ExTypeXIsNotCollatable", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0} is not Entity&apos;.
-        /// </summary>
-        internal static string ExTypeXIsNotEntity {
-            get {
-                return ResourceManager.GetString("ExTypeXIsNotEntity", resourceCulture);
             }
         }
         
@@ -1447,7 +1438,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unsupported expression type: {0}.
+        ///   Looks up a localized string similar to Unsupported expression type: &apos;{0}&apos;.
         /// </summary>
         internal static string ExUnsupportedExpressionType {
             get {

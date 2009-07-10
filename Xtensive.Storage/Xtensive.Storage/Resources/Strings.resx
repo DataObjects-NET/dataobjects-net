@@ -331,7 +331,7 @@
     <value>Type '{0}' does not implement '{1}' interface.</value>
   </data>
   <data name="ExTypeXIsNotCollatable" xml:space="preserve">
-    <value>Type {0} is not collatable.</value>
+    <value>Type '{0}' is not collatable.</value>
   </data>
   <data name="XIsNotApplicableToYDescendants" xml:space="preserve">
     <value>'{0}' is not applicable to '{1}' descendants.</value>
@@ -505,7 +505,7 @@
     <value>system types</value>
   </data>
   <data name="ExUnsupportedExpressionType" xml:space="preserve">
-    <value>Unsupported expression type: {0}</value>
+    <value>Unsupported expression type: '{0}'</value>
   </data>
   <data name="ExFieldIsNotAnEntityField" xml:space="preserve">
     <value>Field '{0}' is not an Entity field in Type '{1}'.</value>
@@ -747,9 +747,6 @@ Actions:
     <value>JoinLeft does not support query provider of type '{0}'.</value>
   </data>
   <data name="ExTypeXDoesNotHaveAParameterlessConstructor" xml:space="preserve">
-    <value>The type {0} does not have a parameterless constructor.</value>
-  </data>
-  <data name="ExTypeXIsNotEntity" xml:space="preserve">
-    <value>Type '{0} is not Entity'</value>
+    <value>The type '{0}' does not have a parameterless constructor.</value>
   </data>
 </root>

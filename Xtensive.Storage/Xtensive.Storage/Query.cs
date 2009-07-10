@@ -37,13 +37,9 @@ namespace Xtensive.Storage
     /// <param name="key">Key to resolve entity for.</param>
     /// <returns>Entity resolved from key. <see langword="Null"/> if entity missing or deleted.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="Null"/>.</exception>
-    /// <exception cref="InvalidOperationException"><typeparamref name="T"/> is not <see cref="Entity"/>.</exception>
     public static T Resolve(Key key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      var type = typeof (T);
-      if (!type.IsSubclassOf(typeof (Entity)))
-        throw new InvalidOperationException(String.Format(Resources.Strings.ExTypeXIsNotEntity, type.FullName));
       return (T)(object)key.Resolve();
     }
 
@@ -54,7 +50,6 @@ namespace Xtensive.Storage
     /// <returns>Entity resolved from key values. <see langword="Null"/> if entity missing or deleted.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="keyValues"/> is <see langword="Null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="keyValues"/> is empty.</exception>
-    /// <exception cref="InvalidOperationException"><typeparamref name="T"/> is not <see cref="Entity"/>.</exception>
     public static T Resolve(params object[] keyValues)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyValues, "keyValues");
@@ -63,11 +58,7 @@ namespace Xtensive.Storage
       if (keyValues.Length==1 && keyValues[0] is Key)
         return Resolve((Key) keyValues[0]);
 
-      var type = typeof (T);
-      if (!type.IsSubclassOf(typeof (Entity)))
-        throw new InvalidOperationException(String.Format(Resources.Strings.ExTypeXIsNotEntity, type.FullName));
-
-      return (T) (object) Key.Create(type, keyValues).Resolve();
+      return (T) (object) Key.Create(typeof (T), keyValues).Resolve();
     }
   }
 }
