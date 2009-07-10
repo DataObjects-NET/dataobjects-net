@@ -27,12 +27,12 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     string Name { get; set; }
   }
 
-  [MaterializedView, Mapping("Creatures")]
+  [MaterializedView, TableMapping("Creatures")]
   public interface ICreature : IHasName
   {
   }
 
-  [Mapping("A-Root")]
+  [TableMapping("A-Root")]
   [HierarchyRoot]
   public class A : Entity
   {
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   [Index("Age")]
   public class C : A
   {
-    [Field, Mapping("MyAge")]
+    [Field, FieldMapping("MyAge")]
     public int Age { get; set; }
   }
 

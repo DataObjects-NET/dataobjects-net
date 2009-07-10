@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
   [HierarchyRoot]
   public class Person : Entity
   {
-    [Field, Mapping("PassportNumber"), Key]
+    [Field, FieldMapping("PassportNumber"), Key]
     public int Number
     {
       get { return GetFieldValue<int>("Number"); }
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     [Field(Length = 128)]
     public string Title { get; set; }
 
-    [Field, Mapping("BookAuthor")]
+    [Field, FieldMapping("BookAuthor")]
     [Association(OnTargetRemove = OnRemoveAction.Deny)]
     public Author Author { get; set; }
 
@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     [Field, Association(OnTargetRemove = OnRemoveAction.Clear), Key(1)]
     public Person Reviewer { get; private set; }
 
-    [Field, Mapping("Book"), Association(OnTargetRemove = OnRemoveAction.Cascade), Key(0)]
+    [Field, FieldMapping("Book"), Association(OnTargetRemove = OnRemoveAction.Cascade), Key(0)]
     public Book Book { get; private set; }
 
     [Field(Length = 4096)]

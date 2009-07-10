@@ -10,13 +10,14 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Base class for all mapping attributes.
+  /// Table mapping attribute.
   /// </summary>
   [Serializable]
-  public sealed class MappingAttribute : StorageAttribute
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
+  public class TableMappingAttribute : StorageAttribute
   {
     /// <summary>
-    /// Gets or sets the base part of the field's related column name 
+    /// Gets the base part of the field's related column name 
     /// or the base part of the class' related table name.
     /// </summary>
     /// <remarks>
@@ -25,14 +26,13 @@ namespace Xtensive.Storage
     /// </remarks>
     public string Name { get; private set; }
 
-
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="mappingName"><see cref="Name"/> property value.</param>
-    public MappingAttribute(string mappingName)
+    public TableMappingAttribute(string mappingName)
     {
       Name = mappingName;
     }

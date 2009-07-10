@@ -19,14 +19,14 @@ namespace Xtensive.Storage.Building.Builders
   {
     private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
 
-    public static void Process(TypeDef type, MappingAttribute attribute)
+    public static void Process(TypeDef type, TableMappingAttribute attribute)
     {
-      ProcessMappingName(type, attribute, ValidationRule.Type);
+      ProcessMappingName(type, attribute.Name, ValidationRule.Type);
     }
 
-    public static void Process(FieldDef field, MappingAttribute attribute)
+    public static void Process(FieldDef field, FieldMappingAttribute attribute)
     {
-      ProcessMappingName(field, attribute, ValidationRule.Field);
+      ProcessMappingName(field, attribute.Name, ValidationRule.Field);
     }
 
     public static void Process(TypeDef type, MaterializedViewAttribute attribute)
@@ -171,11 +171,6 @@ namespace Xtensive.Storage.Building.Builders
       if (!fieldDef.IsPrimitive && fieldDef.IsLazyLoad) {
         Log.Warning(Strings.ExplicitLazyLoadAttributeOnFieldXIsRedundant, fieldDef.Name);
       }
-    }
-
-    private static void ProcessMappingName(MappingNode node, MappingAttribute attribute, ValidationRule rule)
-    {
-      ProcessMappingName(node, attribute.Name, rule);
     }
 
     private static void ProcessMappingName(MappingNode node, string mappingName, ValidationRule rule)

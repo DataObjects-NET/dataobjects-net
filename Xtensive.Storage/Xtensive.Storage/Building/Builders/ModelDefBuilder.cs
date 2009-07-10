@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Building.Builders
         if (mva!=null)
           AttributeProcessor.Process(typeDef, mva);
       }
-      var ma = typeDef.UnderlyingType.GetAttribute<MappingAttribute>(AttributeSearchOptions.Default);
+      var ma = typeDef.UnderlyingType.GetAttribute<TableMappingAttribute>(AttributeSearchOptions.Default);
       if (ma!=null)
         AttributeProcessor.Process(typeDef, ma);
       return typeDef;
@@ -189,9 +189,9 @@ namespace Xtensive.Storage.Building.Builders
         var aa = propertyInfo.GetAttribute<AssociationAttribute>(AttributeSearchOptions.InheritAll);
         if (aa!=null)
           AttributeProcessor.Process(fieldDef, aa);
-        var ma = propertyInfo.GetAttribute<MappingAttribute>(AttributeSearchOptions.InheritAll);
-        if (ma!=null)
-          AttributeProcessor.Process(fieldDef, ma);
+        var ma = propertyInfo.GetAttributes<FieldMappingAttribute>(AttributeSearchOptions.InheritAll);
+        foreach (var fieldMappingAttribute in ma)
+          AttributeProcessor.Process(fieldDef, fieldMappingAttribute);
       }
 
       return fieldDef;
