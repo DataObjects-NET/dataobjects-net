@@ -41,8 +41,8 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
     private static void ApplyAction(RemovalContext context, Entity entity, OnRemoveAction action)
     {
-      var associations = new HashSet<AssociationInfo>(entity.Type.GetTargetAssociations().Where(a => a.OnTargetRemove==action));
-      associations.UnionWith(entity.Type.GetOwnerAssociations().Where(a => a.OnOwnerRemove==action));
+      var associations = new HashSet<AssociationInfo>(entity.Type.GetTargetAssociations().Where(a => a.IsMaster && a.OnTargetRemove==action));
+      associations.UnionWith(entity.Type.GetOwnerAssociations().Where(a => a.IsMaster && a.OnOwnerRemove==action));
 
       if (associations.Count==0)
         return;
