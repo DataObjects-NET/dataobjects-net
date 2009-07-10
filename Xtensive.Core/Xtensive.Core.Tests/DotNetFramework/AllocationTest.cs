@@ -13,6 +13,26 @@ using Xtensive.Core.Testing;
 
 namespace Xtensive.Core.Tests.DotNetFramework
 {
+  public abstract class RootObject
+  {
+    
+  }
+
+  public class InheritedObject1 : RootObject
+  {
+
+  }
+
+  public class InheritedObject2 : InheritedObject1
+  {
+
+  }
+
+  public sealed class InheritedObject3 : InheritedObject2
+  {
+    public object Reference;
+  }
+
   public sealed class SlimObject
   {
     public object Reference;
@@ -75,9 +95,11 @@ namespace Xtensive.Core.Tests.DotNetFramework
       AllocateClass_SlimObject(iterations);
       AllocateClass_SlimObject_ByFormatterServices(iterations);
       AllocateClass_FinalizableSlimObject(iterations);
+      AllocateClass_InheritedObject3(iterations);
       AllocateClass<SlimObject>(iterations);
       AllocateClass<FinalizableSlimObject>(iterations);
       AllocateClassArray_SlimObject(new SlimObject[iterations]);
+      AllocateClassArray_InheritedObject3(new InheritedObject3[iterations]);
       AllocateClassArray_FinalizableSlimObject(new FinalizableSlimObject[iterations]);
       AllocateClassArray(new SlimObject[iterations]);
       AllocateClassArray(new FinalizableSlimObject[iterations]);
@@ -101,6 +123,9 @@ namespace Xtensive.Core.Tests.DotNetFramework
           using (new Measurement("FinalizableSlimObject, generic", MeasurementOptions.Log, iterations))
             AllocateClass<FinalizableSlimObject>(iterations);
           TestHelper.CollectGarbage();
+          using (new Measurement("InheritedObject3", MeasurementOptions.Log, iterations))
+            AllocateClass_InheritedObject3(iterations);
+          TestHelper.CollectGarbage();
         }
         using (Log.InfoRegion("Allocation to array")) {
           using (new Measurement("SlimObject", MeasurementOptions.Log, iterations))
@@ -114,6 +139,9 @@ namespace Xtensive.Core.Tests.DotNetFramework
           TestHelper.CollectGarbage();
           using (new Measurement("FinalizableSlimObject, generic", MeasurementOptions.Log, iterations))
             AllocateClassArray(new FinalizableSlimObject[iterations]);
+          TestHelper.CollectGarbage();
+          using (new Measurement("InheritedObject3", MeasurementOptions.Log, iterations))
+            AllocateClassArray_InheritedObject3(new InheritedObject3[iterations]);
           TestHelper.CollectGarbage();
         }
       }
@@ -163,6 +191,23 @@ namespace Xtensive.Core.Tests.DotNetFramework
         new SlimObject();
         new SlimObject();
         new SlimObject();
+      }
+    }
+
+    private void AllocateClass_InheritedObject3(int iterationCount)
+    {
+      for (int i = 0; i < iterationCount; i += 10)
+      {
+        new InheritedObject3();
+        new InheritedObject3();
+        new InheritedObject3();
+        new InheritedObject3();
+        new InheritedObject3();
+        new InheritedObject3();
+        new InheritedObject3();
+        new InheritedObject3();
+        new InheritedObject3();
+        new InheritedObject3();
       }
     }
 
@@ -230,6 +275,24 @@ namespace Xtensive.Core.Tests.DotNetFramework
         array[i++] = new SlimObject();
         array[i++] = new SlimObject();
         array[i++] = new SlimObject();
+      }
+    }
+
+    private void AllocateClassArray_InheritedObject3(InheritedObject3[] array)
+    {
+      int iterationCount = array.Length;
+      for (int i = 0; i<iterationCount; ) {
+        array[i++] = new InheritedObject3();
+        array[i++] = new InheritedObject3();
+        array[i++] = new InheritedObject3();
+        array[i++] = new InheritedObject3();
+        array[i++] = new InheritedObject3();
+        array[i++] = new InheritedObject3();
+        array[i++] = new InheritedObject3();
+        array[i++] = new InheritedObject3();
+        array[i++] = new InheritedObject3();
+        array[i++] = new InheritedObject3();
+        
       }
     }
 

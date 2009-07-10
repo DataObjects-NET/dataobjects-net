@@ -668,9 +668,15 @@ namespace Xtensive.Core.Tuples.Internals
         BindingFlags.NonPublic, 
         null, Type.EmptyTypes, null);
       
+      ConstructorInfo objectConstructorInfo = typeof(object).GetConstructor(
+        BindingFlags.Instance | 
+        BindingFlags.Public, 
+        null, Type.EmptyTypes, null);
+
       ILGenerator il = constructorBuilder.GetILGenerator();
       il.Emit(OpCodes.Ldarg_0);
-      il.Emit(OpCodes.Call, tupleConstructorInfo);
+//      il.Emit(OpCodes.Call, tupleConstructorInfo);
+      il.Emit(OpCodes.Call, objectConstructorInfo);
       il.Emit(OpCodes.Ret);
 
       MethodBuilder methodBuilder = tupleType.DefineMethod(WellKnown.Tuple.CreateNew,

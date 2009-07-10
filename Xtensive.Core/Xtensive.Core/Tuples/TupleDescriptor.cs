@@ -292,8 +292,12 @@ namespace Xtensive.Core.Tuples
       if (other==this) return true;
       if (isCompiled && other.isCompiled)
         return false;
-      return fieldCount==other.fieldCount && 
-        AdvancedComparer<Type[]>.Default.Equals(fieldTypes, other.fieldTypes);
+      if (fieldCount != other.fieldCount)
+        return false;
+      var result = true;
+      for (int i = fieldCount - 1; i >= 0 && result; i--)
+        result &= fieldTypes[i] == other.fieldTypes[i];
+      return result;
     }
 
     /// <inheritdoc/>

@@ -35,8 +35,8 @@ namespace Xtensive.Core.Tests.Tuples
 
     private static readonly Type[] typicalFieldTypes =
       new Type[] {
-        typeof (Guid),
-        typeof (Guid),
+        typeof (long),
+        typeof (int),
         typeof (string),
       };
 
@@ -179,10 +179,10 @@ namespace Xtensive.Core.Tests.Tuples
     public void MemoryUsageTest()
     {
       const int iterationCount = 1000000;
-      TupleDescriptor descriptor = TupleDescriptor.Create(typicalFieldTypes);
-      Tuple tuple = Tuple.Create(descriptor);
-      DummyTuple dummyTuple = new DummyTuple(descriptor);
-      IList<object> tuplesList = new List<object>(iterationCount);
+      var descriptor = TupleDescriptor.Create(typicalFieldTypes);
+      var tuple = Tuple.Create(descriptor);
+      var dummyTuple = new DummyTuple(descriptor);
+      var tuplesList = new List<Tuple>(iterationCount);
 
       int iteration = 0;
       using (new Measurement("DummyTuple memory usage", iterationCount))
