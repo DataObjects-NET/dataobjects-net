@@ -113,7 +113,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         using (var transaction = dataContext.Connection.BeginTransaction()) {
           TestHelper.CollectGarbage();
           var simplest = dataContext.Simplest;
-          using (warmup ? null : new Measurement("Materialize & GetField", count)) {
+          using (warmup ? null : new Measurement("Materialize", count)) {
             while (i < count)
               foreach (var o in simplest) {
                 if (++i >= count)
@@ -122,7 +122,6 @@ namespace Xtensive.Storage.Tests.Storage.Performance
             transaction.Commit();
           }
         }
-        Assert.AreEqual((long) count * (count - 1) / 2, sum);
       }
     }
 
