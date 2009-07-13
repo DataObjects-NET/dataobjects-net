@@ -37,9 +37,16 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override void Visit(SqlFunctionCall node)
     {
       switch (node.FunctionType) {
+      case SqlFunctionType.CharLength:
+        Visit(SqlDml.FunctionCall("DATALENGTH", node.Arguments) / 2);
+        return;
+      case SqlFunctionType.PadLeft:
+      case SqlFunctionType.PadRight:
+        Visit(GenericPad(node));
+        return;
       case SqlFunctionType.Round:
         // Round should always be called with 2 arguments
-        if (node.Arguments.Count == 1) {
+        if (node.Arguments.Count==1) {
           Visit(SqlDml.FunctionCall(
             translator.Translate(SqlFunctionType.Round),
             node.Arguments[0],
@@ -57,9 +64,9 @@ namespace Xtensive.Sql.SqlServer.v2005
           SqlDml.Literal(1)));
         return;
       case SqlFunctionType.Substring:
-        if (node.Arguments.Count == 2) {
+        if (node.Arguments.Count==2) {
           node = SqlDml.Substring(node.Arguments[0], node.Arguments[1]);
-          SqlExpression len = SqlDml.Length(node.Arguments[0]);
+          SqlExpression len = SqlDml.CharLength(node.Arguments[0]);
           node.Arguments.Add(len);
           base.Visit(node);
           return;
@@ -101,8 +108,7 @@ namespace Xtensive.Sql.SqlServer.v2005
         return;
 
       case SqlFunctionType.Extract:
-        if (((SqlLiteral<SqlDateTimePart>)node.Arguments[0]).Value == SqlDateTimePart.DayOfWeek)
-        {
+        if (((SqlLiteral<SqlDateTimePart>)node.Arguments[0]).Value == SqlDateTimePart.DayOfWeek) {
           Visit((DatePartWeekDay(node.Arguments[1]) + DateFirst + 6) % 7);
           return;
         }
@@ -170,6 +176,31 @@ namespace Xtensive.Sql.SqlServer.v2005
         Visit(source % 1000);
         return;
       }
+    }
+
+    private SqlCase GenericPad(SqlFunctionCall node)
+    {
+      var operand = node.Arguments[0];
+      var actualLength = SqlDml.CharLength(operand);
+      var requiredLength = node.Arguments[1];
+      var paddingExpression = node.Arguments.Count > 2
+        ? SqlDml.FunctionCall("REPLICATE", node.Arguments[2], requiredLength - actualLength)
+        : SqlDml.FunctionCall("SPACE", requiredLength - actualLength);
+      SqlExpression resultExpression;
+      switch (node.FunctionType) {
+      case SqlFunctionType.PadLeft:
+        resultExpression = paddingExpression + operand;
+        break;
+      case SqlFunctionType.PadRight:
+        resultExpression = operand + paddingExpression;
+        break;
+      default:
+        throw new InvalidOperationException();
+      }
+      var result = SqlDml.Case();
+      result.Add(actualLength < requiredLength, resultExpression);
+      result.Else = operand;
+      return result;
     }
 
     #region Static helpers

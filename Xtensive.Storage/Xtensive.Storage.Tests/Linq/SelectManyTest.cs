@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupBySelectorTest()
     {
-      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       var result = Query<Order>.All
         .GroupBy(o => o.Customer)
         .SelectMany(g => g.Select(o => o.Customer));
@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByCountTest()
     {
-      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       var result = Query<Order>.All
         .GroupBy(o => o.Customer)
         .SelectMany(g => g.Select(o => o.Customer).Where(c => g.Count() > 2));
@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByCount2Test()
     {
-      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       var result = Query<Order>.All
         .GroupBy(o => o.Customer)
         .Where(g => g.Count() > 2)
@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetSubqueryTest()
     {
-      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       int expectedCount = Query<Order>.All.Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => c.Orders.Where(o => o.Employee.FirstName.StartsWith("A")));
@@ -149,7 +149,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetSubqueryWithResultSelectorTest()
     {
-      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       int expected = Query<Order>.All
         .Count(o => o.Employee.FirstName.StartsWith("A"));
 
@@ -312,7 +312,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryWithEntityReferenceTest()
     {
-      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       int expected = Query<Order>.All.Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => Query<Order>.All.Where(o => o.Customer==c)
@@ -334,7 +334,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IntersectBetweenFilterAndApplyTest()
     {
-      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       int expected = Query<Order>.All.Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => Query<Order>.All.Where(o => o.Customer==c).Intersect(Query<Order>.All)
@@ -345,7 +345,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DistinctBetweenFilterAndApplyTest()
     {
-      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       int expected = Query<Order>.All.Distinct().Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => Query<Order>.All.Where(o => o.Customer==c).Distinct()
@@ -356,7 +356,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TakeBetweenFilterAndApplyTest()
     {
-      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => Query<Order>.All.Where(o => o.Customer==c).Take(10));
       QueryDumper.Dump(result);
@@ -365,7 +365,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SkipBetweenFilterAndApplyTest()
     {
-      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       IQueryable<Order> result = Query<Customer>.All
         .SelectMany(c => Query<Order>.All.Where(o => o.Customer==c).Skip(10));
       QueryDumper.Dump(result);
@@ -388,7 +388,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TwoCalculateWithApplyTest()
     {
-      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       var actual = from c in Query<Customer>.All
       from r in (c.Orders.Select(o => c.ContactName + o.ShipName))
         .Union(c.Orders.Select(o => c.ContactName + o.ShipName))
@@ -405,7 +405,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TwoFilterWithApplyTest()
     {
-      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       var actual = from c in Query<Customer>.All
       from r in (c.Orders.Where(x => x.ShipName.StartsWith("a"))
         .Intersect(c.Orders.Where(x => x.ShipName.StartsWith("a"))))

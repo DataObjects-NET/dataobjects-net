@@ -10,9 +10,9 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 {
   internal class Translator : SqlTranslator
   {
-    internal const string RealExtractDays = "real_extract_days";
-    internal const string RealExtractSeconds = "real_extract_seconds";
-    internal const string RealExtractMilliseconds = "real_extract_ms";
+    internal const string RealExtractDays = "+real_extract_days";
+    internal const string RealExtractSeconds = "+real_extract_seconds";
+    internal const string RealExtractMilliseconds = "+real_extract_ms";
 
     public Translator(SqlDriver driver)
       : base(driver)
@@ -74,119 +74,80 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         return "nullif";
       case SqlFunctionType.Coalesce:
         return "coalesce";
+      case SqlFunctionType.BinaryLength:
+        return "length";
 
       //date
 
       case SqlFunctionType.CurrentDate:
         return "date_trunc('day', current_timestamp)";
-
       case SqlFunctionType.CurrentTimeStamp:
         return "current_timestamp";
-
       case SqlFunctionType.Extract:
       case SqlFunctionType.IntervalExtract:
         return "extract";
 
       //string
 
-      case SqlFunctionType.Length:
-        return "length";
       case SqlFunctionType.CharLength:
         return "char_length";
-
-      case SqlFunctionType.OctetLength:
-        return "octet_length";
-
       case SqlFunctionType.Lower:
         return "lower";
-
       case SqlFunctionType.Position:
         return "position";
-
       case SqlFunctionType.Substring:
         return "substring";
-
-        //        case SqlFunctionType.Trim:
-        //          return "trim";
-
       case SqlFunctionType.Upper:
         return "upper";
-
       case SqlFunctionType.Concat:
         return "textcat";
-
-        //math
+      
+      //math
 
       case SqlFunctionType.Abs:
         return "abs";
-
       case SqlFunctionType.Acos:
         return "acos";
-
       case SqlFunctionType.Asin:
         return "asin";
-
       case SqlFunctionType.Atan:
         return "atan";
-
       case SqlFunctionType.Atan2:
         return "atan2";
-
       case SqlFunctionType.Ceiling:
         return "ceil";
-
       case SqlFunctionType.Cos:
         return "cos";
-
       case SqlFunctionType.Cot:
         return "cot";
-
       case SqlFunctionType.Degrees:
         return "degrees";
-
       case SqlFunctionType.Exp:
         return "exp";
-
       case SqlFunctionType.Floor:
         return "floor";
-
       case SqlFunctionType.Log:
         return "ln";
-
       case SqlFunctionType.Log10:
         return "log";
-
       case SqlFunctionType.Pi:
         return "pi";
-
       case SqlFunctionType.Power:
         return "power";
-
       case SqlFunctionType.Radians:
         return "radians";
-
       case SqlFunctionType.Rand:
         return "random";
-
       case SqlFunctionType.Round:
         return "round";
-
       case SqlFunctionType.Truncate:
         return "trunc";
-
       case SqlFunctionType.Sign:
         return "sign";
-
       case SqlFunctionType.Sqrt:
         return "sqrt";
-
       case SqlFunctionType.Tan:
         return "tan";
-
-        //other
-
-      case SqlFunctionType.BitLength:
-        return "bit_length";
 
       default:
         return base.Translate(type);
@@ -811,11 +772,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       switch (section) {
         case FunctionCallSection.Entry:
-          // Call random() always without parameters
-
-          if (node.FunctionType==SqlFunctionType.Rand)
-            node.Arguments.Clear();
-
           switch (node.FunctionType) {
             case SqlFunctionType.CurrentUser:
             case SqlFunctionType.SessionUser:
@@ -825,7 +781,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
             case SqlFunctionType.CurrentTimeStamp:
               return Translate(node.FunctionType);
           }
-
           break;
       }
 
@@ -990,12 +945,10 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     public override string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
     {
-      if (section==NodeSection.Entry) {
+      if (section==NodeSection.Entry)
         return "nextval('";
-      }
-      else if (section==NodeSection.Exit) {
+      if (section==NodeSection.Exit)
         return "')";
-      }
       return string.Empty;
     }
 

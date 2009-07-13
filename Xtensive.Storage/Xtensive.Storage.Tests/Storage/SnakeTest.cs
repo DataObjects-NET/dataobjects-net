@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Tests.Storage
 
     protected override void CheckRequirements()
     {
-      EnsureIs(StorageProtocols.Index);
+      EnsureProtocolIs(StorageProtocol.Index);
     }
 
     protected override DomainConfiguration BuildConfiguration()

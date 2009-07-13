@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     [Compiler(typeof(string), "Length", TargetKind.PropertyGet)]
     public static SqlExpression StringLength(SqlExpression _this)
     {
-      return SqlDml.Length(_this);
+      return SqlDml.CharLength(_this);
     }
 
     [Compiler(typeof(string), "ToString")]
@@ -178,7 +178,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       return SqlDml.Concat(SqlDml.Concat(
         SqlDml.Substring(_this, 0, startIndex), value),
-        SqlDml.Substring(_this, startIndex, SqlDml.Length(_this) - startIndex));
+        SqlDml.Substring(_this, startIndex, SqlDml.CharLength(_this) - startIndex));
     }
 
     [Compiler(typeof(string), "Remove")]
@@ -202,7 +202,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     public static SqlExpression StringIsNullOrEmpty(
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlDml.IsNull(value) || SqlDml.Length(value)==SqlDml.Literal(0);
+      return SqlDml.IsNull(value) || SqlDml.CharLength(value)==SqlDml.Literal(0);
     }
 
     [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
@@ -245,6 +245,36 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (expressions.Length==0)
         return SqlDml.Literal("");
       return expressions.Aggregate(SqlDml.Concat);
+    }
+
+    [Compiler(typeof(string), "PadLeft")]
+    public static SqlExpression StringPadLeft(SqlExpression _this,
+      [Type(typeof(int))] SqlExpression totalWidth)
+    {
+      return SqlDml.PadLeft(_this, totalWidth);
+    }
+    
+    [Compiler(typeof(string), "PadLeft")]
+    public static SqlExpression StringPadLeft(SqlExpression _this,
+      [Type(typeof(int))] SqlExpression totalWidth,
+      [Type(typeof(char))] SqlExpression paddingChar)
+    {
+      return SqlDml.PadLeft(_this, totalWidth, paddingChar);
+    }
+
+    [Compiler(typeof(string), "PadRight")]
+    public static SqlExpression StringPadRight(SqlExpression _this,
+      [Type(typeof(int))] SqlExpression totalWidth)
+    {
+      return SqlDml.PadRight(_this, totalWidth);
+    }
+
+    [Compiler(typeof(string), "PadRight")]
+    public static SqlExpression StringPadRight(SqlExpression _this,
+      [Type(typeof(int))] SqlExpression totalWidth,
+      [Type(typeof(char))] SqlExpression paddingChar)
+    {
+      return SqlDml.PadRight(_this, totalWidth, paddingChar);
     }
 
     [Compiler(typeof(string), "Compare", TargetKind.Static | TargetKind.Method)]

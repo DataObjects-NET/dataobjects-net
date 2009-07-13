@@ -107,7 +107,7 @@ namespace Xtensive.Sql.Tests.MsSql
       SqlCast c = SqlDml.Cast(l1, SqlType.Decimal);
       Assert.AreEqual(c.NodeType, SqlNodeType.Cast);
 
-      SqlFunctionCall l = SqlDml.Length(SqlDml.Literal("name"));
+      SqlFunctionCall l = SqlDml.CharLength(SqlDml.Literal("name"));
       b = c%l;
       Assert.AreEqual(b.NodeType, SqlNodeType.Modulo);
       Assert.AreEqual(b.Right.NodeType, SqlNodeType.FunctionCall);

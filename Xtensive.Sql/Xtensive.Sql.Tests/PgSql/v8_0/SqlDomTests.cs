@@ -1224,12 +1224,12 @@ namespace Xtensive.Sql.Tests.PgSql.v8_0
       q.Columns.Add('\\'!='\'', "char_not_equals");
       q.Columns.Add(@"'\"==@"'\", "string_equals");
       q.Columns.Add(@"'\"!=@"'\\", "string_not_equals");
-      q.Columns.Add(SqlDml.Length('F')==1, "char_length1");
+      q.Columns.Add(SqlDml.CharLength('F')==1, "char_length1");
       q.Columns.Add(SqlDml.CharLength('0')==1, "charlength1");
-      q.Columns.Add(SqlDml.Length(SqlDml.Literal('F'))==1, "char_length4");
+      q.Columns.Add(SqlDml.CharLength(SqlDml.Literal('F'))==1, "char_length4");
       q.Columns.Add(SqlDml.CharLength("0123456789")==10, "charlength2");
-      q.Columns.Add(SqlDml.Length(@"'\""""")==4, "string_length1");
-      q.Columns.Add(SqlDml.Length(SqlDml.Literal(@"'\"""""))==4, "string_length2");
+      q.Columns.Add(SqlDml.CharLength(@"'\""""")==4, "string_length1");
+      q.Columns.Add(SqlDml.CharLength(SqlDml.Literal(@"'\"""""))==4, "string_length2");
       q.Columns.Add(SqlDml.Trim("  555    ")=="555", "trim1");
       q.Columns.Add(SqlDml.Trim("  555    ", SqlTrimType.Both)=="555", "trim_both");
       q.Columns.Add(SqlDml.Trim("  555    ", SqlTrimType.Leading)=="555    ", "trim_leading");
@@ -1374,7 +1374,7 @@ namespace Xtensive.Sql.Tests.PgSql.v8_0
       #region Case
 
       q.Columns.Add(SqlDml.Case(SqlDml.Concat("s", "")).Add("s", SqlDml.Literal(true) || true));
-      q.Columns.Add(SqlDml.Case(SqlDml.And(true, false)).Add(false, SqlDml.Length(SqlDml.Concat("abc", "def"))==6));
+      q.Columns.Add(SqlDml.Case(SqlDml.And(true, false)).Add(false, SqlDml.CharLength(SqlDml.Concat("abc", "def"))==6));
 
       #endregion
 
@@ -1399,9 +1399,9 @@ namespace Xtensive.Sql.Tests.PgSql.v8_0
       q.Columns.Add(SqlDml.In('E', SqlDml.Row("'J'", 'E', '\'')), "in_row");
       q.Columns.Add(SqlDml.NotIn('E', SqlDml.Row("'J'", '\\', 'Z')), "not_in_row");
       q.Columns.Add(SqlDml.NotBetween("between'", "bezier'", "lagrange'"), "not_between");
-      q.Columns.Add(SqlDml.Length(SqlDml.Cast("", SqlType.VarBinaryMax))==0, "cast_bytea1");
-      q.Columns.Add(SqlDml.Length(SqlDml.Cast(@"\050", SqlType.VarBinaryMax))==1, "cast_bytea2");
-      q.Columns.Add(SqlDml.Length(SqlDml.Cast(@"abc\\", SqlType.VarBinaryMax))==4, "cast_bytea5");
+      q.Columns.Add(SqlDml.BinaryLength(SqlDml.Cast("", SqlType.VarBinaryMax))==0, "cast_bytea1");
+      q.Columns.Add(SqlDml.BinaryLength(SqlDml.Cast(@"\050", SqlType.VarBinaryMax))==1, "cast_bytea2");
+      q.Columns.Add(SqlDml.BinaryLength(SqlDml.Cast(@"abc\\", SqlType.VarBinaryMax))==4, "cast_bytea5");
 
       #endregion
 

@@ -216,4 +216,7 @@
   <data name="ExTranslationOfByteArrayLiteralIsNotSupportedByDefaultSqlTranslator" xml:space="preserve">
     <value>Translation of byte[] literal is not supported by default SqlTranslator</value>
   </data>
+  <data name="ExFunctionXIsNotSupported" xml:space="preserve">
+    <value>Function '{0}' is not supported</value>
+  </data>
 </root>

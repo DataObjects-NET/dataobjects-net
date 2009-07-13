@@ -25,61 +25,56 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     public override void Visit(SqlFunctionCall node)
     {
       switch (node.FunctionType) {
-        case SqlFunctionType.Square:
-          Visit(SqlDml.Power(node.Arguments[0], 2));
+      case SqlFunctionType.PadLeft:
+      case SqlFunctionType.PadRight:
+        Visit(GenericPad(node));
+        return;
+      case SqlFunctionType.Rand:
+        Visit(SqlDml.FunctionCall(translator.Translate(SqlFunctionType.Rand)));
+        return;
+      case SqlFunctionType.Square:
+        Visit(SqlDml.Power(node.Arguments[0], 2));
+        return;
+      case SqlFunctionType.Extract:
+        if (Extract(node))
           return;
-
-        case SqlFunctionType.Extract:
-          if (Extract(node))
-            return;
-          break;
-
-        case SqlFunctionType.IntervalExtract:
-          if (IntervalExtract(node))
-            return;
-          break;
-
-        case SqlFunctionType.IntervalConstruct:
-          Visit(node.Arguments[0] * OneMillisecondInterval);
+        break;
+      case SqlFunctionType.IntervalExtract:
+        if (IntervalExtract(node))
           return;
-
-        case SqlFunctionType.IntervalToMilliseconds:
-          Visit(IntervalToMilliseconds(node.Arguments[0]));
-          return;
-
-        case SqlFunctionType.IntervalDuration:
-          Visit(IntervalDuration(node.Arguments[0]));
-          return;
-
-        case SqlFunctionType.DateTimeConstruct:
-          Visit(SqlDml.Literal(new DateTime(2001, 1, 1))
-            + OneYearInterval * (node.Arguments[0] - 2001)
-            + OneMonthInterval * (node.Arguments[1] - 1)
-            + OneDayInterval * (node.Arguments[2] - 1));
-          return;
-
-        case SqlFunctionType.DateTimeTruncate:
-          Visit(SqlDml.FunctionCall("date_trunc", "day", node.Arguments[0]));
-          return;
-
-        case SqlFunctionType.DateTimeAddInterval:
-          Visit(node.Arguments[0] + node.Arguments[1]);
-          return;
-
-        case SqlFunctionType.DateTimeSubtractInterval:
-        case SqlFunctionType.DateTimeSubtractDateTime:
-          Visit(node.Arguments[0] - node.Arguments[1]);
-          return;
-
-        case SqlFunctionType.DateTimeAddMonths:
-          Visit(node.Arguments[0] + node.Arguments[1] * OneMonthInterval);
-          return;
-
-        case SqlFunctionType.DateTimeAddYears:
-          Visit(node.Arguments[0] + node.Arguments[1] * OneYearInterval);
-          return;
+        break;
+      case SqlFunctionType.IntervalConstruct:
+        Visit(node.Arguments[0] * OneMillisecondInterval);
+        return;
+      case SqlFunctionType.IntervalToMilliseconds:
+        Visit(IntervalToMilliseconds(node.Arguments[0]));
+        return;
+      case SqlFunctionType.IntervalDuration:
+        Visit(IntervalDuration(node.Arguments[0]));
+        return;
+      case SqlFunctionType.DateTimeConstruct:
+        Visit(SqlDml.Literal(new DateTime(2001, 1, 1))
+          + OneYearInterval * (node.Arguments[0] - 2001)
+          + OneMonthInterval * (node.Arguments[1] - 1)
+          + OneDayInterval * (node.Arguments[2] - 1));
+        return;
+      case SqlFunctionType.DateTimeTruncate:
+        Visit(SqlDml.FunctionCall("date_trunc", "day", node.Arguments[0]));
+        return;
+      case SqlFunctionType.DateTimeAddInterval:
+        Visit(node.Arguments[0] + node.Arguments[1]);
+        return;
+      case SqlFunctionType.DateTimeSubtractInterval:
+      case SqlFunctionType.DateTimeSubtractDateTime:
+        Visit(node.Arguments[0] - node.Arguments[1]);
+        return;
+      case SqlFunctionType.DateTimeAddMonths:
+        Visit(node.Arguments[0] + node.Arguments[1] * OneMonthInterval);
+        return;
+      case SqlFunctionType.DateTimeAddYears:
+        Visit(node.Arguments[0] + node.Arguments[1] * OneYearInterval);
+        return;
       }
-
       base.Visit(node);
     }
 
@@ -130,6 +125,28 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       }
 
       return false;
+    }
+
+    private SqlCase GenericPad(SqlFunctionCall node)
+    {
+      string paddingFunction;
+      switch (node.FunctionType) {
+      case SqlFunctionType.PadLeft:
+        paddingFunction = "lpad";
+        break;
+      case SqlFunctionType.PadRight:
+        paddingFunction = "rpad";
+        break;
+      default:
+        throw new InvalidOperationException();
+      }
+      var operand = node.Arguments[0];
+      var result = SqlDml.Case();
+      result.Add(
+        SqlDml.CharLength(operand) < node.Arguments[1],
+        SqlDml.FunctionCall(paddingFunction, node.Arguments));
+      result.Else = operand;
+      return result;
     }
 
     #region Static helpers

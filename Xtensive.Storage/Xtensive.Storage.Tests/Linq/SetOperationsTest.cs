@@ -211,7 +211,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IntersectWithoutOneOfSelect()
     {
-      EnsureIs(StorageProtocols.Index | StorageProtocols.SqlServer);
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       var actual = from c in Query<Customer>.All
       from r in (c.Orders)
         .Intersect(c.Orders).Select(o => o.ShippedDate)

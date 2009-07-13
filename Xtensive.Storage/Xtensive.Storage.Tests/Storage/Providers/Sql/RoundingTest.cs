@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
 
     protected override void CheckRequirements()
     {
-      EnsureIs(StorageProtocols.Sql);
+      EnsureProtocolIs(StorageProtocol.Sql);
     }
 
     public override void TestFixtureSetUp()

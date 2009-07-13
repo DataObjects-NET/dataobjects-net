@@ -133,6 +133,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Function &apos;{0}&apos; is not supported.
+        /// </summary>
+        internal static string ExFunctionXIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExFunctionXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Instance is locked..
         /// </summary>
         internal static string ExInstanceIsLocked {

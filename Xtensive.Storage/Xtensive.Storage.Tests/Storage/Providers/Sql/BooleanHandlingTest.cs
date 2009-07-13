@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
   {
     protected override void CheckRequirements()
     {
-      EnsureIs(StorageProtocols.SqlServer);
+      EnsureProtocolIs(StorageProtocol.SqlServer);
     }
 
     protected override DomainConfiguration BuildConfiguration()

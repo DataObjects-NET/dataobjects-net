@@ -204,7 +204,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ModifiedClosuresTest()
     {
-      EnsureIs(StorageProtocols.Index);
+      EnsureProtocolIs(StorageProtocol.Index);
       var customers = from o in Query<Order>.All
                       join c in Query<Customer>.All on o.Customer equals c into oc
                       from x in oc.DefaultIfEmpty()

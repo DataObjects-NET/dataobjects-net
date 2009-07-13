@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         case ExpressionType.ArrayLength:
           if (expression.Operand.Type != typeof(byte[]))
             throw new NotSupportedException(string.Format(Strings.ExTypeXIsNotSupported, expression.Operand.Type));
-          return SqlDml.Cast(SqlDml.Length(operand), SqlType.Int32);
+          return SqlDml.Cast(SqlDml.BinaryLength(operand), SqlType.Int32);
         case ExpressionType.Negate:
         case ExpressionType.NegateChecked:
           return SqlDml.Negate(operand);

@@ -194,7 +194,7 @@ namespace Xtensive.Sql.Tests
     [Test]
     public void SqlFunctionCallReplacingTest()
     {
-      SqlFunctionCall fc = SqlDml.Length(" text ");
+      SqlFunctionCall fc = SqlDml.CharLength(" text ");
       SqlFunctionCall fcReplacing = SqlDml.Substring("text", 0, 2);
       fc.ReplaceWith(fcReplacing);
 

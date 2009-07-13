@@ -14,8 +14,8 @@ namespace Xtensive.Sql.VistaDb.v3
     /// <inheritdoc/>
     public override void Visit(SqlFunctionCall node)
     {
-      if (node.FunctionType == SqlFunctionType.Substring && node.Arguments.Count == 2) {
-        SqlExpression len = SqlDml.Length(node.Arguments[0]);
+      if (node.FunctionType==SqlFunctionType.Substring && node.Arguments.Count == 2) {
+        SqlExpression len = SqlDml.CharLength(node.Arguments[0]);
         node.Arguments.Add(len);
         base.Visit(node);
         if (node.Arguments.Contains(len))

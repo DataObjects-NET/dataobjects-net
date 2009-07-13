@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Tests.Configuration.UserDefinedMappings
     [Compiler(typeof(byte[]), "Length", TargetKind.PropertyGet)]
     public static SqlExpression ByteArrayLength(SqlExpression _this)
     {
-      return SqlDml.Length(_this);
+      return SqlDml.BinaryLength(_this);
     }
   }
 }

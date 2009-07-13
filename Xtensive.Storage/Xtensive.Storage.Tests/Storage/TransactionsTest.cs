@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
 
     protected override void CheckRequirements()
     {
-      EnsureIs(StorageProtocols.Sql);
+      EnsureProtocolIs(StorageProtocol.Sql);
     }
 
     protected override DomainConfiguration BuildConfiguration()

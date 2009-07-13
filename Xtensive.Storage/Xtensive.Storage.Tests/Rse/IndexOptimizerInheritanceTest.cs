@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Tests.Rse
 
     protected override void CheckRequirements()
     {
-      EnsureIs(StorageProtocols.Index);
+      EnsureProtocolIs(StorageProtocol.Index);
     }
 
     public override void TestFixtureSetUp()

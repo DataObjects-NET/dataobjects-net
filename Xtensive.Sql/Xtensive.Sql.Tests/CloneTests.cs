@@ -151,8 +151,8 @@ namespace Xtensive.Sql.Tests
       }
       Console.WriteLine();
       {
-        SqlFunctionCall fc = SqlDml.Length("string");
-        SqlFunctionCall fcClone = (SqlFunctionCall)fc.Clone();
+        SqlFunctionCall fc = SqlDml.CharLength("string");
+        SqlFunctionCall fcClone = (SqlFunctionCall) fc.Clone();
 
         Assert.AreNotEqual(fc, fcClone);
         Assert.AreNotEqual(fc.Arguments, fcClone.Arguments);
