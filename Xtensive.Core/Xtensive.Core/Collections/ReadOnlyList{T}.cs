@@ -27,6 +27,11 @@ namespace Xtensive.Core.Collections
     private readonly IList<T> innerList;
     private readonly bool isFixedSize;
 
+    /// <summary>
+    /// Empty <see cref="ReadOnlyList{T}"/> instance.
+    /// </summary>
+    public static ReadOnlyList<T> Empty;
+
     /// <inheritdoc/>
     public int Count {
       [DebuggerStepThrough]
@@ -196,6 +201,13 @@ namespace Xtensive.Core.Collections
 
     #endregion
 
+
+    // Initializer
+
+    static ReadOnlyList()
+    {
+      Empty = new ReadOnlyList<T>(new List<T>(0));
+    }
 
     // Constructors
 
