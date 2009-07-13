@@ -250,7 +250,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     private SqlUpdateRequest CreateUpdate(EntityState state)
     {
-      var fieldStateMap = state.Tuple.Difference.GetFieldStateMap(TupleFieldState.Available);
+      var fieldStateMap = state.GetDifferentialTuple().Difference
+        .GetFieldStateMap(TupleFieldState.Available);
       var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Update, state.Type, fieldStateMap);
       return DomainHandler.RequestCache.GetValue(task, _task => DomainHandler.RequestBuilder.Build(_task));
     }

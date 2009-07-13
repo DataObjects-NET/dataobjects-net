@@ -195,7 +195,7 @@ namespace Xtensive.Storage
       else
         foreach (EntityState data in insertEntities) {
           yield return new EntityStateAction(data, PersistAction.Insert);
-          data.Tuple.Merge();
+          data.GetDifferentialTuple().Merge();
         }
 
       // Update
@@ -203,7 +203,7 @@ namespace Xtensive.Storage
         if (data.IsRemoved)
           continue;
         yield return new EntityStateAction(data, PersistAction.Update);
-        data.Tuple.Merge();
+        data.GetDifferentialTuple().Merge();
       }
 
       // Delete
@@ -235,7 +235,7 @@ namespace Xtensive.Storage
 
       // Merge
       foreach (EntityState data in sortedEntities)
-        data.Tuple.Merge();
+        data.GetDifferentialTuple().Merge();
     }
 
     private static void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates,

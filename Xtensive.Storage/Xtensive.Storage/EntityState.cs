@@ -19,12 +19,13 @@ namespace Xtensive.Storage
   /// <summary>
   /// The underlying state of the <see cref="Storage.Entity"/>.
   /// </summary>
-  public sealed class EntityState : TransactionalStateContainer<DifferentialTuple>, 
+  public sealed class EntityState : TransactionalStateContainer<Tuple>, 
     IEquatable<EntityState>
   {
     private readonly Key key;
     private PersistenceState persistenceState;
     private Entity entity;
+    private bool isDifferentialTuple;
 
     /// <summary>
     /// Gets the key.
@@ -45,10 +46,10 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets the values as <see cref="DifferentialTuple"/>.
+    /// Gets the values as <see cref="Tuple"/>.
     /// </summary>
     [Infrastructure]
-    public DifferentialTuple Tuple {
+    public Tuple Tuple {
       get { return State; }
       private set { State = value; }
     }
@@ -114,6 +115,17 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Gets the values as <see cref="DifferentialTuple"/>.
+    /// </summary>
+    /// <returns>A <see cref="DifferentialTuple"/> corresponding to the current state.</returns>
+    public DifferentialTuple GetDifferentialTuple()
+    {
+      if (isDifferentialTuple)
+        return (DifferentialTuple)Tuple;
+      return SwitchToDifferentialTuple();
+    }
+
+    /// <summary>
     /// Ensures the entity is not removed and its data is actual.
     /// </summary>
     [Infrastructure]
@@ -135,13 +147,14 @@ namespace Xtensive.Storage
       if (update==null) // Entity is removed
         Tuple = null;
       else {
-        var tuple = IsTupleLoaded ? Tuple : null;
+        var diffTuple = SwitchToDifferentialTuple();
+        var tuple = IsTupleLoaded ? diffTuple : null;
         if (tuple==null)
           // Entity was marked as removed before, or it is unfetched at all yet
           Tuple = new DifferentialTuple(update);
         else {
           // ToRegular ensures we'll never modify the Origin tuple
-          var origin = tuple.Origin;
+          var origin = diffTuple.Origin;
           if (!(origin is RegularTuple))
             origin = origin.ToRegular();
           origin.MergeWith(update, MergeBehavior.PreferDifference);
@@ -151,11 +164,23 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    protected override DifferentialTuple LoadState()
+    protected override Tuple LoadState()
     {
       Tuple = null;
       Session.Handler.Fetch(key);
       return Tuple;
+    }
+
+    internal DifferentialTuple SwitchToDifferentialTuple()
+    {
+      if (Tuple == null)
+        return null;
+      if (isDifferentialTuple)
+        return (DifferentialTuple) Tuple;
+      var result = new DifferentialTuple(Tuple);
+      Tuple = result;
+      isDifferentialTuple = true;
+      return result;
     }
 
     #region Equality members
@@ -195,8 +220,8 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       this.key = key;
-      Tuple = null;
-      Update(data);
+      Tuple = data;
+      //Update(data);
     }
   }
 }
