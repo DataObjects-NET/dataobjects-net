@@ -111,12 +111,15 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       if (trimChars is SqlNull)
         return SqlDml.Trim(_this, trimType);
-      var exactTrimChars = trimChars as SqlLiteral<char[]>;
-      if (exactTrimChars==null)
+      var container = trimChars as SqlContainer;
+      if (container==null)
         throw new NotSupportedException(Strings.ExStringTrimSupportedOnlyWithConstants);
-      return exactTrimChars.Value.Length==0
+      var chars = container.Value as char[];
+      if (chars==null)
+        throw new NotSupportedException(Strings.ExStringTrimSupportedOnlyWithConstants);
+      return chars.Length==0
         ? SqlDml.Trim(_this, trimType)
-        : SqlDml.Trim(_this, trimType, new string(exactTrimChars.Value));
+        : SqlDml.Trim(_this, trimType, new string(chars));
     }
 
     [Compiler(typeof(string), "Trim")]

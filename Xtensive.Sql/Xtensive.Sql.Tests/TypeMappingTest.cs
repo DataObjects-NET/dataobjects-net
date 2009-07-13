@@ -112,7 +112,7 @@ namespace Xtensive.Sql.Tests
     }
 
     [Test]
-    public void SelectFromParametersTest()
+    public void SelectParametersTest()
     {
       int parameterIndex = 0;
       var queries = new List<SqlSelect>();
@@ -122,16 +122,46 @@ namespace Xtensive.Sql.Tests
         queries.Add(query);
         query.Columns.Add(SqlDml.Literal(rowIndex), IdColumnName);
         for (int columnIndex = 0; columnIndex < testValues.Length; columnIndex++) {
+          var mapping = typeMappings[columnIndex];
           var columnName = GetColumnName(columnIndex);
           var parameterName = GetParameterName(parameterIndex++);
           SqlExpression parameterExpression = SqlDml.ParameterRef(parameterName);
-          if (typeMappings[columnIndex].ParameterCastRequired)
-            parameterExpression = SqlDml.Cast(parameterExpression, typeMappings[columnIndex].BuildSqlType());
+          if (mapping.ParameterCastRequired)
+            parameterExpression = SqlDml.Cast(parameterExpression, mapping.BuildSqlType());
           query.Columns.Add(parameterExpression, columnName);
           var parameter = command.CreateParameter();
           parameter.ParameterName = parameterName;
           typeMappings[columnIndex].SetParameterValue(parameter, testValues[columnIndex][rowIndex]);
           command.Parameters.Add(parameter);
+        }
+      }
+      var unionQueryRef = SqlDml.QueryRef(queries.Cast<ISqlQueryExpression>().Aggregate(SqlDml.UnionAll));
+      var resultQuery = SqlDml.Select(unionQueryRef);
+      resultQuery.Columns.Add(SqlDml.Asterisk);
+      resultQuery.OrderBy.Add(unionQueryRef[IdColumnName]);
+      command.CommandText = driver.Compile(resultQuery).GetCommandText();
+      VerifyTestValues(command.ExecuteReader());
+    }
+
+    [Test]
+    public void SelectConstantsTest()
+    {
+      var queries = new List<SqlSelect>();
+      var command = connection.CreateCommand();
+      for (int rowIndex = 0; rowIndex < testValues[0].Length; rowIndex++) {
+        var query = SqlDml.Select();
+        queries.Add(query);
+        query.Columns.Add(SqlDml.Literal(rowIndex), IdColumnName);
+        for (int columnIndex = 0; columnIndex < testValues.Length; columnIndex++) {
+          var columnName = GetColumnName(columnIndex);
+          var value = testValues[columnIndex][rowIndex];
+          var mapping = typeMappings[columnIndex];
+          var valueExpression = value==null
+            ? SqlDml.Null
+            : SqlDml.Literal(value, mapping.Type);
+          if (mapping.LiteralCastRequired)
+            valueExpression = SqlDml.Cast(valueExpression, mapping.BuildSqlType());
+          query.Columns.Add(valueExpression, columnName);
         }
       }
       var unionQueryRef = SqlDml.QueryRef(queries.Cast<ISqlQueryExpression>().Aggregate(SqlDml.UnionAll));
@@ -220,7 +250,7 @@ namespace Xtensive.Sql.Tests
           {
             new byte[0],
             new [] {(byte) 5, (byte) 6, (byte)8},
-            new [] {(byte) 0},
+            new [] {byte.MinValue, byte.MaxValue},
             null,
           };
       throw new ArgumentOutOfRangeException();

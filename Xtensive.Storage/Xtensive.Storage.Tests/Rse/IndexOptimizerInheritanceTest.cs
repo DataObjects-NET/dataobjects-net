@@ -49,9 +49,14 @@ namespace Xtensive.Storage.Tests.Rse
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = DomainConfiguration.Load("memory");
+      var config = base.BuildConfiguration();
       config.Types.Register(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
       return config;
+    }
+
+    protected override void CheckRequirements()
+    {
+      EnsureIs(StorageProtocols.Index);
     }
 
     public override void TestFixtureSetUp()

@@ -224,18 +224,17 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual string Translate<T>(SqlCompilerContext context, SqlArray<T> node)
+    public virtual string Translate(SqlCompilerContext context, SqlArray node)
     {
-      T[] values = node.Values;
+      Type itemType = node.ItemType;
+      object[] values = node.GetValues();
       int count = values.Length;
-      if (count == 0)
+      if (count==0)
         return "(NULL)";
-
-      string[] buffer = new string[count];
-
+      var buffer = new string[count];
       for (int index = 0; index < count; index++)
-        buffer[index] = Translate(context, new SqlLiteral<T>(values[index]));
-      if (count == 1)
+        buffer[index] = Translate(context, (SqlLiteral) SqlDml.Literal(values[index], itemType));
+      if (count==1)
         return "(" + buffer[0] + ")";
 
       buffer[0] = "(" + buffer[0];
@@ -1061,19 +1060,18 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public string Translate<T>(SqlCompilerContext context, SqlLiteral<T> node)
+    public virtual string Translate(SqlCompilerContext context, SqlLiteral node)
     {
-      return TranslateLiteral(context, typeof(T), node.Value);
-    }
-
-    public virtual string TranslateLiteral(SqlCompilerContext context, Type type, object value)
-    {
+      var type = node.LiteralType;
+      var value = node.GetValue();
       TypeCode t = Type.GetTypeCode(type);
       if (t==TypeCode.String || t==TypeCode.Char || type==typeof(Guid))
         return QuoteString(Convert.ToString(value, this));
+      if (type==typeof(byte[]))
+        throw new NotSupportedException(Strings.ExTranslationOfByteArrayLiteralIsNotSupportedByDefaultSqlTranslator);
       return Convert.ToString(value, this);
     }
-
+    
     public virtual string Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
     {
       switch (section) {

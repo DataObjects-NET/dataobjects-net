@@ -8,16 +8,33 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Xtensive.Sql.Info;
-using SqlServerCommand = System.Data.SqlClient.SqlCommand;
-using SqlServerConnection = System.Data.SqlClient.SqlConnection;
-using SqlServerTransaction = System.Data.SqlClient.SqlTransaction;
-using SqlServerParameter = System.Data.SqlClient.SqlParameter;
 
 namespace Xtensive.Sql.SqlServer
 {
   internal class DataAccessHandler : ValueTypeMapping.DataAccessHandler
   {
     private DateTime MinDateTimeValue;
+
+    public override bool IsLiteralCastRequired(Type type)
+    {
+      switch (Type.GetTypeCode(type)) {
+      case TypeCode.Byte:
+      case TypeCode.SByte:
+      case TypeCode.Int16:
+      case TypeCode.UInt16:
+      case TypeCode.Int64:
+      case TypeCode.UInt64:
+      case TypeCode.Single:
+      case TypeCode.Double:
+      case TypeCode.DateTime:
+        return true;
+      }
+      if (type==typeof(TimeSpan))
+        return true;
+      if (type==typeof(Guid))
+        return true;
+      return false;
+    }
 
     public override void SetSByteParameterValue(DbParameter parameter, object value)
     {

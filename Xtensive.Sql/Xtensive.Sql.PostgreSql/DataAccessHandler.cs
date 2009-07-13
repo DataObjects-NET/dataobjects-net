@@ -16,10 +16,29 @@ namespace Xtensive.Sql.PostgreSql
 {
   internal class DataAccessHandler : ValueTypeMapping.DataAccessHandler
   {
+    public override bool IsLiteralCastRequired(Type type)
+    {
+      switch (Type.GetTypeCode(type)) {
+      case TypeCode.Byte:
+      case TypeCode.SByte:
+      case TypeCode.Int16:
+      case TypeCode.UInt16:
+      case TypeCode.Int64:
+      case TypeCode.UInt64:
+      case TypeCode.Single:
+      case TypeCode.Double:
+        return true;
+      }
+      return false;
+    }
+
     public override bool IsParameterCastRequired(Type type)
     {
       switch (Type.GetTypeCode(type)) {
+      case TypeCode.Byte:
+      case TypeCode.SByte:
       case TypeCode.Int16:
+      case TypeCode.UInt16:
       case TypeCode.Single:
       case TypeCode.Double:
       case TypeCode.DateTime:

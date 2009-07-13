@@ -10,12 +10,12 @@ using Xtensive.Storage.Configuration;
 namespace Xtensive.Storage.Tests.Storage.Performance
 {
   [TestFixture]
-  [Explicit("Requires PosgreSQL")]
+  [Explicit]
   public class PostgresDOCrudTest : DOCrudTestBase
   {
     protected override DomainConfiguration CreateConfiguration()
     {
-      return DomainConfigurationFactory.Create("pgsql84");
+      return DomainConfigurationFactory.Create("pgsql");
     }
   }
 }

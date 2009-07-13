@@ -395,7 +395,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     protected virtual void AppendIndexColumnSortingOrder(StringBuilder builder, bool ascending)
     {
-      // to nothing since PgSql before 8.3 does not support such feature
+      // do nothing since PgSql before 8.3 does not support such feature
     }
 
     protected virtual void AppendIndexStorageParameters(StringBuilder builder, Index index)
@@ -415,12 +415,12 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     public override string Translate(SqlCompilerContext context, SqlContinue node)
     {
-      return String.Empty;
+      return string.Empty;
     }
 
     public override string Translate(SqlCompilerContext context, SqlDeclareVariable node)
     {
-      return String.Empty;
+      return string.Empty;
     }
 
     public override string Translate(SqlCompilerContext context, SqlAssignment node, NodeSection section)
@@ -428,27 +428,23 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return string.Empty;
     }
     
-    public override string TranslateLiteral(SqlCompilerContext context, Type type, object value)
+    public override string Translate(SqlCompilerContext context, SqlLiteral node)
     {
-      return TranslateLiteral(value);
+      return TranslateLiteral(node.GetValue());
     }
 
-    public override string Translate<T>(SqlCompilerContext context, SqlArray<T> node)
+    public override string Translate(SqlCompilerContext context, SqlArray node)
     {
-      T[] values = node.Values;
+      var values = node.GetValues();
       int length = values.Length;
-      if (length==0) {
-        return "'{}'::" + TranslateDotNetType<T>() + "[]";
-      }
-      else {
-        StringBuilder sb = new StringBuilder("ARRAY[");
-        for (int i = 0; i < length; i++) {
-          sb.Append(TranslateLiteral(values[i]) + ",");
-        }
-        sb.Length -= 1;
-        sb.Append("]");
-        return sb.ToString();
-      }
+      if (length==0)
+        return "'{}'::" + TranslateDotNetType(node.ItemType) + "[]";
+      var sb = new StringBuilder("ARRAY[");
+      for (int i = 0; i < length; i++)
+        sb.Append(TranslateLiteral(values[i]) + ",");
+      sb.Length -= 1;
+      sb.Append("]");
+      return sb.ToString();
     }
 
     public override string Translate(SqlCompilerContext context, SqlDeclareCursor node, DeclareCursorSection section)
@@ -1073,11 +1069,11 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         return string.Format("'{0}'::interval", IntervalHelper.TimeSpanToString((TimeSpan) obj));
       }
       if (obj is byte[]) {
-        byte[] array = obj as byte[];
+        var array = obj as byte[];
         if (array.Length==0)
           return "''::bytea";
 
-        char[] chars = new char[1 + 5 * array.Length + 8];
+        var chars = new char[1 + 5 * array.Length + 8];
         chars[0] = '\'';
         chars[chars.Length - 1] = 'a';
         chars[chars.Length - 2] = 'e';
@@ -1132,9 +1128,9 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       }
     }
 
-    protected static string TranslateDotNetType<T>() // where T : IConvertible
+    protected static string TranslateDotNetType(Type type) // where T : IConvertible
     {
-      switch (Type.GetTypeCode(typeof (T))) {
+      switch (Type.GetTypeCode(type)) {
       case TypeCode.Boolean:
         return "bool";
       case TypeCode.Byte:
@@ -1160,7 +1156,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       case TypeCode.DateTime:
         return "timestamp";
       default: {
-        if (typeof (T).Equals(typeof (TimeSpan))) {
+        if (type==typeof (TimeSpan)) {
           return "interval";
         }
         return "text";

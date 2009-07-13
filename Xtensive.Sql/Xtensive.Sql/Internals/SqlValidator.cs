@@ -5,16 +5,15 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Sql.Info;
+using Xtensive.Core.Collections;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Resources;
-using System.Linq;
 
 namespace Xtensive.Sql
 {
   internal static class SqlValidator
   {
-    private static readonly Dictionary<Type,Type> supportedTypes;
+    private static readonly HashSet<Type> supportedTypes;
 
     public static void EnsureAreSqlRowArguments(IEnumerable<SqlExpression> nodes)
     {
@@ -57,7 +56,7 @@ namespace Xtensive.Sql
 
     public static void EnsureLiteralTypeIsSupported(Type type)
     {
-      if (!supportedTypes.ContainsKey(type))
+      if (!supportedTypes.Contains(type))
         throw new InvalidOperationException(string.Format(Strings.ExLiteralTypeXIsNotSupported, type));
     }
 
@@ -177,36 +176,34 @@ namespace Xtensive.Sql
 
     public static bool IsLiteralTypeSupported(Type type)
     {
-      return supportedTypes.ContainsKey(type);
+      return supportedTypes.Contains(type);
     }
-
-
+    
     // Static constructor
 
     static SqlValidator()
     {
       supportedTypes = new[]
         {
-          typeof (int),
-          typeof (long),
-          typeof (short),
-          typeof (string),
           typeof (bool),
           typeof (char),
           typeof (sbyte),
           typeof (byte),
+          typeof (short),
           typeof (ushort),
+          typeof (int),
           typeof (uint),
+          typeof (long),
           typeof (ulong),
-          typeof (decimal),
+          typeof (string),
           typeof (float),
           typeof (double),
+          typeof (decimal),
           typeof (DateTime),
           typeof (TimeSpan),
           typeof (byte[]),
-          typeof (char[]),
           typeof (Guid)
-        }.ToDictionary(type => type);
+        }.ToHashSet();
     }
   }
 }

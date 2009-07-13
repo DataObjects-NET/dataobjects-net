@@ -123,7 +123,8 @@ namespace Xtensive.Sql.ValueTypeMapping
     {
       return new TypeMapping(type,
         valueReader, parameterValueSetter, sqlTypeBuilder,
-        h.IsParameterCastRequired(type));
+        h.IsParameterCastRequired(type),
+        h.IsLiteralCastRequired(type));
     }
     
     // Constructors

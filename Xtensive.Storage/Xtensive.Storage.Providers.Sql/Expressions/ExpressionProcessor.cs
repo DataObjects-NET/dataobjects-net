@@ -45,7 +45,6 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     
     public HashSet<SqlFetchParameterBinding> Bindings { get { return bindings; } }
     public DomainModel Model { get { return model; } }
-
     
     public SqlExpression Translate()
     {

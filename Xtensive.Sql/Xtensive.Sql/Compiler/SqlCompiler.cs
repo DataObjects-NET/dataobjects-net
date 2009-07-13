@@ -194,7 +194,7 @@ namespace Xtensive.Sql.Compiler
       context.AppendText(translator.Translate(context, node, NodeSection.Exit));
     }
 
-    public virtual void Visit<T>(SqlArray<T> node)
+    public virtual void Visit(SqlArray node)
     {
       context.AppendText(translator.Translate(context, node));
     }
@@ -795,7 +795,7 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void Visit<T>(SqlLiteral<T> node)
+    public virtual void Visit(SqlLiteral node)
     {
       context.AppendText(translator.Translate(context, node));
     }

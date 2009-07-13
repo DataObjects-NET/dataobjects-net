@@ -10,28 +10,16 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlCast : SqlExpression
   {
-    private SqlExpression operand;
-    private SqlValueType type;
-    
-    public SqlExpression Operand {
-      get {
-        return operand;
-      }
-    }
-
-    public SqlValueType Type {
-      get {
-        return type;
-      }
-    }
+    public SqlExpression Operand { get; private set; }
+    public SqlValueType Type { get; private set; }
 
     public override void ReplaceWith(SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentIs<SqlCast>(expression, "expression");
-      SqlCast replacingExpression = expression as SqlCast;
-      operand = replacingExpression.Operand;
-      type = replacingExpression.Type;
+      var replacingExpression = (SqlCast) expression;
+      Operand = replacingExpression.Operand;
+      Type = replacingExpression.Type;
     }
 
     internal override object Clone(SqlNodeCloneContext context)
@@ -39,21 +27,21 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlCast clone = new SqlCast((SqlExpression)operand.Clone(context), type);
+      var clone = new SqlCast((SqlExpression) Operand.Clone(context), Type);
       context.NodeMapping[this] = clone;
       return clone;
     }
     
-    internal SqlCast(SqlExpression operand, SqlValueType type)
-      : base(SqlNodeType.Cast)
-    {
-      this.operand = operand;
-      this.type = type;
-    }
-
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
       visitor.Visit(this);
+    }
+
+    internal SqlCast(SqlExpression operand, SqlValueType type)
+      : base(SqlNodeType.Cast)
+    {
+      Operand = operand;
+      Type = type;
     }
   }
 }

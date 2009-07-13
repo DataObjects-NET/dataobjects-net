@@ -1,63 +1,29 @@
-// Copyright (C) 2007 Xtensive LLC.
+// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2009.07.13
 
 using System;
-using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  /// <summary>
-  /// Represents literal value expression.
-  /// </summary>
   [Serializable]
-  public class SqlLiteral<T> : SqlExpression
+  public abstract class SqlLiteral : SqlExpression
   {
-    private T value;
-
-    /// <summary>
-    /// Gets the value.
-    /// </summary>
-    /// <value>The value.</value>
-    public T Value {
-      get {
-        return value;
-      }
-    }
-
-    public override void ReplaceWith(SqlExpression expression)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlLiteral<T>>(expression, "expression");
-      SqlLiteral<T> replacingExpression = expression as SqlLiteral<T>;
-      value = replacingExpression.Value;
-    }
-
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      
-      SqlLiteral<T> clone = new SqlLiteral<T>(value);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    public abstract Type LiteralType { get; }
+    public abstract object GetValue();
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
       visitor.Visit(this);
     }
+    
+    // Constructors
 
-    internal static SqlLiteral<T> Create(T value)
+    internal SqlLiteral()
+      : base(SqlNodeType.Literal)
     {
-      return new SqlLiteral<T>(value);
-    }
-
-    // Constructor
-
-    internal SqlLiteral(T value) : base(SqlNodeType.Literal)
-    {
-      this.value = value;
     }
   }
 }

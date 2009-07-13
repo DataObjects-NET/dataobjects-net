@@ -854,7 +854,7 @@ namespace Xtensive.Sql
       SqlValidator.EnsureLiteralTypeIsSupported(valueType);
       var type = typeof (SqlLiteral<>).MakeGenericType(valueType);
       var method = type.GetMethod("Create", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-      var result = (SqlExpression)method.Invoke(null, new[] {value});
+      var result = (SqlExpression) method.Invoke(null, new[] {value});
       return result;
     }
 

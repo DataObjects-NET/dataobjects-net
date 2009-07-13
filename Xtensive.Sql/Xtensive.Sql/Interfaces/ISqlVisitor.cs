@@ -15,7 +15,7 @@ namespace Xtensive.Sql
     void Visit(SqlAlterPartitionScheme node);
     void Visit(SqlAlterTable node);
     void Visit(SqlAlterSequence node);
-    void Visit<T>(SqlArray<T> node);
+    void Visit(SqlArray node);
     void Visit(SqlAssignment node);
     void Visit(SqlBatch node);
     void Visit(SqlBetween node);
@@ -65,7 +65,7 @@ namespace Xtensive.Sql
     void Visit(SqlJoinExpression node);
     void Visit(SqlJoinHint node);
     void Visit(SqlLike node);
-    void Visit<T>(SqlLiteral<T> node);
+    void Visit(SqlLiteral node);
     void Visit(SqlMatch node);
     void Visit(SqlNative node);
     void Visit(SqlNativeHint node);

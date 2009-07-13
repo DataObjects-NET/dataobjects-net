@@ -562,18 +562,33 @@ namespace Xtensive.Sql.SqlServer.v2005
       return string.Empty;
     }
 
-    public override string TranslateLiteral(SqlCompilerContext context, Type type, object value)
+    public override string Translate(SqlCompilerContext context, SqlLiteral node)
     {
+      object value = node.GetValue();
+      var type = node.LiteralType;
       if (type==typeof (TimeSpan))
         return Convert.ToString((long) ((TimeSpan) value).TotalMilliseconds, this);
       if (type==typeof (Boolean))
-        return Convert.ToString(((bool) value) ? 1 : 0, this);
+        return ((bool) value) ? "cast(1 as bit)" : "cast(0 as bit)";
       if (type==typeof(DateTime)) {
         var dateTime = (DateTime) value;
         var minAllowedValue = ((ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange).MinValue;
-        return base.TranslateLiteral(context, type, dateTime > minAllowedValue ? dateTime : (object) minAllowedValue);
+        var newNode = SqlDml.Literal<DateTime>(dateTime > minAllowedValue ? dateTime : minAllowedValue);
+        return base.Translate(context, newNode);
       }
-      return base.TranslateLiteral(context, type, value);
+      if (type==typeof(byte[])) {
+        var array = (byte[]) value;
+        var builder = new StringBuilder(2 * (array.Length + 1));
+        builder.Append("0x");
+        foreach (var item in array) {
+          var hi = item >> 4;
+          var low = item & 0xF;
+          builder.Append(Convert.ToString(hi, 16));
+          builder.Append(Convert.ToString(low, 16));
+        }
+        return builder.ToString();
+      }
+      return base.Translate(context, node);
     }
 
     public override string Translate(SqlCompilerContext context, SqlUserFunctionCall node, FunctionCallSection section, int position)
