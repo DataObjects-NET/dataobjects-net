@@ -28,7 +28,7 @@ namespace Xtensive.Storage.PairIntegrity
       }
 
       // New context
-      using (owner.Session.OpenInconsistentRegion()) {
+      using (InconsistentRegion.Open(owner.Session)) {
         ActionSet masterActions = owner.Session.Domain.PairSyncActions[association];
         ActionSet slaveActions = owner.Session.Domain.PairSyncActions[association.Reversed];
         Entity master1 = owner;

@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SerializationOfComplexReferencesTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
 
 
@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Tests.Storage
       string companyName = "Xtensive LLC";
       int companyId;
       
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           Company company = new Company {Name = companyName};
           companyId = company.Id;
@@ -155,7 +155,7 @@ namespace Xtensive.Storage.Tests.Storage
           // Can'not resolve deserialized entity - it's not commited in original session.
           AssertEx.Throws<TargetInvocationException>(
             delegate {
-              using (Domain.OpenSession()) {
+              using (Session.Open(Domain)) {
                 using (Transaction.Open()) {
                   stream.Position = 0;
                   formatter.Deserialize(stream);
@@ -167,7 +167,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           stream.Position = 0;
           Company company = (Company) Key.Create(typeof (Company), companyId).Resolve();// Query<Company>.All.First();
@@ -178,7 +178,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           stream.Position = 0;
           Company company = (Company) formatter.Deserialize(stream);
@@ -195,7 +195,7 @@ namespace Xtensive.Storage.Tests.Storage
     {       
       Stream stream = new MemoryStream();
 
-      using (Domain.OpenSession()) {  
+      using (Session.Open(Domain)) {  
 
         Country russia;
         
@@ -228,7 +228,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           
           var deserializationContext = new DeserializationContext();
@@ -275,7 +275,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       int firstCompanyId;
 
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           Company company = new Company {Name = "Transactional lines"};
           firstCompanyId = company.Id;
@@ -283,13 +283,13 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
 
           object[] array;
           Company existingCompany = (Company) Key.Create(typeof (Company), firstCompanyId).Resolve(); //Query<Company>.All.First();
 
-          using (Session.Current.OpenInconsistentRegion()) {
+          using (InconsistentRegion.Open()) {
 
             Company company = new Company {Name = "Region mobile"};
             Emploee mike = new Emploee {Name = "Mike", Company = company};
@@ -311,7 +311,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
 
           object[] array;

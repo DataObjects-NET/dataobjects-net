@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
     [Test]
     public void RollbackCreationTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         Hexagon hexagon;
         using (Transaction.Open()) {
           hexagon = new Hexagon();
@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
     [Test]
     public void RollbackRemovingTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         Hexagon hexagon;
         using (var t = Transaction.Open()) {
           hexagon = new Hexagon {Kwanza = 36};
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
     [Test]
     public void RollbackModifyingTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         Hexagon hexagon;
 
         using (var t = Transaction.Open()) {

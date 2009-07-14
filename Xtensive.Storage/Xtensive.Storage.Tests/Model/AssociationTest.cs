@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void ToRecordsetTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           var a1 = new A();
           var a2 = new A();
@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Tests.Model
     public void EntitySetCreation()
     {
       // Domain.Model.Dump();
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           var a = new A();
           Assert.IsNotNull(a.ManyToManyMaster);
@@ -160,7 +160,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void SimpleEntitySetEnumerator()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         A a;
         F f1;
         F f2;
@@ -208,7 +208,7 @@ namespace Xtensive.Storage.Tests.Model
     public void OneToOneAssign()
     {
       // Domain.Model.Dump();
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         C c;
         A a;
 
@@ -250,7 +250,7 @@ namespace Xtensive.Storage.Tests.Model
     public void OneToOneChangeOwner()
     {
       // Domain.Model.Dump();
-      using (Domain.OpenSession()) {        
+      using (Session.Open(Domain)) {        
         C c;
         A a1;
         A a2;
@@ -301,7 +301,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void ManyToOneAssign()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         A a;
         F f;
 
@@ -363,7 +363,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void ManyToOneAddToSet()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         A a;
         F f;
 
@@ -408,7 +408,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void ManyToOneChangeOwnerByAssign()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         A a;
         F f1;
         F f2;
@@ -472,7 +472,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void ManyToOneChangeOwnerByEntitySet()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         A a1;
         A a2;
         F f;
@@ -545,7 +545,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void OneToZero()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         A a;
         B b;
         using (var transaction = Transaction.Open()) {
@@ -579,7 +579,7 @@ namespace Xtensive.Storage.Tests.Model
 
     [Test]
     public void EntitySetMultipleAddRemove(){
-      using (var session = Domain.OpenSession()) {
+      using (var session = Session.Open(Domain)) {
         using (var transaction = Transaction.Open()) {
           A a1 = new A();
           A a2 = new A();
@@ -594,7 +594,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void ManyToMany()
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Session.Open(Domain)) {
         A a1;
         A a2;
         G g1;
@@ -648,7 +648,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void ManyToManyEnumerator()
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Session.Open(Domain)) {
         A a1;
         A a2;
         G g1;
@@ -686,7 +686,7 @@ namespace Xtensive.Storage.Tests.Model
       A a;
       E e1;
       E e2;
-      using (var session = Domain.OpenSession()) {
+      using (var session = Session.Open(Domain)) {
 
         using (var transaction = Transaction.Open()) {
           a = new A();
@@ -721,7 +721,7 @@ namespace Xtensive.Storage.Tests.Model
       A a;
       E e1;
       E e2;
-      using (var session = Domain.OpenSession()) {
+      using (var session = Session.Open(Domain)) {
 
         using (var transaction = Transaction.Open()) {
           a = new A();
@@ -755,7 +755,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void ParentChildrenTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var h = new H();
           var children = h.Children;

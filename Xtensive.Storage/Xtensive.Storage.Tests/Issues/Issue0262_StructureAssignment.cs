@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           
           var container = new Container();

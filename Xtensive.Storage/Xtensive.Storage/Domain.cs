@@ -180,70 +180,9 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region OpenSession methods
+    #region OpenSession method
 
-    /// <summary>
-    /// Opens and activates new <see cref="Session"/> with default <see cref="SessionConfiguration"/>.
-    /// </summary>
-    /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
-    /// <remarks>
-    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
-    /// </remarks>
-    /// <sample><code>
-    /// using (domain.OpenSession()) {
-    ///   // work with persistent objects here
-    /// {
-    /// </code></sample>
-    /// <seealso cref="Session"/>
-    public SessionConsumptionScope OpenSession()
-    {
-      return OpenSession(Configuration.Sessions.Default);
-    }
-
-    /// <summary>
-    /// Opens and activates new <see cref="Session"/> of specified <see cref="SessionType"/>.
-    /// </summary>
-    /// <param name="type">The type of session.</param>
-    /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
-    /// <remarks>
-    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
-    /// </remarks>
-    /// <sample><code>
-    /// using (domain.OpenSession(sessionType)) {
-    ///   // work with persistent objects here
-    /// {
-    /// </code></sample>
-    public SessionConsumptionScope OpenSession(SessionType type)
-    {
-      switch (type) {
-      case SessionType.User:
-        return OpenSession(Configuration.Sessions.Default);
-      case SessionType.System:
-        return OpenSession(Configuration.Sessions.System);
-      case SessionType.Generator:
-        return OpenSession(Configuration.Sessions.Generator);
-      case SessionType.Service:
-        return OpenSession(Configuration.Sessions.Service);
-      default:
-        throw new ArgumentOutOfRangeException("type");
-      }
-    }
-
-    /// <summary>
-    /// Opens and activates new <see cref="Session"/> with specified <see cref="SessionConfiguration"/>.
-    /// </summary>
-    /// <param name="configuration">The session configuration.</param>
-    /// <remarks>
-    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
-    /// </remarks>
-    /// <sample><code>
-    /// using (domain.OpenSession(sessionConfiguration)) {
-    ///   // work with persistent objects here
-    /// {
-    /// </code></sample>
-    /// <returns>New <see cref="SessionConsumptionScope"/> object.</returns>
-    /// <seealso cref="Session"/>
-    public SessionConsumptionScope OpenSession(SessionConfiguration configuration)
+    internal SessionConsumptionScope OpenSession(SessionConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       configuration.Lock(true);

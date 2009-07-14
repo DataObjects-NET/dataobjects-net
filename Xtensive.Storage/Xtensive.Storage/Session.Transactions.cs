@@ -45,16 +45,7 @@ namespace Xtensive.Storage
     /// </summary>
     public event EventHandler<TransactionEventArgs> TransactionRollbacked;
 
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <param name="isolationLevel">The isolation level.</param>
-    /// <param name="autoTransaction">if set to <see langword="true"/> auto transaction is demanded.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    public TransactionScope OpenTransaction(IsolationLevel isolationLevel, bool autoTransaction)
+    internal TransactionScope OpenTransaction(IsolationLevel isolationLevel, bool autoTransaction)
     {
       if (Transaction != null)
         return null;
@@ -70,39 +61,17 @@ namespace Xtensive.Storage
       return transactionScope;
     }
 
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <param name="isolationLevel">The isolation level.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    public TransactionScope OpenTransaction(IsolationLevel isolationLevel)
+    internal TransactionScope OpenTransaction(IsolationLevel isolationLevel)
     {
       return OpenTransaction(isolationLevel, false);
     }
 
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    public TransactionScope OpenTransaction(bool autoTransaction)
+    internal TransactionScope OpenTransaction(bool autoTransaction)
     {
       return OpenTransaction(Handler.DefaultIsolationLevel, autoTransaction);
     }
 
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    public TransactionScope OpenTransaction()
+    internal TransactionScope OpenTransaction()
     {
       return OpenTransaction(Handler.DefaultIsolationLevel, false);
     }

@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Manual.Structures
       config.Types.Register(typeof (Range).Assembly, typeof (Range).Namespace);
       var domain = Domain.Build(config);
 
-      using (domain.OpenSession()) {
+      using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
 
           // Example 1

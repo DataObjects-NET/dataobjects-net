@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       base.TestFixtureSetUp();
 
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           supplierLekaKey = Query<Supplier>.All.Single(s => s.CompanyName=="Leka Trading").Key;
           categoryFirstKey = Query<Category>.All.First().Key;

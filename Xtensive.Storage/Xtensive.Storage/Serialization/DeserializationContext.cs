@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Serialization
       if (isDeserialized)
         return;
 
-      using (Session.Current.OpenInconsistentRegion()) {
+      using (InconsistentRegion.Open()) {
         InitializeEntities();
         DeserializeEntityFields();
       }     

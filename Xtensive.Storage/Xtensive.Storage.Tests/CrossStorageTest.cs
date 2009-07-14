@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Tests
       }
 
       foreach (var domain in domains)
-        using (domain.OpenSession())
+        using (Session.Open(domain))
         using (var t = Transaction.Open()) {
           FillData(domain);
           t.Complete();
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Tests
     private static List<Tuple> ExecuteRecordSet(Domain domain, Func<Domain, RecordSet> recordSetCreator)
     {
       List<Tuple> result;
-      using (domain.OpenSession())
+      using (Session.Open(domain))
       using (Transaction.Open()) {
         Log.Info("Running '{0}' under '{1}'", recordSetCreator.Method.Name, domain.Configuration.Name);
         result = recordSetCreator(domain).ToList();

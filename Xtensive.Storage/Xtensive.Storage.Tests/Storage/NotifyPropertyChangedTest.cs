@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using(var t = Transaction.Open()) {
           Ray ray = new Ray();
           ray.PropertyChanged += ray_PropertyChanged;

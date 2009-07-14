@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void EntityNotInsertedTest()
     {
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       using (TransactionScope t = Transaction.Open()) {
         var a = new Address();
         var u = new User();

@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           new MyEntity {Name = "Yes", Flag = true, HasStupidName = false};
           new MyEntity {Name = "YesYes", Flag = true, HasStupidName = true};
@@ -379,7 +379,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
 
     private void TestQuery<T>(Func<IQueryable<T>> query)
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           query.Invoke().ToList();
         }

@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     public virtual void SetUp()
     {
       disposables = new DisposableSet();
-      disposables.Add(Domain.OpenSession());
+      disposables.Add(Session.Open(Domain));
       disposables.Add(Transaction.Open());
     }
 

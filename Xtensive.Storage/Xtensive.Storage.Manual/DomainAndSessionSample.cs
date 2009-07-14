@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Manual
 
       var domain = Domain.Build(configuration);
 
-      using (domain.OpenSession()) {
+      using (Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
 
           var person = new Person();
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Manual
     #region Session sample
     public void SessionSample(Domain domain)
     {
-      using (domain.OpenSession()) {
+      using (Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
 
           var person = new Person();

@@ -49,12 +49,12 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           Company company;
           Contact contact;
 
-          using (Session.Current.OpenInconsistentRegion()) {
+          using (InconsistentRegion.Open()) {
             company = new Company();
             contact = new Contact {Company = company};
           }

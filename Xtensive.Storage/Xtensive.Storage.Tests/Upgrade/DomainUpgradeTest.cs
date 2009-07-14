@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     public void UpgradeGeneratorsTest()
     {
       BuildDomain("1", DomainUpgradeMode.Recreate, 3, typeof (M1.Address), typeof (M1.Person));
-      using (domain.OpenSession()) {
+      using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
           new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
           new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       }
 
       BuildDomain("1", DomainUpgradeMode.Perform, 2, typeof (M1.Address), typeof (M1.Person));
-      using (domain.OpenSession()) {
+      using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
           Assert.AreEqual(3, Query<M1.Person>.All.Count());
           new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       int maxTypeId;
 
       BuildDomain("1", DomainUpgradeMode.Recreate, null, typeof (M1.Address), typeof (M1.Person));
-      using (domain.OpenSession()) {
+      using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
           personTypeId = Query<Metadata.Type>.All
             .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version1.Person").Id;
@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       }
 
       BuildDomain("1", DomainUpgradeMode.Recreate, null, typeof (M1.Address), typeof (M1.Person), typeof (M1.BusinessContact));
-      using (domain.OpenSession()) {
+      using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
           var businessContactTypeId = Query<Metadata.Type>.All
             .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version1.BusinessContact").Id;
@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       int personTypeId;
       int businessContactTypeId;
       
-      using (domain.OpenSession()) {
+      using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
           personTypeId = Query<Metadata.Type>.All
             .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version1.Person").Id;
@@ -115,7 +115,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       }
 
       BuildDomain("2", DomainUpgradeMode.Perform);
-      using (domain.OpenSession()) {
+      using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
           var newBusinessContactTypeId = Query<Metadata.Type>.All
             .First(type => type.Name=="Xtensive.Storage.Tests.Upgrade.Model.Version2.BusinessContact").Id;
@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     public void UpgradeToVersion2Test()
     {
       BuildDomain("2", DomainUpgradeMode.Perform);
-      using (domain.OpenSession()) {
+      using (Session.Open(domain)) {
         using (Transaction.Open()) {
           Assert.AreEqual(2, Query<M2.Person>.All.Count());
           Assert.AreEqual("Island Trading", Query<M2.Person>.All
@@ -239,7 +239,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private void FillData()
     {
-      using (domain.OpenSession()) {
+      using (Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
           // BusinessContacts
           var helen = new M1.BusinessContact {

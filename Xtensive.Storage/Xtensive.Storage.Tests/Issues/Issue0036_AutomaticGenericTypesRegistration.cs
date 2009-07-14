@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Tests.Issues
     {
 //      Domain.Model.Dump();
 
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var person = new Person();
           var personSyncInfo = new SyncInfo<Person>(person);

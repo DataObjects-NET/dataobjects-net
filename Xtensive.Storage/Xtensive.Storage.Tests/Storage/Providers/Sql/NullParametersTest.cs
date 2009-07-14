@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       base.TestFixtureSetUp();
       disposableSet = new DisposableSet();
-      disposableSet.Add(Domain.OpenSession());
+      disposableSet.Add(Session.Open(Domain));
       disposableSet.Add(Transaction.Open());
 
       new X {FString = "Xtensive"};

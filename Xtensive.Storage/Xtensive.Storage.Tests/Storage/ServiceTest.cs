@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void BehaviorTest()
     {
-      using(domain.OpenSession()) {
+      using(Session.Open(domain)) {
         using (Transaction.Open()) {
           Assert.IsNotNull(Session.Current.Services.Get<SimpleService>("ss1").GetCoreServices());
           var ss1_1 = Session.Current.Services.Get<SimpleService>("ss1");
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void PerformanceTest()
     {
       const int iterationsCount = 100000;
-      using (domain.OpenSession()) {
+      using (Session.Open(domain)) {
         using (Transaction.Open()) {
           using (new Measurement("Getting session-singleton service.", iterationsCount)) {
             var session = Session.Current;

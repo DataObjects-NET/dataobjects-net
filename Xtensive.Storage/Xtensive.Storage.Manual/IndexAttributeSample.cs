@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Manual
       config.Types.Register(typeof(Person));
       var domain = Domain.Build(config);
 
-      using (domain.OpenSession()) {
+      using (Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
           
           var alex = new Person { FirstName = "Alex", LastName = "Kofman", Age = 26};

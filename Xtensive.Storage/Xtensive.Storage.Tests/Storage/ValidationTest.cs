@@ -87,9 +87,9 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       validationCallsCount = 0;
       int mouseId;
 
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          using (Session.Current.OpenInconsistentRegion()) {
+          using (InconsistentRegion.Open()) {
             Mouse mouse = new Mouse();
             mouse.ButtonCount = 2;
             mouse.ScrollingCount = 1;
@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       }
       Assert.AreEqual(1, validationCallsCount);
 
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           Mouse mouse = Query<Mouse>.All.Where(m => m.ID==mouseId).First();
         }
@@ -114,13 +114,13 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [Test]
     public void EntityValidation()
     {
-        using (Domain.OpenSession()) {
+        using (Session.Open(Domain)) {
           using (Transaction.Open()) {
 
           // Created and modified invalid object. (ScrollingCount > ButtonCount)
           AssertEx.Throws<AggregateException>(
             delegate {
-              using (Session.Current.OpenInconsistentRegion()) {
+              using (InconsistentRegion.Open()) {
                 new Mouse {ButtonCount = 2, ScrollingCount = 3, Led = new Led { Brightness = 1, Precision = 1 }};
               }
             });
@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           AssertEx.Throws<AggregateException>(
             delegate {
               Mouse m;
-              using (Session.Current.OpenInconsistentRegion()) {
+              using (InconsistentRegion.Open()) {
                 m = new Mouse {ButtonCount = 1, ScrollingCount = 1, Led = new Led { Brightness = 1, Precision = 1 }};
               }
               m.ScrollingCount = 2; 
@@ -144,20 +144,20 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           Mouse mouse;
 
           // Valid object - ok.
-          using (Session.Current.OpenInconsistentRegion()) {
+          using (InconsistentRegion.Open()) {
             mouse = new Mouse {ButtonCount = 5, ScrollingCount = 3};
             mouse.Led.Precision = 1;
             mouse.Led.Brightness = 2;
           }
 
           // Valid modification with invalid intermediate state - ok.
-          using (Session.Current.OpenInconsistentRegion()) {
+          using (InconsistentRegion.Open()) {
             mouse.ButtonCount = 2;
             mouse.ScrollingCount = 1;
           }
 
           // Invalid object is removed - ok.
-          using (Session.Current.OpenInconsistentRegion()) {
+          using (InconsistentRegion.Open()) {
             mouse.ScrollingCount = 3;
             mouse.Remove();
           }
@@ -168,13 +168,13 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [Test]
     public void StructureValidation()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         Mouse mouse;
 
         using (var transactionScope = Transaction.Open()) {
 
           // Valid mouse is created.
-          using (Session.Current.OpenInconsistentRegion()) {
+          using (InconsistentRegion.Open()) {
             mouse = new Mouse {ButtonCount = 2, ScrollingCount = 1};
             mouse.Led = new Led {Brightness = 7.3, Precision = 33};
           }
@@ -207,19 +207,19 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [Test]
     public void TransactionsValidation()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
 
         // Inconsistent region can not be opened without transaction.
         AssertEx.ThrowsInvalidOperationException(
           delegate {
-            Session.Current.OpenInconsistentRegion();
+            InconsistentRegion.Open();
           });
 
         // Transaction can not be committed while validation context is in inconsistent state.
         AssertEx.ThrowsInvalidOperationException(
           delegate {
             using (var t = Transaction.Open()) {
-              Session.Current.OpenInconsistentRegion();
+              InconsistentRegion.Open();
               t.Complete();
             }
           });

@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.Rse
     [Test]
     public void CombinedTest()
     {
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
         Expression<Func<B, bool>> predicate = b => b.HierarchyField.GreaterThan("k")
           && b.ClassField < int.MaxValue
@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Tests.Rse
       var random = RandomManager.CreateRandom();
       var stringGenerator = InstanceGeneratorProvider.Default.GetInstanceGenerator<string>();
       var intGenerator = InstanceGeneratorProvider.Default.GetInstanceGenerator<Int32>();
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
         for (int i = 0; i < count; i++) {
           new A {HierarchyField = stringGenerator.GetInstance(random)};

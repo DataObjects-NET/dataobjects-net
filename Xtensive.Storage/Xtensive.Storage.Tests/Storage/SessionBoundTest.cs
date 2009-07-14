@@ -45,13 +45,13 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]    
     public void Test()
     {      
-      using (var scope1 = Domain.OpenSession()) {
+      using (var scope1 = Session.Open(Domain)) {
         using (Transaction.Open()) {
           Ray ray1 = new Ray();
           var testHelper = new TestHelper(Session.Current);
           Session.Current.Persist();
 
-          using (var scope2 = Domain.OpenSession()) {
+          using (var scope2 = Session.Open(Domain)) {
             Assert.IsNull(Transaction.Current);
 
             using (Transaction.Open()) {

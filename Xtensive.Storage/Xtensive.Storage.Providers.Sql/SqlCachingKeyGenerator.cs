@@ -35,8 +35,8 @@ namespace Xtensive.Storage.Providers.Sql
     {
       TFieldType upperBound;
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      using (domainHandler.Domain.OpenSession(SessionType.Generator))
-      using (var t = Session.Current.OpenTransaction()) {
+      using (Session.Open(domainHandler.Domain, SessionType.Generator))
+      using (var t = Transaction.Open()) {
         var sessionHandler = (SessionHandler) Handlers.SessionHandler;
         object value = sessionHandler.ExecuteScalarRequest(nextRequest);
         upperBound = (TFieldType) Convert.ChangeType(value, typeof (TFieldType));

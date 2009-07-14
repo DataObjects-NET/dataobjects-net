@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Key k1 = Key.Create<Apple>("1");
           Key k2 = Key.Create<Apple>("1");
@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     [Test]
     public void ResolveKeyTest()
     {
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       {
         using (var t = Transaction.Open())
         {
@@ -144,7 +144,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     [Test]
     public void ResolveNotExistingKeyTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Key key = Key.Create(typeof (Fruit), "NotExistingFruit");
           var entity = key.Resolve();
@@ -158,7 +158,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     [Test]
     public void StoreKeyTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
 
           var a = new Apple("1");
@@ -196,12 +196,12 @@ namespace Xtensive.Storage.Tests.Storage.Keys
     [Ignore("Erroneous behavior")]
     public void CombinedTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           Apple myApple = new Apple("My fruit");
           Key appleKey = myApple.Key;
 
-          using (Domain.OpenSession()) {
+          using (Session.Open(Domain)) {
             using (Transaction.Open()) {
               Key bananaKey = new Banana("My fruit").Key;
               Assert.AreEqual(typeof (Banana), bananaKey.EntityType.UnderlyingType);

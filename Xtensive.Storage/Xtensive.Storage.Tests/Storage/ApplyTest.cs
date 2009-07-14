@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CrossApplyTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           LoadData();
           long total = 0;
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void OuterApplyTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           LoadData();
           long total = 0;
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CrossApplyExistenseTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           LoadData();
           long total = 0;

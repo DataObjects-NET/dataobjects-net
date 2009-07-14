@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           A a = new A();
           a.B = new B();
@@ -163,7 +163,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RemoveWithException()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         A a;
         C c;
         using (var t = Transaction.Open()) {
@@ -181,7 +181,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DeletedEntityAddToReference()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           A a = new A();
           B b = new B();
@@ -194,7 +194,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DeletedEntityChangeFields()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           A a = new A();
           a.Remove();
@@ -206,7 +206,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DeepCascadeRemoveTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var c = new Container();
           c.Package1 = new Package();

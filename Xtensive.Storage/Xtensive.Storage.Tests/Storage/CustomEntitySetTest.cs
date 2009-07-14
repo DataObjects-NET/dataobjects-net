@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void Maintest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Master m = new Master();
           

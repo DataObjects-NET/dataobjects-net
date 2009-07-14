@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Storage
       base.TestFixtureSetUp();
 
       // Creating a book
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Book b = new Book();
           key = b.Key;
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RegularFieldTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Book b = key.Resolve<Book>();
           Tuple tuple = b.Tuple;
@@ -93,8 +93,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void LazyLoadFieldTest()
     {
-      using (Domain.OpenSession()) {
-        using (var t = Session.Current.OpenTransaction()) {
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
           Book b = key.Resolve<Book>();
           Tuple tuple = b.Tuple;
 

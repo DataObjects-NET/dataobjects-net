@@ -443,7 +443,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
         cmd.CommandText = "Select * from [dbo].[Categories]";
         var reader = cmd.ExecuteReader();
 
-        using (domain.OpenSession())
+        using (Session.Open(domain))
         using (var tr = Transaction.Open())
         {
           #region  Categories

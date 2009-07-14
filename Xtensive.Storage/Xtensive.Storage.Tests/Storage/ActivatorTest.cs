@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void TestFieldInitializer()
     {
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       {
         using (var t = Transaction.Open())
         {
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Storage
           t.Complete();
         }
       }
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       {
         using (var t = Transaction.Open())
         {
@@ -91,14 +91,14 @@ namespace Xtensive.Storage.Tests.Storage
     public void Test()
     {
       Key key;
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var descendant = new Descendant();
           key = descendant.Key;          
           t.Complete();
         }        
       }
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           var ancestor = key.Resolve<Ancestor>();
           Assert.IsNotNull(ancestor);

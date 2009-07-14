@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Tests.Storage.Atomicity
     [Ignore("Atomicity is not implemented")]
     public void ModifyingTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           Cake cake = new Cake();
 
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Tests.Storage.Atomicity
     [Ignore("Atomicity is not implemented")]
     public void RemovingTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           
           Cake cake = new Cake();

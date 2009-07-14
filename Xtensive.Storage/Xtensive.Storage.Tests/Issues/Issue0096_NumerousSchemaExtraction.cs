@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Issues
       config.Types.Register(typeof (Ancestor).Assembly, typeof (Ancestor).Namespace);
       var domain = Domain.Build(config);
 
-      using (domain.OpenSession()) {
+      using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
           new Ancestor();
           t.Complete();

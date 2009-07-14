@@ -5,7 +5,6 @@
 // Created:    2008.11.07
 
 using System;
-using Xtensive.Storage;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
@@ -24,12 +23,7 @@ namespace Xtensive.Storage
       }
     }
 
-    /// <summary>
-    /// Opens the "inconsistent region" - the code region, in which changed entities
-    /// should just queue the validation rather then perform it immediately.
-    /// </summary>
-    /// <returns></returns>
-    public IDisposable OpenInconsistentRegion()
+    internal IDisposable OpenInconsistentRegion()
     {
       return ValidationContext.OpenInconsistentRegion();
     }

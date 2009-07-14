@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Tests.Issues
     {
       Assert.AreEqual(0, new[] {1, 2}.Take(1).Skip(1).Count());
 
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       using (var trs = Transaction.Open()) {
         var e1 = new MyEntity();
         var e2 = new MyEntity();

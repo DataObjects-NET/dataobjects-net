@@ -676,7 +676,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void DuplicatedKeyTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         Book book1;
         using (Transaction.Open()) {
           book1 = new Book("0976470705");
@@ -705,7 +705,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void ComplexKeyTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           Book book = new Book("5-272-00040-4");
           book.Title = "Assembler";

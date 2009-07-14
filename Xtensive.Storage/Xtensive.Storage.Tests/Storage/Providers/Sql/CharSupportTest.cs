@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
 
       charColumn = Domain.Model.Types[typeof(MyEntity)].Fields["Char"].Column.Name;
 
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
         new MyEntity {Char = 'X'};
         new MyEntity {Char = 'Y'};
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void SelectCharTest()
     {
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       using (var transaction = Transaction.Open()) {
         var rs = GetRecordSet<MyEntity>();
         var result = rs
@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void CharParameterTest()
     {
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       using (var transaction = Transaction.Open()) {
         var y = 'Y';
         var rs = GetRecordSet<MyEntity>();

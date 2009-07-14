@@ -186,7 +186,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CreateInstanceTest()
     {
-      using(Domain.OpenSession()) {
+      using(Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.CoreServices.PersistentAccessor;
           accessor.CreateEntity(typeof (MyEntity));
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SetFieldTest()
     {
-      using(Domain.OpenSession()) {
+      using(Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.CoreServices.PersistentAccessor;
           MyEntity myEntity = (MyEntity)accessor.CreateEntity(typeof (MyEntity));
@@ -216,7 +216,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RemoveTest()
     {
-      using(Domain.OpenSession()) {
+      using(Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.CoreServices.PersistentAccessor;
           MyEntity myEntity = (MyEntity)accessor.CreateEntity(typeof (MyEntity));
@@ -233,7 +233,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void EntitySetTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var pa = Session.Current.CoreServices.PersistentAccessor;
           MyEntity container = (MyEntity)pa.CreateEntity(typeof (MyEntity));

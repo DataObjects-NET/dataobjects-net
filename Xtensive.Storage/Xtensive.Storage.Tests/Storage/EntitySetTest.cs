@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void OneToManyTest()
     {
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
         var categories = Query<Category>.All;
         Assert.AreSame(categories.First().Products, categories.First().Products);
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void ManyToManyTest()
     {
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
         var employees = Query<Employee>.All;
         var territories = Query<Territory>.All;
@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void NewObjectTest()
     {
       const int bookCount = 10;
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
         var author = new Author();
         for (int i = 0; i < bookCount; i++)
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void PersistentObjectTest()
     {
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var category = Query<Category>.All.First();
           var prodsuctCount = category.Products.Count;
@@ -158,7 +158,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SetOperationsTest()
     {
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
         var customer = new Customer("QQQ77");
         var orders1 = GenerateOrders(2);

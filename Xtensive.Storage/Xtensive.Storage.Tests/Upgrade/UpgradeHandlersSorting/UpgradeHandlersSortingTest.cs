@@ -30,8 +30,8 @@ namespace Xtensive.Storage.Tests.Upgrade.UpgradeHandlersSorting
     public void CombinedTest()
     {
       using(var domain0 = Domain.Build(BuildConfiguration0())) {
-        using (var session = domain0.OpenSession())
-        using (var tx = Session.Current.OpenTransaction()){
+        using (var session = Session.Open(domain0))
+        using (var tx = Transaction.Open()){
           Activator.CreateInstance(domain0.Configuration.Types.Single(t => t.Name=="Simple0"));
           tx.Complete();
         }

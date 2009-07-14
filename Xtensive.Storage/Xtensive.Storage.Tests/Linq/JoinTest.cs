@@ -266,7 +266,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupJoinSelectManyTest()
     {
-      using (Domain.OpenSession())
+      using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
         var categories = Query<Category>.All;
         var products = Query<Product>.All;

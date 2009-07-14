@@ -238,9 +238,9 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DefaultValuesTest()
     {
-      using(Domain.OpenSession()) {
+      using(Session.Open(Domain)) {
         Key key;
-        using (var t = Session.Current.OpenTransaction()) {
+        using (var t = Transaction.Open()) {
           X x = new X();
           key = x.Key;
           t.Complete();
@@ -251,7 +251,7 @@ namespace Xtensive.Storage.Tests.Storage
           DataTypeInfo dti = dh.Driver.ServerInfo.DataTypes.DateTime;
           dt = ((ValueRange<DateTime>) dti.ValueRange).MinValue;
         }
-        using (var t = Session.Current.OpenTransaction()) {
+        using (var t = Transaction.Open()) {
           X x = key.Resolve<X>();
           Assert.AreEqual(false, x.FBool);
           Assert.AreEqual(0, x.FByte);

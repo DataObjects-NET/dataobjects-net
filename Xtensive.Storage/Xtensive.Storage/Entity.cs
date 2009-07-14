@@ -148,7 +148,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public void Remove()
     {
-      using (Session.OpenInconsistentRegion()) {
+      using (InconsistentRegion.Open()) {
 
         NotifyRemoving();
 

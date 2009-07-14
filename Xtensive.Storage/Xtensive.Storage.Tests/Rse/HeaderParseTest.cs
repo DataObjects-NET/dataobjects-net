@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Tests.Rse
     public void MainTest()
     {
       Key key;
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Book book = new Book {Title = "Title", Text = "Text"};
           key = book.Key;
@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.Rse
           t.Complete();
         }
       }
-      using (Domain.OpenSession()) {
+      using (Session.Open(Domain)) {
         using (Transaction.Open()) {
           EntityState state = Session.Current.EntityStateCache[key, true];
           Assert.IsNull(state);
