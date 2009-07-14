@@ -5,8 +5,6 @@
 // Created:    2008.07.01
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
@@ -39,19 +37,20 @@ namespace Xtensive.Storage.ReferentialIntegrity
         Process(context, entity, association);
     }
 
-    private static void Process(RemovalContext context, Entity entity, AssociationInfo association)
+    private static void Process(RemovalContext context, Entity removingObject, AssociationInfo association)
     {
       ActionProcessor processor;
 
-      if (association.OwnerType == entity.Type) {
+      if (removingObject.Type == association.OwnerType) {
         processor = GetProcessor(association.OnOwnerRemove.Value);
-        foreach (var referencedObject in association.FindReferencedObjects(entity))
-          processor.Process(context, association, entity, referencedObject, entity, referencedObject);
+        foreach (var referencedObject in association.FindReferencedObjects(removingObject))
+          processor.Process(context, association, removingObject, referencedObject, removingObject, referencedObject);
       }
-      if (association.TargetType == entity.Type) {
+
+      if (removingObject.Type == association.TargetType) {
         processor = GetProcessor(association.OnTargetRemove.Value);
-        foreach (var referencingObject in association.FindReferencingObjects(entity))
-          processor.Process(context, association, entity, referencingObject, referencingObject, entity);
+        foreach (var referencingObject in association.FindReferencingObjects(removingObject))
+          processor.Process(context, association, removingObject, referencingObject, referencingObject, removingObject);
       }
     }
 
