@@ -153,9 +153,14 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var ai in context.DiscardedAssociations)
           context.Model.Associations.Remove(ai);
         context.DiscardedAssociations.Clear();
+
         foreach (var association in context.Model.Associations) {
-          if (!association.IsPaired && !association.OnOwnerRemove.HasValue)
+          if (association.IsPaired)
+            continue;
+          if (!association.OnOwnerRemove.HasValue)
             association.OnOwnerRemove = OnRemoveAction.Clear;
+          if (!association.OnTargetRemove.HasValue)
+            association.OnTargetRemove = OnRemoveAction.Deny;
         }
 
         BuildEntitySetTypes(context.Model.Associations);

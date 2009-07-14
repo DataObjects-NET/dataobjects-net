@@ -4,22 +4,23 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.01
 
+using System;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.ReferentialIntegrity
 {
-  internal class DenyProcessor : ActionProcessor
+  internal class DenyActionProcessor : ActionProcessor
   {
-    public override void Process(RemovalContext context, AssociationInfo association, Entity owner, Entity target)
+    public override void Process(RemovalContext context, AssociationInfo association, Entity removingObject, Entity target, Entity referencingObject, Entity referencedObject)
     {
-      if (!context.RemovalQueue.Contains(owner.State))
-        throw new ReferentialIntegrityException(target);
+      if (!context.RemovalQueue.Contains(target.State))
+        throw new ReferentialIntegrityException(removingObject);
 
       switch (association.Multiplicity) {
         case Multiplicity.ZeroToOne:
         case Multiplicity.OneToOne:
         case Multiplicity.ManyToOne:
-          owner.SetFieldValue<Entity>(association.OwnerField, null);
+          referencingObject.SetFieldValue<Entity>(association.OwnerField, null);
           break;
       }
     }

@@ -43,12 +43,6 @@ namespace Xtensive.Storage.Model
     /// Gets or sets the generators.
     /// </summary>
     public GeneratorInfoCollection Generators { get; private set;}
-
-    public object GetUnlockKey()
-    {
-      this.EnsureNotLocked();
-      return unlockKey;
-    }
  
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)

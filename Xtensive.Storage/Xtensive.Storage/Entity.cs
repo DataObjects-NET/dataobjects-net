@@ -159,7 +159,7 @@ namespace Xtensive.Storage
         State.EnsureNotRemoved();
 
         Session.Persist();
-        Session.ReferenceManager.BreakAssociations(this);
+        Session.RemovalManager.Remove(this);
         Session.Persist();
         State.PersistenceState = PersistenceState.Removed;
 

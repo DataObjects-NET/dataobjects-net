@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Internals
 {
   internal static class AssociationInfoExtensions
   {
-    public static IEnumerable<Entity> FindOwners(this AssociationInfo association, Entity target)
+    public static IEnumerable<Entity> FindReferencingObjects(this AssociationInfo association, Entity target)
     {
       IndexInfo index;
       Tuple keyTuple;
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    public static IEnumerable<Entity> FindTargets(this AssociationInfo association, Entity owner)
+    public static IEnumerable<Entity> FindReferencedObjects(this AssociationInfo association, Entity owner)
     {
       switch (association.Multiplicity) {
         case Multiplicity.ZeroToOne:

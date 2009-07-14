@@ -5,6 +5,7 @@
 // Created:    2008.01.27
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core.Collections;
@@ -27,6 +28,7 @@ namespace Xtensive.Core.Reflection
     /// <param name="parameterTypes">Either strings or <see cref="Type"/>s of parameters (mixing is allowed).</param>
     /// <returns>Found method, if match was found;
     /// otherwise, <see langword="null"/>.</returns>
+    [DebuggerStepThrough]
     public static MethodInfo GetMethod(this Type type, string name, BindingFlags bindingFlags, string[] genericArgumentNames, object[] parameterTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");

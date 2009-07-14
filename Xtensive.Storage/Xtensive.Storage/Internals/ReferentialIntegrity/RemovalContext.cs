@@ -11,22 +11,22 @@ namespace Xtensive.Storage.ReferentialIntegrity
 {
   internal class RemovalContext : IDisposable
   {
-    private readonly ReferenceManager referenceManager;
+    private readonly RemovalManager removalManager;
 
     public HashSet<EntityState> RemovalQueue { get; private set; }
 
     public void Dispose()
     {
       RemovalQueue.Clear();
-      referenceManager.Context = null;
+      removalManager.Context = null;
     }
 
 
     // Constructors
 
-    public RemovalContext(ReferenceManager referenceManager)
+    public RemovalContext(RemovalManager removalManager)
     {
-      this.referenceManager = referenceManager;
+      this.removalManager = removalManager;
       RemovalQueue = new HashSet<EntityState>();
     }
   }

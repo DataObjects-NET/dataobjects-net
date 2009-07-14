@@ -29,13 +29,13 @@ namespace Xtensive.Storage.Model
     /// Finds the associations for the specified <see cref="TypeInfo"/>.
     /// </summary>
     /// <param name="type"><see cref="TypeInfo"/> to find outgoing associations for.</param>
-    /// <param name="incoming">if set to <see langword="true"/> [incoming].</param>
+    /// <param name="target">if set to <see langword="true"/> then only target associations will be returned; otherwise only owner associations.</param>
     /// <returns></returns>
-    public IEnumerable<AssociationInfo> Find(TypeInfo type, bool incoming)
+    public IEnumerable<AssociationInfo> Find(TypeInfo type, bool target)
     {
       var ancestors = type.GetAncestors();
       Func<AssociationInfo, TypeInfo> accessor;
-      accessor = incoming ? (Func<AssociationInfo, TypeInfo>) (a => a.TargetType) : (a => a.OwnerType);
+      accessor = target ? (Func<AssociationInfo, TypeInfo>) (a => a.TargetType) : (a => a.OwnerType);
       return this.Where(a => (accessor(a)==type || ancestors.Contains(accessor(a))));
     }
   }

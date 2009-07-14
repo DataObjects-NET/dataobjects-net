@@ -25,7 +25,7 @@ namespace Xtensive.Storage
     public static IEnumerable<Entity> FindReferencingEntities(Entity entity)
     {
       foreach (AssociationInfo association in entity.Type.GetTargetAssociations())
-        foreach (Entity item in association.FindOwners(entity))
+        foreach (Entity item in association.FindReferencingObjects(entity))
           yield return item;
     }
 
@@ -41,7 +41,7 @@ namespace Xtensive.Storage
       if (!association.TargetType.UnderlyingType.IsAssignableFrom(entity.Type.UnderlyingType))
         throw new InvalidOperationException(
           string.Format(Strings.TypeXDoesNotParticipateInTheSpecifiedAssociation, entity.Type.Name));
-      return association.FindOwners(entity);
+      return association.FindReferencingObjects(entity);
     }
 
   }

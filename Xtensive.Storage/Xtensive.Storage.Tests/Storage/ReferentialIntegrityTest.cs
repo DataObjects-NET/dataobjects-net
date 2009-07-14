@@ -64,6 +64,39 @@ namespace Xtensive.Storage.Tests.ReferentialIntegrityModel
     [Field, Association(PairTo = "ManyToMany")]
     public EntitySet<Master> ManyToMany { get; private set; }
   }
+
+  [HierarchyRoot]
+  public class Container : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    [Association(OnOwnerRemove = OnRemoveAction.Cascade)]
+    public Package Package1 { get; set; }
+
+    [Field]
+    [Association(OnOwnerRemove = OnRemoveAction.Cascade)]
+    public Package Package2 { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class Package : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    [Association(OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Deny)]
+    public EntitySet<PackageItem> Items { get; private set; }
+  }
+
+  [HierarchyRoot]
+  public class PackageItem : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+  }
 }
 
 namespace Xtensive.Storage.Tests.Storage
@@ -166,6 +199,23 @@ namespace Xtensive.Storage.Tests.Storage
           A a = new A();
           a.Remove();
           AssertEx.ThrowsInvalidOperationException(() => a.Name = "newName");
+        }
+      }
+    }
+
+    [Test]
+    public void DeepCascadeRemoveTest()
+    {
+      using (Domain.OpenSession()) {
+        using (var t = Transaction.Open()) {
+          var c = new Container();
+          c.Package1 = new Package();
+          c.Package2 = new Package();
+          var item = new PackageItem();
+          c.Package1.Items.Add(item);
+          c.Package2.Items.Add(item);
+
+          c.Remove();
         }
       }
     }

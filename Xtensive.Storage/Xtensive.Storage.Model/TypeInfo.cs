@@ -48,6 +48,7 @@ namespace Xtensive.Storage.Model
     private ReadOnlyList<TypeInfo>                          ancestors;
     private ReadOnlyList<AssociationInfo>                   targetAssociations;
     private ReadOnlyList<AssociationInfo>                   ownerAssociations;
+    private ReadOnlyList<AssociationInfo>                   removalSequence;
     private Type                                            underlyingType;
     private HierarchyInfo                                   hierarchy;
     private int                                             typeId = NoTypeId;
@@ -197,20 +198,8 @@ namespace Xtensive.Storage.Model
       get { return typeId; }
       set
       {
-        SetTypeId(value, null);
+        SetTypeId(value);
       }
-    }
-
-    /// <summary>
-    /// Sets the type id for this type, even if model is already locked.
-    /// </summary>
-    /// <param name="value">The type id value.</param>
-    /// <param name="unlockLockKey">The unlock key, that can be obtained by <see cref="DomainModel.GetUnlockKey"/>.</param>
-    public void SetTypeId(int value, object unlockLockKey)    
-    {
-      if (unlockLockKey!=Model.unlockKey)
-        this.EnsureNotLocked();
-      SetTypeId(value);
     }
 
     private void SetTypeId(int value)
@@ -336,7 +325,7 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets the associations this instance is participating in.
+    /// Gets the associations this instance is participating in as target (it is referenced by other entities).
     /// </summary>
     public IList<AssociationInfo> GetTargetAssociations()
     {
@@ -347,7 +336,7 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets the associations this instance is participating in.
+    /// Gets the associations this instance is participating in as owner (it has references to other entities).
     /// </summary>
     public IList<AssociationInfo> GetOwnerAssociations()
     {
@@ -355,6 +344,15 @@ namespace Xtensive.Storage.Model
         return ownerAssociations;
 
       return model.Associations.Find(this, false).ToList();
+    }
+
+    /// <summary>
+    /// Gets the association sequence for entity removal.
+    /// </summary>
+    /// <returns></returns>
+    public IList<AssociationInfo> GetAssociationSequenceForRemoval()
+    {
+      return removalSequence;
     }
 
     /// <inheritdoc/>
@@ -387,6 +385,32 @@ namespace Xtensive.Storage.Model
 
       if (IsEntity || IsStructure)
         BuildTuplePrototype();
+
+      // Selecting master parts from paired associations & single associations
+      var associations = model.Associations.Find(this).Where(a => a.IsMaster).ToList();
+
+      if (associations.Count == 0) {
+        removalSequence = ReadOnlyList<AssociationInfo>.Empty;
+        return;
+      }
+
+      var sequence = new List<AssociationInfo>(associations.Count);
+
+      IEnumerable<AssociationInfo> items;
+      items = associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Deny && a.OwnerType == this);
+      if (items != null) sequence.AddRange(items);
+      items = associations.Where(a => a.OnTargetRemove == OnRemoveAction.Deny && a.TargetType == this);
+      if (items != null) sequence.AddRange(items);
+      items = associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Clear && a.OwnerType == this);
+      if (items != null) sequence.AddRange(items);
+      items = associations.Where(a => a.OnTargetRemove == OnRemoveAction.Clear && a.TargetType == this);
+      if (items != null) sequence.AddRange(items);
+      items = associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Cascade && a.OwnerType == this);
+      if (items != null) sequence.AddRange(items);
+      items = associations.Where(a => a.OnTargetRemove == OnRemoveAction.Cascade && a.TargetType == this);
+      if (items != null) sequence.AddRange(items);
+
+      removalSequence = new ReadOnlyList<AssociationInfo>(sequence.ToList());
     }
 
     /// <inheritdoc/>
@@ -442,7 +466,7 @@ namespace Xtensive.Storage.Model
     /// <inheritdoc/>
     public override string ToString()
     {
-      return underlyingType.Name;
+      return Name;
     }
 
 
