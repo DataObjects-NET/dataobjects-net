@@ -104,10 +104,8 @@ namespace Xtensive.Storage.Building.Builders
           providerAssemblyShortName = "Xtensive.Storage.Providers.Memory";
           break;
         case WellKnown.Protocol.SqlServer:
-          providerAssemblyShortName = "Xtensive.Storage.Providers.MsSql";
-          break;
         case WellKnown.Protocol.PostgreSql:
-          providerAssemblyShortName = "Xtensive.Storage.Providers.PgSql";
+          providerAssemblyShortName = "Xtensive.Storage.Providers.Sql";
           break;
         default:
           throw new ArgumentOutOfRangeException();
@@ -120,11 +118,12 @@ namespace Xtensive.Storage.Building.Builders
           .Where(type => type.GetAttributes<ProviderAttribute>(AttributeSearchOptions.InheritNone)
             .Any(attribute => attribute.Protocol==protocol))
           .FirstOrDefault();
-          if (handlerProviderType==null)
-            throw new DomainBuilderException(
-              string.Format(Strings.ExStorageProviderNotFound, protocol, Environment.CurrentDirectory));
+        if (handlerProviderType==null)
+          throw new DomainBuilderException(
+            string.Format(Strings.ExStorageProviderNotFound, protocol, Environment.CurrentDirectory));
         var handlerFactory = (HandlerFactory) Activator.CreateInstance(handlerProviderType);
-        handlerFactory.Initialize(BuildingContext.Current.Domain);
+        handlerFactory.Domain = BuildingContext.Current.Domain;
+        handlerFactory.Initialize();
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         handlerAccessor.HandlerFactory = handlerFactory;
       }

@@ -178,6 +178,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The ordering of records is not specified for RowNumberProvider..
+        /// </summary>
+        internal static string ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider {
+            get {
+                return ResourceManager.GetString("ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Reader is not in consistent state..
         /// </summary>
         internal static string ExReaderIsNotInConsistentState {

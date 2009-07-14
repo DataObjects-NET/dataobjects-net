@@ -44,8 +44,8 @@ namespace Xtensive.Storage.Providers
       HandlerBase handler = TryCreateHandler(handlerType);
       
       if (handler==null)
-        throw new NotSupportedException(string.Format(Strings.ExCannotFindHandlerOfTypeX, 
-          handlerType.GetShortName()));
+        throw new NotSupportedException(
+          string.Format(Strings.ExCannotFindHandlerOfTypeX, handlerType.GetShortName()));
 
       return handler;
     }
@@ -75,21 +75,10 @@ namespace Xtensive.Storage.Providers
       if (!constructors.TryGetValue(handlerType, out constructor) || constructor==null)
         return null;
 
-      var result = (HandlerBase) constructor();
+      var result = (HandlerBase) constructor.Invoke();
       result.Handlers = Domain.Handlers;
 
       return result;
-    }
-
-    protected internal virtual void Initialize(Domain domain)
-    {
-      Domain = domain;
-      Type type = GetType();
-      while (type!=typeof (HandlerFactory)) {
-        RegisterHandlersFrom(type.Assembly, type.Namespace);
-        type = type.BaseType;
-      }
-      RegisterHandlersFrom(typeof (HandlerFactory).Assembly, typeof (HandlerFactory).Namespace);
     }
     
     #region Private / internal methods
@@ -108,6 +97,16 @@ namespace Xtensive.Storage.Providers
         constructors[type] = constructorDelegate;
         type = type.BaseType;
       }
+    }
+
+    internal void Initialize()
+    {
+      Type type = GetType();
+      while (type!=typeof (HandlerFactory)) {
+        RegisterHandlersFrom(type.Assembly, type.Namespace);
+        type = type.BaseType;
+      }
+      RegisterHandlersFrom(typeof (HandlerFactory).Assembly, typeof (HandlerFactory).Namespace);
     }
 
     #endregion
