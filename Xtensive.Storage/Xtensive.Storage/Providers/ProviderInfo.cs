@@ -19,7 +19,6 @@ namespace Xtensive.Storage.Providers
     private bool supportsEnlist;
     private bool supportsCollations;
     private bool supportsBatches;
-    private bool supportsAllBooleanExpressions;
     private bool supportsRealTimeSpan;
     private bool supportsForeignKeyConstraints;
     private bool supportsClusteredIndexes;

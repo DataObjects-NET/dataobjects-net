@@ -786,6 +786,7 @@ namespace Xtensive.Core.Reflection
 
     /// <summary>
     /// Converts <paramref name="type"/> to type that can assign both values of <paramref name="type"/> and <see landword="null"/>.
+    /// This method is a reverse for <see cref="StripNullable"/> method.
     /// </summary>
     /// <param name="type">A type to convert.</param>
     /// <returns>
@@ -797,6 +798,24 @@ namespace Xtensive.Core.Reflection
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       return type.IsValueType && !type.IsNullable()
         ? typeof(Nullable<>).MakeGenericType(type)
+        : type;
+    }
+
+    /// <summary>
+    /// Converts <paramref name="type"/> to <see cref="Nullable{T}"/> if <paramref name="type"/> is a value type.
+    /// Otherwise returns just <paramref name="type"/>.
+    /// This method is a reverse for <see cref="ToNullable"/> method.
+    /// </summary>
+    /// <param name="type">The type to process.</param>
+    /// <returns>
+    /// <see cref="Nullable{T}"/> of <paramref name="type"/> is specified type is a value type.
+    /// Otherwise return just <paramref name="type"/>.
+    /// </returns>
+    public static Type StripNullable(this Type type)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      return type.IsNullable()
+        ? type.GetGenericArguments()[0]
         : type;
     }
 
@@ -830,6 +849,22 @@ namespace Xtensive.Core.Reflection
               && Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
               && type.Name.Contains("DisplayClass")
               && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic);
+    }
+
+    /// <summary>
+    /// Determines whether <paramref name="type"/> is a public non-abstract inheritor of <paramref name="baseType"/>.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <param name="baseType">The base type.</param>
+    /// <returns>
+    /// <see langword="true"/> if type is a public non-abstract inheritor of specified base type;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsPublicNonAbstractInheritorOf(this Type type, Type baseType)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentValidator.EnsureArgumentNotNull(baseType, "baseType");
+      return type.IsPublic && !type.IsAbstract && baseType.IsAssignableFrom(type);
     }
 
     #region Private \ internal methods

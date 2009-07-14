@@ -59,10 +59,7 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     public override SequenceInfo GetSequenceInfo()
     {
-      SequenceInfo sequenceInfo = new SequenceInfo();
-      sequenceInfo.MaxIdentifierLength = cIdentifierLength;
-      sequenceInfo.AllowedDdlStatements = DdlStatements.All;
-      return sequenceInfo;
+      return null;
     }
 
     public override EntityInfo GetDatabaseInfo()
@@ -104,7 +101,7 @@ namespace Xtensive.Sql.SqlServer.v2005
       tableInfo.MaxIdentifierLength = cIdentifierLength;
       tableInfo.AllowedDdlStatements = DdlStatements.All;
 
-      var vi = versionInfo as SqlServerVersionInfo;
+      var vi = versionInfo;
       if (vi!=null && (vi.Edition==SqlServerEdition.EnterpriseEdition || vi.Edition==SqlServerEdition.DeveloperEdition))
         tableInfo.PartitionMethods = PartitionMethods.List | PartitionMethods.Range | PartitionMethods.Hash;
       return tableInfo;
@@ -268,15 +265,14 @@ namespace Xtensive.Sql.SqlServer.v2005
     {
       var entities =
         ServerEntities.Collations |
-          ServerEntities.Constraints |
-            ServerEntities.Schemas |
-              ServerEntities.Sequences |
-                ServerEntities.StoredProcedures |
-                  ServerEntities.Synonyms |
-                    ServerEntities.Filegroups |
-                      ServerEntities.Triggers |
-                        ServerEntities.UserDefinedFunctions |
-                          ServerEntities.UserDefinedTypes;
+        ServerEntities.Constraints |
+        ServerEntities.Schemas |
+        ServerEntities.StoredProcedures |
+        ServerEntities.Synonyms |
+        ServerEntities.Filegroups |
+        ServerEntities.Triggers |
+        ServerEntities.UserDefinedFunctions |
+        ServerEntities.UserDefinedTypes;
       return entities;
     }
 
@@ -284,10 +280,10 @@ namespace Xtensive.Sql.SqlServer.v2005
     {
       var levels =
         IsolationLevels.ReadUncommitted |
-          IsolationLevels.ReadCommitted |
-            IsolationLevels.RepeatableRead |
-              IsolationLevels.Serializable |
-                IsolationLevels.Snapshot;
+        IsolationLevels.ReadCommitted |
+        IsolationLevels.RepeatableRead |
+        IsolationLevels.Serializable |
+        IsolationLevels.Snapshot;
       return levels;
     }
 

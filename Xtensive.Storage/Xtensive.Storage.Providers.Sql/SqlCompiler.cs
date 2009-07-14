@@ -13,6 +13,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Expressions;
@@ -22,6 +23,8 @@ using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Sql.ValueTypeMapping;
+using ColumnInfo=Xtensive.Storage.Model.ColumnInfo;
+using IndexInfo=Xtensive.Storage.Model.IndexInfo;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -31,10 +34,8 @@ namespace Xtensive.Storage.Providers.Sql
   {
     protected const string TableNamePattern = "Tmp_{0}";
 
-    /// <summary>
-    /// Gets or sets a value indicating whether <see cref="bool"/> is natively supported by undelying RDBMS.
-    /// </summary>
-    protected bool BoolIsNativelySupported { get; set; }
+    protected bool FullBooleanExpressionSupport { get; private set; }
+    protected bool CrossApplySupported { get; private set; }
     
     /// <summary>
     /// Gets the value type mapper.
@@ -134,7 +135,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var column in provider.CalculatedColumns) {
         HashSet<SqlFetchParameterBinding> bindings;
         var predicate = TranslateExpression(column.Expression, out bindings, sqlSelect);
-        if (!BoolIsNativelySupported && (column.Type==typeof(bool) || column.Type==typeof(bool?)))
+        if (!FullBooleanExpressionSupport && (column.Type==typeof(bool) || column.Type==typeof(bool?)))
           predicate = ExpressionProcessor.BooleanToInt(predicate);
         sqlSelect.Columns.Add(predicate, column.Name);
         allBindings = allBindings.Concat(bindings);
@@ -409,33 +410,33 @@ namespace Xtensive.Storage.Providers.Sql
       var left = GetCompiled(provider.Left) as SqlProvider;
       var right = GetCompiled(provider.Right) as SqlProvider;
 
-      if (left == null || right == null)
+      if (left==null || right==null)
         return null;
 
-      var leftQuery = left.PermanentReference;
-      var rightQuery = right.Request.SelectStatement;
-
-      var select = SqlDml.Select(leftQuery);
-      if (left.Origin.Header.Length > 0)
-        select.Columns.AddRange(leftQuery.Columns.Cast<SqlColumn>());
-
-      if (provider.SequenceType == ApplySequenceType.All)
-        return null;
-
-      if (provider.Right.Type == ProviderType.Existence)
-        select.Columns.Add(rightQuery.Columns[0]);
-      else {
-        for (int i = 0; i < rightQuery.Columns.Count; i++) {
-          var subquery = ShallowCopy(rightQuery);
-          var columnRef = (SqlColumnRef) subquery.Columns[i];
-          var column = columnRef.SqlColumn;
-          subquery.Columns.Clear();
-          subquery.Columns.Add(column);
-          select.Columns.Add(subquery, provider.Right.Header.Columns[i].Name);
-        }
+      SqlSelect query;
+      switch (provider.SequenceType) {
+      case ApplySequenceType.All:
+        // apply is required
+        if (!CrossApplySupported)
+          throw new NotSupportedException();
+        query = TranslateApplyViaCrossApply(provider, left, right);
+        break;
+      case ApplySequenceType.First:
+      case ApplySequenceType.FirstOrDefault:
+        // apply is prefered but is not required
+        query = CrossApplySupported
+          ? TranslateApplyViaCrossApply(provider, left, right)
+          : TranslateApplyViaSubqueries(provider, left, right);
+        break;
+      case ApplySequenceType.Single:
+      case ApplySequenceType.SingleOrDefault:
+        // apply is not required
+        query = TranslateApplyViaSubqueries(provider, left, right);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException();
       }
-
-      return new SqlProvider(provider, select, Handlers, left, right);
+      return new SqlProvider(provider, query, Handlers, left, right);
     }
 
     /// <inheritdoc/>
@@ -447,7 +448,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       SqlExpression existsExpression = SqlDml.Exists(source.Request.SelectStatement);
-      if (!BoolIsNativelySupported)
+      if (!FullBooleanExpressionSupport)
         existsExpression = ExpressionProcessor.BooleanToInt(existsExpression);
       var select = SqlDml.Select();
       select.Columns.Add(existsExpression, provider.ExistenceColumnName);
@@ -524,16 +525,13 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var left = GetCompiled(provider.Left) as SqlProvider;
       var right = GetCompiled(provider.Right) as SqlProvider;
-      if (left == null || right == null)
+      if (left==null || right==null)
         return null;
 
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
 
-      var result = SqlDml.Union(
-        leftSelect,
-        rightSelect);
-
+      var result = SqlDml.Union(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
@@ -541,37 +539,9 @@ namespace Xtensive.Storage.Providers.Sql
       return new SqlProvider(provider, query, Handlers, left, right);
     }
 
-    /// <summary>
-    /// Translates <see cref="LambdaExpression"/> to SQL DOM tree.
-    /// </summary>
-    /// <param name="le">An expression to translate</param>
-    /// <param name="parameterBindings">Parameter bindings generated during translation.</param>
-    /// <param name="selects">Select statements associated with <paramref name="le"/> parameters.</param>
-    /// <returns></returns>
-    protected virtual SqlExpression TranslateExpression(LambdaExpression le,
-      out HashSet<SqlFetchParameterBinding> parameterBindings, params SqlSelect[] selects)
+    protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
     {
-      var translator = new ExpressionProcessor(le, this, Handlers, !BoolIsNativelySupported, selects);
-      var result = translator.Translate();
-      parameterBindings = translator.Bindings;
-      return result;
-    }
-
-    /// <summary>
-    /// Translates <see cref="LambdaExpression"/> to SQL DOM tree.
-    /// </summary>
-    /// <param name="le">An expression to translate</param>
-    /// <param name="parameterBindings">Parameter bindings generated during translation.</param>
-    /// <param name="queryRefs"><see cref="SqlQueryRef"/> associated with <paramref name="le"/> 
-    /// parameters.</param>
-    /// <returns></returns>
-    protected virtual SqlExpression TranslateExpression(LambdaExpression le,
-      out HashSet<SqlFetchParameterBinding> parameterBindings, params SqlQueryRef[] queryRefs)
-    {
-      var translator = new ExpressionProcessor(le, this, Handlers, !BoolIsNativelySupported, queryRefs);
-      var result = translator.Translate();
-      parameterBindings = translator.Bindings;
-      return result;
+      throw new NotSupportedException();
     }
 
     /// <summary>
@@ -777,6 +747,59 @@ namespace Xtensive.Storage.Providers.Sql
       return query;
     }
 
+    private SqlExpression TranslateExpression(LambdaExpression le,
+      out HashSet<SqlFetchParameterBinding> parameterBindings, params SqlSelect[] selects)
+    {
+      var translator = new ExpressionProcessor(le, this, Handlers, !FullBooleanExpressionSupport, selects);
+      var result = translator.Translate();
+      parameterBindings = translator.Bindings;
+      return result;
+    }
+
+    private SqlExpression TranslateExpression(LambdaExpression le,
+      out HashSet<SqlFetchParameterBinding> parameterBindings, params SqlQueryRef[] queryRefs)
+    {
+      var translator = new ExpressionProcessor(le, this, Handlers, !FullBooleanExpressionSupport, queryRefs);
+      var result = translator.Translate();
+      parameterBindings = translator.Bindings;
+      return result;
+    }
+
+    private static SqlSelect TranslateApplyViaSubqueries(ApplyProvider provider, SqlProvider left, SqlProvider right)
+    {
+      var leftQuery = left.PermanentReference;
+      var rightQuery = right.Request.SelectStatement;
+      var query = SqlDml.Select(leftQuery);
+      if (left.Origin.Header.Length > 0)
+        query.Columns.AddRange(leftQuery.Columns.Cast<SqlColumn>());
+      if (provider.Right.Type==ProviderType.Existence)
+        query.Columns.Add(rightQuery.Columns[0]);
+      else {
+        for (int i = 0; i < rightQuery.Columns.Count; i++) {
+          var subquery = ShallowCopy(rightQuery);
+          var columnRef = (SqlColumnRef) subquery.Columns[i];
+          var column = columnRef.SqlColumn;
+          subquery.Columns.Clear();
+          subquery.Columns.Add(column);
+          query.Columns.Add(subquery, provider.Right.Header.Columns[i].Name);
+        }
+      }
+      return query;
+    }
+
+    private static SqlSelect TranslateApplyViaCrossApply(ApplyProvider provider, SqlProvider left, SqlProvider right)
+    {
+      var sqlApplyType = provider.ApplyType==JoinType.LeftOuter
+        ? SqlJoinType.LeftOuterApply
+        : SqlJoinType.CrossApply;
+      var leftQuery = left.PermanentReference;
+      var rightQuery = right.PermanentReference;
+      var joinedTable = SqlDml.Join(sqlApplyType, leftQuery, rightQuery);
+      var query = SqlDml.Select(joinedTable);
+      query.Columns.AddRange(leftQuery.Columns.Concat(rightQuery.Columns).Cast<SqlColumn>());
+      return query;
+    }
+
     #endregion
     
     // Constructors
@@ -788,7 +811,9 @@ namespace Xtensive.Storage.Providers.Sql
       : base(handlers.Domain.Configuration.ConnectionInfo, compiledSources)
     {
       Handlers = handlers;
-      BoolIsNativelySupported = true;
+      var serverInfo = ((DomainHandler) Handlers.DomainHandler).Driver.ServerInfo;
+      FullBooleanExpressionSupport = (serverInfo.Query.Features & QueryFeatures.FullBooleanExpressionSupport)!=0;
+      CrossApplySupported = (serverInfo.Query.Features & QueryFeatures.CrossApply)!=0;
     }
   }
 }

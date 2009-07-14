@@ -82,32 +82,6 @@ namespace Xtensive.Storage.Providers.MsSql
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
-    protected override ExecutableProvider VisitApply(ApplyProvider provider)
-    {
-      var overrideDefaultCompilation = provider.SequenceType == ApplySequenceType.First ||
-                                       provider.SequenceType == ApplySequenceType.FirstOrDefault;
-      if (!overrideDefaultCompilation) {
-        var result = base.VisitApply(provider);
-        if (result != null)
-          return result;
-      }
-      bool isOuter = provider.ApplyType==JoinType.LeftOuter;
-
-      var left = GetCompiled(provider.Left) as SqlProvider;
-      var right = GetCompiled(provider.Right) as SqlProvider;
-
-      if (left == null || right == null)
-        return null;
-      var leftQuery = left.PermanentReference;
-      var rightQuery = right.PermanentReference;
-      var joinedTable = SqlDml.Join(isOuter ? SqlJoinType.LeftOuterApply : SqlJoinType.CrossApply,
-        leftQuery, rightQuery);
-
-      SqlSelect query = SqlDml.Select(joinedTable);
-      query.Columns.AddRange(leftQuery.Columns.Concat(rightQuery.Columns).Cast<SqlColumn>());
-      return new SqlProvider(provider, query, Handlers, left, right);
-    }
-
     protected override SqlExpression TranslateAggregate(SqlProvider source, List<SqlTableColumn> sourceColumns, AggregateColumn aggregateColumn)
     {
       var aggregateType = aggregateColumn.Type;
@@ -204,7 +178,6 @@ namespace Xtensive.Storage.Providers.MsSql
     public MsSqlCompiler(HandlerAccessor handlers, BindingCollection<object, ExecutableProvider> compiledSources)
       : base(handlers, compiledSources)
     {
-      BoolIsNativelySupported = false;
     }
   }
 }

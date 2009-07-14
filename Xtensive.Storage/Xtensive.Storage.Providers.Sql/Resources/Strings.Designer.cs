@@ -187,6 +187,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sequence &apos;{0}&apos; is not found in storage..
+        /// </summary>
+        internal static string ExSequenceXIsNotFoundInStorage {
+            get {
+                return ResourceManager.GetString("ExSequenceXIsNotFoundInStorage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to String.Trim(char[]), String.TrimStart(char[]), string.TrimEnd(char[]) supported only with argument being array of constants..
         /// </summary>
         internal static string ExStringTrimSupportedOnlyWithConstants {

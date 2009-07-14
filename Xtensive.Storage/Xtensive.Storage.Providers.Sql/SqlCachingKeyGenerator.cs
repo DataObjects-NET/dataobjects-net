@@ -15,37 +15,32 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
-  /// Caching generator implementation for sql-based storages.
+  /// Caching generator implementation for SQL-based storages.
   /// </summary>
   /// <typeparam name="TFieldType">The type of the field.</typeparam>
   public class SqlCachingKeyGenerator<TFieldType> : CachingKeyGenerator<TFieldType>
   {
     private SqlScalarRequest nextRequest;
-
     private readonly ISqlCompileUnit sqlNext;
-
     private readonly ISqlCompileUnit sqlInitialize;
 
     /// <inheritdoc/>
     protected override void CacheNext()
     {
-      var result = new List<TFieldType>(FetchNext());
-      foreach (TFieldType value in result)
-        Cache.Enqueue(value);
+      foreach (var item in FetchNext())
+        Cache.Enqueue(item);
     }
 
-    /// <inheritdoc/>
-    protected virtual IEnumerable<TFieldType> FetchNext()
+    private IEnumerable<TFieldType> FetchNext()
     {
       TFieldType upperBound;
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      using (domainHandler.Domain.OpenSession(SessionType.Generator)) {
-        using (var t = Session.Current.OpenTransaction()) {
-          var sessionHandler = (SessionHandler) Handlers.SessionHandler;
-          object value = sessionHandler.ExecuteScalarRequest(nextRequest);
-          upperBound = (TFieldType) Convert.ChangeType(value, typeof (TFieldType));
-          t.Complete();
-        }
+      using (domainHandler.Domain.OpenSession(SessionType.Generator))
+      using (var t = Session.Current.OpenTransaction()) {
+        var sessionHandler = (SessionHandler) Handlers.SessionHandler;
+        object value = sessionHandler.ExecuteScalarRequest(nextRequest);
+        upperBound = (TFieldType) Convert.ChangeType(value, typeof (TFieldType));
+        t.Complete();
       }
 
       TFieldType current = upperBound;
@@ -65,11 +60,10 @@ namespace Xtensive.Storage.Providers.Sql
       nextRequest = new SqlScalarRequest(sqlNext);
       if (sqlInitialize!=null) {
         var sessionHandler = (SessionHandler) Handlers.SessionHandler;
-        sessionHandler.ExecuteNonQuery(sqlInitialize);
+        sessionHandler.ExecuteNonQueryStatement(sqlInitialize);
       }
     }
-
-
+    
     // Constructors
 
     /// <summary>

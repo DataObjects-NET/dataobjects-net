@@ -19,12 +19,12 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Gets or sets the protocol the provider is responsible for.
     /// </summary>
-    public string Protocol { get; set; }
+    public string Protocol { get; private set; }
 
     /// <summary>
     /// Gets or sets the description of the provider.
     /// </summary>
-    public string Description { get; set; }
+    public string Description { get; private set; }
 
     #region Equals, GetHashCode methods
 
@@ -35,7 +35,6 @@ namespace Xtensive.Storage.Providers
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-//      return base.Equals(obj) && Equals(obj.Protocol, Protocol) && Equals(obj.Description, Description);
       return Equals(obj.Protocol, Protocol);
     }
 
@@ -55,19 +54,23 @@ namespace Xtensive.Storage.Providers
       unchecked {
         int result = base.GetHashCode();
         result = (result * 397) ^ (Protocol!=null ? Protocol.GetHashCode() : 0);
-//        result = (result * 397) ^ (Description!=null ? Description.GetHashCode() : 0);
         return result;
       }
     }
 
     #endregion
-
-
+    
     // Constructors
 
     public ProviderAttribute(string protocol)
     {
       Protocol = protocol;
+    }
+
+    public ProviderAttribute(string protocol, string description)
+    {
+      Protocol = protocol;
+      Description = description;
     }
   }
 }

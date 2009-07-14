@@ -19,6 +19,7 @@ namespace Xtensive.Storage.Providers
   {
     private readonly Dictionary<Type, Func<object>> constructors = new Dictionary<Type, Func<object>>();
     private static readonly Type handlerBaseType = typeof(HandlerBase);
+    private static readonly Type initializableHandlerBaseType = typeof (InitializableHandlerBase);
 
     /// <summary>
     /// Creates the handler of type <typeparamref name="T"/>.
@@ -38,7 +39,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="handlerType">Type of the handler to create.</param>
     /// <returns>A newly created handler of requested type;</returns>
     /// <exception cref="NotSupportedException">Handler for type <paramref name="handlerType"/> was not found.</exception>
-    public virtual HandlerBase CreateHandler(Type handlerType)
+    public HandlerBase CreateHandler(Type handlerType)
     {
       HandlerBase handler = TryCreateHandler(handlerType);
       
@@ -80,38 +81,35 @@ namespace Xtensive.Storage.Providers
       return result;
     }
 
-    /// <summary>
-    /// Registers all the handlers from the specified assembly.
-    /// </summary>
-    /// <param name="assembly">The assembly to register all the handlers from.</param>
-    protected void RegisterHandlersFrom(Assembly assembly)
+    protected internal virtual void Initialize(Domain domain)
     {
-      foreach (Type type in assembly.GetTypes()) {
-        if (type.IsAbstract || !type.IsPublic || !handlerBaseType.IsAssignableFrom(type))
-          continue;
-        if (constructors.ContainsKey(type))
-          continue;
-        Type baseType = type;
-        while (baseType != handlerBaseType) {
-          constructors[baseType] = DelegateHelper.CreateConstructorDelegate<Func<object>>(type);
-          baseType = baseType.BaseType;
-        }
+      Domain = domain;
+      Type type = GetType();
+      while (type!=typeof (HandlerFactory)) {
+        RegisterHandlersFrom(type.Assembly, type.Namespace);
+        type = type.BaseType;
       }
+      RegisterHandlersFrom(typeof (HandlerFactory).Assembly, typeof (HandlerFactory).Namespace);
+    }
+    
+    #region Private / internal methods
+
+    private void RegisterHandlersFrom(Assembly assembly, string @namespace)
+    {
+      foreach (Type type in assembly.GetTypes())
+        if (type.Namespace==@namespace && type.IsPublicNonAbstractInheritorOf(handlerBaseType))
+          RegisterHandler(type);
     }
 
-
-    // Constructors
-
-    /// <inheritdoc/>
-    protected HandlerFactory(Domain domain)
-      : base(domain)
+    private void RegisterHandler(Type type)
     {
-      Type type = GetType();
-      RegisterHandlersFrom(Assembly.GetExecutingAssembly());
-      while (type!=typeof(HandlerFactory)) {
-        RegisterHandlersFrom(type.Assembly);
+      var constructorDelegate = DelegateHelper.CreateConstructorDelegate<Func<object>>(type);
+      while (type!=handlerBaseType && type!=initializableHandlerBaseType && !constructors.ContainsKey(type)) {
+        constructors[type] = constructorDelegate;
         type = type.BaseType;
       }
     }
+
+    #endregion
   }
 }

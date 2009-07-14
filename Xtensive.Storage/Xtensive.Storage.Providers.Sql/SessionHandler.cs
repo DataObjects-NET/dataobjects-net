@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Providers.Sql
   /// <summary>
   /// <see cref="Session"/>-level handler for SQL storages.
   /// </summary>
-  public abstract class SessionHandler : Providers.SessionHandler
+  public class SessionHandler : Providers.SessionHandler
   {
     private SqlConnection connection;
 
@@ -105,11 +105,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="statement">The statement to execute.</param>
     /// <returns><see cref="DbDataReader"/> with results of statement execution.</returns>
-    public DbDataReader ExecuteReader(ISqlCompileUnit statement)
+    public DbDataReader ExecuteReaderStatement(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
-      using (var command = CreateCommand(statement)) {
-//        command.Prepare();
+      using (var command = Connection.CreateCommand(statement)) {
         command.Transaction = Transaction;
         return command.ExecuteReader();
       }
@@ -121,11 +120,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="statement">The statement.</param>
     /// <returns>Number of affected rows.</returns>
-    public virtual int ExecuteNonQuery(ISqlCompileUnit statement)
+    public int ExecuteNonQueryStatement(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
-      using (var command = CreateCommand(statement)) {
-//        command.Prepare();
+      using (var command = Connection.CreateCommand(statement)) {
         command.Transaction = Transaction;
         return command.ExecuteNonQuery();
       }
@@ -137,11 +135,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="statement">The statement.</param>
     /// <returns>The first column of the first row of executed result set.</returns>
-    public object ExecuteScalar(ISqlCompileUnit statement)
+    public object ExecuteScalarStatement(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
-      using (var command = CreateCommand(statement)) {
-//        command.Prepare();
+      using (var command = Connection.CreateCommand(statement)) {
         command.Transaction = Transaction;
         return command.ExecuteScalar();
       }
@@ -161,7 +158,6 @@ namespace Xtensive.Storage.Providers.Sql
     {
       EnsureConnectionIsOpen();
       using (var command = CreateUpdateCommand(request, tuple)) {
-//        command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteNonQuery();
       }
@@ -176,7 +172,6 @@ namespace Xtensive.Storage.Providers.Sql
     {
       EnsureConnectionIsOpen();
       using (var command = CreateScalarCommand(request)) {
-//        command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteScalar();
       }
@@ -191,7 +186,6 @@ namespace Xtensive.Storage.Providers.Sql
     {
       EnsureConnectionIsOpen();
       using (var command = CreateFetchCommand(request)) {
-//        command.Prepare();
         command.Transaction = Transaction;
         return command.ExecuteReader();
       }
@@ -232,7 +226,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       switch (entityStateAction.PersistAction) {
         case PersistAction.Insert:
-          case PersistAction.Update:
+        case PersistAction.Update:
           return entityStateAction.EntityState.Tuple.ToRegular();
         case PersistAction.Remove:
           return entityStateAction.EntityState.Key.Value;
@@ -316,16 +310,6 @@ namespace Xtensive.Storage.Providers.Sql
     #endregion
 
     #region CreateCommand methods
-
-    /// <summary>
-    /// Creates the <see cref="DbCommand"/> bound to connection associated with this <see cref="SessionHandler"/>.
-    /// </summary>
-    /// <param name="statement">The statement.</param>
-    /// <returns>A created command.</returns>
-    protected DbCommand CreateCommand(ISqlCompileUnit statement)
-    {
-      return Connection.CreateCommand(statement);
-    }
 
     /// <summary>
     /// Creates <see cref="DbCommand"/> from specified <see cref="SqlScalarRequest"/>.

@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Providers.Sql
       SessionHandler sessionHandler = (SessionHandler) handlers.SessionHandler;
       SqlBatch batch = SqlDml.Batch();
       batch.Add(SqlDdl.Create(Table));
-      sessionHandler.ExecuteNonQuery(batch);
+      sessionHandler.ExecuteNonQueryStatement(batch);
       Schema.Tables.Add(Table);
 
       SqlTableRef tableRef = SqlDml.TableRef(Table);
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlBatch batch = SqlDml.Batch();
       batch.Add(SqlDdl.Drop(Table));
-      ((SessionHandler) handlers.SessionHandler).ExecuteNonQuery(batch);
+      ((SessionHandler) handlers.SessionHandler).ExecuteNonQueryStatement(batch);
       Schema.Tables.Remove(Table);
     }
 

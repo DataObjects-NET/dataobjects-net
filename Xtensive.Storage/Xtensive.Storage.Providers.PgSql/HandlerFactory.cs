@@ -6,15 +6,8 @@
 
 namespace Xtensive.Storage.Providers.PgSql
 {
-  [Provider("postgresql", Description = "Storage provider for PostgreSQL.")]
-  public class HandlerFactory : Providers.HandlerFactory
+  [Provider(WellKnown.Protocol.PostgreSql, "Storage provider for PostgreSQL.")]
+  public class HandlerFactory : Sql.HandlerFactory
   {
-    // Constructors
-
-    /// <inheritdoc/>
-    public HandlerFactory(Domain domain)
-      : base(domain)
-    {
-    }
   }
 }

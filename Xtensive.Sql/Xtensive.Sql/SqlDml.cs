@@ -391,34 +391,32 @@ namespace Xtensive.Sql
     public static SqlCast Cast(SqlExpression operand, SqlValueType type)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      SqlValidator.EnsureIsArithmeticExpression(operand);
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
       return new SqlCast(operand, type);
     }
 
     public static SqlCast Cast(SqlExpression operand, SqlType type)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      SqlValidator.EnsureIsArithmeticExpression(operand);
       return new SqlCast(operand, new SqlValueType(type));
     }
 
     public static SqlCast Cast(SqlExpression operand, SqlType type, int size)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      SqlValidator.EnsureIsArithmeticExpression(operand);
       return new SqlCast(operand, new SqlValueType(type, size));
     }
 
     public static SqlCast Cast(SqlExpression operand, SqlType type, short precision, short scale)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      SqlValidator.EnsureIsArithmeticExpression(operand);
       return new SqlCast(operand, new SqlValueType(type, precision, scale));
     }
 
     public static SqlCast Cast(SqlExpression operand, SqlType type, short precision)
     {
-      return Cast(operand, type, precision, 0);
+      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      return new SqlCast(operand, new SqlValueType(type, precision, 0));
     }
 
     #endregion
@@ -1314,6 +1312,14 @@ namespace Xtensive.Sql
     public static SqlSelect Select()
     {
       return new SqlSelect();
+    }
+
+    public static SqlSelect Select(SqlExpression expression)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      var result = new SqlSelect();
+      result.Columns.Add(expression);
+      return result;
     }
 
     public static SqlSelect Select(SqlTable table)

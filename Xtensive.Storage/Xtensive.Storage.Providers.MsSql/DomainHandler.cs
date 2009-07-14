@@ -5,34 +5,16 @@
 // Created:    2008.07.04
 
 using Xtensive.Core.Collections;
-using Xtensive.Sql.Info;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.PreCompilation;
-using Xtensive.Storage.Rse.PreCompilation.Correction;
-using Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection;
-using Xtensive.Storage.Rse.PreCompilation.Optimization;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.MsSql
 {
   /// <summary>
-  /// A domain handler specific to MSSql RDBMS.
+  /// A domain handler specific to Microsoft SQL Server RDBMS.
   /// </summary>
   public class DomainHandler : Sql.DomainHandler
   {
-    /// <inheritdoc/>
-    protected override IPreCompiler CreatePreCompiler()
-    {
-      return new CompositePreCompiler(
-        new ApplyProviderCorrector(false),
-        new SkipTakeCorrector(),
-        new OrderingCorrector(ResolveOrderingDescriptor, false),
-        new RedundantColumnOptimizer(),
-        new OrderingCorrector(ResolveOrderingDescriptor, true)
-        );
-    }
-
     /// <inheritdoc/>
     protected override ICompiler CreateCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
     {

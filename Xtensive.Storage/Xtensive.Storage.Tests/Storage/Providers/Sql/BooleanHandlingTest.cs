@@ -10,10 +10,9 @@ using NUnit.Framework;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Storage.Providers.MsSql.BooleanHandlingTestModel;
-using System.Collections.Generic;
+using Xtensive.Storage.Tests.Storage.Providers.Sql.BooleanHandlingTestModel;
 
-namespace Xtensive.Storage.Tests.Storage.Providers.MsSql.BooleanHandlingTestModel
+namespace Xtensive.Storage.Tests.Storage.Providers.Sql.BooleanHandlingTestModel
 {
   [HierarchyRoot]
   public class MyEntity : Entity
@@ -32,7 +31,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.MsSql.BooleanHandlingTestMode
   }
 }
 
-namespace Xtensive.Storage.Tests.Storage.Providers.MsSql
+namespace Xtensive.Storage.Tests.Storage.Providers.Sql
 {
   [TestFixture]
   public class BooleanHandlingTest : AutoBuildTest

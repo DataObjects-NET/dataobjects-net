@@ -54,8 +54,8 @@ namespace Xtensive.Storage.Providers
         result = CreateGenerator<UInt64>(generatorInfo);
         break;
       case TypeCode.Object:
-          if (fieldType == typeof(Guid))
-            result = new GuidKeyGenerator(generatorInfo);
+        if (fieldType==typeof(Guid))
+          result = new GuidKeyGenerator(generatorInfo);
         break;
       }
       if (result == null)

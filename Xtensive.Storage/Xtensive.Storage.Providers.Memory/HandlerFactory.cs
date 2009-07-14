@@ -9,15 +9,8 @@ namespace Xtensive.Storage.Providers.Memory
   /// <summary>
   /// Handlers factory for memory index storage.
   /// </summary>
-  [Provider("memory", Description = "General storage provider for in-memory storages.")]
-  public class HandlerFactory : Providers.HandlerFactory
+  [Provider(WellKnown.Protocol.Memory, "General storage provider for in-memory storages.")]
+  public class HandlerFactory : Index.HandlerFactory
   {
-    // Constructors
-
-    /// <inheritdoc/>
-    public HandlerFactory(Domain domain)
-      : base(domain)
-    {
-    }
   }
 }

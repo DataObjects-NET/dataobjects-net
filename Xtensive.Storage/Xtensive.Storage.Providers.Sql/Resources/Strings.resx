@@ -189,4 +189,7 @@
   <data name="ExStringTrimSupportedOnlyWithConstants" xml:space="preserve">
     <value>String.Trim(char[]), String.TrimStart(char[]), string.TrimEnd(char[]) supported only with argument being array of constants.</value>
   </data>
+  <data name="ExSequenceXIsNotFoundInStorage" xml:space="preserve">
+    <value>Sequence '{0}' is not found in storage.</value>
+  </data>
 </root>

@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       // In rare cases (when calculated column is just parameter access) we need to strip cast to object.
       if (e.NodeType == ExpressionType.Convert && e.Type == typeof(object))
         type = ((UnaryExpression) e).Operand.Type;
-      type = StripNullable(type);
+      type = type.StripNullable();
       var typeMapping = valueTypeMapper.GetTypeMapping(type);
       var expression = parameterExtractor.ExtractParameter<object>(e);
       var binding = new SqlFetchParameterBinding(expression.CachingCompile(), typeMapping, smartNull);
@@ -120,8 +120,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     private SqlExpression VisitCast(UnaryExpression cast, SqlExpression operand)
     {
-      var sourceType = StripNullable(cast.Operand.Type);
-      var targetType = StripNullable(cast.Type);
+      var sourceType = cast.Operand.Type.StripNullable();
+      var targetType = cast.Type.StripNullable();
       if (sourceType==targetType || targetType==typeof(object))
         return operand;
       return SqlDml.Cast(operand, valueTypeMapper.BuildSqlValueType(targetType, null));
@@ -261,7 +261,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var type = expression.Type;
       if (type==typeof(object))
         type = expression.Value.GetType();
-      type = StripNullable(type);
+      type = type.StripNullable();
       if (fixBooleanExpressions && type==typeof (bool))
         return (bool) expression.Value ? IntToBoolean(1) : IntToBoolean(0);
       return SqlDml.LiteralOrContainer(expression.Value, type);
@@ -504,14 +504,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           && ((UnaryExpression) e).Operand.Type==typeof (char);
     }
 
-    private static Type StripNullable(Type type)
-    {
-      return type.IsNullable() ? type.GetGenericArguments()[0] : type;
-    }
-
     private static bool IsBooleanExpression(Expression expression)
     {
-      return StripNullable(expression.Type)==typeof (bool);
+      return expression.Type.StripNullable()==typeof (bool);
     }
 
     #endregion

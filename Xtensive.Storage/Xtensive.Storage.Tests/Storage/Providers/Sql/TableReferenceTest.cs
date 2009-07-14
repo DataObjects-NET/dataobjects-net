@@ -13,8 +13,9 @@ using Xtensive.Sql.Model;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql;
+using Xtensive.Storage.Tests.Storage.Providers.Sql.TableReferenceTestModel;
 
-namespace Xtensive.Storage.Tests.Storage.Providers.Sql
+namespace Xtensive.Storage.Tests.Storage.Providers.Sql.TableReferenceTestModel
 {
   [KeyGenerator(null)]
   [HierarchyRoot]
@@ -130,6 +131,9 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Field, Association(PairTo = "OneToMany")]
     public C ManyToOne { get; set; }
   }
+}
+
+namespace Xtensive.Storage.Tests.Storage.Providers.Sql {
 
   [TestFixture]
   public class TableReferenceTest : AutoBuildTest

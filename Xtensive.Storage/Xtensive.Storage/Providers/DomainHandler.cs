@@ -94,23 +94,33 @@ namespace Xtensive.Storage.Providers
     public abstract void BuildMapping();
 
     /// <summary>
-    /// Initializes the domain.
-    /// This method is called after first session has been open, but domain is not built yet.
-    /// </summary>
-    public virtual void InitializeFirstSession()
-    {
-      var providerInfo = CreateProviderInfo();
-      providerInfo.Lock(true);
-      ProviderInfo = providerInfo;
-    }
-
-    /// <summary>
     /// Creates <see cref="ProviderInfo"/>.
     /// </summary>
     /// <returns></returns>
     protected abstract ProviderInfo CreateProviderInfo();
 
     #region Private \ internal methods
+
+    private void BuildProviderInfo()
+    {
+      var providerInfo = CreateProviderInfo();
+      providerInfo.Lock(true);
+      ProviderInfo = providerInfo;
+    }
+    
+    private void BuildCompilationContext()
+    {
+      CompilationContext = new CompilationContext(
+        () => {
+          var compiledSources = new BindingCollection<object, ExecutableProvider>();
+          return new ManagingCompiler(
+            compiledSources,
+            CreateCompiler(compiledSources),
+            new ClientCompiler(compiledSources));
+        },
+        CreatePreCompiler,
+        CreatePostCompiler);
+    }
 
     /// <exception cref="InvalidOperationException">One of compiler containers is 
     /// improperly described.</exception>
@@ -155,17 +165,9 @@ namespace Xtensive.Storage.Providers
     public override void Initialize()
     {
       Domain = BuildingContext.Current.Domain;
-      CompilationContext = new CompilationContext(
-        () => {
-          var compiledSources = new BindingCollection<object, ExecutableProvider>();
-          return new ManagingCompiler(
-            compiledSources,
-            CreateCompiler(compiledSources),
-            new ClientCompiler(compiledSources));
-        },
-        CreatePreCompiler,
-        CreatePostCompiler);
+      BuildProviderInfo();
       BuildMemberCompilerProviders();
+      BuildCompilationContext();
     }
   }
 }

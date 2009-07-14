@@ -6,15 +6,8 @@
 
 namespace Xtensive.Storage.Providers.MsSql
 {
-  [Provider("sqlserver", Description = "General storage provider for MS SQL 2005 based storages.")]
-  public class HandlerFactory : Providers.HandlerFactory
+  [Provider(WellKnown.Protocol.SqlServer, "General storage provider for MS SQL 2005 based storages.")]
+  public class HandlerFactory : Sql.HandlerFactory
   {
-    // Constructors
-
-    /// <inheritdoc/>
-    public HandlerFactory(Domain domain)
-      : base(domain)
-    {
-    }
   }
 }

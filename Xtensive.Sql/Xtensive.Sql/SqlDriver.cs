@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Compiler;
@@ -165,10 +166,12 @@ namespace Xtensive.Sql
 
     private static SqlDriver CreateDriverInternal(SqlConnectionUrl url)
     {
-      string driverName = string.Format(DriverAssemblyFormat, url.Protocol);
-      string assemblyName = typeof(SqlDriver).Assembly.FullName.Replace("Xtensive.Sql", driverName);
-      var assembly = Assembly.Load(assemblyName);
-      var factoryType = assembly.GetTypes().Single(type => typeof (SqlDriverFactory).IsAssignableFrom(type));
+      var thisAssemblyName = Assembly.GetExecutingAssembly().GetName();
+      string driverAssemblyShortName = string.Format(DriverAssemblyFormat, url.Protocol);
+      string driverAssemblyFullName = thisAssemblyName.FullName.Replace(thisAssemblyName.Name, driverAssemblyShortName);
+      var assembly = Assembly.Load(driverAssemblyFullName);
+      var factoryType = assembly.GetTypes()
+        .Single(type => type.IsPublicNonAbstractInheritorOf(typeof (SqlDriverFactory)));
       var factory = (SqlDriverFactory) Activator.CreateInstance(factoryType);
       var driver = factory.CreateDriver(url);
       driver.Initialize();

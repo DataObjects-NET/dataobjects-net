@@ -61,5 +61,10 @@ namespace Xtensive.Sql.Info
     /// inside CASE and COALESCE operators.
     /// </summary>
     FullBooleanExpressionSupport = 0x80,
+
+    /// <summary>
+    /// Indicates that RDBMS supports paging operators (LIMIT and OFFSET)
+    /// </summary>
+    Paging = 0x100
   }
 }

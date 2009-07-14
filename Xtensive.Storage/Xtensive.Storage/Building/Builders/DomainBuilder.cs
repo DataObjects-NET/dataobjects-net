@@ -4,23 +4,20 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
-using System;
-using System.Globalization;
-using System.Reflection;
 using Microsoft.Practices.Unity.Configuration;
+using System;
+using System.Reflection;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.PluginManager;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
-using Xtensive.Storage.Upgrade;
-using Activator=System.Activator;
-using UpgradeContext=Xtensive.Modelling.Comparison.UpgradeContext;
+using Activator = System.Activator;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -62,7 +59,6 @@ namespace Xtensive.Storage.Building.Builders
           using (context.Domain.OpenSession(SessionType.System)) {
             context.SystemSessionHandler = Session.Current.Handler;
             using (var transactionScope = Transaction.Open()) {
-              context.Domain.Handler.InitializeFirstSession();
               SynchronizeSchema(builderConfiguration.SchemaUpgradeMode);
               context.Domain.Handler.BuildMapping();
               CreateGenerators();
@@ -101,33 +97,34 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (HandlerFactory).GetShortName())) {
         string protocol = BuildingContext.Current.Configuration.ConnectionInfo.Protocol;
 
-        // PluginManager & GAC interoperability-related dirty workaround
-        // TODO: Remove in 4.1 version!!!
-        var currentAssemblyFullName = Assembly.GetExecutingAssembly().GetName().ToString();
-        var providerName = string.Empty;
+        var thisAssemblyName = Assembly.GetExecutingAssembly().GetName();
+        string providerAssemblyShortName;
         switch (protocol) {
-          case "memory":
-            providerName = "Xtensive.Storage.Providers.Memory";
-            break;
-          case "sqlserver":
-            providerName = "Xtensive.Storage.Providers.MsSql";
-            break;
-          case "postgresql":
-            providerName = "Xtensive.Storage.Providers.PgSql";
-            break;
+        case WellKnown.Protocol.Memory:
+          providerAssemblyShortName = "Xtensive.Storage.Providers.Memory";
+          break;
+        case WellKnown.Protocol.SqlServer:
+          providerAssemblyShortName = "Xtensive.Storage.Providers.MsSql";
+          break;
+        case WellKnown.Protocol.PostgreSql:
+          providerAssemblyShortName = "Xtensive.Storage.Providers.PgSql";
+          break;
+        default:
+          throw new ArgumentOutOfRangeException();
         }
-        var providerAssemblyFullName = currentAssemblyFullName.Replace(Assembly.GetExecutingAssembly().GetName().Name, providerName);
-        var providerAssemblyName = new AssemblyName(providerAssemblyFullName);
-        var pluginManager =
-          new PluginManager<ProviderAttribute>(typeof (HandlerFactory), providerAssemblyName);
-
-        Type handlerProviderType = pluginManager[new ProviderAttribute(protocol)];
+        var providerAssemblyFullName = thisAssemblyName.FullName.Replace(thisAssemblyName.Name, providerAssemblyShortName);
+        var providerAssembly = Assembly.Load(providerAssemblyFullName);
+        var handlerProviderType = providerAssembly.GetTypes()
+          .Where(type => type.IsPublicNonAbstractInheritorOf(typeof (HandlerFactory)))
+          .Where(type => type.IsDefined(typeof (ProviderAttribute), false))
+          .Where(type => type.GetAttributes<ProviderAttribute>(AttributeSearchOptions.InheritNone)
+            .Any(attribute => attribute.Protocol==protocol))
+          .FirstOrDefault();
           if (handlerProviderType==null)
             throw new DomainBuilderException(
-              string.Format(Strings.ExStorageProviderNotFound,
-                protocol,
-                Environment.CurrentDirectory));
-        var handlerFactory = (HandlerFactory) Activator.CreateInstance(handlerProviderType, new object[] {BuildingContext.Current.Domain});
+              string.Format(Strings.ExStorageProviderNotFound, protocol, Environment.CurrentDirectory));
+        var handlerFactory = (HandlerFactory) Activator.CreateInstance(handlerProviderType);
+        handlerFactory.Initialize(BuildingContext.Current.Domain);
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         handlerAccessor.HandlerFactory = handlerFactory;
       }

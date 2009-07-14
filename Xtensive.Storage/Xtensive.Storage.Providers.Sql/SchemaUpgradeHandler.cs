@@ -53,8 +53,6 @@ namespace Xtensive.Storage.Providers.Sql
           continue;
         using (var command = Connection.CreateCommand()) {
           command.CommandText = batch;
-          //TODO: check whenever this statement matters
-          //command.Prepare();
           command.Transaction = SessionHandler.Transaction;
           command.ExecuteNonQuery();
         }
@@ -66,7 +64,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var schema = GetStorageSchema();
       var converter = new SqlModelConverter(schema,
-        ConvertType, DomainHandler.ProviderInfo, SessionHandler.ExecuteScalar);
+        ConvertType, DomainHandler.ProviderInfo, SessionHandler.ExecuteScalarStatement);
       return converter.GetConversionResult();
     }
 

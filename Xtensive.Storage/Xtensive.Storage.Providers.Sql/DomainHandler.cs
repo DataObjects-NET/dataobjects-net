@@ -18,7 +18,10 @@ using Xtensive.Storage.Providers.Sql.Expressions;
 using Xtensive.Storage.Providers.Sql.Mappings;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.PreCompilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
+using Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection;
+using Xtensive.Storage.Rse.PreCompilation.Optimization;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Upgrade;
 
@@ -211,11 +214,26 @@ namespace Xtensive.Storage.Providers.Sql
         ==IndexFeatures.NonKeyColumns;
       result.SupportKeyColumnSortOrder = (serverInfo.Index.Features & IndexFeatures.SortOrder)
         ==IndexFeatures.SortOrder;
-      result.SupportSequences = serverInfo.Sequence.Features!=SequenceFeatures.None;
+      result.SupportSequences = serverInfo.Sequence!=null;
       result.SupportsRealTimeSpan = serverInfo.DataTypes.Interval!=null;
       result.Version = (Version) serverInfo.Version.ProductVersion.Clone();
-      result.Lock();
       return result;
+    }
+
+    /// <inheritdoc/>
+    protected override IPreCompiler CreatePreCompiler()
+    {
+      var queryFeatures = Driver.ServerInfo.Query.Features;
+      var applyCorrector = new ApplyProviderCorrector((queryFeatures & QueryFeatures.CrossApply)==0);
+      var skipTakeCorrector = (queryFeatures & QueryFeatures.Paging)==0
+        ? new SkipTakeCorrector()
+        : (IPreCompiler) new EmptyPreCompiler();
+      return new CompositePreCompiler(
+        applyCorrector,
+        skipTakeCorrector,
+        new OrderingCorrector(ResolveOrderingDescriptor, false),
+        new RedundantColumnOptimizer(),
+        new OrderingCorrector(ResolveOrderingDescriptor, true));
     }
 
     // Initialization
@@ -223,8 +241,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
-      base.Initialize();
       Driver = SqlDriver.Create(Handlers.Domain.Configuration.ConnectionInfo.ToString());
+      base.Initialize();
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
       ValueTypeMapper = new SqlValueTypeMapper(Driver);
       Mapping = new ModelMapping();
