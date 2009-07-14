@@ -60,7 +60,7 @@ namespace Xtensive.Sql.VistaDb.v3
     {
       switch (section) {
       case SelectSection.Entry:
-        return (node.Top > 0) ? "SELECT TOP " + node.Top : base.Translate(context, node, section);
+        return (node.Limit > 0) ? "SELECT TOP " + node.Limit : base.Translate(context, node, section);
       }
       return base.Translate(context, node, section);
     }

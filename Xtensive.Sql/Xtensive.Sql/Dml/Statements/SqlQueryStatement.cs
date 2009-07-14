@@ -14,21 +14,21 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public abstract class SqlQueryStatement: SqlStatement
   {
-    private int top;
+    private int limit;
     private int offset;
     private IList<SqlHint> hints;
 
     /// <summary>
-    /// Gets or sets the top.
+    /// Gets or sets the limit.
     /// </summary>
-    /// <value>The top.</value>
-    public int Top
+    /// <value>The limit.</value>
+    public int Limit
     {
-      get { return top; }
+      get { return limit; }
       set {
         if (value<0)
           throw new ArgumentOutOfRangeException("value");
-        top = value;
+        limit = value;
       }
     }
 

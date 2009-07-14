@@ -94,7 +94,7 @@ namespace Xtensive.Sql.Tests.MsSql
       SqlTableRef tr2 = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "a");
 
       SqlSelect select = SqlDml.Select(tr1.CrossJoin(tr2));
-      select.Top = 10;
+      select.Limit = 10;
       select.Columns.AddRange(tr1[0], tr1[0], tr2[0]);
       select.Where = tr1[0]>1 && tr2[0]>1;
 
@@ -109,7 +109,7 @@ namespace Xtensive.Sql.Tests.MsSql
     {
       var key = new object();
       var select = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]));
-      select.Top = 1;
+      select.Limit = 1;
       select.Columns.Add(SqlDml.Variant(1, 2, key), "value");
       var result = sqlConnection.Driver.Compile(select);
       using (var command = sqlConnection.CreateCommand()) {

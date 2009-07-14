@@ -235,7 +235,7 @@ namespace Xtensive.Sql.Tests.VistaDb
 
       SqlTableRef salesOrderHeader = SqlDml.TableRef(Catalog.Schemas["dbo"].Tables["Sales_SalesOrderHeader"]);
       SqlSelect select = SqlDml.Select(salesOrderHeader);
-      select.Top = 10;
+      select.Limit = 10;
       select.Columns.AddRange(salesOrderHeader["SalesOrderID"], salesOrderHeader["OrderDate"]);
       select.Where = salesOrderHeader["OrderDate"]<DateTime.Now;
       select.OrderBy.Add(salesOrderHeader["OrderDate"], false);
@@ -295,7 +295,7 @@ namespace Xtensive.Sql.Tests.VistaDb
       SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["dbo"].Tables["Production_Product"], "p");
       SqlTableRef salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["dbo"].Tables["Sales_SalesOrderDetail"], "s");
       SqlSelect select = SqlDml.Select(product.InnerJoin(salesOrderDetail, product["ProductID"]==salesOrderDetail["ProductID"]));
-      select.Top = 10;
+      select.Limit = 10;
       select.Columns.Add(salesOrderDetail["UnitPrice"]);
       select.Columns.Add(product.Asterisk);
       select.OrderBy.Add(product["ProductID"]);
@@ -2750,7 +2750,7 @@ namespace Xtensive.Sql.Tests.VistaDb
 
       SqlTableRef store = SqlDml.TableRef(Catalog.Schemas["dbo"].Tables["Sales_Store"]);
       SqlUpdate update = SqlDml.Update(store);
-      update.Top = 10;
+      update.Limit = 10;
       update.Values[store["SalesPersonID"]] = 276;
       update.Where = store["SalesPersonID"]==275;
 
@@ -2771,7 +2771,7 @@ namespace Xtensive.Sql.Tests.VistaDb
       SqlTableRef employee2 = SqlDml.TableRef(Catalog.Schemas["dbo"].Tables["HumanResources_Employee"]);
 
       SqlSelect select = SqlDml.Select(employee);
-      select.Top = 10;
+      select.Limit = 10;
       select.Columns.Add(employee["EmployeeID"]);
       select.OrderBy.Add(employee["HireDate"]);
       SqlQueryRef th = SqlDml.QueryRef(select, "th");
@@ -2840,7 +2840,7 @@ namespace Xtensive.Sql.Tests.VistaDb
       SqlTableRef purchaseOrderDetail1 = SqlDml.TableRef(Catalog.Schemas["dbo"].Tables["Purchasing_PurchaseOrderDetail"]);
       SqlTableRef purchaseOrderDetail2 = SqlDml.TableRef(Catalog.Schemas["dbo"].Tables["Purchasing_PurchaseOrderDetail"]);
       SqlSelect select = SqlDml.Select(purchaseOrderDetail2);
-      select.Top = 10;
+      select.Limit = 10;
       select.Columns.Add(purchaseOrderDetail2["PurchaseOrderDetailID"]);
       select.OrderBy.Add(purchaseOrderDetail2["DueDate"]);
       SqlDelete delete = SqlDml.Delete(purchaseOrderDetail1);

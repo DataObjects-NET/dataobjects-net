@@ -155,7 +155,7 @@ namespace Xtensive.Sql.Dml
         foreach (SqlOrder so in orderBy)
           clone.OrderBy.Add((SqlOrder)so.Clone(context));
       clone.Distinct = distinct;
-      clone.Top = Top;
+      clone.Limit = Limit;
       clone.Offset = Offset;
 
       if (Hints.Count > 0)
@@ -165,6 +165,28 @@ namespace Xtensive.Sql.Dml
       context.NodeMapping[this] = clone;
 
       return clone;
+    }
+
+    /// <summary>
+    /// Makes a shallow clone of the instance.
+    /// </summary>
+    public SqlSelect ShallowClone()
+    {
+      var result = ReferenceEquals(From, null) 
+        ? SqlDml.Select() 
+        : SqlDml.Select(From);
+      result.Columns.AddRange(Columns);
+      result.Distinct = Distinct;
+      result.GroupBy.AddRange(GroupBy);
+      result.Having = Having;
+      result.Offset = Offset;
+      result.Limit = Limit;
+      foreach (var order in OrderBy)
+        result.OrderBy.Add(order);
+      foreach (var hint in Hints)
+        result.Hints.Add(hint);
+      result.Where = Where;
+      return result;
     }
 
     #region ISqlCompileUnit Members

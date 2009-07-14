@@ -233,7 +233,7 @@ namespace Xtensive.Sql.Tests.MsSql
 
       SqlTableRef salesOrderHeader = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"]);
       SqlSelect select = SqlDml.Select(salesOrderHeader);
-      select.Top = 10;
+      select.Limit = 10;
       select.Columns.AddRange(salesOrderHeader["SalesOrderID"], salesOrderHeader["OrderDate"]);
       select.Where = salesOrderHeader["OrderDate"]<DateTime.Now;
       select.OrderBy.Add(salesOrderHeader["OrderDate"], false);
@@ -2765,7 +2765,7 @@ namespace Xtensive.Sql.Tests.MsSql
 
       SqlTableRef store = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"]);
       SqlUpdate update = SqlDml.Update(store);
-      update.Top = 10;
+      update.Limit = 10;
       update.Values[store["SalesPersonID"]] = 276;
       update.Where = store["SalesPersonID"]==275;
 
@@ -2785,7 +2785,7 @@ namespace Xtensive.Sql.Tests.MsSql
       SqlTableRef employee2 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
 
       SqlSelect select = SqlDml.Select(employee);
-      select.Top = 10;
+      select.Limit = 10;
       select.Columns.Add(employee["EmployeeID"]);
       select.OrderBy.Add(employee["HireDate"]);
       SqlQueryRef th = SqlDml.QueryRef(select, "th");
@@ -2856,7 +2856,7 @@ namespace Xtensive.Sql.Tests.MsSql
       SqlTableRef purchaseOrderDetail2 =
         SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["PurchaseOrderDetail"]);
       SqlSelect select = SqlDml.Select(purchaseOrderDetail2);
-      select.Top = 10;
+      select.Limit = 10;
       select.Columns.Add(purchaseOrderDetail2["PurchaseOrderDetailID"]);
       select.OrderBy.Add(purchaseOrderDetail2["DueDate"]);
       SqlDelete delete = SqlDml.Delete(purchaseOrderDetail1);
@@ -3667,7 +3667,7 @@ namespace Xtensive.Sql.Tests.MsSql
     [Test]
     public void Test197()
     {
-      string nativeSql = "Select Top 10 * "
+      string nativeSql = "Select Limit 10 * "
         +"From (Person.StateProvince a "
           +"inner hash join Person.CountryRegion b on a.StateProvinceCode=b.CountryRegionCode)"
             +"inner loop join "
@@ -3685,7 +3685,7 @@ namespace Xtensive.Sql.Tests.MsSql
       SqlJoinedTable abcd = SqlDml.Join(SqlJoinType.InnerJoin, ab, cd, a["CountryRegionCode"]==c["CountryRegionCode"]);
 
       SqlSelect select = SqlDml.Select(abcd);
-      select.Top = 10;
+      select.Limit = 10;
       select.Columns.Add(SqlDml.Asterisk);
       select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Hash, ab));
       select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Merge, cd));
@@ -3698,7 +3698,7 @@ namespace Xtensive.Sql.Tests.MsSql
     [Test]
     public void Test198()
     {
-      string nativeSql = "Select Top 10 * "
+      string nativeSql = "Select Limit 10 * "
         +"From (Person.StateProvince a "
           +"inner hash join Person.CountryRegion b on a.StateProvinceCode=b.CountryRegionCode)"
             +"inner loop join "
@@ -3716,7 +3716,7 @@ namespace Xtensive.Sql.Tests.MsSql
       SqlJoinedTable abcd = SqlDml.Join(SqlJoinType.InnerJoin, ab, cd, a["CountryRegionCode"]==c["CountryRegionCode"]);
 
       SqlSelect select = SqlDml.Select(abcd);
-      select.Top = 10;
+      select.Limit = 10;
       select.Columns.Add(SqlDml.Asterisk);
       select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Hash, a, b));
       select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Merge, d));
@@ -3728,13 +3728,13 @@ namespace Xtensive.Sql.Tests.MsSql
     [Test]
     public void Test199()
     {
-      string nativeSql = "Select Top 10 EmailAddress "
+      string nativeSql = "Select Limit 10 EmailAddress "
         +"From Person.Contact a With (RepeatableRead, RowLock, Index(IX_Contact_EmailAddress)) "
           +"Where EmailAddress Like 'a%'";
 
       SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
       SqlSelect select = SqlDml.Select(c);
-      select.Top = 10;
+      select.Limit = 10;
       select.Columns.Add(c["EmailAddress"]);
       select.Where = SqlDml.Like(c["EmailAddress"], "a%");
       select.Hints.Add(SqlDml.TableLockHint(c, SqlTableIsolationLevel.RepeatableRead, SqlTableLockType.RowLock));
@@ -3746,14 +3746,14 @@ namespace Xtensive.Sql.Tests.MsSql
     [Test]
     public void Test200()
     {
-      string nativeSql = "Select Top 10 EmailAddress "
+      string nativeSql = "Select Limit 10 EmailAddress "
         +"From Person.Contact a With (RepeatableRead, RowLock, Index(IX_Contact_EmailAddress)) "
           +"Where EmailAddress Like 'a%' "
             +"OPTION (FAST 10, KEEP PLAN, ROBUST PLAN)";
 
       SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
       SqlSelect select = SqlDml.Select(c);
-      select.Top = 10;
+      select.Limit = 10;
       select.Columns.Add(c["EmailAddress"]);
       select.Where = SqlDml.Like(c["EmailAddress"], "a%");
       select.Hints.Add(SqlDml.TableLockHint(c, SqlTableIsolationLevel.RepeatableRead, SqlTableLockType.RowLock));
@@ -3767,21 +3767,21 @@ namespace Xtensive.Sql.Tests.MsSql
     [Test]
     public void Test201()
     {
-      string nativeSql = "Select Top 10 EmailAddress "
+      string nativeSql = "Select Limit 10 EmailAddress "
         +"From Person.Contact a "
           +"Where EmailAddress Like 'a%' "
             + "UNION ALL "
-              +"Select Top 10 EmailAddress "
+              +"Select Limit 10 EmailAddress "
                 +"From Person.Contact b "
                   +"Where EmailAddress Like 'b%' ";
 
       SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
       SqlSelect select1 = SqlDml.Select(c);
-      select1.Top = 10;
+      select1.Limit = 10;
       select1.Columns.Add(c["EmailAddress"]);
       select1.Where = SqlDml.Like(c["EmailAddress"], "a%");
       SqlSelect select2 = SqlDml.Select(c);
-      select2.Top = 10;
+      select2.Limit = 10;
       select2.Columns.Add(c["EmailAddress"]);
       select2.Where = SqlDml.Like(c["EmailAddress"], "a%");
 

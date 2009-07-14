@@ -27,8 +27,9 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
       var compiledSource = GetCompiled(provider.Source) as SqlProvider;
       if (compiledSource==null)
         return null;
-      
-      var sourceQuery = ShallowCopy(compiledSource.Request.SelectStatement);
+
+      SqlSelect source = compiledSource.Request.SelectStatement;
+      var sourceQuery = (SqlSelect) source.ShallowClone();
       if (isSourceTake) {
         sourceQuery.Where = AddSkipPartToTakeWhereExpression(sourceQuery, provider, provider.Source);
         return new SqlProvider(provider.Source, sourceQuery, Handlers,
@@ -49,7 +50,8 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
       if (compiledSource==null)
         return null;
 
-      var sourceQuery = ShallowCopy(compiledSource.Request.SelectStatement);
+      SqlSelect source = compiledSource.Request.SelectStatement;
+      var sourceQuery = (SqlSelect) source.ShallowClone();
       if (isSourceSkip) {
         sourceQuery.Where = AddTakePartToSkipWhereExpression(sourceQuery, provider, provider.Source);
         return new SqlProvider(provider.Source, sourceQuery, Handlers,
@@ -71,7 +73,8 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
       if (compiledSource == null)
         return null;
 
-      var sourceQuery = ShallowCopy(compiledSource.Request.SelectStatement);
+      SqlSelect source = compiledSource.Request.SelectStatement;
+      var sourceQuery = (SqlSelect) source.ShallowClone();
       var rowNumberColumnName = provider.Header.Columns.Last().Name;
       var queryRef = SqlDml.QueryRef(sourceQuery);
       var query = SqlDml.Select(queryRef);
@@ -81,10 +84,10 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
-    protected override SqlExpression TranslateAggregate(SqlProvider source, List<SqlTableColumn> sourceColumns, AggregateColumn aggregateColumn)
+    protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlTableColumn> sourceColumns, AggregateColumn aggregateColumn)
     {
       var aggregateType = aggregateColumn.Type;
-      var result = base.TranslateAggregate(source, sourceColumns, aggregateColumn);
+      var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
       if (aggregateColumn.AggregateType == AggregateType.Avg) {
         var originType = source.Origin.Header.Columns[aggregateColumn.SourceIndex].Type;
         // floats are promoted to doubles, but we need the same type

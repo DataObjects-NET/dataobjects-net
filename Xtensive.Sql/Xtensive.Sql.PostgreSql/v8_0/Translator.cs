@@ -454,12 +454,12 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
     {
       if (section==SelectSection.Exit) {
-        if (node.Top > 0 || node.Offset > 0) {
+        if (node.Limit > 0 || node.Offset > 0) {
           StringBuilder sb = new StringBuilder();
           if (node.Offset > 0)
             sb.Append(" OFFSET " + node.Offset);
-          if (node.Top > 0)
-            sb.Append(" LIMIT " + node.Top);
+          if (node.Limit > 0)
+            sb.Append(" LIMIT " + node.Limit);
           return sb.ToString();
         }
         return string.Empty;
@@ -819,7 +819,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
             existsOp.GroupBy.Add(col);
           }
           existsOp.Having = SqlDml.Count(SqlDml.Asterisk) > 1;
-          existsOp.Top = 1;
+          existsOp.Limit = 1;
 
           node.ReplaceWith(SqlDml.Not(SqlDml.Exists(existsOp)));
         }

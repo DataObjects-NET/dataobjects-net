@@ -238,7 +238,7 @@ namespace Xtensive.Sql.SqlServer.v2005
       switch (section)
       {
         case DeleteSection.Entry:
-          return (node.Top > 0) ? "DELETE TOP " + node.Top + " FROM" : base.Translate(context, node, section);
+          return (node.Limit > 0) ? "DELETE TOP " + node.Limit + " FROM" : base.Translate(context, node, section);
       }
       return base.Translate(context, node, section);
     }
@@ -248,7 +248,7 @@ namespace Xtensive.Sql.SqlServer.v2005
       switch (section)
       {
         case InsertSection.Entry:
-          return (node.Top > 0) ? "INSERT TOP " + node.Top + " INTO" : base.Translate(context, node, section);
+          return (node.Limit > 0) ? "INSERT TOP " + node.Limit + " INTO" : base.Translate(context, node, section);
       }
       return base.Translate(context, node, section);
     }
@@ -338,12 +338,12 @@ namespace Xtensive.Sql.SqlServer.v2005
       {
         case SelectSection.Entry:
           if (node.Distinct)
-            return (node.Top > 0) 
-              ? "SELECT DISTINCT TOP " + node.Top 
+            return (node.Limit > 0) 
+              ? "SELECT DISTINCT TOP " + node.Limit 
               : "SELECT DISTINCT ";
           else
-            return (node.Top > 0) 
-              ? "SELECT TOP " + node.Top
+            return (node.Limit > 0) 
+              ? "SELECT TOP " + node.Limit
               : "SELECT ";
         case SelectSection.Exit:
           if (node.Hints.Count == 0)
@@ -540,7 +540,7 @@ namespace Xtensive.Sql.SqlServer.v2005
       switch (section)
       {
         case UpdateSection.Entry:
-          return (node.Top > 0) ? "UPDATE TOP (" + node.Top + ")" : base.Translate(context, node, section);
+          return (node.Limit > 0) ? "UPDATE TOP (" + node.Limit + ")" : base.Translate(context, node, section);
       }
       return base.Translate(context, node, section);
     }

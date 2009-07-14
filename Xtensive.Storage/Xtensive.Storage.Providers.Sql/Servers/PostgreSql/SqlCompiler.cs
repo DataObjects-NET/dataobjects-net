@@ -17,9 +17,9 @@ namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
   [Serializable]
   internal class SqlCompiler : Sql.SqlCompiler
   {
-    protected override SqlExpression TranslateAggregate(SqlProvider source, List<SqlTableColumn> sourceColumns, AggregateColumn aggregateColumn)
+    protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlTableColumn> sourceColumns, AggregateColumn aggregateColumn)
     {
-      var result = base.TranslateAggregate(source, sourceColumns, aggregateColumn);
+      var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
       if (aggregateColumn.AggregateType == AggregateType.Sum || aggregateColumn.AggregateType == AggregateType.Avg) {
         Type type = aggregateColumn.Type;
         return SqlDml.Cast(result, ValueTypeMapper.BuildSqlValueType(type, null));
