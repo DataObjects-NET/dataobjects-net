@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Linq.Materialization
       return entities[index];
     }
 
-    public Entity Materialize(int entityIndex, int typeIdIndex,TypeInfo typeInfo, Pair<int>[] columns, Tuple tuple)
+    public Entity Materialize(int entityIndex, int typeIdIndex, TypeInfo typeInfo, Pair<int>[] columns, Tuple tuple)
     {
       var result = entities[entityIndex];
       if (result!=null)
