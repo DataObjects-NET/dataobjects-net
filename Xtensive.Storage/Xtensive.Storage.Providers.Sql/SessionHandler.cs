@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public class SessionHandler : Providers.SessionHandler
   {
-    private const int PersistBatchSize = 50;
+    private const int PersistBatchSize = 25;
 
     private SqlConnection connection;
     
