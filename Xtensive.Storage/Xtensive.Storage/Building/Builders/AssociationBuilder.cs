@@ -9,6 +9,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Resources;
@@ -119,71 +120,6 @@ namespace Xtensive.Storage.Building.Builders
         throw new DomainBuilderException(
           string.Format("'{0}.{1}' OnOwnerRemove action is not equal to '{2}.{3}' OnTargetRemove action.",
           slave.OwnerType.Name, slave.OwnerField.Name, master.OwnerType.Name, master.OwnerField.Name));
-
-      BuildPairSyncActions(master);
-      if (!master.IsLoop)
-        BuildPairSyncActions(slave);
-    }
-
-    private static void BuildPairSyncActions(AssociationInfo association)
-    {
-      if (BuildingContext.Current.Domain.PairSyncActions.ContainsKey(association))
-        throw new DomainBuilderException(string.Format(Strings.ExPairToAttributeCanNotBeAppliedToXField,
-          association.OwnerField, association.OwnerType.UnderlyingType.FullName, association.Reversed.OwnerField, association.Reversed.OwnerType.UnderlyingType.FullName));
-
-      Func<IEntity, IEntity> getValue = null;
-      Action<IEntity, IEntity> @break;
-      Action<IEntity, IEntity> create;
-
-      switch (association.Multiplicity) {
-      case Multiplicity.OneToOne:
-        getValue = BuildGetPairedValueAction(association);
-        @break = BuildBreakAssociationAction(association, OperationType.Set);
-        create = BuildCreateAssociationAction(association, OperationType.Set);
-        break;
-      case Multiplicity.OneToMany:
-        @break = BuildBreakAssociationAction(association, OperationType.Remove);
-        create = BuildCreateAssociationAction(association, OperationType.Add);
-        break;
-      case Multiplicity.ManyToOne:
-        getValue = BuildGetPairedValueAction(association);
-        @break = BuildBreakAssociationAction(association, OperationType.Set);
-        create = BuildCreateAssociationAction(association, OperationType.Set);
-        break;
-      case Multiplicity.ManyToMany:
-        @break = BuildBreakAssociationAction(association, OperationType.Remove);
-        create = BuildCreateAssociationAction(association, OperationType.Add);
-        break;
-      default:
-        return;
-      }
-      var actionSet = new ActionSet(getValue, @break, create);
-
-      BuildingContext.Current.Domain.PairSyncActions.Add(association, actionSet);
-    }
-
-    private static Func<IEntity, IEntity> BuildGetPairedValueAction(AssociationInfo association)
-    {
-      return (entity) => ((Entity)entity).GetFieldValue<IEntity>(association.OwnerField);
-    }
-
-    private static Action<IEntity, IEntity> BuildBreakAssociationAction(AssociationInfo association, OperationType type)
-    {
-      if (type==OperationType.Set)
-        return (master, slave) => ((Entity)master).SetFieldValue<IEntity>(association.OwnerField, null);
-      else
-        return (master, slave) => ((Entity)master).GetFieldValue<EntitySetBase>(association.OwnerField)
-          .Remove((Entity)slave);
-    }
-
-    private static Action<IEntity, IEntity> BuildCreateAssociationAction(AssociationInfo association,
-      OperationType type)
-    {
-      if (type==OperationType.Set)
-        return (master, slave) => ((Entity)master).SetFieldValue(association.OwnerField, slave);
-      else
-        return (master, slave) => ((Entity)master).GetFieldValue<EntitySetBase>(association.OwnerField)
-          .Add((Entity)slave);
     }
   }
 }

@@ -164,8 +164,6 @@ namespace Xtensive.Storage
 
     internal ICache<MethodInfo, Pair<MethodInfo, TranslatedQuery>> QueryCache { get; private set; }
 
-    internal Dictionary<AssociationInfo, ActionSet> PairSyncActions { get; private set; }
-
     private void OnSessionOpen(Session session)
     {
       if (SessionOpen!=null)
@@ -221,7 +219,6 @@ namespace Xtensive.Storage
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       QueryCache = new LruCache<MethodInfo, Pair<MethodInfo, TranslatedQuery>>(
         Configuration.QueryCacheSize, k => k.First);
-      PairSyncActions = new Dictionary<AssociationInfo, ActionSet>(1024);
       TemporaryData = new GlobalTemporaryData();
       ServiceContainer = new UnityContainer();
       ServiceContainer.AddExtension(new SingletonExtension());

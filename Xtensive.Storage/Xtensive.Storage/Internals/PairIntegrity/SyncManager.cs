@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.PairIntegrity
@@ -14,7 +15,7 @@ namespace Xtensive.Storage.PairIntegrity
   {
     private readonly Stack<SyncContext> contextStack = new Stack<SyncContext>();
 
-    public void Enlist(OperationType type, Entity owner, Entity value, AssociationInfo association)
+    public void Enlist(OperationType type, Entity owner, Entity target, AssociationInfo association)
     {
       SyncContext context = null;
       if (contextStack.Count > 0)
@@ -29,17 +30,17 @@ namespace Xtensive.Storage.PairIntegrity
 
       // New context
       using (InconsistentRegion.Open(owner.Session)) {
-        ActionSet masterActions = owner.Session.Domain.PairSyncActions[association];
-        ActionSet slaveActions = owner.Session.Domain.PairSyncActions[association.Reversed];
+        SyncActionSet masterActions = GetSyncActions(association);
+        SyncActionSet slaveActions = GetSyncActions(association.Reversed);
         Entity master1 = owner;
-        Entity slave2 = value;
+        Entity slave2 = target;
         Entity slave1 = null;
         Entity master2 = null;
       
-        if (masterActions.GetPairedValue!=null)
-          slave1 = (Entity) masterActions.GetPairedValue(master1);
-        if (slave2 != null && slaveActions.GetPairedValue != null)
-          master2 = (Entity) slaveActions.GetPairedValue(slave2);
+        if (masterActions.GetValue!=null)
+          slave1 = (Entity) masterActions.GetValue(association, master1);
+        if (slave2 != null && slaveActions.GetValue != null)
+          master2 = (Entity) slaveActions.GetValue(association.Reversed, slave2);
 
         context = new SyncContext();
         contextStack.Push(context);
@@ -47,27 +48,20 @@ namespace Xtensive.Storage.PairIntegrity
         switch (type) {
         case OperationType.Add:
         case OperationType.Set:
-          // Setting new association value for slave
-          if (slave2!=null && !(association.IsLoop && master1 == slave2)) {
-            context.RegisterAction(slaveActions.CreateAssociation, slave2, master1);
-            context.RegisterParticipant(slave2, association.Reversed);
-          }
+          // Setting new value for slave
+            if (slave2!=null && !(association.IsLoop && master1==slave2))
+              context.RegisterAction(new SyncAction(slaveActions.Create, association.Reversed, slave2, master1));
+
           // Breaking existing associations
-          if (master2!=null) {
-            context.RegisterAction(masterActions.BreakAssociation, master2, slave2);
-            context.RegisterParticipant(master2, association);
-          }
-          if (slave1!=null) {
-            context.RegisterAction(slaveActions.BreakAssociation, slave1, master1);
-            context.RegisterParticipant(slave1, association.Reversed);
-          }
-          break;
+            if (master2!=null)
+              context.RegisterAction(new SyncAction(masterActions.Break, association, master2, slave2));
+            if (slave1!=null)
+              context.RegisterAction(new SyncAction(slaveActions.Break, association.Reversed, slave1, master1));
+            break;
         case OperationType.Remove:
-          if (!(association.IsLoop && master1 == slave2)) {
-            context.RegisterAction(slaveActions.BreakAssociation, slave2, master1);
-            context.RegisterParticipant(slave2, association.Reversed);
-          }
-          break;
+            if (!(association.IsLoop && master1==slave2))
+              context.RegisterAction(new SyncAction(slaveActions.Break, association.Reversed, slave2, master1));
+            break;
         default:
           throw new ArgumentOutOfRangeException();
         }
@@ -76,6 +70,35 @@ namespace Xtensive.Storage.PairIntegrity
           context.ExecuteNextAction();
         contextStack.Pop();
       }
+    }
+
+    private static SyncActionSet GetSyncActions(AssociationInfo association)
+    {
+      Func<AssociationInfo, object, object> getValue = null;
+      Action<AssociationInfo, object, object> @break = null;
+      Action<AssociationInfo, object, object> create = null;
+
+      switch (association.Multiplicity) {
+      case Multiplicity.OneToOne:
+          getValue = AssociationActionProvider.GetReferenceAction;
+          @break = AssociationActionProvider.ClearReferenceAction;
+          create = AssociationActionProvider.SetReferenceAction;
+        break;
+      case Multiplicity.OneToMany:
+          @break = AssociationActionProvider.RemoveReferenceAction;
+          create = AssociationActionProvider.AddReferenceAction;
+        break;
+      case Multiplicity.ManyToOne:
+          getValue = AssociationActionProvider.GetReferenceAction;
+          @break = AssociationActionProvider.ClearReferenceAction;
+          create = AssociationActionProvider.SetReferenceAction;
+        break;
+      case Multiplicity.ManyToMany:
+          @break = AssociationActionProvider.RemoveReferenceAction;
+          create = AssociationActionProvider.AddReferenceAction;
+        break;
+      }
+      return new SyncActionSet(getValue, @break, create);
     }
 
 

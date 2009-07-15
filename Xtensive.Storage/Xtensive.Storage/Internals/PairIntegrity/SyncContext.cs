@@ -4,30 +4,27 @@
 // Created by: Dmitri Maximov
 // Created:    2008.10.08
 
-using System;
 using System.Collections.Generic;
-using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.PairIntegrity
 {
   internal class SyncContext
   {
-    private readonly List<Pair<Entity, AssociationInfo>> participants = new List<Pair<Entity, AssociationInfo>>(3);
-    private readonly List<Action<IEntity, IEntity>> actions = new List<Action<IEntity, IEntity>>(3);
-    private readonly List<Pair<Entity, Entity>> arguments = new List<Pair<Entity, Entity>>(3);
-    private int stage;
+    private readonly List<SyncAction> actions = new List<SyncAction>(3);
+    private int actionIndex;
 
     public bool Contains(Entity entity, AssociationInfo association)
     {
       return IndexOf(entity, association) >= 0;
     }
 
-    public int IndexOf(Entity entity, AssociationInfo association)
+    private int IndexOf(Entity entity, AssociationInfo association)
     {
-      for (int i = 0; i < participants.Count; i++) {
-        Pair<Entity, AssociationInfo> item = participants[i];
-        if (item.First == entity && item.Second == association)
+      for (int i = 0; i < actions.Count; i++) {
+        SyncAction item = actions[i];
+        if (item.Owner == entity && item.Association == association)
           return i;
       }
       return -1;
@@ -35,26 +32,19 @@ namespace Xtensive.Storage.PairIntegrity
 
     public bool HasNextAction()
     {
-      return stage < actions.Count && actions[stage]!=null;
+      return actionIndex < actions.Count && actions[actionIndex].Action!=null;
     }
 
     public void ExecuteNextAction()
     {
-      int current = stage++;
-      var action = actions[current];
-      var args = arguments[current];
-      action(args.First, args.Second);
+      int nextActionIndex = actionIndex++;
+      var nextAction = actions[nextActionIndex];
+      nextAction.Action(nextAction.Association, nextAction.Owner, nextAction.Target);
     }
 
-    public void RegisterAction(Action<IEntity, IEntity> action, Entity arg0, Entity arg1)
+    public void RegisterAction(SyncAction action)
     {
       actions.Add(action);
-      arguments.Add(new Pair<Entity, Entity>(arg0, arg1));
-    }
-
-    public void RegisterParticipant(Entity entity, AssociationInfo association)
-    {
-      participants.Add(new Pair<Entity, AssociationInfo>(entity, association));
     }
   }
 }

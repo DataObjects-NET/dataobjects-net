@@ -545,6 +545,8 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void OneToZero()
     {
+      EnsureProtocolIs(StorageProtocol.Sql);
+
       using (Session.Open(Domain)) {
         A a;
         B b;
