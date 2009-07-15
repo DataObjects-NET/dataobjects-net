@@ -12,15 +12,15 @@ namespace Xtensive.Storage.Internals
   [Serializable]
   internal static class AssociationActionProvider
   {
-    public static Func<AssociationInfo, object, object> GetReferenceAction;
+    public static readonly Func<AssociationInfo, IEntity, IEntity> GetReferenceAction;
 
-    public static Action<AssociationInfo, object, object> ClearReferenceAction;
+    public static readonly Action<AssociationInfo, IEntity, IEntity> ClearReferenceAction;
 
-    public static Action<AssociationInfo, object, object> SetReferenceAction;
+    public static readonly Action<AssociationInfo, IEntity, IEntity> SetReferenceAction;
 
-    public static Action<AssociationInfo, object, object> AddReferenceAction;
+    public static readonly Action<AssociationInfo, IEntity, IEntity> AddReferenceAction;
 
-    public static Action<AssociationInfo, object, object> RemoveReferenceAction;
+    public static readonly Action<AssociationInfo, IEntity, IEntity> RemoveReferenceAction;
 
     static AssociationActionProvider()
     {

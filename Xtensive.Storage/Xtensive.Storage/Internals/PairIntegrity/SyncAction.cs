@@ -5,7 +5,6 @@
 // Created:    2009.07.15
 
 using System;
-using System.Diagnostics;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.PairIntegrity
@@ -13,15 +12,16 @@ namespace Xtensive.Storage.PairIntegrity
   [Serializable]
   internal struct SyncAction
   {
-    public Action<AssociationInfo, object, object> Action { get; private set; }
+    public Action<AssociationInfo, IEntity, IEntity> Action { get; private set; }
 
     public AssociationInfo Association { get; private set; }
 
-    public object Owner { get; private set; }
+    public IEntity Owner { get; private set; }
 
-    public object Target { get; private set; }
+    public IEntity Target { get; private set; }
 
-    public SyncAction(Action<AssociationInfo, object, object> action, AssociationInfo association, object owner, object target)
+    public SyncAction(Action<AssociationInfo, IEntity, IEntity> action,
+      AssociationInfo association, IEntity owner, IEntity target)
       : this()
     {
       Action = action;

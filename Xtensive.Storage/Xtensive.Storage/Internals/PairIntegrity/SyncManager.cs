@@ -74,9 +74,9 @@ namespace Xtensive.Storage.PairIntegrity
 
     private static SyncActionSet GetSyncActions(AssociationInfo association)
     {
-      Func<AssociationInfo, object, object> getValue = null;
-      Action<AssociationInfo, object, object> @break = null;
-      Action<AssociationInfo, object, object> create = null;
+      Func<AssociationInfo, IEntity, IEntity> getValue = null;
+      Action<AssociationInfo, IEntity, IEntity> @break = null;
+      Action<AssociationInfo, IEntity, IEntity> create = null;
 
       switch (association.Multiplicity) {
       case Multiplicity.OneToOne:
