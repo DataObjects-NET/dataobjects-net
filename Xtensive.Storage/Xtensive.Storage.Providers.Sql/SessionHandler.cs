@@ -27,8 +27,10 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public class SessionHandler : Providers.SessionHandler
   {
-    private SqlConnection connection;
+    private const int PersistBatchSize = 50;
 
+    private SqlConnection connection;
+    
     /// <summary>
     /// Gets the connection.
     /// </summary>
@@ -215,7 +217,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var batched = entityStateActions
         .Select<EntityStateAction, Pair<SqlPersistRequest, Tuple>>(CreatePersistRequest)
-        .Batch(0, 100, 100);
+        .Batch(0, PersistBatchSize, PersistBatchSize);
       foreach (var batch in batched)
         ExecuteBatchPersistRequest(batch);
     }
