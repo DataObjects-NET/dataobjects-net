@@ -28,7 +28,8 @@ namespace Xtensive.Sql.Compiler
     public virtual string WhenDelimiter { get { return string.Empty; } }
     public virtual string DdlStatementDelimiter { get { return string.Empty; } }
     public virtual string HintDelimiter { get { return string.Empty; } }
-    public virtual string ParameterPrefix { get { return "@";  } }
+
+    public string ParameterPrefix { get; private set; }
 
     /// <summary>
     /// Gets the driver.
@@ -43,6 +44,10 @@ namespace Xtensive.Sql.Compiler
     {
       numberFormat = (NumberFormatInfo) CultureInfo.InvariantCulture.NumberFormat.Clone();
       dateTimeFormat = (DateTimeFormatInfo) CultureInfo.InvariantCulture.DateTimeFormat.Clone();
+      var queryInfo = Driver.ServerInfo.Query;
+      ParameterPrefix = queryInfo.Features.IsSupported(QueryFeatures.UseParameterPrefix)
+        ? queryInfo.ParameterPrefix
+        : string.Empty;
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlAggregate node, NodeSection section)
@@ -1139,11 +1144,6 @@ namespace Xtensive.Sql.Compiler
           return (string.IsNullOrEmpty(node.Name)) ? string.Empty : QuoteIdentifier(node.Name);
       }
       return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlParameterRef node)
-    {
-      return ParameterPrefix + context.GetParameterName(node);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlRow node, NodeSection section)

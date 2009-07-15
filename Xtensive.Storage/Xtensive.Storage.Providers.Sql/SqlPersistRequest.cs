@@ -8,24 +8,30 @@ using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql;
+using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
   /// Modification (insert, update, delete) request.
   /// </summary>
-  public class SqlUpdateRequest : SqlRequest
+  public class SqlPersistRequest : SqlRequest
   {
     /// <summary>
     /// Gets the parameter bindings.
     /// </summary>
-    public IEnumerable<SqlUpdateParameterBinding> ParameterBindings { get; private set; }
+    public IEnumerable<SqlPersistParameterBinding> ParameterBindings { get; private set; }
 
     /// <summary>
     /// Gets or sets the expected result.
     /// </summary>
     /// <remarks>Usually is the number of touched rows.</remarks>
-    public int ExpectedResult { get; private set; }
+    public int? ExpectedResult { get; private set; }
+
+    protected override SqlCompilerOptions GetCompilerOptions()
+    {
+      return new SqlCompilerOptions {DelayParameterNameAssignment = true};
+    }
 
 
     // Constructors
@@ -36,7 +42,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="statement">The statement.</param>
     /// <param name="expectedResult">The expected result.</param>
     /// <param name="parameterBindings">The parameter bindings.</param>
-    public SqlUpdateRequest(ISqlCompileUnit statement, int expectedResult, IEnumerable<SqlUpdateParameterBinding> parameterBindings)
+    public SqlPersistRequest(ISqlCompileUnit statement, int? expectedResult,
+      IEnumerable<SqlPersistParameterBinding> parameterBindings)
       : base(statement)
     {
       ExpectedResult = expectedResult;

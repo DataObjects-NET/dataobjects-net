@@ -9,9 +9,9 @@ using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public sealed class SqlUpdateParameterBinding : SqlParameterBinding
+  public sealed class SqlPersistParameterBinding : SqlParameterBinding
   {
-    public int FieldIndex { get; private set;}
+    public int FieldIndex { get; private set; }
 
     // Constructors
 
@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="fieldIndex">Index of the field that contain new value.</param>
     /// <param name="typeMapping">The type mapping.</param>
-    public SqlUpdateParameterBinding(int fieldIndex, TypeMapping typeMapping)
+    public SqlPersistParameterBinding(int fieldIndex, TypeMapping typeMapping)
       : base(typeMapping)
     {
       FieldIndex = fieldIndex;

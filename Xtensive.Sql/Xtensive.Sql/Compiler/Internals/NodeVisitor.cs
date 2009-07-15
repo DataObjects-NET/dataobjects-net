@@ -30,6 +30,11 @@ namespace Xtensive.Sql.Compiler.Internals
       throw new InvalidOperationException();
     }
 
+    public virtual void Visit(HoleNode node)
+    {
+      throw new InvalidOperationException();
+    }
+
     protected virtual void VisitNodeSequence(Node node)
     {
       while (node != null) {

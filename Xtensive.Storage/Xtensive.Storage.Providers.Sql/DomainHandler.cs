@@ -33,6 +33,7 @@ namespace Xtensive.Storage.Providers.Sql
   public abstract class DomainHandler : Providers.DomainHandler
   {
     private ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor> accessorCache;
+    private ThreadSafeDictionary<SqlRequestBuilderTask, SqlPersistRequest> requestCache;
 
     /// <summary>
     /// Gets the storage schema.
@@ -53,12 +54,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets the value type mapper.
     /// </summary>
     public SqlValueTypeMapper ValueTypeMapper { get; private set; }
-
-    /// <summary>
-    /// Gets the SQL request cache.
-    /// </summary>
-    public ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest> RequestCache { get; private set; }
-
+    
     /// <summary>
     /// Gets the SQL driver.
     /// </summary>
@@ -100,7 +96,20 @@ namespace Xtensive.Storage.Providers.Sql
     /// for the specified <see cref="TupleDescriptor"/></returns>
     public DbDataReaderAccessor GetDataReaderAccessor(TupleDescriptor descriptor)
     {
-      return accessorCache.GetValue(descriptor, BuildDataReaderAccessor);
+      return accessorCache.GetValue(descriptor,
+        (_descriptor, _valueTypeMapper) =>
+          new DbDataReaderAccessor(_descriptor.Select(type => _valueTypeMapper.GetTypeMapping(type))),
+        ValueTypeMapper);
+    }
+
+    /// <summary>
+    /// Gets the persist request for the specified <paramref name="task"/>.
+    /// </summary>
+    /// <param name="task">The task to get request from.</param>
+    /// <returns>A <see cref="SqlPersistRequest"/> that represents <paramref name="task"/>.</returns>
+    public SqlPersistRequest GetPersistRequest(SqlRequestBuilderTask task)
+    {
+      return requestCache.GetValue(task, RequestBuilder.Build);
     }
 
     /// <summary>
@@ -129,19 +138,6 @@ namespace Xtensive.Storage.Providers.Sql
         isSorter);
     }
     
-    /// <summary>
-    /// Builds <see cref="DbDataReaderAccessor"/> from specified <see cref="TupleDescriptor"/>.
-    /// You should not use this method directly since it does not provide caching.
-    /// Use <see cref="GetDataReaderAccessor"/>.
-    /// </summary>
-    /// <param name="descriptor">The tuple descriptor.</param>
-    /// <returns></returns>
-    protected DbDataReaderAccessor BuildDataReaderAccessor(TupleDescriptor descriptor)
-    {
-      return new DbDataReaderAccessor(
-        descriptor.Select(type => ValueTypeMapper.GetTypeMapping(type)));
-    }
-
     /// <inheritdoc/>
     /// <exception cref="DomainBuilderException">Somethig went wrong.</exception>
     public override void BuildMapping()
@@ -200,20 +196,16 @@ namespace Xtensive.Storage.Providers.Sql
       result.MaxIndexKeyLength = serverInfo.Index.MaxLength;
       result.MaxIndexNameLength = serverInfo.Index.MaxIdentifierLength;
       result.MaxTableNameLength = serverInfo.Table.MaxIdentifierLength;
-      result.NamedParameters = (serverInfo.Query.Features & QueryFeatures.NamedParameters)
-        ==QueryFeatures.NamedParameters;
+      result.NamedParameters = serverInfo.Query.Features.IsSupported(QueryFeatures.NamedParameters);
       result.ParameterPrefix = serverInfo.Query.ParameterPrefix;
       result.MaxComparisonOperations = serverInfo.Query.MaxComparisonOperations;
       result.MaxQueryLength = serverInfo.Query.MaxLength;
-      result.SupportsBatches = (serverInfo.Query.Features & QueryFeatures.Batches)==QueryFeatures.Batches;
-      result.SupportsClusteredIndexes = (serverInfo.Index.Features & IndexFeatures.Clustered)
-        ==IndexFeatures.Clustered;
+      result.SupportsBatches = serverInfo.Query.Features.IsSupported(QueryFeatures.Batches);
+      result.SupportsClusteredIndexes = serverInfo.Index.Features.IsSupported(IndexFeatures.Clustered);
       result.SupportsCollations = serverInfo.Collation!=null;
       result.SupportsForeignKeyConstraints = serverInfo.ForeignKey!=null;
-      result.SupportsIncludedColumns = (serverInfo.Index.Features & IndexFeatures.NonKeyColumns)
-        ==IndexFeatures.NonKeyColumns;
-      result.SupportKeyColumnSortOrder = (serverInfo.Index.Features & IndexFeatures.SortOrder)
-        ==IndexFeatures.SortOrder;
+      result.SupportsIncludedColumns = serverInfo.Index.Features.IsSupported(IndexFeatures.NonKeyColumns);
+      result.SupportKeyColumnSortOrder = serverInfo.Index.Features.IsSupported(IndexFeatures.SortOrder);
       result.SupportSequences = serverInfo.Sequence!=null;
       result.SupportsRealTimeSpan = serverInfo.DataTypes.Interval!=null;
       result.Version = (Version) serverInfo.Version.ProductVersion.Clone();
@@ -224,8 +216,8 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IPreCompiler CreatePreCompiler()
     {
       var queryFeatures = Driver.ServerInfo.Query.Features;
-      var applyCorrector = new ApplyProviderCorrector((queryFeatures & QueryFeatures.CrossApply)==0);
-      var skipTakeCorrector = (queryFeatures & QueryFeatures.Paging)==0
+      var applyCorrector = new ApplyProviderCorrector(!queryFeatures.IsSupported(QueryFeatures.CrossApply));
+      var skipTakeCorrector = !queryFeatures.IsSupported(QueryFeatures.Paging)
         ? new SkipTakeCorrector()
         : (IPreCompiler) new EmptyPreCompiler();
       return new CompositePreCompiler(
@@ -244,9 +236,9 @@ namespace Xtensive.Storage.Providers.Sql
       Driver = SqlDriver.Create(Handlers.Domain.Configuration.ConnectionInfo.ToString());
       base.Initialize();
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
+      requestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlPersistRequest>.Create(new object());
       ValueTypeMapper = new SqlValueTypeMapper(Driver);
       Mapping = new ModelMapping();
-      RequestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlUpdateRequest>.Create(new object());
       RequestBuilder = Handlers.HandlerFactory.CreateHandler<SqlRequestBuilder>();
       RequestBuilder.Initialize();
     }

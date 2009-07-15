@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
@@ -97,7 +98,7 @@ namespace Xtensive.Storage.Providers.Sql
         }
     }
 
-    #region Execute statement methods
+    #region ExecuteStatement methods
 
     /// <summary>
     /// Executes the specified statement.
@@ -108,7 +109,7 @@ namespace Xtensive.Storage.Providers.Sql
     public DbDataReader ExecuteReaderStatement(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
-      using (var command = Connection.CreateCommand(statement)) {
+      using (var command = connection.CreateCommand(statement)) {
         command.Transaction = Transaction;
         return command.ExecuteReader();
       }
@@ -123,7 +124,7 @@ namespace Xtensive.Storage.Providers.Sql
     public int ExecuteNonQueryStatement(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
-      using (var command = Connection.CreateCommand(statement)) {
+      using (var command = connection.CreateCommand(statement)) {
         command.Transaction = Transaction;
         return command.ExecuteNonQuery();
       }
@@ -138,7 +139,7 @@ namespace Xtensive.Storage.Providers.Sql
     public object ExecuteScalarStatement(ISqlCompileUnit statement)
     {
       EnsureConnectionIsOpen();
-      using (var command = Connection.CreateCommand(statement)) {
+      using (var command = connection.CreateCommand(statement)) {
         command.Transaction = Transaction;
         return command.ExecuteScalar();
       }
@@ -146,18 +147,32 @@ namespace Xtensive.Storage.Providers.Sql
 
     #endregion
 
-    #region Execute request methods
+    #region ExecuteRequest methods
 
     /// <summary>
-    /// Executes the specified <see cref="SqlUpdateRequest"/>.
+    /// Executes the specified <see cref="SqlPersistRequest"/>.
     /// </summary>
     /// <param name="request">The request to execute.</param>
     /// <param name="tuple">A state tuple.</param>
     /// <returns>Number of modified rows.</returns>
-    public int ExecuteUpdateRequest(SqlUpdateRequest request, Tuple tuple)
+    public int ExecutePersistRequest(SqlPersistRequest request, Tuple tuple)
     {
       EnsureConnectionIsOpen();
-      using (var command = CreateUpdateCommand(request, tuple)) {
+      using (var command = CreatePersistCommand(request, tuple)) {
+        command.Transaction = Transaction;
+        return command.ExecuteNonQuery();
+      }
+    }
+
+    /// <summary>
+    /// Executes the batch update request in a single batch.
+    /// </summary>
+    /// <param name="requests">The requests.</param>
+    /// <returns>Number of modified rows.</returns>
+    public int ExecuteBatchPersistRequest(IEnumerable<Pair<SqlPersistRequest, Tuple>> requests)
+    {
+      EnsureConnectionIsOpen();
+      using (var command = CreateBatchPersistCommand(requests)) {
         command.Transaction = Transaction;
         return command.ExecuteNonQuery();
       }
@@ -198,113 +213,51 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Persist(IEnumerable<EntityStateAction> entityStateActions)
     {
-      var batched = entityStateActions.Select(entityStateAction =>
-        new Triplet<SqlUpdateRequest, EntityStateAction, Tuple>(
-          CreateRequest(entityStateAction),
-          entityStateAction,
-          CloneValue(entityStateAction)))
-        .Batch(0, 1, 1);
+      var batched = entityStateActions
+        .Select<EntityStateAction, Pair<SqlPersistRequest, Tuple>>(CreatePersistRequest)
+        .Batch(0, 100, 100);
       foreach (var batch in batched)
-        PersistBatch(batch);
+        ExecuteBatchPersistRequest(batch);
     }
 
-    private SqlUpdateRequest CreateRequest(EntityStateAction entityStateAction)
+    private Pair<SqlPersistRequest, Tuple> CreatePersistRequest(EntityStateAction action)
     {
-      switch (entityStateAction.PersistAction) {
-        case PersistAction.Insert:
-          return CreateInsert(entityStateAction.EntityState);
-        case PersistAction.Update:
-          return CreateUpdate(entityStateAction.EntityState);
-        case PersistAction.Remove:
-          return CreateRemove(entityStateAction.EntityState);
-        default:
-          throw new ArgumentOutOfRangeException("entityStateAction.PersistAction");
-      }
-    }
-
-    private static Tuple CloneValue(EntityStateAction entityStateAction)
-    {
-      switch (entityStateAction.PersistAction) {
-        case PersistAction.Insert:
-        case PersistAction.Update:
-          return entityStateAction.EntityState.Tuple.ToRegular();
-        case PersistAction.Remove:
-          return entityStateAction.EntityState.Key.Value;
-        default:
-          throw new ArgumentOutOfRangeException("entityStateAction.PersistAction");
+      switch (action.PersistAction) {
+      case PersistAction.Insert:
+        return CreateInsertRequest(action);
+      case PersistAction.Update:
+        return CreateUpdateRequest(action);
+      case PersistAction.Remove:
+        return CreateRemoveRequest(action);
+      default:
+        throw new ArgumentOutOfRangeException("action.PersistAction");
       }
     }
     
-    private SqlUpdateRequest CreateInsert(EntityState state)
+    private Pair<SqlPersistRequest, Tuple> CreateInsertRequest(EntityStateAction action)
     {
-      var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Insert, state.Type);
-      return DomainHandler.RequestCache
-        .GetValue(task, _task => DomainHandler.RequestBuilder.Build(_task));
+      var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Insert, action.EntityState.Type);
+      var request = DomainHandler.GetPersistRequest(task);
+      var tuple = action.EntityState.Tuple.ToRegular();
+      return new Pair<SqlPersistRequest, Tuple>(request, tuple);
     }
 
-    private SqlUpdateRequest CreateUpdate(EntityState state)
+    private Pair<SqlPersistRequest, Tuple> CreateUpdateRequest(EntityStateAction action)
     {
-      var fieldStateMap = state.GetDifferentialTuple().Difference
+      var fieldStateMap = action.EntityState.GetDifferentialTuple().Difference
         .GetFieldStateMap(TupleFieldState.Available);
-      var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Update, state.Type, fieldStateMap);
-      return DomainHandler.RequestCache.GetValue(task, _task => DomainHandler.RequestBuilder.Build(_task));
+      var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Update, action.EntityState.Type, fieldStateMap);
+      var request = DomainHandler.GetPersistRequest(task);
+      var tuple = action.EntityState.Tuple.ToRegular();
+      return new Pair<SqlPersistRequest, Tuple>(request, tuple);
     }
 
-    private SqlUpdateRequest CreateRemove(EntityState state)
+    private Pair<SqlPersistRequest, Tuple> CreateRemoveRequest(EntityStateAction action)
     {
-      var task = new SqlRequestBuilderTask(SqlUpdateRequestKind.Remove, state.Type);
-      return DomainHandler.RequestCache.GetValue(task, _task => DomainHandler.RequestBuilder.Build(_task));
-    }
-
-    private void PersistBatch(
-      IEnumerable<Triplet<SqlUpdateRequest, EntityStateAction, Tuple>> requestTriplets)
-    {
-      foreach (var requestTriplet in requestTriplets) {
-        switch (requestTriplet.Second.PersistAction) {
-          case PersistAction.Insert:
-            ExecuteInsert(requestTriplet.First, requestTriplet.Second.EntityState.Type,
-              requestTriplet.Third);
-            break;
-          case PersistAction.Update:
-            ExecuteUpdate(requestTriplet.First, requestTriplet.Second.EntityState.Type,
-              requestTriplet.Third);
-            break;
-          case PersistAction.Remove:
-            ExecuteRemove(requestTriplet.First, requestTriplet.Second.EntityState.Type,
-              requestTriplet.Third);
-            break;
-          default:
-            throw new ArgumentOutOfRangeException("requestTriplet.Third");
-        }
-      }
-    }
-
-    private void ExecuteInsert(SqlUpdateRequest request, TypeInfo typeInfo, Tuple value)
-    {
-      int rowsAffected = ExecuteUpdateRequest(request, value);
-      if (rowsAffected!=request.ExpectedResult)
-        throw new InvalidOperationException(
-          string.Format(Strings.ExErrorOnInsert, typeInfo.Name, rowsAffected,
-            request.ExpectedResult));
-    }
-
-    private void ExecuteUpdate(SqlUpdateRequest request, TypeInfo typeInfo, Tuple value)
-    {
-      int rowsAffected = ExecuteUpdateRequest(request, value);
-      if (rowsAffected!=request.ExpectedResult)
-        throw new InvalidOperationException(
-          string.Format(Strings.ExErrorOnUpdate, typeInfo.Name, rowsAffected,
-            request.ExpectedResult));
-    }
-
-    private void ExecuteRemove(SqlUpdateRequest request, TypeInfo typeInfo, Tuple value)
-    {
-      int rowsAffected = ExecuteUpdateRequest(request, value);
-      if (rowsAffected!=request.ExpectedResult)
-        throw new InvalidOperationException(
-          string.Format(
-            rowsAffected==0 ? Strings.ExInstanceNotFound : Strings.ExInstanceMultipleResults,
-            typeInfo.Name));
+      var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Remove, action.EntityState.Type);
+      var request = DomainHandler.GetPersistRequest(task);
+      var tuple = action.EntityState.Key.Value;
+      return new Pair<SqlPersistRequest, Tuple>(request, tuple);
     }
 
     #endregion
@@ -318,7 +271,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>A created command.</returns>
     protected DbCommand CreateScalarCommand(SqlScalarRequest request)
     {
-      var command = Connection.CreateCommand();
+      var command = connection.CreateCommand();
       command.CommandText = request.Compile(DomainHandler).GetCommandText();
       return command;
     }
@@ -330,7 +283,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>A created command.</returns>
     protected DbCommand CreateFetchCommand(SqlFetchRequest request)
     {
-      var command = Connection.CreateCommand();
+      var command = connection.CreateCommand();
       var compilationResult = request.Compile(DomainHandler);
       var variantKeys = new List<object>();
       foreach (var binding in request.ParameterBindings) {
@@ -347,24 +300,59 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <summary>
-    /// Creates <see cref="DbCommand"/> from specified <see cref="SqlUpdateRequest"/>.
+    /// Creates <see cref="DbCommand"/> from specified <see cref="SqlPersistRequest"/>.
     /// </summary>
     /// <param name="request">The request.</param>
     /// <param name="value">Tuple that contain values for update parameters.</param>
     /// <returns>A created command.</returns>
-    protected DbCommand CreateUpdateCommand(SqlUpdateRequest request, Tuple value)
+    protected DbCommand CreatePersistCommand(SqlPersistRequest request, Tuple value)
     {
-      var command = Connection.CreateCommand();
-      var compilationResult = request.Compile(DomainHandler);
+      var command = connection.CreateCommand();
+      command.CommandText = FillCommandParameters(command, request, value, "p");
+      return command;
+    }
 
+    /// <summary>
+    /// Creates <see cref="DbCommand"/> from specified sequence of <see cref="SqlPersistRequest"/> and correnponding tuples.
+    /// </summary>
+    /// <param name="requests">The requests.</param>
+    /// <returns>A created command.</returns>
+    protected DbCommand CreateBatchPersistCommand(IEnumerable<Pair<SqlPersistRequest, Tuple>> requests)
+    {
+      var command = connection.CreateCommand();
+      var commandText = new StringBuilder();
+      var requestNumber = 0;
+      foreach (var request in requests) {
+        var currentCommandText = FillCommandParameters(command, request.First, request.Second,
+          string.Format("p{0}_", requestNumber));
+        commandText.AppendLine(currentCommandText);
+        requestNumber++;
+      }
+      command.CommandText = commandText.ToString();
+      return command;
+    }
+
+    /// <summary>
+    /// Fills the command parameters to the specified command.
+    /// </summary>
+    /// <param name="command">The command.</param>
+    /// <param name="request">The request.</param>
+    /// <param name="value">The value.</param>
+    /// <param name="parameterNamePrefix">The parameter name prefix.</param>
+    /// <returns>Command text to execute.</returns>
+    protected string FillCommandParameters(DbCommand command,
+      SqlPersistRequest request, Tuple value, string parameterNamePrefix)
+    {
+      int parameterIndex = 0;
+      var parameterNames = new Dictionary<object, string>();
+      var compilationResult = request.Compile(DomainHandler);
       foreach (var binding in request.ParameterBindings) {
         object parameterValue = value.IsNull(binding.FieldIndex) ? null : value.GetValue(binding.FieldIndex);
-        string parameterName = compilationResult.GetParameterName(binding.ParameterReference.Parameter);
+        string parameterName = parameterNamePrefix + parameterIndex++;
+        parameterNames.Add(binding.ParameterReference.Parameter, parameterName);
         AddParameter(command, parameterName, parameterValue, binding.TypeMapping);
       }
-
-      command.CommandText = compilationResult.GetCommandText();
-      return command;
+      return compilationResult.GetCommandText(parameterNames);
     }
 
     /// <summary>
@@ -389,7 +377,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Ensures the connection is open.
     /// </summary>
-    public void EnsureConnectionIsOpen()
+    protected void EnsureConnectionIsOpen()
     {
       if (connection!=null && connection.State==ConnectionState.Open)
         return;

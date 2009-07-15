@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public IndexInfo PrimaryIndex { get; private set; }
 
-    public Dictionary<ColumnInfo, SqlUpdateParameterBinding> ParameterBindings { get; private set; }
+    public Dictionary<ColumnInfo, SqlPersistParameterBinding> ParameterBindings { get; private set; }
 
 
     // Constructors
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.Sql
           return 0;});
       AffectedIndexes = new ReadOnlyList<IndexInfo>(affectedIndexes);
       PrimaryIndex = Task.Type.Indexes.PrimaryIndex;
-      ParameterBindings = new Dictionary<ColumnInfo, SqlUpdateParameterBinding>();
+      ParameterBindings = new Dictionary<ColumnInfo, SqlPersistParameterBinding>();
     }
   }
 }

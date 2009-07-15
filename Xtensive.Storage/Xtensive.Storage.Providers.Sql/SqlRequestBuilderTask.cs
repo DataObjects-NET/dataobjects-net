@@ -27,10 +27,10 @@ namespace Xtensive.Storage.Providers.Sql
     public BitArray FieldMap { get; private set; }
 
     /// <summary>
-    /// Gets the <see cref="SqlUpdateRequestKind"/>.
+    /// Gets the <see cref="SqlPersistRequestKind"/>.
     /// </summary>
     /// <value></value>
-    public SqlUpdateRequestKind Kind { get; private set; }
+    public SqlPersistRequestKind Kind { get; private set; }
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
@@ -74,13 +74,13 @@ namespace Xtensive.Storage.Providers.Sql
     
     // Constructors
 
-    internal SqlRequestBuilderTask(SqlUpdateRequestKind kind, TypeInfo type, BitArray fieldMap)
+    internal SqlRequestBuilderTask(SqlPersistRequestKind kind, TypeInfo type, BitArray fieldMap)
       : this(kind, type)
     {
       FieldMap = fieldMap;
     }
 
-    internal SqlRequestBuilderTask(SqlUpdateRequestKind kind, TypeInfo type)
+    internal SqlRequestBuilderTask(SqlPersistRequestKind kind, TypeInfo type)
     {
       Kind = kind;
       Type = type;

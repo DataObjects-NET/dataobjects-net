@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
+using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Exceptions;
 using Xtensive.Sql.Tests.MsSql;
@@ -123,6 +125,32 @@ namespace Xtensive.Sql.Tests.MsSql
           Assert.IsTrue(reader.Read());
           Assert.AreEqual(2, reader.GetInt32(0));
         }
+      }
+    }
+
+    [Test]
+    public void DelayedParameterNamesTest()
+    {
+      var parameterKey = new object();
+      var select = SqlDml.Select(SqlDml.ParameterRef(parameterKey));
+      var result = sqlConnection.Driver.Compile(select, new SqlCompilerOptions {DelayParameterNameAssignment = true});
+      using (var command = sqlConnection.CreateCommand()) {
+        command.CommandText = result.GetCommandText(new Dictionary<object, string> {{parameterKey, "xxx"}});
+        var parameter = command.CreateParameter();
+        parameter.ParameterName = "xxx";
+        parameter.DbType = DbType.Int32;
+        parameter.Value = (int) 'x';
+        command.Parameters.Add(parameter);
+        Assert.AreEqual((int) 'x', command.ExecuteScalar());
+      }
+      using (var command = sqlConnection.CreateCommand()) {
+        command.CommandText = result.GetCommandText(new Dictionary<object, string> {{parameterKey, "yyy"}});
+        var parameter = command.CreateParameter();
+        parameter.ParameterName = "yyy";
+        parameter.DbType = DbType.Int32;
+        parameter.Value = (int) 'y';
+        command.Parameters.Add(parameter);
+        Assert.AreEqual((int) 'y', command.ExecuteScalar());
       }
     }
   }

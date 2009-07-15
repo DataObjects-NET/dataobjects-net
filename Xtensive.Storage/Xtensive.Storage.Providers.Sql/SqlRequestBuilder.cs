@@ -4,7 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.28
 
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -24,35 +26,35 @@ namespace Xtensive.Storage.Providers.Sql
     /// Builds the request.
     /// </summary>
     /// <param name="task">The request builder task.</param>
-    /// <returns><see cref="SqlUpdateRequest"/> instance for the specified <paramref name="task"/>.</returns>
-    public SqlUpdateRequest Build(SqlRequestBuilderTask task)
+    /// <returns><see cref="SqlPersistRequest"/> instance for the specified <paramref name="task"/>.</returns>
+    public SqlPersistRequest Build(SqlRequestBuilderTask task)
     {
       var context = new SqlRequestBuilderContext(task, SqlDml.Batch());
       switch (task.Kind) {
-      case SqlUpdateRequestKind.Insert:
+      case SqlPersistRequestKind.Insert:
         BuildInsertRequest(context);
         break;
-      case SqlUpdateRequestKind.Remove:
+      case SqlPersistRequestKind.Remove:
         BuildRemoveRequest(context);
         break;
-      case SqlUpdateRequestKind.Update:
+      case SqlPersistRequestKind.Update:
         BuildUpdateRequest(context);
         break;
       }
 
-      var bindings = new List<SqlUpdateParameterBinding>();
+      var bindings = new List<SqlPersistParameterBinding>();
       
       foreach (var pair in context.ParameterBindings)
         bindings.Add(pair.Value);
 
-      return new SqlUpdateRequest(context.Batch, GetExpectedResult(context.Batch), bindings);
+      return new SqlPersistRequest(context.Batch, GetExpectedResult(context.Batch), bindings);
     }
 
-    protected virtual int GetExpectedResult(SqlBatch request)
+    protected virtual int? GetExpectedResult(SqlBatch request)
     {
       return request.Count;
     }
-
+    
     protected virtual void BuildInsertRequest(SqlRequestBuilderContext context)
     {
       foreach (IndexInfo index in context.AffectedIndexes) {
@@ -63,10 +65,10 @@ namespace Xtensive.Storage.Providers.Sql
           ColumnInfo column = index.Columns[i];
           int fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0) {
-            SqlUpdateParameterBinding binding;
+            SqlPersistParameterBinding binding;
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
               TypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
-              binding = new SqlUpdateParameterBinding(fieldIndex, typeMapping);
+              binding = new SqlPersistParameterBinding(fieldIndex, typeMapping);
               context.ParameterBindings.Add(column, binding);
             }
             query.Values[table[column.Name]] = binding.ParameterReference;
@@ -86,10 +88,10 @@ namespace Xtensive.Storage.Providers.Sql
           ColumnInfo column = index.Columns[i];
           int fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0 && context.Task.FieldMap[fieldIndex]) {
-            SqlUpdateParameterBinding binding;
+            SqlPersistParameterBinding binding;
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
               TypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
-              binding = new SqlUpdateParameterBinding(fieldIndex, typeMapping);
+              binding = new SqlPersistParameterBinding(fieldIndex, typeMapping);
               context.ParameterBindings.Add(column, binding);
             }
             query.Values[table[column.Name]] = binding.ParameterReference;
@@ -120,10 +122,10 @@ namespace Xtensive.Storage.Providers.Sql
       SqlExpression expression = null;
       foreach (ColumnInfo column in context.PrimaryIndex.KeyColumns.Keys) {
         int fieldIndex = GetFieldIndex(context.Task.Type, column);
-        SqlUpdateParameterBinding binding;
+        SqlPersistParameterBinding binding;
         if (!context.ParameterBindings.TryGetValue(column, out binding)) {
           TypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
-          binding = new SqlUpdateParameterBinding(fieldIndex, typeMapping);
+          binding = new SqlPersistParameterBinding(fieldIndex, typeMapping);
           context.ParameterBindings.Add(column, binding);
         }
         expression &= table[column.Name]==binding.ParameterReference;
@@ -145,7 +147,6 @@ namespace Xtensive.Storage.Providers.Sql
       DomainHandler = Handlers.DomainHandler as DomainHandler;
     }
     
-
     // Constructors
 
     /// <summary>

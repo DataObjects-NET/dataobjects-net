@@ -1,27 +1,50 @@
-// Copyright (C) 2007 Xtensive LLC.
+// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2009.07.15
 
-using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Compiler
 {
-  [Flags]
-  public enum SqlCompilerOptions
+  /// <summary>
+  /// </summary>
+  public sealed class SqlCompilerOptions
   {
     /// <summary>
-    /// None of options are active
+    /// Gets the default <see cref="SqlCompilerOptions"/>.
     /// </summary>
-    None = 0x0,
+    public static readonly SqlCompilerOptions Default = new SqlCompilerOptions();
 
     /// <summary>
-    /// Default set of options.
+    /// Gets or sets a value indicating whether full automatic aliasing is enforced.
     /// </summary>
-    Default = ForcedAliasing,
+    /// <value>
+    /// <see langword="true"/> if full automatic aliasing is enforced; otherwise, <see langword="false"/>.
+    /// </value>
+    public bool ForcedAliasing { get; set; }
 
     /// <summary>
-    /// Should forced (full automatic) aliasing be applied during compilation?
+    /// Gets or sets the parameter prefix.
     /// </summary>
-    ForcedAliasing = 0x1,
+    /// <value>The parameter prefix.</value>
+    public string ParameterPrefix { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether parameter name assignment is delayed.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> if parameter name assignment is delayed; otherwise, <see langword="false"/>.
+    /// </value>
+    public bool DelayParameterNameAssignment { get; set; }
+
+    /// <summary>
+    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public SqlCompilerOptions()
+    {
+      ForcedAliasing = true;
+    }
   }
 }

@@ -35,38 +35,66 @@ namespace Xtensive.Sql.Compiler
     }
 
     /// <summary>
-    /// Gets the textual representation of Sql.Dom statement compilation.
+    /// Gets the textual representation of SQL DOM statement compilation.
     /// </summary>
-    /// <value>The Sql text command.</value>
+    /// <value>The SQL text command.</value>
     public string GetCommandText()
     {
-      if (resultText != null)
+      if (resultText!=null)
         return resultText;
-      return new VariantCompiler(resultNode).Compile();
+      return PostCompiler.Compile(resultNode, null, null);
     }
 
     /// <summary>
-    /// Gets the textual representation of Sql.Dom statement compilation.
+    /// Gets the textual representation of SQL DOM statement compilation.
     /// All variants are chosen according to a <paramref name="variantKeys"/>.
     /// </summary>
     /// <param name="variantKeys">Keys that determine which variants are to be used.</param>
-    /// <returns></returns>
+    /// <returns>he SQL text command.</returns>
     public string GetCommandText(IEnumerable<object> variantKeys)
     {
-      if (resultText != null)
+      if (resultText!=null)
         return resultText;
-      return new VariantCompiler(resultNode, variantKeys).Compile();
+      return PostCompiler.Compile(resultNode, variantKeys, null);
+    }
+
+    /// <summary>
+    /// Gets the textual representation of SQL DOM statement compilation.
+    /// All delayed parameter names are choosen according to a <paramref name="parameterNameMapping"/>.
+    /// </summary>
+    /// <param name="parameterNameMapping">A dictionary that assigns for each parameter.</param>
+    /// <returns>The SQL text command.</returns>
+    public string GetCommandText(IDictionary<object, string> parameterNameMapping)
+    {
+      if (resultText!=null)
+        return resultText;
+      return PostCompiler.Compile(resultNode, null, parameterNameMapping);
+    }
+
+    /// <summary>
+    /// Gets the textual representation of SQL DOM statement compilation.
+    /// All delayed parameter names are choosen according to a <paramref name="parameterNameMapping"/>.
+    /// All variants are chosen according to a <paramref name="variantKeys"/>.
+    /// </summary>
+    /// <param name="variantKeys">Keys that determine which variants are to be used.</param>
+    /// <param name="parameterNameMapping">A dictionary that assigns for each parameter.</param>
+    /// <returns>The SQL text command.</returns>
+    public string GetCommandText(IEnumerable<object> variantKeys, IDictionary<object, string> parameterNameMapping)
+    {
+      if (resultText!=null)
+        return resultText;
+      return PostCompiler.Compile(resultNode, variantKeys, parameterNameMapping);
     }
 
     internal SqlCompilationResult(Node result, IDictionary<object, string> parameterNames)
     {
-      if (result == null) {
+      if (result==null) {
         resultText = string.Empty;
         return;
       }
-      var text = result as TextNode;
-      if (text != null && text.Next == null)
-        resultText = text.Text;
+      var textNode = result as TextNode;
+      if (textNode!=null && textNode.Next==null)
+        resultText = textNode.Text;
       else
         resultNode = result;
       this.parameterNames = parameterNames;

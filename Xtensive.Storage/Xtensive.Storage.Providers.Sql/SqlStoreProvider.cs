@@ -46,19 +46,19 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlTableRef tableRef = SqlDml.TableRef(Table);
       SqlInsert insert = SqlDml.Insert(tableRef);
-      var bindings = new List<SqlUpdateParameterBinding>();
+      var bindings = new List<SqlPersistParameterBinding>();
       int i = 0;
       foreach (SqlTableColumn column in tableRef.Columns) {
         int fieldIndex = i;
         TypeMapping typeMapping = ((DomainHandler) handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(Header.Columns[i].Type);
-        var binding = new SqlUpdateParameterBinding(fieldIndex, typeMapping);
+        var binding = new SqlPersistParameterBinding(fieldIndex, typeMapping);
         insert.Values[column] = binding.ParameterReference;
         bindings.Add(binding);
         i++;
       }
-      SqlUpdateRequest updateRequest = new SqlUpdateRequest(insert, -1, bindings);
+      var persistRequest = new SqlPersistRequest(insert, null, bindings);
       foreach (Tuple tuple in Source)
-        sessionHandler.ExecuteUpdateRequest(updateRequest, tuple);
+        sessionHandler.ExecutePersistRequest(persistRequest, tuple);
     }
 
     protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)

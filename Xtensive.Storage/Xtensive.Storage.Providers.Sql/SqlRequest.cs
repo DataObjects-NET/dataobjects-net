@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the statement.
     /// </summary>
-    public ISqlCompileUnit Statement { get; private set; }
+    protected ISqlCompileUnit Statement { get; private set; }
 
     /// <summary>
     /// Compiles the request using <see cref="SqlDriver"/> from specified <see cref="DomainHandler"/>.
@@ -30,7 +30,18 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns></returns>
     public SqlCompilationResult Compile(DomainHandler domainHandler)
     {
-      return compilationResult.GetValue((driver, statement) => driver.Compile(statement), domainHandler.Driver, Statement);
+      return compilationResult.GetValue(
+        (driver, _this) => driver.Compile(_this.Statement, _this.GetCompilerOptions()),
+        domainHandler.Driver, this);
+    }
+
+    /// <summary>
+    /// Gets the compiler options.
+    /// </summary>
+    /// <returns>Compiler options specific to this request.</returns>
+    protected virtual SqlCompilerOptions GetCompilerOptions()
+    {
+      return SqlCompilerOptions.Default;
     }
 
     // Constructors

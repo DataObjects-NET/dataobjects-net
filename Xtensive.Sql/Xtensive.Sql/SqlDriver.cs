@@ -48,12 +48,25 @@ namespace Xtensive.Sql
     /// <summary>
     /// Compiles the specified statement into SQL command representation.
     /// </summary>
-    /// <param name="unit">The Sql.Dom statement.</param>
-    /// <returns>Results of compilation.</returns>
-    public SqlCompilationResult Compile(ISqlCompileUnit unit)
+    /// <param name="statement">The Sql.Dom statement.</param>
+    /// <returns>Result of compilation.</returns>
+    public SqlCompilationResult Compile(ISqlCompileUnit statement)
     {
-      ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
-      return CreateCompiler().Compile(unit);
+      ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
+      return CreateCompiler().Compile(statement, SqlCompilerOptions.Default);
+    }
+
+    /// <summary>
+    /// Compiles the specified statement into SQL command representation.
+    /// </summary>
+    /// <param name="statement">The Sql.Dom statement.</param>
+    /// <param name="options">The options of compilation.</param>
+    /// <returns>Result of compilation.</returns>
+    public SqlCompilationResult Compile(ISqlCompileUnit statement, SqlCompilerOptions options)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
+      ArgumentValidator.EnsureArgumentNotNull(options, "options");
+      return CreateCompiler().Compile(statement, options);
     }
 
     /// <summary>

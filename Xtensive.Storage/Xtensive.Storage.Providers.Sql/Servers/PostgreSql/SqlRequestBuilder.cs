@@ -11,9 +11,9 @@ namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
   public class SqlRequestBuilder : Sql.SqlRequestBuilder
   {
     /// <inheritdoc/>
-    protected override int GetExpectedResult(SqlBatch request)
+    protected override int? GetExpectedResult(SqlBatch request)
     {
-      return 1;
+      return null;
     }
   }
 }

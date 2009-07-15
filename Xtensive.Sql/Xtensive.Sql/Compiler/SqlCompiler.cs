@@ -17,16 +17,14 @@ namespace Xtensive.Sql.Compiler
 {
   public class SqlCompiler : ISqlVisitor
   {
+    private const string DefaultParameterNamePrefix = "p";
+
     protected readonly SqlTranslator translator;
+
     protected SqlCompilerOptions options;
     protected SqlCompilerContext context;
 
-    public SqlCompilationResult Compile(ISqlCompileUnit unit)
-    {
-      return Compile(unit, SqlCompilerOptions.Default);
-    }
-
-    private SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerOptions options)
+    public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerOptions options)
     {
       ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
       this.options = options;
@@ -35,13 +33,15 @@ namespace Xtensive.Sql.Compiler
       OnEndCompile();
       return new SqlCompilationResult(
         new Compressor().Compress(context.Output),
-        context.ParameterNames
-        );
+        context.ParameterNames);
     }
 
     protected virtual void OnBeginCompile()
     {
       context = new SqlCompilerContext();
+      context.ParameterPrefix = string.IsNullOrEmpty(options.ParameterPrefix)
+        ? DefaultParameterNamePrefix
+        : options.ParameterPrefix;
     }
 
     protected virtual void OnEndCompile()
@@ -842,7 +842,14 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlParameterRef node)
     {
-      context.AppendText(translator.Translate(context, node));
+      if (options.DelayParameterNameAssignment)
+        context.AppendHole(translator.ParameterPrefix, node.Parameter);
+      else {
+        var name = string.IsNullOrEmpty(node.Name)
+          ? context.GetParameterName(node.Parameter)
+          : node.Name;
+        context.AppendText(translator.ParameterPrefix + name);
+      }
     }
 
     public virtual void Visit(SqlQueryRef node)
@@ -890,7 +897,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlSelect node)
     {
-      if ((options & SqlCompilerOptions.ForcedAliasing) > 0)
+      if (options.ForcedAliasing)
         context.AliasProvider.Enable();
       using (context.EnterNode(node)) {
         context.AppendText(translator.Translate(context, node, SelectSection.Entry));

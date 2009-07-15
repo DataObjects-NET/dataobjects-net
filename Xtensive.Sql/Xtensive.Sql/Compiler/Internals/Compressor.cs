@@ -31,7 +31,7 @@ namespace Xtensive.Sql.Compiler.Internals
 
     private void FlushBuffer()
     {
-      if (buffer == null)
+      if (buffer==null)
         return;
       string text = buffer.ToString();
       buffer = null;
@@ -42,7 +42,7 @@ namespace Xtensive.Sql.Compiler.Internals
    
     private void AppendNode(Node node)
     {
-      if (current == null) {
+      if (current==null) {
         current = node;
         root = node;
       }
@@ -129,13 +129,13 @@ namespace Xtensive.Sql.Compiler.Internals
     public override void Visit(NodeDelimiter node)
     {
       switch (node.Type) {
-        case DelimiterType.Column:
-          AppendLine(node.Text);
-          AppendIndent();
-          break;
-        default:
-          Append(node.Text);
-          break;
+      case DelimiterType.Column:
+        AppendLine(node.Text);
+        AppendIndent();
+        break;
+      default:
+        Append(node.Text);
+        break;
       }
     }
 
@@ -146,6 +146,13 @@ namespace Xtensive.Sql.Compiler.Internals
       variant.Main = VisitVariantNode(node.Main);
       variant.Alternative = VisitVariantNode(node.Alternative);
       AppendNode(variant);
+      CreateBuffer();
+    }
+
+    public override void Visit(HoleNode node)
+    {
+      FlushBuffer();
+      AppendNode(new HoleNode(node.Prefix, node.Key));
       CreateBuffer();
     }
 
