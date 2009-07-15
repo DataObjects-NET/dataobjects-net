@@ -173,15 +173,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       HashSet<SqlFetchParameterBinding> bindings;
       var predicate = ProcessExpression(provider.Predicate, out bindings, query);
-      if (predicate.NodeType==SqlNodeType.Literal) {
-        var value = predicate as SqlLiteral<bool>;
-        if (value!=null) {
-          if (!value.Value)
-            query.Where &= (1==0);
-        }
-      }
-      else
-        query.Where &= predicate;
+      query.Where &= predicate;
 
       return new SqlProvider(provider, query, Handlers, bindings, source);
     }
@@ -232,13 +224,6 @@ namespace Xtensive.Storage.Providers.Sql
       HashSet<SqlFetchParameterBinding> bindings;
 
       var predicate = ProcessExpression(provider.Predicate, out bindings, leftQuery, rightQuery);
-      var value = predicate as SqlLiteral<bool>;
-        if (value!=null) {
-          if (value.Value)
-            predicate = SqlDml.Literal(1) == 1;
-          else
-            predicate = SqlDml.Literal(1) == 0;
-        }
       var joinedTable = SqlDml.Join(
         provider.JoinType == JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
         leftQuery,
