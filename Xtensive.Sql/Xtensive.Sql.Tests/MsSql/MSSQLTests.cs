@@ -3667,7 +3667,7 @@ namespace Xtensive.Sql.Tests.MsSql
     [Test]
     public void Test197()
     {
-      string nativeSql = "Select Limit 10 * "
+      string nativeSql = "Select Top 10 * "
         +"From (Person.StateProvince a "
           +"inner hash join Person.CountryRegion b on a.StateProvinceCode=b.CountryRegionCode)"
             +"inner loop join "
@@ -3698,7 +3698,7 @@ namespace Xtensive.Sql.Tests.MsSql
     [Test]
     public void Test198()
     {
-      string nativeSql = "Select Limit 10 * "
+      string nativeSql = "Select Top 10 * "
         +"From (Person.StateProvince a "
           +"inner hash join Person.CountryRegion b on a.StateProvinceCode=b.CountryRegionCode)"
             +"inner loop join "
@@ -3728,7 +3728,7 @@ namespace Xtensive.Sql.Tests.MsSql
     [Test]
     public void Test199()
     {
-      string nativeSql = "Select Limit 10 EmailAddress "
+      string nativeSql = "Select Top 10 EmailAddress "
         +"From Person.Contact a With (RepeatableRead, RowLock, Index(IX_Contact_EmailAddress)) "
           +"Where EmailAddress Like 'a%'";
 
@@ -3746,7 +3746,7 @@ namespace Xtensive.Sql.Tests.MsSql
     [Test]
     public void Test200()
     {
-      string nativeSql = "Select Limit 10 EmailAddress "
+      string nativeSql = "Select Top 10 EmailAddress "
         +"From Person.Contact a With (RepeatableRead, RowLock, Index(IX_Contact_EmailAddress)) "
           +"Where EmailAddress Like 'a%' "
             +"OPTION (FAST 10, KEEP PLAN, ROBUST PLAN)";
@@ -3767,11 +3767,11 @@ namespace Xtensive.Sql.Tests.MsSql
     [Test]
     public void Test201()
     {
-      string nativeSql = "Select Limit 10 EmailAddress "
+      string nativeSql = "Select Top 10 EmailAddress "
         +"From Person.Contact a "
           +"Where EmailAddress Like 'a%' "
             + "UNION ALL "
-              +"Select Limit 10 EmailAddress "
+              +"Select Top 10 EmailAddress "
                 +"From Person.Contact b "
                   +"Where EmailAddress Like 'b%' ";
 

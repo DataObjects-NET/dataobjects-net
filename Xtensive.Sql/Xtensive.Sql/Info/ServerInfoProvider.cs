@@ -117,11 +117,6 @@ namespace Xtensive.Sql.Info
     public abstract VersionInfo GetVersionInfo();
 
     /// <summary>
-    /// Gets the supported server entities.
-    /// </summary>
-    public abstract ServerEntities GetEntities();
-
-    /// <summary>
     /// Gets the supported isolation levels.
     /// </summary>
     public abstract IsolationLevels GetIsolationLevels();

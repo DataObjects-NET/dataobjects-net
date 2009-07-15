@@ -51,18 +51,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return info;
     }
 
-    public override ServerEntities GetEntities()
-    {
-      return ServerEntities.Constraints
-        | ServerEntities.Domains
-        | ServerEntities.Indexes
-        | ServerEntities.Schemas
-        | ServerEntities.Sequences
-        | ServerEntities.Triggers
-        | ServerEntities.UserDefinedFunctions
-        | ServerEntities.UserDefinedTypes;
-    }
-
     public override EntityInfo GetSchemaInfo()
     {
       var info = new EntityInfo();

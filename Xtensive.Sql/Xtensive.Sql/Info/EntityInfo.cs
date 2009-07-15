@@ -14,7 +14,6 @@ namespace Xtensive.Sql.Info
   {
     private int maxIdentifierLength;
     private DdlStatements allowedDdlStatements;
-    public static EntityInfo Empty = new EntityInfo();
 
     /// <summary>
     /// Gets or sets maximal identifier length.

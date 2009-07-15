@@ -7,7 +7,6 @@ using System.Data;
 using System.Globalization;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
-using Xtensive.Sql.SqlServer;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.SqlServer.v2005
@@ -261,21 +260,6 @@ namespace Xtensive.Sql.SqlServer.v2005
       return versionInfo;
     }
 
-    public override ServerEntities GetEntities()
-    {
-      var entities =
-        ServerEntities.Collations |
-        ServerEntities.Constraints |
-        ServerEntities.Schemas |
-        ServerEntities.StoredProcedures |
-        ServerEntities.Synonyms |
-        ServerEntities.Filegroups |
-        ServerEntities.Triggers |
-        ServerEntities.UserDefinedFunctions |
-        ServerEntities.UserDefinedTypes;
-      return entities;
-    }
-
     public override IsolationLevels GetIsolationLevels()
     {
       var levels =
@@ -289,12 +273,14 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     public override EntityInfo GetDomainInfo()
     {
-      return EntityInfo.Empty;
+      return new EntityInfo();
     }
 
     public override ConstraintInfo GetAssertionInfo()
     {
-      return EntityInfo.Empty as ConstraintInfo;
+      var constriantInfo = new ConstraintInfo();
+      constriantInfo.Features = ConstraintFeatures.None;
+      return constriantInfo;
     }
 
     public override int GetStringIndexingBase()

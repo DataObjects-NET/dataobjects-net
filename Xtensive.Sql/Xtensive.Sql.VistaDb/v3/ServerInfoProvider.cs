@@ -36,7 +36,7 @@ namespace Xtensive.Sql.VistaDb.v3
     /// <returns></returns>
     public override ConstraintInfo GetPrimaryKeyInfo()
     {
-      return EntityInfo.Empty as ConstraintInfo;
+      return new EntityInfo() as ConstraintInfo;
     }
 
     public override EntityInfo GetDatabaseInfo()
@@ -72,7 +72,7 @@ namespace Xtensive.Sql.VistaDb.v3
     /// <returns></returns>
     public override ReferenceConstraintInfo GetReferentialConstraintInfo()
     {
-      return EntityInfo.Empty as ReferenceConstraintInfo;
+      return new EntityInfo() as ReferenceConstraintInfo;
     }
 
 //    public ConstraintInfo GetPrimaryKeyConstraintInfo()
@@ -119,22 +119,22 @@ namespace Xtensive.Sql.VistaDb.v3
 
     public override TemporaryTableInfo GetTemporaryTableInfo()
     {
-      return EntityInfo.Empty as TemporaryTableInfo;
+      return new EntityInfo() as TemporaryTableInfo;
     }
 
     public override EntityInfo GetCollationInfo()
     {
-      return EntityInfo.Empty as EntityInfo;
+      return new EntityInfo() as EntityInfo;
     }
 
     public override EntityInfo GetCharacterSetInfo()
     {
-      return EntityInfo.Empty as EntityInfo;
+      return new EntityInfo() as EntityInfo;
     }
 
     public override EntityInfo GetTranslationInfo()
     {
-      return EntityInfo.Empty as EntityInfo;
+      return new EntityInfo() as EntityInfo;
     }
 
     public override EntityInfo GetTriggerInfo()
@@ -147,12 +147,12 @@ namespace Xtensive.Sql.VistaDb.v3
 
     public override EntityInfo GetStoredProcedureInfo()
     {
-      return EntityInfo.Empty as EntityInfo;
+      return new EntityInfo() as EntityInfo;
     }
 
     public override SequenceInfo GetSequenceInfo()
     {
-      return EntityInfo.Empty as SequenceInfo;
+      return new EntityInfo() as SequenceInfo;
     }
 
     public override ConstraintInfo GetUniqueConstraintInfo()
@@ -178,7 +178,7 @@ namespace Xtensive.Sql.VistaDb.v3
     /// <returns></returns>
     public override EntityInfo GetSchemaInfo()
     {
-      return EntityInfo.Empty as EntityInfo;
+      return new EntityInfo() as EntityInfo;
     }
 
     public override DataTypeCollection GetDataTypesInfo()
@@ -263,17 +263,6 @@ namespace Xtensive.Sql.VistaDb.v3
       return new VersionInfo(new Version(3, 0));
     }
 
-    public override ServerEntities GetEntities()
-    {
-      ServerEntities entities =
-        ServerEntities.Constraints
-          | ServerEntities.Indexes
-            | ServerEntities.Synonyms
-              | ServerEntities.Triggers;
-
-      return entities;
-    }
-
     public override IsolationLevels GetIsolationLevels()
     {
       IsolationLevels levels =
@@ -285,12 +274,12 @@ namespace Xtensive.Sql.VistaDb.v3
 
     public override EntityInfo GetDomainInfo()
     {
-      return EntityInfo.Empty as EntityInfo;
+      return new EntityInfo() as EntityInfo;
     }
     
     public override ConstraintInfo GetAssertionInfo()
     {
-      return EntityInfo.Empty as ConstraintInfo;
+      return new EntityInfo() as ConstraintInfo;
     }
 
     public override int GetStringIndexingBase()

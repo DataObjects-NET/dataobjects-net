@@ -18,11 +18,6 @@ namespace Xtensive.Sql.Info
     public VersionInfo Version { get; private set; }
 
     /// <summary>
-    /// Gets the server supported entities.
-    /// </summary>
-    public ServerEntities Entities { get; private set; }
-
-    /// <summary>
     /// Gets the server supported isolation levels.
     /// </summary>
     public IsolationLevels IsolationLevels { get; private set; }
@@ -183,7 +178,6 @@ namespace Xtensive.Sql.Info
       info.DataTypes = provider.GetDataTypesInfo();
       info.Database = provider.GetDatabaseInfo();
       info.Domain = provider.GetDomainInfo();
-      info.Entities = provider.GetEntities();
       info.ForeignKey = provider.GetReferentialConstraintInfo();
       info.Identity = provider.GetIdentityInfo();
       info.Index = provider.GetIndexInfo();
