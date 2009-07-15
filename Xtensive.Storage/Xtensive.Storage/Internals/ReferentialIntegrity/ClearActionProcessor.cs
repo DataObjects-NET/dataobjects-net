@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.01
 
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.ReferentialIntegrity
@@ -18,12 +19,12 @@ namespace Xtensive.Storage.ReferentialIntegrity
         case Multiplicity.ZeroToOne:
         case Multiplicity.OneToOne:
         case Multiplicity.ManyToOne:
-          referencingObject.SetFieldValue<Entity>(association.OwnerField, null);
+          AssociationActionProvider.ClearReferenceAction(association, referencingObject, null);
           break;
         case Multiplicity.ZeroToMany:
         case Multiplicity.OneToMany:
         case Multiplicity.ManyToMany:
-          referencingObject.GetProperty<EntitySetBase>(association.OwnerField.Name).Remove(referencedObject);
+          AssociationActionProvider.RemoveReferenceAction(association, referencingObject, referencedObject);
           break;
       }
     }
