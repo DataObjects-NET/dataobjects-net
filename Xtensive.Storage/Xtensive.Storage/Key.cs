@@ -5,14 +5,15 @@
 // Created:    2007.12.20
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
@@ -26,14 +27,23 @@ namespace Xtensive.Storage
   /// </remarks>
   /// <seealso cref="Entity.Key"/>
   [Serializable]
-  public sealed class Key : IEquatable<Key>
-  {    
+  public class Key : IEquatable<Key>
+  {
+    private static readonly Dictionary<TypeInfo, Func<Domain, TypeInfo, int[], Tuple, bool, bool, Key>>
+      keyConstructors = new Dictionary<TypeInfo, Func<Domain, TypeInfo, int[], Tuple, bool, bool, Key>>();
+    private static readonly Dictionary<Type, Type> genericSingleKeys = new Dictionary<Type, Type>();
+    private static readonly Dictionary<Pair<Type>, Type> genericDoubleKeys =
+      new Dictionary<Pair<Type>, Type>();
+    
     private readonly HierarchyInfo hierarchy;
     private Tuple value;
 
     [NonSerialized]
-    private int hashCode;
+    private bool isHashCodeCalculated;
 
+    [NonSerialized]
+    private int hashCode;
+    
     [NonSerialized]
     private TypeInfo entityType;
 
@@ -51,7 +61,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the key value.
     /// </summary>
-    public Tuple Value {
+    public virtual Tuple Value {
       get { return value; }
     }
 
@@ -98,6 +108,16 @@ namespace Xtensive.Storage
     /// </summary>
     public bool IsTypeCached {
       get { return entityType!=null ? true : false; }
+    }
+
+    protected int HashCode {
+      get {
+        if (isHashCodeCalculated)
+          return hashCode;
+        hashCode = CalculateHashCode();
+        isHashCodeCalculated = true;
+        return hashCode;
+      }
     }
 
     /// <summary>
@@ -172,11 +192,13 @@ namespace Xtensive.Storage
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      if (hashCode!=other.hashCode)
+      if (HashCode!=other.HashCode)
         return false;
       if (Hierarchy!=other.Hierarchy)
         return false;
-      return value.Equals(other.value);
+      if (other.GetType().IsGenericType)
+        return other.ValueEquals(this);
+      return ValueEquals(other);
     }
 
     /// <inheritdoc/>
@@ -208,7 +230,12 @@ namespace Xtensive.Storage
     [DebuggerStepThrough]
     public override int GetHashCode()
     {
-      return hashCode;
+      return HashCode;
+    }
+
+    protected virtual bool ValueEquals(Key other)
+    {
+      return value.Equals(other.value);
     }
 
     #endregion
@@ -235,7 +262,7 @@ namespace Xtensive.Storage
         var builder = new StringBuilder();
         builder.Append(hierarchy.Root.TypeId);
         builder.Append(":");
-        builder.Append(value.Format());
+        builder.Append(Value.Format());
         cachedFormatResult = builder.ToString();
       }
       return cachedFormatResult;
@@ -274,19 +301,17 @@ namespace Xtensive.Storage
     {
       return string.Format("{0}, {1}",
         IsTypeCached ? EntityType.Name : Hierarchy.Name,
-        value.ToRegular());
+        Value.ToRegular());
     }
 
-    private void CalculateHachCode()
+    protected virtual int CalculateHashCode()
     {
-      hashCode = value.GetHashCode() ^ hierarchy.GetHashCode();
+      return value.GetHashCode() ^ hierarchy.GetHashCode();
     }
 
     [OnDeserialized]
     private void OnDeserialized(StreamingContext context)
-    {
-      CalculateHachCode();
-    }
+    {}
 
     #region Create methods
 
@@ -545,8 +570,8 @@ namespace Xtensive.Storage
           value = entity.Key;
         var key = value as Key;
         if (key!=null) {
-          for (int keyIndex = 0; keyIndex < key.value.Count; keyIndex++)
-            tuple[tupleIndex++] = key.value[keyIndex];
+          for (int keyIndex = 0; keyIndex < key.Value.Count; keyIndex++)
+            tuple[tupleIndex++] = key.Value[keyIndex];
         }
         else
           tuple[tupleIndex++] = value;
@@ -574,6 +599,7 @@ namespace Xtensive.Storage
         if (!value.IsAvailable(value.Count-1))
           value[value.Count - 1] = type.TypeId;
       }
+      
       var key = new Key(type.Hierarchy, exactType ? type : null, value);
       if (!canCache || domain==null) {
         key.value = value.ToFastReadOnly();
@@ -592,18 +618,69 @@ namespace Xtensive.Storage
       }
       return key;
     }
+    
+    internal static bool TryCreateGenericKey(TypeInfo type, int[] keyFields, Tuple tuple,
+      bool exactType, bool canCache, out Key key)
+    {
+      if (keyFields.Length > 2) {
+        key = null;
+        return false;
+      }
+      Func<Domain, TypeInfo, int[], Tuple, bool, bool, Key> creator;
+      bool exists;
+      lock (keyConstructors) {
+        exists = keyConstructors.TryGetValue(type, out creator);
+      }
+      if (!exists) {
+        var genericKeyType = GetGenericKeyType(keyFields, tuple);
+        var createMethod = genericKeyType
+          .GetMethod("Create", BindingFlags.Static | BindingFlags.NonPublic);
+        creator = (Func<Domain, TypeInfo, int[], Tuple, bool, bool, Key>) Delegate
+            .CreateDelegate(typeof (Func<Domain, TypeInfo, int[], Tuple, bool, bool, Key>), createMethod);
+        lock (keyConstructors) {
+          keyConstructors.Add(type, creator);
+        }
+      }
+      key = creator.Invoke(Domain.Demand(), type, keyFields, tuple, exactType, canCache);
+      return true;
+    }
+
+    private static Type GetGenericKeyType(int[] keyFields, Tuple tuple)
+    {
+      Type genericKeyType;
+      if (keyFields.Length == 1) {
+        var type0 = tuple.Descriptor[keyFields[0]];
+        lock (genericSingleKeys) {
+          if (!genericSingleKeys.TryGetValue(type0, out genericKeyType)) {
+            genericKeyType = typeof (Key<>).MakeGenericType(type0);
+            genericSingleKeys.Add(type0, genericKeyType);
+          }
+        }
+      }
+      else {
+        var type0 = tuple.Descriptor[keyFields[0]];
+        var type1 = tuple.Descriptor[keyFields[1]];
+        var cacheKey = new Pair<Type>(type0, type1);
+        lock (genericDoubleKeys) {
+          if (!genericDoubleKeys.TryGetValue(cacheKey, out genericKeyType)) {
+            genericKeyType = typeof (Key<,>).MakeGenericType(type0, type1);
+            genericDoubleKeys.Add(cacheKey, genericKeyType);
+          }
+        }
+      }
+      return genericKeyType;
+    }
 
     #endregion
 
 
     // Constructors
 
-    private Key(HierarchyInfo hierarchy, TypeInfo type, Tuple value)
+    internal Key(HierarchyInfo hierarchy, TypeInfo type, Tuple value)
     {
       this.hierarchy = hierarchy;
       this.entityType = type;
       this.value = value;
-      CalculateHachCode();
     }
   }
 }

@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.29
 
+using System.Linq;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
 
@@ -14,6 +15,7 @@ namespace Xtensive.Storage.Linq.Materialization
     public readonly MapTransform Transform;
     public readonly MapTransform KeyTransform;
     public readonly TypeInfo EntityType;
+    public readonly int[] KeyFields;
 
 
     // Constructors
@@ -23,6 +25,7 @@ namespace Xtensive.Storage.Linq.Materialization
       Transform = transform;
       KeyTransform = keyTransform;
       EntityType = entityType;
+      KeyFields = KeyTransform.SingleSourceMap.Where(item => item!=MapTransform.NoMapping).ToArray();
     }
   }
 }

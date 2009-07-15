@@ -57,8 +57,12 @@ namespace Xtensive.Storage.Linq.Materialization
       
       var materializationData = parentContext.GetEntityMaterializationData(entityIndex, typeId, columns);
       var entityTuple = materializationData.Transform.Apply(TupleTransformType.Tuple, tuple);
-      var entityKeyTuple = materializationData.KeyTransform.Apply(TupleTransformType.Tuple, entityTuple);
-      var key = Key.Create(materializationData.EntityType, entityKeyTuple, exactType);
+      Key key;
+      if (!Key.TryCreateGenericKey(materializationData.EntityType,
+        materializationData.KeyFields, entityTuple, exactType, false, out key)) {
+        var entityKeyTuple = materializationData.KeyTransform.Apply(TupleTransformType.Tuple, entityTuple);
+        key = Key.Create(materializationData.EntityType, entityKeyTuple, exactType);
+      }
       if (exactType) {
         var entityState = session.UpdateEntityState(key, entityTuple);
         result = entityState.Entity;

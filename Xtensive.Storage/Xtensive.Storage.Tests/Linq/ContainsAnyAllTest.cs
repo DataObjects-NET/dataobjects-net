@@ -325,21 +325,21 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectAnyTest()
     {
       var result =
-        from c in Query<Customer>.All
+        (from c in Query<Customer>.All
         select new {
           Customer = c,
           HasOrders = Query<Order>.All
             .Where(o => o.Customer==c)
             .Any()
-        };
+        }).ToList();
       var expected =
-        from c in Customers
+        (from c in Customers
         select new {
           Customer = c,
           HasOrders = Orders
             .Where(o => o.Customer==c)
             .Any()
-        };
+        }).ToList();
       Assert.AreEqual(0, expected.Except(result).Count());
       Assert.AreEqual(2, result.ToList().Count(i => !i.HasOrders));
     }
