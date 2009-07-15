@@ -8,7 +8,6 @@ using System.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
-using R=System.Reflection;
 
 namespace Xtensive.Storage.Configuration.Elements
 {
@@ -71,7 +70,7 @@ namespace Xtensive.Storage.Configuration.Elements
       if (!Type.IsNullOrEmpty())
         return new TypeRegistration(System.Type.GetType(Type));
       else {
-        var assembly = R.Assembly.Load(Assembly);
+        var assembly = System.Reflection.Assembly.Load(Assembly);
         if (Namespace.IsNullOrEmpty())
           return new TypeRegistration(assembly);
         else

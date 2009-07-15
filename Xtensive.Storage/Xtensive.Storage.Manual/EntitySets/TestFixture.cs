@@ -110,7 +110,8 @@ namespace Xtensive.Storage.Manual.EntitySets
     [Test]
     public void OneToManyTest()
     {
-      using (BuildDomain().OpenSession()) {
+      var domain = BuildDomain();
+      using (Session.Open(domain)) {
         using (Transaction.Open()) {
 
           User user = new User();
@@ -135,7 +136,8 @@ namespace Xtensive.Storage.Manual.EntitySets
     [Test]
     public void OneToOneTest()
     {
-      using (BuildDomain().OpenSession()) {
+      var domain = BuildDomain();
+      using (Session.Open(domain)) {
         using (Transaction.Open()) {
 
           User user = new User();
@@ -161,7 +163,8 @@ namespace Xtensive.Storage.Manual.EntitySets
     [Test]
     public void EntitySetTest()
     {
-      using (BuildDomain().OpenSession()) {
+      var domain = BuildDomain();
+      using (Session.Open(domain)) {
         using (Transaction.Open()) {
           User user = new User {Name = "Alex"};
 

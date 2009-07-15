@@ -12,7 +12,7 @@ namespace Xtensive.Modelling.Validation
   /// <summary>
   /// Model validation scope.
   /// </summary>
-  public sealed class ValidationScope : Scope<ValidationContext>
+  internal sealed class ValidationScope : Scope<ValidationContext>
   {
     /// <summary>
     /// Gets the current context.

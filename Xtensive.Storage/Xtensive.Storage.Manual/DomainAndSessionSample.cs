@@ -10,6 +10,12 @@ namespace Xtensive.Storage.Manual
 {
   public class DomainAndSessionSample
   {
+    #region Connection URL examples
+    public const string PostrgeSqlUrl = "postgresql://user:password@127.0.0.1:8032/myDatabase?Encoding=Unicode";
+    public const string SqlServerUrl = "sqlserver://localhost/myDatabase";
+    public const string InMemoryUrl = "memory://localhost/myDatabase";
+    #endregion
+
     [HierarchyRoot]
     public class Person : Entity
     {
@@ -20,12 +26,15 @@ namespace Xtensive.Storage.Manual
       public string Name { get; set; }
     }
 
+
     #region Domain sample
     public void Main()
     {
       var configuration = new DomainConfiguration("sqlserver://localhost/MyDatabase");
+
+      // Register all types in specified assembly and namespace
+      configuration.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (Person));
 
       var domain = Domain.Build(configuration);
 

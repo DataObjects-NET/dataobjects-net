@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Configuration
     private int sessionPoolSize = DefaultSessionPoolSize;
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
     private bool autoValidation = true;
-    private bool inconsistentTransactions;    
+    private bool inconsistentTransactions;
     private TypeRegistry compilerContainers = new TypeRegistry(new CompilerContainerRegistrationHandler());
     private SessionConfigurationCollection sessions = new SessionConfigurationCollection();
     private DomainUpgradeMode upgradeMode = DefaultUpgradeMode;
@@ -142,6 +142,13 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Gets or sets the connection info (URL).
     /// </summary>
+    /// <example>
+    /// <code lang="cs" source="..\..\Xtensive.Storage\Xtensive.Storage.Manual\DomainAndSessionSample.cs" region="Connection URL examples" />
+    /// <code lang="cs">
+    /// var configuration = new DomainConfiguration();
+    /// configuration.ConnectionInfo = new UrlInfo(connectionUrl);
+    /// </code>
+    /// </example>
     public UrlInfo ConnectionInfo
     {
       get { return connectionInfo; }
@@ -149,6 +156,20 @@ namespace Xtensive.Storage.Configuration
       {
         this.EnsureNotLocked();
         connectionInfo = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating domain upgrade behavior. 
+    /// Default value is <see cref="DefaultUpgradeMode"/>.
+    /// </summary>
+    public DomainUpgradeMode UpgradeMode
+    {
+      get { return upgradeMode; }
+      set
+      {
+        this.EnsureNotLocked();
+        upgradeMode = value;
       }
     }
 
@@ -276,20 +297,6 @@ namespace Xtensive.Storage.Configuration
       {
         this.EnsureNotLocked();
         inconsistentTransactions = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating domain upgrade behavior. 
-    /// Default value is <see cref="DefaultUpgradeMode"/>.
-    /// </summary>
-    public DomainUpgradeMode UpgradeMode
-    {
-      get { return upgradeMode; }
-      set
-      {
-        this.EnsureNotLocked();
-        upgradeMode = value;
       }
     }
 
@@ -455,7 +462,7 @@ namespace Xtensive.Storage.Configuration
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="connectionUrl">The string containing connection URL for <see cref="Domain"/>.</param>
-    /// <exception cref="ArgumentNullException">When <paramref name="connectionUrl"/> is null or empty string.</exception>
+    /// <exception cref="ArgumentNullException">Parameter <paramref name="connectionUrl"/> is null or empty string.</exception>
     public DomainConfiguration(string connectionUrl)
       : this()
     {
