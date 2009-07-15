@@ -9,13 +9,13 @@ using System.Transactions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Transactions;
 
-namespace Xtensive.Storage.Providers.Memory
+namespace Xtensive.Storage.Providers.Index.Memory
 {
   /// <summary>
   /// Indexing storage transaction.
   /// </summary>
   [Serializable]
-  public class MemoryIndexTransaction : Index.IndexTransaction
+  public class MemoryIndexTransaction : IndexTransaction
   {
     private TransactionState state;
 

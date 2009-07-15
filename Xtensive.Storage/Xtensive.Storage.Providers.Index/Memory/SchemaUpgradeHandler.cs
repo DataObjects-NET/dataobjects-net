@@ -8,9 +8,8 @@ using System;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
-using Xtensive.Storage.Providers.Index;
 
-namespace Xtensive.Storage.Providers.Memory
+namespace Xtensive.Storage.Providers.Index.Memory
 {
   /// <summary>
   /// Upgrades storage schema.

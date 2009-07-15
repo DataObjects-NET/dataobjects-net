@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Building.Builders
         string providerAssemblyShortName;
         switch (protocol) {
         case WellKnown.Protocol.Memory:
-          providerAssemblyShortName = "Xtensive.Storage.Providers.Memory";
+          providerAssemblyShortName = "Xtensive.Storage.Providers.Index";
           break;
         case WellKnown.Protocol.SqlServer:
         case WellKnown.Protocol.PostgreSql:

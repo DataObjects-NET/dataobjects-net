@@ -17,12 +17,12 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples.Transform;
 
-namespace Xtensive.Storage.Providers.Memory
+namespace Xtensive.Storage.Providers.Index.Memory
 {
   /// <summary>
   /// In memory index storage.
   /// </summary>
-  public class MemoryIndexStorage : Index.IndexStorage
+  public class MemoryIndexStorage : IndexStorage
   {
     private readonly Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>> realIndexes = 
       new Dictionary<IndexInfo, IUniqueOrderedIndex<Tuple, Tuple>>();
@@ -95,16 +95,15 @@ namespace Xtensive.Storage.Providers.Memory
             orderingRule.Add(keyColumn.Value, keyColumn.Direction);
       }
 
-      var indexConfig = new IndexConfiguration<Tuple, Tuple>
-        {
-          KeyComparer = AdvancedComparer<Tuple>.Default.ApplyRules(
-            new ComparisonRules(ComparisonRule.Positive,
-              orderingRule
-                .Select(pair => (ComparisonRules) new ComparisonRule(pair.Value, CultureInfo.InvariantCulture))
-                .ToArray(),
-              ComparisonRules.None)),
-          KeyExtractor = (input => input)
-        };
+      var indexConfig = new IndexConfiguration<Tuple, Tuple> {
+        KeyComparer = AdvancedComparer<Tuple>.Default.ApplyRules(
+          new ComparisonRules(ComparisonRule.Positive,
+            orderingRule
+              .Select(pair => (ComparisonRules) new ComparisonRule(pair.Value, CultureInfo.InvariantCulture))
+              .ToArray(),
+            ComparisonRules.None)),
+        KeyExtractor = (input => input)
+      };
       return IndexFactory.CreateUniqueOrdered<Tuple, Tuple, Index<Tuple, Tuple>>(indexConfig);
     }
 

@@ -16,14 +16,14 @@ using Xtensive.Storage.Indexing.Model;
 using Xtensive.Core.Tuples;
 using System.Transactions;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Storage.Providers.Memory.Resources;
+using Xtensive.Storage.Providers.Index.Resources;
 
-namespace Xtensive.Storage.Providers.Memory
+namespace Xtensive.Storage.Providers.Index.Memory
 {
   /// <summary>
   /// View of "in memory" indexing storage.
   /// </summary>
-  public sealed class MemoryIndexStorageView : Index.IndexStorageView
+  public sealed class MemoryIndexStorageView : IndexStorageView
   {
     private readonly MemoryIndexTransaction transaction;
 

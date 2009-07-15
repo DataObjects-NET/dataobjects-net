@@ -4,18 +4,12 @@
 // Created by: Dmitri Maximov
 // Created:    2008.05.19
 
-namespace Xtensive.Storage.Providers.Memory
+namespace Xtensive.Storage.Providers.Index.Memory
 {
   /// <summary>
   /// <see cref="Session"/>-level handler for memory index storage.
   /// </summary>
   public class SessionHandler : Index.SessionHandler
   {
-    /// <inheritdoc/>
-    public override void Initialize()
-    {
-      base.Initialize();
-      // TODO: Think what should be done here
-    }
   }
 }

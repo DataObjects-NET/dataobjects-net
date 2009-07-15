@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.06.02
 
-namespace Xtensive.Storage.Providers.Memory
+namespace Xtensive.Storage.Providers.Index.Memory
 {
   /// <summary>
   /// Handlers factory for memory index storage.

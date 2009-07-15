@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.05.19
 
-namespace Xtensive.Storage.Providers.Memory
+namespace Xtensive.Storage.Providers.Index.Memory
 {
   /// <summary>
   /// <see cref="Domain"/>-level handler for memory index storage.
@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Providers.Memory
   public class DomainHandler : Index.DomainHandler
   {
     /// <inheritdoc/>
-    protected override Index.IndexStorage CreateLocalStorage(string name)
+    protected override IndexStorage CreateLocalStorage(string name)
     {
       return new MemoryIndexStorage(name);
     }
