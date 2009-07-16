@@ -52,6 +52,8 @@ namespace Xtensive.Storage.Tests.Issues
           first.Friends.Add(second);
           first.Friends.Add(third);
           Assert.AreEqual(2,first.Friends.Count);
+          Assert.AreEqual(1,second.Friends.Count);
+          Assert.AreEqual(1,third.Friends.Count);
           Assert.AreSame(first, first.Friends.First().Friends.First());
           Assert.AreSame(first, first.Friends.Skip(1).First().Friends.First());
 
@@ -60,6 +62,13 @@ namespace Xtensive.Storage.Tests.Issues
 
           first.Friends.Remove(first);
           Assert.AreEqual(2,first.Friends.Count);
+
+          first.Friends.Clear();
+          second.Friends.Clear();
+          third.Friends.Clear();
+          Session.Current.Persist();
+
+          first.Friends.Add(first);
 
           t.Complete();
         }
