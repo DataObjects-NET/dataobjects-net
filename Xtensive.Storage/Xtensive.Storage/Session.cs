@@ -410,8 +410,8 @@ namespace Xtensive.Storage
         return Open(domain, domain.Configuration.Sessions.Default);
       case SessionType.System:
         return Open(domain, domain.Configuration.Sessions.System);
-      case SessionType.Generator:
-        return Open(domain, domain.Configuration.Sessions.Generator);
+      case SessionType.KeyGenerator:
+        return Open(domain, domain.Configuration.Sessions.KeyGenerator);
       case SessionType.Service:
         return Open(domain, domain.Configuration.Sessions.Service);
       default:

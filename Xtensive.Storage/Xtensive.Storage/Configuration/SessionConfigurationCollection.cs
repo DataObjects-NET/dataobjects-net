@@ -5,6 +5,8 @@
 // Created:    2008.12.05
 
 using System;
+using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Configuration
@@ -21,19 +23,14 @@ namespace Xtensive.Storage.Configuration
     private SessionConfiguration @default;
     private SessionConfiguration system;
     private SessionConfiguration service;
-    private SessionConfiguration generator;
+    private SessionConfiguration keyGenerator;
 
     ///<summary>
     /// Gets the default session configuration.
     ///</summary>
     public SessionConfiguration Default
     {
-      get
-      {
-        if (!IsLocked)
-          return this[SessionConfiguration.DefaultSessionName];
-        return @default;
-      }
+      get { return GetConfiguration(WellKnown.Sessions.Default, @default); }
     }
 
     ///<summary>
@@ -41,12 +38,7 @@ namespace Xtensive.Storage.Configuration
     ///</summary>
     public SessionConfiguration System
     {
-      get
-      {
-        if (!IsLocked)
-          return this[SessionConfiguration.SystemSessionName];
-        return system;
-      }
+      get { return GetConfiguration(WellKnown.Sessions.System, system); }
     }
 
     ///<summary>
@@ -54,25 +46,15 @@ namespace Xtensive.Storage.Configuration
     ///</summary>
     public SessionConfiguration Service
     {
-      get
-      {
-        if (!IsLocked)
-          return this[SessionConfiguration.ServiceSessionName];
-        return service;
-      }
+      get { return GetConfiguration(WellKnown.Sessions.Service, service); }
     }
 
     ///<summary>
-    /// Gets the generator session configuration.
+    /// Gets the key generator session configuration.
     ///</summary>
-    public SessionConfiguration Generator
+    public SessionConfiguration KeyGenerator
     {
-      get
-      {
-        if (!IsLocked)
-          return this[SessionConfiguration.GeneratorSessionName];
-        return generator;
-      }
+      get { return GetConfiguration(WellKnown.Sessions.KeyGenerator, keyGenerator); }
     }
 
     ///<summary>
@@ -88,6 +70,28 @@ namespace Xtensive.Storage.Configuration
             return item;
         return null;
       }
+    }
+
+    /// <inheritdoc/>
+    public override void Insert(int index, SessionConfiguration item)
+    {
+      EnsureItemisValid(item);
+      base.Insert(index, item);
+    }
+
+    /// <inheritdoc/>
+    public override void Add(SessionConfiguration item)
+    {
+      EnsureItemisValid(item);
+      base.Add(item);
+    }
+
+    private void EnsureItemisValid(SessionConfiguration item)
+    {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(item.Name, "SessionConfiguration.Name");
+      var current = this[item.Name];
+      if (current != null)
+        throw new InvalidOperationException(string.Format("Configuration with '{0}' name already registered.", current.Name));
     }
 
     #region Equality members
@@ -131,7 +135,7 @@ namespace Xtensive.Storage.Configuration
         int result = (Default!=null ? Default.GetHashCode() : 0);
         result = (result * 397) ^ (System!=null ? System.GetHashCode() : 0);
         result = (result * 397) ^ (Service!=null ? Service.GetHashCode() : 0);
-        result = (result * 397) ^ (Generator!=null ? Generator.GetHashCode() : 0);
+        result = (result * 397) ^ (KeyGenerator!=null ? KeyGenerator.GetHashCode() : 0);
         return result;
       }
     }
@@ -141,10 +145,10 @@ namespace Xtensive.Storage.Configuration
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
-      @default = BuildConfiguration(SessionConfiguration.DefaultSessionName);
-      system = BuildConfiguration(SessionConfiguration.SystemSessionName);
-      service = BuildConfiguration(SessionConfiguration.ServiceSessionName);
-      generator = BuildConfiguration(SessionConfiguration.GeneratorSessionName);
+      @default = BuildConfiguration(WellKnown.Sessions.Default);
+      system = BuildConfiguration(WellKnown.Sessions.System);
+      service = BuildConfiguration(WellKnown.Sessions.Service);
+      keyGenerator = BuildConfiguration(WellKnown.Sessions.KeyGenerator);
       foreach (var item in this) {
         ApplyDefaultSettings(item);
         item.Lock(recursive);
@@ -159,6 +163,11 @@ namespace Xtensive.Storage.Configuration
       foreach (var configuration in this)
         result.Add(configuration.Clone());
       return result;
+    }
+
+    private SessionConfiguration GetConfiguration(string name, SessionConfiguration fallback)
+    {
+      return !IsLocked ? this[name] : fallback;
     }
 
     private SessionConfiguration BuildConfiguration(string name)

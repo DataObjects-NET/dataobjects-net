@@ -9,6 +9,7 @@ using NUnit.Framework;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Configuration
@@ -26,11 +27,11 @@ namespace Xtensive.Storage.Tests.Configuration
       TestCacheType(dc, typeof (LruCache<,>));
       // Lru CacheType
       dc = new DomainConfiguration(url);
-      dc.Sessions.Add(new SessionConfiguration(SessionConfiguration.DefaultSessionName) {CacheType = SessionCacheType.LruWeak});
+      dc.Sessions.Add(new SessionConfiguration(WellKnown.Sessions.Default) {CacheType = SessionCacheType.LruWeak});
       TestCacheType(dc, typeof (LruCache<,>));
       // Infinite CacheType
       dc = new DomainConfiguration(url);
-      dc.Sessions.Add(new SessionConfiguration(SessionConfiguration.DefaultSessionName) { CacheType = SessionCacheType.Infinite });
+      dc.Sessions.Add(new SessionConfiguration(WellKnown.Sessions.Default) { CacheType = SessionCacheType.Infinite });
       TestCacheType(dc, typeof (InfiniteCache<,>));
     }
 
@@ -45,6 +46,14 @@ namespace Xtensive.Storage.Tests.Configuration
       d.DisposeSafely();
     }
 
-
+    [Test]
+    public void TestNamedConfigurations()
+    {
+      string url = "memory://localhost/DO40-Tests";
+      var config = new DomainConfiguration(url);
+      AssertEx.ThrowsArgumentNullException(() => config.Sessions.Add(new SessionConfiguration()));
+      config.Sessions.Add(new SessionConfiguration("SomeName"));
+      AssertEx.ThrowsInvalidOperationException(() => config.Sessions.Add(new SessionConfiguration("SomeName")));
+    }
   }
 }

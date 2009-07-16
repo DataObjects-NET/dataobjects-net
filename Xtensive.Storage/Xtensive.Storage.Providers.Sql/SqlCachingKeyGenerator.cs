@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       TFieldType upperBound;
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      using (Session.Open(domainHandler.Domain, SessionType.Generator))
+      using (Session.Open(domainHandler.Domain, SessionType.KeyGenerator))
       using (var t = Transaction.Open()) {
         var sessionHandler = (SessionHandler) Handlers.SessionHandler;
         object value = sessionHandler.ExecuteScalarRequest(nextRequest);

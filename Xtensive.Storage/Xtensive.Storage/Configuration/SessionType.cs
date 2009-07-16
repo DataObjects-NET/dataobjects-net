@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Configuration
     /// A generator session.
     /// Value is <see langword="0x2"/>
     /// </summary>
-    Generator = 2,
+    KeyGenerator = 2,
 
     /// <summary>
     /// A service session.

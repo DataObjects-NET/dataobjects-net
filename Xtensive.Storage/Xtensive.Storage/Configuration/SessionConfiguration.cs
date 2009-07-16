@@ -24,26 +24,6 @@ namespace Xtensive.Storage.Configuration
     #region Constants
 
     /// <summary>
-    /// Name of default session configuration.
-    /// </summary>
-    public const string DefaultSessionName = "Default";
-
-    /// <summary>
-    /// System session name.
-    /// </summary>
-    public const string SystemSessionName = "System";
-
-    /// <summary>
-    /// Service session name.
-    /// </summary>
-    public const string ServiceSessionName = "Service";
-
-    /// <summary>
-    /// Generator session name.
-    /// </summary>
-    public const string GeneratorSessionName = "Generator";
-
-    /// <summary>
     /// Default cache size.
     /// </summary>
     public const int DefaultCacheSize = 16 * 1024;
@@ -221,27 +201,22 @@ namespace Xtensive.Storage.Configuration
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="name">Value for <see cref="Name"/>.</param>
-    public SessionConfiguration(string name)
+    public SessionConfiguration(string name) 
+      : this()
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 
       Name = name;
-      CacheSize = DefaultCacheSize;
-      DefaultIsolationLevel = DefaultIsolationLevelValue;
-      Options = SessionOptions.Default;
-      Type = SessionType.Default;
-      UserName = string.Empty;
-      Password = string.Empty;
 
       switch (name) {
-      case SystemSessionName:
+      case WellKnown.Sessions.System:
         Type = SessionType.System;
         break;
-      case ServiceSessionName:
+      case WellKnown.Sessions.Service:
         Type = SessionType.Service;
         break;
-      case GeneratorSessionName:
-        Type = SessionType.Generator;
+      case WellKnown.Sessions.KeyGenerator:
+        Type = SessionType.KeyGenerator;
         break;
       default:
         Type = SessionType.Default;
@@ -249,11 +224,24 @@ namespace Xtensive.Storage.Configuration
       }
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public SessionConfiguration()
+    {
+      CacheSize = DefaultCacheSize;
+      DefaultIsolationLevel = DefaultIsolationLevelValue;
+      Options = SessionOptions.Default;
+      Type = SessionType.Default;
+      UserName = string.Empty;
+      Password = string.Empty;
+    }
+
     // Type initializer
 
     static SessionConfiguration()
     {
-      Default = new SessionConfiguration(DefaultSessionName);
+      Default = new SessionConfiguration(WellKnown.Sessions.Default);
       Default.Lock(true);
     }
   }

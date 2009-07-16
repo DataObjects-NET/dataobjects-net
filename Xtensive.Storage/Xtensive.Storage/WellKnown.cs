@@ -70,5 +70,31 @@ namespace Xtensive.Storage
       /// </summary>
       public const string PostgreSql = "postgresql";
     }
+
+    /// <summary>
+    /// Well-known session configuration names
+    /// </summary>
+    public static class Sessions
+    {
+    /// <summary>
+    /// Name of default session configuration.
+    /// </summary>
+    public const string Default = "Default";
+
+    /// <summary>
+    /// System session name.
+    /// </summary>
+    public const string System = "System";
+
+    /// <summary>
+    /// Service session name.
+    /// </summary>
+    public const string Service = "Service";
+
+    /// <summary>
+    /// Generator session name.
+    /// </summary>
+    public const string KeyGenerator = "KeyGenerator";
+    }
   }
 }
