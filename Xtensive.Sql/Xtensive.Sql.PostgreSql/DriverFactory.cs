@@ -5,6 +5,7 @@
 // Created:    2009.06.23
 
 using System;
+using Xtensive.Core;
 using Xtensive.Sql.PostgreSql.Resources;
 
 namespace Xtensive.Sql.PostgreSql
@@ -15,7 +16,7 @@ namespace Xtensive.Sql.PostgreSql
   public class DriverFactory : SqlDriverFactory
   {
     /// <inheritdoc/>
-    public override SqlDriver CreateDriver(SqlConnectionUrl sqlConnectionUrl)
+    public override SqlDriver CreateDriver(UrlInfo sqlConnectionUrl)
     {
       using (var connection = ConnectionFactory.CreateConnection(sqlConnectionUrl)) {
         SqlDriver result;

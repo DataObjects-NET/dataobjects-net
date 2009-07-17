@@ -4,34 +4,35 @@
 
 using System;
 using System.Data.SqlClient;
+using Xtensive.Core;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.SqlServer
 {
   internal static class ConnectionFactory
   {
-    public static SqlServerConnection CreateConnection(SqlConnectionUrl url)
+    public static SqlServerConnection CreateConnection(UrlInfo url)
     {
       var connectionString = BuildConnectionString(url);
       return new SqlServerConnection(connectionString);
     }
 
-    private static string BuildConnectionString(SqlConnectionUrl url)
+    private static string BuildConnectionString(UrlInfo url)
     {
       char[] forbiddenChars = new [] { '=', ';' };
       Exception e = new ArgumentException(@"Part of URL contains ""="" or "";"" characters.", "url");
       if (url.Host.IndexOfAny(forbiddenChars)>=0)
         throw e;
-      if (url.Database.IndexOfAny(forbiddenChars)>=0)
+      if (url.Resource.IndexOfAny(forbiddenChars)>=0)
         throw e;
       if (url.User.IndexOfAny(forbiddenChars)>=0)
         throw e;
       if (url.Password.IndexOfAny(forbiddenChars)>=0)
         throw e;
 
-      SqlConnectionStringBuilder sb = new SqlConnectionStringBuilder();
+      var sb = new SqlConnectionStringBuilder();
 
-      sb.InitialCatalog = url.Database ?? string.Empty;
+      sb.InitialCatalog = url.Resource ?? string.Empty;
       sb.MultipleActiveResultSets = true;
       if (url.Port==0)
         sb.DataSource = url.Host;

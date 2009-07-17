@@ -5,13 +5,14 @@
 // Created:    2009.06.23
 
 using System.Data.Common;
+using Xtensive.Core;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.SqlServer
 {
   internal abstract class Driver : SqlDriver
   {
-    protected override DbConnection CreateNativeConnection(SqlConnectionUrl sqlConnectionUrl)
+    protected override DbConnection CreateNativeConnection(UrlInfo sqlConnectionUrl)
     {
       return ConnectionFactory.CreateConnection(sqlConnectionUrl);
     }

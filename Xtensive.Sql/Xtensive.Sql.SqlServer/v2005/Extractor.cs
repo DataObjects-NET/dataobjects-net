@@ -23,7 +23,7 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     public override Catalog Extract()
     {
-      catalog = new Catalog(Connection.Url.Database);
+      catalog = new Catalog(Connection.Url.Resource);
       ExtractSchemas();
       foreach (Schema schema in catalog.Schemas) {
         ExtractDomains(schema);

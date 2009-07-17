@@ -5,24 +5,25 @@
 using System;
 using System.Text;
 using VistaDB.Provider;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.VistaDb
 {
   internal static class ConnectionFactory 
   {
-    public static VistaDBConnection CreateConnection(SqlConnectionUrl url)
+    public static VistaDBConnection CreateConnection(UrlInfo url)
     {
       var connectionString = BuildConnectionString(url);
       return new VistaDBConnection(connectionString);
     }
 
-    private static string BuildConnectionString(SqlConnectionUrl url)
+    private static string BuildConnectionString(UrlInfo url)
     {
       char[] forbiddenChars = new [] { '=', ';' };
       Exception e = new ArgumentException(@"Part of URL contains ""="" or "";"" characters.", "url");
       if (url.Host.IndexOfAny(forbiddenChars)>=0)
         throw e;
-      if (url.Database.IndexOfAny(forbiddenChars)>=0)
+      if (url.Resource.IndexOfAny(forbiddenChars)>=0)
         throw e;
       if (url.User.IndexOfAny(forbiddenChars)>=0)
         throw e;
@@ -31,7 +32,7 @@ namespace Xtensive.Sql.VistaDb
 
       var connectionString = new StringBuilder();
 
-      connectionString.Append("Data Source="+url.Database+";");
+      connectionString.Append("Data Source="+url.Resource+";");
 
       string openMode;
       url.Params.TryGetValue("OpenMode", out openMode);

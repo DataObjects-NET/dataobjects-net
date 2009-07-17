@@ -5,6 +5,7 @@
 // Created:    2009.07.01
 
 using System;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.VistaDb
 {
@@ -14,7 +15,7 @@ namespace Xtensive.Sql.VistaDb
   public class DriverFactory : SqlDriverFactory
   {
     /// <inheritdoc/>
-    public override SqlDriver CreateDriver(SqlConnectionUrl sqlConnectionUrl)
+    public override SqlDriver CreateDriver(UrlInfo sqlConnectionUrl)
     {
       return new v3.Driver();
     }

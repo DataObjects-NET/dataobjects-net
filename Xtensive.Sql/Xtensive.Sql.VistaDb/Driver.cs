@@ -5,13 +5,14 @@
 // Created:    2009.07.01
 
 using System.Data.Common;
+using Xtensive.Core;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.VistaDb
 {
   internal abstract class Driver : SqlDriver
   {
-    protected override DbConnection CreateNativeConnection(SqlConnectionUrl url)
+    protected override DbConnection CreateNativeConnection(UrlInfo url)
     {
       return ConnectionFactory.CreateConnection(url);
     }

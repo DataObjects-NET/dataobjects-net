@@ -383,7 +383,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (connection!=null && connection.State==ConnectionState.Open)
         return;
-      connection = DomainHandler.Driver.CreateConnection(Handlers.Domain.Configuration.ConnectionInfo.ToString());
+      connection = DomainHandler.Driver.CreateConnection(Handlers.Domain.Configuration.ConnectionInfo);
       if (connection==null)
         throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
       connection.Open();

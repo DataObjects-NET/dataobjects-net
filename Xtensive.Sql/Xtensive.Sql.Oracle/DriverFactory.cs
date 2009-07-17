@@ -5,6 +5,7 @@
 // Created:    2009.07.16
 
 using System;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Oracle
 {
@@ -13,7 +14,7 @@ namespace Xtensive.Sql.Oracle
   /// </summary>
   public class DriverFactory : SqlDriverFactory
   {
-    public override SqlDriver CreateDriver(SqlConnectionUrl sqlConnectionUrl)
+    public override SqlDriver CreateDriver(UrlInfo sqlConnectionUrl)
     {
       throw new NotImplementedException();
     }

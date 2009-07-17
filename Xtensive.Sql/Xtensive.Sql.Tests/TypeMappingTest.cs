@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.ValueTypeMapping;
@@ -33,7 +34,7 @@ namespace Xtensive.Sql.Tests
     [TestFixtureSetUp]
     public void TestFixtureSetUp()
     {
-      var parsedUrl = new SqlConnectionUrl(Url);
+      var parsedUrl = new UrlInfo(Url);
       driver = SqlDriver.Create(parsedUrl);
       connection = driver.CreateConnection(parsedUrl);
       typeMappings = driver.TypeMappings.ToArray();

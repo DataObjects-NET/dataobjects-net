@@ -46,7 +46,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     public override Catalog Extract()
     {
-      var result = new Catalog(Connection.Url.Database);
+      var result = new Catalog(Connection.Url.Resource);
       ExtractUsers();
       ExtractSchemas(result);
       return result;

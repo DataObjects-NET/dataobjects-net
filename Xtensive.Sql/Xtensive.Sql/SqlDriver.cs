@@ -94,7 +94,7 @@ namespace Xtensive.Sql
     public SqlConnection CreateConnection(string url)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(url, "url");
-      return CreateConnectionInternal(new SqlConnectionUrl(url));
+      return CreateConnectionInternal(new UrlInfo(url));
     }
 
     /// <summary>
@@ -102,7 +102,7 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="url">The connection url.</param>
     /// <returns>Created connection.</returns>
-    public SqlConnection CreateConnection(SqlConnectionUrl url)
+    public SqlConnection CreateConnection(UrlInfo url)
     {
       ArgumentValidator.EnsureArgumentNotNull(url, "url");
       return CreateConnectionInternal(url);
@@ -137,14 +137,14 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="sqlConnectionUrl">The connection info.</param>
     /// <returns>Created connection.</returns>
-    protected abstract DbConnection CreateNativeConnection(SqlConnectionUrl sqlConnectionUrl);
+    protected abstract DbConnection CreateNativeConnection(UrlInfo sqlConnectionUrl);
     
     /// <summary>
     /// Creates the driver from the specified connection url.
     /// </summary>
     /// <param name="url">The connection url.</param>
     /// <returns>Created driver.</returns>
-    public static SqlDriver Create(SqlConnectionUrl url)
+    public static SqlDriver Create(UrlInfo url)
     {
       ArgumentValidator.EnsureArgumentNotNull(url, "url");
       return CreateDriverInternal(url);
@@ -158,7 +158,7 @@ namespace Xtensive.Sql
     public static SqlDriver Create(string url)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(url, "url");
-      return CreateDriverInternal(new SqlConnectionUrl(url));
+      return CreateDriverInternal(new UrlInfo(url));
     }
 
     #region Private / internal methods
@@ -172,12 +172,12 @@ namespace Xtensive.Sql
       TypeMappings = new TypeMappingCollection(DataAccessHandler);
     }
     
-    private SqlConnection CreateConnectionInternal(SqlConnectionUrl url)
+    private SqlConnection CreateConnectionInternal(UrlInfo url)
     {
       return new SqlConnection(this, CreateNativeConnection(url), url);
     }
 
-    private static SqlDriver CreateDriverInternal(SqlConnectionUrl url)
+    private static SqlDriver CreateDriverInternal(UrlInfo url)
     {
       var thisAssemblyName = Assembly.GetExecutingAssembly().GetName();
       string driverAssemblyShortName = string.Format(DriverAssemblyFormat, url.Protocol);

@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.06.23
 
+using Xtensive.Core;
+
 namespace Xtensive.Sql
 {
   /// <summary>
@@ -12,10 +14,10 @@ namespace Xtensive.Sql
   public abstract class SqlDriverFactory
   {
     /// <summary>
-    /// Creates the driver from the specified <see cref="SqlConnectionUrl"/>.
+    /// Creates the driver from the specified <see cref="UrlInfo"/>.
     /// </summary>
-    /// <param name="sqlConnectionUrl">The connection url to create driver from.</param>
+    /// <param name="connectionUrl">The connection url to create driver from.</param>
     /// <returns>Created driver.</returns>
-    public abstract SqlDriver CreateDriver(SqlConnectionUrl sqlConnectionUrl);
+    public abstract SqlDriver CreateDriver(UrlInfo connectionUrl);
   }
 }

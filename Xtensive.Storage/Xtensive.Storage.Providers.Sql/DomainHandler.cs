@@ -233,7 +233,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
-      Driver = SqlDriver.Create(Handlers.Domain.Configuration.ConnectionInfo.ToString());
+      Driver = SqlDriver.Create(Handlers.Domain.Configuration.ConnectionInfo);
       base.Initialize();
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
       requestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlPersistRequest>.Create(new object());

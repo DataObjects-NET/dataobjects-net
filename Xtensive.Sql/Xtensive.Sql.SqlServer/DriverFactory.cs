@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Sql.SqlServer.Resources;
 
 namespace Xtensive.Sql.SqlServer
@@ -16,7 +17,7 @@ namespace Xtensive.Sql.SqlServer
   public class DriverFactory : SqlDriverFactory
   {
     /// <inheritdoc/>
-    public override SqlDriver CreateDriver(SqlConnectionUrl sqlConnectionUrl)
+    public override SqlDriver CreateDriver(UrlInfo sqlConnectionUrl)
     {
       using (var connection = ConnectionFactory.CreateConnection(sqlConnectionUrl)) {
         connection.Open();

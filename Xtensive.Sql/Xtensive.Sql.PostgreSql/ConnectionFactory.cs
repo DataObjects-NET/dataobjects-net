@@ -2,6 +2,7 @@ using Npgsql;
 using System;
 using System.Globalization;
 using System.Text;
+using Xtensive.Core;
 using Xtensive.Sql.PostgreSql.Resources;
 
 namespace Xtensive.Sql.PostgreSql
@@ -16,13 +17,13 @@ namespace Xtensive.Sql.PostgreSql
 
     private static readonly string mAllowedBoolStringsText;
 
-    public static NpgsqlConnection CreateConnection(SqlConnectionUrl url)
+    public static NpgsqlConnection CreateConnection(UrlInfo url)
     {
       var connectionString = BuildConnectionString(url);
       return new NpgsqlConnection(connectionString);
     }
 
-    private static string BuildConnectionString(SqlConnectionUrl url)
+    private static string BuildConnectionString(UrlInfo url)
     {
       var csBuilder = new StringBuilder();
 
@@ -50,10 +51,10 @@ namespace Xtensive.Sql.PostgreSql
       else
         throw new ArgumentException("URL doesn't contain User/Password specification.");
 
-      if (url.Database!="") {
-        Validate(url.Database, "Database");
+      if (url.Resource!="") {
+        Validate(url.Resource, "Database");
         csBuilder.Append(";Database=");
-        csBuilder.Append(url.Database);
+        csBuilder.Append(url.Resource);
       }
       else
         throw new ArgumentException("URL doesn't contain Database specification.");

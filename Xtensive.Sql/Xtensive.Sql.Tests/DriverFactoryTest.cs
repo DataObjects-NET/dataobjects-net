@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Tests
 {
@@ -8,10 +9,10 @@ namespace Xtensive.Sql.Tests
     [Test]
     public void ConnectionUrlTest()
     {
-      var url = new SqlConnectionUrl(TestUrl.SqlServer2005AW);
+      var url = new UrlInfo(TestUrl.SqlServer2005AW);
       Assert.AreEqual(url.Protocol, "sqlserver");
       Assert.AreEqual(url.Host, "localhost");
-      Assert.AreEqual(url.Database, "AdventureWorks");
+      Assert.AreEqual(url.Resource, "AdventureWorks");
     }
 
     [Test]

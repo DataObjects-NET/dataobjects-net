@@ -21,7 +21,7 @@ namespace Xtensive.Sql.VistaDb.v3
 
     public override Catalog Extract()
     {
-      catalog = new Catalog(Connection.Url.Database);
+      catalog = new Catalog(Connection.Url.Resource);
       ExtractSchemas();
       foreach (var schema in catalog.Schemas) {
         ExtractTables(schema);

@@ -22,7 +22,7 @@ namespace Xtensive.Sql
     /// <summary>
     /// Gets the connection info.
     /// </summary>
-    public SqlConnectionUrl Url { get; private set; }
+    public UrlInfo Url { get; private set; }
 
     /// <summary>
     /// Gets the underlying connection.
@@ -110,7 +110,7 @@ namespace Xtensive.Sql
       UnderlyingConnection.Dispose();
     }
 
-    internal SqlConnection(SqlDriver driver, DbConnection underlyingConnection, SqlConnectionUrl url)
+    internal SqlConnection(SqlDriver driver, DbConnection underlyingConnection, UrlInfo url)
     {
       Driver = driver;
       UnderlyingConnection = underlyingConnection;
