@@ -66,10 +66,27 @@ namespace Xtensive.Core.Sorting
     /// </returns>
     public static List<TNodeItem> Sort<TNodeItem>(IEnumerable<TNodeItem> items, Predicate<TNodeItem, TNodeItem> connector, out List<NodeConnection<TNodeItem, object>> removedEdges)
     {
+      return Sort<TNodeItem>(items, connector, out removedEdges, false);
+    }
+
+    /// <summary>
+    /// Sorts the specified oriented graph of the items in their topological order
+    /// (following the outgoing connections provided by <paramref name="connector"/>).
+    /// </summary>
+    /// <param name="items">The items to sort.</param>
+    /// <param name="connector">The connector delegate returning <see langword="true"/>
+    /// if there is outgoing connection between the first and the second node.</param>
+    /// <param name="removedEdges">Edges removed to make graph non-cyclic.</param>
+    /// <param name="removeWholeNode">If <see langword="true"/> removes whole node in the case of loop, otherwise removes only one edge.</param>
+    /// <returns>
+    /// Sorting result
+    /// </returns>
+    public static List<TNodeItem> Sort<TNodeItem>(IEnumerable<TNodeItem> items, Predicate<TNodeItem, TNodeItem> connector, out List<NodeConnection<TNodeItem, object>> removedEdges, bool removeWholeNode)
+    {
       ArgumentValidator.EnsureArgumentNotNull(items, "items");
       ArgumentValidator.EnsureArgumentNotNull(connector, "connector");
       List<Node<TNodeItem, object>> nodes = GetNodes(items, connector);
-      return Sort(nodes, out removedEdges);
+      return Sort(nodes, out removedEdges, removeWholeNode);
     }
 
     /// <summary>
@@ -98,7 +115,8 @@ namespace Xtensive.Core.Sorting
             var connections = node.OutgoingConnections.ToArray();
             foreach (var connection in connections)
               node.RemoveConnection(connection);
-          } else if (node.GetConnectionCount(true)==0) {
+          }
+          else if (node.GetConnectionCount(true)==0) {
             // Add to tail
             tail.Enqueue(node.Item);
             nodesToRemove.Add(node);
@@ -109,7 +127,7 @@ namespace Xtensive.Core.Sorting
         }
         if (nodesToRemove.Count==0) {
           loops = new List<Node<TNodeItem, TConnectionItem>>(nodeList);
-          return null; 
+          return null;
         }
         foreach (var nodeToRemove in nodesToRemove)
           nodeList.Remove(nodeToRemove);
@@ -128,6 +146,19 @@ namespace Xtensive.Core.Sorting
     /// <returns>Sorting result.</returns>
     public static List<TNodeItem> Sort<TNodeItem, TConnectionItem>(IEnumerable<Node<TNodeItem, TConnectionItem>> nodes, out List<NodeConnection<TNodeItem, TConnectionItem>> removedEdges)
     {
+      return Sort(nodes, out removedEdges, false);
+    }
+
+    /// <summary>
+    /// Sorts the specified oriented graph of the nodes in their topological order
+    /// (following the outgoing connections).
+    /// </summary>
+    /// <param name="nodes">The nodes.</param>
+    /// <param name="removedEdges">Edges removed to make graph non-cyclic.</param>
+    /// <param name="removeWholeNode">If <see langword="true"/> removes whole node in the case of loop, otherwise removes only one edge.</param>
+    /// <returns>Sorting result.</returns>
+    public static List<TNodeItem> Sort<TNodeItem, TConnectionItem>(IEnumerable<Node<TNodeItem, TConnectionItem>> nodes, out List<NodeConnection<TNodeItem, TConnectionItem>> removedEdges, bool removeWholeNode)
+    {
       ArgumentValidator.EnsureArgumentNotNull(nodes, "nodes");
       var head = new Queue<TNodeItem>();
       var tail = new Queue<TNodeItem>();
@@ -136,6 +167,7 @@ namespace Xtensive.Core.Sorting
       var nodesToRemove = new List<Node<TNodeItem, TConnectionItem>>();
       while (nodeList.Count > 0) {
         nodesToRemove.Clear();
+        Node<TNodeItem, TConnectionItem> nodeToBreakLoop = null;
         foreach (var node in nodeList) {
           if (node.GetConnectionCount(false)==0) {
             // Add to head
@@ -144,7 +176,8 @@ namespace Xtensive.Core.Sorting
             var connections = node.OutgoingConnections.ToArray();
             foreach (var connection in connections)
               node.RemoveConnection(connection);
-          } else if (node.GetConnectionCount(true)==0) {
+          }
+          else if (node.GetConnectionCount(true)==0) {
             // Add to tail
             tail.Enqueue(node.Item);
             nodesToRemove.Add(node);
@@ -152,40 +185,34 @@ namespace Xtensive.Core.Sorting
             foreach (var connection in connections)
               node.RemoveConnection(connection);
           }
+          else {
+            if (removeWholeNode && (nodeToBreakLoop==null || node.GetConnectionCount(true) > nodeToBreakLoop.GetConnectionCount(true)))
+              nodeToBreakLoop = node;
+          }
         }
         if (nodesToRemove.Count==0) {
-          // remove edge
-          var removedConnection = nodeList[0].OutgoingConnections.First();
-          removedEdges.Add(removedConnection);
-          nodeList[0].RemoveConnection(removedConnection);
+          if (nodeToBreakLoop!=null) {
+            var connections = nodeToBreakLoop.OutgoingConnections.ToArray();
+            foreach (var connection in connections)
+              nodeToBreakLoop.RemoveConnection(connection);
+            foreach (var connection in nodeToBreakLoop.IncomingConnections.ToArray())
+              nodeToBreakLoop.RemoveConnection(connection);
+            removedEdges.AddRange(connections);
+            tail.Enqueue(nodeToBreakLoop.Item);
+            nodeList.Remove(nodeToBreakLoop);
+          }
+          else {
+            // remove edge
+            var removedConnection = nodeList[0].OutgoingConnections.First();
+            removedEdges.Add(removedConnection);
+            nodeList[0].RemoveConnection(removedConnection);
+          }
         }
         foreach (var nodeToRemove in nodesToRemove)
           nodeList.Remove(nodeToRemove);
       }
       return head.Concat(tail.Reverse()).ToList();
     }
-
-
-//    private static void SortInternal<TNodeItem, TConnectionItem>(IEnumerable<Node<TNodeItem, TConnectionItem>> nodes, Queue<Node<TNodeItem, TConnectionItem>> queue, ICollection<TNodeItem> result)
-//    {
-//      // Enqueuing sources
-//      foreach (var node in nodes)
-//        if (node.GetConnectionCount(false)==0)
-//          queue.Enqueue(node);
-//      // Processing the queue
-//      while (queue.Count > 0) {
-//        var node = queue.Dequeue();
-//        result.Add(node.Item);
-//        if (node.GetConnectionCount(true) > 0) {
-//          var outgoing = node.OutgoingConnections.ToArray();
-//          foreach (var outConnection in outgoing) {
-//            node.RemoveConnection(outConnection);
-//            if (outConnection.Destination.GetConnectionCount(false)==0)
-//              queue.Enqueue(outConnection.Destination);
-//          }
-//        }
-//      }
-//    }
 
     private static List<Node<TNodeItem, object>> GetNodes<TNodeItem>(IEnumerable<TNodeItem> items, Predicate<TNodeItem, TNodeItem> connector)
     {

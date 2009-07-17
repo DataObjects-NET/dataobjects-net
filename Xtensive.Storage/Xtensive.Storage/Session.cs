@@ -52,7 +52,7 @@ namespace Xtensive.Storage
   /// <seealso cref="Domain"/>
   /// <seealso cref="SessionBound" />
   public partial class Session : DomainBound,
-    IContext<SessionScope>,IResource
+    IContext<SessionScope>, IResource
   {
     private bool isPersisting;
     private volatile bool isDisposed;
@@ -80,7 +80,7 @@ namespace Xtensive.Storage
     #region Private \ internal members
 
     internal SessionHandler Handler { get; set; }
-    
+
     internal HandlerAccessor Handlers { get; private set; }
 
     internal CoreServiceAccessor CoreServices { get; private set; }
@@ -130,8 +130,10 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the session service provider.
     /// </summary>
-    public ServiceProvider Services {
-      get {
+    public ServiceProvider Services
+    {
+      get
+      {
         if (serviceProvider==null)
           serviceProvider = new ServiceProvider(this);
         return serviceProvider;
@@ -176,6 +178,8 @@ namespace Xtensive.Storage
           item.PersistenceState = PersistenceState.Synchronized;
         foreach (var item in EntityStateRegistry.GetItems(PersistenceState.Modified))
           item.PersistenceState = PersistenceState.Synchronized;
+        foreach (var item in EntityStateRegistry.GetItems(PersistenceState.Removed))
+          item.Update(null);
         EntityStateRegistry.Clear();
       }
       finally {
@@ -188,7 +192,7 @@ namespace Xtensive.Storage
       bool foreignKeysEnabled = (Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0;
 
       // Insert
-      IEnumerable<EntityState> insertEntities = EntityStateRegistry.GetItems(PersistenceState.New).Where(entityState=>!entityState.IsRemoved);
+      IEnumerable<EntityState> insertEntities = EntityStateRegistry.GetItems(PersistenceState.New).Where(entityState => !entityState.IsRemoved);
       if (foreignKeysEnabled)
         foreach (var statePair in InsertInAccordanceWithForeignKeys(insertEntities))
           yield return statePair;
@@ -207,8 +211,13 @@ namespace Xtensive.Storage
       }
 
       // Delete
-      foreach (EntityState data in EntityStateRegistry.GetItems(PersistenceState.Removed))
-        yield return new EntityStateAction(data, PersistAction.Remove);
+      var deleteEntities = EntityStateRegistry.GetItems(PersistenceState.Removed);
+      if (foreignKeysEnabled)
+        foreach (var statePair in DeleteInAccordanceWithForeignKeys(deleteEntities))
+          yield return statePair;
+      else
+        foreach (EntityState data in deleteEntities)
+          yield return new EntityStateAction(data, PersistAction.Remove);
     }
 
     private static IEnumerable<EntityStateAction> InsertInAccordanceWithForeignKeys(
@@ -237,6 +246,30 @@ namespace Xtensive.Storage
       foreach (EntityState data in sortedEntities)
         data.GetDifferentialTuple().Merge();
     }
+    
+    private static IEnumerable<EntityStateAction> DeleteInAccordanceWithForeignKeys(
+      IEnumerable<EntityState> entityStates)
+    {
+      // Topological sorting
+      List<Triplet<EntityState, FieldInfo, Entity>> loopReferences;
+      List<EntityState> sortedEntities;
+      List<EntityState> unreferencedEntities;
+      SortAndRemoveLoopEdges(entityStates, out sortedEntities, out unreferencedEntities, out loopReferences);
+
+      // Insert 
+      sortedEntities.InsertRange(0, unreferencedEntities);
+
+      // TODO: Group by entity
+      // Restore loop links
+      foreach (var restoreData in loopReferences) {
+        Persistent.GetAccessor<Entity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, null);
+        yield return new EntityStateAction(restoreData.First, PersistAction.Update);
+      }
+
+      foreach (EntityState data in sortedEntities)
+        yield return new EntityStateAction(data, PersistAction.Remove);
+
+    }
 
     private static void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates,
       out List<EntityState> sortResult, out List<EntityState> unreferencedData,
@@ -264,7 +297,7 @@ namespace Xtensive.Storage
 
       // Sort
       List<NodeConnection<EntityState, AssociationInfo>> removedEdges;
-      sortResult = TopologicalSorter.Sort(sortData.Values, out removedEdges);
+      sortResult = TopologicalSorter.Sort(sortData.Values, out removedEdges, true);
 
       // Remove loop links
       keysToRestore = new List<Triplet<EntityState, FieldInfo, Entity>>();
@@ -304,7 +337,8 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the current active <see cref="Session"/> instance.
     /// </summary>
-    public static Session Current {
+    public static Session Current
+    {
       [DebuggerStepThrough]
       get { return SessionScope.CurrentSession; }
     }
@@ -339,7 +373,8 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public bool IsActive {
+    public bool IsActive
+    {
       get { return Current==this; }
     }
 

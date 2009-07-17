@@ -45,24 +45,20 @@ namespace Xtensive.Core.Sorting
 
     #region Equality members
 
-    /// <inheritdoc/>
-    public bool Equals(NodeConnection<TNodeItem, TConnectionItem> obj)
+    public bool Equals(NodeConnection<TNodeItem, TConnectionItem> other)
     {
-      if (ReferenceEquals(null, obj))
+      if (ReferenceEquals(null, other))
         return false;
-      if (ReferenceEquals(this, obj))
+      if (ReferenceEquals(this, other))
         return true;
-      return Equals(obj.connectionItem, connectionItem) && 
-        Equals(obj.source, source) && 
-          Equals(obj.destination, destination);
+      return Equals(other.connectionItem, connectionItem) && Equals(other.source, source) && Equals(other.destination, destination);
     }
 
-    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(null, obj))
         return false;
-      if (Equals(this, obj))
+      if (ReferenceEquals(this, obj))
         return true;
       if (obj.GetType()!=typeof (NodeConnection<TNodeItem, TConnectionItem>))
         return false;
@@ -73,7 +69,7 @@ namespace Xtensive.Core.Sorting
     public override int GetHashCode()
     {
       unchecked {
-        int result = ReferenceEquals(null, connectionItem) ? 0 : connectionItem.GetHashCode();
+        int result = ReferenceEquals(connectionItem,null) ? 0 : connectionItem.GetHashCode();
         result = (result * 397) ^ (source!=null ? source.GetHashCode() : 0);
         result = (result * 397) ^ (destination!=null ? destination.GetHashCode() : 0);
         return result;

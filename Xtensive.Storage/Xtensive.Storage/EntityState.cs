@@ -95,7 +95,6 @@ namespace Xtensive.Storage
         case PersistenceState.Synchronized:
           return;
         case PersistenceState.Removed:
-          Update(null);
           break;
         default:
           break;

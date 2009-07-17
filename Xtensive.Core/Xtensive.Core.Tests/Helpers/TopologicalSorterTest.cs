@@ -33,6 +33,44 @@ namespace Xtensive.Core.Tests.Helpers
     }
 
     [Test]
+    public void RemoveWholeNodeTest()
+    {
+      var node1 = new Node<int, string>(1);
+      var node2 = new Node<int, string>(2);
+      var connection121 = new NodeConnection<int, string>(node1, node2, "ConnectionItem 1->2 1");
+      node1.AddConnection(connection121);
+      var connection122 = new NodeConnection<int, string>(node1, node2, "ConnectionItem 1->2 2");
+      node1.AddConnection(connection122);
+      var connection211 = new NodeConnection<int, string>(node2, node1, "ConnectionItem 2->1 1");
+      node2.AddConnection(connection211);
+
+      // Remove edge by edge.
+
+      List<NodeConnection<int, string>> removedEdges;
+      var result = TopologicalSorter.Sort(new[]{node2, node1}, out removedEdges);
+      Assert.AreEqual(2, result.Count);
+      Assert.AreEqual(node1.Item, result[0]);
+      Assert.AreEqual(node2.Item, result[1]);
+
+      Assert.AreEqual(1, removedEdges.Count);
+      Assert.AreEqual(connection211, removedEdges[0]);
+
+      // Remove whole node
+      node1.AddConnection(connection121);
+      node1.AddConnection(connection122);
+      node2.AddConnection(connection211);
+
+      result = TopologicalSorter.Sort(new[]{node2, node1}, out removedEdges, true);
+      Assert.AreEqual(2, result.Count);
+      Assert.AreEqual(node1.Item, result[1]);
+      Assert.AreEqual(node2.Item, result[0]);
+
+      Assert.AreEqual(2, removedEdges.Count);
+      Assert.AreEqual(connection121, removedEdges[1]);
+      Assert.AreEqual(connection122, removedEdges[0]);
+    }
+
+    [Test]
     public void CombinedTest()
     {
       TestSort(new[] {4, 3, 2, 1}, (i1, i2) => !(i1==3 || i2==3), null, new[] {4, 2, 1});
