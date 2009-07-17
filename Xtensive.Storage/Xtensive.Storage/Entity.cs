@@ -50,6 +50,7 @@ namespace Xtensive.Storage
   /// <seealso cref="Structure">Structure class</seealso>
   /// <seealso cref="EntitySet{TItem}"><c>EntitySet</c> class</seealso>
   [SystemType]
+  [DebuggerDisplay("{Key}")]
   public abstract class Entity : Persistent,
     IEntity, ISerializable, IDeserializationCallback
   {
@@ -157,11 +158,7 @@ namespace Xtensive.Storage
         Session.NotifyRemovingEntity(this);
 
         State.EnsureNotRemoved();
-
-        Session.Persist();
-        Session.RemovalManager.Remove(this);
-        Session.Persist();
-        State.PersistenceState = PersistenceState.Removed;
+        Session.RemovalProcessor.Remove(this);
 
         NotifyRemove();
         Session.NotifyRemoveEntity(this);

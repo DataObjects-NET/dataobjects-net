@@ -14,7 +14,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
   {
     public override void Process(RemovalContext context, AssociationInfo association, Entity removingObject, Entity target, Entity referencingObject, Entity referencedObject)
     {
-      if (!context.RemovalQueue.Contains(target.State))
+      if (!context.Items.Contains(target))
         throw new ReferentialIntegrityException(removingObject);
 
       switch (association.Multiplicity) {

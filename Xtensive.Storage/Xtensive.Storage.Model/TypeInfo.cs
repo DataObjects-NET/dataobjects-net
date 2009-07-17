@@ -350,7 +350,7 @@ namespace Xtensive.Storage.Model
     /// Gets the association sequence for entity removal.
     /// </summary>
     /// <returns></returns>
-    public IList<AssociationInfo> GetAssociationSequenceForRemoval()
+    public IList<AssociationInfo> GetRemovalAssociationSequence()
     {
       return removalSequence;
     }

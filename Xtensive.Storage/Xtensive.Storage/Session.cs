@@ -87,7 +87,7 @@ namespace Xtensive.Storage
 
     internal SyncManager PairSyncManager { get; private set; }
 
-    internal RemovalManager RemovalManager { get; private set; }
+    internal RemovalProcessor RemovalProcessor { get; private set; }
 
     private void NotifyDisposing()
     {
@@ -485,7 +485,7 @@ namespace Xtensive.Storage
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       CoreServices = new CoreServiceAccessor(this);
       PairSyncManager = new SyncManager(this);
-      RemovalManager = new RemovalManager(this);
+      RemovalProcessor = new RemovalProcessor(this);
       EntityEvents = new EntityEventManager();
     }
 
