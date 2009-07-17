@@ -21,8 +21,8 @@ namespace Xtensive.Sql.Tests.MsSql
     public override void SetUp()
     {
       base.SetUp();
-      sqlDriver = SqlDriver.Create(TestUrl.SqlServer2005AW);
-      sqlConnection = sqlDriver.CreateConnection(TestUrl.SqlServer2005AW);
+      sqlDriver = SqlDriver.Create(TestUrl.SqlServer2005Aw);
+      sqlConnection = sqlDriver.CreateConnection(TestUrl.SqlServer2005Aw);
       sqlCommand = sqlConnection.CreateCommand();
     }
 

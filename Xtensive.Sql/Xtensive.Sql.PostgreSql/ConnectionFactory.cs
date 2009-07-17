@@ -1,7 +1,7 @@
 using Npgsql;
 using System;
-using System.Globalization;
 using System.Text;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Sql.PostgreSql.Resources;
 
@@ -11,10 +11,7 @@ namespace Xtensive.Sql.PostgreSql
   {
     private static readonly string[] mTrueStrings = new[] {"t", "true", "1", "on", "yes", "y"};
     private static readonly string[] mFalseStrings = new[] {"f", "false", "0", "off", "no", "n"};
-
-    private static readonly char[] mInvalidChars;
-    private static readonly string mInvalidCharacterExceptionMessageTemplate;
-
+    
     private static readonly string mAllowedBoolStringsText;
 
     public static NpgsqlConnection CreateConnection(UrlInfo url)
@@ -25,10 +22,11 @@ namespace Xtensive.Sql.PostgreSql
 
     private static string BuildConnectionString(UrlInfo url)
     {
+      SqlHelper.ValidateConnectionUrl(url);
+
       var csBuilder = new StringBuilder();
 
-      if (url.Host!="") {
-        Validate(url.Host, "Host");
+      if (url.Host!=string.Empty) {
         csBuilder.Append("Server=");
         csBuilder.Append(url.Host);
       }
@@ -40,116 +38,83 @@ namespace Xtensive.Sql.PostgreSql
         csBuilder.Append(url.Port);
       }
 
-      if (url.User!="") {
-        Validate(url.User, "User");
+      if (url.User!=string.Empty && url.Password!=string.Empty) {
         csBuilder.Append(";User Id=");
         csBuilder.Append(url.User);
-        Validate(url.Password, "Password");
         csBuilder.Append(";Password=");
         csBuilder.Append(url.Password);
       }
       else
         throw new ArgumentException("URL doesn't contain User/Password specification.");
 
-      if (url.Resource!="") {
-        Validate(url.Resource, "Database");
+      if (url.Resource!=string.Empty) {
         csBuilder.Append(";Database=");
         csBuilder.Append(url.Resource);
       }
       else
         throw new ArgumentException("URL doesn't contain Database specification.");
 
-      string protocol;
-      url.Params.TryGetValue("Protocol", out protocol);
-      if (protocol!=null) {
-        if (protocol!="3" && protocol!="2")
+      string protocolParameter;
+      if (url.Params.TryGetValue("Protocol", out protocolParameter)) {
+        if (protocolParameter!="3" && protocolParameter!="2")
           throw IncorrectUrl("Protocol", "2 or 3");
-        csBuilder.AppendFormat(";Protocol={0}", protocol);
+        csBuilder.AppendFormat(";Protocol={0}", protocolParameter);
       }
 
-      string encoding;
-      url.Params.TryGetValue("Encoding", out encoding);
-      if (encoding!=null) {
-        encoding = encoding.ToUpper();
-        if (encoding!="ASCII" && encoding!="UNICODE")
+      string encodingParameter;
+      if (url.Params.TryGetValue("Encoding", out encodingParameter)) {
+        encodingParameter = encodingParameter.ToUpperInvariant();
+        if (encodingParameter!="ASCII" && encodingParameter!="UNICODE")
           throw IncorrectUrl("Encoding", "ASCII or UNICODE.");
-        csBuilder.AppendFormat(";Encoding={0}", encoding);
+        csBuilder.AppendFormat(";Encoding={0}", encodingParameter);
       }
 
-      string pooling;
-      url.Params.TryGetValue("Pooling", out pooling);
-      if (pooling!=null) {
-        if (!IsBoolString(pooling))
+      string poolingParameter;
+      if (url.Params.TryGetValue("Pooling", out poolingParameter)) {
+        if (!IsBoolString(poolingParameter))
           throw IncorrectUrl("Pooling", mAllowedBoolStringsText);
-        csBuilder.AppendFormat(";Pooling={0}", ConvertBoolStringToNpgsqlBoolString(pooling));
+        csBuilder.AppendFormat(";Pooling={0}", ToNpgsqlBooleanString(poolingParameter));
 
-        //reading pooling settings
+        // reading pooling settings
 
-        string minps;
-        url.Params.TryGetValue("MinPoolSize", out minps);
-        if (minps!=null) {
-          int minpsi = -1;
-          try {
-            minpsi = Int32.Parse(minps);
-          }
-          catch {
+        string minPoolSizeParameter;
+        if (url.Params.TryGetValue("MinPoolSize", out minPoolSizeParameter)) {
+          int minPoolSize;
+          if (!int.TryParse(minPoolSizeParameter, out minPoolSize) || minPoolSize < 1)
             throw IncorrectUrl("MinPoolSize", "a positive integer");
-          }
-          if (minpsi < 1)
-            throw IncorrectUrl("MinPoolSize", "a positive integer");
-
-          csBuilder.AppendFormat(";MinPoolSize={0}", minpsi);
+          csBuilder.AppendFormat(";MinPoolSize={0}", minPoolSize);
         }
 
-
-        string maxps;
-        url.Params.TryGetValue("MaxPoolSize", out maxps);
-        if (maxps!=null) {
-          int maxpsi = -1;
-          try {
-            maxpsi = Int32.Parse(maxps);
-          }
-          catch {
+        string maxPoolSizeParameter;
+        if (url.Params.TryGetValue("MaxPoolSize", out maxPoolSizeParameter)) {
+          int maxPoolSize;
+          if (!int.TryParse(maxPoolSizeParameter, out maxPoolSize) || maxPoolSize < 1)
             throw IncorrectUrl("MaxPoolSize", "a positive integer");
-          }
-          if (maxpsi < 1)
-            throw IncorrectUrl("MaxPoolSize", "a positive integer");
-
-          csBuilder.AppendFormat(";MaxPoolSize={0}", maxpsi);
+          csBuilder.AppendFormat(";MaxPoolSize={0}", maxPoolSize);
         }
       }
-
-
-      string timeout;
-      url.Params.TryGetValue("Timeout", out timeout);
-      if (timeout!=null) {
-        int toi = -1;
-        try {
-          toi = Int32.Parse(timeout);
-        }
-        catch {
-          throw IncorrectUrl("Timeout", "a non-negative integer.");
-        }
-        if (toi < 0)
+      
+      string timeoutParameter;
+      if (url.Params.TryGetValue("Timeout", out timeoutParameter)) {
+        int timeout;
+        if (!int.TryParse(timeoutParameter, out timeout) || timeout < 0)
           throw IncorrectUrl("Timeout", "a non-negative integer.");
         csBuilder.Append(";Timeout=");
-        csBuilder.Append(toi);
+        csBuilder.Append(timeout);
       }
 
-      string ssl;
-      url.Params.TryGetValue("SSL", out ssl);
-      if (ssl!=null) {
-        if (!IsBoolString(ssl))
+      string sslParameter;
+      if (url.Params.TryGetValue("SSL", out sslParameter)) {
+        if (!IsBoolString(sslParameter))
           throw IncorrectUrl("SSL", mAllowedBoolStringsText);
-        csBuilder.AppendFormat(";SSL={0}", ConvertBoolStringToNpgsqlBoolString(ssl));
+        csBuilder.AppendFormat(";SSL={0}", ToNpgsqlBooleanString(sslParameter));
       }
 
-      string sslmode;
-      url.Params.TryGetValue("Sslmode", out sslmode);
-      if (sslmode!=null) {
-        if (sslmode!="Prefer" && sslmode!="Require" && sslmode!="Allow" && sslmode!="Disable")
+      string sslModeParameter;
+      if (url.Params.TryGetValue("Sslmode", out sslModeParameter)) {
+        if (sslModeParameter!="Prefer" && sslModeParameter!="Require" && sslModeParameter!="Allow" && sslModeParameter!="Disable")
           throw IncorrectUrl("Sslmode", "Prefer, Require, Allow, or Disable.");
-        csBuilder.AppendFormat(";Sslmode={0}", sslmode);
+        csBuilder.AppendFormat(";Sslmode={0}", sslModeParameter);
       }
       csBuilder.Append(";");
 
@@ -163,37 +128,21 @@ namespace Xtensive.Sql.PostgreSql
 
     private static bool IsTrueString(string s)
     {
-      return ArrayContains(mTrueStrings, s.ToLower(CultureInfo.InvariantCulture));
+      return mTrueStrings.Contains(s.ToLowerInvariant());
     }
 
     private static bool IsFalseString(string s)
     {
-      return ArrayContains(mFalseStrings, s.ToLower(CultureInfo.InvariantCulture));
+      return mFalseStrings.Contains(s.ToLowerInvariant());
     }
 
-    private static bool ArrayContains(string[] a, string elem)
-    {
-      int l = a.Length;
-      for (int i = 0; i < l; i++) {
-        if (a[i]==elem)
-          return true;
-      }
-      return false;
-    }
-
-    private static string ConvertBoolStringToNpgsqlBoolString(string s)
+    private static string ToNpgsqlBooleanString(string s)
     {
       if (IsTrueString(s))
         return "True";
       if (IsFalseString(s))
         return "False";
       throw new ArgumentException("Invalid value: " + s, "s");
-    }
-
-    private static void Validate(string parameter, string parameterName)
-    {
-      if (parameter.IndexOfAny(mInvalidChars) > 0)
-        throw new ArgumentException(String.Format(mInvalidCharacterExceptionMessageTemplate, parameterName));
     }
 
     private static ArgumentException IncorrectUrl(string parameterName, string expectedValue)
@@ -206,16 +155,6 @@ namespace Xtensive.Sql.PostgreSql
 
     static ConnectionFactory()
     {
-      mInvalidChars = new[] {'=', ';'};
-      string[] invalidStrings = new string[mInvalidChars.Length];
-      for (int i = 0; i < mInvalidChars.Length; i++) {
-        invalidStrings[i] = new String(mInvalidChars[i], 1);
-      }
-
-      mInvalidCharacterExceptionMessageTemplate =
-        "URL contains invalid {0} specification. {0} cannot contain any of these: '" +
-        string.Join("', '", invalidStrings) + "' .";
-
       mAllowedBoolStringsText =
         string.Format("{0} or {1}", string.Join("/", mTrueStrings), string.Join("/", mFalseStrings));
     }

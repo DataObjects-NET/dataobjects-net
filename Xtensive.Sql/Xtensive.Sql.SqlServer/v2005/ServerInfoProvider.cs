@@ -312,17 +312,17 @@ namespace Xtensive.Sql.SqlServer.v2005
           "    serverProperty('ProductVersion') as ProductVersion,"+
           "    serverProperty('ProductLevel') as ProductLevel,"+
           "    serverProperty('EngineEdition') as EngineEdition";
-        using (IDataReader reader = command.ExecuteReader()) {
+        using (var reader = command.ExecuteReader()) {
           if (reader.Read()) {
             var v = new SqlServerVersionInfo(new Version(reader.GetString(2)));
-            long editionID = Convert.ToInt64(reader.GetValue(0));
-            if (Enum.IsDefined(typeof(SqlServerEdition), editionID))
-              v.Edition = ((SqlServerEdition)Enum.ToObject(typeof(SqlServerEdition), editionID));
+            long editionId = Convert.ToInt64(reader.GetValue(0));
+            if (Enum.IsDefined(typeof(SqlServerEdition), editionId))
+              v.Edition = ((SqlServerEdition) Enum.ToObject(typeof (SqlServerEdition), editionId));
             v.EditionName = reader.GetString(1);
             v.ProductLevel = reader.GetString(3);
-            int engineEditionID = reader.GetInt32(4);
-            if (Enum.IsDefined(typeof(SqlServerEdition), (long)engineEditionID))
-              v.EngineEdition = (SqlServerEngineEdition)Enum.ToObject(typeof(SqlServerEngineEdition), engineEditionID);
+            int engineEditionId = reader.GetInt32(4);
+            if (Enum.IsDefined(typeof(SqlServerEdition), (long)engineEditionId))
+              v.EngineEdition = (SqlServerEngineEdition) Enum.ToObject(typeof (SqlServerEngineEdition), engineEditionId);
             versionInfo = v;
           }
           else

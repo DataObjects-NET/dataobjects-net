@@ -135,9 +135,9 @@ namespace Xtensive.Sql
     /// <summary>
     /// Creates the db connection from the specified connection info.
     /// </summary>
-    /// <param name="sqlConnectionUrl">The connection info.</param>
+    /// <param name="url">The connection info.</param>
     /// <returns>Created connection.</returns>
-    protected abstract DbConnection CreateNativeConnection(UrlInfo sqlConnectionUrl);
+    protected abstract DbConnection CreateNativeConnection(UrlInfo url);
     
     /// <summary>
     /// Creates the driver from the specified connection url.

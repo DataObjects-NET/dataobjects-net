@@ -2,13 +2,15 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
-// Created:    2009.06.23
+// Created:    2009.07.17
 
+using System;
 using System.Data.Common;
+using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.SqlServer
+namespace Xtensive.Sql.Oracle
 {
   internal abstract class Driver : SqlDriver
   {

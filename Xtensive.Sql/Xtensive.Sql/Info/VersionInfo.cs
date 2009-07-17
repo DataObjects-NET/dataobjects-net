@@ -11,15 +11,10 @@ namespace Xtensive.Sql.Info
   /// </summary>
   public class VersionInfo
   {
-    private Version productVersion;
-
     /// <summary>
     /// A version of RDBMS.
     /// </summary>
-    public Version ProductVersion
-    {
-      get { return productVersion; }
-    }
+    public Version ProductVersion { get; private set; }
 
     /// <summary>
     /// Returns a <see cref="string"/> representation of the
@@ -27,7 +22,7 @@ namespace Xtensive.Sql.Info
     /// </summary>
     public override string ToString()
     {
-      return productVersion.ToString();
+      return ProductVersion.ToString();
     }
 
     /// <summary>
@@ -36,7 +31,7 @@ namespace Xtensive.Sql.Info
     /// <param name="productVersion"></param>
     public VersionInfo(Version productVersion)
     {
-      this.productVersion = productVersion;
+      ProductVersion = productVersion;
     }
   }
 }

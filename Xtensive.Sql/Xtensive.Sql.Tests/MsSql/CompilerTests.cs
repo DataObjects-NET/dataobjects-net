@@ -23,8 +23,8 @@ namespace Xtensive.Sql.Tests.MsSql
     {
       base.SetUp();
 
-      sqlDriver = SqlDriver.Create(TestUrl.SqlServer2005AW);
-      sqlConnection = sqlDriver.CreateConnection(TestUrl.SqlServer2005AW);
+      sqlDriver = SqlDriver.Create(TestUrl.SqlServer2005Aw);
+      sqlConnection = sqlDriver.CreateConnection(TestUrl.SqlServer2005Aw);
       sqlCommand = sqlConnection.CreateCommand();
       try {
         sqlConnection.Open();

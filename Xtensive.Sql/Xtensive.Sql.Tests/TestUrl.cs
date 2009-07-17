@@ -9,7 +9,7 @@ namespace Xtensive.Sql.Tests
   public static class TestUrl
   {
     public const string SqlServer2005 = "sqlserver://localhost/DO40-Tests";
-    public const string SqlServer2005AW = "sqlserver://localhost/AdventureWorks";
+    public const string SqlServer2005Aw = "sqlserver://localhost/AdventureWorks";
 
     public const string PostgreSql80 = "postgresql://do4test:do4testpwd@127.0.0.1:8032/do40test?Encoding=ASCII&Pooling=on&MinPoolSize=1&MaxPoolSize=5";
     public const string PostgreSql81 = "postgresql://do4test:do4testpwd@127.0.0.1:8132/do40test?Encoding=ASCII&Pooling=on&MinPoolSize=1&MaxPoolSize=5";
@@ -18,6 +18,10 @@ namespace Xtensive.Sql.Tests
     public const string PostgreSql84 = "postgresql://do4test:do4testpwd@127.0.0.1:8432/do40test?Encoding=ASCII&Pooling=on&MinPoolSize=1&MaxPoolSize=5";
 
     public const string VistaDb = "vistadb://localhost/VistaDb/VDBTests.vdb3";
-    public const string VistaDbAW = "vistadb://localhost/VistaDb/AdventureWorks.vdb3";
+    public const string VistaDbAw = "vistadb://localhost/VistaDb/AdventureWorks.vdb3";
+
+    public const string Oracle9  = "oracle://test:test@localhost:5509/ora09";
+    public const string Oracle10 = "oracle://test:test@localhost:5510/ora10";
+    public const string Oracle11 = "oracle://test:test@localhost:5511/ora11";
   }
 }

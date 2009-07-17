@@ -15,7 +15,7 @@ namespace Xtensive.Sql.VistaDb
   public class DriverFactory : SqlDriverFactory
   {
     /// <inheritdoc/>
-    public override SqlDriver CreateDriver(UrlInfo sqlConnectionUrl)
+    public override SqlDriver CreateDriver(UrlInfo url)
     {
       return new v3.Driver();
     }

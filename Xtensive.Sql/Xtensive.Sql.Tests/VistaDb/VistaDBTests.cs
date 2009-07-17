@@ -80,8 +80,8 @@ namespace Xtensive.Sql.Tests.VistaDb
     public override void SetUp()
     {
       base.SetUp();
-      SqlDriver = SqlDriver.Create(TestUrl.VistaDbAW);
-      sqlConnection = SqlDriver.CreateConnection(TestUrl.VistaDbAW);
+      SqlDriver = SqlDriver.Create(TestUrl.VistaDbAw);
+      sqlConnection = SqlDriver.CreateConnection(TestUrl.VistaDbAw);
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();
       try {

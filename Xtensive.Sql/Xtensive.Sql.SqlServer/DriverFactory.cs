@@ -17,14 +17,14 @@ namespace Xtensive.Sql.SqlServer
   public class DriverFactory : SqlDriverFactory
   {
     /// <inheritdoc/>
-    public override SqlDriver CreateDriver(UrlInfo sqlConnectionUrl)
+    public override SqlDriver CreateDriver(UrlInfo url)
     {
-      using (var connection = ConnectionFactory.CreateConnection(sqlConnectionUrl)) {
+      using (var connection = ConnectionFactory.CreateConnection(url)) {
         connection.Open();
-        SqlDriver result;
         var version = new Version(connection.ServerVersion);
         if (version.Major < 9)
           throw new NotSupportedException(Strings.ExMicrosoftSqlServerBelow2005IsNotSupported);
+        SqlDriver result;
         if (version.Major==9)
           result = new v2005.Driver(connection);
         else

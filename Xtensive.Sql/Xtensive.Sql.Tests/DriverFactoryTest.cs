@@ -9,7 +9,7 @@ namespace Xtensive.Sql.Tests
     [Test]
     public void ConnectionUrlTest()
     {
-      var url = new UrlInfo(TestUrl.SqlServer2005AW);
+      var url = new UrlInfo(TestUrl.SqlServer2005Aw);
       Assert.AreEqual(url.Protocol, "sqlserver");
       Assert.AreEqual(url.Host, "localhost");
       Assert.AreEqual(url.Resource, "AdventureWorks");
@@ -32,6 +32,8 @@ namespace Xtensive.Sql.Tests
       Assert.IsNotNull(driver);
       driver = SqlDriver.Create(TestUrl.VistaDb);
       Assert.IsNotNull(driver);
+//      driver = SqlDriver.Create(TestUrl.Oracle11);
+//      Assert.IsNotNull(driver);
     }
   }
 }

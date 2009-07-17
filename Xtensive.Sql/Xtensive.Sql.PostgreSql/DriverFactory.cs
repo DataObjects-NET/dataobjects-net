@@ -16,15 +16,15 @@ namespace Xtensive.Sql.PostgreSql
   public class DriverFactory : SqlDriverFactory
   {
     /// <inheritdoc/>
-    public override SqlDriver CreateDriver(UrlInfo sqlConnectionUrl)
+    public override SqlDriver CreateDriver(UrlInfo url)
     {
-      using (var connection = ConnectionFactory.CreateConnection(sqlConnectionUrl)) {
-        SqlDriver result;
+      using (var connection = ConnectionFactory.CreateConnection(url)) {
         connection.Open();
         int major = connection.PostgreSqlVersion.Major;
         int minor = connection.PostgreSqlVersion.Minor;
         if (major < 8)
           throw new NotSupportedException(Strings.ExPostgreSqlBelow80IsNotSupported);
+        SqlDriver result;
         if (major==8 && minor==0)
           result = new v8_0.Driver(connection);
         else if (major==8 && minor==1)

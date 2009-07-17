@@ -84,8 +84,8 @@ namespace Xtensive.Sql.Tests.MsSql
     [TestFixtureSetUp]
     public override void SetUp()
     {
-      sqlDriver = SqlDriver.Create(TestUrl.SqlServer2005AW);
-      sqlConnection = sqlDriver.CreateConnection(TestUrl.SqlServer2005AW);
+      sqlDriver = SqlDriver.Create(TestUrl.SqlServer2005Aw);
+      sqlConnection = sqlDriver.CreateConnection(TestUrl.SqlServer2005Aw);
 
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();
