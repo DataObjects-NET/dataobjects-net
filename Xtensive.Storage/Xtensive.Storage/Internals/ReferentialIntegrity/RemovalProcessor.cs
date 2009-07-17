@@ -5,6 +5,7 @@
 // Created:    2008.07.01
 
 using System;
+using System.Linq;
 using Xtensive.Core.Aspects;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -24,7 +25,8 @@ namespace Xtensive.Storage.ReferentialIntegrity
     public void Remove(Entity item)
     {
       if (Context!=null) {
-        ProcessItem(Context, item);
+        if (!Context.Items.Contains(item))
+          Context.Queue.Enqueue(item);
         return;
       }
 
@@ -49,7 +51,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
       while (context.Queue.Count != 0) {
         var item = context.Queue.Dequeue();
         if (!context.Items.Contains(item))
-          item.Remove();
+          ProcessItem(context, item);
       }
     }
 
@@ -68,13 +70,13 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
         if (item.Type == association.OwnerType) {
           actionProcessor = GetProcessor(association.OnOwnerRemove.Value);
-          foreach (var referencedObject in association.FindReferencedObjects(item))
+          foreach (var referencedObject in association.FindReferencedObjects(item).ToList())
             actionProcessor.Process(context, association, item, referencedObject, item, referencedObject);
         }
 
         if (item.Type == association.TargetType) {
           actionProcessor = GetProcessor(association.OnTargetRemove.Value);
-          foreach (var referencingObject in association.FindReferencingObjects(item))
+          foreach (var referencingObject in association.FindReferencingObjects(item).ToList())
             actionProcessor.Process(context, association, item, referencingObject, referencingObject, item);
         }
       }

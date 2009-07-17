@@ -216,6 +216,10 @@ namespace Xtensive.Storage.Tests.Storage
           c.Package2.Items.Add(item);
 
           c.Remove();
+
+          Assert.AreEqual(0, Query<Container>.All.Count());
+          Assert.AreEqual(0, Query<Package>.All.Count());
+          Assert.AreEqual(0, Query<PackageItem>.All.Count());
         }
       }
     }

@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.01
 
-using System;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.ReferentialIntegrity
@@ -17,13 +15,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
       if (!context.Items.Contains(target))
         throw new ReferentialIntegrityException(removingObject);
 
-      switch (association.Multiplicity) {
-        case Multiplicity.ZeroToOne:
-        case Multiplicity.OneToOne:
-        case Multiplicity.ManyToOne:
-          AssociationActionProvider.ClearReferenceAction(association, referencingObject, null);
-          break;
-      }
+      base.Process(context, association, removingObject, target, referencingObject, referencedObject);
     }
   }
 }
