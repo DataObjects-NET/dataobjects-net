@@ -40,7 +40,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="mappingName"><see cref="Name"/> property value.</param>
+    /// <param name="mappingName">Field mapping name.</param>
     public FieldMappingAttribute(string mappingName)
     {
       Name = mappingName;
@@ -49,7 +49,8 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="mappingName"><see cref="Name"/> property value.</param>
+    /// <param name="mappingName">Field mapping name.</param>
+    /// <param name="fieldName">Field name.</param>
     public FieldMappingAttribute(string mappingName, string fieldName)
     {
       Name = mappingName;

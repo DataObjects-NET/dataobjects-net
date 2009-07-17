@@ -13,7 +13,7 @@ namespace Xtensive.Storage
   /// Table mapping attribute.
   /// </summary>
   [Serializable]
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public class TableMappingAttribute : StorageAttribute
   {
     /// <summary>
