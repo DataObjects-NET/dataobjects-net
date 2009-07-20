@@ -9,24 +9,20 @@ using System.Collections.Generic;
 
 namespace Xtensive.Storage.ReferentialIntegrity
 {
-  internal class RemovalContext : IDisposable
+  internal class RemovalContext
   {
-    private readonly RemovalProcessor processor;
     public readonly HashSet<Entity> Items = new HashSet<Entity>();
     public readonly Queue<Entity> Queue = new Queue<Entity>();
 
-    public void Dispose()
+    public bool IsEmpty
     {
-      Items.Clear();
-      processor.Context = null;
+      get { return Items.Count==0; }
     }
 
-
-    // Constructors
-
-    public RemovalContext(RemovalProcessor processor)
+    public void Clear()
     {
-      this.processor = processor;
+      Items.Clear();
+      Queue.Clear();
     }
   }
 }

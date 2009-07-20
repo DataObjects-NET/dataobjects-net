@@ -397,17 +397,17 @@ namespace Xtensive.Storage.Model
       var sequence = new List<AssociationInfo>(associations.Count);
 
       IEnumerable<AssociationInfo> items;
-      items = associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Deny && a.OwnerType == this);
+      items = associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Deny && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType));
       if (items != null) sequence.AddRange(items);
-      items = associations.Where(a => a.OnTargetRemove == OnRemoveAction.Deny && a.TargetType == this);
+      items = associations.Where(a => a.OnTargetRemove == OnRemoveAction.Deny && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType));
       if (items != null) sequence.AddRange(items);
-      items = associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Clear && a.OwnerType == this);
+      items = associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Clear && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType));
       if (items != null) sequence.AddRange(items);
-      items = associations.Where(a => a.OnTargetRemove == OnRemoveAction.Clear && a.TargetType == this);
+      items = associations.Where(a => a.OnTargetRemove == OnRemoveAction.Clear && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType));
       if (items != null) sequence.AddRange(items);
-      items = associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Cascade && a.OwnerType == this);
+      items = associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Cascade && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType));
       if (items != null) sequence.AddRange(items);
-      items = associations.Where(a => a.OnTargetRemove == OnRemoveAction.Cascade && a.TargetType == this);
+      items = associations.Where(a => a.OnTargetRemove == OnRemoveAction.Cascade && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType));
       if (items != null) sequence.AddRange(items);
 
       removalSequence = new ReadOnlyList<AssociationInfo>(sequence.ToList());

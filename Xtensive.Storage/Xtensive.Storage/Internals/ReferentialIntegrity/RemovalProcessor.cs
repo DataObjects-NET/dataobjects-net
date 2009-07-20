@@ -4,11 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.01
 
-using System;
 using System.Linq;
 using Xtensive.Core.Aspects;
 using Xtensive.Storage.Internals;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.ReferentialIntegrity
 {
@@ -18,24 +16,26 @@ namespace Xtensive.Storage.ReferentialIntegrity
     private static readonly DenyActionProcessor DenyActionProcessor = new DenyActionProcessor();
     private static readonly ClearActionProcessor ClearActionProcessor = new ClearActionProcessor();
 
-    [Infrastructure]
-    public RemovalContext Context { private get; set; }
+    private readonly RemovalContext context;
 
     [Infrastructure]
     public void Remove(Entity item)
     {
-      if (Context!=null) {
-        if (!Context.Items.Contains(item))
-          Context.Queue.Enqueue(item);
-        return;
+      if (context.IsEmpty) {
+        try {
+          Session.Persist();
+          ProcessItem(context, item);
+          ProcessQueue(context);
+          MarkItemsAsRemoved(context);
+          Session.Persist();
+        }
+        finally {
+          context.Clear();
+        }
       }
-
-      using (Context = new RemovalContext(this)) {
-        Session.Persist();
-        ProcessItem(Context, item);
-        ProcessQueue(Context);
-        MarkItemsAsRemoved(Context);
-        Session.Persist();
+      else {
+        if (!context.Items.Contains(item))
+          context.Queue.Enqueue(item);
       }
     }
 
@@ -48,7 +48,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
     [Infrastructure]
     private static void ProcessQueue(RemovalContext context)
     {
-      while (context.Queue.Count != 0) {
+      while (context.Queue.Count!=0) {
         var item = context.Queue.Dequeue();
         if (!context.Items.Contains(item))
           ProcessItem(context, item);
@@ -63,18 +63,17 @@ namespace Xtensive.Storage.ReferentialIntegrity
       context.Items.Add(item);
 
       var sequence = item.Type.GetRemovalAssociationSequence();
-      if (sequence == null || sequence.Count == 0)
+      if (sequence==null || sequence.Count==0)
         return;
 
       foreach (var association in sequence) {
-
-        if (item.Type == association.OwnerType) {
+        if (association.OwnerType.UnderlyingType.IsAssignableFrom(item.Type.UnderlyingType)) {
           actionProcessor = GetProcessor(association.OnOwnerRemove.Value);
           foreach (var referencedObject in association.FindReferencedObjects(item).ToList())
             actionProcessor.Process(context, association, item, referencedObject, item, referencedObject);
         }
 
-        if (item.Type == association.TargetType) {
+        if (association.TargetType.UnderlyingType.IsAssignableFrom(item.Type.UnderlyingType)) {
           actionProcessor = GetProcessor(association.OnTargetRemove.Value);
           foreach (var referencingObject in association.FindReferencingObjects(item).ToList())
             actionProcessor.Process(context, association, item, referencingObject, referencingObject, item);
@@ -101,6 +100,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
     public RemovalProcessor(Session session)
       : base(session)
     {
+      context = new RemovalContext();
     }
   }
 }
