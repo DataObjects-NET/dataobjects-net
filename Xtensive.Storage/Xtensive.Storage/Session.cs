@@ -89,6 +89,11 @@ namespace Xtensive.Storage
 
     internal RemovalProcessor RemovalProcessor { get; private set; }
 
+    internal CompilationContext CompilationContext
+    {
+      get { return Handlers.DomainHandler.CompilationContext; }
+    }
+
     private void NotifyDisposing()
     {
       if (!SystemLogicOnly && OnDisposing!=null)
@@ -334,13 +339,41 @@ namespace Xtensive.Storage
 
     #region IContext<...> methods
 
+    private static Func<Session> currentSessionResolver;
+
+    /// <summary>
+    /// Sets the current session resolver.
+    /// </summary>
+    /// <remarks>
+    /// This method can be called once per application domain, assigned resolver can not be changed.
+    /// </remarks>
+    /// <param name="resolver">The delegate that resolves current session.</param>
+    /// <exception cref="InvalidOperationException">Current session resolver is already assigned.</exception>
+    public static void SetCurrentSessionResolver(Func<Session> resolver)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
+      if (currentSessionResolver!=null)
+        throw new InvalidOperationException(Strings.ExValueIsAlreadyAssigned);
+      currentSessionResolver = resolver;
+      Rse.Compilation.CompilationContext.SetCurrentContextResolver(
+        () => {
+          var session = resolver.Invoke();
+          return session==null ? null : session.CompilationContext;
+        });
+    }
+
     /// <summary>
     /// Gets the current active <see cref="Session"/> instance.
     /// </summary>
     public static Session Current
     {
       [DebuggerStepThrough]
-      get { return SessionScope.CurrentSession; }
+      get
+      {
+        return 
+          SessionScope.CurrentSession ?? 
+          (currentSessionResolver==null ? null : currentSessionResolver.Invoke());
+      }
     }
 
     /// <summary>
@@ -361,7 +394,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public SessionScope Activate()
     {
-      if (IsActive)
+      if (SessionScope.CurrentSession==this)
         return null;
       return new SessionScope(this);
     }
@@ -410,20 +443,46 @@ namespace Xtensive.Storage
     /// using (Session.Open(domain)) {
     /// // work with persistent objects here
     /// // Session is available through static Session.Current property
-    /// {
+    /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
     public static SessionConsumptionScope Open(Domain domain)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      return Open(domain, domain.Configuration.Sessions.Default);
+      return Open(domain, domain.Configuration.Sessions.Default, true);
+    }
+
+    /// <summary>
+    /// Opens new <see cref="Session"/> with default <see cref="SessionConfiguration"/>.
+    /// </summary>
+    /// <param name="domain">The domain.</param>
+    /// <param name="activate">Determines whether created session should be activated or not.</param>
+    /// </param>
+    /// <returns>
+    /// New <see cref="SessionConsumptionScope"/> object.
+    /// </returns>
+    /// <remarks>
+    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
+    /// </remarks>
+    /// <sample><code>
+    /// using (Session.Open(domain)) {
+    /// // work with persistent objects here
+    /// // Session is available through static Session.Current property
+    /// }
+    /// </code></sample>
+    /// <seealso cref="Session"/>
+    public static SessionConsumptionScope Open(Domain domain, bool activate)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
+      return Open(domain, domain.Configuration.Sessions.Default, activate);
     }
 
     /// <summary>
     /// Opens and activates new <see cref="Session"/> of specified <see cref="SessionType"/>.
     /// </summary>
-    /// <param name="domain">The domain.</param>
+    /// <param name="domain">The domain.</param>    
     /// <param name="type">The type of session.</param>
+    /// </param>
     /// <returns>
     /// New <see cref="SessionConsumptionScope"/> object.
     /// </returns>
@@ -434,21 +493,45 @@ namespace Xtensive.Storage
     /// using (Session.Open(domain, sessionType)) {
     /// // work with persistent objects here
     /// // Session is available through static Session.Current property
-    /// {
+    /// }
     /// </code></sample>
     public static SessionConsumptionScope Open(Domain domain, SessionType type)
+    {
+      return Open(domain, type, true);
+    }
+
+    /// <summary>
+    /// Opens new <see cref="Session"/> of specified <see cref="SessionType"/>.
+    /// </summary>
+    /// <param name="domain">The domain.</param>    
+    /// <param name="type">The type of session.</param>
+    /// <param name="activate">Determines whether created session should be activated or not.</param>
+    /// </param>
+    /// <returns>
+    /// New <see cref="SessionConsumptionScope"/> object.
+    /// </returns>
+    /// <remarks>
+    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
+    /// </remarks>
+    /// <sample><code>
+    /// using (Session.Open(domain, sessionType, false)) {
+    /// // work with persistent objects here
+    /// // Session is available through static Session.Current property
+    /// }
+    /// </code></sample>
+    public static SessionConsumptionScope Open(Domain domain, SessionType type, bool activate)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
 
       switch (type) {
       case SessionType.User:
-        return Open(domain, domain.Configuration.Sessions.Default);
+        return Open(domain, domain.Configuration.Sessions.Default, activate);
       case SessionType.System:
-        return Open(domain, domain.Configuration.Sessions.System);
+        return Open(domain, domain.Configuration.Sessions.System, activate);
       case SessionType.KeyGenerator:
-        return Open(domain, domain.Configuration.Sessions.KeyGenerator);
+        return Open(domain, domain.Configuration.Sessions.KeyGenerator, activate);
       case SessionType.Service:
-        return Open(domain, domain.Configuration.Sessions.Service);
+        return Open(domain, domain.Configuration.Sessions.Service, activate);
       default:
         throw new ArgumentOutOfRangeException("type");
       }
@@ -469,15 +552,39 @@ namespace Xtensive.Storage
     /// using (Session.Open(domain, sessionConfiguration)) {
     /// // work with persistent objects here
     /// // Session is available through static Session.Current property
-    /// {
+    /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
     public static SessionConsumptionScope Open(Domain domain, SessionConfiguration configuration)
     {
+      return Open(domain, configuration, true);
+    }
+
+    /// <summary>
+    /// Opens new <see cref="Session"/> with specified <see cref="SessionConfiguration"/>.
+    /// </summary>
+    /// <param name="domain">The domain.</param>
+    /// <param name="configuration">The session configuration.</param>
+    /// <param name="activate">Determines whether created session should be activated or not.</param>
+    /// <returns>
+    /// New <see cref="SessionConsumptionScope"/> object.
+    /// </returns>
+    /// <remarks>
+    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
+    /// </remarks>
+    /// <sample><code>
+    /// using (Session.Open(domain, sessionConfiguration, false)) {
+    /// // work with persistent objects here
+    /// // Session is available through static Session.Current property
+    /// }
+    /// </code></sample>
+    /// <seealso cref="Session"/>
+    public static SessionConsumptionScope Open(Domain domain, SessionConfiguration configuration, bool activate)
+    {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
-      return domain.OpenSession(configuration);
+      return domain.OpenSession(configuration, activate);
     }
 
     #endregion

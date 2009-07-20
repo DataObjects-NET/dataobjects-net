@@ -44,7 +44,7 @@ namespace Xtensive.Storage
     public SessionScope(Session session)
       : base(session)
     {
-      toDispose = session.Handlers.DomainHandler.CompilationContext.Activate();
+      toDispose = session.CompilationContext.Activate();
     }
 
     // Desctructor

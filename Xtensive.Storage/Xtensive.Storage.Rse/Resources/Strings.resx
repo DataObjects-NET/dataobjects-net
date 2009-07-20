@@ -189,4 +189,7 @@
   <data name="ExColumnsUsedByCalculatedColumnExpressionContainingApplyParameterAreRemoved" xml:space="preserve">
     <value>Columns used by the CalculatedColumn's expression containing the ApplyParameter are removed.</value>
   </data>
+  <data name="ExValueIsAlreadyAssigned" xml:space="preserve">
+    <value>Value is already assigned</value>
+  </data>
 </root>

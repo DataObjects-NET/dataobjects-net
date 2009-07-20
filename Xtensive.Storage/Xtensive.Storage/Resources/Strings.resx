@@ -749,4 +749,10 @@ Actions:
   <data name="ExTypeXDoesNotHaveAParameterlessConstructor" xml:space="preserve">
     <value>The type '{0}' does not have a parameterless constructor.</value>
   </data>
+  <data name="ExCurrentSessionGetterIsAlreadyAssigned" xml:space="preserve">
+    <value>Current session getter is already assigned.</value>
+  </data>
+  <data name="ExValueIsAlreadyAssigned" xml:space="preserve">
+    <value>Value is already assigned.</value>
+  </data>
 </root>

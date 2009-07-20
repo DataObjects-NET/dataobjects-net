@@ -180,7 +180,7 @@ namespace Xtensive.Storage
 
     #region OpenSession method
 
-    internal SessionConsumptionScope OpenSession(SessionConfiguration configuration)
+    internal SessionConsumptionScope OpenSession(SessionConfiguration configuration, bool activate)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       configuration.Lock(true);
@@ -189,7 +189,7 @@ namespace Xtensive.Storage
         Log.Debug("Opening session '{0}'", configuration);
 
       var session = new Session(this, configuration);
-      var sessionScope = new SessionConsumptionScope(session);
+      var sessionScope = new SessionConsumptionScope(session, activate);
       OnSessionOpen(session);
       return sessionScope;
     }

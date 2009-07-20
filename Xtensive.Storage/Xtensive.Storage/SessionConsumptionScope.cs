@@ -47,19 +47,21 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the session scope that is controlled by this instance.
     /// </summary>
-    public SessionScope SessionScope { get; set; }
+    private SessionScope SessionScope { get; set; }
 
 
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="session">The session.</param>
-    internal SessionConsumptionScope(Session session)
+    /// <param name="activate">Determines whether session should be activated or not.</param>
+    internal SessionConsumptionScope(Session session, bool activate)
       : base(session)
     {
-      SessionScope = session.Activate();
+      if (activate)
+        SessionScope = session.Activate();
     }
 
     /// <inheritdoc/>

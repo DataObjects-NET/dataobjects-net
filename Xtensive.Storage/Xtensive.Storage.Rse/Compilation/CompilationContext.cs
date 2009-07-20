@@ -59,14 +59,42 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public readonly static DefaultCompilationContext Default = new DefaultCompilationContext();
 
+    private static Func<CompilationContext> currentContextResolver;
+
+    /// <summary>
+    /// Sets the current context resolver.
+    /// </summary>
+    /// <remarks>
+    /// This method can be called once per application domain, assigned resolver can not be changed.
+    /// </remarks>
+    /// <param name="resolver">The delegate that resolves current context.</param>
+    /// <exception cref="InvalidOperationException">Current context resolver is already assigned.</exception>
+    public static void SetCurrentContextResolver(Func<CompilationContext> resolver)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
+      if (currentContextResolver!=null)
+        throw new InvalidOperationException(Strings.ExValueIsAlreadyAssigned);
+      currentContextResolver = resolver;
+    }
+
     /// <summary>
     /// Gets the current compilation context.
     /// </summary>
     public static CompilationContext Current {
       [DebuggerStepThrough]
-      get { return CompilationScope.CurrentContext ?? Default; }
+      get 
+      { 
+        return CompilationScope.CurrentContext ??
+          (currentContextResolver==null ? null : currentContextResolver.Invoke()) ?? Default; 
+      }
     }
 
+    public override CompilationScope Activate()
+    {
+      if (CompilationScope.CurrentContext==this)
+        return null;
+      return new CompilationScope(this);
+    }
 
     /// <summary>
     /// Compiles the specified provider by passing it to <see cref="Compiler"/>.

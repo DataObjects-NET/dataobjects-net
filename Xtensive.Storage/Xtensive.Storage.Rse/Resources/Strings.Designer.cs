@@ -232,6 +232,15 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Value is already assigned.
+        /// </summary>
+        internal static string ExValueIsAlreadyAssigned {
+            get {
+                return ResourceManager.GetString("ExValueIsAlreadyAssigned", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The value of the parameter {0} can&apos;t be {1}, if the value of the parameter {2} is {3}..
         /// </summary>
         internal static string ExValueOfParameterWCantBeXIfValueOfParameterYIsZ {
