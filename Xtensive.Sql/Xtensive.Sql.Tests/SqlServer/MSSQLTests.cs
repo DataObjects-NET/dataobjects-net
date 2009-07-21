@@ -1,15 +1,13 @@
+using NUnit.Framework;
 using System;
 using System.Data;
 using System.Data.Common;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using NUnit.Framework;
 using Xtensive.Sql.Compiler;
-using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Tests.MsSql
+namespace Xtensive.Sql.Tests.SqlServer
 {
   [TestFixture]
   public class MSSQLTests : AdventureWorks

@@ -2,14 +2,14 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
-// Created:    2009.07.08
+// Created:    2009.03.02
 
 using NUnit.Framework;
 
-namespace Xtensive.Sql.Tests.PgSql.v8_4
+namespace Xtensive.Sql.Tests.PostgreSql.v8_4
 {
   [TestFixture]
-  public class TypeMappingTest : Tests.TypeMappingTest
+  public class DateTimeIntervalTest : Tests.DateTimeIntervalTest
   {
     protected override string Url { get { return TestUrl.PostgreSql84; } }
   }

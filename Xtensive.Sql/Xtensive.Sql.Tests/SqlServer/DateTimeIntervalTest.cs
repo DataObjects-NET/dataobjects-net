@@ -6,11 +6,16 @@
 
 using NUnit.Framework;
 
-namespace Xtensive.Sql.Tests.PgSql.v8_3
+namespace Xtensive.Sql.Tests.SqlServer
 {
   [TestFixture]
   public class DateTimeIntervalTest : Tests.DateTimeIntervalTest
   {
-    protected override string Url { get { return TestUrl.PostgreSql83; } }
+    protected override string Url { get { return TestUrl.SqlServer2005; } }
+
+    public override void DateTimeSubtractIntervalTest()
+    {
+      Assert.Ignore("MSSQL DateTime precision issue");
+    }
   }
 }

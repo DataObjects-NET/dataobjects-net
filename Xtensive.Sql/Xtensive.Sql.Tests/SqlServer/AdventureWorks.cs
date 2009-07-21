@@ -5,7 +5,7 @@ using Xtensive.Sql.Model;
 using Xtensive.Sql.Dml;
 using Constraint = Xtensive.Sql.Model.Constraint;
 
-namespace Xtensive.Sql.Tests.MsSql
+namespace Xtensive.Sql.Tests.SqlServer
 {
   [TestFixture]
   public class AdventureWorks

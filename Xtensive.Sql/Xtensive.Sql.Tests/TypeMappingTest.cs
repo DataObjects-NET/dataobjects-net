@@ -18,50 +18,31 @@ using Xtensive.Sql.ValueTypeMapping;
 namespace Xtensive.Sql.Tests
 {
   [TestFixture]
-  public abstract class TypeMappingTest
+  public abstract class TypeMappingTest : SqlTest
   {
     private const string IdParameterName = "PId";
     private const string IdColumnName = "Id";
     private const string TableName = "TypeMappingTest";
 
-    private SqlDriver driver;
-    private SqlConnection connection;
     private TypeMapping[] typeMappings;
     private object[][] testValues;
-
-    protected abstract string Url { get; }
-
-    [TestFixtureSetUp]
-    public void TestFixtureSetUp()
+    
+    public override void TestFixtureSetUp()
     {
-      var parsedUrl = new UrlInfo(Url);
-      driver = SqlDriver.Create(parsedUrl);
-      connection = driver.CreateConnection(parsedUrl);
-      typeMappings = driver.TypeMappings.ToArray();
+      base.TestFixtureSetUp();
+      typeMappings = Driver.TypeMappings.ToArray();
       testValues = typeMappings
         .Select(mapping => GetTestValues(mapping.Type))
         .ToArray();
-      connection.Open();
-    }
-
-    [TestFixtureTearDown]
-    public void TestFixtureTearDown()
-    {
-      if (connection!=null && connection.State==ConnectionState.Open)
-        connection.Close();
     }
     
     [Test]
     public void InsertAndSelectTest()
     {
-      Catalog model;
-      using (var transaction = connection.BeginTransaction()) {
-        model = driver.ExtractModel(connection, transaction);
-        transaction.Commit();
-      }
+      var model = ExtractModel();
       var table = model.DefaultSchema.Tables[TableName];
       if (table!=null) {
-        using (var dropCommand = connection.CreateCommand(SqlDdl.Drop(table)))
+        using (var dropCommand = Connection.CreateCommand(SqlDdl.Drop(table)))
           dropCommand.ExecuteNonQuery();
         model.DefaultSchema.Tables.Remove(table);
       }
@@ -73,10 +54,10 @@ namespace Xtensive.Sql.Tests
         var column = table.CreateColumn(GetColumnName(columnIndex), mapping.BuildSqlType());
         column.IsNullable = true;
       }
-      using (var createCommand = connection.CreateCommand(SqlDdl.Create(table)))
+      using (var createCommand = Connection.CreateCommand(SqlDdl.Create(table)))
         createCommand.ExecuteNonQuery();
       var tableRef = SqlDml.TableRef(table);
-      using (var insertCommand = connection.CreateCommand()) {
+      using (var insertCommand = Connection.CreateCommand()) {
         var insertQuery = SqlDml.Insert(tableRef);
         var idParameter = insertCommand.CreateParameter();
         idParameter.DbType = DbType.Int32;
@@ -96,7 +77,7 @@ namespace Xtensive.Sql.Tests
           parameters.Add(parameter);
           insertCommand.Parameters.Add(parameter);
         }
-        var insertQueryText = driver.Compile(insertQuery).GetCommandText();
+        var insertQueryText = Driver.Compile(insertQuery).GetCommandText();
         insertCommand.CommandText = insertQueryText;
         for (int rowIndex = 0; rowIndex < testValues[0].Length; rowIndex++) {
           idParameter.Value = rowIndex;
@@ -108,8 +89,8 @@ namespace Xtensive.Sql.Tests
       var resultQuery = SqlDml.Select(tableRef);
       resultQuery.Columns.Add(SqlDml.Asterisk);
       resultQuery.OrderBy.Add(tableRef[IdColumnName]);
-      using (var resultCommand = connection.CreateCommand(resultQuery))
-        VerifyTestValues(resultCommand.ExecuteReader());
+      using (var resultCommand = Connection.CreateCommand(resultQuery))
+        VerifyResults(resultCommand.ExecuteReader());
     }
 
     [Test]
@@ -117,7 +98,7 @@ namespace Xtensive.Sql.Tests
     {
       int parameterIndex = 0;
       var queries = new List<SqlSelect>();
-      var command = connection.CreateCommand();
+      var command = Connection.CreateCommand();
       for (int rowIndex = 0; rowIndex < testValues[0].Length; rowIndex++) {
         var query = SqlDml.Select();
         queries.Add(query);
@@ -140,15 +121,15 @@ namespace Xtensive.Sql.Tests
       var resultQuery = SqlDml.Select(unionQueryRef);
       resultQuery.Columns.Add(SqlDml.Asterisk);
       resultQuery.OrderBy.Add(unionQueryRef[IdColumnName]);
-      command.CommandText = driver.Compile(resultQuery).GetCommandText();
-      VerifyTestValues(command.ExecuteReader());
+      command.CommandText = Driver.Compile(resultQuery).GetCommandText();
+      VerifyResults(command.ExecuteReader());
     }
 
     [Test]
     public void SelectConstantsTest()
     {
       var queries = new List<SqlSelect>();
-      var command = connection.CreateCommand();
+      var command = Connection.CreateCommand();
       for (int rowIndex = 0; rowIndex < testValues[0].Length; rowIndex++) {
         var query = SqlDml.Select();
         queries.Add(query);
@@ -169,11 +150,11 @@ namespace Xtensive.Sql.Tests
       var resultQuery = SqlDml.Select(unionQueryRef);
       resultQuery.Columns.Add(SqlDml.Asterisk);
       resultQuery.OrderBy.Add(unionQueryRef[IdColumnName]);
-      command.CommandText = driver.Compile(resultQuery).GetCommandText();
-      VerifyTestValues(command.ExecuteReader());
+      command.CommandText = Driver.Compile(resultQuery).GetCommandText();
+      VerifyResults(command.ExecuteReader());
     }
 
-    private void VerifyTestValues(DbDataReader reader)
+    private void VerifyResults(DbDataReader reader)
     {
       int rowIndex = 0;
       using (reader)

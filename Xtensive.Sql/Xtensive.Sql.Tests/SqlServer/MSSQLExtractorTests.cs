@@ -4,7 +4,7 @@ using System.Data.Common;
 using NUnit.Framework;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Tests.MsSql
+namespace Xtensive.Sql.Tests.SqlServer
 {
   public class AssertUtility
   {

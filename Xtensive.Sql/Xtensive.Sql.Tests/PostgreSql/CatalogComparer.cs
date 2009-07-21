@@ -2,7 +2,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Tests.PgSql
+namespace Xtensive.Sql.Tests.PostgreSql
 {
   internal class CatalogComparer
   {

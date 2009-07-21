@@ -7,9 +7,8 @@ using Xtensive.Core.Collections;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Exceptions;
-using Xtensive.Sql.Tests.MsSql;
 
-namespace Xtensive.Sql.Tests.MsSql
+namespace Xtensive.Sql.Tests.SqlServer
 {
   public class CompilerTests: AdventureWorks
   {

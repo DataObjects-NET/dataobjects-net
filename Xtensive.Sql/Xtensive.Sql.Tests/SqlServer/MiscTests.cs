@@ -5,10 +5,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Exceptions;
-using Xtensive.Sql.Tests.MsSql;
 using System.Data.Common;
 
-namespace Xtensive.Sql.Tests.MsSql
+namespace Xtensive.Sql.Tests.SqlServer
 {
   [TestFixture]
   public class MiscTests: AdventureWorks

@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Xtensive.Sql.Tests.PgSql.v8_1
+namespace Xtensive.Sql.Tests.PostgreSql.v8_1
 {
   [TestFixture, Explicit]
   public class SqlDomTests : v8_0.SqlDomTests

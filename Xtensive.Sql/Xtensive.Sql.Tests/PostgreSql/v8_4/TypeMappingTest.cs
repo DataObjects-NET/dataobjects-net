@@ -6,11 +6,11 @@
 
 using NUnit.Framework;
 
-namespace Xtensive.Sql.Tests.PgSql.v8_1
+namespace Xtensive.Sql.Tests.PostgreSql.v8_4
 {
-  [TestFixture, Explicit]
+  [TestFixture]
   public class TypeMappingTest : Tests.TypeMappingTest
   {
-    protected override string Url { get { return TestUrl.PostgreSql81; } }
+    protected override string Url { get { return TestUrl.PostgreSql84; } }
   }
 }

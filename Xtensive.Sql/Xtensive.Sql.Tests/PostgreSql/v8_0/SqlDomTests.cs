@@ -10,7 +10,7 @@ using Xtensive.Sql.Dml;
 using DataTable=System.Data.DataTable;
 using UniqueConstraint=Xtensive.Sql.Model.UniqueConstraint;
 
-namespace Xtensive.Sql.Tests.PgSql.v8_0
+namespace Xtensive.Sql.Tests.PostgreSql.v8_0
 {
   [TestFixture, Explicit]
   public class SqlDomTests

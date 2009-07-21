@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Xtensive LLC.
+﻿// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -6,11 +6,11 @@
 
 using NUnit.Framework;
 
-namespace Xtensive.Sql.Tests.PgSql.v8_4
+namespace Xtensive.Sql.Tests.PostgreSql.v8_0
 {
-  [TestFixture]
+  [TestFixture, Explicit]
   public class DateTimeIntervalTest : Tests.DateTimeIntervalTest
   {
-    protected override string Url { get { return TestUrl.PostgreSql84; } }
+    protected override string Url { get { return TestUrl.PostgreSql80; } }
   }
 }

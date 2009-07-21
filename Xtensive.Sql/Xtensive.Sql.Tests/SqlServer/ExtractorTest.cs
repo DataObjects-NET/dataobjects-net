@@ -6,56 +6,23 @@
 
 // TODO: Refactor stupid MSSqlExtractorTests.cs and put all stuff here
 
-using System;
-using System.Data;
-using System.Linq;
 using NUnit.Framework;
+using System.Linq;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Tests.MsSql
+namespace Xtensive.Sql.Tests.SqlServer
 {
   [TestFixture]
-  public class ExtractorTest
+  public class ExtractorTest : SqlTest
   {
-    private SqlConnection connection;
-    private SqlDriver driver;
+    protected override string Url { get { return TestUrl.SqlServer2005; } }
 
     private void ExecuteCommand(string commandText)
     {
-      using (var command = connection.CreateCommand()) {
+      using (var command = Connection.CreateCommand()) {
         command.CommandText = commandText;
         command.ExecuteNonQuery();
       }
-    }
-
-    private Schema ExtractModel()
-    {
-      using (var transaction = connection.BeginTransaction()) {
-        var result = driver.ExtractModel(connection, transaction);
-        transaction.Commit();
-        return result.DefaultSchema;
-      }
-    }
-
-    [TestFixtureSetUp]
-    public void TestFixtureSetUp()
-    {
-      driver = SqlDriver.Create(TestUrl.SqlServer2005);
-      connection = driver.CreateConnection(TestUrl.SqlServer2005);
-      try {
-        connection.Open();
-      }
-      catch (SystemException e) {
-        Console.WriteLine(connection.Url);
-        Console.WriteLine(e);
-      }
-    }
-
-    [TestFixtureTearDown]
-    public void TestFixtureTearDown()
-    {
-      if (connection!=null && connection.State==ConnectionState.Open)
-        connection.Close();
     }
 
     [Test]
@@ -71,9 +38,9 @@ namespace Xtensive.Sql.Tests.MsSql
       CreateDomain();
       ExecuteCommand(createTable);
 
-      var schema = ExtractModel();
+      var schema = ExtractModel().DefaultSchema;
       var definedDomain = schema.Domains.Single(domain => domain.Name=="test_type");
-      Assert.AreEqual(driver.ServerInfo.DataTypes["bigint"].Type, definedDomain.DataType.Type);
+      Assert.AreEqual(Driver.ServerInfo.DataTypes["bigint"].Type, definedDomain.DataType.Type);
 
       var columnDomain = schema.Tables["table_with_domained_columns"].TableColumns["value"].Domain;
       Assert.IsNotNull(columnDomain);
@@ -91,7 +58,7 @@ namespace Xtensive.Sql.Tests.MsSql
       ExecuteCommand(dropTable);
       ExecuteCommand(createTable);
 
-      var schema = ExtractModel();
+      var schema = ExtractModel().DefaultSchema;
       var table = schema.Tables["table_with_default_constraint"];
       Assert.AreEqual(1, table.TableConstraints.Count);
       Assert.AreEqual("id", ((DefaultConstraint) table.TableConstraints[0]).Column.Name);
@@ -99,19 +66,19 @@ namespace Xtensive.Sql.Tests.MsSql
 
     private void CreateDomain()
     {
-      var schema = ExtractModel();
+      var schema = ExtractModel().DefaultSchema;
       var domain = schema.CreateDomain("test_type", new SqlValueType(SqlType.Int64));
-      var commandText = driver.Compile(SqlDdl.Create(domain)).GetCommandText();
+      var commandText = Driver.Compile(SqlDdl.Create(domain)).GetCommandText();
       ExecuteCommand(commandText);
     }
 
     private void DropDomain()
     {
-      var schema = ExtractModel();
+      var schema = ExtractModel().DefaultSchema;
       var domain = schema.Domains["test_type"];
       if (domain==null)
         return;
-      var commandText = driver.Compile(SqlDdl.Drop(domain)).GetCommandText();
+      var commandText = Driver.Compile(SqlDdl.Drop(domain)).GetCommandText();
       ExecuteCommand(commandText);
     }
   }

@@ -6,7 +6,7 @@
 
 using NUnit.Framework;
 
-namespace Xtensive.Sql.Tests.PgSql.v8_2
+namespace Xtensive.Sql.Tests.PostgreSql.v8_2
 {
   [TestFixture]
   public class TypeMappingTest : Tests.TypeMappingTest

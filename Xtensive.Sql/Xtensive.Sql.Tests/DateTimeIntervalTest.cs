@@ -12,39 +12,14 @@ using Xtensive.Sql.Dml;
 namespace Xtensive.Sql.Tests
 {
   [TestFixture]
-  public abstract class DateTimeIntervalTest
+  public abstract class DateTimeIntervalTest : SqlTest
   {
-    protected abstract string Url { get; }
-
-    private SqlConnection connection;
-
-    [TestFixtureSetUp]
-    public void SetUp()
-    {
-      try {
-        var driver = SqlDriver.Create(Url);
-        connection = driver.CreateConnection(Url);
-        connection.Open();
-      }
-      catch (SystemException e) {
-        Console.WriteLine(connection.Url);
-        Console.WriteLine(e);
-      }
-    }
-
-    [TestFixtureTearDown]
-    public void TearDown()
-    {
-      if (connection!=null && connection.State==ConnectionState.Open)
-        connection.Close();
-    }
-
     [Test]
     public virtual void ExtractDayOfWeekTest()
     {
       CheckEquality(
         SqlDml.Extract(SqlDateTimePart.DayOfWeek, new DateTime(2009, 3, 2)),
-        (int)DayOfWeek.Monday);
+        (int) DayOfWeek.Monday);
     }
 
     [Test]
@@ -181,7 +156,7 @@ namespace Xtensive.Sql.Tests
       select.Columns.Add("ok");
       select.Where = left == right;
 
-      using (var command = connection.CreateCommand(select))
+      using (var command = Connection.CreateCommand(select))
         using (var reader = command.ExecuteReader()) {
           if (!reader.Read())
             Assert.Fail(string.Format("expression \"{0}\" evaluated to false", command.CommandText));

@@ -2,20 +2,15 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
-// Created:    2009.03.02
+// Created:    2009.07.08
 
 using NUnit.Framework;
 
-namespace Xtensive.Sql.Tests.MsSql
+namespace Xtensive.Sql.Tests.SqlServer
 {
   [TestFixture]
-  public class DateTimeIntervalTest : Tests.DateTimeIntervalTest
+  public class TypeMappingTest : Tests.TypeMappingTest
   {
     protected override string Url { get { return TestUrl.SqlServer2005; } }
-
-    public override void DateTimeSubtractIntervalTest()
-    {
-      Assert.Ignore("MSSQL DateTime precision issue");
-    }
   }
 }
