@@ -302,10 +302,8 @@ namespace Xtensive.Storage
       var type = Session.Domain.Model.Types[field.ValueType];
       if (Tuple.ContainsEmptyValues(field.MappingInfo))
         return null;
-//      var tuple = field.ExtractValue(Tuple);
-      Key result;
-      if (!Key.TryCreateGenericKey(Session.Domain, type, field, Tuple, false, true, out result))
-        Key.Create(Session.Domain, type, Tuple, false, true);
+      var tuple = field.ExtractValue(Tuple);
+      var result = Key.Create(Session.Domain, type, tuple, false, true);
       NotifyGetFieldValue(field, result);
 
       return result;
