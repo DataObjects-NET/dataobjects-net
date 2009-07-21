@@ -55,6 +55,15 @@ namespace Xtensive.Core.Testing
       }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether test is running under build server.
+    /// </summary>
+    public static bool IsBuildServer {
+      get {
+        return Environment.GetEnvironmentVariable("TEAMCITY_VERSION")!=null;
+      }
+    }
+
     private static IEnumerable<T> GetMethodAttributes<T>() where T : Attribute
     {
       StackFrame[] stackFrames = new StackTrace().GetFrames();
