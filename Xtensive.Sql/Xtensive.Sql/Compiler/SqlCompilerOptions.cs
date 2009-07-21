@@ -13,11 +13,6 @@ namespace Xtensive.Sql.Compiler
   public sealed class SqlCompilerOptions
   {
     /// <summary>
-    /// Gets the default <see cref="SqlCompilerOptions"/>.
-    /// </summary>
-    public static readonly SqlCompilerOptions Default = new SqlCompilerOptions();
-
-    /// <summary>
     /// Gets or sets a value indicating whether full automatic aliasing is enforced.
     /// </summary>
     /// <value>
@@ -28,8 +23,7 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Gets or sets the parameter prefix.
     /// </summary>
-    /// <value>The parameter prefix.</value>
-    public string ParameterPrefix { get; set; }
+    public string ParameterNamePrefix { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether parameter name assignment is delayed.

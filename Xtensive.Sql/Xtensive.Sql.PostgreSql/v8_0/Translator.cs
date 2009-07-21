@@ -14,11 +14,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     internal const string RealExtractSeconds = "+real_extract_seconds";
     internal const string RealExtractMilliseconds = "+real_extract_ms";
 
-    public Translator(SqlDriver driver)
-      : base(driver)
-    {
-    }
-
     public override void Initialize()
     {
       base.Initialize();
@@ -31,25 +26,16 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       dateTimeFormat.FullDateTimePattern = "yyyyMMdd HHmmss.ffffff";
     }
 
-    public override string DdlStatementDelimiter
-    {
-      get { return ";"; }
-    }
-
-    public override string BatchStatementDelimiter
-    {
-      get { return ";"; }
-    }
-
+    public override string DdlStatementDelimiter { get { return ";"; } }
+    public override string BatchStatementDelimiter { get { return ";"; } }
 
     [DebuggerStepThrough]
     public override string QuoteIdentifier(params string[] names)
     {
-      string[] names2 = new string[names.Length];
-      for (int i = 0; i < names.Length; i++) {
-        names2[i] = names[i].Replace("\"", "\"\"");
-      }
-      return ("\"" + string.Join("\".\"", names2) + "\"");
+      var quotedNames = new string[names.Length];
+      for (int i = 0; i < names.Length; i++)
+        quotedNames[i] = names[i].Replace("\"", "\"\"");
+      return ("\"" + string.Join("\".\"", quotedNames) + "\"");
     }
 
     [DebuggerStepThrough]
@@ -399,7 +385,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       var values = node.GetValues();
       int length = values.Length;
       if (length==0)
-        return "'{}'::" + TranslateDotNetType(node.ItemType) + "[]";
+        return "'{}'::" + TranslateClrType(node.ItemType) + "[]";
       var sb = new StringBuilder("ARRAY[");
       for (int i = 0; i < length; i++)
         sb.Append(TranslateLiteral(values[i]) + ",");
@@ -954,7 +940,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
     {
-      //casting this way behaves differently: -32768::int2 is out of range ! We need (-32768)::int2
+      // casting this way behaves differently: -32768::int2 is out of range ! We need (-32768)::int2
       switch (section) {
       case NodeSection.Entry:
         return "(";
@@ -1015,7 +1001,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       }
       if (obj is SqlDateTimePart) {
         return TranslateDateTimePart((SqlDateTimePart) obj);
-      } if (obj is SqlIntervalPart) {
+      }
+      if (obj is SqlIntervalPart) {
         return ((SqlIntervalPart) obj).ToString().ToUpperInvariant(); //default names are acceptable
       }
       if (obj is TimeSpan) {
@@ -1081,7 +1068,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       }
     }
 
-    protected static string TranslateDotNetType(Type type) // where T : IConvertible
+    protected static string TranslateClrType(Type type)
     {
       switch (Type.GetTypeCode(type)) {
       case TypeCode.Boolean:
@@ -1108,13 +1095,20 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         return "text";
       case TypeCode.DateTime:
         return "timestamp";
-      default: {
-        if (type==typeof (TimeSpan)) {
+      default:
+        if (type==typeof (TimeSpan))
           return "interval";
-        }
+        if (type==typeof(Guid))
+          return "bytea";
         return "text";
       }
-      }
+    }
+
+    // Constructors
+
+    public Translator(SqlDriver driver)
+      : base(driver)
+    {
     }
   }
 }

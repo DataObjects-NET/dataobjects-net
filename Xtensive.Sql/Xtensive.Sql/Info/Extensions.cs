@@ -12,17 +12,27 @@ namespace Xtensive.Sql.Info
   public static class Extensions
   {
     /// <summary>
+    /// Determines whether the specified active features is supported.
     /// </summary>
-    public static bool IsSupported(this QueryFeatures activeFeatures, QueryFeatures featureToTest)
+    public static bool IsSupported(this QueryFeatures activeFeatures, QueryFeatures featuresToTest)
     {
-      return (activeFeatures & featureToTest)==featureToTest;
+      return (activeFeatures & featuresToTest)==featuresToTest;
     }
 
     /// <summary>
+    /// Determines whether the specified active features is supported.
     /// </summary>
-    public static bool IsSupported(this IndexFeatures activeFeatures, IndexFeatures featureToTest)
+    public static bool IsSupported(this IndexFeatures activeFeatures, IndexFeatures featuresToTest)
     {
-      return (activeFeatures & featureToTest)==featureToTest;      
+      return (activeFeatures & featuresToTest)==featuresToTest;      
+    }
+
+    /// <summary>
+    /// Determines whether the specified active features is supported.
+    /// </summary>
+    public static bool IsSupported(this DataTypeFeatures activeFeatures, DataTypeFeatures featuresToTest)
+    {
+      return (activeFeatures & featuresToTest)==featuresToTest;
     }
   }
 }

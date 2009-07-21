@@ -2,27 +2,37 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using Xtensive.Core;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Info
 {
   /// <summary>
-  /// Describes a check constraint.
+  /// Describes a check constraint capabilities.
   /// </summary>
-  public class CheckConstraintInfo : ConstraintInfo
+  public class CheckConstraintInfo : EntityInfo
   {
     private int maxExpressionLength;
+    private CheckConstraintFeatures features = CheckConstraintFeatures.None;
+
+    /// <summary>
+    /// Gets or sets the features of this instance.
+    /// </summary>
+    /// <value>The features.</value>
+    public CheckConstraintFeatures Features {
+      get { return features; }
+      set {
+        this.EnsureNotLocked();
+        features = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets the maximal length of the check expression.
     /// </summary>
     /// <value>The maximal length of the check expression.</value>
-    public int MaxExpressionLength
-    {
+    public int MaxExpressionLength {
       get { return maxExpressionLength; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         maxExpressionLength = value;
       }

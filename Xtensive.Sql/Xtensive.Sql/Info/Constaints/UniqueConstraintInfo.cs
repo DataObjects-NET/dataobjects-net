@@ -1,29 +1,29 @@
-// Copyright (C) 2007 Xtensive LLC.
+// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2009.07.20
 
-
-using Xtensive.Core;
+using System;
+using System.Diagnostics;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Info
 {
   /// <summary>
-  /// Describes a constraint.
+  /// Describes a unique constaint capabilities
   /// </summary>
-  public class ConstraintInfo: EntityInfo
+  public class UniqueConstraintInfo : EntityInfo
   {
-    private ConstraintFeatures features = ConstraintFeatures.None;
-
+    private UniqueConstraintFeatures features = UniqueConstraintFeatures.None;
+    
     /// <summary>
     /// Gets or sets the features of this instance.
     /// </summary>
     /// <value>The features.</value>
-    public ConstraintFeatures Features
-    {
+    public UniqueConstraintFeatures Features {
       get { return features; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         features = value;
       }

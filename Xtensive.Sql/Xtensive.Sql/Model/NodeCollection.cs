@@ -75,7 +75,7 @@ namespace Xtensive.Sql.Model
     public NodeCollection()
       : this(0)
     {
-      nameIndex = new Dictionary<string, TNode>(0);
+      nameIndex = new Dictionary<string, TNode>(0, StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -85,10 +85,9 @@ namespace Xtensive.Sql.Model
     public NodeCollection(int capacity)
       : base(capacity)
     {
-      nameIndex = new Dictionary<string, TNode>(capacity);
+      nameIndex = new Dictionary<string, TNode>(capacity, StringComparer.OrdinalIgnoreCase);
     }
-
-
+    
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
@@ -96,7 +95,9 @@ namespace Xtensive.Sql.Model
     public NodeCollection(IEnumerable<TNode> collection)
       : base(collection)
     {
-      nameIndex = collection.ToDictionary(item => item.Name);
+      nameIndex = new Dictionary<string, TNode>(StringComparer.OrdinalIgnoreCase);
+      foreach (var item in collection)
+        nameIndex.Add(item.Name, item);
     }
   }
 }

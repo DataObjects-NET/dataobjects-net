@@ -23,6 +23,7 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Indicates that RDBMS supports <see cref="Create"/> statement
     /// for the mentioned database entity.
+    /// For constraints this indicates that RDBMS supports ADD statement.
     /// </summary>
     /// <value>0x1</value>
     Create = 0x1,

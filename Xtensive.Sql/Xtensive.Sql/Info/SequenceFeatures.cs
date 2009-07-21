@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Info
 
     /// <summary>
     /// Indicates that RDBMS allows to specify for a sequence an 
-    /// order of generated values(ascending or descending).
+    /// order of generated values (ascending or descending).
     /// </summary>
     Order = 0x2,
   }

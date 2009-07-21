@@ -185,14 +185,22 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var result = new ProviderInfo();
       var serverInfo = Driver.ServerInfo;
+      var dataTypes = serverInfo.DataTypes;
 
-      // TODO: add corresponding features to Sql.Info and read them here
-      result.EmptyBlobIsNull = false;
-      result.EmptyStringIsNull = false;
+      var binaryTypeInfo = dataTypes.VarBinary ?? dataTypes.VarBinaryMax;
+      result.EmptyBlobIsNull = binaryTypeInfo!=null
+        ? binaryTypeInfo.Features.IsSupported(DataTypeFeatures.ZeroLengthValueIsNull)
+        : false;
+      var stringTypeInfo = dataTypes.VarChar ?? dataTypes.VarCharMax;
+      result.EmptyStringIsNull = stringTypeInfo!=null
+        ? stringTypeInfo.Features.IsSupported(DataTypeFeatures.ZeroLengthValueIsNull)
+        : false;
+
+      // TODO: add corresponding feature to Sql.Info and read it here
       result.SupportsEnlist = false;
 
       result.DatabaseNameLength = serverInfo.Database.MaxIdentifierLength;
-      result.MaxIndexColumnsCount = serverInfo.Index.MaxColumnAmount;
+      result.MaxIndexColumnsCount = serverInfo.Index.MaxNumberOfColumns;
       result.MaxIndexKeyLength = serverInfo.Index.MaxLength;
       result.MaxIndexNameLength = serverInfo.Index.MaxIdentifierLength;
       result.MaxTableNameLength = serverInfo.Table.MaxIdentifierLength;

@@ -14,7 +14,7 @@ namespace Xtensive.Sql.VistaDb.v3
 
     public override ColumnInfo GetColumnInfo()
     {
-      ColumnInfo columnInfo = new ColumnInfo();
+      var columnInfo = new ColumnInfo();
       columnInfo.MaxIdentifierLength = cDefaultIdentifierLength;
       columnInfo.Features = ColumnFeatures.Identity;
       columnInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
@@ -23,7 +23,7 @@ namespace Xtensive.Sql.VistaDb.v3
 
     public override CheckConstraintInfo GetCheckConstraintInfo()
     {
-      CheckConstraintInfo checkConstraintInfo = new CheckConstraintInfo();
+      var checkConstraintInfo = new CheckConstraintInfo();
       checkConstraintInfo.MaxIdentifierLength = cDefaultIdentifierLength;
       checkConstraintInfo.MaxExpressionLength = 128;
       checkConstraintInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
@@ -34,14 +34,14 @@ namespace Xtensive.Sql.VistaDb.v3
     /// Gets the primary key info.
     /// </summary>
     /// <returns></returns>
-    public override ConstraintInfo GetPrimaryKeyInfo()
+    public override PrimaryKeyConstraintInfo GetPrimaryKeyInfo()
     {
-      return new EntityInfo() as ConstraintInfo;
+      return null;
     }
 
     public override EntityInfo GetDatabaseInfo()
     {
-      EntityInfo databaseInfo = new EntityInfo();
+      var databaseInfo = new EntityInfo();
       databaseInfo.MaxIdentifierLength = cDefaultIdentifierLength;
       databaseInfo.AllowedDdlStatements = DdlStatements.Create;
       return databaseInfo;
@@ -49,16 +49,16 @@ namespace Xtensive.Sql.VistaDb.v3
 
     public override IdentityInfo GetIdentityInfo()
     {
-      IdentityInfo identityInfo = new IdentityInfo();
+      var identityInfo = new IdentityInfo();
       identityInfo.Features = IdentityFeatures.StartValue | IdentityFeatures.Increment;
       return identityInfo;
     }
 
     public override IndexInfo GetIndexInfo()
     {
-      IndexInfo indexInfo = new IndexInfo();
+      var indexInfo = new IndexInfo();
       indexInfo.MaxIdentifierLength = cDefaultIdentifierLength;
-      indexInfo.MaxColumnAmount = 256;
+      indexInfo.MaxNumberOfColumns = 256;
       indexInfo.MaxLength = 256;
       indexInfo.Features = IndexFeatures.Clustered | IndexFeatures.Unique | IndexFeatures.SortOrder;
       indexInfo.PartitionMethods = PartitionMethods.None;
@@ -70,9 +70,9 @@ namespace Xtensive.Sql.VistaDb.v3
     /// Gets the referential constraint info.
     /// </summary>
     /// <returns></returns>
-    public override ReferenceConstraintInfo GetReferentialConstraintInfo()
+    public override ForeignKeyConstraintInfo GetForeignKeyConstraintInfo()
     {
-      return new EntityInfo() as ReferenceConstraintInfo;
+      return null;
     }
 
 //    public ConstraintInfo GetPrimaryKeyConstraintInfo()
@@ -91,19 +91,20 @@ namespace Xtensive.Sql.VistaDb.v3
       //obj.MaxComparisonOperations = 1000;
       //obj.MaxNestedQueries = 32;
       queryInfo.ParameterPrefix = "@";
-      queryInfo.QuoteToken = "'";
-      queryInfo.Features = QueryFeatures.NamedParameters | QueryFeatures.UseParameterPrefix | QueryFeatures.SquareBrackets |
+      queryInfo.Features =
+        QueryFeatures.NamedParameters |
+        QueryFeatures.UseParameterPrefix |
         QueryFeatures.Batches;
       return queryInfo;
     }
 
-//    public ReferenceConstraintInfo GetReferenceConstraintInfo()
+//    public ForeignKeyConstraintInfo GetReferenceConstraintInfo()
 //    {
-//      ReferenceConstraintInfo referenceConstraintInfo = new ReferenceConstraintInfo();
+//      ForeignKeyConstraintInfo referenceConstraintInfo = new ForeignKeyConstraintInfo();
 //      referenceConstraintInfo.MaxIdentifierLength = cDefaultIdentifierLength;
-//      referenceConstraintInfo.Actions = ConstraintActions.NoAction|ConstraintActions.Cascade|
-//                                        ConstraintActions.SetDefault|
-//                                        ConstraintActions.SetNull;
+//      referenceConstraintInfo.Actions = ForeignKeyConstraintActions.NoAction|ForeignKeyConstraintActions.Cascade|
+//                                        ForeignKeyConstraintActions.SetDefault|
+//                                        ForeignKeyConstraintActions.SetNull;
 //      referenceConstraintInfo.AllowedDdlStatements = DdlStatements.Create|DdlStatements.Drop;
 //      return referenceConstraintInfo;
 //    }
@@ -119,22 +120,22 @@ namespace Xtensive.Sql.VistaDb.v3
 
     public override TemporaryTableInfo GetTemporaryTableInfo()
     {
-      return new EntityInfo() as TemporaryTableInfo;
+      return null;
     }
 
     public override EntityInfo GetCollationInfo()
     {
-      return new EntityInfo() as EntityInfo;
+      return null;
     }
 
     public override EntityInfo GetCharacterSetInfo()
     {
-      return new EntityInfo() as EntityInfo;
+      return null;
     }
 
     public override EntityInfo GetTranslationInfo()
     {
-      return new EntityInfo() as EntityInfo;
+      return null;
     }
 
     public override EntityInfo GetTriggerInfo()
@@ -147,19 +148,19 @@ namespace Xtensive.Sql.VistaDb.v3
 
     public override EntityInfo GetStoredProcedureInfo()
     {
-      return new EntityInfo() as EntityInfo;
+      return null;
     }
 
     public override SequenceInfo GetSequenceInfo()
     {
-      return new EntityInfo() as SequenceInfo;
+      return null;
     }
 
-    public override ConstraintInfo GetUniqueConstraintInfo()
+    public override UniqueConstraintInfo GetUniqueConstraintInfo()
     {
-      ConstraintInfo uniqueConstraintInfo = new ConstraintInfo();
+      var uniqueConstraintInfo = new UniqueConstraintInfo();
       uniqueConstraintInfo.MaxIdentifierLength = cDefaultIdentifierLength;
-      uniqueConstraintInfo.Features = ConstraintFeatures.Clustered | ConstraintFeatures.Nullable;
+      uniqueConstraintInfo.Features = UniqueConstraintFeatures.Clustered | UniqueConstraintFeatures.Nullable;
       uniqueConstraintInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
       return uniqueConstraintInfo;
     }
@@ -178,7 +179,7 @@ namespace Xtensive.Sql.VistaDb.v3
     /// <returns></returns>
     public override EntityInfo GetSchemaInfo()
     {
-      return new EntityInfo() as EntityInfo;
+      return null;
     }
 
     public override DataTypeCollection GetDataTypesInfo()
@@ -274,12 +275,12 @@ namespace Xtensive.Sql.VistaDb.v3
 
     public override EntityInfo GetDomainInfo()
     {
-      return new EntityInfo() as EntityInfo;
+      return null;
     }
     
-    public override ConstraintInfo GetAssertionInfo()
+    public override AssertConstraintInfo GetAssertionInfo()
     {
-      return new EntityInfo() as ConstraintInfo;
+      return null;
     }
 
     public override int GetStringIndexingBase()

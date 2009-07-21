@@ -84,9 +84,9 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       var info = new IndexInfo();
       info.AllowedDdlStatements = DdlStatements.All;
       info.Features = GetIndexFeatures();
-      info.MaxColumnAmount = serverConfig.MaxIndexKeys;
+      info.MaxNumberOfColumns = serverConfig.MaxIndexKeys;
       info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
-      //Pg 8.2: 8191 byte
+      // Pg 8.2: 8191 byte
       info.MaxLength = 2000;
       return info;
     }
@@ -104,38 +104,42 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       var info = new CheckConstraintInfo();
       info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
-      info.Features = ConstraintFeatures.None;
       info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
-      //TODO: more exactly
-      info.MaxExpressionLength = GetMaxTextLength();
+      info.Features = CheckConstraintFeatures.None;
+      // TODO: more exactly
+      info.MaxExpressionLength = GetMaxTextLength(); 
       return info;
     }
 
-    public override ConstraintInfo GetPrimaryKeyInfo()
+    public override PrimaryKeyConstraintInfo GetPrimaryKeyInfo()
     {
-      var info = new ConstraintInfo();
+      var info = new PrimaryKeyConstraintInfo();
       info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
-      info.Features = ConstraintFeatures.Clustered;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
-      return info;
-    }
-
-    public override ConstraintInfo GetUniqueConstraintInfo()
-    {
-      var info = new ConstraintInfo();
-      info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
-      info.Features = ConstraintFeatures.Nullable | ConstraintFeatures.Clustered;
+      info.Features = PrimaryKeyConstraintFeatures.Clustered;
       info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
       return info;
     }
 
-    public override ReferenceConstraintInfo GetReferentialConstraintInfo()
+    public override UniqueConstraintInfo GetUniqueConstraintInfo()
     {
-      var info = new ReferenceConstraintInfo();
-      info.Actions = ConstraintActions.Cascade | ConstraintActions.NoAction
-        | ConstraintActions.Restrict | ConstraintActions.SetDefault | ConstraintActions.SetNull;
+      var info = new UniqueConstraintInfo();
       info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
-      info.Features = ConstraintFeatures.Deferrable | ConstraintFeatures.Nullable | ConstraintFeatures.Clustered;
+      info.Features = UniqueConstraintFeatures.Nullable | UniqueConstraintFeatures.Clustered;
+      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      return info;
+    }
+
+    public override ForeignKeyConstraintInfo GetForeignKeyConstraintInfo()
+    {
+      var info = new ForeignKeyConstraintInfo();
+      info.Actions =
+        ForeignKeyConstraintActions.Cascade |
+        ForeignKeyConstraintActions.NoAction |
+        ForeignKeyConstraintActions.Restrict |
+        ForeignKeyConstraintActions.SetDefault |
+        ForeignKeyConstraintActions.SetNull;
+      info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
+      info.Features = ForeignKeyConstraintFeatures.Deferrable;
       info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
       return info;
     }
@@ -164,40 +168,32 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       var dtc = new DataTypeCollection();
 
       dtc.Boolean = DataTypeInfo.Range(SqlType.Boolean, commonFeatures,
-        new ValueRange<bool>(false, true),
-        "boolean", "bool");
+        StandardValueRange.Bool, "boolean", "bool");
 
       dtc.Int16 = DataTypeInfo.Range(SqlType.Int16, commonFeatures,
-        new ValueRange<short>(Int16.MinValue, Int16.MaxValue),
+        StandardValueRange.Int16,
         "smallint", "int2");
       
       dtc.Int32 = DataTypeInfo.Range(SqlType.Int32, commonFeatures,
-        new ValueRange<int>(Int32.MinValue, Int32.MaxValue),
-        "integer", "int4");
+        StandardValueRange.Int32, "integer", "int4");
 
       dtc.Int64 = DataTypeInfo.Range(SqlType.Int64, commonFeatures,
-        new ValueRange<long>(Int64.MinValue, Int64.MaxValue),
-        "bigint", "int8");
+        StandardValueRange.Int64, "bigint", "int8");
 
       dtc.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, commonFeatures,
-        new ValueRange<decimal>(decimal.MinValue, decimal.MaxValue), 1000,
-        "numeric", "decimal");
+        StandardValueRange.Decimal, 1000, "numeric", "decimal");
       
       dtc.Float = DataTypeInfo.Range(SqlType.Float, commonFeatures,
-        new ValueRange<float>(float.MinValue, float.MaxValue),
-        "real", "float4");
+        StandardValueRange.Float, "real", "float4");
       
       dtc.Double = DataTypeInfo.Range(SqlType.Double, commonFeatures,
-        new ValueRange<double>(double.MinValue, double.MaxValue),
-        "double precision", "float8");
+        StandardValueRange.Double, "double precision", "float8");
 
       dtc.DateTime = DataTypeInfo.Range(SqlType.DateTime, commonFeatures,
-        new ValueRange<DateTime>(DateTime.MinValue, DateTime.MaxValue),
-        "timestamp");
+        StandardValueRange.DateTime, "timestamp");
 
       dtc.Interval = DataTypeInfo.Range(SqlType.Interval, commonFeatures,
-        new ValueRange<TimeSpan>(TimeSpan.MinValue, TimeSpan.MaxValue),
-        "interval");
+        StandardValueRange.TimeSpan, "interval");
       
       dtc.Char = DataTypeInfo.Stream(SqlType.Char, commonFeatures, maxCharLength, "character", "char", "bpchar");
       dtc.VarChar = DataTypeInfo.Stream(SqlType.VarChar, commonFeatures, maxCharLength, "character varying", "varchar");
@@ -260,7 +256,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       info.MaxComparisonOperations = 1000000;
       info.MaxLength = 1000000;
       info.MaxNestedSubqueriesAmount = 100;
-      info.QuoteToken = "'";
       return info;
     }
     
@@ -269,7 +264,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return null;
     }
 
-    public override ConstraintInfo GetAssertionInfo()
+    public override AssertConstraintInfo GetAssertionInfo()
     {
       return null;
     }

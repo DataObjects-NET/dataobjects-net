@@ -1,24 +1,27 @@
-// Copyright (C) 2007 Xtensive LLC.
+// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2009.07.20
 
-using Xtensive.Core;
+using System;
+using System.Diagnostics;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Info
 {
   /// <summary>
-  /// Describes an identity source.
+  /// Describes a primary key constaint capabilities.
   /// </summary>
-  public class IdentityInfo : LockableBase
+  public class PrimaryKeyConstraintInfo : EntityInfo
   {
-    private IdentityFeatures features = IdentityFeatures.None;
-
+    private PrimaryKeyConstraintFeatures features = PrimaryKeyConstraintFeatures.None;
+    
     /// <summary>
     /// Gets or sets the features of this instance.
     /// </summary>
     /// <value>The features.</value>
-    public IdentityFeatures Features {
+    public PrimaryKeyConstraintFeatures Features {
       get { return features; }
       set {
         this.EnsureNotLocked();

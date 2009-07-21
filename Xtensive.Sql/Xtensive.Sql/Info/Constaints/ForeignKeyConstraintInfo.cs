@@ -2,25 +2,23 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-
-using Xtensive.Core;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Info
 {
   /// <summary>
-  /// Describes a temporary table.
+  /// Describes a reference constraint capabilities.
   /// </summary>
-  public class TemporaryTableInfo : EntityInfo
+  public class ForeignKeyConstraintInfo : EntityInfo
   {
-    private TemporaryTableFeatures features;
-    private int maxNumberOfColumns;
-
+    private ForeignKeyConstraintFeatures features = ForeignKeyConstraintFeatures.None;
+    private ForeignKeyConstraintActions actions = ForeignKeyConstraintActions.None;
+    
     /// <summary>
     /// Gets or sets the features of this instance.
     /// </summary>
     /// <value>The features.</value>
-    public TemporaryTableFeatures Features {
+    public ForeignKeyConstraintFeatures Features {
       get { return features; }
       set {
         this.EnsureNotLocked();
@@ -29,13 +27,14 @@ namespace Xtensive.Sql.Info
     }
 
     /// <summary>
-    /// Gets or sets the maximum number of columns per table.
+    /// Gets or sets the constraint rules.
     /// </summary>
-    public int MaxNumberOfColumns {
-      get { return maxNumberOfColumns; }
+    /// <value>The rules.</value>
+    public ForeignKeyConstraintActions Actions {
+      get { return actions; }
       set {
         this.EnsureNotLocked();
-        maxNumberOfColumns = value;
+        actions = value;
       }
     }
   }

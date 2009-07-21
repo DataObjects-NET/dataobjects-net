@@ -31,5 +31,15 @@ namespace Xtensive.Sql
       if (url.Password.IndexOfAny(forbiddenChars)>=0)
         throw e;
     }
+
+    public static string QuoteIdentifierWithQuotes(string[] names)
+    {
+      return "\"" + string.Join("\".\"", names) + "\"";
+    }
+
+    public static string QuoteIdentifierWithBrackets(string[] names)
+    {
+      return "[" + string.Join("].[", names) + "]";
+    }
   }
 }

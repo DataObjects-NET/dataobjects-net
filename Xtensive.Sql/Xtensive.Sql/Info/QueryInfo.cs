@@ -16,7 +16,6 @@ namespace Xtensive.Sql.Info
     private int maxComparisonOperations;
     private int maxNestedQueriesAmount;
     private string parameterPrefix;
-    private string quoteToken;
     private QueryFeatures features = QueryFeatures.None;
 
     /// <summary>
@@ -68,19 +67,6 @@ namespace Xtensive.Sql.Info
       {
         this.EnsureNotLocked();
         parameterPrefix = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the identifier quote token.
-    /// </summary>
-   public string QuoteToken
-    {
-      get { return quoteToken; }
-      set
-      {
-        this.EnsureNotLocked();
-        quoteToken = value;
       }
     }
 

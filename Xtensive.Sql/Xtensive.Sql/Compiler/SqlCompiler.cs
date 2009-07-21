@@ -39,9 +39,9 @@ namespace Xtensive.Sql.Compiler
     protected virtual void OnBeginCompile()
     {
       context = new SqlCompilerContext();
-      context.ParameterPrefix = string.IsNullOrEmpty(options.ParameterPrefix)
+      context.ParameterPrefix = string.IsNullOrEmpty(options.ParameterNamePrefix)
         ? DefaultParameterNamePrefix
-        : options.ParameterPrefix;
+        : options.ParameterNamePrefix;
     }
 
     protected virtual void OnEndCompile()

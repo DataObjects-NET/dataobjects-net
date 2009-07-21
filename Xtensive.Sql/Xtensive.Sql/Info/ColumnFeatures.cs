@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Info
   /// Most of columns requires that their values have been specified by user
   /// but there are some exceptions of that rule (e.g. <see cref="ColumnFeatures.Identity"/>
   /// or <see cref="ColumnFeatures.Computed"/> columns).</para>
-  /// <para>If you working on your own <see cref="Driver">RDBMS driver</see> 
+  /// <para>If you working on your own <see cref="SqlDriver">RDBMS driver</see> 
   /// implementation you have to provide correct <see cref="ServerInfo">information</see>
   /// about RDBMS capabilities. As a consequence you have to specify what 
   /// column categories are supported (see example below).</para>

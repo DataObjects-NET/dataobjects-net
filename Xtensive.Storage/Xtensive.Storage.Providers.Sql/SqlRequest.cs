@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>Compiler options specific to this request.</returns>
     protected virtual SqlCompilerOptions GetCompilerOptions()
     {
-      return SqlCompilerOptions.Default;
+      return new SqlCompilerOptions();
     }
 
     // Constructors

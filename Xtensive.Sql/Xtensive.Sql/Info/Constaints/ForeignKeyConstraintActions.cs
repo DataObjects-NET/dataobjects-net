@@ -11,7 +11,7 @@ namespace Xtensive.Sql.Info
   /// of foreign key conflict.
   /// </summary>
   [Flags]
-  public enum ConstraintActions
+  public enum ForeignKeyConstraintActions
   {
     /// <summary>
     /// No actions are supported.

@@ -13,13 +13,13 @@ namespace Xtensive.Sql.SqlServer.v2005
 {
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
-    private int cIdentifierLength = 128;
-    private SqlServerVersionInfo versionInfo;
+    private const int MaxIdentifierLength = 128;
+    private readonly SqlServerVersionInfo versionInfo;
 
     public override EntityInfo GetCollationInfo()
     {
       EntityInfo collationInfo = new EntityInfo();
-      collationInfo.MaxIdentifierLength = cIdentifierLength;
+      collationInfo.MaxIdentifierLength = MaxIdentifierLength;
       collationInfo.AllowedDdlStatements = DdlStatements.None;
       return collationInfo;
     }
@@ -27,7 +27,7 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override EntityInfo GetCharacterSetInfo()
     {
       EntityInfo characterSetInfo = new EntityInfo();
-      characterSetInfo.MaxIdentifierLength = cIdentifierLength;
+      characterSetInfo.MaxIdentifierLength = MaxIdentifierLength;
       characterSetInfo.AllowedDdlStatements = DdlStatements.None;
       return characterSetInfo;
     }
@@ -35,7 +35,7 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override EntityInfo GetTranslationInfo()
     {
       EntityInfo translationInfo = new EntityInfo();
-      translationInfo.MaxIdentifierLength = cIdentifierLength;
+      translationInfo.MaxIdentifierLength = MaxIdentifierLength;
       translationInfo.AllowedDdlStatements = DdlStatements.None;
       return translationInfo;
     }
@@ -43,7 +43,7 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override EntityInfo GetTriggerInfo()
     {
       EntityInfo triggerInfo = new EntityInfo();
-      triggerInfo.MaxIdentifierLength = cIdentifierLength;
+      triggerInfo.MaxIdentifierLength = MaxIdentifierLength;
       triggerInfo.AllowedDdlStatements = DdlStatements.All;
       return triggerInfo;
     }
@@ -51,7 +51,7 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override EntityInfo GetStoredProcedureInfo()
     {
       EntityInfo procedureInfo = new EntityInfo();
-      procedureInfo.MaxIdentifierLength = cIdentifierLength;
+      procedureInfo.MaxIdentifierLength = MaxIdentifierLength;
       procedureInfo.AllowedDdlStatements = DdlStatements.All;
       return procedureInfo;
     }
@@ -64,7 +64,7 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override EntityInfo GetDatabaseInfo()
     {
       EntityInfo databaseInfo = new EntityInfo();
-      databaseInfo.MaxIdentifierLength = cIdentifierLength;
+      databaseInfo.MaxIdentifierLength = MaxIdentifierLength;
       databaseInfo.AllowedDdlStatements = DdlStatements.All;
       return databaseInfo;
     }
@@ -72,7 +72,7 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override ColumnInfo GetColumnInfo()
     {
       ColumnInfo columnInfo = new ColumnInfo();
-      columnInfo.MaxIdentifierLength = cIdentifierLength;
+      columnInfo.MaxIdentifierLength = MaxIdentifierLength;
       columnInfo.Features = ColumnFeatures.Identity | ColumnFeatures.Computed;
       columnInfo.AllowedDdlStatements = DdlStatements.All;
       return columnInfo;
@@ -81,7 +81,7 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override EntityInfo GetViewInfo()
     {
       EntityInfo viewInfo = new EntityInfo();
-      viewInfo.MaxIdentifierLength = cIdentifierLength;
+      viewInfo.MaxIdentifierLength = MaxIdentifierLength;
       viewInfo.AllowedDdlStatements = DdlStatements.All;
       return viewInfo;
     }
@@ -89,7 +89,7 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override EntityInfo GetSchemaInfo()
     {
       EntityInfo schemaInfo = new EntityInfo();
-      schemaInfo.MaxIdentifierLength = cIdentifierLength;
+      schemaInfo.MaxIdentifierLength = MaxIdentifierLength;
       schemaInfo.AllowedDdlStatements = DdlStatements.All;
       return schemaInfo;
     }
@@ -97,7 +97,7 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override TableInfo GetTableInfo()
     {
       var tableInfo = new TableInfo();
-      tableInfo.MaxIdentifierLength = cIdentifierLength;
+      tableInfo.MaxIdentifierLength = MaxIdentifierLength;
       tableInfo.AllowedDdlStatements = DdlStatements.All;
 
       var vi = versionInfo;
@@ -108,7 +108,7 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     public override TemporaryTableInfo GetTemporaryTableInfo()
     {
-      TemporaryTableInfo temporaryTableInfo = new TemporaryTableInfo();
+      var temporaryTableInfo = new TemporaryTableInfo();
       temporaryTableInfo.MaxIdentifierLength = 116;
       temporaryTableInfo.Features = TemporaryTableFeatures.Global | TemporaryTableFeatures.Local;
       temporaryTableInfo.AllowedDdlStatements = DdlStatements.All;
@@ -117,27 +117,28 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     public override CheckConstraintInfo GetCheckConstraintInfo()
     {
-      CheckConstraintInfo checkConstraintInfo = new CheckConstraintInfo();
-      checkConstraintInfo.MaxIdentifierLength = cIdentifierLength;
+      var checkConstraintInfo = new CheckConstraintInfo();
+      checkConstraintInfo.MaxIdentifierLength = MaxIdentifierLength;
       checkConstraintInfo.MaxExpressionLength = 4000;
+      checkConstraintInfo.Features = CheckConstraintFeatures.None;
       checkConstraintInfo.AllowedDdlStatements = DdlStatements.All;
       return checkConstraintInfo;
     }
 
-    public override ConstraintInfo GetPrimaryKeyInfo()
+    public override PrimaryKeyConstraintInfo GetPrimaryKeyInfo()
     {
-      ConstraintInfo primaryKeyInfo = new ConstraintInfo();
-      primaryKeyInfo.MaxIdentifierLength = cIdentifierLength;
-      primaryKeyInfo.Features = ConstraintFeatures.Clustered;
+      var primaryKeyInfo = new PrimaryKeyConstraintInfo();
+      primaryKeyInfo.MaxIdentifierLength = MaxIdentifierLength;
+      primaryKeyInfo.Features = PrimaryKeyConstraintFeatures.Clustered;
       primaryKeyInfo.AllowedDdlStatements = DdlStatements.All;
       return primaryKeyInfo;
     }
 
-    public override ConstraintInfo GetUniqueConstraintInfo()
+    public override UniqueConstraintInfo GetUniqueConstraintInfo()
     {
-      ConstraintInfo uniqueConstraintInfo = new ConstraintInfo();
-      uniqueConstraintInfo.MaxIdentifierLength = cIdentifierLength;
-      uniqueConstraintInfo.Features = ConstraintFeatures.Clustered | ConstraintFeatures.Nullable;
+      var uniqueConstraintInfo = new UniqueConstraintInfo();
+      uniqueConstraintInfo.MaxIdentifierLength = MaxIdentifierLength;
+      uniqueConstraintInfo.Features = UniqueConstraintFeatures.Clustered | UniqueConstraintFeatures.Nullable;
       uniqueConstraintInfo.AllowedDdlStatements = DdlStatements.All;
       return uniqueConstraintInfo;
     }
@@ -145,12 +146,16 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override IndexInfo GetIndexInfo()
     {
       var indexInfo = new IndexInfo();
-      indexInfo.MaxIdentifierLength = cIdentifierLength;
-      indexInfo.MaxColumnAmount = 16;
+      indexInfo.MaxIdentifierLength = MaxIdentifierLength;
+      indexInfo.MaxNumberOfColumns = 16;
       indexInfo.MaxLength = 900;
       indexInfo.AllowedDdlStatements = DdlStatements.All;
-      indexInfo.Features = IndexFeatures.Clustered | IndexFeatures.FillFactor |
-        IndexFeatures.Unique | IndexFeatures.NonKeyColumns | IndexFeatures.SortOrder;
+      indexInfo.Features =
+        IndexFeatures.Clustered |
+        IndexFeatures.FillFactor |
+        IndexFeatures.Unique |
+        IndexFeatures.NonKeyColumns |
+        IndexFeatures.SortOrder;
 
       if (versionInfo.Edition==SqlServerEdition.EnterpriseEdition || versionInfo.Edition==SqlServerEdition.DeveloperEdition)
         indexInfo.PartitionMethods = PartitionMethods.Range;
@@ -162,12 +167,15 @@ namespace Xtensive.Sql.SqlServer.v2005
       return indexInfo;
     }
 
-    public override ReferenceConstraintInfo GetReferentialConstraintInfo()
+    public override ForeignKeyConstraintInfo GetForeignKeyConstraintInfo()
     {
-      var referenceConstraintInfo = new ReferenceConstraintInfo();
-      referenceConstraintInfo.MaxIdentifierLength = cIdentifierLength;
-      referenceConstraintInfo.Actions = ConstraintActions.NoAction | ConstraintActions.Cascade
-        | ConstraintActions.SetDefault | ConstraintActions.SetNull;
+      var referenceConstraintInfo = new ForeignKeyConstraintInfo();
+      referenceConstraintInfo.MaxIdentifierLength = MaxIdentifierLength;
+      referenceConstraintInfo.Actions =
+        ForeignKeyConstraintActions.NoAction |
+        ForeignKeyConstraintActions.Cascade |
+        ForeignKeyConstraintActions.SetDefault |
+        ForeignKeyConstraintActions.SetNull;
       referenceConstraintInfo.AllowedDdlStatements = DdlStatements.All;
       return referenceConstraintInfo;
     }
@@ -179,9 +187,11 @@ namespace Xtensive.Sql.SqlServer.v2005
       queryInfo.MaxComparisonOperations = 1000;
       queryInfo.MaxNestedSubqueriesAmount = 32;
       queryInfo.ParameterPrefix = "@";
-      queryInfo.QuoteToken = "'";
-      queryInfo.Features = QueryFeatures.NamedParameters | QueryFeatures.UseParameterPrefix | QueryFeatures.SquareBrackets |
-        QueryFeatures.Batches | QueryFeatures.CrossApply;
+      queryInfo.Features =
+        QueryFeatures.NamedParameters |
+        QueryFeatures.UseParameterPrefix |
+        QueryFeatures.Batches |
+        QueryFeatures.CrossApply;
       return queryInfo;
     }
 
@@ -204,37 +214,29 @@ namespace Xtensive.Sql.SqlServer.v2005
 
       var identity = DataTypeFeatures.Identity;
 
-      types.Boolean = DataTypeInfo.Range(SqlType.Boolean,common | index,
-        new ValueRange<bool>(false, true),
-        "bit");
+      types.Boolean = DataTypeInfo.Range(SqlType.Boolean, common | index,
+        StandardValueRange.Bool, "bit");
      
       types.UInt8 = DataTypeInfo.Range(SqlType.UInt8, common | index | identity,
-        new ValueRange<byte>(byte.MinValue, byte.MaxValue),
-        "tinyint");
+        StandardValueRange.Byte, "tinyint");
 
       types.Int16 = DataTypeInfo.Range(SqlType.Int16, common | index | identity,
-        new ValueRange<short>(short.MinValue, short.MaxValue),
-        "smallint");
+        StandardValueRange.Int16, "smallint");
 
       types.Int32 = DataTypeInfo.Range(SqlType.Int32, common | index | identity,
-        new ValueRange<int>(int.MinValue, int.MaxValue),
-        "integer", "int");
+        StandardValueRange.Int32, "integer", "int");
 
       types.Int64 = DataTypeInfo.Range(SqlType.Int64, common | index | identity,
-        new ValueRange<long>(long.MinValue, long.MaxValue),
-        "bigint");
+        StandardValueRange.Int64, "bigint");
 
       types.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, common | index,
-        new ValueRange<decimal>(decimal.MinValue, decimal.MaxValue), 38,
-        "decimal", "numeric");
+        StandardValueRange.Decimal, 38, "decimal", "numeric");
       
       types.Float = DataTypeInfo.Range(SqlType.Float, common | index,
-        new ValueRange<float>(float.MinValue, float.MaxValue),
-        "real");
+        StandardValueRange.Float, "real");
 
       types.Double = DataTypeInfo.Range(SqlType.Double, common | index,
-        new ValueRange<double>(double.MinValue, double.MaxValue),
-        "float");
+        StandardValueRange.Double, "float");
 
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
         new ValueRange<DateTime>(
@@ -243,7 +245,8 @@ namespace Xtensive.Sql.SqlServer.v2005
         "datetime");
 
       types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 4000, "nchar");
-      types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "nvarchar");
+      types.VarChar = DataTypeInfo.Stream(SqlType.VarChar,
+        common | index | DataTypeFeatures.ZeroLengthValueIsNull, 4000, "nvarchar");
       types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common, "nvarchar(max)", "ntext");
 
       types.Binary = DataTypeInfo.Stream(SqlType.Binary, common | index, 4000, "binary");
@@ -273,14 +276,18 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     public override EntityInfo GetDomainInfo()
     {
-      return new EntityInfo();
+      var domainInfo = new EntityInfo();
+      domainInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
+      domainInfo.MaxIdentifierLength = MaxIdentifierLength;
+      return domainInfo;
     }
 
-    public override ConstraintInfo GetAssertionInfo()
+    public override AssertConstraintInfo GetAssertionInfo()
     {
-      var constriantInfo = new ConstraintInfo();
-      constriantInfo.Features = ConstraintFeatures.None;
-      return constriantInfo;
+      var assertConstraintInfo = new AssertConstraintInfo();
+      assertConstraintInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
+      assertConstraintInfo.MaxIdentifierLength = MaxIdentifierLength;
+      return assertConstraintInfo;
     }
 
     public override int GetStringIndexingBase()

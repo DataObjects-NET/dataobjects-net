@@ -26,7 +26,7 @@ namespace Xtensive.Sql.Info
     /// Gets the assertion constraint info.
     /// </summary>
     /// <value>The assertion constraint info.</value>
-    public ConstraintInfo Assertion { get; private set; }
+    public AssertConstraintInfo Assertion { get; private set; }
 
     /// <summary>
     /// Gets the character set info.
@@ -80,7 +80,7 @@ namespace Xtensive.Sql.Info
     /// Gets the primary key constraint info.
     /// </summary>
     /// <value>The primary key constraint info.</value>
-    public ConstraintInfo PrimaryKey { get; private set; }
+    public PrimaryKeyConstraintInfo PrimaryKey { get; private set; }
 
     /// <summary>
     /// Gets the query info.
@@ -92,7 +92,7 @@ namespace Xtensive.Sql.Info
     /// Gets the referential constraint info.
     /// </summary>
     /// <value>The referential constraint info.</value>
-    public ReferenceConstraintInfo ForeignKey { get; private set; }
+    public ForeignKeyConstraintInfo ForeignKey { get; private set; }
 
     /// <summary>
     /// Gets the schema info.
@@ -140,7 +140,7 @@ namespace Xtensive.Sql.Info
     /// Gets the unique constraint info.
     /// </summary>
     /// <value>The unique constraint info.</value>
-    public ConstraintInfo UniqueConstraint { get; private set; }
+    public UniqueConstraintInfo UniqueConstraint { get; private set; }
 
     /// <summary>
     /// Gets the view info.
@@ -178,7 +178,7 @@ namespace Xtensive.Sql.Info
       info.DataTypes = provider.GetDataTypesInfo();
       info.Database = provider.GetDatabaseInfo();
       info.Domain = provider.GetDomainInfo();
-      info.ForeignKey = provider.GetReferentialConstraintInfo();
+      info.ForeignKey = provider.GetForeignKeyConstraintInfo();
       info.Identity = provider.GetIdentityInfo();
       info.Index = provider.GetIndexInfo();
       info.IsolationLevels = provider.GetIsolationLevels();

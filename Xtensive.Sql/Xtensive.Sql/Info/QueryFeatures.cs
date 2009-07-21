@@ -29,11 +29,7 @@ namespace Xtensive.Sql.Info
     /// </summary>
     UseParameterPrefix = 0x2,
 
-    /// <summary>
-    /// Indicates that it is possible to use square brackets for
-    /// quoting names of RDBMS entities.
-    /// </summary>
-    SquareBrackets = 0x4,
+    // SquareBrackets removed - useless
 
     /// <summary>
     /// Indicates that RDBMS requires multi-table joins to have explicit order.
@@ -65,6 +61,6 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Indicates that RDBMS supports paging operators (LIMIT and OFFSET)
     /// </summary>
-    Paging = 0x100
+    Paging = 0x100,
   }
 }

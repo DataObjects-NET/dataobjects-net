@@ -53,7 +53,7 @@ namespace Xtensive.Sql
     public SqlCompilationResult Compile(ISqlCompileUnit statement)
     {
       ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
-      return CreateCompiler().Compile(statement, SqlCompilerOptions.Default);
+      return CreateCompiler().Compile(statement, new SqlCompilerOptions());
     }
 
     /// <summary>

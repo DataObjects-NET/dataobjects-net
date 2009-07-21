@@ -14,43 +14,37 @@ namespace Xtensive.Sql.Info
   {
     private IndexFeatures features = IndexFeatures.None;
     private int maxLength;
-    private int maxColumnAmount;
+    private int maxNumberOfColumns;
     private PartitionMethods partitionMethods;
 
     /// <summary>
     /// Gets or sets the maximal index length in bytes.
     /// </summary>
-    public int MaxLength
-    {
+    public int MaxLength {
       get { return maxLength; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         maxLength = value;
       }
     }
 
     /// <summary>
-    /// Gets or sets the maximal amount of columns in index.
+    /// Gets or sets the maximum number of columns per index.
     /// </summary>
-    public int MaxColumnAmount
-    {
-      get { return maxColumnAmount; }
-      set
-      {
+    public int MaxNumberOfColumns {
+      get { return maxNumberOfColumns; }
+      set {
         this.EnsureNotLocked();
-        maxColumnAmount = value;
+        maxNumberOfColumns = value;
       }
     }
 
     /// <summary>
     /// Gets or sets supported partition methods.
     /// </summary>
-    public PartitionMethods PartitionMethods
-    {
+    public PartitionMethods PartitionMethods {
       get { return partitionMethods; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         partitionMethods = value;
       }
@@ -60,11 +54,9 @@ namespace Xtensive.Sql.Info
     /// Gets or sets the features of this instance.
     /// </summary>
     /// <value>The features.</value>
-    public IndexFeatures Features
-    {
+    public IndexFeatures Features {
       get { return features; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         features = value;
       }

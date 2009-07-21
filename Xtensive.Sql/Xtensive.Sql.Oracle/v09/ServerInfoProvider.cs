@@ -12,138 +12,241 @@ namespace Xtensive.Sql.Oracle.v09
 {
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
-    private VersionInfo version;
+    private const int MaxIdentifierLength = 30;
+    private const int DoNotKnow = int.MaxValue;
+
+    private readonly VersionInfo versionInfo;
 
     public override EntityInfo GetCollationInfo()
     {
-      throw new NotImplementedException();
+      return null;
     }
 
     public override EntityInfo GetCharacterSetInfo()
     {
-      throw new NotImplementedException();
+      return null;
     }
 
     public override EntityInfo GetTranslationInfo()
     {
-      throw new NotImplementedException();
+      return null;
     }
 
     public override EntityInfo GetTriggerInfo()
     {
-      throw new NotImplementedException();
+      var triggerInfo = new EntityInfo();
+      triggerInfo.AllowedDdlStatements = DdlStatements.All;
+      triggerInfo.MaxIdentifierLength = MaxIdentifierLength;
+      return triggerInfo;
     }
 
     public override EntityInfo GetStoredProcedureInfo()
     {
-      throw new NotImplementedException();
+      var storedProcedureInfo = new EntityInfo();
+      storedProcedureInfo.AllowedDdlStatements = DdlStatements.All;
+      storedProcedureInfo.MaxIdentifierLength = MaxIdentifierLength;
+      return storedProcedureInfo;
     }
 
     public override SequenceInfo GetSequenceInfo()
     {
-      throw new NotImplementedException();
+      var sequenceInfo = new SequenceInfo();
+      sequenceInfo.AllowedDdlStatements = DdlStatements.All;
+      sequenceInfo.Features = SequenceFeatures.Cache;
+      sequenceInfo.MaxIdentifierLength = MaxIdentifierLength;
+      return sequenceInfo;
     }
 
     public override EntityInfo GetDatabaseInfo()
     {
-      throw new NotImplementedException();
+      var info = new EntityInfo();
+      info.AllowedDdlStatements = DdlStatements.None;
+      info.MaxIdentifierLength = MaxIdentifierLength;
+      return info;
     }
 
     public override ColumnInfo GetColumnInfo()
     {
-      throw new NotImplementedException();
+      var columnInfo = new ColumnInfo();
+      columnInfo.AllowedDdlStatements = DdlStatements.All;
+      columnInfo.Features = ColumnFeatures.Computed;
+      columnInfo.MaxIdentifierLength = MaxIdentifierLength;
+      return columnInfo;
     }
 
     public override EntityInfo GetViewInfo()
     {
-      throw new NotImplementedException();
+      var viewInfo = new EntityInfo();
+      viewInfo.AllowedDdlStatements = DdlStatements.All;
+      viewInfo.MaxIdentifierLength = MaxIdentifierLength;
+      return viewInfo;
     }
 
     public override EntityInfo GetSchemaInfo()
     {
-      throw new NotImplementedException();
+      var schemaInfo = new EntityInfo();
+      schemaInfo.AllowedDdlStatements = DdlStatements.All;
+      schemaInfo.MaxIdentifierLength = MaxIdentifierLength;
+      return schemaInfo;
     }
 
     public override TableInfo GetTableInfo()
     {
-      throw new NotImplementedException();
+      var tableInfo = new TableInfo();
+      tableInfo.AllowedDdlStatements = DdlStatements.All;
+      tableInfo.MaxIdentifierLength = MaxIdentifierLength;
+      tableInfo.PartitionMethods =
+        PartitionMethods.Hash |
+        PartitionMethods.List |
+        PartitionMethods.Range |
+        PartitionMethods.Interval;
+      return tableInfo;
     }
 
     public override TemporaryTableInfo GetTemporaryTableInfo()
     {
-      throw new NotImplementedException();
+      var temporaryTableInfo = new TemporaryTableInfo();
+      temporaryTableInfo.Features =
+        TemporaryTableFeatures.DeleteRowsOnCommit |
+        TemporaryTableFeatures.Global;
+      temporaryTableInfo.AllowedDdlStatements = DdlStatements.All;
+      temporaryTableInfo.MaxIdentifierLength = MaxIdentifierLength;
+      return temporaryTableInfo;
     }
 
     public override CheckConstraintInfo GetCheckConstraintInfo()
     {
-      throw new NotImplementedException();
+      var checkContraintsInfo = new CheckConstraintInfo();
+      checkContraintsInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
+      checkContraintsInfo.MaxIdentifierLength = MaxIdentifierLength;
+      checkContraintsInfo.MaxExpressionLength = DoNotKnow;
+      checkContraintsInfo.Features = CheckConstraintFeatures.Deferrable;
+      return checkContraintsInfo;
     }
 
-    public override ConstraintInfo GetPrimaryKeyInfo()
+    public override PrimaryKeyConstraintInfo GetPrimaryKeyInfo()
     {
-      throw new NotImplementedException();
+      var primaryKeyInfo = new PrimaryKeyConstraintInfo();
+      primaryKeyInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
+      primaryKeyInfo.Features = PrimaryKeyConstraintFeatures.Nullable;
+      primaryKeyInfo.MaxIdentifierLength = MaxIdentifierLength;
+      return primaryKeyInfo;
     }
 
-    public override ConstraintInfo GetUniqueConstraintInfo()
+    public override UniqueConstraintInfo GetUniqueConstraintInfo()
     {
-      throw new NotImplementedException();
+      var uniqueContraintInfo = new UniqueConstraintInfo();
+      uniqueContraintInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
+      uniqueContraintInfo.Features = UniqueConstraintFeatures.Nullable;
+      uniqueContraintInfo.MaxIdentifierLength = MaxIdentifierLength;
+      return uniqueContraintInfo;
     }
 
     public override IndexInfo GetIndexInfo()
     {
-      throw new NotImplementedException();
+      var indexInfo = new IndexInfo();
+      indexInfo.AllowedDdlStatements = DdlStatements.All;
+      indexInfo.Features = IndexFeatures.Unique;
+      indexInfo.MaxIdentifierLength = MaxIdentifierLength;
+      indexInfo.PartitionMethods =
+        PartitionMethods.Hash |
+        PartitionMethods.Interval |
+        PartitionMethods.List |
+        PartitionMethods.Range;
+      return indexInfo;
     }
 
-    public override ReferenceConstraintInfo GetReferentialConstraintInfo()
+    public override ForeignKeyConstraintInfo GetForeignKeyConstraintInfo()
     {
-      throw new NotImplementedException();
+      var foreignKeyConstraintInfo = new ForeignKeyConstraintInfo();
+      foreignKeyConstraintInfo.MaxIdentifierLength = MaxIdentifierLength;
+      foreignKeyConstraintInfo.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
+      foreignKeyConstraintInfo.Features = ForeignKeyConstraintFeatures.Deferrable;
+      foreignKeyConstraintInfo.Actions =
+        ForeignKeyConstraintActions.Cascade |
+        ForeignKeyConstraintActions.NoAction |
+        ForeignKeyConstraintActions.SetDefault |
+        ForeignKeyConstraintActions.SetNull;
+      return foreignKeyConstraintInfo;
     }
 
     public override QueryInfo GetQueryInfo()
     {
-      throw new NotImplementedException();
+      var queryInfo = new QueryInfo();
+      queryInfo.MaxNestedSubqueriesAmount = 255;
+      queryInfo.ParameterPrefix = ":";
+      queryInfo.MaxLength = DoNotKnow;
+      queryInfo.MaxComparisonOperations = DoNotKnow;
+      queryInfo.Features =
+        QueryFeatures.NamedParameters |
+        QueryFeatures.UseParameterPrefix |
+        QueryFeatures.Batches |
+        QueryFeatures.Hints;
+      return queryInfo;
     }
 
     public override IdentityInfo GetIdentityInfo()
     {
-      throw new NotImplementedException();
+      return null;
     }
 
     public override DataTypeCollection GetDataTypesInfo()
     {
-      throw new NotImplementedException();
+      const DataTypeFeatures common = DataTypeFeatures.Default | DataTypeFeatures.Nullable |
+        DataTypeFeatures.NonKeyIndexing | DataTypeFeatures.Grouping | DataTypeFeatures.Ordering |
+        DataTypeFeatures.Multiple;
+      const DataTypeFeatures index = DataTypeFeatures.Indexing | DataTypeFeatures.Clustering |
+        DataTypeFeatures.FillFactor | DataTypeFeatures.KeyConstraint;
+      var types = new DataTypeCollection();
+
+      types.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, common | index,
+        StandardValueRange.Decimal, 38, "number");
+      types.Float = DataTypeInfo.Range(SqlType.Float, common | index,
+        StandardValueRange.Float, "binary_float");
+      types.Double = DataTypeInfo.Range(SqlType.Double, common | index,
+        StandardValueRange.Double, "binary_double");
+      types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
+        StandardValueRange.DateTime, "timestamp");
+      types.Interval = DataTypeInfo.Range(SqlType.Interval, common | index,
+        StandardValueRange.TimeSpan, "interval day to second");
+
+      types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 2000, "nchar");
+      types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "nvarchar2");
+      types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common, "nclob");
+      types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "blob");
+      return types;
     }
 
     public override VersionInfo GetVersionInfo()
     {
-      return version;
+      return versionInfo;
     }
 
     public override IsolationLevels GetIsolationLevels()
     {
-      throw new NotImplementedException();
+      return IsolationLevels.ReadCommitted | IsolationLevels.Serializable;
     }
 
     public override EntityInfo GetDomainInfo()
     {
-      throw new NotImplementedException();
+      return null;
     }
 
-    public override ConstraintInfo GetAssertionInfo()
+    public override AssertConstraintInfo GetAssertionInfo()
     {
-      throw new NotImplementedException();
+      return null;
     }
 
     public override int GetStringIndexingBase()
     {
-      throw new NotImplementedException();
+      return 1;
     }
 
     // Constructors
 
     public ServerInfoProvider(OracleConnection connection, Version version)
     {
-      this.version = new VersionInfo(version);
+      versionInfo = new VersionInfo(version);
     }
   }
 }

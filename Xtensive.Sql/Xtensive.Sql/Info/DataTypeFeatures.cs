@@ -84,5 +84,10 @@ namespace Xtensive.Sql.Info
     /// mentioned data type as non-key part of some index.
     /// </summary>
     NonKeyIndexing = 0x400,
+
+    /// <summary>
+    /// Indicates that RDBMS treats zero length value as NULL.
+    /// </summary>
+    ZeroLengthValueIsNull = 0x800,
   }
 }

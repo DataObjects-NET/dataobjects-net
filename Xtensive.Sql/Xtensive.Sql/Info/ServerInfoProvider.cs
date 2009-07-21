@@ -77,24 +77,24 @@ namespace Xtensive.Sql.Info
     public abstract CheckConstraintInfo GetCheckConstraintInfo();
 
     /// <summary>
-    /// Gets the primary key info.
-    /// </summary>
-    public abstract ConstraintInfo GetPrimaryKeyInfo();
-
-    /// <summary>
     /// Gets the unique constraint info.
     /// </summary>
-    public abstract ConstraintInfo GetUniqueConstraintInfo();
-
+    public abstract UniqueConstraintInfo GetUniqueConstraintInfo();
+    
     /// <summary>
-    /// Gets the index info.
+    /// Gets the primary key info.
     /// </summary>
-    public abstract IndexInfo GetIndexInfo();
+    public abstract PrimaryKeyConstraintInfo GetPrimaryKeyInfo();
 
     /// <summary>
     /// Gets the referential constraint info.
     /// </summary>
-    public abstract ReferenceConstraintInfo GetReferentialConstraintInfo();
+    public abstract ForeignKeyConstraintInfo GetForeignKeyConstraintInfo();
+    
+    /// <summary>
+    /// Gets the index info.
+    /// </summary>
+    public abstract IndexInfo GetIndexInfo();
 
     /// <summary>
     /// Gets the query info.
@@ -129,7 +129,7 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Gets the assertion info.
     /// </summary>
-    public abstract ConstraintInfo GetAssertionInfo();
+    public abstract AssertConstraintInfo GetAssertionInfo();
 
     /// <summary>
     /// Gets the string indexing base.

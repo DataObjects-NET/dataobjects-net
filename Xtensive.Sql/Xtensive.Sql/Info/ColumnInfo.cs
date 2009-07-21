@@ -19,11 +19,9 @@ namespace Xtensive.Sql.Info
     /// Gets or sets the features of this instance.
     /// </summary>
     /// <value>The features.</value>
-    public ColumnFeatures Features
-    {
+    public ColumnFeatures Features {
       get { return features; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         features = value;
       }
