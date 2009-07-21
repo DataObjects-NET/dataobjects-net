@@ -16,6 +16,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage
 {
@@ -618,7 +619,27 @@ namespace Xtensive.Storage
       }
       return key;
     }
-    
+
+    internal static bool TryCreateGenericKey(Domain domain, TypeInfo type, FieldInfo field, Tuple tuple,
+      bool exactType, bool canCache, out Key key)
+    {
+      if (field == null) {
+        key = null;
+        return false;
+      }
+
+      if (field.MappingInfo.Length==1)
+        return TryCreateGenericKey(domain, type, new[] {field.MappingInfo.Offset}, tuple, exactType, canCache, out key);
+
+      var keyIndexes = new int[field.MappingInfo.Length];
+      int j = 0;
+      for (int i = field.MappingInfo.Offset; i < field.MappingInfo.EndOffset; i++) {
+        keyIndexes[j] = i;
+          j++;
+      }
+      return TryCreateGenericKey(domain, type, keyIndexes, tuple, exactType, canCache, out key);
+    }
+
     internal static bool TryCreateGenericKey(Domain domain, TypeInfo type, int[] keyFields, Tuple tuple,
       bool exactType, bool canCache, out Key key)
     {

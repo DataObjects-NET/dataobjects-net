@@ -120,10 +120,10 @@ namespace Xtensive.Storage
     [Infrastructure]
     public DifferentialTuple GetDifferentialTuple()
     {
-      if (isDifferentialTuple)
-        return (DifferentialTuple)Tuple;
-      return SwitchToDifferentialTuple();
-    }
+      if (!isDifferentialTuple)
+        SwitchToDifferentialTuple();
+      return (DifferentialTuple) Tuple;
+ }
 
     /// <summary>
     /// Ensures the entity is not removed and its data is actual.
@@ -147,7 +147,7 @@ namespace Xtensive.Storage
       if (update==null) // Entity is removed
         Tuple = null;
       else {
-        var diffTuple = SwitchToDifferentialTuple();
+        var diffTuple = GetDifferentialTuple();
         var tuple = IsTupleLoaded ? diffTuple : null;
         if (tuple==null)
           // Entity was marked as removed before, or it is unfetched at all yet
@@ -171,16 +171,15 @@ namespace Xtensive.Storage
       return Tuple;
     }
 
-    internal DifferentialTuple SwitchToDifferentialTuple()
+    [Infrastructure]
+    internal void SwitchToDifferentialTuple()
     {
       if (Tuple == null)
-        return null;
+        return;
       if (isDifferentialTuple)
-        return (DifferentialTuple) Tuple;
-      var result = new DifferentialTuple(Tuple);
-      Tuple = result;
+        return;
+      Tuple = new DifferentialTuple(Tuple);
       isDifferentialTuple = true;
-      return result;
     }
 
     #region Equality members

@@ -231,7 +231,7 @@ namespace Xtensive.Storage.Model
     /// </returns>
     public Tuple CreateEntityTuple(Tuple primaryKey)
     {
-      return primaryKeyInjector.Apply(TupleTransformType.TransformedTuple, primaryKey, TuplePrototype);
+      return primaryKeyInjector.Apply(TupleTransformType.Tuple, primaryKey, TuplePrototype);
     }
 
     /// <summary>
@@ -458,7 +458,7 @@ namespace Xtensive.Storage.Model
         var keyFieldMap = new Pair<int, int>[fieldCount];
         for (i = 0; i < fieldCount; i++)
           keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);
-        primaryKeyInjector = new MapTransform(true, TupleDescriptor, keyFieldMap);
+        primaryKeyInjector = new MapTransform(false, TupleDescriptor, keyFieldMap);
       }
       TuplePrototype = IsEntity ? tuple.ToFastReadOnly() : tuple;
     }

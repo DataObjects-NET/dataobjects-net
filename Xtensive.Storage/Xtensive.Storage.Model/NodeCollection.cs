@@ -138,6 +138,14 @@ namespace Xtensive.Storage.Model
       nameIndex.Add(tNode.Name, tNode);
     }
 
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      base.Lock(recursive);
+      foreach (var item in Items)
+        item.Lock(true);
+    }
+
 
     // Constructors
 

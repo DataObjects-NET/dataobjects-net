@@ -160,7 +160,8 @@ namespace Xtensive.Core.Diagnostics
       if (logName.StartsWith(skipPrefix))
         logName = logName.Substring(skipPrefix.Length);
       Instance = LogProvider.GetLog(logName);
-      Diagnostics.Log.Info("{0} log initialized.", Instance);
+      if (Log.IsLogged(LogEventTypes.Info))
+        Log.Info("{0} log initialized.", Instance);
     }
   }
 }
