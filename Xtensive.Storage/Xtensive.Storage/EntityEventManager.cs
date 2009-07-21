@@ -125,10 +125,10 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(eventKey, "eventKey");
       ArgumentValidator.EnsureArgumentNotNull(subscriber, "subscriber");
-      if(subscribers == null)
+      if (subscribers == null)
         subscribers = new Dictionary<Triplet<Key, FieldInfo, object>, Delegate>();
       var subscriberKey = new Triplet<Key, FieldInfo, object>(key, fieldInfo, eventKey);
-      if(subscribers.ContainsKey(subscriberKey))
+      if (subscribers.ContainsKey(subscriberKey))
         subscribers[subscriberKey] = Delegate.Combine(subscribers[subscriberKey], subscriber);
       else
         subscribers.Add(subscriberKey, subscriber);
@@ -158,10 +158,10 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(eventKey, "eventKey");
       ArgumentValidator.EnsureArgumentNotNull(subscriber, "subscriber");
-      if(subscribers == null)
+      if (subscribers == null)
         return;
       var subscriberKey = new Triplet<Key, FieldInfo, object>(key, fieldInfo, eventKey);
-      if(subscribers.ContainsKey(subscriberKey))
+      if (subscribers.ContainsKey(subscriberKey))
         subscribers[subscriberKey] = Delegate.Remove(subscribers[subscriberKey], subscriber);
     }
 
@@ -186,10 +186,10 @@ namespace Xtensive.Storage
     /// <returns>A delegate registered for the event or <see langword="null" />.</returns>
     public Delegate GetSubscriber(Key key, FieldInfo fieldInfo, object eventKey)
     {
-      if(subscribers == null)
+      if (subscribers == null)
         return null;
       var subscriberKey = new Triplet<Key, FieldInfo, object>(key, fieldInfo, eventKey);
-      if(subscribers.ContainsKey(subscriberKey))
+      if (subscribers.ContainsKey(subscriberKey))
         return subscribers[subscriberKey];
       return null;
     }

@@ -14,13 +14,13 @@ namespace Xtensive.Storage.Linq.Materialization
 {
   internal sealed class MaterializationContext
   {
-    private readonly Dictionary<int, EntityMaterializationData>[] transformCaches;
+    private readonly Dictionary<int, EntityMaterializationInfo>[] transformCaches;
     private readonly DomainModel model;
     public int EntitiesInRow;
 
-    public EntityMaterializationData GetEntityMaterializationData(int entityIndex, int typeId, Pair<int>[] columns)
+    public EntityMaterializationInfo GetEntityMaterializationInfo(int entityIndex, int typeId, Pair<int>[] columns)
     {
-      EntityMaterializationData result;
+      EntityMaterializationInfo result;
       var cache = transformCaches[entityIndex];
       if (cache.TryGetValue(typeId, out result))
         return result;
@@ -28,11 +28,14 @@ namespace Xtensive.Storage.Linq.Materialization
       var entityType = model.Types[typeId];
       var keyInfo = entityType.Hierarchy.KeyInfo;
       var descriptor = entityType.TupleDescriptor;
+
       int[] entityMap = MaterializationHelper.GetColumnMap(descriptor.Count, columns);
-      int[] keyMap = Enumerable.Range(0, keyInfo.Length).ToArray();
-      var transform = new MapTransform(true, descriptor, entityMap);
+      int[] keyMap    = Enumerable.Range(0, keyInfo.Length).ToArray();
+
+      var transform    = new MapTransform(true, descriptor, entityMap);
       var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyMap);
-      result = new EntityMaterializationData(transform, keyTransform, entityType);
+
+      result = new EntityMaterializationInfo(transform, keyTransform, entityType);
       cache.Add(typeId, result);
       return result;
     }
@@ -44,9 +47,9 @@ namespace Xtensive.Storage.Linq.Materialization
     {
       model = Domain.Demand().Model;
       EntitiesInRow = entitiesInRow;
-      transformCaches = new Dictionary<int, EntityMaterializationData>[entitiesInRow];
+      transformCaches = new Dictionary<int, EntityMaterializationInfo>[entitiesInRow];
       for (int i = 0; i < transformCaches.Length; i++)
-        transformCaches[i] = new Dictionary<int, EntityMaterializationData>();
+        transformCaches[i] = new Dictionary<int, EntityMaterializationInfo>();
     }
   }
 }

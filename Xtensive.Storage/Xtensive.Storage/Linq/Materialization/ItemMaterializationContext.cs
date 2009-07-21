@@ -1,22 +1,23 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
-using System.Linq;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Linq.Materialization
 {
   internal sealed class ItemMaterializationContext
   {
-    public static MethodInfo IsMaterializedMethodInfo{ get; private set;}
-    public static MethodInfo GetEntityMethodInfo{ get; private set;}
-    public static MethodInfo MaterializeMethodInfo{ get; private set;}
+    public static MethodInfo IsMaterializedMethodInfo { get; private set; }
+    public static MethodInfo GetEntityMethodInfo      { get; private set; }
+    public static MethodInfo MaterializeMethodInfo    { get; private set; }
 
-    private readonly Entity[] entities;
     private readonly Session session;
-    private readonly MaterializationContext parentContext;
+    private readonly Entity[] entities;
+    private readonly MaterializationContext materializationContext;
 
 // ReSharper disable UnusedMember.Global
     public bool IsMaterialized(int index)
@@ -29,12 +30,12 @@ namespace Xtensive.Storage.Linq.Materialization
       return entities[index];
     }
 
+    /// <exception cref="InvalidOperationException">Something went wrong.</exception>
     public Entity Materialize(int entityIndex, int typeIdIndex, TypeInfo typeInfo, Pair<int>[] columns, Tuple tuple)
     {
       var result = entities[entityIndex];
       if (result!=null)
         return result;
-
 
       int typeId;
       if (typeIdIndex >= 0) {
@@ -43,22 +44,22 @@ namespace Xtensive.Storage.Linq.Materialization
         else if (tuple.IsAvailable(typeIdIndex))
           return null;
         else
-          return null;
-        // throw new InvalidOperationException(string.Format("Unable to materialize entity. There is no TypeId field."));
+          throw Exceptions.InternalError(Strings.ExMaterializationErrorTypeIdColumnDoesNotExistsInTheUnderlyingRecordSet, Log.Instance);
       }
       else
         typeId = TypeInfo.NoTypeId;
 
-      var exactType = typeId != TypeInfo.NoTypeId;
+      bool exactType = typeId != TypeInfo.NoTypeId;
+
       if (!exactType) {
         typeId = typeInfo.TypeId;
         exactType = typeInfo.GetDescendants().Count()==0;
       }
       
-      var materializationData = parentContext.GetEntityMaterializationData(entityIndex, typeId, columns);
+      var materializationData = materializationContext.GetEntityMaterializationInfo(entityIndex, typeId, columns);
       var entityTuple = materializationData.Transform.Apply(TupleTransformType.Tuple, tuple);
       Key key;
-      if (!Key.TryCreateGenericKey(materializationData.EntityType,
+      if (!Key.TryCreateGenericKey(session.Domain, materializationData.EntityType,
         materializationData.KeyFields, entityTuple, exactType, false, out key)) {
         var entityKeyTuple = materializationData.KeyTransform.Apply(TupleTransformType.Tuple, entityTuple);
         key = Key.Create(materializationData.EntityType, entityKeyTuple, exactType);
@@ -79,7 +80,7 @@ namespace Xtensive.Storage.Linq.Materialization
 
     public ItemMaterializationContext(MaterializationContext materializationContext, Session session)
     {
-      parentContext = materializationContext;
+      this.materializationContext = materializationContext;
       this.session = session;
       entities = new Entity[materializationContext.EntitiesInRow];
     }

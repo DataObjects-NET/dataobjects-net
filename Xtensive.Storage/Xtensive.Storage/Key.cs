@@ -619,7 +619,7 @@ namespace Xtensive.Storage
       return key;
     }
     
-    internal static bool TryCreateGenericKey(TypeInfo type, int[] keyFields, Tuple tuple,
+    internal static bool TryCreateGenericKey(Domain domain, TypeInfo type, int[] keyFields, Tuple tuple,
       bool exactType, bool canCache, out Key key)
     {
       if (keyFields.Length > 2) {
@@ -641,7 +641,7 @@ namespace Xtensive.Storage
           keyConstructors.Add(type, creator);
         }
       }
-      key = creator.Invoke(Domain.Demand(), type, keyFields, tuple, exactType, canCache);
+      key = creator.Invoke(domain, type, keyFields, tuple, exactType, canCache);
       return true;
     }
 

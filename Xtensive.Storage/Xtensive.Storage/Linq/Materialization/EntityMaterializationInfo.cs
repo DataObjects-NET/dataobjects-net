@@ -10,7 +10,7 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Linq.Materialization
 {
-  internal struct EntityMaterializationData
+  internal struct EntityMaterializationInfo
   {
     public readonly MapTransform Transform;
     public readonly MapTransform KeyTransform;
@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Linq.Materialization
 
     // Constructors
 
-    public EntityMaterializationData(MapTransform transform, MapTransform keyTransform, TypeInfo entityType)
+    public EntityMaterializationInfo(MapTransform transform, MapTransform keyTransform, TypeInfo entityType)
     {
       Transform = transform;
       KeyTransform = keyTransform;

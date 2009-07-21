@@ -39,7 +39,7 @@ namespace Xtensive.Storage
     /// Gets the type of this instance.
     /// </summary>
     [Infrastructure]
-    internal abstract TypeInfo Type { get; }
+    public abstract TypeInfo Type { get; }
 
     /// <summary>
     /// Gets the underlying tuple.
@@ -420,6 +420,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public abstract event PropertyChangedEventHandler PropertyChanged;
 
+    [Infrastructure]
     protected internal abstract void NotifyPropertyChanged(FieldInfo field);
 
     internal Persistent()

@@ -92,7 +92,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    internal override sealed TypeInfo Type
+    public override sealed TypeInfo Type
     {
       [DebuggerStepThrough]
       get { return State.Type; }
@@ -342,6 +342,7 @@ namespace Xtensive.Storage
         ((PropertyChangedEventHandler)subscriber).Invoke(this, new PropertyChangedEventArgs(field.Name));
     }
 
+    [Infrastructure]
     private void GetSubscription(object eventKey, out Key entityKey,
       out Delegate subscriber)
     {

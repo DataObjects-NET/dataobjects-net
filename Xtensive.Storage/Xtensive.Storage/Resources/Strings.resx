@@ -755,4 +755,7 @@ Actions:
   <data name="ExValueIsAlreadyAssigned" xml:space="preserve">
     <value>Value is already assigned.</value>
   </data>
+  <data name="ExMaterializationErrorTypeIdColumnDoesNotExistsInTheUnderlyingRecordSet" xml:space="preserve">
+    <value>Materialization error: Entity's TypeId column does not exists in the underlying RecordSet.</value>
+  </data>
 </root>

@@ -117,6 +117,7 @@ namespace Xtensive.Storage
     /// Gets the values as <see cref="DifferentialTuple"/>.
     /// </summary>
     /// <returns>A <see cref="DifferentialTuple"/> corresponding to the current state.</returns>
+    [Infrastructure]
     public DifferentialTuple GetDifferentialTuple()
     {
       if (isDifferentialTuple)

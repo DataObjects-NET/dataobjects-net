@@ -323,6 +323,7 @@ namespace Xtensive.Storage
       NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null);
     }
 
+    [Infrastructure]
     private void GetSubscription(object eventKey, out Key entityKey,
       out Delegate subscriber)
     {

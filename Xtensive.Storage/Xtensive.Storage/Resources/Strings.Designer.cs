@@ -889,6 +889,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Materialization error: Entity&apos;s TypeId column does not exists in the underlying RecordSet..
+        /// </summary>
+        internal static string ExMaterializationErrorTypeIdColumnDoesNotExistsInTheUnderlyingRecordSet {
+            get {
+                return ResourceManager.GetString("ExMaterializationErrorTypeIdColumnDoesNotExistsInTheUnderlyingRecordSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Method {0} not found.
         /// </summary>
         internal static string ExMethodXNotFound {

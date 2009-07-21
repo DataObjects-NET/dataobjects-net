@@ -62,19 +62,7 @@ namespace Xtensive.Storage
     private readonly TypeInfo type;
 
     /// <inheritdoc/>
-    public override event PropertyChangedEventHandler PropertyChanged {
-      add {
-        Session.EntityEvents.AddSubscriber(FindOwnerEntityKey(Owner), Field,
-        EntityEventManager.PropertyChangedEventKey, value);
-      }
-      remove {
-        Session.EntityEvents.RemoveSubscriber(FindOwnerEntityKey(Owner), Field,
-        EntityEventManager.PropertyChangedEventKey, value);
-      }
-    }
-
-    /// <inheritdoc/>
-    internal override TypeInfo Type {
+    public override TypeInfo Type {
       [DebuggerStepThrough]
       get { return type; }
     }
@@ -87,6 +75,17 @@ namespace Xtensive.Storage
     [Infrastructure]
     public FieldInfo Field { get; private set; }
 
+    /// <inheritdoc/>
+    protected internal override Tuple Tuple {
+      [DebuggerStepThrough]
+      get { return tuple; }
+    }
+
+    /// <inheritdoc/> 
+    protected internal override bool CanBeValidated {
+      get { return IsBoundToEntity; }
+    }
+
     [Infrastructure]
     private bool IsBoundToEntity
     {
@@ -97,14 +96,15 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    protected internal override Tuple Tuple {
-      [DebuggerStepThrough]
-      get { return tuple; }
-    }
-
-    /// <inheritdoc/> 
-    protected internal override bool CanBeValidated {
-      get { return IsBoundToEntity; }
+    public override event PropertyChangedEventHandler PropertyChanged {
+      add {
+        Session.EntityEvents.AddSubscriber(FindOwnerEntityKey(Owner), Field,
+        EntityEventManager.PropertyChangedEventKey, value);
+      }
+      remove {
+        Session.EntityEvents.RemoveSubscriber(FindOwnerEntityKey(Owner), Field,
+        EntityEventManager.PropertyChangedEventKey, value);
+      }
     }
 
     internal override sealed void EnsureIsFetched(FieldInfo field)
@@ -206,7 +206,8 @@ namespace Xtensive.Storage
       if(subscriber != null)
         ((PropertyChangedEventHandler)subscriber).Invoke(this, new PropertyChangedEventArgs(fieldInfo.Name));
     }
-
+    
+    [Infrastructure]
     private void GetSubscription(object eventKey, out Key entityKey,
       out Delegate subscriber)
     {

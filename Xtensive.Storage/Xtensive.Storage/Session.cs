@@ -51,7 +51,7 @@ namespace Xtensive.Storage
   /// </example>
   /// <seealso cref="Domain"/>
   /// <seealso cref="SessionBound" />
-  public partial class Session : DomainBound,
+  public sealed partial class Session : DomainBound,
     IContext<SessionScope>, IResource
   {
     private bool isPersisting;
@@ -650,10 +650,7 @@ namespace Xtensive.Storage
       Dispose(false);
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
-    /// </summary>
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
       if (isDisposed)
         return;
