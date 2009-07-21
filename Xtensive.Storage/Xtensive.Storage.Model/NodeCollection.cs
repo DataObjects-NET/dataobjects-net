@@ -56,6 +56,8 @@ namespace Xtensive.Storage.Model
     /// <inheritdoc/>
     public virtual void UpdateState(bool recursive)
     {
+      if (this==Empty)
+        return;
       this.EnsureNotLocked();
       if (!recursive)
         return;

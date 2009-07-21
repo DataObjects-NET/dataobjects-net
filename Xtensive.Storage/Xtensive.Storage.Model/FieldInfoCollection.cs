@@ -42,6 +42,15 @@ namespace Xtensive.Storage.Model
       }
     }
 
+    /// <inheritdoc/>
+    public override void UpdateState(bool recursive)
+    {
+      if (this==Empty)
+        return;
+      base.UpdateState(recursive);
+    }
+
+
 
     // Constructors
 
