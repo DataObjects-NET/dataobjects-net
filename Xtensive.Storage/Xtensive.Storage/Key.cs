@@ -564,8 +564,16 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       var hierarchy = type.Hierarchy;
       var keyInfo = hierarchy.KeyInfo;
-      if (value.Descriptor != keyInfo.TupleDescriptor)
+      if (keyIndexes != null) {
+        if (keyIndexes.Length!=keyInfo.TupleDescriptor.Count)
+          throw new ArgumentException(Strings.ExWrongKeyStructure);
+        for (int i = keyIndexes.Length - 1; i >= 0; i--)
+          if (value.Descriptor[keyIndexes[i]]!=keyInfo.TupleDescriptor[i])
+            throw new ArgumentException(Strings.ExWrongKeyStructure);
+      }
+      else if (value.Descriptor!=keyInfo.TupleDescriptor)
         throw new ArgumentException(Strings.ExWrongKeyStructure);
+
       if (hierarchy.Root.IsLeaf)
         exactType = true;
 
@@ -591,7 +599,7 @@ namespace Xtensive.Storage
         if (keyCache.TryGetItem(key, true, out foundKey))
           key = foundKey;
         else {
-          key.value = value.ToFastReadOnly();
+          //key.value = value.ToFastReadOnly();
           if (exactType)
             keyCache.Add(key);
         }
@@ -614,6 +622,7 @@ namespace Xtensive.Storage
       int length = descriptor.Count;
       var type = typeof (Key).Assembly.GetType(
         string.Format(GenericTypeNameFormat, typeof (Key).FullName, length));
+      type = type.MakeGenericType(descriptor.ToArray());
       return new GenericKeyTypeInfo() {
         Type = type,
         DefaultConstructor =
