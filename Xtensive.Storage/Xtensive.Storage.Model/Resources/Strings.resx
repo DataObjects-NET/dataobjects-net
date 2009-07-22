@@ -153,4 +153,7 @@
   <data name="UnnamedNodeDisplayName" xml:space="preserve">
     <value>&lt;Unnamed&gt;</value>
   </data>
+  <data name="ExKeyContainsMultipleFieldsWithIsTypeIdTrueFlag" xml:space="preserve">
+    <value>Key contains multiple fields with IsTypeId==true flag.</value>
+  </data>
 </root>

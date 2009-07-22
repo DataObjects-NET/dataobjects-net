@@ -302,11 +302,11 @@ namespace Xtensive.Storage
       var type = Session.Domain.Model.Types[field.ValueType];
       if (Tuple.ContainsEmptyValues(field.MappingInfo))
         return null;
-      var tuple = field.ExtractValue(Tuple);
-      var result = Key.Create(Session.Domain, type, tuple, false, true);
-      NotifyGetFieldValue(field, result);
+      var fieldValue = field.ExtractValue(Tuple);
+      var key = Key.Create(Session.Domain, type, fieldValue, null, false, false);
+      NotifyGetFieldValue(field, key);
 
-      return result;
+      return key;
     }
 
     #endregion

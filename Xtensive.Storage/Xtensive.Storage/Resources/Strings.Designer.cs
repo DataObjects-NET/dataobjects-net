@@ -826,6 +826,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Key indexes are specified for non-generic Key..
+        /// </summary>
+        internal static string ExKeyIndexesAreSpecifiedForNonGenericKey {
+            get {
+                return ResourceManager.GetString("ExKeyIndexesAreSpecifiedForNonGenericKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Key of &apos;{0}&apos; does not match key of &apos;{1}&apos;..
         /// </summary>
         internal static string ExKeyOfXDoesNotMatchKeyOfY {
@@ -849,6 +858,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExKeyProviderXShouldDefineAtLeastOneKeyField {
             get {
                 return ResourceManager.GetString("ExKeyProviderXShouldDefineAtLeastOneKeyField", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Key values array is empty..
+        /// </summary>
+        internal static string ExKeyValuesArrayIsEmpty {
+            get {
+                return ResourceManager.GetString("ExKeyValuesArrayIsEmpty", resourceCulture);
             }
         }
         
@@ -1101,6 +1119,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExSectionIsNotFoundInApplicationConfigurationFile {
             get {
                 return ResourceManager.GetString("ExSectionIsNotFoundInApplicationConfigurationFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sequence contains no elements..
+        /// </summary>
+        internal static string ExSequenceContainsNoElements {
+            get {
+                return ResourceManager.GetString("ExSequenceContainsNoElements", resourceCulture);
             }
         }
         
@@ -1578,6 +1605,24 @@ namespace Xtensive.Storage.Resources {
         internal static string InvalidScaleAttributeOnFieldX {
             get {
                 return ResourceManager.GetString("InvalidScaleAttributeOnFieldX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, {1}.
+        /// </summary>
+        internal static string KeyFormat {
+            get {
+                return ResourceManager.GetString("KeyFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (unknown), {1}.
+        /// </summary>
+        internal static string KeyFormatUnknownKeyType {
+            get {
+                return ResourceManager.GetString("KeyFormatUnknownKeyType", resourceCulture);
             }
         }
         

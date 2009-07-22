@@ -88,6 +88,15 @@ namespace Xtensive.Storage.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Key contains multiple fields with IsTypeId==true flag..
+        /// </summary>
+        internal static string ExKeyContainsMultipleFieldsWithIsTypeIdTrueFlag {
+            get {
+                return ResourceManager.GetString("ExKeyContainsMultipleFieldsWithIsTypeIdTrueFlag", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Node type is unknown..
         /// </summary>
         internal static string ExNodeTypeIsUnknown {

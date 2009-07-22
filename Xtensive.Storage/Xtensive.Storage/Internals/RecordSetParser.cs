@@ -42,20 +42,20 @@ namespace Xtensive.Storage.Internals
     {
       var keyList = new List<Key>(mapping.Mappings.Count);
       foreach (var groupMapping in mapping.Mappings) {
-        int typeIdColumnIndex = groupMapping.TypeIdColumnIndex;
-        int typeId = TypeInfo.NoTypeId;
-        if (typeIdColumnIndex >= 0 && tuple.HasValue(typeIdColumnIndex))
-          typeId = tuple.GetValueOrDefault<int>(typeIdColumnIndex);
-        var typeMapping = groupMapping.GetMapping(typeId);
+        var rootType = groupMapping.Hierarchy.Root;
+        int? typeId = ExtractTypeId(rootType, tuple, groupMapping.TypeIdColumnIndex);
+        var typeMapping = typeId.HasValue ? groupMapping.GetMapping(typeId.GetValueOrDefault()) : null;
         if (typeMapping != null) {
-          var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
           Key key;
-          if (typeId == TypeInfo.NoTypeId) // No TypeId in this column group
-          {
-            key = Key.Create(mapping.CurrentDomain, groupMapping.Hierarchy.Root, keyTuple, false, false);
-          }
+          bool exactType = typeId.GetValueOrDefault() != TypeInfo.NoTypeId;
+          var entityType = exactType ? typeMapping.Type : rootType;
+          if (typeMapping.KeyTransform.Descriptor.Count <= Key.MaxGenericKeyLength)
+            key = Key.Create(session.Domain, entityType, tuple, typeMapping.KeyIndexes, exactType, exactType);
           else {
-            key = Key.Create(mapping.CurrentDomain, typeMapping.Type, keyTuple, true, true);
+            var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+            key = Key.Create(session.Domain, entityType, keyTuple, null, exactType, exactType);
+          }
+          if (exactType) {
             var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, tuple);
             session.UpdateEntityState(key, entityTuple);
           }
@@ -65,6 +65,18 @@ namespace Xtensive.Storage.Internals
           keyList.Add(null);
       }
       return new Record(tuple, keyList);
+    }
+
+    internal static int? ExtractTypeId(TypeInfo typeInfo, Tuple tuple, int typeIdIndex)
+    {
+      if (typeIdIndex <= 0)
+        return TypeInfo.NoTypeId;
+      if (typeInfo.IsLeaf)
+        return tuple.HasValue(typeIdIndex) ? (int?)typeInfo.TypeId : null;
+      else {
+        int typeId = tuple.GetValueOrDefault<int>(typeIdIndex);
+        return typeId==0 ? null : (int?) typeId; // Hack here: 0 = TypeInfo.NoTypeId
+      }
     }
 
     internal RecordSetMapping GetMapping(RecordSetHeader header)

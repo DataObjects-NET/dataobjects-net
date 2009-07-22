@@ -14,18 +14,13 @@ namespace Xtensive.Storage
   [Serializable]
   internal sealed class Key<T> : Key
   {
-    private Tuple tupleValue;
-    private readonly T value;
+    private readonly T value1;
 
-    public override Tuple Value
-    {
-      get
-      {
-        if (tupleValue == null) {
-          tupleValue = Tuple.Create(value);
-          Thread.MemoryBarrier();
-        }
-        return tupleValue;
+    public override Tuple Value {
+      get {
+        if (value==null)
+          value = Tuple.Create(value1);
+        return value;
       }
     }
 
@@ -33,45 +28,32 @@ namespace Xtensive.Storage
     {
       var otherKey = other as Key<T>;
       if (otherKey != null)
-        return value.Equals(otherKey.value);
-      if (other.Value.Count != 1)
-        return false;
-      if (other.Value.Descriptor[0] != typeof(T))
-        return false;
-      return value.Equals(other.Value.GetValue<T>(0));
+        return value1.Equals(otherKey.value1);
+      return value1.Equals(other.Value.GetValue<T>(0));
     }
 
     protected override int CalculateHashCode()
     {
-      return (0 ^ value.GetHashCode()) ^ Hierarchy.GetHashCode();
+      return (0 ^ value1.GetHashCode()) ^ Hierarchy.GetHashCode();
     }
 
-    internal static Key Create(Domain domain, TypeInfo type, int[] keyFields, Tuple tuple,
-      bool exactType, bool canCache)
+    public static Key Create(HierarchyInfo hierarchy, TypeInfo type, Tuple tuple, int[] keyIndexes)
     {
-      var key = new Key<T>(type.Hierarchy, exactType ? type : null, tuple.GetValue<T>(keyFields[0]));
-      if (!canCache || domain==null)
-        return key;
-      var keyCache = domain.KeyCache;
-      lock (keyCache) {
-        Key foundKey;
-        if (keyCache.TryGetItem(key, true, out foundKey))
-          key = (Key<T>)foundKey;
-        else {
-          if (exactType)
-            keyCache.Add(key);
-        }
-      }
-      return key;
+      return new Key<T>(hierarchy, type, tuple.GetValueOrDefault<T>(keyIndexes[0]));
     }
-    
+
+    public static Key Create(HierarchyInfo hierarchy, TypeInfo type, Tuple tuple)
+    {
+      return new Key<T>(hierarchy, type, tuple.GetValueOrDefault<T>(0));
+    }
+
     
     // Constructors
 
     internal Key(HierarchyInfo hierarchy, TypeInfo type, T value)
       : base(hierarchy, type, null)
     {
-      this.value = value;
+      value1 = value;
     }
   }
 }

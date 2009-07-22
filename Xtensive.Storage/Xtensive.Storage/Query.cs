@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Storage.Linq;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -40,7 +41,7 @@ namespace Xtensive.Storage
     public static T Resolve(Key key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      return (T)(object)key.Resolve();
+      return (T) (object) key.Resolve();
     }
 
     /// <summary>
@@ -54,7 +55,7 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(keyValues, "keyValues");
       if (keyValues.Length==0) 
-        throw new ArgumentException("Key values array is empty.", "keyValues");
+        throw new ArgumentException(Strings.ExKeyValuesArrayIsEmpty, "keyValues");
       if (keyValues.Length==1 && keyValues[0] is Key)
         return Resolve((Key) keyValues[0]);
 

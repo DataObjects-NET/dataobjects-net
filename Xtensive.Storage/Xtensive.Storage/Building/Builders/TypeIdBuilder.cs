@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Building.Builders
         .ToArray();
       var providedIds = typesToProcess
         .Select(type => new {Type = type, Id = typeIdProvider.Invoke(type.UnderlyingType)})
-        .Where(item => item.Id!=TypeInfo.NoTypeId)
+        .Where(item => item.Id != TypeInfo.NoTypeId)
         .ToArray();
       int firstId = providedIds
         .Select(item => item.Id)

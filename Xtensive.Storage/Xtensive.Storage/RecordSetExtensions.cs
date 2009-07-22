@@ -45,7 +45,7 @@ namespace Xtensive.Storage
         if (keyIndex == -1)
           for (int i = 0; i < record.PrimaryKeys.Count; i++) {
             var key = record.PrimaryKeys[i];
-            if (key != null && type.IsAssignableFrom(key.EntityType.UnderlyingType)) {
+            if (key != null && type.IsAssignableFrom(key.Type.UnderlyingType)) {
               keyIndex = i;
               break;
             }

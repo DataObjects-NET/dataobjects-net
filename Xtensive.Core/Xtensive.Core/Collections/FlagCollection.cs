@@ -360,6 +360,7 @@ namespace Xtensive.Core.Collections
     /// <param name="converter"><see cref="Converter"/> property value.</param>
     /// <param name="enumerable">Initial content of collection.</param>
     public FlagCollection(Biconverter<TFlag, bool> converter, IEnumerable<KeyValuePair<TKey, TFlag>> enumerable)
+      : this()
     {
       this.converter = converter;
       foreach (KeyValuePair<TKey, TFlag> pair in enumerable)

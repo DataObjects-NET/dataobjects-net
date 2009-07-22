@@ -5,10 +5,8 @@
 // Created:    2009.05.21
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Net.NetworkInformation;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
@@ -187,7 +185,7 @@ namespace Xtensive.Storage.Linq.Materialization
           .Distinct()
           .ToArray();
 
-        int[] columnMap = MaterializationHelper.GetColumnMap(tuplePrototype.Count, mappingInfo);
+        int[] columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
 
         var persistentTupleExpression = (Expression) Expression.Call(
           BuildPersistentTupleMethodInfo,

@@ -14,19 +14,14 @@ namespace Xtensive.Storage
   [Serializable]
   internal sealed class Key<T1, T2> : Key
   {
-    private Tuple tupleValue;
     private readonly T1 value1;
     private readonly T2 value2;
 
-    public override Tuple Value
-    {
-      get
-      {
-        if (tupleValue == null) {
-          tupleValue = Tuple.Create(value1, value2);
-          Thread.MemoryBarrier();
-        }
-        return tupleValue;
+    public override Tuple Value {
+      get {
+        if (value==null)
+          value = Tuple.Create(value1, value2);
+        return value;
       }
     }
 
@@ -34,12 +29,12 @@ namespace Xtensive.Storage
     {
       var otherKey = other as Key<T1, T2>;
       if (otherKey != null)
-        return value1.Equals(otherKey.value1) && value2.Equals(otherKey.value2);
-      if (other.Value.Count != 2)
-        return false;
-      if (other.Value.Descriptor[0] != typeof(T1) || other.Value.Descriptor[1] != typeof(T2))
-        return false;
-      return value1.Equals(other.Value.GetValue<T1>(0)) && value2.Equals(other.Value.GetValue<T2>(1));
+        return 
+          value2.Equals(otherKey.value2) && 
+          value1.Equals(otherKey.value1);
+      return 
+        value2.Equals(other.Value.GetValue<T1>(1)) && 
+        value1.Equals(other.Value.GetValue<T2>(2));
     }
 
     protected override int CalculateHashCode()
@@ -48,26 +43,20 @@ namespace Xtensive.Storage
       return (Tuple.HashCodeMultiplier * result ^ value2.GetHashCode()) ^ Hierarchy.GetHashCode();
     }
 
-    internal static Key Create(Domain domain, TypeInfo type, int[] keyFields, Tuple tuple,
-      bool exactType, bool canCache)
+    public static Key Create(HierarchyInfo hierarchy, TypeInfo type, Tuple tuple, int[] keyIndexes)
     {
-      var key = new Key<T1, T2>(type.Hierarchy, exactType ? type : null, tuple.GetValue<T1>(keyFields[0]),
-        tuple.GetValue<T2>(keyFields[1]));
-      if (!canCache || domain==null)
-        return key;
-      var keyCache = domain.KeyCache;
-      lock (keyCache) {
-        Key foundKey;
-        if (keyCache.TryGetItem(key, true, out foundKey))
-          key = (Key<T1,T2>)foundKey;
-        else {
-          if (exactType)
-            keyCache.Add(key);
-        }
-      }
-      return key;
+      return new Key<T1, T2>(hierarchy, type, 
+        tuple.GetValueOrDefault<T1>(keyIndexes[0]),
+        tuple.GetValueOrDefault<T2>(keyIndexes[1]));
     }
-    
+
+    public static Key Create(HierarchyInfo hierarchy, TypeInfo type, Tuple tuple)
+    {
+      return new Key<T1, T2>(hierarchy, type, 
+        tuple.GetValueOrDefault<T1>(0),
+        tuple.GetValueOrDefault<T2>(1));
+    }
+
     
     // Constructors
 

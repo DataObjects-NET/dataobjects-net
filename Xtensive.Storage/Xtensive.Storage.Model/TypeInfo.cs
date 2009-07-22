@@ -38,21 +38,22 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public const int MinTypeId = 100;
 
-    private ColumnInfoCollection                            columns;
-    private readonly FieldMap                               fieldMap;
-    private readonly FieldInfoCollection                    fields;
-    private readonly TypeIndexInfoCollection                indexes;
-    private readonly NodeCollection<IndexInfo>              affectedIndexes;
-    private readonly DomainModel                            model;
-    private readonly TypeAttributes                         attributes;
-    private ReadOnlyList<TypeInfo>                          ancestors;
-    private ReadOnlyList<AssociationInfo>                   targetAssociations;
-    private ReadOnlyList<AssociationInfo>                   ownerAssociations;
-    private ReadOnlyList<AssociationInfo>                   removalSequence;
-    private Type                                            underlyingType;
-    private HierarchyInfo                                   hierarchy;
-    private int                                             typeId = NoTypeId;
-    private MapTransform                                    primaryKeyInjector;
+    private ColumnInfoCollection               columns;
+    private readonly FieldMap                  fieldMap;
+    private readonly FieldInfoCollection       fields;
+    private readonly TypeIndexInfoCollection   indexes;
+    private readonly NodeCollection<IndexInfo> affectedIndexes;
+    private readonly DomainModel               model;
+    private readonly TypeAttributes            attributes;
+    private ReadOnlyList<TypeInfo>             ancestors;
+    private ReadOnlyList<AssociationInfo>      targetAssociations;
+    private ReadOnlyList<AssociationInfo>      ownerAssociations;
+    private ReadOnlyList<AssociationInfo>      removalSequence;
+    private Type                               underlyingType;
+    private HierarchyInfo                      hierarchy;
+    private int                                typeId = NoTypeId;
+    private MapTransform                       primaryKeyInjector;
+    private bool                               isLeaf;
 
     /// <summary>
     /// Gets a value indicating whether this instance is entity.
@@ -97,6 +98,16 @@ namespace Xtensive.Storage.Model
     {
       [DebuggerStepThrough]
       get { return (attributes & TypeAttributes.System) > 0; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is a leaf type,
+    /// i.e. its <see cref="GetDescendants()"/> method returns <see langword="0" />.
+    /// </summary>
+    public bool IsLeaf
+    {
+      [DebuggerStepThrough]
+      get { return IsLocked ? isLeaf : GetIsLeaf(); }
     }
 
     /// <summary>
@@ -425,6 +436,14 @@ namespace Xtensive.Storage.Model
       columns.Lock(true);
       fieldMap.Lock(true);
       fields.Lock(true);
+      isLeaf = GetIsLeaf();
+    }
+
+    #region Private \ internal methods
+
+    private bool GetIsLeaf()
+    {
+      return !GetDescendants().Any();
     }
 
     private void CreateTupleDescriptor()
@@ -462,6 +481,8 @@ namespace Xtensive.Storage.Model
       }
       TuplePrototype = IsEntity ? tuple.ToFastReadOnly() : tuple;
     }
+
+    #endregion
 
     /// <inheritdoc/>
     public override string ToString()

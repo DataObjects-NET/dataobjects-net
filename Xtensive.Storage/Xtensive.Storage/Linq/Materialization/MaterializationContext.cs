@@ -8,34 +8,35 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Linq.Materialization
 {
   internal sealed class MaterializationContext
   {
-    private readonly Dictionary<int, EntityMaterializationInfo>[] transformCaches;
+    private readonly Dictionary<int, TypeMapping>[] transformCaches;
     private readonly DomainModel model;
     public int EntitiesInRow;
 
-    public EntityMaterializationInfo GetEntityMaterializationInfo(int entityIndex, int typeId, Pair<int>[] columns)
+    public TypeMapping GetEntityMaterializationInfo(int entityIndex, int typeId, Pair<int>[] columns)
     {
-      EntityMaterializationInfo result;
+      TypeMapping result;
       var cache = transformCaches[entityIndex];
       if (cache.TryGetValue(typeId, out result))
         return result;
 
-      var entityType = model.Types[typeId];
-      var keyInfo = entityType.Hierarchy.KeyInfo;
-      var descriptor = entityType.TupleDescriptor;
+      var type       = model.Types[typeId];
+      var keyInfo    = type.Hierarchy.KeyInfo;
+      var descriptor = type.TupleDescriptor;
 
-      int[] entityMap = MaterializationHelper.GetColumnMap(descriptor.Count, columns);
-      int[] keyMap    = Enumerable.Range(0, keyInfo.Length).ToArray();
+      int[] allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, columns);
+      int[] keyIndexes = Enumerable.Range(allIndexes[0], keyInfo.Length).ToArray();
 
-      var transform    = new MapTransform(true, descriptor, entityMap);
-      var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyMap);
+      var transform    = new MapTransform(true, descriptor, allIndexes);
+      var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyIndexes);
 
-      result = new EntityMaterializationInfo(transform, keyTransform, entityType);
+      result = new TypeMapping(type, keyTransform, transform, keyIndexes);
       cache.Add(typeId, result);
       return result;
     }
@@ -47,9 +48,9 @@ namespace Xtensive.Storage.Linq.Materialization
     {
       model = Domain.Demand().Model;
       EntitiesInRow = entitiesInRow;
-      transformCaches = new Dictionary<int, EntityMaterializationInfo>[entitiesInRow];
+      transformCaches = new Dictionary<int, TypeMapping>[entitiesInRow];
       for (int i = 0; i < transformCaches.Length; i++)
-        transformCaches[i] = new Dictionary<int, EntityMaterializationInfo>();
+        transformCaches[i] = new Dictionary<int, TypeMapping>();
     }
   }
 }

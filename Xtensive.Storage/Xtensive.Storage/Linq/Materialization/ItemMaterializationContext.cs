@@ -4,6 +4,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
@@ -31,40 +32,27 @@ namespace Xtensive.Storage.Linq.Materialization
     }
 
     /// <exception cref="InvalidOperationException">Something went wrong.</exception>
-    public Entity Materialize(int entityIndex, int typeIdIndex, TypeInfo typeInfo, Pair<int>[] columns, Tuple tuple)
+    public Entity Materialize(int entityIndex, int typeIdIndex, TypeInfo type, Pair<int>[] columns, Tuple tuple)
     {
       var result = entities[entityIndex];
       if (result!=null)
         return result;
 
-      int typeId;
-      if (typeIdIndex >= 0) {
-        if (tuple.HasValue(typeIdIndex))
-          typeId = tuple.GetValueOrDefault<int>(typeIdIndex);
-        else if (tuple.IsAvailable(typeIdIndex))
-          return null;
-        else
-          throw Exceptions.InternalError(Strings.ExMaterializationErrorTypeIdColumnDoesNotExistsInTheUnderlyingRecordSet, Log.Instance);
-      }
-      else
-        typeId = TypeInfo.NoTypeId;
+      int? typeId = RecordSetParser.ExtractTypeId(type, tuple, typeIdIndex);
+      if (!typeId.HasValue)
+        return null;
+      bool exactType = typeId.GetValueOrDefault() != TypeInfo.NoTypeId;
 
-      bool exactType = typeId != TypeInfo.NoTypeId;
-
-      if (!exactType) {
-        typeId = typeInfo.TypeId;
-        exactType = typeInfo.GetDescendants().Count()==0;
-      }
-      
-      var materializationData = materializationContext.GetEntityMaterializationInfo(entityIndex, typeId, columns);
-      var entityTuple = materializationData.Transform.Apply(TupleTransformType.Tuple, tuple);
+      var materializationInfo = materializationContext.GetEntityMaterializationInfo(entityIndex, typeId.GetValueOrDefault(), columns);
       Key key;
-      if (!Key.TryCreateGenericKey(session.Domain, materializationData.EntityType,
-        materializationData.KeyFields, entityTuple, exactType, false, out key)) {
-        var entityKeyTuple = materializationData.KeyTransform.Apply(TupleTransformType.Tuple, entityTuple);
-        key = Key.Create(materializationData.EntityType, entityKeyTuple, exactType);
+      if (materializationInfo.KeyIndexes.Length <= Key.MaxGenericKeyLength)
+        key = Key.Create(session.Domain, materializationInfo.Type, tuple, materializationInfo.KeyIndexes, exactType, exactType);
+      else {
+        var keyTuple = materializationInfo.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+        key = Key.Create(session.Domain, materializationInfo.Type, keyTuple, null, exactType, exactType);
       }
       if (exactType) {
+        var entityTuple = materializationInfo.Transform.Apply(TupleTransformType.Tuple, tuple);
         var entityState = session.UpdateEntityState(key, entityTuple);
         result = entityState.Entity;
       }

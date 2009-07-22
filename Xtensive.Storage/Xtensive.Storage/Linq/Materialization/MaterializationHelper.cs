@@ -14,6 +14,7 @@ using Xtensive.Core.Disposing;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Core.Linq;
 using System.Linq;
@@ -28,18 +29,18 @@ namespace Xtensive.Storage.Linq.Materialization
     public static readonly MethodInfo IsNullMethodInfo;
     public static readonly MethodInfo ThrowSequenceExceptionMethodInfo;
 
-    public static int[] GetColumnMap(int targetLength, Pair<int>[] columns)
+    public static int[] CreateSingleSourceMap(int targetLength, Pair<int>[] remappedColumns)
     {
-      var columnMap = new int[targetLength];
-      for (int i = 0; i < columnMap.Length; i++)
-        columnMap[i] = MapTransform.NoMapping;
+      var map = new int[targetLength];
+      for (int i = 0; i < map.Length; i++)
+        map[i] = MapTransform.NoMapping;
 
-      for (int i = 0; i < columns.Length; i++) {
-        var targetIndex = columns[i].First;
-        var sourceIndex = columns[i].Second;
-        columnMap[targetIndex] = sourceIndex;
+      for (int i = 0; i < remappedColumns.Length; i++) {
+        var targetIndex = remappedColumns[i].First;
+        var sourceIndex = remappedColumns[i].Second;
+        map[targetIndex] = sourceIndex;
       }
-      return columnMap;
+      return map;
     }
 
 // ReSharper disable UnusedMember.Global
@@ -61,7 +62,7 @@ namespace Xtensive.Storage.Linq.Materialization
 
     public static object ThrowSequenceException()
     {
-      throw new InvalidOperationException("Sequence contains no elements.");
+      throw new InvalidOperationException(Strings.ExSequenceContainsNoElements);
     }
 
     public static IEnumerable<TResult> Materialize<TResult>(RecordSet rs, MaterializationContext context, Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
@@ -91,7 +92,7 @@ namespace Xtensive.Storage.Linq.Materialization
 // ReSharper restore UnusedMember.Global
 
 
-    // Initializer
+    // Type initializer
 
     static MaterializationHelper()
     {

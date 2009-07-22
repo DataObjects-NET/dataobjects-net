@@ -758,4 +758,19 @@ Actions:
   <data name="ExMaterializationErrorTypeIdColumnDoesNotExistsInTheUnderlyingRecordSet" xml:space="preserve">
     <value>Materialization error: Entity's TypeId column does not exists in the underlying RecordSet.</value>
   </data>
+  <data name="KeyFormat" xml:space="preserve">
+    <value>{0}, {1}</value>
+  </data>
+  <data name="KeyFormatUnknownKeyType" xml:space="preserve">
+    <value>{0} (unknown), {1}</value>
+  </data>
+  <data name="ExKeyValuesArrayIsEmpty" xml:space="preserve">
+    <value>Key values array is empty.</value>
+  </data>
+  <data name="ExKeyIndexesAreSpecifiedForNonGenericKey" xml:space="preserve">
+    <value>Key indexes are specified for non-generic Key.</value>
+  </data>
+  <data name="ExSequenceContainsNoElements" xml:space="preserve">
+    <value>Sequence contains no elements.</value>
+  </data>
 </root>

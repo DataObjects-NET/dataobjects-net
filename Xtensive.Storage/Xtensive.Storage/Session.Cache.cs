@@ -30,7 +30,7 @@ namespace Xtensive.Storage
       Tuple tuple = null;
       if (key.IsTypeCached)
         // A tuple with all the fields set to default values rather then N/A
-        tuple = key.EntityType.CreateEntityTuple(key.Value);
+        tuple = key.Type.CreateEntityTuple(key.Value);
 
       var result = new EntityState(this, key, tuple) {
         PersistenceState = PersistenceState.New

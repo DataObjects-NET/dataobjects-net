@@ -427,7 +427,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region OpenSession methods
+    #region Open methods
 
     /// <summary>
     /// Opens and activates new <see cref="Session"/> with default <see cref="SessionConfiguration"/>.
