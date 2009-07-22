@@ -43,6 +43,11 @@ namespace Xtensive.Storage.Linq.Materialization
         return null;
       bool exactType = typeId.GetValueOrDefault() != TypeInfo.NoTypeId;
 
+      if (!exactType) {
+        typeId = type.TypeId;
+        exactType = type.GetDescendants().Count()==0;
+      }
+
       var materializationInfo = materializationContext.GetEntityMaterializationInfo(entityIndex, typeId.GetValueOrDefault(), columns);
       Key key;
       if (materializationInfo.KeyIndexes.Length <= Key.MaxGenericKeyLength)

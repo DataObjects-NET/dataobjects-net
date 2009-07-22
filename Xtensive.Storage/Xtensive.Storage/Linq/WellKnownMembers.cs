@@ -125,7 +125,8 @@ namespace Xtensive.Storage.Linq
         .Where(mi => mi.Name=="Resolve" && mi.IsGenericMethodDefinition==false && mi.GetParameters().Length==0)
         .Single();
       KeyResolveOfT = typeof (Key).GetMethod("Resolve", BindingFlags.Public | BindingFlags.Instance, new[] {"T"}, new object[0]);
-      KeyCreate = typeof (Key).GetMethod("Create", new[] {typeof (TypeInfo), typeof (Tuple), typeof (bool)});
+      KeyCreate = typeof (Key).GetMethod("Create", BindingFlags.NonPublic | BindingFlags.Static, null,
+        new[] {typeof (TypeInfo), typeof (Tuple), typeof (bool)}, null);
 
       // KeyExtensions
       KeyTryResolve = typeof (KeyExtensions).GetMethod("TryResolve", BindingFlags.Public | BindingFlags.Static, new string[0], new object[1]);
