@@ -37,7 +37,8 @@ namespace Xtensive.Core.Collections
   {
     private const int MaxItemCount = 32;
     private readonly Biconverter<TFlag, bool> converter;
-    private readonly IList<TKey> keys = new List<TKey>();
+    private readonly List<TKey> keys;
+    private readonly ReadOnlyList<TKey> readOnlyKeys;
     private BitVector32 flags;
 
     /// <summary>
@@ -137,16 +138,38 @@ namespace Xtensive.Core.Collections
       }
     }
 
-    /// <inheritdoc/>
-    public ICollection<TKey> Keys
+    /// <summary>
+    /// Gets a list of keys.
+    /// </summary>
+    /// <returns>A list of keys.</returns>
+    public ReadOnlyList<TKey> Keys
     {
-      get { return keys; }
+      get { return readOnlyKeys; }
     }
 
     /// <inheritdoc/>
-    public ICollection<TFlag> Values {
+    ICollection<TKey> IDictionary<TKey, TFlag>.Keys
+    {
+      get { return readOnlyKeys; }
+    }
+
+    /// <summary>
+    /// Gets an array of values.
+    /// </summary>
+    /// <returns>An array of values.</returns>
+    public TFlag[] Values {
       get {
-        IList<TFlag> list = new List<TFlag>(keys.Count);
+        var array = new TFlag[keys.Count];
+        for (int i = 0; i < keys.Count; i++)
+          array[i] = converter.ConvertBackward(flags[1 << i]);
+        return array;
+      }
+    }
+
+    /// <inheritdoc/>
+    ICollection<TFlag> IDictionary<TKey, TFlag>.Values {
+      get {
+        var list = new List<TFlag>(keys.Count);
         for (int i = 0; i < keys.Count; i++) {
           list.Add(converter.ConvertBackward(flags[1 << i]));
         }
@@ -326,6 +349,7 @@ namespace Xtensive.Core.Collections
     /// </summary>
     /// <param name="converter"><see cref="Converter"/> property value.</param>
     public FlagCollection(Biconverter<TFlag, bool> converter)
+      : this()
     {
       this.converter = converter;
     }
@@ -342,6 +366,12 @@ namespace Xtensive.Core.Collections
         Add(pair.Key, pair.Value);
     }
 
+    private FlagCollection()
+    {
+      keys = new List<TKey>();
+      readOnlyKeys = new ReadOnlyList<TKey>(keys);
+    }
+
     #region ISerializable members
 
     /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
@@ -350,7 +380,8 @@ namespace Xtensive.Core.Collections
     {
       converter = (Biconverter<TFlag, bool>)
         info.GetValue("AdvancedConverter", typeof(Biconverter<TFlag, bool>));
-      keys = (IList<TKey>)info.GetValue("Keys", typeof(IList<TKey>));
+      keys = (List<TKey>)info.GetValue("Keys", typeof(List<TKey>));
+      readOnlyKeys = new ReadOnlyList<TKey>(keys);
       flags = new BitVector32(info.GetInt32("Flags"));
     }
 
