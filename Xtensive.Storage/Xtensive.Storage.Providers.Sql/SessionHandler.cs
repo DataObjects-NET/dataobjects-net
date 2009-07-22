@@ -246,11 +246,12 @@ namespace Xtensive.Storage.Providers.Sql
 
     private Pair<SqlPersistRequest, Tuple> CreateUpdateRequest(EntityStateAction action)
     {
-      var fieldStateMap = action.EntityState.GetDifferentialTuple().Difference
-        .GetFieldStateMap(TupleFieldState.Available);
-      var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Update, action.EntityState.Type, fieldStateMap);
+      var entityState = action.EntityState;
+      var source = entityState.PersistenceState==PersistenceState.New ? entityState.Tuple : entityState.GetDifferentialTuple();
+      var fieldStateMap = source.GetFieldStateMap(TupleFieldState.Available);
+      var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Update, entityState.Type, fieldStateMap);
       var request = DomainHandler.GetPersistRequest(task);
-      var tuple = action.EntityState.Tuple.ToRegular();
+      var tuple = entityState.Tuple.ToRegular();
       return new Pair<SqlPersistRequest, Tuple>(request, tuple);
     }
 
