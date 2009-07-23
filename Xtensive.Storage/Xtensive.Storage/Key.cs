@@ -581,9 +581,12 @@ namespace Xtensive.Storage
       if (keyIndexes==null) {
         if (value.Descriptor!=keyInfo.TupleDescriptor)
           throw new ArgumentException(Strings.ExWrongKeyStructure);
-        if (exactType && keyInfo.TypeIdColumnIndex >= 0 && !value.IsAvailable(keyInfo.TypeIdColumnIndex))
-          // Ensures TypeId is filled in into Keys of newly created Entities
-          value[keyInfo.TypeIdColumnIndex] = type.TypeId;
+        if (exactType) {
+          int typeIdColumnIndex = keyInfo.TypeIdColumnIndex;
+          if (typeIdColumnIndex >= 0 && !value.IsAvailable(typeIdColumnIndex))
+            // Ensures TypeId is filled in into Keys of newly created Entities
+            value.SetValue(typeIdColumnIndex, type.TypeId);
+        }
       }
       if (hierarchy.Root.IsLeaf) {
         exactType = true;
