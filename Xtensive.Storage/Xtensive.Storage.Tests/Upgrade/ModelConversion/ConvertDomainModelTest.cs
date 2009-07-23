@@ -62,7 +62,8 @@ namespace Xtensive.Storage.Tests.Upgrade
       Assert.IsNotNull(Schema.Tables["B"]);
       Assert.IsNotNull(Schema.Tables["B"].PrimaryIndex);
       Assert.AreEqual(1 + typeIdCount, Schema.Tables["B"].PrimaryIndex.KeyColumns.Count);
-      Assert.AreEqual(3 - typeIdCount, Schema.Tables["B"].PrimaryIndex.ValueColumns.Count);
+      Assert.AreEqual(3 + 0, // There is a field of A type, thus typeIdCount value doesn't affect on this
+        Schema.Tables["B"].PrimaryIndex.ValueColumns.Count);
       Assert.AreEqual(1, Schema.Tables["B"].SecondaryIndexes.Count);
       Assert.IsFalse(Schema.Tables["B"].SecondaryIndexes[0].IsUnique);
     }
