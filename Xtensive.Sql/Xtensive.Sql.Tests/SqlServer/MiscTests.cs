@@ -42,10 +42,10 @@ namespace Xtensive.Sql.Tests.SqlServer
     {
       SqlLiteral<int> l = SqlDml.Literal(1);
       bool passed = false;
-      if (!SqlExpression.IsNull(l))
+      if (!l.IsNullReference())
         passed = true;
       Assert.IsTrue(passed);
-      if (SqlExpression.IsNull(l))
+      if (l.IsNullReference())
         passed = false;
       Assert.IsTrue(passed);
     }

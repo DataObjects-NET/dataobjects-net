@@ -125,7 +125,7 @@ namespace Xtensive.Sql.Dml
 
     public SqlFetch Fetch(SqlFetchOption option, SqlExpression rowCount, params ISqlCursorFetchTarget[] target)
     {
-      if (!IsNull(rowCount)) {
+      if (!rowCount.IsNullReference()) {
         if (option != SqlFetchOption.Absolute && option != SqlFetchOption.Relative)
           throw new ArgumentException(Strings.ExInvalidUsageOfTheRowCountArgument, "rowCount");
         SqlValidator.EnsureIsArithmeticExpression(rowCount);
@@ -145,12 +145,12 @@ namespace Xtensive.Sql.Dml
 
     public SqlFetch Fetch(SqlFetchOption option)
     {
-      return Fetch(option, null, (ISqlCursorFetchTarget[])null);
+      return Fetch(option, null, (ISqlCursorFetchTarget[]) null);
     }
 
     public SqlFetch Fetch(SqlFetchOption option, SqlExpression rowCount)
     {
-      return Fetch(option, rowCount, (ISqlCursorFetchTarget[])null);
+      return Fetch(option, rowCount, (ISqlCursorFetchTarget[]) null);
     }
 
     public SqlFetch Fetch(params ISqlCursorFetchTarget[] target)

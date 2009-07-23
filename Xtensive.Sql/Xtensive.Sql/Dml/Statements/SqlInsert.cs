@@ -58,7 +58,8 @@ namespace Xtensive.Sql.Dml
         clone.From = (SqlTable)from.Clone(context);
       clone.Limit = Limit;
       foreach (KeyValuePair<SqlColumn, SqlExpression> p in values)
-        clone.Values[(SqlTableColumn)p.Key.Clone(context)] = SqlExpression.IsNull(p.Value) ? null : (SqlExpression)p.Value.Clone(context);
+        clone.Values[(SqlTableColumn) p.Key.Clone(context)] =
+          p.Value.IsNullReference() ? null : (SqlExpression) p.Value.Clone(context);
 
       if (Hints.Count>0)
         foreach (SqlHint hint in Hints)

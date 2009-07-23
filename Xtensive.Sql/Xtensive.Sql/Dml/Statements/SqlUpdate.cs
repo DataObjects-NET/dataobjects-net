@@ -42,7 +42,7 @@ namespace Xtensive.Sql.Dml
     public SqlExpression Where {
       get { return where; }
       set {
-        if (!SqlExpression.IsNull(value) && value.GetType() != typeof(SqlCursor))
+        if (!value.IsNullReference() && value.GetType()!=typeof(SqlCursor))
           SqlValidator.EnsureIsBooleanExpression(value);
         where = value;
       }
@@ -62,15 +62,16 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlUpdate clone = new SqlUpdate();
+      var clone = new SqlUpdate();
       if (update!=null)
         clone.Update = (SqlTableRef)Update.Clone(context);
       clone.Limit = Limit;
       if (from!=null)
         clone.From = (SqlQueryRef)from.Clone(context);
       foreach (KeyValuePair<ISqlLValue, SqlExpression> p in values)
-        clone.Values[(ISqlLValue)((SqlExpression)p.Key).Clone(context)] = SqlExpression.IsNull(p.Value) ? null : (SqlExpression)p.Value.Clone(context);
-      if (!SqlExpression.IsNull(where))
+        clone.Values[(ISqlLValue) ((SqlExpression) p.Key).Clone(context)] =
+          p.Value.IsNullReference() ? null : (SqlExpression) p.Value.Clone(context);
+      if (!where.IsNullReference())
         clone.Where = (SqlExpression)where.Clone(context);
 
       if (Hints.Count>0)

@@ -47,9 +47,9 @@ namespace Xtensive.Sql.Dml
         return context.NodeMapping[this];
       SqlTableScanHint clone;
       if (indexes!=null)
-         clone = new SqlTableScanHint(SqlTable, scanMethod, indexes);
+         clone = new SqlTableScanHint(Table, scanMethod, indexes);
       else
-        clone = new SqlTableScanHint(SqlTable, scanMethod, indexNames);
+        clone = new SqlTableScanHint(Table, scanMethod, indexNames);
       context.NodeMapping[this] = clone;
       return clone;
     }

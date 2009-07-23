@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
@@ -43,12 +44,12 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
     {
       switch (section) {
-        case FunctionCallSection.ArgumentEntry:
-          return String.Empty;
-        case FunctionCallSection.ArgumentDelimiter:
-          return ArgumentDelimiter;
-        default:
-          return base.Translate(context, node, section, position);
+      case FunctionCallSection.ArgumentEntry:
+        return string.Empty;
+      case FunctionCallSection.ArgumentDelimiter:
+        return ArgumentDelimiter;
+      default:
+        return base.Translate(context, node, section, position);
       }
     }
 
@@ -206,19 +207,16 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override string Translate(SqlCompilerContext context, SqlCreateDomain node, CreateDomainSection section)
     {
       switch (section) {
-        case CreateDomainSection.Entry:
-          StringBuilder sb = new StringBuilder();
-          sb.Append("CREATE TYPE " + Translate(node.Domain));
-          sb.Append(" FROM " + Translate(node.Domain.DataType));
-          return sb.ToString();
-        default:
-          return string.Empty;
+      case CreateDomainSection.Entry:
+        return string.Format("CREATE TYPE {0} FROM {1}", Translate(node.Domain), Translate(node.Domain.DataType));
+      default:
+        return string.Empty;
       }
     }
 
     public override string Translate(SqlCompilerContext context, SqlDropDomain node)
     {
-      return "DROP TYPE " + Translate(node.Domain);
+      return string.Format("DROP TYPE {0}", Translate(node.Domain));
     }
 
     public override string Translate(SqlCompilerContext context, SqlAlterDomain node, AlterDomainSection section)
@@ -228,27 +226,25 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     public override string Translate(SqlCompilerContext context, SqlDeclareCursor node, DeclareCursorSection section)
     {
-      if (section == DeclareCursorSection.Holdability || section == DeclareCursorSection.Returnability)
+      if (section==DeclareCursorSection.Holdability || section==DeclareCursorSection.Returnability)
         return string.Empty;
       return base.Translate(context, node, section);
     }
 
     public override string Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)
     {
-      switch (section)
-      {
-        case DeleteSection.Entry:
-          return (node.Limit > 0) ? "DELETE TOP " + node.Limit + " FROM" : base.Translate(context, node, section);
+      switch (section) {
+      case DeleteSection.Entry:
+        return (node.Limit > 0) ? "DELETE TOP " + node.Limit + " FROM" : base.Translate(context, node, section);
       }
       return base.Translate(context, node, section);
     }
 
     public override string Translate(SqlCompilerContext context, SqlInsert node, InsertSection section)
     {
-      switch (section)
-      {
-        case InsertSection.Entry:
-          return (node.Limit > 0) ? "INSERT TOP " + node.Limit + " INTO" : base.Translate(context, node, section);
+      switch (section) {
+      case InsertSection.Entry:
+        return (node.Limit > 0) ? "INSERT TOP " + node.Limit + " INTO" : base.Translate(context, node, section);
       }
       return base.Translate(context, node, section);
     }
@@ -257,21 +253,21 @@ namespace Xtensive.Sql.SqlServer.v2005
     {
       switch (section) {
         case JoinSection.Specification:
-          if (node.Expression == null)
+          if (node.Expression==null)
             switch (node.JoinType) {
-              case SqlJoinType.InnerJoin:
-              case SqlJoinType.LeftOuterJoin:
-              case SqlJoinType.RightOuterJoin:
-              case SqlJoinType.FullOuterJoin:
-                throw new NotSupportedException();
-              case SqlJoinType.CrossApply:
-                return "CROSS APPLY";
-              case SqlJoinType.LeftOuterApply:
-                return "OUTER APPLY";
+            case SqlJoinType.InnerJoin:
+            case SqlJoinType.LeftOuterJoin:
+            case SqlJoinType.RightOuterJoin:
+            case SqlJoinType.FullOuterJoin:
+              throw new NotSupportedException();
+            case SqlJoinType.CrossApply:
+              return "CROSS APPLY";
+            case SqlJoinType.LeftOuterApply:
+              return "OUTER APPLY";
              }
-          SqlJoinHint joinHint = TryFindJoinHint(context, node);
+          var joinHint = TryFindJoinHint(context, node);
           return Translate(node.JoinType)
-            + (joinHint != null ? " " + Translate(joinHint.JoinMethod) : string.Empty) + " JOIN";
+            + (joinHint != null ? " " + Translate(joinHint.Method) : string.Empty) + " JOIN";
       }
       return base.Translate(context, node, section);
     }
@@ -286,98 +282,57 @@ namespace Xtensive.Sql.SqlServer.v2005
     private static SqlJoinHint TryFindJoinHint(SqlCompilerContext context, SqlJoinExpression node)
     {
       SqlQueryStatement statement = null;
-      for (int i = 0, count = context.GetTraversalPath().Length; i < count; i++)
-      {
+      for (int i = 0, count = context.GetTraversalPath().Length; i < count; i++) {
         if (context.GetTraversalPath()[i] is SqlQueryStatement)
           statement = context.GetTraversalPath()[i] as SqlQueryStatement;
       }
-      if (statement == null || statement.Hints.Count == 0)
+      if (statement==null || statement.Hints.Count==0)
         return null;
-
-      SqlJoinHint joinHintCandidate = null;
-      foreach (SqlHint sqlHint in statement.Hints)
-      {
-        if (!(sqlHint is SqlJoinHint))
-          continue;
-        SqlJoinHint joinHint = sqlHint as SqlJoinHint;
-        // Exact match (MSSQL approach).
-        if (joinHint.SqlJoin != null && joinHint.SqlJoin == node)
-          return joinHint;
-        // Semi-exact match (combined MSSQl & Oracle approaches).
-        else if (joinHint.SqlTables != null && joinHint.SqlTables.Length == 2 && joinHint.SqlTables[0] == node.Left &&
-                 joinHint.SqlTables[1] == node.Right)
-          joinHintCandidate = joinHint;
-        // Semi-exact match (Oracle approach). See SqlJoinMethod enum comments for details.
-        else if (joinHintCandidate == null && joinHint.SqlTables != null && joinHint.SqlTables.Length == 1 &&
-                 joinHint.SqlTables[0] == node.Right)
-          joinHintCandidate = joinHint;
-      }
-      return joinHintCandidate;
+      var candidate = statement.Hints
+        .OfType<SqlJoinHint>()
+        .FirstOrDefault(hint => hint.Table==node.Right);
+      return candidate;
     }
 
     public override string Translate(SqlJoinMethod method)
     {
-      switch (method)
-      {
-        case SqlJoinMethod.Hash:
-          return "HASH";
-        case SqlJoinMethod.Merge:
-          return "MERGE";
-        case SqlJoinMethod.Loop:
-          return "LOOP";
-        case SqlJoinMethod.Remote:
-          return "REMOTE";
-        default:
-          return string.Empty;
+      switch (method) {
+      case SqlJoinMethod.Hash:
+        return "HASH";
+      case SqlJoinMethod.Merge:
+        return "MERGE";
+      case SqlJoinMethod.Loop:
+        return "LOOP";
+      case SqlJoinMethod.Remote:
+        return "REMOTE";
+      default:
+        return string.Empty;
       }
     }
 
     public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
     {
-      switch (section)
-      {
-        case SelectSection.Entry:
-          if (node.Distinct)
-            return (node.Limit > 0) 
-              ? "SELECT DISTINCT TOP " + node.Limit 
-              : "SELECT DISTINCT ";
-          else
-            return (node.Limit > 0) 
-              ? "SELECT TOP " + node.Limit
-              : "SELECT ";
-        case SelectSection.Exit:
-          if (node.Hints.Count == 0)
-            return string.Empty;
-          else
-          {
-            List<string> hints = new List<string>(node.Hints.Count);
-            foreach (SqlHint hint in node.Hints)
-            {
-              if (hint is SqlTableHint)
-                continue;
-              SqlJoinHint joinHint = hint as SqlJoinHint;
-              if (joinHint != null && joinHint.SqlTables == null && joinHint.SqlJoin == null)
-                hints.Add(Translate(joinHint.JoinMethod) + " JOIN");
-              else if (hint is SqlForceJoinOrderHint)
-                hints.Add("FORCE ORDER");
-              else if (hint is SqlFastFirstRowsHint)
-              {
-                SqlFastFirstRowsHint ffrHint = hint as SqlFastFirstRowsHint;
-                hints.Add("FAST " + ffrHint.Amount);
-              }
-              else if (hint is SqlUsePlanHint)
-              {
-                SqlUsePlanHint upHint = hint as SqlUsePlanHint;
-                hints.Add("USE PLAN N'" + upHint.Plan);
-              }
-              else if (hint is SqlNativeHint)
-              {
-                SqlNativeHint nHint = hint as SqlNativeHint;
-                hints.Add(nHint.HintText);
-              }
-            }
-            return hints.Count > 0 ? "OPTION (" + string.Join(", ", hints.ToArray()) + ")" : string.Empty;
-          }
+      switch (section) {
+      case SelectSection.Entry:
+        var result = new StringBuilder("SELECT ");
+        if (node.Distinct)
+          result.Append("DISTINCT ");
+        if (node.Limit > 0)
+          result.AppendFormat("TOP {0} ", node.Limit);
+        return result.ToString();
+      case SelectSection.Exit:
+        if (node.Hints.Count==0)
+          return string.Empty;
+        var hints = new List<string>(node.Hints.Count);
+        foreach (var hint in node.Hints) {
+          if (hint is SqlForceJoinOrderHint)
+            hints.Add("FORCE ORDER");
+          else if (hint is SqlFastFirstRowsHint)
+            hints.Add("FAST " + (hint as SqlFastFirstRowsHint).Amount);
+          else if (hint is SqlNativeHint)
+            hints.Add((hint as SqlNativeHint).HintText);
+        }
+        return hints.Count > 0 ? "OPTION (" + string.Join(", ", hints.ToArray()) + ")" : string.Empty;
       }
 
       return base.Translate(context, node, section);
@@ -412,7 +367,7 @@ namespace Xtensive.Sql.SqlServer.v2005
           foreach (SqlHint hint in statement.Hints)
           {
             SqlTableHint tableHint = hint as SqlTableHint;
-            if (tableHint == null || tableHint.SqlTable != node)
+            if (tableHint == null || tableHint.Table != node)
               continue;
 
             SqlTableLockHint lockHint = hint as SqlTableLockHint;
@@ -496,51 +451,48 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     public override string Translate(SqlTableIsolationLevel level)
     {
-      switch (level)
-      {
-        case SqlTableIsolationLevel.HoldLock:
-          return "HOLDLOCK";
-        case SqlTableIsolationLevel.NoLock:
-          return "NOLOCK";
-        case SqlTableIsolationLevel.ReadCommitted:
-          return "READCOMMITTED";
-        case SqlTableIsolationLevel.ReadCommittedLock:
-          return "READCOMMITTEDLOCK";
-        case SqlTableIsolationLevel.RepeatableRead:
-          return "REPEATABLEREAD";
+      switch (level) {
+      case SqlTableIsolationLevel.HoldLock:
+        return "HOLDLOCK";
+      case SqlTableIsolationLevel.NoLock:
+        return "NOLOCK";
+      case SqlTableIsolationLevel.ReadCommitted:
+        return "READCOMMITTED";
+      case SqlTableIsolationLevel.ReadCommittedLock:
+        return "READCOMMITTEDLOCK";
+      case SqlTableIsolationLevel.RepeatableRead:
+        return "REPEATABLEREAD";
       }
       return base.Translate(level);
     }
 
     public override string Translate(SqlTableLockType type)
     {
-      switch (type)
-      {
-        case SqlTableLockType.PagLock:
-          return "PAGLOCK";
-        case SqlTableLockType.RowLock:
-          return "ROWLOCK";
-        case SqlTableLockType.TabLock:
-          return "TABLOCK";
-        case SqlTableLockType.TabLockX:
-          return "TABLOCKX";
-        case SqlTableLockType.UpdLock:
-          return "UPDLOCK";
+      switch (type) {
+      case SqlTableLockType.PagLock:
+        return "PAGLOCK";
+      case SqlTableLockType.RowLock:
+        return "ROWLOCK";
+      case SqlTableLockType.TabLock:
+        return "TABLOCK";
+      case SqlTableLockType.TabLockX:
+        return "TABLOCKX";
+      case SqlTableLockType.UpdLock:
+        return "UPDLOCK";
       }
       return base.Translate(type);
     }
 
     public override string Translate(SqlTableScanMethod method)
     {
-      return method == SqlTableScanMethod.Index ? "INDEX" : base.Translate(method);
+      return method==SqlTableScanMethod.Index ? "INDEX" : base.Translate(method);
     }
 
     public override string Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
     {
-      switch (section)
-      {
-        case UpdateSection.Entry:
-          return (node.Limit > 0) ? "UPDATE TOP (" + node.Limit + ")" : base.Translate(context, node, section);
+      switch (section) {
+      case UpdateSection.Entry:
+        return (node.Limit > 0) ? "UPDATE TOP (" + node.Limit + ")" : base.Translate(context, node, section);
       }
       return base.Translate(context, node, section);
     }
@@ -597,30 +549,29 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override string Translate(SqlCompilerContext context, SqlUserFunctionCall node, FunctionCallSection section, int position)
     {
       if (section == FunctionCallSection.Entry)
-        switch (node.Name)
-        {
-          case DateDiffDay:
-            return "DATEDIFF(DAY, ";
-          case DateDiffMillisecond:
-            return "DATEDIFF(MS, ";
-          case DateAddYear:
-            return "DATEADD(YEAR, ";
-          case DateAddMonth:
-            return "DATEADD(MONTH, ";
-          case DateAddDay:
-            return "DATEADD(DAY, ";
-          case DateAddHour:
-            return "DATEADD(HOUR, ";
-          case DateAddMinute:
-            return "DATEADD(MINUTE, ";
-          case DateAddSecond:
-            return "DATEADD(SECOND, ";
-          case DateAddMillisecond:
-            return "DATEADD(MS, ";
-          case DatePartWeekDay:
-            return "DATEPART(WEEKDAY, ";
-          case DateFirst:
-            return "(@@DATEFIRST";
+        switch (node.Name) {
+        case DateDiffDay:
+          return "DATEDIFF(DAY, ";
+        case DateDiffMillisecond:
+          return "DATEDIFF(MS, ";
+        case DateAddYear:
+          return "DATEADD(YEAR, ";
+        case DateAddMonth:
+          return "DATEADD(MONTH, ";
+        case DateAddDay:
+          return "DATEADD(DAY, ";
+        case DateAddHour:
+          return "DATEADD(HOUR, ";
+        case DateAddMinute:
+          return "DATEADD(MINUTE, ";
+        case DateAddSecond:
+          return "DATEADD(SECOND, ";
+        case DateAddMillisecond:
+          return "DATEADD(MS, ";
+        case DatePartWeekDay:
+          return "DATEPART(WEEKDAY, ";
+        case DateFirst:
+          return "(@@DATEFIRST";
         }
 
       return base.Translate(context, node, section, position);

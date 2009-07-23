@@ -219,4 +219,10 @@
   <data name="ExFunctionXIsNotSupported" xml:space="preserve">
     <value>Function '{0}' is not supported</value>
   </data>
+  <data name="ExPartOfUrlContainsForbiddenCharacters" xml:space="preserve">
+    <value>Part of URL contains forbidden characters. Forbidden characters: </value>
+  </data>
+  <data name="ExOperationXIsNotSupported" xml:space="preserve">
+    <value>Operation '{0}' is not supported</value>
+  </data>
 </root>

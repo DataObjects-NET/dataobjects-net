@@ -110,13 +110,13 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlCase clone = new SqlCase(IsNull(value) ? null : (SqlExpression)value.Clone(context));
+      var clone = new SqlCase(value.IsNullReference() ? null : (SqlExpression) value.Clone(context));
 
-      if (!IsNull(@else))
-        clone.Else = (SqlExpression)@else.Clone(context);
+      if (!@else.IsNullReference())
+        clone.Else = (SqlExpression) @else.Clone(context);
 
       foreach (KeyValuePair<SqlExpression, SqlExpression> pair in cases)
-        clone[(SqlExpression)pair.Key.Clone(context)] = (SqlExpression)pair.Value.Clone(context);
+        clone[(SqlExpression) pair.Key.Clone(context)] = (SqlExpression) pair.Value.Clone(context);
 
       context.NodeMapping[this] = clone;
       return clone;

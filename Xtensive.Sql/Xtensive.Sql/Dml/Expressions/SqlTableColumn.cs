@@ -14,10 +14,9 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlTableColumn : SqlColumn, ISqlLValue
   {
-
     public override void ReplaceWith(SqlExpression expression)
     {
-      var replacingExpression = expression as SqlColumn;
+      var replacingExpression = (SqlColumn) expression;
       ArgumentValidator.EnsureArgumentNotNull(replacingExpression.SqlTable, "SqlTable");
       ArgumentValidator.EnsureArgumentNotNull(replacingExpression.Name, "Name");
       base.ReplaceWith(expression);
@@ -28,13 +27,12 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlTableColumn clone = new SqlTableColumn((SqlTable) SqlTable.Clone(context), Name);
-
+      var clone = new SqlTableColumn((SqlTable) SqlTable.Clone(context), Name);
       context.NodeMapping[this] = clone;
       return clone;
     }
 
-    // Constructor
+    // Constructors
 
     internal SqlTableColumn(SqlTable sqlTable, string name) : base(sqlTable, name)
     {

@@ -1031,7 +1031,7 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall Rand(SqlExpression seed)
     {
-      if (!SqlExpression.IsNull(seed)) {
+      if (!seed.IsNullReference()) {
         SqlValidator.EnsureIsArithmeticExpression(seed);
         return new SqlFunctionCall(SqlFunctionType.Rand, seed);
       }
@@ -1713,14 +1713,12 @@ namespace Xtensive.Sql
     public static SqlUnary IsNull(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      // SqlValidator.EnsureIsArithmeticExpression(operand);
       return Unary(SqlNodeType.IsNull, operand);
     }
 
     public static SqlUnary IsNotNull(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      // SqlValidator.EnsureIsArithmeticExpression(operand);
       return Unary(SqlNodeType.Not, Unary(SqlNodeType.IsNull, operand));
     }
 
@@ -1796,30 +1794,33 @@ namespace Xtensive.Sql
 
     #region Hints
 
-    public static SqlJoinHint JoinHint(SqlJoinMethod method, SqlJoinedTable joinedTable)
+    public static SqlJoinHint JoinHint(SqlJoinMethod method, SqlTable table)
     {
-      ArgumentValidator.EnsureArgumentNotNull(joinedTable, "joinedTable");
-      ArgumentValidator.EnsureArgumentIs<SqlJoinExpression>(joinedTable.JoinExpression, "join.JoinExpression");
-      return new SqlJoinHint(method, joinedTable.JoinExpression as SqlJoinExpression);
+      ArgumentValidator.EnsureArgumentNotNull(table, "table");
+      return new SqlJoinHint(method, table);
     }
 
-    public static SqlJoinHint JoinHint(SqlJoinMethod method, SqlTable sqlTable, params SqlTable[] sqlTables)
+    public static SqlForceJoinOrderHint ForceJoinOrderHint()
     {
-      ArgumentValidator.EnsureArgumentNotNull(sqlTable, "sqlTable");
-      SqlTable[] allSqlTables;
-      if (sqlTables!=null && sqlTables.Length>0) {
-        allSqlTables = new SqlTable[sqlTables.Length+1];
-        sqlTables.CopyTo(allSqlTables, 1);
-        allSqlTables[0] = sqlTable;
-      }
-      else
-        allSqlTables = new SqlTable[] {sqlTable};
-      return new SqlJoinHint(method, allSqlTables);
+      return new SqlForceJoinOrderHint();
     }
 
-    public static SqlJoinHint JoinHint(SqlJoinMethod method)
+    public static SqlForceJoinOrderHint ForceJoinOrderHint(params SqlTable[] sqlTables)
     {
-      return new SqlJoinHint(method);
+      ArgumentValidator.EnsureArgumentNotNull(sqlTables, "sqlTables");
+      return new SqlForceJoinOrderHint(sqlTables);
+    }
+
+    public static SqlFastFirstRowsHint FastFirstRowsHint(int amount)
+    {
+      ArgumentValidator.EnsureArgumentIsGreaterThan(amount, 0, "amount");
+      return new SqlFastFirstRowsHint(amount);
+    }
+
+    public static SqlNativeHint NativeHint(string hintText)
+    {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(hintText, "hintText");
+      return new SqlNativeHint(hintText);
     }
 
     public static SqlTableLockHint TableLockHint(
@@ -1857,7 +1858,7 @@ namespace Xtensive.Sql
         allIndexes[0] = index;
       }
       else
-        allIndexes = new Index[] {index};
+        allIndexes = new [] {index};
       return new SqlTableScanHint(sqlTable, scanMethod, allIndexes);
     }
 
@@ -1873,46 +1874,8 @@ namespace Xtensive.Sql
         allIndexes[0] = indexName;
       }
       else
-        allIndexes = new string[] {indexName};
+        allIndexes = new [] {indexName};
       return new SqlTableScanHint(sqlTable, scanMethod, allIndexes);
-    }
-
-    public static SqlForceJoinOrderHint ForceJoinOrderHint(SqlTable sqlTable, params SqlTable[] sqlTables)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(sqlTable, "sqlTable");
-      SqlTable[] allSqlTables;
-      if (sqlTables!=null && sqlTables.Length>0) {
-        allSqlTables = new SqlTable[sqlTables.Length+1];
-        sqlTables.CopyTo(allSqlTables, 1);
-        allSqlTables[0] = sqlTable;
-      }
-      else
-        allSqlTables = new SqlTable[] {sqlTable};
-      return new SqlForceJoinOrderHint(allSqlTables);
-    }
-
-    public static SqlForceJoinOrderHint ForceJoinOrderHint()
-    {
-      return new SqlForceJoinOrderHint();
-    }
-    
-    public static SqlFastFirstRowsHint FastFirstRowsHint(int amount)
-    {
-      if (amount<=0)
-        throw new ArgumentOutOfRangeException("amount", Strings.ExRowAmountShouldBePositiveNumber);
-      return new SqlFastFirstRowsHint(amount);
-    }
-
-    public static SqlUsePlanHint UsePlanHint(string plan)
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(plan, "plan");
-      return new SqlUsePlanHint(plan);
-    }
-
-    public static SqlNativeHint NativeHint(string hintText)
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(hintText, "hintText");
-      return new SqlNativeHint(hintText);
     }
 
     #endregion

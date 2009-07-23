@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Dml
         return where;
       }
       set {
-        if (!SqlExpression.IsNull(value) && value.GetType()!=typeof(SqlCursor))
+        if (!value.IsNullReference() && value.GetType()!=typeof(SqlCursor))
           SqlValidator.EnsureIsBooleanExpression(value);
         where = value;
       }
@@ -49,7 +49,7 @@ namespace Xtensive.Sql.Dml
       if (From!=null)
         clone.From = (SqlTableRef)From.Clone(context);
       clone.Limit = Limit;
-      if (!SqlExpression.IsNull(where))
+      if (!where.IsNullReference())
         clone.Where = (SqlExpression) where.Clone(context);
 
       if (Hints.Count>0)

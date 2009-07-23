@@ -21,25 +21,33 @@ namespace Xtensive.Sql.Tests
     protected SqlDriver Driver { get; private set; }
 
     [TestFixtureSetUp]
-    public virtual void TestFixtureSetUp()
+    public void RealTestFixtureSetUp()
     {
-      var parsedUrl = new UrlInfo(Url);
-      // temporary workaround until all oracle swarm is installed on build agents.
-      if (parsedUrl.Protocol=="oracle" && TestInfo.IsBuildServer)
-        Assert.Ignore("no oracle on build server");
       try {
-        Driver = SqlDriver.Create(parsedUrl);
-        Connection = Driver.CreateConnection(parsedUrl);
-        Connection.Open();
+        TestFixtureSetUp();
       }
       catch (Exception e) {
         Console.WriteLine(Url);
         Console.WriteLine(e);
+        throw;
       }
     }
 
     [TestFixtureTearDown]
-    public virtual void TestFixtureTearDown()
+    public void RealTestFixtureTearDown()
+    {
+      TestFixtureTearDown();
+    }
+
+    protected virtual void TestFixtureSetUp()
+    {
+      var parsedUrl = new UrlInfo(Url);
+      Driver = SqlDriver.Create(parsedUrl);
+      Connection = Driver.CreateConnection(parsedUrl);
+      Connection.Open();
+    }
+
+    protected virtual void TestFixtureTearDown()
     {
       if (Connection!=null && Connection.State==ConnectionState.Open)
         Connection.Close();
@@ -53,6 +61,29 @@ namespace Xtensive.Sql.Tests
         transaction.Commit();
       }
       return model;
+    }
+
+    protected int ExecuteNonQuery(string commandText)
+    {
+      using (var command = Connection.CreateCommand()) {
+        command.CommandText = commandText;
+        return command.ExecuteNonQuery();
+      }
+    }
+
+    protected int ExecuteNonQuery(ISqlCompileUnit statement)
+    {
+      using (var command = Connection.CreateCommand(statement))
+        return command.ExecuteNonQuery();
+    }
+
+    protected void EnsureTableNotExists(Schema schema, string tableName)
+    {
+      var table = schema.Tables[tableName];
+      if (table==null)
+        return;
+      ExecuteNonQuery(SqlDdl.Drop(table));
+      schema.Tables.Remove(table);
     }
   }
 }

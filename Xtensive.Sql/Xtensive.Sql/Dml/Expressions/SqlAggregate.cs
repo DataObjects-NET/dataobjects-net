@@ -35,7 +35,7 @@ namespace Xtensive.Sql.Dml
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentIs<SqlAggregate>(expression, "expression");
-      SqlAggregate replacingExpression = expression as SqlAggregate;
+      var replacingExpression = (SqlAggregate) expression;
       NodeType = replacingExpression.NodeType;
       distinct = replacingExpression.Distinct;
       this.expression = replacingExpression.Expression;
@@ -45,8 +45,9 @@ namespace Xtensive.Sql.Dml
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
-      
-      SqlAggregate clone = new SqlAggregate(NodeType, IsNull(expression) ? null : (SqlExpression)expression.Clone(context), distinct);
+
+      var clone = new SqlAggregate(NodeType,
+        expression.IsNullReference() ? null : (SqlExpression) expression.Clone(context), distinct);
       context.NodeMapping[this] = clone;
       return clone;
     }

@@ -3,30 +3,26 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dml
 {
   [Serializable]
   public abstract class SqlTableHint : SqlHint
   {
-    private readonly SqlTable sqlTable;
-
     /// <summary>
     /// Gets the SQL table.
     /// </summary>
     /// <value>The SQL table.</value>
-    public SqlTable SqlTable
-    {
-      get { return sqlTable; }
-    }
+    public SqlTable Table { get; private set; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SqlTableHint"/> class.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="sqlTable">The SQL table.</param>
     protected SqlTableHint(SqlTable sqlTable)
     {
-      this.sqlTable = sqlTable;
+      Table = sqlTable;
     }
   }
 }

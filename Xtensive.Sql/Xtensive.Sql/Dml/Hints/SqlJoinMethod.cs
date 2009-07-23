@@ -10,8 +10,9 @@ namespace Xtensive.Sql.Dml
   /// A list of available join methods for a table.
   /// </summary>
   /// <remarks>
-  /// Note that MSSQL supports only NestedLoops, Merge, Hash and Remote methods.
-  /// Oracle supports all methods except Remote method.
+  /// MS SQL Server supports only <see cref="Loop"/>, <see cref="Merge"/>,
+  /// <see cref="Hash"/> and <see cref="Remote"/> methods.
+  /// Oracle supports all methods except <see cref="Remote"/> method.
   /// </remarks>
   [Serializable]
   public enum SqlJoinMethod

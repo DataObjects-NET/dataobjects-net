@@ -10,9 +10,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.Model;
 using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Sql.Tests
@@ -27,7 +25,7 @@ namespace Xtensive.Sql.Tests
     private TypeMapping[] typeMappings;
     private object[][] testValues;
     
-    public override void TestFixtureSetUp()
+    protected override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
       typeMappings = Driver.TypeMappings.ToArray();
@@ -40,13 +38,8 @@ namespace Xtensive.Sql.Tests
     public void InsertAndSelectTest()
     {
       var model = ExtractModel();
-      var table = model.DefaultSchema.Tables[TableName];
-      if (table!=null) {
-        using (var dropCommand = Connection.CreateCommand(SqlDdl.Drop(table)))
-          dropCommand.ExecuteNonQuery();
-        model.DefaultSchema.Tables.Remove(table);
-      }
-      table = model.DefaultSchema.CreateTable(TableName);
+      EnsureTableNotExists(model.DefaultSchema, TableName);
+      var table = model.DefaultSchema.CreateTable(TableName);
       var idColumn = table.CreateColumn(IdColumnName, new SqlValueType(SqlType.Int32));
       table.CreatePrimaryKey("PK_" + TableName, idColumn);
       for (int columnIndex = 0; columnIndex < typeMappings.Length; columnIndex++) {

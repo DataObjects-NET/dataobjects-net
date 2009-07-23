@@ -17,14 +17,6 @@ namespace Xtensive.Sql.Tests.SqlServer
   {
     protected override string Url { get { return TestUrl.SqlServer2005; } }
 
-    private void ExecuteCommand(string commandText)
-    {
-      using (var command = Connection.CreateCommand()) {
-        command.CommandText = commandText;
-        command.ExecuteNonQuery();
-      }
-    }
-
     [Test]
     public void ExtractDomainsTest()
     {
@@ -33,10 +25,10 @@ namespace Xtensive.Sql.Tests.SqlServer
       string dropTable =
         "if object_id('table_with_domained_columns') is not null drop table table_with_domained_columns";
 
-      ExecuteCommand(dropTable);
+      ExecuteNonQuery(dropTable);
       DropDomain();
       CreateDomain();
-      ExecuteCommand(createTable);
+      ExecuteNonQuery(createTable);
 
       var schema = ExtractModel().DefaultSchema;
       var definedDomain = schema.Domains.Single(domain => domain.Name=="test_type");
@@ -55,8 +47,8 @@ namespace Xtensive.Sql.Tests.SqlServer
       string dropTable =
         "if object_id('table_with_default_constraint') is not null drop table table_with_default_constraint";
 
-      ExecuteCommand(dropTable);
-      ExecuteCommand(createTable);
+      ExecuteNonQuery(dropTable);
+      ExecuteNonQuery(createTable);
 
       var schema = ExtractModel().DefaultSchema;
       var table = schema.Tables["table_with_default_constraint"];
@@ -69,7 +61,7 @@ namespace Xtensive.Sql.Tests.SqlServer
       var schema = ExtractModel().DefaultSchema;
       var domain = schema.CreateDomain("test_type", new SqlValueType(SqlType.Int64));
       var commandText = Driver.Compile(SqlDdl.Create(domain)).GetCommandText();
-      ExecuteCommand(commandText);
+      ExecuteNonQuery(commandText);
     }
 
     private void DropDomain()
@@ -79,7 +71,7 @@ namespace Xtensive.Sql.Tests.SqlServer
       if (domain==null)
         return;
       var commandText = Driver.Compile(SqlDdl.Drop(domain)).GetCommandText();
-      ExecuteCommand(commandText);
+      ExecuteNonQuery(commandText);
     }
   }
 }

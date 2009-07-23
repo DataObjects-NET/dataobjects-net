@@ -9,24 +9,17 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlNativeHint : SqlHint
   {
-    private string hintText;
-
     /// <summary>
     /// Gets the hint text.
     /// </summary>
     /// <value>The hint text.</value>
-    public string HintText
-    {
-      get { return hintText; }
-    }
+    public string HintText { get; private set; }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
-
-      SqlNativeHint clone = new SqlNativeHint(hintText);
-
+      var clone = new SqlNativeHint(HintText);
       context.NodeMapping[this] = clone;
       return clone;
     }
@@ -36,9 +29,11 @@ namespace Xtensive.Sql.Dml
       visitor.Visit(this);
     }
 
+    // Constructors
+
     internal SqlNativeHint(string hintText)
     {
-      this.hintText = hintText;
+      HintText = hintText;
     }
   }
 }

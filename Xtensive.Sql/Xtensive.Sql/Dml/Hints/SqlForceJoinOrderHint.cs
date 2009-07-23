@@ -3,35 +3,30 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dml
 {
   [Serializable]
   public class SqlForceJoinOrderHint : SqlHint
   {
-    private SqlTable[] sqlTables;
+    private SqlTable[] tables;
 
     /// <summary>
     /// Gets the corresponding tables.
     /// </summary>
-    /// <value>The tables.</value>
-    public SqlTable[] SqlTables
-    {
-      get { return sqlTables; }
-    }
+    public IEnumerable<SqlTable> Tables { get { return tables; } }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
-
-      SqlForceJoinOrderHint clone;
-      SqlTable[] tables = new SqlTable[sqlTables.Length];
-      for (int i = 0, count = sqlTables.Length; i<count; i++) {
-        tables[i] = (SqlTable)sqlTables[i].Clone(context);
-      }
-      clone = new SqlForceJoinOrderHint(tables);
-
+      var clone = new SqlForceJoinOrderHint();
+      if (tables!=null)
+        clone.tables = tables
+          .Select(table => (SqlTable) table.Clone())
+          .ToArray();
       context.NodeMapping[this] = clone;
       return clone;
     }
@@ -41,13 +36,15 @@ namespace Xtensive.Sql.Dml
       visitor.Visit(this);
     }
 
-    internal SqlForceJoinOrderHint(SqlTable[] sqlTables) : this()
-    {
-      this.sqlTables = sqlTables;
-    }
+    // Constructors
 
     internal SqlForceJoinOrderHint()
     {
+    }
+
+    internal SqlForceJoinOrderHint(SqlTable[] tables)
+    {
+      this.tables = tables;
     }
   }
 }

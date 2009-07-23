@@ -3716,7 +3716,7 @@ namespace Xtensive.Sql.Tests.SqlServer
       SqlSelect select = SqlDml.Select(abcd);
       select.Limit = 10;
       select.Columns.Add(SqlDml.Asterisk);
-      select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Hash, a, b));
+      select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Hash, b));
       select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Merge, d));
       select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Loop, abcd));
 

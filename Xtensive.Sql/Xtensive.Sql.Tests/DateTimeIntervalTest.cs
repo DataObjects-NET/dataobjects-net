@@ -4,9 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.02.27
 
-using System;
-using System.Data;
 using NUnit.Framework;
+using System;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Tests

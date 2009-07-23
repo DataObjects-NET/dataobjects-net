@@ -69,10 +69,10 @@ namespace Xtensive.Sql.Dml
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
-      
-      SqlLike clone = new SqlLike((SqlExpression)expression.Clone(context),
-                                  (SqlExpression)pattern.Clone(context),
-                                  IsNull(escape) ? null : (SqlExpression)escape.Clone(context), not);
+
+      var clone = new SqlLike((SqlExpression) expression.Clone(context),
+        (SqlExpression) pattern.Clone(context),
+        escape.IsNullReference() ? null : (SqlExpression) escape.Clone(context), not);
       context.NodeMapping[this] = clone;
       return clone;
     }

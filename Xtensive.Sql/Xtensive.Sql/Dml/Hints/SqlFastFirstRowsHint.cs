@@ -9,24 +9,17 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlFastFirstRowsHint : SqlHint
   {
-    private int amount;
-
     /// <summary>
     /// Gets the rows amount.
     /// </summary>
     /// <value>The row amount.</value>
-    public int Amount
-    {
-      get { return amount; }
-    }
+    public int Amount { get; private set; }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
-
-      SqlFastFirstRowsHint clone = new SqlFastFirstRowsHint(Amount);
-
+      var clone = new SqlFastFirstRowsHint(Amount);
       context.NodeMapping[this] = clone;
       return clone;
     }
@@ -36,9 +29,11 @@ namespace Xtensive.Sql.Dml
       visitor.Visit(this);
     }
 
+    // Constructors
+
     internal SqlFastFirstRowsHint(int amount)
     {
-      this.amount = amount;
+      Amount = amount;
     }
   }
 }

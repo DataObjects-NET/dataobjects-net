@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Compiler.Internals
       return root;
     }
 
-    #region Private methods
+    #region Private/internal methods
 
     private void CreateBuffer()
     {

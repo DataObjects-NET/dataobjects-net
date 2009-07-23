@@ -13,11 +13,6 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public abstract class SqlExpression : SqlNode
   {
-    public static bool IsNull(SqlExpression expression)
-    {
-      return (object)expression==null;
-    }
-
     public static bool operator true(SqlExpression operand)
     {
       return false;
@@ -32,7 +27,7 @@ namespace Xtensive.Sql.Dml
 
     public static SqlExpression operator &(SqlExpression left, SqlExpression right)
     {
-      if(IsNull(left))
+      if(left.IsNullReference())
         return right;
       if (SqlValidator.IsBooleanExpression(left))
         return SqlDml.And(left, right);
@@ -41,7 +36,7 @@ namespace Xtensive.Sql.Dml
 
     public static SqlExpression operator |(SqlExpression left, SqlExpression right)
     {
-      if (IsNull(left))
+      if (left.IsNullReference())
         return right;
       if (SqlValidator.IsBooleanExpression(left))
         return SqlDml.Or(left, right);

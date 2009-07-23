@@ -608,7 +608,7 @@ namespace Xtensive.Storage.Providers.Sql
         int i = 0;
         foreach (var columnInfo in index.Columns) {
           var column = select.Columns[columnInfo.Name];
-          if (SqlExpression.IsNull(column)) {
+          if (column.IsNullReference()) {
             var valueType = ValueTypeMapper.BuildSqlValueType(columnInfo);
             select.Columns.Insert(i, SqlDml.Cast(SqlDml.Null, valueType), columnInfo.Name);
           }
@@ -636,16 +636,16 @@ namespace Xtensive.Storage.Providers.Sql
       var baseQueries = index.UnderlyingIndexes.Select(i => BuildProviderQuery(i)).ToList();
       foreach (var baseQuery in baseQueries) {
         if (result == null) {
-          result = SqlExpression.IsNull(baseQuery.Where) ? baseQuery.From : SqlDml.QueryRef(baseQuery);
+          result = baseQuery.Where.IsNullReference() ? baseQuery.From : SqlDml.QueryRef(baseQuery);
           rootTable = result;
           columns = rootTable.Columns.Cast<SqlColumn>();
         }
         else {
-          var queryRef = SqlExpression.IsNull(baseQuery.Where) ? baseQuery.From : SqlDml.QueryRef(baseQuery);
+          var queryRef = baseQuery.Where.IsNullReference() ? baseQuery.From : SqlDml.QueryRef(baseQuery);
           SqlExpression joinExpression = null;
           for (int i = 0; i < keyColumnCount; i++) {
-            SqlBinary binary = (queryRef.Columns[i] == rootTable.Columns[i]);
-            if (SqlExpression.IsNull(joinExpression == null))
+            var binary = (queryRef.Columns[i]==rootTable.Columns[i]);
+            if (joinExpression.IsNullReference())
               joinExpression = binary;
             else
               joinExpression &= binary;

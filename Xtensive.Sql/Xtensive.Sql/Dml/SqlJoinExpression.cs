@@ -10,56 +10,39 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlJoinExpression : SqlNode
   {
-    private readonly SqlJoinType joinType;
-    private readonly SqlTable left;
-    private readonly SqlTable right;
-    private readonly SqlExpression expression;
-
     /// <summary>
     /// Gets the type of the join.
     /// </summary>
     /// <value>The type of the join.</value>
-    public SqlJoinType JoinType
-    {
-      get { return joinType; }
-    }
+    public SqlJoinType JoinType { get; private set; }
 
     /// <summary>
     /// Gets the left.
     /// </summary>
     /// <value>The left.</value>
-    public SqlTable Left
-    {
-      get { return left; }
-    }
+    public SqlTable Left { get; private set; }
 
     /// <summary>
     /// Gets the right.
     /// </summary>
     /// <value>The right.</value>
-    public SqlTable Right
-    {
-      get { return right; }
-    }
+    public SqlTable Right { get; private set; }
 
     /// <summary>
     /// Gets the expression.
     /// </summary>
     /// <value>The expression.</value>
-    public SqlExpression Expression
-    {
-      get { return expression; }
-    }
+    public SqlExpression Expression { get; private set; }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
-      
-      SqlJoinExpression clone = new SqlJoinExpression(joinType,
-                                  left==null ? null : (SqlTable)left.Clone(context),
-                                  right==null ? null : (SqlTable)right.Clone(context),
-                                  Expression==null ? null : (SqlExpression)Expression.Clone(context));
+
+      var clone = new SqlJoinExpression(JoinType,
+        Left==null ? null : (SqlTable) Left.Clone(context),
+        Right==null ? null : (SqlTable) Right.Clone(context),
+        Expression==null ? null : (SqlExpression) Expression.Clone(context));
 
       context.NodeMapping[this] = clone;
       return clone;
@@ -72,10 +55,10 @@ namespace Xtensive.Sql.Dml
 
     public virtual IEnumerator<SqlTable> GetEnumerator()
     {
-      foreach (SqlTable source in left)
+      foreach (SqlTable source in Left)
         yield return source;
 
-      foreach (SqlTable source in right)
+      foreach (SqlTable source in Right)
         yield return source;
 
       yield break;
@@ -83,12 +66,13 @@ namespace Xtensive.Sql.Dml
 
     // Constructor
 
-    internal SqlJoinExpression(SqlJoinType joinType, SqlTable left, SqlTable right, SqlExpression expression) : base(SqlNodeType.Join)
+    internal SqlJoinExpression(SqlJoinType joinType, SqlTable left, SqlTable right, SqlExpression expression)
+      : base(SqlNodeType.Join)
     {
-      this.joinType = joinType;
-      this.left = left;
-      this.right = right;
-      this.expression = expression;
+      JoinType = joinType;
+      Left = left;
+      Right = right;
+      Expression = expression;
     }
   }
 }

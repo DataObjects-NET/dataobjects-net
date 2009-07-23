@@ -24,10 +24,10 @@ namespace Xtensive.Sql.Compiler
     protected SqlCompilerOptions options;
     protected SqlCompilerContext context;
 
-    public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerOptions options)
+    public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerOptions compilerOptions)
     {
       ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
-      this.options = options;
+      options = compilerOptions;
       OnBeginCompile();
       unit.AcceptVisitor(this);
       OnEndCompile();
@@ -48,8 +48,6 @@ namespace Xtensive.Sql.Compiler
     {
       context.AliasProvider.Restore();
     }
-
-    #region IVisitor Members
 
     public virtual void Visit(SqlAggregate node)
     {
@@ -258,7 +256,7 @@ namespace Xtensive.Sql.Compiler
       using (context.EnterNode(node)) {
         context.AppendText(translator.Translate(context, node, CaseSection.Entry));
 
-        if (!SqlExpression.IsNull(node.Value)) {
+        if (!node.Value.IsNullReference()) {
           context.AppendText(translator.Translate(context, node, CaseSection.Value));
           node.Value.AcceptVisitor(this);
         }
@@ -274,7 +272,7 @@ namespace Xtensive.Sql.Compiler
           }
         }
 
-        if (!SqlExpression.IsNull(node.Else)) {
+        if (!node.Else.IsNullReference()) {
           context.AppendText(translator.Translate(context, node, CaseSection.Else));
           node.Else.AcceptVisitor(this);
         }
@@ -318,7 +316,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlNativeHint node)
     {
-      context.AppendText(translator.Translate(context, node));
+      // nothing
     }
 
     public virtual void Visit(SqlContinue node)
@@ -352,7 +350,7 @@ namespace Xtensive.Sql.Compiler
       ArgumentValidator.EnsureArgumentNotNull(node.Domain.DataType, "DataType");
       using (context.EnterNode(node)) {
         context.AppendText(translator.Translate(context, node, CreateDomainSection.Entry));
-        if (!SqlExpression.IsNull(node.Domain.DefaultValue)) {
+        if (!node.Domain.DefaultValue.IsNullReference()) {
           context.AppendText(translator.Translate(context, node, CreateDomainSection.DomainDefaultValue));
           node.Domain.DefaultValue.AcceptVisitor(this);
         }
@@ -592,7 +590,7 @@ namespace Xtensive.Sql.Compiler
           throw new SqlCompilerException(Strings.ExTablePropertyIsNotSet);
         context.AliasProvider.Register(node.From, node.From.Name);
         node.From.AcceptVisitor(this);
-        if (!SqlExpression.IsNull(node.Where)) {
+        if (!node.Where.IsNullReference()) {
           context.AppendText(translator.Translate(context, node, DeleteSection.Where));
           node.Where.AcceptVisitor(this);
         }
@@ -663,14 +661,14 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlFastFirstRowsHint node)
     {
-      context.AppendText(translator.Translate(context, node));
+      // nothing
     }
 
     public virtual void Visit(SqlFetch node)
     {
       using (context.EnterNode(node)) {
         context.AppendText(translator.Translate(context, node, FetchSection.Entry));
-        if (!SqlExpression.IsNull(node.RowCount))
+        if (!node.RowCount.IsNullReference())
           node.RowCount.AcceptVisitor(this);
         context.AppendText(translator.Translate(context, node, FetchSection.Targets));
         foreach (ISqlCursorFetchTarget item in node.Targets) {
@@ -682,7 +680,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlForceJoinOrderHint node)
     {
-      context.AppendText(translator.Translate(context, node));
+      // nothing
     }
 
     public virtual void Visit(SqlFunctionCall node)
@@ -767,7 +765,7 @@ namespace Xtensive.Sql.Compiler
         node.Left.AcceptVisitor(this);
         context.AppendText(translator.Translate(context, node, JoinSection.Specification));
         node.Right.AcceptVisitor(this);
-        if (!SqlExpression.IsNull(node.Expression)) {
+        if (!node.Expression.IsNullReference()) {
           context.AppendText(translator.Translate(context, node, JoinSection.Condition));
           node.Expression.AcceptVisitor(this);
         }
@@ -777,7 +775,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlJoinHint node)
     {
-      context.AppendText(translator.Translate(context, node));
+      // nothing
     }
 
     public virtual void Visit(SqlLike node)
@@ -787,7 +785,7 @@ namespace Xtensive.Sql.Compiler
         node.Expression.AcceptVisitor(this);
         context.AppendText(translator.Translate(context, node, LikeSection.Like));
         node.Pattern.AcceptVisitor(this);
-        if (!SqlExpression.IsNull(node.Escape)) {
+        if (!node.Escape.IsNullReference()) {
           context.AppendText(translator.Translate(context, node, LikeSection.Escape));
           node.Escape.AcceptVisitor(this);
         }
@@ -832,7 +830,7 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterNode(node)) {
         context.AppendText(translator.Translate(context, node, NodeSection.Entry));
-        if (!SqlExpression.IsNull(node.Expression))
+        if (!node.Expression.IsNullReference())
           node.Expression.AcceptVisitor(this);
         else if (node.Position > 0)
           context.AppendText(node.Position.ToString());
@@ -901,80 +899,104 @@ namespace Xtensive.Sql.Compiler
         context.AliasProvider.Enable();
       using (context.EnterNode(node)) {
         context.AppendText(translator.Translate(context, node, SelectSection.Entry));
-
-        if (node.Hints.Count>0) {
-          using (context.EnterCollection()) {
-            foreach (SqlHint hint in node.Hints) {
-              if (!context.IsEmpty)
-                context.AppendDelimiter(translator.HintDelimiter);
-              else
-                context.AppendText(translator.Translate(context, node, SelectSection.HintsEntry));
-              hint.AcceptVisitor(this);
-            }
-            context.AppendText(translator.Translate(context, node, SelectSection.HintsExit));
-          }
-        }
-
-        if (node.Columns.Count>0) {
-          using (context.EnterCollection()) {
-            foreach (SqlColumn item in node.Columns) {
-              if (!context.IsEmpty)
-                context.AppendDelimiter(translator.ColumnDelimiter);
-              SqlColumnRef cr = item as SqlColumnRef;
-              if (!SqlExpression.IsNull(cr)) {
-                cr.SqlColumn.AcceptVisitor(this);
-                context.AppendText(translator.Translate(context, cr, ColumnSection.AliasDeclaration));
-              }
-              else
-                item.AcceptVisitor(this);
-            }
-          }
-        }
-
-        if (node.From!=null) {
-          context.AppendText(translator.Translate(context, node, SelectSection.From));
-          node.From.AcceptVisitor(this);
-        }
-
-        if (!SqlExpression.IsNull(node.Where)) {
-          context.AppendText(translator.Translate(context, node, SelectSection.Where));
-          node.Where.AcceptVisitor(this);
-        }
-
-        if (node.GroupBy.Count>0) {
-          context.AppendText(translator.Translate(context, node, SelectSection.GroupBy));
-          using (context.EnterCollection()) {
-            foreach (SqlColumn item in node.GroupBy) {
-              if (!context.IsEmpty)
-                context.AppendDelimiter(translator.ColumnDelimiter);
-              SqlColumnRef cr = item as SqlColumnRef;
-              if (!SqlExpression.IsNull(cr))
-                cr.SqlColumn.AcceptVisitor(this);
-              else
-                item.AcceptVisitor(this);
-            }
-          }
-          if (!SqlExpression.IsNull(node.Having)) {
-            context.AppendText(translator.Translate(context, node, SelectSection.Having));
-            node.Having.AcceptVisitor(this);
-          }
-        }
-
-        if (node.OrderBy.Count>0) {
-          context.AppendText(translator.Translate(context, node, SelectSection.OrderBy));
-          using (context.EnterCollection()) {
-            foreach (SqlOrder item in node.OrderBy) {
-              if (!context.IsEmpty)
-                context.AppendDelimiter(translator.ColumnDelimiter);
-              item.AcceptVisitor(this);
-            }
-          }
-        }
-
+        VisitSelectHints(node);
+        VisitSelectColumns(node);
+        VisitSelectFrom(node);
+        VisitSelectWhere(node);
+        VisitSelectGroupBy(node);
+        VisitSelectOrderBy(node);
         context.AppendText(translator.Translate(context, node, SelectSection.Exit));
       }
       if (context.AliasProvider.IsEnabled)
         context.AliasProvider.Disable();
+    }
+
+    public virtual void VisitSelectHints(SqlSelect node)
+    {
+      if (node.Hints.Count==0)
+        return;
+      using (context.EnterCollection()) {
+        context.AppendText(translator.Translate(context, node, SelectSection.HintsEntry));
+        node.Hints[0].AcceptVisitor(this);
+        for (int i = 1; i < node.Hints.Count; i++) {
+          context.AppendDelimiter(translator.HintDelimiter);
+          node.Hints[i].AcceptVisitor(this);
+        }
+        context.AppendText(translator.Translate(context, node, SelectSection.HintsExit));
+      }
+    }
+
+    public virtual void VisitSelectColumns(SqlSelect node)
+    {
+      if (node.Columns.Count <= 0)
+        return;
+      using (context.EnterCollection()) {
+        foreach (SqlColumn item in node.Columns) {
+          if (!context.IsEmpty)
+            context.AppendDelimiter(translator.ColumnDelimiter);
+          var cr = item as SqlColumnRef;
+          if (!cr.IsNullReference()) {
+            cr.SqlColumn.AcceptVisitor(this);
+            context.AppendText(translator.Translate(context, cr, ColumnSection.AliasDeclaration));
+          }
+          else
+            item.AcceptVisitor(this);
+        }
+      }
+    }
+
+    public virtual void VisitSelectFrom(SqlSelect node)
+    {
+      if (node.From==null)
+        return;
+      context.AppendText(translator.Translate(context, node, SelectSection.From));
+      node.From.AcceptVisitor(this);
+    }
+
+    public virtual void VisitSelectWhere(SqlSelect node)
+    {
+      if (node.Where.IsNullReference())
+        return;
+      context.AppendText(translator.Translate(context, node, SelectSection.Where));
+      node.Where.AcceptVisitor(this);
+    }
+
+    public virtual void VisitSelectGroupBy(SqlSelect node)
+    {
+      if (node.GroupBy.Count <= 0)
+        return;
+      // group by
+      context.AppendText(translator.Translate(context, node, SelectSection.GroupBy));
+      using (context.EnterCollection()) {
+        foreach (SqlColumn item in node.GroupBy) {
+          if (!context.IsEmpty)
+            context.AppendDelimiter(translator.ColumnDelimiter);
+          var cr = item as SqlColumnRef;
+          if (!cr.IsNullReference())
+            cr.SqlColumn.AcceptVisitor(this);
+          else
+            item.AcceptVisitor(this);
+        }
+      }
+      if (node.Having.IsNullReference())
+        return;
+      // having
+      context.AppendText(translator.Translate(context, node, SelectSection.Having));
+      node.Having.AcceptVisitor(this);
+    }
+
+    public virtual void VisitSelectOrderBy(SqlSelect node)
+    {
+      if (node.OrderBy.Count <= 0)
+        return;
+      context.AppendText(translator.Translate(context, node, SelectSection.OrderBy));
+      using (context.EnterCollection()) {
+        foreach (SqlOrder item in node.OrderBy) {
+          if (!context.IsEmpty)
+            context.AppendDelimiter(translator.ColumnDelimiter);
+          item.AcceptVisitor(this);
+        }
+      }
     }
 
     public virtual void Visit(SqlStatementBlock node)
@@ -1009,7 +1031,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlTableLockHint node)
     {
-      context.AppendText(translator.Translate(context, node));
+      // nothing
     }
 
     public virtual void Visit(SqlTableRef node)
@@ -1036,7 +1058,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlTableScanHint node)
     {
-      context.AppendText(translator.Translate(context, node));
+      // nothing
     }
 
     public virtual void Visit(SqlUnary node)
@@ -1064,8 +1086,8 @@ namespace Xtensive.Sql.Compiler
           foreach (ISqlLValue item in node.Values.Keys) {
             if (!context.IsEmpty)
               context.AppendDelimiter(translator.ColumnDelimiter);
-            SqlTableColumn tc = item as SqlTableColumn;
-            if (!SqlExpression.IsNull(tc) && tc.SqlTable!=node.Update)
+            var tc = item as SqlTableColumn;
+            if (!tc.IsNullReference() && tc.SqlTable!=node.Update)
               throw new SqlCompilerException(string.Format(Strings.ExUnboundColumn, tc.Name));
             context.AppendText(translator.QuoteIdentifier(tc.Name));
             context.AppendText(translator.Translate(SqlNodeType.Equals));
@@ -1079,18 +1101,13 @@ namespace Xtensive.Sql.Compiler
           node.From.AcceptVisitor(this);
         }
 
-        if (!SqlExpression.IsNull(node.Where)) {
+        if (!node.Where.IsNullReference()) {
           context.AppendText(translator.Translate(context, node, UpdateSection.Where));
           node.Where.AcceptVisitor(this);
         }
 
         context.AppendText(translator.Translate(context, node, UpdateSection.Exit));
       }
-    }
-
-    public virtual void Visit(SqlUsePlanHint node)
-    {
-      context.AppendText(translator.Translate(context, node));
     }
 
     public virtual void Visit(SqlUserColumn node)
@@ -1153,12 +1170,12 @@ namespace Xtensive.Sql.Compiler
     private void Visit(TableColumn column)
     {
       context.AppendText(translator.Translate(context, column, TableColumnSection.Entry));
-      if (SqlExpression.IsNull(column.Expression)) {
+      if (column.Expression.IsNullReference()) {
         if (column.Domain==null)
           ArgumentValidator.EnsureArgumentNotNull(column.DataType, "DataType");
         context.AppendText(translator.Translate(context, column, TableColumnSection.Type));
       }
-      if (!SqlExpression.IsNull(column.DefaultValue)) {
+      if (!column.DefaultValue.IsNullReference()) {
         context.AppendText(translator.Translate(context, column, TableColumnSection.DefaultValue));
         column.DefaultValue.AcceptVisitor(this);
       }
@@ -1171,7 +1188,7 @@ namespace Xtensive.Sql.Compiler
         context.AppendText(translator.Translate(context, column.SequenceDescriptor, SequenceDescriptorSection.IsCyclic));
         context.AppendText(translator.Translate(context, column, TableColumnSection.GeneratedExit));
       }
-      else if (!SqlExpression.IsNull(column.Expression)) {
+      else if (!column.Expression.IsNullReference()) {
         context.AppendText(translator.Translate(context, column, TableColumnSection.GenerationExpressionEntry));
         column.Expression.AcceptVisitor(this);
         context.AppendText(translator.Translate(context, column, TableColumnSection.GenerationExpressionExit));
@@ -1229,8 +1246,6 @@ namespace Xtensive.Sql.Compiler
       }
       context.AppendText(translator.Translate(context, constraint, ConstraintSection.Exit));
     }
-
-    #endregion
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

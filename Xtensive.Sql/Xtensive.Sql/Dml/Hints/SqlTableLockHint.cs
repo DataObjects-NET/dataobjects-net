@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Dml
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
-      SqlTableLockHint clone = new SqlTableLockHint(SqlTable, isolationLevel, lockType);
+      SqlTableLockHint clone = new SqlTableLockHint(Table, isolationLevel, lockType);
       context.NodeMapping[this] = clone;
       return clone;
     }

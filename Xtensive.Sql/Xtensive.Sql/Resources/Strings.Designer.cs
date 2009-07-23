@@ -223,6 +223,24 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Operation &apos;{0}&apos; is not supported.
+        /// </summary>
+        internal static string ExOperationXIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExOperationXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Part of URL contains forbidden characters. Forbidden characters: .
+        /// </summary>
+        internal static string ExPartOfUrlContainsForbiddenCharacters {
+            get {
+                return ResourceManager.GetString("ExPartOfUrlContainsForbiddenCharacters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Position value should be greater than zero..
         /// </summary>
         internal static string ExPositionValueShouldBeGreaterThanZero {

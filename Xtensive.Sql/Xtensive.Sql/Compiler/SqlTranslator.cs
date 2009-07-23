@@ -53,10 +53,10 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlAggregate node, NodeSection section)
     {
       switch (section) {
-        case NodeSection.Entry:
-          return Translate(node.NodeType) + "(" + ((node.Distinct) ? "DISTINCT" : string.Empty);
-        case NodeSection.Exit:
-          return ")";
+      case NodeSection.Entry:
+        return Translate(node.NodeType) + "(" + ((node.Distinct) ? "DISTINCT" : string.Empty);
+      case NodeSection.Exit:
+        return ")";
       }
       return string.Empty;
     }
@@ -64,18 +64,18 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlAlterDomain node, AlterDomainSection section)
     {
       switch (section) {
-        case AlterDomainSection.Entry:
-          return "ALTER DOMAIN " + Translate(node.Domain);
-        case AlterDomainSection.AddConstraint:
-          return "ADD";
-        case AlterDomainSection.DropConstraint:
-          return "DROP";
-        case AlterDomainSection.SetDefault:
-          return "SET DEFAULT";
-        case AlterDomainSection.DropDefault:
-          return "DROP DEFAULT";
-        default:
-          return String.Empty;
+      case AlterDomainSection.Entry:
+        return "ALTER DOMAIN " + Translate(node.Domain);
+      case AlterDomainSection.AddConstraint:
+        return "ADD";
+      case AlterDomainSection.DropConstraint:
+        return "DROP";
+      case AlterDomainSection.SetDefault:
+        return "SET DEFAULT";
+      case AlterDomainSection.DropDefault:
+        return "DROP DEFAULT";
+      default:
+        return String.Empty;
       }
     }
 
@@ -101,40 +101,40 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
     {
       switch (section) {
-        case AlterTableSection.Entry:
-          return "ALTER TABLE " + Translate(node.Table);
-        case AlterTableSection.AddColumn:
-          return "ADD COLUMN";
-        case AlterTableSection.AlterColumn:
-          return "ALTER COLUMN";
-        case AlterTableSection.DropColumn:
-          return "DROP COLUMN";
-        case AlterTableSection.AddConstraint:
-          return "ADD";
-        case AlterTableSection.DropConstraint:
-          return "DROP";
-        default:
-          return String.Empty;
+      case AlterTableSection.Entry:
+        return "ALTER TABLE " + Translate(node.Table);
+      case AlterTableSection.AddColumn:
+        return "ADD COLUMN";
+      case AlterTableSection.AlterColumn:
+        return "ALTER COLUMN";
+      case AlterTableSection.DropColumn:
+        return "DROP COLUMN";
+      case AlterTableSection.AddConstraint:
+        return "ADD";
+      case AlterTableSection.DropConstraint:
+        return "DROP";
+      default:
+        return String.Empty;
       }
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlAlterSequence node, NodeSection section)
     {
       switch (section) {
-        case NodeSection.Entry:
-          return "ALTER SEQUENCE " + Translate(node.Sequence);
-        default:
-          return String.Empty;
+      case NodeSection.Entry:
+        return "ALTER SEQUENCE " + Translate(node.Sequence);
+      default:
+        return String.Empty;
       }
     }
 
     public virtual string Translate(SqlCompilerContext context, bool cascade, AlterTableSection section)
     {
       switch (section) {
-        case AlterTableSection.DropBehavior:
-          return cascade ? "CASCADE" : "RESTRICT";
-        default:
-          return String.Empty;
+      case AlterTableSection.DropBehavior:
+        return cascade ? "CASCADE" : "RESTRICT";
+      default:
+        return String.Empty;
       }
     }
 
@@ -250,8 +250,8 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlAssignment node, NodeSection section)
     {
       switch (section) {
-        case NodeSection.Entry:
-          return "SET";
+      case NodeSection.Entry:
+        return "SET";
       }
       return string.Empty;
     }
@@ -264,10 +264,10 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlBetween node, BetweenSection section)
     {
       switch (section) {
-        case BetweenSection.Between:
-          return Translate(node.NodeType);
-        case BetweenSection.And:
-          return "AND";
+      case BetweenSection.Between:
+        return Translate(node.NodeType);
+      case BetweenSection.And:
+        return "AND";
       }
       return string.Empty;
     }
@@ -275,10 +275,10 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlBinary node, NodeSection section)
     {
       switch (section) {
-        case NodeSection.Entry:
-           return (node.NodeType==SqlNodeType.RawConcat) ? string.Empty : "(";
-        case NodeSection.Exit:
-           return (node.NodeType == SqlNodeType.RawConcat) ? string.Empty : ")";
+      case NodeSection.Entry:
+         return (node.NodeType==SqlNodeType.RawConcat) ? string.Empty : "(";
+      case NodeSection.Exit:
+         return (node.NodeType == SqlNodeType.RawConcat) ? string.Empty : ")";
       }
       return string.Empty;
     }
@@ -291,12 +291,12 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlCase node, CaseSection section)
     {
       switch (section) {
-        case CaseSection.Entry:
-          return "(CASE";
-        case CaseSection.Else:
-          return "ELSE";
-        case CaseSection.Exit:
-          return "END)";
+      case CaseSection.Entry:
+        return "(CASE";
+      case CaseSection.Else:
+        return "ELSE";
+      case CaseSection.Exit:
+        return "END)";
       }
       return string.Empty;
     }
@@ -304,10 +304,10 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlCase node, SqlExpression item, CaseSection section)
     {
       switch (section) {
-        case CaseSection.When:
-          return "WHEN";
-        case CaseSection.Then:
-          return "THEN";
+      case CaseSection.When:
+        return "WHEN";
+      case CaseSection.Then:
+        return "THEN";
       }
       return string.Empty;
     }
@@ -315,10 +315,10 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
     {
       switch (section) {
-        case NodeSection.Entry:
-          return "CAST(";
-        case NodeSection.Exit:
-          return " AS " + Translate(node.Type) + ")";
+      case NodeSection.Entry:
+        return "CAST(";
+      case NodeSection.Exit:
+        return " AS " + Translate(node.Type) + ")";
       }
       return string.Empty;
     }
@@ -331,8 +331,8 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlCollate node, NodeSection section)
     {
       switch (section) {
-        case NodeSection.Exit:
-          return "COLLATE " + node.Collation.DbName;
+      case NodeSection.Exit:
+        return "COLLATE " + node.Collation.DbName;
       }
       return string.Empty;
     }
@@ -340,10 +340,10 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlColumnRef node, ColumnSection section)
     {
       switch (section) {
-        case ColumnSection.Entry:
-          return QuoteIdentifier(node.Name);
-        case ColumnSection.AliasDeclaration:
-          return (string.IsNullOrEmpty(node.Name)) ? string.Empty : "AS " + QuoteIdentifier(node.Name);
+      case ColumnSection.Entry:
+        return QuoteIdentifier(node.Name);
+      case ColumnSection.AliasDeclaration:
+        return (string.IsNullOrEmpty(node.Name)) ? string.Empty : "AS " + QuoteIdentifier(node.Name);
       }
       return string.Empty;
     }
@@ -356,25 +356,25 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlCreateAssertion node, NodeSection section)
     {
       switch (section) {
-        case NodeSection.Entry:
-          return "CREATE ASSERTION " + Translate(node.Assertion) + " CHECK";
-        case NodeSection.Exit:
-          StringBuilder sb = new StringBuilder();
-          if (node.Assertion.IsDeferrable.HasValue) {
-            if (node.Assertion.IsDeferrable.Value)
-              sb.Append(" DEFERRABLE");
-            else
-              sb.Append(" NOT DEFERRABLE");
-          }
-          if (node.Assertion.IsInitiallyDeferred.HasValue) {
-            if (node.Assertion.IsInitiallyDeferred.Value)
-              sb.Append(" INITIALLY DEFERRED");
-            else
-              sb.Append(" INITIALLY IMMEDIATE");
-          }
-          return sb.ToString();
-        default:
-          return string.Empty;
+      case NodeSection.Entry:
+        return "CREATE ASSERTION " + Translate(node.Assertion) + " CHECK";
+      case NodeSection.Exit:
+        StringBuilder sb = new StringBuilder();
+        if (node.Assertion.IsDeferrable.HasValue) {
+          if (node.Assertion.IsDeferrable.Value)
+            sb.Append(" DEFERRABLE");
+          else
+            sb.Append(" NOT DEFERRABLE");
+        }
+        if (node.Assertion.IsInitiallyDeferred.HasValue) {
+          if (node.Assertion.IsInitiallyDeferred.Value)
+            sb.Append(" INITIALLY DEFERRED");
+          else
+            sb.Append(" INITIALLY IMMEDIATE");
+        }
+        return sb.ToString();
+      default:
+        return string.Empty;
       }
     }
 
@@ -445,17 +445,17 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlCreateDomain node, CreateDomainSection section)
     {
       switch (section) {
-        case CreateDomainSection.Entry:
-          StringBuilder sb = new StringBuilder();
-          sb.Append("CREATE DOMAIN " + Translate(node.Domain));
-          sb.Append(" AS " + Translate(node.Domain.DataType));
-          return sb.ToString();
-        case CreateDomainSection.DomainDefaultValue:
-          return "DEFAULT";
-        case CreateDomainSection.DomainCollate:
-          return "COLLATE " + Translate(node.Domain.Collation);
-        default:
-          return string.Empty;
+      case CreateDomainSection.Entry:
+        StringBuilder sb = new StringBuilder();
+        sb.Append("CREATE DOMAIN " + Translate(node.Domain));
+        sb.Append(" AS " + Translate(node.Domain.DataType));
+        return sb.ToString();
+      case CreateDomainSection.DomainDefaultValue:
+        return "DEFAULT";
+      case CreateDomainSection.DomainCollate:
+        return "COLLATE " + Translate(node.Domain.Collation);
+      default:
+        return string.Empty;
       }
     }
 
@@ -630,12 +630,12 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlCreateSequence node, NodeSection section)
     {
       switch (section) {
-        case NodeSection.Entry:
-          return
-            "CREATE SEQUENCE " + Translate(node.Sequence) +
-            (node.Sequence.DataType != null ? " AS " + Translate(node.Sequence.DataType) : "");
-        default:
-          return String.Empty;
+      case NodeSection.Entry:
+        return
+          "CREATE SEQUENCE " + Translate(node.Sequence) +
+          (node.Sequence.DataType != null ? " AS " + Translate(node.Sequence.DataType) : "");
+      default:
+        return String.Empty;
       }
     }
 
@@ -776,22 +776,22 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlDeclareCursor node, DeclareCursorSection section)
     {
       switch (section) {
-        case DeclareCursorSection.Entry:
-          return "DECLARE " + node.Cursor.Name;
-        case DeclareCursorSection.Sensivity:
-          return (node.Cursor.Insensitive ? "INSENSITIVE " : string.Empty);
-        case DeclareCursorSection.Scrollability:
-          return (node.Cursor.Scroll ? "SCROLL " : string.Empty);
-        case DeclareCursorSection.Cursor:
-          return "CURSOR ";
-        case DeclareCursorSection.For:
-          return "FOR";
-        case DeclareCursorSection.Holdability:
-          return (node.Cursor.WithHold ? "WITH HOLD " : "WITHOUT HOLD ");
-        case DeclareCursorSection.Returnability:
-          return (node.Cursor.WithReturn ? "WITH RETURN " : "WITHOUT RETURN ");
-        case DeclareCursorSection.Updatability:
-          return (node.Cursor.ReadOnly) ? "FOR READ ONLY" : "FOR UPDATE";
+      case DeclareCursorSection.Entry:
+        return "DECLARE " + node.Cursor.Name;
+      case DeclareCursorSection.Sensivity:
+        return (node.Cursor.Insensitive ? "INSENSITIVE " : string.Empty);
+      case DeclareCursorSection.Scrollability:
+        return (node.Cursor.Scroll ? "SCROLL " : string.Empty);
+      case DeclareCursorSection.Cursor:
+        return "CURSOR ";
+      case DeclareCursorSection.For:
+        return "FOR";
+      case DeclareCursorSection.Holdability:
+        return (node.Cursor.WithHold ? "WITH HOLD " : "WITHOUT HOLD ");
+      case DeclareCursorSection.Returnability:
+        return (node.Cursor.WithReturn ? "WITH RETURN " : "WITHOUT RETURN ");
+      case DeclareCursorSection.Updatability:
+        return (node.Cursor.ReadOnly) ? "FOR READ ONLY" : "FOR UPDATE";
       }
       return string.Empty;
     }
@@ -809,10 +809,10 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)
     {
       switch (section) {
-        case DeleteSection.Entry:
-          return "DELETE FROM";
-        case DeleteSection.Where:
-          return "WHERE";
+      case DeleteSection.Entry:
+        return "DELETE FROM";
+      case DeleteSection.Where:
+        return "WHERE";
       }
       return string.Empty;
     }
@@ -910,24 +910,14 @@ namespace Xtensive.Sql.Compiler
       return "DROP VIEW " + Translate(node.View) + (node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlFastFirstRowsHint node)
-    {
-      return string.Empty;
-    }
-
     public virtual string Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
     {
       switch (section) {
-        case FetchSection.Entry:
-          return "FETCH " + node.Option;
-        case FetchSection.Targets:
-          return "FROM " + node.Cursor.Name + ((node.Targets.Count != 0) ? " INTO" : string.Empty);
+      case FetchSection.Entry:
+        return "FETCH " + node.Option;
+      case FetchSection.Targets:
+        return "FROM " + node.Cursor.Name + ((node.Targets.Count != 0) ? " INTO" : string.Empty);
       }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlForceJoinOrderHint node)
-    {
       return string.Empty;
     }
 
@@ -991,14 +981,14 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlIf node, IfSection section)
     {
       switch (section) {
-        case IfSection.Entry:
-          return "IF";
-        case IfSection.True:
-          return "BEGIN";
-        case IfSection.False:
-          return "END BEGIN";
-        case IfSection.Exit:
-          return "END";
+      case IfSection.Entry:
+        return "IF";
+      case IfSection.True:
+        return "BEGIN";
+      case IfSection.False:
+        return "END BEGIN";
+      case IfSection.Exit:
+        return "END";
       }
       return string.Empty;
     }
@@ -1006,62 +996,57 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlInsert node, InsertSection section)
     {
       switch (section) {
-        case InsertSection.Entry:
-          return "INSERT INTO";
-        case InsertSection.ColumnsEntry:
-          return (node.Values.Keys.Count > 0) ? "(" : string.Empty;
-        case InsertSection.ColumnsExit:
-          return (node.Values.Keys.Count > 0) ? ")" : string.Empty;
-        case InsertSection.ValuesEntry:
-          return "VALUES (";
-        case InsertSection.ValuesExit:
-          return ")";
-        case InsertSection.DefaultValues:
-          return "DEFAULT VALUES";
+      case InsertSection.Entry:
+        return "INSERT INTO";
+      case InsertSection.ColumnsEntry:
+        return (node.Values.Keys.Count > 0) ? "(" : string.Empty;
+      case InsertSection.ColumnsExit:
+        return (node.Values.Keys.Count > 0) ? ")" : string.Empty;
+      case InsertSection.ValuesEntry:
+        return "VALUES (";
+      case InsertSection.ValuesExit:
+        return ")";
+      case InsertSection.DefaultValues:
+        return "DEFAULT VALUES";
       }
       return string.Empty;
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
     {
-      bool explicitJoinOrder = (Driver.ServerInfo.Query.Features & QueryFeatures.ExplicitJoinOrder)>0;
+      bool explicitJoinOrder = Driver.ServerInfo.Query.Features.Supports(QueryFeatures.ExplicitJoinOrder);
       switch (section) {
-        case JoinSection.Entry:
-          return explicitJoinOrder ? "(" : string.Empty;
-        case JoinSection.Specification:
-          bool natural = false;
-          if (SqlExpression.IsNull(node.Expression) && node.JoinType != SqlJoinType.CrossJoin &&
-              node.JoinType != SqlJoinType.UnionJoin)
-            natural = true;
-          return
-            (natural ? "NATURAL " : string.Empty) + Translate(node.JoinType) + " JOIN";
-        case JoinSection.Condition:
-          return
-            node.JoinType == SqlJoinType.UsingJoin ? "USING" : "ON";
-        case JoinSection.Exit:
-          return explicitJoinOrder ? ")" : string.Empty;
+      case JoinSection.Entry:
+        return explicitJoinOrder ? "(" : string.Empty;
+      case JoinSection.Specification:
+        bool natural = false;
+        if (node.Expression.IsNullReference() && node.JoinType != SqlJoinType.CrossJoin &&
+            node.JoinType != SqlJoinType.UnionJoin)
+          natural = true;
+        return
+          (natural ? "NATURAL " : string.Empty) + Translate(node.JoinType) + " JOIN";
+      case JoinSection.Condition:
+        return
+          node.JoinType==SqlJoinType.UsingJoin ? "USING" : "ON";
+      case JoinSection.Exit:
+        return explicitJoinOrder ? ")" : string.Empty;
       }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlJoinHint node)
-    {
       return string.Empty;
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlLike node, LikeSection section)
     {
       switch (section) {
-        case LikeSection.Entry:
-          return "(";
-        case LikeSection.Exit:
-          return ")";
-        case LikeSection.Like:
-          return node.Not ? "NOT LIKE" : "LIKE";
-        case LikeSection.Escape:
-          return "ESCAPE";
-        default:
-          return string.Empty;
+      case LikeSection.Entry:
+        return "(";
+      case LikeSection.Exit:
+        return ")";
+      case LikeSection.Like:
+        return node.Not ? "NOT LIKE" : "LIKE";
+      case LikeSection.Escape:
+        return "ESCAPE";
+      default:
+        return string.Empty;
       }
     }
 
@@ -1080,8 +1065,8 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
     {
       switch (section) {
-        case MatchSection.Specification:
-          return " MATCH " + ((node.Unique) ? "UNIQUE " : string.Empty) + Translate(node.MatchType);
+      case MatchSection.Specification:
+        return " MATCH " + ((node.Unique) ? "UNIQUE " : string.Empty) + Translate(node.MatchType);
       }
       return string.Empty;
     }
@@ -1091,16 +1076,11 @@ namespace Xtensive.Sql.Compiler
       return node.Value;
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlNativeHint node)
-    {
-      return string.Empty;
-    }
-
     public virtual string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
     {
       switch(section) {
-        case NodeSection.Entry:
-          return "NEXT VALUE FOR ";
+      case NodeSection.Entry:
+        return "NEXT VALUE FOR ";
       }
       return string.Empty;
     }
@@ -1118,8 +1098,8 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
     {
       switch (section) {
-        case NodeSection.Exit:
-          return (node.Ascending) ? "ASC" : "DESC";
+      case NodeSection.Exit:
+        return (node.Ascending) ? "ASC" : "DESC";
       }
       return string.Empty;
     }
@@ -1127,8 +1107,8 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlQueryExpression node, QueryExpressionSection section)
     {
       switch(section) {
-        case QueryExpressionSection.All:
-          return node.All ? " ALL" : string.Empty;
+      case QueryExpressionSection.All:
+        return node.All ? " ALL" : string.Empty;
       }
       return string.Empty;
     }
@@ -1136,12 +1116,12 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlQueryRef node, TableSection section)
     {
       switch (section) {
-        case TableSection.Entry:
-          return "(";
-        case TableSection.Exit:
-          return ")";
-        case TableSection.AliasDeclaration:
-          return (string.IsNullOrEmpty(node.Name)) ? string.Empty : QuoteIdentifier(node.Name);
+      case TableSection.Entry:
+        return "(";
+      case TableSection.Exit:
+        return ")";
+      case TableSection.AliasDeclaration:
+        return (string.IsNullOrEmpty(node.Name)) ? string.Empty : QuoteIdentifier(node.Name);
       }
       return string.Empty;
     }
@@ -1149,10 +1129,10 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlRow node, NodeSection section)
     {
       switch (section) {
-        case NodeSection.Entry:
-          return "(";
-        case NodeSection.Exit:
-          return ")";
+      case NodeSection.Entry:
+        return "(";
+      case NodeSection.Exit:
+        return ")";
       }
       return string.Empty;
     }
@@ -1160,18 +1140,18 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
     {
       switch (section) {
-        case SelectSection.Entry:
-          return (node.Distinct) ? "SELECT DISTINCT" : "SELECT";
-        case SelectSection.From:
-          return "FROM";
-        case SelectSection.Where:
-          return "WHERE";
-        case SelectSection.GroupBy:
-          return "GROUP BY";
-        case SelectSection.Having:
-          return "HAVING";
-        case SelectSection.OrderBy:
-          return "ORDER BY";
+      case SelectSection.Entry:
+        return node.Distinct ? "SELECT DISTINCT" : "SELECT";
+      case SelectSection.From:
+        return "FROM";
+      case SelectSection.Where:
+        return "WHERE";
+      case SelectSection.GroupBy:
+        return "GROUP BY";
+      case SelectSection.Having:
+        return "HAVING";
+      case SelectSection.OrderBy:
+        return "ORDER BY";
       }
       return string.Empty;
     }
@@ -1179,10 +1159,10 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlStatementBlock node, NodeSection section)
     {
       switch (section) {
-        case NodeSection.Entry:
-          return "BEGIN";
-        case NodeSection.Exit:
-          return "End";
+      case NodeSection.Entry:
+        return "BEGIN";
+      case NodeSection.Exit:
+        return "End";
       }
       return string.Empty;
     }
@@ -1190,10 +1170,10 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlSubQuery node, NodeSection section)
     {
       switch (section) {
-        case NodeSection.Entry:
-          return "(";
-        case NodeSection.Exit:
-          return ")";
+      case NodeSection.Entry:
+        return "(";
+      case NodeSection.Exit:
+        return ")";
       }
       return string.Empty;
     }
@@ -1220,36 +1200,26 @@ namespace Xtensive.Sql.Compiler
         (((object)node == (object)node.SqlTable.Asterisk) ? node.Name : QuoteIdentifier(node.Name));
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlTableLockHint node)
-    {
-      return string.Empty;
-    }
-
     public virtual string Translate(SqlCompilerContext context, SqlTableRef node, TableSection section)
     {
       switch (section) {
-        case TableSection.Entry:
-          return Translate(node.DataTable);
-        case TableSection.AliasDeclaration:
-          return (node.Name != node.DataTable.DbName) ? " " + QuoteIdentifier(node.Name) : string.Empty;
+      case TableSection.Entry:
+        return Translate(node.DataTable);
+      case TableSection.AliasDeclaration:
+        return (node.Name != node.DataTable.DbName) ? " " + QuoteIdentifier(node.Name) : string.Empty;
       }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlTableScanHint node)
-    {
       return string.Empty;
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlTrim node, TrimSection section)
     {
       switch (section) {
-        case TrimSection.Entry:
-          return "TRIM(";
-        case TrimSection.From:
-          return "FROM";
-        case TrimSection.Exit:
-          return ")";
+      case TrimSection.Entry:
+        return "TRIM(";
+      case TrimSection.From:
+        return "FROM";
+      case TrimSection.Exit:
+        return ")";
       }
       return string.Empty;
     }
@@ -1258,22 +1228,22 @@ namespace Xtensive.Sql.Compiler
     {
       string result = string.Empty;
       switch (section) {
-        case NodeSection.Entry:
-          if (
-            !(node.NodeType == SqlNodeType.Exists || node.NodeType == SqlNodeType.All ||
-              node.NodeType == SqlNodeType.Some || node.NodeType == SqlNodeType.Any))
-            result += "(";
-          if (node.NodeType != SqlNodeType.IsNull)
-            result += Translate(node.NodeType);
-          break;
-        case NodeSection.Exit:
-          if (node.NodeType == SqlNodeType.IsNull)
-            result += Translate(node.NodeType);
-          if (
-            !(node.NodeType == SqlNodeType.Exists || node.NodeType == SqlNodeType.All ||
-              node.NodeType == SqlNodeType.Some || node.NodeType == SqlNodeType.Any))
-            result += ")";
-          break;
+      case NodeSection.Entry:
+        if (
+          !(node.NodeType == SqlNodeType.Exists || node.NodeType == SqlNodeType.All ||
+            node.NodeType == SqlNodeType.Some || node.NodeType == SqlNodeType.Any))
+          result += "(";
+        if (node.NodeType != SqlNodeType.IsNull)
+          result += Translate(node.NodeType);
+        break;
+      case NodeSection.Exit:
+        if (node.NodeType == SqlNodeType.IsNull)
+          result += Translate(node.NodeType);
+        if (
+          !(node.NodeType == SqlNodeType.Exists || node.NodeType == SqlNodeType.All ||
+            node.NodeType == SqlNodeType.Some || node.NodeType == SqlNodeType.Any))
+          result += ")";
+        break;
       }
       return result;
     }
@@ -1281,20 +1251,15 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
     {
       switch (section) {
-        case UpdateSection.Entry:
-          return "UPDATE";
-        case UpdateSection.Set:
-          return "SET";
-        case UpdateSection.From:
-          return "FROM";
-        case UpdateSection.Where:
-          return (node.Where is SqlCursor) ? "WHERE CURRENT OF" : "WHERE";
+      case UpdateSection.Entry:
+        return "UPDATE";
+      case UpdateSection.Set:
+        return "SET";
+      case UpdateSection.From:
+        return "FROM";
+      case UpdateSection.Where:
+        return (node.Where is SqlCursor) ? "WHERE CURRENT OF" : "WHERE";
       }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlUsePlanHint node)
-    {
       return string.Empty;
     }
 
@@ -1306,10 +1271,10 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlUserFunctionCall node, FunctionCallSection section, int position)
     {
       switch (section) {
-        case FunctionCallSection.Entry:
-          return node.Name + "(";
-        case FunctionCallSection.Exit:
-          return ")";
+      case FunctionCallSection.Entry:
+        return node.Name + "(";
+      case FunctionCallSection.Exit:
+        return ")";
       }
       return Translate(context, node as SqlFunctionCall, section, position);
     }
@@ -1322,12 +1287,12 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlWhile node, WhileSection section)
     {
       switch (section) {
-        case WhileSection.Entry:
-          return "WHILE (";
-        case WhileSection.Statement:
-          return ") BEGIN";
-        case WhileSection.Exit:
-          return "END";
+      case WhileSection.Entry:
+        return "WHILE (";
+      case WhileSection.Statement:
+        return ") BEGIN";
+      case WhileSection.Exit:
+        return "END";
       }
       return string.Empty;
     }
@@ -1335,121 +1300,123 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlNodeType type)
     {
       switch (type) {
-        case SqlNodeType.All:
-          return "ALL";
-        case SqlNodeType.Any:
-          return "ANY";
-        case SqlNodeType.Some:
-          return "SOME";
-        case SqlNodeType.Exists:
-          return "EXISTS";
-        case SqlNodeType.BitAnd:
-          return "&";
-        case SqlNodeType.BitNot:
-          return "~";
-        case SqlNodeType.BitOr:
-          return "|";
-        case SqlNodeType.BitXor:
-          return "^";
-        case SqlNodeType.In:
-          return "IN";
-        case SqlNodeType.Between:
-          return "BETWEEN";
-        case SqlNodeType.And:
-          return "AND";
-        case SqlNodeType.Or:
-          return "OR";
-        case SqlNodeType.IsNull:
-          return "IS NULL";
-        case SqlNodeType.Not:
-          return "NOT";
-        case SqlNodeType.NotBetween:
-          return "NOT BETWEEN";
-        case SqlNodeType.NotIn:
-          return "NOT IN";
-        case SqlNodeType.GreaterThan:
-          return ">";
-        case SqlNodeType.GreaterThanOrEquals:
-          return ">=";
-        case SqlNodeType.LessThan:
-          return "<";
-        case SqlNodeType.LessThanOrEquals:
-          return "<=";
-        case SqlNodeType.Equals:
-        case SqlNodeType.Assign:
-          return "=";
-        case SqlNodeType.NotEquals:
-          return "<>";
-        case SqlNodeType.Add:
-          return "+";
-        case SqlNodeType.Subtract:
-        case SqlNodeType.Negate:
-          return "-";
-        case SqlNodeType.Multiply:
-          return "*";
-        case SqlNodeType.Modulo:
-          return "%";
-        case SqlNodeType.Divide:
-          return "/";
-        case SqlNodeType.Avg:
-          return "AVG";
-        case SqlNodeType.Count:
-          return "COUNT";
-        case SqlNodeType.Max:
-          return "MAX";
-        case SqlNodeType.Min:
-          return "MIN";
-        case SqlNodeType.Sum:
-          return "SUM";
-        case SqlNodeType.Concat:
-          return "||";
-        case SqlNodeType.Unique:
-          return "UNIQUE";
-        case SqlNodeType.Union:
-          return "UNION";
-        case SqlNodeType.Intersect:
-          return "INTERSECT";
-        case SqlNodeType.Except:
-          return "EXCEPT";
-        case SqlNodeType.Overlaps:
-          return "OVERLAPS";
-        default:
-          return string.Empty;
+      case SqlNodeType.All:
+        return "ALL";
+      case SqlNodeType.Any:
+        return "ANY";
+      case SqlNodeType.Some:
+        return "SOME";
+      case SqlNodeType.Exists:
+        return "EXISTS";
+      case SqlNodeType.BitAnd:
+        return "&";
+      case SqlNodeType.BitNot:
+        return "~";
+      case SqlNodeType.BitOr:
+        return "|";
+      case SqlNodeType.BitXor:
+        return "^";
+      case SqlNodeType.In:
+        return "IN";
+      case SqlNodeType.Between:
+        return "BETWEEN";
+      case SqlNodeType.And:
+        return "AND";
+      case SqlNodeType.Or:
+        return "OR";
+      case SqlNodeType.IsNull:
+        return "IS NULL";
+      case SqlNodeType.Not:
+        return "NOT";
+      case SqlNodeType.NotBetween:
+        return "NOT BETWEEN";
+      case SqlNodeType.NotIn:
+        return "NOT IN";
+      case SqlNodeType.GreaterThan:
+        return ">";
+      case SqlNodeType.GreaterThanOrEquals:
+        return ">=";
+      case SqlNodeType.LessThan:
+        return "<";
+      case SqlNodeType.LessThanOrEquals:
+        return "<=";
+      case SqlNodeType.Equals:
+      case SqlNodeType.Assign:
+        return "=";
+      case SqlNodeType.NotEquals:
+        return "<>";
+      case SqlNodeType.Add:
+        return "+";
+      case SqlNodeType.Subtract:
+      case SqlNodeType.Negate:
+        return "-";
+      case SqlNodeType.Multiply:
+        return "*";
+      case SqlNodeType.Modulo:
+        return "%";
+      case SqlNodeType.Divide:
+        return "/";
+      case SqlNodeType.Avg:
+        return "AVG";
+      case SqlNodeType.Count:
+        return "COUNT";
+      case SqlNodeType.Max:
+        return "MAX";
+      case SqlNodeType.Min:
+        return "MIN";
+      case SqlNodeType.Sum:
+        return "SUM";
+      case SqlNodeType.Concat:
+        return "||";
+      case SqlNodeType.Unique:
+        return "UNIQUE";
+      case SqlNodeType.Union:
+        return "UNION";
+      case SqlNodeType.Intersect:
+        return "INTERSECT";
+      case SqlNodeType.Except:
+        return "EXCEPT";
+      case SqlNodeType.Overlaps:
+        return "OVERLAPS";
+      case SqlNodeType.RawConcat:
+        return string.Empty;
+      default:
+        throw new NotSupportedException(string.Format(Strings.ExOperationXIsNotSupported, type));
       }
     }
 
     public virtual string Translate(SqlJoinType type)
     {
       switch (type) {
-        case SqlJoinType.CrossJoin:
-          return "CROSS";
-        case SqlJoinType.FullOuterJoin:
-          return "FULL OUTER";
-        case SqlJoinType.InnerJoin:
-          return "INNER";
-        case SqlJoinType.LeftOuterJoin:
-          return "LEFT OUTER";
-        case SqlJoinType.UnionJoin:
-          return "UNION";
-        case SqlJoinType.RightOuterJoin:
-          return "RIGHT OUTER";
-        case SqlJoinType.CrossApply:
-        case SqlJoinType.LeftOuterApply:
-          throw new NotSupportedException(Strings.ExCrossApplyAndLeftOuterApplyAreNotSupportedByDefault);
-        default:
-          return string.Empty;
+      case SqlJoinType.CrossJoin:
+        return "CROSS";
+      case SqlJoinType.FullOuterJoin:
+        return "FULL OUTER";
+      case SqlJoinType.InnerJoin:
+        return "INNER";
+      case SqlJoinType.LeftOuterJoin:
+        return "LEFT OUTER";
+      case SqlJoinType.UnionJoin:
+        return "UNION";
+      case SqlJoinType.RightOuterJoin:
+        return "RIGHT OUTER";
+      case SqlJoinType.CrossApply:
+      case SqlJoinType.LeftOuterApply:
+        throw new NotSupportedException(Strings.ExCrossApplyAndLeftOuterApplyAreNotSupportedByDefault);
+      default:
+        return string.Empty;
       }
     }
 
     public virtual string Translate(SqlMatchType type)
     {
       switch (type) {
-        case SqlMatchType.Full:
-          return "FULL";
-        case SqlMatchType.Partial:
-          return "PARTIAL";
-        default:
-          return string.Empty;
+      case SqlMatchType.Full:
+        return "FULL";
+      case SqlMatchType.Partial:
+        return "PARTIAL";
+      default:
+        return string.Empty;
       }
     }
 
@@ -1540,15 +1507,9 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string Translate(SchemaNode node)
     {
-      if (node.Schema != null)
-        return QuoteIdentifier(node.Schema.DbName, node.DbName);
-      else
-        return QuoteIdentifier(node.DbName);
-    }
-
-    public virtual string Translate(SqlJoinMethod method)
-    {
-      return string.Empty;
+      return node.Schema != null
+        ? QuoteIdentifier(node.Schema.DbName, node.DbName)
+        : QuoteIdentifier(node.DbName);
     }
 
     public virtual string Translate(SqlTableIsolationLevel level)
@@ -1569,14 +1530,14 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(ReferentialAction action)
     {
       switch (action) {
-        case ReferentialAction.Cascade:
-          return "CASCADE";
-        case ReferentialAction.SetDefault:
-          return "SET DEFAULT";
-        case ReferentialAction.SetNull:
-          return "SET NULL";
-        default:
-          return string.Empty;
+      case ReferentialAction.Cascade:
+        return "CASCADE";
+      case ReferentialAction.SetDefault:
+        return "SET DEFAULT";
+      case ReferentialAction.SetNull:
+        return "SET NULL";
+      default:
+        return string.Empty;
       }
     }
 
@@ -1587,7 +1548,7 @@ namespace Xtensive.Sql.Compiler
 
       DataTypeInfo dti = Driver.ServerInfo.DataTypes[type.Type];
       if (dti==null)
-        throw new NotSupportedException(String.Format("Type '{0}' is not supported.", type.Type));
+        throw new NotSupportedException(String.Format(Strings.ExTypeXIsNotSupported, type.Type));
       string text = dti.NativeTypes.First();
 
       if (type.Length.HasValue)
@@ -1598,31 +1559,6 @@ namespace Xtensive.Sql.Compiler
         return text + "(" + type.Precision + ")";
       return text;
     }
-
-    //
-    //    public virtual string Translate(RelationalIndexOption option)
-    //    {
-    //      switch (option) {
-    //        case RelationalIndexOption.AllowPageLocks:
-    //          return "ALLOW_PAGE_LOCKS";
-    //        case RelationalIndexOption.AllowRowLocks:
-    //          return "ALLOW_ROW_LOCKS";
-    //        case RelationalIndexOption.DropExisting:
-    //          return "DROP_EXISTING";
-    //        case RelationalIndexOption.IgnoreDupKey:
-    //          return "IGNORE_DUP_KEY";
-    //        case RelationalIndexOption.Online:
-    //          return "ONLINE";
-    //        case RelationalIndexOption.PadIndex:
-    //          return "PAD_INDEX";
-    //        case RelationalIndexOption.SortInTEMPDB:
-    //          return "SORT_IN_TEMPDB";
-    //        case RelationalIndexOption.StatisticsNorecompute:
-    //          return "STATISTICS_NORECOMPUTE";
-    //        default:
-    //          return String.Empty;
-    //      }
-    //    }
 
     public virtual string Translate(SqlFunctionType type)
     {
@@ -1717,15 +1653,20 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlTrimType type)
     {
       switch (type) {
-        case SqlTrimType.Leading:
-          return "LEADING";
-        case SqlTrimType.Trailing:
-          return "TRAILING";
-        case SqlTrimType.Both:
-          return "BOTH";
-        default:
-          return string.Empty;
+      case SqlTrimType.Leading:
+        return "LEADING";
+      case SqlTrimType.Trailing:
+        return "TRAILING";
+      case SqlTrimType.Both:
+        return "BOTH";
+      default:
+        return string.Empty;
       }
+    }
+
+    public virtual string Translate(SqlJoinMethod method)
+    {
+      return string.Empty;
     }
 
     /// <summary>
@@ -1745,7 +1686,7 @@ namespace Xtensive.Sql.Compiler
     /// <returns>Quoted identifier name.</returns>
     public virtual string QuoteIdentifier(params string[] names)
     {
-      return "[" + string.Join("].[", names) + "]";
+      return SqlHelper.QuoteIdentifierWithBrackets(names);
     }
 
     #region IFormatProvider Members

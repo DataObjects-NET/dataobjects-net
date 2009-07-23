@@ -32,10 +32,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     [DebuggerStepThrough]
     public override string QuoteIdentifier(params string[] names)
     {
-      var quotedNames = new string[names.Length];
-      for (int i = 0; i < names.Length; i++)
-        quotedNames[i] = names[i].Replace("\"", "\"\"");
-      return ("\"" + string.Join("\".\"", quotedNames) + "\"");
+      return SqlHelper.QuoteIdentifierWithQuotes(names);
     }
 
     [DebuggerStepThrough]
@@ -138,11 +135,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       default:
         return base.Translate(type);
       }
-    }
-
-    public override string Translate(SqlJoinMethod method)
-    {
-      return string.Empty;
     }
 
     public override string Translate(ReferentialAction action)
@@ -433,15 +425,15 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     public override string Translate(SqlCompilerContext context, SqlOpenCursor node)
     {
-      //DECLARE CURSOR already opens it
-      return String.Empty;
+      // DECLARE CURSOR already opens it
+      return string.Empty;
     }
 
     public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
     {
       if (section==SelectSection.Exit) {
         if (node.Limit > 0 || node.Offset > 0) {
-          StringBuilder sb = new StringBuilder();
+          var sb = new StringBuilder();
           if (node.Offset > 0)
             sb.Append(" OFFSET " + node.Offset);
           if (node.Limit > 0)

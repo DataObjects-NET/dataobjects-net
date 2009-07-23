@@ -71,7 +71,7 @@ namespace Xtensive.Sql.Dml
       get { return where; }
       set
       {
-        if (!SqlExpression.IsNull(value))
+        if (!value.IsNullReference())
           SqlValidator.EnsureIsBooleanExpression(value);
         where = value;
       }
@@ -100,7 +100,7 @@ namespace Xtensive.Sql.Dml
       get { return having; }
       set
       {
-        if (!SqlExpression.IsNull(value))
+        if (!value.IsNullReference())
           SqlValidator.EnsureIsBooleanExpression(value);
         having = value;
       }
@@ -147,9 +147,9 @@ namespace Xtensive.Sql.Dml
       if (groupBy != null)
         foreach (SqlColumn c in groupBy)
           clone.GroupBy.Add((SqlColumn)c.Clone(context));
-      if (!SqlExpression.IsNull(where))
+      if (!where.IsNullReference())
         clone.Where = (SqlExpression)where.Clone(context);
-      if (!SqlExpression.IsNull(having))
+      if (!having.IsNullReference())
         clone.Having = (SqlExpression)having.Clone(context);
       if (orderBy != null)
         foreach (SqlOrder so in orderBy)
