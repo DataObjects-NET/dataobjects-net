@@ -249,7 +249,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       info.Features =
         QueryFeatures.Batches |
         QueryFeatures.NamedParameters |
-        QueryFeatures.UseParameterPrefix |
+        QueryFeatures.ParameterPrefix |
         QueryFeatures.FullBooleanExpressionSupport |
         QueryFeatures.Paging;
       info.ParameterPrefix = "@";

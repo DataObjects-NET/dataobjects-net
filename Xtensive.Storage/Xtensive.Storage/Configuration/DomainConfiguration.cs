@@ -11,7 +11,6 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration.Elements;
 using Xtensive.Storage.Configuration.Internals;
 using Xtensive.Storage.Resources;
@@ -34,7 +33,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Default <see cref="ForeignKeyMode"/> value:
-    /// "<see cref="Building.ForeignKeyMode.Default" />".
+    /// "<see cref="Storage.ForeignKeyMode.Default" />".
     /// </summary>
     public const ForeignKeyMode DefaultForeignKeyMode = ForeignKeyMode.Default;
 

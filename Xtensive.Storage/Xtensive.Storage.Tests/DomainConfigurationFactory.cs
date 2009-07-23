@@ -6,7 +6,6 @@
 //
 
 using System;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 

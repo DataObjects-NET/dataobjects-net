@@ -45,7 +45,7 @@ namespace Xtensive.Sql.Compiler
       numberFormat = (NumberFormatInfo) CultureInfo.InvariantCulture.NumberFormat.Clone();
       dateTimeFormat = (DateTimeFormatInfo) CultureInfo.InvariantCulture.DateTimeFormat.Clone();
       var queryInfo = Driver.ServerInfo.Query;
-      ParameterPrefix = queryInfo.Features.IsSupported(QueryFeatures.UseParameterPrefix)
+      ParameterPrefix = queryInfo.Features.Supports(QueryFeatures.ParameterPrefix)
         ? queryInfo.ParameterPrefix
         : string.Empty;
     }

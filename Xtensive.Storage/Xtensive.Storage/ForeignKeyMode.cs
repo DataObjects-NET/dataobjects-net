@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Storage.Building
+namespace Xtensive.Storage
 {
   /// <summary>
   /// Enumerates possible foreign key build modes for <see cref="Domain"/>.

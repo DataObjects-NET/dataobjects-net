@@ -90,7 +90,7 @@ namespace Xtensive.Sql.PostgreSql
       var nativeParameter = (NpgsqlParameter) parameter;
       nativeParameter.NpgsqlDbType = NpgsqlDbType.Interval;
       nativeParameter.Value = value!=null
-        ? new NpgsqlInterval((TimeSpan) value)
+        ? (object) new NpgsqlInterval((TimeSpan) value)
         : DBNull.Value;
 #endif
     }

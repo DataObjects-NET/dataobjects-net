@@ -179,7 +179,7 @@ namespace Xtensive.Sql.Oracle.v09
       queryInfo.MaxComparisonOperations = DoNotKnow;
       queryInfo.Features =
         QueryFeatures.NamedParameters |
-        QueryFeatures.UseParameterPrefix |
+        QueryFeatures.ParameterPrefix |
         QueryFeatures.Batches |
         QueryFeatures.Hints;
       return queryInfo;

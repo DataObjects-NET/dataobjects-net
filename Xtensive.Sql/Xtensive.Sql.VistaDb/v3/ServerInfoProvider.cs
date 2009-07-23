@@ -93,7 +93,7 @@ namespace Xtensive.Sql.VistaDb.v3
       queryInfo.ParameterPrefix = "@";
       queryInfo.Features =
         QueryFeatures.NamedParameters |
-        QueryFeatures.UseParameterPrefix |
+        QueryFeatures.ParameterPrefix |
         QueryFeatures.Batches;
       return queryInfo;
     }

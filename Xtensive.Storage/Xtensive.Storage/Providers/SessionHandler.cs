@@ -8,10 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Transactions;
-using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Sorting;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
@@ -52,8 +48,8 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Persists changed entities.
     /// </summary>
-    /// <param name="entityStateActions">The entity states and the corresponding actions.</param>
-    public abstract void Persist(IEnumerable<EntityStateAction> entityStateActions);
+    /// <param name="persistActions">The entity states and the corresponding actions.</param>
+    public abstract void Persist(IEnumerable<PersistAction> persistActions);
 
     /// <inheritdoc/>
     public override void Initialize()

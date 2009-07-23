@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Info
     /// Indicates that parameter prefix should be used for parameter names
     /// (in the case when <see cref="NamedParameters"/> option is active).
     /// </summary>
-    UseParameterPrefix = 0x2,
+    ParameterPrefix = 0x2,
 
     // SquareBrackets removed - useless
 

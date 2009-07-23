@@ -151,6 +151,7 @@ namespace Xtensive.Storage.Providers.Index
       result.SupportsCollations = false;
       result.SupportsEnlist = false;
       result.SupportsForeignKeyConstraints = false;
+      result.SupportsDeferredForeignKeyConstraints = false;
       result.SupportsRealTimeSpan = true;
       result.SupportsIncludedColumns = true;
       result.SupportKeyColumnSortOrder = true;

@@ -16,7 +16,6 @@ using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Sorting;
 using Xtensive.Integrity.Atomicity;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -169,11 +168,14 @@ namespace Xtensive.Storage
       try {
         EnsureNotDisposed();
 
+        if (EntityStateRegistry.IsEmpty)
+          return;
+
         if (IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Persisting...", this);
         NotifyPersisting();
 
-        Handler.Persist(GetStatesToPersist());
+        Handler.Persist(GetPersistSequence());
 
         if (IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Persisted.", this);
@@ -192,41 +194,43 @@ namespace Xtensive.Storage
       }
     }
 
-    private IEnumerable<EntityStateAction> GetStatesToPersist()
+    private IEnumerable<PersistAction> GetPersistSequence()
     {
-      bool foreignKeysEnabled = (Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0;
+
+      bool requiresTopologicalSort = (Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0;
+      if (requiresTopologicalSort)
+        requiresTopologicalSort = Domain.Handler.ProviderInfo.SupportsForeignKeyConstraints;
+      if (requiresTopologicalSort)
+        requiresTopologicalSort = !Domain.Handler.ProviderInfo.SupportsDeferredForeignKeyConstraints;
 
       // Insert
-      IEnumerable<EntityState> insertEntities = EntityStateRegistry.GetItems(PersistenceState.New).Where(entityState => !entityState.IsRemoved);
-      if (foreignKeysEnabled)
-        foreach (var statePair in InsertInAccordanceWithForeignKeys(insertEntities))
-          yield return statePair;
+      var states = EntityStateRegistry.GetItems(PersistenceState.New).Where(state => !state.IsRemoved);
+      if (requiresTopologicalSort)
+        foreach (var action in GetInsertSequence(states))
+          yield return action;
       else
-        foreach (EntityState data in insertEntities) {
-          yield return new EntityStateAction(data, PersistAction.Insert);
-          data.DifferentialTuple.Merge();
-        }
+        foreach (var state in states)
+          yield return new PersistAction(state, PersistActionKind.Insert);
 
       // Update
-      foreach (EntityState data in EntityStateRegistry.GetItems(PersistenceState.Modified)) {
-        if (data.IsRemoved)
+      foreach (var state in EntityStateRegistry.GetItems(PersistenceState.Modified)) {
+        if (state.IsRemoved)
           continue;
-        yield return new EntityStateAction(data, PersistAction.Update);
-        data.DifferentialTuple.Merge();
+        yield return new PersistAction(state, PersistActionKind.Update);
+        state.DifferentialTuple.Merge();
       }
 
       // Delete
-      var deleteEntities = EntityStateRegistry.GetItems(PersistenceState.Removed);
-      if (foreignKeysEnabled)
-        foreach (var statePair in DeleteInAccordanceWithForeignKeys(deleteEntities))
-          yield return statePair;
+      states = EntityStateRegistry.GetItems(PersistenceState.Removed);
+      if (requiresTopologicalSort)
+        foreach (var action in GetDeleteSequence(states))
+          yield return action;
       else
-        foreach (EntityState data in deleteEntities)
-          yield return new EntityStateAction(data, PersistAction.Remove);
+        foreach (var state in states)
+          yield return new PersistAction(state, PersistActionKind.Remove);
     }
 
-    private static IEnumerable<EntityStateAction> InsertInAccordanceWithForeignKeys(
-      IEnumerable<EntityState> entityStates)
+    private static IEnumerable<PersistAction> GetInsertSequence(IEnumerable<EntityState> entityStates)
     {
       // Topological sorting
       List<Triplet<EntityState, FieldInfo, Entity>> loopReferences;
@@ -238,22 +242,21 @@ namespace Xtensive.Storage
       sortedEntities.Reverse();
       sortedEntities.AddRange(unreferencedEntities);
 
-      foreach (EntityState data in sortedEntities)
-        yield return new EntityStateAction(data, PersistAction.Insert);
+      foreach (EntityState state in sortedEntities)
+        yield return new PersistAction(state, PersistActionKind.Insert);
 
       // Restore loop links
       foreach (var restoreData in loopReferences) {
         Persistent.GetAccessor<Entity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, restoreData.Third);
-        yield return new EntityStateAction(restoreData.First, PersistAction.Update);
+        yield return new PersistAction(restoreData.First, PersistActionKind.Update);
       }
 
       // Merge
-      foreach (EntityState data in sortedEntities)
-        data.DifferentialTuple.Merge();
+      foreach (EntityState state in sortedEntities)
+        state.DifferentialTuple.Merge();
     }
     
-    private static IEnumerable<EntityStateAction> DeleteInAccordanceWithForeignKeys(
-      IEnumerable<EntityState> entityStates)
+    private static IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates)
     {
       // Topological sorting
       List<Triplet<EntityState, FieldInfo, Entity>> loopReferences;
@@ -268,12 +271,11 @@ namespace Xtensive.Storage
       // Restore loop links
       foreach (var restoreData in loopReferences) {
         Persistent.GetAccessor<Entity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, null);
-        yield return new EntityStateAction(restoreData.First, PersistAction.Update);
+        yield return new PersistAction(restoreData.First, PersistActionKind.Update);
       }
 
-      foreach (EntityState data in sortedEntities)
-        yield return new EntityStateAction(data, PersistAction.Remove);
-
+      foreach (EntityState state in sortedEntities)
+        yield return new PersistAction(state, PersistActionKind.Remove);
     }
 
     private static void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates,

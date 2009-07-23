@@ -7,7 +7,6 @@
 using System.Configuration;
 using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
-using Xtensive.Storage.Building;
 
 namespace Xtensive.Storage.Configuration.Elements
 {

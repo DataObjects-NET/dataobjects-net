@@ -62,23 +62,23 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    public override void Persist(IEnumerable<EntityStateAction> entityStateActions)
+    public override void Persist(IEnumerable<PersistAction> persistActions)
     {
-      var batched = entityStateActions.SelectMany(statePair => CreateCommandBatch(statePair)).Batch(0, 256, 256);
+      var batched = persistActions.SelectMany(statePair => CreateCommandBatch(statePair)).Batch(0, 256, 256);
       foreach (var batch in batched)
         foreach (var command in batch)
           StorageView.Execute(command);
     }
 
-    private IEnumerable<Command> CreateCommandBatch(EntityStateAction entityStateAction)
+    private IEnumerable<Command> CreateCommandBatch(PersistAction persistAction)
     {
-      switch (entityStateAction.PersistAction) {
-        case PersistAction.Insert:
-          return CreateInsert(entityStateAction.EntityState);
-        case PersistAction.Update:
-          return CreateUpdate(entityStateAction.EntityState);
-        case PersistAction.Remove:
-          return CreateRemove(entityStateAction.EntityState);
+      switch (persistAction.ActionKind) {
+        case PersistActionKind.Insert:
+          return CreateInsert(persistAction.EntityState);
+        case PersistActionKind.Update:
+          return CreateUpdate(persistAction.EntityState);
+        case PersistActionKind.Remove:
+          return CreateRemove(persistAction.EntityState);
         default:
           throw new ArgumentOutOfRangeException("statePair.Second");
       }

@@ -727,9 +727,11 @@ namespace Xtensive.Storage.Providers.Sql
       var foreignKey = referencingTable.CreateForeignKey(foreignKeyInfo.Name);
       foreignKey.OnUpdate = ConvertReferentialAction(foreignKeyInfo.OnUpdateAction);
       foreignKey.OnDelete = ConvertReferentialAction(foreignKeyInfo.OnRemoveAction);
-      var referncingColumns = foreignKeyInfo.ForeignKeyColumns
+      foreignKey.IsDeferrable = providerInfo.SupportsDeferredForeignKeyConstraints;
+      foreignKey.IsInitiallyDeferred = foreignKey.IsDeferrable;
+      var referencingColumns = foreignKeyInfo.ForeignKeyColumns
         .Select(cr => FindColumn(referencingTable, cr.Value.Name));
-      foreignKey.Columns.AddRange(referncingColumns);
+      foreignKey.Columns.AddRange(referencingColumns);
       var referencedTable = FindTable(foreignKeyInfo.PrimaryKey.Parent.Name);
       var referencedColumns = foreignKeyInfo.PrimaryKey.KeyColumns
         .Select(cr => FindColumn(referencedTable, cr.Value.Name));

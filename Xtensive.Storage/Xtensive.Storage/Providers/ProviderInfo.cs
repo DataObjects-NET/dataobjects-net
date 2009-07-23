@@ -39,6 +39,7 @@ namespace Xtensive.Storage.Providers
     private bool emptyBlobIsNull;
     private bool supportsIncludedColumns;
     private Version version;
+    private bool supportsDeferredForeignKeyConstraints;
 
     /// <summary>
     /// Indicates that RDBMS supports distributed transactions.
@@ -95,6 +96,17 @@ namespace Xtensive.Storage.Providers
       set {
         this.EnsureNotLocked();
         supportsForeignKeyConstraints = value;
+      }
+    }
+
+    /// <summary>
+    /// Indicates that RDBMS supports foreign key constraints.
+    /// </summary>
+    public bool SupportsDeferredForeignKeyConstraints {
+      get { return supportsDeferredForeignKeyConstraints; }
+      set {
+        this.EnsureNotLocked();
+        supportsDeferredForeignKeyConstraints = value;
       }
     }
 

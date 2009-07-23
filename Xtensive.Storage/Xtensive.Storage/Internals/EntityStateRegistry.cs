@@ -19,6 +19,18 @@ namespace Xtensive.Storage.Internals
     private readonly List<EntityState> modified = new List<EntityState>();
     private readonly List<EntityState> removed = new List<EntityState>();
 
+    /// <summary>
+    /// Gets a value indicating whether this instance is empty.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> if this instance is empty; otherwise, <see langword="false"/>.
+    /// </value>
+    [Infrastructure]
+    public bool IsEmpty
+    {
+      get { return @new.Count == 0 && modified.Count == 0 && removed.Count == 0; }
+    }
+
     [Infrastructure]
     internal void Register(EntityState item)
     {

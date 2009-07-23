@@ -213,30 +213,30 @@ namespace Xtensive.Storage.Providers.Sql
     #region Insert, Update, Delete
 
     /// <inheritdoc/>
-    public override void Persist(IEnumerable<EntityStateAction> entityStateActions)
+    public override void Persist(IEnumerable<PersistAction> persistActions)
     {
-      var batched = entityStateActions
-        .Select<EntityStateAction, Pair<SqlPersistRequest, Tuple>>(CreatePersistRequest)
+      var batched = persistActions
+        .Select<PersistAction, Pair<SqlPersistRequest, Tuple>>(CreatePersistRequest)
         .Batch(0, PersistBatchSize, PersistBatchSize);
       foreach (var batch in batched)
         ExecuteBatchPersistRequest(batch);
     }
 
-    private Pair<SqlPersistRequest, Tuple> CreatePersistRequest(EntityStateAction action)
+    private Pair<SqlPersistRequest, Tuple> CreatePersistRequest(PersistAction action)
     {
-      switch (action.PersistAction) {
-      case PersistAction.Insert:
+      switch (action.ActionKind) {
+      case PersistActionKind.Insert:
         return CreateInsertRequest(action);
-      case PersistAction.Update:
+      case PersistActionKind.Update:
         return CreateUpdateRequest(action);
-      case PersistAction.Remove:
+      case PersistActionKind.Remove:
         return CreateRemoveRequest(action);
       default:
-        throw new ArgumentOutOfRangeException("action.PersistAction");
+        throw new ArgumentOutOfRangeException("action.ActionKind");
       }
     }
     
-    private Pair<SqlPersistRequest, Tuple> CreateInsertRequest(EntityStateAction action)
+    private Pair<SqlPersistRequest, Tuple> CreateInsertRequest(PersistAction action)
     {
       var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Insert, action.EntityState.Type);
       var request = DomainHandler.GetPersistRequest(task);
@@ -244,7 +244,7 @@ namespace Xtensive.Storage.Providers.Sql
       return new Pair<SqlPersistRequest, Tuple>(request, tuple);
     }
 
-    private Pair<SqlPersistRequest, Tuple> CreateUpdateRequest(EntityStateAction action)
+    private Pair<SqlPersistRequest, Tuple> CreateUpdateRequest(PersistAction action)
     {
       var entityState = action.EntityState;
       var source = entityState.DifferentialTuple;
@@ -255,7 +255,7 @@ namespace Xtensive.Storage.Providers.Sql
       return new Pair<SqlPersistRequest, Tuple>(request, tuple);
     }
 
-    private Pair<SqlPersistRequest, Tuple> CreateRemoveRequest(EntityStateAction action)
+    private Pair<SqlPersistRequest, Tuple> CreateRemoveRequest(PersistAction action)
     {
       var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Remove, action.EntityState.Type);
       var request = DomainHandler.GetPersistRequest(task);

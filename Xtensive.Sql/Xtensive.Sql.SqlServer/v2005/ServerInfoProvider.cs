@@ -189,7 +189,7 @@ namespace Xtensive.Sql.SqlServer.v2005
       queryInfo.ParameterPrefix = "@";
       queryInfo.Features =
         QueryFeatures.NamedParameters |
-        QueryFeatures.UseParameterPrefix |
+        QueryFeatures.ParameterPrefix |
         QueryFeatures.Batches |
         QueryFeatures.CrossApply;
       return queryInfo;

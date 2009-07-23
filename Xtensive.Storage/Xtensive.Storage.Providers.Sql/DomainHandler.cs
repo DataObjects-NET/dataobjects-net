@@ -189,11 +189,11 @@ namespace Xtensive.Storage.Providers.Sql
 
       var binaryTypeInfo = dataTypes.VarBinary ?? dataTypes.VarBinaryMax;
       result.EmptyBlobIsNull = binaryTypeInfo!=null
-        ? binaryTypeInfo.Features.IsSupported(DataTypeFeatures.ZeroLengthValueIsNull)
+        ? binaryTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull)
         : false;
       var stringTypeInfo = dataTypes.VarChar ?? dataTypes.VarCharMax;
       result.EmptyStringIsNull = stringTypeInfo!=null
-        ? stringTypeInfo.Features.IsSupported(DataTypeFeatures.ZeroLengthValueIsNull)
+        ? stringTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull)
         : false;
 
       // TODO: add corresponding feature to Sql.Info and read it here
@@ -204,16 +204,18 @@ namespace Xtensive.Storage.Providers.Sql
       result.MaxIndexKeyLength = serverInfo.Index.MaxLength;
       result.MaxIndexNameLength = serverInfo.Index.MaxIdentifierLength;
       result.MaxTableNameLength = serverInfo.Table.MaxIdentifierLength;
-      result.NamedParameters = serverInfo.Query.Features.IsSupported(QueryFeatures.NamedParameters);
+      result.NamedParameters = serverInfo.Query.Features.Supports(QueryFeatures.NamedParameters);
       result.ParameterPrefix = serverInfo.Query.ParameterPrefix;
       result.MaxComparisonOperations = serverInfo.Query.MaxComparisonOperations;
       result.MaxQueryLength = serverInfo.Query.MaxLength;
-      result.SupportsBatches = serverInfo.Query.Features.IsSupported(QueryFeatures.Batches);
-      result.SupportsClusteredIndexes = serverInfo.Index.Features.IsSupported(IndexFeatures.Clustered);
+      result.SupportsBatches = serverInfo.Query.Features.Supports(QueryFeatures.Batches);
+      result.SupportsClusteredIndexes = serverInfo.Index.Features.Supports(IndexFeatures.Clustered);
       result.SupportsCollations = serverInfo.Collation!=null;
       result.SupportsForeignKeyConstraints = serverInfo.ForeignKey!=null;
-      result.SupportsIncludedColumns = serverInfo.Index.Features.IsSupported(IndexFeatures.NonKeyColumns);
-      result.SupportKeyColumnSortOrder = serverInfo.Index.Features.IsSupported(IndexFeatures.SortOrder);
+      if (serverInfo.ForeignKey!=null)
+        result.SupportsDeferredForeignKeyConstraints = serverInfo.ForeignKey.Features.Supports(ForeignKeyConstraintFeatures.Deferrable);
+      result.SupportsIncludedColumns = serverInfo.Index.Features.Supports(IndexFeatures.NonKeyColumns);
+      result.SupportKeyColumnSortOrder = serverInfo.Index.Features.Supports(IndexFeatures.SortOrder);
       result.SupportSequences = serverInfo.Sequence!=null;
       result.SupportsRealTimeSpan = serverInfo.DataTypes.Interval!=null;
       result.Version = (Version) serverInfo.Version.ProductVersion.Clone();
@@ -224,8 +226,8 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IPreCompiler CreatePreCompiler()
     {
       var queryFeatures = Driver.ServerInfo.Query.Features;
-      var applyCorrector = new ApplyProviderCorrector(!queryFeatures.IsSupported(QueryFeatures.CrossApply));
-      var skipTakeCorrector = !queryFeatures.IsSupported(QueryFeatures.Paging)
+      var applyCorrector = new ApplyProviderCorrector(!queryFeatures.Supports(QueryFeatures.CrossApply));
+      var skipTakeCorrector = !queryFeatures.Supports(QueryFeatures.Paging)
         ? new SkipTakeCorrector()
         : (IPreCompiler) new EmptyPreCompiler();
       return new CompositePreCompiler(

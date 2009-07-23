@@ -7,7 +7,6 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model;

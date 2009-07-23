@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0296_Model
 
 namespace Xtensive.Storage.Tests.Issues
 {
-  public class Issue0296 : AutoBuildTest
+  public class Issue0296_DeferredConstraints : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
-      int count = 50000;
+      const int count = 50000;
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
 
