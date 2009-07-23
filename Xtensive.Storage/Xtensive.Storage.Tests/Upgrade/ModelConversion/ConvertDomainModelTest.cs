@@ -47,11 +47,12 @@ namespace Xtensive.Storage.Tests.Upgrade
     [Test]
     public void BaseTest()
     {
+      int typeIdCount = IncludeTypeIdModifier.IsEnabled ? 1 : 0;
       Assert.IsNotNull(Schema);
       Assert.IsNotNull(Schema.Tables["A"]);
       Assert.IsNotNull(Schema.Tables["A"].PrimaryIndex);
-      Assert.AreEqual(1, Schema.Tables["A"].PrimaryIndex.KeyColumns.Count);
-      Assert.AreEqual(4, Schema.Tables["A"].PrimaryIndex.ValueColumns.Count);
+      Assert.AreEqual(1 + typeIdCount, Schema.Tables["A"].PrimaryIndex.KeyColumns.Count);
+      Assert.AreEqual(4 - typeIdCount, Schema.Tables["A"].PrimaryIndex.ValueColumns.Count);
       Assert.AreEqual(1, Schema.Tables["A"].SecondaryIndexes.Count);
       Assert.AreEqual(2, Schema.Tables["A"].SecondaryIndexes[0].KeyColumns.Count);
       Assert.IsTrue(Schema.Tables["A"].SecondaryIndexes[0].IsUnique);
@@ -60,8 +61,8 @@ namespace Xtensive.Storage.Tests.Upgrade
 
       Assert.IsNotNull(Schema.Tables["B"]);
       Assert.IsNotNull(Schema.Tables["B"].PrimaryIndex);
-      Assert.AreEqual(1, Schema.Tables["B"].PrimaryIndex.KeyColumns.Count);
-      Assert.AreEqual(3, Schema.Tables["B"].PrimaryIndex.ValueColumns.Count);
+      Assert.AreEqual(1 + typeIdCount, Schema.Tables["B"].PrimaryIndex.KeyColumns.Count);
+      Assert.AreEqual(3 - typeIdCount, Schema.Tables["B"].PrimaryIndex.ValueColumns.Count);
       Assert.AreEqual(1, Schema.Tables["B"].SecondaryIndexes.Count);
       Assert.IsFalse(Schema.Tables["B"].SecondaryIndexes[0].IsUnique);
     }

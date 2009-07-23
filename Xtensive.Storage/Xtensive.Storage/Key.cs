@@ -525,12 +525,17 @@ namespace Xtensive.Storage
     internal static Key Create(TypeInfo type, bool exactType, params object[] values)
     {
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
-
       var keyInfo = type.Hierarchy.KeyInfo;
       ArgumentValidator.EnsureArgumentIsInRange(values.Length, 1, keyInfo.TupleDescriptor.Count, "values");
 
       var tuple = Tuple.Create(keyInfo.TupleDescriptor);
+      int typeIdIndex = keyInfo.TypeIdColumnIndex;
+      if (typeIdIndex>=0)
+        tuple.SetValue(typeIdIndex, type.TypeId);
+
       int tupleIndex = 0;
+      if (tupleIndex==typeIdIndex)
+        tupleIndex++;
       for (int valueIndex = 0; valueIndex < values.Length; valueIndex++) {
         var value = values[valueIndex];
         ArgumentValidator.EnsureArgumentNotNull(value, string.Format("values[{0}]", valueIndex));
@@ -539,14 +544,24 @@ namespace Xtensive.Storage
           value = entity.Key;
         var key = value as Key;
         if (key!=null) {
-          for (int keyIndex = 0; keyIndex < key.Value.Count; keyIndex++)
+          if (key.Hierarchy==type.Hierarchy)
+            typeIdIndex = -1; // Key must be fully copied in this case
+          for (int keyIndex = 0; keyIndex < key.Value.Count; keyIndex++) {
             tuple[tupleIndex++] = key.Value[keyIndex];
+            if (tupleIndex==typeIdIndex)
+              tupleIndex++;
+          }
+          continue;
         }
-        else
+        else {
           tuple[tupleIndex++] = value;
+          if (tupleIndex==typeIdIndex)
+            tupleIndex++;
+        }
       }
-      if (tupleIndex < tuple.Count - 1)
-        throw new ArgumentException(string.Format(Strings.ExSpecifiedValuesArentEnoughToCreateKeyForTypeX, type.Name));
+      if (tupleIndex != tuple.Count)
+        throw new ArgumentException(string.Format(
+          Strings.ExSpecifiedValuesArentEnoughToCreateKeyForTypeX, type.Name));
 
       return Create(Domain.Demand(), type, tuple, null, exactType, false);
     }

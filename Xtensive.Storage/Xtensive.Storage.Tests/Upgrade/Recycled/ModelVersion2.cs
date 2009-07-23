@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version2
     }
 
     public Person(int id)
-      : base(Tuple.Create(id))
+      : base(id)
     {
     }
   }
