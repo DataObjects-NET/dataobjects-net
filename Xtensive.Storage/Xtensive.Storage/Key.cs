@@ -572,7 +572,7 @@ namespace Xtensive.Storage
       }
 
       // Ensures TypeId is filled in
-      if (exactType && keyInfo.TypeIdColumnIndex >= 0)
+      if (exactType && keyInfo.TypeIdColumnIndex >= 0 && !value.IsAvailable(keyInfo.TypeIdColumnIndex))
         value[keyInfo.TypeIdColumnIndex] = type.TypeId;
 
       Key key;
