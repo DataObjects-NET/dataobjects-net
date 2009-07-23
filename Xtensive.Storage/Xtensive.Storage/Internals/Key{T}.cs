@@ -5,15 +5,19 @@
 // Created:    2009.07.13
 
 using System;
-using System.Threading;
+using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
+using ComparerProvider=Xtensive.Core.Comparison.ComparerProvider;
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Internals
 {
   [Serializable]
   internal sealed class Key<T> : Key
   {
+    private static readonly Predicate<T, T> equalityComparer1 = 
+      ComparerProvider.Default.GetComparer<T>().Equals;
+
     private readonly T value1;
 
     public override Tuple Value {
@@ -28,8 +32,10 @@ namespace Xtensive.Storage
     {
       var otherKey = other as Key<T>;
       if (otherKey != null)
-        return value1.Equals(otherKey.value1);
-      return value1.Equals(other.Value.GetValue<T>(0));
+        return 
+          equalityComparer1.Invoke(value1, otherKey.value1);
+      return 
+        equalityComparer1.Invoke(value1, other.Value.GetValue<T>(0));
     }
 
     protected override int CalculateHashCode()

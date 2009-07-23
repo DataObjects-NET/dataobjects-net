@@ -5,15 +5,14 @@
 // Created:    2007.12.20
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Reflection;
@@ -44,8 +43,8 @@ namespace Xtensive.Storage
     /// <summary>
     /// Maximal supported length (count of values) of purely generic keys.
     /// </summary>
-    public static int MaxGenericKeyLength = 2;
-    private const string GenericTypeNameFormat = "{0}`{1}";
+    public static int MaxGenericKeyLength = 4;
+    private const string GenericKeyNameFormat = "{0}.{1}`{2}";
 
     private static ThreadSafeDictionary<HierarchyInfo, GenericKeyTypeInfo> genericKeyTypes = 
       ThreadSafeDictionary<HierarchyInfo, GenericKeyTypeInfo>.Create(new object());
@@ -564,16 +563,17 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       var hierarchy = type.Hierarchy;
       var keyInfo = hierarchy.KeyInfo;
-      if (keyIndexes==null && value.Descriptor!=keyInfo.TupleDescriptor)
-        throw new ArgumentException(Strings.ExWrongKeyStructure);
+      if (keyIndexes==null) {
+        if (value.Descriptor!=keyInfo.TupleDescriptor)
+          throw new ArgumentException(Strings.ExWrongKeyStructure);
+        if (exactType && keyInfo.TypeIdColumnIndex >= 0 && !value.IsAvailable(keyInfo.TypeIdColumnIndex))
+          // Ensures TypeId is filled in into Keys of newly created Entities
+          value[keyInfo.TypeIdColumnIndex] = type.TypeId;
+      }
       if (hierarchy.Root.IsLeaf) {
         exactType = true;
         canCache = false; // No reason to cache
       }
-
-      // Ensures TypeId is filled in
-      if (exactType && keyInfo.TypeIdColumnIndex >= 0 && !value.IsAvailable(keyInfo.TypeIdColumnIndex))
-        value[keyInfo.TypeIdColumnIndex] = type.TypeId;
 
       Key key;
       var isGenericKey = keyInfo.Length <= MaxGenericKeyLength;
@@ -613,7 +613,7 @@ namespace Xtensive.Storage
       var descriptor = hierarchy.KeyInfo.TupleDescriptor;
       int length = descriptor.Count;
       var type = typeof (Key).Assembly.GetType(
-        string.Format(GenericTypeNameFormat, typeof (Key).FullName, length));
+        string.Format(GenericKeyNameFormat, typeof (Key<>).Namespace, typeof(Key).Name, length));
       type = type.MakeGenericType(descriptor.ToArray());
       return new GenericKeyTypeInfo() {
         Type = type,
