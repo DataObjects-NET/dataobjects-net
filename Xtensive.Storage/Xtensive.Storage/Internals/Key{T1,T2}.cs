@@ -34,13 +34,11 @@ namespace Xtensive.Storage.Internals
     protected override bool ValueEquals(Key other)
     {
       var otherKey = other as Key<T1, T2>;
-      if (otherKey != null)
-        return 
-          equalityComparer2.Invoke(value2, otherKey.value2) && 
-          equalityComparer1.Invoke(value1, otherKey.value1);
-      return 
-        equalityComparer2.Invoke(value2, other.Value.GetValue<T2>(1)) && 
-        equalityComparer1.Invoke(value1, other.Value.GetValue<T1>(0));
+      if (otherKey == null)
+        return false;
+      return
+        equalityComparer2.Invoke(value2, otherKey.value2) && 
+        equalityComparer1.Invoke(value1, otherKey.value1);
     }
 
     protected override int CalculateHashCode()

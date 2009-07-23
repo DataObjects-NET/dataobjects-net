@@ -40,17 +40,13 @@ namespace Xtensive.Storage.Internals
     protected override bool ValueEquals(Key other)
     {
       var otherKey = other as Key<T1, T2, T3, T4>;
-      if (otherKey != null)
-        return 
-          equalityComparer4.Invoke(value4, otherKey.value4) && 
-          equalityComparer3.Invoke(value3, otherKey.value3) && 
-          equalityComparer2.Invoke(value2, otherKey.value2) && 
-          equalityComparer1.Invoke(value1, otherKey.value1);
-      return 
-        equalityComparer4.Invoke(value4, other.Value.GetValue<T4>(3)) && 
-        equalityComparer3.Invoke(value3, other.Value.GetValue<T3>(2)) && 
-        equalityComparer2.Invoke(value2, other.Value.GetValue<T2>(1)) && 
-        equalityComparer1.Invoke(value1, other.Value.GetValue<T1>(0));
+      if (otherKey == null)
+        return false;
+      return
+        equalityComparer4.Invoke(value4, otherKey.value4) && 
+        equalityComparer3.Invoke(value3, otherKey.value3) && 
+        equalityComparer2.Invoke(value2, otherKey.value2) && 
+        equalityComparer1.Invoke(value1, otherKey.value1);
     }
 
     protected override int CalculateHashCode()
@@ -58,34 +54,38 @@ namespace Xtensive.Storage.Internals
       var result = Tuple.HashCodeMultiplier * 0 ^ value1.GetHashCode();
       result = (Tuple.HashCodeMultiplier * result ^ value2.GetHashCode());
       result = (Tuple.HashCodeMultiplier * result ^ value3.GetHashCode());
+      result = (Tuple.HashCodeMultiplier * result ^ value4.GetHashCode());
       return result ^ Hierarchy.GetHashCode();
     }
 
     public static Key Create(HierarchyInfo hierarchy, TypeInfo type, Tuple tuple, int[] keyIndexes)
     {
-      return new Key<T1, T2, T3>(hierarchy, type, 
+      return new Key<T1, T2, T3, T4>(hierarchy, type, 
         tuple.GetValueOrDefault<T1>(keyIndexes[0]),
         tuple.GetValueOrDefault<T2>(keyIndexes[1]),
-        tuple.GetValueOrDefault<T3>(keyIndexes[2]));
+        tuple.GetValueOrDefault<T3>(keyIndexes[2]),
+        tuple.GetValueOrDefault<T4>(keyIndexes[3]));
     }
 
     public static Key Create(HierarchyInfo hierarchy, TypeInfo type, Tuple tuple)
     {
-      return new Key<T1, T2, T3>(hierarchy, type, 
+      return new Key<T1, T2, T3, T4>(hierarchy, type, 
         tuple.GetValueOrDefault<T1>(0),
         tuple.GetValueOrDefault<T2>(1),
-        tuple.GetValueOrDefault<T3>(2));
+        tuple.GetValueOrDefault<T3>(2),
+        tuple.GetValueOrDefault<T4>(3));
     }
 
     
     // Constructors
 
-    internal Key(HierarchyInfo hierarchy, TypeInfo type, T1 value1, T2 value2, T3 value3)
+    internal Key(HierarchyInfo hierarchy, TypeInfo type, T1 value1, T2 value2, T3 value3, T4 value4)
       : base(hierarchy, type, null)
     {
       this.value1 = value1;
       this.value2 = value2;
       this.value3 = value3;
+      this.value4 = value4;
     }
   }
 }
