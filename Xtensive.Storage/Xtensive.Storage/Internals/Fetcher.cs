@@ -77,9 +77,8 @@ namespace Xtensive.Storage.Internals
     public static Key Fetch(Key key, FieldInfo field)
     {
       // Fetching all non-lazyload fields instead of exactly one non-lazy load field.
-      if (!field.IsLazyLoad) {
+      if (!field.IsLazyLoad)
         return Fetch(key);
-      }
 
       // TODO: Cache
       IndexInfo index = (key.IsTypeCached ? key.Type : key.Hierarchy.Root).Indexes.PrimaryIndex;

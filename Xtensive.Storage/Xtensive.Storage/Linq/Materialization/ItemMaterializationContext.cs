@@ -32,23 +32,18 @@ namespace Xtensive.Storage.Linq.Materialization
     }
 
     /// <exception cref="InvalidOperationException">Something went wrong.</exception>
-    public Entity Materialize(int entityIndex, int typeIdIndex, TypeInfo type, Pair<int>[] columns, Tuple tuple)
+    public Entity Materialize(int entityIndex, int typeIdIndex, TypeInfo type, Pair<int>[] entityColumns, Tuple tuple)
     {
       var result = entities[entityIndex];
       if (result!=null)
         return result;
 
-      int? typeId = RecordSetParser.ExtractTypeId(type, tuple, typeIdIndex);
-      if (!typeId.HasValue)
+      bool exactType;
+      int? typeId = RecordSetParser.ExtractTypeId(type, tuple, typeIdIndex, out exactType);
+      if (typeId==TypeInfo.NoTypeId)
         return null;
-      bool exactType = typeId.GetValueOrDefault() != TypeInfo.NoTypeId;
 
-      if (!exactType) {
-        typeId = type.TypeId;
-        exactType = type.GetDescendants().Count()==0;
-      }
-
-      var materializationInfo = materializationContext.GetEntityMaterializationInfo(entityIndex, typeId.GetValueOrDefault(), columns);
+      var materializationInfo = materializationContext.GetEntityMaterializationInfo(entityIndex, typeId.GetValueOrDefault(), entityColumns);
       Key key;
       if (materializationInfo.KeyIndexes.Length <= Key.MaxGenericKeyLength)
         key = Key.Create(session.Domain, materializationInfo.Type, tuple, materializationInfo.KeyIndexes, exactType, exactType);

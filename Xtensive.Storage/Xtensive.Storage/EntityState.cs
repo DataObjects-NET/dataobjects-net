@@ -9,7 +9,6 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Activator=Xtensive.Storage.Internals.Activator;
@@ -19,13 +18,13 @@ namespace Xtensive.Storage
   /// <summary>
   /// The underlying state of the <see cref="Storage.Entity"/>.
   /// </summary>
+  [DebuggerDisplay("Key = {key}, Tuple = {state}, IsStateLoaded = {isStateLoaded}, PersistenceState = {persistenceState}")]
   public sealed class EntityState : TransactionalStateContainer<Tuple>, 
     IEquatable<EntityState>
   {
     private readonly Key key;
     private PersistenceState persistenceState;
     private Entity entity;
-    private bool isDifferentialTuple;
 
     /// <summary>
     /// Gets the key.
@@ -50,8 +49,29 @@ namespace Xtensive.Storage
     /// </summary>
     [Infrastructure]
     public Tuple Tuple {
+      [DebuggerStepThrough]
       get { return State; }
+      [DebuggerStepThrough]
       private set { State = value; }
+    }
+
+    /// <summary>
+    /// Gets the values as <see cref="DifferentialTuple"/>.
+    /// </summary>
+    /// <returns>A <see cref="DifferentialTuple"/> corresponding to the current state.</returns>
+    [Infrastructure]
+    public DifferentialTuple DifferentialTuple {
+      get {
+        var tuple = Tuple;
+        if (tuple==null)
+          return null;
+        var dTuple = tuple as DifferentialTuple;
+        if (dTuple!=null)
+          return dTuple;
+        dTuple = new DifferentialTuple(tuple);
+        Tuple = dTuple;
+        return dTuple;
+      }
     }
 
     /// <summary>
@@ -114,18 +134,6 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets the values as <see cref="DifferentialTuple"/>.
-    /// </summary>
-    /// <returns>A <see cref="DifferentialTuple"/> corresponding to the current state.</returns>
-    [Infrastructure]
-    public DifferentialTuple GetDifferentialTuple()
-    {
-      if (!isDifferentialTuple)
-        SwitchToDifferentialTuple();
-      return (DifferentialTuple) Tuple;
- }
-
-    /// <summary>
     /// Ensures the entity is not removed and its data is actual.
     /// </summary>
     [Infrastructure]
@@ -147,18 +155,26 @@ namespace Xtensive.Storage
       if (update==null) // Entity is removed
         Tuple = null;
       else {
-        var diffTuple = GetDifferentialTuple();
-        var tuple = IsTupleLoaded ? diffTuple : null;
+        var tuple = IsTupleLoaded ? Tuple : null;
         if (tuple==null)
           // Entity was marked as removed before, or it is unfetched at all yet
-          Tuple = new DifferentialTuple(update);
+          Tuple = update.ToRegular();
         else {
-          // ToRegular ensures we'll never modify the Origin tuple
-          var origin = diffTuple.Origin;
-          if (!(origin is RegularTuple))
-            origin = origin.ToRegular();
-          origin.MergeWith(update, MergeBehavior.PreferDifference);
-          tuple.Origin = origin;
+          // We must never modify the origin tuple
+          var dTuple = tuple as DifferentialTuple;
+          if (dTuple!=null) {
+            tuple = dTuple.Origin;
+            if (!(tuple is RegularTuple))
+              tuple = tuple.ToRegular();
+            tuple.MergeWith(update, MergeBehavior.PreferDifference);
+            dTuple.Origin = tuple;
+          }
+          else {
+            if (!(tuple is RegularTuple))
+              tuple = tuple.ToRegular();
+            tuple.MergeWith(update, MergeBehavior.PreferDifference);
+            Tuple = tuple;
+          }
         }
       }
     }
@@ -171,32 +187,24 @@ namespace Xtensive.Storage
       return Tuple;
     }
 
-    [Infrastructure]
-    internal void SwitchToDifferentialTuple()
-    {
-      if (Tuple == null)
-        return;
-      if (isDifferentialTuple)
-        return;
-      Tuple = new DifferentialTuple(Tuple);
-      isDifferentialTuple = true;
-    }
-
     #region Equality members
 
     /// <inheritdoc/>
+    [Infrastructure]
     public override bool Equals(object obj)
     {
       return ReferenceEquals(this, obj);
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     public override int GetHashCode()
     {
       return Key.GetHashCode();
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     public bool Equals(EntityState other)
     {
       return ReferenceEquals(this, other);
@@ -208,7 +216,8 @@ namespace Xtensive.Storage
     [Infrastructure]
     public override string ToString()
     {
-      return string.Format("Key = '{0}', Tuple = {1}, State = {2}", Key, Tuple.ToRegular(), PersistenceState);
+      return string.Format(Strings.EntityStateFormat, 
+        Key, IsTupleLoaded ? Tuple.ToString() : Strings.NA, PersistenceState);
     }
 
 
@@ -220,7 +229,6 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       this.key = key;
       Tuple = data;
-      //Update(data);
     }
   }
 }

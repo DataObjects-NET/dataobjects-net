@@ -279,13 +279,13 @@ namespace Xtensive.Storage
     protected Structure(Persistent owner, FieldInfo field)
     {
       type = GetTypeInfo();
-      this.Owner = owner;
-      this.Field = field;
+      Owner = owner;
+      Field = field;
       if (owner == null || field == null)
         tuple = type.TuplePrototype.Clone();
       else
         tuple = field.ExtractValue(
-          new ReferencedTuple(() => this.Owner.Tuple));
+          new ReferencedTuple(() => Owner.Tuple));
       NotifyInitializing();
     }
 

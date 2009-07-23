@@ -247,7 +247,7 @@ namespace Xtensive.Storage.Providers.Sql
     private Pair<SqlPersistRequest, Tuple> CreateUpdateRequest(EntityStateAction action)
     {
       var entityState = action.EntityState;
-      var source = entityState.PersistenceState==PersistenceState.New ? entityState.Tuple : entityState.GetDifferentialTuple();
+      var source = entityState.DifferentialTuple;
       var fieldStateMap = source.GetFieldStateMap(TupleFieldState.Available);
       var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Update, entityState.Type, fieldStateMap);
       var request = DomainHandler.GetPersistRequest(task);

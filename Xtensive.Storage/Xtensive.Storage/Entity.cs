@@ -306,8 +306,11 @@ namespace Xtensive.Storage
       if (field.IsPrimaryKey)
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
       State.EnsureNotRemoved();
-      if (PersistenceState != PersistenceState.New)
-        State.SwitchToDifferentialTuple();
+      if (PersistenceState != PersistenceState.New) {
+        var dTuple = State.DifferentialTuple; 
+        // Ensures State.Tuple is converted to DifferentialTuple,
+        // since shortly it will be changed
+      }
       if (Session.SystemLogicOnly)
         return;
       Key entityKey;

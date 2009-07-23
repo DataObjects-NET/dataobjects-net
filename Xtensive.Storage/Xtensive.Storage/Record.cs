@@ -4,17 +4,15 @@
 // Created by: Alexey Kochetov
 // Created:    2008.12.30
 
-using System;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Contains raw <see cref="Data"/> as a <see cref="Tuple"/> and parsed <see cref="PrimaryKeys"/>.
+  /// A single item in <see cref="RecordSetExtensions.Parse"/> result 
+  /// containing both raw <see cref="Tuple"/> and parsed <see cref="PrimaryKeys"/>.
   /// </summary>
   public sealed class Record
   {
@@ -23,10 +21,8 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the first primary key in the <see cref="Record"/>.
     /// </summary>
-    public Key DefaultKey
-    {
-      get
-      {
+    public Key DefaultKey {
+      get {
         if (primaryKeys.Count > 0)
           return primaryKeys[0];
         return null;
@@ -36,49 +32,32 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the <see cref="Xtensive.Storage.Key"/> by specified column group.
     /// </summary>
-    public Key this[int columnGroup]
-    {
-      get
-      {
+    public Key this[int columnGroup] {
+      get {
         if (columnGroup < 0 || columnGroup >= primaryKeys.Count)
           return null;
         return primaryKeys[columnGroup];
       }
     }
 
-//    /// <summary>
-//    /// Gets the <see cref="Xtensive.Storage.Key"/> by specified column group and foreign key <see cref="FieldInfo"/>.
-//    /// </summary>
-//    public Key this[int columnGroup, FieldInfo foreignKeyField]
-//    {
-//      get
-//      {
-//        throw new NotImplementedException();
-//      }
-//    }
-
     /// <summary>
-    /// Gets raw data.
+    /// Gets raw tuple this record is build from.
     /// </summary>
-    public Tuple Data { get; private set; }
+    public Tuple Tuple { get; private set; }
 
     /// <summary>
     /// Gets the primary keys collection.
     /// </summary>
-    public ReadOnlyList<Key> PrimaryKeys
-    {
+    public ReadOnlyList<Key> PrimaryKeys {
       get { return primaryKeys; }
     }
 
 
     // Constructors
 
-    /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    internal Record(Tuple data, IList<Key> primaryKeys)
+    internal Record(Tuple tuple, IList<Key> primaryKeys)
     {
-      Data = data;
+      Tuple = tuple;
       this.primaryKeys = new ReadOnlyList<Key>(primaryKeys);
     }
   }

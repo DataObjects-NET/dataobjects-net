@@ -321,7 +321,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void GroupJoinAnonimousTest()
+    public void GroupJoinAnonymousTest()
     {
       var query = Query<Supplier>.All
         .GroupJoin(Query<Product>.All, s => s, p => p.Supplier, (s, products) => new {

@@ -300,7 +300,7 @@ namespace Xtensive.Storage.Linq
         rightExpressions = GetEntityFields(right, keyFieldTypes);
         break;
       case MemberType.Anonymous:
-        // Anonimous type split to constructor arguments.
+        // Anonymous type split to constructor arguments.
         leftExpressions = GetAnonymousArguments(left);
         rightExpressions = GetAnonymousArguments(right);
         break;

@@ -204,7 +204,7 @@ namespace Xtensive.Storage
       else
         foreach (EntityState data in insertEntities) {
           yield return new EntityStateAction(data, PersistAction.Insert);
-          data.GetDifferentialTuple().Merge();
+          data.DifferentialTuple.Merge();
         }
 
       // Update
@@ -212,7 +212,7 @@ namespace Xtensive.Storage
         if (data.IsRemoved)
           continue;
         yield return new EntityStateAction(data, PersistAction.Update);
-        data.GetDifferentialTuple().Merge();
+        data.DifferentialTuple.Merge();
       }
 
       // Delete
@@ -249,7 +249,7 @@ namespace Xtensive.Storage
 
       // Merge
       foreach (EntityState data in sortedEntities)
-        data.GetDifferentialTuple().Merge();
+        data.DifferentialTuple.Merge();
     }
     
     private static IEnumerable<EntityStateAction> DeleteInAccordanceWithForeignKeys(

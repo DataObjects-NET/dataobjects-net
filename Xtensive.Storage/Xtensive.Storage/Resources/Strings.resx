@@ -773,4 +773,10 @@ Actions:
   <data name="ExSequenceContainsNoElements" xml:space="preserve">
     <value>Sequence contains no elements.</value>
   </data>
+  <data name="EntityStateFormat" xml:space="preserve">
+    <value>Key = '{0}', Tuple = {1}, State = {2}</value>
+  </data>
+  <data name="NA" xml:space="preserve">
+    <value>n/a</value>
+  </data>
 </root>

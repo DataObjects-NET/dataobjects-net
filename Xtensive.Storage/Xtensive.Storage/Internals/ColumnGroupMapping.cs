@@ -21,7 +21,6 @@ namespace Xtensive.Storage.Internals
 
     public TypeMapping GetMapping(int typeId)
     {
-      typeId = typeId==TypeInfo.NoTypeId ? Hierarchy.Root.TypeId : typeId;
       TypeMapping result;
       if (typeMappings.TryGetValue(typeId, out result))
         return result;

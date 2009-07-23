@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void AnoimousEntityTest()
+    public void AnonymousEntityTest()
     {
       var result = Query<Category>.All
         .Select(category => new {Category = category})
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void AnoimousEntityKeyTest()
+    public void AnonymousEntityKeyTest()
     {
       var result = Query<Category>.All
         .Select(category => new {Category = category})
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void AnoimousEntityFieldTest()
+    public void AnonymousEntityFieldTest()
     {
       var result = Query<Category>.All
         .Select(category => new {Category = category})
@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void AnoimousEntityKeyFieldTest()
+    public void AnonymousEntityKeyFieldTest()
     {
       var result = Query<Category>.All
         .Select(category => new {Category = category})

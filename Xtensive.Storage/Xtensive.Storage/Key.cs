@@ -564,42 +564,34 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       var hierarchy = type.Hierarchy;
       var keyInfo = hierarchy.KeyInfo;
-      if (keyIndexes != null) {
-        if (keyIndexes.Length!=keyInfo.TupleDescriptor.Count)
-          throw new ArgumentException(Strings.ExWrongKeyStructure);
-        for (int i = keyIndexes.Length - 1; i >= 0; i--)
-          if (value.Descriptor[keyIndexes[i]]!=keyInfo.TupleDescriptor[i])
-            throw new ArgumentException(Strings.ExWrongKeyStructure);
-      }
-      else if (value.Descriptor!=keyInfo.TupleDescriptor)
+      if (keyIndexes==null && value.Descriptor!=keyInfo.TupleDescriptor)
         throw new ArgumentException(Strings.ExWrongKeyStructure);
-
-      if (hierarchy.Root.IsLeaf)
+      if (hierarchy.Root.IsLeaf) {
         exactType = true;
+        canCache = false; // No reason to cache
+      }
 
       // Ensures TypeId is filled in
       if (exactType && keyInfo.TypeIdColumnIndex >= 0)
         value[keyInfo.TypeIdColumnIndex] = type.TypeId;
 
       Key key;
-      if (keyInfo.Length <= MaxGenericKeyLength)
+      var isGenericKey = keyInfo.Length <= MaxGenericKeyLength;
+      if (isGenericKey)
         key = CreateGenericKey(type.Hierarchy, exactType ? type : null, value, keyIndexes);
       else {
         if (keyIndexes!=null)
           throw Exceptions.InternalError(Strings.ExKeyIndexesAreSpecifiedForNonGenericKey, Log.Instance);
         key = new Key(type.Hierarchy, exactType ? type : null, value);
       }
-      if (!canCache || domain==null) {
-        key.value = value.ToFastReadOnly();
+      if (!canCache || domain==null)
         return key;
-      }
       var keyCache = domain.KeyCache;
       lock (keyCache) {
         Key foundKey;
         if (keyCache.TryGetItem(key, true, out foundKey))
           key = foundKey;
         else {
-          //key.value = value.ToFastReadOnly();
           if (exactType)
             keyCache.Add(key);
         }

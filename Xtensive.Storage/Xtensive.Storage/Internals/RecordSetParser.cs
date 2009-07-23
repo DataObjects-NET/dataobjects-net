@@ -43,11 +43,11 @@ namespace Xtensive.Storage.Internals
       var keyList = new List<Key>(mapping.Mappings.Count);
       foreach (var groupMapping in mapping.Mappings) {
         var rootType = groupMapping.Hierarchy.Root;
-        int? typeId = ExtractTypeId(rootType, tuple, groupMapping.TypeIdColumnIndex);
-        var typeMapping = typeId.HasValue ? groupMapping.GetMapping(typeId.GetValueOrDefault()) : null;
+        bool exactType;
+        int typeId = ExtractTypeId(rootType, tuple, groupMapping.TypeIdColumnIndex, out exactType);
+        var typeMapping = typeId==TypeInfo.NoTypeId ? null : groupMapping.GetMapping(typeId);
         if (typeMapping != null) {
           Key key;
-          bool exactType = typeId.GetValueOrDefault() != TypeInfo.NoTypeId;
           var entityType = exactType ? typeMapping.Type : rootType;
           if (typeMapping.KeyTransform.Descriptor.Count <= Key.MaxGenericKeyLength)
             key = Key.Create(session.Domain, entityType, tuple, typeMapping.KeyIndexes, exactType, exactType);
@@ -67,16 +67,18 @@ namespace Xtensive.Storage.Internals
       return new Record(tuple, keyList);
     }
 
-    internal static int? ExtractTypeId(TypeInfo typeInfo, Tuple tuple, int typeIdIndex)
+    internal static int ExtractTypeId(TypeInfo type, Tuple tuple, int typeIdIndex, out bool exactType)
     {
-      if (typeIdIndex <= 0)
-        return TypeInfo.NoTypeId;
-      if (typeInfo.IsLeaf)
-        return tuple.HasValue(typeIdIndex) ? (int?)typeInfo.TypeId : null;
-      else {
-        int typeId = tuple.GetValueOrDefault<int>(typeIdIndex);
-        return typeId==0 ? null : (int?) typeId; // Hack here: 0 = TypeInfo.NoTypeId
+      if (typeIdIndex < 0) {
+        exactType = type.IsLeaf;
+        return type.TypeId;
       }
+      exactType = true;
+      if (type.IsLeaf)
+        return tuple.HasValue(typeIdIndex) ? type.TypeId : TypeInfo.NoTypeId;
+      else
+        // Hack here: 0 (default) = TypeInfo.NoTypeId
+        return tuple.GetValueOrDefault<int>(typeIdIndex);
     }
 
     internal RecordSetMapping GetMapping(RecordSetHeader header)

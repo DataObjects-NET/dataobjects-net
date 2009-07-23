@@ -195,7 +195,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void SelectAnonimousCountTest()
+    public void SelectAnonymousCountTest()
     {
       var result =
         from c in Query<Customer>.All

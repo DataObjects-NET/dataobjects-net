@@ -106,6 +106,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Key = &apos;{0}&apos;, Tuple = {1}, State = {2}.
+        /// </summary>
+        internal static string EntityStateFormat {
+            get {
+                return ResourceManager.GetString("EntityStateFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Active serialization context is not found..
         /// </summary>
         internal static string ExActiveSerializationContextIsNotFound {
@@ -1868,6 +1877,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ModelDefinition {
             get {
                 return ResourceManager.GetString("ModelDefinition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to n/a.
+        /// </summary>
+        internal static string NA {
+            get {
+                return ResourceManager.GetString("NA", resourceCulture);
             }
         }
         

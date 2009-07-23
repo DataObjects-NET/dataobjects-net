@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Linq
 
 
     [Test]
-    public void NewByteArrayAnonimousTest()
+    public void NewByteArrayAnonymousTest()
     {
       var result = Query<Product>.All
         .Select(p => new {

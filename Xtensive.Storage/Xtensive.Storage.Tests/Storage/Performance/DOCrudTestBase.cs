@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
   {
     private bool warmup;
     private int instanceCount;
-    private const int BaseCount = 50000;
+    private const int BaseCount = 10000;
     private const int InsertCount = BaseCount;
 
     protected abstract DomainConfiguration CreateConfiguration();
