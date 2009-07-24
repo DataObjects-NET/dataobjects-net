@@ -19,6 +19,7 @@ namespace Xtensive.Sql.Dml
     TimeZoneHour,
     TimeZoneMinute,
     DayOfYear,
-    DayOfWeek
+    DayOfWeek,
+    Nothing,
   }
 }

@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Dml
 
     public static SqlExpression operator &(SqlExpression left, SqlExpression right)
     {
-      if(left.IsNullReference())
+      if (left.IsNullReference())
         return right;
       if (SqlValidator.IsBooleanExpression(left))
         return SqlDml.And(left, right);

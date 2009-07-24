@@ -13,7 +13,6 @@ namespace Xtensive.Sql.Dml
     CurrentDate,
     CurrentTime,
     CurrentTimeStamp,
-    Extract,
     Lower,
     CharLength,
     BinaryLength,
@@ -62,15 +61,11 @@ namespace Xtensive.Sql.Dml
     // not ansi sql but our cross-server solution
 
     DateTimeConstruct,
-    DateTimeAddInterval,
-    DateTimeSubtractInterval,
-    DateTimeSubtractDateTime,
     DateTimeAddYears,
     DateTimeAddMonths,
     DateTimeTruncate,
     IntervalConstruct,
     IntervalToMilliseconds,
-    IntervalExtract,
-    IntervalDuration
+    IntervalAbs
   }
 }

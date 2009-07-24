@@ -15,6 +15,7 @@ namespace Xtensive.Sql.Dml
     Hour,
     Minute,
     Second,
-    Millisecond
+    Millisecond,
+    Nothing,
   }
 }

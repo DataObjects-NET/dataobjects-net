@@ -16,18 +16,6 @@ namespace Xtensive.Sql.SqlServer.v2005
 {
   internal class Translator : SqlTranslator
   {
-    internal const string DateDiffDay = "+date_diff_day";
-    internal const string DateDiffMillisecond = "+date_diff_ms";
-    internal const string DateAddYear = "+date_add_year";
-    internal const string DateAddMonth = "+date_add_month";
-    internal const string DateAddDay = "+date_add_day";
-    internal const string DateAddHour = "+date_add_hour";
-    internal const string DateAddMinute = "+date_add_minute";
-    internal const string DateAddSecond = "+date_add_second";
-    internal const string DateAddMillisecond = "+date_add_ms";
-    internal const string DatePartWeekDay = "+date_part_weekday";
-    internal const string DateFirst = "+date_first";
-
     public override void Initialize()
     {
       base.Initialize();
@@ -56,10 +44,10 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override string Translate(SqlFunctionType functionType)
     {
       switch (functionType) {
+      case SqlFunctionType.IntervalAbs:
+        return "ABS";
       case SqlFunctionType.CurrentDate:
         return "GETDATE";
-      case SqlFunctionType.Extract:
-        return "DATEPART";
       case SqlFunctionType.CharLength:
         return "LEN";
       case SqlFunctionType.BinaryLength:
@@ -348,6 +336,18 @@ namespace Xtensive.Sql.SqlServer.v2005
       return string.Format("EXEC sp_rename '{0}', '{1}', 'COLUMN'", QuoteIdentifier(node.Table.Schema.DbName, node.Table.DbName, node.DbName), action.Name);
     }
 
+    public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
+    {
+      switch (section) {
+      case ExtractSection.Entry:
+        return "DATEPART(";
+      case ExtractSection.From:
+        return ",";
+      default:
+        return base.Translate(context, node, section);
+      }
+    }
+
     public override string Translate(SqlCompilerContext context, SqlTableRef node, TableSection section)
     {
       switch (section)
@@ -545,39 +545,7 @@ namespace Xtensive.Sql.SqlServer.v2005
       }
       return base.Translate(context, node);
     }
-
-    public override string Translate(SqlCompilerContext context, SqlUserFunctionCall node, FunctionCallSection section, int position)
-    {
-      if (section == FunctionCallSection.Entry)
-        switch (node.Name) {
-        case DateDiffDay:
-          return "DATEDIFF(DAY, ";
-        case DateDiffMillisecond:
-          return "DATEDIFF(MS, ";
-        case DateAddYear:
-          return "DATEADD(YEAR, ";
-        case DateAddMonth:
-          return "DATEADD(MONTH, ";
-        case DateAddDay:
-          return "DATEADD(DAY, ";
-        case DateAddHour:
-          return "DATEADD(HOUR, ";
-        case DateAddMinute:
-          return "DATEADD(MINUTE, ";
-        case DateAddSecond:
-          return "DATEADD(SECOND, ";
-        case DateAddMillisecond:
-          return "DATEADD(MS, ";
-        case DatePartWeekDay:
-          return "DATEPART(WEEKDAY, ";
-        case DateFirst:
-          return "(@@DATEFIRST";
-        }
-
-      return base.Translate(context, node, section, position);
-    }
-
-
+    
     // Constructors
 
     /// <summary>

@@ -13,60 +13,21 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlBinary : SqlExpression
   {
-    private SqlExpression left;
-    private SqlExpression right;
-
     /// <summary>
     /// Gets the left operand of the binary operator.
     /// </summary>
     /// <value>The left operand of the binary operator.</value>
-    public SqlExpression Left {
-      get {
-        return left;
-      }
-    }
+    public SqlExpression Left { get; private set; }
 
     /// <summary>
     /// Gets the right operand of the binary operator.
     /// </summary>
     /// <value>The right operand of the binary operator.</value>
-    public SqlExpression Right {
-      get {
-        return right;
-      }
-    }
-    
-    /*public static implicit operator SqlBinary(bool t)
-    {
-      if (t)
-        return new SqlBinary(SqlNodeType.True, null, null);
-      else
-        return new SqlBinary(SqlNodeType.False, null, null);
-    }
-
-    public static SqlBinary operator &(SqlBinary left, SqlBinary right)
-    {
-      if (SqlValidator.IsBool(left))
-        return Sql.And(left, right);
-      else
-        return Sql.BitAnd(left, right);
-    }
-
-    public static SqlBinary operator |(SqlBinary left, SqlBinary right)
-    {
-      if (SqlValidator.IsBool(left))
-        return Sql.Or(left, right);
-      else
-        return Sql.BitOr(left, right);
-    }*/
+    public SqlExpression Right { get; private set; }
 
     public static bool operator true(SqlBinary operand)
     {
       switch (operand.NodeType) {
-        //case SqlNodeType.True:
-        //  return true;
-        //case SqlNodeType.False:
-        //  return false;
         case SqlNodeType.Equals:
           if (((object)operand.Right)==((object)operand.Left))
             return true;
@@ -95,10 +56,6 @@ namespace Xtensive.Sql.Dml
     public static bool operator false(SqlBinary operand)
     {
       switch (operand.NodeType) {
-        //case SqlNodeType.True:
-        //  return false;
-        //case SqlNodeType.False:
-        //  return true;
         case SqlNodeType.Equals:
           if (((object)operand.Right)==((object)operand.Left))
             return false;
@@ -128,31 +85,34 @@ namespace Xtensive.Sql.Dml
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentIs<SqlBinary>(expression, "expression");
-      SqlBinary replacingExpression = expression as SqlBinary;
+      var replacingExpression = (SqlBinary) expression;
       NodeType = replacingExpression.NodeType;
-      left = replacingExpression.Left;
-      right = replacingExpression.Right;
+      Left = replacingExpression.Left;
+      Right = replacingExpression.Right;
     }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
-      
-      SqlBinary clone = new SqlBinary(NodeType, (SqlExpression)left.Clone(context), (SqlExpression)right.Clone(context));
+      var clone = new SqlBinary(NodeType,
+        (SqlExpression) Left.Clone(context),
+        (SqlExpression) Right.Clone(context));
       context.NodeMapping[this] = clone;
       return clone;
-    }
-
-    internal SqlBinary(SqlNodeType nodeType, SqlExpression left, SqlExpression right) : base(nodeType)
-    {
-      this.left = left;
-      this.right = right;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
       visitor.Visit(this);
+    }
+
+    // Constructors
+
+    internal SqlBinary(SqlNodeType nodeType, SqlExpression left, SqlExpression right) : base(nodeType)
+    {
+      Left = left;
+      Right = right;
     }
   }
 }

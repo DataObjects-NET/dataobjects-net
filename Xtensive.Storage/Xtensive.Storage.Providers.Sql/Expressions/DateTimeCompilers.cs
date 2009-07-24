@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     [Compiler(typeof(DateTime), "TimeOfDay", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeTimeOfDay(SqlExpression _this)
     {
-      return SqlDml.DateTimeSubtractDateTime(_this, SqlDml.DateTimeTruncate(_this));
+      return SqlDml.DateTimeMinusDateTime(_this, SqlDml.DateTimeTruncate(_this));
     }
 
     [Compiler(typeof(DateTime), "Date", TargetKind.PropertyGet)]
@@ -96,10 +96,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       SqlExpression second,
       SqlExpression millisecond)
     {
-      return SqlDml.DateTimeAddInterval(
+      return SqlDml.DateTimePlusInterval(
         SqlDml.DateTimeConstruct(year, month, day),
-        TimeSpanCompilers.GenericIntervalConstruct(0, hour, minute, second, millisecond)
-        );
+        TimeSpanCompilers.GenericIntervalConstruct(0, hour, minute, second, millisecond));
     }
 
     [Compiler(typeof(DateTime), null, TargetKind.Constructor)]
@@ -194,7 +193,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       [Type(typeof(DateTime))] SqlExpression d,
       [Type(typeof(TimeSpan))] SqlExpression t)
     {
-      return SqlDml.DateTimeAddInterval(d, t);
+      return SqlDml.DateTimePlusInterval(d, t);
     }
 
     [Compiler(typeof(DateTime), Operator.Subtraction, TargetKind.Operator)]
@@ -202,7 +201,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       [Type(typeof(DateTime))] SqlExpression d,
       [Type(typeof(TimeSpan))] SqlExpression t)
     {
-      return SqlDml.DateTimeSubtractInterval(d, t);
+      return SqlDml.DateTimeMinusInterval(d, t);
     }
 
     [Compiler(typeof(DateTime), Operator.Subtraction, TargetKind.Operator)]
@@ -210,7 +209,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       [Type(typeof(DateTime))] SqlExpression d1,
       [Type(typeof(DateTime))] SqlExpression d2)
     {
-      return SqlDml.DateTimeSubtractDateTime(d1, d2);
+      return SqlDml.DateTimeMinusDateTime(d1, d2);
     }
 
     #endregion
@@ -219,21 +218,21 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     public static SqlExpression DateTimeAdd(SqlExpression _this,
       [Type(typeof(TimeSpan))] SqlExpression value)
     {
-      return SqlDml.DateTimeAddInterval(_this, value);
+      return SqlDml.DateTimePlusInterval(_this, value);
     }
 
     [Compiler(typeof(DateTime), "Subtract")]
     public static SqlExpression DateTimeSubtractTimeSpan(SqlExpression _this,
       [Type(typeof(TimeSpan))] SqlExpression value)
     {
-      return SqlDml.DateTimeSubtractInterval(_this, value);
+      return SqlDml.DateTimeMinusInterval(_this, value);
     }
 
     [Compiler(typeof(DateTime), "Subtract")]
     public static SqlExpression DateTimeSubtractDateTime(SqlExpression _this,
       [Type(typeof(DateTime))] SqlExpression value)
     {
-      return SqlDml.DateTimeSubtractDateTime(_this, value);
+      return SqlDml.DateTimeMinusDateTime(_this, value);
     }
 
     [Compiler(typeof(DateTime), "Now", TargetKind.Static | TargetKind.PropertyGet)]

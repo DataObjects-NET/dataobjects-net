@@ -56,6 +56,7 @@ namespace Xtensive.Sql
     void Visit(SqlDropTable node);
     void Visit(SqlDropTranslation node);
     void Visit(SqlDropView node);
+    void Visit(SqlExtract node);
     void Visit(SqlFastFirstRowsHint node);
     void Visit(SqlFetch node);
     void Visit(SqlForceJoinOrderHint node);

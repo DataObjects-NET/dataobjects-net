@@ -1247,6 +1247,20 @@ namespace Xtensive.Sql.Compiler
       context.AppendText(translator.Translate(context, constraint, ConstraintSection.Exit));
     }
 
+    public virtual void Visit(SqlExtract node)
+    {
+      using (context.EnterNode(node)) {
+        context.AppendText(translator.Translate(context, node, ExtractSection.Entry));
+        var part = node.DateTimePart!=SqlDateTimePart.Nothing
+          ? translator.Translate(node.DateTimePart)
+          : translator.Translate(node.IntervalPart);
+        context.AppendText(part);
+        context.AppendText(translator.Translate(context, node, ExtractSection.From));
+        node.Operand.AcceptVisitor(this);
+        context.AppendText(translator.Translate(context, node, ExtractSection.Exit));
+      }
+    }
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

@@ -26,8 +26,6 @@ namespace Xtensive.Sql.VistaDb.v3
       switch (functionType) {
       case SqlFunctionType.CurrentDate:
         return "GETDATE";
-      case SqlFunctionType.Extract:
-        return "DATEPART";
       case SqlFunctionType.CharLength:
         return "LEN";
       }

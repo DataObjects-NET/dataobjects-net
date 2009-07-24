@@ -120,4 +120,7 @@
   <data name="ExMicrosoftSqlServerBelow2005IsNotSupported" xml:space="preserve">
     <value>Microsoft SQL Server below 2005 is not supported</value>
   </data>
+  <data name="ExSqlServerSupportsTrimmingOfSpaceCharactersOnly" xml:space="preserve">
+    <value>SQL Server supports trimming of space characters only.</value>
+  </data>
 </root>

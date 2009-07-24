@@ -221,6 +221,13 @@ namespace Xtensive.Sql.Compiler
     From = 2,
   }
 
+  public enum ExtractSection
+  {
+    Entry = 0,
+    Exit = 1,
+    From = 2,
+  }
+
   public enum UpdateSection
   {
     Entry = 0,

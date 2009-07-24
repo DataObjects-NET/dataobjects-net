@@ -937,23 +937,19 @@ namespace Xtensive.Sql.Compiler
           return (node.Arguments.Count == 0) ? Translate(node.FunctionType) + "()" : Translate(node.FunctionType) + "(";
         case FunctionCallSection.ArgumentEntry:
           switch (node.FunctionType) {
-            case SqlFunctionType.Position:
-              if (position == 1)
-                return "IN";
-              return string.Empty;
-            case SqlFunctionType.Extract:
-            case SqlFunctionType.IntervalExtract:
-              if (position == 1)
-                return "FROM";
-              return string.Empty;
-            case SqlFunctionType.Substring:
-              if (position == 1)
-                return "FROM";
-              else if (position == 2)
-                return "FOR";
-              return String.Empty;
+          case SqlFunctionType.Position:
+            return position == 1 ? "IN" : string.Empty;
+          case SqlFunctionType.Substring:
+            switch (position) {
+            case 1:
+              return "FROM";
+            case 2:
+              return "FOR";
             default:
-              return String.Empty;
+              return string.Empty;
+            }
+          default:
+            return string.Empty;
           }
         case FunctionCallSection.ArgumentExit:
           if (node.FunctionType == SqlFunctionType.Substring && position == 1)
@@ -962,8 +958,6 @@ namespace Xtensive.Sql.Compiler
         case FunctionCallSection.ArgumentDelimiter:
           switch(node.FunctionType) {
             case SqlFunctionType.Position:
-            case SqlFunctionType.Extract:
-            case SqlFunctionType.IntervalExtract:
             case SqlFunctionType.Substring:
               return String.Empty;
             default:
@@ -976,6 +970,20 @@ namespace Xtensive.Sql.Compiler
           return (node.Arguments.Count != 0) ? ")" : string.Empty;
       }
       return string.Empty;
+    }
+
+    public virtual string Translate(SqlCompilerContext context, SqlExtract extract, ExtractSection section)
+    {
+      switch (section) {
+      case ExtractSection.Entry:
+        return "EXTRACT(";
+     case ExtractSection.From:
+        return "FROM";
+      case ExtractSection.Exit:
+        return ")";
+      default:
+        return string.Empty;
+      }
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlIf node, IfSection section)
@@ -1574,9 +1582,6 @@ namespace Xtensive.Sql.Compiler
         return "CURRENT_TIME";
       case SqlFunctionType.CurrentTimeStamp:
         return "CURRENT_TIMESTAMP";
-      case SqlFunctionType.Extract:
-      case SqlFunctionType.IntervalExtract:
-        return "EXTRACT";
       case SqlFunctionType.Lower:
         return "LOWER";
       case SqlFunctionType.Position:
@@ -1661,6 +1666,54 @@ namespace Xtensive.Sql.Compiler
         return "BOTH";
       default:
         return string.Empty;
+      }
+    }
+
+    public virtual string Translate(SqlDateTimePart dateTimePart)
+    {
+      switch (dateTimePart) {
+      case SqlDateTimePart.Year:
+        return "YEAR";
+      case SqlDateTimePart.Month:
+        return "MONTH";
+      case SqlDateTimePart.Day:
+        return "DAY";
+      case SqlDateTimePart.Hour:
+        return "HOUR";
+      case SqlDateTimePart.Minute:
+        return "MINUTE";
+      case SqlDateTimePart.Second:
+        return "SECOND";
+      case SqlDateTimePart.Millisecond:
+        return "MILLISECOND";
+      case SqlDateTimePart.TimeZoneHour:
+        return "TIMEZONE_HOUR";
+      case SqlDateTimePart.TimeZoneMinute:
+        return "TIMEZONE_MINUTE";
+      case SqlDateTimePart.DayOfYear:
+        return "DAYOFYEAR";
+      case SqlDateTimePart.DayOfWeek:
+        return "DAYOFWEEK";
+      default:
+        throw new ArgumentOutOfRangeException("dateTimePart");
+      }
+    }
+
+    public virtual string Translate(SqlIntervalPart intervalPart)
+    {
+      switch (intervalPart) {
+      case SqlIntervalPart.Day:
+        return "DAY";
+      case SqlIntervalPart.Hour:
+        return "HOUR";
+      case SqlIntervalPart.Minute:
+        return "MINUTE";
+      case SqlIntervalPart.Second:
+        return "SECOND";
+      case SqlIntervalPart.Millisecond:
+        return "MILLISECOND";
+      default:
+        throw new ArgumentOutOfRangeException("intervalPart");
       }
     }
 

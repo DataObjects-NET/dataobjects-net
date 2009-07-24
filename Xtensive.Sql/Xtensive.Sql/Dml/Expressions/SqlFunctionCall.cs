@@ -12,34 +12,25 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlFunctionCall: SqlExpression
   {
-    private IList<SqlExpression> arguments;
-    private SqlFunctionType functionType;
-
     /// <summary>
     /// Gets the expressions.
     /// </summary>
-    public IList<SqlExpression> Arguments
-    {
-      get { return arguments; }
-    }
+    public IList<SqlExpression> Arguments { get; private set; }
 
     /// <summary>
     /// Gets the function type.
     /// </summary>
-    public SqlFunctionType FunctionType
-    {
-      get { return functionType; }
-    }
+    public SqlFunctionType FunctionType { get; private set; }
 
     public override void ReplaceWith(SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentIs<SqlFunctionCall>(expression, "expression");
-      SqlFunctionCall replacingExpression = expression as SqlFunctionCall;
-      functionType = replacingExpression.FunctionType;
-      arguments.Clear();
+      var replacingExpression = (SqlFunctionCall) expression;
+      FunctionType = replacingExpression.FunctionType;
+      Arguments.Clear();
       foreach (SqlExpression argument in replacingExpression.Arguments)
-        arguments.Add(argument);
+        Arguments.Add(argument);
     }
 
     internal override object Clone(SqlNodeCloneContext context)
@@ -47,35 +38,37 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlFunctionCall clone = new SqlFunctionCall(functionType);
-      for (int i = 0, l = arguments.Count; i < l; i++)
-        clone.Arguments.Add((SqlExpression)arguments[i].Clone(context));
+      var clone = new SqlFunctionCall(FunctionType);
+      for (int i = 0, l = Arguments.Count; i < l; i++)
+        clone.Arguments.Add((SqlExpression)Arguments[i].Clone(context));
       context.NodeMapping[this] = clone;
       return clone;
-    }
-
-    internal SqlFunctionCall(SqlFunctionType functionType, IEnumerable<SqlExpression> arguments)
-      : base(SqlNodeType.FunctionCall)
-    {
-      this.functionType = functionType;
-      this.arguments = new Collection<SqlExpression>();
-      foreach (SqlExpression argument in arguments)
-        this.arguments.Add(argument);
-    }
-
-    internal SqlFunctionCall(SqlFunctionType functionType, params SqlExpression[] arguments)
-      : base(SqlNodeType.FunctionCall)
-    {
-      this.functionType = functionType;
-      this.arguments = new Collection<SqlExpression>();
-      if (arguments != null)
-        foreach (SqlExpression argument in arguments)
-          this.arguments.Add(argument);
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
       visitor.Visit(this);
+    }
+
+    // Constructors
+
+    internal SqlFunctionCall(SqlFunctionType functionType, IEnumerable<SqlExpression> arguments)
+      : base(SqlNodeType.FunctionCall)
+    {
+      FunctionType = functionType;
+      Arguments = new Collection<SqlExpression>();
+      foreach (SqlExpression argument in arguments)
+        Arguments.Add(argument);
+    }
+
+    internal SqlFunctionCall(SqlFunctionType functionType, params SqlExpression[] arguments)
+      : base(SqlNodeType.FunctionCall)
+    {
+      FunctionType = functionType;
+      Arguments = new Collection<SqlExpression>();
+      if (arguments != null)
+        foreach (SqlExpression argument in arguments)
+          Arguments.Add(argument);
     }
   }
 }

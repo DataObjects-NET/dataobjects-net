@@ -122,31 +122,31 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     [Compiler(typeof(TimeSpan), "Milliseconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanMilliseconds(SqlExpression _this)
     {
-      return ToInt(SqlDml.IntervalExtract(SqlIntervalPart.Millisecond, _this));
+      return ToInt(SqlDml.Extract(SqlIntervalPart.Millisecond, _this));
     }
 
     [Compiler(typeof(TimeSpan), "Seconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanSeconds(SqlExpression _this)
     {
-      return ToInt(SqlDml.IntervalExtract(SqlIntervalPart.Second, _this));
+      return ToInt(SqlDml.Extract(SqlIntervalPart.Second, _this));
     }
 
     [Compiler(typeof(TimeSpan), "Minutes", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanMinutes(SqlExpression _this)
     {
-      return ToInt(SqlDml.IntervalExtract(SqlIntervalPart.Minute, _this));
+      return ToInt(SqlDml.Extract(SqlIntervalPart.Minute, _this));
     }
 
     [Compiler(typeof(TimeSpan), "Hours", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanHours(SqlExpression _this)
     {
-      return ToInt(SqlDml.IntervalExtract(SqlIntervalPart.Hour, _this));
+      return ToInt(SqlDml.Extract(SqlIntervalPart.Hour, _this));
     }
     
     [Compiler(typeof(TimeSpan), "Days", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanDays(SqlExpression _this)
     {
-      return ToInt(SqlDml.IntervalExtract(SqlIntervalPart.Day, _this));
+      return ToInt(SqlDml.Extract(SqlIntervalPart.Day, _this));
     }
 
     #endregion
@@ -298,7 +298,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     [Compiler(typeof(TimeSpan), "Duration")]
     public static SqlExpression TimeSpanDuration(SqlExpression _this)
     {
-      return SqlDml.IntervalDuration(_this);
+      return SqlDml.IntervalAbs(_this);
     }
 
     #endregion

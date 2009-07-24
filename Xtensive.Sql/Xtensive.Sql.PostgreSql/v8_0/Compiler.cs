@@ -14,7 +14,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     public override void Visit(SqlDeclareCursor node)
     {
-
     }
 
     public override void Visit(SqlOpenCursor node)
@@ -35,21 +34,13 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       case SqlFunctionType.Square:
         Visit(SqlDml.Power(node.Arguments[0], 2));
         return;
-      case SqlFunctionType.Extract:
-        if (Extract(node))
-          return;
-        break;
-      case SqlFunctionType.IntervalExtract:
-        if (IntervalExtract(node))
-          return;
-        break;
       case SqlFunctionType.IntervalConstruct:
         Visit(node.Arguments[0] * OneMillisecondInterval);
         return;
       case SqlFunctionType.IntervalToMilliseconds:
         Visit(IntervalToMilliseconds(node.Arguments[0]));
         return;
-      case SqlFunctionType.IntervalDuration:
+      case SqlFunctionType.IntervalAbs:
         Visit(IntervalDuration(node.Arguments[0]));
         return;
       case SqlFunctionType.DateTimeConstruct:
@@ -60,13 +51,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         return;
       case SqlFunctionType.DateTimeTruncate:
         Visit(SqlDml.FunctionCall("date_trunc", "day", node.Arguments[0]));
-        return;
-      case SqlFunctionType.DateTimeAddInterval:
-        Visit(node.Arguments[0] + node.Arguments[1]);
-        return;
-      case SqlFunctionType.DateTimeSubtractInterval:
-      case SqlFunctionType.DateTimeSubtractDateTime:
-        Visit(node.Arguments[0] - node.Arguments[1]);
         return;
       case SqlFunctionType.DateTimeAddMonths:
         Visit(node.Arguments[0] + node.Arguments[1] * OneMonthInterval);
@@ -84,47 +68,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       result.Add(source > SqlDml.Literal(new TimeSpan(0)), source);
       result.Else = -source;
       return result;
-    }
-
-    private bool Extract(SqlFunctionCall node)
-    {
-      var part = ((SqlLiteral<SqlDateTimePart>)node.Arguments[0]).Value;
-      var arg = node.Arguments[1];
-
-      if (part == SqlDateTimePart.Second) {
-        Visit(CastToLong(RealExtractSeconds(arg)));
-        return true;
-      }
-
-      if (part == SqlDateTimePart.Millisecond) {
-        Visit(CastToLong(RealExtractMilliseconds(arg)) % 1000);
-        return true;
-      }
-
-      return false;
-    }
-
-    public bool IntervalExtract(SqlFunctionCall node)
-    {
-      var part = ((SqlLiteral<SqlIntervalPart>)node.Arguments[0]).Value;
-      var arg = node.Arguments[1]; 
-     
-      if (part == SqlIntervalPart.Day) {
-        Visit(RealExtractDays(arg));
-        return true;
-      }
-
-      if (part == SqlIntervalPart.Second) {
-        Visit(CastToLong(RealExtractSeconds(arg)));
-        return true;
-      }
-
-      if (part == SqlIntervalPart.Millisecond) {
-        Visit(CastToLong(RealExtractMilliseconds(arg)) % 1000);
-        return true;
-      }
-
-      return false;
     }
 
     private SqlCase GenericPad(SqlFunctionCall node)
@@ -149,39 +92,16 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return result;
     }
 
-    #region Static helpers
-
-    protected static SqlCast CastToLong(SqlExpression arg)
+    private SqlBinary IntervalToMilliseconds(SqlExpression interval)
     {
-      return SqlDml.Cast(arg, SqlType.Int64);
+      var days = SqlDml.Extract(SqlIntervalPart.Day, interval);
+      var hours = SqlDml.Extract(SqlIntervalPart.Hour, interval);
+      var minutes = SqlDml.Extract(SqlIntervalPart.Minute, interval);
+      var seconds = SqlDml.Extract(SqlIntervalPart.Second, interval);
+      var milliseconds = SqlDml.Extract(SqlIntervalPart.Millisecond, interval);
+
+      return (((days * 24L + hours) * 60L + minutes) * 60L + seconds) * 1000L + milliseconds;
     }
-
-    protected static SqlUserFunctionCall RealExtractDays(SqlExpression arg)
-    {
-      return SqlDml.FunctionCall(Translator.RealExtractDays, arg);
-    }
-
-    protected static SqlUserFunctionCall RealExtractSeconds(SqlExpression arg)
-    {
-      return SqlDml.FunctionCall(Translator.RealExtractSeconds, arg);
-    }
-
-    protected static SqlUserFunctionCall RealExtractMilliseconds(SqlExpression arg)
-    {
-      return SqlDml.FunctionCall(Translator.RealExtractMilliseconds, arg);
-    }
-
-    protected static SqlBinary IntervalToMilliseconds(SqlExpression interval)
-    {
-      var days = RealExtractDays(interval);
-      var hours = SqlDml.IntervalExtract(SqlIntervalPart.Hour, interval);
-      var minutes = SqlDml.IntervalExtract(SqlIntervalPart.Minute, interval);
-      var milliseconds = CastToLong(RealExtractMilliseconds(interval));
-
-      return ((days * 24L + hours) * 60L + minutes) * 60L * 1000L + milliseconds;
-    }
-
-    #endregion
 
     // Constructors
 

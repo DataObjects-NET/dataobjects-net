@@ -33,7 +33,7 @@ namespace Xtensive.Sql.Tests
     public virtual void DateTimeAddIntervalTest()
     {
       CheckEquality(
-        SqlDml.DateTimeAddInterval(new DateTime(2001, 1, 1, 1, 1, 1, 1), new TimeSpan(10, 10, 10, 10, 10)),
+        SqlDml.DateTimePlusInterval(new DateTime(2001, 1, 1, 1, 1, 1, 1), new TimeSpan(10, 10, 10, 10, 10)),
         new DateTime(2001, 1, 11, 11, 11, 11, 11));
     }
 
@@ -65,7 +65,7 @@ namespace Xtensive.Sql.Tests
     public virtual void DateTimeSubtractDateTimeTest()
     {
       CheckEquality(
-        SqlDml.DateTimeSubtractDateTime(new DateTime(2005, 5, 5, 5, 5, 5), new DateTime(2005, 5, 6, 6, 6, 6)),
+        SqlDml.DateTimeMinusDateTime(new DateTime(2005, 5, 5, 5, 5, 5), new DateTime(2005, 5, 6, 6, 6, 6)),
         new TimeSpan(1, 1, 1, 1).Negate());
     }
 
@@ -73,7 +73,7 @@ namespace Xtensive.Sql.Tests
     public virtual void DateTimeSubtractIntervalTest()
     {
       CheckEquality(
-        SqlDml.DateTimeSubtractInterval(new DateTime(2005, 5, 5, 5, 5, 5, 5), new TimeSpan(4, 4, 4, 4, 4)),
+        SqlDml.DateTimeMinusInterval(new DateTime(2005, 5, 5, 5, 5, 5, 5), new TimeSpan(4, 4, 4, 4, 4)),
         new DateTime(2005, 5, 1, 1, 1, 1, 1));
     }
 
@@ -97,7 +97,7 @@ namespace Xtensive.Sql.Tests
     public virtual void IntervalExtractDayTest()
     {
       CheckEquality(
-        SqlDml.IntervalExtract(SqlIntervalPart.Day, new TimeSpan(6, 5, 4, 3, 2)),
+        SqlDml.Extract(SqlIntervalPart.Day, new TimeSpan(6, 5, 4, 3, 2)),
         6);
     }
 
@@ -105,7 +105,7 @@ namespace Xtensive.Sql.Tests
     public virtual void IntervalExtractHourTest()
     {
       CheckEquality(
-        SqlDml.IntervalExtract(SqlIntervalPart.Hour, new TimeSpan(6, 5, 4, 3, 2)),
+        SqlDml.Extract(SqlIntervalPart.Hour, new TimeSpan(6, 5, 4, 3, 2)),
         5);
     }
 
@@ -113,7 +113,7 @@ namespace Xtensive.Sql.Tests
     public virtual void IntervalExtractMinuteTest()
     {
       CheckEquality(
-        SqlDml.IntervalExtract(SqlIntervalPart.Minute, new TimeSpan(6, 5, 4, 3, 2)),
+        SqlDml.Extract(SqlIntervalPart.Minute, new TimeSpan(6, 5, 4, 3, 2)),
         4);
     }
 
@@ -121,7 +121,7 @@ namespace Xtensive.Sql.Tests
     public virtual void IntervalExtractSecondTest()
     {
       CheckEquality(
-        SqlDml.IntervalExtract(SqlIntervalPart.Second, new TimeSpan(6, 5, 4, 3, 2)),
+        SqlDml.Extract(SqlIntervalPart.Second, new TimeSpan(6, 5, 4, 3, 2)),
         3);
     }
 
@@ -129,7 +129,7 @@ namespace Xtensive.Sql.Tests
     public virtual void IntervalExtractMillisecondTest()
     {
       CheckEquality(
-        SqlDml.IntervalExtract(SqlIntervalPart.Millisecond, new TimeSpan(6, 5, 4, 3, 2)),
+        SqlDml.Extract(SqlIntervalPart.Millisecond, new TimeSpan(6, 5, 4, 3, 2)),
         2);
     }
 
@@ -145,7 +145,7 @@ namespace Xtensive.Sql.Tests
     public virtual void IntervalDurationTest()
     {
       CheckEquality(
-        SqlDml.IntervalDuration(new TimeSpan(10, 0, 0, 0).Negate()),
+        SqlDml.IntervalAbs(new TimeSpan(10, 0, 0, 0).Negate()),
         new TimeSpan(10, 0, 0, 0));
     }
 

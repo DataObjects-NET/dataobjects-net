@@ -1,0 +1,65 @@
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2009.07.24
+
+using System;
+using System.Diagnostics;
+using Xtensive.Core;
+
+namespace Xtensive.Sql.Dml
+{
+  public class SqlExtract : SqlExpression
+  {
+    public SqlDateTimePart DateTimePart { get; private set; }
+
+    public SqlIntervalPart IntervalPart { get; private set; }
+
+    public SqlExpression Operand { get; private set; }
+
+    public override void ReplaceWith(SqlExpression expression)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentValidator.EnsureArgumentIs<SqlExtract>(expression, "expression");
+      var replacingExpression = (SqlExtract) expression;
+      DateTimePart = replacingExpression.DateTimePart;
+      IntervalPart = replacingExpression.IntervalPart;
+      Operand = replacingExpression.Operand;
+    }
+
+    internal override object Clone(SqlNodeCloneContext context)
+    {
+      if (context.NodeMapping.ContainsKey(this))
+        return context.NodeMapping[this];
+      var clone = DateTimePart!=SqlDateTimePart.Nothing
+        ? new SqlExtract(DateTimePart, (SqlExpression) Operand.Clone(context))
+        : new SqlExtract(IntervalPart, (SqlExpression) Operand.Clone(context));
+      context.NodeMapping[this] = clone;
+      return clone;
+    }
+
+    public override void AcceptVisitor(ISqlVisitor visitor)
+    {
+      visitor.Visit(this);
+    }
+
+    // Constructors
+
+    internal SqlExtract(SqlDateTimePart dateTimePart, SqlExpression operand)
+      : base(SqlNodeType.Extract)
+    {
+      DateTimePart = dateTimePart;
+      IntervalPart = SqlIntervalPart.Nothing;
+      Operand = operand;
+    }
+
+    internal SqlExtract(SqlIntervalPart intervalPart, SqlExpression operand)
+      : base(SqlNodeType.Extract)
+    {
+      DateTimePart = SqlDateTimePart.Nothing;
+      IntervalPart = intervalPart;
+      Operand = operand;
+    }
+  }
+}

@@ -41,19 +41,19 @@ namespace Xtensive.Sql
     Count,
     Create,
     Cursor,
+    DateTimePlusInterval,
+    DateTimeMinusInterval,
+    DateTimeMinusDateTime,
     DeclareCursor,
     DefaultValue,
     Delete,
     Divide,
     Drop,
-    /// <summary>
-    /// Raw concatenation binary expression. Just concates both underlying expressions 
-    /// without any additional sign between.
-    /// </summary>
     RawConcat,
     Equals,
     Except,
     Exists,
+    Extract,
     Fetch,
     FunctionCall,
     Grant,

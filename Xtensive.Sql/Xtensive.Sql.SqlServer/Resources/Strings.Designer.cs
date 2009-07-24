@@ -68,5 +68,14 @@ namespace Xtensive.Sql.SqlServer.Resources {
                 return ResourceManager.GetString("ExMicrosoftSqlServerBelow2005IsNotSupported", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SQL Server supports trimming of space characters only..
+        /// </summary>
+        internal static string ExSqlServerSupportsTrimmingOfSpaceCharactersOnly {
+            get {
+                return ResourceManager.GetString("ExSqlServerSupportsTrimmingOfSpaceCharactersOnly", resourceCulture);
+            }
+        }
     }
 }

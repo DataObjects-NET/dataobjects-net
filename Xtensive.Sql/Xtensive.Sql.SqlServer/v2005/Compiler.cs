@@ -10,13 +10,14 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.SqlServer.Resources;
 
 namespace Xtensive.Sql.SqlServer.v2005
 {
   internal class Compiler : SqlCompiler
   {
     private static readonly int MillisecondsPerDay = (int) TimeSpan.FromDays(1).TotalMilliseconds;
-    private static readonly SqlExpression DateFirst = SqlDml.FunctionCall(Translator.DateFirst);
+    private static readonly SqlExpression DateFirst = SqlDml.Native("@@DATEFIRST");
 
     /// <inheritdoc/>
     public override void Visit(SqlAlterTable node)
@@ -38,11 +39,11 @@ namespace Xtensive.Sql.SqlServer.v2005
     {
       switch (node.FunctionType) {
       case SqlFunctionType.CharLength:
-        Visit(SqlDml.FunctionCall("DATALENGTH", node.Arguments) / 2);
+        (SqlDml.FunctionCall("DATALENGTH", node.Arguments) / 2).AcceptVisitor(this);
         return;
       case SqlFunctionType.PadLeft:
       case SqlFunctionType.PadRight:
-        Visit(GenericPad(node));
+        GenericPad(node).AcceptVisitor(this);
         return;
       case SqlFunctionType.Round:
         // Round should always be called with 2 arguments
@@ -68,7 +69,7 @@ namespace Xtensive.Sql.SqlServer.v2005
           node = SqlDml.Substring(node.Arguments[0], node.Arguments[1]);
           SqlExpression len = SqlDml.CharLength(node.Arguments[0]);
           node.Arguments.Add(len);
-          base.Visit(node);
+          Visit(node);
           return;
         }
         break;
@@ -76,29 +77,14 @@ namespace Xtensive.Sql.SqlServer.v2005
       case SqlFunctionType.IntervalToMilliseconds:
         Visit(CastToLong(node.Arguments[0]));
         return;
-      case SqlFunctionType.IntervalExtract:
-        IntervalExtract(node.Arguments[0], node.Arguments[1]);
-        return;
-      case SqlFunctionType.IntervalDuration:
-        Visit(SqlDml.Abs(node.Arguments[0]));
-        return;
       case SqlFunctionType.DateTimeAddMonths:
         Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
         return;
       case SqlFunctionType.DateTimeAddYears:
         Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
         return;
-      case SqlFunctionType.DateTimeAddInterval:
-        DateTimeAddInterval(node.Arguments[0], node.Arguments[1]);
-        return;
-      case SqlFunctionType.DateTimeSubtractInterval:
-        DateTimeAddInterval(node.Arguments[0], -node.Arguments[1]);
-        return;
-      case SqlFunctionType.DateTimeSubtractDateTime:
-        DateTimeSubtractDateTime(node.Arguments[0], node.Arguments[1]);
-        return;
       case SqlFunctionType.DateTimeTruncate:
-        DateTimeTruncate(node.Arguments[0]);
+        DateTimeTruncate(node.Arguments[0]).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeConstruct:
         Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
@@ -106,13 +92,6 @@ namespace Xtensive.Sql.SqlServer.v2005
           node.Arguments[1] - 1),
           node.Arguments[2] - 1));
         return;
-
-      case SqlFunctionType.Extract:
-        if (((SqlLiteral<SqlDateTimePart>)node.Arguments[0]).Value == SqlDateTimePart.DayOfWeek) {
-          Visit((DatePartWeekDay(node.Arguments[1]) + DateFirst + 6) % 7);
-          return;
-        }
-        break;
       }
 
       base.Visit(node);
@@ -121,7 +100,7 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override void Visit(SqlTrim node)
     {
       if (node.TrimCharacters!=null && !node.TrimCharacters.All(_char => _char==' '))
-        throw new NotSupportedException("MSSQL supports trimming of space characters only.");
+        throw new NotSupportedException(Strings.ExSqlServerSupportsTrimmingOfSpaceCharactersOnly);
       
       using (context.EnterNode(node)) {
         context.AppendText(translator.Translate(context, node, TrimSection.Entry));
@@ -129,56 +108,74 @@ namespace Xtensive.Sql.SqlServer.v2005
         context.AppendText(translator.Translate(context, node, TrimSection.Exit));
       }
     }
-
-    private void DateTimeTruncate(SqlExpression date)
+    
+    public override void Visit(SqlExtract node)
     {
-      Visit(DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(date,
-        -SqlDml.Extract(SqlDateTimePart.Hour, date)),
-        -SqlDml.Extract(SqlDateTimePart.Minute, date)),
-        -SqlDml.Extract(SqlDateTimePart.Second, date)),
-        -SqlDml.Extract(SqlDateTimePart.Millisecond, date)));
-    }
-
-    private void DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
-    {
-      Visit(
-        CastToLong(DateDiffDay(date2, date1)) * MillisecondsPerDay
-          + DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1)
-        );
-    }
-
-    private void DateTimeAddInterval(SqlExpression date, SqlExpression interval)
-    {
-      Visit(
-        DateAddMillisecond(DateAddDay(date, interval / MillisecondsPerDay), interval % MillisecondsPerDay)
-        );
-    }
-
-    private void IntervalExtract(SqlExpression partExpression, SqlExpression source)
-    {
-      var part = ((SqlLiteral<SqlIntervalPart>)partExpression).Value;
-
-      switch (part)
-      {
+      if (node.DateTimePart==SqlDateTimePart.DayOfWeek) {
+        Visit((DatePartWeekDay(node.Operand) + DateFirst + 6) % 7);
+        return;
+      }
+      switch (node.IntervalPart) {
       case SqlIntervalPart.Day:
-        Visit(CastToLong(source / MillisecondsPerDay));
+        Visit(CastToLong(node.Operand / MillisecondsPerDay));
         return;
       case SqlIntervalPart.Hour:
-        Visit(CastToLong(source / (60 * 60 * 1000)) % 24);
+        Visit(CastToLong(node.Operand / (60 * 60 * 1000)) % 24);
         return;
       case SqlIntervalPart.Minute:
-        Visit(CastToLong(source / (60 * 1000)) % 60);
+        Visit(CastToLong(node.Operand / (60 * 1000)) % 60);
         return;
       case SqlIntervalPart.Second:
-        Visit(CastToLong(source / 1000) % 60);
+        Visit(CastToLong(node.Operand / 1000) % 60);
         return;
       case SqlIntervalPart.Millisecond:
-        Visit(source % 1000);
+        Visit(node.Operand % 1000);
+        return;
+      }
+      base.Visit(node);
+    }
+
+    public override void Visit(SqlBinary node)
+    {
+      switch (node.NodeType) {
+      case SqlNodeType.DateTimePlusInterval:
+        DateTimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
+        return;
+      case SqlNodeType.DateTimeMinusDateTime:
+        DateTimeSubtractDateTime(node.Left, node.Right).AcceptVisitor(this);
+        return;
+      case SqlNodeType.DateTimeMinusInterval:
+        DateTimeAddInterval(node.Left, -node.Right).AcceptVisitor(this);
+        return;
+      default:
+        base.Visit(node);
         return;
       }
     }
 
-    private SqlCase GenericPad(SqlFunctionCall node)
+    private SqlExpression DateTimeTruncate(SqlExpression date)
+    {
+      return DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(date,
+        -SqlDml.Extract(SqlDateTimePart.Hour, date)),
+        -SqlDml.Extract(SqlDateTimePart.Minute, date)),
+        -SqlDml.Extract(SqlDateTimePart.Second, date)),
+        -SqlDml.Extract(SqlDateTimePart.Millisecond, date));
+    }
+    
+    private SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
+    {
+      return
+        CastToLong(DateDiffDay(date2, date1)) * MillisecondsPerDay
+          + DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1);
+    }
+
+    private SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
+    {
+      return 
+        DateAddMillisecond(DateAddDay(date, interval / MillisecondsPerDay), interval % MillisecondsPerDay);
+    }
+
+    private SqlExpression GenericPad(SqlFunctionCall node)
     {
       var operand = node.Arguments[0];
       var actualLength = SqlDml.CharLength(operand);
@@ -212,52 +209,52 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     private static SqlUserFunctionCall DatePartWeekDay(SqlExpression date)
     {
-      return SqlDml.FunctionCall(Translator.DatePartWeekDay, date);
+      return SqlDml.FunctionCall("DATEPART", SqlDml.Native("WEEKDAY"), date);
     }
 
     private static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2)
     {
-      return SqlDml.FunctionCall(Translator.DateDiffDay, date1, date2);
+      return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native("DAY"), date1, date2);
     }
 
     private static SqlUserFunctionCall DateDiffMillisecond(SqlExpression date1, SqlExpression date2)
     {
-      return SqlDml.FunctionCall(Translator.DateDiffMillisecond, date1, date2);
+      return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native("MS"), date1, date2);
     }
 
     private static SqlUserFunctionCall DateAddYear(SqlExpression date, SqlExpression years)
     {
-      return SqlDml.FunctionCall(Translator.DateAddYear, years, date);
+      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("YEAR"),years, date);
     }
 
     private static SqlUserFunctionCall DateAddMonth(SqlExpression date, SqlExpression months)
     {
-      return SqlDml.FunctionCall(Translator.DateAddMonth, months, date);
+      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("MONTH"), months, date);
     }
 
     private static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days)
     {
-      return SqlDml.FunctionCall(Translator.DateAddDay, days, date);
+      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("DAY"), days, date);
     }
 
     private static SqlUserFunctionCall DateAddHour(SqlExpression date, SqlExpression hours)
     {
-      return SqlDml.FunctionCall(Translator.DateAddHour, hours, date);
+      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("HOUR"), hours, date);
     }
 
     private static SqlUserFunctionCall DateAddMinute(SqlExpression date, SqlExpression minutes)
     {
-      return SqlDml.FunctionCall(Translator.DateAddMinute, minutes, date);
+      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("MINUTE"), minutes, date);
     }
 
     private static SqlUserFunctionCall DateAddSecond(SqlExpression date, SqlExpression seconds)
     {
-      return SqlDml.FunctionCall(Translator.DateAddSecond, seconds, date);
+      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("SECOND"), seconds, date);
     }
 
     private static SqlUserFunctionCall DateAddMillisecond(SqlExpression date, SqlExpression milliseconds)
     {
-      return SqlDml.FunctionCall(Translator.DateAddMillisecond, milliseconds, date);
+      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("MS"), milliseconds, date);
     }
 
     #endregion

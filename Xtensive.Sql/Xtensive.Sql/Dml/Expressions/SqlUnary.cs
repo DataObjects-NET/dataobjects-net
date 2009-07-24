@@ -13,25 +13,19 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlUnary : SqlExpression
   {
-    private SqlExpression operand;
-
     /// <summary>
     /// Gets the operand of the unary operator.
     /// </summary>
     /// <value>The operand of the unary operator.</value>
-    public SqlExpression Operand {
-      get {
-        return operand;
-      }
-    }
+    public SqlExpression Operand { get; private set; }
 
     public override void ReplaceWith(SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentIs<SqlUnary>(expression, "expression");
-      SqlUnary replacingExpression = expression as SqlUnary;
+      var replacingExpression = (SqlUnary) expression;
       NodeType = replacingExpression.NodeType;
-      operand = replacingExpression.Operand;
+      Operand = replacingExpression.Operand;
     }
 
     internal override object Clone(SqlNodeCloneContext context)
@@ -39,19 +33,22 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlUnary clone = new SqlUnary(NodeType, (SqlExpression)operand.Clone(context));
+      var clone = new SqlUnary(NodeType, (SqlExpression) Operand.Clone(context));
       context.NodeMapping[this] = clone;
       return clone;
-    }
-
-    internal SqlUnary(SqlNodeType nodeType, SqlExpression operand) : base(nodeType)
-    {
-      this.operand = operand;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
       visitor.Visit(this);
+    }
+
+    // Constructors
+
+    internal SqlUnary(SqlNodeType nodeType, SqlExpression operand)
+      : base(nodeType)
+    {
+      Operand = operand;
     }
   }
 }

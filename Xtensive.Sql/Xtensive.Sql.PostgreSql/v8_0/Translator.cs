@@ -10,10 +10,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 {
   internal class Translator : SqlTranslator
   {
-    internal const string RealExtractDays = "+real_extract_days";
-    internal const string RealExtractSeconds = "+real_extract_seconds";
-    internal const string RealExtractMilliseconds = "+real_extract_ms";
-
     public override void Initialize()
     {
       base.Initialize();
@@ -66,9 +62,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         return "date_trunc('day', current_timestamp)";
       case SqlFunctionType.CurrentTimeStamp:
         return "current_timestamp";
-      case SqlFunctionType.Extract:
-      case SqlFunctionType.IntervalExtract:
-        return "extract";
 
       //string
 
@@ -163,82 +156,15 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         return "%";
       case SqlNodeType.Overlaps:
         return "OVERLAPS";
-
+      case SqlNodeType.DateTimePlusInterval:
+        return "+";
+      case SqlNodeType.DateTimeMinusInterval:
+      case SqlNodeType.DateTimeMinusDateTime:
+        return "-";
       default:
         return base.Translate(type);
       }
     }
-
-    /*
-    public override string Translate(SqlValueType type)
-    {
-      if (type.TypeName!=null)
-        return type.TypeName;
-      
-      string str;
-      switch (type.Type) {
-      case SqlType.Boolean:
-        str = "bool";
-        break;
-      case SqlType.Int8:
-      case SqlType.UInt8:
-      case SqlType.Int16:
-        str = "int2";
-        break;
-      case SqlType.UInt16:
-      case SqlType.Int32:
-        str = "int4";
-        break;
-      case SqlType.UInt32:
-      case SqlType.Int64:
-        str = "int8";
-        break;
-      case SqlType.UInt64:
-        str = "numeric(20,0)";
-        break;
-      case SqlType.Decimal:
-        str = "numeric";
-        break;
-      case SqlType.Float:
-        str = "float4";
-        break;
-      case SqlType.Double:
-        str = "float8";
-        break;
-      case SqlType.DateTime:
-        str = "timestamp";
-        break;
-      case SqlType.Interval:
-        str = "interval";
-        break;
-      case SqlType.Char:
-        str = "char";
-        break;
-      case SqlType.VarChar:
-      case SqlType.VarCharMax:
-        str = "varchar";
-        break;
-      case SqlType.Guid:
-      case SqlType.Binary:
-      case SqlType.VarBinary:
-        str = "bytea";
-        break;
-      default:
-        throw new ArgumentOutOfRangeException();
-      }
-      if (type.Length.HasValue && (type.Type==SqlType.Char || type.Type==SqlType.VarChar))
-        return string.Concat(str, "(", type.Length, ")");
-      if (type.Precision.HasValue) {
-        int precision = type.Precision.Value;
-//      if (type.DataType==SqlDataType.DateTime || type.DataType==SqlDataType.TimeStamp || type.DataType==SqlDataType.SmallDateTime)
-//        precision = Math.Min(precision, Driver.ServerInfoProvider.MaxDateTimePrecision);
-        return type.Scale.HasValue
-          ? String.Concat(str, "(", precision, ",", type.Scale, ")")
-          : String.Concat(str, "(", precision, ")");
-      }
-      return str;
-    }
-    */
 
     public override string Translate(SqlMatchType mt)
     {
@@ -384,6 +310,24 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       sb.Length -= 1;
       sb.Append("]");
       return sb.ToString();
+    }
+
+    public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
+    {
+      bool isSecond = node.DateTimePart==SqlDateTimePart.Second
+        || node.IntervalPart==SqlIntervalPart.Second;
+      bool isMillisecond = node.DateTimePart==SqlDateTimePart.Millisecond
+        || node.IntervalPart==SqlIntervalPart.Millisecond;
+      if (!(isSecond || isMillisecond))
+        return base.Translate(context, node, section);
+      switch (section) {
+      case ExtractSection.Entry:
+        return "(extract(";
+      case ExtractSection.Exit:
+        return isMillisecond ? ")::int8 % 1000)" : ")::int8)";
+      default:
+        return base.Translate(context, node, section);
+      }
     }
 
     public override string Translate(SqlCompilerContext context, SqlDeclareCursor node, DeclareCursorSection section)
@@ -765,28 +709,13 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return base.Translate(context, node, section, position);
     }
 
-    public override string Translate(SqlCompilerContext context, SqlUserFunctionCall node, FunctionCallSection section, int position)
-    {
-      if (section == FunctionCallSection.Entry)
-        switch (node.Name) {
-          case RealExtractDays:
-            return "extract (day from ";
-          case RealExtractMilliseconds:
-            return "extract (milliseconds from ";
-          case RealExtractSeconds:
-            return "extract (second from ";
-        }
-
-      return base.Translate(context, node, section, position);
-    }
-
     public override string Translate(SqlCompilerContext context, SqlUnary node, NodeSection section)
     {
       //substitute UNIQUE predicate with a more complex EXISTS predicate,
       //because UNIQUE is not supported
 
       if (node.NodeType==SqlNodeType.Unique) {
-        SqlSubQuery origSubselect = node.Operand as SqlSubQuery;
+        var origSubselect = node.Operand as SqlSubQuery;
         if (origSubselect!=null) {
           SqlQueryRef origQuery = SqlDml.QueryRef(origSubselect.Query);
           SqlSelect existsOp = SqlDml.Select(origQuery);
@@ -991,12 +920,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       if (obj is DateTime) {
         return "'" + ((DateTime) obj).ToString("yyyyMMdd HHmmss.ffffff") + "'::timestamp(6)";
       }
-      if (obj is SqlDateTimePart) {
-        return TranslateDateTimePart((SqlDateTimePart) obj);
-      }
-      if (obj is SqlIntervalPart) {
-        return ((SqlIntervalPart) obj).ToString().ToUpperInvariant(); //default names are acceptable
-      }
       if (obj is TimeSpan) {
         return string.Format("'{0}'::interval", IntervalHelper.TimeSpanToString((TimeSpan) obj));
       }
@@ -1030,34 +953,17 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return obj.ToString();
     }
     
-    protected static string TranslateDateTimePart(SqlDateTimePart part)
+    public override string Translate(SqlDateTimePart part)
     {
       switch (part) {
-      case SqlDateTimePart.Year:
-        return "YEAR";
-      case SqlDateTimePart.Month:
-        return "MONTH";
-      case SqlDateTimePart.Day:
-        return "DAY";
-      case SqlDateTimePart.Hour:
-        return "HOUR";
-      case SqlDateTimePart.Minute:
-        return "MINUTE";
-      case SqlDateTimePart.Second:
-        return "SECOND";
       case SqlDateTimePart.Millisecond:
         return "MILLISECONDS";
-      case SqlDateTimePart.TimeZoneHour:
-        return "TIMEZONE_HOUR";
-      case SqlDateTimePart.TimeZoneMinute:
-        return "TIMEZONE_MINUTE";
-      case SqlDateTimePart.DayOfWeek:
-        return "DOW";
       case SqlDateTimePart.DayOfYear:
         return "DOY";
-      default:
-        return "DAY";
+      case SqlDateTimePart.DayOfWeek:
+        return "DOW";
       }
+      return base.Translate(part);
     }
 
     protected static string TranslateClrType(Type type)

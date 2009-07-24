@@ -137,9 +137,10 @@ namespace Xtensive.Sql
         case SqlNodeType.SubSelect:
         case SqlNodeType.Sum:
         case SqlNodeType.Variable:
+        case SqlNodeType.Extract:
           return true;
         case SqlNodeType.Variant:
-          var variant = (SqlVariant)node;
+          var variant = (SqlVariant) node;
           return IsArithmeticExpression(variant.Main) && IsArithmeticExpression(variant.Alternative);
         default:
           return false;
