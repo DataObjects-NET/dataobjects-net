@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Internals
         var rootType = groupMapping.Hierarchy.Root;
         bool exactType;
         int typeId = ExtractTypeId(rootType, tuple, groupMapping.TypeIdColumnIndex, out exactType);
-        var typeMapping = typeId==TypeInfo.NoTypeId ? null : groupMapping.GetMapping(typeId);
+        var typeMapping = typeId==TypeInfo.NoTypeId ? null : groupMapping.GetTypeMapping(typeId);
         if (typeMapping != null) {
           Key key;
           var entityType = exactType ? typeMapping.Type : rootType;

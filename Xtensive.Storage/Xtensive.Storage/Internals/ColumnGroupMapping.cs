@@ -7,32 +7,43 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Storage.Model;
+using System.Linq;
 
 namespace Xtensive.Storage.Internals
 {
   [DebuggerDisplay("Hierarchy = {Hierarchy.Name}, TypeIdColumnIndex = {TypeIdColumnIndex}")]
   internal sealed class ColumnGroupMapping
   {
-    private readonly Dictionary<int, TypeMapping> typeMappings;
+    private readonly TypeMapping singleItem;
+    private readonly Dictionary<int, TypeMapping> items;
 
     public HierarchyInfo Hierarchy { get; private set; }
 
     public int TypeIdColumnIndex { get; private set; }
 
-    public TypeMapping GetMapping(int typeId)
+    public TypeMapping GetTypeMapping(int typeId)
     {
-      TypeMapping result;
-      if (typeMappings.TryGetValue(typeId, out result))
-        return result;
+      if (singleItem!=null) {
+        if (typeId==singleItem.TypeId)
+          return singleItem;
+      }
+      else {
+        TypeMapping result;
+        if (items.TryGetValue(typeId, out result))
+          return result;
+      }
       return null;
     }
 
 
     // Constructors
 
-    public ColumnGroupMapping(HierarchyInfo hierarchy, int typeIdColumnIndex, Dictionary<int, TypeMapping> typeMappings)
+    public ColumnGroupMapping(HierarchyInfo hierarchy, int typeIdColumnIndex, Dictionary<int, TypeMapping> items)
     {
-      this.typeMappings = typeMappings;
+      if (items.Count==1)
+        singleItem = items.Values.First();
+      else
+        this.items = items;
       Hierarchy = hierarchy;
       TypeIdColumnIndex = typeIdColumnIndex;
     }

@@ -39,11 +39,11 @@ namespace Xtensive.Storage.Linq.Materialization
         return result;
 
       bool exactType;
-      int? typeId = RecordSetParser.ExtractTypeId(type, tuple, typeIdIndex, out exactType);
+      int typeId = RecordSetParser.ExtractTypeId(type, tuple, typeIdIndex, out exactType);
       if (typeId==TypeInfo.NoTypeId)
         return null;
 
-      var materializationInfo = materializationContext.GetEntityMaterializationInfo(entityIndex, typeId.GetValueOrDefault(), entityColumns);
+      var materializationInfo = materializationContext.GetTypeMapping(entityIndex, typeId, entityColumns);
       Key key;
       if (materializationInfo.KeyIndexes.Length <= Key.MaxGenericKeyLength)
         key = Key.Create(session.Domain, materializationInfo.Type, tuple, materializationInfo.KeyIndexes, exactType, exactType);

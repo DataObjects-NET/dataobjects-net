@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.29
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -15,15 +16,30 @@ namespace Xtensive.Storage.Linq.Materialization
 {
   internal sealed class MaterializationContext
   {
-    private readonly Dictionary<int, TypeMapping>[] transformCaches;
+    #region Nested type: EntityMappingCache
+
+    private struct EntityMappingCache
+    {
+      public TypeMapping SingleItem;
+      public Dictionary<int, TypeMapping> Items;
+    }
+
+    #endregion
+    
+    private readonly EntityMappingCache[] entityMappings;
     private readonly DomainModel model;
     public int EntitiesInRow;
 
-    public TypeMapping GetEntityMaterializationInfo(int entityIndex, int typeId, Pair<int>[] columns)
+    public TypeMapping GetTypeMapping(int entityIndex, int typeId, Pair<int>[] columns)
     {
       TypeMapping result;
-      var cache = transformCaches[entityIndex];
-      if (cache.TryGetValue(typeId, out result))
+      var cache = entityMappings[entityIndex];
+      if (cache.SingleItem!=null) {
+        if (typeId!=cache.SingleItem.TypeId)
+          throw new ArgumentOutOfRangeException("typeId");
+        return cache.SingleItem;
+      }
+      if (cache.Items.TryGetValue(typeId, out result))
         return result;
 
       var type       = model.Types[typeId];
@@ -37,20 +53,26 @@ namespace Xtensive.Storage.Linq.Materialization
       var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyIndexes);
 
       result = new TypeMapping(type, keyTransform, transform, keyIndexes);
-      cache.Add(typeId, result);
+
+      if (type.Hierarchy.Root.IsLeaf)
+        cache.SingleItem = result;
+      else
+        cache.Items.Add(typeId, result);
       return result;
     }
 
     
     // Constructors
 
-    public MaterializationContext(int entitiesInRow)
+    public MaterializationContext(int entityCount)
     {
       model = Domain.Demand().Model;
-      EntitiesInRow = entitiesInRow;
-      transformCaches = new Dictionary<int, TypeMapping>[entitiesInRow];
-      for (int i = 0; i < transformCaches.Length; i++)
-        transformCaches[i] = new Dictionary<int, TypeMapping>();
+      EntitiesInRow = entityCount;
+      entityMappings = new EntityMappingCache[entityCount];
+      for (int i = 0; i < entityMappings.Length; i++)
+        entityMappings[i] = new EntityMappingCache {
+          Items = new Dictionary<int, TypeMapping>()
+        };
     }
   }
 }
