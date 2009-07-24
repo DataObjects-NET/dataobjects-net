@@ -217,7 +217,10 @@ namespace Xtensive.Storage.Building.Builders
         context.ModelDef.Types.Add(underlyingTypeDef);
 
         TypeBuilder.BuildType(underlyingTypeDef);
-        association.AuxiliaryType = context.Model.Types[underlyingType];
+        var auxiliaryType = context.Model.Types[underlyingType];
+        association.AuxiliaryType = auxiliaryType;
+        if (association.IsPaired)
+          association.Reversed.AuxiliaryType = auxiliaryType;
       }
     }
   }

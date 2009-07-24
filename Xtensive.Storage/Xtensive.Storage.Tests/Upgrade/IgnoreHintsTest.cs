@@ -17,7 +17,7 @@ using Xtensive.Storage.Building;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
-  [TestFixture]
+  [TestFixture, Category("Upgrade")]
   public class IgnoreHintsTest
   {
     private Domain domain;
