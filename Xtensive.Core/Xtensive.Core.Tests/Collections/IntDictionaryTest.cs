@@ -49,6 +49,7 @@ namespace Xtensive.Core.Tests.Collections
       AssertEx.Throws<KeyNotFoundException>(() => { var t = dictionary[-1];});
       AssertEx.Throws<KeyNotFoundException>(() => { var t = dictionary[0x16];});
       var items = GetItemsCollection(dictionary);
+      Assert.AreEqual(32, items.Length);
       for (var i = 0; i < items.Length; i++)
         if (i < 16) {
           Assert.IsNotNull(items[i]);
