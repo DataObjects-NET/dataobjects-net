@@ -116,6 +116,12 @@ namespace Xtensive.Sql.PostgreSql
           throw IncorrectUrl("Sslmode", "Prefer, Require, Allow, or Disable.");
         csBuilder.AppendFormat(";Sslmode={0}", sslModeParameter);
       }
+
+      string preloadReaderParameter;
+      if (url.Params.TryGetValue("Preload Reader", out preloadReaderParameter)) {
+        csBuilder.AppendFormat(";Preload Reader={0}", preloadReaderParameter);
+      }
+
       csBuilder.Append(";");
 
       return csBuilder.ToString();
