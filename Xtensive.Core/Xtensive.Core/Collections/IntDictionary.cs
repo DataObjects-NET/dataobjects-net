@@ -247,11 +247,8 @@ namespace Xtensive.Core.Collections
 
     private static int FindKeyIndexInBucket(KeyValuePair<int, TValue>[] bucket, int key)
     {
-      return FindKeyIndexInBucket(0, bucket.Length - 1, bucket, key);
-    }
-
-    private static int FindKeyIndexInBucket(int start, int end, KeyValuePair<int, TValue>[] bucket, int key)
-    {
+      var start = 0;
+      var end = bucket.Length - 1;
       while (end >= start) {
         if (end==start)
           if (key==bucket[start].Key)
