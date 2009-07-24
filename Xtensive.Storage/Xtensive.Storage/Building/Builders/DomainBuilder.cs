@@ -209,8 +209,12 @@ namespace Xtensive.Storage.Building.Builders
         HintSet hints = null;
         if (context.BuilderConfiguration.SchemaReadyHandler!=null)
           hints = context.BuilderConfiguration.SchemaReadyHandler.Invoke(extractedSchema, targetSchema);
-        SchemaComparisonResult result;
+        var upgradeContext = Upgrade.UpgradeContext.Current;
+        if (upgradeContext != null)
+          foreach (var pair in upgradeContext.UpgradeHandlers)
+            pair.Value.OnSchemaReady();
 
+        SchemaComparisonResult result;
         // Let's clear the schema if mode is Recreate
         if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
           var emptySchema = new StorageInfo();

@@ -201,13 +201,16 @@ namespace Xtensive.Storage.Tests.Upgrade
           var re2 = Query<M2.ReferencedEntity>.All.Single(e => e.A==2 && e.B==3);
           Assert.AreEqual(so1.Reference, re1);
           Assert.AreEqual(so2.Reference, re2);
+
+          Assert.AreEqual(2, Query<M2.NewSync<M2.BusinessContact>>.All.Count());
+          Assert.AreEqual("Alex", Query<M2.NewSync<M2.Boy>>.All.First().NewRoot.Name);
         }
       }
     }
 
     private void BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
-      if (domain != null)
+      if (domain!=null)
         domain.DisposeSafely();
 
       var configuration = DomainConfigurationFactory.Create();
@@ -260,7 +263,7 @@ namespace Xtensive.Storage.Tests.Upgrade
             ContactName = "Philip Cramer",
             PassportNumber = "321"
           };
-
+          
           // Employies
           var director = new M1.Employee {
             Address = new M1.Address {
@@ -363,6 +366,11 @@ namespace Xtensive.Storage.Tests.Upgrade
           new M1.MyStructureOwner(1) {Structure = new M1.MyStructure {A = 2, B = 3}};
           new M1.ReferencedEntity(1, 2);
           new M1.ReferencedEntity(2, 3);
+
+          // Generic types
+          new M1.Sync<M1.Person> {Root = helen};
+          new M1.Sync<M1.Person> {Root = director};
+          new M1.Sync<M1.Boy> {Root = alex};
 
           // Commiting changes
           transactionScope.Complete();

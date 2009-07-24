@@ -14,6 +14,8 @@ using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Stored;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Building;
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -21,7 +23,8 @@ namespace Xtensive.Storage.Upgrade
   {
     private readonly StoredDomainModel storedModel;
     private readonly StoredDomainModel currentModel;
- 
+    private readonly StorageInfo extractedModel;
+
     private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping
       = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
     private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> backwardTypeMapping
@@ -34,10 +37,11 @@ namespace Xtensive.Storage.Upgrade
 
     public IEnumerable<Hint> GenerateHints(IEnumerable<UpgradeHint> upgradeHints)
     {
-      var typeRenames = upgradeHints.OfType<RenameTypeHint>().ToArray();
-      var fieldRenames = upgradeHints.OfType<RenameFieldHint>().ToArray();
-      var fieldCopyHints = upgradeHints.OfType<CopyFieldHint>().ToArray();
-      var changeTypeHints = upgradeHints.OfType<ChangeFieldTypeHint>().ToArray();
+      var proccessedHints = PreprocessGenericTypeHints(upgradeHints);
+      var typeRenames = proccessedHints.OfType<RenameTypeHint>().ToArray();
+      var fieldRenames = proccessedHints.OfType<RenameFieldHint>().ToArray();
+      var fieldCopyHints = proccessedHints.OfType<CopyFieldHint>().ToArray();
+      var changeTypeHints = proccessedHints.OfType<ChangeFieldTypeHint>().ToArray();
 
       ValidateRenameTypeHints(typeRenames);
       BuildTypeMapping(typeRenames);
@@ -203,7 +207,7 @@ namespace Xtensive.Storage.Upgrade
           MapType(oldType, newType);
       }
     }
-    
+
     private void BuildFieldMapping(IEnumerable<RenameFieldHint> renames)
     {
       foreach (var pair in typeMapping)
@@ -278,7 +282,7 @@ namespace Xtensive.Storage.Upgrade
         var oldTable = mapping.Key.MappingName;
         var newTable = mapping.Value.MappingName;
         if (oldTable != newTable)
-          resultHints.Add(new RenameHint(GetTablePath(oldTable), GetTablePath(newTable)));
+          RegisterRenameTableHint(oldTable, newTable);
       }
     }
 
@@ -318,9 +322,8 @@ namespace Xtensive.Storage.Upgrade
         StoredTypeInfo oldTargetType;
         if (!backwardTypeMapping.TryGetValue(newTargetType, out oldTargetType))
           continue;
-        resultHints.Add(new RenameHint(
-          GetColumnPath(oldTargetType.MappingName, oldField.MappingName),
-          GetColumnPath(newTargetType.MappingName, newField.MappingName)));
+        RegisterRenameFieldHint(oldTargetType.MappingName, newTargetType.MappingName,
+          oldField.MappingName, newField.MappingName);
       }
     }
     
@@ -525,7 +528,63 @@ namespace Xtensive.Storage.Upgrade
       }
       hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
     }
-    
+
+    private IEnumerable<UpgradeHint> PreprocessGenericTypeHints(IEnumerable<UpgradeHint> hints)
+    {
+      var renameTypeHints = hints.OfType<RenameTypeHint>();
+      var renameGenericTypeHints = renameTypeHints.Where(hint => hint.NewType.IsGenericTypeDefinition);
+      var renameFieldHints = hints.OfType<RenameFieldHint>().Where(hint => hint.TargetType.IsGenericTypeDefinition);
+
+      // Build generic types mapping
+      var genericTypesMapping = new Dictionary<Pair<string, Type>, List<Pair<string, Type>>>();
+      var oldGenericTypes = GetGenericTypes(storedModel);
+      var newGenericTypes = GetGenericTypes(BuildingContext.Demand().Model);
+      foreach (var oldGenericDefName in oldGenericTypes.Keys) {
+        var newGenericDefType = GetNewType(oldGenericDefName, newGenericTypes.Keys, renameTypeHints);
+        if (newGenericDefType==null)
+          continue;
+        var genericArgumentsMapping = new List<Pair<string, Type>>();
+        foreach (var oldGenericArgumentName in oldGenericTypes[oldGenericDefName]) {
+          var newGenericArgumentType = GetNewType(oldGenericArgumentName, newGenericTypes[newGenericDefType], renameTypeHints);
+          if (newGenericArgumentType!=null)
+            genericArgumentsMapping.Add(new Pair<string, Type>(oldGenericArgumentName, newGenericArgumentType));
+        }
+        if (genericArgumentsMapping.Count > 0)
+          genericTypesMapping.Add(new Pair<string, Type>(oldGenericDefName, newGenericDefType), genericArgumentsMapping);
+      }
+
+      // Build rename generic type hints
+      var newRenameHints = new List<UpgradeHint>();
+      foreach (var genericTypePair in genericTypesMapping) {
+        foreach (var genericArgumentPair in genericTypePair.Value) {
+          var oldTypeFullName = GetGenericTypeFullName(genericTypePair.Key.First, genericArgumentPair.First);
+          var newType = genericTypePair.Key.Second.MakeGenericType(genericArgumentPair.Second);
+          if (oldTypeFullName != newType.GetFullName())
+            newRenameHints.Add(new RenameTypeHint(oldTypeFullName, newType));
+        }
+      }
+      
+      // Build rename generic type field hints
+      foreach (var hint in renameFieldHints) {
+        var newGenericDefType = hint.TargetType;
+        var genericTypePair = genericTypesMapping.Keys.FirstOrDefault(pair => pair.Second==newGenericDefType);
+        var oldGenericTypeName = genericTypePair.First;
+        if (oldGenericTypeName==null)
+          continue;
+        var genericArgumentMapping = genericTypesMapping[genericTypePair];
+        foreach (var pair in genericArgumentMapping) {
+          newRenameHints.Add(new RenameFieldHint(newGenericDefType.MakeGenericType(pair.Second), 
+            hint.OldFieldName, hint.NewFieldName));
+        }
+      }
+
+      // Return new hint set
+      return hints
+        .Except(renameGenericTypeHints.Cast<UpgradeHint>())
+        .Except(renameFieldHints.Cast<UpgradeHint>())
+        .Concat(newRenameHints);
+    }
+
     private bool IsRemoved(StoredTypeInfo type)
     {
       return !typeMapping.ContainsKey(type);
@@ -536,19 +595,96 @@ namespace Xtensive.Storage.Upgrade
       return !fieldMapping.ContainsKey(field);
     }
 
+    private void RegisterRenameTableHint(string oldTableName, string newTableName)
+    {
+      if (EnsureTableExist(oldTableName))
+        resultHints.Add(new RenameHint(GetTablePath(oldTableName), GetTablePath(newTableName)));
+    }
+
+    private void RegisterRenameFieldHint(string oldTableName, string newTableName, string oldColumnName, string newColumnName)
+    {
+      if (EnsureTableExist(oldTableName) && EnsureFieldExist(oldTableName, oldColumnName))
+        resultHints.Add(new RenameHint(
+          GetColumnPath(oldTableName, oldColumnName),
+          GetColumnPath(newTableName, newColumnName)));
+        
+    }
+
+    public bool EnsureTableExist(string tableName)
+    {
+      if (!extractedModel.Tables.Contains(tableName)) {
+        Log.Warning(Strings.ExTableXIsNotFound);
+        return false;
+      }
+      return true;
+    }
+
+    public bool EnsureFieldExist(string tableName, string fieldName)
+    {
+      if (!EnsureTableExist(tableName))
+        return false;
+      if (!extractedModel.Tables[tableName].Columns.Contains(fieldName)) {
+        Log.Warning(Strings.ExColumnXIsNotFoundInTableY, fieldName, tableName);
+        return false;
+      }
+      return true;
+    }
+
     #endregion
-
-
+    
     // Constructors
 
-    public HintGenerator(StoredDomainModel storedModel, DomainModel currentModel)
+    public HintGenerator(StoredDomainModel storedModel, DomainModel currentModel, StorageInfo extractedModel)
     {
+      this.extractedModel = extractedModel;
       this.storedModel = storedModel;
       this.currentModel = currentModel.ToStoredModel();
       this.currentModel.UpdateReferences();
     }
     
     #region Static helpers
+
+    private static Type GetNewType(string oldTypeName, IEnumerable<Type> newTypes, IEnumerable<RenameTypeHint> hints)
+    {
+      var renameTypeHint = hints.FirstOrDefault(hint => hint.OldType==oldTypeName);
+      return renameTypeHint != null 
+        ? renameTypeHint.NewType 
+        : newTypes.FirstOrDefault(type => type.GetFullName() == oldTypeName);
+    }
+
+    public static Dictionary<string, List<string>> GetGenericTypes(StoredDomainModel model)
+    {
+      var genericTypes = new Dictionary<string, List<string>>();
+      foreach (var typeInfo in model.Types.Where(type => type.IsGeneric)) {
+        List<string> argumentTypes;
+        if (!genericTypes.TryGetValue(typeInfo.GenericDefinitionTypeName, out argumentTypes)) {
+          argumentTypes = new List<string>();
+          genericTypes.Add(typeInfo.GenericDefinitionTypeName, argumentTypes);
+        }
+        argumentTypes.Add(typeInfo.GenericArgumentTypeName);
+      }
+      return genericTypes;
+    }
+
+    public static Dictionary<Type, List<Type>> GetGenericTypes(DomainModel model)
+    {
+      var genericTypes = new Dictionary<Type, List<Type>>();
+      foreach (var typeInfo in model.Types.Where(type => type.UnderlyingType.IsGenericType)) {
+        var generifDefType = typeInfo.UnderlyingType.GetGenericTypeDefinition();
+        List<Type> argumentTypes;
+        if (!genericTypes.TryGetValue(generifDefType, out argumentTypes)) {
+          argumentTypes = new List<Type>();
+          genericTypes.Add(generifDefType, argumentTypes);
+        }
+        argumentTypes.Add(typeInfo.UnderlyingType.GetGenericArguments()[0]);
+      }
+      return genericTypes;
+    }
+
+    private static string GetGenericTypeFullName(string genericDefinitionTypeName, string genericArgumentTypeName)
+    {
+      return string.Format("{0}<{1}>", genericDefinitionTypeName.Replace("<>", string.Empty), genericArgumentTypeName);
+    }
 
     private static string GetTablePath(string name)
     {

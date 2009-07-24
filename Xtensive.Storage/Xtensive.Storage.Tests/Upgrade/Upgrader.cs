@@ -81,6 +81,8 @@ namespace Xtensive.Storage.Tests.Upgrade
         yield return new RenameTypeHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.BusinessContact", typeof(M2.Person));
         yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Model.Version1.Sync<>", typeof(M2.NewSync<>));
+        yield return new RenameTypeHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Person", typeof(M2.BusinessContact));
         yield return new RenameTypeHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Address", typeof (M2.Address));
@@ -132,6 +134,8 @@ namespace Xtensive.Storage.Tests.Upgrade
 
         // renaming fields
         yield return new RenameFieldHint(typeof (M2.Order), "OrderNumber", "Number");
+
+        yield return new RenameFieldHint(typeof (M2.NewSync<>), "Root", "NewRoot");
 
         yield return new RenameFieldHint(typeof (M2.Product), "Name", "Title");
         yield return new RenameFieldHint(typeof (M2.Product), "Category", "Group");

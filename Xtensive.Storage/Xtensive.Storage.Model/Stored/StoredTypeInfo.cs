@@ -87,6 +87,41 @@ namespace Xtensive.Storage.Model.Stored
     [XmlIgnore]
     public StoredTypeInfo[] AllDescendants;
 
+    /// <summary>
+    /// Gets the name of the generic definition type.
+    /// </summary>
+    [XmlIgnore]
+    public string GenericDefinitionTypeName
+    {
+      get
+      {
+        if (UnderlyingType == null)
+          return null;
+        var indexOfGenericSection = UnderlyingType.IndexOf("<");
+        if (indexOfGenericSection < 0)
+          return UnderlyingType;
+        var name = UnderlyingType.Substring(0, indexOfGenericSection);
+        return name + "<>";
+      }
+    }
+
+    /// <summary>
+    /// Gets the name of the generic argument type.
+    /// </summary>
+    [XmlIgnore]
+    public string GenericArgumentTypeName
+    {
+      get
+      {
+        if (UnderlyingType == null)
+          return null;
+        var indexOfGenericSection = UnderlyingType.IndexOf("<");
+        var arguments = UnderlyingType.Substring(indexOfGenericSection);
+        arguments = arguments.Substring(1, arguments.Length - 2);
+        return arguments;
+      }
+    }
+
     #region IsXxx fields
 
     /// <summary>
@@ -125,8 +160,16 @@ namespace Xtensive.Storage.Model.Stored
     [XmlIgnore]
     public bool IsHierarchyRoot { get { return !string.IsNullOrEmpty(HierarchyRoot); } }
 
+    /// <summary>
+    /// Gets a value indicating whether underlying type is generic.
+    /// </summary>
+    [XmlIgnore]
+    public bool IsGeneric { get { return UnderlyingType.IndexOf("<") > 0; } }
+
+    
     #endregion
 
+    /// <inheritdoc/>
     public override string ToString()
     {
       return Name;

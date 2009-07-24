@@ -17,6 +17,9 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   // Type of field Order.Number chaged to int
   // Type of field BusinessContact.PassportNumber (old Person.PassportNumber) chaged to int
 
+  // Sync<T> renamed to NewSync<T>
+  // Field Sync<T>.Root renamed to NewSync<T>.NewRoot
+
   // Product.Name renamed to Product.Title
   // Category renamed to ProductGroup
   // Product.Category renamed to Product.Group
@@ -38,6 +41,8 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     [Field(Length = 15)]
     public string Country { get; set; }
   }
+
+  
 
   [Index("FirstName")]
   [HierarchyRoot]
@@ -127,6 +132,21 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   }
 
   #endregion
+
+  # region GenericTypes
+
+  [HierarchyRoot]
+  public class NewSync<T> : Entity
+    where T : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public T NewRoot { get; set; }
+  }
+
+  # endregion
 
   #region ProductGroup, Product
 

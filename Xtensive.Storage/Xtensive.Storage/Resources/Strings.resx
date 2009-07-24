@@ -616,7 +616,7 @@
     <value>More than one enabled {0} is provided for assembly "{1}".</value>
   </data>
   <data name="ExExtractedSchemaIsNotEqualToTheTargetSchema" xml:space="preserve">
-    <value>Extracted schema is not equal to the target schemal.</value>
+    <value>Extracted schema is not equal to the target schema.</value>
   </data>
   <data name="SchemaComparisonResultFormat" xml:space="preserve">
     <value>Status: {0}
@@ -778,5 +778,11 @@ Actions:
   </data>
   <data name="NA" xml:space="preserve">
     <value>n/a</value>
+  </data>
+  <data name="ExTableXIsNotFound" xml:space="preserve">
+    <value>Table with name '{0}' is not found.</value>
+  </data>
+  <data name="ExColumnXIsNotFoundInTableY" xml:space="preserve">
+    <value>Column with name '{0}' is not found in table '{1}'.</value>
   </data>
 </root>

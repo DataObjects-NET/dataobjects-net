@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Upgrade
               && handlers[assembly].IsFieldAvailable(field, context.Stage);
         },
         SchemaReadyHandler = (extractedSchema, targetSchema) => {
-          context.SchemaHints = null;
+          context.SchemaHints = new HintSet(extractedSchema, targetSchema);
           if (context.Stage==UpgradeStage.Upgrading)
             BuildSchemaHints(extractedSchema, targetSchema);
           return context.SchemaHints;
@@ -173,13 +173,12 @@ namespace Xtensive.Storage.Upgrade
     private static void BuildSchemaHints(StorageInfo extractedSchema, StorageInfo targetSchema)
     {
       var context = UpgradeContext.Demand();
-      context.SchemaHints = new HintSet(extractedSchema, targetSchema);
       var oldModel = context.ExtractedDomainModel;
       if (oldModel != null) {
         var newModel = Domain.Demand().Model;
-        var generatedHints = new HintGenerator(oldModel, newModel)
-          .GenerateHints(context.Hints);
-        generatedHints.Apply(context.SchemaHints.Add);
+        new HintGenerator(oldModel, newModel, extractedSchema)
+          .GenerateHints(context.Hints)
+          .Apply(context.SchemaHints.Add);
       }
     }
 
@@ -241,7 +240,7 @@ namespace Xtensive.Storage.Upgrade
         return ModelTypeInfo.NoTypeId;
       // type has been renamed?
       var renamer = context.Hints.OfType<RenameTypeHint>()
-        .SingleOrDefault(hint => hint.NewType==type);
+        .SingleOrDefault(hint => hint.NewType.GetFullName()==type.GetFullName());
       if (renamer != null)
         return oldModel.Types.Single(t => t.UnderlyingType==renamer.OldType).TypeId;
       // type has been preserved

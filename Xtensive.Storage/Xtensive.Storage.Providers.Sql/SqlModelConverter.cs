@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the provider info.
     /// </summary>
-    protected ProviderInfo ProviderInfo {get; private set;}
+    protected ProviderInfo ProviderInfo { get; private set;}
 
     /// <summary>
     /// Gets the key fetcher.
@@ -355,7 +355,7 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlModelConverter(Schema storageSchema, Func<SqlValueType, TypeInfo> valueTypeConverter, 
       ProviderInfo providerInfo, Func<ISqlCompileUnit, object> commandExecutor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(storageSchema, "schema");
+      ArgumentValidator.EnsureArgumentNotNull(storageSchema, "storageSchema");
       ArgumentValidator.EnsureArgumentNotNull(commandExecutor, "commandExecutor");
       ArgumentValidator.EnsureArgumentNotNull(valueTypeConverter, "valueTypeConverter");
       ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");

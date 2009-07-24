@@ -36,6 +36,7 @@ namespace Xtensive.Storage.Upgrade
     /// </summary>
     public string TargetField { get; private set; }
 
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(ToStringFormat,

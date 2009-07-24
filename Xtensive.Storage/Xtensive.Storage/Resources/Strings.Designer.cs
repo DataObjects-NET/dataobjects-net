@@ -277,6 +277,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Column with name &apos;{0}&apos; is not found in table &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExColumnXIsNotFoundInTableY {
+            get {
+                return ResourceManager.GetString("ExColumnXIsNotFoundInTableY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Comparer for type &apos;{0}&apos; is not available..
         /// </summary>
         internal static string ExComparerForTypeIsNotAvailable {
@@ -520,7 +529,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Extracted schema is not equal to the target schemal..
+        ///   Looks up a localized string similar to Extracted schema is not equal to the target schema..
         /// </summary>
         internal static string ExExtractedSchemaIsNotEqualToTheTargetSchema {
             get {
@@ -1227,6 +1236,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExStructuresDoNotSupportFieldsOfTypeX {
             get {
                 return ResourceManager.GetString("ExStructuresDoNotSupportFieldsOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Table with name &apos;{0}&apos; is not found..
+        /// </summary>
+        internal static string ExTableXIsNotFound {
+            get {
+                return ResourceManager.GetString("ExTableXIsNotFound", resourceCulture);
             }
         }
         

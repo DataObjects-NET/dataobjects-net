@@ -83,6 +83,11 @@ namespace Xtensive.Storage.Upgrade
     }
 
     /// <inheritdoc/>
+    public virtual void OnSchemaReady()
+    {
+    }
+
+    /// <inheritdoc/>
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
     public virtual void OnStage()
     {
@@ -269,7 +274,7 @@ namespace Xtensive.Storage.Upgrade
 
     #endregion
 
-
+    
     // Constructors
 
     /// <summary>

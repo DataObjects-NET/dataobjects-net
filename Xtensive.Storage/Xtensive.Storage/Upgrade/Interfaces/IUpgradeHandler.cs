@@ -41,6 +41,12 @@ namespace Xtensive.Storage.Upgrade
     void OnBeforeStage();
 
     /// <summary>
+    /// Override this method to handle "at schema ready" event. 
+    /// The both extracted schema and target schema are ready at this moment.
+    /// </summary>
+    void OnSchemaReady();
+
+    /// <summary>
     /// Override this method to handle "at upgrade stage" event.
     /// </summary>
     void OnStage();

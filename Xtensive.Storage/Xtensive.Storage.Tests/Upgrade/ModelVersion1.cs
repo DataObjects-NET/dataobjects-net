@@ -19,6 +19,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version1
     public string Country { get; set; }
   }
 
+  
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -110,6 +111,21 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version1
   }
 
   #endregion
+
+  # region GenericTypes
+
+  [HierarchyRoot]
+  public class Sync<T> : Entity
+    where T : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public T Root { get; set; }
+  }
+
+  # endregion
 
   #region Category, Product
 

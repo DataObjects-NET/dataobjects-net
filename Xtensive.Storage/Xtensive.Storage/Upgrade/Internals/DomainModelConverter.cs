@@ -214,22 +214,20 @@ namespace Xtensive.Storage.Upgrade
     /// <inheritdoc/>
     protected override IPathNode VisitAssociationInfo(AssociationInfo association)
     {
-      if (!association.IsMaster 
-        || association.TargetType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
+      if (association.TargetType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
         return null;
 
-      TableInfo referencedTable;
       TableInfo referencingTable;
-      IndexInfo referencingIndex;
       ForeignKeyInfo foreignKey;
 
       if (association.AuxiliaryType==null) {
-        if (association.OwnerType.Indexes.PrimaryIndex==null)
+        if (association.OwnerType.Indexes.PrimaryIndex==null
+          || !association.IsMaster)
           return null;
-        referencedTable = GetTable(association.TargetType);
+        var referencedTable = GetTable(association.TargetType);
         referencingTable = GetTable(association.OwnerType);
-        referencingIndex = FindIndex(referencingTable,
-          new List<string>(association.OwnerField.ExtractColumns().Select(ci => ci.Name)));
+        var referencingIndex = FindIndex(referencingTable,
+          association.OwnerField.ExtractColumns().Select(ci => ci.Name).ToList());
         var foreignKeyName = ForeignKeyNameGenerator(association, association.OwnerField);
         foreignKey = CreateForeignKey(referencingTable, foreignKeyName, referencedTable, referencingIndex);
         return foreignKey;
@@ -239,9 +237,9 @@ namespace Xtensive.Storage.Upgrade
       referencingTable = GetTable(association.AuxiliaryType);
       foreach (var field in association.AuxiliaryType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
         var referencedIndex = FindIndex(Model.Types[field.ValueType].Indexes.PrimaryIndex, null);
-        referencedTable = GetTable(referencedIndex.DeclaringType);
-        referencingIndex = FindIndex(referencingTable,
-          new List<string>(field.ExtractColumns().Select(ci => ci.Name)));
+        var referencedTable = GetTable(referencedIndex.DeclaringType);
+        var referencingIndex = FindIndex(referencingTable,
+          field.ExtractColumns().Select(ci => ci.Name).ToList());
         var foreignKeyName = ForeignKeyNameGenerator(association, field);
         foreignKey = CreateForeignKey(referencingTable, foreignKeyName, referencedTable, referencingIndex);
       }
