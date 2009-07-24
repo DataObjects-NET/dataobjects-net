@@ -58,6 +58,8 @@ namespace Xtensive.Storage.Linq.Materialization
         cache.SingleItem = result;
       else
         cache.Items.Add(typeId, result);
+      entityMappings[entityIndex] = cache;
+      
       return result;
     }
 
