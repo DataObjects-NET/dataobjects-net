@@ -215,7 +215,7 @@ namespace Xtensive.Storage
       }
 
       // Delete
-      states = EntityStateRegistry.GetItems(PersistenceState.Removed);
+      states = EntityStateRegistry.GetItems(PersistenceState.Removed).Except(EntityStateRegistry.GetItems(PersistenceState.New));
       if (persistRequiresTopologicalSort && states.AtLeast(2))
         foreach (var action in GetDeleteSequence(states))
           yield return action;

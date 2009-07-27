@@ -23,11 +23,11 @@ namespace Xtensive.Storage.ReferentialIntegrity
     {
       if (context.IsEmpty) {
         try {
-          Session.Persist();
+          // Session.Persist();
           ProcessItem(context, item);
           ProcessQueue(context);
           MarkItemsAsRemoved(context);
-          Session.Persist();
+          // Session.Persist();
         }
         finally {
           context.Clear();
@@ -39,6 +39,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
       }
     }
 
+    [Infrastructure]
     private void MarkItemsAsRemoved(RemovalContext context)
     {
       foreach (var item in context.Items)

@@ -4,7 +4,6 @@
 
 using System.Collections.Generic;
 using Xtensive.Sql.Compiler.Internals;
-using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -16,6 +15,7 @@ namespace Xtensive.Sql.Compiler
     private readonly Node resultNode;
     private readonly string resultText;
     private readonly IDictionary<object, string> parameterNames;
+    private volatile int lastResultLength;
 
     /// <inheritdoc/>
     public override string ToString()
@@ -42,7 +42,9 @@ namespace Xtensive.Sql.Compiler
     {
       if (resultText!=null)
         return resultText;
-      return PostCompiler.Compile(resultNode, null, null);
+      string result = PostCompiler.Compile(resultNode, null, null, lastResultLength);
+      lastResultLength = result.Length;
+      return result;
     }
 
     /// <summary>
@@ -55,7 +57,9 @@ namespace Xtensive.Sql.Compiler
     {
       if (resultText!=null)
         return resultText;
-      return PostCompiler.Compile(resultNode, variantKeys, null);
+      string result = PostCompiler.Compile(resultNode, variantKeys, null, lastResultLength);
+      lastResultLength = result.Length;
+      return result;
     }
 
     /// <summary>
@@ -68,7 +72,9 @@ namespace Xtensive.Sql.Compiler
     {
       if (resultText!=null)
         return resultText;
-      return PostCompiler.Compile(resultNode, null, parameterNameMapping);
+      string result = PostCompiler.Compile(resultNode, null, parameterNameMapping, lastResultLength);
+      lastResultLength = result.Length;
+      return result;
     }
 
     /// <summary>
@@ -83,8 +89,13 @@ namespace Xtensive.Sql.Compiler
     {
       if (resultText!=null)
         return resultText;
-      return PostCompiler.Compile(resultNode, variantKeys, parameterNameMapping);
+      string result = PostCompiler.Compile(resultNode, variantKeys, parameterNameMapping, lastResultLength);
+      lastResultLength = result.Length;
+      return result;
     }
+
+
+    // Constructors
 
     internal SqlCompilationResult(Node result, IDictionary<object, string> parameterNames)
     {

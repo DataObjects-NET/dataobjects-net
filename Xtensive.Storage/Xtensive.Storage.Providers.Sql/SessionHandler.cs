@@ -247,7 +247,7 @@ namespace Xtensive.Storage.Providers.Sql
     private Pair<SqlPersistRequest, Tuple> CreateUpdateRequest(PersistAction action)
     {
       var entityState = action.EntityState;
-      var source = entityState.DifferentialTuple;
+      var source = entityState.DifferentialTuple.Difference;
       var fieldStateMap = source.GetFieldStateMap(TupleFieldState.Available);
       var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Update, entityState.Type, fieldStateMap);
       var request = DomainHandler.GetPersistRequest(task);
@@ -350,7 +350,7 @@ namespace Xtensive.Storage.Providers.Sql
       var parameterNames = new Dictionary<object, string>();
       var compilationResult = request.Compile(DomainHandler);
       foreach (var binding in request.ParameterBindings) {
-        object parameterValue = value.IsNull(binding.FieldIndex) ? null : value.GetValue(binding.FieldIndex);
+        object parameterValue = value.IsNull(binding.FieldIndex) ? null : value.GetValueOrDefault(binding.FieldIndex);
         string parameterName = parameterNamePrefix + parameterIndex++;
         parameterNames.Add(binding.ParameterReference.Parameter, parameterName);
         AddParameter(command, parameterName, parameterValue, binding.TypeMapping);

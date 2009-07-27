@@ -216,6 +216,7 @@ namespace Xtensive.Storage
         Session.Handler.Fetch(Key, field);
     }
 
+    [Infrastructure]
     internal virtual void NotifyRemoving()
     {
       if (Session.SystemLogicOnly)
@@ -228,6 +229,7 @@ namespace Xtensive.Storage
       OnRemoving();
     }
 
+    [Infrastructure]
     internal virtual void NotifyRemove()
     {
       if (Session.SystemLogicOnly)

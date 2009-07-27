@@ -18,8 +18,6 @@ namespace Xtensive.Core.Tuples
   public static class TupleExtensions
   {
     private static readonly InitializerHandler initializerHandler = new InitializerHandler();
-    private static readonly Func<TupleFieldState, TupleFieldState, bool> defaultPredicate = (request, result) => (result)==0;
-    private static readonly Func<TupleFieldState, TupleFieldState, bool> availabilityPredicate = (request, result) => (request & result) > 0;
 
     #region Generic Tuple methods
 
@@ -397,29 +395,23 @@ namespace Xtensive.Core.Tuples
     /// Gets the field state map of the specified <see cref="Tuple"/>.
     /// </summary>
     /// <param name="target">The <see cref="Tuple"/> to inspect.</param>
-    /// <param name="state">The state to compare with.</param>
+    /// <param name="requestedState">The state to compare with.</param>
     /// <returns>Newly created <see cref="BitArray"/> instance which holds inspection result.</returns>
-    public static BitArray GetFieldStateMap(this Tuple target, TupleFieldState state)
+    public static BitArray GetFieldStateMap(this Tuple target, TupleFieldState requestedState)
     {
-      Func<TupleFieldState, TupleFieldState, bool> predicate;
-      switch (state) {
+      var count = target.Descriptor.Count;
+      var result = new BitArray(count);
+
+      switch (requestedState) {
       case TupleFieldState.Default:
-        predicate = defaultPredicate;
+        for (int i = 0; i < count; i++)
+          result[i] = target.GetFieldState(i)==0;
         break;
       default:
-        predicate = availabilityPredicate;
+        for (int i = 0; i < count; i++)
+          result[i] = (requestedState & target.GetFieldState(i)) != 0;
         break;
       }
-      return target.GetFieldStateMap(state, predicate);
-    }
-
-    private static BitArray GetFieldStateMap(this Tuple target, TupleFieldState state, Func<TupleFieldState, TupleFieldState, bool> predicate)
-    {
-      var result = new BitArray(target.Descriptor.Count);
-
-      for (int i = 0; i < target.Descriptor.Count; i++)
-        result[i] = predicate(state, target.GetFieldState(i));
-
       return result;
     }
 

@@ -48,7 +48,9 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       CombinedTest(10, 10);
       warmup = false;
       InsertTest(BaseCount);
-      MaterializeTest(BaseCount*2);
+      MaterializeTest(BaseCount);
+      UpdateTest();
+      RemoveTest();
     }
 
     private void CombinedTest(int baseCount, int insertCount)

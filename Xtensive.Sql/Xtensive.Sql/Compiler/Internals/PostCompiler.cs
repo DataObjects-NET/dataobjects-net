@@ -13,11 +13,13 @@ namespace Xtensive.Sql.Compiler.Internals
 {
   internal class PostCompiler : NodeVisitor
   {
-    private readonly StringBuilder result = new StringBuilder();
+    private const int MinimalResultCapacity = 64;
+    private const int ResultCapacityMargin = 16;
+    private readonly StringBuilder result;
 
     private HashSet<object> activeVariantKeys;
     private IDictionary<object, string> holeNodeValues;
-    
+
     public override void Visit(TextNode node)
     {
       result.Append(node.Text);
@@ -42,21 +44,24 @@ namespace Xtensive.Sql.Compiler.Internals
       result.Append(value);
     }
 
-    public static string Compile(Node root, IEnumerable<object> activeVariantKeys, IDictionary<object, string> holeNodeValues)
+    public static string Compile(Node root, IEnumerable<object> activeVariantKeys, IDictionary<object, string> holeNodeValues, int estimatedResultLength)
     {
-      var compiler = new PostCompiler();
-      compiler.activeVariantKeys = activeVariantKeys!=null
-        ? activeVariantKeys.ToHashSet()
-        : null;
-      compiler.holeNodeValues = holeNodeValues;
+      var compiler = new PostCompiler(estimatedResultLength) {
+        activeVariantKeys = activeVariantKeys!=null
+          ? activeVariantKeys.ToHashSet()
+          : null, holeNodeValues = holeNodeValues
+      };
       compiler.VisitNodeSequence(root);
       return compiler.result.ToString();
     }
 
+
     // Constructor
 
-    private PostCompiler()
+    private PostCompiler(int estimatedResultLength)
     {
+      int capacity = estimatedResultLength + ResultCapacityMargin;
+      result = new StringBuilder(capacity < MinimalResultCapacity ? MinimalResultCapacity : capacity);
     }
   }
 }

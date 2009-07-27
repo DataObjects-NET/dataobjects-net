@@ -129,7 +129,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public bool IsRemoved {
       get {
-        return Tuple==null;
+        return Tuple==null || persistenceState==PersistenceState.Removed;
       }
     }
 
