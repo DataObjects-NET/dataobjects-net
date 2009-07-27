@@ -156,6 +156,34 @@ namespace Xtensive.Core.Tests.Collections
         dictionary.Add(keys[i], values[i]);
       CheckValues(dictionary, keys, values);
     }
+
+    [Test]
+    public void AddOrReplaceTest()
+    {
+      var dictionary = new IntDictionary<int>(15);
+      var keys = new[] {0, 0x900005, 0x700005, 0x200005, 0xE00005, 5};
+      var values = GenerateValues(keys);
+      for (int i = 0; i < keys.Length; i++)
+        dictionary.Add(keys[i], values[i]);
+      var oldValue = dictionary[keys[0]];
+      var newValue = -1;
+      Assert.AreNotEqual(oldValue, newValue);
+      dictionary[keys[0]] = newValue;
+      Assert.AreEqual(newValue, dictionary[keys[0]]);
+      oldValue = dictionary[keys[2]];
+      newValue = -2;
+      Assert.AreNotEqual(oldValue, newValue);
+      dictionary[keys[2]] = newValue;
+      Assert.AreEqual(newValue, dictionary[keys[2]]);
+      var newKey = 0x100005;
+      newValue = -3;
+      dictionary.Add(newKey, newValue);
+      Assert.AreEqual(newValue, dictionary[newKey]);
+      newKey = 6;
+      newValue = -4;
+      dictionary.Add(newKey, newValue);
+      Assert.AreEqual(newValue, dictionary[newKey]);
+    }
     
     [Test]
     [Category("Profile")]

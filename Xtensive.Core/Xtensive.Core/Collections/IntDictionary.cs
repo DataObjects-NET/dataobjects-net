@@ -17,16 +17,21 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="TValue">The type of a value.</typeparam>
   [Serializable]
-  public sealed class IntDictionary<TValue> : IEnumerable<KeyValuePair<int, TValue>>
+  public sealed class IntDictionary<TValue> :
+    IEnumerable<KeyValuePair<int, TValue>>
   {
     private const int maxMaskPattern = int.MinValue;
     private const int indexOfAbsenceKey = -1;
     private const double maxFillFactor = 0.7;
 
     private KeyValuePair<int, TValue>[][] items;
-    private int mask;
     private int keyOffset;
     private int occupiedBucketCount;
+
+    /// <summary>
+    /// The mask to calculate the hash code of a key.
+    /// </summary>
+    public int Mask { get; private set; }
 
     /// <summary>
     /// Gets a value by the specified key.
@@ -48,6 +53,22 @@ namespace Xtensive.Core.Collections
         if (keyIndex==indexOfAbsenceKey)
           throw new KeyNotFoundException();
         return bucket[keyIndex].Value;
+      }
+      set {
+        var hashCode = CalculateHashCode(key);
+        var bucket = items[hashCode];
+        var newPair = new KeyValuePair<int, TValue>(key, value);
+        if (bucket==null)
+          AddPair(newPair, items, hashCode, ref occupiedBucketCount);
+        else if (bucket.Length==1 && bucket[0].Key==key)
+          bucket[0] = newPair;
+        else {
+          var keyIndex = FindKeyIndexInBucket(bucket, key);
+          if (keyIndex == indexOfAbsenceKey)
+            InsertIntoBucket(newPair, bucket);
+          else
+            bucket[keyIndex] = newPair;
+        }
       }
     }
 
@@ -150,7 +171,7 @@ namespace Xtensive.Core.Collections
 
     private int CalculateBucketCount()
     {
-      var tempMask = mask;
+      var tempMask = Mask;
       keyOffset = 0;
       while ((tempMask & 1)!=1) {
         keyOffset++;
@@ -161,7 +182,7 @@ namespace Xtensive.Core.Collections
 
     private int CalculateHashCode(int key)
     {
-      var result = key & mask;
+      var result = key & Mask;
       var currentOffset = keyOffset;
       while (currentOffset > 0) {
         result = result >> 1;
@@ -205,7 +226,7 @@ namespace Xtensive.Core.Collections
     {
       if ((double) occupiedBucketCount / items.Length < maxFillFactor)
         return;
-      if ((mask & maxMaskPattern)!=0)
+      if ((Mask & maxMaskPattern)!=0)
         return;
       ExtendMask();
       var bucketCount = CalculateBucketCount();
@@ -216,13 +237,13 @@ namespace Xtensive.Core.Collections
     private void ExtendMask()
     {
       var leftOffset = 0;
-      var tempMask = (uint) mask;
+      var tempMask = (uint) Mask;
       while ((tempMask & maxMaskPattern >> 1)==0) {
         tempMask = tempMask << 1;
         leftOffset++;
       }
       tempMask = (uint) (tempMask | maxMaskPattern);
-      mask = (int) (tempMask >> leftOffset);
+      Mask = (int) (tempMask >> leftOffset);
     }
 
     private void ResizeBucketCollection(KeyValuePair<int, TValue>[][] target)
@@ -267,7 +288,7 @@ namespace Xtensive.Core.Collections
       }
       return indexOfAbsenceKey;
     }
-
+    
     #endregion
 
     // Constructors
@@ -279,7 +300,7 @@ namespace Xtensive.Core.Collections
     public IntDictionary(int mask)
     {
       ArgumentValidator.EnsureArgumentIsGreaterThan(mask, 0, "mask");
-      this.mask = mask;
+      Mask = mask;
       var bucketCount = CalculateBucketCount();
       items = new KeyValuePair<int, TValue>[bucketCount][];
     }
