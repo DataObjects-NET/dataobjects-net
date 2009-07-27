@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.30
 
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers.Executable;
 
 namespace Xtensive.Storage.Providers
@@ -42,11 +43,12 @@ namespace Xtensive.Storage.Providers
       return new EnumerationScope(this);
     }
 
-    /// <inheritdoc/>
-    public override Rse.Providers.EnumerationScope Activate()
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public EnumerationContext()
     {
       Session.Current.Persist();
-      return base.Activate();
     }
   }
 }
