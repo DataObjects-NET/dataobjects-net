@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -169,20 +168,43 @@ namespace Xtensive.Core.Tests.Collections
       var newValue = -1;
       Assert.AreNotEqual(oldValue, newValue);
       dictionary[keys[0]] = newValue;
+      values[0] = newValue;
       Assert.AreEqual(newValue, dictionary[keys[0]]);
+      CheckValues(dictionary, keys, values);
       oldValue = dictionary[keys[2]];
       newValue = -2;
       Assert.AreNotEqual(oldValue, newValue);
       dictionary[keys[2]] = newValue;
+      values[2] = newValue;
       Assert.AreEqual(newValue, dictionary[keys[2]]);
+      CheckValues(dictionary, keys, values);
       var newKey = 0x100005;
       newValue = -3;
-      dictionary.Add(newKey, newValue);
+      Array.Resize(ref keys, keys.Length + 1);
+      Array.Resize(ref values, values.Length + 1);
+      keys[keys.Length - 1] = newKey;
+      values[values.Length - 1] = newValue;
+      dictionary[newKey] = newValue;
       Assert.AreEqual(newValue, dictionary[newKey]);
+      CheckValues(dictionary, keys, values);
       newKey = 6;
       newValue = -4;
+      Array.Resize(ref keys, keys.Length + 1);
+      Array.Resize(ref values, values.Length + 1);
+      keys[keys.Length - 1] = newKey;
+      values[values.Length - 1] = newValue;
+      dictionary[newKey] = newValue;
+      Assert.AreEqual(newValue, dictionary[newKey]);
+      CheckValues(dictionary, keys, values);
+      /*newKey = 0x100006;
+      newValue = -5;
+      Array.Resize(ref keys, keys.Length + 1);
+      Array.Resize(ref values, values.Length + 1);
+      keys[keys.Length - 1] = newKey;
+      values[values.Length - 1] = newValue;
       dictionary.Add(newKey, newValue);
       Assert.AreEqual(newValue, dictionary[newKey]);
+      CheckValues(dictionary, keys, values);*/
     }
     
     [Test]

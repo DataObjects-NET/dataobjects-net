@@ -65,7 +65,7 @@ namespace Xtensive.Core.Collections
         else {
           var keyIndex = FindKeyIndexInBucket(bucket, key);
           if (keyIndex == indexOfAbsenceKey)
-            InsertIntoBucket(newPair, bucket);
+            InsertIntoBucket(items, newPair, bucket, hashCode);
           else
             bucket[keyIndex] = newPair;
         }
@@ -201,16 +201,15 @@ namespace Xtensive.Core.Collections
         items[hashCode][0] = newPair;
         return true;
       }
-      var bucketSize = bucket.Length;
-      Array.Resize(ref bucket, bucketSize + 1);
-      items[hashCode] = bucket;
-      InsertIntoBucket(newPair, bucket);
+      InsertIntoBucket(items, newPair, bucket, hashCode);
       return false;
     }
 
-    private static void InsertIntoBucket(KeyValuePair<int, TValue> newPair,
-      KeyValuePair<int, TValue>[] bucket)
+    private static void InsertIntoBucket(KeyValuePair<int, TValue>[][] items,
+      KeyValuePair<int, TValue> newPair, KeyValuePair<int, TValue>[] bucket, int hashCode)
     {
+      Array.Resize(ref bucket, bucket.Length + 1);
+      items[hashCode] = bucket;
       var index = 0;
       var endIndex = bucket.Length - 1;
       while (bucket[index].Key < newPair.Key && index < endIndex)
