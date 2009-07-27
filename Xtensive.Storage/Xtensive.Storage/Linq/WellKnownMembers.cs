@@ -121,16 +121,16 @@ namespace Xtensive.Storage.Linq
 
       // Key
       KeyValue = typeof (Key).GetProperty("Value");
-      KeyResolve = typeof (Key).GetMethods()
-        .Where(mi => mi.Name=="Resolve" && mi.IsGenericMethodDefinition==false && mi.GetParameters().Length==0)
-        .Single();
-      KeyResolveOfT = typeof (Key).GetMethod("Resolve", BindingFlags.Public | BindingFlags.Instance, new[] {"T"}, new object[0]);
+//      KeyResolve = typeof (Query).GetMethods()
+//        .Where(mi => mi.Name=="SingleOrDefault" && mi.IsGenericMethodDefinition==false && mi.GetParameters().Length==1)
+//        .Single();
+//      KeyResolveOfT = typeof (Query<>).GetMethod("SingleOrDefault", BindingFlags.Public | BindingFlags.Instance, new[] {"T"}, new object[0]);
       KeyCreate = typeof (Key).GetMethod("Create", BindingFlags.NonPublic | BindingFlags.Static, null,
         new[] {typeof (TypeInfo), typeof (Tuple), typeof (bool)}, null);
 
       // KeyExtensions
-      KeyTryResolve = typeof (KeyExtensions).GetMethod("TryResolve", BindingFlags.Public | BindingFlags.Static, new string[0], new object[1]);
-      KeyTryResolveOfT = typeof (KeyExtensions).GetMethod("TryResolve", BindingFlags.Public | BindingFlags.Static, new string[1], new object[1]);
+//      KeyTryResolve = typeof (KeyExtensions).GetMethod("TryResolve", BindingFlags.Public | BindingFlags.Static, new string[0], new object[1]);
+//      KeyTryResolveOfT = typeof (KeyExtensions).GetMethod("TryResolve", BindingFlags.Public | BindingFlags.Static, new string[1], new object[1]);
 
       // Enumerable
       EnumerableSelect = typeof (Enumerable).GetMethods().Where(m => m.Name=="Select").First();

@@ -232,7 +232,7 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.Greater(list.Count, 0);
       foreach (var k in list) {
         Assert.IsNotNull(k);
-        var p = k.Resolve<Product>();
+        var p = Query<Product>.SingleOrDefault(k);
         Assert.IsNotNull(p);
       }
     }

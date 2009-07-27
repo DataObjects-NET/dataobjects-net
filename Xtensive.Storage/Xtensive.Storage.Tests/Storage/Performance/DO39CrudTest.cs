@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         int i = 0;
         s.BeginTransaction();
         TestHelper.CollectGarbage();
-        Query q = s.CreateQuery(queryText);
+        var q = s.CreateQuery(queryText);
         using (warmup ? null : new Measurement("Materialize & GetField", count)) {
           while (i < count) {
             foreach (Simplest o in q.Execute()) {
@@ -163,7 +163,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Query", count)) {
           for (int i = 0; i < count; i++) {
-            Query q = s.CreateQuery(queryText);
+            var q = s.CreateQuery(queryText);
             q.Parameters.Add("@pId", 0);
             q.Parameters["@pId"].Value = ((long)i % instanceCount) + firstId;
             var qr = q.Execute();
@@ -182,7 +182,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       using (var s = domain.CreateSession()) {
         s.BeginTransaction();
         TestHelper.CollectGarbage();
-        Query q = s.CreateQuery(queryText);
+        var q = s.CreateQuery(queryText);
         q.Parameters.Add("@pId", 0);
         using (warmup ? null : new Measurement("Cached query", count)) {
           for (int i = 0; i < count; i++) {

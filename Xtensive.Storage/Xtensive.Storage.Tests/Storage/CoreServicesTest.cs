@@ -221,10 +221,10 @@ namespace Xtensive.Storage.Tests.Storage
           var accessor = Session.Current.CoreServices.PersistentAccessor;
           MyEntity myEntity = (MyEntity)accessor.CreateEntity(typeof (MyEntity));
           Key key = myEntity.Key;
-          Assert.IsNotNull(key.Resolve());
+          Assert.IsNotNull(Query.SingleOrDefault(key));
           myEntity.CoreServices.PersistentAccessor.Remove(myEntity);
           Assert.AreEqual(PersistenceState.Removed, myEntity.PersistenceState);
-          Assert.IsNull(key.Resolve());
+          Assert.IsNull(Query.SingleOrDefault(key));
           t.Complete();
         }
       }

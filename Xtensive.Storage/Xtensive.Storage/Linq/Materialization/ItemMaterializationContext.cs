@@ -56,8 +56,9 @@ namespace Xtensive.Storage.Linq.Materialization
         var entityState = session.UpdateEntityState(key, entityTuple);
         result = entityState.Entity;
       }
-      else
-        result = key.Resolve(session);
+      else {
+        result = Query.SingleOrDefault(session, key);
+      }
       entities[entityIndex] = result;
       return result;
     }

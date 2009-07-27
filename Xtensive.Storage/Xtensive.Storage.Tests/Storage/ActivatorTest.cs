@@ -100,10 +100,10 @@ namespace Xtensive.Storage.Tests.Storage
       }
       using (Session.Open(Domain)) {
         using (Transaction.Open()) {
-          var ancestor = key.Resolve<Ancestor>();
+          var ancestor = Query<Ancestor>.SingleOrDefault(key);
           Assert.IsNotNull(ancestor);
 
-          var descendant = key.Resolve<Descendant>();
+          var descendant = Query<Descendant>.SingleOrDefault(key);
           Assert.IsNotNull(descendant);
         }        
       }

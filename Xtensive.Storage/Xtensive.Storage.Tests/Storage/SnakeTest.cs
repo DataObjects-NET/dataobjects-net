@@ -247,7 +247,7 @@ namespace Xtensive.Storage.Tests.Storage
           persistedKey = snake.Key;
 
           Assert.IsNotNull(snake.Key);
-          Assert.AreEqual((object) snake, snake.Key.Resolve());
+          Assert.AreEqual((object) snake, Query.SingleOrDefault(snake.Key));
 
           Assert.AreEqual(null, snake.Length);
           Assert.AreEqual(null, snake.Name);
@@ -281,7 +281,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (new Measurement("Fetching..."))
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Creature snake = persistedKey.Resolve<Creature>();
+          Creature snake = Query<Creature>.SingleOrDefault(persistedKey);
           Assert.AreEqual(PersistenceState.Synchronized, snake.PersistenceState);
           Assert.IsNotNull(snake);
           Assert.AreEqual("Kaa", snake.Name);
@@ -293,7 +293,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (new Measurement("Fetching..."))
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Snake snake = persistedKey.Resolve<Snake>();
+          Snake snake = Query<Snake>.SingleOrDefault(persistedKey);
           Assert.IsNotNull(snake);
           Assert.AreEqual("Kaa", snake.Name);
           Assert.AreEqual(32, snake.Length);
@@ -324,7 +324,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Snake s = key.Resolve<Snake>();
+          Snake s = Query<Snake>.SingleOrDefault(key);
           Assert.AreEqual(PersistenceState.Synchronized, s.PersistenceState);
           Assert.AreEqual("Kaa", s.Name);
           s.Length = 32;
@@ -339,7 +339,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Snake s = key.Resolve<Snake>();
+          Snake s = Query<Snake>.SingleOrDefault(key);
           s.Name = "Snake";
           t.Complete();
         }
@@ -347,7 +347,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Snake s = key.Resolve<Snake>();
+          Snake s = Query<Snake>.SingleOrDefault(key);
           s.Length = 16;
           t.Complete();
         }
@@ -355,7 +355,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Snake s = key.Resolve<Snake>();
+          Snake s = Query<Snake>.SingleOrDefault(key);
           s.Name = "Kaa";
           t.Complete();
         }
@@ -363,7 +363,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Snake s = key.Resolve<Snake>();
+          Snake s = Query<Snake>.SingleOrDefault(key);
           s.Length = 32;
           t.Complete();
         }
@@ -371,7 +371,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Snake s = key.Resolve<Snake>();
+          Snake s = Query<Snake>.SingleOrDefault(key);
           Assert.AreEqual(PersistenceState.Synchronized, s.PersistenceState);
           Assert.AreEqual("Kaa", s.Name);
           Assert.AreEqual(32, s.Length);
@@ -386,7 +386,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           try {
-            key.Resolve<Snake>();
+            Query<Snake>.SingleOrDefault(key);
           }
           catch (InvalidOperationException) {
           }
@@ -1007,7 +1007,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
-            Snake persistedSnake = snakesDTO[i].GetValue<Key>(0).Resolve<Snake>();
+            Snake persistedSnake = Query<Snake>.SingleOrDefault(snakesDTO[i].GetValue<Key>(0));
             Assert.IsNotNull(persistedSnake);
             Assert.AreEqual(snakesDTO[i].GetValue<string>(1), persistedSnake.Name);
             Assert.AreEqual(snakesDTO[i].GetValue<int?>(2), persistedSnake.Length);

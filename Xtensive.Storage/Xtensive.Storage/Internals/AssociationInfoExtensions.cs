@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Internals
         case Multiplicity.OneToMany:
           Key key = target.GetReferenceKey(association.Reversed.OwnerField);
           if (key!=null)
-            yield return key.Resolve();
+            yield return Query.SingleOrDefault(key);
           break;
         case Multiplicity.ZeroToMany:
         case Multiplicity.ManyToMany:
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Internals
           keyTuple = target.Key.Value;
           recordSet = index.ToRecordSet().Range(keyTuple, keyTuple);
           foreach (var item in recordSet)
-            yield return Key.Create(association.OwnerType, association.ExtractForeignKey(item)).Resolve();
+            yield return Query.SingleOrDefault(Key.Create(association.OwnerType, association.ExtractForeignKey(item)));
           break;
       }
     }

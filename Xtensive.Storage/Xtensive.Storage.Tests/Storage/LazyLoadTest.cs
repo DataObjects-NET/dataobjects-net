@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Book b = key.Resolve<Book>();
+          Book b = Query<Book>.SingleOrDefault(key);
           Tuple tuple = b.Tuple;
           
           Assert.IsTrue(tuple.IsAvailable(2));
@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Book b = key.Resolve<Book>();
+          Book b = Query<Book>.SingleOrDefault(key);
           Tuple tuple = b.Tuple;
 
           // Assert that fields are not loaded

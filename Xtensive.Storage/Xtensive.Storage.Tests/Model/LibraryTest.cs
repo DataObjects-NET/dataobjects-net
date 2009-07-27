@@ -689,8 +689,8 @@ namespace Xtensive.Storage.Tests.Model
           var key = Key.Parse(k);
           Assert.AreEqual(key, Key.Create<Book>("0976470705"));
 
-          Assert.IsNull(Key.Create<Book>("0976470705").Resolve());
-          Assert.AreEqual(null, Key.Create<Book>("0976470705").Resolve());
+          Assert.IsNull(Query.SingleOrDefault(Key.Create<Book>("0976470705")));
+          Assert.AreEqual(null, Query.SingleOrDefault(Key.Create<Book>("0976470705")));
         }
       }
     }

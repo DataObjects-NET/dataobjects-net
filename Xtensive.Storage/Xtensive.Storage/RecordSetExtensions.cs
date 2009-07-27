@@ -52,8 +52,9 @@ namespace Xtensive.Storage
           }
         var pk = record[keyIndex];
         var entity = null as Entity;
-        if (pk != null)
-          entity = pk.Resolve(session);
+        if (pk != null) {
+          entity = Query.SingleOrDefault(session, pk);
+        }
         yield return entity;
       }
     }
@@ -86,8 +87,9 @@ namespace Xtensive.Storage
       foreach (var record in parser.Parse(source)) {
         var pk = record[primaryKeyIndex];
         var entity = null as Entity;
-        if (pk != null)
-          entity = pk.Resolve(session);
+        if (pk != null) {
+          entity = Query.SingleOrDefault(session, pk);
+        }
         yield return entity;
       }
     }

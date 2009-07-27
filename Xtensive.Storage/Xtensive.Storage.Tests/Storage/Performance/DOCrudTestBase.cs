@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           using (warmup ? null : new Measurement("Fetch & GetField", count)) {
             for (int i = 0; i < count; i++) {
               var key = Key.Create<Simplest>((long) i % instanceCount);
-              var o = key.Resolve<Simplest>();
+              var o = Query<Simplest>.SingleOrDefault(key);
               sum -= o.Id;
             }
             ts.Complete();

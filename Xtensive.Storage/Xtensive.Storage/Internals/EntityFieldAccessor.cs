@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Internals
       Key key = obj.GetReferenceKey(field);
       if (key==null)
         return default(T);
-      return (T) (object) key.Resolve();
+      return (T) (object) Query.SingleOrDefault(key);
     }
   }
 }

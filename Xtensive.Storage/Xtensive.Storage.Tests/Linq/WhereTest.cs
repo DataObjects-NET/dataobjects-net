@@ -174,7 +174,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void InstanceTest()
     {
-      var supplierLeka = supplierLekaKey.Resolve<Supplier>();
+      var supplierLeka = Query<Supplier>.SingleOrDefault(supplierLekaKey);
       var suppliers = Query<Supplier>.All;
       var supplier = suppliers.Where(s => s==supplierLeka).First();
       Assert.IsNotNull(supplier);
@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ForeignKeyTest()
     {
-      var supplierLeka = supplierLekaKey.Resolve<Supplier>();
+      var supplierLeka = Query<Supplier>.SingleOrDefault(supplierLekaKey);
       var products = Query<Product>.All;
       var product = products.Where(p => p.Supplier.Key==supplierLeka.Key).First();
       Assert.IsNotNull(product);
@@ -194,7 +194,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ForeignIDTest()
     {
-      var supplier20 = supplierLekaKey.Resolve<Supplier>();
+      var supplier20 = Query<Supplier>.SingleOrDefault(supplierLekaKey);
       var products = Query<Product>.All;
       var product = products.Where(p => p.Supplier.Id==supplier20.Id).First();
       Assert.IsNotNull(product);
@@ -204,7 +204,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ForeignInstanceTest()
     {
-      var supplier20 = supplierLekaKey.Resolve<Supplier>();
+      var supplier20 = Query<Supplier>.SingleOrDefault(supplierLekaKey);
       var products = Query<Product>.All;
       var product = products.Where(p => p.Supplier==supplier20).First();
       Assert.IsNotNull(product);

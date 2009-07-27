@@ -134,68 +134,6 @@ namespace Xtensive.Storage
       }
     }
 
-    /// <summary>
-    /// Resolves this key.
-    /// </summary>
-    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to resolve this instance to.</typeparam>
-    /// <returns>The <see cref="Entity"/> this key belongs to.</returns>
-    public T Resolve<T>()
-      where T : Entity
-    {
-      return (T) Resolve();
-    }
-
-    /// <summary>
-    /// Resolves this key.
-    /// </summary>
-    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to resolve this instance to.</typeparam>
-    /// <param name="session">The session to resolve the key in.</param>
-    /// <returns>The <see cref="Entity"/> this key belongs to.</returns>
-    public T Resolve<T>(Session session)
-      where T : Entity
-    {
-      return (T) Resolve(session);
-    }
-
-    /// <summary>
-    /// Resolves this instance.
-    /// </summary>
-    /// <returns>The <see cref="Entity"/> this key belongs to.</returns>
-    public Entity Resolve()
-    {
-      var session = Session.Demand();
-      return Resolve(session);
-    }
-
-    /// <summary>
-    /// Resolves this instance.
-    /// </summary>
-    /// <param name="session">The session to resolve the key in.</param>
-    /// <returns>The <see cref="Entity"/> this key belongs to.</returns>
-    public Entity Resolve(Session session)
-    {
-      var cache = session.EntityStateCache;
-      var state = cache[this, true];
-      bool hasBeenFetched = false;
-
-      if (state==null) {
-        if (session.IsDebugEventLoggingEnabled)
-          Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is {0}.", session, this,
-            IsTypeCached ? "known" : "unknown");
-        session.Handler.Fetch(this);
-        state = cache[this, true];
-        hasBeenFetched = true;
-      }
-
-      if (!hasBeenFetched && session.IsDebugEventLoggingEnabled)
-        Log.Debug("Session '{0}'. Resolving key '{1}'. Key is already resolved.", session, this);
-
-      if (state == null || state.IsRemoved)
-        return null;
-
-      return state.Entity;
-    }
-
     #region Equals, GetHashCode, ==, != 
 
     /// <inheritdoc/>

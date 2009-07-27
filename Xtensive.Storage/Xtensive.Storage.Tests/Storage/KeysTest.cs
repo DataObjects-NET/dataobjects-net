@@ -147,8 +147,8 @@ namespace Xtensive.Storage.Tests.Storage.Keys
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Key key = Key.Create(typeof (Fruit), "NotExistingFruit");
-          var entity = key.Resolve();
-          var entity2 = Query<Fruit>.Resolve("NotExistingFruit");
+          var entity = Query.SingleOrDefault(key);
+          var entity2 = Query<Fruit>.SingleOrDefault("NotExistingFruit");
           Assert.IsNull(entity);
           Assert.IsNull(entity2);
         }
@@ -176,9 +176,9 @@ namespace Xtensive.Storage.Tests.Storage.Keys
           Session.Current.Persist();
           Assert.AreEqual(c.StringKey, null);
 
-          var appleEntity1 = Query<Apple>.Resolve("1");
-          var appleEntity2 = Query<Apple>.Resolve(a);
-          var appleEntity3 = Query<Apple>.Resolve((object)a);
+          var appleEntity1 = Query<Apple>.SingleOrDefault("1");
+          var appleEntity2 = Query<Apple>.SingleOrDefault(a);
+          var appleEntity3 = Query<Apple>.SingleOrDefault((object)a);
 
           Assert.AreEqual(a.Key, appleEntity1.Key);
           Assert.AreEqual(a.Key, appleEntity2.Key);

@@ -251,7 +251,7 @@ namespace Xtensive.Storage
     {
       foreach (Key key in State) {
         EnsureVersionIs(State.Version);
-        yield return key.Resolve(); ;
+        yield return Query.SingleOrDefault(key); ;
       }
     }
 

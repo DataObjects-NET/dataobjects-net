@@ -14,13 +14,13 @@ namespace Xtensive.Storage
 {
   /// <summary>
   /// Provides <see cref="IQueryable{T}"/> queries for 
-  /// <see cref="IEntity"/> implementors like entities and persistent interfaces.
+  /// <see cref="IEntity"/> implementors and <see cref="Entity"/> descendants.
   /// </summary>
   /// <typeparam name="T">The type of the content item of the data source. Must be assignable to 
   /// <see cref="Entity"/> or <see cref="IEntity"/> type.
   /// </typeparam>
   public static class Query<T>
-    where T : IEntity
+    where T : class, IEntity
   {
     /// <summary>
     /// The "starting point" for any LINQ query -
@@ -33,15 +33,29 @@ namespace Xtensive.Storage
     }
     
     /// <summary>
-    /// Resolves <see cref="Entity"/> by specified key.
+    /// Resolves the specified <paramref name="key"/> within the current <see cref="Session"/>.
     /// </summary>
-    /// <param name="key">Key to resolve entity for.</param>
-    /// <returns>Entity resolved from key. <see langword="Null"/> if entity missing or deleted.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="Null"/>.</exception>
-    public static T Resolve(Key key)
+    /// <param name="key">The key to resolve.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> the specified <paramref name="key"/> identifies.
+    /// </returns>
+    /// <exception cref="ArgumentException">Entity for the specified key is not found.</exception>
+    public static T Single(Key key)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      return (T) (object) key.Resolve();
+      return (T) (object) Query.SingleOrDefault(key);
+    }
+    
+    /// <summary>
+    /// Resolves the specified <paramref name="key"/> within the current <see cref="Session"/>.
+    /// </summary>
+    /// <param name="key">The key to resolve.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> the specified <paramref name="key"/> identifies.
+    /// </returns>
+    /// <exception cref="ArgumentException">Entity for the specified key is not found.</exception>
+    public static T SingleOrDefault(Key key)
+    {
+      return (T) (object) Query.SingleOrDefault(key);
     }
 
     /// <summary>
@@ -51,15 +65,15 @@ namespace Xtensive.Storage
     /// <returns>Entity resolved from key values. <see langword="Null"/> if entity missing or deleted.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="keyValues"/> is <see langword="Null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="keyValues"/> is empty.</exception>
-    public static T Resolve(params object[] keyValues)
+    public static T SingleOrDefault(params object[] keyValues)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyValues, "keyValues");
       if (keyValues.Length==0) 
         throw new ArgumentException(Strings.ExKeyValuesArrayIsEmpty, "keyValues");
       if (keyValues.Length==1 && keyValues[0] is Key)
-        return Resolve((Key) keyValues[0]);
+        return SingleOrDefault((Key) keyValues[0]);
 
-      return (T) (object) Key.Create(typeof (T), keyValues).Resolve();
+      return (T) (object) Query.SingleOrDefault(Key.Create(typeof (T), keyValues));
     }
   }
 }
