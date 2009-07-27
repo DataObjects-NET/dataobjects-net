@@ -619,5 +619,39 @@ namespace Xtensive.Core.Collections
           exitAction.Invoke(item);
       }
     }
+
+    /// <summary>
+    /// Determines whenever specified sequence contains at least <see cref="numberOfElements"/>.
+    /// </summary>
+    /// <typeparam name="TItem">The type of the item.</typeparam>
+    /// <param name="sequence">The sequence.</param>
+    /// <param name="numberOfElements">The number of elements.</param>
+    /// <returns><see langword="true"/> if <paramref name="sequence"/> contains at least <paramref name="numberOfElements"/>;
+    /// <see langword="false"/> otherwise.</returns>
+    public static bool AtLeast<TItem>(this IEnumerable<TItem> sequence, int numberOfElements)
+    {
+      using (var enumerator = sequence.GetEnumerator()) {
+        while (numberOfElements > 0 && enumerator.MoveNext())
+          --numberOfElements;
+        return numberOfElements <= 0;
+      }
+    }
+
+    /// <summary>
+    /// Determines whenever specified sequence contains at most <see cref="numberOfElements"/>.
+    /// </summary>
+    /// <typeparam name="TItem">The type of the item.</typeparam>
+    /// <param name="sequence">The sequence.</param>
+    /// <param name="numberOfElements">The number of elements.</param>
+    /// <returns><see langword="true"/> if <paramref name="sequence"/> contains at most <paramref name="numberOfElements"/>;
+    /// <see langword="false"/> otherwise.</returns>
+    public static bool AtMost<TItem>(this IEnumerable<TItem> sequence, int numberOfElements)
+    {
+      using (var enumerator = sequence.GetEnumerator()) {
+        while (numberOfElements >= 0 && enumerator.MoveNext())
+          --numberOfElements;
+        return numberOfElements >= 0;
+      }
+    }
   }
 }

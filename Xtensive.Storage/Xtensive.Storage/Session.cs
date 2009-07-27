@@ -53,6 +53,7 @@ namespace Xtensive.Storage
   public sealed partial class Session : DomainBound,
     IContext<SessionScope>, IResource
   {
+    private bool persistRequiresTopologicalSort;
     private bool isPersisting;
     private volatile bool isDisposed;
     private readonly Set<object> consumers = new Set<object>();
@@ -196,16 +197,9 @@ namespace Xtensive.Storage
 
     private IEnumerable<PersistAction> GetPersistSequence()
     {
-
-      bool requiresTopologicalSort = (Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0;
-      if (requiresTopologicalSort)
-        requiresTopologicalSort = Domain.Handler.ProviderInfo.SupportsForeignKeyConstraints;
-      if (requiresTopologicalSort)
-        requiresTopologicalSort = !Domain.Handler.ProviderInfo.SupportsDeferredForeignKeyConstraints;
-
       // Insert
       var states = EntityStateRegistry.GetItems(PersistenceState.New).Where(state => !state.IsRemoved);
-      if (requiresTopologicalSort)
+      if (persistRequiresTopologicalSort && states.AtLeast(2))
         foreach (var action in GetInsertSequence(states))
           yield return action;
       else
@@ -222,7 +216,7 @@ namespace Xtensive.Storage
 
       // Delete
       states = EntityStateRegistry.GetItems(PersistenceState.Removed);
-      if (requiresTopologicalSort)
+      if (persistRequiresTopologicalSort && states.AtLeast(2))
         foreach (var action in GetDeleteSequence(states))
           yield return action;
       else
@@ -631,6 +625,11 @@ namespace Xtensive.Storage
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
       EntityEvents = new EntityEventManager();
+
+      persistRequiresTopologicalSort =
+        (Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0 &&
+         Domain.Handler.ProviderInfo.SupportsForeignKeyConstraints &&
+        !Domain.Handler.ProviderInfo.SupportsDeferredForeignKeyConstraints;
     }
 
     #region Dispose pattern

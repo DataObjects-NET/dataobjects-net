@@ -147,5 +147,21 @@ namespace Xtensive.Core.Tests.Collections
       Assert.AreEqual(totalCount / batchSize, batches.ApplyBeforeAndAfter(null, () => count++).Count());
       Assert.AreEqual(totalCount / batchSize + 1, count);
     }
+
+    [Test]
+    public void AtLeastAtMostTest()
+    {
+      Assert.AreEqual(true, new[] {1, 2, 3, 4}.AtLeast(3));
+      Assert.AreEqual(true, new[] {1, 2, 3}.AtLeast(3));
+      Assert.AreEqual(false, new[] {1}.AtLeast(2));
+      Assert.AreEqual(true, new[] {1, 2}.AtLeast(0));
+      Assert.AreEqual(true, new int[0].AtLeast(-1));
+
+      Assert.AreEqual(false, new[] {1, 2, 3, 4}.AtMost(3));
+      Assert.AreEqual(true, new[] {1, 2, 3}.AtMost(3));
+      Assert.AreEqual(true, new[] {1}.AtMost(2));
+      Assert.AreEqual(false, new[] {1, 2}.AtMost(0));
+      Assert.AreEqual(false, new int[0].AtMost(-1));
+    }
   }
 }
