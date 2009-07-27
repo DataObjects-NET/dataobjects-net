@@ -33,6 +33,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0296_Model
 
 namespace Xtensive.Storage.Tests.Issues
 {
+  [Ignore("Requires manual profiling")]
   public class Issue0296_DeferredConstraints : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

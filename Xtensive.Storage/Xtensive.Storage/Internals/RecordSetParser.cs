@@ -22,10 +22,9 @@ namespace Xtensive.Storage.Internals
 
     public IEnumerable<Record> Parse(RecordSet source)
     {
-      var session = Session.Current;
       var recordSetMapping = GetMapping(source.Header);
       foreach (Tuple tuple in source)
-        yield return ParseSingleRow(tuple, recordSetMapping, session);
+        yield return ParseSingleRow(Session.Current, recordSetMapping, tuple);
     }
 
     public Record ParseFirst(RecordSet source)
@@ -33,12 +32,11 @@ namespace Xtensive.Storage.Internals
       Tuple tuple = source.FirstOrDefault();
       if (tuple == null)
         return null;
-      var session = Session.Current;
       var recordSetMapping = GetMapping(source.Header);
-      return ParseSingleRow(tuple, recordSetMapping, session);
+      return ParseSingleRow(Session.Current, recordSetMapping, tuple);
     }
 
-    private static Record ParseSingleRow(Tuple tuple, RecordSetMapping mapping, Session session)
+    private static Record ParseSingleRow(Session session, RecordSetMapping mapping, Tuple tuple)
     {
       var keyList = new List<Key>(mapping.Mappings.Count);
       foreach (var groupMapping in mapping.Mappings) {
