@@ -122,13 +122,14 @@ namespace Xtensive.Core.Threading
     /// the first operation on this dictionary.
     /// </summary>
     /// <param name="syncRoot"><see cref="SyncRoot"/> property value.</param>
-    /// <param name="mask">The mask to calculate the hash code of a key.</param>
-    public void Initialize(object syncRoot, int mask)
+    /// <param name="capacity">The initial capacity.</param>
+    /// <exception cref="NotSupportedException">The dictionary is already initialized.</exception>
+    public void Initialize(object syncRoot, int capacity)
     {
       if (implementation!=null)
         throw Exceptions.AlreadyInitialized(null);
       this.syncRoot = syncRoot;
-      var tmp = new IntDictionary<TValue>(mask);
+      var tmp = new IntDictionary<TValue>(capacity);
       Thread.MemoryBarrier(); // Ensures tmp is fully written
       implementation = tmp;
     }
@@ -140,12 +141,12 @@ namespace Xtensive.Core.Threading
     /// Creates and initializes a new <see cref="ThreadSafeIntDictionary{TValue}"/>.
     /// </summary>
     /// <param name="syncRoot"><see cref="SyncRoot"/> property value.</param>
-    /// <param name="mask">The mask to calculate the hash code of a key.</param>
+    /// <param name="capacity">The initial capacity.</param>
     /// <returns>New initialized <see cref="ThreadSafeIntDictionary{TValue}"/>.</returns>
-    public static ThreadSafeIntDictionary<TValue> Create(object syncRoot, int mask)
+    public static ThreadSafeIntDictionary<TValue> Create(object syncRoot, int capacity)
     {
       var result = new ThreadSafeIntDictionary<TValue>();
-      result.Initialize(syncRoot, mask);
+      result.Initialize(syncRoot, capacity);
       return result;
     }
   }

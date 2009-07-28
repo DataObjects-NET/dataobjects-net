@@ -648,4 +648,7 @@
   <data name="ExArgumentMustBeLessThanX" xml:space="preserve">
     <value>Argument must be less than '{0}'</value>
   </data>
+  <data name="ExKeyAlreadyExists" xml:space="preserve">
+    <value>Key already exists.</value>
+  </data>
 </root>

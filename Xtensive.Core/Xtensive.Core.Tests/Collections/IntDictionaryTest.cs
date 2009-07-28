@@ -21,7 +21,7 @@ namespace Xtensive.Core.Tests.Collections
     [Test]
     public void SimpleTest()
     {
-      var dictionary = new IntDictionary<double>(3);
+      var dictionary = new IntDictionary<double>(8);
       var keys = new[] {0, 1, 2, 0x53};
       var values = new double[] {24, 435, 876, 3};
       for (int i = 0; i < keys.Length; i++)
@@ -35,7 +35,7 @@ namespace Xtensive.Core.Tests.Collections
     [Test]
     public void ResizeTest()
     {
-      var dictionary = new IntDictionary<int>(3);
+      var dictionary = new IntDictionary<int>(8);
       Assert.AreEqual(4, GetBucketCount(dictionary));
       var keys = new[]
                  {
@@ -61,7 +61,7 @@ namespace Xtensive.Core.Tests.Collections
     [Test]
     public void CollisionTest()
     {
-      var dictionary = new IntDictionary<int>(15);
+      var dictionary = new IntDictionary<int>(16);
       var initialBucketCount = GetBucketCount(dictionary);
       var keys = new[]
                  {
@@ -86,7 +86,7 @@ namespace Xtensive.Core.Tests.Collections
     [Test]
     public void RemoveTest()
     {
-      var dictionary = new IntDictionary<int>(15);
+      var dictionary = new IntDictionary<int>(16);
       var keys = new[]
                  {
                    0, 0xA00000, 1, 0x100001, 0x200001, 0x500002, 0x800002, 0x300003,0xA00003,
@@ -111,7 +111,7 @@ namespace Xtensive.Core.Tests.Collections
     [Test]
     public void ClearTest()
     {
-      var dictionary = new IntDictionary<int>(15);
+      var dictionary = new IntDictionary<int>(16);
       var keys = new[]
                  {
                    0, 0xA00000, 1, 0x100001, 0x200001, 0x500002, 0x800002, 0x300003,0xA00003,
@@ -129,7 +129,7 @@ namespace Xtensive.Core.Tests.Collections
     [Test]
     public void DuplicateKeyInsertTest()
     {
-      var dictionary = new IntDictionary<int>(15);
+      var dictionary = new IntDictionary<int>(16);
       var keys = new[] {0, 0x900005, 0x700005, 0x200005, 0xE00005, 5};
       var values = GenerateValues(keys);
       for (int i = 0; i < keys.Length; i++)
@@ -142,7 +142,7 @@ namespace Xtensive.Core.Tests.Collections
     [Test]
     public void MaskRequiringOffsetTest()
     {
-      var dictionary = new IntDictionary<int>(252);
+      var dictionary = new IntDictionary<int>(256);
       var keyOffsetField = typeof (IntDictionary<int>).GetField("keyOffset",
         BindingFlags.NonPublic | BindingFlags.Instance);
       Assert.Greater((int)keyOffsetField.GetValue(dictionary), 0);
@@ -159,7 +159,7 @@ namespace Xtensive.Core.Tests.Collections
     [Test]
     public void AddOrReplaceTest()
     {
-      var dictionary = new IntDictionary<int>(15);
+      var dictionary = new IntDictionary<int>(16);
       var keys = new[] {0, 0x900005, 0x700005, 0x200005, 0xE00005, 5};
       var values = GenerateValues(keys);
       for (int i = 0; i < keys.Length; i++)
@@ -211,7 +211,7 @@ namespace Xtensive.Core.Tests.Collections
     [Category("Profile")]
     public void PerformanceTest()
     {
-      var dictionary = new IntDictionary<int>(255);
+      var dictionary = new IntDictionary<int>(256);
       var keysCount = 355;
       var keys = new int[keysCount];
       for (int i = 0; i < keysCount; i++)

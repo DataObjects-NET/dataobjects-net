@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
+using System.Linq;
 
 namespace Xtensive.Core.Collections
 {
@@ -18,58 +19,69 @@ namespace Xtensive.Core.Collections
   /// <typeparam name="TValue">The type of a value.</typeparam>
   [Serializable]
   public sealed class IntDictionary<TValue> :
-    IEnumerable<KeyValuePair<int, TValue>>
+    ICountable<KeyValuePair<int, TValue>>
   {
-    private const int maxMaskPattern = int.MinValue;
-    private const int indexOfAbsenceKey = -1;
-    private const double maxFillFactor = 0.7;
+    private const int NonExistingKeyIndex = int.MinValue;
+    private const int ExistingKeyIndex = int.MinValue + 1;
+    private const int MinCapacity = 8; // Must be the power of 2!
+    private const double MinFillFactor = 0.75 * 0.5 * 0.5;
+    private const double MaxFillFactor = 0.75;
 
-    private KeyValuePair<int, TValue>[][] items;
-    private int keyOffset;
-    private int occupiedBucketCount;
+    private Triplet<int, TValue, KeyValuePair<int, TValue>[]>[] items;
+    private int mask;
+    private int count;
 
     /// <summary>
-    /// The mask to calculate the hash code of a key.
+    /// Gets the number of elements contained in a collection.
     /// </summary>
-    public int Mask { get; private set; }
+    public int Count {
+      get { return count; }
+    }
+
+    long ICountable.Count {
+      get { return count; }
+    }
 
     /// <summary>
     /// Gets a value by the specified key.
     /// </summary>
+    /// <exception cref="KeyNotFoundException">Specified key not found.</exception>
     public TValue this[int key]
     {
       get {
-        var hashCode = CalculateHashCode(key);
-        var bucket = items[hashCode];
-        if (bucket==null)
+        TValue value;
+        if (TryGetValue(key, out value))
+          return value;
+        else
           throw new KeyNotFoundException();
-        if (bucket.Length==1) {
-          var pair = bucket[0];
-          if (pair.Key==key)
-            return pair.Value;
-          throw new KeyNotFoundException();
-        }
-        var keyIndex = FindKeyIndexInBucket(bucket, key);
-        if (keyIndex==indexOfAbsenceKey)
-          throw new KeyNotFoundException();
-        return bucket[keyIndex].Value;
       }
       set {
-        var hashCode = CalculateHashCode(key);
-        var bucket = items[hashCode];
-        var newPair = new KeyValuePair<int, TValue>(key, value);
-        if (bucket==null)
-          AddPair(newPair, items, hashCode, ref occupiedBucketCount);
-        else if (bucket.Length==1 && bucket[0].Key==key)
-          bucket[0] = newPair;
-        else {
-          var keyIndex = FindKeyIndexInBucket(bucket, key);
-          if (keyIndex == indexOfAbsenceKey)
-            InsertIntoBucket(items, newPair, bucket, hashCode);
-          else
-            bucket[keyIndex] = newPair;
-        }
+        TValue tmpValue;
+        if (TryGetValue(key, out tmpValue))
+          Remove(key);
+        Add(key, value);
       }
+    }
+
+    /// <summary>
+    /// Tries to get a value by the specified key.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="value">The value.</param>
+    /// <returns><see langword="true" /> if the key was found; 
+    /// otherwise <see langword="false" />.</returns>
+    public bool TryGetValue(int key, out TValue value)
+    {
+      var index = key & mask;
+      var triplet = items[index];
+      if (triplet.First==key) {
+        value = triplet.Second;
+        return true;
+      }
+      if (triplet.First==ExistingKeyIndex)
+        return TryGetValueInBucket(triplet.Third, key, out value) >= 0;
+      value = default(TValue);
+      return false;
     }
 
     /// <summary>
@@ -77,11 +89,33 @@ namespace Xtensive.Core.Collections
     /// </summary>
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
+    /// <exception cref="InvalidOperationException">Key already exists.</exception>
     public void Add(int key, TValue value)
     {
-      var newPair = new KeyValuePair<int, TValue>(key, value);
-      if (AddPair(newPair, items, CalculateHashCode(newPair.Key), ref occupiedBucketCount))
-        IncreaseSizeIfNecessary();
+      if ((count+1) >= (items.Length * MaxFillFactor))
+        Resize(checked (items.Length * 2));
+      var index = key & mask;
+      var triplet = items[index];
+      if (triplet.First==key)
+        throw new InvalidOperationException(Strings.ExKeyAlreadyExists);
+      else if (triplet.First==ExistingKeyIndex) {
+        var bucket = InsertIntoBucket(triplet.Third, new KeyValuePair<int, TValue>(key, value));
+        items[index] = new Triplet<int, TValue, KeyValuePair<int, TValue>[]>(
+          ExistingKeyIndex, default(TValue), bucket);
+        count++;
+      }
+      else if (triplet.First==NonExistingKeyIndex) {
+        items[index] = new Triplet<int, TValue, KeyValuePair<int, TValue>[]>(
+          key, value, null);
+        count++;
+      }
+      else {
+        items[index] = new Triplet<int, TValue, KeyValuePair<int, TValue>[]>(
+          ExistingKeyIndex, default(TValue), new[] {
+            new KeyValuePair<int, TValue>(triplet.First, triplet.Second)
+            });
+        Add(key, value);
+      }
     }
 
     /// <summary>
@@ -92,22 +126,29 @@ namespace Xtensive.Core.Collections
     /// otherwise <see langword="false" />.</returns>
     public bool Remove(int key)
     {
-      var hashCode = CalculateHashCode(key);
-      var bucket = items[hashCode];
-      if (bucket==null)
-        return false;
-      if (bucket.Length==1) {
-        if (bucket[0].Key==key) {
-          items[hashCode] = null;
-          return true;
-        }
-        return false;
+      if (items.Length>MinCapacity && ((count-1) < (items.Length * MinFillFactor)))
+        Resize(checked (items.Length / 2));
+      var index = key & mask;
+      var triplet = items[index];
+      if (triplet.First==key) {
+        items[index] = new Triplet<int, TValue, KeyValuePair<int, TValue>[]>(
+          NonExistingKeyIndex, default(TValue), null);
+        count--;
+        return true;
       }
-      var keyIndex = FindKeyIndexInBucket(bucket, key);
-      if (keyIndex==indexOfAbsenceKey)
+      else if (triplet.First==ExistingKeyIndex) {
+        var bucket = RemoveFromBucket(triplet.Third, key);
+        if (bucket.Length==1)
+          items[index] = new Triplet<int, TValue, KeyValuePair<int, TValue>[]>(
+            bucket[0].Key, bucket[0].Value, null);
+        else
+          items[index] = new Triplet<int, TValue, KeyValuePair<int, TValue>[]>(
+            ExistingKeyIndex, default(TValue), bucket);
+        count--;
+        return true;
+      }
+      else
         return false;
-      RemoveFromBucket(bucket, hashCode, keyIndex);
-      return true;
     }
 
     /// <summary>
@@ -115,50 +156,19 @@ namespace Xtensive.Core.Collections
     /// </summary>
     public void Clear()
     {
-      for (int i = 0; i < items.Length; i++)
-        items[i] = null;
-    }
-
-    /// <summary>
-    /// Tries to get a value by the specified key.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <param name="value">The value.</param>
-    /// <returns><see langword="bool" /> if the key was found; 
-    /// otherwise <see langword="false" />.</returns>
-    public bool TryGetValue(int key, out TValue value)
-    {
-      var hashCode = CalculateHashCode(key);
-      var bucket = items[hashCode];
-      if (bucket==null) {
-        value = default(TValue);
-        return false;
-      }
-      if (bucket.Length==1) {
-        var pair = bucket[0];
-        if (pair.Key==key) {
-          value = pair.Value;
-          return true;
-        }
-        value = default(TValue);
-        return false;
-      }
-      var keyIndex = FindKeyIndexInBucket(bucket, key);
-      if (keyIndex==indexOfAbsenceKey) {
-        value = default(TValue);
-        return false;
-      }
-      value = bucket[keyIndex].Value;
-      return true;
+      Initialize(MinCapacity);
     }
 
     /// <inheritdoc/>
     public IEnumerator<KeyValuePair<int, TValue>> GetEnumerator()
     {
-      foreach (var bucket in items)
-        if (bucket!=null)
-          foreach (var pair in bucket)
+      foreach (var triplet in items) {
+        if (triplet.First>=0)
+          yield return new KeyValuePair<int, TValue>(triplet.First, triplet.Second);
+        else if (triplet.First==ExistingKeyIndex)
+          foreach (var pair in triplet.Third)
             yield return pair;
+      }
     }
 
     /// <inheritdoc/>
@@ -169,139 +179,118 @@ namespace Xtensive.Core.Collections
 
     #region Private / internal members
 
-    private int CalculateBucketCount()
-    {
-      var tempMask = Mask;
-      keyOffset = 0;
-      while ((tempMask & 1)!=1) {
-        keyOffset++;
-        tempMask = tempMask >> 1;
-      }
-      return tempMask + 1;
-    }
-
-    private int CalculateHashCode(int key)
-    {
-      var result = key & Mask;
-      var currentOffset = keyOffset;
-      while (currentOffset > 0) {
-        result = result >> 1;
-        currentOffset--;
-      }
-      return result;
-    }
-
-    private static bool AddPair(KeyValuePair<int, TValue> newPair, KeyValuePair<int, TValue>[][] items,
-      int hashCode, ref int occupiedBucketCount)
-    {
-      var bucket = items[hashCode];
-      if (bucket==null) {
-        occupiedBucketCount++;
-        items[hashCode] = new KeyValuePair<int, TValue>[1];
-        items[hashCode][0] = newPair;
-        return true;
-      }
-      InsertIntoBucket(items, newPair, bucket, hashCode);
-      return false;
-    }
-
-    private static void InsertIntoBucket(KeyValuePair<int, TValue>[][] items,
-      KeyValuePair<int, TValue> newPair, KeyValuePair<int, TValue>[] bucket, int hashCode)
-    {
-      Array.Resize(ref bucket, bucket.Length + 1);
-      items[hashCode] = bucket;
-      var index = 0;
-      var endIndex = bucket.Length - 1;
-      while (bucket[index].Key < newPair.Key && index < endIndex)
-        index++;
-      if (bucket[index].Key==newPair.Key)
-        throw new ArgumentException(Strings.ExItemWithTheSameKeyHasBeenAdded);
-      for (int i = bucket.Length - 1; i > index; i--)
-        bucket[i] = bucket[i - 1];
-      bucket[index] = newPair;
-    }
-
-    private void IncreaseSizeIfNecessary()
-    {
-      if ((double) occupiedBucketCount / items.Length < maxFillFactor)
-        return;
-      if ((Mask & maxMaskPattern)!=0)
-        return;
-      ExtendMask();
-      var bucketCount = CalculateBucketCount();
-      var newCollection = new KeyValuePair<int, TValue>[bucketCount][];
-      ResizeBucketCollection(newCollection);
-    }
-
-    private void ExtendMask()
-    {
-      var leftOffset = 0;
-      var tempMask = (uint) Mask;
-      while ((tempMask & maxMaskPattern >> 1)==0) {
-        tempMask = tempMask << 1;
-        leftOffset++;
-      }
-      tempMask = (uint) (tempMask | maxMaskPattern);
-      Mask = (int) (tempMask >> leftOffset);
-    }
-
-    private void ResizeBucketCollection(KeyValuePair<int, TValue>[][] target)
-    {
-      var newOccupiedBucketCount = 0;
-      foreach (var pair in this) {
-        var hashCode = CalculateHashCode(pair.Key);
-        AddPair(pair, target, hashCode, ref newOccupiedBucketCount);
-      }
-      occupiedBucketCount = newOccupiedBucketCount;
-      items = target;
-    }
-
-    private void RemoveFromBucket(KeyValuePair<int, TValue>[] bucket, int hashCode, int keyIndex)
-    {
-      var endIndex = bucket.Length - 2;
-      for (int i = keyIndex; i <= endIndex; i++)
-        bucket[i] = bucket[i + 1];
-      Array.Resize(ref bucket, bucket.Length - 1);
-      items[hashCode] = bucket;
-    }
-
-    private static int FindKeyIndexInBucket(KeyValuePair<int, TValue>[] bucket, int key)
+    private static int TryGetValueInBucket(KeyValuePair<int, TValue>[] bucket, int key, out TValue value)
     {
       var start = 0;
       var end = bucket.Length - 1;
+      KeyValuePair<int, TValue> current;
       while (end >= start) {
-        if (end==start)
-          if (key==bucket[start].Key)
+        if (end==start) {
+          current = bucket[start];
+          if (key==current.Key) {
+            value = current.Value;
             return start;
-          else
-            return indexOfAbsenceKey;
-        var middle = ((end - start) / 2) + start;
-        var middleKey = bucket[middle].Key;
-        if (key==bucket[middle].Key)
-          return middle;
-        if (key > middleKey) {
-          start = middle + 1;
-          continue;
+          }
+          else {
+            value = default(TValue);
+            return ~start;
+          }
         }
-        end = middle - 1;
+        var middle = ((end - start) / 2) + start;
+        current = bucket[middle];
+        if (key==current.Key) {
+          value = current.Value;
+          return middle;
+        }
+        else if (key > current.Key)
+          start = middle + 1;
+        else
+          end = middle - 1;
       }
-      return indexOfAbsenceKey;
+      value = default(TValue);
+      return ~start;
     }
-    
+
+    private void Resize(int newCapacity)
+    {
+      var pairs = this.ToList();
+      Initialize(newCapacity);
+      foreach (var pair in pairs)
+        Add(pair.Key, pair.Value);
+    }
+
+    /// <exception cref="InvalidOperationException">Key already exists.</exception>
+    private static KeyValuePair<int, TValue>[] InsertIntoBucket(KeyValuePair<int, TValue>[] bucket, KeyValuePair<int, TValue> newPair)
+    {
+      TValue tmpValue;
+      int index = TryGetValueInBucket(bucket, newPair.Key, out tmpValue);
+      if (index>=0)
+        throw new InvalidOperationException(Strings.ExKeyAlreadyExists);
+      index = ~index;
+      if (newPair.Key>bucket[index].Key)
+        index++;
+      Array.Resize(ref bucket, bucket.Length + 1);
+      Array.Copy(bucket, index, bucket, index + 1, bucket.Length - index - 1);
+      bucket[index] = newPair;
+      return bucket;
+    }
+
+    /// <exception cref="KeyNotFoundException">Specified key not found.</exception>
+    private static KeyValuePair<int, TValue>[] RemoveFromBucket(KeyValuePair<int, TValue>[] bucket, int key)
+    {
+      TValue tmpValue;
+      int index = TryGetValueInBucket(bucket, key, out tmpValue);
+      if (index<0)
+        throw new KeyNotFoundException();
+      Array.Copy(bucket, index + 1, bucket, index, bucket.Length - index - 1);
+      Array.Resize(ref bucket, bucket.Length - 1);
+      return bucket;
+    }
+
+    /// <exception cref="OverflowException">Capacity limit is reached.</exception>
+    private static int GetCapacity(int requestedCapacity)
+    {
+      int capacity = MinCapacity;
+      while (capacity < requestedCapacity) {
+        capacity = capacity << 1;
+        if (capacity<=0)
+          throw new OverflowException();
+      }
+      return capacity;
+    }
+
+    private void Initialize(int capacity)
+    {
+      capacity = GetCapacity(capacity);
+      mask = capacity - 1;
+      count = 0;
+      items = new Triplet<int, TValue, KeyValuePair<int, TValue>[]>[capacity];
+      for (int i = 0; i < items.Length; i++)
+        items[i] = new Triplet<int, TValue, KeyValuePair<int, TValue>[]>(
+          NonExistingKeyIndex, default(TValue), null);
+    }
+
     #endregion
+
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="mask">The mask to calculate the hash code of a key.</param>
-    public IntDictionary(int mask)
+    public IntDictionary()
+      : this(MinCapacity)
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThan(mask, 0, "mask");
-      Mask = mask;
-      var bucketCount = CalculateBucketCount();
-      items = new KeyValuePair<int, TValue>[bucketCount][];
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="capacity">The initial capacity.</param>
+    public IntDictionary(int capacity)
+    {
+      ArgumentValidator.EnsureArgumentIsGreaterThan(capacity, 0, "capacity");
+      Initialize(capacity);
     }
   }
 }
