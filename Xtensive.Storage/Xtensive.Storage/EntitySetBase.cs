@@ -166,7 +166,7 @@ namespace Xtensive.Storage
 
       if (association.AuxiliaryType!=null && association.IsMaster) {
         var combinedKey = Key.Create(association.AuxiliaryType, item.Key.Value.Combine(ConcreteOwner.Key.Value));
-        Entity underlyingItem = Query.SingleOrDefault(combinedKey);
+        Entity underlyingItem = Query.SingleOrDefault(Session, combinedKey);
         underlyingItem.Remove();
       }
 

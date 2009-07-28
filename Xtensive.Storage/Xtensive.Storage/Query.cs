@@ -6,10 +6,12 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
+  /// <summary>
+  /// Access point to a single <see cref="Key"/> resolving.
+  /// </summary>
   public static class Query
   {
     /// <summary>
