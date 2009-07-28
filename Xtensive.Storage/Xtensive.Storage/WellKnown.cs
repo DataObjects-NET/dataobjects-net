@@ -77,29 +77,34 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Max number of key fields.
+    /// </summary>
+    public const int MaxKeyFieldNumber = 4;
+
+    /// <summary>
     /// Well-known session configuration names
     /// </summary>
     public static class Sessions
     {
-    /// <summary>
-    /// Name of default session configuration.
-    /// </summary>
-    public const string Default = "Default";
+      /// <summary>
+      /// Name of default session configuration.
+      /// </summary>
+      public const string Default = "Default";
 
-    /// <summary>
-    /// System session name.
-    /// </summary>
-    public const string System = "System";
+      /// <summary>
+      /// System session name.
+      /// </summary>
+      public const string System = "System";
 
-    /// <summary>
-    /// Service session name.
-    /// </summary>
-    public const string Service = "Service";
+      /// <summary>
+      /// Service session name.
+      /// </summary>
+      public const string Service = "Service";
 
-    /// <summary>
-    /// Generator session name.
-    /// </summary>
-    public const string KeyGenerator = "KeyGenerator";
+      /// <summary>
+      /// Generator session name.
+      /// </summary>
+      public const string KeyGenerator = "KeyGenerator";
     }
   }
 }

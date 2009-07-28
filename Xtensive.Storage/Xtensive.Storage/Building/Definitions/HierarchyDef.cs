@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Building.Definitions
     internal HierarchyDef(TypeDef root)
     {
       Root = root;
-      KeyFields = new List<KeyField>(MagicNumberProvider.MaxKeyFieldCount);
+      KeyFields = new List<KeyField>(WellKnown.MaxKeyFieldNumber);
       KeyGenerator = typeof (KeyGenerator);
     }
   }

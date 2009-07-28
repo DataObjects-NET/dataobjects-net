@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void Process(HierarchyDef hierarchyDef, FieldDef fieldDef, KeyAttribute attribute)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(attribute.Position, 0, MagicNumberProvider.MaxKeyFieldCount-1, "attribute.Position");
+      ArgumentValidator.EnsureArgumentIsInRange(attribute.Position, 0, WellKnown.MaxKeyFieldNumber-1, "attribute.Position");
 
       var keyField = new KeyField(fieldDef.Name, attribute.Direction);
 
