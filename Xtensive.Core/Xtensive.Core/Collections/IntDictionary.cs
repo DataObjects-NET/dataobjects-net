@@ -49,11 +49,15 @@ namespace Xtensive.Core.Collections
     public TValue this[int key]
     {
       get {
+        var index = key & mask;
+        var triplet = items[index];
+        if (triplet.First==key)
+          return triplet.Second;
         TValue value;
-        if (TryGetValue(key, out value))
-          return value;
-        else
-          throw new KeyNotFoundException();
+        if (triplet.First==ExistingKeyIndex)
+          if(TryGetValueInBucket(triplet.Third, key, out value) >= 0)
+            return value;
+        throw new KeyNotFoundException();
       }
       set {
         TValue tmpValue;
@@ -137,7 +141,9 @@ namespace Xtensive.Core.Collections
         return true;
       }
       else if (triplet.First==ExistingKeyIndex) {
-        var bucket = RemoveFromBucket(triplet.Third, key);
+        var bucket = triplet.Third;
+        if(!RemoveFromBucket(ref bucket, key))
+          return false;
         if (bucket.Length==1)
           items[index] = new Triplet<int, TValue, KeyValuePair<int, TValue>[]>(
             bucket[0].Key, bucket[0].Value, null);
@@ -236,15 +242,15 @@ namespace Xtensive.Core.Collections
     }
 
     /// <exception cref="KeyNotFoundException">Specified key not found.</exception>
-    private static KeyValuePair<int, TValue>[] RemoveFromBucket(KeyValuePair<int, TValue>[] bucket, int key)
+    private static bool RemoveFromBucket(ref KeyValuePair<int, TValue>[] bucket, int key)
     {
       TValue tmpValue;
       int index = TryGetValueInBucket(bucket, key, out tmpValue);
       if (index<0)
-        throw new KeyNotFoundException();
+        return false;
       Array.Copy(bucket, index + 1, bucket, index, bucket.Length - index - 1);
       Array.Resize(ref bucket, bucket.Length - 1);
-      return bucket;
+      return true;
     }
 
     /// <exception cref="OverflowException">Capacity limit is reached.</exception>

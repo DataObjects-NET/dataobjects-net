@@ -18,6 +18,10 @@ namespace Xtensive.Core.Tests.Collections
   [TestFixture]
   public sealed class IntDictionaryTest
   {
+    private static readonly int nonExistingKeyIndex = 
+      (int) typeof (IntDictionary<int>).GetField("NonExistingKeyIndex",
+        BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+
     [Test]
     public void SimpleTest()
     {
@@ -36,7 +40,7 @@ namespace Xtensive.Core.Tests.Collections
     public void ResizeTest()
     {
       var dictionary = new IntDictionary<int>(8);
-      Assert.AreEqual(4, GetBucketCount(dictionary));
+      Assert.AreEqual(8, GetBucketCount(dictionary));
       var keys = new[]
                  {
                    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
@@ -52,16 +56,17 @@ namespace Xtensive.Core.Tests.Collections
       for (var i = 0; i < items.Length; i++)
         if (i < 16) {
           Assert.IsNotNull(items[i]);
-          Assert.AreEqual(1, items[i].Length);
+          Assert.AreEqual(keys[i], items[i].First);
+          Assert.IsNull(items[i].Third);
         }
         else
-          Assert.IsNull(items[i]);
+          Assert.AreEqual(nonExistingKeyIndex, items[i].First);
     }
 
     [Test]
     public void CollisionTest()
     {
-      var dictionary = new IntDictionary<int>(16);
+      var dictionary = new IntDictionary<int>(32);
       var initialBucketCount = GetBucketCount(dictionary);
       var keys = new[]
                  {
@@ -76,11 +81,10 @@ namespace Xtensive.Core.Tests.Collections
       var items = GetItemsCollection(dictionary);
       for (var i = 0; i < items.Length; i++)
         if (i < 6) {
-          Assert.IsNotNull(items[i]);
-          Assert.Greater(items[i].Length, 1);
+          Assert.IsNotNull(items[i].Third);
         }
         else
-          Assert.IsNull(items[i]);
+          Assert.IsNull(items[i].Third);
     }
 
     [Test]
@@ -99,11 +103,17 @@ namespace Xtensive.Core.Tests.Collections
       Assert.IsFalse(dictionary.Remove(0xB00003));
       CheckValues(dictionary, keys, values);
       var items = GetItemsCollection(dictionary);
-      Assert.IsNotNull(items[4]);
+      Assert.AreNotEqual(nonExistingKeyIndex, items[4].First);
       CheckRemoving(ref keys, ref values, 0xA00004, dictionary);
-      Assert.IsNull(items[4]);
+      Assert.AreEqual(nonExistingKeyIndex, items[4].First);
+      Assert.IsNotNull(items[1].Third);
+      Assert.AreNotEqual(nonExistingKeyIndex, items[1].First);
       CheckRemoving(ref keys, ref values, 1, dictionary);
+      CheckRemoving(ref keys, ref values, 0x200001, dictionary);
+      Assert.IsNull(items[1].Third);
+      Assert.AreNotEqual(nonExistingKeyIndex, items[1].First);
       CheckRemoving(ref keys, ref values, 0x100001, dictionary);
+      Assert.AreEqual(nonExistingKeyIndex, items[1].First);
       CheckRemoving(ref keys, ref values, 5, dictionary);
       CheckRemoving(ref keys, ref values, 0xE00005, dictionary);
     }
@@ -122,8 +132,10 @@ namespace Xtensive.Core.Tests.Collections
         dictionary.Add(keys[i], values[i]);
       dictionary.Clear();
       var items = GetItemsCollection(dictionary);
-      foreach (var bucket in items)
-        Assert.IsNull(bucket);
+      foreach (var bucket in items) {
+        Assert.AreEqual(nonExistingKeyIndex, bucket.First);
+        Assert.IsNull(bucket.Third);
+      }
     }
     
     [Test]
@@ -134,28 +146,11 @@ namespace Xtensive.Core.Tests.Collections
       var values = GenerateValues(keys);
       for (int i = 0; i < keys.Length; i++)
         dictionary.Add(keys[i], values[i]);
-      AssertEx.Throws<ArgumentException>(() => dictionary.Add(0, 1));
-      AssertEx.Throws<ArgumentException>(() => dictionary.Add(0x900005, 1));
-      AssertEx.Throws<ArgumentException>(() => dictionary.Add(5, 1));
+      AssertEx.Throws<InvalidOperationException>(() => dictionary.Add(0, 1));
+      AssertEx.Throws<InvalidOperationException>(() => dictionary.Add(0x900005, 1));
+      AssertEx.Throws<InvalidOperationException>(() => dictionary.Add(5, 1));
     }
-
-    [Test]
-    public void MaskRequiringOffsetTest()
-    {
-      var dictionary = new IntDictionary<int>(256);
-      var keyOffsetField = typeof (IntDictionary<int>).GetField("keyOffset",
-        BindingFlags.NonPublic | BindingFlags.Instance);
-      Assert.Greater((int)keyOffsetField.GetValue(dictionary), 0);
-      var keysCount = 155;
-      var keys = new int[keysCount];
-      for (int i = 0; i < keysCount; i++)
-        keys[i] = 100 + i;
-      var values = GenerateValues(keys);
-      for (int i = 0; i < keys.Length; i++)
-        dictionary.Add(keys[i], values[i]);
-      CheckValues(dictionary, keys, values);
-    }
-
+    
     [Test]
     public void AddOrReplaceTest()
     {
@@ -196,15 +191,6 @@ namespace Xtensive.Core.Tests.Collections
       dictionary[newKey] = newValue;
       Assert.AreEqual(newValue, dictionary[newKey]);
       CheckValues(dictionary, keys, values);
-      /*newKey = 0x100006;
-      newValue = -5;
-      Array.Resize(ref keys, keys.Length + 1);
-      Array.Resize(ref values, values.Length + 1);
-      keys[keys.Length - 1] = newKey;
-      values[values.Length - 1] = newValue;
-      dictionary.Add(newKey, newValue);
-      Assert.AreEqual(newValue, dictionary[newKey]);
-      CheckValues(dictionary, keys, values);*/
     }
     
     [Test]
@@ -245,7 +231,7 @@ namespace Xtensive.Core.Tests.Collections
           reference.TryGetValue(keys[i % keysLength], out t);
       Assert.Greater(t, int.MinValue);
     }
-    
+
     private static void CheckValues<T>(IntDictionary<T> dictionary, int[] keys, T[] values)
     {
       for (var i = 0; i < keys.Length; i++)
@@ -257,11 +243,11 @@ namespace Xtensive.Core.Tests.Collections
       return (GetItemsCollection(dictionary)).Length;
     }
 
-    private static KeyValuePair<int, T>[][] GetItemsCollection<T>(IntDictionary<T> dictionary)
+    private static Triplet<int, T, KeyValuePair<int, T>[]>[] GetItemsCollection<T>(IntDictionary<T> dictionary)
     {
       var itemsField = typeof (IntDictionary<T>)
         .GetField("items", BindingFlags.NonPublic | BindingFlags.Instance);
-      return (KeyValuePair<int, T>[][])itemsField.GetValue(dictionary);
+      return (Triplet<int, T, KeyValuePair<int, T>[]>[])itemsField.GetValue(dictionary);
     }
     
     private static int[] GenerateValues(IEnumerable<int> keys)
