@@ -11,7 +11,7 @@ namespace Xtensive.Sql.Oracle.v11
 {
   internal class Extractor : v10.Extractor
   {
-    public override Catalog Extract()
+    public override Catalog ExtractAllSchemas()
     {
       throw new NotImplementedException();
     }

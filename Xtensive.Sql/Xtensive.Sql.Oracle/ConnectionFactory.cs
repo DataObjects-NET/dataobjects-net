@@ -26,12 +26,13 @@ namespace Xtensive.Sql.Oracle
       SqlHelper.ValidateConnectionUrl(url);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(url.Resource, "url.Resource");
       var builder = new OracleConnectionStringBuilder();
+      var database = url.GetDatabase();
       if (url.Host!=string.Empty) {
         int port = url.Port!=0 ? url.Port : DefaultPort;
-        builder.DataSource = string.Format(DataSourceFormat, url.Host, port, url.Resource);
+        builder.DataSource = string.Format(DataSourceFormat, url.Host, port, database);
       }
       else
-        builder.DataSource = url.Resource;
+        builder.DataSource = database;
       if (url.User!=string.Empty && url.Password!=string.Empty) {
         builder.UserID = url.User;
         builder.Password = url.Password;

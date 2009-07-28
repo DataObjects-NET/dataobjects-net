@@ -61,6 +61,15 @@ namespace Xtensive.Sql.Oracle.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid boolean string &apos;{0}&apos;.
+        /// </summary>
+        internal static string ExInvalidBooleanStringX {
+            get {
+                return ResourceManager.GetString("ExInvalidBooleanStringX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Oracle below 9i2 is not supported..
         /// </summary>
         internal static string ExOracleBelow9i2IsNotSupported {

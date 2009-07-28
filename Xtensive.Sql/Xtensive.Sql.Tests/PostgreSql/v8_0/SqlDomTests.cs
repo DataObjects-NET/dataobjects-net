@@ -932,7 +932,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
 
         //Extract initial model
         {
-          var extractedCatalog = Driver.ExtractModel(Connection, trx);
+          var extractedCatalog = Driver.ExtractAllSchemas(Connection, trx);
           new CatalogComparer(Connection)
             .CompareCatalogs(MyCatalog, extractedCatalog);
         }
@@ -1005,7 +1005,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
 
         //Extract altered model
         {
-          var extractedCatalog = Driver.ExtractModel(Connection, trx);
+          var extractedCatalog = Driver.ExtractAllSchemas(Connection, trx);
           new CatalogComparer(Connection)
             .CompareCatalogs(MyCatalog, extractedCatalog);
         }
@@ -1064,7 +1064,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
 
         //Extract altered model again
         {
-          var extractedCatalog = Driver.ExtractModel(Connection, trx);
+          var extractedCatalog = Driver.ExtractAllSchemas(Connection, trx);
           new CatalogComparer(Connection)
             .CompareCatalogs(MyCatalog, extractedCatalog);
         }
@@ -2121,7 +2121,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
           cmd.ExecuteNonQuery();
         }
 
-        var exModel1 = Driver.ExtractModel(Connection, trx);
+        var exModel1 = Driver.ExtractAllSchemas(Connection, trx);
         var exT1 = exModel1.Schemas[schema.DbName].Tables[table.DbName];
         Assert.IsNotNull(exT1);
         var exC1 = exT1.TableColumns["C1"];
@@ -2135,7 +2135,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
           cmd.ExecuteNonQuery();
         }
 
-        var exModel2 = Driver.ExtractModel(Connection, trx);
+        var exModel2 = Driver.ExtractAllSchemas(Connection, trx);
         var exT2 = exModel2.Schemas[schema.DbName].Tables["T2"];
         Assert.IsNotNull(exT2);
         var exC2 = exT2.TableColumns["C2"];

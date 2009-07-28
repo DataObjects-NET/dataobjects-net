@@ -44,12 +44,18 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         }
     }
 
-    public override Catalog Extract()
+    public override Catalog ExtractAllSchemas()
     {
-      var result = new Catalog(Connection.Url.Resource);
+      var result = new Catalog(Connection.Url.GetDatabase());
       ExtractUsers();
       ExtractSchemas(result);
       return result;
+    }
+
+    public override Catalog ExtractDefaultSchema()
+    {
+      // TODO: implement
+      return ExtractAllSchemas();
     }
     
     private Schema CreatePgCatalogSchema(Type dummy)
@@ -815,13 +821,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         names2[i] = names[i].Replace("\"", "\"\"");
       }
       return ("\"" + string.Join("\".\"", names2) + "\"");
-    }
-    
-    protected DbCommand CreateCommand(ISqlCompileUnit statement)
-    {
-      var command = Connection.CreateCommand(statement);
-      command.Transaction = Transaction;
-      return command;
     }
 
     // Constructor

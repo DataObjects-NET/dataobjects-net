@@ -11,6 +11,7 @@ using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.SqlServer.Resources;
 
 namespace Xtensive.Sql.SqlServer.v2005
 {
@@ -26,7 +27,7 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     public override string Translate(SqlCompilerContext context, bool cascade, AlterTableSection section)
     {
-      return String.Empty;
+      return string.Empty;
     }
 
     public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
@@ -65,12 +66,12 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override string Translate(SqlNodeType type)
     {
       switch (type) {
-        case SqlNodeType.Count:
-          return "COUNT_BIG";
-        case SqlNodeType.Concat:
-          return "+";
-        case SqlNodeType.Overlaps:
-          throw new NotSupportedException(String.Format("'{0}' is not supported.", type));
+      case SqlNodeType.Count:
+        return "COUNT_BIG";
+      case SqlNodeType.Concat:
+        return "+";
+      case SqlNodeType.Overlaps:
+        throw new NotSupportedException(string.Format(Strings.ExOperationXIsNotSupported, type));
       }
       return base.Translate(type);
     }

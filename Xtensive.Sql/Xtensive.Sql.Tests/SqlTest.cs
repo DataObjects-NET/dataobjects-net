@@ -57,7 +57,7 @@ namespace Xtensive.Sql.Tests
     {
       Catalog model;
       using (var transaction = Connection.BeginTransaction()) {
-        model = Driver.ExtractModel(Connection, transaction);
+        model = Driver.ExtractAllSchemas(Connection, transaction);
         transaction.Commit();
       }
       return model;

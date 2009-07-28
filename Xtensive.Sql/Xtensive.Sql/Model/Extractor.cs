@@ -28,10 +28,16 @@ namespace Xtensive.Sql.Model
     protected DbTransaction Transaction { get; private set; }
 
     /// <summary>
-    /// Extracts the database catalog from server.
+    /// Extracts all schemas from the database.
     /// </summary>
-    /// <returns>The extracted catalog.</returns>
-    public abstract Catalog Extract();
+    /// <returns><see cref="Catalog"/> that holds all schemas in the database.</returns>
+    public abstract Catalog ExtractAllSchemas();
+
+    /// <summary>
+    /// Extracts the default schema from the database.
+    /// </summary>
+    /// <returns><see cref="Catalog"/> that holds just the default schema in the database.</returns>
+    public abstract Catalog ExtractDefaultSchema();
 
     /// <summary>
     /// Initializes the translator with specified <see cref="SqlConnection"/> and <see cref="DbTransaction"/>.
@@ -51,6 +57,30 @@ namespace Xtensive.Sql.Model
     /// </summary>
     protected virtual void Initialize()
     {
+    }
+
+    /// <summary>
+    /// Creates the command attached to <see cref="Connection"/> and <see cref="Transaction"/>.
+    /// </summary>
+    /// <param name="commandText">The command text.</param>
+    /// <returns>Created command.</returns>
+    protected DbCommand CreateCommand(string commandText)
+    {
+      var command = Connection.CreateCommand(commandText);
+      command.Transaction = Transaction;
+      return command;
+    }
+
+    /// <summary>
+    /// Creates the command attached to <see cref="Connection"/> and <see cref="Transaction"/>.
+    /// </summary>
+    /// <param name="statement">The statement.</param>
+    /// <returns>Created command.</returns>
+    protected DbCommand CreateCommand(ISqlCompileUnit statement)
+    {
+      var command = Connection.CreateCommand(statement);
+      command.Transaction = Transaction;
+      return command;
     }
 
     // Constructors

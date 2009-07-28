@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Providers.Sql
       var schema = context.NativeExtractedSchema as Schema;
       if (schema == null) {
         schema = DomainHandler.Driver
-          .ExtractModel(SessionHandler.Connection, SessionHandler.Transaction)
+          .ExtractDefaultSchema(SessionHandler.Connection, SessionHandler.Transaction)
           .DefaultSchema;
         SaveSchemaInContext(schema);
       }

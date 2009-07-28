@@ -21,9 +21,9 @@ namespace Xtensive.Sql.SqlServer.v2005
       infoCatalog = infoCatalogCached.GetValue(BuildInfoCatalog, Connection.UnderlyingConnection, Transaction);
     }
 
-    public override Catalog Extract()
+    public override Catalog ExtractAllSchemas()
     {
-      catalog = new Catalog(Connection.Url.Resource);
+      catalog = new Catalog(Connection.Url.GetDatabase());
       ExtractSchemas();
       foreach (Schema schema in catalog.Schemas) {
         ExtractDomains(schema);
@@ -37,6 +37,12 @@ namespace Xtensive.Sql.SqlServer.v2005
       }
       ExtractForeignKeys();
       return catalog;
+    }
+
+    public override Catalog ExtractDefaultSchema()
+    {
+      // TODO: implement
+      return ExtractAllSchemas();
     }
 
     private void ExtractSchemas()
@@ -553,7 +559,7 @@ namespace Xtensive.Sql.SqlServer.v2005
           cmd.CommandText = selectViewsSQL;
           using (IDataReader reader = cmd.ExecuteReader()) {
             while (reader.Read())
-              cSchema.CreateView((string)reader["VIEW_NAME"], SqlDml.Native("view def"));
+              cSchema.CreateView((string) reader["VIEW_NAME"], SqlDml.Native("view def"));
           }
         }
 
@@ -570,7 +576,7 @@ namespace Xtensive.Sql.SqlServer.v2005
           cmd.CommandText = selectColumnsSql;
           using (IDataReader reader = cmd.ExecuteReader())
             while (reader.Read()) {
-              string tableOrViewName = (string)reader["VIEW_NAME"];
+              string tableOrViewName = (string) reader["VIEW_NAME"];
               // Create new column
 
               View view = cSchema.Views[tableOrViewName];
@@ -579,13 +585,6 @@ namespace Xtensive.Sql.SqlServer.v2005
         }
       }
       return catalog;
-    }
-
-    private DbCommand CreateCommand(ISqlCompileUnit statement)
-    {
-      var command = Connection.CreateCommand(statement);
-      command.Transaction = Transaction;
-      return command;
     }
 
     public Extractor(SqlDriver driver)

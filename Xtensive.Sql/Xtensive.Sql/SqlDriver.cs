@@ -70,20 +70,29 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Extracts the model from server.
+    /// Extracts all schemas from the database.
     /// </summary>
-    /// <param name="connection">The connection to work within.</param>
-    /// <param name="transaction">The transaction to work within.</param>
-    /// <returns>Extracted model.</returns>
-    public Catalog ExtractModel(SqlConnection connection, DbTransaction transaction)
+    /// <param name="connection">The connection.</param>
+    /// <param name="transaction">The transaction.</param>
+    /// <returns>
+    /// <see cref="Catalog"/> that holds all schemas in the database.
+    /// </returns>
+    public Catalog ExtractAllSchemas(SqlConnection connection, DbTransaction transaction)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
-      ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
-      if (connection.Driver != this)
-        throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
-      var extractor = CreateExtractor();
-      extractor.Initialize(connection, transaction);
-      return extractor.Extract();
+      return CreateExtractorIntenal(connection, transaction).ExtractAllSchemas();
+    }
+
+    /// <summary>
+    /// Extracts the default schema from the database.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="transaction">The transaction.</param>
+    /// <returns>
+    /// <see cref="Catalog"/> that holds just the default schema in the database.
+    /// </returns>
+    public Catalog ExtractDefaultSchema(SqlConnection connection, DbTransaction transaction)
+    {
+      return CreateExtractorIntenal(connection, transaction).ExtractDefaultSchema();
     }
 
     /// <summary>
@@ -175,6 +184,17 @@ namespace Xtensive.Sql
     private SqlConnection CreateConnectionInternal(UrlInfo url)
     {
       return new SqlConnection(this, CreateNativeConnection(url), url);
+    }
+
+    private Extractor CreateExtractorIntenal(SqlConnection connection, DbTransaction transaction)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
+      ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
+      if (connection.Driver != this)
+        throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
+      var extractor = CreateExtractor();
+      extractor.Initialize(connection, transaction);
+      return extractor;
     }
 
     private static SqlDriver CreateDriverInternal(UrlInfo url)

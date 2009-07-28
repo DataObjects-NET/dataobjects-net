@@ -19,7 +19,7 @@ namespace Xtensive.Sql.VistaDb.v3
       vdbConnnection = (VistaDBConnection) Connection.UnderlyingConnection;
     }
 
-    public override Catalog Extract()
+    public override Catalog ExtractAllSchemas()
     {
       catalog = new Catalog(Connection.Url.Resource);
       ExtractSchemas();
@@ -32,6 +32,11 @@ namespace Xtensive.Sql.VistaDb.v3
       }
       ExtractForeignKeys();
       return catalog;
+    }
+
+    public override Catalog ExtractDefaultSchema()
+    {
+      throw new NotImplementedException();
     }
 
     private void ExtractSchemas()

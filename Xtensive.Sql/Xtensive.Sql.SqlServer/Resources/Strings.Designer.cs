@@ -70,6 +70,15 @@ namespace Xtensive.Sql.SqlServer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Operation &apos;{0} is not supported.
+        /// </summary>
+        internal static string ExOperationXIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExOperationXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SQL Server supports trimming of space characters only..
         /// </summary>
         internal static string ExSqlServerSupportsTrimmingOfSpaceCharactersOnly {

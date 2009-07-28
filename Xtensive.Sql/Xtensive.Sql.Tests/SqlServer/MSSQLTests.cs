@@ -96,7 +96,7 @@ namespace Xtensive.Sql.Tests.SqlServer
       }
 
       using (var transaction = sqlConnection.BeginTransaction()) {
-        Catalog = sqlDriver.ExtractModel(sqlConnection, transaction);
+        Catalog = sqlDriver.ExtractAllSchemas(sqlConnection, transaction);
         transaction.Commit();
       }
     }
@@ -3937,7 +3937,7 @@ namespace Xtensive.Sql.Tests.SqlServer
           cmd.ExecuteNonQuery();
         }
 
-        var exModel1 = sqlDriver.ExtractModel(sqlConnection, trx);
+        var exModel1 = sqlDriver.ExtractAllSchemas(sqlConnection, trx);
         var exT1 = exModel1.Schemas[schema.DbName].Tables[table.DbName];
         Assert.IsNotNull(exT1);
         var exC1 = exT1.TableColumns["C1"];
@@ -3952,7 +3952,7 @@ namespace Xtensive.Sql.Tests.SqlServer
           cmd.ExecuteNonQuery();
         }
 
-        var exModel2 = sqlDriver.ExtractModel(sqlConnection, trx);
+        var exModel2 = sqlDriver.ExtractAllSchemas(sqlConnection, trx);
         var exT2 = exModel2.Schemas[schema.DbName].Tables["T2"];
         Assert.IsNotNull(exT2);
         var exC2 = exT2.TableColumns["C2"];

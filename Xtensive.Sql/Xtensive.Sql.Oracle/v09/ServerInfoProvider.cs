@@ -146,8 +146,11 @@ namespace Xtensive.Sql.Oracle.v09
     {
       var indexInfo = new IndexInfo();
       indexInfo.AllowedDdlStatements = DdlStatements.All;
-      indexInfo.Features = IndexFeatures.Unique;
       indexInfo.MaxIdentifierLength = MaxIdentifierLength;
+      indexInfo.Features =
+        IndexFeatures.Unique |
+        IndexFeatures.SortOrder |
+        IndexFeatures.NonKeyColumns;
       indexInfo.PartitionMethods =
         PartitionMethods.Hash |
         PartitionMethods.Interval |

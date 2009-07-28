@@ -150,7 +150,7 @@ namespace Xtensive.Sql.Model
     /// <value>The columns.</value>
     public override IList<DataTableColumn> Columns
     {
-      get { return TableColumns.ToArray().Convert(i => (DataTableColumn)i); }
+      get { return TableColumns.ToArray().Convert(i => (DataTableColumn) i); }
     }
 
     #endregion

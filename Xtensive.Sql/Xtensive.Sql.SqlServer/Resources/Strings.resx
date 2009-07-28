@@ -123,4 +123,7 @@
   <data name="ExSqlServerSupportsTrimmingOfSpaceCharactersOnly" xml:space="preserve">
     <value>SQL Server supports trimming of space characters only.</value>
   </data>
+  <data name="ExOperationXIsNotSupported" xml:space="preserve">
+    <value>Operation '{0} is not supported</value>
+  </data>
 </root>

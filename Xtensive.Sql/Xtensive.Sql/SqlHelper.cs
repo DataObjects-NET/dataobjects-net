@@ -18,6 +18,8 @@ namespace Xtensive.Sql
   /// </summary>
   public static class SqlHelper
   {
+    private const char SchemaSeparator = '/';
+
     /// <summary>
     /// Validates the specified URL againts charactes that usually forbidden inside connection strings.
     /// </summary>
@@ -83,6 +85,36 @@ namespace Xtensive.Sql
       return ReferenceEquals(expression, null);
     }
 
+    /// <summary>
+    /// Extracts the database component from the specified <see cref="UrlInfo"/>.
+    /// </summary>
+    /// <param name="url">The URL.</param>
+    /// <returns>Database name.</returns>
+    public static string GetDatabase(this UrlInfo url)
+    {
+      var resource = url.Resource;
+      int position = resource.IndexOf(SchemaSeparator);
+      if (position < 0)
+        return url.Resource;
+      return resource.Substring(0, position);
+    }
+
+    /// <summary>
+    /// Extracts the schema component from the specified <see cref="UrlInfo"/>.
+    /// If schema is not specified returns <paramref name="defaultValue"/>.
+    /// </summary>
+    /// <param name="url">The URL.</param>
+    /// <param name="defaultValue">The default schema name.</param>
+    /// <returns>Schema name.</returns>
+    public static string GetSchema(this UrlInfo url, string defaultValue)
+    {
+      var resource = url.Resource;
+      int position = resource.IndexOf(SchemaSeparator);
+      if (position < 0)
+        return defaultValue;
+      return resource.Substring(position);
+    }
+    
     /// <summary>
     /// Converts the specified <see cref="SqlType"/> to corresponding .NET type.
     /// </summary>

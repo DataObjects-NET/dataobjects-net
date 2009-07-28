@@ -120,4 +120,7 @@
   <data name="ExOracleBelow9i2IsNotSupported" xml:space="preserve">
     <value>Oracle below 9i2 is not supported.</value>
   </data>
+  <data name="ExInvalidBooleanStringX" xml:space="preserve">
+    <value>Invalid boolean string '{0}'</value>
+  </data>
 </root>

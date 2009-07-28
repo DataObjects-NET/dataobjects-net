@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
-using System;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 
@@ -12,9 +11,24 @@ namespace Xtensive.Sql.Oracle.v09
 {
   internal class Translator : SqlTranslator
   {
+    public override void Initialize()
+    {
+      base.Initialize();
+      numberFormat.NumberDecimalSeparator = ".";
+      numberFormat.NumberGroupSeparator = "";
+      numberFormat.NaNSymbol = "BINARY_DOUBLE_NAN";
+      numberFormat.PositiveInfinitySymbol = "+BINARY_DOUBLE_INFINITY";
+      numberFormat.NegativeInfinitySymbol = "-BINARY_DOUBLE_INFINITY";
+    }
+
     public override string QuoteIdentifier(params string[] names)
     {
       return SqlHelper.QuoteIdentifierWithQuotes(names);
+    }
+
+    public override string QuoteString(string str)
+    {
+      return "N" + base.QuoteString(str);
     }
 
     public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
@@ -31,6 +45,7 @@ namespace Xtensive.Sql.Oracle.v09
 
     public override string Translate(SqlJoinMethod method)
     {
+      // TODO: add more hints
       switch (method) {
       case SqlJoinMethod.Loop:
         return "use_nl";
@@ -42,6 +57,23 @@ namespace Xtensive.Sql.Oracle.v09
         return string.Empty;
       }
     }
+
+   public override string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
+    {
+      switch(section) {
+      case NodeSection.Exit:
+        return ".nextvalue";
+      default:
+        return string.Empty;
+      }
+    }
+
+    /*
+    public override string Translate(SqlCompilerContext context, SqlLiteral node)
+    {
+
+    }
+    */
 
     public override string Translate(SqlValueType type)
     {

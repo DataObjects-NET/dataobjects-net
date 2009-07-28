@@ -229,7 +229,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       using (var connection = driver.CreateConnection(Url)) {
         connection.Open();
         using (var t = connection.BeginTransaction())
-          schema = driver.ExtractModel(connection, t).DefaultSchema;
+          schema = driver.ExtractDefaultSchema(connection, t).DefaultSchema;
       }
       return schema;
     }
