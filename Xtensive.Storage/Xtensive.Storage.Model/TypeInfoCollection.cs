@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Model
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> descendants = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> interfaces = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> implementors = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
-    private Dictionary<int, TypeInfo> typeIdIndex;
+    private IntDictionary<TypeInfo> typeIdIndex;
     
     /// <summary>
     /// Determines whether this instance contains an item with the specified key.
@@ -256,7 +256,7 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public void BuildTypeIdIndex()
     {
-      typeIdIndex = new Dictionary<int, TypeInfo>(this.Count);
+      typeIdIndex = new IntDictionary<TypeInfo>();
       foreach (var type in this)
         if (type.TypeId!=TypeInfo.NoTypeId)
           typeIdIndex[type.TypeId] = type;

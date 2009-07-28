@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Linq
             ords = customerOrders.orders.Count(),
             emps = employees.Count(),
             sum = employees.Count() + customerOrders.orders.Count()
-          });
+          }).OrderBy(t => t.emps).ThenBy(t => t.ords).ThenBy(t => t.sum);
 
       var expected = Query<Customer>.All.AsEnumerable()
         .GroupJoin(Query<Order>.All.AsEnumerable(),
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Linq
             ords = customerOrders.orders.Count(),
             emps = employees.Count(),
             sum = employees.Count() + customerOrders.orders.Count()
-          });
+          }).OrderBy(t => t.emps).ThenBy(t => t.ords).ThenBy(t => t.sum);
 
       Assert.IsTrue(expected.SequenceEqual(q));
 

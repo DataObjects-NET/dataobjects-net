@@ -5,9 +5,10 @@
 // Created:    2009.04.24
 
 using System;
-using System.Linq;
+using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse.Resources;
@@ -37,10 +38,17 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
         var visitedSource = VisitCompilable(selectProvider.Source);
         if (isOrderCorrupted && !isOrderOfIndex)
           visitedSource = OnInsertSortProvider(visitedSource);
+        else if (isOrderOfIndex)
+          visitedSource.SetActualOrdering(new DirectionCollection<int>());
         return RecreateSelectProvider(selectProvider, visitedSource);
       }
       var visited = VisitCompilable(origin);
-      return isOrderCorrupted && !isOrderOfIndex ? OnInsertSortProvider(visited) : visited;
+      if (isOrderOfIndex) {
+        if (!isOrderCorrupted)
+          visited.SetActualOrdering(new DirectionCollection<int>());
+        return visited;
+      }
+      return isOrderCorrupted ? OnInsertSortProvider(visited) : visited;
     }
 
     protected override sealed Provider Visit(CompilableProvider cp)
@@ -50,11 +58,9 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       descriptor = descriptorResolver(cp);
 
       var prevDescriptor = descriptor;
-      var prevIsOrderOfIndex = isOrderOfIndex;
       var visited = (CompilableProvider) base.Visit(cp);
       descriptor = prevDescriptor;
       OriginalExpectedOrder = cp.ExpectedOrder;
-      isOrderOfIndex = prevIsOrderOfIndex && isOrderOfIndex;
 
       var result = RemoveSortProvider(visited);
       if (result==visited)
@@ -79,7 +85,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       SaveSortOrder(result);
       return result;
     }
-
+    
     protected override sealed Provider VisitIndex(IndexProvider provider)
     {
       SortOrder = provider.ExpectedOrder;
@@ -88,6 +94,91 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       if (!descriptor.Value.PreservesOrder)
         SetActualOrdering(provider, new DirectionCollection<int>());
       return provider;
+    }
+
+    protected override Provider VisitApply(ApplyProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var left = provider.Left;
+      var right = provider.Right;
+      VisitBinaryProviderSources(ref left, ref right);
+      OnRecursionExit(provider);
+      if (left == provider.Left && right == provider.Right)
+        return provider;
+      return new ApplyProvider(provider.ApplyParameter, left, right, provider.SequenceType, provider.ApplyType);
+    }
+
+    protected override Provider VisitIntersect(IntersectProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var left = provider.Left;
+      var right = provider.Right;
+      VisitBinaryProviderSources(ref left, ref right);
+      OnRecursionExit(provider);
+      if (left == provider.Left && right == provider.Right)
+        return provider;
+      return new IntersectProvider(left, right);
+    }
+
+    protected override Provider VisitExcept(ExceptProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var left = provider.Left;
+      var right = provider.Right;
+      VisitBinaryProviderSources(ref left, ref right);
+      OnRecursionExit(provider);
+      if (left == provider.Left && right == provider.Right)
+        return provider;
+      return new ExceptProvider(left, right);
+    }
+
+    protected override Provider VisitConcat(ConcatProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var left = provider.Left;
+      var right = provider.Right;
+      VisitBinaryProviderSources(ref left, ref right);
+      OnRecursionExit(provider);
+      if (left == provider.Left && right == provider.Right)
+        return provider;
+      return new ConcatProvider(left, right);
+    }
+
+    protected override Provider VisitUnion(UnionProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var left = provider.Left;
+      var right = provider.Right;
+      VisitBinaryProviderSources(ref left, ref right);
+      OnRecursionExit(provider);
+      if (left == provider.Left && right == provider.Right)
+        return provider;
+      return new UnionProvider(left, right);
+    }
+
+    protected override Provider VisitJoin(JoinProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var left = provider.Left;
+      var right = provider.Right;
+      VisitBinaryProviderSources(ref left, ref right);
+      var equalIndexes = OnRecursionExit(provider);
+      if (left == provider.Left && right == provider.Right)
+        return provider;
+      return new JoinProvider(left, right, provider.JoinType, provider.JoinAlgorithm,
+        equalIndexes != null ? (Pair<int>[])equalIndexes : provider.EqualIndexes);
+    }
+
+    protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var left = provider.Left;
+      var right = provider.Right;
+      VisitBinaryProviderSources(ref left, ref right);
+      var predicate = (Expression<Func<Tuple, Tuple, bool>>)OnRecursionExit(provider);
+      if (left == provider.Left && right == provider.Right)
+        return provider;
+      return new PredicateJoinProvider(left, right, predicate ?? provider.Predicate, provider.JoinType);
     }
 
     protected virtual void OnValidateRemovingOfOrderedColumns()
@@ -183,6 +274,15 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     {
       isOrderCorrupted = !descriptor.Value.IsSorter
         && (isOrderCorrupted || !descriptor.Value.PreservesOrder);
+    }
+
+    private void VisitBinaryProviderSources(ref CompilableProvider left, ref CompilableProvider right)
+    {
+      left = VisitCompilable(left);
+      var isOrderOfIndexForLeft = isOrderOfIndex;
+      isOrderOfIndex = false;
+      right = VisitCompilable(right);
+      isOrderOfIndex = isOrderOfIndexForLeft && isOrderOfIndex;
     }
 
     #endregion

@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Providers.Sql
       var query = (SqlSelect) sqlProvider.Request.SelectStatement.Clone();
       if(query.OrderBy.Count > 0)
         return rootProvider;
-      if (rootProvider.Origin.ExpectedOrder.Count > 0)
+      if (rootProvider.Origin.Header.Order.Count > 0)
         ApplyOrderingToProvider(sqlProvider, query);
       else {
         var originAsSelect = rootProvider.Origin as SelectProvider;
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private static void ApplyOrderingToProvider(ExecutableProvider sqlProvider, SqlSelect query)
     {
-      foreach (KeyValuePair<int, Direction> pair in sqlProvider.Origin.ExpectedOrder)
+      foreach (KeyValuePair<int, Direction> pair in sqlProvider.Origin.Header.Order)
         query.OrderBy.Add(query.Columns[pair.Key], pair.Value==Direction.Positive);
     }
 

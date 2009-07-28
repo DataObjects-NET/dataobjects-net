@@ -44,9 +44,10 @@ namespace Xtensive.Storage.Tests.Linq
             CustomerId = x.Id,
             CompanyName = x.CompanyName,
             Country = x.Address.Country
-          })
+          }).OrderBy(t => t.CompanyName).ThenBy(t => t.Country).ThenBy(t => t.CustomerId)
           ;
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.IsTrue(expected.SequenceEqual(
+        result.ToList().OrderBy(t => t.CompanyName).ThenBy(t => t.Country).ThenBy(t => t.CustomerId)));
       QueryDumper.Dump(result);
     }
 

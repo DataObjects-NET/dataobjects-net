@@ -29,25 +29,7 @@ namespace Xtensive.Storage
   [Serializable]
   public class Key : IEquatable<Key>
   {
-    #region Nested type: GenericKeyTypeInfo
-
-    private class GenericKeyTypeInfo
-    {
-      public Type Type;
-      public Func<HierarchyInfo, TypeInfo, Tuple, Key> DefaultConstructor;
-      public Func<HierarchyInfo, TypeInfo, Tuple, int[], Key> KeyIndexBasedConstructor;
-    }
-
-    #endregion
-
-    /// <summary>
-    /// Maximal supported length (count of values) of purely generic keys.
-    /// </summary>
-    public static int MaxGenericKeyLength = 4;
     private const string GenericKeyNameFormat = "{0}.{1}`{2}";
-
-    private static ThreadSafeDictionary<HierarchyInfo, GenericKeyTypeInfo> genericKeyTypes = 
-      ThreadSafeDictionary<HierarchyInfo, GenericKeyTypeInfo>.Create(new object());
     
     private readonly HierarchyInfo hierarchy;
     protected Tuple value;
@@ -63,6 +45,11 @@ namespace Xtensive.Storage
 
     [NonSerialized]
     private string cachedFormatResult;
+
+    /// <summary>
+    /// Maximal supported length (count of values) of purely generic keys.
+    /// </summary>
+    public static int MaxGenericKeyLength = 4;
 
     /// <summary>
     /// Gets the hierarchy identified entity belongs to.
@@ -534,7 +521,7 @@ namespace Xtensive.Storage
       Key key;
       var isGenericKey = keyInfo.Length <= MaxGenericKeyLength;
       if (isGenericKey)
-        key = CreateGenericKey(type.Hierarchy, exactType ? type : null, value, keyIndexes);
+        key = CreateGenericKey(domain, type.Hierarchy, exactType ? type : null, value, keyIndexes);
       else {
         if (keyIndexes!=null)
           throw Exceptions.InternalError(Strings.ExKeyIndexesAreSpecifiedForNonGenericKey, Log.Instance);
@@ -555,29 +542,28 @@ namespace Xtensive.Storage
       return key;
     }
 
-    private static Key CreateGenericKey(HierarchyInfo hierarchy, TypeInfo type, Tuple tuple, int[] keyIndexes)
+    private static Key CreateGenericKey(Domain domain, HierarchyInfo hierarchy, TypeInfo type,
+      Tuple tuple, int[] keyIndexes)
     {
-      var keyTypeInfo = genericKeyTypes.GetValue(hierarchy, BuildGenericKeyTypeInfo);
+      var keyTypeInfo = domain.genericKeyTypes.GetValue(hierarchy.Root.TypeId, BuildGenericKeyTypeInfo,
+        hierarchy);
       if (keyIndexes==null)
         return keyTypeInfo.DefaultConstructor(hierarchy, type, tuple);
-      else
-        return keyTypeInfo.KeyIndexBasedConstructor(hierarchy, type, tuple, keyIndexes);
+      return keyTypeInfo.KeyIndexBasedConstructor(hierarchy, type, tuple, keyIndexes);
     }
 
-    private static GenericKeyTypeInfo BuildGenericKeyTypeInfo(HierarchyInfo hierarchy)
+    private static GenericKeyTypeInfo BuildGenericKeyTypeInfo(int typeId, HierarchyInfo hierarchy)
     {
       var descriptor = hierarchy.KeyInfo.TupleDescriptor;
       int length = descriptor.Count;
       var type = typeof (Key).Assembly.GetType(
         string.Format(GenericKeyNameFormat, typeof (Key<>).Namespace, typeof(Key).Name, length));
       type = type.MakeGenericType(descriptor.ToArray());
-      return new GenericKeyTypeInfo() {
-        Type = type,
-        DefaultConstructor =
-          DelegateHelper.CreateDelegate<Func<HierarchyInfo, TypeInfo, Tuple, Key>>(null, type, "Create", ArrayUtils<Type>.EmptyArray),
-        KeyIndexBasedConstructor =
-          DelegateHelper.CreateDelegate<Func<HierarchyInfo, TypeInfo, Tuple, int[], Key>>(null, type, "Create", ArrayUtils<Type>.EmptyArray)
-      };
+      return new GenericKeyTypeInfo(type,
+        DelegateHelper.CreateDelegate<Func<HierarchyInfo, TypeInfo, Tuple, Key>>(null,
+          type, "Create", ArrayUtils<Type>.EmptyArray),
+        DelegateHelper.CreateDelegate<Func<HierarchyInfo, TypeInfo, Tuple, int[], Key>>(null, type,
+          "Create", ArrayUtils<Type>.EmptyArray));
     }
 
     #endregion

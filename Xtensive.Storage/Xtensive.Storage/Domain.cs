@@ -15,6 +15,7 @@ using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
+using Xtensive.Core.Threading;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Internals;
@@ -24,6 +25,7 @@ using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Upgrade;
+using TypeInfo=Xtensive.Storage.Model.TypeInfo;
 
 namespace Xtensive.Storage
 {
@@ -163,6 +165,9 @@ namespace Xtensive.Storage
     internal ICache<Key, Key> KeyCache { get; private set; }
 
     internal ICache<MethodInfo, Pair<MethodInfo, TranslatedQuery>> QueryCache { get; private set; }
+
+    internal ThreadSafeIntDictionary<GenericKeyTypeInfo> genericKeyTypes = 
+      ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
 
     private void OnSessionOpen(Session session)
     {
