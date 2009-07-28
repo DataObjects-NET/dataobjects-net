@@ -1105,6 +1105,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Protocol &apos;{0}&apos; is not supported. Use one of the following: {1}.
+        /// </summary>
+        internal static string ExProtocolXIsNotSupportedUseOneOfTheFollowingY {
+            get {
+                return ResourceManager.GetString("ExProtocolXIsNotSupportedUseOneOfTheFollowingY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Referenced field &apos;{0}&apos; and paired field are equal..
         /// </summary>
         internal static string ExReferencedFieldXAndPairedFieldAreEqual {
@@ -1213,7 +1222,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Handler provider not found for &quot;{0}&quot; connection type. Search folder &quot;{1}&quot;..
+        ///   Looks up a localized string similar to Handler provider not found for &quot;{0}&quot; connection type..
         /// </summary>
         internal static string ExStorageProviderNotFound {
             get {

@@ -108,7 +108,8 @@ namespace Xtensive.Storage.Building.Builders
           providerAssemblyShortName = "Xtensive.Storage.Providers.Sql";
           break;
         default:
-          throw new ArgumentOutOfRangeException();
+          throw new NotSupportedException(
+            string.Format(Strings.ExProtocolXIsNotSupportedUseOneOfTheFollowingY, protocol, WellKnown.Protocol.All));
         }
         var providerAssemblyFullName = thisAssemblyName.FullName.Replace(thisAssemblyName.Name, providerAssemblyShortName);
         var providerAssembly = Assembly.Load(providerAssemblyFullName);
@@ -120,7 +121,7 @@ namespace Xtensive.Storage.Building.Builders
           .FirstOrDefault();
         if (handlerProviderType==null)
           throw new DomainBuilderException(
-            string.Format(Strings.ExStorageProviderNotFound, protocol, Environment.CurrentDirectory));
+            string.Format(Strings.ExStorageProviderNotFound, protocol));
         var handlerFactory = (HandlerFactory) Activator.CreateInstance(handlerProviderType);
         handlerFactory.Domain = BuildingContext.Current.Domain;
         handlerFactory.Initialize();

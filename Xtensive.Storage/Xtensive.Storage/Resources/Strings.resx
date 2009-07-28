@@ -175,7 +175,7 @@
     <value>Value of {0} type can't be assign to property of {1} type.</value>
   </data>
   <data name="ExStorageProviderNotFound" xml:space="preserve">
-    <value>Handler provider not found for "{0}" connection type. Search folder "{1}".</value>
+    <value>Handler provider not found for "{0}" connection type.</value>
   </data>
   <data name="ExInvalidKeyParams" xml:space="preserve">
     <value>Unable to create key. Key params do not correspond to key structure.</value>
@@ -784,5 +784,8 @@ Actions:
   </data>
   <data name="ExColumnXIsNotFoundInTableY" xml:space="preserve">
     <value>Column with name '{0}' is not found in table '{1}'.</value>
+  </data>
+  <data name="ExProtocolXIsNotSupportedUseOneOfTheFollowingY" xml:space="preserve">
+    <value>Protocol '{0}' is not supported. Use one of the following: {1}</value>
   </data>
 </root>

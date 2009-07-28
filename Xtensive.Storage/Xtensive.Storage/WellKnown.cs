@@ -69,6 +69,11 @@ namespace Xtensive.Storage
       /// PostgreSQL.
       /// </summary>
       public const string PostgreSql = "postgresql";
+
+      /// <summary>
+      /// All supported protocols (for exception messages, etc).
+      /// </summary>
+      public const string All = "'memory', 'sqlserver', 'postgresql'";
     }
 
     /// <summary>
