@@ -71,8 +71,9 @@ namespace Xtensive.Storage
     public bool Contains(Key key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      if (!Field.ItemType.IsAssignableFrom(key.Type.UnderlyingType))
-        throw new InvalidOperationException(string.Format("Entity type {0} is not supported by this instance.", key.Type.Name));
+      var type = key.Type;
+      if (!Field.ItemType.IsAssignableFrom(type.UnderlyingType))
+        throw new InvalidOperationException(string.Format("Entity type {0} is not supported by this instance.", type.Name));
 
       if (State.IsFullyLoaded)
         return State.Contains(key);
@@ -130,11 +131,13 @@ namespace Xtensive.Storage
 
     #region Internal Contains, Add, Remove, Clear, IntersectWith, ExceptWith, UnionWith members
 
+    [Infrastructure]
     internal bool Contains(Entity item)
     {
       return Contains(item.Key);
     }
 
+    [Infrastructure]
     internal bool Add(Entity item)
     {
       if (Contains(item))
@@ -154,6 +157,7 @@ namespace Xtensive.Storage
       return true;
     }
 
+    [Infrastructure]
     internal bool Remove(Entity item)
     {
       if (!Contains(item))
@@ -176,6 +180,7 @@ namespace Xtensive.Storage
       return true;
     }
 
+    [Infrastructure]
     internal void Clear()
     {
       NotifyClearing();
@@ -184,6 +189,7 @@ namespace Xtensive.Storage
       NotifyClear();
     }
 
+    [Infrastructure]
     internal void IntersectWith<TElement>(IEnumerable<TElement> other)
       where TElement : Entity
     {
@@ -195,6 +201,7 @@ namespace Xtensive.Storage
           Remove(item);
     }
 
+    [Infrastructure]
     internal void UnionWith<TElement>(IEnumerable<TElement> other)
       where TElement : Entity
     {
@@ -204,6 +211,7 @@ namespace Xtensive.Storage
         Add(item);
     }
 
+    [Infrastructure]
     internal void ExceptWith<TElement>(IEnumerable<TElement> other)
       where TElement : Entity
     {
@@ -219,11 +227,13 @@ namespace Xtensive.Storage
 
     #region Private members
 
+    [Infrastructure]
     private Entity ConcreteOwner
     {
       get { return (Entity) Owner; }
     }
 
+    [Infrastructure]
     internal void EnsureVersionIs(long expectedVersion)
     {
       if (expectedVersion!=State.Version)
@@ -236,6 +246,7 @@ namespace Xtensive.Storage
 
     #region System-level events
 
+    [Infrastructure]
     private void NotifyInitialize()
     {
       if (Session.SystemLogicOnly)
@@ -248,6 +259,7 @@ namespace Xtensive.Storage
       OnInitialize();
     }
 
+    [Infrastructure]
     private void NotifyAdding(Entity item)
     {
       if (Session.SystemLogicOnly)
@@ -260,6 +272,7 @@ namespace Xtensive.Storage
       OnAdding(item);
     }
 
+    [Infrastructure]
     private void NotifyAdd(Entity item)
     {
       if (Session.SystemLogicOnly)
@@ -273,6 +286,7 @@ namespace Xtensive.Storage
       NotifyCollectionChanged(NotifyCollectionChangedAction.Add, item);
     }
 
+    [Infrastructure]
     private void NotifyRemoving(Entity item)
     {
       if (Session.SystemLogicOnly)
@@ -285,6 +299,7 @@ namespace Xtensive.Storage
       OnRemoving(item);
     }
 
+    [Infrastructure]
     private void NotifyRemove(Entity item)
     {
       if (Session.SystemLogicOnly)
@@ -298,6 +313,7 @@ namespace Xtensive.Storage
       NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, item);
     }
 
+    [Infrastructure]
     private void NotifyClearing()
     {
       if (Session.SystemLogicOnly)
@@ -310,6 +326,7 @@ namespace Xtensive.Storage
       OnClearing();
     }
 
+    [Infrastructure]
     private void NotifyClear()
     {
       if (Session.SystemLogicOnly)
@@ -407,6 +424,7 @@ namespace Xtensive.Storage
       }
     }
 
+    [Infrastructure]
     protected void NotifyPropertyChanged(string name)
     {
       if(!Session.EntityEvents.HasSubscribers)
@@ -437,6 +455,7 @@ namespace Xtensive.Storage
       }
     }
 
+    [Infrastructure]
     private void NotifyCollectionChanged(NotifyCollectionChangedAction action, Entity item)
     {
       if(!Session.EntityEvents.HasSubscribers)

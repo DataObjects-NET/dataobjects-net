@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Aspects;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
@@ -15,6 +16,7 @@ namespace Xtensive.Storage.PairIntegrity
   {
     private readonly Stack<SyncContext> contextStack = new Stack<SyncContext>();
 
+    [Infrastructure]
     public void Enlist(OperationType type, Entity owner, Entity target, AssociationInfo association)
     {
       SyncContext context = null;

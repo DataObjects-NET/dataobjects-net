@@ -204,18 +204,21 @@ namespace Xtensive.Storage
     /// </summary>
     /// <value></value>
     /// <inheritdoc/>
+    [Infrastructure]
     public Expression Expression
     {
       get  { return expression; }
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     public Type ElementType
     {
       get { return typeof (TItem); }
     }
 
     /// <inheritdoc/>
+    [Infrastructure]
     public IQueryProvider Provider
     {
       get { return QueryProvider.Instance; }
@@ -238,6 +241,7 @@ namespace Xtensive.Storage
       return state;
     }
 
+    [Infrastructure]
     protected internal sealed override IEnumerable<Entity> GetEntities()
     {
       return State.IsFullyLoaded 
@@ -247,6 +251,7 @@ namespace Xtensive.Storage
 
     #region Private methods
 
+    [Infrastructure]
     private IEnumerable<Entity> GetCachedEntities()
     {
       foreach (Key key in State) {
@@ -255,6 +260,7 @@ namespace Xtensive.Storage
       }
     }
 
+    [Infrastructure]
     private IEnumerable<Entity> RetrieveEntities()
     {
       foreach (var item in query) {

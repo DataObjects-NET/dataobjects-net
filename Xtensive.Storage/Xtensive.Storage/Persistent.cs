@@ -68,6 +68,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     internal abstract void EnsureIsFetched(FieldInfo field);
 
+    [Infrastructure]
     internal TypeInfo GetTypeInfo()
     {
       return Session.Domain.Model.Types[GetType()];
@@ -409,6 +410,7 @@ namespace Xtensive.Storage
     /// This method is called when custom constructor is finished.
     /// </remarks>
     /// <param name="ctorType">Type of the instance that is being constructed.</param>
+    [Infrastructure]
     protected void Initialize(Type ctorType)
     {
       if (ctorType!=GetType())

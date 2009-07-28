@@ -211,9 +211,13 @@ namespace Xtensive.Storage
     internal override sealed void EnsureIsFetched(FieldInfo field)
     {
       var state = State;
-      if (!(state.PersistenceState==PersistenceState.New ||
-        state.Tuple.IsAvailable(field.MappingInfo.Offset)))
-        Session.Handler.Fetch(Key, field);
+
+      if (state.PersistenceState==PersistenceState.New)
+        return;
+      if (state.Tuple.IsAvailable(field.MappingInfo.Offset))
+        return;
+
+      Session.Handler.FetchField(state, field);
     }
 
     [Infrastructure]

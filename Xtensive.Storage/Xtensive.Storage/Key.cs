@@ -85,22 +85,23 @@ namespace Xtensive.Storage
         Key cachedKey;
         lock (keyCache)
           keyCache.TryGetItem(this, true, out cachedKey);
-        if (cachedKey==null) {
-          if (Hierarchy.Types.Count == 1) {
-            type = Hierarchy.Types[0];
-            return type;
-          }
-          if (session.IsDebugEventLoggingEnabled)
-            Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, this);
-
-          var field = Hierarchy.Root.Fields[WellKnown.TypeIdFieldName];
-          cachedKey = session.Handler.Fetch(this, field);
-          if (cachedKey==null)
-            throw new InvalidOperationException(
-              string.Format(Strings.ExUnableToResolveTypeForKeyX, this));
+        if (cachedKey!=null) {
+          type = cachedKey.type;
+          return type;
         }
-        type = cachedKey.type;
+        if (Hierarchy.Types.Count==1) {
+          type = Hierarchy.Types[0];
+          return type;
+        }
+        if (session.IsDebugEventLoggingEnabled)
+          Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, this);
+
+        var fetchedKey = session.Handler.Fetch(this);
+        if (fetchedKey==null)
+          throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveTypeForKeyX, this));
+        type = fetchedKey.type;
         return type;
+
       }
     }
 

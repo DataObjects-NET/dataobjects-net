@@ -64,9 +64,9 @@ namespace Xtensive.Storage.Providers
       return Fetcher.Fetch(key);
     }
 
-    protected internal virtual Key Fetch(Key key, FieldInfo field)
+    protected internal virtual void FetchField(EntityState state, FieldInfo field)
     {
-      return Fetcher.Fetch(key, field);
+      Fetcher.Fetch(state.Key, field);
     }
 
     protected internal virtual QueryProvider Provider {get { return QueryProvider.Instance; }}
