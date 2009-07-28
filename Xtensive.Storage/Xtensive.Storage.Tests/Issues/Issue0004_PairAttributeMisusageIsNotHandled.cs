@@ -5,6 +5,7 @@
 // Created:    2008.11.26
 
 using System.Reflection;
+using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
@@ -41,6 +42,7 @@ namespace Xtensive.Storage.Tests.Issue0004_Model
 
 namespace Xtensive.Storage.Tests.Issues
 {
+  [Ignore("No more actual")]
   public class Issue0004_PairAttributeMisusageIsNotHandled : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
