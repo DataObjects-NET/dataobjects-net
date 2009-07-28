@@ -166,7 +166,7 @@ namespace Xtensive.Storage
 
     internal ICache<MethodInfo, Pair<MethodInfo, TranslatedQuery>> QueryCache { get; private set; }
 
-    internal ThreadSafeIntDictionary<GenericKeyTypeInfo> GenericKeyTypes = 
+    internal readonly ThreadSafeIntDictionary<GenericKeyTypeInfo> GenericKeyTypes = 
       ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
 
     private void OnSessionOpen(Session session)
