@@ -134,6 +134,23 @@ namespace Xtensive.Core.Threading
       implementation = tmp;
     }
 
+    /// <summary>
+    /// Initializes the dictionary.
+    /// This method should be invoked just once - before
+    /// the first operation on this dictionary.
+    /// </summary>
+    /// <param name="syncRoot"><see cref="SyncRoot"/> property value.</param>
+    /// <exception cref="NotSupportedException">The dictionary is already initialized.</exception>
+    public void Initialize(object syncRoot)
+    {
+      if (implementation!=null)
+        throw Exceptions.AlreadyInitialized(null);
+      this.syncRoot = syncRoot;
+      var tmp = new IntDictionary<TValue>();
+      Thread.MemoryBarrier(); // Ensures tmp is fully written
+      implementation = tmp;
+    }
+
 
     // Static constructor replacement
     
@@ -147,6 +164,18 @@ namespace Xtensive.Core.Threading
     {
       var result = new ThreadSafeIntDictionary<TValue>();
       result.Initialize(syncRoot, capacity);
+      return result;
+    }
+
+    /// <summary>
+    /// Creates and initializes a new <see cref="ThreadSafeIntDictionary{TValue}"/>.
+    /// </summary>
+    /// <param name="syncRoot"><see cref="SyncRoot"/> property value.</param>
+    /// <returns>New initialized <see cref="ThreadSafeIntDictionary{TValue}"/>.</returns>
+    public static ThreadSafeIntDictionary<TValue> Create(object syncRoot)
+    {
+      var result = new ThreadSafeIntDictionary<TValue>();
+      result.Initialize(syncRoot);
       return result;
     }
   }
