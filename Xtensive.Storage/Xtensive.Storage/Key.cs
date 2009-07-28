@@ -545,7 +545,7 @@ namespace Xtensive.Storage
     private static Key CreateGenericKey(Domain domain, HierarchyInfo hierarchy, TypeInfo type,
       Tuple tuple, int[] keyIndexes)
     {
-      var keyTypeInfo = domain.genericKeyTypes.GetValue(hierarchy.Root.TypeId, BuildGenericKeyTypeInfo,
+      var keyTypeInfo = domain.GenericKeyTypes.GetValue(hierarchy.Root.TypeId, BuildGenericKeyTypeInfo,
         hierarchy);
       if (keyIndexes==null)
         return keyTypeInfo.DefaultConstructor(hierarchy, type, tuple);
