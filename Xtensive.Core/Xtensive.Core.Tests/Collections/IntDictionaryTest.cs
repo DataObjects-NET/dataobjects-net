@@ -192,6 +192,61 @@ namespace Xtensive.Core.Tests.Collections
       Assert.AreEqual(newValue, dictionary[newKey]);
       CheckValues(dictionary, keys, values);
     }
+
+    [Test]
+    public void MultipleInsertAndRemoveTest()
+    {
+      var dictionary = new IntDictionary<int>(16);
+      var initialBucketCount = GetBucketCount(dictionary);
+      var keys = new[]
+                 {
+                   0, 0xA00000, 1, 0x100001, 0x200001, 0x500002, 0x800002, 0x300003,0xA00003,
+                   0x400003, 0x700003, 0xA00004, 0x900005,0x700005, 0x200005, 0xE00005, 5
+                 };
+      var values = GenerateValues(keys);
+      var index = 0;
+      dictionary.Add(keys[index], values[index]);
+      CheckValues(dictionary, keys.Take(index + 1).ToArray(), values.Take(index + 1).ToArray());
+      Assert.IsTrue(dictionary.Remove(keys[index]));
+      Assert.AreEqual(0, dictionary.Count);
+      dictionary.Add(keys[index], values[index]);
+      index++;
+      dictionary.Add(keys[index], values[index]);
+      index++;
+      dictionary.Add(keys[index], values[index]);
+      index++;
+      dictionary.Add(keys[index], values[index]);
+      index++;
+      dictionary.Add(keys[index], values[index]);
+      CheckValues(dictionary, keys.Take(index + 1).ToArray(), values.Take(index + 1).ToArray());
+      Assert.IsTrue(dictionary.Remove(keys[index]));
+      int value;
+      Assert.IsFalse(dictionary.TryGetValue(keys[index], out value));
+      CheckValues(dictionary, keys.Take(index).ToArray(), values.Take(index).ToArray());
+      index--;
+      Assert.IsTrue(dictionary.Remove(keys[index]));
+      Assert.IsFalse(dictionary.TryGetValue(keys[index], out value));
+      CheckValues(dictionary, keys.Take(index).ToArray(), values.Take(index).ToArray());
+      index--;
+      Assert.IsTrue(dictionary.Remove(keys[index]));
+      Assert.IsFalse(dictionary.TryGetValue(keys[index], out value));
+      CheckValues(dictionary, keys.Take(index).ToArray(), values.Take(index).ToArray());
+      for (int i = index; i < keys.Length; i++)
+        dictionary.Add(keys[i], values[i]);
+      CheckValues(dictionary, keys, values);
+      var halfOfLength = keys.Length / 2;
+      for (int i = keys.Length - 1; i >= halfOfLength; i--)
+        Assert.IsTrue(dictionary.Remove(keys[i]));
+      CheckValues(dictionary, keys.Take(halfOfLength).ToArray(),
+        values.Take(halfOfLength).ToArray());
+      Assert.AreEqual(initialBucketCount * 2, GetBucketCount(dictionary));
+      for (int i = (halfOfLength) - 1; i >= 4; i--)
+        Assert.IsTrue(dictionary.Remove(keys[i]));
+      Assert.AreEqual(initialBucketCount, GetBucketCount(dictionary));
+      for (int i = dictionary.Count - 1; i >= 0; i--)
+        Assert.IsTrue(dictionary.Remove(keys[i]));
+      Assert.AreEqual(initialBucketCount / 2, GetBucketCount(dictionary));
+    }
     
     [Test]
     [Category("Profile")]
@@ -234,8 +289,12 @@ namespace Xtensive.Core.Tests.Collections
 
     private static void CheckValues<T>(IntDictionary<T> dictionary, int[] keys, T[] values)
     {
-      for (var i = 0; i < keys.Length; i++)
+      var count = 0;
+      for (var i = 0; i < keys.Length; i++) {
         Assert.AreEqual(values[i], dictionary[keys[i]]);
+        count++;
+      }
+      Assert.AreEqual(count, dictionary.Count);
     }
 
     private static int GetBucketCount<T>(IntDictionary<T> dictionary)
