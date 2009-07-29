@@ -114,15 +114,18 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets the key of the entity, that is referenced by specified field of the target persistent object.
+    /// Gets the key of the entity, that is referenced by specified field 
+    /// of the target persistent object.
     /// </summary>
     /// <remarks>
     /// Result is the same as <c>target.GetValue&lt;Entity&gt;(field).Key</c>, 
     /// but referenced entity will not be materialized.
     /// </remarks>
     /// <param name="target">The target persistent object.</param>
-    /// <param name="field">The reference field. Field value type must be <see cref="Entity"/> descendant.</param>
+    /// <param name="field">The reference field. Field value type must be 
+    /// <see cref="Entity"/> descendant.</param>
     /// <returns>Referenced entity key.</returns>
+    /// <exception cref="InvalidOperationException">Field is not a reference field.</exception>
     [Infrastructure]
     public Key GetReferenceKey(Persistent target, FieldInfo field)
     {
@@ -154,7 +157,8 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       if (!target.Type.Fields.Contains(field))
-        throw new InvalidOperationException(string.Format("Type '{0}' doesn't contain '{1}' field.", target.Type.Name, field.Name));
+        throw new InvalidOperationException(string.Format(
+          Strings.ExTypeXDoesNotContainYField, target.Type.Name, field.Name));
     }
 
     #endregion

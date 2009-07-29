@@ -24,6 +24,8 @@ namespace Xtensive.Storage
       var cachedState = EntityStateCache[key, false];
       if (cachedState != null && cachedState.PersistenceState==PersistenceState.Removed)
         Persist();
+      else
+        EntityStateRegistry.EnforceSizeLimit(); // Must be done before new entity registration
 
       // If type is unknown, we consider tuple is null, 
       // so its Entity is considered as non-existing

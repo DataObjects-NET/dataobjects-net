@@ -788,4 +788,7 @@ Actions:
   <data name="ExProtocolXIsNotSupportedUseOneOfTheFollowingY" xml:space="preserve">
     <value>Protocol '{0}' is not supported. Use one of the following: {1}</value>
   </data>
+  <data name="ExTypeXDoesNotContainYField" xml:space="preserve">
+    <value>Type '{0}' doesn't contain '{1}' field.</value>
+  </data>
 </root>

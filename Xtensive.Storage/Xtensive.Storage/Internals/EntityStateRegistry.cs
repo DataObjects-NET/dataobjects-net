@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Core.Aspects;
 
 namespace Xtensive.Storage.Internals
@@ -18,24 +19,45 @@ namespace Xtensive.Storage.Internals
     private readonly List<EntityState> @new = new List<EntityState>();
     private readonly List<EntityState> modified = new List<EntityState>();
     private readonly List<EntityState> removed = new List<EntityState>();
+    private readonly int sizeLimit;
+    private int count;
 
     /// <summary>
-    /// Gets a value indicating whether this instance is empty.
+    /// Gets the count of registered entities.
     /// </summary>
-    /// <value>
-    /// <see langword="true"/> if this instance is empty; otherwise, <see langword="false"/>.
-    /// </value>
     [Infrastructure]
-    public bool IsEmpty
-    {
-      get { return @new.Count == 0 && modified.Count == 0 && removed.Count == 0; }
+    public int Count {
+      get { return count; }
     }
 
+    /// <summary>
+    /// Gets the maximal allowed count of registered entities for this registry.
+    /// </summary>
+    [Infrastructure]
+    public int SizeLimit {
+      get { return sizeLimit; }
+    }
+
+    /// <summary>
+    /// Enforces the size limit by flushing the changes if it is reached.
+    /// </summary>
+    [Infrastructure]
+    public void EnforceSizeLimit()
+    {
+      if (count>=sizeLimit)
+        Session.Persist();
+    }
+
+    /// <summary>
+    /// Registers the specified item.
+    /// </summary>
+    /// <param name="item">The item.</param>
     [Infrastructure]
     internal void Register(EntityState item)
     {
       var container = GetContainer(item.PersistenceState);
       container.Add(item);
+      count++;
     }
 
     /// <summary>
@@ -56,6 +78,7 @@ namespace Xtensive.Storage.Internals
     [Infrastructure]
     public void Clear()
     {
+      count = 0;
       @new.Clear();
       modified.Clear();
       removed.Clear();
@@ -81,9 +104,11 @@ namespace Xtensive.Storage.Internals
     // Constructors
 
     /// <inheritdoc/>
-    public EntityStateRegistry(Session session)
+    public EntityStateRegistry(Session session, int sizeLimit)
       : base(session)
     {
+      ArgumentValidator.EnsureArgumentIsGreaterThan(sizeLimit, 0, "maxCount");
+      this.sizeLimit = sizeLimit;
     }
   }
 }

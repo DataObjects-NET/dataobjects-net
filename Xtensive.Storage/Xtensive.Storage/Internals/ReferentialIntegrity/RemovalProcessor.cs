@@ -23,14 +23,14 @@ namespace Xtensive.Storage.ReferentialIntegrity
     {
       if (context.IsEmpty) {
         try {
-          // Session.Persist();
+          Session.EntityStateRegistry.EnforceSizeLimit();
           ProcessItem(context, item);
           ProcessQueue(context);
           MarkItemsAsRemoved(context);
-          // Session.Persist();
         }
         finally {
           context.Clear();
+          Session.EntityStateRegistry.EnforceSizeLimit();
         }
       }
       else {

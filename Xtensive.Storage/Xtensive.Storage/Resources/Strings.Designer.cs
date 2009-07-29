@@ -1357,6 +1357,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; doesn&apos;t contain &apos;{1}&apos; field..
+        /// </summary>
+        internal static string ExTypeXDoesNotContainYField {
+            get {
+                return ResourceManager.GetString("ExTypeXDoesNotContainYField", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The type &apos;{0}&apos; does not have a parameterless constructor..
         /// </summary>
         internal static string ExTypeXDoesNotHaveAParameterlessConstructor {

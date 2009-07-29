@@ -41,7 +41,7 @@ namespace Xtensive.Storage
       try {
         EnsureNotDisposed();
 
-        if (EntityStateRegistry.IsEmpty)
+        if (EntityStateRegistry.Count==0)
           return;
 
         if (IsDebugEventLoggingEnabled)

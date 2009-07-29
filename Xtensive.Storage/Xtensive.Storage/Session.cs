@@ -49,7 +49,7 @@ namespace Xtensive.Storage
   public sealed partial class Session : DomainBound,
     IContext<SessionScope>, IResource
   {
-    private static int persistCacheSize = 250;
+    private const int EntityStateRegistrySizeLimit = 250; // TODO: -> SessionConfiguration
     private readonly bool persistRequiresTopologicalSort;
     private bool isPersisting;
     private volatile bool isDisposed;
@@ -132,10 +132,8 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the session service provider.
     /// </summary>
-    public ServiceProvider Services
-    {
-      get
-      {
+    public ServiceProvider Services {
+      get {
         if (serviceProvider==null)
           serviceProvider = new ServiceProvider(this);
         return serviceProvider;
@@ -451,7 +449,7 @@ namespace Xtensive.Storage
           new WeakCache<Key, EntityState>(false, i => i.Key));
         break;
       }
-      EntityStateRegistry = new EntityStateRegistry(this);
+      EntityStateRegistry = new EntityStateRegistry(this, EntityStateRegistrySizeLimit);
       // Etc...
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       CoreServices = new CoreServiceAccessor(this);

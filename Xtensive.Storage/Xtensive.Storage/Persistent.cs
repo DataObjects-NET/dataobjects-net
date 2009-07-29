@@ -132,7 +132,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region User-level GetFieldValue, SetFieldValue members
+    #region User-level GetFieldValue, SetFieldValue & similar members
 
     /// <summary>
     /// Gets the field value.
@@ -160,6 +160,36 @@ namespace Xtensive.Storage
       NotifyGetFieldValue(field, result);
 
       return result;
+    }
+
+    /// <summary>
+    /// Gets the key of the entity, that is referenced by specified field 
+    /// of the target persistent object.
+    /// </summary>
+    /// <remarks>
+    /// Result is the same as <c>GetValue&lt;Entity&gt;(field).Key</c>, 
+    /// but referenced entity will not be materialized.
+    /// </remarks>
+    /// <param name="field">The reference field. Field value type must be 
+    /// <see cref="Entity"/> descendant.</param>
+    /// <returns>Referenced entity key.</returns>
+    /// <exception cref="InvalidOperationException">Field is not a reference field.</exception>
+    [Infrastructure]
+    protected internal Key GetReferenceKey(FieldInfo field)
+    {
+      if (!field.IsEntity)
+        throw new InvalidOperationException(
+          String.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
+
+      NotifyGettingFieldValue(field);
+      var type = Session.Domain.Model.Types[field.ValueType];
+      if (Tuple.ContainsEmptyValues(field.MappingInfo))
+        return null;
+      var fieldValue = field.ExtractValue(Tuple);
+      var key = Key.Create(Session.Domain, type, fieldValue, null, true, true);
+      NotifyGetFieldValue(field, key);
+
+      return key;
     }
 
     /// <summary>
@@ -290,27 +320,6 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region System-level GetField, SetField, GetReferenceKey, Remove members
-
-    [Infrastructure]
-    internal Key GetReferenceKey(FieldInfo field)
-    {
-      if (!field.IsEntity)
-        throw new InvalidOperationException(
-          String.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
-
-      NotifyGettingFieldValue(field);
-      var type = Session.Domain.Model.Types[field.ValueType];
-      if (Tuple.ContainsEmptyValues(field.MappingInfo))
-        return null;
-      var fieldValue = field.ExtractValue(Tuple);
-      var key = Key.Create(Session.Domain, type, fieldValue, null, false, false);
-      NotifyGetFieldValue(field, key);
-
-      return key;
-    }
-
-    #endregion
 
     #region System-level event-like members
 
