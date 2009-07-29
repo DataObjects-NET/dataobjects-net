@@ -193,7 +193,8 @@ namespace Xtensive.Storage.Linq
       ParameterValue = typeof (Parameter).GetProperty("Value");
 
       // Record
-      RecordKey = typeof (Record).GetProperty("Item", typeof (Key), new[] {typeof (int)}).GetGetMethod();
+      RecordKey = typeof (Record).GetMethods().Where(methodInfo => methodInfo.Name=="GetKey" && methodInfo.GetParameters().Length==1)
+        .Single();
 
       // RecordSet
       RecordSetParse = typeof (RecordSetExtensions).GetMethod("Parse");

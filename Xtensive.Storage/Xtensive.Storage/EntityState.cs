@@ -183,7 +183,7 @@ namespace Xtensive.Storage
     protected override Tuple LoadState()
     {
       Tuple = null;
-      Session.Handler.Fetch(key);
+      Session.Handler.FetchInstance(key);
       return Tuple;
     }
 

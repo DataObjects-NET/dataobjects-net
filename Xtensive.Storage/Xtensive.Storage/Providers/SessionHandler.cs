@@ -6,11 +6,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Transactions;
+using Xtensive.Core.Parameters;
+using Xtensive.Core.Threading;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Providers
 {
@@ -20,6 +27,9 @@ namespace Xtensive.Storage.Providers
   public abstract class SessionHandler : InitializableHandlerBase,
     IDisposable
   {
+    private static ThreadSafeDictionary<FetchRequest, RecordSet> recordSetCache;
+    private static readonly Parameter<Tuple> fetchParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
+
     /// <summary>
     /// Gets the current <see cref="Session"/>.
     /// </summary>
@@ -59,15 +69,61 @@ namespace Xtensive.Storage.Providers
     /// <inheritdoc/>
     public abstract void Dispose();
 
-    protected internal virtual Key Fetch(Key key)
+    #region Fetch methods
+
+    protected internal Key FetchInstance(Key key)
     {
-      return Fetcher.Fetch(key);
+      var index = GetPrimaryIndex(key);
+      var request = new FetchRequest(index, index.GetDefaultFetchColumnsIndexes());
+      return Execute(request, key);
     }
 
-    protected internal virtual void FetchField(EntityState state, FieldInfo field)
+    protected internal void FetchField(Key key, FieldInfo field)
     {
-      Fetcher.Fetch(state.Key, field);
+      var index = GetPrimaryIndex(key);
+      int[] columns = index.GetDefaultFetchColumnsIndexes();
+
+      if (field.MappingInfo.Length == 1)
+        columns = columns.Append(index.Columns.IndexOf(field.Column));
+      else
+        // TODO: optimize (exclude already fetched columns)
+        columns = columns.Combine(field.ExtractColumns().Select(c => index.Columns.IndexOf(c)).ToArray());
+
+      var request = new FetchRequest(index, columns);
+      Execute(request, key);
     }
+
+    private Key Execute(FetchRequest request, Key key)
+    {
+      var recordSet = GetCachedRecordSet(request);
+
+      using (new ParameterContext().Activate()) {
+        fetchParameter.Value = key.Value;
+        var record = Session.Domain.RecordSetParser.ParseFirst(recordSet);
+        if (record == null) {
+          // Ensures there will be "removed" EntityState associated with this key
+          Session.UpdateEntityState(key, null);
+          return null;
+        }
+        return record.GetKey();
+      }
+    }
+
+    private static IndexInfo GetPrimaryIndex(Key key)
+    {
+      return (key.IsTypeCached ? key.Type : key.Hierarchy.Root).Indexes.PrimaryIndex;
+    }
+
+    private static RecordSet GetCachedRecordSet(FetchRequest request)
+    {
+      return recordSetCache.GetValue(request, delegate {
+        return IndexProvider.Get(request.Index).Result
+          .Seek(() => fetchParameter.Value)
+          .Select(request.Columns);
+      });
+    }
+
+    #endregion
 
     protected internal virtual QueryProvider Provider {get { return QueryProvider.Instance; }}
 
@@ -79,6 +135,11 @@ namespace Xtensive.Storage.Providers
     protected internal virtual TranslatedQuery<IEnumerable<T>> Translate<T>(Expression expression)
     {
       return Provider.Translate<IEnumerable<T>>(expression);
+    }
+
+    static SessionHandler()
+    {
+      recordSetCache = ThreadSafeDictionary<FetchRequest, RecordSet>.Create(new object());
     }
   }
 }

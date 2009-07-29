@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 using System.Linq;
 using Xtensive.Core.Helpers;
@@ -38,6 +37,7 @@ namespace Xtensive.Storage.Model
     private ReadOnlyList<ColumnInfo> columns;
     private TupleDescriptor tupleDescriptor;
     private TupleDescriptor keyTupleDescriptor;
+    private int[] defaultFetchColumnIndexes;
 
     public string ShortName {
       [DebuggerStepThrough]
@@ -209,6 +209,14 @@ namespace Xtensive.Storage.Model
       get { return (attributes & IndexAttributes.Secondary) > 0; }
     }
 
+    /// <summary>
+    /// Gets the default fetch columns indexes.
+    /// </summary>
+    public int[] GetDefaultFetchColumnsIndexes()
+    {
+      return defaultFetchColumnIndexes.Copy();
+    }
+
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
@@ -220,6 +228,8 @@ namespace Xtensive.Storage.Model
       foreach (IndexInfo baseIndex in underlyingIndexes)
         baseIndex.UpdateState();
       CreateTupleDescriptors();
+      if (IsPrimary)
+        defaultFetchColumnIndexes = Columns.Where(c => !c.IsLazyLoad).Select(c => Columns.IndexOf((c))).ToArray();
     }
 
     /// <inheritdoc/>

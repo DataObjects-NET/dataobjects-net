@@ -462,6 +462,17 @@ namespace Xtensive.Storage.Model
       return result;
     }
 
+    // TODO: Cache
+    private static void ExtractColumns(FieldInfo field, ICollection<ColumnInfo> columns)
+    {
+      if (field.Column != null)
+        columns.Add(field.Column);
+      else
+        if (!field.IsPrimitive)
+          foreach (var column in field.Fields.Where(f => f.Column!=null).Select(f => f.Column))
+            columns.Add(column);
+    }
+
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
@@ -574,16 +585,6 @@ namespace Xtensive.Storage.Model
     }
 
     #endregion
-
-    private static void ExtractColumns(FieldInfo field, ICollection<ColumnInfo> columns)
-    {
-      if (field.Column != null)
-        columns.Add(field.Column);
-      else
-        if (field.IsEntity)
-          foreach (var column in field.Fields.Where(f => f.Column!=null).Select(f => f.Column))
-            columns.Add(column);
-    }
 
     // Constructors
 

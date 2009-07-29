@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public int[] ColumnIndexes {
       [DebuggerStepThrough]
-      get { return (int[]) columnIndexes.Clone(); }
+      get { return columnIndexes.Copy(); }
     }
 
     /// <inheritdoc/>

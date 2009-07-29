@@ -5,39 +5,46 @@
 // Created:    2008.12.30
 
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
+using System.Linq;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage
 {
   /// <summary>
   /// A single item in <see cref="RecordSetExtensions.Parse"/> result 
-  /// containing both raw <see cref="Tuple"/> and parsed <see cref="PrimaryKeys"/>.
+  /// containing both raw <see cref="Tuple"/> and parsed primary keys.
   /// </summary>
   public sealed class Record
   {
-    private readonly ReadOnlyList<Key> primaryKeys;
+    private readonly Key key;
+    private readonly Key[] keys;
 
     /// <summary>
     /// Gets the first primary key in the <see cref="Record"/>.
     /// </summary>
-    public Key DefaultKey {
-      get {
-        if (primaryKeys.Count > 0)
-          return primaryKeys[0];
-        return null;
-      }
+    public Key GetKey()
+    {
+      return key;
     }
 
     /// <summary>
-    /// Gets the <see cref="Xtensive.Storage.Key"/> by specified column group.
+    /// Gets the <see cref="Xtensive.Storage.Key"/> by specified index.
     /// </summary>
-    public Key this[int columnGroup] {
-      get {
-        if (columnGroup < 0 || columnGroup >= primaryKeys.Count)
-          return null;
-        return primaryKeys[columnGroup];
-      }
+    public Key GetKey(int index)
+    {
+      if (index == 0)
+        return key;
+      if (keys == null || index < 0 || index >= keys.Length)
+        return null;
+      return keys[index];
+    }
+
+    /// <summary>
+    /// Gets the key count.
+    /// </summary>
+    public int KeyCount
+    {
+      get { return keys == null ? 1 : keys.Length; }
     }
 
     /// <summary>
@@ -45,20 +52,21 @@ namespace Xtensive.Storage
     /// </summary>
     public Tuple Tuple { get; private set; }
 
-    /// <summary>
-    /// Gets the primary keys collection.
-    /// </summary>
-    public ReadOnlyList<Key> PrimaryKeys {
-      get { return primaryKeys; }
-    }
-
 
     // Constructors
 
-    internal Record(Tuple tuple, IList<Key> primaryKeys)
+    internal Record(Tuple tuple, IEnumerable<Key> keys)
     {
       Tuple = tuple;
-      this.primaryKeys = new ReadOnlyList<Key>(primaryKeys);
+      this.keys = keys.ToArray();
+      key = this.keys[0];
     }
+
+    internal Record(Tuple tuple, Key key)
+    {
+      Tuple = tuple;
+      this.key = key;
+    }
+
   }
 }

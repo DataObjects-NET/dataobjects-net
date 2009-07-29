@@ -38,31 +38,40 @@ namespace Xtensive.Storage.Internals
 
     private static Record ParseSingleRow(Session session, RecordSetMapping mapping, Tuple tuple)
     {
-      var keyList = new List<Key>(mapping.Mappings.Count);
-      foreach (var groupMapping in mapping.Mappings) {
-        var rootType = groupMapping.Hierarchy.Root;
-        bool exactType;
-        int typeId = ExtractTypeId(rootType, tuple, groupMapping.TypeIdColumnIndex, out exactType);
-        var typeMapping = typeId==TypeInfo.NoTypeId ? null : groupMapping.GetTypeMapping(typeId);
-        if (typeMapping != null) {
-          Key key;
-          var entityType = exactType ? typeMapping.Type : rootType;
-          if (typeMapping.KeyTransform.Descriptor.Count <= Key.MaxGenericKeyLength)
-            key = Key.Create(session.Domain, entityType, tuple, typeMapping.KeyIndexes, exactType, exactType);
-          else {
-            var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-            key = Key.Create(session.Domain, entityType, keyTuple, null, exactType, exactType);
-          }
-          if (exactType) {
-            var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, tuple);
-            session.UpdateEntityState(key, entityTuple);
-          }
-          keyList.Add(key);
-        }
-        else
-          keyList.Add(null);
-      }
+      var count = mapping.Mappings.Count;
+
+      if (count == 1)
+        return new Record(tuple, ParseColumnGroup(session, mapping.Mappings[0], tuple));
+
+      var keyList = new List<Key>(count);
+      foreach (var groupMapping in mapping.Mappings)
+        keyList.Add(ParseColumnGroup(session, groupMapping, tuple));
+
       return new Record(tuple, keyList);
+    }
+
+    private static Key ParseColumnGroup(Session session, ColumnGroupMapping groupMapping, Tuple tuple)
+    {
+      var rootType = groupMapping.Hierarchy.Root;
+      bool exactType;
+      int typeId = ExtractTypeId(rootType, tuple, groupMapping.TypeIdColumnIndex, out exactType);
+      var typeMapping = typeId==TypeInfo.NoTypeId ? null : groupMapping.GetTypeMapping(typeId);
+      if (typeMapping==null)
+        return null;
+
+      Key key;
+      var entityType = exactType ? typeMapping.Type : rootType;
+      if (typeMapping.KeyTransform.Descriptor.Count <= Key.MaxGenericKeyLength)
+        key = Key.Create(session.Domain, entityType, tuple, typeMapping.KeyIndexes, exactType, exactType);
+      else {
+        var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+        key = Key.Create(session.Domain, entityType, keyTuple, null, exactType, exactType);
+      }
+      if (exactType) {
+        var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, tuple);
+        session.UpdateEntityState(key, entityTuple);
+      }
+      return key;
     }
 
     internal static int ExtractTypeId(TypeInfo type, Tuple tuple, int typeIdIndex, out bool exactType)

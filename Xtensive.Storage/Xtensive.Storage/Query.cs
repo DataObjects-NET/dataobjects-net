@@ -64,7 +64,7 @@ namespace Xtensive.Storage
         if (session.IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is {0}.", session, key,
             key.IsTypeCached ? "known" : "unknown");
-        session.Handler.Fetch(key);
+        session.Handler.FetchInstance(key);
         state = cache[key, true];
         hasBeenFetched = true;
       }

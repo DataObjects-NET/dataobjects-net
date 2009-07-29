@@ -42,53 +42,19 @@ namespace Xtensive.Storage
       var session = Session.Current;
       int keyIndex = -1;
       foreach (var record in parser.Parse(source)) {
+        Key key;
         if (keyIndex == -1)
-          for (int i = 0; i < record.PrimaryKeys.Count; i++) {
-            var key = record.PrimaryKeys[i];
+          for (int i = 0; i < record.KeyCount; i++) {
+            key = record.GetKey(i);
             if (key != null && type.IsAssignableFrom(key.Type.UnderlyingType)) {
               keyIndex = i;
               break;
             }
           }
-        var pk = record[keyIndex];
+        key = record.GetKey(keyIndex);
         var entity = null as Entity;
-        if (pk != null) {
-          entity = Query.SingleOrDefault(session, pk);
-        }
-        yield return entity;
-      }
-    }
-
-    /// <summary>
-    /// Converts the <see cref="RecordSet"/> items to <see cref="Entity"/> instances.
-    /// </summary>
-    /// <typeparam name="T">The type of <see cref="Entity"/> instances to get.</typeparam>
-    /// <param name="source">The <see cref="RecordSet"/> to process.</param>
-    /// <param name="primaryKeyIndex">Index of primary key within the <see cref="Record"/>.</param>
-    /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
-    public static IEnumerable<T> ToEntities<T>(this RecordSet source, int primaryKeyIndex)
-      where T : class, IEntity
-    {
-      foreach (var entity in ToEntities(source, primaryKeyIndex))
-        yield return entity as T;
-    }
-
-    /// <summary>
-    /// Converts the <see cref="RecordSet"/> items to <see cref="Entity"/> instances.
-    /// </summary>
-    /// <param name="source">The <see cref="RecordSet"/> to process.</param>
-    /// <param name="primaryKeyIndex">Index of primary key within the <see cref="Record"/>.</param>
-    /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
-    public static IEnumerable<Entity> ToEntities(this RecordSet source, int primaryKeyIndex)
-    {
-      Domain domain = Domain.Demand();
-      var parser = domain.RecordSetParser;
-      var session = Session.Current;
-      foreach (var record in parser.Parse(source)) {
-        var pk = record[primaryKeyIndex];
-        var entity = null as Entity;
-        if (pk != null) {
-          entity = Query.SingleOrDefault(session, pk);
+        if (key != null) {
+          entity = Query.SingleOrDefault(session, key);
         }
         yield return entity;
       }
@@ -100,7 +66,7 @@ namespace Xtensive.Storage
       return domain.RecordSetParser.Parse(source);
     }
 
-    public static Record ParseFirst(this RecordSet source)
+    public static Record ParseFirstRow(this RecordSet source)
     {
       Domain domain = Domain.Demand();
       return domain.RecordSetParser.ParseFirst(source);
