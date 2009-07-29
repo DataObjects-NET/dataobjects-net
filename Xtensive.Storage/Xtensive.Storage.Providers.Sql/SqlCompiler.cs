@@ -206,7 +206,8 @@ namespace Xtensive.Storage.Providers.Sql
         );
 
       SqlSelect query = SqlDml.Select(joinedTable);
-      query.Columns.AddRange(leftQuery.Columns.Concat(rightQuery.Columns).Cast<SqlColumn>());
+      AddColumnsToQuery(left, leftQuery, query);
+      AddColumnsToQuery(right, rightQuery, query);
       return new SqlProvider(provider, query, Handlers, left, right);
     }
 
@@ -231,7 +232,8 @@ namespace Xtensive.Storage.Providers.Sql
         predicate);
 
       SqlSelect query = SqlDml.Select(joinedTable);
-      query.Columns.AddRange(leftQuery.Columns.Concat(rightQuery.Columns).Cast<SqlColumn>());
+      AddColumnsToQuery(left, leftQuery, query);
+      AddColumnsToQuery(right, rightQuery, query);
       return new SqlProvider(provider, query, Handlers, bindings, left, right);
     }
 
@@ -739,8 +741,7 @@ namespace Xtensive.Storage.Providers.Sql
       var leftQuery = left.PermanentReference;
       var rightQuery = right.Request.SelectStatement;
       var query = SqlDml.Select(leftQuery);
-      if (left.Origin.Header.Length > 0)
-        query.Columns.AddRange(leftQuery.Columns.Cast<SqlColumn>());
+      AddColumnsToQuery(left, leftQuery, query);
       if (provider.Right.Type==ProviderType.Existence)
         query.Columns.Add(rightQuery.Columns[0]);
       else {
@@ -767,6 +768,12 @@ namespace Xtensive.Storage.Providers.Sql
       var query = SqlDml.Select(joinedTable);
       query.Columns.AddRange(leftQuery.Columns.Concat(rightQuery.Columns).Cast<SqlColumn>());
       return query;
+    }
+
+    private static void AddColumnsToQuery(ExecutableProvider provider, SqlTable queryRef, SqlSelect query)
+    {
+      if (provider.Origin.Header.Length > 0)
+        query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
     }
 
     #endregion
