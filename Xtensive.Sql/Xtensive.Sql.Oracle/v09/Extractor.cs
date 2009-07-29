@@ -410,9 +410,9 @@ namespace Xtensive.Sql.Oracle.v09
           var sequence = schema.CreateSequence(reader.GetString(1));
           sequence.DataType = new SqlValueType(SqlType.Decimal, DefaultPrecision, DefaultScale);
           var descriptor = sequence.SequenceDescriptor;
-          descriptor.MinValue = reader.GetInt64(2);
-          descriptor.MaxValue = reader.GetInt64(3);
-          descriptor.Increment = reader.GetInt64(4);
+          descriptor.MinValue = ReadLong(reader, 2);
+          descriptor.MaxValue = ReadLong(reader, 3);
+          descriptor.Increment = ReadLong(reader, 4);
           descriptor.IsCyclic = ReadBool(reader, 5);
         }
       }
@@ -500,9 +500,16 @@ namespace Xtensive.Sql.Oracle.v09
       }
     }
 
+    private static long ReadLong(IDataRecord row, int index)
+    {
+      decimal value = row.GetDecimal(index);
+      return value > long.MaxValue ? long.MaxValue : (long) value;
+    }
+
     private static int ReadInt(IDataRecord row, int index)
     {
-      return (int) row.GetDecimal(index);
+      decimal value = row.GetDecimal(index);
+      return value > int.MaxValue ? int.MaxValue : (int) value;
     }
 
     private static void ReadConstraintProperties(Constraint constraint,
