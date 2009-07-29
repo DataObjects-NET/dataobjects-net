@@ -467,7 +467,7 @@ namespace Xtensive.Core.Reflection
           return actionTypes[0];
         return actionTypes[parameterTypes.Length].MakeGenericType(parameterTypes);
       }
-      var funcGenericParameters = parameterTypes.AddSuffix(returnType);
+      var funcGenericParameters = parameterTypes.Append(returnType);
       return funcTypes[funcGenericParameters.Length - 1].MakeGenericType(funcGenericParameters);
     }
 

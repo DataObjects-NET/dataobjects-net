@@ -176,41 +176,62 @@ namespace Xtensive.Core.Collections
 
     /// <summary>
     /// Creates new array consisting of <paramref name="items"/>
-    /// and <paramref name="prefixItem"/> added before array elements.
+    /// and <paramref name="item"/> added before array elements.
     /// If <paramref name="items"/> is <see langword="null"/>
-    /// returns array that contains just <paramref name="prefixItem"/>.
+    /// returns array that contains just <paramref name="item"/>.
     /// </summary>
     /// <typeparam name="TItem">The type of the item.</typeparam>
     /// <param name="items">The items.</param>
-    /// <param name="prefixItem">The prefix item.</param>
+    /// <param name="item">The prefix item.</param>
     /// <returns>Result array.</returns>
-    public static TItem[] AddPrefix<TItem>(this TItem[] items, TItem prefixItem)
+    public static TItem[] Prepend<TItem>(this TItem[] items, TItem item)
     {
       if (items == null || items.Length == 0)
-        return new [] {prefixItem};
+        return new [] {item};
       var result = new TItem[items.Length + 1];
       Array.Copy(items, 0, result, 1, items.Length);
-      result[0] = prefixItem;
+      result[0] = item;
       return result;
     }
 
     /// <summary>
     /// Creates new array consisting of <paramref name="items"/>
-    /// and <paramref name="suffixItem"/> added after array elements.
+    /// and <paramref name="item"/> added after array elements.
     /// If <paramref name="items"/> is <see langword="null"/>
-    /// returns array that contains just <paramref name="suffixItem"/>.
+    /// returns array that contains just <paramref name="item"/>.
     /// </summary>
     /// <typeparam name="TItem">The type of the item.</typeparam>
     /// <param name="items">The items.</param>
-    /// <param name="suffixItem">The prefix item.</param>
+    /// <param name="item">The prefix item.</param>
     /// <returns>Result array.</returns>
-    public static TItem[] AddSuffix<TItem>(this TItem[] items, TItem suffixItem)
+    public static TItem[] Append<TItem>(this TItem[] items, TItem item)
     {
       if (items == null || items.Length == 0)
-        return new [] {suffixItem};
+        return new [] {item};
       var result = new TItem[items.Length + 1];
       Array.Copy(items, result, items.Length);
-      result[items.Length] = suffixItem;
+      result[items.Length] = item;
+      return result;
+    }
+
+    /// <summary>
+    /// Combines the specified source and target arrays into new one.
+    /// </summary>
+    /// <typeparam name="TItem">The type of the item.</typeparam>
+    /// <param name="source">The source.</param>
+    /// <param name="target">The target.</param>
+    /// <returns></returns>
+    public static TItem[] Combine<TItem>(this TItem[] source, TItem[] target)
+    {
+      if (source == null || source.Length == 0)
+        return target;
+      if (target == null || target.Length == 0)
+        return source;
+
+      var result = new TItem[source.Length + target.Length];
+      Array.Copy(source, result, 0);
+      Array.Copy(target, 0, result, source.Length, target.Length);
+
       return result;
     }
 

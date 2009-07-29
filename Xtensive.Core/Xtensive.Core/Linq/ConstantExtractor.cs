@@ -69,7 +69,7 @@ namespace Xtensive.Core.Linq
     private Type FixDelegateType(Type delegateType)
     {
       var signature = DelegateHelper.GetDelegateSignature(delegateType);
-      return DelegateHelper.MakeDelegateType(signature.First, signature.Second.AddPrefix(constantParameter.Type));
+      return DelegateHelper.MakeDelegateType(signature.First, signature.Second.Prepend(constantParameter.Type));
     }
 
     private static bool DefaultConstantFilter(ConstantExpression constant)
