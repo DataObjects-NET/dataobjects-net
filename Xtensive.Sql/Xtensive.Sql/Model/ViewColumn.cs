@@ -20,7 +20,7 @@ namespace Xtensive.Sql.Model
     /// <value>The view.</value>
     public View View
     {
-      get { return (View)DataTable; }
+      get { return (View) DataTable; }
       set
       {
         this.EnsureNotLocked();

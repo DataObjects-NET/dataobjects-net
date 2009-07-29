@@ -30,7 +30,7 @@ namespace Xtensive.Sql.Tests.SqlServer
       CreateDomain();
       ExecuteNonQuery(createTable);
 
-      var schema = ExtractModel().DefaultSchema;
+      var schema = ExtractAllSchemas().DefaultSchema;
       var definedDomain = schema.Domains.Single(domain => domain.Name=="test_type");
       Assert.AreEqual(Driver.ServerInfo.DataTypes["bigint"].Type, definedDomain.DataType.Type);
 
@@ -50,7 +50,7 @@ namespace Xtensive.Sql.Tests.SqlServer
       ExecuteNonQuery(dropTable);
       ExecuteNonQuery(createTable);
 
-      var schema = ExtractModel().DefaultSchema;
+      var schema = ExtractAllSchemas().DefaultSchema;
       var table = schema.Tables["table_with_default_constraint"];
       Assert.AreEqual(1, table.TableConstraints.Count);
       Assert.AreEqual("id", ((DefaultConstraint) table.TableConstraints[0]).Column.Name);
@@ -58,7 +58,7 @@ namespace Xtensive.Sql.Tests.SqlServer
 
     private void CreateDomain()
     {
-      var schema = ExtractModel().DefaultSchema;
+      var schema = ExtractAllSchemas().DefaultSchema;
       var domain = schema.CreateDomain("test_type", new SqlValueType(SqlType.Int64));
       var commandText = Driver.Compile(SqlDdl.Create(domain)).GetCommandText();
       ExecuteNonQuery(commandText);
@@ -66,7 +66,7 @@ namespace Xtensive.Sql.Tests.SqlServer
 
     private void DropDomain()
     {
-      var schema = ExtractModel().DefaultSchema;
+      var schema = ExtractAllSchemas().DefaultSchema;
       var domain = schema.Domains["test_type"];
       if (domain==null)
         return;

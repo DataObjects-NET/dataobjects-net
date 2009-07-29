@@ -21,7 +21,7 @@ namespace Xtensive.Sql.Tests
     protected override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      TestSchema = ExtractModel().DefaultSchema;
+      TestSchema = ExtractAllSchemas().DefaultSchema;
       EnsureTableNotExists(TestSchema, Table1Name);
       EnsureTableNotExists(TestSchema, Table2Name);
     }

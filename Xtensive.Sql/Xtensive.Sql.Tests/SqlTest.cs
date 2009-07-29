@@ -53,12 +53,22 @@ namespace Xtensive.Sql.Tests
         Connection.Close();
     }
 
-    protected Catalog ExtractModel()
+    protected Catalog ExtractAllSchemas()
     {
       Catalog model;
       using (var transaction = Connection.BeginTransaction()) {
         model = Driver.ExtractAllSchemas(Connection, transaction);
         transaction.Commit();
+      }
+      return model;
+    }
+
+    protected Catalog ExtractDefaultSchema()
+    {
+      Catalog model;
+      using (var transacation = Connection.BeginTransaction()) {
+        model = Driver.ExtractDefaultSchema(Connection, transacation);
+        transacation.Commit();
       }
       return model;
     }

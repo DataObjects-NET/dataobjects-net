@@ -10,7 +10,6 @@ using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Tests
 {
-  [TestFixture]
   public abstract class DateTimeIntervalTest : SqlTest
   {
     [Test]

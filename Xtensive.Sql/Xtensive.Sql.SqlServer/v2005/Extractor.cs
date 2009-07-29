@@ -207,11 +207,10 @@ namespace Xtensive.Sql.SqlServer.v2005
       SqlTableRef tSysobjRef = SqlDml.TableRef(tSysobjects, "TBL");
       SqlTableRef tSysusersRef = SqlDml.TableRef(tSysusers, "USR");
       SqlSelect select = SqlDml.Select(tIndexesRef);
-      select.From = select.From.InnerJoin(tSysobjRef, tIndexesRef["id"] == tSysobjRef["id"] && tSysobjRef["type"] == "U");
-      select.From = select.From.InnerJoin(tSysusersRef, tSysobjRef["uid"] == tSysusersRef["uid"]);
+      select.From = select.From.InnerJoin(tSysobjRef, tIndexesRef["id"]==tSysobjRef["id"] && tSysobjRef["type"]=="U");
+      select.From = select.From.InnerJoin(tSysusersRef, tSysobjRef["uid"]==tSysusersRef["uid"]);
       select.From = select.From.LeftOuterJoin(tConstrRef,
-        tConstrRef["CONSTRAINT_NAME"] == tIndexesRef["name"] &&
-          tConstrRef["TABLE_NAME"] == tSysobjRef["name"]);
+        tConstrRef["CONSTRAINT_NAME"]==tIndexesRef["name"] && tConstrRef["TABLE_NAME"]==tSysobjRef["name"]);
       select.Where = tIndexesRef["impid"] >= 0;
       select.Where &= tIndexesRef["indid"] > 0;
       select.Where &= SqlDml.FunctionCall("indexproperty", tSysobjRef["id"], tIndexesRef["name"], "IsStatistics") == 0;
@@ -344,7 +343,7 @@ namespace Xtensive.Sql.SqlServer.v2005
         }
     }
 
-    private SqlSelect GenerateExtractForeignKeysSQL()
+    private SqlSelect GenerateExtractForeignKeysSql()
     {
       View tKeyCol = infoCatalog.Schemas["INFORMATION_SCHEMA"].Views["KEY_COLUMN_USAGE"];
       View tConstr = infoCatalog.Schemas["INFORMATION_SCHEMA"].Views["TABLE_CONSTRAINTS"];
@@ -386,7 +385,7 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     private void ExtractForeignKeys()
     {
-      using (var cmd = CreateCommand(GenerateExtractForeignKeysSQL()))
+      using (var cmd = CreateCommand(GenerateExtractForeignKeysSql()))
       using (IDataReader reader = cmd.ExecuteReader()) {
         while (reader.Read()) {
           // get table
@@ -470,8 +469,7 @@ namespace Xtensive.Sql.SqlServer.v2005
         domains["DATA_TYPE"],
         domains["CHARACTER_MAXIMUM_LENGTH"],
         domains["NUMERIC_PRECISION"],
-        domains["NUMERIC_SCALE"]
-        );
+        domains["NUMERIC_SCALE"]);
       select.Where = domains["DOMAIN_CATALOG"]==schema.Catalog.Name && domains["DOMAIN_SCHEMA"]==schema.Name;
       using (var command = CreateCommand(select)) {
         using (var reader = command.ExecuteReader()) {

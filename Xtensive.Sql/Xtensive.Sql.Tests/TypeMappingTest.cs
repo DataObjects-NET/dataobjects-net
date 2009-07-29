@@ -15,7 +15,6 @@ using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Sql.Tests
 {
-  [TestFixture]
   public abstract class TypeMappingTest : SqlTest
   {
     private const string IdParameterName = "PId";
@@ -37,7 +36,7 @@ namespace Xtensive.Sql.Tests
     [Test]
     public void InsertAndSelectTest()
     {
-      var model = ExtractModel();
+      var model = ExtractAllSchemas();
       EnsureTableNotExists(model.DefaultSchema, TableName);
       var table = model.DefaultSchema.CreateTable(TableName);
       var idColumn = table.CreateColumn(IdColumnName, new SqlValueType(SqlType.Int32));

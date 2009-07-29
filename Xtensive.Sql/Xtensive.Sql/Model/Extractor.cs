@@ -59,6 +59,8 @@ namespace Xtensive.Sql.Model
     {
     }
 
+    #region Helper methods
+
     /// <summary>
     /// Creates the command attached to <see cref="Connection"/> and <see cref="Transaction"/>.
     /// </summary>
@@ -82,6 +84,32 @@ namespace Xtensive.Sql.Model
       command.Transaction = Transaction;
       return command;
     }
+
+    /// <summary>
+    /// Executes the reader againts the command created from the specified <paramref name="statement"/>.
+    /// This method creates command via <see cref="CreateCommand(Xtensive.Sql.ISqlCompileUnit)"/> method.
+    /// </summary>
+    /// <param name="statement">The statement to execute.</param>
+    /// <returns>Executed reader.</returns>
+    protected DbDataReader ExecuteReader(ISqlCompileUnit statement)
+    {
+      using (var command = CreateCommand(statement))
+        return command.ExecuteReader();
+    }
+    
+    /// <summary>
+    /// Executes the reader againts the command created from the specified <paramref name="commandText"/>.
+    /// This method creates command via <see cref="CreateCommand(string)"/> method.
+    /// </summary>
+    /// <param name="commandText">The command text to execute.</param>
+    /// <returns>Executed reader.</returns>
+    protected DbDataReader ExecuteReader(string commandText)
+    {
+      using (var command = CreateCommand(commandText))
+        return command.ExecuteReader();
+    }
+
+    #endregion
 
     // Constructors
 

@@ -95,7 +95,7 @@ namespace Xtensive.Sql
         case SqlNodeType.Variable:
           return true;
         case SqlNodeType.Cast:
-          return ((SqlCast)node).Type.Type == SqlType.Boolean;
+        return ((SqlCast) node).Type.Type==SqlType.Boolean;
         case SqlNodeType.Literal:
           return (node is SqlLiteral<bool>);
         case SqlNodeType.Variant:
