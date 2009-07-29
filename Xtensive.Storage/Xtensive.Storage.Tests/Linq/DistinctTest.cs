@@ -186,11 +186,11 @@ namespace Xtensive.Storage.Tests.Linq
       // NOTE: Distinct must be forced to apply after top has been computed
       var result = Query<Order>.All
         .Take(5)
-        .Distinct();
+        .Distinct().OrderBy(o => o.Id);
       var expected = Query<Order>.All
         .ToList()
         .Take(5)
-        .Distinct();
+        .Distinct().OrderBy(o => o.Id);
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -267,13 +267,13 @@ namespace Xtensive.Storage.Tests.Linq
         .OrderBy(o => o.OrderDate)
         .Skip(5)
         .Select(o => o.OrderDate)
-        .Distinct();
+        .Distinct().OrderBy(d => d);
       var expected = Query<Order>.All
         .ToList()
         .OrderBy(o => o.OrderDate)
         .Skip(5)
         .Select(o => o.OrderDate)
-        .Distinct();
+        .Distinct().OrderBy(d => d);
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -302,14 +302,14 @@ namespace Xtensive.Storage.Tests.Linq
         .Skip(5)
         .Take(10)
         .Select(o => o.OrderDate)
-        .Distinct();
+        .Distinct().OrderBy(d => d);
       var expected = Query<Order>.All
         .ToList()
         .OrderBy(o => o.OrderDate)
         .Skip(5)
         .Take(10)
         .Select(o => o.OrderDate)
-        .Distinct();
+        .Distinct().OrderBy(d => d);
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -322,14 +322,14 @@ namespace Xtensive.Storage.Tests.Linq
         .Take(10)
         .Skip(5)
         .Select(o => o.OrderDate)
-        .Distinct();
+        .Distinct().OrderBy(d => d);
       var expected = Query<Order>.All
         .ToList()
         .OrderBy(o => o.OrderDate)
         .Take(10)
         .Skip(5)
         .Select(o => o.OrderDate)
-        .Distinct();
+        .Distinct().OrderBy(d => d);
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
     }
