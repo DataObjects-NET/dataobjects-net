@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Indexing
@@ -107,6 +106,7 @@ namespace Xtensive.Indexing
         return value;
       return new Entire<T>(value.value, (Direction)nearestMatrix[1 + (int)value.valueType, 1 + d]);
     }
+
 
     // Constructor
 

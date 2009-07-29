@@ -7,8 +7,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
@@ -28,58 +26,41 @@ namespace Xtensive.Core.Caching
     private readonly Dictionary<TKey, TItem> items;
     private readonly Converter<TItem, TKey> keyExtractor;
 
-    #region Implementation of IEnumerable
-
-    /// <inheritdoc/>
-    public IEnumerator<TItem> GetEnumerator()
-    {
-      foreach (var pair in items) {
-        yield return pair.Value;
-      }
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
-
-    #endregion
-
-    #region Implementation of ICountable
-
-    /// <inheritdoc/>
-    long ICountable.Count
-    {
-      get { return Count; }
-    }
-    
-    #endregion
-    
-    #region Implementation of ICache<TKey,TItem>
-
     /// <inheritdoc/>
     public Converter<TItem, TKey> KeyExtractor
     {
       get { return keyExtractor; }
     }
 
+    /// <summary>
     /// <inheritdoc/>
+    /// This method always returns <see langword="null" /> in this type.
+    /// </summary>
     public ICache<TKey, TItem> ChainedCache
     {
       get { return null; }
     }
 
     /// <inheritdoc/>
-    public TItem this[TKey key, bool markAsHit]
+    public int Count
     {
-      get
-      {
-        TItem item;
-        if (items.TryGetValue(key, out item)) {
-          return item;
-        }
+      get { return items.Count; }
+    }
 
-        return null;
+    /// <inheritdoc/>
+    long ICountable.Count
+    {
+      get { return Count; }
+    }
+
+    /// <inheritdoc/>
+    public TItem this[TKey key, bool markAsHit] {
+      get {
+        TItem item;
+        if (items.TryGetValue(key, out item))
+          return item;
+        else
+          return null;
       }
     }
 
@@ -114,9 +95,8 @@ namespace Xtensive.Core.Caching
       var key = KeyExtractor(item);
       
       TItem cachedItem;
-      if (!replaceIfExists && items.TryGetValue(key, out cachedItem)) {
-          return cachedItem;
-      }
+      if (!replaceIfExists && items.TryGetValue(key, out cachedItem))
+        return cachedItem;
 
       items[key] = item;
       return item;
@@ -142,18 +122,28 @@ namespace Xtensive.Core.Caching
       items.Clear();
     }
 
+    #region IEnumerable methods
+
     /// <inheritdoc/>
-    public int Count
+    public IEnumerator<TItem> GetEnumerator()
     {
-      get { return items.Count; }
+      foreach (var pair in items) {
+        yield return pair.Value;
+      }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
     }
 
     #endregion
 
+
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
     public InfiniteCache(Converter<TItem, TKey> keyExtractor)
@@ -162,19 +152,18 @@ namespace Xtensive.Core.Caching
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="capacity">The capacity of cache.</param>
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><c>capacity</c> is out of range.</exception>
     public InfiniteCache(int capacity, Converter<TItem, TKey> keyExtractor)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
       if (capacity < 0)
         throw new ArgumentOutOfRangeException("capacity", capacity, Strings.ExArgumentValueMustBeGreaterThanOrEqualToZero);
-
       this.keyExtractor = keyExtractor;
       items = new Dictionary<TKey, TItem>(capacity);
     }
-
   }
 }

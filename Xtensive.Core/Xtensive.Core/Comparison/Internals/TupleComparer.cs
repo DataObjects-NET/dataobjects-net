@@ -5,8 +5,6 @@
 // Created:    2008.01.29
 
 using System;
-using System.Collections;
-using Xtensive.Core.Comparison;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
@@ -97,6 +95,7 @@ namespace Xtensive.Core.Comparison
       return box.Value;
     }
 
+// ReSharper disable UnusedMember.Local
     bool InitializeStep<TFieldType>(ref Box<Pair<int, Func<object, object, int>>[]> data, int fieldIndex)
     {
       data.Value[fieldIndex] = new Pair<int, Func<object, object, int>>(
@@ -104,6 +103,7 @@ namespace Xtensive.Core.Comparison
         Provider.GetComparer<TFieldType>().ApplyRules(ComparisonRules[fieldIndex]).Implementation.Compare);
       return false;
     }
+// ReSharper restore UnusedMember.Local
 
     private void Initialize()
     {

@@ -331,6 +331,7 @@ namespace Xtensive.Storage
     {
       if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified)
         State.PersistenceState = PersistenceState.Modified;
+
       if (Session.SystemLogicOnly)
         return;
       Key entityKey;

@@ -10,7 +10,6 @@ using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -546,8 +545,8 @@ namespace Xtensive.Storage
     private static Key CreateGenericKey(Domain domain, HierarchyInfo hierarchy, TypeInfo type,
       Tuple tuple, int[] keyIndexes)
     {
-      var keyTypeInfo = domain.genericKeyTypes.GetValue(hierarchy.Root.TypeId, BuildGenericKeyTypeInfo,
-        hierarchy);
+      var keyTypeInfo = domain.genericKeyTypes.GetValue(
+        hierarchy.Root.TypeId, BuildGenericKeyTypeInfo, hierarchy);
       if (keyIndexes==null)
         return keyTypeInfo.DefaultConstructor(hierarchy, type, tuple);
       return keyTypeInfo.KeyIndexBasedConstructor(hierarchy, type, tuple, keyIndexes);

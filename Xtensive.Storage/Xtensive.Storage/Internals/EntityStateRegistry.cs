@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Internals
     [Infrastructure]
     internal void Register(EntityState item)
     {
-      List<EntityState> container = GetContainer(item.PersistenceState);
+      var container = GetContainer(item.PersistenceState);
       container.Add(item);
     }
 
