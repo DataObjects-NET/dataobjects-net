@@ -38,6 +38,7 @@ namespace Xtensive.Storage.Model
     private TupleDescriptor tupleDescriptor;
     private TupleDescriptor keyTupleDescriptor;
     private int[] defaultFetchColumnIndexes;
+    private int[] keyFetchColumnIndexes;
 
     public string ShortName {
       [DebuggerStepThrough]
@@ -217,6 +218,14 @@ namespace Xtensive.Storage.Model
       return defaultFetchColumnIndexes.Copy();
     }
 
+    /// <summary>
+    /// Gets the key fetch columns indexes.
+    /// </summary>
+    public int[] GetKeyFetchColumnsIndexes()
+    {
+      return keyFetchColumnIndexes.Copy();
+    }
+
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
@@ -228,8 +237,10 @@ namespace Xtensive.Storage.Model
       foreach (IndexInfo baseIndex in underlyingIndexes)
         baseIndex.UpdateState();
       CreateTupleDescriptors();
-      if (IsPrimary)
+      if (IsPrimary) {
         defaultFetchColumnIndexes = Columns.Where(c => !c.IsLazyLoad).Select(c => Columns.IndexOf((c))).ToArray();
+        keyFetchColumnIndexes = Columns.Where(c => c.IsPrimaryKey || c.IsSystem).Select(c => Columns.IndexOf((c))).ToArray();
+      }
     }
 
     /// <inheritdoc/>

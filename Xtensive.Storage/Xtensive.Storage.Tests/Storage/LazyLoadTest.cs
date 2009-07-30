@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void RegularFieldTest()
+    public void MainTest()
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
@@ -84,28 +84,6 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.IsFalse(tuple.IsAvailable(3));
 
           // Fetching lazy load field
-          Assert.AreEqual(TEXT, b.Text);
-          t.Complete();
-        }
-      }
-    }
-
-    [Test]
-    public void LazyLoadFieldTest()
-    {
-      using (Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
-          Book b = Query<Book>.SingleOrDefault(key);
-          Tuple tuple = b.Tuple;
-
-          // Assert that fields are not loaded
-          Assert.IsTrue(tuple.IsAvailable(2));
-          Assert.IsFalse(tuple.IsAvailable(3));
-
-          // This should load all not lazy load fields + selected lazy load field.
-          Assert.AreEqual(TEXT, b.Text);
-          Assert.IsTrue(tuple.IsAvailable(2));
-          Assert.IsTrue(tuple.IsAvailable(3));
           Assert.AreEqual(TEXT, b.Text);
           t.Complete();
         }

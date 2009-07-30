@@ -81,12 +81,11 @@ namespace Xtensive.Storage.Providers
     protected internal void FetchField(Key key, FieldInfo field)
     {
       var index = GetPrimaryIndex(key);
-      int[] columns = index.GetDefaultFetchColumnsIndexes();
+      int[] columns = index.GetKeyFetchColumnsIndexes();
 
       if (field.MappingInfo.Length == 1)
         columns = columns.Append(index.Columns.IndexOf(field.Column));
       else
-        // TODO: optimize (exclude already fetched columns)
         columns = columns.Combine(field.ExtractColumns().Select(c => index.Columns.IndexOf(c)).ToArray());
 
       var request = new FetchRequest(index, columns);
