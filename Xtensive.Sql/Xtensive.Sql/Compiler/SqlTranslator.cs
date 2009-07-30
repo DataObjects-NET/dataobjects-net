@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using Xtensive.Core.Reflection;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
@@ -14,20 +15,20 @@ using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.Compiler
 {
-  public class SqlTranslator: IFormatProvider
+  public abstract class SqlTranslator: IFormatProvider
   {
-    protected DateTimeFormatInfo dateTimeFormat;
     protected NumberFormatInfo numberFormat;
 
     public virtual string BatchStatementDelimiter { get { return ";"; } }
     public virtual string ArgumentDelimiter { get { return ","; } }
     public virtual string ColumnDelimiter { get { return ","; } }
     public virtual string RowItemDelimiter { get { return ","; } }
-    public virtual string OrderDelimiter { get { return ","; } }
-    public virtual string ValueDelimiter { get { return ","; } }
     public virtual string WhenDelimiter { get { return string.Empty; } }
     public virtual string DdlStatementDelimiter { get { return string.Empty; } }
     public virtual string HintDelimiter { get { return string.Empty; } }
+
+    public abstract string DateTimeFormat { get; }
+    public abstract string TimeSpanFormat { get; }
 
     public string ParameterPrefix { get; private set; }
 
@@ -43,7 +44,6 @@ namespace Xtensive.Sql.Compiler
     public virtual void Initialize()
     {
       numberFormat = (NumberFormatInfo) CultureInfo.InvariantCulture.NumberFormat.Clone();
-      dateTimeFormat = (DateTimeFormatInfo) CultureInfo.InvariantCulture.DateTimeFormat.Clone();
       var queryInfo = Driver.ServerInfo.Query;
       ParameterPrefix = queryInfo.Features.Supports(QueryFeatures.ParameterPrefix)
         ? queryInfo.ParameterPrefix
@@ -229,23 +229,35 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlArray node)
+    public virtual string Translate(SqlCompilerContext context, SqlArray node, ArraySection section)
     {
-      Type itemType = node.ItemType;
-      object[] values = node.GetValues();
-      int count = values.Length;
-      if (count==0)
+      switch (section) {
+      case ArraySection.Entry:
+        return "(";
+      case ArraySection.Exit:
+        return ")";
+      case ArraySection.EmptyArray:
         return "(NULL)";
-      var buffer = new string[count];
-      for (int index = 0; index < count; index++)
-        buffer[index] = Translate(context, (SqlLiteral) SqlDml.Literal(values[index], itemType));
-      if (count==1)
-        return "(" + buffer[0] + ")";
-
-      buffer[0] = "(" + buffer[0];
-      buffer[count - 1] += ")";
-      return String.Join(RowItemDelimiter, buffer);
+      default:
+        throw new ArgumentOutOfRangeException("section");
+      }
     }
+
+//      Type itemType = node.ItemType;
+//      object[] values = node.GetValues();
+//      int count = values.Length;
+//      if (count==0)
+//        return "(NULL)";
+//      var buffer = new string[count];
+//      for (int index = 0; index < count; index++)
+//        buffer[index] = Translate(context, (SqlLiteral) SqlDml.Literal(values[index], itemType));
+//      if (count==1)
+//        return "(" + buffer[0] + ")";
+//
+//      buffer[0] = "(" + buffer[0];
+//      buffer[count - 1] += ")";
+//      return String.Join(RowItemDelimiter, buffer);
+//    }
 
     public virtual string Translate(SqlCompilerContext context, SqlAssignment node, NodeSection section)
     {
@@ -1057,17 +1069,22 @@ namespace Xtensive.Sql.Compiler
         return string.Empty;
       }
     }
-
-    public virtual string Translate(SqlCompilerContext context, SqlLiteral node)
+    
+    public virtual string Translate(SqlCompilerContext context, Type literalType, object literalValue)
     {
-      var type = node.LiteralType;
-      var value = node.GetValue();
-      TypeCode t = Type.GetTypeCode(type);
-      if (t==TypeCode.String || t==TypeCode.Char || type==typeof(Guid))
-        return QuoteString(Convert.ToString(value, this));
-      if (type==typeof(byte[]))
-        throw new NotSupportedException(Strings.ExTranslationOfByteArrayLiteralIsNotSupportedByDefaultSqlTranslator);
-      return Convert.ToString(value, this);
+      switch (Type.GetTypeCode(literalType)) {
+      case TypeCode.Char:
+      case TypeCode.String:
+        return QuoteString(literalValue.ToString());
+      case TypeCode.DateTime:
+        return ((DateTime) literalValue).ToString(DateTimeFormat);
+      }
+      if (literalType==typeof(TimeSpan))
+        return TranslateTimeSpan((TimeSpan) literalValue);
+      if (literalType==typeof(Guid) || literalType==typeof(byte[]))
+        throw new NotSupportedException(string.Format(
+          Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
+      return Convert.ToString(literalValue, this);
     }
     
     public virtual string Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
@@ -1744,25 +1761,41 @@ namespace Xtensive.Sql.Compiler
 
     #region IFormatProvider Members
 
-    ///<summary>
-    ///Gets an object that provides formatting services for the specified type.
-    ///</summary>
-    ///
-    ///<returns>
-    ///The current instance, if formatType is the same type as the current instance; otherwise, null.
-    ///</returns>
-    ///
-    ///<param name="formatType">An object that specifies the type of format object to get. </param><filterpriority>1</filterpriority>
+    ///<inheritdoc/>
     public object GetFormat(Type formatType)
     {
       if (formatType == typeof (NumberFormatInfo))
         return numberFormat;
-      if (formatType == typeof (DateTimeFormatInfo))
-        return dateTimeFormat;
       return null;
     }
 
     #endregion
+
+    private string TranslateTimeSpan(TimeSpan value)
+    {
+      int days = value.Days;
+      int hours = value.Hours;
+      int minutes = value.Minutes;
+      int seconds = value.Seconds;
+      int milliseconds = value.Milliseconds;
+
+      bool negative = hours < 0 || minutes < 0 || seconds < 0 || milliseconds < 0;
+
+      if (hours < 0)
+        hours = -hours;
+
+      if (minutes < 0)
+        minutes = -minutes;
+
+      if (seconds < 0)
+        seconds = -seconds;
+
+      if (milliseconds < 0)
+        milliseconds = -milliseconds;
+
+      return string.Format(TimeSpanFormat,
+          days, negative ? "-" : "", hours, minutes, seconds, milliseconds);
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlTranslator"/> class.

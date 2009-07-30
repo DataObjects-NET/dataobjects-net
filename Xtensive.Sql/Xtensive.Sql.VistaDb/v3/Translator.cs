@@ -13,14 +13,9 @@ namespace Xtensive.Sql.VistaDb.v3
 {
   internal class Translator: SqlTranslator
   {
-    public override void Initialize()
-    {
-      base.Initialize();
-      //numberFormat.NumberDecimalSeparator = ".";
-      dateTimeFormat.ShortDatePattern = "\\'yyyy'-'MM'-'dd";
-      dateTimeFormat.LongTimePattern = "HH':'mm':'ss'.'fff\\'";
-    }
-
+    public override string DateTimeFormat { get { return @"'cast ('\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'' as datetime)'"; } }
+    public override string TimeSpanFormat { get { return string.Empty; } }
+    
     public override string Translate(SqlFunctionType functionType)
     {
       switch (functionType) {
@@ -38,7 +33,6 @@ namespace Xtensive.Sql.VistaDb.v3
       case SqlNodeType.Concat:
         return "+";
       }
-
       return base.Translate(type);
     }
 

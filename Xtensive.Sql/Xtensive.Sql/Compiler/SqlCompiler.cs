@@ -194,7 +194,19 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlArray node)
     {
-      context.AppendText(translator.Translate(context, node));
+      var itemType = node.ItemType;
+      var items = node.GetValues();
+      if (items.Length==0) {
+        context.AppendText(translator.Translate(context, node, ArraySection.EmptyArray));
+        return;
+      }
+      context.AppendText(translator.Translate(context, node, ArraySection.Entry));
+      for (int i = 0; i < items.Length-1; i++) {
+        context.AppendText(translator.Translate(context, itemType, items[i]));
+        context.AppendDelimiter(translator.RowItemDelimiter);
+      }
+      context.AppendText(translator.Translate(context, itemType, items[items.Length-1]));
+      context.AppendText(translator.Translate(context, node, ArraySection.Exit));
     }
 
     public virtual void Visit(SqlAssignment node)
@@ -795,7 +807,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlLiteral node)
     {
-      context.AppendText(translator.Translate(context, node));
+      context.AppendText(translator.Translate(context, node.LiteralType, node.GetValue()));
     }
 
     public virtual void Visit(SqlMatch node)
@@ -1049,7 +1061,7 @@ namespace Xtensive.Sql.Compiler
         context.AppendText(translator.Translate(context, node, TrimSection.Entry));
         context.AppendText(translator.Translate(node.TrimType));
         if (node.TrimCharacters!=null)
-          context.AppendText(translator.Translate(context, SqlDml.Literal(node.TrimCharacters)));
+          context.AppendText(translator.Translate(context, typeof(string), node.TrimCharacters));
         context.AppendText(translator.Translate(context, node, TrimSection.From));
         node.Expression.AcceptVisitor(this);
         context.AppendText(translator.Translate(context, node, TrimSection.Exit));

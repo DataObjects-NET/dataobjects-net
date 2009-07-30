@@ -17,12 +17,13 @@ namespace Xtensive.Sql.SqlServer.v2005
 {
   internal class Translator : SqlTranslator
   {
+    public override string DateTimeFormat { get { return @"'cast ('\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'' as datetime)'"; } }
+    public override string TimeSpanFormat { get { return string.Empty; } }
+
     public override void Initialize()
     {
       base.Initialize();
       numberFormat.NumberDecimalSeparator = ".";
-      dateTimeFormat.ShortDatePattern = "\\'yyyy'-'MM'-'dd";
-      dateTimeFormat.LongTimePattern = "HH':'mm':'ss'.'fff\\'";
     }
 
     public override string Translate(SqlCompilerContext context, bool cascade, AlterTableSection section)
@@ -518,22 +519,20 @@ namespace Xtensive.Sql.SqlServer.v2005
       return string.Empty;
     }
 
-    public override string Translate(SqlCompilerContext context, SqlLiteral node)
+    public override string Translate(SqlCompilerContext context, Type literalType, object literalValue)
     {
-      object value = node.GetValue();
-      var type = node.LiteralType;
-      if (type==typeof (TimeSpan))
-        return Convert.ToString((long) ((TimeSpan) value).TotalMilliseconds, this);
-      if (type==typeof (Boolean))
-        return ((bool) value) ? "cast(1 as bit)" : "cast(0 as bit)";
-      if (type==typeof(DateTime)) {
-        var dateTime = (DateTime) value;
+      if (literalType==typeof (TimeSpan))
+        return Convert.ToString((long) ((TimeSpan) literalValue).TotalMilliseconds, this);
+      if (literalType==typeof (Boolean))
+        return ((bool) literalValue) ? "cast(1 as bit)" : "cast(0 as bit)";
+      if (literalType==typeof(DateTime)) {
+        var dateTime = (DateTime) literalValue;
         var minAllowedValue = ((ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange).MinValue;
-        var newNode = SqlDml.Literal<DateTime>(dateTime > minAllowedValue ? dateTime : minAllowedValue);
-        return base.Translate(context, newNode);
+        var newValue = dateTime > minAllowedValue ? dateTime : minAllowedValue;
+        return newValue.ToString(DateTimeFormat);
       }
-      if (type==typeof(byte[])) {
-        var array = (byte[]) value;
+      if (literalType==typeof(byte[])) {
+        var array = (byte[]) literalValue;
         var builder = new StringBuilder(2 * (array.Length + 1));
         builder.Append("0x");
         foreach (var item in array) {
@@ -544,7 +543,9 @@ namespace Xtensive.Sql.SqlServer.v2005
         }
         return builder.ToString();
       }
-      return base.Translate(context, node);
+      if (literalType==typeof(Guid))
+        return QuoteString(literalValue.ToString());
+      return base.Translate(context, literalType, literalValue);
     }
     
     // Constructors

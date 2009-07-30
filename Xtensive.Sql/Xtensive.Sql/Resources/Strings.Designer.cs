@@ -349,11 +349,11 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Translation of byte[] literal is not supported by default SqlTranslator.
+        ///   Looks up a localized string similar to Translation of literal of type &apos;{0}&apos; is not supported..
         /// </summary>
-        internal static string ExTranslationOfByteArrayLiteralIsNotSupportedByDefaultSqlTranslator {
+        internal static string ExTranslationOfLiteralOfTypeXIsNotSupported {
             get {
-                return ResourceManager.GetString("ExTranslationOfByteArrayLiteralIsNotSupportedByDefaultSqlTranslator", resourceCulture);
+                return ResourceManager.GetString("ExTranslationOfLiteralOfTypeXIsNotSupported", resourceCulture);
             }
         }
         

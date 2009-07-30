@@ -228,6 +228,13 @@ namespace Xtensive.Sql.Compiler
     From = 2,
   }
 
+  public enum ArraySection
+  {
+    Entry = 0,
+    Exit = 1,
+    EmptyArray = 2,
+  }
+
   public enum UpdateSection
   {
     Entry = 0,

@@ -10,6 +10,9 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 {
   internal class Translator : SqlTranslator
   {
+    public override string DateTimeFormat { get { return @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'"; } }
+    public override string TimeSpanFormat { get { return "'{0} days {1}{2}:{3}:{4}.{5:000}'::interval"; } }
+
     public override void Initialize()
     {
       base.Initialize();
@@ -18,8 +21,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       numberFormat.NaNSymbol = "'Nan'::float4";
       numberFormat.NegativeInfinitySymbol = "'-Infinity'::float4";
       numberFormat.PositiveInfinitySymbol = "'Infinity'::float4";
-
-      dateTimeFormat.FullDateTimePattern = "yyyyMMdd HHmmss.ffffff";
     }
 
     public override string DdlStatementDelimiter { get { return ";"; } }
@@ -293,23 +294,27 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return string.Empty;
     }
     
-    public override string Translate(SqlCompilerContext context, SqlLiteral node)
+    public override string Translate(SqlCompilerContext context, Type literalType, object literalValue)
     {
-      return TranslateLiteral(node.GetValue());
+      if (literalType==typeof(byte[]))
+        return TranslateByteArrayLiteral((byte[]) literalValue);
+      if (literalType==typeof(Guid))
+        return TranslateByteArrayLiteral(((Guid) literalValue).ToByteArray());
+      return base.Translate(context, literalType, literalValue);
     }
 
-    public override string Translate(SqlCompilerContext context, SqlArray node)
+    public override string Translate(SqlCompilerContext context, SqlArray node, ArraySection section)
     {
-      var values = node.GetValues();
-      int length = values.Length;
-      if (length==0)
-        return "'{}'::" + TranslateClrType(node.ItemType) + "[]";
-      var sb = new StringBuilder("ARRAY[");
-      for (int i = 0; i < length; i++)
-        sb.Append(TranslateLiteral(values[i]) + ",");
-      sb.Length -= 1;
-      sb.Append("]");
-      return sb.ToString();
+      switch (section) {
+      case ArraySection.Entry:
+        return "ARRAY[";
+      case ArraySection.Exit:
+        return "]";
+      case ArraySection.EmptyArray:
+        return string.Format("'{{}}'::{0}[]", TranslateClrType(node.ItemType));
+      default:
+        throw new ArgumentOutOfRangeException("section");
+      }
     }
 
     public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
@@ -882,6 +887,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return string.Format("RENAME COLUMN {0} TO {1}", QuoteIdentifier(node.DbName), QuoteIdentifier(action.Name));
     }
 
+    /*
+
     protected string TranslateLiteral(object obj)
     {
       if (obj==null || obj==DBNull.Value) {
@@ -918,10 +925,10 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         return ((double) obj).ToString(this);
       }
       if (obj is DateTime) {
-        return "'" + ((DateTime) obj).ToString("yyyyMMdd HHmmss.ffffff") + "'::timestamp(6)";
+        return ((DateTime) obj).ToString(DateTimeFormat);
       }
       if (obj is TimeSpan) {
-        return string.Format("'{0}'::interval", IntervalHelper.TimeSpanToString((TimeSpan) obj));
+        return string.Format(, IntervalHelper.TimeSpanToString((TimeSpan) obj));
       }
       if (obj is byte[]) {
         var array = obj as byte[];
@@ -952,7 +959,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       }
       return obj.ToString();
     }
-    
+    */
+
     public override string Translate(SqlDateTimePart part)
     {
       switch (part) {
@@ -966,7 +974,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return base.Translate(part);
     }
 
-    protected static string TranslateClrType(Type type)
+    private static string TranslateClrType(Type type)
     {
       switch (Type.GetTypeCode(type)) {
       case TypeCode.Boolean:
@@ -1001,6 +1009,32 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         return "text";
       }
     }
+
+    private static string TranslateByteArrayLiteral(byte[] array)
+    {
+      if (array.Length==0)
+        return "''::bytea";
+
+      var chars = new char[1 + 5 * array.Length + 8];
+      chars[0] = '\'';
+      chars[chars.Length - 1] = 'a';
+      chars[chars.Length - 2] = 'e';
+      chars[chars.Length - 3] = 't';
+      chars[chars.Length - 4] = 'y';
+      chars[chars.Length - 5] = 'b';
+      chars[chars.Length - 6] = ':';
+      chars[chars.Length - 7] = ':';
+      chars[chars.Length - 8] = '\'';
+
+      for (int n = 1, i = 0; i < array.Length; i++, n += 5) {
+        chars[n] = chars[n + 1] = '\\';
+        chars[n + 2] = (char) ('0' + (7 & (array[i] >> 6)));
+        chars[n + 3] = (char) ('0' + (7 & (array[i] >> 3)));
+        chars[n + 4] = (char) ('0' + (7 & (array[i] >> 0)));
+      }
+      return new String(chars);
+    }
+
 
     // Constructors
 

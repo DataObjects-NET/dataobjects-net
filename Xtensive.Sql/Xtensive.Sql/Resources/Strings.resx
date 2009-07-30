@@ -213,8 +213,8 @@
   <data name="ExTypeXIsNotSupported" xml:space="preserve">
     <value>Type '{0}' is not supported.</value>
   </data>
-  <data name="ExTranslationOfByteArrayLiteralIsNotSupportedByDefaultSqlTranslator" xml:space="preserve">
-    <value>Translation of byte[] literal is not supported by default SqlTranslator</value>
+  <data name="ExTranslationOfLiteralOfTypeXIsNotSupported" xml:space="preserve">
+    <value>Translation of literal of type '{0}' is not supported.</value>
   </data>
   <data name="ExFunctionXIsNotSupported" xml:space="preserve">
     <value>Function '{0}' is not supported</value>

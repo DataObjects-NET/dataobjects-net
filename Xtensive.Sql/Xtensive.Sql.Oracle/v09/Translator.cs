@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
+using System;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 
@@ -11,6 +12,9 @@ namespace Xtensive.Sql.Oracle.v09
 {
   internal class Translator : SqlTranslator
   {
+    public override string DateTimeFormat { get { return @"'TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'"; } }
+    public override string TimeSpanFormat { get { return "INTERVAL '{0} {1}{2}:{3}:{4}.{5:000}' DAY(6) TO SECOND(3)"; } }
+
     public override void Initialize()
     {
       base.Initialize();
@@ -58,7 +62,7 @@ namespace Xtensive.Sql.Oracle.v09
       }
     }
 
-   public override string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
+    public override string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
     {
       switch(section) {
       case NodeSection.Exit:
@@ -69,20 +73,42 @@ namespace Xtensive.Sql.Oracle.v09
     }
 
     /*
-    public override string Translate(SqlCompilerContext context, SqlLiteral node)
+    public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-
+      if (node.IntervalPart!=SqlIntervalPart.Nothing && section==ExtractSection.Exit)
+        return " DAY TO SECOND)";
+      return base.Translate(context, node, section);
     }
     */
-
     public override string Translate(SqlValueType type)
     {
       // we need to explicitly specify maximum interval precision
       if (type.Type==SqlType.Interval)
-        return "interval day(6) to second(9)";
+        return "INTERVAL DAY(6) TO SECOND(3)";
       return base.Translate(type);
     }
     
+    public override string Translate(SqlDateTimePart part)
+    {
+      switch (part) {
+      case SqlDateTimePart.DayOfWeek:
+      case SqlDateTimePart.DayOfYear:
+        throw new NotSupportedException();
+      default:
+        return base.Translate(part);
+      }
+    }
+
+    public override string Translate(SqlFunctionType type)
+    {
+      switch (type) {
+      case SqlFunctionType.DateTimeTruncate:
+        return "TRUNC";
+      default:
+        return base.Translate(type);
+      }
+    }
+
     // Constructors
 
     public Translator(SqlDriver driver)
