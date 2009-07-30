@@ -247,7 +247,10 @@ namespace Xtensive.Storage.Providers.Sql
     private Pair<SqlPersistRequest, Tuple> CreateUpdateRequest(PersistAction action)
     {
       var entityState = action.EntityState;
-      var source = entityState.DifferentialTuple.Difference;
+      var dTuple = entityState.DifferentialTuple;
+      var source = dTuple.Difference;
+      if (source==null) // Because new entity can be updated by toposort
+        source = dTuple.Origin; // TODO: Fix this workaround!
       var fieldStateMap = source.GetFieldStateMap(TupleFieldState.Available);
       var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Update, entityState.Type, fieldStateMap);
       var request = DomainHandler.GetPersistRequest(task);

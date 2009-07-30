@@ -13,6 +13,7 @@ using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
@@ -60,18 +61,18 @@ namespace Xtensive.Storage
   /// <seealso cref="Entity">Entity class</seealso>
   /// <seealso cref="AssociationAttribute.PairTo">Using EntitySets with paired associations</seealso>
   public class EntitySet<TItem> : EntitySetBase,
-    ICollection<TItem>, IOrderedQueryable<TItem>
+    ICollection<TItem>, 
+    ICountable<TItem>, 
+    IQueryable<TItem>
     where TItem : Entity
   {
-
-    private const int CacheSize = 10240;
+    private const int MaxCacheSize = 10240;
     private const int LoadStateCount = 32;
 
     private Expression expression;
-    private Queryable<TItem> query;
 
     /// <inheritdoc/>
-    [Infrastructure]
+    [Infrastructure] // Proxy
     public bool Contains(TItem item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
@@ -79,31 +80,24 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Adds the specified element to the <see cref="EntitySet{TItem}"/>.
+    /// Adds the specified item to the collection.
     /// </summary>
-    /// <param name="item">Item to add to the set.</param>
-    /// <returns><see langword="True"/> if the element is added to the <see cref="EntitySet{TItem}"/> object;
-    /// otherwise, <see langword="false"/>.</returns>
-    [Infrastructure]
+    /// <param name="item">The item to add.</param>
+    /// <returns>
+    /// <see langword="True"/>, if the item is added to the collection;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    [Infrastructure] // Proxy
     public bool Add(TItem item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       return base.Add(item);
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
+    [Infrastructure] // Proxy
     public bool Remove(TItem item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       return base.Remove(item);
-    }
-
-    /// <inheritdoc/>
-    [Infrastructure]
-    public void Clear()
-    {
-      base.Clear();
     }
 
     /// <summary>
@@ -112,8 +106,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <typeparam name="TElement">The type of the element.</typeparam>
     /// <param name="other">The collection to compare to the current <see cref="EntitySet{TItem}"/> object.</param>
-    [Infrastructure]
-    public void IntersectWith<TElement>(IEnumerable<TElement> other)
+    public new void IntersectWith<TElement>(IEnumerable<TElement> other)
      where TElement : TItem
     {
       ArgumentValidator.EnsureArgumentNotNull(other, "other");
@@ -126,8 +119,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <typeparam name="TElement">The type of the element.</typeparam>
     /// <param name="other">The collection to compare to the current <see cref="EntitySet{TItem}"/> object.</param>
-    [Infrastructure]
-    public void UnionWith<TElement>(IEnumerable<TElement> other)
+    public new void UnionWith<TElement>(IEnumerable<TElement> other)
       where TElement : TItem
     {
       ArgumentValidator.EnsureArgumentNotNull(other, "other");
@@ -139,25 +131,17 @@ namespace Xtensive.Storage
     /// </summary>
     /// <typeparam name="TElement">The type of the element.</typeparam>
     /// <param name="other">The collection to compare to the current <see cref="EntitySet{TItem}"/> object.</param>
-    [Infrastructure]
-    public void ExceptWith<TElement>(IEnumerable<TElement> other)
+    public new void ExceptWith<TElement>(IEnumerable<TElement> other)
       where TElement : TItem
     {
       ArgumentValidator.EnsureArgumentNotNull(other, "other");
       base.ExceptWith(other);
     }
 
-    #region Explicit ICollection<T> members
+    #region ICollection<T> members
 
     /// <inheritdoc/>
-    [Infrastructure]
-    void ICollection<TItem>.Add(TItem item)
-    {
-      Add(item);
-    }
-
-    /// <inheritdoc/>
-    [Infrastructure]
+    [Infrastructure] // Proxy
     int ICollection<TItem>.Count
     {
       [DebuggerStepThrough]
@@ -173,22 +157,28 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
-    public IEnumerator<TItem> GetEnumerator()
+    [Infrastructure] // Proxy
+    void ICollection<TItem>.Add(TItem item)
     {
-      foreach (var item in GetEntities())
-        yield return (TItem)item;
+      base.Add(item);
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
+    [Infrastructure] // Proxy
+    public IEnumerator<TItem> GetEnumerator()
+    {
+      foreach (var item in Entities)
+        yield return (TItem) item;
+    }
+
+    /// <inheritdoc/>
+    [Infrastructure] // Proxy
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public void CopyTo(TItem[] array, int arrayIndex)
     {
       foreach (TItem item in this)
@@ -226,44 +216,47 @@ namespace Xtensive.Storage
 
     #endregion
 
+    #region Protected overriden members
+
     /// <inheritdoc/>
     protected sealed override EntitySetState LoadState()
     {
-      var state = new EntitySetState(CacheSize);
+      var state = new EntitySetState(MaxCacheSize);
       long stateCount = 0;
-      if (((Entity)Owner).State.PersistenceState != PersistenceState.New) {
-        stateCount = count.First().GetValue<long>(0);
+      if (Owner.State.PersistenceState != PersistenceState.New) {
+        stateCount = rsCount.First().GetValue<long>(0);
         if (stateCount <= LoadStateCount)
-          foreach (var item in query)
+          foreach (var item in new Queryable<TItem>(expression))
             state.Register(item.Key);
       }
       state.count = stateCount;
       return state;
     }
 
-    [Infrastructure]
-    protected internal sealed override IEnumerable<Entity> GetEntities()
-    {
-      return State.IsFullyLoaded 
-        ? GetCachedEntities() 
-        : RetrieveEntities();
+    /// <inheritdoc/>
+    protected internal sealed override IEnumerable<Entity> Entities {
+      get {
+        return State.IsFullyLoaded 
+          ? GetCachedEntities() 
+          : GetRealEntities();
+      }
     }
 
-    #region Private methods
+    #endregion
 
-    [Infrastructure]
+    #region Private / internal methods
+
     private IEnumerable<Entity> GetCachedEntities()
     {
       foreach (Key key in State) {
-        EnsureVersionIs(State.Version);
+        ValidateVersion(State.Version);
         yield return Query.SingleOrDefault(Session, key); ;
       }
     }
 
-    [Infrastructure]
-    private IEnumerable<Entity> RetrieveEntities()
+    private IEnumerable<Entity> GetRealEntities()
     {
-      foreach (var item in query) {
+      foreach (var item in new Queryable<TItem>(expression)) {
         State.Register(item.Key);
         yield return item;
       }
@@ -271,15 +264,18 @@ namespace Xtensive.Storage
 
     #endregion
 
+    // Initialization
+
     /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();
-      // hack to make expression look like regular parameter (ParameterExtractor.IsParameter => true)
+      // A hack making expression to look like regular parameter 
+      // (ParameterExtractor.IsParameter => true)
       var owner = Expression.Property(Expression.Constant(new {Owner = (Entity)Owner}), "Owner");
-      expression = QueryHelper.CreateEntitySetQuery(owner, Field);
-      query = new Queryable<TItem>(expression);
+      expression = QueryHelper.CreateEntitySetQueryExpression(owner, Field);
     }
+
 
     // Constructors
 

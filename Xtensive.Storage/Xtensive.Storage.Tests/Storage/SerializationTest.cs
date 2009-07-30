@@ -7,11 +7,9 @@
 using System;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Serialization;
 using Xtensive.Storage.Tests.SerializationTestModel;
@@ -55,7 +53,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
       return Name;
     }
 
-    public override void OnValidate()
+    protected override void OnValidate()
     {
       if (string.IsNullOrEmpty(Name) || Company==null)
         throw new InvalidOperationException("Invalid îbject.");
@@ -277,7 +275,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          Company company = new Company {Name = "Transactional lines"};
+          Company company = new Company {Name = "OpenTransaction lines"};
           firstCompanyId = company.Id;
           transactionScope.Complete();
         }

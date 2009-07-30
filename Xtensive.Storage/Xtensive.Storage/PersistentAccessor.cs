@@ -29,7 +29,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public Entity CreateEntity(Type entityType)
     {
-      using(CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (CoreServices.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(entityType, "entityType");
         if (!typeof (Entity).IsAssignableFrom(entityType))
           throw new InvalidOperationException(
@@ -50,7 +50,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public Entity CreateEntity(Type entityType, Tuple tuple)
     {
-      using(CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (CoreServices.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(entityType, "entityType");
         ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
         if (!typeof (Entity).IsAssignableFrom(entityType))
@@ -71,7 +71,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public Structure CreateStructure(Type structureType)
     {
-      using(CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (CoreServices.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(structureType, "structureType");
         if (!typeof (Structure).IsAssignableFrom(structureType))
           throw new InvalidOperationException(
@@ -91,7 +91,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public T GetFieldValue<T>(Persistent target, FieldInfo field)
     {
-      using(CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (CoreServices.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, field);
         return target.GetFieldValue<T>(field);
       }
@@ -107,7 +107,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public void SetFieldValue<T>(Persistent target, FieldInfo field, T value)
     {
-      using(CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (CoreServices.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, field);
         target.SetFieldValue(field, value);
       }
@@ -129,7 +129,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public Key GetReferenceKey(Persistent target, FieldInfo field)
     {
-      using(CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (CoreServices.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, field);
         return target.GetReferenceKey(field);
       }
@@ -142,7 +142,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public void Remove(Entity target)
     {
-      using(CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (CoreServices.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(target, "target");
         target.Remove();
       }

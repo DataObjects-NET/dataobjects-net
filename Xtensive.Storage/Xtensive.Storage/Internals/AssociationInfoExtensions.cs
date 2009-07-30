@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Internals
         case Multiplicity.OneToMany:
         case Multiplicity.ManyToMany:
           var targets = owner.GetFieldValue<EntitySetBase>(association.OwnerField);
-          foreach (var item in targets.GetEntities())
+          foreach (var item in targets.Entities)
             yield return item;
           break;
       }

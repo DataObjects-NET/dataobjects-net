@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void MainTest()
     {
-      using(Session.Open(Domain)) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Master m1 = new Master();
           m1.Slave = new Slave();

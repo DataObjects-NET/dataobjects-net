@@ -21,6 +21,20 @@ namespace Xtensive.Core.Disposing
     private IDisposable second;
 
     /// <summary>
+    /// Gets the first object to dispose.
+    /// </summary>
+    public IDisposable First {
+      get { return first; }
+    }
+
+    /// <summary>
+    /// Gets the second object to dispose.
+    /// </summary>
+    public IDisposable Second {
+      get { return second; }
+    }
+
+    /// <summary>
     /// Joins the <see cref="JoiningDisposable"/> and <see cref="IDisposable"/>.
     /// </summary>
     /// <param name="first">The first disposable to join.</param>

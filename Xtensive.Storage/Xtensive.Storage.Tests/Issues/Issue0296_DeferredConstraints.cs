@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Issues
             root = next;
           }
 
-          Assert.Less(count, Session.Current.EntityStateRegistry.GetItems(PersistenceState.New).Count());
+          Assert.Less(count, Session.Current.EntityChangeRegistry.GetItems(PersistenceState.New).Count());
 
           t.Complete();
         }

@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
         CalculateFilters =
           new Dictionary<CalculateProvider, List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>>>();
         previousState = owner.State;
-        if(previousState == null) {
+        if (previousState == null) {
           SelfConvertibleApplyProviders = new Dictionary<ApplyParameter, bool>();
         }
         else {
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 
       public void Dispose()
       {
-        if(isDisposed)
+        if (isDisposed)
           return;
         isDisposed = true;
         UpdateOwnerState();
@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 
       private void UpdateOwnerState()
       {
-        if(previousState == null)
+        if (previousState == null)
           return;
         foreach (var pair in CalculateProviders) {
           if (previousState.CalculateProviders.ContainsKey(pair.Key))
@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
           return VisitCompilable(rootProvider);
       }
       catch(InvalidOperationException) {
-        if(throwOnCorrectionFault)
+        if (throwOnCorrectionFault)
           throw;
         return rootProvider;
       }
@@ -153,7 +153,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       VisitBinaryProvider(provider, out left, out right);
       State.SelfConvertibleApplyProviders.Remove(provider.ApplyParameter);
 
-      if(isSelfConvertibleApply) {
+      if (isSelfConvertibleApply) {
         return ProcesSelfConvertibleApply(provider, left, right);
       }
 
@@ -166,13 +166,13 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
     protected override Provider VisitFilter(FilterProvider provider)
     {
       var source = VisitCompilable(provider.Source);
-      if(calculateProviderCollector.TryAddFilter(provider))
+      if (calculateProviderCollector.TryAddFilter(provider))
         return source;
 
       var newProvider = source!=provider.Source 
         ? new FilterProvider(source, provider.Predicate) : provider;
 
-      if(predicateCollector.TryAdd(newProvider))
+      if (predicateCollector.TryAdd(newProvider))
         return source;
       return newProvider;
     }
@@ -192,7 +192,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       var newProvider = provider;
       predicateCollector.ValidateSelectedColumnIndexes(provider);
       calculateProviderCollector.ValidateSelectedColumnIndexes(provider);
-      if(source != provider.Source)
+      if (source != provider.Source)
         newProvider = new SelectProvider(source, provider.ColumnIndexes);
       return newProvider;
     }
@@ -203,10 +203,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       CompilableProvider right;
       VisitBinaryProvider(provider, out left, out right);
 
-      if(provider.JoinType == JoinType.LeftOuter)
+      if (provider.JoinType == JoinType.LeftOuter)
         EnsureAbsenceOfApplyProviderRequiringConversion();
 
-      if(left != provider.Left || right != provider.Right)
+      if (left != provider.Left || right != provider.Right)
         return new JoinProvider(left, right, provider.JoinType, provider.JoinAlgorithm,
           provider.EqualIndexes);
       return provider;
@@ -218,10 +218,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       CompilableProvider right;
       VisitBinaryProvider(provider, out left, out right);
 
-      if(provider.JoinType == JoinType.LeftOuter)
+      if (provider.JoinType == JoinType.LeftOuter)
         EnsureAbsenceOfApplyProviderRequiringConversion();
 
-      if(left != provider.Left || right != provider.Right)
+      if (left != provider.Left || right != provider.Right)
         return new PredicateJoinProvider(left, right, provider.Predicate, provider.JoinType);
       return provider;
     }
@@ -231,7 +231,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       CompilableProvider left;
       CompilableProvider right;
       VisitBinaryProvider(provider, out left, out right);
-      if(left != provider.Left || right != provider.Right)
+      if (left != provider.Left || right != provider.Right)
         return new IntersectProvider(left, right);
       return provider;
     }
@@ -241,7 +241,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       CompilableProvider left;
       CompilableProvider right;
       VisitBinaryProvider(provider, out left, out right);
-      if(left != provider.Left || right != provider.Right)
+      if (left != provider.Left || right != provider.Right)
         return new ExceptProvider(left, right);
       return provider;
     }
@@ -251,7 +251,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       CompilableProvider left;
       CompilableProvider right;
       VisitBinaryProvider(provider, out left, out right);
-      if(left != provider.Left || right != provider.Right)
+      if (left != provider.Left || right != provider.Right)
         return new ConcatProvider(left, right);
       return provider;
     }
@@ -261,7 +261,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       CompilableProvider left;
       CompilableProvider right;
       VisitBinaryProvider(provider, out left, out right);
-      if(left != provider.Left || right != provider.Right)
+      if (left != provider.Left || right != provider.Right)
         return new UnionProvider(left, right);
       return provider;
     }
@@ -270,7 +270,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
     {
       var source = VisitCompilable(provider.Source);
       var newProvider = provider;
-      if(source != provider.Source)
+      if (source != provider.Source)
         newProvider = RecreateAggregate(provider, source);
       predicateCollector.ValidateAggregatedColumns(newProvider);
       return newProvider;
@@ -280,7 +280,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
     {
       var source = VisitCompilable(provider.Source);
       var newProvider = provider;
-      if(source != provider.Source)
+      if (source != provider.Source)
         newProvider = RecreateCalculate(provider, source);
       return calculateProviderCollector.TryAdd(newProvider) ? source : newProvider;
     }
@@ -289,7 +289,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
     {
       var source = VisitCompilable(provider.Source);
       EnsureAbsenceOfApplyProviderRequiringConversion();
-      if(source != provider.Source)
+      if (source != provider.Source)
         return new TakeProvider(source, provider.Count);
       return provider;
     }
@@ -298,7 +298,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
     {
       var source = VisitCompilable(provider.Source);
       EnsureAbsenceOfApplyProviderRequiringConversion();
-      if(source != provider.Source)
+      if (source != provider.Source)
         return new SkipProvider(source, provider.Count);
       return provider;
     }
@@ -308,19 +308,19 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
     private void VisitBinaryProvider(BinaryProvider provider, out CompilableProvider left,
       out CompilableProvider right)
     {
-      using(new CorrectorState(this))
+      using (new CorrectorState(this))
         left = VisitCompilable(provider.Left);
 
-      using(new CorrectorState(this))
+      using (new CorrectorState(this))
         right = VisitCompilable(provider.Right);
     }
     
     private Provider ProcesSelfConvertibleApply(ApplyProvider provider, CompilableProvider left,
       CompilableProvider right)
     {
-      if(State.Predicates.ContainsKey(provider.ApplyParameter))
+      if (State.Predicates.ContainsKey(provider.ApplyParameter))
         State.Predicates.Remove(provider.ApplyParameter);
-      if(left != provider.Left || right != provider.Right)
+      if (left != provider.Left || right != provider.Right)
         return new ApplyProvider(provider.ApplyParameter, left, right, provider.SequenceType, provider.ApplyType);
       return provider;
     }
@@ -333,7 +333,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       foreach (var predicateAndColumns in oldPredicate) {
         var newPredicate = predicateRewriter.Rewrite(predicateAndColumns.First, predicateAndColumns.Second,
           right.Header.Columns);
-        if(concatenatedPredicate == null)
+        if (concatenatedPredicate == null)
           concatenatedPredicate = newPredicate;
         else
           concatenatedPredicate = collectorHelper
@@ -345,7 +345,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 
     private Provider InsertCalculateProviders(ApplyProvider provider, CompilableProvider convertedApply)
     {
-      if(!State.CalculateProviders.ContainsKey(provider.ApplyParameter))
+      if (!State.CalculateProviders.ContainsKey(provider.ApplyParameter))
         return convertedApply;
       var result = convertedApply;
       foreach (var providerPair in State.CalculateProviders[provider.ApplyParameter]) {
@@ -360,13 +360,13 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       CalculateProvider calculateProvider)
     {
       var result = source;
-      if(State.CalculateFilters.ContainsKey(calculateProvider)) {
+      if (State.CalculateFilters.ContainsKey(calculateProvider)) {
         Expression<Func<Tuple, bool>> concatenatedPredicate = null;
         foreach (var filterPair in State.CalculateFilters[calculateProvider]) {
           var currentPredicate = (Expression<Func<Tuple, bool>>) calculateExpressionRewriter
             .Rewrite(filterPair.First, filterPair.First.Parameters[0],
               filterPair.Second, result.Header.Columns);
-          if(concatenatedPredicate == null)
+          if (concatenatedPredicate == null)
             concatenatedPredicate = currentPredicate;
           else
             concatenatedPredicate = collectorHelper
@@ -380,7 +380,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 
     private void EnsureAbsenceOfApplyProviderRequiringConversion()
     {
-      if(State.ExistsApplyProviderRequiringConversion)
+      if (State.ExistsApplyProviderRequiringConversion)
         ThrowInvalidOperationException();
     }
 

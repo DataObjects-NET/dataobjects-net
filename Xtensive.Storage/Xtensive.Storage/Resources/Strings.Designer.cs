@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Active Session is required for this operation. Try to perform it inside &apos;using(Domain.OpenSession()) { ... }&apos; block..
+        ///   Looks up a localized string similar to Active Session is required for this operation. Try to perform it inside &apos;using (Domain.OpenSession()) { ... }&apos; block..
         /// </summary>
         internal static string ExActiveSessionIsRequiredForThisOperation {
             get {
@@ -448,6 +448,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Entity of type &apos;{0}&apos; is incompatible with this EntitySet..
+        /// </summary>
+        internal static string ExEntityOfTypeXIsIncompatibleWithThisEntitySet {
+            get {
+                return ResourceManager.GetString("ExEntityOfTypeXIsIncompatibleWithThisEntitySet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to modify removed entity..
         /// </summary>
         internal static string ExEntityRemoved {
@@ -547,6 +556,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Field must be of EntitySet&lt;&gt; type..
+        /// </summary>
+        internal static string ExFieldMustBeOfEntitySetType {
+            get {
+                return ResourceManager.GetString("ExFieldMustBeOfEntitySetType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Field {0} not found in model..
         /// </summary>
         internal static string ExFieldNotFoundInModel {
@@ -606,6 +624,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor {
             get {
                 return ResourceManager.GetString("ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field &apos;{0}&apos; is not an EntitySet field..
+        /// </summary>
+        internal static string ExFieldXIsNotAnEntitySetField {
+            get {
+                return ResourceManager.GetString("ExFieldXIsNotAnEntitySetField", resourceCulture);
             }
         }
         

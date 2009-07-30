@@ -49,9 +49,8 @@ namespace Xtensive.Storage
   public sealed partial class Session : DomainBound,
     IContext<SessionScope>, IResource
   {
-    private const int EntityStateRegistrySizeLimit = 250; // TODO: -> SessionConfiguration
+    private const int EntityChangeRegistrySizeLimit = 250; // TODO: -> SessionConfiguration
     private readonly bool persistRequiresTopologicalSort;
-    private bool isPersisting;
     private volatile bool isDisposed;
     private readonly Set<object> consumers = new Set<object>();
     private readonly object _lock = new object();
@@ -74,6 +73,16 @@ namespace Xtensive.Storage
     /// </summary>
     public bool IsDebugEventLoggingEnabled { get; private set; }
 
+    /// <summary>
+    /// Gets a value indicating whether <see cref="Persist"/> method is running.
+    /// </summary>
+    public bool IsPersisting { get; private set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether only a system logic is enabled.
+    /// </summary>
+    public bool IsSystemLogicOnly { get; internal set; }
+
     #region Private \ internal members
 
     internal SessionHandler Handler { get; set; }
@@ -93,37 +102,37 @@ namespace Xtensive.Storage
 
     private void NotifyDisposing()
     {
-      if (!SystemLogicOnly && OnDisposing!=null)
+      if (!IsSystemLogicOnly && OnDisposing!=null)
         OnDisposing(this, EventArgs.Empty);
     }
 
     private void NotifyPersisting()
     {
-      if (!SystemLogicOnly && OnPersisting!=null)
+      if (!IsSystemLogicOnly && OnPersisting!=null)
         OnPersisting(this, EventArgs.Empty);
     }
 
     private void NotifyPersist()
     {
-      if (!SystemLogicOnly && OnPersist!=null)
+      if (!IsSystemLogicOnly && OnPersist!=null)
         OnPersist(this, EventArgs.Empty);
     }
 
     internal void NotifyCreateEntity(Entity entity)
     {
-      if (!SystemLogicOnly && OnCreateEntity!=null)
+      if (!IsSystemLogicOnly && OnCreateEntity!=null)
         OnCreateEntity(this, new EntityEventArgs(entity));
     }
 
     internal void NotifyRemovingEntity(Entity entity)
     {
-      if (!SystemLogicOnly && OnRemovingEntity!=null)
+      if (!IsSystemLogicOnly && OnRemovingEntity!=null)
         OnRemovingEntity(this, new EntityEventArgs(entity));
     }
 
     internal void NotifyRemoveEntity(Entity entity)
     {
-      if (!SystemLogicOnly && OnRemoveEntity!=null)
+      if (!IsSystemLogicOnly && OnRemoveEntity!=null)
         OnRemoveEntity(this, new EntityEventArgs(entity));
     }
 
@@ -449,7 +458,7 @@ namespace Xtensive.Storage
           new WeakCache<Key, EntityState>(false, i => i.Key));
         break;
       }
-      EntityStateRegistry = new EntityStateRegistry(this, EntityStateRegistrySizeLimit);
+      EntityChangeRegistry = new EntityChangeRegistry(this, EntityChangeRegistrySizeLimit);
       // Etc...
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       CoreServices = new CoreServiceAccessor(this);

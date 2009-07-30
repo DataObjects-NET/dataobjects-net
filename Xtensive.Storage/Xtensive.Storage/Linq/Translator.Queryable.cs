@@ -911,7 +911,7 @@ namespace Xtensive.Storage.Linq
               .Model
               .Types[memberAccess.Expression.Type]
               .Fields[memberAccess.Member.Name];
-            sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccess.Expression, field);
+            sequenceExpression = QueryHelper.CreateEntitySetQueryExpression(memberAccess.Expression, field);
           }
         }
       }
@@ -925,7 +925,7 @@ namespace Xtensive.Storage.Linq
 
       if (visitedExpression.IsEntitySetExpression()) {
         var entitySetExpression = (EntitySetExpression) visitedExpression;
-        var entitySetQuery = QueryHelper.CreateEntitySetQuery((Expression) entitySetExpression.Owner, entitySetExpression.Field);
+        var entitySetQuery = QueryHelper.CreateEntitySetQueryExpression((Expression) entitySetExpression.Owner, entitySetExpression.Field);
         return (ProjectionExpression) Visit(entitySetQuery);
       }
 

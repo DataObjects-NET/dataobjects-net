@@ -53,7 +53,7 @@ namespace Xtensive.Storage
     // Constructors
 
     /// <summary>
-    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="session">The session.</param>
     /// <param name="activate">Determines whether session should be activated or not.</param>

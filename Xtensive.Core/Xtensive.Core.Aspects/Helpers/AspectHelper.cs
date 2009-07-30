@@ -411,9 +411,26 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="aspect">The aspect.</param>
     /// <param name="method">The method.</param>
     /// <returns>
-    /// <see langword="true" /> if validation has passed; otherwise, <see langword="false" />.    
+    /// <see langword="true"/> if validation has passed; otherwise, <see langword="false"/>.
     /// </returns>
     public static bool ValidateContextBoundMethod<TContext>(Attribute aspect, MethodBase method)
+      where TContext : class, IContext
+    {
+      return ValidateContextBoundMethod<TContext>(aspect, method, false, false);
+    }
+
+    /// <summary>
+    /// Validates the method of <see cref="IContextBound{TContext}"/> object.
+    /// </summary>
+    /// <typeparam name="TContext">The type of the context.</typeparam>
+    /// <param name="aspect">The aspect.</param>
+    /// <param name="method">The method.</param>
+    /// <param name="allowConstructor">Indicates whether <see cref="ConstructorInfo"/> is allowed in <paramref name="method"/>.</param>
+    /// <param name="allowStatic">Indicates whether <paramref name="method"/> can be static.</param>
+    /// <returns>
+    /// <see langword="true"/> if validation has passed; otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool ValidateContextBoundMethod<TContext>(Attribute aspect, MethodBase method, bool allowConstructor, bool allowStatic)
       where TContext : class, IContext
     {
       if (IsInfrastructureMethod(method))
@@ -423,10 +440,10 @@ namespace Xtensive.Core.Aspects.Helpers
         if (attribute.ContextType == typeof(TContext))
           return false;
 
-      if (!ValidateMemberType(aspect, SeverityType.Error,
+      if (!allowConstructor && !ValidateMemberType(aspect, SeverityType.Error,
         method, false, MemberTypes.Constructor))
         return false;
-      if (!ValidateMethodAttributes(aspect, SeverityType.Error,
+      if (!allowStatic && !ValidateMethodAttributes(aspect, SeverityType.Error,
         method, false, MethodAttributes.Static))
         return false;
       if (!ValidateMethodAttributes(aspect, SeverityType.Error,

@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
             }
           }
         }
-        if(currentCost < minimalCost) {
+        if (currentCost < minimalCost) {
           minimalCost = currentCost;
           cheapestResult = result;
         }

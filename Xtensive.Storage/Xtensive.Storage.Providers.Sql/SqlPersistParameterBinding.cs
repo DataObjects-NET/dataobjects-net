@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Providers.Sql
     // Constructors
 
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="fieldIndex">Index of the field that contain new value.</param>
     /// <param name="typeMapping">The type mapping.</param>

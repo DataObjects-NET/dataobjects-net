@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
     public bool TryAdd(FilterProvider filter)
     {
       var applyParameter = parameterSearcher.Find(filter.Predicate);
-      if(applyParameter != null) {
+      if (applyParameter != null) {
         if (!owner.State.SelfConvertibleApplyProviders[applyParameter]) {
           SaveApplyPredicate(filter, applyParameter);
           return true;
@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 
     public void AliasColumns(AliasProvider provider)
     {
-      if(owner.State.Predicates.Count > 0)
+      if (owner.State.Predicates.Count > 0)
         owner.State.Predicates = collectorHelper.GenericAliasColumns(provider, owner.State.Predicates);
     }
 
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 
     public void ValidateSelectedColumnIndexes(SelectProvider provider)
     {
-      if(owner.State.Predicates.Count == 0)
+      if (owner.State.Predicates.Count == 0)
         return;
       collectorHelper.ValidateNewColumnIndexes(owner.State.Predicates, provider.Header.Columns,
         Strings.ExColumnsUsedByPredicateContainingApplyParameterAreRemoved);
@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 
     private void SaveApplyPredicate(FilterProvider filter, ApplyParameter applyParameter)
     {
-      if(owner.State.Predicates.ContainsKey(applyParameter))
+      if (owner.State.Predicates.ContainsKey(applyParameter))
         owner.State.Predicates[applyParameter]
           .Add(new Pair<Expression<Func<Tuple, bool>>, ColumnCollection>(filter.Predicate,
             filter.Header.Columns));

@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
 
     protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
     {
-      if(provider.Header.Order.Count == 0)
+      if (provider.Header.Order.Count == 0)
         throw new InvalidOperationException(Strings.ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider);
       var compiledSource = GetCompiled(provider.Source) as SqlProvider;
       if (compiledSource == null)

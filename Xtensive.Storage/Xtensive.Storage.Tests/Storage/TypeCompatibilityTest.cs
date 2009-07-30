@@ -238,7 +238,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DefaultValuesTest()
     {
-      using(Session.Open(Domain)) {
+      using (Session.Open(Domain)) {
         Key key;
         using (var t = Transaction.Open()) {
           X x = new X();

@@ -7,25 +7,24 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Aspects;
 
 namespace Xtensive.Storage.Internals
 {
   /// <summary>
   /// Registers <see cref="EntityState"/> changes.
   /// </summary>
-  public class EntityStateRegistry : SessionBound
+  public class EntityChangeRegistry
   {
     private readonly List<EntityState> @new = new List<EntityState>();
     private readonly List<EntityState> modified = new List<EntityState>();
     private readonly List<EntityState> removed = new List<EntityState>();
     private readonly int sizeLimit;
+    private readonly Session session;
     private int count;
 
     /// <summary>
     /// Gets the count of registered entities.
     /// </summary>
-    [Infrastructure]
     public int Count {
       get { return count; }
     }
@@ -33,7 +32,6 @@ namespace Xtensive.Storage.Internals
     /// <summary>
     /// Gets the maximal allowed count of registered entities for this registry.
     /// </summary>
-    [Infrastructure]
     public int SizeLimit {
       get { return sizeLimit; }
     }
@@ -41,18 +39,16 @@ namespace Xtensive.Storage.Internals
     /// <summary>
     /// Enforces the size limit by flushing the changes if it is reached.
     /// </summary>
-    [Infrastructure]
     public void EnforceSizeLimit()
     {
       if (count>=sizeLimit)
-        Session.Persist();
+        session.Persist();
     }
 
     /// <summary>
     /// Registers the specified item.
     /// </summary>
     /// <param name="item">The item.</param>
-    [Infrastructure]
     internal void Register(EntityState item)
     {
       var container = GetContainer(item.PersistenceState);
@@ -65,7 +61,6 @@ namespace Xtensive.Storage.Internals
     /// </summary>
     /// <param name="state">The state of items to get.</param>
     /// <returns>The sequence of items with specified state.</returns>
-    [Infrastructure]
     public IEnumerable<EntityState> GetItems(PersistenceState state)
     {
       foreach (var item in GetContainer(state))
@@ -75,7 +70,6 @@ namespace Xtensive.Storage.Internals
     /// <summary>
     /// Clears the registry.
     /// </summary>
-    [Infrastructure]
     public void Clear()
     {
       count = 0;
@@ -85,7 +79,6 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="state"/> is out of range.</exception>
-    [Infrastructure]
     private List<EntityState> GetContainer(PersistenceState state)
     {
       switch (state) {
@@ -104,10 +97,10 @@ namespace Xtensive.Storage.Internals
     // Constructors
 
     /// <inheritdoc/>
-    public EntityStateRegistry(Session session, int sizeLimit)
-      : base(session)
+    public EntityChangeRegistry(Session session, int sizeLimit)
     {
       ArgumentValidator.EnsureArgumentIsGreaterThan(sizeLimit, 0, "maxCount");
+      this.session = session;
       this.sizeLimit = sizeLimit;
     }
   }

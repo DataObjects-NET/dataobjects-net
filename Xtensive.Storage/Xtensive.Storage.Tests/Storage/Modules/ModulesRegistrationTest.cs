@@ -29,14 +29,14 @@ namespace Xtensive.Storage.Tests.Storage.Modules
     [Test]
     public void CombinedTest()
     {
-      using(var domain0 = Domain.Build(BuildConfiguration0())) {
+      using (var domain0 = Domain.Build(BuildConfiguration0())) {
         using (var session = Session.Open(domain0))
         using (var tx = Transaction.Open()){
           Activator.CreateInstance(domain0.Configuration.Types.Single(t => t.Name=="Simple0"));
           tx.Complete();
         }
       }
-      using(var domain1 = Domain.Build(BuildConfiguration1())) {
+      using (var domain1 = Domain.Build(BuildConfiguration1())) {
       }
       Type handler2Type = GetTypeFromAssembly("ModuleAssembly2", "Modules.Model.UpgradeHandler2");
       var handler2Count = (int)handler2Type.GetField("Count").GetValue(null);

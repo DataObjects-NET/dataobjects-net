@@ -42,13 +42,13 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="session">The session.</param>
     /// <returns>
-    /// 	<see cref="IDisposable"/> object, which disposal will identify the end of the region.
+    /// <see cref="IDisposable"/> object, which disposal will identify the end of the region.
     /// </returns>
     /// <remarks>
-    /// 	<para>
+    /// <para>
     /// The beginning of the region is the place where this method is called.
     /// </para>
-    /// 	<para>
+    /// <para>
     /// The end of the region is the place where returned <see cref="IDisposable"/> object is disposed.
     /// The validation of all queued to-validate objects will be performed during disposal.
     /// </para>

@@ -8,27 +8,36 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Linq
 {
   internal static class QueryHelper
   {
-    public static Expression CreateEntityQuery(Type elementType)
+    public const string QueryAllMethodName = "All";
+    public const string EntitySetItemMasterPropertyName = "Master";
+    public const string EntitySetItemSlavePropertyName  = "Slave";
+
+    public static Expression CreateEntityQueryExpression(Type elementType)
     {
       var query = typeof(Query<>)
         .MakeGenericType(elementType)
-        .InvokeMember("All", BindingFlags.Default | BindingFlags.GetProperty, null, null, null);
+        .InvokeMember(QueryAllMethodName, 
+          BindingFlags.Default | 
+          BindingFlags.GetProperty, 
+          null, null, null);
       return Expression.Constant(query, typeof(IQueryable<>).MakeGenericType(elementType));
     }
 
-    public static Expression CreateEntitySetQuery(Expression ownerEntity, FieldInfo field)
+    public static Expression CreateEntitySetQueryExpression(Expression ownerEntity, FieldInfo field)
     {
       if (!field.UnderlyingProperty.PropertyType.IsOfGenericType(typeof(EntitySet<>)))
-        throw new ArgumentException();
+        throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, Log.Instance);
 
       var elementType = field.UnderlyingProperty.PropertyType.GetGenericArguments()[0];
 
@@ -44,14 +53,14 @@ namespace Xtensive.Storage.Linq
           );
         return Expression.Call(
           WellKnownMembers.QueryableWhere.MakeGenericMethod(elementType),
-          CreateEntityQuery(elementType),
+          CreateEntityQueryExpression(elementType),
           FastExpression.Lambda(whereExpression, whereParameter)
           );
       }
 
       var connectorType = field.Association.Master.AuxiliaryType.UnderlyingType;
-      string master = "Master";
-      string slave = "Slave";
+      string master = EntitySetItemMasterPropertyName;
+      string slave = EntitySetItemSlavePropertyName;
 
       if (field.ReflectedType.UnderlyingType != field.Association.Master.TargetType.UnderlyingType) {
         var s = master;
@@ -70,7 +79,7 @@ namespace Xtensive.Storage.Linq
 
       var outerQuery = Expression.Call(
         WellKnownMembers.QueryableWhere.MakeGenericMethod(connectorType),
-        CreateEntityQuery(connectorType),
+        CreateEntityQueryExpression(connectorType),
         FastExpression.Lambda(filterExpression, filterParameter)
         );
 
@@ -88,7 +97,7 @@ namespace Xtensive.Storage.Linq
           resultSelector.Body.Type
         },
         outerQuery,
-        CreateEntityQuery(elementType),
+        CreateEntityQueryExpression(elementType),
         outerSelector,
         innerSelector,
         resultSelector);

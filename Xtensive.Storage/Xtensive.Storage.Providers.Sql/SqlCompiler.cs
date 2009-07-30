@@ -392,7 +392,7 @@ namespace Xtensive.Storage.Providers.Sql
       var count = provider.Count();
       if (query.Limit == 0 || query.Limit > count)
         query.Limit = count;
-      if(!(provider.Source is TakeProvider) && !(provider.Source is SkipProvider))
+      if (!(provider.Source is TakeProvider) && !(provider.Source is SkipProvider))
         AddOrderByStatement(provider, query);
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }

@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void BehaviorTest()
     {
-      using(Session.Open(domain)) {
+      using (Session.Open(domain)) {
         using (Transaction.Open()) {
           Assert.IsNotNull(Session.Current.Services.Get<SimpleService>("ss1").GetCoreServices());
           var ss1_1 = Session.Current.Services.Get<SimpleService>("ss1");

@@ -53,9 +53,9 @@ namespace Xtensive.Storage.Tests.Upgrade
       var typeList = CreateTypeList();
       foreach (var type in typeList) {
         Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type), new TypeInfo(type)));
-        if(supportedConversions.ContainsKey(type))
+        if (supportedConversions.ContainsKey(type))
           foreach (var targetType in typeList.Where(t => t != type))
-            if(supportedConversions[type].Contains(targetType))
+            if (supportedConversions[type].Contains(targetType))
               Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type), new TypeInfo(targetType)));
             else
               Assert.IsFalse(TypeConversionVerifier.CanConvert(new TypeInfo(type), new TypeInfo(targetType)));

@@ -30,7 +30,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets a value indicating whether this instance's state is actual now.
     /// </summary>
-    [Infrastructure]
     protected bool IsStateActual {
       get {
         return stateTransaction!=null && stateTransaction.State.IsActive();
@@ -43,7 +42,6 @@ namespace Xtensive.Storage
     /// Otherwise it calls <see cref="ResetState"/> method and sets
     /// <see cref="StateTransaction"/> to <see langword="null" />.
     /// </summary>
-    [Infrastructure]
     protected void EnsureStateIsActual()
     {
       if (IsStateActual)
@@ -55,11 +53,9 @@ namespace Xtensive.Storage
     /// <summary>
     /// Resets the cached transactional state.
     /// </summary>
-    [Infrastructure]
     protected internal abstract void ResetState();
 
     /// <exception cref="NotSupportedException"></exception>
-    [Infrastructure]
     protected void BindStateTransaction()
     {
       var currentTransaction = Session.Transaction;

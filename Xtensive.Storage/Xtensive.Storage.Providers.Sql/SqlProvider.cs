@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (extraBindings != null)
         parameterBindings = parameterBindings.Concat(extraBindings);
       var tupleDescriptor = origin.Header.TupleDescriptor;
-      if(statement.Columns.Count < origin.Header.TupleDescriptor.Count)
+      if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
         tupleDescriptor = origin.Header.TupleDescriptor.TrimFields(statement.Columns.Count);
       Request = new SqlFetchRequest(statement, tupleDescriptor, parameterBindings);
       PermanentReference = SqlDml.QueryRef(statement);

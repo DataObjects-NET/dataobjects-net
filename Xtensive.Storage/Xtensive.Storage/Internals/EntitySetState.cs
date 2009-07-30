@@ -13,6 +13,9 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Internals
 {
+  /// <summary>
+  /// Describes cached state of <see cref="EntitySetBase"/>
+  /// </summary>
   [Serializable]
   public sealed class EntitySetState :
     IEnumerable<Key>,
@@ -34,29 +37,45 @@ namespace Xtensive.Storage.Internals
 
     #endregion
 
-    public bool IsFullyLoaded
-    {
-      get
-      {
+    /// <summary>
+    /// Gets a value indicating whether state is fully loaded.
+    /// </summary>
+    public bool IsFullyLoaded {
+      get {
         return count == keys.Count;
       }
     }
 
-    public long Count
-    {
+    /// <summary>
+    /// Gets the count of cached items.
+    /// </summary>
+    public long Count {
       get { return count;}
     }
 
+    /// <summary>
+    /// Determines whether cached state contains specified item.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns>Check result.</returns>
     public bool Contains(Key key)
     {
       return keys.ContainsKey(key);
     }
 
+    /// <summary>
+    /// Registers the specified fetched key in cached state.
+    /// </summary>
+    /// <param name="key">The key to register.</param>
     public void Register(Key key)
     {
       keys.Add(key);
     }
 
+    /// <summary>
+    /// Adds the specified key.
+    /// </summary>
+    /// <param name="key">The key to add.</param>
     public void Add(Key key)
     {
       Register(key);
@@ -64,6 +83,10 @@ namespace Xtensive.Storage.Internals
       Version++;
     }
 
+    /// <summary>
+    /// Removes the specified key.
+    /// </summary>
+    /// <param name="key">The key to remove.</param>
     public void Remove(Key key)
     {
       keys.RemoveKey(key);
@@ -71,6 +94,9 @@ namespace Xtensive.Storage.Internals
       Version++;
     }
 
+    /// <summary>
+    /// Clears this instance.
+    /// </summary>
     public void Clear()
     {
       keys.Clear();
@@ -80,11 +106,13 @@ namespace Xtensive.Storage.Internals
 
     #region GetEnumerator<...> methods
 
+    /// <inheritdoc/>
     public IEnumerator<Key> GetEnumerator()
     {
       return keys.GetEnumerator();
     }
 
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
@@ -98,11 +126,11 @@ namespace Xtensive.Storage.Internals
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="cacheSize">Size of the cache.</param>
+    /// <param name="maxCacheSize">Maximal count of items to cache.</param>
     /// <inheritdoc/>
-    public EntitySetState(long cacheSize)
+    public EntitySetState(long maxCacheSize)
     {
-      keys = new LruCache<Key, Key>(cacheSize, cachedKey => cachedKey);
+      keys = new LruCache<Key, Key>(maxCacheSize, cachedKey => cachedKey);
     }
   }
 }

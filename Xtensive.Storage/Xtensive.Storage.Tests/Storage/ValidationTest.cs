@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       [Field]
       public Led Led { get; set;}
 
-      public override void OnValidate()
+      protected override void OnValidate()
       {
         base.OnValidate();
 
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       [Field]
       public double Precision { get; set;}
 
-      public override void OnValidate()
+      protected override void OnValidate()
       {
         base.OnValidate();
 

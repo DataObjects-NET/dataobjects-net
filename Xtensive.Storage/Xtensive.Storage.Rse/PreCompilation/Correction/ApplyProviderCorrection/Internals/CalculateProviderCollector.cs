@@ -26,15 +26,15 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
     public bool TryAdd(CalculateProvider provider)
     {
       var applyParameters = FindApplyParameters(provider);
-      if(applyParameters.Count == 0)
+      if (applyParameters.Count == 0)
         return false;
-      if(applyParameters.Count > 1)
+      if (applyParameters.Count > 1)
         ApplyProviderCorrectorRewriter.ThrowInvalidOperationException();
       var applyParameter = applyParameters[0];
-      if(owner.State.SelfConvertibleApplyProviders[applyParameter])
+      if (owner.State.SelfConvertibleApplyProviders[applyParameter])
         return false;
       var newPair = new Pair<CalculateProvider, ColumnCollection>(provider, provider.Header.Columns);
-      if(owner.State.CalculateProviders.ContainsKey(applyParameter))
+      if (owner.State.CalculateProviders.ContainsKey(applyParameter))
         owner.State.CalculateProviders[applyParameter].Add(newPair);
       else
         owner.State.CalculateProviders.Add(applyParameter,
@@ -45,28 +45,28 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
     public bool TryAddFilter(FilterProvider filter)
     {
       var tupleAccesses = tupleGatherer.Gather(filter.Predicate);
-      if(tupleAccesses.Count == 0)
+      if (tupleAccesses.Count == 0)
         return false;
       return TryAddCalculateFilter(filter, tupleAccesses);
     }
 
     public void ValidateSelectedColumnIndexes(SelectProvider provider)
     {
-      if(owner.State.CalculateProviders.Count > 0)
+      if (owner.State.CalculateProviders.Count > 0)
         collectorHelper.ValidateNewColumnIndexes(owner.State.CalculateProviders,
           provider.Header.Columns,
           Strings.ExColumnsUsedByCalculatedColumnExpressionContainingApplyParameterAreRemoved);
-      if(owner.State.CalculateFilters.Count > 0)
+      if (owner.State.CalculateFilters.Count > 0)
         collectorHelper.ValidateNewColumnIndexes(owner.State.CalculateFilters,
           provider.Header.Columns, Strings.ExColumnsUsedByPredicateContainingApplyParameterAreRemoved);
     }
 
     public void AliasColumns(AliasProvider provider)
     {
-      if(owner.State.CalculateProviders.Count > 0)
+      if (owner.State.CalculateProviders.Count > 0)
         owner.State.CalculateProviders = collectorHelper.GenericAliasColumns(provider,
           owner.State.CalculateProviders);
-      if(owner.State.CalculateFilters.Count > 0)
+      if (owner.State.CalculateFilters.Count > 0)
         owner.State.CalculateFilters = collectorHelper.GenericAliasColumns(provider,
           owner.State.CalculateFilters);
     }

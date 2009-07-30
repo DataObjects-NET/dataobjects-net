@@ -16,7 +16,7 @@ namespace Xtensive.Storage
   public partial class Session
   {
     internal ICache<Key, EntityState> EntityStateCache { get; private set; }
-    internal EntityStateRegistry EntityStateRegistry { get; private set; }
+    internal EntityChangeRegistry EntityChangeRegistry { get; private set; }
 
     internal EntityState CreateEntityState(Key key)
     {
@@ -25,7 +25,7 @@ namespace Xtensive.Storage
       if (cachedState != null && cachedState.PersistenceState==PersistenceState.Removed)
         Persist();
       else
-        EntityStateRegistry.EnforceSizeLimit(); // Must be done before new entity registration
+        EntityChangeRegistry.EnforceSizeLimit(); // Must be done before new entity registration
 
       // If type is unknown, we consider tuple is null, 
       // so its Entity is considered as non-existing

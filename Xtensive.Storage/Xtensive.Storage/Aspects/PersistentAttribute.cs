@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
@@ -19,6 +20,7 @@ using Xtensive.Integrity.Aspects;
 using Xtensive.Storage.Resources;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 using System.Linq;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Aspects
 {
@@ -28,8 +30,7 @@ namespace Xtensive.Storage.Aspects
   /// <remarks>
   /// <list>
   ///   <listheader>PersistentAttribute applies following aspects on a target class:</listheader>
-  ///   <item><see cref="SessionBoundMethodAspect"/> on all methods of <see cref="SessionBound"/></item>
-  ///   <item><see cref="TransactionalAttribute"/> on public methods of <see cref="SessionBound"/></item>
+  ///   <item><see cref="TransactionalAspect"/> on all methods of <see cref="SessionBound"/></item>
   ///   <item><see cref="AutoPropertyReplacementAspect"/> on auto-properties with <see cref="FieldAttribute">[Field] attribute</see></item>
   ///   <item><see cref="ProtectedConstructorAspect"/> on <see cref="Persistent"/> and <see cref="EntitySet{TItem}"/> classes</item>
   ///   <item><see cref="ProtectedConstructorAccessorAspect"/> on <see cref="Persistent"/> and <see cref="EntitySet{TItem}"/> classes</item>
@@ -60,6 +61,7 @@ namespace Xtensive.Storage.Aspects
 
       return true;
     }
+
     #region ProvideXxx methods      
 
     /// <inheritdoc/>
@@ -67,69 +69,56 @@ namespace Xtensive.Storage.Aspects
     {
       var type = (Type) element;
       if (sessionBoundType.IsAssignableFrom(type))
-        ProvideSessionBoundAspects(type, collection);
+        ProvideTransactionalAspects(type, collection);
       if (persistentType.IsAssignableFrom(type))
         ProvidePersistentAspects(type, collection);
       if (entitySetType.IsAssignableFrom(type))
         ProvideEntitySetAspects(type, collection);
-      if (sessionBoundType.IsAssignableFrom(type))
-        ProvideTransactionalAspects(type, collection);
-      // ProvideAtomicAspects(type, collection);
-    }
-
-    private static void ProvideSessionBoundAspects(Type type, LaosReflectionAspectCollection collection)
-    {
-      foreach (var method in type.GetMethods(
-        BindingFlags.Public |
-        BindingFlags.NonPublic |
-        BindingFlags.Instance |
-        BindingFlags.DeclaredOnly))
-      {
-        if (method.IsAbstract)
-          continue;
-        if (AspectHelper.IsInfrastructureMethod(method))
-          continue;
-        if (IsCompilerGenerated(method))
-          continue;
-
-        collection.AddAspect(method, new SessionBoundMethodAspect());
-      }
     }
 
     private static void ProvideTransactionalAspects(Type type, LaosReflectionAspectCollection collection)
     {
-      foreach (var method in type.GetMethods(
-        BindingFlags.Public |
-        BindingFlags.Instance |
-        BindingFlags.DeclaredOnly))
-      {
+      // var explicitMethods = GetExplicitMethods(type).Cast<MethodBase>().ToHashSet();
+      // ^^^ Does not work because of a bug in PostSharp. ^^^
+      var explicitMethods = new HashSet<MethodBase>(); 
+      var candidates = GetMethods(type).Cast<MethodBase>()
+        .Concat(explicitMethods)
+        // .Concat(GetPublicConstructors(type))
+        .ToHashSet();
+
+      foreach (MethodBase method in candidates) {
         if (method.IsAbstract)
+            continue;
+        if (method.IsStatic)
           continue;
         if (AspectHelper.IsInfrastructureMethod(method))
           continue;
-        if (IsCompilerGenerated(method))
-          continue;
+        var behaviorAttribute = method.GetAttribute<AspectBehaviorAttribute>(AttributeSearchOptions.InheritNone);
+        if (behaviorAttribute==null) {
+          if (IsCompilerGenerated(method))
+            continue;
+          if (!method.IsPublic && !explicitMethods.Contains(method))
+            continue; // Non-public and non-explicit implementation
+          if (method.IsConstructor) {
+            if (!entityType.IsAssignableFrom(type))
+              continue;
+            else {
+              // Public constructors of Entities are transactional
+              behaviorAttribute = new AspectBehaviorAttribute {
+                OpenSession = false,
+                OpenTransaction = true
+              };
+            }
+          }
+        }
+        if (behaviorAttribute==null)
+          behaviorAttribute = new AspectBehaviorAttribute();
 
-        collection.AddAspect(method, new TransactionalAttribute());
-      }
-    }
-
-    private void ProvideAtomicAspects(Type type, LaosReflectionAspectCollection collection)
-    {
-      foreach (var method in type.GetMethods(
-        BindingFlags.Public |
-        BindingFlags.NonPublic |
-        BindingFlags.Instance |
-        BindingFlags.DeclaredOnly))
-      {
-        if (method.IsAbstract)
-          continue;
-        if (AspectHelper.IsInfrastructureMethod(method))
-          continue;
-        if (IsCompilerGenerated(method))
-          continue;
-
-        collection.AddAspect(method, new AtomicAttribute());
+        if (behaviorAttribute.OpenSession || behaviorAttribute.OpenTransaction)
+          collection.AddAspect(method, new TransactionalAspect {
+            OpenSession = behaviorAttribute.OpenSession,
+            OpenTransaction = behaviorAttribute.OpenTransaction
+          });
       }
     }
 
@@ -246,7 +235,9 @@ namespace Xtensive.Storage.Aspects
 
     private static bool IsCompilerGenerated(MemberInfo member)
     {
-      return member.Name.StartsWith("<");
+      return 
+        member.Name.StartsWith("<") || 
+        null!=member.GetAttribute<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone);
     }
 
     private static Type GetBasePersistentType(Type type)
@@ -280,6 +271,31 @@ namespace Xtensive.Storage.Aspects
       throw Exceptions.InternalError(
         string.Format(Strings.ExWrongPersistentTypeCandidate, type.GetType()), 
         Log.Instance);
+    }
+
+    private static IEnumerable<MethodInfo> GetMethods(Type type)
+    {
+      foreach (var method in type.GetMethods(
+        BindingFlags.Public   | BindingFlags.NonPublic |
+        BindingFlags.Instance | BindingFlags.Static |
+        BindingFlags.DeclaredOnly))
+        yield return method;
+    }
+
+    private static IEnumerable<MethodInfo> GetExplicitMethods(Type type)
+    {
+      foreach (var @interface in type.FindInterfaces((_type, _criteris) => true, null)) {
+        var map = type.GetInterfaceMap(@interface);
+        foreach (var method in map.TargetMethods)
+          if (method.IsPrivate)
+            yield return method;
+      }
+    }
+
+    private static IEnumerable<MethodBase> GetPublicConstructors(Type type)
+    {
+      foreach (var method in type.GetConstructors())
+        yield return method;
     }
 
     #endregion

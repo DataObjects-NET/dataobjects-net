@@ -89,9 +89,11 @@ namespace Xtensive.Storage
     [Infrastructure]
     public Entity Entity {
       get {
-        var isRemoved = IsRemoved;
+        var isRemoved = IsRemoved; // Can be false for actually removing entities - during Persist
         if (entity==null && !isRemoved)
-          Activator.CreateEntity(Type.UnderlyingType, this);
+          // Ensures even removed entity will have an object representing it.
+          // This object is used in toposort in Persist to access its reference fields.
+          Activator.CreateEntity(Type.UnderlyingType, this); 
         return isRemoved ? null : entity;
       }
       internal set {
@@ -119,7 +121,7 @@ namespace Xtensive.Storage
         default:
           break;
         }
-        Session.EntityStateRegistry.Register(this);
+        Session.EntityChangeRegistry.Register(this);
       }
     }
 
@@ -129,7 +131,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public bool IsRemoved {
       get {
-        return Tuple==null || persistenceState==PersistenceState.Removed;
+        return Tuple==null || (persistenceState==PersistenceState.Removed && !Session.IsPersisting);
       }
     }
 

@@ -5,6 +5,7 @@
 // Created:    2008.09.10
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -22,41 +23,80 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
+using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
 {
-  /// <summary>
+/// <summary>
   /// Base class for <see cref="EntitySet{TItem}"/>.
   /// </summary>
   public abstract class EntitySetBase : TransactionalStateContainer<EntitySetState>,
+    ICountable,
     IFieldValueAdapter,
     INotifyPropertyChanged,
     INotifyCollectionChanged
   {
     private static readonly Parameter<Tuple> pKey = new Parameter<Tuple>(WellKnown.KeyFieldName);
-    private RecordSet items;
-    internal RecordSet count;
-    private RecordSet seek;
+    private readonly Entity owner;
+    private RecordSet rsItems;
+    private RecordSet rsSeek;
+    internal RecordSet rsCount;
     private Func<Tuple, Entity> itemCtor;
     private AssociationInfo association;
     private CombineTransform seekTransform;
     private bool isInitialized;
 
+    /// <summary>
+    /// Gets the owner of this instance.
+    /// </summary>
+    public Entity Owner {
+      get { return owner; }
+    }
 
-    #region Public Count, Contains members
+    /// <inheritdoc/>
+    [Infrastructure] // Proxy
+    Persistent IFieldValueAdapter.Owner {
+      get { return Owner; }
+    }
+
+    /// <inheritdoc/>
+    [Infrastructure]
+    public FieldInfo Field { get; private set; }
 
     /// <summary>
     /// Gets the number of elements contained in the <see cref="EntitySetBase"/>.
     /// </summary>
-    /// <returns>
-    /// The number of elements contained in the <see cref="EntitySetBase"/>.
-    /// </returns>
-    [Infrastructure]
     public long Count
     {
       [DebuggerStepThrough]
       get { return State.Count; }
+    }
+
+    /// <inheritdoc/>
+    [Infrastructure]
+    public event PropertyChangedEventHandler PropertyChanged {
+      add {
+        Session.EntityEvents.AddSubscriber(GetOwnerKey(Owner), Field,
+        EntityEventManager.PropertyChangedEventKey, value);
+      }
+      remove {
+        Session.EntityEvents.RemoveSubscriber(GetOwnerKey(Owner), Field,
+        EntityEventManager.PropertyChangedEventKey, value);
+      }
+    }
+
+    /// <inheritdoc/>
+    [Infrastructure]
+    public event NotifyCollectionChangedEventHandler CollectionChanged {
+      add {
+        Session.EntityEvents.AddSubscriber(GetOwnerKey(Owner), Field,
+        EntityEventManager.CollectionChangedEventKey, value);
+      }
+      remove {
+        Session.EntityEvents.RemoveSubscriber(GetOwnerKey(Owner), Field,
+        EntityEventManager.CollectionChangedEventKey, value);
+      }
     }
 
     /// <summary>
@@ -67,13 +107,13 @@ namespace Xtensive.Storage
     /// <see langword="true"/> if <see cref="EntitySetBase"/> contains the specified <see cref="Key"/>; otherwise, <see langword="false"/>.
     /// </returns>
     /// <exception cref="InvalidOperationException">Entity type is not supported.</exception>
-    [Infrastructure]
     public bool Contains(Key key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       var type = key.Type;
       if (!Field.ItemType.IsAssignableFrom(type.UnderlyingType))
-        throw new InvalidOperationException(string.Format("Entity type {0} is not supported by this instance.", type.Name));
+        throw new InvalidOperationException(string.Format(
+          Strings.ExEntityOfTypeXIsIncompatibleWithThisEntitySet, type.UnderlyingType.GetShortName()));
 
       if (State.IsFullyLoaded)
         return State.Contains(key);
@@ -83,73 +123,49 @@ namespace Xtensive.Storage
       
       bool result;
       using (new ParameterContext().Activate()) {
-        pKey.Value = seekTransform.Apply(TupleTransformType.TransformedTuple, ConcreteOwner.Key.Value, key.Value);
-        result = seek.FirstOrDefault() != null;
+        pKey.Value = seekTransform.Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value);
+        result = rsSeek.FirstOrDefault() != null;
       }
       if (result)
         State.Register(key);
       return result;
     }
-    #endregion
-
-    #region Initialization members
 
     /// <summary>
-    /// Performs initialization (see <see cref="Initialize()"/>) of the <see cref="EntitySetBase"/> 
-    /// if type of <see langword="this" /> is the same as <paramref name="ctorType"/>.
-    /// Invoked by <see cref="InitializableAttribute"/> aspect in the epilogue of any 
-    /// constructor of this type and its ancestors.
+    /// Determines whether this collection contains the specified item.
     /// </summary>
-    /// <param name="ctorType">The type, which constructor has invoked this method.</param>
-    [Infrastructure]
-    protected void Initialize(Type ctorType)
-    {
-      if (ctorType == GetType() && !isInitialized) {
-        isInitialized = true;
-        Initialize();
-      }
-    }
-
-    /// <summary>
-    /// Performs initialization of the <see cref="EntitySetBase"/>.
-    /// </summary>
-    [Infrastructure]
-    protected virtual void Initialize()
-    {
-      association = Field.Association;
-      if (association.AuxiliaryType!=null)
-        itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null, association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
-      items = association.UnderlyingIndex.ToRecordSet().Range(ConcreteOwner.Key.Value, ConcreteOwner.Key.Value);
-      seek = association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
-      count = items.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
-
-      seekTransform = new CombineTransform(true, association.OwnerType.Hierarchy.KeyInfo.TupleDescriptor, association.TargetType.Hierarchy.KeyInfo.TupleDescriptor);
-      NotifyInitialize();
-    }
-
-    #endregion
-
-    #region Internal Contains, Add, Remove, Clear, IntersectWith, ExceptWith, UnionWith members
-
-    [Infrastructure]
-    internal bool Contains(Entity item)
+    /// <param name="item">The item to check for containment.</param>
+    /// <returns>
+    /// <see langword="true"/> if this collection contains the specified item; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    [Infrastructure] // Proxy
+    public bool Contains(Entity item)
     {
       return Contains(item.Key);
     }
 
-    [Infrastructure]
-    internal bool Add(Entity item)
+    /// <summary>
+    /// Adds the specified item to the collection.
+    /// </summary>
+    /// <param name="item">The item to add.</param>
+    /// <returns>
+    /// <see langword="True"/>, if the item is added to the collection;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool Add(Entity item)
     {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       if (Contains(item))
         return false;
 
       NotifyAdding(item);
 
       if (association.IsPaired)
-        Session.PairSyncManager.Enlist(OperationType.Add, ConcreteOwner, item, association);
+        Session.PairSyncManager.Enlist(OperationType.Add, Owner, item, association);
 
       if (association.AuxiliaryType!=null && association.IsMaster)
-        itemCtor(item.Key.Value.Combine(ConcreteOwner.Key.Value));
+        itemCtor(item.Key.Value.Combine(Owner.Key.Value));
 
       State.Add(item.Key);
       NotifyAdd(item);
@@ -157,19 +173,27 @@ namespace Xtensive.Storage
       return true;
     }
 
-    [Infrastructure]
-    internal bool Remove(Entity item)
+    /// <summary>
+    /// Removes the specified item from the collection.
+    /// </summary>
+    /// <param name="item">The item to remove.</param>
+    /// <returns>
+    /// <see langword="True"/>, if the item is removed from the collection;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool Remove(Entity item)
     {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       if (!Contains(item))
         return false;
 
       NotifyRemoving(item);
 
       if (association.IsPaired)
-        Session.PairSyncManager.Enlist(OperationType.Remove, ConcreteOwner, item, association);
+        Session.PairSyncManager.Enlist(OperationType.Remove, Owner, item, association);
 
       if (association.AuxiliaryType!=null && association.IsMaster) {
-        var combinedKey = Key.Create(association.AuxiliaryType, item.Key.Value.Combine(ConcreteOwner.Key.Value));
+        var combinedKey = Key.Create(association.AuxiliaryType, item.Key.Value.Combine(Owner.Key.Value));
         Entity underlyingItem = Query.SingleOrDefault(Session, combinedKey);
         underlyingItem.Remove();
       }
@@ -180,28 +204,202 @@ namespace Xtensive.Storage
       return true;
     }
 
-    [Infrastructure]
-    internal void Clear()
+    /// <summary>
+    /// Clears this collection.
+    /// </summary>
+    public void Clear()
     {
       NotifyClearing();
-      foreach (var entity in GetEntities().ToList())
+      foreach (var entity in Entities.ToList())
         Remove(entity);
       NotifyClear();
     }
 
-    [Infrastructure]
+    #region NotifyXxx & GetSubscription members
+
+    private void NotifyInitialize()
+    {
+      if (Session.IsSystemLogicOnly)
+        return;
+      var subscriptionInfo = GetSubscription(EntityEventManager.InitializeEntitySetEventKey);
+      if (subscriptionInfo.Second!=null)
+        ((Action<Key, FieldInfo>) subscriptionInfo.Second)
+          .Invoke(subscriptionInfo.First, Field);
+      OnInitialize();
+    }
+
+    private void NotifyAdding(Entity item)
+    {
+      if (Session.IsSystemLogicOnly)
+        return;
+      var subscriptionInfo = GetSubscription(EntityEventManager.AddingEntitySetItemEventKey);
+      if (subscriptionInfo.Second!=null)
+        ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
+          .Invoke(subscriptionInfo.First, Field, item);
+      OnAdding(item);
+    }
+
+    private void NotifyAdd(Entity item)
+    {
+      if (Session.IsSystemLogicOnly)
+        return;
+      var subscriptionInfo = GetSubscription(EntityEventManager.AddEntitySetItemEventKey);
+      if (subscriptionInfo.Second!=null)
+        ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
+          .Invoke(subscriptionInfo.First, Field, item);
+      OnAdd(item);
+      NotifyCollectionChanged(NotifyCollectionChangedAction.Add, item);
+    }
+
+    private void NotifyRemoving(Entity item)
+    {
+      if (Session.IsSystemLogicOnly)
+        return;
+      var subscriptionInfo = GetSubscription(EntityEventManager.RemovingEntitySetItemEventKey);
+      if (subscriptionInfo.Second!=null)
+        ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second).Invoke(subscriptionInfo.First, Field, item);
+      OnRemoving(item);
+    }
+
+    private void NotifyRemove(Entity item)
+    {
+      if (Session.IsSystemLogicOnly)
+        return;
+      var subscriptionInfo = GetSubscription(EntityEventManager.RemoveEntitySetItemEventKey);
+      if (subscriptionInfo.Second!=null)
+        ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
+          .Invoke(subscriptionInfo.First, Field, item);
+      OnRemove(item);
+      NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, item);
+    }
+
+    private void NotifyClearing()
+    {
+      if (Session.IsSystemLogicOnly)
+        return;
+      var subscriptionInfo = GetSubscription(EntityEventManager.ClearingEntitySetEventKey);
+      if (subscriptionInfo.Second!=null)
+        ((Action<Key, FieldInfo>) subscriptionInfo.Second)
+          .Invoke(subscriptionInfo.First, Field);
+      OnClearing();
+    }
+
+    private void NotifyClear()
+    {
+      if (Session.IsSystemLogicOnly)
+        return;
+      var subscriptionInfo = GetSubscription(EntityEventManager.ClearEntitySetEventKey);
+      if (subscriptionInfo.Second!=null)
+        ((Action<Key, FieldInfo>) subscriptionInfo.Second)
+          .Invoke(subscriptionInfo.First, Field);
+      OnClear();
+      NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null);
+    }
+
+    protected void NotifyPropertyChanged(string name)
+    {
+      if (!Session.EntityEvents.HasSubscribers)
+        return;
+      var subscriptionInfo = GetSubscription(EntityEventManager.PropertyChangedEventKey);
+      if (subscriptionInfo.Second != null)
+        ((PropertyChangedEventHandler) subscriptionInfo.Second)
+          .Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
+    private void NotifyCollectionChanged(NotifyCollectionChangedAction action, Entity item)
+    {
+      if (!Session.EntityEvents.HasSubscribers)
+        return;
+      var subscriptionInfo = GetSubscription(EntityEventManager.PropertyChangedEventKey);
+      if (subscriptionInfo.Second != null)
+        ((NotifyCollectionChangedEventHandler) subscriptionInfo.Second)
+          .Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+      NotifyPropertyChanged("Count");
+    }
+
+    protected Pair<Key, Delegate> GetSubscription(object eventKey)
+    {
+      var entityKey = GetOwnerKey(Owner);
+      if (entityKey!=null)
+        return new Pair<Key, Delegate>(entityKey,
+          Session.EntityEvents.GetSubscriber(entityKey, Field, eventKey));
+      else
+        return new Pair<Key, Delegate>(null, null);
+    }
+
+    #endregion
+
+    #region Event-like methods
+
+    protected virtual void OnInitialize()
+    {
+    }
+
+    protected virtual void OnAdding(Entity item)
+    {
+    }
+
+    protected virtual void OnAdd(Entity item)
+    {
+    }
+
+    protected virtual void OnRemoving(Entity item)
+    {
+    }
+
+    protected virtual void OnRemove(Entity item)
+    {
+    }
+
+    protected virtual void OnClearing()
+    {
+    }
+
+    protected virtual void OnClear()
+    {
+    }
+
+    #endregion
+
+    #region IEnumerable members
+
+    /// <inheritdoc/>
+    public IEnumerator GetEnumerator()
+    {
+      return Entities.GetEnumerator();
+    }
+
+    #endregion
+
+    #region Private / internal members
+
+    protected void ValidateVersion(long expectedVersion)
+    {
+      if (expectedVersion!=State.Version)
+        throw Exceptions.CollectionHasBeenChanged(null);
+    }
+
+    private static Key GetOwnerKey(Persistent owner)
+    {
+      var asFieldValueAdapter = owner as IFieldValueAdapter;
+      if (asFieldValueAdapter != null)
+        return GetOwnerKey(asFieldValueAdapter.Owner);
+      return ((Entity) owner).Key;
+    }
+
+    protected internal abstract IEnumerable<Entity> Entities { get; }
+
     internal void IntersectWith<TElement>(IEnumerable<TElement> other)
       where TElement : Entity
     {
       if (this == other)
         return;
       var otherEntities = other.Cast<Entity>().ToHashSet();
-      foreach (var item in GetEntities().ToList())
+      foreach (var item in Entities.ToList())
         if (!otherEntities.Contains(item))
           Remove(item);
     }
 
-    [Infrastructure]
     internal void UnionWith<TElement>(IEnumerable<TElement> other)
       where TElement : Entity
     {
@@ -211,7 +409,6 @@ namespace Xtensive.Storage
         Add(item);
     }
 
-    [Infrastructure]
     internal void ExceptWith<TElement>(IEnumerable<TElement> other)
       where TElement : Entity
     {
@@ -225,251 +422,39 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region Private members
 
-    [Infrastructure]
-    private Entity ConcreteOwner
-    {
-      get { return (Entity) Owner; }
-    }
-
-    [Infrastructure]
-    internal void EnsureVersionIs(long expectedVersion)
-    {
-      if (expectedVersion!=State.Version)
-        throw Exceptions.CollectionHasBeenChanged(null);
-    }
-
-    protected internal abstract IEnumerable<Entity> GetEntities();
-
-    #endregion
-
-    #region System-level events
-
-    [Infrastructure]
-    private void NotifyInitialize()
-    {
-      if (Session.SystemLogicOnly)
-        return;
-      Key entityKey;
-      Delegate subscriber;
-      GetSubscription(EntityEventManager.InitializeEntitySetEventKey, out entityKey, out subscriber);
-      if (subscriber!=null)
-        ((Action<Key, FieldInfo>) subscriber).Invoke(entityKey, Field);
-      OnInitialize();
-    }
-
-    [Infrastructure]
-    private void NotifyAdding(Entity item)
-    {
-      if (Session.SystemLogicOnly)
-        return;
-      Key entityKey;
-      Delegate subscriber;
-      GetSubscription(EntityEventManager.AddingEntitySetItemEventKey, out entityKey, out subscriber);
-      if (subscriber!=null)
-        ((Action<Key, FieldInfo, Entity>) subscriber).Invoke(entityKey, Field, item);
-      OnAdding(item);
-    }
-
-    [Infrastructure]
-    private void NotifyAdd(Entity item)
-    {
-      if (Session.SystemLogicOnly)
-        return;
-      Key entityKey;
-      Delegate subscriber;
-      GetSubscription(EntityEventManager.AddEntitySetItemEventKey, out entityKey, out subscriber);
-      if (subscriber!=null)
-        ((Action<Key, FieldInfo, Entity>) subscriber).Invoke(entityKey, Field, item);
-      OnAdd(item);
-      NotifyCollectionChanged(NotifyCollectionChangedAction.Add, item);
-    }
-
-    [Infrastructure]
-    private void NotifyRemoving(Entity item)
-    {
-      if (Session.SystemLogicOnly)
-        return;
-      Key entityKey;
-      Delegate subscriber;
-      GetSubscription(EntityEventManager.RemovingEntitySetItemEventKey, out entityKey, out subscriber);
-      if (subscriber!=null)
-        ((Action<Key, FieldInfo, Entity>) subscriber).Invoke(entityKey, Field, item);
-      OnRemoving(item);
-    }
-
-    [Infrastructure]
-    private void NotifyRemove(Entity item)
-    {
-      if (Session.SystemLogicOnly)
-        return;
-      Key entityKey;
-      Delegate subscriber;
-      GetSubscription(EntityEventManager.RemoveEntitySetItemEventKey, out entityKey, out subscriber);
-      if (subscriber!=null)
-        ((Action<Key, FieldInfo, Entity>) subscriber).Invoke(entityKey, Field, item);
-      OnRemove(item);
-      NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, item);
-    }
-
-    [Infrastructure]
-    private void NotifyClearing()
-    {
-      if (Session.SystemLogicOnly)
-        return;
-      Key entityKey;
-      Delegate subscriber;
-      GetSubscription(EntityEventManager.ClearingEntitySetEventKey, out entityKey, out subscriber);
-      if (subscriber!=null)
-        ((Action<Key, FieldInfo>) subscriber).Invoke(entityKey, Field);
-      OnClearing();
-    }
-
-    [Infrastructure]
-    private void NotifyClear()
-    {
-      if (Session.SystemLogicOnly)
-        return;
-      Key entityKey;
-      Delegate subscriber;
-      GetSubscription(EntityEventManager.ClearEntitySetEventKey, out entityKey, out subscriber);
-      if (subscriber!=null)
-        ((Action<Key, FieldInfo>) subscriber).Invoke(entityKey, Field);
-      OnClear();
-      NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null);
-    }
-
-    [Infrastructure]
-    private void GetSubscription(object eventKey, out Key entityKey,
-      out Delegate subscriber)
-    {
-      entityKey = FindOwnerEntityKey(Owner);
-      subscriber = Session.EntityEvents.GetSubscriber(entityKey, Field, eventKey);
-    }
-
-    private static Key FindOwnerEntityKey(Persistent owner)
-    {
-      var asFieldValueAdapter = owner as IFieldValueAdapter;
-      if(asFieldValueAdapter != null)
-        return FindOwnerEntityKey(asFieldValueAdapter.Owner);
-      return ((Entity) owner).Key;
-    }
-
-    #endregion
-
-    #region User-level events
-
-    [Infrastructure]
-    protected virtual void OnInitialize()
-    {
-    }
-
-    [Infrastructure]
-    protected virtual void OnAdding(Entity item)
-    {
-    }
-
-    [Infrastructure]
-    protected virtual void OnAdd(Entity item)
-    {
-    }
-
-    [Infrastructure]
-    protected virtual void OnRemoving(Entity item)
-    {
-    }
-
-    [Infrastructure]
-    protected virtual void OnRemove(Entity item)
-    {
-    }
-
-    [Infrastructure]
-    protected virtual void OnClearing()
-    {
-    }
-
-    [Infrastructure]
-    protected virtual void OnClear()
-    {
-    }
-
-    #endregion
-
-    #region IFieldValueAdapter members
-
-    /// <inheritdoc/>
-    [Infrastructure]
-    public Persistent Owner { get; private set; }
-
-    /// <inheritdoc/>
-    [Infrastructure]
-    public FieldInfo Field { get; private set; }
-
-    #endregion
-
-    #region INotifyPropertyChanged members
-
-    /// <inheritdoc/>
-    [Infrastructure]
-    public event PropertyChangedEventHandler PropertyChanged {
-      add {
-        Session.EntityEvents.AddSubscriber(FindOwnerEntityKey(Owner), Field,
-        EntityEventManager.PropertyChangedEventKey, value);
-      }
-      remove {
-        Session.EntityEvents.RemoveSubscriber(FindOwnerEntityKey(Owner), Field,
-        EntityEventManager.PropertyChangedEventKey, value);
-      }
-    }
-
-    [Infrastructure]
-    protected void NotifyPropertyChanged(string name)
-    {
-      if(!Session.EntityEvents.HasSubscribers)
-        return;
-      Key entityKey;
-      Delegate subscriber;
-      GetSubscription(EntityEventManager.PropertyChangedEventKey, out entityKey, out subscriber);
-      if(subscriber != null)
-        ((PropertyChangedEventHandler)subscriber).Invoke(this, new PropertyChangedEventArgs(name));
-    }
-
-    #endregion
-
-    #region INotifyCollectionChanged members
+    // Initialization
 
     /// <summary>
-    /// Occurs when the collection changes.
+    /// Performs initialization (see <see cref="Initialize()"/>) of the <see cref="EntitySetBase"/> 
+    /// if type of <see langword="this" /> is the same as <paramref name="ctorType"/>.
+    /// Invoked by <see cref="InitializableAttribute"/> aspect in the epilogue of any 
+    /// constructor of this type and its ancestors.
     /// </summary>
-    [Infrastructure]
-    public event NotifyCollectionChangedEventHandler CollectionChanged{
-      add {
-        Session.EntityEvents.AddSubscriber(FindOwnerEntityKey(Owner), Field,
-        EntityEventManager.CollectionChangedEventKey, value);
-      }
-      remove {
-        Session.EntityEvents.RemoveSubscriber(FindOwnerEntityKey(Owner), Field,
-        EntityEventManager.CollectionChangedEventKey, value);
-      }
-    }
-
-    [Infrastructure]
-    private void NotifyCollectionChanged(NotifyCollectionChangedAction action, Entity item)
+    /// <param name="ctorType">The type, which constructor has invoked this method.</param>
+    protected void Initialize(Type ctorType)
     {
-      if(!Session.EntityEvents.HasSubscribers)
-        return;
-      Key entityKey;
-      Delegate subscriber;
-      GetSubscription(EntityEventManager.PropertyChangedEventKey, out entityKey, out subscriber);
-      if(subscriber != null)
-        ((NotifyCollectionChangedEventHandler)subscriber)
-          .Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-      NotifyPropertyChanged("Count");
+      if (ctorType == GetType() && !isInitialized) {
+        isInitialized = true;
+        Initialize();
+      }
     }
 
-    #endregion
+    /// <summary>
+    /// Performs initialization of the <see cref="EntitySetBase"/>.
+    /// </summary>
+    protected virtual void Initialize()
+    {
+      association = Field.Association;
+      if (association.AuxiliaryType!=null)
+        itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null, association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
+      rsItems = association.UnderlyingIndex.ToRecordSet().Range(Owner.Key.Value, Owner.Key.Value);
+      rsSeek = association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
+      rsCount = rsItems.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
+
+      seekTransform = new CombineTransform(true, association.OwnerType.Hierarchy.KeyInfo.TupleDescriptor, association.TargetType.Hierarchy.KeyInfo.TupleDescriptor);
+      NotifyInitialize();
+    }
 
 
     // Constructors
@@ -482,7 +467,7 @@ namespace Xtensive.Storage
     protected EntitySetBase(Entity owner, FieldInfo field)
     {
       Field = field;
-      Owner = owner;
+      this.owner = owner;
       Initialize(GetType());
     }
 

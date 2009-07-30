@@ -48,7 +48,7 @@ namespace UpgradeHandlersSorting.Model
 
     public override void OnStage()
     {
-      if(UpgradeContext.Current.Stage == UpgradeStage.Upgrading) {
+      if (UpgradeContext.Current.Stage == UpgradeStage.Upgrading) {
         Type handler1Type = null;
         foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
           if (assembly.GetName().Name=="Assembly1") {

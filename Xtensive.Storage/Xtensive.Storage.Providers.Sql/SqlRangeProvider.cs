@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Providers.Sql
             SetCachedValue(EnumerationContext.Current, CachedRange, (object)range);
             return range;
           }
-          if(!range.IsEmpty)
+          if (!range.IsEmpty)
             throw new NotSupportedException(Strings.ExOnlyEqualityRangesAreSupported);
         }
         return (Range<Entire<Tuple>>)cachedValue;

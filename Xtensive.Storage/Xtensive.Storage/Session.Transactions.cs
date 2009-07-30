@@ -163,13 +163,13 @@ namespace Xtensive.Storage
         NotifyRollbackTransaction(Transaction);
       }
       finally {
-        foreach (var item in EntityStateRegistry.GetItems(PersistenceState.New))
+        foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))
           item.PersistenceState = PersistenceState.Synchronized;
-        foreach (var item in EntityStateRegistry.GetItems(PersistenceState.Modified))
+        foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Modified))
           item.PersistenceState = PersistenceState.Synchronized;
-        foreach (var item in EntityStateRegistry.GetItems(PersistenceState.Removed))
+        foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed))
           item.PersistenceState = PersistenceState.Synchronized;
-        EntityStateRegistry.Clear();
+        EntityChangeRegistry.Clear();
         CompleteTransaction();
       }
     }

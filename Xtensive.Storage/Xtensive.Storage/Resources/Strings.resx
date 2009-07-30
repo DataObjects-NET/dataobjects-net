@@ -735,7 +735,7 @@ Actions:
     <value>Type '{0}' doesn't participate in the specified association.</value>
   </data>
   <data name="ExActiveSessionIsRequiredForThisOperation" xml:space="preserve">
-    <value>Active Session is required for this operation. Try to perform it inside 'using(Domain.OpenSession()) { ... }' block.</value>
+    <value>Active Session is required for this operation. Try to perform it inside 'using (Domain.OpenSession()) { ... }' block.</value>
   </data>
   <data name="ExReferentialIntegrityViolation" xml:space="preserve">
     <value>Referential integrity violation.</value>
@@ -790,5 +790,14 @@ Actions:
   </data>
   <data name="ExTypeXDoesNotContainYField" xml:space="preserve">
     <value>Type '{0}' doesn't contain '{1}' field.</value>
+  </data>
+  <data name="ExFieldMustBeOfEntitySetType" xml:space="preserve">
+    <value>Field must be of EntitySet&lt;&gt; type.</value>
+  </data>
+  <data name="ExFieldXIsNotAnEntitySetField" xml:space="preserve">
+    <value>Field '{0}' is not an EntitySet field.</value>
+  </data>
+  <data name="ExEntityOfTypeXIsIncompatibleWithThisEntitySet" xml:space="preserve">
+    <value>Entity of type '{0}' is incompatible with this EntitySet.</value>
   </data>
 </root>

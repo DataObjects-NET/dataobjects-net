@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Rse.Helpers
 
     private bool IsTupleAccess(Expression mc)
     {
-      if(tupleParameter == null)
+      if (tupleParameter == null)
         return mc.AsTupleAccess() != null;
       return mc.AsTupleAccess(tupleParameter)!=null;
     }

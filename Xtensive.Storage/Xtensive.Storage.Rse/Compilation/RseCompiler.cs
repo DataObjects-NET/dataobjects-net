@@ -239,7 +239,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
     {
-      if(provider.Header.Order.Count == 0)
+      if (provider.Header.Order.Count == 0)
         throw new InvalidOperationException(Strings.ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider);
       var compiledSource = GetCompiled(provider.Source);
       return new Providers.Executable.RowNumberProvider(

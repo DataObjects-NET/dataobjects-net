@@ -27,9 +27,9 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if(mc.AsTupleAccess() != null) {
+      if (mc.AsTupleAccess() != null) {
         var applyParameter = mc.GetApplyParameter();
-        if(result == null)
+        if (result == null)
           result = applyParameter;
         else if (applyParameter != null && result != applyParameter)
           throw new InvalidOperationException(Strings.ExPredicateContainsAccessesToDifferentApplyParameters);

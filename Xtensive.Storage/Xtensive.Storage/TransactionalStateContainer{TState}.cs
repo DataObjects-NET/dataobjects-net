@@ -21,7 +21,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the base state.
     /// </summary>
-    [Infrastructure]
     protected TState State {
       get {
         if (!IsStateLoaded) {
@@ -43,7 +42,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets a value indicating whether base state is loaded or not.
     /// </summary>
-    [Infrastructure]
     protected bool IsStateLoaded {
       get {
         EnsureStateIsActual();
@@ -51,7 +49,6 @@ namespace Xtensive.Storage
       }
     }
 
-    [Infrastructure]
     protected abstract TState LoadState();
 
     /// <inheritdoc/>

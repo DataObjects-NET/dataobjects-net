@@ -321,7 +321,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     private static CompilableProvider BuildSetOperationSource(CompilableProvider provider, IEnumerable<int> expectedColumns, IList<int> returningColumns)
     {
-      if(provider.Type == ProviderType.Select)
+      if (provider.Type == ProviderType.Select)
         return provider;
       var columns = expectedColumns.Select(c => returningColumns.IndexOf(c)).ToArray();
       return new SelectProvider(provider, columns);

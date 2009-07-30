@@ -33,19 +33,19 @@ namespace Xtensive.Storage.Upgrade
     {
       ArgumentValidator.EnsureArgumentNotNull(from, "from");
       ArgumentValidator.EnsureArgumentNotNull(to, "to");
-      if(from == to)
+      if (from == to)
         return true;
       if (to.Type == typeof(string))
         return !to.Length.HasValue || CanConvertToString(from, to.Length.Value);
-      if(from.IsNullable && !to.IsNullable)
+      if (from.IsNullable && !to.IsNullable)
         return false;
       var fromType = from.Type;
       var toType = to.Type;
-      if(fromType.IsNullable())
+      if (fromType.IsNullable())
         fromType = from.Type.GetGenericArguments()[0];
-      if(toType.IsNullable())
+      if (toType.IsNullable())
         toType = to.Type.GetGenericArguments()[0];
-      if(!supportedConversions.ContainsKey(fromType))
+      if (!supportedConversions.ContainsKey(fromType))
         return false;
       return supportedConversions[fromType].Contains(toType);
     }
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Upgrade
     /// </returns>
     public static bool CanConvertSafely(TypeInfo from, TypeInfo to)
     {
-      if(!CanConvert(from, to))
+      if (!CanConvert(from, to))
         return false;
 
       return !to.Length.HasValue | to.Length >= from.Length;

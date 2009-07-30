@@ -38,7 +38,6 @@ namespace Xtensive.Storage
     /// </summary>
     /// <exception cref="InvalidOperationException">Caller is not registered in <see cref="DomainModel"/> of the 
     /// <see cref="Domain"/> this instance belongs to.</exception>
-    [Infrastructure]
     protected internal CoreServiceAccessor CoreServices {
       [DebuggerStepThrough]
       get {

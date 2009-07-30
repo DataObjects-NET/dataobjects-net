@@ -48,7 +48,7 @@ namespace Modules.Model
 
     public override void OnStage()
     {
-      if(UpgradeContext.Current.Stage == UpgradeStage.Upgrading) {
+      if (UpgradeContext.Current.Stage == UpgradeStage.Upgrading) {
         Type handler1Type = GetTypeFromAssembly("ModuleAssembly1", "Modules.Model.UpgradeHandler1");
         int handler1Count = (int) handler1Type.GetField("Count").GetValue(null);
         Count += handler1Count;

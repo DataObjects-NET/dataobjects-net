@@ -12,9 +12,9 @@ namespace Xtensive.Storage.ReferentialIntegrity
 {
   internal class RemovalProcessor : SessionBound
   {
-    private static readonly CascadeActionProcessor CascadeActionProcessor = new CascadeActionProcessor();
-    private static readonly DenyActionProcessor DenyActionProcessor = new DenyActionProcessor();
-    private static readonly ClearActionProcessor ClearActionProcessor = new ClearActionProcessor();
+    private static readonly CascadeActionProcessor cascadeActionProcessor = new CascadeActionProcessor();
+    private static readonly DenyActionProcessor    denyActionProcessor    = new DenyActionProcessor();
+    private static readonly ClearActionProcessor   clearActionProcessor   = new ClearActionProcessor();
 
     private readonly RemovalContext context;
 
@@ -23,14 +23,14 @@ namespace Xtensive.Storage.ReferentialIntegrity
     {
       if (context.IsEmpty) {
         try {
-          Session.EntityStateRegistry.EnforceSizeLimit();
+          Session.EntityChangeRegistry.EnforceSizeLimit();
           ProcessItem(context, item);
           ProcessQueue(context);
           MarkItemsAsRemoved(context);
         }
         finally {
           context.Clear();
-          Session.EntityStateRegistry.EnforceSizeLimit();
+          Session.EntityChangeRegistry.EnforceSizeLimit();
         }
       }
       else {
@@ -39,14 +39,12 @@ namespace Xtensive.Storage.ReferentialIntegrity
       }
     }
 
-    [Infrastructure]
     private void MarkItemsAsRemoved(RemovalContext context)
     {
       foreach (var item in context.Items)
         item.State.PersistenceState = PersistenceState.Removed;
     }
 
-    [Infrastructure]
     private static void ProcessQueue(RemovalContext context)
     {
       while (context.Queue.Count!=0) {
@@ -56,7 +54,6 @@ namespace Xtensive.Storage.ReferentialIntegrity
       }
     }
 
-    [Infrastructure]
     private static void ProcessItem(RemovalContext context, Entity item)
     {
       ActionProcessor actionProcessor;
@@ -82,16 +79,15 @@ namespace Xtensive.Storage.ReferentialIntegrity
       }
     }
 
-    [Infrastructure]
     private static ActionProcessor GetProcessor(OnRemoveAction action)
     {
       switch (action) {
         case OnRemoveAction.Clear:
-          return ClearActionProcessor;
+          return clearActionProcessor;
         case OnRemoveAction.Cascade:
-          return CascadeActionProcessor;
+          return cascadeActionProcessor;
         default:
-          return DenyActionProcessor;
+          return denyActionProcessor;
       }
     }
 

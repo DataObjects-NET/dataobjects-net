@@ -314,7 +314,7 @@ namespace Xtensive.Storage.Model
         attributes = (ancestorIndex.Attributes | IndexAttributes.Real) 
           & ~(IndexAttributes.Join | IndexAttributes.Union | IndexAttributes.Filtered 
           | IndexAttributes.Virtual | IndexAttributes.Abstract);
-      if(isAbstract)
+      if (isAbstract)
         attributes = attributes | IndexAttributes.Abstract;
       FillFactor = ancestorIndex.FillFactor;
       shortName = ancestorIndex.ShortName;

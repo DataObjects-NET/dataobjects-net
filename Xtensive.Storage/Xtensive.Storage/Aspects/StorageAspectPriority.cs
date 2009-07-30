@@ -12,13 +12,8 @@ namespace Xtensive.Storage.Aspects
   public enum StorageAspectPriority
   {
     /// <summary>
-    /// Priority of <see cref="SessionBoundMethodAspect"/>
+    /// Priority of <see cref="TransactionalAspect"/>
     /// </summary>
-    SessionBound = -200000,
-
-    /// <summary>
-    /// Priority of <see cref="TransactionalAttribute"/>
-    /// </summary>
-    Transactional = -190000,
+    Transactional = -200000,
   }
 }

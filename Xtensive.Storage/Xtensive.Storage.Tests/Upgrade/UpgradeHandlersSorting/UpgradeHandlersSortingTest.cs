@@ -29,14 +29,14 @@ namespace Xtensive.Storage.Tests.Upgrade.UpgradeHandlersSorting
     [Test]
     public void CombinedTest()
     {
-      using(var domain0 = Domain.Build(BuildConfiguration0())) {
+      using (var domain0 = Domain.Build(BuildConfiguration0())) {
         using (var session = Session.Open(domain0))
         using (var tx = Transaction.Open()){
           Activator.CreateInstance(domain0.Configuration.Types.Single(t => t.Name=="Simple0"));
           tx.Complete();
         }
       }
-      using(var domain1 = Domain.Build(BuildConfiguration1())) {
+      using (var domain1 = Domain.Build(BuildConfiguration1())) {
       }
       var handler2Type = AppDomain.CurrentDomain.GetAssemblies()
           .Single(a => a.GetName().Name=="Assembly2")

@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       if (!CanBeParsed(u))
         return null;
       var comparison = extractor.Extract(u, ParserHelper.DefaultKeySelector);
-      if(comparison != null)
+      if (comparison != null)
         return parserHelper.ConvertToRangeSetInfo(u, comparison, indexInfo, recordSetHeader, comparer);
       var prevInversionState = SwitchInversion(u);
       var result = Visit(u.Operand);
@@ -64,9 +64,9 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       if (!CanBeParsed(b))
         return null;
       var comparison = extractor.Extract(b, ParserHelper.DefaultKeySelector);
-      if(comparison != null)
+      if (comparison != null)
         return parserHelper.ConvertToRangeSetInfo(b, comparison, indexInfo, recordSetHeader, comparer);
-      if(b.Type != typeof(bool)
+      if (b.Type != typeof(bool)
         || (b.NodeType != ExpressionType.AndAlso && b.NodeType != ExpressionType.OrElse
           && b.NodeType != ExpressionType.And && b.NodeType != ExpressionType.Or))
         return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null, comparer);
@@ -149,7 +149,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 
     private RangeSetInfo AdjustResult(Expression predicate, RangeSetInfo result)
     {
-      if(result != null)
+      if (result != null)
         return result;
       return parserHelper.ConvertToRangeSetInfo(predicate, null, indexInfo, recordSetHeader, comparer);
     }
@@ -166,9 +166,9 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     {
       var leftRs = Visit(b.Left);
       var rightRs = Visit(b.Right);
-      if(leftRs == null)
+      if (leftRs == null)
         leftRs = parserHelper.ConvertToRangeSetInfo(b.Left, null, indexInfo, recordSetHeader, comparer);
-      if(rightRs == null)
+      if (rightRs == null)
         rightRs = parserHelper.ConvertToRangeSetInfo(b.Right, null, indexInfo, recordSetHeader, comparer);
       if ((b.NodeType == ExpressionType.AndAlso || b.NodeType == ExpressionType.And) && !invertionIsActive
         || (b.NodeType == ExpressionType.OrElse || b.NodeType == ExpressionType.Or) && invertionIsActive)

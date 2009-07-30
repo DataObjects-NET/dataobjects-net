@@ -372,7 +372,7 @@ namespace Xtensive.Storage.Building.Builders
       result.Group = BuildColumnGroup(result);
 
       foreach (var index in allBaseIndexes)
-        if((index.Attributes & IndexAttributes.Abstract) == IndexAttributes.Abstract)
+        if ((index.Attributes & IndexAttributes.Abstract) == IndexAttributes.Abstract)
           result.UnderlyingIndexes.Remove(index);
 
       return result;
@@ -397,7 +397,7 @@ namespace Xtensive.Storage.Building.Builders
               continue;
             }
           }
-          if(doNotAdd)
+          if (doNotAdd)
             continue;
         }
 

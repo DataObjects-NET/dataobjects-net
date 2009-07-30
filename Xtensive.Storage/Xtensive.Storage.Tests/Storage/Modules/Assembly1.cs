@@ -62,7 +62,7 @@ namespace Modules.Model
 
     public override void OnStage()
     {
-      if(UpgradeContext.Current.Stage == UpgradeStage.Upgrading)
+      if (UpgradeContext.Current.Stage == UpgradeStage.Upgrading)
         Count = 1;
       base.OnStage();
     }

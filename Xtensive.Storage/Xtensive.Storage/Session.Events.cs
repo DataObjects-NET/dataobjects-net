@@ -45,10 +45,5 @@ namespace Xtensive.Storage
     /// The manager of <see cref="Entity"/>'s events.
     /// </summary>
     public EntityEventManager EntityEvents { get; private set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether only a system logic is enabled.
-    /// </summary>
-    public bool SystemLogicOnly { get; internal set; }
   }
 }

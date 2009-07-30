@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
           return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null, comparer);
         else
           return RangeSetExpressionBuilder.BuildFullOrEmpty(exp, comparer);
-      if(tupleComparison.IsComplex
+      if (tupleComparison.IsComplex
         || comparisonExtractor.ContainsKey(tupleComparison.Value, KeySelectorIngnoringParameterOfTuple))
         return RangeSetExpressionBuilder.BuildFullRangeSetConstructor(null, comparer);
       int fieldIndex = tupleComparison.Key.GetTupleAccessArgument();
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     public static bool DefaultKeySelector(Expression exp)
     {
       var tupleExp = exp.AsTupleAccess();
-      if(tupleExp == null)
+      if (tupleExp == null)
         return false;
       return !(tupleExp.Object is MemberExpression);
     }
@@ -89,10 +89,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     public static bool KeySelectorIngnoringParameterOfTuple(Expression exp)
     {
       var tupleExp = exp.AsTupleAccess();
-      if(tupleExp == null)
+      if (tupleExp == null)
         return false;
       var asMemberExpression = tupleExp.Object as MemberExpression;
-      if(asMemberExpression == null)
+      if (asMemberExpression == null)
         return true;
       return asMemberExpression.Expression.Type!=typeof (Parameter<Tuple>);
     }

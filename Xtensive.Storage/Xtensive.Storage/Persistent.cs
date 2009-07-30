@@ -5,7 +5,6 @@
 // Created:    2007.08.03
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Xtensive.Core;
@@ -13,6 +12,7 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Validation;
+using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
@@ -47,7 +47,6 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected internal abstract Tuple Tuple { get; }
 
-    [Infrastructure]
     internal IFieldValueAdapter GetFieldValueAdapter (FieldInfo field, Func<Persistent, FieldInfo, IFieldValueAdapter> ctor)
     {
       // Building adapter container if necessary
@@ -140,7 +139,6 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Value type.</typeparam>
     /// <param name="fieldName">The field name.</param>
     /// <returns>Field value.</returns>
-    [Infrastructure]
     protected internal T GetFieldValue<T>(string fieldName)
     {
       return GetFieldValue<T>(Type.Fields[fieldName]);
@@ -152,7 +150,7 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Value type</typeparam>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
-    [Infrastructure]
+    [AspectBehavior]
     protected internal T GetFieldValue<T>(FieldInfo field)
     {
       NotifyGettingFieldValue(field);
@@ -174,7 +172,6 @@ namespace Xtensive.Storage
     /// <see cref="Entity"/> descendant.</param>
     /// <returns>Referenced entity key.</returns>
     /// <exception cref="InvalidOperationException">Field is not a reference field.</exception>
-    [Infrastructure]
     protected internal Key GetReferenceKey(FieldInfo field)
     {
       if (!field.IsEntity)
@@ -183,9 +180,10 @@ namespace Xtensive.Storage
 
       NotifyGettingFieldValue(field);
       var type = Session.Domain.Model.Types[field.ValueType];
-      if (Tuple.ContainsEmptyValues(field.MappingInfo))
+      var tuple = Tuple;
+      if (tuple.ContainsEmptyValues(field.MappingInfo))
         return null;
-      var fieldValue = field.ExtractValue(Tuple);
+      var fieldValue = field.ExtractValue(tuple);
       var key = Key.Create(Session.Domain, type, fieldValue, null, true, true);
       NotifyGetFieldValue(field, key);
 
@@ -198,7 +196,6 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Value type</typeparam>
     /// <param name="fieldName">The field name.</param>
     /// <param name="value">The value to set.</param>
-    [Infrastructure]
     protected internal void SetFieldValue<T>(string fieldName, T value)
     {
       SetFieldValue(Type.Fields[fieldName], value);
@@ -210,7 +207,7 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Value type</typeparam>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
-    [Infrastructure]
+    [AspectBehavior]
     protected internal void SetFieldValue<T>(FieldInfo field, T value)
     {
       NotifySettingFieldValue(field, value);
@@ -232,13 +229,11 @@ namespace Xtensive.Storage
       NotifySetFieldValue(field, oldValue, value);
     }
 
-    [Infrastructure]
     internal protected bool IsFieldAvailable(string name)
     {
       return IsFieldAvailable(Type.Fields[name]);
     }
 
-    [Infrastructure]
     internal protected bool IsFieldAvailable(FieldInfo field)
     {
       return Tuple.IsAvailable(field.MappingInfo.Offset);
@@ -248,7 +243,6 @@ namespace Xtensive.Storage
 
     #region User-level event-like members
     
-    [Infrastructure]
     protected virtual void OnInitialize()
     {
     }
@@ -259,7 +253,6 @@ namespace Xtensive.Storage
     /// <remarks>
     /// Override it to perform some actions before reading field value, e.g. to check access permissions.
     /// </remarks>
-    [Infrastructure]
     protected virtual void OnGettingFieldValue(FieldInfo field)
     {
     }
@@ -270,7 +263,6 @@ namespace Xtensive.Storage
     /// <remarks>
     /// Override it to perform some actions when field value has been read, e.g. for logging purposes.
     /// </remarks>
-    [Infrastructure]
     protected virtual void OnGetFieldValue(FieldInfo field, object value)
     {
     }
@@ -281,7 +273,6 @@ namespace Xtensive.Storage
     /// <remarks>
     /// Override it to perform some actions before changing field value, e.g. to check access permissions.
     /// </remarks>
-    [Infrastructure]
     protected virtual void OnSettingFieldValue(FieldInfo field, object value)
     {
     }
@@ -292,7 +283,6 @@ namespace Xtensive.Storage
     /// <remarks>
     /// Override it to perform some actions when field value has been changed, e.g. for logging purposes.
     /// </remarks>
-    [Infrastructure]
     protected virtual void OnSetFieldValue(FieldInfo field, object oldValue, object newValue)
     {
     }
@@ -314,7 +304,7 @@ namespace Xtensive.Storage
     /// </code>
     /// </example>
     [Infrastructure]
-    public virtual void OnValidate()
+    protected virtual void OnValidate()
     {
     }
 
@@ -323,22 +313,16 @@ namespace Xtensive.Storage
 
     #region System-level event-like members
 
-    [Infrastructure]
     internal abstract void NotifyInitializing();
 
-    [Infrastructure]
     internal abstract void NotifyInitialize();
 
-    [Infrastructure]
     internal abstract void NotifyGettingFieldValue(FieldInfo field);
 
-    [Infrastructure]
     internal abstract void NotifyGetFieldValue(FieldInfo field, object value);
 
-    [Infrastructure]
     internal abstract void NotifySettingFieldValue(FieldInfo field, object value);
 
-    [Infrastructure]
     internal virtual void NotifySetFieldValue(FieldInfo field, object oldValue, object newValue)
     {
       if (Session.Domain.Configuration.AutoValidation)
@@ -368,11 +352,13 @@ namespace Xtensive.Storage
 
     #region IAtomicityAware members
 
+    [Infrastructure]
     AtomicityContextBase IContextBound<AtomicityContextBase>.Context
     {
       get { return Session.AtomicityContext; }
     }
 
+    [Infrastructure]
     bool IAtomicityAware.IsCompatibleWith(AtomicityContextBase context)
     {
       return context==Session.AtomicityContext;
@@ -385,24 +371,27 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets a value indicating whether validation can be performed for this entity.
     /// </summary>
-    [Infrastructure]
     protected internal abstract bool CanBeValidated { get; }
 
     /// <inheritdoc/>
     [Infrastructure]
     void IValidationAware.OnValidate()
     {
+      InnerOnValidate();
+    }
+
+    [AspectBehavior]
+    private void InnerOnValidate()
+    {
       if (!CanBeValidated)
         return;
-
       this.CheckConstraints();
       OnValidate();
     }
 
     /// <inheritdoc/>
     [Infrastructure]
-    ValidationContextBase IContextBound<ValidationContextBase>.Context
-    {
+    ValidationContextBase IContextBound<ValidationContextBase>.Context {
       get {
         return (Session ?? Session.Demand()).ValidationContext;
       }

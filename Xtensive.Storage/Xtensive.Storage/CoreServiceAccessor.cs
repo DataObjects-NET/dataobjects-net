@@ -30,12 +30,12 @@ namespace Xtensive.Storage
     /// </summary>
     /// <returns>An object implementing <see cref="IDisposable"/> which 
     /// may be disposed to restore a previous state of the 
-    /// <see cref="Session.SystemLogicOnly"/> property.</returns>
+    /// <see cref="Session.IsSystemLogicOnly"/> property.</returns>
     public IDisposable OpenSystemLogicOnlyRegion()
     {
-      var result = new Disposable<Session, bool>(Session, Session.SystemLogicOnly,
-        (disposing, session, previousState) => session.SystemLogicOnly = previousState);
-      Session.SystemLogicOnly = true;
+      var result = new Disposable<Session, bool>(Session, Session.IsSystemLogicOnly,
+        (disposing, session, previousState) => session.IsSystemLogicOnly = previousState);
+      Session.IsSystemLogicOnly = true;
       return result;
     }
 

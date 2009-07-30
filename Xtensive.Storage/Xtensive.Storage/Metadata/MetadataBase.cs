@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
@@ -40,7 +39,6 @@ namespace Xtensive.Storage.Metadata
     /// Ensures the entity is writable.
     /// </summary>
     /// <exception cref="Exception">Object is read-only.</exception>
-    [Infrastructure]
     protected void EnsureIsWritable()
     {
       if (BuildingContext.Current==null)

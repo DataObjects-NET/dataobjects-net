@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
-      if(IsApplyParameter(m.Expression))
+      if (IsApplyParameter(m.Expression))
         return substitute;
       return base.VisitMemberAccess(m);
     }
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       var visited = (MethodCallExpression)base.VisitMethodCall(mc);
-      if(mc.Object.NodeType == ExpressionType.Parameter
+      if (mc.Object.NodeType == ExpressionType.Parameter
         && mc.Object.Type == typeof(Tuple)) {
         var sourceIndex = visited.GetTupleAccessArgument();
         var name = sourceColumns.Single(column => column.Index == sourceIndex).Name;

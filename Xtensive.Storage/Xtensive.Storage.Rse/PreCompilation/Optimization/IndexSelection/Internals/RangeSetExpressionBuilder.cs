@@ -196,7 +196,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
         second = BuildShiftedEntireConstructor(indexKeyValues, indexInfo, true);
         return;
       }
-      if(comparisonType == ComparisonOperation.LessThan) {
+      if (comparisonType == ComparisonOperation.LessThan) {
         first = BuildInfiniteEntire(false);
         second = BuildShiftedEntireConstructor(indexKeyValues, indexInfo, false);
         return;

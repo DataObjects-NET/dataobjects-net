@@ -32,9 +32,9 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if(mc.AsTupleAccess() != null) {
+      if (mc.AsTupleAccess() != null) {
         var sourceIndex = mc.GetTupleAccessArgument();
-        if(mc.GetApplyParameter() != null)
+        if (mc.GetApplyParameter() != null)
           return Expression.Call(leftTupleParameter, mc.Method, mc.Arguments[0]);
         var name = sourceColumns.Single(column => column.Index == sourceIndex).Name;
         var currentIndex = targetColumns[name].Index;
@@ -49,9 +49,9 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       ArgumentValidator.EnsureArgumentNotNull(predicate, "predicate");
       ArgumentValidator.EnsureArgumentNotNull(predicateColumns, "predicateColumns");
       ArgumentValidator.EnsureArgumentNotNull(currentColumns, "currentColumns");
-      if(predicateColumns.Count == 0)
+      if (predicateColumns.Count == 0)
         throw Exceptions.CollectionIsEmpty("predicateColumns");
-      if(currentColumns.Count == 0)
+      if (currentColumns.Count == 0)
         throw Exceptions.CollectionIsEmpty("currentColumns");
       sourceColumns = predicateColumns;
       targetColumns = currentColumns;

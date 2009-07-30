@@ -438,7 +438,7 @@ namespace Xtensive.Storage.Tests.Storage
               .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
               .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID));
           
-          using(new ParameterContext().Activate()) {
+          using (new ParameterContext().Activate()) {
             pID.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)), new Entire<Tuple>(Tuple.Create(120)));
             pName.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create("Kaa")), new Entire<Tuple>(Tuple.Create("Kaa900")));
             var count = result.Count();
@@ -626,7 +626,7 @@ namespace Xtensive.Storage.Tests.Storage
       const int creaturesCount = 1000;
       const int lizardsCount = 1000;
 
-      using(Session.Open(Domain)) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
             Snake s = new Snake();

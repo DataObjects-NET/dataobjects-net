@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
       throw new InvalidOperationException();
     }
 
-    public override void OnValidate()
+    protected override void OnValidate()
     {
       base.OnValidate();
       throw new InvalidOperationException();
@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
       throw new InvalidOperationException();
     }
 
-    public override void OnValidate()
+    protected override void OnValidate()
     {
       base.OnValidate();
       throw new InvalidOperationException();
@@ -186,7 +186,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CreateInstanceTest()
     {
-      using(Session.Open(Domain)) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.CoreServices.PersistentAccessor;
           accessor.CreateEntity(typeof (MyEntity));
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SetFieldTest()
     {
-      using(Session.Open(Domain)) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.CoreServices.PersistentAccessor;
           MyEntity myEntity = (MyEntity)accessor.CreateEntity(typeof (MyEntity));
@@ -216,7 +216,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void RemoveTest()
     {
-      using(Session.Open(Domain)) {
+      using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.CoreServices.PersistentAccessor;
           MyEntity myEntity = (MyEntity)accessor.CreateEntity(typeof (MyEntity));

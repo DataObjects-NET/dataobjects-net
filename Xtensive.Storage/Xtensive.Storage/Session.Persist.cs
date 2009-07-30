@@ -35,42 +35,44 @@ namespace Xtensive.Storage
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
     public void Persist()
     {
-      if (isPersisting)
+      if (IsPersisting)
         return;
-      isPersisting = true;
-      try {
-        EnsureNotDisposed();
+      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+        IsPersisting = true;
+        try {
+          EnsureNotDisposed();
 
-        if (EntityStateRegistry.Count==0)
-          return;
+          if (EntityChangeRegistry.Count==0)
+            return;
 
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug("Session '{0}'. Persisting...", this);
-        NotifyPersisting();
+          if (IsDebugEventLoggingEnabled)
+            Log.Debug("Session '{0}'. Persisting...", this);
+          NotifyPersisting();
 
-        Handler.Persist(GetPersistSequence());
+          Handler.Persist(GetPersistSequence());
 
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug("Session '{0}'. Persisted.", this);
-        NotifyPersist();
+          if (IsDebugEventLoggingEnabled)
+            Log.Debug("Session '{0}'. Persisted.", this);
+          NotifyPersist();
 
-        foreach (var item in EntityStateRegistry.GetItems(PersistenceState.New))
-          item.PersistenceState = PersistenceState.Synchronized;
-        foreach (var item in EntityStateRegistry.GetItems(PersistenceState.Modified))
-          item.PersistenceState = PersistenceState.Synchronized;
-        foreach (var item in EntityStateRegistry.GetItems(PersistenceState.Removed))
-          item.Update(null);
-        EntityStateRegistry.Clear();
-      }
-      finally {
-        isPersisting = false;
+          foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))
+            item.PersistenceState = PersistenceState.Synchronized;
+          foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Modified))
+            item.PersistenceState = PersistenceState.Synchronized;
+          foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed))
+            item.Update(null);
+          EntityChangeRegistry.Clear();
+        }
+        finally {
+          IsPersisting = false;
+        }
       }
     }
 
     private IEnumerable<PersistAction> GetPersistSequence()
     {
       // Insert
-      var states = EntityStateRegistry.GetItems(PersistenceState.New).Where(state => !state.IsRemoved);
+      var states = EntityChangeRegistry.GetItems(PersistenceState.New).Where(state => !state.IsRemoved);
       if (persistRequiresTopologicalSort && states.AtLeast(2))
         foreach (var action in GetInsertSequence(states))
           yield return action;
@@ -79,7 +81,7 @@ namespace Xtensive.Storage
           yield return new PersistAction(state, PersistActionKind.Insert);
 
       // Update
-      foreach (var state in EntityStateRegistry.GetItems(PersistenceState.Modified)) {
+      foreach (var state in EntityChangeRegistry.GetItems(PersistenceState.Modified)) {
         if (state.IsRemoved)
           continue;
         yield return new PersistAction(state, PersistActionKind.Update);
@@ -87,7 +89,7 @@ namespace Xtensive.Storage
       }
 
       // Delete
-      states = EntityStateRegistry.GetItems(PersistenceState.Removed).Except(EntityStateRegistry.GetItems(PersistenceState.New));
+      states = EntityChangeRegistry.GetItems(PersistenceState.Removed).Except(EntityChangeRegistry.GetItems(PersistenceState.New));
       if (persistRequiresTopologicalSort && states.AtLeast(2))
         foreach (var action in GetDeleteSequence(states))
           yield return action;
