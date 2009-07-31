@@ -383,10 +383,11 @@ namespace Xtensive.Storage
     [AspectBehavior]
     private void InnerOnValidate()
     {
-      if (!CanBeValidated)
+      if (!CanBeValidated) // True for Structures which aren't bound to entities
         return;
-      this.CheckConstraints();
-      OnValidate();
+      this.CheckConstraints(); // Ensures all PropertyConstraintAspects will be executed
+                               // CheckConstraints is an extension method provided by Integrity
+      OnValidate(); // Runs custom validation logic: this OnValidate can be overriden
     }
 
     /// <inheritdoc/>
