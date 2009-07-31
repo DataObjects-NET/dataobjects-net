@@ -11,7 +11,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
   internal class Translator : SqlTranslator
   {
     public override string DateTimeFormat { get { return @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'"; } }
-    public override string TimeSpanFormat { get { return "'{0} days {1}{2}:{3}:{4}.{5:000}'::interval"; } }
+    public override string TimeSpanFormat { get { return "'{0}{1} days {0}{2}:{3}:{4}.{5:000}'::interval"; } }
 
     public override void Initialize()
     {
@@ -42,9 +42,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       switch (type) {
       case SqlFunctionType.SystemUser:
-        return String.Empty;
-      case SqlFunctionType.UserDefined:
-        return String.Empty;
+        return string.Empty;
       case SqlFunctionType.User:
       case SqlFunctionType.CurrentUser:
         return "current_user";
@@ -57,12 +55,14 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       case SqlFunctionType.BinaryLength:
         return "length";
 
-      //date
+      //datetime/timespan
 
       case SqlFunctionType.CurrentDate:
         return "date_trunc('day', current_timestamp)";
       case SqlFunctionType.CurrentTimeStamp:
         return "current_timestamp";
+      case SqlFunctionType.IntervalNegate:
+        return "-";
 
       //string
 

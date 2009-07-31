@@ -66,6 +66,7 @@ namespace Xtensive.Sql.Dml
     DateTimeTruncate,
     IntervalConstruct,
     IntervalToMilliseconds,
-    IntervalAbs
+    IntervalAbs,
+    IntervalNegate,
   }
 }

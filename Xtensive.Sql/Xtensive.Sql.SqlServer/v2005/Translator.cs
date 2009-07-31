@@ -48,6 +48,8 @@ namespace Xtensive.Sql.SqlServer.v2005
       switch (functionType) {
       case SqlFunctionType.IntervalAbs:
         return "ABS";
+      case SqlFunctionType.IntervalNegate:
+        return "-";
       case SqlFunctionType.CurrentDate:
         return "GETDATE";
       case SqlFunctionType.CharLength:

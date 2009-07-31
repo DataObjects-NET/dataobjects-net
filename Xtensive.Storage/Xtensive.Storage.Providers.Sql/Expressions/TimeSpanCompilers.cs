@@ -292,7 +292,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     [Compiler(typeof(TimeSpan), "Negate")]
     public static SqlExpression TimeSpanNegate(SqlExpression _this)
     {
-      return - _this;
+      return SqlDml.IntervalNegate(_this);
     }
     
     [Compiler(typeof(TimeSpan), "Duration")]

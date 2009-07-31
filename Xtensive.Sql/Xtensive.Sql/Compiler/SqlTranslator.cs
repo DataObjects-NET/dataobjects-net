@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
@@ -28,6 +29,14 @@ namespace Xtensive.Sql.Compiler
     public virtual string HintDelimiter { get { return string.Empty; } }
 
     public abstract string DateTimeFormat { get; }
+
+    // Format values
+    // {0} - sign
+    // {1} - days
+    // {2} - hours
+    // {3} - minutes
+    // {4} - seconds
+    // {5} - milliseconds
     public abstract string TimeSpanFormat { get; }
 
     public string ParameterPrefix { get; private set; }
@@ -989,7 +998,7 @@ namespace Xtensive.Sql.Compiler
       switch (section) {
       case ExtractSection.Entry:
         return "EXTRACT(";
-     case ExtractSection.From:
+      case ExtractSection.From:
         return "FROM";
       case ExtractSection.Exit:
         return ")";
@@ -1080,7 +1089,7 @@ namespace Xtensive.Sql.Compiler
         return ((DateTime) literalValue).ToString(DateTimeFormat);
       }
       if (literalType==typeof(TimeSpan))
-        return TranslateTimeSpan((TimeSpan) literalValue);
+        return ((TimeSpan) literalValue).ToString(TimeSpanFormat);
       if (literalType==typeof(Guid) || literalType==typeof(byte[]))
         throw new NotSupportedException(string.Format(
           Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
@@ -1770,32 +1779,6 @@ namespace Xtensive.Sql.Compiler
     }
 
     #endregion
-
-    private string TranslateTimeSpan(TimeSpan value)
-    {
-      int days = value.Days;
-      int hours = value.Hours;
-      int minutes = value.Minutes;
-      int seconds = value.Seconds;
-      int milliseconds = value.Milliseconds;
-
-      bool negative = hours < 0 || minutes < 0 || seconds < 0 || milliseconds < 0;
-
-      if (hours < 0)
-        hours = -hours;
-
-      if (minutes < 0)
-        minutes = -minutes;
-
-      if (seconds < 0)
-        seconds = -seconds;
-
-      if (milliseconds < 0)
-        milliseconds = -milliseconds;
-
-      return string.Format(TimeSpanFormat,
-          days, negative ? "-" : "", hours, minutes, seconds, milliseconds);
-    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlTranslator"/> class.

@@ -256,28 +256,7 @@ namespace Xtensive.Sql.PostgreSql
 
     public static string TimeSpanToString(TimeSpan value)
     {
-      int days = value.Days;
-      int hours = value.Hours;
-      int minutes = value.Minutes;
-      int seconds = value.Seconds;
-      int milliseconds = value.Milliseconds;
-
-      bool negative = hours < 0 || minutes < 0 || seconds < 0 || milliseconds < 0;
-
-      if (hours < 0)
-        hours = -hours;
-
-      if (minutes < 0)
-        minutes = -minutes;
-
-      if (seconds < 0)
-        seconds = -seconds;
-
-      if (milliseconds < 0)
-        milliseconds = -milliseconds;
-
-      return String.Format("{0} days {1}{2}:{3}:{4}.{5:000}",
-          days, negative ? "-" : "", hours, minutes, seconds, milliseconds);
+      return value.ToString("{0}{1} days {0}{2}:{3}:{4}.{5:000}");
     }
 #endif
 

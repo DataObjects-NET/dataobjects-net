@@ -12,8 +12,8 @@ namespace Xtensive.Sql.Oracle.v09
 {
   internal class Translator : SqlTranslator
   {
-    public override string DateTimeFormat { get { return @"'TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'"; } }
-    public override string TimeSpanFormat { get { return "INTERVAL '{0} {1}{2}:{3}:{4}.{5:000}' DAY(6) TO SECOND(3)"; } }
+    public override string DateTimeFormat { get { return @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'\)"; } }
+    public override string TimeSpanFormat { get { return "(INTERVAL '{0}{1} {2}:{3}:{4}.{5:000}' DAY(6) TO SECOND(3))"; } }
 
     public override void Initialize()
     {
@@ -72,14 +72,38 @@ namespace Xtensive.Sql.Oracle.v09
       }
     }
 
-    /*
-    public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
+    public override string Translate(SqlCompilerContext context, SqlBinary node, NodeSection section)
     {
-      if (node.IntervalPart!=SqlIntervalPart.Nothing && section==ExtractSection.Exit)
-        return " DAY TO SECOND)";
+      if (node.NodeType==SqlNodeType.Modulo && section==NodeSection.Entry)
+        return "MOD(";
       return base.Translate(context, node, section);
     }
-    */
+    
+    public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
+    {
+      if (node.DateTimePart==SqlDateTimePart.Second || node.IntervalPart==SqlIntervalPart.Second)
+        switch (section) {
+        case ExtractSection.Entry:
+          return "TRUNC(EXTRACT(";
+        case ExtractSection.Exit:
+          return "))";
+        default:
+          return base.Translate(context, node, section);
+        }
+
+      if (node.DateTimePart==SqlDateTimePart.Millisecond || node.IntervalPart==SqlIntervalPart.Millisecond)
+        switch (section) {
+        case ExtractSection.Entry:
+          return "MOD(EXTRACT(";
+        case ExtractSection.Exit:
+          return ")*1000,1000)";
+        default:
+          return base.Translate(context, node, section);
+        }
+
+      return base.Translate(context, node, section);
+    }
+
     public override string Translate(SqlValueType type)
     {
       // we need to explicitly specify maximum interval precision
@@ -94,6 +118,18 @@ namespace Xtensive.Sql.Oracle.v09
       case SqlDateTimePart.DayOfWeek:
       case SqlDateTimePart.DayOfYear:
         throw new NotSupportedException();
+      case SqlDateTimePart.Millisecond:
+        return "SECOND";
+      default:
+        return base.Translate(part);
+      }
+    }
+
+    public override string Translate(SqlIntervalPart part)
+    {
+      switch (part) {
+      case SqlIntervalPart.Millisecond:
+        return "SECOND";
       default:
         return base.Translate(part);
       }
@@ -102,8 +138,26 @@ namespace Xtensive.Sql.Oracle.v09
     public override string Translate(SqlFunctionType type)
     {
       switch (type) {
+      case SqlFunctionType.Truncate:
       case SqlFunctionType.DateTimeTruncate:
         return "TRUNC";
+      case SqlFunctionType.IntervalNegate:
+        return "-1*";
+      default:
+        return base.Translate(type);
+      }
+    }
+
+    public override string Translate(SqlNodeType type)
+    {
+      switch (type) {
+      case SqlNodeType.Modulo:
+        return ",";
+      case SqlNodeType.DateTimePlusInterval:
+        return "+";
+      case SqlNodeType.DateTimeMinusInterval:
+      case SqlNodeType.DateTimeMinusDateTime:
+        return "-";
       default:
         return base.Translate(type);
       }

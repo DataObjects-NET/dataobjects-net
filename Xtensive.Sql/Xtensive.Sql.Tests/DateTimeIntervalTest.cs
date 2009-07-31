@@ -13,22 +13,6 @@ namespace Xtensive.Sql.Tests
   public abstract class DateTimeIntervalTest : SqlTest
   {
     [Test]
-    public virtual void ExtractDayOfWeekTest()
-    {
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.DayOfWeek, new DateTime(2009, 3, 2)),
-        (int) DayOfWeek.Monday);
-    }
-
-    [Test]
-    public virtual void ExtractDayOfYearTest()
-    {
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.DayOfYear, new DateTime(2005, 2, 2)),
-        33);
-    }
-  
-    [Test]
     public virtual void DateTimeAddIntervalTest()
     {
       CheckEquality(
@@ -82,6 +66,78 @@ namespace Xtensive.Sql.Tests
       CheckEquality(
         SqlDml.DateTimeTruncate(new DateTime(2005, 1, 1, 1, 1, 1, 1)),
         new DateTime(2005, 1, 1));
+    }
+
+    [Test]
+    public virtual void DateTimeExtractYearTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlDateTimePart.Year, new DateTime(2006, 5, 4)),
+        2006);
+    }
+
+    [Test]
+    public virtual void DateTimeExtractMonthTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlDateTimePart.Month, new DateTime(2006, 5, 4)),
+        5);
+    }
+
+    [Test]
+    public virtual void DateTimeExtractDayTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlDateTimePart.Day, new DateTime(2006, 5, 4)),
+        4);
+    }
+
+    [Test]
+    public virtual void DateTimeExtractHourTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlDateTimePart.Hour, new DateTime(2006, 5, 4, 3, 2, 1, 333)),
+        3);
+    }
+
+    [Test]
+    public virtual void DateTimeExtractMinuteTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlDateTimePart.Minute, new DateTime(2006, 5, 4, 3, 2, 1, 333)),
+        2);
+    }
+
+    [Test]
+    public virtual void DateTimeExtractSecondTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlDateTimePart.Second, new DateTime(2006, 5, 4, 3, 2, 1, 333)),
+        1);
+    }
+
+    [Test]
+    public virtual void DateTimeExtractMillisecondTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlDateTimePart.Millisecond, new DateTime(2006, 5, 4, 3, 2, 1, 333)),
+        333);
+    }
+    
+    [Test]
+    public virtual void DateTimeExtractDayOfWeekTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlDateTimePart.DayOfWeek, new DateTime(2009, 3, 2)),
+        (int) DayOfWeek.Monday);
+    }
+
+    [Test]
+    public virtual void DateTimeExtractDayOfYearTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlDateTimePart.DayOfYear, new DateTime(2005, 2, 2)),
+        33);
     }
 
     [Test]
@@ -141,7 +197,7 @@ namespace Xtensive.Sql.Tests
     }
 
     [Test]
-    public virtual void IntervalDurationTest()
+    public virtual void IntervalAbsTest()
     {
       CheckEquality(
         SqlDml.IntervalAbs(new TimeSpan(10, 0, 0, 0).Negate()),
@@ -150,14 +206,13 @@ namespace Xtensive.Sql.Tests
 
     private void CheckEquality(SqlExpression left, SqlExpression right)
     {
-      var select = SqlDml.Select();
-      select.Columns.Add("ok");
-      select.Where = left == right;
-
-      using (var command = Connection.CreateCommand(select))
+      var select = SqlDml.Select("ok");
+      select.Where = left==right;
+      using (var command = Connection.CreateCommand(select)) {
+        Console.WriteLine(command.CommandText);
         using (var reader = command.ExecuteReader()) {
-          if (!reader.Read())
-            Assert.Fail(string.Format("expression \"{0}\" evaluated to false", command.CommandText));
+          Assert.IsTrue(reader.Read());
+        }
       }
     }
   }

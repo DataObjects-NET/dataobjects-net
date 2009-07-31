@@ -18,8 +18,6 @@ namespace Xtensive.Sql
   /// </summary>
   public static class SqlHelper
   {
-    private const char SchemaSeparator = '/';
-
     /// <summary>
     /// Validates the specified URL againts charactes that usually forbidden inside connection strings.
     /// </summary>
@@ -71,99 +69,38 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Determines whether the specified expression is a null reference.
-    /// Use this method instead of comparison with null,
-    /// because equality operator is overloaded for <see cref="SqlExpression"/>
-    /// to yield equality comparison expression.
+    /// Converts the specified interval expression to expression
+    /// that represents number of milliseconds in that interval.
+    /// This is a generic implementation via <see cref="SqlExtract"/>s.
+    /// It's suitable for any server, but can be inefficient.
     /// </summary>
-    /// <param name="expression">The expression to check.</param>
-    /// <returns>
-    /// <see langword="true"/> if argument is a null reference; otherwise, <see langword="false"/>.
-    /// </returns>
-    public static bool IsNullReference(this SqlExpression expression)
+    /// <param name="interval">The interval to convert.</param>
+    /// <returns>Result of conversion.</returns>
+    public static SqlExpression IntervalToMilliseconds(SqlExpression interval)
     {
-      return ReferenceEquals(expression, null);
+      var days = SqlDml.Extract(SqlIntervalPart.Day, interval);
+      var hours = SqlDml.Extract(SqlIntervalPart.Hour, interval);
+      var minutes = SqlDml.Extract(SqlIntervalPart.Minute, interval);
+      var seconds = SqlDml.Extract(SqlIntervalPart.Second, interval);
+      var milliseconds = SqlDml.Extract(SqlIntervalPart.Millisecond, interval);
+
+      return (((days * 24L + hours) * 60L + minutes) * 60L + seconds) * 1000L + milliseconds;
     }
 
     /// <summary>
-    /// Extracts the database component from the specified <see cref="UrlInfo"/>.
+    /// Converts the specified interval expression to expression
+    /// that represents absolute value (duration) of the specified interval.
+    /// This is a generic implementation that uses comparison with zero interval.
+    /// It's suitable for any server, but can be inefficent.
     /// </summary>
-    /// <param name="url">The URL.</param>
-    /// <returns>Database name.</returns>
-    public static string GetDatabase(this UrlInfo url)
+    /// <param name="source">The source.</param>
+    /// <returns>Result of conversion.</returns>
+    public static SqlExpression IntervalAbs(SqlExpression source)
     {
-      var resource = url.Resource;
-      int position = resource.IndexOf(SchemaSeparator);
-      if (position < 0)
-        return url.Resource;
-      return resource.Substring(0, position);
-    }
-
-    /// <summary>
-    /// Extracts the schema component from the specified <see cref="UrlInfo"/>.
-    /// If schema is not specified returns <paramref name="defaultValue"/>.
-    /// </summary>
-    /// <param name="url">The URL.</param>
-    /// <param name="defaultValue">The default schema name.</param>
-    /// <returns>Schema name.</returns>
-    public static string GetSchema(this UrlInfo url, string defaultValue)
-    {
-      var resource = url.Resource;
-      int position = resource.IndexOf(SchemaSeparator);
-      if (position < 0)
-        return defaultValue;
-      return resource.Substring(position);
-    }
-    
-    /// <summary>
-    /// Converts the specified <see cref="SqlType"/> to corresponding .NET type.
-    /// </summary>
-    /// <param name="type">The type to convert.</param>
-    /// <returns>Converter type.</returns>
-    public static Type ToClrType(this SqlType type)
-    {
-      switch (type) {
-      case SqlType.Boolean:
-        return typeof (bool);
-      case SqlType.Int8:
-        return typeof (sbyte);
-      case SqlType.UInt8:
-        return typeof (byte);
-      case SqlType.Int16:
-        return typeof (short);
-      case SqlType.UInt16:
-        return typeof (ushort);
-      case SqlType.Int32:
-        return typeof (int);
-      case SqlType.UInt32:
-        return typeof (uint);
-      case SqlType.Int64:
-        return typeof (long);
-      case SqlType.UInt64:
-        return typeof (ulong);
-      case SqlType.Decimal:
-        return typeof (decimal);
-      case SqlType.Float:
-        return typeof (float);
-      case SqlType.Double:
-        return typeof (double);
-      case SqlType.DateTime:
-        return typeof (DateTime);
-      case SqlType.Interval:
-        return typeof (TimeSpan);
-      case SqlType.Char:
-      case SqlType.VarChar:
-      case SqlType.VarCharMax:
-        return typeof (string);
-      case SqlType.Binary:
-      case SqlType.VarBinary:
-      case SqlType.VarBinaryMax:
-        return typeof (byte[]);
-      case SqlType.Guid:
-        return typeof (Guid);
-      default:
-        throw new ArgumentOutOfRangeException("type");
-      }
+      var result = SqlDml.Case();
+      result.Add(source >= SqlDml.Literal(new TimeSpan(0)), source);
+      result.Else = SqlDml.IntervalNegate(source);
+      return result;
     }
   }
 }

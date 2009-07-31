@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 
@@ -26,51 +25,44 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       switch (node.FunctionType) {
       case SqlFunctionType.PadLeft:
       case SqlFunctionType.PadRight:
-        Visit(GenericPad(node));
+        GenericPad(node).AcceptVisitor(this);
         return;
       case SqlFunctionType.Rand:
-        Visit(SqlDml.FunctionCall(translator.Translate(SqlFunctionType.Rand)));
+        SqlDml.FunctionCall(translator.Translate(SqlFunctionType.Rand)).AcceptVisitor(this);
         return;
       case SqlFunctionType.Square:
-        Visit(SqlDml.Power(node.Arguments[0], 2));
+        SqlDml.Power(node.Arguments[0], 2).AcceptVisitor(this);
         return;
       case SqlFunctionType.IntervalConstruct:
-        Visit(node.Arguments[0] * OneMillisecondInterval);
+        (node.Arguments[0] * OneMillisecondInterval).AcceptVisitor(this);
         return;
       case SqlFunctionType.IntervalToMilliseconds:
-        Visit(IntervalToMilliseconds(node.Arguments[0]));
+        SqlHelper.IntervalToMilliseconds(node.Arguments[0]).AcceptVisitor(this);
         return;
       case SqlFunctionType.IntervalAbs:
-        Visit(IntervalDuration(node.Arguments[0]));
+        SqlHelper.IntervalAbs(node.Arguments[0]).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeConstruct:
-        Visit(SqlDml.Literal(new DateTime(2001, 1, 1))
+        var newNode = (SqlDml.Literal(new DateTime(2001, 1, 1))
           + OneYearInterval * (node.Arguments[0] - 2001)
           + OneMonthInterval * (node.Arguments[1] - 1)
           + OneDayInterval * (node.Arguments[2] - 1));
+        newNode.AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeTruncate:
-        Visit(SqlDml.FunctionCall("date_trunc", "day", node.Arguments[0]));
+        (SqlDml.FunctionCall("date_trunc", "day", node.Arguments[0])).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeAddMonths:
-        Visit(node.Arguments[0] + node.Arguments[1] * OneMonthInterval);
+        (node.Arguments[0] + node.Arguments[1] * OneMonthInterval).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeAddYears:
-        Visit(node.Arguments[0] + node.Arguments[1] * OneYearInterval);
+        (node.Arguments[0] + node.Arguments[1] * OneYearInterval).AcceptVisitor(this);
         return;
       }
       base.Visit(node);
     }
 
-    private SqlCase IntervalDuration(SqlExpression source)
-    {
-      var result = SqlDml.Case();
-      result.Add(source > SqlDml.Literal(new TimeSpan(0)), source);
-      result.Else = -source;
-      return result;
-    }
-
-    private SqlCase GenericPad(SqlFunctionCall node)
+    private SqlExpression GenericPad(SqlFunctionCall node)
     {
       string paddingFunction;
       switch (node.FunctionType) {
@@ -90,17 +82,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         SqlDml.FunctionCall(paddingFunction, node.Arguments));
       result.Else = operand;
       return result;
-    }
-
-    private SqlBinary IntervalToMilliseconds(SqlExpression interval)
-    {
-      var days = SqlDml.Extract(SqlIntervalPart.Day, interval);
-      var hours = SqlDml.Extract(SqlIntervalPart.Hour, interval);
-      var minutes = SqlDml.Extract(SqlIntervalPart.Minute, interval);
-      var seconds = SqlDml.Extract(SqlIntervalPart.Second, interval);
-      var milliseconds = SqlDml.Extract(SqlIntervalPart.Millisecond, interval);
-
-      return (((days * 24L + hours) * 60L + minutes) * 60L + seconds) * 1000L + milliseconds;
     }
 
     // Constructors

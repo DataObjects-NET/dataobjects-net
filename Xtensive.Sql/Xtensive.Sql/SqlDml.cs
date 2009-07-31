@@ -596,6 +596,12 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.IntervalAbs, source);
     }
 
+    public static SqlFunctionCall IntervalNegate(SqlExpression source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      return new SqlFunctionCall(SqlFunctionType.IntervalNegate, source);
+    }
+
     #endregion
     
     #region FunctionCall
