@@ -5,6 +5,7 @@
 // Created:    2008.11.25
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Storage.Linq;
@@ -33,47 +34,73 @@ namespace Xtensive.Storage
     }
     
     /// <summary>
-    /// Resolves the specified <paramref name="key"/> within the current <see cref="Session"/>.
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <param name="key">The key to resolve.</param>
     /// <returns>
-    /// The <see cref="Entity"/> the specified <paramref name="key"/> identifies.
+    /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
+    /// <see langword="null" />, if there is no such entity.
     /// </returns>
-    /// <exception cref="ArgumentException">Entity for the specified key is not found.</exception>
     public static T Single(Key key)
     {
-      return (T) (object) Query.SingleOrDefault(key);
+      return (T) (object) Query.Single(key);
     }
     
     /// <summary>
-    /// Resolves the specified <paramref name="key"/> within the current <see cref="Session"/>.
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
+    /// in the current <see cref="Session"/>.
+    /// </summary>
+    /// <param name="keyValues">Key values.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
+    /// <see langword="null" />, if there is no such entity.
+    /// </returns>
+    public static T Single(params object[] keyValues)
+    {
+      return (T) (object) Query.Single(GetKeyByValues(keyValues));
+    }
+    
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <param name="key">The key to resolve.</param>
     /// <returns>
-    /// The <see cref="Entity"/> the specified <paramref name="key"/> identifies.
+    /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// </returns>
-    /// <exception cref="ArgumentException">Entity for the specified key is not found.</exception>
     public static T SingleOrDefault(Key key)
     {
       return (T) (object) Query.SingleOrDefault(key);
     }
 
     /// <summary>
-    /// Resolves <see cref="Entity"/> by specified key values.
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <param name="keyValues">Key values.</param>
-    /// <returns>Entity resolved from key values. <see langword="Null"/> if entity missing or deleted.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="keyValues"/> is <see langword="Null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="keyValues"/> is empty.</exception>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
+    /// </returns>
     public static T SingleOrDefault(params object[] keyValues)
     {
-      ArgumentValidator.EnsureArgumentNotNull(keyValues, "keyValues");
-      if (keyValues.Length==0) 
-        throw new ArgumentException(Strings.ExKeyValuesArrayIsEmpty, "keyValues");
-      if (keyValues.Length==1 && keyValues[0] is Key)
-        return SingleOrDefault((Key) keyValues[0]);
+      return (T) (object) Query.SingleOrDefault(GetKeyByValues(keyValues));
+    }
 
-      return (T) (object) Query.SingleOrDefault(Key.Create(typeof (T), keyValues));
+    /// <exception cref="ArgumentException"><paramref name="keyValues"/> array is empty.</exception>
+    private static Key GetKeyByValues(object[] keyValues)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(keyValues, "keyValues");
+      if (keyValues.Length==0)
+        throw new ArgumentException(Strings.ExKeyValuesArrayIsEmpty, "keyValues");
+      if (keyValues.Length==1) {
+        var keyValue = keyValues[0];
+        if (keyValue is Key)
+          return keyValue as Key;
+        if (keyValue is Entity)
+          return (keyValue as Entity).Key;
+      }
+      return Key.Create(typeof (T), keyValues);
     }
   }
 }

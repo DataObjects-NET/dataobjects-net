@@ -115,6 +115,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Entity with Key = {0} does not exist..
+        /// </summary>
+        internal static string EntityWithKeyXDoesNotExist {
+            get {
+                return ResourceManager.GetString("EntityWithKeyXDoesNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Active serialization context is not found..
         /// </summary>
         internal static string ExActiveSerializationContextIsNotFound {
