@@ -18,6 +18,33 @@ namespace Xtensive.Storage.Tests.Linq
   [TestFixture]
   public class SelectTest : NorthwindDOModelTest
   {
+    public class Context
+    {
+      public IQueryable<Order> Orders
+      {
+        get { return Query<Order>.All; }
+      }
+
+      public IQueryable<Customer> Customers
+      {
+        get { return Query<Customer>.All; }
+      }
+    }
+
+    [Test]
+    public void SelectUsingContextTest()
+    {
+      var expectedCount = Query<Order>.All.Count();
+      var context = new Context();
+      var actualCount = context.Orders.Count();
+      var list = context.Orders.ToList();
+      Assert.AreEqual(expectedCount, actualCount);
+      Assert.AreEqual(expectedCount, list.Count);
+
+      var result = context.Customers.Where(c => context.Orders.Count(o => o.Customer == c) > 5);
+      Assert.Greater(result.ToList().Count, 0);
+    }
+
     [Test]
     public void NullJoinTest()
     {
