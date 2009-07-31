@@ -62,10 +62,13 @@ namespace Xtensive.Storage.Linq
         return null;
       if (e.IsProjection())
         return e;
-      if (context.Evaluator.CanBeEvaluated(e))
+      if (context.Evaluator.CanBeEvaluated(e)) {
+        if (typeof(IQueryable).IsAssignableFrom(e.Type))
+          return base.Visit(e);
         return context.ParameterExtractor.IsParameter(e)
-          ? e
-          : context.Evaluator.Evaluate(e);
+                 ? e
+                 : context.Evaluator.Evaluate(e);
+      }
       return base.Visit(e);
     }
 
@@ -169,8 +172,15 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitMemberAccess(MemberExpression ma)
     {
-      if (context.Evaluator.CanBeEvaluated(ma) && context.ParameterExtractor.IsParameter(ma))
+      if (context.Evaluator.CanBeEvaluated(ma) && context.ParameterExtractor.IsParameter(ma)) {
+        if (typeof(IQueryable).IsAssignableFrom(ma.Type)) {
+          var lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
+          var rootPoint = lambda();
+          if (rootPoint != null)
+            return base.Visit(rootPoint.Expression);
+        }
         return ma;
+      }
       if (ma.Expression==null) {
         if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
           var lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
