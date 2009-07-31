@@ -5,7 +5,6 @@
 // Created:    2009.06.29
 
 using System;
-using System.Diagnostics;
 
 namespace Xtensive.Storage
 {
@@ -44,6 +43,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// The manager of <see cref="Entity"/>'s events.
     /// </summary>
-    public EntityEventManager EntityEvents { get; private set; }
+    public EntityEventBroker EntityEventBroker { get; private set; }
   }
 }

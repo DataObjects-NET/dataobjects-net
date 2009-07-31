@@ -53,7 +53,6 @@ namespace Xtensive.Storage
 
           if (IsDebugEventLoggingEnabled)
             Log.Debug("Session '{0}'. Persisted.", this);
-          NotifyPersist();
 
           foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))
             item.PersistenceState = PersistenceState.Synchronized;
@@ -62,6 +61,7 @@ namespace Xtensive.Storage
           foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed))
             item.Update(null);
           EntityChangeRegistry.Clear();
+          NotifyPersist();
         }
         finally {
           IsPersisting = false;

@@ -101,12 +101,12 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override event PropertyChangedEventHandler PropertyChanged {
       add {
-        Session.EntityEvents.AddSubscriber(GetOwnerEntityKey(Owner), Field,
-          EntityEventManager.PropertyChangedEventKey, value);
+        Session.EntityEventBroker.AddSubscriber(GetOwnerEntityKey(Owner), Field,
+          EntityEventBroker.PropertyChangedEventKey, value);
       }
       remove {
-        Session.EntityEvents.RemoveSubscriber(GetOwnerEntityKey(Owner), Field,
-         EntityEventManager.PropertyChangedEventKey, value);
+        Session.EntityEventBroker.RemoveSubscriber(GetOwnerEntityKey(Owner), Field,
+         EntityEventBroker.PropertyChangedEventKey, value);
       }
     }
 
@@ -116,7 +116,7 @@ namespace Xtensive.Storage
     {
       if (Session.IsSystemLogicOnly)
         return;
-      var subscriptionInfo = GetSubscription(EntityEventManager.InitializingPersistentEventKey);
+      var subscriptionInfo = GetSubscription(EntityEventBroker.InitializingPersistentEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo>) subscriptionInfo.Second)
           .Invoke(subscriptionInfo.First, Field);
@@ -125,7 +125,7 @@ namespace Xtensive.Storage
     internal sealed override void NotifyInitialize()
     {
       if (!Session.IsSystemLogicOnly) {
-        var subscriptionInfo = GetSubscription(EntityEventManager.InitializePersistentEventKey);
+        var subscriptionInfo = GetSubscription(EntityEventBroker.InitializePersistentEventKey);
         if (subscriptionInfo.Second!=null)
           ((Action<Key, FieldInfo>) subscriptionInfo.Second)
             .Invoke(subscriptionInfo.First, Field);
@@ -138,7 +138,7 @@ namespace Xtensive.Storage
     internal override sealed void NotifyGettingFieldValue(FieldInfo fieldInfo)
     {
       if (!Session.IsSystemLogicOnly) {
-        var subscriptionInfo = GetSubscription(EntityEventManager.GettingFieldEventKey);
+        var subscriptionInfo = GetSubscription(EntityEventBroker.GettingFieldEventKey);
         if (subscriptionInfo.Second!=null)
           ((Action<Key, FieldInfo, FieldInfo>) subscriptionInfo.Second)
             .Invoke(subscriptionInfo.First, Field, fieldInfo);
@@ -152,7 +152,7 @@ namespace Xtensive.Storage
     {
       if (Session.IsSystemLogicOnly)
         return;
-      var subscriptionInfo = GetSubscription(EntityEventManager.GetFieldEventKey);
+      var subscriptionInfo = GetSubscription(EntityEventBroker.GetFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, FieldInfo, object>) subscriptionInfo.Second)
           .Invoke(subscriptionInfo.First, Field, fieldInfo, value);
@@ -165,7 +165,7 @@ namespace Xtensive.Storage
         Owner.NotifySettingFieldValue(Field, value);
       if (Session.IsSystemLogicOnly)
         return;
-      var subscriptionInfo = GetSubscription(EntityEventManager.SettingFieldEventKey);
+      var subscriptionInfo = GetSubscription(EntityEventBroker.SettingFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, FieldInfo, object>) subscriptionInfo.Second)
            .Invoke(subscriptionInfo.First, Field, fieldInfo, value);
@@ -178,7 +178,7 @@ namespace Xtensive.Storage
         Owner.NotifySetFieldValue(Field, oldValue, newValue);
       if (Session.IsSystemLogicOnly)
         return;
-      var subscriptionInfo = GetSubscription(EntityEventManager.SetFieldEventKey);
+      var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, FieldInfo, object, object>) subscriptionInfo.Second)
           .Invoke(subscriptionInfo.First, Field, fieldInfo, oldValue, newValue);
@@ -188,9 +188,9 @@ namespace Xtensive.Storage
 
     protected internal override void NotifyPropertyChanged(FieldInfo fieldInfo)
     {
-      if (!Session.EntityEvents.HasSubscribers)
+      if (!Session.EntityEventBroker.HasSubscribers)
         return;
-      var subscriptionInfo = GetSubscription(EntityEventManager.PropertyChangedEventKey);
+      var subscriptionInfo = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
       if (subscriptionInfo.Second != null)
         ((PropertyChangedEventHandler) subscriptionInfo.Second).Invoke(this, new PropertyChangedEventArgs(fieldInfo.Name));
     }
@@ -200,7 +200,7 @@ namespace Xtensive.Storage
       var entityKey = GetOwnerEntityKey(Owner);
       if (entityKey!=null)
         return new Pair<Key, Delegate>(entityKey,
-          Session.EntityEvents.GetSubscriber(entityKey, Field, eventKey));
+          Session.EntityEventBroker.GetSubscriber(entityKey, Field, eventKey));
       else
         return new Pair<Key, Delegate>(null, null);
     }

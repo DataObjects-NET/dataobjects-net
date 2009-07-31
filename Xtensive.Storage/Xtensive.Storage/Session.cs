@@ -464,7 +464,7 @@ namespace Xtensive.Storage
       CoreServices = new CoreServiceAccessor(this);
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
-      EntityEvents = new EntityEventManager();
+      EntityEventBroker = new EntityEventBroker();
 
       persistRequiresTopologicalSort =
         (Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0 &&

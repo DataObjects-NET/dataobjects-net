@@ -14,7 +14,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// Manages events related to <see cref="Entity"/>.
   /// </summary>
-  public sealed class EntityEventManager
+  public sealed class EntityEventBroker
   {
     private Dictionary<Triplet<Key, FieldInfo, object>, Delegate> subscribers;
 
