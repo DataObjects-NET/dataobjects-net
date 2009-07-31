@@ -114,17 +114,18 @@ namespace Xtensive.Storage.Aspects
         if (behaviorAttribute==null)
           behaviorAttribute = new AspectBehaviorAttribute();
 
-        if (behaviorAttribute.OpenSession || behaviorAttribute.OpenTransaction)
-          collection.AddAspect(method, new TransactionalAspect {
-            OpenSession = behaviorAttribute.OpenSession,
-            OpenTransaction = behaviorAttribute.OpenTransaction
-          });
+        if (behaviorAttribute.OpenSession || behaviorAttribute.OpenTransaction) {
+          var ta = TransactionalAspect.ApplyOnce(method,
+            behaviorAttribute.OpenSession, behaviorAttribute.OpenTransaction);
+          if (ta!=null)
+            collection.AddAspect(method, ta);
+        }
       }
     }
 
     private static void ProvidePersistentAspects(Type type, LaosReflectionAspectCollection collection)
     {
-      ProvideAutoPropertyAspects(type, collection);
+      ProvidePersistentFieldAspects(type, collection);
       ProvideInconsistencyRegionAspects(type, collection);
       ProvideConstructorAspect(type, collection);
       ProvideConstructorAccessorAspect(type, collection);
@@ -138,7 +139,7 @@ namespace Xtensive.Storage.Aspects
 //      new InitializableAttribute().ProvideAspects(type, collection);
     }
 
-    private static void ProvideAutoPropertyAspects(Type type, LaosReflectionAspectCollection collection)
+    private static void ProvidePersistentFieldAspects(Type type, LaosReflectionAspectCollection collection)
     {
       foreach (var propertyInfo in type.GetProperties(
         BindingFlags.Public |
@@ -174,6 +175,15 @@ namespace Xtensive.Storage.Aspects
           var setterAspect = AutoPropertyReplacementAspect.ApplyOnce(setter, persistentType, HandlerMethodSuffix);
           if (setterAspect!=null)
             collection.AddAspect(setter, setterAspect);
+
+          // If there are constraints, we must "wrap" setter into transaction
+          var constraints = propertyInfo.GetAttributes<PropertyConstraintAspect>(AttributeSearchOptions.InheritNone);
+          bool hasConstraints = !(constraints==null || constraints.Length==0);
+          if (hasConstraints) {
+            var transactionalAspect = TransactionalAspect.ApplyOnce(setter, true, true);
+            if (transactionalAspect!=null)
+              collection.AddAspect(setter, transactionalAspect);
+          }
         }
       }
     }

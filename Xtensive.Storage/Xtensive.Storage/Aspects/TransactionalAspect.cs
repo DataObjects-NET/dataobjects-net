@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
+using Xtensive.Core;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Helpers;
@@ -67,6 +68,17 @@ namespace Xtensive.Storage.Aspects
         return false;
 
       return true;
+    }
+
+    public static TransactionalAspect ApplyOnce(MethodBase method, bool openSession, bool openTransaction)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(method, "method");
+
+      return AppliedAspectSet.Add(method, 
+        () => new TransactionalAspect {
+          OpenSession = openSession, 
+          OpenTransaction = openTransaction
+        });
     }
 
     /// <inheritdoc/>
