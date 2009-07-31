@@ -95,10 +95,10 @@ namespace Xtensive.Storage
         if (session.IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, this);
 
-        var fetchedKey = session.Handler.FetchInstance(this);
-        if (fetchedKey==null)
+        var entityState = session.Handler.FetchInstance(this);
+        if (entityState==null)
           throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveTypeForKeyX, this));
-        type = fetchedKey.type;
+        type = entityState.Type;
         return type;
 
       }

@@ -71,40 +71,53 @@ namespace Xtensive.Storage.Providers
 
     #region Fetch methods
 
-    protected internal Key FetchInstance(Key key)
+    protected internal EntityState FetchInstance(Key key)
     {
+      // We should fetch all non-lazyload columns
       var index = GetPrimaryIndex(key);
       var request = new FetchRequest(index, index.GetDefaultFetchColumnsIndexes());
+
+      // Key could be with or without exact TypeId
       return Execute(request, key);
     }
 
     protected internal void FetchField(Key key, FieldInfo field)
     {
+      // This method is being called only for fetching lazyload field. All non-lazyload fields are already fetched.
+      // We should combine Key+TypeId columns with requested field column(s)
       var index = GetPrimaryIndex(key);
       int[] columns = index.GetKeyFetchColumnsIndexes();
 
+      // Choosing most optimal array construction method
       if (field.MappingInfo.Length == 1)
         columns = columns.Append(index.Columns.IndexOf(field.Column));
       else
         columns = columns.Combine(field.ExtractColumns().Select(c => index.Columns.IndexOf(c)).ToArray());
 
       var request = new FetchRequest(index, columns);
+
+      // Key always contains exact TypeId
       Execute(request, key);
     }
 
-    private Key Execute(FetchRequest request, Key key)
+    private EntityState Execute(FetchRequest request, Key key)
     {
-      var recordSet = GetCachedRecordSet(request);
+      var recordSet = GetRecordSet(request);
 
       using (new ParameterContext().Activate()) {
         fetchParameter.Value = key.Value;
-        var record = Session.Domain.RecordSetParser.ParseFirst(recordSet);
+        var reader = Session.Domain.RecordSetReader;
+        var record = reader.ReadSingleRow(recordSet, key);
         if (record == null) {
           // Ensures there will be "removed" EntityState associated with this key
           Session.UpdateEntityState(key, null);
           return null;
         }
-        return record.GetKey();
+        var fetchedKey = record.GetKey();
+        var tuple = record.GetTuple();
+        if (tuple != null)
+          return Session.UpdateEntityState(fetchedKey, tuple);
+        return null;
       }
     }
 
@@ -113,7 +126,7 @@ namespace Xtensive.Storage.Providers
       return (key.IsTypeCached ? key.Type : key.Hierarchy.Root).Indexes.PrimaryIndex;
     }
 
-    private static RecordSet GetCachedRecordSet(FetchRequest request)
+    private static RecordSet GetRecordSet(FetchRequest request)
     {
       return recordSetCache.GetValue(request, delegate {
         return IndexProvider.Get(request.Index).Result

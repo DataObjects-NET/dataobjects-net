@@ -80,9 +80,9 @@ namespace Xtensive.Storage
     public DomainConfiguration Configuration { get; private set; }
     
     /// <summary>
-    /// Gets the <see cref="RecordSetParser"/> instance.
+    /// Gets the <see cref="RecordSetReader"/> instance.
     /// </summary>
-    internal RecordSetParser RecordSetParser { get; private set; }
+    internal RecordSetReader RecordSetReader { get; private set; }
     
     /// <summary>
     /// Gets the disposing state of the domain.
@@ -219,7 +219,7 @@ namespace Xtensive.Storage
       IsDebugEventLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
-      RecordSetParser = new RecordSetParser(this);
+      RecordSetReader = new RecordSetReader(this);
       KeyGenerators = new Registry<GeneratorInfo, KeyGenerator>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       QueryCache = new LruCache<MethodInfo, Pair<MethodInfo, TranslatedQuery>>(

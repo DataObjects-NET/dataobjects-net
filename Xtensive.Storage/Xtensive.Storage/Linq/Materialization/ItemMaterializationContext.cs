@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Linq.Materialization
         return result;
 
       bool exactType;
-      int typeId = RecordSetParser.ExtractTypeId(type, tuple, typeIdIndex, out exactType);
+      int typeId = RecordSetReader.ExtractTypeId(type, tuple, typeIdIndex, out exactType);
       if (typeId==TypeInfo.NoTypeId)
         return null;
 

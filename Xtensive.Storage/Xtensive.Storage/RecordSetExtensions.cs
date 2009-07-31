@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse;
 using System.Linq;
 
@@ -37,14 +38,13 @@ namespace Xtensive.Storage
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
     public static IEnumerable<Entity> ToEntities(this RecordSet source, Type type)
     {
-      Domain domain = Domain.Demand();
-      var parser = domain.RecordSetParser;
-      var session = Session.Current;
+      Session session = Session.Demand();
+      var parser = session.Domain.RecordSetReader;
       int keyIndex = -1;
-      foreach (var record in parser.Parse(source)) {
+      foreach (var record in parser.Read(source)) {
         Key key;
         if (keyIndex == -1)
-          for (int i = 0; i < record.KeyCount; i++) {
+          for (int i = 0; i < record.Count; i++) {
             key = record.GetKey(i);
             if (key != null && type.IsAssignableFrom(key.Type.UnderlyingType)) {
               keyIndex = i;
@@ -52,24 +52,24 @@ namespace Xtensive.Storage
             }
           }
         key = record.GetKey(keyIndex);
-        var entity = null as Entity;
-        if (key != null) {
-          entity = Query.SingleOrDefault(session, key);
-        }
-        yield return entity;
+        var tuple = record.GetTuple(keyIndex);
+        if (key==null || tuple==null)
+          yield return null;
+        else
+          yield return session.UpdateEntityState(key, tuple).Entity;
       }
     }
 
-    public static IEnumerable<Record> Parse(this RecordSet source)
+    public static IEnumerable<Record> Read(this RecordSet source)
     {
       Domain domain = Domain.Demand();
-      return domain.RecordSetParser.Parse(source);
+      return domain.RecordSetReader.Read(source);
     }
 
-    public static Record ParseFirstRow(this RecordSet source)
+    public static Record ReadSingleRow(this RecordSet source)
     {
       Domain domain = Domain.Demand();
-      return domain.RecordSetParser.ParseFirst(source);
+      return domain.RecordSetReader.ReadSingleRow(source, null);
     }
   }
 }

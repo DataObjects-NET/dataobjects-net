@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.11.02
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -16,62 +15,67 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Internals
 {
-  internal class RecordSetParser : DomainBound
+  internal class RecordSetReader : DomainBound
   {
     private readonly ICache<RecordSetHeader, RecordSetMapping> cache;
 
-    public IEnumerable<Record> Parse(RecordSet source)
+    public Record ReadSingleRow(RecordSet source, Key key)
     {
-      var recordSetMapping = GetMapping(source.Header);
-      foreach (Tuple tuple in source)
-        yield return ParseSingleRow(Session.Current, recordSetMapping, tuple);
-    }
-
-    public Record ParseFirst(RecordSet source)
-    {
-      Tuple tuple = source.FirstOrDefault();
-      if (tuple == null)
+      var item = source.FirstOrDefault();
+      if (item==null)
         return null;
-      var recordSetMapping = GetMapping(source.Header);
-      return ParseSingleRow(Session.Current, recordSetMapping, tuple);
+
+      if (key != null && key.IsTypeCached) {
+        var typeMapping = GetMapping(source.Header).Mappings[0].GetTypeMapping(key.Type.TypeId);
+        var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, item);
+        return new Record(item, new Pair<Key, Tuple>(key, entityTuple));
+      }
+      return ParseRow(item, GetMapping(source.Header));
     }
 
-    private static Record ParseSingleRow(Session session, RecordSetMapping mapping, Tuple tuple)
+    public IEnumerable<Record> Read(RecordSet source)
+    {
+      var mapping = GetMapping(source.Header);
+      foreach (var item in source)
+        yield return ParseRow(item, mapping);
+    }
+
+    private Record ParseRow(Tuple tuple, RecordSetMapping mapping)
     {
       var count = mapping.Mappings.Count;
 
       if (count == 1)
-        return new Record(tuple, ParseColumnGroup(session, mapping.Mappings[0], tuple));
+        return new Record(tuple, ParseColumnGroup(tuple, mapping.Mappings[0]));
 
-      var keyList = new List<Key>(count);
+      var pairs = new List<Pair<Key, Tuple>>(count);
       foreach (var groupMapping in mapping.Mappings)
-        keyList.Add(ParseColumnGroup(session, groupMapping, tuple));
+        pairs.Add(ParseColumnGroup(tuple, groupMapping));
 
-      return new Record(tuple, keyList);
+      return new Record(tuple, pairs);
     }
 
-    private static Key ParseColumnGroup(Session session, ColumnGroupMapping groupMapping, Tuple tuple)
+    private Pair<Key, Tuple> ParseColumnGroup(Tuple tuple, ColumnGroupMapping groupMapping)
     {
       var rootType = groupMapping.Hierarchy.Root;
       bool exactType;
       int typeId = ExtractTypeId(rootType, tuple, groupMapping.TypeIdColumnIndex, out exactType);
       var typeMapping = typeId==TypeInfo.NoTypeId ? null : groupMapping.GetTypeMapping(typeId);
       if (typeMapping==null)
-        return null;
+        return new Pair<Key, Tuple>(null, null);
 
       Key key;
       var entityType = exactType ? typeMapping.Type : rootType;
       if (typeMapping.KeyTransform.Descriptor.Count <= Key.MaxGenericKeyLength)
-        key = Key.Create(session.Domain, entityType, tuple, typeMapping.KeyIndexes, exactType, exactType);
+        key = Key.Create(Domain, entityType, tuple, typeMapping.KeyIndexes, exactType, exactType);
       else {
         var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-        key = Key.Create(session.Domain, entityType, keyTuple, null, exactType, exactType);
+        key = Key.Create(Domain, entityType, keyTuple, null, exactType, exactType);
       }
       if (exactType) {
         var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, tuple);
-        session.UpdateEntityState(key, entityTuple);
+        return new Pair<Key, Tuple>(key, entityTuple);
       }
-      return key;
+      return new Pair<Key, Tuple>(key, null);
     }
 
     internal static int ExtractTypeId(TypeInfo type, Tuple tuple, int typeIdIndex, out bool exactType)
@@ -162,7 +166,7 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    internal RecordSetParser(Domain domain)
+    internal RecordSetReader(Domain domain)
       : base(domain)
     {
       cache = 
