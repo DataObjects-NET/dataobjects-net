@@ -205,6 +205,7 @@ namespace Xtensive.Storage.Linq.Materialization
 
     protected override Expression VisitKeyExpression(KeyExpression expression)
     {
+      // TODO: http://code.google.com/p/dataobjectsdotnet/issues/detail?id=336
       Expression tupleExpression = Expression.Call(
         GetTupleSegmentMethodInfo,
         GetTupleExpression(expression),
@@ -213,7 +214,7 @@ namespace Xtensive.Storage.Linq.Materialization
         WellKnownMembers.KeyCreate,
         Expression.Constant(expression.EntityType),
         tupleExpression,
-        Expression.Constant(true));
+        Expression.Constant(false));
     }
 
     protected override Expression VisitEntityExpression(EntityExpression expression)
