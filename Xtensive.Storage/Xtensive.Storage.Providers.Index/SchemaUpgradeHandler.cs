@@ -15,6 +15,7 @@ namespace Xtensive.Storage.Providers.Index
   [Serializable]
   public abstract class SchemaUpgradeHandler : Providers.SchemaUpgradeHandler
   {
+    /// <inheritdoc/>
     protected override TypeInfo CreateTypeInfo(Type type, int? length)
     {
       return new TypeInfo(type, length);

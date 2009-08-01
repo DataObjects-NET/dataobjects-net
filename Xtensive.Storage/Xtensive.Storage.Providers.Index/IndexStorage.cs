@@ -37,23 +37,6 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     public abstract IStorageView GetView(Guid transactionId);
 
-    /// <inheritdoc/>
-    public override object InitializeLifetimeService()
-    {
-      var lease = (ILease)base.InitializeLifetimeService();
-      if (lease.CurrentState == LeaseState.Initial)
-        lease.InitialLeaseTime = TimeSpan.Zero;
-
-      return lease;
-    }
-
-    /// <summary>
-    /// Pings this instance.
-    /// </summary>
-    public void Ping()
-    {
-    }
-
     /// <summary>
     /// Gets real index.
     /// </summary>
@@ -67,6 +50,23 @@ namespace Xtensive.Storage.Providers.Index
     /// <param name="indexInfo">The index info.</param>
     /// <returns>The index transform.</returns>
     public abstract MapTransform GetTransform(IndexInfo indexInfo);
+
+    /// <summary>
+    /// Used to periodically ping this instance.
+    /// </summary>
+    public void Ping()
+    {
+    }
+
+    /// <inheritdoc/>
+    public override object InitializeLifetimeService()
+    {
+      var lease = (ILease)base.InitializeLifetimeService();
+      if (lease.CurrentState == LeaseState.Initial)
+        lease.InitialLeaseTime = TimeSpan.Zero;
+
+      return lease;
+    }
 
 
     // Constructors

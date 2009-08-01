@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Providers.Index
     public StorageInfo Model { get; protected set; }
 
     /// <inheritdoc/>
-    public abstract void Update(ActionSequence sequence);
+    public abstract ITransaction Transaction { get; }
 
     /// <inheritdoc/>
     public abstract CommandResult Execute(Command command);
@@ -40,16 +40,18 @@ namespace Xtensive.Storage.Providers.Index
     public abstract Dictionary<int, CommandResult> Execute(List<Command> commands);
 
     /// <inheritdoc/>
-    public abstract ITransaction Transaction { get; }
+    public abstract void Update(ActionSequence sequence);
 
     /// <inheritdoc/>
     public abstract IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo);
     
+    // TODO: Get rid of this!
     /// <summary>
     /// Clears the schema.
     /// </summary>
     public abstract void ClearSchema();
 
+    // TODO: Get rid of this!
     /// <summary>
     /// Creates the new schema.
     /// </summary>
@@ -57,11 +59,14 @@ namespace Xtensive.Storage.Providers.Index
     public abstract void CreateNewSchema(StorageInfo newSchema);
 
     /// <summary>
-    /// Pings this instance.
+    /// Used to periodically ping this instance.
     /// </summary>
     public void Ping()
     {
     }
+
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

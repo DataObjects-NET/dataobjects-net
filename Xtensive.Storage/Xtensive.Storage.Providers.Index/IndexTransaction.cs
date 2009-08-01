@@ -12,7 +12,8 @@ using Xtensive.Integrity.Transactions;
 namespace Xtensive.Storage.Providers.Index
 {
   /// <summary>
-  /// An abstract base implementation of <see cref="ITransaction"/>.
+  /// An abstract base implementation of <see cref="ITransaction"/>
+  /// for indexing engines.
   /// </summary>
   [Serializable]
   public abstract class IndexTransaction : ITransaction
@@ -40,6 +41,5 @@ namespace Xtensive.Storage.Providers.Index
 
     /// <inheritdoc/>
     public abstract TransactionState State { get; }
-
   }
 }

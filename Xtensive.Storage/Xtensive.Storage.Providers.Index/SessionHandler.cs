@@ -70,17 +70,19 @@ namespace Xtensive.Storage.Providers.Index
           StorageView.Execute(command);
     }
 
+    #region CreateXxx methods
+
     private IEnumerable<Command> CreateCommandBatch(PersistAction persistAction)
     {
       switch (persistAction.ActionKind) {
-        case PersistActionKind.Insert:
-          return CreateInsert(persistAction.EntityState);
-        case PersistActionKind.Update:
-          return CreateUpdate(persistAction.EntityState);
-        case PersistActionKind.Remove:
-          return CreateRemove(persistAction.EntityState);
-        default:
-          throw new ArgumentOutOfRangeException("statePair.Second");
+      case PersistActionKind.Insert:
+        return CreateInsert(persistAction.EntityState);
+      case PersistActionKind.Update:
+        return CreateUpdate(persistAction.EntityState);
+      case PersistActionKind.Remove:
+        return CreateRemove(persistAction.EntityState);
+      default:
+        throw new ArgumentOutOfRangeException("statePair.Second");
       }
     }
 
@@ -107,6 +109,8 @@ namespace Xtensive.Storage.Providers.Index
       foreach (var index in state.Type.AffectedIndexes.Where(i => i.IsPrimary))
         yield return IndexUpdateCommand.Remove(index.MappingName, state.Key.Value);
     }
+
+    #endregion
 
     /// <inheritdoc/>
     public override void Initialize()

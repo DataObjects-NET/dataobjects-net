@@ -5,48 +5,55 @@
 // Created:    2009.04.15
 
 using System;
-using System.Diagnostics;
 using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Storage.Providers.Index
 {
+  /// <summary>
+  /// Client-side transaction object proxy.
+  /// </summary>
   [Serializable]
-  public class ClientTransaction:ITransaction
+  public class ClientTransaction : ITransaction
   {
     protected ITransaction realTransaction;
 
-    object IIdentified.Identifier
-    {
+    /// <inheritdoc/>
+    object IIdentified.Identifier {
       get { return Identifier; }
     }
 
-    public Guid Identifier
-    {
-      get { throw new System.NotImplementedException(); }
+    /// <inheritdoc/>
+    public Guid Identifier {
+      get { throw new NotImplementedException(); }
     }
 
+    /// <inheritdoc/>
     public void Commit()
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
+    /// <inheritdoc/>
     public void Rollback()
     {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
+    /// <inheritdoc/>
     public TransactionState State
     {
-      get { throw new System.NotImplementedException(); }
+      get { throw new NotImplementedException(); }
     }
 
+    /// <inheritdoc/>
     public IsolationLevel IsolationLevel
     {
-      get { throw new System.NotImplementedException(); }
+      get { throw new NotImplementedException(); }
     }
 
+    /// <inheritdoc/>
     public DateTime TimeStamp
     {
       get { throw new NotImplementedException(); }
