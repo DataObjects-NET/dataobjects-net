@@ -185,6 +185,7 @@ namespace Xtensive.Storage
     protected override Tuple LoadState()
     {
       Tuple = null;
+      persistenceState = PersistenceState.Synchronized;
       Session.Handler.FetchInstance(key);
       return Tuple;
     }
