@@ -1259,6 +1259,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; must be non-abstract type..
+        /// </summary>
+        internal static string ExTypeXMustBeNonAbstractType {
+            get {
+                return ResourceManager.GetString("ExTypeXMustBeNonAbstractType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; must be reference type..
         /// </summary>
         internal static string ExTypeXMustBeReferenceType {

@@ -105,6 +105,5 @@ namespace Xtensive.Storage.Tests.ObjectModel
         return domain;
       }
     }
-    
   }
 }

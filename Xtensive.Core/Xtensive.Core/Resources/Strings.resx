@@ -651,4 +651,7 @@
   <data name="ExKeyAlreadyExists" xml:space="preserve">
     <value>Key already exists.</value>
   </data>
+  <data name="ExTypeXMustBeNonAbstractType" xml:space="preserve">
+    <value>Type '{0}' must be non-abstract type.</value>
+  </data>
 </root>

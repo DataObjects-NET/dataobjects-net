@@ -183,10 +183,11 @@ namespace Xtensive.Storage
       var tuple = Tuple;
       if (tuple.ContainsEmptyValues(field.MappingInfo))
         return null;
-      var fieldValue = field.ExtractValue(tuple);
-      var key = Key.Create(Session.Domain, type, fieldValue, null, true, true);
-      NotifyGetFieldValue(field, key);
 
+      bool exactType = type.Hierarchy.KeyInfo.TypeIdFieldIndex >= 0;
+      var fieldValue = field.ExtractValue(tuple);
+      var key = Key.Create(Session.Domain, type, fieldValue, null, exactType, exactType);
+      NotifyGetFieldValue(field, key);
       return key;
     }
 

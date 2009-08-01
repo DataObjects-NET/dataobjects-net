@@ -394,9 +394,13 @@ namespace Xtensive.Core.Reflection
     /// <typeparam name="TDelegate">The type of the delegate to return.</typeparam>
     /// <param name="type">The type to create the constructor invocation delegate for.</param>
     /// <returns>Constructor invocation delegate.</returns>
+    /// <exception cref="ArgumentException"><paramref name="type"/> is an abstract type.</exception>
     public static TDelegate CreateConstructorDelegate<TDelegate>(Type type)
       where TDelegate : class
     {
+      if (type.IsAbstract)
+        throw new ArgumentException(string.Format(
+          Strings.ExTypeXMustBeNonAbstractType, type.GetShortName()), "type");
       Type delegateType = typeof (TDelegate);
       string methodKey  = GetMethodCallDelegateKey(ctorMethodName, type, delegateType);
       Delegate result = GetCachedDelegate(methodKey);
@@ -433,9 +437,13 @@ namespace Xtensive.Core.Reflection
     /// <typeparam name="TDelegate">The type of the delegate to return.</typeparam>
     /// <param name="type">The type to create the protected constructor invocation delegate for.</param>
     /// <returns>Protected constructor invocation delegate.</returns>
+    /// <exception cref="ArgumentException"><paramref name="type"/> is an abstract type.</exception>
     public static TDelegate CreateProtectedConstructorDelegate<TDelegate>(Type type)
       where TDelegate : class
     {
+      if (type.IsAbstract)
+        throw new ArgumentException(string.Format(
+          Strings.ExTypeXMustBeNonAbstractType, type.GetShortName()), "type");
       Type delegateType = typeof (TDelegate);
       string methodKey  = GetMethodCallDelegateKey(ctorMethodName, type, delegateType);
       Delegate result = GetCachedDelegate(methodKey);
