@@ -77,7 +77,7 @@ namespace Xtensive.Core.Aspects.Helpers
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
 
-      return AppliedAspectSet.AddOrCombine(field, 
+      return AppliedAspectSet.AddOrCombine(field.DeclaringType, 
         new PrivateFieldAccessorsAspect(field.Name),
         (a1, a2) => a1.targetFields.UnionWith(a2.targetFields));
     }

@@ -136,7 +136,7 @@ namespace Xtensive.Storage.Aspects
     {
       ProvideConstructorAccessorAspect(type, collection);
       ProvideConstructorAspect(type, collection);
-//      new InitializableAttribute().ProvideAspects(type, collection);
+      // new InitializableAttribute().ProvideAspects(type, collection);
     }
 
     private static void ProvidePersistentFieldAspects(Type type, LaosReflectionAspectCollection collection)
@@ -210,8 +210,7 @@ namespace Xtensive.Storage.Aspects
     {
       if (type==entityType || type==structureType || type==persistentType)
         return;
-      var signatures = GetInternalConstructorSignatures(type)
-        .Concat(new[] {new[] {typeof (SerializationInfo), typeof (StreamingContext)}});
+      var signatures = GetInternalConstructorSignatures(type);
       foreach (var signature in signatures) {
         var aspect = ProtectedConstructorAspect.ApplyOnce(type, signature);
         if (aspect != null && aspect.CompileTimeValidate(type))
@@ -268,15 +267,18 @@ namespace Xtensive.Storage.Aspects
       if (baseType==structureType)
         return new[] {
           new[] {persistentType, typeof (FieldInfo)},
-          new[] {typeof (Tuple)}
+          new[] {typeof (Tuple)},
+          new[] {typeof (SerializationInfo), typeof (StreamingContext)}
         };
       if (baseType==entityType)
         return new[] {
-          new[] {typeof (EntityState)}
+          new[] {typeof (EntityState)},
+          new[] {typeof (SerializationInfo), typeof (StreamingContext)}
         };
       if (baseType==entitySetType)
         return new[] {
-          new[] {entityType, typeof (FieldInfo)}
+          new[] {entityType, typeof (FieldInfo)},
+          new[] {typeof (SerializationInfo), typeof (StreamingContext)}
         };
       throw Exceptions.InternalError(
         string.Format(Strings.ExWrongPersistentTypeCandidate, type.GetType()), 

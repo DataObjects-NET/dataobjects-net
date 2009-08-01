@@ -65,7 +65,6 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
       {
         callback.Invoke(this);
       }
-
     }
 
     [HierarchyRoot]
@@ -79,7 +78,6 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
 
       [Field]
       public SlaveEntity PrimarySlave { get; set; }
-
     }
 
     [HierarchyRoot]
