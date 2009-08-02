@@ -296,7 +296,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       ArgumentValidator.EnsureArgumentNotNull(connection, "conn");
 #if OLD_NPGSQL
       var sv = connection.PostgreSqlVersion;
-      mVersionInfo = new VersionInfo(new Version(sv.Major, sv.Minor, sv.Patch, 0));
+      mVersionInfo = new VersionInfo(new Version(sv.Major, sv.Minor, 0/*sv.Patch*/, 0));
 #else
       mVersionInfo = new VersionInfo(connection.PostgreSqlVersion);
 #endif
