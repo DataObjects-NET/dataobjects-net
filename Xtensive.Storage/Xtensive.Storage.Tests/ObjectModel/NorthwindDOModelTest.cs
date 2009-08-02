@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.03
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -94,6 +95,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       try {
+        // throw new ApplicationException("Don't validate, just recreate ;)");
         var validateConfig = configuration.Clone();
         validateConfig.UpgradeMode = DomainUpgradeMode.Validate;
         return Domain.Build(validateConfig);

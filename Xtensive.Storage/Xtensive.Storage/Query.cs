@@ -77,7 +77,8 @@ namespace Xtensive.Storage
         if (!hasBeenFetched && session.IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Resolving key '{1}'. Key is already resolved.", session, key);
 
-        if (state == null || state.IsRemoved)
+        if (state==null || state.IsNotAvailable) 
+          // No state or Tuple = no data in storage
           return null;
 
         return state.Entity;

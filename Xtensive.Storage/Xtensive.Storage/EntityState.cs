@@ -89,12 +89,10 @@ namespace Xtensive.Storage
     [Infrastructure]
     public Entity Entity {
       get {
-        var isRemoved = IsRemoved; // Can be false for actually removing entities - during Persist
-        if (entity==null && !isRemoved)
-          // Ensures even removed entity will have an object representing it.
-          // This object is used in toposort in Persist to access its reference fields.
+        var notAvailable = IsNotAvailable;
+        if (entity==null && !notAvailable)
           Activator.CreateEntity(Type.UnderlyingType, this); 
-        return isRemoved ? null : entity;
+        return notAvailable ? null : entity;
       }
       internal set {
         if (entity!=null)
@@ -126,23 +124,35 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets a value indicating whether this entity is removed.
+    /// Gets a value indicating whether this entity is available (has a <see cref="Tuple"/>).
+    /// Tuple does not exist, if there is no row corresponding to the <see cref="Entity"/>
+    /// in the storage.
     /// </summary>
     [Infrastructure]
-    public bool IsRemoved {
+    public bool IsNotAvailable {
       get {
-        return Tuple==null || (persistenceState==PersistenceState.Removed && !Session.IsPersisting);
+        return Tuple==null;
       }
     }
 
     /// <summary>
-    /// Ensures the entity is not removed and its data is actual.
+    /// Gets a value indicating whether the state is either <see cref="IsNotAvailable"/>
+    /// or is marked as removed (see <see cref="PersistenceState"/>).
     /// </summary>
     [Infrastructure]
-    public void EnsureNotRemoved()
+    public bool IsNotAvailableOrMarkedAsRemoved {
+      get { return Tuple==null || persistenceState==PersistenceState.Removed; }
+    }
+
+    /// <summary>
+    /// Reverts the state to the original one.
+    /// </summary>
+    [Infrastructure]
+    public void ToOriginal()
     {
-      if (IsRemoved)
-        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+      var dTuple = Tuple as DifferentialTuple;
+      if (dTuple!=null)
+        Tuple = dTuple.Origin;
     }
 
     /// <summary>
@@ -184,10 +194,17 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected override Tuple LoadState()
     {
-      Tuple = null;
       persistenceState = PersistenceState.Synchronized;
+      Tuple = null;
       Session.Handler.FetchInstance(key);
       return Tuple;
+    }
+
+    /// <inheritdoc/>
+    protected internal override void ResetState()
+    {
+      persistenceState = PersistenceState.Synchronized;
+      base.ResetState();
     }
 
     #region Equality members

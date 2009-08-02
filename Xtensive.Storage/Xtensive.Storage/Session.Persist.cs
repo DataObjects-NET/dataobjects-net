@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Sorting;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
@@ -49,19 +50,23 @@ namespace Xtensive.Storage
             Log.Debug("Session '{0}'. Persisting...", this);
           NotifyPersisting();
 
-          Handler.Persist(GetPersistSequence());
+          try {
+            Handler.Persist(GetPersistSequence());
+          }
+          finally {
+            foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))
+              item.PersistenceState = PersistenceState.Synchronized;
+            foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Modified))
+              item.PersistenceState = PersistenceState.Synchronized;
+            foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed))
+              item.Update(null);
+            EntityChangeRegistry.Clear();
 
-          if (IsDebugEventLoggingEnabled)
-            Log.Debug("Session '{0}'. Persisted.", this);
+            if (IsDebugEventLoggingEnabled)
+              Log.Debug("Session '{0}'. Persisted.", this);
 
-          foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))
-            item.PersistenceState = PersistenceState.Synchronized;
-          foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Modified))
-            item.PersistenceState = PersistenceState.Synchronized;
-          foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed))
-            item.Update(null);
-          EntityChangeRegistry.Clear();
-          NotifyPersist();
+            NotifyPersist();
+          }
         }
         finally {
           IsPersisting = false;
@@ -72,29 +77,40 @@ namespace Xtensive.Storage
     private IEnumerable<PersistAction> GetPersistSequence()
     {
       // Insert
-      var states = EntityChangeRegistry.GetItems(PersistenceState.New).Where(state => !state.IsRemoved);
-      if (persistRequiresTopologicalSort && states.AtLeast(2))
-        foreach (var action in GetInsertSequence(states))
+      var entityStates =
+        from state in EntityChangeRegistry.GetItems(PersistenceState.New)
+        where !state.IsNotAvailableOrMarkedAsRemoved
+        select state;
+
+      if (persistRequiresTopologicalSort && entityStates.AtLeast(2))
+        foreach (var action in GetInsertSequence(entityStates))
           yield return action;
       else
-        foreach (var state in states)
+        foreach (var state in entityStates)
           yield return new PersistAction(state, PersistActionKind.Insert);
+
+      // Merging the state into DifferentialTuple.Origin
+      foreach (var state in entityStates)
+        state.DifferentialTuple.Merge();
 
       // Update
       foreach (var state in EntityChangeRegistry.GetItems(PersistenceState.Modified)) {
-        if (state.IsRemoved)
+        if (state.IsNotAvailableOrMarkedAsRemoved)
           continue;
         yield return new PersistAction(state, PersistActionKind.Update);
         state.DifferentialTuple.Merge();
       }
 
       // Delete
-      states = EntityChangeRegistry.GetItems(PersistenceState.Removed).Except(EntityChangeRegistry.GetItems(PersistenceState.New));
-      if (persistRequiresTopologicalSort && states.AtLeast(2))
-        foreach (var action in GetDeleteSequence(states))
+      entityStates = 
+        EntityChangeRegistry.GetItems(PersistenceState.Removed)
+        .Except(EntityChangeRegistry.GetItems(PersistenceState.New));
+
+      if (persistRequiresTopologicalSort && entityStates.AtLeast(2))
+        foreach (var action in GetDeleteSequence(entityStates))
           yield return action;
       else
-        foreach (var state in states)
+        foreach (var state in entityStates)
           yield return new PersistAction(state, PersistActionKind.Remove);
     }
 
@@ -118,14 +134,14 @@ namespace Xtensive.Storage
         Persistent.GetAccessor<Entity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, restoreData.Third);
         yield return new PersistAction(restoreData.First, PersistActionKind.Update);
       }
-
-      // Merge
-      foreach (var state in sortedEntities)
-        state.DifferentialTuple.Merge();
     }
     
     private static IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates)
     {
+      // Rolling back the changes in state to properly sort it
+      foreach (var state in entityStates) 
+        state.ToOriginal();
+
       // Topological sorting
       List<Triplet<EntityState, FieldInfo, Entity>> loopReferences;
       List<EntityState> sortedEntities;

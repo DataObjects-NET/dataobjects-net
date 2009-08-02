@@ -83,9 +83,15 @@ namespace Xtensive.Storage
     /// Gets a value indicating whether this entity is removed.
     /// </summary>
     /// <seealso cref="Remove"/>
-    public bool IsRemoved
-    {
-      get { return State.IsRemoved; }
+    public bool IsRemoved {
+      get {
+        if (Session.IsPersisting)
+          // Removed = "already removed from storage" here
+          return State.IsNotAvailable; 
+        else
+          // Removed = "either already removed, or marked as removed" here
+          return State.IsNotAvailableOrMarkedAsRemoved;
+      }
     }
 
     /// <inheritdoc/>
@@ -145,14 +151,13 @@ namespace Xtensive.Storage
     /// <seealso cref="IsRemoved"/>
     public void Remove()
     {
+      EnsureNotRemoved();
       using (InconsistentRegion.Open()) {
         NotifyRemoving();
+        Session.NotifyRemovingEntity(this);
 
         if (Session.IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
-        Session.NotifyRemovingEntity(this);
-
-        State.EnsureNotRemoved();
         Session.RemovalProcessor.Remove(this);
 
         NotifyRemove();
@@ -200,6 +205,13 @@ namespace Xtensive.Storage
     #endregion
 
     #region Private \ internal methods
+
+    /// <exception cref="InvalidOperationException">Entity is removed.</exception>
+    internal void EnsureNotRemoved()
+    {
+      if (IsRemoved)
+        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+    }
 
     internal override sealed void EnsureIsFetched(FieldInfo field)
     {
@@ -267,9 +279,9 @@ namespace Xtensive.Storage
 
     internal override sealed void NotifyGettingFieldValue(FieldInfo fieldInfo)
     {
+      EnsureNotRemoved();
       if (Session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, fieldInfo);
-      State.EnsureNotRemoved();
       EnsureIsFetched(fieldInfo);
       if (Session.IsSystemLogicOnly)
         return;
@@ -293,16 +305,11 @@ namespace Xtensive.Storage
 
     internal override sealed void NotifySettingFieldValue(FieldInfo field, object value)
     {
+      EnsureNotRemoved();
       if (Session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
       if (field.IsPrimaryKey)
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
-      State.EnsureNotRemoved();
-      if (PersistenceState != PersistenceState.New) {
-        var dTuple = State.DifferentialTuple; 
-        // Ensures State.Tuple is converted to DifferentialTuple,
-        // since shortly it will be changed
-      }
       if (Session.IsSystemLogicOnly)
         return;
       var subscriptionInfo = GetSubscription(EntityEventBroker.SettingFieldEventKey);
