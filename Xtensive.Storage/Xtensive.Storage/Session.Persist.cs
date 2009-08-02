@@ -89,9 +89,9 @@ namespace Xtensive.Storage
         foreach (var state in entityStates)
           yield return new PersistAction(state, PersistActionKind.Insert);
 
-      // Merging the state into DifferentialTuple.Origin
+      // Commit state differences, if any
       foreach (var state in entityStates)
-        state.DifferentialTuple.Merge();
+        state.CommitDifference();
 
       // Update
       foreach (var state in EntityChangeRegistry.GetItems(PersistenceState.Modified)) {
@@ -131,6 +131,7 @@ namespace Xtensive.Storage
 
       // Restore loop links
       foreach (var restoreData in loopReferences) {
+        // No necessity to call Entity.PrepareToSetField, since it already is
         Persistent.GetAccessor<Entity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, restoreData.Third);
         yield return new PersistAction(restoreData.First, PersistActionKind.Update);
       }
@@ -140,7 +141,7 @@ namespace Xtensive.Storage
     {
       // Rolling back the changes in state to properly sort it
       foreach (var state in entityStates) 
-        state.ToOriginal();
+        state.RollbackDifference();
 
       // Topological sorting
       List<Triplet<EntityState, FieldInfo, Entity>> loopReferences;
@@ -154,6 +155,7 @@ namespace Xtensive.Storage
       // TODO: Group by entity
       // Restore loop links
       foreach (var restoreData in loopReferences) {
+        // No necessity to call Entity.PrepareToSetField, since it already is
         Persistent.GetAccessor<Entity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, null);
         yield return new PersistAction(restoreData.First, PersistActionKind.Update);
       }
@@ -195,7 +197,9 @@ namespace Xtensive.Storage
       foreach (var edge in removedEdges) {
         AssociationInfo associationInfo = edge.ConnectionItem;
         keysToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.OwnerField, edge.Destination.Item.Entity));
-        Persistent.GetAccessor<Entity>(associationInfo.OwnerField).SetValue(edge.Source.Item.Entity, associationInfo.OwnerField, null);
+        var entity = edge.Source.Item.Entity;
+        entity.PrepareToSetField();
+        Persistent.GetAccessor<Entity>(associationInfo.OwnerField).SetValue(entity, associationInfo.OwnerField, null);
       }
     }
   }

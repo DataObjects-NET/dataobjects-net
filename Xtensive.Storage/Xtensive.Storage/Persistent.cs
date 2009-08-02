@@ -47,6 +47,10 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected internal abstract Tuple Tuple { get; }
 
+    /// <inheritdoc/>
+    [Infrastructure]
+    public abstract event PropertyChangedEventHandler PropertyChanged;
+
     internal IFieldValueAdapter GetFieldValueAdapter (FieldInfo field, Func<Persistent, FieldInfo, IFieldValueAdapter> ctor)
     {
       // Building adapter container if necessary
@@ -213,7 +217,7 @@ namespace Xtensive.Storage
     {
       NotifySettingFieldValue(field, value);
       var oldValue = GetFieldValue<T>(field);
-      AssociationInfo association = field.Association;
+      var association = field.Association;
       if (association!=null && association.IsPaired) {
         Key currentKey = GetReferenceKey(field);
         Key newKey = null;
@@ -222,11 +226,14 @@ namespace Xtensive.Storage
           newKey = newReference.Key;
         if (currentKey!=newKey) {
           Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newReference, association);
+          PrepareToSetField();
           GetAccessor<T>(field).SetValue(this, field, value);
         }
       }
-      else
+      else {
+        PrepareToSetField();
         GetAccessor<T>(field).SetValue(this, field, value);
+      }
       NotifySetFieldValue(field, oldValue, value);
     }
 
@@ -401,6 +408,27 @@ namespace Xtensive.Storage
 
     #endregion
 
+    #region Private \ Internal methods
+
+    internal abstract void PrepareToSetField();
+
+    internal static FieldAccessor<T> GetAccessor<T>(FieldInfo field)
+    {
+      if (field.IsEntity)
+        return EntityFieldAccessor<T>.Instance;
+      if (field.IsStructure)
+        return StructureFieldAccessor<T>.Instance;
+      if (field.IsEnum)
+        return EnumFieldAccessor<T>.Instance;
+      if (field.IsEntitySet)
+        return EntitySetFieldAccessor<T>.Instance;
+      if (field.ValueType==typeof(Key))
+        return KeyFieldAccessor<T>.Instance;
+      return DefaultFieldAccessor<T>.Instance;
+    }
+
+    #endregion
+
     #region Initializable aspect support
 
     /// <summary>
@@ -420,30 +448,11 @@ namespace Xtensive.Storage
 
     #endregion
 
-    /// <inheritdoc/>
-    [Infrastructure]
-    public abstract event PropertyChangedEventHandler PropertyChanged;
-
     [Infrastructure]
     protected internal abstract void NotifyPropertyChanged(FieldInfo field);
 
     internal Persistent()
     {
-    }
-
-    internal static FieldAccessor<T> GetAccessor<T>(FieldInfo field)
-    {
-      if (field.IsEntity)
-        return EntityFieldAccessor<T>.Instance;
-      if (field.IsStructure)
-        return StructureFieldAccessor<T>.Instance;
-      if (field.IsEnum)
-        return EnumFieldAccessor<T>.Instance;
-      if (field.IsEntitySet)
-        return EntitySetFieldAccessor<T>.Instance;
-      if (field.ValueType==typeof(Key))
-        return KeyFieldAccessor<T>.Instance;
-      return DefaultFieldAccessor<T>.Instance;
     }
   }
 }

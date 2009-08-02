@@ -228,6 +228,13 @@ namespace Xtensive.Storage
       Session.Handler.FetchField(state.Key, field);
     }
 
+    internal override void PrepareToSetField()
+    {
+      if (PersistenceState!=PersistenceState.New) {
+        var dTuple = State.DifferentialTuple;
+      }
+    }
+
     internal virtual void NotifyRemoving()
     {
       if (Session.IsSystemLogicOnly)

@@ -253,6 +253,12 @@ namespace Xtensive.Storage
         Owner.EnsureIsFetched(field);
     }
 
+    internal override void PrepareToSetField()
+    {
+      if (Owner!=null)
+        Owner.PrepareToSetField();
+    }
+
     private static Key GetOwnerEntityKey(Persistent owner)
     {
       var asFieldValueAdapter = owner as IFieldValueAdapter;

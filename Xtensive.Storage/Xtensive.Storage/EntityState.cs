@@ -145,14 +145,26 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Reverts the state to the original one.
+    /// Reverts the state to the origin by discarding the difference.
     /// </summary>
     [Infrastructure]
-    public void ToOriginal()
+    public void RollbackDifference()
     {
-      var dTuple = Tuple as DifferentialTuple;
+      var dTuple = DifferentialTuple;
       if (dTuple!=null)
-        Tuple = dTuple.Origin;
+        dTuple.Difference = null;
+    }
+
+    /// <summary>
+    /// Commits the state difference to the origin.
+    /// </summary>
+    [Infrastructure]
+    public void CommitDifference()
+    {
+      var tuple = Tuple;
+      var dTuple = tuple as DifferentialTuple;
+      if (dTuple!=null)
+        dTuple.Merge();
     }
 
     /// <summary>
