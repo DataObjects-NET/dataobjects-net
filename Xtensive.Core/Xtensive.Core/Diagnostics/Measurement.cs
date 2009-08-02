@@ -23,10 +23,11 @@ namespace Xtensive.Core.Diagnostics
 
     private string   name = "";
     private string   fullName = "";
-    private bool     isCompleted;
     private TimeSpan timeSpent;
     private long     memoryAllocated;
     private int      operationCount;
+    private bool     isCompleted;
+    private bool     isSuppressed;
 
 
     public string Name
@@ -88,8 +89,15 @@ namespace Xtensive.Core.Diagnostics
       }
     }
 
+    public virtual void Suppress()
+    {
+      isSuppressed = true;
+    }
+
     public virtual void Complete()
     {
+      if (isSuppressed)
+        return;
       if (isCompleted)
         throw new InvalidOperationException(Strings.ExMeasurementIsAlreadyCompleted);
       isCompleted = true;

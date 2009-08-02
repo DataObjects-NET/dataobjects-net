@@ -60,6 +60,14 @@ namespace Xtensive.Core.Diagnostics
     }
 
     /// <summary>
+    /// Clears captured event types state.
+    /// </summary>
+    public void Clear()
+    {
+      capturedEventTypes = LogEventTypes.None;
+    }
+
+    /// <summary>
     /// Returns <see langword="true"/> if at least one event with specified event type are captured by current instance of <see cref="LogCaptureScope"/>.
     /// </summary>
     /// <param name="eventType">Event type to check.</param>
