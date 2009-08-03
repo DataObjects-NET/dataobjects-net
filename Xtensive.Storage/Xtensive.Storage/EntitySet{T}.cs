@@ -75,7 +75,6 @@ namespace Xtensive.Storage
     [Infrastructure] // Proxy
     public bool Contains(TItem item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       return base.Contains(item);
     }
 

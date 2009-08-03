@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Internals
     IHasVersion<long>
   {
     internal long count;
-    internal ICache<Key, Key> keys;
+    private readonly ICache<Key, Key> keys;
 
     #region IHasVersion<...> methods
 

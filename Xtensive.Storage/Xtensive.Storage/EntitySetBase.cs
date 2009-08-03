@@ -110,25 +110,10 @@ namespace Xtensive.Storage
     public bool Contains(Key key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      var type = key.Type;
-      if (!Field.ItemType.IsAssignableFrom(type.UnderlyingType))
-        throw new InvalidOperationException(string.Format(
-          Strings.ExEntityOfTypeXIsIncompatibleWithThisEntitySet, type.UnderlyingType.GetShortName()));
+      EnsureItemTypeIsValid(key.Type);
 
-      if (State.IsFullyLoaded)
-        return State.Contains(key);
-
-      if (State.Contains(key))
-        return true;
-      
-      bool result;
-      using (new ParameterContext().Activate()) {
-        pKey.Value = seekTransform.Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value);
-        result = rsSeek.FirstOrDefault() != null;
-      }
-      if (result)
-        State.Register(key);
-      return result;
+      var state = Session.EntityStateCache[key, true];
+      return state != null ? Contains(key, state.PersistenceState) : Contains(key, null);
     }
 
     /// <summary>
@@ -139,10 +124,12 @@ namespace Xtensive.Storage
     /// <see langword="true"/> if this collection contains the specified item; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    [Infrastructure] // Proxy
-    public bool Contains(Entity item)
+    protected bool Contains(Entity item)
     {
-      return Contains(item.Key);
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      EnsureItemTypeIsValid(item.Type);
+
+      return Contains(item.Key, item.PersistenceState);
     }
 
     /// <summary>
@@ -155,7 +142,6 @@ namespace Xtensive.Storage
     /// </returns>
     public bool Add(Entity item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       if (Contains(item))
         return false;
 
@@ -183,7 +169,6 @@ namespace Xtensive.Storage
     /// </returns>
     public bool Remove(Entity item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       if (!Contains(item))
         return false;
 
@@ -372,6 +357,31 @@ namespace Xtensive.Storage
     #endregion
 
     #region Private / internal members
+
+    private void EnsureItemTypeIsValid(TypeInfo type)
+    {
+      if (!Field.ItemType.IsAssignableFrom(type.UnderlyingType))
+        throw new InvalidOperationException(string.Format(
+          Strings.ExEntityOfTypeXIsIncompatibleWithThisEntitySet, type.UnderlyingType.GetShortName()));
+    }
+
+    private bool Contains(Key key, PersistenceState? state)
+    {
+      bool containsKey = State.Contains(key);
+
+      // Valid result
+      if ((state.HasValue && state == PersistenceState.New) || State.IsFullyLoaded || containsKey)
+        return containsKey;
+
+      bool result;
+      using (new ParameterContext().Activate()) {
+        pKey.Value = seekTransform.Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value);
+        result = rsSeek.FirstOrDefault()!=null;
+      }
+      if (result)
+        State.Register(key);
+      return result;
+    }
 
     protected void ValidateVersion(long expectedVersion)
     {
