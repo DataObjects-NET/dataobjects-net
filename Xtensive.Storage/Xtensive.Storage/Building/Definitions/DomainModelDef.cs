@@ -86,12 +86,11 @@ namespace Xtensive.Storage.Building.Definitions
 
       TypeDef candidate = item;
 
-      while (candidate != null) {
-        HierarchyDef hd = hierarchies.TryGetValue(candidate);
-        if (hd != null)
-          return candidate;
-        candidate = types.FindAncestor(candidate);
+      foreach (var hierarchy in Hierarchies) {
+        if (hierarchy.Root.UnderlyingType.IsAssignableFrom(item.UnderlyingType))
+          return hierarchy.Root;
       }
+
       return null;
     }
 

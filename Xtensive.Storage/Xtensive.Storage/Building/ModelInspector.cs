@@ -151,7 +151,12 @@ namespace Xtensive.Storage.Building
 
       Type referencedType = fieldDef.IsEntitySet ? fieldDef.ItemType : fieldDef.ValueType;
       TypeDef referencedTypeDef = FindTypeDef(referencedType);
-//      TypeDef headDef = context.ModelDef.FindRoot(referencedTypeDef);
+
+      if (!referencedTypeDef.IsInterface) {
+        HierarchyDef hierarchyDef = context.ModelDef.FindHierarchy(referencedTypeDef);
+        if (hierarchyDef==null)
+          throw new DomainBuilderException(string.Format("Hierarchy is not found for type '{0}'", referencedType.GetShortName()));
+      }
       RegisterDependency(typeDef, referencedTypeDef, EdgeKind.Reference, isKeyField ? EdgeWeight.High : EdgeWeight.Low);
     }
 
