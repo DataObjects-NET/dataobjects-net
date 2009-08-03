@@ -8,10 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Transactions;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
@@ -29,6 +32,16 @@ namespace Xtensive.Storage.Providers
   {
     private static ThreadSafeDictionary<FetchRequest, RecordSet> recordSetCache;
     private static readonly Parameter<Tuple> fetchParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
+
+    /// <summary>
+    /// The <see cref="object"/> to synchronize access to a connection.
+    /// </summary>
+    protected readonly object ConnectionSyncRoot = new object();
+
+    /// <summary>
+    /// Determines whether an auto-shortened transaction is activated.
+    /// </summary>
+    protected bool IsAutoshortenTransactionActivated;
 
     /// <summary>
     /// Gets the current <see cref="Session"/>.
@@ -61,6 +74,17 @@ namespace Xtensive.Storage.Providers
     /// <param name="persistActions">The entity states and the corresponding actions.</param>
     public abstract void Persist(IEnumerable<PersistAction> persistActions);
 
+    /// <summary>
+    /// Acquires the connection lock.
+    /// </summary>
+    /// <returns>An implementation of <see cref="IDisposable"/> which should be disposed 
+    /// to release the connection lock.</returns>
+    public IDisposable AcquireConnectionLock()
+    {
+      Monitor.Enter(ConnectionSyncRoot);
+      return new Disposable<object>(ConnectionSyncRoot, (disposing, syncRoot) => Monitor.Exit(syncRoot));
+    }
+
     /// <inheritdoc/>
     public override void Initialize()
     {
@@ -70,7 +94,12 @@ namespace Xtensive.Storage.Providers
     public abstract void Dispose();
 
     #region Fetch methods
-
+    
+    /// <summary>
+    /// Fetches an <see cref="EntityState"/>.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns>The key of fetched <see cref="EntityState"/>.</returns>
     protected internal EntityState FetchInstance(Key key)
     {
       // We should fetch all non-lazyload columns
@@ -81,6 +110,11 @@ namespace Xtensive.Storage.Providers
       return Execute(request, key);
     }
 
+    /// <summary>
+    /// Fetches the field of an <see cref="Entity"/>.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="field">The field to be fetched.</param>
     protected internal void FetchField(Key key, FieldInfo field)
     {
       // This method is being called only for fetching lazyload field. All non-lazyload fields are already fetched.
@@ -98,6 +132,12 @@ namespace Xtensive.Storage.Providers
 
       // Key always contains exact TypeId
       Execute(request, key);
+    }
+
+    protected bool IsAutoshortenTransactionsEnabled()
+    {
+      return (Session.Configuration.Options & SessionOptions.AutoShortenTransactions)
+        ==SessionOptions.AutoShortenTransactions;
     }
 
     private EntityState Execute(FetchRequest request, Key key)

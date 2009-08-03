@@ -33,41 +33,49 @@ namespace Xtensive.Storage.Providers.Index
     /// <exception cref="InvalidOperationException">Transaction is already open.</exception>
     public override void BeginTransaction()
     {
-      if (StorageView!=null)
-        throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpened);
-      StorageView = storage.CreateView(Session.Transaction.IsolationLevel);
-      // TODO: Implement transactions
+      lock (ConnectionSyncRoot) {
+        if (StorageView!=null)
+          throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpened);
+        StorageView = storage.CreateView(Session.Transaction.IsolationLevel);
+        // TODO: Implement transactions
+      }
     }
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Transaction is not open.</exception>
     public override void CommitTransaction()
     {
-      if (StorageView==null)
-        throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
-      StorageView.Transaction.Commit();
-      StorageView = null;
-      // TODO: Implement transactions
+      lock (ConnectionSyncRoot) {
+        if (StorageView==null)
+          throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
+        StorageView.Transaction.Commit();
+        StorageView = null;
+        // TODO: Implement transactions
+      }
     }
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Transaction is not open.</exception>
     public override void RollbackTransaction()
     {
-      if (StorageView==null)
-        throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
-      StorageView.Transaction.Rollback();
-      StorageView = null;
-      // TODO: Implement transactions
+      lock (ConnectionSyncRoot) {
+        if (StorageView==null)
+          throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
+        StorageView.Transaction.Rollback();
+        StorageView = null;
+        // TODO: Implement transactions
+      }
     }
 
     /// <inheritdoc/>
     public override void Persist(IEnumerable<PersistAction> persistActions)
     {
-      var batched = persistActions.SelectMany(statePair => CreateCommandBatch(statePair)).Batch(0, 256, 256);
-      foreach (var batch in batched)
-        foreach (var command in batch)
-          StorageView.Execute(command);
+      lock (ConnectionSyncRoot) {
+        var batched = persistActions.SelectMany(statePair => CreateCommandBatch(statePair)).Batch(0, 256, 256);
+        foreach (var batch in batched)
+          foreach (var command in batch)
+            StorageView.Execute(command);
+      }
     }
 
     #region CreateXxx methods

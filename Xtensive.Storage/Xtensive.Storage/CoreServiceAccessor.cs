@@ -5,6 +5,7 @@
 // Created:    2008.11.05
 
 using System;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Disposing;
 using Xtensive.Storage.Providers;
 
@@ -31,6 +32,7 @@ namespace Xtensive.Storage
     /// <returns>An object implementing <see cref="IDisposable"/> which 
     /// may be disposed to restore a previous state of the 
     /// <see cref="Session.IsSystemLogicOnly"/> property.</returns>
+    [Infrastructure]
     public IDisposable OpenSystemLogicOnlyRegion()
     {
       var result = new Disposable<Session, bool>(Session, Session.IsSystemLogicOnly,

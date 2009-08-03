@@ -43,5 +43,12 @@ namespace Xtensive.Storage.Configuration
     /// Value is <see langword="0x3" />.
     /// </summary>
     AmbientTransactions = 0x3,
+
+    /// <summary>
+    /// Transactions will actually be opened just before execution of DB command. 
+    /// This option is ignored fo our in-memory provider.
+    /// Value is <see langword="0x4" />.
+    /// </summary>
+    AutoShortenTransactions = 0x4
   }
 }

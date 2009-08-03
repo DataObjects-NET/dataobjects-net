@@ -16,6 +16,7 @@ using Xtensive.Core.Disposing;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
 using Xtensive.Sql.ValueTypeMapping;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Resources;
@@ -28,7 +29,7 @@ namespace Xtensive.Storage.Providers.Sql
   public class SessionHandler : Providers.SessionHandler
   {
     private const int PersistBatchSize = 25;
-
+    
     private SqlConnection connection;
     
     /// <summary>
@@ -36,7 +37,9 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     public SqlConnection Connection {
       get {
-        EnsureConnectionIsOpen();
+        lock (ConnectionSyncRoot) {
+          EnsureConnectionIsOpen();
+        }
         return connection;
       }
     }
@@ -56,33 +59,46 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void BeginTransaction()
     {
-      EnsureConnectionIsOpen();
-      if (Transaction!=null)
-        throw new InvalidOperationException(Strings.TransactionIsAlreadyOpen);
-      Transaction = connection.BeginTransaction(
-        IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        if (Transaction!=null || IsAutoshortenTransactionActivated)
+          throw new InvalidOperationException(Strings.TransactionIsAlreadyOpen);
+        if (IsAutoshortenTransactionsEnabled()) {
+          IsAutoshortenTransactionActivated = true;
+          return;
+        }
+        BeginDbTransaction();
+      }
     }
 
     /// <inheritdoc/>
     public override void CommitTransaction()
     {
-      if (Transaction==null)
-        throw new InvalidOperationException(Strings.TransactionIsNotOpen);
-      Transaction.Commit();
-      Transaction = null;
+      lock (ConnectionSyncRoot) {
+        if (Transaction==null && (!IsAutoshortenTransactionActivated && IsAutoshortenTransactionsEnabled()))
+          throw new InvalidOperationException(Strings.TransactionIsNotOpen);
+        if (Transaction != null)
+          Transaction.Commit();
+        IsAutoshortenTransactionActivated = false;
+        Transaction = null;
+      }
     }
 
     /// <inheritdoc/>
     public override void RollbackTransaction()
     {
-      if (Transaction==null)
-        throw new InvalidOperationException(Strings.TransactionIsNotOpen);
-      Transaction.Rollback();
-      Transaction = null;
+      lock (ConnectionSyncRoot) {
+        if (Transaction==null && (!IsAutoshortenTransactionActivated && IsAutoshortenTransactionsEnabled()))
+          throw new InvalidOperationException(Strings.TransactionIsNotOpen);
+        if (Transaction != null)
+          Transaction.Rollback();
+        IsAutoshortenTransactionActivated = false;
+        Transaction = null;
+      }
     }
 
     #endregion
-
+    
     /// <summary>
     /// Executes the specified <see cref="SqlFetchRequest"/>.
     /// </summary>
@@ -90,14 +106,16 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns></returns>
     public IEnumerator<Tuple> Execute(SqlFetchRequest request)
     {
-      var descriptor = request.TupleDescriptor;
-      var accessor = DomainHandler.GetDataReaderAccessor(descriptor);
-      using (var reader = ExecuteFetchRequest(request))
-        while (reader.Read()) {
-          var tuple = Tuple.Create(descriptor);
-          accessor.Read(reader, tuple);
-          yield return tuple;
-        }
+      lock (ConnectionSyncRoot) {
+        var descriptor = request.TupleDescriptor;
+        var accessor = DomainHandler.GetDataReaderAccessor(descriptor);
+        using (var reader = ExecuteFetchRequest(request))
+          while (reader.Read()) {
+            var tuple = Tuple.Create(descriptor);
+            accessor.Read(reader, tuple);
+            yield return tuple;
+          }
+      }
     }
 
     #region ExecuteStatement methods
@@ -110,10 +128,13 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns><see cref="DbDataReader"/> with results of statement execution.</returns>
     public DbDataReader ExecuteReaderStatement(ISqlCompileUnit statement)
     {
-      EnsureConnectionIsOpen();
-      using (var command = connection.CreateCommand(statement)) {
-        command.Transaction = Transaction;
-        return command.ExecuteReader();
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        using (var command = connection.CreateCommand(statement)) {
+          command.Transaction = Transaction;
+          return command.ExecuteReader();
+        }
       }
     }
 
@@ -125,10 +146,13 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>Number of affected rows.</returns>
     public int ExecuteNonQueryStatement(ISqlCompileUnit statement)
     {
-      EnsureConnectionIsOpen();
-      using (var command = connection.CreateCommand(statement)) {
-        command.Transaction = Transaction;
-        return command.ExecuteNonQuery();
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        using (var command = connection.CreateCommand(statement)) {
+          command.Transaction = Transaction;
+          return command.ExecuteNonQuery();
+        }
       }
     }
 
@@ -140,10 +164,13 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>The first column of the first row of executed result set.</returns>
     public object ExecuteScalarStatement(ISqlCompileUnit statement)
     {
-      EnsureConnectionIsOpen();
-      using (var command = connection.CreateCommand(statement)) {
-        command.Transaction = Transaction;
-        return command.ExecuteScalar();
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        using (var command = connection.CreateCommand(statement)) {
+          command.Transaction = Transaction;
+          return command.ExecuteScalar();
+        }
       }
     }
 
@@ -159,10 +186,13 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>Number of modified rows.</returns>
     public int ExecutePersistRequest(SqlPersistRequest request, Tuple tuple)
     {
-      EnsureConnectionIsOpen();
-      using (var command = CreatePersistCommand(request, tuple)) {
-        command.Transaction = Transaction;
-        return command.ExecuteNonQuery();
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        using (var command = CreatePersistCommand(request, tuple)) {
+          command.Transaction = Transaction;
+          return command.ExecuteNonQuery();
+        }
       }
     }
 
@@ -173,10 +203,13 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>Number of modified rows.</returns>
     public int ExecuteBatchPersistRequest(IEnumerable<Pair<SqlPersistRequest, Tuple>> requests)
     {
-      EnsureConnectionIsOpen();
-      using (var command = CreateBatchPersistCommand(requests)) {
-        command.Transaction = Transaction;
-        return command.ExecuteNonQuery();
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        using (var command = CreateBatchPersistCommand(requests)) {
+          command.Transaction = Transaction;
+          return command.ExecuteNonQuery();
+        }
       }
     }
 
@@ -187,10 +220,13 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>The first column of the first row of executed result set.</returns>
     public object ExecuteScalarRequest(SqlScalarRequest request)
     {
-      EnsureConnectionIsOpen();
-      using (var command = CreateScalarCommand(request)) {
-        command.Transaction = Transaction;
-        return command.ExecuteScalar();
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        using (var command = CreateScalarCommand(request)) {
+          command.Transaction = Transaction;
+          return command.ExecuteScalar();
+        }
       }
     }
 
@@ -201,10 +237,13 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns><see cref="DbDataReader"/> with results of statement execution.</returns>
     public DbDataReader ExecuteFetchRequest(SqlFetchRequest request)
     {
-      EnsureConnectionIsOpen();
-      using (var command = CreateFetchCommand(request)) {
-        command.Transaction = Transaction;
-        return command.ExecuteReader();
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        using (var command = CreateFetchCommand(request)) {
+          command.Transaction = Transaction;
+          return command.ExecuteReader();
+        }
       }
     }
 
@@ -392,6 +431,25 @@ namespace Xtensive.Storage.Providers.Sql
         throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
       connection.Open();
     }
+
+    #region Private / internal members
+
+    private void BeginDbTransaction()
+    {
+      Transaction = connection.BeginTransaction(
+        IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
+    }
+
+    private void EnsureAutoShortenTransactionIsStarted()
+    {
+      if (Transaction==null) {
+        if (!IsAutoshortenTransactionsEnabled() || !IsAutoshortenTransactionActivated)
+          throw new InvalidOperationException(Strings.TransactionIsNotOpen);
+        BeginDbTransaction();
+      }
+    }
+
+    #endregion
 
     /// <inheritdoc/>
     public override void Initialize()
