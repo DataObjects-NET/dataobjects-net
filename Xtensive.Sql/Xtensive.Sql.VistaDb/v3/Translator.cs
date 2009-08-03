@@ -13,8 +13,8 @@ namespace Xtensive.Sql.VistaDb.v3
 {
   internal class Translator: SqlTranslator
   {
-    public override string DateTimeFormat { get { return @"'cast ('\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'' as datetime)'"; } }
-    public override string TimeSpanFormat { get { return string.Empty; } }
+    public override string DateTimeFormatString { get { return @"'cast ('\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'' as datetime)'"; } }
+    public override string TimeSpanFormatString { get { return string.Empty; } }
     
     public override string Translate(SqlFunctionType functionType)
     {

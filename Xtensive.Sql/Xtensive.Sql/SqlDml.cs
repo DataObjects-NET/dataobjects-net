@@ -1056,6 +1056,14 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.Round, argument);
     }
 
+    public static SqlRound Round(SqlExpression argument, SqlExpression length, TypeCode type, MidpointRounding mode)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(argument, "argument");
+      if (type!=TypeCode.Decimal && type!=TypeCode.Double)
+        throw new ArgumentOutOfRangeException("type");
+      return new SqlRound(argument, length, type, mode);
+    }
+
     public static SqlFunctionCall Truncate(SqlExpression argument)
     {
       ArgumentValidator.EnsureArgumentNotNull(argument, "argument");

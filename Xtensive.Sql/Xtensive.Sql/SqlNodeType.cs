@@ -88,6 +88,7 @@ namespace Xtensive.Sql
     Parameter,
     Revoke,
     Row,
+    Round,
     Select,
     SetDefault,
     Some,

@@ -102,5 +102,58 @@ namespace Xtensive.Sql
       result.Else = SqlDml.IntervalNegate(source);
       return result;
     }
+
+    /// <summary>
+    /// Performs banker's rounding on the specified argument.
+    /// </summary>
+    /// <param name="value">The value to round.</param>
+    /// <returns>Result of rounding.</returns>
+    public static SqlExpression BankersRound(SqlExpression value)
+    {
+      var mainPart = 2 * SqlDml.Floor((value + 0.5) / 2);
+      var extraPart = SqlDml.Case();
+      extraPart.Add(value - mainPart > 0.5, 1);
+      extraPart.Else = 0;
+      return mainPart + extraPart;
+    }
+
+    /// <summary>
+    /// Performs banker's rounding on the speicified argument
+    /// to a specified number of fractional digits.
+    /// </summary>
+    /// <param name="value">The value to round.</param>
+    /// <param name="digits">The digits.</param>
+    /// <returns>Result of rounding.</returns>
+    public static SqlExpression BankersRound(SqlExpression value, SqlExpression digits)
+    {
+      var scale = SqlDml.Power(10, digits);
+      return BankersRound(value * scale) / scale;
+    }
+
+    /// <summary>
+    /// Performs "rounding as tought in school" on the specified argument.
+    /// </summary>
+    /// <param name="value">The value to round.</param>
+    /// <returns>Result of rounding.</returns>
+    public static SqlExpression RegularRound(SqlExpression value)
+    {
+      var result = SqlDml.Case();
+      result.Add(value > 0, SqlDml.Truncate(value + 0.5));
+      result.Else = SqlDml.Truncate(value - 0.5);
+      return result;
+    }
+
+    /// <summary>
+    /// Performs "rounding as tought in school" on the specified argument
+    /// to a specified number of fractional digits.
+    /// </summary>
+    /// <param name="argument">The value to round.</param>
+    /// <param name="digits">The digits.</param>
+    /// <returns>Result of rounding.</returns>
+    public static SqlExpression RegularRound(SqlExpression argument, SqlExpression digits)
+    {
+      var scale = SqlDml.Power(10, digits);
+      return RegularRound(argument * scale) / scale;
+    }
   }
 }

@@ -451,7 +451,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     public static SqlExpression MathRoundDouble(
       [Type(typeof(double))] SqlExpression d)
     {
-      return BankersRound(d);
+      return BankersRound(d, null, false);
     }
 
     [Compiler(typeof(Math), "Round", TargetKind.Static | TargetKind.Method)]
@@ -459,7 +459,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       [Type(typeof(double))] SqlExpression d,
       [Type(typeof(int))] SqlExpression digits)
     {
-      return BankersRound(d, digits);
+      return BankersRound(d, digits, false);
     }
 
     [Compiler(typeof(Math), "Round", TargetKind.Static | TargetKind.Method)]
@@ -467,7 +467,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       [Type(typeof(double))] SqlExpression d,
       [Type(typeof(MidpointRounding))] SqlExpression mode)
     {
-      return GenericRound(d, null, mode);
+      return GenericRound(d, null, false, mode);
     }
 
     [Compiler(typeof(Math), "Round", TargetKind.Static | TargetKind.Method)]
@@ -476,14 +476,14 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       [Type(typeof(int))] SqlExpression digits,
       [Type(typeof(MidpointRounding))] SqlExpression mode)
     {
-      return GenericRound(d, digits, mode);
+      return GenericRound(d, digits, false, mode);
     }
 
     [Compiler(typeof(Math), "Round", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression MathRoundDecimal(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return BankersRound(d);
+      return BankersRound(d, null, true);
     }
 
     [Compiler(typeof(Math), "Round", TargetKind.Static | TargetKind.Method)]
@@ -491,7 +491,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       [Type(typeof(decimal))] SqlExpression d,
       [Type(typeof(int))] SqlExpression decimals)
     {
-      return BankersRound(d, decimals);
+      return BankersRound(d, decimals, true);
     }
 
     [Compiler(typeof(Math), "Round", TargetKind.Static | TargetKind.Method)]
@@ -499,7 +499,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       [Type(typeof(decimal))] SqlExpression d,
       [Type(typeof(MidpointRounding))] SqlExpression mode)
     {
-      return GenericRound(d, null, mode);
+      return GenericRound(d, null, true, mode);
     }
 
     [Compiler(typeof(Math), "Round", TargetKind.Static | TargetKind.Method)]
@@ -508,7 +508,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       [Type(typeof(int))] SqlExpression decimals,
       [Type(typeof(MidpointRounding))] SqlExpression mode)
     {
-      return GenericRound(d, decimals, mode);
+      return GenericRound(d, decimals, true, mode);
     }
 
     [Compiler(typeof(Math), "Sin", TargetKind.Static | TargetKind.Method)]
@@ -565,46 +565,21 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     #region Round helpers
 
-    private static SqlExpression GenericRound(SqlExpression value, SqlExpression digits, SqlExpression mode)
+    private static SqlExpression GenericRound(SqlExpression value, SqlExpression digits, bool isDecimal, SqlExpression mode)
     {
       if (mode.NodeType!=SqlNodeType.Container)
         throw new NotSupportedException();
       var container = (SqlContainer) mode;
-      if (container.Value.GetType()!=typeof(MidpointRounding))
+      if (!(container.Value is MidpointRounding))
         throw new NotSupportedException();
-      switch ((MidpointRounding) container.Value) {
-      case MidpointRounding.ToEven:
-        return digits!=null ? BankersRound(value, digits) : BankersRound(value);
-      case MidpointRounding.AwayFromZero:
-        return digits!=null ? RoundAsToughtInSchool(value, digits) : RoundAsToughtInSchool(value);
-      default:
-        throw new ArgumentOutOfRangeException();
-      }
+      return SqlDml.Round(value, digits,
+        isDecimal ? TypeCode.Decimal : TypeCode.Double,
+        (MidpointRounding) container.Value);
     }
 
-    private static SqlExpression RoundAsToughtInSchool(SqlExpression value)
+    private static SqlExpression BankersRound(SqlExpression value, SqlExpression digits, bool isDecimal)
     {
-      return SqlDml.Round(value);
-    }
-
-    private static SqlExpression RoundAsToughtInSchool(SqlExpression value, SqlExpression digits)
-    {
-      return SqlDml.Round(value, digits);
-    }
-
-    private static SqlExpression BankersRound(SqlExpression value)
-    {
-      var mainPart = 2 * SqlDml.Floor((value + 0.5) / 2);
-      var extraPart = SqlDml.Case();
-      extraPart.Add(value - mainPart > 0.5, 1);
-      extraPart.Else = 0;
-      return mainPart + extraPart;
-    }
-
-    private static SqlExpression BankersRound(SqlExpression value, SqlExpression digits)
-    {
-      var multiplier = SqlDml.Power(10, digits);
-      return BankersRound(value * multiplier) / multiplier;
+      return SqlDml.Round(value, digits, isDecimal ? TypeCode.Decimal : TypeCode.Double, MidpointRounding.ToEven);
     }
 
     #endregion

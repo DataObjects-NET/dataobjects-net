@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Xtensive.Core.Helpers;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
@@ -17,13 +18,16 @@ namespace Xtensive.Sql.SqlServer.v2005
 {
   internal class Translator : SqlTranslator
   {
-    public override string DateTimeFormat { get { return @"'cast ('\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'' as datetime)'"; } }
-    public override string TimeSpanFormat { get { return string.Empty; } }
+    public override string DateTimeFormatString { get { return @"'cast ('\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'' as datetime)'"; } }
+    public override string TimeSpanFormatString { get { return string.Empty; } }
+    public override string FloatFormatString { get { return "'cast('" + base.FloatFormatString  + "'e0 as real')"; } }
+    public override string DoubleFormatString { get { return "'cast('" + base.DoubleFormatString + "'e0 as float')"; } }
 
     public override void Initialize()
     {
       base.Initialize();
-      numberFormat.NumberDecimalSeparator = ".";
+      FloatNumberFormat.NumberDecimalSeparator = ".";
+      DoubleNumberFormat.NumberDecimalSeparator = ".";
     }
 
     public override string Translate(SqlCompilerContext context, bool cascade, AlterTableSection section)
@@ -524,25 +528,20 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override string Translate(SqlCompilerContext context, Type literalType, object literalValue)
     {
       if (literalType==typeof (TimeSpan))
-        return Convert.ToString((long) ((TimeSpan) literalValue).TotalMilliseconds, this);
+        return Convert.ToString((long) ((TimeSpan) literalValue).TotalMilliseconds);
       if (literalType==typeof (Boolean))
         return ((bool) literalValue) ? "cast(1 as bit)" : "cast(0 as bit)";
       if (literalType==typeof(DateTime)) {
         var dateTime = (DateTime) literalValue;
         var minAllowedValue = ((ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange).MinValue;
         var newValue = dateTime > minAllowedValue ? dateTime : minAllowedValue;
-        return newValue.ToString(DateTimeFormat);
+        return newValue.ToString(DateTimeFormatString);
       }
       if (literalType==typeof(byte[])) {
         var array = (byte[]) literalValue;
         var builder = new StringBuilder(2 * (array.Length + 1));
         builder.Append("0x");
-        foreach (var item in array) {
-          var hi = item >> 4;
-          var low = item & 0xF;
-          builder.Append(Convert.ToString(hi, 16));
-          builder.Append(Convert.ToString(low, 16));
-        }
+        builder.AppendHexArray(array);
         return builder.ToString();
       }
       if (literalType==typeof(Guid))

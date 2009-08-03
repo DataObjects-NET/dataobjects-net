@@ -10,17 +10,26 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 {
   internal class Translator : SqlTranslator
   {
-    public override string DateTimeFormat { get { return @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'"; } }
-    public override string TimeSpanFormat { get { return "'{0}{1} days {0}{2}:{3}:{4}.{5:000}'::interval"; } }
+    public override string DateTimeFormatString { get { return @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'"; } }
+    public override string TimeSpanFormatString { get { return "'{0}{1} days {0}{2}:{3}:{4}.{5:000}'::interval"; } }
+
+    public override string FloatFormatString { get { return base.FloatFormatString + "'::float4'"; } }
+    public override string DoubleFormatString { get { return base.DoubleFormatString + "'::float8'"; } }
 
     public override void Initialize()
     {
       base.Initialize();
-      numberFormat.NumberDecimalSeparator = ".";
-      numberFormat.NumberGroupSeparator = "";
-      numberFormat.NaNSymbol = "'Nan'::float4";
-      numberFormat.NegativeInfinitySymbol = "'-Infinity'::float4";
-      numberFormat.PositiveInfinitySymbol = "'Infinity'::float4";
+      FloatNumberFormat.NumberDecimalSeparator = ".";
+      FloatNumberFormat.NumberGroupSeparator = "";
+      FloatNumberFormat.NaNSymbol = "'Nan'::float4";
+      FloatNumberFormat.NegativeInfinitySymbol = "'-Infinity'::float4";
+      FloatNumberFormat.PositiveInfinitySymbol = "'Infinity'::float4";
+
+      DoubleNumberFormat.NumberDecimalSeparator = ".";
+      DoubleNumberFormat.NumberGroupSeparator = "";
+      DoubleNumberFormat.NaNSymbol = "'Nan'::float8";
+      DoubleNumberFormat.NegativeInfinitySymbol = "'-Infinity'::float8";
+      DoubleNumberFormat.PositiveInfinitySymbol = "'Infinity'::float8";
     }
 
     public override string DdlStatementDelimiter { get { return ";"; } }
@@ -886,80 +895,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       return string.Format("RENAME COLUMN {0} TO {1}", QuoteIdentifier(node.DbName), QuoteIdentifier(action.Name));
     }
-
-    /*
-
-    protected string TranslateLiteral(object obj)
-    {
-      if (obj==null || obj==DBNull.Value) {
-        return "NULL";
-      }
-      if (obj is bool) {
-        return (bool) obj ? "TRUE" : "FALSE";
-      }
-      if (obj is char) {
-        return QuoteString(obj.ToString());
-      }
-      if (obj is string) {
-        return QuoteString(obj as string);
-      }
-      if (obj is sbyte || obj is short || obj is int) {
-        return Convert.ToInt32(obj).ToString(this);
-      }
-      if (obj is long) {
-        return ((long) obj).ToString(this);
-      }
-      if (obj is byte || obj is ushort || obj is uint) {
-        return Convert.ToUInt32(obj).ToString(this);
-      }
-      if (obj is ulong) {
-        return ((ulong) obj).ToString(this);
-      }
-      if (obj is decimal) {
-        return ((decimal) obj).ToString(this);
-      }
-      if (obj is float) {
-        return ((float) obj).ToString(this);
-      }
-      if (obj is double) {
-        return ((double) obj).ToString(this);
-      }
-      if (obj is DateTime) {
-        return ((DateTime) obj).ToString(DateTimeFormat);
-      }
-      if (obj is TimeSpan) {
-        return string.Format(, IntervalHelper.TimeSpanToString((TimeSpan) obj));
-      }
-      if (obj is byte[]) {
-        var array = obj as byte[];
-        if (array.Length==0)
-          return "''::bytea";
-
-        var chars = new char[1 + 5 * array.Length + 8];
-        chars[0] = '\'';
-        chars[chars.Length - 1] = 'a';
-        chars[chars.Length - 2] = 'e';
-        chars[chars.Length - 3] = 't';
-        chars[chars.Length - 4] = 'y';
-        chars[chars.Length - 5] = 'b';
-        chars[chars.Length - 6] = ':';
-        chars[chars.Length - 7] = ':';
-        chars[chars.Length - 8] = '\'';
-
-        for (int n = 1, i = 0; i < array.Length; i++, n += 5) {
-          chars[n] = chars[n + 1] = '\\';
-          chars[n + 2] = (char) ('0' + (7 & (array[i] >> 6)));
-          chars[n + 3] = (char) ('0' + (7 & (array[i] >> 3)));
-          chars[n + 4] = (char) ('0' + (7 & (array[i] >> 0)));
-        }
-        return new String(chars);
-      }
-      if (obj is Guid) {
-        return TranslateLiteral(((Guid) obj).ToByteArray());
-      }
-      return obj.ToString();
-    }
-    */
 
     public override string Translate(SqlDateTimePart part)
     {

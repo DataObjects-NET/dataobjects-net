@@ -16,9 +16,12 @@ using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.Compiler
 {
-  public abstract class SqlTranslator: IFormatProvider
+  public abstract class SqlTranslator
   {
-    protected NumberFormatInfo numberFormat;
+    public DateTimeFormatInfo DateTimeFormat { get; private set; }
+    public NumberFormatInfo IntegerNumberFormat { get; private set; }
+    public NumberFormatInfo FloatNumberFormat { get; private set; }
+    public NumberFormatInfo DoubleNumberFormat { get; private set; }
 
     public virtual string BatchStatementDelimiter { get { return ";"; } }
     public virtual string ArgumentDelimiter { get { return ","; } }
@@ -28,23 +31,38 @@ namespace Xtensive.Sql.Compiler
     public virtual string DdlStatementDelimiter { get { return string.Empty; } }
     public virtual string HintDelimiter { get { return string.Empty; } }
 
-    public abstract string DateTimeFormat { get; }
+    /// <summary>
+    /// Gets the float format string.
+    /// See <see cref="double.ToString(string)"/> for details.
+    /// </summary>
+    public virtual string FloatFormatString { get { return "0.0######"; } }
+    
+    /// <summary>
+    /// Gets the double format string.
+    /// See <see cref="double.ToString(string)"/> for details.
+    /// </summary>
+    public virtual string DoubleFormatString { get { return "0.0##############"; } }
 
-    // Format values
-    // {0} - sign
-    // {1} - days
-    // {2} - hours
-    // {3} - minutes
-    // {4} - seconds
-    // {5} - milliseconds
-    public abstract string TimeSpanFormat { get; }
+    /// <summary>
+    /// Gets the date time format string.
+    /// See <see cref="DateTime.ToString(string)"/> for details.
+    /// </summary>
+    public abstract string DateTimeFormatString { get; }
 
+    /// <summary>
+    /// Gets the time span format string.
+    /// See <see cref="TimeSpanExtensions.ToString(System.TimeSpan,string)"/> for details.
+    /// </summary>
+    public abstract string TimeSpanFormatString { get; }
+    
+    /// <summary>
+    /// Gets the parameter prefix.
+    /// </summary>
     public string ParameterPrefix { get; private set; }
 
     /// <summary>
     /// Gets the driver.
     /// </summary>
-    /// <value>The driver.</value>
     protected SqlDriver Driver { get; private set; }
 
     /// <summary>
@@ -52,7 +70,11 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     public virtual void Initialize()
     {
-      numberFormat = (NumberFormatInfo) CultureInfo.InvariantCulture.NumberFormat.Clone();
+      IntegerNumberFormat = (NumberFormatInfo) CultureInfo.InvariantCulture.NumberFormat.Clone();
+      FloatNumberFormat = (NumberFormatInfo) CultureInfo.InvariantCulture.NumberFormat.Clone();
+      DoubleNumberFormat = (NumberFormatInfo) CultureInfo.InvariantCulture.NumberFormat.Clone();
+      DateTimeFormat = (DateTimeFormatInfo) CultureInfo.InvariantCulture.DateTimeFormat.Clone();
+
       var queryInfo = Driver.ServerInfo.Query;
       ParameterPrefix = queryInfo.Features.Supports(QueryFeatures.ParameterPrefix)
         ? queryInfo.ParameterPrefix
@@ -63,7 +85,7 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
       case NodeSection.Entry:
-        return Translate(node.NodeType) + "(" + ((node.Distinct) ? "DISTINCT" : string.Empty);
+        return Translate(node.NodeType) + "(" + (node.Distinct ? "DISTINCT" : string.Empty);
       case NodeSection.Exit:
         return ")";
       }
@@ -90,21 +112,21 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string Translate(SqlCompilerContext context, SqlAlterPartitionFunction node)
     {
-      StringBuilder sb = new StringBuilder();
-      sb.Append("ALTER PARTITION FUNCTION " + QuoteIdentifier(node.PartitionFunction.DbName) + "()");
+      var builder = new StringBuilder();
+      builder.Append("ALTER PARTITION FUNCTION " + QuoteIdentifier(node.PartitionFunction.DbName) + "()");
       if (node.Option == SqlAlterPartitionFunctionOption.Split)
-        sb.Append(" SPLIT RANGE (");
+        builder.Append(" SPLIT RANGE (");
       else
-        sb.Append(" MERGE RANGE (");
-      sb.Append(node.Boundary.ToString(this) + ")");
-      return sb.ToString();
+        builder.Append(" MERGE RANGE (");
+      builder.Append(node.Boundary + ")");
+      return builder.ToString();
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlAlterPartitionScheme node)
     {
       return
         "ALTER PARTITION SCHEME " + QuoteIdentifier(node.PartitionSchema.DbName) + " NEXT USED" +
-        (String.IsNullOrEmpty(node.Filegroup) ? "" : " " + node.Filegroup);
+        (string.IsNullOrEmpty(node.Filegroup) ? "" : " " + node.Filegroup);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
@@ -123,7 +145,7 @@ namespace Xtensive.Sql.Compiler
       case AlterTableSection.DropConstraint:
         return "DROP";
       default:
-        return String.Empty;
+        return string.Empty;
       }
     }
 
@@ -133,7 +155,7 @@ namespace Xtensive.Sql.Compiler
       case NodeSection.Entry:
         return "ALTER SEQUENCE " + Translate(node.Sequence);
       default:
-        return String.Empty;
+        return string.Empty;
       }
     }
 
@@ -143,7 +165,7 @@ namespace Xtensive.Sql.Compiler
       case AlterTableSection.DropBehavior:
         return cascade ? "CASCADE" : "RESTRICT";
       default:
-        return String.Empty;
+        return string.Empty;
       }
     }
 
@@ -601,9 +623,9 @@ namespace Xtensive.Sql.Compiler
           sb.Append(RowItemDelimiter);
         TypeCode t = Type.GetTypeCode(value.GetType());
         if (t == TypeCode.String || t == TypeCode.Char)
-          sb.Append(QuoteString(value.ToString(this)));
+          sb.Append(QuoteString(value));
         else
-          sb.Append(value.ToString(this));
+          sb.Append(value);
       }
       sb.Append(")");
       return sb.ToString();
@@ -1086,14 +1108,28 @@ namespace Xtensive.Sql.Compiler
       case TypeCode.String:
         return QuoteString(literalValue.ToString());
       case TypeCode.DateTime:
-        return ((DateTime) literalValue).ToString(DateTimeFormat);
+        return ((DateTime) literalValue).ToString(DateTimeFormatString, DateTimeFormat);
+      case TypeCode.Single:
+        return ((float) literalValue).ToString(FloatFormatString, FloatNumberFormat);
+      case TypeCode.Double:
+        return ((double) literalValue).ToString(DoubleFormatString, DoubleNumberFormat);
+      case TypeCode.Byte:
+      case TypeCode.SByte:
+      case TypeCode.Int16:
+      case TypeCode.UInt16:
+      case TypeCode.Int32:
+      case TypeCode.UInt32:
+      case TypeCode.Int64:
+      case TypeCode.UInt64:
+      case TypeCode.Decimal:
+        return Convert.ToString(literalValue, IntegerNumberFormat);
       }
       if (literalType==typeof(TimeSpan))
-        return ((TimeSpan) literalValue).ToString(TimeSpanFormat);
+        return ((TimeSpan) literalValue).ToString(TimeSpanFormatString);
       if (literalType==typeof(Guid) || literalType==typeof(byte[]))
         throw new NotSupportedException(string.Format(
           Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
-      return Convert.ToString(literalValue, this);
+      return literalValue.ToString();
     }
     
     public virtual string Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
@@ -1506,9 +1542,9 @@ namespace Xtensive.Sql.Compiler
                     sb.Append(RowItemDelimiter);
                   TypeCode t = Type.GetTypeCode(v.GetType());
                   if (t == TypeCode.String || t == TypeCode.Char)
-                    sb.Append(QuoteString(v.ToString(this)));
+                    sb.Append(QuoteString(v));
                   else
-                    sb.Append(v.ToString(this));
+                    sb.Append(v);
                 }
                 sb.Append(")");
                 if (!String.IsNullOrEmpty(p.Filegroup))
@@ -1524,9 +1560,9 @@ namespace Xtensive.Sql.Compiler
                 sb.Append("PARTITION " + QuoteIdentifier(p.DbName) + " VALUES LESS THAN (");
                 TypeCode t = Type.GetTypeCode(p.Boundary.GetType());
                 if (t == TypeCode.String || t == TypeCode.Char)
-                  sb.Append(QuoteString(p.Boundary.ToString(this)));
+                  sb.Append(QuoteString(p.Boundary));
                 else
-                  sb.Append(p.Boundary.ToString(this));
+                  sb.Append(p.Boundary);
                 sb.Append(")");
                 if (!String.IsNullOrEmpty(p.Filegroup))
                   sb.Append(" TABLESPACE " + p.Filegroup);
@@ -1767,18 +1803,6 @@ namespace Xtensive.Sql.Compiler
     {
       return SqlHelper.QuoteIdentifierWithBrackets(names);
     }
-
-    #region IFormatProvider Members
-
-    ///<inheritdoc/>
-    public object GetFormat(Type formatType)
-    {
-      if (formatType == typeof (NumberFormatInfo))
-        return numberFormat;
-      return null;
-    }
-
-    #endregion
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlTranslator"/> class.

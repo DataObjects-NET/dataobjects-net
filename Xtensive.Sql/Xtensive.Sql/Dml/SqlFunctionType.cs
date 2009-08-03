@@ -68,5 +68,12 @@ namespace Xtensive.Sql.Dml
     IntervalToMilliseconds,
     IntervalAbs,
     IntervalNegate,
+
+    // .NET like rounding functions
+
+    RoundDecimalToEven,
+    RoundDecimalToZero,
+    RoundDoubleToEven,
+    RoundDoubleToZero,
   }
 }

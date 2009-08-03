@@ -39,15 +39,15 @@ namespace Xtensive.Sql.Tests
       var model = ExtractAllSchemas();
       EnsureTableNotExists(model.DefaultSchema, TableName);
       var table = model.DefaultSchema.CreateTable(TableName);
-      var idColumn = table.CreateColumn(IdColumnName, new SqlValueType(SqlType.Int32));
+      var idColumnType = Driver.TypeMappings.Int.BuildSqlType();
+      var idColumn = table.CreateColumn(IdColumnName, idColumnType);
       table.CreatePrimaryKey("PK_" + TableName, idColumn);
       for (int columnIndex = 0; columnIndex < typeMappings.Length; columnIndex++) {
         var mapping = typeMappings[columnIndex];
         var column = table.CreateColumn(GetColumnName(columnIndex), mapping.BuildSqlType());
         column.IsNullable = true;
       }
-      using (var createCommand = Connection.CreateCommand(SqlDdl.Create(table)))
-        createCommand.ExecuteNonQuery();
+      ExecuteNonQuery(SqlDdl.Create(table));
       var tableRef = SqlDml.TableRef(table);
       using (var insertCommand = Connection.CreateCommand()) {
         var insertQuery = SqlDml.Insert(tableRef);
@@ -146,16 +146,22 @@ namespace Xtensive.Sql.Tests
       VerifyResults(command.ExecuteReader());
     }
 
+    protected virtual void CheckEquality(object expected, object actual)
+    {
+      Assert.AreEqual(expected, actual);
+    }
+
     private void VerifyResults(DbDataReader reader)
     {
       int rowIndex = 0;
       using (reader)
       while (reader.Read()) {
         for (int columnIndex = 0; columnIndex < testValues.Length; columnIndex++) {
-          var value = !reader.IsDBNull(columnIndex + 1)
+          var expectedValue = testValues[columnIndex][rowIndex];
+          var actualValue = !reader.IsDBNull(columnIndex + 1)
             ? typeMappings[columnIndex].ReadValue(reader, columnIndex + 1)
             : null;
-          Assert.AreEqual(testValues[columnIndex][rowIndex], value);
+          CheckEquality(expectedValue, actualValue);
         }
         rowIndex++;
       }
@@ -232,12 +238,12 @@ namespace Xtensive.Sql.Tests
 
     private static string GetParameterName(int parameterIndex)
     {
-      return string.Format("P{0}", parameterIndex);
+      return string.Format("P{0:00}", parameterIndex);
     }
 
     private static string GetColumnName(int columnIndex)
     {
-      return string.Format("C{0}", columnIndex);
+      return string.Format("C{0:00}", columnIndex);
     }
   }
 }

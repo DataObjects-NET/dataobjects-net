@@ -10,20 +10,14 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlCreateIndex : SqlStatement, ISqlCompileUnit
   {
-    private Index index;
-
-    public Index Index {
-      get {
-        return index;
-      }
-    }
+    public Index Index { get; private set; }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlCreateIndex clone = new SqlCreateIndex(index);
+      var clone = new SqlCreateIndex(Index);
       context.NodeMapping[this] = clone;
 
       return clone;
@@ -33,11 +27,13 @@ namespace Xtensive.Sql.Ddl
     {
       visitor.Visit(this);
     }
+    
+    // Constructors
 
     internal SqlCreateIndex(Index index)
       : base(SqlNodeType.Create)
     {
-      this.index = index;
+      Index = index;
     }
   }
 }

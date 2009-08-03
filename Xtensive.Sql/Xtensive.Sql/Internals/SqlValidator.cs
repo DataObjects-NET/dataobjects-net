@@ -138,6 +138,7 @@ namespace Xtensive.Sql
         case SqlNodeType.Sum:
         case SqlNodeType.Variable:
         case SqlNodeType.Extract:
+        case SqlNodeType.Round:
           return true;
         case SqlNodeType.Variant:
           var variant = (SqlVariant) node;

@@ -262,10 +262,10 @@ namespace Xtensive.Sql.Oracle.v09
       var allConstraints = SqlDml.TableRef(dataDictionary.Views["ALL_CONSTRAINTS"]);
       var referencingColumns = SqlDml.TableRef(dataDictionary.Views["ALL_CONS_COLUMNS"]);
       var referencedColumns = SqlDml.TableRef(dataDictionary.Views["ALL_CONS_COLUMNS"]);
+
       var select = SqlDml.Select(
-        SqlDml.Join(SqlJoinType.CrossJoin,
-          SqlDml.Join(SqlJoinType.CrossJoin, allConstraints, referencingColumns),
-          referencedColumns));
+        SqlDml.Join(SqlJoinType.CrossJoin, SqlDml.Join(SqlJoinType.CrossJoin,
+          allConstraints, referencingColumns), referencedColumns));
       
       select.Columns.Add(allConstraints["OWNER"]);
       select.Columns.Add(allConstraints["TABLE_NAME"]);
@@ -322,11 +322,12 @@ namespace Xtensive.Sql.Oracle.v09
     {
       var allConstraints = SqlDml.TableRef(dataDictionary.Views["ALL_CONSTRAINTS"]);
       var allConsColumns = SqlDml.TableRef(dataDictionary.Views["ALL_CONS_COLUMNS"]);
-      var join = SqlDml.Join(SqlJoinType.InnerJoin, allConstraints, allConsColumns,
-        allConstraints["CONSTRAINT_NAME"]==allConsColumns["CONSTRAINT_NAME"] &
-        allConstraints["OWNER"]==allConsColumns["OWNER"]);
+      var allTables = SqlDml.TableRef(dataDictionary.Views["ALL_TABLES"]);
 
-      var select = SqlDml.Select(join);
+      var select = SqlDml.Select(
+        SqlDml.Join(SqlJoinType.CrossJoin, SqlDml.Join(SqlJoinType.CrossJoin,
+          allConstraints, allConsColumns), allTables));
+
       select.Columns.Add(allConstraints["OWNER"]);
       select.Columns.Add(allConstraints["TABLE_NAME"]);
       select.Columns.Add(allConstraints["CONSTRAINT_NAME"]);
@@ -339,8 +340,12 @@ namespace Xtensive.Sql.Oracle.v09
       select.OrderBy.Add(allConstraints["CONSTRAINT_NAME"]);
       select.OrderBy.Add(allConsColumns["POSITION"]);
 
-      select.Where = SqlDml.In(
-        allConstraints["CONSTRAINT_TYPE"], SqlDml.Row(AnsiString("P"), AnsiString("U")));
+      select.Where =
+        SqlDml.In(allConstraints["CONSTRAINT_TYPE"], SqlDml.Row(AnsiString("P"), AnsiString("U"))) &
+        allConstraints["CONSTRAINT_NAME"]==allConsColumns["CONSTRAINT_NAME"] &
+        allConstraints["OWNER"]==allConsColumns["OWNER"] &
+        allConstraints["TABLE_NAME"]==allTables["TABLE_NAME"] &
+        allConstraints["OWNER"]==allTables["OWNER"];
       AddSchemaFilter(select, allConstraints["OWNER"]);
 
       using (var reader = ExecuteReader(select)) {
@@ -379,14 +384,16 @@ namespace Xtensive.Sql.Oracle.v09
       select.Columns.Add(allConstraints["SEARCH_CONDITION"]);
       select.Columns.Add(allConstraints["DEFERRABLE"]);
       select.Columns.Add(allConstraints["DEFERRED"]);
-      select.Where = allConstraints["CONSTRAINT_TYPE"]==AnsiString("C");
+      select.Where = allConstraints["CONSTRAINT_TYPE"]==AnsiString("C") &
+        allConstraints["GENERATED"]==AnsiString("USER NAME");
       AddSchemaFilter(select);
 
       using (var reader = ExecuteReader(select)) {
         while (reader.Read()) {
           var schema = theCatalog.Schemas[reader.GetString(0)];
           var table = schema.Tables[reader.GetString(1)];
-          var constraint = table.CreateCheckConstraint(reader.GetString(2), SqlDml.Native(reader.GetString(3)));
+          var constraint = table.CreateCheckConstraint(
+            reader.GetString(2), SqlDml.Native(reader.GetString(3)));
           ReadConstraintProperties(constraint, reader, 4, 5);
         }
       }
@@ -629,6 +636,7 @@ namespace Xtensive.Sql.Oracle.v09
       allConstraints.CreateColumn("STATUS");
       allConstraints.CreateColumn("DEFERRABLE");
       allConstraints.CreateColumn("DEFERRED");
+      allConstraints.CreateColumn("GENERATED");
       allConstraints.CreateColumn("INDEX_NAME");
       allConstraints.CreateColumn("INDEX_OWNER");
 

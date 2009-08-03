@@ -27,8 +27,6 @@ namespace Xtensive.Sql.PostgreSql
       case TypeCode.UInt16:
       case TypeCode.Int64:
       case TypeCode.UInt64:
-      case TypeCode.Single:
-      case TypeCode.Double:
         return true;
       }
       return false;
@@ -104,8 +102,7 @@ namespace Xtensive.Sql.PostgreSql
         parameter.Value = DBNull.Value;
         return;
       }
-      var guid = (Guid) value;
-      parameter.Value = guid.ToByteArray();
+      parameter.Value = ((Guid) value).ToByteArray();
     }
 
     public override SqlValueType BuildByteSqlType(int? length, int? precision, int? scale)

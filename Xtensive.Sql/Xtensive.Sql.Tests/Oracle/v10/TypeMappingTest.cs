@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace Xtensive.Sql.Tests.Oracle.v10
 {
   [TestFixture, Explicit]
-  public class TypeMappingTest : Tests.TypeMappingTest
+  public class TypeMappingTest : Oracle.TypeMappingTest
   {
     protected override string Url { get { return TestUrl.Oracle10; } }
   }

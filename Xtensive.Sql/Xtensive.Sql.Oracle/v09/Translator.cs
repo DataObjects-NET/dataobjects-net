@@ -5,24 +5,35 @@
 // Created:    2009.07.17
 
 using System;
+using System.Text;
+using Xtensive.Core.Helpers;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Oracle.v09
 {
   internal class Translator : SqlTranslator
   {
-    public override string DateTimeFormat { get { return @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'\)"; } }
-    public override string TimeSpanFormat { get { return "(INTERVAL '{0}{1} {2}:{3}:{4}.{5:000}' DAY(6) TO SECOND(3))"; } }
+    public override string DateTimeFormatString { get { return @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'\)"; } }
+    public override string TimeSpanFormatString { get { return "(INTERVAL '{0}{1} {2}:{3}:{4}.{5:000}' DAY(6) TO SECOND(3))"; } }
+    public override string FloatFormatString { get { return base.FloatFormatString + "f"; } }
+    public override string DoubleFormatString { get { return base.DoubleFormatString + "d"; } }
 
     public override void Initialize()
     {
       base.Initialize();
-      numberFormat.NumberDecimalSeparator = ".";
-      numberFormat.NumberGroupSeparator = "";
-      numberFormat.NaNSymbol = "BINARY_DOUBLE_NAN";
-      numberFormat.PositiveInfinitySymbol = "+BINARY_DOUBLE_INFINITY";
-      numberFormat.NegativeInfinitySymbol = "-BINARY_DOUBLE_INFINITY";
+      FloatNumberFormat.NumberDecimalSeparator = ".";
+      FloatNumberFormat.NumberGroupSeparator = "";
+      FloatNumberFormat.NaNSymbol = "BINARY_FLOAT_NAN";
+      FloatNumberFormat.PositiveInfinitySymbol = "+BINARY_FLOAT_INFINITY";
+      FloatNumberFormat.NegativeInfinitySymbol = "-BINARY_FLOAT_INFINITY";
+
+      DoubleNumberFormat.NumberDecimalSeparator = ".";
+      DoubleNumberFormat.NumberGroupSeparator = "";
+      DoubleNumberFormat.NaNSymbol = "BINARY_DOUBLE_NAN";
+      DoubleNumberFormat.PositiveInfinitySymbol = "+BINARY_DOUBLE_INFINITY";
+      DoubleNumberFormat.NegativeInfinitySymbol = "-BINARY_DOUBLE_INFINITY";
     }
 
     public override string QuoteIdentifier(params string[] names)
@@ -104,6 +115,28 @@ namespace Xtensive.Sql.Oracle.v09
       return base.Translate(context, node, section);
     }
 
+    public override string Translate(SqlCompilerContext context, SqlDropTable node)
+    {
+      return "DROP TABLE " + Translate(node.Table) + (node.Cascade ? " CASCADE CONSTRAINTS" : string.Empty);
+    }
+
+    public override string Translate(SqlCompilerContext context, Type literalType, object literalValue)
+    {
+      switch (Type.GetTypeCode(literalType)) {
+      case TypeCode.Boolean:
+        return (bool) literalValue ? "1" : "0";
+//      case TypeCode.Single:
+//        return ((float) literalValue).ToString(this) + "f";
+//      case TypeCode.Double:
+//        return ((double) literalValue).ToString(this) + "d";
+      }
+      if (literalType==typeof(byte[]))
+        return TranslateByteArrayLiteral((byte[]) literalValue);
+      if (literalType==typeof(Guid))
+        return TranslateByteArrayLiteral(((Guid) literalValue).ToByteArray());
+      return base.Translate(context, literalType, literalValue);
+    }
+
     public override string Translate(SqlValueType type)
     {
       // we need to explicitly specify maximum interval precision
@@ -161,6 +194,15 @@ namespace Xtensive.Sql.Oracle.v09
       default:
         return base.Translate(type);
       }
+    }
+
+    private static string TranslateByteArrayLiteral(byte[] values)
+    {
+      var builder = new StringBuilder(2 * (values.Length + 1));
+      builder.Append("'");
+      builder.AppendHexArray(values);
+      builder.Append("'");
+      return builder.ToString();
     }
 
     // Constructors

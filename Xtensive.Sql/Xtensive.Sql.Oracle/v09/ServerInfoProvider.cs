@@ -214,7 +214,7 @@ namespace Xtensive.Sql.Oracle.v09
         StandardValueRange.TimeSpan, "interval day to second");
 
       types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 2000, "nchar");
-      types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "nvarchar2");
+      types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 2000, "nvarchar2");
       types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common, "nclob");
       types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "blob");
       return types;

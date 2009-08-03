@@ -75,6 +75,7 @@ namespace Xtensive.Sql
     void Visit(SqlOpenCursor node);
     void Visit(SqlOrder node);
     void Visit(SqlParameterRef node);
+    void Visit(SqlRound node);
     void Visit(SqlQueryExpression node);
     void Visit(SqlQueryRef node);
     void Visit(SqlRow node);

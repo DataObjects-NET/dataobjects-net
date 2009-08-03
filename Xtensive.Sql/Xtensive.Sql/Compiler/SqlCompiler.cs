@@ -19,8 +19,9 @@ namespace Xtensive.Sql.Compiler
   {
     private const string DefaultParameterNamePrefix = "p";
 
+    protected readonly SqlValueType decimalType;
     protected readonly SqlTranslator translator;
-
+    
     protected SqlCompilerOptions options;
     protected SqlCompilerContext context;
 
@@ -905,6 +906,28 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    public virtual void Visit(SqlRound node)
+    {
+      SqlExpression result;
+      switch (node.Mode) {
+      case MidpointRounding.ToEven:
+        result = node.Length.IsNullReference()
+          ? SqlHelper.BankersRound(node.Argument)
+          : SqlHelper.BankersRound(node.Argument, node.Length);
+        break;
+      case MidpointRounding.AwayFromZero:
+        result = node.Length.IsNullReference()
+          ? SqlHelper.RegularRound(node.Argument)
+          : SqlHelper.RegularRound(node.Argument, node.Length);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException();
+      }
+      if (node.Type==TypeCode.Decimal)
+        result = SqlDml.Cast(result, decimalType);
+      result.AcceptVisitor(this);
+    }
+
     public virtual void Visit(SqlSelect node)
     {
       if (options.ForcedAliasing)
@@ -1281,6 +1304,7 @@ namespace Xtensive.Sql.Compiler
     {
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
       translator = driver.Translator;
+      decimalType = driver.TypeMappings.Decimal.BuildSqlType();
     }
   }
 }

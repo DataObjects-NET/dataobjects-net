@@ -65,5 +65,24 @@ namespace Xtensive.Core.Helpers
 
       return builder;
     }
+
+    /// <summary>
+    /// Appends the specified <see cref="byte"/> array in hexidecimal representation.
+    /// These bytes are written from left to right, high part of byte is written first.
+    /// For example {1,2,10} will be appended as 01020A.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="values">The values.</param>
+    public static void AppendHexArray(this StringBuilder builder, byte[] values)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(builder, "builder");
+      ArgumentValidator.EnsureArgumentNotNull(values, "values");
+      foreach (var item in values) {
+        int hi = item >> 4;
+        int low = item & 0xF;
+        builder.Append(Convert.ToString(hi, 16));
+        builder.Append(Convert.ToString(low, 16));
+      }
+    }
   }
 }
