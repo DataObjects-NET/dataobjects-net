@@ -10,6 +10,7 @@ using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Reflection;
+using System.Linq;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -18,7 +19,7 @@ namespace Xtensive.Storage.Building.Builders
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     public static HierarchyInfo BuildHierarchy(TypeInfo root, HierarchyDef hierarchyDef)
     {
-      var ki = new KeyInfo();
+      var keyInfo = new KeyInfo();
 
       foreach (var keyField in hierarchyDef.KeyFields) {
         FieldInfo field;
@@ -26,16 +27,17 @@ namespace Xtensive.Storage.Building.Builders
           throw new DomainBuilderException(
             string.Format(Strings.ExKeyFieldXWasNotFoundInTypeY, keyField.Name, root.Name));
 
-        ki.Fields.Add(field, keyField.Direction);
+        keyInfo.Fields.Add(field, keyField.Direction);
       }
 
       var context = BuildingContext.Current;
       GeneratorInfo gi = null;
       if (hierarchyDef.KeyGenerator != null) {
-
-        gi = context.Model.Generators[hierarchyDef.KeyGenerator, ki];
+        gi = context.Model.Generators.Find(
+          hierarchyDef.KeyGenerator, 
+          keyInfo.Fields.Select(c => c.Key.ValueType).ToArray());
         if (gi==null) {
-          gi = new GeneratorInfo(hierarchyDef.KeyGenerator, ki) {
+          gi = new GeneratorInfo(hierarchyDef.KeyGenerator, keyInfo) {
             Name = root.Name
           };
           if (gi.KeyGeneratorType==typeof (KeyGenerator))
@@ -52,7 +54,7 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
 
-      var hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, ki, gi) {
+      var hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, keyInfo, gi) {
         Name = root.Name
       };
       context.Model.Hierarchies.Add(hierarchy);

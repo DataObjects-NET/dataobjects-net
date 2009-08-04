@@ -11,26 +11,23 @@ namespace Xtensive.Storage.Model
   [Serializable]
   public sealed class GeneratorInfoCollection : NodeCollection<GeneratorInfo>
   {
-    public GeneratorInfo this[Type generatorType, KeyInfo keyInfo]
+    public GeneratorInfo Find(Type generatorType, Type[] keyFieldTypes) 
     {
-      get
-      {
-        foreach (var item in this) {
-          if (item.KeyGeneratorType!=generatorType)
-            continue;
-          var fields = item.KeyInfo.Fields;
-          if (fields.Count != keyInfo.Fields.Count)
-            continue;
-          for (int i = 0; i < fields.Count; i++) {
-            if (fields[i].Key.ValueType != keyInfo.Fields[i].Key.ValueType)
-              goto Next;
-          }
-          return item;
-        Next:
+      foreach (var item in this) {
+        if (item.KeyGeneratorType!=generatorType)
           continue;
+        var fields = item.KeyInfo.Fields;
+        if (fields.Count != keyFieldTypes.Length)
+          continue;
+        for (int i = 0; i < keyFieldTypes.Length; i++) {
+          if (fields[i].Key.ValueType != keyFieldTypes[i])
+            goto Next;
         }
-        return null;
+        return item;
+      Next:
+        continue;
       }
+      return null;
     }
   }
 }

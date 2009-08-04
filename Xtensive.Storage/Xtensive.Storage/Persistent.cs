@@ -189,7 +189,7 @@ namespace Xtensive.Storage
       if (tuple.ContainsEmptyValues(field.MappingInfo))
         return null;
 
-      int typeIdFieldIndex = type.Hierarchy.KeyInfo.TypeIdFieldIndex;
+      int typeIdFieldIndex = type.Hierarchy.KeyInfo.TypeIdColumnIndex;
       bool exactType = typeIdFieldIndex >= 0;
       var keyValue = field.ExtractValue(tuple);
       if (exactType) {
