@@ -685,7 +685,7 @@ namespace Xtensive.Storage.Tests.Storage
             .Select(0,1)
             .Filter(tuple => tuple.GetValue<long>(1) > 0);
           Assert.Greater(result.Count(), 0);
-          Assert.IsTrue(result.ToEntities<Snake>()
+          Assert.IsTrue(result.ToEntities<Snake>(0)
             .Where(s => s != null && s.Name.GreaterThan(name)).Count() > 1);
 
           t.Complete();
@@ -705,7 +705,7 @@ namespace Xtensive.Storage.Tests.Storage
           var session = Session.Current;
           TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
           RecordSet rsPrimary = type.Indexes.PrimaryIndex.ToRecordSet();
-          foreach (var entity in rsPrimary.ToEntities<ICreature>().ToList())
+          foreach (var entity in rsPrimary.ToEntities<ICreature>(0).ToList())
             entity.Remove();
           t.Complete(); 
         }
@@ -732,7 +732,7 @@ namespace Xtensive.Storage.Tests.Storage
           session.Persist();
           TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
           RecordSet rsPrimary = type.Indexes.PrimaryIndex.ToRecordSet();
-          foreach (var entity in rsPrimary.ToEntities<ICreature>())
+          foreach (var entity in rsPrimary.ToEntities<ICreature>(0))
             Assert.IsNotNull(entity.Name);
           t.Complete();
         }
@@ -759,7 +759,7 @@ namespace Xtensive.Storage.Tests.Storage
           var session = Session.Current;
           TypeInfo type = session.Domain.Model.Types[typeof (ICreature)];
           RecordSet rs = type.Indexes.PrimaryIndex.ToRecordSet();
-          foreach (var entity in rs.ToEntities<ICreature>().ToList())
+          foreach (var entity in rs.ToEntities<ICreature>(0).ToList())
             entity.Remove();
           Session.Current.Persist();
           t.Complete();
@@ -832,7 +832,7 @@ namespace Xtensive.Storage.Tests.Storage
             RecordSet skip = orderBy.Skip(5);
             RecordSet take = skip.Take(50);
             RecordSet skip2 = take.Skip(7);
-            var snakesRse = take.ToEntities<Snake>();
+            var snakesRse = take.ToEntities<Snake>(0);
             t.Complete();
             foreach (Snake snake in snakesRse) {
               Console.WriteLine(snake.Key);

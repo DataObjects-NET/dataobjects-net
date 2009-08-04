@@ -36,6 +36,7 @@ namespace Xtensive.Storage.Tests.Rse
         }
       }
       using (Session.Open(Domain)) {
+        Session session = Session.Current;
         using (Transaction.Open()) {
           EntityState state = Session.Current.EntityStateCache[key, true];
           Assert.IsNull(state);
@@ -43,9 +44,7 @@ namespace Xtensive.Storage.Tests.Rse
 
           // Select *
           RecordSet rsMain = ii.ToRecordSet();
-          foreach (Book book in rsMain.ToEntities<Book>()) {
-            ;
-          }
+          session.UpdateCacheFrom(rsMain);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.IsAvailable(2));
@@ -54,9 +53,7 @@ namespace Xtensive.Storage.Tests.Rse
 
           // Select Id, TypeId, Title
           RecordSet rsTitle = rsMain.Select(0, 1, 2);
-          foreach (Book book in rsTitle.ToEntities<Book>()) {
-            ;
-          }
+          session.UpdateCacheFrom(rsTitle);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.IsAvailable(2));
@@ -65,9 +62,7 @@ namespace Xtensive.Storage.Tests.Rse
 
           // Select Id, TypeId, Text
           RecordSet rsText = rsMain.Select(0, 1, 3);
-          foreach (Book book in rsText.ToEntities<Book>()) {
-            ;
-          }
+          session.UpdateCacheFrom(rsText);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsFalse(state.Tuple.IsAvailable(2));
@@ -76,9 +71,7 @@ namespace Xtensive.Storage.Tests.Rse
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
           RecordSet rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1, 1));
-          foreach (Book book in rsJoin.ToEntities<Book>()) {
-            ;
-          }
+          session.UpdateCacheFrom(rsJoin);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.IsAvailable(2));

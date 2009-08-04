@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Internals
           index = association.OwnerType.Indexes.GetIndex(association.OwnerField.Name);
           keyTuple = target.Key.Value;
           recordSet = index.ToRecordSet().Range(keyTuple, keyTuple);
-          foreach (Entity item in recordSet.ToEntities(association.OwnerField.DeclaringType.UnderlyingType))
+          foreach (var item in recordSet.ToEntities(0))
             yield return item;
           break;
         case Multiplicity.OneToOne:

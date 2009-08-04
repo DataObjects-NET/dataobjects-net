@@ -38,8 +38,8 @@ namespace Xtensive.Storage.Tests.Storage
       customerIdIndex = customerPrimary.Header.IndexOf(customerIdColumn);
       orderCustomerIndex = orderPrimary.Header.IndexOf(orderCustomerColumn);
 
-      allCustomers = customerPrimary.ToEntities<Customer>().ToList();
-      allOrders = orderPrimary.ToEntities<Order>().ToList();      
+      allCustomers = customerPrimary.ToEntities<Customer>(0).ToList();
+      allOrders = orderPrimary.ToEntities<Order>(0).ToList();      
     }
 
     [Test]

@@ -348,7 +348,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
               rs = rs.Seek(() => pKey.Value);
               using (new ParameterContext().Activate()) {
                 pKey.Value = Tuple.Create(i % instanceCount);
-                var es = rs.ToEntities<Simplest>();
+                var es = rs.ToEntities<Simplest>(0);
                 foreach (var o in es) {
                   // Doing nothing, just enumerate
                 }
@@ -374,7 +374,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
             using (warmup ? null : new Measurement("Cached RSE query", count)) {
               for (int i = 0; i < count; i++) {
                 pKey.Value = Tuple.Create(i % instanceCount);
-                var es = rs.ToEntities<Simplest>();
+                var es = rs.ToEntities<Simplest>(0);
                 foreach (var o in es) {
                   // Doing nothing, just enumerate
                 }

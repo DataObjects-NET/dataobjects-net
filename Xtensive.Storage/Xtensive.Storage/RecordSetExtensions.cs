@@ -22,11 +22,12 @@ namespace Xtensive.Storage
     /// </summary>
     /// <typeparam name="T">The type of <see cref="Entity"/> instances to get.</typeparam>
     /// <param name="source">The <see cref="RecordSet"/> to process.</param>
+    /// <param name="primaryKeyIndex">Index of primary key within the <see cref="Record"/>.</param>
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
-    public static IEnumerable<T> ToEntities<T>(this RecordSet source) 
+    public static IEnumerable<T> ToEntities<T>(this RecordSet source, int primaryKeyIndex)
       where T : class, IEntity
     {
-      foreach (var entity in ToEntities(source, typeof (T)))
+      foreach (var entity in ToEntities(source, primaryKeyIndex))
         yield return entity as T;
     }
 
@@ -34,42 +35,28 @@ namespace Xtensive.Storage
     /// Converts the <see cref="RecordSet"/> items to <see cref="Entity"/> instances.
     /// </summary>
     /// <param name="source">The <see cref="RecordSet"/> to process.</param>
-    /// <param name="type">The type of <see cref="Entity"/> instances to get.</param>
+    /// <param name="primaryKeyIndex">Index of primary key within the <see cref="Record"/>.</param>
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
-    public static IEnumerable<Entity> ToEntities(this RecordSet source, Type type)
+    public static IEnumerable<Entity> ToEntities(this RecordSet source, int primaryKeyIndex)
     {
-      Session session = Session.Demand();
-      var parser = session.Domain.RecordSetReader;
-      int keyIndex = -1;
-      foreach (var record in parser.Read(source)) {
-        Key key;
-        if (keyIndex == -1)
-          for (int i = 0; i < record.Count; i++) {
-            key = record.GetKey(i);
-            if (key != null && type.IsAssignableFrom(key.Type.UnderlyingType)) {
-              keyIndex = i;
-              break;
-            }
-          }
-        key = record.GetKey(keyIndex);
-        var tuple = record.GetTuple(keyIndex);
-        if (key==null || tuple==null)
-          yield return null;
-        else
+      var session = Session.Demand();
+      var reader = session.Domain.RecordSetReader;
+      foreach (var record in reader.Read(source)) {
+        var key = record.GetKey(primaryKeyIndex);
+        var tuple = record.GetTuple(primaryKeyIndex);
+        if (key!=null && tuple!=null)
           yield return session.UpdateEntityState(key, tuple).Entity;
       }
     }
 
     public static IEnumerable<Record> Read(this RecordSet source)
     {
-      Domain domain = Domain.Demand();
-      return domain.RecordSetReader.Read(source);
+      return Domain.Demand().RecordSetReader.Read(source);
     }
 
     public static Record ReadSingleRow(this RecordSet source)
     {
-      Domain domain = Domain.Demand();
-      return domain.RecordSetReader.ReadSingleRow(source, null);
+      return Domain.Demand().RecordSetReader.ReadSingleRow(source, null);
     }
   }
 }

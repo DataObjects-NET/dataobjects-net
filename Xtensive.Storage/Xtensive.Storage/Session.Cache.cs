@@ -10,6 +10,7 @@ using Xtensive.Core.Caching;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
 {
@@ -66,6 +67,22 @@ namespace Xtensive.Storage
           Log.Debug("Session '{0}'. Updating cache: {1}", this, result);
       }
       return result;
+    }
+
+    internal void UpdateCacheFrom(RecordSet source)
+    {
+      var reader = Domain.RecordSetReader;
+      foreach (var record in reader.Read(source)) {
+        for (int i = 0; i < record.Count; i++) {
+          var key = record.GetKey(i);
+          if (key==null)
+            continue;
+          var tuple = record.GetTuple(i);
+          if (tuple==null)
+            continue;
+          UpdateEntityState(key, tuple);
+        }
+      }
     }
   }
 }
