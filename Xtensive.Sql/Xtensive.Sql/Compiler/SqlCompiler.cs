@@ -337,6 +337,11 @@ namespace Xtensive.Sql.Compiler
       context.AppendText(translator.Translate(context, node));
     }
 
+    public void Visit(SqlCommand node)
+    {
+      context.AppendText(translator.Translate(context, node));
+    }
+
     public virtual void Visit(SqlCreateAssertion node)
     {
       using (context.EnterNode(node)) {

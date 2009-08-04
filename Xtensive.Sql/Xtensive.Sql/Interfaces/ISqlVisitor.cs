@@ -28,6 +28,7 @@ namespace Xtensive.Sql
     void Visit(SqlColumnRef node);
     void Visit(SqlContinue node);
     void Visit(SqlContainer node);
+    void Visit(SqlCommand node);
     void Visit(SqlCreateAssertion node);
     void Visit(SqlCreateCharacterSet node);
     void Visit(SqlCreateCollation node);

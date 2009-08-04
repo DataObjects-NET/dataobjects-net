@@ -1367,6 +1367,18 @@ namespace Xtensive.Sql.Compiler
       return string.Empty;
     }
 
+    public virtual string Translate(SqlCompilerContext context, SqlCommand node)
+    {
+      switch (node.CommandType) {
+      case SqlCommandType.SetConstraintsAllDeferred:
+        return "SET CONSTRAINTS ALL DEFERRED";
+      case SqlCommandType.SetConstraintsAllImmediate:
+        return "SET CONSTRAINTS ALL IMMEDIATE";
+      default:
+        throw new NotSupportedException(string.Format(Strings.ExOperationXIsNotSupported, node.CommandType));
+      }
+    }
+
     public virtual string Translate(SqlNodeType type)
     {
       switch (type) {

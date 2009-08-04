@@ -440,5 +440,10 @@ namespace Xtensive.Sql
     {
       return DropDefault(null);
     }
+
+    public static SqlCommand Command(SqlCommandType commandType)
+    {
+      return new SqlCommand(commandType);
+    }
   }
 }

@@ -33,6 +33,7 @@ namespace Xtensive.Sql
     Collate,
     Column,
     ColumnRef,
+    Command,
     Concat,
     Conditional,
     Constant,
