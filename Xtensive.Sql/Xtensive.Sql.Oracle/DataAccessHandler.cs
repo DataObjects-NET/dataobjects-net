@@ -5,8 +5,8 @@
 // Created:    2009.07.17
 
 using System;
+using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using Oracle.DataAccess.Client;
 using Oracle.DataAccess.Types;
 
@@ -16,108 +16,95 @@ namespace Xtensive.Sql.Oracle
   {
     public override void SetBooleanParameterValue(DbParameter parameter, object value)
     {
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-      parameter.Value = (bool) value ? 1.0m : 0.0m;
+      parameter.DbType = DbType.Decimal;
+      parameter.Value = value==null ? (object) DBNull.Value : ((bool) value ? 1.0m : 0.0m);
     }
 
     public override void SetByteParameterValue(DbParameter parameter, object value)
     {
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-      parameter.Value = (decimal) (byte) value;
+      parameter.DbType = DbType.Decimal;
+      parameter.Value = value==null ? (object) DBNull.Value : (decimal) (byte) value;
     }
 
     public override void SetSByteParameterValue(DbParameter parameter, object value)
     {
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-      parameter.Value = (decimal) (sbyte) value;
+      parameter.DbType = DbType.Decimal;
+      parameter.Value = value==null ? (object) DBNull.Value : (decimal) (sbyte) value;
     }
 
     public override void SetShortParameterValue(DbParameter parameter, object value)
     {
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-      parameter.Value = (decimal) (short) value;
+      parameter.DbType = DbType.Decimal;
+      parameter.Value = value==null ? (object) DBNull.Value : (decimal) (short) value;
     }
 
     public override void SetUShortParameterValue(DbParameter parameter, object value)
     {
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-      parameter.Value = (decimal) (ushort) value;
+      parameter.DbType = DbType.Decimal;
+      parameter.Value = value==null ? (object) DBNull.Value : (decimal) (ushort) value;
     }
 
     public override void SetIntParameterValue(DbParameter parameter, object value)
     {
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-      parameter.Value = (decimal) (int) value;
+      parameter.DbType = DbType.Decimal;
+      parameter.Value = value==null ? (object) DBNull.Value : (decimal) (int) value;
     }
 
     public override void SetUIntParameterValue(DbParameter parameter, object value)
     {
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-      parameter.Value = (decimal) (uint) value;
+      parameter.DbType = DbType.Decimal;
+      parameter.Value = value==null ? (object) DBNull.Value : (decimal) (uint) value;
     }
 
     public override void SetLongParameterValue(DbParameter parameter, object value)
     {
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-      parameter.Value = (decimal) (long) value;
+      parameter.DbType = DbType.Decimal;
+      parameter.Value = value==null ? (object) DBNull.Value : (decimal) (long) value;
     }
 
     public override void SetULongParameterValue(DbParameter parameter, object value)
     {
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-      parameter.Value = (decimal) (ulong) value;
+      parameter.DbType = DbType.Decimal;
+      parameter.Value = value==null ? (object) DBNull.Value : (decimal) (ulong) value;
+    }
+
+    public override void SetFloatParameterValue(DbParameter parameter, object value)
+    {
+      var nativeParameter = (OracleParameter) parameter;
+      nativeParameter.OracleDbType = OracleDbType.BinaryFloat;
+      nativeParameter.Value = value ?? DBNull.Value;
+    }
+
+    public override void SetDoubleParameterValue(DbParameter parameter, object value)
+    {
+      var nativeParameter = (OracleParameter) parameter;
+      nativeParameter.OracleDbType = OracleDbType.BinaryDouble;
+      nativeParameter.Value = value ?? DBNull.Value;
     }
 
     public override void SetTimeSpanParameterValue(DbParameter parameter, object value)
     {
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
       var nativeParameter = (OracleParameter) parameter;
       nativeParameter.OracleDbType = OracleDbType.IntervalDS;
-      nativeParameter.Value = new OracleIntervalDS((TimeSpan) value);
+      nativeParameter.Value = value==null ? (object) DBNull.Value : new OracleIntervalDS((TimeSpan) value);
+    }
+
+    public override void SetByteArrayParameterValue(DbParameter parameter, object value)
+    {
+      var nativeParameter = (OracleParameter) parameter;
+      nativeParameter.OracleDbType = OracleDbType.Blob;
+      nativeParameter.Value = value ?? DBNull.Value;
     }
 
     public override void SetGuidParameterValue(DbParameter parameter, object value)
     {
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-      parameter.Value = ((Guid) value).ToByteArray();
+      parameter.DbType = DbType.String;
+      parameter.Value = value==null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
 
     public override object ReadBoolean(DbDataReader reader, int index)
     {
-      return Math.Abs(reader.GetDecimal(index) - 0.1m) > 0.2m;
+      return reader.GetDecimal(index)!=0.0m;
     }
 
     public override object ReadByte(DbDataReader reader, int index)
@@ -164,6 +151,11 @@ namespace Xtensive.Sql.Oracle
     {
       var nativeReader = (OracleDataReader) reader;
       return (TimeSpan) nativeReader.GetOracleIntervalDS(index);
+    }
+
+    public override object ReadGuid(DbDataReader reader, int index)
+    {
+      return SqlHelper.GuidFromString(reader.GetString(index));
     }
 
     public override SqlValueType BuildBooleanSqlType(int? length, int? precision, int? scale)
@@ -213,14 +205,7 @@ namespace Xtensive.Sql.Oracle
 
     public override SqlValueType BuildGuidSqlType(int? length, int? precision, int? scale)
     {
-      return new SqlValueType(SqlType.VarBinaryMax);
-    }
-
-    public override object ReadGuid(DbDataReader reader, int index)
-    {
-      var bytes = new byte[16];
-      reader.GetBytes(index, 0, bytes, 0, 16);
-      return new Guid(bytes);
+      return new SqlValueType(SqlType.VarChar, 32);
     }
 
     // Constructors

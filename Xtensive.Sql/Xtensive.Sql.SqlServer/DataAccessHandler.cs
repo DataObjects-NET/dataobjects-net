@@ -24,9 +24,6 @@ namespace Xtensive.Sql.SqlServer
       case TypeCode.UInt16:
       case TypeCode.Int64:
       case TypeCode.UInt64:
-//      case TypeCode.Single:
-//      case TypeCode.Double:
-//      case TypeCode.DateTime:
         return true;
       }
       if (type==typeof(TimeSpan))

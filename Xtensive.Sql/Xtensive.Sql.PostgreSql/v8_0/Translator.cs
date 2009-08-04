@@ -308,7 +308,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       if (literalType==typeof(byte[]))
         return TranslateByteArrayLiteral((byte[]) literalValue);
       if (literalType==typeof(Guid))
-        return TranslateByteArrayLiteral(((Guid) literalValue).ToByteArray());
+        return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
       return base.Translate(context, literalType, literalValue);
     }
 
@@ -967,7 +967,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         chars[n + 3] = (char) ('0' + (7 & (array[i] >> 3)));
         chars[n + 4] = (char) ('0' + (7 & (array[i] >> 0)));
       }
-      return new String(chars);
+
+      return new string(chars);
     }
 
 

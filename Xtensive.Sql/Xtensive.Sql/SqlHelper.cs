@@ -155,5 +155,15 @@ namespace Xtensive.Sql
       var scale = SqlDml.Power(10, digits);
       return RegularRound(argument * scale) / scale;
     }
+
+    public static string GuidToString(Guid guid)
+    {
+      return guid.ToString("N");
+    }
+
+    public static Guid GuidFromString(string value)
+    {
+      return new Guid(value);
+    }
   }
 }

@@ -97,12 +97,8 @@ namespace Xtensive.Sql.PostgreSql
 
     public override void SetGuidParameterValue(DbParameter parameter, object value)
     {
-      parameter.DbType = DbType.Binary;
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-      parameter.Value = ((Guid) value).ToByteArray();
+      parameter.DbType = DbType.String;
+      parameter.Value = value==null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
 
     public override SqlValueType BuildByteSqlType(int? length, int? precision, int? scale)
@@ -132,7 +128,7 @@ namespace Xtensive.Sql.PostgreSql
 
     public override SqlValueType BuildGuidSqlType(int? length, int? precision, int? scale)
     {
-      return new SqlValueType(SqlType.VarBinaryMax);
+      return new SqlValueType(SqlType.VarChar, 32);
     }
 
     public override object ReadByte(DbDataReader reader, int index)
@@ -142,9 +138,7 @@ namespace Xtensive.Sql.PostgreSql
 
     public override object ReadGuid(DbDataReader reader, int index)
     {
-      var bytes = new byte[16];
-      reader.GetBytes(index, 0, bytes, 0, 16);
-      return new Guid(bytes);
+      return SqlHelper.GuidFromString(reader.GetString(index));
     }
 
     public override object ReadTimeSpan(DbDataReader reader, int index)

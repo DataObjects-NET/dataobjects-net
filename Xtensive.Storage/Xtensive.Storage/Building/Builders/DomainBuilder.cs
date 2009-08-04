@@ -105,6 +105,7 @@ namespace Xtensive.Storage.Building.Builders
           break;
         case WellKnown.Protocol.SqlServer:
         case WellKnown.Protocol.PostgreSql:
+        case WellKnown.Protocol.Oracle:
           providerAssemblyShortName = "Xtensive.Storage.Providers.Sql";
           break;
         default:

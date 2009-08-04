@@ -97,6 +97,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     }
 
     [Test]
+    [Ignore("Dependent on server.")]
     public void GuidToStringTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 

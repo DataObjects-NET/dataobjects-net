@@ -70,14 +70,17 @@ namespace Xtensive.Storage.Tests
     {
       protocolName = config.ConnectionInfo.Protocol;
       switch (protocolName) {
+      case WellKnown.Protocol.Memory:
+        protocol = StorageProtocol.Memory;
+        break;
       case WellKnown.Protocol.SqlServer:
         protocol = StorageProtocol.SqlServer;
         break;
       case WellKnown.Protocol.PostgreSql:
         protocol = StorageProtocol.PostgreSql;
         break;
-      case WellKnown.Protocol.Memory:
-        protocol = StorageProtocol.Memory;
+      case WellKnown.Protocol.Oracle:
+        protocol = StorageProtocol.Oracle;
         break;
       default:
         throw new ArgumentOutOfRangeException();

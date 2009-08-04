@@ -14,7 +14,9 @@ namespace Xtensive.Storage.Tests
     Memory = 0x1,
     SqlServer = 0x2,
     PostgreSql = 0x4,
-    Sql = SqlServer | PostgreSql,
+    Oracle = 0x8,
+
+    Sql = SqlServer | PostgreSql | Oracle,
     Index = Memory,
   }
 }

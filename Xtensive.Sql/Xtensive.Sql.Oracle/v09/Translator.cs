@@ -125,15 +125,17 @@ namespace Xtensive.Sql.Oracle.v09
       switch (Type.GetTypeCode(literalType)) {
       case TypeCode.Boolean:
         return (bool) literalValue ? "1" : "0";
-//      case TypeCode.Single:
-//        return ((float) literalValue).ToString(this) + "f";
-//      case TypeCode.Double:
-//        return ((double) literalValue).ToString(this) + "d";
       }
-      if (literalType==typeof(byte[]))
-        return TranslateByteArrayLiteral((byte[]) literalValue);
+      if (literalType==typeof(byte[])) {
+        var values = (byte[]) literalValue;
+        var builder = new StringBuilder(2 * (values.Length + 1));
+        builder.Append("'");
+        builder.AppendHexArray(values);
+        builder.Append("'");
+        return builder.ToString();
+      }
       if (literalType==typeof(Guid))
-        return TranslateByteArrayLiteral(((Guid) literalValue).ToByteArray());
+        return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
       return base.Translate(context, literalType, literalValue);
     }
 
@@ -194,15 +196,6 @@ namespace Xtensive.Sql.Oracle.v09
       default:
         return base.Translate(type);
       }
-    }
-
-    private static string TranslateByteArrayLiteral(byte[] values)
-    {
-      var builder = new StringBuilder(2 * (values.Length + 1));
-      builder.Append("'");
-      builder.AppendHexArray(values);
-      builder.Append("'");
-      return builder.ToString();
     }
 
     // Constructors

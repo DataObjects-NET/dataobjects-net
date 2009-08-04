@@ -81,8 +81,7 @@ namespace Xtensive.Sql.Tests
       var resultQuery = SqlDml.Select(tableRef);
       resultQuery.Columns.Add(SqlDml.Asterisk);
       resultQuery.OrderBy.Add(tableRef[IdColumnName]);
-      using (var resultCommand = Connection.CreateCommand(resultQuery))
-        VerifyResults(resultCommand.ExecuteReader());
+      VerifyResults(Connection.CreateCommand(resultQuery));
     }
 
     [Test]
@@ -114,7 +113,7 @@ namespace Xtensive.Sql.Tests
       resultQuery.Columns.Add(SqlDml.Asterisk);
       resultQuery.OrderBy.Add(unionQueryRef[IdColumnName]);
       command.CommandText = Driver.Compile(resultQuery).GetCommandText();
-      VerifyResults(command.ExecuteReader());
+      VerifyResults(command);
     }
 
     [Test]
@@ -143,7 +142,7 @@ namespace Xtensive.Sql.Tests
       resultQuery.Columns.Add(SqlDml.Asterisk);
       resultQuery.OrderBy.Add(unionQueryRef[IdColumnName]);
       command.CommandText = Driver.Compile(resultQuery).GetCommandText();
-      VerifyResults(command.ExecuteReader());
+      VerifyResults(command);
     }
 
     protected virtual void CheckEquality(object expected, object actual)
@@ -151,21 +150,23 @@ namespace Xtensive.Sql.Tests
       Assert.AreEqual(expected, actual);
     }
 
-    private void VerifyResults(DbDataReader reader)
+    private void VerifyResults(DbCommand command)
     {
-      int rowIndex = 0;
-      using (reader)
-      while (reader.Read()) {
-        for (int columnIndex = 0; columnIndex < testValues.Length; columnIndex++) {
-          var expectedValue = testValues[columnIndex][rowIndex];
-          var actualValue = !reader.IsDBNull(columnIndex + 1)
-            ? typeMappings[columnIndex].ReadValue(reader, columnIndex + 1)
-            : null;
-          CheckEquality(expectedValue, actualValue);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+        int rowIndex = 0;
+        while (reader.Read()) {
+          for (int columnIndex = 0; columnIndex < testValues.Length; columnIndex++) {
+            var expectedValue = testValues[columnIndex][rowIndex];
+            var actualValue = !reader.IsDBNull(columnIndex + 1)
+              ? typeMappings[columnIndex].ReadValue(reader, columnIndex + 1)
+              : null;
+            CheckEquality(expectedValue, actualValue);
+          }
+          rowIndex++;
         }
-        rowIndex++;
+        Assert.AreEqual(testValues[0].Length, rowIndex);
       }
-      Assert.AreEqual(testValues[0].Length, rowIndex);
     }
     
     private static object[] GetTestValues(Type type)
@@ -229,7 +230,7 @@ namespace Xtensive.Sql.Tests
         return new object[]
           {
             new byte[0],
-            new [] {(byte) 5, (byte) 6, (byte)8},
+            new [] {(byte) 5, (byte) 6, (byte) 8},
             new [] {byte.MinValue, byte.MaxValue},
             null,
           };
