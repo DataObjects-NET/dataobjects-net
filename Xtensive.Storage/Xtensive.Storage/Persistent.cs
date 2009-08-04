@@ -183,14 +183,24 @@ namespace Xtensive.Storage
           String.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
 
       NotifyGettingFieldValue(field);
-      var type = Session.Domain.Model.Types[field.ValueType];
+      var types = Session.Domain.Model.Types;
+      var type = types[field.ValueType];
       var tuple = Tuple;
       if (tuple.ContainsEmptyValues(field.MappingInfo))
         return null;
 
-      bool exactType = type.Hierarchy.KeyInfo.TypeIdFieldIndex >= 0;
-      var fieldValue = field.ExtractValue(tuple);
-      var key = Key.Create(Session.Domain, type, fieldValue, null, exactType, exactType);
+      int typeIdFieldIndex = type.Hierarchy.KeyInfo.TypeIdFieldIndex;
+      bool exactType = typeIdFieldIndex >= 0;
+      var keyValue = field.ExtractValue(tuple);
+      if (exactType) {
+        int typeId = keyValue.GetValueOrDefault<int>(typeIdFieldIndex);
+        if (typeId!=TypeInfo.NoTypeId) // != default(int) != 0
+          type = types[typeId];
+        else
+          // This may happen if referense is null
+          exactType = false;
+      }
+      var key = Key.Create(Session.Domain, type, keyValue, null, exactType, exactType);
       NotifyGetFieldValue(field, key);
       return key;
     }

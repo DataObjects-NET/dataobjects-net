@@ -58,16 +58,20 @@ namespace Xtensive.Storage.Serialization
       var keyFields = entityType.Hierarchy.KeyInfo.Fields;
         Tuple keyTuple = Tuple.Create(entityType.Hierarchy.KeyInfo.TupleDescriptor);
       foreach (FieldInfo keyField in keyFields.Keys) {
-        object value = info.GetValue(keyField.Name, keyField.ValueType);        
-        if (keyField.IsEntity) {
-          Entity referencedEntity = (Entity) value;
-          if (!IsInitialized(referencedEntity))
-            DeserializationContext.Demand().InitializeEntity(referencedEntity);
-          Tuple referencedTuple = referencedEntity.Key.Value;
-          referencedTuple.CopyTo(keyTuple, keyField.MappingInfo.Offset);
+        if (keyField.IsTypeId)
+          keyTuple[keyField.MappingInfo.Offset] = entityType.TypeId;
+        else {
+          object value = info.GetValue(keyField.Name, keyField.ValueType);
+          if (keyField.IsEntity) {
+            Entity referencedEntity = (Entity) value;
+            if (!IsInitialized(referencedEntity))
+              DeserializationContext.Demand().InitializeEntity(referencedEntity);
+            Tuple referencedTuple = referencedEntity.Key.Value;
+            referencedTuple.CopyTo(keyTuple, keyField.MappingInfo.Offset);
+          }
+          else
+            keyTuple[keyField.MappingInfo.Offset] = value;
         }
-        else
-          keyTuple[keyField.MappingInfo.Offset] = value;
       }
       return keyTuple;
     }
@@ -88,7 +92,7 @@ namespace Xtensive.Storage.Serialization
 
     private static bool IsSerializable(FieldInfo field)
     {
-      return !field.IsTypeId && field.Parent==null;
+      return field.Parent==null && !field.IsTypeId;
     }
 
     private static bool IsInitialized(Entity entity)
