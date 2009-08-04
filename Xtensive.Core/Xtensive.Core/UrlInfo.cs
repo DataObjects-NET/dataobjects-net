@@ -77,6 +77,16 @@ namespace Xtensive.Core
     IComparable<UrlInfo>,
     ISerializable
   {
+    private static readonly Regex Pattern = new Regex(
+          @"^(?'proto'[^:]*)://" +
+          @"((?'username'[^:@]*)" +
+          @"(:(?'password'[^@]*))?@)?" +
+          @"(?'host'[^:/]*)" +
+          @"(:(?'port'\d+))?" +
+          @"/(?'resource'[^?]*)?" +
+          @"(\?(?'params'.*))?", 
+          RegexOptions.Compiled|RegexOptions.Singleline);
+
     private string url = string.Empty;
     private string protocol = string.Empty;
     private string host = string.Empty;
@@ -182,60 +192,54 @@ namespace Xtensive.Core
     /// <remarks>
     /// The expected URL format is as the following:
     /// proto://[[user[:password]@]host[:port]]/resource.
-    /// Note that the empty URL would cause an exception.
+    /// Note that the empty URL will cause an exception.
     /// </remarks>
     /// <exception cref="ArgumentException">Specified <paramref name="url"/> is invalid (cannot be parsed).</exception>
-    protected virtual void ParseUrl(string url)
+    public static UrlInfo Parse(string url)
+    {
+      var result = new UrlInfo();
+      Parse(url, result);
+      return result;
+    }
+
+    private static void Parse(string url, UrlInfo info)
     {
       try {
         string tUrl = url;
         if (tUrl.Length==0)
           tUrl = ":///";
-        Match URLmatch = Regex.Match(
-          tUrl,
-          @"^(?'proto'[^:]*)://" +
-          @"((?'username'[^:@]*)" +
-          @"(:(?'password'[^@]*))?@)?" +
-          @"(?'host'[^:/]*)" +
-          @"(:(?'port'\d+))?" +
-          @"/(?'resource'[^?]*)?" +
-          @"(\?(?'params'.*))?"
-          );
-        if (!URLmatch.Success)
+
+        var result = Pattern.Match(tUrl);
+        if (!result.Success)
           throw Exceptions.InvalidUrl(url, "url");
 
-        string tUser = UrlDecode(URLmatch.Result("${username}"));
-        string tPassword = UrlDecode(URLmatch.Result("${password}"));
-        string tResource = UrlDecode(URLmatch.Result("${resource}"));
-        string tHost = UrlDecode(URLmatch.Result("${host}"));
-        string tProtocol = UrlDecode(URLmatch.Result("${proto}"));
-        int tPort = 0;
+        int @port = 0;
 
-        if (URLmatch.Result("${port}").Length!=0)
-          tPort = int.Parse(URLmatch.Result("${port}"));
-        if (tPort<0 || tPort>65535)
-          throw Exceptions.InvalidUrl(url, "url");
+        if (result.Result("${port}").Length!=0)
+          @port = int.Parse(result.Result("${port}"));
+        if (@port<0 || @port>65535)
+          throw Exceptions.InvalidUrl(url, "port");
 
-        string tParams = URLmatch.Result("${params}");
+        string tParams = result.Result("${params}");
         string[] aParams = tParams.Split('&');
-        Dictionary<string, string> nvParams = new Dictionary<string, string>();
+        var @params = new Dictionary<string, string>();
         if (tParams!=string.Empty) {
           foreach (string sPair in aParams) {
             string[] aNameValue = sPair.Split(new char[] {'='}, 2);
             if (aNameValue.Length!=2)
-              throw Exceptions.InvalidUrl(url, "url");
-            nvParams.Add(UrlDecode(aNameValue[0]), UrlDecode(aNameValue[1]));
+              throw Exceptions.InvalidUrl(url, "parameters");
+            @params.Add(UrlDecode(aNameValue[0]), UrlDecode(aNameValue[1]));
           }
         }
 
-        this.url = url;
-        user = tUser;
-        password = tPassword;
-        resource = tResource;
-        host = tHost;
-        protocol = tProtocol;
-        port = tPort;
-        parameters = new ReadOnlyDictionary<string, string>(nvParams);
+        info.url = url;
+        info.user = UrlDecode(result.Result("${username}"));
+        info.password = UrlDecode(result.Result("${password}"));
+        info.resource = UrlDecode(result.Result("${resource}"));
+        info.host = UrlDecode(result.Result("${host}"));
+        info.protocol = UrlDecode(result.Result("${proto}"));
+        info.port = @port;
+        info.parameters = new ReadOnlyDictionary<string, string>(@params);
       }
       catch (Exception e) {
         if (e is ArgumentException || e is InvalidOperationException)
@@ -423,9 +427,14 @@ namespace Xtensive.Core
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="url">Initial <see cref="UrlInfo.Url"/> property value.</param>
+    [Obsolete]
     public UrlInfo(string url)
     {
-      ParseUrl(url);
+      Parse(url, this);
+    }
+
+    private UrlInfo()
+    {
     }
 
     #region ISerializable members, deserializing constructor
@@ -437,7 +446,7 @@ namespace Xtensive.Core
     /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to populate the data from. </param>
     protected UrlInfo(SerializationInfo info, StreamingContext context)
     {
-      ParseUrl(info.GetString("Url"));
+      Parse(info.GetString("Url"), this);
     }
 
     /// <summary>
