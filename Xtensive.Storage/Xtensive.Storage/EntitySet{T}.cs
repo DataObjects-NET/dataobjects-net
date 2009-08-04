@@ -15,8 +15,10 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Parameters;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
+using Xtensive.Storage.Rse;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage
@@ -223,10 +225,13 @@ namespace Xtensive.Storage
       var state = new EntitySetState(MaxCacheSize);
       long stateCount = 0;
       if (Owner.State.PersistenceState != PersistenceState.New) {
-        stateCount = rsCount.First().GetValue<long>(0);
-        if (stateCount <= LoadStateCount)
-          foreach (var item in new Queryable<TItem>(expression))
-            state.Register(item.Key);
+        using (new ParameterContext().Activate()) {
+          pKey.Value = Owner.Key.Value;
+          stateCount = GetEntitySetTypeState().CountRecordSet.First().GetValue<long>(0);
+          if (stateCount <= LoadStateCount)
+            foreach (var item in new Queryable<TItem>(expression))
+              state.Register(item.Key);
+        }
       }
       state.count = stateCount;
       return state;

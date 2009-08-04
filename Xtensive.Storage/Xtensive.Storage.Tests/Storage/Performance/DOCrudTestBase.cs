@@ -13,10 +13,12 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 {
   public abstract class DOCrudTestBase : AutoBuildTest
   {
-    private bool warmup;
-    private int instanceCount;
     private const int BaseCount = 10000;
     private const int InsertCount = BaseCount;
+
+    private bool warmup;
+    private int instanceCount;
+    private int collectionCount;
 
     protected abstract DomainConfiguration CreateConfiguration();
 
@@ -62,6 +64,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       MaterializeAnonymousTypeTest(baseCount);
       MaterializeGetFieldTest(baseCount);
       ManualMaterializeTest(baseCount);
+      
+      InsertSimplestCollection(insertCount);
+      MaterializeAndAccessToEntitySetTest(collectionCount);
+      RemoveSimplestCollection();
+
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
       SameQueryExpressionTest(baseCount / 5);
@@ -197,6 +204,66 @@ namespace Xtensive.Storage.Tests.Storage.Performance
             }
             ts.Complete();
           }
+        }
+      }
+    }
+
+    private void MaterializeAndAccessToEntitySetTest(int count)
+    {
+      var d = Domain;
+      using (var ss = Session.Open(d)) {
+        var s = ss.Session;
+        int i = 0;
+        using (var ts = Transaction.Open()) {
+          TestHelper.CollectGarbage();
+          using (warmup ? null : new Measurement("Materialize and access to EntitySet", count)) {
+            Simplest t = null;
+            while (i < count)
+              foreach (var o in CachedQuery.Execute(() => Query<SimplestCollection>.All)) {
+                t = o.Items.First();
+                if (++i >= count)
+                  break;
+              }
+            Assert.Greater(t.Id, -1);
+            ts.Complete();
+          }
+        }
+      }
+    }
+
+    private void InsertSimplestCollection(int insertCount)
+    {
+      var d = Domain;
+      int count = 0;
+      using (var ss = Session.Open(d)) {
+        var s = ss.Session;
+        TestHelper.CollectGarbage();
+        using (var ts = Transaction.Open()) {
+          SimplestCollection owner = null;
+          for (int i = 0; i < insertCount; i++) {
+            if (i % 10 == 0) {
+              owner = new SimplestCollection();
+              count++;
+            }
+            owner.Items.Add(new Simplest(i + insertCount, i));
+          }
+          ts.Complete();
+        }
+      }
+      collectionCount = count;
+    }
+
+    private void RemoveSimplestCollection()
+    {
+      var d = Domain;
+      using (var ss = Session.Open(d)) {
+        var s = ss.Session;
+        TestHelper.CollectGarbage();
+        using (var ts = Transaction.Open()) {
+          var query = CachedQuery.Execute(() => Query<SimplestCollection>.All);
+          foreach (var o in query)
+            o.Remove();
+          ts.Complete();
         }
       }
     }

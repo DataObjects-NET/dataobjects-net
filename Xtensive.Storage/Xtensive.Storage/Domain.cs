@@ -23,6 +23,7 @@ using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Upgrade;
 using TypeInfo=Xtensive.Storage.Model.TypeInfo;
@@ -168,6 +169,9 @@ namespace Xtensive.Storage
 
     internal readonly ThreadSafeIntDictionary<GenericKeyTypeInfo> genericKeyTypes = 
       ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
+
+    internal readonly ThreadSafeDictionary<Model.FieldInfo, EntitySetTypeState> entitySetTypeStateCache =
+      ThreadSafeDictionary<Model.FieldInfo, EntitySetTypeState>.Create(new object());
 
     private void OnSessionOpen(Session session)
     {

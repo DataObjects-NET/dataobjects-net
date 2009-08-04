@@ -20,6 +20,7 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Indexing;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
@@ -28,7 +29,7 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
 {
-/// <summary>
+  /// <summary>
   /// Base class for <see cref="EntitySet{TItem}"/>.
   /// </summary>
   public abstract class EntitySetBase : TransactionalStateContainer<EntitySetState>,
@@ -37,14 +38,8 @@ namespace Xtensive.Storage
     INotifyPropertyChanged,
     INotifyCollectionChanged
   {
-    private static readonly Parameter<Tuple> pKey = new Parameter<Tuple>(WellKnown.KeyFieldName);
+    internal static readonly Parameter<Tuple> pKey = new Parameter<Tuple>(WellKnown.KeyFieldName);
     private readonly Entity owner;
-    private RecordSet rsItems;
-    private RecordSet rsSeek;
-    internal RecordSet rsCount;
-    private Func<Tuple, Entity> itemCtor;
-    private AssociationInfo association;
-    private CombineTransform seekTransform;
     private bool isInitialized;
 
     /// <summary>
@@ -147,11 +142,11 @@ namespace Xtensive.Storage
 
       NotifyAdding(item);
 
-      if (association.IsPaired)
-        Session.PairSyncManager.Enlist(OperationType.Add, Owner, item, association);
+      if (Field.Association.IsPaired)
+        Session.PairSyncManager.Enlist(OperationType.Add, Owner, item, Field.Association);
 
-      if (association.AuxiliaryType!=null && association.IsMaster)
-        itemCtor(item.Key.Value.Combine(Owner.Key.Value));
+      if (Field.Association.AuxiliaryType!=null && Field.Association.IsMaster)
+        GetEntitySetTypeState().ItemCtor.Invoke(item.Key.Value.Combine(Owner.Key.Value));
 
       State.Add(item.Key);
       NotifyAdd(item);
@@ -174,11 +169,11 @@ namespace Xtensive.Storage
 
       NotifyRemoving(item);
 
-      if (association.IsPaired)
-        Session.PairSyncManager.Enlist(OperationType.Remove, Owner, item, association);
+      if (Field.Association.IsPaired)
+        Session.PairSyncManager.Enlist(OperationType.Remove, Owner, item, Field.Association);
 
-      if (association.AuxiliaryType!=null && association.IsMaster) {
-        var combinedKey = Key.Create(association.AuxiliaryType, item.Key.Value.Combine(Owner.Key.Value));
+      if (Field.Association.AuxiliaryType!=null && Field.Association.IsMaster) {
+        var combinedKey = Key.Create(Field.Association.AuxiliaryType, item.Key.Value.Combine(Owner.Key.Value));
         Entity underlyingItem = Query.SingleOrDefault(Session, combinedKey);
         underlyingItem.Remove();
       }
@@ -375,8 +370,9 @@ namespace Xtensive.Storage
 
       bool result;
       using (new ParameterContext().Activate()) {
-        pKey.Value = seekTransform.Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value);
-        result = rsSeek.FirstOrDefault()!=null;
+        pKey.Value = GetEntitySetTypeState().SeekTransform
+          .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value);
+        result = GetEntitySetTypeState().SeekRecordSet.FirstOrDefault()!=null;
       }
       if (result)
         State.Register(key);
@@ -430,6 +426,29 @@ namespace Xtensive.Storage
         Remove(item);
     }
 
+    internal EntitySetTypeState GetEntitySetTypeState()
+    {
+      return Session.Domain.entitySetTypeStateCache.GetValue(Field, BuildEntitySetTypeState);
+    }
+
+    private static EntitySetTypeState BuildEntitySetTypeState(FieldInfo field)
+    {
+      var items = field.Association.UnderlyingIndex.ToRecordSet()
+        .Range(() => new Range<Entire<Tuple>>(new Entire<Tuple>(pKey.Value, Direction.Negative),
+          new Entire<Tuple>(pKey.Value, Direction.Positive)));
+      var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
+      var count = items.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
+      var seekTransform = new CombineTransform(true,
+        field.Association.OwnerType.Hierarchy.KeyInfo.TupleDescriptor,
+        field.Association.TargetType.Hierarchy.KeyInfo.TupleDescriptor);
+      Func<Tuple, Entity> itemCtor = null;
+      if (field.Association.AuxiliaryType!=null)
+        itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,
+          field.Association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName,
+          ArrayUtils<Type>.EmptyArray);
+      return new EntitySetTypeState(seek, count, seekTransform, itemCtor);
+    }
+
     #endregion
 
 
@@ -455,14 +474,6 @@ namespace Xtensive.Storage
     /// </summary>
     protected virtual void Initialize()
     {
-      association = Field.Association;
-      if (association.AuxiliaryType!=null)
-        itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null, association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
-      rsItems = association.UnderlyingIndex.ToRecordSet().Range(Owner.Key.Value, Owner.Key.Value);
-      rsSeek = association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
-      rsCount = rsItems.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
-
-      seekTransform = new CombineTransform(true, association.OwnerType.Hierarchy.KeyInfo.TupleDescriptor, association.TargetType.Hierarchy.KeyInfo.TupleDescriptor);
       NotifyInitialize();
     }
 
