@@ -215,7 +215,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DistinctTakeTest1()
     {
-      var result = Query<Order>.All.Select(o => o.Customer.Id).Distinct().Take(5);
+      var result = Query<Customer>.All.Select(c => c.Id).Distinct().Take(5);
       var list = result.ToList();
       Assert.Greater(list.Count, 0);
     }
