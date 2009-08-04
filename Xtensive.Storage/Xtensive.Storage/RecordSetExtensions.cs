@@ -43,9 +43,13 @@ namespace Xtensive.Storage
       var reader = session.Domain.RecordSetReader;
       foreach (var record in reader.Read(source)) {
         var key = record.GetKey(primaryKeyIndex);
+        if (key == null)
+          continue;
         var tuple = record.GetTuple(primaryKeyIndex);
-        if (key!=null && tuple!=null)
+        if (tuple!=null)
           yield return session.UpdateEntityState(key, tuple).Entity;
+        else
+          yield return Query.SingleOrDefault(session, key);
       }
     }
 
