@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Providers.Sql
       var sequenceInfo = new SequenceInfo(StorageInfo, sequence.Name) {
         // Current = GetNextGeneratorValue(sequence.Name),
         Increment = sequence.SequenceDescriptor.Increment.Value,
-        StartValue = sequence.SequenceDescriptor.StartValue.Value,
+        // StartValue = sequence.SequenceDescriptor.StartValue.Value,
         Type = new TypeInfo(sequence.DataType.Type.ToClrType(), false)
       };
       return sequenceInfo;

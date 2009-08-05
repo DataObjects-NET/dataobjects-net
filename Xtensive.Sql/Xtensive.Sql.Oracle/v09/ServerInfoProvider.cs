@@ -149,8 +149,7 @@ namespace Xtensive.Sql.Oracle.v09
       indexInfo.MaxIdentifierLength = MaxIdentifierLength;
       indexInfo.Features =
         IndexFeatures.Unique |
-        IndexFeatures.SortOrder |
-        IndexFeatures.NonKeyColumns;
+        IndexFeatures.SortOrder;
       indexInfo.PartitionMethods =
         PartitionMethods.Hash |
         PartitionMethods.Interval |

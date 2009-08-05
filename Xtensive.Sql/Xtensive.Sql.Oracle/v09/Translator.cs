@@ -120,6 +120,21 @@ namespace Xtensive.Sql.Oracle.v09
       return "DROP TABLE " + Translate(node.Table) + (node.Cascade ? " CASCADE CONSTRAINTS" : string.Empty);
     }
 
+    public override string Translate(SqlCompilerContext context, SqlDropSequence node)
+    {
+      return "DROP SEQUENCE " + Translate(node.Sequence);
+    }
+
+    public override string Translate(SqlCompilerContext context, bool cascade, AlterTableSection section)
+    {
+      switch (section) {
+      case AlterTableSection.DropBehavior:
+        return cascade ? "CASCADE" : string.Empty;
+      default:
+        return string.Empty;
+      }
+    }
+
     public override string Translate(SqlCompilerContext context, Type literalType, object literalValue)
     {
       switch (Type.GetTypeCode(literalType)) {

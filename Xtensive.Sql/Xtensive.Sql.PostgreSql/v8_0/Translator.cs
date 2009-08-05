@@ -196,16 +196,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return QuoteIdentifier(new[] {node.Name});
     }
 
-    public override string Translate(SqlCompilerContext context, SqlCreateSequence node, NodeSection section)
-    {
-      if (section==NodeSection.Entry) {
-        return "CREATE SEQUENCE " + Translate(node.Sequence); // + ((node.Sequence.DataType != null) ? (" AS " + this.Translate(node.Sequence.DataType)) : ""));
-      }
-      else {
-        return base.Translate(context, node, section);
-      }
-    }
-
     public override string Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
     {
       switch (section) {

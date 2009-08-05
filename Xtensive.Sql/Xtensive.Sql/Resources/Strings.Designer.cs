@@ -313,6 +313,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Specified precision ({0}) is greater than maximum supported by underlying storage ({1})..
+        /// </summary>
+        internal static string ExSpecifiedPrecisionXIsGreaterThanMaximumSupportedByUnderlyingStorageY {
+            get {
+                return ResourceManager.GetString("ExSpecifiedPrecisionXIsGreaterThanMaximumSupportedByUnderlyingStorageY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sql container expression can not be compiled..
         /// </summary>
         internal static string ExSqlContainerExpressionCanNotBeCompiled {

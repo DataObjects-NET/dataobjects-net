@@ -225,4 +225,7 @@
   <data name="ExOperationXIsNotSupported" xml:space="preserve">
     <value>Operation '{0}' is not supported</value>
   </data>
+  <data name="ExSpecifiedPrecisionXIsGreaterThanMaximumSupportedByUnderlyingStorageY" xml:space="preserve">
+    <value>Specified precision ({0}) is greater than maximum supported by underlying storage ({1}).</value>
+  </data>
 </root>

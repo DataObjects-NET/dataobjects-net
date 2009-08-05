@@ -675,10 +675,9 @@ namespace Xtensive.Sql.Compiler
       switch (section) {
       case NodeSection.Entry:
         return
-          "CREATE SEQUENCE " + Translate(node.Sequence) +
-          (node.Sequence.DataType != null ? " AS " + Translate(node.Sequence.DataType) : "");
+          "CREATE SEQUENCE " + Translate(node.Sequence);
       default:
-        return String.Empty;
+        return string.Empty;
       }
     }
 

@@ -8,6 +8,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.ValueTypeMapping
 {
@@ -315,9 +316,16 @@ namespace Xtensive.Sql.ValueTypeMapping
     {
       if (MaxDecimalPrecision==null)
         return new SqlValueType(SqlType.Decimal);
-      var resultPrecision = Math.Min(DecimalPrecisionLimit, MaxDecimalPrecision.Value);
-      var resultScale = resultPrecision / 2;
-      return new SqlValueType(SqlType.Decimal, resultPrecision, resultScale);
+      if (precision==null) {
+        var resultPrecision = Math.Min(DecimalPrecisionLimit, MaxDecimalPrecision.Value);
+        var resultScale = resultPrecision / 2;
+        return new SqlValueType(SqlType.Decimal, resultPrecision, resultScale);
+      }
+      if (precision.Value > MaxDecimalPrecision.Value)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExSpecifiedPrecisionXIsGreaterThanMaximumSupportedByUnderlyingStorageY,
+          precision.Value, MaxDecimalPrecision.Value));
+      return new SqlValueType(SqlType.Decimal, null, null, precision, scale);
     }
 
     public virtual SqlValueType BuildDateTimeSqlType(int? length, int? precision, int? scale)

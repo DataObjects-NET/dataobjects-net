@@ -264,8 +264,14 @@ namespace Xtensive.Sql.Oracle.v09
       var referencedColumns = SqlDml.TableRef(dataDictionary.Views["ALL_CONS_COLUMNS"]);
 
       var select = SqlDml.Select(
-        SqlDml.Join(SqlJoinType.CrossJoin, SqlDml.Join(SqlJoinType.CrossJoin,
-          allConstraints, referencingColumns), referencedColumns));
+        SqlDml.Join(SqlJoinType.InnerJoin,
+          SqlDml.Join(SqlJoinType.InnerJoin, allConstraints, referencingColumns,
+            allConstraints["CONSTRAINT_NAME"]==referencingColumns["CONSTRAINT_NAME"] &
+            allConstraints["OWNER"]==referencingColumns["OWNER"]),
+          referencedColumns,
+          allConstraints["R_CONSTRAINT_NAME"]==referencedColumns["CONSTRAINT_NAME"] &
+          allConstraints["R_OWNER"]==referencedColumns["OWNER"] & 
+          referencingColumns["POSITION"]==referencedColumns["POSITION"]));
       
       select.Columns.Add(allConstraints["OWNER"]);
       select.Columns.Add(allConstraints["TABLE_NAME"]);
@@ -284,13 +290,9 @@ namespace Xtensive.Sql.Oracle.v09
       select.OrderBy.Add(allConstraints["CONSTRAINT_NAME"]);
       select.OrderBy.Add(referencedColumns["POSITION"]);
       
-      select.Where = allConstraints["CONSTRAINT_TYPE"]==AnsiString("R") &
-        allConstraints["R_CONSTRAINT_NAME"]==referencedColumns["CONSTRAINT_NAME"] &
-        allConstraints["R_OWNER"]==referencedColumns["OWNER"] & 
-        allConstraints["CONSTRAINT_NAME"]==referencingColumns["CONSTRAINT_NAME"] &
-        allConstraints["OWNER"]==referencingColumns["OWNER"] &
-        referencingColumns["POSITION"]==referencedColumns["POSITION"];
+      select.Where = allConstraints["CONSTRAINT_TYPE"]==AnsiString("R");
       AddSchemaFilter(select, allConstraints["OWNER"]);
+      AddTableFilter(select, allConstraints["OWNER"], allConstraints["TABLE_NAME"]);
 
       using (var reader = ExecuteReader(select)) {
         int lastColumnPosition = int.MaxValue;
@@ -322,11 +324,11 @@ namespace Xtensive.Sql.Oracle.v09
     {
       var allConstraints = SqlDml.TableRef(dataDictionary.Views["ALL_CONSTRAINTS"]);
       var allConsColumns = SqlDml.TableRef(dataDictionary.Views["ALL_CONS_COLUMNS"]);
-      var allTables = SqlDml.TableRef(dataDictionary.Views["ALL_TABLES"]);
 
       var select = SqlDml.Select(
-        SqlDml.Join(SqlJoinType.CrossJoin, SqlDml.Join(SqlJoinType.CrossJoin,
-          allConstraints, allConsColumns), allTables));
+        SqlDml.Join(SqlJoinType.InnerJoin, allConstraints, allConsColumns,
+          allConstraints["CONSTRAINT_NAME"]==allConsColumns["CONSTRAINT_NAME"] &
+          allConstraints["OWNER"]==allConsColumns["OWNER"]));
 
       select.Columns.Add(allConstraints["OWNER"]);
       select.Columns.Add(allConstraints["TABLE_NAME"]);
@@ -341,12 +343,9 @@ namespace Xtensive.Sql.Oracle.v09
       select.OrderBy.Add(allConsColumns["POSITION"]);
 
       select.Where =
-        SqlDml.In(allConstraints["CONSTRAINT_TYPE"], SqlDml.Row(AnsiString("P"), AnsiString("U"))) &
-        allConstraints["CONSTRAINT_NAME"]==allConsColumns["CONSTRAINT_NAME"] &
-        allConstraints["OWNER"]==allConsColumns["OWNER"] &
-        allConstraints["TABLE_NAME"]==allTables["TABLE_NAME"] &
-        allConstraints["OWNER"]==allTables["OWNER"];
+        SqlDml.In(allConstraints["CONSTRAINT_TYPE"], SqlDml.Row(AnsiString("P"), AnsiString("U")));
       AddSchemaFilter(select, allConstraints["OWNER"]);
+      AddTableFilter(select, allConstraints["OWNER"], allConstraints["TABLE_NAME"]);
 
       using (var reader = ExecuteReader(select)) {
         Table table = null;
@@ -387,6 +386,7 @@ namespace Xtensive.Sql.Oracle.v09
       select.Where = allConstraints["CONSTRAINT_TYPE"]==AnsiString("C") &
         allConstraints["GENERATED"]==AnsiString("USER NAME");
       AddSchemaFilter(select);
+      AddTableFilter(select, allConstraints["OWNER"], allConstraints["TABLE_NAME"]);
 
       using (var reader = ExecuteReader(select)) {
         while (reader.Read()) {
@@ -437,6 +437,14 @@ namespace Xtensive.Sql.Oracle.v09
         select.Where &= filteredColumn==schemaFilter;
       else
         select.Where &= SqlDml.NotIn(filteredColumn, systemUsers);
+    }
+
+    private void AddTableFilter(SqlSelect select, SqlExpression tableOwner, SqlExpression tableName)
+    {
+      var allTables = SqlDml.TableRef(dataDictionary.Views["ALL_TABLES"]);
+      var originalSource = select.From;
+      select.From = SqlDml.Join(SqlJoinType.InnerJoin, originalSource, allTables,
+        tableOwner==allTables["OWNER"] & tableName==allTables["TABLE_NAME"]);
     }
 
     private string GetDefaultSchemaName()

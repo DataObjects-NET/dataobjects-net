@@ -15,7 +15,8 @@ namespace Xtensive.Sql.Tests.Oracle
     [Test]
     public void BaseTest()
     {
-      var model = ExtractAllSchemas();
+      var model = ExtractDefaultSchema();
+
     }
   }
 }
