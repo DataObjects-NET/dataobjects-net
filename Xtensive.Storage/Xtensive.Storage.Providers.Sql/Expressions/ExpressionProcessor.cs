@@ -25,6 +25,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 {
   internal class ExpressionProcessor : ExpressionVisitor<SqlExpression>
   {
+    private static readonly SqlExpression SqlFalse = SqlDml.Literal(false);
+    private static readonly SqlExpression SqlTrue = SqlDml.Literal(true);
+
     private readonly IMemberCompilerProvider<SqlExpression> memberCompilerProvider;
     private readonly DomainModel model;
     private readonly SqlSelect[] selects;
@@ -75,18 +78,32 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       var type = e.Type;
       // In rare cases (when calculated column is just parameter access) we need to strip cast to object.
-      if (e.NodeType == ExpressionType.Convert && e.Type == typeof(object))
+      if (e.NodeType==ExpressionType.Convert && e.Type==typeof(object))
         type = ((UnaryExpression) e).Operand.Type;
+      bool optimizeBooleanParameter = type==typeof (bool);
       type = type.StripNullable();
       var typeMapping = valueTypeMapper.GetTypeMapping(type);
       var expression = parameterExtractor.ExtractParameter<object>(e);
-      var binding = new SqlFetchParameterBinding(expression.CachingCompile(), typeMapping, smartNull);
+      var bindingType = optimizeBooleanParameter
+        ? SqlFetchParameterBindingType.BooleanConstant
+        : (smartNull
+            ? SqlFetchParameterBindingType.SmartNull
+            : SqlFetchParameterBindingType.Regular);
+      var binding = new SqlFetchParameterBinding(expression.CachingCompile(), typeMapping, bindingType);
       bindings.Add(binding);
-      SqlExpression result = binding.ParameterReference;
-      if (fixBooleanExpressions && type==typeof(bool))
-        result = IntToBoolean(result);
-      else if (typeMapping.ParameterCastRequired)
-        result = SqlDml.Cast(result, typeMapping.BuildSqlType());
+      SqlExpression result;
+      if (optimizeBooleanParameter) {
+        result = SqlDml.Variant(SqlFalse, SqlTrue, binding.ParameterReference.Parameter);
+        if (fixBooleanExpressions)
+          result = IntToBoolean(result);  
+      }
+      else {
+        result = binding.ParameterReference;
+        if (type==typeof(bool) && fixBooleanExpressions)
+          result = IntToBoolean(result);
+        else if (typeMapping.ParameterCastRequired)
+          result = SqlDml.Cast(result, typeMapping.BuildSqlType());
+      }
       return result;
     }
 
@@ -160,19 +177,19 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       // handle special cases
       if (expression.NodeType == ExpressionType.Equal) {
         result = TryTranslateEqualitySpecialCases(left, right);
-        if (result != null)
+        if (!result.IsNullReference())
           return result;
         result = TryTranslateEqualitySpecialCases(right, left);
-        if (result != null)
+        if (!result.IsNullReference())
           return result;
       }
 
       if (expression.NodeType == ExpressionType.NotEqual) {
         result = TryTranslateInequalitySpecialCases(left, right);
-        if (result != null)
+        if (!result.IsNullReference())
           return result;
         result = TryTranslateInequalitySpecialCases(right, left);
-        if (result != null)
+        if (!result.IsNullReference())
           return result;
       }
 
@@ -485,7 +502,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (right.NodeType == SqlNodeType.Null)
         return SqlDml.IsNotNull(left);
       if (right.NodeType == SqlNodeType.Parameter)
-        return SqlDml.Variant(SqlDml.NotEquals(left, right), SqlDml.IsNotNull(left), ((SqlParameterRef)right).Parameter);
+        return SqlDml.Variant(SqlDml.NotEquals(left, right), SqlDml.IsNotNull(left), ((SqlParameterRef) right).Parameter);
       return null;
     }
 

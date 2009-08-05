@@ -18,10 +18,9 @@ namespace Xtensive.Storage.Providers.Sql
     public Func<object> ValueAccessor { get; private set; }
 
     /// <summary>
-    /// If set to true and <see cref="ValueAccessor"/> returns <see langword="null"/>
-    /// generated query with contain "something is null" check instead of "something = @p".
+    /// Gets or sets the type of the binding.
     /// </summary>
-    public bool SmartNull { get; private set; }
+    public SqlFetchParameterBindingType BindingType { get; private set; }
 
     // Constructors
 
@@ -30,12 +29,12 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="valueAccessor">Value for <see cref="ValueAccessor"/>.</param>
     /// <param name="typeMapping">Value for <see cref="SqlParameterBinding.TypeMapping"/>.</param>
-    /// <param name="smartNull">Value for <see cref="SmartNull"/>.</param>
-    public SqlFetchParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping, bool smartNull)
+    /// <param name="bindingType">Value for <see cref="BindingType"/>.</param>
+    public SqlFetchParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping, SqlFetchParameterBindingType bindingType)
       : base(typeMapping)
     {
       ValueAccessor = valueAccessor;
-      SmartNull = smartNull;
+      BindingType = bindingType;
     }
 
     /// <summary>
@@ -44,7 +43,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="valueAccessor"></param>
     /// <param name="typeMapping"></param>
     public SqlFetchParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping)
-      : this(valueAccessor, typeMapping, false)
+      : this(valueAccessor, typeMapping, SqlFetchParameterBindingType.Regular)
     {
     }
   }

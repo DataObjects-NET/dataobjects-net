@@ -333,8 +333,13 @@ namespace Xtensive.Storage.Providers.Sql
       var variantKeys = new List<object>();
       foreach (var binding in request.ParameterBindings) {
         object parameterValue = binding.ValueAccessor.Invoke();
-        if (parameterValue==null && binding.SmartNull)
+        if (binding.BindingType==SqlFetchParameterBindingType.BooleanConstant) {
+          if ((bool) parameterValue)
+            variantKeys.Add(binding.ParameterReference.Parameter);
+        }
+        else if (binding.BindingType==SqlFetchParameterBindingType.SmartNull && parameterValue==null) {
           variantKeys.Add(binding.ParameterReference.Parameter);
+        }
         else {
           string parameterName = compilationResult.GetParameterName(binding.ParameterReference.Parameter);
           AddParameter(command, parameterName, parameterValue, binding.TypeMapping);
