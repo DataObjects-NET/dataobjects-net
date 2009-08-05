@@ -136,9 +136,9 @@ namespace Xtensive.Storage.Providers.Sql
 
       var referencedTable = StorageInfo.Tables[key.ReferencedTable.Name];
       foreignKeyInfo.PrimaryKey = referencedTable.PrimaryIndex;
-      
-      var referncingIndex = FindIndex(referencingTable, referencingColumns);
-      foreignKeyInfo.ForeignKeyColumns.Set(referncingIndex);
+
+      foreach (var column in referencingColumns)
+        new ForeignKeyColumnRef(foreignKeyInfo, column);
 
       return foreignKeyInfo;
     }
