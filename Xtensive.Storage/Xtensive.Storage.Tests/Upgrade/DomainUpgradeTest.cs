@@ -47,24 +47,38 @@ namespace Xtensive.Storage.Tests.Upgrade
     [Test]
     public void UpgradeGeneratorsTest()
     {
-      BuildDomain("1", DomainUpgradeMode.Recreate, 3, typeof (M1.Address), typeof (M1.Person));
+      var generatorCacheSize = 3;
+      BuildDomain("1", DomainUpgradeMode.Recreate, generatorCacheSize, typeof (M1.Address), typeof (M1.Person));
       using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
-          new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
-          new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
-          new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
+          for (int i = 0; i < generatorCacheSize; i++)
+            new M1.Person {
+              Address = new M1.Address {City = "City", Country = "Country"}
+            };
+          Assert.AreEqual(3, Query<M1.Person>.All.Max(p => p.Id));
           t.Complete();
         }
       }
-
-      BuildDomain("1", DomainUpgradeMode.Perform, 2, typeof (M1.Address), typeof (M1.Person));
+      BuildDomain("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof (M1.Address), typeof (M1.Person));
       using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
-          Assert.AreEqual(3, Query<M1.Person>.All.Count());
+          for (int i = 0; i < generatorCacheSize; i++)
+            new M1.Person {
+              Address = new M1.Address {City = "City", Country = "Country"}
+            };
+          Assert.AreEqual(6, Query<M1.Person>.All.Max(p => p.Id));
+          t.Complete();
+        }
+      }
+      
+      generatorCacheSize = 2;
+      BuildDomain("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof (M1.Address), typeof (M1.Person));
+      using (Session.Open(domain)) {
+        using (var t = Transaction.Open()) {
           new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
           new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
           new M1.Person {Address = new M1.Address {City = "City", Country = "Country"}};
-          Assert.AreEqual(6, Query<M1.Person>.All.Count());
+          Assert.AreEqual(12, Query<M1.Person>.All.Max(p => p.Id));
           t.Complete();
         }
       }
@@ -232,7 +246,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       foreach (var type in types)
         configuration.Types.Register(type);
       if (keyCacheSize.HasValue)
-        configuration.KeyCacheSize = keyCacheSize.Value;
+        configuration.KeyGeneratorCacheSize = keyCacheSize.Value;
       using (Upgrader.Enable(version)) {
         domain = Domain.Build(configuration);
       }
@@ -371,7 +385,7 @@ namespace Xtensive.Storage.Tests.Upgrade
           new M1.Sync<M1.Person> {Root = helen};
           new M1.Sync<M1.Person> {Root = director};
           new M1.Sync<M1.Boy> {Root = alex};
-
+          
           // Commiting changes
           transactionScope.Complete();
         }

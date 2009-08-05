@@ -48,11 +48,6 @@ namespace Xtensive.Storage
     public const string GeneratorColumnName = "ID";
 
     /// <summary>
-    /// Name of <see cref="TimeSpan"/> domain.
-    /// </summary>
-    public const string TimeSpanDomainName = "dTimeSpan";
-
-    /// <summary>
     /// Well-known storage protocol names.
     /// </summary>
     public static class Protocol

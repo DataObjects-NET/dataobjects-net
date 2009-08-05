@@ -47,24 +47,38 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema)
     {
-      var upgradeScript = GenerateUpgradeScript(upgradeActions, sourceSchema, targetSchema);
-      foreach (var batch in upgradeScript) {
-        if (string.IsNullOrEmpty(batch))
-          continue;
-        using (var command = Connection.CreateCommand()) {
-          command.CommandText = batch;
-          command.Transaction = SessionHandler.Transaction;
-          command.ExecuteNonQuery();
-        }
-      }
+      var valueTypeMapper = DomainHandler.ValueTypeMapper;
+      var enforceChangedColumns = UpgradeContext.Demand().Hints
+        .OfType<ChangeFieldTypeHint>()
+        .SelectMany(hint => hint.AffectedColumns)
+        .ToList();
+      var translator = new SqlActionTranslator(
+        upgradeActions,
+        GetStorageSchema(),
+        sourceSchema, targetSchema, DomainHandler.ProviderInfo, 
+        Connection.Driver, valueTypeMapper, 
+        Handlers.NameBuilder.TypeIdColumnName, 
+        enforceChangedColumns,
+        SessionHandler.ExecuteScalarStatement);
+
+      var delimiter = Connection.Driver.Translator.BatchStatementDelimiter;
+      var preUpgradeBatch = string.Join(delimiter, translator.PreUpgradeCommands.ToArray());
+      var upgradeBatch = string.Join(delimiter, translator.UpgradeCommands.ToArray());
+      var dataBatch = string.Join(delimiter, translator.DataManipulateCommands.ToArray());
+      var postUpgradeBatch = string.Join(delimiter, translator.PostUpgradeCommands.ToArray());
+      WriteToLog(delimiter, translator);
+      
+      Execute(preUpgradeBatch);
+      Execute(upgradeBatch);
+      Execute(dataBatch);
+      Execute(postUpgradeBatch);
     }
 
     /// <inheritdoc/>
     public override StorageInfo GetExtractedSchema()
     {
       var schema = GetStorageSchema();
-      var converter = new SqlModelConverter(schema,
-        ConvertType, DomainHandler.ProviderInfo, SessionHandler.ExecuteScalarStatement);
+      var converter = new SqlModelConverter(schema, DomainHandler.ProviderInfo);
       return converter.GetConversionResult();
     }
 
@@ -72,11 +86,20 @@ namespace Xtensive.Storage.Providers.Sql
     protected override ModelTypeInfo CreateTypeInfo(Type type, int? length)
     {
       var sqlValueType = DomainHandler.ValueTypeMapper.BuildSqlValueType(type, length);
-      var convertedType = ConvertSqlType(sqlValueType.Type);
-      int? typeLength = null;
-      if (sqlValueType.Type!=SqlType.VarCharMax && sqlValueType.Type!=SqlType.VarBinaryMax)
-        typeLength = length;
+      var convertedType = sqlValueType.Type.ToClrType();
+      var typeLength = sqlValueType.Length;
       return new ModelTypeInfo(convertedType, typeLength);
+    }
+
+    protected void Execute(string batch)
+    {
+      if (string.IsNullOrEmpty(batch))
+        return;
+      using (var command = Connection.CreateCommand()) {
+        command.CommandText = batch;
+        command.Transaction = SessionHandler.Transaction;
+        command.ExecuteNonQuery();
+      }
     }
 
     private Schema GetStorageSchema()
@@ -92,37 +115,6 @@ namespace Xtensive.Storage.Providers.Sql
       return schema;
     }
 
-    protected virtual ModelTypeInfo ConvertType(SqlValueType valueType)
-    {
-      return new ModelTypeInfo(ConvertSqlType(valueType.Type), false, valueType.Length);
-    }
-    
-    private List<string> GenerateUpgradeScript(ActionSequence actions, StorageInfo sourceSchema, StorageInfo targetSchema)
-    {
-      var valueTypeMapper = DomainHandler.ValueTypeMapper;
-      var enforceChangedColumns = UpgradeContext.Demand().Hints
-        .OfType<ChangeFieldTypeHint>()
-        .SelectMany(hint => hint.AffectedColumns)
-        .ToList();
-      var translator = new SqlActionTranslator(
-        actions,
-        GetStorageSchema(),
-        sourceSchema, targetSchema, DomainHandler.ProviderInfo, 
-        Connection.Driver, valueTypeMapper, 
-        Handlers.NameBuilder.TypeIdColumnName, enforceChangedColumns);
-
-      var delimiter = Connection.Driver.Translator.BatchStatementDelimiter;
-      var batch = new List<string>();
-      batch.Add(string.Join(delimiter, translator.PreUpgradeCommands.ToArray()));
-      batch.Add(string.Join(delimiter, translator.UpgradeCommands.ToArray()));
-      batch.Add(string.Join(delimiter, translator.DataManipulateCommands.ToArray()));
-      batch.Add(string.Join(delimiter, translator.PostUpgradeCommands.ToArray()));
-
-      WriteToLog(delimiter, translator);
-
-      return batch;
-    }
-
     private void WriteToLog(string delimiter, SqlActionTranslator translator)
     {
       var logDelimiter = delimiter + Environment.NewLine;
@@ -134,52 +126,6 @@ namespace Xtensive.Storage.Providers.Sql
       if (logBatch.Count > 0)
         Log.Info("Upgrade DDL: {0}", 
           Environment.NewLine + string.Join(logDelimiter, logBatch.ToArray()));
-    }
-
-    internal static Type ConvertSqlType(SqlType type)
-    {
-      switch (type) {
-      case SqlType.Boolean:
-        return typeof (bool);
-      case SqlType.Int8:
-        return typeof (sbyte);
-      case SqlType.UInt8:
-        return typeof (byte);
-      case SqlType.Int16:
-        return typeof (short);
-      case SqlType.UInt16:
-        return typeof (ushort);
-      case SqlType.Int32:
-        return typeof (int);
-      case SqlType.UInt32:
-        return typeof (uint);
-      case SqlType.Int64:
-        return typeof (long);
-      case SqlType.UInt64:
-        return typeof (ulong);
-      case SqlType.Decimal:
-        return typeof (decimal);
-      case SqlType.Float:
-        return typeof (float);
-      case SqlType.Double:
-        return typeof (double);
-      case SqlType.DateTime:
-        return typeof (DateTime);
-      case SqlType.Interval:
-        return typeof (TimeSpan);
-      case SqlType.Char:
-      case SqlType.VarChar:
-      case SqlType.VarCharMax:
-        return typeof (string);
-      case SqlType.Binary:
-      case SqlType.VarBinary:
-      case SqlType.VarBinaryMax:
-        return typeof (byte[]);
-      case SqlType.Guid:
-        return typeof (Guid);
-      default:
-        throw new ArgumentOutOfRangeException("type");
-      }
     }
   }
 }

@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     private TypeInfo ConvertType(SqlValueType valueType)
     {
-      return new TypeInfo(SchemaUpgradeHandler.ConvertSqlType(valueType.Type), false, valueType.Length);
+      return new TypeInfo(valueType.Type.ToClrType(), false, valueType.Length);
     }
 
     protected string Url { get; private set; }
@@ -193,7 +193,7 @@ namespace Xtensive.Storage.Tests.Upgrade
         using (var transaction = connection.BeginTransaction()) {
           var translator = new SqlActionTranslator(actions,
             schema, oldModel, newModel, CreateProviderInfo(),
-            connection.Driver, valueTypeMapper, "TypeId", new List<string>());
+            connection.Driver, valueTypeMapper, "TypeId", new List<string>(), GetGeneratorValue);
           var delimiter = connection.Driver.Translator.BatchStatementDelimiter;
           var batch = new List<string>();
           batch.Add(string.Join(delimiter, translator.PreUpgradeCommands.ToArray()));
@@ -218,7 +218,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     private StorageInfo ExtractModel()
     {
       var schema = GetSchema();
-      return new SqlModelConverter(schema, ConvertType, CreateProviderInfo(), GetGeneratorValue)
+      return new SqlModelConverter(schema, CreateProviderInfo())
         .GetConversionResult();
     }
 
@@ -239,59 +239,6 @@ namespace Xtensive.Storage.Tests.Upgrade
       return (long) 0;
     }
 
-//    private static SqlValueType BuildSqlValueType(Type type, int length)
-//    {
-//      var dataType = GetDbType(type);
-//      return new SqlValueType(dataType, length);
-//    }
-
-//    private static SqlType GetDbType(Type type)
-//    {
-//      if (type.IsValueType && type.IsNullable())
-//        type = type.GetGenericArguments()[0];
-//      
-//      TypeCode typeCode = Type.GetTypeCode(type);
-//      switch (typeCode) {
-//      case TypeCode.Object:
-//        if (type==typeof (byte[]))
-//          return SqlType.Binary;
-//        if (type == typeof(Guid))
-//          return SqlType.Guid;
-//        throw new ArgumentOutOfRangeException();
-//      case TypeCode.Boolean:
-//        return SqlType.Boolean;
-//      case TypeCode.Char:
-//        return SqlType.Char;
-//      case TypeCode.SByte:
-//        return SqlType.Int8;
-//      case TypeCode.Byte:
-//        return SqlType.UInt8;
-//      case TypeCode.Int16:
-//        return SqlType.Int16;
-//      case TypeCode.UInt16:
-//        return SqlType.UInt16;
-//      case TypeCode.Int32:
-//        return SqlType.Int32;
-//      case TypeCode.UInt32:
-//        return SqlType.UInt32;
-//      case TypeCode.Int64:
-//        return SqlType.Int64;
-//      case TypeCode.UInt64:
-//        return SqlType.UInt64;
-//      case TypeCode.Single:
-//        return SqlType.Float;
-//      case TypeCode.Double:
-//        return SqlType.Double;
-//      case TypeCode.Decimal:
-//        return SqlType.Decimal;
-//      case TypeCode.DateTime:
-//        return SqlType.DateTime;
-//      case TypeCode.String:
-//        return SqlType.VarChar;
-//      default:
-//        throw new ArgumentOutOfRangeException();
-//      }
-//    }
     #endregion
   }
 }

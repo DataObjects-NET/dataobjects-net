@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     public void StringToShortStringTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        Build(typeof (string), 3, "FString5", "", Mode.PerformSafely));
+        Build(typeof (string), 3, "FString5", string.Empty, Mode.PerformSafely));
       Build(typeof (string), 3, "FString5", "123", Mode.Perform);
     }
 

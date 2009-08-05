@@ -45,7 +45,9 @@ namespace Xtensive.Storage.Building
       var typeChanges = GetTypeChanges(difference as NodeDifference);
       var status = GetComparisonStatus(actions);
       var typeChangedColumns = UpgradeContext.Demand().Hints
-        .OfType<ChangeFieldTypeHint>().SelectMany(hint => hint.AffectedColumns).ToHashSet();
+        .OfType<ChangeFieldTypeHint>()
+        .SelectMany(hint => hint.AffectedColumns)
+        .ToHashSet();
       var canPerformSafely = CanPerformSafely(typeChanges, typeChangedColumns);
 
       return new SchemaComparisonResult(status, hints, difference, actions, 
@@ -78,8 +80,8 @@ namespace Xtensive.Storage.Building
     {
       return
         !typeChanges.Any(triplet =>
-          !TypeConversionVerifier.CanConvertSafely(triplet.Second, triplet.Third)
-           && !typeChangedColumns.Contains(triplet.First));
+        !TypeConversionVerifier.CanConvertSafely(triplet.Second, triplet.Third)
+        && !typeChangedColumns.Contains(triplet.First));
     }
 
     private static IEnumerable<Triplet<string, TypeInfo, TypeInfo>> GetTypeChanges(NodeDifference schemaDifference)

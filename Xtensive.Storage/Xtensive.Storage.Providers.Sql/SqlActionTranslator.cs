@@ -26,6 +26,7 @@ using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Core.Sorting;
+using Xtensive.Sql.Ddl;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -42,6 +43,7 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly ProviderInfo providerInfo;
     private readonly string typeIdColumnName;
     private readonly List<string> enforceChangedColumns = new List<string>();
+    private readonly Func<ISqlCompileUnit, object> commandExecutor;
 
     private readonly ActionSequence actions;
     private readonly Schema schema;
@@ -57,6 +59,7 @@ namespace Xtensive.Storage.Providers.Sql
     
     private bool translated;
     private readonly List<Table> createdTables = new List<Table>();
+    private readonly List<Sequence> createdSequences = new List<Sequence>();
     private readonly List<PropertyChangeAction> changeColumnTypeActions = new List<PropertyChangeAction>();
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
     private UpgradeStage stage;
@@ -64,11 +67,6 @@ namespace Xtensive.Storage.Providers.Sql
     private bool IsSequencesAllowed
     {
       get { return providerInfo.SupportSequences; }
-    }
-
-    private bool IsTimeSpanSupported
-    {
-      get { return providerInfo.SupportsRealTimeSpan; }
     }
 
     /// <summary>
@@ -129,6 +127,9 @@ namespace Xtensive.Storage.Providers.Sql
     {
       // Prepairing
       stage = UpgradeStage.Prepare;
+      // Turn off deferred contraints
+      if (providerInfo.SupportsDeferredForeignKeyConstraints)
+        RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllImmediate));
       var prepare = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.Prepare.ToString());
       if (prepare!=null)
@@ -160,7 +161,9 @@ namespace Xtensive.Storage.Providers.Sql
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.Cleanup.ToString());
       if (cleanup!=null)
         VisitAction(cleanup);
-      
+      // Turn on deferred contraints
+      if (providerInfo.SupportsDeferredForeignKeyConstraints)
+        RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllDeferred));
       translated = true;
     }
 
@@ -491,8 +494,9 @@ namespace Xtensive.Storage.Providers.Sql
         sequence.SequenceDescriptor = new SequenceDescriptor(sequence,
           sequenceInfo.StartValue, sequenceInfo.Increment);
         sequence.SequenceDescriptor.MinValue = sequenceInfo.StartValue;
-        sequence.DataType = GetSqlType(sequenceInfo.Type);
+        sequence.DataType = GetSqlType(sequenceInfo.OriginalType);
         RegisterCommand(SqlDdl.Create(sequence));
+        createdSequences.Add(sequence);
       }
       else {
         CreateGeneratorTable(sequenceInfo);
@@ -515,15 +519,25 @@ namespace Xtensive.Storage.Providers.Sql
     private void VisitAlterSequenceAction(PropertyChangeAction action)
     {
       var sequenceInfo = targetModel.Resolve(action.Path) as SequenceInfo;
+
+      // Check if sequence is not newly created
+      if ((IsSequencesAllowed 
+        && createdSequences.Any(sequence => sequence.Name==sequenceInfo.Name))
+        || createdTables.Any(table => table.Name==sequenceInfo.Name))
+        return;
+
+      var currentValue = GetCurrentSequenceValue(sequenceInfo.Name);
+      var newStartValue = currentValue + sequenceInfo.Increment;
       if (IsSequencesAllowed) {
-        var sequence = schema.Sequences[sequenceInfo.Name];
-        var sequenceDescriptor = new SequenceDescriptor(sequence,
-          sequenceInfo.StartValue, sequenceInfo.Increment);
-        sequenceDescriptor.MinValue = sequenceInfo.StartValue;
-        sequence.SequenceDescriptor = sequenceDescriptor;
-        RegisterCommand(SqlDdl.Alter(sequence, sequenceDescriptor));
+        var exisitingSequence = schema.Sequences[sequenceInfo.Name];
+        var sequenceDescriptor = new SequenceDescriptor(exisitingSequence,
+          newStartValue, sequenceInfo.Increment);
+        sequenceDescriptor.MinValue = newStartValue;
+        exisitingSequence.SequenceDescriptor = sequenceDescriptor;
+        RegisterCommand(SqlDdl.Alter(exisitingSequence, sequenceDescriptor));
       }
-      else if (!createdTables.Any(table => table.Name==sequenceInfo.Name)) {
+      else {
+        sequenceInfo.Current = newStartValue;
         DropGeneratorTable(sequenceInfo);
         CreateGeneratorTable(sequenceInfo);
       }
@@ -706,12 +720,6 @@ namespace Xtensive.Storage.Providers.Sql
         && columnInfo.Parent.PrimaryIndex.KeyColumns
           .Any(keyColumn => keyColumn.Value==columnInfo);
 
-      // Create MsSql user type for TimeSpan columns
-      if (!IsTimeSpanSupported
-        && (columnInfo.Type.Type==typeof (TimeSpan)
-        || columnInfo.Type.Type==typeof (TimeSpan?)))
-        column.Domain = GetTimeSpanDomain();
-
       if (!column.IsNullable
         && column.Name!=typeIdColumnName
         && !isPrimaryKeyColumn)
@@ -768,25 +776,13 @@ namespace Xtensive.Storage.Providers.Sql
       var sequenceTable = schema.CreateTable(sequenceInfo.Name);
       createdTables.Add(sequenceTable);
       var idColumn = sequenceTable.CreateColumn(WellKnown.GeneratorColumnName,
-        GetSqlType(sequenceInfo.Type));
-      var currentValue = GetCurrentSequenceValue(sequenceInfo.Name);
+        GetSqlType(sequenceInfo.OriginalType));
       idColumn.SequenceDescriptor =
         new SequenceDescriptor(
           idColumn,
-          currentValue ?? sequenceInfo.StartValue,
+          sequenceInfo.Current ?? sequenceInfo.StartValue,
           sequenceInfo.Increment);
       RegisterCommand(SqlDdl.Create(sequenceTable));
-    }
-
-    private SqlDomain GetTimeSpanDomain()
-    {
-      var domain = schema.Domains[WellKnown.TimeSpanDomainName];
-      if (domain == null) {
-        var sqlValueType = GetSqlType(new TypeInfo(typeof (TimeSpan)));
-        domain = schema.CreateDomain(WellKnown.TimeSpanDomainName, sqlValueType);
-        RegisterCommand(SqlDdl.Create(domain), UpgradeStage.Prepare);
-      }
-      return domain;
     }
 
     private void DropGeneratorTable(SequenceInfo sequenceInfo)
@@ -939,12 +935,6 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    private long? GetCurrentSequenceValue(string sequenceInfoName)
-    {
-      var sequenceInfo = sourceModel.Sequences.FirstOrDefault(si => si.Name==sequenceInfoName);
-      return sequenceInfo==null ? null : sequenceInfo.Current;
-    }
-
     private SqlExpression GetDefaultValueExpression(ColumnInfo columnInfo)
     {
       var result = columnInfo.DefaultValue==null
@@ -957,6 +947,28 @@ namespace Xtensive.Storage.Providers.Sql
       if (mapping.ParameterCastRequired)
         result = SqlDml.Cast(result, mapping.BuildSqlType(columnInfo.Type.Length, null, null));
       return result;
+    }
+
+    private long? GetCurrentSequenceValue(string sequenceInfoName)
+    {
+      if (IsSequencesAllowed) {
+        var sequence = schema.Sequences[sequenceInfoName];
+        var sqlNext = SqlDml.Select();
+        sqlNext.Columns.Add(SqlDml.NextValue(sequence));
+        return (long) commandExecutor.Invoke(sqlNext);
+      }
+      else {
+        var generatorTable = schema.Tables[sequenceInfoName];
+        SqlBatch sqlNext = SqlDml.Batch();
+        SqlInsert insert = SqlDml.Insert(SqlDml.TableRef(generatorTable));
+        sqlNext.Add(insert);
+        SqlSelect select = SqlDml.Select();
+        select.Columns.Add(SqlDml.Cast(SqlDml.FunctionCall("SCOPE_IDENTITY"), SqlType.Int64));
+        sqlNext.Add(select);
+        SqlDelete delete = SqlDml.Delete(SqlDml.TableRef(generatorTable));
+        sqlNext.Add(delete);
+        return (long) commandExecutor.Invoke(sqlNext);
+      }
     }
 
     # endregion
@@ -980,8 +992,10 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlActionTranslator(ActionSequence actions, Schema schema, 
       StorageInfo sourceModel, StorageInfo targetModel, 
       ProviderInfo providerInfo, SqlDriver driver, 
-      SqlValueTypeMapper valueTypeMapper, string typeIdColumnName, List<string> enforceChangedColumns)
+      SqlValueTypeMapper valueTypeMapper, string typeIdColumnName, 
+      List<string> enforceChangedColumns, Func<ISqlCompileUnit, object> commandExecutor)
     {
+      
       ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
       ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
@@ -998,6 +1012,7 @@ namespace Xtensive.Storage.Providers.Sql
       this.sourceModel = sourceModel;
       this.targetModel = targetModel;
       this.enforceChangedColumns = enforceChangedColumns;
+      this.commandExecutor = commandExecutor;
     }
   }
 }

@@ -88,6 +88,24 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t upgrade types safely.
+        /// </summary>
+        internal static string CantUpgradeTypeSafely {
+            get {
+                return ResourceManager.GetString("CantUpgradeTypeSafely", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can upgrade types safely.
+        /// </summary>
+        internal static string CanUpgradeTypeSafely {
+            get {
+                return ResourceManager.GetString("CanUpgradeTypeSafely", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Columns.
         /// </summary>
         internal static string Columns {

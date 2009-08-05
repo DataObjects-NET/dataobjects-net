@@ -54,7 +54,12 @@ namespace Xtensive.Storage.Building
     public override string ToString()
     {
       return string.Format(Strings.SchemaComparisonResultFormat,
-        Status,
+        Status
+          + (HasTypeChanges
+            ? (CanUpgradeTypesSafely
+              ? ", " + Strings.CanUpgradeTypeSafely
+              : ", " + Strings.CantUpgradeTypeSafely)
+            : string.Empty),
         Hints!=null ? Hints.ToString().Indent(2) : string.Empty,
         Difference!=null ? Difference.ToString().Indent(2) : string.Empty,
         UpgradeActions!=null ? UpgradeActions.ToString().Indent(2) : string.Empty);

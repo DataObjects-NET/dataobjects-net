@@ -78,6 +78,11 @@ namespace Xtensive.Storage.Indexing.Model
     }
 
     /// <summary>
+    /// Gets or sets the original type.
+    /// </summary>
+    public TypeInfo OriginalType{ get; set;}
+
+    /// <summary>
     /// Gets or sets the current sequence value.
     /// </summary>
     public long? Current { get; set; }

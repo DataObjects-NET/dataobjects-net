@@ -202,8 +202,6 @@ namespace Xtensive.Storage.Upgrade
       var defaultValue = !column.IsNullable && originalType.IsValueType
         ? Activator.CreateInstance(originalType)
         : null;
-//      if (defaultValue is char)
-//        defaultValue = '0';
 
       return new ColumnInfo(CurrentTable, column.Name, storageTypeInfo) {
         DefaultValue = defaultValue,
@@ -282,7 +280,8 @@ namespace Xtensive.Storage.Upgrade
       var sequence = new SequenceInfo(StorageInfo, generator.MappingName) {
         StartValue = generator.CacheSize,
         Increment = generator.CacheSize,
-        Type = TypeBuilder.Invoke(generator.TupleDescriptor[0], null)
+        Type = TypeBuilder.Invoke(generator.TupleDescriptor[0], null),
+        OriginalType = new TypeInfo(GetType(generator.TupleDescriptor[0], false))
       };
       return sequence;
     }

@@ -87,10 +87,19 @@ namespace Xtensive.Storage.Upgrade
     /// </returns>
     public static bool CanConvertSafely(TypeInfo from, TypeInfo to)
     {
+      if (to.Type == typeof (string) 
+        && from.Type == typeof (string))
+        return !to.Length.HasValue 
+          || to.Length >= from.Length;
+
+      if (to.Type == typeof(string))
+        return !to.Length.HasValue 
+          || CanConvertToString(from, to.Length.Value);
+
       if (!CanConvert(from, to))
         return false;
 
-      return !to.Length.HasValue | to.Length >= from.Length;
+      return !to.Length.HasValue || to.Length >= from.Length;
     }
 
 
@@ -99,30 +108,30 @@ namespace Xtensive.Storage.Upgrade
     static TypeConversionVerifier()
     {
       supportedConversions = new Dictionary<Type, List<Type>>();
-      AddConverter<Boolean>(typeof(Int16), typeof(UInt16), typeof(Int32), typeof(UInt32),
-        typeof(Int64), typeof(UInt64), typeof(Double), typeof(Single), typeof(Decimal));
-      AddConverter<Byte>(typeof(Int16), typeof(UInt16), typeof(Char), typeof(Int32),
-        typeof(UInt32), typeof(Int64), typeof(UInt64), typeof(Double), typeof(Single),
-        typeof(Decimal));
-      AddConverter<SByte>(typeof(Int16), typeof(UInt16), typeof(Char), typeof(Int32),
-        typeof(UInt32), typeof(Int64), typeof(UInt64), typeof(Double), typeof(Single),
-        typeof(Decimal));
-      AddConverter<Int16>(typeof(Int32), typeof(UInt32), typeof(Int64), typeof(UInt64),
-        typeof(Double), typeof(Single), typeof(Decimal));
-      AddConverter<UInt16>(typeof(Char), typeof(Int32), typeof(UInt32), typeof(Int64),
-        typeof(UInt64), typeof(Double), typeof(Single), typeof(Decimal));
-      AddConverter<Int32>(typeof(Int64), typeof(UInt64), typeof(Double), typeof(Single),
-        typeof(Decimal));
-      AddConverter<UInt32>(typeof(Int64), typeof(UInt64), typeof(Double), typeof(Single),
-        typeof(Decimal));
-      AddConverter<Int64>(typeof(Int64), typeof(UInt64), typeof(Double), typeof(Single),
-        typeof(Decimal));
-      AddConverter<UInt64>(typeof(Int64), typeof(UInt64), typeof(Double), typeof(Single),
-        typeof(Decimal));
-      AddConverter<Char>(typeof(UInt16), typeof(Int32), typeof(UInt32), typeof(Int64),
-        typeof(UInt64), typeof(Double), typeof(Single), typeof(Decimal));
-      AddConverter<Decimal>(typeof(Double), typeof(Single));
-      AddConverter<Single>(typeof(Double));
+      AddConverter<Boolean>(typeof (Int16), typeof (UInt16), typeof (Int32), typeof (UInt32),
+        typeof (Int64), typeof (UInt64), typeof (Double), typeof (Single), typeof (Decimal));
+      AddConverter<Byte>(typeof (Int16), typeof (UInt16), typeof (Char), typeof (Int32),
+        typeof (UInt32), typeof (Int64), typeof (UInt64), typeof (Double), typeof (Single),
+        typeof (Decimal));
+      AddConverter<SByte>(typeof (Int16), typeof (UInt16), typeof (Char), typeof (Int32),
+        typeof (UInt32), typeof (Int64), typeof (UInt64), typeof (Double), typeof (Single),
+        typeof (Decimal));
+      AddConverter<Int16>(typeof (Int32), typeof (UInt32), typeof (Int64), typeof (UInt64),
+        typeof (Double), typeof (Single), typeof (Decimal));
+      AddConverter<UInt16>(typeof (Char), typeof (Int32), typeof (UInt32), typeof (Int64),
+        typeof (UInt64), typeof (Double), typeof (Single), typeof (Decimal));
+      AddConverter<Int32>(typeof (Int64), typeof (UInt64), typeof (Double), typeof (Single),
+        typeof (Decimal));
+      AddConverter<UInt32>(typeof (Int64), typeof (UInt64), typeof (Double), typeof (Single),
+        typeof (Decimal));
+      AddConverter<Int64>(typeof (Int64), typeof (UInt64), typeof (Double), typeof (Single),
+        typeof (Decimal));
+      AddConverter<UInt64>(typeof (Int64), typeof (UInt64), typeof (Double), typeof (Single),
+        typeof (Decimal));
+      AddConverter<Char>(typeof (UInt16), typeof (Int32), typeof (UInt32), typeof (Int64),
+        typeof (UInt64), typeof (Double), typeof (Single), typeof (Decimal));
+      AddConverter<Decimal>(typeof (Double), typeof (Single));
+      AddConverter<Single>(typeof (Double));
     }
 
     private static void AddConverter<T>(params Type[] types)
