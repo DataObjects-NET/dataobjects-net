@@ -11,6 +11,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
@@ -22,6 +23,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Resources;
@@ -39,6 +41,7 @@ namespace Xtensive.Storage
     INotifyCollectionChanged
   {
     internal static readonly Parameter<Tuple> pKey = new Parameter<Tuple>(WellKnown.KeyFieldName);
+    internal static readonly Parameter<Entity> parameterOwner = new Parameter<Entity>("Owner");
     private readonly Entity owner;
     private bool isInitialized;
 
@@ -195,6 +198,14 @@ namespace Xtensive.Storage
       NotifyClear();
     }
 
+    /// <summary>
+    /// Gets a delegate which returns an <see cref="IQueryable{T}"/> 
+    /// fetching items associated with this instance.
+    /// </summary>
+    /// <returns>The created delegate which returns an <see cref="IQueryable{T}"/> 
+    /// fetching items associated with this instance.</returns>
+    protected abstract Delegate GetItemsQueryDelegate();
+    
     #region NotifyXxx & GetSubscription members
 
     private void NotifyInitialize()
@@ -431,7 +442,7 @@ namespace Xtensive.Storage
       return Session.Domain.entitySetTypeStateCache.GetValue(Field, BuildEntitySetTypeState);
     }
 
-    private static EntitySetTypeState BuildEntitySetTypeState(FieldInfo field)
+    private EntitySetTypeState BuildEntitySetTypeState(FieldInfo field)
     {
       var items = field.Association.UnderlyingIndex.ToRecordSet()
         .Range(() => new Range<Entire<Tuple>>(new Entire<Tuple>(pKey.Value, Direction.Negative),
@@ -446,7 +457,7 @@ namespace Xtensive.Storage
         itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,
           field.Association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName,
           ArrayUtils<Type>.EmptyArray);
-      return new EntitySetTypeState(seek, count, seekTransform, itemCtor);
+      return new EntitySetTypeState(seek, count, seekTransform, itemCtor, GetItemsQueryDelegate());
     }
 
     #endregion

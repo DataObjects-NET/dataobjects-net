@@ -165,7 +165,7 @@ namespace Xtensive.Storage
 
     internal ICache<Key, Key> KeyCache { get; private set; }
 
-    internal ICache<MethodInfo, Pair<MethodInfo, TranslatedQuery>> QueryCache { get; private set; }
+    internal ICache<object, Pair<object, TranslatedQuery>> QueryCache { get; private set; }
 
     internal readonly ThreadSafeIntDictionary<GenericKeyTypeInfo> genericKeyTypes = 
       ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
@@ -226,7 +226,7 @@ namespace Xtensive.Storage
       RecordSetReader = new RecordSetReader(this);
       KeyGenerators = new Registry<GeneratorInfo, KeyGenerator>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
-      QueryCache = new LruCache<MethodInfo, Pair<MethodInfo, TranslatedQuery>>(
+      QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(
         Configuration.QueryCacheSize, k => k.First);
       TemporaryData = new GlobalTemporaryData();
       ServiceContainer = new UnityContainer();

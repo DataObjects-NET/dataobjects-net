@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var productName = "Chai";
       var unitPrice = 10;
-      var result = CachedQuery.Execute(() => Query<Product>.All.Where(p => p.ProductName == productName && p.UnitPrice > unitPrice));
+      var result = Query.Execute(() => Query<Product>.All.Where(p => p.ProductName == productName && p.UnitPrice > unitPrice));
     }
 
     [Test]
@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var productName = "Chai";
       var unitPrice = 10;
-      var result = CachedQuery.Execute(() => Query<Product>.All.Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).LongCount());
+      var result = Query.Execute(() => Query<Product>.All.Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).LongCount());
     }
 
     [Test]
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var productName = "Chai";
       var unitPrice = 10;
-      var result = CachedQuery.Execute(() => Query<Product>.All.Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).Count());
+      var result = Query.Execute(() => Query<Product>.All.Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).Count());
     }
   }
 }

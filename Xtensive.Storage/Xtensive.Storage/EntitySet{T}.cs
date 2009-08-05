@@ -14,6 +14,7 @@ using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Storage.Internals;
@@ -198,7 +199,16 @@ namespace Xtensive.Storage
     [Infrastructure]
     public Expression Expression
     {
-      get  { return expression; }
+      get {
+        if (expression == null) {
+          // TODO: Hack!
+          // A hack making expression to look like regular parameter 
+          // (ParameterExtractor.IsParameter => true)
+          var owner = Expression.Property(Expression.Constant(new {Owner = (Entity) Owner}), "Owner");
+          expression = QueryHelper.CreateEntitySetQueryExpression(owner, Field);
+        }
+        return expression;
+      }
     }
 
     /// <inheritdoc/>
@@ -224,13 +234,18 @@ namespace Xtensive.Storage
     {
       var state = new EntitySetState(MaxCacheSize);
       long stateCount = 0;
-      if (Owner.State.PersistenceState != PersistenceState.New) {
+      if (Owner.State.PersistenceState!=PersistenceState.New) {
         using (new ParameterContext().Activate()) {
           pKey.Value = Owner.Key.Value;
           stateCount = GetEntitySetTypeState().CountRecordSet.First().GetValue<long>(0);
           if (stateCount <= LoadStateCount)
-            foreach (var item in new Queryable<TItem>(expression))
-              state.Register(item.Key);
+            using (new ParameterContext().Activate()) {
+              parameterOwner.Value = Owner;
+              var cachedState = GetEntitySetTypeState();
+              var items = Query.Execute(cachedState, (Func<IQueryable<TItem>>) cachedState.ItemsQuery);
+              foreach (var item in items)
+                state.Register(item.Key);
+            }
         }
       }
       state.count = stateCount;
@@ -244,6 +259,12 @@ namespace Xtensive.Storage
           ? GetCachedEntities() 
           : GetRealEntities();
       }
+    }
+
+    /// <inheritdoc/>
+    protected sealed override Delegate GetItemsQueryDelegate()
+    {
+      return (Func<IQueryable<TItem>>) GetItemsQuery;
     }
 
     #endregion
@@ -260,25 +281,30 @@ namespace Xtensive.Storage
 
     private IEnumerable<Entity> GetRealEntities()
     {
-      foreach (var item in new Queryable<TItem>(expression)) {
-        State.Register(item.Key);
-        yield return item;
+      var context = new ParameterContext();
+      using (context.Activate()) {
+        parameterOwner.Value = Owner;
       }
+      var cachedState = GetEntitySetTypeState();
+      ParameterScope scope = null;
+      var batchedItems = Query.Execute(cachedState, (Func<IQueryable<TItem>>) cachedState.ItemsQuery)
+        .Batch(2).ApplyBeforeAndAfter(() => scope = context.Activate(), () => scope.DisposeSafely());
+      foreach (var items in batchedItems)
+        foreach (var item in items) {
+          State.Register(item.Key);
+          yield return item;
+        }
+    }
+
+    private IQueryable<TItem> GetItemsQuery()
+    {
+      var owner = Expression.Property(Expression.Constant(parameterOwner), parameterOwner.GetType()
+        .GetProperty("Value", typeof(Entity)));
+      var queryExpression = QueryHelper.CreateEntitySetQueryExpression(owner, Field);
+      return new Queryable<TItem>(queryExpression);
     }
 
     #endregion
-
-    // Initialization
-
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-      // A hack making expression to look like regular parameter 
-      // (ParameterExtractor.IsParameter => true)
-      var owner = Expression.Property(Expression.Constant(new {Owner = (Entity)Owner}), "Owner");
-      expression = QueryHelper.CreateEntitySetQueryExpression(owner, Field);
-    }
 
 
     // Constructors

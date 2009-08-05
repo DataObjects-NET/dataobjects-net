@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Linq
         var builtQuery = GetQuery(firstChar);
         var query = builtQuery
           .Select(customer => customer.ContactName);
-        var cachedQuery = CachedQuery
+        var cachedQuery = Query
           .Execute(() => GetQuery(firstChar).Select(customer => customer.ContactName));
         var fullQuery = Query<Customer>.All
           .Where(cn => cn.CompanyName.StartsWith(firstChar))

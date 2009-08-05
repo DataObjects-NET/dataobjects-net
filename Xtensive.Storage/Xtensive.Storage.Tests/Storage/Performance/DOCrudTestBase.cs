@@ -49,10 +49,13 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       warmup = true;
       CombinedTest(10, 10);
       warmup = false;
-      InsertTest(BaseCount);
-      MaterializeTest(BaseCount);
-      UpdateTest();
-      RemoveTest();
+      //InsertTest(BaseCount);
+      //MaterializeTest(BaseCount);
+      //UpdateTest();
+      //RemoveTest();
+      CreateSimplestContainer(BaseCount);
+      AccessToPairedEntitySetTest(collectionCount);
+      DeleteSimplestContainer();
     }
 
     private void CombinedTest(int baseCount, int insertCount)
@@ -65,9 +68,10 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       MaterializeGetFieldTest(baseCount);
       ManualMaterializeTest(baseCount);
       
-      InsertSimplestCollection(insertCount);
-      MaterializeAndAccessToEntitySetTest(collectionCount);
-      RemoveSimplestCollection();
+      CreateSimplestContainer(insertCount);
+      AccessToNonPairedEntitySetTest(collectionCount);
+      AccessToPairedEntitySetTest(collectionCount);
+      DeleteSimplestContainer();
 
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
@@ -128,7 +132,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Materialize", count)) {
             while (i < count)
-              foreach (var o in CachedQuery.Execute(() => Query<Simplest>.All)) {
+              foreach (var o in Query.Execute(() => Query<Simplest>.All)) {
                 if (++i >= count)
                   break;
               }
@@ -148,7 +152,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Materialize anonymous type", count)) {
             while (i < count)
-              foreach (var o in CachedQuery.Execute(() => Query<Simplest>.All.Select(t => new {t.Id, t.Value}))) {
+              foreach (var o in Query.Execute(() => Query<Simplest>.All.Select(t => new {t.Id, t.Value}))) {
                 if (++i >= count)
                   break;
               }
@@ -169,7 +173,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Materialize & GetField", count)) {
             while (i < count)
-              foreach (var o in CachedQuery.Execute(() => Query<Simplest>.All)) {
+              foreach (var o in Query.Execute(() => Query<Simplest>.All)) {
                 sum += o.Id;
                 if (++i >= count)
                   break;
@@ -208,7 +212,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       }
     }
 
-    private void MaterializeAndAccessToEntitySetTest(int count)
+    private void AccessToNonPairedEntitySetTest(int count)
     {
       var d = Domain;
       using (var ss = Session.Open(d)) {
@@ -216,11 +220,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         int i = 0;
         using (var ts = Transaction.Open()) {
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Materialize and access to EntitySet", count)) {
-            Simplest t = null;
+          using (warmup ? null : new Measurement("Access to non-paired EntitySet", count)) {
+            NonPairedSimplestContainerItem t = null;
             while (i < count)
-              foreach (var o in CachedQuery.Execute(() => Query<SimplestCollection>.All)) {
-                t = o.Items.First();
+              foreach (var o in Query.Execute(() => Query<SimplestContainer>.All)) {
+                t = ((IEnumerable<NonPairedSimplestContainerItem>) o.DistantItems).First();
                 if (++i >= count)
                   break;
               }
@@ -231,7 +235,30 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       }
     }
 
-    private void InsertSimplestCollection(int insertCount)
+    private void AccessToPairedEntitySetTest(int count)
+    {
+      var d = Domain;
+      using (var ss = Session.Open(d)) {
+        var s = ss.Session;
+        int i = 0;
+        using (var ts = Transaction.Open()) {
+          TestHelper.CollectGarbage();
+          using (warmup ? null : new Measurement("Access to paired EntitySet", count)) {
+            PairedSimplestContainerItem t = null;
+            while (i < count)
+              foreach (var o in Query.Execute(() => Query<SimplestContainer>.All)) {
+                t = ((IEnumerable<PairedSimplestContainerItem>) o.Items).First();
+                if (++i >= count)
+                  break;
+              }
+            Assert.Greater(t.Id, -1);
+            ts.Complete();
+          }
+        }
+      }
+    }
+
+    private void CreateSimplestContainer(int insertCount)
     {
       var d = Domain;
       int count = 0;
@@ -239,13 +266,14 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss.Session;
         TestHelper.CollectGarbage();
         using (var ts = Transaction.Open()) {
-          SimplestCollection owner = null;
+          SimplestContainer owner = null;
           for (int i = 0; i < insertCount; i++) {
             if (i % 10 == 0) {
-              owner = new SimplestCollection();
+              owner = new SimplestContainer();
               count++;
             }
-            owner.Items.Add(new Simplest(i + insertCount, i));
+            owner.DistantItems.Add(new NonPairedSimplestContainerItem());
+            owner.Items.Add(new PairedSimplestContainerItem());
           }
           ts.Complete();
         }
@@ -253,14 +281,14 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       collectionCount = count;
     }
 
-    private void RemoveSimplestCollection()
+    private void DeleteSimplestContainer()
     {
       var d = Domain;
       using (var ss = Session.Open(d)) {
         var s = ss.Session;
         TestHelper.CollectGarbage();
         using (var ts = Transaction.Open()) {
-          var query = CachedQuery.Execute(() => Query<SimplestCollection>.All);
+          var query = Query.Execute(() => Query<SimplestContainer>.All);
           foreach (var o in query)
             o.Remove();
           ts.Complete();
@@ -322,7 +350,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           using (warmup ? null : new Measurement("Cached query", count)) {
             for (int i = 0; i < count; i++) {
               id = i % instanceCount;
-              var query = CachedQuery.Execute(() => Query<Simplest>.All
+              var query = Query.Execute(() => Query<Simplest>.All
                 .Where(o => o.Id == id));
               foreach (var simplest in query) {
                 // Doing nothing, just enumerate
@@ -394,7 +422,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Update", instanceCount)) {
           using (var ts = Transaction.Open()) {
-            var query = CachedQuery.Execute(() => Query<Simplest>.All);
+            var query = Query.Execute(() => Query<Simplest>.All);
             foreach (var o in query)
               o.Value++;
             ts.Complete();
@@ -411,7 +439,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Remove", instanceCount)) {
           using (var ts = Transaction.Open()) {
-            var query = CachedQuery.Execute(() => Query<Simplest>.All);
+            var query = Query.Execute(() => Query<Simplest>.All);
             foreach (var o in query)
               o.Remove();
             ts.Complete();

@@ -2,18 +2,14 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexander Nikolaev
-// Created:    2009.08.03
+// Created:    2009.08.04
 
 namespace Xtensive.Storage.Tests.Storage.Performance.CrudModel
 {
   [HierarchyRoot]
-  public sealed class SimplestCollection : Entity
+  public sealed class NonPairedSimplestContainerItem : Entity
   {
-    [Key, Field]
+    [Field, Key]
     public long Id { get; private set; }
-
-    [Field]
-    [Association(OnTargetRemove = OnRemoveAction.Clear)]
-    public EntitySet<Simplest> Items { get; private set; }
   }
 }
