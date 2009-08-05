@@ -301,7 +301,6 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void StringContainsColumnTest()
     {
-      EnsureProtocolIs(StorageProtocol.Index);
       var customers = Query<Customer>.All;
       var customer = customers.Where(c => c.ContactName.Contains(c.ContactName)).First();
       Assert.IsNotNull(customer);

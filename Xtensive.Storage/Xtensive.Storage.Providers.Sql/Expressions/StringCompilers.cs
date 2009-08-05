@@ -32,8 +32,18 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
       var stringPattern = patternExpression as SqlLiteral<string>;
       var charPattern = patternExpression as SqlLiteral<char>;
-      if (ReferenceEquals(stringPattern, null) && ReferenceEquals(charPattern, null))
-        throw new NotSupportedException();
+      if (ReferenceEquals(stringPattern, null) && ReferenceEquals(charPattern, null)) {
+        SqlExpression result = SqlDml.Replace(patternExpression, SqlDml.Literal(escape), SqlDml.Literal(escapeEscape));
+        result = SqlDml.Replace(result, SqlDml.Literal(ground), SqlDml.Literal(escapeGround));
+        result = SqlDml.Replace(result, SqlDml.Literal(percent), SqlDml.Literal(escapePercent));
+        if (percentAtStart)
+          result = SqlDml.Concat(SqlDml.Literal(percent), result);
+        if (percentAtEnd)
+          result = SqlDml.Concat(result, SqlDml.Literal(percent));
+
+        result = SqlDml.Like(_this, result, escape);
+        return result;
+      }
       var originalPattern = !ReferenceEquals(stringPattern, null)
         ? stringPattern.Value
         : charPattern.Value.ToString();
