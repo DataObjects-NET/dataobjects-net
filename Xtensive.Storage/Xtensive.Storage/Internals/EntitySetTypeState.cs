@@ -18,22 +18,25 @@ namespace Xtensive.Storage.Internals
   {
     public readonly RecordSet SeekRecordSet;
 
-    public readonly RecordSet CountRecordSet;
-
     public readonly CombineTransform SeekTransform;
 
     public readonly Func<Tuple, Entity> ItemCtor;
 
     public readonly Delegate ItemsQuery;
+
+    public readonly Delegate ItemCountQuery;
+
+    public readonly Delegate RestrictedItemsQuery;
     
-    public EntitySetTypeState(RecordSet seekRecordSet, RecordSet countRecordSet, CombineTransform seekTransform,
-      Func<Tuple, Entity> itemCtor, Delegate itemsQuery)
+    public EntitySetTypeState(RecordSet seekRecordSet, CombineTransform seekTransform,
+      Func<Tuple, Entity> itemCtor, Delegate itemsQuery, Delegate itemCountQuery, Delegate restrictedItemsQuery)
     {
       SeekRecordSet = seekRecordSet;
-      CountRecordSet = countRecordSet;
       SeekTransform = seekTransform;
       ItemCtor = itemCtor;
       ItemsQuery = itemsQuery;
+      ItemCountQuery = itemCountQuery;
+      RestrictedItemsQuery = restrictedItemsQuery;
     }
   }
 }

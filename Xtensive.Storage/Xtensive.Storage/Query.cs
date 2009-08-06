@@ -10,6 +10,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Internals;
@@ -224,12 +226,17 @@ namespace Xtensive.Storage
 
     private static IEnumerable<TElement> ExecuteSequence<TElement>(ParameterizedQuery<IEnumerable<TElement>> query, object target)
     {
-      using (new ParameterContext().Activate()) {
+      var context = new ParameterContext();
+      using (context.Activate()) {
         if (query.QueryParameter != null)
           query.QueryParameter.Value = target;
-        foreach (var element in query.Execute())
-          yield return element;
       }
+      ParameterScope scope = null;
+      var batches = query.Execute().Batch(2)
+        .ApplyBeforeAndAfter(() => scope = context.Activate(), () => scope.DisposeSafely());
+      foreach (var batch in batches)
+        foreach (var element in batch)
+          yield return element;
     }
 
     private static TResult ExecuteScalar<TResult>(ParameterizedQuery<TResult> query, object target)

@@ -49,13 +49,13 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       warmup = true;
       CombinedTest(10, 10);
       warmup = false;
-      //InsertTest(BaseCount);
-      //MaterializeTest(BaseCount);
-      //UpdateTest();
-      //RemoveTest();
-      CreateSimplestContainer(BaseCount);
-      AccessToPairedEntitySetTest(collectionCount);
-      DeleteSimplestContainer();
+      InsertTest(BaseCount);
+      MaterializeTest(BaseCount);
+      UpdateTest();
+      RemoveTest();
+      //CreateSimplestContainer(BaseCount);
+      //AccessToPairedEntitySetTest(collectionCount);
+      //DeleteSimplestContainer();
     }
 
     private void CombinedTest(int baseCount, int insertCount)

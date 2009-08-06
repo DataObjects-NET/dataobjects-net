@@ -68,7 +68,11 @@ namespace Xtensive.Storage
     public long Count
     {
       [DebuggerStepThrough]
-      get { return State.Count; }
+      get {
+        if (State.Count == null || !State.IsFullyLoaded)
+          LoadItemsCount();
+        return (long) State.Count;
+      }
     }
 
     /// <inheritdoc/>
@@ -199,12 +203,37 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets a delegate which returns an <see cref="IQueryable{T}"/> 
+    /// Gets a delegate which returns an <see cref="IQueryable{T}"/>
     /// fetching items associated with this instance.
     /// </summary>
-    /// <returns>The created delegate which returns an <see cref="IQueryable{T}"/> 
-    /// fetching items associated with this instance.</returns>
-    protected abstract Delegate GetItemsQueryDelegate();
+    /// <param name="field">The field containing <see cref="EntitySet{TItem}"/>.</param>
+    /// <returns>
+    /// The created delegate which returns an <see cref="IQueryable{T}"/>
+    /// fetching items associated with this instance.
+    /// </returns>
+    protected abstract Delegate GetItemsQueryDelegate(FieldInfo field);
+
+    /// <summary>
+    /// Gets a delegate which returns an <see cref="IQueryable{T}"/>
+    /// returning count of items associated with this instance.
+    /// </summary>
+    /// <param name="field">The field containing <see cref="EntitySet{TItem}"/>.</param>
+    /// <returns>
+    /// The created delegate which returns an <see cref="IQueryable{T}"/>
+    /// returning count of items associated with this instance.
+    /// </returns>
+    protected abstract Delegate GetItemCountQueryDelegate(FieldInfo field);
+
+    /// <summary>
+    /// Gets a delegate which returns an <see cref="IQueryable{T}"/>
+    /// fetching limited number of items associated with this instance.
+    /// </summary>
+    /// <param name="field">The field containing <see cref="EntitySet{TItem}"/>.</param>
+    /// <returns>
+    /// The created delegate which returns an <see cref="IQueryable{T}"/>
+    /// fetching limited number of items associated with this instance.
+    /// </returns>
+    protected abstract Delegate GetItemsLimitedQueryDelegate(FieldInfo field);
     
     #region NotifyXxx & GetSubscription members
 
@@ -439,16 +468,12 @@ namespace Xtensive.Storage
 
     internal EntitySetTypeState GetEntitySetTypeState()
     {
-      return Session.Domain.entitySetTypeStateCache.GetValue(Field, BuildEntitySetTypeState);
+      return Session.Domain.entitySetTypeStateCache.GetValue(Field, BuildEntitySetTypeState, this);
     }
 
-    private EntitySetTypeState BuildEntitySetTypeState(FieldInfo field)
+    private static EntitySetTypeState BuildEntitySetTypeState(FieldInfo field, EntitySetBase entitySet)
     {
-      var items = field.Association.UnderlyingIndex.ToRecordSet()
-        .Range(() => new Range<Entire<Tuple>>(new Entire<Tuple>(pKey.Value, Direction.Negative),
-          new Entire<Tuple>(pKey.Value, Direction.Positive)));
       var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
-      var count = items.Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count));
       var seekTransform = new CombineTransform(true,
         field.Association.OwnerType.Hierarchy.KeyInfo.TupleDescriptor,
         field.Association.TargetType.Hierarchy.KeyInfo.TupleDescriptor);
@@ -457,9 +482,20 @@ namespace Xtensive.Storage
         itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,
           field.Association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName,
           ArrayUtils<Type>.EmptyArray);
-      return new EntitySetTypeState(seek, count, seekTransform, itemCtor, GetItemsQueryDelegate());
+      return new EntitySetTypeState(seek, seekTransform, itemCtor,
+        entitySet.GetItemsQueryDelegate(field), entitySet.GetItemCountQueryDelegate(field),
+        entitySet.GetItemsLimitedQueryDelegate(field));
     }
 
+    private void LoadItemsCount()
+    {
+      using (new ParameterContext().Activate()) {
+        parameterOwner.Value = owner;
+        var cachedState = GetEntitySetTypeState();
+        State.count = Query.Execute(cachedState, (Func<int>) cachedState.ItemCountQuery);
+      }
+    }
+    
     #endregion
 
 

@@ -52,11 +52,9 @@ namespace Xtensive.Storage.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       OnRecursionExit(provider);
-      Expression<Func<int>> expression = () => provider.Count.Invoke();
-      var count = translate(provider, expression);
-      if (source == provider.Source && count == expression)
+      if (source == provider.Source)
         return provider;
-      return new TakeProvider(source, ((Expression<Func<int>>)count).CachingCompile());
+      return new TakeProvider(source, provider.Count);
     }
 
     /// <inheritdoc/>
@@ -65,11 +63,9 @@ namespace Xtensive.Storage.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       OnRecursionExit(provider);
-      Expression<Func<int>> expression = () => provider.Count.Invoke();
-      var count = translate(provider, expression);
-      if (source == provider.Source && count == expression)
+      if (source == provider.Source)
         return provider;
-      return new SkipProvider(source, ((Expression<Func<int>>)count).CachingCompile());
+      return new SkipProvider(source, provider.Count);
     }
 
     /// <inheritdoc/>

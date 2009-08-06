@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Internals
     IEnumerable<Key>,
     IHasVersion<long>
   {
-    internal long count;
+    internal long? count;
     private readonly ICache<Key, Key> keys;
 
     #region IHasVersion<...> methods
@@ -42,14 +42,14 @@ namespace Xtensive.Storage.Internals
     /// </summary>
     public bool IsFullyLoaded {
       get {
-        return count == keys.Count;
+        return count != null && count == keys.Count;
       }
     }
 
     /// <summary>
     /// Gets the count of cached items.
     /// </summary>
-    public long Count {
+    public long? Count {
       get { return count;}
     }
 
@@ -79,6 +79,8 @@ namespace Xtensive.Storage.Internals
     public void Add(Key key)
     {
       Register(key);
+      if (count == null)
+        count = 0;
       count++;
       Version++;
     }
@@ -90,6 +92,8 @@ namespace Xtensive.Storage.Internals
     public void Remove(Key key)
     {
       keys.RemoveKey(key);
+      if (count == null)
+        count = 0;
       count--;
       Version++;
     }

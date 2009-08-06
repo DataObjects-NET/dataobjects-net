@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
@@ -72,7 +73,15 @@ namespace Xtensive.Storage
     private const int MaxCacheSize = 10240;
     private const int LoadStateCount = 32;
 
+    private static readonly MethodInfo getItemsQueryMethod = typeof(EntitySet<TItem>)
+      .GetMethod("GetItemsQuery", BindingFlags.Static | BindingFlags.NonPublic);
+    private static readonly MethodInfo getItemCountQueryMethod = typeof(EntitySet<TItem>)
+      .GetMethod("GetItemCountQuery", BindingFlags.Static | BindingFlags.NonPublic);
+    private static readonly MethodInfo getItemsLimitedQueryMethod = typeof(EntitySet<TItem>)
+      .GetMethod("GetItemsLimitedQuery", BindingFlags.Static | BindingFlags.NonPublic);
+    
     private Expression expression;
+    private bool isCountCalculated;
 
     /// <inheritdoc/>
     [Infrastructure] // Proxy
@@ -233,22 +242,24 @@ namespace Xtensive.Storage
     protected sealed override EntitySetState LoadState()
     {
       var state = new EntitySetState(MaxCacheSize);
-      long stateCount = 0;
       if (Owner.State.PersistenceState!=PersistenceState.New) {
+        long stateCount = 0;
+        var cachedState = GetEntitySetTypeState();
         using (new ParameterContext().Activate()) {
           pKey.Value = Owner.Key.Value;
-          stateCount = GetEntitySetTypeState().CountRecordSet.First().GetValue<long>(0);
-          if (stateCount <= LoadStateCount)
-            using (new ParameterContext().Activate()) {
-              parameterOwner.Value = Owner;
-              var cachedState = GetEntitySetTypeState();
-              var items = Query.Execute(cachedState, (Func<IQueryable<TItem>>) cachedState.ItemsQuery);
-              foreach (var item in items)
-                state.Register(item.Key);
-            }
+          parameterOwner.Value = Owner;
+          var itemsQuery = (Func<IQueryable<TItem>>) cachedState.RestrictedItemsQuery;
+          var items = Query.Execute(itemsQuery, itemsQuery);
+          foreach (var item in items) {
+            stateCount++;
+            state.Register(item.Key);
+            if (stateCount==LoadStateCount)
+              break;
+          }
+          if (stateCount!=LoadStateCount)
+            state.count = stateCount;
         }
       }
-      state.count = stateCount;
       return state;
     }
 
@@ -262,9 +273,21 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    protected sealed override Delegate GetItemsQueryDelegate()
+    protected sealed override Delegate GetItemsQueryDelegate(FieldInfo field)
     {
-      return (Func<IQueryable<TItem>>) GetItemsQuery;
+      return Delegate.CreateDelegate(typeof(Func<IQueryable<TItem>>), field, getItemsQueryMethod);
+    }
+
+    /// <inheritdoc/>
+    protected sealed override Delegate GetItemCountQueryDelegate(FieldInfo field)
+    {
+      return Delegate.CreateDelegate(typeof(Func<int>), field, getItemCountQueryMethod);
+    }
+
+    /// <inheritdoc/>
+    protected sealed override Delegate GetItemsLimitedQueryDelegate(FieldInfo field)
+    {
+      return Delegate.CreateDelegate(typeof(Func<IQueryable<TItem>>), field, getItemsLimitedQueryMethod);
     }
 
     #endregion
@@ -287,21 +310,35 @@ namespace Xtensive.Storage
       }
       var cachedState = GetEntitySetTypeState();
       ParameterScope scope = null;
-      var batchedItems = Query.Execute(cachedState, (Func<IQueryable<TItem>>) cachedState.ItemsQuery)
+      var itemsQuery = (Func<IQueryable<TItem>>) cachedState.ItemsQuery;
+      var batchedItems = Query.Execute(itemsQuery, itemsQuery)
         .Batch(2).ApplyBeforeAndAfter(() => scope = context.Activate(), () => scope.DisposeSafely());
+      long itemsCount = 0;
       foreach (var items in batchedItems)
         foreach (var item in items) {
           State.Register(item.Key);
+          itemsCount++;
           yield return item;
         }
+      State.count = itemsCount;
     }
 
-    private IQueryable<TItem> GetItemsQuery()
+    private static IQueryable<TItem> GetItemsQuery(FieldInfo field)
     {
       var owner = Expression.Property(Expression.Constant(parameterOwner), parameterOwner.GetType()
         .GetProperty("Value", typeof(Entity)));
-      var queryExpression = QueryHelper.CreateEntitySetQueryExpression(owner, Field);
+      var queryExpression = QueryHelper.CreateEntitySetQueryExpression(owner, field);
       return new Queryable<TItem>(queryExpression);
+    }
+
+    private static int GetItemCountQuery(FieldInfo field)
+    {
+      return GetItemsQuery(field).Count();
+    }
+
+    private static IQueryable<TItem> GetItemsLimitedQuery(FieldInfo field)
+    {
+      return GetItemsQuery(field).Take(LoadStateCount);
     }
 
     #endregion
