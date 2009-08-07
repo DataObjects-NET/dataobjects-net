@@ -80,7 +80,7 @@ namespace Xtensive.Sql.Oracle.v09
     {
       switch(section) {
       case NodeSection.Exit:
-        return ".nextvalue";
+        return ".nextval";
       default:
         return string.Empty;
       }

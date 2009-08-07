@@ -4,8 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.04
 
-using System;
-using System.Diagnostics;
+using Xtensive.Core.Collections;
+using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql.Servers.Oracle
 {
@@ -14,6 +15,10 @@ namespace Xtensive.Storage.Providers.Sql.Servers.Oracle
   /// </summary>
   public class DomainHandler : Sql.DomainHandler
   {
-    
+    /// <inheritdoc/>
+    protected override ICompiler CreateCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
+    {
+      return new SqlCompiler(Handlers, compiledSources);
+    }
   }
 }
