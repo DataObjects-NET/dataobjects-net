@@ -15,8 +15,8 @@ namespace Xtensive.Sql.Oracle.v09
 {
   internal class Translator : SqlTranslator
   {
-    public override string BatchBegin { get { return "BEGIN"; } }
-    public override string BatchEnd { get { return "END;"; } }
+    public override string BatchBegin { get { return "BEGIN\n"; } }
+    public override string BatchEnd { get { return "END;\n"; } }
     
     public override string DateTimeFormatString { get { return @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'\)"; } }
     public override string TimeSpanFormatString { get { return "(INTERVAL '{0}{1} {2}:{3}:{4}.{5:000}' DAY(6) TO SECOND(3))"; } }

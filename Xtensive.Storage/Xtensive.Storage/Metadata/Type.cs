@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Metadata
     /// <summary>
     /// Gets or sets the full type name.
     /// </summary>
-    [Field(Length = 2048)]
+    [Field(Length = 1000)]
     public string Name { get; set; }
 
     /// <inheritdoc/>

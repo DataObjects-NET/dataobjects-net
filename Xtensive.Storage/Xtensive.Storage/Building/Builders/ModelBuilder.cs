@@ -15,8 +15,10 @@ using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Activator=System.Activator;
 using Xtensive.Core.Threading;
@@ -210,8 +212,8 @@ namespace Xtensive.Storage.Building.Builders
 
         // Updating fields names only if types differ.
         if (masterType!=slaveType) {
-          masterFieldDef.MappingName = context.NameBuilder.NamingConvention.Apply(masterType.Name);
-          slaveFieldDef.MappingName = context.NameBuilder.NamingConvention.Apply(slaveType.Name);
+          masterFieldDef.MappingName = context.NameBuilder.ApplyNamingRules(masterType.Name);
+          slaveFieldDef.MappingName = context.NameBuilder.ApplyNamingRules(slaveType.Name);
         }
         context.ModelDef.Hierarchies.Add(hierarchy);
         context.ModelDef.Types.Add(underlyingTypeDef);

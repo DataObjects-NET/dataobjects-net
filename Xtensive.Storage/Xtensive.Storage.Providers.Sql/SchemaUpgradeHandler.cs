@@ -23,26 +23,10 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public class SchemaUpgradeHandler : Providers.SchemaUpgradeHandler
   {
-    /// <summary>
-    /// Gets the domain handler.
-    /// </summary>
-    protected DomainHandler DomainHandler
-    {
-      get { return (DomainHandler) Handlers.DomainHandler; }
-    }
-
-    /// <summary>
-    /// Gets the session handler.
-    /// </summary>
-    protected SessionHandler SessionHandler
-    {
-      get { return (SessionHandler) BuildingContext.Current.SystemSessionHandler; }
-    }
-
-    private SqlConnection Connection
-    {
-      get { return ((SessionHandler) Handlers.SessionHandler).Connection; }
-    }
+    private DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
+    private SessionHandler SessionHandler { get { return (SessionHandler) BuildingContext.Current.SystemSessionHandler; } }
+    private SqlConnection Connection { get { return ((SessionHandler) Handlers.SessionHandler).Connection; } }
+    private SqlDriver Driver { get { return DomainHandler.Driver; } }
 
     /// <inheritdoc/>
     public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema)
@@ -61,16 +45,12 @@ namespace Xtensive.Storage.Providers.Sql
         enforceChangedColumns,
         SessionHandler.ExecuteScalarStatement);
 
-      var preUpgradeBatch = BuildBatch(translator.PreUpgradeCommands);
-      var upgradeBatch = BuildBatch(translator.UpgradeCommands);
-      var dataBatch = BuildBatch(translator.DataManipulateCommands);
-      var postUpgradeBatch = BuildBatch(translator.PostUpgradeCommands);
       WriteToLog(translator);
-      
-      Execute(preUpgradeBatch);
-      Execute(upgradeBatch);
-      Execute(dataBatch);
-      Execute(postUpgradeBatch);
+
+      Execute(translator.PreUpgradeCommands);
+      Execute(translator.UpgradeCommands);
+      Execute(translator.DataManipulateCommands);
+      Execute(translator.PostUpgradeCommands);
     }
 
     /// <inheritdoc/>
@@ -90,14 +70,25 @@ namespace Xtensive.Storage.Providers.Sql
       return new ModelTypeInfo(convertedType, typeLength);
     }
 
-    protected void Execute(string batch)
+    private void Execute(IEnumerable<string> batch)
     {
-      if (string.IsNullOrEmpty(batch))
-        return;
-      using (var command = Connection.CreateCommand()) {
-        command.CommandText = batch;
-        command.Transaction = SessionHandler.Transaction;
-        command.ExecuteNonQuery();
+      if (DomainHandler.ProviderInfo.SupportsBatches) {
+        var commandText = Driver.Translator.BuildBatch(batch.ToArray());
+        if (!string.IsNullOrEmpty(commandText))
+          using (var command = Connection.CreateCommand()) {
+            command.CommandText = commandText;
+            command.Transaction = SessionHandler.Transaction;
+            command.ExecuteNonQuery();
+          }
+      }
+      else {
+        foreach (var commandText in batch)
+          if (!string.IsNullOrEmpty(commandText))
+            using (var command = Connection.CreateCommand()) {
+              command.CommandText = commandText;
+              command.Transaction = SessionHandler.Transaction;
+              command.ExecuteNonQuery();
+            }
       }
     }
 
@@ -116,22 +107,17 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void WriteToLog(SqlActionTranslator translator)
     {
-      var logDelimiter = Environment.NewLine;
+      var logDelimiter = DomainHandler.Driver.Translator.BatchItemDelimiter + Environment.NewLine;
       var logBatch = new List<string>();
-      logBatch.Add(DomainHandler.Driver.Translator.BatchBegin);
+      logBatch.Add(Driver.Translator.BatchBegin);
       translator.PreUpgradeCommands.Apply(logBatch.Add);
       translator.UpgradeCommands.Apply(logBatch.Add);
       translator.DataManipulateCommands.Apply(logBatch.Add);
       translator.PostUpgradeCommands.Apply(logBatch.Add);
-      logBatch.Add(DomainHandler.Driver.Translator.BatchEnd);
+      logBatch.Add(Driver.Translator.BatchEnd);
       if (logBatch.Count > 2)
         Log.Info("Upgrade DDL: {0}", 
           Environment.NewLine + string.Join(logDelimiter, logBatch.ToArray()));
-    }
-
-    private string BuildBatch(IEnumerable<string> statements)
-    {
-      return DomainHandler.Driver.Translator.BuildBatch(statements.ToArray());
     }
   }
 }

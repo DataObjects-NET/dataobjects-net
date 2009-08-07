@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Npgsql;
 using Xtensive.Core;
 using Xtensive.Sql.Info;

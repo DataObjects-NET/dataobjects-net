@@ -9,8 +9,10 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Builders
@@ -178,7 +180,7 @@ namespace Xtensive.Storage.Building.Builders
       if (mappingName.IsNullOrEmpty())
         return;
 
-      mappingName = BuildingContext.Current.NameBuilder.NamingConvention.Apply(mappingName);
+      mappingName = BuildingContext.Current.NameBuilder.ApplyNamingRules(mappingName);
 
       Validator.EnsureNameIsValid(mappingName, rule);
 

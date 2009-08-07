@@ -84,11 +84,11 @@ namespace Xtensive.Storage.Providers
         }
         else
           result = type.MappingName;
-        return NamingConvention.Apply(string.Format(GenericTypePattern, result, string.Join(",", names)));
+        return ApplyNamingRules(string.Format(GenericTypePattern, result, string.Join(",", names)));
       }
 
       if (!type.MappingName.IsNullOrEmpty())
-        return NamingConvention.Apply(type.MappingName);
+        return ApplyNamingRules(type.MappingName);
 
       string underlyingTypeName = type.UnderlyingType.GetShortName();
       string @namespace = type.UnderlyingType.Namespace;
@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Providers
           result = string.Format("{0}.{1}", BuildHash(@namespace), result);
           break;
       }
-      return NamingConvention.Apply(result);
+      return ApplyNamingRules(result);
     }
 
     /// <summary>
@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>Table name</returns>
     public virtual string BuildTableName(IndexInfo indexInfo)
     {
-      return NamingConvention.Apply(indexInfo.ReflectedType.Name);
+      return ApplyNamingRules(indexInfo.ReflectedType.Name);
     }
 
     /// <summary>
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>Column name</returns>
     public virtual string BuildTableColumnName(ColumnInfo columnInfo)
     {
-      return NamingConvention.Apply(columnInfo.Name);
+      return ApplyNamingRules(columnInfo.Name);
     }
 
     /// <summary>
@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>Foreign key name.</returns>
     public virtual string BuildForeignKeyName(AssociationInfo association, FieldInfo referencingField)
     {
-      return NamingConvention.Apply(string.Format("FK_{0}_{1}", association.Name, referencingField.Name));
+      return ApplyNamingRules(string.Format("FK_{0}_{1}", association.Name, referencingField.Name));
     }
 
     /// <summary>
@@ -152,7 +152,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>Foreign key name.</returns>
     public virtual string BuildForeignKeyName(TypeInfo baseType, TypeInfo descendantType)
     {
-      return NamingConvention.Apply(string.Format("FK_{0}_{1}", baseType.Name, descendantType.Name));
+      return ApplyNamingRules(string.Format("FK_{0}_{1}", baseType.Name, descendantType.Name));
     }
 
     /// <summary>
@@ -249,7 +249,7 @@ namespace Xtensive.Storage.Providers
 //      }
 //
 //      string result = field.IsStructure ? name + "." + baseColumn.Name : name;
-      return NamingConvention.Apply(result);
+      return ApplyNamingRules(result);
     }
 
     /// <summary>
@@ -263,7 +263,7 @@ namespace Xtensive.Storage.Providers
       if (column.Name.StartsWith(column.Field.DeclaringType.Name))
         throw new InvalidOperationException();
       string result = string.Concat(column.Field.DeclaringType.Name, ".", column.Name);
-      return NamingConvention.Apply(result);
+      return ApplyNamingRules(result);
     }
 
     /// <summary>
@@ -297,7 +297,7 @@ namespace Xtensive.Storage.Providers
           result = string.Format("IX_{0}", string.Join("", names));
         }
       }
-      return NamingConvention.Apply(result);
+      return ApplyNamingRules(result);
     }
 
     /// <summary>
@@ -342,7 +342,7 @@ namespace Xtensive.Storage.Providers
         else if ((index.Attributes & IndexAttributes.Union)!=IndexAttributes.None)
           suffix = ".UNION";
       }
-      return NamingConvention.Apply(string.Concat(result, suffix));
+      return ApplyNamingRules(string.Concat(result, suffix));
     }
 
     /// <summary>
@@ -352,7 +352,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>The built name.</returns>
     public virtual string Build(AssociationInfo target)
     {
-      return NamingConvention.Apply(string.Format(AssociationPattern, target.OwnerType.Name, target.OwnerField.Name, target.TargetType.Name));
+      return ApplyNamingRules(string.Format(AssociationPattern, target.OwnerType.Name, target.OwnerField.Name, target.TargetType.Name));
     }
 
     /// <summary>
@@ -361,11 +361,29 @@ namespace Xtensive.Storage.Providers
     /// <param name="generatorInfo">The <see cref="generatorInfo"/> instance to build name for.</param>
     public string Build(GeneratorInfo generatorInfo)
     {
-      return NamingConvention.Apply(string.Format(GeneratorPattern, 
+      return ApplyNamingRules(string.Format(GeneratorPattern, 
         generatorInfo.KeyInfo.Fields.Select(f => f.Key.ValueType.GetShortName()).ToDelimitedString("-")));
     }
 
-    #region Protected methods
+    /// <summary>
+    /// Applies current naming convention to the specified <paramref name="name"/>.
+    /// </summary>
+    /// <param name="name">Name to apply the convention to.</param>
+    /// <returns>Processed name satisfying naming convention.</returns>
+    public virtual string ApplyNamingRules(string name)
+    {
+      string result = name;
+      result = result.Replace('+', '_');
+      if (NamingConvention.LetterCasePolicy==LetterCasePolicy.Uppercase)
+        result = result.ToUpperInvariant();
+      else if (NamingConvention.LetterCasePolicy==LetterCasePolicy.Lowercase)
+        result = result.ToLowerInvariant();
+      if ((NamingConvention.NamingRules & NamingRules.UnderscoreDots) > 0)
+        result = result.Replace('.', '_');
+      if ((NamingConvention.NamingRules & NamingRules.UnderscoreHyphens) > 0)
+        result = result.Replace('-', '_');
+      return result;
+    }
 
     /// <summary>
     /// Computes the hash for the specified <paramref name="name"/>.
@@ -375,11 +393,8 @@ namespace Xtensive.Storage.Providers
     protected virtual string BuildHash(string name)
     {
       byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name)); 
-      return String.Format("H{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);
+      return string.Format("H{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);
     }
-
-    #endregion
-
 
     // Initializers
 
@@ -392,7 +407,7 @@ namespace Xtensive.Storage.Providers
       ArgumentValidator.EnsureArgumentNotNull(namingConvention, "namingConvention");
       NamingConvention = namingConvention;
       hashAlgorithm = new MD5CryptoServiceProvider();
-      TypeIdColumnName = NamingConvention.Apply(WellKnown.TypeIdFieldName);
+      TypeIdColumnName = ApplyNamingRules(WellKnown.TypeIdFieldName);
     }
   }
 }

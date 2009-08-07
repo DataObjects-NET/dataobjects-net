@@ -29,38 +29,36 @@ namespace Xtensive.Sql.Info
     /// </summary>
     ParameterPrefix = 0x2,
 
-    // SquareBrackets removed - useless
-
     /// <summary>
     /// Indicates that RDBMS requires multi-table joins to have explicit order.
     /// (like "(a join b) join c")
     /// </summary>
-    ExplicitJoinOrder = 0x8,
+    ExplicitJoinOrder = 0x4,
 
     /// <summary>
     /// Indicates that RDBMS supports batch query execution.
     /// </summary>
-    Batches = 0x10,
+    Batches = 0x8,
 
     /// <summary>
     /// Indicates that RDBMS supports query optimizer hints.
     /// </summary>
-    Hints = 0x20,
+    Hints = 0x10,
 
     /// <summary>
     /// Indicates that RDBMS supports CROSS APPLY and OUTER APPLY operators.
     /// </summary>
-    CrossApply = 0x40,
+    CrossApply = 0x20,
 
     /// <summary>
     /// Indicates that RDBMS allows boolean expressions in equality/inequality comparisons,
     /// inside CASE and COALESCE operators.
     /// </summary>
-    FullBooleanExpressionSupport = 0x80,
+    FullBooleanExpressionSupport = 0x40,
 
     /// <summary>
     /// Indicates that RDBMS supports paging operators (LIMIT and OFFSET)
     /// </summary>
-    Paging = 0x100,
+    Paging = 0x80,
   }
 }

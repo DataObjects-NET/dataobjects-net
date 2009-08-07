@@ -71,27 +71,6 @@ namespace Xtensive.Storage.Configuration
       get { return namespaceSynonyms; }
     }
 
-    /// <summary>
-    /// Applies current naming convention to the specified <paramref name="name"/>.
-    /// </summary>
-    /// <param name="name">Name to apply the convention to.</param>
-    /// <returns>Processed name satisfying naming convention.</returns>
-    public string Apply(string name)
-    {
-      string result = name;
-      result = result.Replace('+', '_');
-      if (LetterCasePolicy==LetterCasePolicy.Uppercase)
-        //TODO: clarify with CultureInfo
-        result = result.ToUpper();
-      else if (LetterCasePolicy==LetterCasePolicy.Lowercase)
-        result = result.ToLower();
-      if ((NamingRules & NamingRules.UnderscoreDots) > 0)
-        result = result.Replace('.', '_');
-      if ((NamingRules & NamingRules.UnderscoreHyphens) > 0)
-        result = result.Replace('-', '_');
-      return result;
-    }
-
     #region ILockable methods
 
     /// <inheritdoc/>
