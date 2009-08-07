@@ -61,12 +61,11 @@ namespace Xtensive.Storage.Providers.Sql
         enforceChangedColumns,
         SessionHandler.ExecuteScalarStatement);
 
-      var delimiter = Connection.Driver.Translator.BatchStatementDelimiter;
-      var preUpgradeBatch = string.Join(delimiter, translator.PreUpgradeCommands.ToArray());
-      var upgradeBatch = string.Join(delimiter, translator.UpgradeCommands.ToArray());
-      var dataBatch = string.Join(delimiter, translator.DataManipulateCommands.ToArray());
-      var postUpgradeBatch = string.Join(delimiter, translator.PostUpgradeCommands.ToArray());
-      WriteToLog(delimiter, translator);
+      var preUpgradeBatch = BuildBatch(translator.PreUpgradeCommands);
+      var upgradeBatch = BuildBatch(translator.UpgradeCommands);
+      var dataBatch = BuildBatch(translator.DataManipulateCommands);
+      var postUpgradeBatch = BuildBatch(translator.PostUpgradeCommands);
+      WriteToLog(translator);
       
       Execute(preUpgradeBatch);
       Execute(upgradeBatch);
@@ -115,17 +114,24 @@ namespace Xtensive.Storage.Providers.Sql
       return schema;
     }
 
-    private void WriteToLog(string delimiter, SqlActionTranslator translator)
+    private void WriteToLog(SqlActionTranslator translator)
     {
-      var logDelimiter = delimiter + Environment.NewLine;
+      var logDelimiter = Environment.NewLine;
       var logBatch = new List<string>();
+      logBatch.Add(DomainHandler.Driver.Translator.BatchBegin);
       translator.PreUpgradeCommands.Apply(logBatch.Add);
       translator.UpgradeCommands.Apply(logBatch.Add);
       translator.DataManipulateCommands.Apply(logBatch.Add);
       translator.PostUpgradeCommands.Apply(logBatch.Add);
-      if (logBatch.Count > 0)
+      logBatch.Add(DomainHandler.Driver.Translator.BatchEnd);
+      if (logBatch.Count > 2)
         Log.Info("Upgrade DDL: {0}", 
           Environment.NewLine + string.Join(logDelimiter, logBatch.ToArray()));
+    }
+
+    private string BuildBatch(IEnumerable<string> statements)
+    {
+      return DomainHandler.Driver.Translator.BuildBatch(statements.ToArray());
     }
   }
 }

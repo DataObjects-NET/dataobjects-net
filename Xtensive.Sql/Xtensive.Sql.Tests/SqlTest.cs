@@ -87,6 +87,20 @@ namespace Xtensive.Sql.Tests
         return command.ExecuteNonQuery();
     }
 
+    protected object ExecuteScalar(string commandText)
+    {
+      using (var command = Connection.CreateCommand()) {
+        command.CommandText = commandText;
+        return command.ExecuteScalar();
+      }
+    }
+
+    protected object ExecuteScalar(ISqlCompileUnit statement)
+    {
+      using (var command = Connection.CreateCommand(statement))
+        return command.ExecuteScalar();
+    }
+
     protected void EnsureTableNotExists(Schema schema, string tableName)
     {
       var table = schema.Tables[tableName];

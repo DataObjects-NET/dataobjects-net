@@ -131,8 +131,7 @@ namespace Xtensive.Storage.Providers.Sql
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        using (var command = connection.CreateCommand(statement)) {
-          command.Transaction = Transaction;
+        using (var command = CreateCommand(statement)) {
           return command.ExecuteReader();
         }
       }
@@ -149,8 +148,7 @@ namespace Xtensive.Storage.Providers.Sql
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        using (var command = connection.CreateCommand(statement)) {
-          command.Transaction = Transaction;
+        using (var command = CreateCommand(statement)) {
           return command.ExecuteNonQuery();
         }
       }
@@ -167,8 +165,7 @@ namespace Xtensive.Storage.Providers.Sql
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        using (var command = connection.CreateCommand(statement)) {
-          command.Transaction = Transaction;
+        using (var command = CreateCommand(statement)) {
           return command.ExecuteScalar();
         }
       }
@@ -190,7 +187,6 @@ namespace Xtensive.Storage.Providers.Sql
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
         using (var command = CreatePersistCommand(request, tuple)) {
-          command.Transaction = Transaction;
           return command.ExecuteNonQuery();
         }
       }
@@ -207,7 +203,6 @@ namespace Xtensive.Storage.Providers.Sql
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
         using (var command = CreateBatchPersistCommand(requests)) {
-          command.Transaction = Transaction;
           return command.ExecuteNonQuery();
         }
       }
@@ -224,7 +219,6 @@ namespace Xtensive.Storage.Providers.Sql
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
         using (var command = CreateScalarCommand(request)) {
-          command.Transaction = Transaction;
           return command.ExecuteScalar();
         }
       }
@@ -241,7 +235,6 @@ namespace Xtensive.Storage.Providers.Sql
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
         using (var command = CreateFetchCommand(request)) {
-          command.Transaction = Transaction;
           return command.ExecuteReader();
         }
       }
@@ -316,7 +309,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>A created command.</returns>
     protected DbCommand CreateScalarCommand(SqlScalarRequest request)
     {
-      var command = connection.CreateCommand();
+      var command = CreateCommand();
       command.CommandText = request.Compile(DomainHandler).GetCommandText();
       return command;
     }
@@ -328,7 +321,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>A created command.</returns>
     protected DbCommand CreateFetchCommand(SqlFetchRequest request)
     {
-      var command = connection.CreateCommand();
+      var command = CreateCommand();
       var compilationResult = request.Compile(DomainHandler);
       var variantKeys = new List<object>();
       foreach (var binding in request.ParameterBindings) {
@@ -357,7 +350,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>A created command.</returns>
     protected DbCommand CreatePersistCommand(SqlPersistRequest request, Tuple value)
     {
-      var command = connection.CreateCommand();
+      var command = CreateCommand();
       command.CommandText = FillCommandParameters(command, request, value, "p");
       return command;
     }
@@ -369,16 +362,16 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>A created command.</returns>
     protected DbCommand CreateBatchPersistCommand(IEnumerable<Pair<SqlPersistRequest, Tuple>> requests)
     {
-      var command = connection.CreateCommand();
-      var commandText = new StringBuilder();
+      var command = CreateCommand();
+      var commands = new List<string>();
       var requestNumber = 0;
       foreach (var request in requests) {
-        var currentCommandText = FillCommandParameters(command, request.First, request.Second,
-          string.Format("p{0}_", requestNumber));
-        commandText.AppendLine(currentCommandText);
+        var currentCommandText = FillCommandParameters(
+          command, request.First, request.Second, string.Format("p{0}_", requestNumber));
+        commands.Add(currentCommandText);
         requestNumber++;
       }
-      command.CommandText = commandText.ToString();
+      command.CommandText = DomainHandler.Driver.Translator.BuildBatch(commands.ToArray());
       return command;
     }
 
@@ -424,10 +417,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     #endregion
 
-    /// <summary>
-    /// Ensures the connection is open.
-    /// </summary>
-    protected void EnsureConnectionIsOpen()
+    #region Private / internal members
+    
+    private void EnsureConnectionIsOpen()
     {
       if (connection!=null && connection.State==ConnectionState.Open)
         return;
@@ -436,15 +428,7 @@ namespace Xtensive.Storage.Providers.Sql
         throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
       connection.Open();
     }
-
-    #region Private / internal members
-
-    private void BeginDbTransaction()
-    {
-      Transaction = connection.BeginTransaction(
-        IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
-    }
-
+    
     private void EnsureAutoShortenTransactionIsStarted()
     {
       if (Transaction==null) {
@@ -452,6 +436,26 @@ namespace Xtensive.Storage.Providers.Sql
           throw new InvalidOperationException(Strings.TransactionIsNotOpen);
         BeginDbTransaction();
       }
+    }
+
+    private void BeginDbTransaction()
+    {
+      Transaction = connection.BeginTransaction(
+        IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
+    }
+
+    private DbCommand CreateCommand()
+    {
+      var command = connection.CreateCommand();
+      command.Transaction = Transaction;
+      return command;
+    }
+
+    private DbCommand CreateCommand(ISqlCompileUnit statement)
+    {
+      var command = connection.CreateCommand(statement);
+      command.Transaction = Transaction;
+      return command;
     }
 
     #endregion

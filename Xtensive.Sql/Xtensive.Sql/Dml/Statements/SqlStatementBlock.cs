@@ -105,7 +105,7 @@ namespace Xtensive.Sql.Dml
 
       SqlStatementBlock clone = new SqlStatementBlock();
       foreach (SqlStatement s in statements)
-        clone.Add((SqlStatement)s.Clone(context));
+        clone.Add((SqlStatement) s.Clone(context));
       context.NodeMapping[this] = clone;
       return clone;
     }

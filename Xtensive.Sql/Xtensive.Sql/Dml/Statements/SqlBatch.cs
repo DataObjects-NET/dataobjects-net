@@ -98,7 +98,7 @@ namespace Xtensive.Sql.Dml
     }
 
     /// <inheritdoc/>
-    public IEnumerator GetEnumerator()
+    IEnumerator IEnumerable.GetEnumerator()
     {
       return statements.GetEnumerator();
     }
@@ -110,9 +110,9 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlBatch clone = new SqlBatch();
+      var clone = new SqlBatch();
       foreach (SqlStatement s in statements)
-        clone.Add((SqlStatement)s.Clone(context));
+        clone.Add((SqlStatement) s.Clone(context));
       context.NodeMapping[this] = clone;
       return clone;
     }

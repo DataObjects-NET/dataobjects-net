@@ -210,18 +210,6 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       }
     }
 
-    [Test]
-    public void NotSupportedTest()
-    {
-      var localVar = ":-)";
-      AssertEx.ThrowsNotSupportedException(
-        () => Query<X>.All.Select(x => x.FString.StartsWith(localVar)).ToList());
-      AssertEx.ThrowsNotSupportedException(
-        () => Query<X>.All.Select(x => x.FString.EndsWith(localVar)).ToList());
-      AssertEx.ThrowsNotSupportedException(
-        () => Query<X>.All.Select(x => x.FString.Contains(localVar)).ToList());
-    }
-
     #endregion
 
     #region PadLeft, PadRight

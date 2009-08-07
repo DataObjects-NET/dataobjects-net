@@ -194,18 +194,16 @@ namespace Xtensive.Storage.Tests.Upgrade
           var translator = new SqlActionTranslator(actions,
             schema, oldModel, newModel, CreateProviderInfo(),
             connection.Driver, valueTypeMapper, "TypeId", new List<string>(), GetGeneratorValue);
-          var delimiter = connection.Driver.Translator.BatchStatementDelimiter;
           var batch = new List<string>();
-          batch.Add(string.Join(delimiter, translator.PreUpgradeCommands.ToArray()));
-          batch.Add(string.Join(delimiter, translator.UpgradeCommands.ToArray()));
-          batch.Add(string.Join(delimiter, translator.DataManipulateCommands.ToArray()));
-          batch.Add(string.Join(delimiter, translator.PostUpgradeCommands.ToArray()));
+          batch.Add(driver.Translator.BuildBatch(translator.PreUpgradeCommands.ToArray()));
+          batch.Add(driver.Translator.BuildBatch(translator.UpgradeCommands.ToArray()));
+          batch.Add(driver.Translator.BuildBatch(translator.DataManipulateCommands.ToArray()));
+          batch.Add(driver.Translator.BuildBatch(translator.PostUpgradeCommands.ToArray()));
           foreach (var commandText in batch) {
             if (!string.IsNullOrEmpty(commandText))
               using (var command = connection.CreateCommand()) {
                 Log.Info(commandText);
                 command.CommandText = commandText;
-//                command.Prepare();
                 command.Transaction = transaction;
                 command.ExecuteNonQuery();
               }

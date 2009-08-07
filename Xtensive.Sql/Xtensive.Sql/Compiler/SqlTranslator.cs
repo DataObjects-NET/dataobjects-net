@@ -23,7 +23,10 @@ namespace Xtensive.Sql.Compiler
     public NumberFormatInfo FloatNumberFormat { get; private set; }
     public NumberFormatInfo DoubleNumberFormat { get; private set; }
 
-    public virtual string BatchStatementDelimiter { get { return ";"; } }
+    public virtual string BatchBegin { get { return ""; } }
+    public virtual string BatchEnd { get { return ""; } }
+    public virtual string BatchItemDelimiter { get { return ";"; } }
+
     public virtual string ArgumentDelimiter { get { return ","; } }
     public virtual string ColumnDelimiter { get { return ","; } }
     public virtual string RowItemDelimiter { get { return ","; } }
@@ -296,11 +299,6 @@ namespace Xtensive.Sql.Compiler
       case NodeSection.Entry:
         return "SET";
       }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlBatch node, NodeSection section)
-    {
       return string.Empty;
     }
 
@@ -1813,6 +1811,26 @@ namespace Xtensive.Sql.Compiler
     public virtual string QuoteIdentifier(params string[] names)
     {
       return SqlHelper.QuoteIdentifierWithBrackets(names);
+    }
+
+    public virtual string BuildBatch(string[] statements)
+    {
+      if (statements.Length==0)
+        return string.Empty;
+      var expectedLength = BatchBegin.Length + BatchEnd.Length +
+        statements.Sum(statement => statement.Length + BatchItemDelimiter.Length);
+      var builder = new StringBuilder(expectedLength);
+      builder.Append(BatchBegin);
+      foreach (var statement in statements) {
+        var actualStatement = statement
+          .TryCutPrefix(BatchBegin)
+          .TryCutSuffix(BatchEnd)
+          .TryCutSuffix(BatchItemDelimiter);
+        builder.Append(statement);
+        builder.Append(BatchItemDelimiter);
+      }
+      builder.Append(BatchEnd);
+      return builder.ToString();
     }
 
     /// <summary>

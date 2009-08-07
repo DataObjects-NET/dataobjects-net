@@ -33,7 +33,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     }
 
     public override string DdlStatementDelimiter { get { return ";"; } }
-    public override string BatchStatementDelimiter { get { return ";"; } }
+    public override string BatchItemDelimiter { get { return ";"; } }
 
     [DebuggerStepThrough]
     public override string QuoteIdentifier(params string[] names)
@@ -249,7 +249,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
       //cluster in a separate command
       if (index.IsClustered) {
-        builder.AppendFormat(BatchStatementDelimiter + " CLUSTER {0} ON {1}"
+        builder.AppendFormat(BatchItemDelimiter + " CLUSTER {0} ON {1}"
           , QuoteIdentifier(index.Name)
           , QuoteIdentifier(index.DataTable.Schema.Name, index.DataTable.Name)
           );

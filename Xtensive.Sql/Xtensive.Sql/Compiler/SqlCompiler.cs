@@ -4,7 +4,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Compiler.Internals;
 using Xtensive.Sql.Model;
@@ -224,14 +226,21 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(SqlBatch node)
     {
       using (context.EnterNode(node)) {
-        context.AppendText(translator.Translate(context, node, NodeSection.Entry));
+        var statements = FlattenBatch(node).ToArray();
+        if (statements.Length==0)
+          return;
+        if (statements.Length==1) {
+          statements[0].AcceptVisitor(this);
+          return;
+        }
+        context.AppendText(translator.BatchBegin);
         using (context.EnterCollection()) {
-          foreach (SqlStatement item in node) {
+          foreach (var item in statements) {
             item.AcceptVisitor(this);
-            context.AppendDelimiter(translator.BatchStatementDelimiter, DelimiterType.Column);
+            context.AppendDelimiter(translator.BatchItemDelimiter, DelimiterType.Column);
           }
         }
-        context.AppendText(translator.Translate(context, node, NodeSection.Exit));
+        context.AppendText(translator.BatchEnd);
       }
     }
 
@@ -1046,7 +1055,7 @@ namespace Xtensive.Sql.Compiler
         using (context.EnterCollection()) {
           foreach (SqlStatement item in node) {
             item.AcceptVisitor(this);
-            context.AppendDelimiter(translator.BatchStatementDelimiter, DelimiterType.Column);
+            context.AppendDelimiter(translator.BatchItemDelimiter, DelimiterType.Column);
           }
         }
         context.AppendText(translator.Translate(context, node, NodeSection.Exit));
@@ -1300,6 +1309,22 @@ namespace Xtensive.Sql.Compiler
         context.AppendText(translator.Translate(context, node, ExtractSection.Exit));
       }
     }
+
+    private static IEnumerable<SqlStatement> FlattenBatch(SqlBatch batch)
+    {
+      foreach (SqlStatement statement in batch) {
+        var nestedBatch = statement as SqlBatch;
+        if (nestedBatch!=null) {
+          foreach (var nestedStatement in FlattenBatch(nestedBatch))
+            yield return nestedStatement;
+        }
+        else {
+          yield return statement;
+        }
+      }
+    }
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
