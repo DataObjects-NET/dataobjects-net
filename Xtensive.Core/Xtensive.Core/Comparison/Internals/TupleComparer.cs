@@ -64,6 +64,9 @@ namespace Xtensive.Core.Comparison
           return valueComparison > 0 ? (fieldIndex + 1) : -(fieldIndex + 1);
       }
 
+      if (comparers.Length > length && comparers[length].First == 0) // Direction check
+        return 0;
+
       if (dx == dy)
         return 0;
       return descriptorComparer.Compare(dx, dy);
