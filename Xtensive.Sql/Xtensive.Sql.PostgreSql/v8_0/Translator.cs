@@ -223,7 +223,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     public override string Translate(SqlCompilerContext context, SqlCreateIndex node)
     {
       Index index = node.Index;
-      StringBuilder builder = new StringBuilder();
+      var builder = new StringBuilder();
       builder.AppendFormat("CREATE {0}INDEX {1} ON {2} ("
         , index.IsUnique ? "UNIQUE " : ""
         , QuoteIdentifier(index.Name)
@@ -272,6 +272,10 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return "DROP INDEX " + QuoteIdentifier(node.Index.DataTable.Schema.Name, node.Index.Name);
     }
 
+    public override string Translate(SqlCompilerContext context, SqlRenameTable node)
+    {
+      return string.Format("ALTER TABLE {0} RENAME TO {1}", Translate(node.Table), QuoteIdentifier(node.NewName));
+    }
 
     public override string Translate(SqlCompilerContext context, SqlBreak node)
     {
@@ -874,16 +878,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         return ")::" + Translate(node.Type);
       }
       return string.Empty;
-    }
-
-    public override string Translate(SqlCompilerContext context, Table node, SqlRenameAction action)
-    {
-      return "RENAME TO " + QuoteIdentifier(action.Name);
-    }
-
-    public override string Translate(SqlCompilerContext context, TableColumn node, SqlRenameAction action)
-    {
-      return string.Format("RENAME COLUMN {0} TO {1}", QuoteIdentifier(node.DbName), QuoteIdentifier(action.Name));
     }
 
     public override string Translate(SqlDateTimePart part)

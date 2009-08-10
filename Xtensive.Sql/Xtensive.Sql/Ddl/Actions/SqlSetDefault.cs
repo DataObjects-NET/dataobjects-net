@@ -11,27 +11,15 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlSetDefault : SqlAction
   {
-    private TableColumn column;
-    private SqlExpression defaultValue;
-
-    public TableColumn Column {
-      get {
-        return column;
-      }
-    }
-
-    public SqlExpression DefaultValue {
-      get {
-        return defaultValue;
-      }
-    }
+    public TableColumn Column { get; private set; }
+    public SqlExpression DefaultValue { get; private set; }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlSetDefault clone = new SqlSetDefault((SqlExpression)defaultValue.Clone(context), column);
+      var clone = new SqlSetDefault((SqlExpression) DefaultValue.Clone(context), Column);
       context.NodeMapping[this] = clone;
 
       return clone;
@@ -39,8 +27,8 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlSetDefault(SqlExpression defaultValue, TableColumn column)
     {
-      this.defaultValue = defaultValue;
-      this.column = column;
+      DefaultValue = defaultValue;
+      Column = column;
     }
   }
 }

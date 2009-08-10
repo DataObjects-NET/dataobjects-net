@@ -10,6 +10,7 @@ using Xtensive.Core.Helpers;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Oracle.v09
 {
@@ -128,13 +129,16 @@ namespace Xtensive.Sql.Oracle.v09
       return "DROP SEQUENCE " + Translate(node.Sequence);
     }
 
-    public override string Translate(SqlCompilerContext context, bool cascade, AlterTableSection section)
+    public override string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
     {
       switch (section) {
       case AlterTableSection.DropBehavior:
-        return cascade ? "CASCADE" : string.Empty;
+        var cascadableAction = node.Action as SqlCascadableAction;
+        if (cascadableAction==null)
+          return string.Empty;
+        return cascadableAction.Cascade ? "CASCADE" : string.Empty;
       default:
-        return string.Empty;
+        return base.Translate(context, node, section);
       }
     }
 
@@ -155,6 +159,47 @@ namespace Xtensive.Sql.Oracle.v09
       if (literalType==typeof(Guid))
         return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
       return base.Translate(context, literalType, literalValue);
+    }
+
+    public override string Translate(SqlCompilerContext context, SqlDropIndex node)
+    {
+      return "DROP INDEX " + Translate(node.Index);
+    }
+
+    public override string Translate(SqlCompilerContext context, SqlCreateIndex node)
+    {
+      var index = node.Index;
+      var builder = new StringBuilder();
+      builder.Append("CREATE ");
+      if (index.IsUnique)
+        builder.Append("UNIQUE ");
+      else if (index.IsBitmap)
+        builder.Append("BITMAP ");
+      builder.Append("INDEX ");
+      builder.Append(Translate(index));
+      builder.Append(" ON ");
+      builder.Append(Translate(index.DataTable));
+      builder.Append("(");
+      foreach (var column in index.Columns) {
+        builder.Append(QuoteIdentifier(column.DbName));
+        builder.Append(column.Ascending ? " ASC" : " DESC");
+        builder.Append(RowItemDelimiter);
+      }
+      builder.Length = builder.Length - RowItemDelimiter.Length;
+      builder.Append(")");
+      return builder.ToString();
+    }
+
+    public override string Translate(SqlCompilerContext context, SqlRenameTable node)
+    {
+      return string.Format("RENAME {0} TO {1}", Translate(node.Table), QuoteIdentifier(node.NewName));
+    }
+
+    public virtual string Translate(Index node)
+    {
+      return node.DataTable.Schema!=null
+        ? QuoteIdentifier(node.DataTable.Schema.DbName, node.DbName)
+        : QuoteIdentifier(node.DbName);
     }
 
     public override string Translate(SqlValueType type)

@@ -10,28 +10,24 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlAddColumn : SqlAction
   {
-    private TableColumn column;
-
-    public TableColumn Column {
-      get {
-        return column;
-      }
-    }
+    public TableColumn Column { get; private set; }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlAddColumn clone = new SqlAddColumn(column);
+      var clone = new SqlAddColumn(Column);
       context.NodeMapping[this] = clone;
 
       return clone;
     }
 
+    // Constructors
+
     internal SqlAddColumn(TableColumn column)
     {
-      this.column = column;
+      Column = column;
     }
   }
 }

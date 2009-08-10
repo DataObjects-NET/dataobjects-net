@@ -188,11 +188,6 @@ namespace Xtensive.Sql.VistaDb.v3
       }
     }
 
-    public override string Translate(SqlCompilerContext context, bool cascade, AlterTableSection section)
-    {
-      return string.Empty;
-    }
-
     public override string Translate(SqlCompilerContext context, SqlCreateIndex node)
     {
       Index index = node.Index;
@@ -226,16 +221,6 @@ namespace Xtensive.Sql.VistaDb.v3
       if (node.All && section == QueryExpressionSection.All && (node.NodeType == SqlNodeType.Except || node.NodeType == SqlNodeType.Intersect))
         return string.Empty;
       return base.Translate(context, node, section);
-    }
-
-    public override string Translate(SqlCompilerContext context, Table node, SqlRenameAction action)
-    {
-      return string.Format("EXEC sp_rename ('{0}', '{1}')", QuoteIdentifier(node.DbName), action.Name);
-    }
-
-    public override string Translate(SqlCompilerContext context, TableColumn node, SqlRenameAction action)
-    {
-      return string.Format("EXEC sp_rename ('{0}', '{1}', 'COLUMN')", QuoteIdentifier(node.Table.DbName, node.DbName), action.Name);
     }
     
     public Translator(SqlDriver driver)

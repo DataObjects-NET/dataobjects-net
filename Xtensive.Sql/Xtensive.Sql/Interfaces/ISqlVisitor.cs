@@ -80,6 +80,7 @@ namespace Xtensive.Sql
     void Visit(SqlQueryExpression node);
     void Visit(SqlQueryRef node);
     void Visit(SqlRow node);
+    void Visit(SqlRenameTable node);
     void Visit(SqlStatementBlock node);
     void Visit(SqlTableColumn node);
     void Visit(SqlTableLockHint node);

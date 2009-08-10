@@ -10,28 +10,24 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlAddConstraint : SqlAction
   {
-    private Constraint constraint;
-
-    public Constraint Constraint {
-      get {
-        return constraint;
-      }
-    }
+    public Constraint Constraint { get; private set; }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlAddConstraint clone = new SqlAddConstraint(constraint);
+      var clone = new SqlAddConstraint(Constraint);
       context.NodeMapping[this] = clone;
 
       return clone;
     }
 
+    // Constructors
+
     internal SqlAddConstraint(Constraint constraint)
     {
-      this.constraint = constraint;
+      Constraint = constraint;
     }
   }
 }

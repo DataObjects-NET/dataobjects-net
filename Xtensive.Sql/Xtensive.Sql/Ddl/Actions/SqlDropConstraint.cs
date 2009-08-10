@@ -8,47 +8,33 @@ using Xtensive.Sql.Model;
 namespace Xtensive.Sql.Ddl
 {
   [Serializable]
-  public class SqlDropConstraint : SqlAction
+  public class SqlDropConstraint : SqlCascadableAction
   {
-    private Constraint constraint;
-    private bool cascade;
-
-    public Constraint Constraint {
-      get {
-        return constraint;
-      }
-    }
-
-    public bool Cascade {
-      get {
-        return cascade;
-      }
-      set {
-        cascade = value;
-      }
-    }
-
-
+    public Constraint Constraint { get; private set; }
+    
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlDropConstraint clone = new SqlDropConstraint(constraint);
+      var clone = new SqlDropConstraint(Constraint, Cascade);
       context.NodeMapping[this] = clone;
 
       return clone;
     }
 
+    // Constructors
+
     internal SqlDropConstraint(Constraint constraint)
+      : base(true)
     {
-      this.constraint = constraint;
+      Constraint = constraint;
     }
 
     internal SqlDropConstraint(Constraint constraint, bool cascade)
+      : base(cascade)
     {
-      this.constraint = constraint;
-      this.cascade = cascade;
+      Constraint = constraint;
     }
   }
 }

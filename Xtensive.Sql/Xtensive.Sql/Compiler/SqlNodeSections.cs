@@ -4,7 +4,6 @@
 
 namespace Xtensive.Sql.Compiler
 {
-  
   public enum NodeSection
   {
     Entry = 0,
@@ -21,6 +20,8 @@ namespace Xtensive.Sql.Compiler
     DropBehavior = 5,
     AddConstraint = 6,
     DropConstraint = 7,
+    RenameColumn = 8,
+    To = 9,
   }
 
   public enum AlterDomainSection

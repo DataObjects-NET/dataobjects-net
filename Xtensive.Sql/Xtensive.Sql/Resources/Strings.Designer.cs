@@ -61,6 +61,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Column already has specified name..
+        /// </summary>
+        internal static string ColumnAlreadyHasSpecifiedName {
+            get {
+                return ResourceManager.GetString("ColumnAlreadyHasSpecifiedName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Circular reference is detected..
         /// </summary>
         internal static string ExCircularReferenceDetected {
@@ -327,6 +336,15 @@ namespace Xtensive.Sql.Resources {
         internal static string ExSqlContainerExpressionCanNotBeCompiled {
             get {
                 return ResourceManager.GetString("ExSqlContainerExpressionCanNotBeCompiled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Table already has specified name..
+        /// </summary>
+        internal static string ExTableAlreadyHasSpecifiedName {
+            get {
+                return ResourceManager.GetString("ExTableAlreadyHasSpecifiedName", resourceCulture);
             }
         }
         

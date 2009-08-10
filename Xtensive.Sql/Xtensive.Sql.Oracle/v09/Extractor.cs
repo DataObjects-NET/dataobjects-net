@@ -221,6 +221,7 @@ namespace Xtensive.Sql.Oracle.v09
       select.Columns.Add(allIndexes["TABLE_NAME"]);
       select.Columns.Add(allIndexes["INDEX_NAME"]);
       select.Columns.Add(allIndexes["UNIQUENESS"]);
+      select.Columns.Add(allIndexes["INDEX_TYPE"]);
       select.Columns.Add(allIndexes["PCT_FREE"]);
       select.Columns.Add(allIndColumns["COLUMN_POSITION"]);
       select.Columns.Add(allIndColumns["COLUMN_NAME"]);
@@ -231,6 +232,8 @@ namespace Xtensive.Sql.Oracle.v09
       select.OrderBy.Add(allIndexes["INDEX_NAME"]);
       select.OrderBy.Add(allIndColumns["COLUMN_POSITION"]);
 
+      select.Where = SqlDml.In(allIndexes["INDEX_TYPE"],
+        SqlDml.Row(AnsiString("NORMAL"), AnsiString("BITMAP")));
       AddSchemaFilter(select, allIndexes["TABLE_OWNER"]);
 
       using (var reader = ExecuteReader(select)) {
@@ -238,19 +241,20 @@ namespace Xtensive.Sql.Oracle.v09
         Table table = null;
         Index index = null;
         while (reader.Read()) {
-          int columnPosition = ReadInt(reader, 5);
+          int columnPosition = ReadInt(reader, 6);
           if (columnPosition <= lastColumnPosition) {
             var schema = theCatalog.Schemas[reader.GetString(0)];
             table = schema.Tables[reader.GetString(1)];
             index = table.CreateIndex(reader.GetString(2));
             index.IsUnique = ReadBool(reader, 3);
-            if (!reader.IsDBNull(4)) {
-              int pctFree = ReadInt(reader, 4);
+            index.IsBitmap = reader.GetString(4)=="BITMAP";
+            if (!reader.IsDBNull(5)) {
+              int pctFree = ReadInt(reader, 5);
               index.FillFactor = (byte) (100 - pctFree);
             }
           }
-          var column = table.TableColumns[reader.GetString(6)];
-          bool isAscending = reader.GetString(7)=="ASC";
+          var column = table.TableColumns[reader.GetString(7)];
+          bool isAscending = reader.GetString(8)=="ASC";
           index.CreateIndexColumn(column, isAscending);
           lastColumnPosition = columnPosition;
         }
@@ -342,8 +346,8 @@ namespace Xtensive.Sql.Oracle.v09
       select.OrderBy.Add(allConstraints["CONSTRAINT_NAME"]);
       select.OrderBy.Add(allConsColumns["POSITION"]);
 
-      select.Where =
-        SqlDml.In(allConstraints["CONSTRAINT_TYPE"], SqlDml.Row(AnsiString("P"), AnsiString("U")));
+      select.Where = SqlDml.In(allConstraints["CONSTRAINT_TYPE"],
+        SqlDml.Row(AnsiString("P"), AnsiString("U")));
       AddSchemaFilter(select, allConstraints["OWNER"]);
       AddTableFilter(select, allConstraints["OWNER"], allConstraints["TABLE_NAME"]);
 
@@ -579,6 +583,7 @@ namespace Xtensive.Sql.Oracle.v09
       var allIndexes = schema.CreateView("ALL_INDEXES", voidDefintion);
       allIndexes.CreateColumn("OWNER");
       allIndexes.CreateColumn("INDEX_NAME");
+      allIndexes.CreateColumn("INDEX_TYPE");
       allIndexes.CreateColumn("TABLE_OWNER");
       allIndexes.CreateColumn("TABLE_NAME");
       allIndexes.CreateColumn("UNIQUENESS");

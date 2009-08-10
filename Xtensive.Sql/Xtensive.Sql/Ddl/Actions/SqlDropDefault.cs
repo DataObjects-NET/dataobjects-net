@@ -10,28 +10,24 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlDropDefault : SqlAction
   {
-    private TableColumn column;
-
-    public TableColumn Column {
-      get {
-        return column;
-      }
-    }
+    public TableColumn Column { get; private set; }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlDropDefault clone = new SqlDropDefault(column);
+      var clone = new SqlDropDefault(Column);
       context.NodeMapping[this] = clone;
 
       return clone;
     }
 
+    // Constructors
+
     internal SqlDropDefault(TableColumn column)
     {
-      this.column = column;
+      Column = column;
     }
   }
 }

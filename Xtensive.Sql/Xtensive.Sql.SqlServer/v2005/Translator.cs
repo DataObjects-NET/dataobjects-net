@@ -30,11 +30,6 @@ namespace Xtensive.Sql.SqlServer.v2005
       DoubleNumberFormat.NumberDecimalSeparator = ".";
     }
 
-    public override string Translate(SqlCompilerContext context, bool cascade, AlterTableSection section)
-    {
-      return string.Empty;
-    }
-
     public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
     {
       switch (section) {
@@ -111,10 +106,12 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
     {
       switch (section) {
-        case AlterTableSection.AddColumn:
-          return "ADD";
-        default:
-          return base.Translate(context, node, section);
+      case AlterTableSection.AddColumn:
+        return "ADD";
+      case AlterTableSection.DropBehavior:
+        return string.Empty;
+      default:
+        return base.Translate(context, node, section);
       }
     }
 
@@ -334,16 +331,20 @@ namespace Xtensive.Sql.SqlServer.v2005
       return base.Translate(context, node, section);
     }
 
-    public override string Translate(SqlCompilerContext context, Table node, SqlRenameAction action)
+    public override string Translate(SqlCompilerContext context, SqlRenameTable node)
     {
-      return string.Format("EXEC sp_rename '{0}', '{1}'", QuoteIdentifier(node.Schema.DbName, node.DbName), action.Name);
+      return string.Format("EXEC sp_rename '{0}', '{1}'", Translate(node.Table), node.NewName);
     }
 
-    public override string Translate(SqlCompilerContext context, TableColumn node, SqlRenameAction action)
+    public virtual string Translate(SqlCompilerContext context, SqlRenameColumn action)
     {
-      return string.Format("EXEC sp_rename '{0}', '{1}', 'COLUMN'", QuoteIdentifier(node.Table.Schema.DbName, node.Table.DbName, node.DbName), action.Name);
+      string schemaName = action.Column.Table.Schema.DbName;
+      string tableName = action.Column.Table.DbName;
+      string columnName = action.Column.DbName;
+      return string.Format("EXEC sp_rename '{0}', '{1}', 'COLUMN'",
+        QuoteIdentifier(schemaName, tableName, columnName), action.NewName);
     }
-
+    
     public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
       switch (section) {

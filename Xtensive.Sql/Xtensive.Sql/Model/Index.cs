@@ -3,9 +3,6 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Model
@@ -14,7 +11,7 @@ namespace Xtensive.Sql.Model
   /// Represents an Index object.
   /// </summary>
   [Serializable]
-  public class Index : DataTableNode,IPartitionable
+  public class Index : DataTableNode, IPartitionable
   {
     private PairedNodeCollection<Index, IndexColumn> columns;
     private NodeCollection<DataTableColumn> nonkeyColumns;

@@ -228,4 +228,10 @@
   <data name="ExSpecifiedPrecisionXIsGreaterThanMaximumSupportedByUnderlyingStorageY" xml:space="preserve">
     <value>Specified precision ({0}) is greater than maximum supported by underlying storage ({1}).</value>
   </data>
+  <data name="ExTableAlreadyHasSpecifiedName" xml:space="preserve">
+    <value>Table already has specified name.</value>
+  </data>
+  <data name="ColumnAlreadyHasSpecifiedName" xml:space="preserve">
+    <value>Column already has specified name.</value>
+  </data>
 </root>

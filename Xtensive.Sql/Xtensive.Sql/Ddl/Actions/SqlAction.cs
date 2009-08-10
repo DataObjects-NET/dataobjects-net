@@ -14,6 +14,10 @@ namespace Xtensive.Sql.Ddl
       throw new NotSupportedException();
     }
 
-    protected SqlAction() : base(SqlNodeType.Action) { }
+    // Constructors
+
+    protected SqlAction() : base(SqlNodeType.Action)
+    {
+    }
   }
 }

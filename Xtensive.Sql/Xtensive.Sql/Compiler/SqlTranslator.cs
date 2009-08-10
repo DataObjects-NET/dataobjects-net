@@ -23,8 +23,8 @@ namespace Xtensive.Sql.Compiler
     public NumberFormatInfo FloatNumberFormat { get; private set; }
     public NumberFormatInfo DoubleNumberFormat { get; private set; }
 
-    public virtual string BatchBegin { get { return ""; } }
-    public virtual string BatchEnd { get { return ""; } }
+    public virtual string BatchBegin { get { return string.Empty; } }
+    public virtual string BatchEnd { get { return string.Empty; } }
     public virtual string BatchItemDelimiter { get { return ";"; } }
 
     public virtual string ArgumentDelimiter { get { return ","; } }
@@ -147,6 +147,15 @@ namespace Xtensive.Sql.Compiler
         return "ADD";
       case AlterTableSection.DropConstraint:
         return "DROP";
+      case AlterTableSection.RenameColumn:
+        return "RENAME COLUMN";
+      case AlterTableSection.To:
+        return "TO";
+      case AlterTableSection.DropBehavior:
+        var cascadableAction = node.Action as SqlCascadableAction;
+        if (cascadableAction==null)
+          return string.Empty;
+        return cascadableAction.Cascade ? "CASCADE" : "RESTRICT";
       default:
         return string.Empty;
       }
@@ -157,16 +166,6 @@ namespace Xtensive.Sql.Compiler
       switch (section) {
       case NodeSection.Entry:
         return "ALTER SEQUENCE " + Translate(node.Sequence);
-      default:
-        return string.Empty;
-      }
-    }
-
-    public virtual string Translate(SqlCompilerContext context, bool cascade, AlterTableSection section)
-    {
-      switch (section) {
-      case AlterTableSection.DropBehavior:
-        return cascade ? "CASCADE" : "RESTRICT";
       default:
         return string.Empty;
       }
@@ -503,103 +502,51 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlCreateIndex node)
     {
       Index index = node.Index;
-      StringBuilder sb = new StringBuilder();
-      sb.Append("CREATE ");
+      var builder = new StringBuilder();
+      builder.Append("CREATE ");
       if (index.IsUnique)
-        sb.Append("UNIQUE ");
+        builder.Append("UNIQUE ");
       else if (index.IsBitmap)
-        sb.Append("BITMAP ");
+        builder.Append("BITMAP ");
       if (index.IsClustered)
-        sb.Append("CLUSTERED ");
-      sb.Append("INDEX " + QuoteIdentifier(index.DbName));
-      sb.Append(" ON " + Translate(index.DataTable) + " (");
+        builder.Append("CLUSTERED ");
+      builder.Append("INDEX " + QuoteIdentifier(index.DbName));
+      builder.Append(" ON " + Translate(index.DataTable) + " (");
       bool first = true;
       foreach (IndexColumn column in index.Columns) {
         if (first)
           first = false;
         else
-          sb.AppendFormat(RowItemDelimiter);
-        sb.Append(QuoteIdentifier(column.DbName));
+          builder.Append(RowItemDelimiter);
+        builder.Append(QuoteIdentifier(column.DbName));
         if (column.Ascending)
-          sb.Append(" ASC");
+          builder.Append(" ASC");
         else
-          sb.Append(" DESC");
+          builder.Append(" DESC");
       }
-      sb.Append(")");
+      builder.Append(")");
       if (index.NonkeyColumns != null && index.NonkeyColumns.Count != 0) {
-        sb.Append(" INCLUDE (");
+        builder.Append(" INCLUDE (");
         first = true;
         foreach (DataTableColumn column in index.NonkeyColumns) {
           if (first)
             first = false;
           else
-            sb.AppendFormat(RowItemDelimiter);
-          sb.Append(QuoteIdentifier(column.DbName));
+            builder.AppendFormat(RowItemDelimiter);
+          builder.Append(QuoteIdentifier(column.DbName));
         }
-        sb.Append(")");
+        builder.Append(")");
       }
       if (index.FillFactor.HasValue) {
-        sb.Append(" WITH (FILLFACTOR = " + index.FillFactor.Value + ")");
+        builder.Append(" WITH (FILLFACTOR = " + index.FillFactor.Value + ")");
       }
-      //StringBuilder options = new StringBuilder();
-      //bool addOptions = false;
-      //options.Append(" WITH (");
-      //options.Append(Translate(index.RelationalIndexOption, RelationalIndexOption.PadIndex,ref addOptions));
-      //if (index.FillFactor.HasValue) {
-      //  if (addOptions)
-      //    options.AppendFormat(RowItemDelimiter);
-      //  else
-      //    addOptions = true;
-      //  options.Append("FILLFACTOR = "+index.FillFactor.Value);
-      //}
-      //options.Append(Translate(index.RelationalIndexOption, RelationalIndexOption.SortInTEMPDB, ref addOptions));
-      //options.Append(Translate(index.RelationalIndexOption, RelationalIndexOption.IgnoreDupKey, ref addOptions));
-      //options.Append(Translate(index.RelationalIndexOption, RelationalIndexOption.StatisticsNorecompute, ref addOptions));
-      //options.Append(Translate(index.RelationalIndexOption, RelationalIndexOption.DropExisting, ref addOptions));
-      //options.Append(Translate(index.RelationalIndexOption, RelationalIndexOption.Online, ref addOptions));
-      //options.Append(Translate(index.RelationalIndexOption, RelationalIndexOption.AllowRowLocks, ref addOptions));
-      //options.Append(Translate(index.RelationalIndexOption, RelationalIndexOption.AllowPageLocks, ref addOptions));
-      //if (index.MaxDegreeOfParallelism.HasValue) {
-      //  if (addOptions)
-      //    options.AppendFormat(RowItemDelimiter);
-      //  else
-      //    addOptions = true;
-      //  options.Append("MAXDOP = " + index.MaxDegreeOfParallelism.Value);
-      //}
-      //options.Append(")");
-      //if (addOptions)
-      //  sb.Append(options.ToString());
       if (index.PartitionDescriptor != null) {
-        sb.Append(" " + Translate(index.PartitionDescriptor, true));
+        builder.Append(" " + Translate(index.PartitionDescriptor, true));
       }
       else if (!String.IsNullOrEmpty(index.Filegroup))
-        sb.Append(" ON " + index.Filegroup);
-      return sb.ToString();
+        builder.Append(" ON " + index.Filegroup);
+      return builder.ToString();
     }
-
-    //
-    //    private string Translate(
-    //      SqlCompilerContext context, RelationalIndexOption indexOptions, RelationalIndexOption option, ref bool addOptions)
-    //    {
-    //      bool on = (indexOptions&option)!=0;
-    //      if (on && ((RelationalIndexOption.Default&option)==0)) {
-    //        if (addOptions)
-    //          return RowItemDelimiter+Translate(option)+" = ON";
-    //        else {
-    //          addOptions = true;
-    //          return Translate(option)+" = ON";
-    //        }
-    //      }
-    //      else if (!on && ((RelationalIndexOption.Default&option)!=0)) {
-    //        if (addOptions)
-    //          return RowItemDelimiter+Translate(option)+" = OFF";
-    //        else {
-    //          addOptions = true;
-    //          return Translate(option)+" = OFF";
-    //        }
-    //      }
-    //      return String.Empty;
-    //    }
 
     public virtual string Translate(SqlCompilerContext context, SqlCreatePartitionFunction node)
     {
@@ -880,39 +827,6 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlDropIndex node)
     {
       return "DROP INDEX " + QuoteIdentifier(node.Index.DbName) + " ON " + Translate(node.Index.DataTable);
-      //bool addOptions = false;
-      //StringBuilder sb = new StringBuilder();
-      //sb.Append(" WITH (");
-      //if (node.MaxDegreeOfParallelism.HasValue) {
-      //  sb.Append("MAXDOP = "+node.MaxDegreeOfParallelism.Value);
-      //  addOptions = true;
-      //}
-      //if (node.Online.HasValue) {
-      //  if (addOptions)
-      //    sb.Append(RowItemDelimiter);
-      //  else
-      //    addOptions = true;
-      //  sb.Append("ONLINE = "+(node.Online.Value ? "ON" : "OFF"));
-      //}
-      //if (node.PartitionDescriptor!=null) {
-      //  if (addOptions)
-      //    sb.Append(RowItemDelimiter);
-      //  else
-      //    addOptions = true;
-      //  sb.Append("MOVE TO "+Translate(context, node.PartitionDescriptor, false));
-      //}
-      //else if (!String.IsNullOrEmpty(node.Filegroup)) {
-      //  if (addOptions)
-      //    sb.Append(RowItemDelimiter);
-      //  else
-      //    addOptions = true;
-      //  sb.Append("MOVE TO "+node.Filegroup);
-      //}
-      //sb.Append(")");
-      //if (addOptions)
-      //  return result+sb.ToString();
-      //else
-      //  return result;
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlDropPartitionFunction node)
@@ -1204,6 +1118,11 @@ namespace Xtensive.Sql.Compiler
       return string.Empty;
     }
 
+    public virtual string Translate(SqlCompilerContext context, SqlRenameTable node)
+    {
+      throw new NotSupportedException();
+    }
+
     public virtual string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
     {
       switch (section) {
@@ -1245,19 +1164,9 @@ namespace Xtensive.Sql.Compiler
       return string.Empty;
     }
 
-    public virtual string Translate(SqlCompilerContext context, Table node, SqlRenameAction action)
-    {
-      throw new NotSupportedException();
-    }
-
     public virtual string Translate(SqlCompilerContext context, SqlTable node, NodeSection section)
     {
       return QuoteIdentifier(node.Name);
-    }
-
-    public virtual string Translate(SqlCompilerContext context, TableColumn node, SqlRenameAction action)
-    {
-      throw new NotSupportedException();
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlTableColumn node, NodeSection section)

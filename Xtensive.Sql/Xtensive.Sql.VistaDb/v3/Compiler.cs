@@ -25,20 +25,6 @@ namespace Xtensive.Sql.VistaDb.v3
       base.Visit(node);
     }
 
-    public override void Visit(SqlAlterTable node)
-    {
-      var action = node.Action as SqlRenameAction;
-      if (action == null) {
-        base.Visit(node);
-        return;
-      }
-      var column = action.Node as TableColumn;
-      if (column != null)
-        context.AppendText(translator.Translate(context, column, action));
-      else
-        context.AppendText(translator.Translate(context, node.Table, action));
-    }
-
     public Compiler(SqlDriver driver)
       : base(driver)
     {

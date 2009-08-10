@@ -88,6 +88,7 @@ namespace Xtensive.Sql
     Overlaps,
     Parameter,
     Revoke,
+    Rename,
     Row,
     Round,
     Select,

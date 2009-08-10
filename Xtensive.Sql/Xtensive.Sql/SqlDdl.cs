@@ -9,6 +9,7 @@ using Xtensive.Core;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
+using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql
 {
@@ -273,14 +274,14 @@ namespace Xtensive.Sql
           ((SqlAlterIdentityInfo)action).Column.DataTable!=table)
         throw new ArgumentException("Column belongs to other table.", "action");
       else if (action is SqlAddConstraint) {
-        TableConstraint constraint = ((SqlAddConstraint)action).Constraint as TableConstraint;
+        var constraint = ((SqlAddConstraint) action).Constraint as TableConstraint;
         if (constraint==null)
           throw new ArgumentException("Invalid constraint type.", "action");
         else if (constraint.Table!=null && constraint.Table!=table)
           throw new ArgumentException("Constraint belongs to other table.", "action");
       }
       else if (action is SqlDropConstraint) {
-        TableConstraint constraint = ((SqlDropConstraint)action).Constraint as TableConstraint;
+        var constraint = ((SqlDropConstraint) action).Constraint as TableConstraint;
         if (constraint==null)
           throw new ArgumentException("Invalid constraint type.", "action");
         else if (constraint.Table!=null && constraint.Table!=table)
@@ -289,24 +290,22 @@ namespace Xtensive.Sql
       return new SqlAlterTable(table, action);
     }
 
-    public static SqlAlterTable Rename(Table table, string name)
+    public static SqlRenameTable Rename(Table table, string newName)
     {
       ArgumentValidator.EnsureArgumentNotNull(table, "table");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      if (table.Name == name)
-        throw new ArgumentException("Table already has specified name.");
-
-      return Alter(table, new SqlRenameAction(table, name));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(newName, "newName");
+      if (table.Name==newName)
+        throw new ArgumentException(Strings.ExTableAlreadyHasSpecifiedName);
+      return new SqlRenameTable(table, newName);
     }
 
-    public static SqlAlterTable Rename(TableColumn column, string name)
+    public static SqlAlterTable Rename(TableColumn column, string newName)
     {
       ArgumentValidator.EnsureArgumentNotNull(column, "table");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      if (column.Name == name)
-        throw new ArgumentException("Column already has specified name.");
-
-      return Alter(column.Table, new SqlRenameAction(column, name));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(newName, "newName");
+      if (column.Name==newName)
+        throw new ArgumentException(Strings.ColumnAlreadyHasSpecifiedName);
+      return Alter(column.Table, new SqlRenameColumn(column, newName));
     }
 
     public static SqlAlterSequence Alter(Sequence sequence, SequenceDescriptor descriptor, SqlAlterIdentityInfoOptions infoOption)

@@ -22,16 +22,11 @@ namespace Xtensive.Sql.SqlServer.v2005
     /// <inheritdoc/>
     public override void Visit(SqlAlterTable node)
     {
-      if (!(node.Action is SqlRenameAction)) {
-        base.Visit(node);
-        return;
-      }
-      var action = (SqlRenameAction) node.Action;
-      var column = action.Node as TableColumn;
-      if (column != null)
-        context.AppendText(translator.Translate(context, column, action));
+      var renameColumnAction = node.Action as SqlRenameColumn;
+      if (renameColumnAction!=null)
+        context.AppendText(((Translator) translator).Translate(context, renameColumnAction));
       else
-        context.AppendText(translator.Translate(context, node.Table, action));
+        base.Visit(node);
     }
 
     /// <inheritdoc/>
