@@ -67,14 +67,18 @@ namespace Xtensive.Storage.Tests.Rse
     {
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        Expression<Func<B, bool>> predicate = b => b.HierarchyField.GreaterThan("k")
-          && b.ClassField < int.MaxValue
-            || b.HierarchyField.LessThanOrEqual("z") && b.ClassField > int.MaxValue / 2;
+        Expression<Func<B, bool>> predicate = b => b.HierarchyField.GreaterThan("Random String 1")
+          && b.ClassField < int.MinValue + 100000
+            || b.HierarchyField.LessThanOrEqual("Random String 2") && b.ClassField > int.MinValue;
+        var entities = Query<B>.All.ToList();
         var expected = Query<B>.All.ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
         var query = Query<B>.All.Where(predicate).OrderBy(o => o.Id);
         var actual = query.ToList();
         var virtualIndex = Domain.Model.Types[typeof (B)].Indexes.GetIndex("HierarchyField");
-        Assert.IsTrue(virtualIndex.IsVirtual);
+        if (!ConcreteTableSchemaModifier.IsEnabled)
+          Assert.IsTrue(virtualIndex.IsVirtual);
+        else
+          Assert.IsFalse(virtualIndex.IsVirtual);
         IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model, virtualIndex,
           IndexOptimizerTestHelper.GetIndexForField<B>("ClassField", Domain.Model));
         IndexOptimizerTestHelper.ValidateQueryResult(expected, actual);
@@ -86,28 +90,23 @@ namespace Xtensive.Storage.Tests.Rse
       var random = RandomManager.CreateRandom();
       var stringGenerator = InstanceGeneratorProvider.Default.GetInstanceGenerator<string>();
       var intGenerator = InstanceGeneratorProvider.Default.GetInstanceGenerator<Int32>();
-      using (Session.Open(Domain))
-      using (var t = Transaction.Open()) {
-        for (int i = 0; i < count; i++) {
-          new A {HierarchyField = stringGenerator.GetInstance(random)};
-          new B
-          {
-            HierarchyField = stringGenerator.GetInstance(random),
-            ClassField = intGenerator.GetInstance(random)
-          };
-          new B
-          {
-            HierarchyField = stringGenerator.GetInstance(random),
-            ClassField = intGenerator.GetInstance(random)
-          };
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          for (int i = 0; i < count; i++) {
+            new A {HierarchyField = stringGenerator.GetInstance(random)};
+            var b1 = new B
+            {
+              HierarchyField = stringGenerator.GetInstance(random),
+              ClassField = intGenerator.GetInstance(random)
+            };
+            new B
+            {
+              HierarchyField = stringGenerator.GetInstance(random),
+              ClassField = intGenerator.GetInstance(random)
+            };
+          }
+          t.Complete();
         }
-        t.Complete();
-      }
-      using (Session.Open(Domain))
-      using (Transaction.Open()) {
-        var b = Query<B>.All.First();
-        var value = b.ClassField;
-        Assert.Greater(value, 0);
       }
     }
   }

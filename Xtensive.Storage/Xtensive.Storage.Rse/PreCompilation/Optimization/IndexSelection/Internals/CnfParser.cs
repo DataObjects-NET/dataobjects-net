@@ -145,7 +145,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
         var item = rangeSetAndIndexKeys[i];
         if (item.First < 0)
           break;
-        if (indexKeyValuesCache.ContainsKey(item.First))
+        if (i != item.First || indexKeyValuesCache.ContainsKey(item.First))
           return null;
         indexKeyValuesCache.Add(item.First, item.Second.Origin.Comparison.Value);
         lastKeyPosition = i;

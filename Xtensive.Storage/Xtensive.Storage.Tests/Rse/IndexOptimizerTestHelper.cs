@@ -21,8 +21,8 @@ namespace Xtensive.Storage.Tests.Rse
     public static IndexInfo GetIndexForField<T>(string fieldName, DomainModel domainModel)
     {
       var targetName = "_" + fieldName;
-      return domainModel.Types[typeof(T)].Fields[fieldName].Column.Indexes.First(
-        idx => idx.ShortName.EndsWith(targetName));
+      return domainModel.Types[typeof (T)].Indexes.GetIndexesContainingAllData()
+        .Where(indexInfo => indexInfo.Name.Contains(targetName)).Single();
     }
 
     public static IndexInfo GetIndexForForeignKey<T>(string fieldName, DomainModel domainModel)
@@ -40,6 +40,7 @@ namespace Xtensive.Storage.Tests.Rse
         .Return(false).WhenCalled(invocation =>
           invocation.ReturnValue = ((Entity)invocation.Arguments[0]).Key
             == ((Entity)invocation.Arguments[1]).Key);
+      Assert.AreEqual(expected.Count(), actual.Count());
       Assert.AreEqual(0, expected.Except(actual, equalityComparer).Count());
     }
 
@@ -50,6 +51,7 @@ namespace Xtensive.Storage.Tests.Rse
       var secondaryIndexProviders = new List<IndexInfo>();
       FindSecondaryIndexProviders(optimizedProvider, secondaryIndexProviders, domainModel);
       Assert.Greater(secondaryIndexProviders.Count, 0);
+      Assert.AreEqual(expectedIndexes.Length, secondaryIndexProviders.Count);
       Assert.AreEqual(0, secondaryIndexProviders.Except(expectedIndexes).Count());
     }
 

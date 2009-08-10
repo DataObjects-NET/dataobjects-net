@@ -89,12 +89,14 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     public static bool KeySelectorIngnoringParameterOfTuple(Expression exp)
     {
       var tupleExp = exp.AsTupleAccess();
-      if (tupleExp == null)
+      if (tupleExp==null)
         return false;
       var asMemberExpression = tupleExp.Object as MemberExpression;
-      if (asMemberExpression == null)
+      if (asMemberExpression==null)
         return true;
-      return asMemberExpression.Expression.Type!=typeof (Parameter<Tuple>);
+      return asMemberExpression.Expression.Type==typeof (ApplyParameter)
+        || asMemberExpression.Expression.Type!=typeof (Parameter<Tuple>)
+          && asMemberExpression.Type!=typeof (Tuple);
     }
 
     #endregion

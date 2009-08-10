@@ -20,6 +20,7 @@ using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Index;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Tests.ObjectModel;
@@ -90,7 +91,7 @@ namespace Xtensive.Storage.Tests.Rse
     public void PrimaryIndexIsSelectedTest()
     {
       var firstEmployee = Query<Employee>.All.ToList().First();
-      Expression<Func<Employee, bool>> predicate = employee => employee.Id == firstEmployee.Id
+      Expression<Func<Employee, bool>> predicate = employee => employee.Key == firstEmployee.Key
         && employee.BirthDate < new DateTime(1960, 1, 1);
       var expected = Query<Employee>.All.ToList().Where(predicate.CachingCompile()).OrderBy(empl => empl.Id);
       var query = Query<Employee>.All.Where(predicate).OrderBy(empl => empl.Id);
@@ -110,7 +111,7 @@ namespace Xtensive.Storage.Tests.Rse
         .Single();
       var targetCategory = Query<Category>.All.Where(cat => cat.CategoryName=="Confections").Single();
       Expression<Func<Product, bool>> predicate = product => product.UnitPrice > 10m
-        && product.Supplier.Id == targetSupplier.Id && product.Category.Id == targetCategory.Id
+        && product.Supplier.Key == targetSupplier.Key && product.Category.Key == targetCategory.Key
         && product.ProductName.GreaterThan("a")
         || product.UnitPrice > 10m && product.ProductName.GreaterThan("S");
       var expected = Query<Product>.All.ToList().Where(predicate.CachingCompile()).OrderBy(p => p.Id);
@@ -130,11 +131,11 @@ namespace Xtensive.Storage.Tests.Rse
       Expression<Func<Employee, bool>> employeePredicate = employee => employee.Title.GreaterThan("Sales");
       var expected = Query<Order>.All.ToList().Where(orderPredicate.CachingCompile())
         .Join(Query<Employee>.All.Where(employeePredicate.CachingCompile()),
-          order => order.Employee.Id, empl => empl.Id,
+          order => order.Employee.Key, empl => empl.Key,
           (order, empl) => new Pair<Order, Employee>(order, empl));
       var query = Query<Order>.All.Where(orderPredicate)
         .Join(Query<Employee>.All.Where(employeePredicate),
-          order => order.Employee.Id, empl => empl.Id,
+          order => order.Employee.Key, empl => empl.Key,
           (order, empl) => new {order, empl});
       var actual = query.ToList()
         .Select(arg => new Pair<Order, Employee>(arg.order, arg.empl)).ToList();
@@ -144,29 +145,17 @@ namespace Xtensive.Storage.Tests.Rse
       ValidateQueryResultForJoinTest(expected, actual);
     }
 
-    private static void ValidateQueryResultForJoinTest(IEnumerable<Pair<Order, Employee>> expected,
-      List<Pair<Order, Employee>> actual)
-    {
-      Assert.Greater(expected.Count(), 0);
-      var equalityComparer = MockRepository.GenerateMock<IEqualityComparer<Pair<Order, Employee>>>();
-      equalityComparer.Stub(comparer =>
-        comparer.Equals(Arg<Pair<Order, Employee>>.Is.Anything, Arg<Pair<Order, Employee>>.Is.Anything))
-        .Return(false).WhenCalled(invocation =>
-          invocation.ReturnValue = (
-            ((Pair<Order, Employee>) invocation.Arguments[0]).First.Key
-              ==((Pair<Order, Employee>) invocation.Arguments[0]).First.Key
-                &&
-                ((Pair<Order, Employee>) invocation.Arguments[0]).Second.Key
-                  ==((Pair<Order, Employee>) invocation.Arguments[0]).Second.Key));
-      Assert.AreEqual(0, expected.Except(actual, equalityComparer).Count());
-    }
-
     [Test]
-    public void AtLeastOnExpressionAlwaysProducesFullRangeSetTest()
+    public void AtLeastOneExpressionAlwaysProducesFullRangeSetTest()
     {
+      var primaryIndex = Domain.Model.Types[typeof (Order)].Indexes.PrimaryIndex;
+      var recordSetHeader = primaryIndex.GetRecordSetHeader();
+      var requiredDateFieldIndex = GetFieldIndex(recordSetHeader, "RequiredDate");
+      var orderDateFieldIndex = GetFieldIndex(recordSetHeader, "OrderDate");
       var rootProvider = new FilterProvider(
-        IndexProvider.Get(Domain.Model.Types[typeof (Order)].Indexes.PrimaryIndex),
-        t => t.GetValueOrDefault<decimal>(9) > 0 || t.GetValueOrDefault<DateTime?>(7) == DateTime.Now);
+        IndexProvider.Get(primaryIndex),
+        t => t.GetValueOrDefault<DateTime?>(requiredDateFieldIndex) == DateTime.Now
+          || t.GetValueOrDefault<DateTime?>(orderDateFieldIndex) == DateTime.Now);
       var domainHandler = (DomainHandler) (Domain.Handlers.DomainHandler);
       var realResolver = new OptimizationInfoProviderResolver(domainHandler);
       var indexOptimizer = new IndexOptimizer(Domain.Model, realResolver);
@@ -187,16 +176,6 @@ namespace Xtensive.Storage.Tests.Rse
       IndexOptimizerTestHelper.ValidateUsedIndex(query, Domain.Model,
         IndexOptimizerTestHelper.GetIndexForField<Employee>("FirstName", Domain.Model));
       IndexOptimizerTestHelper.ValidateQueryResult(expected, actual);
-    }
-
-    private static Expression<Func<T, bool>> BuildCnfPredicate<T>(int termCount,
-      Expression<Func<T, bool>> term)
-    {
-      var termBody = term.Body;
-      var result = termBody;
-      for (int i = 0; i < (termCount - 1)/2; i++)
-        result = Expression.AndAlso(result, Expression.OrElse(termBody, termBody));
-      return Expression.Lambda<Func<T, bool>>(result, term.Parameters[0]);
     }
 
     [Test]
@@ -220,6 +199,33 @@ namespace Xtensive.Storage.Tests.Rse
       }
     }
 
+    private static void ValidateQueryResultForJoinTest(IEnumerable<Pair<Order, Employee>> expected,
+      List<Pair<Order, Employee>> actual)
+    {
+      Assert.Greater(expected.Count(), 0);
+      var equalityComparer = MockRepository.GenerateMock<IEqualityComparer<Pair<Order, Employee>>>();
+      equalityComparer.Stub(comparer =>
+        comparer.Equals(Arg<Pair<Order, Employee>>.Is.Anything, Arg<Pair<Order, Employee>>.Is.Anything))
+        .Return(false).WhenCalled(invocation =>
+          invocation.ReturnValue = (
+            ((Pair<Order, Employee>) invocation.Arguments[0]).First.Key
+              ==((Pair<Order, Employee>) invocation.Arguments[0]).First.Key
+                &&
+                ((Pair<Order, Employee>) invocation.Arguments[0]).Second.Key
+                  ==((Pair<Order, Employee>) invocation.Arguments[0]).Second.Key));
+      Assert.AreEqual(0, expected.Except(actual, equalityComparer).Count());
+    }
+
+    private static Expression<Func<T, bool>> BuildCnfPredicate<T>(int termCount,
+      Expression<Func<T, bool>> term)
+    {
+      var termBody = term.Body;
+      var result = termBody;
+      for (int i = 0; i < (termCount - 1)/2; i++)
+        result = Expression.AndAlso(result, Expression.OrElse(termBody, termBody));
+      return Expression.Lambda<Func<T, bool>>(result, term.Parameters[0]);
+    }
+
     private IndexInfo GetMultiColumnIndex<T>(params string[] fieldNames)
     {
       var sb = new StringBuilder();
@@ -228,7 +234,14 @@ namespace Xtensive.Storage.Tests.Rse
       sb.Append("IX_");
       foreach (var name in fieldNames)
         sb.Append(name);
-      return Domain.Model.Types[typeof (T)].Indexes[sb.ToString()];
+      var storageView = ((SessionHandler) Session.Current.Handler).StorageView;
+      return Domain.Model.Types[typeof (T)].Indexes.GetIndexesContainingAllData()
+        .Where(indexInfo => indexInfo.Name.Contains(sb.ToString())).Single();
+    }
+
+    private static int GetFieldIndex(RecordSetHeader rsHeader, string fieldName)
+    {
+      return rsHeader.IndexOf(fieldName);
     }
   }
 }
