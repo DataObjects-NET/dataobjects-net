@@ -103,6 +103,12 @@ namespace Xtensive.Storage.Tests.Rse
         }
         t.Complete();
       }
+      using (Session.Open(Domain))
+      using (Transaction.Open()) {
+        var b = Query<B>.All.First();
+        var value = b.ClassField;
+        Assert.Greater(value, 0);
+      }
     }
   }
 }
