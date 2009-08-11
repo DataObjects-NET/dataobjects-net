@@ -87,18 +87,18 @@ namespace Xtensive.Core.Testing
     /// <summary>
     /// Ensures full garbage collection.
     /// </summary>
-    /// <param name="preferFullRatherThenFast">Full rather then fast collection should be performed.</param>
-    public static void CollectGarbage(bool preferFullRatherThenFast)
+    /// <param name="preferFullRatherThanFast">Full rather then fast collection should be performed.</param>
+    public static void CollectGarbage(bool preferFullRatherThanFast)
     {
       int baseSleepTime = 1;
-      if (preferFullRatherThenFast)
+      if (preferFullRatherThanFast)
         baseSleepTime = 100;
 
       for (int i = 0; i<5; i++) {
         GC.GetTotalMemory(true);
         Thread.Sleep(baseSleepTime);
+        GC.WaitForPendingFinalizers();
       }
-      Thread.Sleep(5*baseSleepTime);
     }
   }
 }
