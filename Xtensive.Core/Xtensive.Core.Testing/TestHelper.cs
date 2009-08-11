@@ -95,8 +95,8 @@ namespace Xtensive.Core.Testing
         baseSleepTime = 100;
 
       for (int i = 0; i<5; i++) {
-        GC.GetTotalMemory(true);
         Thread.Sleep(baseSleepTime);
+        GC.GetTotalMemory(true);
         GC.WaitForPendingFinalizers();
       }
     }
