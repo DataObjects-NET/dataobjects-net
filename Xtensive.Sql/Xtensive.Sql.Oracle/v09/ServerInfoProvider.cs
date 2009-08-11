@@ -182,7 +182,8 @@ namespace Xtensive.Sql.Oracle.v09
       queryInfo.Features =
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |
-        QueryFeatures.Hints;
+        QueryFeatures.Hints |
+        QueryFeatures.LargeObjects;
       return queryInfo;
     }
 

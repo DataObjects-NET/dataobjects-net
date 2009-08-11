@@ -1734,8 +1734,9 @@ namespace Xtensive.Sql.Compiler
         var actualStatement = statement
           .TryCutPrefix(BatchBegin)
           .TryCutSuffix(BatchEnd)
+          .TryCutSuffix(Environment.NewLine) // a hack
           .TryCutSuffix(BatchItemDelimiter);
-        builder.Append(statement);
+        builder.Append(actualStatement);
         builder.Append(BatchItemDelimiter);
       }
       builder.Append(BatchEnd);

@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers.Sql
     public Func<object> ValueAccessor { get; private set; }
 
     /// <summary>
-    /// Gets or sets the type of the binding.
+    /// Gets the type of the binding.
     /// </summary>
     public SqlFetchParameterBindingType BindingType { get; private set; }
 

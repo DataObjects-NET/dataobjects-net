@@ -4,12 +4,11 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.28
 
-using System;
 using System.Collections.Generic;
-using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Model;
 using Xtensive.Sql.ValueTypeMapping;
 using Xtensive.Storage.Model;
 
@@ -20,6 +19,8 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public class SqlRequestBuilder : InitializableHandlerBase
   {
+    private bool useLargeObjects;
+
     protected DomainHandler DomainHandler { get; private set; }
 
     /// <summary>
@@ -58,8 +59,9 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual void BuildInsertRequest(SqlRequestBuilderContext context)
     {
       foreach (IndexInfo index in context.AffectedIndexes) {
-        SqlTableRef table = SqlDml.TableRef(DomainHandler.Mapping[index].Table);
-        SqlInsert query = SqlDml.Insert(table);
+        var table = DomainHandler.Mapping[index].Table;
+        var tableRef = SqlDml.TableRef(table);
+        var query = SqlDml.Insert(tableRef);
 
         for (int i = 0; i < index.Columns.Count; i++) {
           ColumnInfo column = index.Columns[i];
@@ -67,11 +69,12 @@ namespace Xtensive.Storage.Providers.Sql
           if (fieldIndex >= 0) {
             SqlPersistParameterBinding binding;
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
-              TypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
-              binding = new SqlPersistParameterBinding(fieldIndex, typeMapping);
+              var typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
+              var bindingType = GetBindingType(table.TableColumns[column.Name]);
+              binding = new SqlPersistParameterBinding(fieldIndex, typeMapping, bindingType);
               context.ParameterBindings.Add(column, binding);
             }
-            query.Values[table[column.Name]] = binding.ParameterReference;
+            query.Values[tableRef[column.Name]] = binding.ParameterReference;
           }
         }
         context.Batch.Add(query);
@@ -81,8 +84,9 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual void BuildUpdateRequest(SqlRequestBuilderContext context)
     {
       foreach (IndexInfo index in context.AffectedIndexes) {
-        SqlTableRef table = SqlDml.TableRef(DomainHandler.Mapping[index].Table);
-        SqlUpdate query = SqlDml.Update(table);
+        var table = DomainHandler.Mapping[index].Table;
+        var tableRef = SqlDml.TableRef(table);
+        var query = SqlDml.Update(tableRef);
 
         for (int i = 0; i < index.Columns.Count; i++) {
           ColumnInfo column = index.Columns[i];
@@ -90,18 +94,19 @@ namespace Xtensive.Storage.Providers.Sql
           if (fieldIndex >= 0 && context.Task.FieldMap[fieldIndex]) {
             SqlPersistParameterBinding binding;
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
-              TypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
-              binding = new SqlPersistParameterBinding(fieldIndex, typeMapping);
+              var typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
+              var bindingType = GetBindingType(table.TableColumns[column.Name]);
+              binding = new SqlPersistParameterBinding(fieldIndex, typeMapping, bindingType);
               context.ParameterBindings.Add(column, binding);
             }
-            query.Values[table[column.Name]] = binding.ParameterReference;
+            query.Values[tableRef[column.Name]] = binding.ParameterReference;
           }
         }
 
         // There is nothing to update in this table, skipping it
         if (query.Values.Count == 0)
           continue;
-        query.Where &= BuildWhereExpression(context, table);
+        query.Where &= BuildWhereExpression(context, tableRef);
         context.Batch.Add(query);
       }
     }
@@ -109,10 +114,10 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual void BuildRemoveRequest(SqlRequestBuilderContext context)
     {
       for (int i = context.AffectedIndexes.Count - 1; i >= 0; i--) {
-        IndexInfo index = context.AffectedIndexes[i];
-        SqlTableRef table = SqlDml.TableRef(DomainHandler.Mapping[index].Table);
-        SqlDelete query = SqlDml.Delete(table);
-        query.Where &= BuildWhereExpression(context, table);
+        var index = context.AffectedIndexes[i];
+        var tableRef = SqlDml.TableRef(DomainHandler.Mapping[index].Table);
+        var query = SqlDml.Delete(tableRef);
+        query.Where &= BuildWhereExpression(context, tableRef);
         context.Batch.Add(query);
       }
     }
@@ -133,6 +138,20 @@ namespace Xtensive.Storage.Providers.Sql
       return expression;
     }
 
+    protected virtual SqlPersistParameterBindingType GetBindingType(TableColumn column)
+    {
+      if (!useLargeObjects)
+        return SqlPersistParameterBindingType.Regular;
+      switch (column.DataType.Type) {
+      case SqlType.VarCharMax:
+        return SqlPersistParameterBindingType.CharacterLob;
+      case SqlType.VarBinaryMax:
+        return SqlPersistParameterBindingType.BinaryLob;
+      default:
+        return SqlPersistParameterBindingType.Regular;
+      }
+    }
+
     private static int GetFieldIndex(TypeInfo type, ColumnInfo column)
     {
       FieldInfo field;
@@ -144,7 +163,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
-      DomainHandler = Handlers.DomainHandler as DomainHandler;
+      DomainHandler = (DomainHandler) Handlers.DomainHandler;
+      useLargeObjects = Xtensive.Sql.Info.FeaturesExtensions.Supports(
+        DomainHandler.Driver.ServerInfo.Query.Features,
+        Xtensive.Sql.Info.QueryFeatures.LargeObjects);
     }
     
     // Constructors

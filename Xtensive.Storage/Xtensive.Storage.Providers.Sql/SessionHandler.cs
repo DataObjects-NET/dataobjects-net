@@ -29,9 +29,11 @@ namespace Xtensive.Storage.Providers.Sql
   public class SessionHandler : Providers.SessionHandler
   {
     private const int PersistBatchSize = 25;
-    
+    private const int LobBlockSize = ushort.MaxValue;
+
     private SqlConnection connection;
-    
+    private DisposableSet persistedLargeObjects;
+
     /// <summary>
     /// Gets the connection.
     /// </summary>
@@ -186,8 +188,14 @@ namespace Xtensive.Storage.Providers.Sql
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        using (var command = CreatePersistCommand(request, tuple)) {
-          return command.ExecuteNonQuery();
+        try {
+          using (var command = CreatePersistCommand(request, tuple)) {
+            return command.ExecuteNonQuery();
+          }
+        }
+        finally {
+          persistedLargeObjects.DisposeSafely();
+          persistedLargeObjects = null;
         }
       }
     }
@@ -202,8 +210,14 @@ namespace Xtensive.Storage.Providers.Sql
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        using (var command = CreateBatchPersistCommand(requests)) {
-          return command.ExecuteNonQuery();
+        try {
+          using (var command = CreateBatchPersistCommand(requests)) {
+            return command.ExecuteNonQuery();
+          }
+        }
+        finally {
+          persistedLargeObjects.DisposeSafely();
+          persistedLargeObjects = null;
         }
       }
     }
@@ -335,7 +349,7 @@ namespace Xtensive.Storage.Providers.Sql
         }
         else {
           string parameterName = compilationResult.GetParameterName(binding.ParameterReference.Parameter);
-          AddParameter(command, parameterName, parameterValue, binding.TypeMapping);
+          CreateRegularParameter(command, parameterName, parameterValue, binding.TypeMapping);
         }
       }
       command.CommandText = compilationResult.GetCommandText(variantKeys);
@@ -393,26 +407,9 @@ namespace Xtensive.Storage.Providers.Sql
         object parameterValue = value.IsNull(binding.FieldIndex) ? null : value.GetValueOrDefault(binding.FieldIndex);
         string parameterName = parameterNamePrefix + parameterIndex++;
         parameterNames.Add(binding.ParameterReference.Parameter, parameterName);
-        AddParameter(command, parameterName, parameterValue, binding.TypeMapping);
+        CreatePersistParameter(command, parameterName, parameterValue, binding);
       }
       return compilationResult.GetCommandText(parameterNames);
-    }
-
-    /// <summary>
-    /// Creates the parameter with the specified <paramref name="name"/> and <paramref name="value"/>
-    /// taking into account <paramref name="mapping"/>.
-    /// Created parameter is registered in <paramref name="command"/>.
-    /// </summary>
-    /// <param name="command">The command.</param>
-    /// <param name="name">The name.</param>
-    /// <param name="value">The value.</param>
-    /// <param name="mapping">The mapping.</param>
-    protected void AddParameter(DbCommand command, string name, object value, TypeMapping mapping)
-    {
-      var parameter = command.CreateParameter();
-      parameter.ParameterName = name;
-      mapping.SetParameterValue(parameter, value);
-      command.Parameters.Add(parameter);
     }
 
     #endregion
@@ -456,6 +453,79 @@ namespace Xtensive.Storage.Providers.Sql
       var command = connection.CreateCommand(statement);
       command.Transaction = Transaction;
       return command;
+    }
+
+    private void CreateRegularParameter(DbCommand command, string name, object value, TypeMapping mapping)
+    {
+      var parameter = command.CreateParameter();
+      parameter.ParameterName = name;
+      mapping.SetParameterValue(parameter, value);
+      command.Parameters.Add(parameter);
+    }
+
+    private void CreateCharacterLobParameter(DbCommand command, string name, string value)
+    {
+      var lob = connection.CreateCharacterLargeObject();
+      RegisterLargeObject(lob);
+      if (value!=null) {
+        if (value.Length > 0) {
+          int offset = 0;
+          int remainingSize = value.Length;
+          while (remainingSize >= LobBlockSize) {
+            lob.Write(value.ToCharArray(offset, LobBlockSize), 0, LobBlockSize);
+            offset += LobBlockSize;
+            remainingSize -= LobBlockSize;
+          }
+          lob.Write(value.ToCharArray(offset, remainingSize), 0, remainingSize);
+        }
+        else {
+          lob.Erase();
+        }
+      }
+      var parameter = command.CreateParameter();
+      parameter.ParameterName = name;
+      lob.SetParameterValue(parameter);
+      command.Parameters.Add(parameter);
+    }
+
+    private void CreateBinaryLobParameter(DbCommand command, string name, byte[] value)
+    {
+      var lob = connection.CreateBinaryLargeObject();
+      RegisterLargeObject(lob);
+      if (value!=null) {
+        if (value.Length > 0)
+          lob.Write(value, 0, value.Length);
+        else
+          lob.Erase();
+      }
+      var parameter = command.CreateParameter();
+      parameter.ParameterName = name;
+      lob.SetParameterValue(parameter);
+      command.Parameters.Add(parameter);
+    }
+
+    private void CreatePersistParameter(DbCommand command, string parameterName, object parameterValue, SqlPersistParameterBinding binding)
+    {
+      switch (binding.BindingType) {
+      case SqlPersistParameterBindingType.Regular:
+        CreateRegularParameter(command, parameterName, parameterValue, binding.TypeMapping);
+        break;
+      case SqlPersistParameterBindingType.CharacterLob:
+        CreateCharacterLobParameter(command, parameterName, (string) parameterValue);
+        break;
+      case SqlPersistParameterBindingType.BinaryLob:
+        CreateBinaryLobParameter(command, parameterName, (byte[]) parameterValue);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException("binding.BindingType");
+      }
+    }
+
+    private void RegisterLargeObject(IDisposable lob)
+    {
+      if (persistedLargeObjects==null)
+        persistedLargeObjects = new DisposableSet();
+      persistedLargeObjects.Add(lob);
     }
 
     #endregion
