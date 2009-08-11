@@ -185,14 +185,15 @@ namespace Xtensive.Storage.Tests.Linq
     {
       // NOTE: Distinct must be forced to apply after top has been computed
       var result = Query<Order>.All
+        .OrderBy(o => o.Id)
         .Take(5)
         .Distinct().OrderBy(o => o.Id)
         .ToList();
       var expected = Query<Order>.All
         .ToList()
+        .OrderBy(o => o.Id)
         .Take(5)
-        .Distinct().OrderBy(o => o.Id)
-        .ToList();
+        .Distinct().OrderBy(o => o.Id);
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
     }
