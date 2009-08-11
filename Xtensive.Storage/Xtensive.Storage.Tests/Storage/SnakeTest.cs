@@ -262,7 +262,8 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(PersistenceState.New, snake.PersistenceState);
           Assert.AreEqual(32, snake.Length);
             
-          Key key = Key.Create<Snake>(Tuple.Create(snake.ID));
+          Key key = Key.Create<Snake>(IncludeTypeIdModifier.IsEnabled
+            ? Tuple.Create(snake.ID, snake.TypeId) : Tuple.Create(snake.ID));
           var keyString = key.Format();
           Assert.AreEqual(Key.Parse(keyString), key);
           
@@ -439,7 +440,8 @@ namespace Xtensive.Storage.Tests.Storage
               .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID));
           
           using (new ParameterContext().Activate()) {
-            pID.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)), new Entire<Tuple>(Tuple.Create(120)));
+            pID.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)),
+              new Entire<Tuple>(Tuple.Create(120), Direction.Positive));
             pName.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create("Kaa")), new Entire<Tuple>(Tuple.Create("Kaa900")));
             var count = result.Count();
             Assert.AreEqual(91, count);
@@ -490,8 +492,12 @@ namespace Xtensive.Storage.Tests.Storage
           .OrderBy(OrderBy.Asc(rsSnakeName.Header.IndexOf(cID)))
           .Alias("NameIndex"), rsSnakePrimary.Header.IndexOf(cID), rsSnakeName.Header.IndexOf(cID));
 
-          var idRange = new RangeSet<Entire<Tuple>>(new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)), new Entire<Tuple>(Tuple.Create(120))), AdvancedComparer<Entire<Tuple>>.Default);
-          idRange = idRange.Unite(new RangeSet<Entire<Tuple>>(new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(221)), new Entire<Tuple>(Tuple.Create(320))), AdvancedComparer<Entire<Tuple>>.Default));
+          var idRange = new RangeSet<Entire<Tuple>>(new Range<Entire<Tuple>>(
+            new Entire<Tuple>(Tuple.Create(21)), new Entire<Tuple>(Tuple.Create(120), Direction.Positive)),
+            AdvancedComparer<Entire<Tuple>>.Default);
+          idRange = idRange.Unite(new RangeSet<Entire<Tuple>>(new Range<Entire<Tuple>>(
+            new Entire<Tuple>(Tuple.Create(221)), new Entire<Tuple>(Tuple.Create(320), Direction.Positive)),
+            AdvancedComparer<Entire<Tuple>>.Default));
           var nameRange = new RangeSet<Entire<Tuple>>(new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create("Kaa")), new Entire<Tuple>(Tuple.Create("Kaa900"))), AdvancedComparer<Entire<Tuple>>.Default);
           
           using (new ParameterContext().Activate()) {
@@ -679,14 +685,13 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.Greater(result.Count(), 0);
 
           name = "Kaa90";
+          var keyColumns = rsSnakePrimary.Header.ColumnGroups[0].Keys.ToArray();
+          var nameFieldIndex = rsSnakePrimary.Header.IndexOf(cName);
           result = rsSnakePrimary
-            .Filter(tuple => tuple.GetValue<string>(rsSnakePrimary.Header.IndexOf(cName)).GreaterThan(name))
-            .Aggregate(new[] { 0 }, new AggregateColumnDescriptor("Count", 1, AggregateType.Count))
-            .Select(0,1)
-            .Filter(tuple => tuple.GetValue<long>(1) > 0);
+            .Filter(tuple => tuple.GetValue<string>(nameFieldIndex).GreaterThan(name));
           Assert.Greater(result.Count(), 0);
-          Assert.IsTrue(result.ToEntities<Snake>(0)
-            .Where(s => s != null && s.Name.GreaterThan(name)).Count() > 1);
+          Assert.Greater(result.ToEntities<Snake>(0)
+            .Where(s => s != null && s.Name.GreaterThan(name)).Count(), 1);
 
           t.Complete();
         }
@@ -974,8 +979,10 @@ namespace Xtensive.Storage.Tests.Storage
             .Take(50);
 
           using (new ParameterContext().Activate()) {
-            pID.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)), new Entire<Tuple>(Tuple.Create(120)));
-            pName.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create("Kaa")), new Entire<Tuple>(Tuple.Create("Kaa900")));
+            pID.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create(21)),
+              new Entire<Tuple>(Tuple.Create(120), Direction.Positive));
+            pName.Value = new Range<Entire<Tuple>>(new Entire<Tuple>(Tuple.Create("Kaa")),
+              new Entire<Tuple>(Tuple.Create("Kaa900")));
             pLength.Value = 100;
             Assert.AreEqual(15, result.Count());
           }
