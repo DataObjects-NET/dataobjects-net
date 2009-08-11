@@ -234,4 +234,7 @@
   <data name="ColumnAlreadyHasSpecifiedName" xml:space="preserve">
     <value>Column already has specified name.</value>
   </data>
+  <data name="ExLargeObjectsAreNotSupportedByThisServer" xml:space="preserve">
+    <value>Large objects are not supported by this server.</value>
+  </data>
 </root>

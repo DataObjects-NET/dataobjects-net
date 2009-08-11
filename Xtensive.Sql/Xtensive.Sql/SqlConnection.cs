@@ -40,7 +40,7 @@ namespace Xtensive.Sql
     /// <returns>Created command.</returns>
     public DbCommand CreateCommand()
     {
-      return UnderlyingConnection.CreateCommand();
+      return CreateCommandInternal();
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ namespace Xtensive.Sql
     public DbCommand CreateCommand(ISqlCompileUnit statement)
     {
       ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
-      var command = UnderlyingConnection.CreateCommand();
+      var command = CreateCommandInternal();
       command.CommandText = Driver.Compile(statement).GetCommandText();
       return command;
     }
@@ -64,11 +64,32 @@ namespace Xtensive.Sql
     public DbCommand CreateCommand(string commandText)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(commandText, "commandText");
-      var command = UnderlyingConnection.CreateCommand();
+      var command = CreateCommandInternal();
       command.CommandText = commandText;
       return command;
     }
     
+
+    /// <summary>
+    /// Creates the character large object bound to this connection.
+    /// Created object initially have NULL value (<see cref="ILargeObject.IsNull"/> returns <see langword="true"/>)
+    /// </summary>
+    /// <returns>Created CLOB.</returns>
+    public ICharacterLargeObject CreateCharacterLargeObject()
+    {
+      return Driver.ConnectionHandler.CreateCharacterLargeObject(UnderlyingConnection);
+    }
+
+    /// <summary>
+    /// Creates the binary large object bound to this connection.
+    /// Created object initially have NULL value (<see cref="ILargeObject.IsNull"/> returns <see langword="true"/>)
+    /// </summary>
+    /// <returns>Created BLOB.</returns>
+    public IBinaryLargeObject CreateBinaryLargeObject()
+    {
+      return Driver.ConnectionHandler.CreateBinaryLargeObject(UnderlyingConnection);
+    }
+
     /// <summary>
     /// Opens the connection.
     /// </summary>
@@ -110,10 +131,17 @@ namespace Xtensive.Sql
       UnderlyingConnection.Dispose();
     }
 
-    internal SqlConnection(SqlDriver driver, DbConnection underlyingConnection, UrlInfo url)
+    private DbCommand CreateCommandInternal()
+    {
+      return Driver.ConnectionHandler.CreateCommand(UnderlyingConnection);
+    }
+
+    // Constructors
+
+    internal SqlConnection(SqlDriver driver, UrlInfo url)
     {
       Driver = driver;
-      UnderlyingConnection = underlyingConnection;
+      UnderlyingConnection = driver.ConnectionHandler.CreateConnection(url);
       Url = url;
     }
   }

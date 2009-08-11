@@ -4,22 +4,20 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
-using System.Data.Common;
-using Xtensive.Core;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Oracle
 {
   internal abstract class Driver : SqlDriver
   {
-    protected override DbConnection CreateNativeConnection(UrlInfo url)
+    protected override SqlConnectionHandler CreateConnectionHandler()
     {
-      return ConnectionFactory.CreateConnection(url);
+      return new ConnectionHandler(this);
     }
 
-    protected override ValueTypeMapping.DataAccessHandler CreateDataAccessHandler()
+    protected override ValueTypeMapping.TypeMappingHandler CreateTypeMappingHandler()
     {
-      return new DataAccessHandler(this);
+      return new TypeMappingHandler(this);
     }
 
     // Constructors

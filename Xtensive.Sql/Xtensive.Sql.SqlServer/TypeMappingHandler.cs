@@ -11,7 +11,7 @@ using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.SqlServer
 {
-  internal class DataAccessHandler : ValueTypeMapping.DataAccessHandler
+  internal class TypeMappingHandler : ValueTypeMapping.TypeMappingHandler
   {
     private DateTime MinDateTimeValue;
 
@@ -117,7 +117,7 @@ namespace Xtensive.Sql.SqlServer
 
     // Constructors
 
-    public DataAccessHandler(SqlDriver driver)
+    public TypeMappingHandler(SqlDriver driver)
       : base(driver)
     {
     }

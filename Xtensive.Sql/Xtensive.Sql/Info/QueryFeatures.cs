@@ -7,8 +7,7 @@ using System;
 namespace Xtensive.Sql.Info
 {
   /// <summary>
-  /// Defines a list of features which affects
-  /// query generation.
+  /// Defines a list of features which affects query generation.
   /// </summary>
   [Flags]
   public enum QueryFeatures
@@ -60,5 +59,12 @@ namespace Xtensive.Sql.Info
     /// Indicates that RDBMS supports paging operators (LIMIT and OFFSET)
     /// </summary>
     Paging = 0x80,
+
+    /// <summary>
+    /// Indicates that RDBMS uses large objects (LOBs) for manipulating large data chunks.
+    /// <seealso cref="ICharacterLargeObject"/>.
+    /// <seealso cref="IBinaryLargeObject"/>.
+    /// </summary>
+    LargeObjects = 0x100
   }
 }

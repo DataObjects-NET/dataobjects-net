@@ -12,7 +12,7 @@ using Oracle.DataAccess.Types;
 
 namespace Xtensive.Sql.Oracle
 {
-  internal class DataAccessHandler : ValueTypeMapping.DataAccessHandler
+  internal class TypeMappingHandler : ValueTypeMapping.TypeMappingHandler
   {
     public override void SetBooleanParameterValue(DbParameter parameter, object value)
     {
@@ -210,7 +210,7 @@ namespace Xtensive.Sql.Oracle
 
     // Constructors
 
-    public DataAccessHandler(SqlDriver driver)
+    public TypeMappingHandler(SqlDriver driver)
       : base(driver)
     {
     }

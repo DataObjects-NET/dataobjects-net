@@ -116,7 +116,7 @@ namespace Xtensive.Sql.ValueTypeMapping
       return GetEnumerator();
     }
     
-    private static TypeMapping BuildMapping(DataAccessHandler h, Type type,
+    private static TypeMapping BuildMapping(TypeMappingHandler h, Type type,
       Func<DbDataReader, int, object> valueReader,
       Action<DbParameter, object> parameterValueSetter,
       Func<int?, int?, int?, SqlValueType> sqlTypeBuilder)
@@ -129,7 +129,7 @@ namespace Xtensive.Sql.ValueTypeMapping
     
     // Constructors
 
-    public TypeMappingCollection(DataAccessHandler h)
+    public TypeMappingCollection(TypeMappingHandler h)
     {
       Boolean = BuildMapping(h, typeof(bool), h.ReadBoolean, h.SetBooleanParameterValue, h.BuildBooleanSqlType);
       Char = BuildMapping(h, typeof(char), h.ReadChar, h.SetCharParameterValue, h.BuildCharSqlType);

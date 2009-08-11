@@ -196,6 +196,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Large objects are not supported by this server..
+        /// </summary>
+        internal static string ExLargeObjectsAreNotSupportedByThisServer {
+            get {
+                return ResourceManager.GetString("ExLargeObjectsAreNotSupportedByThisServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Length should be not negative value..
         /// </summary>
         internal static string ExLengthShouldBeNotNegativeValue {

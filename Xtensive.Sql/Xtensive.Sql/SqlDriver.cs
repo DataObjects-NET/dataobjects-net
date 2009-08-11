@@ -43,7 +43,12 @@ namespace Xtensive.Sql
     /// <summary>
     /// Gets the data access handler.
     /// </summary>
-    public DataAccessHandler DataAccessHandler { get; private set; }
+    public TypeMappingHandler TypeMappingHandler { get; private set; }
+
+    /// <summary>
+    /// Gets the connection handler.
+    /// </summary>
+    public SqlConnectionHandler ConnectionHandler { get; private set; }
 
     /// <summary>
     /// Compiles the specified statement into SQL command representation.
@@ -79,7 +84,7 @@ namespace Xtensive.Sql
     /// </returns>
     public Catalog ExtractAllSchemas(SqlConnection connection, DbTransaction transaction)
     {
-      return CreateExtractorIntenal(connection, transaction).ExtractAllSchemas();
+      return CreateExtractorInternal(connection, transaction).ExtractAllSchemas();
     }
 
     /// <summary>
@@ -92,7 +97,7 @@ namespace Xtensive.Sql
     /// </returns>
     public Catalog ExtractDefaultSchema(SqlConnection connection, DbTransaction transaction)
     {
-      return CreateExtractorIntenal(connection, transaction).ExtractDefaultSchema();
+      return CreateExtractorInternal(connection, transaction).ExtractDefaultSchema();
     }
 
     /// <summary>
@@ -139,15 +144,14 @@ namespace Xtensive.Sql
     /// Creates the data access handler.
     /// </summary>
     /// <returns>Created data access handler.</returns>
-    protected abstract DataAccessHandler CreateDataAccessHandler();
+    protected abstract TypeMappingHandler CreateTypeMappingHandler();
 
     /// <summary>
-    /// Creates the db connection from the specified connection info.
+    /// Creates the connection handler.
     /// </summary>
-    /// <param name="url">The connection info.</param>
-    /// <returns>Created connection.</returns>
-    protected abstract DbConnection CreateNativeConnection(UrlInfo url);
-    
+    /// <returns>Created connection handler.</returns>
+    protected abstract SqlConnectionHandler CreateConnectionHandler();
+
     /// <summary>
     /// Creates the driver from the specified connection url.
     /// </summary>
@@ -176,17 +180,22 @@ namespace Xtensive.Sql
     {
       Translator = CreateTranslator();
       Translator.Initialize();
-      DataAccessHandler = CreateDataAccessHandler();
-      DataAccessHandler.Initialize();
-      TypeMappings = new TypeMappingCollection(DataAccessHandler);
+
+      TypeMappingHandler = CreateTypeMappingHandler();
+      TypeMappingHandler.Initialize();
+
+      ConnectionHandler = CreateConnectionHandler();
+      ConnectionHandler.Initialize();
+
+      TypeMappings = new TypeMappingCollection(TypeMappingHandler);
     }
     
     private SqlConnection CreateConnectionInternal(UrlInfo url)
     {
-      return new SqlConnection(this, CreateNativeConnection(url), url);
+      return new SqlConnection(this, url);
     }
 
-    private Extractor CreateExtractorIntenal(SqlConnection connection, DbTransaction transaction)
+    private Extractor CreateExtractorInternal(SqlConnection connection, DbTransaction transaction)
     {
       ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
       ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");

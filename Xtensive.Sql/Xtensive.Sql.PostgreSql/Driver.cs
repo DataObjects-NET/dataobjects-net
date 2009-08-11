@@ -6,14 +6,14 @@ namespace Xtensive.Sql.PostgreSql
 {
   internal abstract class Driver : SqlDriver
   {
-    protected override DbConnection CreateNativeConnection(UrlInfo url)
+    protected override ValueTypeMapping.TypeMappingHandler CreateTypeMappingHandler()
     {
-      return ConnectionFactory.CreateConnection(url);
+      return new TypeMappingHandler(this);
     }
 
-    protected override ValueTypeMapping.DataAccessHandler CreateDataAccessHandler()
+    protected override SqlConnectionHandler CreateConnectionHandler()
     {
-      return new DataAccessHandler(this);
+      return new ConnectionHandler(this);
     }
 
     // Constructors

@@ -8,7 +8,6 @@ using System;
 using System.Data;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Core.Testing;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Tests
