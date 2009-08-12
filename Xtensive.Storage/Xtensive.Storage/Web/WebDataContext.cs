@@ -132,7 +132,6 @@ namespace Xtensive.Storage.Web
       context.EndRequest += EndRequest;
       context.Error += Error;
 
-
       sessionConsumptionScope = Session.Open(Domain, false);
     }
 
