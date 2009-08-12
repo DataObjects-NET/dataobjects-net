@@ -186,7 +186,6 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IPathNode VisitSequence(Sequence sequence)
     {
       var sequenceInfo = new SequenceInfo(StorageInfo, sequence.Name) {
-        // Current = GetNextGeneratorValue(sequence.Name),
         Increment = sequence.SequenceDescriptor.Increment.Value,
         // StartValue = sequence.SequenceDescriptor.StartValue.Value,
         Type = new TypeInfo(sequence.DataType.Type.ToClrType(), false)
@@ -231,7 +230,7 @@ namespace Xtensive.Storage.Providers.Sql
         && !type.IsNullable())
         type = type.ToNullable();
         
-      return new TypeInfo(type, column.IsNullable, sqlValueType.Length);
+      return new TypeInfo(type, column.IsNullable, sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision);
     }
 
     /// <summary>

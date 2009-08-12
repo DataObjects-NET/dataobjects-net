@@ -530,11 +530,11 @@ namespace Xtensive.Storage.Providers.Sql
       var newStartValue = currentValue + sequenceInfo.Increment;
       if (IsSequencesAllowed) {
         var exisitingSequence = schema.Sequences[sequenceInfo.Name];
-        var sequenceDescriptor = new SequenceDescriptor(exisitingSequence,
+        var newSequenceDescriptor = new SequenceDescriptor(exisitingSequence,
           newStartValue, sequenceInfo.Increment);
-        sequenceDescriptor.MinValue = newStartValue;
-        exisitingSequence.SequenceDescriptor = sequenceDescriptor;
-        RegisterCommand(SqlDdl.Alter(exisitingSequence, sequenceDescriptor));
+        newSequenceDescriptor.MinValue = newStartValue;
+        exisitingSequence.SequenceDescriptor = newSequenceDescriptor;
+        RegisterCommand(SqlDdl.Alter(exisitingSequence, newSequenceDescriptor));
       }
       else {
         sequenceInfo.Current = newStartValue;
@@ -845,7 +845,7 @@ namespace Xtensive.Storage.Providers.Sql
         ? typeInfo.Type.GetGenericArguments()[0]
         : typeInfo.Type;
 
-      return valueTypeMapper.BuildSqlValueType(type, typeInfo.Length);
+      return valueTypeMapper.BuildSqlValueType(type, typeInfo.Length, typeInfo.Precision, typeInfo.Scale);
     }
 
     private static SqlRefAction ConvertReferentialAction(ReferentialAction toConvert)

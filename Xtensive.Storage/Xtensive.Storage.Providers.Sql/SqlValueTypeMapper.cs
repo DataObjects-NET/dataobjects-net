@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets the type mapping.
     /// </summary>
     /// <param name="type">The column type.</param>
-    /// <returns><see cref="TypeMapping"/> instance for the specified <paramref name="type"/> and <paramref name="length"/>.</returns>
+    /// <returns><see cref="TypeMapping"/> instance for the specified <paramref name="type"/>.</returns>
     /// <exception cref="NotSupportedException"><paramref name="type"/> is not supported.</exception>
     public TypeMapping GetTypeMapping(Type type)
     {
@@ -100,6 +100,19 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlValueType BuildSqlValueType(Type type, int? length)
     {
       return allMappings.GetMapping(type).BuildSqlType(length, null, null);
+    }
+
+    /// <summary>
+    /// Builds the <see cref="SqlValueType"/> from specified <see cref="Type"/>, length, scale and precision.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="length">The length.</param>
+    /// <param name="precision">The precision.</param>
+    /// <param name="scale">The scale.</param>
+    /// <returns></returns>
+    public SqlValueType BuildSqlValueType(Type type, int? length, int? precision, int? scale)
+    {
+      return allMappings.GetMapping(type).BuildSqlType(length, precision, scale);
     }
 
     #endregion

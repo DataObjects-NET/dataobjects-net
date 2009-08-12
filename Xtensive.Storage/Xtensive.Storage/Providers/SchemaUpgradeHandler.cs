@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="type">The type.</param>
     /// <param name="length">The length.</param>
     /// <returns>Newly created <see cref="TypeInfo"/>.</returns>
-    protected abstract TypeInfo CreateTypeInfo(Type type, int? length);
+    protected abstract TypeInfo CreateTypeInfo(Type type, int? length, int? precision, int? scale);
 
     /// <summary>
     /// Saves the schema in context.

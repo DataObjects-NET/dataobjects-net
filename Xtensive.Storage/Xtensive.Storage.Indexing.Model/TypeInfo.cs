@@ -46,12 +46,12 @@ namespace Xtensive.Storage.Indexing.Model
     /// <summary>
     /// Gets the scale.
     /// </summary>
-    public int Scale { get;  private set; }
+    public int? Scale { get;  private set; }
 
     /// <summary>
     /// Gets the precision.
     /// </summary>
-    public int Precision { get;  private set; }
+    public int? Precision { get;  private set; }
 
     /// <inheritdoc/>
     public void Validate()
@@ -85,9 +85,9 @@ namespace Xtensive.Storage.Indexing.Model
         return true;
       var isEqual =
         other.Type==Type &&
-          other.IsNullable==IsNullable &&
-            other.Scale==Scale &&
-              other.Precision==Precision;
+        other.IsNullable==IsNullable &&
+        other.Scale==Scale &&
+        other.Precision==Precision;
       if (Length.HasValue && other.Length.HasValue)
         isEqual &= other.Length==Length;
 
@@ -114,8 +114,10 @@ namespace Xtensive.Storage.Indexing.Model
         result = (result * 397) ^ (IsNullable ? 1 : 0);
         if (Length.HasValue)
           result = (result * 397) ^ Length.Value;
-        result = (result * 397) ^ Scale;
-        result = (result * 397) ^ Precision;
+        if (Scale.HasValue)
+          result = (result * 397) ^ Scale.Value;
+        if (Precision.HasValue)
+          result = (result * 397) ^ Precision.Value;
         if (Culture!=null)
           result = (result * 397) ^ Culture.GetHashCode();
         return result;
@@ -210,7 +212,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="length">The length.</param>
     /// <param name="scale">The scale.</param>
     /// <param name="precision">The precision.</param>
-    public TypeInfo(Type type, int? length, int scale, int precision)
+    public TypeInfo(Type type, int? length, int? scale, int? precision)
       : this(type, type.IsClass || type.IsNullable(), length, scale, precision)
     {
     }
@@ -264,7 +266,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="length">The length.</param>
     /// <param name="scale">The scale.</param>
     /// <param name="precision">The precision.</param>
-    public TypeInfo(Type type, bool isNullable, int? length, int scale, int precision)
+    public TypeInfo(Type type, bool isNullable, int? length, int? scale, int? precision)
       : this(type, isNullable, length)
     {
       Scale = scale;

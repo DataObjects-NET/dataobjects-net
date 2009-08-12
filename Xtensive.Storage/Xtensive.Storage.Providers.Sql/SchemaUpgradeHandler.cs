@@ -62,12 +62,10 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ModelTypeInfo CreateTypeInfo(Type type, int? length)
+    protected override ModelTypeInfo CreateTypeInfo(Type type, int? length, int? precision, int? scale)
     {
-      var sqlValueType = DomainHandler.ValueTypeMapper.BuildSqlValueType(type, length);
-      var convertedType = sqlValueType.Type.ToClrType();
-      var typeLength = sqlValueType.Length;
-      return new ModelTypeInfo(convertedType, typeLength);
+      var sqlValueType = DomainHandler.ValueTypeMapper.BuildSqlValueType(type, length, precision, scale);
+      return new ModelTypeInfo(sqlValueType.Type.ToClrType(), sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision);
     }
 
     private void Execute(IEnumerable<string> batch)

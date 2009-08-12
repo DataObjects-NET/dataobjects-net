@@ -161,8 +161,9 @@ namespace Xtensive.Storage.Tests.Upgrade
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", "FirstName", typeof (M2.BusinessContact));
         yield return new CopyFieldHint(
           "Xtensive.Storage.Tests.Upgrade.Model.Version1.Employee", "LastName", typeof (M2.BusinessContact));
-        yield return new CopyFieldHint(
-          "Xtensive.Storage.Tests.Upgrade.Model.Version1.MyStructureOwner", "Structure", typeof (M2.MyStructureOwner), "Reference");
+        if (!IncludeTypeIdModifier.IsEnabled)
+          yield return new CopyFieldHint(
+            "Xtensive.Storage.Tests.Upgrade.Model.Version1.MyStructureOwner", "Structure", typeof (M2.MyStructureOwner), "Reference");
         
       }
     }

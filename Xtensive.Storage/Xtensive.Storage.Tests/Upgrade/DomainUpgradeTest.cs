@@ -213,8 +213,10 @@ namespace Xtensive.Storage.Tests.Upgrade
           var so2 = Query<M2.MyStructureOwner>.All.Single(e => e.Id==1);
           var re1 = Query<M2.ReferencedEntity>.All.Single(e => e.A==1 && e.B==2);
           var re2 = Query<M2.ReferencedEntity>.All.Single(e => e.A==2 && e.B==3);
-          Assert.AreEqual(so1.Reference, re1);
-          Assert.AreEqual(so2.Reference, re2);
+          if (!IncludeTypeIdModifier.IsEnabled) {
+            Assert.AreEqual(so1.Reference, re1);
+            Assert.AreEqual(so2.Reference, re2);
+          }
 
           Assert.AreEqual(2, Query<M2.NewSync<M2.BusinessContact>>.All.Count());
           Assert.AreEqual("Alex", Query<M2.NewSync<M2.Boy>>.All.First().NewRoot.Name);

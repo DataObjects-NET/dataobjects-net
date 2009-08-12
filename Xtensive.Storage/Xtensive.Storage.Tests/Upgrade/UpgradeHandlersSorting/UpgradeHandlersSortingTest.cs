@@ -6,16 +6,15 @@
 
 using System;
 using System.CodeDom.Compiler;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.CSharp;
 using NUnit.Framework;
 
 namespace Xtensive.Storage.Tests.Upgrade.UpgradeHandlersSorting
 {
   [TestFixture, Category("Upgrade")]
+  [Explicit("Requires specific file path")]
   public sealed class UpgradeHandlersSortingTest : AutoBuildTest
   {
     public override void TestFixtureSetUp()

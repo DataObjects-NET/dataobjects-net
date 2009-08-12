@@ -36,6 +36,7 @@ namespace Xtensive.Storage.Tests.Upgrade
           x.FString1 = "a";
           x.FString5 = "12345";
           x.FGuid = new Guid("E484EE28-3801-445B-9DF0-FBCBE5AA4883");
+          x.FDecimal = new decimal(1.2);
           t.Complete();
         }
       }
@@ -45,55 +46,55 @@ namespace Xtensive.Storage.Tests.Upgrade
     public void ValidateModeTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        Build(typeof (string), null, "FInt", "1", Mode.Validate));
+        Build(typeof (string), null, null, null, "FInt", "1", Mode.Validate));
     }
     
     [Test]
     public void Int32ToStringTest()
     {
-      Build(typeof (string), null, "FInt", "1", Mode.Perform);
+      Build(typeof (string), null, null, null, "FInt", "1", Mode.Perform);
       SetUp();
-      Build(typeof (string), null, "FInt", "1", Mode.PerformSafely);
+      Build(typeof (string), null, null, null, "FInt", "1", Mode.PerformSafely);
     }
 
     [Test]
     public void Int32ToShortStringTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        Build(typeof (string), 3, "FInt2", null, Mode.PerformSafely));
-      Build(typeof (string), 3, "FInt2", null, Mode.Perform);
+        Build(typeof (string), 3, null, null, "FInt2", null, Mode.PerformSafely));
+      Build(typeof (string), 3, null, null, "FInt2", null, Mode.Perform);
     }
 
     [Test]
     public void StringToInt32Test()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        Build(typeof (int), null, "FString1", 0, Mode.PerformSafely));
-      Build(typeof (int), null, "FString1", 0, Mode.Perform);
+        Build(typeof (int), null, null, null, "FString1", 0, Mode.PerformSafely));
+      Build(typeof (int), null, null, null, "FString1", 0, Mode.Perform);
     }
 
     [Test]
     public void StringToShortStringTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        Build(typeof (string), 3, "FString5", string.Empty, Mode.PerformSafely));
-      Build(typeof (string), 3, "FString5", "123", Mode.Perform);
+        Build(typeof (string), 3, null, null, "FString5", string.Empty, Mode.PerformSafely));
+      Build(typeof (string), 3, null, null, "FString5", "123", Mode.Perform);
     }
 
     [Test]
     public void StringToStringTest()
     {
-      Build(typeof (string), 3, "FString1", "a", Mode.Perform);
+      Build(typeof (string), 3, null, null, "FString1", "a", Mode.Perform);
       SetUp();
-      Build(typeof (string), 3, "FString1", "a", Mode.PerformSafely);
+      Build(typeof (string), 3, null, null, "FString1", "a", Mode.PerformSafely);
     }
 
     [Test]
     public void BoolToStringTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        Build(typeof (string), 100, "FBool", "", Mode.PerformSafely));
-      Build(typeof (string), 100, "FBool", null, Mode.Perform);
+        Build(typeof (string), 100, null, null, "FBool", "", Mode.PerformSafely));
+      Build(typeof (string), 100, null, null, "FBool", null, Mode.Perform);
     }
 
     [Test]
@@ -101,16 +102,16 @@ namespace Xtensive.Storage.Tests.Upgrade
     public void GuidToStringTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        Build(typeof (string), 100, "FGuid", "", Mode.PerformSafely));
-      Build(typeof (string), 100, "FGuid", null, Mode.Perform);
+        Build(typeof (string), 100, null, null, "FGuid", "", Mode.PerformSafely));
+      Build(typeof (string), 100, null, null, "FGuid", null, Mode.Perform);
     }
 
     [Test]
     public void Int32ToInt64Test()
     {
-      Build(typeof (long), null, "FInt2", 12345L, Mode.Perform);
+      Build(typeof (long), null, null, null, "FInt2", 12345L, Mode.Perform);
       SetUp();
-      Build(typeof (long), null, "FInt2", 12345L, Mode.PerformSafely);
+      Build(typeof (long), null, null, null, "FInt2", 12345L, Mode.PerformSafely);
     }
 
     [Test]
@@ -118,12 +119,19 @@ namespace Xtensive.Storage.Tests.Upgrade
     {
       var newValue = 12345;
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        Build(typeof (int), null, "FLong", 12345, Mode.PerformSafely));
+        Build(typeof (int), null, null, null, "FLong", 12345, Mode.PerformSafely));
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        Build(typeof (int), null, "FLong2", 12345, Mode.PerformSafely));
-      Build(typeof (int), null, "FLong", 0, Mode.Perform);
+        Build(typeof (int), null, null, null, "FLong2", 12345, Mode.PerformSafely));
+      Build(typeof (int), null, null, null, "FLong", 0, Mode.Perform);
       SetUp();
-      Build(typeof (int), null, "FLong", 0, Mode.Perform);
+      Build(typeof (int), null, null, null, "FLong", 0, Mode.Perform);
+    }
+
+    [Test]
+    public void DecimalToDecimal1()
+    {
+      AssertEx.Throws<SchemaSynchronizationException>(() => 
+        Build(typeof (decimal), null, 2, 3, "FDecimal", new decimal(1.2), Mode.PerformSafely));
     }
 
     [Test]
@@ -164,16 +172,16 @@ namespace Xtensive.Storage.Tests.Upgrade
 //      }
 //      SetUp();
       using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof (X), "FString5"))) {
-        Build(typeof (int), null, "FString5", 12345, Mode.PerformSafely);
+        Build(typeof (int), null, null, null, "FString5", 12345, Mode.PerformSafely);
       }
     }
 
     # region Helper methods
 
-    public void Build(Type newColumnType, int? newLength, string changedFieldName, 
-      object expectedValue, DomainUpgradeMode mode)
+    public void Build(Type newColumnType, int? newLength, int? newScale, int? newPresicion, 
+      string changedFieldName, object expectedValue, DomainUpgradeMode mode)
     {
-      using (FieldTypeChanger.Enable(newColumnType, changedFieldName, newLength)) {
+      using (FieldTypeChanger.Enable(newColumnType, changedFieldName, newLength, newScale, newPresicion)) {
         BuildDomain(mode);
       }
 
@@ -222,10 +230,12 @@ namespace Xtensive.Storage.Tests.Upgrade
     private static Type ColumnType { get; set; }
     private static string ColumnName { get; set; }
     private static int? ColumnLength { get; set; }
+    private static int? ColumnScale { get; set; }
+    private static int? ColumnPrecision { get; set; }
     private static bool isEnabled;
 
     /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
-    public static IDisposable Enable(Type newType, string fieldName, int? length)
+    public static IDisposable Enable(Type newType, string fieldName, int? length, int? scale, int? precision)
     {
       if (isEnabled)
         throw new InvalidOperationException();
@@ -233,6 +243,8 @@ namespace Xtensive.Storage.Tests.Upgrade
       ColumnType = newType;
       ColumnName = fieldName;
       ColumnLength = length;
+      ColumnScale = scale;
+      ColumnPrecision = precision;
       return new Disposable(_ => {
         isEnabled = false;
         ColumnType = null;
@@ -252,8 +264,9 @@ namespace Xtensive.Storage.Tests.Upgrade
       var xType = model.Types["X"];
       var oldFieled = xType.Fields[ColumnName];
       var newField = new FieldDef(ColumnType);
-      if (ColumnLength.HasValue)
-        newField.Length = ColumnLength.Value;
+      newField.Length = ColumnLength;
+      newField.Scale = ColumnScale;
+      newField.Precision = ColumnPrecision;
       newField.Name = oldFieled.Name;
       xType.Fields.Remove(oldFieled);
       xType.Fields.Add(newField);
@@ -314,6 +327,9 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     [Field]
     public Guid FGuid { get; set; }
+
+    [Field(Scale = 1, Precision = 2)]
+    public decimal FDecimal{ get; set;}
   }
 
   [Serializable]

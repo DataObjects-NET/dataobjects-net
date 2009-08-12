@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Upgrade
     /// <summary>
     /// Gets the type builder.
     /// </summary>
-    private Func<Type, int?, TypeInfo> TypeBuilder { get; set; }
+    private Func<Type, int?, int?, int?, TypeInfo> TypeBuilder { get; set; }
 
     /// <summary>
     /// Gets the storage info.
@@ -195,9 +195,11 @@ namespace Xtensive.Storage.Upgrade
     protected override IPathNode VisitColumnInfo(DomainColumnInfo column)
     {
       var originalType = column.ValueType;
-      var originalTypeInfo = new TypeInfo(GetType(originalType, column.IsNullable), column.IsNullable, column.Length);
-      var storageTypeInfo = TypeBuilder.Invoke(originalType, column.Length);
-      storageTypeInfo = new TypeInfo(GetType(storageTypeInfo.Type, column.IsNullable), column.IsNullable, storageTypeInfo.Length);
+      var originalTypeInfo = new TypeInfo(GetType(originalType, column.IsNullable), 
+        column.IsNullable, column.Length, column.Scale, column.Precision);
+      var storageTypeInfo = TypeBuilder.Invoke(originalType, column.Length, column.Precision, column.Scale);
+      storageTypeInfo = new TypeInfo(GetType(storageTypeInfo.Type, column.IsNullable), 
+        column.IsNullable, storageTypeInfo.Length, storageTypeInfo.Scale, storageTypeInfo.Precision);
 
       var defaultValue = !column.IsNullable && originalType.IsValueType
         ? Activator.CreateInstance(originalType)
@@ -214,34 +216,53 @@ namespace Xtensive.Storage.Upgrade
     {
       if (association.TargetType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
         return null;
+      if (association.OwnerType.Indexes.PrimaryIndex==null)
+        return null;
 
-      TableInfo referencingTable;
-      ForeignKeyInfo foreignKey;
-
+      // AuxiliaryType == null
       if (association.AuxiliaryType==null) {
-        if (association.OwnerType.Indexes.PrimaryIndex==null
-          || !association.IsMaster)
-          return null;
+        if (association.OwnerField.ExtractColumns().Count==0)
+        return null;
+
+        var referencingTable = GetTable(association.OwnerType);
         var referencedTable = GetTable(association.TargetType);
-        referencingTable = GetTable(association.OwnerType);
-        var referencingIndex = FindIndex(referencingTable,
-          association.OwnerField.ExtractColumns().Select(ci => ci.Name).ToList());
-        var foreignKeyName = ForeignKeyNameGenerator(association, association.OwnerField);
-        foreignKey = CreateForeignKey(referencingTable, foreignKeyName, referencedTable, referencingIndex);
+        if (referencedTable==null || referencingTable==null)
+          return null;
+        var foreignColumns = association.OwnerField.ExtractColumns()
+          .Select(ci => referencingTable.Columns[ci.Name]).ToList();
+        var foreignKeyName = ForeignKeyNameGenerator.Invoke(association, association.OwnerField);
+        var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
+          PrimaryKey = referencedTable.PrimaryIndex,
+          OnRemoveAction = ReferentialAction.None,
+          OnUpdateAction = ReferentialAction.None
+        };
+        foreach (var foreignColumn in foreignColumns)
+          new ForeignKeyColumnRef(foreignKey, foreignColumn);
+
         return foreignKey;
       }
 
-      foreignKey = null;
-      referencingTable = GetTable(association.AuxiliaryType);
-      foreach (var field in association.AuxiliaryType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
-        var referencedIndex = FindIndex(Model.Types[field.ValueType].Indexes.PrimaryIndex, null);
-        var referencedTable = GetTable(referencedIndex.DeclaringType);
-        var referencingIndex = FindIndex(referencingTable,
-          field.ExtractColumns().Select(ci => ci.Name).ToList());
-        var foreignKeyName = ForeignKeyNameGenerator(association, field);
-        foreignKey = CreateForeignKey(referencingTable, foreignKeyName, referencedTable, referencingIndex);
+      // AuxiliaryType != null
+      if (association.AuxiliaryType!=null) {
+        if (!association.IsMaster)
+          return null;
+        var referencingTable = GetTable(association.AuxiliaryType);
+        foreach (var field in association.AuxiliaryType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
+          var referencedTable = GetTable(Model.Types[field.ValueType]);
+          if (referencedTable==null || referencingTable==null)
+            continue;
+          var foreignColumns = field.ExtractColumns().Select(ci => referencingTable.Columns[ci.Name]).ToList();
+          var foreignKeyName = ForeignKeyNameGenerator.Invoke(association, field);
+          var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
+            PrimaryKey = referencedTable.PrimaryIndex,
+            OnRemoveAction = ReferentialAction.None,
+            OnUpdateAction = ReferentialAction.None
+          };
+          foreach (var foreignColumn in foreignColumns)
+            new ForeignKeyColumnRef(foreignKey, foreignColumn);
+        }
       }
-      return foreignKey;
+      return null;
     }
 
     /// <summary>
@@ -280,7 +301,7 @@ namespace Xtensive.Storage.Upgrade
       var sequence = new SequenceInfo(StorageInfo, generator.MappingName) {
         StartValue = generator.CacheSize,
         Increment = generator.CacheSize,
-        Type = TypeBuilder.Invoke(generator.TupleDescriptor[0], null),
+        Type = TypeBuilder.Invoke(generator.TupleDescriptor[0], null, null, null),
         OriginalType = new TypeInfo(GetType(generator.TupleDescriptor[0], false))
       };
       return sequence;
@@ -392,8 +413,10 @@ namespace Xtensive.Storage.Upgrade
     {
       if (type.Hierarchy==null 
         || type.Hierarchy.Schema!=InheritanceSchema.SingleTable)
-        return StorageInfo.Tables[type.MappingName];
-      return StorageInfo.Tables[type.Hierarchy.Root.MappingName];
+        return StorageInfo.Tables.FirstOrDefault(table => table.Name == type.MappingName);
+      if (type.IsInterface)
+        return null;
+      return StorageInfo.Tables.FirstOrDefault(table => table.Name == type.Hierarchy.Root.MappingName);
     }
 
     private static ForeignKeyInfo CreateForeignKey(TableInfo referencingTable, string foreignKeyName, 
@@ -431,7 +454,8 @@ namespace Xtensive.Storage.Upgrade
     /// <param name="typeBuilder">The type builder.</param>
     public DomainModelConverter(bool buildForeignKeys, Func<AssociationInfo, FieldInfo, string> foreignKeyNameGenerator,
       bool buildHierarchyForeignKeys, Func<DomainTypeInfo, DomainTypeInfo, string> hierarchyForeignKeyNameGenerator,
-      Func<GeneratorInfo, bool> persistentGeneratorFilter, ProviderInfo providerInfo, Func<Type, int?, TypeInfo> typeBuilder)
+      Func<GeneratorInfo, bool> persistentGeneratorFilter, ProviderInfo providerInfo, 
+      Func<Type, int?, int?, int?, TypeInfo> typeBuilder)
     {
       if (buildForeignKeys)
         ArgumentValidator.EnsureArgumentNotNull(foreignKeyNameGenerator, "foreignKeyNameGenerator");
