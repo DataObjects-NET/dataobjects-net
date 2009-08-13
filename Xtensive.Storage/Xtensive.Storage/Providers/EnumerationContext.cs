@@ -43,12 +43,15 @@ namespace Xtensive.Storage.Providers
       return new EnumerationScope(this);
     }
 
+
+    // Constructors
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public EnumerationContext()
     {
-      Session.Current.Persist();
+      Session.Demand().Persist();
     }
   }
 }
