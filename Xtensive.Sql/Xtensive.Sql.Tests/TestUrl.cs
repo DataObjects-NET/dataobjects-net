@@ -10,6 +10,8 @@ namespace Xtensive.Sql.Tests
   {
     public const string SqlServer2005 = "sqlserver://localhost/DO40-Tests";
     public const string SqlServer2005Aw = "sqlserver://localhost/AdventureWorks";
+    public const string SqlServer2008 = @"sqlserver://localhost\Sql2008/DO40-Tests";
+    public const string SqlServer2008Aw = @"sqlserver://localhost\Sql2008/AdventureWorks";
 
     public const string PostgreSql80 = "postgresql://do4test:do4testpwd@127.0.0.1:8032/do40test?Encoding=ASCII&Pooling=on&MinPoolSize=1&MaxPoolSize=5";
     public const string PostgreSql81 = "postgresql://do4test:do4testpwd@127.0.0.1:8132/do40test?Encoding=ASCII&Pooling=on&MinPoolSize=1&MaxPoolSize=5";

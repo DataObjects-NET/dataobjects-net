@@ -61,7 +61,7 @@ namespace Xtensive.Sql.SqlServer.v2005
     // Types & domains must be extracted for all schemas
     private void ExtractTypes()
     {
-      const string query = "select schema_id, user_type_id, system_type_id, name, precision, scale, max_length from sys.types order by user_type_id";
+      const string query = "select schema_id, user_type_id, system_type_id, name, precision, scale, max_length, is_user_defined from sys.types order by is_user_defined, user_type_id";
 
       int currentSchemaId = schemaId;
       Schema schema = Schema;
@@ -74,11 +74,11 @@ namespace Xtensive.Sql.SqlServer.v2005
           string name = reader.GetString(3);
           typeNameIndex[userTypeId] = name;
 
-          if (userTypeId==systemTypeId)
+          if (!reader.GetBoolean(7))
             continue;
 
           // user defined type
-          if (firstDomainId == 0)
+          if (firstDomainId > userTypeId)
             firstDomainId = userTypeId;
 
           GetSchema(reader.GetInt32(0), ref currentSchemaId, ref schema);
@@ -314,7 +314,7 @@ namespace Xtensive.Sql.SqlServer.v2005
       int? scale = numericScale;
 
       if (typeInfo!=null && typeInfo.MaxPrecision==null) {
-        // reseting precision & scale for types that do not require specifying them
+        // resetting precision & scale for types that do not require specifying them
         precision = null;
         scale = null;
       }
@@ -336,7 +336,7 @@ namespace Xtensive.Sql.SqlServer.v2005
       }
       if (typeInfo!=null) {
         if (typeInfo.MaxLength==null) {
-          // reseting length for types that do not require specifying it
+          // resetting length for types that do not require specifying it
           size = null;
         }
         else if (size != null && size > 0)
