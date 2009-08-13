@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
   [KeyGenerator(null)]
   public class Country : Entity
   {
-    [Field, Key]
+    [Field(Length = 100), Key]
     public string Name { get; private set;}
 
 //    [Field]
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
     [Field, Key(0)]
     public Country Country { get; private set;}
 
-    [Field, Key(1)]
+    [Field(Length = 100), Key(1)]
     public string Name { get; private set;}
 
     public City(Country country, string name) 
