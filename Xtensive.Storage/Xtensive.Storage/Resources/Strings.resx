@@ -118,10 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ExCouldNotLoadTypesFromAssembly" xml:space="preserve">
-    <value>Could not load types from assembly {0}.</value>
+    <value>Could not load types from assembly '{0}'.</value>
   </data>
   <data name="ExThereAreNoSuitableTypes" xml:space="preserve">
-    <value>There are no suitable types in "{0}".</value>
+    <value>There are no suitable types in '{0}'.</value>
   </data>
   <data name="ExElementWithNameContainedInThisInstanceAlready" xml:space="preserve">
     <value>Element with name '{0}' is contained in this instance already.</value>
@@ -130,22 +130,22 @@
     <value>Service with name '{0}' already exists in StorageInfo.Services collection.</value>
   </data>
   <data name="ExFieldWithNameAlreadyExistsInEntityFieldsCollection" xml:space="preserve">
-    <value>Field with name '{0}' already exists in Entity.Fields collection.</value>
+    <value>Field with name '{0}' already exists in EntityInfo.Fields collection.</value>
   </data>
   <data name="ExIndexWithNameAlreadyExistsInEntityInfoIndexesCollection" xml:space="preserve">
     <value>Index with name '{0}' already exists in EntityInfo.Indexes collection.</value>
   </data>
   <data name="ExUnsupportedType" xml:space="preserve">
-    <value>Unsupported type: {0}.</value>
+    <value>Unsupported type: '{0}'.</value>
   </data>
   <data name="ExElementWithTypeIsContainedInThisInstanceAlready" xml:space="preserve">
-    <value>Element with type {0} is contained in this instance already.</value>
+    <value>Element with type '{0}' is already contained in this instance.</value>
   </data>
   <data name="ExComparerForTypeIsNotAvailable" xml:space="preserve">
     <value>Comparer for type '{0}' is not available.</value>
   </data>
   <data name="ExTypeCantBeNull" xml:space="preserve">
-    <value>Type cannot be null</value>
+    <value>Type cannot be null.</value>
   </data>
   <data name="ExIndexAlreadyContainsField" xml:space="preserve">
     <value>Index already contains field '{0}'.</value>
@@ -154,37 +154,37 @@
     <value>Index field '{0}' is incorrect.</value>
   </data>
   <data name="ExTransactionRequired" xml:space="preserve">
-    <value>Unable to process operation without transaction. Please create TransactionScope before.</value>
+    <value>Unable to process operation without a transaction. Use Transaction.Open(...) to open it.</value>
   </data>
   <data name="ExTypeNotFoundInModel" xml:space="preserve">
-    <value>Type {0} not found in model.</value>
+    <value>Type '{0}' is not found in model.</value>
   </data>
   <data name="ExOutOfTransactionScope" xml:space="preserve">
-    <value>Object outside of initial transaction scope.</value>
+    <value>Object is outside of initial transaction scope.</value>
   </data>
   <data name="ExUnableToModifyDeletedObject" xml:space="preserve">
-    <value>Unable to modify deleted object.</value>
+    <value>Unable to modify removed object.</value>
   </data>
   <data name="ExSessionBoundObjectOutOfSessionScope" xml:space="preserve">
-    <value>Session bound object out of session scope.</value>
+    <value>Session bound object is out of session scope.</value>
   </data>
   <data name="ExFieldNotFoundInModel" xml:space="preserve">
-    <value>Field {0} not found in model.</value>
+    <value>Field '{0}' is not found in model.</value>
   </data>
   <data name="ExResultTypeIncorrect" xml:space="preserve">
-    <value>Value of {0} type can't be assign to property of {1} type.</value>
+    <value>Value of '{0}' type cannot be assigned to property of '{1}' type.</value>
   </data>
   <data name="ExStorageProviderNotFound" xml:space="preserve">
-    <value>Handler provider not found for "{0}" connection type.</value>
+    <value>Handler provider is not found for "{0}" connection type.</value>
   </data>
   <data name="ExInvalidKeyParams" xml:space="preserve">
-    <value>Unable to create key. Key params do not correspond to key structure.</value>
+    <value>Unable to create Key. Key params do not correspond to its structure.</value>
   </data>
   <data name="ExTypeInfoHierarchyMistmatch" xml:space="preserve">
     <value>TypeInfo hierarchy does not correspond to provided hierarchy.</value>
   </data>
   <data name="ExPrimaryKeyFieldCantBeChanged" xml:space="preserve">
-    <value>Field {0} is a part of Primary Key. It can't be changed.</value>
+    <value>Field '{0}' is a part of primary key. It can't be changed.</value>
   </data>
   <data name="ExEntityRemoved" xml:space="preserve">
     <value>Unable to modify removed entity.</value>
@@ -193,16 +193,16 @@
     <value>{0}: multiple attributes of type '{1}' are not allowed here.</value>
   </data>
   <data name="ExColumnLength" xml:space="preserve">
-    <value>Value length {0} greater than column Length {1}. </value>
+    <value>Value length {0} is greater than column length {1}.</value>
   </data>
   <data name="ExColumnNotNullable" xml:space="preserve">
-    <value>Unable to assign null to not-nullable column.</value>
+    <value>Unable to assign null to non-nullable column.</value>
   </data>
   <data name="ExTypeMustBeEntityDescendant" xml:space="preserve">
     <value>Invalid type specified.</value>
   </data>
   <data name="LogSessionBoundMethodXOfTypeY" xml:space="preserve">
-    <value>SessionBound method '{0} 'of type '{1}'</value>
+    <value>SessionBound method '{0}' of type '{1}'</value>
   </data>
   <data name="ExInvalidSession" xml:space="preserve">
     <value>The Session of specified ISessionBound object is invalid.</value>
@@ -238,13 +238,13 @@
     <value>Field with name '{0}' is already registered.</value>
   </data>
   <data name="ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor" xml:space="preserve">
-    <value>Field {0} is already defined in type {1} or its ancestor.</value>
+    <value>Field '{0}' is already defined in type '{1}' or in its ancestor.</value>
   </data>
   <data name="ExInterfaceXDoesNotBelongToXHierarchy" xml:space="preserve">
     <value>Interface '{0}' does not belong to '{1}' hierarchy.</value>
   </data>
   <data name="TypeXDoesNotImplementYZField" xml:space="preserve">
-    <value>Type {0} does not implement '{1}.{2} field.'</value>
+    <value>Type '{0}' does not implement '{1}.{2}' property.</value>
   </data>
   <data name="ExConstraintViolation" xml:space="preserve">
     <value>Constraint violation: constraint {0} on field '{1}.{2}' of object '{3}' failed on value {4}.</value>
@@ -259,7 +259,7 @@
     <value>Type '{0}' is not registered in the model.</value>
   </data>
   <data name="ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey" xml:space="preserve">
-    <value>Field '{0}' can't have LazyLoad attribute as it is included in primary key.</value>
+    <value>Field '{0}' can't have LazyLoad attribute as it is included into primary key.</value>
   </data>
   <data name="ExTypeWithNameXIsAlreadyDefined" xml:space="preserve">
     <value>Type with name '{0}' is already defined.</value>
@@ -274,13 +274,13 @@
     <value>Type '{0}' was not registered for activation.</value>
   </data>
   <data name="ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY" xml:space="preserve">
-    <value>TypeDef '{0}' is already belongs to hierarchy with the root = '{1}'.</value>
+    <value>TypeDef '{0}' already belongs to hierarchy with '{1}' root.</value>
   </data>
   <data name="ExXDescendantIsAlreadyARootOfAnotherHierarchy" xml:space="preserve">
     <value>'{0}' descendant is already a root of another hierarchy.</value>
   </data>
   <data name="ExPairedFieldXHasWrongTypeItShouldBeReferenceToEntityOrAEntitySet" xml:space="preserve">
-    <value>Paired field '{0}' has wrong type. It should be reference to Entity or a EntitySet.</value>
+    <value>Paired field '{0}' has wrong type. A descendant of Entity or EntitySet is expected.</value>
   </data>
   <data name="ExReferencedFieldXAndPairedFieldAreEqual" xml:space="preserve">
     <value>Referenced field '{0}' and paired field are equal.</value>
@@ -307,7 +307,7 @@
     <value>Explicit 'IsNullable' attribute is redundant</value>
   </data>
   <data name="ExFieldXHasYTypeButIsMarkedAsNotNullable" xml:space="preserve">
-    <value>Field {0} has '{1}' type but is marked as not nullable.</value>
+    <value>Field '{0}' has '{1}' type but is marked as not nullable.</value>
   </data>
   <data name="ExplicitLazyLoadAttributeOnFieldXIsRedundant" xml:space="preserve">
     <value>Explicit 'LazyLoad' attribute on field '{0}' is redundant</value>
@@ -337,13 +337,13 @@
     <value>'{0}' is not applicable to '{1}' descendants.</value>
   </data>
   <data name="ExNameXIsInvalid" xml:space="preserve">
-    <value>Name {0} is invalid.</value>
+    <value>Name '{0}' is invalid.</value>
   </data>
   <data name="ExIndexNameXIsInvalid" xml:space="preserve">
     <value>Index name '{0}' is invalid.</value>
   </data>
   <data name="ExPropertyXMustBeDeclaredInTypeY" xml:space="preserve">
-    <value>Property {0} must be declared in type '{1}'.</value>
+    <value>Property '{0}' must be declared in type '{1}'.</value>
   </data>
   <data name="ExUnsupportedFieldTypeX" xml:space="preserve">
     <value>Unsupported field type: '{0}'</value>
@@ -403,16 +403,16 @@
     <value>Wrong persistent type candidate: '{0}'.</value>
   </data>
   <data name="ExNotNullableConstraintViolationOnFieldX" xml:space="preserve">
-    <value>'NotNullable' constraint violation on field '{0}'</value>
+    <value>'NotNullable' constraint violation on field '{0}'.</value>
   </data>
   <data name="ExLengthConstraintViolationOnFieldX" xml:space="preserve">
-    <value>'Length' constraint violation on field '{0}'</value>
+    <value>'Length' constraint violation on field '{0}'.</value>
   </data>
   <data name="ExSessionIsAlreadyDisposed" xml:space="preserve">
     <value>Session is already disposed.</value>
   </data>
   <data name="ExCannotUseDefaultGeneratorForComplexKeys" xml:space="preserve">
-    <value>Cannot use default generator for complex Keys.</value>
+    <value>Cannot use default generator for complex (multicolumn) Keys.</value>
   </data>
   <data name="ExUnableToCloneNonUserSessionConfiguration" xml:space="preserve">
     <value>Unable to clone non-user session configuration.</value>
@@ -427,19 +427,19 @@
     <value>Field '{0}.{1}' is not found.</value>
   </data>
   <data name="ExEntityXIsBoundToAnotherSession" xml:space="preserve">
-    <value>Entity '{0}' is bound to another session.</value>
+    <value>Entity '{0}' is bound to another Session.</value>
   </data>
   <data name="ExValueShouldBeXDescendant" xml:space="preserve">
     <value>Value should be '{0}' descendant.</value>
   </data>
   <data name="ExEntitySetCanTBeAssigned" xml:space="preserve">
-    <value>EntitySet can't be assigned</value>
+    <value>EntitySet can't be assigned.</value>
   </data>
   <data name="ExAssociationMultiplicityIsNotValidForField" xml:space="preserve">
-    <value>Association multiplicity '{0}' is not valid for field '{1}'</value>
+    <value>Association multiplicity '{0}' is not valid for field '{1}'.</value>
   </data>
   <data name="ExMasterAssociationIsAlreadyPaired" xml:space="preserve">
-    <value>Master association '{0}' is already paired with '{1}'</value>
+    <value>Master association '{0}' is already paired with '{1}'.</value>
   </data>
   <data name="ExUnableToActivateEntitySetWithoutAssociation" xml:space="preserve">
     <value>Unable to activate EntitySet for '{0}' field because it does not has association.</value>
@@ -451,7 +451,7 @@
     <value>Cannot commit a transaction: ValidationContext is in inconsistent state.</value>
   </data>
   <data name="ExItemNotFoundInEntitySet" xml:space="preserve">
-    <value>Item not found in EntitySet</value>
+    <value>Item is not found in EntitySet.</value>
   </data>
   <data name="ExCanNotGetValidationContextThereIsNoActiveTransaction" xml:space="preserve">
     <value>Can not get validation context: there is no active transaction.</value>
@@ -463,10 +463,10 @@
     <value>Type '{0}' is not supported.</value>
   </data>
   <data name="ExKeyFieldXInTypeYShouldNotHaveSetAccessor" xml:space="preserve">
-    <value>Key property '{0}' declared at '{1}' should not have public or protected set accessor. Use  base protected constructor instead.</value>
+    <value>Key property '{0}' declared in '{1}' should not have public or protected set accessor. Use base protected constructor to set Key value.</value>
   </data>
   <data name="ExUnableToSetKeyFieldXExplicitly" xml:space="preserve">
-    <value>Unable to set key field '{0}' explicitly.</value>
+    <value>Unable to set Key field '{0}' explicitly.</value>
   </data>
   <data name="ExSectionIsNotFoundInApplicationConfigurationFile" xml:space="preserve">
     <value>Section '{0}' is not found in application configuration file.</value>
@@ -475,7 +475,7 @@
     <value>Configuration for Domain with name '{0}' is not found in application configuration file (section '{1}').</value>
   </data>
   <data name="ExFieldXCanTBeNullableAsItIsIncludedInPrimaryKey" xml:space="preserve">
-    <value>Field '{0}' can't be Nullable as it is included in primary key.</value>
+    <value>Field '{0}' cannot be Nullable as it is included into primary key.</value>
   </data>
   <data name="ExNoCurrentSession" xml:space="preserve">
     <value>There is no current Session.</value>
@@ -499,13 +499,13 @@
     <value>Session with name '{0}' already exists.</value>
   </data>
   <data name="ExUnknownExpressionType" xml:space="preserve">
-    <value>Unknown expression type: '{0} ({1})'</value>
+    <value>Unknown expression type: '{0} ({1})'.</value>
   </data>
   <data name="SystemTypes" xml:space="preserve">
     <value>system types</value>
   </data>
   <data name="ExUnsupportedExpressionType" xml:space="preserve">
-    <value>Unsupported expression type: '{0}'</value>
+    <value>Unsupported expression type: '{0}'.</value>
   </data>
   <data name="ExFieldIsNotAnEntityField" xml:space="preserve">
     <value>Field '{0}' is not an Entity field in Type '{1}'.</value>
@@ -514,16 +514,16 @@
     <value>Type '{0}' is not an '{1}' descendant.</value>
   </data>
   <data name="ExSessionIsNotOpen" xml:space="preserve">
-    <value>Session is not open. You can perform this operation inside 'using (domain.OpenSession()) { ... }' block.</value>
+    <value>Session is not open. Use Session.Open(...) to open it.</value>
   </data>
   <data name="ExPersistentAttributeIsNotSetOnTypeX" xml:space="preserve">
-    <value>Persistent attribute isn't applied. Add to AssemblyInfo.cs (in "{0}" assembly) following line: [assembly: Persistent(AttributeTargetAssemblies = "{0}")]</value>
+    <value>Persistent attribute isn't applied. Add the following line to AssemblyInfo.cs for "{0}" assembly: [assembly: Persistent(AttributeTargetAssemblies = "{0}")].</value>
   </data>
   <data name="ExActiveSerializationContextIsNotFound" xml:space="preserve">
     <value>Active serialization context is not found.</value>
   </data>
   <data name="ExCannotResolveEntityWithKeyX" xml:space="preserve">
-    <value>Cannot resolve entity with key '{0}'</value>
+    <value>Cannot resolve entity with key '{0}'.</value>
   </data>
   <data name="ExUnableToResolveTypeForKeyX" xml:space="preserve">
     <value>Unable to resolve type for Key '{0}'.</value>
@@ -538,16 +538,16 @@
     <value>'CompilerContainer' attribute isn't applied to type '{0}'.</value>
   </data>
   <data name="ExInvalidUpgraderVersion" xml:space="preserve">
-    <value>Invalid upgrader version</value>
+    <value>Invalid upgrader version.</value>
   </data>
   <data name="ExTypeIdForTypeXIsNotFound" xml:space="preserve">
     <value>TypeId for type '{0}' is not found.</value>
   </data>
   <data name="ExTypeWithTypeIdXIsNotFound" xml:space="preserve">
-    <value>Type with type id '{0}' is not found.</value>
+    <value>Type with type TypeId='{0}' is not found.</value>
   </data>
   <data name="ExExpressionOfTypeXIsNotASequence" xml:space="preserve">
-    <value>The expression of type '{0}' is not a sequence</value>
+    <value>The expression of type '{0}' is not a sequence.</value>
   </data>
   <data name="ExActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyItIsZ" xml:space="preserve">
     <value>Actual schema version of assembly '{0}' is expected to be '{1}', but currently it is '{2}'.</value>
@@ -574,7 +574,7 @@
     <value>Could not find subquery mapping for field '{0}'.</value>
   </data>
   <data name="ExSpecifiedValuesArentEnoughToCreateKeyForTypeX" xml:space="preserve">
-    <value>Specified values aren't enough to create key for type {0}</value>
+    <value>Specified values aren't enough to create key for type '{0}'.</value>
   </data>
   <data name="ExExtractedSchemaIsNotCompatibleWithTheTargetSchema" xml:space="preserve">
     <value>Extracted schema is not compatible with the target schema.</value>
@@ -583,22 +583,22 @@
     <value>Cannot upgrade schema safely.</value>
   </data>
   <data name="ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported" xml:space="preserve">
-    <value>Upgrade of assembly "{0}" from version {1} to {2} is not supported.</value>
+    <value>Upgrade of assembly '{0}' from version '{1}' to '{2}' is not supported.</value>
   </data>
   <data name="ZeroAssemblyVersion" xml:space="preserve">
     <value>&lt;none&gt;</value>
   </data>
   <data name="ExDuplicateAssemblyNameX" xml:space="preserve">
-    <value>Duplicate assembly name: {0}.</value>
+    <value>Duplicate assembly name: '{0}'.</value>
   </data>
   <data name="ExNoUpgradeHandlerIsFoundForAssemblyXVersionY" xml:space="preserve">
-    <value>No upgrade handler is found for assembly "{0}", version {1}.</value>
+    <value>No upgrade handler is found for assembly '{0}', version '{1}'.</value>
   </data>
   <data name="ExTypeWithNameXIsNotFoundInMetadata" xml:space="preserve">
-    <value>Type with name "{0}" is not found in metadata.</value>
+    <value>Type with name '{0}' is not found in metadata.</value>
   </data>
   <data name="LogMetadataTypeRenamedXToY" xml:space="preserve">
-    <value>Metadata.Type renamed: "{0}" to "{1}".</value>
+    <value>Metadata.Type renamed: '{0}' to '{1}'</value>
   </data>
   <data name="MetadataAssemblyFormat" xml:space="preserve">
     <value>{0} (Version={1})</value>
@@ -607,13 +607,13 @@
     <value>{0} (Id={1})</value>
   </data>
   <data name="LogMetadataAssemblyCreatedX" xml:space="preserve">
-    <value>Metadata.Assembly created: {0}</value>
+    <value>Metadata.Assembly created: '{0}'</value>
   </data>
   <data name="LogMetadataAssemblyUpdatedXFromVersionYToZ" xml:space="preserve">
-    <value>Metadata.Assembly updated: {0}, from version {1} to {2}</value>
+    <value>Metadata.Assembly updated: '{0}', from version '{1}' to '{2}'</value>
   </data>
   <data name="ExMoreThanOneEnabledXIsProvidedForAssemblyY" xml:space="preserve">
-    <value>More than one enabled {0} is provided for assembly "{1}".</value>
+    <value>More than one enabled {0} is provided for assembly '{1}'.</value>
   </data>
   <data name="ExExtractedSchemaIsNotEqualToTheTargetSchema" xml:space="preserve">
     <value>Extracted schema is not equal to the target schema.</value>
@@ -678,7 +678,7 @@ Actions:
     <value>Downcast from '{0}' to '{1}' not supported. Use 'OfType' or 'as' operator instead.</value>
   </data>
   <data name="ExAsOperatorSupportsEntityOnly" xml:space="preserve">
-    <value>'as' operator supports entity only.</value>
+    <value>'as' operator supports casting only inside Entity hierarchy.</value>
   </data>
   <data name="ExExpandDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>Expand does not support query provider of type '{0}'.</value>
@@ -690,19 +690,19 @@ Actions:
     <value>IncludeFields does not support query provider of type '{0}'.</value>
   </data>
   <data name="ExMethodXNotFound" xml:space="preserve">
-    <value>Method {0} not found</value>
+    <value>Method '{0}' is not found.</value>
   </data>
   <data name="ExOfTypeSupportsOnlyEntityConversion" xml:space="preserve">
-    <value>OfType supports only 'Entity' conversion.</value>
+    <value>OfType supports casting only inside Entity hierarchy.</value>
   </data>
   <data name="ExLambdaParameterIsOutOfScope" xml:space="preserve">
     <value>Lambda parameter is out of scope!</value>
   </data>
   <data name="LogFailedToExtractDomainModelFromStorage" xml:space="preserve">
-    <value>Failed to extract domain model from storage.</value>
+    <value>Failed to extract domain model from the storage.</value>
   </data>
   <data name="LogDomainModelIsNotFoundInStorage" xml:space="preserve">
-    <value>Domain model is not found in storage.</value>
+    <value>Domain model is not found in the storage.</value>
   </data>
   <data name="ExTypeXIsNotFound" xml:space="preserve">
     <value>Type '{0}' is not found.</value>
@@ -717,7 +717,7 @@ Actions:
     <value>Type '{0}' must belong to hierarchy.</value>
   </data>
   <data name="ExUnauthorizedAccessDeclarationOfCallerTypeIsNotInRegisteredAssembly" xml:space="preserve">
-    <value>Unauthorized access. The declaration of the caller's type is not in a registered assembly.</value>
+    <value>Unauthorized: the caller is declared outside of any of registered assemblies.</value>
   </data>
   <data name="ExStructureOfFieldXDoesNotMatchStructureOfFieldY" xml:space="preserve">
     <value>Structure of field '{0}' does not match structure of field '{1}'.</value>
@@ -729,25 +729,25 @@ Actions:
     <value>Invalid 'Precision' attribute on field '{0}'</value>
   </data>
   <data name="ExKeyComparerNotSupportedInGroupJoin" xml:space="preserve">
-    <value>Key comparer not supported in GroupJoin.</value>
+    <value>Key comparer is not supported in GroupJoin.</value>
   </data>
   <data name="TypeXDoesNotParticipateInTheSpecifiedAssociation" xml:space="preserve">
-    <value>Type '{0}' doesn't participate in the specified association.</value>
+    <value>Type '{0}' does not participate in the specified association.</value>
   </data>
   <data name="ExActiveSessionIsRequiredForThisOperation" xml:space="preserve">
-    <value>Active Session is required for this operation. Try to perform it inside 'using (Domain.OpenSession()) { ... }' block.</value>
+    <value>Active Session is required for this operation. Use Session.Open(...) to open it.</value>
   </data>
   <data name="ExReferentialIntegrityViolation" xml:space="preserve">
     <value>Referential integrity violation.</value>
   </data>
   <data name="ReferentialIntegrityViolationOnAttemptToRemoveXKeyY" xml:space="preserve">
-    <value>Referential integrity violation on attempt to remove {0}, Key={1}.</value>
+    <value>Referential integrity violation on attempt to remove '{0}', Key='{1}'.</value>
   </data>
   <data name="ExJoinLeftDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>JoinLeft does not support query provider of type '{0}'.</value>
   </data>
   <data name="ExTypeXDoesNotHaveAParameterlessConstructor" xml:space="preserve">
-    <value>The type '{0}' does not have a parameterless constructor.</value>
+    <value>Type '{0}' does not have a parameterless constructor.</value>
   </data>
   <data name="ExCurrentSessionGetterIsAlreadyAssigned" xml:space="preserve">
     <value>Current session getter is already assigned.</value>
@@ -756,7 +756,7 @@ Actions:
     <value>Value is already assigned.</value>
   </data>
   <data name="ExMaterializationErrorTypeIdColumnDoesNotExistsInTheUnderlyingRecordSet" xml:space="preserve">
-    <value>Materialization error: Entity's TypeId column does not exists in the underlying RecordSet.</value>
+    <value>Materialization error: Entity's TypeId column does not exist in the underlying RecordSet.</value>
   </data>
   <data name="KeyFormat" xml:space="preserve">
     <value>{0}, {1}</value>
@@ -786,10 +786,10 @@ Actions:
     <value>Column with name '{0}' is not found in table '{1}'.</value>
   </data>
   <data name="ExProtocolXIsNotSupportedUseOneOfTheFollowingY" xml:space="preserve">
-    <value>Protocol '{0}' is not supported. Use one of the following: {1}</value>
+    <value>Protocol "{0}" is not supported. Use one of the following: "{1}".</value>
   </data>
   <data name="ExTypeXDoesNotContainYField" xml:space="preserve">
-    <value>Type '{0}' doesn't contain '{1}' field.</value>
+    <value>Type '{0}' does not contain '{1}' field.</value>
   </data>
   <data name="ExFieldMustBeOfEntitySetType" xml:space="preserve">
     <value>Field must be of EntitySet&lt;&gt; type.</value>
@@ -801,12 +801,15 @@ Actions:
     <value>Entity of type '{0}' is incompatible with this EntitySet.</value>
   </data>
   <data name="EntityWithKeyXDoesNotExist" xml:space="preserve">
-    <value>Entity with Key = {0} does not exist.</value>
+    <value>Entity with Key = '{0}' does not exist.</value>
   </data>
   <data name="CanUpgradeTypeSafely" xml:space="preserve">
     <value>Can upgrade types safely</value>
   </data>
   <data name="CantUpgradeTypeSafely" xml:space="preserve">
     <value>Can't upgrade types safely</value>
+  </data>
+  <data name="ExThereIsNoCurrentHttpRequestOrHttpModuleIsnTBoundToItYet" xml:space="preserve">
+    <value>There is no current HttpRequest, or HttpModule is not bound to it yet.</value>
   </data>
 </root>

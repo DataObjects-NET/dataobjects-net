@@ -50,6 +50,8 @@ namespace Xtensive.Storage
     IContext<SessionScope>, IResource
   {
     private const int EntityChangeRegistrySizeLimit = 250; // TODO: -> SessionConfiguration
+    private static Func<Session> resolver;
+
     private readonly bool persistRequiresTopologicalSort;
     private volatile bool isDisposed;
     private readonly Set<object> consumers = new Set<object>();
@@ -82,6 +84,34 @@ namespace Xtensive.Storage
     /// Gets or sets a value indicating whether only a system logic is enabled.
     /// </summary>
     public bool IsSystemLogicOnly { get; internal set; }
+
+    /// <summary>
+    /// Gets or sets the <see cref="Current"/> session resolver to use
+    /// when there is no active <see cref="Session"/>.
+    /// </summary>
+    /// <remarks>
+    /// The setter of this property can be invoked just once per application lifetime; 
+    /// assigned resolver can not be changed.
+    /// </remarks>
+    /// <exception cref="NotSupportedException">Resolver is already assigned.</exception>
+    public static Func<Session> Resolver
+    {
+      [DebuggerStepThrough]
+      get {
+        return resolver;
+      }
+      [DebuggerStepThrough]
+      set {
+        if (resolver!=null)
+          throw Exceptions.AlreadyInitialized("Resolver");
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        resolver = value;
+        Rse.Compilation.CompilationContext.Resolver = () => {
+          var session = resolver.Invoke();
+          return session==null ? null : session.CompilationContext;
+        };
+      }
+    }
 
     #region Private \ internal members
 
@@ -175,29 +205,6 @@ namespace Xtensive.Storage
 
     #region IContext<...> methods
 
-    private static Func<Session> currentSessionResolver;
-
-    /// <summary>
-    /// Sets the current session resolver.
-    /// </summary>
-    /// <remarks>
-    /// This method can be called once per application domain, assigned resolver can not be changed.
-    /// </remarks>
-    /// <param name="resolver">The delegate that resolves current session.</param>
-    /// <exception cref="InvalidOperationException">Current session resolver is already assigned.</exception>
-    public static void SetCurrentSessionResolver(Func<Session> resolver)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
-      if (currentSessionResolver!=null)
-        throw new InvalidOperationException(Strings.ExValueIsAlreadyAssigned);
-      currentSessionResolver = resolver;
-      Rse.Compilation.CompilationContext.SetCurrentContextResolver(
-        () => {
-          var session = resolver.Invoke();
-          return session==null ? null : session.CompilationContext;
-        });
-    }
-
     /// <summary>
     /// Gets the current active <see cref="Session"/> instance.
     /// </summary>
@@ -208,7 +215,7 @@ namespace Xtensive.Storage
       {
         return 
           SessionScope.CurrentSession ?? 
-          (currentSessionResolver==null ? null : currentSessionResolver.Invoke());
+          (resolver==null ? null : resolver.Invoke());
       }
     }
 

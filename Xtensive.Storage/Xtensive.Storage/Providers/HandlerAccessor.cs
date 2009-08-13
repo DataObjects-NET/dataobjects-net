@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public SessionHandler SessionHandler
     {
-      get { return Session.Current.Handler; }
+      get { return Session.Demand().Handler; }
     }
 
    

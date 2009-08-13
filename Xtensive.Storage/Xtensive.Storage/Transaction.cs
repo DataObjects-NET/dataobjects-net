@@ -162,7 +162,7 @@ namespace Xtensive.Storage
     public static TransactionScope Open(Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return Session.Demand().OpenTransaction();
+      return session.OpenTransaction();
     }
 
     /// <summary>

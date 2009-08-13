@@ -1321,6 +1321,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There is no current HttpRequest, or HttpModule isn&apos;t bound to it yet..
+        /// </summary>
+        internal static string ExThereIsNoCurrentHttpRequestOrHttpModuleIsnTBoundToItYet {
+            get {
+                return ResourceManager.GetString("ExThereIsNoCurrentHttpRequestOrHttpModuleIsnTBoundToItYet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to process operation without transaction. Please create TransactionScope before..
         /// </summary>
         internal static string ExTransactionRequired {

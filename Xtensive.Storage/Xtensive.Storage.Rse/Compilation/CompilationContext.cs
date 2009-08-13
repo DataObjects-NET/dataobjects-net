@@ -52,6 +52,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// Currently it is 1024 (compilation results).
     /// </summary>
     public readonly static int CacheSize = 1024;
+    private static Func<CompilationContext> resolver;
 
     private readonly ICache<CompilableProvider, CacheEntry> cache;
     private readonly object _lock = new object();
@@ -59,22 +60,28 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public readonly static DefaultCompilationContext Default = new DefaultCompilationContext();
 
-    private static Func<CompilationContext> currentContextResolver;
 
     /// <summary>
-    /// Sets the current context resolver.
+    /// Gets or sets the <see cref="Current"/> compilation context resolver to use
+    /// when there is no active <see cref="CompilationContext"/>.
     /// </summary>
     /// <remarks>
-    /// This method can be called once per application domain, assigned resolver can not be changed.
+    /// The setter of this property can be invoked just once per application lifetime; 
+    /// assigned resolver can not be changed.
     /// </remarks>
-    /// <param name="resolver">The delegate that resolves current context.</param>
-    /// <exception cref="InvalidOperationException">Current context resolver is already assigned.</exception>
-    public static void SetCurrentContextResolver(Func<CompilationContext> resolver)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
-      if (currentContextResolver!=null)
-        throw new InvalidOperationException(Strings.ExValueIsAlreadyAssigned);
-      currentContextResolver = resolver;
+    /// <exception cref="NotSupportedException">Resolver is already assigned.</exception>
+    public static Func<CompilationContext> Resolver {
+      [DebuggerStepThrough]
+      get {
+        return resolver;
+      }
+      [DebuggerStepThrough]
+      set {
+        if (resolver!=null)
+          throw Exceptions.AlreadyInitialized("Resolver");
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        resolver = value;
+      }
     }
 
     /// <summary>
@@ -85,7 +92,7 @@ namespace Xtensive.Storage.Rse.Compilation
       get 
       { 
         return CompilationScope.CurrentContext ??
-          (currentContextResolver==null ? null : currentContextResolver.Invoke()) ?? Default; 
+          (resolver==null ? null : resolver.Invoke()) ?? Default; 
       }
     }
 

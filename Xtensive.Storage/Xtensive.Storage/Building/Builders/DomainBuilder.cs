@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Building.Builders
           BuildModel();
 
           using (Session.Open(context.Domain, SessionType.System)) {
-            context.SystemSessionHandler = Session.Current.Handler;
+            context.SystemSessionHandler = Session.Demand().Handler;
             using (var transactionScope = Transaction.Open()) {
               SynchronizeSchema(builderConfiguration.SchemaUpgradeMode);
               context.Domain.Handler.BuildMapping();

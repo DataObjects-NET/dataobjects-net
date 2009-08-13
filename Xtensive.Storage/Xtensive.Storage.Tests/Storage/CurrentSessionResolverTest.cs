@@ -23,10 +23,10 @@ namespace Xtensive.Storage.Tests.Storage
       bool isSessionActive = false;
       int resolveCount = 0;
 
-      Session.SetCurrentSessionResolver(() => {
+      Session.Resolver = () => {
         resolveCount++;
         return isSessionActive ? session : null;
-      });
+      };
 
       Assert.AreNotEqual(session, Session.Current);
       Assert.AreEqual(1, resolveCount);

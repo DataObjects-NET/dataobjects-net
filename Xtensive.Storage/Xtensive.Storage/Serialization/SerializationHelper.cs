@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Serialization
       if (IsInitialized(entity))
         return;
 
-      Session session = Session.Current;      
+      Session session = Session.Demand();
       TypeInfo entityType = session.Domain.Model.Types[entity.GetType()];
       KeyGenerator generator = null;
       if (entityType.Hierarchy.GeneratorInfo != null)

@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Internals
 
     public RecordSetParserContext(RecordSet source)
     {
-      Session = Session.Current;
+      Session = Session.Demand();
       Domain = Session.Domain;
       Header = source.Header;
     }
