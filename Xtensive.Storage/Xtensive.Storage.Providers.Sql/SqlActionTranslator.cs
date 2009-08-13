@@ -951,24 +951,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     private long? GetCurrentSequenceValue(string sequenceInfoName)
     {
-      if (IsSequencesAllowed) {
-        var sequence = schema.Sequences[sequenceInfoName];
-        var sqlNext = SqlDml.Select();
-        sqlNext.Columns.Add(SqlDml.NextValue(sequence));
-        return (long) commandExecutor.Invoke(sqlNext);
-      }
-      else {
-        var generatorTable = schema.Tables[sequenceInfoName];
-        SqlBatch sqlNext = SqlDml.Batch();
-        SqlInsert insert = SqlDml.Insert(SqlDml.TableRef(generatorTable));
-        sqlNext.Add(insert);
-        SqlSelect select = SqlDml.Select();
-        select.Columns.Add(SqlDml.Cast(SqlDml.FunctionCall("SCOPE_IDENTITY"), SqlType.Int64));
-        sqlNext.Add(select);
-        SqlDelete delete = SqlDml.Delete(SqlDml.TableRef(generatorTable));
-        sqlNext.Add(delete);
-        return (long) commandExecutor.Invoke(sqlNext);
-      }
+      var selectNextValue = KeyGeneratorFactory.GetNextValueStatement(driver, schema, sequenceInfoName);
+      return Convert.ToInt64(commandExecutor.Invoke(selectNextValue));
     }
 
     # endregion
