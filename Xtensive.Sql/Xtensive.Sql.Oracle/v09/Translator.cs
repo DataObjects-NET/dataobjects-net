@@ -132,11 +132,17 @@ namespace Xtensive.Sql.Oracle.v09
     public override string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
     {
       switch (section) {
+      case AlterTableSection.AddColumn:
+        return "ADD";
       case AlterTableSection.DropBehavior:
         var cascadableAction = node.Action as SqlCascadableAction;
-        if (cascadableAction==null)
+        if (cascadableAction==null || !cascadableAction.Cascade)
           return string.Empty;
-        return cascadableAction.Cascade ? "CASCADE" : string.Empty;
+        if (cascadableAction is SqlDropConstraint)
+          return "CASCADE";
+        if (cascadableAction is SqlDropColumn)
+          return "CASCADE CONSTRAINTS";
+        throw new ArgumentOutOfRangeException("node.Action");
       default:
         return base.Translate(context, node, section);
       }
@@ -188,11 +194,6 @@ namespace Xtensive.Sql.Oracle.v09
       builder.Length = builder.Length - RowItemDelimiter.Length;
       builder.Append(")");
       return builder.ToString();
-    }
-
-    public override string Translate(SqlCompilerContext context, SqlRenameTable node)
-    {
-      return string.Format("RENAME {0} TO {1}", Translate(node.Table), QuoteIdentifier(node.NewName));
     }
 
     public virtual string Translate(Index node)

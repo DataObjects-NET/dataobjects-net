@@ -65,6 +65,11 @@ namespace Xtensive.Sql.Info
     /// <seealso cref="ICharacterLargeObject"/>.
     /// <seealso cref="IBinaryLargeObject"/>.
     /// </summary>
-    LargeObjects = 0x100
+    LargeObjects = 0x100,
+
+    /// <summary>
+    /// Indicates that RDBMS supports UPDATE ... FROM statements.
+    /// </summary>
+    UpdateFrom = 0x200,
   }
 }

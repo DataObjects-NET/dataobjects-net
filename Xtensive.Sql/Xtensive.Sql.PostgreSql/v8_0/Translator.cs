@@ -272,11 +272,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return "DROP INDEX " + QuoteIdentifier(node.Index.DataTable.Schema.Name, node.Index.Name);
     }
 
-    public override string Translate(SqlCompilerContext context, SqlRenameTable node)
-    {
-      return string.Format("ALTER TABLE {0} RENAME TO {1}", Translate(node.Table), QuoteIdentifier(node.NewName));
-    }
-
     public override string Translate(SqlCompilerContext context, SqlBreak node)
     {
       return "EXIT";

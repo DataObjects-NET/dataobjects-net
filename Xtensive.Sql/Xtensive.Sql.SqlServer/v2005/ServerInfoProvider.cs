@@ -191,7 +191,8 @@ namespace Xtensive.Sql.SqlServer.v2005
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |
         QueryFeatures.Batches |
-        QueryFeatures.CrossApply;
+        QueryFeatures.CrossApply |
+        QueryFeatures.UpdateFrom;
       return queryInfo;
     }
 

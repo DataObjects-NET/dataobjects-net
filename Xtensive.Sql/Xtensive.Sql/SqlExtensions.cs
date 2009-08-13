@@ -113,17 +113,5 @@ namespace Xtensive.Sql
         throw new ArgumentOutOfRangeException("type");
       }
     }
-
-    public static int? GetNullableInt32(this DbDataReader reader, string column)
-    {
-      return Convert.IsDBNull(reader[column]) ? null : (int?) Convert.ToInt32(reader[column]);
-    }
-
-    public static int? GetNullableInt32(this DbDataReader reader, int column)
-    {
-      if (reader.IsDBNull(column))
-        return null;
-      return reader.GetInt32(column);
-    }
   }
 }

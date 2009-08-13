@@ -93,7 +93,7 @@ namespace Xtensive.Sql.Oracle.v09
       select.Columns.Add(allTables["TEMPORARY"]);
       select.Columns.Add(allTables["DURATION"]);
       select.Where = allTables["NESTED"]==AnsiString("NO");
-      AddSchemaFilter(select);
+      ApplySchemaFilter(select);
 
       using (var reader = ExecuteReader(select)) {
         while (reader.Read()) {
@@ -135,7 +135,7 @@ namespace Xtensive.Sql.Oracle.v09
       select.OrderBy.Add(allTabColumns["TABLE_NAME"]);
       select.OrderBy.Add(allTabColumns["COLUMN_ID"]);
 
-      AddSchemaFilter(select, allTabColumns["OWNER"]);
+      ApplySchemaFilter(select, allTabColumns["OWNER"]);
 
       using (var reader = ExecuteReader(select)) {
         Table table = null;
@@ -149,8 +149,9 @@ namespace Xtensive.Sql.Oracle.v09
           var column = table.CreateColumn(reader.GetString(2));
           column.DataType = CreateValueType(reader, 3, 4, 5, 6);
           column.IsNullable = ReadBool(reader, 7);
-          if (!reader.IsDBNull(8))
-            column.DefaultValue = SqlDml.Native(reader.GetString(8));
+          var defaultValue = ReadStringOrNull(reader, 8);
+          if (!string.IsNullOrEmpty(defaultValue))
+            column.DefaultValue = SqlDml.Native(defaultValue);
           lastColumnId = columnId;
         }
       }
@@ -163,12 +164,17 @@ namespace Xtensive.Sql.Oracle.v09
       select.Columns.Add(allViews["OWNER"]);
       select.Columns.Add(allViews["VIEW_NAME"]);
       select.Columns.Add(allViews["TEXT"]);
-      AddSchemaFilter(select);
+      ApplySchemaFilter(select);
 
       using (var reader = ExecuteReader(select)) {
         while (reader.Read()) {
           var schema = theCatalog.Schemas[reader.GetString(0)];
-          schema.CreateView(reader.GetString(1), SqlDml.Native(reader.GetString(2)));
+          var view = reader.GetString(1);
+          var definition = ReadStringOrNull(reader, 2);
+          if (string.IsNullOrEmpty(definition))
+            schema.CreateView(view);
+          else
+            schema.CreateView(view, SqlDml.Native(definition));
         }
       }
     }
@@ -190,7 +196,7 @@ namespace Xtensive.Sql.Oracle.v09
       select.OrderBy.Add(allTabColumns["TABLE_NAME"]);
       select.OrderBy.Add(allTabColumns["COLUMN_ID"]);
 
-      AddSchemaFilter(select, allTabColumns["OWNER"]);
+      ApplySchemaFilter(select, allTabColumns["OWNER"]);
 
       using (var reader = ExecuteReader(select)) {
         int lastColumnId = int.MaxValue;
@@ -232,9 +238,20 @@ namespace Xtensive.Sql.Oracle.v09
       select.OrderBy.Add(allIndexes["INDEX_NAME"]);
       select.OrderBy.Add(allIndColumns["COLUMN_POSITION"]);
 
-      select.Where = SqlDml.In(allIndexes["INDEX_TYPE"],
-        SqlDml.Row(AnsiString("NORMAL"), AnsiString("BITMAP")));
-      AddSchemaFilter(select, allIndexes["TABLE_OWNER"]);
+      var allConstraints = SqlDml.TableRef(dataDictionary.Views["ALL_CONSTRAINTS"]);
+      var ignoredIndexes = SqlDml.Select(allConstraints);
+      ignoredIndexes.Columns.Add(allConstraints["INDEX_OWNER"]);
+      ignoredIndexes.Columns.Add(allConstraints["INDEX_NAME"]);
+      ignoredIndexes.Where =
+        SqlDml.In(allConstraints["CONSTRAINT_TYPE"], SqlDml.Row(AnsiString("P"), AnsiString("U")));
+      ApplySchemaFilter(ignoredIndexes);
+      ApplyTableFilter(ignoredIndexes, allConstraints["OWNER"], allConstraints["TABLE_NAME"]);
+
+      select.Where =
+        SqlDml.In(allIndexes["INDEX_TYPE"], SqlDml.Row(AnsiString("NORMAL"), AnsiString("BITMAP"))) &
+        SqlDml.NotIn(SqlDml.Row(allIndexes["OWNER"], allIndexes["INDEX_NAME"]), ignoredIndexes) &
+        allIndexes["DROPPED"]==AnsiString("NO");
+      ApplySchemaFilter(select, allIndexes["TABLE_OWNER"]);
 
       using (var reader = ExecuteReader(select)) {
         int lastColumnPosition = int.MaxValue;
@@ -295,8 +312,8 @@ namespace Xtensive.Sql.Oracle.v09
       select.OrderBy.Add(referencedColumns["POSITION"]);
       
       select.Where = allConstraints["CONSTRAINT_TYPE"]==AnsiString("R");
-      AddSchemaFilter(select, allConstraints["OWNER"]);
-      AddTableFilter(select, allConstraints["OWNER"], allConstraints["TABLE_NAME"]);
+      ApplySchemaFilter(select, allConstraints["OWNER"]);
+      ApplyTableFilter(select, allConstraints["OWNER"], allConstraints["TABLE_NAME"]);
 
       using (var reader = ExecuteReader(select)) {
         int lastColumnPosition = int.MaxValue;
@@ -346,10 +363,10 @@ namespace Xtensive.Sql.Oracle.v09
       select.OrderBy.Add(allConstraints["CONSTRAINT_NAME"]);
       select.OrderBy.Add(allConsColumns["POSITION"]);
 
-      select.Where = SqlDml.In(allConstraints["CONSTRAINT_TYPE"],
-        SqlDml.Row(AnsiString("P"), AnsiString("U")));
-      AddSchemaFilter(select, allConstraints["OWNER"]);
-      AddTableFilter(select, allConstraints["OWNER"], allConstraints["TABLE_NAME"]);
+      select.Where =
+        SqlDml.In(allConstraints["CONSTRAINT_TYPE"], SqlDml.Row(AnsiString("P"), AnsiString("U")));
+      ApplySchemaFilter(select, allConstraints["OWNER"]);
+      ApplyTableFilter(select, allConstraints["OWNER"], allConstraints["TABLE_NAME"]);
 
       using (var reader = ExecuteReader(select)) {
         Table table = null;
@@ -389,8 +406,8 @@ namespace Xtensive.Sql.Oracle.v09
       select.Columns.Add(allConstraints["DEFERRED"]);
       select.Where = allConstraints["CONSTRAINT_TYPE"]==AnsiString("C") &
         allConstraints["GENERATED"]==AnsiString("USER NAME");
-      AddSchemaFilter(select);
-      AddTableFilter(select, allConstraints["OWNER"], allConstraints["TABLE_NAME"]);
+      ApplySchemaFilter(select);
+      ApplyTableFilter(select, allConstraints["OWNER"], allConstraints["TABLE_NAME"]);
 
       using (var reader = ExecuteReader(select)) {
         while (reader.Read()) {
@@ -413,7 +430,7 @@ namespace Xtensive.Sql.Oracle.v09
       select.Columns.Add(allSequences["MAX_VALUE"]);
       select.Columns.Add(allSequences["INCREMENT_BY"]);
       select.Columns.Add(allSequences["CYCLE_FLAG"]);
-      AddSchemaFilter(select, allSequences["SEQUENCE_OWNER"]);
+      ApplySchemaFilter(select, allSequences["SEQUENCE_OWNER"]);
 
       using (var reader = ExecuteReader(select)) {
         while (reader.Read()) {
@@ -429,13 +446,13 @@ namespace Xtensive.Sql.Oracle.v09
       }
     }
 
-    private void AddSchemaFilter(SqlSelect select)
+    private void ApplySchemaFilter(SqlSelect select)
     {
       var filteredColumn = select.From["OWNER"];
-      AddSchemaFilter(select, filteredColumn);
+      ApplySchemaFilter(select, filteredColumn);
     }
 
-    private void AddSchemaFilter(SqlSelect select, SqlExpression filteredColumn)
+    private void ApplySchemaFilter(SqlSelect select, SqlExpression filteredColumn)
     {
       if (!schemaFilter.IsNullReference())
         select.Where &= filteredColumn==schemaFilter;
@@ -443,7 +460,7 @@ namespace Xtensive.Sql.Oracle.v09
         select.Where &= SqlDml.NotIn(filteredColumn, systemUsers);
     }
 
-    private void AddTableFilter(SqlSelect select, SqlExpression tableOwner, SqlExpression tableName)
+    private void ApplyTableFilter(SqlSelect select, SqlExpression tableOwner, SqlExpression tableName)
     {
       var allTables = SqlDml.TableRef(dataDictionary.Views["ALL_TABLES"]);
       var originalSource = select.From;
@@ -531,6 +548,11 @@ namespace Xtensive.Sql.Oracle.v09
       return value > int.MaxValue ? int.MaxValue : (int) value;
     }
 
+    private static string ReadStringOrNull(IDataRecord row, int index)
+    {
+      return row.IsDBNull(index) ? null : row.GetString(index);
+    }
+
     private static void ReadConstraintProperties(Constraint constraint,
       IDataRecord row, int isDeferrableIndex,  int isInitiallyDeferredIndex)
     {
@@ -566,21 +588,20 @@ namespace Xtensive.Sql.Oracle.v09
 
       var catalog = new Catalog(string.Empty);
       var schema = catalog.CreateSchema("SYS");
-      var voidDefintion = SqlDml.Native(string.Empty);
 
-      var allViews = schema.CreateView("ALL_VIEWS", voidDefintion);
+      var allViews = schema.CreateView("ALL_VIEWS");
       allViews.CreateColumn("OWNER");
       allViews.CreateColumn("VIEW_NAME");
       allViews.CreateColumn("TEXT");
 
-      var allTables = schema.CreateView("ALL_TABLES", voidDefintion);
+      var allTables = schema.CreateView("ALL_TABLES");
       allTables.CreateColumn("OWNER");
       allTables.CreateColumn("TABLE_NAME");
       allTables.CreateColumn("TEMPORARY");
       allTables.CreateColumn("DURATION");
       allTables.CreateColumn("NESTED");
 
-      var allIndexes = schema.CreateView("ALL_INDEXES", voidDefintion);
+      var allIndexes = schema.CreateView("ALL_INDEXES");
       allIndexes.CreateColumn("OWNER");
       allIndexes.CreateColumn("INDEX_NAME");
       allIndexes.CreateColumn("INDEX_TYPE");
@@ -588,8 +609,10 @@ namespace Xtensive.Sql.Oracle.v09
       allIndexes.CreateColumn("TABLE_NAME");
       allIndexes.CreateColumn("UNIQUENESS");
       allIndexes.CreateColumn("PCT_FREE");
+      allIndexes.CreateColumn("DROPPED");
+      allIndexes.CreateColumn("GENERATED");
 
-      var allTabColumns = schema.CreateView("ALL_TAB_COLUMNS", voidDefintion);
+      var allTabColumns = schema.CreateView("ALL_TAB_COLUMNS");
       allTabColumns.CreateColumn("OWNER");
       allTabColumns.CreateColumn("TABLE_NAME");
       allTabColumns.CreateColumn("COLUMN_NAME");
@@ -604,7 +627,7 @@ namespace Xtensive.Sql.Oracle.v09
       allTabColumns.CreateColumn("DATA_DEFAULT");
       allTabColumns.CreateColumn("CHAR_LENGTH");
       
-      var allIndColumns = schema.CreateView("ALL_IND_COLUMNS", voidDefintion);
+      var allIndColumns = schema.CreateView("ALL_IND_COLUMNS");
       allIndColumns.CreateColumn("INDEX_OWNER");
       allIndColumns.CreateColumn("INDEX_NAME");
       allIndColumns.CreateColumn("TABLE_OWNER");
@@ -614,19 +637,19 @@ namespace Xtensive.Sql.Oracle.v09
       allIndColumns.CreateColumn("CHAR_LENGTH");
       allIndColumns.CreateColumn("DESCEND");
 
-      var allConsColumns = schema.CreateView("ALL_CONS_COLUMNS", voidDefintion);
+      var allConsColumns = schema.CreateView("ALL_CONS_COLUMNS");
       allConsColumns.CreateColumn("OWNER");
       allConsColumns.CreateColumn("CONSTRAINT_NAME");
       allConsColumns.CreateColumn("TABLE_NAME");
       allConsColumns.CreateColumn("COLUMN_NAME");
       allConsColumns.CreateColumn("POSITION");
 
-      var allUsers = schema.CreateView("ALL_USERS", voidDefintion);
+      var allUsers = schema.CreateView("ALL_USERS");
       allUsers.CreateColumn("USERNAME");
       allUsers.CreateColumn("USER_ID");
       allUsers.CreateColumn("CREATED");
 
-      var allSequences = schema.CreateView("ALL_SEQUENCES", voidDefintion);
+      var allSequences = schema.CreateView("ALL_SEQUENCES");
       allSequences.CreateColumn("SEQUENCE_OWNER");
       allSequences.CreateColumn("SEQUENCE_NAME");
       allSequences.CreateColumn("MIN_VALUE");
@@ -637,7 +660,7 @@ namespace Xtensive.Sql.Oracle.v09
       allSequences.CreateColumn("CACHE_SIZE");
       allSequences.CreateColumn("LAST_NUMBER");
 
-      var allConstraints = schema.CreateView("ALL_CONSTRAINTS", voidDefintion);
+      var allConstraints = schema.CreateView("ALL_CONSTRAINTS");
       allConstraints.CreateColumn("OWNER");
       allConstraints.CreateColumn("CONSTRAINT_NAME");
       allConstraints.CreateColumn("CONSTRAINT_TYPE");

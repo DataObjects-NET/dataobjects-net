@@ -1120,7 +1120,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string Translate(SqlCompilerContext context, SqlRenameTable node)
     {
-      throw new NotSupportedException();
+      return string.Format("ALTER TABLE {0} RENAME TO {1}", Translate(node.Table), QuoteIdentifier(node.NewName));
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
