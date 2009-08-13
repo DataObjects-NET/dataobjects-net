@@ -82,9 +82,9 @@ namespace Xtensive.Sql
     /// <returns>
     /// <see cref="Catalog"/> that holds all schemas in the database.
     /// </returns>
-    public Catalog ExtractAllSchemas(SqlConnection connection, DbTransaction transaction)
+    public Catalog ExtractCatalog(SqlConnection connection, DbTransaction transaction)
     {
-      return CreateExtractorInternal(connection, transaction).ExtractAllSchemas();
+      return CreateExtractorInternal(connection, transaction).ExtractCatalog();
     }
 
     /// <summary>
@@ -95,9 +95,32 @@ namespace Xtensive.Sql
     /// <returns>
     /// <see cref="Catalog"/> that holds just the default schema in the database.
     /// </returns>
-    public Catalog ExtractDefaultSchema(SqlConnection connection, DbTransaction transaction)
+    public Schema ExtractDefaultSchema(SqlConnection connection, DbTransaction transaction)
     {
-      return CreateExtractorInternal(connection, transaction).ExtractDefaultSchema();
+      var url = connection.Url;
+      return ExtractSchema(connection, transaction, GetDefaultSchemaName(url));
+    }
+
+    /// <summary>
+    /// Gets the name of the default schema.
+    /// </summary>
+    /// <param name="url">The URL.</param>
+    protected virtual string GetDefaultSchemaName(UrlInfo url)
+    {
+      return url.GetSchema(url.User).ToUpperInvariant();
+    }
+
+    /// <summary>
+    /// Extracts the specified schema from the database.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="transaction">The transaction.</param>
+    /// <returns>
+    /// Extracted <see cref="Schema"/> instance.
+    /// </returns>
+    public Schema ExtractSchema(SqlConnection connection, DbTransaction transaction, string schemaName)
+    {
+      return CreateExtractorInternal(connection, transaction).ExtractSchema(schemaName);
     }
 
     /// <summary>

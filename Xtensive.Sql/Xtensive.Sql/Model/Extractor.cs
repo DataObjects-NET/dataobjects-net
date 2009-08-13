@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System.Data.Common;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Model
@@ -23,21 +24,45 @@ namespace Xtensive.Sql.Model
     protected SqlConnection Connection { get; private set; }
 
     /// <summary>
+    /// Gets or sets the catalog.
+    /// </summary>
+    protected Catalog Catalog { get; private set; }
+
+    /// <summary>
+    /// Gets or sets the schema.
+    /// </summary>
+    protected Schema Schema { get; private set; }
+
+    /// <summary>
     /// Gets the transaction.
     /// </summary>
     protected DbTransaction Transaction { get; private set; }
 
     /// <summary>
-    /// Extracts all schemas from the database.
+    /// Extracts all schemes from the database.
     /// </summary>
-    /// <returns><see cref="Catalog"/> that holds all schemas in the database.</returns>
-    public abstract Catalog ExtractAllSchemas();
+    /// <returns><see cref="Catalog"/> that holds all schemes in the database.</returns>
+    public abstract Catalog ExtractCatalog();
 
     /// <summary>
-    /// Extracts the default schema from the database.
+    /// Extracts the specified schema from the database.
     /// </summary>
-    /// <returns><see cref="Catalog"/> that holds just the default schema in the database.</returns>
-    public abstract Catalog ExtractDefaultSchema();
+    /// <returns>Extracted <see cref="Schema"/> instance.</returns>
+    public Schema ExtractSchema(string name)
+    {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+
+      Schema = Catalog.CreateSchema(name);
+      Catalog.DefaultSchema = Schema;
+      var result = ExtractSchema();
+      Schema = null;
+      return result;
+    }
+
+    /// <summary>
+    /// Extracts the schema.
+    /// </summary>
+    protected abstract Schema ExtractSchema();
 
     /// <summary>
     /// Initializes the translator with specified <see cref="SqlConnection"/> and <see cref="DbTransaction"/>.
@@ -48,6 +73,8 @@ namespace Xtensive.Sql.Model
     {
       Connection = connection;
       Transaction = transaction;
+      var url = connection.Url;
+      Catalog = new Catalog(url.GetDatabase());
       Initialize();
     }
 

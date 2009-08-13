@@ -20,6 +20,7 @@ namespace Xtensive.Sql.Model
     private long? maxValue;
     private long? minValue;
     private bool? isCyclic;
+    private long? lastValue;
 
     /// <summary>
     /// Gets or sets the owner.
@@ -101,6 +102,19 @@ namespace Xtensive.Sql.Model
       {
         this.EnsureNotLocked();
         minValue = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the last value.
+    /// </summary>
+    public long? LastValue
+    {
+      get { return lastValue; }
+      set
+      {
+        this.EnsureNotLocked();
+        lastValue = value;
       }
     }
 

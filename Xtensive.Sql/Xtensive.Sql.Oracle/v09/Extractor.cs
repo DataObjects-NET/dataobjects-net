@@ -29,14 +29,14 @@ namespace Xtensive.Sql.Oracle.v09
     private Schema dataDictionary;
     private Catalog theCatalog;
     private SqlExpression schemaFilter;
-    
+
     protected override void Initialize()
     {
       dataDictionary = dataDictionaryCached.GetValue(BuildDataDictionary);
       theCatalog = new Catalog(Connection.Url.GetDatabase());
     }
 
-    public override Catalog ExtractAllSchemas()
+    public override Catalog ExtractCatalog()
     {
       schemaFilter = null;
       ExtractSchemas();
@@ -44,13 +44,13 @@ namespace Xtensive.Sql.Oracle.v09
       return theCatalog;
     }
 
-    public override Catalog ExtractDefaultSchema()
+    protected override Schema ExtractSchema()
     {
       var schemaName = GetDefaultSchemaName();
       theCatalog.CreateSchema(schemaName);
       schemaFilter = AnsiString(schemaName);
       ExtractCatalogContents();
-      return theCatalog;
+      return theCatalog.Schemas[schemaName];
     }
 
     private void ExtractCatalogContents()

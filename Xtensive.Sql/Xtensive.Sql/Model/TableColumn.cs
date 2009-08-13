@@ -73,7 +73,6 @@ namespace Xtensive.Sql.Model
     {
       get { return sequenceDescriptor; }
       set {
-        sequenceDescriptor = value;
         SequenceDescriptor old = sequenceDescriptor;
         sequenceDescriptor = value;
         if (old!=null && old.Owner==this)

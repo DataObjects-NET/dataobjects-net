@@ -2,6 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
+using System;
 using Xtensive.Sql.Compiler;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
@@ -26,8 +27,8 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     // Constructors
 
-    public Driver(SqlServerConnection connection)
-      : base(new ServerInfoProvider(connection))
+    public Driver(SqlServerConnection connection, Version version)
+      : base(new ServerInfoProvider(connection, version))
     {
     }
   }

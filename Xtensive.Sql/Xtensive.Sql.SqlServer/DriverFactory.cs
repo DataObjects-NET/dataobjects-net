@@ -26,9 +26,9 @@ namespace Xtensive.Sql.SqlServer
           throw new NotSupportedException(Strings.ExMicrosoftSqlServerBelow2005IsNotSupported);
         SqlDriver result;
         if (version.Major==9)
-          result = new v2005.Driver(connection);
+          result = new v2005.Driver(connection, version);
         else
-          result = new v2008.Driver(connection);
+          result = new v2008.Driver(connection, version);
         connection.Close();
         return result;
       }

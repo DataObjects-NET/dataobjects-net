@@ -3183,7 +3183,7 @@ namespace Xtensive.Sql.Tests.VistaDb
           cmd.ExecuteNonQuery();
         }
 
-        var exModel1 = SqlDriver.ExtractAllSchemas(conn, trx);
+        var exModel1 = SqlDriver.ExtractCatalog(conn, trx);
         var exT1 = exModel1.Schemas[schema.DbName].Tables[table.DbName];
         Assert.IsNotNull(exT1);
         var exC1 = exT1.TableColumns["C1"];
@@ -3198,7 +3198,7 @@ namespace Xtensive.Sql.Tests.VistaDb
           cmd.ExecuteNonQuery();
         }
 
-        var exModel2 = SqlDriver.ExtractAllSchemas(conn, trx);
+        var exModel2 = SqlDriver.ExtractCatalog(conn, trx);
         var exT2 = exModel2.Schemas[schema.DbName].Tables["T2"];
         Assert.IsNotNull(exT2);
         var exC2 = exT2.TableColumns["C2"];

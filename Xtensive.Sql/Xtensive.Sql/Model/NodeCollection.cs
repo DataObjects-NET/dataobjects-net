@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
@@ -16,7 +17,8 @@ namespace Xtensive.Sql.Model
   /// </summary>
   /// <typeparam name="TNode">Node type</typeparam>
   [Serializable]
-  public class NodeCollection<TNode>: CollectionBase<TNode>
+  [DebuggerDisplay("Count = {Count}")]
+  public class NodeCollection<TNode>: CollectionBaseSlim<TNode>
     where TNode: Node
   {
     private readonly IDictionary<string, TNode> nameIndex;
@@ -29,29 +31,23 @@ namespace Xtensive.Sql.Model
     public override bool IsReadOnly { get { return IsLocked ? true : base.IsReadOnly; } }
 
     /// <inheritdoc/>
-    protected override void OnChanging()
+    public override void Add(TNode item)
     {
-      this.EnsureNotLocked();
+      base.Add(item);
+      nameIndex.Add(item.Name, item);
     }
 
-    /// <inheritdoc/>
-    protected override void OnInserted(TNode value, int index)
+    public override bool Remove(TNode item)
     {
-      base.OnInserted(value, index);
-      nameIndex.Add(value.Name, value);
+      bool result = base.Remove(item);
+      if (result)
+        nameIndex.Remove(item.Name);
+      return result;
     }
 
-    /// <inheritdoc/>
-    protected override void OnRemoved(TNode value, int index)
+    public override void Clear()
     {
-      base.OnRemoved(value, index);
-      nameIndex.Remove(value.Name);
-    }
- 
-    /// <inheritdoc/>
-    protected override void OnCleared()
-    {
-      base.OnCleared();
+      base.Clear();
       nameIndex.Clear();
     }
     
@@ -66,7 +62,8 @@ namespace Xtensive.Sql.Model
         return nameIndex.TryGetValue(index, out result) ? result : default(TNode);
       }
     }
-    
+
+
     // Constructors
     
     /// <summary>

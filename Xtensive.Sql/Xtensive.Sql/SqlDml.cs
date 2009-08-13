@@ -1112,7 +1112,7 @@ namespace Xtensive.Sql
 
     public static SqlNative Native(string value)
     {
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
       return new SqlNative(value);
     }
 

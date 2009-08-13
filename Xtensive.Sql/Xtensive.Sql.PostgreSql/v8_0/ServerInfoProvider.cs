@@ -168,32 +168,32 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       var dtc = new DataTypeCollection();
 
       dtc.Boolean = DataTypeInfo.Range(SqlType.Boolean, commonFeatures,
-        StandardValueRange.Bool, "boolean", "bool");
+        ValueRange.Bool, "boolean", "bool");
 
       dtc.Int16 = DataTypeInfo.Range(SqlType.Int16, commonFeatures,
-        StandardValueRange.Int16,
+        ValueRange.Int16,
         "smallint", "int2");
       
       dtc.Int32 = DataTypeInfo.Range(SqlType.Int32, commonFeatures,
-        StandardValueRange.Int32, "integer", "int4");
+        ValueRange.Int32, "integer", "int4");
 
       dtc.Int64 = DataTypeInfo.Range(SqlType.Int64, commonFeatures,
-        StandardValueRange.Int64, "bigint", "int8");
+        ValueRange.Int64, "bigint", "int8");
 
       dtc.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, commonFeatures,
-        StandardValueRange.Decimal, 1000, "numeric", "decimal");
+        ValueRange.Decimal, 1000, "numeric", "decimal");
       
       dtc.Float = DataTypeInfo.Range(SqlType.Float, commonFeatures,
-        StandardValueRange.Float, "real", "float4");
+        ValueRange.Float, "real", "float4");
       
       dtc.Double = DataTypeInfo.Range(SqlType.Double, commonFeatures,
-        StandardValueRange.Double, "double precision", "float8");
+        ValueRange.Double, "double precision", "float8");
 
       dtc.DateTime = DataTypeInfo.Range(SqlType.DateTime, commonFeatures,
-        StandardValueRange.DateTime, "timestamp");
+        ValueRange.DateTime, "timestamp");
 
       dtc.Interval = DataTypeInfo.Range(SqlType.Interval, commonFeatures,
-        StandardValueRange.TimeSpan, "interval");
+        ValueRange.TimeSpan, "interval");
       
       dtc.Char = DataTypeInfo.Stream(SqlType.Char, commonFeatures, maxCharLength, "character", "char", "bpchar");
       dtc.VarChar = DataTypeInfo.Stream(SqlType.VarChar, commonFeatures, maxCharLength, "character varying", "varchar");

@@ -44,7 +44,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         }
     }
 
-    public override Catalog ExtractAllSchemas()
+    public override Catalog ExtractCatalog()
     {
       var result = new Catalog(Connection.Url.GetDatabase());
       ExtractUsers();
@@ -52,10 +52,10 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return result;
     }
 
-    public override Catalog ExtractDefaultSchema()
+    protected override Schema ExtractSchema()
     {
       // TODO: implement
-      return ExtractAllSchemas();
+      return ExtractCatalog().DefaultSchema;
     }
     
     private Schema CreatePgCatalogSchema(Type dummy)

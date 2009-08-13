@@ -24,7 +24,7 @@ namespace Xtensive.Sql.Tests.Oracle
     protected override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      testSchema = ExtractAllSchemas().DefaultSchema;
+      testSchema = ExtractCatalog().DefaultSchema;
       EnsureTableNotExists(testSchema, BatchTestTable);
       EnsureTableNotExists(testSchema, LobTestTable);
     }

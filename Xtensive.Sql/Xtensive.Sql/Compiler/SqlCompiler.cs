@@ -566,7 +566,8 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterNode(node)) {
         context.AppendText(translator.Translate(context, node, NodeSection.Entry));
-        node.View.Definition.AcceptVisitor(this);
+        if (!node.View.Definition.IsNullReference())
+          node.View.Definition.AcceptVisitor(this);
         context.AppendText(translator.Translate(context, node, NodeSection.Exit));
       }
     }

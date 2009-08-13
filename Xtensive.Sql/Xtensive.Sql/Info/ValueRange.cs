@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Info
   /// <summary>
   /// Represents a contiguous range of values.
   /// </summary>
-  public abstract class ValueRange
+  public abstract partial class ValueRange
   {
     /// <summary>
     /// Gets the min value.

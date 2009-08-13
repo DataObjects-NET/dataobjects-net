@@ -222,7 +222,7 @@ namespace Xtensive.Sql
     {
       if ((type==SqlType.Unknown)!=(typeName!=null))
         throw new ArgumentException();
-      if (precision.HasValue && length.HasValue)
+      if (precision.HasValue && precision != 0 && length.HasValue && length != 0)
         throw new ArgumentException();
       if (precision.HasValue!=scale.HasValue)
         throw new ArgumentException();

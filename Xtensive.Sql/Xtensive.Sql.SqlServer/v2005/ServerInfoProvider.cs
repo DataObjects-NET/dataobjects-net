@@ -215,34 +215,31 @@ namespace Xtensive.Sql.SqlServer.v2005
       var identity = DataTypeFeatures.Identity;
 
       types.Boolean = DataTypeInfo.Range(SqlType.Boolean, common | index,
-        StandardValueRange.Bool, "bit");
+        ValueRange.Bool, "bit");
      
       types.UInt8 = DataTypeInfo.Range(SqlType.UInt8, common | index | identity,
-        StandardValueRange.Byte, "tinyint");
+        ValueRange.Byte, "tinyint");
 
       types.Int16 = DataTypeInfo.Range(SqlType.Int16, common | index | identity,
-        StandardValueRange.Int16, "smallint");
+        ValueRange.Int16, "smallint");
 
       types.Int32 = DataTypeInfo.Range(SqlType.Int32, common | index | identity,
-        StandardValueRange.Int32, "integer", "int");
+        ValueRange.Int32, "integer", "int");
 
       types.Int64 = DataTypeInfo.Range(SqlType.Int64, common | index | identity,
-        StandardValueRange.Int64, "bigint");
+        ValueRange.Int64, "bigint");
 
       types.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, common | index,
-        StandardValueRange.Decimal, 38, "decimal", "numeric");
+        ValueRange.Decimal, 38, "decimal", "numeric");
       
       types.Float = DataTypeInfo.Range(SqlType.Float, common | index,
-        StandardValueRange.Float, "real");
+        ValueRange.Float, "real");
 
       types.Double = DataTypeInfo.Range(SqlType.Double, common | index,
-        StandardValueRange.Double, "float");
+        ValueRange.Double, "float");
 
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
-        new ValueRange<DateTime>(
-          DateTime.ParseExact("1753-01-01", "yyyy-MM-dd", CultureInfo.InvariantCulture.DateTimeFormat),
-          DateTime.ParseExact("9999-12-31", "yyyy-MM-dd", CultureInfo.InvariantCulture.DateTimeFormat)),
-        "datetime");
+        new ValueRange<DateTime>(new DateTime(1753, 1, 1), new DateTime(9999, 12,31)), "datetime");
 
       types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 4000, "nchar");
       types.VarChar = DataTypeInfo.Stream(SqlType.VarChar,
@@ -295,47 +292,9 @@ namespace Xtensive.Sql.SqlServer.v2005
       return 1;
     }
 
-    public ServerInfoProvider(SqlServerConnection connection)
+    public ServerInfoProvider(SqlServerConnection connection, Version version)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
-      using (var command = connection.CreateCommand()) {
-        command.CommandText =
-          "select"+
-          "  coalesce(serverProperty('EditionID'),"+
-          "    case serverProperty('Edition')"+
-          "    when 'Desktop Edition' then "+((long)SqlServerEdition.DesktopEdition)+
-          "    when 'Express Edition' then "+((long)SqlServerEdition.ExpressEdition)+
-          "    when 'Standard Edition' then "+((long)SqlServerEdition.StandardEdition)+
-          "    when 'Workgroup Edition' then "+((long)SqlServerEdition.WorkgroupEdition)+
-          "    when 'Enterprise Edition' then "+((long)SqlServerEdition.EnterpriseEdition)+
-          "    when 'Personal Edition' then "+((long)SqlServerEdition.PersonalEdition)+
-          "    when 'Developer Edition' then "+((long)SqlServerEdition.DeveloperEdition)+
-          "    when 'Enterprise Evaluation Edition' then "+((long)SqlServerEdition.EnterpriseEvaluationEdition)+
-          "    when 'Windows Embedded SQL' then "+((long)SqlServerEdition.WindowsEmbeddedSql)+
-          "    when 'Express Edition with Advanced Services' then "+((long)SqlServerEdition.ExpressEditionWithAdvancedServices)+
-          "    end"+
-          "  ) as EditionID,"+
-          "    serverProperty('Edition') as EditionName,"+
-          "    serverProperty('ProductVersion') as ProductVersion,"+
-          "    serverProperty('ProductLevel') as ProductLevel,"+
-          "    serverProperty('EngineEdition') as EngineEdition";
-        using (var reader = command.ExecuteReader()) {
-          if (reader.Read()) {
-            var v = new SqlServerVersionInfo(new Version(reader.GetString(2)));
-            long editionId = Convert.ToInt64(reader.GetValue(0));
-            if (Enum.IsDefined(typeof(SqlServerEdition), editionId))
-              v.Edition = ((SqlServerEdition) Enum.ToObject(typeof (SqlServerEdition), editionId));
-            v.EditionName = reader.GetString(1);
-            v.ProductLevel = reader.GetString(3);
-            int engineEditionId = reader.GetInt32(4);
-            if (Enum.IsDefined(typeof(SqlServerEdition), (long)engineEditionId))
-              v.EngineEdition = (SqlServerEngineEdition) Enum.ToObject(typeof (SqlServerEngineEdition), engineEditionId);
-            versionInfo = v;
-          }
-          else
-            throw new Exception("Unable to obtain version info.");
-        }
-      }
+      versionInfo = new SqlServerVersionInfo(version);
     }
   }
 }

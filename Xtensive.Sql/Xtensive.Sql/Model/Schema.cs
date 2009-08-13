@@ -3,11 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
-using Xtensive.Core.Notifications;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Model
@@ -47,6 +43,16 @@ namespace Xtensive.Sql.Model
     public Table CreateTable(string name)
     {
       return new Table(this, name);
+    }
+
+    /// <summary>
+    /// Creates the view.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <param name="definition">The select statement.</param>
+    public View CreateView(string name)
+    {
+      return new View(this, name);
     }
 
     /// <summary>
@@ -176,7 +182,14 @@ namespace Xtensive.Sql.Model
     /// <value>The default character set.</value>
     public CharacterSet DefaultCharacterSet
     {
-      get { return defaultCharacterSet; }
+      get
+      {
+        if (defaultCharacterSet != null)
+          return defaultCharacterSet;
+        if (CharacterSets.Count > 0)
+          return CharacterSets[0];
+        return null;
+      }
       set {
         this.EnsureNotLocked();
         if (defaultCharacterSet == value)
@@ -227,27 +240,6 @@ namespace Xtensive.Sql.Model
 
     #endregion
 
-    #region Event Handlers
-
-    private void OnCharacterSetRemoved(object sender, CollectionChangeNotifierEventArgs<CharacterSet> args)
-    {
-      if (args.Item==defaultCharacterSet)
-        defaultCharacterSet = CharacterSets[0];
-    }
-
-    private void OnCharacterSetInserted(object sender, CollectionChangeNotifierEventArgs<CharacterSet> args)
-    {
-      if (CharacterSets.Count==1)
-        defaultCharacterSet = args.Item;
-    }
-
-    private void OnCharacterSetsCleared(object sender, ChangeNotifierEventArgs args)
-    {
-      defaultCharacterSet = null;
-    }
-
-    #endregion
-
     #region ILockable Members
 
     /// <summary>
@@ -280,10 +272,6 @@ namespace Xtensive.Sql.Model
       Translations = new PairedNodeCollection<Schema, Translation>(this, "Translations");
       Domains = new PairedNodeCollection<Schema, Domain>(this, "Domains");
       Sequences = new PairedNodeCollection<Schema, Sequence>(this, "Sequences");
-
-      CharacterSets.Inserted += OnCharacterSetInserted;
-      CharacterSets.Removed += OnCharacterSetRemoved;
-      CharacterSets.Cleared += OnCharacterSetsCleared;
     }
 
     #endregion

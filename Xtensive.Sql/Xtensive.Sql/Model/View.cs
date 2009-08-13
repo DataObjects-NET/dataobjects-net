@@ -114,12 +114,19 @@ namespace Xtensive.Sql.Model
 
     #region Constructors
 
+    internal View(Schema schema, string name)
+      : base(schema, name)
+    {
+      columns = new PairedNodeCollection<View, ViewColumn>(this, "ViewColumns");
+    }
+
     internal View(Schema schema, string name, SqlNative definition)
       : this(schema, name, definition, CheckOptions.None)
     {
     }
 
-    internal View(Schema schema, string name, SqlNative definition, CheckOptions checkOptions) : base(schema, name)
+    internal View(Schema schema, string name, SqlNative definition, CheckOptions checkOptions)
+      : base(schema, name)
     {
       columns = new PairedNodeCollection<View, ViewColumn>(this, "ViewColumns");
       this.definition = definition;

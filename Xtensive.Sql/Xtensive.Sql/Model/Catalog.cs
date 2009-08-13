@@ -58,7 +58,14 @@ namespace Xtensive.Sql.Model
     /// <value></value>
     public Schema DefaultSchema
     {
-      get { return defaultSchema; }
+      get
+      {
+        if (defaultSchema != null)
+          return defaultSchema;
+        if (Schemas.Count > 0)
+          return Schemas[0];
+        return null;
+      }
       set {
         this.EnsureNotLocked();
         if (defaultSchema == value)
@@ -107,27 +114,6 @@ namespace Xtensive.Sql.Model
       }
     }
 
-    #region Event Handlers
-
-    private void OnSchemaRemoved(object sender, CollectionChangeNotifierEventArgs<Schema> args)
-    {
-      if (args.Item==DefaultSchema)
-        defaultSchema = schemas.FirstOrDefault();
-    }
-
-    private void OnSchemaInserted(object sender, CollectionChangeNotifierEventArgs<Schema> args)
-    {
-      if (schemas.Count==1)
-        defaultSchema = args.Item;
-    }
-
-    private void OnSchemasCleared(object sender, ChangeNotifierEventArgs args)
-    {
-      defaultSchema = null;
-    }
-
-    #endregion
-
     #region ILockable Members 
 
     /// <summary>
@@ -148,9 +134,6 @@ namespace Xtensive.Sql.Model
     {
       schemas =
         new PairedNodeCollection<Catalog, Schema>(this, "Schemas", 1);
-      schemas.Inserted += OnSchemaInserted;
-      schemas.Removed += OnSchemaRemoved;
-      schemas.Cleared += OnSchemasCleared;
     }
   }
 }

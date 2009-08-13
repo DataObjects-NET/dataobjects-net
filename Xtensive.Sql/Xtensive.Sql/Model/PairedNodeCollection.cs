@@ -33,37 +33,18 @@ namespace Xtensive.Sql.Model
       get { return IsLocked ? true : base.IsReadOnly; }
     }
 
-    /// <summary>
-    /// Performs additional custom processes when changing the contents of the
-    /// collection instance.
-    /// </summary>
-    protected override void OnChanging()
+    /// <inheritdoc/>
+    public override void Add(TNode item)
     {
-      this.EnsureNotLocked();
+      base.Add(item);
+      item.UpdatePairedProperty(property, owner);
     }
 
-    /// <summary>
-    /// Performs additional custom processes after inserting a new element into the
-    /// collection instance.
-    /// </summary>
-    /// <param name="index">The zero-based <paramref name="index"/> at which to insert value.</param>
-    /// <param name="value">The new value of the element at <paramref name="index"/>.</param>
-    protected override void OnInserted(TNode value, int index)
+    /// <inheritdoc/>
+    public override bool Remove(TNode item)
     {
-      base.OnInserted(value, index);
-      value.UpdatePairedProperty(property, owner);
-    }
-
-    /// <summary>
-    /// Performs additional custom processes after removing an element from the
-    /// collection instance.
-    /// </summary>
-    /// <param name="index">The zero-based <paramref name="index"/> at which to insert value.</param>
-    /// <param name="value">The value of the element to remove from <paramref name="index"/>.</param>
-    protected override void OnRemoved(TNode value, int index)
-    {
-      base.OnRemoved(value, index);
-      value.UpdatePairedProperty(property, null);
+      return base.Remove(item);
+      item.UpdatePairedProperty(property, null);
     }
 
     #region Constructors

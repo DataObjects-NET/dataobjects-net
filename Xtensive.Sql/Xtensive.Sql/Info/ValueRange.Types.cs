@@ -7,9 +7,9 @@
 namespace Xtensive.Sql.Info
 {
   /// <summary>
-  /// Provides a standard <see cref="ValueRange{T}"/>s for .NET types.
+  /// Provides a <see cref="ValueRange{T}"/>s for standard .Net struct types.
   /// </summary>
-  public static class StandardValueRange
+  public partial class ValueRange
   {
     /// <summary>
     /// Standard value range for <see cref="bool"/>.

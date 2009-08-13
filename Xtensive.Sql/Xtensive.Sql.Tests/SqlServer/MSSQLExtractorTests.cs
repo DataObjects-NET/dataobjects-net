@@ -76,7 +76,7 @@ namespace Xtensive.Sql.Tests.SqlServer
       using (var connection = driver.CreateConnection(connectionUrl)) {
         connection.Open();
         using (var transaction = connection.BeginTransaction()) {
-          var result = driver.ExtractAllSchemas(connection, transaction);
+          var result = driver.ExtractCatalog(connection, transaction);
           transaction.Commit();
           return result;
         }
@@ -508,7 +508,7 @@ namespace Xtensive.Sql.Tests.SqlServer
             "\n varbinary_max varbinary(max)," +
               "\n nvarchar_max nvarchar(max)," +
                 "\n varchar_max varchar(max))", ConnectionString);
-      Model model = ExtractAllSchemas(ConnectionString);
+      Model model = ExtractCatalog(ConnectionString);
 
       Schema schema = model.DefaultServer.DefaultCatalog.DefaultSchema;
       Assert.IsNotNull(schema.Tables["dataTypesTestTable2"]);

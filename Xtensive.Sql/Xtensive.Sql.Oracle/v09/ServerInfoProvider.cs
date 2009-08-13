@@ -202,15 +202,15 @@ namespace Xtensive.Sql.Oracle.v09
       var types = new DataTypeCollection();
 
       types.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, common | index,
-        StandardValueRange.Decimal, 38, "number");
+        ValueRange.Decimal, 38, "number");
       types.Float = DataTypeInfo.Range(SqlType.Float, common | index,
-        StandardValueRange.Float, "binary_float");
+        ValueRange.Float, "binary_float");
       types.Double = DataTypeInfo.Range(SqlType.Double, common | index,
-        StandardValueRange.Double, "binary_double");
+        ValueRange.Double, "binary_double");
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
-        StandardValueRange.DateTime, "timestamp");
+        ValueRange.DateTime, "timestamp");
       types.Interval = DataTypeInfo.Range(SqlType.Interval, common | index,
-        StandardValueRange.TimeSpan, "interval day to second");
+        ValueRange.TimeSpan, "interval day to second");
 
       types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 2000, "nchar");
       types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 2000, "nvarchar2");

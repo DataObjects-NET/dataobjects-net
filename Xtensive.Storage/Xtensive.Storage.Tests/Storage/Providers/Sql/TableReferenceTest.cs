@@ -161,7 +161,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql {
       using (var connection = driver.CreateConnection(configuration.ConnectionInfo.ToString())) {
         connection.Open();
         using (var t = connection.BeginTransaction())
-          existingSchema = driver.ExtractDefaultSchema(connection, t).DefaultSchema;
+          existingSchema = driver.ExtractDefaultSchema(connection, t);
         Assert.IsNotNull(existingSchema);
         return domain;
       }

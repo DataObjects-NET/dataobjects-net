@@ -4,6 +4,7 @@
 // Created by: Denis Kryuchkov
 // Created:    2009.07.07
 
+using System;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.SqlServer.v2008
@@ -12,8 +13,8 @@ namespace Xtensive.Sql.SqlServer.v2008
   {
     // Constructors
 
-    public ServerInfoProvider(SqlServerConnection connection)
-      : base(connection)
+    public ServerInfoProvider(SqlServerConnection connection, Version version)
+      : base(connection, version)
     {
     }
   }

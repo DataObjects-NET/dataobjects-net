@@ -36,7 +36,7 @@ namespace Xtensive.Sql.Tests
     [Test]
     public void InsertAndSelectTest()
     {
-      var model = ExtractAllSchemas();
+      var model = ExtractCatalog();
       EnsureTableNotExists(model.DefaultSchema, TableName);
       var table = model.DefaultSchema.CreateTable(TableName);
       var idColumnType = Driver.TypeMappings.Int.BuildSqlType();

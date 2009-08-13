@@ -126,4 +126,7 @@
   <data name="ExOperationXIsNotSupported" xml:space="preserve">
     <value>Operation '{0} is not supported</value>
   </data>
+  <data name="ExInvalidBooleanString0" xml:space="preserve">
+    <value>Invalid boolean string {0}</value>
+  </data>
 </root>
