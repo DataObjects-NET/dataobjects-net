@@ -38,13 +38,13 @@ namespace Xtensive.Storage.Web
   ///     }
   ///   }
   /// </code>
-  /// <c>DomainInitializer.cs</c>:
+  /// <c>DomainBuilder.cs</c>:
   /// <code>
   ///   public static class DomainBuilder
   ///   {
   ///     public static Domain Build()
   ///     {
-  ///       // loading domain configuration ...
+  ///       var config = DomainConfiguration.Load("mssql");
   ///       var domain = Domain.Build(config);
   ///       return domain;
   ///     }
@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Web
 
     /// <summary>
     /// Gets the <see cref="HttpModule"/> instance 
-    /// bound to the current <see cref="HttpRequest"/>.
+    /// bound to the current <see cref="HttpRequest"/>,
     /// or throws <see cref="InvalidOperationException"/>, 
     /// if <see cref="Current"/> is <see langword="null" />.
     /// </summary>
