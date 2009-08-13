@@ -206,7 +206,7 @@ namespace Xtensive.Sql.SqlServer.v2005
       int tableId = 0, indexId = 0;
       DataTableProxy table = null;
       Index index = null;
-      PrimaryKey primaryKey;
+      PrimaryKey primaryKey = null;
       UniqueConstraint uniqueConstraint = null;
       using (var cmd = CreateCommand(query))
       using (var reader = cmd.ExecuteReader())
@@ -216,6 +216,7 @@ namespace Xtensive.Sql.SqlServer.v2005
 
           // First column in index => new index
           if (reader.GetByte(12) == 1) {
+            primaryKey = null;
             uniqueConstraint = null;
             index = null;
             // Table could be changed only on new index creation
@@ -223,34 +224,37 @@ namespace Xtensive.Sql.SqlServer.v2005
             var name = reader.GetString(4);
 
             // Index is a part of primary key constraint
-            if (reader.GetBoolean(6)) {
+            if (reader.GetBoolean(6))
               primaryKey = ((Table) table.Table).CreatePrimaryKey(name);
-              primaryKey.Columns.Add((TableColumn)table.GetColumn(columnId));
-            }
             else {
               index = table.Table.CreateIndex(name);
               index.IsUnique = reader.GetBoolean(7);
-              index.IsClustered = reader.GetByte(5) == 1;
+              index.IsClustered = reader.GetByte(5)==1;
               index.FillFactor = reader.GetByte(9);
 
               // Index is a part of unique constraint
-              if (reader.GetBoolean(8)) {
+              if (reader.GetBoolean(8))
                 uniqueConstraint = ((Table) table.Table).CreateUniqueConstraint(name);
-              }
             }
           }
 
-          // Column is a part of unique constraint
-          if (uniqueConstraint!=null && reader.GetBoolean(8))
-            uniqueConstraint.Columns.Add((TableColumn) table.GetColumn(columnId));
+          // Column is a part of a primary index
+          if (primaryKey!=null)
+            primaryKey.Columns.Add((TableColumn)table.GetColumn(columnId));
+          else {
+            // Column is a part of unique constraint
+            if (uniqueConstraint!=null)
+              uniqueConstraint.Columns.Add((TableColumn) table.GetColumn(columnId));
 
-          if (index != null) {
-            // Column is non key column
-            if (reader.GetBoolean(14))
-              index.NonkeyColumns.Add(table.GetColumn(columnId));
-            else
-              index.CreateIndexColumn(table.GetColumn(columnId), !reader.GetBoolean(13));
+            if (index != null) {
+              // Column is non key column
+              if (reader.GetBoolean(14))
+                index.NonkeyColumns.Add(table.GetColumn(columnId));
+              else
+                index.CreateIndexColumn(table.GetColumn(columnId), !reader.GetBoolean(13));
+            }
           }
+
         }
     }
 
