@@ -246,7 +246,7 @@ namespace Xtensive.Storage.Linq
       if (!sourceType.IsSubclassOf(typeof (Entity)))
         throw new NotSupportedException(Resources.Strings.ExOfTypeSupportsOnlyEntityConversion);
 
-      var visitedSource = (ProjectionExpression) Visit(source);
+      var visitedSource = VisitSequence(source);
       if (targetType==sourceType)
         return visitedSource;
 
