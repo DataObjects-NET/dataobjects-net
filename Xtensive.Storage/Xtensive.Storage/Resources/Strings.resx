@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -809,7 +809,7 @@ Actions:
   <data name="CantUpgradeTypeSafely" xml:space="preserve">
     <value>Can't upgrade types safely</value>
   </data>
-  <data name="ExThereIsNoCurrentHttpRequestOrHttpModuleIsnTBoundToItYet" xml:space="preserve">
-    <value>There is no current HttpRequest, or HttpModule is not bound to it yet.</value>
+  <data name="ExThereIsNoCurrentHttpRequestOrSessionManagerIsnTBoundToItYet" xml:space="preserve">
+    <value>There is no current HttpRequest, or SessionManager is not bound to it yet.</value>
   </data>
 </root>

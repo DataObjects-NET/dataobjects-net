@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Web
   /// &lt;configuration&gt;
   ///   &lt;system.web&gt;
   ///     &lt;httpModules&gt;
-  ///       &lt;add name="HttpModule" type="Xtensive.Storage.Web.HttpModule, Xtensive.Storage"/&gt;
+  ///       &lt;add name="SessionManager" type="Xtensive.Storage.Web.SessionManager, Xtensive.Storage"/&gt;
   ///     &lt;/httpModules&gt;
   ///   &lt;/system.web&gt;
   /// &lt;/configuration&gt;
@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Web
   ///   {
   ///     protected void Application_Start(object sender, EventArgs e)
   ///     {
-  ///       HttpModule.DomainBuilder = DomainBuilder.Build;
+  ///       SessionManager.DomainBuilder = DomainBuilder.Build;
   ///     }
   ///   }
   /// </code>
@@ -51,9 +51,9 @@ namespace Xtensive.Storage.Web
   ///   }
   /// </code>
   /// </example>
-  public class HttpModule : IHttpModule
+  public class SessionManager : IHttpModule
   {
-    private static readonly object currentItemKey   = new object();
+    private static readonly object currentItemKey = new object();
     private static readonly object domainBuildLock = new object();
     private static Func<Domain> domainBuilder;
     private static Func<Pair<Session, IDisposable>> sessionProvider;
@@ -70,8 +70,11 @@ namespace Xtensive.Storage.Web
     /// This delegate is invoked to build the domain on first request.
     /// </summary>
     /// <remarks>
-    /// The setter of this property can be invoked just once per application lifetime; 
-    /// assigned domain builder can not be changed.
+    /// <para>
+    /// The setter of this property can be invoked just once per application lifetime,
+    /// usually in <c>Application_Start</c> method in <c>Global.asax.cs</c>.
+    /// Assigned domain builder can not be changed.
+    /// </para>
     /// </remarks>
     /// <exception cref="NotSupportedException">Domain builder is already assigned.</exception>
     public static Func<Domain> DomainBuilder {
@@ -87,16 +90,20 @@ namespace Xtensive.Storage.Web
     }
 
     /// <summary>
-    /// Sets the session provider delegate.
+    /// Sets the session provider delegate.    
+    /// </summary>
+    /// <remarks>
+    /// <para>
     /// This delegate is invoked to open the <see cref="Session"/> on the first attempt
     /// to read this property (see <see cref="HasSession"/> as well) in each web request.
     /// Normally, this delegate must also ensure a transaction is created there as well - 
     /// either by opening it explicitly, or by using 
     /// <see cref="SessionOptions.AmbientTransactions"/>.
-    /// </summary>
-    /// <remarks>
+    /// </para>
+    /// <para>
     /// The setter of this property can be invoked just once per application lifetime; 
     /// assigned session provider can not be changed.
+    /// </para>
     /// </remarks>
     /// <exception cref="NotSupportedException">Session provider is already assigned.</exception>
     public static Func<Pair<Session, IDisposable>> SessionProvider {
@@ -112,13 +119,13 @@ namespace Xtensive.Storage.Web
     }
 
     /// <summary>
-    /// Gets the <see cref="HttpModule"/> instance 
+    /// Gets the <see cref="SessionManager"/> instance 
     /// bound to the current <see cref="HttpRequest"/>.
     /// </summary>
-    public static HttpModule Current {
+    public static SessionManager Current {
       get {
         var httpContext = HttpContext.Current;
-        return httpContext==null ? null : (HttpModule) httpContext.Items[currentItemKey];
+        return httpContext==null ? null : (SessionManager) httpContext.Items[currentItemKey];
       }
       protected set {
         HttpContext.Current.Items[currentItemKey] = value;
@@ -126,18 +133,18 @@ namespace Xtensive.Storage.Web
     }
 
     /// <summary>
-    /// Gets the <see cref="HttpModule"/> instance 
+    /// Gets the <see cref="SessionManager"/> instance 
     /// bound to the current <see cref="HttpRequest"/>,
     /// or throws <see cref="InvalidOperationException"/>, 
     /// if <see cref="Current"/> is <see langword="null" />.
     /// </summary>
-    /// <returns>Current <see cref="HttpModule"/>.</returns>
+    /// <returns>Current <see cref="SessionManager"/>.</returns>
     /// <exception cref="InvalidOperationException"><see cref="Current"/> is <see langword="null" />.</exception>
-    public static HttpModule Demand()
+    public static SessionManager Demand()
     {
       var current = Current;
       if (current==null)
-        throw new InvalidOperationException(Strings.ExThereIsNoCurrentHttpRequestOrHttpModuleIsnTBoundToItYet);
+        throw new InvalidOperationException(Strings.ExThereIsNoCurrentHttpRequestOrSessionManagerIsnTBoundToItYet);
       return current;
     }
 
@@ -148,6 +155,17 @@ namespace Xtensive.Storage.Web
       get {
         EnsureDomainIsBuilt();
         return domain;
+      }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether current <see cref="SessionManager"/> has session.
+    /// </summary>
+    public static bool HasSession {
+      get
+      {
+        var manager = Current;
+        return manager!=null && manager.session!=null;
       }
     }
 
@@ -166,12 +184,12 @@ namespace Xtensive.Storage.Web
 
     /// <summary>
     /// Gets a value indicating whether an error has occurred 
-    /// on execution of the current request.
+    /// on execution of the current request and transaction should be rollbacked.
     /// </summary>
-    public bool HasErrors
+    public static bool HasErrors
     {
-      get { return hasErrors; }
-      set { hasErrors = value; }
+      get { return Demand().hasErrors; }
+      set { Demand().hasErrors = value; }
     }
 
     #region Protected BeginRequest, Error, EndRequest & ProvideSession methods
@@ -186,7 +204,7 @@ namespace Xtensive.Storage.Web
       Current = this;
       HasErrors = false;
     }
-
+    
     /// <summary>
     /// Handles request processing error.
     /// </summary>
@@ -225,7 +243,7 @@ namespace Xtensive.Storage.Web
       var toDispose = transactionScope.Join(sessionScope);
       return new Pair<Session, IDisposable>(session, new Disposable(disposing => {
         try {
-          if (!Demand().HasErrors)
+          if (!HasErrors)
             transactionScope.Complete();
         }
         finally {
