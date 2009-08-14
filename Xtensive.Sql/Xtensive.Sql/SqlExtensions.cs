@@ -5,8 +5,8 @@
 // Created:    2009.07.30
 
 using System;
-using System.Data.Common;
 using Xtensive.Core;
+using Xtensive.Core.Helpers;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql
@@ -17,6 +17,7 @@ namespace Xtensive.Sql
   public static class SqlExtensions
   {
     private const char SchemaSeparator = '/';
+    private const string SchemaSeparatorString = "/";
 
     /// <summary>
     /// Determines whether the specified expression is a null reference.
@@ -43,7 +44,7 @@ namespace Xtensive.Sql
       var resource = url.Resource;
       int position = resource.IndexOf(SchemaSeparator);
       if (position < 0)
-        return url.Resource;
+        return url.Resource.TryCutSuffix(SchemaSeparatorString);
       return resource.Substring(0, position);
     }
 
@@ -60,7 +61,20 @@ namespace Xtensive.Sql
       int position = resource.IndexOf(SchemaSeparator);
       if (position < 0)
         return defaultValue;
-      return resource.Substring(position);
+      var result = resource.Substring(position + 1).TryCutSuffix(SchemaSeparatorString);
+      return string.IsNullOrEmpty(result) ? defaultValue : result;
+    }
+
+    /// <summary>
+    /// Determines whether specified exception can be recovered by reprocessing operation.
+    /// </summary>
+    /// <param name="exceptionType">Type of the exception.</param>
+    /// <returns>
+    /// <see langword="true"/> if exception is recoverable; otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsRecoverable(SqlExceptionType exceptionType)
+    {
+      return ((int) exceptionType) < 0;
     }
 
     /// <summary>

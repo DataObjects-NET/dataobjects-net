@@ -9,10 +9,26 @@ namespace Xtensive.Sql.Tests
     [Test]
     public void ConnectionUrlTest()
     {
-      var url = new UrlInfo(TestUrl.SqlServer2005Aw);
+      var url = UrlInfo.Parse(TestUrl.SqlServer2005Aw);
       Assert.AreEqual(url.Protocol, "sqlserver");
       Assert.AreEqual(url.Host, "localhost");
       Assert.AreEqual(url.Resource, "AdventureWorks");
+
+      url = UrlInfo.Parse("sqlserver://localhost/database");
+      Assert.AreEqual("database", url.GetDatabase());
+      Assert.AreEqual("default schema", url.GetSchema("default schema"));
+
+      url = UrlInfo.Parse("sqlserver://localhost/database/");
+      Assert.AreEqual("database", url.GetDatabase());
+      Assert.AreEqual("default schema", url.GetSchema("default schema"));
+
+      url = UrlInfo.Parse("sqlserver://localhost/database/schema");
+      Assert.AreEqual("database", url.GetDatabase());
+      Assert.AreEqual("schema", url.GetSchema(string.Empty));
+
+      url = UrlInfo.Parse("sqlserver://localhost/database/schema/");
+      Assert.AreEqual("database", url.GetDatabase());
+      Assert.AreEqual("schema", url.GetSchema(string.Empty));
     }
 
     [Test]

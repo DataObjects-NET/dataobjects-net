@@ -131,7 +131,7 @@ namespace Xtensive.Sql
     public SqlConnection CreateConnection(string url)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(url, "url");
-      return CreateConnectionInternal(new UrlInfo(url));
+      return CreateConnectionInternal(UrlInfo.Parse(url));
     }
 
     /// <summary>
@@ -176,6 +176,16 @@ namespace Xtensive.Sql
     protected abstract SqlConnectionHandler CreateConnectionHandler();
 
     /// <summary>
+    /// Gets the type of the exception.
+    /// </summary>
+    /// <param name="exception">The exception.</param>
+    /// <returns>Type of the exception.</returns>
+    public virtual SqlExceptionType GetExceptionType(Exception exception)
+    {
+      return SqlExceptionType.Unknown;
+    }
+
+    /// <summary>
     /// Creates the driver from the specified connection url.
     /// </summary>
     /// <param name="url">The connection url.</param>
@@ -194,7 +204,7 @@ namespace Xtensive.Sql
     public static SqlDriver Create(string url)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(url, "url");
-      return CreateDriverInternal(new UrlInfo(url));
+      return CreateDriverInternal(UrlInfo.Parse(url));
     }
 
     #region Private / internal methods
