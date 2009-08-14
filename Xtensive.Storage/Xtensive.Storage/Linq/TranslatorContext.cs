@@ -15,6 +15,7 @@ using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Linq
 {
@@ -87,7 +88,10 @@ namespace Xtensive.Storage.Linq
       var provider = newRecordSet.Provider;
       ApplyParameter parameter;
       if (!applyParameters.TryGetValue(provider, out parameter)) {
-        parameter = new ApplyParameter(provider.ToString());
+        parameter = new ApplyParameter(provider.GetType().GetShortName());
+        // parameter = new ApplyParameter(provider.ToString()); 
+        // ENABLE ONLY FOR DEBUGGING! 
+        // May lead TO entity.ToString() calls, while ToString can be overriden.
         applyParameters.Add(provider, parameter);
       }
       return parameter;
