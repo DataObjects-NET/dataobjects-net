@@ -37,4 +37,20 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version1
       return FullName + " (" + Department + ")";
     }
   }
+
+  [HierarchyRoot]
+  public class Order : Entity
+  {
+    [Key, Field]
+    public long Id { get; private set; }
+
+    [Field]
+    public Employee Seller { get; set; }
+
+    [Field]
+    public int Amount { get; set;}
+
+    [Field]
+    public string ProductName{ get; set;}
+  }
 }

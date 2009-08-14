@@ -4,6 +4,9 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
+using System.Collections;
+using System.Linq;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Upgrade;
 using System;
 
@@ -37,5 +40,56 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version2
 
     [Field]
     public string DepartmentName { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class Order : Entity
+  {
+    [Key, Field]
+    public long Id { get; private set; }
+
+    [Field]
+    public Employee Seller { get; set; }
+
+    [Field, Obsolete, Recycled]
+    public int Amount { get; set;}
+
+    [Field, Obsolete, Recycled]
+    public string ProductName{ get; set;}
+
+    [Field, Association(PairTo = "Order", OnTargetRemove = OnRemoveAction.Clear)]
+    public EntitySet<OrderItem> Items { get; private set; }
+
+    [Field]
+    public DateTime? OrderDate { get; set; }
+
+    public override string ToString()
+    {
+      var productNames = Items.Select(item => item.ProductName).ToCommaDelimitedString();
+      return string.Format("Order {{\tSeller = {0}\n\tProducts = {1}\n}}",
+        Seller.FullName, productNames);
+    }
+
+  }
+
+  [HierarchyRoot]
+  public class OrderItem : Entity
+  {
+    [Key, Field]
+    public long Id { get; private set; }
+
+    [Field]
+    public Order Order { get; private set; }
+
+    [Field]
+    public string ProductName { get; set; }
+
+    [Field]
+    public int Amount { get; set; }
+    
+    public OrderItem(Order order)
+    {
+      Order = order;
+    }
   }
 }

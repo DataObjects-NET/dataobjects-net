@@ -63,6 +63,11 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3
       var deps = Query<Employee>.All.ToList();
       foreach (var employee in deps)
         employee.DepartmentName = employee.RcDepartment;
+      foreach (var order in Query<Order>.All)
+        order.Items.Add(new OrderItem(order) {
+          Amount = order.Amount,
+          ProductName = order.ProductName
+        });
     }
 
     private static IEnumerable<UpgradeHint> Version1To2Hints
@@ -73,6 +78,8 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3
           "Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version1.Person", typeof (Person));
         yield return new RenameTypeHint(
           "Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version1.Employee", typeof (Employee));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version1.Order", typeof (Order));
       }
     }
 
