@@ -638,12 +638,12 @@ namespace Xtensive.Storage.Providers.Sql
       var baseQueries = index.UnderlyingIndexes.Select(i => BuildProviderQuery(i)).ToList();
       foreach (var baseQuery in baseQueries) {
         if (result == null) {
-          result = baseQuery.Where.IsNullReference() ? baseQuery.From : SqlDml.QueryRef(baseQuery);
+          result = /*baseQuery.Where.IsNullReference() ? baseQuery.From :*/ SqlDml.QueryRef(baseQuery);
           rootTable = result;
           columns = rootTable.Columns.Cast<SqlColumn>();
         }
         else {
-          var queryRef = baseQuery.Where.IsNullReference() ? baseQuery.From : SqlDml.QueryRef(baseQuery);
+          var queryRef = /*baseQuery.Where.IsNullReference() ? baseQuery.From :*/ SqlDml.QueryRef(baseQuery);
           SqlExpression joinExpression = null;
           for (int i = 0; i < keyColumnCount; i++) {
             var binary = (queryRef.Columns[i]==rootTable.Columns[i]);
@@ -653,7 +653,7 @@ namespace Xtensive.Storage.Providers.Sql
               joinExpression &= binary;
           }
           result = result.LeftOuterJoin(queryRef, joinExpression);
-          columns = columns.Union(queryRef.Columns.Skip(nonValueColumnsCount).Cast<SqlColumn>());
+          columns = columns.Concat(queryRef.Columns.Skip(nonValueColumnsCount).Cast<SqlColumn>());
         }
       }
 
