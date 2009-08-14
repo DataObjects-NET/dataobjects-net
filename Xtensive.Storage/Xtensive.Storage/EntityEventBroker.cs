@@ -128,8 +128,9 @@ namespace Xtensive.Storage
       if (subscribers == null)
         subscribers = new Dictionary<Triplet<Key, FieldInfo, object>, Delegate>();
       var subscriberKey = new Triplet<Key, FieldInfo, object>(key, fieldInfo, eventKey);
-      if (subscribers.ContainsKey(subscriberKey))
-        subscribers[subscriberKey] = Delegate.Combine(subscribers[subscriberKey], subscriber);
+      Delegate currentDelegate;
+      if (subscribers.TryGetValue(subscriberKey, out currentDelegate))
+        subscribers[subscriberKey] = Delegate.Combine(currentDelegate, subscriber);
       else
         subscribers.Add(subscriberKey, subscriber);
     }
@@ -161,8 +162,9 @@ namespace Xtensive.Storage
       if (subscribers == null)
         return;
       var subscriberKey = new Triplet<Key, FieldInfo, object>(key, fieldInfo, eventKey);
-      if (subscribers.ContainsKey(subscriberKey))
-        subscribers[subscriberKey] = Delegate.Remove(subscribers[subscriberKey], subscriber);
+      Delegate currentDelegate;
+      if (subscribers.TryGetValue(subscriberKey, out currentDelegate))
+        subscribers[subscriberKey] = Delegate.Remove(currentDelegate, subscriber);
     }
 
     /// <summary>
@@ -189,8 +191,9 @@ namespace Xtensive.Storage
       if (subscribers == null)
         return null;
       var subscriberKey = new Triplet<Key, FieldInfo, object>(key, fieldInfo, eventKey);
-      if (subscribers.ContainsKey(subscriberKey))
-        return subscribers[subscriberKey];
+      Delegate subscriber;
+      if (subscribers.TryGetValue(subscriberKey, out subscriber))
+        return subscriber;
       return null;
     }
 

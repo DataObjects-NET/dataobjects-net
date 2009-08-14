@@ -347,10 +347,10 @@ namespace Xtensive.Storage
     {
       if (!Session.EntityEventBroker.HasSubscribers)
         return;
-      var subscriber = Session.EntityEventBroker.GetSubscriber(Key, field,
-        EntityEventBroker.PropertyChangedEventKey);
-      if (subscriber != null)
-        ((PropertyChangedEventHandler)subscriber).Invoke(this, new PropertyChangedEventArgs(field.Name));
+      var subscriber = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
+      if (subscriber.Second != null)
+        ((PropertyChangedEventHandler)subscriber.Second).Invoke(this,
+          new PropertyChangedEventArgs(field.Name));
     }
 
     protected Pair<Key, Delegate> GetSubscription(object eventKey)

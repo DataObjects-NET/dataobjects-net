@@ -16,6 +16,10 @@ namespace Xtensive.Storage.Tests.Storage
   [TestFixture]
   public class  NotifyPropertyChangedTest : AutoBuildTest
   {
+    private static bool isEntityPropertyEventRaised;
+    private static bool isStructureEventRaised;
+    private static bool isStructurePropertyEventRaised;
+    
     protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
     {
       var config =  base.BuildConfiguration();
@@ -29,18 +33,50 @@ namespace Xtensive.Storage.Tests.Storage
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Ray ray = new Ray();
+          Reset();
           ray.PropertyChanged += ray_PropertyChanged;
           ray.Vertex.PropertyChanged += ray_PropertyChanged;
+          Assert.IsFalse(isEntityPropertyEventRaised);
+          Assert.IsFalse(isStructureEventRaised);
+          Assert.IsFalse(isStructurePropertyEventRaised);
+
+          Reset();
           ray.Direction = Direction.Negative;
+          Assert.IsTrue(isEntityPropertyEventRaised);
+          Assert.IsFalse(isStructureEventRaised);
+          Assert.IsFalse(isStructurePropertyEventRaised);
+
+          Reset();
           ray.Vertex.X = 5;
+          Assert.IsFalse(isEntityPropertyEventRaised);
+          Assert.IsTrue(isStructureEventRaised);
+          Assert.IsTrue(isStructurePropertyEventRaised);
+
+          Reset();
           ray.Vertex = new Point(4, 6);
+          Assert.IsFalse(isEntityPropertyEventRaised);
+          Assert.IsTrue(isStructureEventRaised);
+          Assert.IsFalse(isStructurePropertyEventRaised);
         }
       }
     }
 
-    void ray_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    private static void Reset()
     {
-      Console.WriteLine(sender + " " + e.PropertyName);
+      isEntityPropertyEventRaised = false;
+      isStructureEventRaised = false;
+      isStructurePropertyEventRaised = false;
+    }
+
+    private void ray_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      Console.WriteLine(sender.GetType().Name + "." + e.PropertyName);
+      if (sender.GetType() == typeof(Ray) && e.PropertyName == "Direction")
+        isEntityPropertyEventRaised = true;
+      if (sender.GetType() == typeof(Ray) && e.PropertyName == "Vertex")
+        isStructureEventRaised = true;
+      if (sender.GetType() == typeof(Point) && e.PropertyName == "X")
+        isStructurePropertyEventRaised = true;
     }
   }
 }
