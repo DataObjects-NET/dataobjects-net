@@ -330,7 +330,7 @@ namespace Xtensive.Storage
     {
       if (!Session.EntityEventBroker.HasSubscribers)
         return;
-      var subscriptionInfo = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
+      var subscriptionInfo = GetSubscription(EntityEventBroker.CollectionChangedEventKey);
       if (subscriptionInfo.Second != null)
         ((NotifyCollectionChangedEventHandler) subscriptionInfo.Second)
           .Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
