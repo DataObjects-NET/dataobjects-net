@@ -11,9 +11,9 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Upgrade;
-using Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version2;
+using Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version2;
 
-namespace Xtensive.Storage.Tests.Upgrade.Recycled
+namespace Xtensive.Storage.Tests.Upgrade.Sample3
 {
   [Serializable]
   public class Upgrader : UpgradeHandler
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
     {
       return true;
     }
-
+    
     protected override void AddUpgradeHints()
     {
       var context = UpgradeContext.Current;
@@ -60,40 +60,20 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
 
     public override void OnUpgrade()
     {
-      var rcCustomers = Query<RcCustomer>.All;
-      var rcEmployees = Query<RcEmployee>.All;
-      var orders = Query<Order>.All;
-      var customers = Query<Customer>.All;
-      var employees = Query<Employee>.All;
-      
-      rcCustomers.Apply(rcCustomer =>
-        new Customer(rcCustomer.Id) {
-          Address = rcCustomer.Address,
-          Phone = rcCustomer.Phone,
-          Name = rcCustomer.Name
-        });
-      rcEmployees.Apply(rcEmployee =>
-        new Employee(rcEmployee.Id) {
-          CompanyName = rcEmployee.CompanyName,
-          Name = rcEmployee.Name
-        });
-      var log = new List<string>();
-      foreach (var order in orders) {
-        var newCustomer = customers.First(customer => customer.Id==order.RcCustomer.Id);
-        order.Customer = newCustomer;
-        var newEmployee = employees.First(employee => employee.Id==order.RcEmployee.Id);
-        order.Employee = newEmployee;
-        log.Add(order.ToString());
-      }
-      foreach (var order in orders)
-        log.Add(order.ToString());
-      Log.Info("Orders: {0}", Environment.NewLine + 
-        string.Join(Environment.NewLine, log.ToArray()));
+      var deps = Query<Employee>.All.ToList();
+      foreach (var employee in deps)
+        employee.DepartmentName = employee.RcDepartment;
+    }
 
-      // orders.Apply(order => {
-      //   order.Customer = customers.First(customer => customer.Id==order.RcCustomer.Id);
-      //   order.Employee = employees.First(employee => employee.Id==order.RcEmployee.Id);
-      // });
+    private static IEnumerable<UpgradeHint> Version1To2Hints
+    {
+      get {
+        // renaming types
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version1.Person", typeof (Person));
+        yield return new RenameTypeHint(
+          "Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version1.Employee", typeof (Employee));
+      }
     }
 
     public override bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)
@@ -103,15 +83,6 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
       var nameSpace = originalNamespace.TryCutSuffix(suffix);
       return nameSpace!=originalNamespace 
         && base.IsTypeAvailable(type, upgradeStage);
-    }
-
-    private static IEnumerable<UpgradeHint> Version1To2Hints
-    {
-      get {
-        // renaming types
-        yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version1.Order", typeof (Order));
-      }
     }
   }
 }
