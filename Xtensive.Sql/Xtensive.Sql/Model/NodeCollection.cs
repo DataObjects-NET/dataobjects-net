@@ -76,7 +76,7 @@ namespace Xtensive.Sql.Model
     }
 
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="capacity">The initial collection capacity.</param>
     public NodeCollection(int capacity)

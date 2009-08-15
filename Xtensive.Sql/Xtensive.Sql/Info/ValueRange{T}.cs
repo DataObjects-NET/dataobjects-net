@@ -52,10 +52,11 @@ namespace Xtensive.Sql.Info
       return DefaultValue.HasValue;
     }
     
+
     // Constructors
 
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="minValue">The min value.</param>
     /// <param name="maxValue">The max value.</param>

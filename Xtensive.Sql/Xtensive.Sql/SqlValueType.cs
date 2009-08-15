@@ -148,6 +148,7 @@ namespace Xtensive.Sql
       return Type.ToString();
     }
 
+
     // Constructors
 
     /// <summary>
@@ -190,7 +191,7 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="typeName">Name of the type.</param>
     /// <param name="length">The length.</param>

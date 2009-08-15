@@ -255,10 +255,11 @@ namespace Xtensive.Sql
 
     #endregion
 
+    
     // Constructors
 
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="serverInfoProvider">The server info provider.</param>
     protected SqlDriver(ServerInfoProvider serverInfoProvider)

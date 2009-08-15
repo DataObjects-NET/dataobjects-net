@@ -18,7 +18,7 @@ namespace Xtensive.Sql
     /// Gets a value indicating whether this instance is null.
     /// </summary>
     /// <value>
-    ///	<see langword="true"/> if this instance is null; otherwise, <see langword="false"/>.
+    /// <see langword="true"/> if this instance is null; otherwise, <see langword="false"/>.
     /// </value>
     bool IsNull { get; }
 

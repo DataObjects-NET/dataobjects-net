@@ -33,8 +33,11 @@ namespace Xtensive.Sql.Compiler
     /// </value>
     public bool DelayParameterNameAssignment { get; set; }
 
+
+    // Constructors
+
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public SqlCompilerOptions()
     {
