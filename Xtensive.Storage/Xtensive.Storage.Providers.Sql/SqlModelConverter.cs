@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode Visit(Node node)
     {
-      if (!ProviderInfo.SupportSequences) {
+      if (!ProviderInfo.SupportsSequences) {
         var table = node as Table;
         if (table!=null && IsGeneratorTable(table))
           return VisitGeneratorTable(table);

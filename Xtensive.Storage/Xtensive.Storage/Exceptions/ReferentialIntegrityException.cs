@@ -17,26 +17,32 @@ namespace Xtensive.Storage
   /// option pointing to it.
   /// </summary>
   [Serializable]
-  public class ReferentialIntegrityException: Exception
+  public class ReferentialIntegrityException: StorageException
   {
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ReferentialIntegrityException()
-      : base(Strings.ExReferentialIntegrityViolation) {}
+      : base(Strings.ExReferentialIntegrityViolation)
+    {
+    }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="message">Text of message.</param>
     public ReferentialIntegrityException(string message)
-      : base(message) {}
+      : base(message)
+    {
+    }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ReferentialIntegrityException(Entity entity)
       : this(string.Format(
-      Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY, entity.GetType().BaseType.GetFullName(), entity.Key)) {}
+      Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY, entity.GetType().BaseType.GetFullName(), entity.Key))
+    {
+    }
   }
 }

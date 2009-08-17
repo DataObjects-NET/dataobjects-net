@@ -177,7 +177,7 @@ namespace Xtensive.Storage.Upgrade
         var columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key, index);
         var column = table.Columns[columName];
         new KeyColumnRef(secondaryIndex, column,
-          ProviderInfo.SupportKeyColumnSortOrder
+          ProviderInfo.SupportsKeyColumnSortOrder
             ? pair.Value
             : Direction.Positive);
       }
@@ -282,7 +282,7 @@ namespace Xtensive.Storage.Upgrade
         var columName = GetPrimaryIndexColumnName(index, pair.Key, index);
         var column = CurrentTable.Columns[columName];
         new KeyColumnRef(primaryIndex, column,
-          ProviderInfo.SupportKeyColumnSortOrder
+          ProviderInfo.SupportsKeyColumnSortOrder
             ? pair.Value
             : Direction.Positive);
       }

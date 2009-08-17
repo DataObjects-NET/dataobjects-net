@@ -9,16 +9,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
 using Xtensive.Sql.ValueTypeMapping;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -28,11 +25,14 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public class SessionHandler : Providers.SessionHandler
   {
-    private const int PersistBatchSize = 25;
     private const int LobBlockSize = ushort.MaxValue;
 
+    private int persistBatchSize = 25; // TODO: read corrensponding value from SQL info
+
+    private Driver driver;
+    private DomainHandler domainHandler;
     private SqlConnection connection;
-    private DisposableSet persistedLargeObjects;
+    private DisposableSet disposables;
 
     /// <summary>
     /// Gets the connection.
@@ -50,12 +50,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets the active transaction.
     /// </summary>    
     public DbTransaction Transaction { get; private set; }
-
-    /// <summary>
-    /// Gets the domain handler.
-    /// </summary>
-    protected internal DomainHandler DomainHandler { get; private set; }
-
+    
     #region Transaction control methods
 
     /// <inheritdoc/>
@@ -64,7 +59,7 @@ namespace Xtensive.Storage.Providers.Sql
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         if (Transaction!=null || IsAutoshortenTransactionActivated)
-          throw new InvalidOperationException(Strings.TransactionIsAlreadyOpen);
+          throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpen);
         if (IsAutoshortenTransactionsEnabled()) {
           IsAutoshortenTransactionActivated = true;
           return;
@@ -78,9 +73,9 @@ namespace Xtensive.Storage.Providers.Sql
     {
       lock (ConnectionSyncRoot) {
         if (Transaction==null && (!IsAutoshortenTransactionActivated && IsAutoshortenTransactionsEnabled()))
-          throw new InvalidOperationException(Strings.TransactionIsNotOpen);
-        if (Transaction != null)
-          Transaction.Commit();
+          throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
+        if (Transaction!=null)
+          driver.CommitTransaction(Transaction);
         IsAutoshortenTransactionActivated = false;
         Transaction = null;
       }
@@ -91,9 +86,9 @@ namespace Xtensive.Storage.Providers.Sql
     {
       lock (ConnectionSyncRoot) {
         if (Transaction==null && (!IsAutoshortenTransactionActivated && IsAutoshortenTransactionsEnabled()))
-          throw new InvalidOperationException(Strings.TransactionIsNotOpen);
-        if (Transaction != null)
-          Transaction.Rollback();
+          throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
+        if (Transaction!=null)
+          driver.RollbackTransaction(Transaction);
         IsAutoshortenTransactionActivated = false;
         Transaction = null;
       }
@@ -106,11 +101,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="request">The request.</param>
     /// <returns></returns>
-    public IEnumerator<Tuple> Execute(SqlFetchRequest request)
+    public IEnumerator<Tuple> ExecuteTupleReader(SqlFetchRequest request)
     {
       lock (ConnectionSyncRoot) {
         var descriptor = request.TupleDescriptor;
-        var accessor = DomainHandler.GetDataReaderAccessor(descriptor);
+        var accessor = domainHandler.GetDataReaderAccessor(descriptor);
         using (var reader = ExecuteFetchRequest(request))
           while (reader.Read()) {
             var tuple = Tuple.Create(descriptor);
@@ -122,54 +117,30 @@ namespace Xtensive.Storage.Providers.Sql
 
     #region ExecuteStatement methods
 
-    /// <summary>
-    /// Executes the specified statement.
-    /// Works similar to <see cref="DbCommand.ExecuteDbDataReader"/>
-    /// </summary>
-    /// <param name="statement">The statement to execute.</param>
-    /// <returns><see cref="DbDataReader"/> with results of statement execution.</returns>
-    public DbDataReader ExecuteReaderStatement(ISqlCompileUnit statement)
+    internal DbDataReader ExecuteReaderStatement(ISqlCompileUnit statement)
     {
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        using (var command = CreateCommand(statement)) {
-          return command.ExecuteReader();
-        }
+        return driver.ExecuteReader(CreateCommand(statement));
       }
     }
 
-    /// <summary>
-    /// Executes the specified statement.
-    /// Works similar to <see cref="DbCommand.ExecuteNonQuery"/>.
-    /// </summary>
-    /// <param name="statement">The statement.</param>
-    /// <returns>Number of affected rows.</returns>
-    public int ExecuteNonQueryStatement(ISqlCompileUnit statement)
+    internal int ExecuteNonQueryStatement(ISqlCompileUnit statement)
     {
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        using (var command = CreateCommand(statement)) {
-          return command.ExecuteNonQuery();
-        }
+        return driver.ExecuteNonQuery(CreateCommand(statement));
       }
     }
 
-    /// <summary>
-    /// Executes the specified statement.
-    /// Works similar to <see cref="DbCommand.ExecuteScalar"/>
-    /// </summary>
-    /// <param name="statement">The statement.</param>
-    /// <returns>The first column of the first row of executed result set.</returns>
-    public object ExecuteScalarStatement(ISqlCompileUnit statement)
+    internal object ExecuteScalarStatement(ISqlCompileUnit statement)
     {
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        using (var command = CreateCommand(statement)) {
-          return command.ExecuteScalar();
-        }
+        return driver.ExecuteScalar(CreateCommand(statement));
       }
     }
 
@@ -189,13 +160,10 @@ namespace Xtensive.Storage.Providers.Sql
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
         try {
-          using (var command = CreatePersistCommand(request, tuple)) {
-            return command.ExecuteNonQuery();
-          }
+          return driver.ExecuteNonQuery(CreatePersistCommand(request, tuple));
         }
         finally {
-          persistedLargeObjects.DisposeSafely();
-          persistedLargeObjects = null;
+          CleanDisposables();
         }
       }
     }
@@ -211,13 +179,10 @@ namespace Xtensive.Storage.Providers.Sql
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
         try {
-          using (var command = CreateBatchPersistCommand(requests)) {
-            return command.ExecuteNonQuery();
-          }
+          return driver.ExecuteNonQuery(CreateBatchPersistCommand(requests));
         }
         finally {
-          persistedLargeObjects.DisposeSafely();
-          persistedLargeObjects = null;
+          CleanDisposables();
         }
       }
     }
@@ -232,9 +197,7 @@ namespace Xtensive.Storage.Providers.Sql
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        using (var command = CreateScalarCommand(request)) {
-          return command.ExecuteScalar();
-        }
+        return driver.ExecuteScalar(CreateScalarCommand(request));
       }
     }
 
@@ -248,9 +211,7 @@ namespace Xtensive.Storage.Providers.Sql
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        using (var command = CreateFetchCommand(request)) {
-          return command.ExecuteReader();
-        }
+        return driver.ExecuteReader(CreateFetchCommand(request));
       }
     }
 
@@ -261,11 +222,19 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Persist(IEnumerable<PersistAction> persistActions)
     {
-      var batched = persistActions
-        .Select<PersistAction, Pair<SqlPersistRequest, Tuple>>(CreatePersistRequest)
-        .Batch(0, PersistBatchSize, PersistBatchSize);
-      foreach (var batch in batched)
-        ExecuteBatchPersistRequest(batch);
+      if (persistBatchSize > 1) {
+        var batched = persistActions
+          .Select<PersistAction, Pair<SqlPersistRequest, Tuple>>(CreatePersistRequest)
+          .Batch(0, persistBatchSize, persistBatchSize);
+        foreach (var batch in batched)
+          ExecuteBatchPersistRequest(batch);
+      }
+      else {
+        foreach (var action in persistActions) {
+          var request = CreatePersistRequest(action);
+          ExecutePersistRequest(request.First, request.Second);
+        }
+      }
     }
 
     private Pair<SqlPersistRequest, Tuple> CreatePersistRequest(PersistAction action)
@@ -285,7 +254,7 @@ namespace Xtensive.Storage.Providers.Sql
     private Pair<SqlPersistRequest, Tuple> CreateInsertRequest(PersistAction action)
     {
       var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Insert, action.EntityState.Type);
-      var request = DomainHandler.GetPersistRequest(task);
+      var request = domainHandler.GetPersistRequest(task);
       var tuple = action.EntityState.Tuple.ToRegular();
       return new Pair<SqlPersistRequest, Tuple>(request, tuple);
     }
@@ -299,7 +268,7 @@ namespace Xtensive.Storage.Providers.Sql
         source = dTuple.Origin; // TODO: Fix this workaround!
       var fieldStateMap = source.GetFieldStateMap(TupleFieldState.Available);
       var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Update, entityState.Type, fieldStateMap);
-      var request = DomainHandler.GetPersistRequest(task);
+      var request = domainHandler.GetPersistRequest(task);
       var tuple = entityState.Tuple.ToRegular();
       return new Pair<SqlPersistRequest, Tuple>(request, tuple);
     }
@@ -307,7 +276,7 @@ namespace Xtensive.Storage.Providers.Sql
     private Pair<SqlPersistRequest, Tuple> CreateRemoveRequest(PersistAction action)
     {
       var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Remove, action.EntityState.Type);
-      var request = DomainHandler.GetPersistRequest(task);
+      var request = domainHandler.GetPersistRequest(task);
       var tuple = action.EntityState.Key.Value;
       return new Pair<SqlPersistRequest, Tuple>(request, tuple);
     }
@@ -324,7 +293,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected DbCommand CreateScalarCommand(SqlScalarRequest request)
     {
       var command = CreateCommand();
-      command.CommandText = request.Compile(DomainHandler).GetCommandText();
+      command.CommandText = request.Compile(domainHandler).GetCommandText();
       return command;
     }
 
@@ -336,7 +305,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected DbCommand CreateFetchCommand(SqlFetchRequest request)
     {
       var command = CreateCommand();
-      var compilationResult = request.Compile(DomainHandler);
+      var compilationResult = request.Compile(domainHandler);
       var variantKeys = new List<object>();
       foreach (var binding in request.ParameterBindings) {
         object parameterValue = binding.ValueAccessor.Invoke();
@@ -385,7 +354,7 @@ namespace Xtensive.Storage.Providers.Sql
         commands.Add(currentCommandText);
         requestNumber++;
       }
-      command.CommandText = DomainHandler.Driver.Translator.BuildBatch(commands.ToArray());
+      command.CommandText = driver.BuildBatch(commands.ToArray());
       return command;
     }
 
@@ -402,7 +371,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       int parameterIndex = 0;
       var parameterNames = new Dictionary<object, string>();
-      var compilationResult = request.Compile(DomainHandler);
+      var compilationResult = request.Compile(domainHandler);
       foreach (var binding in request.ParameterBindings) {
         object parameterValue = value.IsNull(binding.FieldIndex) ? null : value.GetValueOrDefault(binding.FieldIndex);
         string parameterName = parameterNamePrefix + parameterIndex++;
@@ -420,25 +389,24 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (connection!=null && connection.State==ConnectionState.Open)
         return;
-      connection = DomainHandler.Driver.CreateConnection(Handlers.Domain.Configuration.ConnectionInfo);
       if (connection==null)
-        throw new InvalidOperationException(Strings.ExUnableToCreateConnection);
-      connection.Open();
+        connection = driver.CreateConnection(Handlers.Domain.Configuration.ConnectionInfo);
+      driver.OpenConnection(connection);
     }
     
     private void EnsureAutoShortenTransactionIsStarted()
     {
-      if (Transaction==null) {
-        if (!IsAutoshortenTransactionsEnabled() || !IsAutoshortenTransactionActivated)
-          throw new InvalidOperationException(Strings.TransactionIsNotOpen);
-        BeginDbTransaction();
-      }
+      if (Transaction!=null)
+        return;
+      if (!IsAutoshortenTransactionsEnabled() || !IsAutoshortenTransactionActivated)
+        throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
+      BeginDbTransaction();
     }
 
     private void BeginDbTransaction()
     {
-      Transaction = connection.BeginTransaction(
-        IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
+      Transaction = driver.BeginTransaction(
+        connection, IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
     }
 
     private DbCommand CreateCommand()
@@ -466,7 +434,7 @@ namespace Xtensive.Storage.Providers.Sql
     private void CreateCharacterLobParameter(DbCommand command, string name, string value)
     {
       var lob = connection.CreateCharacterLargeObject();
-      RegisterLargeObject(lob);
+      RegisterDisposable(lob);
       if (value!=null) {
         if (value.Length > 0) {
           int offset = 0;
@@ -476,7 +444,8 @@ namespace Xtensive.Storage.Providers.Sql
             offset += LobBlockSize;
             remainingSize -= LobBlockSize;
           }
-          lob.Write(value.ToCharArray(offset, remainingSize), 0, remainingSize);
+          if (remainingSize > 0)
+            lob.Write(value.ToCharArray(offset, remainingSize), 0, remainingSize);
         }
         else {
           lob.Erase();
@@ -491,7 +460,7 @@ namespace Xtensive.Storage.Providers.Sql
     private void CreateBinaryLobParameter(DbCommand command, string name, byte[] value)
     {
       var lob = connection.CreateBinaryLargeObject();
-      RegisterLargeObject(lob);
+      RegisterDisposable(lob);
       if (value!=null) {
         if (value.Length > 0)
           lob.Write(value, 0, value.Length);
@@ -521,11 +490,17 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    private void RegisterLargeObject(IDisposable lob)
+    private void RegisterDisposable(IDisposable lob)
     {
-      if (persistedLargeObjects==null)
-        persistedLargeObjects = new DisposableSet();
-      persistedLargeObjects.Add(lob);
+      if (disposables==null)
+        disposables = new DisposableSet();
+      disposables.Add(lob);
+    }
+    
+    private void CleanDisposables()
+    {
+      disposables.DisposeSafely();
+      disposables = null;
     }
 
     #endregion
@@ -533,13 +508,15 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
-      DomainHandler = Handlers.DomainHandler as DomainHandler;
+      domainHandler = (DomainHandler) Handlers.DomainHandler;
+      driver = domainHandler.Driver;
     }
 
     /// <inheritdoc/>
     public override void Dispose()
     {
-      connection.DisposeSafely();
+      if (connection!=null)
+        driver.CloseConnection(connection);
     }
   }
 }

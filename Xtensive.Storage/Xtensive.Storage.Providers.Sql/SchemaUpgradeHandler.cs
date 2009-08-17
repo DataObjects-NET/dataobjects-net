@@ -26,12 +26,11 @@ namespace Xtensive.Storage.Providers.Sql
     private DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
     private SessionHandler SessionHandler { get { return (SessionHandler) BuildingContext.Current.SystemSessionHandler; } }
     private SqlConnection Connection { get { return ((SessionHandler) Handlers.SessionHandler).Connection; } }
-    private SqlDriver Driver { get { return DomainHandler.Driver; } }
+    private Driver Driver { get { return DomainHandler.Driver; } }
 
     /// <inheritdoc/>
     public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema)
     {
-      var valueTypeMapper = DomainHandler.ValueTypeMapper;
       var enforceChangedColumns = UpgradeContext.Demand().Hints
         .OfType<ChangeFieldTypeHint>()
         .SelectMany(hint => hint.AffectedColumns)
@@ -39,9 +38,8 @@ namespace Xtensive.Storage.Providers.Sql
       var translator = new SqlActionTranslator(
         upgradeActions,
         GetStorageSchema(),
-        sourceSchema, targetSchema, DomainHandler.ProviderInfo, 
-        Connection.Driver, valueTypeMapper, 
-        Handlers.NameBuilder.TypeIdColumnName, 
+        sourceSchema, targetSchema, DomainHandler.ProviderInfo, Driver,
+        Handlers.NameBuilder.TypeIdColumnName,
         enforceChangedColumns,
         SessionHandler.ExecuteScalarStatement);
 
@@ -64,14 +62,14 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ModelTypeInfo CreateTypeInfo(Type type, int? length, int? precision, int? scale)
     {
-      var sqlValueType = DomainHandler.ValueTypeMapper.BuildSqlValueType(type, length, precision, scale);
+      var sqlValueType = DomainHandler.Driver.BuildValueType(type, length, precision, scale);
       return new ModelTypeInfo(sqlValueType.Type.ToClrType(), sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision);
     }
 
     private void Execute(IEnumerable<string> batch)
     {
       if (DomainHandler.ProviderInfo.SupportsBatches) {
-        var commandText = Driver.Translator.BuildBatch(batch.ToArray());
+        var commandText = Driver.BuildBatch(batch.ToArray());
         if (!string.IsNullOrEmpty(commandText))
           using (var command = Connection.CreateCommand()) {
             command.CommandText = commandText;
@@ -95,8 +93,7 @@ namespace Xtensive.Storage.Providers.Sql
       var context = UpgradeContext.Demand();
       var schema = context.NativeExtractedSchema as Schema;
       if (schema == null) {
-        schema = DomainHandler.Driver
-          .ExtractDefaultSchema(SessionHandler.Connection, SessionHandler.Transaction);
+        schema = DomainHandler.Driver.ExtractSchema(SessionHandler.Connection, SessionHandler.Transaction);
         SaveSchemaInContext(schema);
       }
       return schema;
@@ -104,14 +101,14 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void WriteToLog(SqlActionTranslator translator)
     {
-      var logDelimiter = DomainHandler.Driver.Translator.BatchItemDelimiter + Environment.NewLine;
+      var logDelimiter = DomainHandler.Driver.BatchItemDelimiter + Environment.NewLine;
       var logBatch = new List<string>();
-      logBatch.Add(Driver.Translator.BatchBegin);
+      logBatch.Add(Driver.BatchBegin);
       translator.PreUpgradeCommands.Apply(logBatch.Add);
       translator.UpgradeCommands.Apply(logBatch.Add);
       translator.DataManipulateCommands.Apply(logBatch.Add);
       translator.PostUpgradeCommands.Apply(logBatch.Add);
-      logBatch.Add(Driver.Translator.BatchEnd);
+      logBatch.Add(Driver.BatchEnd);
       if (logBatch.Count > 2)
         Log.Info("Upgrade DDL: {0}", 
           Environment.NewLine + string.Join(logDelimiter, logBatch.ToArray()));

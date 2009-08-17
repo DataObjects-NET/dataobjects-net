@@ -37,15 +37,15 @@ namespace Xtensive.Storage.Providers.Sql
     protected override KeyGenerator CreateGenerator<TFieldType>(GeneratorInfo generatorInfo)
     {
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      var sqlNext = GetNextValueStatement(domainHandler.Driver, domainHandler.Schema, generatorInfo.MappingName);
+      var sqlNext = GetNextValueStatement(domainHandler.ProviderInfo, domainHandler.Schema, generatorInfo.MappingName);
       return new SqlCachingKeyGenerator<TFieldType>(generatorInfo, sqlNext);
     }
 
-    internal static ISqlCompileUnit GetNextValueStatement(SqlDriver driver, Schema schema, string generatorMappingName)
+    internal static ISqlCompileUnit GetNextValueStatement(ProviderInfo providerInfo, Schema schema, string generatorMappingName)
     {
-      if (driver.ServerInfo.Sequence!=null)
+      if (providerInfo.SupportsSequences)
         return GetSequenceBasedNext(schema, generatorMappingName);
-      if (driver.ServerInfo.Identity!=null)
+      if (providerInfo.SupportsAutoincrementColumns)
         return GetAutoIncrementColumnBasedNext(schema, generatorMappingName);
       throw new NotSupportedException();
     }

@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
       var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
       if (aggregateColumn.AggregateType == AggregateType.Sum || aggregateColumn.AggregateType == AggregateType.Avg) {
         Type type = aggregateColumn.Type;
-        return SqlDml.Cast(result, ValueTypeMapper.BuildSqlValueType(type, null));
+        return SqlDml.Cast(result, Driver.BuildValueType(type, null, null, null));
       }
       return result;
     }

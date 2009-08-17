@@ -106,6 +106,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error &apos;{0}&apos; while executing query &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExErrorXWhileExecutingQueryY {
+            get {
+                return ResourceManager.GetString("ExErrorXWhileExecutingQueryY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Incorrect command parameters..
         /// </summary>
         internal static string ExIncorrectCommandParameters {
@@ -223,6 +232,24 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Transaction is already open..
+        /// </summary>
+        internal static string ExTransactionIsAlreadyOpen {
+            get {
+                return ResourceManager.GetString("ExTransactionIsAlreadyOpen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transaction is not open..
+        /// </summary>
+        internal static string ExTransactionIsNotOpen {
+            get {
+                return ResourceManager.GetString("ExTransactionIsNotOpen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; has no primary index..
         /// </summary>
         internal static string ExTypeHasNoPrimaryIndex {
@@ -273,24 +300,6 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         internal static string ExUnsupportedIndex {
             get {
                 return ResourceManager.GetString("ExUnsupportedIndex", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Transaction is already open..
-        /// </summary>
-        internal static string TransactionIsAlreadyOpen {
-            get {
-                return ResourceManager.GetString("TransactionIsAlreadyOpen", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Transaction is not open..
-        /// </summary>
-        internal static string TransactionIsNotOpen {
-            get {
-                return ResourceManager.GetString("TransactionIsNotOpen", resourceCulture);
             }
         }
     }

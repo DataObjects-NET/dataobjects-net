@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
       var sessionHandler = (SessionHandler) handlers.SessionHandler;
-      using (var e = sessionHandler.Execute(Request)) {
+      using (var e = sessionHandler.ExecuteTupleReader(Request)) {
         while (e.MoveNext())
           yield return e.Current;
       }

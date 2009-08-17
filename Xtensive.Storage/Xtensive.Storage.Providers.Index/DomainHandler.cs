@@ -133,28 +133,24 @@ namespace Xtensive.Storage.Providers.Index
     protected override ProviderInfo CreateProviderInfo()
     {
       var result = new ProviderInfo();
-      result.DatabaseNameLength = int.MaxValue;
-      result.EmptyBlobIsNull = false;
-      result.EmptyStringIsNull = false;
-      result.MaxColumnNameLength = int.MaxValue;
-      result.MaxComparisonOperations = int.MaxValue;
-      result.MaxForeignKeyNameLength = int.MaxValue;
-      result.MaxIndexColumnsCount = int.MaxValue;
-      result.MaxIndexKeyLength = int.MaxValue;
-      result.MaxIndexNameLength = int.MaxValue;
-      result.MaxQueryLength = int.MaxValue;
-      result.MaxTableNameLength = int.MaxValue;
-      result.NamedParameters = false;
-      result.ParameterPrefix = string.Empty;
       result.SupportsBatches = true;
       result.SupportsClusteredIndexes = true;
       result.SupportsCollations = false;
       result.SupportsEnlist = false;
       result.SupportsForeignKeyConstraints = false;
       result.SupportsDeferredForeignKeyConstraints = false;
-      result.SupportsRealTimeSpan = true;
       result.SupportsIncludedColumns = true;
-      result.SupportKeyColumnSortOrder = true;
+      result.SupportsKeyColumnSortOrder = true;
+      result.SupportsPaging = true;
+      result.SupportsAllBooleanExpressions = true;
+      result.SupportsApplyProvider = true;
+      result.SupportsLargeObjects = false;
+      result.SupportsSequences = false;
+      result.SupportsAutoincrementColumns = false;
+      result.EmptyBlobIsNull = false;
+      result.EmptyStringIsNull = false;
+      result.NamedParameters = false;
+      result.ParameterPrefix = string.Empty;
       result.Version = new Version(0, 3);
       return result;
     }

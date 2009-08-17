@@ -5,7 +5,9 @@
 // Created:    2008.09.19
 
 using System;
+using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Sql;
 using Xtensive.Sql.Info;
 using Xtensive.Storage.Tests.Storage.DbTypeSupportModel;
 using Xtensive.Storage.Providers.Sql;
@@ -245,10 +247,12 @@ namespace Xtensive.Storage.Tests.Storage
           key = x.Key;
           t.Complete();
         }
-        DomainHandler dh =Domain.Handlers.DomainHandler as DomainHandler;
+        DomainHandler dh = Domain.Handlers.DomainHandler as DomainHandler;
         DateTime dt = new DateTime();
         if (dh != null) {
-          DataTypeInfo dti = dh.Driver.ServerInfo.DataTypes.DateTime;
+          var field = typeof (Driver).GetField("underlyingDriver", BindingFlags.Instance | BindingFlags.NonPublic);
+          var sqlDriver = (SqlDriver) field.GetValue(dh.Driver);
+          DataTypeInfo dti = sqlDriver.ServerInfo.DataTypes.DateTime;
           dt = ((ValueRange<DateTime>) dti.ValueRange).MinValue;
         }
         using (var t = Transaction.Open()) {

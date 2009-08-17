@@ -49,16 +49,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets the SQL request builder.
     /// </summary>
     public SqlRequestBuilder RequestBuilder { get; private set; }
-
-    /// <summary>
-    /// Gets the value type mapper.
-    /// </summary>
-    public SqlValueTypeMapper ValueTypeMapper { get; private set; }
     
     /// <summary>
     /// Gets the SQL driver.
     /// </summary>
-    public SqlDriver Driver { get; private set; }
+    public Driver Driver { get; private set; }
 
     /// <inheritdoc/>
     protected override IEnumerable<Type> GetCompilerProviderContainerTypes()
@@ -97,9 +92,9 @@ namespace Xtensive.Storage.Providers.Sql
     public DbDataReaderAccessor GetDataReaderAccessor(TupleDescriptor descriptor)
     {
       return accessorCache.GetValue(descriptor,
-        (_descriptor, _valueTypeMapper) =>
-          new DbDataReaderAccessor(_descriptor.Select(type => _valueTypeMapper.GetTypeMapping(type))),
-        ValueTypeMapper);
+        (_descriptor, _driver) =>
+          new DbDataReaderAccessor(_descriptor.Select(type => _driver.GetTypeMapping(type))),
+        Driver);
     }
 
     /// <summary>
@@ -167,7 +162,7 @@ namespace Xtensive.Storage.Providers.Sql
           mapping.RegisterMapping(
             column,
             storageColumn,
-            ValueTypeMapper.GetTypeMapping(column));
+            Driver.GetTypeMapping(column));
         }
         foreach (var secondaryIndex in type.Indexes.Find(IndexAttributes.Real).Where(i => !i.IsPrimary)) {
           var storageIndexName = secondaryIndex.MappingName;
@@ -183,51 +178,14 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected override ProviderInfo CreateProviderInfo()
     {
-      var result = new ProviderInfo();
-      var serverInfo = Driver.ServerInfo;
-      var dataTypes = serverInfo.DataTypes;
-
-      var binaryTypeInfo = dataTypes.VarBinary ?? dataTypes.VarBinaryMax;
-      result.EmptyBlobIsNull = binaryTypeInfo!=null
-        ? binaryTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull)
-        : false;
-      var stringTypeInfo = dataTypes.VarChar ?? dataTypes.VarCharMax;
-      result.EmptyStringIsNull = stringTypeInfo!=null
-        ? stringTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull)
-        : false;
-
-      // TODO: add corresponding feature to Sql.Info and read it here
-      result.SupportsEnlist = false;
-
-      result.DatabaseNameLength = serverInfo.Database.MaxIdentifierLength;
-      result.MaxIndexColumnsCount = serverInfo.Index.MaxNumberOfColumns;
-      result.MaxIndexKeyLength = serverInfo.Index.MaxLength;
-      result.MaxIndexNameLength = serverInfo.Index.MaxIdentifierLength;
-      result.MaxTableNameLength = serverInfo.Table.MaxIdentifierLength;
-      result.NamedParameters = serverInfo.Query.Features.Supports(QueryFeatures.NamedParameters);
-      result.ParameterPrefix = serverInfo.Query.ParameterPrefix;
-      result.MaxComparisonOperations = serverInfo.Query.MaxComparisonOperations;
-      result.MaxQueryLength = serverInfo.Query.MaxLength;
-      result.SupportsBatches = serverInfo.Query.Features.Supports(QueryFeatures.Batches);
-      result.SupportsClusteredIndexes = serverInfo.Index.Features.Supports(IndexFeatures.Clustered);
-      result.SupportsCollations = serverInfo.Collation!=null;
-      result.SupportsForeignKeyConstraints = serverInfo.ForeignKey!=null;
-      if (serverInfo.ForeignKey!=null)
-        result.SupportsDeferredForeignKeyConstraints = serverInfo.ForeignKey.Features.Supports(ForeignKeyConstraintFeatures.Deferrable);
-      result.SupportsIncludedColumns = serverInfo.Index.Features.Supports(IndexFeatures.NonKeyColumns);
-      result.SupportKeyColumnSortOrder = serverInfo.Index.Features.Supports(IndexFeatures.SortOrder);
-      result.SupportSequences = serverInfo.Sequence!=null;
-      result.SupportsRealTimeSpan = serverInfo.DataTypes.Interval!=null;
-      result.Version = (Version) serverInfo.Version.ProductVersion.Clone();
-      return result;
+      return Driver.BuildProviderInfo();
     }
 
     /// <inheritdoc/>
     protected override IPreCompiler CreatePreCompiler()
     {
-      var queryFeatures = Driver.ServerInfo.Query.Features;
-      var applyCorrector = new ApplyProviderCorrector(!queryFeatures.Supports(QueryFeatures.CrossApply));
-      var skipTakeCorrector = !queryFeatures.Supports(QueryFeatures.Paging)
+      var applyCorrector = new ApplyProviderCorrector(!ProviderInfo.SupportsApplyProvider);
+      var skipTakeCorrector = !ProviderInfo.SupportsPaging
         ? new SkipTakeCorrector()
         : (IPreCompiler) new EmptyPreCompiler();
       return new CompositePreCompiler(
@@ -243,11 +201,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
-      Driver = SqlDriver.Create(Handlers.Domain.Configuration.ConnectionInfo);
+      Driver = new Driver(Handlers.Domain.Configuration.ConnectionInfo);
       base.Initialize();
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
       requestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlPersistRequest>.Create(new object());
-      ValueTypeMapper = new SqlValueTypeMapper(Driver);
       Mapping = new ModelMapping();
       RequestBuilder = Handlers.HandlerFactory.CreateHandler<SqlRequestBuilder>();
       RequestBuilder.Initialize();

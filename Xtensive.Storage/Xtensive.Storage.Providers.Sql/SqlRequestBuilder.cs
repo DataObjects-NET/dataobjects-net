@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Providers.Sql
           if (fieldIndex >= 0) {
             SqlPersistParameterBinding binding;
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
-              var typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
+              var typeMapping = DomainHandler.Driver.GetTypeMapping(column);
               var bindingType = GetBindingType(table.TableColumns[column.Name]);
               binding = new SqlPersistParameterBinding(fieldIndex, typeMapping, bindingType);
               context.ParameterBindings.Add(column, binding);
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Providers.Sql
           if (fieldIndex >= 0 && context.Task.FieldMap[fieldIndex]) {
             SqlPersistParameterBinding binding;
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
-              var typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
+              var typeMapping = DomainHandler.Driver.GetTypeMapping(column);
               var bindingType = GetBindingType(table.TableColumns[column.Name]);
               binding = new SqlPersistParameterBinding(fieldIndex, typeMapping, bindingType);
               context.ParameterBindings.Add(column, binding);
@@ -129,7 +129,7 @@ namespace Xtensive.Storage.Providers.Sql
         int fieldIndex = GetFieldIndex(context.Task.Type, column);
         SqlPersistParameterBinding binding;
         if (!context.ParameterBindings.TryGetValue(column, out binding)) {
-          TypeMapping typeMapping = DomainHandler.ValueTypeMapper.GetTypeMapping(column);
+          TypeMapping typeMapping = DomainHandler.Driver.GetTypeMapping(column);
           binding = new SqlPersistParameterBinding(fieldIndex, typeMapping);
           context.ParameterBindings.Add(column, binding);
         }
@@ -164,9 +164,7 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Initialize()
     {
       DomainHandler = (DomainHandler) Handlers.DomainHandler;
-      useLargeObjects = Xtensive.Sql.Info.FeaturesExtensions.Supports(
-        DomainHandler.Driver.ServerInfo.Query.Features,
-        Xtensive.Sql.Info.QueryFeatures.LargeObjects);
+      useLargeObjects = DomainHandler.ProviderInfo.SupportsLargeObjects;
     }
     
     // Constructors

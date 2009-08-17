@@ -47,10 +47,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     private readonly ActionSequence actions;
     private readonly Schema schema;
-    private readonly SqlValueTypeMapper valueTypeMapper;
     private readonly StorageInfo sourceModel;
     private readonly StorageInfo targetModel;
-    private readonly SqlDriver driver;
+    private readonly Driver driver;
     
     private readonly List<string> preUpgradeCommands = new List<string>();
     private readonly List<string> upgradeCommands = new List<string>();
@@ -66,7 +65,7 @@ namespace Xtensive.Storage.Providers.Sql
     
     private bool IsSequencesAllowed
     {
-      get { return providerInfo.SupportSequences; }
+      get { return providerInfo.SupportsSequences; }
     }
 
     /// <summary>
@@ -845,7 +844,7 @@ namespace Xtensive.Storage.Providers.Sql
         ? typeInfo.Type.GetGenericArguments()[0]
         : typeInfo.Type;
 
-      return valueTypeMapper.BuildSqlValueType(type, typeInfo.Length, typeInfo.Precision, typeInfo.Scale);
+      return driver.BuildValueType(type, typeInfo.Length, typeInfo.Precision, typeInfo.Scale);
     }
 
     private static SqlRefAction ConvertReferentialAction(ReferentialAction toConvert)
@@ -943,7 +942,7 @@ namespace Xtensive.Storage.Providers.Sql
       var type = columnInfo.Type.Type;
       if (type.IsNullable())
         type = type.GetGenericArguments()[0];
-      var mapping = driver.TypeMappings[type];
+      var mapping = driver.GetTypeMapping(type);
       if (mapping.ParameterCastRequired)
         result = SqlDml.Cast(result, mapping.BuildSqlType(columnInfo.Type.Length, null, null));
       return result;
@@ -951,7 +950,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private long? GetCurrentSequenceValue(string sequenceInfoName)
     {
-      var selectNextValue = KeyGeneratorFactory.GetNextValueStatement(driver, schema, sequenceInfoName);
+      var selectNextValue = KeyGeneratorFactory.GetNextValueStatement(providerInfo, schema, sequenceInfoName);
       return Convert.ToInt64(commandExecutor.Invoke(selectNextValue));
     }
 
@@ -969,14 +968,12 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="targetModel">The target model.</param>
     /// <param name="providerInfo">The provider info.</param>
     /// <param name="driver">The driver.</param>
-    /// <param name="valueTypeMapper">The value type mapper.</param>
     /// <param name="typeIdColumnName">Name of the type id column.</param>
     /// <param name="enforceChangedColumns">Columns thats types must be changed 
     /// enforced (without type conversion verification).</param>
     public SqlActionTranslator(ActionSequence actions, Schema schema, 
       StorageInfo sourceModel, StorageInfo targetModel, 
-      ProviderInfo providerInfo, SqlDriver driver, 
-      SqlValueTypeMapper valueTypeMapper, string typeIdColumnName, 
+      ProviderInfo providerInfo, Driver driver, string typeIdColumnName, 
       List<string> enforceChangedColumns, Func<ISqlCompileUnit, object> commandExecutor)
     {
       
@@ -992,7 +989,6 @@ namespace Xtensive.Storage.Providers.Sql
       this.schema = schema;
       this.driver = driver;
       this.actions = actions;
-      this.valueTypeMapper = valueTypeMapper;
       this.sourceModel = sourceModel;
       this.targetModel = targetModel;
       this.enforceChangedColumns = enforceChangedColumns;

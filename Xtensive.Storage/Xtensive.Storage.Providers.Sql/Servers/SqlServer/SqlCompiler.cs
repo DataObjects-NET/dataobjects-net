@@ -25,12 +25,12 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
         // floats are promoted to doubles, but we need the same type
         if (originType == aggregateType && originType != typeof (float))
           return result;
-        var sqlType = ValueTypeMapper.BuildSqlValueType(aggregateType, null);
+        var sqlType = Driver.BuildValueType(aggregateType, null, null, null);
         return SqlDml.Cast(SqlDml.Avg(SqlDml.Cast(sourceColumns[aggregateColumn.SourceIndex], sqlType)), sqlType);
       }
       // cast to decimal is dangerous, because 'decimal' defaults to integer type
       if (aggregateColumn.AggregateType == AggregateType.Sum && aggregateType != typeof(decimal))
-        return SqlDml.Cast(result, ValueTypeMapper.BuildSqlValueType(aggregateType, null));
+        return SqlDml.Cast(result, Driver.BuildValueType(aggregateType, null, null, null));
       return result;
     }
 

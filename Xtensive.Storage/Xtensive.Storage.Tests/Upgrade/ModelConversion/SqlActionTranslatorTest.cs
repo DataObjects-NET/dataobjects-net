@@ -184,21 +184,20 @@ namespace Xtensive.Storage.Tests.Upgrade
       ActionSequence actions)
     {
       var schema = GetSchema();
-
-      var driver = SqlDriver.Create(Url);
-      var valueTypeMapper = new SqlValueTypeMapper(driver);
-
-      using (var connection = driver.CreateConnection(Url)) {
+      var parsedUrl = UrlInfo.Parse(Url);
+      var driver = new Driver(parsedUrl);
+      
+      using (var connection = driver.CreateConnection(parsedUrl)) {
         connection.Open();
         using (var transaction = connection.BeginTransaction()) {
           var translator = new SqlActionTranslator(actions,
             schema, oldModel, newModel, CreateProviderInfo(),
-            connection.Driver, valueTypeMapper, "TypeId", new List<string>(), GetGeneratorValue);
+            driver, "TypeId", new List<string>(), GetGeneratorValue);
           var batch = new List<string>();
-          batch.Add(driver.Translator.BuildBatch(translator.PreUpgradeCommands.ToArray()));
-          batch.Add(driver.Translator.BuildBatch(translator.UpgradeCommands.ToArray()));
-          batch.Add(driver.Translator.BuildBatch(translator.DataManipulateCommands.ToArray()));
-          batch.Add(driver.Translator.BuildBatch(translator.PostUpgradeCommands.ToArray()));
+          batch.Add(driver.BuildBatch(translator.PreUpgradeCommands.ToArray()));
+          batch.Add(driver.BuildBatch(translator.UpgradeCommands.ToArray()));
+          batch.Add(driver.BuildBatch(translator.DataManipulateCommands.ToArray()));
+          batch.Add(driver.BuildBatch(translator.PostUpgradeCommands.ToArray()));
           foreach (var commandText in batch) {
             if (!string.IsNullOrEmpty(commandText))
               using (var command = connection.CreateCommand()) {
@@ -223,11 +222,12 @@ namespace Xtensive.Storage.Tests.Upgrade
     private Schema GetSchema()
     {
       Schema schema;
-      var driver = SqlDriver.Create(Url);
-      using (var connection = driver.CreateConnection(Url)) {
+      var parsedUrl = UrlInfo.Parse(Url);
+      var driver = new Driver(parsedUrl);
+      using (var connection = driver.CreateConnection(parsedUrl)) {
         connection.Open();
         using (var t = connection.BeginTransaction())
-          schema = driver.ExtractDefaultSchema(connection, t);
+          schema = driver.ExtractSchema(connection, t);
       }
       return schema;
     }

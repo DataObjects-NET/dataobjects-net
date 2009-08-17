@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers
 {
@@ -19,28 +20,24 @@ namespace Xtensive.Storage.Providers
     private bool supportsEnlist;
     private bool supportsCollations;
     private bool supportsBatches;
-    private bool supportsRealTimeSpan;
     private bool supportsForeignKeyConstraints;
     private bool supportsClusteredIndexes;
-    private bool supportKeyColumnSortOrder;
-    private bool supportSequences;
-    private int maxQueryLength;
-    private int maxComparisonOperations;
-    private int databaseNameLength;
-    private int maxTableNameLength;
-    private int maxIndexNameLength;
-    private int maxColumnNameLength;
-    private int maxForeignKeyNameLength;
-    private int maxIndexKeyLength;
-    private int maxIndexColumnsCount;
+    private bool supportsKeyColumnSortOrder;
+    private bool supportsSequences;
+    private bool supportsAutoincrementColumns;
+    private bool supportsPaging;
+    private bool supportsIncludedColumns;
+    private bool supportsDeferredForeignKeyConstraints;
+    private bool supportsApplyProvider;
+    private bool supportsAllBooleanExpressions;
+    private bool supportsLargeObjects;
+
     private bool namedParameters;
     private string parameterPrefix;
     private bool emptyStringIsNull;
     private bool emptyBlobIsNull;
-    private bool supportsIncludedColumns;
     private Version version;
-    private bool supportsDeferredForeignKeyConstraints;
-
+    
     /// <summary>
     /// Indicates that RDBMS supports distributed transactions.
     /// </summary>
@@ -71,20 +68,6 @@ namespace Xtensive.Storage.Providers
       set {
         this.EnsureNotLocked();
         supportsBatches = value;
-      }
-    }
-
-    /// <summary>
-    /// Indicates that RDBMS supports boolean data type.
-    /// If the value of this property is <see langword="false"/>,
-    /// RDMBS uses integer-like type to store boolean values.
-    /// </summary>
-    public bool SupportsRealTimeSpan
-    {
-      get { return supportsRealTimeSpan; }
-      set {
-        this.EnsureNotLocked();
-        supportsRealTimeSpan = value;
       }
     }
 
@@ -124,121 +107,89 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Indicates that RDBMS supports index key columns ordering.
     /// </summary>
-    public bool SupportKeyColumnSortOrder {
-      get { return supportKeyColumnSortOrder; }
+    public bool SupportsKeyColumnSortOrder {
+      get { return supportsKeyColumnSortOrder; }
       set {
         this.EnsureNotLocked();
-        supportKeyColumnSortOrder = value;
+        supportsKeyColumnSortOrder = value;
+      }
+    }
+
+    /// <summary>
+    /// Indicates that RDBMS supports autoincrement columns.
+    /// </summary>
+    public bool SupportsAutoincrementColumns {
+      get { return supportsAutoincrementColumns; }
+      set {
+        this.EnsureNotLocked();
+        supportsAutoincrementColumns = value;
       }
     }
 
     /// <summary>
     /// Indicates that RDBMS supports sequences.
     /// </summary>
-    public bool SupportSequences {
-      get { return supportSequences; }
+    public bool SupportsSequences {
+      get { return supportsSequences; }
       set {
         this.EnsureNotLocked();
-        supportSequences = value;
+        supportsSequences = value;
       }
     }
 
     /// <summary>
-    /// Maximal length of a query text (characters).
+    /// Indicates that RDBMS supports included columns in indexes.
     /// </summary>
-    public int MaxQueryLength {
-      get { return maxQueryLength; }
+    public bool SupportsIncludedColumns {
+      get { return supportsIncludedColumns; }
       set {
         this.EnsureNotLocked();
-        maxQueryLength = value;
-      }
-    }
-
-    ///<summary>
-    /// Maximal number of comparison operations for a single query.
-    /// </summary>
-    public int MaxComparisonOperations {
-      get { return maxComparisonOperations; }
-      set {
-        this.EnsureNotLocked();
-        maxComparisonOperations = value;
+        supportsIncludedColumns = value;
       }
     }
 
     /// <summary>
-    /// Maximal length of database name (characters).
+    /// Indicates that RDBMS natively supports paging operations.
     /// </summary>
-    public int DatabaseNameLength {
-      get { return databaseNameLength; }
+    public bool SupportsPaging {
+      get { return supportsPaging; }
       set {
         this.EnsureNotLocked();
-        databaseNameLength = value;
+        supportsPaging = value;
       }
     }
 
     /// <summary>
-    /// Maximal length of a table's name.
+    /// Indicates that RDBMS natively suppirts <see cref="ApplyProvider"/>.
     /// </summary>
-    public int MaxTableNameLength {
-      get { return maxTableNameLength; }
+    public bool SupportsApplyProvider {
+      get { return supportsApplyProvider; }
       set {
         this.EnsureNotLocked();
-        maxTableNameLength = value;
+        supportsApplyProvider = value;
       }
     }
 
     /// <summary>
-    /// Maximal length of an index's name.
+    /// Indicates that RDBMS supports all boolean expressions,
+    /// including direct comparison, usage inside coalesce and case expressions.
     /// </summary>
-    public int MaxIndexNameLength {
-      get { return maxIndexNameLength; }
+    public bool SupportsAllBooleanExpressions {
+      get { return supportsAllBooleanExpressions; } 
       set {
         this.EnsureNotLocked();
-        maxIndexNameLength = value;
+        supportsAllBooleanExpressions = value;
       }
     }
 
     /// <summary>
-    /// Maximal length of a column's name.
+    /// Indicates that RDBMS providers special API for handling of large objects (LOBs).
     /// </summary>
-    public int MaxColumnNameLength {
-      get { return maxColumnNameLength; }
+    public bool SupportsLargeObjects {
+      get { return supportsLargeObjects; }
       set {
         this.EnsureNotLocked();
-        maxColumnNameLength = value;
-      }
-    }
-
-    /// <summary>
-    /// Maximal length of the name of a foreign key.
-    /// </summary>
-    public int MaxForeignKeyNameLength {
-      get { return maxForeignKeyNameLength; }
-      set {
-        this.EnsureNotLocked();
-        maxForeignKeyNameLength = value;
-      }
-    }
-
-    /// <summary>
-    /// Maximal length of index key (bytes).
-    /// </summary>
-    public int MaxIndexKeyLength {
-      get { return maxIndexKeyLength; }
-      set {
-        this.EnsureNotLocked();
-        maxIndexKeyLength = value;
-      }
-    }
-
-    /// <summary>
-    /// Maximal count of index columns.
-    /// </summary>
-    public int MaxIndexColumnsCount {
-      get { return maxIndexColumnsCount; }
-      set {
-        this.EnsureNotLocked();
-        maxIndexColumnsCount = value;
+        supportsLargeObjects = value;
       }
     }
 
@@ -283,17 +234,6 @@ namespace Xtensive.Storage.Providers
       set {
         this.EnsureNotLocked();
         emptyBlobIsNull = value;
-      }
-    }
-
-    /// <summary>
-    /// Indicates that RDBMS supports included columns in indexes.
-    /// </summary>
-    public bool SupportsIncludedColumns {
-      get { return supportsIncludedColumns; }
-      set {
-        this.EnsureNotLocked();
-        supportsIncludedColumns = value;
       }
     }
 

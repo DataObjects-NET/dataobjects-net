@@ -12,43 +12,14 @@ namespace Xtensive.Storage.Tests.Upgrade
   [Explicit("Requires MSSQL servers")]
   public sealed class MsSqlActionTranslatorTest : SqlActionTranslatorTest
   {
-    protected override string GetConnectionUrl()
-    {
-      return "sqlserver://localhost/DO40-Tests";
-    }
-
+    protected override string GetConnectionUrl() { return "sqlserver://localhost/DO40-Tests"; }
     protected override bool IsIncludedColumnsSupported { get { return true; } }
-
-//    protected override TypeInfo ConvertType(SqlValueType valueType)
-//    {
-//      var provider = new SqlConnectionProvider();
-//      using (var connection = provider.CreateConnection(Url) as SqlConnection) {
-//        connection.Open();
-//        var dataTypes = connection.Driver.ServerInfo.DataTypes;
-//        var nativeType = connection.Driver.Translator.Translate(valueType);
-//
-//        var dataType = dataTypes[nativeType] ?? dataTypes[valueType.DataType];
-//
-//        int? length = 0;
-//        var streamType = dataType as StreamDataTypeInfo;
-//        if (streamType!=null
-//          && (streamType.SqlType==SqlDataType.VarBinaryMax
-//            || streamType.SqlType==SqlDataType.VarCharMax
-//              || streamType.SqlType==SqlDataType.AnsiVarCharMax))
-//          length = null;
-//        else
-//          length = valueType.Size;
-//
-//        return new TypeInfo(dataType.Type, false, length);
-//      }
-//    }
-
+    
     protected override ProviderInfo CreateProviderInfo()
     {
       var providerInfo = new ProviderInfo();
-      providerInfo.SupportsRealTimeSpan = false;
-      providerInfo.SupportSequences = false;
-      providerInfo.SupportKeyColumnSortOrder = true;
+      providerInfo.SupportsSequences = false;
+      providerInfo.SupportsKeyColumnSortOrder = true;
       providerInfo.SupportsIncludedColumns = true;
       providerInfo.SupportsForeignKeyConstraints = true;
       return providerInfo;

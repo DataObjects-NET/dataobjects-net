@@ -158,10 +158,10 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql {
       // Get current SQL model
       var domainHandler = domain.Handlers.DomainHandler;
       var driver = ((DomainHandler) domainHandler).Driver;
-      using (var connection = driver.CreateConnection(configuration.ConnectionInfo.ToString())) {
+      using (var connection = driver.CreateConnection(configuration.ConnectionInfo)) {
         connection.Open();
         using (var t = connection.BeginTransaction())
-          existingSchema = driver.ExtractDefaultSchema(connection, t);
+          existingSchema = driver.ExtractSchema(connection, t);
         Assert.IsNotNull(existingSchema);
         return domain;
       }

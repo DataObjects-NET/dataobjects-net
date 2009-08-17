@@ -28,6 +28,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private static readonly SqlExpression SqlFalse = SqlDml.Literal(false);
     private static readonly SqlExpression SqlTrue = SqlDml.Literal(true);
 
+    private readonly Driver driver;
     private readonly IMemberCompilerProvider<SqlExpression> memberCompilerProvider;
     private readonly DomainModel model;
     private readonly SqlSelect[] selects;
@@ -39,7 +40,6 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly List<ParameterExpression> activeParameters;
     private readonly Dictionary<ParameterExpression, SqlSelect> selectParameterMapping;
     private readonly Dictionary<ParameterExpression, SqlQueryRef> queryRefParameterMapping;
-    private readonly SqlValueTypeMapper valueTypeMapper;
     private readonly ICompiler compiler;
 
     private bool fixBooleanExpressions;
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         type = ((UnaryExpression) e).Operand.Type;
       bool optimizeBooleanParameter = type==typeof (bool);
       type = type.StripNullable();
-      var typeMapping = valueTypeMapper.GetTypeMapping(type);
+      var typeMapping = driver.GetTypeMapping(type);
       var expression = parameterExtractor.ExtractParameter<object>(e);
       var bindingType = optimizeBooleanParameter
         ? SqlFetchParameterBindingType.BooleanConstant
@@ -141,7 +141,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var targetType = cast.Type.StripNullable();
       if (sourceType==targetType || targetType==typeof(object))
         return operand;
-      return SqlDml.Cast(operand, valueTypeMapper.BuildSqlValueType(targetType, null));
+      return SqlDml.Cast(operand, driver.BuildValueType(targetType, null, null, null));
     }
 
     protected override SqlExpression VisitBinary(BinaryExpression expression)
@@ -570,9 +570,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     
     // Constructors
 
-    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers,
-      bool fixBooleanExpressions, params SqlSelect[] selects)
-      : this(le, compiler, handlers, fixBooleanExpressions)
+    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, params SqlSelect[] selects)
+      : this(le, compiler, handlers)
     {
       ArgumentValidator.EnsureArgumentNotNull(selects, "selects");
       if (le.Parameters.Count!=selects.Length)
@@ -582,9 +581,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       useSelect = true;
     }
 
-    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers,
-      bool fixBooleanExpressions, params SqlQueryRef[] queryRefs)
-      : this(le, compiler, handlers, fixBooleanExpressions)
+    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, params SqlQueryRef[] queryRefs)
+      : this(le, compiler, handlers)
     {
       ArgumentValidator.EnsureArgumentNotNull(queryRefs, "queryRefs");
       if (le.Parameters.Count!=queryRefs.Length)
@@ -594,12 +592,12 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       useSelect = false;
     }
 
-    private ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, bool fixBooleanExpressions)
+    private ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers)
     {
       this.compiler = compiler;
-      this.fixBooleanExpressions = fixBooleanExpressions;
+      fixBooleanExpressions = !handlers.DomainHandler.ProviderInfo.SupportsAllBooleanExpressions;
       memberCompilerProvider = handlers.DomainHandler.GetMemberCompilerProvider<SqlExpression>();
-      valueTypeMapper = ((DomainHandler) handlers.DomainHandler).ValueTypeMapper;
+      driver = ((DomainHandler) handlers.DomainHandler).Driver;
       model = handlers.Domain.Model;
       lambda = le;
       bindings = new HashSet<SqlFetchParameterBinding>();

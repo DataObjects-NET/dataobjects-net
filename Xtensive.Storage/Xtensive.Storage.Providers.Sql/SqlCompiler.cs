@@ -33,16 +33,16 @@ namespace Xtensive.Storage.Providers.Sql
   public class SqlCompiler : RseCompiler
   {
     protected const string TableNamePattern = "Tmp_{0}";
-
-    protected bool FullBooleanExpressionSupport { get; private set; }
-    protected bool CrossApplySupported { get; private set; }
     
     /// <summary>
     /// Gets the value type mapper.
     /// </summary>
-    protected SqlValueTypeMapper ValueTypeMapper {
-      get { return ((DomainHandler) Handlers.DomainHandler).ValueTypeMapper; }
-    }
+    protected Driver Driver { get { return ((DomainHandler) Handlers.DomainHandler).Driver; } }
+
+    /// <summary>
+    /// Gets the provider info.
+    /// </summary>
+    protected ProviderInfo ProviderInfo { get { return Handlers.DomainHandler.ProviderInfo; } }
 
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> object providing access to available storage handlers.
@@ -137,7 +137,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var column in provider.CalculatedColumns) {
         HashSet<SqlFetchParameterBinding> bindings;
         var predicate = ProcessExpression(column.Expression, out bindings, sqlSelect);
-        if (!FullBooleanExpressionSupport && (column.Type==typeof(bool) || column.Type==typeof(bool?)))
+        if (!ProviderInfo.SupportsAllBooleanExpressions && (column.Type==typeof(bool) || column.Type==typeof(bool?)))
           predicate = ExpressionProcessor.BooleanToInt(predicate);
         sqlSelect.Columns.Add(predicate, column.Name);
         allBindings = allBindings.Concat(bindings);
@@ -252,7 +252,7 @@ namespace Xtensive.Storage.Providers.Sql
       var bindings = (HashSet<SqlFetchParameterBinding>) rangeProvider.Request.ParameterBindings;
       for (int i = 0; i < originalRange.EndPoints.First.Value.Count; i++) {
         var column = provider.Header.Columns[keyColumns[i].Key];
-        TypeMapping typeMapping = ((DomainHandler)Handlers.DomainHandler).ValueTypeMapper.GetTypeMapping(column.Type);
+        TypeMapping typeMapping = Driver.GetTypeMapping(column.Type);
         int fieldIndex = i;
         var binding = new SqlFetchParameterBinding(() => rangeProvider.CurrentRange.EndPoints.First.Value.GetValue(fieldIndex), typeMapping);
         bindings.Add(binding);
@@ -282,7 +282,7 @@ namespace Xtensive.Storage.Providers.Sql
         int columnIndex = keyColumns[i].Key;
         var sqlColumn = query.Columns[columnIndex];
         var column = provider.Header.Columns[columnIndex];
-        TypeMapping typeMapping = ValueTypeMapper.GetTypeMapping(column.Type);
+        TypeMapping typeMapping = Driver.GetTypeMapping(column.Type);
         int index = i;
         var binding = new SqlFetchParameterBinding(() => provider.CompiledKey.Invoke().GetValue(index), typeMapping);
         parameterBindings.Add(binding);
@@ -359,11 +359,11 @@ namespace Xtensive.Storage.Providers.Sql
           var mappedColumn = column as MappedColumn;
           if (mappedColumn != null) {
             ColumnInfo ci = mappedColumn.ColumnInfoRef.Resolve(domainHandler.Domain.Model);
-            TypeMapping tm = domainHandler.ValueTypeMapper.GetTypeMapping(ci);
-            svt = domainHandler.ValueTypeMapper.BuildSqlValueType(ci);
+            TypeMapping tm = Driver.GetTypeMapping(ci);
+            svt = Driver.BuildValueType(ci);
           }
           else
-            svt = domainHandler.ValueTypeMapper.BuildSqlValueType(column.Type, 0);
+            svt = Driver.BuildValueType(column.Type, null, null, null);
           TableColumn tableColumn = table.CreateColumn(column.Name, svt);
           tableColumn.IsNullable = true;
         }
@@ -410,14 +410,14 @@ namespace Xtensive.Storage.Providers.Sql
       switch (provider.SequenceType) {
       case ApplySequenceType.All:
         // apply is required
-        if (!CrossApplySupported)
+        if (!ProviderInfo.SupportsApplyProvider)
           throw new NotSupportedException();
         query = ProcessApplyViaCrossApply(provider, left, right);
         break;
       case ApplySequenceType.First:
       case ApplySequenceType.FirstOrDefault:
         // apply is prefered but is not required
-        query = CrossApplySupported
+        query = ProviderInfo.SupportsApplyProvider
           ? ProcessApplyViaCrossApply(provider, left, right)
           : ProcessApplyViaSubqueries(provider, left, right);
         break;
@@ -441,7 +441,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       SqlExpression existsExpression = SqlDml.Exists(source.Request.SelectStatement);
-      if (!FullBooleanExpressionSupport)
+      if (!ProviderInfo.SupportsAllBooleanExpressions)
         existsExpression = ExpressionProcessor.BooleanToInt(existsExpression);
       var select = SqlDml.Select();
       select.Columns.Add(existsExpression, provider.ExistenceColumnName);
@@ -548,18 +548,18 @@ namespace Xtensive.Storage.Providers.Sql
       List<SqlTableColumn> sourceColumns, AggregateColumn aggregateColumn)
     {
       switch (aggregateColumn.AggregateType) {
-        case AggregateType.Avg:
-          return SqlDml.Avg(sourceColumns[aggregateColumn.SourceIndex]);
-        case AggregateType.Count:
-          return SqlDml.Count(SqlDml.Asterisk);
-        case AggregateType.Max:
-          return SqlDml.Max(sourceColumns[aggregateColumn.SourceIndex]);
-        case AggregateType.Min:
-          return SqlDml.Min(sourceColumns[aggregateColumn.SourceIndex]);
-        case AggregateType.Sum:
-          return SqlDml.Sum(sourceColumns[aggregateColumn.SourceIndex]);
-        default:
-          throw new ArgumentException();
+      case AggregateType.Avg:
+        return SqlDml.Avg(sourceColumns[aggregateColumn.SourceIndex]);
+      case AggregateType.Count:
+        return SqlDml.Count(SqlDml.Asterisk);
+      case AggregateType.Max:
+        return SqlDml.Max(sourceColumns[aggregateColumn.SourceIndex]);
+      case AggregateType.Min:
+        return SqlDml.Min(sourceColumns[aggregateColumn.SourceIndex]);
+      case AggregateType.Sum:
+        return SqlDml.Sum(sourceColumns[aggregateColumn.SourceIndex]);
+      default:
+        throw new ArgumentException();
       }
     }
 
@@ -611,7 +611,7 @@ namespace Xtensive.Storage.Providers.Sql
         foreach (var columnInfo in index.Columns) {
           var column = select.Columns[columnInfo.Name];
           if (column.IsNullReference()) {
-            var valueType = ValueTypeMapper.BuildSqlValueType(columnInfo);
+            var valueType = Driver.BuildValueType(columnInfo);
             select.Columns.Insert(i, SqlDml.Cast(SqlDml.Null, valueType), columnInfo.Name);
           }
           i++;
@@ -638,12 +638,12 @@ namespace Xtensive.Storage.Providers.Sql
       var baseQueries = index.UnderlyingIndexes.Select(i => BuildProviderQuery(i)).ToList();
       foreach (var baseQuery in baseQueries) {
         if (result == null) {
-          result = /*baseQuery.Where.IsNullReference() ? baseQuery.From :*/ SqlDml.QueryRef(baseQuery);
+          result = SqlDml.QueryRef(baseQuery);
           rootTable = result;
           columns = rootTable.Columns.Cast<SqlColumn>();
         }
         else {
-          var queryRef = /*baseQuery.Where.IsNullReference() ? baseQuery.From :*/ SqlDml.QueryRef(baseQuery);
+          var queryRef = SqlDml.QueryRef(baseQuery);
           SqlExpression joinExpression = null;
           for (int i = 0; i < keyColumnCount; i++) {
             var binary = (queryRef.Columns[i]==rootTable.Columns[i]);
@@ -721,7 +721,7 @@ namespace Xtensive.Storage.Providers.Sql
     private SqlExpression ProcessExpression(LambdaExpression le,
       out HashSet<SqlFetchParameterBinding> parameterBindings, params SqlSelect[] selects)
     {
-      var processor = new ExpressionProcessor(le, this, Handlers, !FullBooleanExpressionSupport, selects);
+      var processor = new ExpressionProcessor(le, this, Handlers, selects);
       var result = processor.Translate();
       parameterBindings = processor.Bindings;
       return result;
@@ -730,7 +730,7 @@ namespace Xtensive.Storage.Providers.Sql
     private SqlExpression ProcessExpression(LambdaExpression le,
       out HashSet<SqlFetchParameterBinding> parameterBindings, params SqlQueryRef[] queryRefs)
     {
-      var processor = new ExpressionProcessor(le, this, Handlers, !FullBooleanExpressionSupport, queryRefs);
+      var processor = new ExpressionProcessor(le, this, Handlers, queryRefs);
       var result = processor.Translate();
       parameterBindings = processor.Bindings;
       return result;
@@ -787,9 +787,6 @@ namespace Xtensive.Storage.Providers.Sql
       : base(handlers.Domain.Configuration.ConnectionInfo, compiledSources)
     {
       Handlers = handlers;
-      var serverInfo = ((DomainHandler) Handlers.DomainHandler).Driver.ServerInfo;
-      FullBooleanExpressionSupport = (serverInfo.Query.Features & QueryFeatures.FullBooleanExpressionSupport)!=0;
-      CrossApplySupported = (serverInfo.Query.Features & QueryFeatures.CrossApply)!=0;
     }
   }
 }

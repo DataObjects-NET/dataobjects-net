@@ -1,8 +1,8 @@
-// Copyright (C) 2007 Xtensive LLC.
+// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Dmitri Maximov
-// Created:    2007.09.18
+// Created by: Denis Krjuchkov
+// Created:    2009.08.17
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
@@ -10,17 +10,16 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Describes schema synchronization errors 
-  /// detected during <see cref="Domain"/>.<see cref="Domain.Build"/> execution.
+  /// Base class for any storage-level exception.
   /// </summary>
   [Serializable]
-  public class SchemaSynchronizationException : StorageException
+  public class StorageException: Exception
   {
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="message">The error message.</param>
-    public SchemaSynchronizationException(string message)
+    /// <param name="message">The message.</param>
+    public StorageException(string message)
       : base(message)
     {
     }
@@ -28,9 +27,9 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="message">The error message.</param>
+    /// <param name="message">The message.</param>
     /// <param name="innerException">The inner exception.</param>
-    public SchemaSynchronizationException(string message, Exception innerException)
+    public StorageException(string message, Exception innerException)
       : base(message, innerException)
     {
     }
