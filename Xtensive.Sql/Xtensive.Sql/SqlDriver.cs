@@ -84,7 +84,7 @@ namespace Xtensive.Sql
     /// </returns>
     public Catalog ExtractCatalog(SqlConnection connection, DbTransaction transaction)
     {
-      return CreateExtractorInternal(connection, transaction).ExtractCatalog();
+      return GetExtractor(connection, transaction).ExtractCatalog();
     }
 
     /// <summary>
@@ -120,7 +120,7 @@ namespace Xtensive.Sql
     /// </returns>
     public Schema ExtractSchema(SqlConnection connection, DbTransaction transaction, string schemaName)
     {
-      return CreateExtractorInternal(connection, transaction).ExtractSchema(schemaName);
+      return GetExtractor(connection, transaction).ExtractSchema(schemaName);
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ namespace Xtensive.Sql
     public SqlConnection CreateConnection(string url)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(url, "url");
-      return CreateConnectionInternal(UrlInfo.Parse(url));
+      return new SqlConnection(this, UrlInfo.Parse(url));
     }
 
     /// <summary>
@@ -142,7 +142,7 @@ namespace Xtensive.Sql
     public SqlConnection CreateConnection(UrlInfo url)
     {
       ArgumentValidator.EnsureArgumentNotNull(url, "url");
-      return CreateConnectionInternal(url);
+      return new SqlConnection(this, url);
     }
 
     /// <summary>
@@ -193,7 +193,7 @@ namespace Xtensive.Sql
     public static SqlDriver Create(UrlInfo url)
     {
       ArgumentValidator.EnsureArgumentNotNull(url, "url");
-      return CreateDriverInternal(url);
+      return GetDriver(url);
     }
 
     /// <summary>
@@ -204,7 +204,7 @@ namespace Xtensive.Sql
     public static SqlDriver Create(string url)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(url, "url");
-      return CreateDriverInternal(UrlInfo.Parse(url));
+      return GetDriver(UrlInfo.Parse(url));
     }
 
     #region Private / internal methods
@@ -222,13 +222,8 @@ namespace Xtensive.Sql
 
       TypeMappings = new TypeMappingCollection(TypeMappingHandler);
     }
-    
-    private SqlConnection CreateConnectionInternal(UrlInfo url)
-    {
-      return new SqlConnection(this, url);
-    }
 
-    private Extractor CreateExtractorInternal(SqlConnection connection, DbTransaction transaction)
+    private Extractor GetExtractor(SqlConnection connection, DbTransaction transaction)
     {
       ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
       ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
@@ -239,7 +234,7 @@ namespace Xtensive.Sql
       return extractor;
     }
 
-    private static SqlDriver CreateDriverInternal(UrlInfo url)
+    private static SqlDriver GetDriver(UrlInfo url)
     {
       var thisAssemblyName = Assembly.GetExecutingAssembly().GetName();
       string driverAssemblyShortName = string.Format(DriverAssemblyFormat, url.Protocol);
