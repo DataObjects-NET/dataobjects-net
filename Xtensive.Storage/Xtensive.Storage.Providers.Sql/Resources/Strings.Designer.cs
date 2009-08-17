@@ -106,6 +106,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error &apos;{0}&apos;.
+        /// </summary>
+        internal static string ExErrorX {
+            get {
+                return ResourceManager.GetString("ExErrorX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error &apos;{0}&apos; while executing query &apos;{1}&apos;..
         /// </summary>
         internal static string ExErrorXWhileExecutingQueryY {

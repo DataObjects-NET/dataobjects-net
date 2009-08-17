@@ -21,9 +21,9 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly SqlTranslator translator;
     private readonly TypeMappingCollection allMappings;
 
-    public string BatchBegin { get { return underlyingDriver.Translator.BatchBegin; } }
-    public string BatchEnd { get { return underlyingDriver.Translator.BatchEnd; } }
-    public string BatchItemDelimiter { get { return underlyingDriver.Translator.BatchItemDelimiter; } }
+    public string BatchBegin { get { return translator.BatchBegin; } }
+    public string BatchEnd { get { return translator.BatchEnd; } }
+    public string BatchItemDelimiter { get { return translator.BatchItemDelimiter; } }
 
     public ProviderInfo BuildProviderInfo()
     {

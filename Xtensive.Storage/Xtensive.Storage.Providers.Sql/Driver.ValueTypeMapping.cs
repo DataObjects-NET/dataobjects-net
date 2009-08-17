@@ -28,6 +28,11 @@ namespace Xtensive.Storage.Providers.Sql
       return allMappings.GetMapping(columnInfo.ValueType).BuildSqlType(columnInfo.Length, null, null);
     }
 
+    public SqlValueType BuildValueType(Type type)
+    {
+      return allMappings.GetMapping(type).BuildSqlType();
+    }
+
     public SqlValueType BuildValueType(Type type, int? length, int? precision, int? scale)
     {
       return allMappings.GetMapping(type).BuildSqlType(length, precision, scale);

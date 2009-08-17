@@ -198,4 +198,7 @@
   <data name="ExErrorXWhileExecutingQueryY" xml:space="preserve">
     <value>Error '{0}' while executing query '{1}'.</value>
   </data>
+  <data name="ExErrorX" xml:space="preserve">
+    <value>Error '{0}'</value>
+  </data>
 </root>

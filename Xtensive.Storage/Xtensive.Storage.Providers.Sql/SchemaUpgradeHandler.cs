@@ -70,21 +70,20 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (DomainHandler.ProviderInfo.SupportsBatches) {
         var commandText = Driver.BuildBatch(batch.ToArray());
-        if (!string.IsNullOrEmpty(commandText))
-          using (var command = Connection.CreateCommand()) {
-            command.CommandText = commandText;
-            command.Transaction = SessionHandler.Transaction;
-            command.ExecuteNonQuery();
-          }
+        if (string.IsNullOrEmpty(commandText))
+          return;
+        var command = Connection.CreateCommand(commandText);
+        command.Transaction = SessionHandler.Transaction;
+        Driver.ExecuteNonQuery(command);
       }
       else {
-        foreach (var commandText in batch)
-          if (!string.IsNullOrEmpty(commandText))
-            using (var command = Connection.CreateCommand()) {
-              command.CommandText = commandText;
-              command.Transaction = SessionHandler.Transaction;
-              command.ExecuteNonQuery();
-            }
+        foreach (var commandText in batch) {
+          if (string.IsNullOrEmpty(commandText))
+            continue;
+          var command = Connection.CreateCommand(commandText);
+          command.Transaction = SessionHandler.Transaction;
+          Driver.ExecuteNonQuery(command);
+        }
       }
     }
 

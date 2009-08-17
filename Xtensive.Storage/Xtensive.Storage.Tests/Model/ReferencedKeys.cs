@@ -7,7 +7,6 @@
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Model.ReferencedKeysModel;
-using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Tests.Model.ReferencedKeysModel
 {
@@ -15,26 +14,32 @@ namespace Xtensive.Storage.Tests.Model.ReferencedKeysModel
   [HierarchyRoot]
   public class Country : Entity
   {
-    [Field, Key]
+    [Key, Field(Length = 100)]
     public string Name { get; private set;}
       
     [Field]
     public City Capital { get; set; }
 
-    public Country(string name) : base(name) {}
+    public Country(string name)
+      : base(name)
+    {
+    }
   }
 
   [KeyGenerator(null)]
   [HierarchyRoot]
   public class City : Entity
   {
-    [Field, Key(0)]
+    [Key(0), Field]
     public Country Country { get; private set;}
 
-    [Field, Key(1)]
+    [Key(1), Field(Length = 100)]
     public string Name { get; private set;}
 
-    public City(Country country, string name) : base(country.Name, name) {}
+    public City(Country country, string name)
+      : base(country.Name, name)
+    {
+    }
   }
 }
 

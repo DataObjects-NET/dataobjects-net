@@ -61,15 +61,6 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Column already has specified name..
-        /// </summary>
-        internal static string ColumnAlreadyHasSpecifiedName {
-            get {
-                return ResourceManager.GetString("ColumnAlreadyHasSpecifiedName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Circular reference is detected..
         /// </summary>
         internal static string ExCircularReferenceDetected {
@@ -79,7 +70,16 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; column type is not supported by &apos;{1}&apos; comparer.
+        ///   Looks up a localized string similar to Column already has specified name..
+        /// </summary>
+        internal static string ExColumnAlreadyHasSpecifiedName {
+            get {
+                return ResourceManager.GetString("ExColumnAlreadyHasSpecifiedName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; column type is not supported by &apos;{1}&apos; comparer..
         /// </summary>
         internal static string ExColumnTypeIsNotSupportedByComparer {
             get {
@@ -142,7 +142,7 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Function &apos;{0}&apos; is not supported.
+        ///   Looks up a localized string similar to Function &apos;{0}&apos; is not supported..
         /// </summary>
         internal static string ExFunctionXIsNotSupported {
             get {
@@ -412,7 +412,7 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to get default SQL comparer for type {0}.
+        ///   Looks up a localized string similar to Unable to get default SQL comparer for type {0}..
         /// </summary>
         internal static string LogUnableToGetDefaultNodeComparerForTypeXxx {
             get {

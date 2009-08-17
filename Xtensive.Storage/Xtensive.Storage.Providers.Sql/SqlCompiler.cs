@@ -32,7 +32,9 @@ namespace Xtensive.Storage.Providers.Sql
   [Serializable]
   public class SqlCompiler : RseCompiler
   {
-    protected const string TableNamePattern = "Tmp_{0}";
+    private const string TableNamePattern = "Tmp_{0}";
+
+    private readonly BooleanExpressionConverter booleanExpressionConverter;
     
     /// <summary>
     /// Gets the value type mapper.
@@ -97,13 +99,13 @@ namespace Xtensive.Storage.Providers.Sql
       var source = compiledSource as SqlProvider;
       if (source == null)
         return null;
-
-      SqlSelect source1 = source.Request.SelectStatement;
-      var sqlSelect = (SqlSelect) source1.ShallowClone();
+      SqlSelect sourceSelect = source.Request.SelectStatement;
+      var sqlSelect = sourceSelect.ShallowClone();
       var columns = sqlSelect.Columns.ToList();
       sqlSelect.Columns.Clear();
       for (int i = 0; i < columns.Count; i++) {
         var columnName = provider.Header.Columns[i].Name;
+        columnName = ProcessAliasedName(columnName);
         var columnRef = columns[i] as SqlColumnRef;
         if (columnRef != null)
           sqlSelect.Columns.Add(SqlDml.ColumnRef(columnRef.SqlColumn, columnName));
@@ -138,7 +140,7 @@ namespace Xtensive.Storage.Providers.Sql
         HashSet<SqlFetchParameterBinding> bindings;
         var predicate = ProcessExpression(column.Expression, out bindings, sqlSelect);
         if (!ProviderInfo.SupportsAllBooleanExpressions && (column.Type==typeof(bool) || column.Type==typeof(bool?)))
-          predicate = ExpressionProcessor.BooleanToInt(predicate);
+          predicate = booleanExpressionConverter.BooleanToInt(predicate);
         sqlSelect.Columns.Add(predicate, column.Name);
         allBindings = allBindings.Concat(bindings);
       }
@@ -442,7 +444,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlExpression existsExpression = SqlDml.Exists(source.Request.SelectStatement);
       if (!ProviderInfo.SupportsAllBooleanExpressions)
-        existsExpression = ExpressionProcessor.BooleanToInt(existsExpression);
+        existsExpression = booleanExpressionConverter.BooleanToInt(existsExpression);
       var select = SqlDml.Select();
       select.Columns.Add(existsExpression, provider.ExistenceColumnName);
 
@@ -561,6 +563,16 @@ namespace Xtensive.Storage.Providers.Sql
       default:
         throw new ArgumentException();
       }
+    }
+
+    /// <summary>
+    /// Processes the aliased.
+    /// </summary>
+    /// <param name="name">The name to process.</param>
+    /// <returns>Processed name.</returns>
+    protected virtual string ProcessAliasedName(string name)
+    {
+      return name;
     }
 
     #region Private methods
@@ -787,6 +799,9 @@ namespace Xtensive.Storage.Providers.Sql
       : base(handlers.Domain.Configuration.ConnectionInfo, compiledSources)
     {
       Handlers = handlers;
+
+      if (!handlers.DomainHandler.ProviderInfo.SupportsAllBooleanExpressions)
+        booleanExpressionConverter = new BooleanExpressionConverter(Driver);
     }
   }
 }

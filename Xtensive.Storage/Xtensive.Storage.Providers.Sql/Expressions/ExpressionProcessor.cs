@@ -29,6 +29,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private static readonly SqlExpression SqlTrue = SqlDml.Literal(true);
 
     private readonly Driver driver;
+    private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly IMemberCompilerProvider<SqlExpression> memberCompilerProvider;
     private readonly DomainModel model;
     private readonly SqlSelect[] selects;
@@ -95,12 +96,12 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (optimizeBooleanParameter) {
         result = SqlDml.Variant(SqlFalse, SqlTrue, binding.ParameterReference.Parameter);
         if (fixBooleanExpressions)
-          result = IntToBoolean(result);  
+          result = booleanExpressionConverter.IntToBoolean(result);
       }
       else {
         result = binding.ParameterReference;
         if (type==typeof(bool) && fixBooleanExpressions)
-          result = IntToBoolean(result);
+          result = booleanExpressionConverter.IntToBoolean(result);
         else if (typeMapping.ParameterCastRequired)
           result = SqlDml.Cast(result, typeMapping.BuildSqlType());
       }
@@ -167,8 +168,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         right = Visit(((UnaryExpression) expression.Right).Operand, isEqualityCheck);
       } else if (isBooleanFixRequired) {
         // boolean expressions should be compared as integers
-        left = BooleanToInt(Visit(expression.Left, isEqualityCheck));
-        right = BooleanToInt(Visit(expression.Right, isEqualityCheck));
+        left = booleanExpressionConverter.BooleanToInt(Visit(expression.Left, isEqualityCheck));
+        right = booleanExpressionConverter.BooleanToInt(Visit(expression.Right, isEqualityCheck));
       } else {
         left = Visit(expression.Left, isEqualityCheck);
         right = Visit(expression.Right, isEqualityCheck);
@@ -209,7 +210,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         case ExpressionType.Coalesce:
           SqlExpression coalesce = SqlDml.Coalesce(left, right);
           if (isBooleanFixRequired)
-            coalesce = IntToBoolean(coalesce);
+            coalesce = booleanExpressionConverter.IntToBoolean(coalesce);
           return coalesce;
         case ExpressionType.Divide:
           return SqlDml.Divide(left, right);
@@ -258,9 +259,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var ifFalse = Visit(expression.IfFalse);
       if (fixBooleanExpressions && IsBooleanExpression(expression)) {
         var c = SqlDml.Case();
-        c[check] = BooleanToInt(ifTrue);
-        c.Else = BooleanToInt(ifFalse);
-        return IntToBoolean(c);
+        c[check] = booleanExpressionConverter.BooleanToInt(ifTrue);
+        c.Else = booleanExpressionConverter.BooleanToInt(ifFalse);
+        return booleanExpressionConverter.IntToBoolean(c);
       } else {
         var c = SqlDml.Case();
         c[check] = ifTrue;
@@ -273,14 +274,14 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       if (expression.Value==null)
         return fixBooleanExpressions && expression.Type==typeof (bool?)
-          ? IntToBoolean(SqlDml.Null)
+          ? booleanExpressionConverter.IntToBoolean(SqlDml.Null)
           : SqlDml.Null;
       var type = expression.Type;
       if (type==typeof(object))
         type = expression.Value.GetType();
       type = type.StripNullable();
       if (fixBooleanExpressions && type==typeof (bool))
-        return (bool) expression.Value ? IntToBoolean(1) : IntToBoolean(0);
+        return (bool) expression.Value ? booleanExpressionConverter.IntToBoolean(1) : booleanExpressionConverter.IntToBoolean(0);
       return SqlDml.LiteralOrContainer(expression.Value, type);
     }
 
@@ -330,7 +331,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         result = queryRef[columnIndex];
       }
       if (fixBooleanExpressions && IsBooleanExpression(tupleAccess))
-        result = IntToBoolean(result);
+        result = booleanExpressionConverter.IntToBoolean(result);
       return result;
     }
     
@@ -527,46 +528,6 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     }
 
     #endregion
-
-    public static SqlExpression IntToBoolean(SqlExpression expression)
-    {
-      // optimization: omitting IntToBoolean(BooleanToInt(x)) sequences
-      if (expression.NodeType==SqlNodeType.Cast) {
-        var operand = ((SqlCast) expression).Operand;
-        if (operand.NodeType==SqlNodeType.Case) {
-          var _case = (SqlCase) operand;
-          if (_case.Count == 1) {
-            var firstCaseItem = _case.First();
-            var whenTrue = firstCaseItem.Value as SqlLiteral<int>;
-            var whenFalse = _case.Else as SqlLiteral<int>;
-            if (!ReferenceEquals(whenTrue, null)
-             && !ReferenceEquals(whenFalse, null)
-             && whenTrue.Value==1
-             && whenFalse.Value==0)
-              return firstCaseItem.Key;
-          }
-        }
-      }
-
-      return SqlDml.NotEquals(expression, 0);
-    }
-
-    public static SqlExpression BooleanToInt(SqlExpression expression)
-    {
-      // optimization: omitting BooleanToInt(IntToBoolean(x)) sequences
-      if (expression.NodeType==SqlNodeType.NotEquals) {
-        var binary = (SqlBinary) expression;
-        var left = binary.Left;
-        var right = binary.Right as SqlLiteral<int>;
-        if (!ReferenceEquals(right, null) && right.Value==0)
-          return left;
-      }
-
-      var result = SqlDml.Case();
-      result.Add(expression, 1);
-      result.Else = 0;
-      return SqlDml.Cast(result, SqlType.Boolean);
-    }
     
     // Constructors
 
@@ -604,6 +565,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       activeParameters = new List<ParameterExpression>();
       evaluator = new ExpressionEvaluator(le);
       parameterExtractor = new ParameterExtractor(evaluator);
+
+      if (fixBooleanExpressions)
+        booleanExpressionConverter = new BooleanExpressionConverter(driver);
     }
   }
 }

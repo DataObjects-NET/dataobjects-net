@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.07
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -27,6 +26,11 @@ namespace Xtensive.Storage.Providers.Sql.Servers.Oracle
       resultQuery.Columns.AddRange(sourceQueryRef.Columns.Cast<SqlColumn>());
       resultQuery.Columns.Add(SqlDml.Native("rownum"), rowNumberColumnName);
       return resultQuery;
+    }
+
+    protected override string ProcessAliasedName(string name)
+    {
+      return Handlers.NameBuilder.ApplyNamingRules(name);
     }
 
     // Constructors

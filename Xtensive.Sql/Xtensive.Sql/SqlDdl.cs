@@ -304,7 +304,7 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(column, "table");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(newName, "newName");
       if (column.Name==newName)
-        throw new ArgumentException(Strings.ColumnAlreadyHasSpecifiedName);
+        throw new ArgumentException(Strings.ExColumnAlreadyHasSpecifiedName);
       return Alter(column.Table, new SqlRenameColumn(column, newName));
     }
 
