@@ -72,7 +72,7 @@ namespace Xtensive.Sql
     /// <returns>
     /// <see langword="true"/> if exception is recoverable; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsRecoverable(SqlExceptionType exceptionType)
+    public static bool IsRecoverable(this SqlExceptionType exceptionType)
     {
       return ((int) exceptionType) < 0;
     }
