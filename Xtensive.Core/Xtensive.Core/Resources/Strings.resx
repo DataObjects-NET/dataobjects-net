@@ -654,4 +654,7 @@
   <data name="ExTypeXMustBeNonAbstractType" xml:space="preserve">
     <value>Type '{0}' must be non-abstract type.</value>
   </data>
+  <data name="ExExceptionWasThrownDuringTaskExecution" xml:space="preserve">
+    <value>The exception was thrown during the task's execution.</value>
+  </data>
 </root>

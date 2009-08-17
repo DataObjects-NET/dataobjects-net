@@ -547,6 +547,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The exception was thrown during the task&apos;s execution..
+        /// </summary>
+        internal static string ExExceptionWasThrownDuringTaskExecution {
+            get {
+                return ResourceManager.GetString("ExExceptionWasThrownDuringTaskExecution", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The expected value of the parameter is already set..
         /// </summary>
         internal static string ExExpectedValueOfParameterIsAlreadySet {
