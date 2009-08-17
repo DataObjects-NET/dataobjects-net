@@ -135,7 +135,6 @@ namespace Xtensive.Core.Threading
         task.Execute();
       }
       catch(Exception e) {
-        Console.WriteLine(e.Message);
         interceptedException = e;
         lock (tasks) {
           while (tasks.Count > 0)
