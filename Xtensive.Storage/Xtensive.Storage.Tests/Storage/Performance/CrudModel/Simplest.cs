@@ -9,6 +9,7 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Storage.Tests.Storage.Performance.CrudModel
 {
   [HierarchyRoot]
+  [Index("Value")]
   public class Simplest : Entity
   {
     [Field, Key]

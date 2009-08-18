@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     {
       var config = CreateConfiguration();
       config.Sessions.Add(new SessionConfiguration("Default"));
-      config.Sessions.Default.CacheSize = BaseCount;
+      // config.Sessions.Default.CacheSize = BaseCount;
       config.Sessions.Default.CacheType = SessionCacheType.Infinite;
       config.Types.Register(typeof(Simplest).Assembly, typeof(Simplest).Namespace);
       return config;
@@ -58,6 +58,18 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       //DeleteSimplestContainer();
     }
 
+    [Test]
+    [Explicit]
+    [Category("Profile")]
+    public void UpdatePerformanceTest()
+    {
+      warmup = true;
+      CombinedTest(10, 10);
+      warmup = false;
+      InsertTest(1000000);
+      SingleStatementLikeUpdateTest();
+    }
+
     private void CombinedTest(int baseCount, int insertCount)
     {
       if (warmup)
@@ -80,6 +92,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       RseQueryTest(baseCount / 5);
       CachedRseQueryTest(baseCount / 5);
       UpdateTest();
+      UpdateNoBatchingTest();
+      SingleStatementLikeUpdateTest();
       RemoveTest();
     }
 
@@ -425,6 +439,45 @@ namespace Xtensive.Storage.Tests.Storage.Performance
             var query = Query.Execute(() => Query<Simplest>.All);
             foreach (var o in query)
               o.Value++;
+            ts.Complete();
+          }
+        }
+      }
+    }
+
+    private void UpdateNoBatchingTest()
+    {
+      var d = Domain;
+      using (var ss = Session.Open(d)) {
+        var s = ss.Session;
+        TestHelper.CollectGarbage();
+        using (warmup ? null : new Measurement("Update (no batching)", instanceCount)) {
+          using (var ts = Transaction.Open()) {
+            var query = Query.Execute(() => Query<Simplest>.All);
+            foreach (var o in query) {
+              o.Value = o.Value++;
+              s.Persist();
+            }
+            ts.Complete();
+          }
+        }
+      }
+    }
+
+    private void SingleStatementLikeUpdateTest()
+    {
+      var d = Domain;
+      using (var ss = Session.Open(d)) {
+        var s = ss.Session;
+        TestHelper.CollectGarbage();
+        using (warmup ? null : new Measurement("Update (like DML query)", instanceCount)) {
+          using (var ts = Transaction.Open()) {
+            var query = Query.Execute(() => Query<Simplest>.All);
+            foreach (var o in query) {
+              var value = o.Value;
+              if (value>=0)
+                o.Value = -value;
+            }
             ts.Complete();
           }
         }

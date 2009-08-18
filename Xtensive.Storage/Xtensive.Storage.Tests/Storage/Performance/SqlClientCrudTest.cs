@@ -56,6 +56,16 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       MaterializeTest(instanceCount);
     }
 
+    [Test]
+    [Explicit]
+    [Category("Profile")]
+    public void UpdatePerformanceTest()
+    {
+      int instanceCount = 1000000;
+      InsertTest(instanceCount);
+      SingleStatementUpdateTest();
+    }
+
     private void CombinedTest(int baseCount, int insertCount)
     {
       InsertTest(insertCount);
@@ -63,6 +73,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       FetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
       UpdateTest();
+      SingleStatementUpdateTest();
       RemoveTest();
     }
     
@@ -219,6 +230,24 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           cmd.Parameters["@pValue"].SqlValue = l.Value + 1;
           cmd.ExecuteNonQuery();
         }
+        transaction.Commit();
+      }
+      con.Close();
+    }
+
+    private void SingleStatementUpdateTest()
+    {
+      con.Open();
+      TestHelper.CollectGarbage();
+      using (warmup ? null : new Measurement("SingleStatementUpdate", instanceCount)) {
+        SqlTransaction transaction = con.BeginTransaction();
+        SqlCommand cmd = con.CreateCommand();
+        cmd.Transaction = transaction;
+        cmd.CommandText = 
+          "UPDATE [dbo].[Simplest] " + 
+          "SET [Simplest].[Value] = -[Simplest].[Value] " + 
+          "WHERE [Simplest].[Value] >= 0";
+        cmd.ExecuteNonQuery();
         transaction.Commit();
       }
       con.Close();
