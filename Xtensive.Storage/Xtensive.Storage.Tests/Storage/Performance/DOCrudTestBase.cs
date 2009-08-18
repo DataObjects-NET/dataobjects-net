@@ -53,9 +53,9 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       MaterializeTest(BaseCount);
       UpdateTest();
       RemoveTest();
-      //CreateSimplestContainer(BaseCount);
-      //AccessToPairedEntitySetTest(collectionCount);
-      //DeleteSimplestContainer();
+      // CreateSimplestContainer(BaseCount);
+      // AccessToPairedEntitySetTest(collectionCount);
+      // DeleteSimplestContainer();
     }
 
     [Test]
