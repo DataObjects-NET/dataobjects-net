@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Info;
@@ -124,9 +125,9 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
       
       SqlSelect sqlSelect;
-      if (provider.Source.Header.Length == 0) {
-        SqlSelect source1 = source.Request.SelectStatement;
-        sqlSelect = source1.ShallowClone();
+      if (provider.Source.Header.Length==0) {
+        SqlSelect sourceSelect = source.Request.SelectStatement;
+        sqlSelect = sourceSelect.ShallowClone();
         sqlSelect.Columns.Clear();
       }
       else {
@@ -139,7 +140,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var column in provider.CalculatedColumns) {
         HashSet<SqlFetchParameterBinding> bindings;
         var predicate = ProcessExpression(column.Expression, out bindings, sqlSelect);
-        if (!ProviderInfo.SupportsAllBooleanExpressions && (column.Type==typeof(bool) || column.Type==typeof(bool?)))
+        if (!ProviderInfo.SupportsAllBooleanExpressions && (column.Type.StripNullable()==typeof(bool)))
           predicate = booleanExpressionConverter.BooleanToInt(predicate);
         sqlSelect.Columns.Add(predicate, column.Name);
         allBindings = allBindings.Concat(bindings);
@@ -151,8 +152,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override ExecutableProvider VisitDistinct(DistinctProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
-      var source = compiledSource as SqlProvider;
+      var source = GetCompiled(provider.Source) as SqlProvider;
       if (source == null)
         return null;
 
@@ -388,8 +388,7 @@ namespace Xtensive.Storage.Providers.Sql
       var compiledSource = GetCompiled(provider.Source) as SqlProvider;
       if (compiledSource == null)
         return null;
-
-      //var query = ShallowCopy(compiledSource.Request.SelectStatement);
+      
       var query = ExtractSqlSelect(compiledSource);
       var count = provider.Count();
       if (query.Limit == 0 || query.Limit > count)
@@ -404,7 +403,6 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var left = GetCompiled(provider.Left) as SqlProvider;
       var right = GetCompiled(provider.Right) as SqlProvider;
-
       if (left==null || right==null)
         return null;
 
@@ -438,7 +436,6 @@ namespace Xtensive.Storage.Providers.Sql
     protected override ExecutableProvider VisitExistence(ExistenceProvider provider)
     {
       var source = GetCompiled(provider.Source) as SqlProvider;
-
       if (source == null)
         return null;
 
@@ -461,12 +458,9 @@ namespace Xtensive.Storage.Providers.Sql
 
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
-      
-      var result = SqlDml.Intersect(
-        leftSelect,
-        rightSelect);
-
+      var result = SqlDml.Intersect(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
+
       SqlSelect query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
@@ -483,11 +477,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
-
-      var result = SqlDml.Except(
-        leftSelect,
-        rightSelect);
-
+      var result = SqlDml.Except(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
@@ -505,9 +495,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
-
       var result = SqlDml.UnionAll(leftSelect, rightSelect);
-
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
@@ -525,7 +513,6 @@ namespace Xtensive.Storage.Providers.Sql
 
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
-
       var result = SqlDml.Union(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
@@ -533,7 +520,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       return new SqlProvider(provider, query, Handlers, left, right);
     }
-
+    
     protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
     {
       throw new NotSupportedException();
@@ -724,8 +711,8 @@ namespace Xtensive.Storage.Providers.Sql
         query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       }
       else {
-        SqlSelect source1 = source.Request.SelectStatement;
-        query = source1.ShallowClone();
+        SqlSelect sourceSelect = source.Request.SelectStatement;
+        query = sourceSelect.ShallowClone();
       }
       return query;
     }
