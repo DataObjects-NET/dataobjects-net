@@ -100,16 +100,16 @@ namespace Xtensive.Storage
       get {
         return resolver;
       }
-      [DebuggerStepThrough]
-      set {
-        if (resolver!=null)
-          throw Exceptions.AlreadyInitialized("Resolver");
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      set
+      {
         resolver = value;
-        Rse.Compilation.CompilationContext.Resolver = () => {
-          var session = resolver.Invoke();
-          return session==null ? null : session.CompilationContext;
-        };
+        if (value==null)
+          Rse.Compilation.CompilationContext.Resolver = null;
+        else
+          Rse.Compilation.CompilationContext.Resolver = () => {
+            var session = resolver.Invoke();
+            return session==null ? null : session.CompilationContext;
+          };
       }
     }
 

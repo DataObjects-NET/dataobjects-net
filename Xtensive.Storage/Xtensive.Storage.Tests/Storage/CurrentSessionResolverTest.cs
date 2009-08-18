@@ -12,6 +12,12 @@ namespace Xtensive.Storage.Tests.Storage
   [TestFixture]
   public class CurrentSessionResolverTest
   {
+    [TearDown]
+    public void TearDown()
+    {
+      Session.Resolver = null;
+    }
+
     [Test]
     public void Tests()
     {
@@ -32,17 +38,15 @@ namespace Xtensive.Storage.Tests.Storage
       Assert.AreEqual(1, resolveCount);
       Assert.IsFalse(session.IsActive);
       Assert.AreEqual(2, resolveCount);
-      Assert.AreEqual(CompilationContext.Default, CompilationContext.Current);
-      Assert.AreEqual(3, resolveCount);
 
       isSessionActive = true;
 
       Assert.AreEqual(session, Session.Current);
-      Assert.AreEqual(4, resolveCount);
+      Assert.AreEqual(3, resolveCount);
       Assert.IsTrue(session.IsActive);
-      Assert.AreEqual(5, resolveCount);
+      Assert.AreEqual(4, resolveCount);
       Assert.AreEqual(session.CompilationContext, CompilationContext.Current);
-      Assert.AreEqual(6, resolveCount);
+      Assert.AreEqual(5, resolveCount);
 
       isSessionActive = false;
 
@@ -78,7 +82,7 @@ namespace Xtensive.Storage.Tests.Storage
         session.Activate();
       }
 
-      Assert.AreEqual(6, resolveCount);
+      Assert.AreEqual(5, resolveCount);
     }
   }
 }

@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Rse.Compilation
   {
     private readonly Func<ICompiler> compilerProvider;
     private readonly Func<IPreCompiler> preCompilerProvider;
-    private Func<IPostCompiler> postCompilerProvider;
+    private readonly Func<IPostCompiler> postCompilerProvider;
 
     #region Nested type: CacheEntry
 
@@ -77,9 +77,6 @@ namespace Xtensive.Storage.Rse.Compilation
       }
       [DebuggerStepThrough]
       set {
-        if (resolver!=null)
-          throw Exceptions.AlreadyInitialized("Resolver");
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
         resolver = value;
       }
     }
