@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Linq.Materialization
       throw new InvalidOperationException(Strings.ExSequenceContainsNoElements);
     }
 
-    public static IEnumerable<TResult> Materialize<TResult>(RecordSet rs, MaterializationContext context, Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
+    public static IEnumerable<TResult> Materialize<TResult>(IEnumerable<Tuple> dataSource, MaterializationContext context, Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
     {
       ParameterContext ctx;
       var session = Session.Demand();
@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Linq.Materialization
             tupleParameterBinding.Key.Value = tupleParameterBinding.Value;
         }
         ParameterScope scope = null;
-        var batched = rs.Select(tuple => itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, session))).Batch(2)
+        var batched = dataSource.Select(tuple => itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, session))).Batch(2)
           .ApplyBeforeAndAfter(() => scope = ctx.Activate(), () => scope.DisposeSafely());
         foreach (var batch in batched)
           foreach (var result in batch)

@@ -5,20 +5,20 @@
 // Created:    2009.05.27
 
 using System;
-using System.Diagnostics;
-using Xtensive.Storage.Rse;
+using System.Collections.Generic;
+using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Linq
 {
   public abstract class TranslatedQuery
   {
-    public readonly RecordSet DataSource;
+    public readonly IEnumerable<Tuple> DataSource;
 
     public abstract Delegate UntypedMaterializer { get; }
 
     // Constructors
 
-    protected TranslatedQuery(RecordSet dataSource)
+    protected TranslatedQuery(IEnumerable<Tuple> dataSource)
     {
       DataSource = dataSource;
     }

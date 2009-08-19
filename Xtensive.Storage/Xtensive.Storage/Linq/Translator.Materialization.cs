@@ -91,11 +91,11 @@ namespace Xtensive.Storage.Linq
       return origin;
     }
 
-    private Func<RecordSet, Dictionary<Parameter<Tuple>, Tuple>, TResult> BuildMaterializer<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
+    private Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, TResult> BuildMaterializer<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var itemProjector = projection.ItemProjector;
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);
-      var rs = Expression.Parameter(typeof (RecordSet), "rs");
+      var rs = Expression.Parameter(typeof(IEnumerable<Tuple>), "rs");
       var tupleParameterBindings = Expression.Parameter(typeof (Dictionary<Parameter<Tuple>, Tuple>), "tupleParameterBindings");
       var elementType = itemProjector.Item.Type;
       var materializeMethod = MaterializationHelper.MaterializeMethodInfo
@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Linq
           ? body
           : Expression.Convert(body, typeof (TResult));
 
-      var projectorExpression = Expression.Lambda<Func<RecordSet, Dictionary<Parameter<Tuple>, Tuple>, TResult>>(body, rs, tupleParameterBindings);
+      var projectorExpression = Expression.Lambda<Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, TResult>>(body, rs, tupleParameterBindings);
       return projectorExpression.CachingCompile();
     }
 

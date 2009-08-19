@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Linq
     /// </summary>
     public RecordSet Compiled
     {
-      get { return Session.Demand().Handler.Translate<T>(expression).DataSource; }
+      get { return (RecordSet) Session.Demand().Handler.Translate<T>(expression).DataSource; }
     }
 
     #region IEnumerable<...> members
