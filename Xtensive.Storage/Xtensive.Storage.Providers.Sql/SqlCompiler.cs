@@ -523,7 +523,20 @@ namespace Xtensive.Storage.Providers.Sql
     
     protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
     {
-      throw new NotSupportedException();
+      if (provider.Header.Order.Count==0)
+        throw new InvalidOperationException(Strings.ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider);
+      var source = GetCompiled(provider.Source) as SqlProvider;
+      if (source == null)
+        return null;
+
+      var sourceSelect = SqlDml.QueryRef(source.Request.SelectStatement);
+      var query = SqlDml.Select(sourceSelect);
+      query.Columns.AddRange(sourceSelect.Columns.Cast<SqlColumn>());
+      var rowNumber = SqlDml.RowNumber();
+      query.Columns.Add(rowNumber, provider.Header.Columns.Last().Name);
+      foreach (KeyValuePair<int, Direction> order in provider.Header.Order)
+        rowNumber.OrderBy.Add(sourceSelect[order.Key], order.Value==Direction.Positive);
+      return new SqlProvider(provider, query, Handlers, source);
     }
 
     /// <summary>

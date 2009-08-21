@@ -90,6 +90,7 @@ namespace Xtensive.Sql
     Revoke,
     Rename,
     Row,
+    RowNumber,
     Round,
     Select,
     SetDefault,

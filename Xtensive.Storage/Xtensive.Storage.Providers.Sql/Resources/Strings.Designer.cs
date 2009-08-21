@@ -214,6 +214,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ROW_NUMBER window function is not supported on this version of PostgreSQL.
+        /// </summary>
+        internal static string ExRowNumberWindowFunctionIsNotSupportedOnThisVersionOfPostgreSql {
+            get {
+                return ResourceManager.GetString("ExRowNumberWindowFunctionIsNotSupportedOnThisVersionOfPostgreSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sequence &apos;{0}&apos; is not found in storage..
         /// </summary>
         internal static string ExSequenceXIsNotFoundInStorage {

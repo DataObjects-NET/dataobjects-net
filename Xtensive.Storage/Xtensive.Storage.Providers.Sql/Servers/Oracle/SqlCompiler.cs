@@ -16,18 +16,6 @@ namespace Xtensive.Storage.Providers.Sql.Servers.Oracle
 {
   internal class SqlCompiler : ManualPagingSqlCompiler
   {
-    protected override SqlSelect AddRowNumberColumn(SqlSelect sourceQuery, CompilableProvider provider, string rowNumberColumnName)
-    {
-      var sourceQueryOrigin = sourceQuery.From;
-      foreach (KeyValuePair<int, Direction> order in provider.Header.Order)
-        sourceQuery.OrderBy.Add(sourceQueryOrigin[order.Key], order.Value==Direction.Positive);
-      var sourceQueryRef = SqlDml.QueryRef(sourceQuery);
-      var resultQuery = SqlDml.Select(sourceQueryRef);
-      resultQuery.Columns.AddRange(sourceQueryRef.Columns.Cast<SqlColumn>());
-      resultQuery.Columns.Add(SqlDml.Native("rownum"), rowNumberColumnName);
-      return resultQuery;
-    }
-
     protected override string ProcessAliasedName(string name)
     {
       return Handlers.NameBuilder.ApplyNamingRules(name);

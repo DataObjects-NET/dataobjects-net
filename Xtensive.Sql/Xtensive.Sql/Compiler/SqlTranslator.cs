@@ -1118,6 +1118,18 @@ namespace Xtensive.Sql.Compiler
       return string.Empty;
     }
 
+    public virtual string Translate(SqlCompilerContext context, SqlRowNumber node, NodeSection section)
+    {
+      switch (section) {
+      case NodeSection.Entry:
+        return "ROW_NUMBER() OVER(ORDER BY";
+      case NodeSection.Exit:
+        return ")";
+      default:
+        throw new ArgumentOutOfRangeException("section");
+      }
+    }
+
     public virtual string Translate(SqlCompilerContext context, SqlRenameTable node)
     {
       return string.Format("ALTER TABLE {0} RENAME TO {1}", Translate(node.Table), QuoteIdentifier(node.NewName));

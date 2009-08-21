@@ -61,25 +61,6 @@ namespace Xtensive.Storage.Providers.Sql
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
-    protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
-    {
-      if (provider.Header.Order.Count==0)
-        throw new InvalidOperationException(Strings.ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider);
-      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
-      if (compiledSource == null)
-        return null;
-
-      SqlSelect source = compiledSource.Request.SelectStatement;
-      var sourceQuery = source.ShallowClone(); // why clone?
-      var rowNumberColumnName = provider.Header.Columns.Last().Name;
-      var queryRef = SqlDml.QueryRef(sourceQuery);
-      var query = SqlDml.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      query = AddRowNumberColumn(query, provider, rowNumberColumnName);
-
-      return new SqlProvider(provider, query, Handlers, compiledSource);
-    }
-
     private static SqlExpression AddTakePartToSkipWhereExpression(
       SqlSelect sourceQuery, TakeProvider provider, CompilableProvider source)
     {
@@ -130,9 +111,6 @@ namespace Xtensive.Storage.Providers.Sql
         prevPart = currentPart;
       }
     }
-
-    protected abstract SqlSelect AddRowNumberColumn(
-      SqlSelect sourceQuery, CompilableProvider provider, string rowNumberColumnName);
 
     // Constructors
 

@@ -34,22 +34,6 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
       return result;
     }
 
-    protected override SqlSelect AddRowNumberColumn(SqlSelect sourceQuery, CompilableProvider provider, string rowNumberColumnName)
-    {
-      SqlExpression rowNumberExpression = SqlDml.Native("ROW_NUMBER() OVER (ORDER BY ");
-      for (var i = 0; i < provider.Header.Order.Count; i++) {
-        if (i!=0)
-          rowNumberExpression = SqlDml.RawConcat(rowNumberExpression, SqlDml.Native(", "));
-        rowNumberExpression = SqlDml.RawConcat(rowNumberExpression,
-          sourceQuery[provider.Header.Order[i].Key]);
-        rowNumberExpression = SqlDml.RawConcat(rowNumberExpression,
-          SqlDml.Native(provider.Header.Order[i].Value==Direction.Positive ? " ASC" : " DESC"));
-      }
-      rowNumberExpression = SqlDml.RawConcat(rowNumberExpression, SqlDml.Native(")"));
-      sourceQuery.Columns.Add(rowNumberExpression, rowNumberColumnName);
-      return sourceQuery;
-    }
-
 
     // Constructors
 

@@ -920,6 +920,21 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    public virtual void Visit(SqlRowNumber node)
+    {
+      using (context.EnterNode(node)) {
+        context.AppendText(translator.Translate(context, node, NodeSection.Entry));
+        using (context.EnterCollection()) {
+          foreach (var item in node.OrderBy) {
+            if (!context.IsEmpty)
+              context.AppendDelimiter(translator.ColumnDelimiter);
+            item.AcceptVisitor(this);
+          }
+        }
+        context.AppendText(translator.Translate(context, node, NodeSection.Exit));
+      }
+    }
+
     public virtual void Visit(SqlRenameTable node)
     {
       context.AppendText(translator.Translate(context, node));

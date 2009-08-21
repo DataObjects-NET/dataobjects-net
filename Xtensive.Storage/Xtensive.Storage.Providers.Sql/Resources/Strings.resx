@@ -201,4 +201,7 @@
   <data name="ExErrorX" xml:space="preserve">
     <value>Error '{0}'</value>
   </data>
+  <data name="ExRowNumberWindowFunctionIsNotSupportedOnThisVersionOfPostgreSql" xml:space="preserve">
+    <value>ROW_NUMBER window function is not supported on this version of PostgreSQL</value>
+  </data>
 </root>
