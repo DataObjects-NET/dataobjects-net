@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Linq.Expressions
       var fields = new List<PersistentFieldExpression>();
       var keyExpression = KeyExpression.Create(typeInfo, offset);
       fields.Add(keyExpression);
-      var result = new EntityExpression(typeInfo, keyExpression, null, false, FieldLoadMode.Lazy);
+      var result = new EntityExpression(typeInfo, keyExpression, null, false, FieldLoadMode.Standard);
       foreach (var nestedField in typeInfo.Fields)
         fields.Add(BuildNestedFieldExpression(nestedField, offset));
       result.Fields = fields;

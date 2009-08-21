@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Linq.Expressions
       fields.Add(keyExpression);
       foreach (var keyField in persistentType.Fields.Where(f => f.IsPrimaryKey))
         fields.Add(BuildNestedFieldExpression(keyField, offset + entityField.MappingInfo.Offset));
-      return new EntityFieldExpression(persistentType, entityField, fields, mapping, keyExpression, null, null, false, FieldLoadMode.Lazy);
+      return new EntityFieldExpression(persistentType, entityField, fields, mapping, keyExpression, null, null, false, FieldLoadMode.Standard);
     }
 
     private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, int offset)
