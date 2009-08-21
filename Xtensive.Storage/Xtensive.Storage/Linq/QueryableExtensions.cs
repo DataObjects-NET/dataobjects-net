@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Linq
   public static class QueryableExtensions
   {
     /// <summary>
-    /// Expands <see cref="Entity"/>, specified in <paramref name="selector"/>.
+    /// Fetches <see cref="Entity"/>, specified in <paramref name="selector"/>.
     /// This <see cref="Entity"/> will be queried along with base query.
     /// </summary>
     /// <typeparam name="TSource">Type of source.</typeparam>
@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Linq
     /// <exception cref="ArgumentNullException"><paramref name="source"/> argument is null.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="selector"/> argument is null.</exception>
     /// <remarks>Overrides <see cref="FieldAttribute.LazyLoad"/> setting for specified fields.</remarks>
-    public static IQueryable<TSource> Expand<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Entity>> selector)
+    public static IQueryable<TSource> Prefetch<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Entity>> selector)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(selector, "selector");
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Linq
 
 
     /// <summary>
-    /// Expands subquery, specified in <paramref name="selector"/>.
+    /// Prefetches subquery, specified in <paramref name="selector"/>.
     /// This subquery will be queried along with base query.
     /// </summary>
     /// <typeparam name="TSource">Type of source.</typeparam>
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Linq
     /// <exception cref="NotSupportedException">Queryable is not <see cref="Xtensive.Storage.Linq"/> query.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> argument is null.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="selector"/> argument is null.</exception>
-    public static IQueryable<TSource> Expand<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, IQueryable>> selector)
+    public static IQueryable<TSource> Prefetch<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, IQueryable>> selector)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(selector, "selector");

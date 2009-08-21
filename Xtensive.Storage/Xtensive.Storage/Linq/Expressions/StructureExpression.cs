@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Linq.Expressions
         return value;
 
       var mapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
-      var result = new StructureExpression(PersistentType, Field, mapping, OuterParameter, DefaultIfEmpty);
+      var result = new StructureExpression(PersistentType, Field, mapping, OuterParameter, DefaultIfEmpty, LoadMode);
       processedExpressions.Add(this, result);
       var processedFields = Fields
         .Select(f => f.Remap(offset, processedExpressions))
@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var result = new StructureExpression(PersistentType, Field, default(Segment<int>), OuterParameter, DefaultIfEmpty);
+      var result = new StructureExpression(PersistentType, Field, default(Segment<int>), OuterParameter, DefaultIfEmpty, LoadMode);
       processedExpressions.Add(this, result);
       var processedFields = Fields
         .Select(f => f.Remap(map, processedExpressions))
@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var result = new StructureExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);
+      var result = new StructureExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty, LoadMode);
       processedExpressions.Add(this, result);
       var processedFields = Fields
         .Select(f => f.BindParameter(parameter, processedExpressions))
@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var result = new StructureExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);
+      var result = new StructureExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty, LoadMode);
       processedExpressions.Add(this, result);
       var processedFields = Fields
         .Select(f => f.RemoveOuterParameter(processedExpressions))
@@ -136,7 +136,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public override FieldExpression RemoveOwner()
     {
-      var result = new StructureExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);
+      var result = new StructureExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty, LoadMode);
       result.fields = fields
         .Cast<FieldExpression>()
         .Select(f => (PersistentFieldExpression)f.RemoveOwner())
@@ -150,7 +150,8 @@ namespace Xtensive.Storage.Linq.Expressions
         throw new ArgumentException(string.Format("Field {0} is not structure.", structureField.Name));
       var persistentType = structureField.ReflectedType.Model.Types[structureField.ValueType];
       var mapping = new Segment<int>(offset, structureField.MappingInfo.Length);
-      var result = new StructureExpression(persistentType, structureField, mapping, null, false);
+      var loadMode = structureField.IsLazyLoad ? FieldLoadMode.Lazy : FieldLoadMode.Standard;
+      var result = new StructureExpression(persistentType, structureField, mapping, null, false, loadMode);
       result.Fields = persistentType.Fields
         .Select(f => BuildNestedFieldExpression(f, offset + structureField.MappingInfo.Offset))
         .ToList();
@@ -173,8 +174,14 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    private StructureExpression(TypeInfo persistentType, FieldInfo structureField, Segment<int> mapping, ParameterExpression parameterExpression, bool defaultIfEmpty)
-      : base(ExtendedExpressionType.Structure, structureField, mapping, parameterExpression, defaultIfEmpty)
+    private StructureExpression(
+      TypeInfo persistentType, 
+      FieldInfo structureField, 
+      Segment<int> mapping, 
+      ParameterExpression parameterExpression, 
+      bool defaultIfEmpty,
+      FieldLoadMode loadMode)
+      : base(ExtendedExpressionType.Structure, structureField, mapping, parameterExpression, defaultIfEmpty, loadMode)
     {
       PersistentType = persistentType;
     }

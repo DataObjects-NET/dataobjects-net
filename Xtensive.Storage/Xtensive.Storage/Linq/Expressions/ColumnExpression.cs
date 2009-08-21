@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (!CanRemap)
         return this;
       var mapping = new Segment<int>(Mapping.Offset + offset, 1);
-      return new ColumnExpression(Type, mapping, OuterParameter, DefaultIfEmpty);
+      return new ColumnExpression(Type, mapping, OuterParameter, DefaultIfEmpty, LoadMode);
     }
 
     public Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
@@ -31,23 +31,23 @@ namespace Xtensive.Storage.Linq.Expressions
       if (!CanRemap)
         return this;
       var mapping = new Segment<int>(map.IndexOf(Mapping.Offset), 1);
-      return new ColumnExpression(Type, mapping, OuterParameter, DefaultIfEmpty);
+      return new ColumnExpression(Type, mapping, OuterParameter, DefaultIfEmpty, LoadMode);
     }
 
     public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      return new ColumnExpression(Type, Mapping, parameter, DefaultIfEmpty);
+      return new ColumnExpression(Type, Mapping, parameter, DefaultIfEmpty, LoadMode);
     }
 
     public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      return new ColumnExpression(Type, Mapping, null, DefaultIfEmpty);
+      return new ColumnExpression(Type, Mapping, null, DefaultIfEmpty, LoadMode);
     }
 
     public static ColumnExpression Create(Type type, int columnIndex)
     {
       var mapping = new Segment<int>(columnIndex, 1);
-      return new ColumnExpression(type, mapping, null, false);
+      return new ColumnExpression(type, mapping, null, false, FieldLoadMode.Standard);
     }
 
     public override string ToString()
@@ -58,8 +58,13 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    private ColumnExpression(Type type, Segment<int> mapping, ParameterExpression parameterExpression, bool defaultIfEmpty)
-      : base(ExtendedExpressionType.Column, type, parameterExpression, defaultIfEmpty)
+    private ColumnExpression(
+      Type type, 
+      Segment<int> mapping, 
+      ParameterExpression parameterExpression, 
+      bool defaultIfEmpty,
+      FieldLoadMode loadMode)
+      : base(ExtendedExpressionType.Column, type, parameterExpression, defaultIfEmpty, loadMode)
     {
       Mapping = mapping;
     }

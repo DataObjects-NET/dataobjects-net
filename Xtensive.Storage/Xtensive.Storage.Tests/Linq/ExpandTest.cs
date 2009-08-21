@@ -20,21 +20,21 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySimpleSetTest()
     {
-      var result = Query<Customer>.All.Expand(c=>c.Orders);
+      var result = Query<Customer>.All.Prefetch(c=>c.Orders);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void EntitySimpleTest()
     {
-      var result = Query<Order>.All.Expand(o=>o.ShipVia);
+      var result = Query<Order>.All.Prefetch(o=>o.ShipVia);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void SubquerySimpleTest()
     {
-      var result = Query<Order>.All.Expand(o=>Query<Shipper>.All.Where(s=>s==o.ShipVia));
+      var result = Query<Order>.All.Prefetch(o=>Query<Shipper>.All.Where(s=>s==o.ShipVia));
       QueryDumper.Dump(result);
     }
   }

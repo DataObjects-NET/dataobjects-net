@@ -120,8 +120,14 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    private KeyExpression(TypeInfo entityType, System.Collections.ObjectModel.ReadOnlyCollection<FieldExpression> keyFields, Segment<int> segment, PropertyInfo underlyingProperty, ParameterExpression parameterExpression, bool defaultIfEmpty)
-      : base(ExtendedExpressionType.Key, WellKnown.KeyFieldName, typeof(Key), segment, underlyingProperty, parameterExpression, defaultIfEmpty)
+    private KeyExpression(
+      TypeInfo entityType, 
+      System.Collections.ObjectModel.ReadOnlyCollection<FieldExpression> keyFields, 
+      Segment<int> segment, 
+      PropertyInfo underlyingProperty, 
+      ParameterExpression parameterExpression, 
+      bool defaultIfEmpty)
+      : base(ExtendedExpressionType.Key, WellKnown.KeyFieldName, typeof(Key), segment, underlyingProperty, parameterExpression, defaultIfEmpty, FieldLoadMode.Standard)
     {
       EntityType = entityType;
       KeyFields = keyFields;

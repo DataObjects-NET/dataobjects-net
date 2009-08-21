@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Linq.Expressions
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
         return result;
-      result = new EntitySetExpression(Field, null, DefaultIfEmpty);
+      result = new EntitySetExpression(Field, null, DefaultIfEmpty, LoadMode);
       if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Linq.Expressions
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
         return result;
-      result = new EntitySetExpression(Field, null, DefaultIfEmpty);
+      result = new EntitySetExpression(Field, null, DefaultIfEmpty, LoadMode);
       if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);
@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Linq.Expressions
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
         return result;
-      result = new EntitySetExpression(Field, parameter, DefaultIfEmpty);
+      result = new EntitySetExpression(Field, parameter, DefaultIfEmpty, LoadMode);
       if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);
@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Linq.Expressions
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
         return result;
-      result = new EntitySetExpression(Field, null, DefaultIfEmpty);
+      result = new EntitySetExpression(Field, null, DefaultIfEmpty, LoadMode);
       if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);
@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public static EntitySetExpression CreateEntitySet(FieldInfo field)
     {
-      return new EntitySetExpression(field, null, false);
+      return new EntitySetExpression(field, null, false,FieldLoadMode.Lazy);
     }
 
     public override string ToString()
@@ -123,8 +123,9 @@ namespace Xtensive.Storage.Linq.Expressions
     private EntitySetExpression(
       FieldInfo field,
       ParameterExpression parameterExpression,
-      bool defaultIfEmpty)
-      : base(ExtendedExpressionType.EntitySet, field, default(Segment<int>), parameterExpression, defaultIfEmpty)
+      bool defaultIfEmpty,
+      FieldLoadMode loadMode)
+      : base(ExtendedExpressionType.EntitySet, field, default(Segment<int>), parameterExpression, defaultIfEmpty, loadMode)
     {
     }
   }

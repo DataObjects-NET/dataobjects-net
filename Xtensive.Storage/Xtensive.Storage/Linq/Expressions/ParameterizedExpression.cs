@@ -9,10 +9,11 @@ using System.Linq.Expressions;
 
 namespace Xtensive.Storage.Linq.Expressions
 {
-  internal class ParameterizedExpression : ExtendedExpression
+  internal abstract class ParameterizedExpression : ExtendedExpression
   {
     public ParameterExpression OuterParameter { get; private set; }
     public bool DefaultIfEmpty { get; set; }
+    public FieldLoadMode LoadMode { get; private set; }
 
     public override string ToString()
     {
@@ -36,11 +37,12 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    public ParameterizedExpression(ExtendedExpressionType expressionType, Type type, ParameterExpression parameterExpression, bool defaultIfEmpty)
+    protected ParameterizedExpression(ExtendedExpressionType expressionType, Type type, ParameterExpression parameterExpression, bool defaultIfEmpty, FieldLoadMode loadMode)
       : base(expressionType, type)
     {
       OuterParameter = parameterExpression;
       DefaultIfEmpty = defaultIfEmpty;
+      LoadMode = loadMode;
     }
   }
 }

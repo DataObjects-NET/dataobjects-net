@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Linq.Expressions
         return result;
 
       var mapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
-      result = new FieldExpression(ExtendedExpressionType.Field, Field, mapping, OuterParameter, DefaultIfEmpty);
+      result = new FieldExpression(ExtendedExpressionType.Field, Field, mapping, OuterParameter, DefaultIfEmpty, LoadMode);
       if (owner == null)
         return result;
 
@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Linq.Expressions
         return null;
       }
       var mapping = new Segment<int>(offset, Mapping.Length);
-      result = new FieldExpression(ExtendedExpressionType.Field, Field, mapping, OuterParameter, DefaultIfEmpty);
+      result = new FieldExpression(ExtendedExpressionType.Field, Field, mapping, OuterParameter, DefaultIfEmpty, LoadMode);
       if (owner == null)
         return result;
 
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out result))
         return result;
 
-      result = new FieldExpression(ExtendedExpressionType.Field, Field, Mapping, parameter, DefaultIfEmpty);
+      result = new FieldExpression(ExtendedExpressionType.Field, Field, Mapping, parameter, DefaultIfEmpty, LoadMode);
       if (owner == null)
         return result;
 
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out result))
         return result;
 
-      result = new FieldExpression(ExtendedExpressionType.Field, Field, Mapping, null, DefaultIfEmpty);
+      result = new FieldExpression(ExtendedExpressionType.Field, Field, Mapping, null, DefaultIfEmpty, LoadMode);
       if (owner == null)
         return result;
 
@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public virtual FieldExpression RemoveOwner()
     {
-      return new FieldExpression(ExtendedExpressionType.Field, Field, Mapping, OuterParameter, DefaultIfEmpty);
+      return new FieldExpression(ExtendedExpressionType.Field, Field, Mapping, OuterParameter, DefaultIfEmpty, LoadMode);
     }
 
     public static FieldExpression CreateField(FieldInfo field, int offset)
@@ -117,21 +117,20 @@ namespace Xtensive.Storage.Linq.Expressions
       if (!field.IsPrimitive)
         throw new ArgumentException(string.Format("Field {0} is not primitive.", field.Name));
       var mapping = new Segment<int>(field.MappingInfo.Offset + offset, field.MappingInfo.Length);
-      return new FieldExpression(ExtendedExpressionType.Field, field, mapping, null, false);
+      var loadMode = field.IsLazyLoad ? FieldLoadMode.Lazy : FieldLoadMode.Standard;
+      return new FieldExpression(ExtendedExpressionType.Field, field, mapping, null, false, loadMode);
     }
-
 
     // Constructors
 
-    protected FieldExpression(ExtendedExpressionType expressionType, FieldInfo field, Segment<int> mapping, ParameterExpression parameterExpression, bool defaultIfEmpty)
-      : base(
-        expressionType,
-        field.Name,
-        field.ValueType,
-        mapping,
-        field.UnderlyingProperty,
-        parameterExpression,
-        defaultIfEmpty)
+    protected FieldExpression(
+      ExtendedExpressionType expressionType, 
+      FieldInfo field, 
+      Segment<int> mapping, 
+      ParameterExpression parameterExpression, 
+      bool defaultIfEmpty,
+      FieldLoadMode loadMode)
+      : base(expressionType, field.Name, field.ValueType, mapping, field.UnderlyingProperty, parameterExpression, defaultIfEmpty, loadMode)
     {
       Field = field;
     }

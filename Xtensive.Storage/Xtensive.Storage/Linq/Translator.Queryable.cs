@@ -235,9 +235,9 @@ namespace Xtensive.Storage.Linq
       throw new NotImplementedException("VisitExcludeFields not implemented");
     }
 
-    private Expression VisitExpand(MethodCallExpression expression)
+    private Expression VisitPrefetch(MethodCallExpression expression)
     {
-      throw new NotImplementedException("VisitExpand not implemented");
+      throw new NotImplementedException("VisitPrefetch not implemented");
     }
 
     /// <exception cref="NotSupportedException">OfType supports only 'Entity' conversion.</exception>
@@ -558,7 +558,7 @@ namespace Xtensive.Storage.Linq
         subqueryProjection = VisitSelect(subqueryProjection, elementSelector);
 
       var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo(sequence);
-      var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, false, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, selectManyInfo);
+      var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, false, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, selectManyInfo, FieldLoadMode.Standard);
       var groupingItemProjector = new ItemProjectorExpression(groupingExpression, newItemProjector.DataSource, context);
       returnType = resultSelector==null
         ? returnType
@@ -676,7 +676,7 @@ namespace Xtensive.Storage.Linq
       if (innerGrouping.ItemProjector.Item.IsGroupingExpression()) {
         var groupingExpression = (GroupingExpression) innerGrouping.ItemProjector.Item;
         var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo((ProjectionExpression) visitedOuterSource, (ProjectionExpression) visitedInnerSource, outerKey, innerKey);
-        var newGroupingExpression = new GroupingExpression(groupingExpression.Type, groupingExpression.OuterParameter, groupingExpression.DefaultIfEmpty, groupingExpression.ProjectionExpression, groupingExpression.ApplyParameter, groupingExpression.KeyExpression, selectManyInfo);
+        var newGroupingExpression = new GroupingExpression(groupingExpression.Type, groupingExpression.OuterParameter, groupingExpression.DefaultIfEmpty, groupingExpression.ProjectionExpression, groupingExpression.ApplyParameter, groupingExpression.KeyExpression, selectManyInfo, FieldLoadMode.Standard);
         var newGroupingItemProjector = new ItemProjectorExpression(newGroupingExpression, innerGrouping.ItemProjector.DataSource, innerGrouping.ItemProjector.Context);
         innerGrouping = new ProjectionExpression(innerGrouping.Type, newGroupingItemProjector, innerGrouping.TupleParameterBindings, innerGrouping.ResultType);
       }

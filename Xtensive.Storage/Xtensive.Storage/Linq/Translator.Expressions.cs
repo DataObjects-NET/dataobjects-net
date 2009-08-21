@@ -217,7 +217,7 @@ namespace Xtensive.Storage.Linq
         default:
           throw new InvalidOperationException();
         case "Expand":
-          return VisitExpand(mc);
+          return VisitPrefetch(mc);
         case "ExcludeFields":
           return VisitExcludeFields(mc);
         case "IncludeFields":
@@ -532,7 +532,7 @@ namespace Xtensive.Storage.Linq
       ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[state.Parameters[0]]);
       if (subQuery.Type!=resultType)
         subQuery = new ProjectionExpression(resultType, subQuery.ItemProjector, subQuery.TupleParameterBindings, subQuery.ResultType);
-      return new SubQueryExpression(resultType, state.Parameters[0], false, subQuery, applyParameter);
+      return new SubQueryExpression(resultType, state.Parameters[0], false, subQuery, applyParameter, FieldLoadMode.Standard);
     }
 
     private static IList<Expression> GetAnonymousArguments(Expression expression)
