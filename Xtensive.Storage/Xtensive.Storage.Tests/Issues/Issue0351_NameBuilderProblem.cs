@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0351_NameBuilderProblem_Model
     public int Id { get; private set; }
 
     [Field]
-    public EntitySet<Slave> Slaves { get; }
+    public EntitySet<Slave> Slaves { get; private set; }
   }
 
   [HierarchyRoot]

@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
           e.Fields
             .OfType<FieldExpression>()
             .Where(f => f.ExtendedType==ExtendedExpressionType.Field)
-            .Where(f => !(OmitLazyLoad && f.Field.IsLazyLoad))
+            .Where(f => !(OmitLazyLoad && f.LoadMode==FieldLoadMode.Lazy))
             .Select(f => f.Mapping.Offset));
       }
       return e;

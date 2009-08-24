@@ -19,6 +19,7 @@ using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Linq.Rewriters;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Linq
 {
@@ -237,7 +238,22 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitPrefetch(MethodCallExpression expression)
     {
-      throw new NotImplementedException("VisitPrefetch not implemented");
+      var source = expression.Arguments[0];
+      var selector = expression.Arguments[1].StripQuotes();
+      var visitedSource = (ProjectionExpression) Visit(source);
+      using (context.Bindings.Add(selector.Parameters[0], visitedSource)) {
+        var visitedSelector = (ItemProjectorExpression) Visit(selector);
+        if (context.Bindings[selector.Parameters[0]]==visitedSource
+          && (visitedSelector.Item.IsEntitySetExpression()
+            || visitedSelector.Item.IsEntityExpression()
+              || visitedSelector.Item.IsSubqueryExpression()
+                || visitedSelector.Item.IsGroupingExpression())) {
+          ((ParameterizedExpression) visitedSelector.Item.StripMarkers()).LoadMode = FieldLoadMode.Prefetch;
+        }
+        else
+          throw new InvalidOperationException(String.Format(Strings.ExInvalidPrefetchSelectorX, selector));
+      }
+      return visitedSource;
     }
 
     /// <exception cref="NotSupportedException">OfType supports only 'Entity' conversion.</exception>

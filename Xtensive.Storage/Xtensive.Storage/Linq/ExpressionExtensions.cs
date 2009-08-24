@@ -79,6 +79,12 @@ namespace Xtensive.Storage.Linq
       return (ExtendedExpressionType)expression.NodeType==ExtendedExpressionType.SubQuery;
     }
 
+    public static bool IsEntityExpression(this Expression expression)
+    {
+      expression = expression.StripMarkers();
+      return (ExtendedExpressionType)expression.NodeType==ExtendedExpressionType.Entity;
+    }
+
     public static bool IsEntitySetExpression(this Expression expression)
     {
       expression = expression.StripMarkers();

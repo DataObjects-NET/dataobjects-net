@@ -13,7 +13,7 @@ namespace Xtensive.Storage.Linq.Expressions
   {
     public ParameterExpression OuterParameter { get; private set; }
     public bool DefaultIfEmpty { get; set; }
-    public FieldLoadMode LoadMode { get; private set; }
+    public FieldLoadMode LoadMode { get; set; }
 
     public override string ToString()
     {

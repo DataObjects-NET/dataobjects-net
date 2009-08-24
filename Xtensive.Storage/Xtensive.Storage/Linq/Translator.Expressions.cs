@@ -216,7 +216,7 @@ namespace Xtensive.Storage.Linq
         switch (mc.Method.Name) {
         default:
           throw new InvalidOperationException();
-        case "Expand":
+        case "Prefetch":
           return VisitPrefetch(mc);
         case "ExcludeFields":
           return VisitExcludeFields(mc);
