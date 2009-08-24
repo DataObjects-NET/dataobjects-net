@@ -6,14 +6,14 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Integrity.Validation;
 
 namespace Xtensive.Storage
 {
   /// <summary>
   /// Helper class for specific validation regions (inconsistent regions) opening.
   /// </summary>
-  [Serializable]
-  public static class InconsistentRegion
+  public sealed class InconsistentRegion : InconsistentRegionBase
   {
     /// <summary>
     /// Opens the "inconsistent region" - the code region, in which Validate method
@@ -31,9 +31,10 @@ namespace Xtensive.Storage
     /// The validation of all queued to-validate objects will be performed during disposal.
     /// </para>
     /// </remarks>
-    public static IDisposable Open()
+    public static InconsistentRegion Open()
     {
-      return Session.Demand().OpenInconsistentRegion();
+      var session = Session.Demand();
+      return Open(session);
     }
 
     /// <summary>
@@ -53,10 +54,25 @@ namespace Xtensive.Storage
     /// The validation of all queued to-validate objects will be performed during disposal.
     /// </para>
     /// </remarks>
-    public static IDisposable Open(Session session)
+    public static InconsistentRegion Open(Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenInconsistentRegion();
+      var region = session.ValidationContext.OpenInconsistentRegion();
+      if (region==null)
+        return null;
+      return new InconsistentRegion(session.ValidationContext);
+    }
+
+    internal new void CompleteRegion()
+    {
+      base.CompleteRegion();
+    }
+
+    // Constructors
+
+    internal InconsistentRegion(ValidationContext context) 
+      : base(context)
+    {
     }
   }
 }

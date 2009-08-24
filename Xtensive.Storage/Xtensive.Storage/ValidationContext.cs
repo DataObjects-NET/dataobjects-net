@@ -11,7 +11,22 @@ namespace Xtensive.Storage
   /// <summary>
   /// Validation context.
   /// </summary>
-  public class ValidationContext : ValidationContextBase
+  public sealed class ValidationContext : ValidationContextBase
   {
+    /// <summary>
+    /// Validates all instances registered in validation context of current session.
+    /// <see cref="InconsistentRegion">Inconsistent regions</see> are ignored.
+    /// </summary>
+    public new static void Validate()
+    {
+      var session = Session.Demand();
+      session.ValidationContext.ValidateAll();
+    }
+
+    /// <inheritdoc/>
+    protected override InconsistentRegionBase CreateInconsistentRegion()
+    {
+      return new InconsistentRegion(this);
+    }
   }
 }

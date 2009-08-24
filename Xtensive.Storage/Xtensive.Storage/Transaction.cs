@@ -58,6 +58,8 @@ namespace Xtensive.Storage
     {
       try {
         inconsistentRegion.DisposeSafely();
+        if (ValidationContext.IsInvalid)
+          throw new InvalidOperationException(Strings.ExCanNotCommitATransactionValidationContextIsInInvalidState);
         if (!ValidationContext.IsConsistent)
           throw new InvalidOperationException(Strings.ExCannotCommitATransactionValidationContextIsInInconsistentState);
       }
@@ -71,7 +73,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected override void OnRollback()
     {
-      try {        
+      try {
         inconsistentRegion.DisposeSafely();
       }
       finally {

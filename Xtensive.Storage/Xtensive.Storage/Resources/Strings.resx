@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -811,5 +811,8 @@ Actions:
   </data>
   <data name="ExThereIsNoCurrentHttpRequestOrSessionManagerIsnTBoundToItYet" xml:space="preserve">
     <value>There is no current HttpRequest, or SessionManager is not bound to it yet.</value>
+  </data>
+  <data name="ExCanNotCommitATransactionValidationContextIsInInvalidState" xml:space="preserve">
+    <value>Can not commit a transaction. Validation context is in invalid state.</value>
   </data>
 </root>

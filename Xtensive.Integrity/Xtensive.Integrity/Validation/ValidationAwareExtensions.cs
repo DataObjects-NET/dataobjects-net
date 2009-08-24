@@ -48,7 +48,7 @@ namespace Xtensive.Integrity.Validation
         else
           validator.Invoke(target);
       else
-        context.EnqueueValidate(target, validator);   
+        context.EnqueueValidate(target, validator);
 
       return immediate;
     }

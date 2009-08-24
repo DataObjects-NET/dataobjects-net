@@ -8,7 +8,8 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
+using PostSharp.Laos;   
+using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Disposing;
@@ -66,14 +67,25 @@ namespace Xtensive.Integrity.Aspects
     public override void OnEntry(MethodExecutionEventArgs eventArgs)
     {
       var validatable = (IValidationAware)eventArgs.Instance;
-      eventArgs.MethodExecutionTag = validatable.Context.OpenInconsistentRegion();
+      var context = validatable.Context;
+      var region = context.OpenInconsistentRegion();
+      eventArgs.MethodExecutionTag = region;
+    }
+
+    /// <inheritdoc/>
+    public override void OnSuccess(MethodExecutionEventArgs eventArgs)
+    {
+      var region = (InconsistentRegionBase) eventArgs.MethodExecutionTag;
+      if (region!=null)
+        region.CompleteRegion();
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public override void OnExit(MethodExecutionEventArgs eventArgs)
     {
-      ((IDisposable)eventArgs.MethodExecutionTag).DisposeSafely();      
+      var region = (InconsistentRegionBase) eventArgs.MethodExecutionTag;
+      region.DisposeSafely();
     }
   }
 }

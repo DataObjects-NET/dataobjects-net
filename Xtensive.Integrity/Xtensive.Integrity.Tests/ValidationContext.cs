@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2007.12.31
 
+using System;
 using Xtensive.Integrity.Validation;
 
 namespace Xtensive.Integrity.Tests
@@ -17,6 +18,12 @@ namespace Xtensive.Integrity.Tests
     {
       get { return session; }
     }
+
+    public void CompleteRegion()
+    {
+      CompleteInconsistentRegion();
+    }
+
 
     // Constructors
 

@@ -54,9 +54,10 @@ namespace Xtensive.Storage.Tests.Storage
           Company company;
           Contact contact;
 
-          using (InconsistentRegion.Open()) {
+          using (var region = InconsistentRegion.Open()) {
             company = new Company();
             contact = new Contact {Company = company};
+            region.Complete();
           }
 
           Assert.AreEqual(1, company.Contacts.Count);

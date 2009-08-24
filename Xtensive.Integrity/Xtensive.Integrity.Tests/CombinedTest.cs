@@ -9,10 +9,10 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Serialization.Binary;
+using Xtensive.Core.Testing;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Atomicity.OperationLogs;
 using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Serialization;
 
 namespace Xtensive.Integrity.Tests
 {
@@ -167,9 +167,21 @@ namespace Xtensive.Integrity.Tests
       using (context.OpenInconsistentRegion()) {
         using (context.OpenInconsistentRegion()) {
           
+          context.CompleteRegion();
         }
+        Assert.IsFalse(context.IsInvalid);
         Assert.IsFalse(context.IsConsistent);
+        context.CompleteRegion();
       }
+      Assert.IsFalse(context.IsInvalid);
+      Assert.IsTrue(context.IsConsistent);
+
+      using (context.OpenInconsistentRegion()) { }
+
+      Assert.IsTrue(context.IsInvalid);
+
+      AssertEx.ThrowsInvalidOperationException(() => 
+        context.OpenInconsistentRegion());
     }
 
     private void MeasureAll(AtomicBase target, int count)

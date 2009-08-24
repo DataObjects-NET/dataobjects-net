@@ -22,10 +22,5 @@ namespace Xtensive.Storage
         return Transaction.ValidationContext;
       }
     }
-
-    internal IDisposable OpenInconsistentRegion()
-    {
-      return ValidationContext.OpenInconsistentRegion();
-    }
   }
 }

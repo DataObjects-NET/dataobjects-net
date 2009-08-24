@@ -31,7 +31,7 @@ namespace Xtensive.Storage.PairIntegrity
       }
 
       // New context
-      using (InconsistentRegion.Open(owner.Session)) {
+      using (var region = InconsistentRegion.Open(owner.Session)) {
         SyncActionSet masterActions = GetSyncActions(association);
         SyncActionSet slaveActions = GetSyncActions(association.Reversed);
         Entity master1 = owner;
@@ -71,6 +71,8 @@ namespace Xtensive.Storage.PairIntegrity
         if (context.HasNextAction())
           context.ExecuteNextAction();
         contextStack.Pop();
+
+        region.Complete();
       }
     }
 

@@ -36,8 +36,10 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
       protected override void OnValidate()
       {
-        base.OnValidate();
+        validationCallsCount++;
 
+        base.OnValidate();
+        
         if (ButtonCount<1)
           throw new InvalidOperationException("Button count can't be less than one.");
 
@@ -46,8 +48,6 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
         if (Led.Brightness > 10)
           throw new InvalidOperationException("Led in the mouse is too bright.");
-
-        validationCallsCount++;
       }
     }
 
@@ -89,15 +89,16 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
       using (Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          using (InconsistentRegion.Open()) {
+          using (var region = InconsistentRegion.Open()) {
             Mouse mouse = new Mouse();
             mouse.ButtonCount = 2;
             mouse.ScrollingCount = 1;
             mouse.Led.Brightness = 1.5;
             mouse.Led.Precision = 1.5;
-
             mouseId = mouse.ID;
-          }          
+
+            region.Complete();
+          }
           transactionScope.Complete();
         }
       }
@@ -110,61 +111,107 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       }
       Assert.AreEqual(1, validationCallsCount); 
     }
+
+
+    [Test]
+    public void ValidateAllTest()
+    {
+      validationCallsCount = 0;
+
+      using (Session.Open(Domain)) {
+        Mouse mouse;
+
+        var transactionScope = Transaction.Open();
+
+        // Valid mouse is created.
+        using (var region = InconsistentRegion.Open()) {
+          mouse = new Mouse {ButtonCount = 2, ScrollingCount = 1};
+          mouse.Led = new Led {Brightness = 7.3, Precision = 33};
+          mouse.Led.Brightness = 4.3;
+
+          ValidationContext.Validate();
+          Assert.AreEqual(1, validationCallsCount);
+
+          mouse.Led.Brightness = 2.3;
+
+          AssertEx.Throws<AggregateException>(
+            ValidationContext.Validate);
+
+          Assert.IsTrue(Session.Current.ValidationContext.IsInvalid);
+
+          AssertEx.Throws<InvalidOperationException>(() => 
+            mouse.Led.Brightness = 2.3);
+        }
+        transactionScope.Complete();
+
+        AssertEx.Throws<InvalidOperationException>(
+          transactionScope.Dispose);
+        
+      }
+    }
     
     [Test]
     public void EntityValidation()
     {
-        using (Session.Open(Domain)) {
-          using (Transaction.Open()) {
+      using (Session.Open(Domain)) {
+        using (Transaction.Open()) {
 
           // Created and modified invalid object. (ScrollingCount > ButtonCount)
           AssertEx.Throws<AggregateException>(
-            delegate {
-              using (InconsistentRegion.Open()) {
-                new Mouse {ButtonCount = 2, ScrollingCount = 3, Led = new Led { Brightness = 1, Precision = 1 }};
+            () => {
+              using (var region = InconsistentRegion.Open()) {
+                new Mouse {ButtonCount = 2, ScrollingCount = 3, Led = new Led {Brightness = 1, Precision = 1}};
+                region.Complete();
               }
             });
+        }
+        using (Transaction.Open()) {
 
           // Created, but not modified invalid object.
-          AssertEx.Throws<AggregateException>(
-            delegate {
-              new Mouse();
-            });
+          AssertEx.Throws<AggregateException>(() =>
+            new Mouse());
+        }
+        using (Transaction.Open()) {
 
           // Invalid modification of existing object.
           AssertEx.Throws<AggregateException>(
-            delegate {
+            () => {
               Mouse m;
-              using (InconsistentRegion.Open()) {
-                m = new Mouse {ButtonCount = 1, ScrollingCount = 1, Led = new Led { Brightness = 1, Precision = 1 }};
+              using (var region = InconsistentRegion.Open()) {
+                m = new Mouse {ButtonCount = 1, ScrollingCount = 1, Led = new Led {Brightness = 1, Precision = 1}};
+                region.Complete();
               }
-              m.ScrollingCount = 2; 
+              m.ScrollingCount = 2;
             });
+        }
+        using (Transaction.Open()) {
 
           Mouse mouse;
-
           // Valid object - ok.
-          using (InconsistentRegion.Open()) {
+          using (var region = InconsistentRegion.Open()) {
             mouse = new Mouse {ButtonCount = 5, ScrollingCount = 3};
             mouse.Led.Precision = 1;
             mouse.Led.Brightness = 2;
+            region.Complete();
           }
 
           // Valid modification with invalid intermediate state - ok.
-          using (InconsistentRegion.Open()) {
+          using (var region = InconsistentRegion.Open()) {
             mouse.ButtonCount = 2;
             mouse.ScrollingCount = 1;
+            region.Complete();
           }
 
           // Invalid object is removed - ok.
-          using (InconsistentRegion.Open()) {
+          using (var region = InconsistentRegion.Open()) {
             mouse.ScrollingCount = 3;
             mouse.Remove();
+            region.Complete();
           }
         }
-      }      
+      }
     }
-    
+
     [Test]
     public void StructureValidation()
     {
@@ -174,9 +221,10 @@ namespace Xtensive.Storage.Tests.Storage.Validation
         using (var transactionScope = Transaction.Open()) {
 
           // Valid mouse is created.
-          using (InconsistentRegion.Open()) {
+          using (var region = InconsistentRegion.Open()) {
             mouse = new Mouse {ButtonCount = 2, ScrollingCount = 1};
             mouse.Led = new Led {Brightness = 7.3, Precision = 33};
+            region.Complete();
           }
           transactionScope.Complete();
         }
@@ -185,9 +233,6 @@ namespace Xtensive.Storage.Tests.Storage.Validation
         using (var transactionScope = Transaction.Open()) {
           AssertEx.Throws<AggregateException>(
             delegate {
-              // structurebug workaround
-              mouse.ButtonCount = mouse.ButtonCount;
-
               mouse.Led.Brightness = 2.3;
               transactionScope.Complete();
             });
@@ -210,19 +255,38 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       using (Session.Open(Domain)) {
 
         // Inconsistent region can not be opened without transaction.
-        AssertEx.ThrowsInvalidOperationException(
-          delegate {
-            InconsistentRegion.Open();
-          });
+        AssertEx.ThrowsInvalidOperationException(() =>
+          InconsistentRegion.Open());
 
         // Transaction can not be committed while validation context is in inconsistent state.
-        AssertEx.ThrowsInvalidOperationException(
-          delegate {
-            using (var t = Transaction.Open()) {
-              InconsistentRegion.Open();
-              t.Complete();
+        AssertEx.ThrowsInvalidOperationException(() => {
+          using (var t = Transaction.Open()) {
+            InconsistentRegion.Open();
+            t.Complete();
+          }
+        });
+
+        using (var transactionScope = Transaction.Open()) {
+          try {
+            using (var region = InconsistentRegion.Open()) {
+              var mouse = new Mouse();
+              throw new Exception("Test");
+              region.Complete();
             }
-          });
+          }
+          catch (Exception exception) {
+            Assert.AreEqual("Test", exception.Message);
+          }
+          Assert.IsTrue(Session.Current.ValidationContext.IsInvalid);
+        }
+
+        AssertEx.Throws<InvalidOperationException>(() => {
+          using (var transactionScope = Transaction.Open()) {
+            using (var region = InconsistentRegion.Open()) {
+            }
+            transactionScope.Complete();
+          }});
+
       }
     }
   }

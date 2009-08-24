@@ -25,6 +25,16 @@ namespace Xtensive.Integrity.Validation
     /// </summary>
     public bool IsConsistent { get; private set; }
 
+    public bool IsRegionCompleted { get; private set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this context is invalid.
+    /// </summary>
+    /// <remarks>
+    /// Usually context becomes invalid when validation fails or inconsistent region is not completed.
+    /// </remarks>
+    public bool IsInvalid { get; private set; }
+
     /// <summary>
     /// Opens the "inconsistent region" - the code region, in which Validate method
     /// should just queue the validation rather then perform it immediately.
@@ -42,18 +52,44 @@ namespace Xtensive.Integrity.Validation
     /// The validation of all queued to-validate objects will be performed during disposal.
     /// </para>
     /// </remarks>
-    public IDisposable OpenInconsistentRegion()
+    /// <exception cref="InvalidOperationException">Context <see cref="IsInvalid">is invalid</see>.</exception>
+    public InconsistentRegionBase OpenInconsistentRegion()
     {
+      EnsureContextIsValid();
       if (!IsConsistent)
         return null;
       IsConsistent = false;
-      if (registry==null)
-        registry = new HashSet<Pair<IValidationAware, Action<IValidationAware>>>();
-      return 
-        new Disposable<ValidationContextBase>(this, (disposing, context) => context.LeaveInconsistentRegion());
+      IsRegionCompleted = false;
+      return CreateInconsistentRegion();
     }
 
-    #region Protected methods (to override, if necessary)    
+    /// <summary>
+    /// Creates the inconsistent region.
+    /// </summary>
+    protected virtual InconsistentRegionBase CreateInconsistentRegion()
+    {
+      return new InconsistentRegionBase(this);
+    }
+
+    /// <summary>
+    /// Completes the inconsistent region.
+    /// </summary>
+    protected internal void CompleteInconsistentRegion()
+    {
+      IsRegionCompleted = true;
+    }
+
+    #region Protected methods (to override, if necessary)
+
+    /// <summary>
+    /// Ensures the context is valid.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Context <see cref="IsInvalid">is invalid</see>.</exception>
+    protected virtual void EnsureContextIsValid()
+    {
+      if (IsInvalid)
+        throw new InvalidOperationException(Strings.ExValidationContextIsInvalid);
+    }
 
     /// <summary>
     /// Enqueues the object for delayed partial validation.
@@ -64,28 +100,30 @@ namespace Xtensive.Integrity.Validation
     /// </param>
     internal protected virtual void EnqueueValidate(IValidationAware target, Action<IValidationAware> validationDelegate)
     {
+      EnsureContextIsValid();
       if (target.Context!=this)
         throw new ArgumentException(Strings.ExObjectAndContextAreIncompatible, "target");
-
+      if (registry==null)
+        registry = new HashSet<Pair<IValidationAware, Action<IValidationAware>>>();
       registry.Add(new Pair<IValidationAware, Action<IValidationAware>>(target, validationDelegate));
     }
 
     /// <summary>
     /// Enqueues the object for delayed validation.
     /// </summary>
-    /// <param name="target">The <see cref="IValidationAware"/> object to enqueue.</param>    
+    /// <param name="target">The <see cref="IValidationAware"/> object to enqueue.</param>
     internal protected virtual void EnqueueValidate(IValidationAware target)
     {
       EnqueueValidate(target, null);
     }
 
     /// <summary>
-    /// Leaves the inconsistent region.
+    /// Validates all registered instances even if inconsistent region is open.
     /// </summary>
     /// <exception cref="AggregateException">Validation failed.</exception>
-    protected virtual void LeaveInconsistentRegion()
+    public void ValidateAll()
     {
-      IsConsistent = true;
+      EnsureContextIsValid();
       if (registry==null)
         return;
       IList<Exception> exceptions = null;
@@ -93,7 +131,7 @@ namespace Xtensive.Integrity.Validation
         foreach (var pair in registry) {
           try {
             if (pair.Second==null)
-              pair.First.Validate();
+              pair.First.OnValidate();
             else
               if (!registry.Contains(new Pair<IValidationAware, Action<IValidationAware>>(pair.First, null)))
                 pair.Second.Invoke(pair.First);
@@ -107,9 +145,25 @@ namespace Xtensive.Integrity.Validation
       }
       finally {
         registry = null;
-        if (exceptions!=null && exceptions.Count > 0)
+        if (exceptions!=null && exceptions.Count > 0) {
+          IsInvalid = true;
           throw new AggregateException(Strings.ExValidationFailed, exceptions);
+        }
       }
+    }
+
+    /// <summary>
+    /// Leaves the inconsistent region.
+    /// </summary>
+    /// <exception cref="AggregateException">Validation failed.</exception>
+    internal virtual void LeaveInconsistentRegion()
+    {
+      if (!IsRegionCompleted) {
+        IsInvalid = true;
+        return;
+      }
+      IsConsistent = true;
+      ValidateAll();
     }
 
     #endregion

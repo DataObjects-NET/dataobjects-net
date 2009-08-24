@@ -64,24 +64,24 @@ namespace Xtensive.Storage.Upgrade
     private void CheckAssemblies()
     {
       foreach (var pair in GetAssemblies()) {
-        var h = pair.First;
-        var a = pair.Second;
-        if (h==null)
+        var handler = pair.First;
+        var assembly = pair.Second;
+        if (handler==null)
           throw new DomainBuilderException(string.Format(
             Strings.ExNoUpgradeHandlerIsFoundForAssemblyXVersionY,
-            a.Name, a.Version));
-        if (a==null) {
-          if (!h.CanUpgradeFrom(null))
+            assembly.Name, assembly.Version));
+        if (assembly==null) {
+          if (!handler.CanUpgradeFrom(null))
             throw new DomainBuilderException(string.Format(
               Strings.ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported,
-              h.AssemblyName, Strings.ZeroAssemblyVersion, h.AssemblyVersion));
+              handler.AssemblyName, Strings.ZeroAssemblyVersion, handler.AssemblyVersion));
           else
             continue;
         }
-        if (!h.CanUpgradeFrom(a.Version))
+        if (!handler.CanUpgradeFrom(assembly.Version))
           throw new DomainBuilderException(string.Format(
             Strings.ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported,
-            a.Name, a.Version, h.AssemblyVersion));
+            assembly.Name, assembly.Version, handler.AssemblyVersion));
       }
     }
 
@@ -89,22 +89,22 @@ namespace Xtensive.Storage.Upgrade
     private void UpdateAssemblies()
     {
       foreach (var pair in GetAssemblies()) {
-        var h = pair.First;
-        var a = pair.Second;
-        if (h==null)
+        var handler = pair.First;
+        var assembly = pair.Second;
+        if (handler==null)
           throw new DomainBuilderException(string.Format(
             Strings.ExNoUpgradeHandlerIsFoundForAssemblyXVersionY,
-            a.Name, a.Version));
-        if (a==null) {
-          a = new M.Assembly(h.AssemblyName) {
-            Version = h.AssemblyVersion
+            assembly.Name, assembly.Version));
+        if (assembly==null) {
+          assembly = new M.Assembly(handler.AssemblyName) {
+            Version = handler.AssemblyVersion
           };
-          Log.Info(Strings.LogMetadataAssemblyCreatedX, a);
+          Log.Info(Strings.LogMetadataAssemblyCreatedX, assembly);
         }
         else {
-          var oldVersion = a.Version;
-          a.Version = h.AssemblyVersion;
-          Log.Info(Strings.LogMetadataAssemblyUpdatedXFromVersionYToZ, a, oldVersion, a.Version);
+          var oldVersion = assembly.Version;
+          assembly.Version = handler.AssemblyVersion;
+          Log.Info(Strings.LogMetadataAssemblyUpdatedXFromVersionYToZ, assembly, oldVersion, assembly.Version);
         }
       }
     }

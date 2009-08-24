@@ -13,6 +13,7 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
@@ -142,7 +143,6 @@ namespace Xtensive.Storage
 
     #region Public members
 
-
     /// <summary>
     /// Removes this entity.
     /// </summary>
@@ -152,7 +152,7 @@ namespace Xtensive.Storage
     public void Remove()
     {
       EnsureNotRemoved();
-      using (InconsistentRegion.Open()) {
+      using (var region = InconsistentRegion.Open()) {
         NotifyRemoving();
         Session.NotifyRemovingEntity(this);
 
@@ -162,6 +162,8 @@ namespace Xtensive.Storage
 
         NotifyRemove();
         Session.NotifyRemoveEntity(this);
+
+        region.Complete();
       }
     }
 

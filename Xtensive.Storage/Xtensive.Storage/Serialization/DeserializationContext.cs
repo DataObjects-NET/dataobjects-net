@@ -62,10 +62,11 @@ namespace Xtensive.Storage.Serialization
       if (isDeserialized)
         return;
 
-      using (InconsistentRegion.Open()) {
+      using (var region = InconsistentRegion.Open()) {
         InitializeEntities();
         DeserializeEntityFields();
-      }     
+        region.Complete();
+      }
       isDeserialized = true;
     }
 

@@ -25,7 +25,7 @@ namespace Xtensive.Storage
 
     internal TransactionScope(Transaction transaction)
       : base(transaction)
-    {      
+    {
     }
   }
 }

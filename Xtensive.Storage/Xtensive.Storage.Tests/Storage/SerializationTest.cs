@@ -287,7 +287,7 @@ namespace Xtensive.Storage.Tests.Storage
           object[] array;
           Company existingCompany = (Company) Query.SingleOrDefault(Key.Create(typeof (Company), firstCompanyId)); //Query<Company>.All.First();
 
-          using (InconsistentRegion.Open()) {
+          using (var region = InconsistentRegion.Open()) {
 
             Company company = new Company {Name = "Region mobile"};
             Emploee mike = new Emploee {Name = "Mike", Company = company};
@@ -296,6 +296,7 @@ namespace Xtensive.Storage.Tests.Storage
             company.Head = alex;
 
             array = new object[] { existingCompany, company, alex, jef };
+            region.Complete();
           }
           
 
