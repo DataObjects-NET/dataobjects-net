@@ -160,7 +160,7 @@ namespace Xtensive.Storage.Linq
       // Querable extensions
       QueryableExpandEntity = typeof (QueryableExtensions)
         .GetMethods(BindingFlags.Public | BindingFlags.Static)
-        .Where(methodInfo => methodInfo.Name=="Expand"
+        .Where(methodInfo => methodInfo.Name=="Prefetch"
           && methodInfo
             .GetParameterTypes()[1]
             .GetGenericArguments()[0]
@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Linq
         .First();
       QueryableExpandSubquery = typeof (QueryableExtensions)
         .GetMethods(BindingFlags.Public | BindingFlags.Static)
-        .Where(methodInfo => methodInfo.Name=="Expand"
+        .Where(methodInfo => methodInfo.Name=="Prefetch"
           && methodInfo
             .GetParameterTypes()[1]
             .GetGenericArguments()[0]
