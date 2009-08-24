@@ -262,6 +262,15 @@ namespace Xtensive.Sql.Oracle.v09
       }
     }
 
+    public override string Translate(SqlLockType lockType)
+    {
+      if (lockType.Supports(SqlLockType.Shared) || lockType.Supports(SqlLockType.SkipLocked))
+        return base.Translate(lockType);
+      return lockType.Supports(SqlLockType.ThrowIfLocked)
+        ? "FOR UPDATE NOWAIT"
+        : "FOR UPDATE";
+    }
+
     // Constructors
 
     public Translator(SqlDriver driver)

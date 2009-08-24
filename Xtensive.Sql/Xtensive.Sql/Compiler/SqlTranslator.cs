@@ -1709,6 +1709,11 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    public virtual string Translate(SqlLockType lockType)
+    {
+      throw new NotSupportedException(string.Format(Strings.ExLockXIsNotSupported, lockType.ToString(true)));
+    }
+
     public virtual string Translate(SqlJoinMethod method)
     {
       return string.Empty;

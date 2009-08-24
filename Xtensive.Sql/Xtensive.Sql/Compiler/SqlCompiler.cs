@@ -974,6 +974,7 @@ namespace Xtensive.Sql.Compiler
         VisitSelectWhere(node);
         VisitSelectGroupBy(node);
         VisitSelectOrderBy(node);
+        VisitSelectLock(node);
         context.AppendText(translator.Translate(context, node, SelectSection.Exit));
       }
       if (context.AliasProvider.IsEnabled)
@@ -1066,6 +1067,12 @@ namespace Xtensive.Sql.Compiler
           item.AcceptVisitor(this);
         }
       }
+    }
+
+    public virtual void VisitSelectLock(SqlSelect node)
+    {
+      if (node.Lock!=SqlLockType.Empty)
+        context.AppendText(translator.Translate(node.Lock));
     }
 
     public virtual void Visit(SqlStatementBlock node)

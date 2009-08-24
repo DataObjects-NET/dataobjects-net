@@ -20,21 +20,6 @@ namespace Xtensive.Sql
     private const string SchemaSeparatorString = "/";
 
     /// <summary>
-    /// Determines whether the specified expression is a null reference.
-    /// Use this method instead of comparison with null,
-    /// because equality operator is overloaded for <see cref="SqlExpression"/>
-    /// to yield equality comparison expression.
-    /// </summary>
-    /// <param name="expression">The expression to check.</param>
-    /// <returns>
-    /// <see langword="true"/> if argument is a null reference; otherwise, <see langword="false"/>.
-    /// </returns>
-    public static bool IsNullReference(this SqlExpression expression)
-    {
-      return ReferenceEquals(expression, null);
-    }
-
-    /// <summary>
     /// Extracts the database component from the specified <see cref="UrlInfo"/>.
     /// </summary>
     /// <param name="url">The URL.</param>
@@ -75,31 +60,6 @@ namespace Xtensive.Sql
     public static bool IsReprocessable(this SqlExceptionType exceptionType)
     {
       return ((int) exceptionType) < 0;
-    }
-
-    /// <summary>
-    /// Gets the human-readable description of the specified <see cref="SqlExceptionType"/>.
-    /// </summary>
-    /// <param name="exceptionType">Type of the exception.</param>
-    /// <returns>Description of <paramref name="exceptionType"/></returns>
-    public static string GetDescription(this SqlExceptionType exceptionType)
-    {
-      switch (exceptionType) {
-      case SqlExceptionType.Unknown:
-        return "unknown";
-      case SqlExceptionType.ConnectionTimeout:
-        return "connection timeout";
-      case SqlExceptionType.SyntaxError:
-        return "syntax error";
-      case SqlExceptionType.ConstraintViolation:
-        return "constraint violation";
-      case SqlExceptionType.Deadlock:
-        return "deadlock";
-      case SqlExceptionType.VersionConflict:
-        return "version conflict";
-      default:
-        throw new ArgumentOutOfRangeException("exceptionType");
-      }
     }
 
     /// <summary>

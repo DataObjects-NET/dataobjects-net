@@ -359,74 +359,60 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     public override string Translate(SqlCompilerContext context, SqlTableRef node, TableSection section)
     {
-      switch (section)
-      {
-        case TableSection.AliasDeclaration:
+      if (section!=TableSection.AliasDeclaration)
+        return base.Translate(context, node, section);
+      SqlQueryStatement statement = null;
+      for (int i = 0, count = context.GetTraversalPath().Length; i < count; i++) {
+        if (context.GetTraversalPath()[i] is SqlQueryStatement)
+          statement = context.GetTraversalPath()[i] as SqlQueryStatement;
+      }
+      if (statement==null || statement.Hints.Count==0)
+        return base.Translate(context, node, section);
 
-          SqlQueryStatement statement = null;
-          for (int i = 0, count = context.GetTraversalPath().Length; i < count; i++)
-          {
-            if (context.GetTraversalPath()[i] is SqlQueryStatement)
-              statement = context.GetTraversalPath()[i] as SqlQueryStatement;
-          }
-          if (statement == null || statement.Hints.Count == 0)
-            return base.Translate(context, node, section);
+      var tableHints = new List<string>();
+      foreach (SqlHint hint in statement.Hints) {
+        var tableHint = hint as SqlTableHint;
+        if (tableHint==null || tableHint.Table!=node)
+          continue;
 
-          List<string> tableHints = new List<string>();
-          foreach (SqlHint hint in statement.Hints)
-          {
-            SqlTableHint tableHint = hint as SqlTableHint;
-            if (tableHint == null || tableHint.Table != node)
-              continue;
-
-            SqlTableLockHint lockHint = hint as SqlTableLockHint;
-            if (lockHint != null)
-            {
-              if (lockHint.IsolationLevel != SqlTableIsolationLevel.Default)
-                tableHints.Add(Translate(lockHint.IsolationLevel));
-              if (lockHint.LockType != SqlTableLockType.Default)
-                tableHints.Add(Translate(lockHint.LockType));
-            }
-            else
-            {
-              SqlTableScanHint scanHint = hint as SqlTableScanHint;
-              // MSSQL supports only this kind of scan
-              if (scanHint != null && scanHint.ScanMethod == SqlTableScanMethod.Index)
-              {
-                List<string> indexes;
-                if (scanHint.Indexes != null)
-                {
-                  indexes = new List<string>(scanHint.Indexes.Length);
-                  for (int i = 0, count = scanHint.Indexes.Length; i < count; i++)
-                  {
-                    if (scanHint.Indexes[i] == null)
-                      continue;
-                    indexes.Add(scanHint.Indexes[i].DbName);
-                  }
-                }
-                else
-                {
-                  indexes = new List<string>(scanHint.IndexNames.Length);
-                  for (int i = 0, count = scanHint.IndexNames.Length; i < count; i++)
-                  {
-                    if (string.IsNullOrEmpty(scanHint.IndexNames[i]))
-                      continue;
-                    indexes.Add(scanHint.IndexNames[i]);
-                  }
-                }
-                if (indexes.Count > 0)
-                {
-                  tableHints.Add(
-                    string.Format("{0}({1})", Translate(scanHint.ScanMethod), string.Join(", ", indexes.ToArray())));
-                }
+        var lockHint = hint as SqlTableLockHint;
+        if (lockHint!=null) {
+          if (lockHint.IsolationLevel!=SqlTableIsolationLevel.Default)
+            tableHints.Add(Translate(lockHint.IsolationLevel));
+          if (lockHint.LockType!=SqlTableLockType.Default)
+            tableHints.Add(Translate(lockHint.LockType));
+        }
+        else {
+          var scanHint = hint as SqlTableScanHint;
+          // MSSQL supports only this kind of scan
+          if (scanHint!=null && scanHint.ScanMethod==SqlTableScanMethod.Index) {
+            List<string> indexes;
+            if (scanHint.Indexes!=null) {
+              indexes = new List<string>(scanHint.Indexes.Length);
+              for (int i = 0, count = scanHint.Indexes.Length; i < count; i++) {
+                if (scanHint.Indexes[i]==null)
+                  continue;
+                indexes.Add(scanHint.Indexes[i].DbName);
               }
             }
+            else {
+              indexes = new List<string>(scanHint.IndexNames.Length);
+              for (int i = 0, count = scanHint.IndexNames.Length; i < count; i++) {
+                if (string.IsNullOrEmpty(scanHint.IndexNames[i]))
+                  continue;
+                indexes.Add(scanHint.IndexNames[i]);
+              }
+            }
+            if (indexes.Count > 0) {
+              tableHints.Add(
+                string.Format("{0}({1})", Translate(scanHint.ScanMethod), string.Join(", ", indexes.ToArray())));
+            }
           }
-          return
-            base.Translate(context, node, section) +
-            (tableHints.Count == 0 ? string.Empty : " WITH (" + string.Join(", ", tableHints.ToArray()) + ")");
+        }
       }
-      return base.Translate(context, node, section);
+      return
+        base.Translate(context, node, section) +
+          (tableHints.Count==0 ? string.Empty : " WITH (" + string.Join(", ", tableHints.ToArray()) + ")");
     }
 
     public override string Translate(SqlCompilerContext context, SqlTrim node, TrimSection section)
@@ -550,6 +536,11 @@ namespace Xtensive.Sql.SqlServer.v2005
       return base.Translate(context, literalType, literalValue);
     }
     
+    public override string Translate(SqlLockType lockType)
+    {
+      return string.Empty;
+    }
+
     // Constructors
 
     /// <summary>

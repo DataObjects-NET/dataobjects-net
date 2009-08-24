@@ -232,6 +232,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Lock &apos;{0}&apos; is not supported.
+        /// </summary>
+        internal static string ExLockXIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExLockXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Multiple rename hints found for type &apos;{0}&apos; with name &apos;{1}&apos;..
         /// </summary>
         internal static string ExMultipleRenameHintsFoundForTypeXxx {

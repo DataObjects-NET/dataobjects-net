@@ -18,6 +18,7 @@ namespace Xtensive.Sql.Dml
   {
     private readonly SqlUserColumn asterisk = SqlDml.Column(SqlDml.Asterisk);
     private readonly SqlColumnCollection columns = new SqlColumnCollection();
+    private SqlLockType _lock;
     private bool distinct;
     private SqlTable from;
     private SqlColumnCollection groupBy = new SqlColumnCollection();
@@ -135,12 +136,18 @@ namespace Xtensive.Sql.Dml
       get { return asterisk; }
     }
 
+    public SqlLockType Lock
+    {
+      get { return _lock; }
+      set { _lock = value; }
+    }
+
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlSelect clone = new SqlSelect(from == null ? null : (SqlTable)from.Clone(context));
+      SqlSelect clone = new SqlSelect(from==null ? null : (SqlTable) from.Clone(context));
 
       foreach (SqlColumn c in columns)
         clone.Columns.Add((SqlColumn)c.Clone(context));
@@ -157,6 +164,7 @@ namespace Xtensive.Sql.Dml
       clone.Distinct = distinct;
       clone.Limit = Limit;
       clone.Offset = Offset;
+      clone.Lock = Lock;
 
       if (Hints.Count > 0)
         foreach (SqlHint hint in Hints)
@@ -237,7 +245,7 @@ namespace Xtensive.Sql.Dml
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-      return ((IEnumerable<ISqlQueryExpression>)this).GetEnumerator();
+      return ((IEnumerable<ISqlQueryExpression>) this).GetEnumerator();
     }
 
     #endregion

@@ -888,6 +888,15 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return base.Translate(part);
     }
 
+    public override string Translate(SqlLockType lockType)
+    {
+      if (lockType.Supports(SqlLockType.SkipLocked))
+        return base.Translate(lockType);
+      return string.Format("FOR {0}{1}",
+        lockType.Supports(SqlLockType.Shared) ? "SHARE" : "UPDATE",
+        lockType.Supports(SqlLockType.ThrowIfLocked) ? " NOWAIT" : "");
+    }
+
     private static string TranslateClrType(Type type)
     {
       switch (Type.GetTypeCode(type)) {
