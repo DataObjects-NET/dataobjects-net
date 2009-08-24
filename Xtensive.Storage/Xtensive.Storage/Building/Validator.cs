@@ -8,10 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building
