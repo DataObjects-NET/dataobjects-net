@@ -187,6 +187,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Isolation level &apos;{0}&apos; is not supported.
+        /// </summary>
+        internal static string ExIsolationLevelXIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExIsolationLevelXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Join expression should be null for SqlJoinType.CrossApply &amp; SqlJoinType.LeftOuterApply..
         /// </summary>
         internal static string ExJoinExpressionShouldBeNullForCrossApplyAndLeftOuterApply {

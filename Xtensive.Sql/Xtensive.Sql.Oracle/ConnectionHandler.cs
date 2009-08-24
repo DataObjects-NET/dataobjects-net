@@ -32,6 +32,11 @@ namespace Xtensive.Sql.Oracle
       return ConnectionFactory.CreateConnection(url);
     }
 
+    public override DbTransaction BeginTransaction(DbConnection connection, System.Data.IsolationLevel isolationLevel)
+    {
+      return connection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
+    }
+
     // Constructors
 
     public ConnectionHandler(SqlDriver driver)

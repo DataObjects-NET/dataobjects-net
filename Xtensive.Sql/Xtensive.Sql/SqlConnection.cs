@@ -112,7 +112,7 @@ namespace Xtensive.Sql
     /// <returns>Started transaction.</returns>
     public DbTransaction BeginTransaction()
     {
-      return UnderlyingConnection.BeginTransaction();
+      return Driver.ConnectionHandler.BeginTransaction(UnderlyingConnection);
     }
 
     /// <summary>
@@ -122,7 +122,7 @@ namespace Xtensive.Sql
     /// <returns>Started transaction.</returns>
     public DbTransaction BeginTransaction(IsolationLevel isolationLevel)
     {
-      return UnderlyingConnection.BeginTransaction(isolationLevel);
+      return Driver.ConnectionHandler.BeginTransaction(UnderlyingConnection, isolationLevel);
     }
 
     /// <inheritdoc/>

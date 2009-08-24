@@ -237,4 +237,7 @@
   <data name="ExLargeObjectsAreNotSupportedByThisServer" xml:space="preserve">
     <value>Large objects are not supported by this server.</value>
   </data>
+  <data name="ExIsolationLevelXIsNotSupported" xml:space="preserve">
+    <value>Isolation level '{0}' is not supported</value>
+  </data>
 </root>

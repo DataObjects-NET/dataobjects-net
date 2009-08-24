@@ -5,8 +5,8 @@
 // Created:    2009.08.11
 
 using System;
+using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Resources;
@@ -39,6 +39,27 @@ namespace Xtensive.Sql
     public virtual DbCommand CreateCommand(DbConnection connection)
     {
       return connection.CreateCommand();
+    }
+
+    /// <summary>
+    /// Begins the transaction with default isolation level.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <returns>Started transaction.</returns>
+    public virtual DbTransaction BeginTransaction(DbConnection connection)
+    {
+      return connection.BeginTransaction();
+    }
+
+    /// <summary>
+    /// Begins the transaction with the specified isolation level.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <returns>Started transaction.</returns>
+    public virtual DbTransaction BeginTransaction(DbConnection connection, IsolationLevel isolationLevel)
+    {
+      return connection.BeginTransaction(isolationLevel);
     }
 
     /// <summary>

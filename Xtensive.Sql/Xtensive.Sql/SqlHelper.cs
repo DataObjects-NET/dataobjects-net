@@ -5,6 +5,7 @@
 // Created:    2009.07.17
 
 using System;
+using System.Data;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -164,6 +165,26 @@ namespace Xtensive.Sql
     public static Guid GuidFromString(string value)
     {
       return new Guid(value);
+    }
+
+    /// <summary>
+    /// Reduces the isolation level to the most commonly supported ones.
+    /// </summary>
+    /// <param name="level">The level.</param>
+    /// <returns>Converted isolation level.</returns>
+    public static IsolationLevel ReduceIsolationLevel(IsolationLevel level)
+    {
+      switch (level) {
+      case IsolationLevel.ReadUncommitted:
+      case IsolationLevel.ReadCommitted:
+        return IsolationLevel.ReadCommitted;
+      case IsolationLevel.RepeatableRead:
+      case IsolationLevel.Serializable:
+      case IsolationLevel.Snapshot:
+        return IsolationLevel.Serializable;
+      default:
+        throw new NotSupportedException(string.Format(Strings.ExIsolationLevelXIsNotSupported, level));
+      }
     }
   }
 }
