@@ -25,10 +25,7 @@ namespace Xtensive.Sql.SqlServer
 
     protected override string GetDefaultSchemaName(UrlInfo url)
     {
-      string result = base.GetDefaultSchemaName(url);
-      if (!string.IsNullOrEmpty(result))
-        return result;
-      return DefaultSchemaName;
+      return url.GetSchema(DefaultSchemaName);
     }
 
     // Constructors

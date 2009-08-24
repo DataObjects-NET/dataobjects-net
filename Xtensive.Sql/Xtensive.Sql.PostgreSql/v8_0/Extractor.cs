@@ -46,16 +46,16 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     public override Catalog ExtractCatalog()
     {
-      var result = new Catalog(Connection.Url.GetDatabase());
       ExtractUsers();
-      ExtractSchemas(result);
-      return result;
+      ExtractSchemas(Catalog);
+      return Catalog;
     }
 
     protected override Schema ExtractSchema()
     {
-      // TODO: implement
-      return ExtractCatalog().DefaultSchema;
+      ExtractUsers();
+      ExtractSchemas(Catalog);
+      return Schema;
     }
     
     private Schema CreatePgCatalogSchema(Type dummy)
@@ -303,11 +303,15 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         q1.Columns.Add(nsp1["nspname"]);
         q1.Columns.Add(nsp1["oid"]);
         q1.Columns.Add(nsp1["nspowner"]);
+        if (Schema != null)
+          q1.Where &= nsp1["nspname"]==Schema.Name;
         SqlSelect q2 = SqlDml.Select(nsp2);
         q2.Where = nsp2["nspowner"]==me;
         q2.Columns.Add(nsp2["nspname"]);
         q2.Columns.Add(nsp2["oid"]);
         q2.Columns.Add(nsp2["nspowner"]);
+        if (Schema != null)
+          q2.Where &= nsp2["nspname"]==Schema.Name;
         ISqlCompileUnit q = q1.UnionAll(q2);
         using (var cmd = CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
@@ -315,11 +319,16 @@ namespace Xtensive.Sql.PostgreSql.v8_0
               int oid = Convert.ToInt32(dr["oid"]);
               string name = dr["nspname"].ToString();
               int owner = Convert.ToInt32(dr["nspowner"]);
-              Schema sch = catalog.CreateSchema(name);
-              if (name == "public")
-                catalog.DefaultSchema = sch;
-              schemas.Add(oid, sch);
+              Schema sch;
+              if (catalog.Schemas[name] == null) {
+                sch = catalog.CreateSchema(name);
+                if (name=="public")
+                  catalog.DefaultSchema = sch;
+              }
+              else
+                sch = catalog.Schemas[name];
               sch.Owner = mUserLookup[owner];
+              schemas[oid] = sch;
             }
           }
         }

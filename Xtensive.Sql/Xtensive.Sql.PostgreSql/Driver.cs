@@ -6,6 +6,8 @@ namespace Xtensive.Sql.PostgreSql
 {
   internal abstract class Driver : SqlDriver
   {
+    private const string DefaultSchemaName = "public";
+
     protected override ValueTypeMapping.TypeMappingHandler CreateTypeMappingHandler()
     {
       return new TypeMappingHandler(this);
@@ -15,6 +17,12 @@ namespace Xtensive.Sql.PostgreSql
     {
       return new ConnectionHandler(this);
     }
+
+    protected override string GetDefaultSchemaName(UrlInfo url)
+    {
+      return url.GetSchema(DefaultSchemaName);
+    }
+
 
     // Constructors
 

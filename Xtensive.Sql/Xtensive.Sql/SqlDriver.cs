@@ -102,15 +102,6 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Gets the name of the default schema.
-    /// </summary>
-    /// <param name="url">The URL.</param>
-    protected virtual string GetDefaultSchemaName(UrlInfo url)
-    {
-      return url.GetSchema(url.User).ToUpperInvariant();
-    }
-
-    /// <summary>
     /// Extracts the specified schema from the database.
     /// </summary>
     /// <param name="connection">The connection.</param>
@@ -121,6 +112,15 @@ namespace Xtensive.Sql
     public Schema ExtractSchema(SqlConnection connection, DbTransaction transaction, string schemaName)
     {
       return GetExtractor(connection, transaction).ExtractSchema(schemaName);
+    }
+
+    /// <summary>
+    /// Gets the name of the default schema.
+    /// </summary>
+    /// <param name="url">The URL.</param>
+    protected virtual string GetDefaultSchemaName(UrlInfo url)
+    {
+      return url.GetSchema(url.User);
     }
 
     /// <summary>

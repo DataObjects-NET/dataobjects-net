@@ -33,7 +33,13 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     protected override Schema ExtractSchema()
     {
-      return ExtractCatalog().DefaultSchema;
+      ExtractSchemas();
+      ExtractTypes();
+      ExtractTablesAndViews();
+      ExtractColumns();
+      ExtractIndexes();
+      ExtractForeignKeys();
+      return Schema;
     }
 
     // All schemas
