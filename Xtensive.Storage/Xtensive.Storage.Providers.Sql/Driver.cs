@@ -6,6 +6,7 @@
 
 using System;
 using System.Data.Common;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
@@ -63,6 +64,8 @@ namespace Xtensive.Storage.Providers.Sql
         : false;
 
       result.Version = (Version) serverInfo.Version.ProductVersion.Clone();
+      var si = serverInfo;
+      result.MaxIdentifierLength = new EntityInfo[] {si.Column, si.ForeignKey, si.Index, si.PrimaryKey, si.Sequence, si.Table, si.TemporaryTable, si.UniqueConstraint}.Select(e => e == null ? int.MaxValue : e.MaxIdentifierLength).Min();
       return result;
     }
 

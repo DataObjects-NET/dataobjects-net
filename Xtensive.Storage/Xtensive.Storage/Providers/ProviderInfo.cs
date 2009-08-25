@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Providers
     private bool supportsApplyProvider;
     private bool supportsAllBooleanExpressions;
     private bool supportsLargeObjects;
-
+    private int maxIdentifierLength;
     private bool namedParameters;
     private string parameterPrefix;
     private bool emptyStringIsNull;
@@ -245,6 +245,17 @@ namespace Xtensive.Storage.Providers
       set {
         this.EnsureNotLocked();
         version = value;
+      }
+    }
+
+    /// <summary>
+    /// Maximal identifier length.
+    /// </summary>
+    public int MaxIdentifierLength {
+      get { return maxIdentifierLength; }
+      set {
+        this.EnsureNotLocked();
+        maxIdentifierLength = value;
       }
     }
 

@@ -152,6 +152,7 @@ namespace Xtensive.Storage.Providers.Index
       result.NamedParameters = false;
       result.ParameterPrefix = string.Empty;
       result.Version = new Version(0, 3);
+      result.MaxIdentifierLength = int.MaxValue;
       return result;
     }
 

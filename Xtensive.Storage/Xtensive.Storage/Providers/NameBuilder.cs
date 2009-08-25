@@ -16,7 +16,6 @@ using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using System.Linq;
 using Xtensive.Core.Collections;
@@ -37,6 +36,15 @@ namespace Xtensive.Storage.Providers
     private const string AssociationPattern = "{0}-{1}-{2}";
     private const string GeneratorPattern = "{0}-Generator";
     private const string GenericTypePattern = "{0}({1})";
+    private int maxIdentifierLength;
+
+    /// <summary>
+    /// Gets the maximum length of storage entity identifier.
+    /// </summary>
+    protected virtual int MaxIdentifierLength
+    {
+      get { return maxIdentifierLength; }
+    }
 
     /// <summary>
     /// Gets the <see cref="Entity.TypeId"/> column name.
@@ -111,7 +119,7 @@ namespace Xtensive.Storage.Providers
           result = string.Format("{0}.{1}", @namespace, result);
           break;
         case NamespacePolicy.Hash:
-          result = string.Format("{0}.{1}", BuildHash(@namespace), result);
+          result = string.Format("{0}.{1}", GetHash(@namespace), result);
           break;
       }
       return ApplyNamingRules(result);
@@ -373,7 +381,10 @@ namespace Xtensive.Storage.Providers
       if ((NamingConvention.NamingRules & NamingRules.UnderscoreHyphens) > 0)
         result = result.Replace('-', '_');
 
-      return result;
+      if (result.Length <= MaxIdentifierLength)
+        return result;
+      string hash = GetHash(result);
+      return result.Substring(0, MaxIdentifierLength - hash.Length) + hash;
     }
 
     /// <summary>
@@ -381,7 +392,7 @@ namespace Xtensive.Storage.Providers
     /// The length of the resulting hash is 8 characters.
     /// </summary>
     /// <returns>The hash.</returns>
-    protected virtual string BuildHash(string name)
+    protected string GetHash(string name)
     {
       byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name)); 
       return string.Format("H{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);
@@ -398,6 +409,7 @@ namespace Xtensive.Storage.Providers
       ArgumentValidator.EnsureArgumentNotNull(namingConvention, "namingConvention");
       NamingConvention = namingConvention;
       hashAlgorithm = new MD5CryptoServiceProvider();
+      maxIdentifierLength = Handlers.DomainHandler.ProviderInfo.MaxIdentifierLength;
       TypeIdColumnName = ApplyNamingRules(WellKnown.TypeIdFieldName);
     }
   }
