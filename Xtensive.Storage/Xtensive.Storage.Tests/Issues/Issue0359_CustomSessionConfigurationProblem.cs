@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2009.08.24
 
-using NUnit.Framework;
+using System.Transactions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0359_CustomSessionConfigurationProblem_Model;
 
@@ -30,10 +30,23 @@ namespace Xtensive.Storage.Tests.Issues
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = DomainConfiguration.Load("CustomSessionConfigurationProblem", "mssql2005");
-      config.Types.Register(typeof (Class1).Assembly, typeof (Class1).Namespace);
-      var domain = Domain.Build(config);
-      return config;
+      var dc = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      dc.AutoValidation = true;
+      dc.ForeignKeyMode = ForeignKeyMode.All;
+      dc.KeyGeneratorCacheSize = 32;
+      dc.SessionPoolSize = 5;
+
+      dc.UpgradeMode = DomainUpgradeMode.Recreate;
+
+      dc.Types.Register(typeof (Class1).Assembly, typeof (Class1).Namespace);
+
+      var sc = new SessionConfiguration("Default");
+      sc.DefaultIsolationLevel = IsolationLevel.Serializable;
+      sc.Options = SessionOptions.AutoShortenTransactions;
+
+      dc.Sessions.Add(sc);
+
+      return dc;
     }
   }
 }
