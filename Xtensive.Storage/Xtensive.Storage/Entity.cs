@@ -152,7 +152,7 @@ namespace Xtensive.Storage
     public void Remove()
     {
       EnsureNotRemoved();
-      using (var region = InconsistentRegion.Open()) {
+      using (var region = Validation.Disable()) {
         NotifyRemoving();
         Session.NotifyRemovingEntity(this);
 

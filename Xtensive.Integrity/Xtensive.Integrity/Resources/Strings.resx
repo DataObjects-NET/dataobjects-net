@@ -262,6 +262,6 @@
     <value>null</value>
   </data>
   <data name="ExValidationContextIsInvalid" xml:space="preserve">
-    <value>Validation context is invalid.</value>
+    <value>Validation context is in invalid state. This means that some validation error has happened, but later it was suppressed.</value>
   </data>
 </root>

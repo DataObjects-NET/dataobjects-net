@@ -19,9 +19,9 @@ namespace Xtensive.Integrity.Tests
       get { return session; }
     }
 
-    public void CompleteRegion()
+    public new void Reset()
     {
-      CompleteInconsistentRegion();
+      base.Reset();
     }
 
 

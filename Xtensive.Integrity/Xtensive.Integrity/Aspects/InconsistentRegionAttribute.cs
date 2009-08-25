@@ -75,16 +75,15 @@ namespace Xtensive.Integrity.Aspects
     /// <inheritdoc/>
     public override void OnSuccess(MethodExecutionEventArgs eventArgs)
     {
-      var region = (InconsistentRegionBase) eventArgs.MethodExecutionTag;
-      if (region!=null)
-        region.CompleteRegion();
+      var region = (InconsistentRegion) eventArgs.MethodExecutionTag;
+      region.Complete();
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public override void OnExit(MethodExecutionEventArgs eventArgs)
     {
-      var region = (InconsistentRegionBase) eventArgs.MethodExecutionTag;
+      var region = (InconsistentRegion) eventArgs.MethodExecutionTag;
       region.DisposeSafely();
     }
   }

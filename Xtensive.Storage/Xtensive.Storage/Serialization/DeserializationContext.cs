@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Serialization;
@@ -62,7 +63,7 @@ namespace Xtensive.Storage.Serialization
       if (isDeserialized)
         return;
 
-      using (var region = InconsistentRegion.Open()) {
+      using (var region = Validation.Disable()) {
         InitializeEntities();
         DeserializeEntityFields();
         region.Complete();

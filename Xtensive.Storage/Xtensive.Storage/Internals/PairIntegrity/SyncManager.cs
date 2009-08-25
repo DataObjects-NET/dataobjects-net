@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core.Aspects;
+using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
@@ -31,7 +32,7 @@ namespace Xtensive.Storage.PairIntegrity
       }
 
       // New context
-      using (var region = InconsistentRegion.Open(owner.Session)) {
+      using (var region = Validation.Disable(owner.Session)) {
         SyncActionSet masterActions = GetSyncActions(association);
         SyncActionSet slaveActions = GetSyncActions(association.Reversed);
         Entity master1 = owner;

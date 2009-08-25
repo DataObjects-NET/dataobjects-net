@@ -48,6 +48,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected override void OnBegin()
     {
+      ValidationContext.Reset();
       if (Session.Domain.Configuration.InconsistentTransactions)
         inconsistentRegion = ValidationContext.OpenInconsistentRegion();
       Session.BeginTransaction();
@@ -58,7 +59,7 @@ namespace Xtensive.Storage
     {
       try {
         inconsistentRegion.DisposeSafely();
-        if (ValidationContext.IsInvalid)
+        if (!ValidationContext.IsValid)
           throw new InvalidOperationException(Strings.ExCanNotCommitATransactionValidationContextIsInInvalidState);
         if (!ValidationContext.IsConsistent)
           throw new InvalidOperationException(Strings.ExCannotCommitATransactionValidationContextIsInInconsistentState);

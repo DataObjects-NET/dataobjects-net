@@ -7,6 +7,7 @@
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Integrity.Aspects.Constraints;
+using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.ValidationReferentialTestModel;
 
@@ -54,7 +55,7 @@ namespace Xtensive.Storage.Tests.Storage
           Company company;
           Contact contact;
 
-          using (var region = InconsistentRegion.Open()) {
+          using (var region = Xtensive.Storage.Validation.Disable()) {
             company = new Company();
             contact = new Contact {Company = company};
             region.Complete();

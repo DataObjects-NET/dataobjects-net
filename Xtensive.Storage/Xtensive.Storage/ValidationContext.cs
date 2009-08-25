@@ -9,24 +9,13 @@ using Xtensive.Integrity.Validation;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Validation context.
+  /// Validation context used by <see cref="Session"/>.
   /// </summary>
   public sealed class ValidationContext : ValidationContextBase
   {
-    /// <summary>
-    /// Validates all instances registered in validation context of current session.
-    /// <see cref="InconsistentRegion">Inconsistent regions</see> are ignored.
-    /// </summary>
-    public new static void Validate()
+    internal new void Reset()
     {
-      var session = Session.Demand();
-      session.ValidationContext.ValidateAll();
-    }
-
-    /// <inheritdoc/>
-    protected override InconsistentRegionBase CreateInconsistentRegion()
-    {
-      return new InconsistentRegion(this);
+      base.Reset();
     }
   }
 }

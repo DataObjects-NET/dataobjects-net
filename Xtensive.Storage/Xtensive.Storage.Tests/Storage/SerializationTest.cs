@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
+using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Serialization;
 using Xtensive.Storage.Tests.SerializationTestModel;
@@ -287,7 +288,7 @@ namespace Xtensive.Storage.Tests.Storage
           object[] array;
           Company existingCompany = (Company) Query.SingleOrDefault(Key.Create(typeof (Company), firstCompanyId)); //Query<Company>.All.First();
 
-          using (var region = InconsistentRegion.Open()) {
+          using (var region = Xtensive.Storage.Validation.Disable()) {
 
             Company company = new Company {Name = "Region mobile"};
             Emploee mike = new Emploee {Name = "Mike", Company = company};

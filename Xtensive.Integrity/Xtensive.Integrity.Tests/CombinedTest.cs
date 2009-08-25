@@ -13,6 +13,7 @@ using Xtensive.Core.Testing;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Atomicity.OperationLogs;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Integrity.Validation;
 
 namespace Xtensive.Integrity.Tests
 {
@@ -53,7 +54,9 @@ namespace Xtensive.Integrity.Tests
       try {
         person1.SetAll("Sergey", 300);
       }
-      catch (ArgumentOutOfRangeException) {}
+      catch (ArgumentOutOfRangeException) {
+        person1.Session.ValidationContext.Reset();
+      }
       Log.Info("Person: {0}", person1);
       Assert.AreEqual(oldName, person1.Name);
       Assert.AreEqual(oldAge, person1.Age);
@@ -92,15 +95,20 @@ namespace Xtensive.Integrity.Tests
     [ExpectedException(typeof(AggregateException))]
     public void ValidationTest()
     {     
-      person1.SetAll("1", 1);
+      try {
+        person1.SetAll("1", 1);
+      }
+      finally {
+        person1.Session.ValidationContext.Reset();
+      }
     }
 
     [Test]
     public void UndoRedoTest()
     {
       Log.Info("Cloning...");
-      OperationLogBase operationLog1 = (OperationLogBase) session1.AtomicityContext.OperationLog;
-      List<IRedoDescriptor> initialOperations1 = new List<IRedoDescriptor>(operationLog1);
+      var operationLog1 = (OperationLogBase) session1.AtomicityContext.OperationLog;
+      var initialOperations1 = new List<IRedoDescriptor>(operationLog1);
       Person initialPerson1;
       using (person1.Session.Activate()) {
         initialPerson1 = (Person) LegacyBinarySerializer.Instance.Clone(person1);
@@ -164,21 +172,20 @@ namespace Xtensive.Integrity.Tests
     {
       ValidationContext context = new ValidationContext(session1);
 
-      using (context.OpenInconsistentRegion()) {
-        using (context.OpenInconsistentRegion()) {
-          
-          context.CompleteRegion();
+      using (var r1 = context.OpenInconsistentRegion()) {
+        using (var r2 = context.OpenInconsistentRegion()) {
+          r2.Complete();
         }
-        Assert.IsFalse(context.IsInvalid);
+        Assert.IsTrue(context.IsValid);
         Assert.IsFalse(context.IsConsistent);
-        context.CompleteRegion();
+        r1.Complete();
       }
-      Assert.IsFalse(context.IsInvalid);
+      Assert.IsTrue(context.IsValid);
       Assert.IsTrue(context.IsConsistent);
 
       using (context.OpenInconsistentRegion()) { }
 
-      Assert.IsTrue(context.IsInvalid);
+      Assert.IsFalse(context.IsValid);
 
       AssertEx.ThrowsInvalidOperationException(() => 
         context.OpenInconsistentRegion());

@@ -22,7 +22,13 @@ namespace Xtensive.Integrity.Tests
   [TestFixture]
   public class ConstraintsTest
   {
-    internal class ValidationContext : ValidationContextBase {}
+    internal class ValidationContext : ValidationContextBase
+    {
+      public new void Reset()
+      {
+        base.Reset();
+      }
+    }
 
     internal static ValidationContext context = new ValidationContext();
 
@@ -112,7 +118,7 @@ namespace Xtensive.Integrity.Tests
     {
 
       try {
-        using (context.OpenInconsistentRegion()) {
+        using (var r = context.OpenInconsistentRegion()) {
           Person person = new Person();
           
           person.Age = -1;
@@ -122,9 +128,10 @@ namespace Xtensive.Integrity.Tests
           person.Height = 2.15;
 
           person.Validate();
+          r.Complete();
         }
       }
-      catch(AggregateException exception) {
+      catch (AggregateException exception) {
         var errors = exception.GetFlatExceptions().Cast<ConstraintViolationException>();
         Assert.AreEqual(6, errors.Count());
         Assert.IsTrue(errors.Any(error => error.TargetType==typeof(Person)));
@@ -148,7 +155,9 @@ namespace Xtensive.Integrity.Tests
         Assert.AreEqual(string.Format("Height can not be less than 1 or greater than {0}.", 2.13), heightError.Message);
       }
 
-      using (context.OpenInconsistentRegion()) {
+      context.Reset();
+
+      using (var r = context.OpenInconsistentRegion()) {
         Person person = new Person();
         
         AssertEx.Throws<ConstraintViolationException>(() =>
@@ -161,9 +170,11 @@ namespace Xtensive.Integrity.Tests
         person.Email = "alex.kofman@x-tensive.com";
         person.Height = 1.67;
         person.Validate();
+
+        r.Complete();
       }
 
-      using (context.OpenInconsistentRegion()) {
+      using (var r = context.OpenInconsistentRegion()) {
         Person person = new Person();
 
         person.Name = "Mr. Unknown";
@@ -174,6 +185,8 @@ namespace Xtensive.Integrity.Tests
         person.Height = 2;
 
         person.Validate();
+
+        r.Complete();
       }
     }
   }

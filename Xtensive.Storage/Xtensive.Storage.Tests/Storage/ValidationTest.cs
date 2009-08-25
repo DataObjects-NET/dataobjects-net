@@ -10,6 +10,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Testing;
+using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.Validation
@@ -89,7 +90,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
       using (Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          using (var region = InconsistentRegion.Open()) {
+          using (var region = Xtensive.Storage.Validation.Disable()) {
             Mouse mouse = new Mouse();
             mouse.ButtonCount = 2;
             mouse.ScrollingCount = 1;
@@ -124,20 +125,20 @@ namespace Xtensive.Storage.Tests.Storage.Validation
         var transactionScope = Transaction.Open();
 
         // Valid mouse is created.
-        using (var region = InconsistentRegion.Open()) {
+        using (var region = Xtensive.Storage.Validation.Disable()) {
           mouse = new Mouse {ButtonCount = 2, ScrollingCount = 1};
           mouse.Led = new Led {Brightness = 7.3, Precision = 33};
           mouse.Led.Brightness = 4.3;
 
-          ValidationContext.Validate();
+          Xtensive.Storage.Validation.Enforce();
           Assert.AreEqual(1, validationCallsCount);
 
           mouse.Led.Brightness = 2.3;
 
-          AssertEx.Throws<AggregateException>(
-            ValidationContext.Validate);
+          AssertEx.Throws<AggregateException>(() =>
+            Xtensive.Storage.Validation.Enforce());
 
-          Assert.IsTrue(Session.Current.ValidationContext.IsInvalid);
+          Assert.IsFalse(Session.Current.ValidationContext.IsValid);
 
           AssertEx.Throws<InvalidOperationException>(() => 
             mouse.Led.Brightness = 2.3);
@@ -159,7 +160,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           // Created and modified invalid object. (ScrollingCount > ButtonCount)
           AssertEx.Throws<AggregateException>(
             () => {
-              using (var region = InconsistentRegion.Open()) {
+              using (var region = Xtensive.Storage.Validation.Disable()) {
                 new Mouse {ButtonCount = 2, ScrollingCount = 3, Led = new Led {Brightness = 1, Precision = 1}};
                 region.Complete();
               }
@@ -177,7 +178,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           AssertEx.Throws<AggregateException>(
             () => {
               Mouse m;
-              using (var region = InconsistentRegion.Open()) {
+              using (var region = Xtensive.Storage.Validation.Disable()) {
                 m = new Mouse {ButtonCount = 1, ScrollingCount = 1, Led = new Led {Brightness = 1, Precision = 1}};
                 region.Complete();
               }
@@ -188,7 +189,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
           Mouse mouse;
           // Valid object - ok.
-          using (var region = InconsistentRegion.Open()) {
+          using (var region = Xtensive.Storage.Validation.Disable()) {
             mouse = new Mouse {ButtonCount = 5, ScrollingCount = 3};
             mouse.Led.Precision = 1;
             mouse.Led.Brightness = 2;
@@ -196,14 +197,14 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           }
 
           // Valid modification with invalid intermediate state - ok.
-          using (var region = InconsistentRegion.Open()) {
+          using (var region = Xtensive.Storage.Validation.Disable()) {
             mouse.ButtonCount = 2;
             mouse.ScrollingCount = 1;
             region.Complete();
           }
 
           // Invalid object is removed - ok.
-          using (var region = InconsistentRegion.Open()) {
+          using (var region = Xtensive.Storage.Validation.Disable()) {
             mouse.ScrollingCount = 3;
             mouse.Remove();
             region.Complete();
@@ -221,7 +222,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
         using (var transactionScope = Transaction.Open()) {
 
           // Valid mouse is created.
-          using (var region = InconsistentRegion.Open()) {
+          using (var region = Xtensive.Storage.Validation.Disable()) {
             mouse = new Mouse {ButtonCount = 2, ScrollingCount = 1};
             mouse.Led = new Led {Brightness = 7.3, Precision = 33};
             region.Complete();
@@ -256,19 +257,19 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
         // Inconsistent region can not be opened without transaction.
         AssertEx.ThrowsInvalidOperationException(() =>
-          InconsistentRegion.Open());
+          Xtensive.Storage.Validation.Disable());
 
         // Transaction can not be committed while validation context is in inconsistent state.
         AssertEx.ThrowsInvalidOperationException(() => {
           using (var t = Transaction.Open()) {
-            InconsistentRegion.Open();
+            Xtensive.Storage.Validation.Disable();
             t.Complete();
           }
         });
 
         using (var transactionScope = Transaction.Open()) {
           try {
-            using (var region = InconsistentRegion.Open()) {
+            using (var region = Xtensive.Storage.Validation.Disable()) {
               var mouse = new Mouse();
               throw new Exception("Test");
               region.Complete();
@@ -277,12 +278,12 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           catch (Exception exception) {
             Assert.AreEqual("Test", exception.Message);
           }
-          Assert.IsTrue(Session.Current.ValidationContext.IsInvalid);
+          Assert.IsFalse(Session.Current.ValidationContext.IsValid);
         }
 
         AssertEx.Throws<InvalidOperationException>(() => {
           using (var transactionScope = Transaction.Open()) {
-            using (var region = InconsistentRegion.Open()) {
+            using (var region = Xtensive.Storage.Validation.Disable()) {
             }
             transactionScope.Complete();
           }});
