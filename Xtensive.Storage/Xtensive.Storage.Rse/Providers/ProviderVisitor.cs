@@ -106,6 +106,9 @@ namespace Xtensive.Storage.Rse.Providers
         case ProviderType.Union:
           result = VisitUnion((UnionProvider)cp);
           break;
+        case ProviderType.Lock:
+          result = VisitLock((LockProvider) cp);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -268,10 +271,17 @@ namespace Xtensive.Storage.Rse.Providers
     protected abstract Provider VisitConcat(ConcatProvider provider);
 
     /// <summary>
-    /// Visits the <see cref="ConcatProvider"/>.
+    /// Visits the <see cref="UnionProvider"/>.
     /// </summary>
-    /// <param name="provider">Concat provider.</param>
+    /// <param name="provider">Union provider.</param>
     /// <returns></returns>
     protected abstract Provider VisitUnion(UnionProvider provider);
+
+    /// <summary>
+    /// Visits the <see cref="LockProvider"/>.
+    /// </summary>
+    /// <param name="provider">Lock provider.</param>
+    /// <returns></returns>
+    protected abstract Provider VisitLock(LockProvider provider);
   }
 }

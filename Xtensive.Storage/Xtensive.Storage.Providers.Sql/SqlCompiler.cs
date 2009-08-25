@@ -539,6 +539,27 @@ namespace Xtensive.Storage.Providers.Sql
       return new SqlProvider(provider, query, Handlers, source);
     }
 
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitLock(LockProvider provider)
+    {
+      var source = GetCompiled(provider.Source) as SqlProvider;
+      if (source == null)
+        return null;
+      var query = source.Request.SelectStatement.ShallowClone();
+      switch (provider.LockMode) {
+      case LockMode.Shared:
+        query.Lock = SqlLockType.Shared;
+        break;
+      case LockMode.Exclusive:
+        query.Lock = SqlLockType.Exclusive;
+        break;
+      case LockMode.Update:
+        query.Lock = SqlLockType.Update;
+        break;
+      }
+      return new SqlProvider(provider, query, Handlers, source);
+    }
+
     /// <summary>
     /// Translates <see cref="AggregateColumn"/> to corresponding <see cref="SqlExpression"/>.
     /// </summary>

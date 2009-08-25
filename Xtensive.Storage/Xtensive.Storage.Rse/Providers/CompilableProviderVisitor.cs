@@ -343,6 +343,17 @@ namespace Xtensive.Storage.Rse.Providers
         return provider;
       return new UnionProvider(left, right);
     }
+
+    /// <inheritdoc/>
+    protected override Provider VisitLock(LockProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
+      if (source == provider.Source)
+        return provider;
+      return new LockProvider(source, provider.LockMode, provider.LockBehavior);
+    }
     
     private static Expression DefaultExpressionTranslator(Provider p, Expression e)
     {

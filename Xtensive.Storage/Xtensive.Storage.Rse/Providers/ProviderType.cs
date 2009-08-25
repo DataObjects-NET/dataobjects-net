@@ -33,6 +33,7 @@ namespace Xtensive.Storage.Rse.Providers
     Concat,
     Intersect,
     Except,
-    Union
+    Union,
+    Lock
   }
 }

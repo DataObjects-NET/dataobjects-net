@@ -133,6 +133,9 @@ namespace Xtensive.Storage.Rse.Compilation
         case ProviderType.Union:
           result = VisitUnion((UnionProvider) cp);
           break;
+        case ProviderType.Lock:
+          result = VisitLock((LockProvider) cp);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -298,6 +301,12 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     /// <param name="provider">Union provider.</param>
     protected abstract ExecutableProvider VisitUnion(UnionProvider provider);
+
+    /// <summary>
+    /// Compiles <see cref="LockProvider"/>.
+    /// </summary>
+    /// <param name="provider">Lock provider.</param>
+    protected abstract ExecutableProvider VisitLock(LockProvider provider);
 
 
     // Constructors

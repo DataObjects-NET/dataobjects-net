@@ -308,6 +308,12 @@ namespace Xtensive.Storage.Rse.Compilation
         right);
     }
 
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitLock(LockProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
 
     // Constructors
 

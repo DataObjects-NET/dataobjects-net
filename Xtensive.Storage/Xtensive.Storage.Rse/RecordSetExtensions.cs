@@ -286,5 +286,18 @@ namespace Xtensive.Storage.Rse
     {
       return new UnionProvider(left.Provider, right.Provider).Result;
     }
+
+    /// <summary>
+    /// Creates the <see cref="LockProvider"/>.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <param name="lockMode">The lock mode.</param>
+    /// <param name="lockBehavior">The lock behavior.</param>
+    /// <returns>The <see cref="RecordSet"/> which is the result of 
+    /// the created <see cref="LockProvider"/>.</returns>
+    public static RecordSet Lock(this RecordSet source, LockMode lockMode, LockBehavior lockBehavior)
+    {
+      return new LockProvider(source.Provider, lockMode, lockBehavior).Result;
+    }
   }
 }
