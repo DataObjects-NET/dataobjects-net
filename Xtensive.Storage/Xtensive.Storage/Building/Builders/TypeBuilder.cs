@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var fieldDef in BuildingContext.Current.ModelDef.Types[@interface.UnderlyingType].Fields) {
           if (@interface.Fields.Contains(fieldDef.Name))
             continue;
-          string explicitName = BuildingContext.Current.NameBuilder.BuildExplicit(@interface, fieldDef.Name);
+          string explicitName = BuildingContext.Current.NameBuilder.BuildExplicitFieldName(@interface, fieldDef.Name);
           FieldInfo implField;
           if (!implementor.Fields.TryGetValue(explicitName, out implField)) {
             if (!implementor.Fields.TryGetValue(fieldDef.Name, out implField))
@@ -192,7 +192,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void BuildFieldMap(TypeInfo @interface, TypeInfo implementor)
     {
       foreach (var field in @interface.Fields) {
-        string explicitName = BuildingContext.Current.NameBuilder.BuildExplicit(field.DeclaringType, field.Name);
+        string explicitName = BuildingContext.Current.NameBuilder.BuildExplicitFieldName(field.DeclaringType, field.Name);
         FieldInfo implField;
         if (implementor.Fields.TryGetValue(explicitName, out implField))
           implField.IsExplicit = true;

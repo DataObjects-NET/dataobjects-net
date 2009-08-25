@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Building.Builders
       var column = field.ValueType==typeof(Key) ? 
         new ColumnInfo(field, typeof(string)) :
         new ColumnInfo(field);
-      column.Name = BuildingContext.Current.NameBuilder.Build(field, column);
+      column.Name = BuildingContext.Current.NameBuilder.BuildColumnName(field, column);
       column.IsNullable = field.IsNullable;
 
       return column;
@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       var column = ancestor.Clone();
       column.Field = field;
-      column.Name = BuildingContext.Current.NameBuilder.Build(field, ancestor);
+      column.Name = BuildingContext.Current.NameBuilder.BuildColumnName(field, ancestor);
       column.IsDeclared = field.IsDeclared;
       column.IsPrimaryKey = field.IsPrimaryKey;
       column.IsNullable = field.IsNullable;

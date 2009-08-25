@@ -132,9 +132,9 @@ namespace Xtensive.Storage.Building.Builders
         var clone = field.Clone();
         clone.IsSystem = false;
         if (target.IsDeclared) {
-          clone.Name = BuildingContext.Current.NameBuilder.Build(target, field);
+          clone.Name = context.NameBuilder.BuildNestedFieldName(target, field);
           clone.OriginalName = field.OriginalName;
-          clone.MappingName = BuildingContext.Current.NameBuilder.BuildMappingName(target, field);
+          clone.MappingName = context.NameBuilder.BuildMappingName(target, field);
         }
         if (target.Fields.Contains(clone.Name))
           continue;

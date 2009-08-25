@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Building.Builders
     public static TypeDef DefineType(Type type)
     {
       var typeDef = new TypeDef(type);
-      typeDef.Name = BuildingContext.Current.NameBuilder.Build(typeDef);
+      typeDef.Name = BuildingContext.Current.NameBuilder.BuildTypeName(typeDef);
 
       if (!(type.UnderlyingSystemType.IsInterface || type.IsAbstract)) {
         var sta = typeDef.UnderlyingType.GetAttribute<SystemTypeAttribute>(AttributeSearchOptions.Default);
@@ -181,7 +181,7 @@ namespace Xtensive.Storage.Building.Builders
         throw new DomainBuilderException(Strings.ExIndexedPropertiesAreNotSupported);
 
       var fieldDef = new FieldDef(propertyInfo);
-      fieldDef.Name = BuildingContext.Current.NameBuilder.Build(fieldDef);
+      fieldDef.Name = BuildingContext.Current.NameBuilder.BuildFieldName(fieldDef);
 
       var fa = propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritAll);
       if (fa!=null) {
@@ -213,7 +213,7 @@ namespace Xtensive.Storage.Building.Builders
       AttributeProcessor.Process(index, attribute);
 
       if (string.IsNullOrEmpty(index.Name) && index.KeyFields.Count > 0)
-        index.Name = BuildingContext.Current.NameBuilder.Build(typeDef, index);
+        index.Name = BuildingContext.Current.NameBuilder.BuildIndexName(typeDef, index);
 
       return index;
     }

@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Building
           root.Indexes.Remove(primaryIndex);
 
       var indexDef = new IndexDef {IsPrimary = true};
-      indexDef.Name = BuildingContext.Current.NameBuilder.Build(root, indexDef);
+      indexDef.Name = BuildingContext.Current.NameBuilder.BuildIndexName(root, indexDef);
 
       foreach (KeyField pair in action.Hierarchy.KeyFields)
         indexDef.KeyFields.Add(pair.Name, pair.Direction);

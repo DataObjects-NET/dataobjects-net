@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Building.Builders
             Name = root.Name
           };
           if (gi.KeyGeneratorType==typeof (KeyGenerator))
-            gi.MappingName = BuildingContext.Current.NameBuilder.Build(gi);
+            gi.MappingName = BuildingContext.Current.NameBuilder.BuildGeneratorName(gi);
           if (hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize > 0)
             gi.CacheSize = hierarchyDef.KeyGeneratorCacheSize.Value;
           else

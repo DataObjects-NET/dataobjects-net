@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       var index = new IndexDef {IsSecondary = true};
       index.KeyFields.Add(field.Name);
-      index.Name = BuildingContext.Current.NameBuilder.Build(type, index);
+      index.Name = BuildingContext.Current.NameBuilder.BuildIndexName(type, index);
       return index;
     }
 
@@ -234,7 +234,7 @@ namespace Xtensive.Storage.Building.Builders
         result.ValueColumns.AddRange(result.IncludedColumns.Where(ic => !result.ValueColumns.Contains(ic.Name)));
       }
 
-      result.Name = context.NameBuilder.Build(typeInfo, result);
+      result.Name = context.NameBuilder.BuildIndexName(typeInfo, result);
       result.Group = BuildColumnGroup(result);
 
       return result;
@@ -295,7 +295,7 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
 
-      result.Name = BuildingContext.Current.NameBuilder.Build(reflectedType, result);
+      result.Name = BuildingContext.Current.NameBuilder.BuildIndexName(reflectedType, result);
       result.Group = BuildColumnGroup(result);
 
       return result;
@@ -368,7 +368,7 @@ namespace Xtensive.Storage.Building.Builders
         result.ValueColumns.AddRange(GetValueColumns(columns));
       }
 
-      result.Name = nameBuilder.Build(reflectedType, result);
+      result.Name = nameBuilder.BuildIndexName(reflectedType, result);
       result.Group = BuildColumnGroup(result);
 
       foreach (var index in allBaseIndexes)
@@ -405,7 +405,7 @@ namespace Xtensive.Storage.Building.Builders
           if (column.IsSystem)
             continue;
           var clone = column.Clone();
-          clone.Name = nameBuilder.Build(column);
+          clone.Name = nameBuilder.BuildColumnName(column);
           valueColumns.Add(clone);
         }
         else

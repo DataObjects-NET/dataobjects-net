@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Building.Builders
 
         var underlyingTypeName = string.Format(GeneratedTypeNameFormat,
           masterType.UnderlyingType.Namespace,
-          context.NameBuilder.Build(association));
+          context.NameBuilder.BuildAssociationName(association));
         var underlyingType = generatedTypes.GetValue(underlyingTypeName,
           (_underlyingTypeName, _genericInstanceType) =>
             TypeHelper.CreateInheritedDummyType(_underlyingTypeName, _genericInstanceType, true),

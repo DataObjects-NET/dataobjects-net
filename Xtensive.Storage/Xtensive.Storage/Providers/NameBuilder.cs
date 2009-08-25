@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="type">The <see cref="TypeDef"/> object.</param>
     /// <returns>The built name.</returns>
-    public virtual string Build(TypeDef type)
+    public virtual string BuildTypeName(TypeDef type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       string result;
@@ -160,7 +160,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="field">The <see cref="FieldDef"/> object.</param>
     /// <returns>The built name.</returns>
-    public virtual string Build(FieldDef field)
+    public virtual string BuildFieldName(FieldDef field)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       string result = field.Name;
@@ -177,21 +177,9 @@ namespace Xtensive.Storage.Providers
     /// <param name="type">The type of interface explicit member implements.</param>
     /// <param name="name">The member name.</param>
     /// <returns>The built name.</returns>
-    public virtual string BuildExplicit(TypeInfo type, string name)
+    public virtual string BuildExplicitFieldName(TypeInfo type, string name)
     {
       return type.IsInterface ? type.UnderlyingType.Name + "_" + name : name;
-    }
-
-    /// <summary>
-    /// Builds the name of the explicitly implemented field.
-    /// </summary>
-    /// <param name="field">The field.</param>
-    /// <returns>The built name.</returns>
-    protected virtual string BuildExplicit(FieldInfo field)
-    {
-      if (field.UnderlyingProperty == null || !field.UnderlyingProperty.Name.Contains("."))
-        return field.Name;
-      return field.UnderlyingProperty.DeclaringType.Name + "_" + field.Name;
     }
 
     /// <summary>
@@ -199,7 +187,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="complexField">The complex field.</param>
     /// <param name="childField">The child field.</param>
-    public virtual string Build(FieldInfo complexField, FieldInfo childField)
+    public virtual string BuildNestedFieldName(FieldInfo complexField, FieldInfo childField)
     {
       ArgumentValidator.EnsureArgumentNotNull(complexField, "complexField");
       ArgumentValidator.EnsureArgumentNotNull(childField, "childField");
@@ -234,7 +222,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="field">The field info.</param>
     /// <param name="baseColumn">The <see cref="ColumnInfo"/> object.</param>
     /// <returns>The built name.</returns>
-    public virtual string Build(FieldInfo field, ColumnInfo baseColumn)
+    public virtual string BuildColumnName(FieldInfo field, ColumnInfo baseColumn)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       ArgumentValidator.EnsureArgumentNotNull(baseColumn, "baseColumn");
@@ -257,7 +245,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="column">The <see cref="ColumnInfo"/> object.</param>
     /// <returns>The built name.</returns>
-    public virtual string Build(ColumnInfo column)
+    public virtual string BuildColumnName(ColumnInfo column)
     {
       ArgumentValidator.EnsureArgumentNotNull(column, "column");
       if (column.Name.StartsWith(column.Field.DeclaringType.Name))
@@ -272,7 +260,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="type">The type def.</param>
     /// <param name="index">The <see cref="IndexDef"/> object.</param>
     /// <returns>The built name.</returns>
-    public virtual string Build(TypeDef type, IndexDef index)
+    public virtual string BuildIndexName(TypeDef type, IndexDef index)
     {
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
 
@@ -306,7 +294,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="type">The type def.</param>
     /// <param name="index">The <see cref="IndexInfo"/> object.</param>
     /// <returns>The built name.</returns>
-    public virtual string Build(TypeInfo type, IndexInfo index)
+    public virtual string BuildIndexName(TypeInfo type, IndexInfo index)
     {
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
 
@@ -350,7 +338,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="target">The <see cref="AssociationInfo"/> instance to build name for.</param>
     /// <returns>The built name.</returns>
-    public virtual string Build(AssociationInfo target)
+    public virtual string BuildAssociationName(AssociationInfo target)
     {
       return ApplyNamingRules(string.Format(AssociationPattern, target.OwnerType.Name, target.OwnerField.Name, target.TargetType.Name));
     }
@@ -359,7 +347,7 @@ namespace Xtensive.Storage.Providers
     /// Builds the name for the <see cref="generatorInfo"/> instance.
     /// </summary>
     /// <param name="generatorInfo">The <see cref="generatorInfo"/> instance to build name for.</param>
-    public string Build(GeneratorInfo generatorInfo)
+    public string BuildGeneratorName(GeneratorInfo generatorInfo)
     {
       return ApplyNamingRules(string.Format(GeneratorPattern, 
         generatorInfo.KeyInfo.Fields.Select(f => f.Key.ValueType.GetShortName()).ToDelimitedString("-")));
@@ -374,14 +362,17 @@ namespace Xtensive.Storage.Providers
     {
       string result = name;
       result = result.Replace('+', '_');
+
       if (NamingConvention.LetterCasePolicy==LetterCasePolicy.Uppercase)
         result = result.ToUpperInvariant();
       else if (NamingConvention.LetterCasePolicy==LetterCasePolicy.Lowercase)
         result = result.ToLowerInvariant();
+
       if ((NamingConvention.NamingRules & NamingRules.UnderscoreDots) > 0)
         result = result.Replace('.', '_');
       if ((NamingConvention.NamingRules & NamingRules.UnderscoreHyphens) > 0)
         result = result.Replace('-', '_');
+
       return result;
     }
 
