@@ -151,6 +151,8 @@ namespace Xtensive.Storage.Configuration
       keyGenerator = BuildConfiguration(WellKnown.Sessions.KeyGenerator);
       foreach (var item in this) {
         ApplyDefaultSettings(item);
+        if (item == system || item == keyGenerator)
+          item.Options = item.Options & ~SessionOptions.AutoShortenTransactions;
         item.Lock(recursive);
       }
       base.Lock(recursive);

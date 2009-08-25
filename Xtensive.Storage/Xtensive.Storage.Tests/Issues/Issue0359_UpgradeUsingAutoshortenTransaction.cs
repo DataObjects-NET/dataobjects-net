@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0359_CustomSessionConfigurationProb
 
 namespace Xtensive.Storage.Tests.Issues
 {
-  public class Issue0359_CustomSessionConfigurationProblem : AutoBuildTest
+  public class Issue0359_UpgradeUsingAutoshortenTransaction : AutoBuildTest
   {
     protected override void CheckRequirements()
     {
