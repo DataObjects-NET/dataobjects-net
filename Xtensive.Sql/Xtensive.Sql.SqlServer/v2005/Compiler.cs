@@ -18,21 +18,7 @@ namespace Xtensive.Sql.SqlServer.v2005
   {
     private static readonly int MillisecondsPerDay = (int) TimeSpan.FromDays(1).TotalMilliseconds;
     private static readonly SqlExpression DateFirst = SqlDml.Native("@@DATEFIRST");
-
-    private SqlLockType activeLock;
-
-    public override void Visit(SqlSelect node)
-    {
-      if (node.Lock!=SqlLockType.Empty) {
-        var oldActiveLock = activeLock;
-        activeLock = node.Lock;
-        base.Visit(node);
-        activeLock = oldActiveLock;
-      }
-      else
-        base.Visit(node);
-    }
-
+    
     public override void VisitSelectLock(SqlSelect node)
     {
       return;

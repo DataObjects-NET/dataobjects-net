@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
@@ -359,9 +360,15 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     public override string Translate(SqlCompilerContext context, SqlTableRef node, TableSection section)
     {
+      var reference = base.Translate(context, node, section);
       if (section!=TableSection.AliasDeclaration)
-        return base.Translate(context, node, section);
-      SqlQueryStatement statement = null;
+        return reference;
+      var select = context.GetTraversalPath()
+        .OfType<SqlSelect>()
+        .Where(s => s.Lock!=SqlLockType.Empty)
+        .FirstOrDefault();
+      return select==null ? reference : string.Format("{0} WITH ({1})", reference, Translate(select.Lock));
+#if OLD_CODE
       for (int i = 0, count = context.GetTraversalPath().Length; i < count; i++) {
         if (context.GetTraversalPath()[i] is SqlQueryStatement)
           statement = context.GetTraversalPath()[i] as SqlQueryStatement;
@@ -413,6 +420,7 @@ namespace Xtensive.Sql.SqlServer.v2005
       return
         base.Translate(context, node, section) +
           (tableHints.Count==0 ? string.Empty : " WITH (" + string.Join(", ", tableHints.ToArray()) + ")");
+#endif
     }
 
     public override string Translate(SqlCompilerContext context, SqlTrim node, TrimSection section)
@@ -538,7 +546,17 @@ namespace Xtensive.Sql.SqlServer.v2005
     
     public override string Translate(SqlLockType lockType)
     {
-      return string.Empty;
+      var items = new List<string>();
+      items.Add("ROWLOCK");
+      if (lockType.Supports(SqlLockType.Update))
+        items.Add("UPDLOCK");
+      else if (lockType.Supports(SqlLockType.Exclusive))
+        items.Add("XLOCK");
+      if (lockType.Supports(SqlLockType.ThrowIfLocked))
+        items.Add("NOWAIT");
+      else if (lockType.Supports(SqlLockType.SkipLocked))
+        items.Add("READPAST");
+      return items.ToCommaDelimitedString();
     }
 
     // Constructors

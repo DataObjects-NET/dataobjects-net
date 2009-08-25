@@ -194,6 +194,7 @@ namespace Xtensive.Sql.Dml
       foreach (var hint in Hints)
         result.Hints.Add(hint);
       result.Where = Where;
+      result.Lock = Lock;
       return result;
     }
 
