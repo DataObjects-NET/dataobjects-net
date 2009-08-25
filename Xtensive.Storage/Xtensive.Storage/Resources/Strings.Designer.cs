@@ -547,15 +547,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Expand does not support query provider of type &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExExpandDoesNotSupportQueryProviderOfTypeX {
-            get {
-                return ResourceManager.GetString("ExExpandDoesNotSupportQueryProviderOfTypeX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The expression of type &apos;{0}&apos; is not a sequence..
         /// </summary>
         internal static string ExExpressionOfTypeXIsNotASequence {
@@ -988,6 +979,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Lock does not support query provider of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExLockDoesNotSupportQueryProviderOfTypeX {
+            get {
+                return ResourceManager.GetString("ExLockDoesNotSupportQueryProviderOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Master association &apos;{0}&apos; is already paired with &apos;{1}&apos;..
         /// </summary>
         internal static string ExMasterAssociationIsAlreadyPaired {
@@ -1155,6 +1155,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically {
             get {
                 return ResourceManager.GetString("ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prefetch does not support query provider of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExPrefetchDoesNotSupportQueryProviderOfTypeX {
+            get {
+                return ResourceManager.GetString("ExPrefetchDoesNotSupportQueryProviderOfTypeX", resourceCulture);
             }
         }
         

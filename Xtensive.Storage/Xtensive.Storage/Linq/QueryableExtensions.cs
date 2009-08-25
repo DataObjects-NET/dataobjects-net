@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
@@ -18,6 +19,22 @@ namespace Xtensive.Storage.Linq
   /// </summary>
   public static class QueryableExtensions
   {
+    public static IQueryable<TSource> Lock<TSource>(this IQueryable<TSource> source, LockMode lockMode, LockBehavior lockBehavior)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(lockMode, "lockMode");
+      ArgumentValidator.EnsureArgumentNotNull(lockBehavior, "lockBehavior");
+      var errorMessage = Resources.Strings.ExLockDoesNotSupportQueryProviderOfTypeX;
+      var providerType = source.Provider.GetType();
+      if (providerType!=typeof (QueryProvider))
+        throw new NotSupportedException(String.Format(errorMessage, providerType));
+
+      var genericMethod = WellKnownMembers.QueryableLock.MakeGenericMethod(new[] {typeof (TSource)});
+      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, Expression.Constant(lockMode), Expression.Constant(lockBehavior)});
+      return source.Provider.CreateQuery<TSource>(expression);
+    }
+
+
     /// <summary>
     /// Fetches <see cref="Entity"/>, specified in <paramref name="selector"/>.
     /// This <see cref="Entity"/> will be queried along with base query.
@@ -34,8 +51,8 @@ namespace Xtensive.Storage.Linq
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(selector, "selector");
-      var errorMessage = Resources.Strings.ExExpandDoesNotSupportQueryProviderOfTypeX;
-      return CallTranslator<TSource>(WellKnownMembers.QueryableExpandEntity, source, selector, errorMessage);
+      var errorMessage = Resources.Strings.ExPrefetchDoesNotSupportQueryProviderOfTypeX;
+      return CallTranslator<TSource>(WellKnownMembers.QueryablePrefetchEntity, source, selector, errorMessage);
     }
 
 
@@ -54,8 +71,8 @@ namespace Xtensive.Storage.Linq
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(selector, "selector");
-      var errorMessage = Resources.Strings.ExExpandDoesNotSupportQueryProviderOfTypeX;
-      return CallTranslator<TSource>(WellKnownMembers.QueryableExpandSubquery, source, selector, errorMessage);
+      var errorMessage = Resources.Strings.ExPrefetchDoesNotSupportQueryProviderOfTypeX;
+      return CallTranslator<TSource>(WellKnownMembers.QueryablePrefetchSubquery, source, selector, errorMessage);
     }
 
     /// <summary>

@@ -213,18 +213,19 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       if (mc.Method.DeclaringType==typeof (QueryableExtensions))
-        switch (mc.Method.Name) {
-        default:
-          throw new InvalidOperationException();
-        case "Prefetch":
+        if (mc.Method.Name==WellKnownMembers.QueryablePrefetchEntity.Name
+          || mc.Method.Name==WellKnownMembers.QueryablePrefetchSubquery.Name)
           return VisitPrefetch(mc);
-        case "ExcludeFields":
+        else if (mc.Method.Name==WellKnownMembers.QueryableExcludeFields.Name)
           return VisitExcludeFields(mc);
-        case "IncludeFields":
+        else if (mc.Method.Name==WellKnownMembers.QueryableIncludeFields.Name)
           return VisitIncludeFields(mc);
-        case "JoinLeft":
+        else if (mc.Method.Name==WellKnownMembers.QueryableJoinLeft.Name)
           return VisitJoinLeft(mc);
-        }
+        else if (mc.Method.Name==WellKnownMembers.QueryableLock.Name)
+          return VisitLock(mc);
+        else
+          throw new InvalidOperationException();
       return base.VisitMethodCall(mc);
     }
 

@@ -680,8 +680,8 @@ Actions:
   <data name="ExAsOperatorSupportsEntityOnly" xml:space="preserve">
     <value>'as' operator supports casting only inside Entity hierarchy.</value>
   </data>
-  <data name="ExExpandDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
-    <value>Expand does not support query provider of type '{0}'.</value>
+  <data name="ExPrefetchDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
+    <value>Prefetch does not support query provider of type '{0}'.</value>
   </data>
   <data name="ExExcludeFieldsDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>ExcludeFields does not support query provider of type '{0}'.</value>
@@ -817,5 +817,8 @@ Actions:
   </data>
   <data name="ExCanNotCommitATransactionValidationContextIsInInvalidState" xml:space="preserve">
     <value>Can not commit a transaction. Validation context is in invalid state.</value>
+  </data>
+  <data name="ExLockDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
+    <value>Lock does not support query provider of type '{0}'.</value>
   </data>
 </root>

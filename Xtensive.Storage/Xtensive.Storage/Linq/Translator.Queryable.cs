@@ -236,6 +236,18 @@ namespace Xtensive.Storage.Linq
       throw new NotImplementedException("VisitExcludeFields not implemented");
     }
 
+    private Expression VisitLock(MethodCallExpression expression)
+    {
+      var source = expression.Arguments[0];
+      var lockMode = (LockMode)((ConstantExpression)expression.Arguments[1]).Value;
+      var lockBehavior = (LockBehavior)((ConstantExpression)expression.Arguments[2]).Value;
+      var visitedSource = (ProjectionExpression) Visit(source);
+      var newDataSource = visitedSource.ItemProjector.DataSource.Lock(lockMode, lockBehavior);
+      var newItemProjector = new ItemProjectorExpression(visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
+      var projectionExpression = new ProjectionExpression(visitedSource.Type, newItemProjector, visitedSource.TupleParameterBindings, visitedSource.ResultType);
+      return projectionExpression;
+    }
+
     private Expression VisitPrefetch(MethodCallExpression expression)
     {
       var source = expression.Arguments[0];
