@@ -557,6 +557,16 @@ namespace Xtensive.Storage.Providers.Sql
         query.Lock = SqlLockType.Update;
         break;
       }
+      switch (provider.LockBehavior) {
+      case LockBehavior.Wait:
+        break;
+      case LockBehavior.ThrowIfLocked:
+        query.Lock &= SqlLockType.ThrowIfLocked;
+        break;
+      case LockBehavior.Skip:
+        query.Lock &= SqlLockType.SkipLocked;
+        break;
+      }
       return new SqlProvider(provider, query, Handlers, source);
     }
 
