@@ -3727,17 +3727,16 @@ namespace Xtensive.Sql.Tests.SqlServer
     [Test]
     public void Test199()
     {
-      string nativeSql = "Select Top 10 EmailAddress "
-        +"From Person.Contact a With (RepeatableRead, RowLock, Index(IX_Contact_EmailAddress)) "
-          +"Where EmailAddress Like 'a%'";
+      string nativeSql =
+        "Select Top 10 EmailAddress "+
+        "From Person.Contact a "+
+        "Where EmailAddress Like 'a%'";
 
       SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
       SqlSelect select = SqlDml.Select(c);
       select.Limit = 10;
       select.Columns.Add(c["EmailAddress"]);
       select.Where = SqlDml.Like(c["EmailAddress"], "a%");
-      select.Hints.Add(SqlDml.TableLockHint(c, SqlTableIsolationLevel.RepeatableRead, SqlTableLockType.RowLock));
-      select.Hints.Add(SqlDml.TableScanHint(c, SqlTableScanMethod.Index, "IX_Contact_EmailAddress"));
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
@@ -3745,21 +3744,18 @@ namespace Xtensive.Sql.Tests.SqlServer
     [Test]
     public void Test200()
     {
-      string nativeSql = "Select Top 10 EmailAddress "
-        +"From Person.Contact a With (RepeatableRead, RowLock, Index(IX_Contact_EmailAddress)) "
-          +"Where EmailAddress Like 'a%' "
-            +"OPTION (FAST 10, KEEP PLAN, ROBUST PLAN)";
-
+      string nativeSql =
+        "Select Top 10 EmailAddress " +
+        "From Person.Contact a " +
+        "Where EmailAddress Like 'a%' " +
+        "OPTION (FAST 10, KEEP PLAN, ROBUST PLAN)";
       SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
       SqlSelect select = SqlDml.Select(c);
       select.Limit = 10;
       select.Columns.Add(c["EmailAddress"]);
       select.Where = SqlDml.Like(c["EmailAddress"], "a%");
-      select.Hints.Add(SqlDml.TableLockHint(c, SqlTableIsolationLevel.RepeatableRead, SqlTableLockType.RowLock));
-      select.Hints.Add(SqlDml.TableScanHint(c, SqlTableScanMethod.Index, "IX_Contact_EmailAddress"));
       select.Hints.Add(SqlDml.FastFirstRowsHint(10));
       select.Hints.Add(SqlDml.NativeHint("KEEP PLAN, ROBUST PLAN"));
-
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
 

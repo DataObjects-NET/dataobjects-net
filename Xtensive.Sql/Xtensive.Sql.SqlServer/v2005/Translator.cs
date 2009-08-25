@@ -368,59 +368,6 @@ namespace Xtensive.Sql.SqlServer.v2005
         .Where(s => s.Lock!=SqlLockType.Empty)
         .FirstOrDefault();
       return select==null ? reference : string.Format("{0} WITH ({1})", reference, Translate(select.Lock));
-#if OLD_CODE
-      for (int i = 0, count = context.GetTraversalPath().Length; i < count; i++) {
-        if (context.GetTraversalPath()[i] is SqlQueryStatement)
-          statement = context.GetTraversalPath()[i] as SqlQueryStatement;
-      }
-      if (statement==null || statement.Hints.Count==0)
-        return base.Translate(context, node, section);
-
-      var tableHints = new List<string>();
-      foreach (SqlHint hint in statement.Hints) {
-        var tableHint = hint as SqlTableHint;
-        if (tableHint==null || tableHint.Table!=node)
-          continue;
-
-        var lockHint = hint as SqlTableLockHint;
-        if (lockHint!=null) {
-          if (lockHint.IsolationLevel!=SqlTableIsolationLevel.Default)
-            tableHints.Add(Translate(lockHint.IsolationLevel));
-          if (lockHint.LockType!=SqlTableLockType.Default)
-            tableHints.Add(Translate(lockHint.LockType));
-        }
-        else {
-          var scanHint = hint as SqlTableScanHint;
-          // MSSQL supports only this kind of scan
-          if (scanHint!=null && scanHint.ScanMethod==SqlTableScanMethod.Index) {
-            List<string> indexes;
-            if (scanHint.Indexes!=null) {
-              indexes = new List<string>(scanHint.Indexes.Length);
-              for (int i = 0, count = scanHint.Indexes.Length; i < count; i++) {
-                if (scanHint.Indexes[i]==null)
-                  continue;
-                indexes.Add(scanHint.Indexes[i].DbName);
-              }
-            }
-            else {
-              indexes = new List<string>(scanHint.IndexNames.Length);
-              for (int i = 0, count = scanHint.IndexNames.Length; i < count; i++) {
-                if (string.IsNullOrEmpty(scanHint.IndexNames[i]))
-                  continue;
-                indexes.Add(scanHint.IndexNames[i]);
-              }
-            }
-            if (indexes.Count > 0) {
-              tableHints.Add(
-                string.Format("{0}({1})", Translate(scanHint.ScanMethod), string.Join(", ", indexes.ToArray())));
-            }
-          }
-        }
-      }
-      return
-        base.Translate(context, node, section) +
-          (tableHints.Count==0 ? string.Empty : " WITH (" + string.Join(", ", tableHints.ToArray()) + ")");
-#endif
     }
 
     public override string Translate(SqlCompilerContext context, SqlTrim node, TrimSection section)
@@ -451,46 +398,7 @@ namespace Xtensive.Sql.SqlServer.v2005
         throw new ArgumentOutOfRangeException();
       }
     }
-
-    public override string Translate(SqlTableIsolationLevel level)
-    {
-      switch (level) {
-      case SqlTableIsolationLevel.HoldLock:
-        return "HOLDLOCK";
-      case SqlTableIsolationLevel.NoLock:
-        return "NOLOCK";
-      case SqlTableIsolationLevel.ReadCommitted:
-        return "READCOMMITTED";
-      case SqlTableIsolationLevel.ReadCommittedLock:
-        return "READCOMMITTEDLOCK";
-      case SqlTableIsolationLevel.RepeatableRead:
-        return "REPEATABLEREAD";
-      }
-      return base.Translate(level);
-    }
-
-    public override string Translate(SqlTableLockType type)
-    {
-      switch (type) {
-      case SqlTableLockType.PagLock:
-        return "PAGLOCK";
-      case SqlTableLockType.RowLock:
-        return "ROWLOCK";
-      case SqlTableLockType.TabLock:
-        return "TABLOCK";
-      case SqlTableLockType.TabLockX:
-        return "TABLOCKX";
-      case SqlTableLockType.UpdLock:
-        return "UPDLOCK";
-      }
-      return base.Translate(type);
-    }
-
-    public override string Translate(SqlTableScanMethod method)
-    {
-      return method==SqlTableScanMethod.Index ? "INDEX" : base.Translate(method);
-    }
-
+   
     public override string Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
     {
       switch (section) {

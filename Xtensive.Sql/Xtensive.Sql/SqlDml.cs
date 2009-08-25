@@ -1832,61 +1832,6 @@ namespace Xtensive.Sql
       return new SqlNativeHint(hintText);
     }
 
-    public static SqlTableLockHint TableLockHint(
-      SqlTable sqlTable, SqlTableIsolationLevel isolationLevel, SqlTableLockType lockType)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(sqlTable, "sqlTable");
-      return new SqlTableLockHint(sqlTable, isolationLevel, lockType);
-    }
-
-    public static SqlTableLockHint TableLockHint(SqlTable sqlTable, SqlTableIsolationLevel isolationLevel)
-    {
-      return TableLockHint(sqlTable, isolationLevel, SqlTableLockType.Default);
-    }
-
-    public static SqlTableLockHint TableLockHint(SqlTable sqlTable, SqlTableLockType lockType)
-    {
-      return TableLockHint(sqlTable, SqlTableIsolationLevel.Default, lockType);
-    }
-
-    public static SqlTableScanHint TableScanHint(SqlTable sqlTable, SqlTableScanMethod scanMethod)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(sqlTable, "sqlTable");
-      return new SqlTableScanHint(sqlTable, scanMethod);
-    }
-
-    public static SqlTableScanHint TableScanHint(
-      SqlTable sqlTable, SqlTableScanMethod scanMethod, Index index, params Index[] indexes)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(sqlTable, "sqlTable");
-      ArgumentValidator.EnsureArgumentNotNull(index, "index");
-      Index[] allIndexes;
-      if (indexes!=null && indexes.Length>0) {
-        allIndexes = new Index[indexes.Length+1];
-        indexes.CopyTo(allIndexes, 1);
-        allIndexes[0] = index;
-      }
-      else
-        allIndexes = new [] {index};
-      return new SqlTableScanHint(sqlTable, scanMethod, allIndexes);
-    }
-
-    public static SqlTableScanHint TableScanHint(
-      SqlTable sqlTable, SqlTableScanMethod scanMethod, string indexName, params string[] indexNames)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(sqlTable, "sqlTable");
-      ArgumentValidator.EnsureArgumentNotNull(indexName, "indexName");
-      string[] allIndexes;
-      if (indexNames!=null && indexNames.Length>0) {
-        allIndexes = new string[indexNames.Length+1];
-        indexNames.CopyTo(allIndexes, 1);
-        allIndexes[0] = indexName;
-      }
-      else
-        allIndexes = new [] {indexName};
-      return new SqlTableScanHint(sqlTable, scanMethod, allIndexes);
-    }
-
     #endregion
   }
 }

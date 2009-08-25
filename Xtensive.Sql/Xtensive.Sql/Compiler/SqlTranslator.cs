@@ -1512,21 +1512,6 @@ namespace Xtensive.Sql.Compiler
         : QuoteIdentifier(node.DbName);
     }
 
-    public virtual string Translate(SqlTableIsolationLevel level)
-    {
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlTableLockType type)
-    {
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlTableScanMethod method)
-    {
-      return string.Empty;
-    }
-
     public virtual string Translate(ReferentialAction action)
     {
       switch (action) {

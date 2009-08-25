@@ -1105,11 +1105,6 @@ namespace Xtensive.Sql.Compiler
       context.AppendText(translator.Translate(context, node, NodeSection.Entry));
     }
 
-    public virtual void Visit(SqlTableLockHint node)
-    {
-      // nothing
-    }
-
     public virtual void Visit(SqlTableRef node)
     {
       if (context.AliasProvider.IsEnabled)
@@ -1130,11 +1125,6 @@ namespace Xtensive.Sql.Compiler
         node.Expression.AcceptVisitor(this);
         context.AppendText(translator.Translate(context, node, TrimSection.Exit));
       }
-    }
-
-    public virtual void Visit(SqlTableScanHint node)
-    {
-      // nothing
     }
 
     public virtual void Visit(SqlUnary node)

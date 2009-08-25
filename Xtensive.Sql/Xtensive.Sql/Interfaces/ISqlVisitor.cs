@@ -84,10 +84,8 @@ namespace Xtensive.Sql
     void Visit(SqlRenameTable node);
     void Visit(SqlStatementBlock node);
     void Visit(SqlTableColumn node);
-    void Visit(SqlTableLockHint node);
     void Visit(SqlTableRef node);
     void Visit(SqlTrim node);
-    void Visit(SqlTableScanHint node);
     void Visit(SqlSelect node);
     void Visit(SqlSubQuery node);
     void Visit(SqlUnary node);
