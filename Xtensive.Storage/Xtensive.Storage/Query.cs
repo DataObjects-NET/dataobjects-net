@@ -349,8 +349,7 @@ namespace Xtensive.Storage
       Type parameterType = null;
       PropertyInfo valueMemberInfo = null;
       object currentTarget = null;
-      var replacer = new ExtendedExpressionReplacer(e =>
-      {
+      var replacer = new ExtendedExpressionReplacer(e => {
         if (e.NodeType == ExpressionType.Constant && e.Type.IsClosure()) {
           if (currentClosureType == null) {
             currentClosureType = e.Type;
