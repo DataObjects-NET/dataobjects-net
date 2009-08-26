@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
@@ -20,29 +21,39 @@ namespace Xtensive.Storage
   public class ReferentialIntegrityException: StorageException
   {
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Gets the association.
     /// </summary>
-    public ReferentialIntegrityException()
-      : base(Strings.ExReferentialIntegrityViolation)
-    {
-    }
+    public AssociationInfo Association { get; private set; }
+
+    /// <summary>
+    /// Gets the <see cref="Key"/> of the initiator of removing action.
+    /// </summary>
+    public Key Initiator { get; private set; }
+
+    /// <summary>
+    /// Gets the <see cref="Key"/> of the referencing object.
+    /// </summary>
+    public Key ReferencingObject { get; private set; }
+
+    /// <summary>
+    /// Gets the <see cref="Key"/> of the referenced object.
+    /// </summary>
+    public Key ReferencedObject { get; private set; }
+
+
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="message">Text of message.</param>
-    public ReferentialIntegrityException(string message)
-      : base(message)
+    public ReferentialIntegrityException(AssociationInfo association, Entity initiator, Entity referencingObject, Entity referencedObject)
+      : base(string.Format(
+      Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY, initiator.GetType().BaseType.GetFullName(), initiator.Key))
     {
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public ReferentialIntegrityException(Entity entity)
-      : this(string.Format(
-      Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY, entity.GetType().BaseType.GetFullName(), entity.Key))
-    {
+      Association = association;
+      Initiator = initiator.Key;
+      ReferencingObject = referencingObject.Key;
+      ReferencedObject = referencedObject.Key;
     }
   }
 }

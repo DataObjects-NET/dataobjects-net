@@ -13,7 +13,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
     public override void Process(RemovalContext context, AssociationInfo association, Entity removingObject, Entity target, Entity referencingObject, Entity referencedObject)
     {
       if (!context.Items.Contains(target))
-        throw new ReferentialIntegrityException(removingObject);
+        throw new ReferentialIntegrityException(association, removingObject, referencingObject, referencedObject);
 
       base.Process(context, association, removingObject, target, referencingObject, referencedObject);
     }
