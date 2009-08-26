@@ -8,13 +8,13 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
-  internal sealed class FetchRequest
+  internal sealed class FetchTask
   {
     internal readonly IndexInfo Index;
     internal readonly int[] Columns;
     private readonly int hashCode;
 
-    private bool Equals(FetchRequest obj)
+    private bool Equals(FetchTask obj)
     {
       if (ReferenceEquals(null, obj))
         return false;
@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Internals
 
     public override bool Equals(object obj)
     {
-      return Equals(obj as FetchRequest);
+      return Equals(obj as FetchTask);
     }
 
     public override int GetHashCode()
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public FetchRequest(IndexInfo index, int[] columns)
+    public FetchTask(IndexInfo index, int[] columns)
     {
       this.Index = index;
       this.Columns = columns;

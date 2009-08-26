@@ -5,10 +5,8 @@
 // Created:    2008.07.11
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
@@ -24,9 +22,9 @@ namespace Xtensive.Storage.Providers.Sql
     protected readonly HandlerAccessor handlers;
 
     /// <summary>
-    /// Gets <see cref="SqlFetchRequest"/> associated with this provider.
+    /// Gets <see cref="SqlQueryRequest"/> associated with this provider.
     /// </summary>
-    public SqlFetchRequest Request { get; private set;  }
+    public SqlQueryRequest Request { get; private set; }
 
     /// <summary>
     /// Gets the permanent reference (<see cref="SqlQueryRef"/>) for <see cref="SqlSelect"/> associated with this provider.
@@ -36,10 +34,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
-      var sessionHandler = (SessionHandler) handlers.SessionHandler;
-      using (var e = sessionHandler.ExecuteTupleReader(Request)) {
-        while (e.MoveNext())
-          yield return e.Current;
+      var enumerator = handlers.SessionHandler.Execute(this);
+      using (enumerator) {
+        while (enumerator.MoveNext()) {
+          yield return enumerator.Current;
+        }
       }
     }
 
@@ -101,7 +100,7 @@ namespace Xtensive.Storage.Providers.Sql
       CompilableProvider origin,
       SqlSelect statement,
       HandlerAccessor handlers,
-      IEnumerable<SqlFetchParameterBinding> extraBindings,
+      IEnumerable<SqlQueryParameterBinding> extraBindings,
       params ExecutableProvider[] sources)
       : base(origin, sources)
     {
@@ -112,7 +111,7 @@ namespace Xtensive.Storage.Providers.Sql
       var tupleDescriptor = origin.Header.TupleDescriptor;
       if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
         tupleDescriptor = origin.Header.TupleDescriptor.TrimFields(statement.Columns.Count);
-      Request = new SqlFetchRequest(statement, tupleDescriptor, parameterBindings);
+      Request = new SqlQueryRequest(statement, tupleDescriptor, parameterBindings);
       PermanentReference = SqlDml.QueryRef(statement);
     }
   }

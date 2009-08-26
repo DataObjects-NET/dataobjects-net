@@ -46,7 +46,8 @@ namespace Xtensive.Storage.Linq
     /// </summary>
     public RecordSet Compiled
     {
-      get { return (RecordSet) Session.Demand().Handler.Translate<T>(expression).DataSource; }
+      get { return (RecordSet) Session.Demand().Handler.Provider
+        .Translate<IEnumerable<T>>(expression).DataSource; }
     }
 
     #region IEnumerable<...> members
@@ -55,7 +56,7 @@ namespace Xtensive.Storage.Linq
     public IEnumerator<T> GetEnumerator()
     {
       var session = Session.Demand();
-      var result = session.Handler.Execute<T>(expression).ToTransactional(session);
+      var result = session.Handler.Provider.Execute<IEnumerable<T>>(expression).ToTransactional(session);
       return result.GetEnumerator();
     }
 

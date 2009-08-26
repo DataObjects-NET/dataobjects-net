@@ -39,6 +39,11 @@ namespace Xtensive.Sql.Compiler.Internals
         return;
       AppendNode(new TextNode(text));
     }
+
+    private void ResetLast()
+    {
+      last = '\0';
+    }
    
     private void AppendNode(Node node)
     {
@@ -141,19 +146,23 @@ namespace Xtensive.Sql.Compiler.Internals
 
     public override void Visit(VariantNode node)
     {
+      AppendSpace();
       FlushBuffer();
       var variant = new VariantNode(node.Key);
       variant.Main = VisitVariantNode(node.Main);
       variant.Alternative = VisitVariantNode(node.Alternative);
       AppendNode(variant);
       CreateBuffer();
+      ResetLast();
     }
 
     public override void Visit(HoleNode node)
     {
+      AppendSpace();
       FlushBuffer();
       AppendNode(new HoleNode(node.Prefix, node.Key));
       CreateBuffer();
+      ResetLast();
     }
 
     #endregion

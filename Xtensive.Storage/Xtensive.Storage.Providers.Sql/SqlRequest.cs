@@ -31,18 +31,10 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlCompilationResult Compile(DomainHandler domainHandler)
     {
       return compilationResult.GetValue(
-        (driver, _this) => driver.Compile(_this.Statement, _this.GetCompilerOptions()),
+        (driver, _this) => driver.Compile(_this.Statement, new SqlCompilerOptions {DelayParameterNameAssignment = true}),
         domainHandler.Driver, this);
     }
 
-    /// <summary>
-    /// Gets the compiler options.
-    /// </summary>
-    /// <returns>Compiler options specific to this request.</returns>
-    protected virtual SqlCompilerOptions GetCompilerOptions()
-    {
-      return new SqlCompilerOptions();
-    }
 
     // Constructors
 

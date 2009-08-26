@@ -88,27 +88,7 @@ namespace Xtensive.Storage
     /// <returns>Query result.</returns>
     public static IEnumerable<TElement> Execute<TElement>(object key, Func<IQueryable<TElement>> query)
     {
-      var domain = Domain.Demand();
-      var target = query.Target;
-      var cache = domain.QueryCache;
-      Pair<object, TranslatedQuery> item;
-      ParameterizedQuery<IEnumerable<TElement>> parameterizedQuery = null;
-      lock (cache)
-        if (cache.TryGetItem(key, true, out item))
-          parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) item.Second;
-      if (parameterizedQuery == null) {
-        ExtendedExpressionReplacer replacer;
-        var queryParameter = BuildQueryParameter(target, out replacer);
-        using (new QueryCachingScope(queryParameter, replacer)) {
-          var result = query.Invoke();
-          var translatedQuery = Session.Demand().Handler.Translate<TElement>(result.Expression);
-          parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) translatedQuery;
-          lock (cache)
-            if (!cache.TryGetItem(key, false, out item))
-              cache.Add(new Pair<object, TranslatedQuery>(key, parameterizedQuery));
-        }
-      }
-      return ExecuteSequence(parameterizedQuery, target);
+      return ExecuteSequence(GetParameterizedQuery(key, query, Session.Demand()), query.Target);
     }
 
     /// <summary>
@@ -163,6 +143,95 @@ namespace Xtensive.Storage
         }
       }
       return ExecuteScalar(parameterizedQuery, target);
+    }
+
+    /// <summary>
+    /// Creates the future and registers it for the later execution.
+    /// The query associated with the future will be cached.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="key">An cache item's key.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>The future that will be executed when its result is requested.</returns>
+    public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(object key,
+      Expression<Func<TResult>> query)
+    {
+      var session = Session.Demand();
+      var domain = Domain.Demand();
+      var cache = domain.QueryCache;
+      object target = null;
+      Pair<object, TranslatedQuery> item;
+      ParameterizedQuery<TResult> parameterizedQuery = null;
+      lock (cache)
+        if (cache.TryGetItem(key, true, out item))
+          parameterizedQuery = (ParameterizedQuery<TResult>) item.Second;
+      if (parameterizedQuery == null) {
+        Parameter parameter;
+        var preparedQuery = ReplaceClosure(query.Body, out target, out parameter);
+        var transaltedQuery = session.Handler.Provider.Translate<TResult>(preparedQuery);
+        parameterizedQuery = new ParameterizedQuery<TResult>(transaltedQuery, parameter);
+          lock (cache)
+            if (!cache.TryGetItem(key, false, out item))
+              cache.Add(new Pair<object, TranslatedQuery>(key, parameterizedQuery));
+      }
+      else {
+        var targetSearcher = new DelegatingExpressionVisitor();
+        targetSearcher.Visit(query, exp => {
+          if (exp.NodeType == ExpressionType.Constant && exp.Type.IsClosure())
+            if (target == null)
+              target = ((ConstantExpression) exp).Value;
+        });
+      }
+      var parameterContext = CreateParameterContext(target, parameterizedQuery);
+      var result = new FutureScalar<TResult>(parameterizedQuery, parameterContext);
+      session.RegisterDelayedQuery(result.Task);
+      return result;
+    }
+
+    /// <summary>
+    /// Creates the future and registers it for the later execution.
+    /// The query associated with the future will NOT be cached.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>The future that will be executed when its result is requested.</returns>
+    public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(Expression<Func<TResult>> query)
+    {
+      var session = Session.Demand();
+      var translatedQuery = session.Handler.Provider.Translate<TResult>(query.Body);
+      var result = new FutureScalar<TResult>(translatedQuery, null);
+      session.RegisterDelayedQuery(result.Task);
+      return result;
+    }
+
+    /// <summary>
+    /// Creates the future and registers it for the later execution.
+    /// The query associated with the future will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the result element.</typeparam>
+    /// <param name="key">An cache item's key.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>The future that will be executed when its result is requested.</returns>
+    public static IEnumerable<TElement> ExecuteFuture<TElement>(object key, Func<IQueryable<TElement>> query)
+    {
+      var session = Session.Demand();
+      var parameterizedQuery = GetParameterizedQuery(key, query, session);
+      var parameterContext = CreateParameterContext(query.Target, parameterizedQuery);
+      var result = new FutureSequence<TElement>(parameterizedQuery, parameterContext);
+      session.RegisterDelayedQuery(result.Task);
+      return result;
+    }
+
+    /// <summary>
+    /// Creates the future and registers it for the later execution.
+    /// The query associated with the future will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the result element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>The future that will be executed when its result is requested.</returns>
+    public static IEnumerable<TElement> ExecuteFuture<TElement>(Func<IQueryable<TElement>> query)
+    {
+      return ExecuteFuture(query.Method, query);
     }
 
     #region Private / internal methods
@@ -246,6 +315,73 @@ namespace Xtensive.Storage
           query.QueryParameter.Value = target;
         return query.Execute();
       }
+    }
+
+    private static ParameterizedQuery<IEnumerable<TElement>> GetParameterizedQuery<TElement>(object key,
+      Func<IQueryable<TElement>> query, Session session)
+    {
+      var domain = Domain.Demand();
+      var cache = domain.QueryCache;
+      Pair<object, TranslatedQuery> item;
+      ParameterizedQuery<IEnumerable<TElement>> parameterizedQuery = null;
+      lock (cache)
+        if (cache.TryGetItem(key, true, out item))
+          parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) item.Second;
+      if (parameterizedQuery == null) {
+        ExtendedExpressionReplacer replacer;
+        var queryParameter = BuildQueryParameter(query.Target, out replacer);
+        using (new QueryCachingScope(queryParameter, replacer)) {
+          var result = query.Invoke();
+          var translatedQuery = session.Handler.Provider.Translate<IEnumerable<TElement>>(result.Expression);
+          parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) translatedQuery;
+          lock (cache)
+            if (!cache.TryGetItem(key, false, out item))
+              cache.Add(new Pair<object, TranslatedQuery>(key, parameterizedQuery));
+        }
+      }
+      return parameterizedQuery;
+    }
+
+    private static Expression ReplaceClosure(Expression source, out object target, out Parameter parameter)
+    {
+      Type currentClosureType = null;
+      Parameter queryParameter = null;
+      Type parameterType = null;
+      PropertyInfo valueMemberInfo = null;
+      object currentTarget = null;
+      var replacer = new ExtendedExpressionReplacer(e =>
+      {
+        if (e.NodeType == ExpressionType.Constant && e.Type.IsClosure()) {
+          if (currentClosureType == null) {
+            currentClosureType = e.Type;
+            currentTarget = ((ConstantExpression) e).Value;
+            parameterType = typeof (Parameter<>).MakeGenericType(currentClosureType);
+            valueMemberInfo = parameterType.GetProperty("Value", currentClosureType);
+            queryParameter = (Parameter) Activator.CreateInstance(parameterType, "pClosure", currentTarget);
+          }
+          if (e.Type == currentClosureType)
+            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType),
+              valueMemberInfo);
+          throw new InvalidOperationException(Strings.ExQueryContainsClosuresOfDifferentTypes);
+        }
+        return null;
+      });
+      var result = replacer.Replace(source);
+      target = currentTarget;
+      parameter = queryParameter;
+      return result;
+    }
+
+    private static ParameterContext CreateParameterContext<TResult>(object target,
+      ParameterizedQuery<TResult> parameterizedQuery)
+    {
+      ParameterContext parameterContext = null;
+      if (parameterizedQuery.QueryParameter != null) {
+        parameterContext = new ParameterContext();
+        using (parameterContext.Activate())
+          parameterizedQuery.QueryParameter.Value = target;
+      }
+      return parameterContext;
     }
 
     #endregion

@@ -51,7 +51,9 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public EnumerationContext()
     {
-      Session.Demand().Persist();
+      var session = Session.Demand();
+      session.Persist(true);
+      session.ExecuteAllDelayedQueries(true);
     }
   }
 }

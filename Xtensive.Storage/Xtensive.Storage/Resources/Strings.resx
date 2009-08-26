@@ -812,6 +812,9 @@ Actions:
   <data name="ExThereIsNoCurrentHttpRequestOrSessionManagerIsnTBoundToItYet" xml:space="preserve">
     <value>There is no current HttpRequest, or SessionManager is not bound to it yet.</value>
   </data>
+  <data name="ExQueryContainsClosuresOfDifferentTypes" xml:space="preserve">
+    <value>The query contains closures of different types.</value>
+  </data>
   <data name="ExInvalidPrefetchSelectorX" xml:space="preserve">
     <value>Invalid prefetch selector '{0}'</value>
   </data>

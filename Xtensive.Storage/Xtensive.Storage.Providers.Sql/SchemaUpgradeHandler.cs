@@ -74,7 +74,9 @@ namespace Xtensive.Storage.Providers.Sql
           return;
         var command = Connection.CreateCommand(commandText);
         command.Transaction = SessionHandler.Transaction;
-        Driver.ExecuteNonQuery(command);
+        using (command) {
+          Driver.ExecuteNonQuery(command);
+        }
       }
       else {
         foreach (var commandText in batch) {
@@ -82,7 +84,9 @@ namespace Xtensive.Storage.Providers.Sql
             continue;
           var command = Connection.CreateCommand(commandText);
           command.Transaction = SessionHandler.Transaction;
-          Driver.ExecuteNonQuery(command);
+          using (command) {
+            Driver.ExecuteNonQuery(command);
+          }
         }
       }
     }

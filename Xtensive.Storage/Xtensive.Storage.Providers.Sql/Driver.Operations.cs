@@ -82,40 +82,44 @@ namespace Xtensive.Storage.Providers.Sql
  
     public int ExecuteNonQuery(DbCommand command)
     {
-      using (command) {
-        try {
-          return command.ExecuteNonQuery();
-        }
-        catch (Exception exception) {
-          throw TranslateException(command.CommandText, exception);
-        }
+      try {
+        return command.ExecuteNonQuery();
+      }
+      catch (Exception exception) {
+        throw TranslateException(command.CommandText, exception);
       }
     }
 
     public object ExecuteScalar(DbCommand command)
     {
-      using (command) {
-        try {
-          return command.ExecuteScalar();
-        }
-        catch (Exception exception) {
-          throw TranslateException(command.CommandText, exception);
-        }
+      try {
+        return command.ExecuteScalar();
+      }
+      catch (Exception exception) {
+        throw TranslateException(command.CommandText, exception);
       }
     }
 
     public DbDataReader ExecuteReader(DbCommand command)
     {
-      using (command) {
-        try {
-          return command.ExecuteReader();
-        }
-        catch (Exception exception) {
-          throw TranslateException(command.CommandText, exception);
-        }
+      try {
+        return command.ExecuteReader();
+      }
+      catch (Exception exception) {
+        throw TranslateException(command.CommandText, exception);
       }
     }
     
+    public bool ReadRow(DbDataReader reader)
+    {
+      try {
+        return reader.Read();
+      }
+      catch (Exception exception) {
+        throw TranslateException(null, exception);
+      }
+    }
+
     private Exception TranslateException(string queryText, Exception exception)
     {
       var exceptionType = underlyingDriver.GetExceptionType(exception);

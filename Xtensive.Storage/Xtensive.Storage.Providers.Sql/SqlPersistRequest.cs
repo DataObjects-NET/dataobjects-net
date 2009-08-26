@@ -27,13 +27,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <remarks>Usually is the number of touched rows.</remarks>
     public int? ExpectedResult { get; private set; }
-
-    protected override SqlCompilerOptions GetCompilerOptions()
-    {
-      return new SqlCompilerOptions {DelayParameterNameAssignment = true};
-    }
-
-
+    
     // Constructors
 
     /// <summary>

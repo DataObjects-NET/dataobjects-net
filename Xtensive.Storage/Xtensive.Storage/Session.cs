@@ -5,6 +5,7 @@
 // Created:    2007.08.10
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
@@ -50,13 +51,16 @@ namespace Xtensive.Storage
     IContext<SessionScope>, IResource
   {
     private const int EntityChangeRegistrySizeLimit = 250; // TODO: -> SessionConfiguration
+
     private static Func<Session> resolver;
 
-    private readonly bool persistRequiresTopologicalSort;
-    private volatile bool isDisposed;
-    private readonly Set<object> consumers = new Set<object>();
     private readonly object _lock = new object();
+    private readonly bool persistRequiresTopologicalSort;
+    private readonly Set<object> consumers = new Set<object>();
+    private readonly List<QueryTask> queryTasks = new List<QueryTask>();
+
     private ServiceProvider serviceProvider;
+    private volatile bool isDisposed;
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -113,7 +117,7 @@ namespace Xtensive.Storage
       }
     }
 
-    #region Private \ internal members
+    #region Private / internal members
 
     internal SessionHandler Handler { get; set; }
 
@@ -125,9 +129,32 @@ namespace Xtensive.Storage
 
     internal RemovalProcessor RemovalProcessor { get; private set; }
 
+    internal bool IsDelayedQueryRunning { get; private set; }
+
     internal CompilationContext CompilationContext
     {
       get { return Handlers.DomainHandler.CompilationContext; }
+    }
+
+    internal void RegisterDelayedQuery(QueryTask task)
+    {
+      if (IsDelayedQueryRunning)
+        throw new InvalidOperationException();
+      queryTasks.Add(task);
+    }
+    
+    internal void ExecuteAllDelayedQueries(bool dirty)
+    {
+      if (IsDelayedQueryRunning)
+        return;
+      try {
+        IsDelayedQueryRunning = true;
+        Handler.Execute(queryTasks, dirty);
+        queryTasks.Clear();
+      }
+      finally {
+        IsDelayedQueryRunning = false;
+      }
     }
 
     private void NotifyDisposing()
@@ -465,18 +492,13 @@ namespace Xtensive.Storage
           new WeakCache<Key, EntityState>(false, i => i.Key));
         break;
       }
-      EntityChangeRegistry = new EntityChangeRegistry(this, EntityChangeRegistrySizeLimit);
+      EntityChangeRegistry = new EntityChangeRegistry();
       // Etc...
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       CoreServices = new CoreServiceAccessor(this);
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
       EntityEventBroker = new EntityEventBroker();
-
-      persistRequiresTopologicalSort =
-        (Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0 &&
-         Domain.Handler.ProviderInfo.SupportsForeignKeyConstraints &&
-        !Domain.Handler.ProviderInfo.SupportsDeferredForeignKeyConstraints;
     }
 
     #region Dispose pattern

@@ -35,12 +35,12 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    public TranslatedQuery(IEnumerable<Tuple> dataSource, Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, TResult> materializer)
+    public TranslatedQuery(RecordSet dataSource, Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, TResult> materializer)
       : this(dataSource, materializer, new Dictionary<Parameter<Tuple>, Tuple>(), EnumerableUtils<Parameter<Tuple>>.Empty)
     {
     }
 
-    public TranslatedQuery(IEnumerable<Tuple> dataSource, Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, TResult> materializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
+    public TranslatedQuery(RecordSet dataSource, Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, TResult> materializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
       : base(dataSource)
     {
       Materializer = materializer;

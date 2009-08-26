@@ -7,18 +7,19 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
   public abstract class TranslatedQuery
   {
-    public readonly IEnumerable<Tuple> DataSource;
+    public readonly RecordSet DataSource;
 
     public abstract Delegate UntypedMaterializer { get; }
 
     // Constructors
 
-    protected TranslatedQuery(IEnumerable<Tuple> dataSource)
+    protected TranslatedQuery(RecordSet dataSource)
     {
       DataSource = dataSource;
     }

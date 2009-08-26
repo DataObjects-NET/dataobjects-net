@@ -19,6 +19,12 @@ namespace Xtensive.Storage
     internal ICache<Key, EntityState> EntityStateCache { get; private set; }
     internal EntityChangeRegistry EntityChangeRegistry { get; private set; }
 
+    internal void EnforceChangeRegistrySizeLimit()
+    {
+      if (EntityChangeRegistry.Count>=EntityChangeRegistrySizeLimit)
+        Persist();
+    }
+
     internal EntityState CreateEntityState(Key key)
     {
       // Checking for deleted entity with the same key
@@ -26,7 +32,7 @@ namespace Xtensive.Storage
       if (cachedState != null && cachedState.PersistenceState==PersistenceState.Removed)
         Persist();
       else
-        EntityChangeRegistry.EnforceSizeLimit(); // Must be done before new entity registration
+        EnforceChangeRegistrySizeLimit(); // Must be done before new entity registration
 
       // If type is unknown, we consider tuple is null, 
       // so its Entity is considered as non-existing

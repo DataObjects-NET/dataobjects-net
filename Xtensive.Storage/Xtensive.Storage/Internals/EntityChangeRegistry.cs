@@ -18,8 +18,6 @@ namespace Xtensive.Storage.Internals
     private readonly List<EntityState> @new = new List<EntityState>();
     private readonly List<EntityState> modified = new List<EntityState>();
     private readonly List<EntityState> removed = new List<EntityState>();
-    private readonly int sizeLimit;
-    private readonly Session session;
     private int count;
 
     /// <summary>
@@ -27,22 +25,6 @@ namespace Xtensive.Storage.Internals
     /// </summary>
     public int Count {
       get { return count; }
-    }
-
-    /// <summary>
-    /// Gets the maximal allowed count of registered entities for this registry.
-    /// </summary>
-    public int SizeLimit {
-      get { return sizeLimit; }
-    }
-
-    /// <summary>
-    /// Enforces the size limit by flushing the changes if it is reached.
-    /// </summary>
-    public void EnforceSizeLimit()
-    {
-      if (count>=sizeLimit)
-        session.Persist();
     }
 
     /// <summary>
@@ -91,17 +73,6 @@ namespace Xtensive.Storage.Internals
       default:
         throw new ArgumentOutOfRangeException("state");
       }
-    }
-
-
-    // Constructors
-
-    /// <inheritdoc/>
-    public EntityChangeRegistry(Session session, int sizeLimit)
-    {
-      ArgumentValidator.EnsureArgumentIsGreaterThan(sizeLimit, 0, "maxCount");
-      this.session = session;
-      this.sizeLimit = sizeLimit;
     }
   }
 }

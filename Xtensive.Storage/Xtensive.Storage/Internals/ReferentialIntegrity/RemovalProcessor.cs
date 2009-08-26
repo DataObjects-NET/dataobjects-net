@@ -23,7 +23,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
     {
       if (context.IsEmpty) {
         try {
-          Session.EntityChangeRegistry.EnforceSizeLimit();
+          Session.EnforceChangeRegistrySizeLimit();
           // Session.Persist(); // Remove
           ProcessItem(context, item);
           ProcessQueue(context);
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
         }
         finally {
           context.Clear();
-          Session.EntityChangeRegistry.EnforceSizeLimit();
+          Session.EnforceChangeRegistrySizeLimit();
         }
       }
       else {

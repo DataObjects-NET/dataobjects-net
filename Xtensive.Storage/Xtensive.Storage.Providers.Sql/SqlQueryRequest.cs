@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Providers.Sql
   /// <summary>
   /// Fetch request.
   /// </summary>
-  public class SqlFetchRequest : SqlRequest
+  public class SqlQueryRequest : SqlRequest
   {
     /// <summary>
     /// Gets the select statement.
@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the parameter bindings.
     /// </summary>
-    public IEnumerable<SqlFetchParameterBinding> ParameterBindings { get; private set; }
+    public IEnumerable<SqlQueryParameterBinding> ParameterBindings { get; private set; }
 
     /// <summary>
     /// Gets the record set header.
@@ -42,7 +42,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="statement">The statement.</param>
     /// <param name="tupleDescriptor">The tuple descriptor.</param>
     /// <param name="parameterBindings">The parameter bindings.</param>
-    public SqlFetchRequest(SqlSelect statement, TupleDescriptor tupleDescriptor, IEnumerable<SqlFetchParameterBinding> parameterBindings)
+    public SqlQueryRequest(
+      SqlSelect statement,
+      TupleDescriptor tupleDescriptor,
+      IEnumerable<SqlQueryParameterBinding> parameterBindings)
       : base(statement)
     {
       ParameterBindings = parameterBindings.ToHashSet();

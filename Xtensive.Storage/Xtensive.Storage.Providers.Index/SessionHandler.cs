@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    public override void Persist(IEnumerable<PersistAction> persistActions)
+    public override void Persist(IEnumerable<PersistAction> persistActions, bool dirty)
     {
       lock (ConnectionSyncRoot) {
         var batched = persistActions.SelectMany(statePair => CreateCommandBatch(statePair)).Batch(0, 256, 256);
@@ -123,6 +123,7 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     public override void Initialize()
     {
+      base.Initialize();
       storage = ((DomainHandler) Handlers.DomainHandler).GetIndexStorage();
     }
 

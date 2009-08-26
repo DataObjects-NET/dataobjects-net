@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Transactions;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Threading;
@@ -19,18 +20,18 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Providers
 {
   /// <summary>
   /// Base <see cref="Session"/> handler class.
   /// </summary>
-  public abstract class SessionHandler : InitializableHandlerBase,
+  public abstract partial class SessionHandler : InitializableHandlerBase,
     IDisposable
   {
-    private static ThreadSafeDictionary<FetchRequest, RecordSet> recordSetCache;
+    private static ThreadSafeDictionary<FetchTask, RecordSet> recordSetCache;
     private static readonly Parameter<Tuple> fetchParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
 
     /// <summary>
@@ -54,6 +55,11 @@ namespace Xtensive.Storage.Providers
     public IsolationLevel DefaultIsolationLevel { get; internal set; }
 
     /// <summary>
+    /// Gets the query provider.
+    /// </summary>
+    public virtual QueryProvider Provider {get { return QueryProvider.Instance; }}
+
+    /// <summary>
     /// Opens the transaction.
     /// </summary>
     public abstract void BeginTransaction();
@@ -69,12 +75,6 @@ namespace Xtensive.Storage.Providers
     public abstract void RollbackTransaction();
 
     /// <summary>
-    /// Persists changed entities.
-    /// </summary>
-    /// <param name="persistActions">The entity states and the corresponding actions.</param>
-    public abstract void Persist(IEnumerable<PersistAction> persistActions);
-
-    /// <summary>
     /// Acquires the connection lock.
     /// </summary>
     /// <returns>An implementation of <see cref="IDisposable"/> which should be disposed 
@@ -88,11 +88,40 @@ namespace Xtensive.Storage.Providers
     /// <inheritdoc/>
     public override void Initialize()
     {
+      PersistRequiresTopologicalSort =
+        (Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0 &&
+         Handlers.Domain.Handler.ProviderInfo.SupportsForeignKeyConstraints &&
+        !Handlers.Domain.Handler.ProviderInfo.SupportsDeferredForeignKeyConstraints;
     }
 
     /// <inheritdoc/>
     public abstract void Dispose();
+    
+    /// <summary>
+    /// Executes the specified compiled RSE query.
+    /// This method is used only for non-index storages.
+    /// </summary>
+    /// <param name="provider">The provider to execute.</param>
+    /// <returns>Result of query execution.</returns>
+    public virtual IEnumerator<Tuple> Execute(ExecutableProvider provider)
+    {
+      throw new NotSupportedException();
+    }
 
+    /// <summary>
+    /// Executes the specified query tasks.
+    /// </summary>
+    /// <param name="queryTasks">The query tasks to execute.</param>
+    /// <param name="dirty">if set to <see langword="true"/> dirty execution is allowed.</param>
+    public virtual void Execute(IList<QueryTask> queryTasks, bool dirty)
+    {
+      foreach (var task in queryTasks) {
+        using (task.ParameterContext.ActivateSafely())
+        using (EnumerationScope.Open())
+          task.Result = task.DataSource.ToList();
+      }
+    }
+    
     #region Fetch methods
     
     /// <summary>
@@ -104,7 +133,7 @@ namespace Xtensive.Storage.Providers
     {
       // We should fetch all non-lazyload columns
       var index = GetPrimaryIndex(key);
-      var request = new FetchRequest(index, index.GetDefaultFetchColumnsIndexes());
+      var request = new FetchTask(index, index.GetDefaultFetchColumnsIndexes());
 
       // Key could be with or without exact TypeId
       return Execute(request, key);
@@ -128,7 +157,7 @@ namespace Xtensive.Storage.Providers
       else
         columns = columns.Combine(field.ExtractColumns().Select(c => index.Columns.IndexOf(c)).ToArray());
 
-      var request = new FetchRequest(index, columns);
+      var request = new FetchTask(index, columns);
 
       // Key always contains exact TypeId
       Execute(request, key);
@@ -140,9 +169,9 @@ namespace Xtensive.Storage.Providers
         ==SessionOptions.AutoShortenTransactions;
     }
 
-    private EntityState Execute(FetchRequest request, Key key)
+    private EntityState Execute(FetchTask task, Key key)
     {
-      var recordSet = GetRecordSet(request);
+      var recordSet = GetRecordSet(task);
 
       using (new ParameterContext().Activate()) {
         fetchParameter.Value = key.Value;
@@ -166,32 +195,20 @@ namespace Xtensive.Storage.Providers
       return (key.IsTypeCached ? key.Type : key.Hierarchy.Root).Indexes.PrimaryIndex;
     }
 
-    private static RecordSet GetRecordSet(FetchRequest request)
+    private static RecordSet GetRecordSet(FetchTask task)
     {
-      return recordSetCache.GetValue(request, delegate {
-        return IndexProvider.Get(request.Index).Result
+      return recordSetCache.GetValue(task, delegate {
+        return IndexProvider.Get(task.Index).Result
           .Seek(() => fetchParameter.Value)
-          .Select(request.Columns);
+          .Select(task.Columns);
       });
     }
 
     #endregion
-
-    protected internal virtual QueryProvider Provider {get { return QueryProvider.Instance; }}
-
-    protected internal virtual IEnumerable<T> Execute<T>(Expression expression)
-    {
-      return Provider.Execute<IEnumerable<T>>(expression);
-    }
-
-    protected internal virtual TranslatedQuery<IEnumerable<T>> Translate<T>(Expression expression)
-    {
-      return Provider.Translate<IEnumerable<T>>(expression);
-    }
-
+    
     static SessionHandler()
     {
-      recordSetCache = ThreadSafeDictionary<FetchRequest, RecordSet>.Create(new object());
+      recordSetCache = ThreadSafeDictionary<FetchTask, RecordSet>.Create(new object());
     }
   }
 }

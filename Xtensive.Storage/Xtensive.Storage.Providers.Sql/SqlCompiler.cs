@@ -136,9 +136,9 @@ namespace Xtensive.Storage.Providers.Sql
         sqlSelect.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       }
       
-      IEnumerable<SqlFetchParameterBinding> allBindings = EnumerableUtils<SqlFetchParameterBinding>.Empty;
+      IEnumerable<SqlQueryParameterBinding> allBindings = EnumerableUtils<SqlQueryParameterBinding>.Empty;
       foreach (var column in provider.CalculatedColumns) {
-        HashSet<SqlFetchParameterBinding> bindings;
+        HashSet<SqlQueryParameterBinding> bindings;
         var predicate = ProcessExpression(column.Expression, out bindings, sqlSelect);
         if (!ProviderInfo.SupportsAllBooleanExpressions && (column.Type.StripNullable()==typeof(bool)))
           predicate = booleanExpressionConverter.BooleanToInt(predicate);
@@ -173,7 +173,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlSelect query = ExtractSqlSelect(source);
 
-      HashSet<SqlFetchParameterBinding> bindings;
+      HashSet<SqlQueryParameterBinding> bindings;
       var predicate = ProcessExpression(provider.Predicate, out bindings, query);
       query.Where &= predicate;
 
@@ -224,7 +224,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var leftQuery = left.PermanentReference;
       var rightQuery = right.PermanentReference;
-      HashSet<SqlFetchParameterBinding> bindings;
+      HashSet<SqlQueryParameterBinding> bindings;
 
       var predicate = ProcessExpression(provider.Predicate, out bindings, leftQuery, rightQuery);
       var joinedTable = SqlDml.Join(
@@ -251,12 +251,12 @@ namespace Xtensive.Storage.Providers.Sql
       var query = (SqlSelect) source.ShallowClone();
       var keyColumns = provider.Header.Order.ToList();
       var rangeProvider = new SqlRangeProvider(provider, query, Handlers, compiledSource);
-      var bindings = (HashSet<SqlFetchParameterBinding>) rangeProvider.Request.ParameterBindings;
+      var bindings = (HashSet<SqlQueryParameterBinding>) rangeProvider.Request.ParameterBindings;
       for (int i = 0; i < originalRange.EndPoints.First.Value.Count; i++) {
         var column = provider.Header.Columns[keyColumns[i].Key];
         TypeMapping typeMapping = Driver.GetTypeMapping(column.Type);
         int fieldIndex = i;
-        var binding = new SqlFetchParameterBinding(() => rangeProvider.CurrentRange.EndPoints.First.Value.GetValue(fieldIndex), typeMapping);
+        var binding = new SqlQueryParameterBinding(() => rangeProvider.CurrentRange.EndPoints.First.Value.GetValue(fieldIndex), typeMapping);
         bindings.Add(binding);
         query.Where &= query.Columns[keyColumns[i].Key] == binding.ParameterReference;
       }
@@ -272,7 +272,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlSelect source = compiledSource.Request.SelectStatement;
       var query = (SqlSelect) source.ShallowClone();
-      var parameterBindings = new List<SqlFetchParameterBinding>();
+      var parameterBindings = new List<SqlQueryParameterBinding>();
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
       Func<KeyValuePair<int, Direction>, bool> filterNonTypeId =
         pair => ((MappedColumn) provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName != typeIdColumnName;
@@ -286,7 +286,7 @@ namespace Xtensive.Storage.Providers.Sql
         var column = provider.Header.Columns[columnIndex];
         TypeMapping typeMapping = Driver.GetTypeMapping(column.Type);
         int index = i;
-        var binding = new SqlFetchParameterBinding(() => provider.CompiledKey.Invoke().GetValue(index), typeMapping);
+        var binding = new SqlQueryParameterBinding(() => provider.CompiledKey.Invoke().GetValue(index), typeMapping);
         parameterBindings.Add(binding);
         query.Where &= sqlColumn == binding.ParameterReference;
       }
@@ -762,7 +762,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     private SqlExpression ProcessExpression(LambdaExpression le,
-      out HashSet<SqlFetchParameterBinding> parameterBindings, params SqlSelect[] selects)
+      out HashSet<SqlQueryParameterBinding> parameterBindings, params SqlSelect[] selects)
     {
       var processor = new ExpressionProcessor(le, this, Handlers, selects);
       var result = processor.Translate();
@@ -771,7 +771,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     private SqlExpression ProcessExpression(LambdaExpression le,
-      out HashSet<SqlFetchParameterBinding> parameterBindings, params SqlQueryRef[] queryRefs)
+      out HashSet<SqlQueryParameterBinding> parameterBindings, params SqlQueryRef[] queryRefs)
     {
       var processor = new ExpressionProcessor(le, this, Handlers, queryRefs);
       var result = processor.Translate();

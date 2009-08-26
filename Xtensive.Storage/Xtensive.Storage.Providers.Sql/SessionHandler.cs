@@ -8,15 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
-using Xtensive.Sql.ValueTypeMapping;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Providers.Sql.Resources;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -25,19 +22,17 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public class SessionHandler : Providers.SessionHandler
   {
-    private const int LobBlockSize = ushort.MaxValue;
-
-    private int persistBatchSize = 25; // TODO: read corrensponding value from SQL info
+    private int commandBatchSize = 25; // TODO: read corrensponding value from SQL info
 
     private Driver driver;
     private DomainHandler domainHandler;
     private SqlConnection connection;
-    private DisposableSet disposables;
+    private CommandProcessor commandProcessor;
 
     /// <summary>
     /// Gets the connection.
     /// </summary>
-    public SqlConnection Connection {
+    public SqlConnection Connection { // TODO: remove this property
       get {
         lock (ConnectionSyncRoot) {
           EnsureConnectionIsOpen();
@@ -95,43 +90,46 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     #endregion
-    
-    /// <summary>
-    /// Executes the specified <see cref="SqlFetchRequest"/>.
-    /// </summary>
-    /// <param name="request">The request.</param>
-    /// <returns></returns>
-    public IEnumerator<Tuple> ExecuteTupleReader(SqlFetchRequest request)
-    {
-      lock (ConnectionSyncRoot) {
-        var descriptor = request.TupleDescriptor;
-        var accessor = domainHandler.GetDataReaderAccessor(descriptor);
-        using (var reader = ExecuteFetchRequest(request))
-          while (reader.Read()) {
-            var tuple = Tuple.Create(descriptor);
-            accessor.Read(reader, tuple);
-            yield return tuple;
-          }
-      }
-    }
 
-    #region ExecuteStatement methods
-
-    internal DbDataReader ExecuteReaderStatement(ISqlCompileUnit statement)
+    /// <inheritdoc/>
+    public override IEnumerator<Tuple> Execute(ExecutableProvider provider)
     {
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        return driver.ExecuteReader(CreateCommand(statement));
+        ActivateCommandProcessor();
+        var enumerator = commandProcessor.ExecuteRequestsWithReader(((SqlProvider) provider).Request);
+        using (enumerator) {
+          while (enumerator.MoveNext())
+            yield return enumerator.Current;
+        }
       }
     }
+
+    public override void Execute(IList<QueryTask> queryTasks, bool dirty)
+    {
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        ActivateCommandProcessor();
+        foreach (var task in queryTasks) {
+          var request = ((SqlProvider) task.DataSource).Request;
+          task.Result = new List<Tuple>();
+          commandProcessor.RegisterTask(new SqlQueryTask(request, task.ParameterContext, task.Result));
+        }
+        commandProcessor.ExecuteRequests(dirty);
+      }
+    }
+
+    #region ExecuteStatement methods
 
     internal int ExecuteNonQueryStatement(ISqlCompileUnit statement)
     {
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        return driver.ExecuteNonQuery(CreateCommand(statement));
+        using (var command = CreateCommand(statement))
+          return driver.ExecuteNonQuery(command);
       }
     }
 
@@ -140,7 +138,28 @@ namespace Xtensive.Storage.Providers.Sql
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        return driver.ExecuteScalar(CreateCommand(statement));
+        using (var command = CreateCommand(statement))
+          return driver.ExecuteScalar(command);
+      }
+    }
+
+    internal int ExecuteNonQueryStatement(string commandText)
+    {
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        using (var command = CreateCommand(commandText))
+          return driver.ExecuteNonQuery(command);
+      }
+    }
+
+    internal object ExecuteScalarStatement(string commandText)
+    {
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        using (var command = CreateCommand(commandText))
+          return driver.ExecuteScalar(command);
       }
     }
 
@@ -154,36 +173,13 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="request">The request to execute.</param>
     /// <param name="tuple">A state tuple.</param>
     /// <returns>Number of modified rows.</returns>
-    public int ExecutePersistRequest(SqlPersistRequest request, Tuple tuple)
+    public void ExecutePersistRequest(SqlPersistRequest request, Tuple tuple)
     {
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        try {
-          return driver.ExecuteNonQuery(CreatePersistCommand(request, tuple));
-        }
-        finally {
-          CleanDisposables();
-        }
-      }
-    }
-
-    /// <summary>
-    /// Executes the batch update request in a single batch.
-    /// </summary>
-    /// <param name="requests">The requests.</param>
-    /// <returns>Number of modified rows.</returns>
-    public int ExecuteBatchPersistRequest(IEnumerable<Pair<SqlPersistRequest, Tuple>> requests)
-    {
-      lock (ConnectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
-        try {
-          return driver.ExecuteNonQuery(CreateBatchPersistCommand(requests));
-        }
-        finally {
-          CleanDisposables();
-        }
+        ActivateCommandProcessor();
+        commandProcessor.ExecutePersist(new SqlPersistTask(request, tuple));
       }
     }
 
@@ -197,21 +193,8 @@ namespace Xtensive.Storage.Providers.Sql
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        return driver.ExecuteScalar(CreateScalarCommand(request));
-      }
-    }
-
-    /// <summary>
-    /// Executes the specified <see cref="SqlFetchRequest"/>.
-    /// </summary>
-    /// <param name="request">The request to execute.</param>
-    /// <returns><see cref="DbDataReader"/> with results of statement execution.</returns>
-    public DbDataReader ExecuteFetchRequest(SqlFetchRequest request)
-    {
-      lock (ConnectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
-        return driver.ExecuteReader(CreateFetchCommand(request));
+        ActivateCommandProcessor();
+        return commandProcessor.ExecuteScalar(new SqlScalarTask(request));
       }
     }
 
@@ -220,46 +203,37 @@ namespace Xtensive.Storage.Providers.Sql
     #region Insert, Update, Delete
 
     /// <inheritdoc/>
-    public override void Persist(IEnumerable<PersistAction> persistActions)
+    public override void Persist(IEnumerable<PersistAction> persistActions, bool dirty)
     {
-      if (persistBatchSize > 1) {
-        var batched = persistActions
-          .Select<PersistAction, Pair<SqlPersistRequest, Tuple>>(CreatePersistRequest)
-          .Batch(0, persistBatchSize, persistBatchSize);
-        foreach (var batch in batched)
-          ExecuteBatchPersistRequest(batch);
-      }
-      else {
-        foreach (var action in persistActions) {
-          var request = CreatePersistRequest(action);
-          ExecutePersistRequest(request.First, request.Second);
-        }
-      }
+      ActivateCommandProcessor();
+      foreach (var action in persistActions)
+        commandProcessor.RegisterTask(CreatePersistTask(action));
+      commandProcessor.ExecuteRequests(dirty);
     }
 
-    private Pair<SqlPersistRequest, Tuple> CreatePersistRequest(PersistAction action)
+    private SqlPersistTask CreatePersistTask(PersistAction action)
     {
       switch (action.ActionKind) {
       case PersistActionKind.Insert:
-        return CreateInsertRequest(action);
+        return CreateInsertTask(action);
       case PersistActionKind.Update:
-        return CreateUpdateRequest(action);
+        return CreateUpdateTask(action);
       case PersistActionKind.Remove:
-        return CreateRemoveRequest(action);
+        return CreateRemoveTask(action);
       default:
         throw new ArgumentOutOfRangeException("action.ActionKind");
       }
     }
     
-    private Pair<SqlPersistRequest, Tuple> CreateInsertRequest(PersistAction action)
+    private SqlPersistTask CreateInsertTask(PersistAction action)
     {
       var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Insert, action.EntityState.Type);
       var request = domainHandler.GetPersistRequest(task);
       var tuple = action.EntityState.Tuple.ToRegular();
-      return new Pair<SqlPersistRequest, Tuple>(request, tuple);
+      return new SqlPersistTask(request, tuple);
     }
 
-    private Pair<SqlPersistRequest, Tuple> CreateUpdateRequest(PersistAction action)
+    private SqlPersistTask CreateUpdateTask(PersistAction action)
     {
       var entityState = action.EntityState;
       var dTuple = entityState.DifferentialTuple;
@@ -270,119 +244,19 @@ namespace Xtensive.Storage.Providers.Sql
       var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Update, entityState.Type, fieldStateMap);
       var request = domainHandler.GetPersistRequest(task);
       var tuple = entityState.Tuple.ToRegular();
-      return new Pair<SqlPersistRequest, Tuple>(request, tuple);
+      return new SqlPersistTask(request, tuple);
     }
 
-    private Pair<SqlPersistRequest, Tuple> CreateRemoveRequest(PersistAction action)
+    private SqlPersistTask CreateRemoveTask(PersistAction action)
     {
       var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Remove, action.EntityState.Type);
       var request = domainHandler.GetPersistRequest(task);
       var tuple = action.EntityState.Key.Value;
-      return new Pair<SqlPersistRequest, Tuple>(request, tuple);
+      return new SqlPersistTask(request, tuple);
     }
 
     #endregion
-
-    #region CreateCommand methods
-
-    /// <summary>
-    /// Creates <see cref="DbCommand"/> from specified <see cref="SqlScalarRequest"/>.
-    /// </summary>
-    /// <param name="request">The request.</param>
-    /// <returns>A created command.</returns>
-    protected DbCommand CreateScalarCommand(SqlScalarRequest request)
-    {
-      var command = CreateCommand();
-      command.CommandText = request.Compile(domainHandler).GetCommandText();
-      return command;
-    }
-
-    /// <summary>
-    /// Creates <see cref="DbCommand"/> from specified <see cref="SqlFetchRequest"/>.
-    /// </summary>
-    /// <param name="request">The request.</param>
-    /// <returns>A created command.</returns>
-    protected DbCommand CreateFetchCommand(SqlFetchRequest request)
-    {
-      var command = CreateCommand();
-      var compilationResult = request.Compile(domainHandler);
-      var variantKeys = new List<object>();
-      foreach (var binding in request.ParameterBindings) {
-        object parameterValue = binding.ValueAccessor.Invoke();
-        if (binding.BindingType==SqlFetchParameterBindingType.BooleanConstant) {
-          if ((bool) parameterValue)
-            variantKeys.Add(binding.ParameterReference.Parameter);
-        }
-        else if (binding.BindingType==SqlFetchParameterBindingType.SmartNull && parameterValue==null) {
-          variantKeys.Add(binding.ParameterReference.Parameter);
-        }
-        else {
-          string parameterName = compilationResult.GetParameterName(binding.ParameterReference.Parameter);
-          CreateRegularParameter(command, parameterName, parameterValue, binding.TypeMapping);
-        }
-      }
-      command.CommandText = compilationResult.GetCommandText(variantKeys);
-      return command;
-    }
-
-    /// <summary>
-    /// Creates <see cref="DbCommand"/> from specified <see cref="SqlPersistRequest"/>.
-    /// </summary>
-    /// <param name="request">The request.</param>
-    /// <param name="value">Tuple that contain values for update parameters.</param>
-    /// <returns>A created command.</returns>
-    protected DbCommand CreatePersistCommand(SqlPersistRequest request, Tuple value)
-    {
-      var command = CreateCommand();
-      command.CommandText = FillCommandParameters(command, request, value, "p");
-      return command;
-    }
-
-    /// <summary>
-    /// Creates <see cref="DbCommand"/> from specified sequence of <see cref="SqlPersistRequest"/> and correnponding tuples.
-    /// </summary>
-    /// <param name="requests">The requests.</param>
-    /// <returns>A created command.</returns>
-    protected DbCommand CreateBatchPersistCommand(IEnumerable<Pair<SqlPersistRequest, Tuple>> requests)
-    {
-      var command = CreateCommand();
-      var commands = new List<string>();
-      var requestNumber = 0;
-      foreach (var request in requests) {
-        var currentCommandText = FillCommandParameters(
-          command, request.First, request.Second, string.Format("p{0}_", requestNumber));
-        commands.Add(currentCommandText);
-        requestNumber++;
-      }
-      command.CommandText = driver.BuildBatch(commands.ToArray());
-      return command;
-    }
-
-    /// <summary>
-    /// Fills the command parameters to the specified command.
-    /// </summary>
-    /// <param name="command">The command.</param>
-    /// <param name="request">The request.</param>
-    /// <param name="value">The value.</param>
-    /// <param name="parameterNamePrefix">The parameter name prefix.</param>
-    /// <returns>Command text to execute.</returns>
-    protected string FillCommandParameters(DbCommand command,
-      SqlPersistRequest request, Tuple value, string parameterNamePrefix)
-    {
-      int parameterIndex = 0;
-      var parameterNames = new Dictionary<object, string>();
-      var compilationResult = request.Compile(domainHandler);
-      foreach (var binding in request.ParameterBindings) {
-        object parameterValue = value.IsNull(binding.FieldIndex) ? null : value.GetValueOrDefault(binding.FieldIndex);
-        string parameterName = parameterNamePrefix + parameterIndex++;
-        parameterNames.Add(binding.ParameterReference.Parameter, parameterName);
-        CreatePersistParameter(command, parameterName, parameterValue, binding);
-      }
-      return compilationResult.GetCommandText(parameterNames);
-    }
-
-    #endregion
-
+    
     #region Private / internal members
     
     private void EnsureConnectionIsOpen()
@@ -409,10 +283,11 @@ namespace Xtensive.Storage.Providers.Sql
         connection, IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
     }
 
-    private DbCommand CreateCommand()
+    private DbCommand CreateCommand(string commandText)
     {
-      var command = connection.CreateCommand();
+      var command = connection.CreateCommand(commandText);
       command.Transaction = Transaction;
+      command.CommandText = commandText;
       return command;
     }
 
@@ -423,93 +298,24 @@ namespace Xtensive.Storage.Providers.Sql
       return command;
     }
 
-    private void CreateRegularParameter(DbCommand command, string name, object value, TypeMapping mapping)
+    private void ActivateCommandProcessor()
     {
-      var parameter = command.CreateParameter();
-      parameter.ParameterName = name;
-      mapping.SetParameterValue(parameter, value);
-      command.Parameters.Add(parameter);
+      commandProcessor.Connection = Connection;
+      commandProcessor.Transaction = Transaction;
     }
-
-    private void CreateCharacterLobParameter(DbCommand command, string name, string value)
-    {
-      var lob = connection.CreateCharacterLargeObject();
-      RegisterDisposable(lob);
-      if (value!=null) {
-        if (value.Length > 0) {
-          int offset = 0;
-          int remainingSize = value.Length;
-          while (remainingSize >= LobBlockSize) {
-            lob.Write(value.ToCharArray(offset, LobBlockSize), 0, LobBlockSize);
-            offset += LobBlockSize;
-            remainingSize -= LobBlockSize;
-          }
-          if (remainingSize > 0)
-            lob.Write(value.ToCharArray(offset, remainingSize), 0, remainingSize);
-        }
-        else {
-          lob.Erase();
-        }
-      }
-      var parameter = command.CreateParameter();
-      parameter.ParameterName = name;
-      lob.SetParameterValue(parameter);
-      command.Parameters.Add(parameter);
-    }
-
-    private void CreateBinaryLobParameter(DbCommand command, string name, byte[] value)
-    {
-      var lob = connection.CreateBinaryLargeObject();
-      RegisterDisposable(lob);
-      if (value!=null) {
-        if (value.Length > 0)
-          lob.Write(value, 0, value.Length);
-        else
-          lob.Erase();
-      }
-      var parameter = command.CreateParameter();
-      parameter.ParameterName = name;
-      lob.SetParameterValue(parameter);
-      command.Parameters.Add(parameter);
-    }
-
-    private void CreatePersistParameter(DbCommand command, string parameterName, object parameterValue, SqlPersistParameterBinding binding)
-    {
-      switch (binding.BindingType) {
-      case SqlPersistParameterBindingType.Regular:
-        CreateRegularParameter(command, parameterName, parameterValue, binding.TypeMapping);
-        break;
-      case SqlPersistParameterBindingType.CharacterLob:
-        CreateCharacterLobParameter(command, parameterName, (string) parameterValue);
-        break;
-      case SqlPersistParameterBindingType.BinaryLob:
-        CreateBinaryLobParameter(command, parameterName, (byte[]) parameterValue);
-        break;
-      default:
-        throw new ArgumentOutOfRangeException("binding.BindingType");
-      }
-    }
-
-    private void RegisterDisposable(IDisposable lob)
-    {
-      if (disposables==null)
-        disposables = new DisposableSet();
-      disposables.Add(lob);
-    }
-    
-    private void CleanDisposables()
-    {
-      disposables.DisposeSafely();
-      disposables = null;
-    }
-
+ 
     #endregion
 
     /// <inheritdoc/>
     public override void Initialize()
     {
+      base.Initialize();
       domainHandler = (DomainHandler) Handlers.DomainHandler;
       driver = domainHandler.Driver;
+      commandProcessor =
+        Handlers.DomainHandler.ProviderInfo.SupportsBatches && commandBatchSize > 1
+          ? new BatchingCommandProcessor(domainHandler, commandBatchSize)
+          : (CommandProcessor) new SimpleCommandProcessor(domainHandler);
     }
 
     /// <inheritdoc/>

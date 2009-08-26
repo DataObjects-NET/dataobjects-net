@@ -10,7 +10,7 @@ using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public sealed class SqlFetchParameterBinding : SqlParameterBinding
+  public sealed class SqlQueryParameterBinding : SqlParameterBinding
   {
     /// <summary>
     /// Gets the value accessor.
@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the type of the binding.
     /// </summary>
-    public SqlFetchParameterBindingType BindingType { get; private set; }
+    public SqlQueryParameterBindingType BindingType { get; private set; }
 
     // Constructors
 
@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="valueAccessor">Value for <see cref="ValueAccessor"/>.</param>
     /// <param name="typeMapping">Value for <see cref="SqlParameterBinding.TypeMapping"/>.</param>
     /// <param name="bindingType">Value for <see cref="BindingType"/>.</param>
-    public SqlFetchParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping, SqlFetchParameterBindingType bindingType)
+    public SqlQueryParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping, SqlQueryParameterBindingType bindingType)
       : base(typeMapping)
     {
       ValueAccessor = valueAccessor;
@@ -42,8 +42,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="valueAccessor"></param>
     /// <param name="typeMapping"></param>
-    public SqlFetchParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping)
-      : this(valueAccessor, typeMapping, SqlFetchParameterBindingType.Regular)
+    public SqlQueryParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping)
+      : this(valueAccessor, typeMapping, SqlQueryParameterBindingType.Regular)
     {
     }
   }

@@ -7,9 +7,9 @@
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
-  /// Possible types of <see cref="SqlFetchParameterBinding"/>.
+  /// Possible types of <see cref="SqlQueryParameterBinding"/>.
   /// </summary>
-  public enum SqlFetchParameterBindingType
+  public enum SqlQueryParameterBindingType
   {
     /// <summary>
     /// Indicates no special handling of parameter values.
@@ -17,13 +17,13 @@ namespace Xtensive.Storage.Providers.Sql
     Regular,
     /// <summary>
     /// Indicates that special handling of null values is performed.
-    /// If <see cref="SqlFetchParameterBinding.ValueAccessor"/> returns <see langword="null"/>
+    /// If <see cref="SqlQueryParameterBinding.ValueAccessor"/> returns <see langword="null"/>
     /// generated query with contain "something is null" check instead of "something = @p".
     /// </summary>
     SmartNull,
     /// <summary>
     /// Indicates that <see cref="bool"/> parameters is automatically propagated to constants
-    /// according to a value returned by <see cref="SqlFetchParameterBinding.ValueAccessor"/>.
+    /// according to a value returned by <see cref="SqlQueryParameterBinding.ValueAccessor"/>.
     /// </summary>
     BooleanConstant,
   }

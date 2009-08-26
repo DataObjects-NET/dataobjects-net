@@ -330,8 +330,8 @@ namespace Xtensive.Storage
     internal override sealed void NotifySetFieldValue(FieldInfo field, object oldValue, object newValue)
     {
       if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified) {
-        Session.EntityChangeRegistry.EnforceSizeLimit(); // Must be done before the next line 
-                                                        // to avoid post-first property set flush
+        Session.EnforceChangeRegistrySizeLimit(); // Must be done before the next line 
+                                                  // to avoid post-first property set flush.
         State.PersistenceState = PersistenceState.Modified;
       }
 

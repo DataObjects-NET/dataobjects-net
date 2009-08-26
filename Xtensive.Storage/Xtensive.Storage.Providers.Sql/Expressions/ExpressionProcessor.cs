@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
     private readonly LambdaExpression lambda;
-    private readonly HashSet<SqlFetchParameterBinding> bindings;
+    private readonly HashSet<SqlQueryParameterBinding> bindings;
     private readonly List<ParameterExpression> activeParameters;
     private readonly Dictionary<ParameterExpression, SqlSelect> selectParameterMapping;
     private readonly Dictionary<ParameterExpression, SqlQueryRef> queryRefParameterMapping;
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private bool executed;
     private bool useSelect;
     
-    public HashSet<SqlFetchParameterBinding> Bindings { get { return bindings; } }
+    public HashSet<SqlQueryParameterBinding> Bindings { get { return bindings; } }
     public DomainModel Model { get { return model; } }
     
     public SqlExpression Translate()
@@ -86,11 +86,11 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var typeMapping = driver.GetTypeMapping(type);
       var expression = parameterExtractor.ExtractParameter<object>(e);
       var bindingType = optimizeBooleanParameter
-        ? SqlFetchParameterBindingType.BooleanConstant
+        ? SqlQueryParameterBindingType.BooleanConstant
         : (smartNull
-            ? SqlFetchParameterBindingType.SmartNull
-            : SqlFetchParameterBindingType.Regular);
-      var binding = new SqlFetchParameterBinding(expression.CachingCompile(), typeMapping, bindingType);
+            ? SqlQueryParameterBindingType.SmartNull
+            : SqlQueryParameterBindingType.Regular);
+      var binding = new SqlQueryParameterBinding(expression.CachingCompile(), typeMapping, bindingType);
       bindings.Add(binding);
       SqlExpression result;
       if (optimizeBooleanParameter) {
@@ -561,7 +561,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       driver = ((DomainHandler) handlers.DomainHandler).Driver;
       model = handlers.Domain.Model;
       lambda = le;
-      bindings = new HashSet<SqlFetchParameterBinding>();
+      bindings = new HashSet<SqlQueryParameterBinding>();
       activeParameters = new List<ParameterExpression>();
       evaluator = new ExpressionEvaluator(le);
       parameterExtractor = new ParameterExtractor(evaluator);
