@@ -145,14 +145,14 @@ namespace Xtensive.Storage
     
     internal void ExecuteAllDelayedQueries(bool dirty)
     {
-      if (IsDelayedQueryRunning)
+      if (IsDelayedQueryRunning || queryTasks.Count==0)
         return;
       try {
         IsDelayedQueryRunning = true;
         Handler.Execute(queryTasks, dirty);
-        queryTasks.Clear();
       }
       finally {
+        queryTasks.Clear();
         IsDelayedQueryRunning = false;
       }
     }
