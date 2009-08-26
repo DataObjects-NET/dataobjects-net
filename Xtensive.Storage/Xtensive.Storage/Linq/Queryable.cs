@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Linq
     public IEnumerator<T> GetEnumerator()
     {
       var session = Session.Demand();
-      var result = session.Handler.Provider.Execute<IEnumerable<T>>(expression).ToTransactional(session);
+      var result = session.Handler.Provider.Execute<IEnumerable<T>>(expression);
       return result.GetEnumerator();
     }
 

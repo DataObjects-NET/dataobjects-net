@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Transactions;
+using Xtensive.Core.Disposing;
 
 namespace Xtensive.Storage
 {
@@ -25,8 +26,10 @@ namespace Xtensive.Storage
     /// <param name="argument">The argument.</param>
     public static void InvokeTransactionally<T>(this Action<T> action, T argument)
     {
-      using (Transaction.Open())
+      using (var transactionScope = Transaction.Open()) {
         action.Invoke(argument);
+        transactionScope.Complete();
+      }
     }
 
     /// <summary>
@@ -38,8 +41,10 @@ namespace Xtensive.Storage
     /// <param name="argument">The argument.</param>
     public static void InvokeTransactionally<T>(this Action<T> action, Session session, T argument)
     {
-      using (Transaction.Open(session))
+      using (var transactionScope = Transaction.Open(session)) {
         action.Invoke(argument);
+        transactionScope.Complete();
+      }
     }
 
     /// <summary>
@@ -50,8 +55,10 @@ namespace Xtensive.Storage
     /// <param name="isolationLevel">The isolation level.</param>
     public static void InvokeTransactionally<T>(this Action<T> action, IsolationLevel isolationLevel, T argument)
     {
-      using (Transaction.Open(isolationLevel))
+      using (var transactionScope = Transaction.Open(isolationLevel)) {
         action.Invoke(argument);
+        transactionScope.Complete();
+      }
     }
 
     /// <summary>
@@ -64,8 +71,10 @@ namespace Xtensive.Storage
     /// <param name="argument">The argument.</param>
     public static void InvokeTransactionally<T>(this Action<T> action, Session session, IsolationLevel isolationLevel, T argument)
     {
-      using (Transaction.Open(session, isolationLevel))
+      using (var transactionScope = Transaction.Open(session, isolationLevel)) {
         action.Invoke(argument);
+        transactionScope.Complete();
+      }
     }
 
     /// <summary>
@@ -74,8 +83,10 @@ namespace Xtensive.Storage
     /// <param name="action">The action.</param>
     public static void InvokeTransactionally(this Action action)
     {
-      using (Transaction.Open())
+      using (var transactionScope = Transaction.Open()) {
         action.Invoke();
+        transactionScope.Complete();
+      }
     }
 
     /// <summary>
@@ -85,8 +96,10 @@ namespace Xtensive.Storage
     /// <param name="session">The session.</param>
     public static void InvokeTransactionally(this Action action, Session session)
     {
-      using (Transaction.Open(session))
+      using (var transactionScope = Transaction.Open(session)){
         action.Invoke();
+        transactionScope.Complete();
+      }
     }
 
     /// <summary>
@@ -96,8 +109,10 @@ namespace Xtensive.Storage
     /// <param name="isolationLevel">The isolation level.</param>
     public static void InvokeTransactionally(this Action action, IsolationLevel isolationLevel)
     {
-      using (Transaction.Open(isolationLevel))
+      using (var transactionScope = Transaction.Open(isolationLevel)) {
         action.Invoke();
+        transactionScope.Complete();
+      }
     }
 
     /// <summary>
@@ -108,8 +123,10 @@ namespace Xtensive.Storage
     /// <param name="isolationLevel">The isolation level.</param>
     public static void InvokeTransactionally(this Action action, Session session, IsolationLevel isolationLevel)
     {
-      using (Transaction.Open(session, isolationLevel))
+      using (var transactionScope = Transaction.Open(session, isolationLevel)) {
         action.Invoke();
+        transactionScope.Complete();
+      }
     }
 
     #endregion
@@ -125,8 +142,11 @@ namespace Xtensive.Storage
     /// <param name="argument">The argument.</param>
     public static TResult InvokeTransactionally<T, TResult>(this Func<T, TResult> function, T argument)
     {
-      using (Transaction.Open())
-        return function.Invoke(argument);
+      using (var transactionScope = Transaction.Open()) {
+        var result = function.Invoke(argument);
+        transactionScope.Complete();
+        return result;
+      }
     }
 
     /// <summary>
@@ -139,8 +159,11 @@ namespace Xtensive.Storage
     /// <param name="argument">The argument.</param>
     public static TResult InvokeTransactionally<T, TResult>(this Func<T, TResult> function, Session session, T argument)
     {
-      using (Transaction.Open(session))
-        return function.Invoke(argument);
+      using (var transactionScope = Transaction.Open(session)) {
+        var result = function.Invoke(argument);
+        transactionScope.Complete();
+        return result;
+      }
     }
 
     /// <summary>
@@ -152,8 +175,11 @@ namespace Xtensive.Storage
     /// <param name="isolationLevel">The isolation level.</param>
     public static TResult InvokeTransactionally<T, TResult>(this Func<T, TResult> function, IsolationLevel isolationLevel, T argument)
     {
-      using (Transaction.Open(isolationLevel))
-        return function.Invoke(argument);
+      using (var transactionScope = Transaction.Open(isolationLevel)) {
+        var result = function.Invoke(argument);
+        transactionScope.Complete();
+        return result;
+      }
     }
 
     /// <summary>
@@ -167,8 +193,11 @@ namespace Xtensive.Storage
     /// <param name="argument">The argument.</param>
     public static TResult InvokeTransactionally<T, TResult>(this Func<T, TResult> function, Session session, IsolationLevel isolationLevel, T argument)
     {
-      using (Transaction.Open(session, isolationLevel))
-        return function.Invoke(argument);
+      using (var transactionScope = Transaction.Open(session, isolationLevel)) {
+        var result = function.Invoke(argument);
+        transactionScope.Complete();
+        return result;
+      }
     }
 
     /// <summary>
@@ -178,8 +207,11 @@ namespace Xtensive.Storage
     /// <param name="function">The function.</param>
     public static TResult InvokeTransactionally<TResult>(this Func<TResult> function)
     {
-      using (Transaction.Open())
-        return function.Invoke();
+      using (var transactionScope = Transaction.Open()) {
+        var result = function.Invoke();
+        transactionScope.Complete();
+        return result;
+      }
     }
 
     /// <summary>
@@ -190,8 +222,11 @@ namespace Xtensive.Storage
     /// <param name="session">The session.</param>
     public static TResult InvokeTransactionally<TResult>(this Func<TResult> function, Session session)
     {
-      using (Transaction.Open(session))
-        return function.Invoke();
+      using (var transactionScope = Transaction.Open(session)) {
+        var result = function.Invoke();
+        transactionScope.Complete();
+        return result;
+      }
     }
 
     /// <summary>
@@ -202,8 +237,11 @@ namespace Xtensive.Storage
     /// <param name="isolationLevel">The isolation level.</param>
     public static TResult InvokeTransactionally<TResult>(this Func<TResult> function, IsolationLevel isolationLevel)
     {
-      using (Transaction.Open(isolationLevel))
-        return function.Invoke();
+      using (var transactionScope = Transaction.Open(isolationLevel)) {
+        var result = function.Invoke();
+        transactionScope.Complete();
+        return result;
+      }
     }
 
     /// <summary>
@@ -215,76 +253,11 @@ namespace Xtensive.Storage
     /// <param name="isolationLevel">The isolation level.</param>
     public static TResult InvokeTransactionally<TResult>(this Func<TResult> function, Session session, IsolationLevel isolationLevel)
     {
-      using (Transaction.Open(session, isolationLevel))
-        return function.Invoke();
-    }
-
-    #endregion
-
-    #region IEnumerable<T> extensions
-
-    /// <summary>
-    /// Wraps the sequence into a transaction.
-    /// </summary>
-    /// <typeparam name="TItem">The type of the item.</typeparam>
-    /// <param name="sequence">The sequence to wrap.</param>
-    /// <returns>
-    /// An enumerable wrapping the original sequence into a transaction.
-    /// </returns>
-    public static IEnumerable<TItem> ToTransactional<TItem>(this IEnumerable<TItem> sequence)
-    {
-      using (Transaction.Open())
-        foreach (var item in sequence)
-          yield return item;
-    }
-
-    /// <summary>
-    /// Wraps the sequence into a transaction.
-    /// </summary>
-    /// <typeparam name="TItem">The type of the item.</typeparam>
-    /// <param name="sequence">The sequence to wrap.</param>
-    /// <param name="isolationLevel">The isolation level.</param>
-    /// <returns>
-    /// An enumerable wrapping the original sequence into a transaction.
-    /// </returns>
-    public static IEnumerable<TItem> ToTransactional<TItem>(this IEnumerable<TItem> sequence, IsolationLevel isolationLevel)
-    {
-      using (Transaction.Open(isolationLevel))
-        foreach (var item in sequence)
-          yield return item;
-    }
-
-    /// <summary>
-    /// Wraps the sequence into a transaction.
-    /// </summary>
-    /// <typeparam name="TItem">The type of the item.</typeparam>
-    /// <param name="sequence">The sequence to wrap.</param>
-    /// <param name="session">The session.</param>
-    /// <returns>
-    /// An enumerable wrapping the original sequence into a transaction.
-    /// </returns>
-    public static IEnumerable<TItem> ToTransactional<TItem>(this IEnumerable<TItem> sequence, Session session)
-    {
-      using (Transaction.Open(session))
-        foreach (var item in sequence)
-          yield return item;
-    }
-
-    /// <summary>
-    /// Wraps the sequence into a transaction.
-    /// </summary>
-    /// <typeparam name="TItem">The type of the item.</typeparam>
-    /// <param name="sequence">The sequence to wrap.</param>
-    /// <param name="session">The session.</param>
-    /// <param name="isolationLevel">The isolation level.</param>
-    /// <returns>
-    /// An enumerable wrapping the original sequence into a transaction.
-    /// </returns>
-    public static IEnumerable<TItem> ToTransactional<TItem>(this IEnumerable<TItem> sequence, Session session, IsolationLevel isolationLevel)
-    {
-      using (Transaction.Open(session, isolationLevel))
-        foreach (var item in sequence)
-          yield return item;
+      using (var transactionScope = Transaction.Open(session, isolationLevel)) {
+        var result = function.Invoke();
+        transactionScope.Complete();
+        return result;
+      }
     }
 
     #endregion

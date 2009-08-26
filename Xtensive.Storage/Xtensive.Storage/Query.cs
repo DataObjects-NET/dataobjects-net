@@ -247,7 +247,8 @@ namespace Xtensive.Storage
     internal static Entity SingleOrDefault(Session session, Key key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      using (Transaction.Open(session)) {
+      Entity result;
+      using (var transactionScope = Transaction.Open(session)) {
         var cache = session.EntityStateCache;
         var state = cache[key, true];
         bool hasBeenFetched = false;
@@ -265,10 +266,13 @@ namespace Xtensive.Storage
 
         if (state==null || state.IsNotAvailableOrMarkedAsRemoved) 
           // No state or Tuple = no data in storage
-          return null;
+          result = null;
+        else
+          result = state.Entity;
 
-        return state.Entity;
+        transactionScope.Complete();
       }
+      return result;
     }
 
     private static Parameter BuildQueryParameter(object target, out ExtendedExpressionReplacer replacer)
