@@ -38,6 +38,11 @@ namespace Xtensive.Storage.Configuration
     ///</summary>
     public const IsolationLevel DefaultIsolationLevelValue = IsolationLevel.ReadCommitted;
 
+    /// <summary>
+    /// Default batch size.
+    /// </summary>
+    public const int DefaultBatchSize = 25;
+
     #endregion
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
@@ -49,6 +54,7 @@ namespace Xtensive.Storage.Configuration
     private int cacheSize;
     private SessionCacheType cacheType;
     private IsolationLevel defaultIsolationLevel;
+    private int batchSize;
 
     /// <summary>
     /// Gets the session name.
@@ -124,6 +130,18 @@ namespace Xtensive.Storage.Configuration
     public SessionType Type { get; private set; }
 
     /// <summary>
+    /// Gets or sets the size of the batch.
+    /// This affects create, update, delete operations and future queries.
+    /// </summary>
+    public int BatchSize {
+      get { return batchSize; }
+      set {
+        this.EnsureNotLocked();
+        batchSize = value;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets session options.
     /// Default value is <see cref="SessionOptions.Default"/>.
     /// </summary>
@@ -174,6 +192,7 @@ namespace Xtensive.Storage.Configuration
       Options = configuration.Options;
       CacheType = configuration.CacheType;
       CacheSize = configuration.CacheSize;
+      BatchSize = configuration.BatchSize;
       DefaultIsolationLevel = configuration.DefaultIsolationLevel;
     }
 
@@ -233,6 +252,7 @@ namespace Xtensive.Storage.Configuration
       DefaultIsolationLevel = DefaultIsolationLevelValue;
       Options = SessionOptions.Default;
       Type = SessionType.Default;
+      BatchSize = DefaultBatchSize;
       UserName = string.Empty;
       Password = string.Empty;
     }

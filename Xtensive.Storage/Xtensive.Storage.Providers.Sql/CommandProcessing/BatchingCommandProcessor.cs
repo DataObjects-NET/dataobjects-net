@@ -148,6 +148,7 @@ namespace Xtensive.Storage.Providers.Sql
     public BatchingCommandProcessor(DomainHandler domainHandler, int batchSize)
       : base(domainHandler)
     {
+      ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, "batchSize");
       this.batchSize = batchSize;
     }
   }

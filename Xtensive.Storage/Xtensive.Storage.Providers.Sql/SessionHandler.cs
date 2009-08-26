@@ -22,8 +22,6 @@ namespace Xtensive.Storage.Providers.Sql
   /// </summary>
   public class SessionHandler : Providers.SessionHandler
   {
-    private int commandBatchSize = 25; // TODO: read corrensponding value from SQL info
-
     private Driver driver;
     private DomainHandler domainHandler;
     private SqlConnection connection;
@@ -312,9 +310,11 @@ namespace Xtensive.Storage.Providers.Sql
       base.Initialize();
       domainHandler = (DomainHandler) Handlers.DomainHandler;
       driver = domainHandler.Driver;
+      
+      int batchSize = this.Session.Configuration.BatchSize;
       commandProcessor =
-        Handlers.DomainHandler.ProviderInfo.SupportsBatches && commandBatchSize > 1
-          ? new BatchingCommandProcessor(domainHandler, commandBatchSize)
+        Handlers.DomainHandler.ProviderInfo.SupportsBatches && batchSize > 1
+          ? new BatchingCommandProcessor(domainHandler, batchSize)
           : (CommandProcessor) new SimpleCommandProcessor(domainHandler);
     }
 

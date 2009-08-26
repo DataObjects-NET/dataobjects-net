@@ -21,6 +21,7 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string CacheTypeElementName = "cacheType";
     private const string OptionsElementName = "options";
     private const string IsolationLevelElementName = "isolationLevel";
+    private const string BatchSizeElementName = "batchSize";
 
     /// <inheritdoc/>
     public override object Identifier
@@ -98,6 +99,15 @@ namespace Xtensive.Storage.Configuration.Elements
       set { this[IsolationLevelElementName] = value; }
     }
 
+    /// <summary>
+    /// <see cref="SessionConfiguration.BatchSize" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(BatchSizeElementName, IsRequired = false, DefaultValue = SessionConfiguration.DefaultBatchSize, IsKey = false)]
+    public int BatchSize
+    {
+      get { return (int) this[BatchSizeElementName]; }
+      set { this[BatchSizeElementName] = value; }
+    }
 
     /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
@@ -112,7 +122,8 @@ namespace Xtensive.Storage.Configuration.Elements
         CacheSize = CacheSize,
         CacheType =  CacheType,
         Options = Options,
-        DefaultIsolationLevel = DefaultIsolationLevel
+        DefaultIsolationLevel = DefaultIsolationLevel,
+        BatchSize = BatchSize
       };
       return result;
     }

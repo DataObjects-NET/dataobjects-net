@@ -42,23 +42,23 @@ namespace Xtensive.Storage.Tests.Configuration
     [Test]
     public void CustomMemberCompilerProvidersTest()
     {
-      var c = DomainConfiguration.Load("AppConfigTest", "TestDomain3");
-      c.Lock();
-      Assert.AreEqual(c.CompilerContainers.Count, 1);
+      var configuration = DomainConfiguration.Load("AppConfigTest", "TestDomain3");
+      configuration.Lock();
+      Assert.AreEqual(configuration.CompilerContainers.Count, 1);
     }
 
     [Test]
     public void TestDomain2()
     {
-      var c = DomainConfiguration.Load("AppConfigTest", "TestDomain1");
-      Assert.IsNotNull(c);
+      var configuration = DomainConfiguration.Load("AppConfigTest", "TestDomain1");
+      Assert.IsNotNull(configuration);
     }
 
     [Test]
     public void TestWrongSection()
     {
       AssertEx.ThrowsInvalidOperationException(() => {
-        var c = DomainConfiguration.Load("AppConfigTest1", "TestDomain1");
+        var configuration = DomainConfiguration.Load("AppConfigTest1", "TestDomain1");
       });
     }
 
@@ -66,8 +66,22 @@ namespace Xtensive.Storage.Tests.Configuration
     public void TestWrongDomain()
     {
       AssertEx.ThrowsInvalidOperationException(() => {
-        var c = DomainConfiguration.Load("AppConfigTest", "TestDomain0");
+        var configuration = DomainConfiguration.Load("AppConfigTest", "TestDomain0");
       });
+    }
+
+    [Test]
+    public void BatchSizeTest()
+    {
+      var configuration = DomainConfiguration.Load("AppConfigTest", "TestDomain4");
+      var defaultSession = configuration.Sessions["Default"];
+      Assert.IsNotNull(defaultSession);
+      Assert.AreEqual(10, defaultSession.BatchSize);
+      var myCoolSession = configuration.Sessions["MyCoolSession"];
+      Assert.IsNotNull(myCoolSession);
+      Assert.AreEqual(100, myCoolSession.BatchSize);
+      var clone = myCoolSession.Clone();
+      Assert.AreEqual(100, clone.BatchSize);
     }
   }
 }
