@@ -17,36 +17,12 @@ namespace Xtensive.Storage.Providers
   /// </summary>
   public class EnumerationScope : RseEnumerationScope
   {
-    private IDisposable toDispose;
-
-    /// <inheritdoc/>
-    public override void Activate(RseEnumerationContext newContext)
-    {
-      base.Activate(newContext);
-      toDispose = Transaction.Open(true);
-    }
-
     // Constructors
 
     /// <inheritdoc/>
     public EnumerationScope(RseEnumerationContext context)
       : base(context)
     {
-    }
-
-    // Desctructor
-
-    /// <inheritdoc/>
-    protected override void Dispose(bool disposing)
-    {
-      try {
-        var disposable = toDispose;
-        toDispose = null;
-        disposable.DisposeSafely();
-      }
-      finally {
-        base.Dispose(disposing);
-      }
     }
   }
 }
