@@ -565,10 +565,10 @@ namespace Xtensive.Storage.Providers.Sql
       case LockBehavior.Wait:
         break;
       case LockBehavior.ThrowIfLocked:
-        query.Lock &= SqlLockType.ThrowIfLocked;
+        query.Lock |= SqlLockType.ThrowIfLocked;
         break;
       case LockBehavior.Skip:
-        query.Lock &= SqlLockType.SkipLocked;
+        query.Lock |= SqlLockType.SkipLocked;
         break;
       }
       return new SqlProvider(provider, query, Handlers, source);

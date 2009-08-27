@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Tests
   public abstract class AutoBuildTest
   {
     private string protocolName;
-    private StorageProtocol protocol;
+    protected StorageProtocol Protocol { get; private set; }
 
     protected Domain Domain { get; private set; }
     
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests
 
     protected void EnsureProtocolIs(StorageProtocol allowedProtocols)
     {
-      if ((protocol & allowedProtocols) == 0)
+      if ((Protocol & allowedProtocols) == 0)
         throw new IgnoreException(
           string.Format("This test is not suitable for '{0}' protocol", protocolName));
     }
@@ -71,16 +71,16 @@ namespace Xtensive.Storage.Tests
       protocolName = config.ConnectionInfo.Protocol;
       switch (protocolName) {
       case WellKnown.Protocol.Memory:
-        protocol = StorageProtocol.Memory;
+        Protocol = StorageProtocol.Memory;
         break;
       case WellKnown.Protocol.SqlServer:
-        protocol = StorageProtocol.SqlServer;
+        Protocol = StorageProtocol.SqlServer;
         break;
       case WellKnown.Protocol.PostgreSql:
-        protocol = StorageProtocol.PostgreSql;
+        Protocol = StorageProtocol.PostgreSql;
         break;
       case WellKnown.Protocol.Oracle:
-        protocol = StorageProtocol.Oracle;
+        Protocol = StorageProtocol.Oracle;
         break;
       default:
         throw new ArgumentOutOfRangeException();

@@ -311,7 +311,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitLock(LockProvider provider)
     {
-      throw new NotImplementedException();
+      return GetCompiled(provider.Source);
     }
 
 
