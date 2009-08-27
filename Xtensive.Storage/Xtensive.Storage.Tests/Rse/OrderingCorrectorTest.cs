@@ -48,6 +48,7 @@ namespace Xtensive.Storage.Tests.Rse
 
   #endregion
 
+  [Explicit]
   [TestFixture, Category("Rse")]
   public class OrderingCorrectorTest : NorthwindDOModelTest
   {

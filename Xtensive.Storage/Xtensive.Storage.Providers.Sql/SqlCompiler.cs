@@ -155,10 +155,15 @@ namespace Xtensive.Storage.Providers.Sql
       var source = GetCompiled(provider.Source) as SqlProvider;
       if (source == null)
         return null;
-
-      var queryRef = SqlDml.QueryRef(source.Request.SelectStatement);
-      var query = SqlDml.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      var sourceSelect = source.Request.SelectStatement;
+      SqlSelect query;
+      if (sourceSelect.Limit != 0 || sourceSelect.Offset != 0) {
+        var queryRef = SqlDml.QueryRef(sourceSelect);
+        query = SqlDml.Select(queryRef);
+        query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      }
+      else
+        query = sourceSelect.ShallowClone();
       query.Distinct = true;
       return new SqlProvider(provider, query, Handlers, source);
     }
@@ -309,28 +314,12 @@ namespace Xtensive.Storage.Providers.Sql
         query.Columns.Add(SqlDml.Null, "NULL");
       }
       else {
-        SqlSelect source = compiledSource.Request.SelectStatement;
-        query = source.ShallowClone();
+        query = ExtractSqlSelect(compiledSource);
         var originalColumns = query.Columns.ToList();
         query.Columns.Clear();
         query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
       }
 
-      return new SqlProvider(provider, query, Handlers, compiledSource);
-    }
-
-    /// <inheritdoc/>
-    protected override ExecutableProvider VisitSkip(SkipProvider provider)
-    {
-      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
-      if (compiledSource == null)
-        return null;
-
-      var queryRef = compiledSource.PermanentReference;
-      var query = SqlDml.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      query.Offset = provider.Count();
-      AddOrderByStatement(provider, query);
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
@@ -380,6 +369,21 @@ namespace Xtensive.Storage.Providers.Sql
       schema.Tables.Remove(table);
 
       return new SqlStoreProvider(provider, query, Handlers, ex, table);
+    }
+
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitSkip(SkipProvider provider)
+    {
+      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
+      if (compiledSource == null)
+        return null;
+
+      var queryRef = compiledSource.PermanentReference;
+      var query = SqlDml.Select(queryRef);
+      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      query.Offset = provider.Count();
+      AddOrderByStatement(provider, query);
+      return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
     /// <inheritdoc/>

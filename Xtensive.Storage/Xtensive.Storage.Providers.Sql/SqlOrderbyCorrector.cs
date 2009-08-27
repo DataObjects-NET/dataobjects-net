@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Providers.Sql
       else {
         var originAsSelect = rootProvider.Origin as SelectProvider;
         if (originAsSelect!=null && originAsSelect.Source.Header.Order.Count > 0)
-          query = ApplyOrderingToSelectProvider(rootProvider, originAsSelect);
+          query = ApplyOrderingToSelectProvider(sqlProvider, originAsSelect);
         else
           return rootProvider;
       }
@@ -45,13 +45,12 @@ namespace Xtensive.Storage.Providers.Sql
         query.OrderBy.Add(query.Columns[pair.Key], pair.Value==Direction.Positive);
     }
 
-    private static SqlSelect ApplyOrderingToSelectProvider(Provider rootProvider,
+    private static SqlSelect ApplyOrderingToSelectProvider(SqlProvider rootProvider,
       SelectProvider originAsSelect)
     {
-      var queryRef = ((SqlProvider) rootProvider.Sources[0]).PermanentReference;
-      var result = SqlDml.Select(queryRef);
+      var result = rootProvider.Request.SelectStatement.ShallowClone();
+      var queryRef = result.From;
       var columnIndexes = originAsSelect.ColumnIndexes;
-      result.Columns.AddRange(from index in columnIndexes select (SqlColumn) queryRef.Columns[index]);
       foreach (KeyValuePair<int, Direction> pair in originAsSelect.Source.Header.Order)
         result.OrderBy.Add(queryRef.Columns[pair.Key], pair.Value==Direction.Positive);
       return result;
