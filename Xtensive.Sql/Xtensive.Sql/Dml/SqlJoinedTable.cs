@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Xtensive.Sql.Dml
 {
@@ -48,6 +49,8 @@ namespace Xtensive.Sql.Dml
     internal SqlJoinedTable(SqlJoinExpression joinExpression)
     {
       this.joinExpression = joinExpression;
+      var joinedColumns = joinExpression.Left.Columns.Concat(joinExpression.Right.Columns).ToList();
+      columns = new SqlTableColumnCollection(joinedColumns);
     }
   }
 }
