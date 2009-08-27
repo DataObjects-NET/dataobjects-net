@@ -210,7 +210,6 @@ namespace Xtensive.Storage
     {
       get {
         if (expression == null) {
-          // TODO: Hack!
           // A hack making expression to look like regular parameter 
           // (ParameterExtractor.IsParameter => true)
           var owner = Expression.Property(Expression.Constant(new {Owner = (Entity) Owner}), "Owner");
