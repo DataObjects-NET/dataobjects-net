@@ -7,16 +7,22 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Serialization;
 
 namespace Xtensive.Storage
@@ -54,6 +60,11 @@ namespace Xtensive.Storage
     ISerializable, 
     IDeserializationCallback
   {
+    private static readonly ThreadSafeDictionary<Triplet<TypeInfo, LockMode, LockBehavior>, RecordSet>
+      lockingQueryCache =
+      ThreadSafeDictionary<Triplet<TypeInfo, LockMode, LockBehavior>, RecordSet>.Create(new object());
+    private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
+
     #region Internal properties
 
     internal EntityState State { get; set; }
@@ -172,6 +183,23 @@ namespace Xtensive.Storage
     {
       add {Session.EntityEventBroker.AddSubscriber(Key, EntityEventBroker.PropertyChangedEventKey, value);}
       remove {Session.EntityEventBroker.RemoveSubscriber(Key, EntityEventBroker.PropertyChangedEventKey, value);}
+    }
+
+    /// <summary>
+    /// Locks this instance in the storage.
+    /// </summary>
+    /// <param name="lockMode">The lock mode.</param>
+    /// <param name="lockBehavior">The lock behavior.</param>
+    public void Lock(LockMode lockMode, LockBehavior lockBehavior)
+    {
+      using (new ParameterContext().Activate()) {
+        keyParameter.Value = Key.Value;
+        var recordSet = lockingQueryCache
+          .GetValue(new Triplet<TypeInfo, LockMode, LockBehavior>(Type, lockMode, lockBehavior), triplet =>
+          IndexProvider.Get(triplet.First.Indexes.PrimaryIndex).Result.Seek(keyParameter.Value)
+            .Lock(() => triplet.Second, () => triplet.Third).Select());
+        recordSet.First();
+      }
     }
 
     #endregion

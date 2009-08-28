@@ -550,7 +550,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (source == null)
         return null;
       var query = source.Request.SelectStatement.ShallowClone();
-      switch (provider.LockMode) {
+      switch (provider.LockMode.Invoke()) {
       case LockMode.Shared:
         query.Lock = SqlLockType.Shared;
         break;
@@ -561,7 +561,7 @@ namespace Xtensive.Storage.Providers.Sql
         query.Lock = SqlLockType.Update;
         break;
       }
-      switch (provider.LockBehavior) {
+      switch (provider.LockBehavior.Invoke()) {
       case LockBehavior.Wait:
         break;
       case LockBehavior.ThrowIfLocked:

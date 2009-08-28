@@ -176,7 +176,6 @@ namespace Xtensive.Storage.Rse
     public static RecordSet Select(this RecordSet recordSet, params int[] columnIndexes)
     {
       ArgumentValidator.EnsureArgumentNotNull(columnIndexes, "columnIndexes");
-      ArgumentValidator.EnsureArgumentIsGreaterThan(columnIndexes.Length, 0, "columnIndexes.Length");
       return new SelectProvider(recordSet.Provider, columnIndexes).Result;
     }
 
@@ -296,6 +295,20 @@ namespace Xtensive.Storage.Rse
     /// <returns>The <see cref="RecordSet"/> which is the result of 
     /// the created <see cref="LockProvider"/>.</returns>
     public static RecordSet Lock(this RecordSet source, LockMode lockMode, LockBehavior lockBehavior)
+    {
+      return new LockProvider(source.Provider, lockMode, lockBehavior).Result;
+    }
+
+    /// <summary>
+    /// Creates the <see cref="LockProvider"/>.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <param name="lockMode">The delegate returning the lock mode.</param>
+    /// <param name="lockBehavior">The delegate returning the lock behavior.</param>
+    /// <returns>The <see cref="RecordSet"/> which is the result of 
+    /// the created <see cref="LockProvider"/>.</returns>
+    public static RecordSet Lock(this RecordSet source, Func<LockMode> lockMode,
+      Func<LockBehavior> lockBehavior)
     {
       return new LockProvider(source.Provider, lockMode, lockBehavior).Result;
     }

@@ -54,6 +54,11 @@ namespace Xtensive.Storage.Tests
           string.Format("This test is not suitable for '{0}' protocol", protocolName));
     }
 
+    protected void EnsureProtocolIsNot(StorageProtocol disallowedProtocols)
+    {
+      EnsureProtocolIs(~disallowedProtocols);
+    }
+
     protected virtual Domain BuildDomain(DomainConfiguration configuration)
     {
       try {

@@ -16,14 +16,14 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   public sealed class LockProvider : UnaryProvider
   {
     /// <summary>
-    /// The mode of the lock to be acquired.
+    /// The delegate returning the mode of the lock to be acquired.
     /// </summary>
-    public readonly LockMode LockMode;
+    public readonly Func<LockMode> LockMode;
 
     /// <summary>
-    /// The behavior of the lock.
+    /// The delegate returning the behavior of the lock.
     /// </summary>
-    public readonly LockBehavior LockBehavior;
+    public readonly Func<LockBehavior> LockBehavior;
 
 
     // Constructors
@@ -35,6 +35,19 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="lockMode">The mode of the lock to be acquired.</param>
     /// <param name="lockBehavior">The behavior of the lock.</param>
     public LockProvider(CompilableProvider source, LockMode lockMode, LockBehavior lockBehavior) :
+      base(ProviderType.Lock, source)
+    {
+      LockMode = () => lockMode;
+      LockBehavior = () => lockBehavior;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
+    /// <param name="lockMode">The delegate returning the mode of the lock to be acquired.</param>
+    /// <param name="lockBehavior">The delegate returning the behavior of the lock.</param>
+    public LockProvider(CompilableProvider source, Func<LockMode> lockMode, Func<LockBehavior> lockBehavior) :
       base(ProviderType.Lock, source)
     {
       LockMode = lockMode;

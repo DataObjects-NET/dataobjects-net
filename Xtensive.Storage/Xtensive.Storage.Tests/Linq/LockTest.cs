@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Transactions;
 using NUnit.Framework;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
@@ -28,7 +29,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UpdateLockThrowTest()
     {
-      var catchedException = ExecuteConcurrentQeuries(LockMode.Update, LockBehavior.Wait,
+      var catchedException = ExecuteConcurrentQueries(LockMode.Update, LockBehavior.Wait,
         LockMode.Update, LockBehavior.ThrowIfLocked);
       Assert.AreEqual(typeof(StorageException), catchedException.GetType());
     }
@@ -36,8 +37,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UpdateLockSkipTest()
     {
-      if (Protocol != StorageProtocol.SqlServer)
-        Assert.Ignore();
+      EnsureProtocolIs(StorageProtocol.SqlServer);
       var key = Query<Customer>.All.First().Key;
       var expected = Query<Customer>.All.Where(c => c.Key == key)
         .Lock(LockMode.Update, LockBehavior.Wait).ToList();
@@ -65,9 +65,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ShareLockThrowTest()
     {
-      if (Protocol == StorageProtocol.SqlServer)
-        Assert.Ignore();
-      var catchedException = ExecuteConcurrentQeuries(LockMode.Update, LockBehavior.Wait,
+      EnsureProtocolIsNot(StorageProtocol.SqlServer);
+      var catchedException = ExecuteConcurrentQueries(LockMode.Update, LockBehavior.Wait,
         LockMode.Shared, LockBehavior.ThrowIfLocked);
       Assert.AreEqual(typeof(StorageException), catchedException.GetType());
     }
@@ -75,9 +74,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ExclusiveLockThrowTest()
     {
-      if (Protocol != StorageProtocol.SqlServer)
-        Assert.Ignore();
-      var catchedException = ExecuteConcurrentQeuries(LockMode.Update, LockBehavior.Wait,
+      EnsureProtocolIs(StorageProtocol.SqlServer);
+      var catchedException = ExecuteConcurrentQueries(LockMode.Update, LockBehavior.Wait,
         LockMode.Exclusive, LockBehavior.ThrowIfLocked);
       Assert.AreEqual(typeof(StorageException), catchedException.GetType());
     }
@@ -85,7 +83,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ShareLockTest()
     {
-      var catchedException = ExecuteConcurrentQeuries(LockMode.Shared, LockBehavior.ThrowIfLocked,
+      var catchedException = ExecuteConcurrentQueries(LockMode.Shared, LockBehavior.ThrowIfLocked,
         LockMode.Shared, LockBehavior.ThrowIfLocked);
       Assert.IsNull(catchedException);
     }
@@ -128,8 +126,23 @@ namespace Xtensive.Storage.Tests.Linq
       if (firstThreadException != null)
         throw firstThreadException;
     }
+
+    [Test]
+    public void LockEntityTest()
+    {
+      var customer = Query<Customer>.All.First();
+      var customerKey = customer.Key;
+      customer.Lock(LockMode.Update, LockBehavior.Wait);
+      var catchedException = ExecuteQueryAtSeparateThread(() =>
+        Query<Customer>.All.Where(c => c == customer).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
+      Assert.AreEqual(typeof(StorageException), catchedException.GetType());
+      using (Session.Open(Domain))
+      using (Transaction.Open())
+        AssertEx.Throws<StorageException>(() =>
+          Query<Customer>.Single(customerKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
+    }
     
-    private Exception ExecuteConcurrentQeuries(LockMode lockMode0, LockBehavior lockBehavior0,
+    private Exception ExecuteConcurrentQueries(LockMode lockMode0, LockBehavior lockBehavior0,
       LockMode lockMode1, LockBehavior lockBehavior1)
     {
       var key = Query<Customer>.All.First().Key;
@@ -148,17 +161,18 @@ namespace Xtensive.Storage.Tests.Linq
         }
         catch(Exception e) {
           firstThreadException = e;
+          secondEvent.Set();
           return;
         }
       });
       firstThread.Start();
       secondEvent.WaitOne();
+      if (firstThreadException != null)
+        throw firstThreadException;
       result = ExecuteQueryAtSeparateThread(() => Query<Customer>.All
         .Where(c => c.Key == key).Lock(lockMode1, lockBehavior1));
       firstEvent.Set();
       firstThread.Join();
-      if (firstThreadException != null)
-        throw firstThreadException;
       return result;
     }
 
