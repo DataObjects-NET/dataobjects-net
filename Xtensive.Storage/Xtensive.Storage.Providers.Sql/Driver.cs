@@ -58,9 +58,11 @@ namespace Xtensive.Storage.Providers.Sql
       if (queryFeatures.Supports(QueryFeatures.LargeObjects))
         f |= ProviderFeatures.LargeObjects;
       if (queryFeatures.Supports(QueryFeatures.FullBooleanExpressionSupport))
-        f |= ProviderFeatures.FullBooleanExpressionSupport;
+        f |= ProviderFeatures.FullFledgedBooleanExpressions;
       if (queryFeatures.Supports(QueryFeatures.NamedParameters))
         f |= ProviderFeatures.NamedParameters;
+      if (queryFeatures.Supports(QueryFeatures.UpdateFrom))
+        f |= ProviderFeatures.UpdateFrom;
 
       var dataTypes = si.DataTypes;
       var binaryTypeInfo = dataTypes.VarBinary ?? dataTypes.VarBinaryMax;

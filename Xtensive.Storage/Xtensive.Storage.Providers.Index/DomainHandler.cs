@@ -131,7 +131,7 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     protected override ProviderInfo CreateProviderInfo()
     {
-      ProviderFeatures f = PF.Batches | PF.ClusteredIndexes | PF.IncludedColumns | PF.KeyColumnSortOrder | PF.Paging | PF.FullBooleanExpressionSupport | PF.CrossApply;
+      ProviderFeatures f = PF.Batches | PF.ClusteredIndexes | PF.IncludedColumns | PF.KeyColumnSortOrder | PF.Paging | PF.FullFledgedBooleanExpressions | PF.CrossApply;
       return new ProviderInfo(new Version(0, 3), f, int.MaxValue);
     }
 

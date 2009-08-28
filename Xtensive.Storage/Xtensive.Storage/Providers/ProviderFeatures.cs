@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers
     CrossApply = 0x8,
     DeferrableConstraints = 0x10,
     ForeignKeyConstraints = 0x20,
-    FullBooleanExpressionSupport = 0x40,
+    FullFledgedBooleanExpressions = 0x40, // This option is named in honor of Denis Krjuchkov
     IncludedColumns = 0x80,
     KeyColumnSortOrder = 0x100,
     LargeObjects = 0x200,
