@@ -144,6 +144,7 @@ namespace Xtensive.Storage
     {
       try {
         Persist();
+        queryTasks.Clear();
         OnTransactionCommitting(Transaction);
         Handler.CommitTransaction();
         OnTransactionCommitted(Transaction);
@@ -170,6 +171,7 @@ namespace Xtensive.Storage
         foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed))
           item.PersistenceState = PersistenceState.Synchronized;
         EntityChangeRegistry.Clear();
+        queryTasks.Clear();
         CompleteTransaction();
       }
     }
