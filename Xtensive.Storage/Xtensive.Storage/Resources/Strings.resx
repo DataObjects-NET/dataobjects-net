@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -823,5 +823,8 @@ Actions:
   </data>
   <data name="ExLockDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>Lock does not support query provider of type '{0}'.</value>
+  </data>
+  <data name="ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance" xml:space="preserve">
+    <value>The current transaction is different from the transaction bound to this instance.</value>
   </data>
 </root>

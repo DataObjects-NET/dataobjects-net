@@ -5,9 +5,11 @@
 // Created:    2009.08.20
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -37,29 +39,16 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void SessionReactivationSequenceTest()
+    public void TransactionChangingTest()
     {
-      using (Session.Open(Domain))
-      using (Transaction.Open()) {
-        var futureSequenceOrder = Query.ExecuteFuture(() => Query<Order>.All.Where(o => o.Freight > 10));
-        using (Session.Open(Domain))
+      IEnumerable<Order> futureSequenceOrder;
+      using (Session.Open(Domain)) {
+        using (Transaction.Open()) {
+          futureSequenceOrder = Query.ExecuteFuture(() => Query<Order>.All.Where(o => o.Freight > 10));
+        }
+        AssertEx.Throws<InvalidOperationException>(() => futureSequenceOrder.GetEnumerator());
         using (Transaction.Open())
-          Assert.Greater(futureSequenceOrder.Count(), 0);
-        Assert.Greater(futureSequenceOrder.Count(), 0);
-      }
-    }
-
-    [Test]
-    public void SessionReactivationScalarTest()
-    {
-      using (Session.Open(Domain))
-      using (Transaction.Open()) {
-        var futureScalarUnitPrice = Query.ExecuteFutureScalar(
-          () => Query<Product>.All.Where(p => p.ProductType == ProductType.Active).Count());
-        using (Session.Open(Domain))
-        using (Transaction.Open())
-          Assert.Greater(futureScalarUnitPrice.Value, 0);
-        Assert.Greater(futureScalarUnitPrice.Value, 0);
+          AssertEx.Throws<InvalidOperationException>(() => futureSequenceOrder.GetEnumerator());
       }
     }
 

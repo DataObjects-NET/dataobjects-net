@@ -421,6 +421,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The current transaction is different from the transaction bound to this instance..
+        /// </summary>
+        internal static string ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance {
+            get {
+                return ResourceManager.GetString("ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Default generator can serve hierarchy with exactly one key field..
         /// </summary>
         internal static string ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField {

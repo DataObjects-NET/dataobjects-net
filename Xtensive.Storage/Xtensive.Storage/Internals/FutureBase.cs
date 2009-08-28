@@ -12,6 +12,7 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Providers;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals
 {
@@ -20,15 +21,16 @@ namespace Xtensive.Storage.Internals
   /// </summary>
   /// <typeparam name="TResult">The type of the result.</typeparam>
   [Serializable]
-  public abstract class FutureBase<TResult> : SessionBound
+  public abstract class FutureBase<TResult>
   {
     private readonly Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, TResult> materializer;
     private readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
 
+    private readonly Transaction transaction;
+
     /// <summary>
     /// Gets the task for this future.
     /// </summary>
-    [Infrastructure]
     public QueryTask Task { get; private set; }
 
     /// <summary>
@@ -37,8 +39,11 @@ namespace Xtensive.Storage.Internals
     /// <returns>The materialized result.</returns>
     protected TResult Materialize()
     {
+      if (transaction != Transaction.Current)
+        throw new InvalidOperationException(
+          Strings.ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance);
       if (Task.Result == null)
-          Session.ExecuteAllDelayedQueries(false);
+          transaction.Session.ExecuteAllDelayedQueries(false);
       return materializer.Invoke(Task.Result, tupleParameterBindings);
     }
 
@@ -52,6 +57,9 @@ namespace Xtensive.Storage.Internals
     /// <param name="parameterContext">The parameter context.</param>
     protected FutureBase(TranslatedQuery<TResult> translatedQuery, ParameterContext parameterContext)
     {
+      transaction = Transaction.Current;
+      if (transaction == null)
+        throw new InvalidOperationException(Strings.ExTransactionRequired);
       materializer = translatedQuery.Materializer;
       tupleParameterBindings = translatedQuery.TupleParameterBindings;
       var executableProvider = CompilationContext.Current.Compile(translatedQuery.DataSource.Provider);
