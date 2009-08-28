@@ -48,10 +48,12 @@ namespace Xtensive.Storage
   /// <seealso cref="Domain"/>
   /// <seealso cref="SessionBound" />
   public sealed partial class Session : DomainBound,
-    IContext<SessionScope>, IResource
+    IContext<SessionScope>, 
+    IResource,
+    IHasExtensions
   {
     private const int EntityChangeRegistrySizeLimit = 250; // TODO: -> SessionConfiguration
-
+    private ExtensionCollection extensions;
     private static Func<Session> resolver;
 
     private readonly object _lock = new object();
@@ -455,6 +457,25 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
       return domain.OpenSession(configuration, activate);
+    }
+
+    #endregion
+
+    #region IExtensionCollection Members
+
+    /// <inheritdoc/>
+    public IExtensionCollection Extensions {
+      get {
+        if (extensions != null)
+          return extensions;
+
+        lock (this) {
+          if (extensions == null)
+            extensions = new ExtensionCollection();
+        }
+
+        return extensions;
+      }
     }
 
     #endregion

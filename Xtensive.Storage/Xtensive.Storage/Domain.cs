@@ -5,9 +5,7 @@
 // Created:    2007.08.03
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
 using System.Runtime.ConstrainedExecution;
 using Microsoft.Practices.Unity;
 using Xtensive.Core;
@@ -21,12 +19,9 @@ using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Upgrade;
-using TypeInfo=Xtensive.Storage.Model.TypeInfo;
 
 namespace Xtensive.Storage
 {
@@ -37,8 +32,11 @@ namespace Xtensive.Storage
   /// <code source="..\..\Xtensive.Storage\Xtensive.Storage.Manual\DomainAndSessionSample.cs" region="Domain sample"></code>
   /// </sample>
   public sealed class Domain : CriticalFinalizerObject,
-    IDisposableContainer
+    IDisposableContainer,
+    IHasExtensions
   {
+    private ExtensionCollection extensions;
+
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
     /// </summary>
@@ -201,6 +199,25 @@ namespace Xtensive.Storage
       var sessionScope = new SessionConsumptionScope(session, activate);
       OnSessionOpen(session);
       return sessionScope;
+    }
+
+    #endregion
+
+    #region IExtensionCollection Members
+
+    /// <inheritdoc/>
+    public IExtensionCollection Extensions {
+      get {
+        if (extensions != null)
+          return extensions;
+
+        lock (this) {
+          if (extensions == null)
+            extensions = new ExtensionCollection();
+        }
+
+        return extensions;
+      }
     }
 
     #endregion
