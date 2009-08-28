@@ -10,9 +10,8 @@ namespace Xtensive.Sql.Compiler
 {
   public class AliasProvider
   {
-    private Dictionary<SqlTable, string> aliasTable = new Dictionary<SqlTable, string>(16);
-    private Dictionary<SqlTable, string> nameTable = new Dictionary<SqlTable, string>(16);
-    private Set<string> aliasIndex = new Set<string>();
+    private readonly Dictionary<SqlTable, string> aliasTable = new Dictionary<SqlTable, string>(16);
+    private readonly Set<string> aliasIndex = new Set<string>();
     private int counter;
     private byte prefixIndex;
     private byte suffix;
@@ -22,87 +21,50 @@ namespace Xtensive.Sql.Compiler
     private static string userDefinedPrefix = "u";
 
     private static string[] prefixes =
-      new string[]
-        {
-          "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "v",
-          "w", "x", "y", "z"
-        };
-
-    public bool IsEnabled
-    {
-      get { return counter > 0; }
-    }
-
-    public void Disable()
-    {
-      counter--;
-    }
-
-    public void Enable()
-    {
-      counter++;
-    }
+      new[] {
+        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "v",
+        "w", "x", "y", "z"
+      };
 
     internal void Reset()
     {
       aliasIndex.Clear();
       aliasTable.Clear();
-      nameTable.Clear();
       prefixIndex = 0;
       suffix = 0;
     }
 
-    internal void Register (SqlTable table, string alias)
+    internal void Register(SqlTable table, string alias)
     {
       aliasTable[table] = alias;
       aliasIndex.Add(alias);
     }
 
-    internal void Substitute(SqlTable table)
+    internal string GetAlias(SqlTable table)
     {
-      if (aliasTable.ContainsKey(table))
-        return;
+      string result;
+      if (aliasTable.TryGetValue(table, out result))
+        return result;
 
-      string alias;
-
-      SqlTableRef tableRef = table as SqlTableRef;
-      if (tableRef != null) {
-        if (IsEnabled) {
-          if (tableRef.Name != tableRef.DataTable.Name) {
-            alias = ConvertTableName(tableRef.Name);
-            if (aliasIndex.Contains(alias))
-              alias = GenerateAlias();
-          }
-          else
-            alias = GenerateAlias();
+      var tableRef = table as SqlTableRef;
+      if (tableRef!=null) {
+        if (tableRef.Name!=tableRef.DataTable.Name) {
+          result = ConvertTableName(tableRef.Name);
+          if (aliasIndex.Contains(result))
+            result = GenerateAlias();
         }
         else
-          alias = tableRef.DataTable.Name;
+          result = GenerateAlias();
       }
       else {
-        if (IsEnabled) {
-          if(!string.IsNullOrEmpty(table.Name))
-            alias = ConvertTableName(table.Name);
-          else
-            alias = GenerateAlias();
-        }
+        if (!string.IsNullOrEmpty(table.Name))
+          result = ConvertTableName(table.Name);
         else
-          alias = string.Empty;
+          result = GenerateAlias();
       }
 
-//      if (isEnabled) {
-//        if ((tableRef != null && tableRef.Name != tableRef.DataTable.Name && !aliasIndex.Contains(tableRef.Name)) || (tableRef == null && !string.IsNullOrEmpty(table.Name)))
-//          alias = ConvertTableName(table.Name);
-//        else
-//          alias = GenerateAlias();
-//      }
-//      else
-//        alias = (tableRef != null) ? tableRef.DataTable.Name : string.Empty;
-
-      aliasTable[table] = alias;
-      nameTable[table] = table.Name;
-      aliasIndex.Add(alias);
-      table.Name = alias;
+      Register(table, result);
+      return result;
     }
 
     private static string ConvertTableName(string name)
@@ -126,17 +88,6 @@ namespace Xtensive.Sql.Compiler
         prefixIndex = 0;
         suffix++;
       }
-    }
-
-    internal void Restore()
-    {
-      if (IsEnabled)
-        return;
-
-      foreach (SqlTable t in nameTable.Keys)
-        t.Name = nameTable[t];
-
-      Reset();
     }
   }
 }

@@ -1102,7 +1102,8 @@ namespace Xtensive.Sql.Compiler
       case TableSection.Exit:
         return ")";
       case TableSection.AliasDeclaration:
-        return (string.IsNullOrEmpty(node.Name)) ? string.Empty : QuoteIdentifier(node.Name);
+          string alias = context.AliasProvider.GetAlias(node);
+        return (string.IsNullOrEmpty(alias)) ? string.Empty : QuoteIdentifier(alias);
       }
       return string.Empty;
     }
@@ -1178,7 +1179,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string Translate(SqlCompilerContext context, SqlTable node, NodeSection section)
     {
-      return QuoteIdentifier(node.Name);
+      return QuoteIdentifier(context.AliasProvider.GetAlias(node));
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlTableColumn node, NodeSection section)
@@ -1194,7 +1195,8 @@ namespace Xtensive.Sql.Compiler
       case TableSection.Entry:
         return Translate(node.DataTable);
       case TableSection.AliasDeclaration:
-        return (node.Name != node.DataTable.DbName) ? " " + QuoteIdentifier(node.Name) : string.Empty;
+          string alias = context.AliasProvider.GetAlias(node);
+        return (alias != node.DataTable.DbName) ? " " + QuoteIdentifier(alias) : string.Empty;
       }
       return string.Empty;
     }

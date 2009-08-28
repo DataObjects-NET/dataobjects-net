@@ -49,7 +49,7 @@ namespace Xtensive.Sql.Compiler
 
     protected virtual void OnEndCompile()
     {
-      context.AliasProvider.Restore();
+      context.AliasProvider.Reset();
     }
 
     public virtual void Visit(SqlAggregate node)
@@ -757,6 +757,7 @@ namespace Xtensive.Sql.Compiler
 
         if (node.Into==null)
           throw new SqlCompilerException(Strings.ExTablePropertyIsNotSet);
+        context.AliasProvider.Register(node.Into, node.Into.Name);
         node.Into.AcceptVisitor(this);
 
         context.AppendText(translator.Translate(context, node, InsertSection.ColumnsEntry));
@@ -879,8 +880,6 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlQueryRef node)
     {
-      if (context.AliasProvider.IsEnabled)
-        context.AliasProvider.Substitute(node);
       using (context.EnterNode(node)) {
         context.AppendText(translator.Translate(context, node, TableSection.Entry));
         node.Query.AcceptVisitor(this);
@@ -964,8 +963,6 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlSelect node)
     {
-      if (options.ForcedAliasing)
-        context.AliasProvider.Enable();
       using (context.EnterNode(node)) {
         context.AppendText(translator.Translate(context, node, SelectSection.Entry));
         VisitSelectHints(node);
@@ -977,8 +974,6 @@ namespace Xtensive.Sql.Compiler
         VisitSelectLock(node);
         context.AppendText(translator.Translate(context, node, SelectSection.Exit));
       }
-      if (context.AliasProvider.IsEnabled)
-        context.AliasProvider.Disable();
     }
 
     public virtual void VisitSelectHints(SqlSelect node)
@@ -1100,15 +1095,11 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlTableColumn node)
     {
-      if (context.AliasProvider.IsEnabled)
-        context.AliasProvider.Substitute(node.SqlTable);
       context.AppendText(translator.Translate(context, node, NodeSection.Entry));
     }
 
     public virtual void Visit(SqlTableRef node)
     {
-      if (context.AliasProvider.IsEnabled)
-        context.AliasProvider.Substitute(node);
       context.AppendText(
         translator.Translate(context, node, TableSection.Entry)+
         translator.Translate(context, node, TableSection.AliasDeclaration));

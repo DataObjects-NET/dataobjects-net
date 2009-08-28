@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using NUnit.Framework;
 using System;
 using System.Data;
@@ -83,6 +84,7 @@ namespace Xtensive.Sql.Tests.SqlServer
     public override void SetUp()
     {
       sqlDriver = SqlDriver.Create(TestUrl.SqlServer2005Aw);
+//      sqlConnection = sqlDriver.CreateConnection("sql2005://MES/Belov_Pocoloco_1.19.2");
       sqlConnection = sqlDriver.CreateConnection(TestUrl.SqlServer2005Aw);
 
       dbCommand = sqlConnection.CreateCommand();
@@ -95,11 +97,15 @@ namespace Xtensive.Sql.Tests.SqlServer
         Console.WriteLine(e);
       }
 
+      var stopWatch = new Stopwatch();
+      stopWatch.Start();
       using (var transaction = sqlConnection.BeginTransaction()) {
 //        Catalog = sqlDriver.ExtractSchema(sqlConnection, transaction, "Production").Catalog;
         Catalog = sqlDriver.ExtractCatalog(sqlConnection, transaction);
         transaction.Commit();
       }
+      stopWatch.Stop();
+      Console.WriteLine(stopWatch.Elapsed);
     }
 
     [TestFixtureTearDown]
@@ -112,6 +118,12 @@ namespace Xtensive.Sql.Tests.SqlServer
       catch (Exception ex) {
         Console.WriteLine(ex.Message);
       }
+    }
+
+    [Test]
+    public void TestExtractCatalog()
+    {
+      Assert.GreaterOrEqual(Catalog.Schemas.Count, 1);
     }
 
     [Test]
