@@ -8,6 +8,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
+using System.Collections.Generic;
 
 namespace Xtensive.Storage.Tests.Linq
 {
@@ -362,6 +363,20 @@ namespace Xtensive.Storage.Tests.Linq
         .Take(10);
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
+    }
+
+    [Test]
+    public void ReuseTakeTest()
+    {
+      var result1 = GetCustomers(1).Count();
+      Assert.AreEqual(1, result1);
+      var result2 = GetCustomers(2).Count();
+      Assert.AreEqual(2, result2);
+    }
+
+    private IEnumerable<Customer> GetCustomers(int amount)
+    {
+      return Query.Execute(() => Query<Customer>.All.Take(amount));
     }
   }
 }
