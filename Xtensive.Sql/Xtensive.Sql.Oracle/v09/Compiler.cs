@@ -4,9 +4,11 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
+using System;
 using Xtensive.Core.Collections;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Oracle.Resources;
 
 namespace Xtensive.Sql.Oracle.v09
 {
@@ -97,6 +99,13 @@ namespace Xtensive.Sql.Oracle.v09
             table.AcceptVisitor(this);
         context.AppendText(")");
       }
+    }
+
+    public override void Visit(SqlUpdate node)
+    {
+      if (node.From!=null)
+        throw new NotSupportedException(Strings.ExOracleDoesNotSupportUpdateFromStatements);
+      base.Visit(node);
     }
 
     private static SqlExpression DateTimeAddComponent(SqlExpression dateTime, SqlExpression units, bool isYear)

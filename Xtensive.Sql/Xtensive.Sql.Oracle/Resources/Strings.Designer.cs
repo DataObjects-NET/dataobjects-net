@@ -77,5 +77,14 @@ namespace Xtensive.Sql.Oracle.Resources {
                 return ResourceManager.GetString("ExOracleBelow9i2IsNotSupported", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Oracle does not support UPDATE FROM statements.
+        /// </summary>
+        internal static string ExOracleDoesNotSupportUpdateFromStatements {
+            get {
+                return ResourceManager.GetString("ExOracleDoesNotSupportUpdateFromStatements", resourceCulture);
+            }
+        }
     }
 }

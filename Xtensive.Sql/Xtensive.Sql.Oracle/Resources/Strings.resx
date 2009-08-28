@@ -123,4 +123,7 @@
   <data name="ExInvalidBooleanStringX" xml:space="preserve">
     <value>Invalid boolean string '{0}'</value>
   </data>
+  <data name="ExOracleDoesNotSupportUpdateFromStatements" xml:space="preserve">
+    <value>Oracle does not support UPDATE FROM statements</value>
+  </data>
 </root>

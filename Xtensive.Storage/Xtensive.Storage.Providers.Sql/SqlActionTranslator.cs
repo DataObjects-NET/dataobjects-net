@@ -280,19 +280,31 @@ namespace Xtensive.Storage.Providers.Sql
       if (copiedColumns.Length == 0 || identityColumns.Length == 0)
         throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
 
-      var fromTable = SqlDml.TableRef(FindTable(copiedColumns[0].First.Parent.Name));
-      var toTable = SqlDml.TableRef(FindTable(copiedColumns[0].Second.Parent.Name));
+      var fromTable = FindTable(copiedColumns[0].First.Parent.Name);
+      var toTable = FindTable(copiedColumns[0].Second.Parent.Name);
+      var toTableRef = SqlDml.TableRef(toTable);
+      var update = SqlDml.Update(toTableRef);
 
-      var select = SqlDml.Select(fromTable);
-      identityColumns.Apply(pair => select.Columns.Add(fromTable[pair.First.Name]));
-      copiedColumns.Apply(pair => select.Columns.Add(fromTable[pair.First.Name]));
-      var selectRef = SqlDml.QueryRef(select, SubqueryAliasName);
-      
-      var update = SqlDml.Update(toTable);
-      update.From = selectRef;
-      copiedColumns.Apply(pair => update.Values[toTable[pair.Second.Name]] = selectRef[pair.First.Name]);
-      identityColumns.Apply(pair => update.Where &= toTable[pair.Second.Name]==selectRef[pair.First.Name]);
-
+      if (providerInfo.Supports(ProviderFeatures.UpdateFrom)) {
+        var fromTableRef = SqlDml.TableRef(fromTable);
+        var select = SqlDml.Select(fromTableRef);
+        identityColumns.Apply(pair => select.Columns.Add(fromTableRef[pair.First.Name]));
+        copiedColumns.Apply(pair => select.Columns.Add(fromTableRef[pair.First.Name]));
+        var selectRef = SqlDml.QueryRef(select, SubqueryAliasName);
+        update.From = selectRef;
+        copiedColumns.Apply(pair => update.Values[toTableRef[pair.Second.Name]] = selectRef[pair.First.Name]);
+        identityColumns.Apply(pair => update.Where &= toTableRef[pair.Second.Name]==selectRef[pair.First.Name]);
+      }
+      else {
+        foreach (var columnPair in copiedColumns) {
+          var fromTableRef = SqlDml.TableRef(fromTable);
+          var select = SqlDml.Select(fromTableRef);
+          foreach (var identityColumnPair in identityColumns)
+            select.Where &= toTableRef[identityColumnPair.Second.Name]==fromTableRef[identityColumnPair.First.Name];
+          select.Columns.Add(fromTableRef[columnPair.First.Name]);
+          update.Values[toTableRef[columnPair.Second.Name]] = select;
+        }
+      }
       RegisterCommand(update);
     }
 
