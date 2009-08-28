@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
   {
     protected override void CheckRequirements()
     {
-      EnsureProtocolIs(StorageProtocol.SqlServer);
+      EnsureProtocolIs(StorageProtocol.SqlServer | StorageProtocol.Oracle);
     }
 
     protected override DomainConfiguration BuildConfiguration()

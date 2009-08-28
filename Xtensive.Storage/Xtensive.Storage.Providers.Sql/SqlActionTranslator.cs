@@ -303,6 +303,7 @@ namespace Xtensive.Storage.Providers.Sql
             select.Where &= toTableRef[identityColumnPair.Second.Name]==fromTableRef[identityColumnPair.First.Name];
           select.Columns.Add(fromTableRef[columnPair.First.Name]);
           update.Values[toTableRef[columnPair.Second.Name]] = select;
+          update.Where = SqlDml.Exists(select);
         }
       }
       RegisterCommand(update);
