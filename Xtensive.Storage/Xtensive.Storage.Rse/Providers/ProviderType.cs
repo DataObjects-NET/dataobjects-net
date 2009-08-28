@@ -34,6 +34,7 @@ namespace Xtensive.Storage.Rse.Providers
     Intersect,
     Except,
     Union,
-    Lock
+    Lock,
+    Pack,
   }
 }

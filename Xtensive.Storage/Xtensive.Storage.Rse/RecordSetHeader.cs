@@ -84,16 +84,26 @@ namespace Xtensive.Storage.Rse
     }
 
     /// <summary>
-    /// Adds the specified values to header.
+    /// Adds the specified column to header.
     /// </summary>
-    /// <param name="values">The values.</param>
+    /// <param name="column">The column.</param>
     /// <returns>The constructed header.</returns>
-    public RecordSetHeader Add(IEnumerable<Column> values)
+    public RecordSetHeader Add(Column column)
+    {
+      return Add(EnumerableUtils.One(column));
+    }
+
+    /// <summary>
+    /// Adds the specified columns to header.
+    /// </summary>
+    /// <param name="columns">The columns.</param>
+    /// <returns>The constructed header.</returns>
+    public RecordSetHeader Add(IEnumerable<Column> columns)
     {
       var resultColumns = new List<Column>(Columns);
-      resultColumns.AddRange(values);
+      resultColumns.AddRange(columns);
       var typeList = new List<Type>(TupleDescriptor);
-      foreach (var value in values)
+      foreach (var value in columns)
         typeList.Add(value.Type);
       var resultTupleDescriptor = TupleDescriptor.Create(typeList);
       return new RecordSetHeader(

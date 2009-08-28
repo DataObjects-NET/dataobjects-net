@@ -18,7 +18,6 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Materialization;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Linq
@@ -58,7 +57,7 @@ namespace Xtensive.Storage.Linq
       return translatedQuery;
     }
 
-    public ProjectionExpression Optimize(ProjectionExpression origin)
+    private static ProjectionExpression Optimize(ProjectionExpression origin)
     {
       var originProvider = origin.ItemProjector.DataSource.Provider;
 
@@ -82,7 +81,7 @@ namespace Xtensive.Storage.Linq
       return origin;
     }
 
-    private ProjectionExpression PrepareCachedQuery(ProjectionExpression origin, QueryCachingScope cachingScope)
+    private static ProjectionExpression PrepareCachedQuery(ProjectionExpression origin, QueryCachingScope cachingScope)
     {
       if (cachingScope.QueryParameter!=null) {
         var result = cachingScope.QueryParameterReplacer.Replace(origin);

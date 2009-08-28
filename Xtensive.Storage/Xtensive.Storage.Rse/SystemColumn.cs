@@ -10,7 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Rse
 {
   /// <summary>
-  /// Row number column of the <see cref="RecordSetHeader"/>.
+  /// System column of the <see cref="RecordSetHeader"/>.
   /// </summary>
   [Serializable]
   public class SystemColumn : Column

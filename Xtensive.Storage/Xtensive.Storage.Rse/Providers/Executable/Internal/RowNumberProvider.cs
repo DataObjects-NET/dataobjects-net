@@ -14,7 +14,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable
   [Serializable]
   internal class RowNumberProvider : UnaryExecutableProvider<Compilable.RowNumberProvider>
   {
-    // Constructors
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
@@ -26,6 +25,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
         yield return resTuple;
       }
     }
+
+
+    // Constructors
 
     public RowNumberProvider(Compilable.RowNumberProvider origin, ExecutableProvider source)
       : base(origin, source)
