@@ -90,8 +90,8 @@ namespace Xtensive.Storage.Providers
     {
       PersistRequiresTopologicalSort =
         (Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0 &&
-         Handlers.Domain.Handler.ProviderInfo.SupportsForeignKeyConstraints &&
-        !Handlers.Domain.Handler.ProviderInfo.SupportsDeferredForeignKeyConstraints;
+         Handlers.Domain.Handler.ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints) &&
+        !Handlers.Domain.Handler.ProviderInfo.Supports(ProviderFeatures.DeferrableConstraints);
     }
 
     /// <inheritdoc/>

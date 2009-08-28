@@ -28,45 +28,51 @@ namespace Xtensive.Storage.Providers.Sql
 
     public ProviderInfo BuildProviderInfo()
     {
-      var result = new ProviderInfo();
-      var serverInfo = underlyingDriver.ServerInfo;
-      
-      var queryFeatures = serverInfo.Query.Features;
-      var indexFeatures = serverInfo.Index.Features;
-      var foreignKeyFeatures = serverInfo.ForeignKey.Features;
-      // TODO: add corresponding feature to Sql.Info and read it here
-      result.SupportsEnlist = false;
-      result.SupportsBatches = queryFeatures.Supports(QueryFeatures.Batches);
-      result.SupportsClusteredIndexes = indexFeatures.Supports(IndexFeatures.Clustered);
-      result.SupportsCollations = serverInfo.Collation!=null;
-      result.SupportsForeignKeyConstraints = serverInfo.ForeignKey!=null;
-      if (serverInfo.ForeignKey!=null)
-        result.SupportsDeferredForeignKeyConstraints = foreignKeyFeatures.Supports(ForeignKeyConstraintFeatures.Deferrable);
-      result.SupportsIncludedColumns = indexFeatures.Supports(IndexFeatures.NonKeyColumns);
-      result.SupportsKeyColumnSortOrder = indexFeatures.Supports(IndexFeatures.SortOrder);
-      result.SupportsSequences = serverInfo.Sequence!=null;
-      result.SupportsAutoincrementColumns = serverInfo.Identity!=null;
-      result.SupportsApplyProvider = queryFeatures.Supports(QueryFeatures.CrossApply);
-      result.SupportsPaging = queryFeatures.Supports(QueryFeatures.Paging);
-      result.SupportsLargeObjects = queryFeatures.Supports(QueryFeatures.LargeObjects);
-      result.SupportsAllBooleanExpressions = queryFeatures.Supports(QueryFeatures.FullBooleanExpressionSupport);
-      result.NamedParameters = queryFeatures.Supports(QueryFeatures.NamedParameters);
-      result.ParameterPrefix = serverInfo.Query.ParameterPrefix;
+      var si = underlyingDriver.ServerInfo;
+      var queryFeatures = si.Query.Features;
+      var indexFeatures = si.Index.Features;
+      var foreignKeyFeatures = si.ForeignKey.Features;
 
-      var dataTypes = serverInfo.DataTypes;
+      var f = ProviderFeatures.None;
+      if (queryFeatures.Supports(QueryFeatures.Batches))
+        f |= ProviderFeatures.Batches;
+      if (indexFeatures.Supports(IndexFeatures.Clustered))
+        f |= ProviderFeatures.ClusteredIndexes;
+      if (si.Collation!=null)
+        f |= ProviderFeatures.Collations;
+      if (si.ForeignKey!=null) {
+        f |= ProviderFeatures.ForeignKeyConstraints;
+        if (foreignKeyFeatures.Supports(ForeignKeyConstraintFeatures.Deferrable))
+          f |= ProviderFeatures.DeferrableConstraints;
+      }
+      if (indexFeatures.Supports(IndexFeatures.NonKeyColumns))
+        f |= ProviderFeatures.IncludedColumns;
+      if (indexFeatures.Supports(IndexFeatures.SortOrder))
+        f |= ProviderFeatures.KeyColumnSortOrder;
+      if (si.Sequence!=null)
+        f |= ProviderFeatures.Sequences;
+      if (queryFeatures.Supports(QueryFeatures.CrossApply))
+        f |= ProviderFeatures.CrossApply;
+      if (queryFeatures.Supports(QueryFeatures.Paging))
+        f |= ProviderFeatures.Paging;
+      if (queryFeatures.Supports(QueryFeatures.LargeObjects))
+        f |= ProviderFeatures.LargeObjects;
+      if (queryFeatures.Supports(QueryFeatures.FullBooleanExpressionSupport))
+        f |= ProviderFeatures.FullBooleanExpressionSupport;
+      if (queryFeatures.Supports(QueryFeatures.NamedParameters))
+        f |= ProviderFeatures.NamedParameters;
+
+      var dataTypes = si.DataTypes;
       var binaryTypeInfo = dataTypes.VarBinary ?? dataTypes.VarBinaryMax;
-      result.EmptyBlobIsNull = binaryTypeInfo!=null
-        ? binaryTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull)
-        : false;
+      if (binaryTypeInfo!=null && binaryTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull))
+        f |= ProviderFeatures.TreatEmptyBlobAsNull;
       var stringTypeInfo = dataTypes.VarChar ?? dataTypes.VarCharMax;
-      result.EmptyStringIsNull = stringTypeInfo!=null
-        ? stringTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull)
-        : false;
+      if (stringTypeInfo!=null && stringTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull))
+        f |= ProviderFeatures.TreatEmptyStringAsNull;
 
-      result.Version = (Version) serverInfo.Version.ProductVersion.Clone();
-      var si = serverInfo;
-      result.MaxIdentifierLength = new EntityInfo[] {si.Column, si.ForeignKey, si.Index, si.PrimaryKey, si.Sequence, si.Table, si.TemporaryTable, si.UniqueConstraint}.Select(e => e == null ? int.MaxValue : e.MaxIdentifierLength).Min();
-      return result;
+      var storageVersion = (Version) si.Version.ProductVersion.Clone();
+      var maxIdentifierLength = new EntityInfo[] {si.Column, si.ForeignKey, si.Index, si.PrimaryKey, si.Sequence, si.Table, si.TemporaryTable, si.UniqueConstraint}.Select(e => e == null ? int.MaxValue : e.MaxIdentifierLength).Min();
+      return new ProviderInfo(storageVersion, f, maxIdentifierLength);
     }
 
     public string BuildBatch(string[] statements)

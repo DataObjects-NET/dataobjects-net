@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var column in provider.CalculatedColumns) {
         HashSet<SqlQueryParameterBinding> bindings;
         var predicate = ProcessExpression(column.Expression, out bindings, sqlSelect);
-        if (!ProviderInfo.SupportsAllBooleanExpressions && (column.Type.StripNullable()==typeof(bool)))
+        if (!ProviderInfo.Supports(ProviderFeatures.FullBooleanExpressionSupport) && (column.Type.StripNullable()==typeof(bool)))
           predicate = booleanExpressionConverter.BooleanToInt(predicate);
         sqlSelect.Columns.Add(predicate, column.Name);
         allBindings = allBindings.Concat(bindings);
@@ -414,14 +414,14 @@ namespace Xtensive.Storage.Providers.Sql
       switch (provider.SequenceType) {
       case ApplySequenceType.All:
         // apply is required
-        if (!ProviderInfo.SupportsApplyProvider)
+        if (!ProviderInfo.Supports(ProviderFeatures.CrossApply))
           throw new NotSupportedException();
         query = ProcessApplyViaCrossApply(provider, left, right);
         break;
       case ApplySequenceType.First:
       case ApplySequenceType.FirstOrDefault:
         // apply is prefered but is not required
-        query = ProviderInfo.SupportsApplyProvider
+        query = ProviderInfo.Supports(ProviderFeatures.CrossApply)
           ? ProcessApplyViaCrossApply(provider, left, right)
           : ProcessApplyViaSubqueries(provider, left, right);
         break;
@@ -444,7 +444,7 @@ namespace Xtensive.Storage.Providers.Sql
         return null;
 
       SqlExpression existsExpression = SqlDml.Exists(source.Request.SelectStatement);
-      if (!ProviderInfo.SupportsAllBooleanExpressions)
+      if (!ProviderInfo.Supports(ProviderFeatures.FullBooleanExpressionSupport))
         existsExpression = booleanExpressionConverter.BooleanToInt(existsExpression);
       var select = SqlDml.Select();
       select.Columns.Add(existsExpression, provider.ExistenceColumnName);
@@ -835,7 +835,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       Handlers = handlers;
 
-      if (!handlers.DomainHandler.ProviderInfo.SupportsAllBooleanExpressions)
+      if (!handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.FullBooleanExpressionSupport))
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
     }
   }

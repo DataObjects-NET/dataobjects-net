@@ -164,7 +164,7 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Initialize()
     {
       DomainHandler = (DomainHandler) Handlers.DomainHandler;
-      useLargeObjects = DomainHandler.ProviderInfo.SupportsLargeObjects;
+      useLargeObjects = DomainHandler.ProviderInfo.Supports(ProviderFeatures.LargeObjects);
     }
     
     // Constructors

@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Upgrade
         Visit(primaryIndex);
 
      // Build foreign keys
-      if (BuildForeignKeys && ProviderInfo.SupportsForeignKeyConstraints)
+      if (BuildForeignKeys && ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints))
         foreach (var association in domainModel.Associations)
           Visit(association);
 
@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Upgrade
       foreach (var generator in persistentGenerators)
         Visit(generator);
 
-      if (!BuildHierarchyForeignKeys || !ProviderInfo.SupportsForeignKeyConstraints)
+      if (!BuildHierarchyForeignKeys || !ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints))
         return StorageInfo;
 
       // Build hierarchy foreign keys
@@ -177,11 +177,11 @@ namespace Xtensive.Storage.Upgrade
         var columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key, index);
         var column = table.Columns[columName];
         new KeyColumnRef(secondaryIndex, column,
-          ProviderInfo.SupportsKeyColumnSortOrder
+          ProviderInfo.Supports(ProviderFeatures.KeyColumnSortOrder)
             ? pair.Value
             : Direction.Positive);
       }
-      if (ProviderInfo.SupportsIncludedColumns)
+      if (ProviderInfo.Supports(ProviderFeatures.IncludedColumns))
         foreach (var includedColumn in index.IncludedColumns) {
           var columName = GetPrimaryIndexColumnName(primaryIndex, includedColumn, index);
           var column = table.Columns[columName];
@@ -282,7 +282,7 @@ namespace Xtensive.Storage.Upgrade
         var columName = GetPrimaryIndexColumnName(index, pair.Key, index);
         var column = CurrentTable.Columns[columName];
         new KeyColumnRef(primaryIndex, column,
-          ProviderInfo.SupportsKeyColumnSortOrder
+          ProviderInfo.Supports(ProviderFeatures.KeyColumnSortOrder)
             ? pair.Value
             : Direction.Positive);
       }

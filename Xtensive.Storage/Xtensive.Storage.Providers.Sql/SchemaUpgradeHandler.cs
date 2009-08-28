@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void Execute(IEnumerable<string> batch)
     {
-      if (DomainHandler.ProviderInfo.SupportsBatches) {
+      if (DomainHandler.ProviderInfo.Supports(ProviderFeatures.Batches)) {
         var commandText = Driver.BuildBatch(batch.ToArray());
         if (string.IsNullOrEmpty(commandText))
           return;

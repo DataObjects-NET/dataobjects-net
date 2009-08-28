@@ -15,7 +15,6 @@ using Xtensive.Indexing;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Index.Resources;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.PreCompilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
@@ -23,10 +22,10 @@ using Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection;
 using Xtensive.Storage.Rse.PreCompilation.Optimization;
 using Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.Compilable;
 using IndexInfo=Xtensive.Storage.Model.IndexInfo;
 using StorageIndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
 using TypeInfo=Xtensive.Storage.Model.TypeInfo;
+using PF = Xtensive.Storage.Providers.ProviderFeatures;
 
 
 namespace Xtensive.Storage.Providers.Index
@@ -132,28 +131,8 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     protected override ProviderInfo CreateProviderInfo()
     {
-      var result = new ProviderInfo();
-      result.SupportsBatches = true;
-      result.SupportsClusteredIndexes = true;
-      result.SupportsCollations = false;
-      result.SupportsEnlist = false;
-      result.SupportsForeignKeyConstraints = false;
-      result.SupportsDeferredForeignKeyConstraints = false;
-      result.SupportsIncludedColumns = true;
-      result.SupportsKeyColumnSortOrder = true;
-      result.SupportsPaging = true;
-      result.SupportsAllBooleanExpressions = true;
-      result.SupportsApplyProvider = true;
-      result.SupportsLargeObjects = false;
-      result.SupportsSequences = false;
-      result.SupportsAutoincrementColumns = false;
-      result.EmptyBlobIsNull = false;
-      result.EmptyStringIsNull = false;
-      result.NamedParameters = false;
-      result.ParameterPrefix = string.Empty;
-      result.Version = new Version(0, 3);
-      result.MaxIdentifierLength = int.MaxValue;
-      return result;
+      ProviderFeatures f = PF.Batches | PF.ClusteredIndexes | PF.IncludedColumns | PF.KeyColumnSortOrder | PF.Paging | PF.FullBooleanExpressionSupport | PF.CrossApply;
+      return new ProviderInfo(new Version(0, 3), f, int.MaxValue);
     }
 
     #region Storage access methods

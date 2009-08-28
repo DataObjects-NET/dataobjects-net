@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.05.27
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Providers;
 
@@ -17,12 +18,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     
     protected override ProviderInfo CreateProviderInfo()
     {
-      var providerInfo = new ProviderInfo();
-      providerInfo.SupportsSequences = false;
-      providerInfo.SupportsKeyColumnSortOrder = true;
-      providerInfo.SupportsIncludedColumns = true;
-      providerInfo.SupportsForeignKeyConstraints = true;
-      return providerInfo;
+      return new ProviderInfo(new Version(9,0), ProviderFeatures.KeyColumnSortOrder | ProviderFeatures.IncludedColumns | ProviderFeatures.ForeignKeyConstraints, 128);
     }
   }
 }

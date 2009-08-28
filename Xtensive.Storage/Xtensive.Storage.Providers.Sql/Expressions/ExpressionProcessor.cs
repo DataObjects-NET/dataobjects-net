@@ -556,7 +556,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers)
     {
       this.compiler = compiler;
-      fixBooleanExpressions = !handlers.DomainHandler.ProviderInfo.SupportsAllBooleanExpressions;
+      fixBooleanExpressions = !handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.FullBooleanExpressionSupport);
       memberCompilerProvider = handlers.DomainHandler.GetMemberCompilerProvider<SqlExpression>();
       driver = ((DomainHandler) handlers.DomainHandler).Driver;
       model = handlers.Domain.Model;

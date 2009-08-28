@@ -4,9 +4,8 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.05.27
 
+using System;
 using NUnit.Framework;
-using Xtensive.Sql;
-using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Tests.Upgrade
@@ -19,12 +18,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     
     protected override ProviderInfo CreateProviderInfo()
     {
-      var providerInfo = new ProviderInfo();
-      providerInfo.SupportsSequences = true;
-      providerInfo.SupportsKeyColumnSortOrder = false;
-      providerInfo.SupportsIncludedColumns = false;
-      providerInfo.SupportsForeignKeyConstraints = true;
-      return providerInfo;
+      return new ProviderInfo(new Version(8,4), ProviderFeatures.Sequences | ProviderFeatures.ForeignKeyConstraints, 63);
     }
   }
 }

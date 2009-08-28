@@ -43,11 +43,10 @@ namespace Xtensive.Storage.Providers.Sql
 
     internal static ISqlCompileUnit GetNextValueStatement(ProviderInfo providerInfo, Schema schema, string generatorMappingName)
     {
-      if (providerInfo.SupportsSequences)
+      if (providerInfo.Supports(ProviderFeatures.Sequences))
         return GetSequenceBasedNext(schema, generatorMappingName);
-      if (providerInfo.SupportsAutoincrementColumns)
+      else
         return GetAutoIncrementColumnBasedNext(schema, generatorMappingName);
-      throw new NotSupportedException();
     }
 
     private static ISqlCompileUnit GetSequenceBasedNext(Schema schema, string generatorMappingName)

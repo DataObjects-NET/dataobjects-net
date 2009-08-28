@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Providers.Sql
     
     private bool IsSequencesAllowed
     {
-      get { return providerInfo.SupportsSequences; }
+      get { return providerInfo.Supports(ProviderFeatures.Sequences); }
     }
 
     /// <summary>
@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Providers.Sql
       // Prepairing
       stage = UpgradeStage.Prepare;
       // Turn off deferred contraints
-      if (providerInfo.SupportsDeferredForeignKeyConstraints)
+      if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
         RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllImmediate));
       var prepare = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.Prepare.ToString());
@@ -161,7 +161,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (cleanup!=null)
         VisitAction(cleanup);
       // Turn on deferred contraints
-      if (providerInfo.SupportsDeferredForeignKeyConstraints)
+      if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
         RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllDeferred));
       translated = true;
     }
@@ -734,7 +734,7 @@ namespace Xtensive.Storage.Providers.Sql
       var foreignKey = referencingTable.CreateForeignKey(foreignKeyInfo.Name);
       foreignKey.OnUpdate = ConvertReferentialAction(foreignKeyInfo.OnUpdateAction);
       foreignKey.OnDelete = ConvertReferentialAction(foreignKeyInfo.OnRemoveAction);
-      foreignKey.IsDeferrable = providerInfo.SupportsDeferredForeignKeyConstraints;
+      foreignKey.IsDeferrable = providerInfo.Supports(ProviderFeatures.DeferrableConstraints);
       foreignKey.IsInitiallyDeferred = foreignKey.IsDeferrable;
       var referencingColumns = foreignKeyInfo.ForeignKeyColumns
         .Select(cr => FindColumn(referencingTable, cr.Value.Name));

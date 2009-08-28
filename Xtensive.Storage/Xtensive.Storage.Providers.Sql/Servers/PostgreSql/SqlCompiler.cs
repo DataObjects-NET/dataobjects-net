@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
     public SqlCompiler(HandlerAccessor handlers, BindingCollection<object, ExecutableProvider> compiledSources)
       : base(handlers, compiledSources)
     {
-      var version = handlers.DomainHandler.ProviderInfo.Version;
+      var version = handlers.DomainHandler.ProviderInfo.StorageVersion;
       supportsRowNumber = version.Major > 8 || version.Major==8 && version.Minor >= 4;
     }
   }

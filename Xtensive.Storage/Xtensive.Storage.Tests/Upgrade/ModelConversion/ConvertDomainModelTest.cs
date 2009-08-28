@@ -9,6 +9,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model;
 using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
 using Xtensive.Storage.Model;
@@ -71,7 +72,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     [Test]
     public virtual void IncludedColumnsTest()
     {
-      if (Domain.StorageProviderInfo.SupportsIncludedColumns)
+      if (Domain.StorageProviderInfo.Supports(ProviderFeatures.IncludedColumns))
         Assert.AreEqual(2,
           Schema.Tables["A"].SecondaryIndexes[0].IncludedColumns.Count);
       else

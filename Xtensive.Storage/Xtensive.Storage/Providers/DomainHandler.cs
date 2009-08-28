@@ -101,13 +101,6 @@ namespace Xtensive.Storage.Providers
 
     #region Private \ internal methods
 
-    private void BuildProviderInfo()
-    {
-      var providerInfo = CreateProviderInfo();
-      providerInfo.Lock(true);
-      ProviderInfo = providerInfo;
-    }
-    
     private void BuildCompilationContext()
     {
       CompilationContext = new CompilationContext(
@@ -165,7 +158,7 @@ namespace Xtensive.Storage.Providers
     public override void Initialize()
     {
       Domain = BuildingContext.Current.Domain;
-      BuildProviderInfo();
+      ProviderInfo = CreateProviderInfo();
       BuildMemberCompilerProviders();
       BuildCompilationContext();
     }

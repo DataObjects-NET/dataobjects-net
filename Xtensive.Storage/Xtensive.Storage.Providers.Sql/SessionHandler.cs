@@ -313,7 +313,7 @@ namespace Xtensive.Storage.Providers.Sql
       
       int batchSize = this.Session.Configuration.BatchSize;
       commandProcessor =
-        Handlers.DomainHandler.ProviderInfo.SupportsBatches && batchSize > 1
+        Handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.Batches) && batchSize > 1
           ? new BatchingCommandProcessor(domainHandler, batchSize)
           : (CommandProcessor) new SimpleCommandProcessor(domainHandler);
     }
