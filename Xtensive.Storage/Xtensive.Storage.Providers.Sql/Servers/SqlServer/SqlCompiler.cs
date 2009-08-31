@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
     {
       var compiledSource = Compile(provider.Source);
 
-      var query = ExtractSqlSelect(compiledSource);
+      var query = ExtractSqlSelect(provider, compiledSource);
       var count = provider.Count();
       if (query.Limit == 0 || query.Limit > count)
         query.Limit = count;

@@ -20,6 +20,7 @@ using Xtensive.Storage.Providers.Sql.Expressions;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Compilation;
+using Xtensive.Storage.Rse.Helpers;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Sql.ValueTypeMapping;
@@ -68,10 +69,12 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var source = Compile(provider.Source);
 
-      SqlTable queryRef = source.PermanentReference;
-      SqlSelect sqlSelect = SqlDml.Select(queryRef);
+//      SqlTable queryRef = source.PermanentReference;
+//      var sqlSelect = SqlDml.Select(queryRef);
+      var sqlSelect = ExtractSqlSelect(provider, source);
 
-      var columns = queryRef.Columns.ToList();
+//      var columns = queryRef.Columns.ToList();
+      var columns = sqlSelect.From.Columns.ToList();
       sqlSelect.Columns.Clear();
 
       for (int i = 0; i < provider.GroupColumnIndexes.Length; i++) {
@@ -163,7 +166,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var source = Compile(provider.Source);
 
-      SqlSelect query = ExtractSqlSelect(source);
+      SqlSelect query = ExtractSqlSelect(provider, source);
 
       HashSet<SqlQueryParameterBinding> bindings;
       var predicate = ProcessExpression(provider.Predicate, out bindings, query);
@@ -295,7 +298,7 @@ namespace Xtensive.Storage.Providers.Sql
         query.Columns.Add(SqlDml.Null, "NULL");
       }
       else {
-        query = ExtractSqlSelect(compiledSource);
+        query = ExtractSqlSelect(provider, compiledSource);
         var originalColumns = query.Columns.ToList();
         query.Columns.Clear();
         query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
@@ -368,7 +371,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var compiledSource = Compile(provider.Source);
       
-      var query = ExtractSqlSelect(compiledSource);
+      var query = ExtractSqlSelect(provider, compiledSource);
       var count = provider.Count();
       if (query.Limit == 0 || query.Limit > count)
         query.Limit = count;
@@ -703,25 +706,47 @@ namespace Xtensive.Storage.Providers.Sql
         query.OrderBy.Add(query.Columns[pair.Key], pair.Value==Direction.Positive);
     }
 
-    protected static SqlSelect ExtractSqlSelect(SqlProvider source)
+    private static bool IsCalculatedColumn(SqlColumn column)
     {
-      var containsCalculatedColumns = source.Request.SelectStatement.Columns.Any(c => {
-        if (c is SqlUserColumn)
-          return true;
-        var cRef = c as SqlColumnRef;
-        if (!ReferenceEquals(null, cRef))
-          return cRef.SqlColumn is SqlUserColumn;
-        return false;
-      });
+      if (column is SqlUserColumn)
+        return true;
+      var cRef = column as SqlColumnRef;
+      if (!ReferenceEquals(null, cRef))
+        return cRef.SqlColumn is SqlUserColumn;
+      return false;
+    }
+
+    protected static SqlSelect ExtractSqlSelect(CompilableProvider origin, SqlProvider compiledSource)
+    {
+      var calculatedColumnIndexes = compiledSource.Request.SelectStatement.Columns
+        .Select((c, i) => IsCalculatedColumn(c) ? i : -1)
+        .ToList();
+      var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
 
       SqlSelect query;
-      if (containsCalculatedColumns) {
-        var queryRef = source.PermanentReference;
+
+      if (origin.Type == ProviderType.Filter) {
+        var filterProvider = (FilterProvider)origin;
+        var usedColumnIndexes = new TupleAccessGatherer().Gather(filterProvider.Predicate.Body);
+        if (usedColumnIndexes.Any(calculatedColumnIndexes.Contains)) {
+          var queryRef = compiledSource.PermanentReference;
+          query = SqlDml.Select(queryRef);
+          query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+        }
+        else {
+          var sourceSelect = compiledSource.Request.SelectStatement;
+          query = sourceSelect.ShallowClone();
+        }
+        return query;
+      }
+
+      if (containsCalculatedColumns || compiledSource.Request.SelectStatement.Distinct) {
+        var queryRef = compiledSource.PermanentReference;
         query = SqlDml.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       }
       else {
-        SqlSelect sourceSelect = source.Request.SelectStatement;
+        var sourceSelect = compiledSource.Request.SelectStatement;
         query = sourceSelect.ShallowClone();
       }
       return query;

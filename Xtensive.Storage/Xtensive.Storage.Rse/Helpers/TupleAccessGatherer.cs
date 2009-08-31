@@ -80,9 +80,7 @@ namespace Xtensive.Storage.Rse.Helpers
     }
 
     private static void DefaultRegisterOuterColumn(ApplyParameter parameter, int columnIndex)
-    {
-      throw new NotSupportedException();
-    }
+    {}
 
     private bool IsTupleAccess(Expression mc)
     {
