@@ -383,33 +383,36 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override SqlProvider VisitApply(ApplyProvider provider)
     {
+      bool processViaCrossApply;
+      switch (provider.SequenceType) {
+        case ApplySequenceType.All:
+          // apply is required
+          if (!ProviderInfo.Supports(ProviderFeatures.CrossApply))
+            throw new NotSupportedException();
+          processViaCrossApply = true;
+          break;
+        case ApplySequenceType.First:
+        case ApplySequenceType.FirstOrDefault:
+          // apply is prefered but is not required
+          processViaCrossApply = ProviderInfo.Supports(ProviderFeatures.CrossApply);
+          break;
+        case ApplySequenceType.Single:
+        case ApplySequenceType.SingleOrDefault:
+          // apply is not allowed
+          processViaCrossApply = false;
+          break;
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
+
       var left = Compile(provider.Left);
       using (OuterReferences.Add(provider.ApplyParameter, left)) {
         var right = Compile(provider.Right);
 
-        SqlSelect query;
-        switch (provider.SequenceType) {
-          case ApplySequenceType.All:
-            // apply is required
-            if (!ProviderInfo.Supports(ProviderFeatures.CrossApply))
-              throw new NotSupportedException();
-            query = ProcessApplyViaCrossApply(provider, left, right);
-            break;
-          case ApplySequenceType.First:
-          case ApplySequenceType.FirstOrDefault:
-            // apply is prefered but is not required
-            query = ProviderInfo.Supports(ProviderFeatures.CrossApply)
-                      ? ProcessApplyViaCrossApply(provider, left, right)
-                      : ProcessApplyViaSubqueries(provider, left, right);
-            break;
-          case ApplySequenceType.Single:
-          case ApplySequenceType.SingleOrDefault:
-            // apply is not required
-            query = ProcessApplyViaSubqueries(provider, left, right);
-            break;
-          default:
-            throw new ArgumentOutOfRangeException();
-        }
+        var query = processViaCrossApply
+          ? ProcessApplyViaCrossApply(provider, left, right)
+          : ProcessApplyViaSubqueries(provider, left, right);
+
         return new SqlProvider(provider, query, Handlers, left, right);
       }
     }
