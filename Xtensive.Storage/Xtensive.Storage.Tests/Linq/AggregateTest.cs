@@ -18,6 +18,14 @@ namespace Xtensive.Storage.Tests.Linq
   public class AggregateTest : NorthwindDOModelTest
   {
     [Test]
+    public void SingleAggregateTest()
+    {
+      var result = Query<Order>.All
+        .Select(o =>o.OrderDetails.Count());
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void DualAggregateTest()
     {
       var result = Query<Order>.All
