@@ -166,7 +166,7 @@ namespace Xtensive.Storage.Building.Builders
       // Adding key columns
       foreach (KeyValuePair<string, Direction> pair in indexDef.KeyFields) {
         var fieldInfo = typeInfo.Fields[pair.Key];
-        var columns = fieldInfo.ExtractColumns();
+        var columns = fieldInfo.Columns;
 
         if (columns.Count==0)
           throw new DomainBuilderException(
@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Building.Builders
       // Adding included columns
       foreach (string fieldName in indexDef.IncludedFields) {
         var fieldInfo = typeInfo.Fields[fieldName];
-        var columns = fieldInfo.ExtractColumns();
+        var columns = fieldInfo.Columns;
 
         if (columns.Count==0)
           throw new DomainBuilderException(
@@ -221,7 +221,7 @@ namespace Xtensive.Storage.Building.Builders
       else {
         foreach (var fieldName in typeInfo.Hierarchy.KeyInfo.Fields.Select(pair => pair.Key.Name)) {
           var fieldInfo = typeInfo.Fields[fieldName];
-          var columns = fieldInfo.ExtractColumns();
+          var columns = fieldInfo.Columns;
 
           if (columns.Count==0)
             throw new DomainBuilderException(

@@ -155,7 +155,7 @@ namespace Xtensive.Storage.Providers
       if (field.MappingInfo.Length == 1)
         columns = columns.Append(index.Columns.IndexOf(field.Column));
       else
-        columns = columns.Combine(field.ExtractColumns().Select(c => index.Columns.IndexOf(c)).ToArray());
+        columns = columns.Combine(field.Columns.Select(c => index.Columns.IndexOf(c)).ToArray());
 
       var request = new FetchTask(index, columns);
 

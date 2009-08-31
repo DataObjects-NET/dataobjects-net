@@ -40,6 +40,7 @@ namespace Xtensive.Storage.Model
     private string                        originalName;
     internal SegmentTransform             valueExtractorTransform;
     private int                           adapterIndex = -1;
+    private ColumnInfoCollection          columns;
 
     #region IsXxx properties
 
@@ -452,25 +453,29 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Extracts field columns recursive.
+    /// Gets field columns.
     /// </summary>
-    /// <returns>List of <see cref="ColumnInfo"/>.</returns>
-    public IList<ColumnInfo> ExtractColumns()
+    public ColumnInfoCollection Columns
     {
-      IList<ColumnInfo> result = new List<ColumnInfo>();
-      ExtractColumns(this, result);
-      return result;
+      get
+      {
+        if (columns != null)
+          return columns;
+
+        var result = new ColumnInfoCollection();
+        GetColumns(result);
+        return result;
+      }
     }
 
-    // TODO: Cache
-    private static void ExtractColumns(FieldInfo field, ICollection<ColumnInfo> columns)
+    private void GetColumns(ColumnInfoCollection result)
     {
-      if (field.Column != null)
-        columns.Add(field.Column);
+      if (Column != null)
+        result.Add(Column);
       else
-        if (!field.IsPrimitive)
-          foreach (var column in field.Fields.Where(f => f.Column!=null).Select(f => f.Column))
-            columns.Add(column);
+        if (!IsPrimitive)
+          foreach (var item in Fields.Where(f => f.Column!=null).Select(f => f.Column))
+            result.Add(item);
     }
 
     /// <inheritdoc/>
@@ -482,6 +487,8 @@ namespace Xtensive.Storage.Model
       Fields.UpdateState(true);
       if (column!=null) 
         column.UpdateState(true);
+      columns = new ColumnInfoCollection();
+      GetColumns(columns);
 
       CreateMappingInfo();
     }
@@ -585,6 +592,7 @@ namespace Xtensive.Storage.Model
     }
 
     #endregion
+
 
     // Constructors
 

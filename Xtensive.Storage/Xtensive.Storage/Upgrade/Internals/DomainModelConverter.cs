@@ -221,14 +221,14 @@ namespace Xtensive.Storage.Upgrade
 
       // AuxiliaryType == null
       if (association.AuxiliaryType==null) {
-        if (association.OwnerField.ExtractColumns().Count==0)
+        if (association.OwnerField.Columns.Count==0)
         return null;
 
         var referencingTable = GetTable(association.OwnerType);
         var referencedTable = GetTable(association.TargetType);
         if (referencedTable==null || referencingTable==null)
           return null;
-        var foreignColumns = association.OwnerField.ExtractColumns()
+        var foreignColumns = association.OwnerField.Columns
           .Select(ci => referencingTable.Columns[ci.Name]).ToList();
         var foreignKeyName = ForeignKeyNameGenerator.Invoke(association, association.OwnerField);
         var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
@@ -251,7 +251,7 @@ namespace Xtensive.Storage.Upgrade
           var referencedTable = GetTable(Model.Types[field.ValueType]);
           if (referencedTable==null || referencingTable==null)
             continue;
-          var foreignColumns = field.ExtractColumns().Select(ci => referencingTable.Columns[ci.Name]).ToList();
+          var foreignColumns = field.Columns.Select(ci => referencingTable.Columns[ci.Name]).ToList();
           var foreignKeyName = ForeignKeyNameGenerator.Invoke(association, field);
           var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
             PrimaryKey = referencedTable.PrimaryIndex,
@@ -363,7 +363,7 @@ namespace Xtensive.Storage.Upgrade
           if (result!=null)
             return result;
         }
-      else if (field==null || index.Columns.ContainsAny(field.ExtractColumns()))
+      else if (field==null || index.Columns.ContainsAny(field.Columns))
         return index;
       return null;
     }
