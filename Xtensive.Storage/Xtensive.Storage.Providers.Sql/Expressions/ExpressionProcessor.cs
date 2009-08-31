@@ -33,14 +33,14 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly IMemberCompilerProvider<SqlExpression> memberCompilerProvider;
     private readonly DomainModel model;
     private readonly SqlSelect[] selects;
-    private readonly SqlQueryRef[] queryRefs;
+    private readonly SqlTable[] queryRefs;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
     private readonly LambdaExpression lambda;
     private readonly HashSet<SqlQueryParameterBinding> bindings;
     private readonly List<ParameterExpression> activeParameters;
     private readonly Dictionary<ParameterExpression, SqlSelect> selectParameterMapping;
-    private readonly Dictionary<ParameterExpression, SqlQueryRef> queryRefParameterMapping;
+    private readonly Dictionary<ParameterExpression, SqlTable> queryRefParameterMapping;
     private readonly ICompiler compiler;
 
     private bool fixBooleanExpressions;
@@ -542,14 +542,14 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       useSelect = true;
     }
 
-    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, params SqlQueryRef[] queryRefs)
+    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, params SqlTable[] queryRefs)
       : this(le, compiler, handlers)
     {
       ArgumentValidator.EnsureArgumentNotNull(queryRefs, "queryRefs");
       if (le.Parameters.Count!=queryRefs.Length)
         throw new InvalidOperationException();
       this.queryRefs = queryRefs;
-      queryRefParameterMapping = new Dictionary<ParameterExpression, SqlQueryRef>();
+      queryRefParameterMapping = new Dictionary<ParameterExpression, SqlTable>();
       useSelect = false;
     }
 

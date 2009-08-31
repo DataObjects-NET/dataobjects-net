@@ -89,14 +89,15 @@ namespace Xtensive.Storage.Tests.Linq
         Query<Customer>.All.Where(c => Query<Order>.All
           .Where(o => o.Customer==c)
           .Count() > 10);
+      var list = result.ToList();
       var expected = from c in Customers
       where Orders
         .Where(o => o.Customer==c)
         .Count() > 10
       select c;
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.AreEqual(0, expected.Except(list).Count());
       QueryDumper.Dump(result);
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.Greater(list.Count, 0);
     }
 
     [Test]

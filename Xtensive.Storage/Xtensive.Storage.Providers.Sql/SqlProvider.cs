@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the permanent reference (<see cref="SqlQueryRef"/>) for <see cref="SqlSelect"/> associated with this provider.
     /// </summary>
-    public SqlQueryRef PermanentReference { get; private set; }
+    public SqlTable PermanentReference { get; private set; }
 
     /// <inheritdoc/>
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
@@ -113,6 +113,21 @@ namespace Xtensive.Storage.Providers.Sql
         tupleDescriptor = origin.Header.TupleDescriptor.TrimFields(statement.Columns.Count);
       Request = new SqlQueryRequest(statement, tupleDescriptor, parameterBindings);
       PermanentReference = SqlDml.QueryRef(statement);
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="provider">The provider.</param>
+    /// <param name="permanentReference">The permanent reference.</param>
+    public SqlProvider(
+      SqlProvider provider,
+      SqlTable permanentReference)
+      : base(provider.Origin, provider.Sources.Cast<ExecutableProvider>().ToArray())
+    {
+      handlers = provider.handlers;
+      Request = provider.Request;
+      PermanentReference = permanentReference;
     }
   }
 }

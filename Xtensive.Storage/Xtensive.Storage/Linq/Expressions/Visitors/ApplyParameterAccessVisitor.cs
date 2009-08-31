@@ -1,20 +1,23 @@
 // Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: 
+// Created by: Alexis Kochetov
 // Created:    2009.06.02
 
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Helpers;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {
+  /// <summary>
+  /// Detects access to ApplyParameter within <see cref="Expression"/>.
+  /// </summary>
   [Serializable]
-  internal class ApplyParameterAccessVisitor : ExpressionVisitor
+  public class ApplyParameterAccessVisitor : ExpressionVisitor
   {
     private readonly ApplyParameter applyParameter;
     private readonly Func<MethodCallExpression, int, Expression> processor;
@@ -40,15 +43,22 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return base.VisitMethodCall(mc);
     }
 
+    /// <inheritdoc/>
+    public new Expression Visit(Expression e)
+    {
+      return base.Visit(e);
+    }
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public ApplyParameterAccessVisitor(ApplyParameter applyParameter, Func<MethodCallExpression,int,Expression> processor )
     {
       this.processor = processor;
       this.applyParameter = applyParameter;
-    }
-
-    public new Expression Visit(Expression e)
-    {
-      return base.Visit(e);
     }
   }
 }
