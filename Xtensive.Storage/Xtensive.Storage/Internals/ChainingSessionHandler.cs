@@ -4,8 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.07.06
 
-using System;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Providers;
