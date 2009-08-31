@@ -26,8 +26,8 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlSelect source = compiledSource.Request.SelectStatement;
       var sourceQuery = source.ShallowClone();
-      if (isSourceTake) {
-        sourceQuery.Where = AddSkipPartToTakeWhereExpression(sourceQuery, provider, provider.Source);
+      if (isSourceTake && compiledSource.Request.SelectStatement.Limit == 0) {
+        sourceQuery.Where = AddSkipPartToTakeWhereExpression(sourceQuery, null, provider, provider.Source);
         return new SqlProvider(provider.Source, sourceQuery, Handlers,
           (ExecutableProvider[]) compiledSource.Sources);
       }
@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Providers.Sql
       var queryRef = SqlDml.QueryRef(sourceQuery);
       var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      query.Where = AddSkipPartToTakeWhereExpression(sourceQuery, provider, provider.Source);
+      query.Where = AddSkipPartToTakeWhereExpression(sourceQuery, queryRef, provider, provider.Source);
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
@@ -48,8 +48,8 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlSelect source = compiledSource.Request.SelectStatement;
       var sourceQuery = source.ShallowClone();
-      if (isSourceSkip) {
-        sourceQuery.Where = AddTakePartToSkipWhereExpression(sourceQuery, provider, provider.Source);
+      if (isSourceSkip && compiledSource.Request.SelectStatement.Offset == 0) {
+        sourceQuery.Where = AddTakePartToSkipWhereExpression(sourceQuery, null, provider, provider.Source);
         return new SqlProvider(provider.Source, sourceQuery, Handlers,
           (ExecutableProvider[]) compiledSource.Sources);
       }
@@ -57,20 +57,20 @@ namespace Xtensive.Storage.Providers.Sql
       var queryRef = SqlDml.QueryRef(sourceQuery);
       var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      query.Where = AddTakePartToSkipWhereExpression(sourceQuery, provider, provider.Source);
+      query.Where = AddTakePartToSkipWhereExpression(sourceQuery, queryRef, provider, provider.Source);
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
     private static SqlExpression AddTakePartToSkipWhereExpression(
-      SqlSelect sourceQuery, TakeProvider provider, CompilableProvider source)
+      SqlSelect sourceQuery, SqlTable sourceQueryRef, TakeProvider provider, CompilableProvider source)
     {
-      var sourceAsSkip = source as SkipProvider;
       SqlExpression result;
-      if (sourceAsSkip==null)
-        result = sourceQuery.Columns.Last() <= provider.Count();
+      if (sourceQueryRef != null)
+        result = sourceQueryRef.Columns.Last() <= provider.Count();
       else {
         SqlBinary skipPartOfWhere;
         SqlExpression prevPart;
+        var sourceAsSkip = (SkipProvider)source;
         GetWhereParts(sourceQuery, out skipPartOfWhere, out prevPart);
         var rowNumberColumn = (SqlColumn) skipPartOfWhere.Left;
         result = prevPart
@@ -80,12 +80,11 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     private static SqlExpression AddSkipPartToTakeWhereExpression(
-      SqlSelect sourceQuery, SkipProvider provider, CompilableProvider source)
+      SqlSelect sourceQuery, SqlTable sourceQueryRef, SkipProvider provider, CompilableProvider source)
     {
-      var sourceAsTake = source as TakeProvider;
       SqlExpression result;
-      if (sourceAsTake==null)
-        result = sourceQuery.Columns.Last() > provider.Count();
+      if (sourceQueryRef != null)
+        result = sourceQueryRef.Columns.Last() > provider.Count();
       else {
         SqlBinary skipPartOfWhere;
         SqlExpression prevPart;
@@ -104,7 +103,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (whereAsBinary!=null) {
         var rightAsBinary = whereAsBinary.Right as SqlBinary;
         currentPart = rightAsBinary ?? whereAsBinary;
-        prevPart = rightAsBinary != null ? whereAsBinary.Left && currentPart : whereAsBinary;
+        prevPart = rightAsBinary.IsNullReference() ? whereAsBinary : whereAsBinary.Left && currentPart;
       }
       else {
         currentPart = (SqlBinary) sourceQuery.Where;

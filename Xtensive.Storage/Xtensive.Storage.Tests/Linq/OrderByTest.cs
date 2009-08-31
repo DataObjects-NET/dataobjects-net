@@ -19,6 +19,16 @@ namespace Xtensive.Storage.Tests.Linq
   public class OrderByTest : NorthwindDOModelTest
   {
     [Test]
+    public void OrderByTakeTest()
+    {
+      var result = Query<Order>.All.OrderBy(o => o.Id).Take(10);
+      var list = result.ToList();
+      var expected = Orders.OrderBy(o => o.Id).Take(10);
+      Assert.AreEqual(10, list.Count);
+      Assert.IsTrue(expected.SequenceEqual(list));
+    }
+
+    [Test]
     public void EntityFieldTest()
     {
       var result = Query<Product>.All.Select(p => p).OrderBy(g => g.Id);

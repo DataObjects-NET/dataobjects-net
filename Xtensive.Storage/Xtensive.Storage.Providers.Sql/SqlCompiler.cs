@@ -734,14 +734,14 @@ namespace Xtensive.Storage.Providers.Sql
 
       return query;
     }
-    
-    private static void AddOrderByStatement(UnaryProvider provider, SqlSelect query)
+
+    protected static void AddOrderByStatement(UnaryProvider provider, SqlSelect query)
     {
       foreach (KeyValuePair<int, Direction> pair in provider.Source.ExpectedOrder)
         query.OrderBy.Add(query.Columns[pair.Key], pair.Value==Direction.Positive);
     }
 
-    private static SqlSelect ExtractSqlSelect(SqlProvider source)
+    protected static SqlSelect ExtractSqlSelect(SqlProvider source)
     {
       var containsCalculatedColumns = source.Request.SelectStatement.Columns.Any(c => {
         if (c is SqlUserColumn)
