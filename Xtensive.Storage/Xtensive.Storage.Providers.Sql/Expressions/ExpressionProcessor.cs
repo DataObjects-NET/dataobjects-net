@@ -314,10 +314,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       int columnIndex = tupleAccess.GetTupleAccessArgument();
       var parameter = tupleAccess.GetApplyParameter();
       if (parameter!=null) {
-        ExecutableProvider provider = compiler.CompiledSources[parameter];
+        ExecutableProvider provider = compiler.OuterReferences[parameter];
         if (!compiler.IsCompatible(provider)) {
           provider = compiler.ToCompatible(provider);
-          compiler.CompiledSources.ReplaceBound(parameter, provider);
+          compiler.OuterReferences.ReplaceBound(parameter, provider);
         }
         var sqlProvider = (SqlProvider) provider;
         return sqlProvider.PermanentReference[columnIndex];

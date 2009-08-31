@@ -53,9 +53,9 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    protected override ICompiler CreateCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
+    protected override ICompiler CreateCompiler()
     {
-      return new IndexCompiler(Handlers, compiledSources);
+      return new IndexCompiler(Handlers);
     }
 
     /// <inheritdoc/>

@@ -17,12 +17,10 @@ namespace Xtensive.Storage.Providers.Sql
 {
   internal abstract class ManualPagingSqlCompiler : SqlCompiler
   {
-    protected override ExecutableProvider VisitSkip(SkipProvider provider)
+    protected override SqlProvider VisitSkip(SkipProvider provider)
     {
       var isSourceTake = provider.Source is TakeProvider;
-      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
-      if (compiledSource==null)
-        return null;
+      var compiledSource = Compile(provider.Source);
 
       SqlSelect source = compiledSource.Request.SelectStatement;
       var sourceQuery = source.ShallowClone();
@@ -39,12 +37,10 @@ namespace Xtensive.Storage.Providers.Sql
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
-    protected override ExecutableProvider VisitTake(TakeProvider provider)
+    protected override SqlProvider VisitTake(TakeProvider provider)
     {
       var isSourceSkip = provider.Source is SkipProvider;
-      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
-      if (compiledSource==null)
-        return null;
+      var compiledSource = Compile(provider.Source);
 
       SqlSelect source = compiledSource.Request.SelectStatement;
       var sourceQuery = source.ShallowClone();
@@ -113,8 +109,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructors
 
-    public ManualPagingSqlCompiler(HandlerAccessor handlers, BindingCollection<object, ExecutableProvider> compiledSources)
-      : base(handlers, compiledSources)
+    public ManualPagingSqlCompiler(HandlerAccessor handlers)
+      : base(handlers)
     {
     }
   }

@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -17,7 +16,7 @@ namespace Xtensive.Storage.Rse.Compilation
 {
   /// <inheritdoc/>
   [Serializable]
-  public abstract class RseCompiler : Compiler
+  public abstract class RseCompiler : Compiler<ExecutableProvider>
   {
     private static readonly UrlInfo defaultClientLocation = new UrlInfo("rse://localhost/");
     private static readonly UrlInfo defaultServerLocation = new UrlInfo("rse://server/");
@@ -47,7 +46,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitTake(TakeProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       return new Providers.Executable.TakeProvider(
         provider,
         compiledSource);
@@ -56,7 +55,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitSkip(SkipProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       return new Providers.Executable.SkipProvider(
         provider,
         compiledSource);
@@ -65,7 +64,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitSelect(SelectProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       return new Providers.Executable.SelectProvider(
         provider,
         compiledSource,
@@ -75,7 +74,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitSeek(SeekProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       return new Providers.Executable.SeekProvider(
         provider,
         compiledSource);
@@ -90,7 +89,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitRange(RangeProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       return new Providers.Executable.RangeProvider(
         provider,
         compiledSource);
@@ -99,7 +98,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitRangeSet(RangeSetProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       return new Providers.Executable.RangeSetProvider(
         provider,
         compiledSource);
@@ -108,7 +107,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitSort(SortProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       return new Providers.Executable.SortProvider(
         provider,
         compiledSource);
@@ -117,8 +116,8 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitJoin(JoinProvider provider)
     {
-      var left = GetCompiled(provider.Left);
-      var right = GetCompiled(provider.Right);
+      var left = Compile(provider.Left);
+      var right = Compile(provider.Right);
       return new Providers.Executable.JoinProvider(
         provider,
         left,
@@ -128,8 +127,8 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
-      var left = GetCompiled(provider.Left);
-      var right = GetCompiled(provider.Right);
+      var left = Compile(provider.Left);
+      var right = Compile(provider.Right);
       return new Providers.Executable.PredicateJoinProvider(
         provider,
         left,
@@ -139,7 +138,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitFilter(FilterProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       return new Providers.Executable.FilterProvider(
        provider,
        compiledSource);
@@ -148,7 +147,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitDistinct(DistinctProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       return new Providers.Executable.DistinctProvider(
         provider,
         compiledSource);
@@ -157,7 +156,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitCalculate(CalculateProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       return new Providers.Executable.CalculateProvider(
         provider,
         compiledSource);
@@ -166,7 +165,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitAlias(AliasProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       return new Providers.Executable.AliasProvider(
         provider,
         compiledSource);
@@ -175,7 +174,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitAggregate(AggregateProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       if (provider.GroupColumnIndexes.Length == 0)
         return new Providers.Executable.AggregateProvider(
           provider,
@@ -213,7 +212,8 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       ExecutableProvider ex = null;
       if (provider.Source != null) {
-        var compiledSource = GetCompiled(provider.Source);
+        var compiledSource = 
+          provider.Source as ExecutableProvider ?? Compile((CompilableProvider) provider.Source);
         ex = compiledSource;
       }
       return new Providers.Executable.StoreProvider(provider, ex);
@@ -222,7 +222,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitReindex(ReindexProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       return new Providers.Executable.ReindexProvider(
         provider,
         compiledSource);
@@ -231,9 +231,11 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitApply(ApplyProvider provider)
     {
-      var left = GetCompiled(provider.Left);
-      var right = GetCompiled(provider.Right);
-      return new Providers.Executable.ApplyProvider(provider, left, right);
+      var left = Compile(provider.Left);
+      using (OuterReferences.Add(provider.ApplyParameter, left)) {
+        var right = Compile(provider.Right);
+        return new Providers.Executable.ApplyProvider(provider, left, right);
+      }
     }
 
     /// <inheritdoc/>
@@ -241,7 +243,7 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       if (provider.Header.Order.Count == 0)
         throw new InvalidOperationException(Strings.ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider);
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       return new Providers.Executable.RowNumberProvider(
         provider,
         compiledSource);
@@ -250,7 +252,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitExistence(ExistenceProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
+      var compiledSource = Compile(provider.Source);
       return new Providers.Executable.ExistenceProvider(
         provider,
         compiledSource);
@@ -267,8 +269,8 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitIntersect(IntersectProvider provider)
     {
-      var left = GetCompiled(provider.Left);
-      var right = GetCompiled(provider.Right);
+      var left = Compile(provider.Left);
+      var right = Compile(provider.Right);
       return new Providers.Executable.IntersectProvider(
         provider,
         left,
@@ -278,8 +280,8 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitExcept(ExceptProvider provider)
     {
-      var left = GetCompiled(provider.Left);
-      var right = GetCompiled(provider.Right);
+      var left = Compile(provider.Left);
+      var right = Compile(provider.Right);
       return new Providers.Executable.ExceptProvider(
         provider,
         left,
@@ -289,8 +291,8 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitConcat(ConcatProvider provider)
     {
-      var left = GetCompiled(provider.Left);
-      var right = GetCompiled(provider.Right);
+      var left = Compile(provider.Left);
+      var right = Compile(provider.Right);
       return new Providers.Executable.ConcatProvider(
         provider,
         left,
@@ -300,8 +302,8 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitUnion(UnionProvider provider)
     {
-      var left = GetCompiled(provider.Left);
-      var right = GetCompiled(provider.Right);
+      var left = Compile(provider.Left);
+      var right = Compile(provider.Right);
       return new Providers.Executable.UnionProvider(
         provider,
         left,
@@ -311,13 +313,13 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitLock(LockProvider provider)
     {
-      return GetCompiled(provider.Source);
+      return Compile(provider.Source);
     }
 
     /// <inheritdoc/>
     protected override ExecutableProvider VisitPack(PackProvider provider)
     {
-      var source = GetCompiled(provider.Source);
+      var source = Compile(provider.Source);
       return new Providers.Executable.PackProvider(provider, source);
     }
 
@@ -326,8 +328,8 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected RseCompiler(UrlInfo location, BindingCollection<object, ExecutableProvider> compiledSources)
-      : base(location, compiledSources)
+    protected RseCompiler(UrlInfo location)
+      : base(location)
     {
     }
   }

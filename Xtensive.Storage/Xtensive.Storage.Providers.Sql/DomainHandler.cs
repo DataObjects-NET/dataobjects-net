@@ -71,9 +71,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ICompiler CreateCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
+    protected override ICompiler CreateCompiler()
     {
-      return new SqlCompiler(Handlers, compiledSources);
+      return new SqlCompiler(Handlers);
     }
 
     /// <inheritdoc/>

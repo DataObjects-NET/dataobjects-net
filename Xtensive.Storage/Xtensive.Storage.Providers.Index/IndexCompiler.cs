@@ -101,8 +101,8 @@ namespace Xtensive.Storage.Providers.Index
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public IndexCompiler(HandlerAccessor handlers, BindingCollection<object,ExecutableProvider> compiledSources)
-      : base(handlers.Domain.Configuration.ConnectionInfo, compiledSources)
+    public IndexCompiler(HandlerAccessor handlers)
+      : base(handlers.Domain.Configuration.ConnectionInfo)
     {
       Handlers = handlers;
     }

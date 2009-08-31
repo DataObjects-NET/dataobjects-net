@@ -1,12 +1,13 @@
-// Copyright (C) 2008 Xtensive LLC.
+// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Alex Yakunin
-// Created:    2008.07.15
+// Created by: Alexis Kochetov
+// Created:    2009.08.31
 
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.Compilation
 {
@@ -16,9 +17,9 @@ namespace Xtensive.Storage.Rse.Compilation
   public interface ICompiler
   {
     /// <summary>
-    /// Gets the bindings collection.
+    /// Gets the outer referenced provider for <see cref="ApplyProvider"/>.
     /// </summary>
-    BindingCollection<object, ExecutableProvider> CompiledSources { get; }
+    BindingCollection<ApplyParameter, ExecutableProvider> OuterReferences { get; }
 
     /// <summary>
     /// Compiles the specified provider.

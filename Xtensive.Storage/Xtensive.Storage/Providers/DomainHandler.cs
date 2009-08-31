@@ -63,9 +63,8 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Creates the compiler.
     /// </summary>
-    /// <param name="compiledSources">The compiled sources. Shared across all compilers.</param>
     /// <returns>A new compiler.</returns>
-    protected abstract ICompiler CreateCompiler(BindingCollection<object, ExecutableProvider> compiledSources);
+    protected abstract ICompiler CreateCompiler();
 
     /// <summary>
     /// Creates the <see cref="IPreCompiler"/>.
@@ -104,13 +103,7 @@ namespace Xtensive.Storage.Providers
     private void BuildCompilationContext()
     {
       CompilationContext = new CompilationContext(
-        () => {
-          var compiledSources = new BindingCollection<object, ExecutableProvider>();
-          return new ManagingCompiler(
-            compiledSources,
-            CreateCompiler(compiledSources),
-            new ClientCompiler(compiledSources));
-        },
+        CreateCompiler,
         CreatePreCompiler,
         CreatePostCompiler);
     }

@@ -6,12 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
@@ -30,15 +28,15 @@ namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
       return result;
     }
 
-    protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
+    protected override SqlProvider VisitRowNumber(RowNumberProvider provider)
     {
       if (!supportsRowNumber)
         throw new NotSupportedException(Strings.ExRowNumberWindowFunctionIsNotSupportedOnThisVersionOfPostgreSql);
       return base.VisitRowNumber(provider);
     }
 
-    public SqlCompiler(HandlerAccessor handlers, BindingCollection<object, ExecutableProvider> compiledSources)
-      : base(handlers, compiledSources)
+    public SqlCompiler(HandlerAccessor handlers)
+      : base(handlers)
     {
       var version = handlers.DomainHandler.ProviderInfo.StorageVersion;
       supportsRowNumber = version.Major > 8 || version.Major==8 && version.Minor >= 4;

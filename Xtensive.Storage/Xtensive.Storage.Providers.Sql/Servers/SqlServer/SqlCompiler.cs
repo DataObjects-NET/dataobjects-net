@@ -4,25 +4,19 @@
 // Created by: Vakhtina Elena
 // Created:    2009.02.13
 
-using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
 {
   internal class SqlCompiler : ManualPagingSqlCompiler
   {
-    protected override ExecutableProvider VisitTake(TakeProvider provider)
+    protected override SqlProvider VisitTake(TakeProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
-      if (compiledSource == null)
-        return null;
+      var compiledSource = Compile(provider.Source);
 
       var query = ExtractSqlSelect(compiledSource);
       var count = provider.Count();
@@ -54,8 +48,8 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
 
     // Constructors
 
-    public SqlCompiler(HandlerAccessor handlers, BindingCollection<object, ExecutableProvider> compiledSources)
-      : base(handlers, compiledSources)
+    public SqlCompiler(HandlerAccessor handlers)
+      : base(handlers)
     {
     }
   }

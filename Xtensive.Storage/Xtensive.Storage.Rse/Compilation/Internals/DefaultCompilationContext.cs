@@ -52,12 +52,10 @@ namespace Xtensive.Storage.Rse.Compilation
 
     /// <inheritdoc/>
     public DefaultCompilationContext()
-      : base(() => {
-        var compiledSource = new BindingCollection<object, ExecutableProvider>();
-        return new ManagingCompiler(compiledSource, new ClientCompiler(compiledSource));
-      },
-      () => new CompositePreCompiler(new OrderingCorrector(ResolveOrderingDescriptor, false)),
-      () => new EmptyPostCompiler())
+      : base(
+        () => new ClientCompiler(),
+        () => new CompositePreCompiler(new OrderingCorrector(ResolveOrderingDescriptor, false)),
+        () => new EmptyPostCompiler())
     {
     }
   }

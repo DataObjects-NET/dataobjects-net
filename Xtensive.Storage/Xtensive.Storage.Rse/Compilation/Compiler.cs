@@ -2,8 +2,6 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Parameters;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
@@ -13,46 +11,44 @@ namespace Xtensive.Storage.Rse.Compilation
   /// Abstract base class for RSE <see cref="Provider"/> compilers that implements visitor pattern.
   /// Compiles <see cref="CompilableProvider"/>s into <see cref="ExecutableProvider"/>.
   /// </summary>
-  public abstract class Compiler : CompilerBase
+  public abstract class Compiler<TResult> : ICompiler<TResult> 
+    where TResult : ExecutableProvider
   {
-    private readonly UrlInfo location;
-
     /// <summary>
     /// Gets execution site location.
     /// </summary>
-    public override UrlInfo Location
-    {
-      get { return location; }
+    public UrlInfo Location { get; private set; }
 
+    /// <inheritdoc/>
+    public BindingCollection<ApplyParameter, ExecutableProvider> OuterReferences { get; private set; }
+
+    /// <inheritdoc/>
+    public abstract bool IsCompatible(ExecutableProvider provider);
+
+    /// <inheritdoc/>
+    ExecutableProvider ICompiler.ToCompatible(ExecutableProvider provider)
+    {
+      return ToCompatible(provider);
     }
 
-    /// <summary>
-    /// Gets compiled provider if it exists within <see cref="ICompiler.CompiledSources"/>; 
-    /// otherwise when provided <paramref name="key"/> is <see cref="CompilableProvider"/> it compiles and returns result.
-    /// </summary>
-    /// <param name="key">Compiled provider key.</param>
-    protected ExecutableProvider GetCompiled(object key)
+    /// <inheritdoc/>
+    public abstract TResult ToCompatible(ExecutableProvider provider);
+
+    /// <inheritdoc/>
+    ExecutableProvider ICompiler.Compile(CompilableProvider provider)
     {
-      ExecutableProvider result;
-      if (!CompiledSources.TryGetValue(key, out result)) {
-        var cp = key as CompilableProvider;
-        if (cp == null)
-          throw new InvalidOperationException();
-        result = Compile(cp);
-        CompiledSources.Add(key, result);
-      }
-      return result;
+      return Compile(provider);
     }
 
     /// <summary>
     /// Compiles the specified <see cref="CompilableProvider"/>.
     /// </summary>
     /// <param name="cp">The provider to compile.</param>
-    public override ExecutableProvider Compile (CompilableProvider cp)
+    public TResult Compile (CompilableProvider cp)
     {
       if (cp == null)
         return null;
-      ExecutableProvider result;
+      TResult result;
       ProviderType providerType = cp.Type;
       switch (providerType) {
         case ProviderType.Index:
@@ -150,172 +146,172 @@ namespace Xtensive.Storage.Rse.Compilation
     /// Compiles <see cref="TransferProvider"/>.
     /// </summary>
     /// <param name="provider">Execution site provider.</param>
-    protected abstract ExecutableProvider VisitTransfer(TransferProvider provider);
+    protected abstract TResult VisitTransfer(TransferProvider provider);
 
     /// <summary>
     /// Compiles <see cref="TakeProvider"/>.
     /// </summary>
     /// <param name="provider">Take provider.</param>
-    protected abstract ExecutableProvider VisitTake(TakeProvider provider);
+    protected abstract TResult VisitTake(TakeProvider provider);
 
     /// <summary>
     /// Compiles <see cref="SkipProvider"/>.
     /// </summary>
     /// <param name="provider">Skip provider.</param>
-    protected abstract ExecutableProvider VisitSkip(SkipProvider provider);
+    protected abstract TResult VisitSkip(SkipProvider provider);
 
     /// <summary>
     /// Compiles <see cref="SelectProvider"/>.
     /// </summary>
     /// <param name="provider">Select provider.</param>
-    protected abstract ExecutableProvider VisitSelect(SelectProvider provider);
+    protected abstract TResult VisitSelect(SelectProvider provider);
 
     /// <summary>
     /// Compiles <see cref="SeekProvider"/>.
     /// </summary>
     /// <param name="provider">Seek provider.</param>
-    protected abstract ExecutableProvider VisitSeek(SeekProvider provider);
+    protected abstract TResult VisitSeek(SeekProvider provider);
 
     /// <summary>
     /// Compiles <see cref="RawProvider"/>.
     /// </summary>
     /// <param name="provider">Raw provider.</param>
-    protected abstract ExecutableProvider VisitRaw(RawProvider provider);
+    protected abstract TResult VisitRaw(RawProvider provider);
 
     /// <summary>
     /// Compiles <see cref="RangeProvider"/>.
     /// </summary>
     /// <param name="provider">Range provider.</param>
-    protected abstract ExecutableProvider VisitRange(RangeProvider provider);
+    protected abstract TResult VisitRange(RangeProvider provider);
 
     /// <summary>
     /// Compiles <see cref="RangeSetProvider"/>.
     /// </summary>
     /// <param name="provider">Range provider.</param>
-    protected abstract ExecutableProvider VisitRangeSet(RangeSetProvider provider);
+    protected abstract TResult VisitRangeSet(RangeSetProvider provider);
 
     /// <summary>
     /// Compiles <see cref="SortProvider"/>.
     /// </summary>
     /// <param name="provider">Sort provider.</param>
-    protected abstract ExecutableProvider VisitSort(SortProvider provider);
+    protected abstract TResult VisitSort(SortProvider provider);
 
     /// <summary>
     /// Compiles <see cref="JoinProvider"/>.
     /// </summary>
     /// <param name="provider">Join provider.</param>
-    protected abstract ExecutableProvider VisitJoin(JoinProvider provider);
+    protected abstract TResult VisitJoin(JoinProvider provider);
 
     /// <summary>
     /// Compiles <see cref="PredicateJoinProvider"/>.
     /// </summary>
     /// <param name="provider">Join provider.</param>
-    protected abstract ExecutableProvider VisitPredicateJoin(PredicateJoinProvider provider);
+    protected abstract TResult VisitPredicateJoin(PredicateJoinProvider provider);
     
     /// <summary>
     /// Compiles <see cref="FilterProvider"/>.
     /// </summary>
     /// <param name="provider">Filter provider.</param>
-    protected abstract ExecutableProvider VisitFilter(FilterProvider provider);
+    protected abstract TResult VisitFilter(FilterProvider provider);
 
     /// <summary>
     /// Compiles <see cref="DistinctProvider"/>.
     /// </summary>
     /// <param name="provider">Distinct provider.</param>
-    protected abstract ExecutableProvider VisitDistinct(DistinctProvider provider);
+    protected abstract TResult VisitDistinct(DistinctProvider provider);
 
     /// <summary>
     /// Compiles <see cref="CalculateProvider"/>.
     /// </summary>
     /// <param name="provider">Calculate provider.</param>
-    protected abstract ExecutableProvider VisitCalculate(CalculateProvider provider);
+    protected abstract TResult VisitCalculate(CalculateProvider provider);
 
     /// <summary>
     /// Compiles <see cref="AliasProvider"/>.
     /// </summary>
     /// <param name="provider">Alias provider.</param>
-    protected abstract ExecutableProvider VisitAlias(AliasProvider provider);
+    protected abstract TResult VisitAlias(AliasProvider provider);
 
     /// <summary>
     /// Compiles <see cref="AggregateProvider"/>.
     /// </summary>
     /// <param name="provider">Aggregate provider.</param>
     /// <returns></returns>
-    protected abstract ExecutableProvider VisitAggregate(AggregateProvider provider);
+    protected abstract TResult VisitAggregate(AggregateProvider provider);
 
     /// <summary>
     /// Compiles <see cref="StoreProvider"/>.
     /// </summary>
     /// <param name="provider">Store provider.</param>
-    protected abstract ExecutableProvider VisitStore(StoreProvider provider);
+    protected abstract TResult VisitStore(StoreProvider provider);
 
     /// <summary>
     /// Compiles <see cref="IndexProvider"/>.
     /// </summary>
     /// <param name="provider">Index provider.</param>
-    protected abstract ExecutableProvider VisitIndex(IndexProvider provider);
+    protected abstract TResult VisitIndex(IndexProvider provider);
 
     /// <summary>
     /// Compiles <see cref="ReindexProvider"/>.
     /// </summary>
     /// <param name="provider">Reindex provider.</param>
     /// <returns></returns>
-    protected abstract ExecutableProvider VisitReindex(ReindexProvider provider);
+    protected abstract TResult VisitReindex(ReindexProvider provider);
 
     /// <summary>
     /// Compiles <see cref="ApplyProvider"/>.
     /// </summary>
     /// <param name="provider">The provider.</param>
-    protected abstract ExecutableProvider VisitApply(ApplyProvider provider);
+    protected abstract TResult VisitApply(ApplyProvider provider);
 
 
     /// <summary>
     /// Compiles <see cref="RowNumberProvider"/>.
     /// </summary>
     /// <param name="provider">Row number provider.</param>
-    protected abstract ExecutableProvider VisitRowNumber(RowNumberProvider provider);
+    protected abstract TResult VisitRowNumber(RowNumberProvider provider);
 
     /// <summary>
     /// Compiles <see cref="ExistenceProvider"/>.
     /// </summary>
     /// <param name="provider">Existence provider.</param>
-    protected abstract ExecutableProvider VisitExistence(ExistenceProvider provider);
+    protected abstract TResult VisitExistence(ExistenceProvider provider);
 
     /// <summary>
     /// Compiles <see cref="IntersectProvider"/>.
     /// </summary>
     /// <param name="provider">Intersect provider.</param>
-    protected abstract ExecutableProvider VisitIntersect(IntersectProvider provider);
+    protected abstract TResult VisitIntersect(IntersectProvider provider);
 
     /// <summary>
     /// Compiles <see cref="ExceptProvider"/>.
     /// </summary>
     /// <param name="provider">Except provider.</param>
-    protected abstract ExecutableProvider VisitExcept(ExceptProvider provider);
+    protected abstract TResult VisitExcept(ExceptProvider provider);
 
     /// <summary>
     /// Compiles <see cref="ConcatProvider"/>.
     /// </summary>
     /// <param name="provider">Concat provider.</param>
-    protected abstract ExecutableProvider VisitConcat(ConcatProvider provider);
+    protected abstract TResult VisitConcat(ConcatProvider provider);
 
     /// <summary>
     /// Compiles <see cref="UnionProvider"/>.
     /// </summary>
     /// <param name="provider">Union provider.</param>
-    protected abstract ExecutableProvider VisitUnion(UnionProvider provider);
+    protected abstract TResult VisitUnion(UnionProvider provider);
 
     /// <summary>
     /// Compiles <see cref="LockProvider"/>.
     /// </summary>
     /// <param name="provider">Lock provider.</param>
-    protected abstract ExecutableProvider VisitLock(LockProvider provider);
+    protected abstract TResult VisitLock(LockProvider provider);
 
     /// <summary>
     /// Compiles <see cref="PackProvider"/>.
     /// </summary>
     /// <param name="provider">Pack provider.</param>
-    protected abstract ExecutableProvider VisitPack(PackProvider provider);
+    protected abstract TResult VisitPack(PackProvider provider);
 
 
     // Constructors
@@ -324,11 +320,10 @@ namespace Xtensive.Storage.Rse.Compilation
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="location">Location.</param>
-    /// <param name="compiledSources">Bindings collection instance. Shared across all compilers.</param>
-    protected Compiler(UrlInfo location, BindingCollection<object, ExecutableProvider> compiledSources)
-      : base(compiledSources)
+    protected Compiler(UrlInfo location)
     {
-      this.location = location;
+      Location = location;
+      OuterReferences = new BindingCollection<ApplyParameter, ExecutableProvider>();
     }
   }
 }

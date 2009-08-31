@@ -16,9 +16,9 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
   public class DomainHandler : Sql.DomainHandler
   {
     /// <inheritdoc/>
-    protected override ICompiler CreateCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
+    protected override ICompiler CreateCompiler()
     {
-      return new SqlCompiler(Handlers, compiledSources);
+      return new SqlCompiler(Handlers);
     }
   }
 }

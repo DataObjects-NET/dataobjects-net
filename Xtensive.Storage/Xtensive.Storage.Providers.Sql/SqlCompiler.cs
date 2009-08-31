@@ -14,7 +14,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Expressions;
@@ -31,7 +30,7 @@ namespace Xtensive.Storage.Providers.Sql
 {
   /// <inheritdoc/>
   [Serializable]
-  public class SqlCompiler : RseCompiler
+  public class SqlCompiler : Compiler<SqlProvider>
   {
     private const string TableNamePattern = "Tmp_{0}";
 
@@ -59,18 +58,15 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override ExecutableProvider ToCompatible(ExecutableProvider provider)
+    public override SqlProvider ToCompatible(ExecutableProvider provider)
     {
       return Compile(new StoreProvider(provider));
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitAggregate(AggregateProvider provider)
+    protected override SqlProvider VisitAggregate(AggregateProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
-      var source = compiledSource as SqlProvider;
-      if (source == null)
-        return null;
+      var source = Compile(provider.Source);
 
       SqlTable queryRef = source.PermanentReference;
       SqlSelect sqlSelect = SqlDml.Select(queryRef);
@@ -94,12 +90,10 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitAlias(AliasProvider provider)
+    protected override SqlProvider VisitAlias(AliasProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
-      var source = compiledSource as SqlProvider;
-      if (source == null)
-        return null;
+      var source = Compile(provider.Source);
+
       SqlSelect sourceSelect = source.Request.SelectStatement;
       var sqlSelect = sourceSelect.ShallowClone();
       var columns = sqlSelect.Columns.ToList();
@@ -117,12 +111,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitCalculate(CalculateProvider provider)
+    protected override SqlProvider VisitCalculate(CalculateProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
-      var source = compiledSource as SqlProvider;
-      if (source == null)
-        return null;
+      var source = Compile(provider.Source);
       
       SqlSelect sqlSelect;
       if (provider.Source.Header.Length==0) {
@@ -150,11 +141,10 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitDistinct(DistinctProvider provider)
+    protected override SqlProvider VisitDistinct(DistinctProvider provider)
     {
-      var source = GetCompiled(provider.Source) as SqlProvider;
-      if (source == null)
-        return null;
+      var source = Compile(provider.Source);
+
       var sourceSelect = source.Request.SelectStatement;
       SqlSelect query;
       if (sourceSelect.Limit != 0 || sourceSelect.Offset != 0) {
@@ -169,12 +159,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitFilter(FilterProvider provider)
+    protected override SqlProvider VisitFilter(FilterProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source);
-      var source = compiledSource as SqlProvider;
-      if (source==null)
-        return null;
+      var source = Compile(provider.Source);
 
       SqlSelect query = ExtractSqlSelect(source);
 
@@ -186,7 +173,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitIndex(IndexProvider provider)
+    protected override SqlProvider VisitIndex(IndexProvider provider)
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
       SqlSelect query = BuildProviderQuery(index);
@@ -194,10 +181,10 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitJoin(JoinProvider provider)
+    protected override SqlProvider VisitJoin(JoinProvider provider)
     {
-      var left = GetCompiled(provider.Left) as SqlProvider;
-      var right = GetCompiled(provider.Right) as SqlProvider;
+      var left = Compile(provider.Left);
+      var right = Compile(provider.Right);
 
       if (left == null || right == null)
         return null;
@@ -219,10 +206,10 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitPredicateJoin(PredicateJoinProvider provider)
+    protected override SqlProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
-      var left = GetCompiled(provider.Left) as SqlProvider;
-      var right = GetCompiled(provider.Right) as SqlProvider;
+      var left = Compile(provider.Left);
+      var right = Compile(provider.Right);
 
       if (left == null || right == null)
         return null;
@@ -245,11 +232,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitRange(RangeProvider provider)
+    protected override SqlProvider VisitRange(RangeProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
-      if (compiledSource == null)
-        return null;
+      var compiledSource = Compile(provider.Source);
 
       var originalRange = provider.CompiledRange.Invoke();
       SqlSelect source = compiledSource.Request.SelectStatement;
@@ -269,11 +254,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitSeek(SeekProvider provider)
+    protected override SqlProvider VisitSeek(SeekProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
-      if (compiledSource == null)
-        return null;
+      var compiledSource = Compile(provider.Source);
 
       SqlSelect source = compiledSource.Request.SelectStatement;
       var query = (SqlSelect) source.ShallowClone();
@@ -300,11 +283,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitSelect(SelectProvider provider)
+    protected override SqlProvider VisitSelect(SelectProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
-      if (compiledSource == null)
-        return null;
+      var compiledSource = Compile(provider.Source);
       SqlSelect query;
 
       if (provider.ColumnIndexes.Length == 0) {
@@ -324,16 +305,14 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitSort(SortProvider provider)
+    protected override SqlProvider VisitSort(SortProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
-      if (compiledSource == null)
-        return null;
+      var compiledSource = Compile(provider.Source);
       return new SqlProvider(provider, compiledSource.Request.SelectStatement, Handlers, compiledSource);
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitStore(StoreProvider provider)
+    protected override SqlProvider VisitStore(StoreProvider provider)
     {
       ExecutableProvider ex = null;
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
@@ -341,7 +320,7 @@ namespace Xtensive.Storage.Providers.Sql
       Table table;
       string tableName = string.Format(TableNamePattern, provider.Name);
       if (provider.Source != null) {
-        ex = provider.Source as ExecutableProvider ?? GetCompiled(provider.Source);
+        ex = provider.Source as ExecutableProvider ?? Compile((CompilableProvider) provider.Source);
         table = provider.Scope == TemporaryDataScope.Global ? schema.CreateTable(tableName)
           : schema.CreateTemporaryTable(tableName);
 
@@ -372,11 +351,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitSkip(SkipProvider provider)
+    protected override SqlProvider VisitSkip(SkipProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
-      if (compiledSource == null)
-        return null;
+      var compiledSource = Compile(provider.Source);
 
       var queryRef = compiledSource.PermanentReference;
       var query = SqlDml.Select(queryRef);
@@ -387,11 +364,9 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitTake(TakeProvider provider)
+    protected override SqlProvider VisitTake(TakeProvider provider)
     {
-      var compiledSource = GetCompiled(provider.Source) as SqlProvider;
-      if (compiledSource == null)
-        return null;
+      var compiledSource = Compile(provider.Source);
       
       var query = ExtractSqlSelect(compiledSource);
       var count = provider.Count();
@@ -403,45 +378,43 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitApply(ApplyProvider provider)
+    protected override SqlProvider VisitApply(ApplyProvider provider)
     {
-      var left = GetCompiled(provider.Left) as SqlProvider;
-      var right = GetCompiled(provider.Right) as SqlProvider;
-      if (left==null || right==null)
-        return null;
+      var left = Compile(provider.Left);
+      using (OuterReferences.Add(provider.ApplyParameter, left)) {
+        var right = Compile(provider.Right);
 
-      SqlSelect query;
-      switch (provider.SequenceType) {
-      case ApplySequenceType.All:
-        // apply is required
-        if (!ProviderInfo.Supports(ProviderFeatures.CrossApply))
-          throw new NotSupportedException();
-        query = ProcessApplyViaCrossApply(provider, left, right);
-        break;
-      case ApplySequenceType.First:
-      case ApplySequenceType.FirstOrDefault:
-        // apply is prefered but is not required
-        query = ProviderInfo.Supports(ProviderFeatures.CrossApply)
-          ? ProcessApplyViaCrossApply(provider, left, right)
-          : ProcessApplyViaSubqueries(provider, left, right);
-        break;
-      case ApplySequenceType.Single:
-      case ApplySequenceType.SingleOrDefault:
-        // apply is not required
-        query = ProcessApplyViaSubqueries(provider, left, right);
-        break;
-      default:
-        throw new ArgumentOutOfRangeException();
+        SqlSelect query;
+        switch (provider.SequenceType) {
+          case ApplySequenceType.All:
+            // apply is required
+            if (!ProviderInfo.Supports(ProviderFeatures.CrossApply))
+              throw new NotSupportedException();
+            query = ProcessApplyViaCrossApply(provider, left, right);
+            break;
+          case ApplySequenceType.First:
+          case ApplySequenceType.FirstOrDefault:
+            // apply is prefered but is not required
+            query = ProviderInfo.Supports(ProviderFeatures.CrossApply)
+                      ? ProcessApplyViaCrossApply(provider, left, right)
+                      : ProcessApplyViaSubqueries(provider, left, right);
+            break;
+          case ApplySequenceType.Single:
+          case ApplySequenceType.SingleOrDefault:
+            // apply is not required
+            query = ProcessApplyViaSubqueries(provider, left, right);
+            break;
+          default:
+            throw new ArgumentOutOfRangeException();
+        }
+        return new SqlProvider(provider, query, Handlers, left, right);
       }
-      return new SqlProvider(provider, query, Handlers, left, right);
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitExistence(ExistenceProvider provider)
+    protected override SqlProvider VisitExistence(ExistenceProvider provider)
     {
-      var source = GetCompiled(provider.Source) as SqlProvider;
-      if (source == null)
-        return null;
+      var source = Compile(provider.Source);
 
       SqlExpression existsExpression = SqlDml.Exists(source.Request.SelectStatement);
       if (!ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions))
@@ -453,12 +426,10 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitIntersect(IntersectProvider provider)
+    protected override SqlProvider VisitIntersect(IntersectProvider provider)
     {
-      var left = GetCompiled(provider.Left) as SqlProvider;
-      var right = GetCompiled(provider.Right) as SqlProvider;
-      if (left == null || right == null)
-        return null;
+      var left = Compile(provider.Left);
+      var right = Compile(provider.Right);
 
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
@@ -472,12 +443,10 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitExcept(ExceptProvider provider)
+    protected override SqlProvider VisitExcept(ExceptProvider provider)
     {
-      var left = GetCompiled(provider.Left) as SqlProvider;
-      var right = GetCompiled(provider.Right) as SqlProvider;
-      if (left == null || right == null)
-        return null;
+      var left = Compile(provider.Left);
+      var right = Compile(provider.Right);
 
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
@@ -490,12 +459,10 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitConcat(ConcatProvider provider)
+    protected override SqlProvider VisitConcat(ConcatProvider provider)
     {
-      var left = GetCompiled(provider.Left) as SqlProvider;
-      var right = GetCompiled(provider.Right) as SqlProvider;
-      if (left == null || right == null)
-        return null;
+      var left = Compile(provider.Left);
+      var right = Compile(provider.Right);
 
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
@@ -508,12 +475,10 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitUnion(UnionProvider provider)
+    protected override SqlProvider VisitUnion(UnionProvider provider)
     {
-      var left = GetCompiled(provider.Left) as SqlProvider;
-      var right = GetCompiled(provider.Right) as SqlProvider;
-      if (left==null || right==null)
-        return null;
+      var left = Compile(provider.Left);
+      var right = Compile(provider.Right);
 
       var leftSelect = left.Request.SelectStatement;
       var rightSelect = right.Request.SelectStatement;
@@ -525,13 +490,11 @@ namespace Xtensive.Storage.Providers.Sql
       return new SqlProvider(provider, query, Handlers, left, right);
     }
     
-    protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
+    protected override SqlProvider VisitRowNumber(RowNumberProvider provider)
     {
       if (provider.Header.Order.Count==0)
         throw new InvalidOperationException(Strings.ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider);
-      var source = GetCompiled(provider.Source) as SqlProvider;
-      if (source == null)
-        return null;
+      var source = Compile(provider.Source);
 
       var sourceSelect = SqlDml.QueryRef(source.Request.SelectStatement);
       var query = SqlDml.Select(sourceSelect);
@@ -544,11 +507,10 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override ExecutableProvider VisitLock(LockProvider provider)
+    protected override SqlProvider VisitLock(LockProvider provider)
     {
-      var source = GetCompiled(provider.Source) as SqlProvider;
-      if (source == null)
-        return null;
+      var source = Compile(provider.Source);
+
       var query = source.Request.SelectStatement.ShallowClone();
       switch (provider.LockMode.Invoke()) {
       case LockMode.Shared:
@@ -824,14 +786,48 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     #endregion
+
+    #region Not supported providers
+
+    /// <inheritdoc/>
+    protected override SqlProvider VisitTransfer(TransferProvider provider)
+    {
+      throw new NotSupportedException();
+    }
+
+    /// <inheritdoc/>
+    protected override SqlProvider VisitRaw(RawProvider provider)
+    {
+      throw new NotSupportedException();
+    }
+
+    /// <inheritdoc/>
+    protected override SqlProvider VisitRangeSet(RangeSetProvider provider)
+    {
+      throw new NotSupportedException();
+    }
+
+    /// <inheritdoc/>
+    protected override SqlProvider VisitReindex(ReindexProvider provider)
+    {
+      throw new NotSupportedException();
+    }
+
+    protected override SqlProvider VisitPack(PackProvider provider)
+    {
+      throw new NotSupportedException();
+    }
+
+    #endregion
+
     
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public SqlCompiler(HandlerAccessor handlers, BindingCollection<object, ExecutableProvider> compiledSources)
-      : base(handlers.Domain.Configuration.ConnectionInfo, compiledSources)
+    public SqlCompiler(HandlerAccessor handlers)
+      : base(handlers.Domain.Configuration.ConnectionInfo)
     {
       Handlers = handlers;
 

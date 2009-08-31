@@ -16,7 +16,7 @@ using StoreProvider=Xtensive.Storage.Rse.Providers.Executable.StoreProvider;
 namespace Xtensive.Storage.Rse.Compilation
 {
   /// <summary>
-  /// Default implementation of <see cref="Compiler"/>.
+  /// Default implementation of <see cref="Compiler{TResult}"/>.
   /// </summary>
   [Serializable]
   public sealed class ClientCompiler : RseCompiler
@@ -45,8 +45,8 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ClientCompiler(BindingCollection<object, ExecutableProvider> compiledSources)
-      : base(RseCompiler.DefaultClientLocation, compiledSources)
+    public ClientCompiler()
+      : base(RseCompiler.DefaultClientLocation)
     {}
   }
 }

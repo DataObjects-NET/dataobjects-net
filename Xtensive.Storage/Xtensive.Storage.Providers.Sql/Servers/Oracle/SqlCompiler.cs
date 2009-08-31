@@ -4,14 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.07
 
-using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Sql;
-using Xtensive.Sql.Dml;
-using Xtensive.Storage.Rse.Providers;
-
 namespace Xtensive.Storage.Providers.Sql.Servers.Oracle
 {
   internal class SqlCompiler : ManualPagingSqlCompiler
@@ -23,8 +15,8 @@ namespace Xtensive.Storage.Providers.Sql.Servers.Oracle
 
     // Constructors
     
-    public SqlCompiler(HandlerAccessor handlers, BindingCollection<object, ExecutableProvider> compiledSources)
-      : base(handlers, compiledSources)
+    public SqlCompiler(HandlerAccessor handlers)
+      : base(handlers)
     {
     }
   }
