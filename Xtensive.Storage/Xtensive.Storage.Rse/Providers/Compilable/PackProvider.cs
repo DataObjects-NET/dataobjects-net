@@ -87,14 +87,14 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
-    /// <param name="groupColumnIndexes">The column indexes to group by.</param>
+    /// <param name="keyColumnIndexes">The column indexes to group by.</param>
     /// <param name="packColumnIndexes">The column indexes to pack.</param>
-    public PackProvider(CompilableProvider source, int[] groupColumnIndexes, int[] packColumnIndexes, string packColumnName)
+    public PackProvider(CompilableProvider source, int[] keyColumnIndexes, int[] packColumnIndexes, string packColumnName)
       : base(ProviderType.Pack, source)
     {
-      KeyColumnIndexes = groupColumnIndexes;
+      KeyColumnIndexes = keyColumnIndexes;
       PackColumnIndexes = packColumnIndexes;
-      PackedColumn = new SystemColumn(packColumnName, Source.Header.Length, typeof (ReadOnlyCollection<Tuple>));
+      PackedColumn = new SystemColumn(packColumnName, Source.Header.Length - PackColumnIndexes.Length, typeof (ReadOnlyCollection<Tuple>));
     }
   }
 }

@@ -101,6 +101,11 @@ namespace Xtensive.Storage.Rse
       return new RowNumberProvider(recordSet.Provider, columnName).Result;
     }
 
+    public static RecordSet Pack(this RecordSet recordSet, int[] keyColumnIndexes, int[] packColumnIndexes, string packColumnName)
+    {
+      return new PackProvider(recordSet.Provider, keyColumnIndexes, packColumnIndexes, packColumnName).Result;
+    }
+
     public static RecordSet Join(this RecordSet left, RecordSet right, params Pair<int>[] joinedColumnIndexes)
     {
       return new JoinProvider(left.Provider, right.Provider, JoinType.Inner, JoinAlgorithm.Default,

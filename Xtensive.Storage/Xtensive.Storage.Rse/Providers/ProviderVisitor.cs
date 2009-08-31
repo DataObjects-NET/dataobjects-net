@@ -109,6 +109,9 @@ namespace Xtensive.Storage.Rse.Providers
         case ProviderType.Lock:
           result = VisitLock((LockProvider) cp);
           break;
+        case ProviderType.Pack:
+          result = VisitPack((PackProvider) cp);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -283,5 +286,12 @@ namespace Xtensive.Storage.Rse.Providers
     /// <param name="provider">Lock provider.</param>
     /// <returns></returns>
     protected abstract Provider VisitLock(LockProvider provider);
+
+    /// <summary>
+    /// Visits the <see cref="PackProvider"/>.
+    /// </summary>
+    /// <param name="provider">Pack provider.</param>
+    /// <returns></returns>
+    protected abstract Provider VisitPack(PackProvider provider);
   }
 }

@@ -35,6 +35,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
             }
             keyTuple = currentKeyTuple;
             pack = new List<Tuple>();
+            pack.Add(Origin.PackTransform.Apply(TupleTransformType.Tuple, tuple));
             groupTuple = Origin.GroupTransform.Apply(TupleTransformType.Tuple, tuple);
           }
         }

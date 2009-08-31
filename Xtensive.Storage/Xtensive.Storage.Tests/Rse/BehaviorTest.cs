@@ -5,6 +5,7 @@
 // Created:    2008.05.19
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -30,25 +31,21 @@ namespace Xtensive.Storage.Tests.Rse
       const int personCount = 100;
       Tuple personTuple = Tuple.Create(new[] {typeof (int), typeof (string), typeof (string)});
       Tuple authorTuple = Tuple.Create(new[] {typeof (int), typeof (string)});
-      var personColumns = new[]
-                          {
-                            new MappedColumn("ID", 0, typeof (int)),
-                            new MappedColumn("FirstName", 1, typeof (string)),
-                            new MappedColumn("LastName", 2, typeof (string)),
-                          };
-      var authorColumns = new[]
-                          {
-                            new MappedColumn("ID", 0, typeof (int)),
-                            new MappedColumn("Title", 1, typeof (string)),
-                          };
-      var personHeader = new RecordSetHeader(personTuple.Descriptor, personColumns, new[]
-                                                                                    {
-                                                                                      new ColumnGroup(null, new[] {0}, new[] {0, 1, 2}),
-                                                                                    }, null, null);
-      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, new[]
-                                                                                    {
-                                                                                      new ColumnGroup(null, new[] {0}, new[] {0, 1}),
-                                                                                    }, null, null);
+      var personColumns = new[] {
+        new MappedColumn("ID", 0, typeof (int)),
+        new MappedColumn("FirstName", 1, typeof (string)),
+        new MappedColumn("LastName", 2, typeof (string)),
+      };
+      var authorColumns = new[] {
+        new MappedColumn("ID", 0, typeof (int)),
+        new MappedColumn("Title", 1, typeof (string)),
+      };
+      var personHeader = new RecordSetHeader(personTuple.Descriptor, personColumns, new[] {
+        new ColumnGroup(null, new[] {0}, new[] {0, 1, 2}),
+      }, null, null);
+      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns, new[] {
+        new ColumnGroup(null, new[] {0}, new[] {0, 1}),
+      }, null, null);
 
       var persons = new Tuple[personCount];
       var authors = new Tuple[personCount / 2];
@@ -96,18 +93,16 @@ namespace Xtensive.Storage.Tests.Rse
       const int booksPerAuthor = 20;
       Tuple authorTuple = Tuple.Create(new[] {typeof (int), typeof (string), typeof (string)});
       Tuple bookTuple = Tuple.Create(new[] {typeof (int), typeof (int), typeof (string)});
-      var authorColumns = new[]
-                          {
-                            new MappedColumn("ID", 0, typeof (int)),
-                            new MappedColumn("FirstName", 1, typeof (string)),
-                            new MappedColumn("LastName", 2, typeof (string)),
-                          };
-      var bookColumns = new[]
-                        {
-                          new MappedColumn("ID", 0, typeof (int)),
-                          new MappedColumn("IDAuthor", 1, typeof (int)),
-                          new MappedColumn("Title", 2, typeof (string)),
-                        };
+      var authorColumns = new[] {
+        new MappedColumn("ID", 0, typeof (int)),
+        new MappedColumn("FirstName", 1, typeof (string)),
+        new MappedColumn("LastName", 2, typeof (string)),
+      };
+      var bookColumns = new[] {
+        new MappedColumn("ID", 0, typeof (int)),
+        new MappedColumn("IDAuthor", 1, typeof (int)),
+        new MappedColumn("Title", 2, typeof (string)),
+      };
 
       var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns);
       var bookHeader = new RecordSetHeader(bookTuple.Descriptor, bookColumns);
@@ -160,12 +155,11 @@ namespace Xtensive.Storage.Tests.Rse
 
       const int authorCount = 1000;
       Tuple authorTuple = Tuple.Create(new[] {typeof (int), typeof (string), typeof (string)});
-      var authorColumns = new[]
-                          {
-                            new MappedColumn("ID", 0, typeof (int)),
-                            new MappedColumn("FirstName", 1, typeof (string)),
-                            new MappedColumn("LastName", 2, typeof (string)),
-                          };
+      var authorColumns = new[] {
+        new MappedColumn("ID", 0, typeof (int)),
+        new MappedColumn("FirstName", 1, typeof (string)),
+        new MappedColumn("LastName", 2, typeof (string)),
+      };
       var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns);
 
       var authors = new Tuple[authorCount];
@@ -201,12 +195,11 @@ namespace Xtensive.Storage.Tests.Rse
     {
       const int authorCount = 1000;
       Tuple authorTuple = Tuple.Create(new[] {typeof (int), typeof (string), typeof (string)});
-      var authorColumns = new[]
-                          {
-                            new MappedColumn("ID", 0, typeof (int)),
-                            new MappedColumn("FirstName", 1, typeof (string)),
-                            new MappedColumn("LastName", 2, typeof (string)),
-                          };
+      var authorColumns = new[] {
+        new MappedColumn("ID", 0, typeof (int)),
+        new MappedColumn("FirstName", 1, typeof (string)),
+        new MappedColumn("LastName", 2, typeof (string)),
+      };
       var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns);
 
       var authors = new Tuple[authorCount];
@@ -234,18 +227,16 @@ namespace Xtensive.Storage.Tests.Rse
       const int booksPerAuthor = 20;
       Tuple authorTuple = Tuple.Create(new[] {typeof (int), typeof (string), typeof (string)});
       Tuple bookTuple = Tuple.Create(new[] {typeof (int), typeof (int), typeof (string)});
-      var authorColumns = new[]
-                          {
-                            new MappedColumn("ID", 0, typeof (int)),
-                            new MappedColumn("FirstName", 1, typeof (string)),
-                            new MappedColumn("LastName", 2, typeof (string)),
-                          };
-      var bookColumns = new[]
-                        {
-                          new MappedColumn("ID", 0, typeof (int)),
-                          new MappedColumn("IDAuthor", 1, typeof (int)),
-                          new MappedColumn("Title", 2, typeof (string)),
-                        };
+      var authorColumns = new[] {
+        new MappedColumn("ID", 0, typeof (int)),
+        new MappedColumn("FirstName", 1, typeof (string)),
+        new MappedColumn("LastName", 2, typeof (string)),
+      };
+      var bookColumns = new[] {
+        new MappedColumn("ID", 0, typeof (int)),
+        new MappedColumn("IDAuthor", 1, typeof (int)),
+        new MappedColumn("Title", 2, typeof (string)),
+      };
 
       var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns);
       var bookHeader = new RecordSetHeader(bookTuple.Descriptor, bookColumns);
@@ -292,13 +283,13 @@ namespace Xtensive.Storage.Tests.Rse
       Random random = RandomManager.CreateRandom();
       const int authorCount = 1000;
       const int categoryCount = 20;
-      Tuple authorTuple = Tuple.Create(new[] { typeof(int), typeof(string), typeof(string), typeof(int) });
+      Tuple authorTuple = Tuple.Create(new[] {typeof (int), typeof (string), typeof (string), typeof (int)});
       var authorColumns = new[] {
-                            new MappedColumn("ID", 0, typeof (int)),
-                            new MappedColumn("FirstName", 1, typeof (string)),
-                            new MappedColumn("LastName", 2, typeof (string)),
-                            new MappedColumn("Category", 3, typeof (int)),
-                          };
+        new MappedColumn("ID", 0, typeof (int)),
+        new MappedColumn("FirstName", 1, typeof (string)),
+        new MappedColumn("LastName", 2, typeof (string)),
+        new MappedColumn("Category", 3, typeof (int)),
+      };
       var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns);
 
       var authors = new Tuple[authorCount];
@@ -332,22 +323,20 @@ namespace Xtensive.Storage.Tests.Rse
 
       Assert.AreEqual(6, authorRS2.Header.Length);
       int rowNumber2 = 1;
-      foreach (var tuple in authorRS2)
-      {
+      foreach (var tuple in authorRS2) {
         Assert.AreEqual(rowNumber2, tuple[authorRS2.Header.Columns[rowNumberColumnName].Index]);
         Assert.AreEqual(rowNumber2++, tuple[authorRS2.Header.Columns[rowNumberColumnName2].Index]);
       }
 
       // Row numbers and Join
-      Tuple categoryTuple = Tuple.Create(new[] { typeof(int), typeof(string) });
+      Tuple categoryTuple = Tuple.Create(new[] {typeof (int), typeof (string)});
       var categoryColumns = new[] {
-                            new MappedColumn("CategoryID", 0, typeof (int)),
-                            new MappedColumn("CategoryName", 1, typeof (string)),
-                          };
+        new MappedColumn("CategoryID", 0, typeof (int)),
+        new MappedColumn("CategoryName", 1, typeof (string)),
+      };
       var categoryHeader = new RecordSetHeader(categoryTuple.Descriptor, categoryColumns);
       var categories = new Tuple[categoryCount];
-      for (int i = 0; i < categoryCount; i++)
-      {
+      for (int i = 0; i < categoryCount; i++) {
         Tuple category = categoryTuple.CreateNew();
         category.SetValue(0, i);
         category.SetValue(1, string.Format("CategoryName_{0}", i));
@@ -361,8 +350,7 @@ namespace Xtensive.Storage.Tests.Rse
         .RowNumber(categoryRowNumberColumnName);
       Assert.AreEqual(6, authorRS2.Header.Length);
       int categoryRowNumber = 1;
-      foreach (var tuple in categoryRS)
-      {
+      foreach (var tuple in categoryRS) {
         Assert.AreEqual(categoryRowNumber++, tuple[categoryRS.Header.Columns[categoryRowNumberColumnName].Index]);
       }
 
@@ -373,11 +361,59 @@ namespace Xtensive.Storage.Tests.Rse
       int joinRowNumber = 1;
       foreach (var tuple in joinRS) {
         Assert.AreEqual(joinRowNumber++, tuple[joinRS.Header.Columns[joinRowNumberColumnName].Index]);
-        Assert.AreEqual((int)tuple[joinRS.Header.Columns["CategoryID"].Index] + 1, tuple[joinRS.Header.Columns[categoryRowNumberColumnName].Index]);
-        Assert.AreEqual((int)tuple[joinRS.Header.Columns["ID"].Index] + 1, tuple[joinRS.Header.Columns[rowNumberColumnName].Index]);
+        Assert.AreEqual((int) tuple[joinRS.Header.Columns["CategoryID"].Index] + 1, tuple[joinRS.Header.Columns[categoryRowNumberColumnName].Index]);
+        Assert.AreEqual((int) tuple[joinRS.Header.Columns["ID"].Index] + 1, tuple[joinRS.Header.Columns[rowNumberColumnName].Index]);
         Log.Debug(tuple.ToString());
       }
+    }
 
+    [Test]
+    public void PackTest()
+    {
+      Random random = RandomManager.CreateRandom();
+      const int authorCount = 100;
+      const int categoryCount = 10;
+      Tuple authorTuple = Tuple.Create(new[] {typeof (int), typeof (string), typeof (string), typeof (int)});
+      var authorColumns = new[] {
+        new MappedColumn("ID", 0, typeof (int)),
+        new MappedColumn("FirstName", 1, typeof (string)),
+        new MappedColumn("LastName", 2, typeof (string)),
+        new MappedColumn("Category", 3, typeof (int)),
+      };
+      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns);
+
+      var authors = new Tuple[authorCount * categoryCount];
+      for (int i = 0; i < authorCount; i++) {
+        for (int j = 0; j < categoryCount; j++) {
+          Tuple author = authorTuple.CreateNew();
+          author.SetValue(0, i);
+          author.SetValue(1, string.Format("FirstName_{0}", i));
+          author.SetValue(2, string.Format("LastName{0}", i));
+          author.SetValue(3, j);
+          authors[i * categoryCount + j] = author;
+        }
+      }
+
+      var packColumnName = "PackNumberColumn";
+      RecordSet authorRS = authors
+        .ToRecordSet(authorHeader)
+        .OrderBy(new DirectionCollection<int>(0))
+        .Pack(new[] {0, 1, 2}, new[] {3}, packColumnName);
+
+      Assert.AreEqual(4, authorRS.Header.Length);
+      foreach (var tuple in authorRS) {
+        Assert.AreEqual(4, tuple.Count);
+        Assert.AreEqual(typeof(int), tuple.Descriptor[0]);
+        Assert.AreEqual(typeof(string), tuple.Descriptor[1]);
+        Assert.AreEqual(typeof(string), tuple.Descriptor[2]);
+        Assert.IsTrue(tuple[3] is System.Collections.ObjectModel.ReadOnlyCollection<Tuple>);
+        Assert.IsTrue(((System.Collections.ObjectModel.ReadOnlyCollection<Tuple>)tuple[3]).Count == categoryCount);
+        var list = ((System.Collections.ObjectModel.ReadOnlyCollection<Tuple>) tuple[3]).ToList();
+        for (int i = 0; i < list.Count; i++) {
+          Assert.AreEqual(1, list[i].Count);
+          Assert.AreEqual(i, list[i][0]);
+        }
+      }
     }
   }
 }
