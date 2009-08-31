@@ -718,35 +718,37 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected static SqlSelect ExtractSqlSelect(CompilableProvider origin, SqlProvider compiledSource)
     {
-      var calculatedColumnIndexes = compiledSource.Request.SelectStatement.Columns
+      var sourceSelect = compiledSource.Request.SelectStatement;
+      var calculatedColumnIndexes = sourceSelect.Columns
         .Select((c, i) => IsCalculatedColumn(c) ? i : -1)
+        .Where(i => i >= 0)
         .ToList();
       var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
+      var pagingIsUsed = sourceSelect.Limit != 0 || sourceSelect.Offset != 0;
+      var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
 
       SqlSelect query;
 
       if (origin.Type == ProviderType.Filter) {
         var filterProvider = (FilterProvider)origin;
         var usedColumnIndexes = new TupleAccessGatherer().Gather(filterProvider.Predicate.Body);
-        if (usedColumnIndexes.Any(calculatedColumnIndexes.Contains)) {
+        if (pagingIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains)) {
           var queryRef = compiledSource.PermanentReference;
           query = SqlDml.Select(queryRef);
           query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
         }
         else {
-          var sourceSelect = compiledSource.Request.SelectStatement;
           query = sourceSelect.ShallowClone();
         }
         return query;
       }
 
-      if (containsCalculatedColumns || compiledSource.Request.SelectStatement.Distinct) {
+      if (containsCalculatedColumns || sourceSelect.Distinct || pagingIsUsed || groupByIsUsed) {
         var queryRef = compiledSource.PermanentReference;
         query = SqlDml.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       }
       else {
-        var sourceSelect = compiledSource.Request.SelectStatement;
         query = sourceSelect.ShallowClone();
       }
       return query;
