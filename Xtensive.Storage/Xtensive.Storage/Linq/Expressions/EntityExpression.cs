@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Linq.Expressions
     public static EntityExpression Create(TypeInfo typeInfo, int offset)
     {
       if (!typeInfo.IsEntity && !typeInfo.IsInterface)
-        throw new ArgumentException(string.Format("Persistent type {0} is not entity or persistent interface.", typeInfo.Name));
+        throw new ArgumentException(string.Format(Resources.Strings.ExPersistentTypeXIsNotEntityOrPersistentInterface, typeInfo.Name), "typeInfo");
       var fields = new List<PersistentFieldExpression>();
       var keyExpression = KeyExpression.Create(typeInfo, offset);
       fields.Add(keyExpression);
@@ -158,7 +158,7 @@ namespace Xtensive.Storage.Linq.Expressions
         return EntityFieldExpression.CreateEntityField(nestedField, offset);
       if (nestedField.IsEntitySet)
           return EntitySetExpression.CreateEntitySet(nestedField);
-      throw new NotSupportedException(string.Format("Nested field {0} is not supported.", nestedField.Attributes));
+      throw new NotSupportedException(string.Format(Resources.Strings.ExNestedFieldXIsNotSupported, nestedField.Attributes));
     }
 
     public override string ToString()

@@ -86,9 +86,9 @@ namespace Xtensive.Storage.Building.Builders
         var context = BuildingContext.Current;
 
         List<Node<TypeDef, object>> loops;
-        List<TypeDef> sequence = TopologicalSorter.Sort<TypeDef>(context.ModelDef.Types, TypeConnector, out loops);
+        List<TypeDef> sequence = TopologicalSorter.Sort(context.ModelDef.Types, TypeConnector, out loops);
         if (sequence==null)
-          throw new DomainBuilderException(string.Format("At least one loop have been found in persistent type dependencies graph. Suspicious types: {0}", loops.Select(node => node.Item.Name).ToCommaDelimitedString()));
+          throw new DomainBuilderException(string.Format(Strings.ExAtLeastOneLoopHaveBeenFoundInPersistentTypeDependenciesGraphSuspiciousTypesX, loops.Select(node => node.Item.Name).ToCommaDelimitedString()));
         context.Model = new DomainModel();
         BuildTypes(sequence);
         BuildFields(sequence);

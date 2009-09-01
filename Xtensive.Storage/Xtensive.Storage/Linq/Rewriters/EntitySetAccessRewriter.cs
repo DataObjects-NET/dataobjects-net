@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Linq.Rewriters
           .MakeGenericMethod(mc.Object.Type.GetGenericArguments()[0]);
         return Expression.Call(method, Visit(mc.Object), Visit(mc.Arguments[0]));
       }
-      throw new NotSupportedException(String.Format("'{0}' method isn't supported.", mc.Method.Name));
+      throw new NotSupportedException(String.Format(Resources.Strings.ExMethodXIsntSupported, mc.Method.Name));
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)
@@ -45,8 +45,8 @@ namespace Xtensive.Storage.Linq.Rewriters
         return Expression.Call(method, Visit(m.Expression));
       }
       throw new NotSupportedException(IsEntitySet(m.Expression)
-        ? String.Format("Can't access member of type 'EntitySet<>'.") 
-        : String.Format("Can't access member '{0}'", m.Member.Name));
+        ? Resources.Strings.ExCantAccessMemberOfTypeEntitySet 
+        : String.Format(Resources.Strings.CantAccessMemberX, m.Member.Name));
     }
 
     private static bool IsEntitySet(Expression expression)

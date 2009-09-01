@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Configuration
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(item.Name, "SessionConfiguration.Name");
       var current = this[item.Name];
       if (current != null)
-        throw new InvalidOperationException(string.Format("Configuration with '{0}' name already registered.", current.Name));
+        throw new InvalidOperationException(string.Format(Resources.Strings.ExConfigurationWithXNameAlreadyRegistered, current.Name));
     }
 
     #region Equality members

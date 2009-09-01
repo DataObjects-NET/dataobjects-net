@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Building
     public static void EnsureNameIsValid(string name, ValidationRule rule)
     {
       if (String.IsNullOrEmpty(name))
-        throw new DomainBuilderException(string.Format("'{0}' name can't be empty.", rule));
+        throw new DomainBuilderException(string.Format(Strings.ExXNameCantBeEmpty, rule));
 
       Regex namingRule;
       switch (rule) {
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Building
           throw new ArgumentOutOfRangeException();
       }
       if (!namingRule.IsMatch(name))
-        throw new DomainBuilderException(string.Format("'{0}' is not valid name for {1}.", name, rule));
+        throw new DomainBuilderException(string.Format(Strings.ExXIsNotValidNameForX, name, rule));
     }
 
     public static void EnsureHierarchyRootIsValid(TypeDef typeDef)
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Building
     public static void EnsureHierarchyIsValid(HierarchyDef hierarchyDef)
     {
       if (hierarchyDef.KeyFields.Count==0)
-        throw new DomainBuilderException(string.Format("Hierarchy '{0}' doesn't contain any key fields.", hierarchyDef.Root.Name));
+        throw new DomainBuilderException(string.Format(Strings.ExHierarchyXDoesntContainAnyKeyFields, hierarchyDef.Root.Name));
 
       var root = hierarchyDef.Root;
 
@@ -90,11 +90,11 @@ namespace Xtensive.Storage.Building
       foreach (var keyField in hierarchyDef.KeyFields) {
 
         if (keyField == null)
-          throw new DomainBuilderException(string.Format("Key structure for '{0}' contains NULL value.", root.Name));
+          throw new DomainBuilderException(string.Format(Strings.ExKeyStructureForXContainsNULLValue, root.Name));
 
         FieldDef fieldDef = root.Fields[keyField.Name];
         if (fieldDef==null)
-          throw new DomainBuilderException(string.Format("Key field '{0}.{1}' is not found.", root.Name, keyField.Name));
+          throw new DomainBuilderException(string.Format(Strings.ExKeyFieldXXIsNotFound, root.Name, keyField.Name));
 
         EnsureFieldTypeIsValid(root, fieldDef.ValueType, true);
 
@@ -127,18 +127,18 @@ namespace Xtensive.Storage.Building
 
       if (fieldType.IsSubclassOf(typeof (Structure))) {
         if (isKeyField)
-          throw new DomainBuilderException(string.Format("Key field can't be of '{0}' type.", fieldType.GetShortName()));
+          throw new DomainBuilderException(string.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
         return;
       }
 
       if (fieldType.IsOfGenericType(typeof (EntitySet<>))) {
         if (declaringType.IsStructure)
           throw new DomainBuilderException(
-            string.Format("Structures do not support fields of type '{0}'.", fieldType.Name));
+            string.Format(Strings.ExStructuresDoNotSupportFieldsOfTypeX, fieldType.Name));
         if (isKeyField)
-          throw new DomainBuilderException(string.Format("Key field can't be of '{0}' type.", fieldType.GetShortName()));
+          throw new DomainBuilderException(string.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
       }
-      throw new DomainBuilderException(string.Format("Unsupported type: '{0}'", fieldType.GetShortName()));
+      throw new DomainBuilderException(string.Format(Strings.ExUnsupportedType, fieldType.GetShortName()));
     }
 
     public static void EnsureUnderlyingTypeIsAspected(TypeDef type)
@@ -155,7 +155,7 @@ namespace Xtensive.Storage.Building
     public static void EnsureKeyGeneratorTypeIsValid(Type type)
     {
       if (!typeof(KeyGenerator).IsAssignableFrom(type))
-        throw new InvalidOperationException(string.Format("'{0}' must be inherited from '{1}'.", type.GetShortName(), typeof(KeyGenerator).GetShortName()));
+        throw new InvalidOperationException(string.Format(Strings.ExXMustBeInheritedFromX, type.GetShortName(), typeof(KeyGenerator).GetShortName()));
     }
 
     public static void EnsureTypeIsPersistent(Type type)
@@ -173,7 +173,7 @@ namespace Xtensive.Storage.Building
     internal static void EnsureIsNullable(Type valueType)
     {
       if (!(valueType.IsSubclassOf(typeof (Entity)) || valueType==typeof (string) || valueType==typeof (byte[])))
-        throw new DomainBuilderException(String.Format("Field of type '{0}' cannot be nullable. For value types consider using Nullable<T>.", valueType));
+        throw new DomainBuilderException(String.Format(Strings.ExFieldOfTypeXCannotBeNullableForValueTypesConsiderUsingNullableT, valueType));
     }
 
     // Type initializer

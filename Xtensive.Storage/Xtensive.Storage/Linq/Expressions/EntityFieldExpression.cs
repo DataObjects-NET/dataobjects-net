@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Linq.Expressions
     public static EntityFieldExpression CreateEntityField(FieldInfo entityField, int offset)
     {
       if (!entityField.IsEntity)
-        throw new ArgumentException(string.Format("Field {0} is not entity.", entityField.Name));
+        throw new ArgumentException(string.Format(Resources.Strings.ExFieldXIsNotEntity, entityField.Name), "entityField");
       var entityType = entityField.ValueType;
       var persistentType = entityField.ReflectedType.Model.Types[entityType];
       var mapping = new Segment<int>(entityField.MappingInfo.Offset + offset, entityField.MappingInfo.Length);
@@ -160,7 +160,7 @@ namespace Xtensive.Storage.Linq.Expressions
         return CreateField(nestedField, offset);
       if (nestedField.IsEntity)
         return CreateEntityField(nestedField, offset);
-      throw new NotSupportedException(string.Format("Nested field {0} is not supported.", nestedField.Attributes));
+      throw new NotSupportedException(string.Format(Resources.Strings.ExNestedFieldXIsNotSupported, nestedField.Attributes));
     }
 
 

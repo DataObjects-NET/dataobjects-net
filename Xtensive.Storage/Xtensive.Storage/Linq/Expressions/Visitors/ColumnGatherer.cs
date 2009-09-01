@@ -156,20 +156,20 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return subQueryExpression;
     }
 
-    private void ProcessFieldOwner(FieldExpression f)
+    private void ProcessFieldOwner(FieldExpression fieldExpression)
     {
-      if (TreatEntityAsKey || f.Owner==null)
+      if (TreatEntityAsKey || fieldExpression.Owner==null)
         return;
-      var entity = f.Owner as EntityExpression;
-      var structure = f.Owner as StructureExpression;
+      var entity = fieldExpression.Owner as EntityExpression;
+      var structure = fieldExpression.Owner as StructureExpression;
       while (entity==null && structure!=null) {
         entity = structure.Owner as EntityExpression;
         structure = structure.Owner as StructureExpression;
       }
       if (entity==null)
-        throw new InvalidOperationException("Unable to resolve owner.");
+        throw new InvalidOperationException(String.Format(Resources.Strings.ExUnableToResolveOwnerOfFieldExpressionX, fieldExpression));
 
-      AddColumns(f,
+      AddColumns(fieldExpression,
         entity
           .Key
           .Mapping

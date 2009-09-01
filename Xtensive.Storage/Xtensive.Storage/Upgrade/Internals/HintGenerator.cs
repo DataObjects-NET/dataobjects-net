@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Upgrade
     private void MapType(StoredTypeInfo oldType, StoredTypeInfo newType)
     {
       if (typeMapping.ContainsKey(oldType))
-        throw new InvalidOperationException();
+        throw new InvalidOperationException(String.Format(Strings.ExTypeMappingDoesNotContainXType, oldType));
       typeMapping[oldType] = newType;
       backwardTypeMapping[newType] = oldType;
     }
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Upgrade
     private void MapField(StoredFieldInfo oldField, StoredFieldInfo newField)
     {
       if (fieldMapping.ContainsKey(oldField))
-        throw new InvalidOperationException();
+        throw new InvalidOperationException(String.Format(Strings.ExFieldMappingDoesNotContainField, oldField));
       fieldMapping[oldField] = newField;
       backwardFieldMapping[newField] = oldField;
     }
@@ -308,7 +308,7 @@ namespace Xtensive.Storage.Upgrade
           GenerateRenameFieldHint(oldField, newField, newType, true);
           break;
         default:
-          throw new ArgumentOutOfRangeException();
+          throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, newType.Hierarchy.Schema), Log.Instance);
         }
       }
     }
@@ -419,7 +419,7 @@ namespace Xtensive.Storage.Upgrade
       case InheritanceSchema.ConcreteTable:
         break;
       default:
-        throw new ArgumentOutOfRangeException();
+          throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, removedType.Hierarchy.Schema), Log.Instance);
       }
       foreach (var type in typesToProcess) {
         var tableName = type.MappingName;
@@ -469,7 +469,7 @@ namespace Xtensive.Storage.Upgrade
       var pairedIdentityFields = JoinFieldsByOriginalName(identityFieldsOfRemovedType, identityFieldsOfUpdatedType);
       var pairedIdentityColumns = AssociateMappedFields(pairedIdentityFields);
       if (pairedIdentityColumns==null)
-        throw new InvalidOperationException();
+        throw new InvalidOperationException(String.Format(Strings.ExPairedIdentityColumnsForTypesXAndXNotFound, removedType, updatedType));
 
       var sourceTablePath = GetTablePath(updatedType.MappingName);
       var identities = pairedIdentityColumns.Select(pair =>
@@ -508,9 +508,9 @@ namespace Xtensive.Storage.Upgrade
         .SingleOrDefault(field => field.Name==hint.FieldName);
       if (currentField==null)
         throw FieldIsNotFound(currentTypeName, hint.FieldName);
-      var inheritanceScheme = currentType.Hierarchy.Schema;
+      var inheritanceSchema = currentType.Hierarchy.Schema;
       
-      switch (inheritanceScheme) {
+      switch (inheritanceSchema) {
       case InheritanceSchema.ClassTable:
         affectedColumns.Add(GetColumnPath(currentField.DeclaringType.MappingName, currentField.MappingName));
         break;
@@ -524,7 +524,7 @@ namespace Xtensive.Storage.Upgrade
           typeToProcess.Select(type => GetColumnPath(type.MappingName, currentField.MappingName)));
         break;
       default:
-        throw new ArgumentOutOfRangeException();
+          throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
       }
       hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
     }

@@ -827,4 +827,205 @@ Actions:
   <data name="ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance" xml:space="preserve">
     <value>The current transaction is different from the transaction bound to this instance.</value>
   </data>
+  <data name="ExUnableToMaterializeEntity" xml:space="preserve">
+    <value>Unable to materialize Entity.</value>
+  </data>
+  <data name="ExOnOwnerRemoveActionIsNotEqualToOnTargetRemoveAction" xml:space="preserve">
+    <value>'{0}.{1}' OnOwnerRemove action is not equal to '{2}.{3}' OnTargetRemove action.</value>
+  </data>
+  <data name="ExTypeMappingDoesNotContainXType" xml:space="preserve">
+    <value>Type mapping does not contain '{0}' type</value>
+  </data>
+  <data name="ExFieldMappingDoesNotContainField" xml:space="preserve">
+    <value>Field mapping does not contain '{0} field.</value>
+  </data>
+  <data name="ExInheritanceSchemaIsInvalid" xml:space="preserve">
+    <value>Inheritance schema '{0}' is invalid</value>
+  </data>
+  <data name="ExVisitKeyFieldIsNotSupportedByX" xml:space="preserve">
+    <value>VisitKeyField is not supported by '{0}'.</value>
+  </data>
+  <data name="ExPairedIdentityColumnsForTypesXAndXNotFound" xml:space="preserve">
+    <value>Paired identity columns for types '{0}' and '{1}' not found</value>
+  </data>
+  <data name="ExCouldNotGetMemberXFromExpression" xml:space="preserve">
+    <value>Could not get member {0} from expression.</value>
+  </data>
+  <data name="ExIncorrectNamespaceSynonyms" xml:space="preserve">
+    <value>Incorrect namespace synonyms.</value>
+  </data>
+  <data name="ExMethodXIsntSupported" xml:space="preserve">
+    <value>'{0}' method isn't supported.</value>
+  </data>
+  <data name="ExpressionXIsUnknown" xml:space="preserve">
+    <value>Expression '{0}' is unknown</value>
+  </data>
+  <data name="ExFieldIsNotStructure" xml:space="preserve">
+    <value>Field '{0}' is not structure.</value>
+  </data>
+  <data name="ExNestedFieldXIsNotSupported" xml:space="preserve">
+    <value>Nested field '{0}' is not supported.</value>
+  </data>
+  <data name="ExFieldXIsNotPrimitive" xml:space="preserve">
+    <value>Field '{0}' is not primitive.</value>
+  </data>
+  <data name="ExFieldXIsNotEntity" xml:space="preserve">
+    <value>Field '{0}' is not entity.</value>
+  </data>
+  <data name="ExPersistentTypeXIsNotEntityOrPersistentInterface" xml:space="preserve">
+    <value>Persistent type '{0}' is not entity or persistent interface.</value>
+  </data>
+  <data name="ExConfigurationWithXNameAlreadyRegistered" xml:space="preserve">
+    <value>Configuration with '{0}' name already registered.</value>
+  </data>
+  <data name="ExXNameCantBeEmpty" xml:space="preserve">
+    <value>'{0}' name can't be empty.</value>
+  </data>
+  <data name="ExXIsNotValidNameForX" xml:space="preserve">
+    <value>'{0}' is not valid name for {1}.</value>
+  </data>
+  <data name="ExHierarchyXDoesntContainAnyKeyFields" xml:space="preserve">
+    <value>Hierarchy '{0}' doesn't contain any key fields.</value>
+  </data>
+  <data name="ExKeyStructureForXContainsNULLValue" xml:space="preserve">
+    <value>Key structure for '{0}' contains NULL value.</value>
+  </data>
+  <data name="ExKeyFieldXXIsNotFound" xml:space="preserve">
+    <value>Key field '{0}.{1}' is not found.</value>
+  </data>
+  <data name="ExKeyFieldCantBeOfXType" xml:space="preserve">
+    <value>Key field can't be of '{0}' type.</value>
+  </data>
+  <data name="ExXMustBeInheritedFromX" xml:space="preserve">
+    <value>'{0}' must be inherited from '{1}'.</value>
+  </data>
+  <data name="ExFieldOfTypeXCannotBeNullableForValueTypesConsiderUsingNullableT" xml:space="preserve">
+    <value>Field of type '{0}' cannot be nullable. For value types consider using Nullable&lt;T&gt;.</value>
+  </data>
+  <data name="ExStructureXCantContainFieldOfTheSameType" xml:space="preserve">
+    <value>Structure '{0}' can't contain field of the same type.</value>
+  </data>
+  <data name="ExValueIsNotAcceptableForOnTargetRemoveProperty" xml:space="preserve">
+    <value>'{0}.{1}': '{2}' value is not acceptable for 'OnTargetRemove' property.</value>
+  </data>
+  <data name="ExHierarchyIsNotFoundForTypeX" xml:space="preserve">
+    <value>Hierarchy is not found for type '{0}'</value>
+  </data>
+  <data name="ExUnableToBuildGenericInstanceTypesForXTypeBecauseItContainsMoreThen1GenericParameter" xml:space="preserve">
+    <value>Unable to build generic instance types for '{0}' type because it contains more then 1 generic parameter.</value>
+  </data>
+  <data name="ExUnableToBuildGenericInstanceTypesForXTypeBecauseParameterIsNotConstrained" xml:space="preserve">
+    <value>Unable to build generic instance types for '{0}' type because parameter is not constrained.</value>
+  </data>
+  <data name="ExItemByKeyXWasNotFound" xml:space="preserve">
+    <value>Item by key ='{0}' was not found.</value>
+  </data>
+  <data name="ExAtLeastOneLoopHaveBeenFoundInPersistentTypeDependenciesGraphSuspiciousTypesX" xml:space="preserve">
+    <value>At least one loop have been found in persistent type dependencies graph. Suspicious types: {0}</value>
+  </data>
+  <data name="ExKeyFieldsXAndXHaveTheSamePositionX" xml:space="preserve">
+    <value>Key fields '{0}' and '{1}' have the same position: '{2}'.</value>
+  </data>
+  <data name="ExUnableToRemapFieldExpression" xml:space="preserve">
+    <value>Unable to remap FieldExpression.</value>
+  </data>
+  <data name="ExNonpersistentFieldsAreNotSupported" xml:space="preserve">
+    <value>Nonpersistent fields are not supported.</value>
+  </data>
+  <data name="CachedQuerySupportsOnlyQueriesWrittenWithinItsExecuteMethods" xml:space="preserve">
+    <value>CachedQuery supports only queries written within its Execute methods.</value>
+  </data>
+  <data name="ExAggregatesForNonPrimitiveTypesAreNotSupported" xml:space="preserve">
+    <value>Aggregates for non primitive types are not supported.</value>
+  </data>
+  <data name="ExParameterExpressionMustHaveSameTypeAsProjectionExpressionItemProjector" xml:space="preserve">
+    <value>ParameterExpression must have same type as ProjectionExpression.ItemProjector</value>
+  </data>
+  <data name="ExXDoesNotSupportX" xml:space="preserve">
+    <value>'{0}' does not support '{1}'.</value>
+  </data>
+  <data name="ExHierarchyRootIsNotRegistered" xml:space="preserve">
+    <value>Hierarchy root is not registered.</value>
+  </data>
+  <data name="ExOnlyEntitiesCouldBeHierarchyRoots" xml:space="preserve">
+    <value>Only entities could be hierarchy roots.</value>
+  </data>
+  <data name="ExFieldXIsNotAnEntityReferenceNorEntitySet" xml:space="preserve">
+    <value>Field '{0}' is not an entity reference, nor entity set.</value>
+  </data>
+  <data name="ExUnableToRemapKeyExpression" xml:space="preserve">
+    <value>Unable to remap KeyExpression</value>
+  </data>
+  <data name="ExUnableToHandleEntitySetExpressionWithoutSpecifiedOwner" xml:space="preserve">
+    <value>Unable to handle EntitySetExpression without specified Owner.</value>
+  </data>
+  <data name="ExUnableToRemoveOwnerFromEntitySetExpression" xml:space="preserve">
+    <value>Unable to remove Owner from EntitySetExpression.</value>
+  </data>
+  <data name="ExUnableToUseBaseImplementationOfVisitGenericExpressionWithoutSpecifyingGenericProcessorDelegate" xml:space="preserve">
+    <value>Unable to use base implementation of VisitGenericExpression without specifying genericProcessor delegate.</value>
+  </data>
+  <data name="ExUnableToResolveOwnerOfStructureExpressionX" xml:space="preserve">
+    <value>Unable to resolve owner of StructureExpression '{0}'.</value>
+  </data>
+  <data name="ExUnableToResolveOwnerOfFieldExpressionX" xml:space="preserve">
+    <value>Unable to resolve owner of FieldExpression '{0}'.</value>
+  </data>
+  <data name="ExSelectManyCollectionSelector0MustHaveOnlyOneLambdaParameter" xml:space="preserve">
+    <value>SelectMany collection selector '{0}' must have only one lambda parameter.</value>
+  </data>
+  <data name="SubqueryXHeaderMustHaveOnlyOneColumn" xml:space="preserve">
+    <value>Subquery '{0}' header must have only one column.</value>
+  </data>
+  <data name="ExLINQTranslatorDoesNotSupportMethodX" xml:space="preserve">
+    <value>LINQ translator does not support method '{0}'</value>
+  </data>
+  <data name="ExContainsMethodIsOnlySupportedForRootExpressionsOrSubqueries" xml:space="preserve">
+    <value>'Contains' method is only supported for root expressions or subqueries.</value>
+  </data>
+  <data name="ExAllMethodIsOnlySupportedForRootExpressionsOrSubqueries" xml:space="preserve">
+    <value>'All' method is only supported for root expressions or subqueries.</value>
+  </data>
+  <data name="ExAnyMethodIsOnlySupportedForRootExpressionsOrSubqueries" xml:space="preserve">
+    <value>'Any' method is only supported for root expressions or subqueries.</value>
+  </data>
+  <data name="ExTypeIsMethodSupportsOnlyEntitiesAndStructures" xml:space="preserve">
+    <value>'TypeIs' method supports only Entities and Structures.</value>
+  </data>
+  <data name="ExBinaryExpressionXOfTypeXIsNotSupported" xml:space="preserve">
+    <value>Binary expression '{0}' of type '{1}' is not supported.</value>
+  </data>
+  <data name="ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotStructureExpression" xml:space="preserve">
+    <value>Both left and right part of binary expression '{0}' are NULL or not StructureExpression.</value>
+  </data>
+  <data name="ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotEntityExpressionEntityFieldExpression" xml:space="preserve">
+    <value>Both left and right part of binary expression '{0}' are NULL or not EntityExpression(EntityFieldExpression).</value>
+  </data>
+  <data name="ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotKeyExpression" xml:space="preserve">
+    <value>Both left and right part of binary expression '{0}' are NULL or not KeyExpression.</value>
+  </data>
+  <data name="ExMistmatchCountOfLeftAndRightExpressions" xml:space="preserve">
+    <value>Mistmatch count of left and right expressions.</value>
+  </data>
+  <data name="ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters" xml:space="preserve">
+    <value>Unable to build subquery result for expression '{0}'. State contains no parameters.</value>
+  </data>
+  <data name="ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable" xml:space="preserve">
+    <value>Unable to build subquery result for expression '{0}'. resultType is not IEnumerable&lt;&gt;.</value>
+  </data>
+  <data name="ExMethodCallExpressionXIsNotSupported" xml:space="preserve">
+    <value>MethodCall expression '{0}' is not supported.</value>
+  </data>
+  <data name="ExLambdaXMustHaveOnlyOneParameter" xml:space="preserve">
+    <value>Lambda '{0}' must have only one parameter.</value>
+  </data>
+  <data name="ExAggregateMethodXIsNotSupported" xml:space="preserve">
+    <value>Aggregate method '{0} is not supported.</value>
+  </data>
+  <data name="ExCantAccessMemberOfTypeEntitySet" xml:space="preserve">
+    <value>Can't access member of type 'EntitySet&lt;&gt;'.</value>
+  </data>
+  <data name="CantAccessMemberX" xml:space="preserve">
+    <value>Can't access member '{0}'</value>
+  </data>
 </root>

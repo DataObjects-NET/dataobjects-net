@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
     {
       if (genericProcessor!=null)
         return genericProcessor.Invoke(generic);
-      throw new NotSupportedException("Unable to use base implementation of VisitGenericExpression without specifying genericProcessor delegate.");
+      throw new NotSupportedException(Resources.Strings.ExUnableToUseBaseImplementationOfVisitGenericExpressionWithoutSpecifyingGenericProcessorDelegate);
     }
 
 

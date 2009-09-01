@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Linq
         return Visit(boolExpression);
       }
 
-      throw new NotSupportedException();
+      throw new NotSupportedException(Strings.ExTypeIsMethodSupportsOnlyEntitiesAndStructures);
     }
 
     protected override Expression Visit(Expression e)
@@ -104,7 +104,7 @@ namespace Xtensive.Storage.Linq
     {
       using (state.CreateLambdaScope(le)) {
         if (!state.BuildingProjection && le.Parameters.Count>1)
-          throw new InvalidOperationException();
+          throw new InvalidOperationException(String.Format(Strings.ExLambdaXMustHaveOnlyOneParameter, le.ToString(true)));
 
         var body = Visit(le.Body);
         var parameter = le.Parameters[0];
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Linq
         if (newArrayExpression!=null && indexExpression!=null && indexExpression.Type==typeof (int))
           return newArrayExpression.Expressions[(int) indexExpression.Value];
 
-        throw new NotSupportedException();
+        throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionXOfTypeXIsNotSupported, binaryExpression.ToString(true), binaryExpression.NodeType));
       }
 
       return resultBinaryExpression;
@@ -200,7 +200,7 @@ namespace Xtensive.Storage.Linq
       }
       else if (ma.Expression.GetMemberType()==MemberType.Entity && ma.Member.Name!="Key")
         if (!context.Model.Types[ma.Expression.Type].Fields.Contains(ma.Member.Name))
-          throw new NotSupportedException("Nonpersistent fields are not supported.");
+          throw new NotSupportedException(Strings.ExNonpersistentFieldsAreNotSupported);
       Expression source;
       using (state.CreateScope()) {
         state.BuildingProjection = false;
@@ -225,7 +225,7 @@ namespace Xtensive.Storage.Linq
         else if (mc.Method.Name==WellKnownMembers.QueryableLock.Name)
           return VisitLock(mc);
         else
-          throw new InvalidOperationException();
+          throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
       return base.VisitMethodCall(mc);
     }
 
@@ -283,7 +283,7 @@ namespace Xtensive.Storage.Linq
         var leftKeyExpression = left as KeyExpression;
         var rightKeyExpression = right as KeyExpression;
         if (leftKeyExpression==null && rightKeyExpression==null)
-          throw new NotSupportedException();
+          throw new NotSupportedException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotKeyExpression, binaryExpression));
         // Key split to it's fields.
         var keyFields = (leftKeyExpression ?? rightKeyExpression)
           .KeyFields
@@ -296,7 +296,7 @@ namespace Xtensive.Storage.Linq
         var leftEntityExpression = (Expression) (left as EntityExpression) ?? left as EntityFieldExpression;
         var rightEntityExpression = (Expression) (right as EntityExpression) ?? right as EntityFieldExpression;
         if (leftEntityExpression==null && rightEntityExpression==null)
-          throw new NotSupportedException();
+          throw new NotSupportedException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotEntityExpressionEntityFieldExpression, binaryExpression));
 
 
         var keyFieldTypes = context
@@ -320,7 +320,7 @@ namespace Xtensive.Storage.Linq
         var leftStructureExpression = left as StructureExpression;
         var rightStructureExpression = right as StructureExpression;
         if (leftStructureExpression==null && rightStructureExpression==null)
-          throw new NotSupportedException();
+          throw new NotSupportedException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotStructureExpression, binaryExpression));
 
         var structureExpression = (leftStructureExpression ?? rightStructureExpression);
         leftExpressions = GetStructureFields(left, structureExpression.Fields, structureExpression.Type);
@@ -355,7 +355,7 @@ namespace Xtensive.Storage.Linq
 
       if (leftExpressions.Count!=rightExpressions.Count
         || leftExpressions.Count==0)
-        throw new InvalidOperationException();
+        throw Exceptions.InternalError(Strings.ExMistmatchCountOfLeftAndRightExpressions, Log.Instance);
 
       // Combine new binary expression from subexpression pairs.
       Expression resultExpression = null;
@@ -525,10 +525,10 @@ namespace Xtensive.Storage.Linq
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
     {
       if (state.Parameters.Length==0)
-        throw new InvalidOperationException();
+        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters, subQuery), Log.Instance);
 
       if (!resultType.IsOfGenericInterface(typeof (IEnumerable<>)))
-        throw new NotImplementedException();
+        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable, subQuery), Log.Instance);
 
       ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[state.Parameters[0]]);
       if (subQuery.Type!=resultType)
@@ -573,7 +573,7 @@ namespace Xtensive.Storage.Linq
         var memberIndex = newExpression.Members.IndexOf(member);
         if (memberIndex < 0)
           throw new InvalidOperationException(
-            string.Format("Could not get member {0} from expression.",
+            string.Format(Strings.ExCouldNotGetMemberXFromExpression,
               member));
         var argument = newExpression.Arguments[memberIndex];
         return isMarker

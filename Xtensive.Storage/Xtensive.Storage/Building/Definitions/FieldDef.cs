@@ -181,7 +181,7 @@ namespace Xtensive.Storage.Building.Definitions
       set
       {
         if (!(IsEntity || IsEntitySet))
-          throw new InvalidOperationException("Field is not an entity reference, nor entity set.");
+          throw new InvalidOperationException(String.Format(Resources.Strings.ExFieldXIsNotAnEntityReferenceNorEntitySet, this));
         onTargetRemove = value;
       }
     }
@@ -196,7 +196,7 @@ namespace Xtensive.Storage.Building.Definitions
       set
       {
         if (!(IsEntity || IsEntitySet))
-          throw new InvalidOperationException("Field is not an entity reference, nor entity set.");
+          throw new InvalidOperationException(String.Format(Resources.Strings.ExFieldXIsNotAnEntityReferenceNorEntitySet, this));
         onOwnerRemove = value;
       }
     }
@@ -210,8 +210,8 @@ namespace Xtensive.Storage.Building.Definitions
       get { return pairTo; }
       set
       {
-        if (IsPrimitive || IsStructure)
-          throw new InvalidOperationException("Field is not an Entity reference, nor is EntitySet.");
+        if (!(IsEntity || IsEntitySet))
+          throw new InvalidOperationException(String.Format(Resources.Strings.ExFieldXIsNotAnEntityReferenceNorEntitySet, this));
         pairTo = value;
       }
     }

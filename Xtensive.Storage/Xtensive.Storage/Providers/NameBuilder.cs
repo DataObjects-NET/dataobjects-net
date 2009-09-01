@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Providers
           try {
             namespacePrefix = NamingConvention.NamespaceSynonyms[@namespace];
             if (namespacePrefix.IsNullOrEmpty())
-              throw new ApplicationException("Incorrect namespace synonyms.");
+              throw new InvalidOperationException(Resources.Strings.ExIncorrectNamespaceSynonyms);
           }
           catch (KeyNotFoundException) {
             namespacePrefix = @namespace;

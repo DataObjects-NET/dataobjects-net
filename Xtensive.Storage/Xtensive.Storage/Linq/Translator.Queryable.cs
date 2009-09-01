@@ -172,14 +172,12 @@ namespace Xtensive.Storage.Linq
           return VisitSelect(mc.Arguments[0], mc.Arguments[1].StripQuotes());
         case QueryableMethodKind.SelectMany:
           if (mc.Arguments.Count==2) {
-            return VisitSelectMany(
-              mc.Type, mc.Arguments[0],
+            return VisitSelectMany(mc.Arguments[0],
               mc.Arguments[1].StripQuotes(),
               null);
           }
           if (mc.Arguments.Count==3) {
-            return VisitSelectMany(
-              mc.Type, mc.Arguments[0],
+            return VisitSelectMany(mc.Arguments[0],
               mc.Arguments[1].StripQuotes(),
               mc.Arguments[2].StripQuotes());
           }
@@ -213,7 +211,7 @@ namespace Xtensive.Storage.Linq
           throw new ArgumentOutOfRangeException("methodKind");
         }
       }
-      throw new NotSupportedException();
+      throw new NotSupportedException(String.Format(Strings.ExLINQTranslatorDoesNotSupportMethodX, methodKind));
     }
 
     private Expression VisitJoinLeft(MethodCallExpression mc)
@@ -228,12 +226,12 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitIncludeFields(MethodCallExpression expression)
     {
-      throw new NotImplementedException("VisitIncludeFields not implemented");
+      throw new NotImplementedException("VisitIncludeFields method is not implemented");
     }
 
     private Expression VisitExcludeFields(MethodCallExpression expression)
     {
-      throw new NotImplementedException("VisitExcludeFields not implemented");
+      throw new NotImplementedException("VisitExcludeFields method is not implemented");
     }
 
     private Expression VisitLock(MethodCallExpression expression)
@@ -308,7 +306,7 @@ namespace Xtensive.Storage.Linq
       if (source.IsQuery())
         return VisitExists(source, le, false);
 
-      throw new NotImplementedException();
+      throw new NotSupportedException(Strings.ExContainsMethodIsOnlySupportedForRootExpressionsOrSubqueries);
     }
 
     private Expression VisitAll(Expression source, LambdaExpression predicate, bool isRoot)
@@ -321,7 +319,7 @@ namespace Xtensive.Storage.Linq
       if (source.IsQuery())
         return VisitExists(source, predicate, true);
 
-      throw new NotImplementedException();
+      throw new NotSupportedException(Strings.ExAllMethodIsOnlySupportedForRootExpressionsOrSubqueries);
     }
 
     private Expression VisitAny(Expression source, LambdaExpression predicate, bool isRoot)
@@ -332,7 +330,7 @@ namespace Xtensive.Storage.Linq
       if (source.IsQuery())
         return VisitExists(source, predicate, false);
 
-      throw new NotImplementedException();
+      throw new NotSupportedException(Strings.ExAnyMethodIsOnlySupportedForRootExpressionsOrSubqueries);
     }
 
     private Expression VisitFirstSingle(Expression source, LambdaExpression predicate, MethodInfo method, bool isRoot)
@@ -443,7 +441,7 @@ namespace Xtensive.Storage.Linq
         aggregateType = AggregateType.Avg;
         break;
       default:
-        throw new ArgumentOutOfRangeException();
+        throw new NotSupportedException(String.Format(Strings.ExAggregateMethodXIsNotSupported, method.Name));
       }
 
       if (aggregateType==AggregateType.Count) {
@@ -458,7 +456,7 @@ namespace Xtensive.Storage.Linq
 
         if (argument==null) {
           if (!innerProjection.ItemProjector.IsPrimitive)
-            throw new NotSupportedException("Aggregates for non primitive types are not supported.");
+            throw new NotSupportedException(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported);
           // Default
           columnList = innerProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
         }
@@ -474,7 +472,7 @@ namespace Xtensive.Storage.Linq
         }
 
         if (columnList.Count!=1)
-          throw new NotSupportedException("Aggregates for non primitive types are not supported.");
+          throw new NotSupportedException(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported);
         aggregateColumn = columnList[0];
       }
 
@@ -719,10 +717,10 @@ namespace Xtensive.Storage.Linq
       return joinedResult;
     }
 
-    private ProjectionExpression VisitSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
+    private ProjectionExpression VisitSelectMany(Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
     {
       if (collectionSelector.Parameters.Count > 1)
-        throw new NotSupportedException();
+        throw new NotSupportedException(String.Format(Strings.ExSelectManyCollectionSelector0MustHaveOnlyOneLambdaParameter,resultSelector.ToString(true)));
       var outerParameter = collectionSelector.Parameters[0];
       var visitedSource = Visit(source);
       var sequence = VisitSequence(visitedSource);
@@ -911,7 +909,7 @@ namespace Xtensive.Storage.Linq
     private Expression AddSubqueryColumn(Type columnType, RecordSet subquery)
     {
       if (subquery.Header.Length!=1)
-        throw new ArgumentException();
+        throw Exceptions.InternalError(String.Format(Strings.SubqueryXHeaderMustHaveOnlyOneColumn, subquery), Log.Instance);
       ParameterExpression lambdaParameter = state.Parameters[0];
       var oldResult = context.Bindings[lambdaParameter];
 

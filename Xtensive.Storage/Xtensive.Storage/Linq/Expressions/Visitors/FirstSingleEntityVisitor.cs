@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         structure = structure.Owner as StructureExpression;
       }
       if (entity == null)
-        throw new InvalidOperationException("Unable to resolve owner.");
+        throw new InvalidOperationException(String.Format(Resources.Strings.ExUnableToResolveOwnerOfStructureExpressionX, expression));
 
       EntityInfo entityInfo;
       if (entities.TryGetValue(entity.PersistentType, out entityInfo))

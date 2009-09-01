@@ -233,7 +233,7 @@ namespace Xtensive.Storage.Linq.Materialization
       }
 
       if (itemMaterializationContextParameter==null)
-        throw new InvalidOperationException("Unable to materialize Entity.");
+        throw new InvalidOperationException(Resources.Strings.ExUnableToMaterializeEntity);
 
       var typeIdField = expression.Fields.SingleOrDefault(f => f.Name==WellKnown.TypeIdFieldName);
       int typeIdIndex = typeIdField==null ? -1 : typeIdField.Mapping.Offset;

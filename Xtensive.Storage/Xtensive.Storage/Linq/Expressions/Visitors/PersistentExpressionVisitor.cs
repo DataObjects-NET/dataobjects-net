@@ -5,8 +5,8 @@
 // Created:    2009.05.07
 
 using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {
@@ -14,12 +14,12 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
   {
     protected override Expression VisitProjectionExpression(ProjectionExpression projectionExpression)
     {
-      throw new NotSupportedException("PersistentExpressionVisitor does not support ProjectionExpression.");
+      throw Exceptions.InternalError(String.Format(Resources.Strings.ExXDoesNotSupportX, typeof (PersistentExpressionVisitor), typeof (ProjectionExpression)), Log.Instance);
     }
 
     protected override Expression VisitItemProjectorExpression(ItemProjectorExpression itemProjectorExpression)
     {
-      throw new NotSupportedException("PersistentExpressionVisitor does not support ItemProjectorExpression.");
+      throw Exceptions.InternalError(String.Format(Resources.Strings.ExXDoesNotSupportX, typeof (PersistentExpressionVisitor), typeof (ItemProjectorExpression)), Log.Instance);
     }
   }
 }

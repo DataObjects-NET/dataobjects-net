@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
     {
       var extendedExpression = expression as ExtendedExpression;
       if (extendedExpression==null)
-        throw new NotSupportedException(string.Format("Expression '{0}' is unknown", expression));
+        throw new NotSupportedException(string.Format(Resources.Strings.ExpressionXIsUnknown, expression));
       switch (extendedExpression.ExtendedType) {
       case ExtendedExpressionType.Projection:
         return VisitProjectionExpression((ProjectionExpression) expression);

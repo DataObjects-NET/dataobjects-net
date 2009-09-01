@@ -65,10 +65,10 @@ namespace Xtensive.Storage.Building.Definitions
       ArgumentValidator.EnsureArgumentNotNull(root, "root");
 
       if (!root.IsEntity)
-        throw new ArgumentException("Only entities could be hierarchy roots.");
+        throw new ArgumentException(Strings.ExOnlyEntitiesCouldBeHierarchyRoots, "root");
 
       if (!types.Contains(root))
-        throw new ArgumentException("Hierarchy root is not registered.");
+        throw new ArgumentException(Strings.ExHierarchyRootIsNotRegistered, "root");
 
       return ModelDefBuilder.DefineHierarchy(root);
     }

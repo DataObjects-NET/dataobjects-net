@@ -480,7 +480,7 @@ namespace Xtensive.Storage.Upgrade
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitKeyField(KeyField keyField)
     {
-      throw new NotSupportedException();
+      throw new NotSupportedException(String.Format(Resources.Strings.ExVisitKeyFieldIsNotSupportedByX, typeof(DomainModelConverter)));
     }
 
     /// <inheritdoc/>

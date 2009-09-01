@@ -69,14 +69,14 @@ namespace Xtensive.Storage.Building
 
       // We can produce generic instance types with exactly 1 parameter, e.g. EntityWrapper<TEntity> where TEntity : Entity
       if (parameters.Length!=1)
-        throw new DomainBuilderException(string.Format("Unable to build generic instance types for '{0}' type because it contains more then 1 generic parameter.", action.Type.Name));
+        throw new DomainBuilderException(string.Format(Resources.Strings.ExUnableToBuildGenericInstanceTypesForXTypeBecauseItContainsMoreThen1GenericParameter, action.Type.Name));
 
       var parameter = parameters[0];
 
       // Parameter must be constrained
       var constraints = parameter.GetGenericParameterConstraints();
       if (constraints.Length==0)
-        throw new DomainBuilderException(string.Format("Unable to build generic instance types for '{0}' type because parameter is not constrained.", action.Type.Name));
+        throw new DomainBuilderException(string.Format(Resources.Strings.ExUnableToBuildGenericInstanceTypesForXTypeBecauseParameterIsNotConstrained, action.Type.Name));
 
       // Building instances for all hierarchies
       foreach (var hierarchy in hierarchies) {

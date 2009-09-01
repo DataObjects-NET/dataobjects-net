@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Linq.Expressions
       var offset = map.IndexOf(Mapping.Offset);
       if (offset < 0) {
         if (owner == null && !SkipOwnerCheckScope.IsActive)
-          throw new InvalidOperationException("Unable to remap FieldExpression.");
+          throw new InvalidOperationException(Resources.Strings.ExUnableToRemapFieldExpression);
         processedExpressions.Add(this, null);
         if (owner != null)
           Owner.Remap(map, processedExpressions);
@@ -115,7 +115,7 @@ namespace Xtensive.Storage.Linq.Expressions
     public static FieldExpression CreateField(FieldInfo field, int offset)
     {
       if (!field.IsPrimitive)
-        throw new ArgumentException(string.Format("Field {0} is not primitive.", field.Name));
+        throw new ArgumentException(string.Format(Resources.Strings.ExFieldXIsNotPrimitive, field.Name), "field");
       var mapping = new Segment<int>(field.MappingInfo.Offset + offset, field.MappingInfo.Length);
       var loadMode = field.IsLazyLoad ? FieldLoadMode.Lazy : FieldLoadMode.Standard;
       return new FieldExpression(ExtendedExpressionType.Field, field, mapping, null, false, loadMode);

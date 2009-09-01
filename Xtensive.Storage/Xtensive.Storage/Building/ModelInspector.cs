@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Building
 
       if (fieldDef.IsStructure) {
         if (fieldDef.ValueType==typeDef.UnderlyingType)
-          throw new DomainBuilderException(string.Format("Structure '{0}' can't contain field of the same type.", typeDef.Name));
+          throw new DomainBuilderException(string.Format(Strings.ExStructureXCantContainFieldOfTheSameType, typeDef.Name));
         RegisterDependency(typeDef, FindTypeDef(fieldDef.ValueType), EdgeKind.Aggregation, EdgeWeight.High);
         return;
       }
@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Building
       else {
         // Restriction for EntitySet properties only
         if (fieldDef.OnTargetRemove == OnRemoveAction.Cascade)
-          throw new DomainBuilderException(string.Format("'{0}.{1}': '{2}' value is not acceptable for 'OnTargetRemove' property.", typeDef.Name, fieldDef.Name, fieldDef.OnTargetRemove));
+          throw new DomainBuilderException(string.Format(Strings.ExValueIsNotAcceptableForOnTargetRemoveProperty, typeDef.Name, fieldDef.Name, fieldDef.OnTargetRemove));
       }
 
       Type referencedType = fieldDef.IsEntitySet ? fieldDef.ItemType : fieldDef.ValueType;
@@ -155,7 +155,7 @@ namespace Xtensive.Storage.Building
       if (!referencedTypeDef.IsInterface) {
         HierarchyDef hierarchyDef = context.ModelDef.FindHierarchy(referencedTypeDef);
         if (hierarchyDef==null)
-          throw new DomainBuilderException(string.Format("Hierarchy is not found for type '{0}'", referencedType.GetShortName()));
+          throw new DomainBuilderException(string.Format(Strings.ExHierarchyIsNotFoundForTypeX, referencedType.GetShortName()));
       }
       RegisterDependency(typeDef, referencedTypeDef, EdgeKind.Reference, isKeyField ? EdgeWeight.High : EdgeWeight.Low);
     }

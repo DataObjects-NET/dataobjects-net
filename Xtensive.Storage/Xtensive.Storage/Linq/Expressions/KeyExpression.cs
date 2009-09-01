@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Linq.Expressions
           processedExpressions.Add(this, null);
           return null;
         }
-        throw new InvalidOperationException("Unable to remap KeyExpression");
+        throw Exceptions.InternalError(Resources.Strings.ExUnableToRemapKeyExpression, Log.Instance);
       }
       var result = new KeyExpression(EntityType, fields, segment, UnderlyingProperty, OuterParameter, DefaultIfEmpty);
 

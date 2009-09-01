@@ -290,7 +290,7 @@ namespace Xtensive.Storage
         if (e.NodeType == ExpressionType.Constant && e.Type.IsClosure()) {
           if (e.Type == closureType)
             return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-          throw new NotSupportedException("CachedQuery supports only queries written within its Execute methods.");
+          throw new NotSupportedException(Strings.CachedQuerySupportsOnlyQueriesWrittenWithinItsExecuteMethods);
         }
         return null;
       });

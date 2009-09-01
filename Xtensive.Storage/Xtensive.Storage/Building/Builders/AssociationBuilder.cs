@@ -104,7 +104,7 @@ namespace Xtensive.Storage.Building.Builders
         master.OnOwnerRemove = slave.OnTargetRemove;
       if (master.OnOwnerRemove!=slave.OnTargetRemove)
         throw new DomainBuilderException(
-          string.Format("'{0}.{1}' OnOwnerRemove action is not equal to '{2}.{3}' OnTargetRemove action.",
+          string.Format(Strings.ExOnOwnerRemoveActionIsNotEqualToOnTargetRemoveAction,
           master.OwnerType.Name, master.OwnerField.Name, slave.OwnerType.Name, slave.OwnerField.Name));
 
       // Second pair of actions. They also must be equal to each other
@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Building.Builders
         slave.OnOwnerRemove = master.OnTargetRemove;
       if (slave.OnOwnerRemove != master.OnTargetRemove)
         throw new DomainBuilderException(
-          string.Format("'{0}.{1}' OnOwnerRemove action is not equal to '{2}.{3}' OnTargetRemove action.",
+          string.Format(Strings.ExOnOwnerRemoveActionIsNotEqualToOnTargetRemoveAction,
           slave.OwnerType.Name, slave.OwnerField.Name, master.OwnerType.Name, master.OwnerField.Name));
     }
   }

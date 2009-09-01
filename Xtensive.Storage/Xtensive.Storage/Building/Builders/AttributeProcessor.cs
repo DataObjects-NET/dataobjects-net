@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Building.Builders
       if (hierarchyDef.KeyFields.Count > attribute.Position) {
         var current = hierarchyDef.KeyFields[attribute.Position];
         if (current != null)
-          throw new DomainBuilderException(string.Format("Key fields '{0}' & '{1}' have the same position: '{2}'.", current.Name, fieldDef.Name, attribute.Position));
+          throw new DomainBuilderException(string.Format(Strings.ExKeyFieldsXAndXHaveTheSamePositionX, current.Name, fieldDef.Name, attribute.Position));
         hierarchyDef.KeyFields[attribute.Position] = keyField;
       }
       else {

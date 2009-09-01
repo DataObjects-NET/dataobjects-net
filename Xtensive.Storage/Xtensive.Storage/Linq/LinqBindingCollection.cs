@@ -23,14 +23,14 @@ namespace Xtensive.Storage.Linq
     public override Disposable Add(ParameterExpression key, ProjectionExpression value)
     {
       if (key.Type != value.ItemProjector.Type)
-        throw new ArgumentException("ParameterExpression must have same type as ProjectionExpression.ItemProjector");
+        throw new ArgumentException(Resources.Strings.ExParameterExpressionMustHaveSameTypeAsProjectionExpressionItemProjector, "key");
       return base.Add(key, value);
     }
 
     public override Disposable PermanentAdd(ParameterExpression key, ProjectionExpression value)
     {
       if (key.Type != value.ItemProjector.Type)
-        throw new ArgumentException("ParameterExpression must have same type as ProjectionExpression.ItemProjector");
+        throw new ArgumentException(Resources.Strings.ExParameterExpressionMustHaveSameTypeAsProjectionExpressionItemProjector, "key");
       return base.PermanentAdd(key, value);
     }
 

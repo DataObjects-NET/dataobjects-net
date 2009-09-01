@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Storage.Model;
 using System.Linq;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Linq.Expressions
 {
@@ -147,7 +148,7 @@ namespace Xtensive.Storage.Linq.Expressions
     public static StructureExpression CreateStructure(FieldInfo structureField, int offset)
     {
       if (!structureField.IsStructure)
-        throw new ArgumentException(string.Format("Field {0} is not structure.", structureField.Name));
+        throw new ArgumentException(string.Format(Resources.Strings.ExFieldIsNotStructure, structureField.Name));
       var persistentType = structureField.ReflectedType.Model.Types[structureField.ValueType];
       var mapping = new Segment<int>(offset, structureField.MappingInfo.Length);
       var loadMode = structureField.IsLazyLoad ? FieldLoadMode.Lazy : FieldLoadMode.Standard;
@@ -167,7 +168,7 @@ namespace Xtensive.Storage.Linq.Expressions
         return StructureExpression.CreateStructure(nestedField, offset);
       if (nestedField.IsEntity)
         return EntityFieldExpression.CreateEntityField(nestedField, offset);
-      throw new NotSupportedException(string.Format("Nested field {0} is not supported.", nestedField.Attributes));
+      throw new NotSupportedException(string.Format(Strings.ExNestedFieldXIsNotSupported, nestedField.Attributes));
     }
 // ReSharper restore RedundantNameQualifier
 
