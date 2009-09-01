@@ -761,6 +761,11 @@ namespace Xtensive.Storage.Providers.Sql
         return pagingIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
       }
 
+      if (origin.Type == ProviderType.Select) {
+        var selectProvider = (SelectProvider)origin;
+        return containsCalculatedColumns && !calculatedColumnIndexes.All(selectProvider.ColumnIndexes.Contains);
+      }
+
       return containsCalculatedColumns || sourceSelect.Distinct || pagingIsUsed || groupByIsUsed;
     }
 

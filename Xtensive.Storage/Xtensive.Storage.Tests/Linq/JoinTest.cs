@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupJoinAggregate2Test()
     {
-      var q = Query<Customer>.All
+      var result = Query<Customer>.All
         .GroupJoin(Query<Order>.All,
           customer => customer.Id,
           order => order.Customer.Id,
@@ -72,6 +72,7 @@ namespace Xtensive.Storage.Tests.Linq
             sum = employees.Count() + customerOrders.orders.Count()
           }).OrderBy(t => t.emps).ThenBy(t => t.ords).ThenBy(t => t.sum);
 
+      var list = result.ToList();
       var expected = Query<Customer>.All.AsEnumerable()
         .GroupJoin(Query<Order>.All.AsEnumerable(),
           customer => customer.Id,
@@ -84,12 +85,12 @@ namespace Xtensive.Storage.Tests.Linq
             ords = customerOrders.orders.Count(),
             emps = employees.Count(),
             sum = employees.Count() + customerOrders.orders.Count()
-          }).OrderBy(t => t.emps).ThenBy(t => t.ords).ThenBy(t => t.sum);
+          }).OrderBy(t => t.emps).ThenBy(t => t.ords).ThenBy(t => t.sum).ToList();
 
-      Assert.IsTrue(expected.SequenceEqual(q));
+      Assert.IsTrue(expected.SequenceEqual(list));
 
       QueryDumper.Dump(expected, true);
-      QueryDumper.Dump(q, true);
+      QueryDumper.Dump(list, true);
     }
 
     [Test]

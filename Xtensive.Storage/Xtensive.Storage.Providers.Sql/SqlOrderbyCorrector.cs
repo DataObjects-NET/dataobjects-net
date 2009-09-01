@@ -13,6 +13,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -50,9 +51,18 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var result = rootProvider.Request.SelectStatement.ShallowClone();
       var queryRef = result.From;
-      var columnIndexes = originAsSelect.ColumnIndexes;
-      foreach (KeyValuePair<int, Direction> pair in originAsSelect.Source.Header.Order)
-        result.OrderBy.Add(queryRef.Columns[pair.Key], pair.Value==Direction.Positive);
+      var shouldUseColumnPosition = originAsSelect.Source.Header.Order.Any(o => o.Key >= queryRef.Columns.Count);
+      if (shouldUseColumnPosition)
+        foreach (KeyValuePair<int, Direction> pair in originAsSelect.Source.Header.Order) {
+          var orderColumnIndex = originAsSelect.ColumnIndexes.IndexOf(pair.Key);
+          if (orderColumnIndex >= 0)
+            result.OrderBy.Add(orderColumnIndex + 1, pair.Value == Direction.Positive);
+          else
+            result.OrderBy.Add(queryRef.Columns[pair.Key], pair.Value == Direction.Positive);
+        }
+      else
+        foreach (KeyValuePair<int, Direction> pair in originAsSelect.Source.Header.Order)
+          result.OrderBy.Add(queryRef.Columns[pair.Key], pair.Value == Direction.Positive);
       return result;
     }
 
