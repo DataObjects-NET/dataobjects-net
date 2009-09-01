@@ -120,18 +120,15 @@ namespace Xtensive.Storage.Providers.Sql
       var source = Compile(provider.Source);
       
       SqlSelect sqlSelect;
-      if (provider.Source.Header.Length==0) {
+      if (provider.Source.Header.Length == 0) {
         SqlSelect sourceSelect = source.Request.SelectStatement;
         sqlSelect = sourceSelect.ShallowClone();
         sqlSelect.Columns.Clear();
       }
-      else {
-        var queryRef = source.PermanentReference;
-        sqlSelect = SqlDml.Select(queryRef);
-        sqlSelect.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      }
-      
-      IEnumerable<SqlQueryParameterBinding> allBindings = EnumerableUtils<SqlQueryParameterBinding>.Empty;
+      else
+        sqlSelect = ExtractSqlSelect(provider, source);
+
+      var allBindings = EnumerableUtils<SqlQueryParameterBinding>.Empty;
       foreach (var column in provider.CalculatedColumns) {
         HashSet<SqlQueryParameterBinding> bindings;
         var predicate = ProcessExpression(column.Expression, out bindings, sqlSelect);
@@ -768,6 +765,17 @@ namespace Xtensive.Storage.Providers.Sql
       if (origin.Type == ProviderType.RowNumber) {
         var usedColumnIndexes = origin.Header.Order.Select(o => o.Key);
         return pagingIsUsed || groupByIsUsed || distinctIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
+      }
+
+      if (origin.Type == ProviderType.Calculate) {
+        var calculateProvider = (CalculateProvider)origin;
+        var columnGatherer = new TupleAccessGatherer();
+        var usedColumnIndexes = new List<int>();
+        foreach (var column in calculateProvider.CalculatedColumns)
+          usedColumnIndexes.AddRange(
+            columnGatherer.Gather(column.Expression.Body, column.Expression.Parameters[0]));
+
+        return usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
       }
 
       return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
