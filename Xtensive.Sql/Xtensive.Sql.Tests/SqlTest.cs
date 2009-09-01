@@ -82,8 +82,10 @@ namespace Xtensive.Sql.Tests
 
     protected int ExecuteNonQuery(ISqlCompileUnit statement)
     {
-      using (var command = Connection.CreateCommand(statement))
+      using (var command = Connection.CreateCommand(statement)) {
+        Console.WriteLine(command.CommandText);
         return command.ExecuteNonQuery();
+      }
     }
 
     protected object ExecuteScalar(string commandText)

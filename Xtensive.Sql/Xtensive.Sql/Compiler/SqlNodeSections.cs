@@ -78,6 +78,18 @@ namespace Xtensive.Sql.Compiler
     DomainCollate = 3,
   }
 
+  public enum CreateIndexSection
+  {
+    Entry = 0,
+    Exit = 1,
+    ColumnsEnter = 2,
+    ColumnsExit = 3,
+    NonkeyColumnsEnter = 4,
+    NonkeyColumnsExit = 5,
+    StorageOptions = 6,
+    Where = 7,
+  }
+
   public enum CreateTableSection
   {
     Entry = 0,

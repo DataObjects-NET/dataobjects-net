@@ -1,6 +1,8 @@
-// Copyright (C) 2007 Xtensive LLC.
+// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
+// Created by: Dmitri Maximov
+// Created:    2009.09.01
 
 using System;
 using System.Collections.Generic;
@@ -10,7 +12,7 @@ using Xtensive.Core;
 namespace Xtensive.Sql.Dml
 {
   [Serializable]
-  public class SqlRow: SqlExpressionList
+  public class SqlConcat : SqlExpressionList
   {
     internal override object Clone(SqlNodeCloneContext context)
     {
@@ -21,30 +23,29 @@ namespace Xtensive.Sql.Dml
       foreach (SqlExpression e in expressions)
         expressionsClone.Add((SqlExpression)e.Clone(context));
 
-      SqlRow clone = new SqlRow(expressionsClone);
+      SqlConcat clone = new SqlConcat(expressionsClone);
       return clone;
     }
-
 
     public override void ReplaceWith(SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlRow>(expression, "expression");
-      SqlRow replacingExpression = expression as SqlRow;
+      ArgumentValidator.EnsureArgumentIs<SqlConcat>(expression, "expression");
+      var replacingExpression = expression as SqlConcat;
       expressions.Clear();
       foreach (SqlExpression e in replacingExpression)
         expressions.Add(e);
     }
 
-    internal SqlRow(IList<SqlExpression> expressions)
-      : base(SqlNodeType.Row, expressions)
-    {
-      this.expressions = expressions;
-    }
-
+    /// <inheritdoc/>
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
       visitor.Visit(this);
+    }
+
+    internal SqlConcat(IList<SqlExpression> expressions)
+      : base(SqlNodeType.Concat, expressions)
+    {
     }
   }
 }

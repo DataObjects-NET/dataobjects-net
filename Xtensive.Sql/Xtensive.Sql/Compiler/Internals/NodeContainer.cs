@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace Xtensive.Sql.Compiler.Internals
 {
-  internal class NodeContainer : Node
+  public class NodeContainer : Node
   {
     private Node current;
 
@@ -25,10 +25,33 @@ namespace Xtensive.Sql.Compiler.Internals
       current = node;
     }
 
-    public override void AcceptVisitor(NodeVisitor visitor)
+    internal override void AcceptVisitor(NodeVisitor visitor)
     {
       visitor.Visit(this);
     }
+
+    public void AppendHole(string prefix, object key)
+    {
+      Add(new HoleNode(prefix, key));
+    }
+
+    public void AppendText(string text)
+    {
+      if (string.IsNullOrEmpty(text))
+        return;
+      Add(new TextNode(text));
+    }
+
+    public void AppendDelimiter(string text)
+    {
+      Add(new NodeDelimiter(SqlDelimiterType.Row, text));
+    }
+
+    public void AppendDelimiter(string text, SqlDelimiterType type)
+    {
+      Add(new NodeDelimiter(type, text));
+    }
+
 
     // Constructors
 

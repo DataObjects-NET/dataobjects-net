@@ -42,5 +42,13 @@ namespace Xtensive.Sql.Info
     {
       return (available & required)==required;
     }
+
+    /// <summary>
+    /// Determines whether the specified active features is supported.
+    /// </summary>
+    public static bool Supports(this ColumnFeatures available, ColumnFeatures required)
+    {
+      return (available & required)==required;
+    }
   }
 }

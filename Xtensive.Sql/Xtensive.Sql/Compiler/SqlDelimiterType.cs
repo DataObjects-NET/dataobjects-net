@@ -4,7 +4,7 @@
 
 namespace Xtensive.Sql.Compiler
 {
-  public enum DelimiterType
+  public enum SqlDelimiterType
   {
     Default = Column,
     Column = 0,

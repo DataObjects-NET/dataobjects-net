@@ -29,7 +29,7 @@ namespace Xtensive.Sql.SqlServer.v2005
     {
       var renameColumnAction = node.Action as SqlRenameColumn;
       if (renameColumnAction!=null)
-        context.AppendText(((Translator) translator).Translate(context, renameColumnAction));
+        context.Output.AppendText(((Translator) translator).Translate(context, renameColumnAction));
       else
         base.Visit(node);
     }
@@ -102,10 +102,10 @@ namespace Xtensive.Sql.SqlServer.v2005
       if (node.TrimCharacters!=null && !node.TrimCharacters.All(_char => _char==' '))
         throw new NotSupportedException(Strings.ExSqlServerSupportsTrimmingOfSpaceCharactersOnly);
       
-      using (context.EnterNode(node)) {
-        context.AppendText(translator.Translate(context, node, TrimSection.Entry));
+      using (context.EnterScope(node)) {
+        context.Output.AppendText(translator.Translate(context, node, TrimSection.Entry));
         node.Expression.AcceptVisitor(this);
-        context.AppendText(translator.Translate(context, node, TrimSection.Exit));
+        context.Output.AppendText(translator.Translate(context, node, TrimSection.Exit));
       }
     }
     

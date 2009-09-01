@@ -15,11 +15,6 @@ namespace Xtensive.Sql.PostgreSql.v8_3
       return string.Empty;
     }
 
-    protected override void AppendIndexColumnSortingOrder(StringBuilder builder, bool ascending)
-    {
-      builder.Append(ascending ? " ASC" : " DESC");
-    }
-
     // Constuctors
 
     public Translator(SqlDriver driver)

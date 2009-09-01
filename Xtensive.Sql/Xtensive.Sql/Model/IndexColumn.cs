@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Model
 {
@@ -17,6 +17,7 @@ namespace Xtensive.Sql.Model
     private DataTableColumn column;
     private bool ascending;
     private Index index;
+    private SqlExpression expression;
 
     /// <summary>
     /// Gets or sets the index.
@@ -74,8 +75,21 @@ namespace Xtensive.Sql.Model
     /// <value></value>
     public override string Name
     {
-      get { return column.Name; }
-      set { column.Name = value; }
+      get { return !expression.IsNullReference() ? string.Empty : column.Name; }
+      set { throw new NotSupportedException(); }
+    }
+
+    /// <summary>
+    /// Gets or sets the expression.
+    /// </summary>
+    public SqlExpression Expression
+    {
+      get { return expression; }
+      set
+      {
+        this.EnsureNotLocked();
+        expression = value;
+      }
     }
  
   
@@ -99,6 +113,13 @@ namespace Xtensive.Sql.Model
     internal IndexColumn(Index index, DataTableColumn column, bool ascending)
     {
       Column = column;
+      Index = index;
+      this.ascending = ascending;
+    }
+
+    internal IndexColumn(Index index, SqlExpression expression, bool ascending)
+    {
+      this.expression = expression;
       Index = index;
       this.ascending = ascending;
     }

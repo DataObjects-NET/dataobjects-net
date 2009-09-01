@@ -388,6 +388,18 @@ namespace Xtensive.Sql.Compiler
       return string.Empty;
     }
 
+    public virtual string Translate(SqlCompilerContext context, SqlConcat node, NodeSection section)
+    {
+      switch (section) {
+        case NodeSection.Entry:
+          return "(";
+        case NodeSection.Exit:
+          return ")";
+        default:
+          return string.Empty;
+      }
+    }
+
     public virtual string Translate(SqlCompilerContext context, SqlContinue node)
     {
       return "CONTINUE";
@@ -499,53 +511,47 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCreateIndex node)
+    public virtual string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
-      Index index = node.Index;
-      var builder = new StringBuilder();
-      builder.Append("CREATE ");
-      if (index.IsUnique)
-        builder.Append("UNIQUE ");
-      else if (index.IsBitmap)
-        builder.Append("BITMAP ");
-      if (index.IsClustered)
-        builder.Append("CLUSTERED ");
-      builder.Append("INDEX " + QuoteIdentifier(index.DbName));
-      builder.Append(" ON " + Translate(index.DataTable) + " (");
-      bool first = true;
-      foreach (IndexColumn column in index.Columns) {
-        if (first)
-          first = false;
-        else
-          builder.Append(RowItemDelimiter);
-        builder.Append(QuoteIdentifier(column.DbName));
-        if (column.Ascending)
-          builder.Append(" ASC");
-        else
-          builder.Append(" DESC");
+      switch (section) {
+        case CreateIndexSection.Entry:
+          Index index = node.Index;
+          var builder = new StringBuilder();
+          builder.Append("CREATE ");
+          if (index.IsUnique)
+            builder.Append("UNIQUE ");
+          else if (index.IsBitmap)
+            builder.Append("BITMAP ");
+          if (index.IsClustered)
+            builder.Append("CLUSTERED ");
+          builder.Append("INDEX " + QuoteIdentifier(index.DbName));
+          builder.Append(" ON " + Translate(index.DataTable));
+          return builder.ToString();
+        case CreateIndexSection.ColumnsEnter:
+          return "(";
+        case CreateIndexSection.ColumnsExit:
+          return ")";
+        case CreateIndexSection.NonkeyColumnsEnter:
+          return " INCLUDE (";
+        case CreateIndexSection.NonkeyColumnsExit:
+          return ")";
+        case CreateIndexSection.Where:
+          return " WHERE";
+        case CreateIndexSection.Exit:
+          index = node.Index;
+          builder = new StringBuilder();
+          if (index.FillFactor.HasValue) {
+            builder.Append(" WITH (FILLFACTOR = " + index.FillFactor.Value + ")");
+          }
+          if (index.PartitionDescriptor != null) {
+            builder.Append(" " + Translate(index.PartitionDescriptor, true));
+          }
+          else if (!String.IsNullOrEmpty(index.Filegroup))
+            builder.Append(" ON " + index.Filegroup);
+          return builder.ToString();
+        default:
+          return string.Empty;
       }
-      builder.Append(")");
-      if (index.NonkeyColumns != null && index.NonkeyColumns.Count != 0) {
-        builder.Append(" INCLUDE (");
-        first = true;
-        foreach (DataTableColumn column in index.NonkeyColumns) {
-          if (first)
-            first = false;
-          else
-            builder.AppendFormat(RowItemDelimiter);
-          builder.Append(QuoteIdentifier(column.DbName));
-        }
-        builder.Append(")");
-      }
-      if (index.FillFactor.HasValue) {
-        builder.Append(" WITH (FILLFACTOR = " + index.FillFactor.Value + ")");
-      }
-      if (index.PartitionDescriptor != null) {
-        builder.Append(" " + Translate(index.PartitionDescriptor, true));
-      }
-      else if (!String.IsNullOrEmpty(index.Filegroup))
-        builder.Append(" ON " + index.Filegroup);
-      return builder.ToString();
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlCreatePartitionFunction node)
@@ -1102,7 +1108,7 @@ namespace Xtensive.Sql.Compiler
       case TableSection.Exit:
         return ")";
       case TableSection.AliasDeclaration:
-          string alias = context.AliasProvider.GetAlias(node);
+          string alias = context.TableNameProvider.GetName(node);
         return (string.IsNullOrEmpty(alias)) ? string.Empty : QuoteIdentifier(alias);
       }
       return string.Empty;
@@ -1179,14 +1185,17 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string Translate(SqlCompilerContext context, SqlTable node, NodeSection section)
     {
-      return QuoteIdentifier(context.AliasProvider.GetAlias(node));
+      return QuoteIdentifier(context.TableNameProvider.GetName(node));
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlTableColumn node, NodeSection section)
     {
-      return
-        Translate(context, node.SqlTable, NodeSection.Entry) + "." +
-        (((object)node == (object)node.SqlTable.Asterisk) ? node.Name : QuoteIdentifier(node.Name));
+      if ((context.NamingOptions & SqlCompilerNamingOptions.TableQualifiedColumns) == 0)
+        return (((object)node == (object)node.SqlTable.Asterisk) ? node.Name : QuoteIdentifier(node.Name));
+      else
+        return
+          Translate(context, node.SqlTable, NodeSection.Entry) + "." +
+          (((object)node == (object)node.SqlTable.Asterisk) ? node.Name : QuoteIdentifier(node.Name));
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlTableRef node, TableSection section)
@@ -1195,7 +1204,7 @@ namespace Xtensive.Sql.Compiler
       case TableSection.Entry:
         return Translate(node.DataTable);
       case TableSection.AliasDeclaration:
-          string alias = context.AliasProvider.GetAlias(node);
+          string alias = context.TableNameProvider.GetName(node);
         return (alias != node.DataTable.DbName) ? " " + QuoteIdentifier(alias) : string.Empty;
       }
       return string.Empty;
@@ -1223,11 +1232,11 @@ namespace Xtensive.Sql.Compiler
           !(node.NodeType == SqlNodeType.Exists || node.NodeType == SqlNodeType.All ||
             node.NodeType == SqlNodeType.Some || node.NodeType == SqlNodeType.Any))
           result += "(";
-        if (node.NodeType != SqlNodeType.IsNull)
+        if (node.NodeType != SqlNodeType.IsNull && node.NodeType != SqlNodeType.IsNotNull)
           result += Translate(node.NodeType);
         break;
       case NodeSection.Exit:
-        if (node.NodeType == SqlNodeType.IsNull)
+        if (node.NodeType == SqlNodeType.IsNull || node.NodeType == SqlNodeType.IsNotNull)
           result += Translate(node.NodeType);
         if (
           !(node.NodeType == SqlNodeType.Exists || node.NodeType == SqlNodeType.All ||
@@ -1328,6 +1337,8 @@ namespace Xtensive.Sql.Compiler
         return "OR";
       case SqlNodeType.IsNull:
         return "IS NULL";
+      case SqlNodeType.IsNotNull:
+        return "IS NOT NULL";
       case SqlNodeType.Not:
         return "NOT";
       case SqlNodeType.NotBetween:
@@ -1745,6 +1756,11 @@ namespace Xtensive.Sql.Compiler
       }
       builder.Append(BatchEnd);
       return builder.ToString();
+    }
+
+    public virtual string TranslateSortOrder(bool ascending)
+    {
+      return ascending ? "ASC" : "DESC";
     }
 
     /// <summary>

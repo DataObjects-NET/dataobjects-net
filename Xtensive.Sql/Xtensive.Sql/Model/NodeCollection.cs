@@ -34,7 +34,8 @@ namespace Xtensive.Sql.Model
     public override void Add(TNode item)
     {
       base.Add(item);
-      nameIndex.Add(item.Name, item);
+      if (!string.IsNullOrEmpty(item.Name))
+        nameIndex.Add(item.Name, item);
     }
 
     public override bool Remove(TNode item)

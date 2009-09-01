@@ -11,7 +11,7 @@ namespace Xtensive.Sql.Compiler.Internals
     public readonly string Prefix;
     public readonly object Key;
 
-    public override void AcceptVisitor(NodeVisitor visitor)
+    internal override void AcceptVisitor(NodeVisitor visitor)
     {
       visitor.Visit(this);
     }

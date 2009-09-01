@@ -3,7 +3,9 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Model
 {
@@ -21,6 +23,16 @@ namespace Xtensive.Sql.Model
     private byte? fillFactor;
     private string filegroup;
     private PartitionDescriptor partitionDescriptor;
+    private SqlExpression where;
+
+    /// <summary>
+    /// Creates the index column.
+    /// </summary>
+    /// <param name="column">The column.</param>
+    public IndexColumn CreateIndexColumn(DataTableColumn column)
+    {
+      return CreateIndexColumn(column, true);
+    }
 
     /// <summary>
     /// Creates the index column.
@@ -29,20 +41,34 @@ namespace Xtensive.Sql.Model
     /// <param name="ascending">The sort direction.</param>
     public IndexColumn CreateIndexColumn(DataTableColumn column, bool ascending)
     {
+      ArgumentValidator.EnsureArgumentNotNull(column, "column");
       return new IndexColumn(this, column, ascending);
     }
 
     /// <summary>
     /// Creates the index column.
     /// </summary>
-    /// <param name="column">The column.</param>
-    public IndexColumn CreateIndexColumn(DataTableColumn column)
+    /// <param name="expression">The expression.</param>
+    /// <returns><see cref="IndexColumn"/> instance.</returns>
+    public IndexColumn CreateIndexColumn(SqlExpression expression)
     {
-      return new IndexColumn(this, column, true);
+      return CreateIndexColumn(expression, true);
     }
 
     /// <summary>
-    /// Columns on which the index is based.
+    /// Creates the index column.
+    /// </summary>
+    /// <param name="expression">The expression.</param>
+    /// <returns><see cref="IndexColumn"/> instance.</returns>
+    public IndexColumn CreateIndexColumn(SqlExpression expression, bool ascending)
+    {
+      if (expression.IsNullReference())
+        throw new ArgumentNullException("expression");
+      return new IndexColumn(this, expression, ascending);
+    }
+
+    /// <summary>
+    /// Columns, this instance is based on.
     /// </summary>
     public PairedNodeCollection<Index, IndexColumn> Columns
     {
@@ -50,11 +76,24 @@ namespace Xtensive.Sql.Model
     }
 
     /// <summary>
-    /// Nonkey columns to be added to the the index.
+    /// Non key columns to be added to the the index.
     /// </summary>
     public NodeCollection<DataTableColumn> NonkeyColumns
     {
       get { return nonkeyColumns; }
+    }
+
+    /// <summary>
+    /// Gets or sets the index filter expression.
+    /// </summary>
+    public SqlExpression Where
+    {
+      get { return where; }
+      set
+      {
+        this.EnsureNotLocked();
+        where = value;
+      }
     }
 
     /// <summary>

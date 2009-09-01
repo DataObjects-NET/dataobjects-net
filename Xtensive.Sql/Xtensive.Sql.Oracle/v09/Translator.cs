@@ -172,7 +172,7 @@ namespace Xtensive.Sql.Oracle.v09
       return "DROP INDEX " + Translate(node.Index);
     }
 
-    public override string Translate(SqlCompilerContext context, SqlCreateIndex node)
+    public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
       var index = node.Index;
       var builder = new StringBuilder();

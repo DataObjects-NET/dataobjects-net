@@ -53,6 +53,16 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Indicates that RDBMS supports specifying sort order (i.e. asc or desc) for each column in index.
     /// </summary>
-    SortOrder = 0x40
+    SortOrder = 0x40,
+
+    /// <summary>
+    /// Indicates that RDBMS supports filtered/partial indexes.
+    /// </summary>
+    Filtered = 0x80,
+
+    /// <summary>
+    /// Indicates that RDBMS supports indexes, based on expressions.
+    /// </summary>
+    Expressions = 0x100
   }
 }

@@ -37,7 +37,7 @@ namespace Xtensive.Sql.Info
     Identity = 0x1,
 
     /// <summary>
-    /// RDBMS server support computed columns.
+    /// RDBMS server supports computed columns.
     /// </summary>
     Computed = 0x2,
   }

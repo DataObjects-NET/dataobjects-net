@@ -15,7 +15,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     protected virtual IndexFeatures GetIndexFeatures()
     {
-      return IndexFeatures.Clustered | IndexFeatures.Unique;
+      return IndexFeatures.Clustered | IndexFeatures.Unique | IndexFeatures.Filtered | IndexFeatures.Expressions;
     }
 
     protected virtual int GetMaxTextLength()

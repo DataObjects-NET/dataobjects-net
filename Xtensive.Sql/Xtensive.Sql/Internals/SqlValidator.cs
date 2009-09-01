@@ -78,6 +78,7 @@ namespace Xtensive.Sql
         case SqlNodeType.GreaterThanOrEquals:
         case SqlNodeType.In:
         case SqlNodeType.IsNull:
+        case SqlNodeType.IsNotNull:
         case SqlNodeType.LessThan:
         case SqlNodeType.LessThanOrEquals:
         case SqlNodeType.Like:

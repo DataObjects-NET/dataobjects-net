@@ -13,7 +13,7 @@ namespace Xtensive.Sql.SqlServer.v2005
 {
   internal class Extractor : Model.Extractor
   {
-    private int schemaId;
+    protected int schemaId;
     private int firstDomainId;
     private readonly Dictionary<int, Schema> schemaIndex = new Dictionary<int, Schema>();
     private readonly Dictionary<int, Domain> domainIndex = new Dictionary<int, Domain>();
@@ -120,7 +120,7 @@ namespace Xtensive.Sql.SqlServer.v2005
     private void ExtractColumns()
     {
       var trimChars = new[] {'(', ')'};
-      string query = "select t.schema_id, c.object_id, c.column_id, c.name, c.user_type_id, c.precision, c.scale, c.max_length, c.collation_name, c.is_nullable, c.is_identity, dc.name, dc.definition from sys.columns as c inner join (select schema_id, object_id, 0 as type from sys.tables union select schema_id, object_id, 1 as type from sys.views) as t on c.object_id = t.object_id left outer join sys.default_constraints as dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id";
+      string query = "select t.schema_id, c.object_id, c.column_id, c.name, c.user_type_id, c.precision, c.scale, c.max_length, c.collation_name, c.is_nullable, c.is_identity, dc.name, dc.definition, cc.is_persisted, cc.definition from sys.columns as c inner join (select schema_id, object_id, 0 as type from sys.tables union select schema_id, object_id, 1 as type from sys.views) as t on c.object_id = t.object_id left outer join sys.default_constraints as dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id  left outer join sys.computed_columns as cc on c.object_id = cc.object_id and c.column_id = cc.column_id";
       if (Schema!=null)
         query += " where t.schema_id = " + schemaId;
       query += " order by t.schema_id, c.object_id, c.column_id";
@@ -143,7 +143,7 @@ namespace Xtensive.Sql.SqlServer.v2005
             var sqlDataType = GetValueType(typeNameIndex[typeId], reader.GetByte(5), reader.GetByte(6), reader.GetInt16(7));
             var column = table.CreateColumn(reader.GetString(3), sqlDataType);
             int count = table.TableColumns.Count;
-            if (columnId != count) // <-db column index is not equal to column position in table.Columns. This is common after column removal & insertions.
+            if (columnId != count) // <-db column index is not equal to column position in table.Columns. This is common after column removals or insertions.
               dataTable.RegisterColumnMapping(columnId, count - 1);
 
             if (typeId >= firstDomainId) {
@@ -166,6 +166,12 @@ namespace Xtensive.Sql.SqlServer.v2005
             if (!reader.IsDBNull(11)) {
               table.CreateDefaultConstraint(reader.GetString(11), column);
               column.DefaultValue = reader.GetString(12).Trim(trimChars);
+            }
+
+            // Computed column
+            if (!reader.IsDBNull(13)) {
+              column.IsPersisted = reader.GetBoolean(13);
+              column.Expression = SqlDml.Literal(reader.GetString(14));
             }
           }
           else {
@@ -202,12 +208,18 @@ namespace Xtensive.Sql.SqlServer.v2005
       // TODO: Implement
     }
 
-    private void ExtractIndexes()
+    protected virtual string GetIndexQuery()
     {
-      string query = "select t.schema_id, t.object_id, t.type, i.index_id, i.name, i.type, i.is_primary_key, i.is_unique, i.is_unique_constraint, i.fill_factor, ic.column_id, 0, ic.key_ordinal, ic.is_descending_key, ic.is_included_column from sys.indexes i inner join (select schema_id, object_id, 0 as type from sys.tables union select schema_id, object_id, 1 as type from sys.views) as t on i.object_id = t.object_id inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id where i.type < 3 and  not (ic.key_ordinal = 0 and ic.is_included_column = 0)";
+      string query = "select t.schema_id, t.object_id, t.type, i.index_id, i.name, i.type, i.is_primary_key, i.is_unique, i.is_unique_constraint, i.fill_factor, ic.column_id, 0, ic.key_ordinal, ic.is_descending_key, ic.is_included_column, NULL, NULL from sys.indexes i inner join (select schema_id, object_id, 0 as type from sys.tables union select schema_id, object_id, 1 as type from sys.views) as t on i.object_id = t.object_id inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id where i.type < 3 and  not (ic.key_ordinal = 0 and ic.is_included_column = 0)";
       if (Schema!=null)
         query += " and schema_id = " + schemaId;
       query += " order by t.schema_id, t.object_id, i.index_id, ic.is_included_column, ic.key_ordinal";
+      return query;
+    }
+
+    private void ExtractIndexes()
+    {
+      string query = GetIndexQuery();
 
       int tableId = 0, indexId = 0;
       DataTableProxy table = null;
@@ -237,6 +249,8 @@ namespace Xtensive.Sql.SqlServer.v2005
               index.IsUnique = reader.GetBoolean(7);
               index.IsClustered = reader.GetByte(5)==1;
               index.FillFactor = reader.GetByte(9);
+              if (!reader.IsDBNull(15) && reader.GetBoolean(15))
+                index.Where = SqlDml.Literal(reader.GetString(16));
 
               // Index is a part of unique constraint
               if (reader.GetBoolean(8))
@@ -260,7 +274,6 @@ namespace Xtensive.Sql.SqlServer.v2005
                 index.CreateIndexColumn(table.GetColumn(columnId), !reader.GetBoolean(13));
             }
           }
-
         }
     }
 

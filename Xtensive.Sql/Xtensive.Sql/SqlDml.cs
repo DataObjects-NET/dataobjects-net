@@ -1341,13 +1341,17 @@ namespace Xtensive.Sql
 
     # region String functions
 
-    public static SqlBinary Concat(SqlExpression left, SqlExpression right)
+    public static SqlConcat Concat(SqlExpression left, SqlExpression right)
     {
-      ArgumentValidator.EnsureArgumentNotNull(left, "left");
-      ArgumentValidator.EnsureArgumentNotNull(right, "right");
-      SqlValidator.EnsureIsCharacterExpression(left);
-      SqlValidator.EnsureIsCharacterExpression(right);
-      return new SqlBinary(SqlNodeType.Concat, left, right);
+      return new SqlConcat(new [] {left, right});
+    }
+
+    public static SqlConcat Concat(params SqlExpression[] items)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(items, "items");
+      foreach (var item in items)
+        SqlValidator.EnsureIsCharacterExpression(item);
+      return new SqlConcat(items);
     }
     
     /// <summary>
@@ -1728,7 +1732,7 @@ namespace Xtensive.Sql
     public static SqlUnary IsNotNull(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      return Unary(SqlNodeType.Not, Unary(SqlNodeType.IsNull, operand));
+      return Unary(SqlNodeType.IsNotNull, operand);
     }
 
     public static SqlUnary Unique(ISqlQueryExpression operand)

@@ -4,10 +4,10 @@
 
 namespace Xtensive.Sql.Compiler.Internals
 {
-  internal abstract class Node
+  public abstract class Node
   {
     public Node Next;
 
-    public abstract void AcceptVisitor(NodeVisitor visitor);
+    internal abstract void AcceptVisitor(NodeVisitor visitor);
   }
 }

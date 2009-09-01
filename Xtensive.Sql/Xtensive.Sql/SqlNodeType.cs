@@ -64,6 +64,7 @@ namespace Xtensive.Sql
     Insert,
     Intersect,
     IsNull,
+    IsNotNull,
     Join,
     Hint,
     LessThan,

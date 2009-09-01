@@ -134,7 +134,7 @@ namespace Xtensive.Sql.Compiler.Internals
     public override void Visit(NodeDelimiter node)
     {
       switch (node.Type) {
-      case DelimiterType.Column:
+      case SqlDelimiterType.Column:
         AppendLine(node.Text);
         AppendIndent();
         break;

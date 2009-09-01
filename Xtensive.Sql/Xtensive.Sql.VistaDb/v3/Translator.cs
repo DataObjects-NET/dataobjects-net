@@ -188,7 +188,7 @@ namespace Xtensive.Sql.VistaDb.v3
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SqlCreateIndex node)
+    public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
       Index index = node.Index;
       StringBuilder sb = new StringBuilder();

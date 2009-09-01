@@ -220,47 +220,37 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SqlCreateIndex node)
+    public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
       Index index = node.Index;
-      var builder = new StringBuilder();
-      builder.AppendFormat("CREATE {0}INDEX {1} ON {2} ("
-        , index.IsUnique ? "UNIQUE " : ""
-        , QuoteIdentifier(index.Name)
-        , Translate(index.DataTable));
+      switch (section) {
+        case CreateIndexSection.Entry:
+          return string.Format("CREATE {0}INDEX {1} ON {2} ("
+            , index.IsUnique ? "UNIQUE " : ""
+            , QuoteIdentifier(index.Name)
+            , Translate(index.DataTable));
+        case CreateIndexSection.StorageOptions:
+          var builder = new StringBuilder();
+          builder.Append(")");
+          AppendIndexStorageParameters(builder, index);
 
-      bool first = true;
-      foreach (IndexColumn column in index.Columns) {
-        if (first) {
-          first = false;
-        }
-        else {
-          builder.Append(RowItemDelimiter);
-        }
-        builder.Append(QuoteIdentifier(column.Name));
-        AppendIndexColumnSortingOrder(builder, column.Ascending);
+          if (!String.IsNullOrEmpty(index.Filegroup)) {
+            builder.Append(" TABLESPACE " + QuoteIdentifier(index.Filegroup));
+          }
+
+          //cluster in a separate command
+          if (index.IsClustered) {
+            builder.AppendFormat(BatchItemDelimiter + " CLUSTER {0} ON {1}"
+              , QuoteIdentifier(index.Name)
+              , QuoteIdentifier(index.DataTable.Schema.Name, index.DataTable.Name)
+              );
+          }
+          return builder.ToString();
+        case CreateIndexSection.Where:
+          return " WHERE ";
+        default:
+          return string.Empty;
       }
-      builder.Append(")");
-      AppendIndexStorageParameters(builder, index);
-
-      if (!String.IsNullOrEmpty(index.Filegroup)) {
-        builder.Append(" TABLESPACE " + QuoteIdentifier(index.Filegroup));
-      }
-
-      //cluster in a separate command
-      if (index.IsClustered) {
-        builder.AppendFormat(BatchItemDelimiter + " CLUSTER {0} ON {1}"
-          , QuoteIdentifier(index.Name)
-          , QuoteIdentifier(index.DataTable.Schema.Name, index.DataTable.Name)
-          );
-      }
-
-      return builder.ToString();
-    }
-
-    protected virtual void AppendIndexColumnSortingOrder(StringBuilder builder, bool ascending)
-    {
-      // do nothing since PgSql before 8.3 does not support such feature
     }
 
     protected virtual void AppendIndexStorageParameters(StringBuilder builder, Index index)
