@@ -527,13 +527,11 @@ namespace Xtensive.Storage.Providers.Sql
         throw new InvalidOperationException(Strings.ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider);
       var source = Compile(provider.Source);
 
-      var sourceSelect = SqlDml.QueryRef(source.Request.SelectStatement);
-      var query = SqlDml.Select(sourceSelect);
-      query.Columns.AddRange(sourceSelect.Columns.Cast<SqlColumn>());
+      var query = ExtractSqlSelect(provider, source);
       var rowNumber = SqlDml.RowNumber();
       query.Columns.Add(rowNumber, provider.Header.Columns.Last().Name);
       foreach (KeyValuePair<int, Direction> order in provider.Header.Order)
-        rowNumber.OrderBy.Add(sourceSelect[order.Key], order.Value==Direction.Positive);
+        rowNumber.OrderBy.Add(query.From.Columns[order.Key], order.Value==Direction.Positive);
       return new SqlProvider(provider, query, Handlers, source);
     }
 
@@ -754,7 +752,8 @@ namespace Xtensive.Storage.Providers.Sql
       var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
       var pagingIsUsed = sourceSelect.Limit != 0 || sourceSelect.Offset != 0;
       var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
-
+      var distinctIsUsed = sourceSelect.Distinct;
+      
       if (origin.Type == ProviderType.Filter) {
         var filterProvider = (FilterProvider)origin;
         var usedColumnIndexes = new TupleAccessGatherer().Gather(filterProvider.Predicate.Body);
@@ -766,7 +765,12 @@ namespace Xtensive.Storage.Providers.Sql
         return containsCalculatedColumns && !calculatedColumnIndexes.All(selectProvider.ColumnIndexes.Contains);
       }
 
-      return containsCalculatedColumns || sourceSelect.Distinct || pagingIsUsed || groupByIsUsed;
+      if (origin.Type == ProviderType.RowNumber) {
+        var usedColumnIndexes = origin.Header.Order.Select(o => o.Key);
+        return pagingIsUsed || groupByIsUsed || distinctIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
+      }
+
+      return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
     }
 
     protected static SqlSelect ExtractSqlSelect(CompilableProvider origin, SqlProvider compiledSource)
