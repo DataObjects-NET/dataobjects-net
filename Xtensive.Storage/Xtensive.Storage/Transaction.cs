@@ -7,6 +7,7 @@
 using System;
 using System.Transactions;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Transactions;
@@ -18,9 +19,11 @@ namespace Xtensive.Storage
   /// <summary>
   /// An implementation of transaction suitable for storage.
   /// </summary>
-  public sealed class Transaction : TransactionBase
+  public sealed class Transaction : TransactionBase,
+    IHasExtensions
   {
     private IDisposable inconsistentRegion;
+    private ExtensionCollection extensions;
 
     /// <summary>
     /// Gets the session.
@@ -42,6 +45,25 @@ namespace Xtensive.Storage
     {
       return new TransactionScope(this);
     }
+
+    #region IHasExtensions Members
+
+    /// <inheritdoc/>
+    public IExtensionCollection Extensions {
+      get {
+        if (extensions != null)
+          return extensions;
+
+        lock (this) {
+          if (extensions == null)
+            extensions = new ExtensionCollection();
+        }
+
+        return extensions;
+      }
+    }
+
+    #endregion
 
     #region OnXxx methods
 

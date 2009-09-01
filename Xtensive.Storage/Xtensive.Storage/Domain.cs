@@ -203,7 +203,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region IExtensionCollection Members
+    #region IHasExtensions members
 
     /// <inheritdoc/>
     public IExtensionCollection Extensions {
