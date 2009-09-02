@@ -32,23 +32,19 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly IMemberCompilerProvider<SqlExpression> memberCompilerProvider;
     private readonly DomainModel model;
-    private readonly SqlSelect[] selects;
-    private readonly SqlTable[] queryRefs;
+    private readonly SqlTable[] tables;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
     private readonly LambdaExpression lambda;
     private readonly HashSet<SqlQueryParameterBinding> bindings;
     private readonly List<ParameterExpression> activeParameters;
-    private readonly Dictionary<ParameterExpression, SqlSelect> selectParameterMapping;
-    private readonly Dictionary<ParameterExpression, SqlTable> queryRefParameterMapping;
+    private readonly Dictionary<ParameterExpression, SqlTable> tableParameterMapping;
     private readonly ICompiler compiler;
 
     private bool fixBooleanExpressions;
     private bool executed;
-    private bool useSelect;
     
     public HashSet<SqlQueryParameterBinding> Bindings { get { return bindings; } }
-    public DomainModel Model { get { return model; } }
     
     public SqlExpression Translate()
     {
@@ -322,14 +318,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         var sqlProvider = (SqlProvider) provider;
         return sqlProvider.PermanentReference[columnIndex];
       }
-      SqlExpression result;
-      if (useSelect) {
-        var sqlSelect = selectParameterMapping[(ParameterExpression) tupleAccess.Object];
-        result = sqlSelect[columnIndex];
-      } else {
-        var queryRef = queryRefParameterMapping[(ParameterExpression) tupleAccess.Object];
-        result = queryRef[columnIndex];
-      }
+
+      var queryRef = tableParameterMapping[(ParameterExpression) tupleAccess.Object];
+      SqlExpression result = queryRef[columnIndex];
       if (fixBooleanExpressions && IsBooleanExpression(tupleAccess))
         result = booleanExpressionConverter.IntToBoolean(result);
       return result;
@@ -342,10 +333,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       activeParameters.AddRange(l.Parameters);
       for (int i = 0; i < l.Parameters.Count; i++) {
         var p = l.Parameters[i];
-        if (useSelect)
-          selectParameterMapping[p] = selects[i];
-        else
-          queryRefParameterMapping[p] = queryRefs[i];
+        tableParameterMapping[p] = tables[i];
       }
       return Visit(l.Body);
     }
@@ -531,26 +519,14 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     
     // Constructors
 
-    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, params SqlSelect[] selects)
+    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, params SqlTable[] tables)
       : this(le, compiler, handlers)
     {
-      ArgumentValidator.EnsureArgumentNotNull(selects, "selects");
-      if (le.Parameters.Count!=selects.Length)
+      ArgumentValidator.EnsureArgumentNotNull(tables, "tables");
+      if (le.Parameters.Count!=tables.Length)
         throw new InvalidOperationException();
-      this.selects = selects;
-      selectParameterMapping = new Dictionary<ParameterExpression, SqlSelect>();
-      useSelect = true;
-    }
-
-    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, params SqlTable[] queryRefs)
-      : this(le, compiler, handlers)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(queryRefs, "queryRefs");
-      if (le.Parameters.Count!=queryRefs.Length)
-        throw new InvalidOperationException();
-      this.queryRefs = queryRefs;
-      queryRefParameterMapping = new Dictionary<ParameterExpression, SqlTable>();
-      useSelect = false;
+      this.tables = tables;
+      tableParameterMapping = new Dictionary<ParameterExpression, SqlTable>();
     }
 
     private ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers)
