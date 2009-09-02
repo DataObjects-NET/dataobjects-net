@@ -14,9 +14,9 @@ namespace Xtensive.Core.Tests.DotNetFramework
   [TestFixture]
   public class NewTupleLogicTest
   {
-    public const int IterationCount = 100000000;
-    public const int MemoryPressureShift = 5;
-    public const int MemoryPressureFactor = 32;
+    public const int IterationCount = 10000000;
+    public const int MemoryPressureShift = 4;
+    public const int MemoryPressureFactor = 16;
     private bool warmup = false;
 
     #region Nested types: TestTuple, BoxingTuple, NonBoxingTuple
