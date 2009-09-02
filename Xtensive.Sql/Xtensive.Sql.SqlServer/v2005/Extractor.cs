@@ -171,7 +171,7 @@ namespace Xtensive.Sql.SqlServer.v2005
             // Computed column
             if (!reader.IsDBNull(13)) {
               column.IsPersisted = reader.GetBoolean(13);
-              column.Expression = SqlDml.Literal(reader.GetString(14));
+              column.Expression = SqlDml.Native(reader.GetString(14));
             }
           }
           else {
@@ -250,7 +250,7 @@ namespace Xtensive.Sql.SqlServer.v2005
               index.IsClustered = reader.GetByte(5)==1;
               index.FillFactor = reader.GetByte(9);
               if (!reader.IsDBNull(15) && reader.GetBoolean(15))
-                index.Where = SqlDml.Literal(reader.GetString(16));
+                index.Where = SqlDml.Native(reader.GetString(16));
 
               // Index is a part of unique constraint
               if (reader.GetBoolean(8))

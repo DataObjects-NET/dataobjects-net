@@ -35,6 +35,8 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
       var t = schema.Tables[TableName];
       var i = t.CreateIndex(ExpressionIndexName);
       var tr = SqlDml.TableRef(t);
+      i.CreateIndexColumn(tr["first"]);
+      i.CreateIndexColumn(tr["second"]);
       i.CreateIndexColumn(SqlDml.Concat(tr["first"], " ", tr["second"]));
       i.CreateIndexColumn(SqlDml.Concat(tr["second"], " ", tr["first"]));
       ExecuteNonQuery(SqlDdl.Create(i));
@@ -45,10 +47,10 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
       var t2 = s2.Tables[TableName];
       var i2 = t2.Indexes[ExpressionIndexName];
       Assert.IsNotNull(i2);
-      Assert.AreEqual(2, i2.Columns.Count);
+      Assert.AreEqual(4, i2.Columns.Count);
 
-      Assert.IsTrue(!i2.Columns[0].Expression.IsNullReference());
-      Assert.IsTrue(!i2.Columns[0].Expression.IsNullReference());
+      Assert.IsTrue(!i2.Columns[2].Expression.IsNullReference());
+      Assert.IsTrue(!i2.Columns[3].Expression.IsNullReference());
     }
 
   }
