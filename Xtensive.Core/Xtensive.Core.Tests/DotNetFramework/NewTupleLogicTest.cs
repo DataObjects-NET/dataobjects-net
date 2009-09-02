@@ -136,8 +136,12 @@ namespace Xtensive.Core.Tests.DotNetFramework
 
     private void Test(int count)
     {
-      TestTupleAccess(new BoxingTuple(), count);
-      TestTupleAccess(new NonBoxingTuple(), count);
+      using (warmup ? new Disposing.Disposable(delegate { }) :
+        Log.InfoRegion("With boxing"))
+        TestTupleAccess(new BoxingTuple(), count);
+      using (warmup ? new Disposing.Disposable(delegate { }) :
+        Log.InfoRegion("Without boxing"))
+        TestTupleAccess(new NonBoxingTuple(), count);
     }
 
     private void TestTupleAccess(TestTuple tuple, int count)
@@ -146,7 +150,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
       TestHelper.CollectGarbage();
       pressure = new object[count / MemoryPressureFactor];
       using (warmup ? (IDisposable)new Disposing.Disposable(delegate { }) : 
-        new Measurement("Setter, with boxing", count)) {
+        new Measurement("Setter", count)) {
         for (long i = 0; i < count; i++) {
           tuple.SetValue<long>(0, i);
           if (0 == (i & (MemoryPressureFactor-1)))
@@ -157,7 +161,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
       TestHelper.CollectGarbage();
       pressure = new object[count / MemoryPressureFactor];
       using (warmup ? (IDisposable)new Disposing.Disposable(delegate { }) : 
-        new Measurement("Getter, with boxing", count)) {
+        new Measurement("Getter", count)) {
         for (long i = 0; i < count; i++) {
           tuple.GetValue<long>(0);
           if (0 == (i & (MemoryPressureFactor-1)))
