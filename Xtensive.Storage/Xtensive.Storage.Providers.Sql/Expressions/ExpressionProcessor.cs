@@ -32,13 +32,13 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly IMemberCompilerProvider<SqlExpression> memberCompilerProvider;
     private readonly DomainModel model;
-    private readonly SqlTable[] tables;
+    private readonly List<SqlTableColumn>[] sourceColumns;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
     private readonly LambdaExpression lambda;
     private readonly HashSet<SqlQueryParameterBinding> bindings;
     private readonly List<ParameterExpression> activeParameters;
-    private readonly Dictionary<ParameterExpression, SqlTable> tableParameterMapping;
+    private readonly Dictionary<ParameterExpression, List<SqlTableColumn>> sourceMapping;
     private readonly ICompiler compiler;
 
     private bool fixBooleanExpressions;
@@ -319,7 +319,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         return sqlProvider.PermanentReference[columnIndex];
       }
 
-      var queryRef = tableParameterMapping[(ParameterExpression) tupleAccess.Object];
+      var queryRef = sourceMapping[(ParameterExpression) tupleAccess.Object];
       SqlExpression result = queryRef[columnIndex];
       if (fixBooleanExpressions && IsBooleanExpression(tupleAccess))
         result = booleanExpressionConverter.IntToBoolean(result);
@@ -333,7 +333,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       activeParameters.AddRange(l.Parameters);
       for (int i = 0; i < l.Parameters.Count; i++) {
         var p = l.Parameters[i];
-        tableParameterMapping[p] = tables[i];
+        sourceMapping[p] = sourceColumns[i];
       }
       return Visit(l.Body);
     }
@@ -519,14 +519,16 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     
     // Constructors
 
-    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, params SqlTable[] tables)
+    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, params List<SqlTableColumn>[] sourceColumns)
       : this(le, compiler, handlers)
     {
-      ArgumentValidator.EnsureArgumentNotNull(tables, "tables");
-      if (le.Parameters.Count!=tables.Length)
-        throw new InvalidOperationException();
-      this.tables = tables;
-      tableParameterMapping = new Dictionary<ParameterExpression, SqlTable>();
+      ArgumentValidator.EnsureArgumentNotNull(sourceColumns, "sourceColumns");
+      if (le.Parameters.Count!=sourceColumns.Length)
+        throw Exceptions.InternalError("Parameters count is not same as source column lists count.", Log.Instance);
+      if (sourceColumns.Any(list => list.Any(c => c.IsNullReference())))
+        throw Exceptions.InternalError("Source column list contains null values.", Log.Instance);
+      this.sourceColumns = sourceColumns;
+      sourceMapping = new Dictionary<ParameterExpression, List<SqlTableColumn>>();
     }
 
     private ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers)
