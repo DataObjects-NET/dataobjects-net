@@ -6,49 +6,55 @@ namespace Xtensive.Sql.Compiler
 {
   public class SqlTableNameProvider
   {
-    private readonly Dictionary<SqlTable, string> aliasTable = new Dictionary<SqlTable, string>(16);
+    private readonly Dictionary<SqlTable, string> aliasMap = new Dictionary<SqlTable, string>(16);
     private readonly Set<string> aliasIndex = new Set<string>();
     private int counter;
     private byte prefixIndex;
     private byte suffix;
-    private const string UserDefinedPrefix = "u";
     private readonly SqlCompilerContext context;
 
-    // prefix is used for user defined aliases renaming, i.e. "alias" -> "ualias".
-    // words[] should not contain the prefix.
     private static readonly string[] Prefixes =
       new[] {
-        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "v",
+        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
         "w", "x", "y", "z"
       };
 
     internal string GetName(SqlTable table)
     {
-      if ((context.NamingOptions & SqlCompilerNamingOptions.TableAliasing) == 0)
-      return table.Name;
+      if ((context.NamingOptions & SqlCompilerNamingOptions.TableAliasing) == 0) {
+        aliasIndex.Add(table.Name);
+        aliasMap[table] = table.Name;
+        return table.Name;
+      }
 
       string result;
-      if (aliasTable.TryGetValue(table, out result))
+      if (aliasMap.TryGetValue(table, out result))
         return result;
 
       var tableRef = table as SqlTableRef;
+      // Table reference
       if (tableRef!=null) {
+        // Alias
         if (tableRef.Name!=tableRef.DataTable.Name) {
-          result = ConvertTableName(tableRef.Name);
+          result = tableRef.Name;
           if (aliasIndex.Contains(result))
             result = GenerateAlias();
         }
         else
           result = GenerateAlias();
       }
+      // Table
       else {
-        if (!string.IsNullOrEmpty(table.Name))
-          result = ConvertTableName(table.Name);
+        if (!string.IsNullOrEmpty(table.Name)) {
+          result = table.Name;
+          if (aliasIndex.Contains(result))
+            result = GenerateAlias();
+        }
         else
           result = GenerateAlias();
       }
 
-      aliasTable[table] = result;
+      aliasMap[table] = result;
       aliasIndex.Add(result);
       return result;
     }
@@ -56,14 +62,9 @@ namespace Xtensive.Sql.Compiler
     internal void Reset()
     {
       aliasIndex.Clear();
-      aliasTable.Clear();
+      aliasMap.Clear();
       prefixIndex = 0;
       suffix = 0;
-    }
-
-    private static string ConvertTableName(string name)
-    {
-      return (name.StartsWith(UserDefinedPrefix)) ? name : UserDefinedPrefix + name;
     }
 
     private string GenerateAlias()

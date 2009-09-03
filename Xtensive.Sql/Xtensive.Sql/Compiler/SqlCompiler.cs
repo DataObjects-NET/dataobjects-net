@@ -668,11 +668,10 @@ namespace Xtensive.Sql.Compiler
           node.From.AcceptVisitor(this);
         }
 
-        if (!node.Where.IsNullReference())
-          using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns)) {
+        if (!node.Where.IsNullReference()) {
             context.Output.AppendText(translator.Translate(context, node, DeleteSection.Where));
             node.Where.AcceptVisitor(this);
-          }
+        }
         context.Output.AppendText(translator.Translate(context, node, DeleteSection.Exit));
       }
     }
@@ -1214,11 +1213,10 @@ namespace Xtensive.Sql.Compiler
           node.From.AcceptVisitor(this);
         }
 
-        if (!node.Where.IsNullReference())
-          using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns)) {
+        if (!node.Where.IsNullReference()) {
             context.Output.AppendText(translator.Translate(context, node, UpdateSection.Where));
             node.Where.AcceptVisitor(this);
-          }
+        }
 
         context.Output.AppendText(translator.Translate(context, node, UpdateSection.Exit));
       }
