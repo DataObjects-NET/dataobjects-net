@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Dml
 {
@@ -76,5 +77,21 @@ namespace Xtensive.Sql.Dml
       foreach (TColumn c in columns)
         base.Add(c);
     }
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public SqlColumnCollection()
+    {}
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public SqlColumnCollection(IList<SqlColumn> list)
+      : base(list)
+    {}
   }
 }

@@ -722,14 +722,27 @@ namespace Xtensive.Sql
       return Join(joinType, left, right, null);
     }
 
-    public static SqlJoinedTable Join(
-      SqlJoinType joinType, SqlTable left, SqlTable right, SqlExpression expression)
+    public static SqlJoinedTable Join(SqlJoinType joinType, SqlTable left, SqlTable right, IList<SqlColumn> leftColumns, IList<SqlColumn> rightColumns)
+    {
+      return Join(joinType, left, right, leftColumns, rightColumns, null);
+    }
+
+    public static SqlJoinedTable Join(SqlJoinType joinType, SqlTable left, SqlTable right, SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(left, "left");
       ArgumentValidator.EnsureArgumentNotNull(right, "right");
-      if (expression != null && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
+      if (!expression.IsNullReference() && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
         throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndLeftOuterApply, "expression");
       return new SqlJoinedTable(new SqlJoinExpression(joinType, left, right, expression));
+    }
+
+    public static SqlJoinedTable Join(SqlJoinType joinType, SqlTable left, SqlTable right, IList<SqlColumn> leftColumns, IList<SqlColumn> rightColumns, SqlExpression expression)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      if (!expression.IsNullReference() && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
+        throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndLeftOuterApply, "expression");
+      return new SqlJoinedTable(new SqlJoinExpression(joinType, left, right, expression), leftColumns, rightColumns);
     }
 
     public static SqlJoinedTable Join(SqlTable left, SqlTable right, params SqlColumn[] columns)

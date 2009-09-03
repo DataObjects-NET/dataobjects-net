@@ -191,24 +191,39 @@ namespace Xtensive.Storage.Providers.Sql
       var left = Compile(provider.Left);
       var right = Compile(provider.Right);
 
-      var leftTable = ShouldUseQueryReference(provider, left) 
+      var leftShouldUseReference = ShouldUseQueryReference(provider, left);
+      var leftTable = leftShouldUseReference 
         ? left.PermanentReference
         : left.Request.SelectStatement.From;
-      var rightTable = ShouldUseQueryReference(provider, right)
+      var leftColumns = leftShouldUseReference
+        ? leftTable.Columns.Cast<SqlColumn>()
+        : left.Request.SelectStatement.Columns;
+
+      var rightShouldUseReference = ShouldUseQueryReference(provider, right);
+      var rightTable = rightShouldUseReference
         ? right.PermanentReference
         : right.Request.SelectStatement.From;
+      var rightColumns = rightShouldUseReference
+        ? rightTable.Columns.Cast<SqlColumn>()
+        : right.Request.SelectStatement.Columns;
+
+      var joinType = provider.JoinType == JoinType.LeftOuter 
+        ? SqlJoinType.LeftOuterJoin 
+        : SqlJoinType.InnerJoin;
+      var joinExpression = provider.EqualIndexes
+        .Select(pair => leftTable.Columns[pair.First] == rightTable.Columns[pair.Second])
+        .Aggregate(null as SqlExpression, (expression, binary) => expression & binary);
+
       var joinedTable = SqlDml.Join(
-        provider.JoinType == JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
+        joinType,
         leftTable,
         rightTable,
-        provider.EqualIndexes
-          .Select(pair => leftTable.Columns[pair.First] == rightTable.Columns[pair.Second])
-          .Aggregate(null as SqlExpression, (expression, binary) => expression & binary)
-        );
+        leftColumns.ToList(),
+        rightColumns.ToList(),
+        joinExpression);
 
       var query = SqlDml.Select(joinedTable);
-      query.Columns.AddRange(BuildAliasedColumns(provider.Left, left.Request.SelectStatement, leftTable));
-      query.Columns.AddRange(BuildAliasedColumns(provider.Right, right.Request.SelectStatement, rightTable));
+      query.Columns.AddRange(joinedTable.AliasedColumns);
       return new SqlProvider(provider, query, Handlers, left, right);
     }
 
@@ -218,25 +233,38 @@ namespace Xtensive.Storage.Providers.Sql
       var left = Compile(provider.Left);
       var right = Compile(provider.Right);
 
-      if (left == null || right == null)
-        return null;
+      var leftShouldUseReference = ShouldUseQueryReference(provider, left);
+      var leftTable = leftShouldUseReference
+        ? left.PermanentReference
+        : left.Request.SelectStatement.From;
+      var leftColumns = leftShouldUseReference
+        ? leftTable.Columns.Cast<SqlColumn>()
+        : left.Request.SelectStatement.Columns;
 
-      var leftTable = left.PermanentReference;
-      var rightTable = right.PermanentReference;
-      
+      var rightShouldUseReference = ShouldUseQueryReference(provider, right);
+      var rightTable = rightShouldUseReference
+        ? right.PermanentReference
+        : right.Request.SelectStatement.From;
+      var rightColumns = rightShouldUseReference
+        ? rightTable.Columns.Cast<SqlColumn>()
+        : right.Request.SelectStatement.Columns;
+
+      var joinType = provider.JoinType == JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin;
+
       var result = ProcessExpression(provider.Predicate, leftTable.Columns.ToList(), rightTable.Columns.ToList());
-      var predicate = result.First;
+      var joinExpression = result.First;
       var bindings = result.Second;
 
       var joinedTable = SqlDml.Join(
-        provider.JoinType == JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin,
+        joinType, 
         leftTable,
         rightTable,
-        predicate);
+        leftColumns.ToList(),
+        rightColumns.ToList(),
+        joinExpression);
 
       var query = SqlDml.Select(joinedTable);
-      query.Columns.AddRange(BuildAliasedColumns(provider.Left, left.Request.SelectStatement, leftTable));
-      query.Columns.AddRange(BuildAliasedColumns(provider.Right, right.Request.SelectStatement, rightTable));
+      query.Columns.AddRange(joinedTable.AliasedColumns);
       return new SqlProvider(provider, query, Handlers, bindings, left, right);
     }
 
@@ -824,14 +852,14 @@ namespace Xtensive.Storage.Providers.Sql
       return result;
     }
 
-    private SqlSelect ProcessApplyViaSubqueries(ApplyProvider provider, SqlProvider left, SqlProvider right, bool shouldUseQueryReference)
+    private static SqlSelect ProcessApplyViaSubqueries(ApplyProvider provider, SqlProvider left, SqlProvider right, bool shouldUseQueryReference)
     {
       var rightQuery = right.Request.SelectStatement;
       SqlSelect query;
       if (shouldUseQueryReference) {
         var leftTable = left.PermanentReference;
         query = SqlDml.Select(leftTable);
-        query.Columns.AddRange(BuildAliasedColumns(provider.Left, left.Request.SelectStatement, leftTable));
+        query.Columns.AddRange(leftTable.Columns.Cast<SqlColumn>());
       }
       else
         query = left.Request.SelectStatement.ShallowClone();
@@ -851,47 +879,38 @@ namespace Xtensive.Storage.Providers.Sql
       return query;
     }
 
-    private SqlSelect ProcessApplyViaCrossApply(ApplyProvider provider, SqlProvider left, SqlProvider right, bool shouldUseQueryReference)
+    private static SqlSelect ProcessApplyViaCrossApply(ApplyProvider provider, SqlProvider left, SqlProvider right, bool shouldUseQueryReference)
     {
-      var sqlApplyType = provider.ApplyType==JoinType.LeftOuter
+      var leftShouldUseReference = ShouldUseQueryReference(provider, left);
+      var leftTable = leftShouldUseReference
+        ? left.PermanentReference
+        : left.Request.SelectStatement.From;
+      var leftColumns = leftShouldUseReference
+        ? leftTable.Columns.Cast<SqlColumn>()
+        : left.Request.SelectStatement.Columns;
+
+      var rightShouldUseReference = ShouldUseQueryReference(provider, right);
+      var rightTable = rightShouldUseReference
+        ? right.PermanentReference
+        : right.Request.SelectStatement.From;
+      var rightColumns = rightShouldUseReference
+        ? rightTable.Columns.Cast<SqlColumn>()
+        : right.Request.SelectStatement.Columns;
+
+      var joinType = provider.ApplyType==JoinType.LeftOuter
         ? SqlJoinType.LeftOuterApply
         : SqlJoinType.CrossApply;
-      var rightSelect = right.Request.SelectStatement;
-      var leftTable = left.PermanentReference;
-      var rightTable = ShouldUseQueryReference(provider, right)
-        ? right.PermanentReference
-        : rightSelect.From;
-      var joinedTable = SqlDml.Join(sqlApplyType, leftTable, rightTable);
-      var query = SqlDml.Select(joinedTable);
-      query.Columns.AddRange(BuildAliasedColumns(provider.Left, left.Request.SelectStatement, leftTable));
-      query.Columns.AddRange(BuildAliasedColumns(provider.Right, right.Request.SelectStatement, rightTable));
-      return query;
-    }
 
-    protected IEnumerable<SqlColumn> BuildAliasedColumns(Provider provider, SqlSelect select, SqlTable table)
-    {
-      var result = new List<SqlColumn>();
-      if (provider.Type == ProviderType.Alias) {
-        var columns = table.Columns.ToList();
-        for (int i = 0; i < table.Columns.Count; i++) {
-          var aliasProvider = (AliasProvider)provider;
-          var columnName = ProcessAliasedName(aliasProvider.Header.Columns[i].Name);
-          var column = columns[i];
-          result.Add(SqlDml.ColumnRef(column, columnName));
-        }
-        return result;
-      }
-//      if (
-//        provider.Type == ProviderType.Join || 
-//        provider.Type == ProviderType.PredicateJoin || 
-//        provider.Type == ProviderType.Apply) {
-//        if (select.From == table && provider.Header.Length > 0)
-//          result.AddRange(select.Columns);
-//        return result;
-//      }
-      if (provider.Header.Length > 0)
-        result.AddRange(table.Columns.Cast<SqlColumn>());
-      return result;
+      var joinedTable = SqlDml.Join(
+        joinType,
+        leftTable,
+        rightTable,
+        leftColumns.ToList(),
+        rightColumns.ToList());
+
+      var query = SqlDml.Select(joinedTable);
+      query.Columns.AddRange(joinedTable.AliasedColumns);
+      return query;
     }
 
     #endregion
