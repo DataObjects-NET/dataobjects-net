@@ -16,9 +16,9 @@ namespace Xtensive.Storage.Linq
 {
   internal sealed partial class Translator
   {
-    private State state;
+    public State state;
 
-    private sealed class State
+    public sealed class State
     {
       private readonly Translator translator;
       private List<CalculatedColumnDescriptor> calculatedColumns;
@@ -26,6 +26,7 @@ namespace Xtensive.Storage.Linq
       private ParameterExpression[] outerParameters;
       private bool buildingProjection;
       private bool calculateExpressions;
+      private LambdaExpression currentLambda;
 
       public List<CalculatedColumnDescriptor> CalculatedColumns
       {
@@ -56,6 +57,12 @@ namespace Xtensive.Storage.Linq
         set { calculateExpressions = value; }
       }
 
+      public LambdaExpression CurrentLambda
+      {
+        get { return currentLambda; }
+        set { currentLambda = value; }
+      }
+
       public IDisposable CreateScope()
       {
         var currentState = translator.state;
@@ -71,6 +78,7 @@ namespace Xtensive.Storage.Linq
         newState.outerParameters = newState.outerParameters.Concat(newState.parameters).ToArray();
         newState.parameters = le.Parameters.ToArray();
         newState.calculatedColumns = new List<CalculatedColumnDescriptor>();
+        newState.currentLambda = le;
         translator.state = newState;
         return new Disposable(_ => translator.state = currentState);
       }
@@ -94,6 +102,7 @@ namespace Xtensive.Storage.Linq
         outerParameters = currentState.outerParameters;
         calculateExpressions = currentState.calculateExpressions;
         buildingProjection = currentState.buildingProjection;
+        currentLambda = currentState.currentLambda;
       }
     }
   }

@@ -233,7 +233,7 @@ namespace Xtensive.Storage.Linq.Materialization
       }
 
       if (itemMaterializationContextParameter==null)
-        throw new InvalidOperationException(Resources.Strings.ExUnableToMaterializeEntity);
+        throw new InvalidOperationException(String.Format(Xtensive.Storage.Resources.Strings.ExUnableToTranslateLambdaExpressionXBecauseItRequiresToMaterializeEntityOfTypeX, context.Translator.state.CurrentLambda, expression.PersistentType.UnderlyingType.FullName));
 
       var typeIdField = expression.Fields.SingleOrDefault(f => f.Name==WellKnown.TypeIdFieldName);
       int typeIdIndex = typeIdField==null ? -1 : typeIdField.Mapping.Offset;

@@ -820,6 +820,7 @@ namespace Xtensive.Storage.Linq
       using (context.Bindings.Add(parameter, visitedSource))
       using (state.CreateScope()) {
         state.CalculateExpressions = false;
+        state.CurrentLambda = le;
         var predicateExpression = (ItemProjectorExpression) VisitLambda(le);
         var predicate = predicateExpression.ToLambda(context);
         var source = context.Bindings[parameter];

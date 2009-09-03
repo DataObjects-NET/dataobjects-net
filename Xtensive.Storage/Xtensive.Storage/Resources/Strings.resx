@@ -827,9 +827,6 @@ Actions:
   <data name="ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance" xml:space="preserve">
     <value>The current transaction is different from the transaction bound to this instance.</value>
   </data>
-  <data name="ExUnableToMaterializeEntity" xml:space="preserve">
-    <value>Unable to materialize Entity.</value>
-  </data>
   <data name="ExOnOwnerRemoveActionIsNotEqualToOnTargetRemoveAction" xml:space="preserve">
     <value>'{0}.{1}' OnOwnerRemove action is not equal to '{2}.{3}' OnTargetRemove action.</value>
   </data>
@@ -1027,5 +1024,8 @@ Actions:
   </data>
   <data name="CantAccessMemberX" xml:space="preserve">
     <value>Can't access member '{0}'</value>
+  </data>
+  <data name="ExUnableToTranslateLambdaExpressionXBecauseItRequiresToMaterializeEntityOfTypeX" xml:space="preserve">
+    <value>Unable to translate lambda expression '{0}' because it requires to materialize entity of type '{1}'.</value>
   </data>
 </root>

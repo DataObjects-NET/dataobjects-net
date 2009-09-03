@@ -212,6 +212,7 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
+      // Visit Queryable extensions.
       if (mc.Method.DeclaringType==typeof (QueryableExtensions))
         if (mc.Method.Name==WellKnownMembers.QueryablePrefetchEntity.Name
           || mc.Method.Name==WellKnownMembers.QueryablePrefetchSubquery.Name)
@@ -226,6 +227,7 @@ namespace Xtensive.Storage.Linq
           return VisitLock(mc);
         else
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
+
       return base.VisitMethodCall(mc);
     }
 

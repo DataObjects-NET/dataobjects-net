@@ -2061,15 +2061,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to materialize Entity..
-        /// </summary>
-        internal static string ExUnableToMaterializeEntity {
-            get {
-                return ResourceManager.GetString("ExUnableToMaterializeEntity", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable to modify removed object..
         /// </summary>
         internal static string ExUnableToModifyDeletedObject {
@@ -2138,6 +2129,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExUnableToSetKeyFieldXExplicitly {
             get {
                 return ResourceManager.GetString("ExUnableToSetKeyFieldXExplicitly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to translate lambda expression &apos;{0}&apos; because it requires to materialize entity of type &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExUnableToTranslateLambdaExpressionXBecauseItRequiresToMaterializeEntityOfTypeX {
+            get {
+                return ResourceManager.GetString("ExUnableToTranslateLambdaExpressionXBecauseItRequiresToMaterializeEntityOfTypeX", resourceCulture);
             }
         }
         
