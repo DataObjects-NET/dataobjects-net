@@ -167,10 +167,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var query = ExtractSqlSelect(provider, source);
 
-      var sourceColumns = query.From == source.PermanentReference || query.From is SqlJoinedTable
-        ? query.From.Columns.ToList()
-        : provider.Source.Header.Columns.Select(c => query.From.Columns[c.Name]).ToList();
-//      var sourceColumns = query.From.Columns.ToList();
+      var sourceColumns = query.From.Columns.ToList();
       var result = ProcessExpression(provider.Predicate, sourceColumns);
       var predicate = result.First;
       var bindings = result.Second;
@@ -630,21 +627,25 @@ namespace Xtensive.Storage.Providers.Sql
     private SqlSelect BuildTableQuery(IndexInfo index)
     {
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      Table table = domainHandler.Schema.Tables[index.ReflectedType.MappingName];
-      bool atRootPolicy = false;
+      var table = domainHandler.Schema.Tables[index.ReflectedType.MappingName];
+      var atRootPolicy = false;
       if (table == null) {
         table = domainHandler.Schema.Tables[index.ReflectedType.GetRoot().MappingName];
         atRootPolicy = true;
       }
 
-      SqlTableRef tableRef = SqlDml.TableRef(table);
-      SqlSelect query = SqlDml.Select(tableRef);
-      if (!atRootPolicy)
-        query.Columns.AddRange(index.Columns.Select(c => (SqlColumn) tableRef.Columns[c.Name]));
+      SqlSelect query;
+      if (!atRootPolicy) {
+        var tableRef = SqlDml.TableRef(table, index.Columns.Select(c => c.Name));
+        query = SqlDml.Select(tableRef);
+        query.Columns.AddRange(tableRef.Columns.Cast<SqlColumn>());
+      }
       else {
         var root = index.ReflectedType.GetRoot().AffectedIndexes.First(i => i.IsPrimary);
         var lookup = root.Columns.ToDictionary(c => c.Field, c => c.Name);
-        query.Columns.AddRange(index.Columns.Select(c => (SqlColumn) tableRef.Columns[lookup[c.Field]]));
+        var tableRef = SqlDml.TableRef(table, index.Columns.Select(c => lookup[c.Field]));
+        query = SqlDml.Select(tableRef);
+        query.Columns.AddRange(tableRef.Columns.Cast<SqlColumn>());
       }
       return query;
     }
@@ -719,9 +720,9 @@ namespace Xtensive.Storage.Providers.Sql
 
       var underlyingIndex = index.UnderlyingIndexes[0];
       var baseQuery = BuildProviderQuery(underlyingIndex);
-      SqlColumn typeIdColumn = baseQuery.Columns[Handlers.Domain.NameBuilder.TypeIdColumnName];
-      SqlBinary inQuery = SqlDml.In(typeIdColumn, SqlDml.Array(typeIds));
-      SqlSelect query = SqlDml.Select(baseQuery.From);
+      var typeIdColumn = baseQuery.Columns[Handlers.Domain.NameBuilder.TypeIdColumnName];
+      var inQuery = SqlDml.In(typeIdColumn, SqlDml.Array(typeIds));
+      var query = SqlDml.Select(baseQuery.From);
       var atRootPolicy = index.ReflectedType.Hierarchy.Schema==InheritanceSchema.SingleTable;
       Dictionary<FieldInfo, string> lookup;
       if (atRootPolicy) {

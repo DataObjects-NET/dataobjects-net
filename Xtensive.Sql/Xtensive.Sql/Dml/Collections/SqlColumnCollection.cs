@@ -69,10 +69,11 @@ namespace Xtensive.Sql.Dml
       }
     }
 
-    public void AddRange(IEnumerable<SqlColumn> columns)
+    public void AddRange<TColumn>(IEnumerable<TColumn> columns)
+      where TColumn : SqlColumn
     {
       ArgumentValidator.EnsureArgumentNotNull(columns, "columns");
-      foreach (SqlColumn c in columns)
+      foreach (TColumn c in columns)
         base.Add(c);
     }
   }

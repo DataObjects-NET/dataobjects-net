@@ -10,6 +10,7 @@ using Xtensive.Core;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Resources;
+using System.Linq;
 
 namespace Xtensive.Sql
 {
@@ -1678,11 +1679,26 @@ namespace Xtensive.Sql
       return new SqlTableRef(dataTable);
     }
 
+    public static SqlTableRef TableRef(DataTable dataTable, IEnumerable<string> columnNames)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
+      ArgumentValidator.EnsureArgumentNotNull(columnNames, "columnNames");
+      return new SqlTableRef(dataTable, string.Empty, columnNames.ToArray());
+    }
+
     public static SqlTableRef TableRef(DataTable dataTable, string name)
     {
       ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "alias");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       return new SqlTableRef(dataTable, name);
+    }
+
+    public static SqlTableRef TableRef(DataTable dataTable, string name, IEnumerable<string> columnNames)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentValidator.EnsureArgumentNotNull(columnNames, "columnNames");
+      return new SqlTableRef(dataTable, name, columnNames.ToArray());
     }
 
     public static SqlQueryRef QueryRef(ISqlQueryExpression query)
