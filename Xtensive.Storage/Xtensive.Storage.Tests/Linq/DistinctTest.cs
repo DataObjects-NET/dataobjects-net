@@ -366,7 +366,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void ReuseTakeTest()
+    public void shopReuseTakeTest()
     {
       var result1 = GetCustomers(1).Count();
       Assert.AreEqual(1, result1);

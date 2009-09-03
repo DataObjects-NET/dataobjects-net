@@ -56,6 +56,7 @@ namespace Xtensive.Storage.Tests.Issues
     }
 
     [Test]
+    [ExpectedException(typeof(InvalidOperationException), "Unable to translate lambda expression 'item => Equals(item, value(Xtensive.Storage.Tests.Issues.Issue0371_ObjectEquals+<>c__DisplayClass2).item1)' because it requires to materialize entity of type 'Xtensive.Storage.Tests.Issues.Issue0371_ObjectEquals_Model.Item'.")]
     public void ItemEqualsTest()
     {
       using (Session.Open(Domain)) {

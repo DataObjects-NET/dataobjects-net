@@ -14,7 +14,7 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers
 {
-  partial class SessionHandler 
+  partial class SessionHandler
   {
     protected bool PersistRequiresTopologicalSort;
 
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers
         where !state.IsNotAvailableOrMarkedAsRemoved
         select state;
 
-      if (PersistRequiresTopologicalSort && entityStates.AtLeast(2))
+      if (PersistRequiresTopologicalSort)
         foreach (var action in GetInsertSequence(entityStates))
           yield return action;
       else
@@ -63,9 +63,9 @@ namespace Xtensive.Storage.Providers
       }
 
       // Delete
-      entityStates = 
+      entityStates =
         registry.GetItems(PersistenceState.Removed)
-        .Except(registry.GetItems(PersistenceState.New));
+          .Except(registry.GetItems(PersistenceState.New));
 
       if (PersistRequiresTopologicalSort && entityStates.AtLeast(2))
         foreach (var action in GetDeleteSequence(entityStates))
@@ -92,16 +92,19 @@ namespace Xtensive.Storage.Providers
 
       // Restore loop links
       foreach (var restoreData in loopReferences) {
-        // No necessity to call Entity.PrepareToSetField, since it already is
+        // TODO: Optimize. Group by entity and return only one Update PersistAction 
+        // per Entity independently of links count per entity.
+        restoreData.First.Entity.State.PersistenceState = PersistenceState.Synchronized;
+        restoreData.First.Entity.PrepareToSetField();
         Persistent.GetAccessor<Entity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, restoreData.Third);
         yield return new PersistAction(restoreData.First, PersistActionKind.Update);
       }
     }
-    
+
     private static IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates)
     {
       // Rolling back the changes in state to properly sort it
-      foreach (var state in entityStates) 
+      foreach (var state in entityStates)
         state.RollbackDifference();
 
       // Topological sorting
@@ -144,8 +147,14 @@ namespace Xtensive.Storage.Providers
         foreach (var association in processingEntityState.Type.GetOwnerAssociations().Where(associationInfo => associationInfo.OwnerField.IsEntity)) {
           Key foreignKey = processingEntityState.Entity.GetReferenceKey(association.OwnerField);
           Node<EntityState, AssociationInfo> destination;
-          if (foreignKey!=null && !foreignKey.Equals(data.Value.Item.Key) && sortData.TryGetValue(foreignKey, out destination))
-            data.Value.AddConnection(destination, true, association);
+          if (foreignKey!=null && sortData.TryGetValue(foreignKey, out destination))
+            if (foreignKey.Equals(data.Value.Item.Key) && processingEntityState.Entity.Type.Hierarchy.Schema == InheritanceSchema.ClassTable) {
+              // Check if self-reference with inheritance.
+              if (association.OwnerField.ValueType!=processingEntityState.Entity.Type.Hierarchy.Root.UnderlyingType)
+                data.Value.AddConnection(destination, true, association);
+            }
+            else
+              data.Value.AddConnection(destination, true, association);
         }
       }
 

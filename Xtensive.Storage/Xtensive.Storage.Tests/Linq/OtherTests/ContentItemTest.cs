@@ -187,6 +187,7 @@ namespace Xtensive.Storage.Tests.Linq.OtherTests
             .All
             .Where(item => item.ParentDirectory.ParentDirectory.Name.ToLower()=="fragment1")
             .Where(item => item.ParentDirectory.Name.ToLower()=="fragment1_2");
+          throw new NotImplementedException("Finish diagnostincs");
             //.Where(contentItem => Equals(contentItem.Name.ToLowerInvariant(), value(Xtensive.Cms.Model.ContentSearchService + < > c__DisplayClass2).queryFragments[(ArrayLength(value(Xtensive.Cms.Model.ContentSearchService + < > c__DisplayClass2).queryFragments) - 1)]))
 
           QueryDumper.Dump(query);
