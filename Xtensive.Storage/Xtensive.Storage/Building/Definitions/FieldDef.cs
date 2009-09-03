@@ -255,6 +255,8 @@ namespace Xtensive.Storage.Building.Definitions
       // class MyEntitySet : EntitySet<MyEntity> <= Is not generic type, but also EntitySet inheritor
       if (genericType==null)
         genericType = valueType.GetGenericType(typeof (EntitySet<>));
+      else
+        genericType = valueType;
 
       if (genericType==null)
         return;
