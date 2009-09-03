@@ -242,15 +242,26 @@ namespace Xtensive.Storage.Building.Definitions
       if (valueType.IsClass && !IsStructure)
         attributes |= FieldAttributes.Nullable;
       ValueType = valueType;
-      if (valueType.IsGenericType) {
-        var genericType = valueType.GetGenericTypeDefinition();
-        IsEntitySet = genericType.IsOfGenericType(typeof(EntitySet<>));
-        if (IsEntitySet)
-          ItemType = valueType.GetGenericArguments()[0];
-        if (genericType == typeof (Nullable<>))
-          attributes |= FieldAttributes.Nullable;
+
+      Type genericType = null;
+      if (valueType.IsGenericType)
+        genericType = valueType.GetGenericTypeDefinition();
+
+      if (genericType == typeof (Nullable<>)) {
+        attributes |= FieldAttributes.Nullable;
+        return;
       }
-      IsLazyLoad = false;
+
+      // class MyEntitySet : EntitySet<MyEntity> <= Is not generic type, but also EntitySet inheritor
+      if (genericType==null)
+        genericType = valueType.GetGenericType(typeof (EntitySet<>));
+
+      if (genericType==null)
+        return;
+
+      IsEntitySet = genericType.GetGenericTypeDefinition()==typeof (EntitySet<>);
+      if (IsEntitySet)
+        ItemType = genericType.GetGenericArguments()[0];
     }
   }
 }
