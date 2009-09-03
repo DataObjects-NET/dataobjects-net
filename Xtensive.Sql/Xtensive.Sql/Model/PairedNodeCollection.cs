@@ -43,8 +43,9 @@ namespace Xtensive.Sql.Model
     /// <inheritdoc/>
     public override bool Remove(TNode item)
     {
-      return base.Remove(item);
+      bool result = base.Remove(item);
       item.UpdatePairedProperty(property, null);
+      return result;
     }
 
     #region Constructors

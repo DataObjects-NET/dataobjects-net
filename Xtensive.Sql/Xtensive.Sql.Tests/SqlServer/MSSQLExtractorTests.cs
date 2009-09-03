@@ -145,7 +145,6 @@ namespace Xtensive.Sql.Tests.SqlServer
     }
   }
 
-  [TestFixture]
   public class MSSQLExtractor_TestColumnTypeExtraction : MSSQLExtractorTestBase
   {
     public override string CleanUpScript
@@ -392,7 +391,6 @@ namespace Xtensive.Sql.Tests.SqlServer
     }
   }
 
-  [TestFixture]
   public class MSSQLExtractor_TestIndexesExtracted : MSSQLExtractorTestBase
   {
     public override string CleanUpScript
@@ -435,7 +433,6 @@ namespace Xtensive.Sql.Tests.SqlServer
     }
   }
 
-  [TestFixture]
   public class MSSQLExtractor2005_TestSchemaExtraction : MSSQLExtractor_TestSchemaExtraction
   {
     public override string CleanUpScript
@@ -491,7 +488,6 @@ namespace Xtensive.Sql.Tests.SqlServer
     }
   }
 
-  [TestFixture]
   public class MSSQLExtractor2005_TestColumnTypeExtraction : MSSQLExtractor_TestColumnTypeExtraction
   {
     /*
@@ -520,19 +516,16 @@ namespace Xtensive.Sql.Tests.SqlServer
     */
   }
 
-  [TestFixture]
   public class MSSQLExtractor2005_TestExtractingViews : MSSQLExtractor_TestExtractingViews
   {
 
   }
 
-  [TestFixture]
   public class MSSQLExtractor2005_TestExtractingForeignKeys : MSSQLExtractor_TestExtractingForeignKeys
   {
 
   }
 
-  [TestFixture]
   public class MSSQLExtractor2005_TestExtractingForeignKeys2 : MSSQLExtractorTestBase
   {
 
@@ -564,13 +557,11 @@ namespace Xtensive.Sql.Tests.SqlServer
     }
   }
 
-  [TestFixture]
   public class MSSQLExtractor2005_TestExtractingUniqueConstraints : MSSQLExtractor_TestExtractingUniqueConstraints
   {
 
   }
 
-  [TestFixture]
   public class MSSQLExtractor2005_TestIndexesExtracted : MSSQLExtractor_TestIndexesExtracted
   {
 
