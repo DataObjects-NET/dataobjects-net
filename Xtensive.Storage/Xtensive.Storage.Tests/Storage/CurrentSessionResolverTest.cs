@@ -23,8 +23,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var config = DomainConfigurationFactory.Create("memory");
       var domain = Domain.Build(config);
-      var sessionConsumptionScope = Session.Open(domain, false);
-      var session = sessionConsumptionScope.Session;
+      var session = Session.Open(domain, false);
 
       bool isSessionActive = false;
       int resolveCount = 0;

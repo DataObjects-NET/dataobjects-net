@@ -18,15 +18,17 @@ namespace Xtensive.Storage.Tests.Storage
 
     internal class TestHelper : SessionBound
     {
-      public void CheckSessionBoundObjects(Ray x, Ray y, Session parentSession)
+      public void Validate(Ray first, Ray second, Session secondSession)
       {
-        Assert.AreNotEqual(Session.Current, parentSession);
-        Assert.AreNotEqual(x.Session, y.Session);
+        // Inside this method this.Session is activated
 
-        Assert.AreEqual(Session.Current, x.Session);
-        Assert.AreNotEqual(Session.Current, y.Session);
+        Assert.AreNotEqual(Session.Current, secondSession);
+        Assert.AreNotEqual(first.Session, second.Session);
 
-        Assert.AreEqual(x.Direction, y.Direction);
+        Assert.AreEqual(Session.Current, first.Session);
+        Assert.AreNotEqual(Session.Current, second.Session);
+
+        Assert.AreEqual(first.Direction, second.Direction);
       }
 
       public TestHelper(Session session)
@@ -42,26 +44,26 @@ namespace Xtensive.Storage.Tests.Storage
       return config;
     }
 
-    [Test]    
+    [Test]
     public void Test()
-    {      
-      using (var scope1 = Session.Open(Domain)) {
+    {
+      var sc1 = new SessionConfiguration("First");
+      var sc2 = new SessionConfiguration("Second");
+      using (var session1 = Session.Open(Domain, sc1)) {
         using (Transaction.Open()) {
           Ray ray1 = new Ray();
-          var testHelper = new TestHelper(Session.Current);
+          var helper = new TestHelper(Session.Current);
           Session.Current.Persist();
 
-          using (var scope2 = Session.Open(Domain)) {
+          using (var session2 = Session.Open(Domain, sc2)) {
             Assert.IsNull(Transaction.Current);
 
             using (Transaction.Open()) {
               Ray ray2 = new Ray();
-
-              Assert.AreNotEqual(scope1.Session, scope2.Session);
-              testHelper.CheckSessionBoundObjects(ray1, ray2, Session.Current);
-            }            
-          }          
-        }        
+              helper.Validate(ray1, ray2, Session.Current);
+            }
+          }
+        }
       }
     }
   }

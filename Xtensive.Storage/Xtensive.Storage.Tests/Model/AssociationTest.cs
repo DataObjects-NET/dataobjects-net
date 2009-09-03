@@ -629,7 +629,7 @@ namespace Xtensive.Storage.Tests.Model
           Assert.AreEqual(0, a1.ManyToManyMaster.Count);
           Assert.AreEqual(0, g1.ManytoManyPaired.Count);
           Assert.AreEqual(0, g2.ManytoManyPaired.Count);
-          session.Session.Persist();
+          session.Persist();
           a1.ManyToManyMaster.Add(g1);
           a2.ManyToManyMaster.Add(g1);
           a1.ManyToManyMaster.Add(g2);

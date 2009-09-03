@@ -49,7 +49,7 @@ namespace Xtensive.Storage
   /// <seealso cref="SessionBound" />
   public sealed partial class Session : DomainBound,
     IContext<SessionScope>, 
-    IResource,
+    IDisposable,
     IHasExtensions
   {
     private const int EntityChangeRegistrySizeLimit = 250; // TODO: -> SessionConfiguration
@@ -58,11 +58,11 @@ namespace Xtensive.Storage
 
     private readonly object _lock = new object();
     private readonly bool persistRequiresTopologicalSort;
-    private readonly Set<object> consumers = new Set<object>();
     private readonly List<QueryTask> queryTasks = new List<QueryTask>();
 
     private ServiceProvider serviceProvider;
     private volatile bool isDisposed;
+    private SessionScope sessionScope;
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -208,30 +208,6 @@ namespace Xtensive.Storage
       }
     }
 
-    #region IResource methods
-
-    /// <inheritdoc/>
-    void IResource.AddConsumer(object consumer)
-    {
-      consumers.Add(consumer);
-    }
-
-    /// <inheritdoc/>
-    void IResource.RemoveConsumer(object consumer)
-    {
-      consumers.Remove(consumer);
-      if (!(this as IResource).HasConsumers)
-        Dispose();
-    }
-
-    /// <inheritdoc/>
-    bool IResource.HasConsumers
-    {
-      get { return consumers.Count > 0; }
-    }
-
-    #endregion
-
     #region IContext<...> methods
 
     /// <summary>
@@ -268,7 +244,10 @@ namespace Xtensive.Storage
     {
       if (SessionScope.CurrentSession==this)
         return null;
-      return new SessionScope(this);
+      var result = new SessionScope(this);
+      if (sessionScope == null)
+        sessionScope = result;
+      return result;
     }
 
     /// <inheritdoc/>
@@ -306,11 +285,8 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="domain">The domain.</param>
     /// <returns>
-    /// New <see cref="SessionConsumptionScope"/> object.
+    /// New <see cref="Session"/> object.
     /// </returns>
-    /// <remarks>
-    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
-    /// </remarks>
     /// <sample><code>
     /// using (Session.Open(domain)) {
     /// // work with persistent objects here
@@ -318,7 +294,7 @@ namespace Xtensive.Storage
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public static SessionConsumptionScope Open(Domain domain)
+    public static Session Open(Domain domain)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
       return Open(domain, domain.Configuration.Sessions.Default, true);
@@ -331,11 +307,8 @@ namespace Xtensive.Storage
     /// <param name="activate">Determines whether created session should be activated or not.</param>
     /// </param>
     /// <returns>
-    /// New <see cref="SessionConsumptionScope"/> object.
+    /// New <see cref="Session"/> object.
     /// </returns>
-    /// <remarks>
-    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
-    /// </remarks>
     /// <sample><code>
     /// using (Session.Open(domain)) {
     /// // work with persistent objects here
@@ -343,7 +316,7 @@ namespace Xtensive.Storage
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public static SessionConsumptionScope Open(Domain domain, bool activate)
+    public static Session Open(Domain domain, bool activate)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
       return Open(domain, domain.Configuration.Sessions.Default, activate);
@@ -356,18 +329,15 @@ namespace Xtensive.Storage
     /// <param name="type">The type of session.</param>
     /// </param>
     /// <returns>
-    /// New <see cref="SessionConsumptionScope"/> object.
+    /// New <see cref="Session"/> object.
     /// </returns>
-    /// <remarks>
-    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
-    /// </remarks>
     /// <sample><code>
     /// using (Session.Open(domain, sessionType)) {
     /// // work with persistent objects here
     /// // Session is available through static Session.Current property
     /// }
     /// </code></sample>
-    public static SessionConsumptionScope Open(Domain domain, SessionType type)
+    public static Session Open(Domain domain, SessionType type)
     {
       return Open(domain, type, true);
     }
@@ -380,18 +350,15 @@ namespace Xtensive.Storage
     /// <param name="activate">Determines whether created session should be activated or not.</param>
     /// </param>
     /// <returns>
-    /// New <see cref="SessionConsumptionScope"/> object.
+    /// New <see cref="Session"/> object.
     /// </returns>
-    /// <remarks>
-    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
-    /// </remarks>
     /// <sample><code>
     /// using (Session.Open(domain, sessionType, false)) {
     /// // work with persistent objects here
     /// // Session is available through static Session.Current property
     /// }
     /// </code></sample>
-    public static SessionConsumptionScope Open(Domain domain, SessionType type, bool activate)
+    public static Session Open(Domain domain, SessionType type, bool activate)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
 
@@ -415,11 +382,8 @@ namespace Xtensive.Storage
     /// <param name="domain">The domain.</param>
     /// <param name="configuration">The session configuration.</param>
     /// <returns>
-    /// New <see cref="SessionConsumptionScope"/> object.
+    /// New <see cref="Session"/> object.
     /// </returns>
-    /// <remarks>
-    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
-    /// </remarks>
     /// <sample><code>
     /// using (Session.Open(domain, sessionConfiguration)) {
     /// // work with persistent objects here
@@ -427,7 +391,7 @@ namespace Xtensive.Storage
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public static SessionConsumptionScope Open(Domain domain, SessionConfiguration configuration)
+    public static Session Open(Domain domain, SessionConfiguration configuration)
     {
       return Open(domain, configuration, true);
     }
@@ -439,11 +403,8 @@ namespace Xtensive.Storage
     /// <param name="configuration">The session configuration.</param>
     /// <param name="activate">Determines whether created session should be activated or not.</param>
     /// <returns>
-    /// New <see cref="SessionConsumptionScope"/> object.
+    /// New <see cref="Session"/> object.
     /// </returns>
-    /// <remarks>
-    /// Session will be closed when returned <see cref="SessionConsumptionScope"/> is disposed.
-    /// </remarks>
     /// <sample><code>
     /// using (Session.Open(domain, sessionConfiguration, false)) {
     /// // work with persistent objects here
@@ -451,7 +412,7 @@ namespace Xtensive.Storage
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public static SessionConsumptionScope Open(Domain domain, SessionConfiguration configuration, bool activate)
+    public static Session Open(Domain domain, SessionConfiguration configuration, bool activate)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
@@ -553,6 +514,8 @@ namespace Xtensive.Storage
             Log.Debug("Session '{0}'. Disposing.", this);
           NotifyDisposing();
           Handler.DisposeSafely();
+          sessionScope.DisposeSafely();
+          sessionScope = null;
         }
         finally {
           isDisposed = true;

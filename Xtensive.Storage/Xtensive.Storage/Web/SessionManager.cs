@@ -237,10 +237,9 @@ namespace Xtensive.Storage.Web
     /// to invoke on request completion.</returns>
     protected virtual Pair<Session, IDisposable> ProvideSession()
     {
-      var sessionScope = Session.Open(Domain, false); // Open, but don't activate!
-      var session = sessionScope.Session;
+      var session = Session.Open(Domain, false); // Open, but don't activate!
       var transactionScope = Transaction.Open(session);
-      var toDispose = transactionScope.Join(sessionScope);
+      var toDispose = transactionScope.Join(session);
       return new Pair<Session, IDisposable>(session, new Disposable(disposing => {
         try {
           if (!HasErrors)
