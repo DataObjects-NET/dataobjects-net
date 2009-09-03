@@ -7,9 +7,6 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Comparison;
-using Xtensive.Indexing;
-using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Building.Definitions
@@ -20,7 +17,7 @@ namespace Xtensive.Storage.Building.Definitions
   public sealed class TypeDefCollection : NodeCollection<TypeDef>
   {
     private readonly Type baseType = typeof (object);
-    private readonly IUniqueIndex<Type, TypeDef> typeIndex;
+    private readonly Dictionary<Type, TypeDef> typeIndex;
 
     /// <summary>
     /// Finds the ancestor of the specified <paramref name="item"/>.
@@ -108,7 +105,9 @@ namespace Xtensive.Storage.Building.Definitions
     /// if item was not found.</returns>
     public TypeDef TryGetValue(Type key)
     {
-      return typeIndex.ContainsKey(key) ? typeIndex.GetItem(key) : null;
+      TypeDef result;
+      typeIndex.TryGetValue(key, out result);
+      return result;
     }
 
     /// <summary>
@@ -126,14 +125,33 @@ namespace Xtensive.Storage.Building.Definitions
       }
     }
 
+    protected override void OnInserted(TypeDef value, int index)
+    {
+      base.OnInserted(value, index);
+      typeIndex[value.UnderlyingType] = value;
+    }
+
+    protected override void OnCleared()
+    {
+      base.OnCleared();
+      typeIndex.Clear();
+    }
+
+    protected override void OnRemoved(TypeDef value, int index)
+    {
+      base.OnRemoved(value, index);
+      typeIndex.Remove(value.UnderlyingType);
+    }
+
+
+    // Constructors
+
     /// <summary>
     /// Initializes a new instance of the <see cref="TypeDefCollection"/> class.
     /// </summary>
     internal TypeDefCollection()
     {
-      IndexConfiguration<Type, TypeDef> configuration = new IndexConfiguration<Type, TypeDef>(item => item.UnderlyingType, AdvancedComparer<Type>.Default);
-      IUniqueIndex<Type,TypeDef> implementation = IndexFactory.CreateUnique<Type, TypeDef, DictionaryIndex<Type,TypeDef>>(configuration);
-      typeIndex = new CollectionIndex<Type, TypeDef>("typeIndex", this, implementation);
+      typeIndex = new Dictionary<Type, TypeDef>();
     }
   }
 }
