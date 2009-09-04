@@ -91,13 +91,13 @@ namespace Xtensive.Storage.Providers
         yield return new PersistAction(state, PersistActionKind.Insert);
 
       // Restore loop links
-      foreach (var restoreData in loopReferences) {
-        // TODO: Optimize. Group by entity and return only one Update PersistAction 
-        // per Entity independently of links count per entity.
-        restoreData.First.Entity.State.PersistenceState = PersistenceState.Synchronized;
-        restoreData.First.Entity.PrepareToSetField();
-        Persistent.GetAccessor<Entity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, restoreData.Third);
-        yield return new PersistAction(restoreData.First, PersistActionKind.Update);
+      foreach (var restoreGroup in loopReferences.GroupBy(restoreData =>restoreData.First)) {
+        var entityState = restoreGroup.Key;
+        entityState.PersistenceState = PersistenceState.Synchronized;
+        entityState.Entity.PrepareToSetField();
+        foreach (var restoreData in restoreGroup)
+          Persistent.GetAccessor<Entity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, restoreData.Third);
+        yield return new PersistAction(entityState, PersistActionKind.Update);
       }
     }
 

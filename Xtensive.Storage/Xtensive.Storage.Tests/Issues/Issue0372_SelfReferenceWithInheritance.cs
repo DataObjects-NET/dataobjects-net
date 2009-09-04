@@ -19,6 +19,9 @@ namespace Xtensive.Storage.Tests.Issues.Issue0372_SelfReferenceWithInheritance_M
 
     [Field]
     public WebSite WebSite { get; set; }
+
+    [Field]
+    public WebSite WebSite2 { get; set; }
   }
 
   public class WebSite
@@ -47,6 +50,20 @@ namespace Xtensive.Storage.Tests.Issues
         using (var t = Transaction.Open()) {
           var webSite = new WebSite();
           webSite.WebSite = webSite; // self-refernece
+          Session.Current.Persist();
+          // Rollback
+        }
+      }
+    }
+
+    [Test]
+    public void DualSelfreferenceTest()
+    {
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          var webSite = new WebSite();
+          webSite.WebSite = webSite; // self-refernece 1
+          webSite.WebSite2 = webSite; // self-refernece 2
           Session.Current.Persist();
           // Rollback
         }
