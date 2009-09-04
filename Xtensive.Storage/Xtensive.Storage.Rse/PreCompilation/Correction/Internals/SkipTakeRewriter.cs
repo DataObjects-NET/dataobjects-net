@@ -17,6 +17,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
   internal sealed class SkipTakeRewriter : CompilableProviderVisitor
   {
     private readonly CompilableProvider origin;
+    private readonly bool takeRequiresRowNumber;
     private Expression skipCount;
     private Expression takeCount;
     private int rowNumberCount;
@@ -49,7 +50,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
     {
       skipCount = AddCount(skipCount, provider.Count);
       var prevSkipCount = skipCount;
-      var isSourceSkip = provider.Source is SkipProvider;
+      var isSourceSkip = provider.Source.Type == ProviderType.Skip;
       if (!isSourceSkip)
         skipCount = null;
       var visitedSource = VisitCompilable(provider.Source);
@@ -57,7 +58,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       if (isSourceSkip)
         return InsertSelectRemovingRowNumber(visitedSource);
 
-      if (!(provider.Source is TakeProvider))
+      if (provider.Source.Type != ProviderType.Take || !takeRequiresRowNumber)
         visitedSource = CreateRowNumberProvider(visitedSource, ref rowNumberCount);
       var newProvider = new SkipProvider(visitedSource, Expression.Lambda<Func<int>>(skipCount).CachingCompile());
       return InsertSelectRemovingRowNumber(newProvider);
@@ -68,15 +69,15 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       takeCount = SelectMiminal(takeCount, provider.Count);
 
       var prevTakeCount = takeCount;
-      var isSourceTake = provider.Source is TakeProvider;
+      var isSourceTake = provider.Source.Type == ProviderType.Take;
       if (!isSourceTake)
         takeCount = null;
       var visitedSource = VisitCompilable(provider.Source);
       takeCount = prevTakeCount;
       if (isSourceTake)
         return InsertSelectRemovingRowNumber(visitedSource);
-      
-      if (!(provider.Source is SkipProvider))
+
+      if (provider.Source.Type != ProviderType.Skip && takeRequiresRowNumber)
         visitedSource = CreateRowNumberProvider(visitedSource, ref rowNumberCount);
       var newProvider = new TakeProvider(visitedSource, Expression.Lambda<Func<int>>(takeCount).CachingCompile());
       return InsertSelectRemovingRowNumber(newProvider);
@@ -119,10 +120,13 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
     private CompilableProvider InsertSelectRemovingRowNumber(CompilableProvider source)
     {
-      if (consumerType != ProviderType.Skip && consumerType != ProviderType.Take)
+      if (consumerType != ProviderType.Skip && consumerType != ProviderType.Take) {
+        if (source.Type == ProviderType.Take && !takeRequiresRowNumber)
+          return source;
         return new SelectProvider(
           source,
           Enumerable.Range(0, source.Header.Length - 1).ToArray());
+      }
       return source;
     }
 
@@ -131,9 +135,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
     // Constructors
 
-    public SkipTakeRewriter(CompilableProvider origin)
+    public SkipTakeRewriter(CompilableProvider origin, bool takeRequiresRowNumber)
     {
       this.origin = origin;
+      this.takeRequiresRowNumber = takeRequiresRowNumber;
     }
   }
 }

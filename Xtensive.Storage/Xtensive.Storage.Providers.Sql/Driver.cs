@@ -53,8 +53,6 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.Sequences;
       if (queryFeatures.Supports(QueryFeatures.CrossApply))
         f |= ProviderFeatures.CrossApply;
-      if (queryFeatures.Supports(QueryFeatures.Paging))
-        f |= ProviderFeatures.Paging;
       if (queryFeatures.Supports(QueryFeatures.LargeObjects))
         f |= ProviderFeatures.LargeObjects;
       if (queryFeatures.Supports(QueryFeatures.FullBooleanExpressionSupport))
@@ -63,6 +61,10 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.NamedParameters;
       if (queryFeatures.Supports(QueryFeatures.UpdateFrom))
         f |= ProviderFeatures.UpdateFrom;
+      if (queryFeatures.Supports(QueryFeatures.Limit))
+        f |= ProviderFeatures.Limit;
+      if (queryFeatures.Supports(QueryFeatures.Offset))
+        f |= ProviderFeatures.Offset;
 
       var dataTypes = si.DataTypes;
       var binaryTypeInfo = dataTypes.VarBinary ?? dataTypes.VarBinaryMax;

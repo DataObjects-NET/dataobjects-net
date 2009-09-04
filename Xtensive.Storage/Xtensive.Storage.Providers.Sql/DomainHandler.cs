@@ -186,7 +186,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var applyCorrector = new ApplyProviderCorrector(!ProviderInfo.Supports(ProviderFeatures.CrossApply));
       var skipTakeCorrector = !ProviderInfo.Supports(ProviderFeatures.Paging)
-        ? new SkipTakeCorrector()
+        ? new SkipTakeCorrector(!ProviderInfo.Supports(ProviderFeatures.Limit))
         : (IPreCompiler) new EmptyPreCompiler();
       return new CompositePreCompiler(
         applyCorrector,

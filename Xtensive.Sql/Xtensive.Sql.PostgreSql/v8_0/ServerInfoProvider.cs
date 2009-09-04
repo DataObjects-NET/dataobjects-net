@@ -251,8 +251,9 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |
         QueryFeatures.FullBooleanExpressionSupport |
-        QueryFeatures.Paging |
-        QueryFeatures.UpdateFrom;
+        QueryFeatures.UpdateFrom | 
+        QueryFeatures.Limit |
+        QueryFeatures.Offset;
       info.ParameterPrefix = "@";
       info.MaxComparisonOperations = 1000000;
       info.MaxLength = 1000000;

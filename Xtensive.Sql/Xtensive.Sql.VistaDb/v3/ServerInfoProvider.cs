@@ -94,7 +94,8 @@ namespace Xtensive.Sql.VistaDb.v3
       queryInfo.Features =
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |
-        QueryFeatures.Batches;
+        QueryFeatures.Batches | 
+        QueryFeatures.Limit;
       return queryInfo;
     }
 

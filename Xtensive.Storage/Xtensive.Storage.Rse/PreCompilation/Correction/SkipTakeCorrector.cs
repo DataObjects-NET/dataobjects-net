@@ -17,10 +17,20 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
   [Serializable]
   public sealed class SkipTakeCorrector : IPreCompiler
   {
+    private readonly bool takeRequiresRowNumber;
+
     /// <inheritdoc/>
     CompilableProvider IPreCompiler.Process(CompilableProvider rootProvider)
     {
-      return new SkipTakeRewriter(rootProvider).Rewrite();
+      return new SkipTakeRewriter(rootProvider, takeRequiresRowNumber).Rewrite();
+    }
+
+
+    // Constructors
+
+    public SkipTakeCorrector(bool takeRequiresRowNumber)
+    {
+      this.takeRequiresRowNumber = takeRequiresRowNumber;
     }
   }
 }

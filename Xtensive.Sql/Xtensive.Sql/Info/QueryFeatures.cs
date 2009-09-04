@@ -56,11 +56,6 @@ namespace Xtensive.Sql.Info
     FullBooleanExpressionSupport = 0x40,
 
     /// <summary>
-    /// Indicates that RDBMS supports paging operators (LIMIT and OFFSET)
-    /// </summary>
-    Paging = 0x80,
-
-    /// <summary>
     /// Indicates that RDBMS uses large objects (LOBs) for manipulating large data chunks.
     /// <seealso cref="ICharacterLargeObject"/>.
     /// <seealso cref="IBinaryLargeObject"/>.
@@ -71,5 +66,20 @@ namespace Xtensive.Sql.Info
     /// Indicates that RDBMS supports UPDATE ... FROM statements.
     /// </summary>
     UpdateFrom = 0x200,
+
+    /// <summary>
+    /// Indicates that RDBMS supports result limiting operator (LIMIT and TOP).
+    /// </summary>
+    Limit = 0x400,
+
+    /// <summary>
+    /// Indicates that RDBMS supports result skipping operator (OFFSET and SKIP).
+    /// </summary>
+    Offset = 0x800,
+
+    /// <summary>
+    /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
+    /// </summary>
+    Paging = Limit | Offset,
   }
 }
