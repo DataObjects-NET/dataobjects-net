@@ -5,6 +5,7 @@
 // Created:    2008.05.19
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -133,7 +134,8 @@ namespace Xtensive.Storage.Providers
     {
       // We should fetch all non-lazyload columns
       var index = GetPrimaryIndex(key);
-      var request = new FetchTask(index, index.GetDefaultFetchColumnsIndexes());
+      var map = index.ColumnIndexMap;
+      var request = new FetchTask(index, map.System.Union(map.Regular));
 
       // Key could be with or without exact TypeId
       return Execute(request, key);
@@ -143,23 +145,41 @@ namespace Xtensive.Storage.Providers
     /// Fetches the field of an <see cref="Entity"/>.
     /// </summary>
     /// <param name="key">The key.</param>
-    /// <param name="field">The field to be fetched.</param>
-    protected internal void FetchField(Key key, FieldInfo field)
+    /// <param name="field">The field to fetch.</param>
+    /// <param name="tuple">The tuple that represents current state of the entity.</param>
+    protected internal void FetchField(Key key, FieldInfo field, BitArray fetchedFields)
     {
-      // This method is being called only for fetching lazyload field. All non-lazyload fields are already fetched.
-      // We should combine Key+TypeId columns with requested field column(s)
+      // We should combine Key+TypeId columns with requested field column(s) and all columns from non-lazy load fields that are not fetched yet.
       var index = GetPrimaryIndex(key);
-      int[] columns = index.GetKeyFetchColumnsIndexes();
+      var map = index.ColumnIndexMap;
+      var columns = new List<int>(map.System);
+      FetchTask request = null;
 
-      // Choosing most optimal array construction method
-      if (field.MappingInfo.Length == 1)
-        columns = columns.Append(index.Columns.IndexOf(field.Column));
+      // Selects all regular columns that are not fetched yet
+      for (int i = 0; i < fetchedFields.Count; i++) {
+        if (fetchedFields[i])
+          continue;
+        var column = index.Columns[i];
+        if (column.IsLazyLoad)
+          continue;
+        columns.Add(i);
+      }
+
+      // if requrested field is lazy load field, adds its columns to column list
+      if (field.IsLazyLoad) {
+        if (field.MappingInfo.Length==1) {
+          columns.Add(index.Columns.IndexOf(field.Column));
+          request = new FetchTask(index, columns);
+        }
+        else {
+          var lazyColumns = field.Columns.Select(c => index.Columns.IndexOf(c));
+          request = new FetchTask(index, columns.Union(lazyColumns));
+        }
+      }
       else
-        columns = columns.Combine(field.Columns.Select(c => index.Columns.IndexOf(c)).ToArray());
+        request = new FetchTask(index, columns);
 
-      var request = new FetchTask(index, columns);
-
-      // Key always contains exact TypeId
+      // Key in this case always contains exact TypeId
       Execute(request, key);
     }
 

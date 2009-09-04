@@ -37,8 +37,11 @@ namespace Xtensive.Storage.Model
     private ReadOnlyList<ColumnInfo> columns;
     private TupleDescriptor tupleDescriptor;
     private TupleDescriptor keyTupleDescriptor;
-    private int[] defaultFetchColumnIndexes;
-    private int[] keyFetchColumnIndexes;
+
+    /// <summary>
+    /// Gets or sets the column index map.
+    /// </summary>
+    public ColumnIndexMap ColumnIndexMap { get; private set; }
 
     public string ShortName {
       [DebuggerStepThrough]
@@ -210,22 +213,6 @@ namespace Xtensive.Storage.Model
       get { return (attributes & IndexAttributes.Secondary) > 0; }
     }
 
-    /// <summary>
-    /// Gets the default fetch columns indexes.
-    /// </summary>
-    public int[] GetDefaultFetchColumnsIndexes()
-    {
-      return defaultFetchColumnIndexes.Copy();
-    }
-
-    /// <summary>
-    /// Gets the key fetch columns indexes.
-    /// </summary>
-    public int[] GetKeyFetchColumnsIndexes()
-    {
-      return keyFetchColumnIndexes.Copy();
-    }
-
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
@@ -237,10 +224,27 @@ namespace Xtensive.Storage.Model
       foreach (IndexInfo baseIndex in underlyingIndexes)
         baseIndex.UpdateState();
       CreateTupleDescriptors();
-      if (IsPrimary) {
-        defaultFetchColumnIndexes = Columns.Where(c => !c.IsLazyLoad).Select(c => Columns.IndexOf((c))).ToArray();
-        keyFetchColumnIndexes = Columns.Where(c => c.IsPrimaryKey || c.IsSystem).Select(c => Columns.IndexOf((c))).ToArray();
+
+      if (!IsPrimary)
+        return;
+
+      var system = new List<int>();
+      var lazy = new List<int>();
+      var regular = new List<int>();
+
+      for (int i = 0; i < columns.Count; i++) {
+        var item = columns[i];
+        if (item.IsPrimaryKey || item.IsSystem)
+          system.Add(i);
+        else {
+          if (item.IsLazyLoad)
+            lazy.Add(i);
+          else
+            regular.Add(i);
+        }
       }
+
+      ColumnIndexMap = new ColumnIndexMap(system, regular, lazy);
     }
 
     /// <inheritdoc/>
@@ -266,9 +270,9 @@ namespace Xtensive.Storage.Model
 
     private void CreateColumns()
     {
-      var list = new List<ColumnInfo>(keyColumns.Select(pair => pair.Key));
-      list.AddRange(valueColumns);
-      columns = new ReadOnlyList<ColumnInfo>(list);
+      var result = new List<ColumnInfo>(keyColumns.Select(pair => pair.Key));
+      result.AddRange(valueColumns);
+      columns = new ReadOnlyList<ColumnInfo>(result);
     }
 
 

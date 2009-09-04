@@ -237,7 +237,7 @@ namespace Xtensive.Storage
     #region Private \ internal methods
 
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
-    internal void EnsureNotRemoved()
+    private void EnsureNotRemoved()
     {
       if (IsRemoved)
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
@@ -249,10 +249,12 @@ namespace Xtensive.Storage
 
       if (state.PersistenceState==PersistenceState.New)
         return;
-      if (state.Tuple.IsAvailable(field.MappingInfo.Offset))
+
+      var tuple = state.Tuple;
+      if (tuple.IsAvailable(field.MappingInfo.Offset))
         return;
 
-      Session.Handler.FetchField(state.Key, field);
+      Session.Handler.FetchField(Key, field, tuple.GetFieldStateMap(TupleFieldState.Available));
     }
 
     internal override void PrepareToSetField()

@@ -4,14 +4,16 @@
 // Created by: Dmitri Maximov
 // Created:    2009.07.29
 
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
   internal sealed class FetchTask
   {
-    internal readonly IndexInfo Index;
-    internal readonly int[] Columns;
+    internal IndexInfo Index { get; private set; }
+    internal int[] Columns { get; private set; }
     private readonly int hashCode;
 
     private bool Equals(FetchTask obj)
@@ -44,13 +46,13 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public FetchTask(IndexInfo index, int[] columns)
+    public FetchTask(IndexInfo index, IEnumerable<int> columns)
     {
-      this.Index = index;
-      this.Columns = columns;
-      hashCode = columns.Length;
-      for (int i = 0; i < this.Columns.Length; i++)
-        hashCode = unchecked (379 * hashCode + this.Columns[i]);
+      Index = index;
+      Columns = columns.ToArray();
+      hashCode = Columns.Length;
+      for (int i = 0; i < Columns.Length; i++)
+        hashCode = unchecked (379 * hashCode + Columns[i]);
     }
   }
 }
