@@ -947,11 +947,6 @@ namespace Xtensive.Storage.Providers.Sql
       throw new NotSupportedException();
     }
 
-    protected override SqlProvider VisitPack(PackProvider provider)
-    {
-      throw new NotSupportedException();
-    }
-
     #endregion
 
     

@@ -38,9 +38,8 @@ namespace Xtensive.Storage.Linq.Expressions
       Segment<int> segment, 
       PropertyInfo underlyingProperty,
       ParameterExpression parameterExpression,
-      bool defaultIfEmpty,
-      FieldLoadMode loadMode)
-      : base(expressionType, type, parameterExpression, defaultIfEmpty, loadMode)
+      bool defaultIfEmpty)
+      : base(expressionType, type, parameterExpression, defaultIfEmpty)
     {
       Name = name;
       UnderlyingProperty = underlyingProperty;

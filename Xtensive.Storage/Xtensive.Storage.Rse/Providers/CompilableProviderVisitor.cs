@@ -354,17 +354,6 @@ namespace Xtensive.Storage.Rse.Providers
         return provider;
       return new LockProvider(source, provider.LockMode, provider.LockBehavior);
     }
-
-    /// <inheritdoc/>
-    protected override Provider VisitPack(PackProvider provider)
-    {
-      OnRecursionEntrance(provider);
-      var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new PackProvider(source, provider.KeyColumnIndexes, provider.PackColumnIndexes, provider.PackedColumn.Name);
-    }
     
     private static Expression DefaultExpressionTranslator(Provider p, Expression e)
     {

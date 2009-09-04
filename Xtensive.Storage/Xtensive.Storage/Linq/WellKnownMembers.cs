@@ -50,10 +50,6 @@ namespace Xtensive.Storage.Linq
     public static readonly MethodInfo QueryableContains;
 
     // Querable extensions
-    public static readonly MethodInfo QueryablePrefetchEntity;
-    public static readonly MethodInfo QueryablePrefetchSubquery;
-    public static readonly MethodInfo QueryableExcludeFields;
-    public static readonly MethodInfo QueryableIncludeFields;
     public static readonly MethodInfo QueryableJoinLeft;
     public static readonly MethodInfo QueryableLock;
 
@@ -159,25 +155,6 @@ namespace Xtensive.Storage.Linq
       }).First();
 
       // Querable extensions
-      QueryablePrefetchEntity = typeof (QueryableExtensions)
-        .GetMethods(BindingFlags.Public | BindingFlags.Static)
-        .Where(methodInfo => methodInfo.Name=="Prefetch"
-          && methodInfo
-            .GetParameterTypes()[1]
-            .GetGenericArguments()[0]
-            .GetGenericArguments()[1]==typeof (Entity))
-        .First();
-      QueryablePrefetchSubquery = typeof (QueryableExtensions)
-        .GetMethods(BindingFlags.Public | BindingFlags.Static)
-        .Where(methodInfo => methodInfo.Name=="Prefetch"
-          && methodInfo
-            .GetParameterTypes()[1]
-            .GetGenericArguments()[0]
-            .GetGenericArguments()[1]==typeof (IQueryable))
-        .First();
-
-      QueryableExcludeFields = GetQueryableExtensionsMethod("ExcludeFields", 2, 2);
-      QueryableIncludeFields = GetQueryableExtensionsMethod("IncludeFields", 2, 2);
       QueryableJoinLeft = GetQueryableExtensionsMethod("JoinLeft", 4, 5);
       QueryableLock = GetQueryableExtensionsMethod("Lock", 1, 3);
 

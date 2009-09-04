@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Linq.Expressions
       var entity = Entity!=null
         ? (EntityExpression) Entity.Remap(offset, processedExpressions)
         : null;
-      result = new EntityFieldExpression(PersistentType, Field, fields, keyExpression.Mapping, keyExpression, entity, OuterParameter, DefaultIfEmpty, LoadMode);
+      result = new EntityFieldExpression(PersistentType, Field, fields, keyExpression.Mapping, keyExpression, entity, OuterParameter, DefaultIfEmpty);
       if (Owner==null)
         return result;
 
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Linq.Expressions
         entity = Entity!=null
           ? (EntityExpression) Entity.Remap(map, processedExpressions)
           : null;
-      result = new EntityFieldExpression(PersistentType, Field, fields, keyExpression.Mapping, keyExpression, entity, OuterParameter, DefaultIfEmpty, LoadMode);
+      result = new EntityFieldExpression(PersistentType, Field, fields, keyExpression.Mapping, keyExpression, entity, OuterParameter, DefaultIfEmpty);
       if (Owner==null)
         return result;
 
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Linq.Expressions
       var entity = Entity!=null
         ? (EntityExpression) Entity.BindParameter(parameter, processedExpressions)
         : null;
-      result = new EntityFieldExpression(PersistentType, Field, fields, Mapping, keyExpression, entity, parameter, DefaultIfEmpty, LoadMode);
+      result = new EntityFieldExpression(PersistentType, Field, fields, Mapping, keyExpression, entity, parameter, DefaultIfEmpty);
       if (Owner==null)
         return result;
 
@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Linq.Expressions
       var entity = Entity!=null
         ? (EntityExpression) Entity.RemoveOuterParameter(processedExpressions)
         : null;
-      result = new EntityFieldExpression(PersistentType, Field, fields, Mapping, keyExpression, entity, null, DefaultIfEmpty, LoadMode);
+      result = new EntityFieldExpression(PersistentType, Field, fields, Mapping, keyExpression, entity, null, DefaultIfEmpty);
       if (Owner==null)
         return result;
 
@@ -136,7 +136,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public override FieldExpression RemoveOwner()
     {
-      return new EntityFieldExpression(PersistentType, Field, Fields, Mapping, Key, Entity, OuterParameter, DefaultIfEmpty, LoadMode);
+      return new EntityFieldExpression(PersistentType, Field, Fields, Mapping, Key, Entity, OuterParameter, DefaultIfEmpty);
     }
 
     public static EntityFieldExpression CreateEntityField(FieldInfo entityField, int offset)
@@ -151,7 +151,7 @@ namespace Xtensive.Storage.Linq.Expressions
       fields.Add(keyExpression);
       foreach (var keyField in persistentType.Fields.Where(f => f.IsPrimaryKey))
         fields.Add(BuildNestedFieldExpression(keyField, offset + entityField.MappingInfo.Offset));
-      return new EntityFieldExpression(persistentType, entityField, fields, mapping, keyExpression, null, null, false, FieldLoadMode.Standard);
+      return new EntityFieldExpression(persistentType, entityField, fields, mapping, keyExpression, null, null, false);
     }
 
     private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, int offset)
@@ -174,9 +174,8 @@ namespace Xtensive.Storage.Linq.Expressions
       KeyExpression key, 
       EntityExpression entity, 
       ParameterExpression parameterExpression, 
-      bool defaultIfEmpty,
-      FieldLoadMode loadMode)
-      : base(ExtendedExpressionType.EntityField, field, mapping, parameterExpression, defaultIfEmpty, loadMode)
+      bool defaultIfEmpty)
+      : base(ExtendedExpressionType.EntityField, field, mapping, parameterExpression, defaultIfEmpty)
     {
       PersistentType = persistentType;
       Fields = fields;

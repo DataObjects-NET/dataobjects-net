@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Linq.Expressions
       PropertyInfo underlyingProperty, 
       ParameterExpression parameterExpression, 
       bool defaultIfEmpty)
-      : base(ExtendedExpressionType.Key, WellKnown.KeyFieldName, typeof(Key), segment, underlyingProperty, parameterExpression, defaultIfEmpty, FieldLoadMode.Standard)
+      : base(ExtendedExpressionType.Key, WellKnown.KeyFieldName, typeof(Key), segment, underlyingProperty, parameterExpression, defaultIfEmpty)
     {
       EntityType = entityType;
       KeyFields = keyFields;

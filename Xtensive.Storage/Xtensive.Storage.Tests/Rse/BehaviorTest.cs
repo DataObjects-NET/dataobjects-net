@@ -366,54 +366,5 @@ namespace Xtensive.Storage.Tests.Rse
         Log.Debug(tuple.ToString());
       }
     }
-
-    [Test]
-    public void PackTest()
-    {
-      Random random = RandomManager.CreateRandom();
-      const int authorCount = 100;
-      const int categoryCount = 10;
-      Tuple authorTuple = Tuple.Create(new[] {typeof (int), typeof (string), typeof (string), typeof (int)});
-      var authorColumns = new[] {
-        new MappedColumn("ID", 0, typeof (int)),
-        new MappedColumn("FirstName", 1, typeof (string)),
-        new MappedColumn("LastName", 2, typeof (string)),
-        new MappedColumn("Category", 3, typeof (int)),
-      };
-      var authorHeader = new RecordSetHeader(authorTuple.Descriptor, authorColumns);
-
-      var authors = new Tuple[authorCount * categoryCount];
-      for (int i = 0; i < authorCount; i++) {
-        for (int j = 0; j < categoryCount; j++) {
-          Tuple author = authorTuple.CreateNew();
-          author.SetValue(0, i);
-          author.SetValue(1, string.Format("FirstName_{0}", i));
-          author.SetValue(2, string.Format("LastName{0}", i));
-          author.SetValue(3, j);
-          authors[i * categoryCount + j] = author;
-        }
-      }
-
-      var packColumnName = "PackNumberColumn";
-      RecordSet authorRS = authors
-        .ToRecordSet(authorHeader)
-        .OrderBy(new DirectionCollection<int>(0))
-        .Pack(new[] {0, 1, 2}, new[] {3}, packColumnName);
-
-      Assert.AreEqual(4, authorRS.Header.Length);
-      foreach (var tuple in authorRS) {
-        Assert.AreEqual(4, tuple.Count);
-        Assert.AreEqual(typeof(int), tuple.Descriptor[0]);
-        Assert.AreEqual(typeof(string), tuple.Descriptor[1]);
-        Assert.AreEqual(typeof(string), tuple.Descriptor[2]);
-        Assert.IsTrue(tuple[3] is System.Collections.ObjectModel.ReadOnlyCollection<Tuple>);
-        Assert.IsTrue(((System.Collections.ObjectModel.ReadOnlyCollection<Tuple>)tuple[3]).Count == categoryCount);
-        var list = ((System.Collections.ObjectModel.ReadOnlyCollection<Tuple>) tuple[3]).ToList();
-        for (int i = 0; i < list.Count; i++) {
-          Assert.AreEqual(1, list[i].Count);
-          Assert.AreEqual(i, list[i][0]);
-        }
-      }
-    }
   }
 }

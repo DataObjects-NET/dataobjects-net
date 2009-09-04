@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Linq.Expressions
         return value;
 
       var keyExpression = (KeyExpression) Key.Remap(offset, processedExpressions);
-      var result = new EntityExpression(PersistentType, keyExpression, OuterParameter, DefaultIfEmpty, LoadMode);
+      var result = new EntityExpression(PersistentType, keyExpression, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
       result.Fields = Fields
         .Select(f => f.Remap(offset, processedExpressions))
@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Linq.Expressions
       var keyExpression = (KeyExpression) Key.Remap(map, processedExpressions);
       if (keyExpression==null)
         return null;
-      var result = new EntityExpression(PersistentType, keyExpression, OuterParameter, DefaultIfEmpty, LoadMode);
+      var result = new EntityExpression(PersistentType, keyExpression, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
       result.Fields = Fields
         .Select(f => f.Remap(map, processedExpressions))
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Linq.Expressions
         return value;
 
       var keyExpression = (KeyExpression) Key.BindParameter(parameter, processedExpressions);
-      var result = new EntityExpression(PersistentType, keyExpression, parameter, DefaultIfEmpty, LoadMode);
+      var result = new EntityExpression(PersistentType, keyExpression, parameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
       result.Fields = Fields
         .Select(f => f.BindParameter(parameter, processedExpressions))
@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Linq.Expressions
         return value;
 
       var keyExpression = (KeyExpression) Key.RemoveOuterParameter(processedExpressions);
-      var result = new EntityExpression(PersistentType, keyExpression, null, DefaultIfEmpty, LoadMode);
+      var result = new EntityExpression(PersistentType, keyExpression, null, DefaultIfEmpty);
       processedExpressions.Add(this, result);
       result.Fields = Fields
         .Select(f => f.RemoveOuterParameter(processedExpressions))
@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Linq.Expressions
       var fields = new List<PersistentFieldExpression>();
       var keyExpression = KeyExpression.Create(typeInfo, offset);
       fields.Add(keyExpression);
-      var result = new EntityExpression(typeInfo, keyExpression, null, false, FieldLoadMode.Standard);
+      var result = new EntityExpression(typeInfo, keyExpression, null, false);
       foreach (var nestedField in typeInfo.Fields)
         fields.Add(BuildNestedFieldExpression(nestedField, offset));
       result.Fields = fields;
@@ -142,7 +142,9 @@ namespace Xtensive.Storage.Linq.Expressions
       fields.Add(keyExpression);
       foreach (var nestedField in typeInfo.Fields)
           fields.Add(BuildNestedFieldExpression(nestedField, offset));
-      var result = new EntityExpression(typeInfo, keyExpression, null, entityFieldExpression.DefaultIfEmpty, entityFieldExpression.LoadMode) {Fields = fields};
+      var result = new EntityExpression(typeInfo, keyExpression, null, entityFieldExpression.DefaultIfEmpty) {
+        Fields = fields
+      };
       if (entityFieldExpression.OuterParameter==null)
         return result;
       return (EntityExpression) result.BindParameter(entityFieldExpression.OuterParameter, new Dictionary<Expression, Expression>());
@@ -173,9 +175,8 @@ namespace Xtensive.Storage.Linq.Expressions
       TypeInfo entityType, 
       KeyExpression key, 
       ParameterExpression parameterExpression, 
-      bool defaultIfEmpty,
-      FieldLoadMode loadMode)
-      : base(ExtendedExpressionType.Entity, entityType.UnderlyingType, parameterExpression, defaultIfEmpty, loadMode)
+      bool defaultIfEmpty)
+      : base(ExtendedExpressionType.Entity, entityType.UnderlyingType, parameterExpression, defaultIfEmpty)
     {
       PersistentType = entityType;
       Key = key;

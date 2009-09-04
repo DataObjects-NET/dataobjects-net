@@ -46,24 +46,24 @@ namespace Xtensive.Storage.Linq.Expressions
     {
       var remappedSubquery = (SubQueryExpression) base.Remap(map, processedExpressions);
       var remappedKeyExpression = GenericExpressionVisitor<IMappedExpression>.Process(KeyExpression, mapped => mapped.Remap(map, processedExpressions));
-      return new GroupingExpression(remappedSubquery.Type, remappedSubquery.OuterParameter, DefaultIfEmpty, remappedSubquery.ProjectionExpression, remappedSubquery.ApplyParameter, remappedKeyExpression, SelectManyInfo, LoadMode);
+      return new GroupingExpression(remappedSubquery.Type, remappedSubquery.OuterParameter, DefaultIfEmpty, remappedSubquery.ProjectionExpression, remappedSubquery.ApplyParameter, remappedKeyExpression, SelectManyInfo);
     }
 
     public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
     {
       var remappedSubquery = (SubQueryExpression) base.Remap(offset, processedExpressions);
       var remappedKeyExpression = GenericExpressionVisitor<IMappedExpression>.Process(KeyExpression, mapped => mapped.Remap(offset, processedExpressions));
-      return new GroupingExpression(remappedSubquery.Type, remappedSubquery.OuterParameter, DefaultIfEmpty, remappedSubquery.ProjectionExpression, remappedSubquery.ApplyParameter, remappedKeyExpression, SelectManyInfo, LoadMode);
+      return new GroupingExpression(remappedSubquery.Type, remappedSubquery.OuterParameter, DefaultIfEmpty, remappedSubquery.ProjectionExpression, remappedSubquery.ApplyParameter, remappedKeyExpression, SelectManyInfo);
     }
 
     public override Expression ReplaceApplyParameter(ApplyParameter newApplyParameter)
     {
       if (newApplyParameter==ApplyParameter)
-        return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, KeyExpression, SelectManyInfo, LoadMode);
+        return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, KeyExpression, SelectManyInfo);
 
       var newItemProjector = ProjectionExpression.ItemProjector.RewriteApplyParameter(ApplyParameter, newApplyParameter);
       var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings, ProjectionExpression.ResultType);
-      return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter, KeyExpression, SelectManyInfo, LoadMode);
+      return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter, KeyExpression, SelectManyInfo);
     }
 
     public GroupingExpression(
@@ -73,9 +73,8 @@ namespace Xtensive.Storage.Linq.Expressions
       ProjectionExpression projectionExpression, 
       ApplyParameter applyParameter, 
       Expression keyExpression, 
-      SelectManyGroupingInfo selectManyInfo,
-      FieldLoadMode loadMode)
-      : base(type, parameterExpression, defaultIfEmpty, projectionExpression, applyParameter, loadMode, ExtendedExpressionType.Grouping)
+      SelectManyGroupingInfo selectManyInfo)
+      : base(type, parameterExpression, defaultIfEmpty, projectionExpression, applyParameter, ExtendedExpressionType.Grouping)
     {
       SelectManyInfo = selectManyInfo;
       KeyExpression = keyExpression;

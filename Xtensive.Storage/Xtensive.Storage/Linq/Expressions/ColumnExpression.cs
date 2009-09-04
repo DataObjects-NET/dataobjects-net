@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (!CanRemap)
         return this;
       var mapping = new Segment<int>(Mapping.Offset + offset, 1);
-      return new ColumnExpression(Type, mapping, OuterParameter, DefaultIfEmpty, LoadMode);
+      return new ColumnExpression(Type, mapping, OuterParameter, DefaultIfEmpty);
     }
 
     public Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
@@ -31,23 +31,23 @@ namespace Xtensive.Storage.Linq.Expressions
       if (!CanRemap)
         return this;
       var mapping = new Segment<int>(map.IndexOf(Mapping.Offset), 1);
-      return new ColumnExpression(Type, mapping, OuterParameter, DefaultIfEmpty, LoadMode);
+      return new ColumnExpression(Type, mapping, OuterParameter, DefaultIfEmpty);
     }
 
     public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      return new ColumnExpression(Type, Mapping, parameter, DefaultIfEmpty, LoadMode);
+      return new ColumnExpression(Type, Mapping, parameter, DefaultIfEmpty);
     }
 
     public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      return new ColumnExpression(Type, Mapping, null, DefaultIfEmpty, LoadMode);
+      return new ColumnExpression(Type, Mapping, null, DefaultIfEmpty);
     }
 
     public static ColumnExpression Create(Type type, int columnIndex)
     {
       var mapping = new Segment<int>(columnIndex, 1);
-      return new ColumnExpression(type, mapping, null, false, FieldLoadMode.Standard);
+      return new ColumnExpression(type, mapping, null, false);
     }
 
     public override string ToString()
@@ -62,9 +62,8 @@ namespace Xtensive.Storage.Linq.Expressions
       Type type, 
       Segment<int> mapping, 
       ParameterExpression parameterExpression, 
-      bool defaultIfEmpty,
-      FieldLoadMode loadMode)
-      : base(ExtendedExpressionType.Column, type, parameterExpression, defaultIfEmpty, loadMode)
+      bool defaultIfEmpty)
+      : base(ExtendedExpressionType.Column, type, parameterExpression, defaultIfEmpty)
     {
       Mapping = mapping;
     }

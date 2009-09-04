@@ -224,16 +224,6 @@ namespace Xtensive.Storage.Linq
         true);
     }
 
-    private Expression VisitIncludeFields(MethodCallExpression expression)
-    {
-      throw new NotImplementedException("VisitIncludeFields method is not implemented");
-    }
-
-    private Expression VisitExcludeFields(MethodCallExpression expression)
-    {
-      throw new NotImplementedException("VisitExcludeFields method is not implemented");
-    }
-
     private Expression VisitLock(MethodCallExpression expression)
     {
       var source = expression.Arguments[0];
@@ -244,26 +234,6 @@ namespace Xtensive.Storage.Linq
       var newItemProjector = new ItemProjectorExpression(visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
       var projectionExpression = new ProjectionExpression(visitedSource.Type, newItemProjector, visitedSource.TupleParameterBindings, visitedSource.ResultType);
       return projectionExpression;
-    }
-
-    private Expression VisitPrefetch(MethodCallExpression expression)
-    {
-      var source = expression.Arguments[0];
-      var selector = expression.Arguments[1].StripQuotes();
-      var visitedSource = (ProjectionExpression) Visit(source);
-      using (context.Bindings.Add(selector.Parameters[0], visitedSource)) {
-        var visitedSelector = (ItemProjectorExpression) Visit(selector);
-        if (context.Bindings[selector.Parameters[0]]==visitedSource
-          && (visitedSelector.Item.IsEntitySetExpression()
-            || visitedSelector.Item.IsEntityExpression()
-              || visitedSelector.Item.IsSubqueryExpression()
-                || visitedSelector.Item.IsGroupingExpression())) {
-          ((ParameterizedExpression) visitedSelector.Item.StripMarkers()).LoadMode = FieldLoadMode.Prefetch;
-        }
-        else
-          throw new InvalidOperationException(String.Format(Strings.ExInvalidPrefetchSelectorX, selector));
-      }
-      return visitedSource;
     }
 
     /// <exception cref="NotSupportedException">OfType supports only 'Entity' conversion.</exception>
@@ -584,7 +554,7 @@ namespace Xtensive.Storage.Linq
         subqueryProjection = VisitSelect(subqueryProjection, elementSelector);
 
       var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo(sequence);
-      var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, false, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, selectManyInfo, FieldLoadMode.Standard);
+      var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, false, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, selectManyInfo);
       var groupingItemProjector = new ItemProjectorExpression(groupingExpression, newItemProjector.DataSource, context);
       returnType = resultSelector==null
         ? returnType
@@ -702,7 +672,7 @@ namespace Xtensive.Storage.Linq
       if (innerGrouping.ItemProjector.Item.IsGroupingExpression()) {
         var groupingExpression = (GroupingExpression) innerGrouping.ItemProjector.Item;
         var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo((ProjectionExpression) visitedOuterSource, (ProjectionExpression) visitedInnerSource, outerKey, innerKey);
-        var newGroupingExpression = new GroupingExpression(groupingExpression.Type, groupingExpression.OuterParameter, groupingExpression.DefaultIfEmpty, groupingExpression.ProjectionExpression, groupingExpression.ApplyParameter, groupingExpression.KeyExpression, selectManyInfo, FieldLoadMode.Standard);
+        var newGroupingExpression = new GroupingExpression(groupingExpression.Type, groupingExpression.OuterParameter, groupingExpression.DefaultIfEmpty, groupingExpression.ProjectionExpression, groupingExpression.ApplyParameter, groupingExpression.KeyExpression, selectManyInfo);
         var newGroupingItemProjector = new ItemProjectorExpression(newGroupingExpression, innerGrouping.ItemProjector.DataSource, innerGrouping.ItemProjector.Context);
         innerGrouping = new ProjectionExpression(innerGrouping.Type, newGroupingItemProjector, innerGrouping.TupleParameterBindings, innerGrouping.ResultType);
       }

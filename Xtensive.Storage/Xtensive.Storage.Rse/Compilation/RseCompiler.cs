@@ -316,12 +316,6 @@ namespace Xtensive.Storage.Rse.Compilation
       return Compile(provider.Source);
     }
 
-    /// <inheritdoc/>
-    protected override ExecutableProvider VisitPack(PackProvider provider)
-    {
-      var source = Compile(provider.Source);
-      return new Providers.Executable.PackProvider(provider, source);
-    }
 
     // Constructors
 

@@ -214,14 +214,7 @@ namespace Xtensive.Storage.Linq
     {
       // Visit Queryable extensions.
       if (mc.Method.DeclaringType==typeof (QueryableExtensions))
-        if (mc.Method.Name==WellKnownMembers.QueryablePrefetchEntity.Name
-          || mc.Method.Name==WellKnownMembers.QueryablePrefetchSubquery.Name)
-          return VisitPrefetch(mc);
-        else if (mc.Method.Name==WellKnownMembers.QueryableExcludeFields.Name)
-          return VisitExcludeFields(mc);
-        else if (mc.Method.Name==WellKnownMembers.QueryableIncludeFields.Name)
-          return VisitIncludeFields(mc);
-        else if (mc.Method.Name==WellKnownMembers.QueryableJoinLeft.Name)
+        if (mc.Method.Name==WellKnownMembers.QueryableJoinLeft.Name)
           return VisitJoinLeft(mc);
         else if (mc.Method.Name==WellKnownMembers.QueryableLock.Name)
           return VisitLock(mc);
@@ -535,7 +528,7 @@ namespace Xtensive.Storage.Linq
       ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[state.Parameters[0]]);
       if (subQuery.Type!=resultType)
         subQuery = new ProjectionExpression(resultType, subQuery.ItemProjector, subQuery.TupleParameterBindings, subQuery.ResultType);
-      return new SubQueryExpression(resultType, state.Parameters[0], false, subQuery, applyParameter, FieldLoadMode.Standard);
+      return new SubQueryExpression(resultType, state.Parameters[0], false, subQuery, applyParameter);
     }
 
     private static IList<Expression> GetAnonymousArguments(Expression expression)

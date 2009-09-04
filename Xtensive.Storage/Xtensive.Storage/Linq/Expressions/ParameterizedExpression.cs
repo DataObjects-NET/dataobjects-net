@@ -13,7 +13,6 @@ namespace Xtensive.Storage.Linq.Expressions
   {
     public ParameterExpression OuterParameter { get; private set; }
     public bool DefaultIfEmpty { get; set; }
-    public FieldLoadMode LoadMode { get; set; }
 
     public override string ToString()
     {
@@ -37,12 +36,11 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    protected ParameterizedExpression(ExtendedExpressionType expressionType, Type type, ParameterExpression parameterExpression, bool defaultIfEmpty, FieldLoadMode loadMode)
+    protected ParameterizedExpression(ExtendedExpressionType expressionType, Type type, ParameterExpression parameterExpression, bool defaultIfEmpty)
       : base(expressionType, type)
     {
       OuterParameter = parameterExpression;
       DefaultIfEmpty = defaultIfEmpty;
-      LoadMode = loadMode;
     }
   }
 }
