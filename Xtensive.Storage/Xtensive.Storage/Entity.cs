@@ -249,9 +249,6 @@ namespace Xtensive.Storage
 
       if (state.PersistenceState==PersistenceState.New)
         return;
-      // All non lazy-load fields are already loaded
-      if (!field.IsLazyLoad)
-        return;
       if (state.Tuple.IsAvailable(field.MappingInfo.Offset))
         return;
 
