@@ -768,7 +768,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected static void AddOrderByStatement(UnaryProvider provider, SqlSelect query)
     {
       foreach (KeyValuePair<int, Direction> pair in provider.Source.ExpectedOrder)
-        query.OrderBy.Add(query.Columns[pair.Key], pair.Value==Direction.Positive);
+        query.OrderBy.Add(query.From.Columns[pair.Key], pair.Value==Direction.Positive);
     }
 
     private static bool IsCalculatedColumn(SqlColumn column)
@@ -822,8 +822,14 @@ namespace Xtensive.Storage.Providers.Sql
         return usedColumnIndexes.Any(calculatedColumnIndexes.Contains) || columnCountIsNotSame;
       }
 
-      if (origin.Type == ProviderType.Take || origin.Type == ProviderType.Skip)
-        return distinctIsUsed || pagingIsUsed || groupByIsUsed;
+      if (origin.Type == ProviderType.Take || origin.Type == ProviderType.Skip) {
+        var sortProvider = origin.Sources[0] as SortProvider;
+        var orderingOverCalculatedColumn = sortProvider != null && 
+          sortProvider.ExpectedOrder
+            .Select(order => order.Key)
+            .Any(calculatedColumnIndexes.Contains);
+        return distinctIsUsed || pagingIsUsed || groupByIsUsed || orderingOverCalculatedColumn;
+      }
 
       if (origin.Type == ProviderType.Apply || origin.Type == ProviderType.Join || origin.Type == ProviderType.PredicateJoin)
         return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed || filterIsUsed || columnCountIsNotSame;
