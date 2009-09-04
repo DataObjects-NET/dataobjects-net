@@ -229,7 +229,7 @@ namespace Xtensive.Core.Collections
         return source;
 
       var result = new TItem[source.Length + target.Length];
-      Array.Copy(source, result, 0);
+      Array.Copy(source, result, source.Length);
       Array.Copy(target, 0, result, source.Length, target.Length);
 
       return result;
