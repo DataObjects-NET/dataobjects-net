@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.11.14
 
+using Microsoft.Practices.Unity;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Configuration;
@@ -45,6 +46,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var config = DomainConfiguration.Load("ServicesTest", "memory");
       domain = Domain.Build(config);
+      domain.ServiceContainer.RegisterType(typeof (SimpleService), "ss3", new InjectionConstructor(111333));
     }
 
     [Test]
@@ -61,6 +63,10 @@ namespace Xtensive.Storage.Tests.Storage
           var ss2_2 = Session.Current.Services.Get<SimpleService>("ss2");
           Assert.AreNotSame(ss2_1, ss2_2);
           Assert.AreEqual(123321, ss2_1.Value);
+          var ss3_1 = Session.Current.Services.Get<SimpleService>("ss3");
+          var ss3_2 = Session.Current.Services.Get<SimpleService>("ss3");
+          Assert.AreSame(ss3_1, ss3_2);
+          Assert.AreEqual(111333, ss3_1.Value);
         }
       }
     }
