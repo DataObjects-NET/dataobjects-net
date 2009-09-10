@@ -69,14 +69,14 @@ namespace Xtensive.Storage.ReferentialIntegrity
       foreach (var association in sequence) {
         if (association.OwnerType.UnderlyingType.IsAssignableFrom(item.Type.UnderlyingType)) {
           actionProcessor = GetProcessor(association.OnOwnerRemove.Value);
-          foreach (var referencedObject in association.FindReferencedObjects(item).ToList())
-            actionProcessor.Process(context, association, item, referencedObject, item, referencedObject);
+          foreach (var reference in ReferenceFinder.GetReferencesFrom(item, association).ToList())
+            actionProcessor.Process(context, association, item, reference.ReferencedEntity, item, reference.ReferencedEntity);
         }
 
         if (association.TargetType.UnderlyingType.IsAssignableFrom(item.Type.UnderlyingType)) {
           actionProcessor = GetProcessor(association.OnTargetRemove.Value);
-          foreach (var referencingObject in association.FindReferencingObjects(item).ToList())
-            actionProcessor.Process(context, association, item, referencingObject, referencingObject, item);
+          foreach (var reference in ReferenceFinder.FindReferencesTo(item, association).ToList())
+            actionProcessor.Process(context, association, item, reference.ReferencingEntity, reference.ReferencingEntity, item);
         }
       }
     }

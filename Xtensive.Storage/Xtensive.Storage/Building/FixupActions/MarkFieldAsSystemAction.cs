@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Building.FixupActions
 
     public override string ToString()
     {
-      return string.Format("Mark '{0}' field as system.", Field.Name);
+      return string.Format("Mark '{0}.{1}' field as system.", Type.Name, Field.Name);
     }
 
 
