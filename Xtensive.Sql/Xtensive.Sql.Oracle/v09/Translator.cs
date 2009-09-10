@@ -174,26 +174,86 @@ namespace Xtensive.Sql.Oracle.v09
 
     public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
-      var index = node.Index;
+      /*Index index = node.Index;
+            switch (section) {
+              case CreateIndexSection.Entry:
+                return string.Format("CREATE {0}INDEX {1} ON {2} ("
+                  , index.IsUnique ? "UNIQUE " : ""
+                  , QuoteIdentifier(index.Name)
+                  , Translate(index.DataTable));
+              case CreateIndexSection.StorageOptions:
+                var builder = new StringBuilder();
+                builder.Append(")");
+                AppendIndexStorageParameters(builder, index);
+
+                if (!String.IsNullOrEmpty(index.Filegroup)) {
+                  builder.Append(" TABLESPACE " + QuoteIdentifier(index.Filegroup));
+                }
+
+                //cluster in a separate command
+                if (index.IsClustered) {
+                  builder.AppendFormat(BatchItemDelimiter + " CLUSTER {0} ON {1}"
+                    , QuoteIdentifier(index.Name)
+                    , QuoteIdentifier(index.DataTable.Schema.Name, index.DataTable.Name)
+                    );
+                }
+                return builder.ToString();
+              case CreateIndexSection.Where:
+                return " WHERE ";
+              default:
+                return string.Empty;
+            }*/
       var builder = new StringBuilder();
-      builder.Append("CREATE ");
-      if (index.IsUnique)
-        builder.Append("UNIQUE ");
-      else if (index.IsBitmap)
-        builder.Append("BITMAP ");
-      builder.Append("INDEX ");
-      builder.Append(Translate(index));
-      builder.Append(" ON ");
-      builder.Append(Translate(index.DataTable));
-      builder.Append("(");
-      foreach (var column in index.Columns) {
-        builder.Append(QuoteIdentifier(column.DbName));
-        builder.Append(column.Ascending ? " ASC" : " DESC");
-        builder.Append(RowItemDelimiter);
+      var index = node.Index;
+      switch (section) {
+        case CreateIndexSection.Entry:
+          builder.Append("CREATE ");
+          if (index.IsUnique)
+            builder.Append("UNIQUE ");
+          else if (index.IsBitmap)
+            builder.Append("BITMAP ");
+          builder.Append("INDEX ");
+          builder.Append(Translate(index));
+          builder.Append(" ON ");
+          builder.Append(Translate(index.DataTable));
+          return builder.ToString();
+        case CreateIndexSection.Exit:
+          break;
+        case CreateIndexSection.ColumnsEnter:
+          return "(";
+        case CreateIndexSection.ColumnsExit:
+          return ")";
+        case CreateIndexSection.NonkeyColumnsEnter:
+          break;
+        case CreateIndexSection.NonkeyColumnsExit:
+          break;
+        case CreateIndexSection.StorageOptions:
+          break;
+        case CreateIndexSection.Where:
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("section");
       }
-      builder.Length = builder.Length - RowItemDelimiter.Length;
-      builder.Append(")");
-      return builder.ToString();
+      return string.Empty;
+//      var builder = new StringBuilder();
+//      builder.Append("CREATE ");
+//      if (index.IsUnique)
+//        builder.Append("UNIQUE ");
+//      else if (index.IsBitmap)
+//        builder.Append("BITMAP ");
+//      builder.Append("INDEX ");
+//      builder.Append(Translate(index));
+//      builder.Append(" ON ");
+//      builder.Append(Translate(index.DataTable));
+//      builder.Append("(");
+//      foreach (var column in index.Columns) {
+//        builder.Append(QuoteIdentifier(column.DbName));
+//        builder.Append(column.Ascending ? " ASC" : " DESC");
+//        builder.Append(RowItemDelimiter);
+//      }
+//      builder.Length = builder.Length - RowItemDelimiter.Length;
+//      builder.Append(")");
+//      return builder.ToString();
     }
 
     public virtual string Translate(Index node)
