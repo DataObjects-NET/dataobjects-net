@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
   {
     private bool supportsRowNumber;
 
-    protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlTableColumn> sourceColumns, AggregateColumn aggregateColumn)
+    protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
       var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
       if (aggregateColumn.AggregateType == AggregateType.Sum || aggregateColumn.AggregateType == AggregateType.Avg) {

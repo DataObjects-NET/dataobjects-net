@@ -55,6 +55,12 @@ namespace Xtensive.Sql.Dml
       base.Add(SqlDml.ColumnRef(SqlDml.Column(expression), alias));
     }
 
+    public void Add(SqlColumnRef columnReference)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(columnReference, "columnReference");
+      base.Add(columnReference);
+    }
+    
     public void Insert(int index, SqlExpression expression, string alias)
     {
       ArgumentValidator.EnsureArgumentNotNull(alias, "alias");

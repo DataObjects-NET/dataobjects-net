@@ -18,6 +18,12 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   public class CalculateProvider : UnaryProvider
   {
     /// <summary>
+    /// Gets or sets a value indicating whether calculated columns could be inlined.
+    /// </summary>
+    /// <value><see langword="true" /> if columns could be inlined; otherwise, <see langword="false" />.</value>
+    public bool CouldBeInlined { get; private set; }
+
+    /// <summary>
     /// Gets the calculated columns.
     /// </summary>
     public CalculatedColumn[] CalculatedColumns { get; private set; }
@@ -59,8 +65,19 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
     public CalculateProvider(CompilableProvider source, params CalculatedColumnDescriptor[] columnDescriptors)
+      : this(source, false, columnDescriptors)
+    {}
+
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
+    /// <param name="couldBeInlined">The <see cref="CouldBeInlined"/> property value.</param>
+    /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
+    public CalculateProvider(CompilableProvider source, bool couldBeInlined, params CalculatedColumnDescriptor[] columnDescriptors)
       : base(ProviderType.Calculate, source)
     {
+      CouldBeInlined = couldBeInlined;
       var columns = new CalculatedColumn[columnDescriptors.Length];
       for (int i = 0; i < columnDescriptors.Length; i++) {
         var col = new CalculatedColumn(columnDescriptors[i], Source.Header.Length + i);

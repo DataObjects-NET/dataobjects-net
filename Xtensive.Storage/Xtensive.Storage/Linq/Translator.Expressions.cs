@@ -113,7 +113,9 @@ namespace Xtensive.Storage.Linq
           ? BuildSubqueryResult((ProjectionExpression) body, le.Body.Type)
           : ProcessProjectionElement(body);
         if (state.CalculatedColumns.Count > 0) {
-          var dataSource = projection.ItemProjector.DataSource.Calculate(state.CalculatedColumns.ToArray());
+          var dataSource = projection.ItemProjector.DataSource.Calculate(
+            !state.BuildingProjection,
+            state.CalculatedColumns.ToArray());
           var itemProjector = new ItemProjectorExpression(body, dataSource, context);
           context.Bindings.ReplaceBound(parameter, new ProjectionExpression(
             projection.Type,

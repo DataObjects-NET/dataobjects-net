@@ -33,7 +33,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      SqlColumn replacingExpression = expression as SqlColumn;
+      var replacingExpression = expression as SqlColumn;
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentIs<SqlColumn>(expression, "expression");
       sqlTable = replacingExpression.SqlTable;

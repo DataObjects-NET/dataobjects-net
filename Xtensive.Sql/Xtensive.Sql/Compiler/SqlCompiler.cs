@@ -1050,9 +1050,14 @@ namespace Xtensive.Sql.Compiler
         return;
       using (context.EnterCollectionScope()) {
         foreach (SqlColumn item in node.Columns) {
+          if (item is ColumnStub)
+            continue;
+          var cr = item as SqlColumnRef;
+          if (!cr.IsNullReference() && cr.SqlColumn is ColumnStub)
+            continue;
+            
           if (!context.IsEmpty)
             context.Output.AppendDelimiter(translator.ColumnDelimiter);
-          var cr = item as SqlColumnRef;
           if (!cr.IsNullReference()) {
             cr.SqlColumn.AcceptVisitor(this);
             context.Output.AppendText(translator.Translate(context, cr, ColumnSection.AliasDeclaration));

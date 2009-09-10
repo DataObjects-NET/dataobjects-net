@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
       return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
-    protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlTableColumn> sourceColumns, AggregateColumn aggregateColumn)
+    protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
       var aggregateType = aggregateColumn.Type;
       var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);

@@ -24,7 +24,13 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// Gets the apply parameter.
     /// </summary>
     public ApplyParameter ApplyParameter { get; private set; }
-    
+
+    /// <summary>
+    /// Gets or sets a value indicating whether columns could be inlined.
+    /// </summary>
+    /// <value><see langword="true" /> if columns could be inlined; otherwise, <see langword="false" />.</value>
+    public bool CouldBeInlined { get; private set; }
+
     /// <summary>
     /// Gets apply type.
     /// </summary>
@@ -81,9 +87,17 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right, ApplySequenceType applySequenceType, JoinType applyType)
+      : this(applyParameter, left, right, false, applySequenceType, applyType)
+    {}
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right, bool couldBeInlined, ApplySequenceType applySequenceType, JoinType applyType)
       : base(ProviderType.Apply, left, right)
     {
       ApplyParameter = applyParameter;
+      CouldBeInlined = couldBeInlined;
       SequenceType = applySequenceType;
       ApplyType = applyType;
     }

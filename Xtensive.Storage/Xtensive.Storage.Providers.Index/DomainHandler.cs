@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    protected override IPostCompiler CreatePostCompiler()
+    protected override IPostCompiler CreatePostCompiler(ICompiler compiler)
     {
       return new EmptyPostCompiler();
     }

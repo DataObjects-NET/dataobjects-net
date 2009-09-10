@@ -20,6 +20,7 @@ namespace Xtensive.Storage.Providers.Sql
   {
     private const string ToStringFormat = "[Command: \"{0}\"]";
     protected readonly HandlerAccessor handlers;
+    private SqlTable permanentReference;
 
     /// <summary>
     /// Gets <see cref="SqlQueryRequest"/> associated with this provider.
@@ -29,7 +30,15 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the permanent reference (<see cref="SqlQueryRef"/>) for <see cref="SqlSelect"/> associated with this provider.
     /// </summary>
-    public SqlTable PermanentReference { get; private set; }
+    public SqlTable PermanentReference
+    {
+      get
+      {
+        if (ReferenceEquals(null, permanentReference))
+          permanentReference = SqlDml.QueryRef(Request.SelectStatement);
+        return permanentReference;
+      }
+    }
 
     /// <inheritdoc/>
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
@@ -112,7 +121,6 @@ namespace Xtensive.Storage.Providers.Sql
       if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
         tupleDescriptor = origin.Header.TupleDescriptor.TrimFields(statement.Columns.Count);
       Request = new SqlQueryRequest(statement, tupleDescriptor, parameterBindings);
-      PermanentReference = SqlDml.QueryRef(statement);
     }
 
     /// <summary>
@@ -127,7 +135,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       handlers = provider.handlers;
       Request = provider.Request;
-      PermanentReference = permanentReference;
+      this.permanentReference = permanentReference;
     }
   }
 }

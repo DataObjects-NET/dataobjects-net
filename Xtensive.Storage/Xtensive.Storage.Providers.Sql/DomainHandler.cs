@@ -77,9 +77,10 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override IPostCompiler CreatePostCompiler()
+    protected override IPostCompiler CreatePostCompiler(ICompiler compiler)
     {
-      return new SqlOrderbyCorrector(Handlers);
+//      return new SqlOrderbyCorrector(Handlers, (SqlCompiler)compiler);
+      return new EmptyPostCompiler();
     }
 
     /// <summary>

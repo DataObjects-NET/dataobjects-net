@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Rse.Compilation
   {
     private readonly Func<ICompiler> compilerProvider;
     private readonly Func<IPreCompiler> preCompilerProvider;
-    private readonly Func<IPostCompiler> postCompilerProvider;
+    private readonly Func<ICompiler, IPostCompiler> postCompilerProvider;
 
     #region Nested type: CacheEntry
 
@@ -119,8 +119,8 @@ namespace Xtensive.Storage.Rse.Compilation
       }
 
       var preCompiler = preCompilerProvider();
-      var postCompiler = postCompilerProvider();
       var compiler = compilerProvider();
+      var postCompiler = postCompilerProvider(compiler);
       if (compiler == null)
         throw new InvalidOperationException(Strings.ExCanNotCompileNoCompiler);
       
@@ -171,8 +171,10 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <param name="compilerProvider">The compiler provider.</param>
     /// <param name="preCompilerProvider">The pre-compiler provider.</param>
     /// <param name="postCompilerProvider">The post-compiler provider.</param>
-    protected CompilationContext(Func<ICompiler> compilerProvider, Func<IPreCompiler> preCompilerProvider,
-      Func<IPostCompiler> postCompilerProvider)
+    protected CompilationContext(
+      Func<ICompiler> compilerProvider,
+      Func<IPreCompiler> preCompilerProvider,
+      Func<ICompiler, IPostCompiler> postCompilerProvider)
     {
       this.compilerProvider = compilerProvider;
       this.preCompilerProvider = preCompilerProvider;

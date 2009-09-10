@@ -96,6 +96,11 @@ namespace Xtensive.Storage.Rse
       return new CalculateProvider(recordSet.Provider, columns).Result;
     }
 
+    public static RecordSet Calculate(this RecordSet recordSet, bool couldBeInlined, params CalculatedColumnDescriptor[] columns)
+    {
+      return new CalculateProvider(recordSet.Provider, couldBeInlined, columns).Result;
+    }
+
     public static RecordSet RowNumber(this RecordSet recordSet, string columnName)
     {
       return new RowNumberProvider(recordSet.Provider, columnName).Result;
@@ -259,6 +264,11 @@ namespace Xtensive.Storage.Rse
     public static RecordSet Apply(this RecordSet recordSet, ApplyParameter applyParameter, RecordSet right, ApplySequenceType sequenceType, JoinType applyType)
     {
       return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider, sequenceType, applyType).Result;
+    }
+
+    public static RecordSet Apply(this RecordSet recordSet, ApplyParameter applyParameter, RecordSet right, bool couldBeInlinied, ApplySequenceType sequenceType, JoinType applyType)
+    {
+      return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider, couldBeInlinied, sequenceType, applyType).Result;
     }
 
     public static RecordSet Existence(this RecordSet recordSet, string existenceColumnName)

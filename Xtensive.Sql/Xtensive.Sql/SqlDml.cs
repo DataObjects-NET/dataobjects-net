@@ -1673,7 +1673,7 @@ namespace Xtensive.Sql
       return new SqlUserColumn(expression);
     }
 
-    internal static SqlColumnRef ColumnRef(SqlColumn column)
+    public static SqlColumnRef ColumnRef(SqlColumn column)
     {
       ArgumentValidator.EnsureArgumentNotNull(column, "column");
       return new SqlColumnRef(column);
@@ -1684,6 +1684,12 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(column, "column");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, "alias");
       return new SqlColumnRef(column, alias);
+    }
+
+    public static ColumnStub ColumnStub(SqlColumn column)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(column, "column");
+      return new ColumnStub(column);
     }
 
     public static SqlTableRef TableRef(DataTable dataTable)

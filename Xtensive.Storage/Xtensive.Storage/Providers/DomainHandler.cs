@@ -75,8 +75,9 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Creates the <see cref="IPostCompiler"/>.
     /// </summary>
+    /// <param name="compiler">Currently used compiler instance.</param>
     /// <returns>A new post-compiler.</returns>
-    protected abstract IPostCompiler CreatePostCompiler();
+    protected abstract IPostCompiler CreatePostCompiler(ICompiler compiler);
 
     /// <summary>
     /// Gets the sequence of compiler provider container types.

@@ -20,6 +20,7 @@ namespace Xtensive.Storage.Providers.Sql
   internal sealed class SqlOrderbyCorrector : IPostCompiler
   {
     private readonly HandlerAccessor handlers;
+    private readonly SqlCompiler sqlCompiler;
 
     public ExecutableProvider Process(ExecutableProvider rootProvider)
     {
@@ -46,33 +47,34 @@ namespace Xtensive.Storage.Providers.Sql
         query.OrderBy.Add(query.Columns[pair.Key], pair.Value==Direction.Positive);
     }
 
-    private static SqlSelect ApplyOrderingToSelectProvider(SqlProvider rootProvider,
+    private SqlSelect ApplyOrderingToSelectProvider(SqlProvider rootProvider,
       SelectProvider originAsSelect)
     {
       var result = rootProvider.Request.SelectStatement.ShallowClone();
-      var queryRef = result.From;
-      var shouldUseColumnPosition = originAsSelect.Source.Header.Order.Any(o => o.Key >= queryRef.Columns.Count);
+      var columnExpressions = sqlCompiler.ExtractColumnExpressions(result, originAsSelect);
+      var shouldUseColumnPosition = originAsSelect.Source.Header.Order.Any(o => o.Key >= result.From.Columns.Count);
       if (shouldUseColumnPosition)
         foreach (KeyValuePair<int, Direction> pair in originAsSelect.Source.Header.Order) {
           var orderColumnIndex = originAsSelect.ColumnIndexes.IndexOf(pair.Key);
           if (orderColumnIndex >= 0)
             result.OrderBy.Add(orderColumnIndex + 1, pair.Value == Direction.Positive);
           else
-            result.OrderBy.Add(queryRef.Columns[pair.Key], pair.Value == Direction.Positive);
+            result.OrderBy.Add(columnExpressions[pair.Key], pair.Value == Direction.Positive);
         }
       else
         foreach (KeyValuePair<int, Direction> pair in originAsSelect.Source.Header.Order)
-          result.OrderBy.Add(queryRef.Columns[pair.Key], pair.Value == Direction.Positive);
+          result.OrderBy.Add(columnExpressions[pair.Key], pair.Value == Direction.Positive);
       return result;
     }
 
 
     // Constructors
 
-    public SqlOrderbyCorrector(HandlerAccessor handlers)
+    public SqlOrderbyCorrector(HandlerAccessor handlers, SqlCompiler sqlCompiler)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       this.handlers = handlers;
+      this.sqlCompiler = sqlCompiler;
     }
   }
 }

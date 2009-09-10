@@ -289,8 +289,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
     // Constructors
 
-    public OrderingCorrectorRewriter(
-      Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver)
+    public OrderingCorrectorRewriter(Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver)
     {
       ArgumentValidator.EnsureArgumentNotNull(orderingDescriptorResolver, "orderingDescriptorResolver");
       descriptorResolver = orderingDescriptorResolver;

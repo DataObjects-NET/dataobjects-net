@@ -37,6 +37,8 @@ namespace Xtensive.Storage.Providers.Sql
     private const string TableNamePattern = "Tmp_{0}";
 
     private readonly BooleanExpressionConverter booleanExpressionConverter;
+
+    public readonly Dictionary<ColumnStub,SqlExpression> stubColumnMap;
     
     /// <summary>
     /// Gets the value type mapper.
@@ -70,24 +72,29 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var source = Compile(provider.Source);
 
-//      SqlTable queryRef = source.PermanentReference;
-//      var sqlSelect = SqlDml.Select(queryRef);
       var sqlSelect = ExtractSqlSelect(provider, source);
 
-//      var columns = queryRef.Columns.ToList();
-      var columns = sqlSelect.From.Columns.ToList();
+      var columns = ExtractColumnExpressions(sqlSelect, provider);
+      var columnNames = columns.Select((c, i) => 
+        i >= sqlSelect.Columns.Count
+          ? sqlSelect.From.Columns[i].Name
+          : sqlSelect.Columns[i].Name).ToList();
       sqlSelect.Columns.Clear();
 
       for (int i = 0; i < provider.GroupColumnIndexes.Length; i++) {
         var columnIndex = provider.GroupColumnIndexes[i];
         var column = columns[columnIndex];
-        sqlSelect.Columns.Add(column);
         sqlSelect.GroupBy.Add(column);
+        if (!(column is SqlColumn)) {
+          var columnName = columnNames[columnIndex];
+          column = SqlDml.ColumnRef(SqlDml.Column(column), columnName);
+        }
+        sqlSelect.Columns.Add(column);
       }
 
       foreach (var column in provider.AggregateColumns) {
-        SqlExpression expr = ProcessAggregate(source, columns, column);
-        sqlSelect.Columns.Add(expr, column.Name);
+        var expression = ProcessAggregate(source, columns, column);
+        sqlSelect.Columns.Add(expression, column.Name);
       }
 
       return new SqlProvider(provider, sqlSelect, Handlers, source);
@@ -105,11 +112,17 @@ namespace Xtensive.Storage.Providers.Sql
       for (int i = 0; i < columns.Count; i++) {
         var columnName = provider.Header.Columns[i].Name;
         columnName = ProcessAliasedName(columnName);
-        var columnRef = columns[i] as SqlColumnRef;
-        if (columnRef != null)
+        var column = columns[i];
+        var columnRef = column as SqlColumnRef;
+        var columnStub = column as ColumnStub;
+        if (!ReferenceEquals(null, columnRef))
           sqlSelect.Columns.Add(SqlDml.ColumnRef(columnRef.SqlColumn, columnName));
+        else if (!ReferenceEquals(null, columnStub)) {
+          columnRef = (SqlColumnRef)columnStub.Column;
+          sqlSelect.Columns.Add(SqlDml.ColumnRef(columnRef.SqlColumn, columnName));
+        }
         else
-          sqlSelect.Columns.Add(columns[i], columnName);
+          sqlSelect.Columns.Add(column, columnName);
       }
       return new SqlProvider(provider, sqlSelect, Handlers, source);
     }
@@ -128,14 +141,22 @@ namespace Xtensive.Storage.Providers.Sql
       else
         sqlSelect = ExtractSqlSelect(provider, source);
 
+      var sourceColumns = ExtractColumnExpressions(sqlSelect, provider);
       var allBindings = EnumerableUtils<SqlQueryParameterBinding>.Empty;
       foreach (var column in provider.CalculatedColumns) {
-        var result = ProcessExpression(column.Expression, sqlSelect.From.Columns.ToList());
+        var result = ProcessExpression(column.Expression, sourceColumns);
         var predicate = result.First;
         var bindings = result.Second;
         if (!ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions) && (column.Type.StripNullable()==typeof(bool)))
           predicate = booleanExpressionConverter.BooleanToInt(predicate);
-        sqlSelect.Columns.Add(predicate, column.Name);
+        var columnRef = SqlDml.ColumnRef(SqlDml.Column(predicate), column.Name);
+        if (provider.CouldBeInlined) {
+          var columnStub = SqlDml.ColumnStub(columnRef);
+          stubColumnMap.Add(columnStub, predicate);
+          sqlSelect.Columns.Add(columnStub);
+        }
+        else
+          sqlSelect.Columns.Add(columnRef);
         allBindings = allBindings.Concat(bindings);
       }
 
@@ -167,7 +188,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var query = ExtractSqlSelect(provider, source);
 
-      var sourceColumns = query.From.Columns.ToList();
+      var sourceColumns = ExtractColumnExpressions(query, provider);
       var result = ProcessExpression(provider.Predicate, sourceColumns);
       var predicate = result.First;
       var bindings = result.Second;
@@ -251,7 +272,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var joinType = provider.JoinType == JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin;
 
-      var result = ProcessExpression(provider.Predicate, leftTable.Columns.ToList(), rightTable.Columns.ToList());
+      var result = ProcessExpression(provider.Predicate, leftTable.Columns.Cast<SqlExpression>().ToList(), rightTable.Columns.Cast<SqlExpression>().ToList());
       var joinExpression = result.First;
       var bindings = result.Second;
 
@@ -345,7 +366,33 @@ namespace Xtensive.Storage.Providers.Sql
     protected override SqlProvider VisitSort(SortProvider provider)
     {
       var compiledSource = Compile(provider.Source);
-      return new SqlProvider(provider, compiledSource.Request.SelectStatement, Handlers, compiledSource);
+
+      var query = ExtractSqlSelect(provider, compiledSource);
+      var rootSelectProvider = RootProvider as SelectProvider;
+      var currentIsRoot = RootProvider == provider;
+      if (currentIsRoot || (rootSelectProvider != null && rootSelectProvider.Source == provider)) {
+        if (query.OrderBy.Count == 0) {
+          if (currentIsRoot) {
+            foreach (KeyValuePair<int, Direction> pair in provider.Header.Order)
+              query.OrderBy.Add(query.Columns[pair.Key], pair.Value == Direction.Positive);
+          }
+          else {
+            var columnExpressions = ExtractColumnExpressions(query, provider);
+            var shouldUseColumnPosition = provider.Header.Order.Any(o => o.Key >= columnExpressions.Count);
+            if (shouldUseColumnPosition)
+              foreach (KeyValuePair<int, Direction> pair in provider.Header.Order) {
+                if (pair.Key >= columnExpressions.Count)
+                  query.OrderBy.Add(pair.Key + 1, pair.Value == Direction.Positive);
+                else
+                  query.OrderBy.Add(columnExpressions[pair.Key], pair.Value == Direction.Positive);
+              }
+            else
+              foreach (KeyValuePair<int, Direction> pair in provider.Header.Order)
+                query.OrderBy.Add(columnExpressions[pair.Key], pair.Value == Direction.Positive);
+          }
+        }
+      }
+      return new SqlProvider(provider, query, Handlers, compiledSource);
     }
 
     /// <inheritdoc/>
@@ -451,7 +498,6 @@ namespace Xtensive.Storage.Providers.Sql
           .Select((c, i) => IsCalculatedColumn(c) ? i : -1)
           .Where(i => i >= 0)
           .ToList();
-        var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
         var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
 
         var usedOuterColumns = new List<int>();
@@ -482,7 +528,12 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var source = Compile(provider.Source);
 
-      SqlExpression existsExpression = SqlDml.Exists(source.Request.SelectStatement);
+      var query = source.Request.SelectStatement.ShallowClone();
+      query.Columns.Clear();
+      query.Columns.Add(query.Asterisk);
+      query.OrderBy.Clear();
+      query.GroupBy.Clear();
+      SqlExpression existsExpression = SqlDml.Exists(query);
       if (!ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions))
         existsExpression = booleanExpressionConverter.BooleanToInt(existsExpression);
       var select = SqlDml.Select();
@@ -607,8 +658,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="sourceColumns">The source columns.</param>
     /// <param name="aggregateColumn">The aggregate column.</param>
     /// <returns></returns>
-    protected virtual SqlExpression ProcessAggregate(SqlProvider source,
-      List<SqlTableColumn> sourceColumns, AggregateColumn aggregateColumn)
+    protected virtual SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
       switch (aggregateColumn.AggregateType) {
       case AggregateType.Avg:
@@ -765,13 +815,14 @@ namespace Xtensive.Storage.Providers.Sql
       return query;
     }
 
-    protected static void AddOrderByStatement(UnaryProvider provider, SqlSelect query)
+    protected void AddOrderByStatement(UnaryProvider provider, SqlSelect query)
     {
+      var columnExpressions = ExtractColumnExpressions(query, provider);
       foreach (KeyValuePair<int, Direction> pair in provider.Source.ExpectedOrder)
-        query.OrderBy.Add(query.From.Columns[pair.Key], pair.Value==Direction.Positive);
+        query.OrderBy.Add(columnExpressions[pair.Key], pair.Value == Direction.Positive);
     }
 
-    private static bool IsCalculatedColumn(SqlColumn column)
+    public static bool IsCalculatedColumn(SqlColumn column)
     {
       if (column is SqlUserColumn)
         return true;
@@ -779,6 +830,55 @@ namespace Xtensive.Storage.Providers.Sql
       if (!ReferenceEquals(null, cRef))
         return cRef.SqlColumn is SqlUserColumn;
       return false;
+    }
+
+    public static bool IsColumnStub(SqlColumn column)
+    {
+      if (column is ColumnStub)
+        return true;
+      var cRef = column as SqlColumnRef;
+      if (!ReferenceEquals(null, cRef))
+        return cRef.SqlColumn is ColumnStub;
+      return false;
+    }
+
+    public List<SqlExpression> ExtractColumnExpressions(SqlSelect query, CompilableProvider origin)
+    {
+      var result = new List<SqlExpression>(query.Columns.Count);
+      var shouldUseQueryColumns = origin.Type == ProviderType.Filter && query.Columns.Count < query.From.Columns.Count;
+      if (query.Columns.Any(IsColumnStub) || query.GroupBy.Count > 0 || shouldUseQueryColumns) {
+        foreach (var column in query.Columns) {
+          var expression = IsColumnStub(column)
+            ? stubColumnMap[ExtractColumnStub(column)]
+            : column;
+          result.Add(expression);
+        }
+      }
+      else
+        result.AddRange(query.From.Columns.Cast<SqlExpression>());
+      return result;
+    }
+
+    public static ColumnStub ExtractColumnStub(SqlColumn column)
+    {
+      var columnStub = column as ColumnStub;
+      if (!ReferenceEquals(null, columnStub))
+        return columnStub;
+      var columnRef = column as SqlColumnRef;
+      if (!ReferenceEquals(null, columnRef))
+        return (ColumnStub)columnRef.SqlColumn;
+      return (ColumnStub) column;
+    }
+
+    public static SqlUserColumn ExtractUserColumn(SqlColumn column)
+    {
+      var userColumn = column as SqlUserColumn;
+      if (!ReferenceEquals(null, userColumn))
+        return userColumn;
+      var columnRef = column as SqlColumnRef;
+      if (!ReferenceEquals(null, columnRef))
+        return (SqlUserColumn)columnRef.SqlColumn;
+      return (SqlUserColumn)column;
     }
 
     protected static bool ShouldUseQueryReference(CompilableProvider origin, SqlProvider compiledSource)
@@ -798,7 +898,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (origin.Type == ProviderType.Filter) {
         var filterProvider = (FilterProvider)origin;
         var usedColumnIndexes = new TupleAccessGatherer().Gather(filterProvider.Predicate.Body);
-        return pagingIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains) || columnCountIsNotSame;
+        return pagingIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
       }
 
       if (origin.Type == ProviderType.Select) {
@@ -849,7 +949,7 @@ namespace Xtensive.Storage.Providers.Sql
       return sourceSelect.ShallowClone();
     }
 
-    private Pair<SqlExpression, HashSet<SqlQueryParameterBinding>> ProcessExpression(LambdaExpression le, params List<SqlTableColumn>[] sourceColumns)
+    private Pair<SqlExpression, HashSet<SqlQueryParameterBinding>> ProcessExpression(LambdaExpression le, params List<SqlExpression>[] sourceColumns)
     {
       var processor = new ExpressionProcessor(le, this, Handlers, sourceColumns);
       var result = new Pair<SqlExpression, HashSet<SqlQueryParameterBinding>>(
@@ -858,7 +958,7 @@ namespace Xtensive.Storage.Providers.Sql
       return result;
     }
 
-    private static SqlSelect ProcessApplyViaSubqueries(ApplyProvider provider, SqlProvider left, SqlProvider right, bool shouldUseQueryReference)
+    private SqlSelect ProcessApplyViaSubqueries(ApplyProvider provider, SqlProvider left, SqlProvider right, bool shouldUseQueryReference)
     {
       var rightQuery = right.Request.SelectStatement;
       SqlSelect query;
@@ -870,8 +970,16 @@ namespace Xtensive.Storage.Providers.Sql
       else
         query = left.Request.SelectStatement.ShallowClone();
 
-      if (provider.Right.Type==ProviderType.Existence)
-        query.Columns.Add(rightQuery.Columns[0]);
+      if (provider.Right.Type==ProviderType.Existence) {
+        var column = rightQuery.Columns[0];
+        if (provider.CouldBeInlined) {
+          var columnStub = SqlDml.ColumnStub(column);
+          var userColumn = ExtractUserColumn(column);
+          stubColumnMap.Add(columnStub, userColumn.Expression);
+          column = columnStub;
+        }
+        query.Columns.Add(column);
+      }  
       else {
         for (int i = 0; i < rightQuery.Columns.Count; i++) {
           var subquery = rightQuery.ShallowClone();
@@ -962,6 +1070,8 @@ namespace Xtensive.Storage.Providers.Sql
 
       if (!handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions))
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
+
+      stubColumnMap = new Dictionary<ColumnStub, SqlExpression>();
     }
   }
 }

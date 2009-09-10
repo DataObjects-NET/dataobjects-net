@@ -34,7 +34,8 @@ namespace Xtensive.Sql.Dml
 
     // Constructors
 
-    internal SqlTableColumn(SqlTable sqlTable, string name) : base(sqlTable, name)
+    internal SqlTableColumn(SqlTable sqlTable, string name)
+      : base(sqlTable, name)
     {
     }
 

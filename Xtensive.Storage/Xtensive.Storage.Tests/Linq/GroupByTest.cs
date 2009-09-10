@@ -489,6 +489,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void GroupBySelectKeyWithCalculableColumnTest()
     {
       var result = Query<Order>.All.GroupBy(o => o.ShipName + "String");
+      var list = result.ToList();
       DumpGrouping(result);
     }
 

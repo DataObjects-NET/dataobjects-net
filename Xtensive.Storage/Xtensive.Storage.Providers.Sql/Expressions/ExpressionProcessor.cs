@@ -32,13 +32,13 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly IMemberCompilerProvider<SqlExpression> memberCompilerProvider;
     private readonly DomainModel model;
-    private readonly List<SqlTableColumn>[] sourceColumns;
+    private readonly List<SqlExpression>[] sourceColumns;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
     private readonly LambdaExpression lambda;
     private readonly HashSet<SqlQueryParameterBinding> bindings;
     private readonly List<ParameterExpression> activeParameters;
-    private readonly Dictionary<ParameterExpression, List<SqlTableColumn>> sourceMapping;
+    private readonly Dictionary<ParameterExpression, List<SqlExpression>> sourceMapping;
     private readonly ICompiler compiler;
 
     private bool fixBooleanExpressions;
@@ -519,7 +519,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     
     // Constructors
 
-    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, params List<SqlTableColumn>[] sourceColumns)
+    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, params List<SqlExpression>[] sourceColumns)
       : this(le, compiler, handlers)
     {
       ArgumentValidator.EnsureArgumentNotNull(sourceColumns, "sourceColumns");
@@ -528,7 +528,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (sourceColumns.Any(list => list.Any(c => c.IsNullReference())))
         throw Exceptions.InternalError("Source column list contains null values.", Log.Instance);
       this.sourceColumns = sourceColumns;
-      sourceMapping = new Dictionary<ParameterExpression, List<SqlTableColumn>>();
+      sourceMapping = new Dictionary<ParameterExpression, List<SqlExpression>>();
     }
 
     private ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers)

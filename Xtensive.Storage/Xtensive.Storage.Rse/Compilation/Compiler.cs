@@ -14,6 +14,13 @@ namespace Xtensive.Storage.Rse.Compilation
   public abstract class Compiler<TResult> : ICompiler<TResult> 
     where TResult : ExecutableProvider
   {
+    private CompilableProvider rootProvider;
+
+    protected CompilableProvider RootProvider
+    {
+      get { return rootProvider; }
+    }
+
     /// <summary>
     /// Gets execution site location.
     /// </summary>
@@ -48,9 +55,10 @@ namespace Xtensive.Storage.Rse.Compilation
     {
       if (cp == null)
         return null;
+      if (rootProvider == null)
+        rootProvider = cp;
       TResult result;
-      ProviderType providerType = cp.Type;
-      switch (providerType) {
+      switch (cp.Type) {
         case ProviderType.Index:
           result = VisitIndex((IndexProvider)cp);
           break;
@@ -136,7 +144,7 @@ namespace Xtensive.Storage.Rse.Compilation
           throw new ArgumentOutOfRangeException();
       }
       result.Location = Location;
-      return IsCompatible(result) ? result : ToCompatible(result);
+      return result;
     }
 
     /// <summary>

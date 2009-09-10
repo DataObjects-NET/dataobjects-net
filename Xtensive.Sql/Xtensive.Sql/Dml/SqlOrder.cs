@@ -37,7 +37,7 @@ namespace Xtensive.Sql.Dml
 
       var clone = Expression.IsNullReference()
         ? new SqlOrder(Position, Ascending)
-        : new SqlOrder((SqlColumn) Expression.Clone(context), Ascending);
+        : new SqlOrder((SqlExpression)Expression.Clone(context), Ascending);
       context.NodeMapping[this] = clone;
       return clone;
     }

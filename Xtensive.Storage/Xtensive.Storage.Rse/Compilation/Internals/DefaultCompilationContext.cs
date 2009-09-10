@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Rse.Compilation
       : base(
         () => new ClientCompiler(),
         () => new CompositePreCompiler(new OrderingCorrector(ResolveOrderingDescriptor, false)),
-        () => new EmptyPostCompiler())
+        (compiler) => new EmptyPostCompiler())
     {
     }
   }

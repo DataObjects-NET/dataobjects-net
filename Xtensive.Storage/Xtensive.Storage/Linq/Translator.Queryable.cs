@@ -40,7 +40,6 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitQueryableMethod(MethodCallExpression mc, QueryableMethodKind methodKind)
     {
       using (state.CreateScope()) {
-        state.BuildingProjection = false;
         switch (methodKind) {
         case QueryableMethodKind.Cast:
           break;
@@ -65,7 +64,8 @@ namespace Xtensive.Storage.Linq
         case QueryableMethodKind.Except:
         case QueryableMethodKind.Intersect:
         case QueryableMethodKind.Concat:
-        case QueryableMethodKind.Union:
+        case QueryableMethodKind.Union: 
+          state.BuildingProjection = false;
           return VisitSetOperations(mc.Arguments[0], mc.Arguments[1], methodKind);
         case QueryableMethodKind.Reverse:
           break;
@@ -109,6 +109,7 @@ namespace Xtensive.Storage.Linq
           }
           break;
         case QueryableMethodKind.GroupBy:
+          state.BuildingProjection = false;
           if (mc.Arguments.Count==2) {
             return VisitGroupBy(
               mc.Method.ReturnType,
@@ -151,6 +152,7 @@ namespace Xtensive.Storage.Linq
           }
           break;
         case QueryableMethodKind.GroupJoin:
+          state.BuildingProjection = false;
           return VisitGroupJoin(mc.Arguments[0],
             mc.Arguments[1],
             mc.Arguments[2].StripQuotes(),
@@ -158,6 +160,7 @@ namespace Xtensive.Storage.Linq
             mc.Arguments[4].StripQuotes(),
             mc.Arguments.Count > 5 ? mc.Arguments[5] : null);
         case QueryableMethodKind.Join:
+          state.BuildingProjection = false;
           return VisitJoin(mc.Arguments[0],
             mc.Arguments[1],
             mc.Arguments[2].StripQuotes(),
@@ -165,8 +168,10 @@ namespace Xtensive.Storage.Linq
             mc.Arguments[4].StripQuotes(),
             false);
         case QueryableMethodKind.OrderBy:
+          state.BuildingProjection = false;
           return VisitOrderBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Positive);
         case QueryableMethodKind.OrderByDescending:
+          state.BuildingProjection = false;
           return VisitOrderBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Negative);
         case QueryableMethodKind.Select:
           return VisitSelect(mc.Arguments[0], mc.Arguments[1].StripQuotes());
@@ -202,10 +207,13 @@ namespace Xtensive.Storage.Linq
             return VisitTake(mc.Arguments[0], mc.Arguments[1]);
           break;
         case QueryableMethodKind.ThenBy:
+          state.BuildingProjection = false;
           return VisitThenBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Positive);
         case QueryableMethodKind.ThenByDescending:
+          state.BuildingProjection = false;
           return VisitThenBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Negative);
         case QueryableMethodKind.Where:
+          state.BuildingProjection = false;
           return VisitWhere(mc.Arguments[0], mc.Arguments[1].StripQuotes());
         default:
           throw new ArgumentOutOfRangeException("methodKind");
@@ -886,7 +894,12 @@ namespace Xtensive.Storage.Linq
 
       var applyParameter = context.GetApplyParameter(oldResult);
       int columnIndex = oldResult.ItemProjector.DataSource.Header.Length;
-      var newRecordSet = oldResult.ItemProjector.DataSource.Apply(applyParameter, subquery, ApplySequenceType.Single, JoinType.Inner);
+      var newRecordSet = oldResult.ItemProjector.DataSource.Apply(
+        applyParameter, 
+        subquery, 
+        !state.BuildingProjection,
+        ApplySequenceType.Single, 
+        JoinType.Inner);
       ItemProjectorExpression newItemProjector = oldResult.ItemProjector.Remap(newRecordSet, 0);
       var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
       context.Bindings.ReplaceBound(lambdaParameter, newResult);
