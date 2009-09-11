@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Linq.Expressions
   {
     public string Name { get; private set; }
     public PropertyInfo UnderlyingProperty { get; private set; }
-    public virtual Segment<int> Mapping { get; protected set; }
+    public Segment<int> Mapping { get; protected set; }
     public abstract Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions);
     public abstract Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions);
     public abstract Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions);

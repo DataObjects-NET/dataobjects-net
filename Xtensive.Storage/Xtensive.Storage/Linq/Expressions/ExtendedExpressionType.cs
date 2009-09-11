@@ -22,6 +22,7 @@ namespace Xtensive.Storage.Linq.Expressions
     ItemProjector,
     Grouping,
     SubQuery,
-    Marker
+    Marker,
+    LocalCollectionItem
   }
 }

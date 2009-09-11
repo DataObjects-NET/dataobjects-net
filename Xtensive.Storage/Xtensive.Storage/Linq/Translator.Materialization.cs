@@ -128,10 +128,22 @@ namespace Xtensive.Storage.Linq
       return projectorExpression.CachingCompile();
     }
 
+
+    // Constructors
+
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    internal Translator(TranslatorContext context)
+    {
+      this.context = context;
+      state = new State(this);
+    }
+
     static Translator()
     {
       TranslateMethodInfo = typeof (Translator)
         .GetMethod("Translate", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TResult"}, new[] {typeof (ProjectionExpression), typeof (IEnumerable<Parameter<Tuple>>)});
+      VisitLocalCollectionSequenceMethodInfo = typeof (Translator)
+        .GetMethod("VisitLocalCollectionSequence", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TItem"}, new[] {"IEnumerable`1"});
     }
   }
 }

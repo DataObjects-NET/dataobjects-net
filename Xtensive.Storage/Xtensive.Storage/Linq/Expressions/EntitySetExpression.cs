@@ -39,11 +39,6 @@ namespace Xtensive.Storage.Linq.Expressions
       internal set { base.Owner = value; }
     }
 
-    public override Segment<int> Mapping
-    {
-      get { throw new NotSupportedException("EntitySetExpression does not have a segment."); }
-    }
-
     public override FieldExpression RemoveOwner()
     {
       throw Exceptions.InternalError(Resources.Strings.ExUnableToRemoveOwnerFromEntitySetExpression, Log.Instance);

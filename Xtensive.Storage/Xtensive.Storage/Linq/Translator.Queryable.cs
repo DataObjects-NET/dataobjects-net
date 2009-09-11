@@ -26,6 +26,7 @@ namespace Xtensive.Storage.Linq
   internal sealed partial class Translator : QueryableVisitor
   {
     private readonly TranslatorContext context;
+    public static readonly MethodInfo VisitLocalCollectionSequenceMethodInfo;
 
     protected override Expression VisitConstant(ConstantExpression c)
     {
@@ -235,8 +236,8 @@ namespace Xtensive.Storage.Linq
     private Expression VisitLock(MethodCallExpression expression)
     {
       var source = expression.Arguments[0];
-      var lockMode = (LockMode)((ConstantExpression)expression.Arguments[1]).Value;
-      var lockBehavior = (LockBehavior)((ConstantExpression)expression.Arguments[2]).Value;
+      var lockMode = (LockMode) ((ConstantExpression) expression.Arguments[1]).Value;
+      var lockBehavior = (LockBehavior) ((ConstantExpression) expression.Arguments[2]).Value;
       var visitedSource = (ProjectionExpression) Visit(source);
       var newDataSource = visitedSource.ItemProjector.DataSource.Lock(lockMode, lockBehavior);
       var newItemProjector = new ItemProjectorExpression(visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
@@ -698,7 +699,7 @@ namespace Xtensive.Storage.Linq
     private ProjectionExpression VisitSelectMany(Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
     {
       if (collectionSelector.Parameters.Count > 1)
-        throw new NotSupportedException(String.Format(Strings.ExSelectManyCollectionSelector0MustHaveOnlyOneLambdaParameter,resultSelector.ToString(true)));
+        throw new NotSupportedException(String.Format(Strings.ExSelectManyCollectionSelector0MustHaveOnlyOneLambdaParameter, resultSelector.ToString(true)));
       var outerParameter = collectionSelector.Parameters[0];
       var visitedSource = Visit(source);
       var sequence = VisitSequence(visitedSource);
@@ -942,17 +943,40 @@ namespace Xtensive.Storage.Linq
       if (visitedExpression.IsProjection())
         return (ProjectionExpression) visitedExpression;
 
-      throw new NotSupportedException(string.Format(Resources.Strings.ExExpressionOfTypeXIsNotASequence, visitedExpression.Type));
+      if (visitedExpression.NodeType==ExpressionType.Constant
+        && visitedExpression.Type.IsOfGenericType(typeof (IEnumerable<>))) {
+        var itemType = visitedExpression
+          .Type
+          .GetGenericArguments()[0];
+        var method = VisitLocalCollectionSequenceMethodInfo.MakeGenericMethod(itemType);
+        return (ProjectionExpression) method.Invoke(this, new[] {((ConstantExpression) visitedExpression).Value});
+      }
+
+      throw new NotSupportedException(string.Format(Strings.ExExpressionOfTypeXIsNotASequence, visitedExpression.Type));
     }
 
-
-    // Constructors
-
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    internal Translator(TranslatorContext context)
+// ReSharper disable UnusedMember.Local
+    private ProjectionExpression VisitLocalCollectionSequence<TItem>(IEnumerable<TItem> source)
     {
-      this.context = context;
-      state = new State(this);
+      var itemType = typeof (TItem);
+      // var scope = TemporaryDataScope.Global;
+      var type = itemType.IsNullable() ? itemType.GetGenericArguments()[0] : itemType;
+      if (type.IsPrimitive
+        || type==typeof (decimal)
+          || type==typeof (string)
+            || type==typeof (DateTime)
+              || type==typeof (TimeSpan)
+        ) {
+        var rsHeader = new RecordSetHeader(TupleDescriptor.Create(new Type[] {itemType}), new[] {new SystemColumn("a", 0, itemType)});
+        var rawProvider = new RawProvider(rsHeader, source.Select(t => (Tuple) Tuple.Create(t)).ToArray());
+        var recordset = new StoreProvider(rawProvider).Result;
+        var itemProjector = new ItemProjectorExpression(ColumnExpression.Create(itemType, 0), recordset, context);
+        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      }
+
+      throw new NotImplementedException();
     }
+
+// ReSharper restore UnusedMember.Local
   }
 }
