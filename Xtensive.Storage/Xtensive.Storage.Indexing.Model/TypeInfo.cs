@@ -24,6 +24,16 @@ namespace Xtensive.Storage.Indexing.Model
     ICloneable
   {
     /// <summary>
+    /// Gets the <see cref="TypeInfo"/> with undefined type.
+    /// </summary>
+    public static TypeInfo Undefined { get { return new TypeInfo(); } }
+
+    /// <summary>
+    /// Gets a value indicating whether type is undefined.
+    /// </summary>
+    public bool IsTypeUndefined { get { return Type==null; } }
+
+    /// <summary>
     /// Gets the type of the data.
     /// </summary>
     public Type Type { get;  private set; }
@@ -64,6 +74,8 @@ namespace Xtensive.Storage.Indexing.Model
     /// <inheritdoc/>
     public object Clone()
     {
+      if (IsTypeUndefined)
+        return Undefined;
       var clone = new TypeInfo(Type, IsNullable);
       clone.Length = Length;
       clone.Culture = Culture;
@@ -79,10 +91,14 @@ namespace Xtensive.Storage.Indexing.Model
     /// <inheritdoc/>
     public bool Equals(TypeInfo other)
     {
+      if (IsTypeUndefined)
+        return false;
       if (ReferenceEquals(null, other))
         return false;
       if (ReferenceEquals(this, other))
         return true;
+      if (other.IsTypeUndefined)
+        return false;
       var isEqual =
         other.Type==Type &&
         other.IsNullable==IsNullable &&
@@ -97,6 +113,8 @@ namespace Xtensive.Storage.Indexing.Model
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
+      if (IsTypeUndefined)
+        return false;
       if (ReferenceEquals(null, obj))
         return false;
       if (ReferenceEquals(this, obj))
@@ -174,6 +192,10 @@ namespace Xtensive.Storage.Indexing.Model
 
 
     #region Constructors
+
+    protected TypeInfo()
+    {
+    }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

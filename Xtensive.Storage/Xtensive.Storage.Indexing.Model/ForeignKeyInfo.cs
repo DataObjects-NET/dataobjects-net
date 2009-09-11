@@ -144,6 +144,8 @@ namespace Xtensive.Storage.Indexing.Model
     {
       if (first==null || second==null)
         return false;
+      if (first.IsTypeUndefined || second.IsTypeUndefined)
+        return true;
 
       return first.Type.ToNullable()==second.Type.ToNullable()
         && first.Length==second.Length

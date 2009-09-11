@@ -23,7 +23,6 @@ using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
 using SqlRefAction = Xtensive.Sql.ReferentialAction;
 using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
 
-
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
@@ -185,10 +184,19 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override IPathNode VisitSequence(Sequence sequence)
     {
+      Type type = null;
+      try {
+        type = sequence.DataType.Type.ToClrType();
+      }
+      catch (ArgumentException) {
+        type = null;
+      }
+      var typeInfo = type!=null ? new TypeInfo(type, false) : TypeInfo.Undefined;
+
       var sequenceInfo = new SequenceInfo(StorageInfo, sequence.Name) {
         Increment = sequence.SequenceDescriptor.Increment.Value,
         // StartValue = sequence.SequenceDescriptor.StartValue.Value,
-        Type = new TypeInfo(sequence.DataType.Type.ToClrType(), false)
+        Type = typeInfo
       };
       return sequenceInfo;
     }
@@ -224,7 +232,14 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual TypeInfo ExtractType(TableColumn column)
     {
       var sqlValueType = column.DataType;
-      var type = sqlValueType.Type.ToClrType();
+      Type type;
+      try {
+        type = sqlValueType.Type.ToClrType();
+      }
+      catch(ArgumentException) {
+        return TypeInfo.Undefined;
+      }
+
       if (column.IsNullable 
         && type.IsValueType 
         && !type.IsNullable())

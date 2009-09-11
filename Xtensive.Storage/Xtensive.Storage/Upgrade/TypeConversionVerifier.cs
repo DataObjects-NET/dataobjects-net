@@ -33,6 +33,9 @@ namespace Xtensive.Storage.Upgrade
     {
       ArgumentValidator.EnsureArgumentNotNull(from, "from");
       ArgumentValidator.EnsureArgumentNotNull(to, "to");
+
+      if (from.IsTypeUndefined || to.IsTypeUndefined)
+        return false;
       if (from == to)
         return true;
       if (to.Type == typeof(string))
@@ -87,6 +90,11 @@ namespace Xtensive.Storage.Upgrade
     /// </returns>
     public static bool CanConvertSafely(TypeInfo from, TypeInfo to)
     {
+      ArgumentValidator.EnsureArgumentNotNull(from, "from");
+      ArgumentValidator.EnsureArgumentNotNull(to, "to");
+
+      if (to.IsTypeUndefined || from.IsTypeUndefined)
+        return false;
       if (to.Type == typeof (string) 
         && from.Type == typeof (string))
         return !to.Length.HasValue 

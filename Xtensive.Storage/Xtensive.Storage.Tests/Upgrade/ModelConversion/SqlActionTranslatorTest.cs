@@ -35,11 +35,6 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     protected abstract bool IsIncludedColumnsSupported { get; }
 
-    private TypeInfo ConvertType(SqlValueType valueType)
-    {
-      return new TypeInfo(valueType.Type.ToClrType(), false, valueType.Length);
-    }
-
     protected string Url { get; private set; }
 
     protected abstract ProviderInfo CreateProviderInfo();
