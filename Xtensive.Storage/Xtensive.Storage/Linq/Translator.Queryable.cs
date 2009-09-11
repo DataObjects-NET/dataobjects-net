@@ -967,7 +967,7 @@ namespace Xtensive.Storage.Linq
             || type==typeof (DateTime)
               || type==typeof (TimeSpan)
         ) {
-        var rsHeader = new RecordSetHeader(TupleDescriptor.Create(new Type[] {itemType}), new[] {new SystemColumn("a", 0, itemType)});
+        var rsHeader = new RecordSetHeader(TupleDescriptor.Create(new[] {type}), new[] {new SystemColumn("a", 0, type)});
         var rawProvider = new RawProvider(rsHeader, source.Select(t => (Tuple) Tuple.Create(t)).ToArray());
         var recordset = new StoreProvider(rawProvider).Result;
         var itemProjector = new ItemProjectorExpression(ColumnExpression.Create(itemType, 0), recordset, context);

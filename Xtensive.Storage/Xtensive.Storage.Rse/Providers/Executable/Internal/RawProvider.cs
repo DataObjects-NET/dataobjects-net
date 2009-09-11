@@ -11,7 +11,7 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  internal sealed class RawProvider : ExecutableProvider<Compilable.RawProvider>,
+  public sealed class RawProvider : ExecutableProvider<Compilable.RawProvider>,
     IListProvider
   {
     #region Cached properties

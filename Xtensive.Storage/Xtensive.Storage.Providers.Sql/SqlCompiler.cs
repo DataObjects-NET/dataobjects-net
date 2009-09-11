@@ -404,7 +404,7 @@ namespace Xtensive.Storage.Providers.Sql
       Table table;
       string tableName = string.Format(TableNamePattern, provider.Name);
       if (provider.Source != null) {
-        ex = provider.Source as ExecutableProvider ?? Compile((CompilableProvider) provider.Source);
+        ex = provider.Source as ExecutableProvider ?? (provider.Source is RawProvider ? (ExecutableProvider)(new Rse.Providers.Executable.RawProvider((RawProvider) provider.Source)) : Compile((CompilableProvider) provider.Source));
         table = provider.Scope == TemporaryDataScope.Global ? schema.CreateTable(tableName)
           : schema.CreateTemporaryTable(tableName);
 

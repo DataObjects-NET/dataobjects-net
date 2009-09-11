@@ -82,6 +82,16 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.AreEqual(0, expectedQuery.Except(query).Count());
     }
 
+    [Test]
+    public void JoinEntityField2MaterializeTest()
+    {
+      var localFreights = Query<Order>.All.Take(5).Select(order => order.Freight).ToList();
+      var query = Query<Order>.All.Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight}).Select(x=>x.freight);
+      QueryDumper.Dump(query);
+      var expectedQuery = Query<Order>.All.AsEnumerable().Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight}).Select(x=>x.freight);
+      Assert.AreEqual(0, expectedQuery.Except(query).Count());
+    }
+
 
     [Test]
     public void SimpleConcatTest()
