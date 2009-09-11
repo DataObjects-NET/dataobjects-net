@@ -11,6 +11,21 @@ using Xtensive.Storage.Tests.Issues.Issue0372_SelfReferenceWithInheritance_Model
 namespace Xtensive.Storage.Tests.Issues.Issue0372_SelfReferenceWithInheritance_Model
 {
   [HierarchyRoot]
+  public class MyEntity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    private MyEntity MyEntityField { get; set; }
+
+    public MyEntity()
+    {
+      MyEntityField = this;
+    }
+  }
+
+  [HierarchyRoot]
   public class Item
     : Entity
   {
@@ -64,6 +79,18 @@ namespace Xtensive.Storage.Tests.Issues
           var webSite = new WebSite();
           webSite.WebSite = webSite; // self-refernece 1
           webSite.WebSite2 = webSite; // self-refernece 2
+          Session.Current.Persist();
+          // Rollback
+        }
+      }
+    }
+
+    [Test]
+    public void SelfreferenceTest()
+    {
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          var myEntity = new MyEntity();
           Session.Current.Persist();
           // Rollback
         }
