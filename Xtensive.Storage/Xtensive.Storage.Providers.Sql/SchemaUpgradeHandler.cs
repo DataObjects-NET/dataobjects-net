@@ -113,7 +113,7 @@ namespace Xtensive.Storage.Providers.Sql
       translator.PostUpgradeCommands.Apply(logBatch.Add);
       logBatch.Add(Driver.BatchEnd);
       if (logBatch.Count > 2)
-        Log.Info("Upgrade DDL: {0}", 
+        Storage.Log.Info("Upgrade DDL: {0}", 
           Environment.NewLine + string.Join(logDelimiter, logBatch.ToArray()));
     }
   }

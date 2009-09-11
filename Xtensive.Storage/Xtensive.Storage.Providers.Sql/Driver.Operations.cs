@@ -18,6 +18,7 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlConnection CreateConnection(UrlInfo urlInfo)
     {
       try {
+        Log.Info(string.Format("Creating connection '{0}'.", urlInfo));
         return underlyingDriver.CreateConnection(urlInfo);
       }
       catch (Exception exception) {
@@ -28,6 +29,7 @@ namespace Xtensive.Storage.Providers.Sql
     public void OpenConnection(SqlConnection connection)
     {
       try {
+        Log.Info(string.Format("Opening connection '{0}'.", connection.Url));
         connection.Open();
       }
       catch (Exception exception) {
@@ -38,6 +40,7 @@ namespace Xtensive.Storage.Providers.Sql
     public void CloseConnection(SqlConnection connection)
     {
       try {
+        Log.Info(string.Format("Closing connection '{0}'.", connection.Url));
         if (connection.State==ConnectionState.Open)
           connection.Close();
         connection.Dispose();
@@ -50,6 +53,7 @@ namespace Xtensive.Storage.Providers.Sql
     public DbTransaction BeginTransaction(SqlConnection connection, IsolationLevel isolationLevel)
     {
       try {
+        Log.Info(string.Format("Begin transaction. Isolation level: '{0}'.", isolationLevel));
         return connection.BeginTransaction(isolationLevel);
       }
       catch (Exception exception) {
@@ -60,6 +64,7 @@ namespace Xtensive.Storage.Providers.Sql
     public void CommitTransaction(DbTransaction transaction)
     {
       try {
+        Log.Info("Commit transaction.");
         transaction.Commit();
         transaction.Dispose();
       }
@@ -71,6 +76,7 @@ namespace Xtensive.Storage.Providers.Sql
     public void RollbackTransaction(DbTransaction transaction)
     {
       try {
+        Log.Info("Rollback transaction.");
         transaction.Rollback();
         transaction.Dispose();
       }
@@ -83,6 +89,7 @@ namespace Xtensive.Storage.Providers.Sql
     public int ExecuteNonQuery(DbCommand command)
     {
       try {
+        Log.Info(string.Format("Query: {0}", command.CommandText));
         return command.ExecuteNonQuery();
       }
       catch (Exception exception) {
@@ -93,6 +100,7 @@ namespace Xtensive.Storage.Providers.Sql
     public object ExecuteScalar(DbCommand command)
     {
       try {
+        Log.Info(string.Format("Query: {0}", command.CommandText));
         return command.ExecuteScalar();
       }
       catch (Exception exception) {
@@ -103,6 +111,7 @@ namespace Xtensive.Storage.Providers.Sql
     public DbDataReader ExecuteReader(DbCommand command)
     {
       try {
+        Log.Info(string.Format("Query: {0}", command.CommandText));
         return command.ExecuteReader();
       }
       catch (Exception exception) {

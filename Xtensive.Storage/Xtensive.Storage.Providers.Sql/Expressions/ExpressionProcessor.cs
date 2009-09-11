@@ -524,9 +524,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       ArgumentValidator.EnsureArgumentNotNull(sourceColumns, "sourceColumns");
       if (le.Parameters.Count!=sourceColumns.Length)
-        throw Exceptions.InternalError("Parameters count is not same as source column lists count.", Log.Instance);
+        throw Exceptions.InternalError("Parameters count is not same as source column lists count.", Storage.Log.Instance);
       if (sourceColumns.Any(list => list.Any(c => c.IsNullReference())))
-        throw Exceptions.InternalError("Source column list contains null values.", Log.Instance);
+        throw Exceptions.InternalError("Source column list contains null values.", Storage.Log.Instance);
       this.sourceColumns = sourceColumns;
       sourceMapping = new Dictionary<ParameterExpression, List<SqlExpression>>();
     }
