@@ -32,6 +32,13 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void SelectForeignKeyTestTest()
+    {
+      var result = Query<Product>.All.Select(p => p.Category.Id);
+      var list = result.ToList();
+    }
+
+    [Test]
     public void SelectUsingContextTest()
     {
       var expectedCount = Query<Order>.All.Count();

@@ -29,6 +29,8 @@ namespace Xtensive.Sql.Dml
     {
       if (left.IsNullReference())
         return right;
+      if (right.IsNullReference())
+        return left;
       if (SqlValidator.IsBooleanExpression(left))
         return SqlDml.And(left, right);
       return SqlDml.BitAnd(left, right);
@@ -38,6 +40,8 @@ namespace Xtensive.Sql.Dml
     {
       if (left.IsNullReference())
         return right;
+      if (right.IsNullReference())
+        return left;
       if (SqlValidator.IsBooleanExpression(left))
         return SqlDml.Or(left, right);
       return SqlDml.BitOr(left, right);

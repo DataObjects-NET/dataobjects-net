@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Linq.Expressions
       return new ItemProjectorExpression(newItemProjectorBody, newDataSource, Context);
     }
 
-    public ItemProjectorExpression EnusreEntityIsJoined()
+    public ItemProjectorExpression EnsureEntityIsJoined()
     {
       var dataSource = DataSource;
       var newItem = new ExtendedExpressionReplacer(e => {
@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Linq.Expressions
           entityFieldExpression.RegisterEntityExpression(offset);
           return entityFieldExpression;
         }
-        return e;
+        return null;
       })
         .Replace(Item);
       return new ItemProjectorExpression(newItem, dataSource, Context);

@@ -24,18 +24,12 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupJoinAggregateTest()
     {
-      var q = Query<Customer>.All
-        .GroupJoin(Query<Order>.All,
-          customer => customer.Id,
-          order => order.Customer.Id,
-          (customer, orders) => new {customer, orders})
-        .GroupJoin(Query<Employee>.All,
-          customerOrders => customerOrders.customer.Address.City,
-          employee => employee.Address.City,
-          (customerOrders, employees) => new {
-            ords = customerOrders.orders.Count(),
-            emps = employees.Count()
-          });
+      var result =
+        from c in Query<Customer>.All
+        join o in Query<Order>.All on c equals o.Customer into ords
+        join e in Query<Employee>.All on c.Address.City equals e.Address.City into emps
+        select new {ords = ords.Count(), emps = emps.Count()};
+      var list = result.ToList();
 
       var expected = Query<Customer>.All.AsEnumerable()
         .GroupJoin(Query<Order>.All.AsEnumerable(),
@@ -50,9 +44,9 @@ namespace Xtensive.Storage.Tests.Linq
             emps = employees.Count()
           });
       QueryDumper.Dump(expected, true);
-      QueryDumper.Dump(q, true);
+      QueryDumper.Dump(list, true);
 
-      Assert.IsTrue(expected.SequenceEqual(q));
+      Assert.IsTrue(expected.SequenceEqual(list));
     }
 
     [Test]

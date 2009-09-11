@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Providers.Sql
         var column = columns[columnIndex];
         sqlSelect.GroupBy.Add(column);
         if (!(column is SqlColumn)) {
-          var columnName = columnNames[columnIndex];
+          var columnName = ProcessAliasedName(columnNames[columnIndex]);
           column = SqlDml.ColumnRef(SqlDml.Column(column), columnName);
         }
         sqlSelect.Columns.Add(column);
@@ -149,7 +149,8 @@ namespace Xtensive.Storage.Providers.Sql
         var bindings = result.Second;
         if (!ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions) && (column.Type.StripNullable()==typeof(bool)))
           predicate = booleanExpressionConverter.BooleanToInt(predicate);
-        var columnRef = SqlDml.ColumnRef(SqlDml.Column(predicate), column.Name);
+        var columnName = ProcessAliasedName(column.Name);
+        var columnRef = SqlDml.ColumnRef(SqlDml.Column(predicate), columnName);
         if (provider.CouldBeInlined) {
           var columnStub = SqlDml.ColumnStub(columnRef);
           stubColumnMap.Add(columnStub, predicate);
@@ -244,6 +245,10 @@ namespace Xtensive.Storage.Providers.Sql
         joinExpression);
 
       var query = SqlDml.Select(joinedTable);
+      if (!leftShouldUseReference)
+        query.Where &= left.Request.SelectStatement.Where;
+      if (!rightShouldUseReference)
+        query.Where &= right.Request.SelectStatement.Where;
       query.Columns.AddRange(joinedTable.AliasedColumns);
       return new SqlProvider(provider, query, Handlers, left, right);
     }
@@ -285,6 +290,10 @@ namespace Xtensive.Storage.Providers.Sql
         joinExpression);
 
       var query = SqlDml.Select(joinedTable);
+      if (!leftShouldUseReference)
+        query.Where &= left.Request.SelectStatement.Where;
+      if (!rightShouldUseReference)
+        query.Where &= right.Request.SelectStatement.Where;
       query.Columns.AddRange(joinedTable.AliasedColumns);
       return new SqlProvider(provider, query, Handlers, bindings, left, right);
     }
@@ -516,7 +525,7 @@ namespace Xtensive.Storage.Providers.Sql
         var right = Compile(provider.Right);
 
         var query = processViaCrossApply
-          ? ProcessApplyViaCrossApply(provider, left, right, shouldUseQueryReference)
+          ? ProcessApplyViaCrossApply(provider, left, right)
           : ProcessApplyViaSubqueries(provider, left, right, shouldUseQueryReference);
 
         return new SqlProvider(provider, query, Handlers, left, right);
@@ -932,7 +941,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
 
       if (origin.Type == ProviderType.Apply || origin.Type == ProviderType.Join || origin.Type == ProviderType.PredicateJoin)
-        return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed || filterIsUsed || columnCountIsNotSame;
+        return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed || columnCountIsNotSame;
 
       return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
     }
@@ -988,8 +997,8 @@ namespace Xtensive.Storage.Providers.Sql
             var column = columnRef.SqlColumn;
             subquery.Columns.Clear();
             subquery.Columns.Add(column);
-
-            var userColumnRef = SqlDml.ColumnRef(SqlDml.Column(subquery), provider.Right.Header.Columns[i].Name);
+            var columnName = ProcessAliasedName(provider.Right.Header.Columns[i].Name);
+            var userColumnRef = SqlDml.ColumnRef(SqlDml.Column(subquery), columnName);
             var columnStub = SqlDml.ColumnStub(userColumnRef);
             stubColumnMap.Add(columnStub, subquery);
             query.Columns.Add(columnStub);
@@ -1002,13 +1011,13 @@ namespace Xtensive.Storage.Providers.Sql
             var column = columnRef.SqlColumn;
             subquery.Columns.Clear();
             subquery.Columns.Add(column);
-            query.Columns.Add(subquery, provider.Right.Header.Columns[i].Name);
+            query.Columns.Add(subquery, columnRef.Name);
           }
       }
       return query;
     }
 
-    private static SqlSelect ProcessApplyViaCrossApply(ApplyProvider provider, SqlProvider left, SqlProvider right, bool shouldUseQueryReference)
+    private static SqlSelect ProcessApplyViaCrossApply(ApplyProvider provider, SqlProvider left, SqlProvider right)
     {
       var leftShouldUseReference = ShouldUseQueryReference(provider, left);
       var leftTable = leftShouldUseReference
@@ -1038,6 +1047,10 @@ namespace Xtensive.Storage.Providers.Sql
         rightColumns.ToList());
 
       var query = SqlDml.Select(joinedTable);
+      if (!leftShouldUseReference)
+        query.Where &= left.Request.SelectStatement.Where;
+      if (!rightShouldUseReference)
+        query.Where &= right.Request.SelectStatement.Where;
       query.Columns.AddRange(joinedTable.AliasedColumns);
       return query;
     }

@@ -47,6 +47,16 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
 
     protected override Expression VisitGroupingExpression(GroupingExpression expression)
     {
+      var keyExpression = Visit(expression.KeyExpression);
+      if (keyExpression != expression.KeyExpression)
+        return new GroupingExpression(
+          expression.Type,
+          expression.OuterParameter,
+          expression.DefaultIfEmpty,
+          expression.ProjectionExpression,
+          expression.ApplyParameter,
+          keyExpression,
+          expression.SelectManyInfo);
       return expression;
     }
 

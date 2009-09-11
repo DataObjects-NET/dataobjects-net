@@ -34,7 +34,13 @@ namespace Xtensive.Storage.Linq
 
     private TranslatedQuery<TResult> Translate<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
-      var optimized = Optimize(projection);
+      var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
+      var result = new ProjectionExpression(
+          projection.Type,
+          newItemProjector,
+          projection.TupleParameterBindings,
+          projection.ResultType);
+      var optimized = Optimize(result);
 
       // Prepare cached query, if required
       var cachingScope = QueryCachingScope.Current;

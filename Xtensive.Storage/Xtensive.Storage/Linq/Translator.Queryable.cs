@@ -533,8 +533,8 @@ namespace Xtensive.Storage.Linq
       var keyDataSource = keyProjection.ItemProjector.DataSource.Aggregate(keyColumns);
       var remappedKeyItemProjector = keyProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, keyColumns);
 
-      var newItemProjector = new ItemProjectorExpression(remappedKeyItemProjector.Item, keyDataSource, context).EnusreEntityIsJoined();
-
+      var newItemProjector = new ItemProjectorExpression(remappedKeyItemProjector.Item, keyDataSource, context);
+      
       keyProjection = new ProjectionExpression(keyProjection.Type, newItemProjector, sequence.TupleParameterBindings);
 
       ProjectionExpression subqueryProjection;
