@@ -31,7 +31,10 @@ namespace Xtensive.Storage.Linq.Rewriters
       var declaringType = mc.Method.DeclaringType;
 
       if (mc.Method.IsStatic) {
-        if (mc.Arguments.Count == 2 && declaringType ==typeof(object))
+        var parameterTypes = mc.Method.GetParameterTypes();
+        if (mc.Arguments.Count == 2 
+          && declaringType == parameterTypes[0] 
+          && declaringType == parameterTypes[1])
           return Expression.Equal(mc.Arguments[0], mc.Arguments[1]);
         return base.VisitMethodCall(mc);
       }
@@ -43,7 +46,7 @@ namespace Xtensive.Storage.Linq.Rewriters
         return base.VisitMethodCall(mc);
       }
 
-      if (declaringType == typeof(object))
+      if (declaringType == typeof(object) && mc.Arguments.Count == 1)
         return Expression.Equal(mc.Object, mc.Arguments[0]);
 
       return base.VisitMethodCall(mc);

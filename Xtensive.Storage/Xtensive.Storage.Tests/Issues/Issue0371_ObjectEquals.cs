@@ -19,13 +19,27 @@ namespace Xtensive.Storage.Tests.Issues.Issue0371_ObjectEquals_Model
     [Field][Key]
     public int Id { get; private set; }
 
+    [Field]
+    public string Name { get; private set; }
+
     public static bool Equals()
     {
       return true;
     }
-    public static bool Equals(object a, object b)
+
+    public new static bool Equals(object a, object b)
     {
       return true;
+    }
+
+    public new static bool Equals(Item a, Item b)
+    {
+      return true;
+    }
+
+    public Item()
+    {
+      Name = Guid.NewGuid().ToString();
     }
   }
 }
@@ -56,8 +70,22 @@ namespace Xtensive.Storage.Tests.Issues
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException), "Unable to translate lambda expression 'item => Equals(item, value(Xtensive.Storage.Tests.Issues.Issue0371_ObjectEquals+<>c__DisplayClass2).item1)' because it requires to materialize entity of type 'Xtensive.Storage.Tests.Issues.Issue0371_ObjectEquals_Model.Item'.")]
-    public void ItemEqualsTest()
+    [ExpectedException(typeof(InvalidOperationException), "Unable to translate lambda expression 'item => Equals(Convert(item), Convert(value(Xtensive.Storage.Tests.Issues.Issue0371_ObjectEquals+<>c__DisplayClass2).item1))' because it requires to materialize entity of type 'Xtensive.Storage.Tests.Issues.Issue0371_ObjectEquals_Model.Item'.")]
+    public void ItemEquals1Test()
+    {
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          var item1 = new Item();
+          var item2 = new Item();
+          var result = Query<Item>.All.Where(item => Item.Equals((object)item, (object)item1));
+          QueryDumper.Dump(result);
+          // Rollback
+        }
+      }
+    }
+
+    [Test]
+    public void ItemEquals2Test()
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
@@ -72,6 +100,20 @@ namespace Xtensive.Storage.Tests.Issues
 
     [Test]
     public void ClassEqualsTest()
+    {
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          var item1 = new Item();
+          var item2 = new Item();
+          var result = Query<Item>.All.Where(item => String.Equals(item.Name, item1.Name));
+          QueryDumper.Dump(result);
+          // Rollback
+        }
+      }
+    }
+
+    [Test]
+    public void StringEqualsTest()
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
