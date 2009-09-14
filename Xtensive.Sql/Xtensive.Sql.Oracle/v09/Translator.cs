@@ -263,6 +263,21 @@ namespace Xtensive.Sql.Oracle.v09
         : QuoteIdentifier(node.DbName);
     }
 
+    public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
+    {
+      if (node.FunctionType == SqlFunctionType.Log10 && section == FunctionCallSection.Exit) 
+        return ", 10)";
+      switch (section) {
+        case FunctionCallSection.ArgumentEntry:
+          return string.Empty;
+        case FunctionCallSection.ArgumentDelimiter:
+          return ArgumentDelimiter;
+        default:
+          return base.Translate(context, node, section, position);
+      }
+    }
+
+
     public override string Translate(SqlValueType type)
     {
       // we need to explicitly specify maximum interval precision
@@ -302,6 +317,16 @@ namespace Xtensive.Sql.Oracle.v09
         return "TRUNC";
       case SqlFunctionType.IntervalNegate:
         return "-1*";
+      case SqlFunctionType.Substring:
+        return "SUBSTR";
+      case SqlFunctionType.Position:
+        return "INSTR";
+      case SqlFunctionType.Log:
+        return "LN";
+      case SqlFunctionType.Log10:
+        return "LOG";
+      case SqlFunctionType.Ceiling:
+        return "CEIL";
       default:
         return base.Translate(type);
       }
@@ -317,6 +342,8 @@ namespace Xtensive.Sql.Oracle.v09
       case SqlNodeType.DateTimeMinusInterval:
       case SqlNodeType.DateTimeMinusDateTime:
         return "-";
+      case SqlNodeType.Except:
+        return "MINUS";
       default:
         return base.Translate(type);
       }

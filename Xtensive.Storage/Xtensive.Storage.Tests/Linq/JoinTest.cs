@@ -191,6 +191,7 @@ namespace Xtensive.Storage.Tests.Linq
         join c2 in customers
           on c1.CompanyName.Substring(0, 1).ToUpper() equals c2.CompanyName.Substring(0, 1).ToUpper()
         select new {l = c1.CompanyName, r = c2.CompanyName};
+      var list = result.ToList();
       Assert.AreEqual(expected.Count(), result.Count());
     }
 
