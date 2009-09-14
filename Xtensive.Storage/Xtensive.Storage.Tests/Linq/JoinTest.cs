@@ -30,23 +30,14 @@ namespace Xtensive.Storage.Tests.Linq
         join e in Query<Employee>.All on c.Address.City equals e.Address.City into emps
         select new {ords = ords.Count(), emps = emps.Count()};
       var list = result.ToList();
+      var expected =
+        Query<Customer>.All.Select(c => new
+          {
+            ords = (int) c.Orders.Count,
+            emps = Query<Employee>.All.Where(e => c.Address.City == e.Address.City).Count()
+          }).ToList();
 
-      var expected = Query<Customer>.All.AsEnumerable()
-        .GroupJoin(Query<Order>.All.AsEnumerable(),
-          customer => customer.Id,
-          order => order.Customer.Id,
-          (customer, orders) => new {customer, orders})
-        .GroupJoin(Query<Employee>.All.AsEnumerable(),
-          customerOrders => customerOrders.customer.Address.City,
-          employee => employee.Address.City,
-          (customerOrders, employees) => new {
-            ords = customerOrders.orders.Count(),
-            emps = employees.Count()
-          });
-      QueryDumper.Dump(expected, true);
-      QueryDumper.Dump(list, true);
-
-      Assert.IsTrue(expected.SequenceEqual(list));
+      Assert.IsTrue(expected.Except(list).Count() == 0);
     }
 
     [Test]
