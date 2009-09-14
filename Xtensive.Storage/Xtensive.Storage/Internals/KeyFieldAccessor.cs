@@ -11,7 +11,7 @@ namespace Xtensive.Storage.Internals
   internal class KeyFieldAccessor<T> : FieldAccessor<T> 
   {
     public static readonly FieldAccessor<T> Instance = new KeyFieldAccessor<T>();
-    private static readonly T @default = (T) (object) null;
+    private static readonly T @default = default(T);
 
     /// <inheritdoc/>
     public override T GetValue(Persistent obj, FieldInfo field)

@@ -47,6 +47,7 @@ namespace Xtensive.Storage
   /// </example>
   /// <seealso cref="Domain"/>
   /// <seealso cref="SessionBound" />
+  [DebuggerDisplay("Name = {Name}")]
   public sealed partial class Session : DomainBound,
     IContext<SessionScope>, 
     IDisposable,
