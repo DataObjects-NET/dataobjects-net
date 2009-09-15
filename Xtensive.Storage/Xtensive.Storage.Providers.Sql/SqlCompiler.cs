@@ -117,10 +117,8 @@ namespace Xtensive.Storage.Providers.Sql
         var columnStub = column as ColumnStub;
         if (!ReferenceEquals(null, columnRef))
           sqlSelect.Columns.Add(SqlDml.ColumnRef(columnRef.SqlColumn, columnName));
-        else if (!ReferenceEquals(null, columnStub)) {
-          columnRef = (SqlColumnRef)columnStub.Column;
-          sqlSelect.Columns.Add(SqlDml.ColumnRef(columnRef.SqlColumn, columnName));
-        }
+        else if (!ReferenceEquals(null, columnStub))
+          sqlSelect.Columns.Add(columnStub);
         else
           sqlSelect.Columns.Add(column, columnName);
       }
@@ -220,6 +218,9 @@ namespace Xtensive.Storage.Providers.Sql
       var leftColumns = leftShouldUseReference
         ? leftTable.Columns.Cast<SqlColumn>()
         : left.Request.SelectStatement.Columns;
+      var leftExpressions = leftShouldUseReference
+        ? leftTable.Columns.Cast<SqlExpression>().ToList()
+        : ExtractColumnExpressions(left.Request.SelectStatement, provider.Left);
 
       var rightShouldUseReference = ShouldUseQueryReference(provider, right);
       var rightTable = rightShouldUseReference
@@ -228,12 +229,15 @@ namespace Xtensive.Storage.Providers.Sql
       var rightColumns = rightShouldUseReference
         ? rightTable.Columns.Cast<SqlColumn>()
         : right.Request.SelectStatement.Columns;
+      var rightExpressions = rightShouldUseReference
+        ? rightTable.Columns.Cast<SqlExpression>().ToList()
+        : ExtractColumnExpressions(right.Request.SelectStatement, provider.Right);
 
       var joinType = provider.JoinType == JoinType.LeftOuter 
         ? SqlJoinType.LeftOuterJoin 
         : SqlJoinType.InnerJoin;
       var joinExpression = provider.EqualIndexes
-        .Select(pair => leftTable.Columns[pair.First] == rightTable.Columns[pair.Second])
+        .Select(pair => leftExpressions[pair.First] == rightExpressions[pair.Second])
         .Aggregate(null as SqlExpression, (expression, binary) => expression & binary);
 
       var joinedTable = SqlDml.Join(
@@ -266,6 +270,9 @@ namespace Xtensive.Storage.Providers.Sql
       var leftColumns = leftShouldUseReference
         ? leftTable.Columns.Cast<SqlColumn>()
         : left.Request.SelectStatement.Columns;
+      var leftExpressions = leftShouldUseReference
+        ? leftTable.Columns.Cast<SqlExpression>().ToList()
+        : ExtractColumnExpressions(left.Request.SelectStatement, provider.Left);
 
       var rightShouldUseReference = ShouldUseQueryReference(provider, right);
       var rightTable = rightShouldUseReference
@@ -274,10 +281,14 @@ namespace Xtensive.Storage.Providers.Sql
       var rightColumns = rightShouldUseReference
         ? rightTable.Columns.Cast<SqlColumn>()
         : right.Request.SelectStatement.Columns;
+      var rightExpressions = rightShouldUseReference
+        ? rightTable.Columns.Cast<SqlExpression>().ToList()
+        : ExtractColumnExpressions(right.Request.SelectStatement, provider.Right);
+
 
       var joinType = provider.JoinType == JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin;
 
-      var result = ProcessExpression(provider.Predicate, leftTable.Columns.Cast<SqlExpression>().ToList(), rightTable.Columns.Cast<SqlExpression>().ToList());
+      var result = ProcessExpression(provider.Predicate, leftExpressions, rightExpressions);
       var joinExpression = result.First;
       var bindings = result.Second;
 
@@ -941,7 +952,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
 
       if (origin.Type == ProviderType.Apply || origin.Type == ProviderType.Join || origin.Type == ProviderType.PredicateJoin)
-        return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed || columnCountIsNotSame;
+        return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
 
       return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
     }

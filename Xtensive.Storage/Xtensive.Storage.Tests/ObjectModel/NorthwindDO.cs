@@ -298,7 +298,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field(Length = 4)]
     public string Extension { get; set; }
 
-    [Field(Length = 1073741823)]
+    [Field(Length = 1073741823, LazyLoad = true)]
     public byte[] Photo { get; set; }
 
     [Field]

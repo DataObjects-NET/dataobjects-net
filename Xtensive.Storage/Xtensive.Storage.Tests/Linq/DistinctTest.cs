@@ -17,6 +17,13 @@ namespace Xtensive.Storage.Tests.Linq
   public class DistinctTest : NorthwindDOModelTest
   {
     [Test]
+    public void BlobTest()
+    {
+      var result = Query<Category>.All.Select(c => c.Picture).Distinct();
+      var list = result.ToList();
+    }
+
+    [Test]
     public void OrderBy2Test()
     {
       var result = Query<Customer>.All
