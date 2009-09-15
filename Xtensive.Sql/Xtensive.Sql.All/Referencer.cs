@@ -1,0 +1,26 @@
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alex Yakunin
+// Created:    2009.09.15
+
+using System;
+using Xtensive.Core;
+
+namespace Xtensive.Sql.All
+{
+  /// <summary>
+  /// Does nothing, but references types from all SQL DOM assemblies.
+  /// </summary>
+  public class Referencer
+  {
+    private Type[] types = new [] {
+      typeof (Pair<>),
+      typeof (SqlType),
+      typeof (SqlServer.DriverFactory),
+      typeof (PostgreSql.DriverFactory),
+      typeof (Oracle.DriverFactory),
+      typeof (VistaDb.DriverFactory),
+    };
+  }
+}
