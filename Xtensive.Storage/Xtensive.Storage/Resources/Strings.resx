@@ -1028,4 +1028,7 @@ Actions:
   <data name="ExUnableToTranslateLambdaExpressionXBecauseItRequiresToMaterializeEntityOfTypeX" xml:space="preserve">
     <value>Unable to translate lambda expression '{0}' because it requires to materialize entity of type '{1}'.</value>
   </data>
+  <data name="ExTypeXIsNotSupportedInNewExpression" xml:space="preserve">
+    <value>Type '{0}' is not supported in 'new' expression.</value>
+  </data>
 </root>

@@ -1970,6 +1970,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not supported in &apos;new&apos; expression..
+        /// </summary>
+        internal static string ExTypeXIsNotSupportedInNewExpression {
+            get {
+                return ResourceManager.GetString("ExTypeXIsNotSupportedInNewExpression", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; must belong to hierarchy..
         /// </summary>
         internal static string ExTypeXMustBelongToHierarchy {

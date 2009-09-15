@@ -171,6 +171,16 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionDifferentTest()
     {
+      var employees = Query<Employee>.All;
+      var result = employees
+        .Select(c => c.Id)
+        .Union(employees.ToList().Select(e => e.Id));
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void UnionCollationsTest()
+    {
       var customers = Query<Customer>.All;
       var employees = Query<Employee>.All;
       var result = customers

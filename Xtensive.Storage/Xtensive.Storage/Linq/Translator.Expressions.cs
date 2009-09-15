@@ -234,7 +234,7 @@ namespace Xtensive.Storage.Linq
             n.Type==typeof (TimeSpan) ||
               n.Type==typeof (DateTime))
           return base.VisitNew(n);
-        throw new NotSupportedException();
+        throw new NotSupportedException(String.Format(Strings.ExTypeXIsNotSupportedInNewExpression, n.Type));
       }
       var arguments = new List<Expression>();
       for (int i = 0; i < n.Arguments.Count; i++) {
