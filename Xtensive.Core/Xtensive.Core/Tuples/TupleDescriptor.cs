@@ -36,6 +36,7 @@ namespace Xtensive.Core.Tuples
     private int identifier;
     private readonly int fieldCount;
     internal readonly Type[] fieldTypes;
+    private readonly bool[] isValueTypeFlags;
     private ITupleFactory tupleFactory;
     private bool isCompiled;
     private int cachedHashCode;
@@ -103,14 +104,26 @@ namespace Xtensive.Core.Tuples
     /// <param name="other">The other descriptor.</param>
     public int GetCommonPartLength(TupleDescriptor other)
     {
-      if (other==null)
-        throw new ArgumentNullException("other");
+      ArgumentValidator.EnsureArgumentNotNull(other, "other");
       int minCount = fieldCount < other.fieldCount ? fieldCount : other.fieldCount;
       for (int i = 0; i < minCount; i++) {
         if (fieldTypes[i] != other.fieldTypes[i])
           return i;
       }
       return minCount;
+    }
+
+    /// <summary>
+    /// Determines whether the specified field is a value type field.
+    /// </summary>
+    /// <param name="fieldIndex">Index of the field to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if specified field is a value type field; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool IsValueType(int fieldIndex)
+    {
+      return isValueTypeFlags[fieldIndex];
     }
 
     #region Execute methods
@@ -368,7 +381,7 @@ namespace Xtensive.Core.Tuples
     public static TupleDescriptor Create(Type[] fieldTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, "fieldTypes");
-      TupleDescriptor descriptor = new TupleDescriptor(fieldTypes);
+      var descriptor = new TupleDescriptor(fieldTypes);
       return TupleDescriptorCache.Register(descriptor);
     }
 
@@ -382,7 +395,7 @@ namespace Xtensive.Core.Tuples
     public static TupleDescriptor Create(IList<Type> fieldTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, "fieldTypes");
-      TupleDescriptor descriptor = new TupleDescriptor(fieldTypes);
+      var descriptor = new TupleDescriptor(fieldTypes);
       return TupleDescriptorCache.Register(descriptor);
     }
 
@@ -553,27 +566,15 @@ namespace Xtensive.Core.Tuples
     {
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, "fieldTypes");
       fieldCount = fieldTypes.Count;
-      Type[] copy = new Type[fieldCount];
+      this.fieldTypes = new Type[fieldCount];
+      isValueTypeFlags = new bool[fieldCount];
       for (int i = 0; i<fieldCount; i++) {
         Type t = fieldTypes[i];
         if (t.IsNullable())
           t = t.GetGenericArguments()[0]; // Substituting Nullable<T> to T
-        copy[i] = t;
+        this.fieldTypes[i] = t;
+        isValueTypeFlags[i] = t.IsValueType;
       }
-      this.fieldTypes = copy;
     }
-
-//    private TupleDescriptor(Type[] fieldTypes)
-//    {
-//      ArgumentValidator.EnsureArgumentNotNull(fieldTypes, "fieldTypes");
-//      Type[] copy = new Type[fieldTypes.Length];
-//      for (int i = 0; i<fieldTypes.Length; i++) {
-//        Type t = fieldTypes[i];
-//        if (t.IsNullable())
-//          t = t.GetGenericArguments()[0]; // Substituting Nullable<T> to T
-//        copy[i] = t;
-//      }
-//      this.fieldTypes = copy;
-//    }
   }
 }

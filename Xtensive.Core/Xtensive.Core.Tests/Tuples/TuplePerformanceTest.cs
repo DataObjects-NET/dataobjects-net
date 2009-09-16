@@ -40,6 +40,22 @@ namespace Xtensive.Core.Tests.Tuples
         typeof (string),
       };
 
+    [Test]
+    public void BasicTest()
+    {
+      Tuple t = Tuple.Create(TupleDescriptor.Create<string, int, string, TimeSpan, string, string>());
+      t.SetValue(0,string.Empty);
+      t.SetValue(2,"n\\a");
+      t.SetValue(3, new TimeSpan());
+      t.SetValue(4,null);
+      t.SetValue(5,"null");
+
+      var s = t.Format();
+      var tt = Tuple.Parse(t.Descriptor, s);
+
+      Assert.AreEqual(t,tt);
+    }
+
 
     [Test]
     [Explicit, Category("Performance")]
@@ -162,17 +178,22 @@ namespace Xtensive.Core.Tests.Tuples
     [Explicit, Category("Performance")]
     public void CopyToTest()
     {
-      const int iterationCount = 1000000;
+      const int iterationCount = 10000000;
       Random random = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
-      Tuple tuple = Tuple.Create(10, 20 ,234.456f, 2345.34534d, "aaaaaaaaaaa", DateTime.Now);
+      Tuple tuple = Tuple.Create(10, 20, 234.456f, 2345.34534d, "aaaaaaaaaaa", DateTime.Now);
       var hashCode = tuple.GetHashCode();
       var copy = tuple.CreateNew();
-      using (new Measurement("Copying tuples test", iterationCount)) {
-        for (int i = 0; i < iterationCount; i++) {
+      
+      // Warmup
+      for (int i = 0; i < iterationCount/10; i++)
+        tuple.CopyTo(copy);
+      
+      // Actual run
+      TestHelper.CollectGarbage(true);
+      // Log.Info("Get ready...");
+      using (new Measurement("Copying tuples", MeasurementOptions.Log, iterationCount)) {
+        for (int i = 0; i < iterationCount; i++)
           tuple.CopyTo(copy);
-//          Assert.AreEqual(hashCode, copy.GetHashCode());
-        }
-        
       }
     }
 
@@ -190,36 +211,10 @@ namespace Xtensive.Core.Tests.Tuples
       using (new Measurement("DummyTuple memory usage", iterationCount))
         while (iteration++ <= iterationCount)
           tuplesList.Add(dummyTuple.CreateNew());
-
       iteration = 0;
       using (new Measurement("Tuple memory usage", iterationCount))
         while (iteration++ <= iterationCount)
           tuplesList.Add(tuple.CreateNew());
-    }
-
-    private static void Cleanup()
-    {
-      int baseSleepTime = 100;
-      for (int i = 0; i<5; i++) {
-        GC.GetTotalMemory(true);
-        Thread.Sleep(baseSleepTime);
-      }
-      Thread.Sleep(5*baseSleepTime);
-    }
-    [Test]
-    public void Test()
-    {
-      Tuple t = Tuple.Create(TupleDescriptor.Create<string, int, string, TimeSpan, string, string>());
-      t.SetValue(0,string.Empty);
-      t.SetValue(2,"n\\a");
-      t.SetValue(3, new TimeSpan());
-      t.SetValue(4,null);
-      t.SetValue(5,"null");
-
-      var s = t.Format();
-      var tt = Tuple.Parse(t.Descriptor, s);
-
-      Assert.AreEqual(t,tt);
     }
   }
 }

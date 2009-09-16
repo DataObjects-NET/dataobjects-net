@@ -20,7 +20,10 @@ namespace Xtensive.Core.Tuples
     IEquatable<Tuple>,
     IComparable<Tuple>
   {
-    public const int HashCodeMultiplier = 0x18d;
+    /// <summary>
+    /// Per-field hash code multiplier used in <see cref="GetHashCode"/> calculation.
+    /// </summary>
+    protected internal const int HashCodeMultiplier = 397;
 
     /// <inheritdoc />
     public abstract TupleDescriptor Descriptor { get; }
@@ -83,9 +86,10 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">Field value is not available.</exception>
     public bool IsNull(int fieldIndex)
     {
-      TupleFieldState state = GetFieldState(fieldIndex);
+      var state = GetFieldState(fieldIndex);
       if ((state & TupleFieldState.Available) == 0)
         throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
       return (state & TupleFieldState.Null) > 0;
@@ -108,6 +112,7 @@ namespace Xtensive.Core.Tuples
     public abstract object GetValueOrDefault(int fieldIndex);
 
     /// <inheritdoc />
+    /// <exception cref="InvalidOperationException">Field value is not available.</exception>
     public object GetValue(int fieldIndex)
     {
       if (!IsAvailable(fieldIndex))
@@ -120,7 +125,7 @@ namespace Xtensive.Core.Tuples
 
     #endregion
 
-    #region SetValue<T>, GetValueOrDefault<T>, GetValue<T> methods
+    #region GetValueOrDefault<T>, GetValue<T>, SetValue<T> methods
 
     /// <summary>
     /// Gets the value field value by its index, if it is available;
@@ -135,11 +140,11 @@ namespace Xtensive.Core.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValueOrDefault<T>(int fieldIndex)
     {
-      var func = null == default(T)
-        ? (Func<Tuple, T>)GetGetNullableValueOrDefaultDelegate(fieldIndex)
-        : (Func<Tuple, T>)GetGetValueOrDefaultDelegate(fieldIndex);
-      if (func != null)
-        return func(this);
+      var getter = (null == default(T) // Is nullable value type or class
+        ? GetGetNullableValueOrDefaultDelegate(fieldIndex)
+        : GetGetValueOrDefaultDelegate(fieldIndex)) as Func<Tuple, T>;
+      if (getter != null)
+        return getter.Invoke(this);
       return (T) GetValueOrDefault(fieldIndex);
     }
 
@@ -162,11 +167,11 @@ namespace Xtensive.Core.Tuples
       if (!IsAvailable(fieldIndex))
         throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
 
-      var func = null == default(T)
-        ? GetGetNullableValueOrDefaultDelegate(fieldIndex) as Func<Tuple, T>
-        : GetGetValueOrDefaultDelegate(fieldIndex) as Func<Tuple, T>;
-      if (func != null)
-        return func(this);
+      var getter = (null == default(T) // Is nullable value type or class
+        ? GetGetNullableValueOrDefaultDelegate(fieldIndex)
+        : GetGetValueOrDefaultDelegate(fieldIndex)) as Func<Tuple, T>;
+      if (getter != null)
+        return getter.Invoke(this);
       return (T) GetValueOrDefault(fieldIndex);
     }
 
@@ -180,11 +185,11 @@ namespace Xtensive.Core.Tuples
     /// are incompatible.</exception>
     public void SetValue<T>(int fieldIndex, T fieldValue)
     {
-      var action = null == default(T)
-        ? GetSetNullableValueDelegate(fieldIndex) as Action<Tuple, T>
-        : GetSetValueDelegate(fieldIndex) as Action<Tuple, T>;
-      if (action != null)
-        action(this, fieldValue);
+      var setter = (null == default(T) // Is nullable value type or class
+        ? GetSetNullableValueDelegate(fieldIndex)
+        : GetSetValueDelegate(fieldIndex)) as Action<Tuple, T>;
+      if (setter != null)
+        setter.Invoke(this, fieldValue);
       else
         SetValue(fieldIndex, (object) fieldValue);
     }

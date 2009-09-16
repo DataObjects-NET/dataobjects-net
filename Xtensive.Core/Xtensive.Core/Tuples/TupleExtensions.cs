@@ -18,6 +18,7 @@ namespace Xtensive.Core.Tuples
   public static class TupleExtensions
   {
     private static readonly InitializerHandler initializerHandler = new InitializerHandler();
+    private static PartCopyHandler partCopyHandler = new PartCopyHandler();
 
     #region Copy methods
 
@@ -34,10 +35,8 @@ namespace Xtensive.Core.Tuples
     /// <param name="length">The number of elements to copy.</param>
     public static void CopyTo(this Tuple source, Tuple target, int startIndex, int targetStartIndex, int length)
     {
-
       // Generic version. Slower.
       var actionData = new PartCopyData(source, target, startIndex, targetStartIndex, length);
-      var partCopyHandler = new PartCopyHandler();
       source.Descriptor.Execute(partCopyHandler, ref actionData, Direction.Positive);
 
 //      // A version with boxing. Works 6 times faster!
@@ -412,11 +411,15 @@ namespace Xtensive.Core.Tuples
         if (fieldIndex > actionData.SourceEndFieldIndex)
           return true;
 
-        if (actionData.Source.IsAvailable(fieldIndex))  {
-          if (actionData.Source.Descriptor[fieldIndex].IsValueType && actionData.Source.IsNull(fieldIndex))
-            actionData.Target.SetValue(fieldIndex + actionData.ResultStartFieldIndexDiff, null);
+        var source = actionData.Source;
+        var sourceFieldState = source.GetFieldState(fieldIndex);
+        if ((sourceFieldState & TupleFieldState.Available)!=0) {
+          var target = actionData.Target;
+          if ((sourceFieldState & TupleFieldState.Null)==0 || !source.Descriptor.IsValueType(fieldIndex))
+            target.SetValue(fieldIndex + actionData.ResultStartFieldIndexDiff,
+              source.GetValueOrDefault<TFieldType>(fieldIndex));
           else
-            actionData.Target.SetValue(fieldIndex + actionData.ResultStartFieldIndexDiff, actionData.Source.GetValueOrDefault<TFieldType>(fieldIndex));
+            target.SetValue(fieldIndex + actionData.ResultStartFieldIndexDiff, null);
         }
         return false;
       }

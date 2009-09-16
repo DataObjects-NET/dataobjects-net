@@ -7,8 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Core.Testing
