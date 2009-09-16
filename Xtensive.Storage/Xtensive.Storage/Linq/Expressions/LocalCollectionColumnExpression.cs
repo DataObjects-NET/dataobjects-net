@@ -13,7 +13,7 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Storage.Linq.Expressions
 {
   [Serializable]
-  internal class LocalCollectionColumn : ParameterizedExpression,
+  internal class LocalCollectionColumnExpression : ParameterizedExpression,
     IMappedExpression
   {
     public Segment<int> Mapping { get; private set; }
@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (!CanRemap)
         return this;
       var mapping = new Segment<int>(Mapping.Offset + offset, 1);
-      return new LocalCollectionColumn(Type, mapping, OuterParameter, MaterializationExpression,DefaultIfEmpty);
+      return new LocalCollectionColumnExpression(Type, mapping, OuterParameter, MaterializationExpression,DefaultIfEmpty);
     }
 
     public Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
@@ -33,17 +33,17 @@ namespace Xtensive.Storage.Linq.Expressions
       if (!CanRemap)
         return this;
       var mapping = new Segment<int>(map.IndexOf(Mapping.Offset), 1);
-      return new LocalCollectionColumn(Type, mapping, OuterParameter, MaterializationExpression,DefaultIfEmpty);
+      return new LocalCollectionColumnExpression(Type, mapping, OuterParameter, MaterializationExpression,DefaultIfEmpty);
     }
 
     public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      return new LocalCollectionColumn(Type, Mapping, parameter, MaterializationExpression,DefaultIfEmpty);
+      return new LocalCollectionColumnExpression(Type, Mapping, parameter, MaterializationExpression,DefaultIfEmpty);
     }
 
     public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      return new LocalCollectionColumn(Type, Mapping, null, MaterializationExpression, DefaultIfEmpty);
+      return new LocalCollectionColumnExpression(Type, Mapping, null, MaterializationExpression, DefaultIfEmpty);
     }
 
     public override string ToString()
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    protected LocalCollectionColumn(
+    protected LocalCollectionColumnExpression(
       Type type, 
       Segment<int> mapping, 
       ParameterExpression parameterExpression, 
