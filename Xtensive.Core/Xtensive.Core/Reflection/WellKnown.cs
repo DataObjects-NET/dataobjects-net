@@ -19,6 +19,11 @@ namespace Xtensive.Core.Reflection
     public const string CtorName = ".ctor";
 
     /// <summary>
+    /// Returns ".cctor".
+    /// </summary>
+    public const string CctorName = ".cctor";
+
+    /// <summary>
     /// Returns "get_".
     /// </summary>
     public const string GetterPrefix = "get_";

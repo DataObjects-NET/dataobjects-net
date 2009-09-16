@@ -19,61 +19,6 @@ namespace Xtensive.Core.Tuples
   {
     private static readonly InitializerHandler initializerHandler = new InitializerHandler();
 
-    #region Generic Tuple methods
-
-    /// <summary>
-    /// Sets the field value by its index.
-    /// </summary>
-    /// <param name="tuple"><see cref="Tuple"/> to set value to.</param>
-    /// <param name="fieldIndex">Index of the field to set value of.</param>
-    /// <param name="fieldValue">Field value.</param>
-    /// <typeparam name="T">The type of value to set.</typeparam>
-    /// <exception cref="InvalidCastException">Type of stored value and <typeparamref name="T"/>
-    /// are incompatible.</exception>
-    public static void SetValue<T>(this Tuple tuple, int fieldIndex, T fieldValue)
-    {
-      tuple.SetValue(fieldIndex, fieldValue);
-    }
-
-    /// <summary>
-    /// Gets the value field value by its index, if it is available;
-    /// otherwise returns <see langword="default(T)"/>.
-    /// </summary>
-    /// <param name="tuple">Value container.</param>
-    /// <param name="fieldIndex">Index of the field to get value of.</param>
-    /// <returns>Field value, if it is available;
-    /// otherwise, <see langword="default(T)"/>.</returns>
-    /// <typeparam name="T">The type of value to get.</typeparam>
-    /// <exception cref="InvalidCastException">Value is available, but it can't be cast
-    /// to specified type. E.g. if value is <see langword="null"/>, field is struct, 
-    /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
-    public static T GetValueOrDefault<T>(this Tuple tuple, int fieldIndex)
-    {
-      return (T) tuple.GetValueOrDefault(fieldIndex);
-    }
-
-    /// <summary>
-    /// Gets the value field value by its index.
-    /// </summary>
-    /// <param name="tuple">Value container.</param>
-    /// <param name="fieldIndex">Index of the field to get value of.</param>
-    /// <returns>Field value.</returns>
-    /// <typeparam name="T">The type of value to get.</typeparam>
-    /// <remarks>
-    /// If field value is not available (see <see cref="Tuple.IsAvailable"/>),
-    /// an exception will be thrown.
-    /// </remarks>
-    /// <exception cref="InvalidOperationException">Field value is not available.</exception>
-    /// <exception cref="InvalidCastException">Value is available, but it can't be cast
-    /// to specified type. E.g. if value is <see langword="null"/>, field is struct, 
-    /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
-    public static T GetValue<T>(this Tuple tuple, int fieldIndex)
-    {
-      return (T) tuple.GetValue(fieldIndex);
-    }
-
-    #endregion
-
     #region Copy methods
 
     /// <summary>
@@ -89,12 +34,18 @@ namespace Xtensive.Core.Tuples
     /// <param name="length">The number of elements to copy.</param>
     public static void CopyTo(this Tuple source, Tuple target, int startIndex, int targetStartIndex, int length)
     {
-      // A version with boxing. Works 6 times faster!
-      for (int i = 0; i < length; i++) {
-        int sourceIndex = startIndex + i;
-        if (source.IsAvailable(sourceIndex))
-          target.SetValue(targetStartIndex + i, source.GetValueOrDefault(sourceIndex));
-      }
+
+      // Generic version. Slower.
+      var actionData = new PartCopyData(source, target, startIndex, targetStartIndex, length);
+      var partCopyHandler = new PartCopyHandler();
+      source.Descriptor.Execute(partCopyHandler, ref actionData, Direction.Positive);
+
+//      // A version with boxing. Works 6 times faster!
+//      for (int i = 0; i < length; i++) {
+//        int sourceIndex = startIndex + i;
+//        if (source.IsAvailable(sourceIndex))
+//          target.SetValue(targetStartIndex + i, source.GetValueOrDefault(sourceIndex));
+//      }
     }
 
     /// <summary>
@@ -431,6 +382,156 @@ namespace Xtensive.Core.Tuples
       var actionData = new InitializerData(target, nullableMap);
       target.Descriptor.Execute(initializerHandler, ref actionData, Direction.Positive);
     }
+
+    #region Private: Part copy: Data & Handler
+
+    private struct PartCopyData
+    {
+      public Tuple Source;
+      public Tuple Target;
+      public int SourceStartFieldIndex;
+      public int SourceEndFieldIndex;
+      public int ResultStartFieldIndexDiff;
+
+      public PartCopyData(Tuple source, Tuple target, int sourceStartFieldIndex, int resultStartFieldIndex, int count)
+      {
+        Source = source;
+        Target = target;
+        SourceStartFieldIndex = sourceStartFieldIndex;
+        SourceEndFieldIndex = sourceStartFieldIndex + count - 1;
+        ResultStartFieldIndexDiff = resultStartFieldIndex - sourceStartFieldIndex;
+      }
+    }
+
+    private class PartCopyHandler : ITupleActionHandler<PartCopyData>
+    {
+      public bool Execute<TFieldType>(ref PartCopyData actionData, int fieldIndex)
+      {
+        if (fieldIndex < actionData.SourceStartFieldIndex)
+          return false;
+        if (fieldIndex > actionData.SourceEndFieldIndex)
+          return true;
+
+        if (actionData.Source.IsAvailable(fieldIndex))  {
+          if (actionData.Source.Descriptor[fieldIndex].IsValueType && actionData.Source.IsNull(fieldIndex))
+            actionData.Target.SetValue(fieldIndex + actionData.ResultStartFieldIndexDiff, null);
+          else
+            actionData.Target.SetValue(fieldIndex + actionData.ResultStartFieldIndexDiff, actionData.Source.GetValueOrDefault<TFieldType>(fieldIndex));
+        }
+        return false;
+      }
+    }
+
+    #endregion
+
+    #region Private: MapOne copy: Data & Handler
+
+    private struct MapOneCopyData
+    {
+      public Tuple Source;
+      public Tuple Target;
+      public int[] Map;
+
+      public MapOneCopyData(Tuple source, Tuple target, int[] map)
+      {
+        Source = source;
+        Target = target;
+        Map = map;
+      }
+    }
+
+    private class MapOneCopyHandler : ITupleActionHandler<MapOneCopyData>
+    {
+      public bool Execute<TFieldType>(ref MapOneCopyData actionData, int fieldIndex)
+      {
+        int sourceFieldIndex = actionData.Map[fieldIndex];
+        if (sourceFieldIndex < 0)
+          return false;
+        if (actionData.Source.IsAvailable(sourceFieldIndex)) {
+          if (actionData.Source.Descriptor[sourceFieldIndex].IsValueType && actionData.Source.IsNull(sourceFieldIndex))
+            actionData.Target.SetValue(fieldIndex, null);
+          else
+            actionData.Target.SetValue(fieldIndex, actionData.Source.GetValue<TFieldType>(sourceFieldIndex));
+        }
+        return false;
+      }
+    }
+
+    #endregion
+
+    #region Private: Map copy: Data & Handler
+
+    private struct MapCopyData
+    {
+      public Tuple[] Source;
+      public Tuple Target;
+      public Pair<int, int>[] Map;
+
+      public MapCopyData(Tuple[] source, Tuple target, Pair<int, int>[] map)
+      {
+        Source = source;
+        Target = target;
+        Map = map;
+      }
+    }
+
+    private class MapCopyHandler : ITupleActionHandler<MapCopyData>
+    {
+      public bool Execute<TFieldType>(ref MapCopyData actionData, int fieldIndex)
+      {
+        Pair<int, int> mappedTo = actionData.Map[fieldIndex];
+        if (mappedTo.First < 0 | mappedTo.Second < 0)
+          return false;
+        Tuple sourceTuple = actionData.Source[mappedTo.First];
+        if (sourceTuple.IsAvailable(mappedTo.Second))
+        {
+          if (sourceTuple.Descriptor[mappedTo.Second].IsValueType && sourceTuple.IsNull(mappedTo.Second))
+            actionData.Target.SetValue(fieldIndex, null);
+          else
+            actionData.Target.SetValue(fieldIndex, sourceTuple.GetValue<TFieldType>(mappedTo.Second));
+        }
+        return false;
+      }
+    }
+
+    #endregion
+
+    #region Private: Map3 copy: Data & Handler
+
+    private struct Map3CopyData
+    {
+      public FixedList3<Tuple> Source;
+      public Tuple Target;
+      public Pair<int, int>[] Map;
+
+      public Map3CopyData(ref FixedList3<Tuple> source, Tuple target, Pair<int, int>[] map)
+      {
+        Source = source;
+        Target = target;
+        Map = map;
+      }
+    }
+
+    private class Map3CopyHandler : ITupleActionHandler<Map3CopyData>
+    {
+      public bool Execute<TFieldType>(ref Map3CopyData actionData, int fieldIndex)
+      {
+        Pair<int, int> mappedTo = actionData.Map[fieldIndex];
+        if (mappedTo.First < 0 | mappedTo.Second < 0)
+          return false;
+        Tuple sourceTuple = actionData.Source[mappedTo.First];
+        if (sourceTuple.IsAvailable(mappedTo.Second))
+        {
+          if (sourceTuple.Descriptor[mappedTo.Second].IsValueType && sourceTuple.IsNull(mappedTo.Second))
+            actionData.Target.SetValue(fieldIndex, null);
+          else
+            actionData.Target.SetValue(fieldIndex, sourceTuple.GetValue<TFieldType>(mappedTo.Second));
+        }
+        return false;
+      }
+    }
+
+    #endregion
 
     #region Private: Initializer: Data & Handler
 

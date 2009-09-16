@@ -67,13 +67,19 @@ namespace Xtensive.Core.Tests.Tuples
       const int iterationCount = 10000000;
       TupleDescriptor descriptor = TupleDescriptor.Create(shortFieldTypes);
       Tuple tuple = Tuple.Create(descriptor);
-      tuple.SetValue(0, 0);
-      tuple.GetValue<int>(0);
-      tuple.SetValue(0, (object)0);
-      tuple.GetValue(0);
+      using (new Measurement("Tuple.SetValue", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.SetValue(0, (object)i);
+      using (new Measurement("Tuple.GetValueOrDefault", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.GetValueOrDefault(0);
+
       using (new Measurement("Tuple.SetValue<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.SetValue(0, i);
+      using (new Measurement("Tuple.GetValue<T>", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.GetValue<int>(0);
       using (new Measurement("Tuple.GetValueOrDefault<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.GetValueOrDefault<int>(0);
@@ -89,56 +95,52 @@ namespace Xtensive.Core.Tests.Tuples
       const int iterationCount = 10000000;
       TupleDescriptor descriptor = TupleDescriptor.Create(shortFieldTypes);
       Tuple tuple = Tuple.Create(descriptor);
-      DummyTuple dummyTuple = new DummyTuple(descriptor);
-      tuple.SetValue(0, 0);
-      tuple.GetValue<int>(0);
-      tuple.SetValue(0, (object)0);
-      tuple.GetValue(0);
-      dummyTuple.SetValue(0, 0);
-      dummyTuple.GetValue<int>(0);
-      dummyTuple.SetValue(0, (object)0);
-      dummyTuple.GetValue(0);
-      int tmp;
-      
-      // Tuple testing for nullable
-      using (new Measurement("Tuple.SetValue<T?>", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          tuple.SetValue<int?>(0, null);
-      using (new Measurement("Tuple.GetValue<T?>", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          tuple.GetValue<int?>(0);
+      for (int i = 0; i < iterationCount; i++)
+        tuple.SetValue(0, (object)i);
+      for (int i = 0; i < iterationCount; i++)
+        tuple.GetValueOrDefault(0);
 
-      // Tuple testing
+      for (int i = 0; i < iterationCount; i++)
+        tuple.SetValue(0, i);
+      for (int i = 0; i < iterationCount; i++)
+        tuple.GetValue<int>(0);
+      for (int i = 0; i < iterationCount; i++)
+        tuple.GetValueOrDefault<int>(0);
+      for (int i = 0; i < iterationCount; i++)
+        tuple.GetValueOrDefault<int?>(0);
+
+      using (new Measurement("Tuple.SetValue?", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.SetValue(0, new int?(i));
+      using (new Measurement("Tuple.SetValue", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.SetValue(0, (object)i);
+      using (new Measurement("Tuple.GetValue", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.GetValue(0);
+      using (new Measurement("Tuple.GetValueOrDefault", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.GetValueOrDefault(0);
+
       using (new Measurement("Tuple.SetValue<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.SetValue(0, i);
       using (new Measurement("Tuple.GetValue<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.GetValue<int>(0);
-      using (new Measurement("Tuple.SetValue", iterationCount))
+      using (new Measurement("Tuple.GetValueOrDefault<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
-          tuple.SetValue(0, (object)i);
-      Cleanup();
-      using (new Measurement("Tuple.GetValue", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          tmp = (int)tuple.GetValue(0);
-      Cleanup();
+          tuple.GetValueOrDefault<int>(0);
 
-      // DummyTuple testing
-      using (new Measurement("DummyTuple.SetValue<T>", iterationCount))
+      using (new Measurement("Tuple.SetValue<T?>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
-          dummyTuple.SetValue(0, i);
-      using (new Measurement("DummyTuple.GetValue<T>", iterationCount))
+          tuple.SetValue(0, new int?(i));
+      using (new Measurement("Tuple.GetValue<T?>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
-          dummyTuple.GetValue<int>(0);
-      using (new Measurement("DummyTuple.SetValue", iterationCount))
+          tuple.GetValue<int?>(0);
+      using (new Measurement("Tuple.GetValueOrDefault<T?>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
-          dummyTuple.SetValue(0, (object)i);
-      Cleanup();
-      using (new Measurement("DummyTuple.GetValue", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          tmp = (int)dummyTuple.GetValue(0);
-      Cleanup();
+          tuple.GetValueOrDefault<int?>(0);
     }
 
     [Test]
@@ -160,7 +162,7 @@ namespace Xtensive.Core.Tests.Tuples
     [Explicit, Category("Performance")]
     public void CopyToTest()
     {
-      const int iterationCount = 100000;
+      const int iterationCount = 1000000;
       Random random = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
       Tuple tuple = Tuple.Create(10, 20 ,234.456f, 2345.34534d, "aaaaaaaaaaa", DateTime.Now);
       var hashCode = tuple.GetHashCode();

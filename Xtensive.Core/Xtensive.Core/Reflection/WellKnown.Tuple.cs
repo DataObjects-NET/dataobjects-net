@@ -49,6 +49,66 @@ namespace Xtensive.Core.Reflection
       public const string DescriptorFieldName = "descriptor";
 
       /// <summary>
+      /// Returns "GetValueOrDefault{0}".
+      /// </summary>
+      public const string GetValueOrDefaultX = "GetValueOrDefault{0}";
+
+      /// <summary>
+      /// Returns "GetNullableValueOrDefault{0}".
+      /// </summary>
+      public const string GetNullableValueOrDefaultX = "GetNullableValueOrDefault{0}";
+
+      /// <summary>
+      /// Returns "SetValue{0}".
+      /// </summary>
+      public const string SetValueX = "SetValue{0}";
+
+      /// <summary>
+      /// Returns "SetNullableValue{0}".
+      /// </summary>
+      public const string SetNullableValueX = "SetNullableValue{0}";
+
+      /// <summary>
+      /// Returns "getValueDelegates".
+      /// </summary>
+      public const string GetValueDelegatesFieldName = "getValueDelegates";
+
+      /// <summary>
+      /// Returns "getNullableValueDelegates".
+      /// </summary>
+      public const string GetNullableValueDelegatesFieldName = "getNullableValueDelegates";
+
+      /// <summary>
+      /// Returns "setValueDelegates".
+      /// </summary>
+      public const string SetValueDelegatesFieldName = "setValueDelegates";
+
+      /// <summary>
+      /// Returns "setNullableValueDelegates".
+      /// </summary>
+      public const string SetNullableValueDelegatesFieldName = "setNullableValueDelegates";
+      
+      /// <summary>
+      /// Returns "GetGetValueOrDefaultDelegate".
+      /// </summary>
+      public const string GetGetValueOrDefaultDelegate = "GetGetValueOrDefaultDelegate";
+
+      /// <summary>
+      /// Returns "GetGetNullableValueOrDefaultDelegate".
+      /// </summary>
+      public const string GetGetNullableValueOrDefaultDelegate = "GetGetNullableValueOrDefaultDelegate";
+
+      /// <summary>
+      /// Returns "GetSetValueDelegate".
+      /// </summary>
+      public const string GetSetValueDelegate = "GetSetValueDelegate";
+
+      /// <summary>
+      /// Returns "GetSetValueDelegate".
+      /// </summary>
+      public const string GetSetNullableValueDelegate = "GetSetNullableValueDelegate";
+
+      /// <summary>
       /// Returns "Descriptor".
       /// </summary>
       public const string Descriptor = "Descriptor";

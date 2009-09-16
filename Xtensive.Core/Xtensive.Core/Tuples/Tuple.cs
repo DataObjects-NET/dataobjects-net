@@ -6,17 +6,10 @@
 
 using System;
 using System.Diagnostics;
-using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Web;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
-using Xtensive.Core.Conversion;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
-using Xtensive.Core.Tuples.Internals;
 
 namespace Xtensive.Core.Tuples
 {
@@ -142,6 +135,11 @@ namespace Xtensive.Core.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValueOrDefault<T>(int fieldIndex)
     {
+      var func = null == default(T)
+        ? (Func<Tuple, T>)GetGetNullableValueOrDefaultDelegate(fieldIndex)
+        : (Func<Tuple, T>)GetGetValueOrDefaultDelegate(fieldIndex);
+      if (func != null)
+        return func(this);
       return (T) GetValueOrDefault(fieldIndex);
     }
 
@@ -161,7 +159,15 @@ namespace Xtensive.Core.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValue<T>(int fieldIndex)
     {
-      return (T) GetValue(fieldIndex);
+      if (!IsAvailable(fieldIndex))
+        throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
+
+      var func = null == default(T)
+        ? GetGetNullableValueOrDefaultDelegate(fieldIndex) as Func<Tuple, T>
+        : GetGetValueOrDefaultDelegate(fieldIndex) as Func<Tuple, T>;
+      if (func != null)
+        return func(this);
+      return (T) GetValueOrDefault(fieldIndex);
     }
 
     /// <summary>
@@ -174,11 +180,41 @@ namespace Xtensive.Core.Tuples
     /// are incompatible.</exception>
     public void SetValue<T>(int fieldIndex, T fieldValue)
     {
-      SetValue(fieldIndex, (object) fieldValue);
+      var action = null == default(T)
+        ? GetSetNullableValueDelegate(fieldIndex) as Action<Tuple, T>
+        : GetSetValueDelegate(fieldIndex) as Action<Tuple, T>;
+      if (action != null)
+        action(this, fieldValue);
+      else
+        SetValue(fieldIndex, (object) fieldValue);
     }
 
     #endregion
 
+    #region Get Delegate methods
+
+    protected virtual Delegate GetGetValueOrDefaultDelegate(int fieldIndex)
+    {
+      return null;
+    }
+
+    protected virtual Delegate GetGetNullableValueOrDefaultDelegate(int fieldIndex)
+    {
+      return null;
+    }
+
+    protected virtual Delegate GetSetValueDelegate(int fieldIndex)
+    {
+      return null;
+    }
+
+    protected virtual Delegate GetSetNullableValueDelegate(int fieldIndex)
+    {
+      return null;
+    }
+
+    #endregion
+    
     #region IComparable, IEquatable
 
     /// <inheritdoc/>

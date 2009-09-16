@@ -44,17 +44,16 @@ namespace Xtensive.Core.Tuples.Internals
 
     public static void Compile()
     {
-      LockCookie? c = _lock.BeginWrite();
+      var c = _lock.BeginWrite();
       try {
-        List<TupleDescriptor> descriptors = new List<TupleDescriptor>(newDescriptors);
-        SetSlim<TupleDescriptor> newlyCompiled = new SetSlim<TupleDescriptor>();
+        var descriptors = new List<TupleDescriptor>(newDescriptors);
+        var newlyCompiled = new SetSlim<TupleDescriptor>();
         try {
-          TupleGenerator tupleGenerator = new TupleGenerator();
           foreach (TupleDescriptor tupleDescriptor in descriptors) {
             if (tupleDescriptor==null)
               continue;
-            TupleInfo tupleInfo = new TupleInfo(tupleDescriptor);
-            Tuple compiledTuple = tupleGenerator.Compile(tupleInfo);
+            var tupleInfo = new TupleInfo(tupleDescriptor);
+            var compiledTuple = TupleGenerator.Compile(tupleInfo);
             tupleDescriptor.Compiled(compiledTuple);
             newlyCompiled.Add(tupleDescriptor);
           }
