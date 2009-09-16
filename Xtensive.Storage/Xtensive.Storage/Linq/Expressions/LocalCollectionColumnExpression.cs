@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 
@@ -18,14 +19,14 @@ namespace Xtensive.Storage.Linq.Expressions
   {
     public Segment<int> Mapping { get; private set; }
 
-    public Expression MaterializationExpression{ get; private set;}
+    public PropertyInfo PropertyInfo{ get; private set;}
 
     public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
       var mapping = new Segment<int>(Mapping.Offset + offset, 1);
-      return new LocalCollectionColumnExpression(Type, mapping, OuterParameter, MaterializationExpression,DefaultIfEmpty);
+      return new LocalCollectionColumnExpression(Type, mapping, OuterParameter, PropertyInfo,DefaultIfEmpty);
     }
 
     public Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
@@ -33,17 +34,17 @@ namespace Xtensive.Storage.Linq.Expressions
       if (!CanRemap)
         return this;
       var mapping = new Segment<int>(map.IndexOf(Mapping.Offset), 1);
-      return new LocalCollectionColumnExpression(Type, mapping, OuterParameter, MaterializationExpression,DefaultIfEmpty);
+      return new LocalCollectionColumnExpression(Type, mapping, OuterParameter, PropertyInfo,DefaultIfEmpty);
     }
 
     public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      return new LocalCollectionColumnExpression(Type, Mapping, parameter, MaterializationExpression,DefaultIfEmpty);
+      return new LocalCollectionColumnExpression(Type, Mapping, parameter, PropertyInfo,DefaultIfEmpty);
     }
 
     public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      return new LocalCollectionColumnExpression(Type, Mapping, null, MaterializationExpression, DefaultIfEmpty);
+      return new LocalCollectionColumnExpression(Type, Mapping, null, PropertyInfo, DefaultIfEmpty);
     }
 
     public override string ToString()
@@ -58,12 +59,12 @@ namespace Xtensive.Storage.Linq.Expressions
       Type type, 
       Segment<int> mapping, 
       ParameterExpression parameterExpression, 
-      Expression materializationExpression,
+      PropertyInfo propertyInfo,
       bool defaultIfEmpty)
       : base(ExtendedExpressionType.Column, type, parameterExpression, defaultIfEmpty)
     {
       Mapping = mapping;
-      MaterializationExpression = materializationExpression;
+      PropertyInfo = propertyInfo;
     }
   }
 }

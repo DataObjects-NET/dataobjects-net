@@ -973,14 +973,15 @@ namespace Xtensive.Storage.Linq
         return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }
       else {
-        TupleDescriptor tupleDescriptor = null;
-        Func<TItem, Tuple> converter = null;
-
-        var rsHeader = new RecordSetHeader(tupleDescriptor, tupleDescriptor.Select(x=> new SystemColumn(context.GetNextColumnAlias(), 0, x)).Cast<Column>());
-        var rawProvider = new RawProvider(rsHeader, source.Select(t => (Tuple) Tuple.Create(t)).ToArray());
-        var recordset = new StoreProvider(rawProvider).Result;
-        var itemProjector = new ItemProjectorExpression(ColumnExpression.Create(itemType, 0), recordset, context);
-        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+          throw new NotImplementedException();
+//        TupleDescriptor tupleDescriptor = null;
+//        Func<TItem, Tuple> converter = null;
+//
+//        var rsHeader = new RecordSetHeader(tupleDescriptor, tupleDescriptor.Select(x=> new SystemColumn(context.GetNextColumnAlias(), 0, x)).Cast<Column>());
+//        var rawProvider = new RawProvider(rsHeader, source.Select(t => (Tuple) Tuple.Create(t)).ToArray());
+//        var recordset = new StoreProvider(rawProvider).Result;
+//        var itemProjector = new ItemProjectorExpression(ColumnExpression.Create(itemType, 0), recordset, context);
+//        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }
 
       throw new NotImplementedException();
