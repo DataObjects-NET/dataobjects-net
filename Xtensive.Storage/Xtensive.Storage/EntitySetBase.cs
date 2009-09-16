@@ -111,8 +111,8 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">Entity type is not supported.</exception>
     public bool Contains(Key key)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      EnsureItemTypeIsValid(key.Type);
+      if (key == null || !Field.ItemType.IsAssignableFrom(key.Type.UnderlyingType))
+        return false;
 
       var state = Session.EntityStateCache[key, true];
       return state != null ? Contains(key, state.PersistenceState) : Contains(key, null);
@@ -128,9 +128,8 @@ namespace Xtensive.Storage
     /// </returns>
     protected bool Contains(Entity item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      EnsureItemTypeIsValid(item.Type);
-
+      if (item==null || !Field.ItemType.IsAssignableFrom(item.Type.UnderlyingType))
+        return false;
       return Contains(item.Key, item.PersistenceState);
     }
 
@@ -392,13 +391,6 @@ namespace Xtensive.Storage
     #endregion
 
     #region Private / internal members
-
-    private void EnsureItemTypeIsValid(TypeInfo type)
-    {
-      if (!Field.ItemType.IsAssignableFrom(type.UnderlyingType))
-        throw new InvalidOperationException(string.Format(
-          Strings.ExEntityOfTypeXIsIncompatibleWithThisEntitySet, type.UnderlyingType.GetShortName()));
-    }
 
     private bool Contains(Key key, PersistenceState? state)
     {

@@ -63,11 +63,11 @@ namespace Xtensive.Storage.Linq
       if (e.IsProjection())
         return e;
       if (context.Evaluator.CanBeEvaluated(e)) {
-        if (typeof(IQueryable).IsAssignableFrom(e.Type))
+        if (typeof (IQueryable).IsAssignableFrom(e.Type))
           return base.Visit(e);
         return context.ParameterExtractor.IsParameter(e)
-                 ? e
-                 : context.Evaluator.Evaluate(e);
+          ? e
+          : context.Evaluator.Evaluate(e);
       }
       return base.Visit(e);
     }
@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitLambda(LambdaExpression le)
     {
       using (state.CreateLambdaScope(le)) {
-        if (!state.BuildingProjection && le.Parameters.Count>1)
+        if (!state.BuildingProjection && le.Parameters.Count > 1)
           throw new InvalidOperationException(String.Format(Strings.ExLambdaXMustHaveOnlyOneParameter, le.ToString(true)));
 
         var body = Visit(le.Body);
@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Linq
             state.BuildingProjection
               ? itemProjector
               : projection.ItemProjector.Remap(dataSource, 0),
-            projection.TupleParameterBindings, 
+            projection.TupleParameterBindings,
             projection.ResultType));
           return itemProjector;
         }
@@ -175,10 +175,10 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitMemberAccess(MemberExpression ma)
     {
       if (context.Evaluator.CanBeEvaluated(ma) && context.ParameterExtractor.IsParameter(ma)) {
-        if (typeof(IQueryable).IsAssignableFrom(ma.Type)) {
+        if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
           var lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           var rootPoint = lambda();
-          if (rootPoint != null)
+          if (rootPoint!=null)
             return base.Visit(rootPoint.Expression);
         }
         return ma;
@@ -420,13 +420,13 @@ namespace Xtensive.Storage.Linq
       var result = new List<Expression>();
       foreach (var fieldExpression in structureFieldTypes) {
         var nullableType = fieldExpression.Type.ToNullable();
-        var item = (Expression)Expression.Condition(
-            isNullExpression,
-            Expression.Constant(null, nullableType),
-            Expression.Convert(
-              Expression.MakeMemberAccess(Expression.Convert(expression, structureType),
-                fieldExpression.UnderlyingProperty),
-              nullableType));
+        var item = (Expression) Expression.Condition(
+          isNullExpression,
+          Expression.Constant(null, nullableType),
+          Expression.Convert(
+            Expression.MakeMemberAccess(Expression.Convert(expression, structureType),
+              fieldExpression.UnderlyingProperty),
+            nullableType));
         result.Add(item);
       }
       return result;
@@ -460,7 +460,7 @@ namespace Xtensive.Storage.Linq
       if (expression is KeyExpression)
         return ((KeyExpression) expression)
           .KeyFields
-          .Select(fieldExpression => (Expression)fieldExpression)
+          .Select(fieldExpression => (Expression) fieldExpression)
           .ToList();
 
       if (expression.IsNull())
@@ -507,16 +507,20 @@ namespace Xtensive.Storage.Linq
 
     private Expression ConstructQueryable(IQueryable rootPoint)
     {
-      var elementType = rootPoint.ElementType;
-      TypeInfo type;
+      var constExpression = rootPoint.Expression as ConstantExpression;
+      if (constExpression!=null && constExpression.Value==rootPoint) {
+        // Special case. Constructing Queryable<T>.
+        var elementType = rootPoint.ElementType;
+        TypeInfo type;
+        if (!context.Model.Types.TryGetValue(elementType, out type))
+          throw new NotSupportedException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
 
-      if (!context.Model.Types.TryGetValue(elementType, out type))
-        throw new NotSupportedException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
-
-      var index = type.Indexes.PrimaryIndex;
-      var entityExpression = EntityExpression.Create(type, 0);
-      var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
-      return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+        var index = type.Indexes.PrimaryIndex;
+        var entityExpression = EntityExpression.Create(type, 0);
+        var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
+        return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      }
+      return VisitSequence(rootPoint.Expression);
     }
 
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)

@@ -82,15 +82,31 @@ namespace Xtensive.Storage.Tests.Issues
 
           var root1 = Query<Node>.Single(key);
           Console.WriteLine("Direct query");
-          var directQuery = Query<Node>.All.Where(node => root1.Children.Contains(node.Parent));
+          var directQuery = Query<Node>
+            .All
+            .Where(node => root1.Children.Contains(node.Parent));
+          var enumerable = Query<Node>
+            .All
+            .AsEnumerable();
+          var directQueryExpected = enumerable
+            .Where(node => root1.Children.AsEnumerable().Contains(node.Parent));
           foreach (var node in directQuery)
             Console.WriteLine(node.Name);
+          Assert.AreEqual(0, directQueryExpected.Except(directQuery).Count());
+
 
           Console.WriteLine("Query through EntitySet");
           var entitySet = root1.Children;
-          var entitySetQuery = Query<Node>.All.Where(node => entitySet.Contains(node.Parent));
+          var entitySetQuery = Query<Node>
+            .All
+            .Where(node => entitySet.Contains(node.Parent));
+          var entitySetQueryExpected = Query<Node>
+            .All
+            .AsEnumerable()
+            .Where(node => entitySet.AsEnumerable().Contains(node.Parent));
           foreach (var node in entitySetQuery)
             Console.WriteLine(node.Name);
+          Assert.AreEqual(0, entitySetQueryExpected.Except(entitySetQuery).Count());
         }
       }
     }
