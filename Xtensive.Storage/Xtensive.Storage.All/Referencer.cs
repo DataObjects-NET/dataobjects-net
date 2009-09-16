@@ -15,7 +15,7 @@ namespace Xtensive.Storage.All
   /// <summary>
   /// Does nothing, but references types from all Storage assemblies.
   /// </summary>
-  public class Referencer
+  public sealed class Referencer
   {
     private Type[] types = new [] {
       typeof (Sql.All.Referencer), // Referencing all SQL DOM providers
@@ -28,5 +28,13 @@ namespace Xtensive.Storage.All
       typeof (RecordSet),
       typeof (FileSystemLogProvider),
     };
+
+
+    // Constructors
+
+    // This is the only one. So you can't instantiate this type.
+    private Referencer()
+    {
+    }
   }
 }

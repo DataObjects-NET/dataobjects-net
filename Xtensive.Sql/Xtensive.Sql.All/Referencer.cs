@@ -12,7 +12,7 @@ namespace Xtensive.Sql.All
   /// <summary>
   /// Does nothing, but references types from all SQL DOM assemblies.
   /// </summary>
-  public class Referencer
+  public sealed class Referencer
   {
     private Type[] types = new [] {
       typeof (Pair<>),
@@ -22,5 +22,13 @@ namespace Xtensive.Sql.All
       typeof (Oracle.DriverFactory),
       typeof (VistaDb.DriverFactory),
     };
+
+
+    // Constructors
+
+    // This is the only one. So you can't instantiate this type.
+    private Referencer()
+    {
+    }
   }
 }
