@@ -3,15 +3,49 @@
 // For conditions of distribution and use, see license.
 // Created by: Alexey Gamzov
 // Created:    2009.09.07
+using System;
+using System.Reflection;
 using NUnit.Framework;
 using System.Linq;
+using Xtensive.Storage.Tests.Linq.LocalCollectionsTest_Model;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
+
+namespace Xtensive.Storage.Tests.Linq.LocalCollectionsTest_Model
+{
+  public class Node
+  {
+    public string Name { get; set; }
+
+    public Node Parent { get; set; }
+
+    public Node(string name)
+    {
+      Name = name;
+    }
+  }
+}
 
 namespace Xtensive.Storage.Tests.Linq
 {
   public class LocalCollectionsTest : NorthwindDOModelTest
   {
+    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
+    {
+      var config = base.BuildConfiguration();
+      config.Types.Register(typeof (Node).Assembly, typeof (Node).Namespace);
+      return config;
+    }
+
+    [Test]
+    [ExpectedException(typeof(TargetInvocationException))]
+    public void TypeLoop1Test()
+    {
+      var nodes = new Node[10];
+      var query = Query<Order>.All.Join(nodes, order => order.Customer.Address.City, node=>node.Name, (order,node)=> new{order, node});
+      QueryDumper.Dump(query);
+    }
+
     [Test]
     public void ContainsTest()
     {
@@ -86,9 +120,9 @@ namespace Xtensive.Storage.Tests.Linq
     public void JoinEntityField2MaterializeTest()
     {
       var localFreights = Query<Order>.All.Take(5).Select(order => order.Freight).ToList();
-      var query = Query<Order>.All.Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight}).Select(x=>x.freight);
+      var query = Query<Order>.All.Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight}).Select(x => x.freight);
       QueryDumper.Dump(query);
-      var expectedQuery = Query<Order>.All.AsEnumerable().Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight}).Select(x=>x.freight);
+      var expectedQuery = Query<Order>.All.AsEnumerable().Join(localFreights, order => order.Freight, freight => freight, (order, freight) => new {order, freight}).Select(x => x.freight);
       Assert.AreEqual(0, expectedQuery.Except(query).Count());
     }
 
@@ -162,7 +196,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var customers = Query<Customer>.All;
       var employees = Query<Employee>.All;
-      var result =  customers
+      var result = customers
         .Select(c => new {Name = c.CompanyName, c.Phone})
         .Concat(employees.ToList().Select(e => new {Name = e.FirstName + " " + e.LastName, Phone = e.HomePhone}));
       QueryDumper.Dump(result);

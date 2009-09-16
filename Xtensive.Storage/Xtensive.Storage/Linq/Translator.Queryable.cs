@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Linq
         case QueryableMethodKind.Except:
         case QueryableMethodKind.Intersect:
         case QueryableMethodKind.Concat:
-        case QueryableMethodKind.Union: 
+        case QueryableMethodKind.Union:
           state.BuildingProjection = false;
           return VisitSetOperations(mc.Arguments[0], mc.Arguments[1], methodKind);
         case QueryableMethodKind.Reverse:
@@ -534,7 +534,7 @@ namespace Xtensive.Storage.Linq
       var remappedKeyItemProjector = keyProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, keyColumns);
 
       var newItemProjector = new ItemProjectorExpression(remappedKeyItemProjector.Item, keyDataSource, context);
-      
+
       keyProjection = new ProjectionExpression(keyProjection.Type, newItemProjector, sequence.TupleParameterBindings);
 
       ProjectionExpression subqueryProjection;
@@ -896,10 +896,10 @@ namespace Xtensive.Storage.Linq
       var applyParameter = context.GetApplyParameter(oldResult);
       int columnIndex = oldResult.ItemProjector.DataSource.Header.Length;
       var newRecordSet = oldResult.ItemProjector.DataSource.Apply(
-        applyParameter, 
-        subquery, 
+        applyParameter,
+        subquery,
         !state.BuildingProjection,
-        ApplySequenceType.Single, 
+        ApplySequenceType.Single,
         JoinType.Inner);
       ItemProjectorExpression newItemProjector = oldResult.ItemProjector.Remap(newRecordSet, 0);
       var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
@@ -956,37 +956,60 @@ namespace Xtensive.Storage.Linq
     }
 
 // ReSharper disable UnusedMember.Local
-    private ProjectionExpression VisitLocalCollectionSequence<TItem>(IEnumerable<TItem> source)
+    private ProjectionExpression VisitLocalCollectionSequence<TItem>(IEnumerable<TItem> source) // ReSharper restore UnusedMember.Local
     {
       var itemType = typeof (TItem);
       // var scope = TemporaryDataScope.Global;
       var type = itemType.IsNullable() ? itemType.GetGenericArguments()[0] : itemType;
-      if (type.IsPrimitive
-        || type==typeof (decimal)
-          || type==typeof (string)
-            || type==typeof (DateTime)
-              || type==typeof (TimeSpan)) {
+      if (TypeIsStorageMappable(type)) {
         var rsHeader = new RecordSetHeader(TupleDescriptor.Create(new[] {type}), new[] {new SystemColumn(context.GetNextColumnAlias(), 0, type)});
-        var rawProvider = new RawProvider(rsHeader, source.Select(t => (Tuple) Tuple.Create(t)).ToArray());
+        var rawProvider = new RawProvider(rsHeader, source.Select(t => (Tuple) Tuple.Create(t)));
         var recordset = new StoreProvider(rawProvider).Result;
         var itemProjector = new ItemProjectorExpression(ColumnExpression.Create(itemType, 0), recordset, context);
         return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }
       else {
-          throw new NotImplementedException();
-//        TupleDescriptor tupleDescriptor = null;
-//        Func<TItem, Tuple> converter = null;
-//
-//        var rsHeader = new RecordSetHeader(tupleDescriptor, tupleDescriptor.Select(x=> new SystemColumn(context.GetNextColumnAlias(), 0, x)).Cast<Column>());
-//        var rawProvider = new RawProvider(rsHeader, source.Select(t => (Tuple) Tuple.Create(t)).ToArray());
-//        var recordset = new StoreProvider(rawProvider).Result;
-//        var itemProjector = new ItemProjectorExpression(ColumnExpression.Create(itemType, 0), recordset, context);
-//        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
-      }
+        ISet<Type> processedTypes = new SetSlim<Type>();
 
-      throw new NotImplementedException();
+        TupleDescriptor tupleDescriptor = null;
+        Func<TItem, int, Tuple> converter = null;
+        LocalCollectionExpression item = BuildLocalCollectionExpression(typeof(TItem), processedTypes, 0);
+
+        
+
+
+        var rsHeader = new RecordSetHeader(tupleDescriptor, tupleDescriptor.Select(x => new SystemColumn(context.GetNextColumnAlias(), 0, x)).Cast<Column>());
+        var rawProvider = new RawProvider(rsHeader, source.Select(converter));
+        var recordset = new StoreProvider(rawProvider).Result;
+        var itemProjector = new ItemProjectorExpression(item, recordset, context);
+        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      }
     }
 
-// ReSharper restore UnusedMember.Local
+    private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, int columnIndex)
+    {
+      var properties = type
+        .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+        .Where(propertyInfo=>propertyInfo.CanRead);
+      if (!processedTypes.Add(type))
+         throw new InvalidOperationException(String.Format("Unable to persist type '{0}' to storage because of loop reference.", type.FullName));
+      var fields = new List<IMappedExpression>();
+      foreach (PropertyInfo property in properties) {
+        if (TypeIsStorageMappable(property.PropertyType)) {
+          var column = new LocalCollectionColumnExpression(property.PropertyType, new Segment<int>(columnIndex++, 1), null, property, false);
+          fields.Add(column);
+        }
+        else {
+          var collectionExpression = BuildLocalCollectionExpression(property.PropertyType, new Set<Type>(processedTypes), columnIndex);
+          fields.Add(collectionExpression);
+          columnIndex += collectionExpression.Fields.Count();
+        }
+      }
+      if (fields.Count==0)
+        throw new InvalidOperationException(String.Format("Type '{0}' does not public readable properties and cant be persisted to storage.", type.FullName));
+      var result = new LocalCollectionExpression(type, null, null, false);
+      result.Fields = fields;
+      return result;
+    }
   }
 }

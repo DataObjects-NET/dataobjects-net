@@ -11,29 +11,18 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  public sealed class RawProvider : ExecutableProvider<Compilable.RawProvider>,
-    IListProvider
+  public sealed class RawProvider : ExecutableProvider<Compilable.RawProvider>
   {
     #region Cached properties
 
     private const string CachedSourceName = "CachedSource";
 
-    private Tuple[] CachedSource {
-      get { return GetCachedValue<Tuple[]>(EnumerationContext.Current, CachedSourceName); }
+    private IEnumerable<Tuple> CachedSource {
+      get { return GetCachedValue<IEnumerable<Tuple>>(EnumerationContext.Current, CachedSourceName); }
       set { SetCachedValue(EnumerationContext.Current, CachedSourceName, value); }
     }
 
     #endregion
-
-    public long Count
-    {
-      get { return CachedSource.Length; }
-    }
-
-    public Tuple GetItem(int index)
-    {
-      return CachedSource[index];
-    }
 
     /// <inheritdoc/>
     protected internal override void OnBeforeEnumerate(EnumerationContext context)

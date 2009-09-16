@@ -5,6 +5,7 @@
 // Created:    2008.05.08
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -246,7 +247,7 @@ namespace Xtensive.Storage.Rse
       return new TransferProvider(recordSet.Provider, options).Result;
     }
 
-    public static RecordSet ToRecordSet(this Tuple[] tuples, RecordSetHeader header)
+    public static RecordSet ToRecordSet(this IEnumerable<Tuple> tuples, RecordSetHeader header)
     {
       return new RawProvider(header, tuples).Result;
     }

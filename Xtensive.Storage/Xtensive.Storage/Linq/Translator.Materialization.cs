@@ -151,5 +151,15 @@ namespace Xtensive.Storage.Linq
       VisitLocalCollectionSequenceMethodInfo = typeof (Translator)
         .GetMethod("VisitLocalCollectionSequence", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TItem"}, new[] {"IEnumerable`1"});
     }
+
+    private bool TypeIsStorageMappable(Type type)
+    {
+      // TODO: AG: Take info from storage!
+      return type.IsPrimitive
+        || type==typeof (decimal)
+          || type==typeof (string)
+            || type==typeof (DateTime)
+              || type==typeof (TimeSpan);
+    }
   }
 }

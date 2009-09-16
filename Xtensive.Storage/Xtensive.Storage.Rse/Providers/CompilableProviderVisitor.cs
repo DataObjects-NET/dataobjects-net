@@ -97,7 +97,7 @@ namespace Xtensive.Storage.Rse.Providers
       var source = translate(provider, provider.Source);
       if (source == provider.Source)
         return provider;
-      return new RawProvider(provider.Header, (Expression<Func<Tuple[]>>) source);
+      return new RawProvider(provider.Header, (Expression<Func<IEnumerable<Tuple>>>) source);
     }
 
     /// <inheritdoc/>

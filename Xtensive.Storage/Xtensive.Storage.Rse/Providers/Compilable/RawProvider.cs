@@ -5,6 +5,7 @@
 // Created:    2008.07.09
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -21,17 +22,17 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   public sealed class RawProvider : LocationAwareProvider
   {
     private readonly RecordSetHeader header;
-    private Func<Tuple[]> compiledSource;
+    private Func<IEnumerable<Tuple>> compiledSource;
 
     /// <summary>
     /// Raw data source - an array of tuples.
     /// </summary>
-    public Expression<Func<Tuple[]>> Source { get; private set; }
+    public Expression<Func<IEnumerable<Tuple>>> Source { get; private set; }
 
     /// <summary>
     /// Gets the compiled <see cref="Source"/>.
     /// </summary>
-    public Func<Tuple[]> CompiledSource {
+    public Func<IEnumerable<Tuple>> CompiledSource {
       get {
         if (compiledSource==null)
           compiledSource = Source.CachingCompile();
@@ -64,7 +65,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
     /// <param name="source">The <see cref="Source"/> property value.</param>
-    public RawProvider(RecordSetHeader header, Expression<Func<Tuple[]>> source)
+    public RawProvider(RecordSetHeader header, Expression<Func<IEnumerable<Tuple>>> source)
       : base(ProviderType.Raw, RseCompiler.DefaultClientLocation)
     {
       Source = source;
@@ -76,7 +77,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
     /// <param name="source">The <see cref="Source"/> property value.</param>
-    public RawProvider(RecordSetHeader header, Tuple[] source)
+    public RawProvider(RecordSetHeader header, IEnumerable<Tuple> source)
       : this(header, () => source)
     {
     }

@@ -18,8 +18,13 @@ namespace Xtensive.Storage.Linq.Expressions
     IMappedExpression
   {
     public Segment<int> Mapping{ get{ return default(Segment<int>);}}
-    public IEnumerable<IMappedExpression> Fields{ get; private set;}
+    public IEnumerable<IMappedExpression> Fields{ get; set;}
     public Expression MaterializationExpression{ get; private set;}
+
+    public Func<object, int, object> Converter
+    {
+      get { throw new NotImplementedException(); }
+    }
 
 
     public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)

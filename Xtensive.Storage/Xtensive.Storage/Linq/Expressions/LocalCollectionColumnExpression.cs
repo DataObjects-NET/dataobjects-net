@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    protected LocalCollectionColumnExpression(
+    public LocalCollectionColumnExpression(
       Type type, 
       Segment<int> mapping, 
       ParameterExpression parameterExpression, 
