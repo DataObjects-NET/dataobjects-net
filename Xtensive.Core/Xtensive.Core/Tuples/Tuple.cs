@@ -23,7 +23,7 @@ namespace Xtensive.Core.Tuples
     /// <summary>
     /// Per-field hash code multiplier used in <see cref="GetHashCode"/> calculation.
     /// </summary>
-    protected internal const int HashCodeMultiplier = 397;
+    public const int HashCodeMultiplier = 397;
 
     /// <inheritdoc />
     public abstract TupleDescriptor Descriptor { get; }
