@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Linq.Expressions
       ParameterExpression parameterExpression, 
       PropertyInfo propertyInfo,
       bool defaultIfEmpty)
-      : base(ExtendedExpressionType.Column, type, parameterExpression, defaultIfEmpty)
+      : base(ExtendedExpressionType.LocalCollectionColumn, type, parameterExpression, defaultIfEmpty)
     {
       Mapping = mapping;
       PropertyInfo = propertyInfo;

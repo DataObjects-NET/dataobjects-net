@@ -169,12 +169,12 @@ namespace Xtensive.Storage.Linq.Materialization
       return MaterializeThroughOwner(expression, tupleExpression);
     }
 
-    public override Expression VisitLocalCollectionColumnExpression(LocalCollectionColumnExpression expression)
+    protected override Expression VisitLocalCollectionColumnExpression(LocalCollectionColumnExpression expression)
     {
       throw new NotImplementedException();
     }
 
-    public override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
+    protected override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
     {
       throw new NotImplementedException();
     }

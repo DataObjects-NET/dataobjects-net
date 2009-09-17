@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2009.09.07
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using System.Linq;
@@ -35,6 +36,15 @@ namespace Xtensive.Storage.Tests.Linq
       var config = base.BuildConfiguration();
       config.Types.Register(typeof (Node).Assembly, typeof (Node).Namespace);
       return config;
+    }
+
+    [Test]
+    public void ListContainsTest()
+    {
+      var q = from c in Query<Customer>.All   
+           where !new List<string>(){"FISSA", "PARIS"}.Contains(c.Id)   
+           select c.Orders;    
+      QueryDumper.Dump(q);
     }
 
     [Test]
@@ -247,6 +257,17 @@ namespace Xtensive.Storage.Tests.Linq
 
     [Test]
     public void UnionAnonymousTest()
+    {
+      var customers = Query<Order>.All;
+      var result = customers.Select(c => new {c.Freight, c.OrderDate})
+        .Union(customers.ToList().Select(c => new {Freight = c.Freight+10, c.OrderDate}));
+      var expected = customers.AsEnumerable().Select(c => new {c.Freight, c.OrderDate})
+        .Union(customers.ToList().Select(c => new {Freight = c.Freight+10, c.OrderDate}));
+      Assert.AreEqual(0, expected.Except(result).Count());
+    }
+
+    [Test]
+    public void UnionAnonymousCollationsTest()
     {
       var customers = Query<Customer>.All;
       var result = customers.Select(c => new {c.CompanyName, c.ContactName})

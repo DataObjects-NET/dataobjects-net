@@ -159,7 +159,8 @@ namespace Xtensive.Storage.Linq
         || type==typeof (decimal)
           || type==typeof (string)
             || type==typeof (DateTime)
-              || type==typeof (TimeSpan);
+              || type==typeof (TimeSpan) 
+               || (type.IsNullable() && TypeIsStorageMappable(type.GetGenericArguments()[0]));
     }
 
     private void FillLocalCollectionField(object item, Tuple tuple, LocalCollectionExpression itemExpression)

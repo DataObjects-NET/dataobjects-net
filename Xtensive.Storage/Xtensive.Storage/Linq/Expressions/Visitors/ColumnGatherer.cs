@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
 
     private bool OmitLazyLoad
     {
-      get { return (columnExtractionModes & ColumnExtractionModes.OmitLazyLoad) != ColumnExtractionModes.Default; }
+      get { return (columnExtractionModes & ColumnExtractionModes.OmitLazyLoad)!=ColumnExtractionModes.Default; }
     }
 
     public static List<int> GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
@@ -154,6 +154,19 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         topSubquery = null;
 
       return subQueryExpression;
+    }
+
+    protected override Expression VisitLocalCollectionColumnExpression(LocalCollectionColumnExpression expression)
+    {
+      AddColumns(expression, expression.Mapping.GetItems());
+      return expression;
+    }
+
+    protected override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
+    {
+      foreach (var field in expression.Fields)
+        Visit((Expression) field);
+      return expression;
     }
 
     private void ProcessFieldOwner(FieldExpression fieldExpression)
