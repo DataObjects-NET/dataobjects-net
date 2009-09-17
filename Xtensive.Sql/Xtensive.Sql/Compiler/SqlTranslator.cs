@@ -669,46 +669,40 @@ namespace Xtensive.Sql.Compiler
       return string.Empty;
     }
 
-    public virtual string Translate(SqlCompilerContext context, SequenceDescriptor descriptor,
-                                    SequenceDescriptorSection section)
+    public virtual string Translate(SqlCompilerContext context,
+      SequenceDescriptor descriptor, SequenceDescriptorSection section)
     {
       switch (section) {
-        case SequenceDescriptorSection.StartValue:
-          if (descriptor.StartValue.HasValue)
-            return "START WITH " + descriptor.StartValue.Value;
-          return String.Empty;
-        case SequenceDescriptorSection.RestartValue:
-          if (descriptor.StartValue.HasValue)
-            return "RESTART WITH " + descriptor.StartValue.Value;
-          return String.Empty;
-        case SequenceDescriptorSection.Increment:
-          if (descriptor.Increment.HasValue)
-            return "INCREMENT BY " + descriptor.Increment.Value;
-          return String.Empty;
-        case SequenceDescriptorSection.MaxValue:
-          if (descriptor.MaxValue.HasValue)
-            return "MAXVALUE " + descriptor.MaxValue.Value;
-          return String.Empty;
-        case SequenceDescriptorSection.MinValue:
-          if (descriptor.MinValue.HasValue)
-            return "MINVALUE " + descriptor.MinValue.Value;
-          return String.Empty;
-        case SequenceDescriptorSection.AlterMaxValue:
-          if (descriptor.MaxValue.HasValue)
-            return "MAXVALUE " + descriptor.MaxValue.Value;
-          else
-            return "NO MAXVALUE";
-        case SequenceDescriptorSection.AlterMinValue:
-          if (descriptor.MinValue.HasValue)
-            return "MINVALUE " + descriptor.MinValue.Value;
-          else
-            return "NO MINVALUE";
-        case SequenceDescriptorSection.IsCyclic:
-          if (descriptor.IsCyclic.HasValue)
-            return descriptor.IsCyclic.Value ? "CYCLE" : "NO CYCLE";
-          return String.Empty;
-        default:
-          return String.Empty;
+      case SequenceDescriptorSection.StartValue:
+        if (descriptor.StartValue.HasValue)
+          return "START WITH " + descriptor.StartValue.Value;
+        return string.Empty;
+      case SequenceDescriptorSection.RestartValue:
+        if (descriptor.StartValue.HasValue)
+          return "RESTART WITH " + descriptor.StartValue.Value;
+        return string.Empty;
+      case SequenceDescriptorSection.Increment:
+        if (descriptor.Increment.HasValue)
+          return "INCREMENT BY " + descriptor.Increment.Value;
+        return string.Empty;
+      case SequenceDescriptorSection.MaxValue:
+        if (descriptor.MaxValue.HasValue)
+          return "MAXVALUE " + descriptor.MaxValue.Value;
+        return string.Empty;
+      case SequenceDescriptorSection.MinValue:
+        if (descriptor.MinValue.HasValue)
+          return "MINVALUE " + descriptor.MinValue.Value;
+        return string.Empty;
+      case SequenceDescriptorSection.AlterMaxValue:
+        return descriptor.MaxValue.HasValue ? "MAXVALUE " + descriptor.MaxValue.Value : "NO MAXVALUE";
+      case SequenceDescriptorSection.AlterMinValue:
+        return descriptor.MinValue.HasValue ? "MINVALUE " + descriptor.MinValue.Value : "NO MINVALUE";
+      case SequenceDescriptorSection.IsCyclic:
+        if (descriptor.IsCyclic.HasValue)
+          return descriptor.IsCyclic.Value ? "CYCLE" : "NO CYCLE";
+        return string.Empty;
+      default:
+        return string.Empty;
       }
     }
 

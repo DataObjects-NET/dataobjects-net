@@ -126,4 +126,7 @@
   <data name="ExOracleDoesNotSupportUpdateFromStatements" xml:space="preserve">
     <value>Oracle does not support UPDATE FROM statements</value>
   </data>
+  <data name="ExAlterSequenceRestartWithIsNotSupported" xml:space="preserve">
+    <value>ALTER SEQUENCE RESTART WITH is not supported</value>
+  </data>
 </root>

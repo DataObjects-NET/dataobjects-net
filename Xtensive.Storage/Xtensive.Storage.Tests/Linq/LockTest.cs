@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ShareLockThrowTest()
     {
-      EnsureProtocolIsNot(StorageProtocol.SqlServer);
+      EnsureProtocolIs(StorageProtocol.PostgreSql);
       var catchedException = ExecuteConcurrentQueries(LockMode.Update, LockBehavior.Wait,
         LockMode.Shared, LockBehavior.ThrowIfLocked);
       Assert.AreEqual(typeof(StorageException), catchedException.GetType());
@@ -83,6 +83,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ShareLockTest()
     {
+      EnsureProtocolIs(StorageProtocol.SqlServer | StorageProtocol.PostgreSql);
       var catchedException = ExecuteConcurrentQueries(LockMode.Shared, LockBehavior.ThrowIfLocked,
         LockMode.Shared, LockBehavior.ThrowIfLocked);
       Assert.IsNull(catchedException);

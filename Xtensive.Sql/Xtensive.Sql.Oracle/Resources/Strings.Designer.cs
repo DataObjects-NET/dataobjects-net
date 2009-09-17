@@ -61,6 +61,15 @@ namespace Xtensive.Sql.Oracle.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ALTER SEQUENCE RESTART WITH is not supported.
+        /// </summary>
+        internal static string ExAlterSequenceRestartWithIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExAlterSequenceRestartWithIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid boolean string &apos;{0}&apos;.
         /// </summary>
         internal static string ExInvalidBooleanStringX {

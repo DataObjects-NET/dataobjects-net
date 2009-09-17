@@ -542,9 +542,7 @@ namespace Xtensive.Storage.Providers.Sql
       var newStartValue = currentValue + sequenceInfo.Increment;
       if (IsSequencesAllowed) {
         var exisitingSequence = schema.Sequences[sequenceInfo.Name];
-        var newSequenceDescriptor = new SequenceDescriptor(exisitingSequence,
-          newStartValue, sequenceInfo.Increment);
-        //newSequenceDescriptor.MinValue = newStartValue;
+        var newSequenceDescriptor = new SequenceDescriptor(exisitingSequence, null, sequenceInfo.Increment);
         exisitingSequence.SequenceDescriptor = newSequenceDescriptor;
         RegisterCommand(SqlDdl.Alter(exisitingSequence, newSequenceDescriptor));
       }

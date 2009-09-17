@@ -40,19 +40,7 @@ namespace Xtensive.Sql.Oracle.v09
         SqlHelper.IntervalToMilliseconds(node.Arguments[0]).AcceptVisitor(this);
         return;
       case SqlFunctionType.Position:
-        using (context.EnterScope(node)) {
-          context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.Entry, -1));
-          using (context.EnterCollectionScope()) {
-            context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.ArgumentEntry, 0));
-            node.Arguments[1].AcceptVisitor(this);
-            context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.ArgumentExit, 0));
-            context.Output.AppendDelimiter(translator.Translate(context, node, FunctionCallSection.ArgumentDelimiter, 1));
-            context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.ArgumentEntry, 0));
-            node.Arguments[0].AcceptVisitor(this);
-            context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.ArgumentExit, 0));
-          }
-          context.Output.AppendText(translator.Translate(context, node, FunctionCallSection.Exit, -1));
-        }
+        SqlDml.FunctionCall("instr", node.Arguments[1], node.Arguments[0]).AcceptVisitor(this);
         return;
       default:
         base.Visit(node);

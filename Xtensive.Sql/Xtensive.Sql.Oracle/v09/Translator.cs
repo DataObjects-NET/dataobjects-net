@@ -11,6 +11,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
+using Xtensive.Sql.Oracle.Resources;
 
 namespace Xtensive.Sql.Oracle.v09
 {
@@ -128,50 +129,7 @@ namespace Xtensive.Sql.Oracle.v09
     {
       return "DROP SEQUENCE " + Translate(node.Sequence);
     }
-
-    public override string Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
-    {
-      switch (section) {
-        case SequenceDescriptorSection.StartValue:
-          if (descriptor.StartValue.HasValue)
-            return "START WITH " + descriptor.StartValue.Value;
-          return String.Empty;
-        case SequenceDescriptorSection.RestartValue:
-          if (descriptor.StartValue.HasValue)
-            if (!descriptor.LastValue.HasValue || descriptor.LastValue != descriptor.StartValue)
-              return "RESTART WITH " + descriptor.StartValue.Value;
-          return String.Empty;
-        case SequenceDescriptorSection.Increment:
-          if (descriptor.Increment.HasValue)
-            return "INCREMENT BY " + descriptor.Increment.Value;
-          return String.Empty;
-        case SequenceDescriptorSection.MaxValue:
-          if (descriptor.MaxValue.HasValue)
-            return "MAXVALUE " + descriptor.MaxValue.Value;
-          return String.Empty;
-        case SequenceDescriptorSection.MinValue:
-          if (descriptor.MinValue.HasValue)
-            return "MINVALUE " + descriptor.MinValue.Value;
-          return String.Empty;
-        case SequenceDescriptorSection.AlterMaxValue:
-          if (descriptor.MaxValue.HasValue)
-            return "MAXVALUE " + descriptor.MaxValue.Value;
-          else
-            return "NOMAXVALUE";
-        case SequenceDescriptorSection.AlterMinValue:
-          if (descriptor.MinValue.HasValue)
-            return "MINVALUE " + descriptor.MinValue.Value;
-          else
-            return "NOMINVALUE";
-        case SequenceDescriptorSection.IsCyclic:
-          if (descriptor.IsCyclic.HasValue)
-            return descriptor.IsCyclic.Value ? "CYCLE" : "NOCYCLE";
-          return String.Empty;
-        default:
-          return String.Empty;
-      }
-    }
-
+    
     public override string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
     {
       switch (section) {
@@ -217,35 +175,6 @@ namespace Xtensive.Sql.Oracle.v09
 
     public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
-      /*Index index = node.Index;
-            switch (section) {
-              case CreateIndexSection.Entry:
-                return string.Format("CREATE {0}INDEX {1} ON {2} ("
-                  , index.IsUnique ? "UNIQUE " : ""
-                  , QuoteIdentifier(index.Name)
-                  , Translate(index.DataTable));
-              case CreateIndexSection.StorageOptions:
-                var builder = new StringBuilder();
-                builder.Append(")");
-                AppendIndexStorageParameters(builder, index);
-
-                if (!String.IsNullOrEmpty(index.Filegroup)) {
-                  builder.Append(" TABLESPACE " + QuoteIdentifier(index.Filegroup));
-                }
-
-                //cluster in a separate command
-                if (index.IsClustered) {
-                  builder.AppendFormat(BatchItemDelimiter + " CLUSTER {0} ON {1}"
-                    , QuoteIdentifier(index.Name)
-                    , QuoteIdentifier(index.DataTable.Schema.Name, index.DataTable.Name)
-                    );
-                }
-                return builder.ToString();
-              case CreateIndexSection.Where:
-                return " WHERE ";
-              default:
-                return string.Empty;
-            }*/
       var builder = new StringBuilder();
       var index = node.Index;
       switch (section) {
@@ -278,25 +207,6 @@ namespace Xtensive.Sql.Oracle.v09
           throw new ArgumentOutOfRangeException("section");
       }
       return string.Empty;
-//      var builder = new StringBuilder();
-//      builder.Append("CREATE ");
-//      if (index.IsUnique)
-//        builder.Append("UNIQUE ");
-//      else if (index.IsBitmap)
-//        builder.Append("BITMAP ");
-//      builder.Append("INDEX ");
-//      builder.Append(Translate(index));
-//      builder.Append(" ON ");
-//      builder.Append(Translate(index.DataTable));
-//      builder.Append("(");
-//      foreach (var column in index.Columns) {
-//        builder.Append(QuoteIdentifier(column.DbName));
-//        builder.Append(column.Ascending ? " ASC" : " DESC");
-//        builder.Append(RowItemDelimiter);
-//      }
-//      builder.Length = builder.Length - RowItemDelimiter.Length;
-//      builder.Append(")");
-//      return builder.ToString();
     }
 
     public virtual string Translate(Index node)
@@ -311,15 +221,34 @@ namespace Xtensive.Sql.Oracle.v09
       if (node.FunctionType == SqlFunctionType.Log10 && section == FunctionCallSection.Exit) 
         return ", 10)";
       switch (section) {
-        case FunctionCallSection.ArgumentEntry:
-          return string.Empty;
-        case FunctionCallSection.ArgumentDelimiter:
-          return ArgumentDelimiter;
-        default:
-          return base.Translate(context, node, section, position);
+      case FunctionCallSection.ArgumentEntry:
+        return string.Empty;
+      case FunctionCallSection.ArgumentDelimiter:
+        return ArgumentDelimiter;
+      default:
+        return base.Translate(context, node, section, position);
       }
     }
 
+    public override string Translate(SqlCompilerContext context,
+      SequenceDescriptor descriptor, SequenceDescriptorSection section)
+    {
+      switch (section) {
+      case SequenceDescriptorSection.RestartValue:
+        if (descriptor.StartValue.HasValue)
+          throw new NotSupportedException(Strings.ExAlterSequenceRestartWithIsNotSupported);
+        break;
+      case SequenceDescriptorSection.AlterMaxValue:
+        if (!descriptor.MaxValue.HasValue)
+          return "NOMAXVALUE";
+        break;
+      case SequenceDescriptorSection.AlterMinValue:
+        if (!descriptor.MinValue.HasValue)
+          return "NOMINVALUE";
+        break;
+      }
+      return base.Translate(context, descriptor, section);
+    }
 
     public override string Translate(SqlValueType type)
     {
@@ -362,8 +291,6 @@ namespace Xtensive.Sql.Oracle.v09
         return "-1*";
       case SqlFunctionType.Substring:
         return "SUBSTR";
-      case SqlFunctionType.Position:
-        return "INSTR";
       case SqlFunctionType.Log:
         return "LN";
       case SqlFunctionType.Log10:
