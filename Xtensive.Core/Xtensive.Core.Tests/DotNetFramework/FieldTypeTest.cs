@@ -121,7 +121,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public void CombinedTest()
     {
       var slot = Thread.AllocateDataSlot();

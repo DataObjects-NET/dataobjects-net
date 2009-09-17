@@ -176,7 +176,7 @@ namespace Xtensive.Core.Tests.Serialization
     private static int  baseSize = 4000;
     private static int  iterationCount = 1000;
 
-    [Test]
+    [Test, Explicit]
     public void CombinedTest()
     {
       Random r = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);

@@ -31,7 +31,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
     [Test]
     public void RegularTest()
     {
-      InnerTest(0.1);
+      InnerTest(0.001);
     }
 
     [Test]

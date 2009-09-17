@@ -172,7 +172,7 @@ namespace Xtensive.Core.Tests.DotNetFramework
     [Test]
     public void RegularTest()
     {
-      Test(0.001);
+      Test(0.00001);
     }
 
     [Test]

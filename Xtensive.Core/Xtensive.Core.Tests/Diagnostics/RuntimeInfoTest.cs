@@ -60,7 +60,7 @@ namespace Xtensive.Core.Tests.Diagnostics
       return GC.GetTotalMemory(false);
     }
 
-    [Test]
+    [Test, Explicit]
     public void CompoundTest()
     {
       Log.Info("PointerSize:             {0}", RuntimeInfo.PointerSize);
