@@ -96,11 +96,37 @@ namespace Xtensive.Core.Tests.DotNetFramework
     [ThreadStatic]
     public static object ThreadStaticField;
 
+    public class Host
+    {
+      public static object StaticField;
+
+      public virtual void GetStaticField(int iterationCount)
+      {
+        object o = null;
+        for (int i = 0; i<iterationCount; i++)
+          o = StaticField;
+      }
+    }
+
+    public class Host<T> : Host
+    {
+      // We're using different StaticField here
+      public new static object StaticField;
+
+      public override void GetStaticField(int iterationCount)
+      {
+        object o = null;
+        for (int i = 0; i<iterationCount; i++)
+          o = StaticField;
+      }
+    }
+
     [Test]
     public void CombinedTest()
     {
       var slot = Thread.AllocateDataSlot();
       object o;
+
       int ic = IterationCount;
       using (new Measurement("Instance field", MeasurementOptions.Log, ic))
         for (int i = 0; i<ic; i++)
@@ -111,14 +137,27 @@ namespace Xtensive.Core.Tests.DotNetFramework
       using (new Measurement("Static field", MeasurementOptions.Log, ic))
         for (int i = 0; i<ic; i++)
           o = StaticField;
+
+      Host host = new Host();
+      using (new Measurement("Static field of Host", MeasurementOptions.Log, ic))
+        host.GetStaticField(ic);
+
+      host = new Host<int>();
+      using (new Measurement("Static field of Host<int>", MeasurementOptions.Log, ic))
+        host.GetStaticField(ic);
+
+      host = new Host<Array>();
+      using (new Measurement("Static field of Host<Array>", MeasurementOptions.Log, ic))
+        host.GetStaticField(ic);
+
       ic /= 100;
       using (new Measurement("ThreadStatic field", MeasurementOptions.Log, ic))
         for (int i = 0; i<ic; i++)
           o = ThreadStaticField;
-      ic /= 100;
+      
       ThreadData<FieldTypeTest>.Initiialize();
       ThreadData<FieldTypeTest>.Set(this);
-      using (new Measurement("ThreadData (own)", MeasurementOptions.Log, ic))
+      using (new Measurement("Own ThreadData", MeasurementOptions.Log, ic))
         for (int i = 0; i<ic; i++)
           o = ThreadData<FieldTypeTest>.Get();
       byte[] bytes;
