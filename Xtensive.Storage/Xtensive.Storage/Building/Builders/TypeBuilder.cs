@@ -182,6 +182,8 @@ namespace Xtensive.Storage.Building.Builders
           if (!baseType.IsGenericType || baseType.GetGenericTypeDefinition()!=typeof (EntitySetItem<,>))
             AssociationBuilder.BuildAssociation(fieldDef, fieldInfo);
         }
+        else if (type.IsInterface)
+          AssociationBuilder.BuildAssociation(fieldDef, fieldInfo);
       }
 
       if (fieldInfo.IsStructure)
