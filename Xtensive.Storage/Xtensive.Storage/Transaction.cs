@@ -81,7 +81,7 @@ namespace Xtensive.Storage
     {
       try {
         if (inconsistentRegion==null && !ValidationContext.IsConsistent)
-          throw new InvalidOperationException(Strings.ExCanNotCommitATransactionValidationContextIsInInvalidState);
+          throw new InvalidOperationException(Strings.ExCannotCommitATransactionValidationContextIsInInconsistentState);
 
         try {
           inconsistentRegion.DisposeSafely();

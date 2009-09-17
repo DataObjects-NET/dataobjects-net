@@ -131,8 +131,9 @@ namespace Xtensive.Integrity.Validation
     /// <exception cref="AggregateException">Validation failed.</exception>
     protected internal virtual void LeaveInconsistentRegion(InconsistentRegion region)
     {
+      IsConsistent = true;
       if (region.IsCompleted) {
-        IsConsistent = true;
+        
         Validate();
       }
       else {
