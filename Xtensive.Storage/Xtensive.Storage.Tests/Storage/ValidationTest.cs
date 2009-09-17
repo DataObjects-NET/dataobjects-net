@@ -273,14 +273,6 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           }
 //          Assert.IsFalse(Session.Current.ValidationContext.IsValid);
         }
-
-        AssertEx.Throws<InvalidOperationException>(() => {
-          using (var transactionScope = Transaction.Open()) {
-            using (var region = Xtensive.Storage.Validation.Disable()) {
-            }
-            transactionScope.Complete();
-          }});
-
       }
     }
   }
