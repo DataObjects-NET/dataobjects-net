@@ -80,11 +80,16 @@ namespace Xtensive.Storage
     protected override void OnCommit()
     {
       try {
-        inconsistentRegion.DisposeSafely();
-        if (!ValidationContext.IsValid)
+        if (inconsistentRegion==null && !ValidationContext.IsConsistent)
           throw new InvalidOperationException(Strings.ExCanNotCommitATransactionValidationContextIsInInvalidState);
-        if (!ValidationContext.IsConsistent)
-          throw new InvalidOperationException(Strings.ExCannotCommitATransactionValidationContextIsInInconsistentState);
+
+        try {
+          inconsistentRegion.DisposeSafely();
+          ValidationContext.ValidateAll();
+        }
+        catch(AggregateException exception) {
+          throw new InvalidOperationException(Strings.ExCanNotCommitATransactionEntitiesValidationFailed, exception);
+        }
       }
       catch {
         OnRollback();

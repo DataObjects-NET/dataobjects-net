@@ -113,7 +113,6 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       Assert.AreEqual(1, validationCallsCount); 
     }
 
-
     [Test]
     public void ValidateAllTest()
     {
@@ -135,13 +134,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
           mouse.Led.Brightness = 2.3;
 
-          AssertEx.Throws<AggregateException>(() =>
-            Xtensive.Storage.Validation.Enforce());
-
-          Assert.IsFalse(Session.Current.ValidationContext.IsValid);
-
-          AssertEx.Throws<InvalidOperationException>(() => 
-            mouse.Led.Brightness = 2.3);
+          AssertEx.Throws<AggregateException>(Xtensive.Storage.Validation.Enforce);
         }
         transactionScope.Complete();
 
@@ -260,7 +253,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           Xtensive.Storage.Validation.Disable());
 
         // Transaction can not be committed while validation context is in inconsistent state.
-        AssertEx.ThrowsInvalidOperationException(() => {
+          AssertEx.ThrowsInvalidOperationException(() => {
           using (var t = Transaction.Open()) {
             Xtensive.Storage.Validation.Disable();
             t.Complete();
@@ -278,7 +271,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           catch (Exception exception) {
             Assert.AreEqual("Test", exception.Message);
           }
-          Assert.IsFalse(Session.Current.ValidationContext.IsValid);
+//          Assert.IsFalse(Session.Current.ValidationContext.IsValid);
         }
 
         AssertEx.Throws<InvalidOperationException>(() => {

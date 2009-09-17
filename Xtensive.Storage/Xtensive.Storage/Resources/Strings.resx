@@ -1031,4 +1031,7 @@ Actions:
   <data name="ExTypeXIsNotSupportedInNewExpression" xml:space="preserve">
     <value>Type '{0}' is not supported in 'new' expression.</value>
   </data>
+  <data name="ExCanNotCommitATransactionEntitiesValidationFailed" xml:space="preserve">
+    <value>Can not commit a transaction. Entities validation failed.</value>
+  </data>
 </root>

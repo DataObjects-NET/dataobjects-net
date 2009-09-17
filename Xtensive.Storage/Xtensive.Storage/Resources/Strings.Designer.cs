@@ -314,6 +314,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can not commit a transaction. Entities validation failed..
+        /// </summary>
+        internal static string ExCanNotCommitATransactionEntitiesValidationFailed {
+            get {
+                return ResourceManager.GetString("ExCanNotCommitATransactionEntitiesValidationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot commit a transaction: ValidationContext is in inconsistent state..
         /// </summary>
         internal static string ExCannotCommitATransactionValidationContextIsInInconsistentState {

@@ -16,26 +16,55 @@ namespace Xtensive.Integrity.Validation
   public sealed class InconsistentRegion : IDisposable
   {
     private readonly ValidationContextBase context;
-    private bool isCompleted;
+
+    private static readonly InconsistentRegion nestedRegionInstance = new InconsistentRegion();
 
     /// <summary>
-    /// Gets the <see cref="ValidationContextBase"/> instance this region belongs to.
+    /// <see cref="InconsistentRegion"/> instance that is used for all <see cref="IsNested">nested</see> regions.
     /// </summary>
-    public ValidationContextBase Context {
-      get { return context; }
+    public static InconsistentRegion NestedRegionInstance
+    {
+      get { return nestedRegionInstance; }
     }
 
     /// <summary>
-    /// Gets a value indicating whether this inconsistency is 
-    /// <see cref="InconsistentRegionExtensions.Complete"/>d.
+    /// Gets a value indicating whether this instance is nested, i.e. is included into another <see cref="InconsistentRegion"/>.
     /// </summary>
-    public bool IsCompleted {
-      get { return isCompleted; }
-      internal set { isCompleted = value; }
+    public bool IsNested
+    {
+      get { return this==NestedRegionInstance; }
     }
+
+    /// <summary>
+    /// Completes the region.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This method must be called before disposal of
+    /// any <see cref="InconsistentRegion"/>. Is invocation
+    /// indicates <see cref="ValidationContextBase"/> must
+    /// perform validation of region disposal. 
+    /// </para>
+    /// <para>
+    /// If this method isn't called before region disposal, 
+    /// validation context will receive <see cref="ValidationContextBase.IsValid"/>
+    /// status, and any further attempts to validate there will fail.
+    /// </para>
+    /// </remarks>
+    public void Complete()
+    {
+      if (!IsNested)
+        IsCompleted = true;
+    }
+
+    internal bool IsCompleted { get; set; }
 
 
     // Constructors
+
+    private InconsistentRegion()
+    {
+    }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
@@ -49,7 +78,8 @@ namespace Xtensive.Integrity.Validation
     /// <inheritdoc/>
     public void Dispose()
     {
-      context.LeaveInconsistentRegion(this);
+      if (!IsNested)
+        context.LeaveInconsistentRegion(this);
     }
   }
 }

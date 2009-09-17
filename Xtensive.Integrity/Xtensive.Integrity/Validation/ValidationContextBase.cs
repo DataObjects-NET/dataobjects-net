@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
 
@@ -19,20 +18,12 @@ namespace Xtensive.Integrity.Validation
   public abstract class ValidationContextBase
   {
     private HashSet<Pair<IValidationAware, Action<IValidationAware>>> registry;
+    private HashSet<Pair<IValidationAware, Action<IValidationAware>>> invalidInstances;
 
     /// <summary>
     /// Gets the value indicating whether this context is in inconsistent state.
     /// </summary>
     public bool IsConsistent { get; private set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this context is valid.
-    /// </summary>
-    /// <remarks>
-    /// A context becomes invalid when validation fails there, or one of its 
-    /// inconsistent regions was not completed.
-    /// </remarks>
-    public bool IsValid { get; private set; }
 
     /// <summary>
     /// Opens the "inconsistent region" - the code region, in which Validate method
@@ -54,9 +45,8 @@ namespace Xtensive.Integrity.Validation
     /// <exception cref="InvalidOperationException">Context <see cref="IsValid">is invalid</see>.</exception>
     public InconsistentRegion OpenInconsistentRegion()
     {
-      EnsureIsValid();
       if (!IsConsistent)
-        return null;
+        return InconsistentRegion.NestedRegionInstance;
       IsConsistent = false;
       return new InconsistentRegion(this);
     }
@@ -67,33 +57,45 @@ namespace Xtensive.Integrity.Validation
     /// <exception cref="AggregateException">Validation failed.</exception>
     public void Validate()
     {
-      EnsureIsValid();
       if (registry==null)
         return;
-      IList<Exception> exceptions = null;
+      List<Exception> exceptions = null;
+      List<Pair<IValidationAware, Action<IValidationAware>>> invalidItems = null;
       try {
-        foreach (var pair in registry) {
-          try {
-            if (pair.Second==null)
-              pair.First.OnValidate();
-            else
-              if (!registry.Contains(new Pair<IValidationAware, Action<IValidationAware>>(pair.First, null)))
-                pair.Second.Invoke(pair.First);
-          }
-          catch (Exception e) {
-            if (exceptions==null)
-              exceptions = new List<Exception>();
-            exceptions.Add(e);
-          }
-        }
+        PerformValidation(registry, out invalidItems, out exceptions);
       }
       finally {
         registry = null;
-        if (exceptions!=null && exceptions.Count > 0) {
-          IsValid = false;
+        AddInvalidItems(invalidItems);
+        if (exceptions!=null && exceptions.Count > 0)
           throw new AggregateException(Strings.ExValidationFailed, exceptions);
-        }
       }
+    }
+
+    private void ValidateInvalidItems()
+    {
+      if (invalidInstances==null || invalidInstances.Count==0)
+        return;
+      List<Exception> exceptions = null;
+      List<Pair<IValidationAware, Action<IValidationAware>>> invalidItems = null;
+      try {
+        PerformValidation(invalidInstances, out invalidItems, out exceptions);
+      }
+      finally {
+        registry = null;
+        AddInvalidItems(invalidItems);
+        if (exceptions!=null && exceptions.Count > 0)
+          throw new AggregateException(Strings.ExValidationFailed, exceptions);
+      }
+    }
+
+    /// <summary>
+    /// Validates all registered items, including items which validation already failed.
+    /// </summary>
+    public void ValidateAll()
+    {
+      Validate();
+      ValidateInvalidItems();
     }
 
     #region Protected virtual methods (override, if necessary)
@@ -107,7 +109,6 @@ namespace Xtensive.Integrity.Validation
     /// </param>
     protected internal virtual void EnqueueValidate(IValidationAware target, Action<IValidationAware> validationDelegate)
     {
-      EnsureIsValid();
       if (target.Context!=this)
         throw new ArgumentException(Strings.ExObjectAndContextAreIncompatible, "target");
       if (registry==null)
@@ -135,8 +136,13 @@ namespace Xtensive.Integrity.Validation
         Validate();
       }
       else {
-        IsValid = false;
-        return;
+        if (registry==null)
+          return;
+        if (invalidInstances==null)
+          invalidInstances = new HashSet<Pair<IValidationAware, Action<IValidationAware>>>();
+        foreach(var pair in registry)
+          invalidInstances.Add(pair);
+        registry = null;
       }
     }
 
@@ -147,25 +153,46 @@ namespace Xtensive.Integrity.Validation
     {
       registry = null;
       IsConsistent = true;
-      IsValid = true;
+      invalidInstances = null;
     }
 
-    #endregion
-
-    #region Protected methods
-
-    /// <summary>
-    /// Ensures the context is valid.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Context <see cref="IsValid">is invalid</see>.</exception>
-    protected void EnsureIsValid()
+    private void AddInvalidItems(IEnumerable<Pair<IValidationAware, Action<IValidationAware>>> items)
     {
-      if (!IsValid)
-        throw new InvalidOperationException(Strings.ExValidationContextIsInvalid);
+      if (items==null)
+        return;
+      if (invalidInstances==null)
+        invalidInstances = new HashSet<Pair<IValidationAware, Action<IValidationAware>>>();
+      foreach (var item in items)
+        invalidInstances.Add(item);
+    }
+
+    private void PerformValidation(
+      IEnumerable<Pair<IValidationAware, Action<IValidationAware>>> itemsToValidate,
+      out List<Pair<IValidationAware, Action<IValidationAware>>> invalidItems,
+      out List<Exception> exceptions)
+    {
+      exceptions = null;
+      invalidItems = null;
+      foreach (var pair in itemsToValidate) {
+        try {
+          if (pair.Second==null)
+            pair.First.OnValidate();
+          else
+            if (!registry.Contains(new Pair<IValidationAware, Action<IValidationAware>>(pair.First, null)))
+              pair.Second.Invoke(pair.First);
+        }
+        catch (Exception e) {
+          if (exceptions==null)
+            exceptions = new List<Exception>();
+          exceptions.Add(e);
+          if (invalidItems==null)
+            invalidItems = new List<Pair<IValidationAware, Action<IValidationAware>>>();
+          invalidItems.Add(pair);
+        }
+      }
     }
 
     #endregion
-
 
     // Constructor
 
@@ -176,7 +203,7 @@ namespace Xtensive.Integrity.Validation
     {
       registry = null;
       IsConsistent = true;
-      IsValid = true;
+      invalidInstances = null;
     }
   }
 }
