@@ -31,7 +31,8 @@ namespace Xtensive.Storage
     IAtomicityAware,
     IValidationAware,
     INotifyPropertyChanged,
-    IInitializable
+    IInitializable,
+    IDataErrorInfo
   {
     private IFieldValueAdapter[] fieldAdapters;
 
@@ -454,6 +455,20 @@ namespace Xtensive.Storage
       if (ctorType!=GetType())
         return;
       NotifyInitialize();
+    }
+
+    #endregion
+
+    #region IDataErrorInfo members
+
+    string IDataErrorInfo.this[string columnName]
+    {
+      get { return this.GetPropertyError(columnName); }
+    }
+
+    string IDataErrorInfo.Error
+    {
+      get { return this.GetObjectError(); }
     }
 
     #endregion

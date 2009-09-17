@@ -483,6 +483,6 @@ namespace Xtensive.Storage
       using (CoreServices.OpenSystemLogicOnlyRegion()) {
         DeserializationContext.Demand().SetEntityData(this, info, context);
       }
-    }    
+    }
   }
 }

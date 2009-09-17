@@ -39,7 +39,7 @@ namespace Xtensive.Integrity.Aspects
     /// <summary>
     /// Gets the validated property.
     /// </summary>    
-    protected PropertyInfo Property { get; private set; }
+    public PropertyInfo Property { get; private set; }
 
     /// <summary>
     /// Gets or sets the <see cref="ValidationMode"/> to be used on setting property value.

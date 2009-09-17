@@ -114,11 +114,34 @@ namespace Xtensive.Integrity.Tests
     }
 
     [Test]
+    public void CustomErrorsTest()
+    {
+      using (var region = context.OpenInconsistentRegion()) {
+        Person person = new Person();
+
+        Assert.AreEqual(
+          "Name can not be null or empty.", 
+          person.GetPropertyError("Name"));
+
+        person.Name = "Alex Kofman";
+        person.Age = -26;
+
+        Assert.AreEqual(
+          "Incorrect age (-26), age can not be less than 0.", 
+          person.GetPropertyError("Age"));
+
+        Assert.AreEqual(
+          string.Empty, 
+          person.GetPropertyError("Name"));
+      }
+    }
+
+    [Test]
     public void PersonTest()
     {
 
       try {
-        using (var r = context.OpenInconsistentRegion()) {
+        using (var region = context.OpenInconsistentRegion()) {
           Person person = new Person();
           
           person.Age = -1;
@@ -128,7 +151,7 @@ namespace Xtensive.Integrity.Tests
           person.Height = 2.15;
 
           person.Validate();
-          r.Complete();
+          region.Complete();
         }
       }
       catch (AggregateException exception) {

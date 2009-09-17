@@ -133,7 +133,6 @@ namespace Xtensive.Integrity.Validation
     {
       IsConsistent = true;
       if (region.IsCompleted) {
-        
         Validate();
       }
       else {

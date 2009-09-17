@@ -6,6 +6,7 @@
 // Created:    2008.06.30
 
 using System;
+using PostSharp.Extensibility;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Integrity.Aspects;
@@ -86,7 +87,7 @@ namespace Xtensive.Integrity.Validation
     /// <summary>
     /// Validates the specified <paramref name="target"/> using default <see cref="ValidationMode"/>.
     /// </summary>
-    /// <param name="target">The object to validate.</param>            
+    /// <param name="target">The object to validate.</param>
     /// <returns>
     /// <see langword="true"/> if validation was performed immediately; 
     /// <see langword="false"/> if it was enqueued.
@@ -108,6 +109,32 @@ namespace Xtensive.Integrity.Validation
         using (var aggregator = new ExceptionAggregator())
           foreach (var constraint in constraints)
             aggregator.Execute(constraint.Check, target);
+    }
+
+    public static string GetPropertyError(this IValidationAware target, string propertyName)
+    {
+      var constraints = ConstraintRegistry.GetConstraints(target.GetType());
+      foreach (var constraint in constraints)
+        if (constraint.Property.Name==propertyName)
+          try {
+            constraint.Check(target);
+          }
+          catch (ConstraintViolationException exception) {
+            return exception.Message;
+          }
+      return string.Empty;
+    }
+
+    public static string GetObjectError(this IValidationAware target)
+    {
+      try {
+        target.Validate(ValidationMode.Immediate);
+      }
+      catch (AggregateException exception) {
+        var errors = exception.GetFlatExceptions();
+        return errors[0].Message;
+      }
+      return string.Empty;
     }
   }
 }
