@@ -972,9 +972,9 @@ namespace Xtensive.Storage.Linq
         ISet<Type> processedTypes = new SetSlim<Type>();
         var itemParameterExpression = Expression.Parameter(itemType, "item");
         var numberParameterExpression = Expression.Parameter(itemType, "number");
-        LocalCollectionExpression itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, 1, null);
+        LocalCollectionExpression itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, 0, null);
 
-        var tupleDescriptor = TupleDescriptor.Create(EnumerableUtils.One(typeof (int)).Concat(itemExpression.Columns.Select(columnExpression => columnExpression.Type)));
+        var tupleDescriptor = TupleDescriptor.Create(itemExpression.Columns.Select(columnExpression => columnExpression.Type));
 
         Func<TItem, int, Tuple> converter = delegate(TItem item, int number) {
           var tuple = Tuple.Create(tupleDescriptor);

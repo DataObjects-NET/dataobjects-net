@@ -51,12 +51,12 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       }
     }
 
-    private Expression VisitLocalCollectionColumnExpression(LocalCollectionColumnExpression expression)
+    public virtual Expression VisitLocalCollectionColumnExpression(LocalCollectionColumnExpression expression)
     {
       return expression;
     }
 
-    private Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
+    public virtual Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
     {
       return expression;
     }
