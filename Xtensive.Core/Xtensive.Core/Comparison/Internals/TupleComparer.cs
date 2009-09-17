@@ -89,7 +89,8 @@ namespace Xtensive.Core.Comparison
       return comparersInfo.GetValue(descriptor.Identifier, Generator, this, descriptor);
     }
 
-    private static Pair<int, Func<object, object, int>>[] Generator(int indentifier, TupleComparer tupleComparer, TupleDescriptor descriptor) {
+    private static Pair<int, Func<object, object, int>>[] Generator(int indentifier, TupleComparer tupleComparer, TupleDescriptor descriptor) 
+    {
       var box = new Box<Pair<int, Func<object, object, int>>[]>(new Pair<int, Func<object, object, int>>[descriptor.Count]);
       ExecutionSequenceHandler<Box<Pair<int, Func<object, object, int>>[]>>[] initializers =
         DelegateHelper.CreateDelegates<ExecutionSequenceHandler<Box<Pair<int, Func<object, object, int>>[]>>>(

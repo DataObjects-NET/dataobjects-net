@@ -7,7 +7,9 @@
 using System;
 using System.Collections;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Core.Tuples
@@ -18,7 +20,8 @@ namespace Xtensive.Core.Tuples
   public static class TupleExtensions
   {
     private static readonly InitializerHandler initializerHandler = new InitializerHandler();
-    private static PartCopyHandler partCopyHandler = new PartCopyHandler();
+    private static ThreadSafeList<ExecutionSequenceHandler<PartCopyData>[]> partCopyDelegates = 
+      ThreadSafeList<ExecutionSequenceHandler<PartCopyData>[]>.Create(new object());
 
     #region Copy methods
 
@@ -37,7 +40,8 @@ namespace Xtensive.Core.Tuples
     {
       // Generic version. Slower.
       var actionData = new PartCopyData(source, target, startIndex, targetStartIndex, length);
-      source.Descriptor.Execute(partCopyHandler, ref actionData, Direction.Positive);
+      DelegateHelper.ExecuteDelegates(GetPartCopyDelegates(source.Descriptor), 
+        ref actionData, Direction.Positive);
 
 //      // A version with boxing. Works 6 times faster!
 //      for (int i = 0; i < length; i++) {
@@ -46,6 +50,37 @@ namespace Xtensive.Core.Tuples
 //          target.SetValue(targetStartIndex + i, source.GetValueOrDefault(sourceIndex));
 //      }
     }
+
+    private static ExecutionSequenceHandler<PartCopyData>[] GetPartCopyDelegates(TupleDescriptor descriptor)
+    {
+      return partCopyDelegates.GetValue(descriptor.Identifier, 
+        (_identifier, _descriptor) => 
+          DelegateHelper.CreateDelegates<ExecutionSequenceHandler<PartCopyData>>(
+            null, typeof(TupleExtensions), "PartCopyExecute", _descriptor), 
+        descriptor);
+    }
+
+// ReSharper disable UnusedMember.Local
+    private static bool PartCopyExecute<TFieldType>(ref PartCopyData actionData, int fieldIndex)
+    {
+      if (fieldIndex < actionData.SourceStartFieldIndex)
+        return false;
+      if (fieldIndex > actionData.SourceEndFieldIndex)
+        return true;
+
+      var source = actionData.Source;
+      var sourceFieldState = source.GetFieldState(fieldIndex);
+      if ((sourceFieldState & TupleFieldState.Available)!=0) {
+        var target = actionData.Target;
+        if ((sourceFieldState & TupleFieldState.Null)==0 || !source.Descriptor.IsValueType(fieldIndex))
+          target.SetValue(fieldIndex + actionData.ResultStartFieldIndexDiff,
+            source.GetValueOrDefault<TFieldType>(fieldIndex));
+        else
+          target.SetValue(fieldIndex + actionData.ResultStartFieldIndexDiff, null);
+      }
+      return false;
+    }
+// ReSharper restore UnusedMember.Local
 
     /// <summary>
     /// Copies a range of elements from <paramref name="source"/> <see cref="Tuple"/> 
@@ -399,29 +434,6 @@ namespace Xtensive.Core.Tuples
         SourceStartFieldIndex = sourceStartFieldIndex;
         SourceEndFieldIndex = sourceStartFieldIndex + count - 1;
         ResultStartFieldIndexDiff = resultStartFieldIndex - sourceStartFieldIndex;
-      }
-    }
-
-    private class PartCopyHandler : ITupleActionHandler<PartCopyData>
-    {
-      public bool Execute<TFieldType>(ref PartCopyData actionData, int fieldIndex)
-      {
-        if (fieldIndex < actionData.SourceStartFieldIndex)
-          return false;
-        if (fieldIndex > actionData.SourceEndFieldIndex)
-          return true;
-
-        var source = actionData.Source;
-        var sourceFieldState = source.GetFieldState(fieldIndex);
-        if ((sourceFieldState & TupleFieldState.Available)!=0) {
-          var target = actionData.Target;
-          if ((sourceFieldState & TupleFieldState.Null)==0 || !source.Descriptor.IsValueType(fieldIndex))
-            target.SetValue(fieldIndex + actionData.ResultStartFieldIndexDiff,
-              source.GetValueOrDefault<TFieldType>(fieldIndex));
-          else
-            target.SetValue(fieldIndex + actionData.ResultStartFieldIndexDiff, null);
-        }
-        return false;
       }
     }
 

@@ -366,6 +366,7 @@ namespace Xtensive.Core.Reflection
     /// <param name="delegates">Delegates to execute.</param>
     /// <param name="argument">Argument to pass to each delegate.</param>
     /// <param name="direction">Direction of execution.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Invalid <paramref name="direction"/> value.</exception>
     public static void ExecuteDelegates<T>(ExecutionSequenceHandler<T>[] delegates, ref T argument, Direction direction)
       where T: struct
     {
@@ -374,14 +375,13 @@ namespace Xtensive.Core.Reflection
 
       if (delegates==null)
         return;
-      int count = delegates.Length;
       if (direction==Direction.Positive) {
-        for (int i = 0; i<count; i++)
+        for (int i = 0; i<delegates.Length; i++)
           if (delegates[i].Invoke(ref argument, i))
             return;
       }
       else {
-        for (int i = count-1; i>=0; i--)
+        for (int i = delegates.Length-1; i>=0; i--)
           if (delegates[i].Invoke(ref argument, i))
             return;
       }

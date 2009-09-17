@@ -8,6 +8,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Testing;
+using Xtensive.Core.Tuples;
 
 namespace Xtensive.Core.Tests.DotNetFramework
 {
@@ -21,9 +22,11 @@ namespace Xtensive.Core.Tests.DotNetFramework
 
     #region Nested types: TestTuple, BoxingTuple, NonBoxingTuple
 
+    public delegate T TupleFieldGetter<T>(TestTuple tuple, out TupleFieldState fieldState);
+
     public abstract class TestTuple
     {
-      public abstract object GetValue(int i);
+      public abstract object GetValue(int i, out TupleFieldState fieldState);
       public abstract void SetValue(int i, object value);
       
       public virtual Delegate GetValueGetter(int i)
@@ -36,13 +39,13 @@ namespace Xtensive.Core.Tests.DotNetFramework
         return null;
       }
 
-      public T GetValue<T>(int i)
+      public T GetValue<T>(int i, out TupleFieldState fieldState)
       {
-        var func = GetValueGetter(i) as Func<TestTuple, T>;
+        var func = GetValueGetter(i) as TupleFieldGetter<T>;
         if (func!=null)
-          return func.Invoke(this);
+          return func.Invoke(this, out fieldState);
         else
-          return (T) GetValue(i);
+          return (T) GetValue(i, out fieldState);
       }
 
       public void SetValue<T>(int i, T value)
@@ -59,8 +62,9 @@ namespace Xtensive.Core.Tests.DotNetFramework
     {
       protected long[] values = new long[1];
       
-      public override object GetValue(int i)
+      public override object GetValue(int i, out TupleFieldState fieldState)
       {
+        fieldState = TupleFieldState.Available;
         return values[i];
       }
       
@@ -76,10 +80,11 @@ namespace Xtensive.Core.Tests.DotNetFramework
       private static Delegate[] setters;
       protected long value1;
 
-      public override object GetValue(int i)
+      public override object GetValue(int i, out TupleFieldState fieldState)
       {
         if (i!=0)
           throw new ArgumentOutOfRangeException("i");
+        fieldState = TupleFieldState.Available;
         return value1;
       }
       
@@ -103,7 +108,10 @@ namespace Xtensive.Core.Tests.DotNetFramework
       static NonBoxingTuple()
       {
         getters = new Delegate[1];
-        Func<TestTuple, long> getter1 = t => ((NonBoxingTuple) t).value1;
+        TupleFieldGetter<long> getter1 = delegate(TestTuple t, out TupleFieldState s) {
+          s = TupleFieldState.Available;
+          return ((NonBoxingTuple) t).value1;
+        };
         getters[0] = getter1;
 
         setters = new Delegate[1];
@@ -153,19 +161,20 @@ namespace Xtensive.Core.Tests.DotNetFramework
         new Measurement("Setter", count)) {
         for (long i = 0; i < count; i++) {
           tuple.SetValue<long>(0, i);
-          if (0 == (i & (MemoryPressureFactor-1)))
-            pressure[i >> MemoryPressureShift] = new object();
+//          if (0 == (i & (MemoryPressureFactor-1)))
+//            pressure[i >> MemoryPressureShift] = new object();
         }
       }
       pressure = null;
       TestHelper.CollectGarbage();
       pressure = new object[count / MemoryPressureFactor];
+      TupleFieldState fieldState;
       using (warmup ? (IDisposable)new Disposing.Disposable(delegate { }) : 
         new Measurement("Getter", count)) {
         for (long i = 0; i < count; i++) {
-          tuple.GetValue<long>(0);
-          if (0 == (i & (MemoryPressureFactor-1)))
-            pressure[i >> MemoryPressureShift] = new object();
+          tuple.GetValue<long>(0, out fieldState);
+//          if (0 == (i & (MemoryPressureFactor-1)))
+//            pressure[i >> MemoryPressureShift] = new object();
         }
       }
     }
