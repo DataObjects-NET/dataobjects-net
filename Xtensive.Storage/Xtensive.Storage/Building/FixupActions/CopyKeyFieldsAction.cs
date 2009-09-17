@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
-// Created:    2009.05.28
+// Created:    2009.09.14
 
 using System;
 using Xtensive.Storage.Building.Definitions;
@@ -10,32 +10,28 @@ using Xtensive.Storage.Building.Definitions;
 namespace Xtensive.Storage.Building.FixupActions
 {
   [Serializable]
-  internal class ReorderFieldsAction : HierarchyAction
+  internal class CopyKeyFieldsAction : TypeAction
   {
-    public TypeDef Target { get; private set; }
+    public TypeDef Source { get; private set; }
 
     public override void Run()
     {
       FixupActionProcessor.Process(this);
     }
 
+    /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("Reorder fields in '{0}' type.", Hierarchy.Root.Name);
+      return string.Format("Copy key fields from '{0}' type to '{1}' type.", Source.Name, Type.Name);
     }
 
 
     // Constructors
 
-    public ReorderFieldsAction(HierarchyDef hierarchy)
-      : this(hierarchy, hierarchy.Root)
+    public CopyKeyFieldsAction(TypeDef target, TypeDef source)
+      : base(target)
     {
-    }
-
-    public ReorderFieldsAction(HierarchyDef hierarchy, TypeDef target)
-      : base(hierarchy)
-    {
-      Target = target;
+      Source = source;
     }
   }
 }

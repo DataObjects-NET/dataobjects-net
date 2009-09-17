@@ -425,21 +425,21 @@ namespace Xtensive.Storage
       return ((Entity) owner).Key;
     }
 
-    protected internal abstract IEnumerable<Entity> Entities { get; }
+    protected internal abstract IEnumerable<IEntity> Entities { get; }
 
     internal void IntersectWith<TElement>(IEnumerable<TElement> other)
-      where TElement : Entity
+      where TElement : IEntity
     {
       if (this == other)
         return;
-      var otherEntities = other.Cast<Entity>().ToHashSet();
+      var otherEntities = other.Cast<IEntity>().ToHashSet();
       foreach (var item in Entities.ToList())
         if (!otherEntities.Contains(item))
           Remove(item);
     }
 
     internal void UnionWith<TElement>(IEnumerable<TElement> other)
-      where TElement : Entity
+      where TElement : IEntity
     {
       if (this == other)
         return;
@@ -448,7 +448,7 @@ namespace Xtensive.Storage
     }
 
     internal void ExceptWith<TElement>(IEnumerable<TElement> other)
-      where TElement : Entity
+      where TElement : IEntity
     {
       if (this == other) {
         Clear();
@@ -539,6 +539,21 @@ namespace Xtensive.Storage
     protected EntitySetBase(SerializationInfo info, StreamingContext context)
     {
       throw new NotImplementedException();
+    }
+
+    protected internal bool Add(IEntity item)
+    {
+      return Add((Entity)item);
+    }
+
+    protected internal bool Remove(IEntity item)
+    {
+      return Remove((Entity) item);
+    }
+
+    protected bool Contains(IEntity item)
+    {
+      return Contains((Entity)item);
     }
   }
 }

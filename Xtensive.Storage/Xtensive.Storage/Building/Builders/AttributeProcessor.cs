@@ -182,7 +182,7 @@ namespace Xtensive.Storage.Building.Builders
 
       mappingName = BuildingContext.Current.NameBuilder.ApplyNamingRules(mappingName);
 
-      Validator.EnsureNameIsValid(mappingName, rule);
+      Validator.ValidateName(mappingName, rule);
 
       if (Comparer.Compare(node.MappingName, mappingName)==0)
         Log.Warning(
@@ -200,7 +200,7 @@ namespace Xtensive.Storage.Building.Builders
       for (int index = 0; index < source.Length; index++) {
         Pair<string, Direction> result = ParseFieldName(source[index]);
 
-        Validator.EnsureNameIsValid(result.First, ValidationRule.Column);
+        Validator.ValidateName(result.First, ValidationRule.Column);
 
         if (target.ContainsKey(result.First))
           throw new DomainBuilderException(
@@ -218,7 +218,7 @@ namespace Xtensive.Storage.Building.Builders
       for (int index = 0; index < source.Length; index++) {
         string fieldName = source[index];
 
-        Validator.EnsureNameIsValid(fieldName, ValidationRule.Column);
+        Validator.ValidateName(fieldName, ValidationRule.Column);
 
         if (target.Contains(fieldName))
           throw new DomainBuilderException(

@@ -4,8 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2009.05.28
 
-using System;
 using System.Collections.Generic;
+using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.FixupActions;
 
 namespace Xtensive.Storage.Building
@@ -13,6 +13,8 @@ namespace Xtensive.Storage.Building
   internal class ModelInspectionResult
   {
     public Queue<FixupAction> Actions { get; private set; }
+
+    public List<TypeDef> SingleHierarchyInterfaces { get; private set; }
 
     public bool HasActions
     {
@@ -24,9 +26,13 @@ namespace Xtensive.Storage.Building
       Actions.Enqueue(action);
     }
 
+
+    // Constructor
+
     public ModelInspectionResult()
     {
       Actions = new Queue<FixupAction>();
+      SingleHierarchyInterfaces = new List<TypeDef>();
     }
   }
 }

@@ -507,9 +507,13 @@ namespace Xtensive.Storage.Model
     private void CreateMappingInfo()
     {
       if (column!=null) {
-        MappingInfo = reflectedType.IsStructure 
-          ? new Segment<int>(reflectedType.Columns.IndexOf(column), 1) 
-          : new Segment<int>(reflectedType.Indexes.PrimaryIndex.Columns.IndexOf(column), 1);
+        if (reflectedType.IsStructure)
+          MappingInfo = new Segment<int>(reflectedType.Columns.IndexOf(column), 1);
+        else {
+          var primaryIndex = reflectedType.Indexes.PrimaryIndex;
+          var indexColumn = primaryIndex.Columns.Where(c => c.Name==column.Name).First();
+          MappingInfo = new Segment<int>(primaryIndex.Columns.IndexOf(indexColumn), 1);
+        }
       }
       else 
         if (Fields.Count > 0)

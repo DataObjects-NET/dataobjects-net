@@ -223,7 +223,7 @@ namespace Xtensive.Storage.Building.Definitions
     protected override void ValidateName(string newName)
     {
       base.ValidateName(newName);
-      Validator.EnsureNameIsValid(newName, ValidationRule.Field);
+      Validator.ValidateName(newName, ValidationRule.Field);
     }
 
 

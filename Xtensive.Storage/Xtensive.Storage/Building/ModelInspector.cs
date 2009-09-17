@@ -7,12 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Building.FixupActions;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building
@@ -22,13 +20,126 @@ namespace Xtensive.Storage.Building
   {
     public static void Run()
     {
-      var context = BuildingContext.Current;
-      using (Log.InfoRegion("Inspecting initial model definition")) {
-        foreach (var hierarchy in context.ModelDef.Hierarchies)
-          Inspect(hierarchy);
-        foreach (var typeDef in context.ModelDef.Types)
-          Inspect(typeDef);
+      using (Log.InfoRegion("Inspecting model definition")) {
+        InspectHierarchies();
+        InspectTypes();
+        InspectInterfaces();
+        InspectReferences();
       }
+    }
+
+    private static void InspectHierarchies()
+    {
+      foreach (var hierarchy in BuildingContext.Current.ModelDef.Hierarchies)
+        Inspect(hierarchy);
+    }
+
+    private static void InspectTypes()
+    {
+      foreach (var typeDef in BuildingContext.Current.ModelDef.Types)
+        Inspect(typeDef);
+    }
+
+    private static void InspectInterfaces()
+    {
+      var context = BuildingContext.Current;
+
+      foreach (var @interfaceDef in context.ModelDef.Types.Where(t => t.IsInterface)) {
+
+        var interfaceNode = context.DependencyGraph.TryGetNode(@interfaceDef);
+
+        // Are there any dependencies at all?
+        if (interfaceNode == null) {
+          context.ModelInspectionResult.Register(new RemoveTypeAction(@interfaceDef));
+          continue;
+        }
+
+        // Are there any implementors?
+        var implementorEdges = interfaceNode.IncomingEdges.Where(e => e.Kind==EdgeKind.Implementation).ToList();
+
+        // There is no implementors. If there are no references to the interface, it could be safely removed
+        if (implementorEdges.Count == 0 && interfaceNode.IncomingEdges.Where(e => e.Kind == EdgeKind.Reference).Count() == 0) {
+          context.ModelInspectionResult.Register(new RemoveTypeAction(@interfaceDef));
+          continue;
+        }
+
+        HierarchyDef hierarchyDef;
+
+        // There is only one implementor. Nothing else to do here
+        if (implementorEdges.Count == 1) {
+          hierarchyDef = context.ModelDef.FindHierarchy(implementorEdges[0].Tail.Value);
+          context.ModelInspectionResult.SingleHierarchyInterfaces.Add(@interfaceDef);
+        }
+        else {
+
+          // Cleaning implementation edges. We need only direct implementors of interface
+          var directImplementorEdges = new HashSet<Edge<TypeDef>>();
+          foreach (var implementorEdge in implementorEdges) {
+            var implementorType = implementorEdge.Tail.Value.UnderlyingType;
+            // Checking for ancestor-descendant connection
+            foreach (var directImplementorEdge in directImplementorEdges) {
+              var directImplementorType = directImplementorEdge.Tail.Value.UnderlyingType;
+              // Implementor is a descendant of one of direct implementors
+              if (implementorType.IsSubclassOf(directImplementorType)) {
+                interfaceNode.IncomingEdges.Remove(implementorEdge);
+                implementorEdge.Tail.OutgoingEdges.Remove(implementorEdge);
+                goto Next;
+              }
+              // Implementor is an ancestor of one of direct implementors
+              if (directImplementorType.IsSubclassOf(implementorType)) {
+                directImplementorEdges.Remove(directImplementorEdge);
+                directImplementorEdges.Add(implementorEdge);
+                interfaceNode.IncomingEdges.Remove(directImplementorEdge);
+                directImplementorEdge.Tail.OutgoingEdges.Remove(directImplementorEdge);
+                goto Next;
+              }
+            }
+            // None of direct implementors is in the same hierarchy as implementor
+            directImplementorEdges.Add(implementorEdge);
+            Next:
+            ;
+          }
+
+          // Find hierarchies for all direct implementors
+          var hierarchies = new HashSet<HierarchyDef>();
+          foreach (var edge in directImplementorEdges) {
+            var implementor = edge.Tail.Value;
+            var hierarchy = context.ModelDef.FindHierarchy(implementor);
+            if (hierarchy!=null)
+              hierarchies.Add(hierarchy);
+            else
+              context.ModelInspectionResult.Register(new RemoveTypeAction(implementor));
+          }
+
+          // TODO: what if hierarchies.Count == 0?
+          var count = hierarchies.Count;
+          if (count == 0)
+            throw new DomainBuilderException("Interface implementors don't belong to any hierarchy.");
+          else if (count == 1)
+            context.ModelInspectionResult.SingleHierarchyInterfaces.Add(@interfaceDef);
+          else {
+            HierarchyDef master = null;
+            foreach (var candidate in hierarchies) {
+              if (master==null) {
+                master = candidate;
+                continue;
+              }
+              Validator.ValidateHierarchyEquality(@interfaceDef, master, candidate);
+            }
+          }
+
+          hierarchyDef = hierarchies.First();
+        }
+
+        context.ModelInspectionResult.Register(new CopyKeyFieldsAction(@interfaceDef, hierarchyDef.Root));
+        context.ModelInspectionResult.Register(new ReorderFieldsAction(hierarchyDef, @interfaceDef));
+        context.ModelInspectionResult.Register(new BuildImplementorListAction(@interfaceDef));
+      }
+    }
+
+    private static void InspectReferences()
+    {
+      
     }
 
     public static void Inspect(HierarchyDef hierarchyDef)
@@ -36,10 +147,10 @@ namespace Xtensive.Storage.Building
       var context = BuildingContext.Current;
       var root = hierarchyDef.Root;
       Log.Info("Inspecting hierarchy '{0}'", root.Name);
-      Validator.EnsureHierarchyIsValid(hierarchyDef);
+      Validator.ValidateHierarchy(hierarchyDef);
 
       // Check the presence of TypeId field
-      FieldDef typeIdField = root.Fields[WellKnown.TypeIdFieldName];
+      var typeIdField = root.Fields[WellKnown.TypeIdFieldName];
       if (typeIdField==null)
         context.ModelInspectionResult.Actions.Enqueue(new AddTypeIdFieldAction(root));
       else
@@ -52,7 +163,7 @@ namespace Xtensive.Storage.Building
       context.ModelInspectionResult.Actions.Enqueue(new ReorderFieldsAction(hierarchyDef));
 
       foreach (var keyField in hierarchyDef.KeyFields) {
-        FieldDef field = root.Fields[keyField.Name];
+        var field = root.Fields[keyField.Name];
         InspectField(root, field, true);
       }
 
@@ -65,52 +176,63 @@ namespace Xtensive.Storage.Building
       Log.Info("Inspecting type '{0}'", typeDef.Name);
 
       if (typeDef.IsInterface) {
-        if (typeDef.UnderlyingType==typeof (IEntity))
-          context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
-        else
-          InspectBaseInterfaces(typeDef);
+        // Base interfaces
+        foreach (var @interface in context.ModelDef.Types.FindInterfaces(typeDef.UnderlyingType))
+          context.DependencyGraph.AddEdge(typeDef, @interface, EdgeKind.Inheritance, EdgeWeight.High);
+
+        // Fields
+        foreach (var field in typeDef.Fields)
+          InspectField(typeDef, field, false);
+        return;
       }
-      else {
-        var fields = new List<FieldDef>(typeDef.Fields);
-        if (typeDef.IsEntity) {
-          Validator.EnsureUnderlyingTypeIsAspected(typeDef);
-          if (typeDef.IsGenericTypeDefinition) {
-            context.ModelInspectionResult.Register(new BuildGenericTypeInstancesAction(typeDef));
-            context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
-            return;
-          }
-          HierarchyDef hierarchyDef = context.ModelDef.FindHierarchy(typeDef);
-          if (hierarchyDef == null) {
-            context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
-            return;
-          }
-          // We must skip key fields as they have been inspected already
-          foreach (var keyField in hierarchyDef.KeyFields) {
-            KeyField field = keyField;
-            fields.RemoveAll(f => f.Name==field.Name);
-          }
+
+      if (typeDef.IsStructure) {
+        // Ancestor
+        var parent = context.ModelDef.Types.FindAncestor(typeDef);
+        if (parent!=null)
+          context.DependencyGraph.AddEdge(typeDef, parent, EdgeKind.Inheritance, EdgeWeight.High);
+
+        // Fields
+        foreach (var field in typeDef.Fields)
+          InspectField(typeDef, field, false);
+        return;
+      }
+
+      if (typeDef.IsEntity) {
+        Validator.EnsureUnderlyingTypeIsAspected(typeDef);
+        if (typeDef.IsGenericTypeDefinition) {
+          context.ModelInspectionResult.Register(new BuildGenericTypeInstancesAction(typeDef));
+          context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
+          return;
         }
 
-        InspectAncestor(typeDef);
-        foreach (var field in fields)
-          InspectField(typeDef, field, false);
-        InspectInterfaces(typeDef);
+        // Ancestor
+        var parent = context.ModelDef.Types.FindAncestor(typeDef);
+        if (parent!=null)
+          context.DependencyGraph.AddEdge(typeDef, parent, EdgeKind.Inheritance, EdgeWeight.High);
+
+        // Interfaces
+        foreach (var @interface in context.ModelDef.Types.FindInterfaces(typeDef.UnderlyingType)) {
+          context.DependencyGraph.AddEdge(typeDef, @interface, EdgeKind.Implementation, EdgeWeight.High);
+          context.Interfaces.Add(@interface);
+        }
+
+        // Should we remove it or not?
+        var hierarchyDef = context.ModelDef.FindHierarchy(typeDef);
+        if (hierarchyDef==null)
+          context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
+        else {
+          // We should skip key fields inspection as they have been already inspected
+          foreach (var field in typeDef.Fields) {
+            var _field = field;
+            if (!hierarchyDef.KeyFields.Any(f => f.Name==_field.Name))
+              InspectField(typeDef, field, false);
+          }
+        }
       }
     }
 
     #region Private members
-
-    private static void InspectInterfaces(TypeDef implementor)
-    {
-      var context = BuildingContext.Current;
-
-      Type[] interfaces = implementor.UnderlyingType.GetInterfaces();
-      foreach (var item in interfaces) {
-        var @interface = context.ModelDef.Types.TryGetValue(item);
-        if (@interface!=null)
-          RegisterDependency(@interface, implementor, EdgeKind.Implementation, EdgeWeight.High);
-      }
-    }
 
     private static void InspectField(TypeDef typeDef, FieldDef fieldDef, bool isKeyField)
     {
@@ -119,87 +241,54 @@ namespace Xtensive.Storage.Building
 //        fieldDef.UnderlyingProperty.DeclaringType.Assembly == Assembly.GetExecutingAssembly())
 //        context.ModelInspectionResult.Actions.Enqueue(new MarkFieldAsSystemAction(typeDef, fieldDef));
 
-      if (isKeyField) {
-        if (fieldDef.IsNullable)
-          context.ModelInspectionResult.Register(new MarkFieldAsNotNullableAction(typeDef, fieldDef));
+      Validator.ValidateFieldType(typeDef, fieldDef.ValueType, isKeyField);
 
-        if (fieldDef.IsLazyLoad)
-          throw new DomainBuilderException(string.Format(Strings.ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, fieldDef.Name));
-      }
+      if (isKeyField && fieldDef.IsNullable)
+        context.ModelInspectionResult.Register(new MarkFieldAsNotNullableAction(typeDef, fieldDef));
 
       if (fieldDef.IsPrimitive)
         return;
 
       if (fieldDef.IsStructure) {
-        if (fieldDef.ValueType==typeDef.UnderlyingType)
-          throw new DomainBuilderException(string.Format(Strings.ExStructureXCantContainFieldOfTheSameType, typeDef.Name));
-        RegisterDependency(typeDef, FindTypeDef(fieldDef.ValueType), EdgeKind.Aggregation, EdgeWeight.High);
+        Validator.ValidateStructureField(typeDef, fieldDef);
+        context.DependencyGraph.AddEdge(typeDef, GetTypeDef(fieldDef.ValueType), EdgeKind.Aggregation, EdgeWeight.High);
         return;
       }
 
-      // Inspecting index for the reference field
+      // Inspecting index to the reference field
       if (fieldDef.IsEntity) {
-        IndexDef indexDef = typeDef.Indexes.Where(i => i.IsSecondary && i.KeyFields.Count==1 && i.KeyFields[0].Key==fieldDef.Name).FirstOrDefault();
+        var indexDef = typeDef.Indexes.Where(i => i.IsSecondary && i.KeyFields.Count==1 && i.KeyFields[0].Key==fieldDef.Name).FirstOrDefault();
         if (indexDef==null)
           context.ModelInspectionResult.Register(new AddSecondaryIndexAction(typeDef, fieldDef));
       }
-      else {
-        // Restriction for EntitySet properties only
-        if (fieldDef.OnTargetRemove == OnRemoveAction.Cascade)
-          throw new DomainBuilderException(string.Format(Strings.ExValueIsNotAcceptableForOnTargetRemoveProperty, typeDef.Name, fieldDef.Name, fieldDef.OnTargetRemove));
-      }
+      else
+        Validator.ValidateEntitySetField(typeDef, fieldDef);
 
-      Type referencedType = fieldDef.IsEntitySet ? fieldDef.ItemType : fieldDef.ValueType;
-      TypeDef referencedTypeDef = FindTypeDef(referencedType);
+      var referencedType = fieldDef.IsEntitySet ? fieldDef.ItemType : fieldDef.ValueType;
+      var referencedTypeDef = GetTypeDef(referencedType);
 
       if (!referencedTypeDef.IsInterface) {
-        HierarchyDef hierarchyDef = context.ModelDef.FindHierarchy(referencedTypeDef);
+        var hierarchyDef = context.ModelDef.FindHierarchy(referencedTypeDef);
         if (hierarchyDef==null)
           throw new DomainBuilderException(string.Format(Strings.ExHierarchyIsNotFoundForTypeX, referencedType.GetShortName()));
       }
-      RegisterDependency(typeDef, referencedTypeDef, EdgeKind.Reference, isKeyField ? EdgeWeight.High : EdgeWeight.Low);
+      context.DependencyGraph.AddEdge(typeDef, referencedTypeDef, EdgeKind.Reference, isKeyField ? EdgeWeight.High : EdgeWeight.Low);
     }
 
-    private static void InspectAncestor(TypeDef descendant)
-    {
-      var context = BuildingContext.Current;
-
-      TypeDef parent = context.ModelDef.Types.TryGetValue(descendant.UnderlyingType.BaseType);
-      if (parent!=null)
-        RegisterDependency(descendant, parent, EdgeKind.Inheritance, EdgeWeight.High);
-    }
-
-    private static void InspectBaseInterfaces(TypeDef typeDef)
-    {
-      var context = BuildingContext.Current;
-
-      Type[] interfaces = typeDef.UnderlyingType.GetInterfaces();
-      foreach (var @interface in interfaces) {
-        var @base = context.ModelDef.Types.TryGetValue(@interface);
-        if (@base != null)
-          RegisterDependency(typeDef, @base, EdgeKind.Inheritance, EdgeWeight.High);
-      }
-    }
 
     #endregion
 
     #region Helper members
 
-    private static TypeDef FindTypeDef(Type type)
+    private static TypeDef GetTypeDef(Type type)
     {
       var context = BuildingContext.Current;
-      TypeDef result = context.ModelDef.Types.TryGetValue(type);
-      if (result == null)
-        throw new DomainBuilderException(
-          String.Format(Strings.ExTypeXIsNotRegisteredInTheModel, type.GetFullName()));
-      return result;
-    }
+      var result = context.ModelDef.Types.TryGetValue(type);
+      if (result!=null)
+        return result;
 
-    private static void RegisterDependency(TypeDef tail, TypeDef head, EdgeKind kind, EdgeWeight weight)
-    {
-      var edge = new Edge(tail, head, kind, weight);
-      tail.OutgoingEdges.Add(edge);
-      head.IncomingEdges.Add(edge);
+      throw new DomainBuilderException(
+        String.Format(Strings.ExTypeXIsNotRegisteredInTheModel, type.GetFullName()));
     }
 
     #endregion

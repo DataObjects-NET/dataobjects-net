@@ -5,7 +5,6 @@
 // Created:    2007.07.11
 
 using System;
-using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Notifications;
 using Xtensive.Core.Reflection;
@@ -82,16 +81,8 @@ namespace Xtensive.Storage.Building.Definitions
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
     public TypeDef FindRoot(TypeDef item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-
-      TypeDef candidate = item;
-
-      foreach (var hierarchy in Hierarchies) {
-        if (hierarchy.Root.UnderlyingType.IsAssignableFrom(item.UnderlyingType))
-          return hierarchy.Root;
-      }
-
-      return null;
+      var hierarchy = FindHierarchy(item);
+      return hierarchy!=null ? hierarchy.Root : null;
     }
 
     /// <summary>
@@ -103,12 +94,12 @@ namespace Xtensive.Storage.Building.Definitions
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
-      TypeDef root = FindRoot(item);
-      if (root != null) {
-        HierarchyDef result = hierarchies.TryGetValue(root);
-        if (result != null)
-          return result;
-      }
+      var candidate = item;
+
+      foreach (var hierarchy in Hierarchies)
+        if (hierarchy.Root.UnderlyingType.IsAssignableFrom(item.UnderlyingType))
+          return hierarchy;
+
       return null;
     }
 

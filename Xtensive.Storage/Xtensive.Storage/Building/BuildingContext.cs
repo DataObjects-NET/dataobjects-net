@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
@@ -27,6 +27,8 @@ namespace Xtensive.Storage.Building
     internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
     internal Dictionary<Type, int> SystemTypeIds { get; private set; }
     internal ModelInspectionResult ModelInspectionResult { get; private set; }
+    internal Graph<TypeDef> DependencyGraph { get; private set; }
+    internal HashSet<TypeDef> Interfaces { get; private set; }
 
     #region Current property & Demand() method
 
@@ -122,6 +124,8 @@ namespace Xtensive.Storage.Building
       DiscardedAssociations = new HashSet<  AssociationInfo>();
       SystemTypeIds = new Dictionary<Type, int>();
       ModelInspectionResult = new ModelInspectionResult();
+      DependencyGraph = new Graph<TypeDef>();
+      Interfaces = new HashSet<TypeDef>();
     }
   }
 }

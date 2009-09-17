@@ -68,7 +68,7 @@ namespace Xtensive.Storage
     ICollection<TItem>, 
     ICountable<TItem>, 
     IQueryable<TItem>
-    where TItem : Entity
+    where TItem : IEntity
   {
     private const int MaxCacheSize = 10240;
     private const int LoadStateCount = 32;
@@ -263,7 +263,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    protected internal sealed override IEnumerable<Entity> Entities {
+    protected internal sealed override IEnumerable<IEntity> Entities {
       get {
         return State.IsFullyLoaded 
           ? GetCachedEntities() 
@@ -293,7 +293,7 @@ namespace Xtensive.Storage
 
     #region Private / internal methods
 
-    private IEnumerable<Entity> GetCachedEntities()
+    private IEnumerable<IEntity> GetCachedEntities()
     {
       foreach (Key key in State) {
         ValidateVersion(State.Version);
@@ -301,7 +301,7 @@ namespace Xtensive.Storage
       }
     }
 
-    private IEnumerable<Entity> GetRealEntities()
+    private IEnumerable<IEntity> GetRealEntities()
     {
       var context = new ParameterContext();
       using (context.Activate()) {

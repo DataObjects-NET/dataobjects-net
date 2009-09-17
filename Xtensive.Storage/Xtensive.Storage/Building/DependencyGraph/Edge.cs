@@ -5,21 +5,21 @@
 // Created:    2009.02.24
 
 using System;
-using Xtensive.Storage.Building.Definitions;
 
 namespace Xtensive.Storage.Building.DependencyGraph
 {
   [Serializable]
-  internal class Edge
+  internal class Edge<TValue>
   {
-    public TypeDef Tail { get; private set; }
+    public Node<TValue> Tail { get; private set; }
 
-    public TypeDef Head { get; private set; }
+    public Node<TValue> Head { get; private set; }
 
     public EdgeKind Kind { get; private set; }
 
     public EdgeWeight Weight { get; private set; }
 
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
@@ -27,37 +27,50 @@ namespace Xtensive.Storage.Building.DependencyGraph
       }
     }
 
-    public bool Equals(Edge obj)
+    /// <inheritdoc/>
+    public bool Equals(Edge<TValue> obj)
     {
       if (ReferenceEquals(null, obj))
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      return Equals(obj.Tail, Tail) && Equals(obj.Head, Head);
+      return Equals(obj.Tail, Tail) && Equals(obj.Head, Head) && obj.Kind == Kind && obj.Weight == Weight;
     }
 
+    /// <inheritdoc/>
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(null, obj))
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      if (obj.GetType()!=typeof (Edge))
+      if (obj.GetType()!=typeof (Edge<TValue>))
         return false;
-      return Equals((Edge) obj);
+      return Equals((Edge<TValue>) obj);
     }
 
-    public static bool operator ==(Edge left, Edge right)
+    /// <inheritdoc/>
+    public static bool operator ==(Edge<TValue> left, Edge<TValue> right)
     {
       return Equals(left, right);
     }
 
-    public static bool operator !=(Edge left, Edge right)
+    /// <inheritdoc/>
+    public static bool operator !=(Edge<TValue> left, Edge<TValue> right)
     {
       return !Equals(left, right);
     }
 
-    public Edge(TypeDef tail, TypeDef head, EdgeKind kind, EdgeWeight weight)
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format("{0} -> {1}, ({2}, {3})", Tail, Head, Kind, Weight);
+    }
+
+
+    // Constructors
+
+    public Edge(Node<TValue> tail, Node<TValue> head, EdgeKind kind, EdgeWeight weight)
     {
       Tail = tail;
       Head = head;

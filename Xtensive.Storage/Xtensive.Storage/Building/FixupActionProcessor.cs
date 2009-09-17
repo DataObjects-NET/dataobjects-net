@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Building.FixupActions;
 using Xtensive.Storage.Model;
 
@@ -36,27 +37,29 @@ namespace Xtensive.Storage.Building
 
     public static void Process(ReorderFieldsAction action)
     {
-      TypeDef root = action.Hierarchy.Root;
-      var buffer = new List<FieldDef>(root.Fields.Count);
+      var target = action.Target;
+      var buffer = new List<FieldDef>(target.Fields.Count);
 
       foreach (var keyField in action.Hierarchy.KeyFields) {
-        FieldDef fieldDef = root.Fields[keyField.Name];
+        var fieldDef = target.Fields[keyField.Name];
         buffer.Add(fieldDef);
-        root.Fields.Remove(fieldDef);
+        target.Fields.Remove(fieldDef);
       }
       if (!action.Hierarchy.IncludeTypeId) {
-        var typeIdField = root.Fields[WellKnown.TypeIdFieldName];
+        var typeIdField = target.Fields[WellKnown.TypeIdFieldName];
         buffer.Add(typeIdField);
-        root.Fields.Remove(typeIdField);
+        target.Fields.Remove(typeIdField);
       }
-      buffer.AddRange(root.Fields);
-      root.Fields.Clear();
-      root.Fields.AddRange(buffer);
+      buffer.AddRange(target.Fields);
+      target.Fields.Clear();
+      target.Fields.AddRange(buffer);
     }
 
     public static void Process(RemoveTypeAction action)
     {
-      BuildingContext.Current.ModelDef.Types.Remove(action.Type);
+      var context = BuildingContext.Current;
+      context.DependencyGraph.RemoveNode(action.Type);
+      context.ModelDef.Types.Remove(action.Type);
     }
 
     public static void Process(BuildGenericTypeInstancesAction action)
@@ -135,6 +138,28 @@ namespace Xtensive.Storage.Building
     public static void Process(MarkFieldAsNotNullableAction action)
     {
       action.Field.IsNullable = false;
+    }
+
+    public static void Process(CopyKeyFieldsAction action)
+    {
+      var target = action.Type;
+      var source = action.Source;
+      foreach (var sourceFieldDef in source.Fields) {
+        if (target.Fields.Contains(sourceFieldDef.Name))
+          continue;
+        var fieldDef = target.DefineField(sourceFieldDef.Name, sourceFieldDef.ValueType);
+        fieldDef.Attributes = sourceFieldDef.Attributes;
+        if (!string.IsNullOrEmpty(sourceFieldDef.MappingName))
+          fieldDef.MappingName = sourceFieldDef.MappingName;
+      }
+    }
+
+    public static void Process(BuildImplementorListAction action)
+    {
+      var context = BuildingContext.Current;
+
+      var node = context.DependencyGraph.TryGetNode(action.Type);
+      node.Value.Implementors.AddRange(node.IncomingEdges.Where(e => e.Kind==EdgeKind.Implementation).Select(e => e.Tail.Value));
     }
   }
 }

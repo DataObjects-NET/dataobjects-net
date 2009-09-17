@@ -5,13 +5,11 @@
 // Created:    2007.08.27
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Builders;
-using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Model;
 using TypeAttributes=Xtensive.Storage.Model.TypeAttributes;
 
@@ -28,10 +26,7 @@ namespace Xtensive.Storage.Building.Definitions
     private TypeAttributes attributes;
     private readonly NodeCollection<FieldDef> fields;
     private readonly NodeCollection<IndexDef> indexes;
-
-    internal List<Edge> OutgoingEdges { get; private set; }
-
-    internal List<Edge> IncomingEdges { get; private set; }
+    private NodeCollection<TypeDef> implementors;
   
     /// <summary>
     /// Gets a value indicating whether this instance is entity.
@@ -95,7 +90,7 @@ namespace Xtensive.Storage.Building.Definitions
     public TypeAttributes Attributes
     {
       get { return attributes; }
-      set { attributes = value; }
+      internal set { attributes = value; }
     }
 
     /// <summary>
@@ -115,6 +110,15 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
+    /// Gets the direct implementors of this instance (if this is an interface).
+    /// </summary>
+    public NodeCollection<TypeDef> Implementors
+    {
+      get { return implementors; }
+      internal set { implementors = value; }
+    }
+
+    /// <summary>
     /// Defines the index and adds it to the <see cref="Indexes"/>.
     /// </summary>
     /// <param name="name">The name.</param>
@@ -122,7 +126,7 @@ namespace Xtensive.Storage.Building.Definitions
     /// <exception cref="ArgumentOutOfRangeException">Argument "name" is invalid.</exception>
     public IndexDef DefineIndex(string name)
     {
-      Validator.EnsureNameIsValid(name, ValidationRule.Index);
+      Validator.ValidateName(name, ValidationRule.Index);
 
       var indexDef = new IndexDef {Name = name, IsSecondary = true};
       indexes.Add(indexDef);
@@ -170,7 +174,7 @@ namespace Xtensive.Storage.Building.Definitions
     protected override void ValidateName(string newName)
     {
       base.ValidateName(newName);
-      Validator.EnsureNameIsValid(newName, ValidationRule.Type);
+      Validator.ValidateName(newName, ValidationRule.Type);
     }
 
 
@@ -182,8 +186,6 @@ namespace Xtensive.Storage.Building.Definitions
     /// <param name="type">The underlying type.</param>
     internal TypeDef(Type type)
     {
-      OutgoingEdges = new List<Edge>();
-      IncomingEdges = new List<Edge>();
       underlyingType = type;
       if (type.IsInterface)
         Attributes = TypeAttributes.Interface;
@@ -197,6 +199,7 @@ namespace Xtensive.Storage.Building.Definitions
         Attributes = Attributes | TypeAttributes.GenericTypeDefinition;
       fields = new NodeCollection<FieldDef>();
       indexes = new NodeCollection<IndexDef>();
+      implementors = IsInterface ? new NodeCollection<TypeDef>() : NodeCollection<TypeDef>.Empty;
     }
   }
 }

@@ -11,8 +11,8 @@ namespace Xtensive.Storage.Internals
   [KeyGenerator(null)]
   [HierarchyRoot]
   public abstract class EntitySetItem<TMaster, TSlave> : Entity
-    where TMaster : Entity
-    where TSlave : Entity
+    where TMaster : IEntity
+    where TSlave : IEntity
   {
     [Field, Key(0)]
     public TMaster Master { get; private set; }

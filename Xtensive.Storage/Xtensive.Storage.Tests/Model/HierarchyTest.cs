@@ -117,8 +117,13 @@ namespace Xtensive.Storage.Tests.Model
 
     public override void TestFixtureSetUp()
     {
-      CustomStorageDefinitionBuilder.IsEnabled = true;
-      base.TestFixtureSetUp();
+      try {
+        CustomStorageDefinitionBuilder.IsEnabled = true;
+        base.TestFixtureSetUp();
+      }
+      finally {
+        CustomStorageDefinitionBuilder.IsEnabled = false;
+      }
     }
 
     public override void TestFixtureTearDown()

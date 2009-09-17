@@ -24,11 +24,11 @@ namespace Xtensive.Storage.Model
       IFilterable<TypeAttributes, TypeInfo>
   {
     private readonly Type baseType = typeof (object);
-    private readonly Dictionary<Type, TypeInfo> typeIndex = new Dictionary<Type, TypeInfo>();
-    private readonly Dictionary<TypeInfo, TypeInfo> ancestors = new Dictionary<TypeInfo, TypeInfo>();
-    private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> descendants = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
-    private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> interfaces = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
-    private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> implementors = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
+    private readonly Dictionary<Type, TypeInfo> typeTable = new Dictionary<Type, TypeInfo>();
+    private readonly Dictionary<TypeInfo, TypeInfo> ancestorTable = new Dictionary<TypeInfo, TypeInfo>();
+    private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> descendantTable = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
+    private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> interfaceTable = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
+    private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> implementorTable = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
     private IntDictionary<TypeInfo> typeIdIndex;
     
     /// <summary>
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Model
     /// </returns>
     public bool Contains(Type key)
     {
-      return typeIndex.ContainsKey(key);
+      return typeTable.ContainsKey(key);
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Model
     /// <returns><see langword="true"/> if value is found by specified <paramref name="key"/>; otherwise <see langword="false"/>.</returns>
     public bool TryGetValue(Type key, out TypeInfo value)
     {
-      return typeIndex.TryGetValue(key, out value);
+      return typeTable.TryGetValue(key, out value);
     }
 
     /// <summary>
@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Model
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       TypeInfo result;
-      return ancestors.TryGetValue(item, out result) ? result : null;
+      return ancestorTable.TryGetValue(item, out result) ? result : null;
     }
 
     /// <summary>
@@ -151,13 +151,17 @@ namespace Xtensive.Storage.Model
     public IEnumerable<TypeInfo> FindDescendants(TypeInfo item, bool recursive)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      var result = new HashSet<TypeInfo>(descendants[item]);
-      if (!recursive)
-        return result;
-      foreach (var descendant in descendants[item])
-        result.UnionWith(FindDescendants(descendant, true));
 
-      return result;
+      HashSet<TypeInfo> result;
+      if (!descendantTable.TryGetValue(item, out result))
+        result = new HashSet<TypeInfo>();
+
+      foreach (var item1 in result) {
+        yield return item1;
+        if (recursive)
+          foreach (var item2 in FindDescendants(item1, true))
+            yield return item2;
+      }
     }
 
     /// <summary>
@@ -181,18 +185,19 @@ namespace Xtensive.Storage.Model
     public IEnumerable<TypeInfo> FindInterfaces(TypeInfo item, bool recursive)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      var result = new HashSet<TypeInfo>(interfaces[item]);
-      if (!recursive)
+
+      HashSet<TypeInfo> result;
+      if (!interfaceTable.TryGetValue(item, out result))
+        return Enumerable.Empty<TypeInfo>();
+
+      if (!recursive || item.IsInterface)
         return result;
-      foreach (var @interface in interfaces[item])
-        result.UnionWith(FindInterfaces(@interface, true));
-      if (item.IsEntity) {
-        var ancestor = FindAncestor(item);
-        while (ancestor != null) {
-          foreach (var @interface in FindInterfaces(ancestor, true))
-            result.Add(@interface);
-          ancestor = FindAncestor(ancestor);
-        }
+
+      var ancestor = FindAncestor(item);
+      while (ancestor != null) {
+        foreach (var @interface in FindInterfaces(ancestor, true))
+          result.Add(@interface);
+        ancestor = FindAncestor(ancestor);
       }
       return result;
     }
@@ -220,13 +225,17 @@ namespace Xtensive.Storage.Model
     public IEnumerable<TypeInfo> FindImplementors(TypeInfo item, bool recursive)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      var result = new HashSet<TypeInfo>(implementors[item]);
-      if (recursive)
-        foreach (var implementor in implementors[item])
-          result.UnionWith(FindDescendants(implementor, true));
-      foreach (var descendant in descendants[item])
-        result.UnionWith(FindImplementors(descendant, recursive));
-      return result;
+
+      HashSet<TypeInfo> result;
+      if (!implementorTable.TryGetValue(item, out result))
+        result = new HashSet<TypeInfo>();
+
+      foreach (var item1 in result) {
+        yield return item1;
+        if (recursive)
+          foreach (var item2 in FindImplementors(item1, true))
+            yield return item2;
+      }
     }
 
     /// <summary>
@@ -262,40 +271,56 @@ namespace Xtensive.Storage.Model
           typeIdIndex[type.TypeId] = type;
     }
 
-    private void RegisterDescendant(TypeInfo descendant)
-    {
-      var ancestor = FindAncestor(descendant.UnderlyingType);
-      if (ancestor==null)
-        return;
-      ancestors[descendant] = ancestor;
-      descendants[ancestor].Add(descendant);
-    }
-
-    private void RegisterInterface(TypeInfo @interface)
-    {
-      var all = new HashSet<TypeInfo>(FindInterfaces(@interface.UnderlyingType));
-      var inherited = new HashSet<TypeInfo>(FindInterfaces(@interface, true));
-      interfaces[@interface].UnionWith(all.Except(inherited));
-    }
-
-    public void RegisterBaseInterface(TypeInfo @base, TypeInfo @interface)
+    /// <summary>
+    /// Registers the connection between ancestor & descendant.
+    /// </summary>
+    /// <param name="ancestor">The ancestor.</param>
+    /// <param name="descendant">The descendant.</param>
+    public void RegisterInheritance(TypeInfo ancestor, TypeInfo descendant)
     {
       this.EnsureNotLocked();
-      // Check all interfaces (direct and inherited)
-      if (FindDescendants(@base, true).Contains(@interface))
-        return;
-      descendants[@base].Add(@interface);
-//      interfaces[@interface].Add(@base);
+
+      if (ancestor.IsInterface) {
+        HashSet<TypeInfo> interfaces;
+        if (!interfaceTable.TryGetValue(descendant, out interfaces)) {
+          interfaces = new HashSet<TypeInfo>();
+          interfaceTable[descendant] = interfaces;
+        }
+        interfaces.Add(ancestor);
+      }
+      else
+        ancestorTable[descendant] = ancestor;
+
+      HashSet<TypeInfo> descendants;
+      if (!descendantTable.TryGetValue(ancestor, out descendants)) {
+        descendants = new HashSet<TypeInfo>();
+        descendantTable[ancestor] = descendants;
+      }
+      descendants.Add(descendant);
     }
 
-    public void RegisterImplementor(TypeInfo @interface, TypeInfo implementor)
+    /// <summary>
+    /// Registers the connection between interface and implementor.
+    /// </summary>
+    /// <param name="interface">The interface.</param>
+    /// <param name="implementor">The implementor.</param>
+    public void RegisterImplementation(TypeInfo @interface, TypeInfo implementor)
     {
       this.EnsureNotLocked();
-      // Check all interfaces (direct and inherited)
-      if (FindInterfaces(implementor, true).Contains(@interface))
-        return;
-      interfaces[implementor].Add(@interface);
-      implementors[@interface].Add(implementor);
+
+      HashSet<TypeInfo> interfaces;
+      if (!interfaceTable.TryGetValue(implementor, out interfaces)) {
+        interfaces = new HashSet<TypeInfo>();
+        interfaceTable[implementor] = interfaces;
+      }
+      interfaces.Add(@interface);
+
+      HashSet<TypeInfo> implementors;
+      if (!implementorTable.TryGetValue(@interface, out implementors)) {
+        implementors = new HashSet<TypeInfo>();
+        implementorTable[@interface] = implementors;
+      }
+      implementors.Add(implementor);
     }
 
     /// <summary>
@@ -417,26 +442,23 @@ namespace Xtensive.Storage.Model
     protected override void OnInserted(TypeInfo value, int index)
     {
       base.OnInserted(value, index);
-      typeIndex.Add(value.UnderlyingType, value);
+      typeTable.Add(value.UnderlyingType, value);
 
-      if (value.IsEntity)
-      {
-        descendants[value] = new HashSet<TypeInfo>();
-        interfaces[value] = new HashSet<TypeInfo>();
-        RegisterDescendant(value);
-      }
-      if (value.IsStructure)
-      {
-        descendants[value] = new HashSet<TypeInfo>();
-        RegisterDescendant(value);
-      }
-      if (value.IsInterface)
-      {
-        descendants[value] = new HashSet<TypeInfo>();
-        interfaces[value] = new HashSet<TypeInfo>();
-        implementors[value] = new HashSet<TypeInfo>();
-        RegisterInterface(value);
-      }
+//      if (value.IsEntity) {
+//        descendants[value] = new HashSet<TypeInfo>();
+//        interfaces[value] = new HashSet<TypeInfo>();
+//        RegisterDescendant(value);
+//      }
+//      if (value.IsStructure) {
+//        descendants[value] = new HashSet<TypeInfo>();
+//        RegisterDescendant(value);
+//      }
+//      if (value.IsInterface) {
+//        descendants[value] = new HashSet<TypeInfo>();
+//        interfaces[value] = new HashSet<TypeInfo>();
+//        implementors[value] = new HashSet<TypeInfo>();
+//        RegisterInterface(value);
+//      }
     }
   }
 }

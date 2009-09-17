@@ -19,20 +19,21 @@ namespace Xtensive.Storage.Building.Builders
     public static void Run()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.ModelDefinition)) {
-        BuildingContext.Current.ModelDef = new DomainModelDef();
+
+        BuildingContext context = BuildingContext.Current;
+        context.ModelDef = new DomainModelDef();
 
         using (Log.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
           var typeFilter = GetTypeFilter();
-          foreach (var type in BuildingContext.Current.Configuration.Types) {
-            if (!typeFilter.Invoke(type))
-              continue;
-            ProcessType(type);
+          foreach (var type in context.Configuration.Types) {
+            if (typeFilter.Invoke(type))
+              ProcessType(type);
           }
         }
       }
     }
 
-    #region Automatic processing-related members
+    #region Automatic processing members
 
     public static TypeDef ProcessType(Type type)
     {
@@ -87,8 +88,8 @@ namespace Xtensive.Storage.Building.Builders
 
         FieldDef field = DefineField(propertyInfo);
 
+        // Declared & inherited fields must be processed for hierarchy root
         if (hierarchyDef != null) {
-          // Declared & inherited fields must be processed for hierarchy root
           typeDef.Fields.Add(field);
           Log.Info("Field: '{0}'", field.Name);
           var ka = propertyInfo.GetAttribute<KeyAttribute>(AttributeSearchOptions.InheritAll);
@@ -153,14 +154,14 @@ namespace Xtensive.Storage.Building.Builders
       if (hra!=null)
         return DefineHierarchy(typeDef, hra);
 
-      Validator.EnsureHierarchyRootIsValid(typeDef);
+      Validator.ValidateHierarchyRoot(typeDef);
       var result = new HierarchyDef(typeDef);
       return result;
     }
 
     public static HierarchyDef DefineHierarchy(TypeDef typeDef, HierarchyRootAttribute attribute)
     {
-      Validator.EnsureHierarchyRootIsValid(typeDef);
+      Validator.ValidateHierarchyRoot(typeDef);
 
       var hierarchyDef = new HierarchyDef(typeDef);
       AttributeProcessor.Process(hierarchyDef, attribute);

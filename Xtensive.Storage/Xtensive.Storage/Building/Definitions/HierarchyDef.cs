@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Building.Definitions
@@ -64,7 +63,7 @@ namespace Xtensive.Storage.Building.Definitions
       set
       {
         if (value != null)
-          Validator.EnsureKeyGeneratorTypeIsValid(value);
+          Validator.ValidateKeyGeneratorType(value);
 
         keyGenerator = value;
 

@@ -9,9 +9,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Building.Definitions;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Builders

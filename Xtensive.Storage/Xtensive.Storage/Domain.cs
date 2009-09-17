@@ -272,7 +272,7 @@ namespace Xtensive.Storage
             DisposingState = DisposingState.Disposing;
             try {
               if (IsDebugEventLoggingEnabled)
-                LogTemplate<Log>.Debug("Domain disposing {0}.", isDisposing ? "explicitly" : "by calling finalizer.");
+                Log.Debug("Domain disposing {0}.", isDisposing ? "explicitly" : "by calling finalizer.");
               OnDisposing();
               KeyGenerators.DisposeSafely();
             }

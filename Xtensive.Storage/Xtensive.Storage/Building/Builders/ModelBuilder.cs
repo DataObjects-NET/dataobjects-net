@@ -7,68 +7,64 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Notifications;
-using Xtensive.Core.Sorting;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.Notifications;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Sorting;
+using Xtensive.Core.Threading;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
-using Activator=System.Activator;
-using Xtensive.Core.Threading;
 
 namespace Xtensive.Storage.Building.Builders
 {
   internal static class ModelBuilder
   {
     private const string GeneratedTypeNameFormat = "{0}.EntitySetItems.{1}";
+
     private static ThreadSafeDictionary<string, Type> generatedTypes
       = ThreadSafeDictionary<string, Type>.Create(new object());
 
-    public static void Build()
+    public static void Run()
     {
       BuildingContext context = BuildingContext.Current;
-      
-      // Initial model
+
+      // Model definition building
       context.ModelDef = new DomainModelDef();
       ModelDefBuilder.Run();
 
-      // Custom model updates
+      // Custom model definition actions
       BuildCustomDefinitions();
 
-      // Inspecting model
+      CleanModelDef();
+
+      // Inspecting model definition
       ModelInspector.Run();
 
       // Applying fixup actions
       if (context.ModelInspectionResult.HasActions) {
-
         // Add handlers for hierarchies and types that could be created as a result of FixupProcessor work
+        // This is done to inspect them right after construction with the help of ModelInspector
         context.ModelDef.Hierarchies.Inserted += OnHierarchyAdded;
         context.ModelDef.Types.Inserted += OnTypeAdded;
 
-        // Applying fixup actions to the model.
+        // Applying fixup actions to the model definition.
         FixupActionProcessor.Run();
       }
 
       BuildModel();
     }
 
-    private static void OnHierarchyAdded(object sender, CollectionChangeNotifierEventArgs<HierarchyDef> e)
+    private static void CleanModelDef()
     {
-      ModelInspector.Inspect(e.Item);
-      FixupActionProcessor.Run();
-    }
+      var modelDef = BuildingContext.Current.ModelDef;
 
-    private static void OnTypeAdded(object sender, CollectionChangeNotifierEventArgs<TypeDef> e)
-    {
-      ModelInspector.Inspect(e.Item);
-      FixupActionProcessor.Run();
+      var ientityDef = modelDef.Types[typeof (IEntity)];
+      if (ientityDef != null)
+        modelDef.Types.Remove(ientityDef);
     }
 
     private static void BuildCustomDefinitions()
@@ -85,61 +81,46 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
         var context = BuildingContext.Current;
 
-        List<Node<TypeDef, object>> loops;
-        List<TypeDef> sequence = TopologicalSorter.Sort(context.ModelDef.Types, TypeConnector, out loops);
-        if (sequence==null)
-          throw new DomainBuilderException(string.Format(Strings.ExAtLeastOneLoopHaveBeenFoundInPersistentTypeDependenciesGraphSuspiciousTypesX, loops.Select(node => node.Item.Name).ToCommaDelimitedString()));
         context.Model = new DomainModel();
-        BuildTypes(sequence);
-        BuildFields(sequence);
+        var typeSequence = GetTypeBuildSequence(context);
+        BuildTypes(typeSequence);
         BuildAssociations();
-        BuildColumns();
-        IndexBuilder.BuildIndexes();
+        BuildIndexes();
         BuildHierarchyColumns();
         context.Model.UpdateState(true);
       }
     }
 
-    private static void BuildTypes(List<TypeDef> types)
+    private static void BuildTypes(IEnumerable<Node<TypeDef>> nodes)
     {
+      var context = BuildingContext.Current;
+
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
-        foreach (var typeDef in types)
+        // Building types, system fields and hierarchies
+        foreach (var node in nodes) {
+          var typeDef = node.Value;
           TypeBuilder.BuildType(typeDef);
+        }
+        // Processing interfaces that has implementors from one hierarchy only
+        foreach (var @interfaceDef in context.ModelInspectionResult.SingleHierarchyInterfaces) {
+          var interfaceInfo = context.Model.Types[interfaceDef.UnderlyingType];
+          var implementor = interfaceInfo.GetImplementors().First();
+          interfaceInfo.Hierarchy = implementor.Hierarchy;
+        }
       }
-    }
-
-    private static void BuildFields(List<TypeDef> types)
-    {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
-        foreach (var typeDef in types)
-          TypeBuilder.BuildFields(typeDef);
-      }
-    }
-
-    private static bool TypeConnector(TypeDef first, TypeDef second)
-    {
-      foreach (var info in second.OutgoingEdges)
-        if (info.Weight == EdgeWeight.High && info.Head==first)
-          return true;
-      return false;
+      using (Log.InfoRegion(Strings.LogBuildingX, "Fields"))
+        foreach (var node in nodes) {
+          var typeDef = node.Value;
+          var typeInfo = context.Model.Types[typeDef.UnderlyingType];
+          TypeBuilder.BuildFields(typeDef, typeInfo);
+        }
     }
 
     private static void BuildHierarchyColumns()
     {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.HierarchyColumns)) {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.HierarchyColumns))
         foreach (var hierarchyInfo in BuildingContext.Current.Model.Hierarchies)
-          HierarchyBuilder.BuildHierarchyColumns(hierarchyInfo);
-      }
-    }
-
-    private static void BuildColumns()
-    {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.Columns)) {
-        foreach (var type in BuildingContext.Current.Model.Types) {
-          type.Columns.Clear();
-          type.Columns.AddRange(type.Fields.Where(f => f.Column!=null).Select(f => f.Column));
-        }
-      }
+          BuildHierarchyColumns(hierarchyInfo);
     }
 
     private static void BuildAssociations()
@@ -165,11 +146,16 @@ namespace Xtensive.Storage.Building.Builders
             association.OnTargetRemove = OnRemoveAction.Deny;
         }
 
-        BuildEntitySetTypes(context.Model.Associations);
+        BuildAuxiliaryTypes(context.Model.Associations);
       }
     }
 
-    private static void BuildEntitySetTypes(IEnumerable<AssociationInfo> associations)
+    private static void BuildIndexes()
+    {
+      IndexBuilder.BuildIndexes();
+    }
+
+    private static void BuildAuxiliaryTypes(IEnumerable<AssociationInfo> associations)
     {
       var context = BuildingContext.Current;
       foreach (var association in associations) {
@@ -177,7 +163,7 @@ namespace Xtensive.Storage.Building.Builders
           continue;
 
         var multiplicity = association.Multiplicity;
-        if (!(multiplicity == Multiplicity.ZeroToMany || multiplicity == Multiplicity.ManyToMany))
+        if (!(multiplicity==Multiplicity.ZeroToMany || multiplicity==Multiplicity.ManyToMany))
           continue;
 
         var masterType = association.TargetType;
@@ -186,7 +172,7 @@ namespace Xtensive.Storage.Building.Builders
         var genericDefinitionType = typeof (EntitySetItem<,>);
         var genericInstanceType = genericDefinitionType.MakeGenericType(masterType.UnderlyingType, slaveType.UnderlyingType);
 
-        var underlyingTypeName = string.Format(GeneratedTypeNameFormat,
+        var underlyingTypeName = String.Format(GeneratedTypeNameFormat,
           masterType.UnderlyingType.Namespace,
           context.NameBuilder.BuildAssociationName(association));
         var underlyingType = generatedTypes.GetValue(underlyingTypeName,
@@ -215,7 +201,7 @@ namespace Xtensive.Storage.Building.Builders
           try {
             masterFieldDef.MappingName = context.NameBuilder.ApplyNamingRules(masterType.Name);
           }
-          catch(DomainBuilderException) {
+          catch (DomainBuilderException) {
           }
 
           try {
@@ -227,12 +213,60 @@ namespace Xtensive.Storage.Building.Builders
         context.ModelDef.Hierarchies.Add(hierarchy);
         context.ModelDef.Types.Add(underlyingTypeDef);
 
-        TypeBuilder.BuildType(underlyingTypeDef);
+        var typeInfo = TypeBuilder.BuildType(underlyingTypeDef);
+        TypeBuilder.BuildFields(underlyingTypeDef, typeInfo);
         var auxiliaryType = context.Model.Types[underlyingType];
         association.AuxiliaryType = auxiliaryType;
         if (association.IsPaired)
           association.Reversed.AuxiliaryType = auxiliaryType;
       }
+    }
+
+    #region Event handlers
+
+    private static void OnHierarchyAdded(object sender, CollectionChangeNotifierEventArgs<HierarchyDef> e)
+    {
+      ModelInspector.Inspect(e.Item);
+      FixupActionProcessor.Run();
+    }
+
+    private static void OnTypeAdded(object sender, CollectionChangeNotifierEventArgs<TypeDef> e)
+    {
+      ModelInspector.Inspect(e.Item);
+      FixupActionProcessor.Run();
+    }
+
+    #endregion
+
+    #region Topological sort helpers
+
+    private static List<Node<TypeDef>> GetTypeBuildSequence(BuildingContext context)
+    {
+      List<Node<Node<TypeDef>, object>> loops;
+      List<Node<TypeDef>> result = TopologicalSorter.Sort(context.DependencyGraph.Nodes, TypeConnector, out loops);
+      if (result==null)
+        throw new DomainBuilderException(String.Format(Strings.ExAtLeastOneLoopHaveBeenFoundInPersistentTypeDependenciesGraphSuspiciousTypesX, loops.Select(node => node.Item.Value.Name).ToCommaDelimitedString()));
+      return result;
+    }
+
+    private static bool TypeConnector(Node<TypeDef> first, Node<TypeDef> second)
+    {
+      foreach (var info in second.OutgoingEdges)
+        if (info.Weight==EdgeWeight.High && info.Head==first)
+          return true;
+      return false;
+    }
+
+    #endregion
+
+    public static void BuildHierarchyColumns(HierarchyInfo hierarchy)
+    {
+      var columnsCollection = hierarchy.Root.Indexes.PrimaryIndex.KeyColumns;
+
+      for (int i = 0; i < columnsCollection.Count; i++)
+        hierarchy.KeyInfo.Columns.Add(columnsCollection[i].Key);
+
+      hierarchy.KeyInfo.UpdateState();
     }
   }
 }

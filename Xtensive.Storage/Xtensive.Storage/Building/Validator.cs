@@ -29,10 +29,10 @@ namespace Xtensive.Storage.Building
     /// <returns>
     /// <see langword="true"/> if the specified name is valid; otherwise, <see langword="false"/>.
     /// </returns>
-    public static void EnsureNameIsValid(string name, ValidationRule rule)
+    public static void ValidateName(string name, ValidationRule rule)
     {
       if (String.IsNullOrEmpty(name))
-        throw new DomainBuilderException(string.Format(Strings.ExXNameCantBeEmpty, rule));
+        throw new DomainBuilderException(String.Format(Strings.ExXNameCantBeEmpty, rule));
 
       Regex namingRule;
       switch (rule) {
@@ -50,10 +50,10 @@ namespace Xtensive.Storage.Building
           throw new ArgumentOutOfRangeException();
       }
       if (!namingRule.IsMatch(name))
-        throw new DomainBuilderException(string.Format(Strings.ExXIsNotValidNameForX, name, rule));
+        throw new DomainBuilderException(String.Format(Strings.ExXIsNotValidNameForX, name, rule));
     }
 
-    public static void EnsureHierarchyRootIsValid(TypeDef typeDef)
+    public static void ValidateHierarchyRoot(TypeDef typeDef)
     {
       BuildingContext context = BuildingContext.Current;
 
@@ -71,10 +71,10 @@ namespace Xtensive.Storage.Building
             String.Format(Strings.ExXDescendantIsAlreadyARootOfAnotherHierarchy, hierarchy.Root.UnderlyingType));
     }
 
-    public static void EnsureHierarchyIsValid(HierarchyDef hierarchyDef)
+    public static void ValidateHierarchy(HierarchyDef hierarchyDef)
     {
       if (hierarchyDef.KeyFields.Count==0)
-        throw new DomainBuilderException(string.Format(Strings.ExHierarchyXDoesntContainAnyKeyFields, hierarchyDef.Root.Name));
+        throw new DomainBuilderException(String.Format(Strings.ExHierarchyXDoesntContainAnyKeyFields, hierarchyDef.Root.Name));
 
       var root = hierarchyDef.Root;
 
@@ -90,13 +90,13 @@ namespace Xtensive.Storage.Building
       foreach (var keyField in hierarchyDef.KeyFields) {
 
         if (keyField == null)
-          throw new DomainBuilderException(string.Format(Strings.ExKeyStructureForXContainsNULLValue, root.Name));
+          throw new DomainBuilderException(String.Format(Strings.ExKeyStructureForXContainsNULLValue, root.Name));
 
         FieldDef fieldDef = root.Fields[keyField.Name];
         if (fieldDef==null)
-          throw new DomainBuilderException(string.Format(Strings.ExKeyFieldXXIsNotFound, root.Name, keyField.Name));
+          throw new DomainBuilderException(String.Format(Strings.ExKeyFieldXXIsNotFound, root.Name, keyField.Name));
 
-        EnsureFieldTypeIsValid(root, fieldDef.ValueType, true);
+        ValidateFieldType(root, fieldDef.ValueType, true);
 
         // If property has a setter, it must be private
         if (fieldDef.UnderlyingProperty==null)
@@ -104,16 +104,21 @@ namespace Xtensive.Storage.Building
         var setter = fieldDef.UnderlyingProperty.GetSetMethod(true);
         if (setter!=null && (setter.Attributes & MethodAttributes.Private)==0)
           throw new DomainBuilderException(
-            string.Format(Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, keyField.Name, hierarchyDef.Root.Name));
+            String.Format(Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, keyField.Name, hierarchyDef.Root.Name));
+
+        if (fieldDef.IsLazyLoad)
+          throw new DomainBuilderException(String.Format(Strings.ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, fieldDef.Name));
       }
     }
 
-    private static void EnsureFieldTypeIsValid(TypeDef declaringType, Type fieldType, bool isKeyField)
+    internal static void ValidateFieldType(TypeDef declaringType, Type fieldType, bool isKeyField)
     {
       if (fieldType.IsGenericType) {
         Type genericType = fieldType.GetGenericTypeDefinition();
-        if (genericType==typeof (Nullable<>))
-          EnsureFieldTypeIsValid(declaringType, Nullable.GetUnderlyingType(fieldType), isKeyField);
+        if (genericType==typeof (Nullable<>)) {
+          ValidateFieldType(declaringType, Nullable.GetUnderlyingType(fieldType), isKeyField);
+          return;
+        }
       }
 
       if (fieldType.IsPrimitive || fieldType.IsEnum || ValidFieldTypes.Contains(fieldType))
@@ -127,18 +132,19 @@ namespace Xtensive.Storage.Building
 
       if (fieldType.IsSubclassOf(typeof (Structure))) {
         if (isKeyField)
-          throw new DomainBuilderException(string.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
+          throw new DomainBuilderException(String.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
         return;
       }
 
       if (fieldType.IsOfGenericType(typeof (EntitySet<>))) {
         if (declaringType.IsStructure)
           throw new DomainBuilderException(
-            string.Format(Strings.ExStructuresDoNotSupportFieldsOfTypeX, fieldType.Name));
+            String.Format(Strings.ExStructuresDoNotSupportFieldsOfTypeX, fieldType.Name));
         if (isKeyField)
-          throw new DomainBuilderException(string.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
+          throw new DomainBuilderException(String.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
+        return;
       }
-      throw new DomainBuilderException(string.Format(Strings.ExUnsupportedType, fieldType.GetShortName()));
+      throw new DomainBuilderException(String.Format(Strings.ExUnsupportedType, fieldType.GetShortName()));
     }
 
     public static void EnsureUnderlyingTypeIsAspected(TypeDef type)
@@ -148,14 +154,14 @@ namespace Xtensive.Storage.Building
       if (constructor!=null)
         return;
       var assemblyName = type.UnderlyingType.Assembly.GetName().Name;
-      throw new DomainBuilderException(string.Format(
+      throw new DomainBuilderException(String.Format(
         Strings.ExPersistentAttributeIsNotSetOnTypeX, assemblyName));
     }
 
-    public static void EnsureKeyGeneratorTypeIsValid(Type type)
+    public static void ValidateKeyGeneratorType(Type type)
     {
       if (!typeof(KeyGenerator).IsAssignableFrom(type))
-        throw new InvalidOperationException(string.Format(Strings.ExXMustBeInheritedFromX, type.GetShortName(), typeof(KeyGenerator).GetShortName()));
+        throw new InvalidOperationException(String.Format(Strings.ExXMustBeInheritedFromX, type.GetShortName(), typeof(KeyGenerator).GetShortName()));
     }
 
     public static void EnsureTypeIsPersistent(Type type)
@@ -166,7 +172,20 @@ namespace Xtensive.Storage.Building
       if (type.IsInterface && typeof (IEntity).IsAssignableFrom(type))
         return;
 
-      throw new DomainBuilderException(string.Format(Strings.ExUnsupportedType, type));
+      throw new DomainBuilderException(String.Format(Strings.ExUnsupportedType, type));
+    }
+
+    public static void ValidateStructureField(TypeDef typeDef, FieldDef fieldDef)
+    {
+      if (fieldDef.ValueType==typeDef.UnderlyingType)
+        throw new DomainBuilderException(String.Format(Strings.ExStructureXCantContainFieldOfTheSameType, typeDef.Name));
+    }
+
+    public static void ValidateEntitySetField(TypeDef typeDef, FieldDef fieldDef)
+    {
+      // Restriction for EntitySet properties only
+      if (fieldDef.OnTargetRemove == OnRemoveAction.Cascade)
+        throw new DomainBuilderException(String.Format(Strings.ExValueIsNotAcceptableForOnTargetRemoveProperty, typeDef.Name, fieldDef.Name, fieldDef.OnTargetRemove));
     }
 
     /// <exception cref="DomainBuilderException">Field cannot be nullable.</exception>
@@ -191,6 +210,25 @@ namespace Xtensive.Storage.Building
       ValidFieldTypes.Add(typeof (TimeSpan));
       ValidFieldTypes.Add(typeof (decimal));
       ValidFieldTypes.Add(typeof (Key));
+    }
+
+    public static void ValidateHierarchyEquality(TypeDef @interface, HierarchyDef first, HierarchyDef second)
+    {
+      // TypeId mode must match
+      if (first.IncludeTypeId != second.IncludeTypeId)
+        throw new DomainBuilderException(String.Format("Implementors of {0} interface belong to hierarchies one of which includes TypeId, but another doesn't: {1} & {2}.", @interface.Name, first.Root.Name, second.Root.Name));
+
+      // Number of key fields must match
+      if (first.KeyFields.Count != second.KeyFields.Count)
+        throw new DomainBuilderException(String.Format("Implementors of {0} interface belong to hierarchies with different key structure: {1} & {2}.", @interface.Name, first.Root.Name, second.Root.Name));
+
+      // Type of each key field must match
+      for (int i = 0; i < first.KeyFields.Count; i++) {
+        var masterField = first.Root.Fields[first.KeyFields[i].Name];
+        var candidateField = second.Root.Fields[second.KeyFields[i].Name];
+        if (masterField.ValueType != candidateField.ValueType)
+          throw new DomainBuilderException(String.Format("Implementors of {0} interface belong to hierarchies with different key structure: {1} & {2}.", @interface.Name, first.Root.Name, second.Root.Name));
+      }
     }
   }
 }

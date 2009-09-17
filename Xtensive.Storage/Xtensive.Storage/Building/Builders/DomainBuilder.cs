@@ -152,7 +152,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void BuildModel()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
-        ModelBuilder.Build();
+        ModelBuilder.Run();
         var domain = BuildingContext.Current.Domain;
         domain.Model = BuildingContext.Current.Model;
       }

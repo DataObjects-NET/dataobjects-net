@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
   }
 
   public class MyEntitySet<T> : EntitySet<T>
-    where T : Entity
+    where T : IEntity
   {
 
     protected override void OnAdding(Entity item)

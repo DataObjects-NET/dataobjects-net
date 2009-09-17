@@ -384,11 +384,7 @@ namespace Xtensive.Storage.Model
         indexes.UpdateState(true);
         columns.UpdateState(true);
       }
-      if (IsInterface) {
-        if (recursive)
-          fields.UpdateState(true);
-        return;
-      }
+
       CreateTupleDescriptor();
 
       columns.UpdateState(true);
