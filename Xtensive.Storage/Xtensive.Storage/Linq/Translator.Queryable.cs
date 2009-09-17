@@ -970,13 +970,15 @@ namespace Xtensive.Storage.Linq
       }
       else {
         ISet<Type> processedTypes = new SetSlim<Type>();
-
-        TupleDescriptor tupleDescriptor = null;
-        Func<TItem, int, Tuple> converter = null;
-        LocalCollectionExpression item = BuildLocalCollectionExpression(typeof(TItem), processedTypes, 0);
-
+        var tupleSetters = new List<Expression>();
+        var itemParameterExpression = Expression.Parameter(itemType, "item");
+        var numberParameterExpression = Expression.Parameter(itemType, "number");
+        LocalCollectionExpression item = BuildLocalCollectionExpression(itemType, processedTypes, 1, tupleSetters, itemParameterExpression);
         
-
+        var tupleDescriptor = TupleDescriptor.Create(EnumerableUtils.One(typeof(int)).Concat(tupleSetters.Select(ex=>ex.Type)));
+        var tupleCreateExpression = Expression.Call(null, WellKnownMembers.TupleCreate, EnumerableUtils.One<Expression>(numberParameterExpression).Concat(tupleSetters).ToArray());
+        var lambda = FastExpression.Lambda(tupleCreateExpression, itemParameterExpression, numberParameterExpression);
+        var converter = (Func<TItem, int, Tuple>) lambda.Compile();
 
         var rsHeader = new RecordSetHeader(tupleDescriptor, tupleDescriptor.Select(x => new SystemColumn(context.GetNextColumnAlias(), 0, x)).Cast<Column>());
         var rawProvider = new RawProvider(rsHeader, source.Select(converter));
@@ -986,21 +988,26 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, int columnIndex)
+    private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, int columnIndex, List<Expression> tupleSetters, Expression parentExpression)
     {
       var properties = type
         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
         .Where(propertyInfo=>propertyInfo.CanRead);
+
       if (!processedTypes.Add(type))
          throw new InvalidOperationException(String.Format("Unable to persist type '{0}' to storage because of loop reference.", type.FullName));
       var fields = new List<IMappedExpression>();
       foreach (PropertyInfo property in properties) {
+        var equalityExpression = Expression.MakeBinary(ExpressionType.Equal, parentExpression, Expression.Constant(null, parentExpression.Type));
+        var itemExpression = Expression.Condition(equalityExpression, Expression.Constant(null, property.PropertyType), Expression.MakeMemberAccess(parentExpression, property));
         if (TypeIsStorageMappable(property.PropertyType)) {
-          var column = new LocalCollectionColumnExpression(property.PropertyType, new Segment<int>(columnIndex++, 1), null, property, false);
+          var column = new LocalCollectionColumnExpression(property.PropertyType, new Segment<int>(columnIndex, 1), null, property, false);
           fields.Add(column);
+          tupleSetters.Add(itemExpression);
+          columnIndex++;
         }
         else {
-          var collectionExpression = BuildLocalCollectionExpression(property.PropertyType, new Set<Type>(processedTypes), columnIndex);
+          var collectionExpression = BuildLocalCollectionExpression(property.PropertyType, new Set<Type>(processedTypes), columnIndex, tupleSetters, itemExpression);
           fields.Add(collectionExpression);
           columnIndex += collectionExpression.Fields.Count();
         }
