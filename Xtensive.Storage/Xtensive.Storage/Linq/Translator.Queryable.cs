@@ -970,51 +970,56 @@ namespace Xtensive.Storage.Linq
       }
       else {
         ISet<Type> processedTypes = new SetSlim<Type>();
-        var tupleSetters = new List<Expression>();
         var itemParameterExpression = Expression.Parameter(itemType, "item");
         var numberParameterExpression = Expression.Parameter(itemType, "number");
-        LocalCollectionExpression item = BuildLocalCollectionExpression(itemType, processedTypes, 1, tupleSetters, itemParameterExpression);
-        
-        var tupleDescriptor = TupleDescriptor.Create(EnumerableUtils.One(typeof(int)).Concat(tupleSetters.Select(ex=>ex.Type)));
-        var tupleCreateExpression = Expression.Call(null, WellKnownMembers.TupleCreate, EnumerableUtils.One<Expression>(numberParameterExpression).Concat(tupleSetters).ToArray());
-        var lambda = FastExpression.Lambda(tupleCreateExpression, itemParameterExpression, numberParameterExpression);
-        var converter = (Func<TItem, int, Tuple>) lambda.Compile();
+        LocalCollectionExpression itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, 1, null);
+
+        var tupleDescriptor = TupleDescriptor.Create(EnumerableUtils.One(typeof (int)).Concat(itemExpression.Columns.Select(columnExpression => columnExpression.Type)));
+
+        Func<TItem, int, Tuple> converter = delegate(TItem item, int number) {
+          var tuple = Tuple.Create(tupleDescriptor);
+          if (ReferenceEquals(item, null))
+            return tuple;
+          FillLocalCollectionField(item, tuple, itemExpression);
+          return tuple;
+        };
+
+//        var tupleCreateExpression = Expression.Call(null, WellKnownMembers.TupleCreate, EnumerableUtils.One<Expression>(numberParameterExpression).Concat(tupleSetters).ToArray());
+//        var lambda = FastExpression.Lambda(tupleCreateExpression, itemParameterExpression, numberParameterExpression);
+//        var converter = (Func<TItem, int, Tuple>) lambda.Compile();
 
         var rsHeader = new RecordSetHeader(tupleDescriptor, tupleDescriptor.Select(x => new SystemColumn(context.GetNextColumnAlias(), 0, x)).Cast<Column>());
         var rawProvider = new RawProvider(rsHeader, source.Select(converter));
         var recordset = new StoreProvider(rawProvider).Result;
-        var itemProjector = new ItemProjectorExpression(item, recordset, context);
+        var itemProjector = new ItemProjectorExpression(itemExpression, recordset, context);
         return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }
     }
 
-    private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, int columnIndex, List<Expression> tupleSetters, Expression parentExpression)
+    private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, int columnIndex, PropertyInfo parentProperty)
     {
       var properties = type
         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-        .Where(propertyInfo=>propertyInfo.CanRead);
+        .Where(propertyInfo => propertyInfo.CanRead);
 
       if (!processedTypes.Add(type))
-         throw new InvalidOperationException(String.Format("Unable to persist type '{0}' to storage because of loop reference.", type.FullName));
+        throw new InvalidOperationException(String.Format("Unable to persist type '{0}' to storage because of loop reference.", type.FullName));
       var fields = new List<IMappedExpression>();
       foreach (PropertyInfo property in properties) {
-        var equalityExpression = Expression.MakeBinary(ExpressionType.Equal, parentExpression, Expression.Constant(null, parentExpression.Type));
-        var itemExpression = Expression.Condition(equalityExpression, Expression.Constant(null, property.PropertyType), Expression.MakeMemberAccess(parentExpression, property));
         if (TypeIsStorageMappable(property.PropertyType)) {
           var column = new LocalCollectionColumnExpression(property.PropertyType, new Segment<int>(columnIndex, 1), null, property, false);
           fields.Add(column);
-          tupleSetters.Add(itemExpression);
           columnIndex++;
         }
         else {
-          var collectionExpression = BuildLocalCollectionExpression(property.PropertyType, new Set<Type>(processedTypes), columnIndex, tupleSetters, itemExpression);
+          var collectionExpression = BuildLocalCollectionExpression(property.PropertyType, new Set<Type>(processedTypes), columnIndex, property);
           fields.Add(collectionExpression);
           columnIndex += collectionExpression.Fields.Count();
         }
       }
       if (fields.Count==0)
         throw new InvalidOperationException(String.Format("Type '{0}' does not public readable properties and cant be persisted to storage.", type.FullName));
-      var result = new LocalCollectionExpression(type, null, null, false);
+      var result = new LocalCollectionExpression(type, null, null, parentProperty, false);
       result.Fields = fields;
       return result;
     }

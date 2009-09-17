@@ -23,6 +23,7 @@ namespace Xtensive.Storage.Linq.Expressions
     Grouping,
     SubQuery,
     Marker,
-    LocalCollectionItem
+    LocalCollection,
+    LocalCollectionColumn
   }
 }

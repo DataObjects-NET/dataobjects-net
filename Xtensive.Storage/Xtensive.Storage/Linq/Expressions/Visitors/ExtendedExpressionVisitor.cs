@@ -40,17 +40,31 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         return VisitMarker((MarkerExpression) expression);
       case ExtendedExpressionType.SubQuery:
         return VisitSubQueryExpression((SubQueryExpression) expression);
-        case ExtendedExpressionType.Grouping:
+      case ExtendedExpressionType.Grouping:
         return VisitGroupingExpression((GroupingExpression) expression);
+      case ExtendedExpressionType.LocalCollection:
+        return VisitLocalCollectionExpression((LocalCollectionExpression) expression);
+      case ExtendedExpressionType.LocalCollectionColumn:
+        return VisitLocalCollectionColumnExpression((LocalCollectionColumnExpression) expression);
       default:
         return base.VisitUnknown(expression);
       }
     }
 
+    private Expression VisitLocalCollectionColumnExpression(LocalCollectionColumnExpression expression)
+    {
+      return expression;
+    }
+
+    private Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
+    {
+      return expression;
+    }
+
     protected virtual Expression VisitMarker(MarkerExpression expression)
     {
       var processedTarget = Visit(expression.Target);
-      if (processedTarget == expression.Target)
+      if (processedTarget==expression.Target)
         return expression;
       return new MarkerExpression(processedTarget, expression.MarkerType);
     }

@@ -161,5 +161,23 @@ namespace Xtensive.Storage.Linq
             || type==typeof (DateTime)
               || type==typeof (TimeSpan);
     }
+
+    private void FillLocalCollectionField(object item, Tuple tuple, LocalCollectionExpression itemExpression)
+    {
+      foreach (var field in itemExpression.Fields) {
+        var column = field as LocalCollectionColumnExpression;
+        if (column!=null) {
+          var value = column.PropertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
+          tuple.SetValue(column.Mapping.Offset, value);
+        }
+        else {
+          var localCollection = (LocalCollectionExpression)field;
+          var value = localCollection.PropertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
+          if (value!=null) {
+            FillLocalCollectionField(value, tuple, localCollection);
+          }
+        }
+      }
+    }
   }
 }
